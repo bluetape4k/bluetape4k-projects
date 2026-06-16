@@ -64,8 +64,8 @@ function esc(value) {
 
 function markerDefs() {
   return Object.entries(palette).map(([name, [, , dark]]) => `
-  <marker id="arrow-${name}" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="${dark}"/></marker>
-  <marker id="triangle-${name}" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="${dark}" stroke-width="2"/></marker>`).join("\n");
+  <marker id="arrow-${name}" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="${dark}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="triangle-${name}" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="${dark}" stroke-width="2" stroke-dasharray="none"/></marker>`).join("\n");
 }
 
 function classBox({ id, x, y, w, h, color, stereotype, title, attrs = [], methods = [] }) {
@@ -102,8 +102,8 @@ function edge({ from, to, points, color, marker = "arrow", dashed = false, label
 </g>`;
 }
 
-const width = 2600;
-const height = 1780;
+const width = 2350;
+const height = 1750;
 const body = [
   noteBox({
     id: "ExternalApis",
@@ -214,13 +214,13 @@ const body = [
   edge({ from: "ReactiveSessionExtensions", to: "ExternalApis", points: [[375, 500], [375, 420], [900, 420], [900, 390]], color: "teal", dashed: true, label: "wraps", labelAt: [565, 407] }),
   edge({ from: "ReactiveOpsExtensions", to: "ExternalApis", points: [[1120, 480], [1120, 390]], color: "green", dashed: true, label: "wraps", labelAt: [1138, 445] }),
   edge({ from: "AsyncOpsExtensions", to: "ExternalApis", points: [[1875, 500], [1875, 420], [1700, 420], [1700, 390]], color: "blue", dashed: true, label: "wraps", labelAt: [1795, 407] }),
-  edge({ from: "BatchSelectExtensions", to: "ReactiveOpsExtensions", points: [[660, 1050], [710, 1050], [710, 660], [760, 660]], color: "purple", dashed: true, label: "same coroutine bridge family", labelAt: [718, 870] }),
-  edge({ from: "SchemaGenerator", to: "ExternalApis", points: [[1875, 930], [1875, 840], [1510, 840], [1510, 390]], color: "pink", dashed: true, label: "mapping metadata", labelAt: [1530, 655] }),
+  edge({ from: "BatchSelectExtensions", to: "ReactiveOpsExtensions", points: [[375, 930], [375, 870], [1120, 870], [1120, 825]], color: "purple", dashed: true, label: "same coroutine bridge family", labelAt: [620, 857] }),
+  edge({ from: "SchemaGenerator", to: "ExternalApis", points: [[1875, 930], [1875, 840], [2250, 840], [2250, 305], [1840, 305]], color: "pink", dashed: true, label: "mapping metadata", labelAt: [1930, 828] }),
   edge({ from: "Auditable", to: "Persistable", points: [[1530, 1518], [1330, 1518]], color: "slate", marker: "triangle", dashed: false, label: "extends", labelAt: [1390, 1505] }),
-  edge({ from: "OptionsDsl", to: "ReactiveOpsExtensions", points: [[1120, 945], [1120, 825]], color: "amber", dashed: true, label: "options for writes", labelAt: [1138, 900] }),
+  edge({ from: "OptionsDsl", to: "ReactiveOpsExtensions", points: [[1240, 945], [1240, 825]], color: "amber", dashed: true, label: "options for writes", labelAt: [1258, 900] }),
 ];
 
-const svg = `<svg data-intent="Explain Spring Boot Cassandra core class and extension structure for README diagram 01." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot Cassandra Core Class Structure Diagram">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot Cassandra Core Class Structure Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}

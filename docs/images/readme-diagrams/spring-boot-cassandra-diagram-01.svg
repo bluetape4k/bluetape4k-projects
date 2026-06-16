@@ -1,27 +1,27 @@
-<svg data-intent="Explain Spring Boot Cassandra core class and extension structure for README diagram 01." data-evidence="spring-boot/cassandra/README.md; spring-boot/cassandra/README.ko.md; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveSessionCoroutines.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraOperationsCoroutines.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/AsyncCassandraOperationsCoroutines.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraBatchOperationsCoroutines.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveSelectOperationSupport.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/cql/OptionsSupport.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/query/CriteriaSupport.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/model/AbstractCassandraPersistable.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/model/AbstractCassandraAuditable.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/schema/SchemaGenerator.kt" data-source-read="spring-boot/cassandra/README.md; spring-boot/cassandra/README.ko.md; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveSessionCoroutines.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraOperationsCoroutines.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/AsyncCassandraOperationsCoroutines.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraBatchOperationsCoroutines.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveSelectOperationSupport.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/cql/OptionsSupport.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/query/CriteriaSupport.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/model/AbstractCassandraPersistable.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/model/AbstractCassandraAuditable.kt; spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/schema/SchemaGenerator.kt" xmlns="http://www.w3.org/2000/svg" width="2600" height="1780" viewBox="0 0 2600 1780" role="img" aria-label="Spring Boot Cassandra Core Class Structure Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="2350" height="1750" viewBox="0 0 2350 1750" role="img" aria-label="Spring Boot Cassandra Core Class Structure Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 
-  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#0F766E"/></marker>
-  <marker id="triangle-teal" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#0F766E" stroke-width="2"/></marker>
+  <marker id="arrow-teal" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#0F766E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="triangle-teal" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#0F766E" stroke-width="2" stroke-dasharray="none"/></marker>
 
-  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#1D4ED8"/></marker>
-  <marker id="triangle-blue" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2"/></marker>
+  <marker id="arrow-blue" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#1D4ED8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="triangle-blue" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2" stroke-dasharray="none"/></marker>
 
-  <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#15803D"/></marker>
-  <marker id="triangle-green" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#15803D" stroke-width="2"/></marker>
+  <marker id="arrow-green" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="triangle-green" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#15803D" stroke-width="2" stroke-dasharray="none"/></marker>
 
-  <marker id="arrow-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#C2410C"/></marker>
-  <marker id="triangle-amber" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#C2410C" stroke-width="2"/></marker>
+  <marker id="arrow-amber" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#C2410C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="triangle-amber" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#C2410C" stroke-width="2" stroke-dasharray="none"/></marker>
 
-  <marker id="arrow-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#BE185D"/></marker>
-  <marker id="triangle-pink" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#BE185D" stroke-width="2"/></marker>
+  <marker id="arrow-pink" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#BE185D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="triangle-pink" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#BE185D" stroke-width="2" stroke-dasharray="none"/></marker>
 
-  <marker id="arrow-purple" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#6D28D9"/></marker>
-  <marker id="triangle-purple" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2"/></marker>
+  <marker id="arrow-purple" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#6D28D9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="triangle-purple" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2" stroke-dasharray="none"/></marker>
 
-  <marker id="arrow-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#475569"/></marker>
-  <marker id="triangle-slate" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#475569" stroke-width="2"/></marker>
+  <marker id="arrow-slate" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="triangle-slate" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#475569" stroke-width="2" stroke-dasharray="none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
@@ -31,8 +31,8 @@
     .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
   </style>
 </defs>
-<rect class="canvas" width="2600" height="1780"/>
-<rect class="frame" x="34" y="30" width="2532" height="1720" rx="8"/>
+<rect class="canvas" width="2350" height="1750"/>
+<rect class="frame" x="34" y="30" width="2282" height="1690" rx="8"/>
 <text class="title" x="72" y="86">Spring Boot Cassandra Core Structure</text>
 <text class="subtitle" x="76" y="120">Coroutine extension sets, CQL/query DSL helpers, Cassandra entity base classes, and schema utilities in the Spring Boot 4 Cassandra module.</text>
 <g id="ExternalApis">
@@ -156,19 +156,19 @@
   <text class="edgeLabel" x="1803" y="399">wraps</text>
 </g>
 <g data-from="BatchSelectExtensions" data-to="ReactiveOpsExtensions">
-  <path class="edge dashed" d="M660 1050 L710 1050 L710 660 L760 660" stroke="#6D28D9" marker-end="url(#arrow-purple)"/>
-  <text class="edgeLabel" x="726" y="862">same coroutine bridge family</text>
+  <path class="edge dashed" d="M375 930 L375 870 L1120 870 L1120 825" stroke="#6D28D9" marker-end="url(#arrow-purple)"/>
+  <text class="edgeLabel" x="628" y="849">same coroutine bridge family</text>
 </g>
 <g data-from="SchemaGenerator" data-to="ExternalApis">
-  <path class="edge dashed" d="M1875 930 L1875 840 L1510 840 L1510 390" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-  <text class="edgeLabel" x="1538" y="647">mapping metadata</text>
+  <path class="edge dashed" d="M1875 930 L1875 840 L2250 840 L2250 305 L1840 305" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <text class="edgeLabel" x="1938" y="820">mapping metadata</text>
 </g>
 <g data-from="Auditable" data-to="Persistable">
   <path class="edge " d="M1530 1518 L1330 1518" stroke="#475569" marker-end="url(#triangle-slate)"/>
   <text class="edgeLabel" x="1398" y="1497">extends</text>
 </g>
 <g data-from="OptionsDsl" data-to="ReactiveOpsExtensions">
-  <path class="edge dashed" d="M1120 945 L1120 825" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-  <text class="edgeLabel" x="1146" y="892">options for writes</text>
+  <path class="edge dashed" d="M1240 945 L1240 825" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <text class="edgeLabel" x="1266" y="892">options for writes</text>
 </g>
 </svg>

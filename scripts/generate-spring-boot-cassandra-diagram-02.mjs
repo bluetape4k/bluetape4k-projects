@@ -86,7 +86,7 @@ function edge({ from, to, points, color, dashed = false, label = "", labelAt }) 
 }
 
 const width = 2500;
-const height = 1520;
+const height = 1370;
 const body = [
   lane({ x: 70, y: 190, w: 2360, h: 170, title: "Application layer" }),
   lane({ x: 70, y: 410, w: 2360, h: 270, title: "bluetape4k coroutine and DSL layer" }),
@@ -212,23 +212,23 @@ const body = [
     title: "Apache Cassandra",
     lines: ["CQL execution, table metadata, keyspace tables"],
   }),
-  edge({ from: "AppCode", to: "CoroutineBridge", points: [[420, 340], [420, 475]], color: "green", label: "suspend API", labelAt: [438, 420] }),
-  edge({ from: "AppCode", to: "BatchBridge", points: [[420, 340], [420, 370], [1165, 370], [1165, 475]], color: "purple", dashed: true, label: "Flow batches", labelAt: [760, 357] }),
-  edge({ from: "AppCode", to: "OptionsDsl", points: [[420, 340], [420, 390], [1905, 390], [1905, 475]], color: "amber", dashed: true, label: "options DSL", labelAt: [1280, 377] }),
+  edge({ from: "AppCode", to: "CoroutineBridge", points: [[350, 340], [350, 475]], color: "green", label: "suspend API", labelAt: [368, 420] }),
+  edge({ from: "AppCode", to: "BatchBridge", points: [[430, 340], [430, 370], [1165, 370], [1165, 475]], color: "purple", dashed: true, label: "Flow batches", labelAt: [760, 357] }),
+  edge({ from: "AppCode", to: "OptionsDsl", points: [[510, 340], [510, 360], [1905, 360], [1905, 475]], color: "amber", dashed: true, label: "options DSL", labelAt: [1280, 347] }),
   edge({ from: "Entities", to: "SchemaUse", points: [[1380, 290], [1580, 290]], color: "pink", dashed: true, label: "entity metadata", labelAt: [1430, 277] }),
   edge({ from: "CoroutineBridge", to: "SpringOps", points: [[455, 630], [455, 790]], color: "green", label: "await/asFlow", labelAt: [473, 720] }),
   edge({ from: "BatchBridge", to: "BatchOps", points: [[1165, 630], [1165, 790]], color: "purple", label: "collect Flow", labelAt: [1183, 720] }),
   edge({ from: "OptionsDsl", to: "CqlOps", points: [[1905, 630], [1905, 790]], color: "amber", label: "builds", labelAt: [1923, 720] }),
-  edge({ from: "SchemaUse", to: "CqlOps", points: [[1905, 340], [2320, 340], [2320, 860], [2230, 860]], color: "pink", dashed: true, label: "SchemaGenerator", labelAt: [2338, 610] }),
+  edge({ from: "SchemaUse", to: "CqlOps", points: [[2230, 290], [2350, 290], [2350, 860], [2230, 860]], color: "pink", dashed: true, label: "SchemaGenerator", labelAt: [2110, 730] }),
   edge({ from: "SpringOps", to: "ReactiveSession", points: [[455, 930], [455, 1090]], color: "blue", label: "session calls", labelAt: [473, 1015] }),
-  edge({ from: "SpringOps", to: "AsyncDriver", points: [[775, 860], [960, 1148]], color: "blue", dashed: true, label: "async variants", labelAt: [825, 985] }),
+  edge({ from: "SpringOps", to: "AsyncDriver", points: [[775, 860], [840, 860], [840, 1158], [960, 1158]], color: "blue", dashed: true, label: "async variants", labelAt: [858, 1018] }),
   edge({ from: "BatchOps", to: "SpringOps", points: [[905, 860], [775, 860]], color: "purple", dashed: true, label: "same template", labelAt: [805, 847] }),
   edge({ from: "CqlOps", to: "Cassandra", points: [[1905, 930], [1905, 1090]], color: "amber", label: "CQL", labelAt: [1923, 1015] }),
   edge({ from: "ReactiveSession", to: "Cassandra", points: [[460, 1225], [460, 1260], [1940, 1260], [1940, 1225]], color: "blue", label: "execute prepared/simple statements", labelAt: [1000, 1247] }),
   edge({ from: "AsyncDriver", to: "Cassandra", points: [[1480, 1158], [1700, 1158]], color: "blue", dashed: true, label: "AsyncResultSet", labelAt: [1530, 1145] }),
 ];
 
-const svg = `<svg data-intent="Explain Spring Boot Cassandra data access layer for README diagram 02." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot Cassandra Data Access Layer Diagram">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot Cassandra Data Access Layer Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}
