@@ -1,90 +1,119 @@
-<svg data-intent="Regenerate HTTP Client Primary Recommendations from the current README and source package surface for io/http." data-evidence="io/http/README.md; io/http; io/http/src/main/kotlin" data-source-read="io/http/README.md; io/http; io/http/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="HTTP Client Primary Recommendations">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">HTTP Client Primary Recommendations</text>
-<text class="subtitle" x="76" y="116">io/http: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Architecture</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Overall Architecture:</text>
-  <text class="detail" x="919" y="311" text-anchor="middle">Multi-Backend HTTP Client</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">HTTP Client Hierarchy (HC5)</text>
-</g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">http package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">http package (73)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">InMemoryHttpCacheStorage type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">InMemoryHttpCacheStorage type</text>
-</g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">JavaCacheHttpCacheStorage type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">JavaCacheHttpCacheStorage type</text>
-</g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">VirtualThreadHttpClients type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">VirtualThreadHttpClients type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Ktor runtime</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Ktor runtime</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Reactive bridge</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Reactive bridge</text>
-</g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Serialization</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Serialization</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
-<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1200" viewBox="0 0 1760 1200" role="img" aria-label="HTTP Client Primary Recommendations">
+  <defs>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow-teal" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 14 8 L 2 14 Z" fill="#0D9488" stroke="#0D9488" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 14 8 L 2 14 Z" fill="#EA580C" stroke="#EA580C" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 14 8 L 2 14 Z" fill="#2563EB" stroke="#2563EB" stroke-width="1.5"/>
+    </marker>
+    <style>
+      svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+      .canvas{fill:#F8FAFC}
+      .frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}
+      .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}
+      .subtitle{font-family:"Comic Mono";font-size:17px;fill:#475569}
+      .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}
+      .panelTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
+      .card{stroke-width:2;filter:url(#softShadow)}
+      .cardTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}
+      .cardTitleSmall{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}
+      .text{font-family:"Comic Mono";font-size:14px;fill:#475569}
+      .textSmall{font-family:"Comic Mono";font-size:13px;fill:#475569}
+      .badge{fill:#FFFFFF;stroke-width:1.4}
+      .badgeText{font-family:"Comic Mono";font-size:12px;fill:#0F172A}
+      .arrow{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1760" height="1200"/>
+  <rect class="frame" x="36" y="30" width="1688" height="1140" rx="8"/>
+  <text class="title" x="76" y="86">HTTP Client Primary Recommendations</text>
+  <text class="subtitle" x="80" y="120">HC5 is the default production recommendation; other clients remain first-class choices when their ecosystem or capability is the better fit.</text>
+
+  <g id="primary">
+    <rect class="card" x="110" y="166" width="1540" height="132" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+    <rect class="badge" x="146" y="196" width="160" height="30" rx="8" fill="#CCFBF1" stroke="#0D9488"/>
+    <text class="badgeText" x="226" y="212" text-anchor="middle" dominant-baseline="middle">default choice</text>
+    <text class="cardTitle" x="880" y="218" text-anchor="middle" dominant-baseline="middle">Apache HttpComponents 5 is primary for production backend calls</text>
+    <text class="text" x="880" y="256" text-anchor="middle" dominant-baseline="middle">deepest module investment: production factories, pool tuning, retry, keep-alive fallback, HTTP/2, TLS, cache, virtual-thread support, and coroutine bridge</text>
+  </g>
+
+  <g id="hc5-panel">
+    <rect class="panel" x="96" y="342" width="930" height="650" rx="8"/>
+    <text class="panelTitle" x="136" y="388" dominant-baseline="middle">Use HC5 first when...</text>
+
+    <g id="sync-scenario">
+      <rect class="card" x="136" y="440" width="330" height="104" rx="8" fill="#FFFFFF" stroke="#0D9488"/>
+      <text class="cardTitleSmall" x="301" y="474" text-anchor="middle" dominant-baseline="middle">Sync backend calls</text>
+      <text class="textSmall" x="301" y="510" text-anchor="middle">high throughput with blocking APIs</text>
+      <rect class="card" x="616" y="430" width="350" height="124" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+      <text class="cardTitleSmall" x="791" y="465" text-anchor="middle" dominant-baseline="middle">HC5 Classic + VT</text>
+      <text class="textSmall" x="791" y="501" text-anchor="middle">productionVirtualThreadHttpClientOf()</text>
+      <text class="textSmall" x="791" y="525" text-anchor="middle">production pool, retry, timeout defaults</text>
+      <path class="arrow" d="M 466 492 L 616 492" stroke="#0D9488" marker-end="url(#arrow-teal)"/>
+    </g>
+
+    <g id="async-scenario">
+      <rect class="card" x="136" y="620" width="330" height="104" rx="8" fill="#FFFFFF" stroke="#2563EB"/>
+      <text class="cardTitleSmall" x="301" y="654" text-anchor="middle" dominant-baseline="middle">Async backend calls</text>
+      <text class="textSmall" x="301" y="690" text-anchor="middle">coroutine-first service code</text>
+      <rect class="card" x="616" y="610" width="350" height="124" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+      <text class="cardTitleSmall" x="791" y="645" text-anchor="middle" dominant-baseline="middle">HC5 Async + Coroutines</text>
+      <text class="textSmall" x="791" y="681" text-anchor="middle">productionHttpAsyncClientOf()</text>
+      <text class="textSmall" x="791" y="705" text-anchor="middle">executeSuspending(...) bridge</text>
+      <path class="arrow" d="M 466 672 L 616 672" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
+    </g>
+
+    <g id="cache-scenario">
+      <rect class="card" x="136" y="800" width="330" height="104" rx="8" fill="#FFFFFF" stroke="#EA580C"/>
+      <text class="cardTitleSmall" x="301" y="834" text-anchor="middle" dominant-baseline="middle">Cacheable GETs</text>
+      <text class="textSmall" x="301" y="870" text-anchor="middle">maximum in-process cache throughput</text>
+      <rect class="card" x="616" y="790" width="350" height="124" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+      <text class="cardTitleSmall" x="791" y="825" text-anchor="middle" dominant-baseline="middle">HC5 in-memory cache</text>
+      <text class="textSmall" x="791" y="861" text-anchor="middle">memoryCachingHttpClientOf()</text>
+      <text class="textSmall" x="791" y="885" text-anchor="middle">RFC 7234 cache storage helpers</text>
+      <path class="arrow" d="M 466 852 L 616 852" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
+    </g>
+  </g>
+
+  <g id="alternatives-panel">
+    <rect class="panel" x="1070" y="342" width="590" height="650" rx="8"/>
+    <text class="panelTitle" x="1110" y="388" dominant-baseline="middle">Use another backend when...</text>
+
+    <g id="okhttp-alt">
+      <rect class="card" x="1110" y="440" width="510" height="94" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+      <text class="cardTitleSmall" x="1365" y="471" text-anchor="middle" dominant-baseline="middle">OkHttp3 + disk cache</text>
+      <text class="textSmall" x="1365" y="505" text-anchor="middle">cache persistence, Android-compatible code, existing OkHttp usage</text>
+    </g>
+
+    <g id="ktor-alt">
+      <rect class="card" x="1110" y="570" width="510" height="94" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+      <text class="cardTitleSmall" x="1365" y="601" text-anchor="middle" dominant-baseline="middle">Ktor CIO</text>
+      <text class="textSmall" x="1365" y="635" text-anchor="middle">Ktor application code and suspend-native plugin ecosystem</text>
+    </g>
+
+    <g id="vertx-alt">
+      <rect class="card" x="1110" y="700" width="510" height="94" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+      <text class="cardTitleSmall" x="1365" y="731" text-anchor="middle" dominant-baseline="middle">Vert.x HttpClient</text>
+      <text class="textSmall" x="1365" y="765" text-anchor="middle">Vert.x event-loop applications already own the Vertx context</text>
+    </g>
+
+    <g id="jdk-alt">
+      <rect class="card" x="1110" y="830" width="510" height="94" rx="8" fill="#EEF2FF" stroke="#4F46E5"/>
+      <text class="cardTitleSmall" x="1365" y="861" text-anchor="middle" dominant-baseline="middle">JDK HttpClient</text>
+      <text class="textSmall" x="1365" y="895" text-anchor="middle">zero-dependency services where standard-library features are enough</text>
+    </g>
+  </g>
+
+  <g id="no-deprecation">
+    <rect class="card" x="170" y="1032" width="1420" height="72" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+    <text class="cardTitleSmall" x="370" y="1069" text-anchor="middle" dominant-baseline="middle">Compatibility rule</text>
+    <text class="text" x="930" y="1069" text-anchor="middle" dominant-baseline="middle">No backend is deprecated by this recommendation; non-HC5 clients stay supported for their target ecosystems.</text>
+  </g>
 </svg>

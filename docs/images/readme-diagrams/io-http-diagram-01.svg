@@ -1,92 +1,169 @@
-<svg data-intent="Explain multi-backend HTTP architecture by grouping the common facade/cross-cutting support and parallel HC5, OkHttp3, Vert.x, Ktor, and JDK client stacks." data-evidence="io/http/README.md; io/http/src/main/kotlin/io/bluetape4k/http" data-source-read="io/http/README.md; io/http/src/main/kotlin/io/bluetape4k/http" xmlns="http://www.w3.org/2000/svg" width="1600" height="1095" viewBox="0 0 1600 1095" role="img" aria-label="Multi-Backend HTTP Client Architecture">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-  </style>
-</defs>
-<rect class="canvas" width="1600" height="1095"/>
-<rect class="frame" x="34" y="30" width="1532" height="1035" rx="8"/>
-<text class="title" x="72" y="84">Multi-Backend HTTP Client Architecture</text>
-<text class="subtitle" x="76" y="116">Common request helpers fan out to HC5, OkHttp3, Vert.x, Ktor, and JDK-backed stacks while every backend converges on the same HTTP wire boundary.</text>
-<g><rect class="panel" x="82" y="160" width="1436" height="185" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Caller-facing API</text></g>
-<g><rect class="panel" x="82" y="420" width="1436" height="250" rx="8"/><text class="panelTitle" x="110" y="456" dominant-baseline="middle">Backend client stacks</text></g>
-<g><rect class="panel" x="82" y="745" width="1436" height="270" rx="8"/><text class="panelTitle" x="110" y="781" dominant-baseline="middle">Runtime boundary</text></g>
-<g id="caller">
-  <rect class="card" x="145" y="235" width="310" height="78" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="300" y="267" text-anchor="middle" dominant-baseline="middle">Application code</text>
-  <text class="detail" x="300" y="297" text-anchor="middle" dominant-baseline="middle">HTTP call intent</text>
-</g>
-<g id="support">
-  <rect class="card" x="610" y="228" width="360" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="790" y="258" text-anchor="middle" dominant-baseline="middle">HTTP support facade</text>
-  <text class="detail" x="790" y="288" text-anchor="middle" dominant-baseline="middle">request/entity/protocol DSL</text>
-  <text class="detail" x="790" y="306" text-anchor="middle" dominant-baseline="middle">timeouts, retry, coroutine hooks</text>
-</g>
-<g id="cross">
-  <rect class="card" x="1095" y="235" width="340" height="78" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1265" y="267" text-anchor="middle" dominant-baseline="middle">Cross-cutting helpers</text>
-  <text class="detail" x="1265" y="297" text-anchor="middle" dominant-baseline="middle">auth, SSL, cache, routing</text>
-</g>
-<g id="hc5">
-  <rect class="card" x="130" y="520" width="270" height="86" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="265" y="547" text-anchor="middle" dominant-baseline="middle">Apache HC5</text>
-  <text class="detail" x="265" y="577" text-anchor="middle" dominant-baseline="middle">classic, async, cache</text>
-  <text class="detail" x="265" y="595" text-anchor="middle" dominant-baseline="middle">virtual-thread factories</text>
-</g>
-<g id="okhttp">
-  <rect class="card" x="470" y="520" width="290" height="86" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="615" y="547" text-anchor="middle" dominant-baseline="middle">OkHttp3</text>
-  <text class="detail" x="615" y="577" text-anchor="middle" dominant-baseline="middle">interceptors, cache</text>
-  <text class="detail" x="615" y="595" text-anchor="middle" dominant-baseline="middle">coroutine Call adapter</text>
-</g>
-<g id="vertx">
-  <rect class="card" x="830" y="520" width="300" height="86" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="980" y="547" text-anchor="middle" dominant-baseline="middle">Vert.x WebClient</text>
-  <text class="detail" x="980" y="577" text-anchor="middle" dominant-baseline="middle">event-loop client</text>
-  <text class="detail" x="980" y="595" text-anchor="middle" dominant-baseline="middle">coroutine bridge</text>
-</g>
-<g id="ktor">
-  <rect class="card" x="1190" y="520" width="300" height="86" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1340" y="547" text-anchor="middle" dominant-baseline="middle">Ktor / JDK</text>
-  <text class="detail" x="1340" y="577" text-anchor="middle" dominant-baseline="middle">Ktor CIO helpers</text>
-  <text class="detail" x="1340" y="595" text-anchor="middle" dominant-baseline="middle">JDK HttpClient support</text>
-</g>
-<g id="wire">
-  <rect class="card" x="160" y="815" width="1280" height="78" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="800" y="847" text-anchor="middle" dominant-baseline="middle">HTTP wire request / response</text>
-  <text class="detail" x="800" y="877" text-anchor="middle" dominant-baseline="middle">method, URI, headers, body, status, response bytes</text>
-</g>
-<g id="remote">
-  <rect class="card" x="610" y="930" width="380" height="66" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="800" y="956" text-anchor="middle" dominant-baseline="middle">Remote service</text>
-  <text class="detail" x="800" y="986" text-anchor="middle" dominant-baseline="middle">REST endpoint or mock benchmark server</text>
-</g>
-<path class="route" data-from="caller" data-to="support" d="M455 274 L610 274" stroke="#1D4ED8"/>
-<path class="route" data-from="support" data-to="cross" d="M970 274 L1095 274" stroke="#15803D"/>
-<path class="route" data-from="support" data-to="hc5" d="M700 320 L265 520" stroke="#0F766E"/>
-<path class="route" data-from="support" data-to="okhttp" d="M760 320 L615 520" stroke="#C2410C"/>
-<path class="route" data-from="support" data-to="vertx" d="M820 320 L980 520" stroke="#BE185D"/>
-<path class="route" data-from="support" data-to="ktor" d="M880 320 L1340 520" stroke="#4D7C0F"/>
-<path class="route" data-from="hc5" data-to="wire" d="M265 606 L420 815" stroke="#0F766E"/>
-<path class="route" data-from="okhttp" data-to="wire" d="M615 606 L615 815" stroke="#C2410C"/>
-<path class="route" data-from="vertx" data-to="wire" d="M980 606 L980 815" stroke="#BE185D"/>
-<path class="route" data-from="ktor" data-to="wire" d="M1340 606 L1340 815" stroke="#4D7C0F"/>
-<path class="route" data-from="wire" data-to="remote" d="M800 893 L800 930" stroke="#1D4ED8"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1180" viewBox="0 0 1760 1180" role="img" aria-label="Multi-backend HTTP client architecture">
+  <defs>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow-blue" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 14 8 L 2 14 Z" fill="#2563EB" stroke="#2563EB" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 14 8 L 2 14 Z" fill="#16A34A" stroke="#16A34A" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrow-teal" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 14 8 L 2 14 Z" fill="#0D9488" stroke="#0D9488" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 14 8 L 2 14 Z" fill="#EA580C" stroke="#EA580C" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrow-pink" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 14 8 L 2 14 Z" fill="#DB2777" stroke="#DB2777" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrow-lime" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 14 8 L 2 14 Z" fill="#65A30D" stroke="#65A30D" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 14 8 L 2 14 Z" fill="#9333EA" stroke="#9333EA" stroke-width="1.5"/>
+    </marker>
+    <style>
+      svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+      .canvas{fill:#F8FAFC}
+      .frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}
+      .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}
+      .subtitle{font-family:"Comic Mono";font-size:17px;fill:#475569}
+      .layer{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}
+      .layerLabel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}
+      .layerTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}
+      .card{stroke-width:2;filter:url(#softShadow)}
+      .cardTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}
+      .cardTitleSmall{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}
+      .text{font-family:"Comic Mono";font-size:14px;fill:#475569}
+      .textSmall{font-family:"Comic Mono";font-size:13px;fill:#475569}
+      .badgeText{font-family:"Comic Mono";font-size:12px;fill:#0F172A}
+      .flow{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+      .hint{fill:#FFFFFF;stroke-width:1.5}
+      .icon{font-family:"Architects Daughter";font-size:26px;fill:#0F172A}
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1760" height="1180"/>
+  <rect class="frame" x="36" y="30" width="1688" height="1120" rx="8"/>
+
+  <text class="title" x="76" y="86">Multi-Backend HTTP Client Architecture</text>
+  <text class="subtitle" x="80" y="120">The module keeps backend-specific clients explicit, then adds Kotlin DSLs, coroutine bridges, and virtual-thread friendly factories where each backend supports them.</text>
+
+  <g id="api-layer">
+    <rect class="layer" x="86" y="158" width="1588" height="194" rx="8"/>
+    <rect class="layerLabel" x="116" y="178" width="220" height="38" rx="8"/>
+    <text class="layerTitle" x="226" y="198" text-anchor="middle" dominant-baseline="middle">Caller-facing API</text>
+
+    <g id="app-code">
+      <rect class="card" x="140" y="232" width="290" height="78" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+      <text class="icon" x="166" y="263" dominant-baseline="middle">=&gt;</text>
+      <text class="cardTitleSmall" x="285" y="256" text-anchor="middle" dominant-baseline="middle">Application code</text>
+      <text class="text" x="285" y="286" text-anchor="middle" dominant-baseline="middle">choose a client per use case</text>
+    </g>
+
+    <g id="module-helpers">
+      <rect class="card" x="556" y="216" width="430" height="110" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+      <text class="icon" x="586" y="252" dominant-baseline="middle">{ }</text>
+      <text class="cardTitle" x="771" y="247" text-anchor="middle" dominant-baseline="middle">bluetape4k-http helpers</text>
+      <text class="text" x="771" y="281" text-anchor="middle" dominant-baseline="middle">Kotlin builders, request helpers</text>
+      <text class="text" x="771" y="302" text-anchor="middle" dominant-baseline="middle">timeouts, pools, cache, SSL, retry defaults</text>
+    </g>
+
+    <g id="call-models">
+      <rect class="card" x="1112" y="232" width="470" height="78" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+      <text class="icon" x="1142" y="263" dominant-baseline="middle">~</text>
+      <text class="cardTitleSmall" x="1347" y="256" text-anchor="middle" dominant-baseline="middle">Call model adapters</text>
+      <text class="text" x="1347" y="286" text-anchor="middle" dominant-baseline="middle">synchronous, suspend, async, virtual-thread friendly</text>
+    </g>
+
+    <path class="flow" d="M 430 271 L 556 271" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
+    <path class="flow" d="M 986 271 L 1112 271" stroke="#16A34A" marker-end="url(#arrow-green)"/>
+  </g>
+
+  <g id="backend-layer">
+    <rect class="layer" x="86" y="406" width="1588" height="430" rx="8"/>
+    <rect class="layerLabel" x="116" y="426" width="280" height="38" rx="8"/>
+    <text class="layerTitle" x="256" y="446" text-anchor="middle" dominant-baseline="middle">Backend client stacks</text>
+
+    <g id="hc5-card">
+      <rect class="card" x="124" y="506" width="296" height="226" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+      <rect class="hint" x="150" y="532" width="108" height="25" rx="8" fill="#CCFBF1" stroke="#0D9488"/>
+      <text class="badgeText" x="204" y="546" text-anchor="middle" dominant-baseline="middle">primary</text>
+      <text class="cardTitle" x="272" y="585" text-anchor="middle" dominant-baseline="middle">Apache HC5</text>
+      <text class="text" x="272" y="625" text-anchor="middle" dominant-baseline="middle">classic + async clients</text>
+      <text class="text" x="272" y="651" text-anchor="middle" dominant-baseline="middle">HTTP/2, cache, SSL/TLS</text>
+      <text class="text" x="272" y="677" text-anchor="middle" dominant-baseline="middle">production pool defaults</text>
+      <text class="text" x="272" y="703" text-anchor="middle" dominant-baseline="middle">coroutine executeSuspending</text>
+    </g>
+
+    <g id="okhttp-card">
+      <rect class="card" x="448" y="506" width="296" height="226" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+      <text class="cardTitle" x="596" y="585" text-anchor="middle" dominant-baseline="middle">OkHttp3</text>
+      <text class="text" x="596" y="625" text-anchor="middle" dominant-baseline="middle">pool + dispatcher builders</text>
+      <text class="text" x="596" y="651" text-anchor="middle" dominant-baseline="middle">virtual-thread dispatcher</text>
+      <text class="text" x="596" y="677" text-anchor="middle" dominant-baseline="middle">interceptors and cache control</text>
+      <text class="text" x="596" y="703" text-anchor="middle" dominant-baseline="middle">cancel-aware suspend Call</text>
+    </g>
+
+    <g id="vertx-card">
+      <rect class="card" x="772" y="506" width="296" height="226" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+      <text class="cardTitle" x="920" y="585" text-anchor="middle" dominant-baseline="middle">Vert.x</text>
+      <text class="text" x="920" y="625" text-anchor="middle" dominant-baseline="middle">event-loop HttpClient</text>
+      <text class="text" x="920" y="651" text-anchor="middle" dominant-baseline="middle">keep-alive and ALPN defaults</text>
+      <text class="text" x="920" y="677" text-anchor="middle" dominant-baseline="middle">TLS verification on by default</text>
+      <text class="text" x="920" y="703" text-anchor="middle" dominant-baseline="middle">created from current Vert.x</text>
+    </g>
+
+    <g id="ktor-card">
+      <rect class="card" x="1096" y="506" width="296" height="226" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+      <text class="cardTitle" x="1244" y="585" text-anchor="middle" dominant-baseline="middle">Ktor Client</text>
+      <text class="text" x="1244" y="625" text-anchor="middle" dominant-baseline="middle">explicit engine selection</text>
+      <text class="text" x="1244" y="651" text-anchor="middle" dominant-baseline="middle">JSON content negotiation</text>
+      <text class="text" x="1244" y="677" text-anchor="middle" dominant-baseline="middle">HttpTimeout defaults only</text>
+      <text class="text" x="1244" y="703" text-anchor="middle" dominant-baseline="middle">no hidden retry policy</text>
+    </g>
+
+    <g id="jdk-card">
+      <rect class="card" x="1420" y="506" width="210" height="226" rx="8" fill="#EEF2FF" stroke="#4F46E5"/>
+      <text class="cardTitleSmall" x="1525" y="585" text-anchor="middle" dominant-baseline="middle">JDK</text>
+      <text class="textSmall" x="1525" y="625" text-anchor="middle" dominant-baseline="middle">HttpClient</text>
+      <text class="textSmall" x="1525" y="651" text-anchor="middle" dominant-baseline="middle">HTTP/2 default</text>
+      <text class="textSmall" x="1525" y="677" text-anchor="middle" dominant-baseline="middle">sendAwait bridge</text>
+      <text class="textSmall" x="1525" y="703" text-anchor="middle" dominant-baseline="middle">VT executor option</text>
+    </g>
+
+    <path class="flow" d="M 771 326 L 771 368 Q 771 384 755 384 L 272 384 Q 272 384 272 406 L 272 506" stroke="#0D9488" marker-end="url(#arrow-teal)"/>
+    <path class="flow" d="M 771 326 L 771 368 Q 771 384 755 384 L 596 384 Q 596 384 596 406 L 596 506" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
+    <path class="flow" d="M 771 326 L 771 406 L 920 506" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
+    <path class="flow" d="M 1347 310 L 1347 382 Q 1347 406 1323 406 L 1244 406 L 1244 506" stroke="#65A30D" marker-end="url(#arrow-lime)"/>
+    <path class="flow" d="M 1347 310 L 1347 382 Q 1347 406 1371 406 L 1525 406 L 1525 506" stroke="#9333EA" marker-end="url(#arrow-purple)"/>
+  </g>
+
+  <g id="wire-layer">
+    <rect class="layer" x="86" y="890" width="1588" height="204" rx="8"/>
+    <rect class="layerLabel" x="116" y="910" width="270" height="38" rx="8"/>
+    <text class="layerTitle" x="251" y="930" text-anchor="middle" dominant-baseline="middle">HTTP wire boundary</text>
+
+    <g id="wire">
+      <rect class="card" x="188" y="982" width="650" height="72" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+      <text class="cardTitleSmall" x="513" y="1009" text-anchor="middle" dominant-baseline="middle">Request / response bytes</text>
+      <text class="text" x="513" y="1039" text-anchor="middle" dominant-baseline="middle">method, URI, headers, body, status, payload</text>
+    </g>
+
+    <g id="service">
+      <rect class="card" x="974" y="982" width="560" height="72" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+      <text class="cardTitleSmall" x="1254" y="1009" text-anchor="middle" dominant-baseline="middle">Remote HTTP service</text>
+      <text class="text" x="1254" y="1039" text-anchor="middle" dominant-baseline="middle">real endpoint, test server, or benchmark target</text>
+    </g>
+
+    <path class="flow" d="M 838 1018 L 974 1018" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
+  </g>
+
+  <path class="flow" d="M 272 732 L 272 880 Q 272 918 310 918 L 310 982" stroke="#0D9488" marker-end="url(#arrow-teal)"/>
+  <path class="flow" d="M 596 732 L 596 800 Q 596 828 568 828 L 430 828 L 430 982" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
+  <path class="flow" d="M 920 732 L 920 830 Q 920 858 892 858 L 560 858 L 560 982" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
+  <path class="flow" d="M 1244 732 L 1244 862 Q 1244 890 1216 890 L 690 890 L 690 982" stroke="#65A30D" marker-end="url(#arrow-lime)"/>
+  <path class="flow" d="M 1525 732 L 1525 894 Q 1525 922 1497 922 L 790 922 L 790 982" stroke="#9333EA" marker-end="url(#arrow-purple)"/>
 </svg>

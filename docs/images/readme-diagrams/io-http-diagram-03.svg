@@ -1,90 +1,148 @@
-<svg data-intent="Regenerate OkHttp3 Client Hierarchy from the current README and source package surface for io/http." data-evidence="io/http/README.md; io/http; io/http/src/main/kotlin" data-source-read="io/http/README.md; io/http; io/http/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="OkHttp3 Client Hierarchy">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">OkHttp3 Client Hierarchy</text>
-<text class="subtitle" x="76" y="116">io/http: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Architecture</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Overall Architecture:</text>
-  <text class="detail" x="919" y="311" text-anchor="middle">Multi-Backend HTTP Client</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">HTTP Client Hierarchy (HC5)</text>
-</g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">http package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">http package (73)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">InMemoryHttpCacheStorage type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">InMemoryHttpCacheStorage type</text>
-</g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">JavaCacheHttpCacheStorage type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">JavaCacheHttpCacheStorage type</text>
-</g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">VirtualThreadHttpClients type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">VirtualThreadHttpClients type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Ktor runtime</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Ktor runtime</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Reactive bridge</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Reactive bridge</text>
-</g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Serialization</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Serialization</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
-<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1180" viewBox="0 0 1760 1180" role="img" aria-label="OkHttp3 Client Hierarchy">
+  <defs>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.12"/>
+    </filter>
+    <marker id="open-orange" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#EA580C" stroke-width="2.5" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="open-blue" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="open-green" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="open-gray" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#64748B" stroke-width="2.5" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+      .canvas{fill:#F8FAFC}
+      .frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}
+      .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}
+      .subtitle{font-family:"Comic Mono";font-size:17px;fill:#475569}
+      .lane{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}
+      .laneTitle{font-family:"Architects Daughter";font-size:26px;fill:#0F172A}
+      .card{stroke-width:2;filter:url(#softShadow)}
+      .className{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}
+      .member{font-family:"Comic Mono";font-size:13px;fill:#475569}
+      .label{font-family:"Comic Mono";font-size:12px;fill:#334155}
+      .badge{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
+      .solid{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+      .dashed{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:9 7}
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1760" height="1180"/>
+  <rect class="frame" x="36" y="30" width="1688" height="1120" rx="8"/>
+  <text class="title" x="76" y="86">OkHttp3 Client Hierarchy</text>
+  <text class="subtitle" x="80" y="120">OkHttp support centers on builder defaults, virtual-thread dispatching, request helpers, coroutine execution, interceptors, disk cache, and test utilities.</text>
+
+  <g id="legend">
+    <rect class="badge" x="1130" y="62" width="236" height="34" rx="8"/>
+    <path class="solid" d="M1152 79 L1200 79" stroke="#2563EB" marker-end="url(#open-blue)"/>
+    <text class="label" x="1216" y="83">returns / wraps</text>
+    <rect class="badge" x="1392" y="62" width="236" height="34" rx="8"/>
+    <path class="dashed" d="M1414 79 L1462 79" stroke="#64748B" marker-end="url(#open-gray)"/>
+    <text class="label" x="1478" y="83">configures / uses</text>
+  </g>
+
+  <g id="builder-lane">
+    <rect class="lane" x="94" y="166" width="500" height="830" rx="8"/>
+    <text class="laneTitle" x="130" y="212" dominant-baseline="middle">Client construction</text>
+
+    <g id="builder">
+      <rect class="card" x="144" y="260" width="400" height="148" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+      <text class="className" x="344" y="296" text-anchor="middle" dominant-baseline="middle">OkHttp3 builders</text>
+      <text class="member" x="344" y="334" text-anchor="middle">okhttp3ClientBuilderOf(...)</text>
+      <text class="member" x="344" y="358" text-anchor="middle">okhttp3Client(...)</text>
+      <text class="member" x="344" y="382" text-anchor="middle">10s connect/read, 30s write</text>
+    </g>
+
+    <g id="pool-dispatcher">
+      <rect class="card" x="144" y="496" width="400" height="126" rx="8" fill="#FFFFFF" stroke="#EA580C"/>
+      <text class="className" x="344" y="532" text-anchor="middle" dominant-baseline="middle">Pool and dispatcher</text>
+      <text class="member" x="344" y="570" text-anchor="middle">okHttp3ConnectionPool(...)</text>
+      <text class="member" x="344" y="594" text-anchor="middle">okhttp3DispatcherWithVirtualThread(...)</text>
+      <text class="member" x="344" y="618" text-anchor="middle">maxRequests 200 / perHost 100</text>
+    </g>
+
+    <g id="client">
+      <rect class="card" x="144" y="820" width="400" height="110" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+      <text class="className" x="344" y="858" text-anchor="middle" dominant-baseline="middle">OkHttpClient</text>
+      <text class="member" x="344" y="896" text-anchor="middle">connection pool + dispatcher</text>
+      <text class="member" x="344" y="920" text-anchor="middle">customizable builder block</text>
+    </g>
+  </g>
+
+  <g id="execution-lane">
+    <rect class="lane" x="630" y="166" width="500" height="830" rx="8"/>
+    <text class="laneTitle" x="666" y="212" dominant-baseline="middle">Request execution</text>
+
+    <g id="request">
+      <rect class="card" x="680" y="260" width="400" height="126" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+      <text class="className" x="880" y="296" text-anchor="middle" dominant-baseline="middle">Request helpers</text>
+      <text class="member" x="880" y="334" text-anchor="middle">okhttp3Request(...)</text>
+      <text class="member" x="880" y="358" text-anchor="middle">okhttp3RequestOf(url, headers)</text>
+    </g>
+
+    <g id="call">
+      <rect class="card" x="680" y="496" width="400" height="126" rx="8" fill="#FFFFFF" stroke="#2563EB"/>
+      <text class="className" x="880" y="532" text-anchor="middle" dominant-baseline="middle">Call execution</text>
+      <text class="member" x="880" y="570" text-anchor="middle">OkHttpClient.execute(request)</text>
+      <text class="member" x="880" y="594" text-anchor="middle">executeAsync(request)</text>
+      <text class="member" x="880" y="618" text-anchor="middle">newCall(request).enqueue(...)</text>
+    </g>
+
+    <g id="coroutine">
+      <rect class="card" x="680" y="820" width="400" height="110" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+      <text class="className" x="880" y="858" text-anchor="middle" dominant-baseline="middle">executeSuspending(...)</text>
+      <text class="member" x="880" y="896" text-anchor="middle">suspendCancellableCoroutine</text>
+      <text class="member" x="880" y="920" text-anchor="middle">cancels the underlying Call</text>
+    </g>
+  </g>
+
+  <g id="support-lane">
+    <rect class="lane" x="1166" y="166" width="500" height="830" rx="8"/>
+    <text class="laneTitle" x="1202" y="212" dominant-baseline="middle">Interceptors, cache, tests</text>
+
+    <g id="interceptors">
+      <rect class="card" x="1216" y="260" width="400" height="148" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+      <text class="className" x="1416" y="296" text-anchor="middle" dominant-baseline="middle">Interceptors</text>
+      <text class="member" x="1416" y="334" text-anchor="middle">LoggingInterceptor(logger)</text>
+      <text class="member" x="1416" y="358" text-anchor="middle">CachingRequestInterceptor(...)</text>
+      <text class="member" x="1416" y="382" text-anchor="middle">CachingResponseInterceptor(...)</text>
+    </g>
+
+    <g id="cache">
+      <rect class="card" x="1216" y="496" width="400" height="126" rx="8" fill="#FFFFFF" stroke="#16A34A"/>
+      <text class="className" x="1416" y="532" text-anchor="middle" dominant-baseline="middle">Disk cache support</text>
+      <text class="member" x="1416" y="570" text-anchor="middle">okhttp3ClientWithCache(...)</text>
+      <text class="member" x="1416" y="594" text-anchor="middle">Cache.metrics(), Cache.logMetrics(...)</text>
+    </g>
+
+    <g id="mock">
+      <rect class="card" x="1216" y="820" width="400" height="110" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+      <text class="className" x="1416" y="858" text-anchor="middle" dominant-baseline="middle">MockWebServer helpers</text>
+      <text class="member" x="1416" y="896" text-anchor="middle">MockResponse support</text>
+      <text class="member" x="1416" y="920" text-anchor="middle">test server extensions</text>
+    </g>
+  </g>
+
+  <path class="dashed" d="M 344 408 L 344 496" stroke="#EA580C" marker-end="url(#open-orange)"/>
+  <path class="solid" d="M 344 622 L 344 820" stroke="#EA580C" marker-end="url(#open-orange)"/>
+
+  <path class="solid" d="M 880 386 L 880 496" stroke="#2563EB" marker-end="url(#open-blue)"/>
+  <path class="solid" d="M 880 622 L 880 820" stroke="#2563EB" marker-end="url(#open-blue)"/>
+
+  <path class="dashed" d="M 1416 408 L 1416 496" stroke="#16A34A" marker-end="url(#open-green)"/>
+  <path class="solid" d="M 1416 622 L 1416 820" stroke="#16A34A" marker-end="url(#open-green)"/>
+
+  <g id="usage-notes">
+    <rect class="card" x="144" y="1032" width="1472" height="72" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+    <text class="className" x="330" y="1069" text-anchor="middle" dominant-baseline="middle">Usage contract</text>
+    <text class="member" x="684" y="1069" text-anchor="middle">builder defaults are overrideable</text>
+    <text class="member" x="1020" y="1069" text-anchor="middle">coroutine cancellation closes Response safely</text>
+    <text class="member" x="1370" y="1069" text-anchor="middle">interceptors and cache are opt-in</text>
+  </g>
 </svg>
