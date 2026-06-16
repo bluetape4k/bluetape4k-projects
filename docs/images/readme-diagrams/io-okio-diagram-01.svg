@@ -1,85 +1,166 @@
-<svg data-intent="Regenerate Sink / Source Adapter Hierarchy from the current README and source package surface for io/okio." data-evidence="io/okio/README.md; io/okio; io/okio/src/main/kotlin" data-source-read="io/okio/README.md; io/okio; io/okio/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Sink / Source Adapter Hierarchy">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">Sink / Source Adapter Hierarchy</text>
-<text class="subtitle" x="76" y="116">io/okio: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Why Okio</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Compression Sink (One-Shot) —</text>
-  <text class="detail" x="919" y="311" text-anchor="middle">compress on close</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Compression Sink (Streaming) —</text>
-  <text class="detail" x="1257" y="311" text-anchor="middle">compress incrementally</text>
-</g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">okio package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">okio package (51)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">InputStreamSource type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">InputStreamSource type</text>
-</g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">OutputStreamSink type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">OutputStreamSink type</text>
-</g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">AbstractBase64Sink type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">AbstractBase64Sink type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="262" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="412" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="412" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="600" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="750" y="824" text-anchor="middle">Kafka messaging</text>
-  <text class="detail" x="750" y="852" text-anchor="middle">Kafka messaging</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="938" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1088" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="1088" y="852" text-anchor="middle">Test support</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L412 696 L412 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L750 696 L750 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L1088 696 L1088 790" stroke="#BE185D"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-labelledby="title desc">
+  <title id="title">bluetape4k-okio Sink and Source adapter hierarchy</title>
+  <desc id="desc">Source-backed class structure showing Okio primitives, stream adapters, and ForwardingSource or ForwardingSink decorators in bluetape4k-okio.</desc>
+  <defs>
+    <style>
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #263238; }
+      .subtitle, .member, .small, .label { font-family: "Comic Mono"; fill: #36464f; }
+      .subtitle { font-size: 18px; }
+      .panel-title, .class-title { font-family: "Architects Daughter"; fill: #1f3138; }
+      .panel-title { font-size: 25px; }
+      .class-title { font-size: 21px; }
+      .member { font-size: 14px; }
+      .small { font-size: 13px; }
+      .label { font-size: 12px; fill: #566b73; }
+      .frame { fill: #fbfcf8; stroke: #41545d; stroke-width: 3; }
+      .core-panel { fill: #eef6f8; stroke: #b2cbd2; stroke-width: 2; }
+      .source-panel { fill: #f3f8ef; stroke: #aec99d; stroke-width: 2; }
+      .sink-panel { fill: #f7f4ed; stroke: #d0c4ad; stroke-width: 2; }
+      .contract-panel { fill: #ffffff; stroke: #c6d2d5; stroke-width: 2; }
+      .core { fill: #ffffff; stroke: #4f6c77; stroke-width: 2; }
+      .source-card { fill: #fdfefe; stroke: #5d7b63; stroke-width: 2; }
+      .sink-card { fill: #fffdf7; stroke: #8a7447; stroke-width: 2; }
+      .codec-card { fill: #fffafa; stroke: #b65f68; stroke-width: 2; }
+      .security-card { fill: #f7f3ff; stroke: #8870a8; stroke-width: 2; }
+      .base-card { fill: #f7fbff; stroke: #6c86a1; stroke-width: 2; }
+      .sep { stroke: #d6dee2; stroke-width: 1.5; }
+      .bus { fill: none; stroke: #455a64; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }
+      .flowSlate { fill: none; stroke: #455a64; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowSlate); }
+      .flowGreen { fill: none; stroke: #5d7b63; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowGreen); }
+      .flowGold { fill: none; stroke: #a2743d; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowGold); }
+      .flowRed { fill: none; stroke: #b65f68; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowRed); }
+      .flowPurple { fill: none; stroke: #8870a8; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowPurple); }
+      .flowBlue { fill: none; stroke: #4b74a5; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowBlue); }
+      .source-icon { fill: #fdfefe; stroke: #5d7b63; stroke-width: 2; }
+      .sink-icon { fill: #fffdf7; stroke: #8a7447; stroke-width: 2; }
+      .icon-line-green { fill: none; stroke: #5d7b63; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+      .icon-line-gold { fill: none; stroke: #a2743d; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+    <marker id="arrowSlate" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#455a64" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#8870a8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="1752" height="1032" rx="20" class="frame"/>
+  <text x="900" y="78" text-anchor="middle" class="title">bluetape4k-okio Sink / Source Adapter Hierarchy</text>
+  <text x="900" y="108" text-anchor="middle" class="subtitle">The module keeps Okio as the runtime model and adds small adapters or decorators around Source and Sink.</text>
+
+  <rect x="72" y="150" width="1656" height="194" rx="16" class="core-panel"/>
+  <text x="102" y="190" class="panel-title">Okio runtime surface</text>
+  <text x="102" y="218" class="small">Buffer and ByteString are value/work buffers; Source and Sink are the contracts that decorators preserve.</text>
+
+  <rect x="160" y="244" width="330" height="72" rx="7" class="core" filter="url(#softShadow)"/>
+  <text x="325" y="274" text-anchor="middle" class="class-title">BufferedSource</text>
+  <text x="325" y="302" text-anchor="middle" class="member">Source.buffered()</text>
+
+  <rect x="560" y="244" width="330" height="72" rx="7" class="core" filter="url(#softShadow)"/>
+  <text x="725" y="274" text-anchor="middle" class="class-title">Buffer / ByteString</text>
+  <text x="725" y="302" text-anchor="middle" class="member">factories and immutable boundary</text>
+
+  <rect x="960" y="244" width="330" height="72" rx="7" class="core" filter="url(#softShadow)"/>
+  <text x="1125" y="274" text-anchor="middle" class="class-title">BufferedSink</text>
+  <text x="1125" y="302" text-anchor="middle" class="member">Sink.buffered()</text>
+
+  <rect x="1360" y="244" width="300" height="72" rx="7" class="core" filter="url(#softShadow)"/>
+  <text x="1510" y="274" text-anchor="middle" class="class-title">Timeout</text>
+  <text x="1510" y="302" text-anchor="middle" class="member">propagated by adapters</text>
+
+  <rect x="72" y="386" width="806" height="486" rx="16" class="source-panel"/>
+  <g transform="translate(828 404)" aria-hidden="true">
+    <circle cx="0" cy="0" r="20" class="source-icon"/>
+    <path d="M -9 -5 H 4 M 4 -5 L -1 -10 M 4 -5 L -1 0" class="icon-line-green"/>
+    <path d="M -10 8 H 10" class="icon-line-green"/>
+  </g>
+  <text x="102" y="426" class="panel-title">Source side: read and decode</text>
+  <text x="102" y="454" class="small">Sources pull bytes from delegates, decode lazily, and return plain bytes to caller buffers.</text>
+
+  <rect x="120" y="498" width="330" height="116" rx="7" class="source-card" filter="url(#softShadow)"/>
+  <text x="285" y="530" text-anchor="middle" class="class-title">InputStreamSource</text>
+  <line x1="120" y1="550" x2="450" y2="550" class="sep"/>
+  <text x="148" y="576" class="member">implements Okio Source</text>
+  <text x="148" y="598" class="member">reads into Buffer.UnsafeCursor</text>
+
+  <rect x="500" y="498" width="330" height="116" rx="7" class="base-card" filter="url(#softShadow)"/>
+  <text x="665" y="530" text-anchor="middle" class="class-title">ForwardingSource</text>
+  <line x1="500" y1="550" x2="830" y2="550" class="sep"/>
+  <text x="528" y="576" class="member">decorator base</text>
+  <text x="528" y="598" class="member">delegate Source stays visible</text>
+
+  <rect x="120" y="674" width="330" height="128" rx="7" class="codec-card" filter="url(#softShadow)"/>
+  <text x="285" y="706" text-anchor="middle" class="class-title">Compression sources</text>
+  <line x1="120" y1="726" x2="450" y2="726" class="sep"/>
+  <text x="148" y="752" class="member">DecompressableSource</text>
+  <text x="148" y="774" class="member">StreamingDecompressSource</text>
+
+  <rect x="500" y="674" width="330" height="128" rx="7" class="security-card" filter="url(#softShadow)"/>
+  <text x="665" y="706" text-anchor="middle" class="class-title">Decode and decrypt sources</text>
+  <line x1="500" y1="726" x2="830" y2="726" class="sep"/>
+  <text x="528" y="752" class="member">AbstractBase64Source variants</text>
+  <text x="528" y="774" class="member">Tink and DAEAD chunk decrypt</text>
+
+  <rect x="922" y="386" width="806" height="486" rx="16" class="sink-panel"/>
+  <g transform="translate(1678 404)" aria-hidden="true">
+    <circle cx="0" cy="0" r="20" class="sink-icon"/>
+    <path d="M -4 5 H 9 M 9 5 L 4 0 M 9 5 L 4 10" class="icon-line-gold"/>
+    <path d="M -10 -8 H 10" class="icon-line-gold"/>
+  </g>
+  <text x="952" y="426" class="panel-title">Sink side: write and encode</text>
+  <text x="952" y="454" class="small">Sinks consume caller buffers, transform bytes, then write to a delegate sink or output stream.</text>
+
+  <rect x="970" y="498" width="330" height="116" rx="7" class="sink-card" filter="url(#softShadow)"/>
+  <text x="1135" y="530" text-anchor="middle" class="class-title">OutputStreamSink</text>
+  <line x1="970" y1="550" x2="1300" y2="550" class="sep"/>
+  <text x="998" y="576" class="member">implements Okio Sink</text>
+  <text x="998" y="598" class="member">writes from Buffer.UnsafeCursor</text>
+
+  <rect x="1350" y="498" width="330" height="116" rx="7" class="base-card" filter="url(#softShadow)"/>
+  <text x="1515" y="530" text-anchor="middle" class="class-title">ForwardingSink</text>
+  <line x1="1350" y1="550" x2="1680" y2="550" class="sep"/>
+  <text x="1378" y="576" class="member">decorator base</text>
+  <text x="1378" y="598" class="member">delegate Sink stays visible</text>
+
+  <rect x="970" y="674" width="330" height="128" rx="7" class="codec-card" filter="url(#softShadow)"/>
+  <text x="1135" y="706" text-anchor="middle" class="class-title">Compression sinks</text>
+  <line x1="970" y1="726" x2="1300" y2="726" class="sep"/>
+  <text x="998" y="752" class="member">CompressableSink buffers until close</text>
+  <text x="998" y="774" class="member">StreamingCompressSink writes chunks</text>
+
+  <rect x="1350" y="674" width="330" height="128" rx="7" class="security-card" filter="url(#softShadow)"/>
+  <text x="1515" y="706" text-anchor="middle" class="class-title">Encode and encrypt sinks</text>
+  <line x1="1350" y1="726" x2="1680" y2="726" class="sep"/>
+  <text x="1378" y="752" class="member">AbstractBase64Sink variants</text>
+  <text x="1378" y="774" class="member">Tink and DAEAD chunk encrypt</text>
+
+  <rect x="98" y="910" width="1604" height="92" rx="14" class="contract-panel"/>
+  <text x="128" y="944" class="panel-title">Adapter contract</text>
+  <text x="128" y="974" class="small">Use Buffer for local work, ByteString for immutable bytes, close transforming sinks to finalize frames, and prefer streaming or DAEAD chunk adapters for large multi-write payloads.</text>
+
+  <path d="M 325 316 V 386" class="flowGreen"/>
+  <path d="M 1125 316 V 386" class="flowGold"/>
+  <path d="M 285 614 V 644 H 665 V 674" class="bus"/>
+  <path d="M 665 614 V 674" class="flowBlue"/>
+  <path d="M 285 644 V 674" class="flowRed"/>
+  <path d="M 1135 614 V 644 H 1515 V 674" class="bus"/>
+  <path d="M 1515 614 V 674" class="flowBlue"/>
+  <path d="M 1135 644 V 674" class="flowRed"/>
+  <path d="M 725 316 V 356 H 900 V 888" class="flowSlate"/>
+  <path d="M 900 888 V 910" class="flowSlate"/>
 </svg>
