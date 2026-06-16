@@ -1,80 +1,142 @@
-<svg data-intent="Explain Jackson2 serializer selection and conversion flow by separating ObjectMapper configuration, JSON/Smile/CBOR serializers, and ByteArray/String outputs." data-evidence="io/jackson2/README.md; io/jackson2/src/main/kotlin" data-source-read="io/jackson2/README.md; io/jackson2/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="940" viewBox="0 0 1500 940" role="img" aria-label="Jackson2 Conversion Flow" data-layout="decision-flow">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="940"/>
-<rect class="frame" x="34" y="30" width="1432" height="880" rx="8"/>
-<text class="title" x="72" y="84">Jackson2 Conversion Flow</text>
-<text class="subtitle" x="76" y="116">ObjectMapper configuration is shared; format choice selects JSON text or Smile/CBOR binary serializers before returning String or ByteArray payloads.</text>
-<g id="caller">
-  <rect class="card" x="120" y="250" width="300" height="78" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="270" y="282" text-anchor="middle" dominant-baseline="middle">Caller code</text>
-  <text class="detail" x="270" y="312" text-anchor="middle" dominant-baseline="middle">serialize or deserialize</text>
-</g>
-<g id="mapper">
-  <rect class="card" x="520" y="230" width="360" height="112" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="700" y="270" text-anchor="middle" dominant-baseline="middle">Jackson2 ObjectMapper</text>
-  <text class="detail" x="700" y="300" text-anchor="middle" dominant-baseline="middle">Kotlin module</text>
-  <text class="detail" x="700" y="318" text-anchor="middle" dominant-baseline="middle">JavaTime / binary modules</text>
-</g>
-<g id="format">
-  <polygon class="card card-shape" points="1160,210 1320,276 1160,342 1000,276" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1160" y="268" text-anchor="middle" dominant-baseline="middle">Payload format?</text>
-  <text class="detail" x="1160" y="297" text-anchor="middle" dominant-baseline="middle">JSON, Smile, CBOR</text>
-</g>
-<g id="json">
-  <rect class="card" x="1030" y="430" width="300" height="80" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="1180" y="463" text-anchor="middle" dominant-baseline="middle">JSON serializer</text>
-  <text class="detail" x="1180" y="493" text-anchor="middle" dominant-baseline="middle">string or UTF-8 bytes</text>
-</g>
-<g id="binary">
-  <rect class="card" x="1030" y="575" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1180" y="614" text-anchor="middle" dominant-baseline="middle">Smile / CBOR serializers</text>
-  <text class="detail" x="1180" y="644" text-anchor="middle" dominant-baseline="middle">binary ByteArray payload</text>
-</g>
-<g id="stringOut">
-  <rect class="card" x="520" y="660" width="300" height="80" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="670" y="693" text-anchor="middle" dominant-baseline="middle">String output</text>
-  <text class="detail" x="670" y="723" text-anchor="middle" dominant-baseline="middle">readable JSON</text>
-</g>
-<g id="bytesOut">
-  <rect class="card" x="900" y="760" width="320" height="80" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1060" y="793" text-anchor="middle" dominant-baseline="middle">ByteArray output</text>
-  <text class="detail" x="1060" y="823" text-anchor="middle" dominant-baseline="middle">JSON bytes or binary format</text>
-</g>
-<g id="error">
-  <rect class="card" x="145" y="600" width="300" height="90" rx="8" fill="#F9FAFB" stroke="#6B7280"/>
-  <text class="cardTitle" x="295" y="629" text-anchor="middle" dominant-baseline="middle">Error policy</text>
-  <text class="detail" x="295" y="659" text-anchor="middle" dominant-baseline="middle">wrap Jackson failures</text>
-  <text class="detail" x="295" y="677" text-anchor="middle" dominant-baseline="middle">preserve type context</text>
-</g>
-<path class="route" data-from="caller" data-to="mapper" d="M420 289 L520 286" stroke="#1D4ED8"/>
-<path class="route" data-from="mapper" data-to="format" d="M880 286 L1000 276" stroke="#15803D"/>
-<path class="route" data-from="format" data-to="json" d="M1160 342 L1160 430" stroke="#0F766E"/>
-<path class="route" data-from="format" data-to="binary" d="M1320 276 L1390 276 L1390 621 L1330 621" stroke="#C2410C"/>
-<text class="detail" x="1265" y="386" text-anchor="middle" dominant-baseline="middle">default</text>
-<text class="detail" x="1300" y="455" text-anchor="middle" dominant-baseline="middle">binary</text>
-<path class="route" data-from="json" data-to="stringOut" d="M1030 470 L670 470 L670 660" stroke="#4D7C0F"/>
-<path class="route" data-from="json" data-to="bytesOut" d="M1180 510 L1180 545 L860 545 L860 800 L900 800" stroke="#BE185D"/>
-<path class="route" data-from="binary" data-to="bytesOut" d="M1180 667 L1180 760" stroke="#C2410C"/>
-<path class="route dashed" data-from="mapper" data-to="error" d="M610 342 L610 520 L295 520 L295 600" stroke="#4B5563"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120" role="img" aria-labelledby="title desc">
+  <title id="title">bluetape4k-jackson2 serialization pipeline</title>
+  <desc id="desc">Pipeline showing mapper setup, annotation modules, serializer choices, payload formats, output types, and deserialization failure policy for bluetape4k-jackson2.</desc>
+  <defs>
+    <style>
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #263238; }
+      .subtitle, .member, .small, .footer, .label { font-family: "Comic Mono"; fill: #36464f; }
+      .subtitle { font-size: 18px; }
+      .panel-title, .class-title { font-family: "Architects Daughter"; fill: #1f3138; }
+      .panel-title { font-size: 25px; }
+      .class-title { font-size: 21px; }
+      .member { font-size: 14px; }
+      .small { font-size: 13px; }
+      .label { font-size: 12px; fill: #546a73; }
+      .footer { font-size: 14px; fill: #60727d; }
+      .frame { fill: #fbfcf8; stroke: #41545d; stroke-width: 3; }
+      .pipeline-panel { fill: #eef6f8; stroke: #b2cbd2; stroke-width: 2; }
+      .format-panel { fill: #f4f7ef; stroke: #bfd0ae; stroke-width: 2; }
+      .policy-panel { fill: #f7f4ed; stroke: #d0c4ad; stroke-width: 2; }
+      .rule-panel { fill: #ffffff; stroke: #c6d2d5; stroke-width: 2; }
+      .source { fill: #ffffff; stroke: #4f6c77; stroke-width: 2; }
+      .mapper { fill: #f7fbff; stroke: #6c86a1; stroke-width: 2; }
+      .serializer { fill: #fffdf7; stroke: #8a7447; stroke-width: 2; }
+      .format { fill: #fdfefe; stroke: #5d7b63; stroke-width: 2; }
+      .annotation { fill: #fffafa; stroke: #b65f68; stroke-width: 2; }
+      .policy { fill: #fff8ec; stroke: #b48748; stroke-width: 2; }
+      .sep { stroke: #d6dee2; stroke-width: 1.5; }
+      .flowBlue { fill: none; stroke: #4b74a5; stroke-width: 2.2; marker-end: url(#arrowBlue); }
+      .flowGreen { fill: none; stroke: #5d7b63; stroke-width: 2.2; marker-end: url(#arrowGreen); }
+      .flowGold { fill: none; stroke: #a2743d; stroke-width: 2.2; marker-end: url(#arrowGold); }
+      .flowRed { fill: none; stroke: #b65f68; stroke-width: 2.2; marker-end: url(#arrowRed); }
+      .usesBlue { fill: none; stroke: #4b74a5; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowBlue); }
+      .usesGreen { fill: none; stroke: #5d7b63; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowGreen); }
+      .usesRed { fill: none; stroke: #b65f68; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowRed); }
+    </style>
+    <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="1752" height="1072" rx="20" class="frame"/>
+  <text x="900" y="78" text-anchor="middle" class="title">Jackson2 Serialization Pipeline</text>
+  <text x="900" y="108" text-anchor="middle" class="subtitle">The same mapper defaults drive JSON, binary, and text formats; annotations can alter individual field representation.</text>
+
+  <rect x="72" y="150" width="764" height="782" rx="16" class="pipeline-panel"/>
+  <text x="102" y="190" class="panel-title">Core JSON path</text>
+  <text x="102" y="218" class="small">Object graph enters a configured mapper and returns JSON bytes or text.</text>
+
+  <rect x="132" y="286" width="260" height="116" rx="7" class="source" filter="url(#softShadow)"/>
+  <text x="262" y="318" text-anchor="middle" class="class-title">Kotlin object graph</text>
+  <line x1="132" y1="338" x2="392" y2="338" class="sep"/>
+  <text x="156" y="364" class="member">DTOs, maps, JsonNode</text>
+  <text x="156" y="386" class="member">nullable inputs allowed</text>
+
+  <rect x="512" y="270" width="260" height="148" rx="7" class="mapper" filter="url(#softShadow)"/>
+  <text x="642" y="302" text-anchor="middle" class="class-title">JsonMapper setup</text>
+  <line x1="512" y1="322" x2="772" y2="322" class="sep"/>
+  <text x="536" y="348" class="member">Kotlin module defaults</text>
+  <text x="536" y="370" class="member">JavaTime and service modules</text>
+  <text x="536" y="392" class="member">optional typed allow-list</text>
+
+  <rect x="512" y="520" width="260" height="128" rx="7" class="serializer" filter="url(#softShadow)"/>
+  <text x="642" y="552" text-anchor="middle" class="class-title">JacksonSerializer</text>
+  <line x1="512" y1="572" x2="772" y2="572" class="sep"/>
+  <text x="536" y="598" class="member">writeAsBytes(graph)</text>
+  <text x="536" y="620" class="member">readValue(bytes, target)</text>
+
+  <rect x="132" y="688" width="260" height="112" rx="7" class="format" filter="url(#softShadow)"/>
+  <text x="262" y="720" text-anchor="middle" class="class-title">JSON outputs</text>
+  <line x1="132" y1="740" x2="392" y2="740" class="sep"/>
+  <text x="156" y="766" class="member">String via writeAsString</text>
+  <text x="156" y="788" class="member">ByteArray via writeAsBytes</text>
+
+  <rect x="896" y="150" width="428" height="782" rx="16" class="format-panel"/>
+  <text x="926" y="190" class="panel-title">Format branches</text>
+  <text x="926" y="218" class="small">Use explicit formats when their runtime dependency is present.</text>
+
+  <rect x="956" y="286" width="308" height="126" rx="7" class="format" filter="url(#softShadow)"/>
+  <text x="1110" y="318" text-anchor="middle" class="class-title">Binary formats</text>
+  <line x1="956" y1="338" x2="1264" y2="338" class="sep"/>
+  <text x="980" y="364" class="member">CBOR, Ion, Smile mappers</text>
+  <text x="980" y="386" class="member">ByteArray payloads</text>
+
+  <rect x="956" y="512" width="308" height="126" rx="7" class="format" filter="url(#softShadow)"/>
+  <text x="1110" y="544" text-anchor="middle" class="class-title">Text formats</text>
+  <line x1="956" y1="564" x2="1264" y2="564" class="sep"/>
+  <text x="980" y="590" class="member">CSV, Properties, TOML, YAML</text>
+  <text x="980" y="612" class="member">String-oriented serializers</text>
+
+  <rect x="956" y="724" width="308" height="112" rx="7" class="policy" filter="url(#softShadow)"/>
+  <text x="1110" y="756" text-anchor="middle" class="class-title">Format registry contract</text>
+  <line x1="956" y1="776" x2="1264" y2="776" class="sep"/>
+  <text x="980" y="802" class="member">defaultMapper + defaultFactory</text>
+  <text x="980" y="824" class="member">defaultSerializer singleton</text>
+
+  <rect x="1384" y="150" width="344" height="782" rx="16" class="policy-panel"/>
+  <text x="1414" y="190" class="panel-title">Field features</text>
+  <text x="1414" y="218" class="small">Annotations and read-side failure rules.</text>
+
+  <rect x="1420" y="286" width="272" height="126" rx="7" class="annotation" filter="url(#softShadow)"/>
+  <text x="1556" y="318" text-anchor="middle" class="class-title">Field modules</text>
+  <line x1="1420" y1="338" x2="1692" y2="338" class="sep"/>
+  <text x="1444" y="364" class="member">UUID Base62 module</text>
+  <text x="1444" y="386" class="member">Tink encrypt, masker</text>
+
+  <rect x="1420" y="512" width="272" height="126" rx="7" class="policy" filter="url(#softShadow)"/>
+  <text x="1556" y="544" text-anchor="middle" class="class-title">Read side policy</text>
+  <line x1="1420" y1="564" x2="1692" y2="564" class="sep"/>
+  <text x="1444" y="590" class="member">readValueOrNull returns null</text>
+  <text x="1444" y="612" class="member">serializer throws wrapped errors</text>
+
+  <rect x="1420" y="724" width="272" height="112" rx="7" class="policy" filter="url(#softShadow)"/>
+  <text x="1556" y="756" text-anchor="middle" class="class-title">Streaming boundary</text>
+  <line x1="1420" y1="776" x2="1692" y2="776" class="sep"/>
+  <text x="1444" y="802" class="member">endOfInput required</text>
+  <text x="1444" y="824" class="member">consumeComplete for finite Flow</text>
+
+  <rect x="92" y="972" width="1616" height="82" rx="14" class="rule-panel"/>
+  <text x="122" y="1004" class="panel-title">Reader contract</text>
+  <text x="122" y="1032" class="small">For normal JSON use Jackson.defaultJsonMapper or JacksonSerializer. Choose JacksonBinary/JacksonText for explicit formats, and always signal EOF for finite non-blocking streams.</text>
+
+  <path d="M 392 344 L 512 344" class="flowBlue"/>
+  <path d="M 642 418 L 642 520" class="flowBlue"/>
+  <path d="M 512 584 L 444 584 L 444 744 L 392 744" class="flowGreen"/>
+
+  <path d="M 1110 412 L 1110 512" class="flowGreen"/>
+  <path d="M 1110 638 L 1110 724" class="flowGreen"/>
+
+  <text x="900" y="1086" text-anchor="middle" class="footer">github.com/bluetape4k/bluetape4k-projects - io/jackson2 README</text>
 </svg>
