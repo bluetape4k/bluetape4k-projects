@@ -1,85 +1,152 @@
-<svg data-intent="Explain Feign + coroutines integration by separating public builder support, coroutine builder path, codec/request helpers, Vert.x transport adapters, and the remote HTTP runtime." data-evidence="io/feign/README.md; io/feign/src/main/kotlin/io/bluetape4k/feign" data-source-read="io/feign/README.md; io/feign/src/main/kotlin/io/bluetape4k/feign" xmlns="http://www.w3.org/2000/svg" width="1500" height="1158" viewBox="0 0 1500 1158" role="img" aria-label="Feign + Coroutines Integration Architecture">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1158"/>
-<rect class="frame" x="34" y="30" width="1432" height="1098" rx="8"/>
-<text class="title" x="72" y="84">Feign + Coroutines Integration Architecture</text>
-<text class="subtitle" x="76" y="116">Feign support is organized around builder APIs, coroutine-friendly services, codec/request helpers, and Vert.x transport adapters.</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="234" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Public API</text></g>
-<g id="api">
-  <rect class="card" x="146" y="256" width="300" height="84" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="296" y="291" text-anchor="middle" dominant-baseline="middle">User API interface</text>
-  <text class="detail" x="296" y="321" text-anchor="middle" dominant-baseline="middle">Feign target contract</text>
-</g>
-<g id="builder">
-  <rect class="card" x="545" y="256" width="330" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="710" y="291" text-anchor="middle" dominant-baseline="middle">FeignBuilderSupport</text>
-  <text class="detail" x="710" y="321" text-anchor="middle" dominant-baseline="middle">base builder defaults</text>
-</g>
-<g id="coroutineBuilder">
-  <rect class="card" x="974" y="256" width="380" height="84" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="1164" y="291" text-anchor="middle" dominant-baseline="middle">FeignCoroutineBuilderSupport</text>
-  <text class="detail" x="1164" y="321" text-anchor="middle" dominant-baseline="middle">suspend service creation</text>
-</g>
-<g><rect class="panel" x="82" y="478" width="1336" height="234" rx="8"/><text class="panelTitle" x="110" y="514" dominant-baseline="middle">Request and codec support</text></g>
-<g id="request">
-  <rect class="card" x="146" y="574" width="340" height="84" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="316" y="609" text-anchor="middle" dominant-baseline="middle">FeignRequestSupport</text>
-  <text class="detail" x="316" y="639" text-anchor="middle" dominant-baseline="middle">headers, target, request options</text>
-</g>
-<g id="codec">
-  <rect class="card" x="600" y="574" width="320" height="84" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="760" y="609" text-anchor="middle" dominant-baseline="middle">Encoder / Decoder</text>
-  <text class="detail" x="760" y="639" text-anchor="middle" dominant-baseline="middle">JSON and body conversion</text>
-</g>
-<g id="result">
-  <rect class="card" x="1034" y="574" width="320" height="84" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1194" y="609" text-anchor="middle" dominant-baseline="middle">Coroutine result path</text>
-  <text class="detail" x="1194" y="639" text-anchor="middle" dominant-baseline="middle">suspend call adaptation</text>
-</g>
-<g><rect class="panel" x="82" y="796" width="1336" height="234" rx="8"/><text class="panelTitle" x="110" y="832" dominant-baseline="middle">Transport adapters</text></g>
-<g id="vertx">
-  <rect class="card" x="146" y="892" width="330" height="84" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="311" y="927" text-anchor="middle" dominant-baseline="middle">VertxHttpClient</text>
-  <text class="detail" x="311" y="957" text-anchor="middle" dominant-baseline="middle">blocking Feign client bridge</text>
-</g>
-<g id="remote">
-  <rect class="card" x="590" y="892" width="310" height="84" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="745" y="927" text-anchor="middle" dominant-baseline="middle">Remote HTTP API</text>
-  <text class="detail" x="745" y="957" text-anchor="middle" dominant-baseline="middle">request/response runtime</text>
-</g>
-<g id="asyncVertx">
-  <rect class="card" x="1014" y="892" width="340" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="1184" y="927" text-anchor="middle" dominant-baseline="middle">AsyncVertxHttpClient</text>
-  <text class="detail" x="1184" y="957" text-anchor="middle" dominant-baseline="middle">async transport bridge</text>
-</g>
-<path class="route" data-from="api" data-to="builder" d="M446 298 L545 298" stroke="#1D4ED8"/>
-<path class="route" data-from="builder" data-to="coroutineBuilder" d="M875 298 L974 298" stroke="#15803D"/>
-<path class="route" data-from="builder" data-to="request" d="M710 340 L710 457 L388 457 L388 574" stroke="#7E22CE"/>
-<path class="route" data-from="coroutineBuilder" data-to="result" d="M1164 340 L1164 468 L1194 468 L1194 574" stroke="#0F766E"/>
-<path class="route" data-from="request" data-to="codec" d="M486 616 L600 616" stroke="#7E22CE"/>
-<path class="route" data-from="codec" data-to="vertx" d="M658 658 L658 753 L383 753 L383 892" stroke="#C2410C"/>
-<path class="route" data-from="codec" data-to="asyncVertx" d="M862 658 L862 764 L1184 764 L1184 892" stroke="#C2410C"/>
-<path class="route" data-from="vertx" data-to="remote" d="M476 934 L590 934" stroke="#4D7C0F"/>
-<path class="route" data-from="asyncVertx" data-to="remote" d="M1014 934 L900 934" stroke="#15803D"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1080" viewBox="0 0 1760 1080" role="img" aria-label="Feign + Coroutines Integration Architecture">
+  <defs>
+    <filter id="soft-shadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow-blue" viewBox="0 0 10 10" markerWidth="14" markerHeight="14" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" markerWidth="14" markerHeight="14" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#7c3aed" stroke="#7c3aed" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#16a34a" stroke="#16a34a" stroke-dasharray="none"/>
+    </marker>
+    <style>
+      svg {
+        font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif;
+      }
+      .canvas { fill: #f8fafc; }
+      .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.6; filter: url(#soft-shadow); }
+      .title { font-family: "Architects Daughter", "Comic Mono", sans-serif; font-size: 44px; fill: #0f172a; }
+      .subtitle { font-family: "Comic Mono", monospace; font-size: 16px; fill: #475569; }
+      .lane { stroke-width: 1.7; }
+      .lane-title { font-family: "Architects Daughter", "Comic Mono", sans-serif; font-size: 27px; fill: #0f172a; }
+      .lane-sub { font-family: "Comic Mono", monospace; font-size: 13.5px; fill: #64748b; }
+      .card { stroke-width: 1.8; filter: url(#soft-shadow); }
+      .card-title { font-family: "Architects Daughter", "Comic Mono", sans-serif; font-size: 22px; fill: #0f172a; }
+      .card-sub { font-family: "Comic Mono", monospace; font-size: 12.8px; fill: #475569; }
+      .tag { font-family: "Comic Mono", monospace; font-size: 12px; font-weight: 700; letter-spacing: 0; }
+      .sync-flow { fill: none; stroke: #2563eb; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-blue); }
+      .async-flow { fill: none; stroke: #7c3aed; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-purple); }
+      .label { font-family: "Comic Mono", monospace; font-size: 12px; fill: #475569; }
+      .legend { font-family: "Comic Mono", monospace; font-size: 13px; fill: #475569; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1760" height="1080"/>
+  <rect class="frame" x="36" y="30" width="1688" height="1020" rx="8"/>
+  <text class="title" x="78" y="86">Feign + Coroutines Integration Architecture</text>
+  <text class="subtitle" x="82" y="118">A user-declared REST interface is materialized through either the sync Feign builder or the coroutine builder.</text>
+
+  <g id="sync-lane">
+    <rect class="lane" x="82" y="160" width="1596" height="310" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>
+    <text class="lane-title" x="116" y="205">Synchronous client path</text>
+    <text class="lane-sub" x="118" y="232">Use for ordinary blocking interface methods where the caller owns the request thread.</text>
+
+    <g transform="translate(118 284)">
+      <rect class="card" width="230" height="106" rx="8" fill="#ffffff" stroke="#2563eb"/>
+      <text class="card-title" x="115" y="36" text-anchor="middle">API interface</text>
+      <text class="card-sub" x="115" y="64" text-anchor="middle">@RequestLine methods</text>
+      <text class="card-sub" x="115" y="84" text-anchor="middle">dynamic URI allowed</text>
+    </g>
+    <g transform="translate(420 284)">
+      <rect class="card" width="250" height="106" rx="8" fill="#dbeafe" stroke="#2563eb"/>
+      <text class="card-title" x="125" y="36" text-anchor="middle">feignBuilderOf</text>
+      <text class="card-sub" x="125" y="64" text-anchor="middle">client / encoder / decoder</text>
+      <text class="card-sub" x="125" y="84" text-anchor="middle">options + log level</text>
+    </g>
+    <g transform="translate(742 284)">
+      <rect class="card" width="240" height="106" rx="8" fill="#ffffff" stroke="#2563eb"/>
+      <text class="card-title" x="120" y="36" text-anchor="middle">Feign.Builder</text>
+      <text class="card-sub" x="120" y="64" text-anchor="middle">target&lt;T&gt;(baseUrl)</text>
+      <text class="card-sub" x="120" y="84" text-anchor="middle">EmptyTarget for dynamic URL</text>
+    </g>
+    <g transform="translate(1054 284)">
+      <rect class="card" width="250" height="106" rx="8" fill="#ffffff" stroke="#2563eb"/>
+      <text class="card-title" x="125" y="36" text-anchor="middle">Sync transport</text>
+      <text class="card-sub" x="125" y="64" text-anchor="middle">ApacheHttp5Client</text>
+      <text class="card-sub" x="125" y="84" text-anchor="middle">VertxHttpClient guarded</text>
+    </g>
+    <g transform="translate(1380 284)">
+      <rect class="card" width="230" height="106" rx="8" fill="#ffffff" stroke="#2563eb"/>
+      <text class="card-title" x="115" y="36" text-anchor="middle">Remote HTTP API</text>
+      <text class="card-sub" x="115" y="64" text-anchor="middle">request / response</text>
+      <text class="card-sub" x="115" y="84" text-anchor="middle">decoded result</text>
+    </g>
+
+    <path class="sync-flow" d="M 348 337 L 410 337"/>
+    <path class="sync-flow" d="M 670 337 L 732 337"/>
+    <path class="sync-flow" d="M 982 337 L 1044 337"/>
+    <path class="sync-flow" d="M 1304 337 L 1370 337"/>
+  </g>
+
+  <g id="async-lane">
+    <rect class="lane" x="82" y="510" width="1596" height="310" rx="8" fill="#faf5ff" stroke="#ddd6fe"/>
+    <text class="lane-title" x="116" y="555">Coroutine client path</text>
+    <text class="lane-sub" x="118" y="582">Use for suspend functions backed by AsyncClient and CompletableFuture completion.</text>
+
+    <g transform="translate(118 634)">
+      <rect class="card" width="230" height="106" rx="8" fill="#ffffff" stroke="#7c3aed"/>
+      <text class="card-title" x="115" y="36" text-anchor="middle">Suspend API</text>
+      <text class="card-sub" x="115" y="64" text-anchor="middle">suspend fun methods</text>
+      <text class="card-sub" x="115" y="84" text-anchor="middle">CoroutineFeign target</text>
+    </g>
+    <g transform="translate(420 634)">
+      <rect class="card" width="250" height="106" rx="8" fill="#ede9fe" stroke="#7c3aed"/>
+      <text class="card-title" x="125" y="36" text-anchor="middle">coroutineBuilderOf</text>
+      <text class="card-sub" x="125" y="64" text-anchor="middle">AsyncClient + codecs</text>
+      <text class="card-sub" x="125" y="84" text-anchor="middle">default virtual-thread async</text>
+    </g>
+    <g transform="translate(742 634)">
+      <rect class="card" width="240" height="106" rx="8" fill="#ffffff" stroke="#7c3aed"/>
+      <text class="card-title" x="120" y="36" text-anchor="middle">CoroutineBuilder</text>
+      <text class="card-sub" x="120" y="64" text-anchor="middle">target&lt;T&gt;(baseUrl)</text>
+      <text class="card-sub" x="120" y="84" text-anchor="middle">suspend adapter</text>
+    </g>
+    <g transform="translate(1054 634)">
+      <rect class="card" width="250" height="106" rx="8" fill="#ffffff" stroke="#7c3aed"/>
+      <text class="card-title" x="125" y="36" text-anchor="middle">Async transport</text>
+      <text class="card-sub" x="125" y="64" text-anchor="middle">AsyncApacheHttp5Client</text>
+      <text class="card-sub" x="125" y="84" text-anchor="middle">AsyncVertxHttpClient</text>
+    </g>
+    <g transform="translate(1380 634)">
+      <rect class="card" width="230" height="106" rx="8" fill="#ffffff" stroke="#7c3aed"/>
+      <text class="card-title" x="115" y="36" text-anchor="middle">Remote HTTP API</text>
+      <text class="card-sub" x="115" y="64" text-anchor="middle">CompletableFuture</text>
+      <text class="card-sub" x="115" y="84" text-anchor="middle">suspend result</text>
+    </g>
+
+    <path class="async-flow" d="M 348 687 L 410 687"/>
+    <path class="async-flow" d="M 670 687 L 732 687"/>
+    <path class="async-flow" d="M 982 687 L 1044 687"/>
+    <path class="async-flow" d="M 1304 687 L 1370 687"/>
+  </g>
+
+  <g id="shared-support">
+    <rect class="lane" x="250" y="858" width="1260" height="126" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text class="lane-title" x="286" y="900">Shared support</text>
+    <g transform="translate(516 890)">
+      <rect class="card" width="250" height="62" rx="8" fill="#f0fdfa" stroke="#0d9488"/>
+      <text class="card-title" x="125" y="25" text-anchor="middle">Encoder / Decoder</text>
+      <text class="card-sub" x="125" y="47" text-anchor="middle">Jackson or Fastjson2</text>
+    </g>
+    <g transform="translate(824 890)">
+      <rect class="card" width="250" height="62" rx="8" fill="#f0fdf4" stroke="#16a34a"/>
+      <text class="card-title" x="125" y="25" text-anchor="middle">Request helpers</text>
+      <text class="card-sub" x="125" y="47" text-anchor="middle">options, headers, body</text>
+    </g>
+    <g transform="translate(1132 890)">
+      <rect class="card" width="250" height="62" rx="8" fill="#fff7ed" stroke="#ea580c"/>
+      <text class="card-title" x="125" y="25" text-anchor="middle">Response helpers</text>
+      <text class="card-sub" x="125" y="47" text-anchor="middle">isJsonBody, bodyAsReader</text>
+    </g>
+  </g>
+
+  <g transform="translate(128 1010)">
+    <line x1="0" y1="0" x2="34" y2="0" stroke="#2563eb" stroke-width="4.5" marker-end="url(#arrow-blue)"/>
+    <text class="legend" x="50" y="5">sync Feign path</text>
+    <line x1="220" y1="0" x2="254" y2="0" stroke="#7c3aed" stroke-width="4.5" marker-end="url(#arrow-purple)"/>
+    <text class="legend" x="270" y="5">coroutine path</text>
+  </g>
 </svg>
