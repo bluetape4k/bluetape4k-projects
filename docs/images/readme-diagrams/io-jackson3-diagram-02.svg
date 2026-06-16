@@ -26,6 +26,7 @@
       .module { fill: #fffafa; stroke: #b65f68; stroke-width: 2; }
       .sep { stroke: #d6dee2; stroke-width: 1.5; }
       .extends { fill: none; stroke: #263238; stroke-width: 1.9; marker-end: url(#hollowDark); }
+      .inheritBus { fill: none; stroke: #263238; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
       .realize { fill: none; stroke: #455a64; stroke-width: 1.7; stroke-dasharray: 7 5; marker-end: url(#hollowSlate); }
       .usesBlue { fill: none; stroke: #4b74a5; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowBlue); }
       .usesGreen { fill: none; stroke: #5d7b63; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowGreen); }
@@ -166,8 +167,8 @@
   <path d="M 804 638 L 804 762" class="flowBlue"/>
   <path d="M 1068 638 L 1068 762" class="flowBlue"/>
 
-  <path d="M 804 874 L 804 1018 L 534 1018 L 534 930 L 506 930" class="extends"/>
-  <path d="M 1068 874 L 1068 1040 L 558 1040 L 558 960 L 506 960" class="extends"/>
+  <path d="M 804 874 L 804 1020 L 1068 1020 L 1068 874" class="inheritBus"/>
+  <path d="M 936 1020 H 558 L 558 930 H 506" class="extends"/>
 
   <path d="M 1194 338 H 1324" class="usesGold"/>
   <path d="M 1194 526 H 1324" class="usesGold"/>
