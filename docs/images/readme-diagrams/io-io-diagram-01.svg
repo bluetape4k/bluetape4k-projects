@@ -1,89 +1,158 @@
-<svg data-intent="Regenerate Compressor Hierarchy from the current README and source package surface for io/io." data-evidence="io/io/README.md; io/io; io/io/src/main/kotlin" data-source-read="io/io/README.md; io/io; io/io/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Compressor Hierarchy">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">Compressor Hierarchy</text>
-<text class="subtitle" x="76" y="116">io/io: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Architecture</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Compressor Hierarchy</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">BinarySerializer Hierarchy</text>
-</g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">io package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">io package (48)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">ByteBufferInputStream type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">ByteBufferInputStream type</text>
-</g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">ByteBufferOutputStream type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">ByteBufferOutputStream type</text>
-</g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">MyCompressor type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">MyCompressor type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Reactive bridge</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Reactive bridge</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Redis backend</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Redis backend</text>
-</g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Serialization</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Serialization</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
-<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1180" viewBox="0 0 1800 1180" role="img" aria-labelledby="title desc">
+  <title id="title">bluetape4k-io compressor hierarchy</title>
+  <desc id="desc">UML-style map of one-shot Compressor contracts, grouped concrete compressor families, streaming adapters, and ZIP file support in bluetape4k-io.</desc>
+  <defs>
+    <style>
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #263238; }
+      .subtitle, .member, .small, .footer, .label { font-family: "Comic Mono"; fill: #36464f; }
+      .subtitle { font-size: 18px; }
+      .panel-title, .lane-title, .class-title { font-family: "Architects Daughter"; fill: #1f3138; }
+      .panel-title { font-size: 25px; }
+      .lane-title { font-size: 20px; }
+      .class-title { font-size: 21px; }
+      .member { font-size: 14px; }
+      .small { font-size: 13px; }
+      .label { font-size: 12px; fill: #546a73; }
+      .footer { font-size: 14px; fill: #60727d; }
+      .frame { fill: #fbfcf8; stroke: #41545d; stroke-width: 3; }
+      .class-panel { fill: #eef6f8; stroke: #b2cbd2; stroke-width: 2; }
+      .stream-panel { fill: #f7f4ed; stroke: #d0c4ad; stroke-width: 2; }
+      .rule-panel { fill: #ffffff; stroke: #c6d2d5; stroke-width: 2; }
+      .api { fill: #ffffff; stroke: #4f6c77; stroke-width: 2; }
+      .abstract { fill: #fffdf7; stroke: #8a7447; stroke-width: 2; }
+      .impl { fill: #fdfefe; stroke: #5d7b63; stroke-width: 2; }
+      .registry { fill: #f7fbff; stroke: #6c86a1; stroke-width: 2; }
+      .stream { fill: #fff8ec; stroke: #b48748; stroke-width: 2; }
+      .security { fill: #fffafa; stroke: #b65f68; stroke-width: 2; }
+      .sep { stroke: #d6dee2; stroke-width: 1.5; }
+      .extends { fill: none; stroke: #263238; stroke-width: 1.9; marker-end: url(#hollowDark); }
+      .realize { fill: none; stroke: #455a64; stroke-width: 1.7; stroke-dasharray: 7 5; marker-end: url(#hollowSlate); }
+      .usesBlue { fill: none; stroke: #4b74a5; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowBlue); }
+      .usesGold { fill: none; stroke: #a2743d; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowGold); }
+      .usesRed { fill: none; stroke: #b65f68; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowRed); }
+      .flowGreen { fill: none; stroke: #5d7b63; stroke-width: 2; marker-end: url(#arrowGreen); }
+      .inheritBus { fill: none; stroke: #263238; stroke-width: 1.9; }
+    </style>
+    <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="hollowDark" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#263238" stroke-width="1.7"/>
+    </marker>
+    <marker id="hollowSlate" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#455a64" stroke-width="1.7"/>
+    </marker>
+    <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="1752" height="1132" rx="20" class="frame"/>
+  <text x="900" y="78" text-anchor="middle" class="title">bluetape4k-io Compressor Hierarchy</text>
+  <text x="900" y="108" text-anchor="middle" class="subtitle">One-shot compressors share a base contract; streaming support is wrapper-backed or one-shot adapted.</text>
+
+  <rect x="72" y="150" width="1128" height="784" rx="16" class="class-panel"/>
+  <text x="102" y="190" class="panel-title">One-shot class hierarchy and algorithm choices</text>
+  <text x="102" y="218" class="small">Compressor owns the public API. AbstractCompressor centralizes null, empty input, and nullable failure policy.</text>
+
+  <rect x="420" y="262" width="430" height="126" rx="7" class="api" filter="url(#softShadow)"/>
+  <text x="635" y="294" text-anchor="middle" class="class-title">Compressor</text>
+  <line x1="420" y1="314" x2="850" y2="314" class="sep"/>
+  <text x="452" y="340" class="member">+ compress(ByteArray?): ByteArray</text>
+  <text x="452" y="362" class="member">+ decompress(ByteArray?): ByteArray</text>
+
+  <rect x="420" y="476" width="430" height="154" rx="7" class="abstract" filter="url(#softShadow)"/>
+  <text x="635" y="508" text-anchor="middle" class="class-title">AbstractCompressor</text>
+  <line x1="420" y1="528" x2="850" y2="528" class="sep"/>
+  <text x="452" y="554" class="member"># doCompress(ByteArray)</text>
+  <text x="452" y="576" class="member"># doDecompress(ByteArray)</text>
+  <text x="452" y="598" class="member">+ compressOrNull / decompressOrNull</text>
+
+  <rect x="112" y="472" width="250" height="158" rx="7" class="registry" filter="url(#softShadow)"/>
+  <text x="237" y="504" text-anchor="middle" class="class-title">Compressors</text>
+  <line x1="112" y1="524" x2="362" y2="524" class="sep"/>
+  <text x="136" y="550" class="member">lazy shared instances</text>
+  <text x="136" y="572" class="member">LZ4, Snappy, Zstd</text>
+  <text x="136" y="594" class="member">GZip, Deflate, Zip</text>
+  <text x="136" y="616" class="member">Streaming nested registry</text>
+
+  <rect x="908" y="472" width="250" height="158" rx="7" class="registry" filter="url(#softShadow)"/>
+  <text x="1033" y="504" text-anchor="middle" class="class-title">API policy</text>
+  <line x1="908" y1="524" x2="1158" y2="524" class="sep"/>
+  <text x="932" y="550" class="member">throwing APIs propagate</text>
+  <text x="932" y="572" class="member">empty input returns empty</text>
+  <text x="932" y="594" class="member">OrNull APIs return null</text>
+
+  <rect x="118" y="728" width="306" height="126" rx="7" class="impl" filter="url(#softShadow)"/>
+  <text x="271" y="760" text-anchor="middle" class="class-title">Fast latency</text>
+  <line x1="118" y1="780" x2="424" y2="780" class="sep"/>
+  <text x="146" y="806" class="member">LZ4, BlockLZ4, FramedLZ4</text>
+  <text x="146" y="828" class="member">Snappy, FramedSnappy</text>
+
+  <rect x="482" y="728" width="306" height="126" rx="7" class="impl" filter="url(#softShadow)"/>
+  <text x="635" y="760" text-anchor="middle" class="class-title">Network balanced</text>
+  <line x1="482" y1="780" x2="788" y2="780" class="sep"/>
+  <text x="510" y="806" class="member">Zstd, ApacheZstd</text>
+  <text x="510" y="828" class="member">GZip, ApacheGZip, Deflate</text>
+
+  <rect x="846" y="728" width="306" height="126" rx="7" class="impl" filter="url(#softShadow)"/>
+  <text x="999" y="760" text-anchor="middle" class="class-title">Storage and archive</text>
+  <line x1="846" y1="780" x2="1152" y2="780" class="sep"/>
+  <text x="874" y="806" class="member">BZip2 for ratio-first storage</text>
+  <text x="874" y="828" class="member">Zip for archive compatibility</text>
+
+  <rect x="1256" y="150" width="472" height="784" rx="16" class="stream-panel"/>
+  <text x="1286" y="190" class="panel-title">Streaming and ZIP support</text>
+  <text x="1286" y="218" class="small">Use real stream wrappers where codecs expose them.</text>
+  <text x="1286" y="240" class="small">Fallback adapters preserve the same public contract.</text>
+
+  <rect x="1316" y="294" width="352" height="126" rx="7" class="api" filter="url(#softShadow)"/>
+  <text x="1492" y="326" text-anchor="middle" class="class-title">StreamingCompressor</text>
+  <line x1="1316" y1="346" x2="1668" y2="346" class="sep"/>
+  <text x="1340" y="372" class="member">+ compressing(OutputStream)</text>
+  <text x="1340" y="394" class="member">+ decompressing(InputStream)</text>
+
+  <rect x="1316" y="520" width="352" height="148" rx="7" class="stream" filter="url(#softShadow)"/>
+  <text x="1492" y="552" text-anchor="middle" class="class-title">StreamingCompressors</text>
+  <line x1="1316" y1="572" x2="1668" y2="572" class="sep"/>
+  <text x="1340" y="598" class="member">Compressors.Streaming registry</text>
+  <text x="1340" y="620" class="member">of(wrapper factories)</text>
+  <text x="1340" y="642" class="member">from(Compressor) one-shot adapter</text>
+
+  <rect x="1316" y="748" width="352" height="106" rx="7" class="security" filter="url(#softShadow)"/>
+  <text x="1492" y="780" text-anchor="middle" class="class-title">ZipBuilder and ZipFileSupport</text>
+  <line x1="1316" y1="800" x2="1668" y2="800" class="sep"/>
+  <text x="1340" y="826" class="member">in-memory or file ZIP builder</text>
+  <text x="1340" y="848" class="member">Zip Slip and zip bomb guards</text>
+
+  <rect x="92" y="976" width="1616" height="82" rx="14" class="rule-panel"/>
+  <text x="122" y="1008" class="panel-title">Reader contract</text>
+  <text x="122" y="1036" class="small">Use Compressors for shared one-shot codecs. Choose Compressors.Streaming for stream APIs; wrapper-backed codecs avoid buffering, while one-shot adapters preserve compatibility.</text>
+
+  <path d="M 635 476 L 635 388" class="realize"/>
+  <rect x="656" y="422" width="90" height="24" rx="12" fill="#ffffff" stroke="#d7e0e4"/>
+  <text x="701" y="439" text-anchor="middle" class="label">implements</text>
+
+  <path d="M 635 728 L 635 630" class="extends"/>
+  <path d="M 271 728 L 271 682 L 635 682" class="inheritBus"/>
+  <path d="M 999 728 L 999 682 L 635 682" class="inheritBus"/>
+  <rect x="648" y="650" width="112" height="24" rx="12" fill="#ffffff" stroke="#d7e0e4"/>
+  <text x="704" y="667" text-anchor="middle" class="label">grouped subclasses</text>
+
+  <path d="M 362 544 L 420 544" class="flowGreen"/>
+  <path d="M 850 554 L 908 554" class="usesBlue"/>
+
+  <path d="M 1492 520 L 1492 420" class="realize"/>
+  <path d="M 1492 668 L 1492 748" class="usesRed"/>
+
+  <text x="900" y="1116" text-anchor="middle" class="footer">github.com/bluetape4k/bluetape4k-projects - io/io README</text>
 </svg>
