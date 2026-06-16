@@ -1,92 +1,218 @@
-<svg data-intent="Regenerate Resilience4j Coroutines Integration Class Diagram from the current README and source package surface for infra/resilience4j." data-evidence="infra/resilience4j/README.md; infra/resilience4j; infra/resilience4j/src/main/kotlin" data-source-read="infra/resilience4j/README.md; infra/resilience4j; infra/resilience4j/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Resilience4j Coroutines Integration Class Diagram">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">Resilience4j Coroutines Integration Class Diagram</text>
-<text class="subtitle" x="76" y="116">infra/resilience4j: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Class Structure</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Architecture</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Features</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Coroutines support: Circuit</text>
-  <text class="detail" x="1257" y="311" text-anchor="middle">Breaker, Retry, RateLimiter,</text>
-</g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">resilience4j package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">resilience4j package (22)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">DecorateCompletableFutureFunction type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">DecorateCompletableFutureFunction</text>
-  <text class="detail" x="581" y="591" text-anchor="middle">type</text>
-</g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">SuspendDecorators type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">SuspendDecorators type</text>
-</g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">DecoratorForSuspendSupplier type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">DecoratorForSuspendSupplier</text>
-  <text class="detail" x="1257" y="591" text-anchor="middle">type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Reactive bridge</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Reactive bridge</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Redis backend</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Redis backend</text>
-</g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Serialization</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Serialization</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
-<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1160" viewBox="0 0 1800 1160" role="img" aria-label="Resilience4j Coroutines Integration Class Diagram">
+  <defs>
+    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#2563EB" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#EA580C" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="triangle-purple" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 12 6 L 1 11 Z" fill="#FFFFFF" stroke="#9333EA" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <style>
+      svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+      .canvas { fill: #F8FAFC; }
+      .frame { fill: #FFFFFF; stroke: #CBD5E1; stroke-width: 1.6; filter: url(#softShadow); }
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #0F172A; }
+      .subtitle { font-family: "Comic Mono"; font-size: 16px; fill: #475569; }
+      .panel { fill: #FFFFFF; stroke: #CBD5E1; stroke-width: 1.5; }
+      .panelTitle { font-family: "Comic Mono"; font-size: 18px; fill: #334155; }
+      .card { stroke-width: 1.8; filter: url(#softShadow); }
+      .className { font-family: "Architects Daughter"; font-size: 23px; fill: #0F172A; }
+      .stereo { font-family: "Comic Mono"; font-size: 12px; fill: #64748B; }
+      .member { font-family: "Comic Mono"; font-size: 13px; fill: #475569; }
+      .small { font-family: "Comic Mono"; font-size: 12px; fill: #64748B; }
+      .usesBlue { fill: none; stroke: #2563EB; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 9 7; marker-end: url(#arrow-blue); }
+      .usesGreen { fill: none; stroke: #16A34A; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 9 7; marker-end: url(#arrow-green); }
+      .refOrange { fill: none; stroke: #EA580C; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-orange); }
+      .implPurple { fill: none; stroke: #9333EA; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 9 7; marker-end: url(#triangle-purple); }
+      .note { fill: #F8FAFC; stroke: #CBD5E1; stroke-width: 1.3; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1800" height="1160"/>
+  <rect class="frame" x="34" y="30" width="1732" height="1098" rx="8"/>
+
+  <text class="title" x="72" y="82">Resilience4j Coroutines Integration Class Diagram</text>
+  <text class="subtitle" x="76" y="114">Suspend wrappers, decorator builders, fallback, and cache paths in infra/resilience4j.</text>
+
+  <g>
+    <rect class="panel" x="70" y="145" width="1660" height="175" rx="8"/>
+    <text class="panelTitle" x="96" y="176">Resilience4j primitives</text>
+  </g>
+  <g>
+    <rect class="panel" x="70" y="360" width="1660" height="205" rx="8"/>
+    <text class="panelTitle" x="96" y="391">Coroutine extension surface</text>
+  </g>
+  <g>
+    <rect class="panel" x="70" y="610" width="1660" height="275" rx="8"/>
+    <text class="panelTitle" x="96" y="641">Composable decorator builders</text>
+  </g>
+  <g>
+    <rect class="panel" x="70" y="925" width="1660" height="170" rx="8"/>
+    <text class="panelTitle" x="96" y="956">Cache contract and runtime guarantees</text>
+  </g>
+
+  <g id="prim-cb">
+    <rect class="card" x="100" y="205" width="230" height="84" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+    <text class="className" x="215" y="235" text-anchor="middle">CircuitBreaker</text>
+    <text class="stereo" x="215" y="260" text-anchor="middle">Resilience4j policy</text>
+    <text class="member" x="215" y="279" text-anchor="middle">open / half-open / close</text>
+  </g>
+  <g id="prim-retry">
+    <rect class="card" x="370" y="205" width="230" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+    <text class="className" x="485" y="235" text-anchor="middle">Retry</text>
+    <text class="stereo" x="485" y="260" text-anchor="middle">Resilience4j policy</text>
+    <text class="member" x="485" y="279" text-anchor="middle">attempt context + delay</text>
+  </g>
+  <g id="prim-rl">
+    <rect class="card" x="640" y="205" width="230" height="84" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+    <text class="className" x="755" y="235" text-anchor="middle">RateLimiter</text>
+    <text class="stereo" x="755" y="260" text-anchor="middle">Resilience4j policy</text>
+    <text class="member" x="755" y="279" text-anchor="middle">suspends while waiting</text>
+  </g>
+  <g id="prim-bh">
+    <rect class="card" x="910" y="205" width="230" height="84" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+    <text class="className" x="1025" y="235" text-anchor="middle">Bulkhead</text>
+    <text class="stereo" x="1025" y="260" text-anchor="middle">Resilience4j policy</text>
+    <text class="member" x="1025" y="279" text-anchor="middle">semaphore permission</text>
+  </g>
+  <g id="prim-tl">
+    <rect class="card" x="1180" y="205" width="230" height="84" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+    <text class="className" x="1295" y="235" text-anchor="middle">TimeLimiter</text>
+    <text class="stereo" x="1295" y="260" text-anchor="middle">Resilience4j policy</text>
+    <text class="member" x="1295" y="279" text-anchor="middle">coroutine timeout</text>
+  </g>
+  <g id="prim-cache">
+    <rect class="card" x="1450" y="205" width="230" height="84" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+    <text class="className" x="1565" y="235" text-anchor="middle">Cache&lt;K,V&gt;</text>
+    <text class="stereo" x="1565" y="260" text-anchor="middle">Resilience4j facade</text>
+    <text class="member" x="1565" y="279" text-anchor="middle">compatibility cache path</text>
+  </g>
+
+  <g id="wrap-cb">
+    <rect class="card" x="100" y="430" width="230" height="104" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+    <text class="className" x="215" y="460" text-anchor="middle">CB coroutines</text>
+    <text class="member" x="122" y="487">+ withCircuitBreaker()</text>
+    <text class="member" x="122" y="508">+ decorateFunction1/bi()</text>
+  </g>
+  <g id="wrap-retry">
+    <rect class="card" x="370" y="430" width="230" height="104" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+    <text class="className" x="485" y="460" text-anchor="middle">Retry coroutines</text>
+    <text class="member" x="392" y="487">+ withRetry()</text>
+    <text class="member" x="392" y="508">+ preserve cancellation</text>
+  </g>
+  <g id="wrap-rl">
+    <rect class="card" x="640" y="430" width="230" height="104" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+    <text class="className" x="755" y="460" text-anchor="middle">Limiter coroutines</text>
+    <text class="member" x="662" y="487">+ withRateLimiter()</text>
+    <text class="member" x="662" y="508">+ suspend wait path</text>
+  </g>
+  <g id="wrap-bh">
+    <rect class="card" x="910" y="430" width="230" height="104" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+    <text class="className" x="1025" y="460" text-anchor="middle">Bulkhead coroutines</text>
+    <text class="member" x="932" y="487">+ withBulkhead()</text>
+    <text class="member" x="932" y="508">+ permission guard</text>
+  </g>
+  <g id="wrap-tl">
+    <rect class="card" x="1180" y="430" width="230" height="104" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+    <text class="className" x="1295" y="460" text-anchor="middle">Time coroutines</text>
+    <text class="member" x="1202" y="487">+ withTimeLimiter()</text>
+    <text class="member" x="1202" y="508">+ timeout cancels job</text>
+  </g>
+  <g id="wrap-cache">
+    <rect class="card" x="1450" y="430" width="230" height="104" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+    <text class="className" x="1565" y="460" text-anchor="middle">Cache coroutines</text>
+    <text class="member" x="1472" y="487">+ withCache()</text>
+    <text class="member" x="1472" y="508">+ executeSuspendFunction()</text>
+  </g>
+
+  <path class="usesBlue" d="M 215 430 L 215 289"/>
+  <path class="usesGreen" d="M 485 430 L 485 289"/>
+  <path class="usesGreen" d="M 755 430 L 755 289"/>
+  <path class="refOrange" d="M 1025 430 L 1025 289"/>
+  <path class="usesBlue" d="M 1295 430 L 1295 289"/>
+  <path class="usesGreen" d="M 1565 430 L 1565 289"/>
+
+  <g id="decorators">
+    <rect class="card" x="520" y="685" width="520" height="134" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+    <text class="stereo" x="780" y="713" text-anchor="middle">&lt;&lt;object&gt;&gt;</text>
+    <text class="className" x="780" y="740" text-anchor="middle">SuspendDecorators</text>
+    <line x1="540" y1="756" x2="1020" y2="756" stroke="#CBD5E1" stroke-width="1"/>
+    <text class="member" x="550" y="780">+ ofSupplier() / ofRunnable()</text>
+    <text class="member" x="550" y="801">+ ofFunction1() / ofFunction2()</text>
+  </g>
+
+  <g id="builder-supplier">
+    <rect class="card" x="115" y="730" width="350" height="118" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+    <text class="className" x="290" y="760" text-anchor="middle">DecoratorForSupplier</text>
+    <text class="member" x="137" y="787">+ withXxx(policy)</text>
+    <text class="member" x="137" y="808">+ withFallback(handler)</text>
+    <text class="member" x="137" y="829">+ decorate() / invoke()</text>
+  </g>
+  <g id="builder-fn1">
+    <rect class="card" x="1105" y="680" width="310" height="118" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+    <text class="className" x="1260" y="710" text-anchor="middle">DecoratorFunction1</text>
+    <text class="member" x="1127" y="737">+ withCache(cache)</text>
+    <text class="member" x="1127" y="758">+ withSuspendCache()</text>
+    <text class="member" x="1127" y="779">+ invoke(input)</text>
+  </g>
+  <g id="builder-fn2">
+    <rect class="card" x="1430" y="680" width="260" height="118" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+    <text class="className" x="1560" y="710" text-anchor="middle">DecoratorFunction2</text>
+    <text class="member" x="1452" y="737">+ withXxx(policy)</text>
+    <text class="member" x="1452" y="758">+ decorate()</text>
+    <text class="member" x="1452" y="779">+ invoke(a, b)</text>
+  </g>
+  <g id="fallback">
+    <rect class="note" x="1120" y="815" width="540" height="46" rx="8"/>
+    <text class="small" x="1140" y="843">Last withXxx call is outermost; fallback never recovers coroutine cancellation.</text>
+  </g>
+
+  <path class="usesBlue" d="M 650 819 L 650 875 L 290 875 L 290 848"/>
+  <path class="usesGreen" d="M 1040 725 L 1080 725 L 1080 650 L 1260 650 L 1260 680"/>
+  <path class="usesGreen" d="M 1040 705 L 1070 705 L 1070 630 L 1560 630 L 1560 680"/>
+
+  <g id="suspend-cache">
+    <rect class="card" x="115" y="990" width="370" height="82" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+    <text class="stereo" x="300" y="1017" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+    <text class="className" x="300" y="1044" text-anchor="middle">SuspendCache&lt;K,V&gt;</text>
+    <text class="member" x="300" y="1064" text-anchor="middle">computeIfAbsent(), metrics, events</text>
+  </g>
+  <g id="suspend-cache-impl">
+    <rect class="card" x="570" y="990" width="370" height="82" rx="8" fill="#FFFFFF" stroke="#9333EA"/>
+    <text class="className" x="755" y="1024" text-anchor="middle">SuspendCacheImpl</text>
+    <text class="member" x="755" y="1050" text-anchor="middle">JCache backed, per-key mutex</text>
+  </g>
+  <g id="jcache">
+    <rect class="card" x="1025" y="990" width="300" height="82" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+    <text class="className" x="1175" y="1024" text-anchor="middle">javax.cache.Cache</text>
+    <text class="member" x="1175" y="1050" text-anchor="middle">direct get / put backend</text>
+  </g>
+  <g id="guarantees">
+    <rect class="note" x="1385" y="978" width="285" height="105" rx="8"/>
+    <text class="small" x="1405" y="1005">Guarantees</text>
+    <text class="small" x="1405" y="1028">- CancellationException is rethrown.</text>
+    <text class="small" x="1405" y="1050">- Retry waits with delay().</text>
+    <text class="small" x="1405" y="1072">- Bulkhead wait may block.</text>
+  </g>
+
+  <path class="implPurple" d="M 570 1031 L 485 1031"/>
+  <path class="refOrange" d="M 940 1031 L 1025 1031"/>
+  <path class="usesGreen" d="M 1260 798 L 1260 910 L 90 910 L 90 1031 L 115 1031"/>
+
+  <g transform="translate(114, 1108)">
+    <path d="M 0 8 L 34 8" class="usesBlue"/>
+    <text class="small" x="46" y="13">uses dependency</text>
+    <path d="M 190 8 L 224 8" class="implPurple"/>
+    <text class="small" x="238" y="13">implements</text>
+    <path d="M 360 8 L 394 8" class="refOrange"/>
+    <text class="small" x="408" y="13">has / references</text>
+  </g>
 </svg>

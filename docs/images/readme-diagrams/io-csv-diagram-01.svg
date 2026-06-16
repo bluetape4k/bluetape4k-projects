@@ -1,89 +1,143 @@
-<svg data-intent="Regenerate bluetape4k-csv from the current README and source package surface for io/csv." data-evidence="io/csv/README.md; io/csv; io/csv/src/main/kotlin" data-source-read="io/csv/README.md; io/csv; io/csv/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="bluetape4k-csv">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">bluetape4k-csv</text>
-<text class="subtitle" x="76" y="116">io/csv: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Architecture</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Class Structure</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">CSV/TSV Processing Flow</text>
-</g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">csv package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">csv package (39)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">CsvRecordReader type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">CsvRecordReader type</text>
-</g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">CsvRecordWriter type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">CsvRecordWriter type</text>
-</g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">CsvSettings type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">CsvSettings type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Reactive bridge</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Reactive bridge</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Serialization</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Serialization</text>
-</g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Test support</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
-<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1120" viewBox="0 0 1760 1120" role="img" aria-label="CSV Class Structure">
+  <defs>
+    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.12"/>
+    </filter>
+    <marker id="open-blue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#2563EB" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="open-green" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="open-orange" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#EA580C" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <style>
+      svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+      .canvas { fill: #F8FAFC; }
+      .frame { fill: #FFFFFF; stroke: #CBD5E1; stroke-width: 1.6; filter: url(#softShadow); }
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #0F172A; }
+      .subtitle { font-family: "Comic Mono"; font-size: 16px; fill: #475569; }
+      .panel { fill: #FFFFFF; stroke: #CBD5E1; stroke-width: 1.5; }
+      .panelTitle { font-family: "Comic Mono"; font-size: 18px; fill: #334155; }
+      .card { stroke-width: 1.8; filter: url(#softShadow); }
+      .className { font-family: "Architects Daughter"; font-size: 24px; fill: #0F172A; }
+      .stereo { font-family: "Comic Mono"; font-size: 12px; fill: #64748B; }
+      .member { font-family: "Comic Mono"; font-size: 13px; fill: #475569; }
+      .small { font-family: "Comic Mono"; font-size: 12px; fill: #64748B; }
+      .divider { stroke: #CBD5E1; stroke-width: 1; }
+      .useBlue { fill: none; stroke: #2563EB; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 9 7; marker-end: url(#open-blue); }
+      .useGreen { fill: none; stroke: #16A34A; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 9 7; marker-end: url(#open-green); }
+      .flowOrange { fill: none; stroke: #EA580C; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#open-orange); }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1760" height="1120"/>
+  <rect class="frame" x="34" y="30" width="1692" height="1058" rx="8"/>
+
+  <text class="title" x="72" y="82">CSV / TSV Class Structure</text>
+  <text class="subtitle" x="76" y="114">Self-implemented RFC 4180 engine with V1 Sequence APIs, coroutine Flow APIs, and V2 Flow DSL.</text>
+
+  <g>
+    <rect class="panel" x="70" y="150" width="1620" height="220" rx="8"/>
+    <text class="panelTitle" x="96" y="182">Reader and writer contracts</text>
+  </g>
+  <g>
+    <rect class="panel" x="70" y="430" width="1620" height="260" rx="8"/>
+    <text class="panelTitle" x="96" y="462">Concrete APIs exposed to README users</text>
+  </g>
+  <g>
+    <rect class="panel" x="70" y="750" width="1620" height="250" rx="8"/>
+    <text class="panelTitle" x="96" y="782">Internal engine, settings, and row model</text>
+  </g>
+
+  <g id="sync-contract">
+    <rect class="card" x="110" y="215" width="450" height="115" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+    <text class="stereo" x="335" y="243" text-anchor="middle">V1 sync contracts</text>
+    <text class="className" x="335" y="273" text-anchor="middle">RecordReader / RecordWriter</text>
+    <line class="divider" x1="135" y1="288" x2="535" y2="288"/>
+    <text class="member" x="145" y="312">read() returns lazy Sequence&lt;T&gt;</text>
+  </g>
+  <g id="suspend-contract">
+    <rect class="card" x="655" y="215" width="450" height="115" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+    <text class="stereo" x="880" y="243" text-anchor="middle">Coroutine contracts</text>
+    <text class="className" x="880" y="273" text-anchor="middle">SuspendRecordReader / Writer</text>
+    <line class="divider" x1="680" y1="288" x2="1080" y2="288"/>
+    <text class="member" x="690" y="312">read() returns cold Flow&lt;T&gt;</text>
+  </g>
+  <g id="v2-contract">
+    <rect class="card" x="1200" y="215" width="450" height="115" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+    <text class="stereo" x="1425" y="243" text-anchor="middle">V2 Flow DSL</text>
+    <text class="className" x="1425" y="273" text-anchor="middle">FlowCsvReader / FlowCsvWriter</text>
+    <line class="divider" x1="1225" y1="288" x2="1625" y2="288"/>
+    <text class="member" x="1235" y="312">CsvRow model + builder configs</text>
+  </g>
+
+  <g id="sync-api">
+    <rect class="card" x="110" y="500" width="450" height="145" rx="8" fill="#FFFFFF" stroke="#2563EB"/>
+    <text class="className" x="335" y="535" text-anchor="middle">Csv/Tsv Record APIs</text>
+    <line class="divider" x1="135" y1="552" x2="535" y2="552"/>
+    <text class="member" x="145" y="577">CsvRecordReader, TsvRecordReader</text>
+    <text class="member" x="145" y="598">CsvRecordWriter, TsvRecordWriter</text>
+    <text class="member" x="145" y="619">File/InputStream extension helpers</text>
+  </g>
+  <g id="suspend-api">
+    <rect class="card" x="655" y="500" width="450" height="145" rx="8" fill="#FFFFFF" stroke="#16A34A"/>
+    <text class="className" x="880" y="535" text-anchor="middle">Suspend Csv/Tsv APIs</text>
+    <line class="divider" x1="680" y1="552" x2="1080" y2="552"/>
+    <text class="member" x="690" y="577">SuspendCsvRecordReader / Writer</text>
+    <text class="member" x="690" y="598">SuspendTsvRecordReader / Writer</text>
+    <text class="member" x="690" y="619">channelFlow + Dispatchers.IO</text>
+  </g>
+  <g id="v2-api">
+    <rect class="card" x="1200" y="500" width="450" height="145" rx="8" fill="#FFFFFF" stroke="#0D9488"/>
+    <text class="className" x="1425" y="535" text-anchor="middle">V2 Flow DSL APIs</text>
+    <line class="divider" x1="1225" y1="552" x2="1625" y2="552"/>
+    <text class="member" x="1235" y="577">csvReader(), tsvReader()</text>
+    <text class="member" x="1235" y="598">csvWriter(), tsvWriter()</text>
+    <text class="member" x="1235" y="619">quoteAll + UTF-8 Okio file path</text>
+  </g>
+
+  <path class="useBlue" d="M 560 572 L 590 572 L 590 390 L 335 390 L 335 330"/>
+  <path class="useGreen" d="M 880 500 L 880 330"/>
+  <path class="useGreen" d="M 1425 500 L 1425 330"/>
+
+  <g id="lexers">
+    <rect class="card" x="110" y="825" width="345" height="110" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+    <text class="className" x="282" y="858" text-anchor="middle">CsvLexer / TsvLexer</text>
+    <text class="member" x="135" y="884">self-implemented parser</text>
+    <text class="member" x="135" y="905">headers, max columns, field limits</text>
+  </g>
+  <g id="writers">
+    <rect class="card" x="515" y="825" width="345" height="110" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+    <text class="className" x="688" y="858" text-anchor="middle">Delimited writers</text>
+    <text class="member" x="540" y="884">CsvLineWriter / TsvLineWriter</text>
+    <text class="member" x="540" y="905">DelimitedWriter + Okio variant</text>
+  </g>
+  <g id="settings">
+    <rect class="card" x="920" y="825" width="345" height="110" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+    <text class="className" x="1092" y="858" text-anchor="middle">Settings</text>
+    <text class="member" x="945" y="884">CsvSettings / TsvSettings</text>
+    <text class="member" x="945" y="905">delimiter, quote, null policy</text>
+  </g>
+  <g id="row-model">
+    <rect class="card" x="1325" y="825" width="315" height="110" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+    <text class="className" x="1482" y="858" text-anchor="middle">Record / CsvRow</text>
+    <text class="member" x="1350" y="884">ArrayRecord + HeaderIndex</text>
+    <text class="member" x="1350" y="905">V1 to V2 conversion</text>
+  </g>
+
+  <path class="useBlue" d="M 335 645 L 335 715 L 90 715 L 90 880 L 110 880"/>
+  <path class="flowOrange" d="M 335 645 L 335 715 L 688 715 L 688 825"/>
+  <path class="useGreen" d="M 880 645 L 880 735 L 1092 735 L 1092 825"/>
+  <path class="useGreen" d="M 1425 645 L 1425 735 L 1482 735 L 1482 825"/>
+
+  <g transform="translate(110, 1030)">
+    <path class="useBlue" d="M 0 8 L 34 8"/>
+    <text class="small" x="48" y="13">uses reader engine</text>
+    <path class="useGreen" d="M 240 8 L 274 8"/>
+    <text class="small" x="288" y="13">uses settings/model</text>
+    <path class="flowOrange" d="M 510 8 L 544 8"/>
+    <text class="small" x="558" y="13">write path</text>
+  </g>
 </svg>

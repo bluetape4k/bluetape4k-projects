@@ -1,82 +1,134 @@
-<svg data-intent="Regenerate Core Class Diagram from the current README and source package surface for infra/redis." data-evidence="infra/redis/README.md; infra/redis; infra/redis/src/main/kotlin" data-source-read="infra/redis/README.md; infra/redis; infra/redis/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Core Class Diagram">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">Core Class Diagram</text>
-<text class="subtitle" x="76" y="116">infra/redis: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Module Structure</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Dependency</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Full Bundle (umbrella)</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Selective Client Dependencies</text>
-</g>
-<g id="source0">
-  <rect class="card" x="262" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="412" y="544" text-anchor="middle">0 Kotlin source files</text>
-  <text class="detail" x="412" y="572" text-anchor="middle">0 Kotlin source files</text>
-</g>
-<g id="source1">
-  <rect class="card" x="600" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="750" y="544" text-anchor="middle">module public source</text>
-  <text class="detail" x="750" y="572" text-anchor="middle">module public source</text>
-</g>
-<g id="source2">
-  <rect class="card" x="938" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1088" y="544" text-anchor="middle">README-backed API surface</text>
-  <text class="detail" x="1088" y="572" text-anchor="middle">README-backed API surface</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Spring Boot</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Spring Boot</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Reactive bridge</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Reactive bridge</text>
-</g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Redis backend</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Redis backend</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L412 416 L412 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L750 416 L750 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L1088 416 L1088 510" stroke="#0F766E"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M412 602 L412 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M750 602 L750 696 L581 696 L581 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M1088 602 L1088 696 L919 696 L919 790" stroke="#BE185D"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-label="Redis Umbrella Class Surface">
+  <defs>
+    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#9333EA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowTeal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#0D9488" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#EA580C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+      .canvas{fill:#F8FAFC}
+      .frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6;filter:url(#softShadow)}
+      .title{font-family:"Architects Daughter";font-size:50px;fill:#0F172A}
+      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#475569;font-weight:700}
+      .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6}
+      .panelTitle{font-family:"Architects Daughter";font-size:30px;fill:#0F172A}
+      .card{filter:url(#softShadow);stroke-width:2.2}
+      .umbrella{fill:#EFF6FF;stroke:#2563EB}
+      .lettuce{fill:#FAF5FF;stroke:#9333EA}
+      .redisson{fill:#F0FDFA;stroke:#0D9488}
+      .spring{fill:#FFF7ED;stroke:#EA580C}
+      .note{fill:#FDF2F8;stroke:#DB2777}
+      .external{fill:#F8FAFC;stroke:#64748B;stroke-dasharray:8 8}
+      .name{font-family:"Architects Daughter";font-size:26px;fill:#0F172A}
+      .smallName{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}
+      .meta{font-family:"Comic Mono";font-size:14px;fill:#475569;font-weight:700}
+      .line{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 8}
+      .blue{stroke:#2563EB;marker-end:url(#arrowBlue)}
+      .purple{stroke:#9333EA;marker-end:url(#arrowPurple)}
+      .teal{stroke:#0D9488;marker-end:url(#arrowTeal)}
+      .orange{stroke:#EA580C;marker-end:url(#arrowOrange)}
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1800" height="1080"/>
+  <rect class="frame" x="36" y="34" width="1728" height="1012" rx="8"/>
+
+  <text class="title" x="82" y="100">Redis Umbrella Class Surface</text>
+  <text class="subtitle" x="86" y="134">bluetape4k-redis has no Kotlin sources; it exports Lettuce and Redisson APIs so existing imports continue to compile.</text>
+
+  <g id="dependency-panel">
+    <rect class="panel" x="92" y="186" width="1616" height="192" rx="8"/>
+    <text class="panelTitle" x="124" y="232">Dependency boundary</text>
+  </g>
+  <g id="surface-panel">
+    <rect class="panel" x="92" y="448" width="1616" height="330" rx="8"/>
+    <text class="panelTitle" x="124" y="494">Surfaces</text>
+  </g>
+  <g id="usage-panel">
+    <rect class="panel" x="92" y="844" width="1616" height="116" rx="8"/>
+    <text class="panelTitle" x="124" y="890">Use case choice</text>
+  </g>
+
+  <g id="umbrella-module">
+    <rect class="card umbrella" x="682" y="258" width="436" height="86" rx="8"/>
+    <text class="name" x="900" y="293" text-anchor="middle">bluetape4k-redis</text>
+    <text class="meta" x="900" y="319" text-anchor="middle">umbrella module, zero source classes</text>
+  </g>
+  <g id="lettuce-module">
+    <rect class="card external" x="214" y="258" width="360" height="86" rx="8"/>
+    <text class="smallName" x="394" y="293" text-anchor="middle">bluetape4k-lettuce</text>
+    <text class="meta" x="394" y="319" text-anchor="middle">api dependency exported</text>
+  </g>
+  <g id="redisson-module">
+    <rect class="card external" x="1226" y="258" width="360" height="86" rx="8"/>
+    <text class="smallName" x="1406" y="293" text-anchor="middle">bluetape4k-redisson</text>
+    <text class="meta" x="1406" y="319" text-anchor="middle">api dependency exported</text>
+  </g>
+
+  <path class="line purple" d="M 682 302 H 586"/>
+  <path class="line teal" d="M 1118 302 H 1214"/>
+
+  <g id="lettuce-surface">
+    <rect class="card lettuce" x="180" y="548" width="430" height="158" rx="8"/>
+    <text class="name" x="395" y="584" text-anchor="middle">Lettuce surface</text>
+    <text class="meta" x="395" y="614" text-anchor="middle">LettuceClients factories and cached connections</text>
+    <text class="meta" x="395" y="637" text-anchor="middle">LettuceBinaryCodecs and Protobuf codecs</text>
+    <text class="meta" x="395" y="660" text-anchor="middle">RedisFuture.awaitSuspending</text>
+    <text class="meta" x="395" y="683" text-anchor="middle">sync, async, coroutine command access</text>
+  </g>
+  <g id="redisson-surface">
+    <rect class="card redisson" x="1190" y="548" width="430" height="158" rx="8"/>
+    <text class="name" x="1405" y="584" text-anchor="middle">Redisson surface</text>
+    <text class="meta" x="1405" y="614" text-anchor="middle">redissonClient DSL and RedissonCodecs</text>
+    <text class="meta" x="1405" y="637" text-anchor="middle">RFuture.awaitSuspending</text>
+    <text class="meta" x="1405" y="660" text-anchor="middle">Memorizer, NearCache</text>
+    <text class="meta" x="1405" y="683" text-anchor="middle">LeaderElection and group coordination</text>
+  </g>
+  <g id="redis-backend">
+    <rect class="card umbrella" x="682" y="548" width="436" height="158" rx="8"/>
+    <text class="name" x="900" y="584" text-anchor="middle">Redis backend</text>
+    <text class="meta" x="900" y="614" text-anchor="middle">same Redis server, different client models</text>
+    <text class="meta" x="900" y="637" text-anchor="middle">choose Lettuce for command pipelines</text>
+    <text class="meta" x="900" y="660" text-anchor="middle">choose Redisson for distributed objects</text>
+    <text class="meta" x="900" y="683" text-anchor="middle">or keep umbrella for migration compatibility</text>
+  </g>
+
+  <path class="line purple" d="M 394 344 V 540"/>
+  <path class="line teal" d="M 1406 344 V 540"/>
+  <path class="line blue" d="M 900 344 V 540"/>
+
+  <g id="lettuce-use">
+    <rect class="card lettuce" x="180" y="900" width="430" height="42" rx="8"/>
+    <text class="meta" x="395" y="926" text-anchor="middle">Low-level Redis commands, codecs, and coroutine adapters</text>
+  </g>
+  <g id="redisson-use">
+    <rect class="card redisson" x="1190" y="900" width="430" height="42" rx="8"/>
+    <text class="meta" x="1405" y="926" text-anchor="middle">Distributed maps, caching, locks, memorization, leadership</text>
+  </g>
+  <g id="spring-separate">
+    <rect class="card spring" x="682" y="876" width="436" height="66" rx="8"/>
+    <text class="smallName" x="900" y="904" text-anchor="middle">Spring Data Redis is separate</text>
+    <text class="meta" x="900" y="928" text-anchor="middle">use spring/data-redis serializers explicitly</text>
+  </g>
+
+  <path class="line purple" d="M 395 706 V 892"/>
+  <path class="line teal" d="M 1405 706 V 892"/>
+  <path class="line orange" d="M 900 706 V 868"/>
+
+  <g id="build-note">
+    <rect class="card note" x="510" y="976" width="780" height="62" rx="8"/>
+    <text class="meta" x="900" y="1002" text-anchor="middle">build.gradle.kts exports only Lettuce and Redisson.</text>
+    <text class="meta" x="900" y="1025" text-anchor="middle">The umbrella module defines no classes to inherit or call directly.</text>
+  </g>
 </svg>

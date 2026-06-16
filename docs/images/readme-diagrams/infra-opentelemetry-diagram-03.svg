@@ -1,76 +1,169 @@
-<svg data-intent="Regenerate Distributed Trace Propagation from the current README and source package surface for infra/opentelemetry." data-evidence="infra/opentelemetry/README.md; infra/opentelemetry; infra/opentelemetry/src/main/kotlin" data-source-read="infra/opentelemetry/README.md; infra/opentelemetry; infra/opentelemetry/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Distributed Trace Propagation">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">Distributed Trace Propagation</text>
-<text class="subtitle" x="76" y="116">infra/opentelemetry: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Features</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Core Class Structure</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Component Overview</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Span Lifecycle in a Coroutine</text>
-  <text class="detail" x="1257" y="311" text-anchor="middle">Context</text>
-</g>
-<g id="source0">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">opentelemetry package</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">opentelemetry package (16)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">TracingConfig type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">TracingConfig type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Spring Boot</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Spring Boot</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Reactive bridge</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Reactive bridge</text>
-</g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Metrics/tracing</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Metrics/tracing</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L581 416 L581 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L919 416 L919 510" stroke="#15803D"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M581 602 L581 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M919 602 L919 696 L581 696 L581 790" stroke="#0F766E"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1100" viewBox="0 0 1800 1100" role="img" aria-label="Distributed Trace Propagation">
+  <defs>
+    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#9333EA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowTeal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#0D9488" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#EA580C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+      .canvas{fill:#F8FAFC}
+      .frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6;filter:url(#softShadow)}
+      .title{font-family:"Architects Daughter";font-size:50px;fill:#0F172A}
+      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#475569;font-weight:700}
+      .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6}
+      .panelTitle{font-family:"Architects Daughter";font-size:30px;fill:#0F172A}
+      .card{filter:url(#softShadow);stroke-width:2.2}
+      .carrier{fill:#EFF6FF;stroke:#2563EB}
+      .scope{fill:#FAF5FF;stroke:#9333EA}
+      .coro{fill:#F0FDFA;stroke:#0D9488}
+      .flow{fill:#F0FDF4;stroke:#16A34A}
+      .edge{fill:#FFF7ED;stroke:#EA580C}
+      .external{fill:#F8FAFC;stroke:#64748B;stroke-dasharray:8 8}
+      .note{fill:#FDF2F8;stroke:#DB2777}
+      .name{font-family:"Architects Daughter";font-size:26px;fill:#0F172A}
+      .smallName{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}
+      .meta{font-family:"Comic Mono";font-size:14px;fill:#475569;font-weight:700}
+      .tiny{font-family:"Comic Mono";font-size:12px;fill:#475569;font-weight:700}
+      .line{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+      .dash{stroke-dasharray:8 8}
+      .blue{stroke:#2563EB;marker-end:url(#arrowBlue)}
+      .purple{stroke:#9333EA;marker-end:url(#arrowPurple)}
+      .teal{stroke:#0D9488;marker-end:url(#arrowTeal)}
+      .green{stroke:#16A34A;marker-end:url(#arrowGreen)}
+      .orange{stroke:#EA580C;marker-end:url(#arrowOrange)}
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1800" height="1100"/>
+  <rect class="frame" x="36" y="34" width="1728" height="1032" rx="8"/>
+
+  <text class="title" x="82" y="100">Distributed Trace Propagation</text>
+  <text class="subtitle" x="86" y="134">Context moves from carriers into OTel scope, then into coroutine and Flow execution without changing cancellation semantics.</text>
+
+  <g id="left-panel">
+    <rect class="panel" x="88" y="190" width="408" height="732" rx="8"/>
+    <text class="panelTitle" x="120" y="236">Carrier and current scope</text>
+  </g>
+  <g id="middle-panel">
+    <rect class="panel" x="566" y="190" width="668" height="732" rx="8"/>
+    <text class="panelTitle" x="598" y="236">bluetape4k propagation helpers</text>
+  </g>
+  <g id="right-panel">
+    <rect class="panel" x="1304" y="190" width="408" height="732" rx="8"/>
+    <text class="panelTitle" x="1336" y="236">Execution outcome</text>
+  </g>
+
+  <g id="carrier">
+    <rect class="card carrier" x="142" y="294" width="300" height="86" rx="8"/>
+    <text class="smallName" x="292" y="328" text-anchor="middle">Incoming trace carrier</text>
+    <text class="meta" x="292" y="354" text-anchor="middle">traceparent / baggage</text>
+  </g>
+  <g id="propagators">
+    <rect class="card external" x="142" y="452" width="300" height="86" rx="8"/>
+    <text class="smallName" x="292" y="486" text-anchor="middle">ContextPropagators</text>
+    <text class="meta" x="292" y="512" text-anchor="middle">configured on OpenTelemetrySdk</text>
+  </g>
+  <g id="current-context">
+    <rect class="card scope" x="142" y="610" width="300" height="100" rx="8"/>
+    <text class="smallName" x="292" y="644" text-anchor="middle">Context.current()</text>
+    <text class="meta" x="292" y="670" text-anchor="middle">currentOtelContext</text>
+    <text class="meta" x="292" y="693" text-anchor="middle">getSpan / getSpanOrNull</text>
+  </g>
+
+  <g id="with-current">
+    <rect class="card scope" x="616" y="288" width="270" height="98" rx="8"/>
+    <text class="smallName" x="751" y="322" text-anchor="middle">Context.withCurrent</text>
+    <text class="meta" x="751" y="348" text-anchor="middle">makeCurrent scope</text>
+    <text class="meta" x="751" y="371" text-anchor="middle">blocking work boundary</text>
+  </g>
+  <g id="span-context">
+    <rect class="card coro" x="616" y="468" width="270" height="112" rx="8"/>
+    <text class="smallName" x="751" y="502" text-anchor="middle">withSpanContext</text>
+    <text class="meta" x="751" y="528" text-anchor="middle">span.storeInContext</text>
+    <text class="meta" x="751" y="551" text-anchor="middle">asContextElement</text>
+  </g>
+  <g id="otel-context">
+    <rect class="card coro" x="616" y="662" width="270" height="98" rx="8"/>
+    <text class="smallName" x="751" y="696" text-anchor="middle">withOtelContext</text>
+    <text class="meta" x="751" y="722" text-anchor="middle">adds OTel context to</text>
+    <text class="meta" x="751" y="745" text-anchor="middle">current CoroutineContext</text>
+  </g>
+
+  <g id="span-wrapper">
+    <rect class="card scope" x="916" y="288" width="270" height="98" rx="8"/>
+    <text class="smallName" x="1051" y="322" text-anchor="middle">withSpan / useSpan</text>
+    <text class="meta" x="1051" y="348" text-anchor="middle">starts child Span</text>
+    <text class="meta" x="1051" y="371" text-anchor="middle">records failure then ends</text>
+  </g>
+  <g id="suspend-wrapper">
+    <rect class="card coro" x="916" y="468" width="270" height="112" rx="8"/>
+    <text class="smallName" x="1051" y="502" text-anchor="middle">useSpanSuspending</text>
+    <text class="meta" x="1051" y="528" text-anchor="middle">same Span semantics</text>
+    <text class="meta" x="1051" y="551" text-anchor="middle">inside suspend block</text>
+  </g>
+  <g id="flow-wrapper">
+    <rect class="card flow" x="916" y="662" width="270" height="98" rx="8"/>
+    <text class="smallName" x="1051" y="696" text-anchor="middle">Flow.traced*</text>
+    <text class="meta" x="1051" y="722" text-anchor="middle">1 collect = 1 Span</text>
+    <text class="meta" x="1051" y="745" text-anchor="middle">producer / consumer scope</text>
+  </g>
+
+  <g id="blocking-out">
+    <rect class="card scope" x="1358" y="288" width="300" height="98" rx="8"/>
+    <text class="smallName" x="1508" y="322" text-anchor="middle">Blocking child work</text>
+    <text class="meta" x="1508" y="348" text-anchor="middle">parent Span visible</text>
+    <text class="meta" x="1508" y="371" text-anchor="middle">scope closes with use</text>
+  </g>
+  <g id="suspend-out">
+    <rect class="card coro" x="1358" y="468" width="300" height="112" rx="8"/>
+    <text class="smallName" x="1508" y="502" text-anchor="middle">Suspend child work</text>
+    <text class="meta" x="1508" y="528" text-anchor="middle">dispatcher switch keeps</text>
+    <text class="meta" x="1508" y="551" text-anchor="middle">the OTel context element</text>
+  </g>
+  <g id="flow-out">
+    <rect class="card flow" x="1358" y="662" width="300" height="98" rx="8"/>
+    <text class="smallName" x="1508" y="696" text-anchor="middle">Flow trace continuity</text>
+    <text class="meta" x="1508" y="722" text-anchor="middle">collect creates one Span</text>
+    <text class="meta" x="1508" y="745" text-anchor="middle">emissions stay in lineage</text>
+  </g>
+
+  <path class="line blue" d="M 292 380 V 444"/>
+  <path class="line blue" d="M 292 538 V 602"/>
+  <path class="line purple" d="M 442 660 H 562 V 337 H 608"/>
+  <path class="line teal" d="M 442 660 H 542 V 524 H 608"/>
+  <path class="line teal" d="M 442 660 H 562 V 711 H 608"/>
+
+  <path class="line purple" d="M 886 337 H 908"/>
+  <path class="line teal" d="M 886 524 H 908"/>
+  <path class="line green" d="M 886 711 H 908"/>
+
+  <path class="line purple" d="M 1186 337 H 1350"/>
+  <path class="line teal" d="M 1186 524 H 1350"/>
+  <path class="line green" d="M 1186 711 H 1350"/>
+
+  <g id="webflux-note">
+    <rect class="card edge" x="170" y="806" width="988" height="74" rx="8"/>
+    <text class="meta" x="664" y="834" text-anchor="middle">Legacy WebFlux helper installs a server WebFilter and Reactor hook.</text>
+    <text class="meta" x="664" y="857" text-anchor="middle">It is constrained to Spring Boot 3 / WebFlux 5.3 style instrumentation.</text>
+  </g>
+  <path class="line orange dash" d="M 1166 843 H 1338 V 760"/>
+
+  <g id="safety-note">
+    <rect class="card note" x="438" y="982" width="924" height="44" rx="8"/>
+    <text class="meta" x="900" y="1009" text-anchor="middle">CancellationException is rethrown without marking the Span as ERROR; other failures are recorded and rethrown.</text>
+  </g>
 </svg>

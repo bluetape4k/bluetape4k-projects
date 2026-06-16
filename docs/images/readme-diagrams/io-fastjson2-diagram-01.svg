@@ -1,71 +1,132 @@
-<svg data-intent="Regenerate bluetape4k-fastjson2 from the current README and source package surface for io/fastjson2." data-evidence="io/fastjson2/README.md; io/fastjson2; io/fastjson2/src/main/kotlin" data-source-read="io/fastjson2/README.md; io/fastjson2; io/fastjson2/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="bluetape4k-fastjson2">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">bluetape4k-fastjson2</text>
-<text class="subtitle" x="76" y="116">io/fastjson2: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Class Structure</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">JSON vs JSONB Serialization</text>
-  <text class="detail" x="919" y="311" text-anchor="middle">Flow</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Key Features</text>
-</g>
-<g id="source0">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">fastjson2 package</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">fastjson2 package (5)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">FastjsonSerializer type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">FastjsonSerializer type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="262" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="412" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="412" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="600" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="750" y="824" text-anchor="middle">Serialization</text>
-  <text class="detail" x="750" y="852" text-anchor="middle">Serialization</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="938" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1088" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="1088" y="852" text-anchor="middle">Test support</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L581 416 L581 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L919 416 L919 510" stroke="#15803D"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M581 602 L581 696 L412 696 L412 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M919 602 L919 696 L750 696 L750 790" stroke="#0F766E"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1640" height="990" viewBox="0 0 1640 990" role="img" aria-label="Fastjson2 Class Structure">
+  <defs>
+    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.12"/>
+    </filter>
+    <marker id="tri-blue" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 12 6 L 1 11 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="open-green" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="open-orange" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#EA580C" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <style>
+      svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+      .canvas { fill: #F8FAFC; }
+      .frame { fill: #FFFFFF; stroke: #CBD5E1; stroke-width: 1.6; filter: url(#softShadow); }
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #0F172A; }
+      .subtitle { font-family: "Comic Mono"; font-size: 16px; fill: #475569; }
+      .panel { fill: #FFFFFF; stroke: #CBD5E1; stroke-width: 1.5; }
+      .panelTitle { font-family: "Comic Mono"; font-size: 18px; fill: #334155; }
+      .card { stroke-width: 1.8; filter: url(#softShadow); }
+      .className { font-family: "Architects Daughter"; font-size: 24px; fill: #0F172A; }
+      .stereo { font-family: "Comic Mono"; font-size: 12px; fill: #64748B; }
+      .member { font-family: "Comic Mono"; font-size: 13px; fill: #475569; }
+      .small { font-family: "Comic Mono"; font-size: 12px; fill: #64748B; }
+      .divider { stroke: #CBD5E1; stroke-width: 1; }
+      .impl { fill: none; stroke: #2563EB; stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 9 7; marker-end: url(#tri-blue); }
+      .useGreen { fill: none; stroke: #16A34A; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 9 7; marker-end: url(#open-green); }
+      .flowOrange { fill: none; stroke: #EA580C; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#open-orange); }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1640" height="990"/>
+  <rect class="frame" x="34" y="30" width="1572" height="928" rx="8"/>
+
+  <text class="title" x="72" y="82">Fastjson2 Class Structure</text>
+  <text class="subtitle" x="76" y="114">JSONB byte serialization, JSON string serialization, and type-safe extension surfaces.</text>
+
+  <g>
+    <rect class="panel" x="70" y="150" width="1500" height="320" rx="8"/>
+    <text class="panelTitle" x="96" y="182">Serializer implementation and Fastjson2 backends</text>
+  </g>
+  <g>
+    <rect class="panel" x="70" y="530" width="1500" height="330" rx="8"/>
+    <text class="panelTitle" x="96" y="562">Kotlin extension surfaces</text>
+  </g>
+
+  <g id="json-serializer">
+    <rect class="card" x="110" y="235" width="360" height="120" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+    <text class="stereo" x="290" y="264" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+    <text class="className" x="290" y="292" text-anchor="middle">JsonSerializer</text>
+    <line class="divider" x1="135" y1="308" x2="445" y2="308"/>
+    <text class="member" x="145" y="332">serialize(), deserialize()</text>
+  </g>
+  <g id="fastjson-serializer">
+    <rect class="card" x="585" y="215" width="470" height="160" rx="8" fill="#FFFFFF" stroke="#2563EB"/>
+    <text class="className" x="820" y="248" text-anchor="middle">FastjsonSerializer</text>
+    <text class="stereo" x="820" y="272" text-anchor="middle">Default singleton + stateless calls</text>
+    <line class="divider" x1="610" y1="288" x2="1030" y2="288"/>
+    <text class="member" x="620" y="312">ByteArray API uses JSONB.toBytes / parseObject</text>
+    <text class="member" x="620" y="333">String API uses JSON.toJSONString / parseObject</text>
+    <text class="member" x="620" y="354">failures throw JsonSerializationException</text>
+  </g>
+  <g id="failure-policy">
+    <rect class="card" x="1150" y="235" width="360" height="120" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+    <text class="className" x="1330" y="270" text-anchor="middle">Failure policy</text>
+    <text class="member" x="1175" y="300">null serialize =&gt; empty bytes/string</text>
+    <text class="member" x="1175" y="321">null deserialize input =&gt; null</text>
+    <text class="member" x="1175" y="342">invalid payload =&gt; exception</text>
+  </g>
+
+  <path class="impl" d="M 585 295 L 470 295"/>
+  <path class="useGreen" d="M 1055 295 L 1150 295"/>
+
+  <g id="jsonb-backend">
+    <rect class="card" x="585" y="405" width="220" height="48" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+    <text class="member" x="695" y="435" text-anchor="middle">JSONB binary backend</text>
+  </g>
+  <g id="json-backend">
+    <rect class="card" x="835" y="405" width="220" height="48" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+    <text class="member" x="945" y="435" text-anchor="middle">JSON text backend</text>
+  </g>
+  <path class="flowOrange" d="M 720 375 L 720 405"/>
+  <path class="useGreen" d="M 920 375 L 920 405"/>
+
+  <g id="json-ext">
+    <rect class="card" x="115" y="625" width="340" height="145" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+    <text class="className" x="285" y="660" text-anchor="middle">JSONExtensions</text>
+    <line class="divider" x1="140" y1="677" x2="430" y2="677"/>
+    <text class="member" x="150" y="702">Any?.toJsonString()</text>
+    <text class="member" x="150" y="723">String?.readValueOrNull()</text>
+    <text class="member" x="150" y="744">InputStream.readValueAsList()</text>
+  </g>
+  <g id="jsonb-ext">
+    <rect class="card" x="505" y="625" width="340" height="145" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+    <text class="className" x="675" y="660" text-anchor="middle">JSONBExtensions</text>
+    <line class="divider" x1="530" y1="677" x2="820" y2="677"/>
+    <text class="member" x="540" y="702">Any?.toJsonBytes()</text>
+    <text class="member" x="540" y="723">ByteArray?.readBytesOrNull()</text>
+    <text class="member" x="540" y="744">InputStream?.readBytesOrNull()</text>
+  </g>
+  <g id="object-ext">
+    <rect class="card" x="895" y="625" width="300" height="145" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+    <text class="className" x="1045" y="660" text-anchor="middle">JSONObjectExtensions</text>
+    <line class="divider" x1="920" y1="677" x2="1170" y2="677"/>
+    <text class="member" x="930" y="702">obj.readValueOrNull&lt;T&gt;()</text>
+    <text class="member" x="930" y="723">obj.readValueOrNull(key)</text>
+  </g>
+  <g id="array-ext">
+    <rect class="card" x="1245" y="625" width="300" height="145" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+    <text class="className" x="1395" y="660" text-anchor="middle">JSONArrayExtensions</text>
+    <line class="divider" x1="1270" y1="677" x2="1520" y2="677"/>
+    <text class="member" x="1280" y="702">array.readValueOrNull()</text>
+    <text class="member" x="1280" y="723">readList(), readArray()</text>
+  </g>
+
+  <path class="useGreen" d="M 945 453 L 945 505 L 90 505 L 90 700 L 115 700"/>
+  <path class="flowOrange" d="M 695 453 L 695 625"/>
+  <path class="useGreen" d="M 945 453 L 945 580 L 1045 580 L 1045 625"/>
+  <path class="useGreen" d="M 945 453 L 945 560 L 1395 560 L 1395 625"/>
+
+  <g transform="translate(115, 900)">
+    <path class="impl" d="M 0 8 L 34 8"/>
+    <text class="small" x="48" y="13">implements</text>
+    <path class="flowOrange" d="M 190 8 L 224 8"/>
+    <text class="small" x="238" y="13">JSONB binary path</text>
+    <path class="useGreen" d="M 430 8 L 464 8"/>
+    <text class="small" x="478" y="13">JSON text/object path</text>
+  </g>
 </svg>
