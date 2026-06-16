@@ -2,19 +2,19 @@
 
 [English](./README.md) | [한국어](./README.ko.md)
 
-bluetape4k 생태계를 위한 기본 Ktor 서버 helper 모듈입니다.
+bluetape4k 애플리케이션에서 공통으로 쓰는 작은 Ktor 서버 기본값 모듈입니다.
 
-## Architecture Diagram
+## 아키텍처 다이어그램
 
 ![Ktor Core Architecture](../../docs/images/readme-diagrams/ktor-core-architecture-01.png)
 
 ## 기능
 
-- `Bluetape4kKtorJson.defaultJson()` 공통 kotlinx serialization 기본값.
-- `installBluetape4kKtorCore()` 명시적 Ktor 서버 baseline installer.
-- `ApiErrorResponse` 및 `StatusPagesConfig.bluetape4kErrorResponses()` JSON 오류 응답.
-- `HealthResponse`를 반환하는 `/healthz`, `/readyz` helper.
-- 반복되는 Ktor route 검증을 줄이는 query/path parameter helper.
+- `Bluetape4kKtorJson.defaultJson()`는 공통 kotlinx serialization 기본값을 제공합니다.
+- `installBluetape4kKtorCore()`는 Ktor 기본 플러그인을 명시적으로 설치합니다.
+- `ApiErrorResponse`와 `StatusPagesConfig.bluetape4kErrorResponses()`는 일관된 JSON 오류 응답을 만듭니다.
+- `/healthz`, `/readyz` 라우트는 기본적으로 `HealthResponse.up()`을 반환합니다.
+- Query/path 파라미터 도우미로 반복되는 Ktor 라우트 검증 코드를 줄일 수 있습니다.
 
 ## 의존성
 
@@ -51,5 +51,5 @@ fun Application.module() {
 ```
 
 기본 installer는 content negotiation, JSON 오류 처리, health/readiness route를
-추가합니다. 애플리케이션이 해당 Ktor plugin을 직접 소유해야 한다면
-`Bluetape4kKtorCoreConfig`로 각 기능을 끌 수 있습니다.
+추가합니다. 애플리케이션이 특정 Ktor plugin을 직접 관리해야 한다면
+`Bluetape4kKtorCoreConfig`로 해당 기능만 끄면 됩니다.

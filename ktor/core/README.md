@@ -2,7 +2,7 @@
 
 [English](./README.md) | [한국어](./README.ko.md)
 
-Baseline Ktor server helpers for the bluetape4k ecosystem.
+Small Ktor server defaults for bluetape4k applications.
 
 ## Architecture Diagram
 
@@ -10,11 +10,11 @@ Baseline Ktor server helpers for the bluetape4k ecosystem.
 
 ## Features
 
-- `Bluetape4kKtorJson.defaultJson()` for shared kotlinx serialization defaults.
-- `installBluetape4kKtorCore()` for explicit Ktor server baseline installation.
-- `ApiErrorResponse` and `StatusPagesConfig.bluetape4kErrorResponses()` for JSON error payloads.
-- `/healthz` and `/readyz` helpers returning `HealthResponse`.
-- Query and path parameter helpers for repeated Ktor route validation.
+- `Bluetape4kKtorJson.defaultJson()` provides shared kotlinx serialization defaults.
+- `installBluetape4kKtorCore()` installs the baseline Ktor plugins explicitly.
+- `ApiErrorResponse` and `StatusPagesConfig.bluetape4kErrorResponses()` produce consistent JSON error payloads.
+- `/healthz` and `/readyz` routes return `HealthResponse.up()` by default.
+- Query and path parameter helpers keep repeated Ktor route validation compact.
 
 ## Dependency
 
@@ -51,5 +51,5 @@ fun Application.module() {
 ```
 
 The default installer adds content negotiation, JSON error handling, and
-health/readiness routes. Disable individual parts through
-`Bluetape4kKtorCoreConfig` when an application already owns that Ktor plugin.
+health/readiness routes. When an application already owns one of those Ktor
+plugins, disable that part with `Bluetape4kKtorCoreConfig`.
