@@ -1,90 +1,153 @@
-<svg data-intent="Regenerate Jackson 2.x vs 3.x Module Comparison from the current README and source package surface for io/jackson3." data-evidence="io/jackson3/README.md; io/jackson3; io/jackson3/src/main/kotlin" data-source-read="io/jackson3/README.md; io/jackson3; io/jackson3/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Jackson 2.x vs 3.x Module Comparison">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">Jackson 2.x vs 3.x Module Comparison</text>
-<text class="subtitle" x="76" y="116">io/jackson3: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Why Jackson3 in bluetape4k</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Jackson 2.x vs 3.x Module</text>
-  <text class="detail" x="919" y="311" text-anchor="middle">Comparison</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Class Structure</text>
-</g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">jackson3 package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">jackson3 package (37)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">Jackson type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">Jackson type</text>
-</g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">JacksonSerializer type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">JacksonSerializer type</text>
-</g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">User type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">User type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Spring Boot</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Spring Boot</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Reactive bridge</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Reactive bridge</text>
-</g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Kafka messaging</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Kafka messaging</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
-<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1640" height="1040" viewBox="0 0 1640 1040" role="img" aria-label="Jackson 2.x vs 3.x Module Comparison">
+  <defs>
+    <marker id="arrow-blue" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563EB" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#16A34A" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#EA580C" stroke-dasharray="none"/>
+    </marker>
+    <marker id="open-slate" markerWidth="12" markerHeight="12" viewBox="0 0 10 10" refX="8.5" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 8.5 5 L 1 9" fill="none" stroke="#475569" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <style>
+      svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+      .canvas { fill: #F8FAFC; }
+      .shell { fill: #FFFFFF; stroke: #CBD5E1; stroke-width: 2.4; }
+      .title { font-family: "Architects Daughter"; font-size: 44px; fill: #0F172A; }
+      .subtitle { font-family: "Comic Mono"; font-size: 16px; fill: #475569; }
+      .panelTitle { font-family: "Architects Daughter"; font-size: 28px; fill: #0F172A; }
+      .panelNote { font-family: "Comic Mono"; font-size: 14px; fill: #475569; }
+      .panel2 { fill: #EEF6FF; stroke: #93C5FD; stroke-width: 2; }
+      .panel3 { fill: #F0FDF4; stroke: #86EFAC; stroke-width: 2; }
+      .panelBoundary { fill: #FFF7ED; stroke: #FDBA74; stroke-width: 2; }
+      .card { fill: #FFFFFF; stroke-width: 2.2; }
+      .blue { stroke: #2563EB; }
+      .green { stroke: #16A34A; }
+      .orange { stroke: #EA580C; }
+      .rose { stroke: #E11D48; }
+      .slate { stroke: #64748B; }
+      .cardTitle { font-family: "Architects Daughter"; font-size: 23px; fill: #0F172A; }
+      .cardText { font-family: "Comic Mono"; font-size: 14px; fill: #334155; }
+      .small { font-family: "Comic Mono"; font-size: 12.5px; fill: #475569; }
+      .lane { fill: none; stroke-width: 4.4; stroke-linecap: round; stroke-linejoin: round; }
+      .dependency { fill: none; stroke: #475569; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 7 5; marker-end: url(#open-slate); }
+      .badge { fill: #FFFFFF; stroke: #CBD5E1; stroke-width: 1.4; }
+      .footer { font-family: "Comic Mono"; font-size: 14px; fill: #64748B; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1640" height="1040"/>
+  <rect class="shell" x="24" y="24" width="1592" height="992" rx="18"/>
+
+  <text class="title" x="820" y="82" text-anchor="middle">Jackson 2.x vs 3.x Module Comparison</text>
+  <text class="subtitle" x="820" y="116" text-anchor="middle">Jackson3 keeps the bluetape4k reader contract, but moves the implementation surface to tools.jackson.* and explicit modules.</text>
+
+  <rect class="panel2" x="64" y="154" width="452" height="716" rx="14"/>
+  <text class="panelTitle" x="92" y="200">Jackson 2.x baseline</text>
+  <text class="panelNote" x="92" y="228">Existing 2.x module surface and migration source.</text>
+
+  <rect class="panel3" x="594" y="154" width="452" height="716" rx="14"/>
+  <text class="panelTitle" x="622" y="200">Jackson 3.x module</text>
+  <text class="panelNote" x="622" y="228">New Kotlin-first wrapper around Jackson 3 APIs.</text>
+
+  <rect class="panelBoundary" x="1124" y="154" width="452" height="716" rx="14"/>
+  <text class="panelTitle" x="1152" y="200">Usage boundary</text>
+  <text class="panelNote" x="1152" y="228">What application code must choose explicitly.</text>
+
+  <g>
+    <rect class="card blue" x="104" y="276" width="372" height="104" rx="8"/>
+    <text class="cardTitle" x="290" y="310" text-anchor="middle">Package imports</text>
+    <text class="cardText" x="132" y="342">com.fasterxml.jackson.databind</text>
+    <text class="cardText" x="132" y="366">Jackson 2 module SPI</text>
+
+    <rect class="card blue" x="634" y="276" width="372" height="104" rx="8"/>
+    <text class="cardTitle" x="820" y="310" text-anchor="middle">Package imports</text>
+    <text class="cardText" x="662" y="342">tools.jackson.databind</text>
+    <text class="cardText" x="662" y="366">JacksonModule / SimpleModule</text>
+
+    <path class="lane" d="M 476 328 H 634" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
+    <rect class="badge" x="522" y="300" width="66" height="28" rx="14"/>
+    <text class="small" x="555" y="319" text-anchor="middle">rename</text>
+  </g>
+
+  <g>
+    <rect class="card green" x="104" y="430" width="372" height="116" rx="8"/>
+    <text class="cardTitle" x="290" y="464" text-anchor="middle">Mapper setup</text>
+    <text class="cardText" x="132" y="496">JsonMapper.builder()</text>
+    <text class="cardText" x="132" y="520">typed mapper existed in 2.x</text>
+
+    <rect class="card green" x="634" y="430" width="372" height="116" rx="8"/>
+    <text class="cardTitle" x="820" y="464" text-anchor="middle">Mapper DSL</text>
+    <text class="cardText" x="662" y="496">jsonMapper { findAndAddModules() }</text>
+    <text class="cardText" x="662" y="520">Kotlin Null* defaults enabled</text>
+
+    <path class="lane" d="M 476 488 H 634" stroke="#16A34A" marker-end="url(#arrow-green)"/>
+    <rect class="badge" x="518" y="460" width="74" height="28" rx="14"/>
+    <text class="small" x="555" y="479" text-anchor="middle">rebuild</text>
+  </g>
+
+  <g>
+    <rect class="card rose" x="104" y="602" width="372" height="112" rx="8"/>
+    <text class="cardTitle" x="290" y="636" text-anchor="middle">Polymorphic typing</text>
+    <text class="cardText" x="132" y="668">activateDefaultTyping() available</text>
+    <text class="cardText" x="132" y="692">legacy typed mapper patterns</text>
+
+    <rect class="card rose" x="634" y="602" width="372" height="112" rx="8"/>
+    <text class="cardTitle" x="820" y="636" text-anchor="middle">Typed mapper removed</text>
+    <text class="cardText" x="662" y="668">no activateDefaultTyping wrapper</text>
+    <text class="cardText" x="662" y="692">use explicit type metadata</text>
+
+    <path class="lane" d="M 476 658 H 634" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
+    <rect class="badge" x="520" y="630" width="70" height="28" rx="14"/>
+    <text class="small" x="555" y="649" text-anchor="middle">remove</text>
+  </g>
+
+  <g>
+    <rect class="card slate" x="1164" y="276" width="372" height="104" rx="8"/>
+    <text class="cardTitle" x="1350" y="310" text-anchor="middle">Import migration</text>
+    <text class="cardText" x="1192" y="342">move mapper/core APIs to tools.*</text>
+    <text class="cardText" x="1192" y="366">annotations still use com.fasterxml</text>
+
+    <rect class="card orange" x="1164" y="430" width="372" height="116" rx="8"/>
+    <text class="cardTitle" x="1350" y="464" text-anchor="middle">Format dependencies</text>
+    <text class="cardText" x="1192" y="496">CBOR / Ion / Smile</text>
+    <text class="cardText" x="1192" y="520">CSV / Props / TOML / YAML</text>
+
+    <rect class="card green" x="1164" y="602" width="372" height="112" rx="8"/>
+    <text class="cardTitle" x="1350" y="636" text-anchor="middle">Reader policy</text>
+    <text class="cardText" x="1192" y="668">readValueOrNull returns null</text>
+    <text class="cardText" x="1192" y="692">JacksonSerializer throws wrapped errors</text>
+  </g>
+
+  <path class="dependency" d="M 1006 328 H 1164"/>
+  <path class="dependency" d="M 1006 488 H 1164"/>
+  <path class="dependency" d="M 1006 658 H 1164"/>
+
+  <g>
+    <rect class="card orange" x="104" y="764" width="372" height="70" rx="8"/>
+    <text class="cardTitle" x="290" y="800" text-anchor="middle">Same bluetape4k contract</text>
+    <text class="small" x="290" y="824" text-anchor="middle">JsonSerializer and extension helpers remain familiar.</text>
+
+    <rect class="card orange" x="634" y="764" width="372" height="70" rx="8"/>
+    <text class="cardTitle" x="820" y="800" text-anchor="middle">Jackson3 implementation</text>
+    <text class="small" x="820" y="824" text-anchor="middle">Source code now imports tools.jackson.* packages.</text>
+
+    <rect class="card orange" x="1164" y="764" width="372" height="70" rx="8"/>
+    <text class="cardTitle" x="1350" y="800" text-anchor="middle">Application choice</text>
+    <text class="small" x="1350" y="824" text-anchor="middle">Adopt 3.x APIs and add only runtime formats used.</text>
+
+    <path class="lane" d="M 476 799 H 634" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
+    <path class="lane" d="M 1006 799 H 1164" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
+  </g>
+
+  <g>
+    <rect x="84" y="904" width="1472" height="62" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="2"/>
+    <text class="cardTitle" x="110" y="936">Reader contract</text>
+    <text class="cardText" x="330" y="936">Choose bluetape4k-jackson3 for new tools.jackson.* code; keep annotations explicit, add format modules at runtime, and signal EOF for streaming parsers.</text>
+  </g>
+
+  <text class="footer" x="820" y="994" text-anchor="middle">github.com/bluetape4k/bluetape4k-projects - io/jackson3 README</text>
 </svg>
