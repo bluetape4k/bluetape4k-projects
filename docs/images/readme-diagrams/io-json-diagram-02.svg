@@ -1,103 +1,161 @@
-<svg data-intent="Help README readers choose a JsonSerializer implementation by Jackson stack and binary JSONB needs, then converge on the common JsonSerializer API." data-evidence="io/json/README.md; io/json/src/main/kotlin/io/bluetape4k/json/JsonSerializer.kt; io/fastjson2; io/jackson2; io/jackson3" data-source-read="io/json/README.md; io/json/src/main/kotlin/io/bluetape4k/json/JsonSerializer.kt" data-layout="decision-flow" xmlns="http://www.w3.org/2000/svg" width="1520" height="1210" viewBox="0 0 1520 1210" role="img" aria-label="JsonSerializer Implementation Selection Flow">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-  </style>
-</defs>
-<rect class="canvas" width="1520" height="1210"/>
-<rect class="frame" x="34" y="30" width="1452" height="1150" rx="8"/>
-<text class="title" x="72" y="84">JsonSerializer Implementation Selection Flow</text>
-<text class="subtitle" x="76" y="116">Choose Fastjson2 when JSONB byte payloads are required; otherwise select the Jackson 3 or Jackson 2 module and keep callers on the common JsonSerializer API.</text>
-<g><rect class="panel" x="82" y="160" width="1356" height="170" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Common contract</text></g>
-<g><rect class="panel" x="82" y="405" width="1356" height="430" rx="8"/><text class="panelTitle" x="110" y="441" dominant-baseline="middle">Implementation choice</text></g>
-<g><rect class="panel" x="82" y="910" width="1356" height="220" rx="8"/><text class="panelTitle" x="110" y="946" dominant-baseline="middle">Shared API surface</text></g>
-<g id="caller">
-  <rect class="card" x="150" y="225" width="300" height="76" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="300" y="256" text-anchor="middle" dominant-baseline="middle">Caller code</text>
-  <text class="detail" x="300" y="286" text-anchor="middle" dominant-baseline="middle">chooses one serializer</text>
-</g>
-<g id="contract">
-  <rect class="card" x="600" y="220" width="360" height="86" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="780" y="256" text-anchor="middle" dominant-baseline="middle">JsonSerializer</text>
-  <text class="detail" x="780" y="286" text-anchor="middle" dominant-baseline="middle">common byte and string contract</text>
-</g>
-<g id="reified">
-  <rect class="card" x="1080" y="225" width="280" height="76" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1220" y="256" text-anchor="middle" dominant-baseline="middle">Kotlin reified helpers</text>
-  <text class="detail" x="1220" y="286" text-anchor="middle" dominant-baseline="middle">deserialize&lt;T&gt;() shortcuts</text>
-</g>
-<g id="needsJsonb">
-  <polygon class="card card-shape" points="430,535 545,600 430,665 315,600" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="430" y="592" text-anchor="middle" dominant-baseline="middle">Need JSONB?</text>
-  <text class="detail" x="430" y="621" text-anchor="middle" dominant-baseline="middle">Fastjson2 byte format</text>
-</g>
-<g id="fastjson">
-  <rect class="card" x="610" y="485" width="350" height="86" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="785" y="512" text-anchor="middle" dominant-baseline="middle">FastjsonSerializer</text>
-  <text class="detail" x="785" y="542" text-anchor="middle" dominant-baseline="middle">Fastjson2 JSONB bytes</text>
-  <text class="detail" x="785" y="560" text-anchor="middle" dominant-baseline="middle">standard JSON string</text>
-</g>
-<g id="jacksonMajor">
-  <polygon class="card card-shape" points="720,660 840,725 720,790 600,725" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="720" y="717" text-anchor="middle" dominant-baseline="middle">Jackson major?</text>
-  <text class="detail" x="720" y="746" text-anchor="middle" dominant-baseline="middle">module dependency decides</text>
-</g>
-<g id="jackson3">
-  <rect class="card" x="970" y="590" width="350" height="86" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="1145" y="617" text-anchor="middle" dominant-baseline="middle">JacksonSerializer</text>
-  <text class="detail" x="1145" y="647" text-anchor="middle" dominant-baseline="middle">bluetape4k-jackson3</text>
-  <text class="detail" x="1145" y="665" text-anchor="middle" dominant-baseline="middle">Jackson 3.x ObjectMapper</text>
-</g>
-<g id="jackson2">
-  <rect class="card" x="970" y="725" width="350" height="86" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="1145" y="752" text-anchor="middle" dominant-baseline="middle">JacksonSerializer</text>
-  <text class="detail" x="1145" y="782" text-anchor="middle" dominant-baseline="middle">bluetape4k-jackson2</text>
-  <text class="detail" x="1145" y="800" text-anchor="middle" dominant-baseline="middle">Jackson 2.x ObjectMapper</text>
-</g>
-<g id="byteApi">
-  <rect class="card" x="210" y="990" width="320" height="76" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="370" y="1021" text-anchor="middle" dominant-baseline="middle">ByteArray API</text>
-  <text class="detail" x="370" y="1051" text-anchor="middle" dominant-baseline="middle">serialize / deserialize</text>
-</g>
-<g id="stringApi">
-  <rect class="card" x="600" y="990" width="320" height="76" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="760" y="1012" text-anchor="middle" dominant-baseline="middle">JSON String API</text>
-  <text class="detail" x="760" y="1042" text-anchor="middle" dominant-baseline="middle">serializeAsString</text>
-  <text class="detail" x="760" y="1060" text-anchor="middle" dominant-baseline="middle">deserializeFromString</text>
-</g>
-<g id="failure">
-  <rect class="card" x="950" y="980" width="420" height="112" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1160" y="1011" text-anchor="middle" dominant-baseline="middle">Failure policy</text>
-  <text class="detail" x="1160" y="1041" text-anchor="middle" dominant-baseline="middle">null -&gt; empty/null</text>
-  <text class="detail" x="1160" y="1059" text-anchor="middle" dominant-baseline="middle">errors throw</text>
-  <text class="detail" x="1160" y="1077" text-anchor="middle" dominant-baseline="middle">JsonSerializationException</text>
-</g>
-<text class="detail" x="505" y="520" text-anchor="middle" dominant-baseline="middle">yes</text>
-<text class="detail" x="485" y="720" text-anchor="middle" dominant-baseline="middle">no</text>
-<text class="detail" x="855" y="590" text-anchor="middle" dominant-baseline="middle">default 3.x</text>
-<text class="detail" x="855" y="760" text-anchor="middle" dominant-baseline="middle">fallback 2.x</text>
-<path class="route" data-from="caller" data-to="contract" d="M450 263 L600 263" stroke="#1D4ED8"/>
-<path class="route" data-from="contract" data-to="reified" d="M960 263 L1080 263" stroke="#15803D"/>
-<path class="route" data-from="contract" data-to="needsJsonb" d="M780 306 L780 370 L430 370 L430 535" stroke="#C2410C"/>
-<path class="route" data-from="needsJsonb" data-to="fastjson" d="M545 600 L610 528" stroke="#0F766E"/>
-<path class="route" data-from="needsJsonb" data-to="jacksonMajor" d="M430 665 L430 725 L600 725" stroke="#7E22CE"/>
-<path class="route" data-from="jacksonMajor" data-to="jackson3" d="M840 725 L905 725 L905 633 L970 633" stroke="#15803D"/>
-<path class="route" data-from="jacksonMajor" data-to="jackson2" d="M840 725 L970 768" stroke="#1D4ED8"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1180" viewBox="0 0 1600 1180" role="img" aria-label="bluetape4k-json serializer call flow">
+  <defs>
+    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#27343a" flood-opacity="0.13"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#4079a8"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#5b8d52"/>
+    </marker>
+    <marker id="arrowAmber" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#b98220"/>
+    </marker>
+    <marker id="arrowRed" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 12 6 L 0 12 Z" fill="#bd6371"/>
+    </marker>
+    <style>
+      svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+      .canvas { fill: #f8faf7; }
+      .frame { fill: #fffffb; stroke: #29363b; stroke-width: 2.2; }
+      .title { font-family: "Architects Daughter"; font-size: 38px; fill: #223037; }
+      .subtitle { font-family: "Comic Mono"; font-size: 15px; fill: #41515a; }
+      .panel-wire { fill: #eef7fb; stroke: #9dbfcb; stroke-width: 1.8; }
+      .panel-call { fill: #f3f8ef; stroke: #aec99d; stroke-width: 1.8; }
+      .panel-result { fill: #fbf6ec; stroke: #d4bd8f; stroke-width: 1.8; }
+      .panel-title { font-family: "Architects Daughter"; font-size: 25px; fill: #223037; }
+      .note { font-family: "Comic Mono"; font-size: 13px; fill: #4c5a61; }
+      .card { fill: #fffdfa; stroke-width: 2; filter: url(#softShadow); }
+      .app { stroke: #4079a8; }
+      .contract { stroke: #5b8d52; }
+      .adapter { stroke: #b98220; }
+      .bytes { stroke: #3d758f; }
+      .string { stroke: #5b8d52; }
+      .nulls { stroke: #8c7a46; }
+      .errors { stroke: #bd6371; }
+      .result { stroke: #6f7f4a; }
+      .card-title { font-family: "Architects Daughter"; font-size: 21px; fill: #223037; dominant-baseline: middle; }
+      .outcome-title { font-family: "Architects Daughter"; font-size: 19px; fill: #223037; dominant-baseline: middle; }
+      .detail { font-family: "Comic Mono"; font-size: 12px; fill: #34454d; dominant-baseline: middle; }
+      .small { font-family: "Comic Mono"; font-size: 12px; fill: #5a6970; }
+      .sep { stroke: #cfdbdf; stroke-width: 1.3; }
+      .flow-blue { fill: none; stroke: #4079a8; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowBlue); }
+      .flow-green { fill: none; stroke: #5b8d52; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowGreen); }
+      .flow-amber { fill: none; stroke: #b98220; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowAmber); }
+      .flow-red { fill: none; stroke: #bd6371; stroke-width: 2.8; stroke-dasharray: 8 7; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowRed); }
+      .bus { fill: none; stroke: #5b8d52; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+      .label { font-family: "Comic Mono"; font-size: 12px; fill: #41515a; }
+      .pill { fill: #ffffff; stroke: #d2dde1; stroke-width: 1.2; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1600" height="1180"/>
+  <rect class="frame" x="20" y="20" width="1560" height="1140" rx="18"/>
+
+  <text x="800" y="72" text-anchor="middle" class="title">bluetape4k-json Serializer Call Flow</text>
+  <text x="800" y="105" text-anchor="middle" class="subtitle">The module does not discover a backend; caller wiring selects an adapter, then every call follows the common JsonSerializer surface.</text>
+
+  <rect x="76" y="145" width="1448" height="215" rx="16" class="panel-wire"/>
+  <text x="108" y="188" class="panel-title">1. Wire one concrete adapter</text>
+  <text x="108" y="216" class="note">A dependency choice is made outside io/json: Jackson 2, Jackson 3, or Fastjson2.</text>
+
+  <rect x="76" y="420" width="1448" height="455" rx="16" class="panel-call"/>
+  <text x="108" y="463" class="panel-title">2. Call the common API</text>
+  <text x="108" y="491" class="note">ByteArray operations are required; string and reified helpers delegate or are overridden by the adapter.</text>
+
+  <rect x="76" y="925" width="1448" height="165" rx="16" class="panel-result"/>
+  <text x="108" y="968" class="panel-title">3. Return the normalized outcome</text>
+
+  <g id="app">
+    <rect x="150" y="245" width="310" height="82" rx="8" class="card app"/>
+    <text x="305" y="274" text-anchor="middle" class="card-title">Application code</text>
+    <text x="305" y="304" text-anchor="middle" class="detail">declares JsonSerializer variable</text>
+  </g>
+
+  <g id="choice">
+    <rect x="645" y="230" width="310" height="112" rx="8" class="card adapter"/>
+    <text x="800" y="257" text-anchor="middle" class="card-title">Concrete adapter</text>
+    <line x1="645" y1="284" x2="955" y2="284" class="sep"/>
+    <text x="672" y="309" class="detail">JacksonSerializer 2.x / 3.x</text>
+    <text x="672" y="333" class="detail">FastjsonSerializer JSONB path</text>
+  </g>
+
+  <g id="spi">
+    <rect x="1140" y="245" width="310" height="82" rx="8" class="card contract"/>
+    <text x="1295" y="274" text-anchor="middle" class="card-title">JsonSerializer API</text>
+    <text x="1295" y="304" text-anchor="middle" class="detail">stable caller-facing contract</text>
+  </g>
+
+  <g id="serialize">
+    <rect x="150" y="590" width="300" height="110" rx="8" class="card bytes"/>
+    <text x="300" y="618" text-anchor="middle" class="card-title">serialize(graph)</text>
+    <line x1="150" y1="645" x2="450" y2="645" class="sep"/>
+    <text x="176" y="665" class="detail">returns ByteArray</text>
+    <text x="176" y="687" class="detail">null input usually empty bytes</text>
+  </g>
+
+  <g id="deserialize">
+    <rect x="510" y="590" width="300" height="110" rx="8" class="card bytes"/>
+    <text x="660" y="618" text-anchor="middle" class="card-title">deserialize(bytes)</text>
+    <line x1="510" y1="645" x2="810" y2="645" class="sep"/>
+    <text x="536" y="665" class="detail">bytes + Class&lt;T&gt;</text>
+    <text x="536" y="687" class="detail">returns T? or throws</text>
+  </g>
+
+  <g id="stringOut">
+    <rect x="870" y="590" width="300" height="110" rx="8" class="card string"/>
+    <text x="1020" y="618" text-anchor="middle" class="card-title">serializeAsString</text>
+    <line x1="870" y1="645" x2="1170" y2="645" class="sep"/>
+    <text x="896" y="665" class="detail">default: bytes to UTF-8 text</text>
+    <text x="896" y="687" class="detail">Fastjson2 overrides JSON text</text>
+  </g>
+
+  <g id="stringIn">
+    <rect x="1230" y="590" width="300" height="110" rx="8" class="card string"/>
+    <text x="1380" y="618" text-anchor="middle" class="card-title">deserializeFromString</text>
+    <line x1="1230" y1="645" x2="1530" y2="645" class="sep"/>
+    <text x="1256" y="665" class="detail">default: text to UTF-8 bytes</text>
+    <text x="1256" y="687" class="detail">Fastjson2 overrides JSON text</text>
+  </g>
+
+  <g id="reified">
+    <rect x="510" y="760" width="660" height="66" rx="8" class="card contract"/>
+    <text x="840" y="783" text-anchor="middle" class="card-title">Kotlin reified shortcuts</text>
+    <text x="840" y="810" text-anchor="middle" class="detail">deserialize&lt;T&gt;(...) and deserializeFromString&lt;T&gt;(...) supply T::class.java</text>
+  </g>
+
+  <g id="nulls">
+    <rect x="165" y="1012" width="360" height="58" rx="8" class="card nulls"/>
+    <text x="345" y="1041" text-anchor="middle" class="outcome-title">null input stays cheap</text>
+  </g>
+
+  <g id="error">
+    <rect x="620" y="1012" width="360" height="58" rx="8" class="card errors"/>
+    <text x="800" y="1041" text-anchor="middle" class="outcome-title">failures are wrapped</text>
+  </g>
+
+  <g id="return">
+    <rect x="1040" y="1012" width="430" height="58" rx="8" class="card result"/>
+    <text x="1255" y="1041" text-anchor="middle" class="outcome-title">caller receives ByteArray, String, or T?</text>
+  </g>
+
+  <path d="M 460 286 H 645" class="flow-blue"/>
+  <path d="M 955 286 H 1140" class="flow-green"/>
+
+  <path d="M 1295 327 V 530 H 300 H 660 H 1020 H 1380" class="bus"/>
+  <path d="M 300 530 V 590" class="flow-green"/>
+  <path d="M 660 530 V 590" class="flow-green"/>
+  <path d="M 1020 530 V 590" class="flow-green"/>
+  <path d="M 1380 530 V 590" class="flow-green"/>
+
+  <path d="M 300 700 V 890 H 345 V 1012" class="flow-amber"/>
+  <path d="M 660 700 V 730 H 480 V 890 H 800 V 1012" class="flow-red"/>
+  <path d="M 1020 700 V 730 H 1200 V 890 H 1255 V 1012" class="flow-green"/>
+  <path d="M 1380 700 V 890 H 1255 V 1012" class="flow-green"/>
+
+  <rect x="535" y="543" width="132" height="26" rx="13" class="pill"/>
+  <text x="601" y="561" text-anchor="middle" class="label">same interface</text>
+  <rect x="1192" y="760" width="166" height="26" rx="13" class="pill"/>
+  <text x="1275" y="778" text-anchor="middle" class="label">no backend lookup here</text>
 </svg>
