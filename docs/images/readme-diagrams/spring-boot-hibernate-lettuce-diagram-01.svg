@@ -1,18 +1,18 @@
-<svg data-intent="Explain Spring Boot Hibernate Lettuce auto-configuration UML for README diagram 01." data-evidence="spring-boot/hibernate-lettuce/README.md; spring-boot/hibernate-lettuce/README.ko.md; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheSpringProperties.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheHibernateAutoConfiguration.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheActuatorAutoConfiguration.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheActuatorEndpoint.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheMetricsAutoConfiguration.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheMetricsBinder.kt; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt" data-source-read="spring-boot/hibernate-lettuce/README.md; spring-boot/hibernate-lettuce/README.ko.md; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheSpringProperties.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheHibernateAutoConfiguration.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheActuatorAutoConfiguration.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheActuatorEndpoint.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheMetricsAutoConfiguration.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheMetricsBinder.kt; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt" xmlns="http://www.w3.org/2000/svg" width="2600" height="1720" viewBox="0 0 2600 1720" role="img" aria-label="Spring Boot Hibernate Lettuce UML Class Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="2600" height="1720" viewBox="0 0 2600 1720" role="img" aria-label="Spring Boot Hibernate Lettuce UML Class Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 
-  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#0F766E"/></marker>
+  <marker id="arrow-teal" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#0F766E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
 
-  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#1D4ED8"/></marker>
+  <marker id="arrow-blue" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#1D4ED8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
 
-  <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#15803D"/></marker>
+  <marker id="arrow-green" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
 
-  <marker id="arrow-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#C2410C"/></marker>
+  <marker id="arrow-amber" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#C2410C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
 
-  <marker id="arrow-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#BE185D"/></marker>
+  <marker id="arrow-pink" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#BE185D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
 
-  <marker id="arrow-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#475569"/></marker>
+  <marker id="arrow-slate" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
@@ -48,7 +48,7 @@
   <text class="chipText" x="2430" y="112" text-anchor="middle">factory</text>
 </g>
 <g id="Properties">
-  <rect class="classBox" x="90" y="245" width="650" height="330" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <rect class="classBox" x="90" y="245" width="650" height="310" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
   <text class="stereotype" x="415" y="273" text-anchor="middle">&lt;&lt;configuration properties&gt;&gt;</text>
   <text class="classTitle" x="415" y="303" text-anchor="middle">LettuceNearCacheSpringProperties</text>
   <path class="divider" d="M90 321H740" stroke="#0F766E"/>
@@ -63,7 +63,7 @@
 <text class="member" x="114" y="535">Metrics: enabled, enableCaffeineStats</text>
 </g>
 <g id="HibernateAuto">
-  <rect class="classBox" x="880" y="235" width="760" height="355" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <rect class="classBox" x="880" y="235" width="760" height="300" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
   <text class="stereotype" x="1260" y="263" text-anchor="middle">&lt;&lt;auto-configuration&gt;&gt;</text>
   <text class="classTitle" x="1260" y="293" text-anchor="middle">LettuceNearCacheHibernateAutoConfiguration</text>
   <path class="divider" d="M880 311H1640" stroke="#15803D"/>
@@ -77,7 +77,7 @@
 <text class="member" x="904" y="503">maps Redis, codec, local, TTL, metrics properties</text>
 </g>
 <g id="ActuatorAuto">
-  <rect class="classBox" x="1780" y="245" width="680" height="290" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <rect class="classBox" x="1780" y="245" width="680" height="255" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
   <text class="stereotype" x="2120" y="273" text-anchor="middle">&lt;&lt;auto-configuration&gt;&gt;</text>
   <text class="classTitle" x="2120" y="303" text-anchor="middle">LettuceNearCacheActuatorAutoConfiguration</text>
   <path class="divider" d="M1780 321H2460" stroke="#BE185D"/>
@@ -89,7 +89,7 @@
 <text class="member" x="1804" y="469">exposes GET /actuator/nearcache</text>
 </g>
 <g id="Endpoint">
-  <rect class="classBox" x="1780" y="675" width="680" height="360" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <rect class="classBox" x="1780" y="675" width="680" height="310" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
   <text class="stereotype" x="2120" y="703" text-anchor="middle">&lt;&lt;endpoint&gt;&gt;</text>
   <text class="classTitle" x="2120" y="733" text-anchor="middle">LettuceNearCacheActuatorEndpoint</text>
   <path class="divider" d="M1780 751H2460" stroke="#BE185D"/>
@@ -103,7 +103,7 @@
 <text class="member" x="1804" y="943">read localStats and Hibernate L2 statistics</text>
 </g>
 <g id="MetricsAuto">
-  <rect class="classBox" x="90" y="710" width="650" height="290" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <rect class="classBox" x="90" y="710" width="650" height="255" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="stereotype" x="415" y="738" text-anchor="middle">&lt;&lt;auto-configuration&gt;&gt;</text>
   <text class="classTitle" x="415" y="768" text-anchor="middle">LettuceNearCacheMetricsAutoConfiguration</text>
   <path class="divider" d="M90 786H740" stroke="#1D4ED8"/>
@@ -115,7 +115,7 @@
 <text class="member" x="114" y="934">enabled by metrics property group</text>
 </g>
 <g id="MetricsBinder">
-  <rect class="classBox" x="90" y="1110" width="650" height="330" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <rect class="classBox" x="90" y="1110" width="650" height="305" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="stereotype" x="415" y="1138" text-anchor="middle">&lt;&lt;binder&gt;&gt;</text>
   <text class="classTitle" x="415" y="1168" text-anchor="middle">LettuceNearCacheMetricsBinder</text>
   <path class="divider" d="M90 1186H740" stroke="#1D4ED8"/>
@@ -129,7 +129,7 @@
 <text class="member" x="114" y="1378">register total.local.size gauge</text>
 </g>
 <g id="RegionFactory">
-  <rect class="classBox" x="910" y="1140" width="780" height="330" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <rect class="classBox" x="910" y="1140" width="780" height="305" rx="8" fill="#F8FAFC" stroke="#64748B"/>
   <text class="stereotype" x="1300" y="1168" text-anchor="middle">&lt;&lt;Hibernate RegionFactory&gt;&gt;</text>
   <text class="classTitle" x="1300" y="1198" text-anchor="middle">LettuceNearCacheRegionFactory</text>
   <path class="divider" d="M910 1216H1690" stroke="#475569"/>
@@ -147,31 +147,31 @@
   <text class="edgeLabel" x="773" y="384">binds props</text>
 </g>
 <g data-from="HibernateAuto" data-to="RegionFactory">
-  <path class="edge dashed" d="M1260 590 L1260 1140" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="1286" y="832">factory class + hibernate props</text>
+  <path class="edge dashed" d="M1260 535 L1260 1140" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="1286" y="812">factory class + hibernate props</text>
 </g>
 <g data-from="HibernateAuto" data-to="ActuatorAuto">
   <path class="edge dashed" d="M1640 385 L1780 385" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
   <text class="edgeLabel" x="1678" y="364">after</text>
 </g>
 <g data-from="ActuatorAuto" data-to="Endpoint">
-  <path class="edge dashed" d="M2120 535 L2120 675" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-  <text class="edgeLabel" x="2146" y="602">creates</text>
+  <path class="edge dashed" d="M2120 500 L2120 675" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <text class="edgeLabel" x="2146" y="592">creates</text>
 </g>
 <g data-from="Endpoint" data-to="RegionFactory">
-  <path class="edge dashed" d="M1780 880 L1690 880 L1690 1305" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-  <text class="edgeLabel" x="1716" y="1072">getCaches + stats</text>
+  <path class="edge dashed" d="M2120 985 L2120 1305 L1690 1305" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <text class="edgeLabel" x="1888" y="1284">getCaches + stats</text>
 </g>
 <g data-from="Properties" data-to="MetricsAuto">
-  <path class="edge dashed" d="M415 575 L415 710" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <path class="edge dashed" d="M415 555 L415 710" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
   <text class="edgeLabel" x="441" y="642">metrics.enabled</text>
 </g>
 <g data-from="MetricsAuto" data-to="MetricsBinder">
-  <path class="edge dashed" d="M415 1000 L415 1110" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <path class="edge dashed" d="M415 965 L415 1110" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
   <text class="edgeLabel" x="441" y="1060">creates</text>
 </g>
 <g data-from="MetricsBinder" data-to="RegionFactory">
-  <path class="edge dashed" d="M740 1370 L820 1510 L1300 1510 L1300 1470" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="928" y="1484">register gauges from getCaches</text>
+  <path class="edge dashed" d="M740 1285 L910 1285" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="760" y="1240">gauges from caches</text>
 </g>
 </svg>

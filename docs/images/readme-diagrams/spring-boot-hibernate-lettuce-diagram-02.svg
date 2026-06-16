@@ -1,4 +1,4 @@
-<svg data-intent="Explain Spring Boot Hibernate Lettuce auto-configuration activation flow for README diagram 02." data-evidence="spring-boot/hibernate-lettuce/README.md; spring-boot/hibernate-lettuce/README.ko.md; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheSpringProperties.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheHibernateAutoConfiguration.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheActuatorAutoConfiguration.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheMetricsAutoConfiguration.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheActuatorEndpoint.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheMetricsBinder.kt" data-source-read="spring-boot/hibernate-lettuce/README.md; spring-boot/hibernate-lettuce/README.ko.md; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheSpringProperties.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheHibernateAutoConfiguration.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheActuatorAutoConfiguration.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheMetricsAutoConfiguration.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheActuatorEndpoint.kt; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheMetricsBinder.kt" xmlns="http://www.w3.org/2000/svg" width="2500" height="1540" viewBox="0 0 2500 1540" role="img" aria-label="Spring Boot Hibernate Lettuce Auto-Configuration Activation Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="2500" height="1540" viewBox="0 0 2500 1540" role="img" aria-label="Spring Boot Hibernate Lettuce Auto-Configuration Activation Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 
@@ -26,107 +26,107 @@
 <text class="title" x="72" y="86">Hibernate Lettuce Auto-Configuration Flow</text>
 <text class="subtitle" x="76" y="120">How Spring Boot 4 conditions activate Hibernate 2nd Level Cache, then optionally expose Actuator and Micrometer integrations.</text>
 <g id="Config">
-  <rect class="nodeBox" x="110" y="245" width="520" height="185" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="nodeTitle" x="370" y="287" text-anchor="middle">application.yml</text>
-  <text class="nodeLine" x="370" y="323" text-anchor="middle">bluetape4k.cache.lettuce-near.*</text>
-<text class="nodeLine" x="370" y="349" text-anchor="middle">enabled defaults to true</text>
-<text class="nodeLine" x="370" y="375" text-anchor="middle">local, Redis TTL, metrics options</text>
+  <rect class="nodeBox" x="960" y="185" width="580" height="170" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="nodeTitle" x="1250" y="226" text-anchor="middle">application.yml</text>
+  <text class="nodeLine" x="1250" y="262" text-anchor="middle">bluetape4k.cache.lettuce-near.*</text>
+<text class="nodeLine" x="1250" y="288" text-anchor="middle">enabled defaults to true</text>
+<text class="nodeLine" x="1250" y="314" text-anchor="middle">local, Redis TTL, metrics options</text>
 </g>
 <g id="ClassCondition">
-  <path class="nodeBox" d="M995 235 L1230 337.5 L995 440 L760 337.5 Z" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="nodeTitle" x="995" y="303" text-anchor="middle">Classpath ready?</text>
-  <text class="nodeLine" x="995" y="341" text-anchor="middle">RegionFactory</text>
-<text class="nodeLine" x="995" y="367" text-anchor="middle">EntityManagerFactory</text>
-<text class="nodeLine" x="995" y="393" text-anchor="middle">Spring Boot 4 Hibernate</text>
+  <path class="nodeBox" d="M1250 410 L1525 515 L1250 620 L975 515 Z" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="nodeTitle" x="1250" y="480" text-anchor="middle">Classpath ready?</text>
+  <text class="nodeLine" x="1250" y="518" text-anchor="middle">RegionFactory</text>
+<text class="nodeLine" x="1250" y="544" text-anchor="middle">EntityManagerFactory</text>
+<text class="nodeLine" x="1250" y="570" text-anchor="middle">Spring Boot 4 Hibernate</text>
 </g>
 <g id="HibernateAuto">
-  <rect class="nodeBox" x="1380" y="230" width="610" height="215" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="nodeTitle" x="1685" y="272" text-anchor="middle">Hibernate auto-configuration</text>
-  <text class="nodeLine" x="1685" y="308" text-anchor="middle">binds LettuceNearCacheSpringProperties</text>
-<text class="nodeLine" x="1685" y="334" text-anchor="middle">creates HibernatePropertiesCustomizer</text>
-<text class="nodeLine" x="1685" y="360" text-anchor="middle">runs when enabled=true or missing</text>
+  <rect class="nodeBox" x="950" y="705" width="600" height="190" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="nodeTitle" x="1250" y="747" text-anchor="middle">Hibernate auto-configuration</text>
+  <text class="nodeLine" x="1250" y="783" text-anchor="middle">binds LettuceNearCacheSpringProperties</text>
+<text class="nodeLine" x="1250" y="809" text-anchor="middle">creates HibernatePropertiesCustomizer</text>
+<text class="nodeLine" x="1250" y="835" text-anchor="middle">runs when enabled=true or missing</text>
 </g>
 <g id="HibernateProps">
-  <rect class="nodeBox" x="1380" y="560" width="610" height="245" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="nodeTitle" x="1685" y="602" text-anchor="middle">Hibernate properties injected</text>
-  <text class="nodeLine" x="1685" y="638" text-anchor="middle">region.factory_class = LettuceNearCacheRegionFactory</text>
-<text class="nodeLine" x="1685" y="664" text-anchor="middle">use_second_level_cache = true</text>
-<text class="nodeLine" x="1685" y="690" text-anchor="middle">redis_uri, codec, use_resp3</text>
-<text class="nodeLine" x="1685" y="716" text-anchor="middle">local.max_size, expire_after_write, redis_ttl.*</text>
+  <rect class="nodeBox" x="900" y="970" width="700" height="220" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="nodeTitle" x="1250" y="1012" text-anchor="middle">Hibernate properties injected</text>
+  <text class="nodeLine" x="1250" y="1048" text-anchor="middle">region.factory_class = LettuceNearCacheRegionFactory</text>
+<text class="nodeLine" x="1250" y="1074" text-anchor="middle">use_second_level_cache = true</text>
+<text class="nodeLine" x="1250" y="1100" text-anchor="middle">redis_uri, codec, use_resp3</text>
+<text class="nodeLine" x="1250" y="1126" text-anchor="middle">local.max_size, expire_after_write, redis_ttl.*</text>
 </g>
 <g id="RegionFactory">
-  <rect class="nodeBox" x="760" y="925" width="600" height="230" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-  <text class="nodeTitle" x="1060" y="967" text-anchor="middle">Hibernate uses RegionFactory</text>
-  <text class="nodeLine" x="1060" y="1003" text-anchor="middle">prepareForUse() creates Redis client and codec</text>
-<text class="nodeLine" x="1060" y="1029" text-anchor="middle">region storage uses LettuceNearCache</text>
-<text class="nodeLine" x="1060" y="1055" text-anchor="middle">L1 Caffeine + L2 Redis per region</text>
+  <rect class="nodeBox" x="900" y="1280" width="700" height="170" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="nodeTitle" x="1250" y="1322" text-anchor="middle">Hibernate uses RegionFactory</text>
+  <text class="nodeLine" x="1250" y="1358" text-anchor="middle">prepareForUse() creates Redis client and codec</text>
+<text class="nodeLine" x="1250" y="1384" text-anchor="middle">region storage uses LettuceNearCache</text>
+<text class="nodeLine" x="1250" y="1410" text-anchor="middle">L1 Caffeine + L2 Redis per region</text>
 </g>
 <g id="MetricsCondition">
-  <rect class="nodeBox" x="120" y="790" width="520" height="185" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="nodeTitle" x="380" y="832" text-anchor="middle">Metrics branch</text>
-  <text class="nodeLine" x="380" y="868" text-anchor="middle">MeterRegistry bean present</text>
-<text class="nodeLine" x="380" y="894" text-anchor="middle">metrics.enabled=true or missing</text>
-<text class="nodeLine" x="380" y="920" text-anchor="middle">after Hibernate and Micrometer auto-config</text>
+  <rect class="nodeBox" x="100" y="970" width="520" height="180" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="nodeTitle" x="360" y="1012" text-anchor="middle">Metrics branch</text>
+  <text class="nodeLine" x="360" y="1048" text-anchor="middle">MeterRegistry bean present</text>
+<text class="nodeLine" x="360" y="1074" text-anchor="middle">metrics.enabled=true or missing</text>
+<text class="nodeLine" x="360" y="1100" text-anchor="middle">after Hibernate and Micrometer auto-config</text>
 </g>
 <g id="MetricsBinder">
-  <rect class="nodeBox" x="120" y="1075" width="520" height="205" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="nodeTitle" x="380" y="1117" text-anchor="middle">Metrics binder</text>
-  <text class="nodeLine" x="380" y="1153" text-anchor="middle">unwraps SessionFactoryImplementor</text>
-<text class="nodeLine" x="380" y="1179" text-anchor="middle">requires LettuceNearCacheRegionFactory</text>
-<text class="nodeLine" x="380" y="1205" text-anchor="middle">registers active.regions and total.local.size</text>
+  <rect class="nodeBox" x="100" y="1245" width="520" height="190" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="nodeTitle" x="360" y="1287" text-anchor="middle">Metrics binder</text>
+  <text class="nodeLine" x="360" y="1323" text-anchor="middle">unwraps SessionFactoryImplementor</text>
+<text class="nodeLine" x="360" y="1349" text-anchor="middle">requires LettuceNearCacheRegionFactory</text>
+<text class="nodeLine" x="360" y="1375" text-anchor="middle">registers active.regions and total.local.size</text>
 </g>
 <g id="ActuatorCondition">
-  <rect class="nodeBox" x="1840" y="870" width="530" height="195" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="nodeTitle" x="2105" y="912" text-anchor="middle">Actuator branch</text>
-  <text class="nodeLine" x="2105" y="948" text-anchor="middle">Endpoint class on classpath</text>
-<text class="nodeLine" x="2105" y="974" text-anchor="middle">EntityManagerFactory bean present</text>
-<text class="nodeLine" x="2105" y="1000" text-anchor="middle">enabled=true or missing</text>
+  <rect class="nodeBox" x="1880" y="970" width="520" height="180" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="nodeTitle" x="2140" y="1012" text-anchor="middle">Actuator branch</text>
+  <text class="nodeLine" x="2140" y="1048" text-anchor="middle">Endpoint class on classpath</text>
+<text class="nodeLine" x="2140" y="1074" text-anchor="middle">EntityManagerFactory bean present</text>
+<text class="nodeLine" x="2140" y="1100" text-anchor="middle">enabled=true or missing</text>
 </g>
 <g id="Endpoint">
-  <rect class="nodeBox" x="1840" y="1155" width="530" height="205" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="nodeTitle" x="2105" y="1197" text-anchor="middle">NearCache endpoint</text>
-  <text class="nodeLine" x="2105" y="1233" text-anchor="middle">GET /actuator/nearcache</text>
-<text class="nodeLine" x="2105" y="1259" text-anchor="middle">GET /actuator/nearcache/{region}</text>
-<text class="nodeLine" x="2105" y="1285" text-anchor="middle">reads getCaches(), local stats, Hibernate L2 stats</text>
+  <rect class="nodeBox" x="1880" y="1245" width="520" height="190" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="nodeTitle" x="2140" y="1287" text-anchor="middle">NearCache endpoint</text>
+  <text class="nodeLine" x="2140" y="1323" text-anchor="middle">GET /actuator/nearcache</text>
+<text class="nodeLine" x="2140" y="1349" text-anchor="middle">GET /actuator/nearcache/{region}</text>
+<text class="nodeLine" x="2140" y="1375" text-anchor="middle">reads getCaches(), local stats, Hibernate L2 stats</text>
 </g>
 <g data-from="Config" data-to="ClassCondition">
-  <path class="edge " d="M630 338 L760 338" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
-  <text class="edgeLabel" x="658" y="317">properties bind</text>
+  <path class="edge " d="M1250 355 L1250 410" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <text class="edgeLabel" x="1276" y="390">properties bind</text>
 </g>
 <g data-from="ClassCondition" data-to="HibernateAuto">
-  <path class="edge " d="M1230 338 L1380 338" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-  <text class="edgeLabel" x="1278" y="317">yes</text>
+  <path class="edge " d="M1250 620 L1250 705" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <text class="edgeLabel" x="1276" y="668">yes</text>
 </g>
 <g data-from="HibernateAuto" data-to="HibernateProps">
-  <path class="edge " d="M1685 445 L1685 560" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="1711" y="512">customizer</text>
+  <path class="edge " d="M1250 895 L1250 970" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="1276" y="938">customizer</text>
 </g>
 <g data-from="HibernateProps" data-to="RegionFactory">
-  <path class="edge " d="M1685 805 L1685 900 L1060 900 L1060 925" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="1268" y="879">Hibernate boot</text>
+  <path class="edge " d="M1250 1190 L1250 1280" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="1276" y="1240">Hibernate boot</text>
 </g>
 <g data-from="Config" data-to="MetricsCondition">
-  <path class="edge dashed" d="M370 430 L370 790" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="396" y="642">metrics settings</text>
+  <path class="edge dashed" d="M960 300 L760 300 L760 925 L360 925 L360 970" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="426" y="904">metrics settings</text>
 </g>
 <g data-from="MetricsCondition" data-to="MetricsBinder">
-  <path class="edge " d="M380 975 L380 1075" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="406" y="1032">creates</text>
+  <path class="edge " d="M360 1150 L360 1245" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="386" y="1202">creates</text>
 </g>
 <g data-from="MetricsBinder" data-to="RegionFactory">
-  <path class="edge dashed" d="M640 1180 L760 1035" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="668" y="1107">getCaches()</text>
+  <path class="edge dashed" d="M620 1340 L900 1340" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="724" y="1318">getCaches()</text>
 </g>
 <g data-from="HibernateProps" data-to="ActuatorCondition">
-  <path class="edge dashed" d="M1990 690 L2105 690 L2105 870" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-  <text class="edgeLabel" x="2078" y="767">after Hibernate</text>
+  <path class="edge dashed" d="M1600 1080 L1880 1080" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <text class="edgeLabel" x="1688" y="1058">after Hibernate</text>
 </g>
 <g data-from="ActuatorCondition" data-to="Endpoint">
-  <path class="edge " d="M2105 1065 L2105 1155" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-  <text class="edgeLabel" x="2131" y="1117">creates</text>
+  <path class="edge " d="M2140 1150 L2140 1245" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <text class="edgeLabel" x="2166" y="1202">creates</text>
 </g>
 <g data-from="Endpoint" data-to="RegionFactory">
-  <path class="edge dashed" d="M1840 1260 L1360 1260 L1360 1040" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-  <text class="edgeLabel" x="1508" y="1239">getCaches() + stats</text>
+  <path class="edge dashed" d="M1880 1340 L1600 1340" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <text class="edgeLabel" x="1648" y="1318">getCaches() + stats</text>
 </g>
 </svg>
