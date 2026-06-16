@@ -72,6 +72,14 @@ function laneLabel({ x, y, text, color }) {
   return `<text class="laneLabel" x="${x}" y="${y}" fill="${dark}">${esc(text)}</text>`;
 }
 
+function layer({ id, x, y, w, h, color, title }) {
+  const [fill, stroke, dark] = palette[color];
+  return `<g id="${esc(id)}">
+  <rect class="layer" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
+  <text class="layerTitle" x="${x + 22}" y="${y + 29}" fill="${dark}">${esc(title)}</text>
+</g>`;
+}
+
 function edge({ from, to, points, color, dashed = false, label = "", labelAt }) {
   const [, , dark] = palette[color];
   const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
@@ -83,10 +91,12 @@ function edge({ from, to, points, color, dashed = false, label = "", labelAt }) 
 </g>`;
 }
 
-const width = 2780;
-const height = 1640;
+const width = 2700;
+const height = 1460;
 const body = [
-  laneLabel({ x: 96, y: 190, text: "configuration path", color: "teal" }),
+  layer({ id: "ConfigLayer", x: 76, y: 165, w: 2420, h: 330, color: "teal", title: "configuration path" }),
+  layer({ id: "WriteLayer", x: 76, y: 615, w: 2420, h: 320, color: "amber", title: "write path" }),
+  layer({ id: "ReadLayer", x: 76, y: 1050, w: 2420, h: 320, color: "blue", title: "read path" }),
   card({
     id: "ConfigCode",
     x: 110,
@@ -136,7 +146,6 @@ const body = [
     footer: "Redis sees bytes, not object graphs",
   }),
 
-  laneLabel({ x: 96, y: 640, text: "write path", color: "amber" }),
   card({
     id: "DomainValue",
     x: 110,
@@ -198,7 +207,6 @@ const body = [
     footer: "stored value",
   }),
 
-  laneLabel({ x: 96, y: 1075, text: "read path", color: "blue" }),
   card({
     id: "StoredBytesRead",
     x: 2230,
@@ -258,20 +266,21 @@ const body = [
   edge({ from: "WriteCodec", to: "StoredBytes", points: [[2110, 785], [2230, 785]], color: "amber", label: "ByteArray", labelAt: [2142, 764] }),
   edge({ from: "StoredBytes", to: "RedisConnection", points: [[2360, 680], [2360, 450]], color: "amber", dashed: true, label: "stored in Redis", labelAt: [2378, 575] }),
 
-  edge({ from: "RedisConnection", to: "StoredBytesRead", points: [[2450, 335], [2630, 335], [2630, 1215], [2490, 1215]], color: "blue", dashed: true, label: "loaded bytes", labelAt: [2538, 1010] }),
+  edge({ from: "RedisConnection", to: "StoredBytesRead", points: [[2450, 335], [2535, 335], [2535, 1215], [2490, 1215]], color: "blue", dashed: true, label: "loaded bytes", labelAt: [2506, 1010] }),
   edge({ from: "StoredBytesRead", to: "ReadCodec", points: [[2230, 1215], [2110, 1215]], color: "blue", label: "ByteArray", labelAt: [2142, 1194] }),
   edge({ from: "ReadCodec", to: "ReactiveResult", points: [[1690, 1215], [1570, 1215]], color: "blue", label: "decoded object", labelAt: [1588, 1194] }),
   edge({ from: "ReactiveResult", to: "WriteSlot", points: [[1340, 1110], [1340, 1015], [820, 1015], [820, 890]], color: "blue", dashed: true, label: "same serializer slot", labelAt: [890, 996] }),
   edge({ from: "CompressOnly", to: "WriteSlot", points: [[490, 1110], [490, 1000], [820, 1000], [820, 890]], color: "amber", dashed: true, label: "ByteArray-only option", labelAt: [520, 980] }),
 ];
 
-const svg = `<svg data-intent="Explain Spring Boot Redis ReactiveRedisTemplate serialization flow for README diagram 02." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="ReactiveRedisTemplate Serialization Flow Diagram">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="ReactiveRedisTemplate Serialization Flow Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .layer{fill-opacity:.30;stroke-width:1.6;stroke-dasharray:10 8}.layerTitle{font-family:"Comic Mono";font-size:15px;font-weight:700;letter-spacing:0}
     .title{font-family:"Architects Daughter";font-size:47px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
     .card{stroke-width:1.8;filter:url(#shadow)}.kicker{font-family:"Comic Mono";font-size:14px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}
     .body{font-family:"Comic Mono";font-size:14px;fill:#334155}.foot{font-family:"Comic Mono";font-size:13px;fill:#475569}.divider{stroke-width:1.1;opacity:.42}
