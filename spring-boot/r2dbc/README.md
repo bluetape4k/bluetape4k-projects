@@ -43,7 +43,7 @@ dependencies {
 ### R2dbcEntityOperations Extensions
 
 ```kotlin
-import io.bluetape4k.spring4.r2dbc.coroutines.*
+import io.bluetape4k.spring.r2dbc.coroutines.*
 
 class PostService(private val operations: R2dbcEntityOperations) {
 
@@ -56,13 +56,13 @@ class PostService(private val operations: R2dbcEntityOperations) {
     suspend fun save(post: Post): Post =
         operations.insertSuspending(post)
 
-    suspend fun update(id: Long, title: String): Int {
+    suspend fun update(id: Long, title: String): Long {
         val query = Query.query(Criteria.where("id").isEqual(id))
         val update = Update.update("title", title)
         return operations.updateSuspending<Post>(query, update)
     }
 
-    suspend fun delete(id: Long): Int {
+    suspend fun delete(id: Long): Long {
         val query = Query.query(Criteria.where("id").isEqual(id))
         return operations.deleteSuspending<Post>(query)
     }
@@ -96,7 +96,7 @@ class PostRepository(private val operations: R2dbcEntityOperations) {
     suspend fun save(post: Post): Post =
         operations.insertSuspending(post)
 
-    suspend fun delete(id: Long): Int {
+    suspend fun delete(id: Long): Long {
         val query = Query.query(Criteria.where("id").isEqual(id))
         return operations.deleteSuspending<Post>(query)
     }
@@ -116,9 +116,9 @@ Coroutine functions follow the `XyzSuspending` naming pattern.
 | `selectOneSuspending<T>(query)`       | `T`         | Select single record                |
 | `selectOneOrNullSuspending<T>(query)` | `T?`        | Select single record (null if none) |
 | `insertSuspending(entity)`            | `T`         | Insert                              |
-| `updateSuspending<T>(query, update)`  | `Int`       | Update                              |
-| `deleteSuspending<T>(query)`          | `Int`       | Delete                              |
-| `deleteAllSuspending<T>()`            | `Int`       | Delete all                          |
+| `updateSuspending<T>(query, update)`  | `Long`      | Update                              |
+| `deleteSuspending<T>(query)`          | `Long`      | Delete                              |
+| `deleteAllSuspending<T>()`            | `Long`      | Delete all                          |
 | `countAllSuspending<T>()`             | `Long`      | Total count                         |
 | `countSuspending<T>(query)`           | `Long`      | Conditional count                   |
 | `existsSuspending<T>(query)`          | `Boolean`   | Check existence                     |

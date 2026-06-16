@@ -84,7 +84,7 @@ function edge({ from, to, points, color, dashed = false, label = "", labelAt }) 
 }
 
 const width = 2700;
-const height = 1540;
+const height = 1420;
 const body = [
   lane({ x: 96, y: 195, text: "caller input", color: "slate" }),
   card({
@@ -213,7 +213,7 @@ const body = [
   edge({ from: "WriteAdapter", to: "Database", points: [[1930, 1175], [2140, 1175], [2140, 420], [2200, 420]], color: "slate", dashed: true, label: "non-blocking driver I/O", labelAt: [1968, 1135] }),
 ];
 
-const svg = `<svg data-intent="Explain Spring Boot R2DBC coroutine data flow for README diagram 02." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot R2DBC Coroutines Data Flow Diagram">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot R2DBC Coroutines Data Flow Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}

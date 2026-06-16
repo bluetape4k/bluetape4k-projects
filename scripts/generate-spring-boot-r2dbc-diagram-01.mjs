@@ -54,7 +54,7 @@ function esc(value) {
 
 function markerDefs() {
   return Object.entries(palette).map(([name, [, , dark]]) => `
-  <marker id="arrow-${name}" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="${dark}"/></marker>`).join("\n");
+  <marker id="arrow-${name}" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="${dark}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>`).join("\n");
 }
 
 function box({ id, x, y, w, h, color, stereotype, title, attrs = [], methods = [] }) {
@@ -83,7 +83,7 @@ function edge({ from, to, points, color, dashed = false, label = "", labelAt }) 
 }
 
 const width = 2600;
-const height = 1450;
+const height = 1340;
 const body = [
   box({
     id: "R2dbcEntityOperations",
@@ -189,7 +189,7 @@ const body = [
   edge({ from: "SelectExtensions", to: "CoroutineSurface", points: [[1560, 640], [1700, 640], [1700, 455]], color: "teal", label: "await / Flow bridge", labelAt: [1588, 620] }),
 ];
 
-const svg = `<svg data-intent="Explain Spring Boot R2DBC core coroutine extension structure for README diagram 01." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot R2DBC Core Class Structure Diagram">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot R2DBC Core Class Structure Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}

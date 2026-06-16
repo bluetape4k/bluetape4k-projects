@@ -43,7 +43,7 @@ dependencies {
 ### R2dbcEntityOperations 확장
 
 ```kotlin
-import io.bluetape4k.spring4.r2dbc.coroutines.*
+import io.bluetape4k.spring.r2dbc.coroutines.*
 
 class PostService(private val operations: R2dbcEntityOperations) {
 
@@ -56,13 +56,13 @@ class PostService(private val operations: R2dbcEntityOperations) {
     suspend fun save(post: Post): Post =
         operations.insertSuspending(post)
 
-    suspend fun update(id: Long, title: String): Int {
+    suspend fun update(id: Long, title: String): Long {
         val query = Query.query(Criteria.where("id").isEqual(id))
         val update = Update.update("title", title)
         return operations.updateSuspending<Post>(query, update)
     }
 
-    suspend fun delete(id: Long): Int {
+    suspend fun delete(id: Long): Long {
         val query = Query.query(Criteria.where("id").isEqual(id))
         return operations.deleteSuspending<Post>(query)
     }
@@ -96,7 +96,7 @@ class PostRepository(private val operations: R2dbcEntityOperations) {
     suspend fun save(post: Post): Post =
         operations.insertSuspending(post)
 
-    suspend fun delete(id: Long): Int {
+    suspend fun delete(id: Long): Long {
         val query = Query.query(Criteria.where("id").isEqual(id))
         return operations.deleteSuspending<Post>(query)
     }
@@ -116,9 +116,9 @@ class PostRepository(private val operations: R2dbcEntityOperations) {
 | `selectOneSuspending<T>(query)`       | `T`       | 단건 조회                |
 | `selectOneOrNullSuspending<T>(query)` | `T?`      | 단건 조회 (없으면 null)     |
 | `insertSuspending(entity)`            | `T`       | 삽입                   |
-| `updateSuspending<T>(query, update)`  | `Int`     | 업데이트                 |
-| `deleteSuspending<T>(query)`          | `Int`     | 삭제                   |
-| `deleteAllSuspending<T>()`            | `Int`     | 전체 삭제                |
+| `updateSuspending<T>(query, update)`  | `Long`    | 업데이트                 |
+| `deleteSuspending<T>(query)`          | `Long`    | 삭제                   |
+| `deleteAllSuspending<T>()`            | `Long`    | 전체 삭제                |
 | `countAllSuspending<T>()`             | `Long`    | 전체 건수                |
 | `countSuspending<T>(query)`           | `Long`    | 조건부 건수               |
 | `existsSuspending<T>(query)`          | `Boolean` | 존재 여부                |
