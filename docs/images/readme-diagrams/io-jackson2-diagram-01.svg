@@ -93,31 +93,31 @@
   <text x="754" y="360" class="member">readValueOrNull from text, stream, file</text>
   <text x="754" y="382" class="member">writeAsString / writeAsBytes helpers</text>
 
-  <rect x="704" y="492" width="244" height="144" rx="7" class="format" filter="url(#softShadow)"/>
-  <text x="826" y="524" text-anchor="middle" class="class-title">JacksonBinary</text>
-  <line x1="704" y1="544" x2="948" y2="544" class="sep"/>
-  <text x="728" y="570" class="member">CBOR, Ion, Smile</text>
-  <text x="728" y="592" class="member">default mapper/factory</text>
-  <text x="728" y="614" class="member">format serializers</text>
+  <rect x="674" y="492" width="228" height="144" rx="7" class="format" filter="url(#softShadow)"/>
+  <text x="788" y="524" text-anchor="middle" class="class-title">JacksonBinary</text>
+  <line x1="674" y1="544" x2="902" y2="544" class="sep"/>
+  <text x="698" y="570" class="member">CBOR, Ion, Smile</text>
+  <text x="698" y="592" class="member">default mapper/factory</text>
+  <text x="698" y="614" class="member">format serializers</text>
 
-  <rect x="982" y="492" width="244" height="144" rx="7" class="format" filter="url(#softShadow)"/>
-  <text x="1104" y="524" text-anchor="middle" class="class-title">JacksonText</text>
-  <line x1="982" y1="544" x2="1226" y2="544" class="sep"/>
-  <text x="1006" y="570" class="member">CSV, Props, TOML, YAML</text>
-  <text x="1006" y="592" class="member">default mapper/factory</text>
-  <text x="1006" y="614" class="member">text serializers</text>
+  <rect x="922" y="492" width="228" height="144" rx="7" class="format" filter="url(#softShadow)"/>
+  <text x="1036" y="524" text-anchor="middle" class="class-title">JacksonText</text>
+  <line x1="922" y1="544" x2="1150" y2="544" class="sep"/>
+  <text x="946" y="570" class="member">CSV, Props, TOML, YAML</text>
+  <text x="946" y="592" class="member">default mapper/factory</text>
+  <text x="946" y="614" class="member">text serializers</text>
 
-  <rect x="704" y="746" width="244" height="110" rx="7" class="serializer" filter="url(#softShadow)"/>
-  <text x="826" y="778" text-anchor="middle" class="class-title">Binary serializers</text>
-  <line x1="704" y1="798" x2="948" y2="798" class="sep"/>
-  <text x="728" y="824" class="member">Cbor / Ion / Smile</text>
-  <text x="728" y="846" class="member">extend JacksonSerializer</text>
+  <rect x="674" y="746" width="228" height="110" rx="7" class="serializer" filter="url(#softShadow)"/>
+  <text x="788" y="778" text-anchor="middle" class="class-title">Binary serializers</text>
+  <line x1="674" y1="798" x2="902" y2="798" class="sep"/>
+  <text x="698" y="824" class="member">Cbor / Ion / Smile</text>
+  <text x="698" y="846" class="member">extend JacksonSerializer</text>
 
-  <rect x="982" y="746" width="244" height="110" rx="7" class="serializer" filter="url(#softShadow)"/>
-  <text x="1104" y="778" text-anchor="middle" class="class-title">Text serializers</text>
-  <line x1="982" y1="798" x2="1226" y2="798" class="sep"/>
-  <text x="1006" y="824" class="member">Csv / Props / Toml / Yaml</text>
-  <text x="1006" y="846" class="member">string oriented formats</text>
+  <rect x="922" y="746" width="228" height="110" rx="7" class="serializer" filter="url(#softShadow)"/>
+  <text x="1036" y="778" text-anchor="middle" class="class-title">Text serializers</text>
+  <line x1="922" y1="798" x2="1150" y2="798" class="sep"/>
+  <text x="946" y="824" class="member">Csv / Props / Toml / Yaml</text>
+  <text x="946" y="846" class="member">string oriented formats</text>
 
   <rect x="1238" y="150" width="490" height="842" rx="16" class="feature-panel"/>
   <text x="1268" y="190" class="panel-title">Streaming and field-level features</text>
@@ -156,14 +156,14 @@
   <text x="379" y="691" text-anchor="middle" class="label">implements</text>
 
   <path d="M 312 406 L 312 508" class="usesBlue"/>
-  <path d="M 826 856 L 826 914 L 312 914 L 312 864" class="extends"/>
-  <path d="M 1104 856 L 1104 944 L 312 944 L 312 864" class="extends"/>
+  <path d="M 788 856 L 788 914 L 312 914 L 312 864" class="extends"/>
+  <path d="M 1036 856 L 1036 944 L 312 944 L 312 864" class="extends"/>
 
   <path d="M 486 342 L 730 342" class="usesBlue"/>
-  <path d="M 910 400 L 910 456 L 826 456 L 826 492" class="usesGreen"/>
-  <path d="M 910 400 L 910 456 L 1104 456 L 1104 492" class="usesGreen"/>
-  <path d="M 826 636 L 826 746" class="flowBlue"/>
-  <path d="M 1104 636 L 1104 746" class="flowBlue"/>
+  <path d="M 910 400 L 910 456 L 788 456 L 788 492" class="usesGreen"/>
+  <path d="M 910 400 L 910 456 L 1036 456 L 1036 492" class="usesGreen"/>
+  <path d="M 788 636 L 788 746" class="flowBlue"/>
+  <path d="M 1036 636 L 1036 746" class="flowBlue"/>
 
   <path d="M 1180 344 L 1230 344 L 1230 344 L 1298 344" class="usesGold"/>
   <path d="M 1180 536 L 1230 536 L 1230 536 L 1298 536" class="usesGold"/>
