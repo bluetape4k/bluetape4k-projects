@@ -17,15 +17,15 @@
 
 ### 확장 함수 API 개요
 
-![API diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-01.png)
+![확장 함수 API 개요 다이어그램](../../docs/images/readme-diagrams/data-cassandra-diagram-01.png)
 
 ### 주요 API 구조
 
-![API diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-02.png)
+![주요 API 구조 다이어그램](../../docs/images/readme-diagrams/data-cassandra-diagram-02.png)
 
 ### 비동기 쿼리 실행 흐름
 
-![cassandra Sequence Flow 3 diagram](../../docs/images/readme-diagrams/data-cassandra-sequence-01.png)
+![비동기 쿼리 실행 흐름 다이어그램](../../docs/images/readme-diagrams/data-cassandra-sequence-01.png)
 
 ## 의존성 추가
 
