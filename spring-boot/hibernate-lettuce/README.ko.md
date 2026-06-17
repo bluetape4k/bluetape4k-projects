@@ -49,7 +49,7 @@ dependencies {
 - 의존성 추가 + `application.yml` 설정만으로 2nd Level Cache 활성화
 - `@ConditionalOnClass` / `@ConditionalOnProperty` 기반 안전한 자동 구성
 - **Actuator** 엔드포인트 (`GET /actuator/nearcache`) — region별 캐시 통계
-- **Micrometer** 메트릭 (`lettuce.nearcache.*`) — region count, local size
+- **Micrometer** 메트릭 (`lettuce.nearcache.*`) — 활성 Region 수, 전체 로컬 크기
 - L1 (Caffeine) + L2 (Redis) **Two-Tier** 캐싱 아키텍처
 
 ## 의존성 (Spring Boot 4)
@@ -129,7 +129,7 @@ data class Product(
 
 ### 3. 실행 — 자동 설정 완료
 
-Hibernate properties가 자동으로 주입되어 2nd Level Cache가 활성화된다. 추가 코드 불필요.
+Hibernate properties가 자동으로 주입되어 2nd Level Cache가 활성화됩니다. 추가 코드는 필요 없습니다.
 
 ## 설정 옵션 전체 목록
 
@@ -247,24 +247,24 @@ GET /actuator/nearcache/product
 
 ## Micrometer 메트릭
 
-`metrics.enabled=true` 설정 시 다음 Gauge가 등록된다.
+`metrics.enabled=true` 설정 시 다음 Gauge가 등록됩니다.
 
-| 메트릭                              | 설명                 |
-|----------------------------------|--------------------|
-| `lettuce.nearcache.region.count` | 활성 Region 수        |
-| `lettuce.nearcache.local.size`   | 전체 L1 캐시 항목 수 (추정) |
+| 메트릭                                   | 설명                    |
+|---------------------------------------|-----------------------|
+| `lettuce.nearcache.active.regions`    | 활성 Region 수           |
+| `lettuce.nearcache.total.local.size`  | 전체 L1 캐시 항목 수 (추정) |
 
 ```bash
 # Micrometer 메트릭 조회 (JSON)
-GET /actuator/metrics/lettuce.nearcache.region.count
-GET /actuator/metrics/lettuce.nearcache.local.size
+GET /actuator/metrics/lettuce.nearcache.active.regions
+GET /actuator/metrics/lettuce.nearcache.total.local.size
 ```
 
 응답 예시:
 
 ```json
 {
-  "name": "lettuce.nearcache.region.count",
+  "name": "lettuce.nearcache.active.regions",
   "baseUnit": "items",
   "measurements": [
     {
@@ -294,11 +294,11 @@ bluetape4k:
 ./gradlew :bluetape4k-spring-boot-hibernate-lettuce:test
 ```
 
-`ApplicationContextRunner`로 실제 Redis/DB 없이 설정 테스트를 수행한다.
+`ApplicationContextRunner`로 실제 Redis/DB 없이 설정 테스트를 수행합니다.
 
 ### 통합 테스트 (Testcontainers)
 
-통합 테스트는 Testcontainers를 통해 Redis + H2를 자동으로 관리한다.
+통합 테스트는 Testcontainers를 통해 Redis + H2를 자동으로 관리합니다.
 
 ```bash
 ./gradlew :bluetape4k-spring-boot-hibernate-lettuce:test -i

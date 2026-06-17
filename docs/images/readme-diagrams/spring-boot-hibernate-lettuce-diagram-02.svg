@@ -1,132 +1,147 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2500" height="1540" viewBox="0 0 2500 1540" role="img" aria-label="Spring Boot Hibernate Lettuce Auto-Configuration Activation Flow">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-
-  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#0F766E"/></marker>
-
-  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#1D4ED8"/></marker>
-
-  <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#15803D"/></marker>
-
-  <marker id="arrow-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#C2410C"/></marker>
-
-  <marker id="arrow-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#BE185D"/></marker>
-
-  <marker id="arrow-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#475569"/></marker>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1120" viewBox="0 0 1500 1120" role="img" aria-label="Spring Boot Hibernate Lettuce activation flow">
   <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .nodeBox{stroke-width:1.8;filter:url(#shadow)}.nodeTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}.nodeLine{font-family:"Comic Mono";font-size:14px;fill:#334155}
-    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    text { font-family: 'Architects Daughter', 'Comic Mono', 'Helvetica Neue', Arial, sans-serif; dominant-baseline: alphabetic; }
   </style>
-</defs>
-<rect class="canvas" width="2500" height="1540"/>
-<rect class="frame" x="34" y="30" width="2432" height="1480" rx="8"/>
-<text class="title" x="72" y="86">Hibernate Lettuce Auto-Configuration Flow</text>
-<text class="subtitle" x="76" y="120">How Spring Boot 4 conditions activate Hibernate 2nd Level Cache, then optionally expose Actuator and Micrometer integrations.</text>
-<g id="Config">
-  <rect class="nodeBox" x="960" y="185" width="580" height="170" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="nodeTitle" x="1250" y="226" text-anchor="middle">application.yml</text>
-  <text class="nodeLine" x="1250" y="262" text-anchor="middle">bluetape4k.cache.lettuce-near.*</text>
-<text class="nodeLine" x="1250" y="288" text-anchor="middle">enabled defaults to true</text>
-<text class="nodeLine" x="1250" y="314" text-anchor="middle">local, Redis TTL, metrics options</text>
-</g>
-<g id="ClassCondition">
-  <path class="nodeBox" d="M1250 410 L1525 515 L1250 620 L975 515 Z" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="nodeTitle" x="1250" y="480" text-anchor="middle">Classpath ready?</text>
-  <text class="nodeLine" x="1250" y="518" text-anchor="middle">RegionFactory</text>
-<text class="nodeLine" x="1250" y="544" text-anchor="middle">EntityManagerFactory</text>
-<text class="nodeLine" x="1250" y="570" text-anchor="middle">Spring Boot 4 Hibernate</text>
-</g>
-<g id="HibernateAuto">
-  <rect class="nodeBox" x="950" y="705" width="600" height="190" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="nodeTitle" x="1250" y="747" text-anchor="middle">Hibernate auto-configuration</text>
-  <text class="nodeLine" x="1250" y="783" text-anchor="middle">binds LettuceNearCacheSpringProperties</text>
-<text class="nodeLine" x="1250" y="809" text-anchor="middle">creates HibernatePropertiesCustomizer</text>
-<text class="nodeLine" x="1250" y="835" text-anchor="middle">runs when enabled=true or missing</text>
-</g>
-<g id="HibernateProps">
-  <rect class="nodeBox" x="900" y="970" width="700" height="220" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="nodeTitle" x="1250" y="1012" text-anchor="middle">Hibernate properties injected</text>
-  <text class="nodeLine" x="1250" y="1048" text-anchor="middle">region.factory_class = LettuceNearCacheRegionFactory</text>
-<text class="nodeLine" x="1250" y="1074" text-anchor="middle">use_second_level_cache = true</text>
-<text class="nodeLine" x="1250" y="1100" text-anchor="middle">redis_uri, codec, use_resp3</text>
-<text class="nodeLine" x="1250" y="1126" text-anchor="middle">local.max_size, expire_after_write, redis_ttl.*</text>
-</g>
-<g id="RegionFactory">
-  <rect class="nodeBox" x="900" y="1280" width="700" height="170" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-  <text class="nodeTitle" x="1250" y="1322" text-anchor="middle">Hibernate uses RegionFactory</text>
-  <text class="nodeLine" x="1250" y="1358" text-anchor="middle">prepareForUse() creates Redis client and codec</text>
-<text class="nodeLine" x="1250" y="1384" text-anchor="middle">region storage uses LettuceNearCache</text>
-<text class="nodeLine" x="1250" y="1410" text-anchor="middle">L1 Caffeine + L2 Redis per region</text>
-</g>
-<g id="MetricsCondition">
-  <rect class="nodeBox" x="100" y="970" width="520" height="180" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="nodeTitle" x="360" y="1012" text-anchor="middle">Metrics branch</text>
-  <text class="nodeLine" x="360" y="1048" text-anchor="middle">MeterRegistry bean present</text>
-<text class="nodeLine" x="360" y="1074" text-anchor="middle">metrics.enabled=true or missing</text>
-<text class="nodeLine" x="360" y="1100" text-anchor="middle">after Hibernate and Micrometer auto-config</text>
-</g>
-<g id="MetricsBinder">
-  <rect class="nodeBox" x="100" y="1245" width="520" height="190" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="nodeTitle" x="360" y="1287" text-anchor="middle">Metrics binder</text>
-  <text class="nodeLine" x="360" y="1323" text-anchor="middle">unwraps SessionFactoryImplementor</text>
-<text class="nodeLine" x="360" y="1349" text-anchor="middle">requires LettuceNearCacheRegionFactory</text>
-<text class="nodeLine" x="360" y="1375" text-anchor="middle">registers active.regions and total.local.size</text>
-</g>
-<g id="ActuatorCondition">
-  <rect class="nodeBox" x="1880" y="970" width="520" height="180" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="nodeTitle" x="2140" y="1012" text-anchor="middle">Actuator branch</text>
-  <text class="nodeLine" x="2140" y="1048" text-anchor="middle">Endpoint class on classpath</text>
-<text class="nodeLine" x="2140" y="1074" text-anchor="middle">EntityManagerFactory bean present</text>
-<text class="nodeLine" x="2140" y="1100" text-anchor="middle">enabled=true or missing</text>
-</g>
-<g id="Endpoint">
-  <rect class="nodeBox" x="1880" y="1245" width="520" height="190" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="nodeTitle" x="2140" y="1287" text-anchor="middle">NearCache endpoint</text>
-  <text class="nodeLine" x="2140" y="1323" text-anchor="middle">GET /actuator/nearcache</text>
-<text class="nodeLine" x="2140" y="1349" text-anchor="middle">GET /actuator/nearcache/{region}</text>
-<text class="nodeLine" x="2140" y="1375" text-anchor="middle">reads getCaches(), local stats, Hibernate L2 stats</text>
-</g>
-<g data-from="Config" data-to="ClassCondition">
-  <path class="edge " d="M1250 355 L1250 410" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
-  <text class="edgeLabel" x="1276" y="390">properties bind</text>
-</g>
-<g data-from="ClassCondition" data-to="HibernateAuto">
-  <path class="edge " d="M1250 620 L1250 705" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-  <text class="edgeLabel" x="1276" y="668">yes</text>
-</g>
-<g data-from="HibernateAuto" data-to="HibernateProps">
-  <path class="edge " d="M1250 895 L1250 970" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="1276" y="938">customizer</text>
-</g>
-<g data-from="HibernateProps" data-to="RegionFactory">
-  <path class="edge " d="M1250 1190 L1250 1280" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="1276" y="1240">Hibernate boot</text>
-</g>
-<g data-from="Config" data-to="MetricsCondition">
-  <path class="edge dashed" d="M960 300 L760 300 L760 925 L360 925 L360 970" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="426" y="904">metrics settings</text>
-</g>
-<g data-from="MetricsCondition" data-to="MetricsBinder">
-  <path class="edge " d="M360 1150 L360 1245" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="386" y="1202">creates</text>
-</g>
-<g data-from="MetricsBinder" data-to="RegionFactory">
-  <path class="edge dashed" d="M620 1340 L900 1340" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="724" y="1318">getCaches()</text>
-</g>
-<g data-from="HibernateProps" data-to="ActuatorCondition">
-  <path class="edge dashed" d="M1600 1080 L1880 1080" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-  <text class="edgeLabel" x="1688" y="1058">after Hibernate</text>
-</g>
-<g data-from="ActuatorCondition" data-to="Endpoint">
-  <path class="edge " d="M2140 1150 L2140 1245" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-  <text class="edgeLabel" x="2166" y="1202">creates</text>
-</g>
-<g data-from="Endpoint" data-to="RegionFactory">
-  <path class="edge dashed" d="M1880 1340 L1600 1340" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-  <text class="edgeLabel" x="1648" y="1318">getCaches() + stats</text>
-</g>
+  <defs>
+    <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrow-green" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#16a34a" stroke="#16a34a" stroke-width="0" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrow-purple" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#7c3aed" stroke="#7c3aed" stroke-width="0" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrow-orange" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrow-rose" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#e11d48" stroke="#e11d48" stroke-width="0" stroke-dasharray="none"/>
+    </marker>
+  </defs>
+  <rect width="1500" height="1120" fill="#ffffff"/>
+  <text x="74" y="62" font-size="30" font-weight="700" fill="#111827">Spring Boot Hibernate Lettuce Activation Flow</text>
+  <text x="74" y="92" font-size="15" fill="#64748b">Property binding creates the Hibernate cache customizer first; metrics and Actuator attach only when their optional runtime contracts are present.</text>
+
+
+  <g class="group" data-group="INPUT">
+    <rect x="52" y="132" width="422" height="248" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="1.3" stroke-dasharray="7 5"/>
+    <text x="70" y="158" font-size="14" font-weight="700" fill="#2563eb">INPUT</text>
+    <text x="70" y="179" font-size="12.5" fill="#6b7280">Dependency and configuration start the path.</text>
+  </g>
+
+  <g class="group" data-group="HIBERNATE CACHE ACTIVATION">
+    <rect x="526" y="132" width="446" height="876" rx="10" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.3" stroke-dasharray="7 5"/>
+    <text x="544" y="158" font-size="14" font-weight="700" fill="#16a34a">HIBERNATE CACHE ACTIVATION</text>
+    <text x="544" y="179" font-size="12.5" fill="#6b7280">Settings are prepared before Hibernate builds the RegionFactory.</text>
+  </g>
+
+  <g class="group" data-group="BACK-OFF AND OBSERVABILITY">
+    <rect x="1020" y="132" width="420" height="876" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="1.3" stroke-dasharray="7 5"/>
+    <text x="1038" y="158" font-size="14" font-weight="700" fill="#64748b">BACK-OFF AND OBSERVABILITY</text>
+    <text x="1038" y="179" font-size="12.5" fill="#6b7280">Disabled, metrics, and Actuator paths stay separate.</text>
+  </g>
+
+  <path class="edge" d="M438 281 L564 281" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+  <path class="edge" d="M934 281 L1058 281" fill="none" stroke="#e11d48" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" marker-end="url(#arrow-rose)"/>
+  <path class="edge" d="M749 342 L749 408" fill="none" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+  <path class="edge" d="M749 532 L749 604" fill="none" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+  <path class="edge" d="M749 744 L749 826" fill="none" stroke="#0f766e" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+  <path class="edge" d="M934 888 L990 888 L990 493 L1058 493" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+  <path class="edge" d="M1230 556 L1230 612" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+  <path class="edge" d="M934 888 L1058 888" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)"/>
+
+
+  <g class="card" data-card="App Context Starts">
+    <rect x="84" y="220" width="354" height="122" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.8"/>
+    <rect x="84" y="220" width="10" height="122" rx="5" fill="#2563eb" opacity="0.9"/>
+    <text x="110" y="254" font-size="18" font-weight="700" fill="#111827">App Context Starts</text>
+    <text x="110" y="282" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Dependency is on the classpath</text>
+<text x="110" y="301" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">application.yml binds lettuce-near.*</text>
+<text x="110" y="320" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">enabled defaults to true</text>
+  </g>
+
+  <g class="card" data-card="Condition Match">
+    <rect x="564" y="220" width="370" height="122" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.8"/>
+    <rect x="564" y="220" width="10" height="122" rx="5" fill="#64748b" opacity="0.9"/>
+    <text x="590" y="254" font-size="18" font-weight="700" fill="#111827">Condition Match</text>
+    <text x="590" y="282" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">RegionFactory + EntityManagerFactory</text>
+<text x="590" y="301" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">property bluetape4k.cache.lettuce-near.enabled</text>
+<text x="590" y="320" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">backs off when disabled</text>
+  </g>
+
+  <g class="card" data-card="Disabled Branch">
+    <rect x="1058" y="220" width="344" height="122" rx="8" fill="#fff1f2" stroke="#e11d48" stroke-width="1.8"/>
+    <rect x="1058" y="220" width="10" height="122" rx="5" fill="#e11d48" opacity="0.9"/>
+    <text x="1084" y="254" font-size="18" font-weight="700" fill="#111827">Disabled Branch</text>
+    <text x="1084" y="282" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">No HibernatePropertiesCustomizer</text>
+<text x="1084" y="301" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">No metrics binder</text>
+<text x="1084" y="320" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">No Actuator endpoint</text>
+  </g>
+
+  <g class="card" data-card="Customizer Bean">
+    <rect x="564" y="408" width="370" height="124" rx="8" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.8"/>
+    <rect x="564" y="408" width="10" height="124" rx="5" fill="#16a34a" opacity="0.9"/>
+    <text x="590" y="442" font-size="18" font-weight="700" fill="#111827">Customizer Bean</text>
+    <text x="590" y="470" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Spring Boot receives HibernatePropertiesCustomizer</text>
+<text x="590" y="489" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">auto-configuration maps properties</text>
+<text x="590" y="508" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">no user bean code is required</text>
+  </g>
+
+  <g class="card" data-card="Hibernate Settings">
+    <rect x="564" y="604" width="370" height="140" rx="8" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.8"/>
+    <rect x="564" y="604" width="10" height="140" rx="5" fill="#16a34a" opacity="0.9"/>
+    <text x="590" y="638" font-size="18" font-weight="700" fill="#111827">Hibernate Settings</text>
+    <text x="590" y="666" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">region.factory_class points to RegionFactory</text>
+<text x="590" y="685" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">second-level cache is enabled</text>
+<text x="590" y="704" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Redis URI, codec, L1 and TTL values are copied</text>
+  </g>
+
+  <g class="card" data-card="RegionFactory Runtime">
+    <rect x="564" y="826" width="370" height="126" rx="8" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.8"/>
+    <rect x="564" y="826" width="10" height="126" rx="5" fill="#0f766e" opacity="0.9"/>
+    <text x="590" y="860" font-size="18" font-weight="700" fill="#111827">RegionFactory Runtime</text>
+    <text x="590" y="888" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Hibernate builds the near-cache RegionFactory</text>
+<text x="590" y="907" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">L1 Caffeine and L2 Redis hold region data</text>
+<text x="590" y="926" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Statistics become available to observers</text>
+  </g>
+
+  <g class="card" data-card="Metrics Binder">
+    <rect x="1058" y="430" width="344" height="126" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.8"/>
+    <rect x="1058" y="430" width="10" height="126" rx="5" fill="#7c3aed" opacity="0.9"/>
+    <text x="1084" y="464" font-size="18" font-weight="700" fill="#111827">Metrics Binder</text>
+    <text x="1084" y="492" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Requires MeterRegistry</text>
+<text x="1084" y="511" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">unwraps EntityManagerFactory</text>
+<text x="1084" y="530" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">registers aggregate gauges after singleton startup</text>
+  </g>
+
+  <g class="card" data-card="Micrometer Gauges">
+    <rect x="1058" y="612" width="344" height="126" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.8"/>
+    <rect x="1058" y="612" width="10" height="126" rx="5" fill="#7c3aed" opacity="0.9"/>
+    <text x="1084" y="646" font-size="18" font-weight="700" fill="#111827">Micrometer Gauges</text>
+    <text x="1084" y="674" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">lettuce.nearcache.active.regions</text>
+<text x="1084" y="693" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">lettuce.nearcache.total.local.size</text>
+<text x="1084" y="712" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">observed through /actuator/metrics</text>
+  </g>
+
+  <g class="card" data-card="Actuator Endpoint">
+    <rect x="1058" y="826" width="344" height="126" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+    <rect x="1058" y="826" width="10" height="126" rx="5" fill="#ea580c" opacity="0.9"/>
+    <text x="1084" y="860" font-size="18" font-weight="700" fill="#111827">Actuator Endpoint</text>
+    <text x="1084" y="888" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Requires Endpoint and EntityManagerFactory</text>
+<text x="1084" y="907" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">unwraps RegionFactory and Statistics</text>
+<text x="1084" y="926" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">serves /actuator/nearcache</text>
+  </g>
+
+  <g class="legend" transform="translate(78 1058)">
+    <line x1="0" y1="0" x2="42" y2="0" stroke="#16a34a" stroke-width="3.2" marker-end="url(#arrow-green)"/>
+    <text x="58" y="5" font-size="13" fill="#475569">required activation path</text>
+    <line x1="300" y1="0" x2="342" y2="0" stroke="#7c3aed" stroke-width="3" marker-end="url(#arrow-purple)"/>
+    <text x="358" y="5" font-size="13" fill="#475569">metrics branch</text>
+    <line x1="548" y1="0" x2="590" y2="0" stroke="#ea580c" stroke-width="3" marker-end="url(#arrow-orange)"/>
+    <text x="606" y="5" font-size="13" fill="#475569">actuator branch</text>
+    <line x1="798" y1="0" x2="840" y2="0" stroke="#e11d48" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#arrow-rose)"/>
+    <text x="856" y="5" font-size="13" fill="#475569">disabled branch</text>
+  </g>
 </svg>

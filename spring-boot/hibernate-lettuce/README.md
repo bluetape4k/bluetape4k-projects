@@ -50,7 +50,7 @@ dependencies {
 - 2nd Level Cache enabled with just a dependency + `application.yml` configuration
 - Safe auto-configuration using `@ConditionalOnClass` / `@ConditionalOnProperty`
 - **Actuator** endpoint (`GET /actuator/nearcache`) — per-region cache statistics
-- **Micrometer** metrics (`lettuce.nearcache.*`) — region count, local size
+- **Micrometer** metrics (`lettuce.nearcache.*`) — active region count, total local size
 - **Two-tier** caching architecture: L1 (Caffeine) + L2 (Redis)
 
 ## Dependencies (Spring Boot 4)
@@ -250,22 +250,22 @@ Response:
 
 When `metrics.enabled=true`, the following Gauges are registered:
 
-| Metric                           | Description                          |
-|----------------------------------|--------------------------------------|
-| `lettuce.nearcache.region.count` | Number of active regions             |
-| `lettuce.nearcache.local.size`   | Estimated total L1 cache entry count |
+| Metric                                  | Description                          |
+|-----------------------------------------|--------------------------------------|
+| `lettuce.nearcache.active.regions`      | Number of active regions             |
+| `lettuce.nearcache.total.local.size`    | Estimated total L1 cache entry count |
 
 ```bash
 # Retrieve Micrometer metrics (JSON)
-GET /actuator/metrics/lettuce.nearcache.region.count
-GET /actuator/metrics/lettuce.nearcache.local.size
+GET /actuator/metrics/lettuce.nearcache.active.regions
+GET /actuator/metrics/lettuce.nearcache.total.local.size
 ```
 
 Example response:
 
 ```json
 {
-  "name": "lettuce.nearcache.region.count",
+  "name": "lettuce.nearcache.active.regions",
   "baseUnit": "items",
   "measurements": [
     {
