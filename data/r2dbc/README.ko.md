@@ -16,19 +16,19 @@ R2DBC(Reactive Relational Database Connectivity) 환경에서 코루틴과 Flow�
 
 ### 확장 함수 API 개요
 
-![API diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-01.png)
+![Extension Function API Overview diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-01.png)
 
-### 주요 API 구조
+### 주요 API 클래스 구조
 
-![API diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-02.png)
+![Core API Class Structure diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-02.png)
 
 ### R2DBC 쿼리 실행 흐름
 
-![R2DBC diagram](../../docs/images/readme-diagrams/data-r2dbc-sequence-01.png)
+![R2DBC Query Execution Flow diagram](../../docs/images/readme-diagrams/data-r2dbc-sequence-01.png)
 
 ### JDBC vs R2DBC 비교
 
-![JDBC vs R2DBC diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-03.png)
+![JDBC vs R2DBC Comparison diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-03.png)
 
 ## 의존성 추가
 

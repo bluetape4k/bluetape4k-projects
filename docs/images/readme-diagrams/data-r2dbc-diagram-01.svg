@@ -1,85 +1,119 @@
-<svg data-intent="Explain R2DBC extension APIs by showing ConnectionFactory/DatabaseClient receivers, bind/query helpers, transaction/coroutine bridges, and Flow/suspend result boundaries." data-evidence="data/r2dbc/README.md; data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc" data-source-read="data/r2dbc/README.md; data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc" xmlns="http://www.w3.org/2000/svg" width="1500" height="1040" viewBox="0 0 1500 1040" role="img" aria-label="R2DBC Extension API Overview">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1040"/>
-<rect class="frame" x="34" y="30" width="1432" height="980" rx="8"/>
-<text class="title" x="72" y="84">R2DBC Extension API Overview</text>
-<text class="subtitle" x="76" y="116">The module adapts reactive database receivers into coroutine-friendly query, transaction, and result boundaries.</text>
-<g><rect class="panel" x="82" y="160" width="1350" height="180" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Caller boundary</text></g>
-<g><rect class="panel" x="82" y="425" width="1350" height="230" rx="8"/><text class="panelTitle" x="110" y="461" dominant-baseline="middle">Extension families</text></g>
-<g><rect class="panel" x="82" y="752" width="1350" height="220" rx="8"/><text class="panelTitle" x="110" y="788" dominant-baseline="middle">Reactive/coroutine result</text></g>
-<g id="service">
-  <rect class="card" x="140" y="235" width="330" height="84" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="305" y="270" text-anchor="middle" dominant-baseline="middle">Repository/service code</text>
-  <text class="detail" x="305" y="300" text-anchor="middle" dominant-baseline="middle">suspend and Flow callers</text>
-</g>
-<g id="client">
-  <rect class="card" x="585" y="235" width="320" height="84" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="745" y="270" text-anchor="middle" dominant-baseline="middle">DatabaseClient</text>
-  <text class="detail" x="745" y="300" text-anchor="middle" dominant-baseline="middle">Spring reactive SQL facade</text>
-</g>
-<g id="factory">
-  <rect class="card" x="1035" y="235" width="320" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="1195" y="270" text-anchor="middle" dominant-baseline="middle">ConnectionFactory</text>
-  <text class="detail" x="1195" y="300" text-anchor="middle" dominant-baseline="middle">R2DBC connection source</text>
-</g>
-<g id="bind">
-  <rect class="card" x="170" y="500" width="300" height="86" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="320" y="536" text-anchor="middle" dominant-baseline="middle">Bind helpers</text>
-  <text class="detail" x="320" y="566" text-anchor="middle" dominant-baseline="middle">named/indexed params</text>
-</g>
-<g id="query">
-  <rect class="card" x="600" y="500" width="320" height="86" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="760" y="536" text-anchor="middle" dominant-baseline="middle">Query helpers</text>
-  <text class="detail" x="760" y="566" text-anchor="middle" dominant-baseline="middle">map rows, fetch one/all</text>
-</g>
-<g id="tx">
-  <rect class="card" x="1030" y="500" width="330" height="86" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1195" y="536" text-anchor="middle" dominant-baseline="middle">Transaction helpers</text>
-  <text class="detail" x="1195" y="566" text-anchor="middle" dominant-baseline="middle">operator and connection scope</text>
-</g>
-<g id="rows">
-  <rect class="card" x="170" y="836" width="300" height="86" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="320" y="872" text-anchor="middle" dominant-baseline="middle">Rows updated</text>
-  <text class="detail" x="320" y="902" text-anchor="middle" dominant-baseline="middle">count and metadata</text>
-</g>
-<g id="publisher">
-  <rect class="card" x="585" y="836" width="300" height="86" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="735" y="872" text-anchor="middle" dominant-baseline="middle">Publisher results</text>
-  <text class="detail" x="735" y="902" text-anchor="middle" dominant-baseline="middle">Mono / Flux</text>
-</g>
-<g id="coroutines">
-  <rect class="card" x="1025" y="836" width="340" height="86" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="1195" y="872" text-anchor="middle" dominant-baseline="middle">Coroutine results</text>
-  <text class="detail" x="1195" y="902" text-anchor="middle" dominant-baseline="middle">Flow&lt;T&gt;, suspend T?</text>
-</g>
-<path class="route" data-from="service" data-to="client" d="M470 277 L585 277" stroke="#1D4ED8"/>
-<path class="route" data-from="client" data-to="bind" d="M705 319 L705 390 L380 390 L380 500" stroke="#7E22CE"/>
-<path class="route" data-from="client" data-to="query" d="M745 319 L745 500" stroke="#C2410C"/>
-<path class="route" data-from="factory" data-to="tx" d="M1195 319 L1195 500" stroke="#15803D"/>
-<path class="route" data-from="bind" data-to="query" d="M470 543 L600 543" stroke="#0F766E"/>
-<path class="route" data-from="query" data-to="rows" d="M680 586 L680 710 L450 710 L450 836" stroke="#C2410C"/>
-<path class="route" data-from="query" data-to="publisher" d="M760 586 L760 836" stroke="#C2410C"/>
-<path class="route" data-from="tx" data-to="coroutines" d="M1195 586 L1195 836" stroke="#BE185D"/>
-<path class="route" data-from="publisher" data-to="coroutines" d="M885 879 L1025 879" stroke="#7E22CE"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1580" height="980" viewBox="0 0 1580 980" role="img" aria-label="R2DBC extension function API overview">
+  <defs>
+    <filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#2563eb" stroke="#2563eb" stroke-width="1.1" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrowTeal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#0d9488" stroke="#0d9488" stroke-width="1.1" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.1" stroke-dasharray="none"/>
+    </marker>
+    <marker id="openPurple" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 10 6 L 2 10" fill="none" stroke="#9333ea" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <style>
+      svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+      .canvas { fill: #f8fafc; }
+      .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; filter: url(#softShadow); }
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #0f172a; }
+      .subtitle { font-family: "Comic Mono"; font-size: 15px; fill: #475569; }
+      .group { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .groupTitle { font-family: "Architects Daughter"; font-size: 23px; fill: #0f172a; }
+      .groupNote { font-family: "Comic Mono"; font-size: 12px; fill: #64748b; }
+      .card { stroke-width: 1.75; filter: url(#softShadow); }
+      .cardTitle { font-family: "Architects Daughter"; font-size: 21px; fill: #0f172a; }
+      .mono { font-family: "Comic Mono"; font-size: 12.5px; fill: #334155; }
+      .small { font-family: "Comic Mono"; font-size: 11.5px; fill: #64748b; }
+      .flow { fill: none; stroke-width: 4.2; stroke-linecap: round; stroke-linejoin: round; }
+      .use { fill: none; stroke-width: 2.6; stroke-dasharray: 7 6; stroke-linecap: round; stroke-linejoin: round; }
+      .label { font-family: "Comic Mono"; font-size: 11.5px; fill: #334155; paint-order: stroke; stroke: #ffffff; stroke-width: 4px; stroke-linejoin: round; }
+      .legend { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.2; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1580" height="980"/>
+  <rect class="frame" x="36" y="32" width="1508" height="916" rx="8"/>
+  <text class="title" x="74" y="86">R2DBC Extension Function API Overview</text>
+  <text class="subtitle" x="78" y="116">Horizontal receiver map: each group shows which Spring/R2DBC receiver gets the bluetape4k convenience functions.</text>
+
+  <g id="service">
+    <rect class="card" x="98" y="202" width="286" height="92" rx="8" fill="#eff6ff" stroke="#2563eb"/>
+    <text class="cardTitle" x="241" y="238" text-anchor="middle">Repository code</text>
+    <text class="mono" x="241" y="268" text-anchor="middle">suspend functions and Flow callers</text>
+  </g>
+
+  <g id="databaseGroup">
+    <rect class="group" x="440" y="164" width="268" height="560" rx="8"/>
+    <text class="groupTitle" x="574" y="202" text-anchor="middle">DatabaseClient</text>
+    <text class="groupNote" x="574" y="226" text-anchor="middle">SQL entrypoint receiver</text>
+    <rect class="card" x="474" y="270" width="200" height="84" rx="8" fill="#fff7ed" stroke="#ea580c"/>
+    <text class="cardTitle" x="574" y="302" text-anchor="middle">execute()</text>
+    <text class="mono" x="574" y="330" text-anchor="middle">sql string shortcut</text>
+    <rect class="card" x="474" y="408" width="200" height="86" rx="8" fill="#fef3c7" stroke="#d97706"/>
+    <text class="cardTitle" x="574" y="440" text-anchor="middle">withTransaction</text>
+    <text class="mono" x="574" y="468" text-anchor="middle">suspend transaction block</text>
+    <rect class="card" x="474" y="548" width="200" height="86" rx="8" fill="#f0fdf4" stroke="#16a34a"/>
+    <text class="cardTitle" x="574" y="580" text-anchor="middle">connectionFactory</text>
+    <text class="mono" x="574" y="608" text-anchor="middle">transaction manager cache key</text>
+  </g>
+
+  <g id="executeGroup">
+    <rect class="group" x="772" y="164" width="268" height="560" rx="8"/>
+    <text class="groupTitle" x="906" y="202" text-anchor="middle">GenericExecuteSpec</text>
+    <text class="groupNote" x="906" y="226" text-anchor="middle">parameter binding receiver</text>
+    <rect class="card" x="806" y="270" width="200" height="84" rx="8" fill="#f0fdfa" stroke="#0d9488"/>
+    <text class="cardTitle" x="906" y="302" text-anchor="middle">bindMap()</text>
+    <text class="mono" x="906" y="330" text-anchor="middle">named parameters</text>
+    <rect class="card" x="806" y="408" width="200" height="86" rx="8" fill="#ecfeff" stroke="#0891b2"/>
+    <text class="cardTitle" x="906" y="440" text-anchor="middle">bindIndexedMap()</text>
+    <text class="mono" x="906" y="468" text-anchor="middle">1-based index map</text>
+    <rect class="card" x="806" y="548" width="200" height="86" rx="8" fill="#f0fdfa" stroke="#0d9488"/>
+    <text class="cardTitle" x="906" y="580" text-anchor="middle">bindNullable()</text>
+    <text class="mono" x="906" y="608" text-anchor="middle">typed null Parameter</text>
+  </g>
+
+  <g id="resultGroup">
+    <rect class="group" x="1104" y="164" width="268" height="560" rx="8"/>
+    <text class="groupTitle" x="1238" y="202" text-anchor="middle">Fetch / Row receivers</text>
+    <text class="groupNote" x="1238" y="226" text-anchor="middle">result conversion boundary</text>
+    <rect class="card" x="1138" y="270" width="200" height="84" rx="8" fill="#faf5ff" stroke="#9333ea"/>
+    <text class="cardTitle" x="1238" y="302" text-anchor="middle">flow()</text>
+    <text class="mono" x="1238" y="330" text-anchor="middle">RowsFetchSpec to Flow</text>
+    <rect class="card" x="1138" y="408" width="200" height="86" rx="8" fill="#f5f3ff" stroke="#7c3aed"/>
+    <text class="cardTitle" x="1238" y="440" text-anchor="middle">await*()</text>
+    <text class="mono" x="1238" y="468" text-anchor="middle">single/list/map/count</text>
+    <rect class="card" x="1138" y="548" width="200" height="86" rx="8" fill="#f7fee7" stroke="#65a30d"/>
+    <text class="cardTitle" x="1238" y="580" text-anchor="middle">Readable helpers</text>
+    <text class="mono" x="1238" y="608" text-anchor="middle">getAs, int, uuid, time</text>
+  </g>
+
+  <g id="outputs">
+    <rect class="card" x="1116" y="794" width="244" height="84" rx="8" fill="#f0fdf4" stroke="#16a34a"/>
+    <text class="cardTitle" x="1238" y="828" text-anchor="middle">Coroutine results</text>
+    <text class="mono" x="1238" y="856" text-anchor="middle">Flow&lt;T&gt;, T?, List&lt;T&gt;, Long</text>
+  </g>
+
+  <path class="flow" d="M 384 248 H 440" stroke="#2563eb" marker-end="url(#arrowBlue)"/>
+  <path class="flow" d="M 708 312 H 772" stroke="#ea580c" marker-end="url(#arrowTeal)"/>
+  <path class="flow" d="M 1040 312 H 1104" stroke="#0d9488" marker-end="url(#openPurple)"/>
+  <path class="flow" d="M 1238 724 V 794" stroke="#16a34a" marker-end="url(#arrowGreen)"/>
+
+  <path class="use" d="M 674 451 H 742 V 610 H 806" stroke="#d97706" marker-end="url(#arrowTeal)"/>
+  <path class="use" d="M 1006 591 H 1138" stroke="#0d9488" marker-end="url(#openPurple)"/>
+
+  <text class="label" x="412" y="236" text-anchor="middle">calls</text>
+  <text class="label" x="740" y="300" text-anchor="middle">returns spec</text>
+  <text class="label" x="1072" y="300" text-anchor="middle">fetch/map</text>
+  <text class="label" x="728" y="536" text-anchor="middle">transaction keeps one SQL scope</text>
+  <text class="label" x="1070" y="579" text-anchor="middle">typed nulls</text>
+
+  <g transform="translate(98 818)">
+    <rect class="legend" x="0" y="0" width="646" height="58" rx="8"/>
+    <text class="small" x="18" y="24">Reader contract: this module does not replace Spring R2DBC.</text>
+    <text class="small" x="18" y="44">It adds receiver-specific Kotlin helpers around bind, query, transaction, and row/result conversion.</text>
+  </g>
 </svg>

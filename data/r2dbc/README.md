@@ -18,9 +18,9 @@ A library that supports reactive data access using Coroutines and Flow in an R2D
 
 ![Extension Function API Overview diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-01.png)
 
-### Core API Structure
+### Core API Class Structure
 
-![Core API Structure diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-02.png)
+![Core API Class Structure diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-02.png)
 
 ### R2DBC Query Execution Flow
 
