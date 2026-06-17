@@ -55,9 +55,9 @@ dependencies {
 - `io.github.bluetape4k:bluetape4k-coroutines` - Coroutines 유틸리티
 - `org.apache.httpcomponents.client5:httpclient5` - HTTP 클라이언트 (HC5)
 
-## 클래스 계층
+## 클라이언트 API 구조
 
-![elasticsearch Class Structure diagram](../../docs/images/readme-diagrams/infra-elasticsearch-diagram-01.png)
+![Elasticsearch 클라이언트 API 구조](../../docs/images/readme-diagrams/infra-elasticsearch-diagram-01.png)
 
 ## 사용 예시
 

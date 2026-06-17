@@ -55,9 +55,9 @@ This module depends on:
 - `io.github.bluetape4k:bluetape4k-coroutines` - Coroutines utilities
 - `org.apache.httpcomponents.client5:httpclient5` - HTTP client (HC5)
 
-## Class Hierarchy
+## Client API Structure
 
-![Class Hierarchy diagram](../../docs/images/readme-diagrams/infra-elasticsearch-diagram-01.png)
+![Elasticsearch Client API Structure](../../docs/images/readme-diagrams/infra-elasticsearch-diagram-01.png)
 
 ## Usage Examples
 
