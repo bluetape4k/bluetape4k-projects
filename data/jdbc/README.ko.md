@@ -2,7 +2,7 @@
 
 [English](./README.md) | 한국어
 
-JDBC(Java Database Connectivity) 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브러리입니다. Kotlin의 힘을 활용하여 타입 안전하고 간결한 데이터베이스 코드를 작성할 수 있습니다.
+JDBC(Java Database Connectivity) 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브러리입니다. Connection 처리, Statement 실행, ResultSet 매핑, 트랜잭션 블록을 간결하게 만들면서도 JDBC의 기본 동작은 그대로 유지합니다.
 
 ## 특징
 
@@ -16,15 +16,15 @@ JDBC(Java Database Connectivity) 사용 시 반복 코드를 줄이는 Kotlin �
 
 ### 확장 함수 API 개요
 
-![API diagram](../../docs/images/readme-diagrams/data-jdbc-diagram-01.png)
+![Extension Function API Overview diagram](../../docs/images/readme-diagrams/data-jdbc-diagram-01.png)
 
 ### 주요 API 구조
 
-![API diagram](../../docs/images/readme-diagrams/data-jdbc-diagram-02.png)
+![Core API Structure diagram](../../docs/images/readme-diagrams/data-jdbc-diagram-02.png)
 
 ### JDBC 쿼리 실행 흐름
 
-![JDBC diagram](../../docs/images/readme-diagrams/data-jdbc-sequence-01.png)
+![JDBC Query Execution Flow diagram](../../docs/images/readme-diagrams/data-jdbc-sequence-01.png)
 
 ## 의존성 추가
 
@@ -358,7 +358,7 @@ dataSource.connection.use { conn ->
 
 ### 11. ResultSetGetColumnTokens
 
-token 기반 타입 안전한 값 조회:
+토큰 기반 타입 안전한 값 조회:
 
 ```kotlin
 dataSource.runQuery("SELECT * FROM users") { rs ->
@@ -466,7 +466,7 @@ dataSource.runQuery("SELECT * FROM users") { rs ->
 
 ## 테스트
 
-모듈은 H2 데이터베이스를 사용한 테스트를 포함하고 있습니다.
+이 모듈은 H2 데이터베이스를 사용한 테스트를 포함합니다.
 
 ```kotlin
 class MyJdbcTest : AbstractJdbcTest() {

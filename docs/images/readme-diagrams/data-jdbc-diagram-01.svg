@@ -1,78 +1,98 @@
-<svg data-intent="Explain JDBC extension APIs by showing caller SQL, DataSource/Connection helpers, statement/batch execution, ResultSet typed access, and domain mapping boundaries." data-evidence="data/jdbc/README.md; data/jdbc/src/main/kotlin/io/bluetape4k/jdbc" data-source-read="data/jdbc/README.md; data/jdbc/src/main/kotlin/io/bluetape4k/jdbc" xmlns="http://www.w3.org/2000/svg" width="1500" height="1158" viewBox="0 0 1500 1158" role="img" aria-label="JDBC Extension API Overview">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="JDBC Extension API Overview">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
+  <marker id="arrow-blue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#1D4ED8"/></marker>
+  <marker id="arrow-green" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#15803D"/></marker>
+  <marker id="arrow-teal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#0F766E"/></marker>
+  <marker id="arrow-amber" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#C2410C"/></marker>
+  <marker id="arrow-pink" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#BE185D"/></marker>
+  <marker id="arrow-purple" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#7E22CE"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:15px;fill:#475569}
+    .layer{stroke-width:1.5}.layerBadge{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.3}.layerTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.layerNote{font-family:"Comic Mono";font-size:12.5px;fill:#64748B}
+    .card{filter:url(#shadow);stroke-width:1.8}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .edge{fill:none;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:8 7}
+    .edgeLabel{font-family:"Comic Mono";font-size:12.5px;fill:#475569}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="1158"/>
-<rect class="frame" x="34" y="30" width="1432" height="1098" rx="8"/>
+<rect class="canvas" width="1600" height="900"/>
+<rect class="frame" x="34" y="30" width="1532" height="840" rx="10"/>
 <text class="title" x="72" y="84">JDBC Extension API Overview</text>
-<text class="subtitle" x="76" y="116">The module helps callers move from SQL and JDBC resources to typed rows, batch execution, and domain mapping.</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="234" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Caller boundary</text></g>
-<g id="sql">
-  <rect class="card" x="146" y="256" width="300" height="84" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="296" y="291" text-anchor="middle" dominant-baseline="middle">SQL + parameters</text>
-  <text class="detail" x="296" y="321" text-anchor="middle" dominant-baseline="middle">query/update intent</text>
+<text class="subtitle" x="76" y="116">A horizontal responsibility map: caller inputs and JDBC receivers feed helper APIs, then query/update paths return typed results or affected counts.</text>
+
+<g id="layer-inputs">
+  <rect class="layer" x="72" y="160" width="410" height="650" rx="10" fill="#F8FAFC" stroke="#CBD5E1"/>
+  <rect class="layerBadge" x="100" y="185" width="305" height="34" rx="8"/>
+  <text class="layerTitle" x="116" y="210">Caller inputs and receivers</text>
+  <text class="layerNote" x="100" y="244">SQL intent and DataSource/Connection are the entry points.</text>
+  <g id="sql">
+    <rect class="card" x="120" y="305" width="320" height="105" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+    <text class="cardTitle" x="280" y="348" text-anchor="middle">SQL + parameters</text>
+    <text class="detail" x="280" y="382" text-anchor="middle">query/update intent</text>
+  </g>
+  <g id="receiver">
+    <rect class="card" x="120" y="520" width="320" height="105" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+    <text class="cardTitle" x="280" y="563" text-anchor="middle">DataSource / Connection</text>
+    <text class="detail" x="280" y="597" text-anchor="middle">resource receiver</text>
+  </g>
 </g>
-<g id="ds">
-  <rect class="card" x="1024" y="256" width="330" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="1189" y="291" text-anchor="middle" dominant-baseline="middle">DataSource / Connection</text>
-  <text class="detail" x="1189" y="321" text-anchor="middle" dominant-baseline="middle">resource receiver</text>
+
+<g id="layer-helpers">
+  <rect class="layer" x="550" y="160" width="500" height="650" rx="10" fill="#F8FAFC" stroke="#CBD5E1"/>
+  <rect class="layerBadge" x="578" y="185" width="385" height="34" rx="8"/>
+  <text class="layerTitle" x="594" y="210">Extension helpers around JDBC</text>
+  <text class="layerNote" x="578" y="244">Helpers wrap transaction, statement, binding, and batch work.</text>
+  <g id="tx">
+    <rect class="card" x="605" y="305" width="360" height="105" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+    <text class="cardTitle" x="785" y="348" text-anchor="middle">Transaction helpers</text>
+    <text class="detail" x="785" y="382" text-anchor="middle">commit / rollback boundary</text>
+  </g>
+  <g id="statement">
+    <rect class="card" x="605" y="472" width="360" height="115" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+    <text class="cardTitle" x="785" y="517" text-anchor="middle">Statement helpers</text>
+    <text class="detail" x="785" y="550" text-anchor="middle">prepare, bind, execute</text>
+  </g>
+  <g id="batch">
+    <rect class="card" x="605" y="650" width="360" height="105" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+    <text class="cardTitle" x="785" y="693" text-anchor="middle">Batch helpers</text>
+    <text class="detail" x="785" y="727" text-anchor="middle">batch update path</text>
+  </g>
 </g>
-<g><rect class="panel" x="82" y="478" width="1336" height="234" rx="8"/><text class="panelTitle" x="110" y="514" dominant-baseline="middle">JDBC helper layer</text></g>
-<g id="tx">
-  <rect class="card" x="146" y="574" width="310" height="84" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="301" y="609" text-anchor="middle" dominant-baseline="middle">Transaction helpers</text>
-  <text class="detail" x="301" y="639" text-anchor="middle" dominant-baseline="middle">commit/rollback boundary</text>
+
+<g id="layer-results">
+  <rect class="layer" x="1118" y="160" width="410" height="650" rx="10" fill="#F8FAFC" stroke="#CBD5E1"/>
+  <rect class="layerBadge" x="1146" y="185" width="315" height="34" rx="8"/>
+  <text class="layerTitle" x="1162" y="210">Result handling and output</text>
+  <text class="layerNote" x="1146" y="244">Queries map rows; updates return affected row counts.</text>
+  <g id="resultset">
+    <rect class="card" x="1165" y="305" width="320" height="105" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+    <text class="cardTitle" x="1325" y="348" text-anchor="middle">ResultSet typed access</text>
+    <text class="detail" x="1325" y="382" text-anchor="middle">getAs, nullable reads</text>
+  </g>
+  <g id="domain">
+    <rect class="card" x="1165" y="480" width="320" height="105" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+    <text class="cardTitle" x="1325" y="523" text-anchor="middle">Domain mapper</text>
+    <text class="detail" x="1325" y="557" text-anchor="middle">row -&gt; model</text>
+  </g>
+  <g id="counts">
+    <rect class="card" x="1165" y="650" width="320" height="105" rx="8" fill="#F9FAFB" stroke="#6B7280"/>
+    <text class="cardTitle" x="1325" y="693" text-anchor="middle">Update counts</text>
+    <text class="detail" x="1325" y="727" text-anchor="middle">affected rows</text>
+  </g>
 </g>
-<g id="stmt">
-  <rect class="card" x="610" y="574" width="300" height="84" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="760" y="609" text-anchor="middle" dominant-baseline="middle">Statement helpers</text>
-  <text class="detail" x="760" y="639" text-anchor="middle" dominant-baseline="middle">prepare, bind, execute</text>
-</g>
-<g id="batch">
-  <rect class="card" x="1064" y="574" width="290" height="84" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1209" y="609" text-anchor="middle" dominant-baseline="middle">Batch helpers</text>
-  <text class="detail" x="1209" y="639" text-anchor="middle" dominant-baseline="middle">batch update path</text>
-</g>
-<g><rect class="panel" x="82" y="796" width="1336" height="234" rx="8"/><text class="panelTitle" x="110" y="832" dominant-baseline="middle">Result boundary</text></g>
-<g id="rs">
-  <rect class="card" x="146" y="892" width="330" height="84" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="311" y="927" text-anchor="middle" dominant-baseline="middle">ResultSet typed access</text>
-  <text class="detail" x="311" y="957" text-anchor="middle" dominant-baseline="middle">getAs, nullable reads</text>
-</g>
-<g id="domain">
-  <rect class="card" x="635" y="892" width="290" height="84" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="780" y="927" text-anchor="middle" dominant-baseline="middle">Domain mapper</text>
-  <text class="detail" x="780" y="957" text-anchor="middle" dominant-baseline="middle">row -&gt; model</text>
-</g>
-<g id="result">
-  <rect class="card" x="1084" y="892" width="270" height="84" rx="8" fill="#F9FAFB" stroke="#6B7280"/>
-  <text class="cardTitle" x="1219" y="927" text-anchor="middle" dominant-baseline="middle">Update counts</text>
-  <text class="detail" x="1219" y="957" text-anchor="middle" dominant-baseline="middle">affected rows</text>
-</g>
-<path class="route" data-from="sql" data-to="stmt" d="M368 340 L368 435 L700 435 L700 574" stroke="#1D4ED8"/>
-<path class="route" data-from="ds" data-to="stmt" d="M1189 340 L1189 446 L820 446 L820 574" stroke="#15803D"/>
-<path class="route" data-from="stmt" data-to="rs" d="M760 658 L760 775 L383 775 L383 892" stroke="#0F766E"/>
-<path class="route" data-from="stmt" data-to="batch" d="M910 616 L1064 616" stroke="#C2410C"/>
-<path class="route" data-from="batch" data-to="result" d="M1214 658 L1214 892" stroke="#C2410C"/>
-<path class="route dashed" data-from="tx" data-to="stmt" d="M456 616 L610 616" stroke="#7E22CE"/>
-<path class="route" data-from="rs" data-to="domain" d="M476 934 L635 934" stroke="#BE185D"/>
+
+<path class="edge" d="M440 358 L520 358 L520 530 L605 530" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+<text class="edgeLabel" x="486" y="338">SQL</text>
+<path class="edge" d="M440 572 L515 572 L515 552 L605 552" stroke="#15803D" marker-end="url(#arrow-green)"/>
+<text class="edgeLabel" x="456" y="594">receiver</text>
+<path class="edge dashed" d="M785 410 L785 472" stroke="#7E22CE" marker-end="url(#arrow-purple)"/>
+<text class="edgeLabel" x="804" y="448">transaction scope</text>
+<path class="edge" d="M965 530 L1116 530 L1116 358 L1165 358" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+<text class="edgeLabel" x="1014" y="508">query result</text>
+<path class="edge" d="M1325 410 L1325 480" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+<text class="edgeLabel" x="1342" y="448">map rows</text>
+<path class="edge" d="M965 705 L1165 705" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+<text class="edgeLabel" x="1030" y="684">batch/update</text>
 </svg>
