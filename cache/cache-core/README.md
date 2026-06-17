@@ -31,7 +31,7 @@ No user import migration is required for the reorganization.
 
 ### NearCache get() Sequence (front miss → back lookup → front fill)
 
-![NearCache get() Sequence (front miss → back lookup → front. diagram](../../docs/images/readme-diagrams/cache-cache-core-sequence-01.png)
+![NearCache get() Sequence (front miss → back lookup → front fill) diagram](../../docs/images/readme-diagrams/cache-cache-core-sequence-01.png)
 
 ### NearCache put() Sequence (write-through)
 

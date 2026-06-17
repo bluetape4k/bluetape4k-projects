@@ -55,7 +55,7 @@ function esc(value) {
 
 function markerDefs() {
   return Object.entries(palette).map(([name, [, , dark]]) => `
-  <marker id="arrow-${name}" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="${dark}"/></marker>
+  <marker id="arrow-${name}" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20" fill="none" stroke="${dark}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
   <marker id="triangle-${name}" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="${dark}" stroke-width="2.2"/></marker>`).join("\n");
 }
 
@@ -101,8 +101,8 @@ function edge({ from, to, points, color, marker = "arrow", dashed = false, label
 </g>`;
 }
 
-const width = 2450;
-const height = 1620;
+const width = 2360;
+const height = 1530;
 const body = [
   chip({ x: 1390, y: 78, w: 190, color: "teal", label: "interface" }),
   chip({ x: 1605, y: 78, w: 220, color: "blue", label: "local impl" }),
@@ -197,7 +197,7 @@ const body = [
   edge({ from: "SuspendNearJCache", to: "ProviderBoundary", points: [[1580, 1200], [1580, 1250], [670, 1250], [670, 1260]], color: "slate", marker: "arrow", dashed: true, label: "back implementations", labelAt: [930, 1237] }),
 ];
 
-const svg = `<svg data-intent="Explain SuspendJCache interface and immediate implementations for cache-core README diagram 04." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="SuspendJCache Interface Class Diagram">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="SuspendJCache Interface Class Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}

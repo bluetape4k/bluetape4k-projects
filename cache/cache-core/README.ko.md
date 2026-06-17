@@ -105,15 +105,15 @@ val value = memo("recover")      // 새로 계산하여 7 반환
 
 ##### SuspendJCache 인터페이스
 
-![JCache NearCache (nearcache.jcache ) diagram](../../docs/images/readme-diagrams/cache-cache-core-diagram-04.png)
+![SuspendJCache coroutine interface diagram](../../docs/images/readme-diagrams/cache-cache-core-diagram-04.png)
 
 ##### NearJCache (동기)
 
-![JCache NearCache (nearcache.jcache ) diagram](../../docs/images/readme-diagrams/cache-cache-core-diagram-05.png)
+![NearJCache synchronous two-tier cache diagram](../../docs/images/readme-diagrams/cache-cache-core-diagram-05.png)
 
 ##### SuspendNearJCache (코루틴)
 
-![JCache NearCache (nearcache.jcache ) diagram](../../docs/images/readme-diagrams/cache-cache-core-diagram-06.png)
+![SuspendNearJCache coroutine operation map diagram](../../docs/images/readme-diagrams/cache-cache-core-diagram-06.png)
 
 ##### NearJCacheConfig Builder DSL
 

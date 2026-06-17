@@ -59,7 +59,7 @@ function esc(value) {
 
 function markerDefs() {
   return Object.entries(palette).map(([name, [, , dark]]) => `
-  <marker id="arrow-${name}" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="${dark}"/></marker>
+  <marker id="arrow-${name}" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20" fill="none" stroke="${dark}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
   <marker id="triangle-${name}" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="${dark}" stroke-width="2.2"/></marker>`).join("\n");
 }
 
@@ -105,8 +105,8 @@ function edge({ from, to, points, color, marker = "arrow", dashed = false, label
 </g>`;
 }
 
-const width = 2450;
-const height = 1700;
+const width = 2330;
+const height = 1645;
 const body = [
   chip({ x: 1340, y: 78, w: 205, color: "teal", label: "suspend API" }),
   chip({ x: 1570, y: 78, w: 190, color: "purple", label: "decorator" }),
@@ -226,7 +226,7 @@ const body = [
   edge({ from: "ResilientSuspendNearCacheDecorator", to: "CancellationException", points: [[560, 1415], [535, 1415]], color: "pink", marker: "arrow", dashed: true }),
 ];
 
-const svg = `<svg data-intent="Explain SuspendNearCacheOperations (Coroutine) as a source-backed UML class diagram." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="SuspendNearCacheOperations Coroutine Class Diagram">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="SuspendNearCacheOperations Coroutine Class Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}
