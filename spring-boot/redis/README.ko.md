@@ -20,9 +20,9 @@ Spring Data Redis의 직렬화 계층을 고성능 바이너리 직렬화/압축
 
 ## 아키텍처 다이어그램
 
-### Redis Serializer 클래스 계층
+### Redis Serializer 클래스 구조
 
-![Spring Boot Redis Serializer 클래스 계층 다이어그램](../../docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)
+![Spring Boot Redis Serializer 클래스 구조 다이어그램](../../docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)
 
 ### ReactiveRedisTemplate 직렬화 흐름
 
@@ -97,11 +97,18 @@ fun redisTemplate(factory: RedisConnectionFactory): RedisTemplate<String, Any> {
 | `RedisBinarySerializers.Jdk`        | JDK    | 없음     |
 | `RedisBinarySerializers.Kryo`       | Kryo   | 없음     |
 | `RedisBinarySerializers.Fory`       | Fory   | 없음     |
-| `RedisBinarySerializers.LZ4Fory`    | Fory   | LZ4    |
+| `RedisBinarySerializers.GzipJdk`    | JDK    | GZip   |
+| `RedisBinarySerializers.LZ4Jdk`     | JDK    | LZ4    |
+| `RedisBinarySerializers.SnappyJdk`  | JDK    | Snappy |
+| `RedisBinarySerializers.ZstdJdk`    | JDK    | Zstd   |
+| `RedisBinarySerializers.GzipKryo`   | Kryo   | GZip   |
 | `RedisBinarySerializers.LZ4Kryo`    | Kryo   | LZ4    |
-| `RedisBinarySerializers.ZstdFory`   | Fory   | Zstd   |
-| `RedisBinarySerializers.SnappyFory` | Fory   | Snappy |
+| `RedisBinarySerializers.SnappyKryo` | Kryo   | Snappy |
+| `RedisBinarySerializers.ZstdKryo`   | Kryo   | Zstd   |
 | `RedisBinarySerializers.GzipFory`   | Fory   | GZip   |
+| `RedisBinarySerializers.LZ4Fory`    | Fory   | LZ4    |
+| `RedisBinarySerializers.SnappyFory` | Fory   | Snappy |
+| `RedisBinarySerializers.ZstdFory`   | Fory   | Zstd   |
 
 ### 압축 전용 (ByteArray → ByteArray)
 

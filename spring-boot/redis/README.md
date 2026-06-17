@@ -21,9 +21,9 @@ Provides a convenient way to configure `Serializer` and `RedisSerializationConte
 
 ## Architecture Diagrams
 
-### Redis Serializer Class Hierarchy
+### Redis Serializer Class Structure
 
-![Redis Serializer Class Hierarchy diagram](../../docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)
+![Redis Serializer Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)
 
 ### ReactiveRedisTemplate Serialization Flow
 
@@ -98,11 +98,18 @@ fun redisTemplate(factory: RedisConnectionFactory): RedisTemplate<String, Any> {
 | `RedisBinarySerializers.Jdk`        | JDK                  | None        |
 | `RedisBinarySerializers.Kryo`       | Kryo                 | None        |
 | `RedisBinarySerializers.Fory`       | Fory                 | None        |
-| `RedisBinarySerializers.LZ4Fory`    | Fory                 | LZ4         |
+| `RedisBinarySerializers.GzipJdk`    | JDK                  | GZip        |
+| `RedisBinarySerializers.LZ4Jdk`     | JDK                  | LZ4         |
+| `RedisBinarySerializers.SnappyJdk`  | JDK                  | Snappy      |
+| `RedisBinarySerializers.ZstdJdk`    | JDK                  | Zstd        |
+| `RedisBinarySerializers.GzipKryo`   | Kryo                 | GZip        |
 | `RedisBinarySerializers.LZ4Kryo`    | Kryo                 | LZ4         |
-| `RedisBinarySerializers.ZstdFory`   | Fory                 | Zstd        |
-| `RedisBinarySerializers.SnappyFory` | Fory                 | Snappy      |
+| `RedisBinarySerializers.SnappyKryo` | Kryo                 | Snappy      |
+| `RedisBinarySerializers.ZstdKryo`   | Kryo                 | Zstd        |
 | `RedisBinarySerializers.GzipFory`   | Fory                 | GZip        |
+| `RedisBinarySerializers.LZ4Fory`    | Fory                 | LZ4         |
+| `RedisBinarySerializers.SnappyFory` | Fory                 | Snappy      |
+| `RedisBinarySerializers.ZstdFory`   | Fory                 | Zstd        |
 
 ### Compression-only (ByteArray → ByteArray)
 
