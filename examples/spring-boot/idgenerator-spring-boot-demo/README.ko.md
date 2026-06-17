@@ -3,7 +3,7 @@
 [English](./README.md) | 한국어
 
 이 예제는 `bluetape4k-idgenerators`를 Spring Boot REST 애플리케이션으로 노출하는 방법을 보여줍니다.
-Ktor 예제는 #419에서 별도로 다룹니다.
+Ktor 예제는 #419에서 따로 다룹니다.
 
 ## 아키텍처
 
@@ -19,7 +19,7 @@ bluetape4k:
 ```
 
 `IdGeneratorConfiguration`은 각 generator를 Spring Bean으로 등록합니다. `IdGeneratorRegistry`는 REST
-type 이름을 실제 generator에 매핑하고, `IdGeneratorService`는 batch size 검증을 담당합니다.
+타입 이름을 실제 generator에 매핑하고, `IdGeneratorService`는 batch size를 검증합니다.
 
 ## 엔드포인트
 
@@ -35,7 +35,7 @@ type 이름을 실제 generator에 매핑하고, `IdGeneratorService`는 batch s
 | GET | `/ids/flake` |
 | GET | `/ids/{type}/batch?size=10` |
 
-Generic 엔드포인트:
+범용 엔드포인트:
 
 | Method | Path |
 |---|---|
@@ -44,7 +44,7 @@ Generic 엔드포인트:
 | GET | `/generators` |
 | GET | `/health` |
 
-지원 type은 `uuid-v4`, `uuid-v7`, `ulid`, `ksuid`, `snowflake`, `flake`입니다.
+지원 타입은 `uuid-v4`, `uuid-v7`, `ulid`, `ksuid`, `snowflake`, `flake`입니다.
 
 ## 사용법
 
