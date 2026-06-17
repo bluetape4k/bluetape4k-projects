@@ -2292,7 +2292,7 @@ function write(name, svg, graph) {
   const svgPath = join(OUT, `${name}.svg`);
   const pngPath = join(OUT, `${name}.png`);
   const model = sourceModels[name];
-  const stampedSvg = model ? stampSourceModel(svg, model) : svg;
+  const stampedSvg = model && !/\bdata-layout="sequence"/.test(svg) ? stampSourceModel(svg, model) : svg;
   writeFileSync(svgPath, stampedSvg);
   renderPng(svgPath, pngPath);
 }
@@ -2305,7 +2305,7 @@ function stampExisting(name) {
   const pngPath = join(OUT, `${name}.png`);
   const current = readFileSync(svgPath, "utf8");
   const stripped = replaceRepoOnlyFooter(current, model).replace(/\sdata-(?:intent|evidence|source-read)="[^"]*"/g, "");
-  const stamped = stampSourceModel(stripped, model);
+  const stamped = /\bdata-layout="sequence"/.test(stripped) ? stripped : stampSourceModel(stripped, model);
   writeFileSync(svgPath, stamped);
   renderPng(svgPath, pngPath);
 }
