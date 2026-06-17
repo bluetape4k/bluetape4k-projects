@@ -16,7 +16,7 @@ Provides extension functions that convert `Flux`/`Mono` return types from `React
 - **Query builder extensions**: `queryOf()`, `sortAscBy()`, `paginate()`, etc.
 - **Update DSL**: `"field" setTo value`, `"field".incBy()`, etc.
 
-## Architecture Diagrams
+## Diagrams
 
 ### Core Class Structure
 
@@ -47,7 +47,7 @@ dependencies {
 ### ReactiveMongoOperations Coroutine Extensions
 
 ```kotlin
-import io.bluetape4k.spring4.mongodb.coroutines.*
+import io.bluetape4k.spring.mongodb.coroutines.*
 
 // Find one
 val user: User? = mongoOperations.findOneOrNullSuspending(
@@ -73,7 +73,7 @@ mongoOperations.updateMultiSuspending<User>(
 ### Criteria infix DSL
 
 ```kotlin
-import io.bluetape4k.spring4.mongodb.query.*
+import io.bluetape4k.spring.mongodb.query.*
 
 val c1 = "age".criteria() gt 20
 val c2 = "name".criteria() eq "Alice"

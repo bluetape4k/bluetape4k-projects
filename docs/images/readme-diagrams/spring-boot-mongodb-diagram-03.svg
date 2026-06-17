@@ -1,76 +1,62 @@
-<svg data-intent="Redesign the Criteria/Query/Update DSL as a query-building flow, not a layered call chain." data-evidence="spring-boot/mongodb/README.md; CriteriaExtensions.kt; QueryExtensions.kt; UpdateExtensions.kt" data-source-read="spring-boot/mongodb/README.md; CriteriaExtensions.kt; QueryExtensions.kt; UpdateExtensions.kt" xmlns="http://www.w3.org/2000/svg" width="1440" height="910" viewBox="0 0 1440 910" role="img" aria-label="Criteria / Query / Update DSL Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1120" viewBox="0 0 1700 1120" role="img" aria-label="Criteria / Query / Update DSL Flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow-blue" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="#2563EB" stroke="#2563EB" stroke-width="1" stroke-dasharray="none"/></marker>
+  <marker id="arrow-green" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="#16A34A" stroke="#16A34A" stroke-width="1" stroke-dasharray="none"/></marker>
+  <marker id="arrow-teal" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="#0D9488" stroke="#0D9488" stroke-width="1" stroke-dasharray="none"/></marker>
+  <marker id="arrow-amber" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="#EA580C" stroke="#EA580C" stroke-width="1" stroke-dasharray="none"/></marker>
+  <marker id="arrow-pink" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="#DB2777" stroke="#DB2777" stroke-width="1" stroke-dasharray="none"/></marker>
+  <marker id="arrow-purple" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="#9333EA" stroke="#9333EA" stroke-width="1" stroke-dasharray="none"/></marker>
+  <marker id="arrow-slate" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="#64748B" stroke="#64748B" stroke-width="1" stroke-dasharray="none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#CBD5E1;stroke-width:3;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .band{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:2}.bandTitle{font-family:"Architects Daughter";font-size:23px;fill:#334155}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:14px;fill:#475569}
+    .mono{font-family:"Comic Mono";font-size:13px;fill:#475569}.edge{fill:none;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}
+    .edgeDashed{stroke-dasharray:9 8}.note{fill:#F8FAFC;stroke:#CBD5E1;stroke-width:1.8}
   </style>
 </defs>
-<rect class="canvas" width="1440" height="910"/>
-<rect class="frame" x="34" y="30" width="1372" height="850" rx="8"/>
-<text class="title" x="72" y="84">Criteria / Query / Update DSL Flow</text>
-<text class="subtitle" x="76" y="116">The DSL flow shows how field-level helpers become Criteria, Query, and Update objects before execution.</text>
-<g><rect class="panel" x="82" y="160" width="1276" height="160" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">DSL inputs</text></g>
-<g><rect class="panel" x="82" y="395" width="1276" height="220" rx="8"/><text class="panelTitle" x="110" y="431" dominant-baseline="middle">Spring Data query objects</text></g>
-<g><rect class="panel" x="82" y="690" width="1276" height="140" rx="8"/><text class="panelTitle" x="110" y="726" dominant-baseline="middle">Mongo operation</text></g>
-<g id="fields">
-  <rect class="card" x="145" y="215" width="280" height="74" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="285" y="236" text-anchor="middle" dominant-baseline="middle">Field strings</text>
-  <text class="detail" x="285" y="266" text-anchor="middle" dominant-baseline="middle">&quot;age&quot;.criteria()</text>
-  <text class="detail" x="285" y="284" text-anchor="middle" dominant-baseline="middle">&quot;name&quot; setTo value</text>
-</g>
-<g id="criteriaDsl">
-  <rect class="card" x="535" y="210" width="320" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="695" y="236" text-anchor="middle" dominant-baseline="middle">Criteria infix DSL</text>
-  <text class="detail" x="695" y="266" text-anchor="middle" dominant-baseline="middle">eq, gt, inValues</text>
-  <text class="detail" x="695" y="284" text-anchor="middle" dominant-baseline="middle">andWith / orWith</text>
-</g>
-<g id="updateDsl">
-  <rect class="card" x="975" y="210" width="280" height="84" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1115" y="236" text-anchor="middle" dominant-baseline="middle">Update DSL</text>
-  <text class="detail" x="1115" y="266" text-anchor="middle" dominant-baseline="middle">setTo, incBy, pushValue</text>
-  <text class="detail" x="1115" y="284" text-anchor="middle" dominant-baseline="middle">andSet / andInc</text>
-</g>
-<g id="criteria">
-  <rect class="card" x="170" y="455" width="290" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="315" y="490" text-anchor="middle" dominant-baseline="middle">Criteria</text>
-  <text class="detail" x="315" y="520" text-anchor="middle" dominant-baseline="middle">predicate tree</text>
-</g>
-<g id="query">
-  <rect class="card" x="575" y="455" width="290" height="84" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="720" y="490" text-anchor="middle" dominant-baseline="middle">Query</text>
-  <text class="detail" x="720" y="520" text-anchor="middle" dominant-baseline="middle">queryOf + sort + paginate</text>
-</g>
-<g id="update">
-  <rect class="card" x="980" y="455" width="290" height="84" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1125" y="490" text-anchor="middle" dominant-baseline="middle">Update</text>
-  <text class="detail" x="1125" y="520" text-anchor="middle" dominant-baseline="middle">Mongo update document</text>
-</g>
-<g id="mongoOps">
-  <rect class="card" x="535" y="735" width="370" height="62" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="720" y="759" text-anchor="middle" dominant-baseline="middle">ReactiveMongoOperations</text>
-  <text class="detail" x="720" y="789" text-anchor="middle" dominant-baseline="middle">find/update/remove executes objects</text>
-</g>
-<path class="route" data-from="fields" data-to="criteriaDsl" d="M425 252 L535 252" stroke="#1D4ED8"/>
-<path class="route dashed" data-from="fields" data-to="updateDsl" d="M425 289 L975 252" stroke="#BE185D"/>
-<path class="route" data-from="criteriaDsl" data-to="criteria" d="M695 294 L695 355 L315 355 L315 455" stroke="#15803D"/>
-<path class="route" data-from="criteria" data-to="query" d="M460 497 L575 497" stroke="#C2410C"/>
-<path class="route" data-from="updateDsl" data-to="update" d="M1115 294 L1115 455" stroke="#BE185D"/>
-<path class="route" data-from="query" data-to="mongoOps" d="M720 539 L720 735" stroke="#C2410C"/>
-<path class="route" data-from="update" data-to="mongoOps" d="M1125 539 L1125 635 L760 635 L760 735" stroke="#BE185D"/>
+<rect class="canvas" width="1700" height="1120"/>
+<rect class="frame" x="40" y="34" width="1620" height="1046" rx="30"/>
+<text class="title" x="82" y="92">Criteria / Query / Update DSL Flow</text>
+<text class="subtitle" x="86" y="126">Field helpers build Criteria, Query, and Update objects before ReactiveMongoOperations executes them.</text>
+<g><rect class="band" x="90" y="168" width="1520" height="190" rx="16"/><text class="bandTitle" x="116" y="204" dominant-baseline="middle">Field-level DSL input</text><text class="mono" x="450" y="204" dominant-baseline="middle">String field helpers start either predicate construction or update document construction.</text></g>
+<g><rect class="band" x="90" y="445" width="1520" height="265" rx="16"/><text class="bandTitle" x="116" y="481" dominant-baseline="middle">Spring Data query objects</text><text class="mono" x="450" y="481" dominant-baseline="middle">Criteria becomes Query; Update stays separate until an update/remove operation consumes it.</text></g>
+<g><rect class="band" x="90" y="785" width="1520" height="210" rx="16"/><text class="bandTitle" x="116" y="821" dominant-baseline="middle">Execution</text><text class="mono" x="450" y="821" dominant-baseline="middle">Consumes built Query and Update objects.</text></g>
+<g id="fields"><rect class="card" x="150" y="238" width="360" height="96" rx="12" fill="#EFF6FF" stroke="#2563EB"/>
+<text class="cardTitle" x="330" y="272" text-anchor="middle" dominant-baseline="middle">Field strings</text>
+<text class="detail" x="330" y="304" text-anchor="middle" dominant-baseline="middle">&quot;age&quot;.criteria()</text>
+<text class="detail" x="330" y="324" text-anchor="middle" dominant-baseline="middle">&quot;name&quot; setTo value</text></g>
+<g id="criteriaDsl"><rect class="card" x="660" y="238" width="380" height="108" rx="12" fill="#F0FDF4" stroke="#16A34A"/>
+<text class="cardTitle" x="850" y="272" text-anchor="middle" dominant-baseline="middle">Criteria infix DSL</text>
+<text class="detail" x="850" y="304" text-anchor="middle" dominant-baseline="middle">eq, gt, inValues</text>
+<text class="detail" x="850" y="324" text-anchor="middle" dominant-baseline="middle">andWith / orWith</text></g>
+<g id="updateDsl"><rect class="card" x="1190" y="238" width="360" height="108" rx="12" fill="#FDF2F8" stroke="#DB2777"/>
+<text class="cardTitle" x="1370" y="272" text-anchor="middle" dominant-baseline="middle">Update DSL</text>
+<text class="detail" x="1370" y="304" text-anchor="middle" dominant-baseline="middle">setTo, incBy, pushValue</text>
+<text class="detail" x="1370" y="324" text-anchor="middle" dominant-baseline="middle">andSet / andInc</text></g>
+<g id="criteria"><rect class="card" x="170" y="522" width="360" height="96" rx="12" fill="#F0FDF4" stroke="#16A34A"/>
+<text class="cardTitle" x="350" y="556" text-anchor="middle" dominant-baseline="middle">Criteria</text>
+<text class="detail" x="350" y="588" text-anchor="middle" dominant-baseline="middle">predicate tree</text></g>
+<g id="query"><rect class="card" x="670" y="522" width="360" height="96" rx="12" fill="#FFF7ED" stroke="#EA580C"/>
+<text class="cardTitle" x="850" y="556" text-anchor="middle" dominant-baseline="middle">Query</text>
+<text class="detail" x="850" y="588" text-anchor="middle" dominant-baseline="middle">queryOf + sort + paginate</text></g>
+<g id="update"><rect class="card" x="1170" y="522" width="360" height="96" rx="12" fill="#FDF2F8" stroke="#DB2777"/>
+<text class="cardTitle" x="1350" y="556" text-anchor="middle" dominant-baseline="middle">Update</text>
+<text class="detail" x="1350" y="588" text-anchor="middle" dominant-baseline="middle">Mongo update document</text></g>
+<g id="operations"><rect class="card" x="610" y="850" width="500" height="96" rx="12" fill="#FAF5FF" stroke="#9333EA"/>
+<text class="cardTitle" x="860" y="884" text-anchor="middle" dominant-baseline="middle">ReactiveMongoOperations</text>
+<text class="detail" x="860" y="916" text-anchor="middle" dominant-baseline="middle">find/update/remove executes Query and Update objects</text></g>
+<path class="edge" d="M510 286 L660 286" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
+<path class="edge edgeDashed" d="M1040 286 L1190 286" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
+<path class="edge" d="M850 346 L850 420 L350 420 L350 522" stroke="#16A34A" marker-end="url(#arrow-green)"/>
+<path class="edge" d="M530 570 L670 570" stroke="#EA580C" marker-end="url(#arrow-amber)"/>
+<path class="edge" d="M1350 346 L1350 522" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
+<path class="edge" d="M850 618 L850 850" stroke="#EA580C" marker-end="url(#arrow-amber)"/>
+<path class="edge" d="M1350 618 L1350 742 L980 742 L980 850" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
+<g><rect x="541" y="248" width="108" height="26" rx="8" fill="#fff" stroke="#CBD5E1" stroke-width="1.4"/><text class="mono" x="555" y="265" fill="#2563EB">criteria()</text></g>
+<g><rect x="1058" y="248" width="124" height="26" rx="8" fill="#fff" stroke="#CBD5E1" stroke-width="1.4"/><text class="mono" x="1072" y="265" fill="#DB2777">field update</text></g>
+<g><rect x="878" y="676" width="124" height="26" rx="8" fill="#fff" stroke="#CBD5E1" stroke-width="1.4"/><text class="mono" x="892" y="693" fill="#EA580C">query object</text></g>
 </svg>

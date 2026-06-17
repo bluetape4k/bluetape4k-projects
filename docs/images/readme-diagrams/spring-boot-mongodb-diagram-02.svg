@@ -1,88 +1,71 @@
-<svg data-intent="Redesign the coroutine extension flow around actual conversions: ReactiveMongoOperations returns Flux/Mono, extensions expose Flow/suspend results, and writes return Update/Delete metadata." data-evidence="spring-boot/mongodb/README.md; ReactiveMongoOperationsCoroutines.kt" data-source-read="spring-boot/mongodb/README.md; ReactiveMongoOperationsCoroutines.kt" xmlns="http://www.w3.org/2000/svg" width="1440" height="905" viewBox="0 0 1440 905" role="img" aria-label="ReactiveMongoOperations Coroutine Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1120" viewBox="0 0 1700 1120" role="img" aria-label="ReactiveMongoOperations Coroutine Flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow-blue" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="#2563EB" stroke="#2563EB" stroke-width="1" stroke-dasharray="none"/></marker>
+  <marker id="arrow-green" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="#16A34A" stroke="#16A34A" stroke-width="1" stroke-dasharray="none"/></marker>
+  <marker id="arrow-teal" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="#0D9488" stroke="#0D9488" stroke-width="1" stroke-dasharray="none"/></marker>
+  <marker id="arrow-amber" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="#EA580C" stroke="#EA580C" stroke-width="1" stroke-dasharray="none"/></marker>
+  <marker id="arrow-pink" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="#DB2777" stroke="#DB2777" stroke-width="1" stroke-dasharray="none"/></marker>
+  <marker id="arrow-purple" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="#9333EA" stroke="#9333EA" stroke-width="1" stroke-dasharray="none"/></marker>
+  <marker id="arrow-slate" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="#64748B" stroke="#64748B" stroke-width="1" stroke-dasharray="none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#CBD5E1;stroke-width:3;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .band{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:2}.bandTitle{font-family:"Architects Daughter";font-size:23px;fill:#334155}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:14px;fill:#475569}
+    .mono{font-family:"Comic Mono";font-size:13px;fill:#475569}.edge{fill:none;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}
+    .edgeDashed{stroke-dasharray:9 8}.note{fill:#F8FAFC;stroke:#CBD5E1;stroke-width:1.8}
   </style>
 </defs>
-<rect class="canvas" width="1440" height="905"/>
-<rect class="frame" x="34" y="30" width="1372" height="845" rx="8"/>
-<text class="title" x="72" y="84">ReactiveMongoOperations Coroutine Flow</text>
-<text class="subtitle" x="76" y="116">The flow names the actual conversion boundary: Reactive Mongo publishers become Flow, suspend values, or write metadata.</text>
-<g><rect class="panel" x="82" y="160" width="1276" height="145" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Caller intent</text></g>
-<g><rect class="panel" x="82" y="375" width="1276" height="230" rx="8"/><text class="panelTitle" x="110" y="411" dominant-baseline="middle">Extension conversion</text></g>
-<g><rect class="panel" x="82" y="680" width="1276" height="145" rx="8"/><text class="panelTitle" x="110" y="716" dominant-baseline="middle">Results</text></g>
-<g id="caller">
-  <rect class="card" x="120" y="215" width="330" height="70" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="285" y="243" text-anchor="middle" dominant-baseline="middle">Repository/service code</text>
-  <text class="detail" x="285" y="273" text-anchor="middle" dominant-baseline="middle">chooses query or entity operation</text>
-</g>
-<g id="query">
-  <rect class="card" x="570" y="215" width="300" height="70" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="720" y="243" text-anchor="middle" dominant-baseline="middle">Query / Aggregation</text>
-  <text class="detail" x="720" y="273" text-anchor="middle" dominant-baseline="middle">Spring Data Mongo criteria</text>
-</g>
-<g id="ops">
-  <rect class="card" x="960" y="215" width="360" height="70" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="1140" y="243" text-anchor="middle" dominant-baseline="middle">ReactiveMongoOperations</text>
-  <text class="detail" x="1140" y="273" text-anchor="middle" dominant-baseline="middle">returns Flux&lt;T&gt;, Mono&lt;T&gt;, Mono&lt;Result&gt;</text>
-</g>
-<g id="many">
-  <rect class="card" x="135" y="445" width="290" height="88" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="280" y="464" text-anchor="middle" dominant-baseline="middle">Many-result extensions</text>
-  <text class="detail" x="280" y="494" text-anchor="middle" dominant-baseline="middle">findAsFlow</text>
-  <text class="detail" x="280" y="512" text-anchor="middle" dominant-baseline="middle">findAllAsFlow</text>
-  <text class="detail" x="280" y="530" text-anchor="middle" dominant-baseline="middle">aggregateAsFlow</text>
-</g>
-<g id="single">
-  <rect class="card" x="505" y="445" width="310" height="88" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="660" y="473" text-anchor="middle" dominant-baseline="middle">Single-result extensions</text>
-  <text class="detail" x="660" y="503" text-anchor="middle" dominant-baseline="middle">findOneSuspending</text>
-  <text class="detail" x="660" y="521" text-anchor="middle" dominant-baseline="middle">findByIdOrNullSuspending</text>
-</g>
-<g id="write">
-  <rect class="card" x="895" y="445" width="330" height="88" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1060" y="473" text-anchor="middle" dominant-baseline="middle">Write extensions</text>
-  <text class="detail" x="1060" y="503" text-anchor="middle" dominant-baseline="middle">insert/save/update/remove</text>
-  <text class="detail" x="1060" y="521" text-anchor="middle" dominant-baseline="middle">await UpdateResult/DeleteResult</text>
-</g>
-<g id="flow">
-  <rect class="card" x="245" y="720" width="280" height="66" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="385" y="746" text-anchor="middle" dominant-baseline="middle">Flow&lt;T&gt;</text>
-  <text class="detail" x="385" y="776" text-anchor="middle" dominant-baseline="middle">streamed documents</text>
-</g>
-<g id="suspend">
-  <rect class="card" x="620" y="720" width="280" height="66" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="760" y="746" text-anchor="middle" dominant-baseline="middle">suspend result</text>
-  <text class="detail" x="760" y="776" text-anchor="middle" dominant-baseline="middle">T, T?, Long, Boolean</text>
-</g>
-<g id="metadata">
-  <rect class="card" x="995" y="720" width="280" height="66" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1135" y="746" text-anchor="middle" dominant-baseline="middle">Write metadata</text>
-  <text class="detail" x="1135" y="776" text-anchor="middle" dominant-baseline="middle">UpdateResult / DeleteResult</text>
-</g>
-<path class="route" data-from="caller" data-to="query" d="M450 250 L570 250" stroke="#1D4ED8"/>
-<path class="route" data-from="query" data-to="ops" d="M870 250 L960 250" stroke="#7E22CE"/>
-<path class="route" data-from="ops" data-to="many" d="M1065 285 L280 445" stroke="#0F766E"/>
-<path class="route" data-from="ops" data-to="single" d="M1140 285 L660 445" stroke="#C2410C"/>
-<path class="route" data-from="ops" data-to="write" d="M1215 285 L1060 445" stroke="#BE185D"/>
-<path class="route" data-from="many" data-to="flow" d="M280 533 L280 720" stroke="#0F766E"/>
-<path class="route" data-from="single" data-to="suspend" d="M660 533 L660 720" stroke="#C2410C"/>
-<path class="route" data-from="write" data-to="metadata" d="M1060 533 L1060 720" stroke="#BE185D"/>
+<rect class="canvas" width="1700" height="1120"/>
+<rect class="frame" x="40" y="34" width="1620" height="1046" rx="30"/>
+<text class="title" x="82" y="92">ReactiveMongoOperations Coroutine Flow</text>
+<text class="subtitle" x="86" y="126">Reactive Mongo publishers are converted into Flow streams, suspend values, or write metadata.</text>
+<g><rect class="band" x="90" y="168" width="1520" height="175" rx="16"/><text class="bandTitle" x="116" y="204" dominant-baseline="middle">Caller builds an operation</text><text class="mono" x="450" y="204" dominant-baseline="middle">Application code chooses a query, aggregation, entity write, or collection command.</text></g>
+<g><rect class="band" x="90" y="425" width="1520" height="265" rx="16"/><text class="bandTitle" x="116" y="461" dominant-baseline="middle">Reactive publisher boundary</text><text class="mono" x="450" y="461" dominant-baseline="middle">ReactiveMongoOperations returns Flux or Mono publishers; extensions convert them at this boundary.</text></g>
+<g><rect class="band" x="90" y="765" width="1520" height="230" rx="16"/><text class="bandTitle" x="116" y="801" dominant-baseline="middle">Coroutine-facing result</text><text class="mono" x="450" y="801" dominant-baseline="middle">Callers receive Flow streams, suspend values, or write metadata without handling publishers directly.</text></g>
+<g id="caller"><rect class="card" x="150" y="226" width="360" height="86" rx="12" fill="#EFF6FF" stroke="#2563EB"/>
+<text class="cardTitle" x="330" y="260" text-anchor="middle" dominant-baseline="middle">Repository/service code</text>
+<text class="detail" x="330" y="292" text-anchor="middle" dominant-baseline="middle">chooses read, write, or collection operation</text></g>
+<g id="query"><rect class="card" x="670" y="226" width="360" height="86" rx="12" fill="#FAF5FF" stroke="#9333EA"/>
+<text class="cardTitle" x="850" y="260" text-anchor="middle" dominant-baseline="middle">Query / Aggregation</text>
+<text class="detail" x="850" y="292" text-anchor="middle" dominant-baseline="middle">Spring Data MongoDB query objects</text></g>
+<g id="operations"><rect class="card" x="1190" y="226" width="360" height="86" rx="12" fill="#F0FDF4" stroke="#16A34A"/>
+<text class="cardTitle" x="1370" y="260" text-anchor="middle" dominant-baseline="middle">ReactiveMongoOperations</text>
+<text class="detail" x="1370" y="292" text-anchor="middle" dominant-baseline="middle">returns Flux&lt;T&gt;, Mono&lt;T&gt;, or Mono&lt;Result&gt;</text></g>
+<g id="many"><rect class="card" x="170" y="502" width="360" height="116" rx="12" fill="#F0FDFA" stroke="#0D9488"/>
+<text class="cardTitle" x="350" y="536" text-anchor="middle" dominant-baseline="middle">Many-result extensions</text>
+<text class="detail" x="350" y="568" text-anchor="middle" dominant-baseline="middle">findAsFlow, findAllAsFlow</text>
+<text class="detail" x="350" y="588" text-anchor="middle" dominant-baseline="middle">aggregateAsFlow, tailAsFlow</text>
+<text class="detail" x="350" y="608" text-anchor="middle" dominant-baseline="middle">publisher.asFlow()</text></g>
+<g id="single"><rect class="card" x="670" y="502" width="360" height="116" rx="12" fill="#FFF7ED" stroke="#EA580C"/>
+<text class="cardTitle" x="850" y="536" text-anchor="middle" dominant-baseline="middle">Single-result extensions</text>
+<text class="detail" x="850" y="568" text-anchor="middle" dominant-baseline="middle">findOneSuspending</text>
+<text class="detail" x="850" y="588" text-anchor="middle" dominant-baseline="middle">findByIdOrNullSuspending</text>
+<text class="detail" x="850" y="608" text-anchor="middle" dominant-baseline="middle">awaitSingle / awaitSingleOrNull</text></g>
+<g id="write"><rect class="card" x="1170" y="502" width="360" height="116" rx="12" fill="#FDF2F8" stroke="#DB2777"/>
+<text class="cardTitle" x="1350" y="536" text-anchor="middle" dominant-baseline="middle">Write extensions</text>
+<text class="detail" x="1350" y="568" text-anchor="middle" dominant-baseline="middle">insert/save/update/remove</text>
+<text class="detail" x="1350" y="588" text-anchor="middle" dominant-baseline="middle">await UpdateResult/DeleteResult</text></g>
+<g id="flow"><rect class="card" x="170" y="832" width="360" height="92" rx="12" fill="#F0FDFA" stroke="#0D9488"/>
+<text class="cardTitle" x="350" y="866" text-anchor="middle" dominant-baseline="middle">Flow&lt;T&gt;</text>
+<text class="detail" x="350" y="898" text-anchor="middle" dominant-baseline="middle">streamed documents</text></g>
+<g id="suspend"><rect class="card" x="670" y="832" width="360" height="92" rx="12" fill="#FFF7ED" stroke="#EA580C"/>
+<text class="cardTitle" x="850" y="866" text-anchor="middle" dominant-baseline="middle">suspend result</text>
+<text class="detail" x="850" y="898" text-anchor="middle" dominant-baseline="middle">T, T?, Long, Boolean, Unit</text></g>
+<g id="metadata"><rect class="card" x="1170" y="832" width="360" height="92" rx="12" fill="#FDF2F8" stroke="#DB2777"/>
+<text class="cardTitle" x="1350" y="866" text-anchor="middle" dominant-baseline="middle">Write metadata</text>
+<text class="detail" x="1350" y="898" text-anchor="middle" dominant-baseline="middle">UpdateResult / DeleteResult</text></g>
+<path class="edge" d="M510 269 L670 269" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
+<path class="edge" d="M1030 269 L1190 269" stroke="#9333EA" marker-end="url(#arrow-purple)"/>
+<path class="edge" d="M1370 312 L1370 380 L350 380 L350 502" stroke="#0D9488" marker-end="url(#arrow-teal)"/>
+<path class="edge" d="M1370 312 L1370 400 L850 400 L850 502" stroke="#EA580C" marker-end="url(#arrow-amber)"/>
+<path class="edge" d="M1370 312 L1370 502" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
+<path class="edge" d="M350 618 L350 832" stroke="#0D9488" marker-end="url(#arrow-teal)"/>
+<path class="edge" d="M850 618 L850 832" stroke="#EA580C" marker-end="url(#arrow-amber)"/>
+<path class="edge" d="M1350 618 L1350 832" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
+<g><rect x="368" y="394" width="84" height="26" rx="8" fill="#fff" stroke="#CBD5E1" stroke-width="1.4"/><text class="mono" x="382" y="411" fill="#0D9488">Flux&lt;T&gt;</text></g>
+<g><rect x="866" y="414" width="84" height="26" rx="8" fill="#fff" stroke="#CBD5E1" stroke-width="1.4"/><text class="mono" x="880" y="431" fill="#EA580C">Mono&lt;T&gt;</text></g>
+<g><rect x="1378" y="402" width="124" height="26" rx="8" fill="#fff" stroke="#CBD5E1" stroke-width="1.4"/><text class="mono" x="1392" y="419" fill="#DB2777">Mono&lt;Result&gt;</text></g>
 </svg>
