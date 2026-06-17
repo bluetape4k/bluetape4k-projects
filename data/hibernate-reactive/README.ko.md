@@ -120,15 +120,15 @@ sf.withSessionSuspending { session ->
 ## 버전 요구사항
 
 **Hibernate Reactive 4.3.3.Final** 필수 환경:
-- Hibernate ORM 7.3.2.Final (ORM 7.2.x 대상)
-- Jakarta Persistence 3.0 namespace in `persistence.xml`
+- Hibernate ORM 7.3.2.Final (ORM 7.2.x에서 업데이트됨)
+- `persistence.xml`의 Jakarta Persistence 3.0 namespace
 - Java 11+ / Kotlin 1.5+
 
 ### JPA 영속성 설정 업데이트
 
 Hibernate Reactive 2.x에서 3.x로 업그레이드 시:
 
-1. **namespace 변경** in `src/main/resources/META-INF/persistence.xml`:
+1. `src/main/resources/META-INF/persistence.xml`의 **namespace 변경**:
    ```xml
    <!-- 기존 (JPA 2.0) -->
    <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
@@ -147,7 +147,7 @@ Hibernate Reactive 2.x에서 3.x로 업그레이드 시:
    <class>io.bluetape4k.example.Book</class>
    ```
 
-3. **Validator 설정** Jakarta EL 구현체(GlassFish Expressly 6.0.0) 필요
+3. **Validator 설정**에는 Jakarta EL 구현체(GlassFish Expressly 6.0.0)가 필요합니다.
 
 ## 참고
 
