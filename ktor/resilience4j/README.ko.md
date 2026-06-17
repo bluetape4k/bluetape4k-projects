@@ -2,7 +2,12 @@
 
 [English](./README.md) | [한국어](./README.ko.md)
 
-bluetape4k 생태계의 Ktor 서버 애플리케이션을 위한 route-scoped Resilience4j helper 모듈입니다.
+bluetape4k 생태계의 Ktor 서버 애플리케이션에서 route 단위로 Resilience4j 정책을
+적용하는 helper 모듈입니다.
+
+## Route Flow 다이어그램
+
+![Ktor Resilience4j Route Flow](../../docs/images/readme-diagrams/ktor-resilience4j-flow-01.png)
 
 ## 기능
 
@@ -65,7 +70,9 @@ fun Application.module() {
 | Rate limiter 거부 | 429 | `rate_limited` |
 | Time limiter timeout | 504 | `timeout` |
 
-메시지는 client에 노출해도 안전한 일반 문구만 사용합니다. 정책 이름은 caller가 소유한 Resilience4j 객체에 남겨 metrics와 registry 소유권을 유지합니다.
+메시지는 client에 노출해도 안전한 일반 문구만 사용합니다. 정책 이름은 caller가
+소유한 Resilience4j 객체에 남기므로 metrics와 registry 소유권은 애플리케이션에
+남습니다.
 
 ## 비목표
 

@@ -4,6 +4,10 @@
 
 Route-scoped Resilience4j helpers for Ktor server applications in the bluetape4k ecosystem.
 
+## Route Flow Diagram
+
+![Ktor Resilience4j Route Flow](../../docs/images/readme-diagrams/ktor-resilience4j-flow-01.png)
+
 ## Features
 
 - `KtorResiliencePolicies` for caller-owned retry, circuit breaker, rate limiter, and time limiter objects.
@@ -65,7 +69,7 @@ fun Application.module() {
 | Rate limiter rejection | 429 | `rate_limited` |
 | Time limiter timeout | 504 | `timeout` |
 
-Messages are generic and safe for clients. Policy names remain in the caller-owned Resilience4j objects for metrics and registry ownership.
+Messages are generic and safe for clients. Policy names remain in the caller-owned Resilience4j objects, so metrics and registry ownership stay with the application.
 
 ## Non-goals
 
