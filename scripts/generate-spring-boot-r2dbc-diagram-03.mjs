@@ -82,8 +82,8 @@ const width = 2700;
 const height = 1360;
 const columns = [
   { key: "Read", x: 100, color: "blue", title: "Read", functions: ["findOneById / findFirstById", "selectAll / select(query)", "selectOne / selectFirst", "exists / count"], delegate: "select<T>().matching(query)", returns: "Flow<T>, T, T?, Boolean, Long" },
-  { key: "Create", x: 760, color: "amber", title: "Create", functions: ["insertSuspending(entity)", "insertOrNullSuspending(entity)", "entity is passed to using(entity)", "nullable variant uses awaitSingleOrNull"], delegate: "insert<T>().using(entity)", returns: "T or T?" },
-  { key: "Update", x: 1420, color: "pink", title: "Update", functions: ["updateSuspending(query, update)", "caller supplies Query", "caller supplies Update", "no entity instance is required"], delegate: "update<T>().matching(query).apply(update)", returns: "Long affected row count" },
+  { key: "Update", x: 760, color: "pink", title: "Update", functions: ["updateSuspending(query, update)", "caller supplies Query", "caller supplies Update", "no entity instance is required"], delegate: "update<T>().matching(query).apply(update)", returns: "Long affected row count" },
+  { key: "Create", x: 1420, color: "amber", title: "Create", functions: ["insertSuspending(entity)", "insertOrNullSuspending(entity)", "entity is passed to using(entity)", "nullable variant uses awaitSingleOrNull"], delegate: "insert<T>().using(entity)", returns: "T or T?" },
   { key: "Delete", x: 2080, color: "violet", title: "Delete", functions: ["deleteSuspending(query)", "deleteAllSuspending()", "Query.empty() for deleteAll", "deletes all matching rows"], delegate: "delete<T>().matching(query).all()", returns: "Long deleted row count" },
 ];
 
@@ -127,8 +127,8 @@ const body = [
     }),
   ]),
   edge({ from: "Root", to: "ReadApi", points: [[970, 435], [970, 505], [360, 505], [360, 585]], color: "blue", label: "query side", labelAt: [625, 486] }),
-  edge({ from: "Root", to: "CreateApi", points: [[1180, 435], [1180, 585]], color: "amber", label: "insert side", labelAt: [1198, 526] }),
-  edge({ from: "Root", to: "UpdateApi", points: [[1520, 435], [1520, 505], [1680, 505], [1680, 585]], color: "pink", label: "mutation side", labelAt: [1545, 486] }),
+  edge({ from: "Root", to: "UpdateApi", points: [[1180, 435], [1180, 505], [1020, 505], [1020, 585]], color: "pink", label: "mutation side", labelAt: [1068, 486] }),
+  edge({ from: "Root", to: "CreateApi", points: [[1520, 435], [1520, 505], [1680, 505], [1680, 585]], color: "amber", label: "insert side", labelAt: [1558, 486] }),
   edge({ from: "Root", to: "DeleteApi", points: [[1780, 435], [1780, 505], [2340, 505], [2340, 585]], color: "violet", label: "delete side", labelAt: [2025, 486] }),
   ...columns.map((column) => edge({
     from: `${column.key}Api`,

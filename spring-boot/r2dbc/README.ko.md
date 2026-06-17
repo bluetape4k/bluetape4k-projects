@@ -16,19 +16,19 @@ Spring Data R2DBC를 Kotlin Coroutines 기반으로 사용하기 편하게 확�
 
 ### 핵심 클래스 구조
 
-![r2dbc Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-01.png)
+![Spring Boot R2DBC 핵심 클래스 구조 다이어그램](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-01.png)
 
 ### R2DBC + Coroutines 데이터 흐름
 
-![R2DBC + Coroutines diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-02.png)
+![R2DBC와 Coroutines 데이터 흐름 다이어그램](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-02.png)
 
 ### CRUD 연산 계층 구조
 
-![CRUD diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-03.png)
+![R2DBC CRUD 연산 계층 구조 다이어그램](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-03.png)
 
 ### 코루틴 변환 시퀀스
 
-![r2dbc Sequence Flow 4 diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-sequence-01.png)
+![R2DBC 코루틴 변환 시퀀스 다이어그램](../../docs/images/readme-diagrams/spring-boot-r2dbc-sequence-01.png)
 
 ## 설치
 

@@ -58,45 +58,45 @@
 <text class="body" x="122" y="1152">Result is adapted with flow or await APIs</text>
   <path class="divider" d="M100 1194H620" stroke="#1D4ED8"/><text class="foot" x="122" y="1223">returns Flow&lt;T&gt;, T, T?, Boolean, Long</text>
 </g>
-<g id="CreateApi">
-  <rect class="card" x="760" y="585" width="520" height="270" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="kicker" x="782" y="616">create coroutine API</text>
-  <text class="cardTitle" x="782" y="649">Create functions</text>
-  <path class="divider" d="M760 671H1280" stroke="#C2410C"/>
-  <text class="body" x="782" y="703">insertSuspending(entity)</text>
-<text class="body" x="782" y="727">insertOrNullSuspending(entity)</text>
-<text class="body" x="782" y="751">entity is passed to using(entity)</text>
-<text class="body" x="782" y="775">nullable variant uses awaitSingleOrNull</text>
-  <path class="divider" d="M760 809H1280" stroke="#C2410C"/><text class="foot" x="782" y="838">public extension functions</text>
-</g>
-<g id="CreateDelegate">
-  <rect class="card" x="760" y="1010" width="520" height="230" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="kicker" x="782" y="1041">Spring Data delegation</text>
-  <text class="cardTitle" x="782" y="1074">insert&lt;T&gt;().using(entity)</text>
-  <path class="divider" d="M760 1096H1280" stroke="#C2410C"/>
-  <text class="body" x="782" y="1128">Reactive command is built by Spring Data</text>
-<text class="body" x="782" y="1152">Result is adapted with flow or await APIs</text>
-  <path class="divider" d="M760 1194H1280" stroke="#C2410C"/><text class="foot" x="782" y="1223">returns T or T?</text>
-</g>
 <g id="UpdateApi">
-  <rect class="card" x="1420" y="585" width="520" height="270" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="kicker" x="1442" y="616">update coroutine API</text>
-  <text class="cardTitle" x="1442" y="649">Update functions</text>
-  <path class="divider" d="M1420 671H1940" stroke="#BE185D"/>
-  <text class="body" x="1442" y="703">updateSuspending(query, update)</text>
-<text class="body" x="1442" y="727">caller supplies Query</text>
-<text class="body" x="1442" y="751">caller supplies Update</text>
-<text class="body" x="1442" y="775">no entity instance is required</text>
-  <path class="divider" d="M1420 809H1940" stroke="#BE185D"/><text class="foot" x="1442" y="838">public extension functions</text>
+  <rect class="card" x="760" y="585" width="520" height="270" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="kicker" x="782" y="616">update coroutine API</text>
+  <text class="cardTitle" x="782" y="649">Update functions</text>
+  <path class="divider" d="M760 671H1280" stroke="#BE185D"/>
+  <text class="body" x="782" y="703">updateSuspending(query, update)</text>
+<text class="body" x="782" y="727">caller supplies Query</text>
+<text class="body" x="782" y="751">caller supplies Update</text>
+<text class="body" x="782" y="775">no entity instance is required</text>
+  <path class="divider" d="M760 809H1280" stroke="#BE185D"/><text class="foot" x="782" y="838">public extension functions</text>
 </g>
 <g id="UpdateDelegate">
-  <rect class="card" x="1420" y="1010" width="520" height="230" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <rect class="card" x="760" y="1010" width="520" height="230" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="kicker" x="782" y="1041">Spring Data delegation</text>
+  <text class="cardTitle" x="782" y="1074">update&lt;T&gt;().matching(query).apply(update)</text>
+  <path class="divider" d="M760 1096H1280" stroke="#BE185D"/>
+  <text class="body" x="782" y="1128">Reactive command is built by Spring Data</text>
+<text class="body" x="782" y="1152">Result is adapted with flow or await APIs</text>
+  <path class="divider" d="M760 1194H1280" stroke="#BE185D"/><text class="foot" x="782" y="1223">returns Long affected row count</text>
+</g>
+<g id="CreateApi">
+  <rect class="card" x="1420" y="585" width="520" height="270" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="kicker" x="1442" y="616">create coroutine API</text>
+  <text class="cardTitle" x="1442" y="649">Create functions</text>
+  <path class="divider" d="M1420 671H1940" stroke="#C2410C"/>
+  <text class="body" x="1442" y="703">insertSuspending(entity)</text>
+<text class="body" x="1442" y="727">insertOrNullSuspending(entity)</text>
+<text class="body" x="1442" y="751">entity is passed to using(entity)</text>
+<text class="body" x="1442" y="775">nullable variant uses awaitSingleOrNull</text>
+  <path class="divider" d="M1420 809H1940" stroke="#C2410C"/><text class="foot" x="1442" y="838">public extension functions</text>
+</g>
+<g id="CreateDelegate">
+  <rect class="card" x="1420" y="1010" width="520" height="230" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
   <text class="kicker" x="1442" y="1041">Spring Data delegation</text>
-  <text class="cardTitle" x="1442" y="1074">update&lt;T&gt;().matching(query).apply(update)</text>
-  <path class="divider" d="M1420 1096H1940" stroke="#BE185D"/>
+  <text class="cardTitle" x="1442" y="1074">insert&lt;T&gt;().using(entity)</text>
+  <path class="divider" d="M1420 1096H1940" stroke="#C2410C"/>
   <text class="body" x="1442" y="1128">Reactive command is built by Spring Data</text>
 <text class="body" x="1442" y="1152">Result is adapted with flow or await APIs</text>
-  <path class="divider" d="M1420 1194H1940" stroke="#BE185D"/><text class="foot" x="1442" y="1223">returns Long affected row count</text>
+  <path class="divider" d="M1420 1194H1940" stroke="#C2410C"/><text class="foot" x="1442" y="1223">returns T or T?</text>
 </g>
 <g id="DeleteApi">
   <rect class="card" x="2080" y="585" width="520" height="270" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
@@ -122,13 +122,13 @@
   <path class="edge " d="M970 435 L970 505 L360 505 L360 585" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
   <text class="edgeLabel" x="625" y="486">query side</text>
 </g>
-<g data-from="Root" data-to="CreateApi">
-  <path class="edge " d="M1180 435 L1180 585" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-  <text class="edgeLabel" x="1198" y="526">insert side</text>
-</g>
 <g data-from="Root" data-to="UpdateApi">
-  <path class="edge " d="M1520 435 L1520 505 L1680 505 L1680 585" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-  <text class="edgeLabel" x="1545" y="486">mutation side</text>
+  <path class="edge " d="M1180 435 L1180 505 L1020 505 L1020 585" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <text class="edgeLabel" x="1068" y="486">mutation side</text>
+</g>
+<g data-from="Root" data-to="CreateApi">
+  <path class="edge " d="M1520 435 L1520 505 L1680 505 L1680 585" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <text class="edgeLabel" x="1558" y="486">insert side</text>
 </g>
 <g data-from="Root" data-to="DeleteApi">
   <path class="edge " d="M1780 435 L1780 505 L2340 505 L2340 585" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
@@ -138,12 +138,12 @@
   <path class="edge dashed" d="M360 855 L360 1010" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
   <text class="edgeLabel" x="378" y="940">delegates to</text>
 </g>
-<g data-from="CreateApi" data-to="CreateDelegate">
-  <path class="edge dashed" d="M1020 855 L1020 1010" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+<g data-from="UpdateApi" data-to="UpdateDelegate">
+  <path class="edge dashed" d="M1020 855 L1020 1010" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
   <text class="edgeLabel" x="1038" y="940">delegates to</text>
 </g>
-<g data-from="UpdateApi" data-to="UpdateDelegate">
-  <path class="edge dashed" d="M1680 855 L1680 1010" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+<g data-from="CreateApi" data-to="CreateDelegate">
+  <path class="edge dashed" d="M1680 855 L1680 1010" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
   <text class="edgeLabel" x="1698" y="940">delegates to</text>
 </g>
 <g data-from="DeleteApi" data-to="DeleteDelegate">
