@@ -37,7 +37,8 @@ const boxes = {
   asyncSupport: { x: 665, y: 535, w: 425, h: 195, fill: "#F0FDFA", stroke: c.teal, stereo: "<<extension file>>", title: "AsyncCqlSessionSupport", attrs: ["executeSuspending(...)", "prepareSuspending(...)"], methods: ["wraps statementOf(...)", "awaits CompletionStage"] },
   statementSupport: { x: 1215, y: 535, w: 425, h: 195, fill: "#FFF7ED", stroke: c.orange, stereo: "<<extension file>>", title: "StatementSupport", attrs: ["statementOf / simpleStatementOf", "boundStatementOf / batchStatementOf"], methods: ["validates nonblank CQL", "returns new driver statements"] },
   rowSupport: { x: 1765, y: 535, w: 340, h: 195, fill: "#ECFDF5", stroke: c.green, stereo: "<<extension file>>", title: "RowSupport", attrs: ["toMap / toNamedMap", "mapWithName / codecs"], methods: ["decodes via TypeCodec", "sorts named output"] },
-  querybuilder: { x: 335, y: 930, w: 430, h: 200, fill: "#F5F3FF", stroke: c.purple, stereo: "<<extension package>>", title: "querybuilder/*", attrs: ["bindMarker / raw / udt", "relation and term helpers"], methods: ["delegates to QueryBuilder", "keeps generated CQL native"] },
+  provider: { x: 115, y: 930, w: 425, h: 200, fill: "#EFF6FF", stroke: c.blue, stereo: "<<object>>", title: "CqlSessionProvider", attrs: ["default contact/datacenter", "keyspace session cache"], methods: ["newCqlSessionBuilder(...)", "getOrCreateSession(...)"] },
+  querybuilder: { x: 665, y: 930, w: 425, h: 200, fill: "#F5F3FF", stroke: c.purple, stereo: "<<extension package>>", title: "querybuilder/*", attrs: ["bindMarker / raw / udt", "relation and term helpers"], methods: ["delegates to QueryBuilder", "keeps generated CQL native"] },
   admin: { x: 1215, y: 930, w: 425, h: 200, fill: "#FEF2F2", stroke: "#DC2626", stereo: "<<object>>", title: "CassandraAdmin", attrs: ["create/drop keyspace", "release version lookup"], methods: ["uses SchemaBuilder", "queries system.local"] },
   dataSupport: { x: 1765, y: 930, w: 340, h: 200, fill: "#ECFDF5", stroke: c.green, stereo: "<<extension package>>", title: "data/*", attrs: ["GettableSupport", "SettableSupport"], methods: ["reified typed access", "name, id, or index overloads"] },
 };
@@ -49,9 +50,9 @@ const edges = [
   { type: "uses", color: c.green, d: "M1935 535 L1935 343", label: { x: 2028, y: 450, text: "decodes" } },
   { type: "uses", color: c.orange, d: "M1090 632 L1150 632 L1150 440 L1295 440 L1295 343", label: { x: 1135, y: 485, text: "uses statementOf" } },
   { type: "uses", color: c.green, d: "M1935 930 L1935 730", label: { x: 2028, y: 838, text: "typed access" } },
-  { type: "uses", color: c.purple, d: "M550 930 L550 805 L1320 805 L1320 730", label: { x: 970, y: 780, text: "feeds statements" } },
+  { type: "uses", color: c.blue, d: "M328 930 L328 730", label: { x: 430, y: 838, text: "defaults/cache" } },
+  { type: "uses", color: c.purple, d: "M878 930 L878 805 L1320 805 L1320 730", label: { x: 1110, y: 780, text: "feeds statements" } },
   { type: "uses", color: "#DC2626", d: "M1428 930 L1428 730", label: { x: 1532, y: 838, text: "schema admin" } },
-  { type: "uses", color: c.gray, d: "M540 630 L665 630", label: { x: 603, y: 605, text: "sync or async" } },
   { type: "uses", color: c.gray, d: "M1640 630 L1765 630", label: { x: 1702, y: 605, text: "result rows" } },
 ];
 
@@ -78,7 +79,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
 <defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity=".10"/></filter><style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${c.canvas}}.frame{fill:${c.frame};stroke:${c.line};stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:42px;fill:${c.ink}}.subtitle,.sectionTitle{font-family:"Comic Mono";font-size:15px;fill:${c.muted}}.section{fill:#F3F8FF;stroke:#94A3B8;stroke-width:1.6;stroke-dasharray:12 8}.umlBox{filter:url(#softShadow);stroke-width:2}.stereo{font-family:"Comic Mono";font-size:12px;fill:${c.muted}}.classTitle{font-family:"Architects Daughter";font-size:22px;fill:${c.ink}}.member{font-family:"Comic Mono";font-size:12.5px;fill:${c.muted}}.edge{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7}.solidOpenHead{fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none}.edgeLabel rect{fill:#fff;stroke:${c.line};stroke-width:1.2;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:11.8px;fill:${c.muted}}</style></defs>
 <rect class="canvas" width="${W}" height="${H}"/><rect class="frame" x="34" y="30" width="${W - 68}" height="${H - 66}" rx="8"/>
 <text class="title" x="76" y="86">Cassandra Core API Structure</text><text class="subtitle" x="78" y="118">Static extension files depend on driver primitives; the module does not hide the DataStax API behind a new repository abstraction.</text>
-<rect class="section" x="62" y="145" width="2096" height="1010" rx="8"/><text class="sectionTitle" x="90" y="170">class/package view; dependency arrows are dashed open arrows and class diagrams intentionally omit icons</text>
+<rect class="section" x="62" y="145" width="2096" height="1010" rx="8"/><text class="sectionTitle" x="90" y="170">extension files and helper objects keep DataStax driver classes as the public contract</text>
 <g id="edges">${edges.map((e) => `<path class="edge ${e.type}" d="${e.d}" stroke="${e.color}"/>`).join("\n")}</g><g id="arrowheads">${edges.map(arrowHead).join("\n")}</g><g id="labels">${edges.map((e) => label(e.label)).join("\n")}</g>${Object.keys(boxes).map(box).join("\n")}</svg>`;
 
 writeFileSync(svgPath, svg.replace(/[ \t]+$/gm, ""));

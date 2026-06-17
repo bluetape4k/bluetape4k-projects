@@ -2,21 +2,20 @@
 
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
-const svgPath = "docs/images/readme-diagrams/data-cassandra-diagram-01.svg";
-const pngPath = "docs/images/readme-diagrams/data-cassandra-diagram-01.png";
-const W = 2140;
-const H = 1135;
-const c = {
-  ink: "#0F172A", muted: "#475569", canvas: "#F8FAFC", frame: "#FFFFFF", line: "#CBD5E1",
-  blue: "#2563EB", teal: "#0D9488", green: "#16A34A", orange: "#EA580C", purple: "#7C3AED", gray: "#64748B",
-};
+const root = process.cwd();
+const outDir = join(root, "docs/images/readme-diagrams");
+const svgPath = join(outDir, "data-cassandra-diagram-01.svg");
+const pngPath = join(outDir, "data-cassandra-diagram-01.png");
+const cairosvg = process.env.CAIROSVG ?? "/Users/debop/.local/bin/cairosvg";
 
 const sources = [
   "data/cassandra/README.md",
   "data/cassandra/README.ko.md",
   "data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionSupport.kt",
   "data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/AsyncCqlSessionSupport.kt",
+  "data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/AsyncResultSetSupport.kt",
   "data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/StatementSupport.kt",
   "data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/RowSupport.kt",
   "data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/data/GettableSupport.kt",
@@ -24,61 +23,171 @@ const sources = [
   "data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/querybuilder/QueryBuilderSupport.kt",
   "data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CassandraAdmin.kt",
 ];
-for (const source of sources) if (!existsSync(source)) throw new Error(`Missing source evidence: ${source}`);
-const readme = readFileSync(sources[0], "utf8");
-if (!/Extension Function API Overview[\s\S]*data-cassandra-diagram-01\.png/.test(readme)) throw new Error("README diagram slot not found");
 
-const cards = {
-  user: { x: 80, y: 155, w: 340, h: 172, fill: "#EFF6FF", stroke: c.blue, title: "Kotlin Caller", icon: "{}", body: ["uses extension functions", "keeps driver objects visible"] },
-  session: { x: 535, y: 155, w: 385, h: 172, fill: "#EFF6FF", stroke: c.blue, title: "Session DSL", icon: "S", body: ["cqlSession { ... }", "cqlSessionOf(...)"] },
-  statements: { x: 1035, y: 155, w: 400, h: 172, fill: "#FFF7ED", stroke: c.orange, title: "Statement Builders", icon: "Q", body: ["statementOf / simpleStatementOf", "boundStatementOf / batchStatementOf"] },
-  driver: { x: 1550, y: 155, w: 430, h: 172, fill: "#F8FAFC", stroke: c.gray, title: "DataStax Driver", icon: "D", body: ["CqlSession / AsyncCqlSession", "Statement / Row / ResultSet"] },
-  coroutine: { x: 230, y: 485, w: 420, h: 180, fill: "#F0FDFA", stroke: c.teal, title: "Coroutine Bridge", icon: "↯", body: ["executeSuspending(...)", "prepareSuspending(...)", "awaits driver futures"] },
-  row: { x: 795, y: 485, w: 430, h: 180, fill: "#ECFDF5", stroke: c.green, title: "Row Mapping Helpers", icon: "R", body: ["toMap / toNamedMap", "mapWithCqlIdentifier", "codec-aware decoding"] },
-  values: { x: 1370, y: 485, w: 430, h: 180, fill: "#ECFDF5", stroke: c.green, title: "Typed Value Access", icon: "T", body: ["getValue / getList / getMap", "setValue / setList / setMap", "name, id, or index based"] },
-  querybuilder: { x: 380, y: 825, w: 440, h: 185, fill: "#F5F3FF", stroke: c.purple, title: "QueryBuilder Extensions", icon: "B", body: ["bindMarker / raw / udt", "relation and term helpers", "schema/query DSL stays driver-native"] },
-  admin: { x: 1040, y: 825, w: 450, h: 185, fill: "#FEF2F2", stroke: "#DC2626", title: "Admin Utilities", icon: "A", body: ["create/drop keyspace", "read system.local release_version", "validates keyspace names"] },
+for (const source of sources) {
+  if (!existsSync(join(root, source))) throw new Error(`Missing source evidence: ${source}`);
+}
+
+function requireSource(index, pattern, label) {
+  const text = readFileSync(join(root, sources[index]), "utf8");
+  if (!pattern.test(text)) throw new Error(`Missing ${label}`);
+}
+
+requireSource(0, /Extension Function API Overview[\s\S]*data-cassandra-diagram-01\.png/, "README diagram slot");
+requireSource(2, /cqlSession[\s\S]*cqlSessionOf/, "session DSL");
+requireSource(3, /executeSuspending[\s\S]*executeAsync\(statement\)[\s\S]*await\(\)/, "coroutine execute bridge");
+requireSource(3, /prepareSuspending[\s\S]*prepareAsync\(request\)[\s\S]*await\(\)/, "coroutine prepare bridge");
+requireSource(4, /AsyncResultSet\.asFlow[\s\S]*fetchNextPage\(\)\.await/, "result set flow bridge");
+requireSource(5, /statementOf[\s\S]*simpleStatementOf[\s\S]*boundStatementOf[\s\S]*batchStatementOf/, "statement builders");
+requireSource(6, /Row\.toMap[\s\S]*toNamedMap[\s\S]*mapWithCqlIdentifier/, "row mapping helpers");
+requireSource(7, /GettableById\.getValue[\s\S]*GettableByIndex\.getValue[\s\S]*GettableByName\.getValue/, "gettable helpers");
+requireSource(8, /SettableById<T>\.setValue[\s\S]*SettableByIndex<T>\.setValue[\s\S]*SettableByName<T>\.setValue/, "settable helpers");
+requireSource(9, /bindMarker[\s\S]*raw[\s\S]*udt/, "query builder helpers");
+requireSource(10, /createKeyspace[\s\S]*dropKeyspace[\s\S]*getReleaseVersion/, "admin utilities");
+
+const W = 1540;
+const H = 880;
+const font = "'Architects Daughter', 'Comic Mono', 'Helvetica Neue', Arial, sans-serif";
+const c = {
+  ink: "#111827",
+  muted: "#64748b",
+  line: "#cbd5e1",
+  blue: "#2563eb",
+  green: "#16a34a",
+  orange: "#ea580c",
+  purple: "#7c3aed",
+  pink: "#db2777",
+  slate: "#64748b",
 };
 
-const flows = [
-  { color: c.blue, d: "M420 241 L535 241", label: ["creates", 477, 216] },
-  { color: c.orange, d: "M920 241 L1035 241", label: ["builds", 978, 216] },
-  { color: c.gray, d: "M1435 241 L1550 241", label: ["native", 1492, 216] },
-  { color: c.teal, d: "M650 575 L700 575 L700 365 L1685 365 L1685 327", label: ["await futures", 1105, 340] },
-  { color: c.green, d: "M1225 575 L1370 575", label: ["typed columns", 1298, 550] },
-  { color: c.green, d: "M1585 485 L1585 385 L1765 385 L1765 327", label: ["reads Row data", 1645, 365] },
-  { color: c.purple, d: "M600 825 L600 735 L1265 735 L1265 327", label: ["query DSL output", 895, 710] },
-  { color: "#DC2626", d: "M1265 825 L1265 755 L2025 755 L2025 241 L1980 241", label: ["schema/query admin", 1620, 730] },
-  { color: c.teal, d: "M420 327 L420 485", label: ["suspend usage", 505, 405] },
-  { color: c.green, d: "M1035 327 L1035 485", label: ["result helpers", 1128, 405] },
+function esc(value) {
+  return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+}
+
+function lines(items, x, y, { size = 12.4, fill = "#475569", line = 18 } = {}) {
+  return items.map((item, i) => `<text x="${x}" y="${y + i * line}" font-size="${size}" fill="${fill}">${esc(item)}</text>`).join("\n");
+}
+
+function layer({ x, title, note, stroke, fill }) {
+  return `
+  <g class="layer" data-layer="${esc(title)}">
+    <rect x="${x}" y="126" width="320" height="620" rx="10" fill="${fill}" stroke="${stroke}" stroke-width="1.3" stroke-dasharray="7 5"/>
+    <text x="${x + 20}" y="154" font-size="14" font-weight="700" fill="${stroke}">${esc(title)}</text>
+    <text x="${x + 20}" y="176" font-size="12.2" fill="#64748b">${esc(note)}</text>
+  </g>`;
+}
+
+function card({ x, y, title, sub, fill, stroke, icon }) {
+  return `
+  <g class="card" data-card="${esc(title)}">
+    <rect x="${x}" y="${y}" width="272" height="82" rx="8" fill="${fill}" stroke="${stroke}" stroke-width="1.8"/>
+    <rect x="${x + 14}" y="${y + 18}" width="42" height="42" rx="8" fill="#ffffff" stroke="${stroke}" stroke-width="1.4"/>
+    <text x="${x + 35}" y="${y + 46}" text-anchor="middle" font-size="20" font-weight="700" fill="${stroke}">${esc(icon)}</text>
+    <text x="${x + 72}" y="${y + 31}" font-size="16.4" font-weight="700" fill="${c.ink}">${esc(title)}</text>
+    ${lines(sub, x + 72, y + 56)}
+  </g>`;
+}
+
+function edge({ y, color, marker, dash = "" }) {
+  return `
+    <path class="edge" d="M332 ${y} L420 ${y}" fill="none" stroke="${color}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""} marker-end="url(#${marker})"/>
+    <path class="edge" d="M692 ${y} L780 ${y}" fill="none" stroke="${color}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""} marker-end="url(#${marker})"/>
+    <path class="edge" d="M1052 ${y} L1140 ${y}" fill="none" stroke="${color}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""} marker-end="url(#${marker})"/>`;
+}
+
+function defs() {
+  const marker = (id, color) => `<marker id="${id}" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 Z" fill="${color}" stroke="${color}" stroke-width="0" stroke-dasharray="none"/></marker>`;
+  return `
+  <defs>
+    ${marker("arrow-blue", c.blue)}
+    ${marker("arrow-green", c.green)}
+    ${marker("arrow-orange", c.orange)}
+    ${marker("arrow-purple", c.purple)}
+    ${marker("arrow-pink", c.pink)}
+    ${marker("arrow-slate", c.slate)}
+  </defs>`;
+}
+
+const rows = [
+  {
+    y: 205,
+    color: c.blue,
+    marker: "arrow-blue",
+    a: ["Create session", ["builder or factory call"], "#eff6ff", c.blue, "S"],
+    b: ["Session DSL", ["cqlSession { ... }", "cqlSessionOf(...)"], "#eff6ff", c.blue, "K"],
+    c: ["CqlSessionBuilder", ["contact point / keyspace", "datacenter / auth"], "#eff6ff", c.blue, "D"],
+    d: ["CqlSession", ["driver session ready"], "#f8fafc", c.slate, "C"],
+  },
+  {
+    y: 315,
+    color: c.orange,
+    marker: "arrow-orange",
+    a: ["Build statement", ["CQL + values"], "#fff7ed", c.orange, "Q"],
+    b: ["Statement DSL", ["statementOf(...)", "bound/batch builders"], "#fff7ed", c.orange, "B"],
+    c: ["Driver Statement", ["Simple / Bound / Batch", "PrepareRequest"], "#fff7ed", c.orange, "D"],
+    d: ["Executable CQL", ["sent through session"], "#fff7ed", c.orange, "E"],
+  },
+  {
+    y: 425,
+    color: c.green,
+    marker: "arrow-green",
+    a: ["Run async query", ["suspend function call"], "#ecfdf5", c.green, "A"],
+    b: ["Coroutine Bridge", ["executeSuspending(...)", "prepareSuspending(...)"], "#ecfdf5", c.green, "C"],
+    c: ["Driver Future", ["executeAsync(...).await()", "prepareAsync(...).await()"], "#ecfdf5", c.green, "F"],
+    d: ["AsyncResultSet", ["awaited result"], "#ecfdf5", c.green, "R"],
+  },
+  {
+    y: 535,
+    color: c.purple,
+    marker: "arrow-purple",
+    a: ["Read rows", ["Row / Gettable"], "#f5f3ff", c.purple, "R"],
+    b: ["Mapping Helpers", ["toMap / toNamedMap", "typed getValue/getList"], "#f5f3ff", c.purple, "M"],
+    c: ["Codec / Column API", ["codec-aware decode", "name / id / index"], "#f5f3ff", c.purple, "T"],
+    d: ["Kotlin Values", ["maps and typed values"], "#f5f3ff", c.purple, "V"],
+  },
+  {
+    y: 645,
+    color: c.pink,
+    marker: "arrow-pink",
+    a: ["Build schema", ["querybuilder or admin"], "#fdf2f8", c.pink, "A"],
+    b: ["QueryBuilder Helpers", ["bindMarker / raw / udt", "create/drop keyspace"], "#fdf2f8", c.pink, "B"],
+    c: ["SchemaBuilder / Query", ["driver builder output", "system.local version"], "#fdf2f8", c.pink, "D"],
+    d: ["Cassandra Admin", ["keyspace and version"], "#fdf2f8", c.pink, "K"],
+  },
 ];
 
-function esc(v) { return String(v).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;"); }
-function card(k) {
-  const b = cards[k];
-  return `<g id="${k}"><rect class="card" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="8" fill="${b.fill}" stroke="${b.stroke}"/><rect class="icon" x="${b.x + 24}" y="${b.y + 28}" width="48" height="48" rx="8" fill="#fff" stroke="${b.stroke}"/><text class="iconText" x="${b.x + 48}" y="${b.y + 60}" text-anchor="middle" fill="${b.stroke}">${esc(b.icon)}</text><text class="cardTitle" x="${b.x + 92}" y="${b.y + 45}">${esc(b.title)}</text>${b.body.map((line, i) => `<text class="body" x="${b.x + 92}" y="${b.y + 78 + i * 25}">${esc(line)}</text>`).join("")}</g>`;
-}
-function arrow(color) {
-  const id = color.replace("#", "a");
-  return `<marker id="${id}" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="14" refX="17" refY="7" orient="auto"><path d="M1 1 L17 7 L1 13 Z" fill="${color}" stroke="${color}" stroke-dasharray="none"/></marker>`;
-}
-function label(text, x, y) {
-  const w = Math.max(74, text.length * 8.3 + 18);
-  return `<g transform="translate(${x - w / 2} ${y - 16})"><rect width="${w}" height="28" rx="8" fill="#fff" stroke="${c.line}" opacity=".96"/><text class="label" x="${w / 2}" y="19" text-anchor="middle">${esc(text)}</text></g>`;
-}
-
-const markerDefs = [...new Set(flows.map((f) => f.color))].map(arrow).join("");
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Cassandra extension function API overview">
-<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity=".10"/></filter>${markerDefs}<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${c.canvas}}.frame{fill:${c.frame};stroke:${c.line};stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:42px;fill:${c.ink}}.subtitle,.sectionTitle{font-family:"Comic Mono";font-size:15px;fill:${c.muted}}.section{fill:#F3F8FF;stroke:#94A3B8;stroke-width:1.6;stroke-dasharray:12 8}.card{stroke-width:2;filter:url(#softShadow)}.icon{stroke-width:1.5}.iconText{font-family:"Architects Daughter";font-size:25px}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:${c.ink}}.body{font-family:"Comic Mono";font-size:13.2px;fill:${c.muted}}.flow{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.label{font-family:"Comic Mono";font-size:12px;fill:${c.muted}}</style></defs>
-<rect class="canvas" width="${W}" height="${H}"/><rect class="frame" x="34" y="30" width="${W - 68}" height="${H - 66}" rx="8"/>
-<text class="title" x="76" y="86">Cassandra Extension Function API Overview</text><text class="subtitle" x="78" y="118">The module wraps DataStax driver primitives with Kotlin builders, coroutine awaits, typed row access, QueryBuilder helpers, and small admin utilities.</text>
-<rect class="section" x="60" y="135" width="2020" height="900" rx="8"/><text class="sectionTitle" x="88" y="160">source-backed extension families; arrows point to the driver primitive each family creates, awaits, or reads</text>
-<g transform="translate(0 45)"><g id="flows">${flows.map((f) => `<path class="flow" d="${f.d}" stroke="${f.color}" marker-end="url(#${f.color.replace("#", "a")})"/>`).join("\n")}</g>
-<g id="labels">${flows.map((f) => label(f.label[0], f.label[1], f.label[2])).join("\n")}</g>
-${Object.keys(cards).map(card).join("\n")}</g>
+const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Cassandra extension function API overview">
+  <style>text { font-family: ${font}; dominant-baseline: alphabetic; }</style>
+  ${defs()}
+  <rect width="${W}" height="${H}" fill="#ffffff"/>
+  <text x="72" y="62" font-size="30" font-weight="700" fill="${c.ink}">Cassandra Extension Function API Overview</text>
+  <text x="72" y="92" font-size="15" fill="${c.muted}">Each row maps a public feature family to the DataStax driver primitive it creates, awaits, reads, or administers.</text>
+  ${layer({ x: 48, title: "CALLER INTENT", note: "What application code wants to do.", stroke: c.blue, fill: "#eff6ff" })}
+  ${layer({ x: 408, title: "BLUETAPE4K EXTENSIONS", note: "Kotlin-friendly extension entrypoints.", stroke: c.green, fill: "#ecfdf5" })}
+  ${layer({ x: 768, title: "DATASTAX DRIVER", note: "Native builder/session/data APIs.", stroke: c.orange, fill: "#fff7ed" })}
+  ${layer({ x: 1128, title: "RUNTIME RESULT", note: "Driver-visible object or effect.", stroke: c.slate, fill: "#f8fafc" })}
+  <g class="edges">
+    ${rows.map((row) => edge({ y: row.y + 41, color: row.color, marker: row.marker })).join("\n")}
+  </g>
+  <g class="cards">
+    ${rows.map((row) => [
+      card({ x: 60, y: row.y, title: row.a[0], sub: row.a[1], fill: row.a[2], stroke: row.a[3], icon: row.a[4] }),
+      card({ x: 420, y: row.y, title: row.b[0], sub: row.b[1], fill: row.b[2], stroke: row.b[3], icon: row.b[4] }),
+      card({ x: 780, y: row.y, title: row.c[0], sub: row.c[1], fill: row.c[2], stroke: row.c[3], icon: row.c[4] }),
+      card({ x: 1140, y: row.y, title: row.d[0], sub: row.d[1], fill: row.d[2], stroke: row.d[3], icon: row.d[4] }),
+    ].join("\n")).join("\n")}
+  </g>
+  <g class="legend" transform="translate(72 820)">
+    <line x1="0" y1="0" x2="42" y2="0" stroke="${c.blue}" stroke-width="2.8" marker-end="url(#arrow-blue)"/><text x="58" y="5" font-size="13" fill="#475569">session creation</text>
+    <line x1="260" y1="0" x2="302" y2="0" stroke="${c.orange}" stroke-width="2.8" marker-end="url(#arrow-orange)"/><text x="318" y="5" font-size="13" fill="#475569">statement building</text>
+    <line x1="560" y1="0" x2="602" y2="0" stroke="${c.green}" stroke-width="2.8" marker-end="url(#arrow-green)"/><text x="618" y="5" font-size="13" fill="#475569">coroutine bridge</text>
+    <line x1="830" y1="0" x2="872" y2="0" stroke="${c.purple}" stroke-width="2.8" marker-end="url(#arrow-purple)"/><text x="888" y="5" font-size="13" fill="#475569">row/value mapping</text>
+    <line x1="1130" y1="0" x2="1172" y2="0" stroke="${c.pink}" stroke-width="2.8" marker-end="url(#arrow-pink)"/><text x="1188" y="5" font-size="13" fill="#475569">query/admin helpers</text>
+  </g>
 </svg>`;
 
 writeFileSync(svgPath, svg.replace(/[ \t]+$/gm, ""));
-execFileSync(`${process.env.HOME}/.local/bin/cairosvg`, [svgPath, "-o", pngPath, "-s", "2"], { stdio: "inherit" });
-console.log(`Generated ${svgPath}`);
-console.log(`Generated ${pngPath}`);
+execFileSync(cairosvg, [svgPath, "-o", pngPath, "-s", "2"], { stdio: "inherit" });
+console.log(`generated ${svgPath}`);
+console.log(`generated ${pngPath}`);
