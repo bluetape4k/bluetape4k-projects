@@ -16,7 +16,7 @@
     .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
   </style>
 </defs>
-<rect class="canvas" width="1927.2" height="970"/>
+<rect class="canvas" width="1927.2" height="1028"/>
 <rect class="frame" x="32" y="28" width="1863.2" height="914" rx="30"/>
 <text class="title" x="68" y="84">R2DBC Query Execution Flow</text>
 <text class="subtitle" x="72" y="116">Shows the main calls, branches, and returned values for this flow.</text>
