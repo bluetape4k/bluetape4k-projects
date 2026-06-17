@@ -57,7 +57,7 @@ function esc(value) {
 
 function markerDefs() {
   return Object.entries(palette).map(([name, [, , dark]]) => `
-  <marker id="arrow-${name}" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="${dark}"/></marker>`).join("\n");
+  <marker id="arrow-${name}" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="${dark}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>`).join("\n");
 }
 
 function classBox({ id, x, y, w, h, color, stereotype, title, attrs = [], methods = [] }) {
@@ -192,10 +192,10 @@ const body = [
   edge({ from: "Endpoint", to: "RegionFactory", points: [[1780, 880], [1690, 880], [1690, 1305]], color: "pink", marker: "arrow", dashed: true, label: "getCaches + stats", labelAt: [1708, 1080] }),
   edge({ from: "Properties", to: "MetricsAuto", points: [[415, 575], [415, 710]], color: "teal", marker: "arrow", dashed: true, label: "metrics.enabled", labelAt: [433, 650] }),
   edge({ from: "MetricsAuto", to: "MetricsBinder", points: [[415, 1000], [415, 1110]], color: "blue", marker: "arrow", dashed: true, label: "creates", labelAt: [433, 1068] }),
-  edge({ from: "MetricsBinder", to: "RegionFactory", points: [[740, 1370], [820, 1510], [1300, 1510], [1300, 1470]], color: "blue", marker: "arrow", dashed: true, label: "register gauges from getCaches", labelAt: [920, 1492] }),
+  edge({ from: "MetricsBinder", to: "RegionFactory", points: [[740, 1285], [910, 1285]], color: "blue", marker: "arrow", dashed: true, label: "gauges from caches", labelAt: [752, 1248] }),
 ];
 
-const svg = `<svg data-intent="Explain Spring Boot Hibernate Lettuce auto-configuration UML for README diagram 01." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot Hibernate Lettuce UML Class Diagram">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot Hibernate Lettuce UML Class Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}

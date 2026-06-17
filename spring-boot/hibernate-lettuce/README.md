@@ -8,13 +8,13 @@ Simply add `bluetape4k.cache.lettuce-near.*` settings to your
 `application.yml` and Hibernate Second Level Cache activates automatically — no additional code required. Millisecond-based durations (e.g.,
 `500ms`) are passed through directly to Hibernate configuration.
 
-## UML
+## Auto-Configuration Class Structure
 
-![UML diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.png)
+![Spring Boot Hibernate Lettuce class structure diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.png)
 
 ### Auto-Configuration Activation Flow
 
-![Auto-Configuration Activation Flow diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.png)
+![Spring Boot Hibernate Lettuce auto-configuration flow diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.png)
 
 ## Spring Boot 4 Notes
 

@@ -191,7 +191,7 @@ const body = [
   edge({ from: "Endpoint", to: "RegionFactory", points: [[1840, 1260], [1360, 1260], [1360, 1040]], color: "pink", dashed: true, label: "getCaches() + stats", labelAt: [1500, 1247] }),
 ];
 
-const svg = `<svg data-intent="Explain Spring Boot Hibernate Lettuce auto-configuration activation flow for README diagram 02." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot Hibernate Lettuce Auto-Configuration Activation Flow">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot Hibernate Lettuce Auto-Configuration Activation Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}

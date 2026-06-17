@@ -4,17 +4,16 @@
 
 Hibernate 7 **2nd Level Cache** (Lettuce Near Cache)를 위한 **Spring Boot 4 Auto-Configuration**.
 
-`application.yml`에
-`bluetape4k.cache.lettuce-near.*` 설정만 추가하면 별도 코드 없이 Hibernate Second Level Cache가 자동으로 활성화된다. 밀리초 단위 duration(
-`500ms`)도 Hibernate 설정으로 그대로 전달된다.
+`application.yml`에 `bluetape4k.cache.lettuce-near.*` 설정만 추가하면 별도 코드 없이 Hibernate
+Second Level Cache가 자동으로 활성화됩니다. 밀리초 단위 duration(`500ms`)도 Hibernate 설정으로 그대로 전달됩니다.
 
-## UML
+## Auto-Configuration 클래스 구조
 
-![UML diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.png)
+![Spring Boot Hibernate Lettuce class structure diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.png)
 
 ### Auto-Configuration 활성화 흐름
 
-![Auto-Configuration diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.png)
+![Spring Boot Hibernate Lettuce auto-configuration flow diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.png)
 
 ## Spring Boot 4 참고 사항
 
