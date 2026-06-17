@@ -7,38 +7,14 @@ Spring Boot 4 + Hibernate 7 **2nd Level Cache (2LC)** with **Lettuce Near Cache*
 An example of enabling Hibernate 2nd Level Cache with zero additional code using the auto-configuration from the
 `bluetape4k-spring-boot-hibernate-lettuce` module.
 
-## UML Diagram
+## Class Structure
 
-![UML Diagram diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-01.png)
+![Hibernate Lettuce Demo class structure diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-01.png)
 
-## Architecture
+## Runtime Flow
 
-```
-Client HTTP Request
-       ↓
-ProductController (REST API)
-       ↓
-ProductRepository (Spring Data JPA)
-       ↓
-Hibernate Session Factory
-       ↓
-┌─────────────────────────────────────────────┐
-│ Lettuce Near Cache Region Factory           │
-├─────────────────────────────────────────────┤
-│ L1 Cache (Caffeine)                         │
-│ ├─ maxSize: 10,000 items                    │
-│ ├─ expireAfterWrite: 30m                    │
-│ └─ localStats() ← Metrics/Actuator          │
-├─────────────────────────────────────────────┤
-│ L2 Cache (Redis)                            │
-│ ├─ TTL: 120s (default)                      │
-│ ├─ RESP3 CLIENT TRACKING                    │
-│ ├─ Codec: LZ4+Fory                          │
-│ └─ Per-region TTL configuration             │
-└─────────────────────────────────────────────┘
-       ↓
-H2 Database
-```
+Product CRUD requests go through Spring Data JPA and Hibernate 2LC. Cache management endpoints inspect or clear only
+the L1 Caffeine near-cache; Redis L2 is intentionally left untouched.
 
 ![Hibernate Lettuce Demo Runtime Flow diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-02.png)
 
@@ -245,23 +221,21 @@ curl http://localhost:8080/actuator/nearcache/product
 ```yaml
 spring:
   application:
-    name: hibernat-lettuce-demo
+    name: hibernate-cache-lettuce-near-demo
 
   datasource:
-    url: jdbc:h2:mem:demo;DB_CLOSE_DELAY=-1;MODE=MySQL
+    url: jdbc:h2:mem:demo;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
     username: sa
     password:
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
     show-sql: false
     properties:
       hibernate:
-        cache:
-          use_second_level_cache: true
+        format_sql: false
 
 bluetape4k:
   cache:
@@ -270,8 +244,8 @@ bluetape4k:
       codec: lz4fory                            # LZ4 compression + Fory serialization
       use-resp3: true                           # RESP3 + CLIENT TRACKING
       local:
-        max-size: 10000
-        expire-after-write: 30m
+        max-size: 5000
+        expire-after-write: 15m
       redis-ttl:
         default: 120s
         regions:
@@ -284,7 +258,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, actuator, nearcache
+        include: health,info,metrics,nearcache
   endpoint:
     health:
       show-details: always
@@ -341,10 +315,7 @@ class DemoApplicationTest {
 
 ## Test Coverage
 
-- `ProductControllerTest`: REST API endpoint tests
-- `CacheControllerTest`: Cache management API tests
-- `CachingIntegrationTest`: 2LC + Lettuce Near Cache integration tests
-- `LettuceNearCacheStatsTest`: Actuator endpoint tests
+- `DemoApplicationTest`: context startup, repository persistence, repeated lookup cache scenario, product list, cache stats, and L1 eviction endpoint tests
 
 ## Dependencies (Spring Boot 4)
 
@@ -384,8 +355,8 @@ dependencies {
 ## Related Modules
 
 - [`bluetape4k-spring-boot-hibernate-lettuce`](../hibernate-lettuce/README.md) — Auto-Configuration module
-- [`bluetape4k-hibernate-cache-lettuce`](../../infra/hibernate-cache-lettuce/README.md) — Hibernate Region Factory
-- [`bluetape4k-cache-lettuce`](../../infra/cache-lettuce/README.md) — Near Cache core
+- [`bluetape4k-hibernate-cache-lettuce`](../../cache/hibernate-cache-lettuce/README.md) — Hibernate Region Factory
+- [`bluetape4k-cache-lettuce`](../../cache/cache-lettuce/README.md) — Near Cache core
 
 ## License
 

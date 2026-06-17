@@ -2,42 +2,18 @@
 
 [English](./README.md) | 한국어
 
-Spring Boot 4 + Hibernate 7 **2nd Level Cache (2LC)** with **Lettuce Near Cache** 데모 애플리케이션.
+Spring Boot 4 + Hibernate 7 **2nd Level Cache (2LC)** with **Lettuce Near Cache** 데모 애플리케이션입니다.
 
-`bluetape4k-spring-boot-hibernate-lettuce` 모듈의 auto-configuration을 사용해 zero-code로 Hibernate 2nd Level Cache를 활성화하는 예제이다.
+`bluetape4k-spring-boot-hibernate-lettuce` 모듈의 auto-configuration을 사용해, 별도 코드 없이 Hibernate 2nd Level Cache를 활성화하는 예제입니다.
 
-## UML 다이어그램
+## 클래스 구조
 
-![UML diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-01.png)
+![Hibernate Lettuce Demo class structure diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-01.png)
 
-## 아키텍처
+## 런타임 흐름
 
-```
-Client HTTP Request
-       ↓
-ProductController (REST API)
-       ↓
-ProductRepository (Spring Data JPA)
-       ↓
-Hibernate Session Factory
-       ↓
-┌─────────────────────────────────────────────┐
-│ Lettuce Near Cache Region Factory           │
-├─────────────────────────────────────────────┤
-│ L1 Cache (Caffeine)                         │
-│ ├─ maxSize: 10,000 items                    │
-│ ├─ expireAfterWrite: 30m                    │
-│ └─ localStats() ← Metrics/Actuator          │
-├─────────────────────────────────────────────┤
-│ L2 Cache (Redis)                            │
-│ ├─ TTL: 120s (default)                      │
-│ ├─ RESP3 CLIENT TRACKING                    │
-│ ├─ Codec: LZ4+Fory                          │
-│ └─ Region별 TTL 설정 가능                    │
-└─────────────────────────────────────────────┘
-       ↓
-H2 Database
-```
+Product CRUD 요청은 Spring Data JPA와 Hibernate 2LC를 통과합니다. 캐시 관리 엔드포인트는 L1 Caffeine near-cache만
+조회하거나 비우며, Redis L2는 의도적으로 건드리지 않습니다.
 
 ![Hibernate Lettuce Demo Runtime Flow diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-02.png)
 
@@ -191,7 +167,7 @@ curl -X DELETE http://localhost:8080/api/cache/evict
 # 응답 (204 No Content)
 ```
 
-> **주의**: 이 엔드포인트들은 L1(Caffeine)만 비운다. Redis L2는 영향받지 않는다.
+> **주의**: 이 엔드포인트들은 L1(Caffeine)만 비웁니다. Redis L2는 영향받지 않습니다.
 
 ### Actuator 엔드포인트
 
@@ -244,23 +220,21 @@ curl http://localhost:8080/actuator/nearcache/product
 ```yaml
 spring:
   application:
-    name: hibernat-lettuce-demo
+    name: hibernate-cache-lettuce-near-demo
 
   datasource:
-    url: jdbc:h2:mem:demo;DB_CLOSE_DELAY=-1;MODE=MySQL
+    url: jdbc:h2:mem:demo;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
     username: sa
     password:
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
     show-sql: false
     properties:
       hibernate:
-        cache:
-          use_second_level_cache: true
+        format_sql: false
 
 bluetape4k:
   cache:
@@ -269,8 +243,8 @@ bluetape4k:
       codec: lz4fory                            # LZ4 압축 + Fory 직렬화
       use-resp3: true                           # RESP3 + CLIENT TRACKING
       local:
-        max-size: 10000
-        expire-after-write: 30m
+        max-size: 5000
+        expire-after-write: 15m
       redis-ttl:
         default: 120s
         regions:
@@ -283,7 +257,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, actuator, nearcache
+        include: health,info,metrics,nearcache
   endpoint:
     health:
       show-details: always
@@ -297,7 +271,7 @@ management:
 ./gradlew :bluetape4k-spring-boot-hibernate-lettuce-demo:test
 ```
 
-테스트는 Testcontainers를 사용하여 Redis를 자동으로 관리한다.
+테스트는 Testcontainers를 사용하여 Redis를 자동으로 관리합니다.
 
 ### 테스트 예시
 
@@ -340,10 +314,7 @@ class DemoApplicationTest {
 
 ## 테스트 항목
 
-- `ProductControllerTest`: REST API 엔드포인트 테스트
-- `CacheControllerTest`: 캐시 관리 API 테스트
-- `CachingIntegrationTest`: 2LC + Lettuce Near Cache 통합 테스트
-- `LettuceNearCacheStatsTest`: Actuator 엔드포인트 테스트
+- `DemoApplicationTest`: context 시작, repository 저장/조회, 반복 조회 캐시 시나리오, 전체 상품 조회, cache stats, L1 eviction 엔드포인트 테스트
 
 ## 의존성 (Spring Boot 4)
 
@@ -383,8 +354,8 @@ dependencies {
 ## 관련 모듈
 
 - [`bluetape4k-spring-boot-hibernate-lettuce`](../hibernate-lettuce/README.ko.md) — Auto-Configuration 모듈
-- [`bluetape4k-hibernate-cache-lettuce`](../../data/hibernate-cache-lettuce/README.ko.md) — Hibernate Region Factory
-- [`bluetape4k-cache-lettuce`](../../infra/cache-lettuce/README.ko.md) — Near Cache 코어
+- [`bluetape4k-hibernate-cache-lettuce`](../../cache/hibernate-cache-lettuce/README.ko.md) — Hibernate Region Factory
+- [`bluetape4k-cache-lettuce`](../../cache/cache-lettuce/README.ko.md) — Near Cache 코어
 
 ## 라이센스
 
