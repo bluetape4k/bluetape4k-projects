@@ -8,7 +8,7 @@ Kotlin에서 SLF4J 로깅을 더 쉽고 효율적으로 사용하기 위한 라�
 
 ### 클래스 계층 다이어그램
 
-![logging Class Structure diagram](../../docs/images/readme-diagrams/bluetape4k-logging-diagram-01.png)
+![Logging Class Structure diagram](../../docs/images/readme-diagrams/bluetape4k-logging-diagram-01.png)
 
 ---
 
