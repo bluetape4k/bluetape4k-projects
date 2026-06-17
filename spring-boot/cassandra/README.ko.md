@@ -14,9 +14,9 @@ Spring Data Cassandra 기반 개발에서 자주 쓰는 코루틴 확장, 편의
 
 ## 아키텍처 다이어그램
 
-### 핵심 클래스 구조
+### 핵심 확장 함수와 클래스 구조
 
-![Spring Boot Cassandra 핵심 클래스 구조 다이어그램](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)
+![Spring Boot Cassandra 핵심 확장 함수와 클래스 구조 다이어그램](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)
 
 ### Cassandra 데이터 접근 계층
 

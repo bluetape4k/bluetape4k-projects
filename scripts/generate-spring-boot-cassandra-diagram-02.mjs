@@ -4,13 +4,12 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const ROOT = process.cwd();
-const OUT = join(ROOT, "docs/images/readme-diagrams");
-const CAIROSVG = process.env.CAIROSVG ?? "cairosvg";
+const root = process.cwd();
+const outDir = join(root, "docs/images/readme-diagrams");
+const cairosvg = process.env.CAIROSVG ?? "/Users/debop/.local/bin/cairosvg";
 
 const sources = [
   "spring-boot/cassandra/README.md",
-  "spring-boot/cassandra/README.ko.md",
   "spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveSessionCoroutines.kt",
   "spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraOperationsCoroutines.kt",
   "spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/AsyncCassandraOperationsCoroutines.kt",
@@ -20,236 +19,111 @@ const sources = [
 ];
 
 for (const source of sources) {
-  if (!existsSync(join(ROOT, source))) throw new Error(`Missing evidence source: ${source}`);
+  if (!existsSync(join(root, source))) throw new Error(`Missing source: ${source}`);
 }
 
-function assertContains(source, pattern, label) {
-  const text = readFileSync(join(ROOT, source), "utf8");
-  if (!pattern.test(text)) throw new Error(`Expected ${label} in ${source}`);
+function requireSource(index, pattern, label) {
+  const text = readFileSync(join(root, sources[index]), "utf8");
+  if (!pattern.test(text)) throw new Error(`Missing ${label}`);
 }
 
-assertContains(sources[0], /Cassandra Data Access Layer[\s\S]*spring-boot-cassandra-diagram-02\.png/, "README data access diagram slot");
-assertContains(sources[2], /ReactiveSession\.executeSuspending[\s\S]*prepareSuspending/, "ReactiveSession bridge");
-assertContains(sources[3], /selectAsFlow[\s\S]*insertSuspending[\s\S]*truncateSuspending/, "Reactive operations bridge");
-assertContains(sources[4], /AsyncCassandraOperations\.executeSuspending[\s\S]*selectSuspending/, "Async operations bridge");
-assertContains(sources[5], /insertFlow[\s\S]*updateFlow[\s\S]*deleteFlow/, "batch Flow bridge");
-assertContains(sources[6], /writeOptions[\s\S]*addWriteOptions[\s\S]*isPositiveTtl/, "write option DSL");
-assertContains(sources[7], /createTableAndTypes[\s\S]*potentiallyCreateTableFor[\s\S]*truncate/, "schema utilities");
+requireSource(0, /Cassandra Data Access Layer[\s\S]*spring-boot-cassandra-diagram-02\.png/, "README diagram slot");
+requireSource(1, /executeSuspending[\s\S]*prepareSuspending/, "ReactiveSession bridge");
+requireSource(2, /selectAsFlow[\s\S]*insertSuspending[\s\S]*truncateSuspending/, "Reactive operations bridge");
+requireSource(3, /AsyncCassandraOperations\.executeSuspending[\s\S]*selectSuspending/, "Async operations bridge");
+requireSource(4, /insertFlow[\s\S]*updateFlow[\s\S]*deleteFlow/, "batch bridge");
+requireSource(5, /writeOptions[\s\S]*addWriteOptions[\s\S]*isPositiveTtl/, "options DSL");
+requireSource(6, /createTableAndTypes[\s\S]*potentiallyCreateTableFor[\s\S]*truncate/, "schema utilities");
 
-const palette = {
-  teal: ["#F0FDFA", "#0D9488", "#0F766E"],
-  blue: ["#EFF6FF", "#2563EB", "#1D4ED8"],
-  green: ["#F0FDF4", "#16A34A", "#15803D"],
-  amber: ["#FFF7ED", "#EA580C", "#C2410C"],
-  pink: ["#FDF2F8", "#DB2777", "#BE185D"],
-  purple: ["#F5F3FF", "#7C3AED", "#6D28D9"],
-  slate: ["#F8FAFC", "#64748B", "#475569"],
-};
+const font = "'Architects Daughter', 'Comic Mono', 'Helvetica Neue', Arial, sans-serif";
 
 function esc(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
+  return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 
-function markerDefs() {
-  return Object.entries(palette).map(([name, [, , dark]]) => `
-  <marker id="arrow-${name}" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="${dark}"/></marker>`).join("\n");
+function textLines(items, x, y, { size = 12.6, fill = "#475569", line = 18 } = {}) {
+  return items.map((item, i) => `<text x="${x}" y="${y + i * line}" font-size="${size}" fill="${fill}">${esc(item)}</text>`).join("\n");
 }
 
-function lane({ x, y, w, h, title }) {
-  return `<g>
-  <rect class="lane" x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/>
-  <text class="laneTitle" x="${x + 28}" y="${y + 42}">${esc(title)}</text>
-</g>`;
+function layer({ x, y, w, h, title, note, fill, stroke }) {
+  return `
+  <g class="layer" data-layer="${esc(title)}">
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="${fill}" stroke="${stroke}" stroke-width="1.3" stroke-dasharray="7 5"/>
+    <text x="${x + 18}" y="${y + 26}" font-size="14" font-weight="700" fill="${stroke}">${esc(title)}</text>
+    <text x="${x + 18}" y="${y + 47}" font-size="12.3" fill="#6b7280">${esc(note)}</text>
+  </g>`;
 }
 
-function card({ id, x, y, w, h, color, title, lines = [] }) {
-  const [fill, stroke] = palette[color];
-  return `<g id="${esc(id)}">
-  <rect class="card" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
-  <text class="cardTitle" x="${x + 26}" y="${y + 44}">${esc(title)}</text>
-  ${lines.map((line, index) => `<text class="line" x="${x + 28}" y="${y + 82 + index * 27}">${esc(line)}</text>`).join("\n")}
-</g>`;
+function card({ x, y, w, h, title, lines, fill, stroke }) {
+  return `
+  <g class="card" data-card="${esc(title)}">
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}" stroke-width="1.8"/>
+    <rect x="${x}" y="${y}" width="10" height="${h}" rx="5" fill="${stroke}" opacity="0.9"/>
+    <text x="${x + 26}" y="${y + 33}" font-size="17" font-weight="700" fill="#111827">${esc(title)}</text>
+    ${textLines(lines, x + 26, y + 60)}
+  </g>`;
 }
 
-function edge({ from, to, points, color, dashed = false, label = "", labelAt }) {
-  const [, , dark] = palette[color];
-  const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
-  const p = labelAt ?? points[Math.floor(points.length / 2)];
-  return `<g data-from="${esc(from)}" data-to="${esc(to)}">
-  <path class="edge ${dashed ? "dashed" : ""}" d="${d}" stroke="${dark}" marker-end="url(#arrow-${color})"/>
-  ${label ? `<text class="edgeLabel" x="${p[0] + 8}" y="${p[1] - 8}">${esc(label)}</text>` : ""}
-</g>`;
+function edge({ d, color, marker, width = 2.8, dash = "" }) {
+  return `<path class="edge" d="${d}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""} marker-end="url(#${marker})"/>`;
 }
 
-const width = 2500;
-const height = 1460;
-const body = [
-  lane({ x: 70, y: 190, w: 2360, h: 190, title: "Application layer" }),
-  lane({ x: 70, y: 435, w: 2360, h: 285, title: "bluetape4k coroutine and DSL layer" }),
-  lane({ x: 70, y: 775, w: 2360, h: 265, title: "Spring Data Cassandra layer" }),
-  lane({ x: 70, y: 1095, w: 2360, h: 270, title: "DataStax driver and Cassandra" }),
-  card({
-    id: "AppCode",
-    x: 160,
-    y: 250,
-    w: 520,
-    h: 100,
-    color: "teal",
-    title: "Service / Repository code",
-    lines: ["suspend functions, Flow collection, repository calls"],
-  }),
-  card({
-    id: "Entities",
-    x: 860,
-    y: 250,
-    w: 520,
-    h: 100,
-    color: "slate",
-    title: "Cassandra entities",
-    lines: ["@Table, @PrimaryKey, optional Persistable/Auditable base"],
-  }),
-  card({
-    id: "SchemaUse",
-    x: 1580,
-    y: 250,
-    w: 650,
-    h: 100,
-    color: "pink",
-    title: "Schema bootstrap",
-    lines: ["createTableAndTypes<T>(), truncate<T>() when tests/tools need it"],
-  }),
-  card({
-    id: "CoroutineBridge",
-    x: 150,
-    y: 505,
-    w: 610,
-    h: 155,
-    color: "green",
-    title: "Coroutine extension bridge",
-    lines: ["ReactiveSession.executeSuspending / prepareSuspending", "ReactiveCassandraOperations selectAsFlow / *Suspending", "AsyncCassandraOperations future.await() bridge"],
-  }),
-  card({
-    id: "BatchBridge",
-    x: 905,
-    y: 505,
-    w: 520,
-    h: 155,
-    color: "purple",
-    title: "Batch and select helpers",
-    lines: ["insertFlow / updateFlow / deleteFlow", "TerminatingSelect count/exists/first/one/all suspending", "Flow is collected into Reactor mono"],
-  }),
-  card({
-    id: "OptionsDsl",
-    x: 1580,
-    y: 505,
-    w: 650,
-    h: 155,
-    color: "amber",
-    title: "CQL options and query DSL",
-    lines: ["queryOptions / insertOptions / writeOptions", "Insert/Update/Delete.addWriteOptions()", "Criteria.where(\"field\") eq value"],
-  }),
-  card({
-    id: "SpringOps",
-    x: 165,
-    y: 840,
-    w: 610,
-    h: 140,
-    color: "green",
-    title: "ReactiveCassandraOperations",
-    lines: ["Mono/Flux based CRUD, select, count, exists, truncate", "maps Statement, Query, Update, entity operations"],
-  }),
-  card({
-    id: "BatchOps",
-    x: 905,
-    y: 840,
-    w: 520,
-    h: 140,
-    color: "purple",
-    title: "ReactiveCassandraBatchOperations",
-    lines: ["batch insert/update/delete", "uses WriteOptions when supplied"],
-  }),
-  card({
-    id: "CqlOps",
-    x: 1580,
-    y: 840,
-    w: 650,
-    h: 140,
-    color: "amber",
-    title: "CQL builders and mapping metadata",
-    lines: ["QueryOptions, WriteOptions, Criteria, Query, Update", "SchemaFactory and Cassandra mapping context"],
-  }),
-  card({
-    id: "ReactiveSession",
-    x: 180,
-    y: 1160,
-    w: 560,
-    h: 135,
-    color: "blue",
-    title: "ReactiveSession",
-    lines: ["execute(statement), prepare(statement)", "returns ReactiveResultSet / PreparedStatement"],
-  }),
-  card({
-    id: "AsyncDriver",
-    x: 960,
-    y: 1160,
-    w: 520,
-    h: 135,
-    color: "blue",
-    title: "Async driver path",
-    lines: ["AsyncCassandraOperations", "CompletableFuture and AsyncResultSet"],
-  }),
-  card({
-    id: "Cassandra",
-    x: 1700,
-    y: 1160,
-    w: 480,
-    h: 135,
-    color: "slate",
-    title: "Apache Cassandra",
-    lines: ["CQL execution, table metadata, keyspace tables"],
-  }),
-  edge({ from: "AppCode", to: "CoroutineBridge", points: [[350, 350], [350, 505]], color: "green", label: "suspend API", labelAt: [368, 430] }),
-  edge({ from: "AppCode", to: "BatchBridge", points: [[430, 350], [430, 405], [1165, 405], [1165, 505]], color: "purple", dashed: true, label: "Flow batches", labelAt: [760, 392] }),
-  edge({ from: "AppCode", to: "OptionsDsl", points: [[510, 350], [510, 390], [1905, 390], [1905, 505]], color: "amber", dashed: true, label: "options DSL", labelAt: [1280, 377] }),
-  edge({ from: "Entities", to: "SchemaUse", points: [[1380, 300], [1580, 300]], color: "pink", dashed: true, label: "entity metadata", labelAt: [1430, 284] }),
-  edge({ from: "CoroutineBridge", to: "SpringOps", points: [[455, 660], [455, 840]], color: "green", label: "await/asFlow", labelAt: [473, 760] }),
-  edge({ from: "BatchBridge", to: "BatchOps", points: [[1165, 660], [1165, 840]], color: "purple", label: "collect Flow", labelAt: [1183, 760] }),
-  edge({ from: "OptionsDsl", to: "CqlOps", points: [[1905, 660], [1905, 840]], color: "amber", label: "builds", labelAt: [1923, 760] }),
-  edge({ from: "SchemaUse", to: "CqlOps", points: [[2230, 300], [2320, 300], [2320, 910], [2230, 910]], color: "pink", dashed: true, label: "SchemaGenerator", labelAt: [2240, 742] }),
-  edge({ from: "SpringOps", to: "ReactiveSession", points: [[455, 980], [455, 1160]], color: "blue", label: "session calls", labelAt: [473, 1080] }),
-  edge({ from: "SpringOps", to: "AsyncDriver", points: [[775, 910], [845, 910], [845, 1228], [960, 1228]], color: "blue", dashed: true, label: "async variants", labelAt: [858, 1080] }),
-  edge({ from: "BatchOps", to: "SpringOps", points: [[905, 910], [775, 910]], color: "purple", dashed: true, label: "same template", labelAt: [805, 892] }),
-  edge({ from: "CqlOps", to: "Cassandra", points: [[1905, 980], [1905, 1160]], color: "amber", label: "CQL", labelAt: [1923, 1080] }),
-  edge({ from: "ReactiveSession", to: "Cassandra", points: [[460, 1295], [460, 1335], [1940, 1335], [1940, 1295]], color: "blue", label: "execute prepared/simple statements", labelAt: [980, 1318] }),
-  edge({ from: "AsyncDriver", to: "Cassandra", points: [[1480, 1228], [1700, 1228]], color: "blue", dashed: true, label: "AsyncResultSet", labelAt: [1530, 1208] }),
-];
+function defs() {
+  return `
+  <defs>
+    <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none"/></marker>
+    <marker id="arrow-green" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#16a34a" stroke="#16a34a" stroke-width="0" stroke-dasharray="none"/></marker>
+    <marker id="arrow-orange" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none"/></marker>
+    <marker id="arrow-purple" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#7c3aed" stroke="#7c3aed" stroke-width="0" stroke-dasharray="none"/></marker>
+    <marker id="arrow-pink" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#db2777" stroke="#db2777" stroke-width="0" stroke-dasharray="none"/></marker>
+  </defs>`;
+}
 
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot Cassandra Data Access Layer Diagram">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  ${markerDefs()}
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .lane{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.3;stroke-dasharray:9 7}.laneTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}
-    .card{stroke-width:1.8;filter:url(#shadow)}.cardTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}.line{font-family:"Comic Mono";font-size:14px;fill:#334155}
-    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
-  </style>
-</defs>
-<rect class="canvas" width="${width}" height="${height}"/>
-<rect class="frame" x="34" y="30" width="${width - 68}" height="${height - 60}" rx="8"/>
-<text class="title" x="72" y="86">Spring Boot Cassandra Data Access Layer</text>
-<text class="subtitle" x="76" y="120">How application code moves through bluetape4k coroutine extensions, Spring Data Cassandra operations, DataStax driver APIs, and Cassandra schema utilities.</text>
-${body.join("\n")}
+const width = 1480;
+const height = 760;
+const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot Cassandra data access layer">
+  <style>text { font-family: ${font}; dominant-baseline: alphabetic; }</style>
+  ${defs()}
+  <rect width="${width}" height="${height}" fill="#ffffff"/>
+  <text x="72" y="62" font-size="30" font-weight="700" fill="#111827">Spring Boot Cassandra Data Access Layer</text>
+  <text x="72" y="92" font-size="15" fill="#64748b">Application code moves left to right through bluetape4k coroutine adapters, Spring Data Cassandra operations, driver calls, and Cassandra.</text>
+  ${layer({ x: 60, y: 130, w: 306, h: 512, title: "APPLICATION CONTRACT", note: "Call sites and entities choose entrypoints.", fill: "#eff6ff", stroke: "#2563eb" })}
+  ${layer({ x: 408, y: 130, w: 306, h: 512, title: "BLUETAPE4K ADAPTERS", note: "Coroutine bridges and DSL helpers.", fill: "#ecfdf5", stroke: "#16a34a" })}
+  ${layer({ x: 756, y: 130, w: 306, h: 512, title: "SPRING DATA CASSANDRA", note: "Operations, CQL, mapping metadata.", fill: "#fff7ed", stroke: "#ea580c" })}
+  ${layer({ x: 1114, y: 130, w: 306, h: 512, title: "DRIVER AND CASSANDRA", note: "Session, async result, and backend.", fill: "#f8fafc", stroke: "#64748b" })}
+  ${card({ x: 84, y: 220, w: 258, h: 86, title: "Service / Repository", lines: ["suspend calls", "Flow collection"], fill: "#eff6ff", stroke: "#2563eb" })}
+  ${card({ x: 84, y: 362, w: 258, h: 86, title: "Batch / Select Use", lines: ["Flow batch calls", "select helpers"], fill: "#f5f3ff", stroke: "#7c3aed" })}
+  ${card({ x: 84, y: 504, w: 258, h: 86, title: "Schema Bootstrap", lines: ["createTableAndTypes<T>()", "truncate<T>()"], fill: "#fdf2f8", stroke: "#db2777" })}
+  ${card({ x: 432, y: 211, w: 258, h: 104, title: "Coroutine Extensions", lines: ["ReactiveSession bridge", "operations *Suspending", "awaitSingle / asFlow"], fill: "#ecfdf5", stroke: "#16a34a" })}
+  ${card({ x: 432, y: 357, w: 258, h: 96, title: "Batch / Select Helpers", lines: ["insert/update/delete Flow", "count/exists/first/one/all"], fill: "#f5f3ff", stroke: "#7c3aed" })}
+  ${card({ x: 432, y: 495, w: 258, h: 104, title: "Options / Criteria DSL", lines: ["query/write option builders", "addWriteOptions(...)", "Criteria.where(...) eq"], fill: "#fff7ed", stroke: "#ea580c" })}
+  ${card({ x: 780, y: 211, w: 258, h: 104, title: "Operations APIs", lines: ["ReactiveCassandraOperations", "AsyncCassandraOperations", "CRUD/select/count/exists"], fill: "#ecfdf5", stroke: "#16a34a" })}
+  ${card({ x: 780, y: 357, w: 258, h: 96, title: "Batch Operations", lines: ["Reactive batch contract", "Spring template batch path"], fill: "#f5f3ff", stroke: "#7c3aed" })}
+  ${card({ x: 780, y: 495, w: 258, h: 104, title: "CQL / Mapping", lines: ["QueryOptions, WriteOptions", "SchemaFactory", "mappingContext"], fill: "#fff7ed", stroke: "#ea580c" })}
+  ${card({ x: 1138, y: 220, w: 258, h: 86, title: "ReactiveSession", lines: ["execute(statement)", "prepare(statement)"], fill: "#eff6ff", stroke: "#2563eb" })}
+  ${card({ x: 1138, y: 362, w: 258, h: 86, title: "Async Driver Path", lines: ["CompletableFuture", "AsyncResultSet"], fill: "#eff6ff", stroke: "#2563eb" })}
+  ${card({ x: 1138, y: 504, w: 258, h: 86, title: "Apache Cassandra", lines: ["CQL execution", "metadata / keyspace"], fill: "#f8fafc", stroke: "#64748b" })}
+  ${edge({ d: "M342 263 L432 263", color: "#16a34a", marker: "arrow-green" })}
+  ${edge({ d: "M342 405 L432 405", color: "#7c3aed", marker: "arrow-purple", dash: "7 5" })}
+  ${edge({ d: "M342 547 L432 547", color: "#db2777", marker: "arrow-pink", dash: "7 5" })}
+  ${edge({ d: "M690 263 L780 263", color: "#16a34a", marker: "arrow-green" })}
+  ${edge({ d: "M690 405 L780 405", color: "#7c3aed", marker: "arrow-purple" })}
+  ${edge({ d: "M690 547 L780 547", color: "#ea580c", marker: "arrow-orange" })}
+  ${edge({ d: "M1038 263 L1138 263", color: "#2563eb", marker: "arrow-blue" })}
+  ${edge({ d: "M1038 263 L1086 263 L1086 405 L1138 405", color: "#2563eb", marker: "arrow-blue", dash: "7 5" })}
+  ${edge({ d: "M1038 547 L1138 547", color: "#ea580c", marker: "arrow-orange" })}
+  <g class="legend" transform="translate(72 714)">
+    <line x1="0" y1="0" x2="42" y2="0" stroke="#16a34a" stroke-width="2.8" marker-end="url(#arrow-green)"/><text x="58" y="5" font-size="13" fill="#475569">main coroutine bridge</text>
+    <line x1="280" y1="0" x2="322" y2="0" stroke="#7c3aed" stroke-width="2.8" stroke-dasharray="7 5" marker-end="url(#arrow-purple)"/><text x="338" y="5" font-size="13" fill="#475569">batch/select helper path</text>
+    <line x1="590" y1="0" x2="632" y2="0" stroke="#db2777" stroke-width="2.8" stroke-dasharray="7 5" marker-end="url(#arrow-pink)"/><text x="648" y="5" font-size="13" fill="#475569">schema metadata path</text>
+    <line x1="890" y1="0" x2="932" y2="0" stroke="#2563eb" stroke-width="2.8" marker-end="url(#arrow-blue)"/><text x="948" y="5" font-size="13" fill="#475569">driver execution</text>
+  </g>
 </svg>`;
 
-const svgPath = join(OUT, "spring-boot-cassandra-diagram-02.svg");
-const pngPath = join(OUT, "spring-boot-cassandra-diagram-02.png");
+const svgPath = join(outDir, "spring-boot-cassandra-diagram-02.svg");
+const pngPath = join(outDir, "spring-boot-cassandra-diagram-02.png");
 writeFileSync(svgPath, svg.replace(/[ \t]+$/gm, ""));
-execFileSync(CAIROSVG, [svgPath, "-o", pngPath, "--scale", "2"], { stdio: "inherit" });
-console.log("Generated spring-boot-cassandra-diagram-02.svg/png");
+execFileSync(cairosvg, [svgPath, "-o", pngPath, "-s", "2"], { stdio: "inherit" });
+console.log(`generated ${svgPath}`);
+console.log(`generated ${pngPath}`);

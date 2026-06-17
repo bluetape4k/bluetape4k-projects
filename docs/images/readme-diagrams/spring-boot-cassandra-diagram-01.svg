@@ -1,174 +1,164 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2350" height="1640" viewBox="0 0 2350 1640" role="img" aria-label="Spring Boot Cassandra Core Class Structure Diagram">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="1220" viewBox="0 0 1480 1220" role="img" aria-label="Spring Boot Cassandra core extension and class structure">
+  <style>text { font-family: 'Architects Daughter', 'Comic Mono', 'Helvetica Neue', Arial, sans-serif; dominant-baseline: alphabetic; }</style>
 
-  <marker id="arrow-teal" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#0F766E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
-  <marker id="triangle-teal" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#0F766E" stroke-width="2" stroke-dasharray="none"/></marker>
+  <defs>
+    <marker id="open-blue" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="open-green" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#16a34a" stroke-width="1.8" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="open-orange" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#ea580c" stroke-width="1.8" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="open-purple" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="open-pink" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#db2777" stroke-width="1.8" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="hollow-slate" markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="15" viewBox="0 0 12 12" refX="11" refY="6" orient="auto"><path d="M 1 1 L 11 6 L 1 11 Z" fill="#ffffff" stroke="#64748b" stroke-width="1.5" stroke-dasharray="none"/></marker>
+  </defs>
+  <rect width="1480" height="1220" fill="#ffffff"/>
+  <text x="72" y="62" font-size="30" font-weight="700" fill="#111827">Spring Boot Cassandra Core Extension Structure</text>
+  <text x="72" y="92" font-size="15" fill="#64748b">Coroutine extension files wrap Spring Data Cassandra receivers; model bases and SchemaGenerator cover entity identity, auditing, and schema bootstrap.</text>
+  <path class="edge" d="M262 406 L262 308" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" marker-end="url(#open-blue)"/>
+  <path class="edge" d="M740 390 L740 324" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" marker-end="url(#open-green)"/>
+  <path class="edge" d="M1218 406 L1218 308" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" marker-end="url(#open-blue)"/>
+  <path class="edge" d="M442 755 L498 755 L498 626 L650 626 L650 598" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" marker-end="url(#open-purple)"/>
+  <path class="edge" d="M740 672 L740 598" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" marker-end="url(#open-orange)"/>
+  <path class="edge" d="M740 942 L740 910 L956 910 L956 504 L920 504" fill="none" stroke="#db2777" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" marker-end="url(#open-pink)"/>
+  <path class="edge" d="M1218 890 L1218 830" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#hollow-slate)"/>
 
-  <marker id="arrow-blue" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#1D4ED8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
-  <marker id="triangle-blue" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2" stroke-dasharray="none"/></marker>
+  <g class="card" data-card="ReactiveSession">
+    <rect x="82" y="166" width="360" height="142" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.8"/>
+    <text x="262" y="187" text-anchor="middle" font-size="12.3" fill="#2563eb">&lt;&lt;Spring Data receiver&gt;&gt;</text>
+    <text x="262" y="209" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">ReactiveSession</text>
+    <line x1="82" y1="220" x2="442" y2="220" stroke="#2563eb" stroke-width="1.1" opacity="0.55"/>
+    <line x1="82" y1="274" x2="442" y2="274" stroke="#2563eb" stroke-width="1.1" opacity="0.45"/>
+    <text x="98" y="243" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">execute(statement): Mono&lt;ResultSet&gt;</text>
+<text x="98" y="261" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">prepare(statement): Mono&lt;PreparedStatement&gt;</text>
 
-  <marker id="arrow-green" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
-  <marker id="triangle-green" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#15803D" stroke-width="2" stroke-dasharray="none"/></marker>
+  </g>
 
-  <marker id="arrow-amber" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#C2410C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
-  <marker id="triangle-amber" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#C2410C" stroke-width="2" stroke-dasharray="none"/></marker>
+  <g class="card" data-card="ReactiveCassandra Operations">
+    <rect x="560" y="150" width="360" height="174" rx="8" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.8"/>
+    <text x="740" y="171" text-anchor="middle" font-size="12.3" fill="#16a34a">&lt;&lt;Spring Data receiver&gt;&gt;</text>
+    <text x="740" y="193" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">ReactiveCassandra</text>
+<text x="740" y="213" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">Operations</text>
+    <line x1="560" y1="224" x2="920" y2="224" stroke="#16a34a" stroke-width="1.1" opacity="0.55"/>
+    <line x1="560" y1="278" x2="920" y2="278" stroke="#16a34a" stroke-width="1.1" opacity="0.45"/>
+    <text x="576" y="247" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">select/count/exists CRUD API</text>
+<text x="576" y="265" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">Flux and Mono result contracts</text>
 
-  <marker id="arrow-pink" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#BE185D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
-  <marker id="triangle-pink" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#BE185D" stroke-width="2" stroke-dasharray="none"/></marker>
+  </g>
 
-  <marker id="arrow-purple" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#6D28D9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
-  <marker id="triangle-purple" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2" stroke-dasharray="none"/></marker>
+  <g class="card" data-card="AsyncCassandra Operations">
+    <rect x="1038" y="166" width="360" height="142" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.8"/>
+    <text x="1218" y="187" text-anchor="middle" font-size="12.3" fill="#2563eb">&lt;&lt;Spring Data receiver&gt;&gt;</text>
+    <text x="1218" y="209" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">AsyncCassandra</text>
+<text x="1218" y="229" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">Operations</text>
+    <line x1="1038" y1="240" x2="1398" y2="240" stroke="#2563eb" stroke-width="1.1" opacity="0.55"/>
+    <line x1="1038" y1="294" x2="1398" y2="294" stroke="#2563eb" stroke-width="1.1" opacity="0.45"/>
+    <text x="1054" y="263" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">CompletableFuture result API</text>
+<text x="1054" y="281" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">AsyncResultSet driver path</text>
 
-  <marker id="arrow-slate" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
-  <marker id="triangle-slate" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="#475569" stroke-width="2" stroke-dasharray="none"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .classBox,.noteBox{stroke-width:1.8;filter:url(#shadow)}.stereotype{font-family:"Comic Mono";font-size:14px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:26px;fill:#0F172A}
-    .member,.noteLine{font-family:"Comic Mono";font-size:14px;fill:#334155}.divider{stroke-width:1.1;opacity:.45}.noteTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
-    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
-  </style>
-</defs>
-<rect class="canvas" width="2350" height="1640"/>
-<rect class="frame" x="34" y="30" width="2282" height="1580" rx="8"/>
-<text class="title" x="72" y="86">Spring Boot Cassandra Core Structure</text>
-<text class="subtitle" x="76" y="120">Coroutine extension sets, CQL/query DSL helpers, Cassandra entity base classes, and schema utilities in the Spring Boot 4 Cassandra module.</text>
-<g id="ExternalApis">
-  <rect class="noteBox" x="760" y="220" width="1080" height="170" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-  <text class="noteTitle" x="788" y="268">Wrapped Spring Data and DataStax APIs</text>
-  <text class="noteLine" x="790" y="308">ReactiveSession, ReactiveCassandraOperations, AsyncCassandraOperations, ReactiveCassandraBatchOperations</text>
-<text class="noteLine" x="790" y="336">QueryOptions, WriteOptions, Criteria, CassandraOperations, mapping metadata</text>
-</g>
-<g id="ReactiveSessionExtensions">
-  <rect class="classBox" x="90" y="500" width="570" height="280" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="stereotype" x="375" y="528" text-anchor="middle">&lt;&lt;extension set&gt;&gt;</text>
-  <text class="classTitle" x="375" y="558" text-anchor="middle">ReactiveSessionCoroutines</text>
-  <path class="divider" d="M90 576H660" stroke="#0F766E"/>
-  <text class="member" x="114" y="602">receiver: ReactiveSession</text>
-<text class="member" x="114" y="624">bridge: Reactor Mono -&gt; suspend</text>
-  <path class="divider" d="M90 654H660" stroke="#0F766E"/>
-  <text class="member" x="114" y="680">executeSuspending(String / args / Statement)</text>
-<text class="member" x="114" y="702">prepareSuspending(String / SimpleStatement)</text>
-<text class="member" x="114" y="724">returns ReactiveResultSet or PreparedStatement</text>
-</g>
-<g id="ReactiveOpsExtensions">
-  <rect class="classBox" x="760" y="480" width="720" height="345" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="stereotype" x="1120" y="508" text-anchor="middle">&lt;&lt;extension set&gt;&gt;</text>
-  <text class="classTitle" x="1120" y="538" text-anchor="middle">ReactiveCassandraOperationsCoroutines</text>
-  <path class="divider" d="M760 556H1480" stroke="#15803D"/>
-  <text class="member" x="784" y="582">receiver: ReactiveCassandraOperations</text>
-<text class="member" x="784" y="604">bridges Flux to Flow and Mono to suspend</text>
-  <path class="divider" d="M760 634H1480" stroke="#15803D"/>
-  <text class="member" x="784" y="660">selectAsFlow(statement / cql / query)</text>
-<text class="member" x="784" y="682">selectOne*, slice*, count*, exists*</text>
-<text class="member" x="784" y="704">insert/update/delete/truncate suspending</text>
-<text class="member" x="784" y="726">deleteByIdSuspending and executeSuspending</text>
-</g>
-<g id="AsyncOpsExtensions">
-  <rect class="classBox" x="1590" y="500" width="570" height="280" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="stereotype" x="1875" y="528" text-anchor="middle">&lt;&lt;extension set&gt;&gt;</text>
-  <text class="classTitle" x="1875" y="558" text-anchor="middle">AsyncCassandraOperationsCoroutines</text>
-  <path class="divider" d="M1590 576H2160" stroke="#1D4ED8"/>
-  <text class="member" x="1614" y="602">receiver: AsyncCassandraOperations</text>
-<text class="member" x="1614" y="624">bridge: CompletableFuture -&gt; suspend</text>
-  <path class="divider" d="M1590 654H2160" stroke="#1D4ED8"/>
-  <text class="member" x="1614" y="680">executeSuspending(statement)</text>
-<text class="member" x="1614" y="702">selectSuspending(statement / cql / query)</text>
-<text class="member" x="1614" y="724">selectOneOrNullSuspending</text>
-<text class="member" x="1614" y="746">sliceSuspending with empty Slice fallback</text>
-</g>
-<g id="BatchSelectExtensions">
-  <rect class="classBox" x="90" y="930" width="570" height="285" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
-  <text class="stereotype" x="375" y="958" text-anchor="middle">&lt;&lt;extension set&gt;&gt;</text>
-  <text class="classTitle" x="375" y="988" text-anchor="middle">Batch and Select support</text>
-  <path class="divider" d="M90 1006H660" stroke="#6D28D9"/>
-  <text class="member" x="114" y="1032">ReactiveCassandraBatchOperations</text>
-<text class="member" x="114" y="1054">ReactiveSelectOperation.TerminatingSelect</text>
-  <path class="divider" d="M90 1084H660" stroke="#6D28D9"/>
-  <text class="member" x="114" y="1110">insertFlow / updateFlow / deleteFlow</text>
-<text class="member" x="114" y="1132">Flow is collected into Reactor mono</text>
-<text class="member" x="114" y="1154">cast(), count/exists/first/one/all suspending</text>
-</g>
-<g id="OptionsDsl">
-  <rect class="classBox" x="760" y="945" width="720" height="295" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="stereotype" x="1120" y="973" text-anchor="middle">&lt;&lt;DSL helpers&gt;&gt;</text>
-  <text class="classTitle" x="1120" y="1003" text-anchor="middle">CQL Options and Criteria DSL</text>
-  <path class="divider" d="M760 1021H1480" stroke="#C2410C"/>
-  <text class="member" x="784" y="1047">QueryOptions / InsertOptions / UpdateOptions</text>
-<text class="member" x="784" y="1069">WriteOptions / DeleteOptions</text>
-<text class="member" x="784" y="1091">Criteria</text>
-  <path class="divider" d="M760 1121H1480" stroke="#C2410C"/>
-  <text class="member" x="784" y="1147">queryOptions / insertOptions / updateOptions</text>
-<text class="member" x="784" y="1169">writeOptions / deleteOptions</text>
-<text class="member" x="784" y="1191">Insert/Update/Delete.addWriteOptions()</text>
-<text class="member" x="784" y="1213">Criteria.where(&quot;field&quot;) eq value</text>
-</g>
-<g id="SchemaGenerator">
-  <rect class="classBox" x="1590" y="930" width="570" height="300" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="stereotype" x="1875" y="958" text-anchor="middle">&lt;&lt;object&gt;&gt;</text>
-  <text class="classTitle" x="1875" y="988" text-anchor="middle">SchemaGenerator</text>
-  <path class="divider" d="M1590 1006H2160" stroke="#BE185D"/>
-  <text class="member" x="1614" y="1032">receiver dependency: CassandraOperations</text>
-<text class="member" x="1614" y="1054">uses SchemaFactory and mappingContext</text>
-  <path class="divider" d="M1590 1084H2160" stroke="#BE185D"/>
-  <text class="member" x="1614" y="1110">createTableAndTypes&lt;T&gt;()</text>
-<text class="member" x="1614" y="1132">potentiallyCreateTableFor&lt;T&gt;()</text>
-<text class="member" x="1614" y="1154">potentiallyCreateUdtFor nested properties</text>
-<text class="member" x="1614" y="1176">truncate&lt;T&gt;() only when table exists</text>
-</g>
-<g id="Persistable">
-  <rect class="classBox" x="760" y="1290" width="570" height="255" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-  <text class="stereotype" x="1045" y="1318" text-anchor="middle">&lt;&lt;abstract class&gt;&gt;</text>
-  <text class="classTitle" x="1045" y="1348" text-anchor="middle">AbstractCassandraPersistable&lt;PK&gt;</text>
-  <path class="divider" d="M760 1366H1330" stroke="#475569"/>
-  <text class="member" x="784" y="1392">implements Persistable&lt;PK&gt;</text>
-<text class="member" x="784" y="1414">implements Serializable</text>
-  <path class="divider" d="M760 1444H1330" stroke="#475569"/>
-  <text class="member" x="784" y="1470">setId(id): abstract</text>
-<text class="member" x="784" y="1492">isNew(): id == null</text>
-<text class="member" x="784" y="1514">equals/hashCode use non-null id</text>
-</g>
-<g id="Auditable">
-  <rect class="classBox" x="1530" y="1275" width="620" height="285" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-  <text class="stereotype" x="1840" y="1303" text-anchor="middle">&lt;&lt;abstract class&gt;&gt;</text>
-  <text class="classTitle" x="1840" y="1333" text-anchor="middle">AbstractCassandraAuditable&lt;U,PK&gt;</text>
-  <path class="divider" d="M1530 1351H2150" stroke="#475569"/>
-  <text class="member" x="1554" y="1377">extends AbstractCassandraPersistable&lt;PK&gt;</text>
-<text class="member" x="1554" y="1399">implements Auditable&lt;U, PK, Instant&gt;</text>
-<text class="member" x="1554" y="1421">created/modified columns</text>
-  <path class="divider" d="M1530 1451H2150" stroke="#475569"/>
-  <text class="member" x="1554" y="1477">isNew(): createdAt == null</text>
-<text class="member" x="1554" y="1499">get/setCreatedBy and CreatedDate</text>
-<text class="member" x="1554" y="1521">get/setLastModifiedBy and LastModifiedDate</text>
-</g>
-<g data-from="ReactiveSessionExtensions" data-to="ExternalApis">
-  <path class="edge dashed" d="M375 500 L375 420 L900 420 L900 390" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
-  <text class="edgeLabel" x="573" y="399">wraps</text>
-</g>
-<g data-from="ReactiveOpsExtensions" data-to="ExternalApis">
-  <path class="edge dashed" d="M1120 480 L1120 390" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="1146" y="437">wraps</text>
-</g>
-<g data-from="AsyncOpsExtensions" data-to="ExternalApis">
-  <path class="edge dashed" d="M1875 500 L1875 420 L1700 420 L1700 390" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="1803" y="399">wraps</text>
-</g>
-<g data-from="BatchSelectExtensions" data-to="ReactiveOpsExtensions">
-  <path class="edge dashed" d="M375 930 L375 870 L1120 870 L1120 825" stroke="#6D28D9" marker-end="url(#arrow-purple)"/>
-  <text class="edgeLabel" x="628" y="849">same coroutine bridge family</text>
-</g>
-<g data-from="SchemaGenerator" data-to="ExternalApis">
-  <path class="edge dashed" d="M1875 930 L1875 840 L2250 840 L2250 305 L1840 305" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-  <text class="edgeLabel" x="1938" y="820">mapping metadata</text>
-</g>
-<g data-from="Auditable" data-to="Persistable">
-  <path class="edge " d="M1530 1418 L1330 1418" stroke="#475569" marker-end="url(#triangle-slate)"/>
-  <text class="edgeLabel" x="1398" y="1397">extends</text>
-</g>
-<g data-from="OptionsDsl" data-to="ReactiveOpsExtensions">
-  <path class="edge dashed" d="M1240 945 L1240 825" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-  <text class="edgeLabel" x="1266" y="892">options for writes</text>
-</g>
+  </g>
+
+  <g class="card" data-card="ReactiveSession Coroutines">
+    <rect x="82" y="406" width="360" height="170" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.8"/>
+    <text x="262" y="427" text-anchor="middle" font-size="12.3" fill="#2563eb">&lt;&lt;extension file&gt;&gt;</text>
+    <text x="262" y="449" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">ReactiveSession</text>
+<text x="262" y="469" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">Coroutines</text>
+    <line x1="82" y1="480" x2="442" y2="480" stroke="#2563eb" stroke-width="1.1" opacity="0.55"/>
+    <line x1="82" y1="516" x2="442" y2="516" stroke="#2563eb" stroke-width="1.1" opacity="0.45"/>
+    <text x="98" y="503" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">receiver: ReactiveSession</text>
+    <text x="98" y="539" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">executeSuspending(...)</text>
+<text x="98" y="557" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">prepareSuspending(...)</text>
+  </g>
+
+  <g class="card" data-card="ReactiveCassandra Operations Coroutines">
+    <rect x="560" y="390" width="360" height="208" rx="8" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.8"/>
+    <text x="740" y="411" text-anchor="middle" font-size="12.3" fill="#16a34a">&lt;&lt;extension file&gt;&gt;</text>
+    <text x="740" y="433" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">ReactiveCassandra</text>
+<text x="740" y="453" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">Operations Coroutines</text>
+    <line x1="560" y1="464" x2="920" y2="464" stroke="#16a34a" stroke-width="1.1" opacity="0.55"/>
+    <line x1="560" y1="500" x2="920" y2="500" stroke="#16a34a" stroke-width="1.1" opacity="0.45"/>
+    <text x="576" y="487" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">receiver: ReactiveCassandraOperations</text>
+    <text x="576" y="523" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">selectAsFlow(...)</text>
+<text x="576" y="541" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">selectOne/count/exists suspending</text>
+<text x="576" y="559" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">insert/update/delete/truncate</text>
+  </g>
+
+  <g class="card" data-card="AsyncCassandra Operations Coroutines">
+    <rect x="1038" y="406" width="360" height="184" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.8"/>
+    <text x="1218" y="427" text-anchor="middle" font-size="12.3" fill="#2563eb">&lt;&lt;extension file&gt;&gt;</text>
+    <text x="1218" y="449" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">AsyncCassandra</text>
+<text x="1218" y="469" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">Operations Coroutines</text>
+    <line x1="1038" y1="480" x2="1398" y2="480" stroke="#2563eb" stroke-width="1.1" opacity="0.55"/>
+    <line x1="1038" y1="516" x2="1398" y2="516" stroke="#2563eb" stroke-width="1.1" opacity="0.45"/>
+    <text x="1054" y="503" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">receiver: AsyncCassandraOperations</text>
+    <text x="1054" y="539" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">executeSuspending(...)</text>
+<text x="1054" y="557" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">selectSuspending(...)</text>
+<text x="1054" y="575" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">sliceSuspending(...)</text>
+  </g>
+
+  <g class="card" data-card="Batch and Select Support">
+    <rect x="82" y="672" width="360" height="186" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.8"/>
+    <text x="262" y="693" text-anchor="middle" font-size="12.3" fill="#7c3aed">&lt;&lt;extension files&gt;&gt;</text>
+    <text x="262" y="715" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">Batch and Select</text>
+<text x="262" y="735" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">Support</text>
+    <line x1="82" y1="746" x2="442" y2="746" stroke="#7c3aed" stroke-width="1.1" opacity="0.55"/>
+    <line x1="82" y1="800" x2="442" y2="800" stroke="#7c3aed" stroke-width="1.1" opacity="0.45"/>
+    <text x="98" y="769" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">ReactiveCassandraBatchOperations</text>
+<text x="98" y="787" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">ReactiveSelectOperation</text>
+    <text x="98" y="823" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">insert/update/delete Flow</text>
+<text x="98" y="841" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">count/exists/first/one/all</text>
+  </g>
+
+  <g class="card" data-card="CQL Options and Criteria DSL">
+    <rect x="560" y="672" width="360" height="214" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+    <text x="740" y="693" text-anchor="middle" font-size="12.3" fill="#ea580c">&lt;&lt;DSL helpers&gt;&gt;</text>
+    <text x="740" y="715" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">CQL Options and</text>
+<text x="740" y="735" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">Criteria DSL</text>
+    <line x1="560" y1="746" x2="920" y2="746" stroke="#ea580c" stroke-width="1.1" opacity="0.55"/>
+    <line x1="560" y1="800" x2="920" y2="800" stroke="#ea580c" stroke-width="1.1" opacity="0.45"/>
+    <text x="576" y="769" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">QueryOptions, WriteOptions</text>
+<text x="576" y="787" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">Criteria</text>
+    <text x="576" y="823" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">query/write option builders</text>
+<text x="576" y="841" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">addWriteOptions(...)</text>
+<text x="576" y="859" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">Criteria.where(...) eq value</text>
+  </g>
+
+  <g class="card" data-card="SchemaGenerator">
+    <rect x="560" y="942" width="360" height="198" rx="8" fill="#fdf2f8" stroke="#db2777" stroke-width="1.8"/>
+    <text x="740" y="963" text-anchor="middle" font-size="12.3" fill="#db2777">&lt;&lt;object&gt;&gt;</text>
+    <text x="740" y="985" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">SchemaGenerator</text>
+    <line x1="560" y1="996" x2="920" y2="996" stroke="#db2777" stroke-width="1.1" opacity="0.55"/>
+    <line x1="560" y1="1050" x2="920" y2="1050" stroke="#db2777" stroke-width="1.1" opacity="0.45"/>
+    <text x="576" y="1019" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">depends on CassandraOperations</text>
+<text x="576" y="1037" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">uses mappingContext + SchemaFactory</text>
+    <text x="576" y="1073" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">createTableAndTypes&lt;T&gt;()</text>
+<text x="576" y="1091" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">potentiallyCreateTableFor&lt;T&gt;()</text>
+<text x="576" y="1109" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">truncate&lt;T&gt;() if table exists</text>
+  </g>
+
+  <g class="card" data-card="AbstractCassandra Persistable&lt;PK&gt;">
+    <rect x="1038" y="672" width="360" height="158" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.8"/>
+    <text x="1218" y="693" text-anchor="middle" font-size="12.3" fill="#64748b">&lt;&lt;abstract class&gt;&gt;</text>
+    <text x="1218" y="715" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">AbstractCassandra</text>
+<text x="1218" y="735" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">Persistable&lt;PK&gt;</text>
+    <line x1="1038" y1="746" x2="1398" y2="746" stroke="#64748b" stroke-width="1.1" opacity="0.55"/>
+    <line x1="1038" y1="800" x2="1398" y2="800" stroke="#64748b" stroke-width="1.1" opacity="0.45"/>
+    <text x="1054" y="769" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">Persistable&lt;PK&gt;</text>
+<text x="1054" y="787" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">Serializable</text>
+    <text x="1054" y="823" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">isNew(): id == null</text>
+  </g>
+
+  <g class="card" data-card="AbstractCassandra Auditable&lt;U,PK&gt;">
+    <rect x="1038" y="890" width="360" height="158" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.8"/>
+    <text x="1218" y="911" text-anchor="middle" font-size="12.3" fill="#64748b">&lt;&lt;abstract class&gt;&gt;</text>
+    <text x="1218" y="933" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">AbstractCassandra</text>
+<text x="1218" y="953" text-anchor="middle" font-size="16.5" font-weight="700" fill="#111827">Auditable&lt;U,PK&gt;</text>
+    <line x1="1038" y1="964" x2="1398" y2="964" stroke="#64748b" stroke-width="1.1" opacity="0.55"/>
+    <line x1="1038" y1="1000" x2="1398" y2="1000" stroke="#64748b" stroke-width="1.1" opacity="0.45"/>
+    <text x="1054" y="987" text-anchor="start" font-size="12.5" font-weight="400" fill="#475569">Auditable&lt;U,PK,Instant&gt;</text>
+    <text x="1054" y="1023" text-anchor="start" font-size="12.5" font-weight="400" fill="#374151">isNew(): createdAt == null</text>
+  </g>
+  <g class="legend" transform="translate(72 1184)">
+    <line x1="0" y1="0" x2="38" y2="0" stroke="#2563eb" stroke-width="2.4" stroke-dasharray="7 5" marker-end="url(#open-blue)"/><text x="54" y="5" font-size="13" fill="#475569">extension depends on receiver API</text>
+    <line x1="360" y1="0" x2="398" y2="0" stroke="#64748b" stroke-width="2.2" marker-end="url(#hollow-slate)"/><text x="414" y="5" font-size="13" fill="#475569">extends abstract base class</text>
+    <line x1="685" y1="0" x2="723" y2="0" stroke="#db2777" stroke-width="2.4" stroke-dasharray="7 5" marker-end="url(#open-pink)"/><text x="739" y="5" font-size="13" fill="#475569">uses mapping/schema API</text>
+  </g>
 </svg>

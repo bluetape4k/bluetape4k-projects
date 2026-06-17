@@ -14,9 +14,9 @@ Provides coroutine extensions, convenience DSLs, and schema utilities for Spring
 
 ## Architecture Diagrams
 
-### Core Class Structure
+### Core Extension and Class Structure
 
-![Core Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)
+![Core Extension and Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)
 
 ### Cassandra Data Access Layer
 

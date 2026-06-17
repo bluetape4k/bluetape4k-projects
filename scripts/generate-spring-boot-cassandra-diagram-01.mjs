@@ -4,13 +4,12 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const ROOT = process.cwd();
-const OUT = join(ROOT, "docs/images/readme-diagrams");
-const CAIROSVG = process.env.CAIROSVG ?? "cairosvg";
+const root = process.cwd();
+const outDir = join(root, "docs/images/readme-diagrams");
+const cairosvg = process.env.CAIROSVG ?? "/Users/debop/.local/bin/cairosvg";
 
 const sources = [
   "spring-boot/cassandra/README.md",
-  "spring-boot/cassandra/README.ko.md",
   "spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveSessionCoroutines.kt",
   "spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraOperationsCoroutines.kt",
   "spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/AsyncCassandraOperationsCoroutines.kt",
@@ -24,224 +23,110 @@ const sources = [
 ];
 
 for (const source of sources) {
-  if (!existsSync(join(ROOT, source))) throw new Error(`Missing evidence source: ${source}`);
+  if (!existsSync(join(root, source))) throw new Error(`Missing source: ${source}`);
 }
 
-function assertContains(source, pattern, label) {
-  const text = readFileSync(join(ROOT, source), "utf8");
-  if (!pattern.test(text)) throw new Error(`Expected ${label} in ${source}`);
+function requireSource(index, pattern, label) {
+  const text = readFileSync(join(root, sources[index]), "utf8");
+  if (!pattern.test(text)) throw new Error(`Missing ${label}`);
 }
 
-assertContains(sources[0], /Core Class Structure[\s\S]*spring-boot-cassandra-diagram-01\.png/, "README core class structure slot");
-assertContains(sources[2], /suspend fun ReactiveSession\.executeSuspending[\s\S]*prepareSuspending/, "ReactiveSession coroutine extensions");
-assertContains(sources[3], /ReactiveCassandraOperations\.selectAsFlow[\s\S]*selectOneSuspending[\s\S]*truncateSuspending/, "ReactiveCassandraOperations coroutine extensions");
-assertContains(sources[4], /AsyncCassandraOperations\.executeSuspending[\s\S]*selectSuspending[\s\S]*SliceImpl/, "AsyncCassandraOperations coroutine extensions");
-assertContains(sources[5], /ReactiveCassandraBatchOperations\.insertFlow[\s\S]*deleteFlow/, "batch Flow extensions");
-assertContains(sources[6], /SelectWithProjection<\*>\.cast[\s\S]*TerminatingSelect<T>\.allSuspending/, "select operation extensions");
-assertContains(sources[7], /queryOptions[\s\S]*writeOptions[\s\S]*addWriteOptions[\s\S]*isPositiveTtl/, "CQL options DSL");
-assertContains(sources[8], /infix fun Criteria\.eq/, "criteria DSL");
-assertContains(sources[9], /abstract class AbstractCassandraPersistable<PK:\s*Any>:\s*Persistable<PK>/, "persistable base class");
-assertContains(sources[10], /abstract class AbstractCassandraAuditable<U:\s*Any,\s*PK:\s*Any>:\s*AbstractCassandraPersistable<PK>/, "auditable base class");
-assertContains(sources[11], /object SchemaGenerator[\s\S]*createTableAndTypes[\s\S]*truncate/, "schema generator");
+requireSource(0, /Core Extension and Class Structure[\s\S]*spring-boot-cassandra-diagram-01\.png/, "README diagram slot");
+requireSource(1, /ReactiveSession\.executeSuspending[\s\S]*prepareSuspending/, "ReactiveSession extensions");
+requireSource(2, /ReactiveCassandraOperations\.selectAsFlow[\s\S]*truncateSuspending/, "ReactiveCassandraOperations extensions");
+requireSource(3, /AsyncCassandraOperations\.executeSuspending[\s\S]*selectSuspending/, "AsyncCassandraOperations extensions");
+requireSource(4, /ReactiveCassandraBatchOperations\.insertFlow[\s\S]*deleteFlow/, "batch extensions");
+requireSource(5, /SelectWithProjection<\*>\.cast[\s\S]*TerminatingSelect<T>\.allSuspending/, "select operation extensions");
+requireSource(6, /writeOptions[\s\S]*addWriteOptions[\s\S]*isPositiveTtl/, "options DSL");
+requireSource(7, /Criteria\.where/, "criteria DSL");
+requireSource(8, /abstract class AbstractCassandraPersistable<PK:\s*Any>:\s*Persistable<PK>/, "persistable base");
+requireSource(9, /abstract class AbstractCassandraAuditable<U:\s*Any,\s*PK:\s*Any>:\s*AbstractCassandraPersistable<PK>/, "auditable base");
+requireSource(10, /object SchemaGenerator[\s\S]*createTableAndTypes[\s\S]*truncate/, "schema generator");
 
-const palette = {
-  teal: ["#F0FDFA", "#0D9488", "#0F766E"],
-  blue: ["#EFF6FF", "#2563EB", "#1D4ED8"],
-  green: ["#F0FDF4", "#16A34A", "#15803D"],
-  amber: ["#FFF7ED", "#EA580C", "#C2410C"],
-  pink: ["#FDF2F8", "#DB2777", "#BE185D"],
-  purple: ["#F5F3FF", "#7C3AED", "#6D28D9"],
-  slate: ["#F8FAFC", "#64748B", "#475569"],
-};
+const font = "'Architects Daughter', 'Comic Mono', 'Helvetica Neue', Arial, sans-serif";
 
 function esc(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
+  return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 
-function markerDefs() {
-  return Object.entries(palette).map(([name, [, , dark]]) => `
-  <marker id="arrow-${name}" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="${dark}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
-  <marker id="triangle-${name}" markerWidth="24" markerHeight="22" refX="21" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 21 11 L 2 20 Z" fill="#FFFFFF" stroke="${dark}" stroke-width="2" stroke-dasharray="none"/></marker>`).join("\n");
+function textLines(items, x, y, { size = 13, fill = "#475569", line = 18, anchor = "start", weight = 400 } = {}) {
+  return items.map((item, i) => `<text x="${x}" y="${y + i * line}" text-anchor="${anchor}" font-size="${size}" font-weight="${weight}" fill="${fill}">${esc(item)}</text>`).join("\n");
 }
 
-function classBox({ id, x, y, w, h, color, stereotype, title, attrs = [], methods = [] }) {
-  const [fill, stroke, dark] = palette[color];
-  const attrY = y + 76;
-  const methodY = attrY + 34 + Math.max(24, attrs.length * 22);
-  return `<g id="${esc(id)}">
-  <rect class="classBox" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
-  <text class="stereotype" x="${x + w / 2}" y="${y + 28}" text-anchor="middle">${esc(stereotype)}</text>
-  <text class="classTitle" x="${x + w / 2}" y="${y + 58}" text-anchor="middle">${esc(title)}</text>
-  <path class="divider" d="M${x} ${attrY}H${x + w}" stroke="${dark}"/>
-  ${attrs.map((line, index) => `<text class="member" x="${x + 24}" y="${attrY + 26 + index * 22}">${esc(line)}</text>`).join("\n")}
-  <path class="divider" d="M${x} ${methodY}H${x + w}" stroke="${dark}"/>
-  ${methods.map((line, index) => `<text class="member" x="${x + 24}" y="${methodY + 26 + index * 22}">${esc(line)}</text>`).join("\n")}
-</g>`;
+function classCard({ x, y, w, h, name, stereo, attrs = [], ops = [], fill, stroke }) {
+  const nameLines = String(name).split("\n");
+  const headerH = 34 + nameLines.length * 20;
+  const attrH = attrs.length ? Math.max(34, attrs.length * 18 + 18) : 0;
+  const opY = y + headerH + attrH;
+  return `
+  <g class="card" data-card="${esc(nameLines.join(" "))}">
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}" stroke-width="1.8"/>
+    <text x="${x + w / 2}" y="${y + 21}" text-anchor="middle" font-size="12.3" fill="${stroke}">${esc(stereo)}</text>
+    ${textLines(nameLines, x + w / 2, y + 43, { size: 16.5, weight: 700, fill: "#111827", line: 20, anchor: "middle" })}
+    <line x1="${x}" y1="${y + headerH}" x2="${x + w}" y2="${y + headerH}" stroke="${stroke}" stroke-width="1.1" opacity="0.55"/>
+    ${attrH ? `<line x1="${x}" y1="${opY}" x2="${x + w}" y2="${opY}" stroke="${stroke}" stroke-width="1.1" opacity="0.45"/>` : ""}
+    ${attrs.length ? textLines(attrs, x + 16, y + headerH + 23, { size: 12.5, fill: "#475569", line: 18 }) : ""}
+    ${ops.length ? textLines(ops, x + 16, opY + 23, { size: 12.5, fill: "#374151", line: 18 }) : ""}
+  </g>`;
 }
 
-function noteBox({ id, x, y, w, h, color, title, lines }) {
-  const [fill, stroke] = palette[color];
-  return `<g id="${esc(id)}">
-  <rect class="noteBox" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
-  <text class="noteTitle" x="${x + 28}" y="${y + 48}">${esc(title)}</text>
-  ${lines.map((line, index) => `<text class="noteLine" x="${x + 30}" y="${y + 88 + index * 28}">${esc(line)}</text>`).join("\n")}
-</g>`;
+function edge({ d, color, marker, width = 2.4, dash = "" }) {
+  return `<path class="edge" d="${d}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""} marker-end="url(#${marker})"/>`;
 }
 
-function edge({ from, to, points, color, marker = "arrow", dashed = false, label = "", labelAt }) {
-  const [, , dark] = palette[color];
-  const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
-  const p = labelAt ?? points[Math.floor(points.length / 2)];
-  return `<g data-from="${esc(from)}" data-to="${esc(to)}">
-  <path class="edge ${dashed ? "dashed" : ""}" d="${d}" stroke="${dark}" marker-end="url(#${marker}-${color})"/>
-  ${label ? `<text class="edgeLabel" x="${p[0] + 8}" y="${p[1] - 8}">${esc(label)}</text>` : ""}
-</g>`;
+function defs() {
+  return `
+  <defs>
+    <marker id="open-blue" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="open-green" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#16a34a" stroke-width="1.8" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="open-orange" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#ea580c" stroke-width="1.8" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="open-purple" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="open-pink" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#db2777" stroke-width="1.8" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="hollow-slate" markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="15" viewBox="0 0 12 12" refX="11" refY="6" orient="auto"><path d="M 1 1 L 11 6 L 1 11 Z" fill="#ffffff" stroke="#64748b" stroke-width="1.5" stroke-dasharray="none"/></marker>
+  </defs>`;
 }
 
-const width = 2350;
-const height = 1640;
-const body = [
-  noteBox({
-    id: "ExternalApis",
-    x: 760,
-    y: 220,
-    w: 1080,
-    h: 170,
-    color: "slate",
-    title: "Wrapped Spring Data and DataStax APIs",
-    lines: ["ReactiveSession, ReactiveCassandraOperations, AsyncCassandraOperations, ReactiveCassandraBatchOperations", "QueryOptions, WriteOptions, Criteria, CassandraOperations, mapping metadata"],
-  }),
-  classBox({
-    id: "ReactiveSessionExtensions",
-    x: 90,
-    y: 500,
-    w: 570,
-    h: 280,
-    color: "teal",
-    stereotype: "<<extension set>>",
-    title: "ReactiveSessionCoroutines",
-    attrs: ["receiver: ReactiveSession", "bridge: Reactor Mono -> suspend"],
-    methods: ["executeSuspending(String / args / Statement)", "prepareSuspending(String / SimpleStatement)", "returns ReactiveResultSet or PreparedStatement"],
-  }),
-  classBox({
-    id: "ReactiveOpsExtensions",
-    x: 760,
-    y: 480,
-    w: 720,
-    h: 345,
-    color: "green",
-    stereotype: "<<extension set>>",
-    title: "ReactiveCassandraOperationsCoroutines",
-    attrs: ["receiver: ReactiveCassandraOperations", "bridges Flux to Flow and Mono to suspend"],
-    methods: ["selectAsFlow(statement / cql / query)", "selectOne*, slice*, count*, exists*", "insert/update/delete/truncate suspending", "deleteByIdSuspending and executeSuspending"],
-  }),
-  classBox({
-    id: "AsyncOpsExtensions",
-    x: 1590,
-    y: 500,
-    w: 570,
-    h: 280,
-    color: "blue",
-    stereotype: "<<extension set>>",
-    title: "AsyncCassandraOperationsCoroutines",
-    attrs: ["receiver: AsyncCassandraOperations", "bridge: CompletableFuture -> suspend"],
-    methods: ["executeSuspending(statement)", "selectSuspending(statement / cql / query)", "selectOneOrNullSuspending", "sliceSuspending with empty Slice fallback"],
-  }),
-  classBox({
-    id: "BatchSelectExtensions",
-    x: 90,
-    y: 930,
-    w: 570,
-    h: 285,
-    color: "purple",
-    stereotype: "<<extension set>>",
-    title: "Batch and Select support",
-    attrs: ["ReactiveCassandraBatchOperations", "ReactiveSelectOperation.TerminatingSelect"],
-    methods: ["insertFlow / updateFlow / deleteFlow", "Flow is collected into Reactor mono", "cast(), count/exists/first/one/all suspending"],
-  }),
-  classBox({
-    id: "OptionsDsl",
-    x: 760,
-    y: 945,
-    w: 720,
-    h: 295,
-    color: "amber",
-    stereotype: "<<DSL helpers>>",
-    title: "CQL Options and Criteria DSL",
-    attrs: ["QueryOptions / InsertOptions / UpdateOptions", "WriteOptions / DeleteOptions", "Criteria"],
-    methods: ["queryOptions / insertOptions / updateOptions", "writeOptions / deleteOptions", "Insert/Update/Delete.addWriteOptions()", "Criteria.where(\"field\") eq value"],
-  }),
-  classBox({
-    id: "SchemaGenerator",
-    x: 1590,
-    y: 930,
-    w: 570,
-    h: 300,
-    color: "pink",
-    stereotype: "<<object>>",
-    title: "SchemaGenerator",
-    attrs: ["receiver dependency: CassandraOperations", "uses SchemaFactory and mappingContext"],
-    methods: ["createTableAndTypes<T>()", "potentiallyCreateTableFor<T>()", "potentiallyCreateUdtFor nested properties", "truncate<T>() only when table exists"],
-  }),
-  classBox({
-    id: "Persistable",
-    x: 760,
-    y: 1290,
-    w: 570,
-    h: 255,
-    color: "slate",
-    stereotype: "<<abstract class>>",
-    title: "AbstractCassandraPersistable<PK>",
-    attrs: ["implements Persistable<PK>", "implements Serializable"],
-    methods: ["setId(id): abstract", "isNew(): id == null", "equals/hashCode use non-null id"],
-  }),
-  classBox({
-    id: "Auditable",
-    x: 1530,
-    y: 1275,
-    w: 620,
-    h: 285,
-    color: "slate",
-    stereotype: "<<abstract class>>",
-    title: "AbstractCassandraAuditable<U,PK>",
-    attrs: ["extends AbstractCassandraPersistable<PK>", "implements Auditable<U, PK, Instant>", "created/modified columns"],
-    methods: ["isNew(): createdAt == null", "get/setCreatedBy and CreatedDate", "get/setLastModifiedBy and LastModifiedDate"],
-  }),
-  edge({ from: "ReactiveSessionExtensions", to: "ExternalApis", points: [[375, 500], [375, 420], [900, 420], [900, 390]], color: "teal", dashed: true, label: "wraps", labelAt: [565, 407] }),
-  edge({ from: "ReactiveOpsExtensions", to: "ExternalApis", points: [[1120, 480], [1120, 390]], color: "green", dashed: true, label: "wraps", labelAt: [1138, 445] }),
-  edge({ from: "AsyncOpsExtensions", to: "ExternalApis", points: [[1875, 500], [1875, 420], [1700, 420], [1700, 390]], color: "blue", dashed: true, label: "wraps", labelAt: [1795, 407] }),
-  edge({ from: "BatchSelectExtensions", to: "ReactiveOpsExtensions", points: [[375, 930], [375, 870], [1120, 870], [1120, 825]], color: "purple", dashed: true, label: "same coroutine bridge family", labelAt: [620, 857] }),
-  edge({ from: "SchemaGenerator", to: "ExternalApis", points: [[1875, 930], [1875, 840], [2250, 840], [2250, 305], [1840, 305]], color: "pink", dashed: true, label: "mapping metadata", labelAt: [1930, 828] }),
-  edge({ from: "Auditable", to: "Persistable", points: [[1530, 1418], [1330, 1418]], color: "slate", marker: "triangle", dashed: false, label: "extends", labelAt: [1390, 1405] }),
-  edge({ from: "OptionsDsl", to: "ReactiveOpsExtensions", points: [[1240, 945], [1240, 825]], color: "amber", dashed: true, label: "options for writes", labelAt: [1258, 900] }),
+const width = 1480;
+const height = 1220;
+const cards = [
+  classCard({ x: 82, y: 166, w: 360, h: 142, name: "ReactiveSession", stereo: "<<Spring Data receiver>>", attrs: ["execute(statement): Mono<ResultSet>", "prepare(statement): Mono<PreparedStatement>"], fill: "#eff6ff", stroke: "#2563eb" }),
+  classCard({ x: 560, y: 150, w: 360, h: 174, name: "ReactiveCassandra\nOperations", stereo: "<<Spring Data receiver>>", attrs: ["select/count/exists CRUD API", "Flux and Mono result contracts"], fill: "#ecfdf5", stroke: "#16a34a" }),
+  classCard({ x: 1038, y: 166, w: 360, h: 142, name: "AsyncCassandra\nOperations", stereo: "<<Spring Data receiver>>", attrs: ["CompletableFuture result API", "AsyncResultSet driver path"], fill: "#eff6ff", stroke: "#2563eb" }),
+  classCard({ x: 82, y: 406, w: 360, h: 170, name: "ReactiveSession\nCoroutines", stereo: "<<extension file>>", attrs: ["receiver: ReactiveSession"], ops: ["executeSuspending(...)", "prepareSuspending(...)"], fill: "#eff6ff", stroke: "#2563eb" }),
+  classCard({ x: 560, y: 390, w: 360, h: 208, name: "ReactiveCassandra\nOperations Coroutines", stereo: "<<extension file>>", attrs: ["receiver: ReactiveCassandraOperations"], ops: ["selectAsFlow(...)", "selectOne/count/exists suspending", "insert/update/delete/truncate"], fill: "#ecfdf5", stroke: "#16a34a" }),
+  classCard({ x: 1038, y: 406, w: 360, h: 184, name: "AsyncCassandra\nOperations Coroutines", stereo: "<<extension file>>", attrs: ["receiver: AsyncCassandraOperations"], ops: ["executeSuspending(...)", "selectSuspending(...)", "sliceSuspending(...)"], fill: "#eff6ff", stroke: "#2563eb" }),
+  classCard({ x: 82, y: 672, w: 360, h: 186, name: "Batch and Select\nSupport", stereo: "<<extension files>>", attrs: ["ReactiveCassandraBatchOperations", "ReactiveSelectOperation"], ops: ["insert/update/delete Flow", "count/exists/first/one/all"], fill: "#f5f3ff", stroke: "#7c3aed" }),
+  classCard({ x: 560, y: 672, w: 360, h: 214, name: "CQL Options and\nCriteria DSL", stereo: "<<DSL helpers>>", attrs: ["QueryOptions, WriteOptions", "Criteria"], ops: ["query/write option builders", "addWriteOptions(...)", "Criteria.where(...) eq value"], fill: "#fff7ed", stroke: "#ea580c" }),
+  classCard({ x: 560, y: 942, w: 360, h: 198, name: "SchemaGenerator", stereo: "<<object>>", attrs: ["depends on CassandraOperations", "uses mappingContext + SchemaFactory"], ops: ["createTableAndTypes<T>()", "potentiallyCreateTableFor<T>()", "truncate<T>() if table exists"], fill: "#fdf2f8", stroke: "#db2777" }),
+  classCard({ x: 1038, y: 672, w: 360, h: 158, name: "AbstractCassandra\nPersistable<PK>", stereo: "<<abstract class>>", attrs: ["Persistable<PK>", "Serializable"], ops: ["isNew(): id == null"], fill: "#f8fafc", stroke: "#64748b" }),
+  classCard({ x: 1038, y: 890, w: 360, h: 158, name: "AbstractCassandra\nAuditable<U,PK>", stereo: "<<abstract class>>", attrs: ["Auditable<U,PK,Instant>"], ops: ["isNew(): createdAt == null"], fill: "#f8fafc", stroke: "#64748b" }),
 ];
 
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot Cassandra Core Class Structure Diagram">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  ${markerDefs()}
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .classBox,.noteBox{stroke-width:1.8;filter:url(#shadow)}.stereotype{font-family:"Comic Mono";font-size:14px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:26px;fill:#0F172A}
-    .member,.noteLine{font-family:"Comic Mono";font-size:14px;fill:#334155}.divider{stroke-width:1.1;opacity:.45}.noteTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
-    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
-  </style>
-</defs>
-<rect class="canvas" width="${width}" height="${height}"/>
-<rect class="frame" x="34" y="30" width="${width - 68}" height="${height - 60}" rx="8"/>
-<text class="title" x="72" y="86">Spring Boot Cassandra Core Structure</text>
-<text class="subtitle" x="76" y="120">Coroutine extension sets, CQL/query DSL helpers, Cassandra entity base classes, and schema utilities in the Spring Boot 4 Cassandra module.</text>
-${body.join("\n")}
+const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot Cassandra core extension and class structure">
+  <style>text { font-family: ${font}; dominant-baseline: alphabetic; }</style>
+  ${defs()}
+  <rect width="${width}" height="${height}" fill="#ffffff"/>
+  <text x="72" y="62" font-size="30" font-weight="700" fill="#111827">Spring Boot Cassandra Core Extension Structure</text>
+  <text x="72" y="92" font-size="15" fill="#64748b">Coroutine extension files wrap Spring Data Cassandra receivers; model bases and SchemaGenerator cover entity identity, auditing, and schema bootstrap.</text>
+  ${edge({ d: "M262 406 L262 308", color: "#2563eb", marker: "open-blue", dash: "7 5" })}
+  ${edge({ d: "M740 390 L740 324", color: "#16a34a", marker: "open-green", dash: "7 5" })}
+  ${edge({ d: "M1218 406 L1218 308", color: "#2563eb", marker: "open-blue", dash: "7 5" })}
+  ${edge({ d: "M442 755 L498 755 L498 626 L650 626 L650 598", color: "#7c3aed", marker: "open-purple", dash: "7 5" })}
+  ${edge({ d: "M740 672 L740 598", color: "#ea580c", marker: "open-orange", dash: "7 5" })}
+  ${edge({ d: "M740 942 L740 910 L956 910 L956 504 L920 504", color: "#db2777", marker: "open-pink", dash: "7 5" })}
+  ${edge({ d: "M1218 890 L1218 830", color: "#64748b", marker: "hollow-slate", width: 2.2 })}
+  ${cards.join("\n")}
+  <g class="legend" transform="translate(72 1184)">
+    <line x1="0" y1="0" x2="38" y2="0" stroke="#2563eb" stroke-width="2.4" stroke-dasharray="7 5" marker-end="url(#open-blue)"/><text x="54" y="5" font-size="13" fill="#475569">extension depends on receiver API</text>
+    <line x1="360" y1="0" x2="398" y2="0" stroke="#64748b" stroke-width="2.2" marker-end="url(#hollow-slate)"/><text x="414" y="5" font-size="13" fill="#475569">extends abstract base class</text>
+    <line x1="685" y1="0" x2="723" y2="0" stroke="#db2777" stroke-width="2.4" stroke-dasharray="7 5" marker-end="url(#open-pink)"/><text x="739" y="5" font-size="13" fill="#475569">uses mapping/schema API</text>
+  </g>
 </svg>`;
 
-const svgPath = join(OUT, "spring-boot-cassandra-diagram-01.svg");
-const pngPath = join(OUT, "spring-boot-cassandra-diagram-01.png");
+const svgPath = join(outDir, "spring-boot-cassandra-diagram-01.svg");
+const pngPath = join(outDir, "spring-boot-cassandra-diagram-01.png");
 writeFileSync(svgPath, svg.replace(/[ \t]+$/gm, ""));
-execFileSync(CAIROSVG, [svgPath, "-o", pngPath, "--scale", "2"], { stdio: "inherit" });
-console.log("Generated spring-boot-cassandra-diagram-01.svg/png");
+execFileSync(cairosvg, [svgPath, "-o", pngPath, "-s", "2"], { stdio: "inherit" });
+console.log(`generated ${svgPath}`);
+console.log(`generated ${pngPath}`);
