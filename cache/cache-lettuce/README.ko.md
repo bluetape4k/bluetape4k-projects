@@ -107,7 +107,7 @@ JCache 변형은 cache-entry listener로 peer front-cache 전파를 지원합니
 `SuspendNearJCache<K,V>`는 JCache 인터페이스를 직접 구현하는 2-tier 캐시입니다. Caffeine(front) + LettuceJCache(back) 구조로,
 `NearJCacheConfig` Builder DSL로 설정합니다.
 
-![JCache NearCache (nearcache.jcache ) diagram](../../docs/images/readme-diagrams/cache-cache-lettuce-diagram-02.png)
+![Lettuce JCache NearCache Structure diagram](../../docs/images/readme-diagrams/cache-cache-lettuce-diagram-02.png)
 
 #### NearJCacheConfig DSL
 
@@ -150,9 +150,9 @@ cache.close()
 
 ### 클래스 구조
 
-#### LettuceNearCache 계층
+#### Native Lettuce NearCache Runtime Structure
 
-![LettuceNearCache diagram](../../docs/images/readme-diagrams/cache-cache-lettuce-diagram-04.png)
+![Native Lettuce NearCache Structure diagram](../../docs/images/readme-diagrams/cache-cache-lettuce-diagram-04.png)
 
 #### RESP3 CLIENT TRACKING 기반 Invalidation 흐름
 
