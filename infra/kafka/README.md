@@ -14,9 +14,9 @@ A utility library for using Apache Kafka efficiently in a Kotlin environment. Pr
 
 ## Architecture Diagrams
 
-### Kafka Class Hierarchy
+### Kafka API Structure
 
-![Kafka Class Hierarchy diagram](../../docs/images/readme-diagrams/infra-kafka-diagram-01.png)
+![Kafka API Structure](../../docs/images/readme-diagrams/infra-kafka-diagram-01.png)
 
 ### Producer/Consumer Message Flow
 

@@ -14,9 +14,9 @@ Apache Kafka를 Kotlin 환경에서 효율적으로 사용하기 위한 유틸�
 
 ## 아키텍처 다이어그램
 
-### Kafka 클래스 계층
+### Kafka API 구조
 
-![Kafka diagram](../../docs/images/readme-diagrams/infra-kafka-diagram-01.png)
+![Kafka API 구조](../../docs/images/readme-diagrams/infra-kafka-diagram-01.png)
 
 ### Producer/Consumer 메시지 흐름
 
