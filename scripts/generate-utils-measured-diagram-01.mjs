@@ -2,245 +2,187 @@
 
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
 
-const ROOT = process.cwd();
-const OUT = join(ROOT, "docs/images/readme-diagrams");
-const CAIROSVG = process.env.CAIROSVG ?? "cairosvg";
+const svgPath = "docs/images/readme-diagrams/utils-measured-diagram-01.svg";
+const pngPath = "docs/images/readme-diagrams/utils-measured-diagram-01.png";
+const W = 2520;
+const H = 1420;
+const colors = {
+  ink: "#0F172A",
+  muted: "#475569",
+  canvas: "#F8FAFC",
+  frame: "#FFFFFF",
+  line: "#CBD5E1",
+  blue: "#2563EB",
+  teal: "#0D9488",
+  green: "#16A34A",
+  orange: "#EA580C",
+  purple: "#7C3AED",
+  amber: "#D97706",
+  gray: "#64748B",
+};
 
-const sources = [
+const evidence = [
   "utils/measured/README.md",
   "utils/measured/src/main/kotlin/io/bluetape4k/measured/Units.kt",
   "utils/measured/src/main/kotlin/io/bluetape4k/measured/TypeAliases.kt",
   "utils/measured/src/main/kotlin/io/bluetape4k/measured/Length.kt",
   "utils/measured/src/main/kotlin/io/bluetape4k/measured/Time.kt",
   "utils/measured/src/main/kotlin/io/bluetape4k/measured/Mass.kt",
-  "utils/measured/src/main/kotlin/io/bluetape4k/measured/Area.kt",
-  "utils/measured/src/main/kotlin/io/bluetape4k/measured/Volume.kt",
-  "utils/measured/src/main/kotlin/io/bluetape4k/measured/Storage.kt",
-  "utils/measured/src/main/kotlin/io/bluetape4k/measured/BinarySize.kt",
-  "utils/measured/src/main/kotlin/io/bluetape4k/measured/Frequency.kt",
-  "utils/measured/src/main/kotlin/io/bluetape4k/measured/EnergyPower.kt",
-  "utils/measured/src/main/kotlin/io/bluetape4k/measured/Pressure.kt",
-  "utils/measured/src/main/kotlin/io/bluetape4k/measured/GraphicsLength.kt",
   "utils/measured/src/main/kotlin/io/bluetape4k/measured/Motion.kt",
   "utils/measured/src/main/kotlin/io/bluetape4k/measured/Temperature.kt",
 ];
 
-for (const source of sources) {
-  if (!existsSync(join(ROOT, source))) throw new Error(`Missing evidence source: ${source}`);
+for (const file of evidence) {
+  if (!existsSync(file)) throw new Error(`Missing source evidence: ${file}`);
 }
 
-function assertContains(source, pattern, label) {
-  const text = readFileSync(join(ROOT, source), "utf8");
-  if (!pattern.test(text)) throw new Error(`Expected ${label} in ${source}`);
+const readme = readFileSync("utils/measured/README.md", "utf8");
+if (!/Class Diagram[\s\S]*utils-measured-diagram-01\.png/.test(readme)) {
+  throw new Error("README class diagram slot not found");
 }
 
-assertContains(sources[0], /Class Diagram[\s\S]*utils-measured-diagram-01\.png/, "README class diagram slot");
-assertContains(sources[1], /abstract class Units[\s\S]*class UnitsProduct[\s\S]*class UnitsRatio[\s\S]*class InverseUnits[\s\S]*class Measure<T: Units>/, "core unit and measure classes");
-assertContains(sources[1], /operator fun <T: Units> Number\.times[\s\S]*operator fun <A: Units, B: Units> A\.times[\s\S]*operator fun <A: Units, B: Units> A\.div/, "unit operator surface");
-assertContains(sources[2], /typealias Velocity[\s\S]*typealias Acceleration/, "motion type aliases");
-assertContains(sources[14], /object MotionUnits[\s\S]*metersPerSecond[\s\S]*metersPerSecondSquared/, "motion unit constants");
-assertContains(sources[15], /enum class TemperatureUnit[\s\S]*value class TemperatureDelta/, "temperature value model");
+const units = readFileSync("utils/measured/src/main/kotlin/io/bluetape4k/measured/Units.kt", "utf8");
+for (const pattern of [
+  /abstract class Units/,
+  /class UnitsProduct/,
+  /class UnitsRatio/,
+  /class InverseUnits/,
+  /class Measure<T: Units>/,
+  /operator fun <T: Units> Number\.times/,
+  /operator fun <A: Units, B: Units> A\.times/,
+  /operator fun <A: Units, B: Units> A\.div/,
+]) {
+  if (!pattern.test(units)) throw new Error(`Expected source pattern not found: ${pattern}`);
+}
 
-const palette = {
-  slate: ["#F8FAFC", "#64748B", "#475569"],
-  blue: ["#EFF6FF", "#2563EB", "#1D4ED8"],
-  teal: ["#F0FDFA", "#0D9488", "#0F766E"],
-  green: ["#F0FDF4", "#16A34A", "#15803D"],
-  amber: ["#FFF7ED", "#EA580C", "#C2410C"],
-  pink: ["#FDF2F8", "#DB2777", "#BE185D"],
-  violet: ["#F5F3FF", "#7C3AED", "#6D28D9"],
+const boxes = {
+  units: { x: 155, y: 195, w: 520, h: 220, fill: "#EFF6FF", stroke: colors.blue, stereotype: "<<abstract class>>", title: "Units", attrs: ["+ suffix: String", "+ ratio: Double", "# spaceBetweenMagnitude"], methods: ["+ measureSuffix()", "+ equals() / hashCode()"] },
+  measure: { x: 1040, y: 175, w: 560, h: 260, fill: "#F0FDFA", stroke: colors.teal, stereotype: "<<class>>", title: "Measure<T: Units>", attrs: ["+ amount: Double", "+ units: T"], methods: ["+ as(other): Measure<T>", "+ in(other): Double", "+ plus/minus/times/div", "+ toHuman(), compareTo()"] },
+  concrete: { x: 135, y: 620, w: 560, h: 245, fill: "#EFF6FF", stroke: colors.blue, stereotype: "<<open subclasses>>", title: "Concrete unit families", attrs: ["Length, Time, Mass, Area, Volume", "Storage, BinarySize, Frequency", "Energy, Power, Pressure, GraphicsLength"], methods: ["companion constants define suffix and ratio", "Number extension functions create Measure<T>"] },
+  product: { x: 815, y: 620, w: 460, h: 220, fill: "#FAF5FF", stroke: colors.purple, stereotype: "<<class>>", title: "UnitsProduct<A, B>", attrs: ["+ first: A", "+ second: B", "suffix: A*B or (A)^2"], methods: ["created by A * B"] },
+  ratio: { x: 1380, y: 620, w: 460, h: 235, fill: "#ECFDF5", stroke: colors.green, stereotype: "<<class>>", title: "UnitsRatio<A, B>", attrs: ["+ numerator: A", "+ denominator: B", "+ reciprocal: UnitsRatio<B,A>"], methods: ["created by A / B", "ratio = A.ratio / B.ratio"] },
+  inverse: { x: 1940, y: 620, w: 420, h: 220, fill: "#FFF7ED", stroke: colors.orange, stereotype: "<<class>>", title: "InverseUnits<T>", attrs: ["+ unit: T", "suffix: 1/unit", "ratio: 1.0 / unit.ratio"], methods: ["represents reciprocal unit"] },
+  operators: { x: 1810, y: 180, w: 500, h: 220, fill: "#F8FAFC", stroke: colors.gray, stereotype: "<<top-level operators>>", title: "Unit arithmetic API", attrs: ["Number * Units", "A * B", "A / B", "Measure * Units"], methods: ["returns typed Measure", "preserves compound types"] },
+  motion: { x: 1050, y: 1030, w: 520, h: 245, fill: "#ECFDF5", stroke: colors.green, stereotype: "<<typealiases + object>>", title: "MotionUnits", attrs: ["Velocity = Length / Time", "Acceleration = Length / Time^2"], methods: ["metersPerSecond", "kilometersPerHour", "metersPerSecondSquared"] },
+  temperature: { x: 1715, y: 1030, w: 520, h: 245, fill: "#FFFBEB", stroke: colors.amber, stereotype: "<<special value model>>", title: "Temperature", attrs: ["TemperatureUnit enum", "TemperatureDelta value class"], methods: ["Kelvin / Celsius / Fahrenheit", "delta-aware conversion helpers"] },
 };
 
-function esc(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
-
-function markerDefs() {
-  return Object.entries(palette).map(([name, [, stroke, dark]]) => `
-  <marker id="arrow-${name}" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="${dark}"/></marker>
-  <marker id="inherit-${name}" markerWidth="24" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 20 11 L 3 19 Z" fill="#FFFFFF" stroke="${stroke}" stroke-width="2"/></marker>`).join("\n");
-}
-
-function classBox({ id, x, y, w, h, color, stereotype = "", title, attrs = [], methods = [] }) {
-  const [fill, stroke] = palette[color];
-  const titleY = stereotype ? y + 48 : y + 42;
-  const attrStart = y + 106;
-  const methodStart = y + 106 + Math.max(attrs.length, 1) * 24 + 35;
-  return `<g id="${esc(id)}">
-  <rect class="classBox" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
-  ${stereotype ? `<text class="stereo" x="${x + w / 2}" y="${y + 26}" text-anchor="middle">${esc(stereotype)}</text>` : ""}
-  <text class="classTitle" x="${x + w / 2}" y="${titleY}" text-anchor="middle">${esc(title)}</text>
-  <path class="compartment" d="M${x} ${y + 72}H${x + w}"/>
-  ${attrs.map((line, index) => `<text class="member" x="${x + 24}" y="${attrStart + index * 24}">${esc(line)}</text>`).join("\n")}
-  <path class="compartment" d="M${x} ${methodStart - 26}H${x + w}"/>
-  ${methods.map((line, index) => `<text class="member" x="${x + 24}" y="${methodStart + index * 24}">${esc(line)}</text>`).join("\n")}
-</g>`;
-}
-
-function note({ id, x, y, w, h, color, title, lines }) {
-  const [fill, stroke] = palette[color];
-  return `<g id="${esc(id)}">
-  <rect class="note" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
-  <text class="noteTitle" x="${x + 22}" y="${y + 38}">${esc(title)}</text>
-  ${lines.map((line, index) => `<text class="noteLine" x="${x + 22}" y="${y + 72 + index * 24}">${esc(line)}</text>`).join("\n")}
-</g>`;
-}
-
-function edge({ from, to, points, color = "slate", dashed = false, marker = "arrow", label = "", labelAt }) {
-  const [, , dark] = palette[color];
-  const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
-  const markerEnd = marker === "inherit" ? `url(#inherit-${color})` : `url(#arrow-${color})`;
-  const p = labelAt ?? points[Math.floor(points.length / 2)];
-  const labelWidth = label ? Math.max(110, label.length * 8 + 24) : 0;
-  return `<g data-from="${esc(from)}" data-to="${esc(to)}">
-  <path class="edge ${dashed ? "dashed" : ""}" d="${d}" stroke="${dark}" marker-end="${markerEnd}"/>
-  ${label ? `<rect class="edgeLabelBg" x="${p[0] - 8}" y="${p[1] - 17}" width="${labelWidth}" height="24" rx="4"/><text class="edgeLabel" x="${p[0]}" y="${p[1]}">${esc(label)}</text>` : ""}
-</g>`;
-}
-
-const width = 2600;
-const height = 1600;
-const nodes = [
-  classBox({
-    id: "Units",
-    x: 480,
-    y: 175,
-    w: 620,
-    h: 270,
-    color: "blue",
-    stereotype: "abstract class",
-    title: "Units",
-    attrs: ["+ suffix: String", "+ ratio: Double", "# spaceBetweenMagnitude: Boolean"],
-    methods: ["+ toString(): String", "+ equals(other): Boolean", "+ hashCode(): Int"],
-  }),
-  classBox({
-    id: "Measure",
-    x: 1510,
-    y: 155,
-    w: 660,
-    h: 315,
-    color: "teal",
-    title: "Measure<T: Units>",
-    attrs: ["+ amount: Double", "+ units: T"],
-    methods: ["+ as(other): Measure<T>", "+ in(other): Double", "+ plus/minus(other): Measure<T>", "+ toHuman(): String", "+ compareTo(other): Int"],
-  }),
-  classBox({
-    id: "UnitsProduct",
-    x: 140,
-    y: 595,
-    w: 500,
-    h: 250,
-    color: "violet",
-    title: "UnitsProduct<A, B>",
-    attrs: ["+ first: A", "+ second: B", "+ suffix: A*B", "+ ratio: A.ratio * B.ratio"],
-    methods: ["created by A.times(B)"],
-  }),
-  classBox({
-    id: "UnitsRatio",
-    x: 720,
-    y: 595,
-    w: 500,
-    h: 250,
-    color: "green",
-    title: "UnitsRatio<A, B>",
-    attrs: ["+ numerator: A", "+ denominator: B", "+ reciprocal: UnitsRatio<B,A>", "+ ratio: A.ratio / B.ratio"],
-    methods: ["created by A.div(B)"],
-  }),
-  classBox({
-    id: "InverseUnits",
-    x: 1300,
-    y: 595,
-    w: 500,
-    h: 250,
-    color: "amber",
-    title: "InverseUnits<T>",
-    attrs: ["+ unit: T", "+ suffix: 1/unit", "+ ratio: 1.0 / unit.ratio"],
-    methods: ["represents reciprocal unit"],
-  }),
-  classBox({
-    id: "ConcreteUnits",
-    x: 140,
-    y: 1020,
-    w: 980,
-    h: 330,
-    color: "blue",
-    title: "Open Units subclasses",
-    attrs: ["Length, Time, Mass", "Area, Volume, GraphicsLength", "Storage, BinarySize, Frequency", "Energy, Power, Pressure"],
-    methods: ["companion constants keep suffix and ratio", "Number extension functions create Measure<T>", "toHuman() picks practical display units"],
-  }),
-  classBox({
-    id: "TemperatureModel",
-    x: 1960,
-    y: 1020,
-    w: 500,
-    h: 300,
-    color: "amber",
-    title: "Temperature model",
-    attrs: ["TemperatureUnit enum", "TemperatureDelta value class", "Kelvin / Celsius / Fahrenheit"],
-    methods: ["inKelvin()", "inCelsius()", "toHuman(unit)"],
-  }),
-  note({
-    id: "MotionAliases",
-    x: 1230,
-    y: 1035,
-    w: 620,
-    h: 145,
-    color: "slate",
-    title: "Motion aliases",
-    lines: ["Velocity = UnitsRatio<Length, Time>", "Acceleration = UnitsRatio<Length, Square<Time>>", "MotionUnits builds m/s, km/hr, and m/s^2 from unit operators"],
-  }),
-  note({
-    id: "OperatorSurface",
-    x: 1900,
-    y: 595,
-    w: 520,
-    h: 250,
-    color: "slate",
-    title: "Operator surface",
-    lines: ["Number * Units -> Measure<T>", "A * B -> UnitsProduct<A,B>", "A / B -> UnitsRatio<A,B>", "Measure operators preserve generic unit type"],
-  }),
-];
-
 const edges = [
-  edge({ from: "Measure", to: "Units", points: [[1510, 280], [1100, 280]], color: "teal", marker: "open", label: "has units: T", labelAt: [1250, 258] }),
-  edge({ from: "UnitsProduct", to: "Units", points: [[390, 595], [390, 520], [640, 520], [640, 445]], color: "violet", marker: "inherit", label: "extends", labelAt: [420, 500] }),
-  edge({ from: "UnitsRatio", to: "Units", points: [[970, 595], [970, 520], [790, 520], [790, 445]], color: "green", marker: "inherit" }),
-  edge({ from: "InverseUnits", to: "Units", points: [[1550, 595], [1550, 520], [940, 520], [940, 445]], color: "amber", marker: "inherit", label: "extends", labelAt: [1240, 500] }),
-  edge({ from: "ConcreteUnits", to: "Units", points: [[630, 1020], [630, 900], [710, 900], [710, 445]], color: "blue", marker: "inherit", label: "subclasses extend Units", labelAt: [650, 875] }),
-  edge({ from: "MotionAliases", to: "UnitsRatio", points: [[1510, 1035], [1510, 940], [1080, 940], [1080, 845]], color: "green", dashed: true, marker: "open", label: "Velocity and Acceleration aliases", labelAt: [1180, 918] }),
-  edge({ from: "OperatorSurface", to: "Measure", points: [[2160, 595], [2160, 470]], color: "slate", dashed: true, marker: "open", label: "typed results", labelAt: [2180, 540] }),
+  { id: "measure-has-units", type: "has", color: colors.teal, from: "measure", to: "units", d: "M1040 305 L675 305", label: { x: 822, y: 276, text: "has units: T", w: 112 } },
+  { id: "concrete-extends-units", type: "extends", color: colors.blue, from: "concrete", to: "units", d: "M415 620 L415 415", label: { x: 488, y: 548, text: "extends Units", w: 120 } },
+  { id: "product-extends-units", type: "extends", color: colors.purple, from: "product", to: "units", d: "M1045 620 L1045 520 L585 520 L585 415" },
+  { id: "ratio-extends-units", type: "extends", color: colors.green, from: "ratio", to: "units", d: "M1610 620 L1610 500 L640 500 L640 415" },
+  { id: "inverse-extends-units", type: "extends", color: colors.orange, from: "inverse", to: "units", d: "M2150 620 L2150 480 L675 480 L675 360" },
+  { id: "motion-uses-ratio", type: "uses", color: colors.green, from: "motion", to: "ratio", d: "M1310 1030 L1310 930 L1610 930 L1610 855", label: { x: 1460, y: 902, text: "aliases ratio units", w: 142 } },
+  { id: "operators-create-measure", type: "uses", color: colors.gray, from: "operators", to: "measure", d: "M1810 290 L1600 290", label: { x: 1710, y: 262, text: "creates Measure", w: 132 } },
 ];
 
-const svg = `<svg data-intent="Explain the measured module class structure from the current README and Kotlin sources." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="measured Class Structure">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  ${markerDefs()}
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:48px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .classBox,.note{stroke-width:1.8;filter:url(#shadow)}.stereo{font-family:"Comic Mono";font-size:14px;fill:#475569}
-    .classTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}.compartment{stroke:#64748B;stroke-width:1;opacity:.38}
-    .member{font-family:"Comic Mono";font-size:14px;fill:#334155}.noteTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.noteLine{font-family:"Comic Mono";font-size:14px;fill:#334155}
-    .edge{fill:none;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabelBg{fill:#FFFFFF;stroke:#E2E8F0;stroke-width:.8;opacity:.94}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#334155}
-  </style>
-</defs>
-<rect class="canvas" width="${width}" height="${height}"/>
-<rect class="frame" x="34" y="30" width="${width - 68}" height="${height - 60}" rx="8"/>
-<text class="title" x="72" y="88">measured Class Structure</text>
-<text class="subtitle" x="76" y="122">Core model: Units define conversion ratios, Measure keeps a typed value, and compound units preserve type information for product and ratio arithmetic.</text>
-${edges.join("\n")}
-${nodes.join("\n")}
+function esc(v) {
+  return String(v).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+}
+
+function box(id) {
+  const b = boxes[id];
+  const nameSepY = b.y + 66;
+  const attrRows = Math.max(1, b.attrs.length);
+  const attrHeight = Math.max(42, attrRows * 20 + 20);
+  const methodSepY = b.y + 66 + attrHeight;
+  const attrY = nameSepY + 24;
+  const methodY = methodSepY + 25;
+  return `<g id="${id}">
+  <rect class="umlBox" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="8" fill="${b.fill}" stroke="${b.stroke}"/>
+  <line x1="${b.x}" y1="${nameSepY}" x2="${b.x + b.w}" y2="${nameSepY}" stroke="${b.stroke}" stroke-width="1.3" opacity="0.65"/>
+  <line x1="${b.x}" y1="${methodSepY}" x2="${b.x + b.w}" y2="${methodSepY}" stroke="${b.stroke}" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="${b.x + b.w / 2}" y="${b.y + 25}" text-anchor="middle">${esc(b.stereotype)}</text>
+  <text class="classTitle" x="${b.x + b.w / 2}" y="${b.y + 52}" text-anchor="middle">${esc(b.title)}</text>
+  ${b.attrs.map((line, i) => `<text class="member" x="${b.x + 24}" y="${attrY + i * 20}">${esc(line)}</text>`).join("\n  ")}
+  ${b.methods.map((line, i) => `<text class="member" x="${b.x + 24}" y="${methodY + i * 20}">${esc(line)}</text>`).join("\n  ")}
+</g>`;
+}
+
+function nums(d) {
+  return d.match(/-?\d+(?:\.\d+)?/g).map(Number);
+}
+
+function label({ x, y, text, w }) {
+  return `<g class="edgeLabel" transform="translate(${x - w / 2} ${y - 14})"><rect width="${w}" height="28" rx="8"/><text x="${w / 2}" y="19" text-anchor="middle">${esc(text)}</text></g>`;
+}
+
+function arrowHead(edge) {
+  const n = nums(edge.d);
+  const end = { x: n[n.length - 2], y: n[n.length - 1] };
+  const prev = { x: n[n.length - 4], y: n[n.length - 3] };
+  const dx = end.x - prev.x;
+  const dy = end.y - prev.y;
+  if (edge.type === "extends") {
+    if (Math.abs(dy) >= Math.abs(dx) && dy < 0) return `<path class="solidHead" d="M${end.x} ${end.y} L${end.x - 8} ${end.y + 16} L${end.x + 8} ${end.y + 16} Z" fill="#FFFFFF" stroke="${edge.color}"/>`;
+    if (dx < 0) return `<path class="solidHead" d="M${end.x} ${end.y} L${end.x + 16} ${end.y - 8} L${end.x + 16} ${end.y + 8} Z" fill="#FFFFFF" stroke="${edge.color}"/>`;
+    return `<path class="solidHead" d="M${end.x} ${end.y} L${end.x - 16} ${end.y - 8} L${end.x - 16} ${end.y + 8} Z" fill="#FFFFFF" stroke="${edge.color}"/>`;
+  }
+  if (dx < 0) return `<path class="solidOpenHead" d="M${end.x + 13} ${end.y - 7} L${end.x} ${end.y} L${end.x + 13} ${end.y + 7}" stroke="${edge.color}"/>`;
+  if (dy < 0) return `<path class="solidOpenHead" d="M${end.x - 7} ${end.y + 13} L${end.x} ${end.y} L${end.x + 7} ${end.y + 13}" stroke="${edge.color}"/>`;
+  return `<path class="solidOpenHead" d="M${end.x - 13} ${end.y - 7} L${end.x} ${end.y} L${end.x - 13} ${end.y + 7}" stroke="${edge.color}"/>`;
+}
+
+function segs(d) {
+  const n = nums(d);
+  const pts = [];
+  for (let i = 0; i < n.length; i += 2) pts.push({ x: n[i], y: n[i + 1] });
+  return pts.slice(1).map((p, i) => ({ a: pts[i], b: p }));
+}
+
+function touches(b, p) {
+  const onX = p.x >= b.x - 0.1 && p.x <= b.x + b.w + 0.1;
+  const onY = p.y >= b.y - 0.1 && p.y <= b.y + b.h + 0.1;
+  return ((Math.abs(p.x - b.x) < 0.1 || Math.abs(p.x - (b.x + b.w)) < 0.1) && onY) ||
+    ((Math.abs(p.y - b.y) < 0.1 || Math.abs(p.y - (b.y + b.h)) < 0.1) && onX);
+}
+
+function hits(s, b, pad = 10) {
+  const box = { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 };
+  const minX = Math.min(s.a.x, s.b.x);
+  const maxX = Math.max(s.a.x, s.b.x);
+  const minY = Math.min(s.a.y, s.b.y);
+  const maxY = Math.max(s.a.y, s.b.y);
+  if (s.a.x === s.b.x) return s.a.x > box.x && s.a.x < box.x + box.w && maxY > box.y && minY < box.y + box.h;
+  if (s.a.y === s.b.y) return s.a.y > box.y && s.a.y < box.y + box.h && maxX > box.x && minX < box.x + box.w;
+  return false;
+}
+
+function validate() {
+  for (const e of edges) {
+    const n = nums(e.d);
+    const start = { x: n[0], y: n[1] };
+    const end = { x: n[n.length - 2], y: n[n.length - 1] };
+    if (!touches(boxes[e.from], start)) throw new Error(`${e.id} start`);
+    if (!touches(boxes[e.to], end)) throw new Error(`${e.id} end`);
+    for (const s of segs(e.d)) {
+      for (const [id, b] of Object.entries(boxes)) {
+        if ((id === e.from || id === e.to) && (touches(b, s.a) || touches(b, s.b))) continue;
+        if (hits(s, b)) throw new Error(`${e.id} crosses ${id}`);
+      }
+    }
+  }
+}
+
+validate();
+
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="measured class structure">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${colors.canvas}}.frame{fill:${colors.frame};stroke:${colors.line};stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:42px;fill:${colors.ink}}.subtitle{font-family:"Comic Mono";font-size:15.5px;fill:${colors.muted}}.section{fill:#F3F8FF;stroke:#94A3B8;stroke-width:1.7;stroke-dasharray:12 8}.sectionTitle{font-family:"Comic Mono";font-size:13px;fill:${colors.muted}}.umlBox{filter:url(#softShadow);stroke-width:2}.stereo{font-family:"Comic Mono";font-size:12.2px;fill:${colors.muted}}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:${colors.ink}}.member{font-family:"Comic Mono";font-size:12.8px;fill:${colors.muted}}.edge{fill:none;stroke-width:2.65;stroke-linecap:round;stroke-linejoin:round}.uses{stroke-dasharray:8 7}.solidHead{stroke-width:1.9;stroke-linejoin:round;stroke-dasharray:none}.solidOpenHead{fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none}.edgeLabel rect{fill:#FFFFFF;stroke:${colors.line};stroke-width:1.2;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:11.8px;fill:${colors.muted}}</style></defs>
+<rect class="canvas" width="${W}" height="${H}"/><rect class="frame" x="34" y="30" width="${W - 68}" height="${H - 66}" rx="8"/>
+<text class="title" x="74" y="86">measured Class Structure</text>
+<text class="subtitle" x="78" y="118">Units define conversion ratios, Measure keeps typed values, and product/ratio/inverse units preserve compound-unit structure.</text>
+<rect class="section" x="78" y="145" width="2340" height="780" rx="8"/><text class="sectionTitle" x="106" y="170">core type model and compound unit classes</text>
+<rect class="section" x="78" y="980" width="2340" height="345" rx="8"/><text class="sectionTitle" x="106" y="1005">concrete unit families and specialized helpers</text>
+<g id="edges">${edges.map((e) => `<path class="edge ${e.type}" d="${e.d}" stroke="${e.color}"/>`).join("\n")}</g>
+<g id="arrowheads">${edges.map(arrowHead).join("\n")}</g>
+<g id="labels">${edges.filter((e) => e.label).map((e) => label(e.label)).join("\n")}</g>
+${Object.keys(boxes).map(box).join("\n")}
 </svg>`;
 
-const svgPath = join(OUT, "utils-measured-diagram-01.svg");
-const pngPath = join(OUT, "utils-measured-diagram-01.png");
 writeFileSync(svgPath, svg.replace(/[ \t]+$/gm, ""));
-execFileSync(CAIROSVG, [svgPath, "-o", pngPath, "--scale", "2"], { stdio: "inherit" });
-console.log("Generated utils-measured-diagram-01.svg/png");
+execFileSync(`${process.env.HOME}/.local/bin/cairosvg`, [svgPath, "-o", pngPath, "-s", "2"], { stdio: "inherit" });
+console.log(`Generated ${svgPath}`);
+console.log(`Generated ${pngPath}`);

@@ -1,171 +1,134 @@
-<svg data-intent="Explain the measured module class structure from the current README and Kotlin sources." data-evidence="utils/measured/README.md; utils/measured/src/main/kotlin/io/bluetape4k/measured/Units.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/TypeAliases.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Length.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Time.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Mass.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Area.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Volume.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Storage.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/BinarySize.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Frequency.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/EnergyPower.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Pressure.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/GraphicsLength.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Motion.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Temperature.kt" data-source-read="utils/measured/README.md; utils/measured/src/main/kotlin/io/bluetape4k/measured/Units.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/TypeAliases.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Length.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Time.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Mass.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Area.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Volume.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Storage.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/BinarySize.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Frequency.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/EnergyPower.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Pressure.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/GraphicsLength.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Motion.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Temperature.kt" xmlns="http://www.w3.org/2000/svg" width="2600" height="1600" viewBox="0 0 2600 1600" role="img" aria-label="measured Class Structure">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-
-  <marker id="arrow-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#475569"/></marker>
-  <marker id="inherit-slate" markerWidth="24" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 20 11 L 3 19 Z" fill="#FFFFFF" stroke="#64748B" stroke-width="2"/></marker>
-
-  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#1D4ED8"/></marker>
-  <marker id="inherit-blue" markerWidth="24" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 20 11 L 3 19 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2"/></marker>
-
-  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#0F766E"/></marker>
-  <marker id="inherit-teal" markerWidth="24" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 20 11 L 3 19 Z" fill="#FFFFFF" stroke="#0D9488" stroke-width="2"/></marker>
-
-  <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#15803D"/></marker>
-  <marker id="inherit-green" markerWidth="24" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 20 11 L 3 19 Z" fill="#FFFFFF" stroke="#16A34A" stroke-width="2"/></marker>
-
-  <marker id="arrow-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#C2410C"/></marker>
-  <marker id="inherit-amber" markerWidth="24" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 20 11 L 3 19 Z" fill="#FFFFFF" stroke="#EA580C" stroke-width="2"/></marker>
-
-  <marker id="arrow-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#BE185D"/></marker>
-  <marker id="inherit-pink" markerWidth="24" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 20 11 L 3 19 Z" fill="#FFFFFF" stroke="#DB2777" stroke-width="2"/></marker>
-
-  <marker id="arrow-violet" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#6D28D9"/></marker>
-  <marker id="inherit-violet" markerWidth="24" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 20 11 L 3 19 Z" fill="#FFFFFF" stroke="#7C3AED" stroke-width="2"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:48px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .classBox,.note{stroke-width:1.8;filter:url(#shadow)}.stereo{font-family:"Comic Mono";font-size:14px;fill:#475569}
-    .classTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}.compartment{stroke:#64748B;stroke-width:1;opacity:.38}
-    .member{font-family:"Comic Mono";font-size:14px;fill:#334155}.noteTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.noteLine{font-family:"Comic Mono";font-size:14px;fill:#334155}
-    .edge{fill:none;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabelBg{fill:#FFFFFF;stroke:#E2E8F0;stroke-width:.8;opacity:.94}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#334155}
-  </style>
-</defs>
-<rect class="canvas" width="2600" height="1600"/>
-<rect class="frame" x="34" y="30" width="2532" height="1540" rx="8"/>
-<text class="title" x="72" y="88">measured Class Structure</text>
-<text class="subtitle" x="76" y="122">Core model: Units define conversion ratios, Measure keeps a typed value, and compound units preserve type information for product and ratio arithmetic.</text>
-<g data-from="Measure" data-to="Units">
-  <path class="edge " d="M1510 280 L1100 280" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
-  <rect class="edgeLabelBg" x="1242" y="241" width="120" height="24" rx="4"/><text class="edgeLabel" x="1250" y="258">has units: T</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="2520" height="1420" viewBox="0 0 2520 1420" role="img" aria-label="measured class structure">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:42px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:15.5px;fill:#475569}.section{fill:#F3F8FF;stroke:#94A3B8;stroke-width:1.7;stroke-dasharray:12 8}.sectionTitle{font-family:"Comic Mono";font-size:13px;fill:#475569}.umlBox{filter:url(#softShadow);stroke-width:2}.stereo{font-family:"Comic Mono";font-size:12.2px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.member{font-family:"Comic Mono";font-size:12.8px;fill:#475569}.edge{fill:none;stroke-width:2.65;stroke-linecap:round;stroke-linejoin:round}.uses{stroke-dasharray:8 7}.solidHead{stroke-width:1.9;stroke-linejoin:round;stroke-dasharray:none}.solidOpenHead{fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.2;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:11.8px;fill:#475569}</style></defs>
+<rect class="canvas" width="2520" height="1420"/><rect class="frame" x="34" y="30" width="2452" height="1354" rx="8"/>
+<text class="title" x="74" y="86">measured Class Structure</text>
+<text class="subtitle" x="78" y="118">Units define conversion ratios, Measure keeps typed values, and product/ratio/inverse units preserve compound-unit structure.</text>
+<rect class="section" x="78" y="145" width="2340" height="780" rx="8"/><text class="sectionTitle" x="106" y="170">core type model and compound unit classes</text>
+<rect class="section" x="78" y="980" width="2340" height="345" rx="8"/><text class="sectionTitle" x="106" y="1005">concrete unit families and specialized helpers</text>
+<g id="edges"><path class="edge has" d="M1040 305 L675 305" stroke="#0D9488"/>
+<path class="edge extends" d="M415 620 L415 415" stroke="#2563EB"/>
+<path class="edge extends" d="M1045 620 L1045 520 L585 520 L585 415" stroke="#7C3AED"/>
+<path class="edge extends" d="M1610 620 L1610 500 L640 500 L640 415" stroke="#16A34A"/>
+<path class="edge extends" d="M2150 620 L2150 480 L675 480 L675 360" stroke="#EA580C"/>
+<path class="edge uses" d="M1310 1030 L1310 930 L1610 930 L1610 855" stroke="#16A34A"/>
+<path class="edge uses" d="M1810 290 L1600 290" stroke="#64748B"/></g>
+<g id="arrowheads"><path class="solidOpenHead" d="M688 298 L675 305 L688 312" stroke="#0D9488"/>
+<path class="solidHead" d="M415 415 L407 431 L423 431 Z" fill="#FFFFFF" stroke="#2563EB"/>
+<path class="solidHead" d="M585 415 L577 431 L593 431 Z" fill="#FFFFFF" stroke="#7C3AED"/>
+<path class="solidHead" d="M640 415 L632 431 L648 431 Z" fill="#FFFFFF" stroke="#16A34A"/>
+<path class="solidHead" d="M675 360 L667 376 L683 376 Z" fill="#FFFFFF" stroke="#EA580C"/>
+<path class="solidOpenHead" d="M1603 868 L1610 855 L1617 868" stroke="#16A34A"/>
+<path class="solidOpenHead" d="M1613 283 L1600 290 L1613 297" stroke="#64748B"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(766 262)"><rect width="112" height="28" rx="8"/><text x="56" y="19" text-anchor="middle">has units: T</text></g>
+<g class="edgeLabel" transform="translate(428 534)"><rect width="120" height="28" rx="8"/><text x="60" y="19" text-anchor="middle">extends Units</text></g>
+<g class="edgeLabel" transform="translate(1389 888)"><rect width="142" height="28" rx="8"/><text x="71" y="19" text-anchor="middle">aliases ratio units</text></g>
+<g class="edgeLabel" transform="translate(1644 248)"><rect width="132" height="28" rx="8"/><text x="66" y="19" text-anchor="middle">creates Measure</text></g></g>
+<g id="units">
+  <rect class="umlBox" x="155" y="195" width="520" height="220" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <line x1="155" y1="261" x2="675" y2="261" stroke="#2563EB" stroke-width="1.3" opacity="0.65"/>
+  <line x1="155" y1="341" x2="675" y2="341" stroke="#2563EB" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="415" y="220" text-anchor="middle">&lt;&lt;abstract class&gt;&gt;</text>
+  <text class="classTitle" x="415" y="247" text-anchor="middle">Units</text>
+  <text class="member" x="179" y="285">+ suffix: String</text>
+  <text class="member" x="179" y="305">+ ratio: Double</text>
+  <text class="member" x="179" y="325"># spaceBetweenMagnitude</text>
+  <text class="member" x="179" y="366">+ measureSuffix()</text>
+  <text class="member" x="179" y="386">+ equals() / hashCode()</text>
 </g>
-<g data-from="UnitsProduct" data-to="Units">
-  <path class="edge " d="M390 595 L390 520 L640 520 L640 445" stroke="#6D28D9" marker-end="url(#inherit-violet)"/>
-  <rect class="edgeLabelBg" x="412" y="483" width="110" height="24" rx="4"/><text class="edgeLabel" x="420" y="500">extends</text>
+<g id="measure">
+  <rect class="umlBox" x="1040" y="175" width="560" height="260" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <line x1="1040" y1="241" x2="1600" y2="241" stroke="#0D9488" stroke-width="1.3" opacity="0.65"/>
+  <line x1="1040" y1="301" x2="1600" y2="301" stroke="#0D9488" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="1320" y="200" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="classTitle" x="1320" y="227" text-anchor="middle">Measure&lt;T: Units&gt;</text>
+  <text class="member" x="1064" y="265">+ amount: Double</text>
+  <text class="member" x="1064" y="285">+ units: T</text>
+  <text class="member" x="1064" y="326">+ as(other): Measure&lt;T&gt;</text>
+  <text class="member" x="1064" y="346">+ in(other): Double</text>
+  <text class="member" x="1064" y="366">+ plus/minus/times/div</text>
+  <text class="member" x="1064" y="386">+ toHuman(), compareTo()</text>
 </g>
-<g data-from="UnitsRatio" data-to="Units">
-  <path class="edge " d="M970 595 L970 520 L790 520 L790 445" stroke="#15803D" marker-end="url(#inherit-green)"/>
-
+<g id="concrete">
+  <rect class="umlBox" x="135" y="620" width="560" height="245" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <line x1="135" y1="686" x2="695" y2="686" stroke="#2563EB" stroke-width="1.3" opacity="0.65"/>
+  <line x1="135" y1="766" x2="695" y2="766" stroke="#2563EB" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="415" y="645" text-anchor="middle">&lt;&lt;open subclasses&gt;&gt;</text>
+  <text class="classTitle" x="415" y="672" text-anchor="middle">Concrete unit families</text>
+  <text class="member" x="159" y="710">Length, Time, Mass, Area, Volume</text>
+  <text class="member" x="159" y="730">Storage, BinarySize, Frequency</text>
+  <text class="member" x="159" y="750">Energy, Power, Pressure, GraphicsLength</text>
+  <text class="member" x="159" y="791">companion constants define suffix and ratio</text>
+  <text class="member" x="159" y="811">Number extension functions create Measure&lt;T&gt;</text>
 </g>
-<g data-from="InverseUnits" data-to="Units">
-  <path class="edge " d="M1550 595 L1550 520 L940 520 L940 445" stroke="#C2410C" marker-end="url(#inherit-amber)"/>
-  <rect class="edgeLabelBg" x="1232" y="483" width="110" height="24" rx="4"/><text class="edgeLabel" x="1240" y="500">extends</text>
+<g id="product">
+  <rect class="umlBox" x="815" y="620" width="460" height="220" rx="8" fill="#FAF5FF" stroke="#7C3AED"/>
+  <line x1="815" y1="686" x2="1275" y2="686" stroke="#7C3AED" stroke-width="1.3" opacity="0.65"/>
+  <line x1="815" y1="766" x2="1275" y2="766" stroke="#7C3AED" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="1045" y="645" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="classTitle" x="1045" y="672" text-anchor="middle">UnitsProduct&lt;A, B&gt;</text>
+  <text class="member" x="839" y="710">+ first: A</text>
+  <text class="member" x="839" y="730">+ second: B</text>
+  <text class="member" x="839" y="750">suffix: A*B or (A)^2</text>
+  <text class="member" x="839" y="791">created by A * B</text>
 </g>
-<g data-from="ConcreteUnits" data-to="Units">
-  <path class="edge " d="M630 1020 L630 900 L710 900 L710 445" stroke="#1D4ED8" marker-end="url(#inherit-blue)"/>
-  <rect class="edgeLabelBg" x="642" y="858" width="208" height="24" rx="4"/><text class="edgeLabel" x="650" y="875">subclasses extend Units</text>
+<g id="ratio">
+  <rect class="umlBox" x="1380" y="620" width="460" height="235" rx="8" fill="#ECFDF5" stroke="#16A34A"/>
+  <line x1="1380" y1="686" x2="1840" y2="686" stroke="#16A34A" stroke-width="1.3" opacity="0.65"/>
+  <line x1="1380" y1="766" x2="1840" y2="766" stroke="#16A34A" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="1610" y="645" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="classTitle" x="1610" y="672" text-anchor="middle">UnitsRatio&lt;A, B&gt;</text>
+  <text class="member" x="1404" y="710">+ numerator: A</text>
+  <text class="member" x="1404" y="730">+ denominator: B</text>
+  <text class="member" x="1404" y="750">+ reciprocal: UnitsRatio&lt;B,A&gt;</text>
+  <text class="member" x="1404" y="791">created by A / B</text>
+  <text class="member" x="1404" y="811">ratio = A.ratio / B.ratio</text>
 </g>
-<g data-from="MotionAliases" data-to="UnitsRatio">
-  <path class="edge dashed" d="M1510 1035 L1510 940 L1080 940 L1080 845" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <rect class="edgeLabelBg" x="1172" y="901" width="288" height="24" rx="4"/><text class="edgeLabel" x="1180" y="918">Velocity and Acceleration aliases</text>
+<g id="inverse">
+  <rect class="umlBox" x="1940" y="620" width="420" height="220" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <line x1="1940" y1="686" x2="2360" y2="686" stroke="#EA580C" stroke-width="1.3" opacity="0.65"/>
+  <line x1="1940" y1="766" x2="2360" y2="766" stroke="#EA580C" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="2150" y="645" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="classTitle" x="2150" y="672" text-anchor="middle">InverseUnits&lt;T&gt;</text>
+  <text class="member" x="1964" y="710">+ unit: T</text>
+  <text class="member" x="1964" y="730">suffix: 1/unit</text>
+  <text class="member" x="1964" y="750">ratio: 1.0 / unit.ratio</text>
+  <text class="member" x="1964" y="791">represents reciprocal unit</text>
 </g>
-<g data-from="OperatorSurface" data-to="Measure">
-  <path class="edge dashed" d="M2160 595 L2160 470" stroke="#475569" marker-end="url(#arrow-slate)"/>
-  <rect class="edgeLabelBg" x="2172" y="523" width="128" height="24" rx="4"/><text class="edgeLabel" x="2180" y="540">typed results</text>
+<g id="operators">
+  <rect class="umlBox" x="1810" y="180" width="500" height="220" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <line x1="1810" y1="246" x2="2310" y2="246" stroke="#64748B" stroke-width="1.3" opacity="0.65"/>
+  <line x1="1810" y1="346" x2="2310" y2="346" stroke="#64748B" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="2060" y="205" text-anchor="middle">&lt;&lt;top-level operators&gt;&gt;</text>
+  <text class="classTitle" x="2060" y="232" text-anchor="middle">Unit arithmetic API</text>
+  <text class="member" x="1834" y="270">Number * Units</text>
+  <text class="member" x="1834" y="290">A * B</text>
+  <text class="member" x="1834" y="310">A / B</text>
+  <text class="member" x="1834" y="330">Measure * Units</text>
+  <text class="member" x="1834" y="371">returns typed Measure</text>
+  <text class="member" x="1834" y="391">preserves compound types</text>
 </g>
-<g id="Units">
-  <rect class="classBox" x="480" y="175" width="620" height="270" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="stereo" x="790" y="201" text-anchor="middle">abstract class</text>
-  <text class="classTitle" x="790" y="223" text-anchor="middle">Units</text>
-  <path class="compartment" d="M480 247H1100"/>
-  <text class="member" x="504" y="281">+ suffix: String</text>
-<text class="member" x="504" y="305">+ ratio: Double</text>
-<text class="member" x="504" y="329"># spaceBetweenMagnitude: Boolean</text>
-  <path class="compartment" d="M480 362H1100"/>
-  <text class="member" x="504" y="388">+ toString(): String</text>
-<text class="member" x="504" y="412">+ equals(other): Boolean</text>
-<text class="member" x="504" y="436">+ hashCode(): Int</text>
+<g id="motion">
+  <rect class="umlBox" x="1050" y="1030" width="520" height="245" rx="8" fill="#ECFDF5" stroke="#16A34A"/>
+  <line x1="1050" y1="1096" x2="1570" y2="1096" stroke="#16A34A" stroke-width="1.3" opacity="0.65"/>
+  <line x1="1050" y1="1156" x2="1570" y2="1156" stroke="#16A34A" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="1310" y="1055" text-anchor="middle">&lt;&lt;typealiases + object&gt;&gt;</text>
+  <text class="classTitle" x="1310" y="1082" text-anchor="middle">MotionUnits</text>
+  <text class="member" x="1074" y="1120">Velocity = Length / Time</text>
+  <text class="member" x="1074" y="1140">Acceleration = Length / Time^2</text>
+  <text class="member" x="1074" y="1181">metersPerSecond</text>
+  <text class="member" x="1074" y="1201">kilometersPerHour</text>
+  <text class="member" x="1074" y="1221">metersPerSecondSquared</text>
 </g>
-<g id="Measure">
-  <rect class="classBox" x="1510" y="155" width="660" height="315" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-
-  <text class="classTitle" x="1840" y="197" text-anchor="middle">Measure&lt;T: Units&gt;</text>
-  <path class="compartment" d="M1510 227H2170"/>
-  <text class="member" x="1534" y="261">+ amount: Double</text>
-<text class="member" x="1534" y="285">+ units: T</text>
-  <path class="compartment" d="M1510 318H2170"/>
-  <text class="member" x="1534" y="344">+ as(other): Measure&lt;T&gt;</text>
-<text class="member" x="1534" y="368">+ in(other): Double</text>
-<text class="member" x="1534" y="392">+ plus/minus(other): Measure&lt;T&gt;</text>
-<text class="member" x="1534" y="416">+ toHuman(): String</text>
-<text class="member" x="1534" y="440">+ compareTo(other): Int</text>
-</g>
-<g id="UnitsProduct">
-  <rect class="classBox" x="140" y="595" width="500" height="250" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
-
-  <text class="classTitle" x="390" y="637" text-anchor="middle">UnitsProduct&lt;A, B&gt;</text>
-  <path class="compartment" d="M140 667H640"/>
-  <text class="member" x="164" y="701">+ first: A</text>
-<text class="member" x="164" y="725">+ second: B</text>
-<text class="member" x="164" y="749">+ suffix: A*B</text>
-<text class="member" x="164" y="773">+ ratio: A.ratio * B.ratio</text>
-  <path class="compartment" d="M140 806H640"/>
-  <text class="member" x="164" y="832">created by A.times(B)</text>
-</g>
-<g id="UnitsRatio">
-  <rect class="classBox" x="720" y="595" width="500" height="250" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-
-  <text class="classTitle" x="970" y="637" text-anchor="middle">UnitsRatio&lt;A, B&gt;</text>
-  <path class="compartment" d="M720 667H1220"/>
-  <text class="member" x="744" y="701">+ numerator: A</text>
-<text class="member" x="744" y="725">+ denominator: B</text>
-<text class="member" x="744" y="749">+ reciprocal: UnitsRatio&lt;B,A&gt;</text>
-<text class="member" x="744" y="773">+ ratio: A.ratio / B.ratio</text>
-  <path class="compartment" d="M720 806H1220"/>
-  <text class="member" x="744" y="832">created by A.div(B)</text>
-</g>
-<g id="InverseUnits">
-  <rect class="classBox" x="1300" y="595" width="500" height="250" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-
-  <text class="classTitle" x="1550" y="637" text-anchor="middle">InverseUnits&lt;T&gt;</text>
-  <path class="compartment" d="M1300 667H1800"/>
-  <text class="member" x="1324" y="701">+ unit: T</text>
-<text class="member" x="1324" y="725">+ suffix: 1/unit</text>
-<text class="member" x="1324" y="749">+ ratio: 1.0 / unit.ratio</text>
-  <path class="compartment" d="M1300 782H1800"/>
-  <text class="member" x="1324" y="808">represents reciprocal unit</text>
-</g>
-<g id="ConcreteUnits">
-  <rect class="classBox" x="140" y="1020" width="980" height="330" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-
-  <text class="classTitle" x="630" y="1062" text-anchor="middle">Open Units subclasses</text>
-  <path class="compartment" d="M140 1092H1120"/>
-  <text class="member" x="164" y="1126">Length, Time, Mass</text>
-<text class="member" x="164" y="1150">Area, Volume, GraphicsLength</text>
-<text class="member" x="164" y="1174">Storage, BinarySize, Frequency</text>
-<text class="member" x="164" y="1198">Energy, Power, Pressure</text>
-  <path class="compartment" d="M140 1231H1120"/>
-  <text class="member" x="164" y="1257">companion constants keep suffix and ratio</text>
-<text class="member" x="164" y="1281">Number extension functions create Measure&lt;T&gt;</text>
-<text class="member" x="164" y="1305">toHuman() picks practical display units</text>
-</g>
-<g id="TemperatureModel">
-  <rect class="classBox" x="1960" y="1020" width="500" height="300" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-
-  <text class="classTitle" x="2210" y="1062" text-anchor="middle">Temperature model</text>
-  <path class="compartment" d="M1960 1092H2460"/>
-  <text class="member" x="1984" y="1126">TemperatureUnit enum</text>
-<text class="member" x="1984" y="1150">TemperatureDelta value class</text>
-<text class="member" x="1984" y="1174">Kelvin / Celsius / Fahrenheit</text>
-  <path class="compartment" d="M1960 1207H2460"/>
-  <text class="member" x="1984" y="1233">inKelvin()</text>
-<text class="member" x="1984" y="1257">inCelsius()</text>
-<text class="member" x="1984" y="1281">toHuman(unit)</text>
-</g>
-<g id="MotionAliases">
-  <rect class="note" x="1230" y="1035" width="620" height="145" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-  <text class="noteTitle" x="1252" y="1073">Motion aliases</text>
-  <text class="noteLine" x="1252" y="1107">Velocity = UnitsRatio&lt;Length, Time&gt;</text>
-<text class="noteLine" x="1252" y="1131">Acceleration = UnitsRatio&lt;Length, Square&lt;Time&gt;&gt;</text>
-<text class="noteLine" x="1252" y="1155">MotionUnits builds m/s, km/hr, and m/s^2 from unit operators</text>
-</g>
-<g id="OperatorSurface">
-  <rect class="note" x="1900" y="595" width="520" height="250" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-  <text class="noteTitle" x="1922" y="633">Operator surface</text>
-  <text class="noteLine" x="1922" y="667">Number * Units -&gt; Measure&lt;T&gt;</text>
-<text class="noteLine" x="1922" y="691">A * B -&gt; UnitsProduct&lt;A,B&gt;</text>
-<text class="noteLine" x="1922" y="715">A / B -&gt; UnitsRatio&lt;A,B&gt;</text>
-<text class="noteLine" x="1922" y="739">Measure operators preserve generic unit type</text>
+<g id="temperature">
+  <rect class="umlBox" x="1715" y="1030" width="520" height="245" rx="8" fill="#FFFBEB" stroke="#D97706"/>
+  <line x1="1715" y1="1096" x2="2235" y2="1096" stroke="#D97706" stroke-width="1.3" opacity="0.65"/>
+  <line x1="1715" y1="1156" x2="2235" y2="1156" stroke="#D97706" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="1975" y="1055" text-anchor="middle">&lt;&lt;special value model&gt;&gt;</text>
+  <text class="classTitle" x="1975" y="1082" text-anchor="middle">Temperature</text>
+  <text class="member" x="1739" y="1120">TemperatureUnit enum</text>
+  <text class="member" x="1739" y="1140">TemperatureDelta value class</text>
+  <text class="member" x="1739" y="1181">Kelvin / Celsius / Fahrenheit</text>
+  <text class="member" x="1739" y="1201">delta-aware conversion helpers</text>
 </g>
 </svg>

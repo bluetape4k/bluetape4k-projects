@@ -2,48 +2,203 @@
 
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
 
-const ROOT = process.cwd();
-const OUT = join(ROOT, "docs/images/readme-diagrams");
-const CAIROSVG = process.env.CAIROSVG ?? "cairosvg";
+const svgPath = "docs/images/readme-diagrams/utils-measured-diagram-02.svg";
+const pngPath = "docs/images/readme-diagrams/utils-measured-diagram-02.png";
+const W = 2840;
+const H = 1760;
 
-const sources = [
-  "utils/measured/README.md",
-  "utils/measured/src/main/kotlin/io/bluetape4k/measured/Units.kt",
-  "utils/measured/src/main/kotlin/io/bluetape4k/measured/TypeAliases.kt",
-  "utils/measured/src/main/kotlin/io/bluetape4k/measured/Motion.kt",
-  "utils/measured/src/main/kotlin/io/bluetape4k/measured/Area.kt",
-  "utils/measured/src/main/kotlin/io/bluetape4k/measured/Volume.kt",
-  "utils/measured/src/main/kotlin/io/bluetape4k/measured/EnergyPower.kt",
-];
+const files = {
+  readme: "utils/measured/README.md",
+  units: "utils/measured/src/main/kotlin/io/bluetape4k/measured/Units.kt",
+  aliases: "utils/measured/src/main/kotlin/io/bluetape4k/measured/TypeAliases.kt",
+  motion: "utils/measured/src/main/kotlin/io/bluetape4k/measured/Motion.kt",
+  area: "utils/measured/src/main/kotlin/io/bluetape4k/measured/Area.kt",
+  volume: "utils/measured/src/main/kotlin/io/bluetape4k/measured/Volume.kt",
+  energy: "utils/measured/src/main/kotlin/io/bluetape4k/measured/EnergyPower.kt",
+};
 
-for (const source of sources) {
-  if (!existsSync(join(ROOT, source))) throw new Error(`Missing evidence source: ${source}`);
+for (const file of Object.values(files)) {
+  if (!existsSync(file)) throw new Error(`Missing source evidence: ${file}`);
 }
 
-function assertContains(source, pattern, label) {
-  const text = readFileSync(join(ROOT, source), "utf8");
-  if (!pattern.test(text)) throw new Error(`Expected ${label} in ${source}`);
+function text(file) {
+  return readFileSync(file, "utf8");
 }
 
-assertContains(sources[0], /Unit Composition Flow[\s\S]*utils-measured-diagram-02\.png/, "README unit composition slot");
-assertContains(sources[1], /Number\.times\(unit: T\)[\s\S]*A\.times\(other: B\)[\s\S]*A\.div\(other: B\)[\s\S]*Measure<A>\.times[\s\S]*Measure<A>\.div/, "generic unit and measure operators");
-assertContains(sources[1], /timesRatioByDenominator[\s\S]*divProductByLeft/, "inverse composition operators");
-assertContains(sources[2], /typealias Velocity[\s\S]*typealias Acceleration/, "motion aliases");
-assertContains(sources[3], /metersPerSecond[\s\S]*kilometersPerHour[\s\S]*metersPerSecondSquared/, "motion constructors");
-assertContains(sources[4], /timesLengthToArea[\s\S]*Measure<Area>/, "length-to-area specialization");
-assertContains(sources[5], /areaTimesLengthToVolume[\s\S]*volumeDivAreaToLength[\s\S]*volumeDivLengthToArea/, "volume specializations");
-assertContains(sources[6], /powerTimesTimeToEnergy[\s\S]*energyDivTimeToPower/, "energy specializations");
+function requirePattern(file, pattern, label) {
+  if (!pattern.test(text(file))) throw new Error(`Expected ${label} in ${file}`);
+}
+
+requirePattern(files.readme, /Unit Composition Flow[\s\S]*utils-measured-diagram-02\.png/, "README diagram slot");
+requirePattern(files.units, /operator fun <T: Units> Number\.times\(unit: T\): Measure<T>/, "Number.times(unit)");
+requirePattern(files.units, /operator fun <A: Units, B: Units> A\.times\(other: B\): UnitsProduct<A, B>/, "unit product operator");
+requirePattern(files.units, /operator fun <A: Units, B: Units> A\.div\(other: B\): UnitsRatio<A, B>/, "unit ratio operator");
+requirePattern(files.units, /operator fun <A: Units, B: Units> Measure<A>\.times\(other: Measure<B>\)/, "measure product operator");
+requirePattern(files.units, /operator fun <A: Units, B: Units> Measure<A>\.div\(other: Measure<B>\)/, "measure ratio operator");
+requirePattern(files.units, /timesRatioByDenominator[\s\S]*divProductByLeft/, "inverse compound operators");
+requirePattern(files.aliases, /typealias Velocity[\s\S]*typealias Acceleration/, "motion typealiases");
+requirePattern(files.motion, /metersPerSecond[\s\S]*kilometersPerHour[\s\S]*metersPerSecondSquared/, "motion unit factories");
+requirePattern(files.area, /timesLengthToArea[\s\S]*Measure<Area>/, "area specialization");
+requirePattern(files.volume, /areaTimesLengthToVolume[\s\S]*volumeDivAreaToLength[\s\S]*volumeDivLengthToArea/, "volume specialization");
+requirePattern(files.energy, /powerTimesTimeToEnergy[\s\S]*energyDivTimeToPower/, "energy specialization");
+
+const colors = {
+  ink: "#0F172A",
+  muted: "#475569",
+  canvas: "#F8FAFC",
+  frame: "#FFFFFF",
+  line: "#CBD5E1",
+  blue: "#2563EB",
+  teal: "#0D9488",
+  green: "#16A34A",
+  purple: "#7C3AED",
+  orange: "#EA580C",
+  amber: "#D97706",
+  gray: "#64748B",
+};
 
 const palette = {
-  slate: ["#F8FAFC", "#64748B", "#475569"],
-  blue: ["#EFF6FF", "#2563EB", "#1D4ED8"],
-  teal: ["#F0FDFA", "#0D9488", "#0F766E"],
-  green: ["#F0FDF4", "#16A34A", "#15803D"],
-  amber: ["#FFF7ED", "#EA580C", "#C2410C"],
-  pink: ["#FDF2F8", "#DB2777", "#BE185D"],
-  violet: ["#F5F3FF", "#7C3AED", "#6D28D9"],
+  unit: { fill: "#F0FDF4", stroke: colors.green, dark: "#15803D" },
+  measure: { fill: "#EFF6FF", stroke: colors.blue, dark: "#1D4ED8" },
+  ratio: { fill: "#F0FDFA", stroke: colors.teal, dark: "#0F766E" },
+  domain: { fill: "#FAF5FF", stroke: colors.purple, dark: "#6D28D9" },
+  energy: { fill: "#FFF7ED", stroke: colors.orange, dark: "#C2410C" },
+  output: { fill: "#F8FAFC", stroke: colors.gray, dark: "#475569" },
+};
+
+const cards = {
+  baseUnits: {
+    x: 140,
+    y: 265,
+    w: 510,
+    h: 235,
+    tone: "unit",
+    kicker: "base unit constants",
+    title: "Length.meters + Time.seconds",
+    lines: ["each Units value owns suffix and ratio", "meters ratio = 1.0", "seconds ratio = 1000.0"],
+    foot: "immutable unit values",
+  },
+  unitOps: {
+    x: 790,
+    y: 265,
+    w: 500,
+    h: 235,
+    tone: "unit",
+    kicker: "Units.kt",
+    title: "A / B and A * B",
+    lines: ["A.div(B) -> UnitsRatio<A,B>", "A.times(B) -> UnitsProduct<A,B>", "compound unit keeps typed operands"],
+    foot: "unit-only composition",
+  },
+  aliases: {
+    x: 1430,
+    y: 265,
+    w: 560,
+    h: 235,
+    tone: "ratio",
+    kicker: "TypeAliases.kt + Motion.kt",
+    title: "Velocity and Acceleration",
+    lines: ["Velocity = UnitsRatio<Length, Time>", "Acceleration = UnitsRatio<Length, Square<Time>>", "m/s, km/hr, m/s^2 are concrete ratios"],
+    foot: "motion names wrap generic ratios",
+  },
+  numberInputs: {
+    x: 140,
+    y: 645,
+    w: 510,
+    h: 235,
+    tone: "measure",
+    kicker: "Number extensions",
+    title: "10 * meters, 2 * seconds",
+    lines: ["Number.times(unit)", "Number.meters()", "Number.seconds()"],
+    foot: "creates Measure<T>",
+  },
+  measures: {
+    x: 790,
+    y: 645,
+    w: 500,
+    h: 235,
+    tone: "measure",
+    kicker: "typed values",
+    title: "Measure<Length> + Measure<Time>",
+    lines: ["amount is Double", "units keeps exact generic type", "conversion uses unit ratios"],
+    foot: "value and unit move together",
+  },
+  measureOps: {
+    x: 1430,
+    y: 645,
+    w: 500,
+    h: 235,
+    tone: "measure",
+    kicker: "generic operators",
+    title: "Measure<A> / Measure<B>",
+    lines: ["amount / other.amount", "units / other.units", "returns Measure<UnitsRatio<A,B>>"],
+    foot: "same pattern for product units",
+  },
+  speed: {
+    x: 2070,
+    y: 645,
+    w: 520,
+    h: 255,
+    tone: "ratio",
+    kicker: "typed result",
+    title: "Measure<Velocity>",
+    lines: ["10.meters() / 2.seconds()", "speed in m/s = 5.0", "speed * 5.seconds() restores Length"],
+    foot: "(A/B) * B -> A",
+  },
+  presentation: {
+    x: 2070,
+    y: 965,
+    w: 520,
+    h: 220,
+    tone: "output",
+    kicker: "presentation",
+    title: "convert, `in`, `as`, toHuman()",
+    lines: ["convert values into target units", "format concise human-readable output"],
+    foot: "examples display typed results",
+  },
+  shapeInputs: {
+    x: 140,
+    y: 1280,
+    w: 510,
+    h: 260,
+    tone: "domain",
+    kicker: "Area.kt + Volume.kt",
+    title: "Length, Area, Volume",
+    lines: ["Length * Length", "Area * Length", "Volume / Area", "Volume / Length"],
+    foot: "specialized overloads return domain units",
+  },
+  shapeOps: {
+    x: 790,
+    y: 1280,
+    w: 500,
+    h: 260,
+    tone: "domain",
+    kicker: "canonical conversion",
+    title: "meters, meters2, cubicMeters",
+    lines: ["convert operands to canonical bases", "perform arithmetic on canonical values", "return Area, Volume, Length, or Area"],
+    foot: "domain result is clearer than raw product",
+  },
+  energyInputs: {
+    x: 1430,
+    y: 1280,
+    w: 500,
+    h: 260,
+    tone: "energy",
+    kicker: "EnergyPower.kt",
+    title: "Power + Time",
+    lines: ["Power * Time", "Time * Power", "Energy / Time"],
+    foot: "W*s <-> J, J/s <-> W",
+  },
+  domainResults: {
+    x: 2070,
+    y: 1450,
+    w: 520,
+    h: 170,
+    tone: "output",
+    kicker: "domain results",
+    title: "Area, Volume, Energy, Power",
+    lines: ["specialized APIs hide compound internals", "callers receive reader-friendly measure types"],
+  },
 };
 
 function esc(value) {
@@ -54,250 +209,143 @@ function esc(value) {
     .replaceAll('"', "&quot;");
 }
 
-function markerDefs() {
-  return Object.entries(palette).map(([name, [, , dark]]) => `
-  <marker id="arrow-${name}" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="${dark}"/></marker>`).join("\n");
-}
-
-function card({ id, x, y, w, h, color, kicker, title, lines = [], footer = "" }) {
-  const [fill, stroke, dark] = palette[color];
-  return `<g id="${esc(id)}">
-  <rect class="card" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
-  <text class="kicker" x="${x + 22}" y="${y + 30}">${esc(kicker)}</text>
-  <text class="cardTitle" x="${x + 22}" y="${y + 64}">${esc(title)}</text>
-  <path class="divider" d="M${x} ${y + 84}H${x + w}" stroke="${dark}"/>
-  ${lines.map((line, index) => `<text class="body" x="${x + 22}" y="${y + 116 + index * 24}">${esc(line)}</text>`).join("\n")}
-  ${footer ? `<path class="divider" d="M${x} ${y + h - 44}H${x + w}" stroke="${dark}"/><text class="foot" x="${x + 22}" y="${y + h - 16}">${esc(footer)}</text>` : ""}
+function card(id) {
+  const c = cards[id];
+  const p = palette[c.tone];
+  return `<g id="${id}">
+  <rect class="card" x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" rx="8" fill="${p.fill}" stroke="${p.stroke}"/>
+  <text class="kicker" x="${c.x + 24}" y="${c.y + 32}">${esc(c.kicker)}</text>
+  <text class="cardTitle" x="${c.x + 24}" y="${c.y + 67}">${esc(c.title)}</text>
+  <path class="divider" d="M${c.x} ${c.y + 88}H${c.x + c.w}" stroke="${p.dark}"/>
+  ${c.lines.map((line, i) => `<text class="body" x="${c.x + 24}" y="${c.y + 122 + i * 25}">${esc(line)}</text>`).join("\n  ")}
+  ${c.foot ? `<path class="divider" d="M${c.x} ${c.y + c.h - 46}H${c.x + c.w}" stroke="${p.dark}"/><text class="foot" x="${c.x + 24}" y="${c.y + c.h - 17}">${esc(c.foot)}</text>` : ""}
 </g>`;
 }
-
-function laneLabel({ x, y, text }) {
-  return `<text class="lane" x="${x}" y="${y}">${esc(text)}</text>`;
-}
-
-function edge({ from, to, points, color, dashed = false, label = "", labelAt }) {
-  const [, , dark] = palette[color];
-  const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
-  const p = labelAt ?? points[Math.floor(points.length / 2)];
-  const labelWidth = label ? Math.max(110, label.length * 8 + 24) : 0;
-  return `<g data-from="${esc(from)}" data-to="${esc(to)}">
-  <path class="edge ${dashed ? "dashed" : ""}" d="${d}" stroke="${dark}" marker-end="url(#arrow-${color})"/>
-  ${label ? `<rect class="edgeLabelBg" x="${p[0] - 8}" y="${p[1] - 17}" width="${labelWidth}" height="24" rx="4"/><text class="edgeLabel" x="${p[0]}" y="${p[1]}">${esc(label)}</text>` : ""}
-</g>`;
-}
-
-const width = 2700;
-const height = 1680;
 
 const edges = [
-  edge({ from: "UnitConstants", to: "UnitArithmetic", points: [[620, 342], [745, 342]], color: "green", label: "A / B", labelAt: [654, 318] }),
-  edge({ from: "UnitArithmetic", to: "AliasUnits", points: [[1185, 342], [1310, 342]], color: "green", label: "UnitsRatio", labelAt: [1215, 318] }),
-  edge({ from: "NumberAndUnits", to: "MeasureInputs", points: [[620, 722], [745, 722]], color: "blue", label: "Number.times", labelAt: [635, 698] }),
-  edge({ from: "MeasureInputs", to: "GenericMeasureOps", points: [[1185, 722], [1310, 722]], color: "blue", label: "Measure / Measure", labelAt: [1200, 698] }),
-  edge({ from: "GenericMeasureOps", to: "SpeedResult", points: [[1750, 722], [1875, 722]], color: "blue", label: "typed ratio", labelAt: [1775, 698] }),
-  edge({ from: "SpeedResult", to: "RecoveredLength", points: [[2095, 870], [2095, 948]], color: "teal", dashed: true, label: "* Time", labelAt: [2116, 920] }),
-  edge({ from: "ShapeInputs", to: "ShapeOps", points: [[620, 1132], [745, 1132]], color: "violet", label: "specialized *", labelAt: [630, 1108] }),
-  edge({ from: "ShapeOps", to: "ShapeResults", points: [[1185, 1132], [1310, 1132]], color: "violet", label: "Area / Volume", labelAt: [1205, 1108] }),
-  edge({ from: "PowerInputs", to: "EnergyOps", points: [[1750, 1392], [1875, 1392]], color: "amber", label: "W * s", labelAt: [1775, 1368] }),
-  edge({ from: "EnergyOps", to: "Presentation", points: [[2315, 1392], [2525, 1392], [2525, 880]], color: "amber", dashed: true, label: "convert result", labelAt: [2545, 1130] }),
-  edge({ from: "SpeedResult", to: "Presentation", points: [[2315, 722], [2390, 722]], color: "teal", dashed: true, label: "render result", labelAt: [2328, 698] }),
+  { id: "unit-to-ops", from: "baseUnits", to: "unitOps", points: [[650, 370], [790, 370]], tone: "unit", label: "compose units", labelAt: [670, 343] },
+  { id: "ops-to-aliases", from: "unitOps", to: "aliases", points: [[1290, 370], [1430, 370]], tone: "ratio", label: "ratio aliases", labelAt: [1315, 343] },
+  { id: "number-to-measure", from: "numberInputs", to: "measures", points: [[650, 750], [790, 750]], tone: "measure", label: "Number.times", labelAt: [665, 723] },
+  { id: "measure-to-ops", from: "measures", to: "measureOps", points: [[1290, 750], [1430, 750]], tone: "measure", label: "divide values", labelAt: [1312, 723] },
+  { id: "ops-to-speed", from: "measureOps", to: "speed", points: [[1930, 750], [2070, 750]], tone: "ratio", label: "typed ratio", labelAt: [1958, 723] },
+  { id: "speed-to-presentation", from: "speed", to: "presentation", points: [[2330, 900], [2330, 965]], tone: "ratio", dashed: true, label: "convert", labelAt: [2350, 940] },
+  { id: "shape-to-shape-ops", from: "shapeInputs", to: "shapeOps", points: [[650, 1410], [790, 1410]], tone: "domain", label: "specialized * /", labelAt: [658, 1383] },
+  { id: "shape-ops-to-results", from: "shapeOps", to: "domainResults", points: [[1290, 1410], [1360, 1410], [1360, 1585], [2070, 1585]], tone: "domain", label: "Area / Volume", labelAt: [1425, 1558] },
+  { id: "energy-to-results", from: "energyInputs", to: "domainResults", points: [[1930, 1410], [1990, 1410], [1990, 1490], [2070, 1490]], tone: "energy", label: "Energy / Power", labelAt: [1968, 1462] },
+  { id: "presentation-to-results", from: "presentation", to: "domainResults", points: [[2330, 1185], [2330, 1450]], tone: "output", dashed: true, label: "format too", labelAt: [2350, 1325] },
 ];
 
-const nodes = [
-  laneLabel({ x: 106, y: 204, text: "Unit composition" }),
-  card({
-    id: "UnitConstants",
-    x: 140,
-    y: 245,
-    w: 480,
-    h: 195,
-    color: "green",
-    kicker: "base unit constants",
-    title: "Length.meters / Time.seconds",
-    lines: ["Units carry suffix and ratio", "m ratio = 1.0", "s ratio = 1000.0"],
-    footer: "constants are immutable unit values",
-  }),
-  card({
-    id: "UnitArithmetic",
-    x: 745,
-    y: 245,
-    w: 440,
-    h: 195,
-    color: "green",
-    kicker: "Units.kt",
-    title: "A.div(B)",
-    lines: ["creates UnitsRatio<A,B>", "suffix = numerator/denominator", "ratio = A.ratio / B.ratio"],
-    footer: "A.times(B) creates UnitsProduct<A,B>",
-  }),
-  card({
-    id: "AliasUnits",
-    x: 1310,
-    y: 245,
-    w: 495,
-    h: 195,
-    color: "teal",
-    kicker: "TypeAliases.kt + Motion.kt",
-    title: "Velocity / Acceleration",
-    lines: ["Velocity = UnitsRatio<Length, Time>", "Acceleration = UnitsRatio<Length, Square<Time>>", "MotionUnits exposes m/s, km/hr, m/s^2"],
-    footer: "aliases preserve generic unit structure",
-  }),
-  laneLabel({ x: 106, y: 584, text: "Value composition" }),
-  card({
-    id: "NumberAndUnits",
-    x: 140,
-    y: 625,
-    w: 480,
-    h: 195,
-    color: "blue",
-    kicker: "Number extensions",
-    title: "10 * meters, 2 * seconds",
-    lines: ["Number.times(unit)", "Number.meters()", "Number.seconds()"],
-    footer: "each call creates Measure<T>",
-  }),
-  card({
-    id: "MeasureInputs",
-    x: 745,
-    y: 625,
-    w: 440,
-    h: 195,
-    color: "blue",
-    kicker: "typed values",
-    title: "Measure<Length> and Measure<Time>",
-    lines: ["amount is stored as Double", "units keeps the exact type", "conversion uses ratio"],
-    footer: "values are immutable",
-  }),
-  card({
-    id: "GenericMeasureOps",
-    x: 1310,
-    y: 625,
-    w: 440,
-    h: 195,
-    color: "blue",
-    kicker: "generic operators",
-    title: "Measure<A>.div(Measure<B>)",
-    lines: ["amount / other.amount", "units / other.units", "returns Measure<UnitsRatio<A,B>>"],
-    footer: "same pattern for product units",
-  }),
-  card({
-    id: "SpeedResult",
-    x: 1875,
-    y: 625,
-    w: 440,
-    h: 245,
-    color: "teal",
-    kicker: "example result",
-    title: "Measure<Velocity>",
-    lines: ["10.meters() / 2.seconds()", "speed in m/s = 5.0", "speed * 5.seconds() restores Length"],
-    footer: "ratio-by-denominator returns numerator unit",
-  }),
-  card({
-    id: "RecoveredLength",
-    x: 1875,
-    y: 948,
-    w: 440,
-    h: 135,
-    color: "teal",
-    kicker: "inverse composition",
-    title: "Measure<Length>",
-    lines: ["(A/B) * B -> A"],
-  }),
-  card({
-    id: "Presentation",
-    x: 2390,
-    y: 660,
-    w: 250,
-    h: 220,
-    color: "slate",
-    kicker: "output",
-    title: "convert",
-    lines: ["`in` target unit", "`as` target unit", "toHuman()"],
-    footer: "README example prints distance",
-  }),
-  laneLabel({ x: 106, y: 994, text: "Domain specializations" }),
-  card({
-    id: "ShapeInputs",
-    x: 140,
-    y: 1035,
-    w: 480,
-    h: 235,
-    color: "violet",
-    kicker: "Area.kt + Volume.kt",
-    title: "Length, Area, Volume",
-    lines: ["Length * Length", "Area * Length", "Volume / Area", "Volume / Length"],
-    footer: "specialized overloads return domain types",
-  }),
-  card({
-    id: "ShapeOps",
-    x: 745,
-    y: 1035,
-    w: 440,
-    h: 235,
-    color: "violet",
-    kicker: "canonical conversion",
-    title: "meters and meters2",
-    lines: ["length uses Length.meters", "area uses Area.meters2", "volume uses Volume.cubicMeters"],
-    footer: "source converts before arithmetic",
-  }),
-  card({
-    id: "ShapeResults",
-    x: 1310,
-    y: 1035,
-    w: 440,
-    h: 235,
-    color: "violet",
-    kicker: "typed result",
-    title: "Area or Volume",
-    lines: ["Measure<Area>", "Measure<Volume>", "division recovers Length or Area"],
-    footer: "domain type is clearer than raw UnitsProduct",
-  }),
-  card({
-    id: "PowerInputs",
-    x: 1310,
-    y: 1325,
-    w: 440,
-    h: 190,
-    color: "amber",
-    kicker: "EnergyPower.kt",
-    title: "Power and Time",
-    lines: ["Power * Time", "Time * Power", "Energy / Time"],
-  }),
-  card({
-    id: "EnergyOps",
-    x: 1875,
-    y: 1325,
-    w: 440,
-    h: 190,
-    color: "amber",
-    kicker: "canonical conversion",
-    title: "watts and seconds",
-    lines: ["W * s -> J", "J / s -> W", "kWh display via conversion"],
-  }),
-];
+function markerDefs() {
+  return Object.entries(palette).map(([name, p]) => `<marker id="arrow-${name}" markerWidth="24" markerHeight="18" refX="22" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L22 9 L2 16 Z" fill="${p.dark}" stroke="${p.dark}" stroke-width="1" stroke-dasharray="none"/></marker>`).join("\n  ");
+}
 
-const svg = `<svg data-intent="Explain measured unit composition flow from the current README and Kotlin operator sources." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Unit Composition Flow">
+function pathD(points) {
+  return points.map((p, i) => `${i === 0 ? "M" : "L"}${p[0]} ${p[1]}`).join(" ");
+}
+
+function edge(e) {
+  const p = palette[e.tone];
+  const labelWidth = Math.max(120, e.label.length * 8.2 + 28);
+  return `<g id="${e.id}">
+  <path class="edge ${e.dashed ? "dashed" : ""}" d="${pathD(e.points)}" stroke="${p.dark}" marker-end="url(#arrow-${e.tone})"/>
+  <rect class="edgeLabelBg" x="${e.labelAt[0] - 10}" y="${e.labelAt[1] - 18}" width="${labelWidth}" height="26" rx="6"/>
+  <text class="edgeLabel" x="${e.labelAt[0]}" y="${e.labelAt[1]}">${esc(e.label)}</text>
+</g>`;
+}
+
+function lane({ x, y, w, h, title }) {
+  return `<rect class="laneBox" x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/><text class="laneTitle" x="${x + 24}" y="${y + 34}">${esc(title)}</text>`;
+}
+
+function pointTouchesBox(c, [x, y]) {
+  const inX = x >= c.x - 0.1 && x <= c.x + c.w + 0.1;
+  const inY = y >= c.y - 0.1 && y <= c.y + c.h + 0.1;
+  return ((Math.abs(x - c.x) < 0.1 || Math.abs(x - (c.x + c.w)) < 0.1) && inY) ||
+    ((Math.abs(y - c.y) < 0.1 || Math.abs(y - (c.y + c.h)) < 0.1) && inX);
+}
+
+function segments(points) {
+  return points.slice(1).map((p, i) => ({ a: points[i], b: p }));
+}
+
+function segmentHitsBox(seg, c, pad = 4) {
+  const box = { x: c.x + pad, y: c.y + pad, w: c.w - pad * 2, h: c.h - pad * 2 };
+  const minX = Math.min(seg.a[0], seg.b[0]);
+  const maxX = Math.max(seg.a[0], seg.b[0]);
+  const minY = Math.min(seg.a[1], seg.b[1]);
+  const maxY = Math.max(seg.a[1], seg.b[1]);
+  if (seg.a[0] === seg.b[0]) {
+    return seg.a[0] > box.x && seg.a[0] < box.x + box.w && maxY > box.y && minY < box.y + box.h;
+  }
+  if (seg.a[1] === seg.b[1]) {
+    return seg.a[1] > box.y && seg.a[1] < box.y + box.h && maxX > box.x && minX < box.x + box.w;
+  }
+  throw new Error(`Non-orthogonal segment ${JSON.stringify(seg)}`);
+}
+
+function properCross(a, b) {
+  if (a.a[1] === a.b[1] && b.a[0] === b.b[0]) {
+    const y = a.a[1];
+    const x = b.a[0];
+    return x > Math.min(a.a[0], a.b[0]) && x < Math.max(a.a[0], a.b[0]) &&
+      y > Math.min(b.a[1], b.b[1]) && y < Math.max(b.a[1], b.b[1]);
+  }
+  if (a.a[0] === a.b[0] && b.a[1] === b.b[1]) return properCross(b, a);
+  return false;
+}
+
+function validateGeometry() {
+  for (const e of edges) {
+    if (!pointTouchesBox(cards[e.from], e.points[0])) throw new Error(`${e.id} start does not touch ${e.from}`);
+    if (!pointTouchesBox(cards[e.to], e.points[e.points.length - 1])) throw new Error(`${e.id} end does not touch ${e.to}`);
+    for (const seg of segments(e.points)) {
+      for (const [id, c] of Object.entries(cards)) {
+        if (id === e.from || id === e.to) continue;
+        if (segmentHitsBox(seg, c)) throw new Error(`${e.id} crosses card ${id}`);
+      }
+    }
+  }
+  for (let i = 0; i < edges.length; i += 1) {
+    for (let j = i + 1; j < edges.length; j += 1) {
+      for (const a of segments(edges[i].points)) {
+        for (const b of segments(edges[j].points)) {
+          if (properCross(a, b)) throw new Error(`${edges[i].id} crosses ${edges[j].id}`);
+        }
+      }
+    }
+  }
+}
+
+validateGeometry();
+
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="measured unit composition flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:48px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .lane{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}.card{stroke-width:1.8;filter:url(#shadow)}
-    .kicker{font-family:"Comic Mono";font-size:14px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}
-    .body{font-family:"Comic Mono";font-size:14px;fill:#334155}.foot{font-family:"Comic Mono";font-size:13px;fill:#475569}.divider{stroke-width:1.1;opacity:.42}
-    .edge{fill:none;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabelBg{fill:#FFFFFF;stroke:#E2E8F0;stroke-width:.8;opacity:.94}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#334155}
+    .canvas{fill:${colors.canvas}}.frame{fill:${colors.frame};stroke:${colors.line};stroke-width:1.5;filter:url(#softShadow)}
+    .title{font-family:"Architects Daughter";font-size:46px;fill:${colors.ink}}.subtitle{font-family:"Comic Mono";font-size:15.5px;fill:${colors.muted}}
+    .laneBox{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6;stroke-dasharray:12 8}.laneTitle{font-family:"Architects Daughter";font-size:25px;fill:${colors.ink}}
+    .card{stroke-width:1.9;filter:url(#softShadow)}.kicker{font-family:"Comic Mono";font-size:13px;fill:${colors.muted}}
+    .cardTitle{font-family:"Architects Daughter";font-size:23px;fill:${colors.ink}}.body{font-family:"Comic Mono";font-size:13.2px;fill:#334155}
+    .foot{font-family:"Comic Mono";font-size:12.5px;fill:${colors.muted}}.divider{stroke-width:1.15;opacity:.45}
+    .edge{fill:none;stroke-width:3.55;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:10 8}
+    .edgeLabelBg{fill:#FFFFFF;stroke:#E2E8F0;stroke-width:1;opacity:.95}.edgeLabel{font-family:"Comic Mono";font-size:12.7px;fill:#334155}
   </style>
 </defs>
-<rect class="canvas" width="${width}" height="${height}"/>
-<rect class="frame" x="34" y="30" width="${width - 68}" height="${height - 60}" rx="8"/>
-<text class="title" x="72" y="88">Unit Composition Flow</text>
-<text class="subtitle" x="76" y="122">Values become typed Measure instances; unit and measure operators compose ratios/products, while domain specializations return Area, Volume, Energy, or restored base units.</text>
-${edges.join("\n")}
-${nodes.join("\n")}
+<rect class="canvas" width="${W}" height="${H}"/>
+<rect class="frame" x="34" y="30" width="${W - 68}" height="${H - 64}" rx="8"/>
+<text class="title" x="74" y="88">Unit Composition Flow</text>
+<text class="subtitle" x="78" y="121">Unit operators compose typed unit descriptors; value operators compose Measure types, while domain overloads return readable Area, Volume, Energy, and Power results.</text>
+${lane({ x: 86, y: 212, w: 1970, h: 345, title: "1. compose unit descriptors before values exist" })}
+${lane({ x: 86, y: 592, w: 2570, h: 400, title: "2. compose measured values with generic operators" })}
+${lane({ x: 86, y: 1220, w: 2570, h: 420, title: "3. use domain overloads when raw compound types would be noisy" })}
+<g id="edges">${edges.map(edge).join("\n")}</g>
+<g id="cards">${Object.keys(cards).map(card).join("\n")}</g>
 </svg>`;
 
-const svgPath = join(OUT, "utils-measured-diagram-02.svg");
-const pngPath = join(OUT, "utils-measured-diagram-02.png");
 writeFileSync(svgPath, svg.replace(/[ \t]+$/gm, ""));
-execFileSync(CAIROSVG, [svgPath, "-o", pngPath, "--scale", "2"], { stdio: "inherit" });
-console.log("Generated utils-measured-diagram-02.svg/png");
+execFileSync(`${process.env.HOME}/.local/bin/cairosvg`, [svgPath, "-o", pngPath, "-s", "2"], { stdio: "inherit" });
+console.log(`Generated ${svgPath}`);
+console.log(`Generated ${pngPath}`);
