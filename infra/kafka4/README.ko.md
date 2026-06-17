@@ -49,7 +49,7 @@ dependencies {
 
 ## 의존성 경계
 
-![kafka4 Architecture diagram](../../docs/images/readme-diagrams/infra-kafka4-diagram-01.png)
+![Kafka4 의존성 경계 다이어그램](../../docs/images/readme-diagrams/infra-kafka4-diagram-01.png)
 
 `infra/kafka4/build.gradle.kts`는 모든 `org.apache.kafka` artifact를 이 모듈의
 Kafka 4 버전으로 정렬합니다. root dependency management가 Kafka 3 artifact를
@@ -154,7 +154,7 @@ serializer들은 Kafka 전용 opt-in marker를 직접 제공하지 않습니다.
 
 ### Poison-pill 정책
 
-`AbstractKafkaCodec.deserialize` 는 명시적인 poison-pill 정책을 가진다.
+`AbstractKafkaCodec.deserialize`는 명시적인 poison-pill 정책을 제공합니다.
 
 | Throwable 종류        | 동작                                                |
 |-----------------------|-----------------------------------------------------|
@@ -162,16 +162,16 @@ serializer들은 Kafka 전용 opt-in marker를 직접 제공하지 않습니다.
 | `CancellationException` | **재던짐** — 코루틴 취소 신호 보존                   |
 | `Error` (OOM, StackOverflow 등) | **전파** — JVM 손상 상태를 은폐하지 않음        |
 
-영구 손실을 막으려면 Spring-Kafka 의 `ErrorHandlingDeserializer` +
-`DeadLetterPublishingRecoverer` 와 함께 사용하여 poison record 를 DLQ 토픽으로
-라우팅하라.
+영구 손실을 막으려면 Spring-Kafka의 `ErrorHandlingDeserializer`와
+`DeadLetterPublishingRecoverer`를 함께 사용해 poison record를 DLQ 토픽으로
+라우팅하세요.
 
 ### 성능: 타입 헤더 쓰기 비활성화
 
-`AbstractKafkaCodec` 은 기본적으로 매 레코드 헤더에 value 타입의 Java FQN 을 기록합니다
+`AbstractKafkaCodec`은 기본적으로 매 레코드 헤더에 value 타입의 Java FQN을 기록합니다
 (`bluetape4k.kafka.codec.value.type`). 다형성 역직렬화에 필요하지만,
 처리량이 높은 토픽에서는 대역폭·저장 오버헤드가 발생하며 아래 설명하는
-클래스 로딩 attack surface 도 넓어집니다.
+클래스 로딩 attack surface도 넓어집니다.
 
 컨슈머가 타입을 정적으로 이미 알고 있다면 헤더 쓰기를 비활성화할 수 있습니다:
 
@@ -200,11 +200,11 @@ class NoHeaderForyCodec : ForyKafkaCodec() {
 신뢰 프로필: 기본값은 `AllowListedTypes`입니다. `UnsafeLegacyCompatibility`는
 `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE`를 통해서만 사용하세요.
 
-`AbstractKafkaCodec` 은 Kafka 헤더 `bluetape4k.kafka.codec.value.type` 에서
+`AbstractKafkaCodec`은 Kafka 헤더 `bluetape4k.kafka.codec.value.type`에서
 역직렬화 대상 클래스를 로드합니다. 이 헤더를 공격자가 조작할 수 있는 환경(신뢰할 수
 없는 브로커, 외부 네트워크)에서는 임의 클래스 로딩(RCE)이 가능합니다.
 
-`allowedTypePackages` 를 오버라이드하여 로드 가능한 패키지를 제한하세요:
+`allowedTypePackages`를 오버라이드하여 로드 가능한 패키지를 제한하세요:
 
 ```kotlin
 class SecureJacksonCodec : JacksonKafkaCodec() {
