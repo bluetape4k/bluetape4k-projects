@@ -17,25 +17,25 @@ Micrometer와 Observation API를 활용한 애플리케이션 성능 측정 및 
 
 ## 아키텍처
 
-![Micrometer Module Architecture diagram](../../docs/images/readme-diagrams/infra-micrometer-diagram-03.png)
+![Micrometer 모듈 아키텍처 다이어그램](../../docs/images/readme-diagrams/infra-micrometer-diagram-03.png)
 
 이 모듈은 Micrometer의 기존 registry 위에 Kotlin 친화적인 timing, observation, Retrofit2, Cache2k, KeyValue 헬퍼를 더합니다.
 
 ### 핵심 클래스 구조
 
-![Core Class Structure diagram](../../docs/images/readme-diagrams/infra-micrometer-diagram-01.png)
+![핵심 클래스 구조 다이어그램](../../docs/images/readme-diagrams/infra-micrometer-diagram-01.png)
 
 ### 메트릭 수집 흐름
 
-![Metric Collection Flow diagram](../../docs/images/readme-diagrams/infra-micrometer-diagram-02.png)
+![메트릭 수집 흐름 다이어그램](../../docs/images/readme-diagrams/infra-micrometer-diagram-02.png)
 
 ### Retrofit2 메트릭 수집 시퀀스
 
-![Retrofit2 Metric Collection Sequence diagram](../../docs/images/readme-diagrams/infra-micrometer-sequence-01.png)
+![Retrofit2 메트릭 수집 시퀀스 다이어그램](../../docs/images/readme-diagrams/infra-micrometer-sequence-01.png)
 
 ### Coroutine Observation 흐름
 
-![Coroutine Observation Flow diagram](../../docs/images/readme-diagrams/infra-micrometer-sequence-02.png)
+![Coroutine Observation 흐름 다이어그램](../../docs/images/readme-diagrams/infra-micrometer-sequence-02.png)
 
 ## 의존성
 
@@ -213,7 +213,7 @@ Low-cardinality 값에는 bounded event type 과 안정적인 destination 이름
 
 #### Event Telemetry Sequence
 
-![Event Telemetry Sequence diagram](../../docs/images/readme-diagrams/infra-micrometer-sequence-03.png)
+![Event Telemetry 시퀀스 다이어그램](../../docs/images/readme-diagrams/infra-micrometer-sequence-03.png)
 
 ### 4. Retrofit2 메트릭
 

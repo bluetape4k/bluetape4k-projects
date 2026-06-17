@@ -1,89 +1,212 @@
-<svg data-intent="Regenerate Core Class Structure from the current README and source package surface for infra/micrometer." data-evidence="infra/micrometer/README.md; infra/micrometer; infra/micrometer/src/main/kotlin" data-source-read="infra/micrometer/README.md; infra/micrometer; infra/micrometer/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Core Class Structure">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1180" viewBox="0 0 1900 1180" role="img" aria-label="Micrometer Core Class Structure">
+  <defs>
+    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="hollow" markerWidth="16" markerHeight="14" refX="14" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 15 7 L 1 13 Z" fill="#ffffff" stroke="#111827" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="open-blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="open-purple" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#9333ea" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="open-green" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+  </defs>
+
   <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+    .canvas { fill: #f8fafc; }
+    .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.8; filter: url(#softShadow); }
+    .title { font-family: "Architects Daughter"; font-size: 50px; fill: #0f172a; }
+    .subtitle { font-family: "Comic Mono"; font-size: 18px; fill: #475569; }
+    .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.7; }
+    .panelTitle { font-family: "Architects Daughter"; font-size: 27px; fill: #0f172a; }
+    .card { filter: url(#softShadow); stroke-width: 2.1; }
+    .external { fill: #f8fafc; stroke: #64748b; stroke-dasharray: 8 7; }
+    .extension { fill: #eff6ff; stroke: #2563eb; }
+    .observation { fill: #faf5ff; stroke: #9333ea; }
+    .event { fill: #fdf2f8; stroke: #db2777; }
+    .retrofit { fill: #fff7ed; stroke: #ea580c; }
+    .cache { fill: #f0fdfa; stroke: #0d9488; }
+    .common { fill: #f0fdf4; stroke: #16a34a; }
+    .iface { fill: #ffffff; stroke: #64748b; stroke-dasharray: 8 7; }
+    .name { font-family: "Architects Daughter"; font-size: 24px; fill: #0f172a; }
+    .smallName { font-family: "Architects Daughter"; font-size: 21px; fill: #0f172a; }
+    .meta { font-family: "Comic Mono"; font-size: 13.5px; fill: #475569; }
+    .tiny { font-family: "Comic Mono"; font-size: 12.5px; fill: #64748b; }
+    .extends { fill: none; stroke: #111827; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#hollow); }
+    .implements { fill: none; stroke: #111827; stroke-width: 2.2; stroke-dasharray: 8 7; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#hollow); }
+    .usesBlue { fill: none; stroke: #2563eb; stroke-width: 2.8; stroke-dasharray: 9 8; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#open-blue); }
+    .usesPurple { fill: none; stroke: #9333ea; stroke-width: 2.8; stroke-dasharray: 9 8; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#open-purple); }
+    .usesGreen { fill: none; stroke: #16a34a; stroke-width: 2.8; stroke-dasharray: 9 8; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#open-green); }
   </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">Core Class Structure</text>
-<text class="subtitle" x="76" y="116">infra/micrometer: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Architecture</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Core Class Structure</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Metric Collection Flow</text>
-</g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">micrometer package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">micrometer package (15)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">Cache2kCacheMetrics type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">Cache2kCacheMetrics type</text>
-</g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">MeasuredCall type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">MeasuredCall type</text>
-</g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">MeasuredCallAdapter type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">MeasuredCallAdapter type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Reactive bridge</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Reactive bridge</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Kafka messaging</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Kafka messaging</text>
-</g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Serialization</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Serialization</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
-<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
+
+  <rect class="canvas" width="1900" height="1180"/>
+  <rect class="frame" x="38" y="32" width="1824" height="1116" rx="8"/>
+
+  <text class="title" x="82" y="94">Micrometer Core Class Structure</text>
+  <text class="subtitle" x="86" y="128">Kotlin extension functions wrap Micrometer Observation/Timer APIs; Retrofit and Cache2k have concrete adapter classes.</text>
+
+  <rect class="panel" x="82" y="174" width="1736" height="130" rx="8"/>
+  <text class="panelTitle" x="112" y="216">External APIs extended by this module</text>
+
+  <g id="timer-api">
+    <rect class="card external" x="132" y="232" width="272" height="50" rx="8"/>
+    <text class="smallName" x="268" y="264" text-anchor="middle">Timer + Flow</text>
+  </g>
+  <g id="observation-api">
+    <rect class="card external" x="486" y="232" width="344" height="50" rx="8"/>
+    <text class="smallName" x="658" y="264" text-anchor="middle">Observation + Registry</text>
+  </g>
+  <g id="retrofit-api">
+    <rect class="card external" x="912" y="232" width="338" height="50" rx="8"/>
+    <text class="smallName" x="1081" y="264" text-anchor="middle">Retrofit CallAdapter + Call</text>
+  </g>
+  <g id="meter-api">
+    <rect class="card external" x="1308" y="232" width="430" height="50" rx="8"/>
+    <text class="smallName" x="1523" y="264" text-anchor="middle">MeterRegistry + CacheMeterBinder</text>
+  </g>
+
+  <rect class="panel" x="82" y="346" width="548" height="650" rx="8"/>
+  <rect class="panel" x="676" y="346" width="694" height="650" rx="8"/>
+  <rect class="panel" x="1416" y="346" width="402" height="650" rx="8"/>
+  <text class="panelTitle" x="112" y="388">Kotlin-friendly extension surface</text>
+  <text class="panelTitle" x="706" y="388">Retrofit2 metrics class cluster</text>
+  <text class="panelTitle" x="1446" y="388">Cache and tag helpers</text>
+
+  <g id="timer-ext">
+    <rect class="card extension" x="122" y="430" width="224" height="104" rx="8"/>
+    <text class="smallName" x="234" y="462" text-anchor="middle">TimerExtensions</text>
+    <text class="meta" x="234" y="491" text-anchor="middle">Timer.recordSuspend</text>
+    <text class="meta" x="234" y="514" text-anchor="middle">Flow.withTimer</text>
+  </g>
+  <g id="registry-support">
+    <rect class="card observation" x="376" y="430" width="214" height="104" rx="8"/>
+    <text class="smallName" x="483" y="462" text-anchor="middle">RegistrySupport</text>
+    <text class="meta" x="483" y="491" text-anchor="middle">NOOP registry</text>
+    <text class="meta" x="483" y="514" text-anchor="middle">start/createNotStarted</text>
+  </g>
+  <g id="obs-ext">
+    <rect class="card observation" x="122" y="576" width="224" height="112" rx="8"/>
+    <text class="smallName" x="234" y="608" text-anchor="middle">ObservationExtensions</text>
+    <text class="meta" x="234" y="638" text-anchor="middle">withObservation</text>
+    <text class="meta" x="234" y="661" text-anchor="middle">tryObserve</text>
+  </g>
+  <g id="coroutine-obs">
+    <rect class="card observation" x="376" y="576" width="214" height="112" rx="8"/>
+    <text class="smallName" x="483" y="608" text-anchor="middle">CoroutineSupport</text>
+    <text class="meta" x="483" y="638" text-anchor="middle">observeSuspending</text>
+    <text class="meta" x="483" y="661" text-anchor="middle">context propagation</text>
+  </g>
+  <g id="event-support">
+    <rect class="card event" x="122" y="734" width="468" height="130" rx="8"/>
+    <text class="name" x="356" y="771" text-anchor="middle">EventTelemetryObservationSupport</text>
+    <text class="meta" x="356" y="804" text-anchor="middle">observeEventPublish / observeEventConsume</text>
+    <text class="meta" x="356" y="827" text-anchor="middle">low-cardinality outcome + destination tags</text>
+    <text class="meta" x="356" y="850" text-anchor="middle">cancellation rethrown with outcome=CANCELLED</text>
+  </g>
+  <g id="event-types">
+    <rect class="card event" x="122" y="898" width="468" height="64" rx="8"/>
+    <text class="smallName" x="356" y="926" text-anchor="middle">EventTelemetry data model</text>
+    <text class="tiny" x="356" y="950" text-anchor="middle">Destination, Correlation, HighCardinality, Operation, Outcome</text>
+  </g>
+
+  <path class="usesPurple" d="M 483 688 V 714 H 356 V 726"/>
+  <path class="usesPurple" d="M 356 864 V 890"/>
+
+  <g id="retrofit-factory">
+    <rect class="card retrofit" x="722" y="432" width="286" height="104" rx="8"/>
+    <text class="smallName" x="865" y="464" text-anchor="middle">RetrofitMetricsFactory</text>
+    <text class="meta" x="865" y="493" text-anchor="middle">extends CallAdapter.Factory</text>
+    <text class="meta" x="865" y="516" text-anchor="middle">creates measured adapters</text>
+  </g>
+  <g id="micrometer-factory">
+    <rect class="card retrofit" x="722" y="582" width="286" height="90" rx="8"/>
+    <text class="smallName" x="865" y="614" text-anchor="middle">MicrometerRetrofit</text>
+    <text class="smallName" x="865" y="639" text-anchor="middle">MetricsFactory</text>
+    <text class="meta" x="865" y="663" text-anchor="middle">uses global or supplied registry</text>
+  </g>
+  <path class="extends" d="M 865 582 V 544"/>
+
+  <g id="adapter">
+    <rect class="card retrofit" x="1054" y="432" width="262" height="104" rx="8"/>
+    <text class="smallName" x="1185" y="464" text-anchor="middle">MeasuredCallAdapter</text>
+    <text class="meta" x="1185" y="493" text-anchor="middle">implements CallAdapter</text>
+    <text class="meta" x="1185" y="516" text-anchor="middle">wraps call in MeasuredCall</text>
+  </g>
+  <g id="measured-call">
+    <rect class="card retrofit" x="1054" y="582" width="262" height="104" rx="8"/>
+    <text class="smallName" x="1185" y="614" text-anchor="middle">MeasuredCall&lt;T&gt;</text>
+    <text class="meta" x="1185" y="643" text-anchor="middle">delegates Retrofit Call</text>
+    <text class="meta" x="1185" y="666" text-anchor="middle">records execute/enqueue</text>
+  </g>
+  <g id="collector">
+    <rect class="card retrofit" x="846" y="742" width="278" height="108" rx="8"/>
+    <text class="smallName" x="985" y="774" text-anchor="middle">RetrofitCall</text>
+    <text class="smallName" x="985" y="799" text-anchor="middle">MetricsCollector</text>
+    <text class="meta" x="985" y="826" text-anchor="middle">builds method/status/outcome tags</text>
+  </g>
+  <g id="recorder-interface">
+    <rect class="card iface" x="720" y="900" width="220" height="64" rx="8"/>
+    <text class="smallName" x="830" y="927" text-anchor="middle">&lt;&lt;fun interface&gt;&gt;</text>
+    <text class="smallName" x="830" y="951" text-anchor="middle">MetricsRecorder</text>
+  </g>
+  <g id="micrometer-recorder">
+    <rect class="card retrofit" x="1004" y="890" width="284" height="86" rx="8"/>
+    <text class="smallName" x="1146" y="918" text-anchor="middle">MicrometerRetrofit</text>
+    <text class="smallName" x="1146" y="943" text-anchor="middle">MetricsRecorder</text>
+    <text class="meta" x="1146" y="967" text-anchor="middle">Timer cache + percentiles</text>
+  </g>
+  <g id="outcome">
+    <rect class="card retrofit" x="1150" y="742" width="166" height="108" rx="8"/>
+    <text class="smallName" x="1233" y="774" text-anchor="middle">Outcome</text>
+    <text class="meta" x="1233" y="803" text-anchor="middle">UNKNOWN</text>
+    <text class="meta" x="1233" y="826" text-anchor="middle">SUCCESS / errors</text>
+  </g>
+
+  <path class="usesBlue" d="M 1008 484 H 1046"/>
+  <path class="usesBlue" d="M 1185 536 V 574"/>
+  <path class="usesBlue" d="M 1185 686 V 710 H 985 V 734"/>
+  <path class="usesBlue" d="M 985 850 V 892 H 830"/>
+  <path class="usesBlue" d="M 1124 796 H 1142"/>
+  <path class="implements" d="M 1004 932 H 948"/>
+
+  <g id="cache2k">
+    <rect class="card cache" x="1464" y="432" width="306" height="136" rx="8"/>
+    <text class="smallName" x="1617" y="464" text-anchor="middle">Cache2kCacheMetrics</text>
+    <text class="meta" x="1617" y="493" text-anchor="middle">extends CacheMeterBinder</text>
+    <text class="meta" x="1617" y="516" text-anchor="middle">monitor(registry, cache, tags)</text>
+    <text class="meta" x="1617" y="539" text-anchor="middle">size, hit/miss, load, expiry</text>
+  </g>
+  <g id="keyvalue">
+    <rect class="card common" x="1464" y="626" width="306" height="112" rx="8"/>
+    <text class="smallName" x="1617" y="658" text-anchor="middle">KeyValueSupport</text>
+    <text class="meta" x="1617" y="687" text-anchor="middle">keyValueOf / keyValuesOf</text>
+    <text class="meta" x="1617" y="710" text-anchor="middle">blank-key validation</text>
+  </g>
+  <g id="registry-target">
+    <rect class="card cache" x="1464" y="800" width="306" height="96" rx="8"/>
+    <text class="smallName" x="1617" y="832" text-anchor="middle">Micrometer registries</text>
+    <text class="meta" x="1617" y="861" text-anchor="middle">Timer, Gauge, FunctionCounter</text>
+    <text class="meta" x="1617" y="884" text-anchor="middle">stable tag sets</text>
+  </g>
+
+  <path class="usesGreen" d="M 1617 568 V 618"/>
+  <path class="usesGreen" d="M 1617 738 V 792"/>
+  <path class="usesBlue" d="M 1288 942 H 1456 V 848"/>
+
+  <g id="legend" transform="translate(112,1064)">
+    <path class="extends" d="M 0 14 H 52"/>
+    <text class="tiny" x="68" y="19">extends</text>
+    <path class="implements" d="M 170 14 H 222"/>
+    <text class="tiny" x="238" y="19">implements</text>
+    <path class="usesBlue" d="M 370 14 H 422"/>
+    <text class="tiny" x="438" y="19">uses / wraps</text>
+    <path class="usesGreen" d="M 570 14 H 622"/>
+    <text class="tiny" x="638" y="19">binds metrics or tags</text>
+  </g>
 </svg>
