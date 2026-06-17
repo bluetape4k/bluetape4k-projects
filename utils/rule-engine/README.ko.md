@@ -2,34 +2,35 @@
 
 [English](./README.md) | 한국어
 
-Kotlin 기반의 경량 Rule Engine 라이브러리입니다. Easy Rules 패턴을 기반으로 하되, Kotlin DSL, 코루틴(SuspendRule), 어노테이션 기반 Rule 정의를 지원합니다.
+Kotlin 기반의 경량 Rule Engine 라이브러리입니다. Easy Rules 패턴을 기반으로 하되, Kotlin DSL,
+코루틴(`SuspendRule`), 어노테이션 기반 Rule 정의를 함께 지원합니다.
 
 ## 아키텍처
 
 ### 개념 개요
 
-세 가지 핵심 구성 요소와 상호 작용:
+세 가지 핵심 구성 요소와 상호 작용은 다음과 같습니다.
 
-![rule engine Architecture diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-01.png)
+![Rule Engine Concept Overview diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-01.png)
 
 `Rule`은 **condition** (`Facts` 검사 Predicate)과 **action** (`Facts` 수정 함수)으로 구성됩니다.  
 `RuleEngine.fire()`는 우선순위 순으로 Rule을 순회하며 조건을 평가하고, 만족하는 Rule의 Action을 실행합니다.
 
 ### 핵심 클래스 다이어그램
 
-![Rule Engine Class Structure diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-02.png)
+![Rule Engine Core Class Diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-02.png)
 
 ### Rule Engine 클래스 다이어그램
 
-![Rule Engine diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-03.png)
+![Rule Engine Class Diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-03.png)
 
 ### Composite Rule 다이어그램
 
-![Composite Rule diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-04.png)
+![Composite Rules diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-04.png)
 
 ### Rule 실행 시퀀스
 
-![Rule diagram](../../docs/images/readme-diagrams/utils-rule-engine-sequence-01.png)
+![Rule Execution Sequence diagram](../../docs/images/readme-diagrams/utils-rule-engine-sequence-01.png)
 
 ### InferenceRuleEngine (Forward Chaining)
 
@@ -37,7 +38,7 @@ Kotlin 기반의 경량 Rule Engine 라이브러리입니다. Easy Rules 패턴�
 
 ### Rule Engine 선택 가이드
 
-![Rule Engine diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-06.png)
+![Rule Engine Selection Guide diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-06.png)
 
 ## 핵심 기능
 

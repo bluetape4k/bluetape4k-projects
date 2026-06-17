@@ -2,8 +2,8 @@
 
 English | [한국어](./README.ko.md)
 
-A lightweight rule engine library for Kotlin. It follows the Easy Rules pattern and adds Kotlin DSLs, coroutine support (
-`SuspendRule`), and annotation-based rule definitions.
+A lightweight rule engine library for Kotlin. It follows the Easy Rules pattern and adds Kotlin DSLs,
+coroutine support (`SuspendRule`), and annotation-based rule definitions.
 
 ## Architecture
 
@@ -11,7 +11,7 @@ A lightweight rule engine library for Kotlin. It follows the Easy Rules pattern 
 
 The three core building blocks and how they interact:
 
-![Concept Overview diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-01.png)
+![Rule Engine Concept Overview diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-01.png)
 
 A `Rule` has a **condition** (predicate on `Facts`) and an **action** (mutates `Facts`).  
 `RuleEngine.fire()` iterates rules in priority order, evaluates each condition, and runs matching actions.
@@ -22,7 +22,7 @@ A `Rule` has a **condition** (predicate on `Facts`) and an **action** (mutates `
 
 ### Rule Engine Class Diagram
 
-![Rule Engine Class Diagram diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-03.png)
+![Rule Engine Class Diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-03.png)
 
 ### Composite Rules
 
