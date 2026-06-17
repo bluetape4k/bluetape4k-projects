@@ -76,7 +76,7 @@ function parseSequence(svg, file) {
   return {
     file,
     title: extractTitle(svg) || titleFromFile(file),
-    subtitle: "Source-checked interaction flow with compact labels, numbered calls, and readable branch semantics.",
+    subtitle: "Shows the main calls, branches, and returned values for this flow.",
     participants,
     events,
   };
@@ -207,7 +207,7 @@ function parseFlowLikeSequence(svg, file) {
   return {
     file,
     title: extractTitle(svg) || titleFromFile(file),
-    subtitle: "Source-checked interaction flow with sequence lifelines, numbered calls, and compact labels.",
+    subtitle: "Shows the main calls, branches, and returned values for this flow.",
     participants: cards.map((card, index) => ({
       id: card.id,
       label: card.title,

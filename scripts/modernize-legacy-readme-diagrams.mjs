@@ -81,7 +81,7 @@ function modernizeSubtitle(svg, kind) {
 }
 
 function subtitleFor(kind) {
-  if (kind === "sequence") return "Source-checked interaction flow with compact messages and routed responses.";
+  if (kind === "sequence") return "Shows the main calls, branches, and returned values for this flow.";
   if (kind === "class") return "Source-checked class relationships with readable compartments and routed inheritance.";
   if (kind === "flow-state") return "Source-checked lifecycle flow with grouped phases and explicit transitions.";
   if (kind === "module") return "Source-checked module relationships grouped by API and implementation responsibility.";
