@@ -336,7 +336,7 @@ val book1 = session.findBySimpleNaturalId<Book>("978-89-1234-567-8")
 val book2 = em.findBySimpleNaturalId<Book>("978-89-1234-567-8")
 ```
 
-### 6. Querydsl 확장
+### 8. Querydsl 확장
 
 ```kotlin
 import io.bluetape4k.hibernate.querydsl.core.*
@@ -355,7 +355,7 @@ val users = queryFactory
     .fetch()
 ```
 
-### 7. Converter 사용
+### 9. Converter 사용
 
 다양한 AttributeConverter를 제공합니다.
 
