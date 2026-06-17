@@ -1,70 +1,116 @@
-<svg data-intent="Regenerate API Structure from the current README and source package surface for data/mongodb." data-evidence="data/mongodb/README.md; data/mongodb; data/mongodb/src/main/kotlin" data-source-read="data/mongodb/README.md; data/mongodb; data/mongodb/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="API Structure">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">API Structure</text>
-<text class="subtitle" x="76" y="116">data/mongodb: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Features</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Core Class Structure</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Module API Structure</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Aggregation Pipeline Data Flow</text>
-</g>
-<g id="source0">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">mongodb package</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">mongodb package (7)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">MongoClientProvider type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">MongoClientProvider type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="262" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="412" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="412" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="600" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="750" y="824" text-anchor="middle">Serialization</text>
-  <text class="detail" x="750" y="852" text-anchor="middle">Serialization</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="938" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1088" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="1088" y="852" text-anchor="middle">Test support</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L581 416 L581 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L919 416 L919 510" stroke="#15803D"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M581 602 L581 696 L412 696 L412 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M919 602 L919 696 L750 696 L750 790" stroke="#0F766E"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="bluetape4k MongoDB module API structure">
+  <defs>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#2563eb" stroke="#2563eb" stroke-width="1.4" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.4" stroke-dasharray="none"/>
+    </marker>
+    <style>
+      svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+      .canvas { fill: #f8fafc; }
+      .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.6; filter: url(#softShadow); }
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #0f172a; }
+      .subtitle { font-family: "Comic Mono"; font-size: 15px; fill: #475569; }
+      .band { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.5; }
+      .bandTitle { font-family: "Architects Daughter"; font-size: 23px; fill: #0f172a; }
+      .card { filter: url(#softShadow); stroke-width: 1.7; }
+      .cardTitle { font-family: "Architects Daughter"; font-size: 22px; fill: #0f172a; }
+      .detail { font-family: "Comic Mono"; font-size: 12.5px; fill: #334155; }
+      .small { font-family: "Comic Mono"; font-size: 12px; fill: #475569; }
+      .flow { fill: none; stroke: #2563eb; stroke-width: 3.8; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowBlue); }
+      .select { fill: none; stroke: #16a34a; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowGreen); }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1500" height="1000"/>
+  <rect class="frame" x="34" y="30" width="1432" height="940" rx="10"/>
+  <text class="title" x="72" y="86">bluetape4k-mongodb Module API Structure</text>
+  <text class="subtitle" x="76" y="118">Choose the smallest helper around the native coroutine driver API you already use</text>
+
+  <rect class="band" x="74" y="154" width="1352" height="168" rx="10"/>
+  <text class="bandTitle" x="104" y="194">API entrypoints</text>
+
+  <g id="clientEntry">
+    <rect class="card" x="122" y="226" width="286" height="72" rx="8" fill="#eff6ff" stroke="#2563eb"/>
+    <text class="cardTitle" x="265" y="256" text-anchor="middle">Client creation</text>
+    <text class="detail" x="265" y="280" text-anchor="middle">mongoClient, mongoClientOf, provider</text>
+  </g>
+  <g id="databaseEntry">
+    <rect class="card" x="444" y="226" width="286" height="72" rx="8" fill="#f0fdf4" stroke="#16a34a"/>
+    <text class="cardTitle" x="587" y="256" text-anchor="middle">Database access</text>
+    <text class="detail" x="587" y="280" text-anchor="middle">typed collections + names as List</text>
+  </g>
+  <g id="collectionEntry">
+    <rect class="card" x="766" y="226" width="286" height="72" rx="8" fill="#faf5ff" stroke="#9333ea"/>
+    <text class="cardTitle" x="909" y="256" text-anchor="middle">Collection shortcuts</text>
+    <text class="detail" x="909" y="280" text-anchor="middle">first, exists, upsert, findAsFlow</text>
+  </g>
+  <g id="dslEntry">
+    <rect class="card" x="1088" y="226" width="286" height="72" rx="8" fill="#fff7ed" stroke="#ea580c"/>
+    <text class="cardTitle" x="1231" y="256" text-anchor="middle">Document + pipeline</text>
+    <text class="detail" x="1231" y="280" text-anchor="middle">BSON document and stage builders</text>
+  </g>
+
+  <rect class="band" x="74" y="366" width="1352" height="400" rx="10"/>
+  <text class="bandTitle" x="104" y="406">What each helper adds</text>
+
+  <g id="clientCard">
+    <rect class="card" x="122" y="450" width="286" height="224" rx="8" fill="#eff6ff" stroke="#2563eb"/>
+    <text class="cardTitle" x="265" y="486" text-anchor="middle">Client API</text>
+    <line x1="122" y1="506" x2="408" y2="506" stroke="#bfdbfe" stroke-width="1.2"/>
+    <text class="detail" x="146" y="538">mongoClient { Builder.() }</text>
+    <text class="detail" x="146" y="566">mongoClientOf(url) { Builder.() }</text>
+    <text class="detail" x="146" y="594">MongoClientProvider cache</text>
+    <text class="detail" x="146" y="622">listDatabaseNamesAsList()</text>
+    <text class="detail" x="146" y="650">withClientSession / inTransaction</text>
+  </g>
+
+  <g id="databaseCard">
+    <rect class="card" x="444" y="450" width="286" height="224" rx="8" fill="#f0fdf4" stroke="#16a34a"/>
+    <text class="cardTitle" x="587" y="486" text-anchor="middle">Database API</text>
+    <line x1="444" y1="506" x2="730" y2="506" stroke="#bbf7d0" stroke-width="1.2"/>
+    <text class="detail" x="468" y="538">getCollectionOf&lt;T&gt;(name)</text>
+    <text class="detail" x="468" y="566">listCollectionNamesList()</text>
+    <text class="detail" x="468" y="594">keeps native MongoDatabase</text>
+    <text class="detail" x="468" y="622">no schema registry layer</text>
+    <text class="detail" x="468" y="650">no collection wrapper type</text>
+  </g>
+
+  <g id="collectionCard">
+    <rect class="card" x="766" y="450" width="286" height="224" rx="8" fill="#faf5ff" stroke="#9333ea"/>
+    <text class="cardTitle" x="909" y="486" text-anchor="middle">Collection API</text>
+    <line x1="766" y1="506" x2="1052" y2="506" stroke="#e9d5ff" stroke-width="1.2"/>
+    <text class="detail" x="790" y="538">findFirst(filter)</text>
+    <text class="detail" x="790" y="566">exists(filter)</text>
+    <text class="detail" x="790" y="594">upsert(filter, update)</text>
+    <text class="detail" x="790" y="622">findAsFlow(filter, sort, page)</text>
+    <text class="detail" x="790" y="650">native CRUD remains suspend</text>
+  </g>
+
+  <g id="dslCard">
+    <rect class="card" x="1088" y="450" width="286" height="224" rx="8" fill="#fff7ed" stroke="#ea580c"/>
+    <text class="cardTitle" x="1231" y="486" text-anchor="middle">DSL API</text>
+    <line x1="1088" y1="506" x2="1374" y2="506" stroke="#fed7aa" stroke-width="1.2"/>
+    <text class="detail" x="1112" y="538">documentOf(key to value)</text>
+    <text class="detail" x="1112" y="566">documentOf { put(...) }</text>
+    <text class="detail" x="1112" y="594">Document.getAs&lt;T&gt;(key)</text>
+    <text class="detail" x="1112" y="622">pipeline { add(stage) }</text>
+    <text class="detail" x="1112" y="650">match/group/sort/limit/skip</text>
+  </g>
+
+  <path class="select" d="M 265 298 L 265 450"/>
+  <path class="select" d="M 587 298 L 587 450"/>
+  <path class="select" d="M 909 298 L 909 450"/>
+  <path class="select" d="M 1231 298 L 1231 450"/>
+
+  <rect class="band" x="74" y="802" width="1352" height="122" rx="10"/>
+  <text class="bandTitle" x="104" y="864">Intentionally excluded</text>
+  <text class="small" x="430" y="836">No wrappers for native suspend CRUD: insertOne, updateOne, deleteOne, createIndex, dropIndex</text>
+  <text class="small" x="430" y="868">No custom filter/sort/update string DSL: use MongoDB Kotlin extensions</text>
+  <text class="small" x="430" y="892">for type-safe KProperty queries</text>
+  <text class="small" x="430" y="912">No aggregateAsFlow(): native aggregate(pipeline) already returns Flow-compatible AggregateFlow&lt;T&gt;</text>
 </svg>

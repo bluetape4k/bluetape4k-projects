@@ -5,8 +5,7 @@ English | [한국어](./README.ko.md)
 An extension library that makes the [MongoDB Kotlin Coroutine Driver](https://www.mongodb.com/docs/drivers/kotlin/coroutine/current/) more convenient to use.
 
 Since the MongoDB Kotlin Coroutine Driver (v5.x) already provides native `suspend` functions and
-`Flow`, this module focuses exclusively on **genuinely missing convenience features
-** without adding unnecessary wrappers.
+`Flow`, this module focuses exclusively on **genuinely missing convenience features** without adding unnecessary wrappers.
 
 ## Features
 

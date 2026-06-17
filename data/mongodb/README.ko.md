@@ -19,15 +19,15 @@ MongoDB Kotlin Coroutine Driver(v5.x)는 이미 네이티브 `suspend` 함수와
 
 ### 주요 클래스 구조
 
-![mongodb Class Structure diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-01.png)
+![Core Class Structure diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-01.png)
 
 ### 모듈 API 구조
 
-![API diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-02.png)
+![Module API Structure diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-02.png)
 
 ### Aggregation Pipeline 데이터 흐름
 
-![Aggregation Pipeline diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-03.png)
+![Aggregation Pipeline Data Flow diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-03.png)
 
 ## 의존성 추가
 
