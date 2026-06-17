@@ -2,7 +2,7 @@
 
 [English](./README.md) | [한국어](./README.ko.md)
 
-Ktor observability helpers for the bluetape4k ecosystem.
+Explicit Ktor observability defaults for bluetape4k applications.
 
 ## Component Diagram
 
@@ -10,12 +10,12 @@ Ktor observability helpers for the bluetape4k ecosystem.
 
 ## Features
 
-- `installBluetape4kKtorObservability()` for explicit Ktor observability setup.
-- Sanitized correlation ID propagation through Ktor `CallId`.
-- `CallLogging` MDC integration with query-string-free default log messages.
-- Micrometer `MicrometerMetrics` installation when an application supplies a `MeterRegistry`.
-- Optional Prometheus scrape route backed by an application-owned `PrometheusMeterRegistry`.
-- Optional OpenTelemetry server tracing backed by an application-owned `OpenTelemetry` instance.
+- `installBluetape4kKtorObservability()` installs the selected Ktor observability plugins explicitly.
+- Ktor `CallId` propagates only sanitized correlation IDs.
+- `CallLogging` writes MDC-backed request logs without query strings in the default message.
+- `MicrometerMetrics` is installed only when the application supplies a `MeterRegistry`.
+- `prometheusScrapeRoute()` exposes an optional scrape route backed by an application-owned `PrometheusMeterRegistry`.
+- Optional OpenTelemetry server tracing uses the application-owned `OpenTelemetry` instance.
 
 ## Dependency
 
@@ -78,8 +78,8 @@ fun Application.module(openTelemetry: OpenTelemetry) {
 ```
 
 `captureSanitizedCorrelationId` records only the sanitized `correlation.id`
-trace attribute. It does not record the raw request header. A bounded
-`correlation.present` attribute is recorded on traced requests.
+trace attribute. Raw request headers are not recorded. Traced requests always
+record the bounded `correlation.present` attribute.
 
 ## Dependency Policy
 

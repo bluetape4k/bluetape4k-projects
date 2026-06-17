@@ -2,20 +2,20 @@
 
 [English](./README.md) | [한국어](./README.ko.md)
 
-bluetape4k 생태계를 위한 Ktor observability helper 모듈입니다.
+bluetape4k 애플리케이션에서 관측성 기본값을 명시적으로 설치하는 Ktor 모듈입니다.
 
-## Component Diagram
+## 컴포넌트 다이어그램
 
 ![Ktor Observability Components](../../docs/images/readme-diagrams/ktor-observability-component-01.png)
 
 ## 기능
 
-- `installBluetape4kKtorObservability()` 명시적 Ktor observability 설정.
-- Ktor `CallId` 기반 sanitized correlation ID 전파.
-- query string을 제외한 기본 로그 메시지와 `CallLogging` MDC 연동.
-- 애플리케이션이 `MeterRegistry`를 제공할 때 Micrometer `MicrometerMetrics` 설치.
-- 애플리케이션이 소유한 `PrometheusMeterRegistry` 기반 선택적 scrape route.
-- 애플리케이션이 소유한 `OpenTelemetry` 인스턴스 기반 선택적 서버 tracing.
+- `installBluetape4kKtorObservability()`는 선택한 Ktor 관측성 플러그인을 명시적으로 설치합니다.
+- Ktor `CallId`는 정제된 correlation ID만 전파합니다.
+- `CallLogging`은 query string을 제외한 기본 로그 메시지와 MDC를 함께 사용합니다.
+- 애플리케이션이 `MeterRegistry`를 제공할 때만 Micrometer `MicrometerMetrics`를 설치합니다.
+- `prometheusScrapeRoute()`는 애플리케이션이 소유한 `PrometheusMeterRegistry`로 scrape route를 엽니다.
+- 선택적 OpenTelemetry 서버 tracing은 애플리케이션이 소유한 `OpenTelemetry` 인스턴스를 사용합니다.
 
 ## 의존성
 
@@ -54,9 +54,8 @@ fun Application.module(registry: PrometheusMeterRegistry) {
 
 ## OpenTelemetry Tracing 사용 예
 
-Tracing은 명시적 opt-in입니다. OpenTelemetry SDK, exporter, propagator는
-애플리케이션에서 만들고, helper에는 완성된 `OpenTelemetry` 인스턴스만
-전달합니다.
+Tracing은 명시적으로 켜야 합니다. OpenTelemetry SDK, exporter, propagator는
+애플리케이션에서 만들고, helper에는 완성된 `OpenTelemetry` 인스턴스만 전달합니다.
 
 ```kotlin
 import io.bluetape4k.ktor.observability.Bluetape4kKtorObservabilityConfig
@@ -77,18 +76,18 @@ fun Application.module(openTelemetry: OpenTelemetry) {
 }
 ```
 
-`captureSanitizedCorrelationId`는 sanitized `correlation.id` trace attribute만
+`captureSanitizedCorrelationId`는 정제된 `correlation.id` trace attribute만
 기록합니다. raw request header는 기록하지 않습니다. traced request에는 bounded
-`correlation.present` attribute가 기록됩니다.
+`correlation.present` attribute가 항상 기록됩니다.
 
 ## 의존성 정책
 
 이 모듈은 Ktor `CallId`, `CallLogging`, `MicrometerMetrics`를 명시적으로
 설치합니다. 실제 `MeterRegistry`, exporter, tracing backend는 애플리케이션이
-소유합니다. OpenTelemetry tracing은 기본 설치하지 않습니다.
+소유합니다. OpenTelemetry tracing은 기본으로 설치하지 않습니다.
 `opentelemetry-ktor-3.0` instrumentation dependency는 tracing helper를 사용할 때만
-추가하세요. 해당 instrumentation은 OpenTelemetry alpha BOM에서 versioned되므로,
-애플리케이션 소유 telemetry setup을 쉽게 교체할 수 있게 유지하세요.
+추가하세요. 이 instrumentation의 version은 OpenTelemetry alpha BOM에서 정해지므로,
+애플리케이션이 소유한 telemetry 설정을 쉽게 교체할 수 있게 유지하는 편이 좋습니다.
 
-수신 correlation ID는 그대로 echo하지 않습니다. trim, safe character filtering,
+수신 correlation ID는 그대로 되돌려 보내지 않습니다. trim, safe character filtering,
 length cap을 거친 값만 MDC와 응답 헤더에 사용합니다.
