@@ -1,104 +1,124 @@
-<svg data-intent="Replace the generic WebFlux candy-chain with the actual coroutine WebFlux request model: HTTP enters WebFlux, controllers choose Default/IO/VT coroutine scopes, WebClient/WebTestClient helpers adapt request bodies, and Reactor/Flow bridges carry responses." data-evidence="spring-boot/core/README.md; spring-boot/core/src/main/kotlin/io/bluetape4k/spring/webflux/controller; spring-boot/core/src/main/kotlin/io/bluetape4k/spring/tests/WebClientExtensions.kt; spring-boot/core/src/main/kotlin/io/bluetape4k/spring/tests/WebTestClientExtensions.kt" data-source-read="spring-boot/core/README.md; spring-boot/core/src/main/kotlin/io/bluetape4k/spring/webflux/controller; spring-boot/core/src/main/kotlin/io/bluetape4k/spring/tests/WebClientExtensions.kt; spring-boot/core/src/main/kotlin/io/bluetape4k/spring/tests/WebTestClientExtensions.kt" xmlns="http://www.w3.org/2000/svg" width="1440" height="1135" viewBox="0 0 1440 1135" role="img" aria-label="Spring WebFlux + Coroutines Request Model">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-label="Spring WebFlux coroutine request flow">
   <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    text { font-family: 'Architects Daughter', 'Comic Mono', 'Helvetica Neue', Arial, sans-serif; dominant-baseline: alphabetic; }
   </style>
-</defs>
-<rect class="canvas" width="1440" height="1135"/>
-<rect class="frame" x="34" y="30" width="1372" height="1075" rx="8"/>
-<text class="title" x="72" y="84">Spring WebFlux + Coroutines Request Model</text>
-<text class="subtitle" x="76" y="116">The source-backed model separates WebFlux entry, coroutine controller scope choices, helper clients, and runtime exits.</text>
-<g><rect class="panel" x="82" y="160" width="1276" height="150" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">HTTP entry</text></g>
-<g><rect class="panel" x="82" y="385" width="1276" height="220" rx="8"/><text class="panelTitle" x="110" y="421" dominant-baseline="middle">Coroutine controller contract</text></g>
-<g><rect class="panel" x="82" y="680" width="1276" height="180" rx="8"/><text class="panelTitle" x="110" y="716" dominant-baseline="middle">Client and test helpers</text></g>
-<g><rect class="panel" x="82" y="935" width="1276" height="120" rx="8"/><text class="panelTitle" x="110" y="971" dominant-baseline="middle">Runtime boundary</text></g>
-<g id="client">
-  <rect class="card" x="130" y="215" width="260" height="74" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="260" y="245" text-anchor="middle" dominant-baseline="middle">HTTP client</text>
-  <text class="detail" x="260" y="275" text-anchor="middle" dominant-baseline="middle">browser, service, or test</text>
-</g>
-<g id="webflux">
-  <rect class="card" x="520" y="210" width="310" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="675" y="245" text-anchor="middle" dominant-baseline="middle">Spring WebFlux</text>
-  <text class="detail" x="675" y="275" text-anchor="middle" dominant-baseline="middle">Netty + DispatcherHandler</text>
-</g>
-<g id="route">
-  <rect class="card" x="970" y="215" width="300" height="74" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1120" y="245" text-anchor="middle" dominant-baseline="middle">Controller route</text>
-  <text class="detail" x="1120" y="275" text-anchor="middle" dominant-baseline="middle">suspend fun or Flow&lt;T&gt;</text>
-</g>
-<g id="defaultScope">
-  <rect class="card" x="140" y="455" width="300" height="96" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="290" y="487" text-anchor="middle" dominant-baseline="middle">Default scope base</text>
-  <text class="detail" x="290" y="517" text-anchor="middle" dominant-baseline="middle">Dispatchers.Default</text>
-  <text class="detail" x="290" y="535" text-anchor="middle" dominant-baseline="middle">CPU-oriented work</text>
-</g>
-<g id="ioScope">
-  <rect class="card" x="520" y="455" width="300" height="96" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="670" y="487" text-anchor="middle" dominant-baseline="middle">IO scope base</text>
-  <text class="detail" x="670" y="517" text-anchor="middle" dominant-baseline="middle">Dispatchers.IO</text>
-  <text class="detail" x="670" y="535" text-anchor="middle" dominant-baseline="middle">blocking bridge work</text>
-</g>
-<g id="vtScope">
-  <rect class="card" x="900" y="455" width="320" height="96" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1060" y="487" text-anchor="middle" dominant-baseline="middle">VT scope base</text>
-  <text class="detail" x="1060" y="517" text-anchor="middle" dominant-baseline="middle">Dispatchers.VT</text>
-  <text class="detail" x="1060" y="535" text-anchor="middle" dominant-baseline="middle">VT-backed blocking bridge</text>
-</g>
-<g id="webClient">
-  <rect class="card" x="150" y="735" width="340" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="320" y="761" text-anchor="middle" dominant-baseline="middle">WebClient helpers</text>
-  <text class="detail" x="320" y="791" text-anchor="middle" dominant-baseline="middle">httpGet/httpPost/httpPut</text>
-  <text class="detail" x="320" y="809" text-anchor="middle" dominant-baseline="middle">Publisher / Flow bodies</text>
-</g>
-<g id="webTest">
-  <rect class="card" x="550" y="735" width="410" height="84" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="755" y="761" text-anchor="middle" dominant-baseline="middle">WebTestClient helpers</text>
-  <text class="detail" x="755" y="791" text-anchor="middle" dominant-baseline="middle">exchange + status assertion</text>
-  <text class="detail" x="755" y="809" text-anchor="middle" dominant-baseline="middle">Publisher / Flow body</text>
-</g>
-<g id="reactorBridge">
-  <rect class="card" x="985" y="735" width="300" height="84" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1135" y="761" text-anchor="middle" dominant-baseline="middle">Reactor bridge</text>
-  <text class="detail" x="1135" y="791" text-anchor="middle" dominant-baseline="middle">Mono/Flux coroutine bridge</text>
-  <text class="detail" x="1135" y="809" text-anchor="middle" dominant-baseline="middle">await/collect at call site</text>
-</g>
-<g id="service">
-  <rect class="card" x="510" y="970" width="320" height="66" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="670" y="996" text-anchor="middle" dominant-baseline="middle">App service</text>
-  <text class="detail" x="670" y="1026" text-anchor="middle" dominant-baseline="middle">business coroutine code</text>
-</g>
-<g id="external">
-  <rect class="card" x="900" y="970" width="320" height="66" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1060" y="996" text-anchor="middle" dominant-baseline="middle">External HTTP / DB</text>
-  <text class="detail" x="1060" y="1026" text-anchor="middle" dominant-baseline="middle">called by service or WebClient</text>
-</g>
-<path class="route" data-from="client" data-to="webflux" d="M390 252 L520 252" stroke="#1D4ED8"/>
-<path class="route" data-from="webflux" data-to="route" d="M830 252 L970 252" stroke="#15803D"/>
-<path class="route" data-from="route" data-to="defaultScope" d="M1040 289 L1040 350 L500 350 L500 503 L440 503" stroke="#0F766E"/>
-<path class="route" data-from="route" data-to="ioScope" d="M1120 289 L1120 365 L670 365 L670 455" stroke="#C2410C"/>
-<path class="route" data-from="route" data-to="vtScope" d="M1200 289 L1200 420 L1060 420 L1060 455" stroke="#BE185D"/>
-<path class="route" data-from="defaultScope" data-to="service" d="M290 551 L290 640 L500 640 L500 910 L585 910 L585 970" stroke="#0F766E"/>
-<path class="route" data-from="ioScope" data-to="service" d="M670 551 L670 620 L535 620 L535 930 L635 930 L635 970" stroke="#C2410C"/>
-<path class="route" data-from="vtScope" data-to="external" d="M1060 551 L1060 620 L1320 620 L1320 1003 L1220 1003" stroke="#BE185D"/>
-<path class="route" data-from="webClient" data-to="external" d="M320 819 L320 885 L940 885 L940 970" stroke="#15803D"/>
-<path class="route" data-from="reactorBridge" data-to="webTest" d="M985 777 L960 777" stroke="#7E22CE"/>
-<path class="route" data-from="service" data-to="external" d="M830 1003 L900 1003" stroke="#4D7C0F"/>
+  <defs>
+    <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrow-orange" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none"/>
+    </marker>
+    <marker id="arrow-gray" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#64748b" stroke="#64748b" stroke-width="0" stroke-dasharray="none"/>
+    </marker>
+  </defs>
+  <rect width="1440" height="900" fill="#ffffff"/>
+  <text x="70" y="62" font-size="30" font-weight="700" fill="#111827">Spring WebFlux + Coroutines Request Flow</text>
+  <text x="70" y="92" font-size="15" fill="#64748b">A request enters Spring WebFlux, app code chooses the coroutine controller base, and the selected scope drives service work.</text>
+
+
+  <g class="lane" data-lane="WEBFLUX ENTRY">
+    <rect x="46" y="122" width="1220" height="210" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="1.3" stroke-dasharray="7 5"/>
+    <text x="64" y="148" font-size="14" font-weight="700" fill="#2563eb">WEBFLUX ENTRY</text>
+    <text x="64" y="169" font-size="12.5" fill="#6b7280">Spring routes the HTTP call to an application handler method.</text>
+  </g>
+
+  <g class="lane" data-lane="CONTROLLER-OWNED COROUTINE SCOPE">
+    <rect x="46" y="376" width="1220" height="210" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="1.3" stroke-dasharray="7 5"/>
+    <text x="64" y="402" font-size="14" font-weight="700" fill="#ea580c">CONTROLLER-OWNED COROUTINE SCOPE</text>
+    <text x="64" y="423" font-size="12.5" fill="#6b7280">The abstract base class chooses the Dispatcher and owns cancellation on bean destruction.</text>
+  </g>
+
+  <g class="lane" data-lane="APPLICATION WORK AND RESPONSE">
+    <rect x="46" y="630" width="1220" height="210" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="1.3" stroke-dasharray="7 5"/>
+    <text x="64" y="656" font-size="14" font-weight="700" fill="#64748b">APPLICATION WORK AND RESPONSE</text>
+    <text x="64" y="677" font-size="12.5" fill="#6b7280">The service result flows back through WebFlux response encoding.</text>
+  </g>
+
+  <path class="edge" d="M440 248 L530 248" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+  <path class="edge" d="M780 248 L870 248" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+  <path class="edge" d="M1000 294 L1000 354 L365 354 L365 456" fill="none" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)"/>
+  <path class="edge" d="M1000 294 L1000 354 L700 354 L700 456" fill="none" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)"/>
+  <path class="edge" d="M1000 294 L1000 354 L1035 354 L1035 456" fill="none" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)"/>
+  <path class="edge" d="M365 556 L365 604 L645 604 L645 710" fill="none" stroke="#64748b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-gray)"/>
+  <path class="edge" d="M700 556 L700 604 L645 604 L645 710" fill="none" stroke="#64748b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-gray)"/>
+  <path class="edge" d="M1035 556 L1035 604 L645 604 L645 710" fill="none" stroke="#64748b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-gray)"/>
+  <path class="edge" d="M770 758 L860 758" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+
+
+  <g class="card" data-card="HTTP Request">
+    <rect x="210" y="202" width="230" height="92" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.8"/>
+    <text x="325" y="233" text-anchor="middle" font-size="17" font-weight="700" fill="#111827">HTTP Request</text>
+    <text x="325" y="260" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">WebFlux server</text>
+<text x="325" y="277" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">receives the call</text>
+  </g>
+
+  <g class="card" data-card="Handler Method">
+    <rect x="530" y="202" width="250" height="92" rx="8" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.8"/>
+    <text x="655" y="233" text-anchor="middle" font-size="17" font-weight="700" fill="#111827">Handler Method</text>
+    <text x="655" y="260" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">suspend result or Flow</text>
+<text x="655" y="277" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">declared by app code</text>
+  </g>
+
+  <g class="card" data-card="Controller Base">
+    <rect x="870" y="202" width="260" height="92" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+    <text x="1000" y="233" text-anchor="middle" font-size="17" font-weight="700" fill="#111827">Controller Base</text>
+    <text x="1000" y="260" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">Default, IO, or VT</text>
+<text x="1000" y="277" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">CoroutineScope is delegated</text>
+  </g>
+
+  <g class="card" data-card="Default Scope">
+    <rect x="240" y="456" width="250" height="100" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+    <text x="365" y="487" text-anchor="middle" font-size="17" font-weight="700" fill="#111827">Default Scope</text>
+    <text x="365" y="514" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">Dispatchers.Default</text>
+<text x="365" y="531" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">CPU-oriented work</text>
+  </g>
+
+  <g class="card" data-card="IO Scope">
+    <rect x="575" y="456" width="250" height="100" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.8"/>
+    <text x="700" y="487" text-anchor="middle" font-size="17" font-weight="700" fill="#111827">IO Scope</text>
+    <text x="700" y="514" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">Dispatchers.IO</text>
+<text x="700" y="531" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">blocking bridge work</text>
+  </g>
+
+  <g class="card" data-card="Virtual Thread Scope">
+    <rect x="910" y="456" width="250" height="100" rx="8" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.8"/>
+    <text x="1035" y="487" text-anchor="middle" font-size="17" font-weight="700" fill="#111827">Virtual Thread Scope</text>
+    <text x="1035" y="514" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">Dispatchers.VT</text>
+<text x="1035" y="531" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">virtual-thread adapter</text>
+  </g>
+
+  <g class="card" data-card="Service Work">
+    <rect x="520" y="710" width="250" height="96" rx="8" fill="#f8fafc" stroke="#475569" stroke-width="1.8"/>
+    <text x="645" y="741" text-anchor="middle" font-size="17" font-weight="700" fill="#111827">Service Work</text>
+    <text x="645" y="768" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">child coroutines run</text>
+<text x="645" y="785" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">SupervisorJob isolates failures</text>
+  </g>
+
+  <g class="card" data-card="Response Bridge">
+    <rect x="860" y="710" width="260" height="96" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.8"/>
+    <text x="990" y="741" text-anchor="middle" font-size="17" font-weight="700" fill="#111827">Response Bridge</text>
+    <text x="990" y="768" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">Flow/Publisher/Mono</text>
+<text x="990" y="785" text-anchor="middle" font-size="13" font-weight="400" fill="#4b5563">encoded by WebFlux</text>
+  </g>
+
+  <g class="note" data-note="security-context">
+    <rect x="1300" y="200" width="96" height="132" rx="8" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="1348" y="232" text-anchor="middle" font-size="15" font-weight="700" fill="#92400e">Caveat</text>
+    <text x="1348" y="262" text-anchor="middle" font-size="12.5" font-weight="400" fill="#78350f">Security</text>
+<text x="1348" y="279" text-anchor="middle" font-size="12.5" font-weight="400" fill="#78350f">context is</text>
+<text x="1348" y="296" text-anchor="middle" font-size="12.5" font-weight="400" fill="#78350f">manual</text>
+  </g>
+  <path class="edge" d="M1130 248 L1300 248" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5" marker-end="url(#arrow-gray)"/>
+
+  <g class="legend" transform="translate(70 858)">
+    <line x1="0" y1="0" x2="38" y2="0" stroke="#2563eb" stroke-width="3.2" marker-end="url(#arrow-blue)"/>
+    <text x="52" y="5" font-size="13" fill="#475569">Request/response path</text>
+    <line x1="260" y1="0" x2="298" y2="0" stroke="#ea580c" stroke-width="3.2" marker-end="url(#arrow-orange)"/>
+    <text x="312" y="5" font-size="13" fill="#475569">Dispatcher choice</text>
+    <line x1="500" y1="0" x2="538" y2="0" stroke="#64748b" stroke-width="2.8" marker-end="url(#arrow-gray)"/>
+    <text x="552" y="5" font-size="13" fill="#475569">Scope-owned work</text>
+  </g>
 </svg>

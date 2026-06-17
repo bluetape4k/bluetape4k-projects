@@ -21,6 +21,7 @@ Spring Boot 4.x 기반 공통 기능 통합 모듈입니다.
 - `WebClient` 확장 함수 (`httpGet`, `httpPost`, `httpPut`, `httpPatch`, `httpDelete`)
 - `WebTestClient` 확장 함수
 - Reactor ↔ Coroutines 변환 지원
+- `AbstractWebClientConfig` 기반 전용 `WebClient` 리소스 구성
 
 ### RestClient Coroutines DSL
 
@@ -33,33 +34,17 @@ Spring Boot 4.x 기반 공통 기능 통합 모듈입니다.
 - `SpringObservationKeyValues`를 통한 Micrometer low-cardinality/high-cardinality key value 그룹화
 - Prometheus와 OpenTelemetry export는 애플리케이션 소유의 Spring Boot Actuator 설정으로 유지
 
-### Jackson 3 커스터마이저
-
-- `jacksonObjectMapperBuilderCustomizer` DSL
-- KotlinModule, JsonUuidModule 자동 등록
-- 직렬화/역직렬화 기본 설정 제공
-
-> **주의**: Spring Boot 4는 Jackson 3을 기본으로 사용합니다. Jackson 2 지원은 마이그레이션 용도이며,
-> 새로운 Spring Boot 4 코드에서는 사용하지 않는 것을 권장합니다.
-
-### Retrofit2 통합
-
-- Spring Boot + Retrofit2 자동 구성
-- OkHttp3 클라이언트 통합
-- Apache HttpClient5 통합
-- Coroutines suspend 함수 지원
-
 ### 테스트 유틸리티
 
 - Spring Boot Test 기반 통합 테스트 지원
 - `WebTestClient` 테스트 확장 (`httpGet`, `httpPost` 등)
 - Testcontainers 통합
 
-## 아키텍처 다이어그램
+## 다이어그램
 
-### 핵심 클래스 구조
+### Spring Boot Core 기능 맵
 
-![core Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-01.png)
+![Spring Boot Core 기능 맵 다이어그램](../../docs/images/readme-diagrams/spring-boot-core-diagram-01.png)
 
 ### Spring WebFlux + Coroutines 요청 흐름
 
@@ -69,9 +54,9 @@ Spring Boot 4.x 기반 공통 기능 통합 모듈입니다.
 
 ![RestClient Coroutines DSL diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-03.png)
 
-### Retrofit2 통합 구조
+### WebClient 전용 리소스 구성
 
-![Retrofit2 diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-04.png)
+![WebClient 전용 리소스 구성 다이어그램](../../docs/images/readme-diagrams/spring-boot-core-diagram-04.png)
 
 ## 설치
 
@@ -161,21 +146,6 @@ class UserController(private val service: UserService) {
     @GetMapping("/{id}")
     suspend fun getUser(@PathVariable id: Long): User =
         service.findById(id)
-}
-```
-
-### Jackson 커스터마이저
-
-```kotlin
-@Configuration
-class JacksonConfig {
-
-    @Bean
-    fun customizer(): Jackson2ObjectMapperBuilderCustomizer =
-        jacksonObjectMapperBuilderCustomizer {
-            // 추가 커스터마이징
-            featuresToEnable(SerializationFeature.INDENT_OUTPUT)
-        }
 }
 ```
 
@@ -274,10 +244,8 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 
 | 범주                            | 의존 방식         | 설명                      |
 |-------------------------------|---------------|-------------------------|
-| `spring-boot-starter-webflux` | `api`         | WebFlux + Coroutines 필수 |
-| `bluetape4k-retrofit2`        | `api`         | Retrofit2 통합            |
-| `bluetape4k-coroutines`       | `api`         | Coroutines 지원           |
-| `bluetape4k-jackson3`         | `compileOnly` | Jackson 3 지원            |
+| `spring-boot-starter-webflux` | `compileOnly` | WebFlux + Coroutines 필수 |
+| `bluetape4k-coroutines`       | `compileOnly` | Coroutines 지원           |
 | `micrometer-observation`      | `compileOnly` | Observation 헬퍼 지원      |
 | `spring-boot-starter-web`     | `compileOnly` | 선택적 서블릿 지원              |
 | `resilience4j-*`              | `compileOnly` | 선택적 Resilience4j        |

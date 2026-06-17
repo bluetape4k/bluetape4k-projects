@@ -21,6 +21,7 @@ A unified module providing common features for Spring Boot 4.x applications.
 - `WebClient` extension functions (`httpGet`, `httpPost`, `httpPut`, `httpPatch`, `httpDelete`)
 - `WebTestClient` extension functions
 - Reactor ↔ Coroutines conversion support
+- Dedicated `WebClient` resource configuration through `AbstractWebClientConfig`
 
 ### RestClient Coroutines DSL
 
@@ -33,33 +34,17 @@ A unified module providing common features for Spring Boot 4.x applications.
 - Low-cardinality and high-cardinality Micrometer key value grouping through `SpringObservationKeyValues`
 - Prometheus and OpenTelemetry export remain application-owned Spring Boot Actuator configuration
 
-### Jackson 3 Customizer
-
-- `jacksonObjectMapperBuilderCustomizer` DSL
-- Auto-registration of KotlinModule and JsonUuidModule
-- Default serialization/deserialization configuration
-
-> **Note**: Spring Boot 4 uses Jackson 3 by default. Jackson 2 support is for migration only and should not be
-> used for new Spring Boot 4 code.
-
-### Retrofit2 Integration
-
-- Spring Boot + Retrofit2 auto-configuration
-- OkHttp3 client integration
-- Apache HttpClient5 integration
-- Coroutines suspend function support
-
 ### Test Utilities
 
 - Integration test support based on Spring Boot Test
 - `WebTestClient` test extensions (`httpGet`, `httpPost`, etc.)
 - Testcontainers integration
 
-## Architecture Diagrams
+## Diagrams
 
-### Core Class Structure
+### Spring Boot Core Capability Map
 
-![Core Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-01.png)
+![Spring Boot Core Capability Map diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-01.png)
 
 ### Spring WebFlux + Coroutines Request Flow
 
@@ -69,9 +54,9 @@ A unified module providing common features for Spring Boot 4.x applications.
 
 ![RestClient Coroutines DSL Structure diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-03.png)
 
-### Retrofit2 Integration Structure
+### WebClient Dedicated Resource Configuration
 
-![Retrofit2 Integration Structure diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-04.png)
+![WebClient Dedicated Resource Configuration diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-04.png)
 
 ## Installation
 
@@ -161,21 +146,6 @@ class UserController(private val service: UserService) {
     @GetMapping("/{id}")
     suspend fun getUser(@PathVariable id: Long): User =
         service.findById(id)
-}
-```
-
-### Jackson Customizer
-
-```kotlin
-@Configuration
-class JacksonConfig {
-
-    @Bean
-    fun customizer(): Jackson2ObjectMapperBuilderCustomizer =
-        jacksonObjectMapperBuilderCustomizer {
-            // Additional customization
-            featuresToEnable(SerializationFeature.INDENT_OUTPUT)
-        }
 }
 ```
 
@@ -274,10 +244,8 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 
 | Category                      | Scope         | Description                       |
 |-------------------------------|---------------|-----------------------------------|
-| `spring-boot-starter-webflux` | `api`         | Required for WebFlux + Coroutines |
-| `bluetape4k-retrofit2`        | `api`         | Retrofit2 integration             |
-| `bluetape4k-coroutines`       | `api`         | Coroutines support                |
-| `bluetape4k-jackson3`         | `compileOnly` | Jackson 3 support                 |
+| `spring-boot-starter-webflux` | `compileOnly` | Required for WebFlux + Coroutines |
+| `bluetape4k-coroutines`       | `compileOnly` | Coroutines support                |
 | `micrometer-observation`      | `compileOnly` | Observation helper support        |
 | `spring-boot-starter-web`     | `compileOnly` | Optional servlet support          |
 | `resilience4j-*`              | `compileOnly` | Optional Resilience4j             |
