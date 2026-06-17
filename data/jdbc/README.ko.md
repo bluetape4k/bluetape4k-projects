@@ -356,7 +356,7 @@ dataSource.connection.use { conn ->
 }
 ```
 
-### 11. ResultSetGetColumnTokens
+### 11. 토큰 기반 컬럼 접근
 
 토큰 기반 타입 안전한 값 조회:
 
@@ -490,7 +490,7 @@ class MyJdbcTest : AbstractJdbcTest() {
 ## 참고 자료
 
 - [JDBC 공식 문서](https://docs.oracle.com/javase/tutorial/jdbc/)
-- [Kotlin Use 함수](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.io/use.html)
+- [Kotlin `use` 함수](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.io/use.html)
 - [HikariCP](https://github.com/brettwooldridge/HikariCP) - 고성능 JDBC 커넥션 풀
 
 ## 라이선스
