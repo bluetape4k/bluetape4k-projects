@@ -31,19 +31,19 @@
   <path class="assoc" d="M 1120 195 H 1420" stroke="#16A34A" marker-end="url(#openGreen)"/>
   <path class="assoc" d="M 1120 285 H 1250 V 351 H 1420" stroke="#9333EA" marker-end="url(#openPurple)"/>
   <path class="uses" d="M 435 568 H 555" stroke="#DB2777" marker-end="url(#openPink)"/>
-  <path class="uses" d="M 265 658 V 800" stroke="#EA580C" marker-end="url(#openOrange)"/>
+  <path class="uses" d="M 265 658 V 770" stroke="#EA580C" marker-end="url(#openOrange)"/>
   <path class="extends" d="M 630 765 V 600" stroke="#DB2777" marker-end="url(#hollowPink)"/>
   <path class="extends" d="M 910 765 V 682 H 710 V 600" stroke="#DB2777" marker-end="url(#hollowPink)"/>
-  <path class="realize" d="M 1228 765 V 628" stroke="#9333EA" marker-end="url(#hollowPurple)"/>
+  <path class="realize" d="M 1228 765 V 646" stroke="#9333EA" marker-end="url(#hollowPurple)"/>
   <path class="uses" d="M 1395 842 H 1435" stroke="#2563EB" marker-end="url(#openBlue)"/>
 </g>
-<g><text class="label" x="545" y="225" text-anchor="middle">databaseClient</text><text class="label" x="1270" y="183" text-anchor="middle">entityTemplate</text><text class="label" x="1268" y="339" text-anchor="middle">mappingConverter</text><text class="label" x="495" y="556" text-anchor="middle">filters</text><text class="label" x="302" y="730" text-anchor="middle">builds</text><text class="label" x="1415" y="830" text-anchor="middle">fetch()</text></g>
+<g><text class="label" x="545" y="225" text-anchor="middle">databaseClient</text><text class="label" x="1270" y="183" text-anchor="middle">entityTemplate</text><text class="label" x="1268" y="339" text-anchor="middle">mappingConverter</text><text class="label" x="495" y="556" text-anchor="middle">filters</text><text class="label" x="302" y="718" text-anchor="middle">builds</text><text class="label" x="1415" y="830" text-anchor="middle">fetch()</text></g>
 <g id="databaseClient">
-  <rect class="card" x="90" y="170" width="315" height="120" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <rect class="card" x="90" y="170" width="315" height="130" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="stereo" x="247.5" y="198" text-anchor="middle">Spring class</text>
   <text class="cardTitle" x="247.5" y="228" text-anchor="middle">DatabaseClient</text>
   <line class="divider" x1="114" y1="246" x2="381" y2="246"/>
-  <text class="member" x="118" y="273">+ sql(...): GenericExecuteSpec</text><text class="member" x="118" y="295">+ connectionFactory</text>
+  <text class="member" x="118" y="273">+ sql(...): ExecuteSpec</text><text class="member" x="118" y="295">+ connectionFactory</text>
 </g><g id="r2dbcClient">
   <rect class="card" x="690" y="145" width="430" height="184" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
   <text class="stereo" x="905" y="173" text-anchor="middle">class</text>
@@ -69,11 +69,11 @@
   <line class="divider" x1="114" y1="556" x2="411" y2="556"/>
   <text class="member" x="118" y="583">- params: MutableMap</text><text class="member" x="118" y="605">- filters: Filter.Group</text><text class="member" x="118" y="627">+ build(): Query</text><text class="member" x="118" y="649">+ buildCount(): Query</text>
 </g><g id="query">
-  <rect class="card" x="90" y="800" width="345" height="154" rx="8" fill="#FFFBEB" stroke="#EA580C"/>
-  <text class="stereo" x="262.5" y="828" text-anchor="middle">data class</text>
-  <text class="cardTitle" x="262.5" y="858" text-anchor="middle">Query</text>
-  <line class="divider" x1="114" y1="876" x2="411" y2="876"/>
-  <text class="member" x="118" y="903">+ sqlBuffer: StringBuilder</text><text class="member" x="118" y="925">+ parameters: Map&lt;String, Any?&gt;</text><text class="member" x="118" y="947">+ sql: String</text><text class="member" x="118" y="969">+ used by execute/matching</text>
+  <rect class="card" x="90" y="770" width="345" height="190" rx="8" fill="#FFFBEB" stroke="#EA580C"/>
+  <text class="stereo" x="262.5" y="798" text-anchor="middle">data class</text>
+  <text class="cardTitle" x="262.5" y="828" text-anchor="middle">Query</text>
+  <line class="divider" x1="114" y1="846" x2="411" y2="846"/>
+  <text class="member" x="118" y="873">+ sqlBuffer: StringBuilder</text><text class="member" x="118" y="895">+ parameters: Map</text><text class="member" x="118" y="917">+ sql: String</text><text class="member" x="118" y="939">+ used by execute/matching</text>
 </g><g id="filter">
   <rect class="card" x="555" y="480" width="310" height="120" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
   <text class="stereo" x="710" y="508" text-anchor="middle">sealed class</text>
@@ -81,23 +81,23 @@
   <line class="divider" x1="579" y1="556" x2="841" y2="556"/>
   <text class="member" x="583" y="583">+ countLeaves(): Int</text>
 </g><g id="filterGroup">
-  <rect class="card" x="500" y="765" width="260" height="124" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <rect class="card" x="500" y="765" width="260" height="142" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
   <text class="stereo" x="630" y="793" text-anchor="middle">data class</text>
   <text class="cardTitle" x="630" y="823" text-anchor="middle">Filter.Group</text>
   <line class="divider" x1="524" y1="841" x2="736" y2="841"/>
-  <text class="member" x="528" y="868">+ operator: String</text><text class="member" x="528" y="890">+ filters: MutableList&lt;Filter&gt;</text>
+  <text class="member" x="528" y="868">+ operator: String</text><text class="member" x="528" y="890">+ filters: MutableList</text>
 </g><g id="filterWhere">
-  <rect class="card" x="780" y="765" width="260" height="124" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <rect class="card" x="780" y="765" width="260" height="142" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
   <text class="stereo" x="910" y="793" text-anchor="middle">data class</text>
   <text class="cardTitle" x="910" y="823" text-anchor="middle">Filter.Where</text>
   <line class="divider" x1="804" y1="841" x2="1016" y2="841"/>
   <text class="member" x="808" y="868">+ where: String</text>
 </g><g id="bindApi">
-  <rect class="card" x="1060" y="480" width="335" height="148" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <rect class="card" x="1060" y="480" width="335" height="166" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="stereo" x="1227.5" y="508" text-anchor="middle">interface</text>
   <text class="cardTitle" x="1227.5" y="538" text-anchor="middle">BindSpec&lt;T&gt;</text>
   <line class="divider" x1="1084" y1="556" x2="1371" y2="556"/>
-  <text class="member" x="1088" y="583">+ bind(index/name, value)</text><text class="member" x="1088" y="605">+ bindNull(...)</text><text class="member" x="1088" y="627">+ fetch(): RowsFetchSpec&lt;T&gt;</text>
+  <text class="member" x="1088" y="583">+ bind(index/name, value)</text><text class="member" x="1088" y="605">+ bindNull(...)</text><text class="member" x="1088" y="627">+ fetch(): RowsFetchSpec</text>
 </g><g id="bindImpl">
   <rect class="card" x="1060" y="765" width="335" height="160" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="stereo" x="1227.5" y="793" text-anchor="middle">internal class</text>

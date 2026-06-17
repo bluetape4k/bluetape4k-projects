@@ -46,8 +46,8 @@ if (!/Core API Class Structure[\s\S]*data-r2dbc-diagram-02\.png/.test(readFileSy
 
 const boxes = {
   databaseClient: {
-    x: 90, y: 170, w: 315, h: 120, fill: "#EFF6FF", stroke: c.blue,
-    stereo: "Spring class", title: "DatabaseClient", members: ["+ sql(...): GenericExecuteSpec", "+ connectionFactory"],
+    x: 90, y: 170, w: 315, h: 130, fill: "#EFF6FF", stroke: c.blue,
+    stereo: "Spring class", title: "DatabaseClient", members: ["+ sql(...): ExecuteSpec", "+ connectionFactory"],
   },
   r2dbcClient: {
     x: 690, y: 145, w: 430, h: 184, fill: "#F0FDFA", stroke: c.teal,
@@ -70,24 +70,24 @@ const boxes = {
     stereo: "class", title: "QueryBuilder", members: ["- params: MutableMap", "- filters: Filter.Group", "+ build(): Query", "+ buildCount(): Query"],
   },
   query: {
-    x: 90, y: 800, w: 345, h: 154, fill: "#FFFBEB", stroke: c.orange,
-    stereo: "data class", title: "Query", members: ["+ sqlBuffer: StringBuilder", "+ parameters: Map<String, Any?>", "+ sql: String", "+ used by execute/matching"],
+    x: 90, y: 770, w: 345, h: 190, fill: "#FFFBEB", stroke: c.orange,
+    stereo: "data class", title: "Query", members: ["+ sqlBuffer: StringBuilder", "+ parameters: Map", "+ sql: String", "+ used by execute/matching"],
   },
   filter: {
     x: 555, y: 480, w: 310, h: 120, fill: "#FDF2F8", stroke: c.pink,
     stereo: "sealed class", title: "Filter", members: ["+ countLeaves(): Int"],
   },
   filterGroup: {
-    x: 500, y: 765, w: 260, h: 124, fill: "#FDF2F8", stroke: c.pink,
-    stereo: "data class", title: "Filter.Group", members: ["+ operator: String", "+ filters: MutableList<Filter>"],
+    x: 500, y: 765, w: 260, h: 142, fill: "#FDF2F8", stroke: c.pink,
+    stereo: "data class", title: "Filter.Group", members: ["+ operator: String", "+ filters: MutableList"],
   },
   filterWhere: {
-    x: 780, y: 765, w: 260, h: 124, fill: "#FDF2F8", stroke: c.pink,
+    x: 780, y: 765, w: 260, h: 142, fill: "#FDF2F8", stroke: c.pink,
     stereo: "data class", title: "Filter.Where", members: ["+ where: String"],
   },
   bindApi: {
-    x: 1060, y: 480, w: 335, h: 148, fill: "#FAF5FF", stroke: c.purple,
-    stereo: "interface", title: "BindSpec<T>", members: ["+ bind(index/name, value)", "+ bindNull(...)", "+ fetch(): RowsFetchSpec<T>"],
+    x: 1060, y: 480, w: 335, h: 166, fill: "#FAF5FF", stroke: c.purple,
+    stereo: "interface", title: "BindSpec<T>", members: ["+ bind(index/name, value)", "+ bindNull(...)", "+ fetch(): RowsFetchSpec"],
   },
   bindImpl: {
     x: 1060, y: 765, w: 335, h: 160, fill: "#FAF5FF", stroke: c.purple,
@@ -114,10 +114,10 @@ const edges = [
   { cls: "assoc", d: "M 1120 195 H 1420", color: c.green, marker: "openGreen", label: ["entityTemplate", 1270, 183] },
   { cls: "assoc", d: "M 1120 285 H 1250 V 351 H 1420", color: c.purple, marker: "openPurple", label: ["mappingConverter", 1268, 339] },
   { cls: "uses", d: "M 435 568 H 555", color: c.pink, marker: "openPink", label: ["filters", 495, 556] },
-  { cls: "uses", d: "M 265 658 V 800", color: c.orange, marker: "openOrange", label: ["builds", 302, 730] },
+  { cls: "uses", d: "M 265 658 V 770", color: c.orange, marker: "openOrange", label: ["builds", 302, 718] },
   { cls: "extends", d: "M 630 765 V 600", color: c.pink, marker: "hollowPink", label: null },
   { cls: "extends", d: "M 910 765 V 682 H 710 V 600", color: c.pink, marker: "hollowPink", label: null },
-  { cls: "realize", d: "M 1228 765 V 628", color: c.purple, marker: "hollowPurple", label: null },
+  { cls: "realize", d: "M 1228 765 V 646", color: c.purple, marker: "hollowPurple", label: null },
   { cls: "uses", d: "M 1395 842 H 1435", color: c.blue, marker: "openBlue", label: ["fetch()", 1415, 830] },
 ];
 
