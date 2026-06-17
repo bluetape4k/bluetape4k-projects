@@ -1,89 +1,28 @@
-<svg data-intent="Regenerate Repository Class Structure from the current README and source package surface for data/hibernate." data-evidence="data/hibernate/README.md; data/hibernate; data/hibernate/src/main/kotlin" data-source-read="data/hibernate/README.md; data/hibernate; data/hibernate/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Repository Class Structure">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">Repository Class Structure</text>
-<text class="subtitle" x="76" y="116">data/hibernate: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Key Features</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Dependency</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Spring Boot 4 Migration</text>
-</g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">hibernate package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">hibernate package (43)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">HibernateConsts type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">HibernateConsts type</text>
-</g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">Option type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">Option type</text>
-</g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">OptionAsJsonConverter type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">OptionAsJsonConverter type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Spring Boot</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Spring Boot</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Serialization</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Serialization</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Metrics/tracing</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Metrics/tracing</text>
-</g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Test support</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
-<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="2280" height="1135" viewBox="0 0 2280 1135" role="img" aria-label="Hibernate persistence extension structure"><defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity=".10"/></filter><marker id="a2563EB" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="14" refX="17" refY="7" orient="auto"><path d="M1 1 L17 7 L1 13 Z" fill="#2563EB" stroke="#2563EB" stroke-dasharray="none"/></marker><marker id="a0D9488" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="14" refX="17" refY="7" orient="auto"><path d="M1 1 L17 7 L1 13 Z" fill="#0D9488" stroke="#0D9488" stroke-dasharray="none"/></marker><marker id="a64748B" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="14" refX="17" refY="7" orient="auto"><path d="M1 1 L17 7 L1 13 Z" fill="#64748B" stroke="#64748B" stroke-dasharray="none"/></marker><marker id="a7C3AED" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="14" refX="17" refY="7" orient="auto"><path d="M1 1 L17 7 L1 13 Z" fill="#7C3AED" stroke="#7C3AED" stroke-dasharray="none"/></marker><marker id="aEA580C" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="14" refX="17" refY="7" orient="auto"><path d="M1 1 L17 7 L1 13 Z" fill="#EA580C" stroke="#EA580C" stroke-dasharray="none"/></marker><marker id="a16A34A" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="14" refX="17" refY="7" orient="auto"><path d="M1 1 L17 7 L1 13 Z" fill="#16A34A" stroke="#16A34A" stroke-dasharray="none"/></marker><marker id="aDC2626" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="14" refX="17" refY="7" orient="auto"><path d="M1 1 L17 7 L1 13 Z" fill="#DC2626" stroke="#DC2626" stroke-dasharray="none"/></marker><style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:42px;fill:#0F172A}.subtitle,.sectionTitle{font-family:"Comic Mono";font-size:15px;fill:#475569}.section{fill:#F3F8FF;stroke:#94A3B8;stroke-width:1.6;stroke-dasharray:12 8}.card{stroke-width:2;filter:url(#softShadow)}.icon{stroke-width:1.5}.iconText{font-family:"Architects Daughter";font-size:25px}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.body{font-family:"Comic Mono";font-size:13px;fill:#475569}.flow{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.label{font-family:"Comic Mono";font-size:12px;fill:#475569}</style></defs><rect class="canvas" width="2280" height="1135"/><rect class="frame" x="34" y="30" width="2212" height="1069" rx="8"/><text class="title" x="76" y="86">Hibernate Persistence Extension Structure</text><text class="subtitle" x="78" y="118">Kotlin extension packages sit beside Hibernate/JPA primitives instead of introducing a repository abstraction.</text><rect class="section" x="62" y="140" width="2156" height="925" rx="8"/><text class="sectionTitle" x="90" y="165">source-backed module structure from EntityManager, Session, Criteria, StatelessSession, Querydsl, model, converter, and listener packages</text><g><path class="flow" d="M445 255 L560 255" stroke="#2563EB" marker-end="url(#a2563EB)"/>
+<path class="flow" d="M990 255 L1130 255" stroke="#0D9488" marker-end="url(#a0D9488)"/>
+<path class="flow" d="M1550 255 L1700 255" stroke="#64748B" marker-end="url(#a64748B)"/>
+<path class="flow" d="M775 355 L775 430 L475 430 L475 520" stroke="#7C3AED" marker-end="url(#a7C3AED)"/>
+<path class="flow" d="M1340 355 L1340 430 L1075 430 L1075 520" stroke="#EA580C" marker-end="url(#aEA580C)"/>
+<path class="flow" d="M1550 610 L1460 610" stroke="#7C3AED" marker-end="url(#a7C3AED)"/>
+<path class="flow" d="M775 355 L775 800 L475 800 L475 860" stroke="#16A34A" marker-end="url(#a16A34A)"/>
+<path class="flow" d="M1075 700 L1075 860" stroke="#DC2626" marker-end="url(#aDC2626)"/>
+<path class="flow" d="M1675 700 L1675 860" stroke="#EA580C" marker-end="url(#aEA580C)"/>
+<path class="flow" d="M1890 355 L1890 435 L1685 435 L1685 520" stroke="#64748B" marker-end="url(#a64748B)"/></g><g><g transform="translate(464 214)"><rect width="78" height="28" rx="8" fill="#fff" stroke="#CBD5E1" opacity=".96"/><text class="label" x="39" y="19" text-anchor="middle">uses</text></g>
+<g transform="translate(1021 214)"><rect width="78" height="28" rx="8" fill="#fff" stroke="#CBD5E1" opacity=".96"/><text class="label" x="39" y="19" text-anchor="middle">unwraps</text></g>
+<g transform="translate(1579.1 214)"><rect width="91.8" height="28" rx="8" fill="#fff" stroke="#CBD5E1" opacity=".96"/><text class="label" x="45.9" y="19" text-anchor="middle">delegates</text></g>
+<g transform="translate(579.1 389)"><rect width="91.8" height="28" rx="8" fill="#fff" stroke="#CBD5E1" opacity=".96"/><text class="label" x="45.9" y="19" text-anchor="middle">query API</text></g>
+<g transform="translate(1164.1 389)"><rect width="91.8" height="28" rx="8" fill="#fff" stroke="#CBD5E1" opacity=".96"/><text class="label" x="45.9" y="19" text-anchor="middle">batch API</text></g>
+<g transform="translate(1455 569)"><rect width="100" height="28" rx="8" fill="#fff" stroke="#CBD5E1" opacity=".96"/><text class="label" x="50" y="19" text-anchor="middle">predicates</text></g>
+<g transform="translate(554.5 759)"><rect width="141" height="28" rx="8" fill="#fff" stroke="#CBD5E1" opacity=".96"/><text class="label" x="70.5" y="19" text-anchor="middle">entity contract</text></g>
+<g transform="translate(1103.6 764)"><rect width="132.79999999999998" height="28" rx="8" fill="#fff" stroke="#CBD5E1" opacity=".96"/><text class="label" x="66.39999999999999" y="19" text-anchor="middle">column mapping</text></g>
+<g transform="translate(1711.8 764)"><rect width="116.39999999999999" height="28" rx="8" fill="#fff" stroke="#CBD5E1" opacity=".96"/><text class="label" x="58.199999999999996" y="19" text-anchor="middle">events/tests</text></g>
+<g transform="translate(1727.7 394)"><rect width="124.6" height="28" rx="8" fill="#fff" stroke="#CBD5E1" opacity=".96"/><text class="label" x="62.3" y="19" text-anchor="middle">query factory</text></g></g><g id="caller"><rect class="card" x="85" y="170" width="360" height="170" rx="8" fill="#EFF6FF" stroke="#2563EB"/><rect class="icon" x="109" y="198" width="48" height="48" rx="8" fill="#fff" stroke="#2563EB"/><text class="iconText" x="133" y="230" text-anchor="middle" fill="#2563EB">K</text><text class="cardTitle" x="177" y="215">Application Code</text><text class="body" x="177" y="248">works with standard JPA/Hibernate</text><text class="body" x="177" y="272">adds Kotlin reified calls</text></g>
+<g id="em"><rect class="card" x="560" y="170" width="430" height="185" rx="8" fill="#EFF6FF" stroke="#2563EB"/><rect class="icon" x="584" y="198" width="48" height="48" rx="8" fill="#fff" stroke="#2563EB"/><text class="iconText" x="608" y="230" text-anchor="middle" fill="#2563EB">E</text><text class="cardTitle" x="652" y="215">EntityManagerSupport</text><text class="body" x="652" y="248">save / delete / deleteById</text><text class="body" x="652" y="272">findAs / exists / countAll</text><text class="body" x="652" y="296">unwraps Session + connection</text></g>
+<g id="session"><rect class="card" x="1130" y="170" width="420" height="185" rx="8" fill="#F0FDFA" stroke="#0D9488"/><rect class="icon" x="1154" y="198" width="48" height="48" rx="8" fill="#fff" stroke="#0D9488"/><text class="iconText" x="1178" y="230" text-anchor="middle" fill="#0D9488">S</text><text class="cardTitle" x="1222" y="215">SessionSupport</text><text class="body" x="1222" y="248">withBatchSize restores size</text><text class="body" x="1222" y="272">findByNaturalId helpers</text><text class="body" x="1222" y="296">typed HQL/native query</text></g>
+<g id="driver"><rect class="card" x="1700" y="170" width="420" height="185" rx="8" fill="#F8FAFC" stroke="#64748B"/><rect class="icon" x="1724" y="198" width="48" height="48" rx="8" fill="#fff" stroke="#64748B"/><text class="iconText" x="1748" y="230" text-anchor="middle" fill="#64748B">H</text><text class="cardTitle" x="1792" y="215">Hibernate/JPA Runtime</text><text class="body" x="1792" y="248">EntityManager / Session</text><text class="body" x="1792" y="272">SessionFactory / JDBC</text><text class="body" x="1792" y="296">Jakarta Persistence 3.2</text></g>
+<g id="criteria"><rect class="card" x="260" y="520" width="430" height="180" rx="8" fill="#F5F3FF" stroke="#7C3AED"/><rect class="icon" x="284" y="548" width="48" height="48" rx="8" fill="#fff" stroke="#7C3AED"/><text class="iconText" x="308" y="580" text-anchor="middle" fill="#7C3AED">C</text><text class="cardTitle" x="352" y="565">Criteria + TypedQuery</text><text class="body" x="352" y="598">createQueryAs / attribute</text><text class="body" x="352" y="622">int/long result helpers</text><text class="body" x="352" y="646">findOneOrNull + paging</text></g>
+<g id="stateless"><rect class="card" x="860" y="520" width="430" height="180" rx="8" fill="#FFF7ED" stroke="#EA580C"/><rect class="icon" x="884" y="548" width="48" height="48" rx="8" fill="#fff" stroke="#EA580C"/><text class="iconText" x="908" y="580" text-anchor="middle" fill="#EA580C">B</text><text class="cardTitle" x="952" y="565">StatelessSession</text><text class="body" x="952" y="598">withStateless transaction scope</text><text class="body" x="952" y="622">insert/update/delete batches</text><text class="body" x="952" y="646">reified get/query helpers</text></g>
+<g id="querydsl"><rect class="card" x="1460" y="520" width="430" height="180" rx="8" fill="#F5F3FF" stroke="#7C3AED"/><rect class="icon" x="1484" y="548" width="48" height="48" rx="8" fill="#fff" stroke="#7C3AED"/><text class="iconText" x="1508" y="580" text-anchor="middle" fill="#7C3AED">Q</text><text class="cardTitle" x="1552" y="565">Querydsl Extensions</text><text class="body" x="1552" y="598">expression composition</text><text class="body" x="1552" y="622">projection helpers</text><text class="body" x="1552" y="646">JPA expression conversions</text></g>
+<g id="model"><rect class="card" x="260" y="860" width="430" height="185" rx="8" fill="#ECFDF5" stroke="#16A34A"/><rect class="icon" x="284" y="888" width="48" height="48" rx="8" fill="#fff" stroke="#16A34A"/><text class="iconText" x="308" y="920" text-anchor="middle" fill="#16A34A">M</text><text class="cardTitle" x="352" y="905">Entity Base Model</text><text class="body" x="352" y="938">JpaEntity + AbstractJpaEntity</text><text class="body" x="352" y="962">Int/Long/UUID id bases</text><text class="body" x="352" y="986">tree entity variants</text></g>
+<g id="converters"><rect class="card" x="860" y="860" width="430" height="185" rx="8" fill="#FEF2F2" stroke="#DC2626"/><rect class="icon" x="884" y="888" width="48" height="48" rx="8" fill="#fff" stroke="#DC2626"/><text class="iconText" x="908" y="920" text-anchor="middle" fill="#DC2626">A</text><text class="cardTitle" x="952" y="905">AttributeConverters</text><text class="body" x="952" y="938">locale/time/json helpers</text><text class="body" x="952" y="962">compression + serialization</text><text class="body" x="952" y="986">optional AES/Tink converters</text></g>
+<g id="listeners"><rect class="card" x="1460" y="860" width="430" height="185" rx="8" fill="#FFF7ED" stroke="#EA580C"/><rect class="icon" x="1484" y="888" width="48" height="48" rx="8" fill="#fff" stroke="#EA580C"/><text class="iconText" x="1508" y="920" text-anchor="middle" fill="#EA580C">L</text><text class="cardTitle" x="1552" y="905">Listeners + Spring Shim</text><text class="body" x="1552" y="938">post-commit event listener</text><text class="body" x="1552" y="962">JPA lifecycle logger</text><text class="body" x="1552" y="986">TestEntityManager helper</text></g></svg>

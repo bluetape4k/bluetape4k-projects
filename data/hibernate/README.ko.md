@@ -84,17 +84,17 @@ class UserRepositoryTest {
 
 ## 아키텍처 다이어그램
 
-### Repository 클래스 구조
+### 영속성 확장 구조
 
-![Repository diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-01.png)
+![영속성 확장 구조 다이어그램](../../docs/images/readme-diagrams/data-hibernate-diagram-01.png)
 
 ### JPA 엔티티 클래스 계층 구조
 
-![JPA diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-02.png)
+![JPA 엔티티 클래스 계층 구조 다이어그램](../../docs/images/readme-diagrams/data-hibernate-diagram-02.png)
 
 ### AttributeConverter 종류
 
-![AttributeConverter diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-03.png)
+![AttributeConverter 종류 다이어그램](../../docs/images/readme-diagrams/data-hibernate-diagram-03.png)
 
 ## 기본 사용법
 

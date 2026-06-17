@@ -84,9 +84,9 @@ Key methods:
 
 ## Architecture Diagrams
 
-### Repository Class Structure
+### Persistence Extension Structure
 
-![Repository Class Structure diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-01.png)
+![Persistence Extension Structure diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-01.png)
 
 ### JPA Entity Class Hierarchy
 
