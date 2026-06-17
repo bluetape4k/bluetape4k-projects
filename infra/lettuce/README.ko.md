@@ -150,15 +150,15 @@ dependencies {
 
 ### 분산 Primitive 클래스 계층
 
-![Primitive diagram](../../docs/images/readme-diagrams/infra-lettuce-diagram-01.png)
+![분산 Primitive 클래스 계층 다이어그램](../../docs/images/readme-diagrams/infra-lettuce-diagram-01.png)
 
 ### LettuceLoadedMap Read-Through / Write-Through 흐름
 
-![LettuceLoadedMap Read-Through / Write-Through diagram](../../docs/images/readme-diagrams/infra-lettuce-sequence-01.png)
+![LettuceLoadedMap Read-Through / Write-Through 흐름 다이어그램](../../docs/images/readme-diagrams/infra-lettuce-sequence-01.png)
 
 ### LettuceBinaryCodec 계층
 
-![LettuceBinaryCodec diagram](../../docs/images/readme-diagrams/infra-lettuce-diagram-02.png)
+![LettuceBinaryCodec 계층 다이어그램](../../docs/images/readme-diagrams/infra-lettuce-diagram-02.png)
 
 ## 사용 예시
 
