@@ -35,9 +35,9 @@ that are useful for larger read models:
 | Keyset pagination | `MemberBlazeRepository.findNextPage` | `EntityViewSetting.withKeysetPage(...)` for stable page navigation |
 | Tests | `MemberBlazeRepositoryTest.kt` | Query result, metadata, keyset, and Entity View registration checks |
 
-## Domain Model
+## Domain Model and Read Path
 
-![Domain Model diagram](../../docs/images/readme-diagrams/examples-jpa-blazepersistence-demo-diagram-01.png)
+![Domain Model and Read Path diagram](../../docs/images/readme-diagrams/examples-jpa-blazepersistence-demo-diagram-01.png)
 
 ## Core Usage
 

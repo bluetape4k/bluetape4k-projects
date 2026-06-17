@@ -32,9 +32,9 @@ Blaze Persistence는 JPA 위에 더 표현력 있는 Criteria API와 projection
 | Keyset pagination | `MemberBlazeRepository.findNextPage` | `EntityViewSetting.withKeysetPage(...)` 기반 안정적인 페이지 이동 |
 | 테스트 | `MemberBlazeRepositoryTest.kt` | 결과, metadata, keyset, Entity View 등록 검증 |
 
-## 도메인 모델
+## 도메인 모델과 조회 경로
 
-![jpa blazepersistence demo Class Structure diagram](../../docs/images/readme-diagrams/examples-jpa-blazepersistence-demo-diagram-01.png)
+![Domain Model and Read Path diagram](../../docs/images/readme-diagrams/examples-jpa-blazepersistence-demo-diagram-01.png)
 
 ## 핵심 사용법
 
