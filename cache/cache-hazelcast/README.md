@@ -54,7 +54,11 @@ Two main modes are supported:
 
 ![HazelcastNearCache Class Hierarchy diagram](../../docs/images/readme-diagrams/cache-cache-hazelcast-diagram-01.png)
 
-### 2-Tier NearCache Flow
+### HazelcastNearCache Runtime Flow
+
+![HazelcastNearCache Runtime Flow diagram](../../docs/images/readme-diagrams/cache-cache-hazelcast-diagram-02.png)
+
+### 2-Tier NearCache Sequence
 
 ![2-Tier NearCache Flow diagram](../../docs/images/readme-diagrams/cache-cache-hazelcast-sequence-01.png)
 
@@ -75,8 +79,8 @@ dependencies {
 `NearJCache<K,V>` and
 `SuspendNearJCache<K,V>` directly implement the JCache interface with a Caffeine(front) + Hazelcast IMap(back) structure.
 
-The Korean README includes the full class diagrams and listener-related notes, including why `SuspendNearJCache` uses
-`withoutListener(front, back)` for the Hazelcast client case.
+The class and runtime diagrams above include the JCache adapters and the listener-related caveat, including why
+factory-created `SuspendNearJCache` uses `withoutListener(front, back)` for the Hazelcast client case.
 
 ## Near-Cache Capability
 
