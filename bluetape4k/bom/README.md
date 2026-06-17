@@ -9,7 +9,7 @@ The **root Maven BOM** for the entire `io.github.bluetape4k:*` module set publis
 
 ## Architecture
 
-![bom Architecture diagram](../../docs/images/readme-diagrams/bluetape4k-bom-diagram-01.png)
+![bluetape4k-bom platform constraints diagram](../../docs/images/readme-diagrams/bluetape4k-bom-diagram-01.png)
 
 The BOM is a Gradle `java-platform` that publishes only `<dependencyManagement>` constraints — no runtime classes. It dynamically pulls in all `rootProject.subprojects` except itself, `*-demo` modules, `examples/*`, and `workshop/*`.
 
