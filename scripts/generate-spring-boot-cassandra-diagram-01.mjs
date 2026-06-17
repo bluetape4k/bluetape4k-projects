@@ -103,7 +103,7 @@ function edge({ from, to, points, color, marker = "arrow", dashed = false, label
 }
 
 const width = 2350;
-const height = 1750;
+const height = 1640;
 const body = [
   noteBox({
     id: "ExternalApis",
@@ -190,7 +190,7 @@ const body = [
   classBox({
     id: "Persistable",
     x: 760,
-    y: 1390,
+    y: 1290,
     w: 570,
     h: 255,
     color: "slate",
@@ -202,7 +202,7 @@ const body = [
   classBox({
     id: "Auditable",
     x: 1530,
-    y: 1375,
+    y: 1275,
     w: 620,
     h: 285,
     color: "slate",
@@ -216,7 +216,7 @@ const body = [
   edge({ from: "AsyncOpsExtensions", to: "ExternalApis", points: [[1875, 500], [1875, 420], [1700, 420], [1700, 390]], color: "blue", dashed: true, label: "wraps", labelAt: [1795, 407] }),
   edge({ from: "BatchSelectExtensions", to: "ReactiveOpsExtensions", points: [[375, 930], [375, 870], [1120, 870], [1120, 825]], color: "purple", dashed: true, label: "same coroutine bridge family", labelAt: [620, 857] }),
   edge({ from: "SchemaGenerator", to: "ExternalApis", points: [[1875, 930], [1875, 840], [2250, 840], [2250, 305], [1840, 305]], color: "pink", dashed: true, label: "mapping metadata", labelAt: [1930, 828] }),
-  edge({ from: "Auditable", to: "Persistable", points: [[1530, 1518], [1330, 1518]], color: "slate", marker: "triangle", dashed: false, label: "extends", labelAt: [1390, 1505] }),
+  edge({ from: "Auditable", to: "Persistable", points: [[1530, 1418], [1330, 1418]], color: "slate", marker: "triangle", dashed: false, label: "extends", labelAt: [1390, 1405] }),
   edge({ from: "OptionsDsl", to: "ReactiveOpsExtensions", points: [[1240, 945], [1240, 825]], color: "amber", dashed: true, label: "options for writes", labelAt: [1258, 900] }),
 ];
 

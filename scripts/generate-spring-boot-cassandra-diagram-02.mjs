@@ -86,16 +86,16 @@ function edge({ from, to, points, color, dashed = false, label = "", labelAt }) 
 }
 
 const width = 2500;
-const height = 1370;
+const height = 1460;
 const body = [
-  lane({ x: 70, y: 190, w: 2360, h: 170, title: "Application layer" }),
-  lane({ x: 70, y: 410, w: 2360, h: 270, title: "bluetape4k coroutine and DSL layer" }),
-  lane({ x: 70, y: 730, w: 2360, h: 250, title: "Spring Data Cassandra layer" }),
-  lane({ x: 70, y: 1030, w: 2360, h: 250, title: "DataStax driver and Cassandra" }),
+  lane({ x: 70, y: 190, w: 2360, h: 190, title: "Application layer" }),
+  lane({ x: 70, y: 435, w: 2360, h: 285, title: "bluetape4k coroutine and DSL layer" }),
+  lane({ x: 70, y: 775, w: 2360, h: 265, title: "Spring Data Cassandra layer" }),
+  lane({ x: 70, y: 1095, w: 2360, h: 270, title: "DataStax driver and Cassandra" }),
   card({
     id: "AppCode",
     x: 160,
-    y: 240,
+    y: 250,
     w: 520,
     h: 100,
     color: "teal",
@@ -105,7 +105,7 @@ const body = [
   card({
     id: "Entities",
     x: 860,
-    y: 240,
+    y: 250,
     w: 520,
     h: 100,
     color: "slate",
@@ -115,7 +115,7 @@ const body = [
   card({
     id: "SchemaUse",
     x: 1580,
-    y: 240,
+    y: 250,
     w: 650,
     h: 100,
     color: "pink",
@@ -125,7 +125,7 @@ const body = [
   card({
     id: "CoroutineBridge",
     x: 150,
-    y: 475,
+    y: 505,
     w: 610,
     h: 155,
     color: "green",
@@ -135,7 +135,7 @@ const body = [
   card({
     id: "BatchBridge",
     x: 905,
-    y: 475,
+    y: 505,
     w: 520,
     h: 155,
     color: "purple",
@@ -145,7 +145,7 @@ const body = [
   card({
     id: "OptionsDsl",
     x: 1580,
-    y: 475,
+    y: 505,
     w: 650,
     h: 155,
     color: "amber",
@@ -155,7 +155,7 @@ const body = [
   card({
     id: "SpringOps",
     x: 165,
-    y: 790,
+    y: 840,
     w: 610,
     h: 140,
     color: "green",
@@ -165,7 +165,7 @@ const body = [
   card({
     id: "BatchOps",
     x: 905,
-    y: 790,
+    y: 840,
     w: 520,
     h: 140,
     color: "purple",
@@ -175,7 +175,7 @@ const body = [
   card({
     id: "CqlOps",
     x: 1580,
-    y: 790,
+    y: 840,
     w: 650,
     h: 140,
     color: "amber",
@@ -185,7 +185,7 @@ const body = [
   card({
     id: "ReactiveSession",
     x: 180,
-    y: 1090,
+    y: 1160,
     w: 560,
     h: 135,
     color: "blue",
@@ -195,7 +195,7 @@ const body = [
   card({
     id: "AsyncDriver",
     x: 960,
-    y: 1090,
+    y: 1160,
     w: 520,
     h: 135,
     color: "blue",
@@ -205,27 +205,27 @@ const body = [
   card({
     id: "Cassandra",
     x: 1700,
-    y: 1090,
+    y: 1160,
     w: 480,
     h: 135,
     color: "slate",
     title: "Apache Cassandra",
     lines: ["CQL execution, table metadata, keyspace tables"],
   }),
-  edge({ from: "AppCode", to: "CoroutineBridge", points: [[350, 340], [350, 475]], color: "green", label: "suspend API", labelAt: [368, 420] }),
-  edge({ from: "AppCode", to: "BatchBridge", points: [[430, 340], [430, 370], [1165, 370], [1165, 475]], color: "purple", dashed: true, label: "Flow batches", labelAt: [760, 357] }),
-  edge({ from: "AppCode", to: "OptionsDsl", points: [[510, 340], [510, 360], [1905, 360], [1905, 475]], color: "amber", dashed: true, label: "options DSL", labelAt: [1280, 347] }),
-  edge({ from: "Entities", to: "SchemaUse", points: [[1380, 290], [1580, 290]], color: "pink", dashed: true, label: "entity metadata", labelAt: [1430, 277] }),
-  edge({ from: "CoroutineBridge", to: "SpringOps", points: [[455, 630], [455, 790]], color: "green", label: "await/asFlow", labelAt: [473, 720] }),
-  edge({ from: "BatchBridge", to: "BatchOps", points: [[1165, 630], [1165, 790]], color: "purple", label: "collect Flow", labelAt: [1183, 720] }),
-  edge({ from: "OptionsDsl", to: "CqlOps", points: [[1905, 630], [1905, 790]], color: "amber", label: "builds", labelAt: [1923, 720] }),
-  edge({ from: "SchemaUse", to: "CqlOps", points: [[2230, 290], [2350, 290], [2350, 860], [2230, 860]], color: "pink", dashed: true, label: "SchemaGenerator", labelAt: [2110, 730] }),
-  edge({ from: "SpringOps", to: "ReactiveSession", points: [[455, 930], [455, 1090]], color: "blue", label: "session calls", labelAt: [473, 1015] }),
-  edge({ from: "SpringOps", to: "AsyncDriver", points: [[775, 860], [840, 860], [840, 1158], [960, 1158]], color: "blue", dashed: true, label: "async variants", labelAt: [858, 1018] }),
-  edge({ from: "BatchOps", to: "SpringOps", points: [[905, 860], [775, 860]], color: "purple", dashed: true, label: "same template", labelAt: [805, 847] }),
-  edge({ from: "CqlOps", to: "Cassandra", points: [[1905, 930], [1905, 1090]], color: "amber", label: "CQL", labelAt: [1923, 1015] }),
-  edge({ from: "ReactiveSession", to: "Cassandra", points: [[460, 1225], [460, 1260], [1940, 1260], [1940, 1225]], color: "blue", label: "execute prepared/simple statements", labelAt: [1000, 1247] }),
-  edge({ from: "AsyncDriver", to: "Cassandra", points: [[1480, 1158], [1700, 1158]], color: "blue", dashed: true, label: "AsyncResultSet", labelAt: [1530, 1145] }),
+  edge({ from: "AppCode", to: "CoroutineBridge", points: [[350, 350], [350, 505]], color: "green", label: "suspend API", labelAt: [368, 430] }),
+  edge({ from: "AppCode", to: "BatchBridge", points: [[430, 350], [430, 405], [1165, 405], [1165, 505]], color: "purple", dashed: true, label: "Flow batches", labelAt: [760, 392] }),
+  edge({ from: "AppCode", to: "OptionsDsl", points: [[510, 350], [510, 390], [1905, 390], [1905, 505]], color: "amber", dashed: true, label: "options DSL", labelAt: [1280, 377] }),
+  edge({ from: "Entities", to: "SchemaUse", points: [[1380, 300], [1580, 300]], color: "pink", dashed: true, label: "entity metadata", labelAt: [1430, 284] }),
+  edge({ from: "CoroutineBridge", to: "SpringOps", points: [[455, 660], [455, 840]], color: "green", label: "await/asFlow", labelAt: [473, 760] }),
+  edge({ from: "BatchBridge", to: "BatchOps", points: [[1165, 660], [1165, 840]], color: "purple", label: "collect Flow", labelAt: [1183, 760] }),
+  edge({ from: "OptionsDsl", to: "CqlOps", points: [[1905, 660], [1905, 840]], color: "amber", label: "builds", labelAt: [1923, 760] }),
+  edge({ from: "SchemaUse", to: "CqlOps", points: [[2230, 300], [2320, 300], [2320, 910], [2230, 910]], color: "pink", dashed: true, label: "SchemaGenerator", labelAt: [2240, 742] }),
+  edge({ from: "SpringOps", to: "ReactiveSession", points: [[455, 980], [455, 1160]], color: "blue", label: "session calls", labelAt: [473, 1080] }),
+  edge({ from: "SpringOps", to: "AsyncDriver", points: [[775, 910], [845, 910], [845, 1228], [960, 1228]], color: "blue", dashed: true, label: "async variants", labelAt: [858, 1080] }),
+  edge({ from: "BatchOps", to: "SpringOps", points: [[905, 910], [775, 910]], color: "purple", dashed: true, label: "same template", labelAt: [805, 892] }),
+  edge({ from: "CqlOps", to: "Cassandra", points: [[1905, 980], [1905, 1160]], color: "amber", label: "CQL", labelAt: [1923, 1080] }),
+  edge({ from: "ReactiveSession", to: "Cassandra", points: [[460, 1295], [460, 1335], [1940, 1335], [1940, 1295]], color: "blue", label: "execute prepared/simple statements", labelAt: [980, 1318] }),
+  edge({ from: "AsyncDriver", to: "Cassandra", points: [[1480, 1228], [1700, 1228]], color: "blue", dashed: true, label: "AsyncResultSet", labelAt: [1530, 1208] }),
 ];
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Spring Boot Cassandra Data Access Layer Diagram">

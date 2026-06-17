@@ -16,15 +16,15 @@ Spring Data Cassandra 기반 개발에서 자주 쓰는 코루틴 확장, 편의
 
 ### 핵심 클래스 구조
 
-![cassandra Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)
+![Spring Boot Cassandra 핵심 클래스 구조 다이어그램](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)
 
 ### Cassandra 데이터 접근 계층
 
-![Cassandra diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.png)
+![Spring Boot Cassandra 데이터 접근 계층 다이어그램](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.png)
 
 ### 코루틴 변환 흐름
 
-![cassandra Sequence Flow 3 diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.png)
+![Spring Boot Cassandra 코루틴 변환 시퀀스 다이어그램](../../docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.png)
 
 ## 설치
 

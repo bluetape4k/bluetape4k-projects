@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2500" height="1370" viewBox="0 0 2500 1370" role="img" aria-label="Spring Boot Cassandra Data Access Layer Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="2500" height="1460" viewBox="0 0 2500 1460" role="img" aria-label="Spring Boot Cassandra Data Access Layer Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 
@@ -24,151 +24,151 @@
     .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
   </style>
 </defs>
-<rect class="canvas" width="2500" height="1370"/>
-<rect class="frame" x="34" y="30" width="2432" height="1310" rx="8"/>
+<rect class="canvas" width="2500" height="1460"/>
+<rect class="frame" x="34" y="30" width="2432" height="1400" rx="8"/>
 <text class="title" x="72" y="86">Spring Boot Cassandra Data Access Layer</text>
 <text class="subtitle" x="76" y="120">How application code moves through bluetape4k coroutine extensions, Spring Data Cassandra operations, DataStax driver APIs, and Cassandra schema utilities.</text>
 <g>
-  <rect class="lane" x="70" y="190" width="2360" height="170" rx="8"/>
+  <rect class="lane" x="70" y="190" width="2360" height="190" rx="8"/>
   <text class="laneTitle" x="98" y="232">Application layer</text>
 </g>
 <g>
-  <rect class="lane" x="70" y="410" width="2360" height="270" rx="8"/>
-  <text class="laneTitle" x="98" y="452">bluetape4k coroutine and DSL layer</text>
+  <rect class="lane" x="70" y="435" width="2360" height="285" rx="8"/>
+  <text class="laneTitle" x="98" y="477">bluetape4k coroutine and DSL layer</text>
 </g>
 <g>
-  <rect class="lane" x="70" y="730" width="2360" height="250" rx="8"/>
-  <text class="laneTitle" x="98" y="772">Spring Data Cassandra layer</text>
+  <rect class="lane" x="70" y="775" width="2360" height="265" rx="8"/>
+  <text class="laneTitle" x="98" y="817">Spring Data Cassandra layer</text>
 </g>
 <g>
-  <rect class="lane" x="70" y="1030" width="2360" height="250" rx="8"/>
-  <text class="laneTitle" x="98" y="1072">DataStax driver and Cassandra</text>
+  <rect class="lane" x="70" y="1095" width="2360" height="270" rx="8"/>
+  <text class="laneTitle" x="98" y="1137">DataStax driver and Cassandra</text>
 </g>
 <g id="AppCode">
-  <rect class="card" x="160" y="240" width="520" height="100" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="186" y="284">Service / Repository code</text>
-  <text class="line" x="188" y="322">suspend functions, Flow collection, repository calls</text>
+  <rect class="card" x="160" y="250" width="520" height="100" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="186" y="294">Service / Repository code</text>
+  <text class="line" x="188" y="332">suspend functions, Flow collection, repository calls</text>
 </g>
 <g id="Entities">
-  <rect class="card" x="860" y="240" width="520" height="100" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-  <text class="cardTitle" x="886" y="284">Cassandra entities</text>
-  <text class="line" x="888" y="322">@Table, @PrimaryKey, optional Persistable/Auditable base</text>
+  <rect class="card" x="860" y="250" width="520" height="100" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="cardTitle" x="886" y="294">Cassandra entities</text>
+  <text class="line" x="888" y="332">@Table, @PrimaryKey, optional Persistable/Auditable base</text>
 </g>
 <g id="SchemaUse">
-  <rect class="card" x="1580" y="240" width="650" height="100" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1606" y="284">Schema bootstrap</text>
-  <text class="line" x="1608" y="322">createTableAndTypes&lt;T&gt;(), truncate&lt;T&gt;() when tests/tools need it</text>
+  <rect class="card" x="1580" y="250" width="650" height="100" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="1606" y="294">Schema bootstrap</text>
+  <text class="line" x="1608" y="332">createTableAndTypes&lt;T&gt;(), truncate&lt;T&gt;() when tests/tools need it</text>
 </g>
 <g id="CoroutineBridge">
-  <rect class="card" x="150" y="475" width="610" height="155" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="176" y="519">Coroutine extension bridge</text>
-  <text class="line" x="178" y="557">ReactiveSession.executeSuspending / prepareSuspending</text>
-<text class="line" x="178" y="584">ReactiveCassandraOperations selectAsFlow / *Suspending</text>
-<text class="line" x="178" y="611">AsyncCassandraOperations future.await() bridge</text>
+  <rect class="card" x="150" y="505" width="610" height="155" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="176" y="549">Coroutine extension bridge</text>
+  <text class="line" x="178" y="587">ReactiveSession.executeSuspending / prepareSuspending</text>
+<text class="line" x="178" y="614">ReactiveCassandraOperations selectAsFlow / *Suspending</text>
+<text class="line" x="178" y="641">AsyncCassandraOperations future.await() bridge</text>
 </g>
 <g id="BatchBridge">
-  <rect class="card" x="905" y="475" width="520" height="155" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
-  <text class="cardTitle" x="931" y="519">Batch and select helpers</text>
-  <text class="line" x="933" y="557">insertFlow / updateFlow / deleteFlow</text>
-<text class="line" x="933" y="584">TerminatingSelect count/exists/first/one/all suspending</text>
-<text class="line" x="933" y="611">Flow is collected into Reactor mono</text>
+  <rect class="card" x="905" y="505" width="520" height="155" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="cardTitle" x="931" y="549">Batch and select helpers</text>
+  <text class="line" x="933" y="587">insertFlow / updateFlow / deleteFlow</text>
+<text class="line" x="933" y="614">TerminatingSelect count/exists/first/one/all suspending</text>
+<text class="line" x="933" y="641">Flow is collected into Reactor mono</text>
 </g>
 <g id="OptionsDsl">
-  <rect class="card" x="1580" y="475" width="650" height="155" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1606" y="519">CQL options and query DSL</text>
-  <text class="line" x="1608" y="557">queryOptions / insertOptions / writeOptions</text>
-<text class="line" x="1608" y="584">Insert/Update/Delete.addWriteOptions()</text>
-<text class="line" x="1608" y="611">Criteria.where(&quot;field&quot;) eq value</text>
+  <rect class="card" x="1580" y="505" width="650" height="155" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1606" y="549">CQL options and query DSL</text>
+  <text class="line" x="1608" y="587">queryOptions / insertOptions / writeOptions</text>
+<text class="line" x="1608" y="614">Insert/Update/Delete.addWriteOptions()</text>
+<text class="line" x="1608" y="641">Criteria.where(&quot;field&quot;) eq value</text>
 </g>
 <g id="SpringOps">
-  <rect class="card" x="165" y="790" width="610" height="140" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="191" y="834">ReactiveCassandraOperations</text>
-  <text class="line" x="193" y="872">Mono/Flux based CRUD, select, count, exists, truncate</text>
-<text class="line" x="193" y="899">maps Statement, Query, Update, entity operations</text>
+  <rect class="card" x="165" y="840" width="610" height="140" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="191" y="884">ReactiveCassandraOperations</text>
+  <text class="line" x="193" y="922">Mono/Flux based CRUD, select, count, exists, truncate</text>
+<text class="line" x="193" y="949">maps Statement, Query, Update, entity operations</text>
 </g>
 <g id="BatchOps">
-  <rect class="card" x="905" y="790" width="520" height="140" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
-  <text class="cardTitle" x="931" y="834">ReactiveCassandraBatchOperations</text>
-  <text class="line" x="933" y="872">batch insert/update/delete</text>
-<text class="line" x="933" y="899">uses WriteOptions when supplied</text>
+  <rect class="card" x="905" y="840" width="520" height="140" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="cardTitle" x="931" y="884">ReactiveCassandraBatchOperations</text>
+  <text class="line" x="933" y="922">batch insert/update/delete</text>
+<text class="line" x="933" y="949">uses WriteOptions when supplied</text>
 </g>
 <g id="CqlOps">
-  <rect class="card" x="1580" y="790" width="650" height="140" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1606" y="834">CQL builders and mapping metadata</text>
-  <text class="line" x="1608" y="872">QueryOptions, WriteOptions, Criteria, Query, Update</text>
-<text class="line" x="1608" y="899">SchemaFactory and Cassandra mapping context</text>
+  <rect class="card" x="1580" y="840" width="650" height="140" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1606" y="884">CQL builders and mapping metadata</text>
+  <text class="line" x="1608" y="922">QueryOptions, WriteOptions, Criteria, Query, Update</text>
+<text class="line" x="1608" y="949">SchemaFactory and Cassandra mapping context</text>
 </g>
 <g id="ReactiveSession">
-  <rect class="card" x="180" y="1090" width="560" height="135" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="206" y="1134">ReactiveSession</text>
-  <text class="line" x="208" y="1172">execute(statement), prepare(statement)</text>
-<text class="line" x="208" y="1199">returns ReactiveResultSet / PreparedStatement</text>
+  <rect class="card" x="180" y="1160" width="560" height="135" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="206" y="1204">ReactiveSession</text>
+  <text class="line" x="208" y="1242">execute(statement), prepare(statement)</text>
+<text class="line" x="208" y="1269">returns ReactiveResultSet / PreparedStatement</text>
 </g>
 <g id="AsyncDriver">
-  <rect class="card" x="960" y="1090" width="520" height="135" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="986" y="1134">Async driver path</text>
-  <text class="line" x="988" y="1172">AsyncCassandraOperations</text>
-<text class="line" x="988" y="1199">CompletableFuture and AsyncResultSet</text>
+  <rect class="card" x="960" y="1160" width="520" height="135" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="986" y="1204">Async driver path</text>
+  <text class="line" x="988" y="1242">AsyncCassandraOperations</text>
+<text class="line" x="988" y="1269">CompletableFuture and AsyncResultSet</text>
 </g>
 <g id="Cassandra">
-  <rect class="card" x="1700" y="1090" width="480" height="135" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-  <text class="cardTitle" x="1726" y="1134">Apache Cassandra</text>
-  <text class="line" x="1728" y="1172">CQL execution, table metadata, keyspace tables</text>
+  <rect class="card" x="1700" y="1160" width="480" height="135" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="cardTitle" x="1726" y="1204">Apache Cassandra</text>
+  <text class="line" x="1728" y="1242">CQL execution, table metadata, keyspace tables</text>
 </g>
 <g data-from="AppCode" data-to="CoroutineBridge">
-  <path class="edge " d="M350 340 L350 475" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="376" y="412">suspend API</text>
+  <path class="edge " d="M350 350 L350 505" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="376" y="422">suspend API</text>
 </g>
 <g data-from="AppCode" data-to="BatchBridge">
-  <path class="edge dashed" d="M430 340 L430 370 L1165 370 L1165 475" stroke="#6D28D9" marker-end="url(#arrow-purple)"/>
-  <text class="edgeLabel" x="768" y="349">Flow batches</text>
+  <path class="edge dashed" d="M430 350 L430 405 L1165 405 L1165 505" stroke="#6D28D9" marker-end="url(#arrow-purple)"/>
+  <text class="edgeLabel" x="768" y="384">Flow batches</text>
 </g>
 <g data-from="AppCode" data-to="OptionsDsl">
-  <path class="edge dashed" d="M510 340 L510 360 L1905 360 L1905 475" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-  <text class="edgeLabel" x="1288" y="339">options DSL</text>
+  <path class="edge dashed" d="M510 350 L510 390 L1905 390 L1905 505" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <text class="edgeLabel" x="1288" y="369">options DSL</text>
 </g>
 <g data-from="Entities" data-to="SchemaUse">
-  <path class="edge dashed" d="M1380 290 L1580 290" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-  <text class="edgeLabel" x="1438" y="269">entity metadata</text>
+  <path class="edge dashed" d="M1380 300 L1580 300" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <text class="edgeLabel" x="1438" y="276">entity metadata</text>
 </g>
 <g data-from="CoroutineBridge" data-to="SpringOps">
-  <path class="edge " d="M455 630 L455 790" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="481" y="712">await/asFlow</text>
+  <path class="edge " d="M455 660 L455 840" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="481" y="752">await/asFlow</text>
 </g>
 <g data-from="BatchBridge" data-to="BatchOps">
-  <path class="edge " d="M1165 630 L1165 790" stroke="#6D28D9" marker-end="url(#arrow-purple)"/>
-  <text class="edgeLabel" x="1191" y="712">collect Flow</text>
+  <path class="edge " d="M1165 660 L1165 840" stroke="#6D28D9" marker-end="url(#arrow-purple)"/>
+  <text class="edgeLabel" x="1191" y="752">collect Flow</text>
 </g>
 <g data-from="OptionsDsl" data-to="CqlOps">
-  <path class="edge " d="M1905 630 L1905 790" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-  <text class="edgeLabel" x="1931" y="712">builds</text>
+  <path class="edge " d="M1905 660 L1905 840" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <text class="edgeLabel" x="1931" y="752">builds</text>
 </g>
 <g data-from="SchemaUse" data-to="CqlOps">
-  <path class="edge dashed" d="M2230 290 L2350 290 L2350 860 L2230 860" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-  <text class="edgeLabel" x="2118" y="722">SchemaGenerator</text>
+  <path class="edge dashed" d="M2230 300 L2320 300 L2320 910 L2230 910" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <text class="edgeLabel" x="2248" y="734">SchemaGenerator</text>
 </g>
 <g data-from="SpringOps" data-to="ReactiveSession">
-  <path class="edge " d="M455 930 L455 1090" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="481" y="1007">session calls</text>
+  <path class="edge " d="M455 980 L455 1160" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="481" y="1072">session calls</text>
 </g>
 <g data-from="SpringOps" data-to="AsyncDriver">
-  <path class="edge dashed" d="M775 860 L840 860 L840 1158 L960 1158" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="866" y="1010">async variants</text>
+  <path class="edge dashed" d="M775 910 L845 910 L845 1228 L960 1228" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="866" y="1072">async variants</text>
 </g>
 <g data-from="BatchOps" data-to="SpringOps">
-  <path class="edge dashed" d="M905 860 L775 860" stroke="#6D28D9" marker-end="url(#arrow-purple)"/>
-  <text class="edgeLabel" x="813" y="839">same template</text>
+  <path class="edge dashed" d="M905 910 L775 910" stroke="#6D28D9" marker-end="url(#arrow-purple)"/>
+  <text class="edgeLabel" x="813" y="884">same template</text>
 </g>
 <g data-from="CqlOps" data-to="Cassandra">
-  <path class="edge " d="M1905 930 L1905 1090" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-  <text class="edgeLabel" x="1931" y="1007">CQL</text>
+  <path class="edge " d="M1905 980 L1905 1160" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <text class="edgeLabel" x="1931" y="1072">CQL</text>
 </g>
 <g data-from="ReactiveSession" data-to="Cassandra">
-  <path class="edge " d="M460 1225 L460 1260 L1940 1260 L1940 1225" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="1008" y="1239">execute prepared/simple statements</text>
+  <path class="edge " d="M460 1295 L460 1335 L1940 1335 L1940 1295" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="988" y="1310">execute prepared/simple statements</text>
 </g>
 <g data-from="AsyncDriver" data-to="Cassandra">
-  <path class="edge dashed" d="M1480 1158 L1700 1158" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="1538" y="1137">AsyncResultSet</text>
+  <path class="edge dashed" d="M1480 1228 L1700 1228" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="1538" y="1200">AsyncResultSet</text>
 </g>
 </svg>
