@@ -105,9 +105,9 @@ sf.withSessionSuspending { session ->
 
 ## Architecture Diagrams
 
-### Reactive Repository Class Structure
+### Reactive Extension Structure
 
-![Reactive Repository Class Structure diagram](../../docs/images/readme-diagrams/data-hibernate-reactive-diagram-01.png)
+![Reactive Extension Structure diagram](../../docs/images/readme-diagrams/data-hibernate-reactive-diagram-01.png)
 
 ### Hibernate Reactive API Structure
 
