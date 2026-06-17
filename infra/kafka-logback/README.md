@@ -6,7 +6,7 @@ Logback Appender that delivers log events to Apache Kafka topics. Supports both 
 
 ## Architecture
 
-![kafka logback Class Structure diagram](../../docs/images/readme-diagrams/infra-kafka-logback-diagram-01.png)
+![Kafka Logback Class Structure](../../docs/images/readme-diagrams/infra-kafka-logback-diagram-01.png)
 
 ## Features
 
