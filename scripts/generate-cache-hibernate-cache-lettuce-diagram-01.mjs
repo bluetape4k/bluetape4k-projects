@@ -75,15 +75,15 @@ function edge({ from, to, points, color, dashed = false, label = "", labelAt }) 
 </g>`;
 }
 
-const width = 2700;
-const height = 1260;
+const width = 1920;
+const height = 1940;
 const body = [
   card({
     id: "HibernateRegion",
-    x: 120,
-    y: 265,
-    w: 470,
-    h: 250,
+    x: 790,
+    y: 190,
+    w: 620,
+    h: 220,
     color: "slate",
     kicker: "Hibernate ORM 7.2",
     title: "2nd Level Cache region",
@@ -92,10 +92,10 @@ const body = [
   }),
   card({
     id: "RegionFactory",
-    x: 740,
-    y: 220,
-    w: 540,
-    h: 300,
+    x: 760,
+    y: 500,
+    w: 680,
+    h: 280,
     color: "blue",
     kicker: "RegionFactoryTemplate",
     title: "LettuceNearCacheRegionFactory",
@@ -104,9 +104,9 @@ const body = [
   }),
   card({
     id: "Properties",
-    x: 740,
-    y: 820,
-    w: 540,
+    x: 120,
+    y: 545,
+    w: 520,
     h: 280,
     color: "green",
     kicker: "configuration parser",
@@ -116,10 +116,10 @@ const body = [
   }),
   card({
     id: "StorageAccess",
-    x: 1430,
-    y: 265,
-    w: 520,
-    h: 310,
+    x: 760,
+    y: 880,
+    w: 680,
+    h: 270,
     color: "teal",
     kicker: "DomainDataStorageAccess",
     title: "LettuceNearCacheStorageAccess",
@@ -128,10 +128,10 @@ const body = [
   }),
   card({
     id: "NearCache",
-    x: 1430,
-    y: 820,
-    w: 520,
-    h: 280,
+    x: 760,
+    y: 1240,
+    w: 680,
+    h: 260,
     color: "violet",
     kicker: "per-region near cache",
     title: "LettuceNearCache",
@@ -140,9 +140,9 @@ const body = [
   }),
   card({
     id: "L1",
-    x: 2130,
-    y: 640,
-    w: 420,
+    x: 400,
+    y: 1595,
+    w: 520,
     h: 230,
     color: "amber",
     kicker: "tier 1",
@@ -152,9 +152,9 @@ const body = [
   }),
   card({
     id: "L2",
-    x: 2130,
-    y: 950,
-    w: 420,
+    x: 1280,
+    y: 1595,
+    w: 520,
     h: 250,
     color: "pink",
     kicker: "tier 2",
@@ -165,8 +165,8 @@ const body = [
   card({
     id: "DbFallback",
     x: 120,
-    y: 900,
-    w: 470,
+    y: 950,
+    w: 520,
     h: 220,
     color: "slate",
     kicker: "miss / failure behavior",
@@ -174,17 +174,17 @@ const body = [
     lines: ["get failure returns null", "Hibernate can load from DB", "put/evict failures do not break transactions"],
     footer: "cache is an optimization layer",
   }),
-  edge({ from: "HibernateRegion", to: "RegionFactory", points: [[590, 390], [665, 350], [740, 360]], color: "blue", label: "requests region access", labelAt: [610, 330] }),
-  edge({ from: "Properties", to: "RegionFactory", points: [[1010, 820], [1010, 520]], color: "green", dashed: true, label: "builds config and codec", labelAt: [1028, 690] }),
-  edge({ from: "RegionFactory", to: "StorageAccess", points: [[1280, 390], [1365, 330], [1430, 365]], color: "teal", label: "creates StorageAccess", labelAt: [1308, 318] }),
-  edge({ from: "StorageAccess", to: "NearCache", points: [[1690, 575], [1690, 820]], color: "violet", label: "delegates operations", labelAt: [1710, 705] }),
-  edge({ from: "NearCache", to: "L1", points: [[1950, 895], [2040, 842], [2130, 765]], color: "amber", label: "L1 read/write/evict", labelAt: [1985, 848] }),
-  edge({ from: "NearCache", to: "L2", points: [[1950, 1010], [2040, 1060], [2130, 1080]], color: "pink", label: "L2 read/write/evict", labelAt: [1982, 1058] }),
-  edge({ from: "L2", to: "L1", points: [[2340, 950], [2340, 870]], color: "pink", dashed: true, label: "client tracking invalidation", labelAt: [2358, 920] }),
-  edge({ from: "StorageAccess", to: "DbFallback", points: [[1430, 470], [1340, 470], [1340, 720], [360, 720], [360, 900]], color: "slate", dashed: true, label: "null on cache read failure", labelAt: [760, 700] }),
+  edge({ from: "HibernateRegion", to: "RegionFactory", points: [[1100, 410], [1100, 500]], color: "blue", label: "requests region access", labelAt: [1120, 462] }),
+  edge({ from: "Properties", to: "RegionFactory", points: [[640, 685], [760, 685]], color: "green", dashed: true, label: "config", labelAt: [675, 660] }),
+  edge({ from: "RegionFactory", to: "StorageAccess", points: [[1100, 780], [1100, 880]], color: "teal", label: "creates StorageAccess", labelAt: [1120, 838] }),
+  edge({ from: "StorageAccess", to: "NearCache", points: [[1100, 1150], [1100, 1240]], color: "violet", label: "delegates operations", labelAt: [1120, 1202] }),
+  edge({ from: "NearCache", to: "L1", points: [[990, 1500], [990, 1545], [660, 1545], [660, 1595]], color: "amber", label: "L1 read/write/evict", labelAt: [710, 1526] }),
+  edge({ from: "NearCache", to: "L2", points: [[1210, 1500], [1210, 1545], [1540, 1545], [1540, 1595]], color: "pink", label: "L2 read/write/evict", labelAt: [1310, 1526] }),
+  edge({ from: "L2", to: "L1", points: [[1280, 1720], [920, 1720]], color: "pink", dashed: true, label: "client tracking invalidation", labelAt: [1010, 1698] }),
+  edge({ from: "StorageAccess", to: "DbFallback", points: [[760, 1035], [640, 1035]], color: "slate", dashed: true, label: "read failure", labelAt: [650, 1010] }),
 ];
 
-const svg = `<svg data-intent="Explain Hibernate Lettuce near cache two-tier structure for README diagram 01." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Hibernate Lettuce Near Cache Two Tier Structure Diagram">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Hibernate Lettuce Near Cache Two Tier Structure Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}
@@ -206,6 +206,6 @@ ${body.join("\n")}
 
 const svgPath = join(OUT, "cache-hibernate-cache-lettuce-diagram-01.svg");
 const pngPath = join(OUT, "cache-hibernate-cache-lettuce-diagram-01.png");
-writeFileSync(svgPath, svg.replace(/[ \t]+$/gm, ""));
+writeFileSync(svgPath, `${svg.replace(/[ \t]+$/gm, "")}\n`);
 execFileSync(CAIROSVG, [svgPath, "-o", pngPath, "--scale", "2"], { stdio: "inherit" });
 console.log("Generated cache-hibernate-cache-lettuce-diagram-01.svg/png");

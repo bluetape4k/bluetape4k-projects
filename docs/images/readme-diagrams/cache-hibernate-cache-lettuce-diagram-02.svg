@@ -1,4 +1,4 @@
-<svg data-intent="Explain Hibernate Lettuce cache module layer structure for README diagram 02." data-evidence="cache/hibernate-cache-lettuce/README.md; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheProperties.kt; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheStorageAccess.kt" data-source-read="cache/hibernate-cache-lettuce/README.md; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheProperties.kt; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheStorageAccess.kt" xmlns="http://www.w3.org/2000/svg" width="2700" height="1620" viewBox="0 0 2700 1620" role="img" aria-label="Hibernate Lettuce Cache Layer Structure Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="2700" height="1620" viewBox="0 0 2700 1620" role="img" aria-label="Hibernate Lettuce Cache Layer Structure Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 
@@ -46,6 +46,13 @@
   <path class="divider" d="M1060 288H1670" stroke="#15803D"/>
   <text class="body" x="1082" y="318">validates values and parses durations</text>
 <text class="body" x="1082" y="341">creates codec and builds LettuceNearCacheConfig</text>
+</g>
+<g id="Codec">
+  <rect class="card" x="1860" y="230" width="520" height="125" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="1882" y="268">LettuceBinaryCodec</text>
+  <path class="divider" d="M1860 288H2380" stroke="#15803D"/>
+  <text class="body" x="1882" y="318">jdk/kryo/fory and compressed choices</text>
+<text class="body" x="1882" y="341">created once and reused by the factory</text>
 </g>
 <g id="HibernateLayer">
   <rect class="band" x="90" y="445" width="2520" height="250" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
@@ -128,26 +135,24 @@
   <text class="bandLabel" x="112" y="1369">infrastructure layer</text>
 </g>
 <g id="Caffeine">
-  <rect class="card" x="310" y="1385" width="520" height="95" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="332" y="1423">Caffeine L1</text>
-  <path class="divider" d="M310 1443H830" stroke="#C2410C"/>
-  <text class="body" x="332" y="1473">process-local speed and expiry</text>
+  <rect class="card" x="520" y="1385" width="620" height="95" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="542" y="1423">Caffeine L1</text>
+  <path class="divider" d="M520 1443H1140" stroke="#C2410C"/>
+  <text class="body" x="542" y="1473">process-local speed and expiry</text>
 </g>
 <g id="LettuceRedis">
-  <rect class="card" x="1090" y="1385" width="520" height="95" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1112" y="1423">Lettuce Redis L2</text>
-  <path class="divider" d="M1090 1443H1610" stroke="#BE185D"/>
-  <text class="body" x="1112" y="1473">RedisClient, RESP3, shared TTL-backed entries</text>
-</g>
-<g id="Codec">
-  <rect class="card" x="1870" y="1385" width="520" height="95" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="1892" y="1423">LettuceBinaryCodec</text>
-  <path class="divider" d="M1870 1443H2390" stroke="#15803D"/>
-  <text class="body" x="1892" y="1473">jdk/kryo/fory and compressed codec choices</text>
+  <rect class="card" x="1510" y="1385" width="620" height="95" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="1532" y="1423">Lettuce Redis L2</text>
+  <path class="divider" d="M1510 1443H2130" stroke="#BE185D"/>
+  <text class="body" x="1532" y="1473">RedisClient, RESP3, shared TTL-backed entries</text>
 </g>
 <g data-from="HibernateProps" data-to="Properties">
   <path class="edge " d="M870 292 L1060 292" stroke="#15803D" marker-end="url(#arrow-green)"/>
   <text class="edgeLabel" x="920" y="271">parsed by</text>
+</g>
+<g data-from="Properties" data-to="Codec">
+  <path class="edge " d="M1670 292 L1860 292" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="1720" y="271">createCodec()</text>
 </g>
 <g data-from="Properties" data-to="RegionFactory">
   <path class="edge " d="M1365 355 L1365 420 L520 420 L520 500" stroke="#15803D" marker-end="url(#arrow-green)"/>
@@ -186,15 +191,11 @@
   <text class="edgeLabel" x="1680" y="1149">scoped by</text>
 </g>
 <g data-from="NearCache" data-to="Caffeine">
-  <path class="edge " d="M1240 1250 L1240 1308 L570 1308 L570 1385" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-  <text class="edgeLabel" x="830" y="1289">front tier</text>
+  <path class="edge " d="M1240 1250 L1240 1308 L830 1308 L830 1385" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <text class="edgeLabel" x="955" y="1289">front tier</text>
 </g>
 <g data-from="NearCache" data-to="LettuceRedis">
-  <path class="edge " d="M1340 1250 L1340 1385" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-  <text class="edgeLabel" x="1358" y="1325">back tier</text>
-</g>
-<g data-from="Properties" data-to="Codec">
-  <path class="edge dashed" d="M1670 292 L2520 292 L2520 1432 L2390 1432" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="2538" y="840">createCodec()</text>
+  <path class="edge " d="M1340 1250 L1340 1308 L1820 1308 L1820 1385" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <text class="edgeLabel" x="1510" y="1289">back tier</text>
 </g>
 </svg>

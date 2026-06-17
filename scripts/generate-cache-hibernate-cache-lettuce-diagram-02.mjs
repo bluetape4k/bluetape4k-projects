@@ -89,6 +89,7 @@ const body = [
   band({ id: "ConfigLayer", x: left, y: 180, w: bandWidth, h: 210, color: "green", label: "configuration layer" }),
   card({ id: "HibernateProps", x: 260, y: 230, w: 610, h: 125, color: "green", title: "hibernate.cache.lettuce.*", lines: ["redis_uri, codec, use_resp3", "local sizing, local expiry, Redis TTL overrides"] }),
   card({ id: "Properties", x: 1060, y: 230, w: 610, h: 125, color: "green", title: "LettuceNearCacheProperties", lines: ["validates values and parses durations", "creates codec and builds LettuceNearCacheConfig"] }),
+  card({ id: "Codec", x: 1860, y: 230, w: 520, h: 125, color: "green", title: "LettuceBinaryCodec", lines: ["jdk/kryo/fory and compressed choices", "created once and reused by the factory"] }),
 
   band({ id: "HibernateLayer", x: left, y: 445, w: bandWidth, h: 250, color: "blue", label: "Hibernate cache SPI layer" }),
   card({ id: "RegionFactory", x: 210, y: 500, w: 620, h: 150, color: "blue", title: "LettuceNearCacheRegionFactory", lines: ["extends RegionFactoryTemplate", "creates domain/query/timestamp StorageAccess", "default access type is NONSTRICT_READ_WRITE"] }),
@@ -105,11 +106,11 @@ const body = [
   card({ id: "RegionIsolation", x: 1810, y: 1090, w: 520, h: 160, color: "violet", title: "region isolation", lines: ["one NearCache per region", "regionName prefixes Redis keys", "timestamp region has no Redis TTL"] }),
 
   band({ id: "InfraLayer", x: left, y: 1335, w: bandWidth, h: 190, color: "slate", label: "infrastructure layer" }),
-  card({ id: "Caffeine", x: 310, y: 1385, w: 520, h: 95, color: "amber", title: "Caffeine L1", lines: ["process-local speed and expiry"] }),
-  card({ id: "LettuceRedis", x: 1090, y: 1385, w: 520, h: 95, color: "pink", title: "Lettuce Redis L2", lines: ["RedisClient, RESP3, shared TTL-backed entries"] }),
-  card({ id: "Codec", x: 1870, y: 1385, w: 520, h: 95, color: "green", title: "LettuceBinaryCodec", lines: ["jdk/kryo/fory and compressed codec choices"] }),
+  card({ id: "Caffeine", x: 520, y: 1385, w: 620, h: 95, color: "amber", title: "Caffeine L1", lines: ["process-local speed and expiry"] }),
+  card({ id: "LettuceRedis", x: 1510, y: 1385, w: 620, h: 95, color: "pink", title: "Lettuce Redis L2", lines: ["RedisClient, RESP3, shared TTL-backed entries"] }),
 
   edge({ from: "HibernateProps", to: "Properties", points: [[870, 292], [1060, 292]], color: "green", label: "parsed by", labelAt: [920, 271] }),
+  edge({ from: "Properties", to: "Codec", points: [[1670, 292], [1860, 292]], color: "green", label: "createCodec()", labelAt: [1720, 271] }),
   edge({ from: "Properties", to: "RegionFactory", points: [[1365, 355], [1365, 420], [520, 420], [520, 500]], color: "green", label: "configures", labelAt: [900, 440] }),
   edge({ from: "RegionFactory", to: "FactoryState", points: [[830, 575], [1040, 575]], color: "blue", label: "owns", labelAt: [915, 554] }),
   edge({ from: "FactoryState", to: "Lifecycle", points: [[1660, 575], [1870, 575]], color: "blue", label: "shutdown order", labelAt: [1710, 554] }),
@@ -119,12 +120,11 @@ const body = [
   edge({ from: "Properties", to: "NearCacheConfig", points: [[1365, 355], [1365, 405], [65, 405], [65, 1020], [570, 1020], [570, 1090]], color: "green", dashed: true, label: "builds region config", labelAt: [175, 1005] }),
   edge({ from: "NearCacheConfig", to: "NearCache", points: [[870, 1170], [1040, 1170]], color: "violet", label: "initializes", labelAt: [910, 1149] }),
   edge({ from: "NearCache", to: "RegionIsolation", points: [[1640, 1170], [1810, 1170]], color: "violet", label: "scoped by", labelAt: [1680, 1149] }),
-  edge({ from: "NearCache", to: "Caffeine", points: [[1240, 1250], [1240, 1308], [570, 1308], [570, 1385]], color: "amber", label: "front tier", labelAt: [830, 1289] }),
-  edge({ from: "NearCache", to: "LettuceRedis", points: [[1340, 1250], [1340, 1385]], color: "pink", label: "back tier", labelAt: [1358, 1325] }),
-  edge({ from: "Properties", to: "Codec", points: [[1670, 292], [2520, 292], [2520, 1432], [2390, 1432]], color: "green", dashed: true, label: "createCodec()", labelAt: [2538, 840] }),
+  edge({ from: "NearCache", to: "Caffeine", points: [[1240, 1250], [1240, 1308], [830, 1308], [830, 1385]], color: "amber", label: "front tier", labelAt: [955, 1289] }),
+  edge({ from: "NearCache", to: "LettuceRedis", points: [[1340, 1250], [1340, 1308], [1820, 1308], [1820, 1385]], color: "pink", label: "back tier", labelAt: [1510, 1289] }),
 ];
 
-const svg = `<svg data-intent="Explain Hibernate Lettuce cache module layer structure for README diagram 02." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Hibernate Lettuce Cache Layer Structure Diagram">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Hibernate Lettuce Cache Layer Structure Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}
@@ -147,6 +147,6 @@ ${body.join("\n")}
 
 const svgPath = join(OUT, "cache-hibernate-cache-lettuce-diagram-02.svg");
 const pngPath = join(OUT, "cache-hibernate-cache-lettuce-diagram-02.png");
-writeFileSync(svgPath, svg.replace(/[ \t]+$/gm, ""));
+writeFileSync(svgPath, `${svg.replace(/[ \t]+$/gm, "")}\n`);
 execFileSync(CAIROSVG, [svgPath, "-o", pngPath, "--scale", "2"], { stdio: "inherit" });
 console.log("Generated cache-hibernate-cache-lettuce-diagram-02.svg/png");

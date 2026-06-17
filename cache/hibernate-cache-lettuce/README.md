@@ -31,11 +31,11 @@ No user import migration is required for the reorganization.
 
 ### Near Cache 2-Tier Structure
 
-![Near Cache 2-Tier Structure diagram](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.png)
+![Hibernate Lettuce Near Cache 2-Tier Structure diagram](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.png)
 
 ### Layer Structure
 
-![Layer Structure diagram](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.png)
+![Hibernate Lettuce Cache Layer Structure diagram](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.png)
 
 - **Region Isolation**: Each region gets its own `LettuceNearCache` instance
 - **Key Prefix**: Redis key collision is prevented using the `{regionName}::{key}` format
