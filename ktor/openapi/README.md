@@ -5,6 +5,10 @@
 Optional Ktor OpenAPI helpers for applications that want explicit documentation
 routes without changing route behavior.
 
+## Route Diagram
+
+![Ktor OpenAPI Route Helpers](../../docs/images/readme-diagrams/ktor-openapi-routes-01.png)
+
 ## Features
 
 - `bluetape4kOpenApi()` wraps Ktor's official `openAPI()` route.
@@ -54,8 +58,8 @@ fun Application.module() {
 }
 ```
 
-`components.schemas` is kept explicit because Ktor's OpenAPI HTML renderer
-delegates to Swagger Codegen internals that expect the schema map to exist.
+Keep `components.schemas` explicit because Ktor's OpenAPI HTML renderer
+delegates to Swagger Codegen internals that expect the schema map.
 
 ## Runtime Metadata
 

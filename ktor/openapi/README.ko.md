@@ -2,8 +2,12 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
-Route 동작을 바꾸지 않고 명시적인 문서 route만 추가하려는 애플리케이션을
-위한 선택적 Ktor OpenAPI helper입니다.
+Route 동작을 바꾸지 않고 명시적인 문서 route만 추가하려는 애플리케이션을 위한
+선택적 Ktor OpenAPI helper입니다.
+
+## Route 다이어그램
+
+![Ktor OpenAPI Route Helpers](../../docs/images/readme-diagrams/ktor-openapi-routes-01.png)
 
 ## 기능
 
@@ -11,8 +15,8 @@ Route 동작을 바꾸지 않고 명시적인 문서 route만 추가하려는 �
 - `bluetape4kSwaggerUi()`는 Ktor 공식 `swaggerUI()` route를 감쌉니다.
 - 기본 endpoint와 specification 경로는 bluetape4k Ktor 예제와 맞춥니다:
   `openapi`, `swagger`, `openapi/documentation.yaml`.
-- OpenAPI 문서는 애플리케이션이 소유합니다. 정적 YAML, Ktor compiler 생성
-  metadata, runtime `.describe {}` metadata, 또는 조합을 사용할 수 있습니다.
+- OpenAPI 문서는 애플리케이션이 소유합니다. 정적 YAML, Ktor compiler가 생성한
+  metadata, runtime `.describe {}` metadata, 또는 이들의 조합을 사용할 수 있습니다.
 
 ## 의존성
 
@@ -54,14 +58,14 @@ fun Application.module() {
 }
 ```
 
-Ktor OpenAPI HTML renderer가 내부적으로 Swagger Codegen에 위임하고 schema map
-존재를 기대하므로 `components.schemas`는 명시해 둡니다.
+Ktor OpenAPI HTML renderer가 내부적으로 Swagger Codegen에 위임하고 schema map을
+기대하므로 `components.schemas`는 명시해 둡니다.
 
 ## Runtime Metadata
 
-Ktor 3.5는 Ktor compiler OpenAPI extension, route comment, runtime
-`.describe {}` metadata를 통해 routing tree에서 OpenAPI metadata를 조립할 수
-있습니다. Route metadata는 해당 동작을 소유하는 route 근처에 둡니다.
+Ktor 3.5는 Ktor compiler OpenAPI extension, route comment, runtime `.describe {}`
+metadata를 통해 routing tree에서 OpenAPI metadata를 조립할 수 있습니다. Route
+metadata는 해당 동작을 소유하는 route 근처에 둡니다.
 
 ```kotlin
 @OptIn(ExperimentalKtorApi::class)
