@@ -22,11 +22,11 @@ Spring Data Redis의 직렬화 계층을 고성능 바이너리 직렬화/압축
 
 ### Redis Serializer 클래스 계층
 
-![Redis Serializer diagram](../../docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)
+![Spring Boot Redis Serializer 클래스 계층 다이어그램](../../docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)
 
 ### ReactiveRedisTemplate 직렬화 흐름
 
-![ReactiveRedisTemplate diagram](../../docs/images/readme-diagrams/spring-boot-redis-diagram-02.png)
+![ReactiveRedisTemplate 직렬화 흐름 다이어그램](../../docs/images/readme-diagrams/spring-boot-redis-diagram-02.png)
 
 ## 설치
 
