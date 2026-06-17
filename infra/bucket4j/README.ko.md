@@ -6,7 +6,7 @@ Bucket4j 기반으로 애플리케이션 레벨 Rate Limiter를 구성하기 위
 
 ## 주요 기능
 
-- **Custom Key 기반 제한**: IP가 아닌 `userId`, `apiKey`, `tenantId` 같은 키 기준으로 제어
+- **사용자 정의 key 기반 제한**: IP가 아닌 `userId`, `apiKey`, `tenantId` 같은 키 기준으로 제어
 - **로컬/분산 환경 지원**: in-memory(`Local*`)와 Redis 기반 분산(`Distributed*`) 구현 제공
 - **동기/코루틴 API 동시 제공**: `RateLimiter`, `SuspendRateLimiter`
 - **즉시 소비 시도 계약**: `SuspendRateLimiter.consume`은 대기하지 않고 즉시 소비 시도 후 `CONSUMED/REJECTED`를 반환
@@ -16,29 +16,29 @@ Bucket4j 기반으로 애플리케이션 레벨 Rate Limiter를 구성하기 위
 - **안정적인 결과 계약**:
   `RateLimitResult(status, consumedTokens, availableTokens, errorMessage, diagnostics)`로 소비/거절/오류를 일관되게 반환
 - **재시도 진단 정보**: 거절 결과에서 `retryAfter`, refill/reset nanos, 안정적인 `RateLimitRejectionReason` 제공
-- **요청 검증 내장**: 빈 key, 직렬화된 key 512 bytes 초과, `0 이하 token`, 정책 상한(`MAX_TOKENS_PER_REQUEST`) 초과 요청을 사전에 차단
+- **요청 검증 내장**: 빈 key, 직렬화된 key 512 bytes 초과, `0 이하 token`, 정책 상한(`MAX_TOKENS_PER_REQUEST`) 초과 요청을 미리 차단
 
 ## 클래스 구조
 
 ### Bucket4j 통합 클래스 다이어그램
 
-![Bucket4j diagram](../../docs/images/readme-diagrams/infra-bucket4j-diagram-01.png)
+![Bucket4j 통합 클래스 다이어그램](../../docs/images/readme-diagrams/infra-bucket4j-diagram-01.png)
 
 ### Rate Limiting 시퀀스 다이어그램
 
 #### 로컬 Rate Limiter — 토큰 소비 흐름
 
-![Rate Limiter — diagram](../../docs/images/readme-diagrams/infra-bucket4j-sequence-01.png)
+![로컬 Rate Limiter 토큰 소비 흐름](../../docs/images/readme-diagrams/infra-bucket4j-sequence-01.png)
 
 #### 분산 Suspend Rate Limiter — Redis 기반 코루틴 흐름
 
-![Suspend Rate Limiter — Redis diagram](../../docs/images/readme-diagrams/infra-bucket4j-sequence-02.png)
+![분산 Suspend Rate Limiter Redis 코루틴 흐름](../../docs/images/readme-diagrams/infra-bucket4j-sequence-02.png)
 
 ## Bucket4j 직접 사용 대비 추가 기능
 
 `bluetape4k-bucket4j`는 Bucket4j를 직접 사용할 때 반복되는 보일러플레이트를 줄이는 데 초점이 있습니다.
 
-- **키 기반 버킷 조회 표준화**: `LocalBucketProvider`, `BucketProxyProvider`, `AsyncBucketProxyProvider`
+- **key 기반 버킷 조회 표준화**: `LocalBucketProvider`, `BucketProxyProvider`, `AsyncBucketProxyProvider`
 - **RateLimiter 추상화 제공**: `consume(key, token)` 호출로 로컬/분산 구현체 교체가 쉬움
 - **코루틴 친화 구현**: `SuspendLocalBucket`, `LocalSuspendRateLimiter`, `DistributedSuspendRateLimiter`
 - **Redis 연동 초기화 단순화**: `lettuceBasedProxyManagerOf`, `redissonBasedProxyManagerOf`
