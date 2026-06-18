@@ -19,15 +19,15 @@
 
 ### 클래스 구조
 
-![jackson2 Class Structure diagram](../../docs/images/readme-diagrams/io-jackson2-diagram-01.png)
+![Jackson2 클래스 구조 다이어그램](../../docs/images/readme-diagrams/io-jackson2-diagram-01.png)
 
 ### Jackson 직렬화 파이프라인
 
-![Jackson diagram](../../docs/images/readme-diagrams/io-jackson2-diagram-02.png)
+![Jackson2 직렬화 파이프라인 다이어그램](../../docs/images/readme-diagrams/io-jackson2-diagram-02.png)
 
 ### 필드 암호화 흐름 (@JsonTinkEncrypt)
 
-![(@JsonTinkEncrypt) diagram](../../docs/images/readme-diagrams/io-jackson2-sequence-01.png)
+![JsonTinkEncrypt 필드 암호화 시퀀스 다이어그램](../../docs/images/readme-diagrams/io-jackson2-sequence-01.png)
 
 ## 추천 사용 시나리오
 
