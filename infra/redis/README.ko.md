@@ -9,10 +9,10 @@ Lettuce와 Redisson 두 Redis 클라이언트를 함께 제공하는 **umbrella 
 ```
 infra/redis (umbrella)
 ├── infra/lettuce      — Lettuce 클라이언트, 고성능 Codec, RedisFuture → Coroutines 어댑터
-└── infra/redisson     — Redisson 클라이언트, Codec, Memorizer, NearCache, Leader Election
+└── infra/redisson     — Redisson 클라이언트, Codec, 캐시 helper, NearCache
 ```
 
-Spring Data Redis 직렬화가 필요하면 `spring/data-redis` 모듈을 별도로 사용하세요.
+Spring Data Redis 직렬화가 필요하면 `spring-boot/redis` 모듈을 별도로 사용하세요.
 
 ## 의존성
 
@@ -34,8 +34,8 @@ dependencies {
     // Redisson만 사용
     implementation("io.github.bluetape4k:bluetape4k-redisson:$bluetape4kVersion")
 
-    // Spring Data Redis Serializer
-    implementation("io.github.bluetape4k:bluetape4k-spring-data-redis:$bluetape4kVersion")
+    // Spring Boot Redis serializers
+    implementation("io.github.bluetape4k:bluetape4k-spring-boot-redis:$bluetape4kVersion")
 }
 ```
 
@@ -78,15 +78,12 @@ Redisson 기반 분산 Redis 확장입니다.
 
 - `redissonClient {}` DSL — `RedissonClient` 생성
 - `RedissonCodecs` — 직렬화(Kryo5/Fory/Jdk/Protobuf) × 압축(GZip/LZ4/Snappy/Zstd) Codec
-- `RFuture.awaitSuspending()` — `RFuture` → suspend 함수 변환
-- `RedissonMemorizer` / `AsyncRedissonMemorizer` / `RedissonSuspendMemorizer` — Redis 기반 함수 결과 메모이제이션
+- `Collection<RFuture>.awaitAll()` / `Iterable<RFuture>.sequence()` — Coroutine 친화 Redisson future adapter
 - `RedissonNearCache` — `RLocalCachedMap` 기반 2-tier Near Cache
-- `RedissonLeaderElection` / `RedissonLeaderGroupElection` — 분산 리더 선출 (Coroutines 지원)
 
 ```kotlin
 import io.bluetape4k.redis.redisson.redissonClient
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
-import io.bluetape4k.redis.redisson.memorizer.memorizer
 
 // 클라이언트 생성
 val client = redissonClient {
@@ -94,36 +91,28 @@ val client = redissonClient {
     codec = RedissonCodecs.LZ4Fory
 }
 
-// Memorizer — 함수 결과를 Redis에 캐싱
-val map = client.getMap<Int, Int>("squares")
-val memorizer = map.memorizer { key -> key * key }
-val result = memorizer(7)   // 49, Redis에 저장
-
-// Leader Election
-val election = RedissonLeaderElection(client, "batch-lock")
-election.runIfLeader {
-    runBatchJob()
-}
+// Redisson distributed map
+val map = client.getMap<String, String>("settings")
+map.fastPut("theme", "dark")
 ```
 
 ## 모듈 의존성 구조
 
-![redis Architecture diagram](../../docs/images/readme-diagrams/infra-redis-diagram-01.png)
+![모듈 의존성 구조 다이어그램](../../docs/images/readme-diagrams/infra-redis-diagram-01.png)
 
-## 핵심 클래스 다이어그램
+## 노출 API Surface
 
-![Redis Class Structure diagram](../../docs/images/readme-diagrams/infra-redis-diagram-02.png)
+![노출 API Surface 다이어그램](../../docs/images/readme-diagrams/infra-redis-diagram-02.png)
 
 ## Spring Data Redis
 
 다음 별도 모듈에서 `RedisTemplate` / `ReactiveRedisTemplate` 설정용 고성능 Serializer를 제공합니다.
 
 - [bluetape4k-spring-boot-redis](../../spring-boot/redis/README.ko.md)
-- [bluetape4k-spring-boot-redis](../../spring-boot/redis/README.ko.md)
 
 ```kotlin
-import io.bluetape4k.redis.spring.serializer.RedisBinarySerializers
-import io.bluetape4k.redis.spring.serializer.redisSerializationContext
+import io.bluetape4k.spring.redis.serializer.RedisBinarySerializers
+import io.bluetape4k.spring.redis.serializer.redisSerializationContext
 
 @Bean
 fun reactiveRedisTemplate(

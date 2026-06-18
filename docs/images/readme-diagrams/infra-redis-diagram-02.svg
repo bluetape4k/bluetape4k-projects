@@ -1,134 +1,105 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-label="Redis Umbrella Class Surface">
-  <defs>
-    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
-      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/>
-    </filter>
-    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </marker>
-    <marker id="arrowPurple" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#9333EA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </marker>
-    <marker id="arrowTeal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#0D9488" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </marker>
-    <marker id="arrowOrange" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#EA580C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </marker>
-    <style>
-      svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-      .canvas{fill:#F8FAFC}
-      .frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6;filter:url(#softShadow)}
-      .title{font-family:"Architects Daughter";font-size:50px;fill:#0F172A}
-      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#475569;font-weight:700}
-      .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6}
-      .panelTitle{font-family:"Architects Daughter";font-size:30px;fill:#0F172A}
-      .card{filter:url(#softShadow);stroke-width:2.2}
-      .umbrella{fill:#EFF6FF;stroke:#2563EB}
-      .lettuce{fill:#FAF5FF;stroke:#9333EA}
-      .redisson{fill:#F0FDFA;stroke:#0D9488}
-      .spring{fill:#FFF7ED;stroke:#EA580C}
-      .note{fill:#FDF2F8;stroke:#DB2777}
-      .external{fill:#F8FAFC;stroke:#64748B;stroke-dasharray:8 8}
-      .name{font-family:"Architects Daughter";font-size:26px;fill:#0F172A}
-      .smallName{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}
-      .meta{font-family:"Comic Mono";font-size:14px;fill:#475569;font-weight:700}
-      .line{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 8}
-      .blue{stroke:#2563EB;marker-end:url(#arrowBlue)}
-      .purple{stroke:#9333EA;marker-end:url(#arrowPurple)}
-      .teal{stroke:#0D9488;marker-end:url(#arrowTeal)}
-      .orange{stroke:#EA580C;marker-end:url(#arrowOrange)}
-    </style>
-  </defs>
-
-  <rect class="canvas" width="1800" height="1080"/>
-  <rect class="frame" x="36" y="34" width="1728" height="1012" rx="8"/>
-
-  <text class="title" x="82" y="100">Redis Umbrella Class Surface</text>
-  <text class="subtitle" x="86" y="134">bluetape4k-redis has no Kotlin sources; it exports Lettuce and Redisson APIs so existing imports continue to compile.</text>
-
-  <g id="dependency-panel">
-    <rect class="panel" x="92" y="186" width="1616" height="192" rx="8"/>
-    <text class="panelTitle" x="124" y="232">Dependency boundary</text>
-  </g>
-  <g id="surface-panel">
-    <rect class="panel" x="92" y="448" width="1616" height="330" rx="8"/>
-    <text class="panelTitle" x="124" y="494">Surfaces</text>
-  </g>
-  <g id="usage-panel">
-    <rect class="panel" x="92" y="844" width="1616" height="116" rx="8"/>
-    <text class="panelTitle" x="124" y="890">Use case choice</text>
-  </g>
-
-  <g id="umbrella-module">
-    <rect class="card umbrella" x="682" y="258" width="436" height="86" rx="8"/>
-    <text class="name" x="900" y="293" text-anchor="middle">bluetape4k-redis</text>
-    <text class="meta" x="900" y="319" text-anchor="middle">umbrella module, zero source classes</text>
-  </g>
-  <g id="lettuce-module">
-    <rect class="card external" x="214" y="258" width="360" height="86" rx="8"/>
-    <text class="smallName" x="394" y="293" text-anchor="middle">bluetape4k-lettuce</text>
-    <text class="meta" x="394" y="319" text-anchor="middle">api dependency exported</text>
-  </g>
-  <g id="redisson-module">
-    <rect class="card external" x="1226" y="258" width="360" height="86" rx="8"/>
-    <text class="smallName" x="1406" y="293" text-anchor="middle">bluetape4k-redisson</text>
-    <text class="meta" x="1406" y="319" text-anchor="middle">api dependency exported</text>
-  </g>
-
-  <path class="line purple" d="M 682 302 H 586"/>
-  <path class="line teal" d="M 1118 302 H 1214"/>
-
-  <g id="lettuce-surface">
-    <rect class="card lettuce" x="180" y="548" width="430" height="158" rx="8"/>
-    <text class="name" x="395" y="584" text-anchor="middle">Lettuce surface</text>
-    <text class="meta" x="395" y="614" text-anchor="middle">LettuceClients factories and cached connections</text>
-    <text class="meta" x="395" y="637" text-anchor="middle">LettuceBinaryCodecs and Protobuf codecs</text>
-    <text class="meta" x="395" y="660" text-anchor="middle">RedisFuture.awaitSuspending</text>
-    <text class="meta" x="395" y="683" text-anchor="middle">sync, async, coroutine command access</text>
-  </g>
-  <g id="redisson-surface">
-    <rect class="card redisson" x="1190" y="548" width="430" height="158" rx="8"/>
-    <text class="name" x="1405" y="584" text-anchor="middle">Redisson surface</text>
-    <text class="meta" x="1405" y="614" text-anchor="middle">redissonClient DSL and RedissonCodecs</text>
-    <text class="meta" x="1405" y="637" text-anchor="middle">RFuture.awaitSuspending</text>
-    <text class="meta" x="1405" y="660" text-anchor="middle">Memorizer, NearCache</text>
-    <text class="meta" x="1405" y="683" text-anchor="middle">LeaderElection and group coordination</text>
-  </g>
-  <g id="redis-backend">
-    <rect class="card umbrella" x="682" y="548" width="436" height="158" rx="8"/>
-    <text class="name" x="900" y="584" text-anchor="middle">Redis backend</text>
-    <text class="meta" x="900" y="614" text-anchor="middle">same Redis server, different client models</text>
-    <text class="meta" x="900" y="637" text-anchor="middle">choose Lettuce for command pipelines</text>
-    <text class="meta" x="900" y="660" text-anchor="middle">choose Redisson for distributed objects</text>
-    <text class="meta" x="900" y="683" text-anchor="middle">or keep umbrella for migration compatibility</text>
-  </g>
-
-  <path class="line purple" d="M 394 344 V 540"/>
-  <path class="line teal" d="M 1406 344 V 540"/>
-  <path class="line blue" d="M 900 344 V 540"/>
-
-  <g id="lettuce-use">
-    <rect class="card lettuce" x="180" y="900" width="430" height="42" rx="8"/>
-    <text class="meta" x="395" y="926" text-anchor="middle">Low-level Redis commands, codecs, and coroutine adapters</text>
-  </g>
-  <g id="redisson-use">
-    <rect class="card redisson" x="1190" y="900" width="430" height="42" rx="8"/>
-    <text class="meta" x="1405" y="926" text-anchor="middle">Distributed maps, caching, locks, memorization, leadership</text>
-  </g>
-  <g id="spring-separate">
-    <rect class="card spring" x="682" y="876" width="436" height="66" rx="8"/>
-    <text class="smallName" x="900" y="904" text-anchor="middle">Spring Data Redis is separate</text>
-    <text class="meta" x="900" y="928" text-anchor="middle">use spring/data-redis serializers explicitly</text>
-  </g>
-
-  <path class="line purple" d="M 395 706 V 892"/>
-  <path class="line teal" d="M 1405 706 V 892"/>
-  <path class="line orange" d="M 900 706 V 868"/>
-
-  <g id="build-note">
-    <rect class="card note" x="510" y="976" width="780" height="62" rx="8"/>
-    <text class="meta" x="900" y="1002" text-anchor="middle">build.gradle.kts exports only Lettuce and Redisson.</text>
-    <text class="meta" x="900" y="1025" text-anchor="middle">The umbrella module defines no classes to inherit or call directly.</text>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1180" viewBox="0 0 1700 1180" role="img" aria-labelledby="title desc">
+<title id="title">Redis exported API surface</title>
+<desc id="desc">The redis umbrella has no source classes; it exports Lettuce and Redisson APIs, while Spring Boot Redis serializers stay separate.</desc>
+<defs><style>
+  .title{font-family:"Architects Daughter";font-size:48px;fill:#1F2937}
+  .subtitle,.groupSub,.member,.note,.stereo{font-family:"Comic Mono";fill:#52616B}
+  .subtitle{font-size:18px}.groupTitle{font-family:"Architects Daughter";font-size:25px;fill:#1F2937}
+  .groupSub{font-size:14px}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#1F2937}
+  .stereo{font-size:12px}.member{font-size:14px}.noteTitle{font-family:"Architects Daughter";font-size:22px;fill:#1F2937}.note{font-size:14px}
+</style></defs>
+<marker id="blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 9 5 L 1 9" fill="#356FEA" stroke="#356FEA" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+<marker id="green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 9 5 L 1 9" fill="#16A064" stroke="#16A064" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+<marker id="purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 9 5 L 1 9" fill="#8B5CF6" stroke="#8B5CF6" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+<marker id="orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#EA580C" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+<marker id="pink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#DB2777" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+<rect width="1700" height="1180" fill="#F7FAFC"/>
+<rect x="30" y="28" width="1640" height="1124" rx="24" fill="#FFFFFF" stroke="#D5E1EC" stroke-width="2.4"/>
+<text x="850" y="82" text-anchor="middle" class="title">Redis Exported API Surface</text>
+<text x="850" y="116" text-anchor="middle" class="subtitle">bluetape4k-redis has no Kotlin sources; it preserves imports by exporting concrete Redis client modules.</text>
+<rect x="560" y="154" width="580" height="96" rx="14" fill="#FFFFFF" stroke="#356FEA" stroke-width="2.2"/>
+<text x="584" y="191" class="noteTitle">bluetape4k-redis umbrella</text>
+<text x="584" y="222" class="note">build.gradle.kts exports only Lettuce and Redisson</text>
+<text x="584" y="244" class="note">no classes are inherited from this module</text>
+<rect x="80" y="300" width="720" height="498" rx="18" fill="#FFFFFF" stroke="#16A064" stroke-width="2.2"/>
+<text x="104" y="336" class="groupTitle">Exported by umbrella: Lettuce</text>
+<text x="104" y="362" class="groupSub">Low-level Redis command access, codecs, data structures, and coroutine adapters.</text>
+<rect x="900" y="300" width="720" height="498" rx="18" fill="#FFFFFF" stroke="#8B5CF6" stroke-width="2.2"/>
+<text x="924" y="336" class="groupTitle">Exported by umbrella: Redisson</text>
+<text x="924" y="362" class="groupSub">Redisson client creation, codecs, coroutine adapters, cache helpers, and NearCache.</text>
+<rect x="282" y="840" width="1136" height="222" rx="18" fill="#FFFFFF" stroke="#EA580C" stroke-width="2.2" stroke-dasharray="10 8"/>
+<text x="306" y="876" class="groupTitle">Separate Spring Boot Redis serializer module</text>
+<text x="306" y="902" class="groupSub">Use this module explicitly when configuring RedisTemplate or ReactiveRedisTemplate.</text>
+<rect x="120" y="392" width="300" height="170" rx="13" fill="#ECFDF5" stroke="#16A064" stroke-width="2.2"/>
+<text x="270" y="424" text-anchor="middle" class="stereo">&lt;&lt;object&gt;&gt;</text>
+<text x="270" y="452" text-anchor="middle" class="cardTitle">LettuceClients</text>
+<text x="138" y="483" class="member">clientOf(), connect()</text>
+<text x="138" y="504" class="member">commands(), asyncCommands()</text>
+<text x="138" y="525" class="member">coroutinesCommands()</text>
+<text x="138" y="546" class="member">cached connections</text>
+<rect x="460" y="392" width="300" height="170" rx="13" fill="#F0FDF4" stroke="#16A064" stroke-width="2.2"/>
+<text x="610" y="424" text-anchor="middle" class="stereo">&lt;&lt;objects&gt;&gt;</text>
+<text x="610" y="452" text-anchor="middle" class="cardTitle">Lettuce Codecs</text>
+<text x="478" y="483" class="member">LettuceBinaryCodecs</text>
+<text x="478" y="504" class="member">LettuceJsonCodecs</text>
+<text x="478" y="525" class="member">Int / Long codecs</text>
+<text x="478" y="546" class="member">compression variants</text>
+<rect x="120" y="596" width="300" height="162" rx="13" fill="#F0FDFA" stroke="#0F9B8E" stroke-width="2.2"/>
+<text x="270" y="628" text-anchor="middle" class="stereo">&lt;&lt;extensions&gt;&gt;</text>
+<text x="270" y="656" text-anchor="middle" class="cardTitle">Coroutine adapters</text>
+<text x="138" y="687" class="member">RedisFuture.awaitSuspending()</text>
+<text x="138" y="708" class="member">Collection&lt;RedisFuture&gt;.awaitAll()</text>
+<text x="138" y="729" class="member">Iterable&lt;RedisFuture&gt;.sequence()</text>
+<rect x="460" y="596" width="300" height="162" rx="13" fill="#F0FDFA" stroke="#0F9B8E" stroke-width="2.2"/>
+<text x="610" y="628" text-anchor="middle" class="stereo">&lt;&lt;classes&gt;&gt;</text>
+<text x="610" y="656" text-anchor="middle" class="cardTitle">Lettuce structures</text>
+<text x="478" y="687" class="member">LettuceMap / SuspendMap</text>
+<text x="478" y="708" class="member">Lock / Semaphore</text>
+<text x="478" y="729" class="member">Bloom / Cuckoo filters</text>
+<text x="478" y="750" class="member">HyperLogLog</text>
+<rect x="940" y="392" width="300" height="170" rx="13" fill="#F3E8FF" stroke="#8B5CF6" stroke-width="2.2"/>
+<text x="1090" y="424" text-anchor="middle" class="stereo">&lt;&lt;functions&gt;&gt;</text>
+<text x="1090" y="452" text-anchor="middle" class="cardTitle">Redisson client DSL</text>
+<text x="958" y="483" class="member">redissonClient {}</text>
+<text x="958" y="504" class="member">redissonClientOf(config)</text>
+<text x="958" y="525" class="member">YAML Config helpers</text>
+<text x="958" y="546" class="member">high-concurrency defaults</text>
+<rect x="1280" y="392" width="300" height="170" rx="13" fill="#FAF5FF" stroke="#8B5CF6" stroke-width="2.2"/>
+<text x="1430" y="424" text-anchor="middle" class="stereo">&lt;&lt;object&gt;&gt;</text>
+<text x="1430" y="452" text-anchor="middle" class="cardTitle">RedissonCodecs</text>
+<text x="1298" y="483" class="member">Kryo5 / Fory / Jdk</text>
+<text x="1298" y="504" class="member">LZ4 / Zstd / Gzip</text>
+<text x="1298" y="525" class="member">Jackson3 / Fastjson2</text>
+<text x="1298" y="546" class="member">cache codec helpers</text>
+<rect x="940" y="596" width="300" height="162" rx="13" fill="#EEF2FF" stroke="#6366F1" stroke-width="2.2"/>
+<text x="1090" y="628" text-anchor="middle" class="stereo">&lt;&lt;extensions&gt;&gt;</text>
+<text x="1090" y="656" text-anchor="middle" class="cardTitle">Coroutine adapters</text>
+<text x="958" y="687" class="member">Collection&lt;RFuture&gt;.awaitAll()</text>
+<text x="958" y="708" class="member">Iterable&lt;RFuture&gt;.sequence()</text>
+<text x="958" y="729" class="member">suspend batch / transaction helpers</text>
+<rect x="1280" y="596" width="300" height="162" rx="13" fill="#EEF2FF" stroke="#6366F1" stroke-width="2.2"/>
+<text x="1430" y="628" text-anchor="middle" class="stereo">&lt;&lt;classes&gt;&gt;</text>
+<text x="1430" y="656" text-anchor="middle" class="cardTitle">Cache surfaces</text>
+<text x="1298" y="687" class="member">RedissonNearCache</text>
+<text x="1298" y="708" class="member">RedissonCacheConfig</text>
+<text x="1298" y="729" class="member">MapCacheSupport</text>
+<text x="1298" y="750" class="member">LocalCacheMapSupport</text>
+<rect x="342" y="930" width="330" height="74" rx="13" fill="#FFF7ED" stroke="#EA580C" stroke-width="2.2"/>
+<text x="507" y="962" text-anchor="middle" class="stereo">&lt;&lt;object&gt;&gt;</text>
+<text x="507" y="990" text-anchor="middle" class="cardTitle">RedisBinarySerializers</text>
+<rect x="735" y="930" width="330" height="74" rx="13" fill="#FFF7ED" stroke="#EA580C" stroke-width="2.2"/>
+<text x="900" y="962" text-anchor="middle" class="stereo">&lt;&lt;function&gt;&gt;</text>
+<text x="900" y="990" text-anchor="middle" class="cardTitle">redisSerializationContext</text>
+<rect x="1128" y="930" width="230" height="74" rx="13" fill="#FFF7ED" stroke="#EA580C" stroke-width="2.2"/>
+<text x="1243" y="962" text-anchor="middle" class="stereo">&lt;&lt;Spring API&gt;&gt;</text>
+<text x="1243" y="990" text-anchor="middle" class="cardTitle">RedisTemplate</text>
+<rect x="642" y="1086" width="416" height="54" rx="16" fill="#FFF1F2" stroke="#DB2777" stroke-width="2.2"/>
+<image x="666" y="1095" width="36" height="36" href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6c29kaXBvZGk9Imh0dHA6Ly9zb2RpcG9kaS5zb3VyY2Vmb3JnZS5uZXQvRFREL3NvZGlwb2RpLTAuZHRkIgogICB4bWxuczppbmtzY2FwZT0iaHR0cDovL3d3dy5pbmtzY2FwZS5vcmcvbmFtZXNwYWNlcy9pbmtzY2FwZSIKICAgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgODAwIDYwMCIKICAgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIKICAgaGVpZ2h0PSIxODAiCiAgIHZpZXdCb3g9IjAgMCAxNzkuOTk4OTEgMTc5Ljk5Nzc0IgogICB3aWR0aD0iMTgwIgogICB2ZXJzaW9uPSIxLjEiCiAgIHk9IjBweCIKICAgeD0iMHB4IgogICBpZD0ic3ZnODY5IgogICBzb2RpcG9kaTpkb2NuYW1lPSJSZWRpc19Mb2dvLnN2ZyIKICAgaW5rc2NhcGU6dmVyc2lvbj0iMS4wLjEgKGM0OTdiMDNjLCAyMDIwLTA5LTEwKSIKICAgaW5rc2NhcGU6ZXhwb3J0LWZpbGVuYW1lPSIvVXNlcnMvaG9uemEvRG93bmxvYWRzL3JlZGlzLnBuZyIKICAgaW5rc2NhcGU6ZXhwb3J0LXhkcGk9IjExMi41ODk1OCIKICAgaW5rc2NhcGU6ZXhwb3J0LXlkcGk9IjExMi41ODk1OCI+PGRlZnMKICAgICBpZD0iZGVmczg3MyIgLz48c29kaXBvZGk6bmFtZWR2aWV3CiAgICAgcGFnZWNvbG9yPSIjZmZmZmZmIgogICAgIGJvcmRlcmNvbG9yPSIjNjY2NjY2IgogICAgIGJvcmRlcm9wYWNpdHk9IjEiCiAgICAgb2JqZWN0dG9sZXJhbmNlPSIxMCIKICAgICBncmlkdG9sZXJhbmNlPSIxMCIKICAgICBndWlkZXRvbGVyYW5jZT0iMTAiCiAgICAgaW5rc2NhcGU6cGFnZW9wYWNpdHk9IjAiCiAgICAgaW5rc2NhcGU6cGFnZXNoYWRvdz0iMiIKICAgICBpbmtzY2FwZTp3aW5kb3ctd2lkdGg9IjEzODIiCiAgICAgaW5rc2NhcGU6d2luZG93LWhlaWdodD0iODQ3IgogICAgIGlkPSJuYW1lZHZpZXc4NzEiCiAgICAgc2hvd2dyaWQ9ImZhbHNlIgogICAgIGZpdC1tYXJnaW4tdG9wPSIwIgogICAgIGZpdC1tYXJnaW4tbGVmdD0iMCIKICAgICBmaXQtbWFyZ2luLXJpZ2h0PSIwIgogICAgIGZpdC1tYXJnaW4tYm90dG9tPSIwIgogICAgIGlua3NjYXBlOnpvb209IjEuNTIzNDUwOSIKICAgICBpbmtzY2FwZTpjeD0iOTUuNDMzODUyIgogICAgIGlua3NjYXBlOmN5PSI4OS4zMDk1NjciCiAgICAgaW5rc2NhcGU6d2luZG93LXg9IjU4IgogICAgIGlua3NjYXBlOndpbmRvdy15PSIyNSIKICAgICBpbmtzY2FwZTp3aW5kb3ctbWF4aW1pemVkPSIxIgogICAgIGlua3NjYXBlOmN1cnJlbnQtbGF5ZXI9InN2Zzg2OSIgLz48bWV0YWRhdGEKICAgICBpZD0ibWV0YWRhdGE4MzMiPjxyZGY6UkRGPjxjYzpXb3JrCiAgICAgICAgIHJkZjphYm91dD0iIj48ZGM6Zm9ybWF0PmltYWdlL3N2Zyt4bWw8L2RjOmZvcm1hdD48ZGM6dHlwZQogICAgICAgICAgIHJkZjpyZXNvdXJjZT0iaHR0cDovL3B1cmwub3JnL2RjL2RjbWl0eXBlL1N0aWxsSW1hZ2UiIC8+PGRjOnRpdGxlPjwvZGM6dGl0bGU+PC9jYzpXb3JrPjwvcmRmOlJERj48L21ldGFkYXRhPjxnCiAgICAgaWQ9Imc5NzkiCiAgICAgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNC45NDEyMzA2LDE3LjA5Nzg3NykiPjxwYXRoCiAgICAgICBmaWxsPSIjYTQxZTExIgogICAgICAgZD0ibSAxNjMuNDQ4MTQsMTEyLjQyNjUzIGMgLTkuMDc4LDQuNzMyIC01Ni4xMDYsMjQuMDY4IC02Ni4xMTgwMDIsMjkuMjg3IC0xMC4wMTIsNS4yMjEgLTE1LjU3NCw1LjE3IC0yMy40ODMsMS4zODkgLTcuOTA5LC0zLjc4MSAtNTcuOTU1LC0yMy45OTYgLTY2Ljk3MDAwMDMsLTI4LjMwNSAtNC41MDYsLTIuMTU0IC02Ljg3NTAwMDAzLC0zLjk3MSAtNi44NzUwMDAwMywtNS42ODggViA5MS45MTQ1MzQgYyAwLDAgNjUuMTUzMDAwMzMsLTE0LjE4NCA3NS42NzIwMDAzMywtMTcuOTU3IDEwLjUxOCwtMy43NzQgMTQuMTY3LC0zLjkxIDIzLjExOCwtMC42MzEgOC45NTIwMDIsMy4yNzkgNjIuNDc0MDAyLDEyLjkzNiA3MS4zMjEwMDIsMTYuMTc2IDAsMCAtMC4wMDQsMTUuMzU2OTk2IC0wLjAwNCwxNi45NTA5OTYgMC4wMDEsMS43IC0yLjA0LDMuNTY1IC02LjY2MSw1Ljk3MyB6IgogICAgICAgaWQ9InBhdGg4NDUiIC8+PHBhdGgKICAgICAgIGZpbGw9IiNkODJjMjAiCiAgICAgICBkPSJtIDE2My40NDgxNCw5NS4yMjY1MzQgYyAtOS4wNzgsNC43MyAtNTYuMTA2LDI0LjA2Nzk5NiAtNjYuMTE4MDAyLDI5LjI4Njk5NiAtMTAuMDEyLDUuMjIxIC0xNS41NzQsNS4xNyAtMjMuNDgzLDEuMzg5IC03LjkxLC0zLjc3OSAtNTcuOTU1LC0yMy45OTggLTY2Ljk3MDAwMDMsLTI4LjMwNDk5NiAtOS4wMTUsLTQuMzA5IC05LjIwNCwtNy4yNzUgLTAuMzQ4LC0xMC43NDIgOC44NTUwMDAzLC0zLjQ2OSA1OC42MjYwMDAzLC0yMi45OTYgNjkuMTQ2MDAwMywtMjYuNzcgMTAuNTE4LC0zLjc3MiAxNC4xNjcsLTMuOTEgMjMuMTE4LC0wLjYzIDguOTUyMDAyLDMuMjc5IDU1LjY5OTAwMiwyMS44ODYgNjQuNTQ1MDAyLDI1LjEyNiA4Ljg0OCwzLjI0MyA5LjE4OCw1LjkxMyAwLjExLDEwLjY0NSB6IgogICAgICAgaWQ9InBhdGg4NDciIC8+PHBhdGgKICAgICAgIGZpbGw9IiNhNDFlMTEiCiAgICAgICBkPSJtIDE2My40NDgxNCw4NC4zODY1MzQgYyAtOS4wNzgsNC43MzIgLTU2LjEwNiwyNC4wNjc5OTYgLTY2LjExODAwMiwyOS4yODg5OTYgLTEwLjAxMiw1LjIxOSAtMTUuNTc0LDUuMTY4IC0yMy40ODMsMS4zODcgLTcuOTEsLTMuNzc5IC01Ny45NTUsLTIzLjk5NTk5NiAtNjYuOTcwMDAwMywtMjguMzA0OTk2IC00LjUwNiwtMi4xNTQgLTYuODc1MDAwMDMsLTMuOTY5IC02Ljg3NTAwMDAzLC01LjY4NiB2IC0xNy4xOTcgYyAwLDAgNjUuMTUzMDAwMzMsLTE0LjE4MyA3NS42NzIwMDAzMywtMTcuOTU3IDEwLjUxOCwtMy43NzMgMTQuMTY3LC0zLjkxIDIzLjExOCwtMC42MzEgOC45NTIwMDIsMy4yNzkgNjIuNDc0MDAyLDEyLjkzNCA3MS4zMjEwMDIsMTYuMTc1IDAsMCAtMC4wMDQsMTUuMzU3IC0wLjAwNCwxNi45NTMgMC4wMDEsMS42OTkgLTIuMDQsMy41NjQgLTYuNjYxLDUuOTcyIHoiCiAgICAgICBpZD0icGF0aDg0OSIgLz48cGF0aAogICAgICAgZmlsbD0iI2Q4MmMyMCIKICAgICAgIGQ9Im0gMTYzLjQ0ODE0LDY3LjE4NjUzNCBjIC05LjA3OCw0LjczMiAtNTYuMTA2LDI0LjA2OCAtNjYuMTE4MDAyLDI5LjI4OSAtMTAuMDEyLDUuMjE4OTk2IC0xNS41NzQsNS4xNjc5OTYgLTIzLjQ4MywxLjM4NyAtNy45MSwtMy43NzkgLTU3Ljk1NSwtMjMuOTk3IC02Ni45NzAwMDAzLC0yOC4zMDUgLTkuMDE1LC00LjMwOCAtOS4yMDQsLTcuMjc0IC0wLjM0OCwtMTAuNzQzIDguODU1MDAwMywtMy40NjcgNTguNjI2MDAwMywtMjIuOTk1IDY5LjE0NjAwMDMsLTI2Ljc2OCAxMC41MTgsLTMuNzczIDE0LjE2NywtMy45MSAyMy4xMTgsLTAuNjMxIDguOTUyMDAyLDMuMjc5IDU1LjY5OTAwMiwyMS44ODUgNjQuNTQ1MDAyLDI1LjEyNiA4Ljg0OCwzLjI0MiA5LjE4OCw1LjkxMyAwLjExLDEwLjY0NSB6IgogICAgICAgaWQ9InBhdGg4NTEiIC8+PHBhdGgKICAgICAgIGZpbGw9IiNhNDFlMTEiCiAgICAgICBkPSJtIDE2My40NDgxNCw1NS4zMDY1MzQgYyAtOS4wNzgsNC43MzIgLTU2LjEwNiwyNC4wNjkgLTY2LjExODAwMiwyOS4yOSAtMTAuMDEyLDUuMjE5IC0xNS41NzQsNS4xNjggLTIzLjQ4MywxLjM4NyAtNy45MSwtMy43NzkgLTU3Ljk1NSwtMjMuOTk3IC02Ni45NzAwMDAzLC0yOC4zMDUgLTQuNTA2LC0yLjE1NCAtNi44NzUwMDAwMywtMy45NyAtNi44NzUwMDAwMywtNS42ODYgdiAtMTcuMTk3IGMgMCwwIDY1LjE1MzAwMDMzLC0xNC4xODMgNzUuNjcyMDAwMzMsLTE3Ljk1NiAxMC41MTgsLTMuNzc0IDE0LjE2NywtMy45MSAyMy4xMTgsLTAuNjMxIDguOTUyMDAyLDMuMjc5IDYyLjQ3NDAwMiwxMi45MzQgNzEuMzIxMDAyLDE2LjE3NSAwLDAgLTAuMDA0LDE1LjM1NyAtMC4wMDQsMTYuOTUyIDAuMDAxLDEuNjk4IC0yLjA0LDMuNTYzIC02LjY2MSw1Ljk3MSB6IgogICAgICAgaWQ9InBhdGg4NTMiIC8+PHBhdGgKICAgICAgIGZpbGw9IiNkODJjMjAiCiAgICAgICBkPSJtIDE2My40NDgxNCwzOC4xMDY1MzQgYyAtOS4wNzgsNC43MzIgLTU2LjEwNiwyNC4wNjkgLTY2LjExODAwMiwyOS4yODkgLTEwLjAxMiw1LjIxOSAtMTUuNTc0LDUuMTY4IC0yMy40ODMsMS4zODggLTcuOTA5LC0zLjc4IC01Ny45NTUsLTIzLjk5NyAtNjYuOTcwMDAwMywtMjguMzA1IC05LjAxNSwtNC4zMDggLTkuMjA0LC03LjI3NSAtMC4zNDgsLTEwLjc0MyA4Ljg1NTAwMDMsLTMuNDY4IDU4LjYyNjAwMDMsLTIyLjk5NDAwMDMgNjkuMTQ2MDAwMywtMjYuNzY4MDAwMyAxMC41MTgsLTMuNzc0IDE0LjE2NywtMy45MSAyMy4xMTgsLTAuNjMgOC45NTIwMDIsMy4yNzkgNTUuNjk5MDAyLDIxLjg4NTAwMDMgNjQuNTQ1MDAyLDI1LjEyNjAwMDMgOC44NDgsMy4yNCA5LjE4OCw1LjkxMiAwLjExLDEwLjY0MyB6IgogICAgICAgaWQ9InBhdGg4NTUiIC8+PHRleHQKICAgICAgIHhtbDpzcGFjZT0icHJlc2VydmUiCiAgICAgICBzdHlsZT0iZm9udC1zdHlsZTpub3JtYWw7Zm9udC13ZWlnaHQ6bm9ybWFsO2ZvbnQtc2l6ZTo4NS4zMzI4cHg7bGluZS1oZWlnaHQ6MS4yNTtmb250LWZhbWlseTpzYW5zLXNlcmlmO2ZpbGw6IzAwMDAwMDtmaWxsLW9wYWNpdHk6MTtzdHJva2U6bm9uZTtzdHJva2Utd2lkdGg6MC45OTk5OTQiCiAgICAgICB4PSIxNi45MTI4MTUiCiAgICAgICB5PSIxMDMuNDIxNjciCiAgICAgICBpZD0idGV4dDg5MyI+PHRzcGFuCiAgICAgICAgIHNvZGlwb2RpOnJvbGU9ImxpbmUiCiAgICAgICAgIGlkPSJ0c3Bhbjg5MSIKICAgICAgICAgeD0iMTYuOTEyODE1IgogICAgICAgICB5PSIxMDMuNDIxNjciCiAgICAgICAgIHN0eWxlPSJmb250LXN0eWxlOm5vcm1hbDtmb250LXZhcmlhbnQ6bm9ybWFsO2ZvbnQtd2VpZ2h0Om5vcm1hbDtmb250LXN0cmV0Y2g6bm9ybWFsO2ZvbnQtc2l6ZTo4NS4zMzI4cHg7Zm9udC1mYW1pbHk6J0FyaWFsIEJsYWNrJzstaW5rc2NhcGUtZm9udC1zcGVjaWZpY2F0aW9uOidBcmlhbCBCbGFjaywgJztmaWxsOiNmZmZmZmY7c3Ryb2tlLXdpZHRoOjAuOTk5OTk0Ij5SQzwvdHNwYW4+PC90ZXh0PjwvZz48L3N2Zz4K"/>
+<text x="724" y="1121" class="noteTitle">Redis runtime remains shared</text>
+<path d="M 650 250 L 840 250 L 840 520 L 804 520" fill="none" stroke="#356FEA" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#blue)"/>
+<path d="M 1050 250 L 860 250 L 860 520 L 896 520" fill="none" stroke="#356FEA" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#blue)"/>
+<path d="M 270 562 L 270 586" fill="none" stroke="#16A064" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#green)"/>
+<path d="M 610 562 L 610 586" fill="none" stroke="#16A064" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#green)"/>
+<path d="M 1090 562 L 1090 586" fill="none" stroke="#8B5CF6" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#purple)"/>
+<path d="M 1430 562 L 1430 586" fill="none" stroke="#8B5CF6" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#purple)"/>
 </svg>

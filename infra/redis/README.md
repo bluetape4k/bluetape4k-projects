@@ -10,10 +10,10 @@ An **umbrella module** that bundles both the Lettuce and Redisson Redis clients.
 ```
 infra/redis (umbrella)
 ├── infra/lettuce      — Lettuce client, high-performance codecs, RedisFuture → Coroutines adapter
-└── infra/redisson     — Redisson client, codecs, Memorizer, NearCache, Leader Election
+└── infra/redisson     — Redisson client, codecs, cache helpers, NearCache
 ```
 
-For Spring Data Redis serialization, use the `spring/data-redis` module separately.
+For Spring Data Redis serialization, use the `spring-boot/redis` module separately.
 
 ## Dependency
 
@@ -35,8 +35,8 @@ dependencies {
     // Redisson only
     implementation("io.github.bluetape4k:bluetape4k-redisson:$bluetape4kVersion")
 
-    // Spring Data Redis Serializer
-    implementation("io.github.bluetape4k:bluetape4k-spring-data-redis:$bluetape4kVersion")
+    // Spring Boot Redis serializers
+    implementation("io.github.bluetape4k:bluetape4k-spring-boot-redis:$bluetape4kVersion")
 }
 ```
 
@@ -79,15 +79,12 @@ Distributed Redis extension based on Redisson.
 
 - `redissonClient {}` DSL — Creates a `RedissonClient`
 - `RedissonCodecs` — Codec combinations: serializers (Kryo5/Fory/Jdk/Protobuf) × compression (GZip/LZ4/Snappy/Zstd)
-- `RFuture.awaitSuspending()` — Converts `RFuture` to a suspend function
-- `RedissonMemorizer` / `AsyncRedissonMemorizer` / `RedissonSuspendMemorizer` — Redis-based function result memoization
+- `Collection<RFuture>.awaitAll()` / `Iterable<RFuture>.sequence()` — Coroutine-friendly Redisson future adapters
 - `RedissonNearCache` — 2-tier Near Cache based on `RLocalCachedMap`
-- `RedissonLeaderElection` / `RedissonLeaderGroupElection` — Distributed leader election (with Coroutines support)
 
 ```kotlin
 import io.bluetape4k.redis.redisson.redissonClient
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
-import io.bluetape4k.redis.redisson.memorizer.memorizer
 
 // Create client
 val client = redissonClient {
@@ -95,37 +92,29 @@ val client = redissonClient {
     codec = RedissonCodecs.LZ4Fory
 }
 
-// Memorizer — caches function results in Redis
-val map = client.getMap<Int, Int>("squares")
-val memorizer = map.memorizer { key -> key * key }
-val result = memorizer(7)   // 49, stored in Redis
-
-// Leader Election
-val election = RedissonLeaderElection(client, "batch-lock")
-election.runIfLeader {
-    runBatchJob()
-}
+// Redisson distributed map
+val map = client.getMap<String, String>("settings")
+map.fastPut("theme", "dark")
 ```
 
 ## Module Dependency Structure
 
 ![Module Dependency Structure diagram](../../docs/images/readme-diagrams/infra-redis-diagram-01.png)
 
-## Core Class Diagram
+## Exported API Surface
 
-![Core Class Diagram diagram](../../docs/images/readme-diagrams/infra-redis-diagram-02.png)
+![Exported API Surface diagram](../../docs/images/readme-diagrams/infra-redis-diagram-02.png)
 
 ## Spring Data Redis
 
-The following separate modules provide high-performance serializers for configuring
+The following separate module provides high-performance serializers for configuring
 `RedisTemplate` / `ReactiveRedisTemplate`.
 
 - [bluetape4k-spring-boot-redis](../../spring-boot/redis/README.md)
-- [bluetape4k-spring-boot-redis](../../spring-boot/redis/README.md)
 
 ```kotlin
-import io.bluetape4k.redis.spring.serializer.RedisBinarySerializers
-import io.bluetape4k.redis.spring.serializer.redisSerializationContext
+import io.bluetape4k.spring.redis.serializer.RedisBinarySerializers
+import io.bluetape4k.spring.redis.serializer.redisSerializationContext
 
 @Bean
 fun reactiveRedisTemplate(
