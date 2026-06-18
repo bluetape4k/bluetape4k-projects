@@ -85,7 +85,7 @@ lines.push(`<defs><style>
   .frame{fill:#FEFEFC;stroke:#546E7A;stroke-width:2.5}.inner{fill:#FFFFFF;stroke:${c.border};stroke-width:2}
   .lifeline{stroke:${c.life};stroke-width:2;stroke-dasharray:8 8}
   .activation{rx:6;stroke-width:1.6}.pill{fill:#FFFFFF;stroke-width:1.5}.badge{font-family:"Comic Mono";font-size:12px;font-weight:700;fill:#FFFFFF}
-  .alt{fill:#FFFFFF;fill-opacity:.60;stroke:#78909C;stroke-width:2.6;stroke-dasharray:12 8}
+  .alt{fill:#FFFFFF;fill-opacity:.12;stroke:#78909C;stroke-width:2.6;stroke-dasharray:12 8}
 </style></defs>`);
 lines.push(`<rect x="24" y="24" width="${W - 48}" height="${H - 48}" rx="22" class="frame"/>`);
 lines.push(`<text x="${W / 2}" y="78" text-anchor="middle" class="title">Span Lifecycle in a Coroutine Context</text>`);

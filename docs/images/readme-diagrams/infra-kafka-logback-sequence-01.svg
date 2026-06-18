@@ -9,7 +9,7 @@
   .frame{fill:#FEFEFC;stroke:#546E7A;stroke-width:2.5}.inner{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2}
   .lifeline{stroke:#A8B8C8;stroke-width:2;stroke-dasharray:8 8}
   .activation{rx:6;stroke-width:1.6}.pill{fill:#FFFFFF;stroke-width:1.5}.badge{font-family:"Comic Mono";font-size:12px;font-weight:700;fill:#FFFFFF}
-  .alt{fill:#FFFFFF;fill-opacity:.58;stroke:#78909C;stroke-width:2.6;stroke-dasharray:12 8}
+  .alt{fill:#FFFFFF;fill-opacity:.12;stroke:#78909C;stroke-width:2.6;stroke-dasharray:12 8}
 </style></defs>
 <rect x="24" y="24" width="1932" height="1992" rx="22" class="frame"/>
 <text x="990" y="78" text-anchor="middle" class="title">Kafka Logback Append Flow</text>
