@@ -37,31 +37,31 @@ read 계약을 줄이기 위한 실용적인 I/O 계층입니다. 핵심 모델�
 
 `CompressableSink`는 모든 데이터를 내부 버퍼에 축적한 뒤, `close()` 시점에 한 번에 압축합니다.
 
-![Sink (One-Shot) — compress on close diagram](../../docs/images/readme-diagrams/io-okio-sequence-01.png)
+![압축 Sink One-Shot close 시점 압축 시퀀스 다이어그램](../../docs/images/readme-diagrams/io-okio-sequence-01.png)
 
 ### 압축 Sink (Streaming) — compress incrementally
 
 `StreamingCompressSink`는 데이터를 수신할 때마다 즉시 압축하여 대용량 스트리밍에 적합합니다.
 
-![Sink (Streaming) — compress incrementally diagram](../../docs/images/readme-diagrams/io-okio-sequence-02.png)
+![압축 Sink Streaming 증분 압축 시퀀스 다이어그램](../../docs/images/readme-diagrams/io-okio-sequence-02.png)
 
 ### 복원 Source (One-Shot) — decompress on first read
 
 `DecompressableSource`는 첫 번째 `read()` 호출 시 전체 데이터를 복원하고 캐싱합니다.
 
-![Source (One-Shot) — decompress on first read diagram](../../docs/images/readme-diagrams/io-okio-sequence-03.png)
+![복원 Source One-Shot 첫 read 복원 시퀀스 다이어그램](../../docs/images/readme-diagrams/io-okio-sequence-03.png)
 
 ### Tink 암호화 + 압축 조합 흐름
 
 `Sink` 데코레이터를 체이닝하여 압축 후 암호화를 적용합니다.
 
-![Tink + diagram](../../docs/images/readme-diagrams/io-okio-sequence-04.png)
+![Tink 암호화와 압축 조합 흐름 시퀀스 다이어그램](../../docs/images/readme-diagrams/io-okio-sequence-04.png)
 
 ### Coroutines 비동기 파일 I/O 흐름
 
 `AsynchronousFileChannel`을 사용하여 논블로킹 파일 I/O를 수행합니다.
 
-![Coroutines I/O diagram](../../docs/images/readme-diagrams/io-okio-sequence-05.png)
+![Coroutines 비동기 파일 I/O 흐름 시퀀스 다이어그램](../../docs/images/readme-diagrams/io-okio-sequence-05.png)
 
 ## 추천 사용 시나리오
 
@@ -422,25 +422,25 @@ io.bluetape4k.okio
 
 Okio의 `Sink`/`Source` 추상화 위에 압축, 암호화, Base64 인코딩 등을 데코레이터 패턴으로 제공합니다.
 
-![Sink / Source diagram](../../docs/images/readme-diagrams/io-okio-diagram-01.png)
+![Sink와 Source 어댑터 계층 다이어그램](../../docs/images/readme-diagrams/io-okio-diagram-01.png)
 
 ### NIO 채널 어댑터 계층
 
 Java NIO `FileChannel`/`ByteChannel`을 Okio `Sink`/`Source`로 변환합니다.
 
-![NIO diagram](../../docs/images/readme-diagrams/io-okio-diagram-02.png)
+![NIO 채널 어댑터 계층 다이어그램](../../docs/images/readme-diagrams/io-okio-diagram-02.png)
 
 ### Coroutines 비동기 I/O 계층
 
 Kotlin Coroutines `suspend` 함수 기반 비동기 Sink/Source 추상화입니다.
 
-![Coroutines I/O diagram](../../docs/images/readme-diagrams/io-okio-diagram-03.png)
+![Coroutines 비동기 I/O 계층 다이어그램](../../docs/images/readme-diagrams/io-okio-diagram-03.png)
 
 ### 압축 팩토리 (Compressable)
 
 `Compressable` 오브젝트를 통해 다양한 알고리즘의 압축/복원 Sink/Source를 편리하게 생성할 수 있습니다.
 
-![(Compressable) diagram](../../docs/images/readme-diagrams/io-okio-diagram-04.png)
+![Compressable 압축 팩토리 다이어그램](../../docs/images/readme-diagrams/io-okio-diagram-04.png)
 
 ## 라이선스
 
