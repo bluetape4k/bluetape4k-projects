@@ -32,19 +32,19 @@ Vert.x 기반 비동기/Coroutines 개발을 위한 단일 통합 모듈입니�
 
 ### 모듈 의존성 구조
 
-![vertx Architecture diagram](../../docs/images/readme-diagrams/io-vertx-diagram-01.png)
+![Vert.x 모듈 기능 아키텍처 다이어그램](../../docs/images/readme-diagrams/io-vertx-diagram-01.png)
 
 ### Vert.x 이벤트 루프 + Coroutines 처리 흐름
 
-![Vert.x + Coroutines diagram](../../docs/images/readme-diagrams/io-vertx-diagram-02.png)
+![Vert.x 이벤트 루프와 Coroutines 처리 흐름 다이어그램](../../docs/images/readme-diagrams/io-vertx-diagram-02.png)
 
 ### Circuit Breaker + Resilience4j 통합 흐름
 
-![Circuit Breaker + Resilience4j diagram](../../docs/images/readme-diagrams/io-vertx-sequence-01.png)
+![Circuit Breaker와 Resilience4j 통합 흐름 시퀀스 다이어그램](../../docs/images/readme-diagrams/io-vertx-sequence-01.png)
 
 ### Vert.x 핵심 컴포넌트 클래스 구조
 
-![Vert.x diagram](../../docs/images/readme-diagrams/io-vertx-diagram-03.png)
+![Vert.x 핵심 컴포넌트 클래스 구조 다이어그램](../../docs/images/readme-diagrams/io-vertx-diagram-03.png)
 
 ## 설치
 
