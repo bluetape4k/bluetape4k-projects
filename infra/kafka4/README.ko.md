@@ -51,9 +51,9 @@ dependencies {
 
 ![Kafka4 의존성 경계 다이어그램](../../docs/images/readme-diagrams/infra-kafka4-diagram-01.png)
 
-`infra/kafka4/build.gradle.kts`는 모든 `org.apache.kafka` artifact를 이 모듈의
-Kafka 4 버전으로 정렬합니다. root dependency management가 Kafka 3 artifact를
-Kafka 4 test/runtime classpath에 섞는 것을 막기 위한 조치입니다.
+`infra/kafka4/build.gradle.kts`는 모든 `org.apache.kafka` 아티팩트를 이 모듈의
+Kafka 4 버전으로 맞춥니다. 루트 의존성 관리가 Kafka 3 아티팩트를 Kafka 4
+테스트/런타임 classpath에 섞어 넣지 못하게 막기 위한 조치입니다.
 
 ## Producer
 
