@@ -15,9 +15,9 @@ Elasticsearch client library for Kotlin with Coroutines support. Provides idioma
 
 ## Architecture
 
-The module keeps client construction, transport setup, and coroutine search/bulk pipelines separated.
+The module has two clear boundaries. Client DSL/factory code builds the official Elasticsearch Java clients through the ES 9.x `Rest5ClientTransport`, while coroutine extensions add suspend wrappers, PIT `search_after` streaming, and bulk Flow pipelines on top of `ElasticsearchAsyncClient`.
 
-![Elasticsearch Module Architecture diagram](../../docs/images/readme-diagrams/infra-elasticsearch-diagram-02.png)
+![Elasticsearch module architecture](../../docs/images/readme-diagrams/infra-elasticsearch-diagram-02.png)
 
 ## Installation
 
@@ -57,7 +57,7 @@ This module depends on:
 
 ## Client API Structure
 
-![Elasticsearch Client API Structure](../../docs/images/readme-diagrams/infra-elasticsearch-diagram-01.png)
+![Elasticsearch client API structure](../../docs/images/readme-diagrams/infra-elasticsearch-diagram-01.png)
 
 ## Usage Examples
 

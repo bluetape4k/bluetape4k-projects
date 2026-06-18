@@ -1,4 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1040" viewBox="0 0 1500 1040" role="img" aria-label="Elasticsearch client API structure">
+#!/usr/bin/env node
+
+import { writeFileSync } from "node:fs";
+
+const out = "docs/images/readme-diagrams/infra-elasticsearch-diagram-01.svg";
+
+const svg = String.raw`<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1040" viewBox="0 0 1500 1040" role="img" aria-label="Elasticsearch client API structure">
   <defs>
     <filter id="shadow" x="-8%" y="-10%" width="116%" height="124%">
       <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
@@ -175,4 +181,7 @@
   <path class="dep" d="M 750 636 V 670 H 857 V 706" stroke="#ea580c" marker-end="url(#openOrange)"/>
   <path class="dep" d="M 952 603 H 1028 V 765 H 1080" stroke="#16a34a" marker-end="url(#openGreen)"/>
   <path class="dep" d="M 1222 842 V 896" stroke="#16a34a" marker-end="url(#openGreen)"/>
-</svg>
+</svg>`;
+
+writeFileSync(out, `${svg}\n`);
+console.log(`wrote ${out}`);

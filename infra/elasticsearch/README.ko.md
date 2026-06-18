@@ -2,22 +2,22 @@
 
 한국어 | [English](./README.md)
 
-Elasticsearch 클라이언트 라이브러리 (Kotlin + Coroutines 지원). Elasticsearch 9.x Java API 클라이언트의 관용적인 Kotlin DSL 빌더와 suspend 함수를 제공하며, Coroutines 기반 애플리케이션에서 효율적인 비동기/논-블로킹 작업을 가능하게 합니다.
+Kotlin + Coroutines 환경에서 쓰기 위한 Elasticsearch 클라이언트 라이브러리입니다. Elasticsearch 9.x Java API 클라이언트를 Kotlin DSL로 만들고, suspend 함수와 Flow 기반 파이프라인으로 비동기 작업을 다루기 쉽게 해줍니다.
 
 ## 특징
 
-- **Kotlin Coroutines 지원**: Elasticsearch 비동기 작업에 대한 완전한 suspend 함수 래퍼
-- **DSL 빌더 패턴**: ElasticsearchAsyncClient와 ElasticsearchClient 설정을 위한 유창한 문법
-- **고급 검색**: Point-in-Time(PIT) + search_after 페이징 및 Flow 기반 무한 스크롤
-- **일괄 작업**: Flow 백프레셔 지원과 함께 스트림 기반 일괄 인덱싱
-- **Virtual Thread 안전성**: 동기화 블록 없음, 필요시 ReentrantLock 사용
-- **Elasticsearch 9.x 호환**: Rest5ClientTransport(HC5 기반)를 기본값으로 사용
+- **Kotlin Coroutines 지원**: Elasticsearch 비동기 작업을 suspend 함수로 감쌉니다.
+- **DSL 빌더 패턴**: `ElasticsearchAsyncClient`와 `ElasticsearchClient`를 Kotlin DSL로 구성합니다.
+- **고급 검색**: Point-in-Time(PIT) + `search_after` 페이징을 Flow 기반 무한 스크롤로 제공합니다.
+- **일괄 작업**: Flow 백프레셔를 유지하면서 bulk indexing을 처리합니다.
+- **Virtual Thread 안전성**: `synchronized` 블록을 쓰지 않고, 필요한 경우 명시적 lock을 사용합니다.
+- **Elasticsearch 9.x 호환**: HC5 기반 `Rest5ClientTransport`를 기본 transport로 사용합니다.
 
 ## 아키텍처
 
-모듈은 클라이언트 구성, transport 설정, coroutine search/bulk 파이프라인을 분리합니다.
+이 모듈은 역할을 두 경계로 나눕니다. DSL/factory 코드는 ES 9.x의 `Rest5ClientTransport`로 공식 Elasticsearch Java 클라이언트를 만들고, coroutine 확장은 `ElasticsearchAsyncClient` 위에 suspend wrapper, PIT `search_after` streaming, bulk Flow 파이프라인을 얹습니다.
 
-![Elasticsearch Module Architecture diagram](../../docs/images/readme-diagrams/infra-elasticsearch-diagram-02.png)
+![Elasticsearch 모듈 아키텍처](../../docs/images/readme-diagrams/infra-elasticsearch-diagram-02.png)
 
 ## 설치
 
