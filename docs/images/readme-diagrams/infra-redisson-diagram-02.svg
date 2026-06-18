@@ -1,113 +1,126 @@
-<svg data-intent="Explain Redisson batch and transaction processing from source: batch queues commands and executes once, while transaction actions branch to commit on success or rollback and rethrow on failure, with suspend variants awaiting async Redisson APIs." data-evidence="infra/redisson/README.md; infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RedissonClientExtensions.kt; infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/coroutines/RedissonClientCoroutine.kt" data-source-read="infra/redisson/README.md; infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RedissonClientExtensions.kt; infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/coroutines/RedissonClientCoroutine.kt" data-layout="decision-flow" xmlns="http://www.w3.org/2000/svg" width="1600" height="1170" viewBox="0 0 1600 1170" role="img" aria-label="Batch and Transaction Processing Flow">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1700 1260">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-  </style>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
+    <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#203040" flood-opacity="0.10"/>
+  </filter>
+  <marker id="arrow" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M 1.5 1.5 L 11 6.5 L 1.5 11.5 Z" fill="context-stroke" stroke="context-stroke" stroke-width="1"/>
+  </marker>
+  <marker id="openArrow" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="context-stroke" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+  </marker>
 </defs>
-<rect class="canvas" width="1600" height="1170"/>
-<rect class="frame" x="34" y="30" width="1532" height="1110" rx="8"/>
-<text class="title" x="72" y="84">Batch and Transaction Processing Flow</text>
-<text class="subtitle" x="76" y="116">Batch reduces Redis round trips by executing queued commands once; transaction wrappers commit on normal exit and rollback before rethrowing on failure.</text>
-<g><rect class="panel" x="82" y="160" width="1436" height="180" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">DSL entrypoints</text></g>
-<g><rect class="panel" x="82" y="380" width="1436" height="220" rx="8"/><text class="panelTitle" x="110" y="416" dominant-baseline="middle">Batch: queue commands, execute once</text></g>
-<g><rect class="panel" x="82" y="670" width="1436" height="410" rx="8"/><text class="panelTitle" x="110" y="706" dominant-baseline="middle">Transaction: commit or rollback contract</text></g>
-<g id="syncDsl">
-  <rect class="card" x="150" y="220" width="330" height="76" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="315" y="251" text-anchor="middle" dominant-baseline="middle">Sync DSL</text>
-  <text class="detail" x="315" y="281" text-anchor="middle" dominant-baseline="middle">withBatch / withTransaction</text>
+<style>
+  text{font-family:"Architects Daughter","Comic Mono",monospace;letter-spacing:0;fill:#263447}
+  .canvas{fill:#F7FAFC}.frame{fill:#FFFFFF;stroke:#D5E0EA;stroke-width:3}
+  .title{font-size:47px;font-weight:700;fill:#172033}
+  .subtitle{font-family:"Comic Mono",monospace;font-size:19px;font-weight:700;fill:#526174}
+  .section rect{fill:#FFFFFF;stroke:#D5E0EA;stroke-width:2.4}
+  .sectionTitle{font-size:29px;font-weight:700}.sectionSub{font-family:"Comic Mono",monospace;font-size:15px;font-weight:700;fill:#66788D}
+  .card rect{filter:url(#shadow);stroke-width:3;fill:#FFFFFF}
+  .blue rect{fill:#EAF3FF;stroke:#3B82F6}.green rect{fill:#EAF9F0;stroke:#21A366}
+  .teal rect{fill:#E8FAF8;stroke:#139B91}.amber rect{fill:#FFF4D8;stroke:#D4860B}
+  .purple rect{fill:#F2EAFF;stroke:#8B5CF6}.pink rect{fill:#FFEAF1;stroke:#DB2777}
+  .gray rect{fill:#F4F6F8;stroke:#64748B}.orange rect{fill:#FFF0E4;stroke:#F05A1A}
+  .cardTitle{font-size:27px;font-weight:700}.cardBody{font-family:"Comic Mono",monospace;font-size:15px;font-weight:700;fill:#526174}
+  .decision polygon{filter:url(#shadow);fill:#FFF7ED;stroke:#F05A1A;stroke-width:3}
+  .edge{fill:none;stroke:#344052;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+  .edgeBlue{fill:none;stroke:#2563EB;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+  .edgeGreen{fill:none;stroke:#15803D;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+  .edgeTeal{fill:none;stroke:#0F8B87;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+  .edgeAmber{fill:none;stroke:#C47A00;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+  .edgePink{fill:none;stroke:#BE185D;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+  .edgeDashed{fill:none;stroke:#BE185D;stroke-width:3.8;stroke-dasharray:11 8;stroke-linecap:round;stroke-linejoin:round}
+  .labelBg{fill:#FFFFFF;stroke:#D6E3EF;stroke-width:1.4}.edgeLabel{font-family:"Comic Mono",monospace;font-size:14px;font-weight:700;fill:#526174}
+  .note{font-family:"Comic Mono",monospace;font-size:15px;font-weight:700;fill:#526174}
+</style>
+<rect class="canvas" width="1700" height="1260"/>
+<rect class="frame" x="36" y="36" width="1628" height="1188" rx="22"/>
+<text class="title" x="84" y="96">Batch and Transaction Processing Flow</text>
+<text class="subtitle" x="86" y="132">Batch queues commands and executes once; transaction commits on normal exit and rolls back before rethrowing failures.</text>
+<g class="section">
+<rect x="88" y="188" width="700" height="960" rx="22"/>
+<text class="sectionTitle" x="122" y="236">Batch DSL</text>
+<text class="sectionSub" x="122" y="268">Same command path for sync and suspend variants.</text>
 </g>
-<g id="suspendDsl">
-  <rect class="card" x="610" y="220" width="360" height="76" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="790" y="251" text-anchor="middle" dominant-baseline="middle">Suspend DSL</text>
-  <text class="detail" x="790" y="281" text-anchor="middle" dominant-baseline="middle">withSuspendedBatch / Transaction</text>
+<g class="section">
+<rect x="912" y="188" width="700" height="960" rx="22"/>
+<text class="sectionTitle" x="946" y="236">Transaction DSL</text>
+<text class="sectionSub" x="946" y="268">Same action contract; only commit/rollback call style differs.</text>
 </g>
-<g id="client">
-  <rect class="card" x="1110" y="220" width="320" height="76" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="1270" y="251" text-anchor="middle" dominant-baseline="middle">RedissonClient</text>
-  <text class="detail" x="1270" y="281" text-anchor="middle" dominant-baseline="middle">creates RBatch or RTransaction</text>
+<g id="batch-entry" class="card blue">
+<rect x="162" y="302" width="552" height="112" rx="18"/>
+<text class="cardTitle" x="438" y="341" text-anchor="middle">Batch entrypoints</text>
+<text class="cardBody" x="438" y="376" text-anchor="middle">withBatch / withSuspendedBatch</text>
+<text class="cardBody" x="438" y="401" text-anchor="middle">receiver: RBatch</text>
 </g>
-<g id="batchDsl">
-  <rect class="card" x="135" y="460" width="320" height="86" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="295" y="496" text-anchor="middle" dominant-baseline="middle">withBatch block</text>
-  <text class="detail" x="295" y="526" text-anchor="middle" dominant-baseline="middle">action receiver: RBatch</text>
+<g id="batch-create" class="card green">
+<rect x="218" y="486" width="440" height="104" rx="18"/>
+<text class="cardTitle" x="438" y="525" text-anchor="middle">createBatch(options)</text>
+<text class="cardBody" x="438" y="560" text-anchor="middle">RedissonClient creates RBatch</text>
 </g>
-<g id="rbatch">
-  <rect class="card" x="545" y="460" width="320" height="86" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="705" y="487" text-anchor="middle" dominant-baseline="middle">RBatch</text>
-  <text class="detail" x="705" y="517" text-anchor="middle" dominant-baseline="middle">queues Redis commands</text>
-  <text class="detail" x="705" y="535" text-anchor="middle" dominant-baseline="middle">BatchOptions</text>
+<g id="batch-action" class="card teal">
+<rect x="218" y="666" width="440" height="104" rx="18"/>
+<text class="cardTitle" x="438" y="705" text-anchor="middle">action(RBatch)</text>
+<text class="cardBody" x="438" y="740" text-anchor="middle">queue async Redis commands</text>
 </g>
-<g id="execute">
-  <rect class="card" x="945" y="460" width="320" height="86" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="1105" y="496" text-anchor="middle" dominant-baseline="middle">execute</text>
-  <text class="detail" x="1105" y="526" text-anchor="middle" dominant-baseline="middle">execute() or executeAsync().await()</text>
+<g id="batch-execute" class="card amber">
+<rect x="218" y="842" width="440" height="104" rx="18"/>
+<text class="cardTitle" x="438" y="881" text-anchor="middle">execute once</text>
+<text class="cardBody" x="438" y="916" text-anchor="middle">execute()</text>
+<text class="cardBody" x="438" y="941" text-anchor="middle">or executeAsync().await()</text>
 </g>
-<g id="batchResult">
-  <rect class="card" x="1320" y="460" width="170" height="86" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1405" y="487" text-anchor="middle" dominant-baseline="middle">BatchResult</text>
-  <text class="detail" x="1405" y="517" text-anchor="middle" dominant-baseline="middle">one RTT</text>
-  <text class="detail" x="1405" y="535" text-anchor="middle" dominant-baseline="middle">result list</text>
+<g id="batch-result" class="card orange">
+<rect x="506" y="962" width="214" height="82" rx="18"/>
+<text class="cardTitle" x="613" y="1001" text-anchor="middle">BatchResult</text>
+<text class="cardBody" x="613" y="1036" text-anchor="middle">one Redis round trip</text>
 </g>
-<g id="txDsl">
-  <rect class="card" x="135" y="790" width="320" height="86" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="295" y="826" text-anchor="middle" dominant-baseline="middle">withTransaction block</text>
-  <text class="detail" x="295" y="856" text-anchor="middle" dominant-baseline="middle">action receiver: RTransaction</text>
+<path class="edgeBlue" d="M 438 414 L 438 486" marker-end="url(#arrow)"/>
+<path class="edgeGreen" d="M 438 590 L 438 666" marker-end="url(#arrow)"/>
+<path class="edgeTeal" d="M 438 770 L 438 842" marker-end="url(#arrow)"/>
+<path class="edgeAmber" d="M 658 894 L 714 894 L 714 962" marker-end="url(#arrow)"/>
+<g id="tx-entry" class="card purple">
+<rect x="972" y="302" width="552" height="112" rx="18"/>
+<text class="cardTitle" x="1248" y="341" text-anchor="middle">Transaction entrypoints</text>
+<text class="cardBody" x="1248" y="376" text-anchor="middle">withTransaction / withSuspendedTransaction</text>
+<text class="cardBody" x="1248" y="401" text-anchor="middle">receiver: RTransaction</text>
 </g>
-<g id="rtx">
-  <rect class="card" x="475" y="790" width="300" height="86" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="625" y="817" text-anchor="middle" dominant-baseline="middle">RTransaction</text>
-  <text class="detail" x="625" y="847" text-anchor="middle" dominant-baseline="middle">createTransaction</text>
-  <text class="detail" x="625" y="865" text-anchor="middle" dominant-baseline="middle">TransactionOptions</text>
+<g id="tx-create" class="card green">
+<rect x="1028" y="486" width="440" height="104" rx="18"/>
+<text class="cardTitle" x="1248" y="525" text-anchor="middle">createTransaction(options)</text>
+<text class="cardBody" x="1248" y="560" text-anchor="middle">RedissonClient creates RTransaction</text>
 </g>
-<g id="throws">
-  <polygon class="card card-shape" points="930,770 1040,833 930,896 820,833" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="930" y="825" text-anchor="middle" dominant-baseline="middle">action throws?</text>
-  <text class="detail" x="930" y="854" text-anchor="middle" dominant-baseline="middle">normal exit vs exception</text>
+<g id="tx-action" class="card teal">
+<rect x="1028" y="666" width="440" height="104" rx="18"/>
+<text class="cardTitle" x="1248" y="705" text-anchor="middle">action(RTransaction)</text>
+<text class="cardBody" x="1248" y="740" text-anchor="middle">run caller commands</text>
 </g>
-<g id="commit">
-  <rect class="card" x="1060" y="730" width="300" height="76" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="1210" y="761" text-anchor="middle" dominant-baseline="middle">Commit path</text>
-  <text class="detail" x="1210" y="791" text-anchor="middle" dominant-baseline="middle">commit / commitAsync().await()</text>
+<g id="tx-decision" class="decision">
+<polygon points="1248,803 1373,864 1248,925 1123,864"/>
+<text class="cardTitle" x="1248" y="858" text-anchor="middle">action throws?</text>
+<text class="cardBody" x="1248" y="884" text-anchor="middle">normal vs exception</text>
 </g>
-<g id="callerOutcome">
-  <rect class="card" x="1150" y="840" width="300" height="70" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="1300" y="859" text-anchor="middle" dominant-baseline="middle">Caller outcome</text>
-  <text class="detail" x="1300" y="889" text-anchor="middle" dominant-baseline="middle">success result</text>
-  <text class="detail" x="1300" y="907" text-anchor="middle" dominant-baseline="middle">or original error</text>
+<g id="tx-commit" class="card green">
+<rect x="974" y="960" width="326" height="108" rx="18"/>
+<text class="cardTitle" x="1137" y="999" text-anchor="middle">Commit path</text>
+<text class="cardBody" x="1137" y="1034" text-anchor="middle">commit or commitAsync</text>
+<text class="cardBody" x="1137" y="1059" text-anchor="middle">returns success</text>
 </g>
-<g id="rollback">
-  <rect class="card" x="1060" y="950" width="300" height="76" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1210" y="981" text-anchor="middle" dominant-baseline="middle">Rollback path</text>
-  <text class="detail" x="1210" y="1011" text-anchor="middle" dominant-baseline="middle">rollback then rethrow</text>
+<g id="tx-rollback" class="card pink">
+<rect x="1368" y="960" width="262" height="108" rx="18"/>
+<text class="cardTitle" x="1499" y="999" text-anchor="middle">Rollback path</text>
+<text class="cardBody" x="1499" y="1034" text-anchor="middle">rollback attempt</text>
+<text class="cardBody" x="1499" y="1059" text-anchor="middle">rethrow original</text>
 </g>
-<text class="detail" x="1088" y="742" text-anchor="middle" dominant-baseline="middle">no</text>
-<text class="detail" x="1078" y="918" text-anchor="middle" dominant-baseline="middle">yes</text>
-<path class="route" data-from="syncDsl" data-to="client" d="M315 296 L315 330 L1270 330 L1270 296" stroke="#1D4ED8"/>
-<path class="route" data-from="suspendDsl" data-to="client" d="M970 258 L1110 258" stroke="#7E22CE"/>
-<path class="route" data-from="batchDsl" data-to="rbatch" d="M455 503 L545 503" stroke="#1D4ED8"/>
-<path class="route" data-from="rbatch" data-to="execute" d="M865 503 L945 503" stroke="#15803D"/>
-<path class="route" data-from="execute" data-to="batchResult" d="M1265 503 L1320 503" stroke="#0F766E"/>
-<path class="route" data-from="txDsl" data-to="rtx" d="M455 833 L475 833" stroke="#7E22CE"/>
-<path class="route" data-from="rtx" data-to="throws" d="M775 833 L820 833" stroke="#15803D"/>
-<path class="route" data-from="throws" data-to="commit" d="M1040 805 L1060 768" stroke="#0F766E"/>
-<path class="route dashed" data-from="throws" data-to="rollback" d="M1040 861 L1060 988" stroke="#BE185D"/>
-<path class="route" data-from="commit" data-to="callerOutcome" d="M1210 806 L1300 840" stroke="#0F766E"/>
-<path class="route dashed" data-from="rollback" data-to="callerOutcome" d="M1210 950 L1300 910" stroke="#BE185D"/>
+<path class="edgeBlue" d="M 1248 414 L 1248 486" marker-end="url(#arrow)"/>
+<path class="edgeGreen" d="M 1248 590 L 1248 666" marker-end="url(#arrow)"/>
+<path class="edgeTeal" d="M 1248 770 L 1248 803" marker-end="url(#arrow)"/>
+<path class="edgeGreen" d="M 1123 864 L 1123 922 L 1137 922 L 1137 960" marker-end="url(#arrow)"/>
+<rect class="labelBg" x="1020" y="896" width="76" height="27" rx="8"/>
+<text class="edgeLabel" x="1058" y="914" text-anchor="middle">no</text>
+<path class="edgeDashed" d="M 1373 864 L 1499 864 L 1499 960" marker-end="url(#arrow)"/>
+<rect class="labelBg" x="1508" y="824" width="76" height="27" rx="8"/>
+<text class="edgeLabel" x="1546" y="842" text-anchor="middle">yes</text>
+<rect class="labelBg" x="210" y="1170" width="1280" height="40" rx="12"/>
+<text class="note" x="850" y="1195" text-anchor="middle">Batch sends queued commands at execute time; transaction rollback failures are ignored while the original failure is rethrown.</text>
 </svg>

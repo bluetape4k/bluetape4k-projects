@@ -1,157 +1,179 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1180" viewBox="0 0 1900 1180" role="img" aria-label="Redisson Codec Hierarchy">
-  <defs>
-    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
-      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/>
-    </filter>
-    <marker id="hollowNavy" markerWidth="18" markerHeight="16" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 16 8 L 2 14 Z" fill="#FFFFFF" stroke="#334155" stroke-width="2.3" stroke-linejoin="round"/>
-    </marker>
-    <marker id="openPurple" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#9333EA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </marker>
-    <marker id="openTeal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#0D9488" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </marker>
-    <marker id="openOrange" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#EA580C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </marker>
-    <style>
-      svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-      .canvas{fill:#F8FAFC}
-      .frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6;filter:url(#softShadow)}
-      .title{font-family:"Architects Daughter";font-size:50px;fill:#0F172A}
-      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#475569;font-weight:700}
-      .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6}
-      .panelTitle{font-family:"Architects Daughter";font-size:30px;fill:#0F172A}
-      .card{filter:url(#softShadow);stroke-width:2.2}
-      .base{fill:#F8FAFC;stroke:#64748B;stroke-dasharray:8 8}
-      .factory{fill:#EFF6FF;stroke:#2563EB}
-      .serializer{fill:#FAF5FF;stroke:#9333EA}
-      .compressor{fill:#F0FDFA;stroke:#0D9488}
-      .composite{fill:#FFF7ED;stroke:#EA580C}
-      .note{fill:#FDF2F8;stroke:#DB2777}
-      .name{font-family:"Architects Daughter";font-size:26px;fill:#0F172A}
-      .smallName{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}
-      .meta{font-family:"Comic Mono";font-size:14px;fill:#475569;font-weight:700}
-      .tiny{font-family:"Comic Mono";font-size:12px;fill:#475569;font-weight:700}
-      .extends{fill:none;stroke:#334155;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#hollowNavy)}
-      .uses{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 8}
-      .purple{stroke:#9333EA;marker-end:url(#openPurple)}
-      .teal{stroke:#0D9488;marker-end:url(#openTeal)}
-      .orange{stroke:#EA580C;marker-end:url(#openOrange)}
-    </style>
-  </defs>
-
-  <rect class="canvas" width="1900" height="1180"/>
-  <rect class="frame" x="36" y="34" width="1828" height="1112" rx="8"/>
-
-  <text class="title" x="82" y="100">Redisson Codec Hierarchy</text>
-  <text class="subtitle" x="86" y="134">Custom codecs extend Redisson BaseCodec; RedissonCodecs exposes serializer, compression, composite, and use-case factory selections.</text>
-
-  <g id="base-panel">
-    <rect class="panel" x="90" y="184" width="1720" height="176" rx="8"/>
-    <text class="panelTitle" x="124" y="230">Base types and factory object</text>
-  </g>
-  <g id="serializer-panel">
-    <rect class="panel" x="90" y="424" width="1720" height="296" rx="8"/>
-    <text class="panelTitle" x="124" y="470">Codecs</text>
-  </g>
-  <g id="factory-panel">
-    <rect class="panel" x="90" y="790" width="1720" height="250" rx="8"/>
-    <text class="panelTitle" x="124" y="836">RedissonCodecs selections</text>
-  </g>
-
-  <g id="codec-interface">
-    <rect class="card base" x="154" y="270" width="250" height="62" rx="8"/>
-    <text class="smallName" x="279" y="308" text-anchor="middle">Codec</text>
-  </g>
-  <g id="base-codec">
-    <rect class="card base" x="498" y="256" width="286" height="90" rx="8"/>
-    <text class="smallName" x="641" y="292" text-anchor="middle">BaseCodec</text>
-    <text class="meta" x="641" y="318" text-anchor="middle">valueEncoder / valueDecoder</text>
-  </g>
-  <g id="redisson-codecs">
-    <rect class="card factory" x="1034" y="246" width="376" height="110" rx="8"/>
-    <text class="name" x="1222" y="282" text-anchor="middle">RedissonCodecs</text>
-    <text class="meta" x="1222" y="312" text-anchor="middle">lazy constants and factory methods</text>
-    <text class="meta" x="1222" y="335" text-anchor="middle">forCache, forCacheMap, jackson3</text>
-  </g>
-  <g id="builtins">
-    <rect class="card base" x="1512" y="256" width="246" height="90" rx="8"/>
-    <text class="smallName" x="1635" y="292" text-anchor="middle">Redisson built-ins</text>
-    <text class="meta" x="1635" y="318" text-anchor="middle">Kryo5, JDK, String, numeric</text>
-  </g>
-
-  <g id="fory">
-    <rect class="card serializer" x="150" y="524" width="260" height="96" rx="8"/>
-    <text class="smallName" x="280" y="558" text-anchor="middle">ForyCodec</text>
-    <text class="meta" x="280" y="584" text-anchor="middle">Fory serializer</text>
-    <text class="meta" x="280" y="607" text-anchor="middle">fallback: Kryo5</text>
-  </g>
-  <g id="fast-fory">
-    <rect class="card serializer" x="444" y="524" width="260" height="96" rx="8"/>
-    <text class="smallName" x="574" y="558" text-anchor="middle">FastForyCodec</text>
-    <text class="meta" x="574" y="584" text-anchor="middle">SCHEMA_CONSISTENT</text>
-    <text class="meta" x="574" y="607" text-anchor="middle">volatile cache only</text>
-  </g>
-  <g id="jackson3">
-    <rect class="card serializer" x="738" y="524" width="260" height="96" rx="8"/>
-    <text class="smallName" x="868" y="558" text-anchor="middle">Jackson3Codec</text>
-    <text class="meta" x="868" y="584" text-anchor="middle">JSON envelope</text>
-    <text class="meta" x="868" y="607" text-anchor="middle">allowedPackagePrefixes</text>
-  </g>
-  <g id="fastjson2">
-    <rect class="card serializer" x="1032" y="524" width="260" height="96" rx="8"/>
-    <text class="smallName" x="1162" y="558" text-anchor="middle">Fastjson2Codec</text>
-    <text class="meta" x="1162" y="584" text-anchor="middle">className + JSONB</text>
-    <text class="meta" x="1162" y="607" text-anchor="middle">pre-instantiation check</text>
-  </g>
-  <g id="compressors">
-    <rect class="card compressor" x="1326" y="524" width="260" height="96" rx="8"/>
-    <text class="smallName" x="1456" y="558" text-anchor="middle">Compression wrappers</text>
-    <text class="meta" x="1456" y="584" text-anchor="middle">Lz4Codec, ZstdCodec</text>
-    <text class="meta" x="1456" y="607" text-anchor="middle">GzipCodec + innerCodec</text>
-  </g>
-  <g id="composite">
-    <rect class="card composite" x="150" y="654" width="1436" height="42" rx="8"/>
-    <text class="meta" x="868" y="681" text-anchor="middle">CompositeCodec combines String key codec with the chosen value codec for maps, sets, and local cached maps.</text>
-  </g>
-
-  <path class="extends" d="M 280 524 V 424 H 641 V 354"/>
-  <path class="extends" d="M 574 524 V 444 H 641 V 354"/>
-  <path class="extends" d="M 868 524 V 444 H 641 V 354"/>
-  <path class="extends" d="M 1162 524 V 444 H 641 V 354"/>
-  <path class="extends" d="M 1456 524 V 424 H 641 V 354"/>
-
-  <path class="uses purple" d="M 1410 302 H 1500"/>
-
-  <g id="raw-codecs">
-    <rect class="card serializer" x="150" y="876" width="306" height="96" rx="8"/>
-    <text class="smallName" x="303" y="910" text-anchor="middle">Serializer constants</text>
-    <text class="meta" x="303" y="936" text-anchor="middle">Fory, FastFory, Kryo5, Jdk</text>
-    <text class="meta" x="303" y="959" text-anchor="middle">Jackson3, Fastjson2</text>
-  </g>
-  <g id="compressed-codecs">
-    <rect class="card compressor" x="516" y="876" width="306" height="96" rx="8"/>
-    <text class="smallName" x="669" y="910" text-anchor="middle">Compressed constants</text>
-    <text class="meta" x="669" y="936" text-anchor="middle">LZ4*, Zstd*, Snappy*, Gzip*</text>
-    <text class="meta" x="669" y="959" text-anchor="middle">wrapper around serializer codec</text>
-  </g>
-  <g id="composite-codecs">
-    <rect class="card composite" x="882" y="876" width="306" height="96" rx="8"/>
-    <text class="smallName" x="1035" y="910" text-anchor="middle">Composite constants</text>
-    <text class="meta" x="1035" y="936" text-anchor="middle">String key + value codec</text>
-    <text class="meta" x="1035" y="959" text-anchor="middle">for RMap / RLocalCachedMap</text>
-  </g>
-  <g id="usecase-codecs">
-    <rect class="card factory" x="1248" y="876" width="346" height="96" rx="8"/>
-    <text class="smallName" x="1421" y="910" text-anchor="middle">Use-case factories</text>
-    <text class="meta" x="1421" y="936" text-anchor="middle">forCache, forSmallValue, forArchival</text>
-    <text class="meta" x="1421" y="959" text-anchor="middle">forHighThroughput, forCompatibility</text>
-  </g>
-
-  <g id="warning-note">
-    <rect class="card note" x="404" y="1068" width="1092" height="46" rx="8"/>
-    <text class="meta" x="950" y="1096" text-anchor="middle">FastFory wire format is not readable by ForyCodec; JSON codecs need allowed prefixes outside trusted internal Redis boundaries.</text>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1900 1320">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
+    <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#203040" flood-opacity="0.10"/>
+  </filter>
+  <marker id="arrow" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M 1.5 1.5 L 11 6.5 L 1.5 11.5 Z" fill="context-stroke" stroke="context-stroke" stroke-width="1"/>
+  </marker>
+  <marker id="openArrow" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="context-stroke" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+  </marker>
+</defs>
+<style>
+  text{font-family:"Architects Daughter","Comic Mono",monospace;letter-spacing:0;fill:#263447}
+  .canvas{fill:#F7FAFC}
+  .frame{fill:#FFFFFF;stroke:#D5E0EA;stroke-width:3}
+  .title{font-size:48px;font-weight:700;fill:#172033}
+  .subtitle{font-family:"Comic Mono",monospace;font-size:20px;font-weight:700;fill:#526174}
+  .section rect{fill:#FFFFFF;stroke:#D5E0EA;stroke-width:2.4}
+  .sectionTitle{font-size:28px;font-weight:700;fill:#263447}
+  .sectionSub{font-family:"Comic Mono",monospace;font-size:15px;font-weight:700;fill:#66788D}
+  .card rect{filter:url(#shadow);stroke-width:3;fill:#FFFFFF}
+  .blue rect{fill:#EAF3FF;stroke:#3B82F6}.green rect{fill:#EAF9F0;stroke:#21A366}
+  .teal rect{fill:#E8FAF8;stroke:#139B91}.amber rect{fill:#FFF4D8;stroke:#D4860B}
+  .purple rect{fill:#F2EAFF;stroke:#8B5CF6}.pink rect{fill:#FFEAF1;stroke:#DB2777}
+  .gray rect{fill:#F4F6F8;stroke:#64748B}.orange rect{fill:#FFF0E4;stroke:#F05A1A}
+  .cardTitle{font-size:27px;font-weight:700}.cardBody{font-family:"Comic Mono",monospace;font-size:15px;font-weight:700;fill:#526174}
+  .note{font-family:"Comic Mono",monospace;font-size:16px;font-weight:700;fill:#526174}
+  .edge{fill:none;stroke:#344052;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+  .edgeBlue{fill:none;stroke:#2563EB;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+  .edgeGreen{fill:none;stroke:#15803D;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+  .edgeTeal{fill:none;stroke:#0F8B87;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+  .edgeAmber{fill:none;stroke:#C47A00;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+  .edgePink{fill:none;stroke:#BE185D;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+  .edgeDashed{fill:none;stroke:#7C3AED;stroke-width:3.6;stroke-dasharray:10 8;stroke-linecap:round;stroke-linejoin:round}
+  .labelBg{fill:#FFFFFF;stroke:#D6E3EF;stroke-width:1.4}.edgeLabel{font-family:"Comic Mono",monospace;font-size:14px;font-weight:700;fill:#526174}
+</style>
+<rect class="canvas" width="1900" height="1320"/>
+<rect class="frame" x="36" y="36" width="1828" height="1248" rx="22"/>
+<text class="title" x="84" y="96">Redisson Codec Selection Map</text>
+<text class="subtitle" x="86" y="132">Read this as a selection model: Default is Fory, compression is opt-in, and map codecs use CompositeCodec.</text>
+<g id="factory" class="card blue">
+<rect x="760" y="184" width="380" height="118" rx="18"/>
+<text class="cardTitle" x="950" y="222" text-anchor="middle">RedissonCodecs</text>
+<text class="cardBody" x="950" y="256" text-anchor="middle">lazy constants</text>
+<text class="cardBody" x="950" y="281" text-anchor="middle">use-case factories</text>
+</g>
+<g class="section">
+<rect x="90" y="360" width="410" height="760" rx="20"/>
+<text class="sectionTitle" x="124" y="408">Serializers</text>
+<text class="sectionSub" x="124" y="440">Raw value codecs exposed as constants.</text>
+</g>
+<g class="section">
+<rect x="530" y="360" width="410" height="760" rx="20"/>
+<text class="sectionTitle" x="564" y="408">Compression</text>
+<text class="sectionSub" x="564" y="440">Wrappers around a selected value codec.</text>
+</g>
+<g class="section">
+<rect x="970" y="360" width="410" height="760" rx="20"/>
+<text class="sectionTitle" x="1004" y="408">Map composition</text>
+<text class="sectionSub" x="1004" y="440">String key codec plus value codec.</text>
+</g>
+<g class="section">
+<rect x="1410" y="360" width="400" height="760" rx="20"/>
+<text class="sectionTitle" x="1444" y="408">Use-case factories</text>
+<text class="sectionSub" x="1444" y="440">Reader-facing names return source constants.</text>
+</g>
+<g id="default" class="card green">
+<rect x="135" y="458" width="320" height="112" rx="18"/>
+<text class="cardTitle" x="295" y="496" text-anchor="middle">Default = Fory</text>
+<text class="cardBody" x="295" y="530" text-anchor="middle">plain Fory</text>
+<text class="cardBody" x="295" y="555" text-anchor="middle">fallback: Kryo5</text>
+</g>
+<g id="fastfory" class="card purple">
+<rect x="135" y="616" width="320" height="126" rx="18"/>
+<text class="cardTitle" x="295" y="654" text-anchor="middle">FastFory</text>
+<text class="cardBody" x="295" y="688" text-anchor="middle">faster schema mode</text>
+<text class="cardBody" x="295" y="713" text-anchor="middle">volatile cache only</text>
+</g>
+<g id="json" class="card amber">
+<rect x="135" y="796" width="320" height="126" rx="18"/>
+<text class="cardTitle" x="295" y="834" text-anchor="middle">JSON codecs</text>
+<text class="cardBody" x="295" y="868" text-anchor="middle">Jackson3 / Fastjson2</text>
+<text class="cardBody" x="295" y="893" text-anchor="middle">safe factories allow-list</text>
+</g>
+<g id="builtin" class="card gray">
+<rect x="135" y="968" width="320" height="104" rx="18"/>
+<text class="cardTitle" x="295" y="1006" text-anchor="middle">Built-ins</text>
+<text class="cardBody" x="295" y="1040" text-anchor="middle">Kryo5, JDK</text>
+<text class="cardBody" x="295" y="1065" text-anchor="middle">String, numeric</text>
+</g>
+<g id="wrap" class="card teal">
+<rect x="570" y="458" width="330" height="118" rx="18"/>
+<text class="cardTitle" x="735" y="496" text-anchor="middle">Wrapper classes</text>
+<text class="cardBody" x="735" y="530" text-anchor="middle">Lz4Codec, ZstdCodec</text>
+<text class="cardBody" x="735" y="555" text-anchor="middle">GzipCodec</text>
+</g>
+<g id="snappy" class="card teal">
+<rect x="570" y="632" width="330" height="112" rx="18"/>
+<text class="cardTitle" x="735" y="670" text-anchor="middle">SnappyCodecV2</text>
+<text class="cardBody" x="735" y="704" text-anchor="middle">Redisson wrapper</text>
+<text class="cardBody" x="735" y="729" text-anchor="middle">same value-codec idea</text>
+</g>
+<g id="compressed" class="card teal">
+<rect x="570" y="816" width="330" height="136" rx="18"/>
+<text class="cardTitle" x="735" y="854" text-anchor="middle">Compressed constants</text>
+<text class="cardBody" x="735" y="888" text-anchor="middle">LZ4Fory / ZstdFory</text>
+<text class="cardBody" x="735" y="913" text-anchor="middle">Snappy* / Gzip*</text>
+</g>
+<g id="compression-note" class="card pink">
+<rect x="570" y="990" width="330" height="92" rx="18"/>
+<text class="cardTitle" x="735" y="1028" text-anchor="middle">Opt-in compression</text>
+<text class="cardBody" x="735" y="1062" text-anchor="middle">choose it explicitly</text>
+</g>
+<g id="composite" class="card orange">
+<rect x="1010" y="458" width="330" height="120" rx="18"/>
+<text class="cardTitle" x="1175" y="496" text-anchor="middle">CompositeCodec</text>
+<text class="cardBody" x="1175" y="530" text-anchor="middle">String key codec</text>
+<text class="cardBody" x="1175" y="555" text-anchor="middle">value codec twice</text>
+</g>
+<g id="mapvalue" class="card orange">
+<rect x="1010" y="650" width="330" height="126" rx="18"/>
+<text class="cardTitle" x="1175" y="688" text-anchor="middle">Map constants</text>
+<text class="cardBody" x="1175" y="722" text-anchor="middle">ForyComposite</text>
+<text class="cardBody" x="1175" y="747" text-anchor="middle">LZ4ForyComposite</text>
+</g>
+<g id="near" class="card teal">
+<rect x="1010" y="850" width="330" height="136" rx="18"/>
+<text class="cardTitle" x="1175" y="888" text-anchor="middle">NearCache default</text>
+<text class="cardBody" x="1175" y="922" text-anchor="middle">RedissonNearCache</text>
+<text class="cardBody" x="1175" y="947" text-anchor="middle">uses LZ4Fory</text>
+</g>
+<g id="general" class="card green">
+<rect x="1452" y="444" width="320" height="76" rx="18"/>
+<text class="cardTitle" x="1612" y="482" text-anchor="middle">forGeneral()</text>
+<text class="cardBody" x="1612" y="516" text-anchor="middle">Fory</text>
+</g>
+<g id="small" class="card gray">
+<rect x="1452" y="532" width="320" height="76" rx="18"/>
+<text class="cardTitle" x="1612" y="570" text-anchor="middle">forSmallValue()</text>
+<text class="cardBody" x="1612" y="604" text-anchor="middle">Kryo5</text>
+</g>
+<g id="cache" class="card teal">
+<rect x="1452" y="620" width="320" height="82" rx="18"/>
+<text class="cardTitle" x="1612" y="658" text-anchor="middle">forCache()</text>
+<text class="cardBody" x="1612" y="692" text-anchor="middle">LZ4Fory; value cache</text>
+</g>
+<g id="cachemap" class="card orange">
+<rect x="1452" y="718" width="320" height="82" rx="18"/>
+<text class="cardTitle" x="1612" y="756" text-anchor="middle">forCacheMap()</text>
+<text class="cardBody" x="1612" y="790" text-anchor="middle">LZ4ForyComposite</text>
+</g>
+<g id="high" class="card purple">
+<rect x="1452" y="816" width="320" height="88" rx="18"/>
+<text class="cardTitle" x="1612" y="854" text-anchor="middle">forHighThroughput()</text>
+<text class="cardBody" x="1612" y="888" text-anchor="middle">LZ4FastFory; volatile only</text>
+</g>
+<g id="archive" class="card amber">
+<rect x="1452" y="922" width="320" height="76" rx="18"/>
+<text class="cardTitle" x="1612" y="960" text-anchor="middle">forArchival()</text>
+<text class="cardBody" x="1612" y="994" text-anchor="middle">ZstdFory</text>
+</g>
+<g id="compat" class="card gray">
+<rect x="1452" y="1010" width="320" height="76" rx="18"/>
+<text class="cardTitle" x="1612" y="1048" text-anchor="middle">forCompatibility()</text>
+<text class="cardBody" x="1612" y="1082" text-anchor="middle">JDK</text>
+</g>
+<path id="p-to-serial" class="edgeGreen" d="M 840 302 L 840 330 L 295 330 L 295 458" marker-end="url(#arrow)"/>
+<path id="p-to-compression" class="edgeTeal" d="M 900 302 L 900 330 L 735 330 L 735 458" marker-end="url(#arrow)"/>
+<path id="p-to-composite" class="edgeAmber" d="M 960 302 L 960 330 L 1175 330 L 1175 458" marker-end="url(#arrow)"/>
+<path id="p-to-usecase" class="edgeBlue" d="M 1020 302 L 1020 330 L 1790 330 L 1790 482 L 1772 482" marker-end="url(#arrow)"/>
+<path id="p-fory-wrap" class="edgeTeal" d="M 455 514 L 570 514" marker-end="url(#openArrow)"/>
+<path id="p-fast-wrap" class="edgeDashed" d="M 455 678 L 515 678 L 515 690 L 570 690" marker-end="url(#openArrow)"/>
+<path id="p-wrap-out" class="edgeTeal" d="M 735 576 L 735 816" marker-end="url(#arrow)"/>
+<path id="p-composite-map" class="edgeAmber" d="M 1175 578 L 1175 650" marker-end="url(#arrow)"/>
+<path id="p-map-near" class="edgeTeal" d="M 1175 776 L 1175 850" marker-end="url(#arrow)"/>
+<rect class="labelBg" x="132" y="1148" width="1636" height="42" rx="12"/>
+<text class="note" x="950" y="1175" text-anchor="middle">FastFory can read legacy Fory through fallback, but Fory cannot read FastFory data; keep FastFory for volatile caches.</text>
 </svg>

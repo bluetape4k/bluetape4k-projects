@@ -39,9 +39,9 @@ dependencies {
 
 ## 아키텍처 다이어그램
 
-### Codec 계층 구조
+### Codec 선택 맵
 
-![Codec diagram](../../docs/images/readme-diagrams/infra-redisson-diagram-01.png)
+![Codec 선택 맵 다이어그램](../../docs/images/readme-diagrams/infra-redisson-diagram-01.png)
 
 ### NearCache 2-Tier 캐시 흐름
 
@@ -106,7 +106,7 @@ singleServerConfig:
 
 | 상수                            | 직렬화                    | 압축   | 설명                          |
 |---------------------------------|------------------------|------|-------------------------------|
-| `RedissonCodecs.Default`        | Fory (fallback: Kryo5) | LZ4  | 기본값. 빠른 속도와 압축 균형             |
+| `RedissonCodecs.Default`        | Fory (fallback: Kryo5) | 없음   | 범용 기본 Codec                   |
 | `RedissonCodecs.Fory`           | Fory                   | 없음   | Fory 직렬화만 사용                   |
 | `RedissonCodecs.Kryo5`          | Kryo5                  | 없음   | Kryo5 직렬화만 사용                  |
 | `RedissonCodecs.LZ4`            | Default                | LZ4  | LZ4 압축 래핑                     |
@@ -135,7 +135,7 @@ import io.bluetape4k.redis.redisson.codec.Lz4Codec
 
 val client = redissonClient {
     useSingleServer().address = "redis://localhost:6379"
-    codec = RedissonCodecs.Default   // Fory + LZ4 조합
+    codec = RedissonCodecs.Default   // 압축 없는 Fory
 }
 
 // JSON 기반 Codec — 사람이 읽을 수 있는 저장 형식

@@ -40,9 +40,9 @@ dependencies {
 
 ## Architecture Diagrams
 
-### Codec Hierarchy
+### Codec Selection Map
 
-![Codec Hierarchy diagram](../../docs/images/readme-diagrams/infra-redisson-diagram-01.png)
+![Codec Selection Map diagram](../../docs/images/readme-diagrams/infra-redisson-diagram-01.png)
 
 ### NearCache 2-Tier Cache Flow
 
@@ -107,7 +107,7 @@ High-performance codecs are available in the `io.bluetape4k.redis.redisson.codec
 
 | Constant                        | Serializer             | Compression | Description                             |
 |---------------------------------|------------------------|-------------|-----------------------------------------|
-| `RedissonCodecs.Default`        | Fory (fallback: Kryo5) | LZ4         | Default. Balances speed and compression |
+| `RedissonCodecs.Default`        | Fory (fallback: Kryo5) | None        | Default general-purpose codec           |
 | `RedissonCodecs.Fory`           | Fory                   | None        | Fory serialization only                 |
 | `RedissonCodecs.Kryo5`          | Kryo5                  | None        | Kryo5 serialization only                |
 | `RedissonCodecs.LZ4`            | Default                | LZ4         | LZ4 compression wrapper                 |
@@ -136,7 +136,7 @@ import io.bluetape4k.redis.redisson.codec.Lz4Codec
 
 val client = redissonClient {
     useSingleServer().address = "redis://localhost:6379"
-    codec = RedissonCodecs.Default   // Fory + LZ4 combination
+    codec = RedissonCodecs.Default   // Fory without compression
 }
 
 // JSON-based codecs for human-readable storage
