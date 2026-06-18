@@ -148,17 +148,17 @@ dependencies {
 
 ## 다이어그램
 
-### 분산 Primitive 클래스 계층
+### 분산 Primitive API 패밀리
 
-![분산 Primitive 클래스 계층 다이어그램](../../docs/images/readme-diagrams/infra-lettuce-diagram-01.png)
+![분산 Primitive API 패밀리 다이어그램](../../docs/images/readme-diagrams/infra-lettuce-diagram-01.png)
 
 ### LettuceLoadedMap Read-Through / Write-Through 흐름
 
 ![LettuceLoadedMap Read-Through / Write-Through 흐름 다이어그램](../../docs/images/readme-diagrams/infra-lettuce-sequence-01.png)
 
-### LettuceBinaryCodec 계층
+### Lettuce Codec API 구조
 
-![LettuceBinaryCodec 계층 다이어그램](../../docs/images/readme-diagrams/infra-lettuce-diagram-02.png)
+![Lettuce Codec API 구조 다이어그램](../../docs/images/readme-diagrams/infra-lettuce-diagram-02.png)
 
 ## 사용 예시
 

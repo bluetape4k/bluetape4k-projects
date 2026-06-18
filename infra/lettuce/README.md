@@ -150,17 +150,17 @@ dependencies {
 
 ## Diagrams
 
-### Distributed Primitive Class Hierarchy
+### Distributed Primitive API Families
 
-![Distributed Primitive Class Hierarchy diagram](../../docs/images/readme-diagrams/infra-lettuce-diagram-01.png)
+![Distributed Primitive API Families diagram](../../docs/images/readme-diagrams/infra-lettuce-diagram-01.png)
 
 ### LettuceLoadedMap Read-Through / Write-Through Flow
 
 ![LettuceLoadedMap Read-Through / Write-Through Flow diagram](../../docs/images/readme-diagrams/infra-lettuce-sequence-01.png)
 
-### LettuceBinaryCodec Hierarchy
+### Lettuce Codec API Structure
 
-![LettuceBinaryCodec Hierarchy diagram](../../docs/images/readme-diagrams/infra-lettuce-diagram-02.png)
+![Lettuce Codec API Structure diagram](../../docs/images/readme-diagrams/infra-lettuce-diagram-02.png)
 
 ## Usage Examples
 

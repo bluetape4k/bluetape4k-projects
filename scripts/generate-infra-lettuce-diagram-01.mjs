@@ -1,4 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1060" viewBox="0 0 1500 1060" role="img" aria-label="Lettuce distributed primitive API families">
+#!/usr/bin/env node
+
+import { writeFileSync } from "node:fs";
+
+const out = "docs/images/readme-diagrams/infra-lettuce-diagram-01.svg";
+
+const svg = String.raw`<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1060" viewBox="0 0 1500 1060" role="img" aria-label="Lettuce distributed primitive API families">
   <defs>
     <filter id="shadow" x="-8%" y="-10%" width="116%" height="124%">
       <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
@@ -153,4 +159,7 @@
   <path class="dep" d="M 816 625 H 946" stroke="#0d9488" marker-end="url(#openTeal)"/>
   <path class="dep" d="M 816 758 H 946" stroke="#0d9488" marker-end="url(#openTeal)"/>
 
-</svg>
+</svg>`;
+
+writeFileSync(out, `${svg}\n`);
+console.log(`wrote ${out}`);

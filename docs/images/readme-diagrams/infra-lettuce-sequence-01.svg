@@ -1,49 +1,147 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1870" height="1646" viewBox="0 0 1870 1646" role="img" aria-label="LettuceLoadedMap Read-Through / Write-Through Flow">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
-  <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
-  </style>
-</defs>
-<rect class="canvas" width="1870" height="1646"/>
-<rect class="frame" x="32" y="28" width="1806" height="1590" rx="30"/>
-<text class="title" x="68" y="84">LettuceLoadedMap Read-Through / Write-Through Flow</text>
-<text class="subtitle" x="72" y="116">Shows the main calls, branches, and returned values for this flow.</text>
-<g id="seq-client"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">Client</text><line class="lifeline" x1="255" y1="248" x2="255" y2="1562"/></g>
-<g id="seq-lettuceloadedmap"><rect class="card" x="480" y="170" width="230" height="78" rx="10" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="595" y="215" text-anchor="middle">LettuceLoadedMap</text><line class="lifeline" x1="595" y1="248" x2="595" y2="1562"/></g>
-<g id="seq-redis"><rect class="card" x="820" y="170" width="230" height="78" rx="10" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="935" y="215" text-anchor="middle">Redis</text><line class="lifeline" x1="935" y1="248" x2="935" y2="1562"/></g>
-<g id="seq-maploader"><rect class="card" x="1160" y="170" width="230" height="78" rx="10" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="1275" y="215" text-anchor="middle">MapLoader</text><line class="lifeline" x1="1275" y1="248" x2="1275" y2="1562"/></g>
-<g id="seq-mapwriter"><rect class="card" x="1500" y="170" width="230" height="78" rx="10" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1615" y="215" text-anchor="middle">MapWriter</text><line class="lifeline" x1="1615" y1="248" x2="1615" y2="1562"/></g>
-<rect x="247" y="322" width="16" height="1168" rx="5" fill="#E8F3FF" stroke="#5B8DEF" stroke-width="1.4"/>
-<rect x="587" y="322" width="16" height="1168" rx="5" fill="#EAF7EF" stroke="#58A978" stroke-width="1.4"/>
-<rect x="927" y="398" width="16" height="1016" rx="5" fill="#E9F7F6" stroke="#45A7A1" stroke-width="1.4"/>
-<rect x="1267" y="550" width="16" height="104" rx="5" fill="#FFF3D9" stroke="#D6A441" stroke-width="1.4"/>
-<rect x="1607" y="1234" width="16" height="104" rx="5" fill="#FDECEF" stroke="#DC6B82" stroke-width="1.4"/>
-<g id="m1"><rect class="labelPill" x="320" y="287" width="210" height="26" rx="7"/><circle cx="339" cy="300" r="12" fill="#4F83BF"/><text class="detail" x="339" y="301" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">1</text><text class="detail" x="443" y="301" text-anchor="middle" dominant-baseline="middle">get(key)</text><path class="seq" d="M255 330 L595 330" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
-<g id="m2"><rect class="labelPill" x="660" y="363" width="210" height="26" rx="7"/><circle cx="679" cy="376" r="12" fill="#3E9868"/><text class="detail" x="679" y="377" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">2</text><text class="detail" x="783" y="377" text-anchor="middle" dominant-baseline="middle">GET prefix:key</text><path class="seq" d="M595 406 L935 406" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
-<g id="m3"><rect class="labelPill" x="657" y="439" width="216.1" height="26" rx="7"/><circle cx="676" cy="452" r="12" fill="#2E8F89"/><text class="detail" x="676" y="453" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">3</text><text class="detail" x="783" y="453" text-anchor="middle" dominant-baseline="middle">null (cache miss)</text><path class="seqReturn" d="M935 482 L595 482" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m4"><rect class="labelPill" x="830" y="515" width="210" height="26" rx="7"/><circle cx="849" cy="528" r="12" fill="#B9851B"/><text class="detail" x="849" y="529" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">4</text><text class="detail" x="953" y="529" text-anchor="middle" dominant-baseline="middle">load(key)</text><path class="seq" d="M595 558 L1275 558" stroke="#B9851B" marker-end="url(#seqArrow-amber)"/></g>
-<g id="m5"><rect class="labelPill" x="830" y="591" width="210" height="26" rx="7"/><circle cx="849" cy="604" r="12" fill="#2E8F89"/><text class="detail" x="849" y="605" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">5</text><text class="detail" x="953" y="605" text-anchor="middle" dominant-baseline="middle">value</text><path class="seqReturn" d="M1275 634 L595 634" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m6"><rect class="labelPill" x="624.1" y="667" width="281.8" height="26" rx="7"/><circle cx="643.1" cy="680" r="12" fill="#2E8F89"/><text class="detail" x="643.1" y="681" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">6</text><text class="detail" x="783" y="681" text-anchor="middle" dominant-baseline="middle">SETEX prefix:key value ttl</text><path class="seqReturn" d="M595 710 L935 710" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m7"><rect class="labelPill" x="320" y="743" width="210" height="26" rx="7"/><circle cx="339" cy="756" r="12" fill="#2E8F89"/><text class="detail" x="339" y="757" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">7</text><text class="detail" x="443" y="757" text-anchor="middle" dominant-baseline="middle">value</text><path class="seqReturn" d="M595 786 L255 786" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m8"><rect class="labelPill" x="320" y="819" width="210" height="26" rx="7"/><circle cx="339" cy="832" r="12" fill="#3E9868"/><text class="detail" x="339" y="833" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">8</text><text class="detail" x="443" y="833" text-anchor="middle" dominant-baseline="middle">get(key)</text><path class="seq" d="M255 862 L595 862" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
-<g id="m9"><rect class="labelPill" x="660" y="895" width="210" height="26" rx="7"/><circle cx="679" cy="908" r="12" fill="#2E8F89"/><text class="detail" x="679" y="909" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">9</text><text class="detail" x="783" y="909" text-anchor="middle" dominant-baseline="middle">GET prefix:key</text><path class="seq" d="M595 938 L935 938" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m10"><rect class="labelPill" x="657" y="971" width="216.1" height="26" rx="7"/><circle cx="676" cy="984" r="12" fill="#2E8F89"/><text class="detail" x="676" y="985" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">10</text><text class="detail" x="783" y="985" text-anchor="middle" dominant-baseline="middle">value (cache hit)</text><path class="seqReturn" d="M935 1014 L595 1014" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m11"><rect class="labelPill" x="320" y="1047" width="210" height="26" rx="7"/><circle cx="339" cy="1060" r="12" fill="#2E8F89"/><text class="detail" x="339" y="1061" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">11</text><text class="detail" x="443" y="1061" text-anchor="middle" dominant-baseline="middle">value</text><path class="seqReturn" d="M595 1090 L255 1090" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m12"><rect class="labelPill" x="320" y="1123" width="210" height="26" rx="7"/><circle cx="339" cy="1136" r="12" fill="#2E8F89"/><text class="detail" x="339" y="1137" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">12</text><text class="detail" x="443" y="1137" text-anchor="middle" dominant-baseline="middle">set(key, value)</text><path class="seqReturn" d="M255 1166 L595 1166" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m13"><rect class="labelPill" x="989.7" y="1199" width="230.7" height="26" rx="7"/><circle cx="1008.7" cy="1212" r="12" fill="#2E8F89"/><text class="detail" x="1008.7" y="1213" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">13</text><text class="detail" x="1123" y="1213" text-anchor="middle" dominant-baseline="middle">write({key: value})</text><path class="seqReturn" d="M595 1242 L1615 1242" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m14"><rect class="labelPill" x="1000" y="1275" width="210" height="26" rx="7"/><circle cx="1019" cy="1288" r="12" fill="#2E8F89"/><text class="detail" x="1019" y="1289" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">14</text><text class="detail" x="1123" y="1289" text-anchor="middle" dominant-baseline="middle">ok</text><path class="seqReturn" d="M1615 1318 L595 1318" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m15"><rect class="labelPill" x="624.1" y="1351" width="281.8" height="26" rx="7"/><circle cx="643.1" cy="1364" r="12" fill="#2E8F89"/><text class="detail" x="643.1" y="1365" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">15</text><text class="detail" x="783" y="1365" text-anchor="middle" dominant-baseline="middle">SETEX prefix:key value ttl</text><path class="seqReturn" d="M595 1394 L935 1394" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m16"><rect class="labelPill" x="320" y="1427" width="210" height="26" rx="7"/><circle cx="339" cy="1440" r="12" fill="#2E8F89"/><text class="detail" x="339" y="1441" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">16</text><text class="detail" x="443" y="1441" text-anchor="middle" dominant-baseline="middle">ok</text><path class="seqReturn" d="M595 1470 L255 1470" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1840" viewBox="0 0 1760 1840" role="img" aria-labelledby="title desc">
+<title id="title">lettuce loaded map read-through and write-through flow</title>
+<desc id="desc">LettuceLoadedMap reads Redis first, loads missing values through MapLoader, caches them with TTL, and writes through MapWriter before updating Redis.</desc>
+<defs><style>
+  .title{font-family:"Architects Daughter";font-size:42px;fill:#1F2937}
+  .subtitle,.msg,.role,.note,.footer{font-family:"Comic Mono";fill:#52616B}
+  .subtitle{font-size:18px}.participant{font-family:"Architects Daughter";font-size:22px;fill:#1F2937}
+  .role{font-size:13px}.msg{font-size:14px}.note{font-size:13px}.footer{font-size:14px;fill:#60727d}
+  .frame{fill:#FEFEFC;stroke:#546E7A;stroke-width:2.5}.inner{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2}
+  .lifeline{stroke:#A8B8C8;stroke-width:2;stroke-dasharray:8 8}
+  .activation{rx:6;stroke-width:1.6}.pill{fill:#FFFFFF;stroke-width:1.5}.badge{font-family:"Comic Mono";font-size:12px;font-weight:700;fill:#FFFFFF}
+  .alt{fill:#FFFFFF;fill-opacity:.58;stroke:#78909C;stroke-width:2.6;stroke-dasharray:12 8}
+</style></defs>
+<rect x="24" y="24" width="1712" height="1792" rx="22" class="frame"/>
+<text x="880" y="78" text-anchor="middle" class="title">LettuceLoadedMap Read-Through / Write-Through Flow</text>
+<text x="880" y="110" text-anchor="middle" class="subtitle">Misses load through MapLoader; WRITE_THROUGH persists through MapWriter before Redis SET EX.</text>
+<rect x="58" y="140" width="1644" height="1638" rx="18" class="inner"/>
+<rect x="95" y="160" width="205" height="78" rx="12" fill="#DBEAFE" stroke="#3B82F6" stroke-width="2.4"/>
+<text x="197.5" y="190" text-anchor="middle" class="participant">Client</text>
+<text x="197.5" y="216" text-anchor="middle" class="role">map user</text>
+<line x1="197.5" y1="238" x2="197.5" y2="1710" class="lifeline"/>
+<rect x="385" y="160" width="270" height="78" rx="12" fill="#DCFCE7" stroke="#22C55E" stroke-width="2.4"/>
+<text x="520" y="190" text-anchor="middle" class="participant">LettuceLoadedMap</text>
+<text x="520" y="216" text-anchor="middle" class="role">read/write-through</text>
+<line x1="520" y1="238" x2="520" y2="1710" class="lifeline"/>
+<rect x="740" y="160" width="220" height="78" rx="12" fill="#FEE2E2" stroke="#DC2626" stroke-width="2.4"/>
+<text x="850" y="190" text-anchor="middle" class="participant">Redis</text>
+<text x="850" y="216" text-anchor="middle" class="role">TTL cache</text>
+<line x1="850" y1="238" x2="850" y2="1710" class="lifeline"/>
+<rect x="1045" y="160" width="225" height="78" rx="12" fill="#FEF3C7" stroke="#D97706" stroke-width="2.4"/>
+<text x="1157.5" y="190" text-anchor="middle" class="participant">MapLoader</text>
+<text x="1157.5" y="216" text-anchor="middle" class="role">load on miss</text>
+<line x1="1157.5" y1="238" x2="1157.5" y2="1710" class="lifeline"/>
+<rect x="1360" y="160" width="245" height="78" rx="12" fill="#F3E8FF" stroke="#8B5CF6" stroke-width="2.4"/>
+<text x="1482.5" y="190" text-anchor="middle" class="participant">MapWriter</text>
+<text x="1482.5" y="216" text-anchor="middle" class="role">write-through DB</text>
+<line x1="1482.5" y1="238" x2="1482.5" y2="1710" class="lifeline"/>
+<rect x="512" y="302" width="16" height="1436" rx="6" fill="#DCFCE7" stroke="#22C55E" class="activation"/>
+<rect x="842" y="372" width="16" height="1314" rx="6" fill="#FEE2E2" stroke="#DC2626" class="activation"/>
+<rect x="1149.5" y="615" width="16" height="118" rx="6" fill="#FEF3C7" stroke="#D97706" class="activation"/>
+<rect x="1474.5" y="1445" width="16" height="105" rx="6" fill="#F3E8FF" stroke="#8B5CF6" class="activation"/>
+<rect x="90" y="280" width="1580" height="590" rx="15" class="alt"/>
+<rect x="116" y="306" width="260" height="30" rx="15" fill="#F0FDF4" stroke="#2F9E6B" stroke-width="1.6"/>
+<text x="138" y="326" class="note">read-through miss</text>
+<marker id="arrow1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#4F83BF" stroke="#4F83BF" stroke-dasharray="none"/></marker>
+<path d="M 208.5 385 L 509 385" fill="none" stroke="#4F83BF" stroke-width="3.2" marker-end="url(#arrow1)"/>
+<rect x="260" y="334" width="170" height="34" rx="17" class="pill" stroke="#4F83BF"/>
+<circle cx="284" cy="351" r="13" fill="#4F83BF"/>
+<text x="284" y="355" text-anchor="middle" class="badge">1</text>
+<text x="308" y="356" class="msg" fill="#4F83BF">get(key)</text>
+<marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C15A5A" stroke="#C15A5A" stroke-dasharray="none"/></marker>
+<path d="M 531 470 L 839 470" fill="none" stroke="#C15A5A" stroke-width="3.2" marker-end="url(#arrow2)"/>
+<rect x="590" y="419" width="215" height="34" rx="17" class="pill" stroke="#C15A5A"/>
+<circle cx="614" cy="436" r="13" fill="#C15A5A"/>
+<text x="614" y="440" text-anchor="middle" class="badge">2</text>
+<text x="638" y="441" class="msg" fill="#C15A5A">GET prefix:key</text>
+<marker id="arrow3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E9C9B" stroke="#2E9C9B" stroke-dasharray="none"/></marker>
+<path d="M 839 555 L 531 555" fill="none" stroke="#2E9C9B" stroke-width="2.8" stroke-dasharray="10 8" marker-end="url(#arrow3)"/>
+<rect x="608" y="504" width="150" height="34" rx="17" class="pill" stroke="#2E9C9B"/>
+<circle cx="632" cy="521" r="13" fill="#2E9C9B"/>
+<text x="632" y="525" text-anchor="middle" class="badge">3</text>
+<text x="656" y="526" class="msg" fill="#2E9C9B">null</text>
+<marker id="arrow4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#D08A2D" stroke="#D08A2D" stroke-dasharray="none"/></marker>
+<path d="M 531 640 L 1146.5 640" fill="none" stroke="#D08A2D" stroke-width="3.2" marker-end="url(#arrow4)"/>
+<rect x="785" y="589" width="180" height="34" rx="17" class="pill" stroke="#D08A2D"/>
+<circle cx="809" cy="606" r="13" fill="#D08A2D"/>
+<text x="809" y="610" text-anchor="middle" class="badge">4</text>
+<text x="833" y="611" class="msg" fill="#D08A2D">load(key)</text>
+<marker id="arrow5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E9C9B" stroke="#2E9C9B" stroke-dasharray="none"/></marker>
+<path d="M 1146.5 725 L 531 725" fill="none" stroke="#2E9C9B" stroke-width="2.8" stroke-dasharray="10 8" marker-end="url(#arrow5)"/>
+<rect x="805" y="674" width="150" height="34" rx="17" class="pill" stroke="#2E9C9B"/>
+<circle cx="829" cy="691" r="13" fill="#2E9C9B"/>
+<text x="829" y="695" text-anchor="middle" class="badge">5</text>
+<text x="853" y="696" class="msg" fill="#2E9C9B">value</text>
+<marker id="arrow6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2F9E6B" stroke="#2F9E6B" stroke-dasharray="none"/></marker>
+<path d="M 531 790 L 839 790" fill="none" stroke="#2F9E6B" stroke-width="3.2" marker-end="url(#arrow6)"/>
+<rect x="520" y="739" width="310" height="34" rx="17" class="pill" stroke="#2F9E6B"/>
+<circle cx="544" cy="756" r="13" fill="#2F9E6B"/>
+<text x="544" y="760" text-anchor="middle" class="badge">6</text>
+<text x="568" y="761" class="msg" fill="#2F9E6B">SET prefix:key value EX ttl</text>
+<marker id="arrow7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E9C9B" stroke="#2E9C9B" stroke-dasharray="none"/></marker>
+<path d="M 509 850 L 208.5 850" fill="none" stroke="#2E9C9B" stroke-width="2.8" stroke-dasharray="10 8" marker-end="url(#arrow7)"/>
+<rect x="205" y="799" width="150" height="34" rx="17" class="pill" stroke="#2E9C9B"/>
+<circle cx="229" cy="816" r="13" fill="#2E9C9B"/>
+<text x="229" y="820" text-anchor="middle" class="badge">7</text>
+<text x="253" y="821" class="msg" fill="#2E9C9B">value</text>
+<rect x="90" y="930" width="1580" height="355" rx="15" class="alt"/>
+<rect x="116" y="956" width="245" height="30" rx="15" fill="#ECFEFF" stroke="#2E9C9B" stroke-width="1.6"/>
+<text x="138" y="976" class="note">read-through hit</text>
+<marker id="arrow8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#4F83BF" stroke="#4F83BF" stroke-dasharray="none"/></marker>
+<path d="M 208.5 1035 L 509 1035" fill="none" stroke="#4F83BF" stroke-width="3.2" marker-end="url(#arrow8)"/>
+<rect x="260" y="984" width="170" height="34" rx="17" class="pill" stroke="#4F83BF"/>
+<circle cx="284" cy="1001" r="13" fill="#4F83BF"/>
+<text x="284" y="1005" text-anchor="middle" class="badge">8</text>
+<text x="308" y="1006" class="msg" fill="#4F83BF">get(key)</text>
+<marker id="arrow9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C15A5A" stroke="#C15A5A" stroke-dasharray="none"/></marker>
+<path d="M 531 1120 L 839 1120" fill="none" stroke="#C15A5A" stroke-width="3.2" marker-end="url(#arrow9)"/>
+<rect x="590" y="1069" width="215" height="34" rx="17" class="pill" stroke="#C15A5A"/>
+<circle cx="614" cy="1086" r="13" fill="#C15A5A"/>
+<text x="614" y="1090" text-anchor="middle" class="badge">9</text>
+<text x="638" y="1091" class="msg" fill="#C15A5A">GET prefix:key</text>
+<marker id="arrow10" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E9C9B" stroke="#2E9C9B" stroke-dasharray="none"/></marker>
+<path d="M 839 1205 L 531 1205" fill="none" stroke="#2E9C9B" stroke-width="2.8" stroke-dasharray="10 8" marker-end="url(#arrow10)"/>
+<rect x="598" y="1154" width="150" height="34" rx="17" class="pill" stroke="#2E9C9B"/>
+<circle cx="622" cy="1171" r="13" fill="#2E9C9B"/>
+<text x="622" y="1175" text-anchor="middle" class="badge">10</text>
+<text x="646" y="1176" class="msg" fill="#2E9C9B">value</text>
+<marker id="arrow11" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E9C9B" stroke="#2E9C9B" stroke-dasharray="none"/></marker>
+<path d="M 509 1270 L 208.5 1270" fill="none" stroke="#2E9C9B" stroke-width="2.8" stroke-dasharray="10 8" marker-end="url(#arrow11)"/>
+<rect x="205" y="1219" width="150" height="34" rx="17" class="pill" stroke="#2E9C9B"/>
+<circle cx="229" cy="1236" r="13" fill="#2E9C9B"/>
+<text x="229" y="1240" text-anchor="middle" class="badge">11</text>
+<text x="253" y="1241" class="msg" fill="#2E9C9B">value</text>
+<rect x="90" y="1360" width="1580" height="400" rx="15" class="alt"/>
+<rect x="116" y="1386" width="305" height="30" rx="15" fill="#F3E8FF" stroke="#8B5CF6" stroke-width="1.6"/>
+<text x="138" y="1406" class="note">write-through set</text>
+<marker id="arrow12" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#4F83BF" stroke="#4F83BF" stroke-dasharray="none"/></marker>
+<path d="M 208.5 1460 L 509 1460" fill="none" stroke="#4F83BF" stroke-width="3.2" marker-end="url(#arrow12)"/>
+<rect x="430" y="1409" width="220" height="34" rx="17" class="pill" stroke="#4F83BF"/>
+<circle cx="454" cy="1426" r="13" fill="#4F83BF"/>
+<text x="454" y="1430" text-anchor="middle" class="badge">12</text>
+<text x="478" y="1431" class="msg" fill="#4F83BF">set(key, value)</text>
+<marker id="arrow13" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#8B5CF6" stroke="#8B5CF6" stroke-dasharray="none"/></marker>
+<path d="M 531 1530 L 1471.5 1530" fill="none" stroke="#8B5CF6" stroke-width="3.2" marker-end="url(#arrow13)"/>
+<rect x="900" y="1479" width="330" height="34" rx="17" class="pill" stroke="#8B5CF6"/>
+<circle cx="924" cy="1496" r="13" fill="#8B5CF6"/>
+<text x="924" y="1500" text-anchor="middle" class="badge">13</text>
+<text x="948" y="1501" class="msg" fill="#8B5CF6">write(mapOf(key to value))</text>
+<marker id="arrow14" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E9C9B" stroke="#2E9C9B" stroke-dasharray="none"/></marker>
+<path d="M 1471.5 1600 L 531 1600" fill="none" stroke="#2E9C9B" stroke-width="2.8" stroke-dasharray="10 8" marker-end="url(#arrow14)"/>
+<rect x="895" y="1549" width="150" height="34" rx="17" class="pill" stroke="#2E9C9B"/>
+<circle cx="919" cy="1566" r="13" fill="#2E9C9B"/>
+<text x="919" y="1570" text-anchor="middle" class="badge">14</text>
+<text x="943" y="1571" class="msg" fill="#2E9C9B">ok</text>
+<marker id="arrow15" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2F9E6B" stroke="#2F9E6B" stroke-dasharray="none"/></marker>
+<path d="M 531 1665 L 839 1665" fill="none" stroke="#2F9E6B" stroke-width="3.2" marker-end="url(#arrow15)"/>
+<rect x="520" y="1614" width="310" height="34" rx="17" class="pill" stroke="#2F9E6B"/>
+<circle cx="544" cy="1631" r="13" fill="#2F9E6B"/>
+<text x="544" y="1635" text-anchor="middle" class="badge">15</text>
+<text x="568" y="1636" class="msg" fill="#2F9E6B">SET prefix:key value EX ttl</text>
+<marker id="arrow16" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E9C9B" stroke="#2E9C9B" stroke-dasharray="none"/></marker>
+<path d="M 509 1725 L 208.5 1725" fill="none" stroke="#2E9C9B" stroke-width="2.8" stroke-dasharray="10 8" marker-end="url(#arrow16)"/>
+<rect x="205" y="1674" width="140" height="34" rx="17" class="pill" stroke="#2E9C9B"/>
+<circle cx="229" cy="1691" r="13" fill="#2E9C9B"/>
+<text x="229" y="1695" text-anchor="middle" class="badge">16</text>
+<text x="253" y="1696" class="msg" fill="#2E9C9B">ok</text>
 </svg>
