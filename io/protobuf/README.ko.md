@@ -10,17 +10,17 @@ Google Protocol Buffers 메시지 처리를 위한 Kotlin 확장 라이브러리
 
 ## 아키텍처
 
-### 타입 변환 클래스 구조
+### Protobuf 클래스 구조
 
-![protobuf Class Structure diagram](../../docs/images/readme-diagrams/io-protobuf-diagram-01.png)
+![Protobuf 클래스 구조 다이어그램](../../docs/images/readme-diagrams/io-protobuf-diagram-01.png)
 
 ### Protobuf 타입 변환 흐름
 
-![Protobuf diagram](../../docs/images/readme-diagrams/io-protobuf-diagram-02.png)
+![Protobuf 타입 변환 흐름 다이어그램](../../docs/images/readme-diagrams/io-protobuf-diagram-02.png)
 
-### 직렬화 시퀀스
+### ProtobufSerializer 허용 목록 시퀀스
 
-![protobuf Sequence Flow 3 diagram](../../docs/images/readme-diagrams/io-protobuf-sequence-01.png)
+![ProtobufSerializer 허용 목록 검증 시퀀스 다이어그램](../../docs/images/readme-diagrams/io-protobuf-sequence-01.png)
 
 ## 주요 기능
 
