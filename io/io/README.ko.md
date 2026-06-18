@@ -10,15 +10,15 @@
 
 ### Compressor 계층
 
-![Compressor diagram](../../docs/images/readme-diagrams/io-io-diagram-01.png)
+![Compressor 계층 다이어그램](../../docs/images/readme-diagrams/io-io-diagram-01.png)
 
 ### BinarySerializer 계층
 
-![BinarySerializer diagram](../../docs/images/readme-diagrams/io-io-diagram-02.png)
+![BinarySerializer 계층 다이어그램](../../docs/images/readme-diagrams/io-io-diagram-02.png)
 
 ### compress/decompress 흐름
 
-![compress/decompress diagram](../../docs/images/readme-diagrams/io-io-sequence-01.png)
+![compress/decompress 흐름 시퀀스 다이어그램](../../docs/images/readme-diagrams/io-io-sequence-01.png)
 
 `compress()`와 `decompress()`는 예외 전파 API입니다. null 또는 empty 입력은
 `emptyByteArray`를 반환하지만, 구현체 압축/복원 실패는 호출자에게 그대로 전파됩니다.
@@ -27,7 +27,7 @@
 
 ### serialize/deserialize 흐름
 
-![serialize/deserialize diagram](../../docs/images/readme-diagrams/io-io-sequence-02.png)
+![serialize/deserialize 흐름 시퀀스 다이어그램](../../docs/images/readme-diagrams/io-io-sequence-02.png)
 
 ## 주요 기능
 
