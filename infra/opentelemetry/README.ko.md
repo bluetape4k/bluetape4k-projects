@@ -20,19 +20,19 @@
 
 ### OpenTelemetry 핵심 클래스 구조
 
-![OpenTelemetry diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-01.png)
+![OpenTelemetry 핵심 클래스 구조 다이어그램](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-01.png)
 
 ### OpenTelemetry 구성 요소
 
-![OpenTelemetry diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-02.png)
+![OpenTelemetry 구성 요소 다이어그램](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-02.png)
 
 ### Span 생명주기 (Coroutines 환경)
 
-![Span (Coroutines ) diagram](../../docs/images/readme-diagrams/infra-opentelemetry-sequence-01.png)
+![Coroutine 환경의 Span 생명주기 시퀀스 다이어그램](../../docs/images/readme-diagrams/infra-opentelemetry-sequence-01.png)
 
 ### 분산 추적 전파 흐름
 
-![Distributed Trace Propagation diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-03.png)
+![분산 추적 전파 다이어그램](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-03.png)
 
 ## 의존성
 

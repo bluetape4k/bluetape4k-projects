@@ -1,177 +1,138 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-label="OpenTelemetry Component Overview">
-  <defs>
-    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
-      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/>
-    </filter>
-    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 820" width="1360" height="820">
+<style>
+  text { font-family: 'Architects Daughter', 'Comic Mono', 'Comic Sans MS', sans-serif; letter-spacing: 0; }
+</style>
+<defs>
+  <marker id="arrow-blue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none"/>
     </marker>
-    <marker id="arrowPurple" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#9333EA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<marker id="arrow-green" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#16a34a" stroke="#16a34a" stroke-width="0" stroke-dasharray="none"/>
     </marker>
-    <marker id="arrowTeal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#0D9488" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<marker id="arrow-purple" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#9333ea" stroke="#9333ea" stroke-width="0" stroke-dasharray="none"/>
     </marker>
-    <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<marker id="arrow-orange" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none"/>
     </marker>
-    <marker id="arrowOrange" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#EA580C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<marker id="arrow-teal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#0d9488" stroke="#0d9488" stroke-width="0" stroke-dasharray="none"/>
     </marker>
-    <style>
-      svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-      .canvas{fill:#F8FAFC}
-      .frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6;filter:url(#softShadow)}
-      .title{font-family:"Architects Daughter";font-size:50px;fill:#0F172A}
-      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#475569;font-weight:700}
-      .lane{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6}
-      .laneTitle{font-family:"Architects Daughter";font-size:28px;fill:#0F172A}
-      .card{filter:url(#softShadow);stroke-width:2.2}
-      .app{fill:#EFF6FF;stroke:#2563EB}
-      .trace{fill:#FAF5FF;stroke:#9333EA}
-      .flow{fill:#F0FDFA;stroke:#0D9488}
-      .metric{fill:#F0FDF4;stroke:#16A34A}
-      .web{fill:#FFF7ED;stroke:#EA580C}
-      .sdk{fill:#F8FAFC;stroke:#64748B;stroke-dasharray:8 8}
-      .note{fill:#FDF2F8;stroke:#DB2777}
-      .name{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}
-      .smallName{font-family:"Architects Daughter";font-size:21px;fill:#0F172A}
-      .meta{font-family:"Comic Mono";font-size:14px;fill:#475569;font-weight:700}
-      .tiny{font-family:"Comic Mono";font-size:12px;fill:#475569;font-weight:700}
-      .line{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
-      .blue{stroke:#2563EB;marker-end:url(#arrowBlue)}
-      .purple{stroke:#9333EA;marker-end:url(#arrowPurple)}
-      .teal{stroke:#0D9488;marker-end:url(#arrowTeal)}
-      .green{stroke:#16A34A;marker-end:url(#arrowGreen)}
-      .orange{stroke:#EA580C;marker-end:url(#arrowOrange)}
-    </style>
-  </defs>
-
-  <rect class="canvas" width="1800" height="1080"/>
-  <rect class="frame" x="36" y="34" width="1728" height="1012" rx="8"/>
-
-  <text class="title" x="82" y="100">OpenTelemetry Component Overview</text>
-  <text class="subtitle" x="86" y="134">Startup DSLs, span wrappers, coroutine propagation, and exporter helpers stay thin over the OpenTelemetry SDK.</text>
-
-  <g id="app-column">
-    <rect class="lane" x="88" y="194" width="354" height="736" rx="8"/>
-    <text class="laneTitle" x="120" y="238">Application entry</text>
-  </g>
-  <g id="helper-column">
-    <rect class="lane" x="514" y="194" width="354" height="736" rx="8"/>
-    <text class="laneTitle" x="546" y="238">Kotlin helper layer</text>
-  </g>
-  <g id="sdk-column">
-    <rect class="lane" x="940" y="194" width="354" height="736" rx="8"/>
-    <text class="laneTitle" x="972" y="238">OTel SDK layer</text>
-  </g>
-  <g id="output-column">
-    <rect class="lane" x="1366" y="194" width="354" height="736" rx="8"/>
-    <text class="laneTitle" x="1398" y="238">Runtime output</text>
-  </g>
-
-  <g id="app-start">
-    <rect class="card app" x="126" y="292" width="278" height="88" rx="8"/>
-    <text class="smallName" x="265" y="326" text-anchor="middle">Startup config</text>
-    <text class="meta" x="265" y="352" text-anchor="middle">provider + propagators</text>
-  </g>
-  <g id="helper-start">
-    <rect class="card app" x="552" y="292" width="278" height="88" rx="8"/>
-    <text class="smallName" x="691" y="326" text-anchor="middle">openTelemetrySdk*</text>
-    <text class="meta" x="691" y="352" text-anchor="middle">build or register global</text>
-  </g>
-  <g id="sdk-start">
-    <rect class="card sdk" x="978" y="292" width="278" height="88" rx="8"/>
-    <text class="smallName" x="1117" y="326" text-anchor="middle">OpenTelemetrySdk</text>
-    <text class="meta" x="1117" y="352" text-anchor="middle">tracer, meter, logger providers</text>
-  </g>
-  <g id="out-start">
-    <rect class="card app" x="1404" y="292" width="278" height="88" rx="8"/>
-    <text class="smallName" x="1543" y="326" text-anchor="middle">Process-wide SDK</text>
-    <text class="meta" x="1543" y="352" text-anchor="middle">local or GlobalOpenTelemetry</text>
-  </g>
-
-  <g id="app-trace">
-    <rect class="card trace" x="126" y="448" width="278" height="88" rx="8"/>
-    <text class="smallName" x="265" y="482" text-anchor="middle">Service operation</text>
-    <text class="meta" x="265" y="508" text-anchor="middle">blocking or suspend work</text>
-  </g>
-  <g id="helper-trace">
-    <rect class="card trace" x="552" y="448" width="278" height="88" rx="8"/>
-    <text class="smallName" x="691" y="482" text-anchor="middle">Span wrappers</text>
-    <text class="meta" x="691" y="508" text-anchor="middle">withSpan, useSpan, use</text>
-  </g>
-  <g id="sdk-trace">
-    <rect class="card sdk" x="978" y="448" width="278" height="88" rx="8"/>
-    <text class="smallName" x="1117" y="482" text-anchor="middle">TracerProvider</text>
-    <text class="meta" x="1117" y="508" text-anchor="middle">SpanBuilder + processors</text>
-  </g>
-  <g id="out-trace">
-    <rect class="card trace" x="1404" y="448" width="278" height="88" rx="8"/>
-    <text class="smallName" x="1543" y="482" text-anchor="middle">Finished spans</text>
-    <text class="meta" x="1543" y="508" text-anchor="middle">OK, ERROR, UNSET cancel</text>
-  </g>
-
-  <g id="app-flow">
-    <rect class="card flow" x="126" y="604" width="278" height="88" rx="8"/>
-    <text class="smallName" x="265" y="638" text-anchor="middle">Coroutine and Flow</text>
-    <text class="meta" x="265" y="664" text-anchor="middle">dispatcher changes, collect</text>
-  </g>
-  <g id="helper-flow">
-    <rect class="card flow" x="552" y="604" width="278" height="88" rx="8"/>
-    <text class="smallName" x="691" y="638" text-anchor="middle">Context propagation</text>
-    <text class="meta" x="691" y="664" text-anchor="middle">withOtelContext, traced*</text>
-  </g>
-  <g id="sdk-flow">
-    <rect class="card sdk" x="978" y="604" width="278" height="88" rx="8"/>
-    <text class="smallName" x="1117" y="638" text-anchor="middle">OTel Context</text>
-    <text class="meta" x="1117" y="664" text-anchor="middle">storeInContext + element</text>
-  </g>
-  <g id="out-flow">
-    <rect class="card flow" x="1404" y="604" width="278" height="88" rx="8"/>
-    <text class="smallName" x="1543" y="638" text-anchor="middle">Trace continuity</text>
-    <text class="meta" x="1543" y="664" text-anchor="middle">producer and consumer scopes</text>
-  </g>
-
-  <g id="app-metrics">
-    <rect class="card metric" x="126" y="760" width="278" height="88" rx="8"/>
-    <text class="smallName" x="265" y="794" text-anchor="middle">Metrics and HTTP</text>
-    <text class="meta" x="265" y="820" text-anchor="middle">meters, attrs, WebFlux</text>
-  </g>
-  <g id="helper-metrics">
-    <rect class="card metric" x="552" y="760" width="278" height="88" rx="8"/>
-    <text class="smallName" x="691" y="794" text-anchor="middle">DSL helpers</text>
-    <text class="meta" x="691" y="820" text-anchor="middle">attributes, readers, webfilter</text>
-  </g>
-  <g id="sdk-metrics">
-    <rect class="card sdk" x="978" y="760" width="278" height="88" rx="8"/>
-    <text class="smallName" x="1117" y="794" text-anchor="middle">Meters + instrumentation</text>
-    <text class="meta" x="1117" y="820" text-anchor="middle">readers, exporters, hooks</text>
-  </g>
-  <g id="out-metrics">
-    <rect class="card web" x="1404" y="760" width="278" height="88" rx="8"/>
-    <text class="smallName" x="1543" y="794" text-anchor="middle">Export and boundary</text>
-    <text class="meta" x="1543" y="820" text-anchor="middle">logging, in-memory, Boot 3</text>
-  </g>
-
-  <path class="line blue" d="M 404 336 H 544"/>
-  <path class="line blue" d="M 830 336 H 970"/>
-  <path class="line blue" d="M 1256 336 H 1396"/>
-
-  <path class="line purple" d="M 404 492 H 544"/>
-  <path class="line purple" d="M 830 492 H 970"/>
-  <path class="line purple" d="M 1256 492 H 1396"/>
-
-  <path class="line teal" d="M 404 648 H 544"/>
-  <path class="line teal" d="M 830 648 H 970"/>
-  <path class="line teal" d="M 1256 648 H 1396"/>
-
-  <path class="line green" d="M 404 804 H 544"/>
-  <path class="line green" d="M 830 804 H 970"/>
-  <path class="line orange" d="M 1256 804 H 1396"/>
-
-  <g id="warning-note">
-    <rect class="card note" x="432" y="972" width="936" height="44" rx="8"/>
-    <text class="meta" x="900" y="999" text-anchor="middle">Use the WebFlux helper once per ApplicationContext; reset Reactor hooks in isolated tests.</text>
-  </g>
+</defs>
+<rect width="1360" height="820" fill="#ffffff"/>
+<text x="680" y="43" fill="#111827" font-size="28" font-weight="700" text-anchor="middle">OpenTelemetry Component Overview</text>
+<text x="680" y="72" fill="#6b7280" font-size="14" font-weight="500" text-anchor="middle">Application instrumentation enters bluetape4k helpers, then the OTel SDK ships traces and metrics to exporters</text>
+<rect x="56" y="118" width="232" height="580" rx="16" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1.7"/>
+<text x="76" y="149" fill="#111827" font-size="15" font-weight="700" text-anchor="start">Application</text>
+<text x="76" y="171" fill="#6b7280" font-size="12" font-weight="500" text-anchor="start">instrumented code</text>
+<rect x="324" y="118" width="316" height="580" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.7"/>
+<text x="344" y="149" fill="#111827" font-size="15" font-weight="700" text-anchor="start">bluetape4k helpers</text>
+<text x="344" y="171" fill="#6b7280" font-size="12" font-weight="500" text-anchor="start">Kotlin DSL and lifecycle guards</text>
+<rect x="676" y="118" width="300" height="580" rx="16" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.7"/>
+<text x="696" y="149" fill="#111827" font-size="15" font-weight="700" text-anchor="start">OpenTelemetry SDK</text>
+<text x="696" y="171" fill="#6b7280" font-size="12" font-weight="500" text-anchor="start">providers, processors, readers</text>
+<rect x="1012" y="118" width="292" height="580" rx="16" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.7"/>
+<text x="1032" y="149" fill="#111827" font-size="15" font-weight="700" text-anchor="start">Export targets</text>
+<text x="1032" y="171" fill="#6b7280" font-size="12" font-weight="500" text-anchor="start">logging, memory, external backends</text>
+<g id="app">
+<rect x="86" y="214" width="172" height="138" rx="11" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.9"/>
+<text x="104" y="244" fill="#111827" font-size="16" font-weight="700" text-anchor="start">Service code</text>
+<text x="104" y="266" fill="#6b7280" font-size="12" font-weight="600" text-anchor="start">manual spans</text>
+<text x="104" y="292" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">Tracer.withSpan</text>
+<text x="104" y="310" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">Span.use</text>
+<text x="104" y="328" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">Flow.traced</text>
+</g>
+<g id="webflux">
+<rect x="86" y="464" width="172" height="118" rx="11" fill="#fef2f2" stroke="#fecaca" stroke-width="1.9"/>
+<text x="104" y="494" fill="#111827" font-size="16" font-weight="700" text-anchor="start">WebFlux app</text>
+<text x="104" y="516" fill="#6b7280" font-size="12" font-weight="600" text-anchor="start">legacy helper</text>
+<text x="104" y="542" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">createTracingWebFilter</text>
+<text x="104" y="560" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">registers Reactor hook</text>
+</g>
+<g id="helpers">
+<rect x="362" y="184" width="240" height="142" rx="11" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.9"/>
+<text x="380" y="214" fill="#111827" font-size="16" font-weight="700" text-anchor="start">Trace lifecycle helpers</text>
+<text x="380" y="236" fill="#6b7280" font-size="12" font-weight="600" text-anchor="start">blocking + suspend</text>
+<text x="380" y="262" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">set OK / ERROR</text>
+<text x="380" y="280" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">preserve cancellation</text>
+<text x="380" y="298" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">always end Span</text>
+</g>
+<g id="sdkdsl">
+<rect x="362" y="374" width="240" height="142" rx="11" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.9"/>
+<text x="380" y="404" fill="#111827" font-size="16" font-weight="700" text-anchor="start">SDK builder DSL</text>
+<text x="380" y="426" fill="#6b7280" font-size="12" font-weight="600" text-anchor="start">setup helpers</text>
+<text x="380" y="452" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">openTelemetrySdk</text>
+<text x="380" y="470" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">sdkTracerProvider</text>
+<text x="380" y="488" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">sdkMeterProvider</text>
+</g>
+<g id="attrs">
+<rect x="362" y="566" width="240" height="82" rx="11" fill="#faf5ff" stroke="#ddd6fe" stroke-width="1.9"/>
+<text x="380" y="596" fill="#111827" font-size="16" font-weight="700" text-anchor="start">Attribute DSL</text>
+<text x="380" y="624" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">attributes { } and Map.toAttributes()</text>
+</g>
+<g id="trace-sdk">
+<rect x="714" y="184" width="224" height="142" rx="11" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.9"/>
+<text x="732" y="214" fill="#111827" font-size="16" font-weight="700" text-anchor="start">Trace SDK</text>
+<text x="732" y="236" fill="#6b7280" font-size="12" font-weight="600" text-anchor="start">provider + processors</text>
+<text x="732" y="262" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">SdkTracerProvider</text>
+<text x="732" y="280" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">SimpleSpanProcessor</text>
+<text x="732" y="298" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">BatchSpanProcessor</text>
+</g>
+<g id="metric-sdk">
+<rect x="714" y="374" width="224" height="142" rx="11" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.9"/>
+<text x="732" y="404" fill="#111827" font-size="16" font-weight="700" text-anchor="start">Metric SDK</text>
+<text x="732" y="426" fill="#6b7280" font-size="12" font-weight="600" text-anchor="start">provider + readers</text>
+<text x="732" y="452" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">SdkMeterProvider</text>
+<text x="732" y="470" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">PeriodicMetricReader</text>
+<text x="732" y="488" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">InMemoryMetricReader</text>
+</g>
+<g id="context">
+<rect x="714" y="566" width="224" height="82" rx="11" fill="#faf5ff" stroke="#ddd6fe" stroke-width="1.9"/>
+<text x="732" y="596" fill="#111827" font-size="16" font-weight="700" text-anchor="start">Context bridge</text>
+<text x="732" y="624" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">Context.asContextElement for coroutines</text>
+</g>
+<g id="trace-export">
+<rect x="1048" y="184" width="218" height="142" rx="11" fill="#ffffff" stroke="#99f6e4" stroke-width="1.9"/>
+<text x="1066" y="214" fill="#111827" font-size="16" font-weight="700" text-anchor="start">Span exporters</text>
+<text x="1066" y="236" fill="#6b7280" font-size="12" font-weight="600" text-anchor="start">trace output</text>
+<text x="1066" y="262" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">LoggingSpanExporter</text>
+<text x="1066" y="280" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">SpanExporter.composite</text>
+<text x="1066" y="298" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">vararg export helper</text>
+</g>
+<g id="metric-export">
+<rect x="1048" y="374" width="218" height="142" rx="11" fill="#ffffff" stroke="#99f6e4" stroke-width="1.9"/>
+<text x="1066" y="404" fill="#111827" font-size="16" font-weight="700" text-anchor="start">Metric exporters</text>
+<text x="1066" y="426" fill="#6b7280" font-size="12" font-weight="600" text-anchor="start">metric output</text>
+<text x="1066" y="452" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">LoggingMetricExporter</text>
+<text x="1066" y="470" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">InMemoryMetricExporter</text>
+<text x="1066" y="488" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">reader-driven export</text>
+</g>
+<g id="external">
+<rect x="1048" y="566" width="218" height="82" rx="11" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.9"/>
+<text x="1066" y="596" fill="#111827" font-size="16" font-weight="700" text-anchor="start">External backend</text>
+<text x="1066" y="624" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">OTel collector or vendor exporter</text>
+<text x="1066" y="642" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start">configured by the application</text>
+</g>
+<path id="app-to-helpers" d="M 258 282 H 362" fill="none" stroke="#2563eb" stroke-width="3.4"  marker-end="url(#arrow-blue)" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="266" y="253" width="88" height="24" rx="7" fill="#ffffff" opacity="0.96"/>
+<text x="310" y="270" fill="#2563eb" font-size="12" font-weight="700" text-anchor="middle">manual API</text>
+<path id="helpers-to-trace" d="M 602 255 H 714" fill="none" stroke="#2563eb" stroke-width="3.4"  marker-end="url(#arrow-blue)" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="sdk-to-trace" d="M 602 429 H 658 V 306 H 714" fill="none" stroke="#16a34a" stroke-width="3.4"  marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="sdk-to-metric" d="M 602 445 H 714" fill="none" stroke="#16a34a" stroke-width="3.4"  marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="attrs-to-context" d="M 602 607 H 714" fill="none" stroke="#9333ea" stroke-width="3.4"  marker-end="url(#arrow-purple)" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="trace-to-export" d="M 938 255 H 1048" fill="none" stroke="#ea580c" stroke-width="3.4"  marker-end="url(#arrow-orange)" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="metric-to-export" d="M 938 445 H 1048" fill="none" stroke="#ea580c" stroke-width="3.4"  marker-end="url(#arrow-orange)" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="export-to-external" d="M 1157 516 V 566" fill="none" stroke="#0d9488" stroke-width="3.4"  marker-end="url(#arrow-teal)" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="webflux-to-sdk" d="M 258 540 H 676" fill="none" stroke="#ea580c" stroke-width="3" stroke-dasharray="7 5" marker-end="url(#arrow-orange)" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="410" y="511" width="116" height="24" rx="7" fill="#ffffff" opacity="0.96"/>
+<text x="468" y="528" fill="#ea580c" font-size="12" font-weight="700" text-anchor="middle">legacy WebFlux</text>
+<g transform="translate(84, 746)">
+<text x="0" y="0" fill="#111827" font-size="13" font-weight="700" text-anchor="start">Legend</text>
+<line x1="76" y1="-4" x2="118" y2="-4" stroke="#2563eb" stroke-width="3.4" marker-end="url(#arrow-blue)"/>
+<text x="132" y="0" fill="#6b7280" font-size="12" font-weight="600" text-anchor="start">span lifecycle</text>
+<line x1="278" y1="-4" x2="320" y2="-4" stroke="#16a34a" stroke-width="3.4" marker-end="url(#arrow-green)"/>
+<text x="334" y="0" fill="#6b7280" font-size="12" font-weight="600" text-anchor="start">SDK setup</text>
+<line x1="468" y1="-4" x2="510" y2="-4" stroke="#ea580c" stroke-width="3.0" stroke-dasharray="7 5" marker-end="url(#arrow-orange)"/>
+<text x="524" y="0" fill="#6b7280" font-size="12" font-weight="600" text-anchor="start">legacy/optional instrumentation</text>
+</g>
 </svg>

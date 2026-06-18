@@ -1,48 +1,118 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2890" height="1222" viewBox="0 0 2890 1222" role="img" aria-label="Span Lifecycle in a Coroutine Context">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
-  <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
-  </style>
-</defs>
-<rect class="canvas" width="2890" height="1222"/>
-<rect class="frame" x="32" y="28" width="2826" height="1166" rx="30"/>
-<text class="title" x="68" y="84">Span Lifecycle in a Coroutine Context</text>
-<text class="subtitle" x="72" y="116">Shows the main calls, branches, and returned values for this flow.</text>
-<g id="seq-application"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">Application</text><line class="lifeline" x1="255" y1="248" x2="255" y2="1138"/></g>
-<g id="seq-spanbuilder"><rect class="card" x="480" y="170" width="230" height="78" rx="10" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="595" y="215" text-anchor="middle">SpanBuilder</text><line class="lifeline" x1="595" y1="248" x2="595" y2="1138"/></g>
-<g id="seq-span"><rect class="card" x="820" y="170" width="230" height="78" rx="10" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="935" y="215" text-anchor="middle">Span</text><line class="lifeline" x1="935" y1="248" x2="935" y2="1138"/></g>
-<g id="seq-coroutinecontext"><rect class="card" x="1160" y="170" width="230" height="78" rx="10" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="1275" y="215" text-anchor="middle">CoroutineContext</text><line class="lifeline" x1="1275" y1="248" x2="1275" y2="1138"/></g>
-<g id="seq-child-work"><rect class="card" x="1500" y="170" width="230" height="78" rx="10" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1615" y="215" text-anchor="middle">Child Work</text><line class="lifeline" x1="1615" y1="248" x2="1615" y2="1138"/></g>
-<g id="seq-context"><rect class="card" x="1840" y="170" width="230" height="78" rx="10" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="1955" y="215" text-anchor="middle">Context</text><line class="lifeline" x1="1955" y1="248" x2="1955" y2="1138"/></g>
-<g id="seq-span"><rect class="card" x="2180" y="170" width="230" height="78" rx="10" fill="#F2F5F9" stroke="#9AA8B8"/><text class="cardTitle" x="2295" y="215" text-anchor="middle">Span</text><line class="lifeline" x1="2295" y1="248" x2="2295" y2="1138"/></g>
-<g id="seq-builder"><rect class="card" x="2520" y="170" width="230" height="78" rx="10" fill="#F2F5F9" stroke="#9AA8B8"/><text class="cardTitle" x="2635" y="215" text-anchor="middle">Builder</text><line class="lifeline" x1="2635" y1="248" x2="2635" y2="1138"/></g>
-<rect x="247" y="322" width="16" height="116" rx="5" fill="#E8F3FF" stroke="#5B8DEF" stroke-width="1.4"/>
-<rect x="587" y="322" width="16" height="204" rx="5" fill="#EAF7EF" stroke="#58A978" stroke-width="1.4"/>
-<rect x="2287" y="498" width="16" height="556" rx="5" fill="#E9F7F6" stroke="#45A7A1" stroke-width="1.4"/>
-<rect x="1267" y="586" width="16" height="292" rx="5" fill="#FFF3D9" stroke="#D6A441" stroke-width="1.4"/>
-<rect x="1607" y="674" width="16" height="116" rx="5" fill="#FDECEF" stroke="#DC6B82" stroke-width="1.4"/>
-<rect x="1947" y="762" width="16" height="52" rx="5" fill="#F1ECFF" stroke="#8A72D6" stroke-width="1.4"/>
-<rect x="2287" y="498" width="16" height="556" rx="5" fill="#F2F5F9" stroke="#9AA8B8" stroke-width="1.4"/>
-<rect x="2627" y="1026" width="16" height="52" rx="5" fill="#F2F5F9" stroke="#9AA8B8" stroke-width="1.4"/>
-<g id="m1"><rect class="labelPill" x="273.2" y="287" width="303.7" height="26" rx="7"/><circle cx="292.2" cy="300" r="12" fill="#4F83BF"/><text class="detail" x="292.2" y="301" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">1</text><text class="detail" x="443" y="301" text-anchor="middle" dominant-baseline="middle">tracer.spanBuilder(operation)</text><path class="seq" d="M255 330 L595 330" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
-<g id="m2"><rect class="labelPill" x="287.8" y="375" width="274.5" height="26" rx="7"/><circle cx="306.8" cy="388" r="12" fill="#3E9868"/><text class="detail" x="306.8" y="389" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">2</text><text class="detail" x="443" y="389" text-anchor="middle" dominant-baseline="middle">useSpanSuspending { ... }</text><path class="seq" d="M255 418 L595 418" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
-<g id="m3"><rect class="labelPill" x="1340" y="463" width="210" height="26" rx="7"/><circle cx="1359" cy="476" r="12" fill="#2E8F89"/><text class="detail" x="1359" y="477" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">3</text><text class="detail" x="1463" y="477" text-anchor="middle" dominant-baseline="middle">startSpan()</text><path class="seq" d="M595 506 L2295 506" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m4"><rect class="labelPill" x="1640.5" y="551" width="289.1" height="26" rx="7"/><circle cx="1659.5" cy="564" r="12" fill="#2E8F89"/><text class="detail" x="1659.5" y="565" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">4</text><text class="detail" x="1803" y="565" text-anchor="middle" dominant-baseline="middle">makeCurrent() / withContext</text><path class="seqReturn" d="M2295 594 L1275 594" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m5"><rect class="labelPill" x="1318.7" y="639" width="252.6" height="26" rx="7"/><circle cx="1337.7" cy="652" r="12" fill="#C94D68"/><text class="detail" x="1337.7" y="653" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">5</text><text class="detail" x="1463" y="653" text-anchor="middle" dominant-baseline="middle">Launch child coroutine</text><path class="seq" d="M1275 682 L1615 682" stroke="#C94D68" marker-end="url(#seqArrow-pink)"/></g>
-<g id="m6"><rect class="labelPill" x="1680" y="727" width="210" height="26" rx="7"/><circle cx="1699" cy="740" r="12" fill="#2E8F89"/><text class="detail" x="1699" y="741" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">6</text><text class="detail" x="1803" y="741" text-anchor="middle" dominant-baseline="middle">Return result</text><path class="seqReturn" d="M1615 770 L1955 770" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m7"><rect class="labelPill" x="1680" y="815" width="210" height="26" rx="7"/><circle cx="1699" cy="828" r="12" fill="#2E8F89"/><text class="detail" x="1699" y="829" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">7</text><text class="detail" x="1803" y="829" text-anchor="middle" dominant-baseline="middle">Block exits</text><path class="seqReturn" d="M1275 858 L2295 858" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m8"><rect class="labelPill" x="2405" y="903" width="210" height="26" rx="7"/><circle cx="2424" cy="916" r="12" fill="#3E9868"/><text class="detail" x="2424" y="917" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">8</text><text class="detail" x="2528" y="917" text-anchor="middle" dominant-baseline="middle">end()</text><path class="seq" d="M2295 946 L2385 946 L2385 974 L2313 974" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
-<g id="m9"><rect class="labelPill" x="2360" y="991" width="210" height="26" rx="7"/><circle cx="2379" cy="1004" r="12" fill="#2E8F89"/><text class="detail" x="2379" y="1005" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">9</text><text class="detail" x="2483" y="1005" text-anchor="middle" dominant-baseline="middle">Span finished</text><path class="seqReturn" d="M2295 1034 L2635 1034" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1380" viewBox="0 0 1680 1380" role="img" aria-labelledby="title desc">
+<title id="title">span lifecycle in coroutine context</title>
+<desc id="desc">Tracer.withSpan creates a SpanBuilder, starts one Span, installs it into the coroutine OpenTelemetry context, runs work, records completion or failure, and always ends the Span.</desc>
+<defs><style>
+  .title{font-family:"Architects Daughter";font-size:42px;fill:#1F2937}
+  .subtitle,.msg,.role,.note,.footer{font-family:"Comic Mono";fill:#52616B}
+  .subtitle{font-size:18px}.participant{font-family:"Architects Daughter";font-size:22px;fill:#1F2937}
+  .role{font-size:13px}.msg{font-size:14px}.note{font-size:13px}.footer{font-size:14px;fill:#60727d}
+  .frame{fill:#FEFEFC;stroke:#546E7A;stroke-width:2.5}.inner{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2}
+  .lifeline{stroke:#A8B8C8;stroke-width:2;stroke-dasharray:8 8}
+  .activation{rx:6;stroke-width:1.6}.pill{fill:#FFFFFF;stroke-width:1.5}.badge{font-family:"Comic Mono";font-size:12px;font-weight:700;fill:#FFFFFF}
+  .alt{fill:#FFFFFF;fill-opacity:.60;stroke:#78909C;stroke-width:2.6;stroke-dasharray:12 8}
+</style></defs>
+<rect x="24" y="24" width="1632" height="1332" rx="22" class="frame"/>
+<text x="840" y="78" text-anchor="middle" class="title">Span Lifecycle in a Coroutine Context</text>
+<text x="840" y="110" text-anchor="middle" class="subtitle">One Span is installed into coroutine OTel context, then ended after normal, cancelled, or failed work.</text>
+<rect x="58" y="140" width="1564" height="1168" rx="18" class="inner"/>
+<rect x="100" y="160" width="190" height="76" rx="12" fill="#DBEAFE" stroke="#3B82F6" stroke-width="2.4"/>
+<text x="195" y="190" text-anchor="middle" class="participant">Caller</text>
+<text x="195" y="214" text-anchor="middle" class="role">suspend service</text>
+<line x1="195" y1="236" x2="195" y2="1260" class="lifeline"/>
+<rect x="360" y="160" width="190" height="76" rx="12" fill="#DCFCE7" stroke="#22C55E" stroke-width="2.4"/>
+<text x="455" y="190" text-anchor="middle" class="participant">Tracer</text>
+<text x="455" y="214" text-anchor="middle" class="role">withSpan DSL</text>
+<line x1="455" y1="236" x2="455" y2="1260" class="lifeline"/>
+<rect x="620" y="160" width="210" height="76" rx="12" fill="#FEF3C7" stroke="#D97706" stroke-width="2.4"/>
+<text x="725" y="190" text-anchor="middle" class="participant">SpanBuilder</text>
+<text x="725" y="214" text-anchor="middle" class="role">configured span</text>
+<line x1="725" y1="236" x2="725" y2="1260" class="lifeline"/>
+<rect x="900" y="160" width="190" height="76" rx="12" fill="#CCFBF1" stroke="#14B8A6" stroke-width="2.4"/>
+<text x="995" y="190" text-anchor="middle" class="participant">Span</text>
+<text x="995" y="214" text-anchor="middle" class="role">status + end</text>
+<line x1="995" y1="236" x2="995" y2="1260" class="lifeline"/>
+<rect x="1160" y="160" width="210" height="76" rx="12" fill="#F3E8FF" stroke="#9333EA" stroke-width="2.4"/>
+<text x="1265" y="190" text-anchor="middle" class="participant">OTel Context</text>
+<text x="1265" y="214" text-anchor="middle" class="role">coroutine element</text>
+<line x1="1265" y1="236" x2="1265" y2="1260" class="lifeline"/>
+<rect x="1440" y="160" width="190" height="76" rx="12" fill="#FCE7F3" stroke="#DB2777" stroke-width="2.4"/>
+<text x="1535" y="190" text-anchor="middle" class="participant">Coroutine Work</text>
+<text x="1535" y="214" text-anchor="middle" class="role">user block</text>
+<line x1="1535" y1="236" x2="1535" y2="1260" class="lifeline"/>
+<rect x="447" y="300" width="16" height="862" rx="6" fill="#DCFCE7" stroke="#22C55E" class="activation"/>
+<rect x="717" y="382" width="16" height="125" rx="6" fill="#FEF3C7" stroke="#D97706" class="activation"/>
+<rect x="987" y="502" width="16" height="660" rx="6" fill="#CCFBF1" stroke="#14B8A6" class="activation"/>
+<rect x="1257" y="640" width="16" height="260" rx="6" fill="#F3E8FF" stroke="#9333EA" class="activation"/>
+<rect x="1527" y="720" width="16" height="130" rx="6" fill="#FCE7F3" stroke="#DB2777" class="activation"/>
+<marker id="arrow1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#4F83BF" stroke="#4F83BF" stroke-dasharray="none"/></marker>
+<path d="M 206 320 L 444 320" fill="none" stroke="#4F83BF" stroke-width="3.2" marker-end="url(#arrow1)"/>
+<rect x="190" y="269" width="300" height="34" rx="17" class="pill" stroke="#4F83BF"/>
+<circle cx="214" cy="286" r="13" fill="#4F83BF"/>
+<text x="214" y="290" text-anchor="middle" class="badge">1</text>
+<text x="238" y="291" class="msg" fill="#4F83BF">withSpan("operation") { ... }</text>
+<marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2F9E6B" stroke="#2F9E6B" stroke-dasharray="none"/></marker>
+<path d="M 466 410 L 714 410" fill="none" stroke="#2F9E6B" stroke-width="3.2" marker-end="url(#arrow2)"/>
+<rect x="465" y="359" width="330" height="34" rx="17" class="pill" stroke="#2F9E6B"/>
+<circle cx="489" cy="376" r="13" fill="#2F9E6B"/>
+<text x="489" y="380" text-anchor="middle" class="badge">2</text>
+<text x="513" y="381" class="msg" fill="#2F9E6B">spanBuilder(name).apply(configure)</text>
+<marker id="arrow3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#D08A2D" stroke="#D08A2D" stroke-dasharray="none"/></marker>
+<path d="M 736 520 L 984 520" fill="none" stroke="#D08A2D" stroke-width="3.2" marker-end="url(#arrow3)"/>
+<rect x="700" y="469" width="180" height="34" rx="17" class="pill" stroke="#D08A2D"/>
+<circle cx="724" cy="486" r="13" fill="#D08A2D"/>
+<text x="724" y="490" text-anchor="middle" class="badge">3</text>
+<text x="748" y="491" class="msg" fill="#D08A2D">startSpan()</text>
+<marker id="arrow4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#D08A2D" stroke="#D08A2D" stroke-dasharray="none"/></marker>
+<path d="M 1006 650 L 1254 650" fill="none" stroke="#D08A2D" stroke-width="3.2" marker-end="url(#arrow4)"/>
+<rect x="945" y="599" width="340" height="34" rx="17" class="pill" stroke="#D08A2D"/>
+<circle cx="969" cy="616" r="13" fill="#D08A2D"/>
+<text x="969" y="620" text-anchor="middle" class="badge">4</text>
+<text x="993" y="621" class="msg" fill="#D08A2D">storeInContext + asContextElement</text>
+<marker id="arrow5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C15A7A" stroke="#C15A7A" stroke-dasharray="none"/></marker>
+<path d="M 1276 730 L 1524 730" fill="none" stroke="#C15A7A" stroke-width="3.2" marker-end="url(#arrow5)"/>
+<rect x="1205" y="679" width="210" height="34" rx="17" class="pill" stroke="#C15A7A"/>
+<circle cx="1229" cy="696" r="13" fill="#C15A7A"/>
+<text x="1229" y="700" text-anchor="middle" class="badge">5</text>
+<text x="1253" y="701" class="msg" fill="#C15A7A">withContext(...)</text>
+<marker id="arrow6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E9C9B" stroke="#2E9C9B" stroke-dasharray="none"/></marker>
+<path d="M 1524 850 L 1006 850" fill="none" stroke="#2E9C9B" stroke-width="2.8" stroke-dasharray="10 8" marker-end="url(#arrow6)"/>
+<rect x="1120" y="799" width="220" height="34" rx="17" class="pill" stroke="#2E9C9B"/>
+<circle cx="1144" cy="816" r="13" fill="#2E9C9B"/>
+<text x="1144" y="820" text-anchor="middle" class="badge">6</text>
+<text x="1168" y="821" class="msg" fill="#2E9C9B">block returns value</text>
+<rect x="96" y="930" width="1488" height="232" rx="15" class="alt"/>
+<rect x="118" y="954" width="240" height="30" rx="15" fill="#F0FDF4" stroke="#2F9E6B" stroke-width="1.6"/>
+<text x="140" y="974" class="note">normal completion</text>
+<line x1="96" y1="1016" x2="1584" y2="1016" stroke="#78909C" stroke-width="2.2" stroke-dasharray="12 8"/>
+<rect x="118" y="1038" width="260" height="30" rx="15" fill="#F8FAFC" stroke="#52616B" stroke-width="1.6"/>
+<text x="140" y="1058" class="note">cancellation</text>
+<line x1="96" y1="1092" x2="1584" y2="1092" stroke="#78909C" stroke-width="2.2" stroke-dasharray="12 8"/>
+<rect x="118" y="1114" width="250" height="30" rx="15" fill="#FEF2F2" stroke="#C15A5A" stroke-width="1.6"/>
+<text x="140" y="1134" class="note">other Throwable</text>
+<marker id="arrowSelf7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2F9E6B" stroke="#2F9E6B" stroke-dasharray="none"/></marker>
+<path d="M 1009 965 L 1091 965 L 1091 1003 L 1017 1003" fill="none" stroke="#2F9E6B" stroke-width="3.0" marker-end="url(#arrowSelf7)"/>
+<rect x="1040" y="918" width="185" height="34" rx="17" class="pill" stroke="#2F9E6B"/>
+<circle cx="1064" cy="935" r="13" fill="#2F9E6B"/>
+<text x="1064" y="939" text-anchor="middle" class="badge">7</text>
+<text x="1088" y="940" class="msg" fill="#2F9E6B">setStatus(OK)</text>
+<marker id="arrowSelf8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#52616B" stroke="#52616B" stroke-dasharray="none"/></marker>
+<path d="M 1009 1048 L 1091 1048 L 1091 1086 L 1017 1086" fill="none" stroke="#52616B" stroke-width="3.0" marker-end="url(#arrowSelf8)"/>
+<rect x="1040" y="1001" width="230" height="34" rx="17" class="pill" stroke="#52616B"/>
+<circle cx="1064" cy="1018" r="13" fill="#52616B"/>
+<text x="1064" y="1022" text-anchor="middle" class="badge">8</text>
+<text x="1088" y="1023" class="msg" fill="#52616B">leave status UNSET</text>
+<marker id="arrowSelf9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C15A5A" stroke="#C15A5A" stroke-dasharray="none"/></marker>
+<path d="M 1009 1128 L 1091 1128 L 1091 1166 L 1017 1166" fill="none" stroke="#C15A5A" stroke-width="3.0" marker-end="url(#arrowSelf9)"/>
+<rect x="1015" y="1081" width="265" height="34" rx="17" class="pill" stroke="#C15A5A"/>
+<circle cx="1039" cy="1098" r="13" fill="#C15A5A"/>
+<text x="1039" y="1102" text-anchor="middle" class="badge">9</text>
+<text x="1063" y="1103" class="msg" fill="#C15A5A">recordException + ERROR</text>
+<marker id="arrow10" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E9C9B" stroke="#2E9C9B" stroke-dasharray="none"/></marker>
+<path d="M 984 1210 L 206 1210" fill="none" stroke="#2E9C9B" stroke-width="2.8" stroke-dasharray="10 8" marker-end="url(#arrow10)"/>
+<rect x="560" y="1159" width="360" height="34" rx="17" class="pill" stroke="#2E9C9B"/>
+<circle cx="584" cy="1176" r="13" fill="#2E9C9B"/>
+<text x="584" y="1180" text-anchor="middle" class="badge">10</text>
+<text x="608" y="1181" class="msg" fill="#2E9C9B">end() in finally, then return or rethrow</text>
+<rect x="96" y="1252" width="1488" height="48" rx="12" fill="#FFFFFF" stroke="#D6E2ED" stroke-width="1.6"/>
+<text x="840" y="1282" text-anchor="middle" class="footer">waitTimeout overloads stay for compatibility; the current implementation ends the Span immediately.</text>
 </svg>
