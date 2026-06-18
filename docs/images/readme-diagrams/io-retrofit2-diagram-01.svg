@@ -1,91 +1,52 @@
-<svg data-intent="Regenerate Overall Architecture: Retrofit2 + Coroutines + Result Patte. from the current README and source package surface for io/retrofit2." data-evidence="io/retrofit2/README.md; io/retrofit2; io/retrofit2/src/main/kotlin" data-source-read="io/retrofit2/README.md; io/retrofit2; io/retrofit2/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Overall Architecture: Retrofit2 + Coroutines + Result Patte.">
+<svg data-intent="Show the source-backed retrofit2 module architecture: DSL, converters, call adapters, transports, coroutine/result execution." data-evidence="io/retrofit2/README.md; RetrofitSupport.kt; RetrofitCallSupport.kt; SuspendRetrofitCallSupport.kt; ResultCallAdapterFactory.kt; ResultCall.kt; Hc5CallFactory.kt; VertxCallFactory.kt" xmlns="http://www.w3.org/2000/svg" width="1740" height="1010" viewBox="0 0 1740 1010" role="img" aria-label="Retrofit2 Module Architecture">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#FFFFFF;stroke:#D2DFEA;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:25px;fill:#22344A}.panelNote{font-family:"Comic Mono";font-size:13px;fill:#536476}
+    .card{stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#536476}
+    .route{fill:none;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}.dash{stroke-dasharray:10 8}.label{font-family:"Comic Mono";font-size:12px;fill:#536476}
+    .pill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">Overall Architecture: Retrofit2 + Coroutines + Result Patte.</text>
-<text class="subtitle" x="76" y="116">io/retrofit2: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Architecture</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Overall Architecture:</text>
-  <text class="detail" x="919" y="311" text-anchor="middle">Retrofit2 + Coroutines +</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Retrofit2 + Result Pattern</text>
-  <text class="detail" x="1257" y="311" text-anchor="middle">Integration</text>
-</g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">retrofit2 package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">retrofit2 package (10)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">Hc5CallFactory type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">Hc5CallFactory type</text>
-</g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">AsyncClientCall type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">AsyncClientCall type</text>
-</g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">VertxCallFactory type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">VertxCallFactory type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Reactive bridge</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Reactive bridge</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Kafka messaging</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Kafka messaging</text>
-</g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Serialization</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Serialization</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
-<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
+<rect class="canvas" width="1740" height="1010"/>
+<rect class="frame" x="30" y="28" width="1680" height="954" rx="30"/>
+<text class="title" x="70" y="86">bluetape4k-retrofit2 Module Architecture</text>
+<text class="subtitle" x="74" y="118">A small Retrofit builder surface wires converters, Result adapters, optional reactive adapters, and alternate Call.Factory transports.</text>
+
+<g id="configure"><rect class="panel" x="88" y="166" width="1564" height="184" rx="14"/><text class="panelTitle" x="118" y="207">Configuration and service creation</text><text class="panelNote" x="118" y="235">retrofitOf installs defaults; explicit builder blocks can still add project-specific factories.</text></g>
+<g id="runtime"><rect class="panel" x="88" y="404" width="1564" height="266" rx="14"/><text class="panelTitle" x="118" y="445">Retrofit runtime pieces</text><text class="panelNote" x="118" y="473">Converters shape payloads, CallAdapters shape return types, and Call.Factory owns transport behavior.</text></g>
+<g id="execute"><rect class="panel" x="88" y="726" width="1564" height="210" rx="14"/><text class="panelTitle" x="118" y="767">Execution helpers and result contracts</text><text class="panelNote" x="118" y="795">Use suspend APIs for coroutine callers; use Result&lt;T&gt; when business code should branch on success or failure values.</text></g>
+
+<g id="api"><rect class="card" x="132" y="262" width="260" height="66" rx="10" fill="#E8F3FF" stroke="#4F83BF"/><text class="cardTitle" x="262" y="300" text-anchor="middle">Service interface</text><text class="detail" x="262" y="322" text-anchor="middle">suspend / Call / Result</text></g>
+<g id="support"><rect class="card" x="458" y="246" width="312" height="96" rx="10" fill="#EAF7EF" stroke="#3E9868"/><text class="cardTitle" x="614" y="282" text-anchor="middle">RetrofitSupport</text><text class="detail" x="614" y="310" text-anchor="middle">retrofitBuilderOf / retrofitOf</text><text class="detail" x="614" y="330" text-anchor="middle">service&lt;T&gt;()</text></g>
+<g id="builder"><rect class="card" x="838" y="262" width="260" height="66" rx="10" fill="#E9F7F6" stroke="#2E8F89"/><text class="cardTitle" x="968" y="300" text-anchor="middle">Retrofit.Builder</text><text class="detail" x="968" y="322" text-anchor="middle">baseUrl + factories</text></g>
+<g id="retrofit"><rect class="card" x="1166" y="262" width="260" height="66" rx="10" fill="#F2EBFF" stroke="#755BC6"/><text class="cardTitle" x="1296" y="300" text-anchor="middle">Retrofit service</text><text class="detail" x="1296" y="322" text-anchor="middle">create interface proxy</text></g>
+
+<g id="converters"><rect class="card" x="132" y="522" width="300" height="92" rx="10" fill="#E8F3FF" stroke="#4F83BF"/><text class="cardTitle" x="282" y="558" text-anchor="middle">Converter factories</text><text class="detail" x="282" y="586" text-anchor="middle">Scalars + Jackson default</text></g>
+<g id="resultAdapter"><rect class="card" x="492" y="522" width="300" height="92" rx="10" fill="#EAF7EF" stroke="#3E9868"/><text class="cardTitle" x="642" y="558" text-anchor="middle">ResultCallAdapter</text><text class="detail" x="642" y="586" text-anchor="middle">Call&lt;Result&lt;T&gt;&gt; only</text></g>
+<g id="reactive"><rect class="card" x="852" y="522" width="300" height="92" rx="10" fill="#FFF5E6" stroke="#B9851B"/><text class="cardTitle" x="1002" y="558" text-anchor="middle">Reactive adapters</text><text class="detail" x="1002" y="586" text-anchor="middle">RxJava2 / RxJava3 / Reactor</text></g>
+<g id="transport"><rect class="card" x="1212" y="506" width="360" height="124" rx="10" fill="#FFF0F4" stroke="#C94D68"/><text class="cardTitle" x="1392" y="542" text-anchor="middle">Call.Factory transport</text><text class="detail" x="1392" y="570" text-anchor="middle">OkHttp default</text><text class="detail" x="1392" y="590" text-anchor="middle">Hc5CallFactory / VertxCallFactory</text><text class="detail" x="1392" y="610" text-anchor="middle">cancel, timeout, tag contract</text></g>
+
+<g id="suspend"><rect class="card" x="224" y="832" width="310" height="72" rx="10" fill="#E9F7F6" stroke="#2E8F89"/><text class="cardTitle" x="379" y="864" text-anchor="middle">suspendExecute()</text><text class="detail" x="379" y="888" text-anchor="middle">cancellation calls Call.cancel()</text></g>
+<g id="async"><rect class="card" x="610" y="832" width="310" height="72" rx="10" fill="#E8F3FF" stroke="#4F83BF"/><text class="cardTitle" x="765" y="864" text-anchor="middle">executeAsync()</text><text class="detail" x="765" y="888" text-anchor="middle">CompletableFuture + retry clone()</text></g>
+<g id="result"><rect class="card" x="996" y="832" width="310" height="72" rx="10" fill="#EAF7EF" stroke="#3E9868"/><text class="cardTitle" x="1151" y="864" text-anchor="middle">ResultCall</text><text class="detail" x="1151" y="888" text-anchor="middle">HTTP/network errors as failure</text></g>
+<g id="transportContract"><rect class="card" x="1382" y="832" width="226" height="72" rx="10" fill="#FFF0F4" stroke="#C94D68"/><text class="cardTitle" x="1495" y="864" text-anchor="middle">Transport</text><text class="detail" x="1495" y="888" text-anchor="middle">caller-closeable body</text></g>
+
+<path class="route" d="M392 295 H458" stroke="#4F83BF"/><path d="M458 295 l-12 -7 v14 z" fill="#4F83BF"/>
+<path class="route" d="M770 295 H838" stroke="#3E9868"/><path d="M838 295 l-12 -7 v14 z" fill="#3E9868"/>
+<path class="route" d="M1098 295 H1166" stroke="#2E8F89"/><path d="M1166 295 l-12 -7 v14 z" fill="#2E8F89"/>
+<path class="route" d="M968 328 V498 H282 V522" stroke="#4F83BF"/><path d="M282 522 l-7 -12 h14 z" fill="#4F83BF"/>
+<path class="route" d="M968 328 V498 H642 V522" stroke="#3E9868"/><path d="M642 522 l-7 -12 h14 z" fill="#3E9868"/>
+<path class="route dash" d="M968 328 V498 H1002 V522" stroke="#B9851B"/><path d="M1002 522 l-7 -12 h14 z" fill="#B9851B"/>
+<path class="route" d="M968 328 V498 H1392 V506" stroke="#C94D68"/><path d="M1392 506 l-7 -12 h14 z" fill="#C94D68"/>
+<path class="route" d="M642 614 V690 H1151 V832" stroke="#3E9868"/><path d="M1151 832 l-7 -12 h14 z" fill="#3E9868"/>
+<path class="route" d="M1392 630 V812 H1495 V832" stroke="#C94D68"/><path d="M1495 832 l-7 -12 h14 z" fill="#C94D68"/>
+<path class="route" d="M1392 630 V812 H765 V832" stroke="#4F83BF"/><path d="M765 832 l-7 -12 h14 z" fill="#4F83BF"/>
+<path class="route" d="M1392 630 V812 H379 V832" stroke="#2E8F89"/><path d="M379 832 l-7 -12 h14 z" fill="#2E8F89"/>
+
+<rect class="pill" x="868" y="456" width="198" height="30" rx="8"/><text class="label" x="967" y="476" text-anchor="middle">installs default factories</text>
+<rect class="pill" x="1082" y="678" width="138" height="30" rx="8"/><text class="label" x="1151" y="698" text-anchor="middle">execution shape</text>
+<rect class="pill" x="1188" y="824" width="136" height="30" rx="8"/><text class="label" x="1256" y="844" text-anchor="middle">transport owns I/O</text>
 </svg>
