@@ -13,11 +13,11 @@ JSONB(바이너리 JSON) 형식을 활용한 고성능 직렬화와, JSON 문자
 
 ### 클래스 구조
 
-![fastjson2 Class Structure diagram](../../docs/images/readme-diagrams/io-fastjson2-diagram-01.png)
+![Fastjson2 클래스 구조 다이어그램](../../docs/images/readme-diagrams/io-fastjson2-diagram-01.png)
 
 ### JSON vs JSONB 직렬화 흐름
 
-![JSON vs JSONB diagram](../../docs/images/readme-diagrams/io-fastjson2-diagram-02.png)
+![JSON vs JSONB 직렬화 흐름 다이어그램](../../docs/images/readme-diagrams/io-fastjson2-diagram-02.png)
 
 ## 주요 기능
 

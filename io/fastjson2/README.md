@@ -11,9 +11,9 @@ It provides high-performance serialization using JSONB (binary JSON) format, as 
 
 ## Architecture Diagrams
 
-### Class Structure
+### Fastjson2 Class Structure
 
-![Class Structure diagram](../../docs/images/readme-diagrams/io-fastjson2-diagram-01.png)
+![Fastjson2 Class Structure diagram](../../docs/images/readme-diagrams/io-fastjson2-diagram-01.png)
 
 ### JSON vs JSONB Serialization Flow
 
