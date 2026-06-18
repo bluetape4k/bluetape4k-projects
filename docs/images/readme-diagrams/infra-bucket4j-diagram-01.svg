@@ -1,160 +1,141 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="980" viewBox="0 0 1500 980" role="img" aria-label="Bucket4j integration class diagram">
-  <defs>
-    <filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%">
-      <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
-    </filter>
-    <marker id="triangleBlue" markerWidth="16" markerHeight="14" refX="14" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 14 7 L 1 13 Z" fill="#ffffff" stroke="#2563eb" stroke-width="2.1" stroke-linejoin="round" stroke-dasharray="none"/>
-    </marker>
-    <marker id="triangleGreen" markerWidth="16" markerHeight="14" refX="14" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 14 7 L 1 13 Z" fill="#ffffff" stroke="#16a34a" stroke-width="2.1" stroke-linejoin="round" stroke-dasharray="none"/>
-    </marker>
-    <marker id="triangleOrange" markerWidth="16" markerHeight="14" refX="14" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 14 7 L 1 13 Z" fill="#ffffff" stroke="#ea580c" stroke-width="2.1" stroke-linejoin="round" stroke-dasharray="none"/>
-    </marker>
-    <marker id="openPurple" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#9333ea" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
-    </marker>
-    <style>
-      svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
-      .canvas { fill: #f8fafc; }
-      .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; filter: url(#softShadow); }
-      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #0f172a; }
-      .subtitle { font-family: "Comic Mono"; font-size: 15px; fill: #475569; }
-      .section { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.2; }
-      .sectionText { font-family: "Architects Daughter"; font-size: 21px; fill: #0f172a; }
-      .box { fill: #ffffff; stroke-width: 1.8; filter: url(#softShadow); }
-      .sync { stroke: #2563eb; }
-      .async { stroke: #16a34a; }
-      .provider { stroke: #ea580c; }
-      .result { stroke: #9333ea; }
-      .helper { stroke: #64748b; }
-      .boxTitle { font-family: "Architects Daughter"; font-size: 21px; fill: #0f172a; }
-      .stereo { font-family: "Comic Mono"; font-size: 12px; fill: #64748b; }
-      .mono { font-family: "Comic Mono"; font-size: 13px; fill: #475569; }
-      .small { font-family: "Comic Mono"; font-size: 12px; fill: #64748b; }
-      .implementsSync { fill: none; stroke: #2563eb; stroke-width: 2.35; stroke-dasharray: 8 6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#triangleBlue); }
-      .implementsAsync { fill: none; stroke: #16a34a; stroke-width: 2.35; stroke-dasharray: 8 6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#triangleGreen); }
-      .extendsProvider { fill: none; stroke: #ea580c; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#triangleOrange); }
-      .uses { fill: none; stroke: #9333ea; stroke-width: 2.35; stroke-dasharray: 8 6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#openPurple); }
-    </style>
-  </defs>
-
-  <rect class="canvas" width="1500" height="980"/>
-  <rect class="frame" x="36" y="32" width="1428" height="916" rx="8"/>
-  <text class="title" x="74" y="86">Bucket4j Integration Class Diagram</text>
-  <text class="subtitle" x="78" y="116">Sync and coroutine limiters implement immediate consumption, resolve key-based buckets, and return one stable result type.</text>
-
-  <rect class="section" x="74" y="154" width="232" height="38" rx="8"/>
-  <text class="sectionText" x="92" y="179">Rate limiter contracts</text>
-  <rect class="section" x="74" y="500" width="124" height="38" rx="8"/>
-  <text class="sectionText" x="92" y="525">Providers</text>
-
-  <g id="rateLimiter">
-    <rect class="box sync" x="112" y="222" width="326" height="78" rx="8" fill="#eff6ff"/>
-    <text class="stereo" x="275" y="245" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
-    <text class="boxTitle" x="275" y="271" text-anchor="middle">RateLimiter&lt;K&gt;</text>
-    <text class="mono" x="275" y="293" text-anchor="middle">consume(key, numToken): RateLimitResult</text>
-  </g>
-
-  <g id="resultContract">
-    <rect class="box result" x="582" y="222" width="336" height="94" rx="8" fill="#faf5ff"/>
-    <text class="boxTitle" x="750" y="253" text-anchor="middle">RateLimitResult</text>
-    <text class="mono" x="750" y="278" text-anchor="middle">CONSUMED / REJECTED / ERROR</text>
-    <text class="small" x="750" y="298" text-anchor="middle">tokens, diagnostics, sanitized error</text>
-  </g>
-
-  <g id="suspendLimiter">
-    <rect class="box async" x="1062" y="222" width="326" height="78" rx="8" fill="#f0fdf4"/>
-    <text class="stereo" x="1225" y="245" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
-    <text class="boxTitle" x="1225" y="271" text-anchor="middle">SuspendRateLimiter&lt;K&gt;</text>
-    <text class="mono" x="1225" y="293" text-anchor="middle">suspend consume(...): RateLimitResult</text>
-  </g>
-
-  <path class="uses" d="M 438 261 H 582"/>
-  <path class="uses" d="M 1062 261 H 918"/>
-
-  <g id="localRateLimiter">
-    <rect class="box sync" x="96" y="388" width="258" height="86" rx="8" fill="#ffffff"/>
-    <text class="boxTitle" x="225" y="420" text-anchor="middle">LocalRateLimiter</text>
-    <text class="mono" x="225" y="445" text-anchor="middle">LocalBucketProvider</text>
-    <text class="small" x="225" y="465" text-anchor="middle">one probe builds result</text>
-  </g>
-
-  <g id="distRateLimiter">
-    <rect class="box sync" x="406" y="388" width="284" height="86" rx="8" fill="#ffffff"/>
-    <text class="boxTitle" x="548" y="420" text-anchor="middle">DistributedRateLimiter</text>
-    <text class="mono" x="548" y="445" text-anchor="middle">BucketProxyProvider</text>
-    <text class="small" x="548" y="465" text-anchor="middle">Redis proxy, no extra token read</text>
-  </g>
-
-  <g id="localSuspendLimiter">
-    <rect class="box async" x="810" y="388" width="286" height="86" rx="8" fill="#ffffff"/>
-    <text class="boxTitle" x="953" y="420" text-anchor="middle">LocalSuspendRateLimiter</text>
-    <text class="mono" x="953" y="445" text-anchor="middle">LocalSuspendBucketProvider</text>
-    <text class="small" x="953" y="465" text-anchor="middle">cancellation propagates</text>
-  </g>
-
-  <g id="distSuspendLimiter">
-    <rect class="box async" x="1148" y="388" width="286" height="86" rx="8" fill="#ffffff"/>
-    <text class="boxTitle" x="1291" y="420" text-anchor="middle">DistributedSuspend</text>
-    <text class="boxTitle" x="1291" y="443" text-anchor="middle">RateLimiter</text>
-    <text class="small" x="1291" y="465" text-anchor="middle">AsyncBucketProxyProvider + timeout</text>
-  </g>
-
-  <path class="implementsSync" d="M 225 388 V 342 H 275 V 300"/>
-  <path class="implementsSync" d="M 548 388 V 342 H 275 V 300"/>
-  <path class="implementsAsync" d="M 953 388 V 342 H 1225 V 300"/>
-  <path class="implementsAsync" d="M 1291 388 V 342 H 1225 V 300"/>
-
-  <g id="localProvider">
-    <rect class="box provider" x="96" y="574" width="270" height="86" rx="8" fill="#fff7ed"/>
-    <text class="boxTitle" x="231" y="606" text-anchor="middle">LocalBucketProvider</text>
-    <text class="mono" x="231" y="631" text-anchor="middle">key -> LocalBucket</text>
-    <text class="small" x="231" y="651" text-anchor="middle">lock-free, same key state</text>
-  </g>
-
-  <g id="abstractLocalProvider">
-    <rect class="box provider" x="486" y="754" width="350" height="86" rx="8" fill="#fff7ed"/>
-    <text class="stereo" x="661" y="777" text-anchor="middle">&lt;&lt;abstract&gt;&gt;</text>
-    <text class="boxTitle" x="661" y="803" text-anchor="middle">AbstractLocalBucketProvider&lt;T&gt;</text>
-    <text class="small" x="661" y="827" text-anchor="middle">Caffeine cache, key validation, expiration</text>
-  </g>
-
-  <g id="localSuspendProvider">
-    <rect class="box provider" x="820" y="574" width="300" height="86" rx="8" fill="#fff7ed"/>
-    <text class="boxTitle" x="970" y="606" text-anchor="middle">LocalSuspend</text>
-    <text class="boxTitle" x="970" y="629" text-anchor="middle">BucketProvider</text>
-    <text class="small" x="970" y="651" text-anchor="middle">key -> SuspendLocalBucket</text>
-  </g>
-
-  <g id="proxyProvider">
-    <rect class="box provider" x="456" y="574" width="300" height="86" rx="8" fill="#fff7ed"/>
-    <text class="boxTitle" x="606" y="606" text-anchor="middle">BucketProxyProvider</text>
-    <text class="mono" x="606" y="631" text-anchor="middle">prefix + key -> BucketProxy</text>
-    <text class="small" x="606" y="651" text-anchor="middle">ProxyManager&lt;ByteArray&gt;</text>
-  </g>
-
-  <g id="asyncProxyProvider">
-    <rect class="box provider" x="1156" y="574" width="286" height="86" rx="8" fill="#fff7ed"/>
-    <text class="boxTitle" x="1299" y="606" text-anchor="middle">AsyncBucket</text>
-    <text class="boxTitle" x="1299" y="629" text-anchor="middle">ProxyProvider</text>
-    <text class="small" x="1299" y="651" text-anchor="middle">async proxy + CompletableFuture</text>
-  </g>
-
-  <g id="redisHelpers">
-    <rect class="box helper" x="930" y="754" width="344" height="86" rx="8" fill="#f8fafc"/>
-    <text class="boxTitle" x="1102" y="788" text-anchor="middle">Lettuce / Redisson helpers</text>
-    <text class="small" x="1102" y="814" text-anchor="middle">create sync and async ProxyManager instances</text>
-  </g>
-
-  <path class="uses" d="M 225 474 V 574"/>
-  <path class="uses" d="M 548 474 V 534 H 606 V 574"/>
-  <path class="uses" d="M 953 474 V 574"/>
-  <path class="uses" d="M 1291 474 V 574"/>
-
-  <path class="extendsProvider" d="M 231 660 V 706 H 621 V 754"/>
-  <path class="extendsProvider" d="M 970 660 V 706 H 701 V 754"/>
-
-  <text class="small" x="750" y="902" text-anchor="middle">Dashed hollow triangles mean implements. Dashed open arrows mean uses or returns.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1880" height="1160" viewBox="0 0 1880 1160" role="img" aria-label="Bucket4j integration class diagram">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="118%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity=".11"/></filter>
+  <marker id="openBlue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 10 6 L 2 10" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="openOrange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 10 6 L 2 10" fill="none" stroke="#EA580C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="openTeal" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 10 6 L 2 10" fill="none" stroke="#0D9488" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="openPurple" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 10 6 L 2 10" fill="none" stroke="#9333EA" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="openGreen" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 10 6 L 2 10" fill="none" stroke="#16A34A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="hollowBlue" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 16 8 L 1 15 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" stroke-dasharray="none"/></marker>
+  <marker id="hollowTeal" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 16 8 L 1 15 Z" fill="#FFFFFF" stroke="#0D9488" stroke-width="2" stroke-dasharray="none"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:15px;fill:#475569}
+    .card{filter:url(#shadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:21px;fill:#0F172A}
+    .stereo{font-family:"Comic Mono";font-size:12px;fill:#64748B}.member{font-family:"Comic Mono";font-size:12.3px;fill:#334155}
+    .divider{stroke:rgba(15,23,42,.17);stroke-width:1.2}.assoc{fill:none;stroke-width:3.0;stroke-linecap:round;stroke-linejoin:round}
+    .uses{fill:none;stroke-width:2.5;stroke-dasharray:8 7;stroke-linecap:round;stroke-linejoin:round}
+    .realize{fill:none;stroke-width:2.4;stroke-dasharray:8 7;stroke-linecap:round;stroke-linejoin:round}
+    .label{font-family:"Comic Mono";font-size:11.6px;fill:#334155;paint-order:stroke;stroke:#FFFFFF;stroke-width:5px;stroke-linejoin:round}
+    .legend{font-family:"Comic Mono";font-size:12px;fill:#475569}
+  </style>
+</defs>
+<rect class="canvas" width="1880" height="1160"/>
+<rect class="frame" x="34" y="30" width="1812" height="1094" rx="10"/>
+<text class="title" x="72" y="84">Bucket4j Integration Class Diagram</text>
+<text class="subtitle" x="76" y="116">Facade APIs validate requests, resolve key-based buckets, and return a stable bluetape4k result contract.</text>
+<g>
+  <path class="realize" d="M 250 370 V 328 H 410 V 300" stroke="#2563EB" marker-end="url(#hollowBlue)"/>
+  <path class="realize" d="M 660 370 V 328 H 510 V 300" stroke="#2563EB" marker-end="url(#hollowBlue)"/>
+  <path class="realize" d="M 1085 370 V 328 H 1378 V 300" stroke="#0D9488" marker-end="url(#hollowTeal)"/>
+  <path class="realize" d="M 1540 370 V 300" stroke="#0D9488" marker-end="url(#hollowTeal)"/>
+  <path class="assoc" d="M 630 215 H 760" stroke="#16A34A" marker-end="url(#openGreen)"/>
+  <path class="assoc" d="M 1270 215 H 1120" stroke="#16A34A" marker-end="url(#openGreen)"/>
+  <path class="assoc" d="M 250 534 V 650" stroke="#EA580C" marker-end="url(#openOrange)"/>
+  <path class="assoc" d="M 660 534 V 650" stroke="#2563EB" marker-end="url(#openBlue)"/>
+  <path class="assoc" d="M 1085 534 V 650" stroke="#0D9488" marker-end="url(#openTeal)"/>
+  <path class="assoc" d="M 1540 556 V 650" stroke="#9333EA" marker-end="url(#openPurple)"/>
+  <path class="uses" d="M 250 820 V 920" stroke="#EA580C" marker-end="url(#openOrange)"/>
+  <path class="uses" d="M 660 820 V 920" stroke="#2563EB" marker-end="url(#openBlue)"/>
+  <path class="uses" d="M 1085 820 V 920" stroke="#0D9488" marker-end="url(#openTeal)"/>
+  <path class="uses" d="M 1540 820 V 920" stroke="#9333EA" marker-end="url(#openPurple)"/>
+</g>
+<g><text class="label" x="695" y="203" text-anchor="middle">returns</text><text class="label" x="1195" y="203" text-anchor="middle">returns</text><text class="label" x="286" y="592" text-anchor="middle">uses</text><text class="label" x="696" y="592" text-anchor="middle">uses</text><text class="label" x="1125" y="592" text-anchor="middle">uses</text><text class="label" x="1582" y="610" text-anchor="middle">uses</text><text class="label" x="292" y="874" text-anchor="middle">resolves</text><text class="label" x="704" y="874" text-anchor="middle">resolves</text><text class="label" x="1130" y="874" text-anchor="middle">resolves</text><text class="label" x="1588" y="874" text-anchor="middle">resolves</text></g>
+<g id="rateLimiter">
+  <rect class="card" x="290" y="150" width="340" height="150" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="stereo" x="460" y="178" text-anchor="middle">interface</text>
+  <text class="cardTitle" x="460" y="208" text-anchor="middle">RateLimiter&lt;K&gt;</text>
+  <line class="divider" x1="314" y1="226" x2="606" y2="226"/>
+  <text class="member" x="318" y="253">+ consume(key, tokens)</text><text class="member" x="318" y="275">returns RateLimitResult</text>
+</g><g id="result">
+  <rect class="card" x="760" y="130" width="360" height="170" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="stereo" x="940" y="158" text-anchor="middle">data contract</text>
+  <text class="cardTitle" x="940" y="188" text-anchor="middle">RateLimitResult</text>
+  <line class="divider" x1="784" y1="206" x2="1096" y2="206"/>
+  <text class="member" x="788" y="233">status: CONSUMED / REJECTED / ERROR</text><text class="member" x="788" y="255">availableTokens, consumedTokens</text><text class="member" x="788" y="277">retryAfter + diagnostics</text>
+</g><g id="suspendRateLimiter">
+  <rect class="card" x="1270" y="150" width="390" height="150" rx="8" fill="#ECFDF5" stroke="#0D9488"/>
+  <text class="stereo" x="1465" y="178" text-anchor="middle">interface</text>
+  <text class="cardTitle" x="1465" y="208" text-anchor="middle">SuspendRateLimiter&lt;K&gt;</text>
+  <line class="divider" x1="1294" y1="226" x2="1636" y2="226"/>
+  <text class="member" x="1298" y="253">+ suspend consume(key, tokens)</text><text class="member" x="1298" y="275">propagates cancellation</text>
+</g><g id="localRateLimiter">
+  <rect class="card" x="80" y="370" width="340" height="164" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="stereo" x="250" y="398" text-anchor="middle">class</text>
+  <text class="cardTitle" x="250" y="428" text-anchor="middle">LocalRateLimiter</text>
+  <line class="divider" x1="104" y1="446" x2="396" y2="446"/>
+  <text class="member" x="108" y="473">- LocalBucketProvider</text><text class="member" x="108" y="495">+ immediate tryConsume</text><text class="member" x="108" y="517">+ single-probe result</text>
+</g><g id="distributedRateLimiter">
+  <rect class="card" x="470" y="370" width="380" height="164" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="stereo" x="660" y="398" text-anchor="middle">class</text>
+  <text class="cardTitle" x="660" y="428" text-anchor="middle">DistributedRateLimiter</text>
+  <line class="divider" x1="494" y1="446" x2="826" y2="446"/>
+  <text class="member" x="498" y="473">- BucketProxyProvider</text><text class="member" x="498" y="495">+ Redis-backed proxy</text><text class="member" x="498" y="517">+ no extra token read</text>
+</g><g id="localSuspendRateLimiter">
+  <rect class="card" x="890" y="370" width="390" height="164" rx="8" fill="#ECFDF5" stroke="#0D9488"/>
+  <text class="stereo" x="1085" y="398" text-anchor="middle">class</text>
+  <text class="cardTitle" x="1085" y="428" text-anchor="middle">LocalSuspendRateLimiter</text>
+  <line class="divider" x1="914" y1="446" x2="1256" y2="446"/>
+  <text class="member" x="918" y="473">- LocalSuspendBucketProvider</text><text class="member" x="918" y="495">+ coroutine-friendly local bucket</text><text class="member" x="918" y="517">+ cancellation passes through</text>
+</g><g id="distributedSuspendRateLimiter">
+  <rect class="card" x="1325" y="370" width="430" height="186" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="stereo" x="1540" y="398" text-anchor="middle">class</text>
+  <text class="cardTitle" x="1540" y="428" text-anchor="middle">DistributedSuspendRateLimiter</text>
+  <line class="divider" x1="1349" y1="446" x2="1731" y2="446"/>
+  <text class="member" x="1353" y="473">- AsyncBucketProxyProvider</text><text class="member" x="1353" y="495">+ await async proxy result</text><text class="member" x="1353" y="517">+ optional operation timeout</text><text class="member" x="1353" y="539">+ cancellation passes through</text>
+</g><g id="localBucketProvider">
+  <rect class="card" x="80" y="650" width="340" height="170" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="stereo" x="250" y="678" text-anchor="middle">provider</text>
+  <text class="cardTitle" x="250" y="708" text-anchor="middle">LocalBucketProvider</text>
+  <line class="divider" x1="104" y1="726" x2="396" y2="726"/>
+  <text class="member" x="108" y="753">extends AbstractLocalBucketProvider</text><text class="member" x="108" y="775">key-prefix cache</text><text class="member" x="108" y="797">lock-free local bucket</text>
+</g><g id="bucketProxyProvider">
+  <rect class="card" x="470" y="650" width="380" height="170" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="stereo" x="660" y="678" text-anchor="middle">provider</text>
+  <text class="cardTitle" x="660" y="708" text-anchor="middle">BucketProxyProvider</text>
+  <line class="divider" x1="494" y1="726" x2="826" y2="726"/>
+  <text class="member" x="498" y="753">ProxyManager&lt;ByteArray&gt;</text><text class="member" x="498" y="775">prefix + UTF-8 key</text><text class="member" x="498" y="797">builds remote proxy only</text>
+</g><g id="localSuspendBucketProvider">
+  <rect class="card" x="890" y="650" width="390" height="170" rx="8" fill="#ECFDF5" stroke="#0D9488"/>
+  <text class="stereo" x="1085" y="678" text-anchor="middle">provider</text>
+  <text class="cardTitle" x="1085" y="708" text-anchor="middle">LocalSuspendBucketProvider</text>
+  <line class="divider" x1="914" y1="726" x2="1256" y2="726"/>
+  <text class="member" x="918" y="753">extends AbstractLocalBucketProvider</text><text class="member" x="918" y="775">SuspendLocalBucket per key</text><text class="member" x="918" y="797">64-bit math + millis time</text>
+</g><g id="asyncBucketProxyProvider">
+  <rect class="card" x="1325" y="650" width="430" height="170" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="stereo" x="1540" y="678" text-anchor="middle">provider</text>
+  <text class="cardTitle" x="1540" y="708" text-anchor="middle">AsyncBucketProxyProvider</text>
+  <line class="divider" x1="1349" y1="726" x2="1731" y2="726"/>
+  <text class="member" x="1353" y="753">AsyncProxyManager&lt;ByteArray&gt;</text><text class="member" x="1353" y="775">prefix + UTF-8 key</text><text class="member" x="1353" y="797">builds async proxy only</text>
+</g><g id="localBucket">
+  <rect class="card" x="80" y="920" width="340" height="122" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="stereo" x="250" y="948" text-anchor="middle">Bucket4j primitive</text>
+  <text class="cardTitle" x="250" y="978" text-anchor="middle">LocalBucket</text>
+  <line class="divider" x1="104" y1="996" x2="396" y2="996"/>
+  <text class="member" x="108" y="1023">tryConsumeAndReturnRemaining()</text>
+</g><g id="bucketProxy">
+  <rect class="card" x="470" y="920" width="380" height="122" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="stereo" x="660" y="948" text-anchor="middle">Bucket4j primitive</text>
+  <text class="cardTitle" x="660" y="978" text-anchor="middle">BucketProxy</text>
+  <line class="divider" x1="494" y1="996" x2="826" y2="996"/>
+  <text class="member" x="498" y="1023">remote tryConsume probe</text>
+</g><g id="suspendLocalBucket">
+  <rect class="card" x="890" y="920" width="390" height="122" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="stereo" x="1085" y="948" text-anchor="middle">bluetape4k primitive</text>
+  <text class="cardTitle" x="1085" y="978" text-anchor="middle">SuspendLocalBucket</text>
+  <line class="divider" x1="914" y1="996" x2="1256" y2="996"/>
+  <text class="member" x="918" y="1023">delay-based waiting helpers</text>
+</g><g id="asyncBucketProxy">
+  <rect class="card" x="1325" y="920" width="430" height="122" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="stereo" x="1540" y="948" text-anchor="middle">Bucket4j primitive</text>
+  <text class="cardTitle" x="1540" y="978" text-anchor="middle">AsyncBucketProxy</text>
+  <line class="divider" x1="1349" y1="996" x2="1731" y2="996"/>
+  <text class="member" x="1353" y="1023">CompletableFuture probe</text>
+</g>
+<g transform="translate(80 1096)">
+  <path class="assoc" d="M 0 0 H 58" stroke="#2563EB" marker-end="url(#openBlue)"/><text class="legend" x="72" y="5">has/reference</text>
+  <path class="uses" d="M 214 0 H 272" stroke="#9333EA" marker-end="url(#openPurple)"/><text class="legend" x="286" y="5">uses / resolves</text>
+  <path class="realize" d="M 455 0 H 513" stroke="#2563EB" marker-end="url(#hollowBlue)"/><text class="legend" x="528" y="5">implements</text>
+</g>
 </svg>

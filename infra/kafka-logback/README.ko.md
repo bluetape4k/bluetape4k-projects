@@ -2,11 +2,15 @@
 
 [English](README.md)
 
-로그 이벤트를 Apache Kafka 토픽으로 전송하는 Logback Appender. 동기/비동기 전송, 플러그어블 키 제공자, 커스텀 예외 핸들러를 지원합니다.
+로그 이벤트를 Apache Kafka 토픽으로 전송하는 Logback Appender입니다. 기본 전송은 Kafka의 비동기 `send()`를 사용하고, 키 선택, 전송 전략, 예외 fallback 처리는 교체할 수 있게 분리했습니다.
 
 ## 아키텍처
 
 ![Kafka Logback 클래스 구조](../../docs/images/readme-diagrams/infra-kafka-logback-diagram-01.png)
+
+### Append Sequence
+
+![Kafka Logback Append Flow](../../docs/images/readme-diagrams/infra-kafka-logback-sequence-01.png)
 
 ## 기능
 

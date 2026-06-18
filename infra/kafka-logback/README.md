@@ -2,11 +2,15 @@
 
 [한국어](README.ko.md)
 
-Logback Appender that delivers log events to Apache Kafka topics. Supports both synchronous and asynchronous delivery, pluggable key providers, and custom export exception handlers.
+A Logback appender that delivers log events to Apache Kafka topics. It uses asynchronous Kafka delivery by default, while keeping key selection, export behavior, and exception fallback pluggable.
 
 ## Architecture
 
 ![Kafka Logback Class Structure](../../docs/images/readme-diagrams/infra-kafka-logback-diagram-01.png)
+
+### Append Sequence
+
+![Kafka Logback Append Flow](../../docs/images/readme-diagrams/infra-kafka-logback-sequence-01.png)
 
 ## Features
 
