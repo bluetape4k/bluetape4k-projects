@@ -20,15 +20,15 @@ Jackson 2.x(`bluetape4k-jackson2`)와 동일한 기능 구조를 제공하면서
 
 ### Jackson 2.x vs 3.x 모듈 비교
 
-![Jackson 2.x vs 3.x diagram](../../docs/images/readme-diagrams/io-jackson3-diagram-01.png)
+![Jackson 2.x와 3.x 모듈 비교 다이어그램](../../docs/images/readme-diagrams/io-jackson3-diagram-01.png)
 
 ### 클래스 구조
 
-![Jackson3 Class Structure diagram](../../docs/images/readme-diagrams/io-jackson3-diagram-02.png)
+![Jackson3 클래스 구조 다이어그램](../../docs/images/readme-diagrams/io-jackson3-diagram-02.png)
 
 ### Jackson 3.x 모듈 등록 흐름
 
-![Jackson 3.x diagram](../../docs/images/readme-diagrams/io-jackson3-sequence-01.png)
+![Jackson 3.x 모듈 등록 흐름 시퀀스 다이어그램](../../docs/images/readme-diagrams/io-jackson3-sequence-01.png)
 
 ## 추천 사용 시나리오
 
