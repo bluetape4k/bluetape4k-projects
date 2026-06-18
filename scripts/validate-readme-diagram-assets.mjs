@@ -263,6 +263,7 @@ function extractCards(svg) {
       w: attrNumber(rectTag, "width"),
       h: attrNumber(rectTag, "height"),
     } : polygonRect(body) || circleRect(body);
+    if (!rect) continue;
     if ([rect.x, rect.y, rect.w, rect.h].some((value) => Number.isNaN(value))) continue;
     const labels = [...body.matchAll(/<text[^>]*>([\s\S]*?)<\/text>/g)].map((match) => cleanText(match[1])).filter(Boolean);
     if ((rect.w > 500 && rect.h > 160) || rect.h > 300) continue;
@@ -438,6 +439,13 @@ function validateSequenceStyle(svg) {
   }
   if (/<rect[^>]*class="[^"]*card[^"]*"[^>]*rx="(?:1[6-9]|[2-9]\d)"/.test(svg)) {
     failures.push("sequence participant headers use pill-radius cards");
+  }
+  const altOpacities = [
+    ...[...svg.matchAll(/(?:\.altBox|\.alt)\{[^}]*fill-opacity\s*:\s*([0-9.]+)/g)].map((match) => Number(match[1])),
+    ...[...svg.matchAll(/<rect\b[^>]*class="[^"]*\b(?:altBox|alt)\b[^"]*"[^>]*\bfill-opacity="([0-9.]+)"/g)].map((match) => Number(match[1])),
+  ].filter((value) => Number.isFinite(value));
+  if (altOpacities.some((value) => value > 0.16)) {
+    failures.push("sequence alt/else/loop region fill-opacity must stay near-transparent (<= .16)");
   }
   const labelCrossings = countSequenceLabelCrossings(svg);
   if (labelCrossings > 0) failures.push(`sequence label/path intersections=${labelCrossings}`);
