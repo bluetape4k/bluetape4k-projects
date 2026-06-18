@@ -1,212 +1,151 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1180" viewBox="0 0 1900 1180" role="img" aria-label="Micrometer Core Class Structure">
-  <defs>
-    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
-      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
-    </filter>
-    <marker id="hollow" markerWidth="16" markerHeight="14" refX="14" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 15 7 L 1 13 Z" fill="#ffffff" stroke="#111827" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="none"/>
-    </marker>
-    <marker id="open-blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
-    </marker>
-    <marker id="open-purple" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#9333ea" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
-    </marker>
-    <marker id="open-green" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
-    </marker>
-  </defs>
-
-  <style>
-    svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
-    .canvas { fill: #f8fafc; }
-    .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.8; filter: url(#softShadow); }
-    .title { font-family: "Architects Daughter"; font-size: 50px; fill: #0f172a; }
-    .subtitle { font-family: "Comic Mono"; font-size: 18px; fill: #475569; }
-    .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.7; }
-    .panelTitle { font-family: "Architects Daughter"; font-size: 27px; fill: #0f172a; }
-    .card { filter: url(#softShadow); stroke-width: 2.1; }
-    .external { fill: #f8fafc; stroke: #64748b; stroke-dasharray: 8 7; }
-    .extension { fill: #eff6ff; stroke: #2563eb; }
-    .observation { fill: #faf5ff; stroke: #9333ea; }
-    .event { fill: #fdf2f8; stroke: #db2777; }
-    .retrofit { fill: #fff7ed; stroke: #ea580c; }
-    .cache { fill: #f0fdfa; stroke: #0d9488; }
-    .common { fill: #f0fdf4; stroke: #16a34a; }
-    .iface { fill: #ffffff; stroke: #64748b; stroke-dasharray: 8 7; }
-    .name { font-family: "Architects Daughter"; font-size: 24px; fill: #0f172a; }
-    .smallName { font-family: "Architects Daughter"; font-size: 21px; fill: #0f172a; }
-    .meta { font-family: "Comic Mono"; font-size: 13.5px; fill: #475569; }
-    .tiny { font-family: "Comic Mono"; font-size: 12.5px; fill: #64748b; }
-    .extends { fill: none; stroke: #111827; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#hollow); }
-    .implements { fill: none; stroke: #111827; stroke-width: 2.2; stroke-dasharray: 8 7; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#hollow); }
-    .usesBlue { fill: none; stroke: #2563eb; stroke-width: 2.8; stroke-dasharray: 9 8; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#open-blue); }
-    .usesPurple { fill: none; stroke: #9333ea; stroke-width: 2.8; stroke-dasharray: 9 8; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#open-purple); }
-    .usesGreen { fill: none; stroke: #16a34a; stroke-width: 2.8; stroke-dasharray: 9 8; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#open-green); }
-  </style>
-
-  <rect class="canvas" width="1900" height="1180"/>
-  <rect class="frame" x="38" y="32" width="1824" height="1116" rx="8"/>
-
-  <text class="title" x="82" y="94">Micrometer Core Class Structure</text>
-  <text class="subtitle" x="86" y="128">Kotlin extension functions wrap Micrometer Observation/Timer APIs; Retrofit and Cache2k have concrete adapter classes.</text>
-
-  <rect class="panel" x="82" y="174" width="1736" height="130" rx="8"/>
-  <text class="panelTitle" x="112" y="216">External APIs extended by this module</text>
-
-  <g id="timer-api">
-    <rect class="card external" x="132" y="232" width="272" height="50" rx="8"/>
-    <text class="smallName" x="268" y="264" text-anchor="middle">Timer + Flow</text>
-  </g>
-  <g id="observation-api">
-    <rect class="card external" x="486" y="232" width="344" height="50" rx="8"/>
-    <text class="smallName" x="658" y="264" text-anchor="middle">Observation + Registry</text>
-  </g>
-  <g id="retrofit-api">
-    <rect class="card external" x="912" y="232" width="338" height="50" rx="8"/>
-    <text class="smallName" x="1081" y="264" text-anchor="middle">Retrofit CallAdapter + Call</text>
-  </g>
-  <g id="meter-api">
-    <rect class="card external" x="1308" y="232" width="430" height="50" rx="8"/>
-    <text class="smallName" x="1523" y="264" text-anchor="middle">MeterRegistry + CacheMeterBinder</text>
-  </g>
-
-  <rect class="panel" x="82" y="346" width="548" height="650" rx="8"/>
-  <rect class="panel" x="676" y="346" width="694" height="650" rx="8"/>
-  <rect class="panel" x="1416" y="346" width="402" height="650" rx="8"/>
-  <text class="panelTitle" x="112" y="388">Kotlin-friendly extension surface</text>
-  <text class="panelTitle" x="706" y="388">Retrofit2 metrics class cluster</text>
-  <text class="panelTitle" x="1446" y="388">Cache and tag helpers</text>
-
-  <g id="timer-ext">
-    <rect class="card extension" x="122" y="430" width="224" height="104" rx="8"/>
-    <text class="smallName" x="234" y="462" text-anchor="middle">TimerExtensions</text>
-    <text class="meta" x="234" y="491" text-anchor="middle">Timer.recordSuspend</text>
-    <text class="meta" x="234" y="514" text-anchor="middle">Flow.withTimer</text>
-  </g>
-  <g id="registry-support">
-    <rect class="card observation" x="376" y="430" width="214" height="104" rx="8"/>
-    <text class="smallName" x="483" y="462" text-anchor="middle">RegistrySupport</text>
-    <text class="meta" x="483" y="491" text-anchor="middle">NOOP registry</text>
-    <text class="meta" x="483" y="514" text-anchor="middle">start/createNotStarted</text>
-  </g>
-  <g id="obs-ext">
-    <rect class="card observation" x="122" y="576" width="224" height="112" rx="8"/>
-    <text class="smallName" x="234" y="608" text-anchor="middle">ObservationExtensions</text>
-    <text class="meta" x="234" y="638" text-anchor="middle">withObservation</text>
-    <text class="meta" x="234" y="661" text-anchor="middle">tryObserve</text>
-  </g>
-  <g id="coroutine-obs">
-    <rect class="card observation" x="376" y="576" width="214" height="112" rx="8"/>
-    <text class="smallName" x="483" y="608" text-anchor="middle">CoroutineSupport</text>
-    <text class="meta" x="483" y="638" text-anchor="middle">observeSuspending</text>
-    <text class="meta" x="483" y="661" text-anchor="middle">context propagation</text>
-  </g>
-  <g id="event-support">
-    <rect class="card event" x="122" y="734" width="468" height="130" rx="8"/>
-    <text class="name" x="356" y="771" text-anchor="middle">EventTelemetryObservationSupport</text>
-    <text class="meta" x="356" y="804" text-anchor="middle">observeEventPublish / observeEventConsume</text>
-    <text class="meta" x="356" y="827" text-anchor="middle">low-cardinality outcome + destination tags</text>
-    <text class="meta" x="356" y="850" text-anchor="middle">cancellation rethrown with outcome=CANCELLED</text>
-  </g>
-  <g id="event-types">
-    <rect class="card event" x="122" y="898" width="468" height="64" rx="8"/>
-    <text class="smallName" x="356" y="926" text-anchor="middle">EventTelemetry data model</text>
-    <text class="tiny" x="356" y="950" text-anchor="middle">Destination, Correlation, HighCardinality, Operation, Outcome</text>
-  </g>
-
-  <path class="usesPurple" d="M 483 688 V 714 H 356 V 726"/>
-  <path class="usesPurple" d="M 356 864 V 890"/>
-
-  <g id="retrofit-factory">
-    <rect class="card retrofit" x="722" y="432" width="286" height="104" rx="8"/>
-    <text class="smallName" x="865" y="464" text-anchor="middle">RetrofitMetricsFactory</text>
-    <text class="meta" x="865" y="493" text-anchor="middle">extends CallAdapter.Factory</text>
-    <text class="meta" x="865" y="516" text-anchor="middle">creates measured adapters</text>
-  </g>
-  <g id="micrometer-factory">
-    <rect class="card retrofit" x="722" y="582" width="286" height="90" rx="8"/>
-    <text class="smallName" x="865" y="614" text-anchor="middle">MicrometerRetrofit</text>
-    <text class="smallName" x="865" y="639" text-anchor="middle">MetricsFactory</text>
-    <text class="meta" x="865" y="663" text-anchor="middle">uses global or supplied registry</text>
-  </g>
-  <path class="extends" d="M 865 582 V 544"/>
-
-  <g id="adapter">
-    <rect class="card retrofit" x="1054" y="432" width="262" height="104" rx="8"/>
-    <text class="smallName" x="1185" y="464" text-anchor="middle">MeasuredCallAdapter</text>
-    <text class="meta" x="1185" y="493" text-anchor="middle">implements CallAdapter</text>
-    <text class="meta" x="1185" y="516" text-anchor="middle">wraps call in MeasuredCall</text>
-  </g>
-  <g id="measured-call">
-    <rect class="card retrofit" x="1054" y="582" width="262" height="104" rx="8"/>
-    <text class="smallName" x="1185" y="614" text-anchor="middle">MeasuredCall&lt;T&gt;</text>
-    <text class="meta" x="1185" y="643" text-anchor="middle">delegates Retrofit Call</text>
-    <text class="meta" x="1185" y="666" text-anchor="middle">records execute/enqueue</text>
-  </g>
-  <g id="collector">
-    <rect class="card retrofit" x="846" y="742" width="278" height="108" rx="8"/>
-    <text class="smallName" x="985" y="774" text-anchor="middle">RetrofitCall</text>
-    <text class="smallName" x="985" y="799" text-anchor="middle">MetricsCollector</text>
-    <text class="meta" x="985" y="826" text-anchor="middle">builds method/status/outcome tags</text>
-  </g>
-  <g id="recorder-interface">
-    <rect class="card iface" x="720" y="900" width="220" height="64" rx="8"/>
-    <text class="smallName" x="830" y="927" text-anchor="middle">&lt;&lt;fun interface&gt;&gt;</text>
-    <text class="smallName" x="830" y="951" text-anchor="middle">MetricsRecorder</text>
-  </g>
-  <g id="micrometer-recorder">
-    <rect class="card retrofit" x="1004" y="890" width="284" height="86" rx="8"/>
-    <text class="smallName" x="1146" y="918" text-anchor="middle">MicrometerRetrofit</text>
-    <text class="smallName" x="1146" y="943" text-anchor="middle">MetricsRecorder</text>
-    <text class="meta" x="1146" y="967" text-anchor="middle">Timer cache + percentiles</text>
-  </g>
-  <g id="outcome">
-    <rect class="card retrofit" x="1150" y="742" width="166" height="108" rx="8"/>
-    <text class="smallName" x="1233" y="774" text-anchor="middle">Outcome</text>
-    <text class="meta" x="1233" y="803" text-anchor="middle">UNKNOWN</text>
-    <text class="meta" x="1233" y="826" text-anchor="middle">SUCCESS / errors</text>
-  </g>
-
-  <path class="usesBlue" d="M 1008 484 H 1046"/>
-  <path class="usesBlue" d="M 1185 536 V 574"/>
-  <path class="usesBlue" d="M 1185 686 V 710 H 985 V 734"/>
-  <path class="usesBlue" d="M 985 850 V 892 H 830"/>
-  <path class="usesBlue" d="M 1124 796 H 1142"/>
-  <path class="implements" d="M 1004 932 H 948"/>
-
-  <g id="cache2k">
-    <rect class="card cache" x="1464" y="432" width="306" height="136" rx="8"/>
-    <text class="smallName" x="1617" y="464" text-anchor="middle">Cache2kCacheMetrics</text>
-    <text class="meta" x="1617" y="493" text-anchor="middle">extends CacheMeterBinder</text>
-    <text class="meta" x="1617" y="516" text-anchor="middle">monitor(registry, cache, tags)</text>
-    <text class="meta" x="1617" y="539" text-anchor="middle">size, hit/miss, load, expiry</text>
-  </g>
-  <g id="keyvalue">
-    <rect class="card common" x="1464" y="626" width="306" height="112" rx="8"/>
-    <text class="smallName" x="1617" y="658" text-anchor="middle">KeyValueSupport</text>
-    <text class="meta" x="1617" y="687" text-anchor="middle">keyValueOf / keyValuesOf</text>
-    <text class="meta" x="1617" y="710" text-anchor="middle">blank-key validation</text>
-  </g>
-  <g id="registry-target">
-    <rect class="card cache" x="1464" y="800" width="306" height="96" rx="8"/>
-    <text class="smallName" x="1617" y="832" text-anchor="middle">Micrometer registries</text>
-    <text class="meta" x="1617" y="861" text-anchor="middle">Timer, Gauge, FunctionCounter</text>
-    <text class="meta" x="1617" y="884" text-anchor="middle">stable tag sets</text>
-  </g>
-
-  <path class="usesGreen" d="M 1617 568 V 618"/>
-  <path class="usesGreen" d="M 1617 738 V 792"/>
-  <path class="usesBlue" d="M 1288 942 H 1456 V 848"/>
-
-  <g id="legend" transform="translate(112,1064)">
-    <path class="extends" d="M 0 14 H 52"/>
-    <text class="tiny" x="68" y="19">extends</text>
-    <path class="implements" d="M 170 14 H 222"/>
-    <text class="tiny" x="238" y="19">implements</text>
-    <path class="usesBlue" d="M 370 14 H 422"/>
-    <text class="tiny" x="438" y="19">uses / wraps</text>
-    <path class="usesGreen" d="M 570 14 H 622"/>
-    <text class="tiny" x="638" y="19">binds metrics or tags</text>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="1840" height="1550" viewBox="0 0 1840 1550" role="img" aria-labelledby="title desc">
+<title id="title">micrometer core class structure</title>
+<desc id="desc">Core bluetape4k-micrometer classes: Kotlin extension surfaces, Retrofit2 call adapter measurement chain, Cache2k binder, and key-value helpers.</desc>
+<defs><style>
+  .title{font-family:"Architects Daughter";font-size:46px;fill:#1F2937}
+  .subtitle,.bandSub,.row,.pillText,.legend{font-family:"Comic Mono";fill:#52616B}
+  .subtitle{font-size:18px}.bandTitle{font-family:"Architects Daughter";font-size:28px;fill:#1F2937}
+  .bandSub{font-size:14px}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#1F2937}
+  .row{font-size:14px}.pillText{font-size:15px}.legend{font-size:13px}
+</style>
+<marker id="hollow-blue" viewBox="0 0 14 12" refX="13" refY="6" markerWidth="14" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.4" stroke-dasharray="none"/></marker>
+<marker id="hollow-orange" viewBox="0 0 14 12" refX="13" refY="6" markerWidth="14" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#FFFFFF" stroke="#F97316" stroke-width="2.4" stroke-dasharray="none"/></marker>
+<marker id="hollow-teal" viewBox="0 0 14 12" refX="13" refY="6" markerWidth="14" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.4" stroke-dasharray="none"/></marker>
+<marker id="open-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#2563EB" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+<marker id="open-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#16A34A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+<marker id="open-violet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#8B5CF6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+</defs>
+<rect x="36" y="30" width="1768" height="1490" rx="22" fill="#FEFEFC" stroke="#CBD8E6" stroke-width="2.4"/>
+<text x="82" y="92" class="title">Micrometer Core Class Structure</text>
+<text x="86" y="128" class="subtitle">Kotlin extensions wrap Micrometer APIs; Retrofit2 and Cache2k use concrete adapter and binder classes.</text>
+<rect x="82" y="174" width="1676" height="124" rx="14" fill="#FFFFFF" stroke="#D6E2ED" stroke-width="2"/>
+<text x="112" y="220" class="bandTitle">External APIs extended by this module</text>
+<rect x="150" y="242" width="270" height="46" rx="23" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" stroke-dasharray="9 7"/>
+<text x="285" y="272" text-anchor="middle" class="pillText">Timer + Flow</text>
+<rect x="520" y="242" width="340" height="46" rx="23" fill="#FFFFFF" stroke="#8B5CF6" stroke-width="2" stroke-dasharray="9 7"/>
+<text x="690" y="272" text-anchor="middle" class="pillText">Observation + Registry</text>
+<rect x="970" y="242" width="330" height="46" rx="23" fill="#FFFFFF" stroke="#F97316" stroke-width="2" stroke-dasharray="9 7"/>
+<text x="1135" y="272" text-anchor="middle" class="pillText">Retrofit CallAdapter + Call</text>
+<rect x="1385" y="242" width="300" height="46" rx="23" fill="#FFFFFF" stroke="#0D9488" stroke-width="2" stroke-dasharray="9 7"/>
+<text x="1535" y="272" text-anchor="middle" class="pillText">CacheMeterBinder</text>
+<rect x="82" y="342" width="515" height="900" rx="16" fill="#FFFFFF" stroke="#D6E2ED" stroke-width="2.2"/>
+<text x="110" y="384" class="bandTitle">Kotlin extension surfaces</text>
+<text x="110" y="412" class="bandSub">top-level extension functions and event data contracts</text>
+<line x1="106" y1="430" x2="573" y2="430" stroke="#8B5CF6" stroke-width="2" stroke-dasharray="9 8" opacity=".45"/>
+<rect x="122" y="454" width="205" height="112" rx="10" fill="#EFF6FF" stroke="#2563EB" stroke-width="2.3"/>
+<rect x="122" y="454" width="205" height="48" rx="10" fill="#EFF6FF" opacity=".68"/>
+<text x="224.5" y="486" text-anchor="middle" class="cardTitle">TimerExtensions</text>
+<text x="144" y="528" class="row">Timer.recordSuspend</text>
+<text x="144" y="553" class="row">Flow.withTimer</text>
+<rect x="352" y="454" width="205" height="112" rx="10" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="2.3"/>
+<rect x="352" y="454" width="205" height="48" rx="10" fill="#F5F3FF" opacity=".68"/>
+<text x="454.5" y="486" text-anchor="middle" class="cardTitle">RegistrySupport</text>
+<text x="374" y="528" class="row">observationRegistryOf</text>
+<text x="374" y="553" class="row">start / createNotStarted</text>
+<rect x="122" y="604" width="205" height="112" rx="10" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="2.3"/>
+<rect x="122" y="604" width="205" height="48" rx="10" fill="#F5F3FF" opacity=".68"/>
+<text x="224.5" y="636" text-anchor="middle" class="cardTitle">Observation Ext</text>
+<text x="144" y="678" class="row">withObservation</text>
+<text x="144" y="703" class="row">tryObserve</text>
+<rect x="352" y="604" width="205" height="112" rx="10" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="2.3"/>
+<rect x="352" y="604" width="205" height="48" rx="10" fill="#F5F3FF" opacity=".68"/>
+<text x="454.5" y="636" text-anchor="middle" class="cardTitle">CoroutineSupport</text>
+<text x="374" y="678" class="row">observeSuspending</text>
+<text x="374" y="703" class="row">context propagation</text>
+<rect x="122" y="800" width="435" height="130" rx="10" fill="#FDF2F8" stroke="#DB2777" stroke-width="2.3"/>
+<rect x="122" y="800" width="435" height="48" rx="10" fill="#FDF2F8" opacity=".68"/>
+<text x="339.5" y="832" text-anchor="middle" class="cardTitle">EventTelemetry Support</text>
+<text x="144" y="874" class="row">observeEventPublish / observeEventConsume</text>
+<text x="144" y="899" class="row">publish/consume outcomes</text>
+<text x="144" y="924" class="row">cancellation rethrow: outcome=CANCELLED</text>
+<rect x="122" y="970" width="435" height="88" rx="10" fill="#FDF2F8" stroke="#DB2777" stroke-width="2.3"/>
+<rect x="122" y="970" width="435" height="48" rx="10" fill="#FDF2F8" opacity=".68"/>
+<text x="339.5" y="1002" text-anchor="middle" class="cardTitle">EventTelemetry data model</text>
+<text x="144" y="1044" class="row">Destination, Correlation, HighCardinality, Outcome</text>
+<rect x="650" y="342" width="715" height="900" rx="16" fill="#FFFFFF" stroke="#D6E2ED" stroke-width="2.2"/>
+<text x="678" y="384" class="bandTitle">Retrofit2 metrics class cluster</text>
+<text x="678" y="412" class="bandSub">CallAdapter.Factory creates wrappers; collector builds stable tag sets</text>
+<line x1="674" y1="430" x2="1341" y2="430" stroke="#F97316" stroke-width="2" stroke-dasharray="9 8" opacity=".45"/>
+<rect x="835" y="420" width="280" height="112" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="2.3"/>
+<rect x="835" y="420" width="280" height="48" rx="10" fill="#FFF7ED" opacity=".68"/>
+<text x="975" y="452" text-anchor="middle" class="cardTitle">CallAdapter.Factory</text>
+<text x="857" y="494" class="row">external Retrofit base class</text>
+<text x="857" y="519" class="row">get(returnType, annotations)</text>
+<rect x="702" y="590" width="282" height="120" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="2.3"/>
+<rect x="702" y="590" width="282" height="48" rx="10" fill="#FFF7ED" opacity=".68"/>
+<text x="843" y="622" text-anchor="middle" class="cardTitle">RetrofitMetricsFactory</text>
+<text x="724" y="664" class="row">extends CallAdapter.Factory</text>
+<text x="724" y="689" class="row">builds collector per endpoint</text>
+<rect x="1040" y="590" width="282" height="120" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="2.3"/>
+<rect x="1040" y="590" width="282" height="48" rx="10" fill="#FFF7ED" opacity=".68"/>
+<text x="1181" y="622" text-anchor="middle" class="cardTitle">MeasuredCallAdapter</text>
+<text x="1062" y="664" class="row">implements CallAdapter</text>
+<text x="1062" y="689" class="row">wraps returned Call</text>
+<rect x="670" y="760" width="330" height="96" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="2.3"/>
+<rect x="670" y="760" width="330" height="48" rx="10" fill="#FFF7ED" opacity=".68"/>
+<text x="835" y="792" text-anchor="middle" class="cardTitle">Micrometer Retrofit Factory</text>
+<text x="692" y="834" class="row">extends RetrofitMetricsFactory</text>
+<text x="692" y="859" class="row">supplies Micrometer recorder</text>
+<rect x="1040" y="760" width="282" height="120" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="2.3"/>
+<rect x="1040" y="760" width="282" height="48" rx="10" fill="#FFF7ED" opacity=".68"/>
+<text x="1181" y="792" text-anchor="middle" class="cardTitle">MeasuredCall&lt;T&gt;</text>
+<text x="1062" y="834" class="row">implements Call&lt;T&gt;</text>
+<text x="1062" y="859" class="row">records execute/enqueue</text>
+<rect x="710" y="930" width="310" height="120" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="2.3"/>
+<rect x="710" y="930" width="310" height="48" rx="10" fill="#FFF7ED" opacity=".68"/>
+<text x="865" y="962" text-anchor="middle" class="cardTitle">Retrofit Metrics Collector</text>
+<text x="732" y="1004" class="row">method, status, outcome tags</text>
+<text x="732" y="1029" class="row">duration / exception paths</text>
+<rect x="1080" y="930" width="220" height="120" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="2.3"/>
+<rect x="1080" y="930" width="220" height="48" rx="10" fill="#FFF7ED" opacity=".68"/>
+<text x="1190" y="962" text-anchor="middle" class="cardTitle">Outcome</text>
+<text x="1102" y="1004" class="row">SUCCESS / CLIENT/SERVER</text>
+<text x="1102" y="1029" class="row">UNKNOWN</text>
+<rect x="702" y="1145" width="282" height="84" rx="10" fill="#FFFFFF" stroke="#64748B" stroke-width="2.3"/>
+<rect x="702" y="1145" width="282" height="48" rx="10" fill="#FFFFFF" opacity=".68"/>
+<text x="843" y="1177" text-anchor="middle" class="cardTitle">MetricsRecorder</text>
+<text x="724" y="1219" class="row">&lt;&lt;fun interface&gt;&gt; recordTiming(...)</text>
+<rect x="1040" y="1145" width="282" height="84" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="2.3"/>
+<rect x="1040" y="1145" width="282" height="48" rx="10" fill="#FFF7ED" opacity=".68"/>
+<text x="1181" y="1177" text-anchor="middle" class="cardTitle">Micrometer Recorder</text>
+<text x="1062" y="1219" class="row">Timer cache + percentiles</text>
+<rect x="1415" y="342" width="343" height="900" rx="16" fill="#FFFFFF" stroke="#D6E2ED" stroke-width="2.2"/>
+<text x="1443" y="384" class="bandTitle">Cache and tag helpers</text>
+<text x="1443" y="412" class="bandSub">Cache2k binder plus KeyValue validation utilities</text>
+<line x1="1439" y1="430" x2="1734" y2="430" stroke="#0D9488" stroke-width="2" stroke-dasharray="9 8" opacity=".45"/>
+<rect x="1452" y="520" width="268" height="130" rx="10" fill="#ECFDF5" stroke="#0D9488" stroke-width="2.3"/>
+<rect x="1452" y="520" width="268" height="48" rx="10" fill="#ECFDF5" opacity=".68"/>
+<text x="1586" y="552" text-anchor="middle" class="cardTitle">Cache2kCacheMetrics</text>
+<text x="1474" y="594" class="row">extends CacheMeterBinder</text>
+<text x="1474" y="619" class="row">size, hits, misses</text>
+<text x="1474" y="644" class="row">load and expiry meters</text>
+<rect x="1452" y="750" width="268" height="112" rx="10" fill="#F0FDF4" stroke="#16A34A" stroke-width="2.3"/>
+<rect x="1452" y="750" width="268" height="48" rx="10" fill="#F0FDF4" opacity=".68"/>
+<text x="1586" y="782" text-anchor="middle" class="cardTitle">KeyValueSupport</text>
+<text x="1474" y="824" class="row">keyValueOf / keyValuesOf</text>
+<text x="1474" y="849" class="row">blank-key validation</text>
+<rect x="1452" y="970" width="268" height="112" rx="10" fill="#ECFEFF" stroke="#0D9488" stroke-width="2.3"/>
+<rect x="1452" y="970" width="268" height="48" rx="10" fill="#ECFEFF" opacity=".68"/>
+<text x="1586" y="1002" text-anchor="middle" class="cardTitle">MeterRegistry</text>
+<text x="1474" y="1044" class="row">Timer, Gauge</text>
+<text x="1474" y="1069" class="row">FunctionCounter</text>
+<path d="M 842 590 V 544" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#hollow-orange)"/>
+<path d="M 835 760 V 710" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#hollow-orange)"/>
+<path d="M 1220 590 V 546 H 980 V 532" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-blue)"/>
+<path d="M 1181 710 V 760" fill="none" stroke="#2563EB" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-blue)"/>
+<path d="M 1181 880 V 930" fill="none" stroke="#2563EB" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-blue)"/>
+<path d="M 1020 990 H 1080" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-blue)"/>
+<path d="M 865 1050 V 1145" fill="none" stroke="#2563EB" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-blue)"/>
+<path d="M 1040 1187 H 984" fill="none" stroke="#64748B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-blue)"/>
+<path d="M 1181 1145 V 1072 H 865" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#open-blue)"/>
+<path d="M 1181 1229 V 1282 H 1586 V 1082" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-green)"/>
+<path d="M 1586 650 V 750" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-green)"/>
+<path d="M 1586 862 V 970" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-green)"/>
+<path d="M 1720 520 V 288" fill="none" stroke="#0D9488" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#hollow-teal)"/>
+<path d="M 455 716 V 800" fill="none" stroke="#8B5CF6" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-violet)"/>
+<path d="M 340 930 V 970" fill="none" stroke="#DB2777" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-violet)"/>
+<rect x="108" y="1390" width="1160" height="54" rx="12" fill="#FFFFFF" stroke="#D6E2ED" stroke-width="1.8"/>
+<text x="134" y="1423" class="legend">solid hollow triangle = extends</text>
+<text x="370" y="1423" class="legend">dashed hollow/open arrows = implements or uses</text>
+<text x="710" y="1423" class="legend">Source-backed grouping: extensions, Retrofit measurement chain, Cache2k binder, tag helpers</text>
 </svg>
