@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1778.4" height="1324" viewBox="0 0 1778.4 1324" role="img" aria-label="In-process Test Sequence">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <marker id="seqArrow-blue" viewBox="0 0 10 10" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" viewBox="0 0 10 10" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" viewBox="0 0 10 10" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" viewBox="0 0 10 10" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" viewBox="0 0 10 10" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" viewBox="0 0 10 10" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" viewBox="0 0 10 10" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#758297"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
@@ -19,7 +19,7 @@
 <rect class="canvas" width="1778.4" height="1266"/>
 <rect class="frame" x="32" y="28" width="1714.4" height="1210" rx="30"/>
 <text class="title" x="68" y="84">In-process Test Sequence</text>
-<text class="subtitle" x="72" y="116">Shows the main calls, branches, and returned values for this flow.</text>
+<text class="subtitle" x="72" y="116">In-process tests share a named server and channel without opening a real network port.</text>
 <g id="seq-test-code"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">Test code</text><line class="lifeline" x1="255" y1="248" x2="255" y2="1182"/></g>
 <g id="seq-inprocessserver"><rect class="card" x="562.8" y="170" width="230" height="78" rx="10" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="677.8" y="215" text-anchor="middle">InprocessServer</text><line class="lifeline" x1="677.8" y1="248" x2="677.8" y2="1182"/></g>
 <g id="seq-serviceimpl"><rect class="card" x="985.6" y="170" width="230" height="78" rx="10" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="1100.6" y="215" text-anchor="middle">ServiceImpl</text><line class="lifeline" x1="1100.6" y1="248" x2="1100.6" y2="1182"/></g>

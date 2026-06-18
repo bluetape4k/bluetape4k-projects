@@ -11,9 +11,9 @@ A Kotlin extension library for implementing gRPC servers and clients.
 
 ## Architecture
 
-### Class Hierarchy
+### gRPC Class Structure
 
-![Class Hierarchy diagram](../../docs/images/readme-diagrams/io-grpc-diagram-01.png)
+![gRPC Class Structure diagram](../../docs/images/readme-diagrams/io-grpc-diagram-01.png)
 
 ### Component Overview
 
