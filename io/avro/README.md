@@ -10,9 +10,9 @@ It supports various compression codecs (Zstandard, Snappy, Deflate, etc.) and of
 
 ## Architecture Diagrams
 
-### Serializer Class Hierarchy
+### Avro Serializer Class Structure
 
-![Serializer Class Hierarchy diagram](../../docs/images/readme-diagrams/io-avro-diagram-01.png)
+![Avro Serializer Class Structure diagram](../../docs/images/readme-diagrams/io-avro-diagram-01.png)
 
 ### Avro Serialization/Deserialization Flow
 

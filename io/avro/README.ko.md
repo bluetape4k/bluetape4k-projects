@@ -10,17 +10,17 @@ Apache Avro 직렬화/역직렬화를 위한 고수준 API를 제공하는 모�
 
 ## 아키텍처 다이어그램
 
-### Serializer 클래스 계층
+### Avro Serializer 클래스 구조
 
-![Serializer diagram](../../docs/images/readme-diagrams/io-avro-diagram-01.png)
+![Avro Serializer 클래스 구조 다이어그램](../../docs/images/readme-diagrams/io-avro-diagram-01.png)
 
 ### Avro 직렬화/역직렬화 흐름
 
-![Avro / diagram](../../docs/images/readme-diagrams/io-avro-sequence-01.png)
+![Avro 직렬화/역직렬화 시퀀스 다이어그램](../../docs/images/readme-diagrams/io-avro-sequence-01.png)
 
 ### 압축 코덱 선택 가이드
 
-![Compression Codec Selection Guide diagram](../../docs/images/readme-diagrams/io-avro-diagram-02.png)
+![압축 코덱 선택 가이드 다이어그램](../../docs/images/readme-diagrams/io-avro-diagram-02.png)
 
 ## Serializer 종류
 
