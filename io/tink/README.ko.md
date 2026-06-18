@@ -31,11 +31,11 @@ raw JCA/JCE API를 직접 사용할 때 실수하기 쉬운 nonce 처리, cipher
 
 ### TinkEncryptor 클래스 계층
 
-![TinkEncryptor diagram](../../docs/images/readme-diagrams/io-tink-diagram-01.png)
+![TinkEncryptor 클래스 계층 다이어그램](../../docs/images/readme-diagrams/io-tink-diagram-01.png)
 
 ### AEAD encrypt/decrypt 흐름
 
-![AEAD encrypt/decrypt diagram](../../docs/images/readme-diagrams/io-tink-sequence-01.png)
+![AEAD encrypt/decrypt 흐름 시퀀스 다이어그램](../../docs/images/readme-diagrams/io-tink-sequence-01.png)
 
 ## 추천 사용 시나리오
 

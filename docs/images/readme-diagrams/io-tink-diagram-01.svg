@@ -1,89 +1,164 @@
-<svg data-intent="Regenerate TinkEncryptor Class Hierarchy from the current README and source package surface for io/tink." data-evidence="io/tink/README.md; io/tink; io/tink/src/main/kotlin" data-source-read="io/tink/README.md; io/tink; io/tink/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="TinkEncryptor Class Hierarchy">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">TinkEncryptor Class Hierarchy</text>
-<text class="subtitle" x="76" y="116">io/tink: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Why Tink</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">TinkEncryptor Class Hierarchy</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">AEAD encrypt/decrypt Flow</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Recommended Usage Scenarios</text>
-</g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">tink package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">tink package (26)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">TinkAead type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">TinkAead type</text>
-</g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">TinkAeads type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">TinkAeads type</text>
-</g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">TinkDaeads type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">TinkDaeads type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Redis backend</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Redis backend</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Serialization</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Serialization</text>
-</g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Test support</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
-<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120" role="img" aria-labelledby="title desc">
+  <title id="title">TinkEncryptor Class Hierarchy</title>
+  <desc id="desc">UML class view of TinkEncryptor implementations, AEAD and deterministic AEAD wrappers, factories, and versioned keyset support.</desc>
+  <defs>
+    <style>
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #263238; }
+      .subtitle, .detail, .method, .legend, .footer { font-family: "Comic Mono"; fill: #36464f; }
+      .subtitle { font-size: 17px; }
+      .frame { fill: #fbfcf8; stroke: #41545d; stroke-width: 3; }
+      .classBox { fill: #ffffff; stroke: #546e7a; stroke-width: 2.2; }
+      .interfaceBox { fill: #eef7f0; stroke: #5d8b66; stroke-width: 2.4; }
+      .implBox { fill: #eef5fa; stroke: #3f7d9c; stroke-width: 2.2; }
+      .wrapperBox { fill: #fff7e8; stroke: #a97b3d; stroke-width: 2.2; }
+      .factoryBox { fill: #f2eef9; stroke: #7b67a8; stroke-width: 2.2; }
+      .versionBox { fill: #f9eef0; stroke: #b86868; stroke-width: 2.2; }
+      .storeBox { fill: #f4f7f1; stroke: #6e8f4f; stroke-width: 2.2; }
+      .className { font-family: "Architects Daughter"; font-size: 22px; fill: #1f3138; }
+      .stereo { font-family: "Comic Mono"; font-size: 13px; fill: #566b73; }
+      .detail { font-size: 13px; }
+      .method { font-size: 12px; }
+      .divider { stroke: #cfd9dd; stroke-width: 1.5; }
+      .realize { fill: none; stroke: #3f7d9c; stroke-width: 2.4; stroke-dasharray: 8 6; marker-end: url(#hollowTriangle); }
+      .uses { fill: none; stroke: #7f6038; stroke-width: 2.5; marker-end: url(#openArrow); }
+      .factory { fill: none; stroke: #7b67a8; stroke-width: 2.5; stroke-dasharray: 8 6; marker-end: url(#openFactory); }
+      .keyset { fill: none; stroke: #55783f; stroke-width: 2.5; marker-end: url(#openStore); }
+      .legend { font-size: 13px; }
+      .footer { font-size: 14px; fill: #60727d; }
+    </style>
+    <marker id="hollowTriangle" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 12 6 L 1 11 Z" fill="#fbfcf8" stroke="#3f7d9c" stroke-width="2" stroke-dasharray="none"/>
+    </marker>
+    <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#7f6038" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="openFactory" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#7b67a8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <marker id="openStore" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#55783f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+  </defs>
+
+  <rect x="24" y="24" width="1552" height="1072" rx="20" class="frame"/>
+  <text x="800" y="78" text-anchor="middle" class="title">TinkEncryptor Class Hierarchy</text>
+  <text x="800" y="108" text-anchor="middle" class="subtitle">AEAD and deterministic AEAD share the public encryptor contract; versioned wrappers add key rotation without changing ciphertext readers.</text>
+
+  <g id="tink-encryptor">
+    <rect x="630" y="145" width="340" height="185" rx="10" class="interfaceBox"/>
+    <text x="800" y="174" text-anchor="middle" class="stereo">&lt;&lt;interface&gt;&gt;</text>
+    <text x="800" y="203" text-anchor="middle" class="className">TinkEncryptor</text>
+    <line x1="630" y1="224" x2="970" y2="224" class="divider"/>
+    <text x="652" y="251" class="method">+ encrypt(ByteArray): ByteArray</text>
+    <text x="652" y="273" class="method">+ decrypt(ByteArray): ByteArray</text>
+    <text x="652" y="295" class="method">+ encrypt(String): String</text>
+    <text x="652" y="317" class="method">+ decrypt(String): String</text>
+  </g>
+
+  <g id="tink-encryptors">
+    <rect x="72" y="360" width="240" height="150" rx="10" class="factoryBox"/>
+    <text x="192" y="392" text-anchor="middle" class="className">TinkEncryptors</text>
+    <line x1="72" y1="412" x2="312" y2="412" class="divider"/>
+    <text x="94" y="438" class="method">+ AES256_GCM</text>
+    <text x="94" y="460" class="method">+ CHACHA20_POLY1305</text>
+    <text x="94" y="482" class="method">+ DETERMINISTIC_AES256_SIV</text>
+  </g>
+
+  <g id="aead-impl">
+    <rect x="358" y="390" width="340" height="150" rx="10" class="implBox"/>
+    <text x="528" y="424" text-anchor="middle" class="className">TinkAeadEncryptor</text>
+    <line x1="358" y1="445" x2="698" y2="445" class="divider"/>
+    <text x="380" y="472" class="method">- aead: TinkAead</text>
+    <line x1="358" y1="488" x2="698" y2="488" class="divider"/>
+    <text x="380" y="514" class="method">+ randomized AEAD String/bytes API</text>
+  </g>
+
+  <g id="daead-impl">
+    <rect x="902" y="390" width="340" height="150" rx="10" class="implBox"/>
+    <text x="1072" y="424" text-anchor="middle" class="className">TinkDaeadEncryptor</text>
+    <line x1="902" y1="445" x2="1242" y2="445" class="divider"/>
+    <text x="924" y="472" class="method">- daead: TinkDeterministicAead</text>
+    <line x1="902" y1="488" x2="1242" y2="488" class="divider"/>
+    <text x="924" y="514" class="method">+ deterministic searchable fields</text>
+  </g>
+
+  <g id="tink-aeads">
+    <rect x="72" y="630" width="240" height="140" rx="10" class="factoryBox"/>
+    <text x="192" y="662" text-anchor="middle" class="className">TinkAeads</text>
+    <line x1="72" y1="682" x2="312" y2="682" class="divider"/>
+    <text x="94" y="708" class="method">+ AES256_GCM</text>
+    <text x="94" y="730" class="method">+ AES128_GCM</text>
+    <text x="94" y="752" class="method">+ versioned(store)</text>
+  </g>
+
+  <g id="tink-aead">
+    <rect x="358" y="640" width="340" height="150" rx="10" class="wrapperBox"/>
+    <text x="528" y="674" text-anchor="middle" class="className">TinkAead</text>
+    <line x1="358" y1="695" x2="698" y2="695" class="divider"/>
+    <text x="380" y="722" class="method">- aead: Aead by lazy KeysetHandle</text>
+    <line x1="358" y1="738" x2="698" y2="738" class="divider"/>
+    <text x="380" y="764" class="method">+ encrypt/decrypt(bytes, associatedData)</text>
+  </g>
+
+  <g id="tink-daead">
+    <rect x="902" y="640" width="340" height="150" rx="10" class="wrapperBox"/>
+    <text x="1072" y="674" text-anchor="middle" class="className">TinkDeterministicAead</text>
+    <line x1="902" y1="695" x2="1242" y2="695" class="divider"/>
+    <text x="924" y="722" class="method">- daead: DeterministicAead by lazy</text>
+    <line x1="902" y1="738" x2="1242" y2="738" class="divider"/>
+    <text x="924" y="764" class="method">+ encryptDeterministically(...)</text>
+  </g>
+
+  <g id="tink-daeads">
+    <rect x="1288" y="630" width="240" height="140" rx="10" class="factoryBox"/>
+    <text x="1408" y="662" text-anchor="middle" class="className">TinkDaeads</text>
+    <line x1="1288" y1="682" x2="1528" y2="682" class="divider"/>
+    <text x="1310" y="708" class="method">+ AES256_SIV</text>
+    <text x="1310" y="730" class="method">+ versioned(store)</text>
+    <text x="1310" y="752" class="method">+ registerTink()</text>
+  </g>
+
+  <g id="versioned-aead">
+    <rect x="232" y="868" width="330" height="130" rx="10" class="versionBox"/>
+    <text x="397" y="900" text-anchor="middle" class="className">VersionedTinkAead</text>
+    <line x1="232" y1="920" x2="562" y2="920" class="divider"/>
+    <text x="254" y="946" class="method">+ current/rotate/rotateIfDue()</text>
+    <text x="254" y="968" class="method">+ pack version + ciphertext</text>
+  </g>
+
+  <g id="keyset-store">
+    <rect x="620" y="850" width="360" height="160" rx="10" class="storeBox"/>
+    <text x="800" y="881" text-anchor="middle" class="stereo">&lt;&lt;interface&gt;&gt;</text>
+    <text x="800" y="910" text-anchor="middle" class="className">VersionedKeysetStore</text>
+    <line x1="620" y1="932" x2="980" y2="932" class="divider"/>
+    <text x="642" y="958" class="method">+ current(): VersionedKeysetHandle</text>
+    <text x="642" y="980" class="method">+ find(version): VersionedKeysetHandle?</text>
+    <text x="642" y="1002" class="method">+ rotateIfDue(Duration)</text>
+  </g>
+
+  <g id="versioned-daead">
+    <rect x="1038" y="868" width="330" height="130" rx="10" class="versionBox"/>
+    <text x="1203" y="900" text-anchor="middle" class="className">VersionedTinkDaead</text>
+    <line x1="1038" y1="920" x2="1368" y2="920" class="divider"/>
+    <text x="1060" y="946" class="method">+ same version => same ciphertext</text>
+    <text x="1060" y="968" class="method">+ old versions still decrypt</text>
+  </g>
+
+  <path class="realize" d="M 528 390 L 528 350 L 735 350 L 735 330"/>
+  <path class="realize" d="M 1072 390 L 1072 350 L 865 350 L 865 330"/>
+  <path class="factory" d="M 312 435 L 358 435"/>
+  <path class="factory" d="M 312 700 L 358 700"/>
+  <path class="factory" d="M 1288 700 L 1242 700"/>
+  <path class="uses" d="M 528 540 L 528 640"/>
+  <path class="uses" d="M 1072 540 L 1072 640"/>
+  <path class="uses" d="M 397 868 L 397 825 L 528 825 L 528 790"/>
+  <path class="uses" d="M 1203 868 L 1203 825 L 1072 825 L 1072 790"/>
+  <path class="keyset" d="M 562 933 L 620 933"/>
+  <path class="keyset" d="M 1038 933 L 980 933"/>
+
+  <g>
+    <rect x="92" y="1030" width="1416" height="34" rx="12" fill="#ffffff" stroke="#ccd7da" stroke-width="1.6"/>
+    <text x="116" y="1052" class="legend">Dashed hollow triangle = implements. Open arrows = wrapper/use or factory creation. Versioned wrappers prepend an 8-byte keyset version before ciphertext.</text>
+  </g>
+  <text x="800" y="1088" text-anchor="middle" class="footer">github.com/bluetape4k/bluetape4k-projects - io/tink README</text>
 </svg>
