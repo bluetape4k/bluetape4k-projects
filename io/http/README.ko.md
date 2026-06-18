@@ -12,19 +12,19 @@ Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, Ktor Client 등을 일관�
 
 ### 전체 아키텍처: 다중 백엔드 HTTP 클라이언트
 
-![: HTTP diagram](../../docs/images/readme-diagrams/io-http-diagram-01.png)
+![다중 백엔드 HTTP 클라이언트 아키텍처 다이어그램](../../docs/images/readme-diagrams/io-http-diagram-01.png)
 
 ### HTTP 클라이언트 계층 (HC5)
 
-![HTTP (HC5) diagram](../../docs/images/readme-diagrams/io-http-diagram-02.png)
+![HC5 HTTP 클라이언트 계층 다이어그램](../../docs/images/readme-diagrams/io-http-diagram-02.png)
 
 ### OkHttp3 클라이언트 계층
 
-![OkHttp3 diagram](../../docs/images/readme-diagrams/io-http-diagram-03.png)
+![OkHttp3 클라이언트 계층 다이어그램](../../docs/images/readme-diagrams/io-http-diagram-03.png)
 
 ### 비동기 HTTP 요청 흐름 (HC5 Async + Coroutines)
 
-![HTTP (HC5 Async + Coroutines) diagram](../../docs/images/readme-diagrams/io-http-sequence-01.png)
+![HC5 Async와 Coroutines 기반 비동기 HTTP 요청 시퀀스 다이어그램](../../docs/images/readme-diagrams/io-http-sequence-01.png)
 
 ## 주요 기능
 
@@ -256,7 +256,7 @@ val response: HealthResponse = client.get("https://example.com/health").body()
 
 > 전체 설계 근거: [`docs/design/2026-05-24-hc5-first-http-client-recommendation.md`](../../docs/design/2026-05-24-hc5-first-http-client-recommendation.md)
 
-![HTTP Client Primary Recommendations diagram](../../docs/images/readme-diagrams/io-http-diagram-04.png)
+![HTTP 클라이언트 주요 권장 선택 다이어그램](../../docs/images/readme-diagrams/io-http-diagram-04.png)
 
 **Apache HttpComponents 5 (HC5)** 가 `bluetape4k-http`의 **1순위 권장 프로덕션 HTTP 클라이언트**입니다. 프로덕션 튜닝 팩토리, RFC 7234 인메모리 캐싱, Virtual Thread 지원, Coroutines 통합 등 가장 풍부한 기능을 제공합니다.
 
