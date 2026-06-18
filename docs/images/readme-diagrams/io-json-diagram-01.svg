@@ -122,10 +122,7 @@
 <path d="M 800 775 V 486" class="implements"/>
   <path d="M 790 486 L 800 470 L 810 486 Z" fill="#ffffff" stroke="#263238" stroke-width="2.1" stroke-linejoin="round"/>
 
-  <path d="M 330 883 V 895" class="uses-amber-bus"/>
-  <path d="M 800 883 V 895" class="uses-amber-bus"/>
-  <path d="M 1270 883 V 895" class="uses-amber-bus"/>
-  <path d="M 1270 895 H 95 V 548 H 120" class="uses-amber"/>
+  <path d="M 585 434 H 520 V 548 H 480" class="uses-amber"/>
 
   <rect x="90" y="930" width="1420" height="34" rx="12" fill="#ffffff" stroke="#c7d3d8"/>
   <text x="800" y="952" text-anchor="middle" class="small">io/json does not auto-select Jackson or Fastjson2. It defines the stable SPI; applications wire the concrete serializer they need.</text>
