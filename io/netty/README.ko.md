@@ -30,15 +30,15 @@ dependencies {
 
 ### ByteBuf 확장 API 구조
 
-![ByteBuf API diagram](../../docs/images/readme-diagrams/io-netty-diagram-01.png)
+![ByteBuf 확장 API 구조 다이어그램](../../docs/images/readme-diagrams/io-netty-diagram-01.png)
 
 ### Smart 인코딩 데이터 흐름
 
-![Smart diagram](../../docs/images/readme-diagrams/io-netty-diagram-02.png)
+![Smart 인코딩 데이터 흐름 다이어그램](../../docs/images/readme-diagrams/io-netty-diagram-02.png)
 
 ### ByteBuf 처리 흐름
 
-![ByteBuf Processing Flow diagram](../../docs/images/readme-diagrams/io-netty-diagram-03.png)
+![ByteBuf 처리 흐름 다이어그램](../../docs/images/readme-diagrams/io-netty-diagram-03.png)
 
 ## 기본 사용법
 

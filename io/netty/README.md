@@ -30,15 +30,15 @@ dependencies {
 
 ### ByteBuf Extension API Structure
 
-![ByteBuf Extension API Structure diagram](../../docs/images/readme-diagrams/io-netty-diagram-01.png)
+![bluetape4k-netty ByteBuf Extension API Structure diagram](../../docs/images/readme-diagrams/io-netty-diagram-01.png)
 
 ### Smart Encoding Data Flow
 
-![Smart Encoding Data Flow diagram](../../docs/images/readme-diagrams/io-netty-diagram-02.png)
+![bluetape4k-netty Smart Encoding Data Flow diagram](../../docs/images/readme-diagrams/io-netty-diagram-02.png)
 
 ### ByteBuf Processing Flow
 
-![ByteBuf Processing Flow diagram](../../docs/images/readme-diagrams/io-netty-diagram-03.png)
+![bluetape4k-netty ByteBuf Processing Flow diagram](../../docs/images/readme-diagrams/io-netty-diagram-03.png)
 
 ## Basic Usage
 
