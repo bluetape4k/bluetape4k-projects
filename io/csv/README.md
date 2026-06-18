@@ -12,9 +12,9 @@ Since v1.5.0 the internal engine has been replaced from univocity-parsers to a s
 
 ## Architecture
 
-### Class Structure
+### CSV/TSV Class Structure
 
-![Class Structure diagram](../../docs/images/readme-diagrams/io-csv-diagram-01.png)
+![CSV/TSV Class Structure diagram](../../docs/images/readme-diagrams/io-csv-diagram-01.png)
 
 ### CSV/TSV Processing Flow
 

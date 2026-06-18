@@ -14,11 +14,11 @@ v1.5.0부터 내부 엔진이 univocity-parsers에서 자체 구현 상태 기�
 
 ### 클래스 구조
 
-![csv Class Structure diagram](../../docs/images/readme-diagrams/io-csv-diagram-01.png)
+![CSV/TSV 클래스 구조 다이어그램](../../docs/images/readme-diagrams/io-csv-diagram-01.png)
 
 ### CSV/TSV 처리 흐름
 
-![CSV/TSV diagram](../../docs/images/readme-diagrams/io-csv-diagram-02.png)
+![CSV/TSV 처리 흐름 다이어그램](../../docs/images/readme-diagrams/io-csv-diagram-02.png)
 
 ## 주요 기능
 
