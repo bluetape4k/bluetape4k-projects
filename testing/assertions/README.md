@@ -2,7 +2,8 @@
 
 [한국어](README.ko.md)
 
-bluetape4k-assertions-compatible assertion DSL for JUnit 5. Zero `bluetape4k-*` dependencies in api scope — drop-in import replacement.
+JUnit 5-native assertion DSL with the bluetape4k assertion API surface. It keeps api-scope dependencies minimal:
+JUnit Jupiter API and Kotlin coroutines are exposed only where the public DSL requires them, while Turbine support remains `compileOnly`.
 
 ## Architecture
 
@@ -10,7 +11,7 @@ bluetape4k-assertions-compatible assertion DSL for JUnit 5. Zero `bluetape4k-*` 
 
 ## Features
 
-- **bluetape4k-assertions-compatible** infix DSL — same function names, import-only migration
+- **bluetape4k assertion API surface** — familiar infix names with explicit equality semantics
 - **Basic**: `shouldBe` (ref ===), `shouldBeEqualTo` (value ==), `shouldNotBeNull` with smart cast contract
 - **Numerical**: comparisons (`shouldBeLessThan`, `shouldBeGreaterOrEqualTo`), sign checks, signed and unsigned range containment
 - **Collections / Arrays / Maps**: content equality, containment (`shouldContainAll`, `shouldNotContainAny`)
@@ -169,13 +170,13 @@ class MyTest {
 | `shouldBeInstanceOf<T>()` | Instance check (smart cast) |
 | `shouldNotBeInstanceOf<T>()` | Negative instance check |
 
-## Migration from bluetape4k-assertions
+## Migration Notes
 
-Replace `import io.bluetape4k.assertions.*` with `import io.bluetape4k.assertions.*`.
+The package remains `io.bluetape4k.assertions`, but equality semantics are intentionally explicit.
 
-| bluetape4k-assertions | bluetape4k-assertions | Notes |
-|--------|----------------------|-------|
-| `shouldBe` (value ==) | `shouldBeEqualTo` | Different semantics in bluetape4k |
+| Legacy expectation | This module | Notes |
+|--------|-------------|-------|
+| `shouldBe` for value equality | `shouldBeEqualTo` | Use structural equality (`==`) |
 | `shouldBe` (ref ===) | `shouldBe` | Same behavior |
 | `shouldNotBeNull()` | `shouldNotBeNull()` | + smart cast contract |
 | `shouldThrow(E::class)` | `invoking { }.shouldThrow(E::class)` | Explicit block wrapper |
@@ -184,16 +185,16 @@ Replace `import io.bluetape4k.assertions.*` with `import io.bluetape4k.assertion
 
 ### Critical Semantic Change
 
-**bluetape4k-assertions's `shouldBe` uses `==` (structural equality) for all types.**
-**bluetape4k-assertions's `shouldBe` uses `===` (referential equality).**
+**This module's `shouldBe` uses `===` (referential equality).**
+**Use `shouldBeEqualTo` for `==` (structural equality).**
 
-This is intentional to provide clear semantics for both value and reference equality. Always use `shouldBeEqualTo` when migrating bluetape4k-assertions's `shouldBe` for value equality.
+This split is intentional: tests can distinguish value equality from object identity without relying on a single overloaded name.
 
 ```kotlin
-// bluetape4k-assertions
-"a" shouldBe "a"  // Passes (== comparison)
+// Structural equality
+"a" shouldBeEqualTo "a"  // Passes (== comparison)
 
-// bluetape4k-assertions
+// This module
 "a" shouldBe "a"  // Fails! (=== comparison)
 "a" shouldBeEqualTo "a"  // Passes (== comparison)
 ```
