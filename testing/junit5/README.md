@@ -225,6 +225,10 @@ class FieldSourceTest {
 ./gradlew :testing:junit5:test | awk 'f||/^gantt$/{f=1; print}' > gantt.mermaid
 ```
 
+The listener sequence below shows how JUnit callbacks become a Mermaid Gantt report.
+
+![Mermaid report sequence](../../docs/images/readme-diagrams/testing-junit5-diagram-03.png)
+
 ## Best Practices
 
 - Use `TempFolderExtension` instead of ad hoc file paths in tests.

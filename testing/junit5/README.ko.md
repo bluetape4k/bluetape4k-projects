@@ -354,9 +354,9 @@ class FieldSourceTest {
 ./gradlew :testing:junit5:test | awk 'f||/^gantt$/{f=1; print}' > gantt.mermaid
 ```
 
-출력 예시:
+동작 흐름:
 
-![Mermaid diagram](../../docs/images/readme-diagrams/testing-junit5-diagram-03.png)
+![Mermaid 리포트 시퀀스](../../docs/images/readme-diagrams/testing-junit5-diagram-03.png)
 
 - `active`: 성공한 테스트
 - `crit`: 실패한 테스트
