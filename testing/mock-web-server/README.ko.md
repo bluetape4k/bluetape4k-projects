@@ -3,14 +3,14 @@
 한국어 | [English](./README.md)
 
 외부 HTTP 의존성을 통합 테스트에서 대체하기 위한 독립형 Spring Boot 4 + Virtual Threads HTTP Mock 서버입니다.
-**httpbin.org**, **jsonplaceholder.typicode.com**, 그리고 간단한 웹 컨텐츠 엔드포인트를 하나의 Docker 이미지(
-`bluetape4k/mock-web-server`)로 제공합니다.
+**httpbin.org**, **jsonplaceholder.typicode.com**, 간단한 웹 콘텐츠 엔드포인트를 하나의 Docker 이미지
+(`bluetape4k/mock-web-server`)로 제공합니다.
 
-## Architecture
+## 아키텍처
 
 `bluetape4k-mock-web-server`는 포트 **80**(HTTP) / **443**(HTTPS)에서 실행되는 Spring Boot 4 MVC 애플리케이션입니다.
-`spring.threads.virtual.enabled=true` 설정으로 JDK 21+ Virtual Threads를 사용하여 OS 스레드를 블로킹하지 않고 고동시성 요청을 처리합니다. 모든 Fixture 데이터는 클래스패스 JSON 파일에서 로드되어 인메모리에 저장되며, 제네릭
-`InMemoryRepository<T>`를 통해 `JsonplaceholderService`가 관리합니다. 정적 HTML 컨텐츠는 Caffeine 캐시를 사용하는
+`spring.threads.virtual.enabled=true` 설정으로 JDK 21+ Virtual Threads를 사용해 OS 스레드를 블로킹하지 않고 고동시성 요청을 처리합니다. 모든 Fixture 데이터는 클래스패스 JSON 파일에서 로드되어 인메모리에 저장되며, 제네릭
+`InMemoryRepository<T>`를 통해 `JsonplaceholderService`가 관리합니다. 정적 HTML 콘텐츠는 Caffeine 캐시를 사용하는
 `WebContentLoader`를 통해 제공됩니다.
 
 | 엔드포인트 그룹        | Prefix                | 설명                                               |
@@ -19,29 +19,29 @@
 | 관리              | `/admin/**`           | 인메모리 Fixture 데이터 초기화                             |
 | httpbin         | `/httpbin/**`         | httpbin.org HTTP 요청 검사 API 모방                    |
 | jsonplaceholder | `/jsonplaceholder/**` | jsonplaceholder.typicode.com REST Fixture API 모방 |
-| web             | `/web/**`             | 캐시된 HTML/웹 컨텐츠 Fixture                           |
+| web             | `/web/**`             | 캐시된 HTML/웹 콘텐츠 Fixture                           |
 
-## UML
+## 다이어그램
 
 ### 요청 라우팅 개요
 
-![mock web server Architecture diagram](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-01.png)
+![Mock Web Server 요청 라우팅 개요](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-01.png)
 
 ### 클래스 다이어그램
 
-![Mock Web Server Class Structure diagram](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-02.png)
+![Mock Web Server 클래스 구조](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-02.png)
 
 ### 시퀀스 다이어그램 — httpbin GET 요청
 
-![— httpbin GET diagram](../../docs/images/readme-diagrams/testing-mock-web-server-sequence-01.png)
+![httpbin GET 요청 시퀀스](../../docs/images/readme-diagrams/testing-mock-web-server-sequence-01.png)
 
-## Features
+## 기능
 
 - **Spring Boot 4 + Virtual Threads**: JDK 21+ Virtual Threads(`spring.threads.virtual.enabled=true`)로 고동시성 요청 처리
 - **포트 80(HTTP) / 443(HTTPS)**: 결정론적 테스트 구성을 위한 표준 컨테이너 포트
 - **httpbin 시뮬레이션**: `/httpbin/**`에서 HTTP 요청 검사 전체 API 제공 — 요청 에코, 헤더/IP/UUID 반환, 스트리밍, 지연, 이미지
 - **jsonplaceholder 시뮬레이션**: `/jsonplaceholder/**`에서 6개 전체 CRUD 리소스 (posts/comments/albums/photos/todos/users)
-- **웹 컨텐츠 Fixture**: Caffeine 캐시를 통한 `/web/{name}` HTML 컨텐츠
+- **웹 콘텐츠 Fixture**: Caffeine 캐시를 통한 `/web/{name}` HTML 콘텐츠
 - **관리 초기화**: `POST /admin/reset`으로 클래스패스 JSON 파일에서 전체 인메모리 Fixture 데이터 재적재
 - **Docker 이미지**: `bluetape4k/mock-web-server` — Jib으로 빌드, Dockerfile 불필요
 - **Testcontainers 통합**: `BluetapeHttpServer` 컴패니언 오브젝트가 통합 테스트용 URL 헬퍼 제공
@@ -62,7 +62,7 @@
 | `spring.cache.type`              | `caffeine`                                      | 인프로세스 캐시                    |
 | `spring.cache.cache-names`       | `html-content`, `fixture-data`, `httpbin-image` | Caffeine 캐시 이름              |
 
-## Examples
+## 예제
 
 ### Docker로 실행
 
@@ -142,7 +142,7 @@ dependencies {
 
 | Method | Path          | 설명                   |
 |--------|---------------|----------------------|
-| `GET`  | `/web/{name}` | 이름으로 캐시된 HTML 컨텐츠 반환 |
+| `GET`  | `/web/{name}` | 이름으로 캐시된 HTML 콘텐츠 반환 |
 
 ## 참고
 
