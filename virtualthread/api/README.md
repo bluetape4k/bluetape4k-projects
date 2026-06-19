@@ -242,11 +242,11 @@ class VirtualThreadsTest {
 
 ## Class Diagram
 
-![api Class Structure diagram](../../docs/images/readme-diagrams/virtualthread-api-diagram-01.png)
+![virtualthread-api class structure for runtime facades, SPI contracts, StructuredTaskScope contracts, and TaskContext helpers](../../docs/images/readme-diagrams/virtualthread-api-diagram-01.png)
 
 ## `ServiceLoader`-Based Runtime Selection Flow
 
-![ServiceLoader-Based Runtime Selection Flow diagram](../../docs/images/readme-diagrams/virtualthread-api-diagram-02.png)
+![ServiceLoader-based runtime selection flow for lazy provider discovery, supported-provider filtering, priority sorting, and fallback delegation](../../docs/images/readme-diagrams/virtualthread-api-diagram-02.png)
 
 ## References
 

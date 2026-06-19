@@ -1,79 +1,43 @@
-<svg data-intent="Regenerate api Class Structure from the current README and source package surface for virtualthread/api." data-evidence="virtualthread/api/README.md; virtualthread/api; virtualthread/api/src/main/kotlin" data-source-read="virtualthread/api/README.md; virtualthread/api; virtualthread/api/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="api Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1640" height="1040" viewBox="0 0 1640 1040" role="img" aria-label="virtualthread-api Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="impl" markerWidth="16" markerHeight="16" refX="15" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 16 8 L 0 16 Z" fill="#FFFFFF" stroke="#0D9488" stroke-width="2" stroke-dasharray="none"/></marker>
+  <marker id="usesBlue" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="usesTeal" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14" fill="none" stroke="#0D9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="usesAmber" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .section{font-family:"Architects Daughter";font-size:24px;fill:#334155}.card{filter:url(#shadow);stroke-width:1.8}.divider{stroke:#CBD5E1;stroke-width:1}
+    .className{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.stereo{font-family:"Comic Mono";font-size:12px;fill:#64748B}.member{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .impl{fill:none;stroke:#0D9488;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7}.uses{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">api Class Structure</text>
-<text class="subtitle" x="76" y="116">virtualthread/api: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Key Features</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">1. VirtualThreads - Runtime</text>
-  <text class="detail" x="919" y="311" text-anchor="middle">Selection and Executor</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">2. VirtualThreadRuntime -</text>
-  <text class="detail" x="1257" y="311" text-anchor="middle">Implementation Interface</text>
-</g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">concurrent package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">concurrent package (4)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">StructuredSubtask type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">StructuredSubtask type</text>
-</g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">StructuredTaskScopeAll type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">StructuredTaskScopeAll type</text>
-</g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">StructuredTaskScopeAny type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">StructuredTaskScopeAny type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Test support</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Virtual threads</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Virtual threads</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L581 696 L581 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L919 696 L919 790" stroke="#0F766E"/>
+<rect class="canvas" width="1640" height="1040"/>
+<rect class="frame" x="34" y="30" width="1572" height="980" rx="8"/>
+<text class="title" x="72" y="84">virtualthread-api Class Structure</text>
+<text class="subtitle" x="76" y="116">The API module owns facades, contracts, scope abstractions, and ScopedValue context helpers; JDK modules implement the SPI.</text>
+
+<text class="section" x="92" y="176">Runtime selection contracts</text>
+<g id="VirtualThreads"><rect class="card" x="120" y="210" width="340" height="132" rx="8" fill="#EFF6FF" stroke="#2563EB"/><text class="stereo" x="290" y="238" text-anchor="middle">object facade</text><text class="className" x="290" y="268" text-anchor="middle">VirtualThreads</text><line class="divider" x1="140" y1="286" x2="440" y2="286"/><text class="member" x="140" y="312">+ runtime()</text><text class="member" x="140" y="334">+ runtimeName()</text><text class="member" x="140" y="356">+ executorService()</text></g>
+<g id="VirtualThreadRuntime"><rect class="card" x="620" y="198" width="370" height="156" rx="8" fill="#F0FDF4" stroke="#16A34A"/><text class="stereo" x="805" y="226" text-anchor="middle">interface</text><text class="className" x="805" y="256" text-anchor="middle">VirtualThreadRuntime</text><line class="divider" x1="640" y1="274" x2="970" y2="274"/><text class="member" x="640" y="300">+ runtimeName: String</text><text class="member" x="640" y="322">+ priority: Int</text><text class="member" x="640" y="344">+ threadFactory(prefix)</text></g>
+<g id="RuntimeModules"><rect class="card" x="1160" y="218" width="330" height="104" rx="8" fill="#FDF2F8" stroke="#DB2777"/><text class="stereo" x="1325" y="246" text-anchor="middle">external implementations</text><text class="className" x="1325" y="276" text-anchor="middle">jdk21 / jdk25 runtime</text><text class="member" x="1325" y="304" text-anchor="middle">loaded from META-INF/services</text></g>
+
+<text class="section" x="92" y="442">StructuredTaskScope contracts</text>
+<g id="StructuredTaskScopes"><rect class="card" x="120" y="476" width="340" height="132" rx="8" fill="#EFF6FF" stroke="#2563EB"/><text class="stereo" x="290" y="504" text-anchor="middle">object facade</text><text class="className" x="290" y="534" text-anchor="middle">StructuredTaskScopes</text><line class="divider" x1="140" y1="552" x2="440" y2="552"/><text class="member" x="140" y="578">+ failFast { }</text><text class="member" x="140" y="600">+ firstSuccess { }</text><text class="member" x="140" y="622">+ supervised { }</text></g>
+<g id="StructuredTaskScopeProvider"><rect class="card" x="600" y="464" width="410" height="156" rx="8" fill="#F0FDFA" stroke="#0D9488"/><text class="stereo" x="805" y="492" text-anchor="middle">interface</text><text class="className" x="805" y="522" text-anchor="middle">StructuredTaskScopeProvider</text><line class="divider" x1="620" y1="540" x2="990" y2="540"/><text class="member" x="620" y="566">+ withAll / withFailFast</text><text class="member" x="620" y="588">+ withAny / withFirstSuccess</text><text class="member" x="620" y="610">+ withSupervised</text></g>
+<g id="ScopeContracts"><rect class="card" x="1120" y="464" width="390" height="156" rx="8" fill="#FFF7ED" stroke="#D97706"/><text class="stereo" x="1315" y="492" text-anchor="middle">interfaces</text><text class="className" x="1315" y="522" text-anchor="middle">Scope contracts</text><line class="divider" x1="1140" y1="540" x2="1490" y2="540"/><text class="member" x="1140" y="566">StructuredTaskScopeAll</text><text class="member" x="1140" y="588">StructuredTaskScopeAny</text><text class="member" x="1140" y="610">StructuredTaskScopeSupervised, Subtask</text></g>
+
+<text class="section" x="92" y="736">ScopedValue context helpers</text>
+<g id="TaskContext"><rect class="card" x="180" y="780" width="370" height="118" rx="8" fill="#FAF5FF" stroke="#9333EA"/><text class="stereo" x="365" y="808" text-anchor="middle">object</text><text class="className" x="365" y="838" text-anchor="middle">TaskContext</text><text class="member" x="365" y="866" text-anchor="middle">newKey, get, run, bind</text></g>
+<g id="TaskContextBindings"><rect class="card" x="680" y="780" width="370" height="118" rx="8" fill="#F0FDFA" stroke="#0D9488"/><text class="stereo" x="865" y="808" text-anchor="middle">builder</text><text class="className" x="865" y="838" text-anchor="middle">TaskContextBindings</text><text class="member" x="865" y="866" text-anchor="middle">and(...), run { }, call { }</text></g>
+<g id="ScopedValue"><rect class="card" x="1180" y="780" width="300" height="118" rx="8" fill="#F8FAFC" stroke="#64748B"/><text class="stereo" x="1330" y="808" text-anchor="middle">JDK API</text><text class="className" x="1330" y="838" text-anchor="middle">ScopedValue</text><text class="member" x="1330" y="866" text-anchor="middle">immutable scoped binding</text></g>
+
+<path class="uses" d="M460 276 L620 276" stroke="#2563EB" marker-end="url(#usesBlue)"/>
+<path class="impl" d="M1160 270 L990 276" marker-end="url(#impl)"/>
+<path class="uses" d="M460 542 L600 542" stroke="#0D9488" marker-end="url(#usesTeal)"/>
+<path class="uses" d="M1010 542 L1120 542" stroke="#D97706" marker-end="url(#usesAmber)"/>
+<path class="uses" d="M550 839 L680 839" stroke="#0D9488" marker-end="url(#usesTeal)"/>
+<path class="uses" d="M1050 839 L1180 839" stroke="#0D9488" marker-end="url(#usesTeal)"/>
 </svg>

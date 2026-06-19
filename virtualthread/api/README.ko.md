@@ -240,11 +240,11 @@ class VirtualThreadsTest {
 
 ## 클래스 다이어그램
 
-![api Class Structure diagram](../../docs/images/readme-diagrams/virtualthread-api-diagram-01.png)
+![런타임 파사드, SPI 계약, StructuredTaskScope 계약, TaskContext 도우미를 보여주는 virtualthread-api 클래스 구조](../../docs/images/readme-diagrams/virtualthread-api-diagram-01.png)
 
 ## ServiceLoader 기반 런타임 선택 흐름
 
-![ServiceLoader diagram](../../docs/images/readme-diagrams/virtualthread-api-diagram-02.png)
+![lazy provider 발견, 지원 provider 필터링, 우선순위 정렬, fallback 위임을 보여주는 ServiceLoader 기반 런타임 선택 흐름](../../docs/images/readme-diagrams/virtualthread-api-diagram-02.png)
 
 ## 참고 자료
 
