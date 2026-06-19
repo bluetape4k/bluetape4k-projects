@@ -16,19 +16,19 @@
 
 ### 모듈 구성 개요
 
-![coroutines Architecture diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-01.png)
+![coroutines 모듈 구성 개요 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-01.png)
 
 ---
 
 ### 클래스 다이어그램
 
-![Coroutines Class Structure diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-02.png)
+![Coroutines 클래스 구조 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-02.png)
 
 ---
 
 ### DeferredValue 사용 흐름
 
-![DeferredValue diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-01.png)
+![DeferredValue eager async 사용 흐름 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-01.png)
 
 ---
 
@@ -276,7 +276,7 @@ suspend fun traceId(): String? =
 
 ### 1. Flow 확장 함수 카테고리 개요
 
-![1. Flow diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-03.png)
+![1. Flow 확장 함수 카테고리 개요 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-03.png)
 
 ---
 
@@ -284,7 +284,7 @@ suspend fun traceId(): String? =
 
 입력 요소를 `n`개씩 묶어 `List`로 방출합니다. 마지막 불완전 청크도 방출(`partialWindow=true` 기본값).
 
-![2. chunked(n) — diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-02.png)
+![2. chunked(n) 고정 크기 청크 생성 흐름 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-02.png)
 
 ---
 
@@ -292,7 +292,7 @@ suspend fun traceId(): String? =
 
 `size` 크기 윈도우를 `step`씩 이동하며 방출합니다.
 
-![3. windowed(size, step) — diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-03.png)
+![3. windowed(size, step) 슬라이딩 윈도우 흐름 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-03.png)
 
 ---
 
@@ -300,7 +300,7 @@ suspend fun traceId(): String? =
 
 `sliding`은 `windowed(size, step=1)`과 동일합니다. `bufferedSliding`은 버퍼를 유지하며 매 요소마다 스냅샷을 방출합니다.
 
-![4. sliding(n) / bufferedSliding(n) — 1 diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-04.png)
+![4. sliding(n) 및 bufferedSliding(n) 1칸 이동 윈도우 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-04.png)
 
 ---
 
@@ -310,7 +310,7 @@ suspend fun traceId(): String? =
 
 > **성능 개선 (2026-04-21)**: `FlowParallel`과 `FlowSequential`을 레일별 `Channel` 버퍼와 `select` 기반 fan-in으로 재설계했습니다. 벤치마크 결과 전체 병렬 연산자 처리량이 **geomean +32.7%** 향상되었으며, `mapParallel`은 최대 **+506%** 성능이 개선되었습니다. `AsyncFlow`도 `LazyDeferred` 원자 래퍼 제거로 성능이 향상되었습니다.
 
-![5. mapParallel(parallelism) — diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-05.png)
+![5. mapParallel(parallelism) 병렬 변환 흐름 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-05.png)
 
 ---
 
@@ -318,7 +318,7 @@ suspend fun traceId(): String? =
 
 inner Flow를 즉시(eager) 동시 실행하되, **출력은 source 순서**를 유지합니다.
 
-![6. concatMapEager { } — eager diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-06.png)
+![6. concatMapEager eager 병렬 수집과 순서 보장 방출 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-06.png)
 
 ---
 
@@ -326,7 +326,7 @@ inner Flow를 즉시(eager) 동시 실행하되, **출력은 source 순서**를 
 
 `timeout` 동안 들어온 값을 버퍼링해 한 번에 `List`로 방출합니다. 연속 입력이 오면 타임아웃을 갱신합니다.
 
-![7. bufferingDebounce(timeout) — diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-07.png)
+![7. bufferingDebounce(timeout) 디바운스 배치 흐름 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-07.png)
 
 ---
 
@@ -334,13 +334,15 @@ inner Flow를 즉시(eager) 동시 실행하되, **출력은 source 순서**를 
 
 고정 윈도우 내에서 첫 요소(leading), 마지막 요소(trailing), 또는 둘 다(both)를 방출합니다.
 
-![8. throttleLeading / throttleTrailing / throttleBoth — Thro. diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-08.png)
+![8. throttleLeading, throttleTrailing, throttleBoth 윈도우 방출 정책 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-08.png)
 
 ---
 
 ### 9. `takeUntil(notifier)` / `skipUntil(notifier)` — 게이트 제어
 
-![9. takeUntil(notifier) / skipUntil(notifier) — diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-09.png)
+`takeUntil`은 notifier가 값을 내기 전까지만 source 값을 통과시키고, `skipUntil`은 notifier가 값을 낸 뒤부터 source 값을 통과시킵니다.
+
+![9. takeUntil(notifier) 및 skipUntil(notifier) 게이트 제어 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-09.png)
 
 ---
 
@@ -348,7 +350,7 @@ inner Flow를 즉시(eager) 동시 실행하되, **출력은 source 순서**를 
 
 여러 Flow를 동시 수집해 도착 순서대로 방출합니다.
 
-![10. merge(flows) — diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-10.png)
+![10. merge(flows) 동시 수집과 도착 순서 병합 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-10.png)
 
 ---
 
@@ -356,23 +358,23 @@ inner Flow를 즉시(eager) 동시 실행하되, **출력은 source 순서**를 
 
 인접한 두 요소를 `Pair`로 묶거나 변환 함수를 적용합니다. `zipWithNext`는 `pairwise`의 별칭입니다.
 
-![11. pairwise() / zipWithNext() — diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-11.png)
+![11. pairwise() 및 zipWithNext() 인접 쌍 생성 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-11.png)
 
 ---
 
-### 12. `scanWith(initial) { }` — 지연 초기값 누적
+### 12. `scanWith(initial) { }` — 지연 scan seed
 
 collect 시점에 `initialSupplier`를 호출해 초기값을 생성한 뒤 누적 결과를 방출합니다.
 
-![12. scanWith(initial) { } — diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-12.png)
+![12. scanWith(initial) collect 시점 seed 생성과 누적 방출 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-12.png)
 
 ---
 
-### 13. `AsyncFlow` — 순서 보장 비동기 변환
+### 13. `AsyncFlow` — 순서 보장 비동기 결과
 
 각 요소를 `Deferred`로 비동기 시작하지만, **결과 방출 순서는 입력 순서를 유지**합니다. `mapParallel`과 달리 순서가 보장됩니다.
 
-![13. AsyncFlow — diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-13.png)
+![13. AsyncFlow LazyDeferred 시작과 입력 순서 방출 다이어그램](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-13.png)
 
 ---
 

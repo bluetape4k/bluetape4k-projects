@@ -319,7 +319,7 @@ Runs the transform function on up to `parallelism` elements concurrently. Result
 
 Starts inner Flows eagerly and concurrently, but **emits results in source order**.
 
-![6. concatMapEager { } — Order-Preserving Eager Parallel Col. diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-06.png)
+![6. concatMapEager { } — Order-Preserving Eager Parallel Collection diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-06.png)
 
 ---
 
@@ -335,11 +335,13 @@ Buffers values arriving within `timeout` and emits them together as a `List`. Re
 
 Within a fixed window, emits the first element (leading), last element (trailing), or both.
 
-![8. throttleLeading / throttleTrailing / throttleBoth — Thro. diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-08.png)
+![8. throttleLeading / throttleTrailing / throttleBoth — Throttle Windows diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-08.png)
 
 ---
 
 ### 9. `takeUntil(notifier)` / `skipUntil(notifier)` — Gate Control
+
+`takeUntil` passes source values until the notifier emits. `skipUntil` drops source values until the notifier opens the gate.
 
 ![9. takeUntil(notifier) / skipUntil(notifier) — Gate Control diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-09.png)
 
@@ -361,20 +363,20 @@ Pairs adjacent elements as `Pair`, optionally applying a transform. `zipWithNext
 
 ---
 
-### 12. `scanWith(initial) { }` — Lazy Initial Value Accumulation
+### 12. `scanWith(initial) { }` — Lazy Scan Seed
 
 Calls `initialSupplier` at collect time to produce the seed, then emits each accumulated result.
 
-![12. scanWith(initial) { } — Lazy Initial Value Accumulation diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-12.png)
+![12. scanWith(initial) { } — Lazy Scan Seed diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-12.png)
 
 ---
 
-### 13. `AsyncFlow` — Order-Preserving Async Transformation
+### 13. `AsyncFlow` — Ordered Async Results
 
 Starts each element as a `Deferred` asynchronously, but **emits results in input order**. Unlike
 `mapParallel`, output order is guaranteed.
 
-![13. AsyncFlow — Order-Preserving Async Transformation diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-13.png)
+![13. AsyncFlow — Ordered Async Results diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-13.png)
 
 ---
 
