@@ -11,9 +11,9 @@ Java 25 Virtual Thread 구현체 모듈입니다.
 
 JDK 21 구현체보다 높은 우선순위(`priority = 25`)를 가지므로, JDK 25 환경에서는 이 구현체가 자동으로 선택됩니다.
 
-## UML
+## 구현 구조
 
-![UML diagram](../../docs/images/readme-diagrams/virtualthread-jdk25-diagram-01.png)
+![JDK 25 Virtual Thread Runtime 및 StructuredTaskScope Joiner Provider 구조](../../docs/images/readme-diagrams/virtualthread-jdk25-diagram-01.png)
 
 ## 주요 구현체
 
@@ -68,7 +68,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         factory: ThreadFactory,
         block: (scope: StructuredTaskScopeAll) -> T
     ): T {
-        // StructuredTaskScope.ShutdownOnFailure 래퍼 구현
+        // Joiner.awaitAllSuccessfulOrThrow()를 사용하는 fail-fast scope
     }
 
     override fun <T> withAny(
@@ -76,7 +76,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         factory: ThreadFactory,
         block: (scope: StructuredTaskScopeAny<T>) -> T
     ): T {
-        // StructuredTaskScope.ShutdownOnSuccess 래퍼 구현
+        // Joiner.anySuccessfulResultOrThrow()를 사용하는 첫 성공 결과 scope
     }
 }
 ```
@@ -180,23 +180,13 @@ fun main() {
 }
 ```
 
-## JDK 25의 개선사항
+## JDK 25 Provider 동작
 
-Java 25에서는 Virtual Thread와 Structured Concurrency에 다음과 같은 개선사항이 포함될 수 있습니다:
-
-### Virtual Thread 성능 최적화
-
-- Carrier Thread 스케줄링 개선
-- Pinning 감소 및 최적화
-- 메모리 사용량 최적화
-
-### Structured Concurrency 안정화
-
-- API 안정화 (Preview에서 Final로 전환 가능)
-- 더 나은 예외 처리 및 에러 전파
-- Scoped Values 통합 개선
-
-**참고**: Java 25 전용 최적화가 필요한 경우, 이 클래스에서 구현할 수 있습니다.
+- `priority = 25`이므로 JDK 25 이상에서는 JDK 21 구현체보다 먼저 선택됩니다.
+- `withAll`은 `Joiner.awaitAllSuccessfulOrThrow()`로 fail-fast scope를 엽니다.
+- `withAny`는 `Joiner.anySuccessfulResultOrThrow()`로 첫 성공 결과를 반환하는 scope를 엽니다.
+- `withSupervised`는 `Joiner.awaitAll()`로 성공/실패 subtask 결과를 함께 보존합니다.
+- `joinUntil`은 이 모듈의 `interruptJoinUntil` bridge를 사용합니다. 여기서 사용하는 JDK 25 scope API에는 `joinUntil(Instant)`가 없기 때문입니다.
 
 ## 테스트
 

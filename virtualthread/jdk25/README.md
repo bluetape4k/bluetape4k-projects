@@ -13,9 +13,9 @@ This module implements the interfaces defined by
 Because it has a higher priority than the JDK 21 implementation (
 `priority = 25`), this implementation is selected automatically in JDK 25 environments.
 
-## UML
+## Implementation Structure
 
-![UML diagram](../../docs/images/readme-diagrams/virtualthread-jdk25-diagram-01.png)
+![JDK 25 virtual-thread runtime and StructuredTaskScope Joiner provider structure](../../docs/images/readme-diagrams/virtualthread-jdk25-diagram-01.png)
 
 ## Main Implementations
 
@@ -182,23 +182,13 @@ fun main() {
 }
 ```
 
-## Improvements in JDK 25
+## JDK 25 Provider Behavior
 
-Java 25 may include the following improvements for Virtual Threads and Structured Concurrency:
-
-### Virtual Thread Performance Optimizations
-
-- improved carrier-thread scheduling
-- reduced pinning and better pinning optimizations
-- optimized memory usage
-
-### Structured Concurrency Stabilization
-
-- API stabilization, possibly moving from preview to final
-- better exception handling and error propagation
-- improved integration with scoped values
-
-**Note**: If Java 25-specific optimizations are needed, they can be implemented in this class.
+- `priority = 25` makes this runtime win over the JDK 21 implementation on JDK 25+.
+- `withAll` opens `StructuredTaskScope` with `Joiner.awaitAllSuccessfulOrThrow()`.
+- `withAny` opens `StructuredTaskScope` with `Joiner.anySuccessfulResultOrThrow()`.
+- `withSupervised` opens `StructuredTaskScope` with `Joiner.awaitAll()` and keeps both successful and failed subtask results.
+- `joinUntil` uses the module's `interruptJoinUntil` bridge because the JDK 25 scope API used here does not expose `joinUntil(Instant)`.
 
 ## Tests
 
