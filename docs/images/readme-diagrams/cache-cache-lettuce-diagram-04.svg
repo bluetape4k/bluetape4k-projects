@@ -1,21 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="2260" height="1380" viewBox="0 0 2260 1380" role="img" aria-label="LettuceNearCache class hierarchy">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity=".10"/></filter>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity=".10" /></filter>
 
-    <marker id="open-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#1D4ED8" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none"/></marker>
-    <marker id="triangle-blue" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.4" style="stroke-dasharray:none"/></marker>
-    <marker id="open-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#0F766E" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none"/></marker>
-    <marker id="triangle-teal" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.4" style="stroke-dasharray:none"/></marker>
-    <marker id="open-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#15803D" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none"/></marker>
-    <marker id="triangle-green" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#15803D" stroke-width="2.4" style="stroke-dasharray:none"/></marker>
-    <marker id="open-orange" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#C2410C" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none"/></marker>
-    <marker id="triangle-orange" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#C2410C" stroke-width="2.4" style="stroke-dasharray:none"/></marker>
-    <marker id="open-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#BE185D" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none"/></marker>
-    <marker id="triangle-pink" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#BE185D" stroke-width="2.4" style="stroke-dasharray:none"/></marker>
-    <marker id="open-purple" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#6D28D9" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none"/></marker>
-    <marker id="triangle-purple" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.4" style="stroke-dasharray:none"/></marker>
-    <marker id="open-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#475569" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none"/></marker>
-    <marker id="triangle-slate" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#475569" stroke-width="2.4" style="stroke-dasharray:none"/></marker>
+    <marker id="open-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse" overflow="visible"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#1D4ED8" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+    <marker id="triangle-blue" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.4" style="stroke-dasharray:none" /></marker>
+    <marker id="open-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse" overflow="visible"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#0F766E" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+    <marker id="triangle-teal" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.4" style="stroke-dasharray:none" /></marker>
+    <marker id="open-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse" overflow="visible"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#15803D" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+    <marker id="triangle-green" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#15803D" stroke-width="2.4" style="stroke-dasharray:none" /></marker>
+    <marker id="open-orange" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse" overflow="visible"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#C2410C" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+    <marker id="triangle-orange" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#C2410C" stroke-width="2.4" style="stroke-dasharray:none" /></marker>
+    <marker id="open-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse" overflow="visible"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#BE185D" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+    <marker id="triangle-pink" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#BE185D" stroke-width="2.4" style="stroke-dasharray:none" /></marker>
+    <marker id="open-purple" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#6D28D9" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+    <marker id="triangle-purple" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.4" style="stroke-dasharray:none" /></marker>
+    <marker id="open-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse" overflow="visible"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#475569" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+    <marker id="triangle-slate" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#475569" stroke-width="2.4" style="stroke-dasharray:none" /></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
@@ -25,90 +25,90 @@
     .edge{fill:none;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
   </style>
 </defs>
-<rect class="canvas" width="2260" height="1380"/>
-<rect class="frame" x="34" y="30" width="2192" height="1316" rx="8"/>
+<rect class="canvas" width="2260" height="1380" />
+<rect class="frame" x="34" y="30" width="2192" height="1316" rx="8" />
 <text class="title" x="72" y="88">Native Lettuce NearCache Structure</text>
 <text class="subtitle" x="76" y="121">Runtime structure for native sync/suspend Lettuce NearCache, L1/L2 access, and RESP3 invalidation.</text>
-<g><rect class="note" x="92" y="210" width="410" height="150" rx="8" fill="#FAF5FF" stroke="#7C3AED"/>
+<g><rect class="note" x="92" y="210" width="410" height="150" rx="8" fill="#FAF5FF" stroke="#7C3AED" />
     <text class="noteTitle" x="118" y="255">Application call site</text>
     <text class="noteLine" x="120" y="292">LettuceCaches.nearCache()</text><text class="noteLine" x="120" y="320">LettuceCaches.suspendNearCache()</text><text class="noteLine" x="120" y="348">same 2-tier contract, different call style</text>
   </g>
 <g id="SyncFacade">
-    <rect class="card" x="665" y="190" width="560" height="265" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+    <rect class="card" x="665" y="190" width="560" height="265" rx="8" fill="#EFF6FF" stroke="#2563EB" />
     <text class="stereo" x="945" y="218" text-anchor="middle">&lt;&lt;blocking facade&gt;&gt;</text>
     <text class="cardTitle" x="945" y="248" text-anchor="middle">LettuceNearCache&lt;V&gt;</text>
-    <path class="divider" d="M665 268H1225" stroke="#1D4ED8"/>
+    <path class="divider" d="M665 268H1225" stroke="#1D4ED8" />
     <text class="member" x="689" y="296">NearCacheOperations&lt;V&gt;</text><text class="member" x="689" y="320">RedisCommands&lt;String,V&gt;</text>
-    <path class="divider" d="M665 344H1225" stroke="#1D4ED8"/>
+    <path class="divider" d="M665 344H1225" stroke="#1D4ED8" />
     <text class="member" x="689" y="372">get: L1 hit or Redis GET + fill</text><text class="member" x="689" y="396">put/remove: write-through</text><text class="member" x="689" y="420">replace: Lua CAS with fallback</text>
   </g>
 <g id="SuspendFacade">
-    <rect class="card" x="1490" y="190" width="560" height="265" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+    <rect class="card" x="1490" y="190" width="560" height="265" rx="8" fill="#F0FDFA" stroke="#0D9488" />
     <text class="stereo" x="1770" y="218" text-anchor="middle">&lt;&lt;coroutine facade&gt;&gt;</text>
     <text class="cardTitle" x="1770" y="248" text-anchor="middle">LettuceSuspendNearCache&lt;V&gt;</text>
-    <path class="divider" d="M1490 268H2050" stroke="#0F766E"/>
+    <path class="divider" d="M1490 268H2050" stroke="#0F766E" />
     <text class="member" x="1514" y="296">SuspendNearCacheOperations&lt;V&gt;</text><text class="member" x="1514" y="320">RedisCoroutinesCommands&lt;String,V&gt;</text>
-    <path class="divider" d="M1490 344H2050" stroke="#0F766E"/>
+    <path class="divider" d="M1490 344H2050" stroke="#0F766E" />
     <text class="member" x="1514" y="372">suspend get/put/remove</text><text class="member" x="1514" y="396">preserves CancellationException</text><text class="member" x="1514" y="420">close releases listener/connection</text>
   </g>
 <g id="Config">
-    <rect class="card" x="825" y="580" width="610" height="220" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+    <rect class="card" x="825" y="580" width="610" height="220" rx="8" fill="#FFF7ED" stroke="#EA580C" />
     <text class="stereo" x="1130" y="608" text-anchor="middle">&lt;&lt;shared config&gt;&gt;</text>
     <text class="cardTitle" x="1130" y="638" text-anchor="middle">LettuceNearCacheConfig&lt;K,V&gt;</text>
-    <path class="divider" d="M825 658H1435" stroke="#C2410C"/>
+    <path class="divider" d="M825 658H1435" stroke="#C2410C" />
     <text class="member" x="849" y="686">cacheName -&gt; redis key prefix</text><text class="member" x="849" y="710">maxLocalSize, front TTL, redis TTL</text>
-    <path class="divider" d="M825 734H1435" stroke="#C2410C"/>
+    <path class="divider" d="M825 734H1435" stroke="#C2410C" />
     <text class="member" x="849" y="762">redisKey(key) = cacheName:key</text><text class="member" x="849" y="786">RESP3 tracking and stats toggles</text>
   </g>
 <g id="Front">
-    <rect class="card" x="265" y="900" width="520" height="235" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+    <rect class="card" x="265" y="900" width="520" height="235" rx="8" fill="#F0FDF4" stroke="#16A34A" />
     <text class="stereo" x="525" y="928" text-anchor="middle">&lt;&lt;L1 local&gt;&gt;</text>
     <text class="cardTitle" x="525" y="958" text-anchor="middle">Caffeine Local Cache</text>
-    <path class="divider" d="M265 978H785" stroke="#15803D"/>
+    <path class="divider" d="M265 978H785" stroke="#15803D" />
     <text class="member" x="289" y="1006">fast front-cache hit path</text><text class="member" x="289" y="1030">optional stats</text>
-    <path class="divider" d="M265 1054H785" stroke="#15803D"/>
+    <path class="divider" d="M265 1054H785" stroke="#15803D" />
     <text class="member" x="289" y="1082">get/put/remove/clear</text><text class="member" x="289" y="1106">invalidateAll(keys) from tracking</text>
   </g>
 <g id="Redis">
-    <rect class="card" x="875" y="900" width="520" height="235" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+    <rect class="card" x="875" y="900" width="520" height="235" rx="8" fill="#F8FAFC" stroke="#64748B" />
     <text class="stereo" x="1135" y="928" text-anchor="middle">&lt;&lt;L2 remote&gt;&gt;</text>
     <text class="cardTitle" x="1135" y="958" text-anchor="middle">Redis via Lettuce</text>
-    <path class="divider" d="M875 978H1395" stroke="#475569"/>
+    <path class="divider" d="M875 978H1395" stroke="#475569" />
     <text class="member" x="899" y="1006">keys are isolated by cacheName</text><text class="member" x="899" y="1030">RESP3 CLIENT TRACKING enabled</text>
-    <path class="divider" d="M875 1054H1395" stroke="#475569"/>
+    <path class="divider" d="M875 1054H1395" stroke="#475569" />
     <text class="member" x="899" y="1082">GET/MGET, SET/MSET</text><text class="member" x="899" y="1106">UNLINK + SCAN for bulk cleanup</text>
   </g>
 <g id="Listener">
-    <rect class="card" x="1485" y="900" width="520" height="235" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+    <rect class="card" x="1485" y="900" width="520" height="235" rx="8" fill="#FDF2F8" stroke="#DB2777" />
     <text class="stereo" x="1745" y="928" text-anchor="middle">&lt;&lt;push listener&gt;&gt;</text>
     <text class="cardTitle" x="1745" y="958" text-anchor="middle">TrackingInvalidationListener</text>
-    <path class="divider" d="M1485 978H2005" stroke="#BE185D"/>
+    <path class="divider" d="M1485 978H2005" stroke="#BE185D" />
     <text class="member" x="1509" y="1006">listens for Redis invalidation pushes</text><text class="member" x="1509" y="1030">filters cacheName-prefixed keys</text>
-    <path class="divider" d="M1485 1054H2005" stroke="#BE185D"/>
+    <path class="divider" d="M1485 1054H2005" stroke="#BE185D" />
     <text class="member" x="1509" y="1082">null payload -&gt; clear front</text><text class="member" x="1509" y="1106">matching keys -&gt; invalidate local entries</text>
   </g>
-<g><rect class="note" x="500" y="1200" width="1260" height="96" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+<g><rect class="note" x="500" y="1200" width="1260" height="96" rx="8" fill="#F0FDF4" stroke="#16A34A" />
     <text class="noteTitle" x="526" y="1245">Runtime guarantee</text>
     <text class="noteLine" x="528" y="1282">Reads prefer L1, misses hydrate from Redis, writes update Redis and front cache, and Redis tracking pushes keep peer front caches coherent.</text>
   </g>
-<g><path class="edge dashed" d="M502 285 L665 285" stroke="#1D4ED8" marker-end="url(#open-blue)"/>
+<g><path class="edge dashed" d="M502 285 L665 285" stroke="#1D4ED8" marker-end="url(#open-blue)" />
     <text class="edgeLabel" x="553" y="264">sync API</text></g>
-<g><path class="edge dashed" d="M300 210 L300 145 L1770 145 L1770 190" stroke="#0F766E" marker-end="url(#open-teal)"/>
+<g><path class="edge dashed" d="M300 210 L300 145 L1770 145 L1770 190" stroke="#0F766E" marker-end="url(#open-teal)" />
     <text class="edgeLabel" x="1038" y="124">suspend API</text></g>
-<g><path class="edge dashed" d="M945 455 L945 580" stroke="#C2410C" marker-end="url(#open-orange)"/>
+<g><path class="edge dashed" d="M945 455 L945 580" stroke="#C2410C" marker-end="url(#open-orange)" />
     <text class="edgeLabel" x="970" y="512">configured by</text></g>
-<g><path class="edge dashed" d="M1770 455 L1770 520 L1315 520 L1315 580" stroke="#C2410C" marker-end="url(#open-orange)"/>
+<g><path class="edge dashed" d="M1770 455 L1770 520 L1315 520 L1315 580" stroke="#C2410C" marker-end="url(#open-orange)" />
     <text class="edgeLabel" x="1796" y="497">configured by</text></g>
-<g><path class="edge dashed" d="M945 800 L945 850 L525 850 L525 900" stroke="#15803D" marker-end="url(#open-green)"/>
+<g><path class="edge dashed" d="M945 800 L945 850 L525 850 L525 900" stroke="#15803D" marker-end="url(#open-green)" />
     <text class="edgeLabel" x="608" y="829">front cache</text></g>
-<g><path class="edge dashed" d="M1130 800 L1130 900" stroke="#475569" marker-end="url(#open-slate)"/>
+<g><path class="edge dashed" d="M1130 800 L1130 900" stroke="#475569" marker-end="url(#open-slate)" />
     <text class="edgeLabel" x="1156" y="852">remote keyspace</text></g>
-<g><path class="edge dashed" d="M1315 800 L1315 850 L1745 850 L1745 900" stroke="#BE185D" marker-end="url(#open-pink)"/>
+<g><path class="edge dashed" d="M1315 800 L1315 850 L1745 850 L1745 900" stroke="#BE185D" marker-end="url(#open-pink)" />
     <text class="edgeLabel" x="1493" y="829">tracking listener</text></g>
-<g><path class="edge dashed" d="M785 1018 L875 1018" stroke="#475569" marker-end="url(#open-slate)"/>
+<g><path class="edge dashed" d="M785 1018 L875 1018" stroke="#475569" marker-end="url(#open-slate)" />
     <text class="edgeLabel" x="810" y="997">miss/write</text></g>
-<g><path class="edge dashed" d="M1395 1018 L1485 1018" stroke="#BE185D" marker-end="url(#open-pink)"/>
+<g><path class="edge dashed" d="M1395 1018 L1485 1018" stroke="#BE185D" marker-end="url(#open-pink)" />
     <text class="edgeLabel" x="1416" y="997">invalidate push</text></g>
-<g><path class="edge dashed" d="M1485 1082 L1425 1082 L1425 1170 L525 1170 L525 1135" stroke="#15803D" marker-end="url(#open-green)"/>
+<g><path class="edge dashed" d="M1485 1082 L1425 1082 L1425 1170 L525 1170 L525 1135" stroke="#15803D" marker-end="url(#open-green)" />
     <text class="edgeLabel" x="938" y="1149">local invalidate</text></g>
 </svg>

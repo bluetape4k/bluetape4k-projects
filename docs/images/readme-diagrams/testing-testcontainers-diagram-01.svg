@@ -1,16 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1160" viewBox="0 0 1700 1160" role="img" aria-label="Testcontainers Core Contract Class Diagram">
   <defs>
     <filter id="softShadow" x="-6%" y="-8%" width="112%" height="116%">
-      <feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#0F172A" flood-opacity="0.10"/>
+      <feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#0F172A" flood-opacity="0.10" />
     </filter>
     <marker id="extendsHead" viewBox="0 0 18 14" refX="17" refY="7" markerWidth="18" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto">
-      <path d="M 1 1 L 17 7 L 1 13 Z" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+      <path d="M 1 1 L 17 7 L 1 13 Z" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
     </marker>
     <marker id="implementsHead" viewBox="0 0 18 14" refX="17" refY="7" markerWidth="18" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto">
-      <path d="M 1 1 L 17 7 L 1 13 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+      <path d="M 1 1 L 17 7 L 1 13 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
     </marker>
-    <marker id="usesHead" viewBox="0 0 13 10" refX="12" refY="5" markerWidth="13" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto">
-      <path d="M 1 1 L 12 5 L 1 9" fill="none" stroke="#EA580C" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    <marker id="usesHead" viewBox="0 0 13 10" refX="12" refY="5" markerWidth="18" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto" overflow="visible">
+      <path d="M 1 1 L 12 5 L 1 9" fill="none" stroke="#EA580C" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
     </marker>
     <style>
       svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
@@ -34,150 +34,150 @@
     </style>
   </defs>
 
-  <rect class="bg" width="1700" height="1160"/>
-  <rect class="frame" x="34" y="30" width="1632" height="1098" rx="8"/>
+  <rect class="bg" width="1700" height="1160" />
+  <rect class="frame" x="34" y="30" width="1632" height="1098" rx="8" />
   <text class="title" x="76" y="86">Testcontainers Core Contract Class Diagram</text>
   <text class="subtitle" x="80" y="118">Core contracts, specialized server traits, helper extensions, and representative wrappers</text>
 
-  <rect class="region" x="76" y="154" width="410" height="632" rx="8"/>
+  <rect class="region" x="76" y="154" width="410" height="632" rx="8" />
   <text class="regionText" x="106" y="188">Common contracts</text>
-  <rect class="region" x="544" y="154" width="398" height="632" rx="8"/>
+  <rect class="region" x="544" y="154" width="398" height="632" rx="8" />
   <text class="regionText" x="574" y="188">Specialized traits</text>
-  <rect class="region" x="1000" y="154" width="594" height="632" rx="8"/>
+  <rect class="region" x="1000" y="154" width="594" height="632" rx="8" />
   <text class="regionText" x="1030" y="188">Representative wrappers</text>
 
   <g id="genericServer">
-    <rect class="class contract" x="116" y="218" width="330" height="168" rx="8"/>
+    <rect class="class contract" x="116" y="218" width="330" height="168" rx="8" />
     <text class="stereo" x="281" y="248">&lt;&lt;interface&gt;&gt;</text>
     <text class="className" x="281" y="278">GenericServer</text>
-    <line class="divider" x1="116" y1="300" x2="446" y2="300"/>
+    <line class="divider" x1="116" y1="300" x2="446" y2="300" />
     <text class="member" x="140" y="328">+ port: Int</text>
     <text class="member" x="140" y="352">+ url: String</text>
-    <line class="divider" x1="116" y1="366" x2="446" y2="366"/>
+    <line class="divider" x1="116" y1="366" x2="446" y2="366" />
     <text class="small" x="140" y="384">extends ContainerState</text>
   </g>
 
   <g id="propertyExportingServer">
-    <rect class="class contract" x="116" y="514" width="330" height="206" rx="8"/>
+    <rect class="class contract" x="116" y="514" width="330" height="206" rx="8" />
     <text class="stereo" x="281" y="544">&lt;&lt;interface&gt;&gt;</text>
     <text class="className" x="281" y="574">PropertyExportingServer</text>
-    <line class="divider" x1="116" y1="596" x2="446" y2="596"/>
+    <line class="divider" x1="116" y1="596" x2="446" y2="596" />
     <text class="member" x="140" y="624">+ propertyNamespace</text>
     <text class="member" x="140" y="648">+ propertyKeys()</text>
     <text class="member" x="140" y="672">+ properties()</text>
-    <line class="divider" x1="116" y1="688" x2="446" y2="688"/>
+    <line class="divider" x1="116" y1="688" x2="446" y2="688" />
     <text class="small" x="140" y="710">registerSystemProperties()</text>
   </g>
 
   <g id="jdbcServer">
-    <rect class="class special" x="594" y="218" width="300" height="184" rx="8"/>
+    <rect class="class special" x="594" y="218" width="300" height="184" rx="8" />
     <text class="stereo" x="744" y="248">&lt;&lt;interface&gt;&gt;</text>
     <text class="className" x="744" y="278">JdbcServer</text>
-    <line class="divider" x1="594" y1="300" x2="894" y2="300"/>
+    <line class="divider" x1="594" y1="300" x2="894" y2="300" />
     <text class="member" x="618" y="328">+ getJdbcUrl()</text>
     <text class="member" x="618" y="352">+ getDataSource()</text>
-    <line class="divider" x1="594" y1="372" x2="894" y2="372"/>
+    <line class="divider" x1="594" y1="372" x2="894" y2="372" />
     <text class="small" x="618" y="394">extends GenericServer</text>
   </g>
 
   <g id="awsEmulatorServer">
-    <rect class="class special" x="594" y="514" width="300" height="206" rx="8"/>
+    <rect class="class special" x="594" y="514" width="300" height="206" rx="8" />
     <text class="stereo" x="744" y="544">&lt;&lt;interface&gt;&gt;</text>
     <text class="className" x="744" y="574">AwsEmulatorServer</text>
-    <line class="divider" x1="594" y1="596" x2="894" y2="596"/>
+    <line class="divider" x1="594" y1="596" x2="894" y2="596" />
     <text class="member" x="618" y="624">+ awsEndpoint</text>
     <text class="member" x="618" y="648">+ awsAccessKey</text>
     <text class="member" x="618" y="672">+ regionName</text>
-    <line class="divider" x1="594" y1="688" x2="894" y2="688"/>
+    <line class="divider" x1="594" y1="688" x2="894" y2="688" />
     <text class="small" x="618" y="710">extends Generic + Exporting</text>
   </g>
 
   <g id="postgreSQLServer">
-    <rect class="class server" x="1048" y="202" width="238" height="188" rx="8"/>
+    <rect class="class server" x="1048" y="202" width="238" height="188" rx="8" />
     <text class="className" x="1167" y="238">PostgreSQL</text>
     <text class="className" x="1167" y="266">Server</text>
-    <line class="divider" x1="1048" y1="288" x2="1286" y2="288"/>
+    <line class="divider" x1="1048" y1="288" x2="1286" y2="288" />
     <text class="member" x="1072" y="316">+ PORT = 5432</text>
     <text class="member" x="1072" y="340">+ withExtensions()</text>
-    <line class="divider" x1="1048" y1="358" x2="1286" y2="358"/>
+    <line class="divider" x1="1048" y1="358" x2="1286" y2="358" />
     <text class="small" x="1072" y="380">Jdbc + Exporting</text>
   </g>
 
   <g id="redisServer">
-    <rect class="class server" x="1334" y="202" width="214" height="188" rx="8"/>
+    <rect class="class server" x="1334" y="202" width="214" height="188" rx="8" />
     <text class="className" x="1441" y="250">RedisServer</text>
-    <line class="divider" x1="1334" y1="288" x2="1548" y2="288"/>
+    <line class="divider" x1="1334" y1="288" x2="1548" y2="288" />
     <text class="member" x="1358" y="316">+ PORT = 6379</text>
     <text class="member" x="1358" y="340">+ url</text>
-    <line class="divider" x1="1334" y1="358" x2="1548" y2="358"/>
+    <line class="divider" x1="1334" y1="358" x2="1548" y2="358" />
     <text class="small" x="1358" y="380">Generic + Exporting</text>
   </g>
 
   <g id="kafkaServer">
-    <rect class="class server" x="1048" y="502" width="238" height="198" rx="8"/>
+    <rect class="class server" x="1048" y="502" width="238" height="198" rx="8" />
     <text class="className" x="1167" y="548">KafkaServer</text>
-    <line class="divider" x1="1048" y1="576" x2="1286" y2="576"/>
+    <line class="divider" x1="1048" y1="576" x2="1286" y2="576" />
     <text class="member" x="1072" y="604">+ PORT = 9093</text>
     <text class="member" x="1072" y="628">+ bootstrap</text>
-    <line class="divider" x1="1048" y1="648" x2="1286" y2="648"/>
+    <line class="divider" x1="1048" y1="648" x2="1286" y2="648" />
     <text class="small" x="1072" y="672">kebab + camelCase keys</text>
   </g>
 
   <g id="miniStackServer">
-    <rect class="class server" x="1334" y="502" width="214" height="198" rx="8"/>
+    <rect class="class server" x="1334" y="502" width="214" height="198" rx="8" />
     <text class="className" x="1441" y="538">MiniStack</text>
     <text class="className" x="1441" y="566">Server</text>
-    <line class="divider" x1="1334" y1="588" x2="1548" y2="588"/>
+    <line class="divider" x1="1334" y1="588" x2="1548" y2="588" />
     <text class="member" x="1358" y="616">+ PORT = 4566</text>
     <text class="member" x="1358" y="640">+ AWS creds</text>
-    <line class="divider" x1="1334" y1="658" x2="1548" y2="658"/>
+    <line class="divider" x1="1334" y1="658" x2="1548" y2="658" />
     <text class="small" x="1358" y="680">AwsEmulatorServer</text>
   </g>
 
   <g id="helpers">
-    <rect class="class helper" x="116" y="854" width="778" height="160" rx="8"/>
+    <rect class="class helper" x="116" y="854" width="778" height="160" rx="8" />
     <text class="className" x="505" y="892">Helper Extensions</text>
-    <line class="divider" x1="116" y1="916" x2="894" y2="916"/>
+    <line class="divider" x1="116" y1="916" x2="894" y2="916" />
     <text class="member" x="148" y="946">writeToSystemProperties(): testcontainers.{namespace}.{key}</text>
     <text class="member" x="148" y="974">exposeCustomPorts(): fixed host port binding</text>
     <text class="member" x="148" y="1002">withCompatKeys(): kebab-case plus legacy camelCase</text>
   </g>
 
   <g id="bluetapeWebfluxServer">
-    <rect class="class server" x="1048" y="854" width="330" height="160" rx="8"/>
+    <rect class="class server" x="1048" y="854" width="330" height="160" rx="8" />
     <text class="className" x="1213" y="892">BluetapeWebfluxServer</text>
-    <line class="divider" x1="1048" y1="916" x2="1378" y2="916"/>
+    <line class="divider" x1="1048" y1="916" x2="1378" y2="916" />
     <text class="member" x="1072" y="946">+ PORT = 80, HTTPS_PORT = 8443</text>
     <text class="member" x="1072" y="974">+ httpbin/jsonplaceholder/web URLs</text>
-    <line class="divider" x1="1048" y1="988" x2="1378" y2="988"/>
+    <line class="divider" x1="1048" y1="988" x2="1378" y2="988" />
     <text class="small" x="1072" y="1008">Generic + Exporting</text>
   </g>
 
-  <path class="extend" d="M 594 300 L 446 300"/>
+  <path class="extend" d="M 594 300 L 446 300" />
   <text class="label" x="504" y="284">extends</text>
-  <path class="extend" d="M 594 606 L 446 606"/>
+  <path class="extend" d="M 594 606 L 446 606" />
   <text class="label" x="474" y="590">extends Exporting</text>
-  <path class="extend" d="M 744 514 L 744 448 L 281 448 L 281 386"/>
+  <path class="extend" d="M 744 514 L 744 448 L 281 448 L 281 386" />
   <text class="label" x="470" y="440">also extends GenericServer</text>
 
-  <path class="impl" d="M 1048 296 L 894 296"/>
+  <path class="impl" d="M 1048 296 L 894 296" />
   <text class="label" x="946" y="280">implements</text>
-  <path class="impl" d="M 1441 502 L 1441 462 L 744 462 L 744 514"/>
+  <path class="impl" d="M 1441 502 L 1441 462 L 744 462 L 744 514" />
   <text class="label" x="1088" y="454">implements AwsEmulatorServer</text>
 
-  <path class="uses" d="M 281 720 L 281 854"/>
+  <path class="uses" d="M 281 720 L 281 854" />
   <text class="label" x="300" y="800">register/write properties</text>
-  <path class="uses" d="M 1167 700 L 1167 802 L 636 802 L 636 854"/>
+  <path class="uses" d="M 1167 700 L 1167 802 L 636 802 L 636 854" />
   <text class="label" x="894" y="794">withCompatKeys()</text>
-  <path class="uses" d="M 1048 934 L 934 934 L 934 974 L 894 974"/>
+  <path class="uses" d="M 1048 934 L 934 934 L 934 974 L 894 974" />
   <text class="label" x="916" y="920">exposeCustomPorts()</text>
 
   <g transform="translate(94,1064)">
-    <path class="extend" d="M 0 0 L 52 0"/>
+    <path class="extend" d="M 0 0 L 52 0" />
     <text class="legend" x="66" y="5">extends</text>
-    <path class="impl" d="M 168 0 L 220 0"/>
+    <path class="impl" d="M 168 0 L 220 0" />
     <text class="legend" x="234" y="5">implements; dashed line, solid hollow triangle</text>
-    <path class="uses" d="M 536 0 L 588 0"/>
+    <path class="uses" d="M 536 0 L 588 0" />
     <text class="legend" x="602" y="5">uses helper</text>
   </g>
 </svg>
