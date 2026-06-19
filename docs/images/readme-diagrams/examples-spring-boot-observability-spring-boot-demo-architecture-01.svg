@@ -1,14 +1,14 @@
 <svg data-intent="Explain the Spring Boot observability demo request path: controller delegates to OrderEventService, observeSpring wraps the HTTP boundary, EventTelemetry records publish/consume observations, and Actuator/OTLP expose metrics and optional traces." data-evidence="examples/spring-boot/observability-spring-boot-demo/README.md; examples/spring-boot/observability-spring-boot-demo/src/main/kotlin/io/bluetape4k/examples/spring/observability/ObservabilitySpringBootDemoApplication.kt; examples/spring-boot/observability-spring-boot-demo/src/main/resources/application.yaml" data-source-read="examples/spring-boot/observability-spring-boot-demo/README.md; examples/spring-boot/observability-spring-boot-demo/src/main/kotlin/io/bluetape4k/examples/spring/observability/ObservabilitySpringBootDemoApplication.kt; examples/spring-boot/observability-spring-boot-demo/src/main/resources/application.yaml" xmlns="http://www.w3.org/2000/svg" width="1540" height="1160" viewBox="0 0 1540 1160" role="img" aria-label="Spring Boot Observability Demo Architecture">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
+  <marker id="arrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563" stroke="#4B5563" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8" stroke="#1D4ED8" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D" stroke="#15803D" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E" stroke="#0F766E" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C" stroke="#C2410C" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D" stroke="#BE185D" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE" stroke="#7E22CE" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563" stroke="#4B5563" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
@@ -16,7 +16,7 @@
     .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
     .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
     .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
     .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
     .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
@@ -80,13 +80,13 @@
   <text class="cardTitle" x="1000" y="1036" text-anchor="middle" dominant-baseline="middle">Optional OTLP traces</text>
   <text class="detail" x="1000" y="1066" text-anchor="middle" dominant-baseline="middle">configured by Spring properties</text>
 </g>
-<path class="route" data-from="client" data-to="controller" d="M490 274 L600 274" stroke="#1D4ED8"/>
-<path class="route dashed" data-from="controller" data-to="health" d="M960 274 L1065 274" stroke="#7E22CE"/>
-<path class="route" data-from="controller" data-to="service" d="M780 318 L780 490" stroke="#0F766E"/>
-<path class="route" data-from="service" data-to="observeSpring" d="M695 582 L695 650 L350 650 L350 760" stroke="#0F766E"/>
-<path class="route" data-from="service" data-to="eventTelemetry" d="M865 582 L865 650 L1200 650 L1200 760" stroke="#15803D"/>
-<path class="route" data-from="observeSpring" data-to="registry" d="M520 806 L600 806" stroke="#7E22CE"/>
-<path class="route" data-from="eventTelemetry" data-to="registry" d="M1030 806 L940 806" stroke="#15803D"/>
-<path class="route" data-from="registry" data-to="prometheus" d="M710 852 L710 925 L540 925 L540 1010" stroke="#C2410C"/>
-<path class="route dashed" data-from="registry" data-to="otlp" d="M830 852 L830 930 L1000 930 L1000 1010" stroke="#7E22CE"/>
+<path class="route" data-from="client" data-to="controller" d="M490 274 L600 274" stroke="#1D4ED8" marker-end="url(#seqArrow-blue)"/>
+<path class="route dashed" data-from="controller" data-to="health" d="M960 274 L1065 274" stroke="#7E22CE" marker-end="url(#seqArrow-purple)"/>
+<path class="route" data-from="controller" data-to="service" d="M780 318 L780 490" stroke="#0F766E" marker-end="url(#seqArrow-teal)"/>
+<path class="route" data-from="service" data-to="observeSpring" d="M695 582 L695 650 L350 650 L350 760" stroke="#0F766E" marker-end="url(#seqArrow-teal)"/>
+<path class="route" data-from="service" data-to="eventTelemetry" d="M865 582 L865 650 L1200 650 L1200 760" stroke="#15803D" marker-end="url(#seqArrow-green)"/>
+<path class="route" data-from="observeSpring" data-to="registry" d="M520 806 L600 806" stroke="#7E22CE" marker-end="url(#seqArrow-purple)"/>
+<path class="route" data-from="eventTelemetry" data-to="registry" d="M1030 806 L940 806" stroke="#15803D" marker-end="url(#seqArrow-green)"/>
+<path class="route" data-from="registry" data-to="prometheus" d="M710 852 L710 925 L540 925 L540 1010" stroke="#C2410C" marker-end="url(#seqArrow-amber)"/>
+<path class="route dashed" data-from="registry" data-to="otlp" d="M830 852 L830 930 L1000 930 L1000 1010" stroke="#7E22CE" marker-end="url(#seqArrow-purple)"/>
 </svg>

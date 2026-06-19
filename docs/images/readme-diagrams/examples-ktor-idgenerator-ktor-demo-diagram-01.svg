@@ -1,14 +1,14 @@
 <svg data-intent="Show the demo architecture from HTTP routes through validation and IdGeneratorRegistry to concrete UUID/ULID/KSUID/Snowflake/Flake generators." data-evidence="examples/ktor/idgenerator-ktor-demo/README.md; examples/ktor/idgenerator-ktor-demo/src/main" data-source-read="examples/ktor/idgenerator-ktor-demo/README.md; examples/ktor/idgenerator-ktor-demo/src/main" xmlns="http://www.w3.org/2000/svg" width="1500" height="1140" viewBox="0 0 1500 1140" role="img" aria-label="Ktor IdGenerator Demo Request Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
+  <marker id="arrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563" stroke="#4B5563" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8" stroke="#1D4ED8" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D" stroke="#15803D" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E" stroke="#0F766E" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C" stroke="#C2410C" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D" stroke="#BE185D" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE" stroke="#7E22CE" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563" stroke="#4B5563" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
@@ -16,7 +16,7 @@
     .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
     .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
     .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
     .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
     .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
@@ -72,12 +72,12 @@
   <text class="cardTitle" x="700" y="972" text-anchor="middle" dominant-baseline="middle">HTTP response payload</text>
   <text class="detail" x="700" y="1002" text-anchor="middle" dominant-baseline="middle">generated ids or structured error</text>
 </g>
-<path class="route" data-from="client" data-to="routes" d="M485 274 L590 274" stroke="#1D4ED8"/>
-<path class="route dashed" data-from="routes" data-to="support" d="M930 274 L1035 274" stroke="#7E22CE"/>
-<path class="route" data-from="routes" data-to="validation" d="M760 318 L760 385 L510 385 L510 520" stroke="#C2410C"/>
-<path class="route" data-from="validation" data-to="registry" d="M690 564 L810 564" stroke="#0F766E"/>
-<path class="route dashed" data-from="validation" data-to="errors" d="M510 608 L510 710 L370 710 L370 815" stroke="#BE185D"/>
-<path class="route" data-from="registry" data-to="generators" d="M990 608 L990 815" stroke="#15803D"/>
-<path class="route dashed" data-from="errors" data-to="response" d="M370 905 L370 925 L610 925 L610 940" stroke="#BE185D"/>
-<path class="route" data-from="generators" data-to="response" d="M1030 905 L1030 925 L790 925 L790 940" stroke="#15803D"/>
+<path class="route" data-from="client" data-to="routes" d="M485 274 L590 274" stroke="#1D4ED8" marker-end="url(#seqArrow-blue)"/>
+<path class="route dashed" data-from="routes" data-to="support" d="M930 274 L1035 274" stroke="#7E22CE" marker-end="url(#seqArrow-purple)"/>
+<path class="route" data-from="routes" data-to="validation" d="M760 318 L760 385 L510 385 L510 520" stroke="#C2410C" marker-end="url(#seqArrow-amber)"/>
+<path class="route" data-from="validation" data-to="registry" d="M690 564 L810 564" stroke="#0F766E" marker-end="url(#seqArrow-teal)"/>
+<path class="route dashed" data-from="validation" data-to="errors" d="M510 608 L510 710 L370 710 L370 815" stroke="#BE185D" marker-end="url(#seqArrow-pink)"/>
+<path class="route" data-from="registry" data-to="generators" d="M990 608 L990 815" stroke="#15803D" marker-end="url(#seqArrow-green)"/>
+<path class="route dashed" data-from="errors" data-to="response" d="M370 905 L370 925 L610 925 L610 940" stroke="#BE185D" marker-end="url(#seqArrow-pink)"/>
+<path class="route" data-from="generators" data-to="response" d="M1030 905 L1030 925 L790 925 L790 940" stroke="#15803D" marker-end="url(#seqArrow-green)"/>
 </svg>
