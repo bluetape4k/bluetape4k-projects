@@ -2,26 +2,26 @@
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 
-  <marker id="arrow-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#475569"/></marker>
-  <marker id="inherit-slate" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#64748B" stroke-width="2.2"/></marker>
+  <marker id="arrow-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#475569" style="stroke-dasharray:none"/></marker>
+  <marker id="inherit-slate" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#64748B" stroke-width="2.2" style="stroke-dasharray:none"/></marker>
 
-  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#1D4ED8"/></marker>
-  <marker id="inherit-blue" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.2"/></marker>
+  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#1D4ED8" style="stroke-dasharray:none"/></marker>
+  <marker id="inherit-blue" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.2" style="stroke-dasharray:none"/></marker>
 
-  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#0F766E"/></marker>
-  <marker id="inherit-teal" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.2"/></marker>
+  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#0F766E" style="stroke-dasharray:none"/></marker>
+  <marker id="inherit-teal" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.2" style="stroke-dasharray:none"/></marker>
 
-  <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#15803D"/></marker>
-  <marker id="inherit-green" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#16A34A" stroke-width="2.2"/></marker>
+  <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#15803D" style="stroke-dasharray:none"/></marker>
+  <marker id="inherit-green" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#16A34A" stroke-width="2.2" style="stroke-dasharray:none"/></marker>
 
-  <marker id="arrow-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#C2410C"/></marker>
-  <marker id="inherit-amber" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#EA580C" stroke-width="2.2"/></marker>
+  <marker id="arrow-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#C2410C" style="stroke-dasharray:none"/></marker>
+  <marker id="inherit-amber" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#EA580C" stroke-width="2.2" style="stroke-dasharray:none"/></marker>
 
-  <marker id="arrow-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#BE185D"/></marker>
-  <marker id="inherit-pink" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#DB2777" stroke-width="2.2"/></marker>
+  <marker id="arrow-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#BE185D" style="stroke-dasharray:none"/></marker>
+  <marker id="inherit-pink" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#DB2777" stroke-width="2.2" style="stroke-dasharray:none"/></marker>
 
-  <marker id="arrow-violet" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#6D28D9"/></marker>
-  <marker id="inherit-violet" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#7C3AED" stroke-width="2.2"/></marker>
+  <marker id="arrow-violet" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#6D28D9" style="stroke-dasharray:none"/></marker>
+  <marker id="inherit-violet" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#7C3AED" stroke-width="2.2" style="stroke-dasharray:none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}

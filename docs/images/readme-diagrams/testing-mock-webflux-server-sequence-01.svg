@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1700" height="820" viewBox="0 0 1700 820" role="img" aria-label="Mock WebFlux server httpbin GET sequence">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#2563EB"/></marker>
-  <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#16A34A"/></marker>
-  <marker id="arrowAmber" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#D97706"/></marker>
-  <marker id="arrowRose" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#E11D48"/></marker>
+  <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#2563EB" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#16A34A" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrowAmber" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#D97706" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrowRose" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#E11D48" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6;filter:url(#shadow)}

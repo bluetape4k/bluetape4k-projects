@@ -2,22 +2,22 @@
 <defs>
   <filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrow-builds" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16">
-    <path d="M2 2 L18 8 L2 14 Z" fill="#2563EB"/>
+    <path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#2563EB" style="stroke-dasharray:none"/>
   </marker>
   <marker id="arrow-adds" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16">
-    <path d="M2 2 L18 8 L2 14 Z" fill="#2563EB"/>
+    <path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#2563EB" style="stroke-dasharray:none"/>
   </marker>
   <marker id="arrow-contextInput" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16">
-    <path d="M2 2 L18 8 L2 14 Z" fill="#EA580C"/>
+    <path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#EA580C" style="stroke-dasharray:none"/>
   </marker>
   <marker id="arrow-dispatch" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16">
-    <path d="M2 2 L18 8 L2 14 Z" fill="#16A34A"/>
+    <path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#16A34A" style="stroke-dasharray:none"/>
   </marker>
   <marker id="arrow-returns" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16">
-    <path d="M2 2 L18 8 L2 14 Z" fill="#0D9488"/>
+    <path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#0D9488" style="stroke-dasharray:none"/>
   </marker>
   <marker id="arrow-controls" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16">
-    <path d="M2 2 L18 8 L2 14 Z" fill="#9333EA"/>
+    <path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#9333EA" style="stroke-dasharray:none"/>
   </marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}

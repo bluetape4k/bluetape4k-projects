@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1680" height="940" viewBox="0 0 1680 940" role="img" aria-label="Workflow Execution Model">
 <defs>
   <filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow-syncBuild" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#16A34A"/></marker>
-  <marker id="arrow-suspendBuild" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#0D9488"/></marker>
-  <marker id="arrow-syncRuntime" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#65A30D"/></marker>
-  <marker id="arrow-suspendRuntime" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#9333EA"/></marker>
-  <marker id="arrow-dslFamilies" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#EA580C"/></marker>
-  <marker id="arrow-runtimeReportA" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#DB2777"/></marker>
-  <marker id="arrow-runtimeReportB" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#DB2777"/></marker>
-  <marker id="arrow-familiesReport" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#2563EB"/></marker>
+  <marker id="arrow-syncBuild" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#16A34A" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-suspendBuild" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#0D9488" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-syncRuntime" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#65A30D" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-suspendRuntime" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#9333EA" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-dslFamilies" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#EA580C" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-runtimeReportA" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#DB2777" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-runtimeReportB" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#DB2777" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-familiesReport" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#2563EB" style="stroke-dasharray:none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}

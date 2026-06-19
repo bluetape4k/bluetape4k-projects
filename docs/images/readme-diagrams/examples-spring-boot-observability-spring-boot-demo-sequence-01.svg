@@ -38,7 +38,7 @@
       <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#8A72D6"/>
     </marker>
     <marker id="seqArrow-pink" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#DC6B82"/>
+      <path stroke-dasharray="none" d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#DC6B82" style="stroke-dasharray:none"/>
     </marker>
     <style>
       .canvas{fill:#F6F9FC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}

@@ -3,11 +3,11 @@
 <desc id="desc">DeferredValue starts its internal Deferred eagerly, map and flatMap create new wrappers, await suspends, and value blocks the caller until the same result is available.</desc>
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="arrow-blue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#4F83BF"/></marker>
-  <marker id="arrow-green" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#3E9868"/></marker>
-  <marker id="arrow-teal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#2E8F89"/></marker>
-  <marker id="arrow-amber" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#B9851B"/></marker>
-  <marker id="arrow-pink" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#C94D68"/></marker>
+  <marker id="arrow-blue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#4F83BF" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-green" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#3E9868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-teal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-amber" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-pink" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#C94D68" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}

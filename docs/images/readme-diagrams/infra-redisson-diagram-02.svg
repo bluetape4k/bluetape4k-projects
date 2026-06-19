@@ -4,7 +4,7 @@
     <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#203040" flood-opacity="0.10"/>
   </filter>
   <marker id="arrow" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-    <path d="M 1.5 1.5 L 11 6.5 L 1.5 11.5 Z" fill="context-stroke" stroke="context-stroke" stroke-width="1"/>
+    <path d="M 1.5 1.5 L 11 6.5 L 1.5 11.5 Z" fill="context-stroke" stroke="context-stroke" stroke-width="1" stroke-dasharray="none" style="stroke-dasharray:none"/>
   </marker>
   <marker id="openArrow" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
     <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="context-stroke" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>

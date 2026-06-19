@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1680" height="980" viewBox="0 0 1680 980" role="img" aria-label="WorkReport State Flow">
 <defs>
   <filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow-success" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#16A34A"/></marker>
-  <marker id="arrow-failure" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#DB2777"/></marker>
-  <marker id="arrow-aborted" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#EA580C"/></marker>
-  <marker id="arrow-cancelled" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#9333EA"/></marker>
-  <marker id="arrow-strategy" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#0D9488"/></marker>
-  <marker id="arrow-stop" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#DB2777"/></marker>
-  <marker id="arrow-continue" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#65A30D"/></marker>
+  <marker id="arrow-success" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#16A34A" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-failure" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#DB2777" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-aborted" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#EA580C" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-cancelled" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#9333EA" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-strategy" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#0D9488" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-stop" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#DB2777" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-continue" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#65A30D" style="stroke-dasharray:none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}
