@@ -1,84 +1,38 @@
-<svg data-intent="Regenerate bluetape4k-virtualthread-jdk21 from the current README and source package surface for virtualthread/jdk21." data-evidence="virtualthread/jdk21/README.md; virtualthread/jdk21; virtualthread/jdk21/src/main/kotlin" data-source-read="virtualthread/jdk21/README.md; virtualthread/jdk21; virtualthread/jdk21/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="bluetape4k-virtualthread-jdk21">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="920" viewBox="0 0 1600 920" role="img" aria-label="bluetape4k-virtualthread-jdk21 implementation structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="impl" markerWidth="16" markerHeight="16" refX="15" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 16 8 L 0 16 Z" fill="#FFFFFF" stroke="#0D9488" stroke-width="2" stroke-dasharray="none"/></marker>
+  <marker id="usesBlue" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="usesAmber" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .section{font-family:"Architects Daughter";font-size:24px;fill:#334155}.card{filter:url(#shadow);stroke-width:1.8}.divider{stroke:#CBD5E1;stroke-width:1}
+    .className{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.stereo{font-family:"Comic Mono";font-size:12px;fill:#64748B}.member{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .impl{fill:none;stroke:#0D9488;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7}.uses{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7}.solid{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
+<rect class="canvas" width="1600" height="920"/>
+<rect class="frame" x="34" y="30" width="1532" height="860" rx="8"/>
 <text class="title" x="72" y="84">bluetape4k-virtualthread-jdk21</text>
-<text class="subtitle" x="76" y="116">virtualthread/jdk21: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">UML</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Main Implementations</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Jdk21VirtualThreadRuntime</text>
-</g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">concurrent package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">concurrent package (1)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">Jdk21StructuredTaskScopeProvider type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">Jdk21StructuredTaskScopeProvider</text>
-  <text class="detail" x="581" y="591" text-anchor="middle">type</text>
-</g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">Jdk21Subtask type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">Jdk21Subtask type</text>
-</g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">Jdk21AllScope type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">Jdk21AllScope type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="262" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="412" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="412" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="600" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="750" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="750" y="852" text-anchor="middle">Test support</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="938" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1088" y="824" text-anchor="middle">Virtual threads</text>
-  <text class="detail" x="1088" y="852" text-anchor="middle">Virtual threads</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L412 696 L412 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L750 696 L750 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L1088 696 L1088 790" stroke="#BE185D"/>
+<text class="subtitle" x="76" y="116">JDK 21 module registers runtime and StructuredTaskScope providers backed by Java 21 virtual threads.</text>
+
+<text class="section" x="100" y="178">Runtime service entry</text>
+<text class="section" x="900" y="178">Structured scope service entry</text>
+<g id="serviceRuntime"><rect class="card" x="145" y="210" width="470" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/><text class="className" x="380" y="245" text-anchor="middle" dominant-baseline="middle">VirtualThreadRuntime service</text><text class="member" x="380" y="272" text-anchor="middle" dominant-baseline="middle">META-INF/services entry loads Jdk21VirtualThreadRuntime</text></g>
+<g id="serviceProvider"><rect class="card" x="915" y="210" width="510" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/><text class="className" x="1170" y="245" text-anchor="middle" dominant-baseline="middle">StructuredTaskScopeProvider service</text><text class="member" x="1170" y="272" text-anchor="middle" dominant-baseline="middle">META-INF/services entry loads Jdk21StructuredTaskScopeProvider</text></g>
+
+<g id="runtime"><rect class="card" x="160" y="410" width="440" height="132" rx="8" fill="#ECFDF5" stroke="#16A34A"/><text class="stereo" x="380" y="438" text-anchor="middle">final class</text><text class="className" x="380" y="468" text-anchor="middle">Jdk21VirtualThreadRuntime</text><line class="divider" x1="180" y1="486" x2="580" y2="486"/><text class="member" x="180" y="512">runtimeName = jdk21, priority = 21</text><text class="member" x="180" y="534">isSupported when Java feature >= 21</text></g>
+<g id="executor"><rect class="card" x="160" y="680" width="440" height="132" rx="8" fill="#FFF7ED" stroke="#D97706"/><text class="stereo" x="380" y="708" text-anchor="middle">JDK 21 API</text><text class="className" x="380" y="738" text-anchor="middle">Virtual thread executor</text><line class="divider" x1="180" y1="756" x2="580" y2="756"/><text class="member" x="180" y="782">Thread.ofVirtual().name(prefix, 0)</text><text class="member" x="180" y="804">Executors.newThreadPerTaskExecutor</text></g>
+
+<g id="provider"><rect class="card" x="940" y="410" width="460" height="132" rx="8" fill="#F0FDFA" stroke="#0D9488"/><text class="stereo" x="1170" y="438" text-anchor="middle">class</text><text class="className" x="1170" y="468" text-anchor="middle">Jdk21StructuredTaskScopeProvider</text><line class="divider" x1="960" y1="486" x2="1380" y2="486"/><text class="member" x="960" y="512">withAll: ShutdownOnFailure</text><text class="member" x="960" y="534">withAny: ShutdownOnSuccess</text></g>
+<g id="wrappers"><rect class="card" x="760" y="680" width="410" height="170" rx="8" fill="#FFF7ED" stroke="#D97706"/><text class="className" x="965" y="716" text-anchor="middle">JDK21 wrapper scopes</text><line class="divider" x1="780" y1="734" x2="1150" y2="734"/><text class="member" x="780" y="760">Jdk21AllScope, Jdk21AnyScope</text><text class="member" x="780" y="782">Jdk21SupervisedScope</text><text class="member" x="780" y="804">Jdk21Subtask adapts Subtask.State</text></g>
+<g id="supervised"><rect class="card" x="1240" y="700" width="300" height="132" rx="8" fill="#FDF2F8" stroke="#DB2777"/><text class="className" x="1390" y="736" text-anchor="middle">Supervised scope</text><text class="member" x="1390" y="764" text-anchor="middle">extends StructuredTaskScope</text><text class="member" x="1390" y="786" text-anchor="middle">collects Result on completion</text></g>
+
+<path class="uses" d="M380 302 L380 410" stroke="#2563EB" marker-end="url(#usesBlue)"/>
+<path class="uses" d="M1170 302 L1170 410" stroke="#2563EB" marker-end="url(#usesBlue)"/>
+<path class="solid" d="M380 542 L380 680" stroke="#D97706" marker-end="url(#usesAmber)"/>
+<path class="solid" d="M1170 542 L1170 612 L965 612 L965 680" stroke="#D97706" marker-end="url(#usesAmber)"/>
+<path class="solid" d="M1170 542 L1170 626 L1390 626 L1390 700" stroke="#D97706" marker-end="url(#usesAmber)"/>
 </svg>

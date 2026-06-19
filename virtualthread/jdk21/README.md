@@ -12,7 +12,7 @@ This module implements the interfaces defined by
 
 ## UML
 
-![UML diagram](../../docs/images/readme-diagrams/virtualthread-jdk21-diagram-01.png)
+![JDK 21 virtual-thread runtime and StructuredTaskScope provider structure](../../docs/images/readme-diagrams/virtualthread-jdk21-diagram-01.png)
 
 ## Main Implementations
 
