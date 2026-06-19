@@ -1,72 +1,141 @@
-<svg data-intent="Explain WebFlux mock server routing by separating Testcontainers entrypoints, SmartLifecycle HTTPS setup, Reactor Netty runtime, controllers, services, repositories, and fixtures." data-evidence="testing/mock-webflux-server/README.md; testing/mock-webflux-server/src/main/kotlin/io/bluetape4k/mockwebflux; testing/mock-webflux-server/src/main/resources/application.yml" data-source-read="testing/mock-webflux-server/README.md; testing/mock-webflux-server/src/main/kotlin/io/bluetape4k/mockwebflux; testing/mock-webflux-server/src/main/resources/application.yml" xmlns="http://www.w3.org/2000/svg" width="1500" height="1158" viewBox="0 0 1500 1158" role="img" aria-label="WebFlux Mock Server Routing Overview">
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1060" viewBox="0 0 1900 1060" role="img" aria-label="Mock WebFlux server routing overview">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#2563EB"/></marker>
+  <marker id="arrowPurple" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#7C3AED"/></marker>
+  <marker id="arrowTeal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#0891B2"/></marker>
+  <marker id="arrowAmber" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#D97706"/></marker>
+  <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#16A34A"/></marker>
+  <marker id="arrowRose" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#DB2777"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .title{font-family:"Architects Daughter";font-size:42px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .lane{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.7;rx:8}.laneTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}.laneSub{font-family:"Comic Mono";font-size:13px;fill:#64748B}
+    .card{filter:url(#shadow);stroke-width:1.9;rx:7}.access{fill:#EFF6FF;stroke:#2563EB}.runtime{fill:#F0FDF4;stroke:#16A34A}.https{fill:#F5F3FF;stroke:#7C3AED}.controller{fill:#ECFEFF;stroke:#0891B2}.httpbin{fill:#FFF7ED;stroke:#D97706}.json{fill:#F0FDF4;stroke:#16A34A}.web{fill:#FDF2F8;stroke:#DB2777}.resource{fill:#F8FAFC;stroke:#64748B}
+    .cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.cardSub{font-family:"Comic Mono";font-size:13px;fill:#475569}.small{font-family:"Comic Mono";font-size:12px;fill:#475569}
+    .edge{fill:none;stroke-width:3.1;stroke-linecap:round;stroke-linejoin:round}.label{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.2}.labelText{font-family:"Comic Mono";font-size:12px;fill:#334155}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="1158"/>
-<rect class="frame" x="34" y="30" width="1432" height="1098" rx="8"/>
-<text class="title" x="72" y="84">WebFlux Mock Server Routing Overview</text>
-<text class="subtitle" x="76" y="116">The WebFlux server uses explicit lifecycle setup for HTTPS and Reactor Netty before routing requests to services and fixtures.</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="234" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Container entrypoints</text></g>
+<rect class="canvas" width="1900" height="1060"/>
+<rect class="frame" x="34" y="30" width="1832" height="990" rx="7"/>
+<text class="title" x="76" y="86">Mock WebFlux Server Routing Overview</text>
+<text class="subtitle" x="80" y="120">Tests enter HTTP/HTTPS container ports, share one WebFlux HttpHandler, then reach coroutine controllers and fixture-backed services.</text>
+
+<g id="lanes">
+  <rect class="lane" x="80" y="170" width="360" height="790"/>
+  <text class="laneTitle" x="120" y="218">Access</text>
+  <text class="laneSub" x="120" y="244">Testcontainers URLs and exposed ports</text>
+  <rect class="lane" x="480" y="170" width="360" height="790"/>
+  <text class="laneTitle" x="520" y="218">Reactive runtime</text>
+  <text class="laneSub" x="520" y="244">Reactor Netty plus HTTPS lifecycle</text>
+  <rect class="lane" x="880" y="170" width="360" height="790"/>
+  <text class="laneTitle" x="920" y="218">Coroutine endpoints</text>
+  <text class="laneSub" x="920" y="244">suspend handlers and Flow streaming</text>
+  <rect class="lane" x="1280" y="170" width="540" height="790"/>
+  <text class="laneTitle" x="1320" y="218">Fixture backends</text>
+  <text class="laneSub" x="1320" y="244">request echo helpers, state, cached HTML</text>
+</g>
+
 <g id="tests">
-  <rect class="card" x="146" y="256" width="330" height="84" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="311" y="291" text-anchor="middle" dominant-baseline="middle">Integration tests</text>
-  <text class="detail" x="311" y="321" text-anchor="middle" dominant-baseline="middle">Mock WebFlux container</text>
+  <rect class="card access" x="120" y="310" width="280" height="142"/>
+  <text class="cardTitle" x="260" y="354" text-anchor="middle">Integration tests</text>
+  <text class="cardSub" x="150" y="386">BluetapeWebfluxServer</text>
+  <text class="cardSub" x="150" y="412">/httpbin, /jsonplaceholder</text>
+  <text class="cardSub" x="150" y="438">/web and HTTPS helpers</text>
 </g>
 <g id="ports">
-  <rect class="card" x="1024" y="256" width="330" height="84" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1189" y="291" text-anchor="middle" dominant-baseline="middle">Port configuration</text>
-  <text class="detail" x="1189" y="321" text-anchor="middle" dominant-baseline="middle">HTTP 80, HTTPS 8443</text>
+  <rect class="card access" x="120" y="590" width="280" height="128"/>
+  <text class="cardTitle" x="260" y="634" text-anchor="middle">Container ports</text>
+  <text class="cardSub" x="150" y="670">HTTP 80</text>
+  <text class="cardSub" x="150" y="696">HTTPS 8443</text>
 </g>
-<g><rect class="panel" x="82" y="478" width="1336" height="234" rx="8"/><text class="panelTitle" x="110" y="514" dominant-baseline="middle">Reactive runtime</text></g>
-<g id="lifecycle">
-  <rect class="card" x="146" y="574" width="360" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="326" y="609" text-anchor="middle" dominant-baseline="middle">HttpsServerLifecycle</text>
-  <text class="detail" x="326" y="639" text-anchor="middle" dominant-baseline="middle">SmartLifecycle-managed HTTPS</text>
+
+<g id="http">
+  <rect class="card runtime" x="530" y="300" width="260" height="118"/>
+  <text class="cardTitle" x="660" y="344" text-anchor="middle">Reactor Netty HTTP</text>
+  <text class="cardSub" x="560" y="378">server.port = 80</text>
+  <text class="cardSub" x="560" y="400">event-loop runtime</text>
 </g>
-<g id="netty">
-  <rect class="card" x="595" y="574" width="330" height="84" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="760" y="609" text-anchor="middle" dominant-baseline="middle">Reactor Netty server</text>
-  <text class="detail" x="760" y="639" text-anchor="middle" dominant-baseline="middle">non-blocking runtime</text>
+<g id="handler">
+  <rect class="card runtime" x="530" y="462" width="260" height="118"/>
+  <text class="cardTitle" x="660" y="506" text-anchor="middle">WebFlux HttpHandler</text>
+  <text class="cardSub" x="560" y="540">shared request pipeline</text>
+  <text class="cardSub" x="560" y="562">Jackson 3 WebFlux config</text>
 </g>
+<g id="https">
+  <rect class="card https" x="530" y="636" width="260" height="142"/>
+  <text class="cardTitle" x="660" y="680" text-anchor="middle">HttpsServerLifecycle</text>
+  <text class="cardSub" x="560" y="714">SmartLifecycle starts</text>
+  <text class="cardSub" x="560" y="736">Reactor Netty HTTPS 8443</text>
+  <text class="cardSub" x="560" y="758">localhost.p12 certificate</text>
+</g>
+
 <g id="controllers">
-  <rect class="card" x="1014" y="574" width="340" height="84" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1184" y="609" text-anchor="middle" dominant-baseline="middle">WebFlux controllers</text>
-  <text class="detail" x="1184" y="639" text-anchor="middle" dominant-baseline="middle">suspend/reactive handlers</text>
+  <rect class="card controller" x="930" y="370" width="260" height="250"/>
+  <text class="cardTitle" x="1060" y="414" text-anchor="middle">WebFlux controllers</text>
+  <text class="cardSub" x="960" y="450">/ping and /admin/reset</text>
+  <text class="cardSub" x="960" y="476">/httpbin suspend endpoints</text>
+  <text class="cardSub" x="960" y="502">/httpbin Flow streams</text>
+  <text class="cardSub" x="960" y="528">/jsonplaceholder CRUD</text>
+  <text class="cardSub" x="960" y="554">/web with IO offload</text>
+  <text class="small" x="960" y="590">GlobalExceptionHandler maps validation</text>
 </g>
-<g><rect class="panel" x="82" y="796" width="1336" height="234" rx="8"/><text class="panelTitle" x="110" y="832" dominant-baseline="middle">State and fixtures</text></g>
-<g id="service">
-  <rect class="card" x="146" y="892" width="340" height="84" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="316" y="927" text-anchor="middle" dominant-baseline="middle">JsonplaceholderService</text>
-  <text class="detail" x="316" y="957" text-anchor="middle" dominant-baseline="middle">reactive request semantics</text>
+
+<g id="httpbin">
+  <rect class="card httpbin" x="1320" y="280" width="440" height="142"/>
+  <text class="cardTitle" x="1540" y="324" text-anchor="middle">httpbin response tools</text>
+  <text class="cardSub" x="1350" y="360">toHttpbinResponse(): args, headers, body</text>
+  <text class="cardSub" x="1350" y="386">gzip/deflate/brotli, Flow stream, image</text>
 </g>
-<g id="repo">
-  <rect class="card" x="1024" y="892" width="330" height="84" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1189" y="927" text-anchor="middle" dominant-baseline="middle">InMemoryRepository</text>
-  <text class="detail" x="1189" y="957" text-anchor="middle" dominant-baseline="middle">test state + fixtures</text>
+<g id="json">
+  <rect class="card json" x="1320" y="480" width="440" height="142"/>
+  <text class="cardTitle" x="1540" y="524" text-anchor="middle">JsonplaceholderService</text>
+  <text class="cardSub" x="1350" y="560">six InMemoryRepository instances</text>
+  <text class="cardSub" x="1350" y="586">ReentrantLock for atomic reload</text>
 </g>
-<path class="route" data-from="tests" data-to="ports" d="M476 298 L1024 298" stroke="#1D4ED8"/>
-<path class="route" data-from="ports" data-to="lifecycle" d="M1189 340 L1189 446 L398 446 L398 574" stroke="#7E22CE"/>
-<path class="route" data-from="lifecycle" data-to="netty" d="M506 616 L595 616" stroke="#15803D"/>
-<path class="route" data-from="netty" data-to="controllers" d="M925 616 L1014 616" stroke="#0F766E"/>
-<path class="route" data-from="controllers" data-to="service" d="M1184 658 L1184 797 L388 797 L388 892" stroke="#C2410C"/>
-<path class="route" data-from="service" data-to="repo" d="M486 934 L1024 934" stroke="#BE185D"/>
+<g id="web">
+  <rect class="card web" x="1320" y="720" width="440" height="128"/>
+  <text class="cardTitle" x="1540" y="764" text-anchor="middle">WebContentLoader</text>
+  <text class="cardSub" x="1350" y="800">@Cacheable web-content</text>
+  <text class="cardSub" x="1350" y="826">ClassPathResource + Dispatchers.IO caller</text>
+</g>
+<g id="jsonResources">
+  <rect class="card resource" x="1320" y="650" width="440" height="56"/>
+  <text class="cardSub" x="1540" y="684" text-anchor="middle">classpath jsonplaceholder/*.json</text>
+</g>
+<g id="htmlResources">
+  <rect class="card resource" x="1320" y="882" width="440" height="56"/>
+  <text class="cardSub" x="1540" y="916" text-anchor="middle">classpath web/html/*.html</text>
+</g>
+<g id="tlsResource">
+  <rect class="card resource" x="530" y="846" width="260" height="56"/>
+  <text class="cardSub" x="660" y="880" text-anchor="middle">classpath certs/localhost.p12</text>
+</g>
+
+<path class="edge" d="M260 452 L260 590" stroke="#2563EB" marker-end="url(#arrowBlue)"/>
+<path class="edge" d="M400 640 L500 640 Q510 640 510 630 L510 360 Q510 340 530 340" stroke="#2563EB" marker-end="url(#arrowBlue)"/>
+<path class="edge" d="M400 692 L500 692 Q520 692 530 707" stroke="#7C3AED" marker-end="url(#arrowPurple)"/>
+<path class="edge" d="M790 520 L930 520" stroke="#0891B2" marker-end="url(#arrowTeal)"/>
+<path class="edge" d="M660 418 L660 462" stroke="#16A34A" marker-end="url(#arrowGreen)"/>
+<path class="edge" d="M660 686 L660 580" stroke="#7C3AED" marker-end="url(#arrowPurple)"/>
+<path class="edge" d="M1190 430 L1320 350" stroke="#D97706" marker-end="url(#arrowAmber)"/>
+<path class="edge" d="M1190 520 L1320 552" stroke="#16A34A" marker-end="url(#arrowGreen)"/>
+<path class="edge" d="M1190 592 L1300 592 Q1320 592 1320 740" stroke="#DB2777" marker-end="url(#arrowRose)"/>
+<path class="edge" d="M1540 622 L1540 650" stroke="#16A34A" marker-end="url(#arrowGreen)"/>
+<path class="edge" d="M1540 848 L1540 882" stroke="#DB2777" marker-end="url(#arrowRose)"/>
+<path class="edge" d="M660 778 L660 846" stroke="#7C3AED" marker-end="url(#arrowPurple)"/>
+
+<rect class="label" x="210" y="515" width="100" height="28" rx="7"/>
+<text class="labelText" x="260" y="534" text-anchor="middle">mapped URL</text>
+<rect class="label" x="420" y="608" width="96" height="28" rx="7"/>
+<text class="labelText" x="468" y="627" text-anchor="middle">port bind</text>
+<rect class="label" x="815" y="486" width="94" height="28" rx="7"/>
+<text class="labelText" x="862" y="505" text-anchor="middle">dispatch</text>
+<rect class="label" x="1210" y="406" width="86" height="28" rx="7"/>
+<text class="labelText" x="1253" y="425" text-anchor="middle">/httpbin</text>
+<rect class="label" x="1210" y="528" width="132" height="28" rx="7"/>
+<text class="labelText" x="1276" y="547" text-anchor="middle">/jsonplaceholder</text>
+<rect class="label" x="1230" y="676" width="76" height="28" rx="7"/>
+<text class="labelText" x="1268" y="695" text-anchor="middle">/web</text>
 </svg>

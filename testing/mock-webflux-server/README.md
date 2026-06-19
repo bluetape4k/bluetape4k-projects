@@ -2,8 +2,9 @@
 
 [한국어](./README.ko.md) | English
 
-A standalone Spring Boot 4 + WebFlux mock server for integration testing. Provides HTTP endpoints compatible with [httpbin.org](https://httpbin.org) and [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com), implemented entirely with Kotlin Coroutines (
-`suspend fun`, `Flow`). It runs on port **80** (HTTP) / **443** (HTTPS) inside Docker.
+A standalone Spring Boot 4 + WebFlux mock server for integration testing. It provides HTTP endpoints compatible with
+[httpbin.org](https://httpbin.org) and [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com), implemented with Kotlin Coroutines
+(`suspend fun`, `Flow`). It runs on port **80** (HTTP) / **8443** (HTTPS) inside Docker.
 
 ## Architecture
 
@@ -22,26 +23,26 @@ A standalone Spring Boot 4 + WebFlux mock server for integration testing. Provid
 | Coroutines | Optional                | First-class                     |
 | I/O model  | Thread-per-request      | Event-loop (Netty)              |
 | HTTP port  | 80                      | 80                              |
-| HTTPS port | 443                     | 443                             |
+| HTTPS port | 443                     | 8443                            |
 
-## UML
+## Diagrams
 
 ### Request Routing Overview
 
-![Request Routing Overview diagram](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-01.png)
+![Mock WebFlux Server routing overview](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-01.png)
 
 ### Class Diagram
 
-![Mock WebFlux Server Class Structure diagram](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-02.png)
+![Mock WebFlux Server class structure](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-02.png)
 
 ### Sequence Diagram — httpbin GET
 
-![Sequence Diagram — httpbin GET diagram](../../docs/images/readme-diagrams/testing-mock-webflux-server-sequence-01.png)
+![WebFlux httpbin GET request sequence](../../docs/images/readme-diagrams/testing-mock-webflux-server-sequence-01.png)
 
 ## Features
 
 - **Spring Boot 4 + Kotlin Coroutines**: All handlers are `suspend fun` or return `Flow` — fully non-blocking
-- **Port 80 (HTTP) / 443 (HTTPS)**: Standard container ports for deterministic test configuration
+- **Port 80 (HTTP) / 8443 (HTTPS)**: Standard container ports for deterministic test configuration
 - **httpbin simulation**: Full HTTP inspection API at
   `/httpbin/**` — echoes requests, returns headers/IP/UUID, streams, delays, and images
 - **jsonplaceholder simulation**: 6 full CRUD resources (posts/comments/albums/photos/todos/users) at
@@ -58,7 +59,7 @@ A standalone Spring Boot 4 + WebFlux mock server for integration testing. Provid
 | Key                        | Value                                          | Notes                |
 |----------------------------|------------------------------------------------|----------------------|
 | `server.port`              | `80`                                           | HTTP container port  |
-| `bluetape4k.https.port`    | `443`                                          | HTTPS container port |
+| `bluetape4k.https.port`    | `8443`                                         | HTTPS container port |
 | `spring.cache.type`        | `caffeine`                                     | In-process caching   |
 | `spring.cache.cache-names` | `web-content`, `fixture-data`, `httpbin-image` | Caffeine cache names |
 
@@ -67,7 +68,7 @@ A standalone Spring Boot 4 + WebFlux mock server for integration testing. Provid
 ### Run via Docker
 
 ```bash
-docker run --rm -p 80:80 -p 443:443 bluetape4k/mock-webflux-server:latest
+docker run --rm -p 80:80 -p 8443:8443 bluetape4k/mock-webflux-server:latest
 ```
 
 ### Build Docker image with Jib
