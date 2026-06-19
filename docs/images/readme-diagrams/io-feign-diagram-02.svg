@@ -245,11 +245,16 @@
   </g>
 
   <g transform="translate(118 968)">
-    <line x1="0" y1="0" x2="34" y2="0" stroke="#16a34a" stroke-width="2.4" stroke-dasharray="7 5" marker-end="url(#hollow-green)" />
+    <line x1="0" y1="0" x2="34" y2="0" stroke="#16a34a" stroke-width="2.4" stroke-dasharray="7 5" />
+<polygon points="13,9 34,0 13,-9" fill="#FFFFFF" stroke="#16a34a" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="legend" x="52" y="5">implements</text>
-    <line x1="190" y1="0" x2="224" y2="0" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#open-blue)" />
+    <line x1="190" y1="0" x2="224" y2="0" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="7 5" />
+
+    <polyline points="206,8 224,0 206,-8" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="legend" x="242" y="5">creates/configures</text>
-    <line x1="430" y1="0" x2="464" y2="0" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#open-purple)" />
+    <line x1="430" y1="0" x2="464" y2="0" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="7 5" />
+
+    <polyline points="446,8 464,0 446,-8" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="legend" x="482" y="5">uses helper support</text>
   </g>
 </svg>

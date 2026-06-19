@@ -15,15 +15,31 @@
 <text class="subtitle" x="82" y="120">The module wraps JSR-354 and Moneta with Kotlin factories, operators, rounding, aggregation, and conversion helpers.</text>
 <rect class="lane laneContracts" x="90" y="205" width="1970" height="540" rx="8" /><text class="laneTitle" x="118" y="232">JSR-354 contracts and Moneta implementations</text>
 <rect class="lane laneKotlin" x="90" y="780" width="1970" height="420" rx="8" /><text class="laneTitle" x="118" y="807">bluetape4k-money Kotlin API surface</text>
-<g id="edges"><path class="edge implements" d="M680 510 L680 410" stroke="#2563EB" marker-end="url(#arrow-moneyImpl)" />
-<path class="edge implements" d="M1200 510 L1200 450 L1038 450 L1038 335 L1020 335" stroke="#16A34A" marker-end="url(#arrow-fastImpl)" />
-<path class="edge uses" d="M295 825 L295 410" stroke="#64748B" marker-end="url(#arrow-currencyFactory)" />
-<path class="edge uses" d="M670 825 L670 660" stroke="#2563EB" marker-end="url(#arrow-moneyFactory)" />
-<path class="edge uses" d="M1420 825 L1420 700 L1200 700 L1200 660" stroke="#16A34A" marker-end="url(#arrow-fastFactory)" />
-<path class="edge uses" d="M1045 825 L1045 735 L1000 735 L1000 410" stroke="#0D9488" marker-end="url(#arrow-amountOps)" />
-<path class="edge uses" d="M1810 825 L1810 410" stroke="#EA580C" marker-end="url(#arrow-convertorRates)" />
-<path class="edge uses" d="M1630 910 L1605 910 L1605 335 L1510 335" stroke="#EA580C" marker-end="url(#arrow-convertorReturns)" />
-<path class="edge uses" d="M1990 1108 L2075 1108 L2075 335 L2020 335" stroke="#9333EA" marker-end="url(#arrow-availability)" /></g>
+<g id="edges"><path class="edge implements" d="M680 510 L680 410" stroke="#2563EB" />
+<polygon points="689,431 680,410 671,431" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge implements" d="M1200 510 L1200 450 L1038 450 L1038 335 L1020 335" stroke="#16A34A" />
+<polygon points="1041,326 1020,335 1041,344" fill="#FFFFFF" stroke="#16A34A" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge uses" d="M295 825 L295 410" stroke="#64748B" />
+
+<polyline points="303,428 295,410 287,428" fill="none" stroke="#64748B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge uses" d="M670 825 L670 660" stroke="#2563EB" />
+
+<polyline points="678,678 670,660 662,678" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge uses" d="M1420 825 L1420 700 L1200 700 L1200 660" stroke="#16A34A" />
+
+<polyline points="1208,678 1200,660 1192,678" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge uses" d="M1045 825 L1045 735 L1000 735 L1000 410" stroke="#0D9488" />
+
+<polyline points="1008,428 1000,410 992,428" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge uses" d="M1810 825 L1810 410" stroke="#EA580C" />
+
+<polyline points="1818,428 1810,410 1802,428" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge uses" d="M1630 910 L1605 910 L1605 335 L1510 335" stroke="#EA580C" />
+
+<polyline points="1528,327 1510,335 1528,343" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge uses" d="M1990 1108 L2075 1108 L2075 335 L2020 335" stroke="#9333EA" />
+
+<polyline points="2038,327 2020,335 2038,343" fill="none" stroke="#9333EA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(719 447)"><rect width="106" height="30" rx="8" /><text x="53" y="20" text-anchor="middle">implements</text></g>
 <g class="edgeLabel" transform="translate(1032 417)"><rect width="106" height="30" rx="8" /><text x="53" y="20" text-anchor="middle">implements</text></g>
 <g class="edgeLabel" transform="translate(302 605)"><rect width="126" height="30" rx="8" /><text x="63" y="20" text-anchor="middle">creates/caches</text></g>

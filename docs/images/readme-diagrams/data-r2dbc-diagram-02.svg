@@ -27,15 +27,30 @@
 <text class="title" x="72" y="84">R2DBC Core API Class Structure</text>
 <text class="subtitle" x="76" y="116">UML view of the holder, query model, typed execution spec, and CRUD spec families.</text>
 <g>
-  <path class="assoc" d="M 690 237 H 405" stroke="#2563EB" marker-end="url(#openBlue)" />
-  <path class="assoc" d="M 1120 195 H 1420" stroke="#16A34A" marker-end="url(#openGreen)" />
-  <path class="assoc" d="M 1120 285 H 1250 V 351 H 1420" stroke="#9333EA" marker-end="url(#openPurple)" />
-  <path class="uses" d="M 435 568 H 555" stroke="#DB2777" marker-end="url(#openPink)" />
-  <path class="uses" d="M 265 658 V 770" stroke="#EA580C" marker-end="url(#openOrange)" />
-  <path class="extends" d="M 630 765 V 600" stroke="#DB2777" marker-end="url(#hollowPink)" />
-  <path class="extends" d="M 910 765 V 682 H 710 V 600" stroke="#DB2777" marker-end="url(#hollowPink)" />
-  <path class="realize" d="M 1228 765 V 646" stroke="#9333EA" marker-end="url(#hollowPurple)" />
-  <path class="uses" d="M 1395 842 H 1435" stroke="#2563EB" marker-end="url(#openBlue)" />
+  <path class="assoc" d="M 690 237 H 405" stroke="#2563EB" />
+
+  <polyline points="423,229 405,237 423,245" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 1120 195 H 1420" stroke="#16A34A" />
+
+  <polyline points="1402,203 1420,195 1402,187" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 1120 285 H 1250 V 351 H 1420" stroke="#9333EA" />
+
+  <polyline points="1402,359 1420,351 1402,343" fill="none" stroke="#9333EA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="uses" d="M 435 568 H 555" stroke="#DB2777" />
+
+  <polyline points="537,576 555,568 537,560" fill="none" stroke="#DB2777" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="uses" d="M 265 658 V 770" stroke="#EA580C" />
+
+  <polyline points="257,752 265,770 273,752" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="extends" d="M 630 765 V 600" stroke="#DB2777" />
+<polygon points="639,621 630,600 621,621" fill="#FFFFFF" stroke="#DB2777" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="extends" d="M 910 765 V 682 H 710 V 600" stroke="#DB2777" />
+<polygon points="719,621 710,600 701,621" fill="#FFFFFF" stroke="#DB2777" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="realize" d="M 1228 765 V 646" stroke="#9333EA" />
+<polygon points="1237,667 1228,646 1219,667" fill="#FFFFFF" stroke="#9333EA" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="uses" d="M 1395 842 H 1435" stroke="#2563EB" />
+
+  <polyline points="1417,850 1435,842 1417,834" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 </g>
 <g><text class="label" x="545" y="225" text-anchor="middle">databaseClient</text><text class="label" x="1270" y="183" text-anchor="middle">entityTemplate</text><text class="label" x="1268" y="339" text-anchor="middle">mappingConverter</text><text class="label" x="495" y="556" text-anchor="middle">filters</text><text class="label" x="302" y="718" text-anchor="middle">builds</text><text class="label" x="1415" y="830" text-anchor="middle">fetch()</text></g>
 <g id="databaseClient">
@@ -118,9 +133,15 @@
   <text class="member" x="1473" y="588">InsertIntoSpec -&gt; Values / Key</text><text class="member" x="1473" y="610">UpdateTableSpec -&gt; Values</text><text class="member" x="1473" y="632">SetterSpec &lt;- UpdateValuesSpec</text><text class="member" x="1473" y="654">DeleteTableSpec -&gt; Value</text><text class="member" x="1473" y="676">impl classes build SQL specs</text>
 </g>
 <g transform="translate(90 990)">
-  <path class="assoc" d="M 0 0 H 58" stroke="#2563EB" marker-end="url(#openBlue)" /><text class="legend" x="72" y="5">has/reference</text>
-  <path class="uses" d="M 214 0 H 272" stroke="#9333EA" marker-end="url(#openPurple)" /><text class="legend" x="286" y="5">uses / builds</text>
-  <path class="realize" d="M 455 0 H 513" stroke="#9333EA" marker-end="url(#hollowPurple)" /><text class="legend" x="528" y="5">implements</text>
-  <path class="extends" d="M 675 0 H 733" stroke="#DB2777" marker-end="url(#hollowPink)" /><text class="legend" x="748" y="5">extends</text>
+  <path class="assoc" d="M 0 0 H 58" stroke="#2563EB" />
+
+  <polyline points="40,8 58,0 40,-8" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legend" x="72" y="5">has/reference</text>
+  <path class="uses" d="M 214 0 H 272" stroke="#9333EA" />
+
+  <polyline points="254,8 272,0 254,-8" fill="none" stroke="#9333EA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legend" x="286" y="5">uses / builds</text>
+  <path class="realize" d="M 455 0 H 513" stroke="#9333EA" />
+<polygon points="492,9 513,0 492,-9" fill="#FFFFFF" stroke="#9333EA" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legend" x="528" y="5">implements</text>
+  <path class="extends" d="M 675 0 H 733" stroke="#DB2777" />
+<polygon points="712,9 733,0 712,-9" fill="#FFFFFF" stroke="#DB2777" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legend" x="748" y="5">extends</text>
 </g>
 </svg>

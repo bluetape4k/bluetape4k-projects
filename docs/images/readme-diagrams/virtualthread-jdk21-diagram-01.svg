@@ -30,9 +30,20 @@
 <g id="wrappers"><rect class="card" x="760" y="680" width="410" height="170" rx="8" fill="#FFF7ED" stroke="#D97706" /><text class="className" x="965" y="716" text-anchor="middle">JDK21 wrapper scopes</text><line class="divider" x1="780" y1="734" x2="1150" y2="734" /><text class="member" x="780" y="760">Jdk21AllScope, Jdk21AnyScope</text><text class="member" x="780" y="782">Jdk21SupervisedScope</text><text class="member" x="780" y="804">Jdk21Subtask adapts Subtask.State</text></g>
 <g id="supervised"><rect class="card" x="1240" y="700" width="300" height="132" rx="8" fill="#FDF2F8" stroke="#DB2777" /><text class="className" x="1390" y="736" text-anchor="middle">Supervised scope</text><text class="member" x="1390" y="764" text-anchor="middle">extends StructuredTaskScope</text><text class="member" x="1390" y="786" text-anchor="middle">collects Result on completion</text></g>
 
-<path class="uses" d="M380 302 L380 410" stroke="#2563EB" marker-end="url(#usesBlue)" />
-<path class="uses" d="M1170 302 L1170 410" stroke="#2563EB" marker-end="url(#usesBlue)" />
-<path class="solid" d="M380 542 L380 680" stroke="#D97706" marker-end="url(#usesAmber)" />
-<path class="solid" d="M1170 542 L1170 612 L965 612 L965 680" stroke="#D97706" marker-end="url(#usesAmber)" />
-<path class="solid" d="M1170 542 L1170 626 L1390 626 L1390 700" stroke="#D97706" marker-end="url(#usesAmber)" />
+<path class="uses" d="M380 302 L380 410" stroke="#2563EB" />
+
+
+<polyline points="372,392 380,410 388,392" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="uses" d="M1170 302 L1170 410" stroke="#2563EB" />
+
+<polyline points="1162,392 1170,410 1178,392" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="solid" d="M380 542 L380 680" stroke="#D97706" />
+
+<polyline points="372,662 380,680 388,662" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="solid" d="M1170 542 L1170 612 L965 612 L965 680" stroke="#D97706" />
+
+<polyline points="957,662 965,680 973,662" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="solid" d="M1170 542 L1170 626 L1390 626 L1390 700" stroke="#D97706" />
+
+<polyline points="1382,682 1390,700 1398,682" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 </svg>

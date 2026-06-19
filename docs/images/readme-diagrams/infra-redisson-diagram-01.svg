@@ -6,6 +6,14 @@
   <marker id="arrow" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
     <path d="M 1.5 1.5 L 11 6.5 L 1.5 11.5 Z" fill="context-stroke" stroke="context-stroke" stroke-width="1"/>
   </marker>
+
+  <marker id="arrow-blue" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1.5 1.5 L 11 6.5 L 1.5 11.5 Z" fill="#2563EB" stroke="#2563EB" stroke-width="1" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-green" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1.5 1.5 L 11 6.5 L 1.5 11.5 Z" fill="#15803D" stroke="#15803D" stroke-width="1" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-teal" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1.5 1.5 L 11 6.5 L 1.5 11.5 Z" fill="#0F8B87" stroke="#0F8B87" stroke-width="1" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-amber" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1.5 1.5 L 11 6.5 L 1.5 11.5 Z" fill="#C47A00" stroke="#C47A00" stroke-width="1" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-pink" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1.5 1.5 L 11 6.5 L 1.5 11.5 Z" fill="#BE185D" stroke="#BE185D" stroke-width="1" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="openArrow-teal" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#0F8B87" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="openArrow-purple" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
   <marker id="openArrow" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
     <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="context-stroke" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
   </marker>
@@ -165,15 +173,19 @@
 <text class="cardTitle" x="1612" y="1048" text-anchor="middle">forCompatibility()</text>
 <text class="cardBody" x="1612" y="1082" text-anchor="middle">JDK</text>
 </g>
-<path id="p-to-serial" class="edgeGreen" d="M 840 302 L 840 330 L 295 330 L 295 458" marker-end="url(#arrow)"/>
-<path id="p-to-compression" class="edgeTeal" d="M 900 302 L 900 330 L 735 330 L 735 458" marker-end="url(#arrow)"/>
-<path id="p-to-composite" class="edgeAmber" d="M 960 302 L 960 330 L 1175 330 L 1175 458" marker-end="url(#arrow)"/>
-<path id="p-to-usecase" class="edgeBlue" d="M 1020 302 L 1020 330 L 1790 330 L 1790 482 L 1772 482" marker-end="url(#arrow)"/>
-<path id="p-fory-wrap" class="edgeTeal" d="M 455 514 L 570 514" marker-end="url(#openArrow)"/>
-<path id="p-fast-wrap" class="edgeDashed" d="M 455 678 L 515 678 L 515 690 L 570 690" marker-end="url(#openArrow)"/>
-<path id="p-wrap-out" class="edgeTeal" d="M 735 576 L 735 816" marker-end="url(#arrow)"/>
-<path id="p-composite-map" class="edgeAmber" d="M 1175 578 L 1175 650" marker-end="url(#arrow)"/>
-<path id="p-map-near" class="edgeTeal" d="M 1175 776 L 1175 850" marker-end="url(#arrow)"/>
+<path id="p-to-serial" class="edgeGreen" d="M 840 302 L 840 330 L 295 330 L 295 458" marker-end="url(#arrow-green)"/>
+<path id="p-to-compression" class="edgeTeal" d="M 900 302 L 900 330 L 735 330 L 735 458" marker-end="url(#arrow-teal)"/>
+<path id="p-to-composite" class="edgeAmber" d="M 960 302 L 960 330 L 1175 330 L 1175 458" marker-end="url(#arrow-amber)"/>
+<path id="p-to-usecase" class="edgeBlue" d="M 1020 302 L 1020 330 L 1790 330 L 1790 482 L 1772 482" marker-end="url(#arrow-blue)"/>
+<path id="p-fory-wrap" class="edgeTeal" d="M 455 514 L 570 514"/>
+
+<polyline points="552,522 570,514 552,506" fill="none" stroke="#0F8B87" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path id="p-fast-wrap" class="edgeDashed" d="M 455 678 L 515 678 L 515 690 L 570 690"/>
+
+<polyline points="552,698 570,690 552,682" fill="none" stroke="#7C3AED" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path id="p-wrap-out" class="edgeTeal" d="M 900 517 L 930 517 L 930 884 L 900 884" marker-end="url(#arrow-teal)"/>
+<path id="p-composite-map" class="edgeAmber" d="M 1175 578 L 1175 650" marker-end="url(#arrow-amber)"/>
+<path id="p-map-near" class="edgeTeal" d="M 1175 776 L 1175 850" marker-end="url(#arrow-teal)"/>
 <rect class="labelBg" x="132" y="1148" width="1636" height="42" rx="12"/>
 <text class="note" x="950" y="1175" text-anchor="middle">FastFory can read legacy Fory through fallback, but Fory cannot read FastFory data; keep FastFory for volatile caches.</text>
 </svg>

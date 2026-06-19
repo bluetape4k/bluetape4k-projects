@@ -111,16 +111,34 @@
   <text class="member" x="1350" y="994" text-anchor="middle">immutable scoped binding</text>
 </g>
 
-<path class="uses" d="M440 270 L610 270" stroke="#2563EB" marker-end="url(#usesBlue)" />
-<path class="impl" d="M1140 216 L960 246" stroke="#2563EB" marker-end="url(#implBlue)" />
-<path class="impl" d="M1140 332 L960 302" stroke="#2563EB" marker-end="url(#implBlue)" />
-<path class="impl" d="M685 382 L685 350" stroke="#2563EB" marker-end="url(#implBlue)" />
+<path class="uses" d="M440 270 L610 270" stroke="#2563EB" />
 
-<path class="uses" d="M440 616 L590 616" stroke="#0D9488" marker-end="url(#usesTeal)" />
-<path class="impl" d="M1120 548 L980 580" stroke="#0D9488" marker-end="url(#implTeal)" />
-<path class="impl" d="M1120 680 L980 648" stroke="#0D9488" marker-end="url(#implTeal)" />
-<path class="uses" d="M785 692 L785 734" stroke="#D97706" marker-end="url(#usesAmber)" />
 
-<path class="uses" d="M540 964 L690 964" stroke="#0D9488" marker-end="url(#usesTeal)" />
-<path class="uses" d="M1050 964 L1200 964" stroke="#0D9488" marker-end="url(#usesTeal)" />
+<polyline points="592,278 610,270 592,262" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="impl" d="M1140 216 L960 246" stroke="#2563EB" />
+<polygon points="979.23,233.67 960,246 982.19,251.43" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="impl" d="M1140 332 L960 302" stroke="#2563EB" />
+<polygon points="982.19,296.57 960,302 979.23,314.33" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="impl" d="M685 382 L685 350" stroke="#2563EB" />
+<polygon points="694,371 685,350 676,371" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+
+<path class="uses" d="M440 616 L590 616" stroke="#0D9488" />
+
+
+<polyline points="572,624 590,616 572,608" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="impl" d="M1120 548 L980 580" stroke="#0D9488" />
+<polygon points="998.47,566.55 980,580 1002.48,584.09" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="impl" d="M1120 680 L980 648" stroke="#0D9488" />
+<polygon points="1002.48,643.91 980,648 998.47,661.45" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="uses" d="M785 692 L785 734" stroke="#D97706" />
+
+<polyline points="777,716 785,734 793,716" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+
+<path class="uses" d="M540 964 L690 964" stroke="#0D9488" />
+
+
+<polyline points="672,972 690,964 672,956" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="uses" d="M1050 964 L1200 964" stroke="#0D9488" />
+
+<polyline points="1182,972 1200,964 1182,956" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 </svg>

@@ -4,9 +4,9 @@
 
 Apache Cassandra와 Spring Data Cassandra를 활용하는 종합 예제입니다 (Spring Boot 4.x).
 
-## UML
+## 예제 아키텍처
 
-![UML diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-demo-diagram-01.png)
+![Spring Boot Cassandra 데모 예제 아키텍처 다이어그램](../../docs/images/readme-diagrams/spring-boot-cassandra-demo-diagram-01.png)
 
 > Spring Boot 4 기반 versionless 표준 예제 모듈입니다.
 

@@ -137,37 +137,65 @@
 <text class="member" x="1864" y="1314" text-anchor="start">+ get(key) / put(key, value)</text>
 <text class="member" x="1864" y="1343" text-anchor="start">blocking provider boundary</text>
 </g>
-<path id="e-ext-policy" class="uses" d="M 1172 382 L 1172 432 L 460 432 L 460 382" marker-end="url(#openArrow)" />
+<path id="e-ext-policy" class="uses" d="M 1172 382 L 1172 432 L 460 432 L 460 382" />
+
+<polyline points="468,400 460,382 452,400" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="568" y="400" width="224" height="30" rx="9" />
 <text class="edgeLabel" x="680" y="421" text-anchor="middle">uses policies</text>
-<path id="e-fallback" class="usesGreen" d="M 1452 295 L 1578 295" marker-end="url(#openArrow)" />
-<path id="e-decorators-supplier" class="create" d="M 880 690 L 880 732 L 382 732 L 382 812" marker-end="url(#openArrow)" />
+<path id="e-fallback" class="usesGreen" d="M 1452 295 L 1578 295" />
+
+<polyline points="1560,303 1578,295 1560,287" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path id="e-decorators-supplier" class="create" d="M 880 690 L 880 732 L 382 732 L 382 812" />
+
+<polyline points="374,794 382,812 390,794" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="488" y="693" width="224" height="30" rx="9" />
 <text class="edgeLabel" x="600" y="714" text-anchor="middle">creates</text>
-<path id="e-decorators-function1" class="create" d="M 1160 690 L 1160 812" marker-end="url(#openArrow)" />
+<path id="e-decorators-function1" class="create" d="M 1160 690 L 1160 812" />
+
+<polyline points="1152,794 1160,812 1168,794" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="1130" y="735" width="224" height="30" rx="9" />
 <text class="edgeLabel" x="1242" y="756" text-anchor="middle">creates</text>
-<path id="e-decorators-function2" class="create" d="M 1440 690 L 1440 732 L 1938 732 L 1938 812" marker-end="url(#openArrow)" />
+<path id="e-decorators-function2" class="create" d="M 1440 690 L 1440 732 L 1938 732 L 1938 812" />
+
+<polyline points="1930,794 1938,812 1946,794" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="1600" y="693" width="224" height="30" rx="9" />
 <text class="edgeLabel" x="1712" y="714" text-anchor="middle">creates</text>
-<path id="e-supplier-policy" class="uses" d="M 382 812 L 382 512 L 812 512" marker-end="url(#openArrow)" />
+<path id="e-supplier-policy" class="uses" d="M 382 812 L 382 512 L 812 512" />
+
+<polyline points="794,520 812,512 794,504" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="454" y="517" width="224" height="30" rx="9" />
 <text class="edgeLabel" x="566" y="538" text-anchor="middle">wraps supplier</text>
-<path id="e-function1-policy" class="usesGreen" d="M 1160 812 L 1160 690" marker-end="url(#openArrow)" />
-<path id="e-function2-policy" class="usesGreen" d="M 1938 812 L 1938 512 L 1520 512" marker-end="url(#openArrow)" />
+<path id="e-function1-policy" class="usesGreen" d="M 1160 812 L 1160 690" />
+
+<polyline points="1168,708 1160,690 1152,708" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path id="e-function2-policy" class="usesGreen" d="M 1938 812 L 1938 512 L 1520 512" />
+
+<polyline points="1538,504 1520,512 1538,520" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="1636" y="517" width="224" height="30" rx="9" />
 <text class="edgeLabel" x="1748" y="538" text-anchor="middle">wraps bi-function</text>
-<path id="e-function1-cache" class="usesGreen" d="M 890 930 L 760 930 L 760 1160" marker-end="url(#openArrow)" />
-<path id="e-supplier-cache" class="uses" d="M 382 1028 L 382 1072 L 74 1072 L 74 1246 L 112 1246" marker-end="url(#openArrow)" />
-<path id="e-impl" class="impl" d="M 1252 1261 L 1124 1261" marker-end="url(#hollowTriangle)" />
+<path id="e-function1-cache" class="usesGreen" d="M 890 930 L 760 930 L 760 1160" />
+
+<polyline points="752,1142 760,1160 768,1142" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path id="e-supplier-cache" class="uses" d="M 382 1028 L 382 1072 L 74 1072 L 74 1246 L 112 1246" />
+
+<polyline points="94,1254 112,1246 94,1238" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path id="e-impl" class="impl" d="M 1252 1261 L 1124 1261" />
+<polygon points="1145,1252 1124,1261 1145,1270" fill="#FFFFFF" stroke="#64748B" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="1078" y="1217" width="224" height="30" rx="9" />
 <text class="edgeLabel" x="1190" y="1238" text-anchor="middle">implements</text>
-<path id="e-jcache" class="ref" d="M 1708 1261 L 1836 1261" marker-end="url(#openArrow)" />
+<path id="e-jcache" class="ref" d="M 1708 1261 L 1836 1261" />
+
+<polyline points="1818,1269 1836,1261 1818,1253" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="1660" y="1219" width="224" height="30" rx="9" />
 <text class="edgeLabel" x="1772" y="1240" text-anchor="middle">has reference</text>
 <g id="legend">
-<path class="uses" d="M 112 1480 H 178" marker-end="url(#openArrow)" /><text class="legendText" x="194" y="1486">uses</text>
-<path class="impl" d="M 290 1480 H 356" marker-end="url(#hollowTriangle)" /><text class="legendText" x="376" y="1486">implements</text>
-<path class="ref" d="M 540 1480 H 606" marker-end="url(#openArrow)" /><text class="legendText" x="622" y="1486">has/reference</text>
+<path class="uses" d="M 112 1480 H 178" />
+
+<polyline points="160,1488 178,1480 160,1472" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legendText" x="194" y="1486">uses</text>
+<path class="impl" d="M 290 1480 H 356" />
+<polygon points="335,1489 356,1480 335,1471" fill="#FFFFFF" stroke="#64748B" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legendText" x="376" y="1486">implements</text>
+<path class="ref" d="M 540 1480 H 606" />
+
+<polyline points="588,1488 606,1480 588,1472" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legendText" x="622" y="1486">has/reference</text>
 </g>
 </svg>

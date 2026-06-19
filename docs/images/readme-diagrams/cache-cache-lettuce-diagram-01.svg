@@ -109,24 +109,36 @@
     <text class="noteTitle" x="866" y="965">JCache bridge remains separate</text>
     <text class="noteLine" x="868" y="1002">LettuceJCache stores entries in Redis hash fields</text><text class="noteLine" x="868" y="1030">NearJCache/SuspendNearJCache wrap the shared cache-core two-tier JCache types</text>
   </g>
-<g><path class="edge dashed" d="M445 610 L445 450" stroke="#1D4ED8" marker-end="url(#triangle-blue)" />
+<g><path class="edge dashed" d="M445 610 L445 450" stroke="#1D4ED8" />
+<polygon points="445,450 455,472 435,472" fill="#FFFFFF" stroke="none"/>
+<polygon class="markerSolid" points="445,450 455,472 435,472" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="470" y="532">implements</text></g>
-<g><path class="edge dashed" d="M1995 610 L1995 450" stroke="#0F766E" marker-end="url(#triangle-teal)" />
+<g><path class="edge dashed" d="M1995 610 L1995 450" stroke="#0F766E" />
+<polygon points="1995,450 2005,472 1985,472" fill="#FFFFFF" stroke="none"/>
+<polygon class="markerSolid" points="1995,450 2005,472 1985,472" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="2020" y="532">implements</text></g>
-<g><path class="edge dashed" d="M780 735 L915 735" stroke="#C2410C" marker-end="url(#open-orange)" />
+<g><path class="edge dashed" d="M780 735 L915 735" stroke="#C2410C" />
+<polyline points="897,743 915,735 897,727" fill="none" stroke="#C2410C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="818" y="714">uses config</text></g>
-<g><path class="edge dashed" d="M1660 735 L1525 735" stroke="#C2410C" marker-end="url(#open-orange)" />
+<g><path class="edge dashed" d="M1660 735 L1525 735" stroke="#C2410C" />
+<polyline points="1543,727 1525,735 1543,743" fill="none" stroke="#C2410C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="1568" y="714">uses config</text></g>
-<g><path class="edge dashed" d="M455 940 L455 1135" stroke="#15803D" marker-end="url(#open-green)" />
+<g><path class="edge dashed" d="M455 940 L455 1135" stroke="#15803D" />
+<polyline points="447,1117 455,1135 463,1117" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="480" y="1040">L1 front</text></g>
-<g><path class="edge dashed" d="M1220 850 L1640 850 L1640 1110 L1220 1110 L1220 1135" stroke="#475569" marker-end="url(#open-slate)" />
+<g><path class="edge dashed" d="M1220 850 L1640 850 L1640 1110 L1220 1110 L1220 1135" stroke="#475569" />
+<polyline points="1212,1117 1220,1135 1228,1117" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="1666" y="982">L2 Redis</text></g>
-<g><path class="edge dashed" d="M1995 940 L1995 1135" stroke="#BE185D" marker-end="url(#open-pink)" />
+<g><path class="edge dashed" d="M1995 940 L1995 1135" stroke="#BE185D" />
+<polyline points="1987,1117 1995,1135 2003,1117" fill="none" stroke="#BE185D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="2020" y="1040">tracking</text></g>
-<g><path class="edge dashed" d="M650 1260 L960 1260" stroke="#475569" marker-end="url(#open-slate)" />
+<g><path class="edge dashed" d="M650 1260 L960 1260" stroke="#475569" />
+<polyline points="942,1268 960,1260 942,1252" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="758" y="1239">miss/write</text></g>
-<g><path class="edge dashed" d="M1480 1260 L1770 1260" stroke="#BE185D" marker-end="url(#open-pink)" />
+<g><path class="edge dashed" d="M1480 1260 L1770 1260" stroke="#BE185D" />
+<polyline points="1752,1268 1770,1260 1752,1252" fill="none" stroke="#BE185D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="1596" y="1239">invalidate push</text></g>
-<g><path class="edge dashed" d="M1770 1320 L1700 1320 L1700 1425 L650 1425 L650 1320" stroke="#15803D" marker-end="url(#open-green)" />
+<g><path class="edge dashed" d="M1770 1320 L1700 1320 L1700 1425 L650 1425 L650 1320" stroke="#15803D" />
+<polyline points="658,1338 650,1320 642,1338" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="1143" y="1404">local invalidation</text></g>
 </svg>

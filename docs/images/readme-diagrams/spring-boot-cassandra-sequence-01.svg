@@ -1,37 +1,83 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1573.8000000000002" height="944" viewBox="0 0 1573.8000000000002 944" role="img" aria-label="Coroutine Conversion Sequence">
+<svg xmlns="http://www.w3.org/2000/svg" width="1540" height="1040" viewBox="0 0 1540 1040" role="img" aria-labelledby="title desc">
+<title id="title">Spring Boot Cassandra Coroutine Conversion Sequence</title>
+<desc id="desc">Sequence for executeSuspending, selectAsFlow, and suspending CRUD helpers converting Reactor/CompletableFuture results into Kotlin coroutine values and Flow streams.</desc>
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <filter id="shadow" x="-10%" y="-12%" width="120%" height="130%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.12"/></filter>
+  <marker id="arrow-call" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3f7d9c" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-work" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#6e8f4f" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-return" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#9b7d54" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-async" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7c5aa6" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-skip" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#b86868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.12;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
+    .title{font-family:"Architects Daughter";font-size:38px;fill:#263238}.subtitle,.msg,.note,.footer{font-family:"Comic Mono";fill:#36464f}.subtitle{font-size:16px}.participant{font-family:"Architects Daughter";font-size:20px;fill:#1f3138}.role{font-family:"Comic Mono";font-size:12.5px;fill:#546a73}.msg{font-size:13.5px}.note{font-size:13px}.footer{font-size:13px;fill:#60727d}.frame{fill:#fbfcf8;stroke:#41545d;stroke-width:3}.header{fill:#ffffff;stroke:#546e7a;stroke-width:2;filter:url(#shadow)}.lifeline{stroke:#9aaab1;stroke-width:2;stroke-dasharray:7 8}.activation{fill:#e6f2ec;stroke:#5b7e67;stroke-width:1.5}.call{fill:none;stroke:#3f7d9c;stroke-width:3;marker-end:url(#arrow-call)}.work{fill:none;stroke:#6e8f4f;stroke-width:3;marker-end:url(#arrow-work)}.async{fill:none;stroke:#7c5aa6;stroke-width:3;marker-end:url(#arrow-async)}.return{fill:none;stroke:#9b7d54;stroke-width:2.5;stroke-dasharray:8 6;marker-end:url(#arrow-return)}.alt{fill:#eef7f0;fill-opacity:.12;stroke:#78909c;stroke-width:2.4;stroke-dasharray:12 7}.branchDivider{stroke:#78909c;stroke-width:2.4;stroke-dasharray:12 8}.label{fill:#ffffff;stroke:#d7e0e4;stroke-width:1.3}.callLabel{stroke:#9cc2d1}.workLabel{stroke:#b6c9a4}.returnLabel{stroke:#c8b38f}.asyncLabel{stroke:#b8a9d5}.badge{stroke-width:1.6}.callBadge{fill:#eaf4f8;stroke:#3f7d9c}.workBadge{fill:#eef7f0;stroke:#6e8f4f}.returnBadge{fill:#fff7e8;stroke:#9b7d54}.asyncBadge{fill:#f3ecff;stroke:#7c5aa6}.badgeText{font-family:"Comic Mono";font-size:12px;font-weight:700}.callText{fill:#2f6f8e}.workText{fill:#55783f}.returnText{fill:#7f6038}.asyncText{fill:#674b91}
   </style>
 </defs>
-<rect class="canvas" width="1573.8000000000002" height="886"/>
-<rect class="frame" x="32" y="28" width="1509.8000000000002" height="830" rx="30"/>
-<text class="title" x="68" y="84">Coroutine Conversion Sequence</text>
-<text class="subtitle" x="72" y="116">Shows the main calls, branches, and returned values for this flow.</text>
-<g id="seq-application"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">Application</text><line class="lifeline" x1="255" y1="248" x2="255" y2="802"/></g>
-<g id="seq-coroutine-extension"><rect class="card" x="494.6" y="170" width="230" height="78" rx="10" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="609.6" y="200" text-anchor="middle">Coroutine</text><text class="cardTitle" x="609.6" y="224" text-anchor="middle">Extension</text><line class="lifeline" x1="609.6" y1="248" x2="609.6" y2="802"/></g>
-<g id="seq-reactive-cassandra-operations"><rect class="card" x="849.2" y="170" width="230" height="78" rx="10" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="964.2" y="200" text-anchor="middle">Reactive Cassandra</text><text class="cardTitle" x="964.2" y="224" text-anchor="middle">Operations</text><line class="lifeline" x1="964.2" y1="248" x2="964.2" y2="802"/></g>
-<g id="seq-apache-cassandra"><rect class="card" x="1203.8" y="170" width="230" height="78" rx="10" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="1318.8" y="215" text-anchor="middle">Apache Cassandra</text><line class="lifeline" x1="1318.8" y1="248" x2="1318.8" y2="802"/></g>
-<rect x="247" y="322" width="16" height="408" rx="5" fill="#E8F3FF" stroke="#5B8DEF" stroke-width="1.4"/>
-<rect x="601.6" y="322" width="16" height="408" rx="5" fill="#EAF7EF" stroke="#58A978" stroke-width="1.4"/>
-<rect x="956.2" y="398" width="16" height="256" rx="5" fill="#E9F7F6" stroke="#45A7A1" stroke-width="1.4"/>
-<rect x="1310.8" y="474" width="16" height="104" rx="5" fill="#FFF3D9" stroke="#D6A441" stroke-width="1.4"/>
-<g id="m1"><rect class="labelPill" x="284.1" y="287" width="296.4" height="26" rx="7"/><circle cx="303.1" cy="300" r="12" fill="#4F83BF"/><text class="detail" x="303.1" y="301" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">1</text><text class="detail" x="450.3" y="301" text-anchor="middle" dominant-baseline="middle">executeSuspending(cql, args)</text><path class="seq" d="M255 330 L609.6 330" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
-<g id="m2"><rect class="labelPill" x="631.4" y="363" width="311" height="26" rx="7"/><circle cx="650.4" cy="376" r="12" fill="#3E9868"/><text class="detail" x="650.4" y="377" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">2</text><text class="detail" x="804.9" y="377" text-anchor="middle" dominant-baseline="middle">execute(statement) → Mono/Flux</text><path class="seq" d="M609.6 406 L964.2 406" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
-<g id="m3"><rect class="labelPill" x="1036.5" y="439" width="210" height="26" rx="7"/><circle cx="1055.5" cy="452" r="12" fill="#2E8F89"/><text class="detail" x="1055.5" y="453" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">3</text><text class="detail" x="1159.5" y="453" text-anchor="middle" dominant-baseline="middle">Send CQL query</text><path class="seq" d="M964.2 482 L1318.8 482" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m4"><rect class="labelPill" x="1033.5" y="515" width="216.1" height="26" rx="7"/><circle cx="1052.5" cy="528" r="12" fill="#2E8F89"/><text class="detail" x="1052.5" y="529" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">4</text><text class="detail" x="1159.5" y="529" text-anchor="middle" dominant-baseline="middle">ReactiveResultSet</text><path class="seqReturn" d="M1318.8 558 L964.2 558" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m5"><rect class="labelPill" x="657" y="591" width="259.9" height="26" rx="7"/><circle cx="676" cy="604" r="12" fill="#2E8F89"/><text class="detail" x="676" y="605" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">5</text><text class="detail" x="804.9" y="605" text-anchor="middle" dominant-baseline="middle">Mono&lt;ReactiveResultSet&gt;</text><path class="seqReturn" d="M964.2 634 L609.6 634" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g id="m6"><rect class="labelPill" x="273" y="667" width="318.6" height="26" rx="7"/><circle cx="292" cy="680" r="12" fill="#2E8F89"/><text class="detail" x="292" y="681" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">6</text><text class="detail" x="450.3" y="681" text-anchor="middle" dominant-baseline="middle">Return suspend result (coroutine)</text><path class="seqReturn" d="M609.6 710 L255 710" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<rect x="24" y="24" width="1492" height="992" rx="20" class="frame"/>
+<text x="770" y="76" text-anchor="middle" class="title">Coroutine Conversion Sequence</text>
+<text x="770" y="106" text-anchor="middle" class="subtitle">Extensions keep Spring Data Cassandra reactive/async APIs source-compatible while returning suspend values or Flow streams.</text>
+<rect x="62" y="146" width="176" height="70" rx="10" class="header"/>
+<text x="150" y="176" text-anchor="middle" class="participant">Caller</text>
+<text x="150" y="198" text-anchor="middle" class="role">suspend code</text>
+<line x1="150" y1="216" x2="150" y2="900" class="lifeline"/>
+<rect x="342" y="146" width="176" height="70" rx="10" class="header"/>
+<text x="430" y="176" text-anchor="middle" class="participant">Extension</text>
+<text x="430" y="198" text-anchor="middle" class="role">await/asFlow bridge</text>
+<line x1="430" y1="216" x2="430" y2="900" class="lifeline"/>
+<rect x="632" y="146" width="176" height="70" rx="10" class="header"/>
+<text x="720" y="176" text-anchor="middle" class="participant">Spring Data</text>
+<text x="720" y="198" text-anchor="middle" class="role">Reactive/Async ops</text>
+<line x1="720" y1="216" x2="720" y2="900" class="lifeline"/>
+<rect x="922" y="146" width="176" height="70" rx="10" class="header"/>
+<text x="1010" y="176" text-anchor="middle" class="participant">Driver</text>
+<text x="1010" y="198" text-anchor="middle" class="role">session / result set</text>
+<line x1="1010" y1="216" x2="1010" y2="900" class="lifeline"/>
+<rect x="1202" y="146" width="176" height="70" rx="10" class="header"/>
+<text x="1290" y="176" text-anchor="middle" class="participant">Cassandra</text>
+<text x="1290" y="198" text-anchor="middle" class="role">cluster</text>
+<line x1="1290" y1="216" x2="1290" y2="900" class="lifeline"/>
+<rect x="423" y="282" width="14" height="526" rx="6" class="activation"/>
+<rect x="713" y="340" width="14" height="390" rx="6" class="activation"/>
+<rect x="1003" y="408" width="14" height="252" rx="6" class="activation"/>
+<rect x="1283" y="462" width="14" height="120" rx="6" class="activation"/>
+<rect x="75" y="258" width="430" height="34" rx="17" class="label callLabel"/>
+<circle cx="99" cy="275" r="13" class="badge callBadge"/><text x="99" y="280" text-anchor="middle" class="badgeText callText">1</text>
+<text x="123" y="280" class="msg callText">executeSuspending / selectAsFlow / insertSuspending</text>
+<path d="M 150 300 L 430 300" class="call"/>
+<rect x="380" y="318" width="390" height="34" rx="17" class="label callLabel"/>
+<circle cx="404" cy="335" r="13" class="badge callBadge"/><text x="404" y="340" text-anchor="middle" class="badgeText callText">2</text>
+<text x="428" y="340" class="msg callText">build Statement, Query, or entity operation</text>
+<path d="M 430 360 L 720 360" class="call"/>
+<rect x="425" y="378" width="520" height="34" rx="17" class="label workLabel"/>
+<circle cx="449" cy="395" r="13" class="badge workBadge"/><text x="449" y="400" text-anchor="middle" class="badgeText workText">3</text>
+<text x="473" y="400" class="msg workText">delegate to Spring Data Cassandra ops</text>
+<path d="M 430 420 L 720 420" class="work"/>
+<rect x="670" y="438" width="390" height="34" rx="17" class="label asyncLabel"/>
+<circle cx="694" cy="455" r="13" class="badge asyncBadge"/><text x="694" y="460" text-anchor="middle" class="badgeText asyncText">4</text>
+<text x="718" y="460" class="msg asyncText">execute CQL through session</text>
+<path d="M 720 480 L 1010 480" class="async"/>
+<rect x="955" y="498" width="390" height="34" rx="17" class="label workLabel"/>
+<circle cx="979" cy="515" r="13" class="badge workBadge"/><text x="979" y="520" text-anchor="middle" class="badgeText workText">5</text>
+<text x="1003" y="520" class="msg workText">send query and read result metadata</text>
+<path d="M 1010 540 L 1290 540" class="work"/>
+<rect x="715" y="578" width="520" height="34" rx="17" class="label returnLabel"/>
+<circle cx="739" cy="595" r="13" class="badge returnBadge"/><text x="739" y="600" text-anchor="middle" class="badgeText returnText">6</text>
+<text x="763" y="600" class="msg returnText">ReactiveResultSet / Mono&lt;T&gt; / Flux&lt;T&gt; / CompletableFuture&lt;T&gt;</text>
+<path d="M 1290 620 L 720 620" class="return"/>
+<rect x="82" y="680" width="1376" height="176" rx="14" class="alt"/>
+<text x="112" y="710" class="note">alt result shape</text>
+<line x1="82" y1="768" x2="1458" y2="768" class="branchDivider"/>
+<rect x="345" y="700" width="450" height="34" rx="17" class="label returnLabel"/>
+<circle cx="369" cy="717" r="13" class="badge returnBadge"/><text x="369" y="722" text-anchor="middle" class="badgeText returnText">7a</text>
+<text x="393" y="722" class="msg returnText">awaitSingle / awaitSingleOrNull returns suspend value</text>
+<path d="M 720 742 L 430 742" class="return"/>
+<rect x="370" y="786" width="430" height="34" rx="17" class="label returnLabel"/>
+<circle cx="394" cy="803" r="13" class="badge returnBadge"/><text x="394" y="808" text-anchor="middle" class="badgeText returnText">7b</text>
+<text x="418" y="808" class="msg returnText">asFlow streams rows without blocking caller thread</text>
+<path d="M 720 828 L 430 828" class="return"/>
+<rect x="80" y="858" width="420" height="34" rx="17" class="label returnLabel"/>
+<circle cx="104" cy="875" r="13" class="badge returnBadge"/><text x="104" y="880" text-anchor="middle" class="badgeText returnText">8</text>
+<text x="128" y="880" class="msg returnText">caller receives T, T?, Boolean, Slice&lt;T&gt;, or Flow&lt;T&gt;</text>
+<path d="M 430 900 L 150 900" class="return"/>
+<rect x="98" y="940" width="1344" height="40" rx="12" fill="#ffffff" stroke="#ccd7da" stroke-width="2"/>
+<text x="770" y="966" text-anchor="middle" class="footer">Cancellation and driver exceptions are not hidden; Reactor/CompletableFuture errors surface through coroutine collection or await.</text>
 </svg>

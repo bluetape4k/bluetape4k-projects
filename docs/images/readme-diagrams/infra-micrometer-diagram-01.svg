@@ -129,21 +129,48 @@
 <text x="1586" y="1002" text-anchor="middle" class="cardTitle">MeterRegistry</text>
 <text x="1474" y="1044" class="row">Timer, Gauge</text>
 <text x="1474" y="1069" class="row">FunctionCounter</text>
-<path d="M 842 590 V 544" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#hollow-orange)" />
-<path d="M 835 760 V 710" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#hollow-orange)" />
-<path d="M 1220 590 V 546 H 980 V 532" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-blue)" />
-<path d="M 1181 710 V 760" fill="none" stroke="#2563EB" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-blue)" />
-<path d="M 1181 880 V 930" fill="none" stroke="#2563EB" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-blue)" />
-<path d="M 1020 990 H 1080" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-blue)" />
-<path d="M 865 1050 V 1145" fill="none" stroke="#2563EB" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-blue)" />
-<path d="M 1040 1187 H 984" fill="none" stroke="#64748B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-blue)" />
-<path d="M 1181 1145 V 1072 H 865" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#open-blue)" />
-<path d="M 1181 1229 V 1282 H 1586 V 1082" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-green)" />
-<path d="M 1586 650 V 750" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-green)" />
-<path d="M 1586 862 V 970" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-green)" />
-<path d="M 1720 520 V 288" fill="none" stroke="#0D9488" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#hollow-teal)" />
-<path d="M 455 716 V 800" fill="none" stroke="#8B5CF6" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-violet)" />
-<path d="M 340 930 V 970" fill="none" stroke="#DB2777" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#open-violet)" />
+<path d="M 842 590 V 544" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="851,565 842,544 833,565" fill="#FFFFFF" stroke="#F97316" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path d="M 835 760 V 710" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="844,731 835,710 826,731" fill="#FFFFFF" stroke="#F97316" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path d="M 1220 590 V 546 H 980 V 532" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
+
+<polyline points="988,550 980,532 972,550" fill="none" stroke="#F97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path d="M 1181 710 V 760" fill="none" stroke="#2563EB" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
+
+<polyline points="1173,742 1181,760 1189,742" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path d="M 1181 880 V 930" fill="none" stroke="#2563EB" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
+
+<polyline points="1173,912 1181,930 1189,912" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path d="M 1020 990 H 1080" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
+
+<polyline points="1062,998 1080,990 1062,982" fill="none" stroke="#F97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path d="M 865 1050 V 1145" fill="none" stroke="#2563EB" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
+
+<polyline points="857,1127 865,1145 873,1127" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path d="M 1040 1187 H 984" fill="none" stroke="#64748B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
+
+<polyline points="1002,1179 984,1187 1002,1195" fill="none" stroke="#64748B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path d="M 1181 1145 V 1072 H 865" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="883,1064 865,1072 883,1080" fill="none" stroke="#F97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path d="M 1181 1229 V 1282 H 1586 V 1082" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
+
+<polyline points="1594,1100 1586,1082 1578,1100" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path d="M 1586 650 V 750" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
+
+<polyline points="1578,732 1586,750 1594,732" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path d="M 1586 862 V 970" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
+
+<polyline points="1578,952 1586,970 1594,952" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path d="M 1720 520 V 288" fill="none" stroke="#0D9488" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="1729,309 1720,288 1711,309" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path d="M 455 716 V 800" fill="none" stroke="#8B5CF6" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
+
+<polyline points="447,782 455,800 463,782" fill="none" stroke="#8B5CF6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path d="M 340 930 V 970" fill="none" stroke="#DB2777" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
+
+<polyline points="332,952 340,970 348,952" fill="none" stroke="#DB2777" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect x="108" y="1390" width="1160" height="54" rx="12" fill="#FFFFFF" stroke="#D6E2ED" stroke-width="1.8" />
 <text x="134" y="1423" class="legend">solid hollow triangle = extends</text>
 <text x="370" y="1423" class="legend">dashed hollow/open arrows = implements or uses</text>

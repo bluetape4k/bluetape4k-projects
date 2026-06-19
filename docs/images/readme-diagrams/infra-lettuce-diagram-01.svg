@@ -141,16 +141,38 @@
     <text class="detail" x="1156" y="895" text-anchor="middle">awaitSuspending() / awaitAll()</text>
   </g>
 
-  <path class="flow" d="M 366 297 H 484" stroke="#2563eb" marker-end="url(#openBlue)"/>
-  <path class="flow" d="M 366 409 H 484" stroke="#2563eb" marker-end="url(#openBlue)"/>
-  <path class="flow" d="M 366 517 H 484" stroke="#2563eb" marker-end="url(#openBlue)"/>
-  <path class="flow" d="M 366 625 H 484" stroke="#2563eb" marker-end="url(#openBlue)"/>
-  <path class="flow" d="M 366 738 H 484" stroke="#2563eb" marker-end="url(#openBlue)"/>
+  <path class="flow" d="M 366 297 H 484" stroke="#2563eb"/>
 
-  <path class="dep" d="M 816 296 H 946" stroke="#0d9488" marker-end="url(#openTeal)"/>
-  <path class="dep" d="M 816 409 H 946" stroke="#0d9488" marker-end="url(#openTeal)"/>
-  <path class="dep" d="M 816 517 H 946" stroke="#0d9488" marker-end="url(#openTeal)"/>
-  <path class="dep" d="M 816 625 H 946" stroke="#0d9488" marker-end="url(#openTeal)"/>
-  <path class="dep" d="M 816 758 H 946" stroke="#0d9488" marker-end="url(#openTeal)"/>
+
+  <polyline points="466,305 484,297 466,289" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="flow" d="M 366 409 H 484" stroke="#2563eb"/>
+
+  <polyline points="466,417 484,409 466,401" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="flow" d="M 366 517 H 484" stroke="#2563eb"/>
+
+  <polyline points="466,525 484,517 466,509" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="flow" d="M 366 625 H 484" stroke="#2563eb"/>
+
+  <polyline points="466,633 484,625 466,617" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="flow" d="M 366 738 H 484" stroke="#2563eb"/>
+
+  <polyline points="466,746 484,738 466,730" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+
+  <path class="dep" d="M 816 296 H 946" stroke="#0d9488"/>
+
+
+  <polyline points="928,304 946,296 928,288" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 816 409 H 946" stroke="#0d9488"/>
+
+  <polyline points="928,417 946,409 928,401" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 816 517 H 946" stroke="#0d9488"/>
+
+  <polyline points="928,525 946,517 928,509" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 816 625 H 946" stroke="#0d9488"/>
+
+  <polyline points="928,633 946,625 928,617" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 816 758 H 946" stroke="#0d9488"/>
+
+  <polyline points="928,766 946,758 928,750" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 
 </svg>

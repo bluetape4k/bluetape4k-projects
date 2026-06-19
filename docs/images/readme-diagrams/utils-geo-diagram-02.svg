@@ -61,29 +61,66 @@
   <text class="columnTitle" x="2384" y="255">GeoIP2 database lookup</text>
   <text class="columnNote" x="2384" y="287">Local MaxMind readers feed city/country address mapping.</text>
 </g>
-<path class="edge" data-from="GeoHash" data-to="WGS84Point" d="M445 660 L445 528" stroke="#15803D" marker-end="url(#open-green)" />
-<path class="edge" data-from="GeoHash" data-to="BoundingBox" d="M735 660 L735 528" stroke="#15803D" marker-end="url(#open-green)" />
-<path class="edge dashed" data-from="GeoHashQuery" data-to="GeoHash" d="M300 1155 L205 1155 L205 780 L300 780" stroke="#0F766E" marker-end="url(#open-teal)" />
-<path class="edge dashed" data-from="GeoHashQuery" data-to="WGS84Point" d="M300 1105 L170 1105 L170 440 L145 440" stroke="#15803D" marker-end="url(#open-green)" />
-<path class="edge dashed" data-from="GeoHashCircleQuery" data-to="GeoHashQuery" d="M350 1435 L350 1345 L508 1345 L508 1275" stroke="#1D4ED8" marker-end="url(#inherit-blue)" />
-<path class="edge dashed" data-from="GeoHashBoundingBoxQuery" data-to="GeoHashQuery" d="M845 1435 L845 1345 L672 1345 L672 1275" stroke="#1D4ED8" marker-end="url(#inherit-blue)" />
-<path class="edge dashed" data-from="GeoHashCircleQuery" data-to="GeoHashBoundingBoxQuery" d="M565 1550 L630 1550" stroke="#0F766E" marker-end="url(#open-teal)" />
-<path class="edge" data-from="GeoHashBoundingBoxQuery" data-to="BoundingBox" d="M845 1435 L845 1345 L1030 1345 L1030 500 L1040 500" stroke="#15803D" marker-end="url(#open-green)" />
-<path class="edge" data-from="GeocodeAddressFinder" data-to="SuspendGeocodeAddressFinder" d="M1730 950 L1730 844" stroke="#C2410C" marker-end="url(#inherit-amber)" />
-<path class="edge dashed" data-from="GeocodeAddressFinder" data-to="Geocode" d="M1510 950 L1510 580" stroke="#15803D" marker-end="url(#open-green)" />
-<path class="edge dashed" data-from="GoogleAddressFinder" data-to="GeocodeAddressFinder" d="M1480 1245 L1480 1175 L1595 1175 L1595 1104" stroke="#BE185D" marker-end="url(#inherit-pink)" />
-<path class="edge dashed" data-from="BingAddressFinder" data-to="GeocodeAddressFinder" d="M1980 1245 L1980 1175 L1865 1175 L1865 1104" stroke="#BE185D" marker-end="url(#inherit-pink)" />
-<path class="edge dashed" data-from="GoogleAddressFinder" data-to="GoogleAddress" d="M1480 1477 L1480 1875" stroke="#6D28D9" marker-end="url(#open-violet)" />
-<path class="edge dashed" data-from="BingAddressFinder" data-to="BingAddress" d="M1980 1477 L1980 1875" stroke="#6D28D9" marker-end="url(#open-violet)" />
-<path class="edge" data-from="GoogleAddress" data-to="GeoAddress" d="M1480 1875 L1480 1799" stroke="#6D28D9" marker-end="url(#inherit-violet)" />
-<path class="edge" data-from="BingAddress" data-to="GeoAddress" d="M1980 1875 L1980 1799" stroke="#6D28D9" marker-end="url(#inherit-violet)" />
-<path class="edge dashed" data-from="GeoipCityFinder" data-to="GeoipFinder" d="M2625 1010 L2625 910 L2695 910 L2695 844" stroke="#15803D" marker-end="url(#inherit-green)" />
-<path class="edge dashed" data-from="GeoipCountryFinder" data-to="GeoipFinder" d="M3115 1010 L3115 910 L3045 910 L3045 844" stroke="#15803D" marker-end="url(#inherit-green)" />
-<path class="edge dashed" data-from="GeoipCityFinder" data-to="Geoip" d="M2625 1010 L2625 555" stroke="#475569" marker-end="url(#open-slate)" />
-<path class="edge dashed" data-from="GeoipCountryFinder" data-to="Geoip" d="M3115 1010 L3115 555" stroke="#475569" marker-end="url(#open-slate)" />
-<path class="edge dashed" data-from="GeoipCityFinder" data-to="GeoipAddress" d="M2625 1215 L2625 1390" stroke="#1D4ED8" marker-end="url(#open-blue)" />
-<path class="edge dashed" data-from="GeoipCountryFinder" data-to="GeoipAddress" d="M3115 1215 L3115 1390" stroke="#1D4ED8" marker-end="url(#open-blue)" />
-<path class="edge" data-from="GeoipAddress" data-to="GeoLocation" d="M2870 1628 L2870 1775" stroke="#0F766E" marker-end="url(#open-teal)" />
+<path class="edge" data-from="GeoHash" data-to="WGS84Point" d="M445 660 L445 528" stroke="#15803D" />
+
+<polyline points="453,546 445,528 437,546" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="GeoHash" data-to="BoundingBox" d="M735 660 L735 528" stroke="#15803D" />
+
+<polyline points="743,546 735,528 727,546" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoHashQuery" data-to="GeoHash" d="M300 1155 L205 1155 L205 780 L300 780" stroke="#0F766E" />
+
+<polyline points="282,788 300,780 282,772" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoHashQuery" data-to="WGS84Point" d="M300 1105 L170 1105 L170 440 L145 440" stroke="#15803D" />
+
+<polyline points="163,432 145,440 163,448" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoHashCircleQuery" data-to="GeoHashQuery" d="M350 1435 L350 1345 L508 1345 L508 1275" stroke="#1D4ED8" />
+<polygon points="517,1296 508,1275 499,1296" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoHashBoundingBoxQuery" data-to="GeoHashQuery" d="M845 1435 L845 1345 L672 1345 L672 1275" stroke="#1D4ED8" />
+<polygon points="681,1296 672,1275 663,1296" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoHashCircleQuery" data-to="GeoHashBoundingBoxQuery" d="M565 1550 L630 1550" stroke="#0F766E" />
+
+<polyline points="612,1558 630,1550 612,1542" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="GeoHashBoundingBoxQuery" data-to="BoundingBox" d="M845 1435 L845 1345 L1030 1345 L1030 500 L1040 500" stroke="#15803D" />
+
+<polyline points="1022,508 1040,500 1022,492" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="GeocodeAddressFinder" data-to="SuspendGeocodeAddressFinder" d="M1730 950 L1730 844" stroke="#C2410C" />
+<polygon points="1739,865 1730,844 1721,865" fill="#FFFFFF" stroke="#C2410C" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeocodeAddressFinder" data-to="Geocode" d="M1510 950 L1510 580" stroke="#15803D" />
+
+<polyline points="1518,598 1510,580 1502,598" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GoogleAddressFinder" data-to="GeocodeAddressFinder" d="M1480 1245 L1480 1175 L1595 1175 L1595 1104" stroke="#BE185D" />
+<polygon points="1604,1125 1595,1104 1586,1125" fill="#FFFFFF" stroke="#BE185D" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="BingAddressFinder" data-to="GeocodeAddressFinder" d="M1980 1245 L1980 1175 L1865 1175 L1865 1104" stroke="#BE185D" />
+<polygon points="1874,1125 1865,1104 1856,1125" fill="#FFFFFF" stroke="#BE185D" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GoogleAddressFinder" data-to="GoogleAddress" d="M1480 1477 L1480 1875" stroke="#6D28D9" />
+
+<polyline points="1472,1857 1480,1875 1488,1857" fill="none" stroke="#6D28D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="BingAddressFinder" data-to="BingAddress" d="M1980 1477 L1980 1875" stroke="#6D28D9" />
+
+<polyline points="1972,1857 1980,1875 1988,1857" fill="none" stroke="#6D28D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="GoogleAddress" data-to="GeoAddress" d="M1480 1875 L1480 1799" stroke="#6D28D9" />
+<polygon points="1489,1820 1480,1799 1471,1820" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="BingAddress" data-to="GeoAddress" d="M1980 1875 L1980 1799" stroke="#6D28D9" />
+<polygon points="1989,1820 1980,1799 1971,1820" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoipCityFinder" data-to="GeoipFinder" d="M2625 1010 L2625 910 L2695 910 L2695 844" stroke="#15803D" />
+<polygon points="2704,865 2695,844 2686,865" fill="#FFFFFF" stroke="#15803D" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoipCountryFinder" data-to="GeoipFinder" d="M3115 1010 L3115 910 L3045 910 L3045 844" stroke="#15803D" />
+<polygon points="3054,865 3045,844 3036,865" fill="#FFFFFF" stroke="#15803D" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoipCityFinder" data-to="Geoip" d="M2625 1010 L2625 555" stroke="#475569" />
+
+<polyline points="2633,573 2625,555 2617,573" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoipCountryFinder" data-to="Geoip" d="M3115 1010 L3115 555" stroke="#475569" />
+
+<polyline points="3123,573 3115,555 3107,573" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoipCityFinder" data-to="GeoipAddress" d="M2625 1215 L2625 1390" stroke="#1D4ED8" />
+
+<polyline points="2617,1372 2625,1390 2633,1372" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoipCountryFinder" data-to="GeoipAddress" d="M3115 1215 L3115 1390" stroke="#1D4ED8" />
+
+<polyline points="3107,1372 3115,1390 3123,1372" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="GeoipAddress" data-to="GeoLocation" d="M2870 1628 L2870 1775" stroke="#0F766E" />
+
+<polyline points="2862,1757 2870,1775 2878,1757" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <g id="WGS84Point">
   <rect class="classBox" x="145" y="350" width="390" height="178" rx="8" fill="#F0FDF4" stroke="#16A34A" />
   <text class="kind" x="340" y="380" text-anchor="middle">data class</text>

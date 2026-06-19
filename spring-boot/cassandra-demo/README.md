@@ -4,9 +4,9 @@ English | [한국어](./README.ko.md)
 
 A comprehensive set of examples for Apache Cassandra and Spring Data Cassandra (Spring Boot 4.x).
 
-## UML
+## Example Architecture
 
-![UML diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-demo-diagram-01.png)
+![Spring Boot Cassandra demo example architecture diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-demo-diagram-01.png)
 
 > This is the versionless Spring Boot 4 example module.
 

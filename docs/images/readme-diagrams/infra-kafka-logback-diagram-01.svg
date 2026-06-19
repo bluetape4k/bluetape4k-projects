@@ -30,19 +30,39 @@
 <text class="title" x="72" y="84">Kafka Logback Class Structure</text>
 <text class="subtitle" x="76" y="116">KafkaAppender owns Logback integration while key selection, export, and fallback behavior stay pluggable.</text>
 <g>
-  <path class="extends" d="M 545 225 H 440" stroke="#64748B" marker-end="url(#hollowSlate)" />
-  <path class="extends" d="M 760 425 V 335" stroke="#2563EB" marker-end="url(#hollowBlue)" />
-  <path class="assoc" d="M 545 286 H 500 V 475 H 440" stroke="#EA580C" marker-end="url(#openOrange)" />
-  <path class="assoc" d="M 975 260 H 1090" stroke="#9333EA" marker-end="url(#openPurple)" />
-  <path class="realize" d="M 260 610 V 560" stroke="#EA580C" marker-end="url(#hollowOrange)" />
-  <path class="extends" d="M 260 830 V 780" stroke="#EA580C" marker-end="url(#hollowOrange)" />
-  <path class="realize" d="M 1270 425 V 305" stroke="#9333EA" marker-end="url(#hollowPurple)" />
-  <path class="assoc" d="M 975 522 H 1090" stroke="#9333EA" marker-end="url(#openPurple)" />
-  <path class="assoc" d="M 760 635 V 795" stroke="#16A34A" marker-end="url(#openGreen)" />
-  <path class="uses" d="M 1450 508 H 1485" stroke="#0D9488" marker-end="url(#openTeal)" />
-  <path class="realize" d="M 1615 605 V 537" stroke="#0D9488" marker-end="url(#hollowTeal)" />
-  <path class="assoc" d="M 1615 749 V 830" stroke="#0D9488" marker-end="url(#openTeal)" />
-  <path class="uses" d="M 1090 575 H 1015 V 855 H 975" stroke="#16A34A" marker-end="url(#openGreen)" />
+  <path class="extends" d="M 545 225 H 440" stroke="#64748B" />
+<polygon points="461,216 440,225 461,234" fill="#FFFFFF" stroke="#64748B" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="extends" d="M 760 425 V 335" stroke="#2563EB" />
+<polygon points="769,356 760,335 751,356" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 545 286 H 500 V 475 H 440" stroke="#EA580C" />
+
+  <polyline points="458,467 440,475 458,483" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 975 260 H 1090" stroke="#9333EA" />
+
+  <polyline points="1072,268 1090,260 1072,252" fill="none" stroke="#9333EA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="realize" d="M 260 610 V 560" stroke="#EA580C" />
+<polygon points="269,581 260,560 251,581" fill="#FFFFFF" stroke="#EA580C" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="extends" d="M 260 830 V 780" stroke="#EA580C" />
+<polygon points="269,801 260,780 251,801" fill="#FFFFFF" stroke="#EA580C" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="realize" d="M 1270 425 V 305" stroke="#9333EA" />
+<polygon points="1279,326 1270,305 1261,326" fill="#FFFFFF" stroke="#9333EA" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 975 522 H 1090" stroke="#9333EA" />
+
+  <polyline points="1072,530 1090,522 1072,514" fill="none" stroke="#9333EA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 760 635 V 795" stroke="#16A34A" />
+
+  <polyline points="752,777 760,795 768,777" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="uses" d="M 1450 508 H 1485" stroke="#0D9488" />
+
+  <polyline points="1467,516 1485,508 1467,500" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="realize" d="M 1615 605 V 537" stroke="#0D9488" />
+<polygon points="1624,558 1615,537 1606,558" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 1615 749 V 830" stroke="#0D9488" />
+
+  <polyline points="1607,812 1615,830 1623,812" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="uses" d="M 1090 575 H 1015 V 855 H 975" stroke="#16A34A" />
+
+  <polyline points="993,847 975,855 993,863" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 </g>
 <g><g class="edgeLabel"><rect x="443.4" y="435" width="97.2" height="22" rx="6" /><text class="label" x="492" y="450" text-anchor="middle">keyProvider</text></g><g class="edgeLabel"><rect x="994.2" y="233" width="75.6" height="22" rx="6" /><text class="label" x="1032" y="248" text-anchor="middle">exporter</text></g><g class="edgeLabel"><rect x="997.8" y="495" width="68.4" height="22" rx="6" /><text class="label" x="1032" y="510" text-anchor="middle">exports</text></g><g class="edgeLabel"><rect x="764.2" y="703" width="111.60000000000001" height="22" rx="6" /><text class="label" x="820" y="718" text-anchor="middle">owns producer</text></g><g class="edgeLabel"><rect x="1622.2" y="780" width="75.6" height="22" rx="6" /><text class="label" x="1660" y="795" text-anchor="middle">fallback</text></g><g class="edgeLabel"><rect x="1005.4" y="610" width="61.2" height="22" rx="6" /><text class="label" x="1036" y="625" text-anchor="middle">send()</text></g></g>
 <g id="logbackBase">
@@ -119,8 +139,12 @@
   <text class="member" x="1513" y="933">appendLoopOnAppenders</text><text class="member" x="1513" y="955">fallback on export error</text>
 </g>
 <g transform="translate(80 1028)">
-  <path class="extends" d="M 0 0 H 58" stroke="#2563EB" marker-end="url(#hollowBlue)" /><text class="legend" x="72" y="5">extends</text>
-  <path class="realize" d="M 170 0 H 228" stroke="#9333EA" marker-end="url(#hollowPurple)" /><text class="legend" x="242" y="5">implements</text>
-  <path class="assoc" d="M 385 0 H 443" stroke="#16A34A" marker-end="url(#openGreen)" /><text class="legend" x="457" y="5">has / uses</text>
+  <path class="extends" d="M 0 0 H 58" stroke="#2563EB" />
+<polygon points="37,9 58,0 37,-9" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legend" x="72" y="5">extends</text>
+  <path class="realize" d="M 170 0 H 228" stroke="#9333EA" />
+<polygon points="207,9 228,0 207,-9" fill="#FFFFFF" stroke="#9333EA" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legend" x="242" y="5">implements</text>
+  <path class="assoc" d="M 385 0 H 443" stroke="#16A34A" />
+
+  <polyline points="425,8 443,0 425,-8" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legend" x="457" y="5">has / uses</text>
 </g>
 </svg>

@@ -112,13 +112,28 @@
     <text class="small" x="915" y="480" text-anchor="middle">HC5 transport for ES 9.x</text>
   </g>
 
-  <path class="dep" d="M 340 290 H 404" stroke="#ea580c" marker-end="url(#openOrange)"/>
-  <path class="assoc" d="M 696 290 H 772" stroke="#2563eb" marker-end="url(#openBlue)"/>
-  <path class="dep" d="M 214 400 V 366" stroke="#ea580c" marker-end="url(#openOrange)"/>
-  <path class="dep" d="M 340 437 H 374 V 330 H 404" stroke="#ea580c" marker-end="url(#openOrange)"/>
-  <path class="dep" d="M 696 447 H 748 V 348 H 772" stroke="#2563eb" marker-end="url(#openBlue)"/>
-  <path class="assoc" d="M 915 378 V 426" stroke="#65a30d" marker-end="url(#openGreen)"/>
-  <path class="assoc" d="M 1058 289 H 1156" stroke="#16a34a" marker-end="url(#openGreen)"/>
+  <path class="dep" d="M 340 290 H 404" stroke="#ea580c"/>
+
+
+  <polyline points="386,298 404,290 386,282" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 696 290 H 772" stroke="#2563eb"/>
+
+  <polyline points="754,298 772,290 754,282" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 214 400 V 366" stroke="#ea580c"/>
+
+  <polyline points="222,384 214,366 206,384" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 340 437 H 374 V 330 H 404" stroke="#ea580c"/>
+
+  <polyline points="386,338 404,330 386,322" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 696 447 H 748 V 348 H 772" stroke="#2563eb"/>
+
+  <polyline points="754,356 772,348 754,340" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 915 378 V 426" stroke="#65a30d"/>
+
+  <polyline points="907,408 915,426 923,408" fill="none" stroke="#65a30d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 1058 289 H 1156" stroke="#16a34a"/>
+
+  <polyline points="1138,297 1156,289 1138,281" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 
   <g id="receiver">
     <rect class="class" x="548" y="570" width="404" height="66" rx="8" fill="#f0fdfa" stroke="#0d9488"/>
@@ -169,10 +184,23 @@
     <text class="name" x="1215" y="945" text-anchor="middle">BulkProgressEvent: Before / After / Error</text>
   </g>
 
-  <path class="dep" d="M 1278 398 V 442 H 1040 V 603 H 952" stroke="#0d9488" marker-end="url(#openTeal)"/>
-  <path class="dep" d="M 750 636 V 670 H 213 V 706" stroke="#9333ea" marker-end="url(#openPurple)"/>
-  <path class="dep" d="M 750 636 V 704 H 535" stroke="#0d9488" marker-end="url(#openTeal)"/>
-  <path class="dep" d="M 750 636 V 670 H 857 V 706" stroke="#ea580c" marker-end="url(#openOrange)"/>
-  <path class="dep" d="M 952 603 H 1028 V 765 H 1080" stroke="#16a34a" marker-end="url(#openGreen)"/>
-  <path class="dep" d="M 1222 842 V 896" stroke="#16a34a" marker-end="url(#openGreen)"/>
+  <path class="dep" d="M 1278 398 V 442 H 1040 V 603 H 952" stroke="#0d9488"/>
+
+
+  <polyline points="970,595 952,603 970,611" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 750 636 V 670 H 213 V 706" stroke="#9333ea"/>
+
+  <polyline points="205,688 213,706 221,688" fill="none" stroke="#9333ea" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 750 636 V 704 H 535" stroke="#0d9488"/>
+
+  <polyline points="553,696 535,704 553,712" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 750 636 V 670 H 857 V 706" stroke="#ea580c"/>
+
+  <polyline points="849,688 857,706 865,688" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 952 603 H 1028 V 765 H 1080" stroke="#16a34a"/>
+
+  <polyline points="1062,773 1080,765 1062,757" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 1222 842 V 896" stroke="#16a34a"/>
+
+  <polyline points="1214,878 1222,896 1230,878" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 </svg>

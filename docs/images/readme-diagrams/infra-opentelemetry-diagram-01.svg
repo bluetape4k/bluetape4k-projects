@@ -106,31 +106,41 @@
 <text x="1004" y="748" fill="#4b5563" font-size="12.5" font-weight="500" text-anchor="start">+ Map.toAttributes()</text>
 <text x="1004" y="767" fill="#4b5563" font-size="12.5" font-weight="500" text-anchor="start">+ sdkMeterProvider { }</text>
 </g>
-<path id="support-otel" d="M 216 590 V 436" fill="none" stroke="#2563eb" stroke-width="2.7" stroke-dasharray="7 5" marker-end="url(#open-support-otel)" stroke-linecap="round" stroke-linejoin="round" />
+<path id="support-otel" d="M 216 590 V 436" fill="none" stroke="#2563eb" stroke-width="2.7" stroke-dasharray="7 5" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="224,454 216,436 208,454" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <marker id="open-support-otel" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18">
     <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-dasharray="none" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" />
   </marker>
 <rect x="147" y="495" width="142" height="24" rx="7" fill="#ffffff" opacity="0.96" />
 <text x="218" y="512" fill="#2563eb" font-size="12" font-weight="700" text-anchor="middle">builds / registers</text>
-<path id="trace-tracer" d="M 516 590 V 436" fill="none" stroke="#16a34a" stroke-width="2.7" stroke-dasharray="7 5" marker-end="url(#open-trace-tracer)" stroke-linecap="round" stroke-linejoin="round" />
+<path id="trace-tracer" d="M 516 590 V 436" fill="none" stroke="#16a34a" stroke-width="2.7" stroke-dasharray="7 5" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="524,454 516,436 508,454" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <marker id="open-trace-tracer" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18">
     <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-dasharray="none" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" />
   </marker>
 <rect x="470" y="495" width="100" height="24" rx="7" fill="#ffffff" opacity="0.96" />
 <text x="520" y="512" fill="#16a34a" font-size="12" font-weight="700" text-anchor="middle">manages span</text>
-<path id="coro-trace" d="M 746 590 V 512 H 586 V 436" fill="none" stroke="#9333ea" stroke-width="2.7" stroke-dasharray="7 5" marker-end="url(#open-coro-trace)" stroke-linecap="round" stroke-linejoin="round" />
+<path id="coro-trace" d="M 746 590 V 512 H 586 V 436" fill="none" stroke="#9333ea" stroke-width="2.7" stroke-dasharray="7 5" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="594,454 586,436 578,454" fill="none" stroke="#9333ea" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <marker id="open-coro-trace" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18">
     <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#9333ea" stroke-width="2.4" stroke-dasharray="none" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" />
   </marker>
 <rect x="608.5" y="483" width="79" height="24" rx="7" fill="#ffffff" opacity="0.96" />
 <text x="648" y="500" fill="#9333ea" font-size="12" font-weight="700" text-anchor="middle">uses span</text>
-<path id="coro-context" d="M 816 590 V 436" fill="none" stroke="#9333ea" stroke-width="2.7" stroke-dasharray="7 5" marker-end="url(#open-coro-context)" stroke-linecap="round" stroke-linejoin="round" />
+<path id="coro-context" d="M 816 590 V 436" fill="none" stroke="#9333ea" stroke-width="2.7" stroke-dasharray="7 5" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="824,454 816,436 808,454" fill="none" stroke="#9333ea" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <marker id="open-coro-context" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18">
     <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#9333ea" stroke-width="2.4" stroke-dasharray="none" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" />
   </marker>
 <rect x="777" y="495" width="86" height="24" rx="7" fill="#ffffff" opacity="0.96" />
 <text x="820" y="512" fill="#9333ea" font-size="12" font-weight="700" text-anchor="middle">propagates</text>
-<path id="dsl-metrics" d="M 1116 590 V 436" fill="none" stroke="#ea580c" stroke-width="2.7" stroke-dasharray="7 5" marker-end="url(#open-dsl-metrics)" stroke-linecap="round" stroke-linejoin="round" />
+<path id="dsl-metrics" d="M 1116 590 V 436" fill="none" stroke="#ea580c" stroke-width="2.7" stroke-dasharray="7 5" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="1124,454 1116,436 1108,454" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <marker id="open-dsl-metrics" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18">
     <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-dasharray="none" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" />
   </marker>

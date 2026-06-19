@@ -31,10 +31,23 @@
 <g id="any"><rect class="card" x="1060" y="670" width="310" height="150" rx="8" fill="#EFF6FF" stroke="#2563EB" /><text class="className" x="1215" y="706" text-anchor="middle">withAny</text><line class="divider" x1="1080" y1="724" x2="1350" y2="724" /><text class="member" x="1080" y="750">Joiner.anySuccessfulResultOrThrow()</text><text class="member" x="1080" y="772">wraps Jdk25AnyScope</text><text class="member" x="1080" y="794">result maps join failure</text></g>
 <g id="supervised"><rect class="card" x="1420" y="670" width="220" height="150" rx="8" fill="#FDF2F8" stroke="#DB2777" /><text class="className" x="1530" y="706" text-anchor="middle">withSupervised</text><line class="divider" x1="1440" y1="724" x2="1620" y2="724" /><text class="member" x="1440" y="750">Joiner.awaitAll()</text><text class="member" x="1440" y="772">keeps failures</text><text class="member" x="1440" y="794">returns Result list</text></g>
 
-<path class="uses" d="M380 302 L380 400" stroke="#2563EB" marker-end="url(#usesBlue)" />
-<path class="uses" d="M1165 302 L1165 390" stroke="#2563EB" marker-end="url(#usesBlue)" />
-<path class="solid" d="M380 532 L380 660" stroke="#D97706" marker-end="url(#usesAmber)" />
-<path class="solid" d="M1100 550 L1100 610 L855 610 L855 670" stroke="#D97706" marker-end="url(#usesAmber)" />
-<path class="solid" d="M1180 550 L1180 670" stroke="#D97706" marker-end="url(#usesAmber)" />
-<path class="solid" d="M1260 550 L1260 610 L1530 610 L1530 670" stroke="#D97706" marker-end="url(#usesAmber)" />
+<path class="uses" d="M380 302 L380 400" stroke="#2563EB" />
+
+
+<polyline points="372,382 380,400 388,382" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="uses" d="M1165 302 L1165 390" stroke="#2563EB" />
+
+<polyline points="1157,372 1165,390 1173,372" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="solid" d="M380 532 L380 660" stroke="#D97706" />
+
+<polyline points="372,642 380,660 388,642" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="solid" d="M1100 550 L1100 610 L855 610 L855 670" stroke="#D97706" />
+
+<polyline points="847,652 855,670 863,652" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="solid" d="M1180 550 L1180 670" stroke="#D97706" />
+
+<polyline points="1172,652 1180,670 1188,652" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="solid" d="M1260 550 L1260 610 L1530 610 L1530 670" stroke="#D97706" />
+
+<polyline points="1522,652 1530,670 1538,652" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 </svg>

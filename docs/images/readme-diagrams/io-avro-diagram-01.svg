@@ -121,30 +121,46 @@
 <text class="member" x="1680" y="1141" text-anchor="start">ReflectData.get().getSchema(clazz)</text>
 <text class="member" x="1680" y="1169" text-anchor="start">used only by reflection serializer</text>
 </g>
-<path id="impl-generic" class="impl blueLine" d="M 420 592 L 420 430" marker-end="url(#hollowTriangle)" />
+<path id="impl-generic" class="impl blueLine" d="M 420 592 L 420 430" />
+<polygon points="429,451 420,430 411,451" fill="#FFFFFF" stroke="#64748B" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="428" y="492" width="204" height="30" rx="9" />
 <text class="edgeLabel" x="530" y="512" text-anchor="middle">implements</text>
-<path id="impl-specific" class="impl greenLine" d="M 1160 592 L 1160 430" marker-end="url(#hollowTriangle)" />
+<path id="impl-specific" class="impl greenLine" d="M 1160 592 L 1160 430" />
+<polygon points="1169,451 1160,430 1151,451" fill="#FFFFFF" stroke="#64748B" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="1168" y="492" width="204" height="30" rx="9" />
 <text class="edgeLabel" x="1270" y="512" text-anchor="middle">implements</text>
-<path id="impl-reflect" class="impl tealLine" d="M 1900 592 L 1900 430" marker-end="url(#hollowTriangle)" />
+<path id="impl-reflect" class="impl tealLine" d="M 1900 592 L 1900 430" />
+<polygon points="1909,451 1900,430 1891,451" fill="#FFFFFF" stroke="#64748B" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="1908" y="492" width="204" height="30" rx="9" />
 <text class="edgeLabel" x="2010" y="512" text-anchor="middle">implements</text>
-<path id="generic-datafile" class="uses blueLine" d="M 420 818 L 420 928 L 1060 928 L 1060 1010" marker-end="url(#openArrow)" />
+<path id="generic-datafile" class="uses blueLine" d="M 420 818 L 420 928 L 1060 928 L 1060 1010" />
+
+<polyline points="1052,992 1060,1010 1068,992" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="622" y="892" width="204" height="30" rx="9" />
 <text class="edgeLabel" x="724" y="912" text-anchor="middle">uses DataFile</text>
-<path id="specific-datafile" class="uses greenLine" d="M 1160 818 L 1160 1010" marker-end="url(#openArrow)" />
-<path id="reflect-datafile" class="uses tealLine" d="M 1900 818 L 1900 928 L 1300 928 L 1300 1010" marker-end="url(#openArrow)" />
+<path id="specific-datafile" class="uses greenLine" d="M 1160 818 L 1160 1010" />
+
+<polyline points="1152,992 1160,1010 1168,992" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path id="reflect-datafile" class="uses tealLine" d="M 1900 818 L 1900 928 L 1300 928 L 1300 1010" />
+
+<polyline points="1292,992 1300,1010 1308,992" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="1498" y="892" width="204" height="30" rx="9" />
 <text class="edgeLabel" x="1600" y="912" text-anchor="middle">uses DataFile</text>
-<path id="reflect-cache-edge" class="uses orangeLine" d="M 1900 818 L 1900 1010" marker-end="url(#openArrow)" />
+<path id="reflect-cache-edge" class="uses orangeLine" d="M 1900 818 L 1900 1010" />
+
+<polyline points="1892,992 1900,1010 1908,992" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="1918" y="906" width="204" height="30" rx="9" />
 <text class="edgeLabel" x="2020" y="926" text-anchor="middle">schemaOf(clazz)</text>
-<path id="iface-contract" class="uses purpleLine" d="M 110 382 L 70 382 L 70 930 L 250 930 L 250 1010" marker-end="url(#openArrow)" />
+<path id="iface-contract" class="uses purpleLine" d="M 110 382 L 70 382 L 70 930 L 250 930 L 250 1010" />
+
+<polyline points="242,992 250,1010 258,992" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="66" y="890" width="204" height="30" rx="9" />
 <text class="edgeLabel" x="168" y="910" text-anchor="middle">string wrappers</text>
 <g id="legend">
-<path class="impl blueLine" d="M 110 1288 H 178" marker-end="url(#hollowTriangle)" /><text class="legendText" x="198" y="1294">implements</text>
-<path class="uses orangeLine" d="M 344 1288 H 412" marker-end="url(#openArrow)" /><text class="legendText" x="432" y="1294">uses support</text>
+<path class="impl blueLine" d="M 110 1288 H 178" />
+<polygon points="157,1297 178,1288 157,1279" fill="#FFFFFF" stroke="#64748B" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legendText" x="198" y="1294">implements</text>
+<path class="uses orangeLine" d="M 344 1288 H 412" />
+
+<polyline points="394,1296 412,1288 394,1280" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legendText" x="432" y="1294">uses support</text>
 </g>
 </svg>

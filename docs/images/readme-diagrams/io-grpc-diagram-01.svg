@@ -180,13 +180,19 @@
   <text class="label" x="1420" y="412">builds</text>
 
   <g transform="translate(118 938)">
-    <line x1="0" y1="0" x2="34" y2="0" stroke="#16a34a" stroke-width="2.4" stroke-dasharray="7 5" marker-end="url(#hollow-green)" />
+    <line x1="0" y1="0" x2="34" y2="0" stroke="#16a34a" stroke-width="2.4" stroke-dasharray="7 5" />
+<polygon points="13,9 34,0 13,-9" fill="#FFFFFF" stroke="#16a34a" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="legend" x="52" y="5">implements GrpcServer</text>
-    <line x1="270" y1="0" x2="304" y2="0" stroke="#2563eb" stroke-width="2.4" stroke-dasharray="7 5" marker-end="url(#hollow-blue)" />
+    <line x1="270" y1="0" x2="304" y2="0" stroke="#2563eb" stroke-width="2.4" stroke-dasharray="7 5" />
+<polygon points="283,9 304,0 283,-9" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="legend" x="322" y="5">implements Closeable</text>
-    <line x1="540" y1="0" x2="574" y2="0" stroke="#7c3aed" stroke-width="2.4" stroke-dasharray="7 5" marker-end="url(#open-purple)" />
+    <line x1="540" y1="0" x2="574" y2="0" stroke="#7c3aed" stroke-width="2.4" stroke-dasharray="7 5" />
+
+    <polyline points="556,8 574,0 556,-8" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="legend" x="592" y="5">owns/uses runtime object</text>
-    <line x1="840" y1="0" x2="874" y2="0" stroke="#ea580c" stroke-width="2.4" stroke-dasharray="7 5" marker-end="url(#open-orange)" />
+    <line x1="840" y1="0" x2="874" y2="0" stroke="#ea580c" stroke-width="2.4" stroke-dasharray="7 5" />
+
+    <polyline points="856,8 874,0 856,-8" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="legend" x="892" y="5">builds builder/channel</text>
   </g>
 </svg>

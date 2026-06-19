@@ -44,10 +44,14 @@
 
   <g id="legend">
     <rect class="badge" x="1130" y="62" width="236" height="34" rx="8" />
-    <path class="solid" d="M1152 79 L1200 79" stroke="#2563EB" marker-end="url(#open-blue)" />
+    <path class="solid" d="M1152 79 L1200 79" stroke="#2563EB" />
+
+    <polyline points="1182,87 1200,79 1182,71" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="label" x="1216" y="83">returns / wraps</text>
     <rect class="badge" x="1392" y="62" width="236" height="34" rx="8" />
-    <path class="dashed" d="M1414 79 L1462 79" stroke="#64748B" marker-end="url(#open-gray)" />
+    <path class="dashed" d="M1414 79 L1462 79" stroke="#64748B" />
+
+    <polyline points="1444,87 1462,79 1444,71" fill="none" stroke="#64748B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="label" x="1478" y="83">configures / uses</text>
   </g>
 
@@ -139,15 +143,32 @@
     </g>
   </g>
 
-  <path class="dashed" d="M 344 408 L 344 496" stroke="#0D9488" marker-end="url(#open-teal)" />
-  <path class="solid" d="M 344 612 L 344 858" stroke="#0D9488" marker-end="url(#open-teal)" />
+  <path class="dashed" d="M 344 408 L 344 496" stroke="#0D9488" />
 
-  <path class="dashed" d="M 880 408 L 880 496" stroke="#DB2777" marker-end="url(#open-pink)" />
-  <path class="solid" d="M 880 612 L 880 736" stroke="#DB2777" marker-end="url(#open-pink)" />
-  <path class="solid" d="M 880 846 L 880 908" stroke="#2563EB" marker-end="url(#open-blue)" />
 
-  <path class="dashed" d="M 1416 408 L 1416 496" stroke="#EA580C" marker-end="url(#open-orange)" />
-  <path class="solid" d="M 1416 612 L 1416 736" stroke="#EA580C" marker-end="url(#open-orange)" />
+  <polyline points="336,478 344,496 352,478" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="solid" d="M 344 612 L 344 858" stroke="#0D9488" />
+
+  <polyline points="336,840 344,858 352,840" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+
+  <path class="dashed" d="M 880 408 L 880 496" stroke="#DB2777" />
+
+
+  <polyline points="872,478 880,496 888,478" fill="none" stroke="#DB2777" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="solid" d="M 880 612 L 880 736" stroke="#DB2777" />
+
+  <polyline points="872,718 880,736 888,718" fill="none" stroke="#DB2777" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="solid" d="M 880 846 L 880 908" stroke="#2563EB" />
+
+  <polyline points="872,890 880,908 888,890" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+
+  <path class="dashed" d="M 1416 408 L 1416 496" stroke="#EA580C" />
+
+
+  <polyline points="1408,478 1416,496 1424,478" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="solid" d="M 1416 612 L 1416 736" stroke="#EA580C" />
+
+  <polyline points="1408,718 1416,736 1424,718" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 
   <g id="shared-support">
     <rect class="card" x="144" y="1084" width="1472" height="70" rx="8" fill="#F8FAFC" stroke="#64748B" />

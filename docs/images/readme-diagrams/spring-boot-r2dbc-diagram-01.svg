@@ -123,23 +123,33 @@
 <text class="member" x="1744" y="834">update/delete/select consume caller Query</text>
 </g>
 <g data-from="R2dbcEntityOperations" data-to="IdHelpers">
-  <path class="edge dashed" d="M760 335 L410 335 L410 565" stroke="#15803D" marker-end="url(#arrow-green)" />
+  <path class="edge dashed" d="M760 335 L410 335 L410 565" stroke="#15803D" />
+
+  <polyline points="402,547 410,565 418,547" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
   <text class="edgeLabel" x="450" y="317">extension receiver</text>
 </g>
 <g data-from="R2dbcEntityOperations" data-to="SelectExtensions">
-  <path class="edge dashed" d="M1095 455 L1095 555" stroke="#1D4ED8" marker-end="url(#arrow-blue)" />
+  <path class="edge dashed" d="M1095 455 L1095 555" stroke="#1D4ED8" />
+
+  <polyline points="1087,537 1095,555 1103,537" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
   <text class="edgeLabel" x="1115" y="520">extension receiver</text>
 </g>
 <g data-from="IdHelpers" data-to="SelectExtensions">
-  <path class="edge " d="M730 720 L910 720" stroke="#15803D" marker-end="url(#arrow-green)" />
+  <path class="edge " d="M730 720 L910 720" stroke="#15803D" />
+
+  <polyline points="892,728 910,720 892,712" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
   <text class="edgeLabel" x="755" y="699">delegates after Query creation</text>
 </g>
 <g data-from="QueryObjects" data-to="SelectExtensions">
-  <path class="edge dashed" d="M1720 720 L1560 720" stroke="#475569" marker-end="url(#arrow-slate)" />
+  <path class="edge dashed" d="M1720 720 L1560 720" stroke="#475569" />
+
+  <polyline points="1578,712 1560,720 1578,728" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
   <text class="edgeLabel" x="1600" y="699">query input</text>
 </g>
 <g data-from="SelectExtensions" data-to="CoroutineSurface">
-  <path class="edge " d="M1560 640 L1700 640 L1700 455" stroke="#0F766E" marker-end="url(#arrow-teal)" />
+  <path class="edge " d="M1560 640 L1700 640 L1700 455" stroke="#0F766E" />
+
+  <polyline points="1708,473 1700,455 1692,473" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
   <text class="edgeLabel" x="1588" y="620">await / Flow bridge</text>
 </g>
 </svg>

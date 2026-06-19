@@ -79,11 +79,16 @@
     <text class="member" x="1058" y="544">+ LettuceLongCodec</text>
   </g>
 
-  <path class="implements" d="M 273 430 V 260" stroke="#2563eb" marker-end="url(#hollowBlue)" />
-  <path class="implements" d="M 739 430 V 386 H 1090 V 260" stroke="#2563eb" marker-end="url(#hollowBlue)" />
-  <path class="implements" d="M 1205 440 V 260" stroke="#2563eb" marker-end="url(#hollowBlue)" />
-  <path class="implements" d="M 390 430 V 362" stroke="#0d9488" marker-end="url(#hollowTeal)" />
-  <path class="implements" d="M 739 430 V 362" stroke="#0d9488" marker-end="url(#hollowTeal)" />
+  <path class="implements" d="M 273 430 V 260" stroke="#2563eb" />
+<polygon points="282,281 273,260 264,281" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="implements" d="M 739 430 V 386 H 1090 V 260" stroke="#2563eb" />
+<polygon points="1099,281 1090,260 1081,281" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="implements" d="M 1205 440 V 260" stroke="#2563eb" />
+<polygon points="1214,281 1205,260 1196,281" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="implements" d="M 390 430 V 362" stroke="#0d9488" />
+<polygon points="399,383 390,362 381,383" fill="#FFFFFF" stroke="#0d9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="implements" d="M 739 430 V 362" stroke="#0d9488" />
+<polygon points="748,383 739,362 730,383" fill="#FFFFFF" stroke="#0d9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 
   <rect class="group" x="82" y="640" width="604" height="240" rx="8" fill="#fff7ed" stroke="#fdba74" />
   <text class="groupTitle" x="114" y="674">Binary serializer factories</text>
@@ -125,8 +130,17 @@
     <text class="member" x="1218" y="830">Redisson-compatible</text>
   </g>
 
-  <path class="dep" d="M 366 782 H 388 V 604 H 273 V 568" stroke="#ea580c" marker-end="url(#openOrange)" />
-  <path class="dep" d="M 527 724 V 612 H 430 V 568" stroke="#16a34a" marker-end="url(#openGreen)" />
-  <path class="dep" d="M 796 782 H 760 V 604 H 739 V 568" stroke="#0d9488" marker-end="url(#openGreen)" />
-  <path class="dep" d="M 1194 782 H 1168 V 604 H 1205 V 558" stroke="#16a34a" marker-end="url(#openGreen)" />
+  <path class="dep" d="M 366 782 H 388 V 604 H 273 V 568" stroke="#ea580c" />
+
+
+  <polyline points="281,586 273,568 265,586" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 527 724 V 612 H 430 V 568" stroke="#16a34a" />
+
+  <polyline points="438,586 430,568 422,586" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 796 782 H 760 V 604 H 739 V 568" stroke="#0d9488" />
+
+  <polyline points="747,586 739,568 731,586" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 1194 782 H 1168 V 604 H 1205 V 558" stroke="#16a34a" />
+
+  <polyline points="1213,576 1205,558 1197,576" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 </svg>

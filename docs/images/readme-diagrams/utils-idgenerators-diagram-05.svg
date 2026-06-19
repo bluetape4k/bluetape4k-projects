@@ -59,9 +59,12 @@
   <rect class="lane" x="2530" y="250" width="800" height="1310" rx="8" />
   <text class="laneTitle" x="2556" y="292">Adapter and selection</text>
 </g>
-<path class="edge dashed" data-from="ULIDFactory" data-to="ULID.Factory" d="M450 1280 L450 1105" stroke="#15803D" marker-end="url(#inherit-green)" />
-<path class="edge dashed" data-from="ULIDMonotonic" data-to="ULID.Monotonic" d="M1270 1280 L1270 1080" stroke="#0F766E" marker-end="url(#inherit-teal)" />
-<path class="edge dashed" data-from="ULIDStatefulMonotonic" data-to="ULID.StatefulMonotonic" d="M2090 1280 L2090 1105" stroke="#6D28D9" marker-end="url(#inherit-violet)" />
+<path class="edge dashed" data-from="ULIDFactory" data-to="ULID.Factory" d="M450 1280 L450 1105" stroke="#15803D" />
+<polygon points="459,1126 450,1105 441,1126" fill="#FFFFFF" stroke="#15803D" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="ULIDMonotonic" data-to="ULID.Monotonic" d="M1270 1280 L1270 1080" stroke="#0F766E" />
+<polygon points="1279,1101 1270,1080 1261,1101" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="ULIDStatefulMonotonic" data-to="ULID.StatefulMonotonic" d="M2090 1280 L2090 1105" stroke="#6D28D9" />
+<polygon points="2099,1126 2090,1105 2081,1126" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="edge" data-from="ULID companion" data-to="ULID.Factory" d="M1460 740 L1460 805 L450 805 L450 860" stroke="#15803D" marker-end="url(#arrow-green)" />
 <path class="edge" data-from="ULID companion" data-to="ULID.Monotonic" d="M1700 740 L1700 805 L1270 805 L1270 860" stroke="#0F766E" marker-end="url(#arrow-teal)" />
 <path class="edge" data-from="ULID companion" data-to="ULID.StatefulMonotonic" d="M1940 740 L1940 805 L2090 805 L2090 860" stroke="#6D28D9" marker-end="url(#arrow-violet)" />

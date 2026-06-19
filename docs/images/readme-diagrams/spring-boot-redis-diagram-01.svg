@@ -15,8 +15,10 @@
   <text x="280" y="324" text-anchor="middle" font-size="14" font-weight="700" fill="#16a34a">object value adapter</text>
   <text x="760" y="324" text-anchor="middle" font-size="14" font-weight="700" fill="#ea580c">ByteArray compression adapter</text>
   <text x="1180" y="342" text-anchor="middle" font-size="14" font-weight="700" fill="#7c3aed">factory and context helpers</text>
-  <path class="edge" d="M280 382 L280 340 L465 340 L465 298" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" marker-end="url(#hollow-blue)" />
-  <path class="edge" d="M760 382 L760 340 L615 340 L615 298" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" marker-end="url(#hollow-blue)" />
+  <path class="edge" d="M280 382 L280 340 L465 340 L465 298" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" />
+<polygon points="474,319 465,298 456,319" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="edge" d="M760 382 L760 340 L615 340 L615 298" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" />
+<polygon points="624,319 615,298 606,319" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
   <path class="edge" d="M280 634 L280 554" fill="none" stroke="#16a34a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-green)" />
   <path class="edge" d="M760 634 L760 554" fill="none" stroke="#ea580c" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)" />
   <path class="edge" d="M1180 554 L1180 634" fill="none" stroke="#2563eb" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)" />
@@ -98,7 +100,8 @@
 
   </g>
   <g class="legend" transform="translate(72 822)">
-    <line x1="0" y1="0" x2="38" y2="0" stroke="#2563eb" stroke-width="2.2" stroke-dasharray="7 5" marker-end="url(#hollow-blue)" /><text x="54" y="5" font-size="13" fill="#475569">implements RedisSerializer</text>
+    <line x1="0" y1="0" x2="38" y2="0" stroke="#2563eb" stroke-width="2.2" stroke-dasharray="7 5" />
+<polygon points="17,9 38,0 17,-9" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text x="54" y="5" font-size="13" fill="#475569">implements RedisSerializer</text>
     <line x1="340" y1="0" x2="378" y2="0" stroke="#16a34a" stroke-width="2.6" marker-end="url(#arrow-green)" /><text x="394" y="5" font-size="13" fill="#475569">delegates object serialization</text>
     <line x1="660" y1="0" x2="698" y2="0" stroke="#ea580c" stroke-width="2.6" marker-end="url(#arrow-orange)" /><text x="714" y="5" font-size="13" fill="#475569">delegates compression</text>
     <line x1="940" y1="0" x2="978" y2="0" stroke="#2563eb" stroke-width="2.6" marker-end="url(#arrow-blue)" /><text x="994" y="5" font-size="13" fill="#475569">DSL entrypoint</text>

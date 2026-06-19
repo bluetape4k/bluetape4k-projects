@@ -64,10 +64,14 @@
 <path d="M 310 380 L 310 422 L 870 422 L 870 566" fill="none" stroke="#356FEA" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowBlue)" />
 <path d="M 775 380 L 775 526 L 505 526 L 505 566" fill="none" stroke="#229E5D" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#arrowGreen)" />
 <path d="M 775 380 L 775 566" fill="none" stroke="#229E5D" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#arrowGreen)" />
-<path d="M 1260 380 L 1260 566" fill="none" stroke="#EA580C" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#arrowOrange)" />
+<path d="M 1260 380 L 1260 566" fill="none" stroke="#EA580C" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
+
+<polyline points="1252,548 1260,566 1268,548" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path d="M 380 734 L 380 814 L 700 814 L 700 918" fill="none" stroke="#229E5D" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowGreen)" />
 <path d="M 870 734 L 870 814 L 860 814 L 860 918" fill="none" stroke="#0F9B8E" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowTeal)" />
-<path d="M 1325 712 L 1325 820 L 980 820 L 980 918" fill="none" stroke="#EA580C" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" marker-end="url(#arrowOrange)" />
+<path d="M 1325 712 L 1325 820 L 980 820 L 980 918" fill="none" stroke="#EA580C" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
+
+<polyline points="972,900 980,918 988,900" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect x="350" y="1076" width="980" height="42" rx="15" fill="#FFFFFF" stroke="#D5E1EC" stroke-width="1.8" />
 <text x="840" y="1103" text-anchor="middle" class="note">Rule of thumb: use the umbrella for compatibility; use direct modules for leaner dependency graphs.</text>
 </svg>
