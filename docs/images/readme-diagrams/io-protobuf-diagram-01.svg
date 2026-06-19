@@ -45,14 +45,14 @@
 
 <path class="route" d="M1065 594 H1256" stroke="#755BC6" />
 <path class="route" d="M1399 624 V674" stroke="#2E8F89" />
-<path class="route dash" d="M1065 674 V650 Q1065 634 1081 634 H1272 Q1288 634 1288 624" stroke="#B9851B" />
+<path class="route dash" d="M1065 674 V648 Q1065 632 1081 632 H1228 Q1244 632 1244 616 V612 H1256" stroke="#B9851B" />
 <path class="route dash" d="M1500 674 V624" stroke="#C94D68" />
 <path class="route" d="M444 830 V884" stroke="#4F83BF" />
 <path class="route" d="M1065 762 V884" stroke="#755BC6" />
 <path class="route" d="M1399 762 V884" stroke="#C94D68" />
 <path d="M1256 594 l-12 -7 v14 z" fill="#755BC6" />
 <path d="M1399 674 l-7 -12 h14 z" fill="#2E8F89" />
-<path d="M1288 624 l-7 12 h14 z" fill="#B9851B" />
+<path d="M1256 612 l-12 -7 v14 z" fill="#B9851B" />
 <path d="M1500 624 l-7 12 h14 z" fill="#C94D68" />
 <path d="M444 884 l-7 -12 h14 z" fill="#4F83BF" />
 <path d="M1065 884 l-7 -12 h14 z" fill="#755BC6" />
