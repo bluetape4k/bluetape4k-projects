@@ -1,0 +1,1 @@
+Protobuf codec throughput chart from benchmarkBenchmark JSON, 2026-06-19 local JMH run. Higher is better.

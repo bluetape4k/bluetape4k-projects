@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1720" height="512" viewBox="0 0 1720 512" role="img" aria-labelledby="title desc">
+<title id="title">Web Framework Startup</title>
+<desc id="desc">Embedded server startup / ms/op / lower is better</desc>
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <style>
+    .canvas{fill:#F7F9FC}
+    .frame{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2}
+    .panel{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2;filter:url(#shadow)}
+    .note{fill:#F7F9FC;stroke:#D7E2EC;stroke-width:1.6}
+    .title{font-family:"Architects Daughter";font-size:42px;fill:#21334A;font-weight:700}
+    .subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panelTitle{font-family:"Architects Daughter";font-size:25px;fill:#21334A;font-weight:700}
+    .label{font-family:"Architects Daughter";font-size:20px;fill:#21334A;font-weight:700}
+    .body{font-family:"Comic Mono";font-size:14px;fill:#34465B}
+    .small{font-family:"Comic Mono";font-size:13px;fill:#536476}
+    .tiny{font-family:"Comic Mono";font-size:11px;fill:#657386}
+    .value{font-family:"Comic Mono";font-size:13px;fill:#26384F;font-weight:700}
+    .grid{stroke:#D7E2EC;stroke-width:1;stroke-dasharray:4 7}
+    .axis{stroke:#AEBFD1;stroke-width:1.6}
+  </style>
+</defs>
+<rect class="canvas" width="1720" height="512"/>
+<rect class="frame" x="34" y="34" width="1652" height="444" rx="26"/>
+<text class="title" x="70" y="82">Web Framework Startup</text>
+<text class="subtitle" x="72" y="116">Embedded server startup / ms/op / lower is better</text>
+<g><rect class="panel" x="70" y="142" width="1580" height="212" rx="22"/>
+<text class="panelTitle" x="96" y="184">Measured ranking</text>
+<text class="small" x="1530" y="184" text-anchor="end">0 to 2,200 ms/op</text>
+<line class="grid" x1="610.0" y1="170" x2="610.0" y2="316"/>
+<text class="tiny" x="610.0" y="341" text-anchor="middle">0</text>
+<line class="grid" x1="810.0" y1="170" x2="810.0" y2="316"/>
+<text class="tiny" x="810.0" y="341" text-anchor="middle">550</text>
+<line class="grid" x1="1010.0" y1="170" x2="1010.0" y2="316"/>
+<text class="tiny" x="1010.0" y="341" text-anchor="middle">1,100</text>
+<line class="grid" x1="1210.0" y1="170" x2="1210.0" y2="316"/>
+<text class="tiny" x="1210.0" y="341" text-anchor="middle">1,650</text>
+<line class="grid" x1="1410.0" y1="170" x2="1410.0" y2="316"/>
+<text class="tiny" x="1410.0" y="341" text-anchor="middle">2,200</text>
+<line class="axis" x1="610" y1="316" x2="1410" y2="316"/>
+<g><text class="label" x="96" y="222" dominant-baseline="middle">Ktor CIO startup</text>
+<rect x="610" y="209" width="800" height="20" rx="7" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+<rect x="610" y="209" width="4.0" height="20" rx="7" fill="#EAF7ED" stroke="#58A978" stroke-width="1.6"/>
+<text class="value" x="628.0" y="219" dominant-baseline="middle">0.683 ms/op</text></g>
+<g><text class="label" x="96" y="280" dominant-baseline="middle">Spring WebFlux startup</text>
+<rect x="610" y="267" width="800" height="20" rx="7" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+<rect x="610" y="267" width="760.7" height="20" rx="7" fill="#E7F1FF" stroke="#5A85D6" stroke-width="1.6"/>
+<text class="value" x="1384.7" y="277" dominant-baseline="middle">2,092 ms/op</text></g>
+</g>
+<g><rect class="note" x="94" y="416" width="1532" height="62" rx="16"/>
+<text class="small" x="860" y="440" text-anchor="middle" dominant-baseline="middle">Ktor startup is tiny in this embedded loopback benchmark; Spring WebFlux includes Boot application startup cost.</text>
+<text class="tiny" x="860" y="460" text-anchor="middle" dominant-baseline="middle">Source: :web-framework-benchmark:startupBenchmark / 2026-06-19 local JMH run</text></g>
+</svg>

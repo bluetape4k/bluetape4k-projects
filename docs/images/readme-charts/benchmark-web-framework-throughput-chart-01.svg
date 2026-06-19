@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1720" height="920" viewBox="0 0 1720 920" role="img" aria-labelledby="title desc">
+<title id="title">Web Framework Throughput</title>
+<desc id="desc">Loopback JDK HttpClient requests / ops/s / higher is better</desc>
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <style>
+    .canvas{fill:#F7F9FC}
+    .frame{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2}
+    .panel{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2;filter:url(#shadow)}
+    .note{fill:#F7F9FC;stroke:#D7E2EC;stroke-width:1.6}
+    .title{font-family:"Architects Daughter";font-size:42px;fill:#21334A;font-weight:700}
+    .subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panelTitle{font-family:"Architects Daughter";font-size:25px;fill:#21334A;font-weight:700}
+    .label{font-family:"Architects Daughter";font-size:20px;fill:#21334A;font-weight:700}
+    .body{font-family:"Comic Mono";font-size:14px;fill:#34465B}
+    .small{font-family:"Comic Mono";font-size:13px;fill:#536476}
+    .tiny{font-family:"Comic Mono";font-size:11px;fill:#657386}
+    .value{font-family:"Comic Mono";font-size:13px;fill:#26384F;font-weight:700}
+    .grid{stroke:#D7E2EC;stroke-width:1;stroke-dasharray:4 7}
+    .axis{stroke:#AEBFD1;stroke-width:1.6}
+  </style>
+</defs>
+<rect class="canvas" width="1720" height="920"/>
+<rect class="frame" x="34" y="34" width="1652" height="852" rx="26"/>
+<text class="title" x="70" y="82">Web Framework Throughput</text>
+<text class="subtitle" x="72" y="116">Loopback JDK HttpClient requests / ops/s / higher is better</text>
+<g><rect class="panel" x="70" y="142" width="1580" height="560" rx="22"/>
+<text class="panelTitle" x="96" y="184">Ktor CIO vs Spring WebFlux</text>
+<text class="small" x="1530" y="184" text-anchor="end">0 to 7,200 ops/s</text>
+<rect x="1120" y="202" width="20" height="14" rx="5" fill="#E7F1FF" stroke="#5A85D6" stroke-width="1.5"/><text class="small" x="1148" y="213">Ktor CIO</text>
+<rect x="1260" y="202" width="20" height="14" rx="5" fill="#EAF7ED" stroke="#58A978" stroke-width="1.5"/><text class="small" x="1288" y="213">Spring WebFlux</text>
+<line class="grid" x1="640.0" y1="230" x2="640.0" y2="700"/>
+<text class="tiny" x="640.0" y="725" text-anchor="middle">0</text>
+<line class="grid" x1="830.0" y1="230" x2="830.0" y2="700"/>
+<text class="tiny" x="830.0" y="725" text-anchor="middle">1,800</text>
+<line class="grid" x1="1020.0" y1="230" x2="1020.0" y2="700"/>
+<text class="tiny" x="1020.0" y="725" text-anchor="middle">3,600</text>
+<line class="grid" x1="1210.0" y1="230" x2="1210.0" y2="700"/>
+<text class="tiny" x="1210.0" y="725" text-anchor="middle">5,400</text>
+<line class="grid" x1="1400.0" y1="230" x2="1400.0" y2="700"/>
+<text class="tiny" x="1400.0" y="725" text-anchor="middle">7,200</text>
+<line class="axis" x1="640" y1="700" x2="1400" y2="700"/>
+<text class="label" x="96" y="296" dominant-baseline="middle">Health</text>
+<rect x="640" y="267" width="760" height="20" rx="7" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+<rect x="640" y="267" width="422.8" height="20" rx="7" fill="#E7F1FF" stroke="#5A85D6" stroke-width="1.6"/>
+<text class="value" x="1076.8" y="278" dominant-baseline="middle">Ktor 4,006 ops/s</text>
+<rect x="640" y="299" width="760" height="20" rx="7" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+<rect x="640" y="299" width="645.1" height="20" rx="7" fill="#EAF7ED" stroke="#58A978" stroke-width="1.6"/>
+<text class="value" x="1299.1" y="310" dominant-baseline="middle">Spring 6,112 ops/s</text>
+<text class="label" x="96" y="404" dominant-baseline="middle">Single ID</text>
+<rect x="640" y="375" width="760" height="20" rx="7" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+<rect x="640" y="375" width="393.4" height="20" rx="7" fill="#E7F1FF" stroke="#5A85D6" stroke-width="1.6"/>
+<text class="value" x="1047.4" y="386" dominant-baseline="middle">Ktor 3,727 ops/s</text>
+<rect x="640" y="407" width="760" height="20" rx="7" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+<rect x="640" y="407" width="679.8" height="20" rx="7" fill="#EAF7ED" stroke="#58A978" stroke-width="1.6"/>
+<text class="value" x="1333.8" y="418" dominant-baseline="middle">Spring 6,441 ops/s</text>
+<text class="label" x="96" y="512" dominant-baseline="middle">Batch IDs</text>
+<rect x="640" y="483" width="760" height="20" rx="7" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+<rect x="640" y="483" width="392.5" height="20" rx="7" fill="#E7F1FF" stroke="#5A85D6" stroke-width="1.6"/>
+<text class="value" x="1046.5" y="494" dominant-baseline="middle">Ktor 3,719 ops/s</text>
+<rect x="640" y="515" width="760" height="20" rx="7" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+<rect x="640" y="515" width="638.3" height="20" rx="7" fill="#EAF7ED" stroke="#58A978" stroke-width="1.6"/>
+<text class="value" x="1292.3" y="526" dominant-baseline="middle">Spring 6,047 ops/s</text>
+<text class="label" x="96" y="620" dominant-baseline="middle">Bad request</text>
+<rect x="640" y="591" width="760" height="20" rx="7" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+<rect x="640" y="591" width="390.3" height="20" rx="7" fill="#E7F1FF" stroke="#5A85D6" stroke-width="1.6"/>
+<text class="value" x="1044.3" y="602" dominant-baseline="middle">Ktor 3,697 ops/s</text>
+<rect x="640" y="623" width="760" height="20" rx="7" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+<rect x="640" y="623" width="656.3" height="20" rx="7" fill="#EAF7ED" stroke="#58A978" stroke-width="1.6"/>
+<text class="value" x="1310.3" y="634" dominant-baseline="middle">Spring 6,218 ops/s</text>
+</g>
+<g><rect class="note" x="94" y="738" width="1532" height="62" rx="16"/>
+<text class="small" x="860" y="762" text-anchor="middle" dominant-baseline="middle">This short local run favors Spring WebFlux throughput for the four equivalent HTTP endpoints.</text>
+<text class="tiny" x="860" y="782" text-anchor="middle" dominant-baseline="middle">Higher is better. Source: :web-framework-benchmark:throughputBenchmark --rerun-tasks --no-parallel / 2026-06-19</text></g>
+</svg>

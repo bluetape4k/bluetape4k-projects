@@ -1,0 +1,1 @@
+Web framework startup chart from startupBenchmark JSON, 2026-06-19 local JMH run. Lower is better.
