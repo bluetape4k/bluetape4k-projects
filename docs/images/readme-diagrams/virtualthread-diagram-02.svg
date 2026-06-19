@@ -1,66 +1,126 @@
-<svg data-intent="Regenerate Virtual Thread Class Structure from the current README and source package surface for virtualthread." data-evidence="virtualthread/README.md; virtualthread; virtualthread/src/main/kotlin" data-source-read="virtualthread/README.md; virtualthread; virtualthread/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Virtual Thread Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1160" viewBox="0 0 1680 1160" role="img" aria-label="Virtual Thread Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="implBlue" markerWidth="16" markerHeight="16" refX="15" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 16 8 L 0 16 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" stroke-dasharray="none"/></marker>
+  <marker id="implTeal" markerWidth="16" markerHeight="16" refX="15" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 16 8 L 0 16 Z" fill="#FFFFFF" stroke="#0D9488" stroke-width="2" stroke-dasharray="none"/></marker>
+  <marker id="usesBlue" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="usesTeal" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14" fill="none" stroke="#0D9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
+  <marker id="usesAmber" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .section{font-family:"Architects Daughter";font-size:24px;fill:#334155}.card{filter:url(#shadow);stroke-width:1.8}
+    .className{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.stereo{font-family:"Comic Mono";font-size:12px;fill:#64748B}.member{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .divider{stroke:#CBD5E1;stroke-width:1}.impl{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7}.uses{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
+<rect class="canvas" width="1680" height="1160"/>
+<rect class="frame" x="34" y="30" width="1612" height="1100" rx="8"/>
 <text class="title" x="72" y="84">Virtual Thread Class Structure</text>
-<text class="subtitle" x="76" y="116">virtualthread: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Architecture</text>
+<text class="subtitle" x="76" y="116">API facades select ServiceLoader providers; JDK modules implement runtime and StructuredTaskScope contracts.</text>
+
+<text class="section" x="92" y="178">Virtual thread runtime API</text>
+<text class="section" x="92" y="514">Structured concurrency API</text>
+<text class="section" x="92" y="872">ScopedValue task context</text>
+
+<g id="VirtualThreads">
+  <rect class="card" x="110" y="210" width="330" height="128" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="stereo" x="275" y="238" text-anchor="middle">object facade</text>
+  <text class="className" x="275" y="268" text-anchor="middle">VirtualThreads</text>
+  <line class="divider" x1="130" y1="286" x2="420" y2="286"/>
+  <text class="member" x="130" y="312">+ runtime()</text>
+  <text class="member" x="130" y="334">+ threadFactory(prefix)</text>
+  <text class="member" x="130" y="356">+ executorService()</text>
 </g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Runtime Selection Flow</text>
+<g id="VirtualThreadRuntime">
+  <rect class="card" x="610" y="198" width="350" height="152" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="stereo" x="785" y="226" text-anchor="middle">interface</text>
+  <text class="className" x="785" y="256" text-anchor="middle">VirtualThreadRuntime</text>
+  <line class="divider" x1="630" y1="274" x2="940" y2="274"/>
+  <text class="member" x="630" y="300">+ runtimeName: String</text>
+  <text class="member" x="630" y="322">+ priority: Int</text>
+  <text class="member" x="630" y="344">+ isSupported()</text>
 </g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">ServiceLoader Selection</text>
-  <text class="detail" x="919" y="311" text-anchor="middle">Sequence</text>
+<g id="Jdk25Runtime">
+  <rect class="card" x="1140" y="170" width="360" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="className" x="1320" y="207" text-anchor="middle">Jdk25VirtualThreadRuntime</text>
+  <text class="member" x="1320" y="234" text-anchor="middle">priority 25, vt25 executor</text>
 </g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Modules</text>
+<g id="Jdk21Runtime">
+  <rect class="card" x="1140" y="286" width="360" height="92" rx="8" fill="#ECFDF5" stroke="#16A34A"/>
+  <text class="className" x="1320" y="323" text-anchor="middle">Jdk21VirtualThreadRuntime</text>
+  <text class="member" x="1320" y="350" text-anchor="middle">priority 21, vt21 executor</text>
 </g>
-<g id="source0">
-  <rect class="card" x="262" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="412" y="544" text-anchor="middle">0 Kotlin source files</text>
-  <text class="detail" x="412" y="572" text-anchor="middle">0 Kotlin source files</text>
+<g id="PlatformRuntime">
+  <rect class="card" x="520" y="382" width="330" height="76" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="className" x="685" y="413" text-anchor="middle">PlatformThreadRuntime</text>
+  <text class="member" x="685" y="438" text-anchor="middle">internal fallback in VirtualThreads</text>
 </g>
-<g id="source1">
-  <rect class="card" x="600" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="750" y="544" text-anchor="middle">module public source</text>
-  <text class="detail" x="750" y="572" text-anchor="middle">module public source</text>
+
+<g id="StructuredTaskScopes">
+  <rect class="card" x="110" y="548" width="330" height="132" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="stereo" x="275" y="576" text-anchor="middle">object facade</text>
+  <text class="className" x="275" y="606" text-anchor="middle">StructuredTaskScopes</text>
+  <line class="divider" x1="130" y1="624" x2="420" y2="624"/>
+  <text class="member" x="130" y="650">+ failFast { }</text>
+  <text class="member" x="130" y="672">+ firstSuccess { }</text>
+  <text class="member" x="130" y="694">+ supervised { }</text>
 </g>
-<g id="source2">
-  <rect class="card" x="938" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1088" y="544" text-anchor="middle">README-backed API surface</text>
-  <text class="detail" x="1088" y="572" text-anchor="middle">README-backed API surface</text>
+<g id="StructuredTaskScopeProvider">
+  <rect class="card" x="590" y="536" width="390" height="156" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="stereo" x="785" y="564" text-anchor="middle">interface</text>
+  <text class="className" x="785" y="594" text-anchor="middle">StructuredTaskScopeProvider</text>
+  <line class="divider" x1="610" y1="612" x2="960" y2="612"/>
+  <text class="member" x="610" y="638">+ withAll / withFailFast</text>
+  <text class="member" x="610" y="660">+ withAny / withFirstSuccess</text>
+  <text class="member" x="610" y="682">+ withSupervised</text>
 </g>
-<g id="runtime0">
-  <rect class="card" x="600" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="750" y="824" text-anchor="middle">Virtual threads</text>
-  <text class="detail" x="750" y="852" text-anchor="middle">Virtual threads</text>
+<g id="Jdk25Provider">
+  <rect class="card" x="1120" y="500" width="440" height="98" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="className" x="1340" y="536" text-anchor="middle">Jdk25StructuredTaskScopeProvider</text>
+  <text class="member" x="1340" y="564" text-anchor="middle">StructuredTaskScope.open + Joiner</text>
 </g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L412 416 L412 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L750 416 L750 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L1088 416 L1088 510" stroke="#0F766E"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M412 602 L412 696 L750 696 L750 790" stroke="#7E22CE"/>
+<g id="Jdk21Provider">
+  <rect class="card" x="1120" y="632" width="440" height="98" rx="8" fill="#ECFDF5" stroke="#16A34A"/>
+  <text class="className" x="1340" y="668" text-anchor="middle">Jdk21StructuredTaskScopeProvider</text>
+  <text class="member" x="1340" y="696" text-anchor="middle">ShutdownOnFailure / ShutdownOnSuccess</text>
+</g>
+<g id="ScopeContracts">
+  <rect class="card" x="500" y="734" width="560" height="96" rx="8" fill="#FFF7ED" stroke="#D97706"/>
+  <text class="className" x="780" y="770" text-anchor="middle">Scope and subtask contracts</text>
+  <text class="member" x="780" y="798" text-anchor="middle">StructuredTaskScopeAll, Any, Supervised, StructuredSubtask</text>
+</g>
+
+<g id="TaskContext">
+  <rect class="card" x="180" y="908" width="360" height="112" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="stereo" x="360" y="936" text-anchor="middle">object</text>
+  <text class="className" x="360" y="966" text-anchor="middle">TaskContext</text>
+  <text class="member" x="360" y="994" text-anchor="middle">newKey, get, run, bind</text>
+</g>
+<g id="TaskContextBindings">
+  <rect class="card" x="690" y="908" width="360" height="112" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="stereo" x="870" y="936" text-anchor="middle">builder</text>
+  <text class="className" x="870" y="966" text-anchor="middle">TaskContextBindings</text>
+  <text class="member" x="870" y="994" text-anchor="middle">and(...), run { }, call { }</text>
+</g>
+<g id="ScopedValue">
+  <rect class="card" x="1200" y="908" width="300" height="112" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="stereo" x="1350" y="936" text-anchor="middle">JDK API</text>
+  <text class="className" x="1350" y="966" text-anchor="middle">ScopedValue</text>
+  <text class="member" x="1350" y="994" text-anchor="middle">immutable scoped binding</text>
+</g>
+
+<path class="uses" d="M440 270 L610 270" stroke="#2563EB" marker-end="url(#usesBlue)"/>
+<path class="impl" d="M1140 216 L960 246" stroke="#2563EB" marker-end="url(#implBlue)"/>
+<path class="impl" d="M1140 332 L960 302" stroke="#2563EB" marker-end="url(#implBlue)"/>
+<path class="impl" d="M685 382 L685 350" stroke="#2563EB" marker-end="url(#implBlue)"/>
+
+<path class="uses" d="M440 616 L590 616" stroke="#0D9488" marker-end="url(#usesTeal)"/>
+<path class="impl" d="M1120 548 L980 580" stroke="#0D9488" marker-end="url(#implTeal)"/>
+<path class="impl" d="M1120 680 L980 648" stroke="#0D9488" marker-end="url(#implTeal)"/>
+<path class="uses" d="M785 692 L785 734" stroke="#D97706" marker-end="url(#usesAmber)"/>
+
+<path class="uses" d="M540 964 L690 964" stroke="#0D9488" marker-end="url(#usesTeal)"/>
+<path class="uses" d="M1050 964 L1200 964" stroke="#0D9488" marker-end="url(#usesTeal)"/>
 </svg>

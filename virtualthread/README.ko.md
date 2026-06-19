@@ -8,19 +8,19 @@ Java 21/25를 같은 프로젝트에서 모듈 분리로 지원하기 위한 구
 
 ### 런타임 선택 흐름
 
-![Virtual Thread Runtime Selection Flow diagram](../docs/images/readme-diagrams/virtualthread-diagram-01.png)
+![ServiceLoader provider, 우선순위 정렬, platform fallback을 사용하는 VirtualThreads 런타임 선택 흐름](../docs/images/readme-diagrams/virtualthread-diagram-01.png)
 
 ---
 
 ### 클래스 다이어그램
 
-![Virtual Thread Class Structure diagram](../docs/images/readme-diagrams/virtualthread-diagram-02.png)
+![런타임 파사드, provider 인터페이스, JDK 구현체, scope 계약, TaskContext를 보여주는 가상 스레드 클래스 구조](../docs/images/readme-diagrams/virtualthread-diagram-02.png)
 
 ---
 
 ### ServiceLoader 선택 시퀀스
 
-![ServiceLoader diagram](../docs/images/readme-diagrams/virtualthread-sequence-01.png)
+![VirtualThreadRuntime 발견, 지원 여부 필터링, 우선순위 정렬, executor 위임을 보여주는 ServiceLoader 선택 시퀀스](../docs/images/readme-diagrams/virtualthread-sequence-01.png)
 
 ---
 

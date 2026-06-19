@@ -8,19 +8,19 @@ This structure supports Java 21 and Java 25 in the same project by splitting the
 
 ### Runtime Selection Flow
 
-![Virtual Thread Runtime Selection Flow diagram](../docs/images/readme-diagrams/virtualthread-diagram-01.png)
+![VirtualThreads runtime selection flow using ServiceLoader providers, priority sorting, and platform fallback](../docs/images/readme-diagrams/virtualthread-diagram-01.png)
 
 ---
 
 ### Class Diagram
 
-![Virtual Thread Class Structure diagram](../docs/images/readme-diagrams/virtualthread-diagram-02.png)
+![Virtual thread class structure for runtime facades, provider interfaces, JDK implementations, scope contracts, and TaskContext](../docs/images/readme-diagrams/virtualthread-diagram-02.png)
 
 ---
 
 ### ServiceLoader Selection Sequence
 
-![ServiceLoader Selection Sequence diagram](../docs/images/readme-diagrams/virtualthread-sequence-01.png)
+![ServiceLoader selection sequence for VirtualThreadRuntime discovery, support filtering, priority sorting, and executor delegation](../docs/images/readme-diagrams/virtualthread-sequence-01.png)
 
 ---
 
