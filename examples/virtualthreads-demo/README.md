@@ -4,6 +4,8 @@ English | [한국어](./README.ko.md)
 
 A collection of examples covering best practices and rules for using Java 21 Virtual Threads effectively.
 
+![Virtual threads demo decision map](../../docs/images/readme-diagrams/examples-virtualthreads-demo-diagram-01.png)
+
 ## Examples
 
 ### Virtual Thread Usage Rules

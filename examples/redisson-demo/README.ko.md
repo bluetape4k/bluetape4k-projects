@@ -4,6 +4,8 @@
 
 [Redisson](https://github.com/redisson/redisson)을 Kotlin Coroutines와 함께 사용하는 분산 Redis 패턴 예제 모음입니다.
 
+![Redisson demo pattern map](../../docs/images/readme-diagrams/examples-redisson-demo-diagram-01.png)
+
 ## 예제 목록
 
 ### 분산 락 (coroutines/locks/)

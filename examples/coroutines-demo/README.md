@@ -4,6 +4,8 @@ English | [한국어](./README.ko.md)
 
 A collection of examples for learning the features and usage patterns of Kotlin Coroutines.
 
+![Coroutines demo learning map](../../docs/images/readme-diagrams/examples-coroutines-demo-diagram-01.png)
+
 ## Examples
 
 ### Basics (guide/)

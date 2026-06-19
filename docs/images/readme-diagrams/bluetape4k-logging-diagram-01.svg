@@ -13,7 +13,7 @@
       <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#9333ea" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" />
     </marker>
     <marker id="hollowTriangle" markerWidth="15" markerHeight="13" refX="13" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6.5 L 1 12 Z" fill="#ffffff" stroke="#111827" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
+      <path d="M 1 1 L 13 6.5 L 1 12 Z" fill="#ffffff" stroke="#9333ea" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
     </marker>
     <style>
       svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
@@ -29,7 +29,7 @@
       .member { font-family: "Comic Mono"; font-size: 12.5px; fill: #334155; }
       .noteTitle { font-family: "Architects Daughter"; font-size: 20px; fill: #0f172a; }
       .note { font-family: "Comic Mono"; font-size: 12.5px; fill: #475569; }
-      .inherit { fill: none; stroke: #111827; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#hollowTriangle); }
+      .inherit { fill: none; stroke: #9333ea; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#hollowTriangle); }
       .useBlue { fill: none; stroke: #2563eb; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 8 6; marker-end: url(#openBlue); }
       .useGreen { fill: none; stroke: #16a34a; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 8 6; marker-end: url(#openGreen); }
       .usePurple { fill: none; stroke: #9333ea; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 8 6; marker-end: url(#openPurple); }

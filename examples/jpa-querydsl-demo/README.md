@@ -4,6 +4,8 @@ English | [한국어](./README.ko.md)
 
 A collection of examples for learning database query patterns using JPA and Querydsl.
 
+![JPA Querydsl demo structure](../../docs/images/readme-diagrams/examples-jpa-querydsl-demo-diagram-01.png)
+
 ## Examples
 
 ### Querydsl Basics (examples/)

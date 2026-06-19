@@ -4,6 +4,8 @@
 
 JPA와 Querydsl을 사용한 데이터베이스 쿼리 패턴을 학습하는 예제 모음입니다.
 
+![JPA Querydsl demo structure](../../docs/images/readme-diagrams/examples-jpa-querydsl-demo-diagram-01.png)
+
 ## 예제 목록
 
 ### Querydsl 기본 (examples/)

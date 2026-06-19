@@ -4,6 +4,8 @@
 
 Kotlin Coroutines의 다양한 기능과 사용 패턴을 학습하기 위한 예제 모음입니다.
 
+![Coroutines demo learning map](../../docs/images/readme-diagrams/examples-coroutines-demo-diagram-01.png)
+
 ## 예제 목록
 
 ### 기초 가이드 (guide/)

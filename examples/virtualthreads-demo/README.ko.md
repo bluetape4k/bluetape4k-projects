@@ -4,6 +4,8 @@
 
 Java 21의 Virtual Threads를 효과적으로 사용하기 위한 모범 사례와 규칙을 학습하는 예제 모음입니다.
 
+![Virtual threads demo decision map](../../docs/images/readme-diagrams/examples-virtualthreads-demo-diagram-01.png)
+
 ## 예제 목록
 
 ### Virtual Threads 사용 규칙

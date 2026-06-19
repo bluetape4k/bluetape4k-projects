@@ -4,6 +4,8 @@ English | [한국어](./README.ko.md)
 
 A collection of examples demonstrating distributed Redis patterns using [Redisson](https://github.com/redisson/redisson) with Kotlin Coroutines.
 
+![Redisson demo pattern map](../../docs/images/readme-diagrams/examples-redisson-demo-diagram-01.png)
+
 ## Examples
 
 ### Distributed Locks (coroutines/locks/)
