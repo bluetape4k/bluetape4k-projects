@@ -1,89 +1,180 @@
-<svg data-intent="Regenerate Supported Container Structure from the current README and source package surface for testing/testcontainers." data-evidence="testing/testcontainers/README.md; testing/testcontainers; testing/testcontainers/src/main/kotlin" data-source-read="testing/testcontainers/README.md; testing/testcontainers; testing/testcontainers/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Supported Container Structure">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">Supported Container Structure</text>
-<text class="subtitle" x="76" y="116">testing/testcontainers: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Architecture</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Container Lifecycle</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Supported Container Structure</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Key Features</text>
-</g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">testcontainers package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">testcontainers package (68)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">GenericServer type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">GenericServer type</text>
-</g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">MyServer type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">MyServer type</text>
-</g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">PropertyExportingServer type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">PropertyExportingServer type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Spring Boot</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Spring Boot</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Redis backend</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Redis backend</text>
-</g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Kafka messaging</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Kafka messaging</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
-<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1060" viewBox="0 0 1700 1060" role="img" aria-label="Testcontainers Supported Container Structure">
+  <defs>
+    <filter id="softShadow" x="-6%" y="-8%" width="112%" height="116%">
+      <feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#0F172A" flood-opacity="0.10"/>
+    </filter>
+    <marker id="blueHead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563EB" stroke="#2563EB" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="purpleHead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#7C3AED" stroke="#7C3AED" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="orangeHead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#EA580C" stroke="#EA580C" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <symbol id="dbIcon" viewBox="0 0 128 128">
+      <rect x="10" y="8" width="108" height="112" rx="18" fill="#fffaf2" stroke="#28485a" stroke-width="6"/>
+      <ellipse cx="64" cy="36" rx="34" ry="13" fill="#fff0d8" stroke="#8c6f33" stroke-width="6"/>
+      <path d="M30 36v44c0 8 15 14 34 14s34-6 34-14V36" fill="#fff0d8" stroke="#8c6f33" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M30 58c0 8 15 14 34 14s34-6 34-14" fill="none" stroke="#8c6f33" stroke-width="5" stroke-linecap="round"/>
+      <path d="M30 80c0 8 15 14 34 14s34-6 34-14" fill="none" stroke="#8c6f33" stroke-width="5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="queueIcon" viewBox="0 0 128 128">
+      <rect x="10" y="8" width="108" height="112" rx="18" fill="#fffaf2" stroke="#28485a" stroke-width="6"/>
+      <rect x="28" y="34" width="72" height="48" rx="10" fill="#e7f1f4" stroke="#327d91" stroke-width="6"/>
+      <path d="M30 42l34 25 34-25" fill="none" stroke="#327d91" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M26 94h76" fill="none" stroke="#7d6ab0" stroke-width="6" stroke-linecap="round"/>
+      <path d="M36 106h56" fill="none" stroke="#7d6ab0" stroke-width="6" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="redisIcon" viewBox="0 0 128 128">
+      <rect x="10" y="8" width="108" height="112" rx="18" fill="#fff5f2" stroke="#7f1d1d" stroke-width="6"/>
+      <path d="M26 78l38 18 38-18-38-18z" fill="#a41e11"/>
+      <path d="M26 58l38 18 38-18-38-18z" fill="#d82c20"/>
+      <path d="M26 38l38 18 38-18-38-18z" fill="#f43f2f"/>
+      <text x="64" y="67" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="24" fill="#fff">R</text>
+    </symbol>
+    <symbol id="cloudIcon" viewBox="0 0 128 128">
+      <rect x="10" y="8" width="108" height="112" rx="18" fill="#fff7ed" stroke="#9a3412" stroke-width="6"/>
+      <path d="M42 80h48c10 0 18-7 18-17s-8-17-18-17h-2c-5-13-17-22-32-22-18 0-33 14-34 32-9 2-16 9-16 19 0 11 9 20 20 20h16z" fill="#fed7aa" stroke="#ea580c" stroke-width="6" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="httpIcon" viewBox="0 0 128 128">
+      <rect x="10" y="8" width="108" height="112" rx="18" fill="#f0fdfa" stroke="#0f766e" stroke-width="6"/>
+      <rect x="28" y="34" width="72" height="60" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="6"/>
+      <path d="M28 50h72" stroke="#0d9488" stroke-width="6"/>
+      <circle cx="42" cy="42" r="4" fill="#0d9488"/>
+      <circle cx="56" cy="42" r="4" fill="#0d9488"/>
+    </symbol>
+    <style>
+      svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+      .bg{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6;filter:url(#softShadow)}
+      .title{font-family:"Architects Daughter";font-size:42px;fill:#0F172A}
+      .subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+      .lane{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4;stroke-dasharray:8 8}
+      .laneTitle{font-family:"Architects Daughter";font-size:22px;fill:#334155;paint-order:stroke;stroke:#FFFFFF;stroke-width:5px;stroke-linejoin:round}
+      .card{filter:url(#softShadow);stroke-width:2}
+      .entry{fill:#EFF6FF;stroke:#2563EB}.family{fill:#FAF5FF;stroke:#9333EA}.contract{fill:#ECFDF5;stroke:#16A34A}.consumer{fill:#FFF7ED;stroke:#EA580C}
+      .cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}
+      .detail{font-family:"Comic Mono";font-size:13px;fill:#334155}
+      .small{font-family:"Comic Mono";font-size:12px;fill:#475569}
+      .flow{fill:none;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+      .blue{marker-end:url(#blueHead)}.purple{marker-end:url(#purpleHead)}.orange{marker-end:url(#orangeHead)}
+      .bus{fill:none;stroke:#7C3AED;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+      .label{font-family:"Comic Mono";font-size:12px;fill:#475569;paint-order:stroke;stroke:#FFFFFF;stroke-width:5px;stroke-linejoin:round}
+    </style>
+  </defs>
+
+  <rect class="bg" width="1700" height="1060"/>
+  <rect class="frame" x="34" y="30" width="1632" height="998" rx="8"/>
+  <text class="title" x="76" y="86">Testcontainers Supported Container Structure</text>
+  <text class="subtitle" x="80" y="118">Launchers create server wrappers; wrappers expose connection properties for tests and Spring Boot profiles</text>
+
+  <rect class="lane" x="78" y="158" width="278" height="730" rx="8"/>
+  <text class="laneTitle" x="108" y="194">Test entrypoints</text>
+  <rect class="lane" x="408" y="158" width="712" height="730" rx="8"/>
+  <text class="laneTitle" x="438" y="194">Server families</text>
+  <rect class="lane" x="1172" y="158" width="430" height="730" rx="8"/>
+  <text class="laneTitle" x="1202" y="194">Export and consumption</text>
+
+  <g id="launcher">
+    <rect class="card entry" x="112" y="264" width="210" height="146" rx="8"/>
+    <text class="cardTitle" x="217" y="306" text-anchor="middle">Launcher</text>
+    <text class="detail" x="217" y="340" text-anchor="middle">shared singleton</text>
+    <text class="detail" x="217" y="366" text-anchor="middle">ShutdownQueue</text>
+    <text class="small" x="217" y="392" text-anchor="middle">starts once per JVM</text>
+  </g>
+
+  <g id="manual">
+    <rect class="card entry" x="112" y="548" width="210" height="146" rx="8"/>
+    <text class="cardTitle" x="217" y="590" text-anchor="middle">Manual instance</text>
+    <text class="detail" x="217" y="624" text-anchor="middle">useDefaultPort</text>
+    <text class="detail" x="217" y="650" text-anchor="middle">dynamic by default</text>
+    <text class="small" x="217" y="676" text-anchor="middle">start() writes props</text>
+  </g>
+
+  <g id="dbFamily">
+    <rect class="card family" x="458" y="226" width="300" height="142" rx="8"/>
+    <use href="#dbIcon" x="480" y="258" width="56" height="56"/>
+    <text class="cardTitle" x="566" y="274">DB + Graph DB</text>
+    <text class="detail" x="566" y="306">JDBC, R2DBC, Bolt</text>
+    <text class="small" x="566" y="332">PostgreSQL, AGE, Neo4j</text>
+  </g>
+
+  <g id="storageFamily">
+    <rect class="card family" x="780" y="226" width="306" height="142" rx="8"/>
+    <use href="#redisIcon" x="802" y="258" width="56" height="56"/>
+    <text class="cardTitle" x="888" y="274">Storage + Cache</text>
+    <text class="detail" x="888" y="306">host, port, url</text>
+    <text class="small" x="888" y="332">Redis, Mongo, Search, MinIO</text>
+  </g>
+
+  <g id="mqFamily">
+    <rect class="card family" x="458" y="444" width="300" height="142" rx="8"/>
+    <use href="#queueIcon" x="480" y="476" width="56" height="56"/>
+    <text class="cardTitle" x="566" y="492">Messaging</text>
+    <text class="detail" x="566" y="524">broker URLs + ports</text>
+    <text class="small" x="566" y="550">Kafka, Redpanda, Nats</text>
+  </g>
+
+  <g id="awsFamily">
+    <rect class="card family" x="780" y="444" width="306" height="142" rx="8"/>
+    <use href="#cloudIcon" x="802" y="476" width="56" height="56"/>
+    <text class="cardTitle" x="888" y="492">AWS + Infra</text>
+    <text class="detail" x="888" y="524">endpoint + credentials</text>
+    <text class="small" x="888" y="550">MiniStack, ElasticMQ, K3s</text>
+  </g>
+
+  <g id="httpFamily">
+    <rect class="card family" x="458" y="662" width="300" height="142" rx="8"/>
+    <use href="#httpIcon" x="480" y="694" width="56" height="56"/>
+    <text class="cardTitle" x="566" y="710">HTTP Mock</text>
+    <text class="detail" x="566" y="742">httpbin/jsonplaceholder</text>
+    <text class="small" x="566" y="768">WireMock, Nginx, WebFlux</text>
+  </g>
+
+  <g id="observabilityFamily">
+    <rect class="card family" x="780" y="662" width="306" height="142" rx="8"/>
+    <use href="#queueIcon" x="802" y="694" width="56" height="56"/>
+    <text class="cardTitle" x="888" y="710">Ops + LLM</text>
+    <text class="detail" x="888" y="742">tracing, dashboards</text>
+    <text class="small" x="888" y="768">Zipkin, Grafana, Ollama</text>
+  </g>
+
+  <g id="contract">
+    <rect class="card contract" x="1220" y="258" width="330" height="168" rx="8"/>
+    <text class="cardTitle" x="1385" y="302" text-anchor="middle">Common wrapper contract</text>
+    <text class="detail" x="1385" y="338" text-anchor="middle">GenericServer: host, port, url</text>
+    <text class="detail" x="1385" y="364" text-anchor="middle">PropertyExportingServer</text>
+    <text class="small" x="1385" y="392" text-anchor="middle">testcontainers.{namespace}.{key}</text>
+  </g>
+
+  <g id="consumer">
+    <rect class="card consumer" x="1220" y="590" width="330" height="168" rx="8"/>
+    <text class="cardTitle" x="1385" y="634" text-anchor="middle">Test consumers</text>
+    <text class="detail" x="1385" y="670" text-anchor="middle">Spring Boot placeholders</text>
+    <text class="detail" x="1385" y="696" text-anchor="middle">client factories and test code</text>
+    <text class="small" x="1385" y="724" text-anchor="middle">kebab-case keys; compat keys where needed</text>
+  </g>
+
+  <path class="flow blue" d="M 322 337 L 414 337" stroke="#2563EB"/>
+  <path class="flow blue" d="M 322 621 L 414 621" stroke="#2563EB"/>
+  <text class="label" x="338" y="322">create or reuse wrapper</text>
+  <text class="label" x="338" y="606">configure ports first</text>
+
+  <path class="bus" d="M 414 337 L 414 733"/>
+  <path class="bus" d="M 414 297 L 458 297"/>
+  <path class="bus" d="M 414 297 L 414 515 L 458 515"/>
+  <path class="bus" d="M 414 515 L 414 733 L 458 733"/>
+  <path class="bus" d="M 758 297 L 780 297"/>
+  <path class="bus" d="M 758 515 L 780 515"/>
+  <path class="bus" d="M 758 733 L 780 733"/>
+
+  <path class="flow purple" d="M 1086 297 L 1220 322" stroke="#7C3AED"/>
+  <path class="flow purple" d="M 1086 515 L 1220 346" stroke="#7C3AED"/>
+  <path class="flow purple" d="M 1086 733 L 1220 370" stroke="#7C3AED"/>
+  <text class="label" x="1094" y="282">start()</text>
+  <text class="label" x="1098" y="500">properties()</text>
+  <text class="label" x="1098" y="718">URL helpers</text>
+
+  <path class="flow orange" d="M 1385 426 L 1385 590" stroke="#EA580C"/>
+  <text class="label" x="1402" y="520">System properties</text>
 </svg>

@@ -12,11 +12,11 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 
 ### 지원 컨테이너 클래스 다이어그램
 
-![Testcontainers Class Structure diagram](../../docs/images/readme-diagrams/testing-testcontainers-diagram-01.png)
+![Testcontainers Core Contract Class Diagram](../../docs/images/readme-diagrams/testing-testcontainers-diagram-01.png)
 
 ### 지원 컨테이너 구조
 
-![Supported Container Structure diagram](../../docs/images/readme-diagrams/testing-testcontainers-diagram-02.png)
+![Testcontainers Supported Container Structure](../../docs/images/readme-diagrams/testing-testcontainers-diagram-02.png)
 
 ## 주요 기능
 
@@ -29,7 +29,7 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 - **분산 SQL 엔진**: Trino
 - **HTTP Mock 지원**: WireMock, NginxServer
 - **LLM 지원**: `ChromaDBServer` (벡터 DB, 포트 8000), `OllamaServer` (로컬 LLM 추론, 포트 11434)
-- **AWS 에뮬레이터**: `AwsEmulatorServer` 공통 인터페이스; `FlociServer`(GraalVM Native, 권장), `LocalStackServer`(@Deprecated)
+- **AWS 에뮬레이터**: `AwsEmulatorServer` 공통 인터페이스; `MiniStackServer`(31+ 서비스, MIT 라이선스, 권장), `FlociServer`(LocalStack 대체 OSS 경로), `LocalStackServer`(@Deprecated)
 - **임베디드 SQS**: `ElasticMqServer` — Docker 없이 JVM 내 SQS 서버 실행
 - **메일 테스트**: `MailpitServer` — SMTP + Web UI로 이메일 통합 테스트 지원
 - **관측성**: `ZipkinServer` — 분산 추적 (`openzipkin/zipkin-slim:2.23`), `GrafanaServer` — 대시보드 + 데이터소스 프로비저닝 (`grafana/grafana:11.6.1`), `K3sServer` — 경량 Kubernetes 클러스터 (`rancher/k3s`; `--privileged` Docker 모드 필요)
@@ -245,8 +245,8 @@ val webUrl              = server.webUrl             // http://host:<port>/web
 mock:
   webflux:
     url: ${testcontainers.bluetape-webflux.url}
-    httpbin-url: ${testcontainers.bluetape-webflux.httpbinUrl}
-    jsonplaceholder-url: ${testcontainers.bluetape-webflux.jsonplaceholderUrl}
+    httpbin-url: ${testcontainers.bluetape-webflux.httpbin-url}
+    jsonplaceholder-url: ${testcontainers.bluetape-webflux.jsonplaceholder-url}
 ```
 
 #### 수동 인스턴스 (싱글턴 미사용)
@@ -376,7 +376,7 @@ val kmsClient = KmsClient.builder()
     .region(Region.of(miniStack.regionName))
     .build()
 
-// FlociServer — GraalVM Native (@Deprecated)
+// FlociServer — GraalVM Native 기반 LocalStack 대체 OSS 경로
 val floci = FlociServer.Launcher.floci
 val sqsClient = SqsClient.builder()
     .endpointOverride(floci.awsEndpoint)
@@ -484,7 +484,7 @@ dependencies {
 ## 참고
 
 - [Testcontainers](https://www.testcontainers.org/)
-- [Floci](https://github.com/atlassian-labs/floci) — GraalVM Native AWS 에뮬레이터 (권장)
+- [Floci](https://github.com/floci-io/floci) — GraalVM Native AWS 에뮬레이터, LocalStack 대체 OSS 경로
 - [ElasticMQ](https://github.com/softwaremill/elasticmq) — 임베디드 SQS 서버
 - [Mailpit](https://github.com/axllent/mailpit) — SMTP 이메일 테스트 도구
 - [LocalStack](https://www.localstack.cloud/) — @Deprecated: Community edition 2026-03-23 archived

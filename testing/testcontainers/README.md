@@ -12,17 +12,17 @@ A server wrapper and utility library for building integration tests quickly on t
 
 ### Supported Container Class Diagram
 
-![Supported Container Class Diagram diagram](../../docs/images/readme-diagrams/testing-testcontainers-diagram-01.png)
+![Testcontainers Core Contract Class Diagram](../../docs/images/readme-diagrams/testing-testcontainers-diagram-01.png)
 
 ### Supported Container Structure
 
-![Supported Container Structure diagram](../../docs/images/readme-diagrams/testing-testcontainers-diagram-02.png)
+![Testcontainers Supported Container Structure](../../docs/images/readme-diagrams/testing-testcontainers-diagram-02.png)
 
 ## Key Features
 
 - Wrappers for database, graph DB, storage, messaging, infrastructure, distributed SQL, and LLM services
 - HTTP mocking through WireMock and NginxServer
-- **AWS Emulator support**: `AwsEmulatorServer` common interface; `MiniStackServer` (31+ services, MIT license, recommended), `FlociServer` (@Deprecated), `LocalStackServer` (@Deprecated)
+- **AWS Emulator support**: `AwsEmulatorServer` common interface; `MiniStackServer` (31+ services, MIT license, recommended), `FlociServer` (open-source LocalStack replacement), `LocalStackServer` (@Deprecated)
 - **Embedded SQS**: `ElasticMqServer` runs an in-process SQS server — no Docker needed
 - **Mail testing**: `MailpitServer` provides SMTP + Web UI for email integration tests
 - **LLM support**: `ChromaDBServer` (vector DB, port 8000), `OllamaServer` (local LLM inference, port 11434)
@@ -238,8 +238,8 @@ After `start()`, the following system properties are registered automatically:
 mock:
   webflux:
     url: ${testcontainers.bluetape-webflux.url}
-    httpbin-url: ${testcontainers.bluetape-webflux.httpbinUrl}
-    jsonplaceholder-url: ${testcontainers.bluetape-webflux.jsonplaceholderUrl}
+    httpbin-url: ${testcontainers.bluetape-webflux.httpbin-url}
+    jsonplaceholder-url: ${testcontainers.bluetape-webflux.jsonplaceholder-url}
 ```
 
 #### Manual instance (non-singleton)
@@ -329,7 +329,7 @@ val kmsClient = KmsClient.builder()
     .region(Region.of(miniStack.regionName))
     .build()
 
-// FlociServer — GraalVM Native image (@Deprecated)
+// FlociServer — GraalVM Native image and open-source LocalStack replacement
 val floci = FlociServer.Launcher.floci
 val sqsClient = SqsClient.builder()
     .endpointOverride(floci.awsEndpoint)
@@ -472,7 +472,7 @@ dependencies {
 ## References
 
 - [Testcontainers](https://www.testcontainers.org/)
-- [Floci](https://github.com/atlassian-labs/floci) — GraalVM Native AWS emulator (recommended)
+- [Floci](https://github.com/floci-io/floci) — GraalVM Native AWS emulator and open-source LocalStack replacement
 - [ElasticMQ](https://github.com/softwaremill/elasticmq) — In-memory SQS server
 - [Mailpit](https://github.com/axllent/mailpit) — SMTP email testing tool
 - [LocalStack](https://www.localstack.cloud/) — @Deprecated: Community edition archived 2026-03-23
