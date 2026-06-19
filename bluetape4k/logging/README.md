@@ -8,19 +8,19 @@ A library that makes SLF4J logging in Kotlin easier and more efficient.
 
 ### Class Hierarchy Diagram
 
-![Logging Class Structure diagram](../../docs/images/readme-diagrams/bluetape4k-logging-diagram-01.png)
+![Logging class structure for KLogging, KotlinLogging, MDC helpers, and async channel logging](../../docs/images/readme-diagrams/bluetape4k-logging-diagram-01.png)
 
 ---
 
 ### Logging Processing Flow
 
-![Logging Processing Flow diagram](../../docs/images/readme-diagrams/bluetape4k-logging-diagram-02.png)
+![Logging processing flow for level guards, lazy message suppliers, MDC context, and SLF4J emission](../../docs/images/readme-diagrams/bluetape4k-logging-diagram-02.png)
 
 ---
 
 ### KLoggingChannel Async Logging Sequence
 
-![KLoggingChannel Async Logging Sequence diagram](../../docs/images/readme-diagrams/bluetape4k-logging-sequence-01.png)
+![KLoggingChannel async logging sequence with SharedFlow buffering and background collector emission](../../docs/images/readme-diagrams/bluetape4k-logging-sequence-01.png)
 
 ## Features
 
