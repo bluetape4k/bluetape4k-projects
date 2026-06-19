@@ -46,11 +46,11 @@
 <rect class="pill" x="1082" y="390" width="88" height="30" rx="8"/><text class="label" x="1126" y="410" text-anchor="middle">to/from</text>
 <rect class="pill" x="1368" y="390" width="96" height="30" rx="8"/><text class="label" x="1416" y="410" text-anchor="middle">pack/unpack</text>
 
-<path class="route" d="M1416 616 V720 H800 V828" stroke="#755BC6"/><path d="M800 828 l-7 -12 h14 z" fill="#755BC6"/>
-<path class="route dash" d="M950 859 H1000 V946 H1510 V616 H1416" stroke="#C94D68"/><path d="M1416 616 l12 -7 v14 z" fill="#C94D68"/>
-<path class="route" d="M1416 616 V740 H1229 V814" stroke="#2E8F89"/><path d="M1229 814 l-7 -12 h14 z" fill="#2E8F89"/>
-<path class="route" d="M1229 904 V960 H800 V890" stroke="#2E8F89"/><path d="M800 890 l-7 12 h14 z" fill="#2E8F89"/>
+<path class="route" d="M1416 616 V704 Q1416 720 1400 720 H816 Q800 720 800 736 V828" stroke="#755BC6"/><path d="M800 828 l-7 -12 h14 z" fill="#755BC6"/>
+<path class="route dash" d="M950 859 H982 Q998 859 998 843 V708 Q998 692 1014 692 H1394 Q1410 692 1410 676 V616" stroke="#C94D68"/><path d="M1410 616 l-7 12 h14 z" fill="#C94D68"/>
+<path class="route" d="M1416 616 V724 Q1416 740 1400 740 H1245 Q1229 740 1229 756 V814" stroke="#2E8F89"/><path d="M1229 814 l-7 -12 h14 z" fill="#2E8F89"/>
+<path class="route" d="M1229 904 V944 Q1229 960 1213 960 H816 Q800 960 800 944 V890" stroke="#2E8F89"/><path d="M800 890 l-7 12 h14 z" fill="#2E8F89"/>
 <rect class="pill" x="942" y="690" width="110" height="30" rx="8"/><text class="label" x="997" y="710" text-anchor="middle">serialize</text>
-<rect class="pill" x="1370" y="908" width="112" height="30" rx="8"/><text class="label" x="1426" y="928" text-anchor="middle">parse + unpack</text>
+<rect class="pill" x="1128" y="654" width="112" height="30" rx="8"/><text class="label" x="1184" y="674" text-anchor="middle">parse + unpack</text>
 <rect class="pill" x="1264" y="690" width="148" height="30" rx="8"/><text class="label" x="1338" y="710" text-anchor="middle">allowlist check</text>
 </svg>

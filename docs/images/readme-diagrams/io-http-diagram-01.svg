@@ -134,11 +134,11 @@
       <text class="textSmall" x="1525" y="703" text-anchor="middle" dominant-baseline="middle">VT executor option</text>
     </g>
 
-    <path class="flow" d="M 771 326 L 771 368 Q 771 384 755 384 L 272 384 Q 272 384 272 406 L 272 506" stroke="#0D9488" marker-end="url(#arrow-teal)"/>
-    <path class="flow" d="M 771 326 L 771 368 Q 771 384 755 384 L 596 384 Q 596 384 596 406 L 596 506" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
-    <path class="flow" d="M 771 326 L 771 406 L 920 506" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
-    <path class="flow" d="M 1347 310 L 1347 382 Q 1347 406 1323 406 L 1244 406 L 1244 506" stroke="#65A30D" marker-end="url(#arrow-lime)"/>
-    <path class="flow" d="M 1347 310 L 1347 382 Q 1347 406 1371 406 L 1525 406 L 1525 506" stroke="#9333EA" marker-end="url(#arrow-purple)"/>
+    <path class="flow" d="M 771 326 V368 Q 771 384 755 384 H288 Q 272 384 272 400 V506" stroke="#0D9488" marker-end="url(#arrow-teal)"/>
+    <path class="flow" d="M 771 326 V368 Q 771 384 755 384 H612 Q 596 384 596 400 V506" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
+    <path class="flow" d="M 771 326 V374 Q 771 390 787 390 H904 Q 920 390 920 406 V506" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
+    <path class="flow" d="M 1347 310 V390 Q 1347 406 1331 406 H1260 Q 1244 406 1244 422 V506" stroke="#65A30D" marker-end="url(#arrow-lime)"/>
+    <path class="flow" d="M 1347 310 V390 Q 1347 406 1363 406 H1509 Q 1525 406 1525 422 V506" stroke="#9333EA" marker-end="url(#arrow-purple)"/>
   </g>
 
   <g id="wire-layer">
@@ -161,9 +161,9 @@
     <path class="flow" d="M 838 1018 L 974 1018" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
   </g>
 
-  <path class="flow" d="M 272 732 L 272 880 Q 272 918 310 918 L 310 982" stroke="#0D9488" marker-end="url(#arrow-teal)"/>
-  <path class="flow" d="M 596 732 L 596 800 Q 596 828 568 828 L 430 828 L 430 982" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
-  <path class="flow" d="M 920 732 L 920 830 Q 920 858 892 858 L 560 858 L 560 982" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
-  <path class="flow" d="M 1244 732 L 1244 862 Q 1244 890 1216 890 L 690 890 L 690 982" stroke="#65A30D" marker-end="url(#arrow-lime)"/>
-  <path class="flow" d="M 1525 732 L 1525 894 Q 1525 922 1497 922 L 790 922 L 790 982" stroke="#9333EA" marker-end="url(#arrow-purple)"/>
+  <path class="flow" d="M 272 732 V880 Q 272 896 288 896 H294 Q 310 896 310 912 V982" stroke="#0D9488" marker-end="url(#arrow-teal)"/>
+  <path class="flow" d="M 596 732 V812 Q 596 828 580 828 H446 Q 430 828 430 844 V982" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
+  <path class="flow" d="M 920 732 V842 Q 920 858 904 858 H576 Q 560 858 560 874 V982" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
+  <path class="flow" d="M 1244 732 V874 Q 1244 890 1228 890 H706 Q 690 890 690 906 V982" stroke="#65A30D" marker-end="url(#arrow-lime)"/>
+  <path class="flow" d="M 1525 732 V906 Q 1525 922 1509 922 H806 Q 790 922 790 938 V982" stroke="#9333EA" marker-end="url(#arrow-purple)"/>
 </svg>
