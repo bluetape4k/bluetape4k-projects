@@ -3,17 +3,17 @@
     <filter id="soft-shadow" x="-8%" y="-8%" width="116%" height="116%">
       <feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.10" />
     </filter>
-    <marker id="open-blue" viewBox="0 0 10 10" markerWidth="18" markerHeight="14" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse" overflow="visible">
-      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
+    <marker id="open-blue" viewBox="0 0 18 18" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible">
+      <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
     </marker>
-    <marker id="open-purple" viewBox="0 0 10 10" markerWidth="18" markerHeight="14" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse" overflow="visible">
-      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#7c3aed" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
+    <marker id="open-purple" viewBox="0 0 18 18" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible">
+      <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
     </marker>
     <marker id="hollow-green" viewBox="0 0 12 10" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 11 5 L 1 9 Z" fill="#ffffff" stroke="#16a34a" stroke-width="1.8" stroke-dasharray="none" />
+      <path d="M 1 1 L 11 5 L 1 9 Z" fill="#ffffff" stroke="#16a34a" stroke-width="1.8" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" />
     </marker>
     <marker id="hollow-orange" viewBox="0 0 12 10" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 11 5 L 1 9 Z" fill="#ffffff" stroke="#ea580c" stroke-width="1.8" stroke-dasharray="none" />
+      <path d="M 1 1 L 11 5 L 1 9 Z" fill="#ffffff" stroke="#ea580c" stroke-width="1.8" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" />
     </marker>
     <style>
       svg {
