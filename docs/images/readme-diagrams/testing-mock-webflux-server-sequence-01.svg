@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1700" height="820" viewBox="0 0 1700 820" role="img" aria-label="Mock WebFlux server httpbin GET sequence">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#2563EB" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
-  <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#16A34A" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
-  <marker id="arrowAmber" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#D97706" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
-  <marker id="arrowRose" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 7 L 2 12 Z" fill="#E11D48" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrowBlue" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563EB" stroke="#2563EB" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrowGreen" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#16A34A" stroke="#16A34A" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrowAmber" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#D97706" stroke="#D97706" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrowRose" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#E11D48" stroke="#E11D48" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6;filter:url(#shadow)}
@@ -15,7 +15,14 @@
     .call{fill:none;stroke-width:3.1;stroke-linecap:round;stroke-linejoin:round}.return{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 6}
     .label{font-family:"Comic Mono";font-size:13px;fill:#334155}.step{font-family:"Comic Mono";font-size:11px;fill:#FFFFFF}
     .pill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.2}.opt{fill:#F59E0B;fill-opacity:.12;stroke:#D97706;stroke-width:1.6;stroke-dasharray:7 7}.optText{font-family:"Comic Mono";font-size:13px;fill:#92400E}
+
+    /* sequence-style: spring-boot-cassandra-sequence-01 */
+    .title{font-family:"Architects Daughter";fill:#263238}.subtitle,.msg,.note,.footer,.detail,.role{font-family:"Comic Mono";fill:#36464f}.subtitle{font-size:16px}text.participant,.cardTitle{font-family:"Architects Daughter";fill:#1f3138}.role{fill:#546a73}.frame{fill:#fbfcf8;stroke:#41545d;stroke-width:3}.inner,.panel{fill:#ffffff;stroke:#d7e0e4;stroke-width:2}.header,.card{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}.actor{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}rect.participant{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}.lifeline{stroke:#9aaab1;stroke-width:2;stroke-dasharray:7 8}.activation{fill:#e6f2ec!important;stroke:#5b7e67!important;stroke-width:1.5}.seq,.call{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.work,.crypto{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.async{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.seqReturn,.return{fill:none;stroke-width:2.5;stroke-dasharray:8 6;stroke-linecap:round;stroke-linejoin:round}.fail,.skip{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.alt,.altBox{fill:#eef7f0;fill-opacity:.12;stroke:#78909c;stroke-width:2.4;stroke-dasharray:12 7}.divider,.branchDivider{stroke:#78909c;stroke-width:2.4;stroke-dasharray:12 8}rect.label,.labelPill,.pill{fill:#ffffff;stroke:#d7e0e4;stroke-width:1.3}.callLabel{stroke:#9cc2d1}.workLabel,.cryptoLabel{stroke:#b6c9a4}.returnLabel{stroke:#c8b38f}.asyncLabel{stroke:#b8a9d5}.failLabel{stroke:#d9abab}.callBadge{fill:#eaf4f8;stroke:#3f7d9c}.workBadge,.cryptoBadge{fill:#eef7f0;stroke:#6e8f4f}.returnBadge{fill:#fff7e8;stroke:#9b7d54}.asyncBadge{fill:#f3ecff;stroke:#7c5aa6}.failBadge{fill:#fff0f0;stroke:#b86868}text.label{font-family:"Comic Mono";font-size:14px;font-weight:700;stroke:none}.badgeText{font-family:"Comic Mono";font-size:12px;font-weight:700}.callText{fill:#2f6f8e}.workText,.cryptoText{fill:#55783f}.returnText{fill:#7f6038}.asyncText{fill:#674b91}.failText{fill:#9d4f4f}.footer{fill:#60727d}
   </style>
+  <marker id="arrowBlue-2563EB" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563EB" stroke="#2563EB" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrowGreen-16A34A" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#16A34A" stroke="#16A34A" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrowAmber-D97706" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#D97706" stroke="#D97706" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrowRose-E11D48" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#E11D48" stroke="#E11D48" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
 </defs>
 <rect class="canvas" width="1700" height="820"/>
 <rect class="frame" x="34" y="30" width="1632" height="746" rx="7"/>
@@ -53,45 +60,45 @@
 <rect class="activation helper" x="1332" y="444" width="16" height="112"/>
 
 <g id="m1">
-  <path class="call" d="M217 330 L577 330" stroke="#2563EB" marker-end="url(#arrowBlue)"/>
-  <rect class="pill" x="282" y="296" width="232" height="28" rx="7"/>
-  <circle cx="302" cy="310" r="11" fill="#2563EB"/><text class="step" x="302" y="314" text-anchor="middle">1</text>
-  <text class="label" x="410" y="315" text-anchor="middle">GET /httpbin/get?foo=bar</text>
+  <path class="call" d="M217 330 L577 330" stroke="#2563EB" marker-end="url(#arrowBlue-2563EB)"/>
+  <rect class="pill" x="282" y="296" width="232" height="28" rx="7" stroke="#2563EB"/>
+  <circle cx="302" cy="310" r="11" fill="#2563EB" stroke="#2563EB"/><text fill="#FFFFFF" class="step" x="302" y="314" text-anchor="middle">1</text>
+  <text fill="#2563EB" class="label" x="410" y="315" text-anchor="middle">GET /httpbin/get?foo=bar</text>
 </g>
 <g id="m2">
-  <path class="call" d="M593 382 L957 382" stroke="#16A34A" marker-end="url(#arrowGreen)"/>
-  <rect class="pill" x="640" y="348" width="278" height="28" rx="7"/>
-  <circle cx="660" cy="362" r="11" fill="#16A34A"/><text class="step" x="660" y="366" text-anchor="middle">2</text>
-  <text class="label" x="790" y="367" text-anchor="middle">resume suspend get(request)</text>
+  <path class="call" d="M593 382 L957 382" stroke="#16A34A" marker-end="url(#arrowGreen-16A34A)"/>
+  <rect class="pill" x="640" y="348" width="278" height="28" rx="7" stroke="#16A34A"/>
+  <circle cx="660" cy="362" r="11" fill="#16A34A" stroke="#16A34A"/><text fill="#FFFFFF" class="step" x="660" y="366" text-anchor="middle">2</text>
+  <text fill="#16A34A" class="label" x="790" y="367" text-anchor="middle">resume suspend get(request)</text>
 </g>
 <g id="m3">
-  <path class="call" d="M973 434 L1332 434" stroke="#D97706" marker-end="url(#arrowAmber)"/>
-  <rect class="pill" x="1000" y="400" width="276" height="28" rx="7"/>
-  <circle cx="1020" cy="414" r="11" fill="#D97706"/><text class="step" x="1020" y="418" text-anchor="middle">3</text>
-  <text class="label" x="1148" y="419" text-anchor="middle">toHttpbinResponse(GET)</text>
+  <path class="call" d="M973 434 L1332 434" stroke="#D97706" marker-end="url(#arrowAmber-D97706)"/>
+  <rect class="pill" x="1000" y="400" width="276" height="28" rx="7" stroke="#D97706"/>
+  <circle cx="1020" cy="414" r="11" fill="#D97706" stroke="#D97706"/><text fill="#FFFFFF" class="step" x="1020" y="418" text-anchor="middle">3</text>
+  <text fill="#D97706" class="label" x="1148" y="419" text-anchor="middle">toHttpbinResponse(GET)</text>
 </g>
 <g id="opt-no-body">
   <rect class="opt" x="1018" y="462" width="510" height="82" rx="8"/>
   <text class="optText" x="1038" y="486">GET path</text>
-  <text class="label" x="1040" y="517">read query params, headers, remote address, URI</text>
-  <text class="label" x="1040" y="537">JSON/form/body parsing is skipped without a request body</text>
+  <text fill="#D97706" class="label" x="1040" y="517">read query params, headers, remote address, URI</text>
+  <text fill="#D97706" class="label" x="1040" y="537">JSON/form/body parsing is skipped without a request body</text>
 </g>
 <g id="m4">
-  <path class="return" d="M1332 574 L973 574" stroke="#E11D48" marker-end="url(#arrowRose)"/>
-  <rect class="pill" x="1046" y="586" width="214" height="28" rx="7"/>
-  <circle cx="1066" cy="600" r="11" fill="#E11D48"/><text class="step" x="1066" y="604" text-anchor="middle">4</text>
-  <text class="label" x="1160" y="605" text-anchor="middle">HttpbinResponse</text>
+  <path class="return" d="M1332 574 L973 574" stroke="#E11D48" marker-end="url(#arrowRose-E11D48)"/>
+  <rect class="pill" x="1046" y="586" width="214" height="28" rx="7" stroke="#E11D48"/>
+  <circle cx="1066" cy="600" r="11" fill="#E11D48" stroke="#E11D48"/><text fill="#FFFFFF" class="step" x="1066" y="604" text-anchor="middle">4</text>
+  <text fill="#E11D48" class="label" x="1160" y="605" text-anchor="middle">HttpbinResponse</text>
 </g>
 <g id="m5">
-  <path class="return" d="M957 640 L593 640" stroke="#E11D48" marker-end="url(#arrowRose)"/>
-  <rect class="pill" x="640" y="652" width="260" height="28" rx="7"/>
-  <circle cx="660" cy="666" r="11" fill="#E11D48"/><text class="step" x="660" y="670" text-anchor="middle">5</text>
-  <text class="label" x="778" y="671" text-anchor="middle">encode coroutine result as JSON</text>
+  <path class="return" d="M957 640 L593 640" stroke="#E11D48" marker-end="url(#arrowRose-E11D48)"/>
+  <rect class="pill" x="640" y="652" width="260" height="28" rx="7" stroke="#E11D48"/>
+  <circle cx="660" cy="666" r="11" fill="#E11D48" stroke="#E11D48"/><text fill="#FFFFFF" class="step" x="660" y="670" text-anchor="middle">5</text>
+  <text fill="#E11D48" class="label" x="778" y="671" text-anchor="middle">encode coroutine result as JSON</text>
 </g>
 <g id="m6">
-  <path class="return" d="M577 706 L217 706" stroke="#E11D48" marker-end="url(#arrowRose)"/>
-  <rect class="pill" x="286" y="718" width="226" height="28" rx="7"/>
-  <circle cx="306" cy="732" r="11" fill="#E11D48"/><text class="step" x="306" y="736" text-anchor="middle">6</text>
-  <text class="label" x="404" y="737" text-anchor="middle">200 OK + echoed request</text>
+  <path class="return" d="M577 706 L217 706" stroke="#E11D48" marker-end="url(#arrowRose-E11D48)"/>
+  <rect class="pill" x="286" y="718" width="226" height="28" rx="7" stroke="#E11D48"/>
+  <circle cx="306" cy="732" r="11" fill="#E11D48" stroke="#E11D48"/><text fill="#FFFFFF" class="step" x="306" y="736" text-anchor="middle">6</text>
+  <text fill="#E11D48" class="label" x="404" y="737" text-anchor="middle">200 OK + echoed request</text>
 </g>
 </svg>

@@ -4,42 +4,18 @@
   <defs>
     <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#1f2937" flood-opacity="0.10"/></filter>
 
-    <marker id="arrowNeutral" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/>
-    </marker>
-    <marker id="arrowRequest" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#5B8DEF"/>
-    </marker>
-    <marker id="arrowService" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#45A7A1"/>
-    </marker>
-    <marker id="arrowEvent" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#58A978"/>
-    </marker>
-    <marker id="arrowMetrics" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#D6A441"/>
-    </marker>
-    <marker id="arrowTrace" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#8A72D6"/>
-    </marker>
-    <marker id="arrowResponse" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#DC6B82"/>
-    </marker>
-    <marker id="seqArrow-blue" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#5B8DEF"/>
-    </marker>
-    <marker id="seqArrow-green" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#58A978"/>
-    </marker>
-    <marker id="seqArrow-amber" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#D6A441"/>
-    </marker>
-    <marker id="seqArrow-purple" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#8A72D6"/>
-    </marker>
-    <marker id="seqArrow-pink" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path stroke-dasharray="none" d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#DC6B82" style="stroke-dasharray:none"/>
-    </marker>
+    <marker id="arrowNeutral" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#758297" stroke="#758297" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowRequest" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#5B8DEF" stroke="#5B8DEF" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowService" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#45A7A1" stroke="#45A7A1" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowEvent" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#58A978" stroke="#58A978" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowMetrics" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#D6A441" stroke="#D6A441" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowTrace" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#8A72D6" stroke="#8A72D6" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowResponse" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#DC6B82" stroke="#DC6B82" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="seqArrow-blue" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#5B8DEF" stroke="#5B8DEF" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="seqArrow-green" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#58A978" stroke="#58A978" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="seqArrow-amber" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#D6A441" stroke="#D6A441" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="seqArrow-purple" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#8A72D6" stroke="#8A72D6" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="seqArrow-pink" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#DC6B82" stroke="#DC6B82" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
     <style>
       .canvas{fill:#F6F9FC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
       .card,.participant{filter:url(#shadow);stroke-width:2}
@@ -54,8 +30,17 @@
       .body,.messageLabel,.edgeLabel,.note,.legend{font-family:"Comic Mono";fill:#34465B;font-weight:400}
       .body{font-size:14px}.messageLabel{font-size:13px}.edgeLabel{font-size:12px}.note{font-size:13px}.legend{font-size:12px}
 
-    </style>
-  </defs>
+
+    /* sequence-style: spring-boot-cassandra-sequence-01 */
+    .title{font-family:"Architects Daughter";fill:#263238}.subtitle,.msg,.note,.footer,.detail,.role{font-family:"Comic Mono";fill:#36464f}.subtitle{font-size:16px}text.participant,.cardTitle{font-family:"Architects Daughter";fill:#1f3138}.role{fill:#546a73}.frame{fill:#fbfcf8;stroke:#41545d;stroke-width:3}.inner,.panel{fill:#ffffff;stroke:#d7e0e4;stroke-width:2}.header,.card{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}.actor{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}rect.participant{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}.lifeline{stroke:#9aaab1;stroke-width:2;stroke-dasharray:7 8}.activation{fill:#e6f2ec!important;stroke:#5b7e67!important;stroke-width:1.5}.seq,.call{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.work,.crypto{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.async{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.seqReturn,.return{fill:none;stroke-width:2.5;stroke-dasharray:8 6;stroke-linecap:round;stroke-linejoin:round}.fail,.skip{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.alt,.altBox{fill:#eef7f0;fill-opacity:.12;stroke:#78909c;stroke-width:2.4;stroke-dasharray:12 7}.divider,.branchDivider{stroke:#78909c;stroke-width:2.4;stroke-dasharray:12 8}rect.label,.labelPill,.pill{fill:#ffffff;stroke:#d7e0e4;stroke-width:1.3}.callLabel{stroke:#9cc2d1}.workLabel,.cryptoLabel{stroke:#b6c9a4}.returnLabel{stroke:#c8b38f}.asyncLabel{stroke:#b8a9d5}.failLabel{stroke:#d9abab}.callBadge{fill:#eaf4f8;stroke:#3f7d9c}.workBadge,.cryptoBadge{fill:#eef7f0;stroke:#6e8f4f}.returnBadge{fill:#fff7e8;stroke:#9b7d54}.asyncBadge{fill:#f3ecff;stroke:#7c5aa6}.failBadge{fill:#fff0f0;stroke:#b86868}text.label{font-family:"Comic Mono";font-size:14px;font-weight:700;stroke:none}.badgeText{font-family:"Comic Mono";font-size:12px;font-weight:700}.callText{fill:#2f6f8e}.workText,.cryptoText{fill:#55783f}.returnText{fill:#7f6038}.asyncText{fill:#674b91}.failText{fill:#9d4f4f}.footer{fill:#60727d}
+  </style>
+    <marker id="seqArrow-blue-5B8DEF" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#5B8DEF" stroke="#5B8DEF" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-blue-45A7A1" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#45A7A1" stroke="#45A7A1" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-green-58A978" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#58A978" stroke="#58A978" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-pink-DC6B82" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#DC6B82" stroke="#DC6B82" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-amber-D6A441" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#D6A441" stroke="#D6A441" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-pink-8A72D6" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#8A72D6" stroke="#8A72D6" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+</defs>
   <rect class="canvas" width="1620" height="820"/>
   <rect class="frame" x="32" y="28" width="1556" height="744" rx="26"/>
   <text class="title" x="66" y="82">Spring Boot Observability Demo Sequence</text>
@@ -102,75 +87,75 @@
   </g>
 
   <g id="post-order">
-    <path class="seq" d="M172.5 295 L422.5 295" stroke="#5B8DEF" marker-end="url(#seqArrow-blue)"/>
+    <path class="seq" d="M172.5 295 L422.5 295" stroke="#5B8DEF" marker-end="url(#seqArrow-blue-5B8DEF)"/>
 
-    <rect class="labelPill" x="178.65" y="262" width="237.7" height="26" rx="7"/>
-    <circle cx="192.65" cy="275" r="10" fill="#5B8DEF" stroke="#FFFFFF" stroke-width="2"/>
+    <rect class="labelPill" x="178.65" y="262" width="237.7" height="26" rx="7" stroke="#5B8DEF"/>
+    <circle cx="192.65" cy="275" r="10" fill="#5B8DEF" stroke="#5B8DEF" stroke-width="2"/>
     <text class="edgeLabel" x="192.65" y="276" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">1</text>
-    <text class="edgeLabel" x="309.5" y="276" text-anchor="middle" dominant-baseline="middle">POST /orders/{orderId}/events</text>
+    <text class="edgeLabel" x="309.5" y="276" text-anchor="middle" dominant-baseline="middle" fill="#5B8DEF">POST /orders/{orderId}/events</text>
   </g>
 
   <g id="observe-work">
-    <path class="seq" d="M422.5 355 L692.5 355" stroke="#45A7A1" marker-end="url(#seqArrow-blue)"/>
+    <path class="seq" d="M422.5 355 L692.5 355" stroke="#45A7A1" marker-end="url(#seqArrow-blue-45A7A1)"/>
 
-    <rect class="labelPill" x="453.25" y="322" width="208.5" height="26" rx="7"/>
-    <circle cx="467.25" cy="335" r="10" fill="#45A7A1" stroke="#FFFFFF" stroke-width="2"/>
+    <rect class="labelPill" x="453.25" y="322" width="208.5" height="26" rx="7" stroke="#45A7A1"/>
+    <circle cx="467.25" cy="335" r="10" fill="#45A7A1" stroke="#45A7A1" stroke-width="2"/>
     <text class="edgeLabel" x="467.25" y="336" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">2</text>
-    <text class="edgeLabel" x="569.5" y="336" text-anchor="middle" dominant-baseline="middle">observe HTTP service work</text>
+    <text class="edgeLabel" x="569.5" y="336" text-anchor="middle" dominant-baseline="middle" fill="#45A7A1">observe HTTP service work</text>
   </g>
 
   <g id="publish">
-    <path class="seq" d="M692.5 415 L962.5 415" stroke="#58A978" marker-end="url(#seqArrow-green)"/>
+    <path class="seq" d="M692.5 415 L962.5 415" stroke="#58A978" marker-end="url(#seqArrow-green-58A978)"/>
 
-    <rect class="labelPill" x="752.5" y="382" width="150" height="26" rx="7"/>
-    <circle cx="766.5" cy="395" r="10" fill="#58A978" stroke="#FFFFFF" stroke-width="2"/>
+    <rect class="labelPill" x="752.5" y="382" width="150" height="26" rx="7" stroke="#58A978"/>
+    <circle cx="766.5" cy="395" r="10" fill="#58A978" stroke="#58A978" stroke-width="2"/>
     <text class="edgeLabel" x="766.5" y="396" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">3</text>
-    <text class="edgeLabel" x="839.5" y="396" text-anchor="middle" dominant-baseline="middle">event.publish</text>
+    <text class="edgeLabel" x="839.5" y="396" text-anchor="middle" dominant-baseline="middle" fill="#58A978">event.publish</text>
   </g>
 
   <g id="consume">
-    <path class="seq" d="M692.5 475 L962.5 475" stroke="#58A978" marker-end="url(#seqArrow-green)"/>
+    <path class="seq" d="M692.5 475 L962.5 475" stroke="#58A978" marker-end="url(#seqArrow-green-58A978)"/>
 
-    <rect class="labelPill" x="752.5" y="442" width="150" height="26" rx="7"/>
-    <circle cx="766.5" cy="455" r="10" fill="#58A978" stroke="#FFFFFF" stroke-width="2"/>
+    <rect class="labelPill" x="752.5" y="442" width="150" height="26" rx="7" stroke="#58A978"/>
+    <circle cx="766.5" cy="455" r="10" fill="#58A978" stroke="#58A978" stroke-width="2"/>
     <text class="edgeLabel" x="766.5" y="456" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">4</text>
-    <text class="edgeLabel" x="839.5" y="456" text-anchor="middle" dominant-baseline="middle">event.consume</text>
+    <text class="edgeLabel" x="839.5" y="456" text-anchor="middle" dominant-baseline="middle" fill="#58A978">event.consume</text>
   </g>
 
   <g id="service-response">
-    <path class="seqReturn" d="M692.5 535 L422.5 535" stroke="#DC6B82" marker-end="url(#seqArrow-pink)" stroke-dasharray="8 7"/>
+    <path class="seqReturn" d="M692.5 535 L422.5 535" stroke="#DC6B82" marker-end="url(#seqArrow-pink-DC6B82)" stroke-dasharray="8 7"/>
 
-    <rect class="labelPill" x="478.8" y="502" width="157.4" height="26" rx="7"/>
-    <circle cx="492.8" cy="515" r="10" fill="#DC6B82" stroke="#FFFFFF" stroke-width="2"/>
+    <rect class="labelPill" x="478.8" y="502" width="157.4" height="26" rx="7" stroke="#DC6B82"/>
+    <circle cx="492.8" cy="515" r="10" fill="#DC6B82" stroke="#DC6B82" stroke-width="2"/>
     <text class="edgeLabel" x="492.8" y="516" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">5</text>
-    <text class="edgeLabel" x="569.5" y="516" text-anchor="middle" dominant-baseline="middle">OrderEventResponse</text>
+    <text class="edgeLabel" x="569.5" y="516" text-anchor="middle" dominant-baseline="middle" fill="#DC6B82">OrderEventResponse</text>
   </g>
 
   <g id="json-response">
-    <path class="seqReturn" d="M422.5 595 L172.5 595" stroke="#DC6B82" marker-end="url(#seqArrow-pink)" stroke-dasharray="8 7"/>
+    <path class="seqReturn" d="M422.5 595 L172.5 595" stroke="#DC6B82" marker-end="url(#seqArrow-pink-DC6B82)" stroke-dasharray="8 7"/>
 
-    <rect class="labelPill" x="222.5" y="562" width="150" height="26" rx="7"/>
-    <circle cx="236.5" cy="575" r="10" fill="#DC6B82" stroke="#FFFFFF" stroke-width="2"/>
+    <rect class="labelPill" x="222.5" y="562" width="150" height="26" rx="7" stroke="#DC6B82"/>
+    <circle cx="236.5" cy="575" r="10" fill="#DC6B82" stroke="#DC6B82" stroke-width="2"/>
     <text class="edgeLabel" x="236.5" y="576" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">6</text>
-    <text class="edgeLabel" x="309.5" y="576" text-anchor="middle" dominant-baseline="middle">200 JSON</text>
+    <text class="edgeLabel" x="309.5" y="576" text-anchor="middle" dominant-baseline="middle" fill="#DC6B82">200 JSON</text>
   </g>
 
   <g id="scrape">
-    <path class="seq" d="M172.5 650 L1232.5 650" stroke="#D6A441" marker-end="url(#seqArrow-amber)"/>
+    <path class="seq" d="M172.5 650 L1232.5 650" stroke="#D6A441" marker-end="url(#seqArrow-amber-D6A441)"/>
 
-    <rect class="labelPill" x="601.9" y="617" width="201.2" height="26" rx="7"/>
-    <circle cx="615.9" cy="630" r="10" fill="#D6A441" stroke="#FFFFFF" stroke-width="2"/>
+    <rect class="labelPill" x="601.9" y="617" width="201.2" height="26" rx="7" stroke="#D6A441"/>
+    <circle cx="615.9" cy="630" r="10" fill="#D6A441" stroke="#D6A441" stroke-width="2"/>
     <text class="edgeLabel" x="615.9" y="631" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">7</text>
-    <text class="edgeLabel" x="714.5" y="631" text-anchor="middle" dominant-baseline="middle">GET /actuator/prometheus</text>
+    <text class="edgeLabel" x="714.5" y="631" text-anchor="middle" dominant-baseline="middle" fill="#D6A441">GET /actuator/prometheus</text>
   </g>
 
   <g id="traces">
-    <path class="seqReturn" d="M692.5 325 L1442.5 325" stroke="#8A72D6" marker-end="url(#seqArrow-pink)" stroke-dasharray="8 7"/>
+    <path class="seqReturn" d="M692.5 325 L1442.5 325" stroke="#8A72D6" marker-end="url(#seqArrow-pink-8A72D6)" stroke-dasharray="8 7"/>
 
-    <rect class="labelPill" x="974.2" y="292" width="186.6" height="26" rx="7"/>
-    <circle cx="988.2" cy="305" r="10" fill="#8A72D6" stroke="#FFFFFF" stroke-width="2"/>
+    <rect class="labelPill" x="974.2" y="292" width="186.6" height="26" rx="7" stroke="#8A72D6"/>
+    <circle cx="988.2" cy="305" r="10" fill="#8A72D6" stroke="#8A72D6" stroke-width="2"/>
     <text class="edgeLabel" x="988.2" y="306" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">8</text>
-    <text class="edgeLabel" x="1079.5" y="306" text-anchor="middle" dominant-baseline="middle">traces when configured</text>
+    <text class="edgeLabel" x="1079.5" y="306" text-anchor="middle" dominant-baseline="middle" fill="#8A72D6">traces when configured</text>
   </g>
   <text class="note" x="810" y="790" text-anchor="middle">bluetape4k-projects observability examples - github.com/bluetape4k/bluetape4k-projects</text>
 </svg>
