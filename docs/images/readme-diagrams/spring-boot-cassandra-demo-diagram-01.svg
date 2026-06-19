@@ -34,16 +34,16 @@
 <text class="laneTitle" x="1148" y="204">Cassandra runtime</text>
 <text class="laneSub" x="1148" y="231">CqlSession and driver config</text>
 <text class="laneSub" x="1148" y="251">Cassandra 4 Testcontainer</text>
-<path id="edge-1" class="edge" d="M398 342 L440 342" stroke="#2563EB" marker-end="url(#arrow-2563EB)"/>
-<path id="edge-2" class="edge" d="M398 562 L440 562" stroke="#7E22CE" marker-end="url(#arrow-7E22CE)"/>
-<path id="edge-3" class="edge" d="M570 312 L570 268 L1255 268 L1255 334" stroke="#15803D" marker-end="url(#arrow-15803D)"/>
-<path id="edge-4" class="edge" d="M738 590 L760 590 L760 336 L780 336" stroke="#0F766E" marker-end="url(#arrow-0F766E)"/>
-<path id="edge-5" class="edge" d="M738 640 L780 556" stroke="#BE185D" marker-end="url(#arrow-BE185D)"/>
-<path id="edge-6" class="edge" d="M1038 336 L1120 394" stroke="#C2410C" marker-end="url(#arrow-C2410C)"/>
-<path id="edge-7" class="edge" d="M1038 556 L1090 556 L1090 446 L1120 446" stroke="#BE185D" marker-end="url(#arrow-BE185D)"/>
-<path id="edge-8" class="edge dashed" d="M1038 780 L1088 780 L1088 470 L1120 470" stroke="#475569" marker-end="url(#arrow-475569)"/>
+<path id="edge-1" class="edge" d="M398 342 L478 342" stroke="#2563EB" marker-end="url(#arrow-2563EB)"/>
+<path id="edge-2" class="edge" d="M398 562 L478 562" stroke="#7E22CE" marker-end="url(#arrow-7E22CE)"/>
+<path id="edge-3" class="edge" d="M608 278 L608 266 L1255 266 L1255 334" stroke="#15803D" marker-end="url(#arrow-15803D)"/>
+<path id="edge-4" class="edge" d="M738 590 L760 590 L760 366 L818 366" stroke="#0F766E" marker-end="url(#arrow-0F766E)"/>
+<path id="edge-5" class="edge" d="M738 638 L768 638 L768 556 L818 556" stroke="#BE185D" marker-end="url(#arrow-BE185D)"/>
+<path id="edge-6" class="edge" d="M1038 336 L1098 336 L1098 394 L1160 394" stroke="#C2410C" marker-end="url(#arrow-C2410C)"/>
+<path id="edge-7" class="edge" d="M1038 556 L1080 556 L1080 442 L1160 442" stroke="#BE185D" marker-end="url(#arrow-BE185D)"/>
+<path id="edge-8" class="edge dashed" d="M1038 780 L1108 780 L1108 462 L1160 462" stroke="#475569" marker-end="url(#arrow-475569)"/>
 <path id="edge-9" class="edge" d="M1255 474 L1255 634" stroke="#C2410C" marker-end="url(#arrow-C2410C)"/>
-<path id="edge-10" class="edge dashed" d="M440 430 L410 430 L410 1010 L1255 1010 L1255 786" stroke="#15803D" marker-end="url(#arrow-15803D)"/>
+<path id="edge-10" class="edge dashed" d="M690 278 L690 154 L1510 154 L1510 710 L1420 710" stroke="#15803D" marker-end="url(#arrow-15803D)"/>
 <g id="examples" class="card">
   <rect x="138" y="286" width="260" height="126" rx="14" fill="#EAF3FF" stroke="#2563EB"/>
   <text class="cardTitle" x="268" y="320" text-anchor="middle">Example tests</text>
