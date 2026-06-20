@@ -8,12 +8,12 @@
   .cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#1F2937}
   .sub{font-size:14px}.legend{font-size:13px}
 </style>
-<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563EB" stroke="#2563EB" stroke-dasharray="none"/></marker>
-<marker id="arrow-violet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#8B5CF6" stroke="#8B5CF6" stroke-dasharray="none"/></marker>
-<marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#EA580C" stroke="#EA580C" stroke-dasharray="none"/></marker>
-<marker id="arrow-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#0D9488" stroke="#0D9488" stroke-dasharray="none"/></marker>
-<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#16A34A" stroke="#16A34A" stroke-dasharray="none"/></marker>
-<marker id="arrow-pink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#DB2777" stroke="#DB2777" stroke-dasharray="none"/></marker>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563EB" stroke="#2563EB" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-violet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#8B5CF6" stroke="#8B5CF6" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#EA580C" stroke="#EA580C" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#0D9488" stroke="#0D9488" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#16A34A" stroke="#16A34A" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-pink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#DB2777" stroke="#DB2777" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
 </defs>
 <rect x="34" y="30" width="1652" height="920" rx="22" fill="#FEFEFC" stroke="#CBD8E6" stroke-width="2.4"/>
 <text x="82" y="90" class="title">Micrometer Instrumentation Component Map</text>
@@ -77,13 +77,14 @@
 <path d="M 1236 293 H 1376" fill="none" stroke="#2563EB" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
 <path d="M 346 490 H 486" fill="none" stroke="#8B5CF6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-violet)"/>
 <path d="M 824 433 H 970" fill="none" stroke="#8B5CF6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-violet)"/>
-<path d="M 1236 433 H 1356 V 523 H 1376" fill="none" stroke="#8B5CF6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-violet)"/>
+<path d="M 1236 433 L 1342 433 Q 1356 433 1356 447 L 1356 513 Q 1356 523 1346 523 L 1376 523" fill="none" stroke="#8B5CF6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-violet)"/>
 <path d="M 346 644 H 486" fill="none" stroke="#EA580C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)"/>
 <path d="M 824 573 H 970" fill="none" stroke="#DB2777" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-pink)"/>
-<path d="M 1236 573 H 1356 V 523 H 1376" fill="none" stroke="#DB2777" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="11 9" marker-end="url(#arrow-pink)"/>
+<path d="M 1236 573 L 1342 573 Q 1356 573 1356 559 L 1356 533 Q 1356 523 1346 523 L 1376 523" fill="none" stroke="#DB2777" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="11 9"/>
+<polygon points="1364,529 1376,523 1364,517" fill="#DB2777" stroke="#DB2777" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 <path d="M 824 713 H 970" fill="none" stroke="#0D9488" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-teal)"/>
-<path d="M 1236 713 H 1328 V 338 H 1376" fill="none" stroke="#0D9488" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-teal)"/>
-<path d="M 1598 338 H 1630 V 708 H 1598" fill="none" stroke="#16A34A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+<path d="M 1236 713 L 1314 713 Q 1328 713 1328 699 L 1328 352 Q 1328 338 1342 338 L 1376 338" fill="none" stroke="#0D9488" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-teal)"/>
+<path d="M 1598 338 L 1616 338 Q 1630 338 1630 352 L 1630 694 Q 1630 708 1620 708 L 1598 708" fill="none" stroke="#16A34A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
 <path d="M 1487 576 V 655" fill="none" stroke="#16A34A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
 <rect x="120" y="865" width="750" height="50" rx="12" fill="#FFFFFF" stroke="#D6E2ED" stroke-width="1.6"/>
 <text x="146" y="896" class="legend">Solid paths carry metric timing/tag data; dashed paths carry observation/event context.</text>

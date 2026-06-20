@@ -4,19 +4,19 @@
       <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
     </filter>
     <marker id="openBlue" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="openGreen" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="openPurple" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#9333ea" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#9333ea" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="openOrange" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="openTeal" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#0d9488" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#0d9488" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <style>
       svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
@@ -122,10 +122,10 @@
   <path class="dep" d="M 214 400 V 366" stroke="#ea580c"/>
 
   <polyline points="222,384 214,366 206,384" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="dep" d="M 340 437 H 374 V 330 H 404" stroke="#ea580c"/>
+  <path class="dep" d="M 340 437 L 360.4 437 Q 374 437 374 423.4 L 374 342 Q 374 330 386 330 L 404 330" stroke="#ea580c"/>
 
   <polyline points="386,338 404,330 386,322" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="dep" d="M 696 447 H 748 V 348 H 772" stroke="#2563eb"/>
+  <path class="dep" d="M 696 447 L 734 447 Q 748 447 748 433 L 748 357.6 Q 748 348 757.6 348 L 772 348" stroke="#2563eb"/>
 
   <polyline points="754,356 772,348 754,340" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
   <path class="assoc" d="M 915 378 V 426" stroke="#65a30d"/>
@@ -184,20 +184,20 @@
     <text class="name" x="1215" y="945" text-anchor="middle">BulkProgressEvent: Before / After / Error</text>
   </g>
 
-  <path class="dep" d="M 1278 398 V 442 H 1040 V 603 H 952" stroke="#0d9488"/>
+  <path class="dep" d="M 1278 398 L 1278 428 Q 1278 442 1264 442 L 1054 442 Q 1040 442 1040 456 L 1040 589 Q 1040 603 1026 603 L 952 603" stroke="#0d9488"/>
 
 
   <polyline points="970,595 952,603 970,611" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="dep" d="M 750 636 V 670 H 213 V 706" stroke="#9333ea"/>
+  <path class="dep" d="M 750 636 L 750 656.4 Q 750 670 736.4 670 L 227 670 Q 213 670 213 684 L 213 706" stroke="#9333ea"/>
 
   <polyline points="205,688 213,706 221,688" fill="none" stroke="#9333ea" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="dep" d="M 750 636 V 704 H 535" stroke="#0d9488"/>
+  <path class="dep" d="M 750 636 L 750 656 Q 750 670 736 670 L 549 670 Q 535 670 535 684 L 535 704" stroke="#0d9488"/>
 
-  <polyline points="553,696 535,704 553,712" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="dep" d="M 750 636 V 670 H 857 V 706" stroke="#ea580c"/>
+  <polyline points="527,686 535,704 543,686" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 750 636 L 750 656.4 Q 750 670 763.6 670 L 843 670 Q 857 670 857 684 L 857 706" stroke="#ea580c"/>
 
   <polyline points="849,688 857,706 865,688" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="dep" d="M 952 603 H 1028 V 765 H 1080" stroke="#16a34a"/>
+  <path class="dep" d="M 952 603 L 1014 603 Q 1028 603 1028 617 L 1028 751 Q 1028 765 1042 765 L 1080 765" stroke="#16a34a"/>
 
   <polyline points="1062,773 1080,765 1062,757" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
   <path class="dep" d="M 1222 842 V 896" stroke="#16a34a"/>

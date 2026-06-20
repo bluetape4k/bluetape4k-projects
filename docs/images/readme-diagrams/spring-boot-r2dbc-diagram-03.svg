@@ -119,35 +119,39 @@
   <path class="divider" d="M2080 1194H2600" stroke="#6D28D9"/><text class="foot" x="2102" y="1223">returns Long deleted row count</text>
 </g>
 <g data-from="Root" data-to="ReadApi">
-  <path class="edge " d="M970 435 L970 505 L360 505 L360 585" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <path class="edge " d="M 970 435 L 970 491 Q 970 505 956 505 L 374 505 Q 360 505 360 519 L 360 585" stroke="#1D4ED8" marker-end="url(#arrow-blue)" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="edgeLabel" x="625" y="486">query side</text>
 </g>
 <g data-from="Root" data-to="UpdateApi">
-  <path class="edge " d="M1180 435 L1180 505 L1020 505 L1020 585" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <path class="edge " d="M 1180 435 L 1180 491 Q 1180 505 1166 505 L 1034 505 Q 1020 505 1020 519 L 1020 585" stroke="#BE185D" marker-end="url(#arrow-pink)" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="edgeLabel" x="1068" y="486">mutation side</text>
 </g>
 <g data-from="Root" data-to="CreateApi">
-  <path class="edge " d="M1520 435 L1520 505 L1680 505 L1680 585" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <path class="edge " d="M 1520 435 L 1520 491 Q 1520 505 1534 505 L 1666 505 Q 1680 505 1680 519 L 1680 585" stroke="#C2410C" marker-end="url(#arrow-amber)" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="edgeLabel" x="1558" y="486">insert side</text>
 </g>
 <g data-from="Root" data-to="DeleteApi">
-  <path class="edge " d="M1780 435 L1780 505 L2340 505 L2340 585" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <path class="edge " d="M 1780 435 L 1780 491 Q 1780 505 1794 505 L 2326 505 Q 2340 505 2340 519 L 2340 585" stroke="#6D28D9" marker-end="url(#arrow-violet)" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="edgeLabel" x="2025" y="486">delete side</text>
 </g>
 <g data-from="ReadApi" data-to="ReadDelegate">
-  <path class="edge dashed" d="M360 855 L360 1010" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <path class="edge dashed" d="M360 855 L360 1010" stroke="#1D4ED8"/>
+<polygon points="354,998 360,1010 366,998" fill="#1D4ED8" stroke="#1D4ED8" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="378" y="940">delegates to</text>
 </g>
 <g data-from="UpdateApi" data-to="UpdateDelegate">
-  <path class="edge dashed" d="M1020 855 L1020 1010" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <path class="edge dashed" d="M1020 855 L1020 1010" stroke="#BE185D"/>
+<polygon points="1014,998 1020,1010 1026,998" fill="#BE185D" stroke="#BE185D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="1038" y="940">delegates to</text>
 </g>
 <g data-from="CreateApi" data-to="CreateDelegate">
-  <path class="edge dashed" d="M1680 855 L1680 1010" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <path class="edge dashed" d="M1680 855 L1680 1010" stroke="#C2410C"/>
+<polygon points="1674,998 1680,1010 1686,998" fill="#C2410C" stroke="#C2410C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="1698" y="940">delegates to</text>
 </g>
 <g data-from="DeleteApi" data-to="DeleteDelegate">
-  <path class="edge dashed" d="M2340 855 L2340 1010" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <path class="edge dashed" d="M2340 855 L2340 1010" stroke="#6D28D9"/>
+<polygon points="2334,998 2340,1010 2346,998" fill="#6D28D9" stroke="#6D28D9" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="2358" y="940">delegates to</text>
 </g>
 </svg>

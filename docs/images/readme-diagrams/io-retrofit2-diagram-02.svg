@@ -35,13 +35,13 @@
 
 <path class="route" d="M432 309 H506" stroke="#4F83BF"/><path d="M506 309 l-12 -7 v14 z" fill="#4F83BF"/>
 <path class="route" d="M826 309 H900" stroke="#3E9868"/><path d="M900 309 l-12 -7 v14 z" fill="#3E9868"/>
-<path class="route dash" d="M826 254 V210 H1032" stroke="#B9851B"/><path d="M1032 210 l-12 -7 v14 z" fill="#B9851B"/>
-<path class="route" d="M1060 364 V424 H770 V504" stroke="#3E9868"/><path d="M770 504 l-7 -12 h14 z" fill="#3E9868"/>
+<path class="route dash" d="M 826 254 L 854 254 Q 868 254 868 240 L 868 224 Q 868 210 882 210 L 1032 210" stroke="#B9851B"/><path d="M1032 210 l-12 -7 v14 z" fill="#B9851B"/>
+<path class="route" d="M 1060 364 L 1060 410 Q 1060 424 1046 424 L 784 424 Q 770 424 770 438 L 770 504" stroke="#3E9868"/><path d="M770 504 l-7 -12 h14 z" fill="#3E9868"/>
 <path class="route" d="M516 555 H610" stroke="#755BC6"/><path d="M610 555 l-12 -7 v14 z" fill="#755BC6"/>
 <path class="route" d="M930 555 H1024" stroke="#4F83BF"/><path d="M1024 555 l-12 -7 v14 z" fill="#4F83BF"/>
-<path class="route" d="M770 606 V760 H321 V794" stroke="#3E9868"/><path d="M321 794 l-7 -12 h14 z" fill="#3E9868"/>
-<path class="route" d="M770 606 V760 H705 V794" stroke="#C94D68"/><path d="M705 794 l-7 -12 h14 z" fill="#C94D68"/>
-<path class="route" d="M770 606 V760 H1120 V794" stroke="#B9851B"/><path d="M1120 794 l-7 -12 h14 z" fill="#B9851B"/>
+<path class="route" d="M 770 606 L 770 746 Q 770 760 756 760 L 334.6 760 Q 321 760 321 773.6 L 321 794" stroke="#3E9868"/><path d="M321 794 l-7 -12 h14 z" fill="#3E9868"/>
+<path class="route" d="M 770 606 L 770 746 Q 770 760 756 760 L 718.6 760 Q 705 760 705 773.6 L 705 794" stroke="#C94D68"/><path d="M705 794 l-7 -12 h14 z" fill="#C94D68"/>
+<path class="route" d="M 770 606 L 770 746 Q 770 760 784 760 L 1106.4 760 Q 1120 760 1120 773.6 L 1120 794" stroke="#B9851B"/><path d="M1120 794 l-7 -12 h14 z" fill="#B9851B"/>
 
 <rect class="pill" x="560" y="392" width="196" height="30" rx="8"/><text class="label" x="658" y="412" text-anchor="middle">non-Result returns null</text>
 <rect class="pill" x="681" y="744" width="178" height="30" rx="8"/><text class="label" x="770" y="764" text-anchor="middle">map one delegate result</text>

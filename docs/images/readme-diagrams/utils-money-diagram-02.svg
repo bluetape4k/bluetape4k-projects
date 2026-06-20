@@ -14,17 +14,17 @@
 <rect class="canvas" width="2040" height="1100"/><rect class="frame" x="38" y="30" width="1964" height="1034" rx="8"/>
 <text class="title" x="78" y="88">Currency Operation Flow</text>
 <text class="subtitle" x="82" y="120">From currency lookup to amount creation, local arithmetic, rounding, aggregation, and provider-backed exchange conversion.</text>
-<rect class="lane" x="80" y="205" width="1880" height="555" rx="8"/><text class="laneTitle" x="108" y="232">operations provided by bluetape4k-money</text>
+<rect class="lane" x="30" y="205" width="1930" height="555" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/><text class="laneTitle" x="108" y="232">operations provided by bluetape4k-money</text>
 <g id="edges"><path class="edge" d="M450 342 L560 342" stroke="#2563EB" marker-end="url(#arrow-inputCurrency)"/>
 <path class="edge" d="M900 342 L1010 342" stroke="#64748B" marker-end="url(#arrow-currencyCreate)"/>
 <path class="edge" d="M1390 342 L1520 342" stroke="#16A34A" marker-end="url(#arrow-createOps)"/>
-<path class="edge" d="M1700 435 L1700 495 L1200 495 L1200 555" stroke="#0D9488" marker-end="url(#arrow-opsRound)"/>
+<path class="edge" d="M 1700 435 L 1700 481 Q 1700 495 1686 495 L 1214 495 Q 1200 495 1200 509 L 1200 555" stroke="#0D9488" marker-end="url(#arrow-opsRound)" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="edge" d="M1700 435 L1700 555" stroke="#DB2777" marker-end="url(#arrow-opsAgg)"/>
 <path class="edge" d="M450 640 L560 640" stroke="#9333EA" marker-end="url(#arrow-providersConversion)"/>
-<path class="edge" d="M1200 435 L1200 485 L730 485 L730 555" stroke="#EA580C" marker-end="url(#arrow-createConversion)"/>
+<path class="edge" d="M 1200 435 L 1200 471 Q 1200 485 1186 485 L 744 485 Q 730 485 730 499 L 730 555" stroke="#EA580C" marker-end="url(#arrow-createConversion)" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="edge" d="M730 725 L730 875" stroke="#EA580C" marker-end="url(#arrow-conversionResult)"/>
 <path class="edge" d="M1200 725 L1200 875" stroke="#D97706" marker-end="url(#arrow-roundResult)"/>
-<path class="edge" d="M1700 725 L1700 805 L1460 805 L1460 875" stroke="#DB2777" marker-end="url(#arrow-aggResult)"/></g>
+<path class="edge" d="M 1700 725 L 1700 791 Q 1700 805 1686 805 L 1474 805 Q 1460 805 1460 819 L 1460 875" stroke="#DB2777" marker-end="url(#arrow-aggResult)" stroke-linecap="round" stroke-linejoin="round"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(453 300)"><rect width="104" height="30" rx="8"/><text x="52" y="20" text-anchor="middle">code/Locale</text></g>
 <g class="edgeLabel" transform="translate(901 300)"><rect width="108" height="30" rx="8"/><text x="54" y="20" text-anchor="middle">CurrencyUnit</text></g>
 <g class="edgeLabel" transform="translate(1387 300)"><rect width="136" height="30" rx="8"/><text x="68" y="20" text-anchor="middle">Money/FastMoney</text></g>
@@ -53,7 +53,7 @@
 </g>
 <g id="create">
   <rect class="card" x="1010" y="250" width="380" height="185" rx="8" fill="#ECFDF5" stroke="#16A34A"/>
-  <rect x="1028" y="276" width="48" height="48" rx="12" fill="#16A34A"/><path d="M1033 286 H1063 V308 H1033 Z M1040 278 H1056" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="1028" y="276" width="48" height="48" rx="12" fill="#16A34A"/><path d="M 1033 286 L 1053 286 Q 1063 286 1063 296 L 1063 308 L 1033 308 Z M 1040 278 L 1056 278" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="cardTitle" x="1102" y="306">Amount factories</text>
   <text class="detail" x="1102" y="342">moneyOf -&gt; Money</text>
   <text class="detail" x="1102" y="366">fastMoneyOf -&gt; FastMoney</text>
@@ -77,7 +77,7 @@
 </g>
 <g id="conversion">
   <rect class="card" x="560" y="555" width="340" height="170" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <rect x="578" y="581" width="48" height="48" rx="12" fill="#EA580C"/><path d="M582 593 H614 M606 585 L614 593 L606 601 M614 610 H582 M590 602 L582 610 L590 618" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="578" y="581" width="48" height="48" rx="12" fill="#EA580C"/><path d="M 582 593 L 614 593 L 606 585 L 614 593 L 609.2 597.8 Q 606 601 609.01 604.38 L 610.8 606.4 Q 614 610 609.18 610 L 582 610 L 590 602 L 582 610 L 590 618" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="cardTitle" x="652" y="611">Exchange conversion</text>
   <text class="detail" x="652" y="647">convertTo(code/unit)</text>
   <text class="detail" x="652" y="671">CurrencyConvertor cache</text>

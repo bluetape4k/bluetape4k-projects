@@ -5,7 +5,7 @@
   <marker id="openOrange" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#EA580C" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
   <marker id="openTeal" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#0D9488" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
   <marker id="openPurple" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#9333EA" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
-  <marker id="openGreen" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 10 6 L 2 10" fill="none" stroke="#16A34A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" /></marker>
+  <marker id="openGreen" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 10 6 L 2 10" fill="none" stroke="#16A34A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
   <marker id="hollowBlue" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 16 8 L 1 15 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
   <marker id="hollowTeal" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 16 8 L 1 15 Z" fill="#FFFFFF" stroke="#0D9488" stroke-width="2" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
   <style>
@@ -26,11 +26,11 @@
 <text class="title" x="72" y="84">Bucket4j Integration Class Diagram</text>
 <text class="subtitle" x="76" y="116">Facade APIs validate requests, resolve key-based buckets, and return a stable bluetape4k result contract.</text>
 <g>
-  <path class="realize" d="M 250 370 V 328 H 410 V 300" stroke="#2563EB" />
+  <path class="realize" d="M 250 370 L 250 342 Q 250 328 264 328 L 398.8 328 Q 410 328 410 316.8 L 410 300" stroke="#2563EB" />
 <polygon points="419,321 410,300 401,321" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="realize" d="M 660 370 V 328 H 510 V 300" stroke="#2563EB" />
+  <path class="realize" d="M 660 370 L 660 342 Q 660 328 646 328 L 521.2 328 Q 510 328 510 316.8 L 510 300" stroke="#2563EB" />
 <polygon points="519,321 510,300 501,321" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="realize" d="M 1085 370 V 328 H 1378 V 300" stroke="#0D9488" />
+  <path class="realize" d="M 1085 370 L 1085 342 Q 1085 328 1099 328 L 1366.8 328 Q 1378 328 1378 316.8 L 1378 300" stroke="#0D9488" />
 <polygon points="1387,321 1378,300 1369,321" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
   <path class="realize" d="M 1540 370 V 300" stroke="#0D9488" />
 <polygon points="1549,321 1540,300 1531,321" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>

@@ -100,7 +100,7 @@
     <text class="code" x="880" y="1012" text-anchor="middle">io/http/build/benchmark-profiling/</text>
   </g>
 
-  <path class="flow" d="M 370 828 V914 Q 370 930 386 930 H864 Q 880 930 880 946 V948" stroke="#16A34A" marker-end="url(#arrow-green)"/>
+  <path class="flow" d="M 370 828 L 370 914 Q 370 930 386 930 L 870 930 Q 880 930 880 920 L 880 948" stroke="#16A34A" marker-end="url(#arrow-green)"/>
   <path class="flow" d="M 880 828 L 880 948" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
-  <path class="flow" d="M 1390 828 V914 Q 1390 930 1374 930 H896 Q 880 930 880 946 V948" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
+  <path class="flow" d="M 1390 828 L 1390 914 Q 1390 930 1374 930 L 890 930 Q 880 930 880 920 L 880 948" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
 </svg>

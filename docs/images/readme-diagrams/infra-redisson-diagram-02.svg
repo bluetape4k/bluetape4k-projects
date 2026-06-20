@@ -4,10 +4,10 @@
     <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#203040" flood-opacity="0.10"/>
   </filter>
   <marker id="arrow" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-    <path d="M 1.5 1.5 L 11 6.5 L 1.5 11.5 Z" fill="context-stroke" stroke="context-stroke" stroke-width="1" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    <path d="M 1.5 1.5 L 11 6.5 L 1.5 11.5 Z" fill="#64748B" stroke="#64748B" stroke-width="1" stroke-dasharray="none" style="stroke-dasharray:none"/>
   </marker>
   <marker id="openArrow" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-    <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="context-stroke" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
   </marker>
 </defs>
 <style>
@@ -78,7 +78,7 @@
 <path class="edgeBlue" d="M 438 414 L 438 486" marker-end="url(#arrow)"/>
 <path class="edgeGreen" d="M 438 590 L 438 666" marker-end="url(#arrow)"/>
 <path class="edgeTeal" d="M 438 770 L 438 842" marker-end="url(#arrow)"/>
-<path class="edgeAmber" d="M 658 894 L 714 894 L 714 962" marker-end="url(#arrow)"/>
+<path class="edgeAmber" d="M 658 894 L 700 894 Q 714 894 714 908 L 714 962" marker-end="url(#arrow)"/>
 <g id="tx-entry" class="card purple">
 <rect x="972" y="302" width="552" height="112" rx="18"/>
 <text class="cardTitle" x="1248" y="341" text-anchor="middle">Transaction entrypoints</text>
@@ -115,10 +115,11 @@
 <path class="edgeBlue" d="M 1248 414 L 1248 486" marker-end="url(#arrow)"/>
 <path class="edgeGreen" d="M 1248 590 L 1248 666" marker-end="url(#arrow)"/>
 <path class="edgeTeal" d="M 1248 770 L 1248 803" marker-end="url(#arrow)"/>
-<path class="edgeGreen" d="M 1123 864 L 1123 922 L 1137 922 L 1137 960" marker-end="url(#arrow)"/>
+<path class="edgeGreen" d="M 1123 864 L 1123 912 Q 1123 922 1133 922 L 1127 922 Q 1137 922 1137 932 L 1137 960" marker-end="url(#arrow)"/>
 <rect class="labelBg" x="1020" y="896" width="76" height="27" rx="8"/>
 <text class="edgeLabel" x="1058" y="914" text-anchor="middle">no</text>
-<path class="edgeDashed" d="M 1373 864 L 1499 864 L 1499 960" marker-end="url(#arrow)"/>
+<path class="edgeDashed" d="M 1373 864 L 1485 864 Q 1499 864 1499 878 L 1499 960"/>
+<polygon points="1493,948 1499,960 1505,948" fill="#BE185D" stroke="#BE185D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 <rect class="labelBg" x="1508" y="824" width="76" height="27" rx="8"/>
 <text class="edgeLabel" x="1546" y="842" text-anchor="middle">yes</text>
 <rect class="labelBg" x="210" y="1170" width="1280" height="40" rx="12"/>

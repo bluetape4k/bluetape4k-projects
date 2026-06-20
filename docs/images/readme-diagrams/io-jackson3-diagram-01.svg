@@ -1,16 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1640" height="1040" viewBox="0 0 1640 1040" role="img" aria-label="Jackson 2.x vs 3.x Module Comparison">
   <defs>
     <marker id="arrow-blue" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563EB" stroke-dasharray="none"/>
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563EB" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-green" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#16A34A" stroke-dasharray="none"/>
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#16A34A" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-orange" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#EA580C" stroke-dasharray="none"/>
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#EA580C" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="open-slate" markerWidth="12" markerHeight="12" viewBox="0 0 10 10" refX="8.5" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 8.5 5 L 1 9" fill="none" stroke="#475569" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 8.5 5 L 1 9" fill="none" stroke="#475569" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <style>
       svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
@@ -122,9 +122,12 @@
     <text class="cardText" x="1192" y="692">JacksonSerializer throws wrapped errors</text>
   </g>
 
-  <path class="dependency" d="M 1006 328 H 1164"/>
-  <path class="dependency" d="M 1006 488 H 1164"/>
-  <path class="dependency" d="M 1006 658 H 1164"/>
+  <path class="dependency" d="M 1006 328 H 1164" style="marker-end:none"/>
+<polyline points="1152,334 1164,328 1152,322" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="dependency" d="M 1006 488 H 1164" style="marker-end:none"/>
+<polyline points="1152,494 1164,488 1152,482" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="dependency" d="M 1006 658 H 1164" style="marker-end:none"/>
+<polyline points="1152,664 1164,658 1152,652" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <g>
     <rect class="card orange" x="104" y="764" width="372" height="70" rx="8"/>

@@ -37,14 +37,14 @@
 <path class="route" d="M392 295 H458" stroke="#4F83BF"/><path d="M458 295 l-12 -7 v14 z" fill="#4F83BF"/>
 <path class="route" d="M770 295 H838" stroke="#3E9868"/><path d="M838 295 l-12 -7 v14 z" fill="#3E9868"/>
 <path class="route" d="M1098 295 H1166" stroke="#2E8F89"/><path d="M1166 295 l-12 -7 v14 z" fill="#2E8F89"/>
-<path class="route" d="M968 328 V498 H282 V522" stroke="#4F83BF"/><path d="M282 522 l-7 -12 h14 z" fill="#4F83BF"/>
-<path class="route" d="M968 328 V498 H642 V522" stroke="#3E9868"/><path d="M642 522 l-7 -12 h14 z" fill="#3E9868"/>
-<path class="route dash" d="M968 328 V498 H1002 V522" stroke="#B9851B"/><path d="M1002 522 l-7 -12 h14 z" fill="#B9851B"/>
-<path class="route" d="M968 328 V498 H1392 V506" stroke="#C94D68"/><path d="M1392 506 l-7 -12 h14 z" fill="#C94D68"/>
-<path class="route" d="M642 614 V690 H1151 V832" stroke="#3E9868"/><path d="M1151 832 l-7 -12 h14 z" fill="#3E9868"/>
-<path class="route" d="M1392 630 V812 H1495 V832" stroke="#C94D68"/><path d="M1495 832 l-7 -12 h14 z" fill="#C94D68"/>
-<path class="route" d="M1392 630 V812 H765 V832" stroke="#4F83BF"/><path d="M765 832 l-7 -12 h14 z" fill="#4F83BF"/>
-<path class="route" d="M1392 630 V812 H379 V832" stroke="#2E8F89"/><path d="M379 832 l-7 -12 h14 z" fill="#2E8F89"/>
+<path class="route" d="M 968 328 L 968 484 Q 968 498 954 498 L 291.6 498 Q 282 498 282 507.6 L 282 522" stroke="#4F83BF"/><path d="M282 522 l-7 -12 h14 z" fill="#4F83BF"/>
+<path class="route" d="M 968 328 L 968 484 Q 968 498 954 498 L 651.6 498 Q 642 498 642 507.6 L 642 522" stroke="#3E9868"/><path d="M642 522 l-7 -12 h14 z" fill="#3E9868"/>
+<path class="route dash" d="M 968 328 L 968 484.4 Q 968 498 981.6 498 L 992.4 498 Q 1002 498 1002 507.6 L 1002 522" stroke="#B9851B"/><path d="M1002 522 l-7 -12 h14 z" fill="#B9851B"/>
+<path class="route" d="M 968 328 L 968 484 Q 968 498 982 498 L 1382 498 Q 1392 498 1392 508 L 1392 506" stroke="#C94D68"/><path d="M1392 506 l-7 -12 h14 z" fill="#C94D68"/>
+<path class="route" d="M 642 614 L 642 676 Q 642 690 656 690 L 1137 690 Q 1151 690 1151 704 L 1151 832" stroke="#3E9868"/><path d="M1151 832 l-7 -12 h14 z" fill="#3E9868"/>
+<path class="route" d="M 1392 630 L 1392 798 Q 1392 812 1406 812 L 1487 812 Q 1495 812 1495 820 L 1495 832" stroke="#C94D68"/><path d="M1495 832 l-7 -12 h14 z" fill="#C94D68"/>
+<path class="route" d="M 1392 630 L 1392 798 Q 1392 812 1378 812 L 773 812 Q 765 812 765 820 L 765 832" stroke="#4F83BF"/><path d="M765 832 l-7 -12 h14 z" fill="#4F83BF"/>
+<path class="route" d="M 1392 630 L 1392 798 Q 1392 812 1378 812 L 387 812 Q 379 812 379 820 L 379 832" stroke="#2E8F89"/><path d="M379 832 l-7 -12 h14 z" fill="#2E8F89"/>
 
 <rect class="pill" x="868" y="456" width="198" height="30" rx="8"/><text class="label" x="967" y="476" text-anchor="middle">installs default factories</text>
 <rect class="pill" x="1082" y="678" width="138" height="30" rx="8"/><text class="label" x="1151" y="698" text-anchor="middle">execution shape</text>

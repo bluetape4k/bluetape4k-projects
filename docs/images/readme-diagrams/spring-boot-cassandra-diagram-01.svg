@@ -21,13 +21,13 @@
   <path class="edge" d="M1218 406 L1218 308" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" />
 
   <polyline points="1226,326 1218,308 1210,326" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="edge" d="M442 755 L498 755 L498 626 L650 626 L650 598" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" />
+  <path class="edge" d="M 442 755 L 484 755 Q 498 755 498 741 L 498 640 Q 498 626 512 626 L 640 626 Q 650 626 650 616 L 650 598" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" />
 
   <polyline points="658,616 650,598 642,616" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
   <path class="edge" d="M740 672 L740 598" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" />
 
   <polyline points="748,616 740,598 732,616" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="edge" d="M740 942 L740 910 L956 910 L956 504 L920 504" fill="none" stroke="#db2777" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" />
+  <path class="edge" d="M 740 942 L 740 922.8 Q 740 910 752.8 910 L 942 910 Q 956 910 956 896 L 956 518 Q 956 504 942 504 L 920 504" fill="none" stroke="#db2777" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" />
 
   <polyline points="938,496 920,504 938,512" fill="none" stroke="#db2777" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
   <path class="edge" d="M1218 890 L1218 830" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />

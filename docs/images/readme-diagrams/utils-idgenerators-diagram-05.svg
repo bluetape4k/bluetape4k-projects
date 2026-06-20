@@ -44,19 +44,19 @@
 <text class="title" x="76" y="100">ULID Generator Selection</text>
 <text class="subtitle" x="80" y="134">Class diagram: direct factory, monotonic factory, stateful monotonic, and IdGenerator adapter paths.</text>
 <g>
-  <rect class="lane" x="70" y="250" width="760" height="1310" rx="8" />
+  <rect class="lane" x="70" y="250" width="760" height="1310" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72" />
   <text class="laneTitle" x="96" y="292">Factory path</text>
 </g>
 <g>
-  <rect class="lane" x="890" y="250" width="760" height="1310" rx="8" />
+  <rect class="lane" x="890" y="250" width="760" height="1310" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72" />
   <text class="laneTitle" x="916" y="292">Monotonic path</text>
 </g>
 <g>
-  <rect class="lane" x="1710" y="250" width="760" height="1310" rx="8" />
+  <rect class="lane" x="1710" y="250" width="760" height="1310" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72" />
   <text class="laneTitle" x="1736" y="292">Stateful path</text>
 </g>
 <g>
-  <rect class="lane" x="2530" y="250" width="800" height="1310" rx="8" />
+  <rect class="lane" x="2530" y="250" width="800" height="1310" rx="8" fill="#FFF7ED" stroke="#FDBA74" fill-opacity="0.72" />
   <text class="laneTitle" x="2556" y="292">Adapter and selection</text>
 </g>
 <path class="edge dashed" data-from="ULIDFactory" data-to="ULID.Factory" d="M450 1280 L450 1105" stroke="#15803D" />
@@ -65,10 +65,10 @@
 <polygon points="1279,1101 1270,1080 1261,1101" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="edge dashed" data-from="ULIDStatefulMonotonic" data-to="ULID.StatefulMonotonic" d="M2090 1280 L2090 1105" stroke="#6D28D9" />
 <polygon points="2099,1126 2090,1105 2081,1126" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="ULID companion" data-to="ULID.Factory" d="M1460 740 L1460 805 L450 805 L450 860" stroke="#15803D" marker-end="url(#arrow-green)" />
-<path class="edge" data-from="ULID companion" data-to="ULID.Monotonic" d="M1700 740 L1700 805 L1270 805 L1270 860" stroke="#0F766E" marker-end="url(#arrow-teal)" />
-<path class="edge" data-from="ULID companion" data-to="ULID.StatefulMonotonic" d="M1940 740 L1940 805 L2090 805 L2090 860" stroke="#6D28D9" marker-end="url(#arrow-violet)" />
-<path class="edge" data-from="UlidGenerator" data-to="ULID.StatefulMonotonic" d="M2930 860 L2930 805 L2090 805 L2090 860" stroke="#BE185D" marker-end="url(#arrow-pink)" />
+<path class="edge" data-from="ULID companion" data-to="ULID.Factory" d="M 1460 740 L 1460 791 Q 1460 805 1446 805 L 464 805 Q 450 805 450 819 L 450 860" stroke="#15803D" marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round" />
+<path class="edge" data-from="ULID companion" data-to="ULID.Monotonic" d="M 1700 740 L 1700 791 Q 1700 805 1686 805 L 1284 805 Q 1270 805 1270 819 L 1270 860" stroke="#0F766E" marker-end="url(#arrow-teal)" stroke-linecap="round" stroke-linejoin="round" />
+<path class="edge" data-from="ULID companion" data-to="ULID.StatefulMonotonic" d="M 1940 740 L 1940 791 Q 1940 805 1954 805 L 2076 805 Q 2090 805 2090 819 L 2090 860" stroke="#6D28D9" marker-end="url(#arrow-violet)" stroke-linecap="round" stroke-linejoin="round" />
+<path class="edge" data-from="UlidGenerator" data-to="ULID.StatefulMonotonic" d="M 2930 860 L 2930 819 Q 2930 805 2916 805 L 2104 805 Q 2090 805 2090 819 L 2090 860" stroke="#BE185D" marker-end="url(#arrow-pink)" stroke-linecap="round" stroke-linejoin="round" />
 <path class="edge" data-from="Selection" data-to="UlidGenerator" d="M2930 1190 L2930 1130" stroke="#475569" marker-end="url(#arrow-slate)" />
 <g id="ULID">
   <rect class="classBox" x="1220" y="170" width="960" height="245" rx="8" fill="#EFF6FF" stroke="#2563EB" />

@@ -31,19 +31,19 @@
       .icon-line { fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
     </style>
     <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowPurple" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#8870a8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#8870a8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
       <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
@@ -79,7 +79,7 @@
   <line x1="610" y1="446" x2="1130" y2="446" class="sep"/>
   <text x="704" y="468" class="member">path and swaggerFile must not be blank</text>
 
-  <rect x="90" y="540" width="760" height="390" rx="16" class="lane-panel"/>
+  <rect x="90" y="540" width="760" height="390" rx="16" class="lane-panel" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
   <g transform="translate(800 566)" aria-hidden="true">
     <circle cx="0" cy="0" r="20" class="icon-ring" stroke="#5d7b63"/>
     <path d="M -9 -6 H 9 M -9 2 H 9 M -2 9 L 9 2 L -2 -5" class="icon-line" stroke="#5d7b63"/>
@@ -117,19 +117,19 @@
   <text x="142" y="1028" class="panel-title">Boundary</text>
   <text x="282" y="1028" class="small">This module adds documentation routes only; application routes, schemas, and runtime behavior stay caller-owned.</text>
 
-  <path d="M 310 304 V 347 H 600" class="flowBlue"/>
+  <path d="M 310 304 L 310 333 Q 310 347 324 347 L 600 347" class="flowBlue"/>
   <path d="M 870 304 V 322" class="flowBlue"/>
-  <path d="M 1430 304 V 347 H 1140" class="flowBlue"/>
+  <path d="M 1430 304 L 1430 333 Q 1430 347 1416 347 L 1140 347" class="flowBlue"/>
   <path d="M 870 372 V 398" class="flowBlue"/>
 
-  <path d="M 870 476 V 504 H 470 V 540" class="flowRed"/>
-  <path d="M 870 476 V 504 H 1270 V 540" class="flowRed"/>
+  <path d="M 870 476 L 870 492.8 Q 870 504 858.8 504 L 484 504 Q 470 504 470 518 L 470 540" class="flowRed"/>
+  <path d="M 870 476 L 870 492.8 Q 870 504 881.2 504 L 1256 504 Q 1270 504 1270 518 L 1270 540" class="flowRed"/>
 
   <path d="M 470 712 V 762" class="flowGreen"/>
   <path d="M 470 824 V 874" class="flowGold"/>
-  <path d="M 470 924 V 960 H 870 V 990" class="flowGold"/>
+  <path d="M 470 924 L 470 946 Q 470 960 484 960 L 862 960 Q 870 960 870 968 L 870 990" class="flowGold"/>
 
   <path d="M 1270 712 V 762" class="flowGreen"/>
   <path d="M 1270 824 V 874" class="flowPurple"/>
-  <path d="M 1270 924 V 960 H 870 V 990" class="flowPurple"/>
+  <path d="M 1270 924 L 1270 946 Q 1270 960 1256 960 L 878 960 Q 870 960 870 968 L 870 990" class="flowPurple"/>
 </svg>

@@ -15,7 +15,7 @@
       .call { fill: none; stroke: #3f7d9c; stroke-width: 3.2; stroke-linecap: round; marker-end: url(#arrowCall); }
       .return { fill: none; stroke: #6e8f4f; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 9 7; marker-end: url(#arrowReturn); }
       .fail { fill: none; stroke: #b86868; stroke-width: 3; stroke-linecap: round; marker-end: url(#arrowFail); }
-      .cast { fill: none; stroke: #7b67a8; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 9 7; marker-end: url(#arrowCast); }
+      .cast { fill: none; stroke: #755BC6; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 9 7; marker-end: url(#arrowCast); }
       .label { fill: #fbfcf8; stroke-width: 1.6; }
       .labelText { font-family: "Comic Mono"; font-size: 14px; fill: #36464f; }
       .num { font-family: "Comic Mono"; font-size: 13px; fill: #ffffff; }
@@ -27,7 +27,7 @@
     <marker id="arrowCall" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3f7d9c" stroke="#3f7d9c" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
     <marker id="arrowReturn" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#6e8f4f" stroke="#6e8f4f" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
     <marker id="arrowFail" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#b86868" stroke="#b86868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
-    <marker id="arrowCast" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#7b67a8" stroke="#7b67a8" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowCast" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#755BC6" stroke="#755BC6" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
   </defs>
 
   <rect x="24" y="24" width="1552" height="1072" rx="20" class="frame"/>
@@ -47,20 +47,19 @@
     <line x1="700" y1="232" x2="700" y2="970" class="lifeline"/>
   </g>
   <g id="contract">
-    <rect x="1084" y="160" width="292" height="72" rx="10" class="participant" stroke="#7b67a8"/>
+    <rect x="1084" y="160" width="292" height="72" rx="10" class="participant" stroke="#755BC6"/>
     <text x="1230" y="194" text-anchor="middle" class="title" style="font-size:24px">Kotlin Contract</text>
     <text x="1230" y="216" text-anchor="middle" class="detail" style="font-size:13px">returns implies non-null</text>
     <line x1="1230" y1="232" x2="1230" y2="970" class="lifeline"/>
   </g>
 
-  <rect x="690" y="284" width="18" height="560" rx="7" class="activation" fill="#e6f3ea" stroke="#6e8f4f"/>
-  <rect x="1221" y="690" width="18" height="78" rx="7" class="activation" fill="#f0ecfa" stroke="#7b67a8"/>
+  <rect x="690" y="284" width="18" height="560" rx="7" class="activation" fill="#EEF7F0" stroke="#6e8f4f"/>
+  <rect x="1221" y="690" width="18" height="78" rx="7" class="activation" fill="#F3ECFF" stroke="#755BC6"/>
 
   <g id="m1">
     <path class="call" d="M 236 316 L 700 316"/>
-    <rect x="304" y="282" width="374" height="32" rx="16" class="label" stroke="#b7d5e4"/>
-    <circle cx="328" cy="298" r="13" fill="#3f7d9c"/>
-    <text fill="#FFFFFF" x="328" y="303" text-anchor="middle" class="num">1</text>
+    <rect x="304" y="282" width="374" height="32" rx="16" class="label" stroke="#EAF4F8"/>
+    <circle cx="328" cy="298" r="13" fill="#EAF4F8"/><text fill="#3f7d9c" x="328" y="303" text-anchor="middle" class="num">1</text>
     <text x="491" y="303" text-anchor="middle" class="labelText">username.requireNotBlank("username")</text>
   </g>
 
@@ -68,9 +67,8 @@
   <text x="132" y="392" class="altLabel">alt invalid: null or blank</text>
   <g id="m2">
     <path class="fail" d="M 700 458 L 236 458"/>
-    <rect x="356" y="424" width="286" height="32" rx="16" class="label" stroke="#ddb4b4"/>
-    <circle cx="380" cy="440" r="13" fill="#b86868"/>
-    <text fill="#FFFFFF" x="380" y="445" text-anchor="middle" class="num">2</text>
+    <rect x="356" y="424" width="286" height="32" rx="16" class="label" stroke="#FFF0F0"/>
+    <circle cx="380" cy="440" r="13" fill="#FBFCF8"/><text fill="#b86868" x="380" y="445" text-anchor="middle" class="num">2</text>
     <text x="505" y="445" text-anchor="middle" class="labelText">IllegalArgumentException</text>
   </g>
 
@@ -78,35 +76,32 @@
   <text x="132" y="612" class="altLabel">else valid: receiver is returned and smart-cast continues</text>
   <g id="m3">
     <path class="return" d="M 700 668 L 236 668"/>
-    <rect x="360" y="634" width="280" height="32" rx="16" class="label" stroke="#c6ddb6"/>
-    <circle cx="384" cy="650" r="13" fill="#6e8f4f"/>
-    <text fill="#FFFFFF" x="384" y="655" text-anchor="middle" class="num">3</text>
+    <rect x="360" y="634" width="280" height="32" rx="16" class="label" stroke="#EEF7F0"/>
+    <circle cx="384" cy="650" r="13" fill="#EEF7F0"/><text fill="#6e8f4f" x="384" y="655" text-anchor="middle" class="num">3</text>
     <text x="512" y="655" text-anchor="middle" class="labelText">username: String</text>
   </g>
   <g id="m4">
-    <path class="cast" d="M 700 730 L 1230 730"/>
-    <rect x="842" y="696" width="344" height="32" rx="16" class="label" stroke="#c9bee2"/>
-    <circle cx="866" cy="712" r="13" fill="#7b67a8"/>
-    <text fill="#FFFFFF" x="866" y="717" text-anchor="middle" class="num">4</text>
+    <path class="cast" d="M 700 730 L 1230 730" style="marker-end:none"/>
+<polygon points="1218,736 1230,730 1218,724" fill="#755BC6" stroke="#755BC6" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+    <rect x="842" y="696" width="344" height="32" rx="16" class="label" stroke="#F3ECFF"/>
+    <circle cx="866" cy="712" r="13" fill="#FBFCF8"/><text fill="#755BC6" x="866" y="717" text-anchor="middle" class="num">4</text>
     <text x="1012" y="717" text-anchor="middle" class="labelText">contract narrows nullable type</text>
   </g>
 
   <g id="m5">
     <path class="call" d="M 236 870 L 700 870"/>
-    <rect x="310" y="836" width="368" height="32" rx="16" class="label" stroke="#b7d5e4"/>
-    <circle cx="334" cy="852" r="13" fill="#3f7d9c"/>
-    <text fill="#FFFFFF" x="334" y="857" text-anchor="middle" class="num">5</text>
+    <rect x="310" y="836" width="368" height="32" rx="16" class="label" stroke="#EAF4F8"/>
+    <circle cx="334" cy="852" r="13" fill="#EAF4F8"/><text fill="#3f7d9c" x="334" y="857" text-anchor="middle" class="num">5</text>
     <text x="500" y="857" text-anchor="middle" class="labelText">.requireStartsWith("user_", "username")</text>
   </g>
   <g id="m6">
     <path class="return" d="M 700 938 L 236 938"/>
-    <rect x="344" y="904" width="318" height="32" rx="16" class="label" stroke="#c6ddb6"/>
-    <circle cx="368" cy="920" r="13" fill="#6e8f4f"/>
-    <text fill="#FFFFFF" x="368" y="925" text-anchor="middle" class="num">6</text>
+    <rect x="344" y="904" width="318" height="32" rx="16" class="label" stroke="#EEF7F0"/>
+    <circle cx="368" cy="920" r="13" fill="#EEF7F0"/><text fill="#6e8f4f" x="368" y="925" text-anchor="middle" class="num">6</text>
     <text x="512" y="925" text-anchor="middle" class="labelText">same value, next check-ready</text>
   </g>
 
-  <rect x="112" y="1012" width="1376" height="44" rx="12" fill="#ffffff" stroke="#ccd7da" stroke-width="1.6"/>
+  <rect x="112" y="1012" width="1376" height="44" rx="12" fill="#ffffff" stroke="#D6E3EF" stroke-width="1.6"/>
   <text x="132" y="1040" class="detail">Contract functions throw IllegalArgumentException on failed preconditions and otherwise return the original receiver for fluent validation.</text>
   <text x="800" y="1084" text-anchor="middle" class="footer">github.com/bluetape4k/bluetape4k-projects - bluetape4k/core README</text>
 </svg>

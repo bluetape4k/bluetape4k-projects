@@ -35,22 +35,22 @@
       .flowBlue { fill: none; stroke: #4b74a5; stroke-width: 2; marker-end: url(#arrowBlue); }
     </style>
     <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="hollowDark" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#263238" stroke-width="1.7" stroke-dasharray="none"/>
+      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#263238" stroke-width="1.7" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="hollowSlate" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#455a64" stroke-width="1.7" stroke-dasharray="none"/>
+      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#455a64" stroke-width="1.7" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
   </defs>
 
@@ -156,14 +156,19 @@
   <text x="122" y="1080" class="panel-title">Reader contract</text>
   <text x="122" y="1108" class="small">Use Jackson.defaultJsonMapper for standard JSON, JacksonBinary/JacksonText for explicit formats, streaming parsers for chunked roots, and SimpleModule extensions for field annotations.</text>
 
-  <path d="M 322 874 L 322 816" class="realize"/>
+  <path d="M 322 874 L 322 816" class="realize" style="marker-end:none"/>
+<polygon points="328,828 322,816 316,828" fill="#455a64" stroke="#455a64" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <rect x="346" y="838" width="90" height="24" rx="12" fill="#ffffff" stroke="#d7e0e4"/>
   <text x="391" y="855" text-anchor="middle" class="label">implements</text>
 
-  <path d="M 322 404 L 322 482" class="usesBlue"/>
-  <path d="M 506 338 L 732 338" class="usesBlue"/>
-  <path d="M 924 404 L 924 452 L 792 452 L 792 494" class="usesGreen"/>
-  <path d="M 924 404 L 924 452 L 1056 452 L 1056 494" class="usesGreen"/>
+  <path d="M 322 404 L 322 482" class="usesBlue" style="marker-end:none"/>
+<polyline points="316,470 322,482 328,470" fill="none" stroke="#4b74a5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 506 338 L 732 338" class="usesBlue" style="marker-end:none"/>
+<polyline points="720,344 732,338 720,332" fill="none" stroke="#4b74a5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 924 404 L 924 438 Q 924 452 910 452 L 806 452 Q 792 452 792 466 L 792 494" class="usesGreen" stroke-linecap="round" stroke-linejoin="round" style="marker-end:none"/>
+<polyline points="786,482 792,494 798,482" fill="none" stroke="#5d7b63" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 924 404 L 924 438 Q 924 452 938 452 L 1042 452 Q 1056 452 1056 466 L 1056 494" class="usesGreen" stroke-linecap="round" stroke-linejoin="round" style="marker-end:none"/>
+<polyline points="1050,482 1056,494 1062,482" fill="none" stroke="#5d7b63" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <path d="M 792 638 L 792 762" class="flowBlue"/>
   <path d="M 1056 638 L 1056 762" class="flowBlue"/>
 
@@ -171,10 +176,14 @@
   <path d="M 1056 874 V 930" class="inheritBus"/>
   <path d="M 1056 930 H 506" class="extends"/>
 
-  <path d="M 1194 338 H 1324" class="usesGold"/>
-  <path d="M 1194 526 H 1324" class="usesGold"/>
-  <path d="M 1194 710 H 1324" class="usesRed"/>
-  <path d="M 1194 890 H 1324" class="usesRed"/>
+  <path d="M 1194 338 H 1324" class="usesGold" style="marker-end:none"/>
+<polyline points="1312,344 1324,338 1312,332" fill="none" stroke="#a2743d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 1194 526 H 1324" class="usesGold" style="marker-end:none"/>
+<polyline points="1312,532 1324,526 1312,520" fill="none" stroke="#a2743d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 1194 710 H 1324" class="usesRed" style="marker-end:none"/>
+<polyline points="1312,716 1324,710 1312,704" fill="none" stroke="#b65f68" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 1194 890 H 1324" class="usesRed" style="marker-end:none"/>
+<polyline points="1312,896 1324,890 1312,884" fill="none" stroke="#b65f68" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <text x="920" y="1174" text-anchor="middle" class="footer">github.com/bluetape4k/bluetape4k-projects - io/jackson3 README</text>
 </svg>

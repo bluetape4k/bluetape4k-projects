@@ -35,10 +35,10 @@
       <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#455a64" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
     </marker>
     <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
       <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
@@ -141,6 +141,8 @@
   <path d="M 656 646 V 744" class="flow"/>
   <path d="M 1044 700 V 744" class="flow"/>
 
-  <path d="M 880 316 H 1246 V 362 H 1330" class="usesGold"/>
-  <path d="M 880 350 H 1212 V 618 H 1330" class="usesBlue"/>
+  <path d="M 880 316 L 1232 316 Q 1246 316 1246 330 L 1246 348 Q 1246 362 1260 362 L 1330 362" class="usesGold" stroke-linecap="round" stroke-linejoin="round" style="marker-end:none"/>
+<polyline points="1318,368 1330,362 1318,356" fill="none" stroke="#a2743d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 880 350 L 1198 350 Q 1212 350 1212 364 L 1212 604 Q 1212 618 1226 618 L 1330 618" class="usesBlue" stroke-linecap="round" stroke-linejoin="round" style="marker-end:none"/>
+<polyline points="1318,624 1330,618 1318,612" fill="none" stroke="#4b74a5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 </svg>

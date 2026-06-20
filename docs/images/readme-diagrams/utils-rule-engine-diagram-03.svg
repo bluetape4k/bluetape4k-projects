@@ -3,10 +3,10 @@
 <text class="title" x="74" y="86">Rule Engine Class Diagram</text><text class="subtitle" x="78" y="118">Synchronous, coroutine, and forward-chaining engines share RuleEngineConfig policies; DefaultRuleEngine also exposes listener hooks around each rule.</text>
 <rect class="section" x="74" y="150" width="2028" height="1010" rx="8"/><text class="sectionTitle" x="102" y="176">engine contracts, concrete implementations, policies, and listener extension points</text>
 <g id="edges"><path class="edge implements" d="M370 575 L370 435" stroke="#2563EB"/>
-<path class="edge implements" d="M120 1030 L80 1030 L80 325 L120 325" stroke="#7C3AED"/>
+<path class="edge implements" d="M 120 1030 L 94 1030 Q 80 1030 80 1016 L 80 339 Q 80 325 94 325 L 120 325" stroke="#7C3AED" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="edge implements" d="M1825 575 L1825 425" stroke="#0D9488"/>
 <path class="edge has" d="M620 700 L820 700" stroke="#16A34A"/>
-<path class="edge has" d="M620 785 L700 785 L700 1025 L820 1025" stroke="#64748B"/></g><g id="arrowheads"><path class="solidHead" d="M370 435 L362 451 L378 451 Z" fill="#FFFFFF" stroke="#2563EB"/>
+<path class="edge has" d="M 620 785 L 686 785 Q 700 785 700 799 L 700 1011 Q 700 1025 714 1025 L 820 1025" stroke="#64748B" stroke-linecap="round" stroke-linejoin="round"/></g><g id="arrowheads"><path class="solidHead" d="M370 435 L362 451 L378 451 Z" fill="#FFFFFF" stroke="#2563EB"/>
 <path class="solidHead" d="M120 325 L104 317 L104 333 Z" fill="#FFFFFF" stroke="#7C3AED"/>
 <path class="solidHead" d="M1825 425 L1817 441 L1833 441 Z" fill="#FFFFFF" stroke="#0D9488"/>
 <path class="solidOpenHead" d="M807 693 L820 700 L807 707" stroke="#16A34A"/>

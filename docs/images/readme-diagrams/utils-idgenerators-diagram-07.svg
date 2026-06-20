@@ -50,10 +50,10 @@
   <text class="segmentTitle" x="2637.5" y="428" text-anchor="middle">sequence</text>
   <text class="segmentRange" x="2637.5" y="466" text-anchor="middle">0..65535 per millisecond</text>
 </g>
-<path class="guide" d="M850 510 V640 H525 V690" stroke="#1D4ED8"/>
-<path class="guide" d="M1987.5 510 V640 H1195 V690" stroke="#15803D"/>
-<path class="guide" d="M2637.5 510 V640 H1865 V690" stroke="#C2410C"/>
-<path class="guide" d="M2637.5 510 V640 H2535 V690" stroke="#475569"/>
+<path class="guide" d="M 850 510 L 850 626 Q 850 640 836 640 L 539 640 Q 525 640 525 654 L 525 690" stroke="#1D4ED8"/>
+<path class="guide" d="M 1987.5 510 L 1987.5 626 Q 1987.5 640 1973.5 640 L 1209 640 Q 1195 640 1195 654 L 1195 690" stroke="#15803D"/>
+<path class="guide" d="M 2637.5 510 L 2637.5 626 Q 2637.5 640 2623.5 640 L 1879 640 Q 1865 640 1865 654 L 1865 690" stroke="#C2410C"/>
+<path class="guide" d="M 2637.5 510 L 2637.5 626 Q 2637.5 640 2623.5 640 L 2549 640 Q 2535 640 2535 654 L 2535 690" stroke="#475569"/>
 <g>
   <rect class="card" x="230" y="690" width="590" height="250" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="cardTitle" x="525" y="744" text-anchor="middle">Timestamp packing</text>

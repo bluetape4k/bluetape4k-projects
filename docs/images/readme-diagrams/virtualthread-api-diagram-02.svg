@@ -1,11 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1580" height="1000" viewBox="0 0 1580 1000" role="img" aria-label="ServiceLoader-Based Runtime Selection Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow-blue" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14 Z" fill="#2563EB" stroke-dasharray="none"/></marker>
-  <marker id="arrow-teal" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14 Z" fill="#0D9488" stroke-dasharray="none"/></marker>
-  <marker id="arrow-amber" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14 Z" fill="#D97706" stroke-dasharray="none"/></marker>
-  <marker id="arrow-pink" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14 Z" fill="#DB2777" stroke-dasharray="none"/></marker>
-  <marker id="arrow-gray" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14 Z" fill="#64748B" stroke-dasharray="none"/></marker>
+  <marker id="arrow-blue" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14 Z" fill="#2563EB" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-teal" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14 Z" fill="#0D9488" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-green" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14 Z" fill="#16A34A" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-amber" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14 Z" fill="#D97706" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-pink" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14 Z" fill="#DB2777" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-gray" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14 Z" fill="#64748B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
@@ -35,15 +36,18 @@
 
 <path class="route" d="M450 235 L600 235" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
 <path class="route" d="M960 235 L1110 235" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
-<path class="route" d="M780 280 L780 335 L300 335 L300 390" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
+<path class="route" d="M 780 280 L 780 321 Q 780 335 766 335 L 314 335 Q 300 335 300 349 L 300 390" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
 <path class="route" d="M450 436 L560 436" stroke="#0D9488" marker-end="url(#arrow-teal)"/>
 <path class="route" d="M860 436 L970 436" stroke="#D97706" marker-end="url(#arrow-amber)"/>
-<path class="soft" d="M1120 482 L1120 560 L310 560 L310 665" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
-<path class="soft" d="M1120 482 L1120 560 L770 560 L770 665" stroke="#16A34A" marker-end="url(#arrow-teal)"/>
-<path class="soft" d="M1120 482 L1120 560 L1230 560 L1230 665" stroke="#64748B" marker-end="url(#arrow-gray)"/>
-<path class="route" d="M310 759 L310 864 L520 864" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
-<path class="route" d="M770 759 L770 825" stroke="#16A34A" marker-end="url(#arrow-teal)"/>
-<path class="route" d="M1230 759 L1230 864 L1060 864" stroke="#64748B" marker-end="url(#arrow-gray)"/>
-<path class="route" d="M1060 864 L1480 864 L1480 235 L1440 235" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
+<path class="soft" d="M 1120 482 L 1120 546 Q 1120 560 1106 560 L 324 560 Q 310 560 310 574 L 310 665" stroke="#DB2777"/>
+<polygon points="304,653 310,665 316,653" fill="#DB2777" stroke="#DB2777" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="soft" d="M 1120 482 L 1120 546 Q 1120 560 1106 560 L 784 560 Q 770 560 770 574 L 770 665" stroke="#16A34A"/>
+<polygon points="764,653 770,665 776,653" fill="#16A34A" stroke="#16A34A" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="soft" d="M 1120 482 L 1120 546 Q 1120 560 1134 560 L 1216 560 Q 1230 560 1230 574 L 1230 665" stroke="#64748B"/>
+<polygon points="1224,653 1230,665 1236,653" fill="#64748B" stroke="#64748B" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="route" d="M 310 759 L 310 850 Q 310 864 324 864 L 520 864" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
+<path class="route" d="M770 759 L770 825" stroke="#16A34A" marker-end="url(#arrow-green)"/>
+<path class="route" d="M 1230 759 L 1230 850 Q 1230 864 1216 864 L 1060 864" stroke="#64748B" marker-end="url(#arrow-gray)"/>
+<path class="route" d="M 1060 864 L 1466 864 Q 1480 864 1480 850 L 1480 249 Q 1480 235 1466 235 L 1440 235" stroke="#DB2777" marker-end="url(#arrow-pink)"/>
 <g><rect class="label" x="528" y="544" width="300" height="28" rx="8"/><text class="small" x="678" y="559" text-anchor="middle" dominant-baseline="middle">broken ServiceLoader entries are skipped</text></g>
 </svg>

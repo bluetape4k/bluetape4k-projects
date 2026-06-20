@@ -179,7 +179,8 @@
   <g class="edgeLabel" transform="translate(1680 1169)"><rect width="70" height="30" rx="8"/><text x="35" y="20" text-anchor="middle">asUni</text></g>
 </g>
 <g data-from="InteropResult" data-to="UniPipeline">
-  <path class="edge dashed" d="M2060 1095 L2060 990 L2520 990 L2520 530 L1550 530 L1550 470" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <path class="edge dashed" d="M 2060 1095 L 2060 1004 Q 2060 990 2074 990 L 2506 990 Q 2520 990 2520 976 L 2520 544 Q 2520 530 2506 530 L 1564 530 Q 1550 530 1550 516 L 1550 470" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="1556,482 1550,470 1544,482" fill="#1D4ED8" stroke="#1D4ED8" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <g class="edgeLabel" transform="translate(2094 956)"><rect width="162" height="30" rx="8"/><text x="81" y="20" text-anchor="middle">uses Uni pipeline</text></g>
 </g>
 </svg>

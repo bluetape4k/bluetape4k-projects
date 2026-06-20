@@ -42,19 +42,21 @@
   <text class="edgeLabel" x="675" y="615">1 layer -&gt; many features</text>
 </g>
 <g data-from="NetCdfFile" data-to="NetCdfGrid">
-  <path class="edge " d="M2005 560 L2005 625 L1750 625 L1750 700" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <path class="edge " d="M 2005 560 L 2005 611 Q 2005 625 1991 625 L 1764 625 Q 1750 625 1750 639 L 1750 700" stroke="#BE185D" marker-end="url(#arrow-pink)" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="edgeLabel" x="1810" y="604">grid values</text>
 </g>
 <g data-from="NetCdfFile" data-to="NetCdfProgress">
-  <path class="edge " d="M2005 560 L2005 625 L2560 625 L2560 700" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <path class="edge " d="M 2005 560 L 2005 611 Q 2005 625 2019 625 L 2546 625 Q 2560 625 2560 639 L 2560 700" stroke="#6D28D9" marker-end="url(#arrow-violet)" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="edgeLabel" x="2470" y="604">import lease</text>
 </g>
 <g data-from="NetCdfGrid" data-to="IndexNote">
-  <path class="edge dashed" d="M1750 976 L1750 1190" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <path class="edge dashed" d="M1750 976 L1750 1190" stroke="#BE185D"/>
+<polygon points="1744,1178 1750,1190 1756,1178" fill="#BE185D" stroke="#BE185D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="1774" y="1084">partial unique indexes</text>
 </g>
 <g data-from="NetCdfProgress" data-to="LeaseNote">
-  <path class="edge dashed" d="M2560 1036 L2560 1270" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <path class="edge dashed" d="M2560 1036 L2560 1270" stroke="#6D28D9"/>
+<polygon points="2554,1258 2560,1270 2566,1258" fill="#6D28D9" stroke="#6D28D9" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="2584" y="1160">status lifecycle</text>
 </g>
 <g id="SpatialLayer">

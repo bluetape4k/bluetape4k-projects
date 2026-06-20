@@ -10,10 +10,10 @@
       <path d="M 2 2 L 13 8 L 2 14 Z" fill="#ffffff" stroke="#0d9488" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
     </marker>
     <marker id="openOrange" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" />
+      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/>
     </marker>
     <marker id="openGreen" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" />
+      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/>
     </marker>
     <style>
       svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
@@ -81,7 +81,7 @@
 
   <path class="implements" d="M 273 430 V 260" stroke="#2563eb" />
 <polygon points="282,281 273,260 264,281" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="implements" d="M 739 430 V 386 H 1090 V 260" stroke="#2563eb" />
+  <path class="implements" d="M 739 430 L 739 400 Q 739 386 753 386 L 1076 386 Q 1090 386 1090 372 L 1090 260" stroke="#2563eb" />
 <polygon points="1099,281 1090,260 1081,281" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
   <path class="implements" d="M 1205 440 V 260" stroke="#2563eb" />
 <polygon points="1214,281 1205,260 1196,281" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
@@ -130,17 +130,17 @@
     <text class="member" x="1218" y="830">Redisson-compatible</text>
   </g>
 
-  <path class="dep" d="M 366 782 H 388 V 604 H 273 V 568" stroke="#ea580c" />
+  <path class="dep" d="M 366 782 L 380 782 Q 388 782 388 774 L 388 618 Q 388 604 374 604 L 287 604 Q 273 604 273 590 L 273 568" stroke="#ea580c" />
 
 
   <polyline points="281,586 273,568 265,586" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="dep" d="M 527 724 V 612 H 430 V 568" stroke="#16a34a" />
+  <path class="dep" d="M 527 724 L 527 626 Q 527 612 513 612 L 444 612 Q 430 612 430 598 L 430 568" stroke="#16a34a" />
 
   <polyline points="438,586 430,568 422,586" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="dep" d="M 796 782 H 760 V 604 H 739 V 568" stroke="#0d9488" />
+  <path class="dep" d="M 796 782 L 774 782 Q 760 782 760 768 L 760 612.4 Q 760 604 751.6 604 L 747.4 604 Q 739 604 739 595.6 L 739 568" stroke="#0d9488" />
 
   <polyline points="747,586 739,568 731,586" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="dep" d="M 1194 782 H 1168 V 604 H 1205 V 558" stroke="#16a34a" />
+  <path class="dep" d="M 1194 782 L 1178.4 782 Q 1168 782 1168 771.6 L 1168 618 Q 1168 604 1182 604 L 1191 604 Q 1205 604 1205 590 L 1205 558" stroke="#16a34a" />
 
   <polyline points="1213,576 1205,558 1197,576" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 </svg>

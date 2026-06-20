@@ -2,19 +2,19 @@
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10" /></filter>
 
-  <marker id="arrow-teal" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#0F766E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" /></marker>
+  <marker id="arrow-teal" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#0F766E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
 
   <marker id="arrow-blue" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#1D4ED8" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
 
   <marker id="arrow-green" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
 
-  <marker id="arrow-amber" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#C2410C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" /></marker>
+  <marker id="arrow-amber" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#C2410C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
 
-  <marker id="arrow-pink" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#BE185D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" /></marker>
+  <marker id="arrow-pink" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#BE185D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
 
   <marker id="arrow-slate" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
 
-  <marker id="arrow-violet" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#6D28D9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" /></marker>
+  <marker id="arrow-violet" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#6D28D9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
@@ -123,7 +123,7 @@
 <text class="member" x="1744" y="834">update/delete/select consume caller Query</text>
 </g>
 <g data-from="R2dbcEntityOperations" data-to="IdHelpers">
-  <path class="edge dashed" d="M760 335 L410 335 L410 565" stroke="#15803D" />
+  <path class="edge dashed" d="M 760 335 L 424 335 Q 410 335 410 349 L 410 565" stroke="#15803D" stroke-linecap="round" stroke-linejoin="round" />
 
   <polyline points="402,547 410,565 418,547" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
   <text class="edgeLabel" x="450" y="317">extension receiver</text>
@@ -147,7 +147,7 @@
   <text class="edgeLabel" x="1600" y="699">query input</text>
 </g>
 <g data-from="SelectExtensions" data-to="CoroutineSurface">
-  <path class="edge " d="M1560 640 L1700 640 L1700 455" stroke="#0F766E" />
+  <path class="edge " d="M 1560 640 L 1686 640 Q 1700 640 1700 626 L 1700 455" stroke="#0F766E" stroke-linecap="round" stroke-linejoin="round" />
 
   <polyline points="1708,473 1700,455 1692,473" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
   <text class="edgeLabel" x="1588" y="620">await / Flow bridge</text>

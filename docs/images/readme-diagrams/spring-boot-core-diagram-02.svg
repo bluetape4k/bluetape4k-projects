@@ -5,13 +5,13 @@
   </style>
   <defs>
     <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-orange" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-gray" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#64748b" stroke="#64748b" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#64748b" stroke="#64748b" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
   </defs>
   <rect width="1440" height="900" fill="#ffffff"/>
@@ -39,12 +39,12 @@
 
   <path class="edge" d="M440 248 L530 248" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
   <path class="edge" d="M780 248 L870 248" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
-  <path class="edge" d="M1000 294 L1000 354 L365 354 L365 456" fill="none" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)"/>
-  <path class="edge" d="M1000 294 L1000 354 L700 354 L700 456" fill="none" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)"/>
-  <path class="edge" d="M1000 294 L1000 354 L1035 354 L1035 456" fill="none" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)"/>
-  <path class="edge" d="M365 556 L365 604 L645 604 L645 710" fill="none" stroke="#64748b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-gray)"/>
-  <path class="edge" d="M700 556 L700 604 L645 604 L645 710" fill="none" stroke="#64748b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-gray)"/>
-  <path class="edge" d="M1035 556 L1035 604 L645 604 L645 710" fill="none" stroke="#64748b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-gray)"/>
+  <path class="edge" d="M 1000 294 L 1000 340 Q 1000 354 986 354 L 379 354 Q 365 354 365 368 L 365 456" fill="none" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)"/>
+  <path class="edge" d="M 1000 294 L 1000 340 Q 1000 354 986 354 L 714 354 Q 700 354 700 368 L 700 456" fill="none" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)"/>
+  <path class="edge" d="M 1000 294 L 1000 340 Q 1000 354 1014 354 L 1021 354 Q 1035 354 1035 368 L 1035 456" fill="none" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)"/>
+  <path class="edge" d="M 365 556 L 365 590 Q 365 604 379 604 L 631 604 Q 645 604 645 618 L 645 710" fill="none" stroke="#64748b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-gray)"/>
+  <path class="edge" d="M 700 556 L 700 590 Q 700 604 686 604 L 659 604 Q 645 604 645 618 L 645 710" fill="none" stroke="#64748b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-gray)"/>
+  <path class="edge" d="M 1035 556 L 1035 590 Q 1035 604 1021 604 L 659 604 Q 645 604 645 618 L 645 710" fill="none" stroke="#64748b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-gray)"/>
   <path class="edge" d="M770 758 L860 758" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
 
 
@@ -111,7 +111,8 @@
 <text x="1348" y="279" text-anchor="middle" font-size="12.5" font-weight="400" fill="#78350f">context is</text>
 <text x="1348" y="296" text-anchor="middle" font-size="12.5" font-weight="400" fill="#78350f">manual</text>
   </g>
-  <path class="edge" d="M1130 248 L1300 248" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5" marker-end="url(#arrow-gray)"/>
+  <path class="edge" d="M1130 248 L1300 248" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<polygon points="1288,254 1300,248 1288,242" fill="#64748b" stroke="#64748b" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <g class="legend" transform="translate(70 858)">
     <line x1="0" y1="0" x2="38" y2="0" stroke="#2563eb" stroke-width="3.2" marker-end="url(#arrow-blue)"/>

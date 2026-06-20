@@ -137,7 +137,7 @@
   <text class="edgeLabel" x="1212" y="692">implements</text>
 </g>
 <g data-from="NearJCacheConfig" data-to="NearJCache">
-  <path class="edge dashed"  d="M2010 565 L2010 1030 L1635 1030" stroke="#C2410C" />
+  <path class="edge dashed"  d="M 2010 565 L 2010 1016 Q 2010 1030 1996 1030 L 1635 1030" stroke="#C2410C" stroke-linecap="round" stroke-linejoin="round" />
 
   <polyline points="1653,1022 1635,1030 1653,1038" fill="none" stroke="#C2410C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
   <text class="edgeLabel" x="2030" y="807">configures</text>
@@ -149,21 +149,21 @@
 
 </g>
 <g data-from="NearJCache" data-to="FrontCache">
-  <path class="edge dashed"  d="M915 1220 L915 1270 L550 1270 L550 1340" stroke="#1D4ED8" />
+  <path class="edge dashed"  d="M 915 1220 L 915 1256 Q 915 1270 901 1270 L 564 1270 Q 550 1270 550 1284 L 550 1340" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round" />
 
   <polyline points="542,1322 550,1340 558,1322" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
   <text class="edgeLabel" x="618" y="1249">frontCache</text>
 </g>
 <g data-from="NearJCache" data-to="BackCache">
-  <path class="edge dashed"  d="M1455 1220 L1455 1270 L1800 1270 L1800 1340" stroke="#475569" />
+  <path class="edge dashed"  d="M 1455 1220 L 1455 1256 Q 1455 1270 1469 1270 L 1786 1270 Q 1800 1270 1800 1284 L 1800 1340" stroke="#475569" stroke-linecap="round" stroke-linejoin="round" />
 
   <polyline points="1792,1322 1800,1340 1808,1322" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
   <text class="edgeLabel" x="1593" y="1249">backCache</text>
 </g>
 <g data-from="BackCache" data-to="JCacheEntryEventListener">
-  <path class="edge dashed"  d="M1420 1550 L1420 1590 L118 1590 L118 585" stroke="#BE185D" />
+  <path class="edge dashed"  d="M 1420 1490 L 132 1490 Q 118 1490 118 1476 L 118 585" stroke="#BE185D" stroke-linecap="round" stroke-linejoin="round" />
 
   <polyline points="126,603 118,585 110,603" fill="none" stroke="#BE185D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
-  <text class="edgeLabel" x="488" y="1570">entry events</text>
+  <text class="edgeLabel" x="488" y="1470">entry events</text>
 </g>
 </svg>

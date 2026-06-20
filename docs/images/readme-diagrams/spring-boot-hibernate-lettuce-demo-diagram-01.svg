@@ -4,19 +4,19 @@
 
   <defs>
     <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-green" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#16a34a" stroke="#16a34a" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#16a34a" stroke="#16a34a" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-orange" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-purple" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#7c3aed" stroke="#7c3aed" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#7c3aed" stroke="#7c3aed" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="open-gray" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#64748b" stroke-width="1.7" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#64748b" stroke-width="1.7" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none"/>
     </marker>
   </defs>
   <rect width="1480" height="960" fill="#ffffff"/>
@@ -41,9 +41,11 @@
     <text x="1018" y="179" font-size="12.5" fill="#6b7280">Runtime services expose the near-cache region map.</text>
   </g>
   <path class="edge" d="M392 472 L548 472" fill="none" stroke="#16a34a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
-  <path class="edge" d="M713 510 L713 590" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5" marker-end="url(#arrow-purple)"/>
-  <path class="edge" d="M392 728 L478 728 L478 828 L992 828 L992 435 L1038 435" fill="none" stroke="#ea580c" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)"/>
-  <path class="edge" d="M1203 512 L1203 604" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5" marker-end="url(#arrow-blue)"/>
+  <path class="edge" d="M713 510 L713 590" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<polygon points="707,578 713,590 719,578" fill="#7c3aed" stroke="#7c3aed" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="edge" d="M 392 728 L 464 728 Q 478 728 478 742 L 478 814 Q 478 828 492 828 L 978 828 Q 992 828 992 814 L 992 449 Q 992 435 1006 435 L 1038 435" fill="none" stroke="#ea580c" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)"/>
+  <path class="edge" d="M1203 512 L1203 604" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<polygon points="1197,592 1203,604 1209,592" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <g class="card" data-card="DemoApplication">
     <rect x="72" y="194" width="320" height="118" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.8"/>
@@ -114,14 +116,15 @@
   </g>
 
   <g class="card" data-card="LettuceNearCache RegionFactory">
-    <rect x="1038" y="604" width="330" height="164" rx="8" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.8"/>
-    <text x="1203" y="625" text-anchor="middle" font-size="12.5" fill="#16a34a">&lt;&lt;Hibernate RegionFactory&gt;&gt;</text>
-    <text x="1203" y="648" text-anchor="middle" font-size="17" font-weight="700" fill="#111827">LettuceNearCache</text>
-<text x="1203" y="668" text-anchor="middle" font-size="17" font-weight="700" fill="#111827">RegionFactory</text>
-    <line x1="1038" y1="680" x2="1368" y2="680" stroke="#16a34a" stroke-width="1.1" opacity="0.55"/>
-    <line x1="1038" y1="734" x2="1368" y2="734" stroke="#16a34a" stroke-width="1.1" opacity="0.45"/>
-    <text x="1054" y="703" text-anchor="start" font-size="12.8" font-weight="400" fill="#475569">getCaches(): Map&lt;String, cache&gt;</text>
-<text x="1054" y="721" text-anchor="start" font-size="12.8" font-weight="400" fill="#475569">L1 Caffeine + L2 Redis</text>
+    <rect x="1038" y="604" width="390" height="164" rx="8" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.8"/>
+    <image data-bluetape4k-icon="redis/redis-icon.svg" x="1054" y="675" width="40" height="40" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBoZWlnaHQ9IjY0IiB2aWV3Qm94PSIwIDAgMzIgMzIiIHdpZHRoPSI2NCI+PGcgdHJhbnNmb3JtPSJtYXRyaXgoLjg0ODMyNyAwIDAgLjg0ODMyNyAtNy44ODM1NzMgLTkuNDQ5NjkxKSI+PHVzZSB4bGluazpocmVmPSIjQiIgZmlsbD0iI2E0MWUxMSIvPjxwYXRoIGQ9Ik00NS41MzYgMzQuOTVjLTIuMDEzIDEuMDUtMTIuNDQgNS4zMzctMTQuNjYgNi40OTRzLTMuNDUzIDEuMTQ2LTUuMjA3LjMwOC0xMi44NS01LjMyLTE0Ljg1LTYuMjc2LTIuMDQtMS42MTMtLjA3Ny0yLjM4MmwxNS4zMzItNS45MzZjMi4zMzItLjgzNiAzLjE0LS44NjcgNS4xMjYtLjE0UzQzLjU1IDMxLjg3IDQ1LjUxIDMyLjZzMi4wMzcgMS4zMS4wMjQgMi4zNnoiIGZpbGw9IiNkODJjMjAiLz48dXNlIHhsaW5rOmhyZWY9IiNCIiB5PSItNi4yMTgiIGZpbGw9IiNhNDFlMTEiLz48dXNlIHhsaW5rOmhyZWY9IiNDIiBmaWxsPSIjZDgyYzIwIi8+PHBhdGggZD0iTTQ1LjUzNiAyNi4wOThjLTIuMDEzIDEuMDUtMTIuNDQgNS4zMzctMTQuNjYgNi40OTVzLTMuNDUzIDEuMTQ2LTUuMjA3LjMwOC0xMi44NS01LjMyLTE0Ljg1LTYuMjc2Yy0xLS40NzgtMS41MjQtLjg4LTEuNTI0LTEuMjZWMjEuNTVzMTQuNDQ3LTMuMTQ1IDE2Ljc4LTMuOTgyIDMuMTQtLjg2NyA1LjEyNi0uMTQgMTMuODUzIDIuODY4IDE1LjgxNCAzLjU4N3YzLjc2YzAgLjM3Ny0uNDUyLjgtMS40NzcgMS4zMjR6IiBmaWxsPSIjYTQxZTExIi8+PHVzZSB4bGluazpocmVmPSIjQyIgeT0iLTYuNDQ5IiBmaWxsPSIjZDgyYzIwIi8+PGcgZmlsbD0iI2ZmZiI+PHBhdGggZD0iTTI5LjA5NiAyMC43MTJsLTEuMTgyLTEuOTY1LTMuNzc0LS4zNCAyLjgxNi0xLjAxNi0uODQ1LTEuNTYgMi42MzYgMS4wMyAyLjQ4Ni0uODE0LS42NzIgMS42MTIgMi41MzQuOTUtMy4yNjguMzR6TTIyLjggMjQuNjI0bDguNzQtMS4zNDItMi42NCAzLjg3MnoiLz48ZWxsaXBzZSBjeD0iMjAuNDQ0IiByeD0iNC42NzIiIHJ5PSIxLjgxMSIgY3k9IjIxLjQwMiIvPjwvZz48cGF0aCBkPSJNNDIuMTMyIDIxLjEzOGwtNS4xNyAyLjA0Mi0uMDA0LTQuMDg3eiIgZmlsbD0iIzdhMGMwMCIvPjxwYXRoIGQ9Ik0zNi45NjMgMjMuMThsLS41Ni4yMi01LjE2Ni0yLjA0MiA1LjcyMy0yLjI2NHoiIGZpbGw9IiNhZDIxMTUiLz48L2c+PGRlZnMgPjxwYXRoIGlkPSJCIiBkPSJNNDUuNTM2IDM4Ljc2NGMtMi4wMTMgMS4wNS0xMi40NCA1LjMzNy0xNC42NiA2LjQ5NHMtMy40NTMgMS4xNDYtNS4yMDcuMzA4LTEyLjg1LTUuMzItMTQuODUtNi4yNzZjLTEtLjQ3OC0xLjUyNC0uODgtMS41MjQtMS4yNnYtMy44MTNzMTQuNDQ3LTMuMTQ1IDE2Ljc4LTMuOTgyIDMuMTQtLjg2NyA1LjEyNi0uMTQgMTMuODUzIDIuODY4IDE1LjgxNCAzLjU4N3YzLjc2YzAgLjM3Ny0uNDUyLjgtMS40NzcgMS4zMjR6Ii8+PHBhdGggaWQ9IkMiIGQ9Ik00NS41MzYgMjguNzMzYy0yLjAxMyAxLjA1LTEyLjQ0IDUuMzM3LTE0LjY2IDYuNDk0cy0zLjQ1MyAxLjE0Ni01LjIwNy4zMDgtMTIuODUtNS4zMi0xNC44NS02LjI3Ni0yLjA0LTEuNjEzLS4wNzctMi4zODJsMTUuMzMyLTUuOTM1YzIuMzMyLS44MzcgMy4xNC0uODY3IDUuMTI2LS4xNHMxMi4zNSA0Ljg1MyAxNC4zMTIgNS41NyAyLjAzNyAxLjMxLjAyNCAyLjM2eiIvPjwvZGVmcz48L3N2Zz4=" preserveAspectRatio="xMidYMid meet"/>
+    <text x="1233" y="625" text-anchor="middle" font-size="12.5" fill="#16a34a">&lt;&lt;Hibernate RegionFactory&gt;&gt;</text>
+    <text x="1233" y="648" text-anchor="middle" font-size="17" font-weight="700" fill="#111827">LettuceNearCache</text>
+<text x="1233" y="668" text-anchor="middle" font-size="17" font-weight="700" fill="#111827">RegionFactory</text>
+    <line x1="1038" y1="680" x2="1428" y2="680" stroke="#16a34a" stroke-width="1.1" opacity="0.55"/>
+    <line x1="1038" y1="734" x2="1428" y2="734" stroke="#16a34a" stroke-width="1.1" opacity="0.45"/>
+    <text x="1110" y="703" text-anchor="start" font-size="12.8" font-weight="400" fill="#475569">getCaches(): Map&lt;String, cache&gt;</text>
+<text x="1110" y="721" text-anchor="start" font-size="12.8" font-weight="400" fill="#475569">L1 Caffeine + L2 Redis</text>
     <text x="1054" y="757" text-anchor="start" font-size="12.8" font-weight="400" fill="#374151">CacheController clears local cache only</text>
   </g>
   <g class="legend" transform="translate(72 914)">

@@ -13,7 +13,7 @@
       <path d="M1.5 1.5 L17 8 L1.5 14.5 Z" fill="#ffffff" stroke="#9333ea" stroke-width="2.1" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" />
     </marker>
     <marker id="open-gray" markerWidth="16" markerHeight="14" refX="14" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M2 2 L14 7 L2 12" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" />
+      <path d="M2 2 L14 7 L2 12" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/>
     </marker>
     <style>
       svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
@@ -91,11 +91,14 @@
     <text class="member" x="686" y="558" text-anchor="middle">equals contract</text>
   </g>
   <path class="extendsBlue" d="M426 404 L426 336" />
-  <path class="implBlue" d="M276 284 L166 284 L166 404" />
-  <path class="implBlue" d="M576 284 L686 284 L686 404" />
+  <path class="implBlue" d="M 276 284 L 180 284 Q 166 284 166 298 L 166 404" style="marker-end:none" />
+<polygon points="160,392 166,404 172,392" fill="#ffffff" stroke="#2563eb" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="implBlue" d="M 576 284 L 672 284 Q 686 284 686 298 L 686 404" style="marker-end:none" />
+<polygon points="680,392 686,404 692,392" fill="#ffffff" stroke="#2563eb" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <path class="extendsBlue" d="M426 512 L426 494" />
   <path class="assoc" d="M292 540 L238 540" />
-  <path class="implBlue" d="M560 540 L616 540" />
+  <path class="implBlue" d="M560 540 L616 540" style="marker-end:none" />
+<polygon points="604,546 616,540 604,534" fill="#ffffff" stroke="#2563eb" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <g>
     <rect class="box" x="1034" y="232" width="280" height="102" rx="8" fill="#f0fdfa" stroke="#0d9488" />
@@ -124,9 +127,10 @@
     <text class="name" x="1463" y="290" text-anchor="middle">SubjectApi&lt;T&gt;</text>
     <text class="member" x="1463" y="320" text-anchor="middle">Flow + FlowCollector</text>
   </g>
-  <path class="extendsTeal" d="M1080 414 L1080 370 L1118 370 L1118 334" />
-  <path class="assoc" d="M1174 334 L1174 386 L1238 386 L1238 414" />
-  <path class="implPurple" d="M1463 414 L1463 334" />
+  <path class="extendsTeal" d="M 1080 414 L 1080 384 Q 1080 370 1094 370 L 1104 370 Q 1118 370 1118 356 L 1118 334" />
+  <path class="assoc" d="M 1174 334 L 1174 372 Q 1174 386 1188 386 L 1232 386 Q 1238 386 1238 392 L 1238 414" />
+  <path class="implPurple" d="M1463 414 L1463 334" style="marker-end:none" />
+<polygon points="1469,346 1463,334 1457,346" fill="#ffffff" stroke="#9333ea" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <g>
     <rect class="box" x="292" y="724" width="268" height="76" rx="8" fill="#eef6ff" stroke="#2563eb" />
@@ -148,9 +152,9 @@
     <text class="name" x="661" y="888" text-anchor="middle">VirtualThread</text>
     <text class="name" x="661" y="916" text-anchor="middle">Scope</text>
   </g>
-  <path class="extendsBlue" d="M199 856 L199 826 L380 826 L380 800" />
+  <path class="extendsBlue" d="M 199 856 L 199 838 Q 199 826 211 826 L 376 826 Q 380 826 380 822 L 380 800" />
   <path class="extendsBlue" d="M430 856 L430 800" />
-  <path class="extendsBlue" d="M661 856 L661 826 L472 826 L472 800" />
+  <path class="extendsBlue" d="M 661 856 L 661 838 Q 661 826 649 826 L 476 826 Q 472 826 472 822 L 472 800" />
 
   <g>
     <rect class="box" x="934" y="728" width="248" height="92" rx="8" fill="#fff7ed" stroke="#ea580c" />

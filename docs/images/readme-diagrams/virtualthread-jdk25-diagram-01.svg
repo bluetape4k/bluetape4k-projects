@@ -2,7 +2,7 @@
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10" /></filter>
   <marker id="usesBlue" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
-  <marker id="usesAmber" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" /></marker>
+  <marker id="usesAmber" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
@@ -41,13 +41,13 @@
 <path class="solid" d="M380 532 L380 660" stroke="#D97706" />
 
 <polyline points="372,642 380,660 388,642" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="solid" d="M1100 550 L1100 610 L855 610 L855 670" stroke="#D97706" />
+<path class="solid" d="M 1100 550 L 1100 596 Q 1100 610 1086 610 L 869 610 Q 855 610 855 624 L 855 670" stroke="#D97706" />
 
 <polyline points="847,652 855,670 863,652" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="solid" d="M1180 550 L1180 670" stroke="#D97706" />
 
 <polyline points="1172,652 1180,670 1188,652" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="solid" d="M1260 550 L1260 610 L1530 610 L1530 670" stroke="#D97706" />
+<path class="solid" d="M 1260 550 L 1260 596 Q 1260 610 1274 610 L 1516 610 Q 1530 610 1530 624 L 1530 670" stroke="#D97706" />
 
 <polyline points="1522,652 1530,670 1538,652" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 </svg>

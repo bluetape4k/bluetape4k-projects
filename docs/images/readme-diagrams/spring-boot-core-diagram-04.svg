@@ -5,16 +5,16 @@
   </style>
   <defs>
     <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-green" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#16a34a" stroke="#16a34a" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#16a34a" stroke="#16a34a" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-gray" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#64748b" stroke="#64748b" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#64748b" stroke="#64748b" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-purple" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#7c3aed" stroke="#7c3aed" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#7c3aed" stroke="#7c3aed" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
   </defs>
   <rect width="1296" height="860" fill="#ffffff"/>
@@ -41,9 +41,9 @@
   </g>
 
   <path class="edge" d="M210 316 L210 390" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
-  <path class="edge" d="M334 438 L390 438 L390 248 L468 248" fill="none" stroke="#7c3aed" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
-  <path class="edge" d="M334 438 L390 438 L390 388 L468 388" fill="none" stroke="#64748b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-gray)"/>
-  <path class="edge" d="M334 438 L390 438 L390 528 L468 528" fill="none" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+  <path class="edge" d="M 334 438 L 376 438 Q 390 438 390 424 L 390 262 Q 390 248 404 248 L 468 248" fill="none" stroke="#7c3aed" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+  <path class="edge" d="M 334 438 L 376 438 Q 390 438 390 424 L 390 402 Q 390 388 404 388 L 468 388" fill="none" stroke="#64748b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-gray)"/>
+  <path class="edge" d="M 334 438 L 376 438 Q 390 438 390 452 L 390 514 Q 390 528 404 528 L 468 528" fill="none" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
   <path class="edge" d="M334 644 L468 644" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
   <path class="edge" d="M586 292 L586 344" fill="none" stroke="#7c3aed" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
   <path class="edge" d="M586 432 L586 484" fill="none" stroke="#64748b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-gray)"/>
@@ -115,7 +115,8 @@
 <text x="1035" y="396" text-anchor="middle" font-size="12.5" font-weight="400" fill="#78350f">insecureSslContext() is</text>
 <text x="1035" y="412" text-anchor="middle" font-size="12.5" font-weight="400" fill="#78350f">development/test only.</text>
   </g>
-  <path class="edge" d="M912 374 L704 528" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5" marker-end="url(#arrow-gray)"/>
+  <path class="edge" d="M 912 374 L 834 374 Q 820 374 820 388 L 820 514 Q 820 528 806 528 L 704 528" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<polygon points="716,522 704,528 716,534" fill="#64748b" stroke="#64748b" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <g class="legend" transform="translate(76 814)">
     <line x1="0" y1="0" x2="38" y2="0" stroke="#2563eb" stroke-width="3.2" marker-end="url(#arrow-blue)"/>

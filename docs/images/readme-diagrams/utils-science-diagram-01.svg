@@ -82,7 +82,8 @@
   <text class="edgeLabel" x="1635" y="1130">metadata + grid values</text>
 </g>
 <g data-from="NetCdfTables" data-to="Progress">
-  <path class="edge dashed" d="M2170 1155 L2310 1155" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <path class="edge dashed" d="M2170 1155 L2310 1155" stroke="#BE185D"/>
+<polygon points="2298,1161 2310,1155 2298,1149" fill="#BE185D" stroke="#BE185D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="2190" y="1130">lease and resume</text>
 </g>
 <g id="Coords">

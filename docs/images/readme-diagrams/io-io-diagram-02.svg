@@ -34,22 +34,22 @@
       .inheritBus { fill: none; stroke: #263238; stroke-width: 1.9; }
     </style>
     <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="hollowDark" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#263238" stroke-width="1.7"/>
+      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#263238" stroke-width="1.7" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="hollowSlate" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#455a64" stroke-width="1.7"/>
+      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#455a64" stroke-width="1.7" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
       <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
@@ -149,17 +149,19 @@
   <text x="122" y="1072" class="panel-title">Reader contract</text>
   <text x="122" y="1100" class="small">Null graph serializes to empty bytes; null or empty bytes deserialize to null. All other failures become BinarySerializationException at the abstract base.</text>
 
-  <path d="M 640 462 L 640 388" class="realize"/>
+  <path d="M 640 462 L 640 388" class="realize" style="marker-end:none"/>
+<polygon points="646,400 640,388 634,400" fill="#455a64" stroke="#455a64" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <rect x="662" y="420" width="90" height="24" rx="12" fill="#ffffff" stroke="#d7e0e4"/>
   <text x="707" y="437" text-anchor="middle" class="label">implements</text>
 
   <path d="M 637 824 L 637 612" class="extends"/>
-  <path d="M 259 824 L 259 790 L 637 790" class="inheritBus"/>
-  <path d="M 1015 824 L 1015 790 L 637 790" class="inheritBus"/>
+  <path d="M 259 824 L 259 803.6 Q 259 790 272.6 790 L 637 790" class="inheritBus" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 1015 824 L 1015 803.6 Q 1015 790 1001.4 790 L 637 790" class="inheritBus" stroke-linecap="round" stroke-linejoin="round"/>
   <rect x="650" y="760" width="104" height="24" rx="12" fill="#ffffff" stroke="#d7e0e4"/>
   <text x="702" y="777" text-anchor="middle" class="label">base subclasses</text>
 
-  <path d="M 1046 462 L 1046 325 L 850 325" class="realize"/>
+  <path d="M 1046 462 L 1046 339 Q 1046 325 1032 325 L 850 325" class="realize" stroke-linecap="round" stroke-linejoin="round" style="marker-end:none"/>
+<polygon points="862,319 850,325 862,331" fill="#455a64" stroke="#455a64" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <path d="M 1040 654 L 1040 612" class="extends"/>
 
   <path d="M 368 536 L 430 536" class="flowGreen"/>

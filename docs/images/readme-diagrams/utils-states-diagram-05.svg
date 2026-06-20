@@ -15,8 +15,8 @@
 <path class="edge" d="M525 328 L635 328" stroke="#2563EB" marker-end="url(#arrow-pay)"/>
 <path class="edge" d="M885 328 L995 328" stroke="#16A34A" marker-end="url(#arrow-ship)"/>
 <path class="edge" d="M1245 328 L1355 328" stroke="#0D9488" marker-end="url(#arrow-deliver)"/>
-<path class="edge" d="M400 405 L400 485 L565 485 L565 555" stroke="#9333EA" marker-end="url(#arrow-cancelCreated)"/>
-<path class="edge" d="M760 405 L760 485 L645 485 L645 555" stroke="#9333EA" marker-end="url(#arrow-cancelPaid)"/>
+<path class="edge" d="M 400 405 L 400 471 Q 400 485 414 485 L 551 485 Q 565 485 565 499 L 565 555" stroke="#9333EA" marker-end="url(#arrow-cancelCreated)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge" d="M 760 405 L 760 471 Q 760 485 746 485 L 659 485 Q 645 485 645 499 L 645 555" stroke="#9333EA" marker-end="url(#arrow-cancelPaid)" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="edge" d="M1120 405 L1120 570" stroke="#EA580C" marker-end="url(#arrow-cancelRejected)"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(201 302)"><rect width="72" height="30" rx="8"/><text x="36" y="20" text-anchor="middle">initial</text></g>
 <g class="edgeLabel" transform="translate(553 287)"><rect width="54" height="30" rx="8"/><text x="27" y="20" text-anchor="middle">Pay</text></g>

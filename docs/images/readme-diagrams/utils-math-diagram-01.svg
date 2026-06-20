@@ -12,7 +12,7 @@
 <rect class="canvas" width="2060" height="1280"/><rect class="frame" x="34" y="30" width="1992" height="1214" rx="8"/>
 <text class="title" x="78" y="88">Math Feature Structure</text>
 <text class="subtitle" x="82" y="120">A task-oriented map of bluetape4k-math: statistics, random sampling, numeric methods, algebra, geometry, and ML helpers over Apache Commons Math3.</text>
-<rect class="lane" x="70" y="455" width="1875" height="592" rx="8"/><text class="laneTitle" x="98" y="442">reader-facing feature groups backed by concrete package/file families</text>
+<rect class="lane" x="70" y="455" width="1875" height="592" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/><text class="laneTitle" x="98" y="442">reader-facing feature groups backed by concrete package/file families</text>
 <g id="edges"><path class="edge " d="M310 345 L310 510" stroke="#2563EB" marker-end="url(#arrow-apiStats)"/>
 <path class="edge " d="M760 345 L760 510" stroke="#16A34A" marker-end="url(#arrow-apiRandom)"/>
 <path class="edge " d="M1230 345 L1230 510" stroke="#0D9488" marker-end="url(#arrow-apiCalculus)"/>
@@ -67,7 +67,7 @@
 </g>
 <g id="solving">
   <rect class="card" x="1510" y="510" width="390" height="190" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <rect x="1530" y="536" width="50" height="50" rx="12" fill="#EA580C"/><path d="M1536 565 L1547 565 L1553 546 L1560 570 L1569 570" fill="none" stroke="#fff" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="1530" y="536" width="50" height="50" rx="12" fill="#EA580C"/><path d="M 1536 565 L 1543 565 Q 1547 565 1548.2 561.19 L 1553 546 L 1558.88 566.16 Q 1560 570 1564 570 L 1569 570" fill="none" stroke="#fff" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="kicker" x="1604" y="548">equation package</text>
   <text class="cardTitle" x="1604" y="578">Equation Solving</text>
   <text class="detail" x="1604" y="614">Bisection, Brent, Secant</text>
@@ -112,7 +112,7 @@
 </g>
 <g id="foundation">
   <rect class="card" x="345" y="1068" width="1330" height="124" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-  <rect x="365" y="1094" width="50" height="50" rx="12" fill="#64748B"/><path d="M371 1128 H403 M376 1128 V1111 H385 V1128 M391 1128 V1103 H400 V1128" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+  <rect x="365" y="1094" width="50" height="50" rx="12" fill="#64748B"/><path d="M 371 1128 L 403 1128 L 382.8 1128 Q 376 1128 376 1121.2 L 376 1115 Q 376 1111 380 1111 L 381 1111 Q 385 1111 385 1115 L 385 1124 Q 385 1128 389 1128 L 387 1128 Q 391 1128 391 1124 L 391 1107 Q 391 1103 395 1103 L 396 1103 Q 400 1103 400 1107 L 400 1128" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
   <text class="kicker" x="439" y="1106">external dependency</text>
   <text class="cardTitle" x="439" y="1136">Apache Commons Math3 Foundation</text>
   <text class="detail" x="439" y="1172">the module mostly exposes Kotlin-friendly entry points over stable Commons Math primitives</text>

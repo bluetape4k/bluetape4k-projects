@@ -184,7 +184,7 @@
   <text class="edgeLabel" x="2003" y="988">implements</text>
 </g>
 <g data-from="ResilientSuspendNearCacheDecorator" data-to="NearCacheResilienceConfig">
-  <path class="edge dashed"  d="M560 1285 L545 1285 L545 960 L455 960 L455 915" stroke="#C2410C" />
+  <path class="edge dashed"  d="M 560 1285 L 555 1285 Q 545 1285 545 1275 L 545 974 Q 545 960 531 960 L 469 960 Q 455 960 455 946 L 455 915" stroke="#C2410C" stroke-linecap="round" stroke-linejoin="round" />
 
   <polyline points="463,933 455,915 447,933" fill="none" stroke="#C2410C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
   <text class="edgeLabel" x="556" y="992">uses</text>

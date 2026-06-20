@@ -22,19 +22,19 @@
 <text class="title" x="74" y="84">Mock Web Server Routing Overview</text>
 <text class="subtitle" x="78" y="118">Integration tests enter container HTTP/HTTPS ports, route through Spring MVC controllers, then use in-memory fixtures or cached static content.</text>
 
-<rect class="lane" x="76" y="160" width="300" height="760"/>
+<rect class="lane" x="76" y="160" width="300" height="760" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
 <text class="laneTitle" x="112" y="206">Access</text>
 <text class="laneSub" x="112" y="230">Testcontainers URLs and exposed ports</text>
 
-<rect class="lane" x="430" y="160" width="350" height="760"/>
+<rect class="lane" x="430" y="160" width="350" height="760" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
 <text class="laneTitle" x="466" y="206">Runtime</text>
 <text class="laneSub" x="466" y="230">Spring Boot 4 MVC on virtual threads</text>
 
-<rect class="lane" x="834" y="160" width="350" height="760"/>
+<rect class="lane" x="834" y="160" width="350" height="760" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
 <text class="laneTitle" x="870" y="206">Endpoint controllers</text>
 <text class="laneSub" x="870" y="230">prefix routing and request semantics</text>
 
-<rect class="lane" x="1238" y="160" width="475" height="760"/>
+<rect class="lane" x="1238" y="160" width="475" height="760" fill="#FFF7ED" stroke="#FDBA74" fill-opacity="0.72"/>
 <text class="laneTitle" x="1274" y="206">Fixture backends</text>
 <text class="laneSub" x="1274" y="230">echo helpers, repositories, caches, resources</text>
 
@@ -84,7 +84,7 @@
 <rect class="card store" x="1276" y="840" width="380" height="58"/>
 <text class="cardText" x="1302" y="875">classpath JSON fixtures and web/html resources</text>
 
-<path class="arrow blue" d="M226 418 L226 506 L468 506"/>
+<path class="arrow blue" d="M 226 418 L 226 492 Q 226 506 240 506 L 468 506" stroke-linecap="round" stroke-linejoin="round"/>
 <rect class="labelBox" x="250" y="474" width="142" height="24"/>
 <text class="label" x="266" y="491">mapped URL</text>
 
@@ -108,6 +108,6 @@
 <rect class="labelBox" x="1178" y="625" width="78" height="24"/>
 <text class="label" x="1194" y="642">/web</text>
 
-<path class="arrow green" d="M1656 539 L1686 539 L1686 869 L1656 869"/>
+<path class="arrow green" d="M 1656 539 L 1674 539 Q 1686 539 1686 551 L 1686 861 Q 1686 869 1678 869 L 1656 869" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="arrow pink" d="M1466 818 L1466 840"/>
 </svg>

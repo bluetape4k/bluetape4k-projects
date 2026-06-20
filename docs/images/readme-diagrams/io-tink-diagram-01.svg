@@ -27,16 +27,16 @@
       .footer { font-size: 14px; fill: #60727d; }
     </style>
     <marker id="hollowTriangle" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 12 6 L 1 11 Z" fill="#fbfcf8" stroke="#3f7d9c" stroke-width="2" stroke-dasharray="none"/>
+      <path d="M 1 1 L 12 6 L 1 11 Z" fill="#fbfcf8" stroke="#3f7d9c" stroke-width="2" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#7f6038" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#7f6038" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="openFactory" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#7b67a8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#7b67a8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="openStore" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#55783f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#55783f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
   </defs>
 
@@ -144,15 +144,20 @@
     <text x="1060" y="968" class="method">+ old versions still decrypt</text>
   </g>
 
-  <path class="realize" d="M 528 390 L 528 350 L 735 350 L 735 330"/>
-  <path class="realize" d="M 1072 390 L 1072 350 L 865 350 L 865 330"/>
-  <path class="factory" d="M 312 435 L 358 435"/>
-  <path class="factory" d="M 312 700 L 358 700"/>
-  <path class="factory" d="M 1288 700 L 1242 700"/>
+  <path class="realize" d="M 528 390 L 528 364 Q 528 350 542 350 L 731 350 Q 735 350 735 346 L 735 330" stroke-linecap="round" stroke-linejoin="round" style="marker-end:none"/>
+<polygon points="741,342 735,330 729,342" fill="#3f7d9c" stroke="#3f7d9c" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="realize" d="M 1072 390 L 1072 364 Q 1072 350 1058 350 L 869 350 Q 865 350 865 346 L 865 330" stroke-linecap="round" stroke-linejoin="round" style="marker-end:none"/>
+<polygon points="871,342 865,330 859,342" fill="#3f7d9c" stroke="#3f7d9c" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="factory" d="M 312 435 L 358 435" style="marker-end:none"/>
+<polyline points="346,441 358,435 346,429" fill="none" stroke="#7b67a8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="factory" d="M 312 700 L 358 700" style="marker-end:none"/>
+<polyline points="346,706 358,700 346,694" fill="none" stroke="#7b67a8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="factory" d="M 1288 700 L 1242 700" style="marker-end:none"/>
+<polyline points="1254,694 1242,700 1254,706" fill="none" stroke="#7b67a8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <path class="uses" d="M 528 540 L 528 640"/>
   <path class="uses" d="M 1072 540 L 1072 640"/>
-  <path class="uses" d="M 397 868 L 397 825 L 528 825 L 528 790"/>
-  <path class="uses" d="M 1203 868 L 1203 825 L 1072 825 L 1072 790"/>
+  <path class="uses" d="M 397 868 L 397 839 Q 397 825 411 825 L 515 825 Q 528 825 528 812 L 528 790" stroke-linecap="round" stroke-linejoin="round"/>
+  <path class="uses" d="M 1203 868 L 1203 839 Q 1203 825 1189 825 L 1085 825 Q 1072 825 1072 812 L 1072 790" stroke-linecap="round" stroke-linejoin="round"/>
   <path class="keyset" d="M 562 933 L 620 933"/>
   <path class="keyset" d="M 1038 933 L 980 933"/>
 

@@ -12,7 +12,7 @@
 <path class="edge extends" d="M970 690 L970 575" stroke="#0D9488"/>
 <path class="edge implements" d="M1600 425 L1600 360" stroke="#EA580C"/>
 <path class="edge extends" d="M1600 690 L1600 575" stroke="#EA580C"/>
-<path class="edge uses" d="M730 265 L620 265 L620 256 L580 256" stroke="#64748B"/></g>
+<path class="edge uses" d="M 730 265 L 630 265 Q 620 265 620 255 L 620 266 Q 620 256 610 256 L 580 256" stroke="#64748B" stroke-linecap="round" stroke-linejoin="round"/></g>
 <g id="arrowheads"><path class="solidHead" d="M340 340 L333 354 L347 354 Z" fill="#FFFFFF" stroke="#2563EB"/>
 <path class="solidHead" d="M340 575 L333 589 L347 589 Z" fill="#FFFFFF" stroke="#2563EB"/>
 <path class="solidHead" d="M970 360 L963 374 L977 374 Z" fill="#FFFFFF" stroke="#0D9488"/>

@@ -4,10 +4,10 @@
       <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
     </filter>
     <marker id="flowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.1" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.1" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="openPurple" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#9333ea" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#9333ea" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <style>
       svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
@@ -85,8 +85,10 @@
     <text class="attr" x="1038" y="492">+ teamId, teamName</text>
   </g>
 
-  <path class="map" d="M 848 316 H 1012"/>
-  <path class="map" d="M 848 396 H 930 V 448 H 1012"/>
+  <path class="map" d="M 848 316 H 1012" style="marker-end:none"/>
+<polyline points="1000,322 1012,316 1000,310" fill="none" stroke="#9333ea" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="map" d="M 848 396 L 916 396 Q 930 396 930 410 L 930 434 Q 930 448 944 448 L 1012 448" style="marker-end:none"/>
+<polyline points="1000,454 1012,448 1000,442" fill="none" stroke="#9333ea" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <rect class="panel" x="78" y="594" width="1344" height="232" rx="8"/>
   <rect class="chip" x="104" y="616" width="310" height="38" rx="8"/>

@@ -16,11 +16,11 @@
 <rect class="canvas" width="2040" height="1400" /><rect class="frame" x="38" y="30" width="1964" height="1334" rx="8" />
 <text class="title" x="78" y="86">States Class Structure</text>
 <text class="subtitle" x="82" y="118">Sync, suspend, and reactive machines share the read-only FSM contract while keeping different transition APIs and concurrency models.</text>
-<g id="edges"><path class="edge" d="M335 420 L335 360 L920 360 L920 317" stroke="#2563EB" />
+<g id="edges"><path class="edge" d="M 335 420 L 335 374 Q 335 360 349 360 L 906 360 Q 920 360 920 346 L 920 317" stroke="#2563EB" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="929,338 920,317 911,338" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="edge" d="M1020 420 L1020 317" stroke="#16A34A" />
 <polygon points="1029,338 1020,317 1011,338" fill="#FFFFFF" stroke="#16A34A" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" d="M1705 420 L1705 360 L1120 360 L1120 317" stroke="#0D9488" />
+<path class="edge" d="M 1705 420 L 1705 374 Q 1705 360 1691 360 L 1134 360 Q 1120 360 1120 346 L 1120 317" stroke="#0D9488" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="1129,338 1120,317 1111,338" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="edge implements" d="M335 675 L335 570" stroke="#2563EB" />
 <polygon points="344,591 335,570 326,591" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
@@ -28,22 +28,22 @@
 <polygon points="1029,591 1020,570 1011,591" fill="#FFFFFF" stroke="#16A34A" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="edge implements" d="M1705 675 L1705 570" stroke="#0D9488" />
 <polygon points="1714,591 1705,570 1696,591" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" d="M335 825 L335 875 L910 875 L910 925" stroke="#2563EB" />
+<path class="edge" d="M 335 825 L 335 861 Q 335 875 349 875 L 896 875 Q 910 875 910 889 L 910 925" stroke="#2563EB" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="902,907 910,925 918,907" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="edge" d="M1020 825 L1020 925" stroke="#16A34A" />
 
 <polyline points="1012,907 1020,925 1028,907" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" d="M1705 825 L1705 875 L1130 875 L1130 925" stroke="#0D9488" />
+<path class="edge" d="M 1705 825 L 1705 861 Q 1705 875 1691 875 L 1144 875 Q 1130 875 1130 889 L 1130 925" stroke="#0D9488" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="1122,907 1130,925 1138,907" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" d="M895 1067 L895 1125 L270 1125 L270 1150" stroke="#9333EA" />
+<path class="edge" d="M 895 1067 L 895 1111 Q 895 1125 881 1125 L 280 1125 Q 270 1125 270 1135 L 270 1150" stroke="#9333EA" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="262,1132 270,1150 278,1132" fill="none" stroke="#9333EA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" d="M980 1067 L980 1137 L725 1137 L725 1150" stroke="#9333EA" />
+<path class="edge" d="M 980 1067 L 980 1123 Q 980 1137 966 1137 L 735 1137 Q 725 1137 725 1147 L 725 1150" stroke="#9333EA" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="717,1132 725,1150 733,1132" fill="none" stroke="#9333EA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" d="M1100 1067 L1100 1125 L1180 1125 L1180 1150" stroke="#9333EA" />
+<path class="edge" d="M 1100 1067 L 1100 1111 Q 1100 1125 1114 1125 L 1170 1125 Q 1180 1125 1180 1135 L 1180 1150" stroke="#9333EA" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="1172,1132 1180,1150 1188,1132" fill="none" stroke="#9333EA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(587 323)"><rect width="82" height="30" rx="8" /><text x="41" y="20" text-anchor="middle">extends</text></g>

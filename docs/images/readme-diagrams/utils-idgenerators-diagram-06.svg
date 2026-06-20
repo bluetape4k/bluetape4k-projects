@@ -69,10 +69,10 @@
   <text class="segmentRange" x="2082" y="1186" text-anchor="middle">SecureRandom bytes</text>
 </g>
 </g>
-<path class="guide" d="M486 500 V540 H820 V570" stroke="#1D4ED8"/>
-<path class="guide" d="M1816 500 V540 H2280 V570" stroke="#C2410C"/>
-<path class="guide" d="M752 1220 V1260 H820 V1290" stroke="#6D28D9"/>
-<path class="guide" d="M2082 1220 V1260 H2280 V1290" stroke="#15803D"/>
+<path class="guide" d="M 486 500 L 486 526 Q 486 540 500 540 L 808 540 Q 820 540 820 552 L 820 570" stroke="#1D4ED8"/>
+<path class="guide" d="M 1816 500 L 1816 526 Q 1816 540 1830 540 L 2268 540 Q 2280 540 2280 552 L 2280 570" stroke="#C2410C"/>
+<path class="guide" d="M 752 1220 L 752 1246 Q 752 1260 766 1260 L 808 1260 Q 820 1260 820 1272 L 820 1290" stroke="#6D28D9"/>
+<path class="guide" d="M 2082 1220 L 2082 1246 Q 2082 1260 2096 1260 L 2268 1260 Q 2280 1260 2280 1272 L 2280 1290" stroke="#15803D"/>
 <g>
   <rect class="card" x="220" y="570" width="1200" height="250" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="cardTitle" x="820" y="624" text-anchor="middle">Seconds timestamp</text>

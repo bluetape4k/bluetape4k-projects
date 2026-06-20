@@ -4,19 +4,19 @@
       <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
     </filter>
     <marker id="arrow-blue" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#2563eb" stroke="#2563eb" stroke-width="1.2" stroke-dasharray="none"/>
+      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#2563eb" stroke="#2563eb" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-purple" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#9333ea" stroke="#9333ea" stroke-width="1.2" stroke-dasharray="none"/>
+      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#9333ea" stroke="#9333ea" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-orange" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#ea580c" stroke="#ea580c" stroke-width="1.2" stroke-dasharray="none"/>
+      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#ea580c" stroke="#ea580c" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-teal" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#0d9488" stroke="#0d9488" stroke-width="1.2" stroke-dasharray="none"/>
+      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#0d9488" stroke="#0d9488" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-green" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.2" stroke-dasharray="none"/>
+      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
   </defs>
 
@@ -61,7 +61,7 @@
     <text class="tiny" x="1558" y="172" text-anchor="middle">Exported signal</text>
   </g>
 
-  <rect class="lane" x="82" y="192" width="1636" height="122" rx="8"/>
+  <rect class="lane" x="82" y="192" width="1636" height="154" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
   <text class="laneLabel" x="112" y="228">Timer / Flow</text>
   <rect class="card source" x="132" y="246" width="184" height="46" rx="8"/>
   <text class="name" x="224" y="275" text-anchor="middle">suspend block</text>
@@ -82,7 +82,7 @@
   <path class="blue" d="M 1046 269 H 1124"/>
   <path class="blue" d="M 1364 269 H 1444"/>
 
-  <rect class="lane" x="82" y="344" width="1636" height="122" rx="8"/>
+  <rect class="lane" x="82" y="344" width="1636" height="154" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
   <text class="laneLabel" x="112" y="380">Observation</text>
   <rect class="card source" x="132" y="398" width="184" height="46" rx="8"/>
   <text class="name" x="224" y="427" text-anchor="middle">operation block</text>
@@ -103,7 +103,7 @@
   <path class="purple" d="M 1046 421 H 1124"/>
   <path class="purple" d="M 1364 421 H 1444"/>
 
-  <rect class="lane" x="82" y="496" width="1636" height="122" rx="8"/>
+  <rect class="lane" x="82" y="496" width="1636" height="154" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
   <text class="laneLabel" x="112" y="532">Event telemetry</text>
   <rect class="card source" x="132" y="550" width="184" height="46" rx="8"/>
   <text class="name" x="224" y="579" text-anchor="middle">publish/consume</text>
@@ -124,7 +124,7 @@
   <path class="purple" d="M 1046 573 H 1124"/>
   <path class="purple" d="M 1364 573 H 1444"/>
 
-  <rect class="lane" x="82" y="648" width="1636" height="122" rx="8"/>
+  <rect class="lane" x="82" y="648" width="1636" height="154" rx="8" fill="#FFF7ED" stroke="#FDBA74" fill-opacity="0.72"/>
   <text class="laneLabel" x="112" y="684">Retrofit2</text>
   <rect class="card source" x="132" y="702" width="184" height="46" rx="8"/>
   <text class="name" x="224" y="731" text-anchor="middle">Retrofit Call</text>
@@ -145,7 +145,7 @@
   <path class="orange" d="M 1046 725 H 1124"/>
   <path class="orange" d="M 1364 725 H 1444"/>
 
-  <rect class="lane" x="82" y="800" width="1636" height="122" rx="8"/>
+  <rect class="lane" x="82" y="800" width="1636" height="154" rx="8" fill="#FDF2F8" stroke="#F9A8D4" fill-opacity="0.72"/>
   <text class="laneLabel" x="112" y="836">Cache2k + KeyValues</text>
   <rect class="card source" x="132" y="854" width="184" height="46" rx="8"/>
   <text class="name" x="224" y="883" text-anchor="middle">cache + tags</text>
@@ -162,7 +162,8 @@
   <text class="name" x="1558" y="869" text-anchor="middle">cache series</text>
   <text class="meta" x="1558" y="896" text-anchor="middle">size, hit/miss, load</text>
   <path class="teal" d="M 316 877 H 418"/>
-  <path class="green" d="M 706 877 H 762"/>
+  <path class="green" d="M 706 877 H 762" style="marker-end:none"/>
+<polygon points="750,883 762,877 750,871" fill="#16a34a" stroke="#16a34a" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <path class="teal" d="M 1046 877 H 1124"/>
   <path class="teal" d="M 1364 877 H 1444"/>
 
@@ -175,7 +176,8 @@
     <text class="tiny" x="470" y="19">Retrofit path</text>
     <path class="teal" d="M 608 14 H 664"/>
     <text class="tiny" x="680" y="19">Cache path</text>
-    <path class="green" d="M 802 14 H 858"/>
+    <path class="green" d="M 802 14 H 858" style="marker-end:none"/>
+<polygon points="846,20 858,14 846,8" fill="#16a34a" stroke="#16a34a" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
     <text class="tiny" x="874" y="19">Tag helper</text>
   </g>
 </svg>

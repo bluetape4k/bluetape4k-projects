@@ -103,8 +103,8 @@
   </g>
 </g>
 
-<path class="line" d="M 740 260 V 286 H 398 V 312" stroke="#3E9868" marker-end="url(#arrow-green)"/>
-<path class="line" d="M 780 260 V 286 H 1122 V 312" stroke="#B9851B" marker-end="url(#arrow-amber)"/>
-<path class="line" d="M 740 260 V 628 H 398 V 654" stroke="#4F83BF" marker-end="url(#arrow-blue)"/>
-<path class="line" d="M 780 260 V 628 H 1122 V 654" stroke="#755BC6" marker-end="url(#arrow-purple)"/>
+<path class="line" d="M 740 260 L 740 275.6 Q 740 286 729.6 286 L 408 286 Q 398 286 398 296 L 398 312" stroke="#3E9868" marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="line" d="M 780 260 L 780 275.6 Q 780 286 790.4 286 L 1112 286 Q 1122 286 1122 296 L 1122 312" stroke="#B9851B" marker-end="url(#arrow-amber)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="line" d="M 740 260 L 740 614 Q 740 628 726 628 L 408 628 Q 398 628 398 638 L 398 654" stroke="#4F83BF" marker-end="url(#arrow-blue)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="line" d="M 780 260 L 780 614 Q 780 628 794 628 L 1112 628 Q 1122 628 1122 638 L 1122 654" stroke="#755BC6" marker-end="url(#arrow-purple)" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

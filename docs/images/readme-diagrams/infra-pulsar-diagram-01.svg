@@ -68,7 +68,7 @@
 
   <g id="pulsar-client">
     <rect class="card external" x="160" y="266" width="292" height="76" rx="8"/>
-    <text class="smallName" x="306" y="298" text-anchor="middle">PulsarClient</text>
+    <image data-bluetape4k-icon="testcontainers/mq/apache-pulsar.svg" x="178" y="277" width="34" height="34" href="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjMTg4RkZGIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+QXBhY2hlIFB1bHNhcjwvdGl0bGU+PHBhdGggZD0iTTI0IDguOTI1aC01Ljg2NmMtMS41ODYtMy4wNDEtMy4yNjItNS40MDItNS41NDQtNS40MDItMi45NyAwLTQuMzY3IDIuNTkzLTUuNzE3IDUuMTE1bC0uMTE4LjIySDB2MS41aDMuOTM0YzEuMzkgMCAxLjY3My40NjggMS42NzMuNDY4LTEuMDkgMS42OTEtMi40IDMuMzYzLTQuNTg0IDMuMzYzSDB2MS41NzRoMS4wM2M0LjIzNCAwIDYuMDgzLTMuNDM0IDcuNTY3LTYuMTkzIDEuMzYxLTIuNTQxIDIuMzEtNC4wOCAzLjk5My00LjA4IDEuNzQ3IDAgMy41ODQgMy44MDEgNS4yMDEgNy4xNTcuMjM3LjQ4OC40NzcuOTg4LjcyIDEuNDgzLTYuMi4xOTctOS4xNTUgMS42NDktMTEuNTU5IDIuODMzLTEuNzU5Ljg2Ni0zLjE0NyAxLjk0LTUuNDMzIDEuOTRIMHYxLjU3NGgxLjUwN2MyLjc1NCAwIDQuNDctLjg1IDYuMjk1LTEuNzUxIDIuNTMtMS4yNDMgNS4zOTgtMi42NTIgMTIuMTU3LTIuNjUyaDMuOTA3VjE0LjVIMjEuNjZhMS4xOCAxLjE4IDAgMDEtLjk3Mi0uMzkzIDcwLjgzIDcwLjgzIDAgMDEtMS4xMzMtMi4zMjFsLS41MTEtMS4wNDdzLjM2Ni0uMzkzIDEuMzgtLjM5M0gyNFoiLz48L3N2Zz4=" preserveAspectRatio="xMidYMid meet"/><text class="smallName" x="306" y="298" text-anchor="middle">PulsarClient</text>
     <text class="meta" x="306" y="323" text-anchor="middle">ClientBuilder + serviceUrl</text>
   </g>
   <g id="pulsar-producer">
@@ -126,11 +126,16 @@
     <text class="meta" x="1560" y="607" text-anchor="middle">jackson3Schema</text>
   </g>
 
-  <path class="line blue" d="M 306 342 V 516"/>
-  <path class="line purple" d="M 659 342 V 500"/>
-  <path class="line teal" d="M 969 342 V 500"/>
-  <path class="line green" d="M 1279 342 V 500"/>
-  <path class="line orange" d="M 1560 342 V 516"/>
+  <path class="line blue" d="M 306 342 V 516" style="marker-end:none"/>
+<polyline points="300,504 306,516 312,504" fill="none" stroke="#2563EB" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="line purple" d="M 659 342 V 500" style="marker-end:none"/>
+<polyline points="653,488 659,500 665,488" fill="none" stroke="#9333EA" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="line teal" d="M 969 342 V 500" style="marker-end:none"/>
+<polyline points="963,488 969,500 975,488" fill="none" stroke="#0D9488" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="line green" d="M 1279 342 V 500" style="marker-end:none"/>
+<polyline points="1273,488 1279,500 1285,488" fill="none" stroke="#16A34A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="line orange" d="M 1560 342 V 516" style="marker-end:none"/>
+<polyline points="1554,504 1560,516 1566,504" fill="none" stroke="#EA580C" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <g id="producer-flow">
     <rect class="card producer" x="520" y="862" width="278" height="70" rx="8"/>
@@ -153,10 +158,14 @@
     <text class="meta" x="1560" y="918" text-anchor="middle">JSON type name</text>
   </g>
 
-  <path class="line purple" d="M 659 650 V 854"/>
-  <path class="line teal" d="M 969 650 V 854"/>
-  <path class="line green" d="M 1279 650 V 854"/>
-  <path class="line orange" d="M 1560 634 V 854"/>
+  <path class="line purple" d="M 659 650 V 854" style="marker-end:none"/>
+<polyline points="653,842 659,854 665,842" fill="none" stroke="#9333EA" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="line teal" d="M 969 650 V 854" style="marker-end:none"/>
+<polyline points="963,842 969,854 975,842" fill="none" stroke="#0D9488" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="line green" d="M 1279 650 V 854" style="marker-end:none"/>
+<polyline points="1273,842 1279,854 1285,842" fill="none" stroke="#16A34A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="line orange" d="M 1560 634 V 854" style="marker-end:none"/>
+<polyline points="1554,842 1560,854 1566,842" fill="none" stroke="#EA580C" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <g id="subscription-note">
     <rect class="card note" x="294" y="988" width="1212" height="66" rx="8"/>

@@ -127,11 +127,11 @@
   <text x="122" y="1000" class="small">ShortSmart can be 1 or 2 bytes; IntSmart is 2 or 4 bytes; unsigned variants have their own positive ranges, and VarInt is a separate 7-bit continuation encoding.</text>
 
   <path d="M 408 371 H 514" class="flowGold"/>
-  <path d="M 408 392 H 454 V 533 H 514" class="flowGold"/>
-  <path d="M 814 333 H 858 V 371 H 904" class="flowBlue"/>
-  <path d="M 814 533 H 858 V 392 H 904" class="flowBlue"/>
+  <path d="M 408 392 L 440 392 Q 454 392 454 406 L 454 519 Q 454 533 468 533 L 514 533" class="flowGold"/>
+  <path d="M 814 333 L 844 333 Q 858 333 858 347 L 858 357 Q 858 371 872 371 L 904 371" class="flowBlue"/>
+  <path d="M 814 533 L 844 533 Q 858 533 858 519 L 858 406 Q 858 392 872 392 L 904 392" class="flowBlue"/>
   <path d="M 408 773 H 514" class="flowGreen"/>
   <path d="M 814 773 H 904" class="flowRed"/>
-  <path d="M 1186 371 H 1240 V 401 H 1330" class="flowPurple"/>
+  <path d="M 1186 371 L 1228 371 Q 1240 371 1240 383 L 1240 389 Q 1240 401 1252 401 L 1330 401" class="flowPurple"/>
   <path d="M 1504 476 V 590" class="flowPurple"/>
 </svg>

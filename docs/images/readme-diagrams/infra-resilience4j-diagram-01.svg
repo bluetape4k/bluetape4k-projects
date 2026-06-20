@@ -4,10 +4,10 @@
     <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#203040" flood-opacity="0.10" />
   </filter>
   <marker id="openArrow" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18">
-    <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="context-stroke" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
+    <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#64748B" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
   </marker>
   <marker id="hollowTriangle" markerWidth="18" markerHeight="16" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
-    <path d="M 2 2 L 16 8 L 2 14 Z" fill="#FFFFFF" stroke="context-stroke" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
+    <path d="M 2 2 L 16 8 L 2 14 Z" fill="#FFFFFF" stroke="#64748B" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
   </marker>
 </defs>
 <style>
@@ -137,7 +137,7 @@
 <text class="member" x="1864" y="1314" text-anchor="start">+ get(key) / put(key, value)</text>
 <text class="member" x="1864" y="1343" text-anchor="start">blocking provider boundary</text>
 </g>
-<path id="e-ext-policy" class="uses" d="M 1172 382 L 1172 432 L 460 432 L 460 382" />
+<path id="e-ext-policy" class="uses" d="M 1172 382 L 1172 418 Q 1172 432 1158 432 L 474 432 Q 460 432 460 418 L 460 382" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="468,400 460,382 452,400" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="568" y="400" width="224" height="30" rx="9" />
@@ -160,7 +160,7 @@
 <polyline points="1930,794 1938,812 1946,794" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="1600" y="693" width="224" height="30" rx="9" />
 <text class="edgeLabel" x="1712" y="714" text-anchor="middle">creates</text>
-<path id="e-supplier-policy" class="uses" d="M 382 812 L 382 512 L 812 512" />
+<path id="e-supplier-policy" class="uses" d="M 382 812 L 382 526 Q 382 512 396 512 L 812 512" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="794,520 812,512 794,504" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="454" y="517" width="224" height="30" rx="9" />
@@ -168,15 +168,15 @@
 <path id="e-function1-policy" class="usesGreen" d="M 1160 812 L 1160 690" />
 
 <polyline points="1168,708 1160,690 1152,708" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path id="e-function2-policy" class="usesGreen" d="M 1938 812 L 1938 512 L 1520 512" />
+<path id="e-function2-policy" class="usesGreen" d="M 1938 812 L 1938 526 Q 1938 512 1924 512 L 1520 512" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="1538,504 1520,512 1538,520" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <rect class="labelBg" x="1636" y="517" width="224" height="30" rx="9" />
 <text class="edgeLabel" x="1748" y="538" text-anchor="middle">wraps bi-function</text>
-<path id="e-function1-cache" class="usesGreen" d="M 890 930 L 760 930 L 760 1160" />
+<path id="e-function1-cache" class="usesGreen" d="M 890 930 L 774 930 Q 760 930 760 944 L 760 1160" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="752,1142 760,1160 768,1142" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path id="e-supplier-cache" class="uses" d="M 382 1028 L 382 1072 L 74 1072 L 74 1246 L 112 1246" />
+<path id="e-supplier-cache" class="uses" d="M 382 1028 L 382 1058 Q 382 1072 368 1072 L 88 1072 Q 74 1072 74 1086 L 74 1232 Q 74 1246 88 1246 L 112 1246" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="94,1254 112,1246 94,1238" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path id="e-impl" class="impl" d="M 1252 1261 L 1124 1261" />

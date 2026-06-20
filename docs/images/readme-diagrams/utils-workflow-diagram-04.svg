@@ -25,9 +25,9 @@
 <g id="edges">
   <path class="edge" d="M440 307 L540 307" stroke="#2563EB" marker-end="url(#arrow-startExecute)"/>
   <path class="edge" d="M900 307 L1000 307" stroke="#16A34A" marker-end="url(#arrow-executeInspect)"/>
-  <path class="edge" d="M1360 307 L1455 307 L1455 495" stroke="#65A30D" marker-end="url(#arrow-noFailure)"/>
-  <path class="edge" d="M1180 369 L1180 450 L955 450 L955 495" stroke="#DB2777" marker-end="url(#arrow-failure)"/>
-  <path class="edge" d="M780 554 L660 554 L660 794 L640 794" stroke="#DB2777" marker-end="url(#arrow-stop)"/>
+  <path class="edge" d="M 1360 307 L 1441 307 Q 1455 307 1455 321 L 1455 495" stroke="#65A30D" marker-end="url(#arrow-noFailure)"/>
+  <path class="edge" d="M 1180 369 L 1180 436 Q 1180 450 1166 450 L 969 450 Q 955 450 955 464 L 955 495" stroke="#DB2777" marker-end="url(#arrow-failure)"/>
+  <path class="edge" d="M 780 554 L 689 554 Q 675 554 675 568 L 675 780 Q 675 794 662 794 L 640 794" stroke="#DB2777" marker-end="url(#arrow-stop)"/>
   <path class="edge" d="M955 613 L955 735" stroke="#EA580C" marker-end="url(#arrow-continue)"/>
   <path class="edge" d="M1385 613 L1385 735" stroke="#65A30D" marker-end="url(#arrow-successFinal)"/>
   <path class="edge" d="M1140 794 L1240 794" stroke="#EA580C" marker-end="url(#arrow-partialFinal)"/>

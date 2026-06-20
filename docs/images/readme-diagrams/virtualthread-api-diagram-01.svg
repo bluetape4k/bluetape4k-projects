@@ -38,8 +38,8 @@
 
 
 <polyline points="602,284 620,276 602,268" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="impl" d="M1160 270 L990 276" />
-<polygon points="1010.67,266.26 990,276 1011.3,284.25" fill="#FFFFFF" stroke="#64748B" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="impl" d="M 1160 270 L 1020 270 Q 1006 270 1006 276 L 990 276" />
+<polygon points="1012,266 990,276 1012,286" fill="#FFFFFF" stroke="#64748B" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="uses" d="M460 542 L600 542" stroke="#0D9488" />
 
 <polyline points="582,550 600,542 582,534" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>

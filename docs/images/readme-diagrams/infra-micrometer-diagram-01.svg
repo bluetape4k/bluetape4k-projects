@@ -133,7 +133,7 @@
 <polygon points="851,565 842,544 833,565" fill="#FFFFFF" stroke="#F97316" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path d="M 835 760 V 710" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="844,731 835,710 826,731" fill="#FFFFFF" stroke="#F97316" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path d="M 1220 590 V 546 H 980 V 532" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
+<path d="M 1220 590 L 1220 560 Q 1220 546 1206 546 L 990 546 Q 980 546 980 536 L 980 532" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
 
 <polyline points="988,550 980,532 972,550" fill="none" stroke="#F97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path d="M 1181 710 V 760" fill="none" stroke="#2563EB" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
@@ -151,10 +151,10 @@
 <path d="M 1040 1187 H 984" fill="none" stroke="#64748B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
 
 <polyline points="1002,1179 984,1187 1002,1195" fill="none" stroke="#64748B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path d="M 1181 1145 V 1072 H 865" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M 1181 1145 L 1181 1086 Q 1181 1072 1167 1072 L 865 1072" fill="none" stroke="#F97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="883,1064 865,1072 883,1080" fill="none" stroke="#F97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path d="M 1181 1229 V 1282 H 1586 V 1082" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
+<path d="M 1181 1229 L 1181 1268 Q 1181 1282 1195 1282 L 1572 1282 Q 1586 1282 1586 1268 L 1586 1082" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />
 
 <polyline points="1594,1100 1586,1082 1578,1100" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path d="M 1586 650 V 750" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8" />

@@ -99,8 +99,8 @@
   </g>
 </g>
 
-<path class="line" d="M 710 254 V 304 H 420 V 340" stroke="#3E9868" marker-end="url(#arrow-green)"/>
-<path class="line" d="M 750 254 V 304 H 890 V 340" stroke="#B9851B" marker-end="url(#arrow-amber)"/>
-<path class="line" d="M 790 254 V 304 H 1350 V 340" stroke="#755BC6" marker-end="url(#arrow-purple)"/>
+<path class="line" d="M 710 254 L 710 290 Q 710 304 696 304 L 434 304 Q 420 304 420 318 L 420 340" stroke="#3E9868" marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="line" d="M 750 254 L 750 290 Q 750 304 764 304 L 876 304 Q 890 304 890 318 L 890 340" stroke="#B9851B" marker-end="url(#arrow-amber)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="line" d="M 790 254 L 790 290 Q 790 304 804 304 L 1336 304 Q 1350 304 1350 318 L 1350 340" stroke="#755BC6" marker-end="url(#arrow-purple)" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="line" d="M 750 754 V 814" stroke="#4F83BF" marker-end="url(#arrow-blue)"/>
 </svg>

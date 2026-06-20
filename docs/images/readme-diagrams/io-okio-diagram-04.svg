@@ -33,16 +33,16 @@
       .icon-line-gold { fill: none; stroke: #a2743d; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
     </style>
     <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowPurple" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#8870a8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#8870a8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
       <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
@@ -128,11 +128,11 @@
 
   <path d="M 350 324 V 400" class="flowGreen"/>
   <path d="M 1450 324 V 400" class="flowGold"/>
-  <path d="M 303 656 V 682 H 487 V 706" class="flowGreen"/>
-  <path d="M 678 656 V 682 H 487 V 706" class="flowPurple"/>
-  <path d="M 1153 656 V 682 H 1337 V 706" class="flowGold"/>
-  <path d="M 1528 656 V 682 H 1337 V 706" class="flowPurple"/>
+  <path d="M 303 656 L 303 671.6 Q 303 682 313.4 682 L 477 682 Q 487 682 487 692 L 487 706" class="flowGreen"/>
+  <path d="M 678 656 L 678 671.6 Q 678 682 667.6 682 L 497 682 Q 487 682 487 692 L 487 706" class="flowPurple"/>
+  <path d="M 1153 656 L 1153 671.6 Q 1153 682 1163.4 682 L 1327 682 Q 1337 682 1337 692 L 1337 706" class="flowGold"/>
+  <path d="M 1528 656 L 1528 671.6 Q 1528 682 1517.6 682 L 1347 682 Q 1337 682 1337 692 L 1337 706" class="flowPurple"/>
 
-  <path d="M 487 768 V 824 H 900 V 850" class="flowRed"/>
-  <path d="M 1337 768 V 824 H 900 V 850" class="flowRed"/>
+  <path d="M 487 768 L 487 810 Q 487 824 501 824 L 890 824 Q 900 824 900 834 L 900 850" class="flowRed"/>
+  <path d="M 1337 768 L 1337 810 Q 1337 824 1323 824 L 910 824 Q 900 824 900 834 L 900 850" class="flowRed"/>
 </svg>

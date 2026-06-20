@@ -4,10 +4,10 @@
       <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
     </filter>
     <marker id="arrowBlue" markerWidth="15" markerHeight="15" refX="13" refY="7.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 14 7.5 L 1 14 Z" fill="#2563eb" stroke="#2563eb" stroke-width="1.1" stroke-dasharray="none"/>
+      <path d="M 1 1 L 14 7.5 L 1 14 Z" fill="#2563eb" stroke="#2563eb" stroke-width="1.1" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGreen" markerWidth="15" markerHeight="15" refX="13" refY="7.5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 14 7.5 L 1 14 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.1" stroke-dasharray="none"/>
+      <path d="M 1 1 L 14 7.5 L 1 14 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.1" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <style>
       svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }

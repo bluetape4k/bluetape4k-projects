@@ -118,7 +118,8 @@
   <text class="edgeLabel" x="1120" y="462">requests region access</text>
 </g>
 <g data-from="Properties" data-to="RegionFactory">
-  <path class="edge dashed" d="M640 685 L760 685" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <path class="edge dashed" d="M640 685 L760 685" stroke="#15803D"/>
+<polygon points="748,691 760,685 748,679" fill="#15803D" stroke="#15803D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="675" y="660">config</text>
 </g>
 <g data-from="RegionFactory" data-to="StorageAccess">
@@ -130,19 +131,21 @@
   <text class="edgeLabel" x="1120" y="1202">delegates operations</text>
 </g>
 <g data-from="NearCache" data-to="L1">
-  <path class="edge " d="M990 1500 L990 1545 L660 1545 L660 1595" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <path class="edge " d="M 990 1500 L 990 1531 Q 990 1545 976 1545 L 674 1545 Q 660 1545 660 1559 L 660 1595" stroke="#C2410C" marker-end="url(#arrow-amber)" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="edgeLabel" x="710" y="1526">L1 read/write/evict</text>
 </g>
 <g data-from="NearCache" data-to="L2">
-  <path class="edge " d="M1210 1500 L1210 1545 L1540 1545 L1540 1595" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <path class="edge " d="M 1210 1500 L 1210 1531 Q 1210 1545 1224 1545 L 1526 1545 Q 1540 1545 1540 1559 L 1540 1595" stroke="#BE185D" marker-end="url(#arrow-pink)" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="edgeLabel" x="1310" y="1526">L2 read/write/evict</text>
 </g>
 <g data-from="L2" data-to="L1">
-  <path class="edge dashed" d="M1280 1720 L920 1720" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <path class="edge dashed" d="M1280 1720 L920 1720" stroke="#BE185D"/>
+<polygon points="932,1714 920,1720 932,1726" fill="#BE185D" stroke="#BE185D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="1010" y="1698">client tracking invalidation</text>
 </g>
 <g data-from="StorageAccess" data-to="DbFallback">
-  <path class="edge dashed" d="M760 1035 L640 1035" stroke="#475569" marker-end="url(#arrow-slate)"/>
+  <path class="edge dashed" d="M760 1035 L640 1035" stroke="#475569"/>
+<polygon points="652,1029 640,1035 652,1041" fill="#475569" stroke="#475569" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="650" y="1010">read failure</text>
 </g>
 </svg>

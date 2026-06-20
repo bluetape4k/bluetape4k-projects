@@ -13,11 +13,12 @@
 <text class="subtitle" x="82" y="118">Repeat executes at least once, stops on Aborted or Cancelled, and otherwise loops while the predicate and max iteration guard allow it.</text>
 <g id="edges"><path class="edge" d="M840 281 L840 320" stroke="#2563EB" marker-end="url(#arrow-startWork)"/>
 <path class="edge" d="M840 438 L840 480" stroke="#16A34A" marker-end="url(#arrow-workGuard)"/>
-<path class="edge" d="M1045 539 L1320 539 L1320 686" stroke="#EA580C" marker-end="url(#arrow-breakResult)"/>
+<path class="edge" d="M 1045 539 L 1306 539 Q 1320 539 1320 553 L 1320 686" stroke="#EA580C" marker-end="url(#arrow-breakResult)" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="edge" d="M840 598 L840 660" stroke="#9333EA" marker-end="url(#arrow-guardGate)"/>
 <path class="edge" d="M1005 745 L1140 745" stroke="#0D9488" marker-end="url(#arrow-gateResult)"/>
 <path class="edge" d="M675 745 L540 745" stroke="#DB2777" marker-end="url(#arrow-gateDelay)"/>
-<path class="edge dashed" d="M360 686 L360 379 L635 379" stroke="#DB2777" marker-end="url(#arrow-delayLoop)"/></g>
+<path class="edge dashed" d="M 360 686 L 360 393 Q 360 379 374 379 L 635 379" stroke="#DB2777" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="623,385 635,379 623,373" fill="#DB2777" stroke="#DB2777" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(874 289)"><rect width="76" height="30" rx="8"/><text x="38" y="20" text-anchor="middle">context</text></g>
 <g class="edgeLabel" transform="translate(877 447)"><rect width="70" height="30" rx="8"/><text x="35" y="20" text-anchor="middle">report</text></g>
 <g class="edgeLabel" transform="translate(1170 501)"><rect width="150" height="30" rx="8"/><text x="75" y="20" text-anchor="middle">aborted / cancelled</text></g>

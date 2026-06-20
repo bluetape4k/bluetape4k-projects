@@ -2,7 +2,7 @@
   <title id="title">HTTP client high-latency benchmark throughput</title>
   <desc id="desc">Equal-thread WebFlux fixture snapshot for GET /httpbin/delay/0.05. OkHttp virtual threads lead at 1902.171 ops/s, Ktor CIO records 1515.026 ops/s.</desc>
   <rect width="1040" height="690" fill="#ffffff"/>
-  <text x="40" y="42" font-family="Comic Mono" font-size="24" font-weight="700" fill="#172033">HTTP client high-latency throughput</text>
+  <text x="40" y="42" font-family="Architects Daughter, Comic Mono" font-size="24" font-weight="700" fill="#172033">HTTP client high-latency throughput</text>
   <text x="40" y="70" font-family="Comic Mono" font-size="14" fill="#526070">WebFlux fixture, @Threads(100), warmup 1x1s, measurement 1x1s, ops/s higher is better</text>
   <line x1="280" y1="552" x2="980" y2="552" stroke="#d6dbe4" stroke-width="1"/>
   <line x1="280" y1="105" x2="280" y2="552" stroke="#d6dbe4" stroke-width="1"/>
