@@ -4,13 +4,13 @@
       <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.12"/>
     </filter>
     <marker id="tri-blue" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 12 6 L 1 11 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 12 6 L 1 11 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="open-green" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="open-orange" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#EA580C" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#EA580C" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <style>
       svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
@@ -71,8 +71,10 @@
     <text class="member" x="1175" y="342">invalid payload =&gt; exception</text>
   </g>
 
-  <path class="impl" d="M 585 295 L 470 295"/>
-  <path class="useGreen" d="M 1055 295 L 1150 295"/>
+  <path class="impl" d="M 585 295 L 470 295" style="marker-end:none"/>
+<polygon points="482,289 470,295 482,301" fill="#ffffff" stroke="#2563EB" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="useGreen" d="M 1055 295 L 1150 295" style="marker-end:none"/>
+<polyline points="1138,301 1150,295 1138,289" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <g id="jsonb-backend">
     <rect class="card" x="585" y="405" width="220" height="48" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
@@ -83,7 +85,8 @@
     <text class="member" x="945" y="435" text-anchor="middle">JSON text backend</text>
   </g>
   <path class="flowOrange" d="M 720 375 L 720 405"/>
-  <path class="useGreen" d="M 920 375 L 920 405"/>
+  <path class="useGreen" d="M 920 375 L 920 405" style="marker-end:none"/>
+<polyline points="914,393 920,405 926,393" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <g id="json-ext">
     <rect class="card" x="115" y="625" width="340" height="145" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
@@ -116,17 +119,22 @@
     <text class="member" x="1280" y="723">readList(), readArray()</text>
   </g>
 
-  <path class="useGreen" d="M 945 453 L 945 505 L 90 505 L 90 700 L 115 700"/>
+  <path class="useGreen" d="M 945 453 L 945 491 Q 945 505 931 505 L 104 505 Q 90 505 90 519 L 90 696 Q 90 700 94 700 L 115 700" style="marker-end:none"/>
+<polyline points="103,706 115,700 103,694" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <path class="flowOrange" d="M 695 453 L 695 625"/>
-  <path class="useGreen" d="M 945 453 L 945 580 L 1045 580 L 1045 625"/>
-  <path class="useGreen" d="M 945 453 L 945 560 L 1395 560 L 1395 625"/>
+  <path class="useGreen" d="M 945 453 L 945 566 Q 945 580 959 580 L 1031 580 Q 1045 580 1045 594 L 1045 625" style="marker-end:none"/>
+<polyline points="1039,613 1045,625 1051,613" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="useGreen" d="M 945 453 L 945 546 Q 945 560 959 560 L 1381 560 Q 1395 560 1395 574 L 1395 625" style="marker-end:none"/>
+<polyline points="1389,613 1395,625 1401,613" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <g transform="translate(115, 900)">
-    <path class="impl" d="M 0 8 L 34 8"/>
+    <path class="impl" d="M 0 8 L 34 8" style="marker-end:none"/>
+<polygon points="22,14 34,8 22,2" fill="#ffffff" stroke="#2563EB" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
     <text class="small" x="48" y="13">implements</text>
     <path class="flowOrange" d="M 190 8 L 224 8"/>
     <text class="small" x="238" y="13">JSONB binary path</text>
-    <path class="useGreen" d="M 430 8 L 464 8"/>
+    <path class="useGreen" d="M 430 8 L 464 8" style="marker-end:none"/>
+<polyline points="452,14 464,8 452,2" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
     <text class="small" x="478" y="13">JSON text/object path</text>
   </g>
 </svg>

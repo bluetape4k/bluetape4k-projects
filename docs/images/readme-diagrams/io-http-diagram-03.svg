@@ -7,7 +7,7 @@
       <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#EA580C" stroke-width="2.4" stroke-dasharray="none" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" />
     </marker>
     <marker id="open-blue" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"  style="stroke-dasharray:none"/>
     </marker>
     <marker id="open-green" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18">
       <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#16A34A" stroke-width="2.4" stroke-dasharray="none" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" />
@@ -52,7 +52,7 @@
   </g>
 
   <g id="builder-lane">
-    <rect class="lane" x="94" y="166" width="500" height="830" rx="8" />
+    <rect class="lane" x="94" y="166" width="500" height="858" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72" />
     <text class="laneTitle" x="130" y="212" dominant-baseline="middle">Client construction</text>
 
     <g id="builder">
@@ -80,7 +80,7 @@
   </g>
 
   <g id="execution-lane">
-    <rect class="lane" x="630" y="166" width="500" height="830" rx="8" />
+    <rect class="lane" x="630" y="166" width="500" height="858" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72" />
     <text class="laneTitle" x="666" y="212" dominant-baseline="middle">Request execution</text>
 
     <g id="request">
@@ -107,7 +107,7 @@
   </g>
 
   <g id="support-lane">
-    <rect class="lane" x="1166" y="166" width="500" height="830" rx="8" />
+    <rect class="lane" x="1166" y="166" width="500" height="858" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72" />
     <text class="laneTitle" x="1202" y="212" dominant-baseline="middle">Interceptors, cache, tests</text>
 
     <g id="interceptors">

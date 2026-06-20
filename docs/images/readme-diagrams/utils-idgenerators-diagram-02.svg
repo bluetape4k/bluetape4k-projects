@@ -59,28 +59,28 @@
   <rect class="panel" x="2650" y="430" width="880" height="2120" rx="8" />
   <text class="panelTitle" x="2678" y="474">ByteArray IDs and utilities</text>
 </g>
-<path class="edge" data-from="LongIdGenerator" data-to="IdGenerator" d="M465 540 L465 405 L1445 405 L1445 370" stroke="#15803D" />
+<path class="edge" data-from="LongIdGenerator" data-to="IdGenerator" d="M 465 540 L 465 419 Q 465 405 479 405 L 1432 405 Q 1445 405 1445 392 L 1445 370" stroke="#15803D" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="1454,391 1445,370 1436,391" fill="#FFFFFF" stroke="#15803D" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="Snowflake" data-to="IdGenerator" d="M745 790 L745 735 L835 735 L835 405 L1590 405 L1590 370" stroke="#0F766E" />
+<path class="edge" data-from="Snowflake" data-to="IdGenerator" d="M 745 790 L 745 749 Q 745 735 759 735 L 821 735 Q 835 735 835 721 L 835 419 Q 835 405 849 405 L 1577 405 Q 1590 405 1590 392 L 1590 370" stroke="#0F766E" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="1599,391 1590,370 1581,391" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="edge" data-from="Uuid.Generator" data-to="IdGenerator" d="M1325 540 L1325 370" stroke="#6D28D9" />
 <polygon points="1334,391 1325,370 1316,391" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="Ksuid.Generator" data-to="IdGenerator" d="M2185 540 L2185 405 L2010 405 L2010 370" stroke="#C2410C" />
+<path class="edge" data-from="Ksuid.Generator" data-to="IdGenerator" d="M 2185 540 L 2185 419 Q 2185 405 2171 405 L 2023 405 Q 2010 405 2010 392 L 2010 370" stroke="#C2410C" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="2019,391 2010,370 2001,391" fill="#FFFFFF" stroke="#C2410C" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge dashed" data-from="Flake" data-to="IdGenerator" d="M3070 540 L3070 405 L2260 405 L2260 370" stroke="#1D4ED8" />
+<path class="edge dashed" data-from="Flake" data-to="IdGenerator" d="M 3070 540 L 3070 419 Q 3070 405 3056 405 L 2273 405 Q 2260 405 2260 392 L 2260 370" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="2269,391 2260,370 2251,391" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="edge" data-from="AbstractSnowflake" data-to="Snowflake" d="M465 1070 L465 980" stroke="#0F766E" />
 <polygon points="474,1001 465,980 456,1001" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="DefaultSnowflake" data-to="AbstractSnowflake" d="M255 1360 L255 1300 L420 1300 L420 1260" stroke="#1D4ED8" />
+<path class="edge" data-from="DefaultSnowflake" data-to="AbstractSnowflake" d="M 255 1360 L 255 1314 Q 255 1300 269 1300 L 406 1300 Q 420 1300 420 1286 L 420 1260" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="429,1281 420,1260 411,1281" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="GlobalSnowflake" data-to="AbstractSnowflake" d="M675 1360 L675 1300 L510 1300 L510 1260" stroke="#1D4ED8" />
+<path class="edge" data-from="GlobalSnowflake" data-to="AbstractSnowflake" d="M 675 1360 L 675 1314 Q 675 1300 661 1300 L 524 1300 Q 510 1300 510 1286 L 510 1260" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="519,1281 510,1260 501,1281" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="edge dashed" data-from="Uuid" data-to="Uuid.Generator" d="M1325 835 L1325 730" stroke="#6D28D9" />
 <polygon points="1334,751 1325,730 1316,751" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="UuidGenerator" data-to="Uuid.Generator" d="M1325 1210 L1325 1100 L1490 1100 L1490 730" stroke="#BE185D" marker-end="url(#arrow-pink)" />
+<path class="edge" data-from="UuidGenerator" data-to="Uuid.Generator" d="M 1325 1210 L 1325 1114 Q 1325 1100 1339 1100 L 1476 1100 Q 1490 1100 1490 1086 L 1490 730" stroke="#BE185D" marker-end="url(#arrow-pink)" stroke-linecap="round" stroke-linejoin="round" />
 <path class="edge dashed" data-from="Ksuid" data-to="Ksuid.Generator" d="M2185 835 L2185 730" stroke="#C2410C" />
 <polygon points="2194,751 2185,730 2176,751" fill="#FFFFFF" stroke="#C2410C" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="KsuidGenerator" data-to="Ksuid.Generator" d="M2185 1185 L2185 1085 L2380 1085 L2380 730" stroke="#BE185D" marker-end="url(#arrow-pink)" />
+<path class="edge" data-from="KsuidGenerator" data-to="Ksuid.Generator" d="M 2185 1185 L 2185 1099 Q 2185 1085 2199 1085 L 2366 1085 Q 2380 1085 2380 1071 L 2380 730" stroke="#BE185D" marker-end="url(#arrow-pink)" stroke-linecap="round" stroke-linejoin="round" />
 <path class="edge" data-from="UlidGenerator" data-to="ULID" d="M2185 1920 L2185 1790" stroke="#15803D" marker-end="url(#arrow-green)" />
 <path class="edge" data-from="Flake" data-to="NodeIdentifier" d="M3070 855 L3070 990" stroke="#15803D" marker-end="url(#arrow-green)" />
 <g id="IdGenerator">

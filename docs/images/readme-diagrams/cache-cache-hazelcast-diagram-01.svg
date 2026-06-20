@@ -6,17 +6,17 @@
 <g id="edges"><path class="edge implements" d="M350 545 L350 345" stroke="#2563EB"/>
 <path class="edge implements" d="M940 545 L940 345" stroke="#0D9488"/>
 <path class="edge implements" d="M1860 260 L1715 260" stroke="#64748B"/>
-<path class="edge has" d="M600 655 L635 655 L635 155 L1260 155 L1260 260" stroke="#64748B"/>
-<path class="edge has" d="M1190 622 L1240 622 L1240 430 L1335 430 L1335 345" stroke="#64748B"/>
+<path class="edge has" d="M 600 655 L 621 655 Q 635 655 635 641 L 635 169 Q 635 155 649 155 L 1218 155 Q 1232 155 1232 169 L 1232 250 Q 1232 260 1242 260 L 1260 260" stroke="#64748B" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge has" d="M 1190 622 L 1226 622 Q 1240 622 1240 608 L 1240 444 Q 1240 430 1254 430 L 1321 430 Q 1335 430 1335 416 L 1335 345" stroke="#64748B" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="edge uses" d="M1525 545 L1525 345" stroke="#EA580C"/>
-<path class="edge uses" d="M600 700 L635 700 L635 1250 L2360 1250 L2360 640 L2315 640" stroke="#7C3AED"/>
+<path class="edge uses" d="M 600 700 L 621 700 Q 635 700 635 714 L 635 1236 Q 635 1250 649 1250 L 2346 1250 Q 2360 1250 2360 1236 L 2360 654 Q 2360 640 2346 640 L 2315 640" stroke="#7C3AED" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="edge extends" d="M515 945 L515 765" stroke="#16A34A"/>
 <path class="edge extends" d="M1160 945 L1160 765" stroke="#16A34A"/>
-<path class="edge has" d="M1725 945 L1725 800 L1690 800 L1690 370 L1645 370 L1645 345" stroke="#EA580C"/>
-<path class="edge has" d="M2155 945 L2155 880 L1800 880 L1800 325 L1715 325" stroke="#EA580C"/></g><g id="arrowheads"><path class="solidHead" d="M350 345 L342 361 L358 361 Z" fill="#fff" stroke="#2563EB"/>
+<path class="edge has" d="M 1725 945 L 1725 814 Q 1725 800 1711 800 L 1704 800 Q 1690 800 1690 786 L 1690 384 Q 1690 370 1676 370 L 1655 370 Q 1645 370 1645 360 L 1645 345" stroke="#EA580C" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge has" d="M 2155 945 L 2155 894 Q 2155 880 2141 880 L 1814 880 Q 1800 880 1800 866 L 1800 339 Q 1800 325 1786 325 L 1715 325" stroke="#EA580C" stroke-linecap="round" stroke-linejoin="round"/></g><g id="arrowheads"><path class="solidHead" d="M350 345 L342 361 L358 361 Z" fill="#fff" stroke="#2563EB"/>
 <path class="solidHead" d="M940 345 L932 361 L948 361 Z" fill="#fff" stroke="#0D9488"/>
 <path class="solidHead" d="M1715 260 L1731 252 L1731 268 Z" fill="#fff" stroke="#64748B"/>
-<path class="solidOpenHead" d="M1253 247 L1260 260 L1267 247" stroke="#64748B"/>
+<path class="solidOpenHead" d="M1247 252 L1260 260 L1247 268" stroke="#64748B"/>
 <path class="solidOpenHead" d="M1328 358 L1335 345 L1342 358" stroke="#64748B"/>
 <path class="solidOpenHead" d="M1518 358 L1525 345 L1532 358" stroke="#EA580C"/>
 <path class="solidOpenHead" d="M2328 633 L2315 640 L2328 647" stroke="#7C3AED"/>

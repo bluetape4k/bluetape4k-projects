@@ -13,10 +13,10 @@
 <rect class="moduleHeader" x="558" y="195" width="420" height="34" rx="8"/>
 <text class="moduleTitle" x="580" y="217">provided by bluetape4k-javatimes</text>
 <g id="edges"><path class="edge" d="M460 330 L590 330" stroke="#2563EB" marker-end="url(#arrow-foundationInterval)"/>
-<path class="edge" d="M460 415 L480 415 L480 650 L590 650" stroke="#2563EB" marker-end="url(#arrow-foundationRanges)"/>
-<path class="edge" d="M460 715 L500 715 L500 500 L1575 500 L1575 410" stroke="#64748B" marker-end="url(#arrow-policyBusiness)"/>
-<path class="edge" d="M1750 320 L1885 320 L1885 900 L1690 900" stroke="#16A34A" marker-end="url(#arrow-topOutcome)"/>
-<path class="edge" d="M1575 740 L1575 795 L1180 795 L1180 840" stroke="#0D9488" marker-end="url(#arrow-bottomOutcome)"/></g>
+<path class="edge" d="M 460 415 L 470 415 Q 480 415 480 425 L 480 636 Q 480 650 494 650 L 590 650" stroke="#2563EB" marker-end="url(#arrow-foundationRanges)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge" d="M 460 715 L 486 715 Q 500 715 500 701 L 500 514 Q 500 500 514 500 L 1561 500 Q 1575 500 1575 486 L 1575 410" stroke="#64748B" marker-end="url(#arrow-policyBusiness)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge" d="M 1750 320 L 1871 320 Q 1885 320 1885 334 L 1885 886 Q 1885 900 1871 900 L 1690 900" stroke="#16A34A" marker-end="url(#arrow-topOutcome)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge" d="M 1575 740 L 1575 781 Q 1575 795 1561 795 L 1194 795 Q 1180 795 1180 809 L 1180 840" stroke="#0D9488" marker-end="url(#arrow-bottomOutcome)" stroke-linecap="round" stroke-linejoin="round"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(480 288)"><rect width="90" height="30" rx="8"/><text x="45" y="20" text-anchor="middle">builds on</text></g>
 <g class="edgeLabel" transform="translate(422 525)"><rect width="116" height="30" rx="8"/><text x="58" y="20" text-anchor="middle">temporal types</text></g>
 <g class="edgeLabel" transform="translate(527 485)"><rect width="62" height="30" rx="8"/><text x="31" y="20" text-anchor="middle">rules</text></g>
@@ -24,7 +24,7 @@
 <g class="edgeLabel" transform="translate(1477 789)"><rect width="82" height="30" rx="8"/><text x="41" y="20" text-anchor="middle">streams</text></g></g>
 <g id="foundation">
   <rect class="card" x="110" y="270" width="350" height="250" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <rect x="128" y="296" width="48" height="48" rx="12" fill="#2563EB"/><circle cx="148" cy="316" r="15" fill="none" stroke="#FFFFFF" stroke-width="3"/><path d="M148 307 L148 316 L157 321" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="128" y="296" width="48" height="48" rx="12" fill="#2563EB"/><circle cx="148" cy="316" r="15" fill="none" stroke="#FFFFFF" stroke-width="3"/><path d="M 148 307 L 148 312 Q 148 316 151.5 317.94 L 157 321" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="cardTitle" x="202" y="326">java.time foundation</text>
   <text class="detail" x="202" y="362">Instant / ZonedDateTime</text>
   <text class="detail" x="202" y="386">LocalDateTime / Temporal</text>
@@ -40,7 +40,7 @@
 </g>
 <g id="interval">
   <rect class="card" x="590" y="230" width="350" height="180" rx="8" fill="#ECFDF5" stroke="#16A34A"/>
-  <rect x="608" y="256" width="48" height="48" rx="12" fill="#16A34A"/><path d="M616 262 H608 V290 H616 M640 262 H648 V290 H640" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="608" y="256" width="48" height="48" rx="12" fill="#16A34A"/><path d="M 616 262 L 612 262 Q 608 262 608 266 L 608 286 Q 608 290 612 290 L 612 290 Q 616 290 618.6 286.96 L 637.4 265.04 Q 640 262 644 262 L 644 262 Q 648 262 648 266 L 648 286 Q 648 290 644 290 L 640 290" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="cardTitle" x="682" y="286">TemporalInterval</text>
   <text class="detail" x="682" y="322">half-open start..end</text>
   <text class="detail" x="682" y="346">contains / overlaps</text>
@@ -72,7 +72,7 @@
 </g>
 <g id="temporalRanges">
   <rect class="card" x="995" y="560" width="350" height="180" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <rect x="1013" y="586" width="48" height="48" rx="12" fill="#DB2777"/><path d="M1018 598 H1035 V616 H1049" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="1016" cy="598" r="4" fill="#FFFFFF"/><circle cx="1050" cy="616" r="4" fill="#FFFFFF"/>
+  <rect x="1013" y="586" width="48" height="48" rx="12" fill="#DB2777"/><path d="M 1018 598 L 1031 598 Q 1035 598 1035 602 L 1035 610.4 Q 1035 616 1040.6 616 L 1049 616" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="1016" cy="598" r="4" fill="#FFFFFF"/><circle cx="1050" cy="616" r="4" fill="#FFFFFF"/>
   <text class="cardTitle" x="1087" y="616">Temporal range DSL</text>
   <text class="detail" x="1087" y="652">start..end syntax</text>
   <text class="detail" x="1087" y="676">step progressions</text>

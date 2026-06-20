@@ -4,13 +4,13 @@
       <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
     </filter>
     <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#2563eb" stroke="#2563eb" stroke-width="1.1" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#2563eb" stroke="#2563eb" stroke-width="1.1" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.1" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.1" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowOrange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 11 6 L 1 11 Z" fill="#ea580c" stroke="#ea580c" stroke-width="1.1" stroke-dasharray="none"/>
+      <path d="M 1 1 L 11 6 L 1 11 Z" fill="#ea580c" stroke="#ea580c" stroke-width="1.1" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <style>
       svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
@@ -102,8 +102,8 @@
   <path class="flow" d="M 902 513 H 966" stroke="#16a34a" marker-end="url(#arrowGreen)"/>
   <path class="flow" d="M 1196 513 H 1260" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
 
-  <path class="configLine" d="M 625 294 V 448 H 775 V 474" stroke="#16a34a" marker-end="url(#arrowGreen)"/>
-  <path class="configLine" d="M 1244 294 V 344 H 1081 V 474" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
+  <path class="configLine" d="M 625 294 L 625 434 Q 625 448 639 448 L 765 448 Q 775 448 775 458 L 775 474" stroke="#16a34a" marker-end="url(#arrowGreen)"/>
+  <path class="configLine" d="M 1244 294 L 1244 330 Q 1244 344 1230 344 L 1095 344 Q 1081 344 1081 358 L 1081 474" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
 
   <g id="errors">
     <rect class="chip" x="650" y="578" width="472" height="34" rx="8"/>
@@ -130,7 +130,7 @@
     <text class="small" x="1260" y="781" text-anchor="middle">flake</text>
   </g>
 
-  <path class="configLine" d="M 1081 552 V 572 H 1216 V 668" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
+  <path class="configLine" d="M 1081 552 L 1081 563 Q 1081 572 1090 572 L 1202 572 Q 1216 572 1216 586 L 1216 668" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
   <g transform="translate(116 858)">
     <rect class="chip" x="0" y="0" width="602" height="38" rx="8"/>
     <text class="small" x="18" y="24">The demo keeps generator implementations behind a stable REST type registry.</text>

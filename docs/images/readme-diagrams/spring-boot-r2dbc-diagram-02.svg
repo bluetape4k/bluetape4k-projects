@@ -127,11 +127,13 @@
   <text class="edgeLabel" x="570" y="329">id helpers</text>
 </g>
 <g data-from="IdQuery" data-to="ReadExtensions">
-  <path class="edge dashed" d="M895 470 L895 545 L370 545 L370 640" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <path class="edge dashed" d="M 895 470 L 895 531 Q 895 545 881 545 L 384 545 Q 370 545 370 559 L 370 640" stroke="#15803D" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="364,628 370,640 376,628" fill="#15803D" stroke="#15803D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="510" y="526">delegates as Query</text>
 </g>
 <g data-from="Caller" data-to="ReadExtensions">
-  <path class="edge dashed" d="M325 470 L325 640" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <path class="edge dashed" d="M325 470 L325 640" stroke="#1D4ED8"/>
+<polygon points="319,628 325,640 331,628" fill="#1D4ED8" stroke="#1D4ED8" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="245" y="575">read calls</text>
 </g>
 <g data-from="ReadExtensions" data-to="ReadFluent">
@@ -143,11 +145,13 @@
   <text class="edgeLabel" x="1315" y="744">Publisher</text>
 </g>
 <g data-from="ReadAdapter" data-to="Database">
-  <path class="edge dashed" d="M1930 765 L2090 765 L2090 350 L2200 350" stroke="#475569" marker-end="url(#arrow-slate)"/>
+  <path class="edge dashed" d="M 1930 765 L 2076 765 Q 2090 765 2090 751 L 2090 364 Q 2090 350 2104 350 L 2200 350" stroke="#475569" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="2188,356 2200,350 2188,344" fill="#475569" stroke="#475569" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="1975" y="735">non-blocking driver I/O</text>
 </g>
 <g data-from="Caller" data-to="WriteExtensions">
-  <path class="edge dashed" d="M185 470 L72 470 L72 1175 L110 1175" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <path class="edge dashed" d="M 185 470 L 185 498 Q 185 512 171 512 L 86 512 Q 72 512 72 526 L 72 1161 Q 72 1175 86 1175 L 110 1175" stroke="#C2410C" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="98,1181 110,1175 98,1169" fill="#C2410C" stroke="#C2410C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="90" y="990">write calls</text>
 </g>
 <g data-from="WriteExtensions" data-to="WriteFluent">
@@ -159,7 +163,8 @@
   <text class="edgeLabel" x="1315" y="1154">Publisher</text>
 </g>
 <g data-from="WriteAdapter" data-to="Database">
-  <path class="edge dashed" d="M1930 1175 L2140 1175 L2140 420 L2200 420" stroke="#475569" marker-end="url(#arrow-slate)"/>
+  <path class="edge dashed" d="M 1930 1175 L 2126 1175 Q 2140 1175 2140 1161 L 2140 434 Q 2140 420 2154 420 L 2200 420" stroke="#475569" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="2188,426 2200,420 2188,414" fill="#475569" stroke="#475569" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="1968" y="1135">non-blocking driver I/O</text>
 </g>
 </svg>

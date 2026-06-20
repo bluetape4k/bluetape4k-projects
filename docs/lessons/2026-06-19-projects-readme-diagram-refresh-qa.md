@@ -166,3 +166,22 @@ check는 card 내부 관통, layer text 충돌, 여백 불균형, 의미 오류�
 
 최종 보고는 "만들었다"가 아니라 "무엇을 검증했고 무엇을 검증하지 않았는지"까지 포함해야 한다.
 특히 시각 QA는 사람이 보는 산출물이므로, 검증 증거에 PNG 직접 확인이 들어가야 한다.
+
+## 2026-06-20 Follow-up: checklist audit must validate the validator
+
+이번 follow-up에서는 skill checklist 자체가 늘어난 뒤 전체 `docs/images/readme-diagrams`
+SVG 268개를 다시 검사했다. 첫 번째 감사 스크립트는 절대좌표 `L` 명령을 잘못 누적해
+수직 connector를 diagonal connector로 오판했다. 이 실패는 다이어그램 실패가 아니라
+검증 도구 실패였고, skill의 "rounded Q/curve path를 올바르게 파싱해야 한다" 규칙을
+그대로 적용해야 하는 사례다.
+
+앞으로 전체 다이어그램 감사를 할 때는 다음 순서를 지킨다.
+
+- `M/L/H/V/Q/C/A` path parser가 절대좌표와 상대좌표를 분리해 처리하는지 먼저 확인한다.
+- `Q` control point를 terminal endpoint처럼 세지 말고, 마지막 실제 `L/H/V` segment만
+  terminal straight segment로 본다.
+- sharp `L/H/V` bend를 `Q` rounded corner로 바꾼 뒤에도 마지막 bend 이후 직선 구간이
+  충분한지 다시 검사한다.
+- marker 색상 감사는 connector `stroke`와 marker child의 visible `fill`/`stroke`를
+  비교해야 하며, 하나의 marker를 여러 connector 색상에 공유하지 않는다.
+- dashed connector의 line은 dashed여도 arrowhead는 SVG와 PNG 모두에서 실선이어야 한다.

@@ -13,11 +13,11 @@
 <rect class="canvas" width="2200" height="1260" /><rect class="frame" x="38" y="30" width="2124" height="1194" rx="8" />
 <text class="title" x="78" y="88">Money API Class Structure</text>
 <text class="subtitle" x="82" y="120">The module wraps JSR-354 and Moneta with Kotlin factories, operators, rounding, aggregation, and conversion helpers.</text>
-<rect class="lane laneContracts" x="90" y="205" width="1970" height="540" rx="8" /><text class="laneTitle" x="118" y="232">JSR-354 contracts and Moneta implementations</text>
-<rect class="lane laneKotlin" x="90" y="780" width="1970" height="420" rx="8" /><text class="laneTitle" x="118" y="807">bluetape4k-money Kotlin API surface</text>
+<rect class="lane laneContracts" x="90" y="175" width="1970" height="570" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72" /><text class="laneTitle" x="118" y="232">JSR-354 contracts and Moneta implementations</text>
+<rect class="lane laneKotlin" x="60" y="780" width="2000" height="420" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72" /><text class="laneTitle" x="118" y="807">bluetape4k-money Kotlin API surface</text>
 <g id="edges"><path class="edge implements" d="M680 510 L680 410" stroke="#2563EB" />
 <polygon points="689,431 680,410 671,431" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge implements" d="M1200 510 L1200 450 L1038 450 L1038 335 L1020 335" stroke="#16A34A" />
+<path class="edge implements" d="M 1200 510 L 1200 464 Q 1200 450 1186 450 L 1052 450 Q 1038 450 1038 436 L 1038 345 Q 1038 335 1028 335 L 1020 335" stroke="#16A34A" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="1041,326 1020,335 1041,344" fill="#FFFFFF" stroke="#16A34A" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="edge uses" d="M295 825 L295 410" stroke="#64748B" />
 
@@ -25,19 +25,19 @@
 <path class="edge uses" d="M670 825 L670 660" stroke="#2563EB" />
 
 <polyline points="678,678 670,660 662,678" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge uses" d="M1420 825 L1420 700 L1200 700 L1200 660" stroke="#16A34A" />
+<path class="edge uses" d="M 1420 825 L 1420 714 Q 1420 700 1406 700 L 1214 700 Q 1200 700 1200 686 L 1200 660" stroke="#16A34A" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="1208,678 1200,660 1192,678" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge uses" d="M1045 825 L1045 735 L1000 735 L1000 410" stroke="#0D9488" />
+<path class="edge uses" d="M 1045 825 L 1045 749 Q 1045 735 1031 735 L 1014 735 Q 1000 735 1000 721 L 1000 410" stroke="#0D9488" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="1008,428 1000,410 992,428" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="edge uses" d="M1810 825 L1810 410" stroke="#EA580C" />
 
 <polyline points="1818,428 1810,410 1802,428" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge uses" d="M1630 910 L1605 910 L1605 335 L1510 335" stroke="#EA580C" />
+<path class="edge uses" d="M 1630 910 L 1615 910 Q 1605 910 1605 900 L 1605 349 Q 1605 335 1591 335 L 1510 335" stroke="#EA580C" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="1528,327 1510,335 1528,343" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge uses" d="M1990 1108 L2075 1108 L2075 335 L2020 335" stroke="#9333EA" />
+<path class="edge uses" d="M 1990 1108 L 2061 1108 Q 2075 1108 2075 1094 L 2075 349 Q 2075 335 2061 335 L 2020 335" stroke="#9333EA" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="2038,327 2020,335 2038,343" fill="none" stroke="#9333EA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(719 447)"><rect width="106" height="30" rx="8" /><text x="53" y="20" text-anchor="middle">implements</text></g>

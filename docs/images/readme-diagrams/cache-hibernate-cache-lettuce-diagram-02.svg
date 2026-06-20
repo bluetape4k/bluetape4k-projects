@@ -155,7 +155,7 @@
   <text class="edgeLabel" x="1720" y="271">createCodec()</text>
 </g>
 <g data-from="Properties" data-to="RegionFactory">
-  <path class="edge " d="M1365 355 L1365 420 L520 420 L520 500" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <path class="edge " d="M 1365 355 L 1365 406 Q 1365 420 1351 420 L 534 420 Q 520 420 520 434 L 520 500" stroke="#15803D" marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="edgeLabel" x="900" y="440">configures</text>
 </g>
 <g data-from="RegionFactory" data-to="FactoryState">
@@ -175,11 +175,12 @@
   <text class="edgeLabel" x="1060" y="854">guards Redis failures</text>
 </g>
 <g data-from="StorageAccess" data-to="NearCache">
-  <path class="edge " d="M650 945 L650 1016 L1340 1016 L1340 1090" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <path class="edge " d="M 650 945 L 650 1002 Q 650 1016 664 1016 L 1326 1016 Q 1340 1016 1340 1030 L 1340 1090" stroke="#6D28D9" marker-end="url(#arrow-violet)" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="edgeLabel" x="930" y="997">delegates to</text>
 </g>
 <g data-from="Properties" data-to="NearCacheConfig">
-  <path class="edge dashed" d="M1365 355 L1365 405 L65 405 L65 1020 L570 1020 L570 1090" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <path class="edge dashed" d="M 1365 355 L 1365 391 Q 1365 405 1351 405 L 79 405 Q 65 405 65 419 L 65 1006 Q 65 1020 79 1020 L 556 1020 Q 570 1020 570 1034 L 570 1090" stroke="#15803D" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="564,1078 570,1090 576,1078" fill="#15803D" stroke="#15803D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="edgeLabel" x="175" y="1005">builds region config</text>
 </g>
 <g data-from="NearCacheConfig" data-to="NearCache">
@@ -191,11 +192,11 @@
   <text class="edgeLabel" x="1680" y="1149">scoped by</text>
 </g>
 <g data-from="NearCache" data-to="Caffeine">
-  <path class="edge " d="M1240 1250 L1240 1308 L830 1308 L830 1385" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <path class="edge " d="M 1240 1250 L 1240 1294 Q 1240 1308 1226 1308 L 844 1308 Q 830 1308 830 1322 L 830 1385" stroke="#C2410C" marker-end="url(#arrow-amber)" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="edgeLabel" x="955" y="1289">front tier</text>
 </g>
 <g data-from="NearCache" data-to="LettuceRedis">
-  <path class="edge " d="M1340 1250 L1340 1308 L1820 1308 L1820 1385" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <path class="edge " d="M 1340 1250 L 1340 1294 Q 1340 1308 1354 1308 L 1806 1308 Q 1820 1308 1820 1322 L 1820 1385" stroke="#BE185D" marker-end="url(#arrow-pink)" stroke-linecap="round" stroke-linejoin="round"/>
   <text class="edgeLabel" x="1510" y="1289">back tier</text>
 </g>
 </svg>

@@ -40,19 +40,19 @@
 <text class="title" x="76" y="100">Geo Module Overview</text>
 <text class="subtitle" x="80" y="134">A consolidated module with one pure spatial-index lane, one provider-backed geocoding lane, and one local GeoIP2 lookup lane.</text>
 <g>
-  <rect class="lane" x="110" y="340" width="800" height="1130" rx="8"/>
+  <rect class="lane" x="110" y="280" width="800" height="1190" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
   <text class="laneTitle" x="140" y="384">GeoHash: in-process spatial indexing</text>
 </g>
 <g>
-  <rect class="lane" x="1000" y="340" width="800" height="1130" rx="8"/>
+  <rect class="lane" x="1000" y="280" width="800" height="1190" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
   <text class="laneTitle" x="1030" y="384">Geocode: provider-backed address lookup</text>
 </g>
 <g>
-  <rect class="lane" x="1890" y="340" width="800" height="1130" rx="8"/>
+  <rect class="lane" x="1890" y="280" width="800" height="1190" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
   <text class="laneTitle" x="1920" y="384">GeoIP2: MaxMind database lookup</text>
 </g>
 <g>
-  <rect class="lane" x="110" y="1530" width="2580" height="280" rx="8"/>
+  <rect class="lane" x="110" y="1530" width="2580" height="280" rx="8" fill="#FFF7ED" stroke="#FDBA74" fill-opacity="0.72"/>
   <text class="laneTitle" x="140" y="1574">Optional runtime boundaries</text>
 </g>
 <g id="Module">
@@ -180,7 +180,7 @@
 
 </g>
 <g data-from="Module" data-to="WGS84">
-  <path class="edge " d="M1260 305 L1260 325 L510 325 L510 430" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <path class="edge " d="M 1260 305 L 1260 315 Q 1260 325 1250 325 L 524 325 Q 510 325 510 339 L 510 430" stroke="#15803D" marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round"/>
   <rect class="edgeLabelBg" x="227" y="301" width="224" height="24" rx="4"/><text class="edgeLabel" x="235" y="318">pure coordinate utilities</text>
 </g>
 <g data-from="Module" data-to="GeocodeApi">
@@ -188,7 +188,7 @@
   <rect class="edgeLabelBg" x="1422" y="353" width="176" height="24" rx="4"/><text class="edgeLabel" x="1430" y="370">address lookup APIs</text>
 </g>
 <g data-from="Module" data-to="GeoipApi">
-  <path class="edge " d="M1540 305 L1540 325 L2290 325 L2290 430" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <path class="edge " d="M 1540 305 L 1540 315 Q 1540 325 1550 325 L 2276 325 Q 2290 325 2290 339 L 2290 430" stroke="#6D28D9" marker-end="url(#arrow-violet)" stroke-linecap="round" stroke-linejoin="round"/>
   <rect class="edgeLabelBg" x="2252" y="301" width="136" height="24" rx="4"/><text class="edgeLabel" x="2260" y="318">IP lookup APIs</text>
 </g>
 <g data-from="WGS84" data-to="GeoHashQuery">
@@ -216,15 +216,18 @@
   <rect class="edgeLabelBg" x="2307" y="1043" width="232" height="24" rx="4"/><text class="edgeLabel" x="2315" y="1060">Result unwrapped by finder</text>
 </g>
 <g data-from="GeoHashUse" data-to="PureKotlin">
-  <path class="edge dashed" d="M510 1320 L510 1590" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <path class="edge dashed" d="M510 1320 L510 1590" stroke="#15803D"/>
+<polygon points="504,1578 510,1590 516,1578" fill="#15803D" stroke="#15803D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
 </g>
 <g data-from="ProviderOutput" data-to="MapApis">
-  <path class="edge dashed" d="M1400 1320 L1400 1590" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <path class="edge dashed" d="M1400 1320 L1400 1590" stroke="#BE185D"/>
+<polygon points="1394,1578 1400,1590 1406,1578" fill="#BE185D" stroke="#BE185D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
 </g>
 <g data-from="GeoipOutput" data-to="MaxMind">
-  <path class="edge dashed" d="M2290 1320 L2290 1590" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <path class="edge dashed" d="M2290 1320 L2290 1590" stroke="#1D4ED8"/>
+<polygon points="2284,1578 2290,1590 2296,1578" fill="#1D4ED8" stroke="#1D4ED8" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
 </g>
 </svg>

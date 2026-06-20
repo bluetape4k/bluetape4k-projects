@@ -37,21 +37,21 @@
   <text class="segmentBits" x="1042.8125" y="488" text-anchor="middle">42 bits</text>
   <text class="segmentTitle" x="1042.8125" y="542" text-anchor="middle">timestamp</text>
   <text class="segmentRange" x="1042.8125" y="582" text-anchor="middle">bits 63..22</text>
-  <path class="guide" d="M1042.8125 620 V724 H570 V760" stroke="#0369A1"/>
+  <path class="guide" d="M 1042.81 620 L 1042.81 710 Q 1042.81 724 1028.81 724 L 584 724 Q 570 724 570 738 L 570 760" stroke="#0369A1"/>
 </g>
 <g>
   <rect x="1915.625" y="430" width="415.625" height="190" rx="8" fill="#DCFCE7" stroke="#16A34A" stroke-width="3"/>
   <text class="segmentBits" x="2123.4375" y="488" text-anchor="middle">10 bits</text>
   <text class="segmentTitle" x="2123.4375" y="542" text-anchor="middle">machineId</text>
   <text class="segmentRange" x="2123.4375" y="582" text-anchor="middle">bits 21..12</text>
-  <path class="guide" d="M2123.4375 620 V724 H1400 V760" stroke="#15803D"/>
+  <path class="guide" d="M 2123.44 620 L 2123.44 710 Q 2123.44 724 2109.44 724 L 1414 724 Q 1400 724 1400 738 L 1400 760" stroke="#15803D"/>
 </g>
 <g>
   <rect x="2331.25" y="430" width="498.75" height="190" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="3"/>
   <text class="segmentBits" x="2580.625" y="488" text-anchor="middle">12 bits</text>
   <text class="segmentTitle" x="2580.625" y="542" text-anchor="middle">sequence</text>
   <text class="segmentRange" x="2580.625" y="582" text-anchor="middle">bits 11..0</text>
-  <path class="guide" d="M2580.625 620 V724 H2230 V760" stroke="#B45309"/>
+  <path class="guide" d="M 2580.63 620 L 2580.63 710 Q 2580.63 724 2566.63 724 L 2244 724 Q 2230 724 2230 738 L 2230 760" stroke="#B45309"/>
 </g>
 <g>
   <rect class="card" x="190" y="760" width="760" height="240" rx="8" fill="#EFF6FF" stroke="#2563EB"/>

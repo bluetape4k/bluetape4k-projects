@@ -4,19 +4,19 @@
 </style>
 <defs>
   <marker id="arrow-blue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
 <marker id="arrow-green" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#16a34a" stroke="#16a34a" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#16a34a" stroke="#16a34a" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
 <marker id="arrow-purple" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#9333ea" stroke="#9333ea" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#9333ea" stroke="#9333ea" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
 <marker id="arrow-orange" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
 <marker id="arrow-teal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#0d9488" stroke="#0d9488" stroke-width="0" stroke-dasharray="none"/>
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#0d9488" stroke="#0d9488" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
 </defs>
 <rect width="1360" height="820" fill="#ffffff"/>
@@ -117,13 +117,14 @@
 <rect x="266" y="253" width="88" height="24" rx="7" fill="#ffffff" opacity="0.96"/>
 <text x="310" y="270" fill="#2563eb" font-size="12" font-weight="700" text-anchor="middle">manual API</text>
 <path id="helpers-to-trace" d="M 602 255 H 714" fill="none" stroke="#2563eb" stroke-width="3.4"  marker-end="url(#arrow-blue)" stroke-linecap="round" stroke-linejoin="round"/>
-<path id="sdk-to-trace" d="M 602 429 H 658 V 306 H 714" fill="none" stroke="#16a34a" stroke-width="3.4"  marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="sdk-to-trace" d="M 602 429 L 644 429 Q 658 429 658 415 L 658 320 Q 658 306 672 306 L 714 306" fill="none" stroke="#16a34a" stroke-width="3.4"  marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round"/>
 <path id="sdk-to-metric" d="M 602 445 H 714" fill="none" stroke="#16a34a" stroke-width="3.4"  marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round"/>
 <path id="attrs-to-context" d="M 602 607 H 714" fill="none" stroke="#9333ea" stroke-width="3.4"  marker-end="url(#arrow-purple)" stroke-linecap="round" stroke-linejoin="round"/>
 <path id="trace-to-export" d="M 938 255 H 1048" fill="none" stroke="#ea580c" stroke-width="3.4"  marker-end="url(#arrow-orange)" stroke-linecap="round" stroke-linejoin="round"/>
 <path id="metric-to-export" d="M 938 445 H 1048" fill="none" stroke="#ea580c" stroke-width="3.4"  marker-end="url(#arrow-orange)" stroke-linecap="round" stroke-linejoin="round"/>
 <path id="export-to-external" d="M 1157 516 V 566" fill="none" stroke="#0d9488" stroke-width="3.4"  marker-end="url(#arrow-teal)" stroke-linecap="round" stroke-linejoin="round"/>
-<path id="webflux-to-sdk" d="M 258 540 H 676" fill="none" stroke="#ea580c" stroke-width="3" stroke-dasharray="7 5" marker-end="url(#arrow-orange)" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="webflux-to-sdk" d="M 258 540 H 676" fill="none" stroke="#ea580c" stroke-width="3" stroke-dasharray="7 5" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="664,546 676,540 664,534" fill="#ea580c" stroke="#ea580c" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 <rect x="410" y="511" width="116" height="24" rx="7" fill="#ffffff" opacity="0.96"/>
 <text x="468" y="528" fill="#ea580c" font-size="12" font-weight="700" text-anchor="middle">legacy WebFlux</text>
 <g transform="translate(84, 746)">

@@ -13,7 +13,7 @@
       <path d="M1.5 1.5 L17 8 L1.5 14.5 Z" fill="#ffffff" stroke="#9333ea" stroke-width="2.1" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" />
     </marker>
     <marker id="open-gray" markerWidth="16" markerHeight="14" refX="14" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M2 2 L14 7 L2 12" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" />
+      <path d="M2 2 L14 7 L2 12" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/>
     </marker>
     <style>
       svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
@@ -70,7 +70,8 @@
     <text class="name" x="152" y="446" text-anchor="middle">ToString</text>
     <text class="name" x="152" y="474" text-anchor="middle">Builder</text>
   </g>
-  <path class="implBlue" d="M412 412 L412 346" />
+  <path class="implBlue" d="M412 412 L412 346" style="marker-end:none" />
+<polygon points="418,358 412,346 406,358" fill="#ffffff" stroke="#2563eb" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <path class="assoc" d="M246 466 L218 466" />
   <text class="label" x="220" y="448" text-anchor="middle">builds</text>
 
@@ -107,8 +108,10 @@
     <text class="name" x="994" y="454" text-anchor="middle">Url62</text>
     <text class="member" x="994" y="478" text-anchor="middle">object</text>
   </g>
-  <path class="implTeal" d="M1223 420 L1288 344" />
-  <path class="implTeal" d="M1485 420 L1410 344" />
+  <path class="implTeal" d="M 1223 420 L 1223 386 Q 1223 372 1237 372 L 1274 372 Q 1288 372 1288 358 L 1288 344" style="marker-end:none" />
+<polygon points="1280,362 1288,344 1296,362" fill="#ffffff" stroke="#0d9488" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="implTeal" d="M 1485 420 L 1485 386 Q 1485 372 1471 372 L 1424 372 Q 1410 372 1410 358 L 1410 344" style="marker-end:none" />
+<polygon points="1402,362 1410,344 1418,362" fill="#ffffff" stroke="#0d9488" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <g>
     <rect class="box" x="318" y="704" width="244" height="86" rx="8" fill="#f0fdfa" stroke="#0d9488" />
@@ -135,10 +138,10 @@
     <text class="name" x="717" y="884" text-anchor="middle">ClosedClosed</text>
     <text class="member" x="717" y="908" text-anchor="middle">[a, b]</text>
   </g>
-  <path class="extendsTeal" d="M183 852 L183 820 L410 820 L410 790" />
-  <path class="extendsTeal" d="M361 852 L361 820 L430 820 L430 790" />
-  <path class="extendsTeal" d="M539 852 L539 820 L450 820 L450 790" />
-  <path class="extendsTeal" d="M717 852 L717 820 L470 820 L470 790" />
+  <path class="extendsTeal" d="M 183 852 L 183 832.8 Q 183 820 195.8 820 L 402 820 Q 410 820 410 812 L 410 790" />
+  <path class="extendsTeal" d="M 361 852 L 361 832.8 Q 361 820 373.8 820 L 422 820 Q 430 820 430 812 L 430 790" />
+  <path class="extendsTeal" d="M 539 852 L 539 832.8 Q 539 820 526.2 820 L 458 820 Q 450 820 450 812 L 450 790" />
+  <path class="extendsTeal" d="M 717 852 L 717 832.8 Q 717 820 704.2 820 L 478 820 Q 470 820 470 812 L 470 790" />
   <text class="label" x="440" y="970" text-anchor="middle">Default*Range data classes implement each boundary interface.</text>
 
   <g>

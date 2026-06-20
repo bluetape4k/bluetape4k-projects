@@ -43,11 +43,13 @@
 
 <g id="edges">
   <path class="edge" data-from="dsl" data-to="flow" d="M470 255 L1180 255" stroke="#2563EB" marker-end="url(#arrow-builds)"/>
-  <path class="edge dashed" data-from="dsl" data-to="work" d="M290 320 L290 445 L960 445 L960 500" stroke="#2563EB" marker-end="url(#arrow-adds)"/>
+  <path class="edge dashed" data-from="dsl" data-to="work" d="M 290 320 L 290 431 Q 290 445 304 445 L 946 445 Q 960 445 960 459 L 960 500" stroke="#2563EB" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="954,488 960,500 966,488" fill="#2563EB" stroke="#2563EB" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <path class="edge" data-from="context" data-to="work" d="M760 584 L900 584" stroke="#EA580C" marker-end="url(#arrow-contextInput)"/>
-  <path class="edge" data-from="flow" data-to="work" d="M1395 328 L1395 564 L1310 564" stroke="#16A34A" marker-end="url(#arrow-dispatch)"/>
+  <path class="edge" data-from="flow" data-to="work" d="M 1395 328 L 1395 550 Q 1395 564 1381 564 L 1310 564" stroke="#16A34A" marker-end="url(#arrow-dispatch)" stroke-linecap="round" stroke-linejoin="round"/>
   <path class="edge" data-from="work" data-to="report" d="M1105 632 L1105 730" stroke="#0D9488" marker-end="url(#arrow-returns)"/>
-  <path class="edge dashed" data-from="report" data-to="flow" d="M1310 796 L1510 796 L1510 328" stroke="#9333EA" marker-end="url(#arrow-controls)"/>
+  <path class="edge dashed" data-from="report" data-to="flow" d="M 1310 796 L 1496 796 Q 1510 796 1510 782 L 1510 328" stroke="#9333EA" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="1516,340 1510,328 1504,340" fill="#9333EA" stroke="#9333EA" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 </g>
 <g id="labels">
   <g class="edgeLabel" transform="translate(712 215)">

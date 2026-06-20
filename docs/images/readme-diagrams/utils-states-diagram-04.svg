@@ -11,7 +11,7 @@
 <g id="edges"><path class="edge" d="M174 432 L285 432" stroke="#64748B" marker-end="url(#arrow-startLocked)"/>
 <path class="edge" d="M655 380 L930 380" stroke="#2563EB" marker-end="url(#arrow-coinUnlock)"/>
 <path class="edge" d="M930 470 L655 470" stroke="#16A34A" marker-end="url(#arrow-pushLock)"/>
-<path class="edge" d="M1115 330 L1115 215 L1355 215 L1355 425 L1300 425" stroke="#EA580C" marker-end="url(#arrow-coinStay)"/></g>
+<path class="edge" d="M 1115 330 L 1115 229 Q 1115 215 1129 215 L 1341 215 Q 1355 215 1355 229 L 1355 411 Q 1355 425 1341 425 L 1300 425" stroke="#EA580C" marker-end="url(#arrow-coinStay)" stroke-linecap="round" stroke-linejoin="round"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(194 392)"><rect width="72" height="30" rx="8"/><text x="36" y="20" text-anchor="middle">initial</text></g>
 <g class="edgeLabel" transform="translate(763 338)"><rect width="58" height="30" rx="8"/><text x="29" y="20" text-anchor="middle">Coin</text></g>
 <g class="edgeLabel" transform="translate(763 488)"><rect width="58" height="30" rx="8"/><text x="29" y="20" text-anchor="middle">Push</text></g>

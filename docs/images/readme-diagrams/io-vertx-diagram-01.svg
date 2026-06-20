@@ -32,11 +32,11 @@
   <text x="750" y="78" text-anchor="middle" class="title">Vert.x Module Capability Architecture</text>
   <text x="750" y="108" text-anchor="middle" class="subtitle">Merged Vert.x core, SQL, web, and Resilience4j helpers wrap application code without hiding the Vert.x runtime boundary.</text>
 
-  <rect x="76" y="150" width="310" height="720" rx="14" class="lane"/>
+  <rect x="76" y="150" width="310" height="638" rx="14" class="lane" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
   <text x="106" y="188" class="laneTitle">Application inputs</text>
-  <rect x="430" y="150" width="640" height="720" rx="14" class="lane"/>
+  <rect x="430" y="150" width="640" height="720" rx="14" class="lane" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
   <text x="460" y="188" class="laneTitle">bluetape4k-vertx capabilities</text>
-  <rect x="1114" y="150" width="310" height="720" rx="14" class="lane"/>
+  <rect x="1114" y="150" width="310" height="720" rx="14" class="lane" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
   <text x="1144" y="188" class="laneTitle">Vert.x runtime</text>
 
   <g id="app">
@@ -92,11 +92,11 @@
   </g>
 
   <path class="core" d="M 352 285 L 480 285"/>
-  <path class="web" d="M 352 300 L 420 300 L 420 411 L 810 411"/>
+  <path class="web" d="M 352 300 L 406 300 Q 420 300 420 314 L 420 397 Q 420 411 434 411 L 810 411"/>
   <path class="sql" d="M 352 620 L 480 620"/>
-  <path class="res" d="M 352 650 L 420 650 L 420 764 L 810 764"/>
+  <path class="res" d="M 352 650 L 406 650 Q 420 650 420 664 L 420 750 Q 420 764 434 764 L 810 764"/>
   <path class="core" d="M 740 271 L 1152 263"/>
-  <path class="web" d="M 1030 411 L 1110 411 L 1110 306 L 1152 306"/>
+  <path class="web" d="M 1030 411 L 1096 411 Q 1110 411 1110 397 L 1110 320 Q 1110 306 1124 306 L 1152 306"/>
   <path class="sql" d="M 740 603 L 1152 603"/>
   <path class="res" d="M 1030 764 L 1152 764"/>
 

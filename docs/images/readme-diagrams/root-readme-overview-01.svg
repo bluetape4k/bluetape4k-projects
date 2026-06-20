@@ -91,12 +91,12 @@
   <text class="count" x="1478" y="192" text-anchor="end">moved out</text>
   <text class="detail" x="718" y="238">AWS, image, text, leader election, JaVers, Exposed, graph</text>
 </g>
-<path class="route" data-from="foundation" data-to="repo" d="M640 370 L810 560" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-<path class="route" data-from="dataCache" data-to="repo" d="M640 900 L810 650" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-<path class="route" data-from="ioInfra" data-to="repo" d="M1560 385 L1390 560" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
-<path class="route" data-from="apps" data-to="repo" d="M1560 875 L1390 650" stroke="#15803D" marker-end="url(#arrow-green)"/>
-<path class="route" data-from="repo" data-to="testing" d="M980 770 L785 1020" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-<path class="route" data-from="repo" data-to="utilities" d="M1220 770 L1325 1020" stroke="#7E22CE" marker-end="url(#arrow-purple)"/>
+<path class="route" data-from="foundation" data-to="repo" d="M 640 370 L 716 370 Q 730 370 730 384 L 730 546 Q 730 560 744 560 L 810 560" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+<path class="route" data-from="dataCache" data-to="repo" d="M 640 900 L 716 900 Q 730 900 730 886 L 730 664 Q 730 650 744 650 L 810 650" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+<path class="route" data-from="ioInfra" data-to="repo" d="M 1560 385 L 1484 385 Q 1470 385 1470 399 L 1470 546 Q 1470 560 1456 560 L 1390 560" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+<path class="route" data-from="apps" data-to="repo" d="M 1560 875 L 1484 875 Q 1470 875 1470 861 L 1470 664 Q 1470 650 1456 650 L 1390 650" stroke="#15803D" marker-end="url(#arrow-green)"/>
+<path class="route" data-from="repo" data-to="testing" d="M 980 770 L 980 881 Q 980 895 966 895 L 799 895 Q 785 895 785 909 L 785 1020" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+<path class="route" data-from="repo" data-to="utilities" d="M 1220 770 L 1220 881 Q 1220 895 1234 895 L 1311 895 Q 1325 895 1325 909 L 1325 1020" stroke="#7E22CE" marker-end="url(#arrow-purple)"/>
 <path class="route" data-from="splitRepos" data-to="repo" d="M1100 270 L1100 470" stroke="#475569" marker-end="url(#arrow-gray)"/>
 <g class="legend" transform="translate(102,1220)">
   <text class="legendTitle" x="0" y="0">How to read this overview</text>

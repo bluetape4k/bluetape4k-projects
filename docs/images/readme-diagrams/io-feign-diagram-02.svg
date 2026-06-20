@@ -102,9 +102,11 @@
     <text class="member" x="16" y="103">+ client&lt;T&gt;(baseUrl)</text>
   </g>
 
-  <path class="rel use-blue" d="M 226 410 L 226 352" />
+  <path class="rel use-blue" d="M 226 410 L 226 352" style="marker-end:none" />
+<polyline points="232,364 226,352 220,364" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="242" y="380">creates</text>
-  <path class="rel use-purple" d="M 462 410 L 462 352" />
+  <path class="rel use-purple" d="M 462 410 L 462 352" style="marker-end:none" />
+<polyline points="468,364 462,352 456,364" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="478" y="380">creates</text>
 
   <g class="uml" transform="translate(696 228)">
@@ -141,9 +143,11 @@
     <text class="member" x="14" y="102">returns Future</text>
   </g>
 
-  <path class="rel impl-green" d="M 791 410 L 791 334" />
+  <path class="rel impl-green" d="M 791 410 L 791 334" style="marker-end:none" />
+<polygon points="797,346 791,334 785,346" fill="#ffffff" stroke="#16a34a" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="806" y="372">implements</text>
-  <path class="rel impl-green" d="M 1019 410 L 1019 334" />
+  <path class="rel impl-green" d="M 1019 410 L 1019 334" style="marker-end:none" />
+<polygon points="1025,346 1019,334 1013,346" fill="#ffffff" stroke="#16a34a" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="1034" y="372">implements</text>
 
   <g class="uml" transform="translate(792 682)">
@@ -155,9 +159,11 @@
     <text class="member" x="16" y="102">+ convertToFeignResponse()</text>
     <text class="member" x="16" y="122">+ gzip/deflate decode</text>
   </g>
-  <path class="rel use-purple" d="M 791 536 L 791 590 L 864 590 L 864 682" />
+  <path class="rel use-purple" d="M 791 536 L 791 576 Q 791 590 805 590 L 850 590 Q 864 590 864 604 L 864 682" style="marker-end:none" />
+<polyline points="858,670 864,682 870,670" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="805" y="581">uses</text>
-  <path class="rel use-purple" d="M 1019 536 L 1019 590 L 1000 590 L 1000 682" />
+  <path class="rel use-purple" d="M 1019 536 L 1019 582.4 Q 1019 590 1011.4 590 L 1007.6 590 Q 1000 590 1000 597.6 L 1000 682" style="marker-end:none" />
+<polyline points="994,670 1000,682 1006,670" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="1030" y="581">uses</text>
 
   <g class="uml" transform="translate(1230 228)">
@@ -217,13 +223,18 @@
     <text class="member" x="16" y="100">Closeable iterator</text>
   </g>
 
-  <path class="rel impl-green" d="M 1325 390 L 1325 334" />
-  <path class="rel impl-green" d="M 1325 540 L 1325 514 L 1438 514 L 1438 334 L 1325 334" />
+  <path class="rel impl-green" d="M 1325 390 L 1325 334" style="marker-end:none" />
+<polygon points="1331,346 1325,334 1319,346" fill="#ffffff" stroke="#16a34a" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="rel impl-green" d="M 1325 540 L 1325 524.4 Q 1325 514 1335.4 514 L 1424 514 Q 1438 514 1438 500 L 1438 348 Q 1438 334 1424 334 L 1325 334" style="marker-end:none" />
+<polygon points="1337,328 1325,334 1337,340" fill="#ffffff" stroke="#16a34a" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="1338" y="362">implements</text>
 
-  <path class="rel impl-green" d="M 1573 390 L 1573 334" />
-  <path class="rel impl-green" d="M 1573 540 L 1573 514 L 1690 514 L 1690 334 L 1573 334" />
-  <path class="rel impl-green" d="M 1573 690 L 1573 668 L 1710 668 L 1710 334 L 1573 334" />
+  <path class="rel impl-green" d="M 1573 390 L 1573 334" style="marker-end:none" />
+<polygon points="1579,346 1573,334 1567,346" fill="#ffffff" stroke="#16a34a" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="rel impl-green" d="M 1573 540 L 1573 524.4 Q 1573 514 1583.4 514 L 1676 514 Q 1690 514 1690 500 L 1690 348 Q 1690 334 1676 334 L 1573 334" style="marker-end:none" />
+<polygon points="1585,328 1573,334 1585,340" fill="#ffffff" stroke="#16a34a" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="rel impl-green" d="M 1573 690 L 1573 676 Q 1573 668 1581 668 L 1696 668 Q 1710 668 1710 654 L 1710 348 Q 1710 334 1696 334 L 1573 334" style="marker-end:none" />
+<polygon points="1585,328 1573,334 1585,340" fill="#ffffff" stroke="#16a34a" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="1588" y="362">implements</text>
 
   <g class="uml" transform="translate(130 700)">

@@ -43,14 +43,14 @@
 
 <g id="contract"><rect class="panel" x="112" y="884" width="1436" height="120" rx="14" fill="#FFFFFF" /><text class="panelTitle" x="146" y="928">Reader contract</text><text class="panelNote" x="146" y="960">Use conversion extensions for well-known types, MessageSupport for raw Any payloads, and ProtobufSerializer or Redis codecs at mixed-object binary boundaries.</text><text class="legend" x="146" y="988">Solid arrows show the primary API path; dashed arrows show serializer delegation.</text></g>
 
-<path class="route" d="M1065 594 H1256" stroke="#755BC6" />
+<path class="route" d="M1208 550 H1256" stroke="#755BC6" />
 <path class="route" d="M1399 624 V674" stroke="#2E8F89" />
-<path class="route dash" d="M1065 674 V648 Q1065 632 1081 632 H1228 Q1244 632 1244 616 V612 H1256" stroke="#B9851B" />
+<path class="route dash" d="M1065 674 V658 Q1065 642 1081 642 H1212 Q1228 642 1228 626 V626 Q1228 612 1242 612 H1256" stroke="#B9851B" />
 <path class="route dash" d="M1500 674 V624" stroke="#C94D68" />
 <path class="route" d="M444 830 V884" stroke="#4F83BF" />
 <path class="route" d="M1065 762 V884" stroke="#755BC6" />
 <path class="route" d="M1399 762 V884" stroke="#C94D68" />
-<path d="M1256 594 l-12 -7 v14 z" fill="#755BC6" />
+<path d="M1256 550 l-12 -7 v14 z" fill="#755BC6" />
 <path d="M1399 674 l-7 -12 h14 z" fill="#2E8F89" />
 <path d="M1256 612 l-12 -7 v14 z" fill="#B9851B" />
 <path d="M1500 624 l-7 12 h14 z" fill="#C94D68" />

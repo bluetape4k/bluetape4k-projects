@@ -21,22 +21,22 @@
       .label { font-size: 13px; }
       .footer { font-size: 14px; fill: #60727d; }
     </style>
-    <marker id="arrowFlow" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#7b67a8"/></marker>
-    <marker id="arrowAsync" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#3f7d9c"/></marker>
-    <marker id="arrowSuccess" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#6e8f4f"/></marker>
-    <marker id="arrowFailure" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#b86868"/></marker>
-    <marker id="arrowSupport" markerWidth="11" markerHeight="11" refX="10" refY="5.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 11 5.5 L 0 11 Z" fill="#9b7d54"/></marker>
+    <marker id="arrowFlow" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#7b67a8" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowAsync" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#3f7d9c" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowSuccess" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#6e8f4f" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowFailure" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#b86868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowSupport" markerWidth="11" markerHeight="11" refX="10" refY="5.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 11 5.5 L 0 11 Z" fill="#9b7d54" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
   </defs>
 
   <rect x="24" y="24" width="1452" height="932" rx="20" class="frame"/>
   <text x="750" y="78" text-anchor="middle" class="title">Vert.x Event Loop + Coroutines Processing Flow</text>
   <text x="750" y="108" text-anchor="middle" class="subtitle">Future-producing work stays asynchronous; coroutine helpers suspend and resume on completion without blocking the event-loop thread.</text>
 
-  <rect x="76" y="150" width="320" height="720" rx="14" class="lane"/>
+  <rect x="76" y="150" width="320" height="535" rx="14" class="lane" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
   <text x="106" y="188" class="laneTitle">Request boundary</text>
-  <rect x="446" y="150" width="608" height="720" rx="14" class="lane"/>
+  <rect x="446" y="150" width="608" height="525" rx="14" class="lane" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
   <text x="476" y="188" class="laneTitle">Coroutine bridge</text>
-  <rect x="1104" y="150" width="320" height="720" rx="14" class="lane"/>
+  <rect x="1104" y="150" width="320" height="657" rx="14" class="lane" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
   <text x="1134" y="188" class="laneTitle">Runtime and outcome</text>
 
   <g id="route">
@@ -82,14 +82,16 @@
     <text x="1264" y="712" text-anchor="middle" class="detail">ctx.fail / throw / recover</text>
   </g>
 
-  <path class="flow" d="M 356 287 L 494 271"/>
+  <path class="flow" d="M 356 287 L 410 287 Q 426 287 426 271 L 494 271"/>
   <path class="async" d="M 734 271 L 776 271"/>
-  <path class="support" d="M 1016 271 L 1144 271"/>
+  <path class="support" d="M 1016 271 L 1144 271" style="marker-end:none"/>
+<polygon points="1132,277 1144,271 1132,265" fill="#9b7d54" stroke="#9b7d54" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <path class="success" d="M 236 329 L 236 505"/>
   <path class="flow" d="M 356 547 L 746 547"/>
-  <path class="support" d="M 1264 317 L 1264 390 L 881 390 L 881 500"/>
+  <path class="support" d="M 1264 317 L 1264 376 Q 1264 390 1250 390 L 895 390 Q 881 390 881 404 L 881 500" style="marker-end:none"/>
+<polygon points="875,488 881,500 887,488" fill="#9b7d54" stroke="#9b7d54" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <path class="success" d="M 1016 530 L 1144 530"/>
-  <path class="failure" d="M 1016 566 L 1080 566 L 1080 691 L 1144 691"/>
+  <path class="failure" d="M 1016 566 L 1066 566 Q 1080 566 1080 580 L 1080 677 Q 1080 691 1094 691 L 1144 691"/>
 
   <text x="750" y="928" text-anchor="middle" class="footer">github.com/bluetape4k/bluetape4k-projects - io/vertx README</text>
 </svg>

@@ -22,15 +22,15 @@
 <text class="subtitle" x="78" y="118">A JUnit 5-native assertion surface routes DSL failures through OpenTest4J while preserving coroutine cancellation and soft aggregation semantics.</text>
 
 <g id="layers">
-  <rect class="layer" x="70" y="155" width="390" height="805"/>
+  <rect class="layer" x="70" y="155" width="390" height="805" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
   <text class="layerTitle" x="112" y="205">Test-side contract</text>
   <text class="layerSub" x="112" y="230">what test code imports and depends on</text>
 
-  <rect class="layer" x="520" y="155" width="760" height="805"/>
+  <rect class="layer" x="520" y="116" width="760" height="844" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
   <text class="layerTitle" x="562" y="205">Assertion DSL families</text>
   <text class="layerSub" x="562" y="230">source-backed extension functions and wrappers</text>
 
-  <rect class="layer" x="1340" y="155" width="390" height="805"/>
+  <rect class="layer" x="1340" y="155" width="390" height="805" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
   <text class="layerTitle" x="1382" y="205">Failure semantics</text>
   <text class="layerSub" x="1382" y="230">how failed checks surface to JUnit tools</text>
 </g>
@@ -128,7 +128,8 @@
 <rect class="labelBox" x="438" y="527" width="138" height="24"/>
 <text class="label" x="454" y="544">import-only</text>
 
-<path class="arrow green dash" d="M418 776 L520 776"/>
+<path class="arrow green dash" d="M418 776 L520 776" style="marker-end:none"/>
+<polygon points="508,782 520,776 508,770" fill="#16A34A" stroke="#16A34A" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 <rect class="labelBox" x="438" y="745" width="154" height="24"/>
 <text class="label" x="454" y="762">optional add-on</text>
 
@@ -142,9 +143,9 @@
 <rect class="labelBox" x="1248" y="577" width="156" height="24"/>
 <text class="label" x="1264" y="594">cancel safely</text>
 
-<path class="arrow purple" d="M725 661 L725 682 L1292 682 Q1308 682 1308 698 L1308 862 Q1308 878 1324 878 L1382 878"/>
+<path class="arrow purple" d="M 725 661 L 725 672 Q 725 682 735 682 L 1292 682 Q 1308 682 1308 698 L 1308 862 Q 1308 878 1324 878 L 1382 878"/>
 <rect class="labelBox" x="1086" y="651" width="140" height="24"/>
 <text class="label" x="1102" y="668">aggregate</text>
 
-<path class="arrow purple" d="M1688 863 L1712 863 L1712 520 L1688 520"/>
+<path class="arrow purple" d="M 1688 863 L 1702.4 863 Q 1712 863 1712 853.4 L 1712 530 Q 1712 520 1702 520 L 1688 520" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

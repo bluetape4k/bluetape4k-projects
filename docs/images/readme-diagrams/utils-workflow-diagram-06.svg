@@ -12,12 +12,14 @@
 <text class="title" x="78" y="86">Conditional Flow Branching</text>
 <text class="subtitle" x="82" y="118">The predicate selects exactly one branch. Sync returns branch reports; suspend converts non-cancellation exceptions to Failure.</text>
 <g id="edges"><path class="edge" d="M840 306 L840 350" stroke="#2563EB" marker-end="url(#arrow-evaluate)"/>
-<path class="edge" d="M675 435 L520 435 L520 560" stroke="#16A34A" marker-end="url(#arrow-yes)"/>
-<path class="edge dashed" d="M840 520 L840 560" stroke="#EA580C" marker-end="url(#arrow-missing)"/>
-<path class="edge" d="M1005 435 L1160 435 L1160 560" stroke="#DB2777" marker-end="url(#arrow-no)"/>
-<path class="edge" d="M400 678 L400 782 L580 782" stroke="#16A34A" marker-end="url(#arrow-thenReport)"/>
-<path class="edge dashed" d="M840 678 L840 725" stroke="#EA580C" marker-end="url(#arrow-noopReport)"/>
-<path class="edge" d="M1280 678 L1280 782 L1100 782" stroke="#DB2777" marker-end="url(#arrow-otherwiseReport)"/></g>
+<path class="edge" d="M 675 435 L 534 435 Q 520 435 520 449 L 520 560" stroke="#16A34A" marker-end="url(#arrow-yes)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge dashed" d="M840 520 L840 560" stroke="#EA580C"/>
+<polygon points="834,548 840,560 846,548" fill="#EA580C" stroke="#EA580C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="edge" d="M 1005 435 L 1146 435 Q 1160 435 1160 449 L 1160 560" stroke="#DB2777" marker-end="url(#arrow-no)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge" d="M 400 678 L 400 768 Q 400 782 414 782 L 580 782" stroke="#16A34A" marker-end="url(#arrow-thenReport)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge dashed" d="M840 678 L840 725" stroke="#EA580C"/>
+<polygon points="834,713 840,725 846,713" fill="#EA580C" stroke="#EA580C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="edge" d="M 1280 678 L 1280 768 Q 1280 782 1266 782 L 1100 782" stroke="#DB2777" marker-end="url(#arrow-otherwiseReport)" stroke-linecap="round" stroke-linejoin="round"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(869 315)"><rect width="82" height="30" rx="8"/><text x="41" y="20" text-anchor="middle">evaluate</text></g>
 <g class="edgeLabel" transform="translate(531 395)"><rect width="58" height="30" rx="8"/><text x="29" y="20" text-anchor="middle">true</text></g>
 <g class="edgeLabel" transform="translate(883 525)"><rect width="94" height="30" rx="8"/><text x="47" y="20" text-anchor="middle">no branch</text></g>

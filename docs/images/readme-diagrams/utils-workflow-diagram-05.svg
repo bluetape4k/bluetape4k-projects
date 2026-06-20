@@ -12,12 +12,14 @@
 <text class="title" x="78" y="86">Parallel Flow Policy</text>
 <text class="subtitle" x="82" y="118">ALL waits with fail-fast semantics; ANY returns the first Success. Timeout and non-success reports still become WorkReport outcomes.</text>
 <g id="edges"><path class="edge" d="M840 286 L840 325" stroke="#2563EB" marker-end="url(#arrow-startPolicy)"/>
-<path class="edge" d="M635 387 L465 387 L465 535" stroke="#16A34A" marker-end="url(#arrow-all)"/>
-<path class="edge" d="M1045 387 L1215 387 L1215 535" stroke="#0D9488" marker-end="url(#arrow-any)"/>
-<path class="edge" d="M465 667 L465 794 L605 794" stroke="#16A34A" marker-end="url(#arrow-allReport)"/>
-<path class="edge" d="M1215 667 L1215 794 L1075 794" stroke="#0D9488" marker-end="url(#arrow-anyReport)"/>
-<path class="edge dashed" d="M160 433 L160 820 L605 820" stroke="#EA580C" marker-end="url(#arrow-timeoutReport)"/>
-<path class="edge dashed" d="M635 228 L235 228 L235 315" stroke="#EA580C" marker-end="url(#arrow-startTimeout)"/></g>
+<path class="edge" d="M 635 387 L 479 387 Q 465 387 465 401 L 465 535" stroke="#16A34A" marker-end="url(#arrow-all)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge" d="M 1045 387 L 1201 387 Q 1215 387 1215 401 L 1215 535" stroke="#0D9488" marker-end="url(#arrow-any)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge" d="M 465 667 L 465 780 Q 465 794 479 794 L 605 794" stroke="#16A34A" marker-end="url(#arrow-allReport)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge" d="M 1215 667 L 1215 780 Q 1215 794 1201 794 L 1075 794" stroke="#0D9488" marker-end="url(#arrow-anyReport)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge dashed" d="M 160 433 L 160 806 Q 160 820 174 820 L 605 820" stroke="#EA580C" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="593,826 605,820 593,814" fill="#EA580C" stroke="#EA580C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="edge dashed" d="M 635 228 L 249 228 Q 235 228 235 242 L 235 315" stroke="#EA580C" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="229,303 235,315 241,303" fill="#EA580C" stroke="#EA580C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(865 294)"><rect width="126" height="30" rx="8"/><text x="63" y="20" text-anchor="middle">shared context</text></g>
 <g class="edgeLabel" transform="translate(502 347)"><rect width="56" height="30" rx="8"/><text x="28" y="20" text-anchor="middle">ALL</text></g>
 <g class="edgeLabel" transform="translate(1122 347)"><rect width="56" height="30" rx="8"/><text x="28" y="20" text-anchor="middle">ANY</text></g>

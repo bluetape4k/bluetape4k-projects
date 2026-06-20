@@ -4,7 +4,7 @@
       <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.12"/>
     </filter>
     <marker id="flow-blue" markerWidth="14" markerHeight="10" refX="13" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 0 0 L 14 5 L 0 10 Z" fill="#2563EB" stroke="#2563EB" stroke-width="1" stroke-dasharray="none"/>
+      <path d="M 0 0 L 14 5 L 0 10 Z" fill="#2563EB" stroke="#2563EB" stroke-width="1" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <style>
       svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }

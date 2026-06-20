@@ -94,27 +94,31 @@
   <path class="divider" d="M1850 1174H2450" stroke="#C2410C"/><text class="foot" x="1872" y="1203">stream sources keep order and lazy behavior</text>
 </g>
 <g data-from="Mutiny" data-to="Uni">
-  <path class="edge " d="M1020 420 L1020 485 L450 485 L450 555" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <path class="edge " d="M 1020 420 L 1020 471 Q 1020 485 1006 485 L 464 485 Q 450 485 450 499 L 450 555" stroke="#1D4ED8" marker-end="url(#arrow-blue)" stroke-linecap="round" stroke-linejoin="round"/>
   <g class="edgeLabel" transform="translate(535 451)"><rect width="170" height="30" rx="8"/><text x="85" y="20" text-anchor="middle">single-result side</text></g>
 </g>
 <g data-from="Mutiny" data-to="Multi">
-  <path class="edge " d="M1500 420 L1500 485 L2150 485 L2150 555" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <path class="edge " d="M 1500 420 L 1500 471 Q 1500 485 1514 485 L 2136 485 Q 2150 485 2150 499 L 2150 555" stroke="#6D28D9" marker-end="url(#arrow-violet)" stroke-linecap="round" stroke-linejoin="round"/>
   <g class="edgeLabel" transform="translate(1713 451)"><rect width="114" height="30" rx="8"/><text x="57" y="20" text-anchor="middle">stream side</text></g>
 </g>
 <g data-from="UniSupport" data-to="Uni">
-  <path class="edge dashed" d="M450 955 L450 815" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <path class="edge dashed" d="M450 955 L450 815" stroke="#15803D"/>
+<polygon points="456,827 450,815 444,827" fill="#15803D" stroke="#15803D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <g class="edgeLabel" transform="translate(472 875)"><rect width="186" height="30" rx="8"/><text x="93" y="20" text-anchor="middle">creates and converts</text></g>
 </g>
 <g data-from="CoroutineSupport" data-to="Uni">
-  <path class="edge dashed" d="M930 1075 L830 1075 L830 885 L450 885 L450 815" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <path class="edge dashed" d="M 930 1075 L 844 1075 Q 830 1075 830 1061 L 830 899 Q 830 885 816 885 L 464 885 Q 450 885 450 871 L 450 815" stroke="#0F766E" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="456,827 450,815 444,827" fill="#0F766E" stroke="#0F766E" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <g class="edgeLabel" transform="translate(837 1033)"><rect width="186" height="30" rx="8"/><text x="93" y="20" text-anchor="middle">suspend block -&gt; Uni</text></g>
 </g>
 <g data-from="MultiSupport" data-to="Multi">
-  <path class="edge dashed" d="M2150 955 L2150 815" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <path class="edge dashed" d="M2150 955 L2150 815" stroke="#C2410C"/>
+<polygon points="2156,827 2150,815 2144,827" fill="#C2410C" stroke="#C2410C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <g class="edgeLabel" transform="translate(2192 875)"><rect width="146" height="30" rx="8"/><text x="73" y="20" text-anchor="middle">creates streams</text></g>
 </g>
 <g data-from="Uni" data-to="Multi">
-  <path class="edge dashed" d="M750 685 L1850 685" stroke="#475569" marker-end="url(#arrow-slate)"/>
+  <path class="edge dashed" d="M750 685 L1850 685" stroke="#475569"/>
+<polygon points="1838,691 1850,685 1838,679" fill="#475569" stroke="#475569" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <g class="edgeLabel" transform="translate(1053 649)"><rect width="234" height="30" rx="8"/><text x="117" y="20" text-anchor="middle">different item cardinality</text></g>
 </g>
 </svg>

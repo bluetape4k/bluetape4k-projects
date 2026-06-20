@@ -25,16 +25,16 @@
       .footer { font-size: 14px; fill: #60727d; }
     </style>
     <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#7b67a8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#7b67a8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="openCore" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#3f7d9c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#3f7d9c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="openRes" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#b86868" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#b86868" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="openSql" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#a97b3d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#a97b3d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
   </defs>
 
@@ -112,10 +112,10 @@
     <text x="1135" y="976" class="method">wraps and returns () -&gt; Future&lt;T&gt;</text>
   </g>
 
-  <path class="async" d="M 295 360 L 295 300 L 690 300 L 690 275"/>
+  <path class="async" d="M 295 360 L 295 314 Q 295 300 309 300 L 680 300 Q 690 300 690 290 L 690 275"/>
   <path class="async" d="M 800 360 L 800 275"/>
-  <path class="async" d="M 1305 360 L 1305 300 L 910 300 L 910 275"/>
-  <path class="uses" d="M 295 640 L 295 560 L 760 560 L 760 510"/>
+  <path class="async" d="M 1305 360 L 1305 314 Q 1305 300 1291 300 L 920 300 Q 910 300 910 290 L 910 275"/>
+  <path class="uses" d="M 295 640 L 295 574 Q 295 560 309 560 L 746 560 Q 760 560 760 546 L 760 510" stroke-linecap="round" stroke-linejoin="round"/>
   <path class="res" d="M 1305 632 L 1305 510"/>
   <path class="res" d="M 1305 812 L 1305 900"/>
 

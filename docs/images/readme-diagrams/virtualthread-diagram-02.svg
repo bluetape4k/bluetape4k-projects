@@ -115,10 +115,10 @@
 
 
 <polyline points="592,278 610,270 592,262" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="impl" d="M1140 216 L960 246" stroke="#2563EB" />
-<polygon points="979.23,233.67 960,246 982.19,251.43" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="impl" d="M1140 332 L960 302" stroke="#2563EB" />
-<polygon points="982.19,296.57 960,302 979.23,314.33" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="impl" d="M 1140 216 L 1010 216 Q 996 216 996 230 L 996 246 L 960 246" stroke="#2563EB" />
+<polygon points="982,236 960,246 982,256" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="impl" d="M 1140 332 L 1010 332 Q 996 332 996 318 L 996 302 L 960 302" stroke="#2563EB" />
+<polygon points="982,292 960,302 982,312" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="impl" d="M685 382 L685 350" stroke="#2563EB" />
 <polygon points="694,371 685,350 676,371" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 
@@ -126,10 +126,10 @@
 
 
 <polyline points="572,624 590,616 572,608" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="impl" d="M1120 548 L980 580" stroke="#0D9488" />
-<polygon points="998.47,566.55 980,580 1002.48,584.09" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="impl" d="M1120 680 L980 648" stroke="#0D9488" />
-<polygon points="1002.48,643.91 980,648 998.47,661.45" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="impl" d="M 1120 548 L 1010 548 Q 996 548 996 562 L 996 580 L 980 580" stroke="#0D9488" />
+<polygon points="1002,570 980,580 1002,590" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="impl" d="M 1120 680 L 1010 680 Q 996 680 996 666 L 996 648 L 980 648" stroke="#0D9488" />
+<polygon points="1002,638 980,648 1002,658" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="uses" d="M785 692 L785 734" stroke="#D97706" />
 
 <polyline points="777,716 785,734 793,716" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>

@@ -4,16 +4,16 @@
       <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
     </filter>
     <marker id="open-blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="open-purple" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#9333ea" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#9333ea" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="open-green" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="open-orange" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
   </defs>
 
@@ -74,7 +74,7 @@
   </g>
   <g id="service-api">
     <rect class="card external" x="1308" y="254" width="316" height="70" rx="8"/>
-    <text class="name" x="1466" y="286" text-anchor="middle">NATS Service API</text>
+    <image data-bluetape4k-icon="testcontainers/mq/nats.svg" x="1344" y="266" width="34" height="34" href="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjMjdBQUUxIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+TkFUUy5pbzwvdGl0bGU+PHBhdGggZD0iTTEyLjAwNCAwSC40MDR2MTguODA3aDkuOTM4bDEuNzE0IDEuNjAydi0uMDI2TDE1Ljk2NiAyNHYtNS4xOTNoNy42M1YwSDEyLjAwM3ptNy41NzggMTQuNDVIMTUuMzhMNi44OTggNi41MTl2Ny45M0g0LjExNlY0LjM3Nmg0LjM0OWw4LjM0NCA3Ljc4NFY0LjM3NWgyLjc3M1YxNC40NXoiLz48L3N2Zz4=" preserveAspectRatio="xMidYMid meet"/><text class="name" x="1466" y="286" text-anchor="middle">NATS Service API</text>
     <text class="meta" x="1466" y="310" text-anchor="middle">ServiceBuilder + Endpoint</text>
   </g>
 
@@ -121,13 +121,20 @@
     <text class="meta" x="1466" y="565" text-anchor="middle">serviceEndpoint / serviceEndpointOf</text>
   </g>
 
-  <path class="blue" d="M 263 324 V 470"/>
-  <path class="blue" d="M 262 588 V 602"/>
-  <path class="purple" d="M 650 324 V 462"/>
-  <path class="purple" d="M 642 568 V 588"/>
-  <path class="green" d="M 1058 324 V 462"/>
-  <path class="green" d="M 1058 582 V 598"/>
-  <path class="orange" d="M 1466 324 V 470"/>
+  <path class="blue" d="M 263 324 V 470" style="marker-end:none"/>
+<polyline points="257,458 263,470 269,458" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="blue" d="M 262 588 V 602" style="marker-end:none"/>
+<polyline points="256,590 262,602 268,590" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="purple" d="M 650 324 V 462" style="marker-end:none"/>
+<polyline points="644,450 650,462 656,450" fill="none" stroke="#9333ea" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="purple" d="M 642 568 V 588" style="marker-end:none"/>
+<polyline points="636,576 642,588 648,576" fill="none" stroke="#9333ea" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="green" d="M 1058 324 V 462" style="marker-end:none"/>
+<polyline points="1052,450 1058,462 1064,450" fill="none" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="green" d="M 1058 582 V 598" style="marker-end:none"/>
+<polyline points="1052,586 1058,598 1064,586" fill="none" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="orange" d="M 1466 324 V 470" style="marker-end:none"/>
+<polyline points="1460,458 1466,470 1472,458" fill="none" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <g id="core-out">
     <rect class="card core" x="126" y="808" width="274" height="70" rx="8"/>
@@ -150,10 +157,14 @@
     <text class="meta" x="1466" y="864" text-anchor="middle">Service + ServiceEndpoint list</text>
   </g>
 
-  <path class="blue" d="M 262 674 V 800"/>
-  <path class="purple" d="M 642 666 V 800"/>
-  <path class="green" d="M 1058 674 V 800"/>
-  <path class="orange" d="M 1466 588 V 800"/>
+  <path class="blue" d="M 262 674 V 800" style="marker-end:none"/>
+<polyline points="256,788 262,800 268,788" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="purple" d="M 642 666 V 800" style="marker-end:none"/>
+<polyline points="636,788 642,800 648,788" fill="none" stroke="#9333ea" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="green" d="M 1058 674 V 800" style="marker-end:none"/>
+<polyline points="1052,788 1058,800 1064,788" fill="none" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="orange" d="M 1466 588 V 800" style="marker-end:none"/>
+<polyline points="1460,788 1466,800 1472,788" fill="none" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <g id="spring-note">
     <rect class="card note" x="474" y="922" width="852" height="64" rx="8"/>

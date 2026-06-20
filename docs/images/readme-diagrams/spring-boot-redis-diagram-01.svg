@@ -2,11 +2,11 @@
   <style>text { font-family: 'Architects Daughter', 'Comic Mono', 'Helvetica Neue', Arial, sans-serif; dominant-baseline: alphabetic; }</style>
 
   <defs>
-    <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none" /></marker>
-    <marker id="arrow-green" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#16a34a" stroke="#16a34a" stroke-width="0" stroke-dasharray="none" /></marker>
-    <marker id="arrow-orange" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none" /></marker>
-    <marker id="arrow-purple" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#7c3aed" stroke="#7c3aed" stroke-width="0" stroke-dasharray="none" /></marker>
-    <marker id="open-gray" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#64748b" stroke-width="1.7" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round" /></marker>
+    <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
+    <marker id="arrow-green" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#16a34a" stroke="#16a34a" stroke-width="0" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
+    <marker id="arrow-orange" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
+    <marker id="arrow-purple" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#7c3aed" stroke="#7c3aed" stroke-width="0" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
+    <marker id="open-gray" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#64748b" stroke-width="1.7" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"  style="stroke-dasharray:none"/></marker>
     <marker id="hollow-blue" markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="15" viewBox="0 0 12 12" refX="11" refY="6" orient="auto"><path d="M 1 1 L 11 6 L 1 11 Z" fill="#ffffff" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
   </defs>
   <rect width="1460" height="860" fill="#ffffff" />
@@ -15,9 +15,9 @@
   <text x="280" y="324" text-anchor="middle" font-size="14" font-weight="700" fill="#16a34a">object value adapter</text>
   <text x="760" y="324" text-anchor="middle" font-size="14" font-weight="700" fill="#ea580c">ByteArray compression adapter</text>
   <text x="1180" y="342" text-anchor="middle" font-size="14" font-weight="700" fill="#7c3aed">factory and context helpers</text>
-  <path class="edge" d="M280 382 L280 340 L465 340 L465 298" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" />
+  <path class="edge" d="M 280 382 L 280 354 Q 280 340 294 340 L 451 340 Q 465 340 465 326 L 465 298" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" />
 <polygon points="474,319 465,298 456,319" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="edge" d="M760 382 L760 340 L615 340 L615 298" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" />
+  <path class="edge" d="M 760 382 L 760 354 Q 760 340 746 340 L 629 340 Q 615 340 615 326 L 615 298" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" />
 <polygon points="624,319 615,298 606,319" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
   <path class="edge" d="M280 634 L280 554" fill="none" stroke="#16a34a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-green)" />
   <path class="edge" d="M760 634 L760 554" fill="none" stroke="#ea580c" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)" />

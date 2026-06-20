@@ -8,10 +8,10 @@
 <rect class="section" x="78" y="980" width="2340" height="345" rx="8"/><text class="sectionTitle" x="106" y="1005">concrete unit families and specialized helpers</text>
 <g id="edges"><path class="edge has" d="M1040 305 L675 305" stroke="#0D9488"/>
 <path class="edge extends" d="M415 620 L415 415" stroke="#2563EB"/>
-<path class="edge extends" d="M1045 620 L1045 520 L585 520 L585 415" stroke="#7C3AED"/>
-<path class="edge extends" d="M1610 620 L1610 500 L640 500 L640 415" stroke="#16A34A"/>
-<path class="edge extends" d="M2150 620 L2150 480 L675 480 L675 360" stroke="#EA580C"/>
-<path class="edge uses" d="M1310 1030 L1310 930 L1610 930 L1610 855" stroke="#16A34A"/>
+<path class="edge extends" d="M 1045 620 L 1045 534 Q 1045 520 1031 520 L 599 520 Q 585 520 585 506 L 585 415" stroke="#7C3AED" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge extends" d="M 1610 620 L 1610 514 Q 1610 500 1596 500 L 654 500 Q 640 500 640 486 L 640 415" stroke="#16A34A" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge extends" d="M 2150 620 L 2150 494 Q 2150 480 2136 480 L 717 480 Q 703 480 703 466 L 703 370 Q 703 360 693 360 L 675 360" stroke="#EA580C" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge uses" d="M 1310 1030 L 1310 944 Q 1310 930 1324 930 L 1596 930 Q 1610 930 1610 916 L 1610 855" stroke="#16A34A" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="edge uses" d="M1810 290 L1600 290" stroke="#64748B"/></g>
 <g id="arrowheads"><path class="solidOpenHead" d="M688 298 L675 305 L688 312" stroke="#0D9488"/>
 <path class="solidHead" d="M415 415 L407 431 L423 431 Z" fill="#FFFFFF" stroke="#2563EB"/>

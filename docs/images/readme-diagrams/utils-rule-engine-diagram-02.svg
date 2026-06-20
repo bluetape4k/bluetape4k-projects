@@ -7,8 +7,8 @@
 <rect class="section" x="74" y="145" width="2320" height="1038" rx="8"/><text class="sectionTitle" x="102" y="170">core rule model, creation helpers, and facts passed through evaluate/execute</text>
 <g id="edges"><path class="edge implements" d="M2080 560 L2080 455" stroke="#7C3AED"/>
 <path class="edge extends" d="M2080 880 L2080 780" stroke="#7C3AED"/>
-<path class="edge has" d="M1800 950 L1440 950 L1440 445 L935 445 L935 410" stroke="#2563EB"/>
-<path class="edge has" d="M1940 880 L1940 840 L1510 840 L1510 410" stroke="#2563EB"/>
+<path class="edge has" d="M 1800 950 L 1454 950 Q 1440 950 1440 936 L 1440 459 Q 1440 445 1426 445 L 948 445 Q 935 445 935 432 L 935 410" stroke="#2563EB" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge has" d="M 1940 880 L 1940 854 Q 1940 840 1926 840 L 1524 840 Q 1510 840 1510 826 L 1510 410" stroke="#2563EB" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="edge uses" d="M1260 1005 L1800 1005" stroke="#0D9488"/></g>
 <g id="arrowheads"><path class="solidHead" d="M2080 455 L2072 471 L2088 471 Z" fill="#FFFFFF" stroke="#7C3AED"/>
 <path class="solidHead" d="M2080 780 L2072 796 L2088 796 Z" fill="#FFFFFF" stroke="#7C3AED"/>

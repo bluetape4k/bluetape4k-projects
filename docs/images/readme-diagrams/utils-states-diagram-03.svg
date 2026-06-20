@@ -14,7 +14,7 @@
 <path class="edge" d="M1055 335 L1055 395" stroke="#16A34A" marker-end="url(#arrow-entryState)"/>
 <path class="edge" d="M1480 335 L1480 395" stroke="#EA580C" marker-end="url(#arrow-entryTransitions)"/>
 <path class="edge" d="M1060 545 L1060 670" stroke="#16A34A" marker-end="url(#arrow-stateValidate)"/>
-<path class="edge" d="M1480 545 L1480 600 L1160 600 L1160 670" stroke="#EA580C" marker-end="url(#arrow-transitionsValidate)"/>
+<path class="edge" d="M 1480 545 L 1480 586 Q 1480 600 1466 600 L 1174 600 Q 1160 600 1160 614 L 1160 670" stroke="#EA580C" marker-end="url(#arrow-transitionsValidate)" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="edge" d="M1240 742 L1300 742" stroke="#9333EA" marker-end="url(#arrow-validateRuntime)"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(775 209)"><rect width="60" height="30" rx="8"/><text x="30" y="20" text-anchor="middle">calls</text></g>
 <g class="edgeLabel" transform="translate(1076 350)"><rect width="100" height="30" rx="8"/><text x="50" y="20" text-anchor="middle">apply block</text></g>

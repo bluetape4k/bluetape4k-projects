@@ -34,22 +34,22 @@
       .icon-line { fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
     </style>
     <marker id="arrowSlate" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#455a64" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#455a64" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowPurple" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#8870a8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#8870a8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
       <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
@@ -79,7 +79,7 @@
   <rect x="72" y="374" width="1656" height="218" rx="16" class="install-panel"/>
   <g transform="translate(1678 398)" aria-hidden="true">
     <circle cx="0" cy="0" r="20" class="icon-ring" stroke="#8870a8"/>
-    <path d="M -9 -4 H 9 M -9 5 H 9 M -2 -11 L 9 -4 L -2 3" class="icon-line" stroke="#8870a8"/>
+    <path d="M -9 -4 L 9 -4 L -9 5 L 1.8 5 Q 9 5 4.92 -0.93 L 0.95 -6.7 Q -2 -11 2.4 -8.2 L 9 -4 L -2 3" class="icon-line" stroke="#8870a8"/>
   </g>
   <text x="102" y="414" class="panel-title">Explicit plugin installation</text>
   <text x="102" y="442" class="small">Selected Ktor plugins are installed explicitly; Prometheus is route-only.</text>
@@ -139,17 +139,17 @@
   <path d="M 490 279 H 560" class="flowSlate"/>
   <path d="M 890 279 H 960" class="flowRed"/>
   <path d="M 1260 279 H 1320" class="flowPurple"/>
-  <path d="M 680 310 V 468 H 338 V 498" class="flowPurple"/>
-  <path d="M 770 310 V 468 H 702 V 498" class="flowPurple"/>
+  <path d="M 680 310 L 680 454 Q 680 468 666 468 L 346 468 Q 338 468 338 476 L 338 498" class="flowPurple"/>
+  <path d="M 770 310 L 770 454 Q 770 468 756 468 L 710 468 Q 702 468 702 476 L 702 498" class="flowPurple"/>
   <path d="M 338 560 V 638" class="flowGreen"/>
   <path d="M 702 560 V 638" class="flowGold"/>
 
-  <path d="M 300 766 V 728 H 672 V 766" class="flowGreen"/>
+  <path d="M 300 766 L 300 742 Q 300 728 314 728 L 658 728 Q 672 728 672 742 L 672 766" class="flowGreen"/>
   <path d="M 1110 310 V 498" class="flowRed"/>
   <path d="M 1470 310 V 498" class="flowPurple"/>
   <path d="M 1066 560 V 638" class="flowRed"/>
   <path d="M 1430 560 V 638" class="flowPurple"/>
-  <path d="M 672 862 V 944 H 900 V 966" class="flowGold"/>
-  <path d="M 1136 862 V 944 H 900 V 966" class="flowBlue"/>
-  <path d="M 1498 862 V 944 H 900 V 966" class="flowPurple"/>
+  <path d="M 672 862 L 672 930 Q 672 944 686 944 L 890 944 Q 900 944 900 954 L 900 966" class="flowGold"/>
+  <path d="M 1136 862 L 1136 930 Q 1136 944 1122 944 L 910 944 Q 900 944 900 954 L 900 966" class="flowBlue"/>
+  <path d="M 1498 862 L 1498 930 Q 1498 944 1484 944 L 910 944 Q 900 944 900 954 L 900 966" class="flowPurple"/>
 </svg>

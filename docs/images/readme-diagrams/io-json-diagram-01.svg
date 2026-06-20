@@ -7,10 +7,10 @@
       <path d="M 13.5 1.5 L 1.5 6.5 L 13.5 11.5 Z" fill="#ffffff" stroke="#263238" stroke-width="2.1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
     </marker>
     <marker id="openBlue" markerWidth="11" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1.5 1.5 L 9 5 L 1.5 8.5" fill="none" stroke="#4079a8" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" />
+      <path d="M 1.5 1.5 L 9 5 L 1.5 8.5" fill="none" stroke="#4079a8" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/>
     </marker>
     <marker id="openAmber" markerWidth="11" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1.5 1.5 L 9 5 L 1.5 8.5" fill="none" stroke="#b98220" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" />
+      <path d="M 1.5 1.5 L 9 5 L 1.5 8.5" fill="none" stroke="#b98220" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/>
     </marker>
     <style>
       svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
@@ -113,16 +113,19 @@
     <text x="1116" y="873" class="member">JSONB bytes + JSON text override</text>
   </g>
 
-  <path d="M 585 372 H 480" class="uses-blue" />
-  <path d="M 1015 372 H 1120" class="uses-blue" />
+  <path d="M 585 372 H 480" class="uses-blue" style="marker-end:none" />
+<polyline points="492,366 480,372 492,378" fill="none" stroke="#4079a8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 1015 372 H 1120" class="uses-blue" style="marker-end:none" />
+<polyline points="1108,378 1120,372 1108,366" fill="none" stroke="#4079a8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
-<path d="M 330 795 V 775 H 800" class="implements-bus" />
+<path d="M 330 795 L 330 781 Q 330 775 336 775 L 800 775" class="implements-bus" />
 <path d="M 800 795 V 775" class="implements-bus" />
-<path d="M 1270 795 V 775 H 800" class="implements-bus" />
+<path d="M 1270 795 L 1270 781 Q 1270 775 1264 775 L 800 775" class="implements-bus" />
 <path d="M 800 775 V 486" class="implements" />
   <path d="M 790 486 L 800 470 L 810 486 Z" fill="#ffffff" stroke="#263238" stroke-width="2.1" stroke-linejoin="round" />
 
-  <path d="M 585 434 H 520 V 548 H 480" class="uses-amber" />
+  <path d="M 585 434 L 534 434 Q 520 434 520 448 L 520 534 Q 520 548 506 548 L 480 548" class="uses-amber" stroke-linecap="round" stroke-linejoin="round" style="marker-end:none" />
+<polyline points="492,542 480,548 492,554" fill="none" stroke="#b98220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <rect x="90" y="930" width="1420" height="34" rx="12" fill="#ffffff" stroke="#c7d3d8" />
   <text x="800" y="952" text-anchor="middle" class="small">io/json does not auto-select Jackson or Fastjson2. It defines the stable SPI; applications wire the concrete serializer they need.</text>

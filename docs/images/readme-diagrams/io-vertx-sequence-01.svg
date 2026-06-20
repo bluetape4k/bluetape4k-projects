@@ -81,12 +81,12 @@
   <rect x="1440" y="640" width="14" height="190" rx="6" class="activation"/>
 
   <rect x="96" y="262" width="382" height="34" rx="17" class="label callLabel"/>
-  <circle cx="120" cy="279" r="13" class="badge callBadge"/><text fill="#FFFFFF" x="120" y="284" text-anchor="middle" class="badgeText callText">1</text>
+  <circle cx="120" cy="279" r="13" class="badge callBadge"/><text fill="#2f6f8e" x="120" y="284" text-anchor="middle" class="badgeText callText">1</text>
   <text x="144" y="284" class="msg callText">executeVertxFuture { service Future }</text>
   <path d="M 161 318 L 840 318" class="call"/>
 
   <rect x="516" y="344" width="286" height="34" rx="17" class="label callLabel"/>
-  <circle cx="540" cy="361" r="13" class="badge callBadge"/><text fill="#FFFFFF" x="540" y="366" text-anchor="middle" class="badgeText callText">2</text>
+  <circle cx="540" cy="361" r="13" class="badge callBadge"/><text fill="#2f6f8e" x="540" y="366" text-anchor="middle" class="badgeText callText">2</text>
   <text x="564" y="366" class="msg callText">tryAcquirePermission()</text>
   <path d="M 840 400 L 484 400" class="call"/>
 
@@ -98,31 +98,31 @@
   <text x="122" y="806" class="note">else circuit open or limited</text>
 
   <rect x="814" y="504" width="300" height="34" rx="17" class="label workLabel"/>
-  <circle cx="838" cy="521" r="13" class="badge workBadge"/><text fill="#FFFFFF" x="838" y="526" text-anchor="middle" class="badgeText workText">3</text>
+  <circle cx="838" cy="521" r="13" class="badge workBadge"/><text fill="#55783f" x="838" y="526" text-anchor="middle" class="badgeText workText">3</text>
   <text x="862" y="526" class="msg workText">invoke supplier and capture start time</text>
   <path d="M 840 558 L 1179 558" class="work"/>
 
   <rect x="1148" y="612" width="244" height="34" rx="17" class="label workLabel"/>
-  <circle cx="1172" cy="629" r="13" class="badge workBadge"/><text fill="#FFFFFF" x="1172" y="634" text-anchor="middle" class="badgeText workText">4</text>
+  <circle cx="1172" cy="629" r="13" class="badge workBadge"/><text fill="#55783f" x="1172" y="634" text-anchor="middle" class="badgeText workText">4</text>
   <text x="1196" y="634" class="msg workText">Future&lt;T&gt; returned</text>
   <path d="M 1179 676 L 1447 676" class="work"/>
 
   <rect x="872" y="688" width="448" height="34" rx="17" class="label returnLabel"/>
-  <circle cx="896" cy="705" r="13" class="badge returnBadge"/><text fill="#FFFFFF" x="896" y="710" text-anchor="middle" class="badgeText returnText">5</text>
+  <circle cx="896" cy="705" r="13" class="badge returnBadge"/><text fill="#7f6038" x="896" y="710" text-anchor="middle" class="badgeText returnText">5</text>
   <text x="920" y="710" class="msg returnText">onComplete records duration after async completion</text>
   <path d="M 1447 746 L 840 746" class="return"/>
 
   <rect x="700" y="810" width="448" height="34" rx="17" class="label failLabel"/>
-  <circle cx="724" cy="827" r="13" class="badge failBadge"/><text fill="#FFFFFF" x="724" y="832" text-anchor="middle" class="badgeText failText">3</text>
+  <circle cx="724" cy="827" r="13" class="badge failBadge"/><text fill="#9d4f4f" x="724" y="832" text-anchor="middle" class="badgeText failText">3</text>
   <text x="748" y="832" class="msg failText">Future.failedFuture(CallNotPermittedException)</text>
   <path d="M 840 864 L 161 864" class="fail"/>
 
   <rect x="560" y="922" width="450" height="34" rx="17" class="label returnLabel"/>
-  <circle cx="534" cy="939" r="13" class="badge returnBadge"/><text fill="#FFFFFF" x="534" y="944" text-anchor="middle" class="badgeText returnText">6</text>
+  <circle cx="534" cy="939" r="13" class="badge returnBadge"/><text fill="#7f6038" x="534" y="944" text-anchor="middle" class="badgeText returnText">6</text>
   <text x="584" y="944" class="msg returnText">return Future; completion updates CircuitBreaker</text>
   <path d="M 840 982 L 161 982" class="return"/>
 
-  <rect x="98" y="1042" width="1404" height="44" rx="12" fill="#ffffff" stroke="#ccd7da" stroke-width="2"/>
+  <rect x="98" y="1042" width="1404" height="44" rx="12" fill="#ffffff" stroke="#D6E3EF" stroke-width="2"/>
   <text x="118" y="1070" class="note">If supplier.invoke() throws synchronously, the decorator records onError, releases the permission, and returns a failed Future.</text>
   <text x="800" y="1126" text-anchor="middle" class="footer">github.com/bluetape4k/bluetape4k-projects - io/vertx README</text>
 </svg>

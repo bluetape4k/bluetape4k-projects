@@ -122,7 +122,7 @@
   </marker>
 <rect x="470" y="495" width="100" height="24" rx="7" fill="#ffffff" opacity="0.96" />
 <text x="520" y="512" fill="#16a34a" font-size="12" font-weight="700" text-anchor="middle">manages span</text>
-<path id="coro-trace" d="M 746 590 V 512 H 586 V 436" fill="none" stroke="#9333ea" stroke-width="2.7" stroke-dasharray="7 5" stroke-linecap="round" stroke-linejoin="round" />
+<path id="coro-trace" d="M 746 590 L 746 526 Q 746 512 732 512 L 600 512 Q 586 512 586 498 L 586 436" fill="none" stroke="#9333ea" stroke-width="2.7" stroke-dasharray="7 5" stroke-linecap="round" stroke-linejoin="round" />
 
 <polyline points="594,454 586,436 578,454" fill="none" stroke="#9333ea" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <marker id="open-coro-trace" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18">

@@ -1,7 +1,7 @@
 <svg data-intent="Explain bluetape4k-core as the shared foundation: caller contracts and type helpers feed value models, collections, time, codec, functional, and concurrency utilities used by other modules." data-evidence="bluetape4k/core/README.md; bluetape4k/core/src/main/kotlin/io/bluetape4k" data-source-read="bluetape4k/core/README.md; bluetape4k/core/src/main/kotlin/io/bluetape4k" xmlns="http://www.w3.org/2000/svg" width="1500" height="1158" viewBox="0 0 1500 1158" role="img" aria-label="Bluetape4k Core architecture">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="13" markerHeight="13" refX="12" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="context-stroke"/></marker>
+  <marker id="arrow" markerWidth="13" markerHeight="13" refX="12" refY="6.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 13 6.5 L 0 13 Z" fill="#64748B"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
@@ -68,7 +68,8 @@
 </g>
 <path class="route" data-from="require" data-to="range" d="M358 340 L358 574" stroke="#15803D"/>
 <path class="route" data-from="types" data-to="collections" d="M750 340 L750 574" stroke="#0F766E"/>
-<path class="route dashed" data-from="codec" data-to="value" d="M1214 340 L1214 574" stroke="#C2410C"/>
+<path class="route dashed" data-from="codec" data-to="value" d="M1214 340 L1214 574" stroke="#C2410C" style="marker-end:none"/>
+<polygon points="1208,562 1214,574 1220,562" fill="#C2410C" stroke="#C2410C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 <path class="route" data-from="range" data-to="time" d="M358 658 L358 892" stroke="#BE185D"/>
 <path class="route" data-from="collections" data-to="concurrent" d="M750 658 L750 892" stroke="#4D7C0F"/>
 <path class="route" data-from="value" data-to="functional" d="M1214 658 L1214 892" stroke="#7E22CE"/>

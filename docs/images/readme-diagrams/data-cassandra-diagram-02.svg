@@ -7,10 +7,10 @@
 <path class="edge uses" d="M878 535 L878 343" stroke="#0D9488"/>
 <path class="edge uses" d="M1428 535 L1428 343" stroke="#EA580C"/>
 <path class="edge uses" d="M1935 535 L1935 343" stroke="#16A34A"/>
-<path class="edge uses" d="M1090 632 L1150 632 L1150 440 L1295 440 L1295 343" stroke="#EA580C"/>
+<path class="edge uses" d="M 1090 632 L 1136 632 Q 1150 632 1150 618 L 1150 454 Q 1150 440 1164 440 L 1281 440 Q 1295 440 1295 426 L 1295 343" stroke="#EA580C" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="edge uses" d="M1935 930 L1935 730" stroke="#16A34A"/>
 <path class="edge uses" d="M328 930 L328 730" stroke="#2563EB"/>
-<path class="edge uses" d="M878 930 L878 805 L1320 805 L1320 730" stroke="#7C3AED"/>
+<path class="edge uses" d="M 878 930 L 878 819 Q 878 805 892 805 L 1306 805 Q 1320 805 1320 791 L 1320 730" stroke="#7C3AED" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="edge uses" d="M1428 930 L1428 730" stroke="#DC2626"/>
 <path class="edge uses" d="M1640 630 L1765 630" stroke="#64748B"/></g><g id="arrowheads"><path class="solidOpenHead" d="M321 356 L328 343 L335 356" stroke="#2563EB"/>
 <path class="solidOpenHead" d="M871 356 L878 343 L885 356" stroke="#0D9488"/>

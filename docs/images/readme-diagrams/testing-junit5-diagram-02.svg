@@ -203,11 +203,16 @@
 <path class="impl" d="M910 370 L910 304" />
 <path class="impl" d="M1250 344 L1250 304" />
 <path class="impl" d="M1590 344 L1590 304" />
-<path class="use" d="M230 534 L230 620" />
-<path class="use" d="M570 534 L570 620" />
-<path class="use" d="M910 534 L910 620" />
-<path class="use" d="M1250 508 L1250 620" />
-<path class="use" d="M1590 508 L1590 620" />
+<path class="use" d="M230 534 L230 620" style="marker-end:none" />
+<polyline points="224,608 230,620 236,608" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="use" d="M570 534 L570 620" style="marker-end:none" />
+<polyline points="564,608 570,620 576,608" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="use" d="M910 534 L910 620" style="marker-end:none" />
+<polyline points="904,608 910,620 916,608" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="use" d="M1250 508 L1250 620" style="marker-end:none" />
+<polyline points="1244,608 1250,620 1256,608" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="use" d="M1590 508 L1590 620" style="marker-end:none" />
+<polyline points="1584,608 1590,620 1596,608" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
 <path class="impl" d="M230 1030 L230 990 Q230 970 250 970 L420 970 L420 964" />
 <path class="impl" d="M580 1030 L580 990 Q580 970 560 970 L420 970 L420 964" />
@@ -227,7 +232,8 @@
   <path class="impl" d="M78 1212 L126 1212" />
   <path class="implHead" d="M142 1212 L126 1203 L126 1221 Z" />
   <text class="legend" x="154" y="1217">implements: dashed line with solid hollow triangle</text>
-  <path class="use" d="M430 1212 L494 1212" />
+  <path class="use" d="M430 1212 L494 1212" style="marker-end:none" />
+<polyline points="482,1218 494,1212 482,1206" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="legend" x="506" y="1217">uses: dashed open arrow</text>
   <path class="has" d="M690 1212 L754 1212" />
   <text class="legend" x="766" y="1217">has/reference: solid open arrow</text>

@@ -134,22 +134,33 @@
   <text class="smallName" x="1220" y="984" text-anchor="middle">Post / Comment / User...</text>
 </g>
 
-<path class="use" d="M240 312 L240 430" />
-<path class="use" d="M580 312 L580 390 Q580 410 560 410 L420 410 Q400 410 400 430" />
-<path class="use" d="M580 312 L580 430" />
-<path class="use" d="M930 312 L930 370 Q930 390 950 390 L1005 390 L1005 410" />
-<path class="use" d="M1280 312 L1280 370 Q1280 390 1260 390 L1075 390 L1075 410" />
-<path class="use" d="M1620 312 L1620 430" />
+<path class="use" d="M240 312 L240 430" style="marker-end:none" />
+<polyline points="234,418 240,430 246,418" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="use" d="M580 312 L580 390 Q580 410 560 410 L420 410 Q400 410 400 430" style="marker-end:none" />
+<polyline points="394,418 400,430 406,418" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="use" d="M580 312 L580 430" style="marker-end:none" />
+<polyline points="574,418 580,430 586,418" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="use" d="M930 312 L930 354 Q930 368 944 368 L991 368 Q1005 368 1005 382 L1005 410" style="marker-end:none" />
+<polyline points="999,398 1005,410 1011,398" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="use" d="M1280 312 L1280 340 Q1280 354 1266 354 L1089 354 Q1075 354 1075 368 L1075 410" style="marker-end:none" />
+<polyline points="1069,398 1075,410 1081,398" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="use" d="M1620 312 L1620 430" style="marker-end:none" />
+<polyline points="1614,418 1620,430 1626,418" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
-<path class="use" d="M270 572 L270 720" />
-<path class="use" d="M1040 588 L1040 660 Q1040 680 1020 680 L840 680 Q820 680 820 720" />
+<path class="use" d="M270 572 L270 720" style="marker-end:none" />
+<polyline points="264,708 270,720 276,708" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="use" d="M1040 588 L1040 660 Q1040 680 1020 680 L840 680 Q820 680 820 720" style="marker-end:none" />
+<polyline points="814,708 820,720 826,708" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 <path class="has" d="M1120 588 L1120 720" />
 <path class="has" d="M1220 838 L1220 930" />
-<path class="use" d="M840 838 L840 910" />
-<path class="use" d="M1630 572 L1630 720" />
+<path class="use" d="M840 838 L840 910" style="marker-end:none" />
+<polyline points="834,898 840,910 846,898" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="use" d="M1630 572 L1630 720" style="marker-end:none" />
+<polyline points="1624,708 1630,720 1636,708" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
 <g id="legend">
-  <path class="use" d="M90 1050 L150 1050" />
+  <path class="use" d="M90 1050 L150 1050" style="marker-end:none" />
+<polyline points="138,1056 150,1050 138,1044" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="legend" x="164" y="1055">uses / calls: dashed open arrow</text>
   <path class="has" d="M390 1050 L450 1050" />
   <text class="legend" x="464" y="1055">owns / holds: solid open arrow</text>

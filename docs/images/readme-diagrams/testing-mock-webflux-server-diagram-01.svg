@@ -23,16 +23,16 @@
 <text class="subtitle" x="80" y="120">Tests enter HTTP/HTTPS container ports, share one WebFlux HttpHandler, then reach coroutine controllers and fixture-backed services.</text>
 
 <g id="lanes">
-  <rect class="lane" x="80" y="170" width="360" height="790"/>
+  <rect class="lane" x="80" y="170" width="360" height="790" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
   <text class="laneTitle" x="120" y="218">Access</text>
   <text class="laneSub" x="120" y="244">Testcontainers URLs and exposed ports</text>
-  <rect class="lane" x="480" y="170" width="360" height="790"/>
+  <rect class="lane" x="480" y="170" width="360" height="790" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
   <text class="laneTitle" x="520" y="218">Reactive runtime</text>
   <text class="laneSub" x="520" y="244">Reactor Netty plus HTTPS lifecycle</text>
-  <rect class="lane" x="880" y="170" width="360" height="790"/>
+  <rect class="lane" x="880" y="170" width="360" height="790" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
   <text class="laneTitle" x="920" y="218">Coroutine endpoints</text>
   <text class="laneSub" x="920" y="244">suspend handlers and Flow streaming</text>
-  <rect class="lane" x="1280" y="170" width="540" height="790"/>
+  <rect class="lane" x="1280" y="170" width="540" height="790" fill="#FFF7ED" stroke="#FDBA74" fill-opacity="0.72"/>
   <text class="laneTitle" x="1320" y="218">Fixture backends</text>
   <text class="laneSub" x="1320" y="244">request echo helpers, state, cached HTML</text>
 </g>
@@ -79,7 +79,8 @@
   <text class="cardSub" x="960" y="502">/httpbin Flow streams</text>
   <text class="cardSub" x="960" y="528">/jsonplaceholder CRUD</text>
   <text class="cardSub" x="960" y="554">/web with IO offload</text>
-  <text class="small" x="960" y="590">GlobalExceptionHandler maps validation</text>
+  <text class="small" x="960" y="586">GlobalExceptionHandler</text>
+  <text class="small" x="960" y="606">maps validation errors</text>
 </g>
 
 <g id="httpbin">
@@ -114,28 +115,28 @@
 </g>
 
 <path class="edge" d="M260 452 L260 590" stroke="#2563EB" marker-end="url(#arrowBlue)"/>
-<path class="edge" d="M400 640 L500 640 Q510 640 510 630 L510 360 Q510 340 530 340" stroke="#2563EB" marker-end="url(#arrowBlue)"/>
-<path class="edge" d="M400 692 L500 692 Q520 692 530 707" stroke="#7C3AED" marker-end="url(#arrowPurple)"/>
+<path class="edge" d="M 400 640 L 486 640 Q 500 640 500 626 L 500 354 Q 500 340 508 340 L 530 340" stroke="#2563EB" marker-end="url(#arrowBlue)"/>
+<path class="edge" d="M 400 692 L 495 692 Q 505 692 505 702 L 505 697 Q 505 707 515 707 L 530 707" stroke="#7C3AED" marker-end="url(#arrowPurple)"/>
 <path class="edge" d="M790 520 L930 520" stroke="#0891B2" marker-end="url(#arrowTeal)"/>
 <path class="edge" d="M660 418 L660 462" stroke="#16A34A" marker-end="url(#arrowGreen)"/>
-<path class="edge" d="M660 686 L660 580" stroke="#7C3AED" marker-end="url(#arrowPurple)"/>
-<path class="edge" d="M1190 430 L1320 350" stroke="#D97706" marker-end="url(#arrowAmber)"/>
-<path class="edge" d="M1190 520 L1320 552" stroke="#16A34A" marker-end="url(#arrowGreen)"/>
-<path class="edge" d="M1190 592 L1300 592 Q1320 592 1320 740" stroke="#DB2777" marker-end="url(#arrowRose)"/>
+<path class="edge" d="M660 636 L660 580" stroke="#7C3AED" marker-end="url(#arrowPurple)"/>
+<path class="edge" d="M 1190 430 L 1246 430 Q 1260 430 1260 416 L 1260 364 Q 1260 350 1274 350 L 1320 350" stroke="#D97706" marker-end="url(#arrowAmber)"/>
+<path class="edge" d="M 1190 528 L 1320 528" stroke="#16A34A" marker-end="url(#arrowGreen)"/>
+<path class="edge" d="M 1120 620 L 1120 770 Q 1120 784 1134 784 L 1320 784" stroke="#DB2777" marker-end="url(#arrowRose)"/>
 <path class="edge" d="M1540 622 L1540 650" stroke="#16A34A" marker-end="url(#arrowGreen)"/>
 <path class="edge" d="M1540 848 L1540 882" stroke="#DB2777" marker-end="url(#arrowRose)"/>
 <path class="edge" d="M660 778 L660 846" stroke="#7C3AED" marker-end="url(#arrowPurple)"/>
 
-<rect class="label" x="210" y="515" width="100" height="28" rx="7"/>
-<text class="labelText" x="260" y="534" text-anchor="middle">mapped URL</text>
-<rect class="label" x="420" y="608" width="96" height="28" rx="7"/>
-<text class="labelText" x="468" y="627" text-anchor="middle">port bind</text>
-<rect class="label" x="815" y="486" width="94" height="28" rx="7"/>
-<text class="labelText" x="862" y="505" text-anchor="middle">dispatch</text>
-<rect class="label" x="1210" y="406" width="86" height="28" rx="7"/>
-<text class="labelText" x="1253" y="425" text-anchor="middle">/httpbin</text>
-<rect class="label" x="1210" y="528" width="132" height="28" rx="7"/>
-<text class="labelText" x="1276" y="547" text-anchor="middle">/jsonplaceholder</text>
-<rect class="label" x="1230" y="676" width="76" height="28" rx="7"/>
-<text class="labelText" x="1268" y="695" text-anchor="middle">/web</text>
+<rect class="label" x="294" y="500" width="100" height="28" rx="7"/>
+<text class="labelText" x="344" y="519" text-anchor="middle">mapped URL</text>
+<rect class="label" x="410" y="650" width="96" height="28" rx="7"/>
+<text class="labelText" x="458" y="669" text-anchor="middle">port bind</text>
+<rect class="label" x="815" y="454" width="94" height="28" rx="7"/>
+<text class="labelText" x="862" y="473" text-anchor="middle">dispatch</text>
+<rect class="label" x="1160" y="386" width="86" height="28" rx="7"/>
+<text class="labelText" x="1203" y="405" text-anchor="middle">/httpbin</text>
+<rect class="label" x="1194" y="446" width="132" height="28" rx="7"/>
+<text class="labelText" x="1260" y="465" text-anchor="middle">/jsonplaceholder</text>
+<rect class="label" x="1210" y="742" width="76" height="28" rx="7"/>
+<text class="labelText" x="1248" y="761" text-anchor="middle">/web</text>
 </svg>

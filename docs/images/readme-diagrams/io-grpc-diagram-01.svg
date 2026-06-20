@@ -115,11 +115,14 @@
     <text class="member" x="18" y="106">metadata propagation</text>
   </g>
 
-  <path class="rel impl-green" d="M 283 448 L 283 372" />
+  <path class="rel impl-green" d="M 283 448 L 283 372" style="marker-end:none" />
+<polygon points="289,384 283,372 277,384" fill="#ffffff" stroke="#16a34a" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="296" y="412">implements</text>
-  <path class="rel impl-green" d="M 283 668 L 283 638 L 120 638 L 120 412 L 283 412 L 283 372" />
+  <path class="rel impl-green" d="M 283 668 L 283 650 Q 283 638 271 638 L 134 638 Q 120 638 120 624 L 120 426 Q 120 412 134 412 L 269 412 Q 283 412 283 398 L 283 372" style="marker-end:none" />
+<polygon points="289,384 283,372 277,384" fill="#ffffff" stroke="#16a34a" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="132" y="628">implements</text>
-  <path class="rel use-purple" d="M 506 514 L 430 514 L 430 360 L 488 360" />
+  <path class="rel use-purple" d="M 506 514 L 444 514 Q 430 514 430 500 L 430 374 Q 430 360 444 360 L 488 360" style="marker-end:none" />
+<polyline points="476,366 488,360 476,354" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="432" y="496">uses</text>
   <g class="uml" transform="translate(952 242)">
     <rect class="box support" width="220" height="118" rx="8" />
@@ -168,15 +171,20 @@
     <text class="member" x="18" y="106">validates inputs</text>
   </g>
 
-  <path class="rel impl-blue" d="M 1075 448 L 1075 372" />
+  <path class="rel impl-blue" d="M 1075 448 L 1075 372" style="marker-end:none" />
+<polygon points="1081,384 1075,372 1069,384" fill="#ffffff" stroke="#2563eb" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="1090" y="412">implements</text>
-  <path class="rel impl-blue" d="M 1075 668 L 1075 638 L 910 638 L 910 412 L 1075 412 L 1075 372" />
+  <path class="rel impl-blue" d="M 1075 668 L 1075 650 Q 1075 638 1063 638 L 924 638 Q 910 638 910 624 L 910 426 Q 910 412 924 412 L 1061 412 Q 1075 412 1075 398 L 1075 372" style="marker-end:none" />
+<polygon points="1081,384 1075,372 1069,384" fill="#ffffff" stroke="#2563eb" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="922" y="628">implements</text>
-  <path class="rel use-purple" d="M 1210 514 L 1282 514" />
+  <path class="rel use-purple" d="M 1210 514 L 1282 514" style="marker-end:none" />
+<polyline points="1270,520 1282,514 1270,508" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="1230" y="500">owns</text>
-  <path class="rel use-purple" d="M 1210 734 L 1260 734 L 1260 554 L 1282 554" />
+  <path class="rel use-purple" d="M 1210 734 L 1246 734 Q 1260 734 1260 720 L 1260 558 Q 1260 554 1264 554 L 1282 554" style="marker-end:none" />
+<polyline points="1270,560 1282,554 1270,548" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="1220" y="724">owns</text>
-  <path class="rel use-orange" d="M 1405 448 L 1405 372" />
+  <path class="rel use-orange" d="M 1405 448 L 1405 372" style="marker-end:none" />
+<polyline points="1411,384 1405,372 1399,384" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <text class="label" x="1420" y="412">builds</text>
 
   <g transform="translate(118 938)">

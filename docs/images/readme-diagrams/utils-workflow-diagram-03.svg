@@ -23,13 +23,14 @@
 <text class="title" x="78" y="86">Workflow Execution Model</text>
 <text class="subtitle" x="82" y="118">The same workflow shape can execute as sync WorkFlow or suspend WorkFlow; runtime primitives differ, but results converge on WorkReport.</text>
 <g id="edges">
-  <path class="edge" d="M445 322 L500 322 L500 253 L555 253" stroke="#16A34A" marker-end="url(#arrow-syncBuild)"/>
-  <path class="edge" d="M445 370 L500 370 L500 483 L555 483" stroke="#0D9488" marker-end="url(#arrow-suspendBuild)"/>
+  <path class="edge" d="M 445 322 L 486 322 Q 500 322 500 308 L 500 267 Q 500 253 514 253 L 555 253" stroke="#16A34A" marker-end="url(#arrow-syncBuild)" stroke-linecap="round" stroke-linejoin="round"/>
+  <path class="edge" d="M 445 370 L 486 370 Q 500 370 500 384 L 500 469 Q 500 483 514 483 L 555 483" stroke="#0D9488" marker-end="url(#arrow-suspendBuild)" stroke-linecap="round" stroke-linejoin="round"/>
   <path class="edge" d="M945 253 L1110 253" stroke="#65A30D" marker-end="url(#arrow-syncRuntime)"/>
   <path class="edge" d="M945 483 L1110 483" stroke="#9333EA" marker-end="url(#arrow-suspendRuntime)"/>
-  <path class="edge dashed" d="M270 412 L270 733 L330 733" stroke="#EA580C" marker-end="url(#arrow-dslFamilies)"/>
-  <path class="edge" d="M1520 253 L1580 253 L1580 733 L1360 733" stroke="#DB2777" marker-end="url(#arrow-runtimeReportA)"/>
-  <path class="edge" d="M1315 546 L1315 610 L1145 610 L1145 670" stroke="#DB2777" marker-end="url(#arrow-runtimeReportB)"/>
+  <path class="edge dashed" d="M 270 412 L 270 719 Q 270 733 284 733 L 330 733" stroke="#EA580C" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="318,739 330,733 318,727" fill="#EA580C" stroke="#EA580C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="edge" d="M 1520 253 L 1566 253 Q 1580 253 1580 267 L 1580 719 Q 1580 733 1566 733 L 1360 733" stroke="#DB2777" marker-end="url(#arrow-runtimeReportA)" stroke-linecap="round" stroke-linejoin="round"/>
+  <path class="edge" d="M 1315 546 L 1315 596 Q 1315 610 1301 610 L 1159 610 Q 1145 610 1145 624 L 1145 670" stroke="#DB2777" marker-end="url(#arrow-runtimeReportB)" stroke-linecap="round" stroke-linejoin="round"/>
   <path class="edge" d="M760 733 L930 733" stroke="#2563EB" marker-end="url(#arrow-familiesReport)"/>
 </g>
 <g id="labels">

@@ -57,10 +57,10 @@
   <text class="segmentTitle" x="2011.5384615384614" y="884" text-anchor="middle">random string</text>
   <text class="segmentRange" x="2011.5384615384614" y="923" text-anchor="middle">80 random bits in Crockford Base32</text>
 </g>
-<path class="guide" d="M668.75 600 V690 H90 V1010 H770 V1060" stroke="#1D4ED8"/>
-<path class="guide" d="M1998.75 600 V690 H2910 V1010 H2230 V1060" stroke="#C2410C"/>
-<path class="guide" d="M681.5384615384615 950 V1400 H770 V1450" stroke="#15803D"/>
-<path class="guide" d="M2011.5384615384614 950 V1400 H2230 V1450" stroke="#6D28D9"/>
+<path class="guide" d="M 668.75 600 L 668.75 676 Q 668.75 690 654.75 690 L 104 690 Q 90 690 90 704 L 90 996 Q 90 1010 104 1010 L 756 1010 Q 770 1010 770 1024 L 770 1060" stroke="#1D4ED8"/>
+<path class="guide" d="M 1998.75 600 L 1998.75 676 Q 1998.75 690 2012.75 690 L 2896 690 Q 2910 690 2910 704 L 2910 996 Q 2910 1010 2896 1010 L 2244 1010 Q 2230 1010 2230 1024 L 2230 1060" stroke="#C2410C"/>
+<path class="guide" d="M 681.54 950 L 681.54 1386 Q 681.54 1400 695.54 1400 L 756 1400 Q 770 1400 770 1414 L 770 1450" stroke="#15803D"/>
+<path class="guide" d="M 2011.54 950 L 2011.54 1386 Q 2011.54 1400 2025.54 1400 L 2216 1400 Q 2230 1400 2230 1414 L 2230 1450" stroke="#6D28D9"/>
 <g>
   <rect class="card" x="170" y="1060" width="1200" height="290" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="cardTitle" x="770" y="1114" text-anchor="middle">Timestamp bits</text>

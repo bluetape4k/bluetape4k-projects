@@ -13,11 +13,12 @@
 <text class="subtitle" x="82" y="118">Retry attempts include the first execution. Failure retries wait with capped backoff; Success, Aborted, and Cancelled return immediately.</text>
 <g id="edges"><path class="edge" d="M840 271 L840 310" stroke="#2563EB" marker-end="url(#arrow-startAttempt)"/>
 <path class="edge" d="M840 428 L840 470" stroke="#16A34A" marker-end="url(#arrow-attemptStatus)"/>
-<path class="edge" d="M1005 555 L1330 555 L1330 691" stroke="#0D9488" marker-end="url(#arrow-terminalResult)"/>
+<path class="edge" d="M 1005 555 L 1316 555 Q 1330 555 1330 569 L 1330 691" stroke="#0D9488" marker-end="url(#arrow-terminalResult)" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="edge" d="M840 640 L840 670" stroke="#EA580C" marker-end="url(#arrow-statusRetry)"/>
 <path class="edge" d="M1005 750 L1140 750" stroke="#0D9488" marker-end="url(#arrow-exhaustedResult)"/>
 <path class="edge" d="M675 750 L540 750" stroke="#DB2777" marker-end="url(#arrow-retryDelay)"/>
-<path class="edge dashed" d="M360 691 L360 369 L635 369" stroke="#DB2777" marker-end="url(#arrow-delayLoop)"/></g>
+<path class="edge dashed" d="M 360 691 L 360 383 Q 360 369 374 369 L 635 369" stroke="#DB2777" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="623,375 635,369 623,363" fill="#DB2777" stroke="#DB2777" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(884 279)"><rect width="76" height="30" rx="8"/><text x="38" y="20" text-anchor="middle">context</text></g>
 <g class="edgeLabel" transform="translate(883 437)"><rect width="70" height="30" rx="8"/><text x="35" y="20" text-anchor="middle">report</text></g>
 <g class="edgeLabel" transform="translate(1125 517)"><rect width="210" height="30" rx="8"/><text x="105" y="20" text-anchor="middle">success / aborted / cancelled</text></g>

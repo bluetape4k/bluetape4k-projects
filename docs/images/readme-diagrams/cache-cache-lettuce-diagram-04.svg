@@ -94,22 +94,22 @@
 <g><path class="edge dashed" d="M502 285 L665 285" stroke="#1D4ED8" />
 <polyline points="647,293 665,285 647,277" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="553" y="264">sync API</text></g>
-<g><path class="edge dashed" d="M300 210 L300 145 L1770 145 L1770 190" stroke="#0F766E" />
+<g><path class="edge dashed" d="M 300 210 L 300 159 Q 300 145 314 145 L 1756 145 Q 1770 145 1770 159 L 1770 190" stroke="#0F766E" stroke-linecap="round" stroke-linejoin="round" />
 <polyline points="1762,172 1770,190 1778,172" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="1038" y="124">suspend API</text></g>
 <g><path class="edge dashed" d="M945 455 L945 580" stroke="#C2410C" />
 <polyline points="937,562 945,580 953,562" fill="none" stroke="#C2410C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="970" y="512">configured by</text></g>
-<g><path class="edge dashed" d="M1770 455 L1770 520 L1315 520 L1315 580" stroke="#C2410C" />
+<g><path class="edge dashed" d="M 1770 455 L 1770 506 Q 1770 520 1756 520 L 1329 520 Q 1315 520 1315 534 L 1315 580" stroke="#C2410C" stroke-linecap="round" stroke-linejoin="round" />
 <polyline points="1307,562 1315,580 1323,562" fill="none" stroke="#C2410C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="1796" y="497">configured by</text></g>
-<g><path class="edge dashed" d="M945 800 L945 850 L525 850 L525 900" stroke="#15803D" />
+<g><path class="edge dashed" d="M 945 800 L 945 836 Q 945 850 931 850 L 539 850 Q 525 850 525 864 L 525 900" stroke="#15803D" stroke-linecap="round" stroke-linejoin="round" />
 <polyline points="517,882 525,900 533,882" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="608" y="829">front cache</text></g>
 <g><path class="edge dashed" d="M1130 800 L1130 900" stroke="#475569" />
 <polyline points="1122,882 1130,900 1138,882" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="1156" y="852">remote keyspace</text></g>
-<g><path class="edge dashed" d="M1315 800 L1315 850 L1745 850 L1745 900" stroke="#BE185D" />
+<g><path class="edge dashed" d="M 1315 800 L 1315 836 Q 1315 850 1329 850 L 1731 850 Q 1745 850 1745 864 L 1745 900" stroke="#BE185D" stroke-linecap="round" stroke-linejoin="round" />
 <polyline points="1737,882 1745,900 1753,882" fill="none" stroke="#BE185D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="1493" y="829">tracking listener</text></g>
 <g><path class="edge dashed" d="M785 1018 L875 1018" stroke="#475569" />
@@ -118,7 +118,7 @@
 <g><path class="edge dashed" d="M1395 1018 L1485 1018" stroke="#BE185D" />
 <polyline points="1467,1026 1485,1018 1467,1010" fill="none" stroke="#BE185D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="1416" y="997">invalidate push</text></g>
-<g><path class="edge dashed" d="M1485 1082 L1425 1082 L1425 1170 L525 1170 L525 1135" stroke="#15803D" />
+<g><path class="edge dashed" d="M 1485 1082 L 1439 1082 Q 1425 1082 1425 1096 L 1425 1156 Q 1425 1170 1411 1170 L 538 1170 Q 525 1170 525 1157 L 525 1135" stroke="#15803D" stroke-linecap="round" stroke-linejoin="round" />
 <polyline points="533,1153 525,1135 517,1153" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
     <text class="edgeLabel" x="938" y="1149">local invalidate</text></g>
 </svg>

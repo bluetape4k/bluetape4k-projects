@@ -22,13 +22,14 @@
 <text class="title" x="78" y="86">WorkReport State Flow</text>
 <text class="subtitle" x="82" y="118">Failure is the only state governed by ErrorStrategy; Aborted and Cancelled bypass strategy and terminate immediately.</text>
 <g id="edges">
-  <path class="edge" data-from="execute" data-to="success" d="M990 229 L1080 229 L1080 416 L1130 416" stroke="#16A34A" marker-end="url(#arrow-success)"/>
+  <path class="edge" data-from="execute" data-to="success" d="M 990 229 L 1066 229 Q 1080 229 1080 243 L 1080 402 Q 1080 416 1094 416 L 1130 416" stroke="#16A34A" marker-end="url(#arrow-success)"/>
   <path class="edge" data-from="execute" data-to="failure" d="M800 288 L800 380" stroke="#DB2777" marker-end="url(#arrow-failure)"/>
-  <path class="edge" data-from="execute" data-to="aborted" d="M610 255 L560 255 L560 486 L500 486" stroke="#EA580C" marker-end="url(#arrow-aborted)"/>
-  <path class="edge dashed" data-from="execute" data-to="cancelled" d="M610 220 L540 220 L540 266 L500 266" stroke="#9333EA" marker-end="url(#arrow-cancelled)"/>
+  <path class="edge" data-from="execute" data-to="aborted" d="M 610 255 L 574 255 Q 560 255 560 269 L 560 472 Q 560 486 546 486 L 500 486" stroke="#EA580C" marker-end="url(#arrow-aborted)"/>
+  <path class="edge dashed" data-from="execute" data-to="cancelled" d="M 610 220 L 554 220 Q 540 220 540 234 L 540 252 Q 540 266 526 266 L 500 266" stroke="#9333EA"/>
+<polygon points="512,260 500,266 512,272" fill="#9333EA" stroke="#9333EA" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <path class="edge" data-from="failure" data-to="strategy" d="M800 492 L800 590" stroke="#0D9488" marker-end="url(#arrow-strategy)"/>
-  <path class="edge" data-from="strategy" data-to="stop" d="M720 722 L660 780" stroke="#DB2777" marker-end="url(#arrow-stop)"/>
-  <path class="edge" data-from="strategy" data-to="partial" d="M900 722 L1060 780" stroke="#65A30D" marker-end="url(#arrow-continue)"/>
+  <path class="edge" data-from="strategy" data-to="stop" d="M 720 722 L 720 737.5 Q 720 751 706.5 751 L 670 751 Q 660 751 660 761 L 660 780" stroke="#DB2777" marker-end="url(#arrow-stop)"/>
+  <path class="edge" data-from="strategy" data-to="partial" d="M 900 722 L 900 737.5 Q 900 751 913.5 751 L 1050 751 Q 1060 751 1060 761 L 1060 780" stroke="#65A30D" marker-end="url(#arrow-continue)"/>
 </g>
 <g id="labels">
   <g class="edgeLabel" transform="translate(1032 285)"><rect width="116" height="30" rx="8"/><text x="58" y="20" text-anchor="middle">COMPLETED</text></g>

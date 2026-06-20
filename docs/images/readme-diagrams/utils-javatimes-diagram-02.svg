@@ -14,27 +14,27 @@
 <rect class="canvas" width="2200" height="1280" /><rect class="frame" x="38" y="30" width="2124" height="1214" rx="8" />
 <text class="title" x="78" y="88">Class Hierarchy — Period Framework</text>
 <text class="subtitle" x="82" y="120">Single periods share TimePeriod behavior; containers reuse that period contract while managing many ITimePeriod instances.</text>
-<rect class="lane" x="160" y="315" width="1880" height="560" rx="8" /><text class="laneTitle" x="188" y="344">single period model</text>
-<rect class="lane" x="360" y="850" width="1480" height="380" rx="8" /><text class="laneTitle" x="388" y="878">container model</text>
+<rect class="lane" x="160" y="315" width="1880" height="560" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72" /><text class="laneTitle" x="188" y="344">single period model</text>
+<rect class="lane" x="360" y="850" width="1480" height="430" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72" /><text class="laneTitle" x="388" y="878">container model</text>
 <g id="edges"><path class="edge implements" d="M1100 390 L1100 300" stroke="#2563EB" />
 <polygon points="1109,321 1100,300 1091,321" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" d="M410 390 L410 340 L980 340 L980 300" stroke="#16A34A" />
+<path class="edge" d="M 410 390 L 410 354 Q 410 340 424 340 L 966 340 Q 980 340 980 326 L 980 300" stroke="#16A34A" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="989,321 980,300 971,321" fill="#FFFFFF" stroke="#16A34A" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" d="M1790 390 L1790 340 L1220 340 L1220 300" stroke="#0D9488" />
+<path class="edge" d="M 1790 390 L 1790 354 Q 1790 340 1776 340 L 1234 340 Q 1220 340 1220 326 L 1220 300" stroke="#0D9488" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="1229,321 1220,300 1211,321" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" d="M610 748 L760 748 L760 475 L900 475" stroke="#16A34A" />
+<path class="edge" d="M 610 748 L 746 748 Q 760 748 760 734 L 760 489 Q 760 475 774 475 L 900 475" stroke="#16A34A" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="879,484 900,475 879,466" fill="#FFFFFF" stroke="#16A34A" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="edge implements" d="M410 670 L410 545" stroke="#16A34A" />
 <polygon points="419,566 410,545 401,566" fill="#FFFFFF" stroke="#16A34A" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" d="M1590 748 L1440 748 L1440 475 L1300 475" stroke="#0D9488" />
+<path class="edge" d="M 1590 748 L 1454 748 Q 1440 748 1440 734 L 1440 489 Q 1440 475 1426 475 L 1300 475" stroke="#0D9488" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="1321,466 1300,475 1321,484" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="edge implements" d="M1790 670 L1790 545" stroke="#0D9488" />
 <polygon points="1799,566 1790,545 1781,566" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="edge implements" d="M1100 910 L1100 825" stroke="#EA580C" />
 <polygon points="1109,846 1100,825 1091,846" fill="#FFFFFF" stroke="#EA580C" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" d="M600 1085 L600 870 L980 870 L980 825" stroke="#9333EA" />
+<path class="edge" d="M 600 1085 L 600 884 Q 600 870 614 870 L 966 870 Q 980 870 980 856 L 980 825" stroke="#9333EA" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="989,846 980,825 971,846" fill="#FFFFFF" stroke="#9333EA" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" d="M1600 1085 L1600 870 L1220 870 L1220 825" stroke="#9333EA" />
+<path class="edge" d="M 1600 1085 L 1600 884 Q 1600 870 1586 870 L 1234 870 Q 1220 870 1220 856 L 1220 825" stroke="#9333EA" stroke-linecap="round" stroke-linejoin="round" />
 <polygon points="1229,846 1220,825 1211,846" fill="#FFFFFF" stroke="#9333EA" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(1127 331)"><rect width="106" height="30" rx="8" /><text x="53" y="20" text-anchor="middle">implements</text></g>
 <g class="edgeLabel" transform="translate(654 302)"><rect width="82" height="30" rx="8" /><text x="41" y="20" text-anchor="middle">extends</text></g>

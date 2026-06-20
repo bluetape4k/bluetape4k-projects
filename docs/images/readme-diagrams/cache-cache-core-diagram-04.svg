@@ -170,7 +170,7 @@
   <text class="edgeLabel" x="1088" y="1014">front</text>
 </g>
 <g data-from="SuspendNearJCache" data-to="ProviderBoundary">
-  <path class="edge dashed"  d="M1580 1200 L1580 1250 L670 1250 L670 1260" stroke="#475569" />
+  <path class="edge dashed"  d="M 1580 1200 L 1580 1236 Q 1580 1250 1566 1250 L 680 1250 Q 670 1250 670 1260 L 670 1260" stroke="#475569" stroke-linecap="round" stroke-linejoin="round" />
 
   <polyline points="662,1242 670,1260 678,1242" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
   <text class="edgeLabel" x="938" y="1229">back implementations</text>

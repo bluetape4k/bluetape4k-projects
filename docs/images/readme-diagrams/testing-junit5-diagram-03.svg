@@ -55,10 +55,10 @@
 <line class="lifeline" x1="1300" y1="242" x2="1300" y2="910"/>
 <line class="lifeline" x1="1610" y1="242" x2="1610" y2="910"/>
 
-<rect class="region regionTest" x="82" y="270" width="1038" height="312"/>
+<rect class="region regionTest" x="82" y="270" width="1038" height="312" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
 <rect class="badge" x="106" y="260" width="170" height="24"/>
 <text class="regionLabel" x="122" y="277">only when isTest</text>
-<rect class="region regionFinish" x="430" y="604" width="1235" height="315"/>
+<rect class="region regionFinish" x="430" y="604" width="1235" height="315" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
 <rect class="badge" x="1268" y="594" width="182" height="24"/>
 <text class="regionLabel" x="1284" y="611">after plan finishes</text>
 
@@ -101,7 +101,8 @@
 <circle class="numCircle" cx="745" cy="680" r="13" fill="#16A34A"/><text class="num" x="745" y="685" text-anchor="middle">6</text>
 <text class="label" x="781" y="685">values()</text>
 
-<path class="return" d="M965 738 L620 738"/>
+<path class="return" d="M965 738 L620 738" style="marker-end:none"/>
+<polygon points="632,732 620,738 632,744" fill="#64748B" stroke="#64748B" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 <rect class="badge" x="744" y="710" width="132" height="28"/>
 <circle class="numCircle" cx="764" cy="724" r="13" fill="#64748B"/><text class="num" x="764" y="729" text-anchor="middle">7</text>
 <text class="label" x="800" y="729">tasks</text>
@@ -111,7 +112,8 @@
 <circle class="numCircle" cx="836" cy="786" r="13" fill="#D97706"/><text class="num" x="836" y="791" text-anchor="middle">8</text>
 <text class="label" x="872" y="791">toMermaidGanttChart(tasks)</text>
 
-<path class="return" d="M1300 850 L620 850"/>
+<path class="return" d="M1300 850 L620 850" style="marker-end:none"/>
+<polygon points="632,844 620,850 632,856" fill="#64748B" stroke="#64748B" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 <rect class="badge" x="896" y="822" width="228" height="28"/>
 <circle class="numCircle" cx="916" cy="836" r="13" fill="#64748B"/><text class="num" x="916" y="841" text-anchor="middle">9</text>
 <text class="label" x="952" y="841">Mermaid Gantt text</text>

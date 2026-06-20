@@ -34,22 +34,22 @@
       .inheritBus { fill: none; stroke: #263238; stroke-width: 1.9; }
     </style>
     <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="hollowDark" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#263238" stroke-width="1.7"/>
+      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#263238" stroke-width="1.7" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="hollowSlate" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#455a64" stroke-width="1.7"/>
+      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#455a64" stroke-width="1.7" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
       <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
@@ -138,21 +138,25 @@
   <text x="122" y="1008" class="panel-title">Reader contract</text>
   <text x="122" y="1036" class="small">Use Compressors for shared one-shot codecs. Choose Compressors.Streaming for stream APIs; wrapper-backed codecs avoid buffering, while one-shot adapters preserve compatibility.</text>
 
-  <path d="M 635 476 L 635 388" class="realize"/>
+  <path d="M 635 476 L 635 388" class="realize" style="marker-end:none"/>
+<polygon points="641,400 635,388 629,400" fill="#455a64" stroke="#455a64" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <rect x="656" y="422" width="90" height="24" rx="12" fill="#ffffff" stroke="#d7e0e4"/>
   <text x="701" y="439" text-anchor="middle" class="label">implements</text>
 
   <path d="M 635 728 L 635 630" class="extends"/>
-  <path d="M 271 728 L 271 682 L 635 682" class="inheritBus"/>
-  <path d="M 999 728 L 999 682 L 635 682" class="inheritBus"/>
+  <path d="M 271 728 L 271 696 Q 271 682 285 682 L 635 682" class="inheritBus" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 999 728 L 999 696 Q 999 682 985 682 L 635 682" class="inheritBus" stroke-linecap="round" stroke-linejoin="round"/>
   <rect x="648" y="650" width="112" height="24" rx="12" fill="#ffffff" stroke="#d7e0e4"/>
   <text x="704" y="667" text-anchor="middle" class="label">grouped subclasses</text>
 
   <path d="M 362 544 L 420 544" class="flowGreen"/>
-  <path d="M 850 554 L 908 554" class="usesBlue"/>
+  <path d="M 850 554 L 908 554" class="usesBlue" style="marker-end:none"/>
+<polyline points="896,560 908,554 896,548" fill="none" stroke="#4b74a5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
-  <path d="M 1492 520 L 1492 420" class="realize"/>
-  <path d="M 1492 668 L 1492 748" class="usesRed"/>
+  <path d="M 1492 520 L 1492 420" class="realize" style="marker-end:none"/>
+<polygon points="1498,432 1492,420 1486,432" fill="#455a64" stroke="#455a64" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 1492 668 L 1492 748" class="usesRed" style="marker-end:none"/>
+<polyline points="1486,736 1492,748 1498,736" fill="none" stroke="#b65f68" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <text x="900" y="1116" text-anchor="middle" class="footer">github.com/bluetape4k/bluetape4k-projects - io/io README</text>
 </svg>

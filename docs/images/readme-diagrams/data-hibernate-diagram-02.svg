@@ -3,11 +3,11 @@
 <path class="edge implements" d="M835 500 L835 360" stroke="#2563EB"/>
 <path class="edge extends" d="M1440 590 L1040 590" stroke="#0D9488"/>
 <path class="edge implements" d="M1700 500 L1700 370" stroke="#0D9488"/>
-<path class="edge extends" d="M390 830 L390 760 L740 760 L740 680" stroke="#2563EB"/>
+<path class="edge extends" d="M 390 830 L 390 774 Q 390 760 404 760 L 726 760 Q 740 760 740 746 L 740 680" stroke="#2563EB" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="edge extends" d="M770 830 L770 680" stroke="#2563EB"/>
-<path class="edge extends" d="M1150 830 L1150 760 L930 760 L930 680" stroke="#2563EB"/>
-<path class="edge extends" d="M1580 830 L1580 755 L1605 755 L1605 680" stroke="#0D9488"/>
-<path class="edge extends" d="M2010 830 L2010 755 L1795 755 L1795 680" stroke="#0D9488"/></g><g><path class="hollow" d="M320 360 L311 377 L329 377 Z" stroke="#64748B"/>
+<path class="edge extends" d="M 1150 830 L 1150 774 Q 1150 760 1136 760 L 944 760 Q 930 760 930 746 L 930 680" stroke="#2563EB" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge extends" d="M 1580 830 L 1580 765 Q 1580 755 1590 755 L 1595 755 Q 1605 755 1605 745 L 1605 680" stroke="#0D9488" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge extends" d="M 2010 830 L 2010 769 Q 2010 755 1996 755 L 1809 755 Q 1795 755 1795 741 L 1795 680" stroke="#0D9488" stroke-linecap="round" stroke-linejoin="round"/></g><g><path class="hollow" d="M320 360 L311 377 L329 377 Z" stroke="#64748B"/>
 <path class="hollow" d="M525 590 L542 581 L542 599 Z" stroke="#2563EB"/>
 <path class="hollow" d="M835 360 L826 377 L844 377 Z" stroke="#2563EB"/>
 <path class="hollow" d="M1040 590 L1057 581 L1057 599 Z" stroke="#0D9488"/>

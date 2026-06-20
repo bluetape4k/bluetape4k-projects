@@ -151,7 +151,7 @@
   <text class="edgeLabel" x="1758" y="369">registers</text>
 </g>
 <g data-from="SuspendNearJCache" data-to="ReadPath">
-  <path class="edge dashed"  d="M1080 550 L1080 650 L500 650 L500 720" stroke="#6D28D9" />
+  <path class="edge dashed"  d="M 1080 550 L 1080 636 Q 1080 650 1066 650 L 514 650 Q 500 650 500 664 L 500 720" stroke="#6D28D9" stroke-linecap="round" stroke-linejoin="round" />
 
   <polyline points="492,702 500,720 508,702" fill="none" stroke="#6D28D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
   <text class="edgeLabel" x="698" y="629">read API</text>
@@ -163,7 +163,7 @@
   <text class="edgeLabel" x="1320" y="647">write API</text>
 </g>
 <g data-from="SuspendNearJCache" data-to="FlowPath">
-  <path class="edge dashed"  d="M1508 550 L1508 650 L2110 650 L2110 740" stroke="#475569" />
+  <path class="edge dashed"  d="M 1508 550 L 1508 636 Q 1508 650 1522 650 L 2096 650 Q 2110 650 2110 664 L 2110 740" stroke="#475569" stroke-linecap="round" stroke-linejoin="round" />
 
   <polyline points="2102,722 2110,740 2118,722" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
   <text class="edgeLabel" x="1768" y="629">Flow reads</text>
@@ -175,19 +175,19 @@
   <text class="edgeLabel" x="526" y="1102">front first</text>
 </g>
 <g data-from="WritePath" data-to="FrontCache">
-  <path class="edge dashed"  d="M990 820 L900 820 L900 1050 L1525 1050 L1525 1280 L980 1280" stroke="#1D4ED8" />
+  <path class="edge dashed"  d="M 990 820 L 914 820 Q 900 820 900 834 L 900 1036 Q 900 1050 914 1050 L 1511 1050 Q 1525 1050 1525 1064 L 1525 1266 Q 1525 1280 1511 1280 L 980 1280" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round" />
 
   <polyline points="998,1272 980,1280 998,1288" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
   <text class="edgeLabel" x="926" y="1012">front update</text>
 </g>
 <g data-from="WritePath" data-to="BackCache">
-  <path class="edge dashed"  d="M1610 875 L1740 875 L1740 1168 L1840 1168 L1840 1220" stroke="#475569" />
+  <path class="edge dashed"  d="M 1610 875 L 1726 875 Q 1740 875 1740 889 L 1740 1154 Q 1740 1168 1754 1168 L 1826 1168 Q 1840 1168 1840 1182 L 1840 1220" stroke="#475569" stroke-linecap="round" stroke-linejoin="round" />
 
   <polyline points="1832,1202 1840,1220 1848,1202" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
   <text class="edgeLabel" x="1766" y="1018">back update</text>
 </g>
 <g data-from="ReadPath" data-to="BackCache">
-  <path class="edge dashed"  d="M810 842 L890 842 L890 1108 L1470 1108 L1470 1260 L1510 1260" stroke="#475569" />
+  <path class="edge dashed"  d="M 810 842 L 876 842 Q 890 842 890 856 L 890 1094 Q 890 1108 904 1108 L 1456 1108 Q 1470 1108 1470 1122 L 1470 1246 Q 1470 1260 1484 1260 L 1510 1260" stroke="#475569" stroke-linecap="round" stroke-linejoin="round" />
 
   <polyline points="1492,1268 1510,1260 1492,1252" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
   <text class="edgeLabel" x="1068" y="1087">miss lookup</text>
@@ -199,7 +199,7 @@
   <text class="edgeLabel" x="1148" y="1327">fill or event sync</text>
 </g>
 <g data-from="BackCache" data-to="Listener">
-  <path class="edge dashed"  d="M2270 1340 L2530 1340 L2530 390 L2480 390" stroke="#BE185D" />
+  <path class="edge dashed"  d="M 2270 1340 L 2516 1340 Q 2530 1340 2530 1326 L 2530 404 Q 2530 390 2516 390 L 2480 390" stroke="#BE185D" stroke-linecap="round" stroke-linejoin="round" />
 
   <polyline points="2498,382 2480,390 2498,398" fill="none" stroke="#BE185D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
   <text class="edgeLabel" x="2353" y="1002">entry events</text>

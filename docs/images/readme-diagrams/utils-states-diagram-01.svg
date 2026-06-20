@@ -14,9 +14,10 @@
 <g id="edges"><path class="edge" d="M490 250 L670 250" stroke="#2563EB" marker-end="url(#arrow-dslRegistry)"/>
 <path class="edge" d="M1050 250 L1230 250" stroke="#9333EA" marker-end="url(#arrow-registryRuntime)"/>
 <path class="edge" d="M490 489 L670 489" stroke="#0D9488" marker-end="url(#arrow-eventRules)"/>
-<path class="edge" d="M1420 315 L1420 365 L1000 365 L1000 405" stroke="#16A34A" marker-end="url(#arrow-runtimeRules)"/>
+<path class="edge" d="M 1420 315 L 1420 351 Q 1420 365 1406 365 L 1014 365 Q 1000 365 1000 379 L 1000 405" stroke="#16A34A" marker-end="url(#arrow-runtimeRules)" stroke-linecap="round" stroke-linejoin="round"/>
 <path class="edge" d="M1050 489 L1230 489" stroke="#EA580C" marker-end="url(#arrow-rulesResult)"/>
-<path class="edge dashed" d="M860 405 L860 315" stroke="#9333EA" marker-end="url(#arrow-rulesRegistry)"/></g>
+<path class="edge dashed" d="M860 405 L860 315" stroke="#9333EA"/>
+<polygon points="866,327 860,315 854,327" fill="#9333EA" stroke="#9333EA" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(545 209)"><rect width="70" height="30" rx="8"/><text x="35" y="20" text-anchor="middle">builds</text></g>
 <g class="edgeLabel" transform="translate(1099 209)"><rect width="82" height="30" rx="8"/><text x="41" y="20" text-anchor="middle">resolves</text></g>
 <g class="edgeLabel" transform="translate(516 448)"><rect width="128" height="30" rx="8"/><text x="64" y="20" text-anchor="middle">transition(event)</text></g>

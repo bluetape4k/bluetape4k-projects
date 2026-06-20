@@ -3,16 +3,16 @@
 
   <defs>
     <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none" />
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none"  style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-green" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#16a34a" stroke="#16a34a" stroke-width="0" stroke-dasharray="none" />
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#16a34a" stroke="#16a34a" stroke-width="0" stroke-dasharray="none"  style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-orange" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none" />
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none"  style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrow-purple" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#7c3aed" stroke="#7c3aed" stroke-width="0" stroke-dasharray="none" />
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#7c3aed" stroke="#7c3aed" stroke-width="0" stroke-dasharray="none"  style="stroke-dasharray:none"/>
     </marker>
     <marker id="open-gray" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" viewBox="0 0 18 18" refX="16" refY="9" orient="auto" overflow="visible">
       <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#64748b" stroke-width="2.4" stroke-dasharray="none" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" />
@@ -46,7 +46,7 @@
   <path class="edge" d="M960 720 L848 720" fill="none" stroke="#64748b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5" />
 
   <polyline points="866,712 848,720 866,728" fill="none" stroke="#64748b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-  <path class="edge" d="M400 707 L450 707 L450 590 L900 590 L900 520 L960 520" fill="none" stroke="#ea580c" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)" />
+  <path class="edge" d="M 400 707 L 436 707 Q 450 707 450 693 L 450 604 Q 450 590 464 590 L 886 590 Q 900 590 900 576 L 900 534 Q 900 520 914 520 L 960 520" fill="none" stroke="#ea580c" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)" />
   <path class="edge" d="M400 481 L960 481" fill="none" stroke="#7c3aed" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-purple)" />
 
   <g class="card" data-card="Product Request">
@@ -87,18 +87,20 @@
 
   <g class="card" data-card="L2 Redis Cache">
     <rect x="960" y="646" width="370" height="122" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8" />
+    <image data-bluetape4k-icon="redis/redis-icon.svg" x="986" y="658" width="42" height="42" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBoZWlnaHQ9IjY0IiB2aWV3Qm94PSIwIDAgMzIgMzIiIHdpZHRoPSI2NCI+PGcgdHJhbnNmb3JtPSJtYXRyaXgoLjg0ODMyNyAwIDAgLjg0ODMyNyAtNy44ODM1NzMgLTkuNDQ5NjkxKSI+PHVzZSB4bGluazpocmVmPSIjQiIgZmlsbD0iI2E0MWUxMSIvPjxwYXRoIGQ9Ik00NS41MzYgMzQuOTVjLTIuMDEzIDEuMDUtMTIuNDQgNS4zMzctMTQuNjYgNi40OTRzLTMuNDUzIDEuMTQ2LTUuMjA3LjMwOC0xMi44NS01LjMyLTE0Ljg1LTYuMjc2LTIuMDQtMS42MTMtLjA3Ny0yLjM4MmwxNS4zMzItNS45MzZjMi4zMzItLjgzNiAzLjE0LS44NjcgNS4xMjYtLjE0UzQzLjU1IDMxLjg3IDQ1LjUxIDMyLjZzMi4wMzcgMS4zMS4wMjQgMi4zNnoiIGZpbGw9IiNkODJjMjAiLz48dXNlIHhsaW5rOmhyZWY9IiNCIiB5PSItNi4yMTgiIGZpbGw9IiNhNDFlMTEiLz48dXNlIHhsaW5rOmhyZWY9IiNDIiBmaWxsPSIjZDgyYzIwIi8+PHBhdGggZD0iTTQ1LjUzNiAyNi4wOThjLTIuMDEzIDEuMDUtMTIuNDQgNS4zMzctMTQuNjYgNi40OTVzLTMuNDUzIDEuMTQ2LTUuMjA3LjMwOC0xMi44NS01LjMyLTE0Ljg1LTYuMjc2Yy0xLS40NzgtMS41MjQtLjg4LTEuNTI0LTEuMjZWMjEuNTVzMTQuNDQ3LTMuMTQ1IDE2Ljc4LTMuOTgyIDMuMTQtLjg2NyA1LjEyNi0uMTQgMTMuODUzIDIuODY4IDE1LjgxNCAzLjU4N3YzLjc2YzAgLjM3Ny0uNDUyLjgtMS40NzcgMS4zMjR6IiBmaWxsPSIjYTQxZTExIi8+PHVzZSB4bGluazpocmVmPSIjQyIgeT0iLTYuNDQ5IiBmaWxsPSIjZDgyYzIwIi8+PGcgZmlsbD0iI2ZmZiI+PHBhdGggZD0iTTI5LjA5NiAyMC43MTJsLTEuMTgyLTEuOTY1LTMuNzc0LS4zNCAyLjgxNi0xLjAxNi0uODQ1LTEuNTYgMi42MzYgMS4wMyAyLjQ4Ni0uODE0LS42NzIgMS42MTIgMi41MzQuOTUtMy4yNjguMzR6TTIyLjggMjQuNjI0bDguNzQtMS4zNDItMi42NCAzLjg3MnoiLz48ZWxsaXBzZSBjeD0iMjAuNDQ0IiByeD0iNC42NzIiIHJ5PSIxLjgxMSIgY3k9IjIxLjQwMiIvPjwvZz48cGF0aCBkPSJNNDIuMTMyIDIxLjEzOGwtNS4xNyAyLjA0Mi0uMDA0LTQuMDg3eiIgZmlsbD0iIzdhMGMwMCIvPjxwYXRoIGQ9Ik0zNi45NjMgMjMuMThsLS41Ni4yMi01LjE2Ni0yLjA0MiA1LjcyMy0yLjI2NHoiIGZpbGw9IiNhZDIxMTUiLz48L2c+PGRlZnMgPjxwYXRoIGlkPSJCIiBkPSJNNDUuNTM2IDM4Ljc2NGMtMi4wMTMgMS4wNS0xMi40NCA1LjMzNy0xNC42NiA2LjQ5NHMtMy40NTMgMS4xNDYtNS4yMDcuMzA4LTEyLjg1LTUuMzItMTQuODUtNi4yNzZjLTEtLjQ3OC0xLjUyNC0uODgtMS41MjQtMS4yNnYtMy44MTNzMTQuNDQ3LTMuMTQ1IDE2Ljc4LTMuOTgyIDMuMTQtLjg2NyA1LjEyNi0uMTQgMTMuODUzIDIuODY4IDE1LjgxNCAzLjU4N3YzLjc2YzAgLjM3Ny0uNDUyLjgtMS40NzcgMS4zMjR6Ii8+PHBhdGggaWQ9IkMiIGQ9Ik00NS41MzYgMjguNzMzYy0yLjAxMyAxLjA1LTEyLjQ0IDUuMzM3LTE0LjY2IDYuNDk0cy0zLjQ1MyAxLjE0Ni01LjIwNy4zMDgtMTIuODUtNS4zMi0xNC44NS02LjI3Ni0yLjA0LTEuNjEzLS4wNzctMi4zODJsMTUuMzMyLTUuOTM1YzIuMzMyLS44MzcgMy4xNC0uODY3IDUuMTI2LS4xNHMxMi4zNSA0Ljg1MyAxNC4zMTIgNS41NyAyLjAzNyAxLjMxLjAyNCAyLjM2eiIvPjwvZGVmcz48L3N2Zz4=" preserveAspectRatio="xMidYMid meet"/>
     <rect x="960" y="646" width="10" height="122" rx="5" fill="#ea580c" opacity="0.9" />
-    <text x="986" y="680" font-size="18" font-weight="700" fill="#111827">L2 Redis Cache</text>
-    <text x="986" y="708" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Redis URI: redis://localhost:6379</text>
+    <text x="1042" y="680" font-size="18" font-weight="700" fill="#111827">L2 Redis Cache</text>
+    <text x="1042" y="708" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Redis URI: redis://localhost:6379</text>
 <text x="986" y="727" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">codec: lz4fory</text>
 <text x="986" y="746" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">RESP3 tracking enabled</text>
   </g>
 
   <g class="card" data-card="H2 Database">
     <rect x="510" y="646" width="338" height="122" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.8" />
+    <image data-bluetape4k-icon="database/h2.svg" x="536" y="658" width="42" height="42" href="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjMDk0NzZCIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+SDIgRGF0YWJhc2U8L3RpdGxlPjxwYXRoIGQ9Ik0xNy4xNyAxMy4yN2MuMTQtLjAxNS4yOC0uMDIzLjQxNi0uMDIzLjcgMCAxLjIyOC4xNTkgMS41OTkuNDY5LjM3LjMxNC41NTUuNzU2LjU1NSAxLjMzNGEyLjg2MSAyLjg2MSAwIDAgMS0uNDMgMS40NTVjLS4yOTEuNDkyLS43NzUgMS4wNjYtMS40NiAxLjcyNy0uNDUzLjQ0Ni0xLjA2MS45NzYtMS44MjEgMS41OTJhNDguMDIgNDguMDIgMCAwIDEtMi4yNzUgMS43NDJ2Mi4wODNoOS44OTVWMjEuMjRIMTcuOTljLjIxOS0uMTU5LjU5LS40MzUgMS4xMS0uODMyLjUxOS0uNCAxLjAzMy0uODM1IDEuNTUtMS4zMTEuODE3LS43NiAxLjQyNS0xLjUgMS44MjItMi4yMTVhNC42MjQgNC42MjQgMCAwIDAgLjU5Ny0yLjI2OGMwLTEuMjEzLS40MTYtMi4xNTQtMS4yNDctMi44MTUtLjgyOC0uNjYyLTIuMDMzLS45OTQtMy42MTMtLjk5NC0uMzQ0IDAtLjY5Mi4wMTUtMS4wMzYuMDQ5VjYuMDRIMTMuODZ2NC43MDFIOC45NjVWNi4wNEg1LjY1djEyLjg0NmgzLjMxNXYtNS42NjFoNC44OXY1LjY2MWguMDM5Yy4zMS0uMjQyLjYyMy0uNDg3LjkzMy0uNzRhMjguNTY0IDI4LjU2NCAwIDAgMCAxLjgyNi0xLjU4OCAxNC44NTQgMTQuODU0IDAgMCAwIC41MTctLjUyOXpNMTIuMDExIDIzLjNBMTEuMzI3IDExLjMyNyAwIDAgMSAuNyAxMS45OSAxMS4zMDUgMTEuMzA1IDAgMCAxIDEyLjAxMS42OTlhMTEuMjg2IDExLjI4NiAwIDAgMSAxMS4yOSAxMS4yOXYuMzUxSDI0di0uMzUxQTExLjk4NSAxMS45ODUgMCAwIDAgMTIuMDExIDAgMTIuMDA4IDEyLjAwOCAwIDAgMCAwIDExLjk4OSAxMi4wMjYgMTIuMDI2IDAgMCAwIDEyLjAxMSAyNGguMzUydi0uN3oiLz48L3N2Zz4=" preserveAspectRatio="xMidYMid meet"/>
     <rect x="510" y="646" width="10" height="122" rx="5" fill="#64748b" opacity="0.9" />
-    <text x="536" y="680" font-size="18" font-weight="700" fill="#111827">H2 Database</text>
-    <text x="536" y="708" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">jdbc:h2:mem:demo</text>
+    <text x="590" y="680" font-size="18" font-weight="700" fill="#111827">H2 Database</text>
+    <text x="590" y="708" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">jdbc:h2:mem:demo</text>
 <text x="536" y="727" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">ddl-auto: create-drop</text>
 <text x="536" y="746" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">source of truth on cache miss</text>
   </g>

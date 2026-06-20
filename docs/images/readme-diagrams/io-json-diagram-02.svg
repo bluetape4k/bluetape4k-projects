@@ -4,16 +4,16 @@
       <feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#27343a" flood-opacity="0.13"/>
     </filter>
     <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#4079a8"/>
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#4079a8" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#5b8d52"/>
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#5b8d52" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowAmber" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#b98220"/>
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#b98220" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowRed" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 0 0 L 12 6 L 0 12 Z" fill="#bd6371"/>
+      <path d="M 0 0 L 12 6 L 0 12 Z" fill="#bd6371" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <style>
       svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
@@ -149,10 +149,11 @@
   <path d="M 1020 530 V 590" class="flow-green"/>
   <path d="M 1380 530 V 590" class="flow-green"/>
 
-  <path d="M 300 700 V 890 H 345 V 1012" class="flow-amber"/>
-  <path d="M 660 700 V 730 H 480 V 890 H 800 V 1012" class="flow-red"/>
-  <path d="M 1020 700 V 730 H 1200 V 890 H 1255 V 1012" class="flow-green"/>
-  <path d="M 1380 700 V 890 H 1255 V 1012" class="flow-green"/>
+  <path d="M 300 700 L 300 876 Q 300 890 314 890 L 331 890 Q 345 890 345 904 L 345 1012" class="flow-amber"/>
+  <path d="M 660 700 L 660 718 Q 660 730 648 730 L 494 730 Q 480 730 480 744 L 480 876 Q 480 890 494 890 L 786 890 Q 800 890 800 904 L 800 1012" class="flow-red" style="marker-end:none"/>
+<polygon points="794,1000 800,1012 806,1000" fill="#bd6371" stroke="#bd6371" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 1020 700 L 1020 718 Q 1020 730 1032 730 L 1186 730 Q 1200 730 1200 744 L 1200 876 Q 1200 890 1214 890 L 1241 890 Q 1255 890 1255 904 L 1255 1012" class="flow-green"/>
+  <path d="M 1380 700 L 1380 876 Q 1380 890 1366 890 L 1269 890 Q 1255 890 1255 904 L 1255 1012" class="flow-green"/>
 
   <rect x="535" y="543" width="132" height="26" rx="13" class="pill"/>
   <text x="601" y="561" text-anchor="middle" class="label">same interface</text>

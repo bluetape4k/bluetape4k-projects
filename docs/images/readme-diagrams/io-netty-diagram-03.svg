@@ -50,7 +50,7 @@
       <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
     </marker>
     <marker id="arrowTeal" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5f8d94" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5f8d94" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
       <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
@@ -125,16 +125,18 @@
   <text x="1435" y="956" text-anchor="middle" class="member">use { } releases even on failure</text>
 
   <path d="M 460 314 H 620" class="flowSlate"/>
-  <path d="M 1040 314 H 1210" class="flowTeal"/>
+  <path d="M 1040 314 H 1210" class="flowTeal" style="marker-end:none"/>
+<polyline points="1198,320 1210,314 1198,308" fill="none" stroke="#5f8d94" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <path d="M 830 376 V 530" class="bus"/>
   <path d="M 291 562 V 530 H 1509 V 562" class="bus"/>
   <path d="M 697 530 V 562" class="flowGold"/>
   <path d="M 1103 530 V 562" class="flowRed"/>
 
-  <path d="M 291 694 V 780 H 355 V 902" class="flowBlue"/>
-  <path d="M 697 694 V 780 H 895 V 902" class="flowGold"/>
-  <path d="M 1103 694 V 780 H 895 V 902" class="flowRed"/>
-  <path d="M 1509 694 V 780 H 1435 V 902" class="flowGreen"/>
-  <path d="M 1070 936 H 1260" class="flowTeal"/>
+  <path d="M 291 694 L 291 766 Q 291 780 305 780 L 341 780 Q 355 780 355 794 L 355 902" class="flowBlue"/>
+  <path d="M 697 694 L 697 766 Q 697 780 711 780 L 881 780 Q 895 780 895 794 L 895 902" class="flowGold"/>
+  <path d="M 1103 694 L 1103 766 Q 1103 780 1089 780 L 909 780 Q 895 780 895 794 L 895 902" class="flowRed"/>
+  <path d="M 1509 694 L 1509 766 Q 1509 780 1495 780 L 1449 780 Q 1435 780 1435 794 L 1435 902" class="flowGreen"/>
+  <path d="M 1070 936 H 1260" class="flowTeal" style="marker-end:none"/>
+<polyline points="1248,942 1260,936 1248,930" fill="none" stroke="#5f8d94" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 </svg>

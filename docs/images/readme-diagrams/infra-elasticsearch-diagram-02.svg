@@ -4,19 +4,22 @@
       <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
     </filter>
     <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#2563eb" stroke="#2563eb" stroke-width="1.2" stroke-dasharray="none"/>
+      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#2563eb" stroke="#2563eb" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.2" stroke-dasharray="none"/>
+      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowOlive" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#65a30d" stroke="#65a30d" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowTeal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#0d9488" stroke="#0d9488" stroke-width="1.2" stroke-dasharray="none"/>
+      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#0d9488" stroke="#0d9488" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowOrange" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#ea580c" stroke="#ea580c" stroke-width="1.2" stroke-dasharray="none"/>
+      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#ea580c" stroke="#ea580c" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <marker id="arrowPurple" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#9333ea" stroke="#9333ea" stroke-width="1.2" stroke-dasharray="none"/>
+      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#9333ea" stroke="#9333ea" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <style>
       svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
@@ -44,22 +47,22 @@
   <text class="subtitle" x="78" y="116">Client construction, transport setup, and coroutine search/bulk pipelines stay separate while sharing the official Elastic client.</text>
 
   <g id="lane-entry">
-    <rect class="lane" x="82" y="154" width="282" height="714" rx="8" fill="#eff6ff" fill-opacity="0.48" stroke="#93c5fd"/>
+    <rect class="lane" x="82" y="154" width="282" height="714" rx="8" fill="#eff6ff" fill-opacity="0.72" stroke="#93c5fd"/>
     <text class="laneTitle" x="106" y="190">Application entry</text>
     <text class="laneSub" x="106" y="213">Kotlin DSL and module defaults</text>
   </g>
   <g id="lane-client">
-    <rect class="lane" x="398" y="154" width="352" height="714" rx="8" fill="#fff7ed" fill-opacity="0.52" stroke="#fdba74"/>
+    <rect class="lane" x="398" y="154" width="352" height="748" rx="8" fill="#fff7ed" fill-opacity="0.72" stroke="#fdba74"/>
     <text class="laneTitle" x="422" y="190">Client construction</text>
     <text class="laneSub" x="422" y="213">factory, transport, mapper</text>
   </g>
   <g id="lane-coroutines">
-    <rect class="lane" x="784" y="154" width="386" height="714" rx="8" fill="#faf5ff" fill-opacity="0.52" stroke="#d8b4fe"/>
+    <rect class="lane" x="784" y="154" width="386" height="762" rx="8" fill="#faf5ff" fill-opacity="0.52" stroke="#d8b4fe"/>
     <text class="laneTitle" x="808" y="190">Coroutine APIs</text>
     <text class="laneSub" x="808" y="213">suspend wrappers and Flow pipelines</text>
   </g>
   <g id="lane-cluster">
-    <rect class="lane" x="1204" y="154" width="214" height="714" rx="8" fill="#f0fdfa" fill-opacity="0.54" stroke="#99f6e4"/>
+    <rect class="lane" x="1204" y="108" width="214" height="760" rx="8" fill="#f0fdfa" fill-opacity="0.54" stroke="#99f6e4"/>
     <text class="laneTitle" x="1228" y="190">Elasticsearch</text>
     <text class="laneSub" x="1228" y="213">external cluster APIs</text>
   </g>
@@ -137,20 +140,21 @@
     <text class="detail" x="1311" y="544" text-anchor="middle">PIT lifecycle</text>
   </g>
 
-  <path class="route" d="M 334 334 H 398 V 293 H 430" stroke="#2563eb" marker-end="url(#arrowBlue)"/>
+  <path class="route" d="M 334 334 L 384 334 Q 398 334 398 320 L 398 307 Q 398 293 408 293 L 430 293" stroke="#2563eb" marker-end="url(#arrowBlue)"/>
   <path class="route" d="M 223 386 V 510" stroke="#16a34a" marker-end="url(#arrowGreen)"/>
-  <path class="route" d="M 334 567 H 382 V 468 H 430" stroke="#16a34a" marker-end="url(#arrowGreen)"/>
+  <path class="route" d="M 334 567 L 368 567 Q 382 567 382 553 L 382 482 Q 382 468 396 468 L 430 468" stroke="#16a34a" marker-end="url(#arrowGreen)"/>
   <path class="route" d="M 574 348 V 410" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
-  <path class="route" d="M 718 468 H 774 V 292 H 828" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
-  <path class="route" d="M 574 526 V 614" stroke="#65a30d" marker-end="url(#arrowGreen)"/>
-  <path class="route dashed" d="M 718 782 H 758 V 665 H 718" stroke="#2563eb" marker-end="url(#arrowBlue)"/>
+  <path class="route" d="M 718 468 L 760 468 Q 774 468 774 454 L 774 306 Q 774 292 788 292 L 828 292" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
+  <path class="route" d="M 574 526 V 614" stroke="#65a30d" marker-end="url(#arrowOlive)"/>
+  <path class="route dashed" d="M 718 782 L 744 782 Q 758 782 758 768 L 758 679 Q 758 665 744 665 L 718 665" stroke="#2563eb"/>
+<polygon points="730,659 718,665 730,671" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <path class="route" d="M 977 346 V 412" stroke="#9333ea" marker-end="url(#arrowPurple)"/>
   <path class="route" d="M 977 512 V 574" stroke="#0d9488" marker-end="url(#arrowTeal)"/>
   <path class="route" d="M 977 678 V 732" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
 
-  <path class="route" d="M 1126 292 H 1190 V 488 H 1230" stroke="#0d9488" marker-end="url(#arrowTeal)"/>
-  <path class="route" d="M 1126 626 H 1186 V 520 H 1230" stroke="#0d9488" marker-end="url(#arrowTeal)"/>
-  <path class="route" d="M 1126 782 H 1194 V 552 H 1230" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
+  <path class="route" d="M 1126 292 L 1176 292 Q 1190 292 1190 306 L 1190 474 Q 1190 488 1204 488 L 1230 488" stroke="#0d9488" marker-end="url(#arrowTeal)"/>
+  <path class="route" d="M 1126 626 L 1172 626 Q 1186 626 1186 612 L 1186 534 Q 1186 520 1200 520 L 1230 520" stroke="#0d9488" marker-end="url(#arrowTeal)"/>
+  <path class="route" d="M 1126 782 L 1180 782 Q 1194 782 1194 768 L 1194 566 Q 1194 552 1208 552 L 1230 552" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
 
 </svg>
