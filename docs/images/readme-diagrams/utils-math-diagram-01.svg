@@ -12,7 +12,7 @@
 <rect class="canvas" width="2060" height="1280"/><rect class="frame" x="34" y="30" width="1992" height="1214" rx="8"/>
 <text class="title" x="78" y="88">Math Feature Structure</text>
 <text class="subtitle" x="82" y="120">A task-oriented map of bluetape4k-math: statistics, random sampling, numeric methods, algebra, geometry, and ML helpers over Apache Commons Math3.</text>
-<rect class="lane" x="70" y="455" width="1875" height="592" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/><text class="laneTitle" x="98" y="442">reader-facing feature groups backed by concrete package/file families</text>
+<rect class="lane" x="70" y="455" width="1875" height="592" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/><text class="laneTitle" x="98" y="442">reader-facing feature groups backed by concrete package/file families</text>
 <g id="edges"><path class="edge " d="M310 345 L310 510" stroke="#2563EB" marker-end="url(#arrow-apiStats)"/>
 <path class="edge " d="M760 345 L760 510" stroke="#16A34A" marker-end="url(#arrow-apiRandom)"/>
 <path class="edge " d="M1230 345 L1230 510" stroke="#0D9488" marker-end="url(#arrow-apiCalculus)"/>

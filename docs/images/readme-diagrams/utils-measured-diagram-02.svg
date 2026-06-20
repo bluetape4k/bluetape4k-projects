@@ -23,9 +23,9 @@
 <rect class="frame" x="34" y="30" width="2772" height="1696" rx="8"/>
 <text class="title" x="74" y="88">Unit Composition Flow</text>
 <text class="subtitle" x="78" y="121">Unit operators compose typed unit descriptors; value operators compose Measure types, while domain overloads return readable Area, Volume, Energy, and Power results.</text>
-<rect class="laneBox" x="86" y="212" width="1970" height="345" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/><text class="laneTitle" x="110" y="246">1. compose unit descriptors before values exist</text>
-<rect class="laneBox" x="86" y="553" width="2570" height="439" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/><text class="laneTitle" x="110" y="626">2. compose measured values with generic operators</text>
-<rect class="laneBox" x="86" y="1220" width="2570" height="460" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/><text class="laneTitle" x="110" y="1254">3. use domain overloads when raw compound types would be noisy</text>
+<rect class="laneBox" x="86" y="212" width="1970" height="345" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/><text class="laneTitle" x="110" y="246">1. compose unit descriptors before values exist</text>
+<rect class="laneBox" x="86" y="553" width="2570" height="439" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/><text class="laneTitle" x="110" y="626">2. compose measured values with generic operators</text>
+<rect class="laneBox" x="86" y="1220" width="2570" height="460" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/><text class="laneTitle" x="110" y="1254">3. use domain overloads when raw compound types would be noisy</text>
 <g id="edges"><g id="unit-to-ops">
   <path class="edge " d="M650 370 L790 370" stroke="#15803D" marker-end="url(#arrow-unit)"/>
   <rect class="edgeLabelBg" x="660" y="325" width="134.6" height="26" rx="6"/>

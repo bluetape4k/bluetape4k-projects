@@ -18,19 +18,19 @@
 <rect class="frame" x="34" y="34" width="1532" height="1052" rx="22"/>
 <text id="title" class="title" x="78" y="90">Spring Boot Cassandra Demo Map</text>
 <text class="subtitle" x="82" y="122">Test examples exercise Spring Data Cassandra contracts through one shared Cassandra 4 Testcontainer.</text>
-<rect class="lane" x="100" y="168" width="330" height="804" rx="18" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
+<rect class="lane" x="100" y="168" width="330" height="804" rx="18" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
 <text class="laneTitle" x="128" y="204">Example families</text>
 <text class="laneSub" x="128" y="231">basic, kotlin, reactive</text>
 <text class="laneSub" x="128" y="251">auditing, projection, multitenancy</text>
-<rect class="lane" x="440" y="168" width="330" height="804" rx="18" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
+<rect class="lane" x="440" y="168" width="330" height="804" rx="18" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
 <text class="laneTitle" x="468" y="204">Spring test wiring</text>
 <text class="laneSub" x="468" y="231">configuration classes</text>
 <text class="laneSub" x="468" y="251">shared session/keyspace setup</text>
-<rect class="lane" x="780" y="168" width="330" height="804" rx="18" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
+<rect class="lane" x="780" y="168" width="330" height="804" rx="18" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
 <text class="laneTitle" x="808" y="204">Spring Data APIs</text>
 <text class="laneSub" x="808" y="231">repositories, templates, operations</text>
 <text class="laneSub" x="808" y="251">conversion and schema utilities</text>
-<rect class="lane" x="1120" y="168" width="330" height="804" rx="18" fill="#FFF7ED" stroke="#FDBA74" fill-opacity="0.72"/>
+<rect class="lane" x="1120" y="168" width="330" height="804" rx="18" fill="#FFEDD5" stroke="#FDBA74" fill-opacity="1"/>
 <text class="laneTitle" x="1148" y="204">Cassandra runtime</text>
 <text class="laneSub" x="1148" y="231">CqlSession and driver config</text>
 <text class="laneSub" x="1148" y="251">Cassandra 4 Testcontainer</text>

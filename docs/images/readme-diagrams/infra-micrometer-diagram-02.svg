@@ -61,7 +61,7 @@
     <text class="tiny" x="1558" y="172" text-anchor="middle">Exported signal</text>
   </g>
 
-  <rect class="lane" x="82" y="192" width="1636" height="154" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
+  <rect class="lane" x="82" y="192" width="1636" height="154" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
   <text class="laneLabel" x="112" y="228">Timer / Flow</text>
   <rect class="card source" x="132" y="246" width="184" height="46" rx="8"/>
   <text class="name" x="224" y="275" text-anchor="middle">suspend block</text>
@@ -82,7 +82,7 @@
   <path class="blue" d="M 1046 269 H 1124"/>
   <path class="blue" d="M 1364 269 H 1444"/>
 
-  <rect class="lane" x="82" y="344" width="1636" height="154" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
+  <rect class="lane" x="82" y="344" width="1636" height="154" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
   <text class="laneLabel" x="112" y="380">Observation</text>
   <rect class="card source" x="132" y="398" width="184" height="46" rx="8"/>
   <text class="name" x="224" y="427" text-anchor="middle">operation block</text>
@@ -103,7 +103,7 @@
   <path class="purple" d="M 1046 421 H 1124"/>
   <path class="purple" d="M 1364 421 H 1444"/>
 
-  <rect class="lane" x="82" y="496" width="1636" height="154" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
+  <rect class="lane" x="82" y="496" width="1636" height="154" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
   <text class="laneLabel" x="112" y="532">Event telemetry</text>
   <rect class="card source" x="132" y="550" width="184" height="46" rx="8"/>
   <text class="name" x="224" y="579" text-anchor="middle">publish/consume</text>
@@ -124,7 +124,7 @@
   <path class="purple" d="M 1046 573 H 1124"/>
   <path class="purple" d="M 1364 573 H 1444"/>
 
-  <rect class="lane" x="82" y="648" width="1636" height="154" rx="8" fill="#FFF7ED" stroke="#FDBA74" fill-opacity="0.72"/>
+  <rect class="lane" x="82" y="648" width="1636" height="154" rx="8" fill="#FFEDD5" stroke="#FDBA74" fill-opacity="1"/>
   <text class="laneLabel" x="112" y="684">Retrofit2</text>
   <rect class="card source" x="132" y="702" width="184" height="46" rx="8"/>
   <text class="name" x="224" y="731" text-anchor="middle">Retrofit Call</text>
@@ -145,7 +145,7 @@
   <path class="orange" d="M 1046 725 H 1124"/>
   <path class="orange" d="M 1364 725 H 1444"/>
 
-  <rect class="lane" x="82" y="800" width="1636" height="154" rx="8" fill="#FDF2F8" stroke="#F9A8D4" fill-opacity="0.72"/>
+  <rect class="lane" x="82" y="800" width="1636" height="154" rx="8" fill="#FCE7F3" stroke="#F9A8D4" fill-opacity="1"/>
   <text class="laneLabel" x="112" y="836">Cache2k + KeyValues</text>
   <rect class="card source" x="132" y="854" width="184" height="46" rx="8"/>
   <text class="name" x="224" y="883" text-anchor="middle">cache + tags</text>

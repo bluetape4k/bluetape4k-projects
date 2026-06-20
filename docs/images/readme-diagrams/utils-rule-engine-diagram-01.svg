@@ -23,9 +23,9 @@
 <rect class="frame" x="34" y="30" width="2352" height="1256" rx="8"/>
 <text class="title" x="74" y="88">Rule Engine Concept Overview</text>
 <text class="subtitle" x="78" y="121">Rules are ordered by RuleSet, DefaultRuleEngine evaluates each condition against shared Facts, and matching actions update the same Facts instance.</text>
-<rect class="lane" x="38" y="185" width="684" height="845" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/><text class="laneTitle" x="110" y="222">inputs</text>
-<rect class="lane" x="780" y="185" width="730" height="905" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/><text class="laneTitle" x="808" y="222">engine loop</text>
-<rect class="lane" x="1630" y="185" width="680" height="845" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/><text class="laneTitle" x="1658" y="222">rule contract and result</text>
+<rect class="lane" x="38" y="185" width="684" height="845" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/><text class="laneTitle" x="110" y="222">inputs</text>
+<rect class="lane" x="780" y="185" width="730" height="905" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/><text class="laneTitle" x="808" y="222">engine loop</text>
+<rect class="lane" x="1630" y="185" width="680" height="845" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/><text class="laneTitle" x="1658" y="222">rule contract and result</text>
 <g id="edges"><g id="rules-to-engine">
   <path class="edge " d="M640 360 L840 360" stroke="#1D4ED8" marker-end="url(#arrow-rules)"/>
   <rect class="edgeLabelBg" x="665" y="315" width="142.79999999999998" height="26" rx="6"/>

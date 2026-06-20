@@ -42,7 +42,7 @@
   <text class="subtitle" x="82" y="118">FastjsonSerializer chooses JSONB for byte arrays and JSON text for strings; extension APIs expose both paths directly.</text>
 
   <g id="jsonb-lane">
-    <rect class="lane" x="82" y="160" width="1536" height="270" rx="8" fill="#fff7ed" stroke="#fed7aa"/>
+    <rect class="lane" x="82" y="160" width="1536" height="270" rx="8" fill="#FFEDD5" stroke="#fed7aa" fill-opacity="1"/>
     <text class="lane-title" x="118" y="202">JSONB binary lane</text>
     <text class="lane-note" x="118" y="229">Internal serialization, cache payloads, and RPC-style payloads where speed and compact bytes matter.</text>
 
@@ -94,7 +94,7 @@
   </g>
 
   <g id="json-lane">
-    <rect class="lane" x="82" y="470" width="1536" height="270" rx="8" fill="#f0fdf4" stroke="#bbf7d0"/>
+    <rect class="lane" x="82" y="470" width="1536" height="270" rx="8" fill="#DCFCE7" stroke="#bbf7d0" fill-opacity="1"/>
     <text class="lane-title" x="118" y="512">JSON text lane</text>
     <text class="lane-note" x="118" y="539">API responses, logging, debugging, and readable text payloads.</text>
 
@@ -143,7 +143,7 @@
   </g>
 
   <g id="contracts">
-    <rect class="lane" x="82" y="790" width="1536" height="150" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+    <rect class="lane" x="82" y="790" width="1536" height="150" rx="8" fill="#E5E7EB" stroke="#cbd5e1" fill-opacity="1"/>
     <text class="lane-title" x="118" y="833">Reader contract</text>
 
     <g transform="translate(118 858)">

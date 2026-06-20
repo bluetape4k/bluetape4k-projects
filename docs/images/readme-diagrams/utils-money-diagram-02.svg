@@ -14,7 +14,7 @@
 <rect class="canvas" width="2040" height="1100"/><rect class="frame" x="38" y="30" width="1964" height="1034" rx="8"/>
 <text class="title" x="78" y="88">Currency Operation Flow</text>
 <text class="subtitle" x="82" y="120">From currency lookup to amount creation, local arithmetic, rounding, aggregation, and provider-backed exchange conversion.</text>
-<rect class="lane" x="30" y="205" width="1930" height="555" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/><text class="laneTitle" x="108" y="232">operations provided by bluetape4k-money</text>
+<rect class="lane" x="30" y="205" width="1930" height="555" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/><text class="laneTitle" x="108" y="232">operations provided by bluetape4k-money</text>
 <g id="edges"><path class="edge" d="M450 342 L560 342" stroke="#2563EB" marker-end="url(#arrow-inputCurrency)"/>
 <path class="edge" d="M900 342 L1010 342" stroke="#64748B" marker-end="url(#arrow-currencyCreate)"/>
 <path class="edge" d="M1390 342 L1520 342" stroke="#16A34A" marker-end="url(#arrow-createOps)"/>

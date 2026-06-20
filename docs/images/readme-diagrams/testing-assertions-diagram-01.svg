@@ -22,15 +22,15 @@
 <text class="subtitle" x="78" y="118">A JUnit 5-native assertion surface routes DSL failures through OpenTest4J while preserving coroutine cancellation and soft aggregation semantics.</text>
 
 <g id="layers">
-  <rect class="layer" x="70" y="155" width="390" height="805" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
+  <rect class="layer" x="70" y="155" width="390" height="805" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
   <text class="layerTitle" x="112" y="205">Test-side contract</text>
   <text class="layerSub" x="112" y="230">what test code imports and depends on</text>
 
-  <rect class="layer" x="520" y="116" width="760" height="844" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
+  <rect class="layer" x="520" y="116" width="760" height="844" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
   <text class="layerTitle" x="562" y="205">Assertion DSL families</text>
   <text class="layerSub" x="562" y="230">source-backed extension functions and wrappers</text>
 
-  <rect class="layer" x="1340" y="155" width="390" height="805" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
+  <rect class="layer" x="1340" y="155" width="390" height="805" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
   <text class="layerTitle" x="1382" y="205">Failure semantics</text>
   <text class="layerSub" x="1382" y="230">how failed checks surface to JUnit tools</text>
 </g>

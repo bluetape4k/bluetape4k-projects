@@ -55,10 +55,10 @@
 <line class="lifeline" x1="1300" y1="242" x2="1300" y2="910"/>
 <line class="lifeline" x1="1610" y1="242" x2="1610" y2="910"/>
 
-<rect class="region regionTest" x="82" y="270" width="1038" height="312" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
+<rect class="region regionTest" x="82" y="270" width="1038" height="312" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
 <rect class="badge" x="106" y="260" width="170" height="24"/>
 <text class="regionLabel" x="122" y="277">only when isTest</text>
-<rect class="region regionFinish" x="430" y="604" width="1235" height="315" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
+<rect class="region regionFinish" x="430" y="604" width="1235" height="315" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
 <rect class="badge" x="1268" y="594" width="182" height="24"/>
 <text class="regionLabel" x="1284" y="611">after plan finishes</text>
 

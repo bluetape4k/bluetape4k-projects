@@ -44,19 +44,19 @@
 <text class="title" x="76" y="100">ULID Generator Selection</text>
 <text class="subtitle" x="80" y="134">Class diagram: direct factory, monotonic factory, stateful monotonic, and IdGenerator adapter paths.</text>
 <g>
-  <rect class="lane" x="70" y="250" width="760" height="1310" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72" />
+  <rect class="lane" x="70" y="250" width="760" height="1310" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1" />
   <text class="laneTitle" x="96" y="292">Factory path</text>
 </g>
 <g>
-  <rect class="lane" x="890" y="250" width="760" height="1310" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72" />
+  <rect class="lane" x="890" y="250" width="760" height="1310" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1" />
   <text class="laneTitle" x="916" y="292">Monotonic path</text>
 </g>
 <g>
-  <rect class="lane" x="1710" y="250" width="760" height="1310" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72" />
+  <rect class="lane" x="1710" y="250" width="760" height="1310" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1" />
   <text class="laneTitle" x="1736" y="292">Stateful path</text>
 </g>
 <g>
-  <rect class="lane" x="2530" y="250" width="800" height="1310" rx="8" fill="#FFF7ED" stroke="#FDBA74" fill-opacity="0.72" />
+  <rect class="lane" x="2530" y="250" width="800" height="1310" rx="8" fill="#FFEDD5" stroke="#FDBA74" fill-opacity="1" />
   <text class="laneTitle" x="2556" y="292">Adapter and selection</text>
 </g>
 <path class="edge dashed" data-from="ULIDFactory" data-to="ULID.Factory" d="M450 1280 L450 1105" stroke="#15803D" />

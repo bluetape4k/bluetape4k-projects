@@ -17,9 +17,9 @@
 <rect class="canvas" width="2200" height="1320"/><rect class="frame" x="36" y="30" width="2128" height="1254" rx="8"/>
 <text class="title" x="78" y="88">JWT Create and Verify Flow</text>
 <text class="subtitle" x="82" y="120">Provider, Composer, Parser, and KeyChain repository responsibilities from current source: sign with the current private key, verify by kid with the matching public key.</text>
-<rect class="lane providerLane" x="82" y="165" width="2028" height="250" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/><text class="laneTitle" x="110" y="192">provider and key lifecycle</text>
-<rect class="lane composeLane" x="82" y="485" width="2028" height="285" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/><text class="laneTitle" x="110" y="512">create path</text>
-<rect class="lane verifyLane" x="82" y="835" width="2028" height="285" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/><text class="laneTitle" x="110" y="862">verify and read path</text>
+<rect class="lane providerLane" x="82" y="165" width="2028" height="250" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/><text class="laneTitle" x="110" y="192">provider and key lifecycle</text>
+<rect class="lane composeLane" x="82" y="485" width="2028" height="285" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/><text class="laneTitle" x="110" y="512">create path</text>
+<rect class="lane verifyLane" x="82" y="835" width="2028" height="285" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/><text class="laneTitle" x="110" y="862">verify and read path</text>
 <g id="edges"><path class="edge" d="M510 290 L640 290" stroke="#2563EB" marker-end="url(#arrow-providerLock)"/>
 <path class="edge" d="M1010 290 L1160 290" stroke="#0D9488" marker-end="url(#arrow-lockRepo)"/>
 <path class="edge" d="M1710 290 L1580 290" stroke="#D97706" marker-end="url(#arrow-rotationRepo)"/>
