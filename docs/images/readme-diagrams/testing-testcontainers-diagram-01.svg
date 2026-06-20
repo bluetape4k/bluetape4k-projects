@@ -39,11 +39,11 @@
   <text class="title" x="76" y="86">Testcontainers Core Contract Class Diagram</text>
   <text class="subtitle" x="80" y="118">Core contracts, specialized server traits, helper extensions, and representative wrappers</text>
 
-  <rect class="region" x="76" y="154" width="410" height="632" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72" />
+  <rect class="region" x="76" y="154" width="410" height="632" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1" />
   <text class="regionText" x="106" y="188">Common contracts</text>
-  <rect class="region" x="544" y="154" width="398" height="632" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72" />
+  <rect class="region" x="544" y="154" width="398" height="632" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1" />
   <text class="regionText" x="574" y="188">Specialized traits</text>
-  <rect class="region" x="1000" y="116" width="594" height="670" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72" />
+  <rect class="region" x="1000" y="116" width="594" height="670" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1" />
   <text class="regionText" x="1030" y="188">Representative wrappers</text>
 
   <g id="genericServer">

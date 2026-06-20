@@ -40,19 +40,19 @@
 <text class="title" x="76" y="100">Geo Module Overview</text>
 <text class="subtitle" x="80" y="134">A consolidated module with one pure spatial-index lane, one provider-backed geocoding lane, and one local GeoIP2 lookup lane.</text>
 <g>
-  <rect class="lane" x="110" y="280" width="800" height="1190" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
+  <rect class="lane" x="110" y="280" width="800" height="1190" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
   <text class="laneTitle" x="140" y="384">GeoHash: in-process spatial indexing</text>
 </g>
 <g>
-  <rect class="lane" x="1000" y="280" width="800" height="1190" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
+  <rect class="lane" x="1000" y="280" width="800" height="1190" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
   <text class="laneTitle" x="1030" y="384">Geocode: provider-backed address lookup</text>
 </g>
 <g>
-  <rect class="lane" x="1890" y="280" width="800" height="1190" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
+  <rect class="lane" x="1890" y="280" width="800" height="1190" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
   <text class="laneTitle" x="1920" y="384">GeoIP2: MaxMind database lookup</text>
 </g>
 <g>
-  <rect class="lane" x="110" y="1530" width="2580" height="280" rx="8" fill="#FFF7ED" stroke="#FDBA74" fill-opacity="0.72"/>
+  <rect class="lane" x="110" y="1530" width="2580" height="280" rx="8" fill="#FFEDD5" stroke="#FDBA74" fill-opacity="1"/>
   <text class="laneTitle" x="140" y="1574">Optional runtime boundaries</text>
 </g>
 <g id="Module">

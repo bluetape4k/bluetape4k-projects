@@ -14,8 +14,8 @@
 <rect class="canvas" width="2200" height="1280" /><rect class="frame" x="38" y="30" width="2124" height="1214" rx="8" />
 <text class="title" x="78" y="88">Class Hierarchy — Period Framework</text>
 <text class="subtitle" x="82" y="120">Single periods share TimePeriod behavior; containers reuse that period contract while managing many ITimePeriod instances.</text>
-<rect class="lane" x="160" y="315" width="1880" height="560" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72" /><text class="laneTitle" x="188" y="344">single period model</text>
-<rect class="lane" x="360" y="850" width="1480" height="430" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72" /><text class="laneTitle" x="388" y="878">container model</text>
+<rect class="lane" x="160" y="315" width="1880" height="560" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1" /><text class="laneTitle" x="188" y="344">single period model</text>
+<rect class="lane" x="360" y="850" width="1480" height="430" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1" /><text class="laneTitle" x="388" y="878">container model</text>
 <g id="edges"><path class="edge implements" d="M1100 390 L1100 300" stroke="#2563EB" />
 <polygon points="1109,321 1100,300 1091,321" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 <path class="edge" d="M 410 390 L 410 354 Q 410 340 424 340 L 966 340 Q 980 340 980 326 L 980 300" stroke="#16A34A" stroke-linecap="round" stroke-linejoin="round" />

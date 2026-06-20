@@ -40,7 +40,7 @@
   <text class="subtitle" x="82" y="118">A user-declared REST interface is materialized through either the sync Feign builder or the coroutine builder.</text>
 
   <g id="sync-lane">
-    <rect class="lane" x="82" y="160" width="1596" height="310" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>
+    <rect class="lane" x="82" y="160" width="1596" height="310" rx="8" fill="#DBEAFE" stroke="#bfdbfe" fill-opacity="1"/>
     <text class="lane-title" x="116" y="205">Synchronous client path</text>
     <text class="lane-sub" x="118" y="232">Use for ordinary blocking interface methods where the caller owns the request thread.</text>
 
@@ -82,7 +82,7 @@
   </g>
 
   <g id="async-lane">
-    <rect class="lane" x="82" y="510" width="1596" height="310" rx="8" fill="#faf5ff" stroke="#ddd6fe"/>
+    <rect class="lane" x="82" y="510" width="1596" height="310" rx="8" fill="#EDE9FE" stroke="#ddd6fe" fill-opacity="1"/>
     <text class="lane-title" x="116" y="555">Coroutine client path</text>
     <text class="lane-sub" x="118" y="582">Use for suspend functions backed by AsyncClient and CompletableFuture completion.</text>
 
@@ -124,7 +124,7 @@
   </g>
 
   <g id="shared-support">
-    <rect class="lane" x="250" y="858" width="1260" height="126" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+    <rect class="lane" x="250" y="858" width="1260" height="126" rx="8" fill="#E5E7EB" stroke="#cbd5e1" fill-opacity="1"/>
     <text class="lane-title" x="286" y="900">Shared support</text>
     <g transform="translate(516 890)">
       <rect class="card" width="250" height="62" rx="8" fill="#f0fdfa" stroke="#0d9488"/>

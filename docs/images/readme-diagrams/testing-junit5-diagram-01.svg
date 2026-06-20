@@ -22,7 +22,7 @@
 <text class="subtitle" x="76" y="116">JUnit lifecycle hooks feed bluetape4k extensions, which then produce safer test setup, execution, assertions, and reports.</text>
 
 <g id="junitLayer">
-  <rect class="lane" x="70" y="160" width="455" height="800" rx="6" fill="#EFF6FF" fill-opacity="0.72" stroke="#BFDBFE"/>
+  <rect class="lane" x="70" y="160" width="455" height="800" rx="6" fill="#DBEAFE" fill-opacity="1" stroke="#BFDBFE"/>
   <text class="laneTitle" x="98" y="202">JUnit extension inputs</text>
   <text class="laneSub" x="98" y="228">Jupiter callbacks, context store, annotations</text>
   <g id="context"><rect class="card" x="120" y="286" width="355" height="160" rx="5" fill="#FAF5FF" stroke="#7C3AED"/><text class="cardTitle" x="298" y="340" text-anchor="middle">ExtensionContext</text><text class="detail" x="298" y="370" text-anchor="middle">store, required test method</text><text class="detail" x="298" y="390" text-anchor="middle">parameter and lifecycle metadata</text></g>
@@ -31,7 +31,7 @@
 </g>
 
 <g id="capabilityLayer">
-  <rect class="lane" x="600" y="160" width="545" height="760" rx="6" fill="#F8FAFC" stroke="#CBD5E1"/>
+  <rect class="lane" x="600" y="160" width="545" height="760" rx="6" fill="#E5E7EB" stroke="#CBD5E1" fill-opacity="1"/>
   <text class="laneTitle" x="628" y="202">bluetape4k testing capabilities</text>
   <text class="laneSub" x="628" y="228">source-backed extension and helper families</text>
   <g id="lifecycle"><rect class="card" x="690" y="258" width="385" height="96" rx="5" fill="#F0FDFA" stroke="#0D9488"/><text class="cardTitle" x="883" y="291" text-anchor="middle">Lifecycle</text><text class="detail" x="883" y="319" text-anchor="middle">StopwatchExtension, SystemPropertyExtension</text></g>
@@ -42,7 +42,7 @@
 </g>
 
 <g id="executionLayer">
-  <rect class="lane" x="1220" y="160" width="410" height="760" rx="6" fill="#FFF7ED" fill-opacity="0.72" stroke="#FED7AA"/>
+  <rect class="lane" x="1220" y="160" width="410" height="760" rx="6" fill="#FFEDD5" fill-opacity="1" stroke="#FED7AA"/>
   <text class="laneTitle" x="1248" y="202">Test execution results</text>
   <text class="laneSub" x="1248" y="228">stable fixtures, failure surfacing, reports</text>
   <g id="fixtures"><rect class="card" x="1265" y="286" width="320" height="112" rx="5" fill="#F8FAFC" stroke="#64748B"/><text class="cardTitle" x="1425" y="320" text-anchor="middle">Fixture state</text><text class="detail" x="1425" y="350" text-anchor="middle">context store, temp root</text><text class="detail" x="1425" y="370" text-anchor="middle">system property restore</text></g>

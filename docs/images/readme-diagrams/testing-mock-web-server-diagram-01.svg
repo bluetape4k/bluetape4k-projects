@@ -22,19 +22,19 @@
 <text class="title" x="74" y="84">Mock Web Server Routing Overview</text>
 <text class="subtitle" x="78" y="118">Integration tests enter container HTTP/HTTPS ports, route through Spring MVC controllers, then use in-memory fixtures or cached static content.</text>
 
-<rect class="lane" x="76" y="160" width="300" height="760" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
+<rect class="lane" x="76" y="160" width="300" height="760" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
 <text class="laneTitle" x="112" y="206">Access</text>
 <text class="laneSub" x="112" y="230">Testcontainers URLs and exposed ports</text>
 
-<rect class="lane" x="430" y="160" width="350" height="760" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
+<rect class="lane" x="430" y="160" width="350" height="760" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
 <text class="laneTitle" x="466" y="206">Runtime</text>
 <text class="laneSub" x="466" y="230">Spring Boot 4 MVC on virtual threads</text>
 
-<rect class="lane" x="834" y="160" width="350" height="760" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
+<rect class="lane" x="834" y="160" width="350" height="760" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
 <text class="laneTitle" x="870" y="206">Endpoint controllers</text>
 <text class="laneSub" x="870" y="230">prefix routing and request semantics</text>
 
-<rect class="lane" x="1238" y="160" width="475" height="760" fill="#FFF7ED" stroke="#FDBA74" fill-opacity="0.72"/>
+<rect class="lane" x="1238" y="160" width="475" height="760" fill="#FFEDD5" stroke="#FDBA74" fill-opacity="1"/>
 <text class="laneTitle" x="1274" y="206">Fixture backends</text>
 <text class="laneSub" x="1274" y="230">echo helpers, repositories, caches, resources</text>
 

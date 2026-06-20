@@ -52,7 +52,7 @@
   </g>
 
   <g id="builder-lane">
-    <rect class="lane" x="94" y="166" width="500" height="858" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72" />
+    <rect class="lane" x="94" y="166" width="500" height="858" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1" />
     <text class="laneTitle" x="130" y="212" dominant-baseline="middle">Client construction</text>
 
     <g id="builder">
@@ -80,7 +80,7 @@
   </g>
 
   <g id="execution-lane">
-    <rect class="lane" x="630" y="166" width="500" height="858" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72" />
+    <rect class="lane" x="630" y="166" width="500" height="858" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1" />
     <text class="laneTitle" x="666" y="212" dominant-baseline="middle">Request execution</text>
 
     <g id="request">
@@ -107,7 +107,7 @@
   </g>
 
   <g id="support-lane">
-    <rect class="lane" x="1166" y="166" width="500" height="858" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72" />
+    <rect class="lane" x="1166" y="166" width="500" height="858" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1" />
     <text class="laneTitle" x="1202" y="212" dominant-baseline="middle">Interceptors, cache, tests</text>
 
     <g id="interceptors">

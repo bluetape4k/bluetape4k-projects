@@ -32,11 +32,11 @@
   <text x="750" y="78" text-anchor="middle" class="title">Vert.x Module Capability Architecture</text>
   <text x="750" y="108" text-anchor="middle" class="subtitle">Merged Vert.x core, SQL, web, and Resilience4j helpers wrap application code without hiding the Vert.x runtime boundary.</text>
 
-  <rect x="76" y="150" width="310" height="638" rx="14" class="lane" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
+  <rect x="76" y="150" width="310" height="638" rx="14" class="lane" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
   <text x="106" y="188" class="laneTitle">Application inputs</text>
-  <rect x="430" y="150" width="640" height="720" rx="14" class="lane" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
+  <rect x="430" y="150" width="640" height="720" rx="14" class="lane" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
   <text x="460" y="188" class="laneTitle">bluetape4k-vertx capabilities</text>
-  <rect x="1114" y="150" width="310" height="720" rx="14" class="lane" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
+  <rect x="1114" y="150" width="310" height="720" rx="14" class="lane" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
   <text x="1144" y="188" class="laneTitle">Vert.x runtime</text>
 
   <g id="app">

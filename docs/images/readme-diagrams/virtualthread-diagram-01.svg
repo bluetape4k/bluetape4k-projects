@@ -22,9 +22,9 @@
 <text class="title" x="72" y="84">Virtual Thread Runtime Selection Flow</text>
 <text class="subtitle" x="76" y="116">VirtualThreads chooses the highest-priority supported ServiceLoader provider, then falls back to platform threads.</text>
 
-<g id="layer-api"><rect class="layer" x="82" y="156" width="1436" height="194" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/><rect class="layerPill" x="112" y="178" width="300" height="34" rx="8"/><text class="layerTitle" x="262" y="197" text-anchor="middle" dominant-baseline="middle">Application-facing API</text></g>
-<g id="layer-selector"><rect class="layer" x="82" y="378" width="1436" height="270" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/><rect class="layerPill" x="112" y="400" width="510" height="34" rx="8"/><text class="layerTitle" x="367" y="419" text-anchor="middle" dominant-baseline="middle">Lazy runtime selector in VirtualThreads</text></g>
-<g id="layer-runtime"><rect class="layer" x="82" y="708" width="1436" height="210" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/><rect class="layerPill" x="112" y="730" width="510" height="34" rx="8"/><text class="layerTitle" x="367" y="749" text-anchor="middle" dominant-baseline="middle">Runtime implementations on the classpath</text></g>
+<g id="layer-api"><rect class="layer" x="82" y="156" width="1436" height="194" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/><rect class="layerPill" x="112" y="178" width="300" height="34" rx="8"/><text class="layerTitle" x="262" y="197" text-anchor="middle" dominant-baseline="middle">Application-facing API</text></g>
+<g id="layer-selector"><rect class="layer" x="82" y="378" width="1436" height="270" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/><rect class="layerPill" x="112" y="400" width="510" height="34" rx="8"/><text class="layerTitle" x="367" y="419" text-anchor="middle" dominant-baseline="middle">Lazy runtime selector in VirtualThreads</text></g>
+<g id="layer-runtime"><rect class="layer" x="82" y="708" width="1436" height="210" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/><rect class="layerPill" x="112" y="730" width="510" height="34" rx="8"/><text class="layerTitle" x="367" y="749" text-anchor="middle" dominant-baseline="middle">Runtime implementations on the classpath</text></g>
 
 <g id="app">
   <rect class="card" x="140" y="218" width="360" height="70" rx="8" fill="#EFF6FF" stroke="#2563EB"/>

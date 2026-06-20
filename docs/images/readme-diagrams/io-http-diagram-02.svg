@@ -56,7 +56,7 @@
   </g>
 
   <g id="classic-lane">
-    <rect class="lane" x="94" y="166" width="500" height="884" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72" />
+    <rect class="lane" x="94" y="166" width="500" height="884" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1" />
     <text class="laneTitle" x="130" y="212" dominant-baseline="middle">Classic blocking path</text>
 
     <g id="classic-factories">
@@ -83,7 +83,7 @@
   </g>
 
   <g id="async-lane">
-    <rect class="lane" x="630" y="166" width="500" height="932" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72" />
+    <rect class="lane" x="630" y="166" width="500" height="932" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1" />
     <text class="laneTitle" x="666" y="212" dominant-baseline="middle">Async and coroutine path</text>
 
     <g id="async-factories">
@@ -116,7 +116,7 @@
   </g>
 
   <g id="cache-lane">
-    <rect class="lane" x="1166" y="166" width="500" height="804" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72" />
+    <rect class="lane" x="1166" y="166" width="500" height="804" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1" />
     <text class="laneTitle" x="1202" y="212" dominant-baseline="middle">Caching and shared support</text>
 
     <g id="cache-factories">

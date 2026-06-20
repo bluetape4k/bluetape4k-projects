@@ -47,22 +47,22 @@
   <text class="subtitle" x="78" y="116">Client construction, transport setup, and coroutine search/bulk pipelines stay separate while sharing the official Elastic client.</text>
 
   <g id="lane-entry">
-    <rect class="lane" x="82" y="154" width="282" height="714" rx="8" fill="#eff6ff" fill-opacity="0.72" stroke="#93c5fd"/>
+    <rect class="lane" x="82" y="154" width="282" height="714" rx="8" fill="#DBEAFE" fill-opacity="1" stroke="#93c5fd"/>
     <text class="laneTitle" x="106" y="190">Application entry</text>
     <text class="laneSub" x="106" y="213">Kotlin DSL and module defaults</text>
   </g>
   <g id="lane-client">
-    <rect class="lane" x="398" y="154" width="352" height="748" rx="8" fill="#fff7ed" fill-opacity="0.72" stroke="#fdba74"/>
+    <rect class="lane" x="398" y="154" width="352" height="748" rx="8" fill="#FFEDD5" fill-opacity="1" stroke="#fdba74"/>
     <text class="laneTitle" x="422" y="190">Client construction</text>
     <text class="laneSub" x="422" y="213">factory, transport, mapper</text>
   </g>
   <g id="lane-coroutines">
-    <rect class="lane" x="784" y="154" width="386" height="762" rx="8" fill="#faf5ff" fill-opacity="0.52" stroke="#d8b4fe"/>
+    <rect class="lane" x="784" y="154" width="386" height="762" rx="8" fill="#EDE9FE" fill-opacity="1" stroke="#d8b4fe"/>
     <text class="laneTitle" x="808" y="190">Coroutine APIs</text>
     <text class="laneSub" x="808" y="213">suspend wrappers and Flow pipelines</text>
   </g>
   <g id="lane-cluster">
-    <rect class="lane" x="1204" y="108" width="214" height="760" rx="8" fill="#f0fdfa" fill-opacity="0.54" stroke="#99f6e4"/>
+    <rect class="lane" x="1204" y="108" width="214" height="760" rx="8" fill="#CCFBF1" fill-opacity="1" stroke="#99f6e4"/>
     <text class="laneTitle" x="1228" y="190">Elasticsearch</text>
     <text class="laneSub" x="1228" y="213">external cluster APIs</text>
   </g>

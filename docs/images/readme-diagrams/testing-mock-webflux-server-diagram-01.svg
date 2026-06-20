@@ -23,16 +23,16 @@
 <text class="subtitle" x="80" y="120">Tests enter HTTP/HTTPS container ports, share one WebFlux HttpHandler, then reach coroutine controllers and fixture-backed services.</text>
 
 <g id="lanes">
-  <rect class="lane" x="80" y="170" width="360" height="790" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
+  <rect class="lane" x="80" y="170" width="360" height="790" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
   <text class="laneTitle" x="120" y="218">Access</text>
   <text class="laneSub" x="120" y="244">Testcontainers URLs and exposed ports</text>
-  <rect class="lane" x="480" y="170" width="360" height="790" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
+  <rect class="lane" x="480" y="170" width="360" height="790" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
   <text class="laneTitle" x="520" y="218">Reactive runtime</text>
   <text class="laneSub" x="520" y="244">Reactor Netty plus HTTPS lifecycle</text>
-  <rect class="lane" x="880" y="170" width="360" height="790" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
+  <rect class="lane" x="880" y="170" width="360" height="790" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
   <text class="laneTitle" x="920" y="218">Coroutine endpoints</text>
   <text class="laneSub" x="920" y="244">suspend handlers and Flow streaming</text>
-  <rect class="lane" x="1280" y="170" width="540" height="790" fill="#FFF7ED" stroke="#FDBA74" fill-opacity="0.72"/>
+  <rect class="lane" x="1280" y="170" width="540" height="790" fill="#FFEDD5" stroke="#FDBA74" fill-opacity="1"/>
   <text class="laneTitle" x="1320" y="218">Fixture backends</text>
   <text class="laneSub" x="1320" y="244">request echo helpers, state, cached HTML</text>
 </g>

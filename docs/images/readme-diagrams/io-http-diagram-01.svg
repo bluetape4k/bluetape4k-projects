@@ -52,7 +52,7 @@
   <text class="subtitle" x="80" y="120">The module keeps backend-specific clients explicit, then adds Kotlin DSLs, coroutine bridges, and virtual-thread friendly factories where each backend supports them.</text>
 
   <g id="api-layer">
-    <rect class="layer" x="48" y="158" width="1626" height="226" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
+    <rect class="layer" x="48" y="158" width="1626" height="226" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
     <rect class="layerLabel" x="116" y="178" width="220" height="38" rx="8"/>
     <text class="layerTitle" x="226" y="198" text-anchor="middle" dominant-baseline="middle">Caller-facing API</text>
 
@@ -83,7 +83,7 @@
   </g>
 
   <g id="backend-layer">
-    <rect class="layer" x="86" y="406" width="1588" height="430" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
+    <rect class="layer" x="86" y="406" width="1588" height="430" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
     <rect class="layerLabel" x="116" y="426" width="280" height="38" rx="8"/>
     <text class="layerTitle" x="256" y="446" text-anchor="middle" dominant-baseline="middle">Backend client stacks</text>
 
@@ -142,7 +142,7 @@
   </g>
 
   <g id="wire-layer">
-    <rect class="layer" x="48" y="890" width="1626" height="256" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
+    <rect class="layer" x="48" y="890" width="1626" height="256" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
     <rect class="layerLabel" x="116" y="910" width="270" height="38" rx="8"/>
     <text class="layerTitle" x="251" y="930" text-anchor="middle" dominant-baseline="middle">HTTP wire boundary</text>
 

@@ -79,7 +79,7 @@
   <line x1="610" y1="446" x2="1130" y2="446" class="sep"/>
   <text x="704" y="468" class="member">path and swaggerFile must not be blank</text>
 
-  <rect x="90" y="540" width="760" height="390" rx="16" class="lane-panel" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
+  <rect x="90" y="540" width="760" height="390" rx="16" class="lane-panel" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
   <g transform="translate(800 566)" aria-hidden="true">
     <circle cx="0" cy="0" r="20" class="icon-ring" stroke="#5d7b63"/>
     <path d="M -9 -6 H 9 M -9 2 H 9 M -2 9 L 9 2 L -2 -5" class="icon-line" stroke="#5d7b63"/>

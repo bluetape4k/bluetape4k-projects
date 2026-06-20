@@ -32,11 +32,11 @@
   <text x="750" y="78" text-anchor="middle" class="title">Vert.x Event Loop + Coroutines Processing Flow</text>
   <text x="750" y="108" text-anchor="middle" class="subtitle">Future-producing work stays asynchronous; coroutine helpers suspend and resume on completion without blocking the event-loop thread.</text>
 
-  <rect x="76" y="150" width="320" height="535" rx="14" class="lane" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
+  <rect x="76" y="150" width="320" height="535" rx="14" class="lane" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
   <text x="106" y="188" class="laneTitle">Request boundary</text>
-  <rect x="446" y="150" width="608" height="525" rx="14" class="lane" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
+  <rect x="446" y="150" width="608" height="525" rx="14" class="lane" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
   <text x="476" y="188" class="laneTitle">Coroutine bridge</text>
-  <rect x="1104" y="150" width="320" height="657" rx="14" class="lane" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
+  <rect x="1104" y="150" width="320" height="657" rx="14" class="lane" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
   <text x="1134" y="188" class="laneTitle">Runtime and outcome</text>
 
   <g id="route">

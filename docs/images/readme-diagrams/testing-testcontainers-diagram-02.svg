@@ -37,13 +37,13 @@
   <text class="title" x="76" y="86">Testcontainers Supported Container Structure</text>
   <text class="subtitle" x="80" y="118">Launchers create server wrappers; wrappers expose connection properties for tests and Spring Boot profiles</text>
 
-  <rect class="lane entryLane" x="78" y="158" width="278" height="680" rx="8" fill="#EFF6FF" stroke="#93C5FD" fill-opacity="0.72"/>
+  <rect class="lane entryLane" x="78" y="158" width="278" height="680" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
   <text class="laneTitle" x="108" y="194">Test entrypoints</text>
   <text class="laneNote" x="108" y="216">launch or manually start wrappers</text>
-  <rect class="lane familyLane" x="408" y="158" width="712" height="680" rx="8" fill="#F5F3FF" stroke="#C4B5FD" fill-opacity="0.72"/>
+  <rect class="lane familyLane" x="408" y="158" width="712" height="680" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
   <text class="laneTitle" x="438" y="194">Server families</text>
   <text class="laneNote" x="438" y="216">supported families produce wrapper instances</text>
-  <rect class="lane exportLane" x="1172" y="158" width="430" height="680" rx="8" fill="#F0FDF4" stroke="#86EFAC" fill-opacity="0.72"/>
+  <rect class="lane exportLane" x="1172" y="158" width="430" height="680" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
   <text class="laneTitle" x="1202" y="194">Export and consumption</text>
   <text class="laneNote" x="1202" y="216">common properties feed tests and profiles</text>
 
