@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Install gitleaks
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: gradle/actions/wrapper-validation@v6
 
   # ── 1-b. 변경된 모듈 감지 ─────────────────────────────────────────────────
@@ -87,7 +87,7 @@ jobs:
       key-utils: ${{ steps.filter.outputs.key-utils }}
       infra: ${{ steps.filter.outputs.infra }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dorny/paths-filter@v4
         id: filter
         with:
@@ -130,7 +130,7 @@ jobs:
     timeout-minutes: 10
     needs: validate-wrapper
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-java@v5
         with:
@@ -160,7 +160,7 @@ jobs:
     needs: [build, changes]
     if: ${{ needs.changes.outputs.core == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-java@v5
         with:
@@ -229,7 +229,7 @@ jobs:
     needs: [build, changes]
     if: ${{ needs.changes.outputs.io == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-java@v5
         with:
@@ -292,7 +292,7 @@ jobs:
     needs: [build, changes]
     if: ${{ needs.changes.outputs.ktor == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-java@v5
         with:
@@ -357,7 +357,7 @@ jobs:
     needs: [build, changes]
     if: ${{ needs.changes.outputs['key-utils'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-java@v5
         with:
@@ -416,7 +416,7 @@ jobs:
     needs: [build, changes]
     if: ${{ needs.changes.outputs.infra == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-java@v5
         with:
@@ -483,7 +483,7 @@ jobs:
     needs: [test-core, test-io, test-ktor, test-key-utils, test-infra]
     if: always()
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Download all coverage artifacts
         uses: actions/download-artifact@v8
