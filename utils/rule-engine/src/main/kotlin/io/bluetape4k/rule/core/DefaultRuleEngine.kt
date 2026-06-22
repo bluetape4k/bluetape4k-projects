@@ -12,6 +12,7 @@ import io.bluetape4k.rule.api.RuleEngineListener
 import io.bluetape4k.rule.api.RuleListener
 import io.bluetape4k.rule.api.RuleSet
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * 기본 Rule Engine 구현체입니다.
@@ -145,7 +146,21 @@ open class DefaultRuleEngine(
             if (shouldBeEvaluated(rule, facts)) {
                 log.debug { "Evaluate rule. rule=$rule, facts=$facts" }
 
-                if (rule.evaluate(facts)) {
+                val evaluationResult = try {
+                    rule.evaluate(facts)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    log.debug { "Rule '$name' evaluation failed with exception: ${e.message}" }
+                    onAfterEvaluate(rule, facts, false)
+                    if (config.skipOnFirstFailedRule) {
+                        log.debug { "나머지 Rule들은 무시됩니다. (skipOnFirstFailedRule=true)" }
+                        return
+                    }
+                    continue
+                }
+
+                if (evaluationResult) {
                     onAfterEvaluate(rule, facts, true)
 
                     try {
@@ -157,6 +172,8 @@ open class DefaultRuleEngine(
                             log.debug { "나머지 Rule들은 무시됩니다. (skipOnFirstAppliedRule=true)" }
                             return
                         }
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (e: Exception) {
                         onAfterExecute(rule, facts, e)
                         if (config.skipOnFirstFailedRule) {
@@ -189,7 +206,16 @@ open class DefaultRuleEngine(
 
         return rules
             .filter { shouldBeEvaluated(it, facts) }
-            .associateWith { it.evaluate(facts) }
+            .associateWith { rule ->
+                try {
+                    rule.evaluate(facts)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    log.debug { "Rule '${rule.name}' evaluation failed with exception: ${e.message}" }
+                    false
+                }
+            }
     }
 
     private fun shouldBeEvaluated(rule: Rule, facts: Facts): Boolean {
