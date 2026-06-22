@@ -5,6 +5,9 @@ import feign.Param
 import feign.RequestLine
 import feign.codec.DefaultDecoder
 import feign.kotlin.CoroutineFeign
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.feign.codec.FeignFastjsonDecoder
 import io.bluetape4k.feign.codec.FeignFastjsonEncoder
 import io.bluetape4k.feign.codec.JacksonDecoder2
@@ -15,17 +18,14 @@ import io.bluetape4k.http.okhttp3.mock.enqueueBody
 import io.bluetape4k.http.okhttp3.mock.enqueueBodyWithDelay
 import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.jackson3.writeAsString
-import tools.jackson.databind.json.JsonMapper
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.closeSafe
 import okhttp3.mockwebserver.MockWebServer
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import tools.jackson.databind.json.JsonMapper
 import java.io.Serializable
 import java.time.Duration
 
@@ -167,8 +167,9 @@ abstract class AbstractCoroutineClientTest {
 
         val client = newCoroutineBuilder().client<TestInterfaceAsync>(server.baseUrl)
 
-        val result = client.findOrderThatReturningUnit(1)
-        result shouldBeEqualTo Unit
+        client.findOrderThatReturningUnit(1)
+
+        server.takeRequest().path shouldBeEqualTo "/icecream/orders/1"
     }
 
     @Test
