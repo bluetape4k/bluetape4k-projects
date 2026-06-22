@@ -4,8 +4,13 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Action
 import io.bluetape4k.rule.api.Condition
 import io.bluetape4k.rule.api.Facts
+import io.bluetape4k.rule.api.Rule
 import io.bluetape4k.rule.api.RuleEngineConfig
+import io.bluetape4k.rule.api.RuleEngineListener
+import io.bluetape4k.rule.api.RuleListener
 import io.bluetape4k.rule.api.ruleSetOf
+import kotlinx.coroutines.CancellationException
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
@@ -78,6 +83,94 @@ class DefaultRuleEngineTest {
     }
 
     @Test
+    fun `실행 중 CancellationException 은 삼키지 않고 전파한다`() {
+        val engine = createEngine(RuleEngineConfig(skipOnFirstFailedRule = true))
+        val canceledRule = buildRule("canceledRule", 1, { true }, { throw CancellationException("cancel") })
+        val nextRule = buildRule("nextRule", 2, { true }, { it["nextRule"] = true })
+
+        (assertFailsWith<CancellationException> {
+            engine.fire(ruleSetOf(canceledRule, nextRule), Facts.empty())
+        }).message shouldBeEqualTo "cancel"
+    }
+
+    @Test
+    fun `평가 중 CancellationException 은 삼키지 않고 전파한다`() {
+        val engine = createEngine(RuleEngineConfig(skipOnFirstFailedRule = true))
+        val canceledRule = buildRule(
+            "canceledOnEvaluate",
+            1,
+            { throw CancellationException("cancel-on-evaluate") },
+            { it["executed"] = true }
+        )
+        val nextRule = buildRule("nextRule", 2, { true }, { it["nextRule"] = true })
+
+        (assertFailsWith<CancellationException> {
+            engine.fire(ruleSetOf(canceledRule, nextRule), Facts.empty())
+        }).message shouldBeEqualTo "cancel-on-evaluate"
+    }
+
+    @Test
+    fun `평가 실패는 skipOnFirstFailedRule 에 따라 다음 Rule 을 중단한다`() {
+        val config = RuleEngineConfig(skipOnFirstFailedRule = true)
+        val engine = createEngine(config)
+
+        val failedOnEvaluateRule = buildRule("failedOnEvaluate", 1, { error("evaluate-fail") }, { it["executed"] = true })
+        val nextRule = buildRule("nextRule", 2, { true }, { it["nextRule"] = true })
+
+        val facts = Facts.empty()
+        engine.fire(ruleSetOf(failedOnEvaluateRule, nextRule), facts)
+
+        facts.containsKey("executed").shouldBeFalse()
+        facts.containsKey("nextRule").shouldBeFalse()
+    }
+
+    @Test
+    fun `평가 실패는 기본 설정에서 다음 Rule 실행을 막지 않는다`() {
+        val engine = createEngine()
+        val failedOnEvaluateRule = buildRule("failedOnEvaluate", 1, { error("evaluate-fail") }, { it["executed"] = true })
+        val nextRule = buildRule("nextRule", 2, { true }, { it["nextRule"] = true })
+
+        val facts = Facts.empty()
+        engine.fire(ruleSetOf(failedOnEvaluateRule, nextRule), facts)
+
+        facts.containsKey("executed").shouldBeFalse()
+        facts.get<Boolean>("nextRule").shouldNotBeNull().shouldBeTrue()
+    }
+
+    @Test
+    fun `평가 실패도 listener lifecycle 을 완료한다`() {
+        val engine = createEngine(RuleEngineConfig(skipOnFirstFailedRule = true))
+        var afterEvaluateResult: Boolean? = null
+        var beforeExecuteCalled = false
+        var afterRulesCalled = false
+        engine.registerRuleListener(object : RuleListener {
+            override fun afterEvaluate(rule: Rule, facts: Facts, evaluationResult: Boolean) {
+                afterEvaluateResult = evaluationResult
+            }
+
+            override fun beforeExecute(rule: Rule, facts: Facts) {
+                beforeExecuteCalled = true
+            }
+        })
+        engine.registerRuleEngineListener(object : RuleEngineListener {
+            override fun afterExecute(rules: Iterable<Rule>, facts: Facts) {
+                afterRulesCalled = true
+            }
+        })
+        val failedOnEvaluateRule = buildRule(
+            "failedOnEvaluate",
+            cond = { error("evaluate-fail") },
+            act = { it["executed"] = true }
+        )
+
+        engine.fire(ruleSetOf(failedOnEvaluateRule), Facts.empty())
+
+        afterEvaluateResult shouldBeEqualTo false
+        beforeExecuteCalled.shouldBeFalse()
+        afterRulesCalled.shouldBeTrue()
+    }
+
+    @Test
     fun `skipOnFirstNonTriggeredRule 옵션 동작`() {
         val config = RuleEngineConfig(skipOnFirstNonTriggeredRule = true)
         val engine = createEngine(config)
@@ -115,6 +208,32 @@ class DefaultRuleEngineTest {
         val result = engine.check(ruleSetOf(rule1, rule2), facts)
         result[rule1].shouldNotBeNull().shouldBeTrue()
         result[rule2] shouldBeEqualTo false
+    }
+
+    @Test
+    fun `check 중 평가 실패는 false 로 기록한다`() {
+        val engine = createEngine()
+        val failedRule = buildRule("failedOnCheck", cond = { error("check-fail") }, act = { })
+        val successRule = buildRule("successRule", 2, { true }, { })
+
+        val result = engine.check(ruleSetOf(failedRule, successRule), Facts.empty())
+
+        result[failedRule] shouldBeEqualTo false
+        result[successRule].shouldNotBeNull().shouldBeTrue()
+    }
+
+    @Test
+    fun `check 중 CancellationException 은 삼키지 않고 전파한다`() {
+        val engine = createEngine()
+        val canceledRule = buildRule(
+            "canceledOnCheck",
+            cond = { throw CancellationException("cancel-on-check") },
+            act = { }
+        )
+
+        (assertFailsWith<CancellationException> {
+            engine.check(ruleSetOf(canceledRule), Facts.empty())
+        }).message shouldBeEqualTo "cancel-on-check"
     }
 
     @Test
