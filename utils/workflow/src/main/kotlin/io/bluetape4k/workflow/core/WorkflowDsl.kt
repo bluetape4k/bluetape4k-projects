@@ -148,7 +148,7 @@ class SequentialFlowBuilder(private val name: String = "sequential-flow") {
  * [policy]로 실행 전략을 선택할 수 있습니다.
  *
  * ```kotlin
- * // ALL 정책 (기본값) — 모든 작업 완료 대기
+ * // ALL 정책 (기본값) — 모두 성공해야 하며, 하나라도 성공이 아니면 fail-fast
  * val flow = parallelFlow("fetch-all") {
  *     execute("fetch-a") { ctx -> WorkReport.Success(ctx) }
  *     execute("fetch-b") { ctx -> WorkReport.Success(ctx) }
@@ -209,7 +209,7 @@ class ParallelFlowBuilder(private val name: String = "parallel-flow") {
     }
 
     /**
-     * 모든 작업 완료 대기 정책으로 설정합니다. [ParallelPolicy.ALL]과 동일합니다.
+     * 모든 작업이 성공해야 하는 fail-fast 정책으로 설정합니다. [ParallelPolicy.ALL]과 동일합니다.
      */
     fun all() {
         policy = ParallelPolicy.ALL

@@ -2,6 +2,7 @@ package io.bluetape4k.workflow.coroutines
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.workflow.core.WorkNotSuccessException
 import io.bluetape4k.workflow.api.NamedSuspendWork
 import io.bluetape4k.workflow.api.ParallelPolicy
 import io.bluetape4k.workflow.api.SuspendWork
@@ -20,14 +21,11 @@ import kotlinx.coroutines.launch
  *
  * [coroutineScope]를 사용하여 구조화된 동시성을 보장합니다.
  * [policy]에 따라 실행 전략이 달라집니다:
- * - [ParallelPolicy.ALL]: 모든 작업 완료를 대기하며, 하나라도 예외를 발생시키면 나머지가 자동 취소됩니다.
+ * - [ParallelPolicy.ALL]: 모든 작업이 성공해야 하며, 성공이 아닌 보고서나 예외가 발생하면 나머지가 자동 취소됩니다.
  * - [ParallelPolicy.ANY]: 첫 번째 성공한 작업 결과를 즉시 반환하고 나머지를 취소합니다.
  *
- * 결과 우선순위 (ALL): [Aborted][WorkReport.Aborted] > [Cancelled][WorkReport.Cancelled] >
- * [Failure][WorkReport.Failure] > [Success][WorkReport.Success]
- *
  * ```kotlin
- * // ALL 정책 (기본값)
+ * // ALL 정책 (기본값) — 모두 성공해야 하며, 하나라도 성공이 아니면 fail-fast
  * val allFlow = SuspendParallelFlow(
  *     works = listOf(work1, work2, work3),
  *     policy = ParallelPolicy.ALL,
@@ -64,35 +62,36 @@ class SuspendParallelFlow(
     }
 
     /**
-     * ALL 정책: 모든 작업 완료를 대기합니다.
+     * ALL 정책: 모든 작업 성공을 대기합니다.
+     * 하나라도 성공이 아니거나 예외를 던지면 나머지를 취소합니다.
+     *
      * [coroutineScope] + [awaitAll]을 사용하여 구조화된 동시성을 보장합니다.
      */
     private suspend fun executeAll(context: WorkContext): WorkReport {
-        val reports = coroutineScope {
-            works.map { work ->
-                val workName = (work as? NamedSuspendWork)?.name ?: work.javaClass.simpleName
-                async {
-                    log.debug { "$flowName: '$workName' 병렬 실행 시작 (ALL)" }
-                    val report = runCatching { work.execute(context) }
-                        .getOrElse { e ->
-                            if (e is CancellationException) throw e
-                            log.debug { "$flowName: '$workName' 예외 발생 - ${e.message}" }
-                            WorkReport.Failure(context, e)
-                        }
-                    log.debug { "$flowName: '$workName' 실행 완료 - status=${report.status}" }
-                    report
-                }
-            }.awaitAll()
+        try {
+            coroutineScope {
+                works.map { work ->
+                    val workName = (work as? NamedSuspendWork)?.name ?: work.javaClass.simpleName
+                    async {
+                        log.debug { "$flowName: '$workName' 병렬 실행 시작 (ALL)" }
+                        val report = work.execute(context)
+                        log.debug { "$flowName: '$workName' 실행 완료 - status=${report.status}" }
+                        if (report.isSuccess) report else throw WorkNotSuccessException(report)
+                    }
+                }.awaitAll()
+            }
+        } catch (e: WorkNotSuccessException) {
+            log.debug { "$flowName: fail-fast report 감지 - status=${e.report.status}" }
+            return e.report
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            log.debug { "$flowName: fail-fast 예외 발생 - ${e.message}" }
+            return WorkReport.Failure(context, e)
         }
 
-        // 우선순위: ABORTED > CANCELLED > FAILED > SUCCESS
-        return reports.firstOrNull { it.isAborted }
-            ?: reports.firstOrNull { it.isCancelled }
-            ?: reports.firstOrNull { it.isFailure }
-            ?: run {
-                log.debug { "$flowName 완료 - 모두 성공 (ALL)" }
-                WorkReport.success(context)
-            }
+        log.debug { "$flowName 완료 - 모두 성공 (ALL)" }
+        return WorkReport.success(context)
     }
 
     /**

@@ -142,7 +142,8 @@ Execute tasks concurrently:
 
 ![Parallel Flow diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-05.png)
 
-`ALL` waits for every forked task and fails fast on failure; `ANY` returns the first successful task and cancels the remaining tasks.
+`ALL` fails fast by cancelling remaining tasks when any task returns `Failure`/`Aborted`/`Cancelled` or throws an exception.
+`ANY` returns the first successful task and cancels the remaining tasks.
 
 ```kotlin
 // Sync (Virtual Threads)

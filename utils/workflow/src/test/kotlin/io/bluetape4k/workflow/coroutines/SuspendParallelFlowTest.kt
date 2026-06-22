@@ -4,11 +4,18 @@ import io.bluetape4k.workflow.api.AbstractWorkflowTest
 import io.bluetape4k.workflow.api.ParallelPolicy
 import io.bluetape4k.workflow.api.SuspendWork
 import io.bluetape4k.workflow.api.WorkReport
-import kotlinx.coroutines.test.runTest
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -40,7 +47,99 @@ class SuspendParallelFlowTest: AbstractWorkflowTest() {
     }
 
     @Test
-    fun `ABORTED 우선순위 - Aborted 반환`() = runTest {
+    fun `ALL policy cancels remaining suspend work when one branch throws`() = runTest {
+        val slowStarted = CompletableDeferred<Unit>()
+        val slowCancelled = AtomicBoolean(false)
+        // SuspendedJobTester stress-runs independent suspend blocks; this assertion needs
+        // one workflow-owned sibling and its exact cancellation signal.
+        val works = listOf(
+            cancellableSlowSuspendWork(slowStarted, slowCancelled),
+            SuspendWork("fast-fail") {
+                slowStarted.await()
+                throw IllegalStateException("fail fast")
+            },
+        )
+        val flow = SuspendParallelFlow(works, policy = ParallelPolicy.ALL)
+
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
+
+        slowCancelled.get().shouldBeTrue()
+    }
+
+    @Test
+    fun `ALL policy cancels remaining suspend work when one branch returns Failure`() = runTest {
+        val slowStarted = CompletableDeferred<Unit>()
+        val slowCancelled = AtomicBoolean(false)
+        val works = listOf(
+            cancellableSlowSuspendWork(slowStarted, slowCancelled),
+            SuspendWork("fast-failure-report") { ctx ->
+                slowStarted.await()
+                WorkReport.failure(ctx, IllegalStateException("failure report"))
+            },
+        )
+        val flow = SuspendParallelFlow(works, policy = ParallelPolicy.ALL)
+
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
+
+        slowCancelled.get().shouldBeTrue()
+    }
+
+    @Test
+    fun `ALL policy cancels remaining suspend work when one branch returns Aborted`() = runTest {
+        val slowStarted = CompletableDeferred<Unit>()
+        val slowCancelled = AtomicBoolean(false)
+        val works = listOf(
+            cancellableSlowSuspendWork(slowStarted, slowCancelled),
+            SuspendWork("fast-aborted-report") { ctx ->
+                slowStarted.await()
+                WorkReport.aborted(ctx, "aborted report")
+            },
+        )
+        val flow = SuspendParallelFlow(works, policy = ParallelPolicy.ALL)
+
+        flow.execute(context) shouldBeInstanceOf WorkReport.Aborted::class
+
+        slowCancelled.get().shouldBeTrue()
+    }
+
+    @Test
+    fun `ALL policy cancels remaining suspend work when one branch returns Cancelled`() = runTest {
+        val slowStarted = CompletableDeferred<Unit>()
+        val slowCancelled = AtomicBoolean(false)
+        val works = listOf(
+            cancellableSlowSuspendWork(slowStarted, slowCancelled),
+            SuspendWork("fast-cancelled-report") { ctx ->
+                slowStarted.await()
+                WorkReport.cancelled(ctx, "cancelled report")
+            },
+        )
+        val flow = SuspendParallelFlow(works, policy = ParallelPolicy.ALL)
+
+        flow.execute(context) shouldBeInstanceOf WorkReport.Cancelled::class
+
+        slowCancelled.get().shouldBeTrue()
+    }
+
+    @Test
+    fun `ALL policy propagates child CancellationException`() = runTest {
+        val flow = SuspendParallelFlow(
+            works = listOf(
+                SuspendWork("cancel-work") {
+                    throw CancellationException("cancel")
+                },
+            ),
+            policy = ParallelPolicy.ALL,
+        )
+
+        val error = assertFailsWith<CancellationException> {
+            flow.execute(context)
+        }
+
+        error.message shouldBeEqualTo "cancel"
+    }
+
+    @Test
+    fun `하나라도 ABORTED - Aborted 반환`() = runTest {
         val works = listOf(
             SuspendWork("work-1") { ctx -> WorkReport.success(ctx) },
             SuspendWork("work-abort") { ctx -> WorkReport.aborted(ctx, "중단") },
@@ -52,7 +151,7 @@ class SuspendParallelFlowTest: AbstractWorkflowTest() {
     }
 
     @Test
-    fun `CANCELLED 반환 - Cancelled 우선순위`() = runTest {
+    fun `하나라도 CANCELLED - Cancelled 반환`() = runTest {
         val works = listOf(
             SuspendWork("work-1") { ctx -> WorkReport.success(ctx) },
             SuspendWork("work-cancelled") { ctx -> WorkReport.cancelled(ctx, "취소") },
@@ -166,4 +265,18 @@ class SuspendParallelFlowTest: AbstractWorkflowTest() {
         anyReport.isSuccess.shouldBeTrue()
         anyReport shouldBeInstanceOf WorkReport.Success::class
     }
+
+    private fun cancellableSlowSuspendWork(
+        slowStarted: CompletableDeferred<Unit>,
+        slowCancelled: AtomicBoolean,
+    ): SuspendWork =
+        SuspendWork("slow-work") { ctx ->
+            slowStarted.complete(Unit)
+            try {
+                delay(10_000.milliseconds)
+                WorkReport.success(ctx)
+            } finally {
+                slowCancelled.set(!currentCoroutineContext().isActive)
+            }
+        }
 }

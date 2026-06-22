@@ -7,6 +7,9 @@ import io.bluetape4k.workflow.api.WorkReport
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.milliseconds
 
 class ParallelWorkFlowTest: AbstractWorkflowTest() {
@@ -39,10 +42,83 @@ class ParallelWorkFlowTest: AbstractWorkflowTest() {
     }
 
     @Test
-    fun `하나라도 ABORTED - Aborted 반환, ABORTED가 FAILED보다 우선순위 높음`() {
+    fun `ALL policy cancels remaining work when one branch throws`() {
+        val slowStarted = CountDownLatch(1)
+        val slowInterrupted = AtomicBoolean(false)
+        // StructuredTaskScopeTester stress-runs independent blocks; this assertion needs
+        // one workflow-owned sibling and its exact interrupt signal.
+        val works = listOf(
+            interruptibleSlowWork(slowStarted, slowInterrupted),
+            Work("fast-fail") { ctx ->
+                slowStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+                throw IllegalStateException("fail fast")
+            },
+        )
+        val flow = ParallelWorkFlow(works, policy = ParallelPolicy.ALL)
+
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
+
+        slowInterrupted.get().shouldBeTrue()
+    }
+
+    @Test
+    fun `ALL policy cancels remaining work when one branch returns Failure`() {
+        val slowStarted = CountDownLatch(1)
+        val slowInterrupted = AtomicBoolean(false)
+        val works = listOf(
+            interruptibleSlowWork(slowStarted, slowInterrupted),
+            Work("fast-failure-report") { ctx ->
+                slowStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+                WorkReport.failure(ctx, IllegalStateException("failure report"))
+            },
+        )
+        val flow = ParallelWorkFlow(works, policy = ParallelPolicy.ALL)
+
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
+
+        slowInterrupted.get().shouldBeTrue()
+    }
+
+    @Test
+    fun `ALL policy cancels remaining work when one branch returns Aborted`() {
+        val slowStarted = CountDownLatch(1)
+        val slowInterrupted = AtomicBoolean(false)
+        val works = listOf(
+            interruptibleSlowWork(slowStarted, slowInterrupted),
+            Work("fast-aborted-report") { ctx ->
+                slowStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+                WorkReport.aborted(ctx, "aborted report")
+            },
+        )
+        val flow = ParallelWorkFlow(works, policy = ParallelPolicy.ALL)
+
+        flow.execute(context) shouldBeInstanceOf WorkReport.Aborted::class
+
+        slowInterrupted.get().shouldBeTrue()
+    }
+
+    @Test
+    fun `ALL policy cancels remaining work when one branch returns Cancelled`() {
+        val slowStarted = CountDownLatch(1)
+        val slowInterrupted = AtomicBoolean(false)
+        val works = listOf(
+            interruptibleSlowWork(slowStarted, slowInterrupted),
+            Work("fast-cancelled-report") { ctx ->
+                slowStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+                WorkReport.cancelled(ctx, "cancelled report")
+            },
+        )
+        val flow = ParallelWorkFlow(works, policy = ParallelPolicy.ALL)
+
+        flow.execute(context) shouldBeInstanceOf WorkReport.Cancelled::class
+
+        slowInterrupted.get().shouldBeTrue()
+    }
+
+    @Test
+    fun `하나라도 ABORTED - Aborted 반환`() {
         val works = listOf(
             successWork("work-1"),
-            failWork("fail-work"),
             abortWork("abort-work"),
             successWork("work-4"),
         )
@@ -171,4 +247,19 @@ class ParallelWorkFlowTest: AbstractWorkflowTest() {
         anyReport.isSuccess.shouldBeTrue()
         anyReport shouldBeInstanceOf WorkReport.Success::class
     }
+
+    private fun interruptibleSlowWork(
+        slowStarted: CountDownLatch,
+        slowInterrupted: AtomicBoolean,
+    ): Work =
+        Work("slow-work") { ctx ->
+            slowStarted.countDown()
+            try {
+                Thread.sleep(5_000)
+                WorkReport.success(ctx)
+            } catch (e: InterruptedException) {
+                slowInterrupted.set(true)
+                throw e
+            }
+        }
 }

@@ -141,7 +141,8 @@ val report = flow.execute(WorkContext())
 
 ![Parallel Flow diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-05.png)
 
-`ALL`은 모든 fork 작업을 기다리고 실패 시 fail-fast로 처리합니다. `ANY`는 첫 성공 결과를 반환하고 나머지 작업을 취소합니다.
+`ALL`은 작업 하나가 `Failure`/`Aborted`/`Cancelled`를 반환하거나 예외를 던지면 남은 작업을 취소하는 fail-fast로 처리합니다.
+`ANY`는 첫 성공 결과를 반환하고 나머지 작업을 취소합니다.
 
 ```kotlin
 // 동기 (Virtual Threads)
