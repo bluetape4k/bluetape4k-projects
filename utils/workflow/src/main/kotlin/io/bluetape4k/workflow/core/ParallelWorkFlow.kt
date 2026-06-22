@@ -19,11 +19,11 @@ import kotlin.time.Duration.Companion.minutes
  *
  * [StructuredTaskScopes]를 사용하여 구조화된 동시성을 보장합니다.
  * [policy]에 따라 실행 전략이 달라집니다:
- * - [ParallelPolicy.ALL]: 모든 작업 완료를 대기하며, 하나라도 실패 시 나머지를 취소합니다.
+ * - [ParallelPolicy.ALL]: 모든 작업이 성공해야 하며, 성공이 아닌 보고서나 예외가 발생하면 나머지를 취소합니다.
  * - [ParallelPolicy.ANY]: 첫 번째 성공한 작업 결과를 즉시 반환하고 나머지를 취소합니다.
  *
  * ```kotlin
- * // ALL 정책 (기본값)
+ * // ALL 정책 (기본값) — 모두 성공해야 하며, 하나라도 성공이 아니면 fail-fast
  * val allFlow = ParallelWorkFlow(
  *     works = listOf(work1, work2, work3),
  *     policy = ParallelPolicy.ALL,
@@ -63,7 +63,7 @@ class ParallelWorkFlow(
     }
 
     /**
-     * ALL 정책: 모든 작업 완료를 대기합니다. 하나라도 실패 시 나머지를 취소합니다.
+     * ALL 정책: 모든 작업 성공을 대기합니다. 하나라도 성공이 아니거나 예외를 던지면 나머지를 취소합니다.
      *
      * [StructuredTaskScopes.failFast] (ShutdownOnFailure)을 사용합니다.
      */
@@ -77,13 +77,9 @@ class ParallelWorkFlow(
                     val workName = (work as? NamedWork)?.name ?: work.javaClass.simpleName
                     scope.fork {
                         log.debug { "$flowName: '$workName' 병렬 실행 시작 (ALL)" }
-                        val report = runCatching { work.execute(context) }
-                            .getOrElse { e ->
-                                log.debug { "$flowName: '$workName' 예외 발생 - ${e.message}" }
-                                WorkReport.Failure(context, e)
-                            }
+                        val report = work.execute(context)
                         log.debug { "$flowName: '$workName' 실행 완료 - status=${report.status}" }
-                        report
+                        if (report.isSuccess) report else throw WorkNotSuccessException(report)
                     }
                 }
 
@@ -91,23 +87,24 @@ class ParallelWorkFlow(
                     log.debug { "$flowName: throwIfFailed 감지 - ${e.message}" }
                 }
 
-                val reports = tasks.map { task ->
-                    runCatching { task.get() }
-                        .getOrElse { e -> WorkReport.Failure(context, e) }
-                }
+                tasks.forEach { task -> task.get() }
 
-                // 우선순위: ABORTED > CANCELLED > FAILED > SUCCESS
-                reports.firstOrNull { it.isAborted }
-                    ?: reports.firstOrNull { it.isCancelled }
-                    ?: reports.firstOrNull { it.isFailure }
-                    ?: run {
-                        log.debug { "$flowName 완료 - 모두 성공 (ALL)" }
-                        WorkReport.success(context)
-                    }
+                log.debug { "$flowName 완료 - 모두 성공 (ALL)" }
+                WorkReport.success(context)
             }
+        } catch (e: WorkNotSuccessException) {
+            log.debug { "$flowName: fail-fast report 감지 - status=${e.report.status}" }
+            e.report
         } catch (e: TimeoutException) {
             log.debug { "$flowName: timeout 초과 ($timeout) - Cancelled 반환" }
             WorkReport.Cancelled(context)
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+            log.debug { "$flowName: interrupted - Cancelled 반환" }
+            WorkReport.Cancelled(context)
+        } catch (e: Exception) {
+            log.debug { "$flowName: fail-fast 예외 발생 - ${e.message}" }
+            WorkReport.Failure(context, e)
         }
     }
 
@@ -170,10 +167,9 @@ class ParallelWorkFlow(
 }
 
 /**
- * [ParallelPolicy.ANY] 정책에서 성공이 아닌 [WorkReport]를 예외로 래핑하는 내부 클래스입니다.
+ * [ParallelPolicy.ALL]/[ParallelPolicy.ANY] 정책에서 성공이 아닌 [WorkReport]를 예외로 래핑하는 내부 클래스입니다.
  *
- * [java.util.concurrent.StructuredTaskScope.ShutdownOnSuccess]는 정상 반환만 "성공"으로 간주하므로,
- * 실패/중단/취소 결과를 예외로 전환하여 scope가 계속 다음 성공을 기다리도록 합니다.
+ * 구조화된 동시성 primitive는 정상 반환을 성공으로 간주하므로, 실패/중단/취소 결과를 예외로 전환합니다.
  */
 internal class WorkNotSuccessException(val report: WorkReport): RuntimeException("Work not successful: ${report.status}") {
     // 제어 흐름용 예외 — 스택 캡처 비용 없이 빠른 경로 처리
