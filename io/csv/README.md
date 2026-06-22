@@ -299,7 +299,7 @@ io.bluetape4k.csv
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-csv"))
+    implementation("io.github.bluetape4k:bluetape4k-csv:${bluetape4kVersion}")
 
     // Required for Coroutines async API
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")

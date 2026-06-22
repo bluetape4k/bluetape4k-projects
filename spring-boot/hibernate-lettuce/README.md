@@ -33,7 +33,7 @@ dependencies {
     // Spring Boot 4 BOM (use platform instead of dependencyManagement)
     implementation(platform(libs.spring.boot.dependencies))
 
-    implementation(project(":bluetape4k-spring-boot-hibernate-lettuce"))
+    implementation("io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce:${bluetape4kVersion}")
 
     // Hibernate must be declared explicitly
     compileOnly(Libs.springBoot("hibernate"))
@@ -61,7 +61,7 @@ dependencies {
     // Spring Boot 4 BOM (required)
     implementation(platform(libs.spring.boot.dependencies))
 
-    implementation(project(":bluetape4k-spring-boot-hibernate-lettuce"))
+    implementation("io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce:${bluetape4kVersion}")
 
     // Spring Boot Starters
     implementation(Libs.springBootStarter("data-jpa"))

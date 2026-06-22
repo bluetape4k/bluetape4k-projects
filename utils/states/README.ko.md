@@ -69,7 +69,7 @@ event/effect와 nested-state 아이디어의 참고 자료일 뿐, 이 모듈의
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-states"))
+    implementation("io.github.bluetape4k:bluetape4k-states:${bluetape4kVersion}")
 }
 ```
 

@@ -316,7 +316,7 @@ val restored = yamlMapper.readValue<User>(yaml)     // 역직렬화
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-jackson3"))
+    implementation("io.github.bluetape4k:bluetape4k-jackson3:${bluetape4kVersion}")
 
     // 바이너리 포맷 (필요한 것만 추가)
     implementation("tools.jackson.dataformat:jackson-dataformat-cbor3")
@@ -328,7 +328,7 @@ dependencies {
     implementation("tools.jackson.dataformat:jackson-dataformat-toml3")
 
     // 암호화 (선택적, @JsonTinkEncrypt 사용 시)
-    implementation(project(":bluetape4k-tink"))
+    implementation("io.github.bluetape4k:bluetape4k-tink:${bluetape4kVersion}")
 }
 ```
 

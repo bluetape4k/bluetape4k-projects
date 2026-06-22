@@ -32,7 +32,7 @@ dependencies {
     // Spring Boot 4 BOM (dependencyManagement 대신 platform 사용)
     implementation(platform(libs.spring.boot.dependencies))
 
-    implementation(project(":bluetape4k-spring-boot-hibernate-lettuce"))
+    implementation("io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce:${bluetape4kVersion}")
 
     // Hibernate 명시적 추가 필요
     compileOnly(Libs.springBoot("hibernate"))
@@ -60,7 +60,7 @@ dependencies {
     // Spring Boot 4 BOM (필수)
     implementation(platform(libs.spring.boot.dependencies))
 
-    implementation(project(":bluetape4k-spring-boot-hibernate-lettuce"))
+    implementation("io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce:${bluetape4kVersion}")
 
     // Spring Boot Starters
     implementation(Libs.springBootStarter("data-jpa"))

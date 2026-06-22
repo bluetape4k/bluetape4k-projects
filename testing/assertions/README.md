@@ -30,9 +30,9 @@ JUnit Jupiter API and Kotlin coroutines are exposed only where the public DSL re
 
 ```kotlin
 // build.gradle.kts
-testImplementation(project(":bluetape4k-assertions"))
+testImplementation("io.github.bluetape4k:bluetape4k-assertions:${bluetape4kVersion}")
 // or via bluetape4k-junit5 (included transitively)
-testImplementation(project(":bluetape4k-junit5"))
+testImplementation("io.github.bluetape4k:bluetape4k-junit5:${bluetape4kVersion}")
 ```
 
 ### Example Usage

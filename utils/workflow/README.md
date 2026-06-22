@@ -319,6 +319,6 @@ Use this benchmark as a relative comparison for the current examples, not as a u
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-workflow"))
+    implementation("io.github.bluetape4k:bluetape4k-workflow:${bluetape4kVersion}")
 }
 ```

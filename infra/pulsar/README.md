@@ -22,13 +22,13 @@ Apache Pulsar client extensions for Kotlin — coroutine-first, DSL-friendly, Ja
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation(project(":bluetape4k-pulsar"))
+    implementation("io.github.bluetape4k:bluetape4k-pulsar:${bluetape4kVersion}")
 
     // Optional: for jacksonSchema<T>()
-    implementation(project(":bluetape4k-jackson2"))
+    implementation("io.github.bluetape4k:bluetape4k-jackson2:${bluetape4kVersion}")
 
     // Optional: for jackson3Schema<T>()
-    implementation(project(":bluetape4k-jackson3"))
+    implementation("io.github.bluetape4k:bluetape4k-jackson3:${bluetape4kVersion}")
 }
 ```
 

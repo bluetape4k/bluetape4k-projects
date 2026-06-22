@@ -226,7 +226,7 @@ io.bluetape4k.retrofit2
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-retrofit2"))
+    implementation("io.github.bluetape4k:bluetape4k-retrofit2:${bluetape4kVersion}")
 
     // 선택적 의존성
     implementation("com.squareup.retrofit2:converter-jackson")       // Jackson 변환

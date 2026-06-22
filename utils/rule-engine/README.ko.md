@@ -228,7 +228,7 @@ val mvelRules = definitions.map { it.toMvelRule() }
 ## 의존성
 
 ```kotlin
-implementation(project(":bluetape4k-rule-engine"))
+implementation("io.github.bluetape4k:bluetape4k-rule-engine:${bluetape4kVersion}")
 
 // optional (compileOnly)
 implementation("org.mvel:mvel2:2.5.2.Final")              // MVEL2 엔진

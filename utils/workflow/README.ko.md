@@ -318,6 +318,6 @@ val report = flow.execute(ctx)
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-workflow"))
+    implementation("io.github.bluetape4k:bluetape4k-workflow:${bluetape4kVersion}")
 }
 ```
