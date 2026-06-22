@@ -140,7 +140,7 @@ class UnicastWorkSubject<T: Any>: AbstractFlow<T>(), SubjectApi<T> {
      * @param ex 종료 시 전파할 예외입니다.
      */
     override suspend fun emitError(ex: Throwable?) {
-        terminal.value = ex
+        terminal.value = ex ?: terminated
         resumable.resume()
     }
 

@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.coroutines.tests.assertError
 import io.bluetape4k.coroutines.tests.assertResult
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -9,8 +10,9 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
+import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -86,5 +88,16 @@ class WithLatestFromTest: AbstractFlowTest() {
                 awaitItem() shouldBeEqualTo Pair(1, "a")
                 awaitComplete()
             }
+    }
+
+    @Test
+    fun `withLatestFrom cancels other when source completes first`() = runTest {
+        val result = withTimeout(100.milliseconds) {
+            flowOf(1, 2)
+                .withLatestFrom(neverFlow())
+                .toList()
+        }
+
+        result shouldBeEqualTo emptyList()
     }
 }

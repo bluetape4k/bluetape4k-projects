@@ -2,12 +2,12 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.onSuccess
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.whileSelect
+import kotlinx.coroutines.supervisorScope
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.nanoseconds
 
@@ -30,7 +30,7 @@ private const val DEFAULT_DEBOUNCE_BUFFER_CAPACITY = 16
  * @param timeout 배치를 끊을 디바운스 시간입니다.
  */
 fun <T> Flow<T>.bufferingDebounce(timeout: Duration): Flow<List<T>> = flow {
-    coroutineScope {
+    supervisorScope {
         val itemChannel = this@bufferingDebounce.produceIn(this)
         try {
             var bufferedItems = ArrayList<T>(DEFAULT_DEBOUNCE_BUFFER_CAPACITY)
@@ -52,7 +52,12 @@ fun <T> Flow<T>.bufferingDebounce(timeout: Duration): Flow<List<T>> = flow {
                     prevTimeNs = receiveTimeNs
                     result
                         .onSuccess { item -> bufferedItems.add(item) }
-                        .onFailure { if (bufferedItems.isNotEmpty()) emit(bufferedItems) }
+                        .onFailure { cause ->
+                            if (bufferedItems.isNotEmpty()) {
+                                emit(bufferedItems)
+                            }
+                            cause?.let { throw it }
+                        }
                         .isSuccess
                 }
             }

@@ -74,8 +74,6 @@ internal fun <T> takeUntilInternal(source: Flow<T>, notifier: Flow<Any?>): Flow<
                     throw STOP
                 }
             } catch (e: StopFlowException) {
-                // Nothing to do
-            } finally {
                 state.gate.value = true
             }
         }

@@ -5,6 +5,7 @@ import io.bluetape4k.coroutines.tests.assertError
 import io.bluetape4k.coroutines.tests.assertResult
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
@@ -106,5 +107,12 @@ class TakeUntilTest: AbstractFlowTest() {
             .takeUntil(delayedFlow(100)).log("takeUntil")
             .take(1)
             .assertResult(1)
+    }
+
+    @Test
+    fun `empty notifier does not stop source`() = runTest {
+        flowOf(1, 2, 3).log("source")
+            .takeUntil(emptyFlow()).log("takeUntil")
+            .assertResult(1, 2, 3)
     }
 }

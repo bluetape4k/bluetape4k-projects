@@ -3,6 +3,7 @@ package io.bluetape4k.coroutines.flow.extensions
 import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.coroutines.flow.extensions.utils.DONE_VALUE
 import io.bluetape4k.coroutines.flow.extensions.utils.NULL_VALUE
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.ChannelResult
@@ -374,7 +375,12 @@ fun <T> Flow<T>.throttleTime(
                             }
                         }
                         .onFailure { error ->
-                            error?.let { throw FlowOperationException("Fail to throttling", error) }
+                            error?.let {
+                                if (it is CancellationException) {
+                                    throw it
+                                }
+                                throw FlowOperationException("Fail to throttling", it)
+                            }
 
                             // Once the original flow has completed, there may still be a pending value
                             // waiting to be emitted. If so, wait for the throttling window to end and then

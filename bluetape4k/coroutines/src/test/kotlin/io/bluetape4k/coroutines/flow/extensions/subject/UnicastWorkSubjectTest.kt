@@ -76,6 +76,14 @@ class UnicastWorkSubjectTest {
     }
 
     @Test
+    fun `null error completes subject`() = runTest {
+        val us = UnicastWorkSubject<Int>()
+        us.emitError(null)
+
+        us.toList() shouldBeEqualTo emptyList()
+    }
+
+    @Test
     fun `offline - complete 된 flow 에 대해서 다시 collect 를 수행한다`() = runTest {
         val us = UnicastWorkSubject<Int>()
         repeat(5) {

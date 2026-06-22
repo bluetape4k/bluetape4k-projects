@@ -33,14 +33,18 @@ fun <A, B, R> Flow<A>.withLatestFrom(
 
     try {
         coroutineScope {
-            launch(start = CoroutineStart.UNDISPATCHED) {
+            val otherJob = launch(start = CoroutineStart.UNDISPATCHED) {
                 other.collect { state.otherRef.value = it ?: NULL_VALUE }
             }
 
-            collect { value: A ->
-                emit(
-                    transform(value, NULL_VALUE.unbox(state.otherRef.value ?: return@collect))
-                )
+            try {
+                collect { value: A ->
+                    emit(
+                        transform(value, NULL_VALUE.unbox(state.otherRef.value ?: return@collect))
+                    )
+                }
+            } finally {
+                otherJob.cancel()
             }
         }
     } finally {
