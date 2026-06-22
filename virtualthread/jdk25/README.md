@@ -121,15 +121,15 @@ tasks.withType<JavaCompile>().configureEach {
 
 ## Dependencies
 
-### Project Dependencies
+### Gradle Dependencies
 
 ```kotlin
 dependencies {
-    api(project(":bluetape4k-virtualthread-api"))
-    implementation(project(":bluetape4k-logging"))
+    api("io.github.bluetape4k:bluetape4k-virtualthread-api:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-logging:${bluetape4kVersion}")
     implementation(Libs.kotlinx_coroutines_core)
 
-    testImplementation(project(":bluetape4k-junit5"))
+    testImplementation("io.github.bluetape4k:bluetape4k-junit5:${bluetape4kVersion}")
     testImplementation(Libs.kotlinx_coroutines_test)
 }
 ```

@@ -522,7 +522,7 @@ io.bluetape4k.http
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-http"))
+    implementation("io.github.bluetape4k:bluetape4k-http:${bluetape4kVersion}")
 
     // Add compileOnly for each backend you use.
     // Change to implementation in application projects where runtime availability is required.

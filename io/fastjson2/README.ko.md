@@ -136,7 +136,7 @@ val user = jsonObject.readValueOrNull<User>("key")
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-fastjson2"))
+    implementation("io.github.bluetape4k:bluetape4k-fastjson2:${bluetape4kVersion}")
 
     // 자동 포함됨
     // api("com.alibaba.fastjson2:fastjson2")

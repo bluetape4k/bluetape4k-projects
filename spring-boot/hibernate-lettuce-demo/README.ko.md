@@ -324,7 +324,7 @@ dependencies {
     // Spring Boot 4 BOM
     implementation(platform(libs.spring.boot.dependencies))
 
-    implementation(project(":bluetape4k-spring-boot-hibernate-lettuce"))
+    implementation("io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce:${bluetape4kVersion}")
     implementation(Libs.springBootStarter("web"))
     implementation(Libs.springBootStarter("data-jpa"))
     implementation(Libs.springBootStarter("actuator"))

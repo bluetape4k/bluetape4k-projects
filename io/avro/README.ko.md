@@ -135,7 +135,7 @@ val itemV1 = serializer.deserialize<ItemV1>(bytes)
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-avro"))
+    implementation("io.github.bluetape4k:bluetape4k-avro:${bluetape4kVersion}")
 
     // 추가 압축 코덱 (선택)
     runtimeOnly("org.xerial.snappy:snappy-java")

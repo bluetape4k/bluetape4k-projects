@@ -52,7 +52,7 @@ No user import migration is required for the reorganization.
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation(project(":bluetape4k-hibernate-cache-lettuce"))
+    implementation("io.github.bluetape4k:bluetape4k-hibernate-cache-lettuce:${bluetape4kVersion}")
 
     // Runtime serialization (required — must be declared explicitly since bluetape4k-io uses optional dependencies)
     implementation(Libs.fory_kotlin)  // Apache Fory

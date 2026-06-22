@@ -71,7 +71,7 @@ The comparison work is tracked through #436, #437, and #438.
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-states"))
+    implementation("io.github.bluetape4k:bluetape4k-states:${bluetape4kVersion}")
 }
 ```
 

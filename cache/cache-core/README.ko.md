@@ -323,7 +323,7 @@ val result = factorial[10]  // 캐싱되어 반복 계산 방지
 ```kotlin
 // build.gradle.kts
 dependencies {
-    testImplementation(testFixtures(project(":bluetape4k-cache-core")))
+    testImplementation(testFixtures("io.github.bluetape4k:bluetape4k-cache-core:${bluetape4kVersion}"))
 }
 ```
 

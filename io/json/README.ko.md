@@ -92,7 +92,7 @@ io.bluetape4k.json
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-json"))
+    implementation("io.github.bluetape4k:bluetape4k-json:${bluetape4kVersion}")
 }
 ```
 

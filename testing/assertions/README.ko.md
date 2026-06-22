@@ -30,9 +30,9 @@ Turbine 연동은 `compileOnly`로 유지합니다.
 
 ```kotlin
 // build.gradle.kts
-testImplementation(project(":bluetape4k-assertions"))
+testImplementation("io.github.bluetape4k:bluetape4k-assertions:${bluetape4kVersion}")
 // 또는 bluetape4k-junit5를 통해 전이적 포함
-testImplementation(project(":bluetape4k-junit5"))
+testImplementation("io.github.bluetape4k:bluetape4k-junit5:${bluetape4kVersion}")
 ```
 
 ### 사용 예시

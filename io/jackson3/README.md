@@ -321,7 +321,7 @@ val restored = yamlMapper.readValue<User>(yaml)     // deserialization
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-jackson3"))
+    implementation("io.github.bluetape4k:bluetape4k-jackson3:${bluetape4kVersion}")
 
     // Binary formats (add only what you need)
     implementation("tools.jackson.dataformat:jackson-dataformat-cbor3")
@@ -333,7 +333,7 @@ dependencies {
     implementation("tools.jackson.dataformat:jackson-dataformat-toml3")
 
     // Encryption (optional, for @JsonTinkEncrypt)
-    implementation(project(":bluetape4k-tink"))
+    implementation("io.github.bluetape4k:bluetape4k-tink:${bluetape4kVersion}")
 }
 ```
 

@@ -216,7 +216,7 @@ io.bluetape4k.feign
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-feign"))
+    implementation("io.github.bluetape4k:bluetape4k-feign:${bluetape4kVersion}")
 
     // 선택적 의존성
     implementation("io.github.openfeign:feign-jackson")      // Jackson Encoder/Decoder

@@ -8,7 +8,7 @@ This module currently provides a dependency-free Bloom Filter implementation. It
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-probabilistic"))
+    implementation("io.github.bluetape4k:bluetape4k-probabilistic:${bluetape4kVersion}")
 }
 ```
 

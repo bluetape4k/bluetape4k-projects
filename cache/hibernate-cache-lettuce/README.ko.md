@@ -51,7 +51,7 @@ artifact, Kotlin package는 유지됩니다.
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation(project(":bluetape4k-hibernate-cache-lettuce"))
+    implementation("io.github.bluetape4k:bluetape4k-hibernate-cache-lettuce:${bluetape4kVersion}")
 
     // 런타임 직렬화 (필수 - bluetape4k-io의 optional 의존성이므로 명시 필요)
     implementation(Libs.fory_kotlin)  // Apache Fory

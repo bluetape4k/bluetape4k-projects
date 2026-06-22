@@ -293,7 +293,7 @@ io.bluetape4k.jackson
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-jackson2"))
+    implementation("io.github.bluetape4k:bluetape4k-jackson2:${bluetape4kVersion}")
 
     // Binary formats (add only what you need)
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor")
@@ -305,7 +305,7 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-toml")
 
     // Encryption (optional)
-    implementation(project(":bluetape4k-tink"))    // for @JsonTinkEncrypt (Google Tink)
+    implementation("io.github.bluetape4k:bluetape4k-tink:${bluetape4kVersion}")    // for @JsonTinkEncrypt (Google Tink)
 }
 ```
 

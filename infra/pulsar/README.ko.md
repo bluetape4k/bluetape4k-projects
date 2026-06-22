@@ -22,13 +22,13 @@ Kotlin을 위한 Apache Pulsar 클라이언트 확장 — 코루틴 우선, DSL 
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation(project(":bluetape4k-pulsar"))
+    implementation("io.github.bluetape4k:bluetape4k-pulsar:${bluetape4kVersion}")
 
     // 선택: jacksonSchema<T>() 사용 시
-    implementation(project(":bluetape4k-jackson2"))
+    implementation("io.github.bluetape4k:bluetape4k-jackson2:${bluetape4kVersion}")
 
     // 선택: jackson3Schema<T>() 사용 시
-    implementation(project(":bluetape4k-jackson3"))
+    implementation("io.github.bluetape4k:bluetape4k-jackson3:${bluetape4kVersion}")
 }
 ```
 
