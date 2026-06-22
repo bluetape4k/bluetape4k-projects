@@ -196,7 +196,7 @@ class UnicastSubject<T: Any>: AbstractFlow<T>(), SubjectApi<T> {
      * @param ex 종료 원인 예외입니다.
      */
     override suspend fun emitError(ex: Throwable?) {
-        terminal.value = ex
+        terminal.value = ex ?: terminated
         resumable.resume()
     }
 

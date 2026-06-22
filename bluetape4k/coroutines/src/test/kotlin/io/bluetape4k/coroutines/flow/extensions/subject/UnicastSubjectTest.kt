@@ -60,6 +60,15 @@ class UnicastSubjectTest {
     }
 
     @Test
+    fun `null error completes subject`() = runSuspendTest {
+        val us = UnicastSubject<Int>()
+        us.emitError(null)
+
+        us.toList().shouldBeEmpty()
+        us.collectorCancelled.shouldBeTrue()
+    }
+
+    @Test
     fun `offline - complete 된 flow 에 대해서 다시 collect 를 수행하면 예외가 발생한다`() = runSuspendTest {
         val us = UnicastSubject<Int>()
         repeat(5) {

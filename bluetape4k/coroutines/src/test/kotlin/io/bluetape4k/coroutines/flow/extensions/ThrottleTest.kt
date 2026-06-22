@@ -1,6 +1,9 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.coroutines.tests.assertEmpty
 import io.bluetape4k.coroutines.tests.assertResult
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -16,9 +19,6 @@ import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration
@@ -383,6 +383,19 @@ class ThrottleTest: AbstractFlowTest() {
                     awaitItem() shouldBeEqualTo FlowEvent.Value(1)
                     awaitItem().errorOrThrow() shouldBeInstanceOf kotlinx.coroutines.CancellationException::class
                     awaitComplete()
+                }
+        }
+
+        @Test
+        fun `throttle preserves upstream cancellation`() = runTest {
+            flow {
+                emit(1)
+                throw kotlinx.coroutines.CancellationException("source cancelled")
+            }.log("source")
+                .throttleLeading(500.milliseconds).log("leading")
+                .test {
+                    awaitItem() shouldBeEqualTo 1
+                    awaitError() shouldBeInstanceOf kotlinx.coroutines.CancellationException::class
                 }
         }
     }

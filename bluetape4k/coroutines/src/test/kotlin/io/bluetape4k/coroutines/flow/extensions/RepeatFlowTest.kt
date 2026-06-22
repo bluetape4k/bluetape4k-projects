@@ -1,6 +1,8 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.coroutines.tests.assertResult
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
@@ -9,8 +11,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeInstanceOf
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
@@ -20,6 +21,11 @@ class RepeatFlowTest: AbstractFlowTest() {
     companion object: KLoggingChannel()
 
     private val testDispatcher = newFixedThreadPoolContext(8, "flowx")
+
+    @AfterAll
+    fun afterAll() {
+        testDispatcher.close()
+    }
 
     @Test
     fun `repeatFlow operator`() = runTest {
