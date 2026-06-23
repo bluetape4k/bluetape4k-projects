@@ -2,14 +2,22 @@ package io.bluetape4k.science.exposed.service
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.science.coords.BoundingBox
 import io.bluetape4k.science.exposed.model.SpatialLayerRecord
 import io.bluetape4k.science.exposed.repository.SpatialFeatureRepository
 import io.bluetape4k.science.exposed.repository.SpatialLayerRepository
 import io.bluetape4k.science.exposed.schema.SpatialFeatureTable
+import io.bluetape4k.science.shapefile.ShapeRecord
 import io.bluetape4k.science.shapefile.loadShape
 import net.postgis.jdbc.PGgeometry
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem
+import org.geotools.api.referencing.operation.MathTransform
+import org.geotools.data.shapefile.ShapefileDataStore
+import org.geotools.geometry.jts.JTS
+import org.geotools.referencing.CRS
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.io.WKTWriter
 import java.io.File
 
@@ -38,7 +46,10 @@ class ShapefileImportService(
     private val layerRepo: SpatialLayerRepository,
     private val featureRepo: SpatialFeatureRepository,
 ) {
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val TARGET_SRID = 4326
+        private const val TARGET_CRS_CODE = "EPSG:$TARGET_SRID"
+    }
 
     /**
      * Shapefile을 읽어 DB에 임포트합니다.
@@ -65,24 +76,25 @@ class ShapefileImportService(
      */
     fun importShapefile(file: File, layerName: String, batchSize: Int = 1000): Int {
         val shape = loadShape(file)
+        val records = shape.records.toWgs84Records(file)
+        val bbox = records.toBoundingBox()
 
         // 1. 레이어 메타데이터 insert — Virtual Thread 트랜잭션 (중복 검사 포함)
         val layerRecord = transaction {
             require(layerRepo.findByName(layerName) == null) {
                 "동일한 이름의 레이어가 이미 존재합니다: $layerName"
             }
-            val header = shape.header
             layerRepo.save(
                 SpatialLayerRecord(
                     name = layerName,
                     sourceFile = file.absolutePath,
-                    srid = 4326,
-                    geometryType = shape.records.firstOrNull()?.geometry?.geometryType,
-                    bboxMinX = header.bbox.minLon,
-                    bboxMinY = header.bbox.minLat,
-                    bboxMaxX = header.bbox.maxLon,
-                    bboxMaxY = header.bbox.maxLat,
-                    recordCount = shape.records.size,
+                    srid = TARGET_SRID,
+                    geometryType = records.firstOrNull()?.geometry?.geometryType,
+                    bboxMinX = bbox?.minLon,
+                    bboxMinY = bbox?.minLat,
+                    bboxMaxX = bbox?.maxLon,
+                    bboxMaxY = bbox?.maxLat,
+                    recordCount = records.size,
                 )
             )
         }
@@ -91,13 +103,13 @@ class ShapefileImportService(
         val wktWriter = WKTWriter()
         var totalInserted = 0
 
-        for (batch in shape.records.chunked(batchSize)) {
+        for (batch in records.chunked(batchSize)) {
             if (Thread.currentThread().isInterrupted) break
 
             transaction {
                 SpatialFeatureTable.batchInsert(batch) { record ->
                     val wkt = wktWriter.write(record.geometry)
-                    val pgGeom = PGgeometry(wkt)
+                    val pgGeom = PGgeometry("SRID=$TARGET_SRID;$wkt")
 
                     this[SpatialFeatureTable.layerId] = layerRecord.id
                     this[SpatialFeatureTable.featureType] = record.geometry.geometryType
@@ -107,8 +119,61 @@ class ShapefileImportService(
                 }
             }
             totalInserted += batch.size
-            log.debug { "배치 삽입 완료: $totalInserted / ${shape.records.size}" }
+            log.debug { "배치 삽입 완료: $totalInserted / ${records.size}" }
         }
         return totalInserted
     }
+
+    private fun List<ShapeRecord>.toWgs84Records(file: File): List<ShapeRecord> {
+        val sourceCrs = resolveSourceCrs(file)
+        val targetCrs = CRS.decode(TARGET_CRS_CODE, true)
+        val mathTransform = sourceCrs?.toTargetTransform(targetCrs)
+
+        return map { record ->
+            val geometry = if (mathTransform == null) {
+                record.geometry.copy()
+            } else {
+                JTS.transform(record.geometry, mathTransform)
+            }
+            geometry.setSRID(TARGET_SRID)
+            record.copy(
+                geometry = geometry,
+                bbox = geometry.envelopeInternal.toBoundingBox(),
+            )
+        }
+    }
+
+    private fun resolveSourceCrs(file: File): CoordinateReferenceSystem? {
+        val dataStore = ShapefileDataStore(file.toURI().toURL())
+        return try {
+            dataStore.schema?.coordinateReferenceSystem
+        } finally {
+            dataStore.dispose()
+        }
+    }
+
+    private fun CoordinateReferenceSystem.toTargetTransform(
+        targetCrs: CoordinateReferenceSystem,
+    ): MathTransform? =
+        if (CRS.equalsIgnoreMetadata(this, targetCrs)) {
+            null
+        } else {
+            CRS.findMathTransform(this, targetCrs, true)
+        }
+
+    private fun List<ShapeRecord>.toBoundingBox(): BoundingBox? {
+        if (isEmpty()) return null
+
+        val envelope = Envelope()
+        forEach { envelope.expandToInclude(it.geometry.envelopeInternal) }
+        return envelope.toBoundingBox()
+    }
+
+    private fun Envelope.toBoundingBox(): BoundingBox =
+        BoundingBox(
+            minLat = minY,
+            minLon = minX,
+            maxLat = maxY,
+            maxLon = maxX,
+        )
 }

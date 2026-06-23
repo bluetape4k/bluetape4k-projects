@@ -221,6 +221,11 @@ val importedCount = service.importShapefile(
 println("임포트 완료: $importedCount 레코드")
 ```
 
+`ShapefileImportService`는 companion `.prj` 파일이 있으면 CRS 정보를 읽습니다.
+Web Mercator, UTM 같은 projected 입력은 저장 전에 EPSG:4326으로 변환하고,
+PostGIS geometry는 SRID 4326으로 기록합니다. `.prj` 메타데이터가 없는
+Shapefile은 이미 WGS84라고 가정합니다.
+
 ### 5.5 NetCDF 메타데이터 카탈로그
 
 DB 스키마와 저장소가 완성되어 있습니다. `NetCdfFileRepository`로 파일 메타데이터를 직접 등록하세요.
