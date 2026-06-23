@@ -152,6 +152,9 @@ val uni = scope.fetchData()
 val result = uni.await().indefinitely()
 ```
 
+`asUni`는 cold입니다. 반환된 `Uni`를 구독할 때만 코루틴을 시작하며, 구독을 취소하면 실행 중인
+코루틴도 취소됩니다.
+
 ### Uni와 Multi 변환
 
 ```kotlin
