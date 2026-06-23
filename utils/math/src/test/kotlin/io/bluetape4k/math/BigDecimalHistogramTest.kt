@@ -1,6 +1,7 @@
 package io.bluetape4k.math
 
 import io.bluetape4k.collections.repeat
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.shouldBeEqualTo
@@ -50,6 +51,17 @@ class BigDecimalHistogramTest {
         assertTrue {
             histogram[205.0.toBigDecimal()]!!.range.let {
                 it.first == 200.0.toBigDecimal() && it.last == 300.0.toBigDecimal()
+            }
+        }
+    }
+
+    @Test
+    fun `binByBigDecimal rejects non progressing bin sizes`() {
+        val values = listOf(BigDecimal.ZERO, BigDecimal.ONE)
+
+        listOf(BigDecimal.ZERO, BigDecimal("-1.0")).forEach { binSize ->
+            assertFailsWith<IllegalArgumentException> {
+                values.binByBigDecimal(binSize = binSize, valueMapper = { it })
             }
         }
     }

@@ -1,6 +1,7 @@
 package io.bluetape4k.math
 
 import io.bluetape4k.collections.repeat
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.ranges.toClosedClosedRange
@@ -43,5 +44,16 @@ class DoubleHistogramTest {
         histogram[5.0]!!.range shouldBeEqualTo (0.0..100.0).toClosedClosedRange()
         histogram[105.0]!!.range shouldBeEqualTo (100.0..200.0).toClosedClosedRange()
         histogram[205.0]!!.range shouldBeEqualTo (200.0..300.0).toClosedClosedRange()
+    }
+
+    @Test
+    fun `binByDouble rejects non progressing bin sizes`() {
+        val values = listOf(0.0, 1.0)
+
+        listOf(0.0, -1.0, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NaN).forEach { binSize ->
+            assertFailsWith<IllegalArgumentException> {
+                values.binByDouble(binSize = binSize, valueMapper = { it })
+            }
+        }
     }
 }
