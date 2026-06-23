@@ -42,6 +42,7 @@ env:
   JAVA_VERSION: '21'
   JAVA_DISTRIBUTION: 'temurin'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  GITLEAKS_VERSION: 'v8.30.1'
 
 jobs:
   # ── 0. 시크릿 스캔 ────────────────────────────────────────────────────────
@@ -55,10 +56,9 @@ jobs:
           fetch-depth: 0
       - name: Install gitleaks
         run: |
-          GITLEAKS_ASSET_URL=$(curl -sSfL https://api.github.com/repos/gitleaks/gitleaks/releases/latest \
-            | jq -r '.assets[] | select(.name | test("linux_x64\\.tar\\.gz$")) | .browser_download_url')
-          test -n "${GITLEAKS_ASSET_URL}"
-          curl -sSfL "${GITLEAKS_ASSET_URL}" \
+          set -euo pipefail
+          gitleaks_version="${GITLEAKS_VERSION#v}"
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/${GITLEAKS_VERSION}/gitleaks_${gitleaks_version}_linux_x64.tar.gz" \
             | tar -xz gitleaks
           sudo mv gitleaks /usr/local/bin/
       - name: Run gitleaks
