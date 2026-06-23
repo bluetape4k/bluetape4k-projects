@@ -14,7 +14,9 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import org.redisson.api.RDeque
+import org.redisson.api.RLock
 import org.redisson.api.RedissonClient
+import java.util.concurrent.TimeUnit
 
 /**
  * JWT 토큰 발급에 사용된 [KeyChain]을 Redis에 저장하여, 분산환경에서 [KeyChain]을 공유하고, rotate 시에 전파되도록 합니다.
@@ -34,6 +36,7 @@ import org.redisson.api.RedissonClient
  */
 class RedisKeyChainRepository private constructor(
     private val keyChainStore: RDeque<KeyChainDto>,
+    private val rotationLock: RLock,
     override val capacity: Int,
 ): AbstractKeyChainRepository() {
 
@@ -47,7 +50,8 @@ class RedisKeyChainRepository private constructor(
             capacity: Int = KeyChainRepository.DEFAULT_CAPACITY,
         ): RedisKeyChainRepository {
             val queue = redisson.getDeque<KeyChainDto>(queueName)
-            return RedisKeyChainRepository(queue, capacity.coerceIn(MIN_CAPACITY, MAX_CAPACITY))
+            val lock = redisson.getLock("$queueName:rotation-lock")
+            return RedisKeyChainRepository(queue, lock, capacity.coerceIn(MIN_CAPACITY, MAX_CAPACITY))
         }
     }
 
@@ -66,38 +70,56 @@ class RedisKeyChainRepository private constructor(
 
     override fun rotate(keyChain: KeyChain): Boolean {
         log.debug { "Rotate KeyChain. kid=${keyChain.id}" }
-        if (keyChainStore.isEmpty()) {
-            return changeCurrent(keyChain)
-        }
+        return withRotationLock {
+            val currentKeyChain = doLoadCurrent()
+            cachedCurrent = currentKeyChain
 
-        val currentKeyChain = current()
-
-        // current KeyChain이 유효하다면 굳이 revoke 하지 않습니다 (다른 서버에서도 주기적으로 revoke하게 되면 ping-pong이 되어버립니다.)
-        if (!currentKeyChain.isExpired) {
-            log.debug { "기존 KeyChain의 유효기간이 남아서 rotate 하지 않습니다." }
-            return false
-        }
-
-
-        if (currentKeyChain.id != keyChain.id) {
-            return changeCurrent(keyChain).apply {
-                if (keyChainStore.size > capacity) {
-                    log.debug { "Remove oldest keychain ..." }
-                    keyChainStore.removeLast()
-                }
+            if (currentKeyChain == null) {
+                return@withRotationLock changeCurrentAndTrim(keyChain)
             }
+
+            // current KeyChain이 유효하다면 굳이 revoke 하지 않습니다 (다른 서버에서도 주기적으로 revoke하게 되면 ping-pong이 되어버립니다.)
+            if (!currentKeyChain.isExpired) {
+                log.debug { "기존 KeyChain의 유효기간이 남아서 rotate 하지 않습니다." }
+                return@withRotationLock false
+            }
+
+            if (currentKeyChain.id != keyChain.id) {
+                return@withRotationLock changeCurrentAndTrim(keyChain)
+            }
+
+            false
         }
-        return false
     }
 
     override fun forcedRotate(keyChain: KeyChain): Boolean {
-        if (keyChainStore.isEmpty()) {
-            return changeCurrent(keyChain)
+        return withRotationLock {
+            changeCurrentAndTrim(keyChain)
         }
-        return changeCurrent(keyChain).apply {
-            if (keyChainStore.size > capacity) {
+    }
+
+    private fun changeCurrentAndTrim(keyChain: KeyChain): Boolean {
+        val changed = changeCurrent(keyChain)
+        if (changed) {
+            while (keyChainStore.size > capacity) {
                 log.debug { "Remove oldest keychain ..." }
                 keyChainStore.removeLast()
+            }
+        }
+        return changed
+    }
+
+    private inline fun withRotationLock(action: () -> Boolean): Boolean {
+        check(rotationLock.tryLock(5, 30, TimeUnit.SECONDS)) {
+            "Failed to acquire Redis keychain rotation lock."
+        }
+        return try {
+            action()
+        } finally {
+            runCatching {
+                if (rotationLock.isHeldByCurrentThread) {
+                    rotationLock.unlock()
+                }
             }
         }
     }
