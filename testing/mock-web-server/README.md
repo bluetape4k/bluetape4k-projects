@@ -8,7 +8,7 @@ A self-contained Spring Boot 4 + Virtual Threads HTTP mock server that replaces 
 
 ## Architecture
 
-`bluetape4k-mock-web-server` is a Spring Boot 4 MVC application that runs on port **80** (HTTP) / **443** (HTTPS). It uses Virtual Threads
+`bluetape4k-mock-web-server` is a Spring Boot 4 MVC application that runs on port **80** (HTTP) / **8443** (HTTPS). It uses Virtual Threads
 (`spring.threads.virtual.enabled=true`) for high-concurrency handling without blocking OS threads. All fixture data is stored in-memory (loaded from classpath JSON files) and managed by
 `JsonplaceholderService` through a generic `InMemoryRepository<T>`. Static HTML content is served via
 `WebContentLoader` with Caffeine caching.
@@ -39,7 +39,7 @@ A self-contained Spring Boot 4 + Virtual Threads HTTP mock server that replaces 
 
 - **Spring Boot 4 + Virtual Threads**: High-concurrency request handling with JDK 21+ Virtual Threads
   (`spring.threads.virtual.enabled=true`)
-- **Port 80 (HTTP) / 443 (HTTPS)**: Standard container ports for deterministic test configuration
+- **Port 80 (HTTP) / 8443 (HTTPS)**: Standard container ports for deterministic test configuration
 - **httpbin simulation**: Full HTTP inspection API at
   `/httpbin/**` — echoes requests, returns headers/IP/UUID, streams, delays, and images
 - **jsonplaceholder simulation**: 6 full CRUD resources (posts/comments/albums/photos/todos/users) at
@@ -56,7 +56,7 @@ A self-contained Spring Boot 4 + Virtual Threads HTTP mock server that replaces 
 | Key                              | Value                                           | Notes                                                     |
 |----------------------------------|-------------------------------------------------|-----------------------------------------------------------|
 | `server.port`                    | `80`                                            | HTTP container port                                       |
-| `bluetape4k.https.port`          | `443`                                           | HTTPS container port                                      |
+| `bluetape4k.https.port`          | `8443`                                          | HTTPS container port                                      |
 | `server.http2.enabled`           | `true`                                          | HTTP/2 support                                            |
 | `server.tomcat.threads.max`      | `16000`                                         | Max platform threads (high-concurrency benchmark support) |
 | `server.tomcat.max-connections`  | `16000`                                         | Max simultaneous connections                              |
@@ -70,7 +70,7 @@ A self-contained Spring Boot 4 + Virtual Threads HTTP mock server that replaces 
 ### Run via Docker
 
 ```bash
-docker run --rm -p 80:80 -p 443:443 bluetape4k/mock-web-server:latest
+docker run --rm -p 80:80 -p 8443:8443 bluetape4k/mock-web-server:latest
 ```
 
 ### Build Docker image with Jib
