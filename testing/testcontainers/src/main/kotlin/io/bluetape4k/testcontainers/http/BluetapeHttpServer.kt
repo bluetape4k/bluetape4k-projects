@@ -7,6 +7,7 @@ import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.http.BluetapeHttpServer.Launcher.bluetapeHttpServer
+import io.bluetape4k.testcontainers.withCompatKeys
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
@@ -151,12 +152,12 @@ class BluetapeHttpServer private constructor(
      *
      * ```kotlin
      * val keys = server.propertyKeys()
-     * // keys == setOf("host", "port", "url", "httpbinUrl", "jsonplaceholderUrl", "webUrl")
+     * // keys == setOf("host", "port", "url", "httpbin-url", "jsonplaceholder-url", "web-url")
      * ```
      */
     override fun propertyKeys(): Set<String> =
         setOf(
-            "host", "port", "url", "httpbinUrl", "jsonplaceholderUrl", "webUrl",
+            "host", "port", "url", "httpbin-url", "jsonplaceholder-url", "web-url",
             "https-port", "https-url", "https-httpbin-url", "https-jsonplaceholder-url", "https-web-url",
         )
 
@@ -165,21 +166,27 @@ class BluetapeHttpServer private constructor(
      *
      * ```kotlin
      * val props = server.properties()
-     * // props["httpbinUrl"] == "http://localhost:80/httpbin"
+     * // props["httpbin-url"] == "http://localhost:80/httpbin"
      * ```
      */
     override fun properties(): Map<String, String> = mapOf(
         "host" to host,
         "port" to port.toString(),
         "url" to url,
-        "httpbinUrl" to httpbinUrl,
-        "jsonplaceholderUrl" to jsonplaceholderUrl,
-        "webUrl" to webUrl,
+        "httpbin-url" to httpbinUrl,
+        "jsonplaceholder-url" to jsonplaceholderUrl,
+        "web-url" to webUrl,
         "https-port" to httpsPort.toString(),
         "https-url" to httpsUrl,
         "https-httpbin-url" to httpsHttpbinUrl,
         "https-jsonplaceholder-url" to httpsJsonplaceholderUrl,
         "https-web-url" to httpsWebUrl,
+    ).withCompatKeys(
+        mapOf(
+            "httpbin-url" to "httpbinUrl",
+            "jsonplaceholder-url" to "jsonplaceholderUrl",
+            "web-url" to "webUrl",
+        )
     )
 
     init {

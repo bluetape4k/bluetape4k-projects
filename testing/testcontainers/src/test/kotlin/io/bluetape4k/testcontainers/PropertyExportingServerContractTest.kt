@@ -7,6 +7,8 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.testcontainers.http.BluetapeHttpServer
+import io.bluetape4k.testcontainers.http.BluetapeWebfluxServer
 import org.junit.jupiter.api.Test
 
 /**
@@ -105,6 +107,27 @@ class PropertyExportingServerContractTest {
     }
 
     /**
+     * Mock HTTP 서버들은 공통 export 계약과 동일한 canonical kebab-case 키를 노출합니다.
+     */
+    @Test
+    fun `mock HTTP server propertyKeys expose canonical kebab-case keys`() {
+        val expectedKeys = setOf(
+            "host", "port", "url", "httpbin-url", "jsonplaceholder-url", "web-url",
+            "https-port", "https-url", "https-httpbin-url", "https-jsonplaceholder-url", "https-web-url",
+        )
+
+        val servers = listOf(
+            BluetapeHttpServer(),
+            BluetapeWebfluxServer(),
+        )
+
+        servers.forEach { server ->
+            server.propertyKeys() shouldBeEqualTo expectedKeys
+            server.propertyKeys().any { it in setOf("httpbinUrl", "jsonplaceholderUrl", "webUrl") }.shouldBeFalse()
+        }
+    }
+
+    /**
      * [PropertyExportingServer.registerSystemProperties]는 [AutoCloseable]을 반환합니다.
      * close() 호출 시 예외가 발생하지 않아야 합니다.
      */
@@ -187,6 +210,7 @@ class PropertyExportingServerContractTest {
             "io.bluetape4k.testcontainers.mq.RabbitMQServer",
             "io.bluetape4k.testcontainers.database.MySQL8Server",
             "io.bluetape4k.testcontainers.database.MariaDBServer",
+            "io.bluetape4k.testcontainers.http.BluetapeHttpServer",
             "io.bluetape4k.testcontainers.http.BluetapeWebfluxServer",
         )
 
