@@ -70,6 +70,15 @@ class MotionTest {
         (distance `in` Length.meters).shouldBeNear(50.0, 1e-10)
     }
 
+    @Test
+    fun `속도와 다른 시간 단위로 거리를 계산한다`() {
+        val commuteDistance = 36.kilometersPerHour() * 30.minutes()
+        (commuteDistance `in` Length.kilometers).shouldBeNear(18.0, 1e-10)
+
+        val travelDistance = 10.metersPerSecond() * 1.hours()
+        (travelDistance `in` Length.kilometers).shouldBeNear(36.0, 1e-10)
+    }
+
     // ----- 속도 비교 -----
 
     @Test
