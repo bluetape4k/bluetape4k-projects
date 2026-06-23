@@ -122,13 +122,11 @@ val webClient = WebClient.create("https://api.example.com")
 
 // GET 요청
 val response = webClient.httpGet("/users")
-    .retrieve()
     .bodyToFlux(User::class.java)
     .asFlow()
 
 // POST 요청
 val created = webClient.httpPost("/users", newUser)
-    .retrieve()
     .bodyToMono(User::class.java)
     .awaitSingle()
 ```
