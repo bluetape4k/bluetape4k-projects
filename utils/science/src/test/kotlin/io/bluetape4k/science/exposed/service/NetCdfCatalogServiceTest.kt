@@ -5,6 +5,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.science.exposed.AbstractPostgisTest
 import io.bluetape4k.science.exposed.NetCdfException
+import io.bluetape4k.science.exposed.model.NetCdfImportStatus
 import io.bluetape4k.science.exposed.repository.NetCdfFileRepository
 import io.bluetape4k.science.exposed.repository.NetCdfImportProgressRepository
 import io.bluetape4k.science.exposed.schema.NetCdfFileTable
@@ -400,18 +401,84 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
 
         transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
         // raw SQL 로 lease 강제 만료 (Codex Plan v2.1 Medium#1 — Thread.sleep 금지)
-        transaction(db) {
-            val sql = "UPDATE netcdf_import_progress SET lease_expires_at = now() - interval '10 min' " +
-                "WHERE file_id = ? AND variable_name = 'temperature'"
-            val conn = connection.connection as java.sql.Connection
-            conn.prepareStatement(sql).use { ps ->
-                ps.setLong(1, fileId)
-                ps.executeUpdate()
-            }
-        }
+        forceExpireLease(fileId, "temperature")
         // 만료된 lease 재획득 가능
         val reacquired = transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
         reacquired.shouldNotBeNull()
+    }
+
+    @Test
+    fun `23a - stale lease owner cannot renew after expired lease is reacquired`(@TempDir dir: Path) {
+        val path = NetCdfSampleWriter.writeSample(dir.resolve("stale-renew.nc"), rank = 2)
+        val fileId = service.registerFile(path.absolutePathString())
+        val staleProgress = transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
+        forceExpireLease(fileId, "temperature")
+        val currentProgress = transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
+
+        assertFailsWith<NetCdfException.ImportLeaseLost> {
+            transaction(db) {
+                progressRepo.renewLease(
+                    progressId = staleProgress.id,
+                    expectedLeaseExpiresAt = checkNotNull(staleProgress.leaseExpiresAt),
+                    lastSliceIdx = 99L,
+                )
+            }
+        }
+
+        val progress = transaction(db) { progressRepo.findByFileAndVariable(fileId, "temperature") }
+        progress.shouldNotBeNull()
+        progress.status shouldBeEqualTo NetCdfImportStatus.IN_PROGRESS
+        progress.lastSliceIdx.shouldBeNull()
+        progress.leaseExpiresAt shouldBeEqualTo currentProgress.leaseExpiresAt
+    }
+
+    @Test
+    fun `23b - stale lease owner cannot complete after expired lease is reacquired`(@TempDir dir: Path) {
+        val path = NetCdfSampleWriter.writeSample(dir.resolve("stale-complete.nc"), rank = 2)
+        val fileId = service.registerFile(path.absolutePathString())
+        val staleProgress = transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
+        forceExpireLease(fileId, "temperature")
+        val currentProgress = transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
+
+        assertFailsWith<NetCdfException.ImportLeaseLost> {
+            transaction(db) {
+                progressRepo.markCompleted(
+                    progressId = staleProgress.id,
+                    expectedLeaseExpiresAt = checkNotNull(staleProgress.leaseExpiresAt),
+                )
+            }
+        }
+
+        val progress = transaction(db) { progressRepo.findByFileAndVariable(fileId, "temperature") }
+        progress.shouldNotBeNull()
+        progress.status shouldBeEqualTo NetCdfImportStatus.IN_PROGRESS
+        progress.completedAt.shouldBeNull()
+        progress.leaseExpiresAt shouldBeEqualTo currentProgress.leaseExpiresAt
+    }
+
+    @Test
+    fun `23c - stale lease owner cannot fail after expired lease is reacquired`(@TempDir dir: Path) {
+        val path = NetCdfSampleWriter.writeSample(dir.resolve("stale-fail.nc"), rank = 2)
+        val fileId = service.registerFile(path.absolutePathString())
+        val staleProgress = transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
+        forceExpireLease(fileId, "temperature")
+        val currentProgress = transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
+
+        assertFailsWith<NetCdfException.ImportLeaseLost> {
+            transaction(db) {
+                progressRepo.markFailed(
+                    progressId = staleProgress.id,
+                    expectedLeaseExpiresAt = checkNotNull(staleProgress.leaseExpiresAt),
+                    errorMessage = "stale failure",
+                )
+            }
+        }
+
+        val progress = transaction(db) { progressRepo.findByFileAndVariable(fileId, "temperature") }
+        progress.shouldNotBeNull()
+        progress.status shouldBeEqualTo NetCdfImportStatus.IN_PROGRESS
+        progress.errorMessage.shouldBeNull()
+        progress.leaseExpiresAt shouldBeEqualTo currentProgress.leaseExpiresAt
     }
 
     // -------------------------------------------------------------------------
@@ -560,5 +627,18 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         service.importGridValues(fileId, "temperature")
         val progress = transaction(db) { progressRepo.findByFileAndVariable(fileId, "temperature") }
         progress.shouldNotBeNull()
+    }
+
+    private fun forceExpireLease(fileId: Long, variableName: String) {
+        transaction(db) {
+            val sql = "UPDATE netcdf_import_progress SET lease_expires_at = now() - interval '10 min' " +
+                "WHERE file_id = ? AND variable_name = ?"
+            val conn = connection.connection as java.sql.Connection
+            conn.prepareStatement(sql).use { ps ->
+                ps.setLong(1, fileId)
+                ps.setString(2, variableName)
+                ps.executeUpdate()
+            }
+        }
     }
 }

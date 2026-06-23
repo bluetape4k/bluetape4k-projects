@@ -160,6 +160,7 @@ class NetCdfCatalogService(
      * @throws NetCdfException.MissingCoordinate lat/lon/level 좌표축이 없거나 1D 가 아닐 때
      * @throws NetCdfException.UnsupportedProjection 화이트리스트 외 CRS 일 때
      * @throws NetCdfException.ImportAlreadyRunning 다른 프로세스가 활성 lease 보유 중일 때
+     * @throws NetCdfException.ImportLeaseLost lease 만료 후 다른 프로세스가 같은 progress row 를 재획득했을 때
      */
     fun importGridValues(fileId: Long, variableName: String) {
         require(variableName.isNotBlank()) { "variableName must not be blank" }
@@ -178,10 +179,16 @@ class NetCdfCatalogService(
             meterRegistry?.counter("netcdf.import.status", "status", "resumed")?.increment()
             log.info { "resuming import — fileId=$fileId var=$variableName startSliceIdx=$startSliceIdx" }
         }
+        val initialLeaseToken = checkNotNull(progress.leaseExpiresAt) {
+            "IN_PROGRESS import progress must have leaseExpiresAt"
+        }
+        val lease = ImportLease(initialLeaseToken)
 
         val dataset = runCatching { NetcdfDatasets.openDataset(record.filePath) }
             .getOrElse {
-                transaction { progressRepo.markFailed(progress.id, it.message.orEmpty()) }
+                transaction {
+                    progressRepo.markFailed(progress.id, lease.expiresAt, it.message.orEmpty())
+                }
                 meterRegistry?.counter("netcdf.import.status", "status", "failure")?.increment()
                 throw NetCdfException.FileOpen(record.filePath, it)
             }
@@ -200,6 +207,7 @@ class NetCdfCatalogService(
                     fileId = fileId,
                     variableName = variableName,
                     progressId = progress.id,
+                    lease = lease,
                     variable = v,
                     axisMap = axisMap,
                     fillValue = v.findAttribute("_FillValue")?.numericValue?.toDouble(),
@@ -212,15 +220,18 @@ class NetCdfCatalogService(
                     4 -> importRank4(ctx, ncd, startSliceIdx)
                 }
 
-                transaction { progressRepo.markCompleted(progress.id) }
+                transaction { progressRepo.markCompleted(ctx.progressId, ctx.lease.expiresAt) }
                 meterRegistry?.counter("netcdf.import.status", "status", "success")?.increment()
                 log.info { "import COMPLETED — fileId=$fileId var=$variableName" }
             }
         } catch (e: NetCdfException.ImportAlreadyRunning) {
             // 다른 프로세스 소유 — progress 변경 없음, failure counter 미증가 (M4)
             throw e
+        } catch (e: NetCdfException.ImportLeaseLost) {
+            // lease 만료 후 다른 프로세스가 재획득 — stale importer 는 progress 를 변경하지 않음.
+            throw e
         } catch (e: Exception) {
-            transaction { progressRepo.markFailed(progress.id, e.message.orEmpty()) }
+            transaction { progressRepo.markFailed(progress.id, lease.expiresAt, e.message.orEmpty()) }
             meterRegistry?.counter("netcdf.import.status", "status", "failure")?.increment()
             throw e
         }
@@ -265,7 +276,12 @@ class NetCdfCatalogService(
                 }
                 ps.executeBatch()
             }
-            progressRepo.renewLease(ctx.progressId, lastSliceIdx = 0L, leaseTtl = LEASE_TTL)
+            ctx.lease.expiresAt = progressRepo.renewLease(
+                progressId = ctx.progressId,
+                expectedLeaseExpiresAt = ctx.lease.expiresAt,
+                lastSliceIdx = 0L,
+                leaseTtl = LEASE_TTL,
+            )
         }
         meterRegistry?.counter("netcdf.import.variable.records", "variable", ctx.variableName)
             ?.increment(inserted.toDouble())
@@ -460,7 +476,12 @@ class NetCdfCatalogService(
                 ps.executeBatch()
             }
             if (renewProgress) {
-                progressRepo.renewLease(ctx.progressId, lastSliceIdx = sliceIdx, leaseTtl = LEASE_TTL)
+                ctx.lease.expiresAt = progressRepo.renewLease(
+                    progressId = ctx.progressId,
+                    expectedLeaseExpiresAt = ctx.lease.expiresAt,
+                    lastSliceIdx = sliceIdx,
+                    leaseTtl = LEASE_TTL,
+                )
             }
         }
 
@@ -507,8 +528,13 @@ class NetCdfCatalogService(
         val fileId: Long,
         val variableName: String,
         val progressId: Long,
+        val lease: ImportLease,
         val variable: Variable,
         val axisMap: VariableAxisMap,
         val fillValue: Double?,
+    )
+
+    private data class ImportLease(
+        var expiresAt: Instant,
     )
 }
