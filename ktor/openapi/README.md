@@ -22,7 +22,7 @@ routes without changing route behavior.
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-ktor-openapi:$bluetape4kVersion")
+    implementation("io.github.bluetape4k:bluetape4k-ktor-openapi:$bluetape4kVersion")
 }
 ```
 
