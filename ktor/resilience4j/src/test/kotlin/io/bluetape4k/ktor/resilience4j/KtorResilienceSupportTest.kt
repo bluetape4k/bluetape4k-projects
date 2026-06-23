@@ -2,6 +2,7 @@ package io.bluetape4k.ktor.resilience4j
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.ktor.core.ApiErrorResponse
 import io.bluetape4k.ktor.core.Bluetape4kKtorCoreConfig
 import io.bluetape4k.ktor.core.Bluetape4kKtorJson
@@ -33,6 +34,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KtorResilienceSupportTest {
@@ -149,6 +151,52 @@ class KtorResilienceSupportTest {
         body.error shouldBeEqualTo "timeout"
         body.message shouldBeEqualTo "Request timed out"
         body.path shouldBeEqualTo "/timeout"
+    }
+
+    @Test
+    fun `time limiter records ordinary handler failures`() = runSuspendIO {
+        val timeLimiter = TimeLimiter.of(
+            "ktor.route.failure",
+            TimeLimiterConfig.custom()
+                .timeoutDuration(Duration.ofSeconds(1))
+                .build()
+        )
+        val errorEvents = AtomicInteger()
+        val recordedFailure = AtomicReference<Throwable>()
+        timeLimiter.eventPublisher.onError { event ->
+            errorEvents.incrementAndGet()
+            recordedFailure.set(event.throwable)
+        }
+
+        val thrown = assertFailsWith<IllegalStateException> {
+            withKtorResilience(KtorResiliencePolicies(timeLimiter = timeLimiter)) {
+                throw IllegalStateException("ordinary failure")
+            }
+        }
+
+        thrown.message shouldBeEqualTo "ordinary failure"
+        errorEvents.get() shouldBeEqualTo 1
+        recordedFailure.get().shouldNotBeNull().message shouldBeEqualTo "ordinary failure"
+    }
+
+    @Test
+    fun `time limiter rethrows cancellation without recording policy failure`() = runSuspendIO {
+        val timeLimiter = TimeLimiter.of(
+            "ktor.route.time-limiter.cancel",
+            TimeLimiterConfig.custom()
+                .timeoutDuration(Duration.ofSeconds(1))
+                .build()
+        )
+        val errorEvents = AtomicInteger()
+        timeLimiter.eventPublisher.onError { errorEvents.incrementAndGet() }
+
+        assertFailsWith<CancellationException> {
+            withKtorResilience(KtorResiliencePolicies(timeLimiter = timeLimiter)) {
+                throw CancellationException("client disconnected")
+            }
+        }
+
+        errorEvents.get() shouldBeEqualTo 0
     }
 
     @Test
