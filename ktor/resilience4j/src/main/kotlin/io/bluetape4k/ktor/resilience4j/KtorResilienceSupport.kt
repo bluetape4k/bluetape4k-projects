@@ -20,7 +20,7 @@ import kotlinx.coroutines.withTimeout
  *
  * ## Contract
  * - Policies are opt-in and scoped to this invocation.
- * - Coroutine cancellation is rethrown and is not recorded as a circuit breaker failure.
+ * - Coroutine cancellation is rethrown and is not recorded as a policy failure.
  * - Composition order is TimeLimiter -> RateLimiter -> CircuitBreaker -> Retry,
  *   matching the existing `bluetape4k-resilience4j` facade guidance.
  */
@@ -147,5 +147,10 @@ internal suspend fun <T: Any> withTimeLimiterPreservingStatusMapping(
         val timeout = TimeLimiter.createdTimeoutExceptionWithName(timeLimiter.name, e)
         timeLimiter.onError(timeout)
         throw timeout
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Throwable) {
+        timeLimiter.onError(e)
+        throw e
     }
 }
