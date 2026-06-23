@@ -64,8 +64,29 @@ Ktor OpenAPI HTML renderer가 내부적으로 Swagger Codegen에 위임하고 sc
 ## Runtime Metadata
 
 Ktor 3.5는 Ktor compiler OpenAPI extension, route comment, runtime `.describe {}`
-metadata를 통해 routing tree에서 OpenAPI metadata를 조립할 수 있습니다. Route
-metadata는 해당 동작을 소유하는 route 근처에 둡니다.
+metadata를 통해 routing tree에서 OpenAPI metadata를 조립할 수 있습니다. 정적
+`swaggerFile` 경로가 아니라 route metadata에서 문서를 만들려면 bluetape4k helper에
+`OpenApiDocSource.Routing`을 설정합니다.
+
+```kotlin
+fun Application.module() {
+    installBluetape4kKtorCore()
+
+    routing {
+        widgetRoutes()
+
+        bluetape4kOpenApi {
+            source = OpenApiDocSource.Routing()
+        }
+        bluetape4kSwaggerUi {
+            remotePath = "openapi.json"
+            source = OpenApiDocSource.Routing()
+        }
+    }
+}
+```
+
+Route metadata는 해당 동작을 소유하는 route 근처에 둡니다.
 
 ```kotlin
 @OptIn(ExperimentalKtorApi::class)

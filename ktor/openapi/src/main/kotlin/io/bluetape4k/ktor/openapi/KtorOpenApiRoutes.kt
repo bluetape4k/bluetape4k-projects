@@ -5,14 +5,17 @@ import io.ktor.server.plugins.openapi.OpenAPIConfig
 import io.ktor.server.plugins.openapi.openAPI
 import io.ktor.server.plugins.swagger.SwaggerConfig
 import io.ktor.server.plugins.swagger.swaggerUI
+import io.ktor.server.routing.openapi.OpenApiDocSource
 import io.ktor.server.routing.Route
+import java.io.File
 
 /**
  * Adds an OpenAPI documentation endpoint backed by Ktor's official OpenAPI plugin.
  *
  * ## Contract
  * - The endpoint is explicit and route-scoped; this function does not install global application plugins.
- * - [swaggerFile] is resolved by Ktor from application resources first and then the file system.
+ * - [swaggerFile] is used when [configure] leaves Ktor's default document source unchanged.
+ * - A caller-owned [OpenAPIConfig.source] from [configure] is preserved for routing-tree or generated metadata.
  * - Applications own the OpenAPI document and route metadata lifecycle.
  *
  * ```kotlin
@@ -28,7 +31,12 @@ fun Route.bluetape4kOpenApi(
 ): Route {
     path.requireNotBlank("path")
     swaggerFile.requireNotBlank("swaggerFile")
-    return openAPI(path = path, swaggerFile = swaggerFile, block = configure)
+    return openAPI(path = path) {
+        configure()
+        if (source.isDefaultDocumentSource()) {
+            source = OpenApiDocSource.File(swaggerFile)
+        }
+    }
 }
 
 /**
@@ -36,7 +44,8 @@ fun Route.bluetape4kOpenApi(
  *
  * ## Contract
  * - The endpoint is explicit and route-scoped.
- * - The OpenAPI document stays caller-owned through [swaggerFile] or [configure].
+ * - [swaggerFile] is used when [configure] leaves Ktor's default document source unchanged.
+ * - A caller-owned [SwaggerConfig.source] from [configure] is preserved for routing-tree or generated metadata.
  * - This helper does not generate route behavior or mutate existing routes.
  *
  * ```kotlin
@@ -52,9 +61,24 @@ fun Route.bluetape4kSwaggerUi(
 ): Route {
     path.requireNotBlank("path")
     swaggerFile.requireNotBlank("swaggerFile")
-    return swaggerUI(path = path, swaggerFile = swaggerFile, block = configure)
+    return swaggerUI(path = path) {
+        configure()
+        if (source.isDefaultDocumentSource()) {
+            source = OpenApiDocSource.File(swaggerFile)
+            remotePath = File(swaggerFile).name
+        }
+    }
 }
 
 const val DEFAULT_OPENAPI_PATH: String = "openapi"
 const val DEFAULT_SWAGGER_UI_PATH: String = "swagger"
 const val DEFAULT_OPENAPI_FILE: String = "openapi/documentation.yaml"
+
+private fun OpenApiDocSource.isDefaultDocumentSource(): Boolean =
+    this is OpenApiDocSource.FirstOf &&
+        options.size == 2 &&
+        options[0].isFileSource(DEFAULT_OPENAPI_FILE) &&
+        options[1] is OpenApiDocSource.Routing
+
+private fun OpenApiDocSource.isFileSource(path: String): Boolean =
+    this is OpenApiDocSource.File && this.path == path

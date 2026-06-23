@@ -65,8 +65,29 @@ delegates to Swagger Codegen internals that expect the schema map.
 
 Ktor 3.5 can assemble OpenAPI metadata from the routing tree when applications
 enable the Ktor compiler OpenAPI extension, add route comments, or attach
-runtime `.describe {}` metadata. Keep route metadata near the route that owns
-the behavior:
+runtime `.describe {}` metadata. Configure the bluetape4k helpers with
+`OpenApiDocSource.Routing` when the document should come from route metadata
+instead of the static `swaggerFile` path:
+
+```kotlin
+fun Application.module() {
+    installBluetape4kKtorCore()
+
+    routing {
+        widgetRoutes()
+
+        bluetape4kOpenApi {
+            source = OpenApiDocSource.Routing()
+        }
+        bluetape4kSwaggerUi {
+            remotePath = "openapi.json"
+            source = OpenApiDocSource.Routing()
+        }
+    }
+}
+```
+
+Keep route metadata near the route that owns the behavior:
 
 ```kotlin
 @OptIn(ExperimentalKtorApi::class)
