@@ -22,7 +22,7 @@ Route 동작을 바꾸지 않고 명시적인 문서 route만 추가하려는 �
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-ktor-openapi:$bluetape4kVersion")
+    implementation("io.github.bluetape4k:bluetape4k-ktor-openapi:$bluetape4kVersion")
 }
 ```
 
