@@ -266,6 +266,28 @@ class DateAddTest: AbstractPeriodTest() {
     }
 
     @Test
+    fun `backward seek after split include periods starts from nearest previous period`() = runTest {
+        val start = zonedDateTimeOf(2011, 4, 30)
+        val period1 = TimeRange(
+            zonedDateTimeOf(2011, 4, 1),
+            zonedDateTimeOf(2011, 4, 15)
+        )
+        val period2 = TimeRange(
+            zonedDateTimeOf(2011, 4, 20),
+            zonedDateTimeOf(2011, 4, 24)
+        )
+
+        val dateAdd = DateAdd().apply {
+            includePeriods.add(period1)
+            includePeriods.add(period2)
+        }
+
+        dateAdd.subtract(start, 0.days()) shouldBeEqualTo period2.end
+        dateAdd.subtract(start, 1.days()) shouldBeEqualTo period2.end.minusDays(1)
+        dateAdd.add(start, (-1).days()) shouldBeEqualTo period2.end.minusDays(1)
+    }
+
+    @Test
     fun `start is before exclude period`() = runTest {
         val start = zonedDateTimeOf(2011, 4, 12)
         val period = TimeRange(

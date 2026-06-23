@@ -194,6 +194,21 @@ class CalendarDateAddTest: AbstractPeriodTest() {
     }
 
     @Test
+    fun `backward seek after split working hours starts from nearest previous period`() = runTest {
+        val dateAdd = CalendarDateAdd().apply {
+            addWorkingWeekdays()
+            workingHours.add(HourRangeInDay(8, 12))
+            workingHours.add(HourRangeInDay(13, 18))
+        }
+
+        val start = zonedDateTimeOf(2011, 4, 4, 20)
+
+        dateAdd.subtract(start, 0.hours()) shouldBeEqualTo zonedDateTimeOf(2011, 4, 4, 18)
+        dateAdd.subtract(start, 1.hours()) shouldBeEqualTo zonedDateTimeOf(2011, 4, 4, 17)
+        dateAdd.add(start, (-1).hours()) shouldBeEqualTo zonedDateTimeOf(2011, 4, 4, 17)
+    }
+
+    @Test
     fun `calendar date add 3`() = runTest {
         val dateAdd = CalendarDateAdd().apply {
             addWorkingWeekdays()
