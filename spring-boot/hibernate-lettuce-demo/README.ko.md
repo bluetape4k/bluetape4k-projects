@@ -320,29 +320,27 @@ class DemoApplicationTest {
 
 ```kotlin
 // build.gradle.kts
+val springBootVersion = "4.0.6"
+val bluetape4kVersion = "1.11.0"
+
 dependencies {
     // Spring Boot 4 BOM
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 
     implementation("io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce:${bluetape4kVersion}")
-    implementation(Libs.springBootStarter("web"))
-    implementation(Libs.springBootStarter("data-jpa"))
-    implementation(Libs.springBootStarter("actuator"))
-    runtimeOnly(Libs.h2_database)
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    runtimeOnly("com.h2database:h2")
 
-    // Hibernate (명시적 선언)
-    compileOnly(Libs.springBoot("hibernate"))
-
-    testImplementation(Libs.springBootStarter("test"))
-    testImplementation(Libs.testcontainers)
-    testImplementation(Libs.testcontainers_junit5)
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 ```
 
 ## Spring Boot 4 고유 사항
 
-- **BOM**: `implementation(platform(libs.spring.boot.dependencies))` 필수
-- **Hibernate**: `compileOnly(Libs.springBoot("hibernate"))` 추가 필요
+- **BOM**: `org.springframework.boot:spring-boot-dependencies`를 `platform(...)`으로 import
+- **Hibernate**: 이 demo에 필요한 Hibernate runtime은 `spring-boot-starter-data-jpa`가 제공합니다
 - **패키지명**: `org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer`
 
 ## 패키지 정보
