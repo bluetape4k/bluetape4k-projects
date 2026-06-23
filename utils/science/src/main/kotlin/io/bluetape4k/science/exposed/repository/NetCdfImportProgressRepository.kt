@@ -28,9 +28,9 @@ import java.time.Instant
  *   - 기존 row 가 `COMPLETED` 면 그대로 반환 (호출자가 no-op 분기)
  *   - `IN_PROGRESS` 이고 lease 유효 → [NetCdfException.ImportAlreadyRunning] throw
  *   - `PENDING` / `FAILED` / 만료된 `IN_PROGRESS` → lease 획득 후 갱신된 row 반환
- * - [renewLease] : 슬라이스 commit 시 호출, `lastSliceIdx` + `leaseExpiresAt` 갱신
- * - [markCompleted] : 정상 완료, `status=COMPLETED` + `leaseExpiresAt=null` + `completedAt=now()`
- * - [markFailed] : 예외 발생, `status=FAILED` + `leaseExpiresAt=null` + `errorMessage` 기록
+ * - [renewLease] : 슬라이스 commit 시 호출, owner token 검증 후 `lastSliceIdx` + `leaseExpiresAt` 갱신
+ * - [markCompleted] : owner token 검증 후 `status=COMPLETED` + `leaseExpiresAt=null` + `completedAt=now()`
+ * - [markFailed] : owner token 검증 후 `status=FAILED` + `leaseExpiresAt=null` + `errorMessage` 기록
  *
  * @see io.bluetape4k.science.exposed.service.NetCdfCatalogService
  */
@@ -171,17 +171,26 @@ class NetCdfImportProgressRepository {
     }
 
     /**
-     * heartbeat — `lastSliceIdx` 와 `leaseExpiresAt` 을 갱신합니다.
+     * heartbeat — owner token 을 검증하고 `lastSliceIdx` 와 `leaseExpiresAt` 을 갱신합니다.
      *
      * 슬라이스 commit tx 안에서 함께 호출하여 원자성 보장.
+     *
+     * @return 갱신된 lease owner token
+     * @throws NetCdfException.ImportLeaseLost 같은 progress row 를 다른 importer 가 재획득했을 때
      */
-    fun renewLease(progressId: Long, lastSliceIdx: Long, leaseTtl: Duration = DEFAULT_LEASE_TTL) {
+    fun renewLease(
+        progressId: Long,
+        expectedLeaseExpiresAt: Instant,
+        lastSliceIdx: Long,
+        leaseTtl: Duration = DEFAULT_LEASE_TTL,
+    ): Instant {
         val now = Instant.now()
         val newExpires = now.plus(leaseTtl)
         val sql = """
             UPDATE netcdf_import_progress
             SET last_slice_idx = ?, lease_expires_at = ?, updated_at = ?
-            WHERE id = ? AND status = 'IN_PROGRESS'
+            WHERE id = ? AND status = 'IN_PROGRESS' AND lease_expires_at = ?
+            RETURNING lease_expires_at
         """.trimIndent()
         val conn = TransactionManager.current().connection.connection as java.sql.Connection
         conn.prepareStatement(sql).use { stmt ->
@@ -189,49 +198,65 @@ class NetCdfImportProgressRepository {
             stmt.setTimestamp(2, Timestamp.from(newExpires))
             stmt.setTimestamp(3, Timestamp.from(now))
             stmt.setLong(4, progressId)
-            stmt.executeUpdate()
+            stmt.setTimestamp(5, Timestamp.from(expectedLeaseExpiresAt))
+            stmt.executeQuery().use { rs ->
+                if (!rs.next()) {
+                    throw NetCdfException.ImportLeaseLost(progressId)
+                }
+                return rs.getTimestamp("lease_expires_at").toInstant()
+            }
         }
     }
 
     /**
-     * 정상 완료 처리 — `status=COMPLETED`, `completedAt=now()`, `leaseExpiresAt=null`.
+     * 정상 완료 처리 — owner token 을 검증하고 `status=COMPLETED`, `completedAt=now()`, `leaseExpiresAt=null`.
+     *
+     * @throws NetCdfException.ImportLeaseLost 같은 progress row 를 다른 importer 가 재획득했을 때
      */
-    fun markCompleted(progressId: Long) {
+    fun markCompleted(progressId: Long, expectedLeaseExpiresAt: Instant) {
         val now = Instant.now()
         val sql = """
             UPDATE netcdf_import_progress
             SET status = 'COMPLETED', completed_at = ?, lease_expires_at = NULL,
                 error_message = NULL, updated_at = ?
-            WHERE id = ?
+            WHERE id = ? AND status = 'IN_PROGRESS' AND lease_expires_at = ?
         """.trimIndent()
         val conn = TransactionManager.current().connection.connection as java.sql.Connection
         conn.prepareStatement(sql).use { stmt ->
             stmt.setTimestamp(1, Timestamp.from(now))
             stmt.setTimestamp(2, Timestamp.from(now))
             stmt.setLong(3, progressId)
-            stmt.executeUpdate()
+            stmt.setTimestamp(4, Timestamp.from(expectedLeaseExpiresAt))
+            if (stmt.executeUpdate() != 1) {
+                throw NetCdfException.ImportLeaseLost(progressId)
+            }
         }
         log.info { "import marked COMPLETED — progressId=$progressId" }
     }
 
     /**
-     * 실패 처리 — `status=FAILED`, `errorMessage` 기록, `leaseExpiresAt=null`.
+     * 실패 처리 — owner token 을 검증하고 `status=FAILED`, `errorMessage` 기록, `leaseExpiresAt=null`.
      *
      * `lastSliceIdx` 는 그대로 유지하여 재호출 시 그 다음부터 재개 가능.
+     *
+     * @throws NetCdfException.ImportLeaseLost 같은 progress row 를 다른 importer 가 재획득했을 때
      */
-    fun markFailed(progressId: Long, errorMessage: String) {
+    fun markFailed(progressId: Long, expectedLeaseExpiresAt: Instant, errorMessage: String) {
         val now = Instant.now()
         val sql = """
             UPDATE netcdf_import_progress
             SET status = 'FAILED', error_message = ?, lease_expires_at = NULL, updated_at = ?
-            WHERE id = ?
+            WHERE id = ? AND status = 'IN_PROGRESS' AND lease_expires_at = ?
         """.trimIndent()
         val conn = TransactionManager.current().connection.connection as java.sql.Connection
         conn.prepareStatement(sql).use { stmt ->
             stmt.setString(1, errorMessage.take(MAX_ERROR_MESSAGE_LENGTH))
             stmt.setTimestamp(2, Timestamp.from(now))
             stmt.setLong(3, progressId)
-            stmt.executeUpdate()
+            stmt.setTimestamp(4, Timestamp.from(expectedLeaseExpiresAt))
+            if (stmt.executeUpdate() != 1) {
+                throw NetCdfException.ImportLeaseLost(progressId)
+            }
         }
         log.warn { "import marked FAILED — progressId=$progressId msg=${errorMessage.take(200)}" }
     }

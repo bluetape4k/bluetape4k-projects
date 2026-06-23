@@ -170,9 +170,9 @@ object NetCdfGridValueIndexes {
  * SchemaUtils.create(NetCdfImportProgressTable)
  *
  * // 진입 시 lease 획득 — Repository.acquireLease() 사용 (raw SQL ON CONFLICT DO UPDATE)
- * // 슬라이스 commit 후 renewLease(progressId, lastSliceIdx, newExpiresAt)
- * // 완료 시 markCompleted(progressId)
- * // 실패 시 markFailed(progressId, errorMessage)
+ * // 슬라이스 commit 후 renewLease(progressId, expectedLeaseExpiresAt, lastSliceIdx)
+ * // 완료 시 markCompleted(progressId, expectedLeaseExpiresAt)
+ * // 실패 시 markFailed(progressId, expectedLeaseExpiresAt, errorMessage)
  * ```
  */
 object NetCdfImportProgressTable: LongIdTable("netcdf_import_progress") {

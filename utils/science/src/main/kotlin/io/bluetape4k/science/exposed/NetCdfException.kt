@@ -13,6 +13,7 @@ package io.bluetape4k.science.exposed
  * - [MissingCoordinate] : lat/lon/level 좌표축이 누락되었거나 [ucar.nc2.dataset.CoordinateAxis1D] 가 아닐 때
  * - [UnsupportedProjection] : 좌표 참조계가 화이트리스트(EPSG:4326/3857/3031/3413/UTM 32601~32660·32701~32760) 외이거나 proj4j 변환 실패 시
  * - [ImportAlreadyRunning] : 동일 (fileId, variableName) import 가 이미 lease 를 소유 중일 때
+ * - [ImportLeaseLost] : lease 만료 후 다른 importer 가 같은 progress row 를 재획득했을 때
  *
  * @see io.bluetape4k.science.exposed.service.NetCdfCatalogService
  */
@@ -57,4 +58,10 @@ sealed class NetCdfException(message: String, cause: Throwable? = null): Runtime
      */
     class ImportAlreadyRunning(fileId: Long, variableName: String):
         NetCdfException("Import already running: fileId=$fileId var=$variableName")
+
+    /**
+     * 같은 progress row 를 다른 importer 가 재획득하여 현재 importer 가 더 이상 lease owner 가 아닐 때 발생합니다.
+     */
+    class ImportLeaseLost(progressId: Long):
+        NetCdfException("Import lease lost: progressId=$progressId")
 }
