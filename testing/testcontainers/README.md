@@ -82,7 +82,7 @@ Every server implements
 | NginxServer           | `nginx`            | `host`, `port`, `url`                                                               |
 | ChromaDBServer        | `chromadb`         | `host`, `port`, `url`                                                               |
 | OllamaServer          | `ollama`           | `host`, `port`, `url`                                                               |
-| BluetapeHttpServer    | `bluetape-http`    | `host`, `port`, `url`, `httpbinUrl`, `jsonplaceholderUrl`, `webUrl`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
+| BluetapeHttpServer    | `bluetape-http`    | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 | BluetapeWebfluxServer | `bluetape-webflux` | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 
 ## Usage Examples
@@ -177,9 +177,9 @@ After `start()`, the following system properties are registered automatically:
 | `testcontainers.bluetape-http.host`               | `localhost`                                  |
 | `testcontainers.bluetape-http.port`               | `<dynamic>`                                  |
 | `testcontainers.bluetape-http.url`                | `http://localhost:<dynamic>`                 |
-| `testcontainers.bluetape-http.httpbinUrl`         | `http://localhost:<dynamic>/httpbin`         |
-| `testcontainers.bluetape-http.jsonplaceholderUrl` | `http://localhost:<dynamic>/jsonplaceholder` |
-| `testcontainers.bluetape-http.webUrl`             | `http://localhost:<dynamic>/web`             |
+| `testcontainers.bluetape-http.httpbin-url`        | `http://localhost:<dynamic>/httpbin`         |
+| `testcontainers.bluetape-http.jsonplaceholder-url` | `http://localhost:<dynamic>/jsonplaceholder` |
+| `testcontainers.bluetape-http.web-url`            | `http://localhost:<dynamic>/web`             |
 
 #### Spring Boot `application-test.yml`
 
@@ -187,8 +187,8 @@ After `start()`, the following system properties are registered automatically:
 mock:
   server:
     url: ${testcontainers.bluetape-http.url}
-    httpbin-url: ${testcontainers.bluetape-http.httpbinUrl}
-    jsonplaceholder-url: ${testcontainers.bluetape-http.jsonplaceholderUrl}
+    httpbin-url: ${testcontainers.bluetape-http.httpbin-url}
+    jsonplaceholder-url: ${testcontainers.bluetape-http.jsonplaceholder-url}
 ```
 
 #### Manual instance (non-singleton)

@@ -87,7 +87,7 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 | NginxServer           | `nginx`            | `host`, `port`, `url`                                                               |
 | ChromaDBServer        | `chromadb`         | `host`, `port`, `url`                                                               |
 | OllamaServer          | `ollama`           | `host`, `port`, `url`                                                               |
-| BluetapeHttpServer    | `bluetape-http`    | `host`, `port`, `url`, `httpbinUrl`, `jsonplaceholderUrl`, `webUrl`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
+| BluetapeHttpServer    | `bluetape-http`    | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 | BluetapeWebfluxServer | `bluetape-webflux` | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 
 ## 사용 예
@@ -184,9 +184,9 @@ val webUrl              = server.webUrl             // http://host:<port>/web
 | `testcontainers.bluetape-http.host`               | `localhost`                             |
 | `testcontainers.bluetape-http.port`               | `<동적>`                                  |
 | `testcontainers.bluetape-http.url`                | `http://localhost:<동적>`                 |
-| `testcontainers.bluetape-http.httpbinUrl`         | `http://localhost:<동적>/httpbin`         |
-| `testcontainers.bluetape-http.jsonplaceholderUrl` | `http://localhost:<동적>/jsonplaceholder` |
-| `testcontainers.bluetape-http.webUrl`             | `http://localhost:<동적>/web`             |
+| `testcontainers.bluetape-http.httpbin-url`        | `http://localhost:<동적>/httpbin`         |
+| `testcontainers.bluetape-http.jsonplaceholder-url` | `http://localhost:<동적>/jsonplaceholder` |
+| `testcontainers.bluetape-http.web-url`            | `http://localhost:<동적>/web`             |
 
 #### Spring Boot `application-test.yml`
 
@@ -194,8 +194,8 @@ val webUrl              = server.webUrl             // http://host:<port>/web
 mock:
   server:
     url: ${testcontainers.bluetape-http.url}
-    httpbin-url: ${testcontainers.bluetape-http.httpbinUrl}
-    jsonplaceholder-url: ${testcontainers.bluetape-http.jsonplaceholderUrl}
+    httpbin-url: ${testcontainers.bluetape-http.httpbin-url}
+    jsonplaceholder-url: ${testcontainers.bluetape-http.jsonplaceholder-url}
 ```
 
 #### 수동 인스턴스 (싱글턴 미사용)
