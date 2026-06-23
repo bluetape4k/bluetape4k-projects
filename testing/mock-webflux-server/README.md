@@ -116,7 +116,6 @@ dependencies {
 |--------|----------------|--------------------------------------------------------------|
 | `GET`  | `/ping`        | Health check — returns `pong`                                |
 | `POST` | `/admin/reset` | Reloads all in-memory fixture data from classpath JSON files |
-| `GET`  | `/admin/info`  | Returns server info                                          |
 
 #### `/httpbin/**`
 
@@ -136,18 +135,9 @@ dependencies {
 | `GET`    | `/httpbin/bytes/{n}`        | Returns `n` random bytes                                |
 | `GET`    | `/httpbin/delay/{seconds}`  | Responds after a delay (`0.5` = 500 ms, range 0.0–10.0) |
 | `GET`    | `/httpbin/stream/{n}`       | Streams `n` JSON lines via `Flow`                       |
-| `GET`    | `/httpbin/stream-bytes/{n}` | Streams `n` random bytes                                |
-| `GET`    | `/httpbin/drip`             | Drip-feeds bytes with configurable delay                |
-| `GET`    | `/httpbin/sse`              | Server-Sent Events stream                               |
 | `GET`    | `/httpbin/image/{format}`   | Returns a sample image (png/jpeg/svg/webp)              |
 | `GET`    | `/httpbin/gzip`             | Returns gzip-encoded response                           |
 | `GET`    | `/httpbin/deflate`          | Returns deflate-encoded response                        |
-| `GET`    | `/httpbin/brotli`           | Returns brotli-encoded response                         |
-| `GET`    | `/httpbin/html`             | Returns sample HTML                                     |
-| `GET`    | `/httpbin/xml`              | Returns sample XML                                      |
-| `GET`    | `/httpbin/json`             | Returns sample JSON                                     |
-| `GET`    | `/httpbin/robots.txt`       | Returns robots.txt                                      |
-| `GET`    | `/httpbin/deny`             | Returns 403 Forbidden                                   |
 
 #### `/jsonplaceholder/**`
 
