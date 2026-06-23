@@ -48,18 +48,21 @@ A unified module for geographic information processing. Provides Geocode, GeoHas
 ### GeoHash Encoding/Decoding
 
 ```kotlin
-import io.bluetape4k.geo.geohash.GeoHash
+import io.bluetape4k.geohash.geoHashOfString
+import io.bluetape4k.geohash.geoHashWithCharacters
+import io.bluetape4k.geohash.getAdjacent
 
 // Coordinates → GeoHash (precision 9)
-val hash = GeoHash.encode(latitude = 37.5665, longitude = 126.9780, precision = 9)
+val hash = geoHashWithCharacters(latitude = 37.5665, longitude = 126.9780, numberOfChars = 9)
+val base32 = hash.toBase32()
 // e.g. "wydm9mufd"
 
 // GeoHash → coordinates
-val point = GeoHash.decode("wydm9mufd")
+val point = geoHashOfString(base32).originatingPoint
 println("lat=${point.latitude}, lon=${point.longitude}")
 
 // Neighbor GeoHashes
-val neighbors = GeoHash.neighbors("wydm9mufd")
+val neighbors = hash.getAdjacent().map { it.toBase32() }
 ```
 
 `GeoHashCircleQuery` constraints:
@@ -77,32 +80,31 @@ export BING_GEOCODE_API_KEY="YOUR_BING_API_KEY"
 ```
 
 ```kotlin
-import io.bluetape4k.geo.geocode.google.GoogleGeocoder
+import io.bluetape4k.geocode.Geocode
+import io.bluetape4k.geocode.google.GoogleAddressFinder
 
-val geocoder = GoogleGeocoder(apiKey = "YOUR_API_KEY")
-
-// Address → coordinates
-val result = geocoder.geocode("Seoul City Hall, Jung-gu, Seoul")
-println("lat=${result.latitude}, lon=${result.longitude}")
+val finder = GoogleAddressFinder(apiKey = System.getenv("GOOGLE_GEOCODE_API_KEY"))
 
 // Coordinates → address (reverse geocoding)
-val address = geocoder.reverseGeocode(latitude = 37.5665, longitude = 126.9780)
+val address = finder.findAddress(Geocode(37.5665, 126.9780), language = "en")
+println("country=${address?.country}, city=${address?.city}")
 ```
 
 ### GeoIP2
 
 ```kotlin
-import io.bluetape4k.geo.geoip2.GeoIp2Support
+import io.bluetape4k.geoip2.Geoip
+import io.bluetape4k.geoip2.tryFindCity
 import java.net.InetAddress
 
-// Specify the path to the MaxMind GeoIP2 database
-val reader = GeoIp2Support.cityReader("/path/to/GeoLite2-City.mmdb")
+// Place GeoLite2-City.mmdb on the application classpath.
+val ipAddress = InetAddress.getByName("8.8.8.8")
+val cityResponse = Geoip.cityDatabase.tryFindCity(ipAddress).getOrNull()
 
-val cityResponse = reader.city(InetAddress.getByName("8.8.8.8"))
-println("Country: ${cityResponse.country.name}")
-println("City: ${cityResponse.city.name}")
-println("Latitude: ${cityResponse.location.latitude}")
-println("Longitude: ${cityResponse.location.longitude}")
+println("Country: ${cityResponse?.country()?.name()}")
+println("City: ${cityResponse?.city()?.name()}")
+println("Latitude: ${cityResponse?.location()?.latitude()}")
+println("Longitude: ${cityResponse?.location()?.longitude()}")
 ```
 
 ## Installation
@@ -114,10 +116,16 @@ dependencies {
     implementation("io.github.bluetape4k:bluetape4k-geo:${bluetape4kVersion}")
 
     // For Geocode (Google Maps)
+    implementation("io.github.bluetape4k:bluetape4k-feign:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-jackson3:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-resilience4j:${bluetape4kVersion}")
     implementation("com.google.maps:google-maps-services:2.2.0")
-    implementation(Libs.feign_core)
-    implementation(Libs.feign_kotlin)
-    implementation(Libs.feign_jackson)
+    implementation("io.github.openfeign:feign-core:13.12")
+    implementation("io.github.openfeign:feign-kotlin:13.12")
+    implementation("io.github.openfeign:feign-slf4j:13.12")
+    implementation("io.github.openfeign:feign-jackson:13.12")
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.6.1")
+    implementation("org.apache.httpcomponents.client5:httpclient5-cache:5.6.1")
 
     // For GeoIP2
     implementation("com.maxmind.geoip2:geoip2:5.0.2")
