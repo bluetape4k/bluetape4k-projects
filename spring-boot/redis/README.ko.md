@@ -36,6 +36,10 @@ dependencies {
 }
 ```
 
+이 모듈은 아래 `RedisBinarySerializers` 목록에 나온 Kryo/Fory 및
+LZ4/Snappy/Zstd 조합의 런타임 의존성을 함께 게시합니다. 표시된 serializer 조합을
+사용하기 위해 별도 codec 또는 compressor 의존성을 추가할 필요가 없습니다.
+
 ## 사용 예시
 
 ### ReactiveRedisTemplate 설정 (DSL 방식)
