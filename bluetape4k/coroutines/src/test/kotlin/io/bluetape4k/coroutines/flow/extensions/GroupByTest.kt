@@ -2,8 +2,8 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
 import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
-import io.bluetape4k.coroutines.tests.assertResult
-import io.bluetape4k.coroutines.tests.assertResultSet
+import io.bluetape4k.assertions.coroutines.assertResult
+import io.bluetape4k.assertions.coroutines.assertResultSet
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace

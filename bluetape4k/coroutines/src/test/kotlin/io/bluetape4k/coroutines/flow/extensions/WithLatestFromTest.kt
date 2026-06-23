@@ -1,9 +1,10 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.coroutines.tests.assertError
-import io.bluetape4k.coroutines.tests.assertResult
+import io.bluetape4k.assertions.coroutines.assertError
+import io.bluetape4k.assertions.coroutines.assertResult
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.emptyFlow
@@ -67,12 +68,14 @@ class WithLatestFromTest: AbstractFlowTest() {
 
     @Test
     fun `withLatestFrom with source cancellation`() = runTest {
-        flow {
-            emit(1)
-            throw kotlinx.coroutines.CancellationException("Boom!")
-        }.log("source")
-            .withLatestFrom(emptyFlow<Nothing>()).log("latest")
-            .assertError<kotlinx.coroutines.CancellationException>()
+        assertFailsWith<kotlinx.coroutines.CancellationException> {
+            flow {
+                emit(1)
+                throw kotlinx.coroutines.CancellationException("Boom!")
+            }.log("source")
+                .withLatestFrom(emptyFlow<Nothing>()).log("latest")
+                .toList()
+        }
     }
 
     @Test

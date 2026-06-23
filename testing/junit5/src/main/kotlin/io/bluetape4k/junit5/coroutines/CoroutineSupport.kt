@@ -1,12 +1,14 @@
 package io.bluetape4k.junit5.coroutines
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -129,4 +131,46 @@ inline fun runSuspendVT(
     crossinline testBody: suspend CoroutineScope.() -> Unit,
 ) {
     runSuspendTest(Dispatchers.VT, timeout, testBody)
+}
+
+/**
+ * Creates a single-thread dispatcher for the duration of [block].
+ *
+ * The backing executor is shut down after [block] returns or throws.
+ */
+suspend inline fun withSingleThread(crossinline block: suspend (dispatcher: CoroutineDispatcher) -> Unit) {
+    val executor = Executors.newSingleThreadExecutor()
+    try {
+        block(executor.asCoroutineDispatcher())
+    } finally {
+        runCatching {
+            executor.shutdown()
+            executor.awaitTermination(1, TimeUnit.SECONDS)
+        }
+    }
+}
+
+/**
+ * Creates [parallelism] single-thread dispatchers for the duration of [block].
+ *
+ * The backing executors are shut down after [block] returns or throws.
+ */
+suspend inline fun withParallels(
+    parallelism: Int = Runtime.getRuntime().availableProcessors(),
+    crossinline block: suspend (dispatchers: List<CoroutineDispatcher>) -> Unit,
+) {
+    require(parallelism > 0) { "parallelism must be positive: $parallelism" }
+
+    val executors = Array(parallelism) { Executors.newSingleThreadExecutor() }
+
+    try {
+        block(executors.map { it.asCoroutineDispatcher() })
+    } finally {
+        executors.forEach { executor ->
+            runCatching {
+                executor.shutdown()
+                executor.awaitTermination(1, TimeUnit.SECONDS)
+            }
+        }
+    }
 }
