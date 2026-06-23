@@ -29,19 +29,22 @@ The Spring Boot 4 BOM must also be applied explicitly:
 
 ```kotlin
 // build.gradle.kts
+val springBootVersion = "4.0.6"
+val bluetape4kVersion = "1.11.0"
+
 dependencies {
     // Spring Boot 4 BOM (use platform instead of dependencyManagement)
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 
     implementation("io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce:${bluetape4kVersion}")
 
-    // Hibernate must be declared explicitly
-    compileOnly(Libs.springBoot("hibernate"))
+    // Spring Boot 4 Hibernate integration
+    implementation("org.springframework.boot:spring-boot-hibernate")
 
     // Spring Boot Starters
-    implementation(Libs.springBootStarter("data-jpa"))
-    implementation(Libs.springBootStarter("actuator"))   // Actuator endpoint (optional)
-    implementation(Libs.micrometer_core)                 // Micrometer metrics (optional)
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-actuator") // Actuator endpoint (optional)
+    implementation("io.micrometer:micrometer-core")                         // Micrometer metrics (optional)
 }
 ```
 
@@ -57,19 +60,22 @@ dependencies {
 
 ```kotlin
 // build.gradle.kts
+val springBootVersion = "4.0.6"
+val bluetape4kVersion = "1.11.0"
+
 dependencies {
     // Spring Boot 4 BOM (required)
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 
     implementation("io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce:${bluetape4kVersion}")
 
     // Spring Boot Starters
-    implementation(Libs.springBootStarter("data-jpa"))
-    implementation(Libs.springBootStarter("actuator"))   // Actuator endpoint (optional)
-    implementation(Libs.micrometer_core)                 // Micrometer metrics (optional)
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-actuator") // Actuator endpoint (optional)
+    implementation("io.micrometer:micrometer-core")                         // Micrometer metrics (optional)
 
-    // Hibernate (explicit declaration)
-    compileOnly(Libs.springBoot("hibernate"))
+    // Spring Boot 4 Hibernate integration
+    implementation("org.springframework.boot:spring-boot-hibernate")
 }
 ```
 
@@ -314,8 +320,9 @@ Integration tests automatically manage Redis + H2 via Testcontainers.
 ## Migration Note
 
 This module is Spring Boot 4.x only. Use
-`implementation(platform(libs.spring.boot.dependencies))` and declare Hibernate
-explicitly with `compileOnly(Libs.springBoot("hibernate"))`.
+`implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))`
+and keep `org.springframework.boot:spring-boot-hibernate` on the application
+classpath so `HibernatePropertiesCustomizer` is available.
 
 ## Package Information
 
