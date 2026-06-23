@@ -1,6 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions.parallel
 
-import io.bluetape4k.coroutines.tests.withParallels
+import io.bluetape4k.junit5.coroutines.withParallels
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest

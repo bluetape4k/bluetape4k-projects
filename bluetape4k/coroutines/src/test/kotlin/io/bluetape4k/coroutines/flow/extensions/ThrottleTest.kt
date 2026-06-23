@@ -4,8 +4,8 @@ import app.cash.turbine.test
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.coroutines.tests.assertEmpty
-import io.bluetape4k.coroutines.tests.assertResult
+import io.bluetape4k.assertions.coroutines.assertEmpty
+import io.bluetape4k.assertions.coroutines.assertResult
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
