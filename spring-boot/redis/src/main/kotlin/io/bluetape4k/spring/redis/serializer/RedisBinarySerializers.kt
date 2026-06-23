@@ -19,6 +19,15 @@ import io.bluetape4k.io.serializer.BinarySerializers
  */
 object RedisBinarySerializers {
 
+    private const val JDK_SERIALIZATION_DEPRECATION_MESSAGE =
+        "JDK deserialization can expose Redis values to RCE gadget-chain risk. " +
+            "Use RedisBinarySerializers.Kryo or RedisBinarySerializers.Fory unless Redis data is fully trusted."
+
+    @Deprecated(
+        message = JDK_SERIALIZATION_DEPRECATION_MESSAGE,
+        ReplaceWith("RedisBinarySerializers.Kryo")
+    )
+    @Suppress("DEPRECATION")
     val Jdk by lazy { RedisBinarySerializer(BinarySerializers.Jdk) }
     val Kryo by lazy { RedisBinarySerializer(BinarySerializers.Kryo) }
     val Fory by lazy { RedisBinarySerializer(BinarySerializers.Fory) }
@@ -28,9 +37,32 @@ object RedisBinarySerializers {
     val Snappy by lazy { RedisCompressSerializer(Compressors.Snappy) }
     val Zstd by lazy { RedisCompressSerializer(Compressors.Zstd) }
 
+    @Deprecated(
+        message = JDK_SERIALIZATION_DEPRECATION_MESSAGE,
+        ReplaceWith("RedisBinarySerializers.GzipKryo")
+    )
+    @Suppress("DEPRECATION")
     val GzipJdk by lazy { RedisBinarySerializer(BinarySerializers.GZipJdk) }
+
+    @Deprecated(
+        message = JDK_SERIALIZATION_DEPRECATION_MESSAGE,
+        ReplaceWith("RedisBinarySerializers.LZ4Kryo")
+    )
+    @Suppress("DEPRECATION")
     val LZ4Jdk by lazy { RedisBinarySerializer(BinarySerializers.LZ4Jdk) }
+
+    @Deprecated(
+        message = JDK_SERIALIZATION_DEPRECATION_MESSAGE,
+        ReplaceWith("RedisBinarySerializers.SnappyKryo")
+    )
+    @Suppress("DEPRECATION")
     val SnappyJdk by lazy { RedisBinarySerializer(BinarySerializers.SnappyJdk) }
+
+    @Deprecated(
+        message = JDK_SERIALIZATION_DEPRECATION_MESSAGE,
+        ReplaceWith("RedisBinarySerializers.ZstdKryo")
+    )
+    @Suppress("DEPRECATION")
     val ZstdJdk by lazy { RedisBinarySerializer(BinarySerializers.ZstdJdk) }
 
     val GzipKryo by lazy { RedisBinarySerializer(BinarySerializers.GZipKryo) }

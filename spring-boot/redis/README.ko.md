@@ -92,23 +92,27 @@ fun redisTemplate(factory: RedisConnectionFactory): RedisTemplate<String, Any> {
 
 ### 직렬화 (객체 → ByteArray)
 
-| 상수                                  | 직렬화 엔진 | 압축     |
-|-------------------------------------|--------|--------|
-| `RedisBinarySerializers.Jdk`        | JDK    | 없음     |
-| `RedisBinarySerializers.Kryo`       | Kryo   | 없음     |
-| `RedisBinarySerializers.Fory`       | Fory   | 없음     |
-| `RedisBinarySerializers.GzipJdk`    | JDK    | GZip   |
-| `RedisBinarySerializers.LZ4Jdk`     | JDK    | LZ4    |
-| `RedisBinarySerializers.SnappyJdk`  | JDK    | Snappy |
-| `RedisBinarySerializers.ZstdJdk`    | JDK    | Zstd   |
-| `RedisBinarySerializers.GzipKryo`   | Kryo   | GZip   |
-| `RedisBinarySerializers.LZ4Kryo`    | Kryo   | LZ4    |
-| `RedisBinarySerializers.SnappyKryo` | Kryo   | Snappy |
-| `RedisBinarySerializers.ZstdKryo`   | Kryo   | Zstd   |
-| `RedisBinarySerializers.GzipFory`   | Fory   | GZip   |
-| `RedisBinarySerializers.LZ4Fory`    | Fory   | LZ4    |
-| `RedisBinarySerializers.SnappyFory` | Fory   | Snappy |
-| `RedisBinarySerializers.ZstdFory`   | Fory   | Zstd   |
+JDK 역직렬화는 Redis에 저장된 값이 gadget chain 기반 RCE 위험에 노출될 수 있습니다. JDK
+serializer 상수는 deprecated 상태이며, 저장된 Redis 데이터가 완전히 신뢰 가능한 경우에만
+사용하세요. 일반 Redis 객체 값에는 Kryo 또는 Fory를 권장합니다.
+
+| 상수                                  | 직렬화 엔진 | 압축     | 상태                 |
+|-------------------------------------|--------|--------|--------------------|
+| `RedisBinarySerializers.Jdk`        | JDK    | 없음     | Deprecated; 신뢰 데이터 전용 |
+| `RedisBinarySerializers.Kryo`       | Kryo   | 없음     | 권장                 |
+| `RedisBinarySerializers.Fory`       | Fory   | 없음     | 권장                 |
+| `RedisBinarySerializers.GzipJdk`    | JDK    | GZip   | Deprecated; 신뢰 데이터 전용 |
+| `RedisBinarySerializers.LZ4Jdk`     | JDK    | LZ4    | Deprecated; 신뢰 데이터 전용 |
+| `RedisBinarySerializers.SnappyJdk`  | JDK    | Snappy | Deprecated; 신뢰 데이터 전용 |
+| `RedisBinarySerializers.ZstdJdk`    | JDK    | Zstd   | Deprecated; 신뢰 데이터 전용 |
+| `RedisBinarySerializers.GzipKryo`   | Kryo   | GZip   | 권장                 |
+| `RedisBinarySerializers.LZ4Kryo`    | Kryo   | LZ4    | 권장                 |
+| `RedisBinarySerializers.SnappyKryo` | Kryo   | Snappy | 권장                 |
+| `RedisBinarySerializers.ZstdKryo`   | Kryo   | Zstd   | 권장                 |
+| `RedisBinarySerializers.GzipFory`   | Fory   | GZip   | 권장                 |
+| `RedisBinarySerializers.LZ4Fory`    | Fory   | LZ4    | 권장                 |
+| `RedisBinarySerializers.SnappyFory` | Fory   | Snappy | 권장                 |
+| `RedisBinarySerializers.ZstdFory`   | Fory   | Zstd   | 권장                 |
 
 ### 압축 전용 (ByteArray → ByteArray)
 

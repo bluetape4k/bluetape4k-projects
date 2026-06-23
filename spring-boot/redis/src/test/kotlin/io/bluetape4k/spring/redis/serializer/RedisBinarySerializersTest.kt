@@ -15,6 +15,7 @@ class RedisBinarySerializersTest: AbstractRedisSerializerTest() {
     companion object {
 
         @JvmStatic
+        @Suppress("DEPRECATION")
         fun binarySerializers(): Stream<Arguments> = Stream.of(
             Arguments.of(RedisBinarySerializers.Jdk, "Jdk"),
             Arguments.of(RedisBinarySerializers.Kryo, "Kryo"),
