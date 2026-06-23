@@ -321,29 +321,27 @@ class DemoApplicationTest {
 
 ```kotlin
 // build.gradle.kts
+val springBootVersion = "4.0.6"
+val bluetape4kVersion = "1.11.0"
+
 dependencies {
     // Spring Boot 4 BOM
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 
     implementation("io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce:${bluetape4kVersion}")
-    implementation(Libs.springBootStarter("web"))
-    implementation(Libs.springBootStarter("data-jpa"))
-    implementation(Libs.springBootStarter("actuator"))
-    runtimeOnly(Libs.h2_database)
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    runtimeOnly("com.h2database:h2")
 
-    // Hibernate (explicit declaration)
-    compileOnly(Libs.springBoot("hibernate"))
-
-    testImplementation(Libs.springBootStarter("test"))
-    testImplementation(Libs.testcontainers)
-    testImplementation(Libs.testcontainers_junit5)
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 ```
 
 ## Spring Boot 4-Specific Notes
 
-- **BOM**: `implementation(platform(libs.spring.boot.dependencies))` required
-- **Hibernate**: `compileOnly(Libs.springBoot("hibernate"))` must be added
+- **BOM**: import `org.springframework.boot:spring-boot-dependencies` with `platform(...)`
+- **Hibernate**: `spring-boot-starter-data-jpa` supplies the Hibernate runtime required by this demo
 - **Package name**: `org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer`
 
 ## Package Information
