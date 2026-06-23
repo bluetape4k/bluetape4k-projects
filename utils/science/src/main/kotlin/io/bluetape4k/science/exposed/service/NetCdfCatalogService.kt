@@ -15,6 +15,7 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Timer
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import ucar.ma2.Array as UcarArray
+import ucar.nc2.Attribute
 import ucar.nc2.NetcdfFiles
 import ucar.nc2.Variable
 import ucar.nc2.dataset.NetcdfDataset
@@ -95,12 +96,12 @@ class NetCdfCatalogService(
                             name = v.fullName,
                             dataType = v.dataType.name,
                             shape = v.shape.toList(),
-                            attributes = v.attributes.associate { attr ->
+                            attributes = v.netCdfAttributes().associate { attr ->
                                 attr.shortName to (attr.stringValue ?: attr.numericValue?.toString().orEmpty())
                             },
                         )
                     }
-                    val dimensions = nc.dimensions.associate { it.shortName to it.length }
+                    val dimensions = nc.rootGroup.getDimensions().associate { it.shortName to it.length }
                     val globalAttrs = nc.globalAttributes.associate { attr ->
                         attr.shortName to (attr.stringValue ?: attr.numericValue?.toString().orEmpty())
                     }
@@ -537,4 +538,6 @@ class NetCdfCatalogService(
     private data class ImportLease(
         var expiresAt: Instant,
     )
+
+    private fun Variable.netCdfAttributes(): Iterable<Attribute> = attributes()
 }
