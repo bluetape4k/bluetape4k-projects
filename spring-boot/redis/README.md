@@ -37,6 +37,11 @@ dependencies {
 }
 ```
 
+The module publishes runtime dependencies for the documented
+`RedisBinarySerializers` Kryo/Fory and LZ4/Snappy/Zstd combinations. Consumers
+do not need to add separate codec or compressor dependencies for the serializer
+matrix shown below.
+
 ## Usage Examples
 
 ### ReactiveRedisTemplate Configuration (DSL approach)
