@@ -28,19 +28,22 @@ Spring Boot 4에서는 패키지명이 변경되었습니다:
 
 ```kotlin
 // build.gradle.kts
+val springBootVersion = "4.0.6"
+val bluetape4kVersion = "1.11.0"
+
 dependencies {
     // Spring Boot 4 BOM (dependencyManagement 대신 platform 사용)
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 
     implementation("io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce:${bluetape4kVersion}")
 
-    // Hibernate 명시적 추가 필요
-    compileOnly(Libs.springBoot("hibernate"))
+    // Spring Boot 4 Hibernate 통합
+    implementation("org.springframework.boot:spring-boot-hibernate")
 
     // Spring Boot Starters
-    implementation(Libs.springBootStarter("data-jpa"))
-    implementation(Libs.springBootStarter("actuator"))   // Actuator 엔드포인트 (선택)
-    implementation(Libs.micrometer_core)                 // Micrometer 메트릭 (선택)
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-actuator") // Actuator 엔드포인트 (선택)
+    implementation("io.micrometer:micrometer-core")                         // Micrometer 메트릭 (선택)
 }
 ```
 
@@ -56,19 +59,22 @@ dependencies {
 
 ```kotlin
 // build.gradle.kts
+val springBootVersion = "4.0.6"
+val bluetape4kVersion = "1.11.0"
+
 dependencies {
     // Spring Boot 4 BOM (필수)
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 
     implementation("io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce:${bluetape4kVersion}")
 
     // Spring Boot Starters
-    implementation(Libs.springBootStarter("data-jpa"))
-    implementation(Libs.springBootStarter("actuator"))   // Actuator 엔드포인트 (선택)
-    implementation(Libs.micrometer_core)                 // Micrometer 메트릭 (선택)
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-actuator") // Actuator 엔드포인트 (선택)
+    implementation("io.micrometer:micrometer-core")                         // Micrometer 메트릭 (선택)
 
-    // Hibernate (명시적 선언)
-    compileOnly(Libs.springBoot("hibernate"))
+    // Spring Boot 4 Hibernate 통합
+    implementation("org.springframework.boot:spring-boot-hibernate")
 }
 ```
 
@@ -313,8 +319,9 @@ bluetape4k:
 ## 마이그레이션 참고
 
 이 모듈은 Spring Boot 4.x 전용입니다.
-`implementation(platform(libs.spring.boot.dependencies))`를 사용하고
-Hibernate는 `compileOnly(Libs.springBoot("hibernate"))`로 명시적으로 선언하세요.
+`implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))`를 사용하고
+`HibernatePropertiesCustomizer`를 사용할 수 있도록
+`org.springframework.boot:spring-boot-hibernate`를 application classpath에 유지하세요.
 
 ## 패키지 정보
 
