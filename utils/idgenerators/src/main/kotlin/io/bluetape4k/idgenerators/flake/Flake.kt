@@ -126,10 +126,13 @@ class Flake private constructor(
          * @return `{timestamp}-{nodeId}-{sequence}` 형식의 문자열
          */
         fun asComponentString(flakeId: ByteArray): String {
+            require(flakeId.size == ID_SIZE_BYTES) { "ByteArray size must be 16" }
             val buffer = ByteBuffer.wrap(flakeId)
+            val timestamp = buffer.long
             val node = ByteArray(NODE_ID_BYTES)
             buffer.get(node)
-            return "${buffer.long}-${BigInteger(node).toLong()}-${buffer.short}"
+            val sequence = buffer.short
+            return "$timestamp-${BigInteger(node).toLong()}-$sequence"
         }
     }
 

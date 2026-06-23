@@ -20,6 +20,8 @@ import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.time.Clock
 import java.time.Duration
+import java.time.Instant
+import java.time.ZoneOffset
 import java.util.concurrent.ConcurrentHashMap
 
 class FlakeTest {
@@ -65,6 +67,18 @@ class FlakeTest {
         ids shouldHaveSize ID_SIZE
         ids.distinct() shouldHaveSize ID_SIZE
         ids.sorted() shouldBeEqualTo ids
+    }
+
+    @Test
+    fun `component string uses timestamp node and sequence byte layout`() {
+        val timestamp = 1_700_000_000_123L
+        val nodeId = 0x010203040506L
+        val clock = Clock.fixed(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
+        val customFlake = Flake({ nodeId }, clock)
+
+        val id = customFlake.nextId()
+
+        Flake.asComponentString(id) shouldBeEqualTo "$timestamp-$nodeId-1"
     }
 
     @Test
