@@ -52,6 +52,6 @@ inline fun <T: Any, G: Any> Iterable<T>.binByBigDecimal(
     crossinline groupOp: (List<T>) -> G,
     rangeStart: BigDecimal? = null,
 ): BinModel<G, BigDecimal> {
-require(count() > 0) { "Collection must not be empty." }
+    require(binSize > BigDecimal.ZERO) { "binSize must be greater than 0." }
     return binByComparable({ it + binSize }, valueMapper, groupOp, rangeStart)
 }

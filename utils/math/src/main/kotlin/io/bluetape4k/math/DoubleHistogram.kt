@@ -49,5 +49,7 @@ inline fun <T: Any, G: Any> Iterable<T>.binByDouble(
     valueMapper: (T) -> Double,
     crossinline groupOp: (List<T>) -> G,
     rangeStart: Double? = null,
-): BinModel<G, Double> =
-    binByComparable({ it + binSize }, valueMapper, groupOp, rangeStart)
+): BinModel<G, Double> {
+    require(binSize.isFinite() && binSize > 0.0) { "binSize must be finite and greater than 0." }
+    return binByComparable({ it + binSize }, valueMapper, groupOp, rangeStart)
+}

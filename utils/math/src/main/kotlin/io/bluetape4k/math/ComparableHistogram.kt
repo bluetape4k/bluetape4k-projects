@@ -122,7 +122,11 @@ inline fun <T: Any, C: Comparable<C>, G: Any> Iterable<T>.binByComparable(
             var currentRangeStart = minC
             var currentRangeEnd = minC
             while (currentRangeEnd < maxC) {
-                currentRangeEnd = incrementer(currentRangeEnd)
+                val nextRangeEnd = incrementer(currentRangeEnd)
+                require(nextRangeEnd > currentRangeEnd) {
+                    "incrementer must increase the current range end."
+                }
+                currentRangeEnd = nextRangeEnd
                 add(rangeFactory(currentRangeStart, currentRangeEnd))
                 currentRangeStart = currentRangeEnd
             }
