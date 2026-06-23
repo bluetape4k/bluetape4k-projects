@@ -62,10 +62,17 @@ interface UserRepository : CassandraRepository<User, UUID> {
 ## Coroutines 지원
 
 ```kotlin
-interface CoroutinePersonRepository : CoroutineCrudRepository<Person, UUID> {
-    suspend fun findByLastName(lastName: String): Flow<Person>
+interface CoroutinePersonRepository : CoroutineCrudRepository<Person, String> {
+
+    fun findByLastname(lastname: String): Flow<Person>
+
+    @Query("SELECT * FROM coroutine_persons WHERE firstname = ?0 AND lastname = ?1")
+    suspend fun findByFirstnameAndLastname(firstname: String, lastname: String): Person?
 }
 ```
+
+`Flow<T>`를 반환하는 Repository query는 일반 함수로 선언합니다. 단일
+결과를 반환하는 nullable `Person?` 조회에는 `suspend fun`을 사용합니다.
 
 ## 실행 방법
 

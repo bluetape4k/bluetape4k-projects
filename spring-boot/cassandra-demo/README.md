@@ -62,10 +62,17 @@ interface UserRepository : CassandraRepository<User, UUID> {
 ## Coroutines Support
 
 ```kotlin
-interface CoroutinePersonRepository : CoroutineCrudRepository<Person, UUID> {
-    suspend fun findByLastName(lastName: String): Flow<Person>
+interface CoroutinePersonRepository : CoroutineCrudRepository<Person, String> {
+
+    fun findByLastname(lastname: String): Flow<Person>
+
+    @Query("SELECT * FROM coroutine_persons WHERE firstname = ?0 AND lastname = ?1")
+    suspend fun findByFirstnameAndLastname(firstname: String, lastname: String): Person?
 }
 ```
+
+`Flow<T>` repository queries are regular functions. Use `suspend fun` for
+single-result coroutine queries such as nullable `Person?` lookups.
 
 ## Running the Examples
 
