@@ -381,7 +381,7 @@ open class DateAdd protected constructor() {
                 }
 
                 // 근처 값이 아니라면 포기
-                val periodToMoment = Duration.between(start, period.end)
+                val periodToMoment = Duration.between(period.end, start)
                 if (periodToMoment < diff) {
                     diff = periodToMoment
                     nearest = period
