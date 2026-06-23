@@ -21,6 +21,7 @@ A server wrapper and utility library for building integration tests quickly on t
 ## Key Features
 
 - Wrappers for database, graph DB, storage, messaging, infrastructure, distributed SQL, and LLM services
+- `MinIOServer` remains available for explicit MinIO compatibility tests; use `FlociServer` or `MiniStackServer` for new AWS/S3 emulator tests
 - HTTP mocking through WireMock and NginxServer
 - **AWS Emulator support**: `AwsEmulatorServer` common interface; `MiniStackServer` (31+ services, MIT license, recommended), `FlociServer` (open-source LocalStack replacement), `LocalStackServer` (@Deprecated)
 - **Embedded SQS**: `ElasticMqServer` runs an in-process SQS server — no Docker needed

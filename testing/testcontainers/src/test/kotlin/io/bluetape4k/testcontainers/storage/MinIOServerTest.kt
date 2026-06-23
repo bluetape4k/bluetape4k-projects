@@ -1,5 +1,10 @@
 package io.bluetape4k.testcontainers.storage
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNullOrBlank
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.AbstractContainerTest
@@ -7,17 +12,19 @@ import io.minio.BucketExistsArgs
 import io.minio.MakeBucketArgs
 import io.minio.StatObjectArgs
 import io.minio.UploadObjectArgs
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNullOrBlank
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
-import io.bluetape4k.assertions.assertFailsWith
+import kotlin.reflect.full.findAnnotation
 
 class MinIOServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
+
+    @Test
+    fun `MinIOServer remains available for explicit MinIO compatibility tests`() {
+        MinIOServer::class.findAnnotation<Deprecated>().shouldBeNull()
+    }
 
     @Nested
     inner class UseDockerPort {

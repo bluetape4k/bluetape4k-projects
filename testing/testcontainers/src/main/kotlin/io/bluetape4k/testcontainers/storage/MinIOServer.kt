@@ -11,19 +11,19 @@ import org.testcontainers.containers.MinIOContainer
 import org.testcontainers.utility.DockerImageName
 
 /**
- * [MinIO](https://min.io) Server 를 Docker container 로 실행해주는 클래스입니다.
+ * Testcontainers wrapper for running a [MinIO](https://min.io) server.
  *
- * 참고: [MinIO Docker image](https://hub.docker.com/r/minio/minio/tags)
+ * Keep this server for explicit MinIO compatibility tests. For new AWS or
+ * S3-compatible emulator tests, prefer
+ * [FlociServer][io.bluetape4k.testcontainers.aws.FlociServer] or
+ * [MiniStackServer][io.bluetape4k.testcontainers.aws.MiniStackServer].
  *
- * @param imageName      Docker image name ([DockerImageName])
- * @param useDefaultPort Default port 를 사용할지 여부
- * @param reuse          재사용 여부
+ * Reference: [MinIO Docker image](https://hub.docker.com/r/minio/minio/tags)
+ *
+ * @param imageName Docker image name.
+ * @param useDefaultPort Whether to bind MinIO ports directly.
+ * @param reuse Whether to enable Testcontainers reuse.
  */
-@Deprecated(
-    message = "MinIO core는 2026-04-25에 archived 되었습니다. S3 호환 에뮬레이터가 필요한 경우 FlociServer 또는 LocalStackServer를 사용하세요.",
-    replaceWith = ReplaceWith("FlociServer", "io.bluetape4k.testcontainers.aws.FlociServer"),
-    level = DeprecationLevel.WARNING
-)
 class MinIOServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,

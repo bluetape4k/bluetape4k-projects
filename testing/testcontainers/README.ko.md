@@ -23,6 +23,7 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 - **DB 서버 지원**: MySQL, MariaDB, PostgreSQL, PostGIS, pgvector, Cockroach, ClickHouse
 - **Graph DB 서버 지원**: Neo4j, Memgraph, FalkorDB, PostgreSQL + Apache AGE
 - **Storage 서버 지원**: Redis/Redis Cluster, MongoDB, Cassandra, Elasticsearch/OSS/OpenSearch, MinIO, InfluxDB
+- `MinIOServer`는 명시적인 MinIO 호환성 테스트용으로 유지하며, 신규 AWS/S3 에뮬레이터 테스트는 `FlociServer` 또는 `MiniStackServer`를 사용하세요.
 - **분산 캐시/그리드**: `HazelcastServer` (5.x slim), `Ignite2Server`, `Ignite3Server` (클러스터 자동 초기화)
 - **MQ 서버 지원**: Kafka, RabbitMQ, Pulsar, Nats, Redpanda
 - **Infra 서버 지원**: Consul, Vault, Prometheus, Jaeger, Zipkin, ZooKeeper, Toxiproxy, Keycloak
