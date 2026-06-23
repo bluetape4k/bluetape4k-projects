@@ -9,6 +9,7 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -46,7 +47,7 @@ class ReactiveCqlOperationsSupportUnitTest {
         every { ops.queryForObject(any<Statement<*>>(), any<Class<*>>()) } answers {
             Mono.just("result") as Mono<Any>
         }
-        every { ops.queryForMap(any<String>(), any<Array<*>>()) } returns Mono.just(testMap)
+        every { ops.queryForMap(any<String>(), *anyVararg()) } returns Mono.just(testMap)
         every { ops.queryForMap(any<Statement<*>>()) } returns Mono.just(testMap)
         every { ops.queryForResultSet(any<String>(), *anyVararg()) } returns Mono.just(mockResultSet)
         every { ops.queryForResultSet(any<Statement<*>>()) } returns Mono.just(mockResultSet)
@@ -114,6 +115,19 @@ class ReactiveCqlOperationsSupportUnitTest {
         val result = mockOps.queryForMapSuspending("SELECT * FROM users WHERE id = ?", "1")
         result.shouldNotBeNull()
         result["id"] shouldBeEqualTo "1"
+    }
+
+    @Test
+    fun `queryForMapSuspending expands CQL vararg arguments`() = runSuspendIO {
+        val localOps = mockk<ReactiveCqlOperations>()
+        val cql = "SELECT * FROM users WHERE id = ? AND firstname = ?"
+
+        every { localOps.queryForMap(cql, "user-1", "Debop") } returns Mono.just(testMap)
+
+        val result = localOps.queryForMapSuspending(cql, "user-1", "Debop")
+
+        result["id"] shouldBeEqualTo "1"
+        verify(exactly = 1) { localOps.queryForMap(cql, "user-1", "Debop") }
     }
 
     @Test

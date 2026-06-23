@@ -89,6 +89,20 @@ class ReactiveCqlOperationsSupportTest(
     }
 
     @Test
+    fun `queryForMapSuspending - CQL bind marker varargs`() = runSuspendIO {
+        val user = insertUser(newUser())
+
+        val row = reactiveCqlOps.queryForMapSuspending(
+            "SELECT * FROM users WHERE id = ? AND firstname = ? ALLOW FILTERING",
+            user.id,
+            user.firstname,
+        )
+
+        row["id"] shouldBeEqualTo user.id
+        row["firstname"] shouldBeEqualTo user.firstname
+    }
+
+    @Test
     fun `queryForResultSetSuspending - ResultSet 반환`() = runSuspendIO {
         val user = insertUser(newUser())
 

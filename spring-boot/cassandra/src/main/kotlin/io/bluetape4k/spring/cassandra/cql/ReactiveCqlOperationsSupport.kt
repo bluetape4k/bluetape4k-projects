@@ -141,7 +141,7 @@ suspend inline fun <reified T: Any> ReactiveCqlOperations.queryForObjectSuspendi
  * CQL 문자열 실행 결과를 단일 행 맵으로 반환합니다.
  *
  * ## 동작/계약
- * - 내부적으로 `queryForMap(cql, args).awaitSingle()`을 호출합니다.
+ * - 내부적으로 `queryForMap(cql, *args).awaitSingle()`을 호출합니다.
  * - 결과가 없거나 다중 행인 경우 예외 여부는 Spring Data Cassandra 규칙을 따릅니다.
  *
  * ```kotlin
@@ -152,7 +152,7 @@ suspend inline fun <reified T: Any> ReactiveCqlOperations.queryForObjectSuspendi
 suspend fun ReactiveCqlOperations.queryForMapSuspending(
     cql: String,
     vararg args: Any,
-): Map<String, Any?> = queryForMap(cql, args).awaitSingle()
+): Map<String, Any?> = queryForMap(cql, *args).awaitSingle()
 
 /**
  * CQL 문자열 실행 결과를 지정 타입 [Flow]로 반환합니다.
