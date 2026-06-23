@@ -20,6 +20,15 @@ class AreaTest {
     }
 
     @Test
+    fun `면적을 다른 길이 단위로 나누어 길이를 계산한다`() {
+        val kilometerWidth = (1 * (Length.kilometers * Length.kilometers)) / 1000.meters()
+        (kilometerWidth `in` Length.meters).shouldBeNear(1000.0, 1e-10)
+
+        val meterWidth = (1 * (Length.meters * Length.meters)) / 50.centimeters()
+        (meterWidth `in` Length.meters).shouldBeNear(2.0, 1e-10)
+    }
+
+    @Test
     fun `면적 단위 변환이 동작한다`() {
         val squareMeter = 1.meters2()
         (squareMeter `in` Area.centimeters2).shouldBeNear(10_000.0, 1e-7)

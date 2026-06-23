@@ -485,7 +485,7 @@ operator fun <A: Units, B: Units> Measure<A>.div(other: Measure<B>): Measure<Uni
  * 비율 단위 측정값에 분모 단위를 곱해 분자를 복원합니다.
  *
  * ## 동작/계약
- * - `(A/B) * B -> A` 규칙으로 계산합니다.
+ * - `other`를 비율 단위의 분모 단위로 변환한 뒤 `(A/B) * B -> A` 규칙으로 계산합니다.
  *
  * ```kotlin
  * val speed = 5.metersPerSecond()
@@ -495,13 +495,13 @@ operator fun <A: Units, B: Units> Measure<A>.div(other: Measure<B>): Measure<Uni
  */
 @JvmName("timesRatioByDenominator")
 operator fun <A: Units, B: Units> Measure<UnitsRatio<A, B>>.times(other: Measure<B>): Measure<A> =
-    amount * other.amount * units.numerator
+    amount * (other `in` units.denominator) * units.numerator
 
 /**
  * 곱 단위 측정값을 구성 단위로 나누어 다른 구성 단위를 복원합니다.
  *
  * ## 동작/계약
- * - `(A*B) / A -> B` 규칙으로 계산합니다.
+ * - `other`를 곱 단위의 첫 번째 단위로 변환한 뒤 `(A*B) / A -> B` 규칙으로 계산합니다.
  *
  * ```kotlin
  * val area = 20.meters2()
@@ -511,7 +511,7 @@ operator fun <A: Units, B: Units> Measure<UnitsRatio<A, B>>.times(other: Measure
  */
 @JvmName("divProductByLeft")
 operator fun <A: Units, B: Units> Measure<UnitsProduct<A, B>>.div(other: Measure<A>): Measure<B> =
-    amount / other.amount * units.second
+    amount / (other `in` units.first) * units.second
 
 /**
  * 수치와 단위를 사람이 읽기 쉬운 문자열로 포맷팅합니다.
