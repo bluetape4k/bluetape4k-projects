@@ -220,6 +220,11 @@ val importedCount = service.importShapefile(
 println("Imported: $importedCount records")
 ```
 
+`ShapefileImportService` reads the companion `.prj` file when present. Projected
+input such as Web Mercator or UTM is transformed to EPSG:4326 before storage, and
+the stored PostGIS geometry is written with SRID 4326. Shapefiles without `.prj`
+metadata are treated as already WGS84.
+
 ### 5.5 NetCDF Metadata Catalog
 
 The DB schema and repository are ready. Register NetCDF file metadata directly using `NetCdfFileRepository`.
