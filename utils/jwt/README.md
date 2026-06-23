@@ -98,6 +98,7 @@ val jwt = jwtProvider.composer()
     .claim("userId", 12345L)
     .claim("email", "user@example.com")
     .claim("roles", listOf("admin", "user"))
+    .expirationAfterMinutes(60)
     .compose()
 
 val reader = jwtProvider.parse(jwt)
@@ -108,7 +109,8 @@ if (reader.isExpired) {
     throw SecurityException("Token expired")
 }
 
-val ttl = reader.expiredTtl
+val remainingTtlMillis = reader.remainingTtlMillis
+val expiresAtMillis = reader.expiresAtMillis
 
 val userId: Long? = reader.claim("userId")
 val email: String? = reader.claim("email")

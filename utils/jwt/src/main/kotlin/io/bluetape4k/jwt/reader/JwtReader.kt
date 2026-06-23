@@ -38,21 +38,39 @@ class JwtReader(
         get() = header<String>("kid")
 
     /**
-     * Expiration TTL (Time To Live) (Milliseconds)
+     * JWT expiration time as epoch milliseconds.
+     *
+     * ## 동작/계약
+     * - `exp` 클레임이 없으면 `null`을 반환합니다.
+     */
+    val expiresAtMillis: Long?
+        get() = expiration?.time
+
+    /**
+     * Expiration TTL (Time To Live) in milliseconds.
      *
      * ## 동작/계약
      * - `exp` 클레임이 없으면 [Long.MAX_VALUE]를 반환합니다.
+     * - 이미 만료된 토큰이면 `0`을 반환합니다.
      *
      * ```kotlin
      * val provider = JwtProviderFactory.default()
      * val jwt = provider.compose { expirationAfterMinutes = 60 }
      * val reader = provider.parse(jwt)
-     * val ttl = reader.expiredTtl
-     * // ttl > System.currentTimeMillis()
+     * val ttl = reader.remainingTtlMillis
+     * // ttl <= 60 * 60 * 1000
      * ```
      */
+    val remainingTtlMillis: Long
+        get() = expiresAtMillis?.let { (it - System.currentTimeMillis()).coerceAtLeast(0L) } ?: Long.MAX_VALUE
+
+    /**
+     * Expiration TTL (Time To Live) in milliseconds.
+     *
+     * @see remainingTtlMillis
+     */
     val expiredTtl: Long
-        get() = expiration?.time ?: Long.MAX_VALUE
+        get() = remainingTtlMillis
 
     /**
      * JWT 정보 만료 여부 (see: [getExpiration] )
@@ -69,7 +87,7 @@ class JwtReader(
      * ```
      */
     val isExpired: Boolean
-        get() = expiredTtl <= System.currentTimeMillis()
+        get() = expiresAtMillis?.let { it <= System.currentTimeMillis() } ?: false
 
     /**
      * 헤더 값을 조회합니다.

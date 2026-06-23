@@ -5,6 +5,7 @@ import io.bluetape4k.jwt.provider.JwtProviderFactory
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
@@ -26,7 +27,8 @@ class JwtReaderExpirationTest: AbstractJwtTest() {
 
         val reader = provider.parse(jwt)
         reader.isExpired.shouldBeFalse()
-        reader.expiredTtl shouldBeGreaterThan System.currentTimeMillis()
+        reader.expiredTtl shouldBeGreaterThan 0L
+        reader.expiredTtl shouldBeLessThan 3_600_001L
     }
 
     @Test
@@ -45,14 +47,29 @@ class JwtReaderExpirationTest: AbstractJwtTest() {
     }
 
     @Test
-    fun `expiredTtl - exp 클레임이 있으면 밀리초 타임스탬프를 반환한다`() {
+    fun `expiresAtMillis - exp 클레임이 있으면 밀리초 타임스탬프를 반환한다`() {
         val jwt = provider.compose {
             subject = "alice"
             expirationAfterSeconds = 3600
         }
 
         val reader = provider.parse(jwt)
-        reader.expiredTtl shouldBeGreaterThan System.currentTimeMillis()
+        reader.expiresAtMillis.shouldNotBeNull()
+        reader.expiresAtMillis!! shouldBeGreaterThan System.currentTimeMillis()
+    }
+
+    @Test
+    fun `expiredTtl - exp 클레임이 있으면 남은 TTL 밀리초를 반환한다`() {
+        val jwt = provider.compose {
+            subject = "alice"
+            expirationAfterSeconds = 3600
+        }
+
+        val reader = provider.parse(jwt)
+        reader.expiredTtl shouldBeGreaterThan 0L
+        reader.expiredTtl shouldBeLessThan 3_600_001L
+        reader.remainingTtlMillis shouldBeGreaterThan 0L
+        reader.remainingTtlMillis shouldBeLessThan 3_600_001L
     }
 
     @Test

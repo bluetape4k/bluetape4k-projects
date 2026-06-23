@@ -99,6 +99,7 @@ val jwt = jwtProvider.composer()
     .claim("userId", 12345L)
     .claim("email", "user@example.com")
     .claim("roles", listOf("admin", "user"))
+    .expirationAfterMinutes(60)
     .compose()
 
 val reader = jwtProvider.parse(jwt)
@@ -111,8 +112,9 @@ if (reader.isExpired) {
     throw SecurityException("Token expired")
 }
 
-// 만료까지 남은 시간 (TTL)
-val ttl = reader.expiredTtl
+// 만료까지 남은 시간 (TTL)과 절대 만료 시각
+val remainingTtlMillis = reader.remainingTtlMillis
+val expiresAtMillis = reader.expiresAtMillis
 
 // 클레임 조회 (타입 안전)
 val userId: Long? = reader.claim("userId")
