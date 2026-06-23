@@ -113,7 +113,6 @@ dependencies {
 |--------|----------------|------------------------------------|
 | `GET`  | `/ping`        | 헬스 체크 — `pong` 반환                  |
 | `POST` | `/admin/reset` | 인메모리 Fixture 데이터를 클래스패스 JSON에서 재적재 |
-| `GET`  | `/admin/info`  | 서버 정보 반환                           |
 
 #### `/httpbin/**`
 
@@ -133,18 +132,9 @@ dependencies {
 | `GET`    | `/httpbin/bytes/{n}`        | `n` 바이트의 랜덤 바이너리 반환                  |
 | `GET`    | `/httpbin/delay/{seconds}`  | 지연 후 응답 (`0.5` = 500ms, 범위 0.0–10.0) |
 | `GET`    | `/httpbin/stream/{n}`       | `Flow`로 JSON 라인 `n`개 스트리밍            |
-| `GET`    | `/httpbin/stream-bytes/{n}` | 랜덤 바이트 `n`개 스트리밍                     |
-| `GET`    | `/httpbin/drip`             | 지연 드립 스트리밍                           |
-| `GET`    | `/httpbin/sse`              | Server-Sent Events 스트림               |
 | `GET`    | `/httpbin/image/{format}`   | 샘플 이미지 반환 (png/jpeg/svg/webp)        |
 | `GET`    | `/httpbin/gzip`             | gzip 인코딩 응답                          |
 | `GET`    | `/httpbin/deflate`          | deflate 인코딩 응답                       |
-| `GET`    | `/httpbin/brotli`           | brotli 인코딩 응답                        |
-| `GET`    | `/httpbin/html`             | 샘플 HTML 반환                           |
-| `GET`    | `/httpbin/xml`              | 샘플 XML 반환                            |
-| `GET`    | `/httpbin/json`             | 샘플 JSON 반환                           |
-| `GET`    | `/httpbin/robots.txt`       | robots.txt 반환                        |
-| `GET`    | `/httpbin/deny`             | 403 Forbidden 반환                     |
 
 #### `/jsonplaceholder/**`
 
