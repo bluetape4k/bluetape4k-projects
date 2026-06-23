@@ -4,10 +4,25 @@ import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.warn
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.NoSuchBeanDefinitionException
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException
 import org.springframework.beans.factory.getBean
 import kotlin.reflect.KClass
 
 private val log by lazy { KotlinLogging.logger {} }
+
+private inline fun <T> findOptionalBean(
+    description: () -> String,
+    block: () -> T,
+): T? =
+    try {
+        block()
+    } catch (e: NoUniqueBeanDefinitionException) {
+        throw e
+    } catch (e: NoSuchBeanDefinitionException) {
+        log.warn(e) { "Bean not found. ${description()}, return null." }
+        null
+    }
 
 /**
  * 제네릭 타입 [T]에 해당하는 빈을 조회합니다.
@@ -109,7 +124,7 @@ operator fun BeanFactory.get(
  *
  * ## 동작/계약
  * - 내부적으로 [Class] 기반 [findBean]으로 위임합니다.
- * - 조회 실패 시 예외 대신 `null`을 반환합니다.
+ * - 빈이 없으면 `null`을 반환하고, 생성/타입/중복 빈 오류는 전파합니다.
  *
  * ```kotlin
  * val service = beanFactory.findBean(MyService::class)
@@ -119,11 +134,11 @@ operator fun BeanFactory.get(
 fun <T: Any> BeanFactory.findBean(requiredType: KClass<T>): T? = findBean(requiredType.java)
 
 /**
- * 타입으로 빈을 조회하고 실패하면 경고 로그 후 `null`을 반환합니다.
+ * 타입으로 빈을 조회하고 없으면 경고 로그 후 `null`을 반환합니다.
  *
  * ## 동작/계약
- * - [get] 호출에서 [BeansException]이 발생하면 예외를 삼키고 `null`을 반환합니다.
- * - 실패 정보는 경고 로그로 기록합니다.
+ * - 빈이 없을 때 발생하는 [NoSuchBeanDefinitionException]만 `null`로 변환합니다.
+ * - [NoUniqueBeanDefinitionException], 빈 생성 실패, 타입 오류 같은 구성 실패는 전파합니다.
  *
  * ```kotlin
  * val service = beanFactory.findBean(MyService::class.java)
@@ -131,18 +146,17 @@ fun <T: Any> BeanFactory.findBean(requiredType: KClass<T>): T? = findBean(requir
  * ```
  */
 fun <T: Any> BeanFactory.findBean(requiredType: Class<T>): T? =
-    runCatching { get(requiredType) }
-        .getOrElse { e ->
-            log.warn(e) { "Fail to find bean. requiredType=$requiredType, return null." }
-            null
-        }
+    findOptionalBean(
+        description = { "requiredType=$requiredType" },
+        block = { get(requiredType) },
+    )
 
 /**
- * 이름과 타입으로 빈을 조회하고 실패하면 `null`을 반환합니다.
+ * 이름과 타입으로 빈을 조회하고 없으면 `null`을 반환합니다.
  *
  * ## 동작/계약
- * - [get] 호출에서 [BeansException]이 발생하면 예외 대신 `null`을 반환합니다.
- * - 실패 정보는 경고 로그로 기록합니다.
+ * - 빈이 없을 때 발생하는 [NoSuchBeanDefinitionException]만 `null`로 변환합니다.
+ * - 빈 생성 실패, 타입 오류 같은 구성 실패는 전파합니다.
  *
  * ```kotlin
  * val service = beanFactory.findBean("myService", MyService::class.java)
@@ -153,18 +167,17 @@ fun <T: Any> BeanFactory.findBean(
     name: String,
     requiredType: Class<T>,
 ): T? =
-    runCatching { get(name, requiredType) }
-        .getOrElse { e ->
-            log.warn(e) { "Fail to find bean. name=$name, requiredType=$requiredType, return null." }
-            null
-        }
+    findOptionalBean(
+        description = { "name=$name, requiredType=$requiredType" },
+        block = { get(name, requiredType) },
+    )
 
 /**
- * 이름과 생성자 인자로 빈을 조회하고 실패하면 `null`을 반환합니다.
+ * 이름과 생성자 인자로 빈을 조회하고 없으면 `null`을 반환합니다.
  *
  * ## 동작/계약
- * - [get] 호출에서 [BeansException]이 발생하면 예외 대신 `null`을 반환합니다.
- * - 실패 정보는 경고 로그로 기록합니다.
+ * - 빈이 없을 때 발생하는 [NoSuchBeanDefinitionException]만 `null`로 변환합니다.
+ * - 빈 생성 실패 같은 구성 실패는 전파합니다.
  *
  * ```kotlin
  * val bean = beanFactory.findBean("myBean", "arg1")
@@ -175,8 +188,7 @@ fun <T: Any> BeanFactory.findBean(
     name: String,
     vararg args: Any?,
 ): Any? =
-    runCatching { get(name, *args) }
-        .getOrElse { e ->
-            log.warn(e) { "Fail to find bean. name=$name, args=$args, return null." }
-            null
-        }
+    findOptionalBean(
+        description = { "name=$name, args=${args.contentToString()}" },
+        block = { get(name, *args) },
+    )
