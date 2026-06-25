@@ -8,18 +8,15 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import io.bluetape4k.assertions.shouldBeEqualTo
@@ -27,7 +24,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.time.Duration.Companion.milliseconds
 
 class ChannelAsFlowExamples {
 
@@ -43,6 +39,10 @@ class ChannelAsFlowExamples {
         suspend fun postEvent(event: Event) {
             _events.send(event)
             log.trace { "[source] Send event. $event" }
+        }
+
+        fun close() {
+            _events.close()
         }
     }
 
@@ -65,31 +65,11 @@ class ChannelAsFlowExamples {
     fun `send event to channel receive as flow`() = runTest {
 
         val eventBus = SingleShotEventBus()
-        val jobs = mutableListOf<Job>()
         val jobSize = 5
+        val eventsPerProducer = 100
 
         val totalProduced = AtomicLong(0L)
         val totalConsumed = AtomicLong(0L)
-
-        jobs += List(jobSize) {
-            launch(producerDispatcher) {
-                while (isActive) {
-                    delay(1.milliseconds)
-                    totalProduced.incrementAndGet()
-                    eventBus.postEvent(Event.Created)
-                }
-            }.log("producer1-$it")
-        }
-
-        jobs += List(jobSize) {
-            launch(producerDispatcher) {
-                while (isActive) {
-                    delay(1.milliseconds)
-                    totalProduced.incrementAndGet()
-                    eventBus.postEvent(Event.Deleted)
-                }
-            }.log("producer2-$it")
-        }
 
         val consumedJobs = List(jobSize * 2) {
             launch(consumerDispatcher) {
@@ -101,11 +81,28 @@ class ChannelAsFlowExamples {
             }.log("consumer-$it")
         }
 
-        advanceTimeBy(1000.milliseconds)
-        jobs.forEach { it.cancelAndJoin() }
+        val jobs = mutableListOf<Job>()
+        jobs += List(jobSize) {
+            launch(producerDispatcher) {
+                repeat(eventsPerProducer) {
+                    totalProduced.incrementAndGet()
+                    eventBus.postEvent(Event.Created)
+                }
+            }.log("producer1-$it")
+        }
 
-        advanceTimeBy(2000.milliseconds)
-        consumedJobs.forEach { it.cancelAndJoin() }
+        jobs += List(jobSize) {
+            launch(producerDispatcher) {
+                repeat(eventsPerProducer) {
+                    totalProduced.incrementAndGet()
+                    eventBus.postEvent(Event.Deleted)
+                }
+            }.log("producer2-$it")
+        }
+
+        jobs.joinAll()
+        eventBus.close()
+        consumedJobs.joinAll()
 
         log.debug { "Produced: ${totalProduced.get()}, Consumed: ${totalConsumed.get()}" }
         totalProduced.get() shouldBeEqualTo totalConsumed.get()

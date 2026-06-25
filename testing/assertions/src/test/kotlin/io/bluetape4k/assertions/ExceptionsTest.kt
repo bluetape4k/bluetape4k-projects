@@ -7,6 +7,7 @@ import org.opentest4j.AssertionFailedError
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
 
+@Suppress("UnusedExpression")
 class ExceptionsTest {
 
     // ── invoking { }.shouldThrow ──────────────────────────────────────────

@@ -45,7 +45,6 @@ class Jdk25StructuredTaskScopeProviderTest {
                 scope.fork { 1 }
                 scope.fork<Int> { error("boom") }
                 scope.join().throwIfFailed()
-                0
             }
         }
     }

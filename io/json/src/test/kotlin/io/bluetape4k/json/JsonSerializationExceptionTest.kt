@@ -71,7 +71,7 @@ class JsonSerializationExceptionTest {
 
         restored.shouldNotBeNull()
         restored.shouldBeInstanceOf<JsonSerializationException>()
-        (restored as JsonSerializationException).message shouldBeEqualTo original.message
+        restored.message shouldBeEqualTo original.message
     }
 
     @Test

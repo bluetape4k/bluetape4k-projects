@@ -3,6 +3,7 @@ package io.bluetape4k.testcontainers.storage
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.classIsPresent
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
@@ -254,7 +255,7 @@ class RedisServer private constructor(
                         topic.removeListener(listenerId)
                         return
                     }.onFailure { e ->
-                        log.warn("pub/sub 워밍업 실패 (attempt ${attempt + 1}/$maxAttempts): ${e.message}")
+                        log.warn { "pub/sub 워밍업 실패 (attempt ${attempt + 1}/$maxAttempts): ${e.message}" }
                         Thread.sleep((attempt + 1) * 300L)
                     }
                 }

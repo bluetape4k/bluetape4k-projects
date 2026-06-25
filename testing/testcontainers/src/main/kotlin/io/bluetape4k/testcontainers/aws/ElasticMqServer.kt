@@ -1,6 +1,8 @@
 package io.bluetape4k.testcontainers.aws
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.info
 import io.bluetape4k.utils.ShutdownQueue
 import org.elasticmq.rest.sqs.SQSRestServer
 import org.elasticmq.rest.sqs.SQSRestServerBuilder
@@ -34,8 +36,8 @@ import kotlin.concurrent.withLock
 class ElasticMqServer(
     val port: Int = DEFAULT_PORT,
     val bindAddress: String = DEFAULT_BIND_ADDRESS,
-) : AutoCloseable {
-    companion object : KLogging() {
+): AutoCloseable {
+    companion object: KLogging() {
         const val DEFAULT_PORT = 9324
         const val DEFAULT_BIND_ADDRESS = "localhost"
         const val ACCESS_KEY = "x"
@@ -66,12 +68,12 @@ class ElasticMqServer(
     fun start() = lock.withLock {
         if (server != null) return@withLock
         // Scala ElasticMQ 라이브러리가 KLogging의 람다 오버로드와 충돌하므로 문자열 형식 사용
-        log.debug("Starting ElasticMQ SQS server on $bindAddress:$port")
+        log.debug { "Starting ElasticMQ SQS server on $bindAddress:$port" }
         server = SQSRestServerBuilder
             .withPort(port)
             .withInterface(bindAddress)
             .start()
-        log.info("ElasticMQ SQS server started. Endpoint: $endpoint")
+        log.info { "ElasticMQ SQS server started. Endpoint: $endpoint" }
     }
 
     /**
@@ -82,7 +84,7 @@ class ElasticMqServer(
     fun stop() = lock.withLock {
         server?.stopAndWait()
         server = null
-        log.info("ElasticMQ SQS server stopped.")
+        log.info { "ElasticMQ SQS server stopped." }
     }
 
     override fun close() = stop()

@@ -34,7 +34,7 @@ class CoroutineSupportTest {
         val elapsedTime = measureTimeMillis {
             val jobs = List(TASK_SIZE) {
                 launch {
-                    withVirtualContext {
+                    withVirtualDispatcher {
                         Thread.sleep(1000)
                         log.trace { "Job $it is done" }
                     }

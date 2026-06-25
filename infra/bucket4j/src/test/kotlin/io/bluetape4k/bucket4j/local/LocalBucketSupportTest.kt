@@ -1,13 +1,13 @@
 package io.bluetape4k.bucket4j.local
 
-import io.bluetape4k.logging.KLogging
-import io.github.bucket4j.Bandwidth
-import io.github.bucket4j.BandwidthBuilder
-import io.github.bucket4j.local.SynchronizationStrategy
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.github.bucket4j.Bandwidth
+import io.github.bucket4j.BandwidthBuilder
+import io.github.bucket4j.local.SynchronizationStrategy
 import org.junit.jupiter.api.Test
 import java.time.Duration
 
@@ -38,7 +38,11 @@ class LocalBucketSupportTest {
     @Test
     fun `localBucket 은 DSL 에서 지정한 대역폭으로 토큰 소비를 제한한다`() {
         val bucket = localBucket {
-            addLimit(Bandwidth.simple(5, Duration.ofSeconds(1)))
+            val simple = Bandwidth.builder()
+                .capacity(5)
+                .refillIntervally(5, Duration.ofSeconds(1))
+                .build()
+            addLimit(simple)
         }
 
         bucket.tryConsume(5).shouldBeTrue()
@@ -52,7 +56,11 @@ class LocalBucketSupportTest {
     @Test
     fun `localBucketOf 는 바이너리 스냅샷으로부터 LocalBucket 을 복원한다`() {
         val original = localBucket {
-            addLimit(Bandwidth.simple(10, Duration.ofSeconds(1)))
+            val simple = Bandwidth.builder()
+                .capacity(10)
+                .refillIntervally(10, Duration.ofSeconds(1))
+                .build()
+            addLimit(simple)
         }
         // 토큰 3개를 먼저 소비한 상태로 스냅샷 생성
         original.tryConsume(3).shouldBeTrue()
@@ -69,7 +77,11 @@ class LocalBucketSupportTest {
     @Test
     fun `localBucketOf 는 JSON 호환 스냅샷으로부터 LocalBucket 을 복원한다`() {
         val original = localBucket {
-            addLimit(Bandwidth.simple(10, Duration.ofSeconds(1)))
+            val simple = Bandwidth.builder()
+                .capacity(10)
+                .refillIntervally(10, Duration.ofSeconds(1))
+                .build()
+            addLimit(simple)
         }
         original.tryConsume(4).shouldBeTrue()
 

@@ -1,7 +1,7 @@
 package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
@@ -14,13 +14,13 @@ class BackJCacheCommandTest {
         val cmd = BackJCacheCommand.Put("hello", 5)
         cmd.key shouldBeEqualTo "hello"
         cmd.value shouldBeEqualTo 5
-        (cmd is BackJCacheCommand<*, *>).shouldBeTrue()
+        cmd.shouldBeInstanceOf<BackJCacheCommand<*, *>>()
     }
 
     @Test
     fun `PutAll - entries 보관`() {
         val entries = mapOf("a" to 1, "b" to 2)
-        val cmd = BackJCacheCommand.PutAll<String, Int>(entries)
+        val cmd = BackJCacheCommand.PutAll(entries)
         cmd.entries shouldBeEqualTo entries
     }
 
@@ -40,7 +40,7 @@ class BackJCacheCommandTest {
     @Test
     fun `ClearBack - 인스턴스 생성`() {
         val cmd = BackJCacheCommand.ClearBack<String, Int>()
-        (cmd is BackJCacheCommand.ClearBack).shouldBeTrue()
+        cmd.shouldBeInstanceOf<BackJCacheCommand.ClearBack<*, *>>()
     }
 
     @Test
@@ -54,9 +54,9 @@ class BackJCacheCommandTest {
         )
         val types = cmds.map { cmd ->
             when (cmd) {
-                is BackJCacheCommand.Put -> "Put"
-                is BackJCacheCommand.PutAll -> "PutAll"
-                is BackJCacheCommand.Remove -> "Remove"
+                is BackJCacheCommand.Put       -> "Put"
+                is BackJCacheCommand.PutAll    -> "PutAll"
+                is BackJCacheCommand.Remove    -> "Remove"
                 is BackJCacheCommand.RemoveAll -> "RemoveAll"
                 is BackJCacheCommand.ClearBack -> "ClearBack"
             }

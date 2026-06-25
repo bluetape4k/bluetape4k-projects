@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.coroutines.guide
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -13,7 +14,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
@@ -85,6 +85,6 @@ class ChannelExamples {
         }
 
         received shouldBeEqualTo listOf(1, 4, 9, 16, 25)
-        log.debug("Done!")
+        log.debug { "Done!" }
     }
 }

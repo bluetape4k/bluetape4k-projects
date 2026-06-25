@@ -79,7 +79,7 @@ fun <K, V> emptyImmutableBagMultimap(): ImmutableBagMultimap<K, V> = Multimaps.i
  * ```
  */
 fun <K, V: Comparable<V>> emptyImmutableSortedSetMultimap(): ImmutableSortedSetMultimap<K, V> =
-    Multimaps.immutable.sortedSet.of<K, V>(Comparator<V>.naturalOrder())
+    Multimaps.immutable.sortedSet.of<K, V>(Comparator.naturalOrder())
 
 /**
  * 자연 정렬 기준의 비어 있는 immutable sorted-bag multimap을 생성합니다.
@@ -96,7 +96,7 @@ fun <K, V: Comparable<V>> emptyImmutableSortedSetMultimap(): ImmutableSortedSetM
  * ```
  */
 fun <K, V: Comparable<V>> emptyImmutableSortedBagMultimap(): ImmutableSortedBagMultimap<K, V> =
-    Multimaps.immutable.sortedBag.of<K, V>(Comparator<V>.naturalOrder())
+    Multimaps.immutable.sortedBag.of<K, V>(Comparator.naturalOrder())
 
 /**
  * 비어 있는 mutable list multimap을 생성합니다.

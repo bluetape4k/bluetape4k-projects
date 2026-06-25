@@ -1,6 +1,10 @@
 package io.bluetape4k.spring.cassandra.cql
 
 import com.datastax.oss.driver.api.core.uuid.Uuids
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
@@ -10,10 +14,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.runBlocking
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,9 +25,9 @@ import org.springframework.data.cassandra.core.cql.ReactiveCqlOperations
 class ReactiveCqlOperationsSupportTest(
     @param:Autowired private val reactiveOps: ReactiveCassandraOperations,
     @param:Autowired private val reactiveCqlOps: ReactiveCqlOperations,
-) : AbstractCassandraCoroutineTest("reactive-cql-support") {
+): AbstractCassandraCoroutineTest("reactive-cql-support") {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     private fun newUser(): User =
         User(Uuids.timeBased().toString(), faker.name().firstName(), faker.name().lastName())

@@ -65,7 +65,6 @@ class Jdk21StructuredTaskScopeProviderExtTest {
             provider.withAll { scope ->
                 scope.fork<Int> { throw RuntimeException("error") }
                 scope.join().throwIfFailed { handlerCalled = true }
-                0
             }
         }
         handlerCalled.shouldBeTrue()
@@ -102,7 +101,6 @@ class Jdk21StructuredTaskScopeProviderExtTest {
             provider.withAll { scope ->
                 capturedSubtask = scope.fork<Int> { throw RuntimeException("fail") }
                 scope.join().throwIfFailed()
-                0
             }
         }
         val subtask = capturedSubtask.shouldNotBeNull()

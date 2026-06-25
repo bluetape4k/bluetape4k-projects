@@ -10,7 +10,6 @@ import org.redisson.client.codec.Codec
 import org.redisson.client.handler.State
 import org.redisson.client.protocol.Decoder
 import org.redisson.client.protocol.Encoder
-import tools.jackson.databind.JsonNode
 import tools.jackson.databind.json.JsonMapper
 
 /**
@@ -75,7 +74,7 @@ class Jackson3Codec(
             if (!allowed) {
                 throw SecurityException(
                     "Class '$className' is not in the allowed package list. " +
-                    "Allowed prefixes: $allowedPackagePrefixes"
+                            "Allowed prefixes: $allowedPackagePrefixes"
                 )
             }
         }
@@ -85,7 +84,7 @@ class Jackson3Codec(
         try {
             val node = mapper.createObjectNode()
             node.put(TYPE_FIELD, graph.javaClass.name)
-            node.set(DATA_FIELD, mapper.valueToTree<JsonNode>(graph))
+            node.set(DATA_FIELD, mapper.valueToTree(graph))
             val bytes = mapper.writeValueAsBytes(node)
             Unpooled.wrappedBuffer(bytes)
         } catch (e: Exception) {
@@ -99,8 +98,8 @@ class Jackson3Codec(
         try {
             val tree = mapper.readTree(bytes)
             val typeNode = tree.get(TYPE_FIELD)
-            if (typeNode != null && typeNode.isTextual) {
-                val className = typeNode.asText()
+            if (typeNode != null && typeNode.isString) {
+                val className = typeNode.asString()
                 validateClassName(className)
                 val cl = classLoader ?: Thread.currentThread().contextClassLoader ?: javaClass.classLoader
                 val clazz = Class.forName(className, false, cl)
