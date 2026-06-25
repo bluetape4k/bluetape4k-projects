@@ -195,7 +195,7 @@ internal class InsertValuesSpecImpl(
         value: Any,
     ): InsertValuesSpec =
         apply {
-            values[field] = value
+            values[requireValidIdentifier(field)] = value
         }
 
     override fun value(
@@ -204,12 +204,12 @@ internal class InsertValuesSpecImpl(
         type: Class<*>,
     ): InsertValuesSpec =
         apply {
-            values[field] = value.toParameter(type)
+            values[requireValidIdentifier(field)] = value.toParameter(type)
         }
 
     override fun nullValue(field: String): InsertValuesSpec =
         apply {
-            values[field] = null
+            values[requireValidIdentifier(field)] = null
         }
 
     override fun nullValue(
@@ -217,7 +217,7 @@ internal class InsertValuesSpecImpl(
         type: Class<*>,
     ): InsertValuesSpec =
         apply {
-            values[field] = type.toParameter()
+            values[requireValidIdentifier(field)] = type.toParameter()
         }
 
     private fun execute(): DatabaseClient.GenericExecuteSpec {
@@ -356,7 +356,7 @@ internal class InsertValuesKeySpecImpl(
         value: Any,
     ): InsertValuesKeySpec =
         apply {
-            values[field] = value
+            values[requireValidIdentifier(field)] = value
         }
 
     override fun value(
@@ -365,12 +365,12 @@ internal class InsertValuesKeySpecImpl(
         type: Class<*>,
     ): InsertValuesKeySpec =
         apply {
-            values[field] = value.toParameter(type)
+            values[requireValidIdentifier(field)] = value.toParameter(type)
         }
 
     override fun nullValue(field: String): InsertValuesKeySpec =
         apply {
-            values[field] = null
+            values[requireValidIdentifier(field)] = null
         }
 
     override fun nullValue(
@@ -378,7 +378,7 @@ internal class InsertValuesKeySpecImpl(
         type: Class<*>,
     ): InsertValuesKeySpec =
         apply {
-            values[field] = type.toParameter()
+            values[requireValidIdentifier(field)] = type.toParameter()
         }
 
     override fun fetch(): RowsFetchSpec<Int> {

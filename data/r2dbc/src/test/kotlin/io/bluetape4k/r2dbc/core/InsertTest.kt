@@ -1,14 +1,15 @@
 package io.bluetape4k.r2dbc.core
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.AbstractR2dbcTest
 import io.bluetape4k.r2dbc.model.User
 import kotlinx.coroutines.reactive.awaitSingle
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.springframework.r2dbc.core.awaitOne
 import java.time.OffsetDateTime
@@ -46,6 +47,26 @@ class InsertTest: AbstractR2dbcTest() {
 
         val count2 = client.execute<Int>("SELECT COUNT(*) FROM users").fetch().awaitOne()
         count2 shouldBeEqualTo count1 + 2
+    }
+
+    @Test
+    fun `insert rejects invalid field identifier before SQL interpolation`() {
+        assertFailsWith<IllegalArgumentException> {
+            client
+                .insert()
+                .into("users")
+                .value("username) VALUES ('mallory'); DROP TABLE users; --", "mallory")
+        }
+    }
+
+    @Test
+    fun `insert with generated key rejects invalid field identifier before SQL interpolation`() {
+        assertFailsWith<IllegalArgumentException> {
+            client
+                .insert()
+                .into("users", "user_id")
+                .nullValue("username) VALUES ('mallory'); DROP TABLE users; --")
+        }
     }
 
     @Test
