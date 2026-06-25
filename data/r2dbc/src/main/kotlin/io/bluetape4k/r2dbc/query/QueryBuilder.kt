@@ -176,10 +176,9 @@ class QueryBuilder {
         operator: String = "and",
         block: FilterBuilder.() -> Unit,
     ) {
-        operator.requireNotBlank("operator")
         require(filters.countLeaves() == 0) { "There must be only one root filters group" }
 
-        filters = Filter.Group(operator.trim())
+        filters = Filter.Group(requireLogicalOperator(operator))
         block(FilterBuilder(filters))
     }
 
@@ -205,9 +204,7 @@ class QueryBuilder {
             operator: String = "and",
             block: FilterBuilder.() -> Unit,
         ) {
-            operator.requireNotBlank("operator")
-
-            val inner = Filter.Group(operator.trim())
+            val inner = Filter.Group(requireLogicalOperator(operator))
             group.filters.add(inner)
             block(FilterBuilder(inner))
         }
@@ -294,5 +291,13 @@ class QueryBuilder {
                 if (!root) sb.append(")")
             }
         }
+    }
+
+    private fun requireLogicalOperator(operator: String): String {
+        val normalized = operator.requireNotBlank("operator").trim().lowercase()
+        require(normalized == "and" || normalized == "or") {
+            "Unsupported where group operator: '$operator'. Only 'and' and 'or' are allowed."
+        }
+        return normalized
     }
 }

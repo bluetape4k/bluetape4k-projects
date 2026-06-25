@@ -1,12 +1,12 @@
 package io.bluetape4k.r2dbc.query
 
-import io.bluetape4k.logging.KLogging
-import io.r2dbc.spi.Parameter
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import io.r2dbc.spi.Parameter
 import org.junit.jupiter.api.Test
 import java.io.Serializable
-import io.bluetape4k.assertions.assertFailsWith
 
 class QueryBuilderTest {
 
@@ -322,6 +322,36 @@ class QueryBuilderTest {
                 whereGroup("   ") {
                     where("id = :id")
                     parameter("id", 1)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `root where group rejects unsupported operator before SQL interpolation`() {
+        assertFailsWith<IllegalArgumentException> {
+            query {
+                select("select * from actor")
+                whereGroup("or 1 = 1 --") {
+                    where("id = :id")
+                    parameter("id", 1)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `nested where group rejects unsupported operator before SQL interpolation`() {
+        assertFailsWith<IllegalArgumentException> {
+            query {
+                select("select * from actor")
+                whereGroup {
+                    where("id = :id")
+                    parameter("id", 1)
+                    whereGroup("union select") {
+                        where("name = :name")
+                        parameter("name", "Kate")
+                    }
                 }
             }
         }

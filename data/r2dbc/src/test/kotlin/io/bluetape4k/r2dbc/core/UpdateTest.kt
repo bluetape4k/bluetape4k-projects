@@ -1,11 +1,12 @@
 package io.bluetape4k.r2dbc.core
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.AbstractR2dbcTest
 import io.bluetape4k.r2dbc.model.User
 import kotlinx.coroutines.reactor.awaitSingle
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.springframework.r2dbc.core.awaitOne
 import org.springframework.r2dbc.core.awaitRowsUpdated
@@ -51,6 +52,26 @@ class UpdateTest: AbstractR2dbcTest() {
             .fetch()
             .awaitRowsUpdated()
         rowsUpdated3 shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `update rejects invalid field identifier before SQL interpolation`() {
+        assertFailsWith<IllegalArgumentException> {
+            client
+                .update()
+                .table("users")
+                .set("description = 'pwned', active", false)
+        }
+    }
+
+    @Test
+    fun `update rejects invalid map field identifier before SQL interpolation`() {
+        assertFailsWith<IllegalArgumentException> {
+            client
+                .update()
+                .table("users")
+                .set(mapOf("description = 'pwned', active" to false))
+        }
     }
 
     @Test

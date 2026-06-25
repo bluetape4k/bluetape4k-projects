@@ -263,7 +263,7 @@ internal class UpdateValuesSpecImpl(
         value: Any,
     ): UpdateValuesSpec =
         apply {
-            values[field] = value
+            values[requireValidIdentifier(field)] = value
         }
 
     override fun set(
@@ -272,7 +272,7 @@ internal class UpdateValuesSpecImpl(
         type: Class<*>,
     ): UpdateValuesSpec =
         apply {
-            values[field] = value.toParameter(type)
+            values[requireValidIdentifier(field)] = value.toParameter(type)
         }
 
     override fun set(parameters: Map<String, Any?>): UpdateValuesSpec =
