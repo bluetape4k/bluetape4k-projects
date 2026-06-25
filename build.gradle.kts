@@ -462,7 +462,7 @@ subprojects {
 
             // HINT: Jackson (이상하게 mavenBom 에 적용이 안되어서 강제로 추가하였다)
             dependency(rootLibs.jackson.bom.get().toString())
-            dependency(rootLibs.jackson.annotations.get().toString())
+            dependency("com.fasterxml.jackson.core:jackson-annotations:${bt4kVersion("jackson-annotations")}")
             dependency(rootLibs.jackson.core.get().toString())
             dependency(rootLibs.jackson.databind.get().toString())
             dependency(rootLibs.jackson.datatype.jdk8.get().toString())
