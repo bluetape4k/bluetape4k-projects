@@ -42,8 +42,10 @@ build/
 .claude/settings.local.json
 .claude/worktrees
 .claude/scheduled_tasks.lock
+.claude/lib-sources/
 
 .code-review-graph
+.codegraph/
 
 .omc/
 .omc/sessions/
@@ -111,8 +113,3 @@ out/
 
 # Apache Ignite embedded mode runtime data
 **/cache-ignite2/ignite/
-.worktrees/
-.claude/lib-sources/
-
-.codegraph/
-.omx/
