@@ -1,5 +1,0 @@
-2026-04-26	infra/elasticsearch/README.md,README.ko.md	scheme http→https default note + ES 9.x HTTPS warning	4 files updated	PASS
-2026-04-26	utils/text-search/README.md,README.ko.md	containsMatch O(1) short-circuit + tokenize non-overlapping guarantee	4 files updated	PASS
-2026-04-26	utils/images/README.md,README.ko.md	Already in sync with src (same commit d4890bee9)	no change needed	SKIP
-2026-04-26	infra/nats/README.md,README.ko.md	consumerContextOf + objectLinkOf + streamInfoOptions* — 3 new APIs added	2 files updated	PASS
-2026-04-26	testing/testcontainers/README.md,README.ko.md	9 missing servers added: ChromaDB/Ollama(LLM), NginxServer, ElasticsearchOss, ZipkinServer, Hazelcast, Ignite2/3	2 files updated	PASS
