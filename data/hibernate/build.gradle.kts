@@ -102,9 +102,8 @@ dependencies {
     // kaptTest(libs.hibernate.jpamodelgen)
 
     // Querydsl
-    // Hibernate 6+ jakarta 용은 claasifier로 ":jpa" 대신 ":jakarta" 를 사용해야 합니다.
-    // https://github.com/querydsl/querydsl/issues/3493
-    api(variantOf(libs.querydsl.jpa) { classifier("jakarta") })
+    // QueryDSL 7.x publishes Jakarta JPA support in the main querydsl-jpa artifact.
+    api(libs.querydsl.jpa)
     kapt(variantOf(libs.querydsl.apt) { classifier("jakarta") })
     kaptTest(variantOf(libs.querydsl.apt) { classifier("jakarta") })
 

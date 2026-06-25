@@ -442,6 +442,9 @@ subprojects {
             dependency(rootLibs.lz4.java.get().toString())
             dependency(rootLibs.zstd.jni.get().toString())
 
+            // Netty tcnative uses its own 2.0.x line; Spring Boot 4.1 currently pushes it onto Netty core 4.2.x.
+            dependency(rootLibs.netty.tcnative.classes.get().toString())
+
             // Shared security overrides are sourced from the imported bluetape4k-dependencies catalog.
             dependency("org.apache.tomcat.embed:tomcat-embed-core:${bt4kVersion("tomcat")}")
             dependency("io.opentelemetry:opentelemetry-api:${bt4kVersion("opentelemetry")}")

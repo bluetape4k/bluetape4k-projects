@@ -226,10 +226,11 @@ class QuerydslExamples: AbstractQuerydslTest() {
 
     @Test
     fun `aggregation query`() {
+        val ageSum = qmember.age.sumAggregate()
         val result = queryFactory
             .select(
                 qmember.count(),
-                qmember.age.sum(),
+                ageSum,
                 qmember.age.avg(),
                 qmember.age.max(),
                 qmember.age.min()
@@ -238,7 +239,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .fetchOne()!!
 
         result[qmember.count()] shouldBeEqualTo 4
-        result[qmember.age.sum()] shouldBeEqualTo 100
+        result[ageSum] shouldBeEqualTo 100
         result[qmember.age.avg()] shouldBeEqualTo 25.0
         result[qmember.age.max()] shouldBeEqualTo 40
         result[qmember.age.min()] shouldBeEqualTo 10
