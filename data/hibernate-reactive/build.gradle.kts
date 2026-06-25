@@ -39,16 +39,16 @@ kapt {
 }
 
 // Hibernate ORM 7.x / Reactive 4.x requires Jakarta Persistence 3.2.0
-// Spring Boot BOM manages Netty 4.1.x but Vert.x 5 requires Netty 4.2.12.Final
+// Spring Boot BOM manages older Netty lines but Vert.x 5 requires Netty 4.2.x.
 configurations.all {
     resolutionStrategy.eachDependency {
         if (requested.group == "jakarta.persistence") {
             useVersion("3.2.0")
             because("Hibernate ORM 7.x requires Jakarta Persistence 3.2.0")
         }
-        if (requested.group == "io.netty") {
-            useVersion("4.2.12.Final")
-            because("Vert.x 5.0.11 requires Netty 4.2.12.Final; Spring Boot BOM would downgrade to 4.1.x")
+        if (requested.group == "io.netty" && !requested.name.startsWith("netty-tcnative")) {
+            useVersion("4.2.15.Final")
+            because("Vert.x 5 requires Netty 4.2.x; netty-tcnative remains on its own 2.0.x line")
         }
     }
 }
@@ -64,6 +64,15 @@ configurations {
 
 dependencies {
     implementation(platform(libs.spring.boot.dependencies))
+    constraints {
+        // netty-tcnative is published on the 2.0.x line; Spring Boot 4.1 currently constrains it to Netty core 4.2.x.
+        implementation("io.netty:netty-tcnative-classes") {
+            version {
+                strictly(libs.versions.netty.tcnative.get())
+            }
+        }
+    }
+
     api(project(":bluetape4k-hibernate"))
     api(project(":bluetape4k-mutiny"))
     api(project(":bluetape4k-vertx"))

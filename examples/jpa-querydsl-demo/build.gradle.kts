@@ -68,7 +68,7 @@ dependencies {
     implementation(libs.hibernate.core)
 
     // QueryDsl
-    implementation(variantOf(libs.querydsl.jpa) { classifier("jakarta") })
+    implementation(libs.querydsl.jpa)
     kapt(variantOf(libs.querydsl.apt) { classifier("jakarta") })
     kaptTest(variantOf(libs.querydsl.apt) { classifier("jakarta") })
     kapt(libs.jakarta.persistence.api)
