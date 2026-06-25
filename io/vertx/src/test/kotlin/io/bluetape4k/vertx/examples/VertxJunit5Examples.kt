@@ -71,15 +71,15 @@ class VertxJunit5Examples: AbstractVertxTest() {
      * [Chekpoint when there are multiple success conditions](https://vertx.io/docs/vertx-junit5/java/#_checkpoint_when_there_are_multiple_success_conditions)
      */
     @Test
-    fun `chekpoint when there are multiple success conditions`(vertx: Vertx, testContext: VertxTestContext) {
-        val serverStarted = testContext.checkpoint()
-        val requestesServed = testContext.checkpoint(10)
-        val responsesReceived = testContext.checkpoint(10)
+        fun `chekpoint when there are multiple success conditions`(vertx: Vertx, testContext: VertxTestContext) {
+            val serverStarted = testContext.checkpoint()
+            val requestesServed = testContext.checkpoint().asLatch(10)
+            val responsesReceived = testContext.checkpoint().asLatch(10)
 
         vertx.createHttpServer()
             .requestHandler { req ->
                 req.response().end("OK")
-                requestesServed.flag()
+                requestesServed.countDown()
             }
             .listen(8888)
             .onSuccess {
@@ -94,7 +94,7 @@ class VertxJunit5Examples: AbstractVertxTest() {
                         .onComplete(testContext.succeeding { buffer ->
                             testContext.verify {
                                 buffer.toString() shouldBeEqualTo "OK"
-                                responsesReceived.flag()
+                                responsesReceived.countDown()
                             }
                         })
                 }

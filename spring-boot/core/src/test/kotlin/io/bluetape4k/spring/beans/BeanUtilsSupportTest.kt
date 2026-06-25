@@ -48,7 +48,7 @@ class BeanUtilsSupportTest: AbstractSpringTest() {
     fun `findMethod - 이름으로 메서드 찾기`() {
         val method = BaseBean::class.java.findMethod("execute")
         method.shouldNotBeNull()
-        method!!.name shouldBeEqualTo "execute"
+        method.name shouldBeEqualTo "execute"
     }
 
     @Test
@@ -61,14 +61,14 @@ class BeanUtilsSupportTest: AbstractSpringTest() {
     fun `findDeclaredMethod - 선언 메서드 찾기`() {
         val method = BaseBean::class.java.findDeclaredMethod("nonExecute")
         method.shouldNotBeNull()
-        method!!.name shouldBeEqualTo "nonExecute"
+        method.name shouldBeEqualTo "nonExecute"
     }
 
     @Test
     fun `findMethodWithMinimalParameters - 최소 파라미터 메서드 찾기`() {
         val method = BaseBean::class.java.findMethodWithMinimalParameters("execute")
         method.shouldNotBeNull()
-        method!!.name shouldBeEqualTo "execute"
+        method.name shouldBeEqualTo "execute"
     }
 
     @Test

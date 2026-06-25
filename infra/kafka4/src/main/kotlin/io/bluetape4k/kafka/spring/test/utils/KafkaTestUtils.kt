@@ -53,7 +53,7 @@ fun EmbeddedKafkaBroker.producerProps(): MutableMap<String, Any> = KafkaTestUtil
 fun EmbeddedKafkaBroker.consumerProps(
     group: String,
     autoCommit: Boolean = false,
-): MutableMap<String, Any> = KafkaTestUtils.consumerProps(this.brokersAsString, group, autoCommit.toString())
+): MutableMap<String, Any> = KafkaTestUtils.consumerProps(this, group, autoCommit)
 
 /**
  * 지정된 토픽과 파티션의 마지막 오프셋을 조회합니다.

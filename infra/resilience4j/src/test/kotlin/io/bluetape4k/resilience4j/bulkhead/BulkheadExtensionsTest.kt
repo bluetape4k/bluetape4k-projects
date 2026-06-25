@@ -60,7 +60,7 @@ class BulkheadExtensionsTest {
         }
 
         assertFailsWith<BulkheadFullException> {
-            withBulkhead(bulkhead) { "should not run" }
+            withBulkhead(bulkhead) { error("should not run") }
         }
     }
 

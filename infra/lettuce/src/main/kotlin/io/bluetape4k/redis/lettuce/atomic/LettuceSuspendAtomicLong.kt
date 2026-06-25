@@ -115,7 +115,7 @@ end"""
         RedisScriptRunner.runSuspending<String>(
             asyncCommands, GET_AND_SET_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), value.toString()
-        )?.toLongOrNull() ?: 0L
+        ).toLongOrNull() ?: 0L
 
     /**
      * 값을 1 증가시키고 증가된 값을 반환합니다.
@@ -171,7 +171,7 @@ end"""
         RedisScriptRunner.runSuspending<String>(
             asyncCommands, GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), "1"
-        )?.toLongOrNull() ?: 0L
+        ).toLongOrNull() ?: 0L
 
     /**
      * 현재 값을 반환하고 1 감소시킵니다.
@@ -182,7 +182,7 @@ end"""
         RedisScriptRunner.runSuspending<String>(
             asyncCommands, GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), "-1"
-        )?.toLongOrNull() ?: 0L
+        ).toLongOrNull() ?: 0L
 
     /**
      * 현재 값을 반환하고 delta를 더합니다.
@@ -194,7 +194,7 @@ end"""
         RedisScriptRunner.runSuspending<String>(
             asyncCommands, GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), delta.toString()
-        )?.toLongOrNull() ?: 0L
+        ).toLongOrNull() ?: 0L
 
     /**
      * 현재 값이 expect와 같으면 update로 변경합니다.

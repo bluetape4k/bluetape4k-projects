@@ -4,7 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.hc.client5.http.protocol.HttpClientContext
-import org.apache.hc.core5.http.protocol.BasicHttpContext
+import org.apache.hc.core5.http.protocol.HttpCoreContext
 import org.junit.jupiter.api.Test
 
 class HttpClientContextTest {
@@ -19,16 +19,16 @@ class HttpClientContextTest {
     }
 
     @Test
-    fun `httpClientContextOf - 기존 컨텍스트 래핑`() {
-        val baseContext = BasicHttpContext()
+    fun `httpClientContextOf - 기존 코어 컨텍스트 래핑`() {
+        val baseContext = HttpCoreContext.create()
         val context = httpClientContextOf(baseContext)
         context.shouldNotBeNull()
         context.shouldBeInstanceOf<HttpClientContext>()
     }
 
     @Test
-    fun `adapt - BasicHttpContext 를 HttpClientContext 로 변환`() {
-        val baseContext = BasicHttpContext()
+    fun `adapt - HttpCoreContext 를 HttpClientContext 로 변환`() {
+        val baseContext = HttpCoreContext.create()
         val clientContext = baseContext.adapt()
         clientContext.shouldNotBeNull()
         clientContext.shouldBeInstanceOf<HttpClientContext>()

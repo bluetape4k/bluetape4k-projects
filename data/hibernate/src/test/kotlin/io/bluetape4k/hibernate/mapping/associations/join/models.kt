@@ -28,7 +28,6 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.PrimaryKeyJoinColumn
 import jakarta.persistence.SecondaryTable
 import jakarta.validation.constraints.NotBlank
-import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
 import org.springframework.data.annotation.CreatedDate
@@ -112,7 +111,6 @@ class JoinUser private constructor(
         indexes = [Index(name = "ix_join_user_nickname", columnList = "user_id")]
     )
     @ElementCollection(targetClass = String::class, fetch = FetchType.LAZY)
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     val nicknames: MutableSet<String> = hashSetOf()
 
     override fun equalProperties(other: Any): Boolean =

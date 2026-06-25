@@ -18,7 +18,7 @@ class ReplayTest: AbstractFlowTest() {
     @Test
     fun `replay one consumer`() = runTest {
         flowRangeOf(1, 5)
-            .replay { shared ->
+            .replay(5) { shared ->
                 shared.filter { it % 2 == 0 }.log("even", log)
             }
             .assertResult(2, 4)
@@ -27,7 +27,7 @@ class ReplayTest: AbstractFlowTest() {
     @Test
     fun `replay multiple consumers`() = runTest {
         flowRangeOf(1, 5)
-            .replay { shared ->
+            .replay(5) { shared ->
                 merge(
                     shared.filter { it % 2 == 1 }.log("odd", log),
                     shared.filter { it % 2 == 0 }.log("even", log)

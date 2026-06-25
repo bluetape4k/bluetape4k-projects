@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.codec
 
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.io.serializer.JdkBinarySerializer
 
 /**
  * 다양한 Serializer/Compressor 조합의 [LettuceBinaryCodec] 팩토리 모음.
@@ -42,7 +43,7 @@ object LettuceBinaryCodecs {
     /**
      * Jdk Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
-    fun <V: Any> jdk(): LettuceBinaryCodec<V> = codec(BinarySerializers.Jdk)
+    fun <V: Any> jdk(): LettuceBinaryCodec<V> = codec(JdkBinarySerializer())
 
     /**
      * Kryo Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.

@@ -181,7 +181,7 @@ class BatchListenerConversionTests {
 
         @Bean
         fun consumerConfigs(embeddedKafka: EmbeddedKafkaBroker): Map<String, Any> {
-            return KafkaTestUtils.consumerProps(DEFAULT_TEST_GROUP_ID, "false", embeddedKafka).apply {
+            return KafkaTestUtils.consumerProps(embeddedKafka, DEFAULT_TEST_GROUP_ID, false).apply {
                 put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, BytesDeserializer::class.java)
                 put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 1000)
                 put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 500)

@@ -1,11 +1,11 @@
 package io.bluetape4k.hibernate
 
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.hibernate.SessionFactory
 import org.hibernate.event.service.spi.EventListenerRegistry
@@ -79,8 +79,7 @@ class SessionFactorySupportTest: AbstractHibernateTest() {
         group.shouldNotBeNull()
 
         // 리스너가 포함되어 있는지 확인
-        val listeners = group.listeners().toList()
-        listeners.shouldNotBeEmpty()
+        group.count() shouldBeGreaterThan 0
     }
 
     @Test

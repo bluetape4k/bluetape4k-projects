@@ -1,8 +1,8 @@
 package io.bluetape4k.examples.virtualthreads.part3
 
 import io.bluetape4k.concurrent.virtualthread.StructuredSubtask
-import io.bluetape4k.concurrent.virtualthread.structuredTaskScopeAll
-import io.bluetape4k.concurrent.virtualthread.structuredTaskScopeAny
+import io.bluetape4k.concurrent.virtualthread.structuredTaskScopeFailFast
+import io.bluetape4k.concurrent.virtualthread.structuredTaskScopeFirstSuccess
 import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldBeEqualTo
@@ -34,7 +34,7 @@ class StructuredConcurrencyExamples: AbstractVirtualThreadTest() {
     /**
      * 비동기 코드를 병렬로 실행하고, 모든 작업이 성공적으로 완료되면 결과를 반환합니다.
      */
-    fun prepareDish(): Dish = structuredTaskScopeAll { scope ->
+    fun prepareDish(): Dish = structuredTaskScopeFailFast { scope ->
         println("prepare Dish ...")
         val pasta: StructuredSubtask<Pasta> = scope.fork {
             Thread.sleep(100)
@@ -69,7 +69,7 @@ class StructuredConcurrencyExamples: AbstractVirtualThreadTest() {
     fun `structured task scope on success`() {
         // Subtask 들 중 하나라도 성공하면, 나머지 Subtask 들은 취소하고, 결과를 반환합니다.
         // 만약 성공한 것이 없다면 ExecutionException 을 반환합니다.
-        val pasta = structuredTaskScopeAny { scope ->
+        val pasta = structuredTaskScopeFirstSuccess { scope ->
 
             val subtask1 = scope.fork {
                 Thread.sleep(200)

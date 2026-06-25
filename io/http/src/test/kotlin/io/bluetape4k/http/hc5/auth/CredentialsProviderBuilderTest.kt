@@ -6,8 +6,8 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.hc.client5.http.auth.AuthScope
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials
+import org.apache.hc.client5.http.protocol.HttpClientContext
 import org.apache.hc.core5.http.HttpHost
-import org.apache.hc.core5.http.protocol.BasicHttpContext
 import org.junit.jupiter.api.Test
 
 class CredentialsProviderBuilderTest {
@@ -16,6 +16,8 @@ class CredentialsProviderBuilderTest {
 
     // HC5 5.x has no AuthScope.ANY — use all-null/wildcard constructor instead
     private val anyScope = AuthScope(null, null, -1, null, null)
+
+    private fun httpContext() = HttpClientContext.create()
 
     @Test
     fun `credentialsProvider DSL creates provider`() {
@@ -31,7 +33,7 @@ class CredentialsProviderBuilderTest {
         val provider = emptyCredentialsProvider()
 
         provider.shouldNotBeNull()
-        val credentials = provider.getCredentials(anyScope, BasicHttpContext())
+        val credentials = provider.getCredentials(anyScope, httpContext())
         credentials.shouldBeNull()
     }
 
@@ -43,7 +45,7 @@ class CredentialsProviderBuilderTest {
         val provider = credentialsProviderOf(authScope, credentials)
 
         provider.shouldNotBeNull()
-        val retrieved = provider.getCredentials(authScope, BasicHttpContext())
+        val retrieved = provider.getCredentials(authScope, httpContext())
         retrieved.shouldNotBeNull()
         val upCreds = retrieved as UsernamePasswordCredentials
         upCreds.userName shouldBeEqualTo "admin"
@@ -58,7 +60,7 @@ class CredentialsProviderBuilderTest {
 
         provider.shouldNotBeNull()
         // Query with same scope should match
-        val retrieved = provider.getCredentials(authScope, BasicHttpContext())
+        val retrieved = provider.getCredentials(authScope, httpContext())
         retrieved.shouldNotBeNull()
         val upCreds = retrieved as UsernamePasswordCredentials
         upCreds.userName shouldBeEqualTo "testuser"
@@ -83,7 +85,7 @@ class CredentialsProviderBuilderTest {
 
         provider.shouldNotBeNull()
         val hostScope = AuthScope(host)
-        val retrieved = provider.getCredentials(hostScope, BasicHttpContext())
+        val retrieved = provider.getCredentials(hostScope, httpContext())
         retrieved.shouldNotBeNull()
         val upCreds = retrieved as UsernamePasswordCredentials
         upCreds.userName shouldBeEqualTo "hostuser"
@@ -98,7 +100,7 @@ class CredentialsProviderBuilderTest {
         val provider = credentialsProviderOf(authScope, username, password)
 
         provider.shouldNotBeNull()
-        val retrieved = provider.getCredentials(authScope, BasicHttpContext())
+        val retrieved = provider.getCredentials(authScope, httpContext())
         retrieved.shouldNotBeNull()
         val upCreds = retrieved as UsernamePasswordCredentials
         upCreds.userName shouldBeEqualTo username
@@ -139,7 +141,7 @@ class CredentialsProviderBuilderTest {
 
         provider.shouldNotBeNull()
         val scope1 = AuthScope(host1)
-        val retrieved = provider.getCredentials(scope1, BasicHttpContext())
+        val retrieved = provider.getCredentials(scope1, httpContext())
         retrieved.shouldNotBeNull()
         (retrieved as UsernamePasswordCredentials).userName shouldBeEqualTo "user1"
     }

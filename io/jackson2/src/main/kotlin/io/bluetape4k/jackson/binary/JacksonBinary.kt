@@ -1,5 +1,6 @@
 package io.bluetape4k.jackson.binary
 
+import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory
@@ -41,12 +42,13 @@ object JacksonBinary: KLogging() {
     private val enabledSerializationFeatures = setOf(
         SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
         SerializationFeature.WRITE_ENUMS_USING_TO_STRING,
-        SerializationFeature.WRITE_NULL_MAP_VALUES,
         SerializationFeature.WRITE_EMPTY_JSON_ARRAYS
     )
     private val disabledSerializationFeatures = setOf(
         SerializationFeature.FAIL_ON_EMPTY_BEANS,
-        SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN
+    )
+    private val enabledJsonGeneratorFeatures = setOf(
+        JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN
     )
 
     private val enabledDeserializationFeatures = setOf(
@@ -95,6 +97,7 @@ object JacksonBinary: KLogging() {
                 .enable(
                     CBORGenerator.Feature.WRITE_TYPE_HEADER,
                 )
+                .enable(*enabledJsonGeneratorFeatures.toTypedArray())
                 .enable(*enabledSerializationFeatures.toTypedArray())
                 .disable(*disabledSerializationFeatures.toTypedArray())
                 .enable(*enabledDeserializationFeatures.toTypedArray())
@@ -163,6 +166,7 @@ object JacksonBinary: KLogging() {
                 .enable(
                     IonGenerator.Feature.USE_NATIVE_TYPE_ID,
                 )
+                .enable(*enabledJsonGeneratorFeatures.toTypedArray())
                 .enable(*enabledSerializationFeatures.toTypedArray())
                 .disable(*disabledSerializationFeatures.toTypedArray())
                 .enable(*enabledDeserializationFeatures.toTypedArray())
@@ -232,6 +236,7 @@ object JacksonBinary: KLogging() {
                     SmileGenerator.Feature.WRITE_HEADER,
                     SmileGenerator.Feature.WRITE_END_MARKER,
                 )
+                .enable(*enabledJsonGeneratorFeatures.toTypedArray())
                 .enable(*enabledSerializationFeatures.toTypedArray())
                 .disable(*disabledSerializationFeatures.toTypedArray())
                 .enable(*enabledDeserializationFeatures.toTypedArray())

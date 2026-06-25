@@ -57,7 +57,7 @@ class TimeLimiterExtensionsTest {
         assertFailsWith<TimeoutException> {
             withTimeLimiter(tl) {
                 delay(1000.milliseconds) // 타임아웃보다 오래 실행
-                "should not reach here"
+                error("should not reach here")
             }
         }
     }

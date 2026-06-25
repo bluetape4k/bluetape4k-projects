@@ -52,7 +52,7 @@ class FluentResponseHandling: AbstractHc5Test() {
             }
 
         log.debug { "json node=\n${node.toPrettyString()}" }
-        node["headers"]["Host"].textValue() shouldBeEqualTo "${httpbinServer.host}:${httpbinServer.port}"
+        node["headers"]["Host"].stringValue() shouldBeEqualTo "${httpbinServer.host}:${httpbinServer.port}"
     }
 
     @Test
