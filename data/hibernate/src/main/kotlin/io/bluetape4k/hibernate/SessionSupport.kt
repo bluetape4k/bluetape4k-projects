@@ -6,6 +6,7 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 import io.bluetape4k.support.requirePositiveNumber
+import org.hibernate.KeyType
 import org.hibernate.Session
 import org.hibernate.query.Query
 import org.slf4j.Logger
@@ -92,7 +93,8 @@ inline fun <reified T: Any> Session.getReferenceAs(id: Serializable): T = getRef
  * - `@NaturalId`가 하나인 엔티티에 사용합니다.
  */
 inline fun <reified T: Any> Session.findBySimpleNaturalId(naturalId: Any): T? =
-    bySimpleNaturalId(T::class.java).load(naturalId)
+    find(T::class.java, naturalId, KeyType.NATURAL)
+// bySimpleNaturalId(T::class.java).load(naturalId)
 
 /**
  * 복합 natural id 속성으로 엔티티를 조회합니다. 없으면 `null`을 반환합니다.

@@ -5,6 +5,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.hibernate.SessionFactory
 import org.hibernate.event.service.spi.EventListenerRegistry
@@ -79,7 +80,7 @@ class SessionFactorySupportTest: AbstractHibernateTest() {
 
         // 리스너가 포함되어 있는지 확인
         val listeners = group.listeners().toList()
-        listeners.shouldNotBeNull()
+        listeners.shouldNotBeEmpty()
     }
 
     @Test
@@ -87,6 +88,6 @@ class SessionFactorySupportTest: AbstractHibernateTest() {
         val registry = sessionFactory.getEventListenerRegistry()
 
         registry.shouldNotBeNull()
-        registry shouldBeInstanceOf EventListenerRegistry::class
+        registry.shouldBeInstanceOf<EventListenerRegistry>()
     }
 }

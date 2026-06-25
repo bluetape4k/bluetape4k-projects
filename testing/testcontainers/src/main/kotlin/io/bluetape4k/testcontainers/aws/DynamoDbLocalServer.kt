@@ -1,6 +1,7 @@
 package io.bluetape4k.testcontainers.aws
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.PropertyExportingServer
@@ -144,7 +145,7 @@ class DynamoDbLocalServer private constructor(
      */
     override fun withServices(vararg services: String): DynamoDbLocalServer {
         if (services.isNotEmpty()) {
-            log.warn("withServices(${services.toList()}) is a no-op: DynamoDB Local exposes only DynamoDB.")
+            log.warn { "withServices(${services.toList()}) is a no-op: DynamoDB Local exposes only DynamoDB." }
         }
         return this
     }

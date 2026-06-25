@@ -1,9 +1,10 @@
 package io.bluetape4k.javatimes
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
 import java.time.Month
@@ -11,7 +12,6 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import java.time.temporal.UnsupportedTemporalTypeException
-import io.bluetape4k.assertions.assertFailsWith
 
 class TemporalAccessorSupportTest {
 
@@ -170,7 +170,6 @@ class TemporalAccessorSupportTest {
 
         val nowZoned = nowZonedDateTime()
         nowZoned.zone shouldBeEqualTo SystemZoneId
-        nowZoned.zoneId shouldBeEqualTo SystemZoneId
         nowZoned.zonedDateTime shouldBeEqualTo nowZoned
     }
 

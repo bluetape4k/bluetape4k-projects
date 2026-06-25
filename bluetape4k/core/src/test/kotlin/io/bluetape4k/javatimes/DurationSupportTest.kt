@@ -15,31 +15,31 @@ class DurationSupportTest {
 
     @Test
     fun `format duration with ISO format`() {
-        val zero = 0.asMillis().formatISO()
+        val zero = 0.millis().formatISO()
         zero shouldBeEqualTo "P0Y0M0DT0H0M0.000S"
 
-        val fiveSeconds = 5000L.asMillis().formatISO()
+        val fiveSeconds = 5000L.millis().formatISO()
         fiveSeconds shouldBeEqualTo "P0Y0M0DT0H0M5.000S"
 
-        val twoHours = 2.asHours().formatISO()
+        val twoHours = 2.hours().formatISO()
         twoHours shouldBeEqualTo "P0Y0M0DT2H0M0.000S"
 
-        val nineDaysAndFiveHours = (9.asDays() + 5.asHours()).formatISO()
+        val nineDaysAndFiveHours = (9.days() + 5.hours()).formatISO()
         nineDaysAndFiveHours shouldBeEqualTo "P0Y0M9DT5H0M0.000S"
 
-        val nineDaysMinusFiveHours = (9.asDays() + (-5).asHours()).formatISO()
+        val nineDaysMinusFiveHours = (9.days() + (-5).hours()).formatISO()
         nineDaysMinusFiveHours shouldBeEqualTo "P0Y0M8DT19H0M0.000S"
     }
 
     @Test
     fun `format duration with HMS format`() {
-        val zero = 0.asMillis().formatHMS()
+        val zero = 0.millis().formatHMS()
         zero shouldBeEqualTo "00:00:00.000"
 
-        val fiveSeconds = 5000L.asMillis().formatHMS()
+        val fiveSeconds = 5000L.millis().formatHMS()
         fiveSeconds shouldBeEqualTo "00:00:05.000"
 
-        val twoHours = 2.asHours().formatHMS()
+        val twoHours = 2.hours().formatHMS()
         twoHours shouldBeEqualTo "02:00:00.000"
     }
 

@@ -3,6 +3,7 @@ package io.bluetape4k.http.hc5.entity
 import io.bluetape4k.http.hc5.http.ContentTypes
 import io.bluetape4k.support.ifTrue
 import org.apache.hc.client5.http.entity.EntityBuilder
+import org.apache.hc.client5.http.entity.compress.ContentCoding
 import org.apache.hc.core5.http.ContentType
 import org.apache.hc.core5.http.HttpEntity
 import org.apache.hc.core5.http.NameValuePair
@@ -67,7 +68,7 @@ inline fun httpEntityOf(
         setText(text)
         setContentType(contentType)
         contentEncoding?.run { setContentEncoding(this) }
-        gzipCompressed?.ifTrue { gzipCompressed() }
+        gzipCompressed?.ifTrue { compressed(ContentCoding.GZIP) }
 
         builder()
     }
@@ -99,7 +100,7 @@ inline fun httpEntityOf(
         setBinary(binary)
         setContentType(contentType)
         contentEncoding?.run { setContentEncoding(this) }
-        gzipCompressed?.ifTrue { gzipCompressed() }
+        gzipCompressed?.ifTrue { compressed(ContentCoding.GZIP) }
 
         builder()
     }
@@ -131,7 +132,7 @@ inline fun httpEntityOf(
         setStream(inputStream)
         setContentType(contentType)
         contentEncoding?.run { setContentEncoding(this) }
-        gzipCompressed?.ifTrue { gzipCompressed() }
+        gzipCompressed?.ifTrue { compressed(ContentCoding.GZIP) }
 
         builder()
     }
@@ -163,7 +164,7 @@ inline fun httpEntityOf(
         setFile(file)
         setContentType(contentType)
         contentEncoding?.run { setContentEncoding(this) }
-        gzipCompressed?.ifTrue { gzipCompressed() }
+        gzipCompressed?.ifTrue { compressed(ContentCoding.GZIP) }
 
         builder()
     }
@@ -195,7 +196,7 @@ inline fun httpEntityOf(
         setSerializable(serializable)
         setContentType(contentType)
         contentEncoding?.run { setContentEncoding(this) }
-        gzipCompressed?.ifTrue { gzipCompressed() }
+        gzipCompressed?.ifTrue { compressed(ContentCoding.GZIP) }
 
         builder()
     }
@@ -227,7 +228,7 @@ inline fun httpEntityOf(
         setParameters(parameters)
         setContentType(contentType)
         contentEncoding?.run { setContentEncoding(this) }
-        gzipCompressed?.ifTrue { gzipCompressed() }
+        gzipCompressed?.ifTrue { compressed(ContentCoding.GZIP) }
 
         builder()
     }

@@ -1,7 +1,7 @@
 package io.bluetape4k.jdbc.sql
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.jdbc.core.PreparedStatementSetter
@@ -89,8 +89,9 @@ class JdbcTemplateTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `query by statement creator`() {
-        jdbcTemplate.query(statementCreator, ResultSetExtractor { rsFunction.invoke(it) })
-            ?.firstOrNull() shouldBeEqualTo 1
+        jdbcTemplate
+            .query(statementCreator, ResultSetExtractor { rsFunction.invoke(it) })
+            .firstOrNull() shouldBeEqualTo 1
     }
 
     @Test
@@ -102,7 +103,7 @@ class JdbcTemplateTest: AbstractJdbcSqlTest() {
                 ResultSetExtractor { rs -> rs.extract { int["id"] }.toList() }
             )
 
-        ids?.firstOrNull() shouldBeEqualTo 1
+        ids.firstOrNull() shouldBeEqualTo 1
     }
 
     @Test
@@ -112,7 +113,7 @@ class JdbcTemplateTest: AbstractJdbcSqlTest() {
             arrayOf("python"),
             intArrayOf(Types.VARCHAR),
             ResultSetExtractor { rsFunction.invoke(it) }
-        )?.firstOrNull() shouldBeEqualTo 1
+        ).firstOrNull() shouldBeEqualTo 1
 
         //        jdbcTemplate.query(
         //            SELECT_ID_BY_DESCRIPTION,
@@ -147,13 +148,14 @@ class JdbcTemplateTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `query for object`() {
-        jdbcTemplate.queryForObject(SELECT1, mapperFunction)?.description shouldBeEqualTo EXPECTED_DESC
+        jdbcTemplate.queryForObject(SELECT1, mapperFunction).description shouldBeEqualTo EXPECTED_DESC
+
         jdbcTemplate.queryForObject(
             SELECT_BY_ID,
             arrayOf(1),
             intArrayOf(Types.INTEGER),
             mapperFunction
-        )?.description shouldBeEqualTo EXPECTED_DESC
+        ).description shouldBeEqualTo EXPECTED_DESC
 
         //        jdbcTemplate.queryForObject(
         //            SELECT_BY_ID,

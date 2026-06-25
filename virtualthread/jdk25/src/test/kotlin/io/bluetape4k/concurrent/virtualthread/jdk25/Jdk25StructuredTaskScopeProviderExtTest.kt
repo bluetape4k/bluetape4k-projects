@@ -63,7 +63,6 @@ class Jdk25StructuredTaskScopeProviderExtTest {
             provider.withAll { scope ->
                 scope.fork<Int> { throw RuntimeException("jdk25-error") }
                 scope.join().throwIfFailed { handlerCalled = true }
-                0
             }
         }
         handlerCalled.shouldBeTrue()
@@ -111,7 +110,6 @@ class Jdk25StructuredTaskScopeProviderExtTest {
             provider.withAll { scope ->
                 capturedSubtask = scope.fork<Int> { throw RuntimeException("jdk25-fail") }
                 scope.join().throwIfFailed()
-                0
             }
         }
         val subtask = capturedSubtask.shouldNotBeNull()

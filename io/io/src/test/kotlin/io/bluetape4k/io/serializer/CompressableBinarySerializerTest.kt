@@ -50,7 +50,7 @@ class CompressableBinarySerializerTest {
     fun `serialize and compress string`(serializer: BinarySerializer) {
         val origin = Fakers.faker.lorem().paragraph(100).repeat(4)
         val compressed = serializer.serialize(origin)
-        log.debug { "origin=${BinarySerializers.Jdk.serialize(origin).size}, compressed=${compressed.size}" }
+        log.debug { "origin=${origin.length}, compressed=${compressed.size}" }
 
         val actual = serializer.deserialize<String>(compressed)
         actual shouldBeEqualTo origin

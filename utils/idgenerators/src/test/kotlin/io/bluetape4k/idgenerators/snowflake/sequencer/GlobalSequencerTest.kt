@@ -4,6 +4,7 @@ import io.bluetape4k.idgenerators.snowflake.MAX_SEQUENCE
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 
 class GlobalSequencerTest: AbstractSequencerTest() {
@@ -28,7 +29,7 @@ class GlobalSequencerTest: AbstractSequencerTest() {
 
         // machineId > 0 인 ID 개수 로깅 (sequence 오버플로우가 발생했다면 > 0)
         val machineIdIncrementCount = ids.count { it.machineId > 0 }
-        log.debug("machineId > 0 ID count: $machineIdIncrementCount / ${ids.size}")
+        log.debug { "machineId > 0 ID count: $machineIdIncrementCount / ${ids.size}" }
     }
 
     /**

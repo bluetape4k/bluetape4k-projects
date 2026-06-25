@@ -1,22 +1,23 @@
 package io.bluetape4k.redis.redisson
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
 import io.bluetape4k.redis.redisson.RedissonTestUtils.redissonClient
 import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.redisson.api.RStream
 import org.redisson.api.stream.StreamCreateGroupArgs
 import org.redisson.api.stream.StreamMessageId
+import org.redisson.api.stream.StreamRangeArgs
 import org.redisson.api.stream.StreamReadGroupArgs
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
 
 @DisplayName("RStreamSupport")
 class RStreamSupportTest {
@@ -45,7 +46,11 @@ class RStreamSupportTest {
         val id = stream.add(args)
         id.shouldNotBeNull()
 
-        val range = stream.range(10, StreamMessageId.MIN, StreamMessageId.MAX)
+        val rangeArgs = StreamRangeArgs
+            .startId(StreamMessageId.MIN)
+            .endId(StreamMessageId.MAX)
+            .count(10)
+        val range = stream.range(rangeArgs)
         range[id]!! shouldBeEqualTo mapOf("k1" to "v1", "k2" to "v2")
     }
 
@@ -57,7 +62,11 @@ class RStreamSupportTest {
         val stream = newStream()
         val id = stream.add(args)
 
-        val range = stream.range(10, StreamMessageId.MIN, StreamMessageId.MAX)
+        val rangeArgs = StreamRangeArgs
+            .startId(StreamMessageId.MIN)
+            .endId(StreamMessageId.MAX)
+            .count(10)
+        val range = stream.range(rangeArgs)
         range[id]!! shouldBeEqualTo entries
     }
 

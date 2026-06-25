@@ -1,5 +1,10 @@
 package io.bluetape4k.kafka.spring.core
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.kafka.AbstractKafkaTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.testcontainers.mq.KafkaServer
@@ -13,10 +18,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.clients.consumer.OffsetAndTimestamp
@@ -30,7 +31,6 @@ import reactor.kafka.receiver.ReceiverOptions
 import java.util.*
 import java.util.function.Function
 import java.util.regex.Pattern
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [SuspendKafkaConsumerTemplate]에 대한 테스트 클래스입니다.
@@ -127,11 +127,11 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
         val assignment = linkedSetOf(partition0, partition1)
         val commitSlot = slot<Map<TopicPartition, OffsetAndMetadata>>()
 
-        every { consumer.assign(any<List<TopicPartition>>()) } answers { Unit }
+        every { consumer.assign(any<List<TopicPartition>>()) } answers { }
         every { consumer.assignment() } returns assignment
         every { consumer.position(partition0) } returns 11L
         every { consumer.position(partition1) } returns 29L
-        every { consumer.commitSync(capture(commitSlot)) } answers { Unit }
+        every { consumer.commitSync(capture(commitSlot)) } answers { }
         stubDoOnConsumer(receiver, consumer)
 
         val template = SuspendKafkaConsumerTemplate(receiver)
@@ -152,7 +152,7 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
 
         every { consumer.offsetsForTimes(mapOf(partition to timestamp)) } returns
                 mapOf(partition to OffsetAndTimestamp(42L, timestamp, Optional.empty()))
-        every { consumer.seek(partition, 42L) } answers { Unit }
+        every { consumer.seek(partition, 42L) } answers { }
         stubDoOnConsumer(receiver, consumer)
 
         val template = SuspendKafkaConsumerTemplate(receiver)
@@ -184,9 +184,8 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
         stubDoOnConsumer(closableReceiver, consumer)
         val template = SuspendKafkaConsumerTemplate(closableReceiver)
         val blocker = CompletableDeferred<Unit>()
-        lateinit var launchedJob: Job
 
-        launchedJob = template.launch {
+        val launchedJob: Job = template.launch {
             blocker.await()
         }
 

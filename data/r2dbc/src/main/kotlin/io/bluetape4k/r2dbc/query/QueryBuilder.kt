@@ -277,11 +277,9 @@ class QueryBuilder {
     ) {
         val filtered = conditions.filters.filter { it.countLeaves() != 0 }
         when (filtered.size) {
-            0 -> {
-                Unit
-            }
+            0    -> {}
 
-            1 -> {
+            1    -> {
                 appendConditions(sb, filtered.first(), false)
             }
 

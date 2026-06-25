@@ -1,13 +1,14 @@
 package io.bluetape4k.hibernate.cache.lettuce
 
-import io.bluetape4k.hibernate.cache.lettuce.model.CompositePerson
-import io.bluetape4k.hibernate.cache.lettuce.model.CompositePersonId
-import io.bluetape4k.hibernate.cache.lettuce.model.NaturalUser
-import io.bluetape4k.hibernate.cache.lettuce.model.Person
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.hibernate.cache.lettuce.model.CompositePerson
+import io.bluetape4k.hibernate.cache.lettuce.model.CompositePersonId
+import io.bluetape4k.hibernate.cache.lettuce.model.NaturalUser
+import io.bluetape4k.hibernate.cache.lettuce.model.Person
+import org.hibernate.KeyType
 import org.hibernate.cache.spi.RegionFactory
 import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.junit.jupiter.api.BeforeEach
@@ -79,10 +80,11 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
         repeat(2) {
             sessionFactory.openSession().use { session ->
                 session.beginTransaction()
-                session.byNaturalId(NaturalUser::class.java)
-                    .using("email", "natural@example.com")
-                    .load()
-                    .shouldNotBeNull()
+                session.find(
+                    NaturalUser::class.java,
+                    "natural@example.com",
+                    KeyType.NATURAL
+                ).shouldNotBeNull()
                 session.transaction.commit()
             }
         }

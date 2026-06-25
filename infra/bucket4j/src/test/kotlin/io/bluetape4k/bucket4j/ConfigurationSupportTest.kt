@@ -1,13 +1,14 @@
 package io.bluetape4k.bucket4j
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.Bucket
 import io.github.bucket4j.TokensInheritanceStrategy
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
 
 class ConfigurationSupportTest {
 
@@ -46,8 +47,19 @@ class ConfigurationSupportTest {
     @Test
     fun `addBandwidth 확장 함수는 builder 를 체이닝하며 bandwidth 를 추가한다`() {
         val config = bucketConfiguration {
-            addBandwidth { io.github.bucket4j.Bandwidth.simple(50, Duration.ofSeconds(10)) }
-            addBandwidth { io.github.bucket4j.Bandwidth.simple(5, Duration.ofSeconds(1)) }
+
+            addBandwidth {
+                Bandwidth.builder()
+                    .capacity(50)
+                    .refillIntervally(50, Duration.ofSeconds(10))
+                    .build()
+            }
+            addBandwidth {
+                Bandwidth.builder()
+                    .capacity(5)
+                    .refillIntervally(5, Duration.ofSeconds(1))
+                    .build()
+            }
         }
 
         config.bandwidths.size shouldBeEqualTo 2

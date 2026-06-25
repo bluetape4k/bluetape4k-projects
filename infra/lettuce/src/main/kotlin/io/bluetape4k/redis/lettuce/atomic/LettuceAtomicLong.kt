@@ -189,7 +189,7 @@ end"""
      * @return 증가 전 값
      */
     fun getAndIncrement(): Long {
-        val result = RedisScriptRunner.run<String>(
+        val result = RedisScriptRunner.run<String?>(
             syncCommands, GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), "1"
         )
@@ -202,7 +202,7 @@ end"""
      * @return 감소 전 값
      */
     fun getAndDecrement(): Long {
-        val result = RedisScriptRunner.run<String>(
+        val result = RedisScriptRunner.run<String?>(
             syncCommands, GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), "-1"
         )
@@ -216,7 +216,7 @@ end"""
      * @return 더하기 전 값
      */
     fun getAndAdd(delta: Long): Long {
-        val result = RedisScriptRunner.run<String>(
+        val result = RedisScriptRunner.run<String?>(
             syncCommands, GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), delta.toString()
         )

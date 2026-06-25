@@ -41,7 +41,7 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
     }
 
     private val receiver = mockk<KafkaReceiver<String, String>>()
-    private val consumer = mockk<Consumer<String, String>>(relaxUnitFun = true)
+    private val consumer = mockk<Consumer<String, String>>(relaxed = true, relaxUnitFun = true)
     private val closableReceiver = mockk<KafkaReceiver<String, String>>(
         relaxUnitFun = true,
         moreInterfaces = arrayOf(AutoCloseable::class, DisposableBean::class)

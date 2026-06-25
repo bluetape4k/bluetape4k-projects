@@ -3,6 +3,9 @@ package io.bluetape4k.feign.coroutines
 import feign.Param
 import feign.RequestLine
 import feign.hc5.ApacheHttp5Client
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.feign.AbstractFeignTest
 import io.bluetape4k.feign.codec.JacksonDecoder2
 import io.bluetape4k.feign.codec.JacksonEncoder2
@@ -15,8 +18,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.closeSafe
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -51,7 +52,7 @@ class FeignCoroutineBuilderSupportTest: AbstractFeignTest() {
         suspend fun listItems(): List<SampleItem>
     }
 
-    data class SampleItem(val id: Int, val name: String) : Serializable
+    data class SampleItem(val id: Int, val name: String): Serializable
 
     @Test
     fun `coroutineFeignBuilder creates a valid builder`() {
@@ -106,7 +107,7 @@ class FeignCoroutineBuilderSupportTest: AbstractFeignTest() {
     @Test
     fun `coroutineFeignBuilderOf with ApacheHttp5Client creates valid client`() {
         val builder = coroutineFeignBuilderOf<Any>(
-            asyncClient = feign.AsyncClient.Default(ApacheHttp5Client(), io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor),
+            asyncClient = feign.DefaultAsyncClient(ApacheHttp5Client(), VirtualThreadExecutor),
         )
 
         builder.shouldNotBeNull()

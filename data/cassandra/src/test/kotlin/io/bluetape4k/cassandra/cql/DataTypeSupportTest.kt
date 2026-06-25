@@ -1,6 +1,8 @@
 package io.bluetape4k.cassandra.cql
 
 import com.datastax.oss.driver.api.core.type.DataTypes
+import com.datastax.oss.driver.api.core.type.ListType
+import com.datastax.oss.driver.api.core.type.UserDefinedType
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
@@ -24,8 +26,8 @@ class DataTypeSupportTest {
 
         val frozen = udt.potentiallyFreeze()
 
-        frozen.shouldBeInstanceOf<com.datastax.oss.driver.api.core.type.UserDefinedType>()
-        (frozen as com.datastax.oss.driver.api.core.type.UserDefinedType).isFrozen.shouldBeTrue()
+        frozen.shouldBeInstanceOf<UserDefinedType>()
+        frozen.isFrozen.shouldBeTrue()
     }
 
     @Test
@@ -38,9 +40,9 @@ class DataTypeSupportTest {
 
         val frozenList = listType.potentiallyFreeze()
 
-        frozenList.shouldBeInstanceOf<com.datastax.oss.driver.api.core.type.ListType>()
-        val elementType = (frozenList as com.datastax.oss.driver.api.core.type.ListType).elementType
-        elementType.shouldBeInstanceOf<com.datastax.oss.driver.api.core.type.UserDefinedType>()
-        (elementType as com.datastax.oss.driver.api.core.type.UserDefinedType).isFrozen.shouldBeTrue()
+        frozenList.shouldBeInstanceOf<ListType>()
+        val elementType = frozenList.elementType
+        elementType.shouldBeInstanceOf<UserDefinedType>()
+        elementType.isFrozen.shouldBeTrue()
     }
 }

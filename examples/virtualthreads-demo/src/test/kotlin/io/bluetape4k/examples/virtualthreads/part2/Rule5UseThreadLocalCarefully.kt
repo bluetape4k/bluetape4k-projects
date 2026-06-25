@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.concurrent.virtualthread.VirtualThreads
+import io.bluetape4k.concurrent.virtualthread.structuredTaskScopeFailFast
 
 
 /**
@@ -63,7 +65,7 @@ class Rule5UseThreadLocalCarefully: AbstractVirtualThreadTest() {
                 scopeZero.get() shouldBeEqualTo "zero"
 
                 try {
-                    structuredTaskScopeAll { scope ->
+                    structuredTaskScopeFailFast(null, VirtualThreads.threadFactory("sts-all-")) { scope ->
                         scope.fork {
                             scopeZero.get() shouldBeEqualTo "zero"
                             -1

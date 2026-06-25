@@ -1,6 +1,7 @@
 package io.bluetape4k.testcontainers.aws.localstack
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
 import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.testcontainers.aws.LocalStackServer
 import org.junit.jupiter.api.AfterAll
@@ -34,7 +35,7 @@ abstract class AbstractLocalStackServiceTest: AbstractContainerTest() {
             try {
                 localStack.close()
             } catch (e: Exception) {
-                log.warn("LocalStack 컨테이너 종료 중 오류가 발생했습니다: ${e.message}")
+                log.warn { "LocalStack 컨테이너 종료 중 오류가 발생했습니다: ${e.message}" }
             }
         }
     }
