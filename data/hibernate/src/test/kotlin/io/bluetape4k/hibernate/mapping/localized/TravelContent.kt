@@ -12,7 +12,6 @@ import jakarta.persistence.Embeddable
 import jakarta.persistence.Entity
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.MapKeyColumn
-import org.hibernate.annotations.Cascade
 import java.util.*
 
 @Entity(name = "travel_content")
@@ -26,7 +25,6 @@ class TravelContent(
     @CollectionTable(name = "travel_content_locale_map", joinColumns = [JoinColumn(name = "travel_content_id")])
     @MapKeyColumn(name = "locale_key", length = 256, nullable = false, unique = true)
     @ElementCollection(targetClass = LocalTravelContent::class)
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     override val localeMap: MutableMap<Locale, LocalTravelContent> = hashMapOf()
 
     override fun createDefaultLocalizedValue(): LocalTravelContent {

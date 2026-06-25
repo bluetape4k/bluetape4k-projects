@@ -1,13 +1,13 @@
 package io.bluetape4k.redis.lettuce.codec
 
-import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.io.serializer.JdkBinarySerializer
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 
 class LettuceBinaryCodecSizeTest {
 
-    private val codec = LettuceBinaryCodec<Any>(BinarySerializers.Jdk)
+    private val codec = LettuceBinaryCodec<Any>(JdkBinarySerializer())
 
     @Test
     fun `estimateSize should handle string and byte array`() {

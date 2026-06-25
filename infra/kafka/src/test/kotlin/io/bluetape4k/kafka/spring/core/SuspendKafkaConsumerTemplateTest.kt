@@ -5,7 +5,9 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import io.mockk.clearMocks
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.Runs
 import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
@@ -127,11 +129,11 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
         val assignment = linkedSetOf(partition0, partition1)
         val commitSlot = slot<Map<TopicPartition, OffsetAndMetadata>>()
 
-        every { consumer.assign(any<List<TopicPartition>>()) } answers { Unit }
+        every { consumer.assign(any<List<TopicPartition>>()) } just Runs
         every { consumer.assignment() } returns assignment
         every { consumer.position(partition0) } returns 11L
         every { consumer.position(partition1) } returns 29L
-        every { consumer.commitSync(capture(commitSlot)) } answers { Unit }
+        every { consumer.commitSync(capture(commitSlot)) } just Runs
         stubDoOnConsumer(receiver, consumer)
 
         val template = SuspendKafkaConsumerTemplate(receiver)
@@ -152,7 +154,7 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
 
         every { consumer.offsetsForTimes(mapOf(partition to timestamp)) } returns
                 mapOf(partition to OffsetAndTimestamp(42L, timestamp, Optional.empty()))
-        every { consumer.seek(partition, 42L) } answers { Unit }
+        every { consumer.seek(partition, 42L) } just Runs
         stubDoOnConsumer(receiver, consumer)
 
         val template = SuspendKafkaConsumerTemplate(receiver)

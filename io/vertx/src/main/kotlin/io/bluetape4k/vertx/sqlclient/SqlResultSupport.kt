@@ -10,7 +10,7 @@ import io.vertx.sqlclient.SqlResult
  * 방금 실행된 Insert 결과에서 자동 증가 식별자 값을 가져옵니다.
  *
  * MySQL은 `last-inserted-id` 속성에서 값을 조회하고, 그 외 구현체(JDBC 등)는
- * `GENERATED_KEYS`에서 [columnName] 키를 조회합니다.
+ * `GENERATED_KEYS_LIST`에서 첫 번째 generated-key row의 [columnName] 키를 조회합니다.
  *
  * ```kotlin
  * val result = sqlClient.preparedQuery("INSERT INTO users (name) VALUES ($1)")
@@ -35,6 +35,6 @@ inline fun <reified ID: Number> SqlResult<*>.getGeneratedId(
         }
 
         else ->
-            this.property(JDBCPool.GENERATED_KEYS).getValue(columnName) as? ID
+            this.property(JDBCPool.GENERATED_KEYS_LIST).rows().firstOrNull()?.getValue(columnName) as? ID
     }
 }

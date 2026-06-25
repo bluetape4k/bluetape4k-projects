@@ -40,16 +40,16 @@ class SampleVerticleTest: AbstractVertxTest() {
 
     @Test
     fun `count three ticks with checkpoints`(vertx: Vertx, testContext: VertxTestContext) {
-        val checkpoint = testContext.checkpoint(3)
+        val checkpoint = testContext.checkpoint().asLatch(3)
         vertx.setPeriodic(100) {
-            checkpoint.flag()
+            checkpoint.countDown()
         }
     }
 
     @Test
     fun `use SampleVerticle`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         val deploymentCheckpoint = testContext.checkpoint()
-        val requestCheckpoint = testContext.checkpoint(REPEAT_SIZE)
+        val requestCheckpoint = testContext.checkpoint().asLatch(REPEAT_SIZE)
 
         val verticle = SampleVerticle()
         vertx
@@ -68,7 +68,7 @@ class SampleVerticleTest: AbstractVertxTest() {
                             testContext.verify {
                                 resp.statusCode() shouldBeEqualTo 200
                                 resp.body() shouldContain "Yo!"
-                                requestCheckpoint.flag()
+                                requestCheckpoint.countDown()
                             }
                         }
                         .onFailure { e ->
@@ -80,9 +80,9 @@ class SampleVerticleTest: AbstractVertxTest() {
 
     @Test
     fun `use SampleVerticle in coroutines`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-        vertx.withSuspendTestContext(testContext) {
-            val deploymentCheckpoint = testContext.checkpoint()
-            val requestCheckpoint = testContext.checkpoint(REPEAT_SIZE)
+            vertx.withSuspendTestContext(testContext) {
+                val deploymentCheckpoint = testContext.checkpoint()
+                val requestCheckpoint = testContext.checkpoint().asLatch(REPEAT_SIZE)
 
             val verticle = SampleVerticle()
             log.debug { "Deploy SampleVerticle" }
@@ -106,7 +106,7 @@ class SampleVerticleTest: AbstractVertxTest() {
                         resp.body() shouldContain "Yo!"
                         // testContext에 완료되었음을 알린다 (CountDownLatch와 유사)
                         // 모두 차감하면 testContext.completeNow() 와 같이 테스트가 종료된다.
-                        requestCheckpoint.flag()
+                        requestCheckpoint.countDown()
                     }
                 }
             }

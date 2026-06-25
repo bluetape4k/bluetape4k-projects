@@ -837,7 +837,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
                     address.state,
                 ) {
                     from(person, "p")
-                    join(address, "a") { on(person.addressId) equalTo address.id }
+                    join(address, "a") on { person.addressId isEqualTo address.id }
                     where { person.id isLessThan 4 }
                     orderBy(person.id)
                     limit(3)

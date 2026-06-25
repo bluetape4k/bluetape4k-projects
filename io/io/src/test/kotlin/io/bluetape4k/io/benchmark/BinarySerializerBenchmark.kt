@@ -4,6 +4,7 @@ package io.bluetape4k.io.benchmark
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.io.serializer.JdkBinarySerializer
 import io.bluetape4k.junit5.faker.Fakers
 import kotlinx.benchmark.Benchmark
 import kotlinx.benchmark.BenchmarkMode
@@ -27,7 +28,7 @@ import java.util.concurrent.TimeUnit
 @Measurement(iterations = 5, time = 3, timeUnit = TimeUnit.SECONDS)
 class BinarySerializerBenchmark {
 
-    private val jdk = BinarySerializers.Jdk
+    private val jdk = JdkBinarySerializer()
     private val kryo = BinarySerializers.Kryo
     private val fory = BinarySerializers.Fory
     private val fastFory = BinarySerializers.FastFory

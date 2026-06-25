@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package io.bluetape4k.testcontainers.aws.localstack
 
 import io.bluetape4k.logging.KLogging

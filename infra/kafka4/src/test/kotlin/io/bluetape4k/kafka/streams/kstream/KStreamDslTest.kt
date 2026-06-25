@@ -7,7 +7,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.mockk
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.common.utils.Bytes
-import org.apache.kafka.streams.Topology
+import org.apache.kafka.streams.AutoOffsetReset
 import org.apache.kafka.streams.kstream.Branched
 import org.apache.kafka.streams.kstream.Consumed
 import org.apache.kafka.streams.kstream.Grouped
@@ -39,7 +39,7 @@ class KStreamDslTest: AbstractKafkaTest() {
             consumedOf(
                 keySerde = Serdes.String(),
                 valueSerde = Serdes.String(),
-                resetPolicy = Topology.AutoOffsetReset.EARLIEST,
+                resetPolicy = AutoOffsetReset.earliest(),
             )
         consumed.shouldNotBeNull()
     }

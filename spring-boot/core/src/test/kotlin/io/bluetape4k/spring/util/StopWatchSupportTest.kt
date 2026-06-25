@@ -91,7 +91,7 @@ class StopWatchSupportTest: AbstractSpringTest() {
         val sw = StopWatch("already running")
         sw.start("first task")
         assertFailsWith<IllegalStateException> {
-            sw.task("second task") { 42 }
+            sw.task("second task") { error("should not run") }
         }
         sw.stop()
     }

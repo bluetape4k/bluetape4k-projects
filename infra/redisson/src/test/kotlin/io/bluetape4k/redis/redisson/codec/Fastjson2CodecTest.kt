@@ -150,7 +150,7 @@ class Fastjson2CodecTest {
         // Fastjson2Codec encoder: WriteClassName 포함 — 두 포맷은 비호환
         val serializer = FastjsonSerializer()
         val original = Sample(1L, "test", listOf("a"))
-        val bytes = serializer.serialize(original) ?: return  // serializer가 null 반환 시 테스트 스킵
+        val bytes = serializer.serialize(original)
 
         val codec = Fastjson2Codec()
         val buf = Unpooled.wrappedBuffer(bytes)
@@ -178,7 +178,7 @@ class Fastjson2CodecTest {
         val codecBytes = ByteArray(buf.readableBytes()).also { buf.getBytes(buf.readerIndex(), it) }
         buf.release()
 
-        val serializerBytes = serializer.serialize(original) ?: return
+        val serializerBytes = serializer.serialize(original)
 
         codecBytes.contentEquals(serializerBytes) shouldBeEqualTo false
     }

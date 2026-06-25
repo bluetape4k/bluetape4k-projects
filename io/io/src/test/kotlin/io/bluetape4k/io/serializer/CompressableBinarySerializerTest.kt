@@ -45,6 +45,8 @@ class CompressableBinarySerializerTest {
 
     private fun getSerializers(): Stream<out BinarySerializer> = compressableSerializers.stream()
 
+    private val memorySizeSerializer = JdkBinarySerializer()
+
     @ParameterizedTest
     @MethodSource("getSerializers")
     fun `serialize and compress string`(serializer: BinarySerializer) {
@@ -80,10 +82,10 @@ class CompressableBinarySerializerTest {
     }
 
     private fun SimpleData.memorySize(): Int =
-        BinarySerializers.Jdk.serialize(this).size
+        memorySizeSerializer.serialize(this).size
 
     private fun List<SimpleData>.memorySize(): Int =
-        BinarySerializers.Jdk.serialize(this).size
+        memorySizeSerializer.serialize(this).size
 
 
     data class SimpleData(

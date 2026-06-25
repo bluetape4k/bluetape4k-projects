@@ -47,7 +47,7 @@ class CircuitBreakerExtensionsTest {
         cb.transitionToOpenState()
 
         assertFailsWith<CallNotPermittedException> {
-            withCircuitBreaker(cb) { "should not run" }
+            withCircuitBreaker(cb) { error("should not run") }
         }
 
         cb.metrics.numberOfNotPermittedCalls shouldBeEqualTo 1

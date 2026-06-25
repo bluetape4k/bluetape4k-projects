@@ -14,8 +14,6 @@ import jakarta.persistence.Index
 import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
 import jakarta.persistence.Table
-import jakarta.persistence.Temporal
-import jakarta.persistence.TemporalType
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEmpty
@@ -25,7 +23,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.repository.findByIdOrNull
-import java.util.*
+import java.time.LocalDateTime
+import java.util.UUID
 
 class TablePerClassInheritanceTest: AbstractHibernateTest() {
 
@@ -50,7 +49,7 @@ class TablePerClassInheritanceTest: AbstractHibernateTest() {
             companyName = "KakaoBank"
             expYear = 2024
             expMonth = 12
-            startDate = Date()
+            startDate = LocalDateTime.now()
         }
 
         cardRepo.save(card)
@@ -129,11 +128,9 @@ class UuidCreditCard(owner: String, swift: String? = null): AbstractUuidBilling(
     var expMonth: Int? = null
     var expYear: Int? = null
 
-    @Temporal(TemporalType.TIMESTAMP)
-    var startDate: Date? = null
+    var startDate: LocalDateTime? = null
 
-    @Temporal(TemporalType.TIMESTAMP)
-    var endDate: Date? = null
+    var endDate: LocalDateTime? = null
 
 
     override fun equalProperties(other: Any): Boolean =

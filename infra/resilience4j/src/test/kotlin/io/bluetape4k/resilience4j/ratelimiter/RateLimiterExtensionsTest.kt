@@ -64,7 +64,7 @@ class RateLimiterExtensionsTest {
 
         // 두 번째 호출은 실패
         assertFailsWith<RequestNotPermitted> {
-            withRateLimiter(rl) { "should fail" }
+            withRateLimiter(rl) { error("should fail") }
         }
     }
 

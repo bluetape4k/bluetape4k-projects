@@ -229,7 +229,7 @@ class KafkaStreamsTests {
 
         @Bean
         fun consumerConfigs(): Map<String, Any> {
-            return KafkaTestUtils.consumerProps(brokerAddresses, "testGroup", "false")
+            return KafkaTestUtils.consumerProps(brokerAddresses, "testGroup", false)
         }
 
         @Bean

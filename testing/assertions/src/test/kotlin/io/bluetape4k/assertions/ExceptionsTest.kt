@@ -7,7 +7,6 @@ import org.opentest4j.AssertionFailedError
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
 
-@Suppress("UnusedExpression")
 class ExceptionsTest {
 
     // ── invoking { }.shouldThrow ──────────────────────────────────────────
@@ -33,7 +32,7 @@ class ExceptionsTest {
     @Test
     fun `invoking shouldThrow fails when no exception is thrown`() {
         assertFailsWith<AssertionFailedError> {
-            assertFailsWith<IllegalStateException> { 42 }
+            assertFailsWith<IllegalStateException> { }
         }
     }
 
@@ -184,7 +183,7 @@ class ExceptionsTest {
     @Test
     fun `coInvoking shouldThrow fails when no exception is thrown`() = runTest {
         assertFailsWith<AssertionFailedError> {
-            assertFailsWith<IllegalStateException> { 42 }
+            assertFailsWith<IllegalStateException> { }
         }
     }
 
@@ -327,7 +326,7 @@ class ExceptionsTest {
 
     @Test
     fun `assertNotFailsWith passes when block throws nothing`() {
-        assertNotFailsWith<IllegalArgumentException> { "no exception" }
+        assertNotFailsWith<IllegalArgumentException> { }
     }
 
     @Test
@@ -358,7 +357,7 @@ class ExceptionsTest {
 
     @Test
     fun `assertNotFails passes when no exception thrown`() {
-        assertNotFails { "ok" }
+        assertNotFails { }
     }
 
     @Test

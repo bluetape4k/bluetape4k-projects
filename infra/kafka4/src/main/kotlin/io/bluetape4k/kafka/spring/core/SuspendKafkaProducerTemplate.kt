@@ -180,9 +180,6 @@ class SuspendKafkaProducerTemplate<K, V> private constructor(
     @Suppress("UNCHECKED_CAST")
     suspend fun send(topic: String, message: Message<*>): SenderResult<Unit> {
         val producerRecord = messageConverter.fromMessage(message, topic)
-        require(producerRecord is ProducerRecord<*, *>) {
-            "RecordMessageConverter returned ${producerRecord?.javaClass?.name ?: "null"} for topic=$topic"
-        }
         val typedRecord = producerRecord as ProducerRecord<K, V>
 
         val correlationId = message.headers[KafkaHeaders.CORRELATION_ID, ByteArray::class.java]

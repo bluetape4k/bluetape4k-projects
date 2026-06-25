@@ -115,9 +115,8 @@ class ReactiveCassandraOperationsCoroutinesUnitTest {
     @Test
     fun `selectOneOrNullSuspending returns null for empty Mono`() = runSuspendIO {
         val emptyOps = mockk<ReactiveCassandraOperations>()
-        @Suppress("UNCHECKED_CAST")
         every { emptyOps.selectOne(any<com.datastax.oss.driver.api.core.cql.Statement<*>>(), any<Class<*>>()) } returns
-            Mono.empty<Any>() as Mono<Any>
+            Mono.empty<Any>()
         val result = emptyOps.selectOneOrNullSuspending<TestEntity>(testStatement)
         result.shouldBeNull()
     }

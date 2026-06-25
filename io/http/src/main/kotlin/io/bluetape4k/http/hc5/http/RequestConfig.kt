@@ -33,10 +33,10 @@ fun requestConfigOf(): RequestConfig = requestConfig {}
  *
  * ## Defaults
  * - `connectionRequestTimeout` — 5 s: time to wait for a connection from the pool before failing
- * - `connectTimeout`           — 10 s: TCP connect handshake deadline
+ * - `connectTimeout`           — 10 s: time to establish a TCP connection
  * - `responseTimeout`          — 30 s: time to wait for the first response byte after the request is sent
  *
- * All three timeouts can be overridden via the corresponding parameters.
+ * Request-scoped timeouts can be overridden via the corresponding parameters.
  *
  * ```kotlin
  * // Use defaults
@@ -47,10 +47,11 @@ fun requestConfigOf(): RequestConfig = requestConfig {}
  * ```
  *
  * @param connectionRequestTimeout timeout for acquiring a connection from the pool (default: 5 s)
- * @param connectTimeout TCP connect timeout (default: 10 s)
+ * @param connectTimeout timeout for establishing a TCP connection (default: 10 s)
  * @param responseTimeout timeout for the first response byte (default: 30 s)
  * @return production-tuned [RequestConfig]
  */
+@Suppress("DEPRECATION")
 fun productionRequestConfigOf(
     connectionRequestTimeout: Timeout = Timeout.ofSeconds(5),
     connectTimeout: Timeout = Timeout.ofSeconds(10),

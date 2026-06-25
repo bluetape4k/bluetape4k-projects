@@ -54,7 +54,7 @@ class MinimalHttpAsyncClientTest: AbstractHc5Test() {
         val client = minimalHttpAsyncClientOf(connMgr = cm)
         client.start()
         try {
-            val url = java.net.URL(httpbinBaseUrl)
+            val url = java.net.URI.create(httpbinBaseUrl).toURL()
             val host = org.apache.hc.core5.http.HttpHost(url.protocol, url.host, url.port)
             val endpoint = client.leaseSuspending(host)
             log.debug { "Leased endpoint: $endpoint" }

@@ -11,6 +11,7 @@ class ProductionRequestConfigTest {
     companion object : KLogging()
 
     @Test
+    @Suppress("DEPRECATION")
     fun `productionRequestConfigOf creates config with sensible defaults`() {
         val config = productionRequestConfigOf()
 
@@ -21,15 +22,16 @@ class ProductionRequestConfigTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `productionRequestConfigOf allows overriding individual timeouts`() {
         val config = productionRequestConfigOf(
             connectionRequestTimeout = Timeout.ofSeconds(2),
-            connectTimeout = Timeout.ofSeconds(15),
+            connectTimeout = Timeout.ofSeconds(3),
             responseTimeout = Timeout.ofSeconds(60),
         )
 
         config.connectionRequestTimeout shouldBeEqualTo Timeout.ofSeconds(2)
-        config.connectTimeout shouldBeEqualTo Timeout.ofSeconds(15)
+        config.connectTimeout shouldBeEqualTo Timeout.ofSeconds(3)
         config.responseTimeout shouldBeEqualTo Timeout.ofSeconds(60)
     }
 

@@ -39,7 +39,7 @@ class ReactiveCqlOperationsSupportUnitTest {
         every { ops.execute(any<Statement<*>>()) } returns Mono.just(true)
         every { ops.execute(any<ReactivePreparedStatementCreator>()) } returns Mono.just(true)
         every { ops.queryForObject(any<String>(), any<RowMapper<String>>(), *anyVararg()) } answers {
-            Mono.just("result") as Mono<String>
+            Mono.just("result")
         }
         every { ops.queryForObject(any<String>(), any<Class<*>>(), *anyVararg()) } answers {
             Mono.just("result") as Mono<Any>
@@ -54,7 +54,7 @@ class ReactiveCqlOperationsSupportUnitTest {
         every { ops.queryForRows(any<Statement<*>>()) } returns Flux.just(mockRow)
         every { ops.queryForRows(any<String>(), *anyVararg()) } returns Flux.just(mockRow)
         every { ops.query(any<Statement<*>>(), any<RowMapper<String>>()) } answers {
-            Flux.just("mapped") as Flux<String>
+            Flux.just("mapped")
         }
     }
 
@@ -162,10 +162,9 @@ class ReactiveCqlOperationsSupportUnitTest {
 
     @Test
     fun `executeForFlow with Flow of CQL strings`() = runSuspendIO {
-        @Suppress("UNCHECKED_CAST")
         val localOps = mockk<ReactiveCqlOperations>().also { ops ->
             every { ops.execute(any<org.reactivestreams.Publisher<String>>()) } answers {
-                Flux.just(true) as Flux<Boolean>
+                Flux.just(true)
             }
         }
         val cqlFlow = flowOf("TRUNCATE users")

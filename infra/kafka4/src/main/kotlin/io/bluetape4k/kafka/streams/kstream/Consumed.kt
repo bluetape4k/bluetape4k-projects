@@ -4,7 +4,7 @@
 package io.bluetape4k.kafka.streams.kstream
 
 import org.apache.kafka.common.serialization.Serde
-import org.apache.kafka.streams.Topology
+import org.apache.kafka.streams.AutoOffsetReset
 import org.apache.kafka.streams.kstream.Consumed
 import org.apache.kafka.streams.processor.TimestampExtractor
 
@@ -18,7 +18,7 @@ import org.apache.kafka.streams.processor.TimestampExtractor
  * val consumed = consumedOf(
  *     keySerde = Serdes.String(),
  *     valueSerde = Serdes.String(),
- *     resetPolicy = Topology.AutoOffsetReset.EARLIEST
+ *     resetPolicy = AutoOffsetReset.earliest()
  * )
  * val stream = builder.stream("input-topic", consumed)
  * ```
@@ -35,5 +35,5 @@ fun <K, V> consumedOf(
     keySerde: Serde<K>,
     valueSerde: Serde<V>,
     timestampExtractor: TimestampExtractor? = null,
-    resetPolicy: Topology.AutoOffsetReset? = null,
+    resetPolicy: AutoOffsetReset? = null,
 ): Consumed<K, V> = Consumed.with(keySerde, valueSerde, timestampExtractor, resetPolicy)

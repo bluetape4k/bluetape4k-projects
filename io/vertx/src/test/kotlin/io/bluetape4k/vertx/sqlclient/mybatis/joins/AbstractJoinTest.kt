@@ -78,7 +78,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                     orderDetail.lineNumber, orderDetail.description, orderDetail.quantity
                 ) {
                     from(orderMaster, "om")
-                    join(orderDetail, "od") { on(orderMaster.orderId) equalTo orderDetail.orderId }
+                    join(orderDetail, "od") on { orderMaster.orderId isEqualTo orderDetail.orderId }
                     orderBy(orderMaster.orderId)
                 }
                 rows.size() shouldBeEqualTo 3
@@ -96,9 +96,9 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                     orderDetail.lineNumber, orderDetail.description, orderDetail.quantity
                 ) {
                     from(orderMaster, "om")
-                    join(orderDetail, "od") {
-                        on(orderMaster.orderId) equalTo orderDetail.orderId
-                        and(orderMaster.orderId) equalTo orderDetail.orderId
+                    join(orderDetail, "od") on {
+                        orderMaster.orderId isEqualTo orderDetail.orderId
+                        and { orderMaster.orderId isEqualTo orderDetail.orderId }
                     }
                 }
                 rows.size() shouldBeEqualTo 3
@@ -116,9 +116,9 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                     orderDetail.lineNumber, orderDetail.description, orderDetail.quantity
                 ) {
                     from(orderMaster, "om")
-                    join(orderDetail, "od") {
-                        on(orderMaster.orderId) equalTo orderDetail.orderId
-                        and(orderMaster.orderId) equalTo orderDetail.orderId
+                    join(orderDetail, "od") on {
+                        orderMaster.orderId isEqualTo orderDetail.orderId
+                        and { orderMaster.orderId isEqualTo orderDetail.orderId }
                     }
                     where { orderMaster.orderId isEqualTo 1 }  // where 절 추가
                 }
@@ -137,8 +137,8 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                     orderLine.lineNumber, orderLine.itemId, orderLine.quantity, itemMaster.description
                 ) {
                     from(orderMaster, "om")
-                    join(orderLine, "ol") { on(orderMaster.orderId) equalTo orderLine.orderId }
-                    join(itemMaster, "im") { on(orderLine.itemId) equalTo itemMaster.itemId }
+                    join(orderLine, "ol") on { orderMaster.orderId isEqualTo orderLine.orderId }
+                    join(itemMaster, "im") on { orderLine.itemId isEqualTo itemMaster.itemId }
                     where { orderMaster.orderId isEqualTo 2 }
                 }
 
@@ -204,20 +204,20 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                     OrderRecordRowMapper
                 ) {
                     from(orderMaster, "om")
-                    join(orderLine, "ol") {
-                        on(orderMaster.orderId) equalTo orderLine.orderId
+                    join(orderLine, "ol") on {
+                        orderMaster.orderId isEqualTo orderLine.orderId
                     }
-                    leftJoin(itemMaster, "im") {
-                        on(orderLine.itemId) equalTo itemMaster.itemId
+                    leftJoin(itemMaster, "im") on {
+                        orderLine.itemId isEqualTo itemMaster.itemId
                     }
                     union {
                         select(orderLine.orderId, orderLine.quantity, itemMaster.itemId, itemMaster.description) {
                             from(orderMaster, "om")
-                            join(orderLine, "ol") {
-                                on(orderMaster.orderId) equalTo orderLine.orderId
+                            join(orderLine, "ol") on {
+                                orderMaster.orderId isEqualTo orderLine.orderId
                             }
-                            rightJoin(itemMaster, "im") {
-                                on(orderLine.itemId) equalTo itemMaster.itemId
+                            rightJoin(itemMaster, "im") on {
+                                orderLine.itemId isEqualTo itemMaster.itemId
                             }
                         }
                     }
@@ -269,24 +269,14 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                         select(orderMaster.allColumns()) { from(orderMaster) }
                         +"om"
                     }
-                    join(
-                        subQuery = {
-                            select(orderLine.allColumns()) { from(orderLine) }
-                            +"ol"
-                        },
-                        joinCriteria = {
-                            on("om"(orderMaster.orderId)) equalTo "ol"(orderLine.orderId)
-                        }
-                    )
-                    leftJoin(
-                        subQuery = {
-                            select(itemMaster.allColumns()) { from(itemMaster) }
-                            +"im"
-                        },
-                        joinCriteria = {
-                            on("ol"(orderLine.itemId)) equalTo "im"(itemMaster.itemId)
-                        }
-                    )
+                    join {
+                        select(orderLine.allColumns()) { from(orderLine) }
+                        +"ol"
+                    } on { "om"(orderMaster.orderId) isEqualTo "ol"(orderLine.orderId) }
+                    leftJoin {
+                        select(itemMaster.allColumns()) { from(itemMaster) }
+                        +"im"
+                    } on { "ol"(orderLine.itemId) isEqualTo "im"(itemMaster.itemId) }
                     union {
                         select(
                             "ol"(orderLine.orderId), orderLine.quantity, "im"(itemMaster.itemId), itemMaster.description
@@ -295,24 +285,14 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                                 select(orderMaster.allColumns()) { from(orderMaster) }
                                 +"om"
                             }
-                            join(
-                                subQuery = {
-                                    select(orderLine.allColumns()) { from(orderLine) }
-                                    +"ol"
-                                },
-                                joinCriteria = {
-                                    on("om"(orderMaster.orderId)) equalTo "ol"(orderLine.orderId)
-                                }
-                            )
-                            rightJoin(
-                                subQuery = {
-                                    select(itemMaster.allColumns()) { from(itemMaster) }
-                                    +"im"
-                                },
-                                joinCriteria = {
-                                    on("ol"(orderLine.itemId)) equalTo "im"(itemMaster.itemId)
-                                }
-                            )
+                            join {
+                                select(orderLine.allColumns()) { from(orderLine) }
+                                +"ol"
+                            } on { "om"(orderMaster.orderId) isEqualTo "ol"(orderLine.orderId) }
+                            rightJoin {
+                                select(itemMaster.allColumns()) { from(itemMaster) }
+                                +"im"
+                            } on { "ol"(orderLine.itemId) isEqualTo "im"(itemMaster.itemId) }
                         }
                     }
                     orderBy(orderLine.orderId, itemMaster.itemId)
@@ -355,20 +335,20 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                     OrderRecordRowMapper
                 ) {
                     from(orderMaster, "om")
-                    join(orderLine, "ol") {
-                        on(orderMaster.orderId) equalTo orderLine.orderId
+                    join(orderLine, "ol") on {
+                        orderMaster.orderId isEqualTo orderLine.orderId
                     }
-                    leftJoin(itemMaster) {
-                        on(orderLine.itemId) equalTo itemMaster.itemId
+                    leftJoin(itemMaster) on {
+                        orderLine.itemId isEqualTo itemMaster.itemId
                     }
                     union {
                         select(orderLine.orderId, orderLine.quantity, itemMaster.itemId, itemMaster.description) {
                             from(orderMaster, "om2")
-                            join(orderLine, "ol2") {
-                                on(orderMaster.orderId) equalTo orderLine.orderId
+                            join(orderLine, "ol2") on {
+                                orderMaster.orderId isEqualTo orderLine.orderId
                             }
-                            rightJoin(itemMaster) {
-                                on(orderLine.itemId) equalTo itemMaster.itemId
+                            rightJoin(itemMaster) on {
+                                orderLine.itemId isEqualTo itemMaster.itemId
                             }
                         }
                     }
@@ -400,8 +380,8 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                     OrderRecordRowMapper
                 ) {
                     from(orderMaster, "om")
-                    join(orderLine, "ol") { on(orderMaster.orderId) equalTo orderLine.orderId }
-                    leftJoin(itemMaster, "im") { on(orderLine.itemId) equalTo itemMaster.itemId }
+                    join(orderLine, "ol") on { orderMaster.orderId isEqualTo orderLine.orderId }
+                    leftJoin(itemMaster, "im") on { orderLine.itemId isEqualTo itemMaster.itemId }
                     orderBy(orderLine.orderId, itemMaster.itemId)
                 }
                 // orderRecords shouldHaveSize 5
@@ -425,24 +405,14 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                         select(orderMaster.allColumns()) { from(orderMaster) }
                         +"om"
                     }
-                    join(
-                        subQuery = {
-                            select(orderLine.allColumns()) { from(orderLine) }
-                            +"ol"
-                        },
-                        joinCriteria = {
-                            on("om"(orderMaster.orderId)) equalTo "ol"(orderLine.orderId)
-                        }
-                    )
-                    leftJoin(
-                        subQuery = {
-                            select(itemMaster.allColumns()) { from(itemMaster) }
-                            +"im"
-                        },
-                        joinCriteria = {
-                            on("ol"(orderLine.itemId)) equalTo "im"(itemMaster.itemId)
-                        }
-                    )
+                    join {
+                        select(orderLine.allColumns()) { from(orderLine) }
+                        +"ol"
+                    } on { "om"(orderMaster.orderId) isEqualTo "ol"(orderLine.orderId) }
+                    leftJoin {
+                        select(itemMaster.allColumns()) { from(itemMaster) }
+                        +"im"
+                    } on { "ol"(orderLine.itemId) isEqualTo "im"(itemMaster.itemId) }
                     orderBy(orderLine.orderId, itemMaster.itemId)
                 }
 
@@ -460,11 +430,11 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                     OrderRecordRowMapper
                 ) {
                     from(orderMaster, "om")
-                    join(orderLine, "ol") {
-                        on(orderMaster.orderId) equalTo orderLine.orderId
+                    join(orderLine, "ol") on {
+                        orderMaster.orderId isEqualTo orderLine.orderId
                     }
-                    leftJoin(itemMaster) {
-                        on(orderLine.itemId) equalTo itemMaster.itemId
+                    leftJoin(itemMaster) on {
+                        orderLine.itemId isEqualTo itemMaster.itemId
                     }
                     orderBy(orderLine.orderId, itemMaster.itemId)
                 }
@@ -494,8 +464,8 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                     OrderRecordRowMapper
                 ) {
                     from(orderMaster, "om")
-                    join(orderLine, "ol") { on(orderMaster.orderId) equalTo orderLine.orderId }
-                    rightJoin(itemMaster, "im") { on(orderLine.itemId) equalTo itemMaster.itemId }
+                    join(orderLine, "ol") on { orderMaster.orderId isEqualTo orderLine.orderId }
+                    rightJoin(itemMaster, "im") on { orderLine.itemId isEqualTo itemMaster.itemId }
                     orderBy(orderLine.orderId, itemMaster.itemId)
                 }
                 orderRecords shouldHaveSize 5
@@ -519,24 +489,14 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                         select(orderMaster.allColumns()) { from(orderMaster) }
                         +"om"
                     }
-                    join(
-                        subQuery = {
-                            select(orderLine.allColumns()) { from(orderLine) }
-                            +"ol"
-                        },
-                        joinCriteria = {
-                            on("om"(orderMaster.orderId)) equalTo "ol"(orderLine.orderId)
-                        }
-                    )
-                    rightJoin(
-                        subQuery = {
-                            select(itemMaster.allColumns()) { from(itemMaster) }
-                            +"im"
-                        },
-                        joinCriteria = {
-                            on("ol"(orderLine.itemId)) equalTo "im"(itemMaster.itemId)
-                        }
-                    )
+                    join {
+                        select(orderLine.allColumns()) { from(orderLine) }
+                        +"ol"
+                    } on { "om"(orderMaster.orderId) isEqualTo "ol"(orderLine.orderId) }
+                    rightJoin {
+                        select(itemMaster.allColumns()) { from(itemMaster) }
+                        +"im"
+                    } on { "ol"(orderLine.itemId) isEqualTo "im"(itemMaster.itemId) }
                     orderBy(orderLine.orderId, itemMaster.itemId)
                 }
 
@@ -554,11 +514,11 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                     OrderRecordRowMapper
                 ) {
                     from(orderMaster, "om")
-                    join(orderLine, "ol") {
-                        on(orderMaster.orderId) equalTo orderLine.orderId
+                    join(orderLine, "ol") on {
+                        orderMaster.orderId isEqualTo orderLine.orderId
                     }
-                    rightJoin(itemMaster) {
-                        on(orderLine.itemId) equalTo itemMaster.itemId
+                    rightJoin(itemMaster) on {
+                        orderLine.itemId isEqualTo itemMaster.itemId
                     }
                     orderBy(orderLine.orderId, itemMaster.itemId)
                 }
@@ -593,7 +553,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                     UserRowMapper
                 ) {
                     from(user, "u1")
-                    join(user2, "u2") { on(user.userId) equalTo user2.parentId }
+                    join(user2, "u2") on { user.userId isEqualTo user2.parentId }
                     where { user2.userId isEqualTo 4 }
                 }
 
@@ -618,7 +578,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                     UserRowMapper
                 ) {
                     from(user)
-                    join(user2) { on(user.userId) equalTo user2.parentId }
+                    join(user2) on { user.userId isEqualTo user2.parentId }
                     where { user2.userId isEqualTo 4 }
                 }
 
@@ -644,7 +604,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                     UserRowMapper
                 ) {
                     from(user, "u1")
-                    join(user2, "u2") { on(user.userId) equalTo user2.parentId }
+                    join(user2, "u2") on { user.userId isEqualTo user2.parentId }
                     where { user2.userId isEqualTo 4 }
                 }
 
@@ -677,8 +637,8 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                         }
                         +"p2"
                     }
-                    join(person, "p1") {
-                        on(p2.id) equalTo person.id
+                    join(person, "p1") on {
+                        p2.id isEqualTo person.id
                     }
                     where { person.id isLessThan 5 }
                 }.renderForVertx()
@@ -695,17 +655,14 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                 val p2 = person.withAlias("p2")
                 val selectProvider = select(person.allColumns()) {
                     from(person, "p1")
-                    join({
+                    join {
                         select(p2.id) {
                             from(p2)
                             where { p2.addressId isEqualTo 2 }
                             orderBy(p2.id)
                         }
                         +"p2"
-                    }
-                    ) {
-                        on(person.id).equalTo(p2.id)    // NOTE: PersonTable 이 AliasableSqlTable 이어야 합니다.
-                    }
+                    } on { person.id isEqualTo p2.id }    // NOTE: PersonTable 이 AliasableSqlTable 이어야 합니다.
                     where { person.id isLessThan 5 }
                 }.renderForVertx()
 

@@ -4,6 +4,7 @@ import io.bluetape4k.codec.decodeBase64ByteArray
 import io.bluetape4k.codec.encodeBase64ByteArray
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.io.serializer.JdkBinarySerializer
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
 
@@ -43,7 +44,7 @@ abstract class AbstractObjectAsByteArrayConverter(
  * 객체를 Jdk 직렬화하여 Base64 인코딩을 거쳐 ByteArray 로 변환해서 DB에 저장합니다.
  */
 @Converter
-class JdkObjectAsByteArrayConverter: AbstractObjectAsByteArrayConverter(BinarySerializers.Jdk)
+class JdkObjectAsByteArrayConverter: AbstractObjectAsByteArrayConverter(JdkBinarySerializer())
 
 /**
  * 객체를 Jdk 직렬화, LZ4로 압축 한 후 Base64 인코딩을 거쳐 ByteArray 로 변환해서 DB에 저장합니다.

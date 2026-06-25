@@ -108,12 +108,10 @@ inline fun <reified T: Any> Session.findByNaturalId(
 ): T? {
     naturalIdValues.requireNotEmpty("naturalIdValues")
 
-    val access = byNaturalId(T::class.java)
-    naturalIdValues.forEach { (attributeName, value) ->
+    naturalIdValues.keys.forEach { attributeName ->
         attributeName.requireNotBlank("naturalIdValues.key")
-        access.using(attributeName, value)
     }
-    return access.load()
+    return find(T::class.java, naturalIdValues, KeyType.NATURAL)
 }
 
 /**
