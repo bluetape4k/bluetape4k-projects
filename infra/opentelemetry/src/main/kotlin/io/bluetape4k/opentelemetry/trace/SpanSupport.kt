@@ -1,6 +1,8 @@
 package io.bluetape4k.opentelemetry.trace
 
 import io.bluetape4k.support.requireNotBlank
+import io.opentelemetry.api.common.AttributeKey
+import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanBuilder
 import io.opentelemetry.api.trace.SpanContext
@@ -10,6 +12,9 @@ import kotlinx.coroutines.CancellationException
 import java.time.Duration
 
 private const val UNSPECIFIED_ERROR = "unspecified error"
+private const val EXCEPTION_EVENT_NAME = "exception"
+private val EXCEPTION_TYPE_ATTRIBUTE = AttributeKey.stringKey("exception.type")
+private val EXCEPTION_MESSAGE_ATTRIBUTE = AttributeKey.stringKey("exception.message")
 
 
 /**
@@ -27,7 +32,7 @@ val InvalidSpanContext: SpanContext = SpanContext.getInvalid()
  * [Span]을 사용하여 코드 블록을 실행하고, 실행이 끝나면 Span을 자동으로 종료합니다.
  *
  * ## 동작/계약
- * - 일반 예외는 span에 `exception` 이벤트와 `ERROR` 상태를 남긴 뒤 원본 예외를 그대로 다시 던집니다.
+ * - 일반 예외는 redacted `exception` 이벤트와 `ERROR` 상태를 남긴 뒤 원본 예외를 그대로 다시 던집니다.
  * - [CancellationException]은 취소 의미를 보존하기 위해 오류로 기록하지 않고 그대로 전파합니다.
  * - `waitTimeout`은 하위 호환을 위해 유지되며, 현재 구현은 trace duration 왜곡을 피하기 위해 span을 즉시 종료합니다.
  *
@@ -76,7 +81,7 @@ inline fun <T> Span.use(waitDuration: Duration, block: (Span) -> T): T =
  *
  * ## 동작/계약
  * - 새 span을 생성한 뒤 [Span.use]에 위임합니다.
- * - 예외 처리와 종료 시맨틱은 [Span.use]와 동일합니다.
+ * - 예외 처리와 종료 시맨틱은 [Span.use]와 동일하며, 원본 예외 메시지는 기본 export하지 않습니다.
  *
  * @param waitTimeout 하위 호환을 위해 남겨둔 종료 대기 시간 인자입니다. 현재 구현은 trace duration 왜곡을 막기 위해 즉시 종료합니다.
  * @param block 실행할 코드 블록
@@ -105,8 +110,14 @@ internal fun Span.recordFailure(error: Throwable) {
         return
     }
 
-    recordException(error)
-    setStatus(StatusCode.ERROR, error.message ?: UNSPECIFIED_ERROR)
+    addEvent(
+        EXCEPTION_EVENT_NAME,
+        Attributes.builder()
+            .put(EXCEPTION_TYPE_ATTRIBUTE, error::class.java.name)
+            .put(EXCEPTION_MESSAGE_ATTRIBUTE, UNSPECIFIED_ERROR)
+            .build(),
+    )
+    setStatus(StatusCode.ERROR, UNSPECIFIED_ERROR)
 }
 
 /**
@@ -114,8 +125,8 @@ internal fun Span.recordFailure(error: Throwable) {
  *
  * ## 동작/계약
  * - 정상 종료 시 [StatusCode.OK]를 설정하고 Span을 종료합니다.
- * - 일반 예외 발생 시 `recordException` + [StatusCode.ERROR] 설정 후 재던집니다.
- *   fallback 메시지는 `"unspecified error"` — 내부 클래스명은 절대 노출하지 않습니다.
+ * - 일반 예외 발생 시 redacted `exception` event와 [StatusCode.ERROR] 설정 후 재던집니다.
+ *   status description과 event message는 `"unspecified error"`를 사용해 원본 예외 메시지를 기본 노출하지 않습니다.
  * - [CancellationException]은 상태 변경 없이 그대로 전파합니다 (UNSET 유지).
  *
  * ## 보안 경고

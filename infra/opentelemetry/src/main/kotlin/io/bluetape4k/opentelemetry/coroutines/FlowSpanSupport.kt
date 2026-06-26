@@ -1,5 +1,6 @@
 package io.bluetape4k.opentelemetry.coroutines
 
+import io.bluetape4k.opentelemetry.trace.recordFailure
 import io.bluetape4k.support.requireNotBlank
 import io.opentelemetry.api.trace.SpanBuilder
 import io.opentelemetry.api.trace.StatusCode
@@ -11,8 +12,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.withContext
 
-private const val UNSPECIFIED_ERROR = "unspecified error"
-
 /**
  * 이 [Flow]의 collect를 단일 [io.opentelemetry.api.trace.Span]으로 감싸는 새로운 [Flow]를 반환합니다.
  *
@@ -21,8 +20,8 @@ private const val UNSPECIFIED_ERROR = "unspecified error"
  *   emit 횟수와 무관합니다. 아이템별 Span이 필요하면 `onEach { }` 안에서 직접 Span을 관리하세요.
  * - 정상 종료 시 [StatusCode.OK]를 설정하고 Span을 종료합니다.
  * - [CancellationException] (upstream 또는 downstream 취소) 시 상태를 UNSET으로 유지하고 Span을 종료합니다.
- * - 일반 예외 발생 시 `recordException` + [StatusCode.ERROR] 설정 후 Span을 종료하고 예외를 재던집니다.
- *   fallback 메시지는 `"unspecified error"` — 내부 클래스명은 절대 노출하지 않습니다.
+ * - 일반 예외 발생 시 redacted `exception` event와 [StatusCode.ERROR] 설정 후 Span을 종료하고 예외를 재던집니다.
+ *   status description과 event message는 `"unspecified error"`를 사용해 원본 예외 메시지를 기본 노출하지 않습니다.
  *
  * ## 구현 주의
  * - 내부적으로 `channelFlow { }` 를 사용합니다. `flow { }` + `withContext` + `emit()` 조합은
@@ -70,8 +69,7 @@ public fun <T> Flow<T>.traced(
         } catch (ce: CancellationException) {
             throw ce
         } catch (t: Throwable) {
-            span.recordException(t)
-            span.setStatus(StatusCode.ERROR, t.message ?: UNSPECIFIED_ERROR)
+            span.recordFailure(t)
             throw t
         } finally {
             span.end()
@@ -87,7 +85,7 @@ public fun <T> Flow<T>.traced(
  *   따라서 [action] 안에서 `Span.current()`를 호출하면 이 함수가 생성한 Span이 반환됩니다.
  * - 정상 종료 시 [StatusCode.OK]를 설정하고 Span을 종료합니다.
  * - [CancellationException] 시 상태를 UNSET으로 유지하고 Span을 종료합니다.
- * - 일반 예외 발생 시 `recordException` + [StatusCode.ERROR] 설정 후 재던집니다.
+ * - 일반 예외 발생 시 redacted `exception` event와 [StatusCode.ERROR] 설정 후 재던집니다.
  *
  * ## [traced] 와의 차이
  * - `traced()` 는 OTel Context 를 producer(upstream) 코루틴에만 설치합니다.
@@ -122,8 +120,7 @@ public suspend fun <T> Flow<T>.tracedCollect(
     } catch (ce: CancellationException) {
         throw ce
     } catch (t: Throwable) {
-        span.recordException(t)
-        span.setStatus(StatusCode.ERROR, t.message ?: UNSPECIFIED_ERROR)
+        span.recordFailure(t)
         throw t
     } finally {
         span.end()

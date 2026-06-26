@@ -6,9 +6,11 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.opentelemetry.AbstractOtelTest
+import io.bluetape4k.opentelemetry.shouldNotExpose
 import io.bluetape4k.opentelemetry.trace.sdkTracerProvider
 import io.bluetape4k.opentelemetry.trace.simpleSpanProcessorOf
 import io.opentelemetry.api.common.AttributeKey
@@ -24,6 +26,8 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -94,6 +98,68 @@ class FlowSpanSupportTest: AbstractOtelTest() {
         finished shouldHaveSize 1
         finished[0].status.statusCode shouldBeEqualTo StatusCode.ERROR
         finished[0].events.any { it.name == "exception" }.shouldBeTrue()
+    }
+
+    @Test
+    fun `traced upstream exception should not export raw exception message by default`() = runSuspendIO {
+        val secret = "password=hunter2"
+        val failure = IllegalStateException("query failed with $secret")
+        val upstream = flow<Int> { throw failure }
+
+        val ex = kotlin.runCatching {
+            upstream.traced(tracer, "redacted-flow").collect { }
+        }.exceptionOrNull()
+
+        ex.shouldNotBeNull()
+        (ex is IllegalStateException).shouldBeTrue()
+        ex.message shouldBeEqualTo failure.message
+        flush()
+
+        val finished = spanExporter.finishedSpanItems
+        finished shouldHaveSize 1
+
+        val span = finished[0]
+        span.status.statusCode shouldBeEqualTo StatusCode.ERROR
+        span.events.any { it.name == "exception" }.shouldBeTrue()
+        span.shouldNotExpose(secret)
+    }
+
+    @Test
+    fun `traced upstream exception should keep redaction stable under SuspendedJobTester`() = runSuspendIO {
+        val sequence = AtomicInteger()
+        val secrets = ConcurrentLinkedQueue<String>()
+
+        SuspendedJobTester()
+            .workers(4)
+            .rounds(24)
+            .add {
+                val id = sequence.incrementAndGet()
+                val secret = "password=flow-token-$id"
+                secrets.add(secret)
+
+                val failure = IllegalStateException("query failed with $secret")
+                val upstream = flow<Int> { throw failure }
+
+                val ex = kotlin.runCatching {
+                    upstream.traced(tracer, "redacted-flow-stress-$id").collect { }
+                }.exceptionOrNull()
+
+                ex.shouldNotBeNull()
+                (ex is IllegalStateException).shouldBeTrue()
+            }
+            .run()
+
+        flush()
+
+        val finished = spanExporter.finishedSpanItems
+        finished shouldHaveSize 24
+        finished.forEach { span ->
+            span.status.statusCode shouldBeEqualTo StatusCode.ERROR
+            span.events.any { it.name == "exception" }.shouldBeTrue()
+            secrets.forEach { secret ->
+                span.shouldNotExpose(secret)
+            }
+        }
     }
 
     @Test

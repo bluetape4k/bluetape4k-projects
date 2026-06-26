@@ -6,9 +6,11 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.opentelemetry.AbstractOtelTest
+import io.bluetape4k.opentelemetry.shouldNotExpose
 import io.bluetape4k.opentelemetry.trace.export
 import io.bluetape4k.opentelemetry.trace.loggingSpanExporterOf
 import io.bluetape4k.opentelemetry.trace.sdkTracerProvider
@@ -24,6 +26,7 @@ import io.opentelemetry.sdk.trace.export.SpanExporter
 import kotlinx.coroutines.CancellationException
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -124,6 +127,73 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
         span.name shouldBeEqualTo "error-span"
         span.status.statusCode.name shouldBeEqualTo "ERROR"
         span.events.any { it.name == "exception" }.shouldBeTrue()
+    }
+
+    @Test
+    fun `useSuspending should not export raw exception message by default`() = runSuspendIO {
+        spanExporter.reset()
+
+        val secret = "authorization=Bearer abc.def.ghi"
+        val failure = IllegalArgumentException("request failed with $secret")
+
+        val ex = kotlin.runCatching {
+            tracer.spanBuilder("redacted-coroutine-span").startSpan().useSuspending {
+                throw failure
+            }
+        }.exceptionOrNull()
+
+        ex.shouldNotBeNull()
+        (ex is IllegalArgumentException).shouldBeTrue()
+        ex.message shouldBeEqualTo failure.message
+
+        flush()
+
+        val finished = spanExporter.finishedSpanItems
+        finished shouldHaveSize 1
+
+        val span = finished[0]
+        span.status.statusCode.name shouldBeEqualTo "ERROR"
+        span.events.any { it.name == "exception" }.shouldBeTrue()
+        span.shouldNotExpose(secret)
+    }
+
+    @Test
+    fun `useSuspending should keep redaction stable under SuspendedJobTester`() = runSuspendIO {
+        spanExporter.reset()
+
+        val sequence = AtomicInteger()
+        val secrets = ConcurrentLinkedQueue<String>()
+
+        SuspendedJobTester()
+            .workers(4)
+            .rounds(24)
+            .add {
+                val id = sequence.incrementAndGet()
+                val secret = "authorization=Bearer coroutine-token-$id"
+                secrets.add(secret)
+
+                val ex = kotlin.runCatching {
+                    tracer.spanBuilder("redacted-coroutine-stress-$id").startSpan().useSuspending {
+                        throw IllegalArgumentException("request failed with $secret")
+                    }
+                }.exceptionOrNull()
+
+                ex.shouldNotBeNull()
+                (ex is IllegalArgumentException).shouldBeTrue()
+            }
+            .run()
+
+        flush()
+
+        val finished = spanExporter.finishedSpanItems
+        finished shouldHaveSize 24
+        finished.forEach { span ->
+            span.status.statusCode.name shouldBeEqualTo "ERROR"
+            span.events.any { it.name == "exception" }.shouldBeTrue()
+            secrets.forEach { secret ->
+                span.shouldNotExpose(secret)
+            }
+        }
     }
 
     @Test
