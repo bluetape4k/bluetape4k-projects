@@ -358,32 +358,39 @@ A variety of `AttributeConverter` implementations are provided.
 
 #### Serialization Converters
 
-Serialize objects and store them as ByteArray (Base64-encoded) in the database. Supports JDK, Kryo, and Apache Fory serialization combined with LZ4, Snappy, or Zstd compression.
+Serialize typed objects and store them as ByteArray (Base64-encoded) or Base64 strings in the database. For persisted columns, prefer typed converter subclasses with a secure serializer allowlist. The legacy generic `Any?` object converters are deprecated and should be used only for trusted storage where database rows cannot be tampered with, imported from less-trusted systems, or shared across tenants.
 
 ```kotlin
 import io.bluetape4k.hibernate.converters.*
+import io.bluetape4k.io.serializer.KryoBinarySerializer
+
+data class UserProfile(
+    val displayName: String,
+    val tags: List<String> = emptyList(),
+): java.io.Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+}
+
+class UserProfileAsByteArrayConverter: AbstractTypedObjectAsByteArrayConverter<UserProfile>(
+    targetType = UserProfile::class.java,
+    serializer = KryoBinarySerializer.secure(UserProfile::class.java),
+)
 
 @Entity
 class UserData {
     @Id
     var id: Long? = null
 
-    // JDK serialization → Base64 → ByteArray
-    @Convert(converter = JdkObjectAsByteArrayConverter::class)
+    // Typed Kryo serialization with an explicit allowlist.
+    @Convert(converter = UserProfileAsByteArrayConverter::class)
     @Column(length = 4000)
-    var metadata: Any? = null
-
-    // Kryo serialization + LZ4 compression → Base64 → ByteArray
-    @Convert(converter = LZ4KryoObjectAsByteArrayConverter::class)
-    @Column(length = 4000)
-    var largeData: Any? = null
-
-    // Apache Fory serialization + Zstd compression → Base64 → ByteArray
-    @Convert(converter = ZstdForyObjectAsByteArrayConverter::class)
-    @Column(length = 4000)
-    var compressedData: Any? = null
+    var profile: UserProfile? = null
 }
 ```
+
+`AbstractTypedObjectAsByteArrayConverter` and `AbstractTypedObjectAsBase64StringConverter` verify the deserialized value type before returning it to Hibernate. For Kryo and Apache Fory, pair these typed converters with secure serializers such as `KryoBinarySerializer.secure(...)` or `ForyBinarySerializer.secureFory(...)` so the converter boundary and serializer registry enforce the same trust profile.
 
 #### Encryption Converters
 

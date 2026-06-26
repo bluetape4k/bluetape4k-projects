@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package io.bluetape4k.hibernate.converter
 
 import io.bluetape4k.ToStringBuilder
