@@ -52,6 +52,10 @@
 - **저장 공간 최적화**: BZip2, Zstd (압축률 > 속도)
 - **파일 아카이브**: Zip (디렉토리 구조 보존)
 
+`Compressors.GZip`은 gzip 확장으로 인한 메모리 과다 사용을 막기 위해
+기본적으로 256 MiB를 초과하는 압축 해제 출력을 거부합니다. 신뢰 경계에 맞는
+다른 한도가 필요하면 `GZipCompressor(maxDecompressedSize = bytes)`를 직접 생성하세요.
+
 ### 2. 직렬화 (BinarySerializer)
 
 객체를 바이너리로 직렬화/역직렬화하는 다양한 구현체를 제공합니다.
@@ -202,6 +206,7 @@ val restored = compressor.decompressOrNull(compressed) // 손상/null/empty 시 
 
 ```kotlin
 import io.bluetape4k.io.compressor.Compressors
+import io.bluetape4k.io.compressor.GZipCompressor
 
 // 기본 사용
 val plainData = "Hello, World!".toByteArray()
@@ -219,6 +224,10 @@ val compressedBuffer = Compressors.Snappy.compress(buffer)
 // InputStream 지원
 val inputStream = File("large-file.txt").inputStream()
 val compressedStream = Compressors.GZip.compress(inputStream)
+
+// 더 작은 신뢰 경계에 맞춘 GZip 압축 해제 한도
+val boundedGzip = GZipCompressor(maxDecompressedSize = 64 * 1024 * 1024)
+val restored = boundedGzip.decompress(compressed)
 ```
 
 **StreamingCompressor (대용량 스트리밍 처리):**

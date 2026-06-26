@@ -89,10 +89,11 @@ object Compressors {
     val ApacheGZip: ApacheGZipCompressor by lazy { ApacheGZipCompressor() }
 
     /**
-     * JDK 표준 `GZIPOutputStream` 기반 GZip 압축기입니다.
-     * 표준 gzip 형식과 호환되어 외부 시스템과의 파일 교환에 적합합니다.
+     * GZip compressor backed by the JDK `GZIPOutputStream` / `GZIPInputStream` APIs.
      *
-     * 예제:
+     * Decompression is bounded by [GZipCompressor.DEFAULT_MAX_DECOMPRESSED_SIZE] by default.
+     * Create [GZipCompressor] directly when a smaller or larger trusted-boundary limit is required.
+     *
      * ```kotlin
      * val data = "compress me".toByteArray()
      * val compressed = Compressors.GZip.compress(data)

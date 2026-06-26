@@ -52,6 +52,10 @@ A unified interface for multiple compression algorithms.
 - **Storage optimization**: BZip2, Zstd (ratio over speed)
 - **File archives**: Zip (preserves directory structure)
 
+`Compressors.GZip` rejects decompressed output above 256 MiB by default to avoid
+unbounded gzip expansion. Create `GZipCompressor(maxDecompressedSize = bytes)`
+directly when a trusted boundary needs a different limit.
+
 ### 2. Serialization (BinarySerializer)
 
 Multiple implementations for serializing and deserializing objects to/from binary.
@@ -201,6 +205,7 @@ This allows callers to distinguish "corrupt input" (returns `null`) from "empty 
 
 ```kotlin
 import io.bluetape4k.io.compressor.Compressors
+import io.bluetape4k.io.compressor.GZipCompressor
 
 // Basic usage
 val plainData = "Hello, World!".toByteArray()
@@ -218,6 +223,10 @@ val compressedBuffer = Compressors.Snappy.compress(buffer)
 // InputStream support
 val inputStream = File("large-file.txt").inputStream()
 val compressedStream = Compressors.GZip.compress(inputStream)
+
+// Bound GZip decompression for a smaller trust boundary
+val boundedGzip = GZipCompressor(maxDecompressedSize = 64 * 1024 * 1024)
+val restored = boundedGzip.decompress(compressed)
 ```
 
 **StreamingCompressor (for large-scale streaming):**

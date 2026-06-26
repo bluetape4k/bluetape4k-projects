@@ -160,7 +160,14 @@ Codec 클래스:
 - `Fastjson2Codec` — Fastjson2 JSONB 바이너리 포맷. 클래스 이름 헤더 + JSONB 바이트로 저장. `allowedPackagePrefixes`로 pre-instantiation 보안 검증 지원
 - `Lz4Codec` — LZ4 압축 래퍼. `innerCodec`으로 감쌈
 - `ZstdCodec` — Zstd 압축 래퍼
-- `GzipCodec` — GZip 압축 래퍼
+- `GzipCodec` — 압축 해제 크기를 제한하는 GZip 압축 래퍼 (`maxDecompressedSize`, 기본 256 MiB)
+
+```kotlin
+val codec = GzipCodec(
+    innerCodec = RedissonCodecs.Fory,
+    maxDecompressedSize = 64 * 1024 * 1024,
+)
+```
 
 #### Codec 신뢰 프로필
 
@@ -170,6 +177,7 @@ Codec 클래스:
 | Codec 계열 | 기본 프로필 | 공유 경계에서 더 안전한 선택 |
 |---|---|---|
 | `ForyCodec`, `Kryo5Codec`, 압축 변형 | `TrustedInternal` | 하나의 배포 경계가 제어하는 private Redis 데이터에만 사용하거나, 가능한 경우 secure serializer/factory를 선택합니다. |
+| `GzipCodec` 압축 payload | 확장 크기 제한이 있는 `TrustedInternal` | 배포 환경에서 정상 Redis 값의 최대 크기에 맞춰 `maxDecompressedSize`를 조정합니다. |
 | `allowedPackagePrefixes = null`인 `Jackson3Codec` / `Fastjson2Codec` | `TrustedInternal` | `allowedPackagePrefixes`를 지정해 `AllowListedTypes`로 사용합니다. |
 | `Fastjson2Codec(allowedPackagePrefixes = setOf(...))` | `AllowListedTypes` | 저장 DTO 패키지 범위만큼만 좁게 접두사를 유지합니다. |
 

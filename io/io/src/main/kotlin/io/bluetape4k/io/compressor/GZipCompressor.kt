@@ -1,5 +1,6 @@
 package io.bluetape4k.io.compressor
 
+import io.bluetape4k.support.requirePositiveNumber
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPInputStream
@@ -7,9 +8,11 @@ import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipException
 
 /**
- * JDK GZip 알고리즘을 이용한 압축/복원
+ * Compresses and decompresses byte arrays with the JDK GZip implementation.
  *
- * 팩토리를 통한 사용을 권장합니다:
+ * Decompression is bounded by [maxDecompressedSize] so compressed payloads
+ * cannot expand indefinitely in memory. The default limit is 256 MiB.
+ *
  * ```kotlin
  * val data = "Hello, GZip!".toByteArray()
  * val compressed = Compressors.GZip.compress(data)
@@ -17,21 +20,30 @@ import java.util.zip.ZipException
  * // restored contentEquals data == true
  * ```
  *
+ * @property bufferSize GZip stream buffer size.
+ * @property maxDecompressedSize Maximum decompressed output size in bytes.
  * @see [GZIPOutputStream]
  * @see [GZIPInputStream]
  * @throws java.io.IOException when GZip stream processing fails.
+ * @throws IllegalArgumentException when decompressed output exceeds [maxDecompressedSize].
  * @throws ZipException when the payload is corrupt or not valid GZip data.
  */
-class GZipCompressor(
+class GZipCompressor @JvmOverloads constructor(
     private val bufferSize: Int = DEFAULT_BUFFER_SIZE,
+    val maxDecompressedSize: Int = DEFAULT_MAX_DECOMPRESSED_SIZE,
 ): AbstractCompressor() {
 
+    companion object {
+        const val DEFAULT_MAX_DECOMPRESSED_SIZE: Int = 256 * 1024 * 1024
+    }
+
     init {
-        require(bufferSize > 0) { "bufferSize must be greater than 0." }
+        bufferSize.requirePositiveNumber("bufferSize")
+        maxDecompressedSize.requirePositiveNumber("maxDecompressedSize")
     }
 
     /**
-     * I/O 압축에서 `doCompress` 함수를 제공합니다.
+     * Compresses [plain] bytes with GZip.
      */
     override fun doCompress(plain: ByteArray): ByteArray {
         val output = ByteArrayOutputStream(plain.size)
@@ -43,13 +55,36 @@ class GZipCompressor(
     }
 
     /**
-     * I/O 압축에서 `doDecompress` 함수를 제공합니다.
+     * Decompresses [compressed] bytes and rejects output above [maxDecompressedSize].
      */
     override fun doDecompress(compressed: ByteArray): ByteArray {
         return ByteArrayInputStream(compressed).use { input ->
             GZIPInputStream(input, bufferSize).use { gzip ->
-                gzip.readBytes()
+                gzip.readBoundedBytes()
             }
         }
     }
+
+    private fun GZIPInputStream.readBoundedBytes(): ByteArray {
+        val output = ByteArrayOutputStream(compressedOutputBufferSize())
+        val buffer = ByteArray(bufferSize)
+
+        while (true) {
+            val read = read(buffer)
+            if (read < 0) {
+                return output.toByteArray()
+            }
+            if (read == 0) {
+                continue
+            }
+
+            require(read <= maxDecompressedSize - output.size()) {
+                "GZip decompressed output exceeds maxDecompressedSize=$maxDecompressedSize bytes."
+            }
+            output.write(buffer, 0, read)
+        }
+    }
+
+    private fun compressedOutputBufferSize(): Int =
+        minOf(bufferSize, maxDecompressedSize)
 }
