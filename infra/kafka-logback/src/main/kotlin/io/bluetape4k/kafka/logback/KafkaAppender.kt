@@ -142,10 +142,17 @@ class KafkaAppender<E: Any>: io.bluetape4k.kafka.logback.AbstractKafkaAppender<E
 
         return try {
             return KafkaProducer(producerConfig, ByteArraySerializer(), ByteArraySerializer()).apply {
-                addInfo("Create Kafka Producer for Logging with config: $producerConfig")
+                addInfo(
+                    "Create Kafka Producer for Logging with config: " +
+                        KafkaProducerConfigDiagnostics.formatConfig(producerConfig)
+                )
             }
         } catch (e: Exception) {
-            addError("Fail to create Kafka Producer for Logging with config: $producerConfig", e)
+            addError(
+                "Fail to create Kafka Producer for Logging with config: " +
+                    KafkaProducerConfigDiagnostics.formatConfig(producerConfig),
+                e
+            )
             null
         }
     }

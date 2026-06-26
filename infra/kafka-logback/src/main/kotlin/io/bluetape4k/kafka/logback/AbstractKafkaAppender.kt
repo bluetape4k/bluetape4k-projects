@@ -61,7 +61,7 @@ abstract class AbstractKafkaAppender<E: Any>: UnsynchronizedAppenderBase<E>(), A
      */
     open fun addProducerConfigValue(key: String, value: Any?) {
         producerConfig[key] = value
-        addInfo("Add producer config: key=$key, value=$value")
+        addInfo("Add producer config: ${KafkaProducerConfigDiagnostics.formatEntry(key, value)}")
     }
 
     /**
@@ -72,12 +72,21 @@ abstract class AbstractKafkaAppender<E: Any>: UnsynchronizedAppenderBase<E>(), A
      */
     open fun addProducerConfigValue(keyValue: String) {
         runCatching {
-            val (key, value) = keyValue.split("=", limit = 2)
-            addProducerConfigValue(key, value).apply {
-                addInfo("Add producer config: key=$key, value=$value")
+            val separatorIndex = keyValue.indexOf("=")
+            require(separatorIndex > 0) {
+                "Producer config value must use key=value format."
             }
+            val key = keyValue.substring(0, separatorIndex)
+            require(key.isNotBlank() && key.none { it.isWhitespace() }) {
+                "Producer config key must be non-blank and contain no whitespace."
+            }
+            val value = keyValue.substring(separatorIndex + 1)
+            addProducerConfigValue(key, value)
         }.onFailure {
-            addError("Fail to add producer config value: $keyValue", it)
+            addError(
+                "Fail to add producer config value: ${KafkaProducerConfigDiagnostics.formatMalformedPayload(keyValue)}",
+                it
+            )
         }
     }
 
