@@ -199,10 +199,10 @@ val users = databaseClient
     .fetch()
     .flow { row, _ -> /* mapping */ }
 
-// Index-based parameter binding
+// Index-based parameter binding uses Spring R2DBC's zero-based indexes.
 val indexedParams = mapOf(
-    1 to "john",
-    2 to true
+    0 to "john",
+    1 to true
 )
 
 val users = databaseClient

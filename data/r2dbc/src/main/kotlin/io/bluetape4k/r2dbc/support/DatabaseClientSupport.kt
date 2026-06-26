@@ -2,6 +2,7 @@ package io.bluetape4k.r2dbc.support
 
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.springframework.r2dbc.core.DatabaseClient
 
 private val log by lazy { KotlinLogging.logger {} }
@@ -44,16 +45,17 @@ fun DatabaseClient.GenericExecuteSpec.bindMap(parameters: Map<String, Any?>): Da
     }
 
 /**
- * Query의 indexed parameter 정보를 매핑합니다.
+ * Binds indexed query parameters.
  *
- * Indexed parameter는 `?` 형식으로 SQL에 지정하고, Map의 키로 인덱스(1부터 시작)를 지정합니다.
- * null 값은 자동으로 NULL로 바인딩됩니다.
+ * Indexed parameters follow Spring R2DBC's zero-based binding contract. The first
+ * positional parameter is index `0`, the second is index `1`, and so on.
+ * Null values are bound as NULL with this helper's default String type.
  *
  * ```kotlin
  * val sql = "SELECT * FROM users WHERE username = ? AND active = ?"
  * val parameters = mapOf(
- *     1 to "john",
- *     2 to true
+ *     0 to "john",
+ *     1 to true
  * )
  *
  * val users = databaseClient
@@ -68,15 +70,17 @@ fun DatabaseClient.GenericExecuteSpec.bindMap(parameters: Map<String, Any?>): Da
  *     .all()
  * ```
  *
- * @param parameters indexed query parameters (인덱스 -> 값, 인덱스는 1부터 시작)
- * @return 파라미터가 바인딩된 [DatabaseClient.GenericExecuteSpec]
+ * @param parameters indexed query parameters from zero-based index to value.
+ * @return [DatabaseClient.GenericExecuteSpec] with the parameters bound.
+ * @throws IllegalArgumentException when any index is negative.
  */
 fun DatabaseClient.GenericExecuteSpec.bindIndexedMap(parameters: Map<Int, Any?>): DatabaseClient.GenericExecuteSpec =
     parameters.entries.fold(this) { spec, entry ->
-        log.trace { "bind indexed map. index=${entry.key}, value=${entry.value}" }
+        val index = entry.key.requireZeroOrPositiveNumber("index")
+        log.trace { "bind indexed map. index=$index, value=${entry.value}" }
         when (val value = entry.value) {
-            null -> spec.bindNull(entry.key, String::class.java)
-            else -> spec.bind(entry.key, value.toParameter())
+            null -> spec.bindNull(index, String::class.java)
+            else -> spec.bind(index, value.toParameter())
         }
     }
 
@@ -116,26 +120,29 @@ fun DatabaseClient.execute(
 ): DatabaseClient.GenericExecuteSpec = sql(sqlString).bindMap(parameters)
 
 /**
- * Indexed 파라미터에 nullable 값을 바인딩합니다.
- * null 값은 NULL로 바인딩됩니다.
+ * Binds a nullable value to an indexed parameter.
+ *
+ * The [index] follows Spring R2DBC's zero-based binding contract. The first
+ * positional parameter is index `0`. Null values are bound as typed NULL values.
  *
  * ```kotlin
  * databaseClient
  *     .sql("SELECT * FROM users WHERE name = ?")
- *     .bindNullable<String>(1, nullableName)
+ *     .bindNullable<String>(0, nullableName)
  *     .map { row, _ -> /* mapping */ }
  * ```
  *
- * @param V 파라미터의 타입
- * @param index 파라미터 인덱스 (1부터 시작)
- * @param value 바인딩할 값 (null 가능)
- * @return 파라미터가 바인딩된 [DatabaseClient.GenericExecuteSpec]
+ * @param V Parameter type.
+ * @param index Zero-based parameter index.
+ * @param value Value to bind.
+ * @return [DatabaseClient.GenericExecuteSpec] with the parameter bound.
+ * @throws IllegalArgumentException when [index] is negative.
  */
 inline fun <reified V: Any> DatabaseClient.GenericExecuteSpec.bindNullable(
     index: Int,
     value: V? = null,
 ) = apply {
-    bind(index, value.toParameter(V::class.java))
+    bind(index.requireZeroOrPositiveNumber("index"), value.toParameter(V::class.java))
 }
 
 /**

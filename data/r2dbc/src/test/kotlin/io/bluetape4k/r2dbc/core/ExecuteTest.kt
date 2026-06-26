@@ -5,6 +5,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.AbstractR2dbcTest
 import io.bluetape4k.r2dbc.model.User
 import io.bluetape4k.r2dbc.query.query
+import io.bluetape4k.r2dbc.support.bindIndexedMap
 import io.bluetape4k.support.string
 import io.bluetape4k.support.stringOrNull
 import kotlinx.coroutines.flow.toList
@@ -106,6 +107,18 @@ class ExecuteTest: AbstractR2dbcTest() {
             .fetch()
             .flow().toList()
         smiths3 shouldHaveSize 1
+
+        val smithName = client.databaseClient
+            .sql("SELECT name FROM users WHERE username = ? AND active = ?")
+            .bindIndexedMap(
+                mapOf(
+                    0 to "jsmith",
+                    1 to true,
+                )
+            )
+            .map<String> { row, _ -> row.get("name", String::class.java).shouldNotBeNull() }
+            .awaitOne()
+        smithName shouldBeEqualTo "John Smith"
     }
 
     @Test
