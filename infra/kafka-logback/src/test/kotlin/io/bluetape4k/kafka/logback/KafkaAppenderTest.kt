@@ -9,7 +9,9 @@ import ch.qos.logback.core.encoder.Encoder
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.kafka.logback.exporter.KafkaExporter
 import io.bluetape4k.kafka.logback.keyprovider.KafkaKeyProvider
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -86,7 +88,7 @@ class KafkaAppenderTest {
         statusList.forEach {
             log.debug { "status=$it" }
         }
-        statusList shouldHaveSize 2
+        statusList.any { it.message == "Kafka Producer closed." }.shouldBeTrue()
 
         confirmVerified(encoder, keyProvider, exporter)
     }
@@ -116,6 +118,59 @@ class KafkaAppenderTest {
         appender.isStarted.shouldBeFalse()
         ctx.statusManager.copyOfStatusList shouldHaveSize 1
         ctx.statusManager.copyOfStatusList.first().message shouldBeEqualTo "encoder is not set"
+    }
+
+    @Test
+    fun `producer config status messages redact sensitive values`() {
+        val jaasSecret = "kafka-jaas-secret"
+        val truststoreSecret = "truststore-secret"
+
+        appender.addProducerConfigValue(
+            "sasl.jaas.config",
+            "org.apache.kafka.common.security.plain.PlainLoginModule required password=\"$jaasSecret\";"
+        )
+        appender.addProducerConfigValue("ssl.truststore.password", truststoreSecret)
+        appender.addProducerConfigValue("client.id", "visible-client-id")
+
+        val statusMessages = statusMessages()
+
+        statusMessages shouldNotContain jaasSecret
+        statusMessages shouldNotContain truststoreSecret
+        statusMessages shouldContain "key=sasl.jaas.config, value=[REDACTED]"
+        statusMessages shouldContain "key=ssl.truststore.password, value=[REDACTED]"
+        statusMessages shouldContain "key=client.id, value=visible-client-id"
+    }
+
+    @Test
+    fun `malformed producer config status message does not expose raw payload`() {
+        val secret = "malformed-secret"
+
+        appender.addProducerConfigValue("sasl.jaas.config password=$secret")
+
+        val statusMessages = statusMessages()
+
+        statusMessages shouldNotContain secret
+        statusMessages shouldNotContain "sasl.jaas.config password=$secret"
+        statusMessages shouldContain "Fail to add producer config value"
+        statusMessages shouldContain "payloadLength="
+    }
+
+    @Test
+    fun `producer creation failure status message redacts sensitive config values`() {
+        val secret = "creation-secret"
+
+        appender.acks = "invalid-acks"
+        appender.addProducerConfigValue("sasl.jaas.config", "password=\"$secret\"")
+        appender.addProducerConfigValue("client.id", "visible-client-id")
+
+        appender.createProducer()
+
+        val statusMessages = statusMessages()
+
+        statusMessages shouldNotContain secret
+        statusMessages shouldContain "Fail to create Kafka Producer for Logging with config:"
+        statusMessages shouldContain "sasl.jaas.config=[REDACTED]"
+        statusMessages shouldContain "client.id=visible-client-id"
     }
 
     @Test
@@ -181,4 +236,7 @@ class KafkaAppenderTest {
         verify { exporter.export(any<Producer<ByteArray, ByteArray>>(), any(), kafkaClientEvent, any()) }
         verify { exporter.export(any<Producer<ByteArray, ByteArray>>(), any(), sampleEvent, any()) }
     }
+
+    private fun statusMessages(): String =
+        ctx.statusManager.copyOfStatusList.joinToString(separator = "\n") { it.message }
 }
