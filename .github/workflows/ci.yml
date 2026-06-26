@@ -87,6 +87,7 @@ jobs:
       ktor: ${{ steps.filter.outputs.ktor }}
       key-utils: ${{ steps.filter.outputs.key-utils }}
       infra: ${{ steps.filter.outputs.infra }}
+      data: ${{ steps.filter.outputs.data }}
     steps:
       - uses: actions/checkout@v7
       - uses: dorny/paths-filter@v4
@@ -127,6 +128,9 @@ jobs:
               - 'infra/lettuce/**'
               - 'cache/cache-lettuce/**'
               - 'cache/cache-redisson/**'
+            data:
+              - 'data/**'
+              - 'cache/hibernate-cache-lettuce/**'
 
   # ── 2. 전체 빌드 (테스트 제외) ──────────────────────────────────────────
   build:
@@ -531,8 +535,79 @@ jobs:
           path: '**/build/reports/kover/'
           retention-days: 30
 
+  # ── 7-b. Data 모듈 테스트 (Testcontainers) ───────────────────────────────
+  test-data:
+    name: Test / Data
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    needs: [build, changes]
+    if: ${{ needs.changes.outputs.data == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Test data modules
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-jdbc:test \
+              :bluetape4k-hibernate:test \
+              :bluetape4k-hibernate-cache-lettuce:test \
+              :bluetape4k-hibernate-reactive:test \
+              :bluetape4k-r2dbc:test \
+              :bluetape4k-mongodb:test \
+              :bluetape4k-cassandra:test \
+              --max-workers=1 \
+              --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-jdbc:koverXmlReport \
+            :bluetape4k-hibernate:koverXmlReport \
+            :bluetape4k-hibernate-cache-lettuce:koverXmlReport \
+            :bluetape4k-hibernate-reactive:koverXmlReport \
+            :bluetape4k-r2dbc:koverXmlReport \
+            :bluetape4k-mongodb:koverXmlReport \
+            :bluetape4k-cassandra:koverXmlReport \
+            --parallel \
+            --no-configuration-cache
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results-data
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-data
+          path: '**/build/reports/kover/'
+          retention-days: 30
+
   # ── 나머지 모듈 → Nightly에서 실행 ─────────────────────────────────
-  # utils 전체, misc, data, spring3-docker, spring4-docker,
+  # utils 전체, misc, spring3-docker, spring4-docker,
   # testcontainers 는 nightly-tests.yml (매일 03:00 KST) 에서 실행
   # exposed 모듈은 bluetape4k-exposed 독립 레포로 분리됨 (#334)
 
@@ -541,7 +616,7 @@ jobs:
     name: Coverage Report
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra]
+    needs: [test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra, test-data]
     if: always()
     steps:
       - uses: actions/checkout@v7
@@ -580,7 +655,7 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [gitleaks, validate-wrapper, changes, build, test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra, coverage-report]
+    needs: [gitleaks, validate-wrapper, changes, build, test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra, test-data, coverage-report]
     if: always()
     steps:
       - name: Check all jobs
