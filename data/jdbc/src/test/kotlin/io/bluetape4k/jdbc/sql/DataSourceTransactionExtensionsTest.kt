@@ -219,6 +219,28 @@ class DataSourceTransactionExtensionsTest: AbstractJdbcSqlTest() {
         results shouldBeEqualTo emptyList()
     }
 
+    @Test
+    fun `DataSource executeBatch - inconsistent parameter rows fail fast`() {
+        assertFailsWith<IllegalArgumentException> {
+            dataSource.executeBatch(
+                "INSERT INTO Actors (firstname, lastname) VALUES (?, ?)",
+                listOf(
+                    listOf("BatchMismatch1", "Actor"),
+                    listOf("BatchMismatch2")
+                )
+            )
+        }
+
+        val count =
+            dataSource.runQuery(
+                "SELECT COUNT(*) FROM Actors WHERE firstname LIKE 'BatchMismatch%'"
+            ) { rs ->
+                rs.next()
+                rs.getInt(1)
+            }
+        count shouldBeEqualTo 0
+    }
+
     // ─── executeLargeBatch ────────────────────────────────────────────────────
 
     @Test
@@ -243,5 +265,27 @@ class DataSourceTransactionExtensionsTest: AbstractJdbcSqlTest() {
                 rs.getInt(1)
             }
         count shouldBeEqualTo 5
+    }
+
+    @Test
+    fun `DataSource executeLargeBatch - inconsistent parameter rows fail fast`() {
+        assertFailsWith<IllegalArgumentException> {
+            dataSource.executeLargeBatch(
+                "INSERT INTO Actors (firstname, lastname) VALUES (?, ?)",
+                listOf(
+                    listOf("LargeBatchMismatch1", "Actor"),
+                    listOf("LargeBatchMismatch2")
+                )
+            )
+        }
+
+        val count =
+            dataSource.runQuery(
+                "SELECT COUNT(*) FROM Actors WHERE firstname LIKE 'LargeBatchMismatch%'"
+            ) { rs ->
+                rs.next()
+                rs.getInt(1)
+            }
+        count shouldBeEqualTo 0
     }
 }
