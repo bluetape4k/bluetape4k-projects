@@ -8,6 +8,11 @@ import org.hibernate.cache.internal.CacheKeyImplementation
 import org.hibernate.cache.internal.NaturalIdCacheKey
 import org.hibernate.cache.spi.support.DomainDataStorageAccess
 import org.hibernate.engine.spi.SharedSessionContractImplementor
+import java.io.ByteArrayOutputStream
+import java.io.ObjectOutputStream
+import java.io.Serializable
+import java.security.MessageDigest
+import java.util.Base64
 
 /**
  * [DomainDataStorageAccess] 구현체.
@@ -28,47 +33,146 @@ class LettuceNearCacheStorageAccess(
     private val nearCache: LettuceNearCache<Any>,
 ): DomainDataStorageAccess {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val KEY_VERSION = "hck2"
+    }
 
     // nearCache가 cacheName(=regionName) prefix를 Redis key에 자동으로 추가하므로
-    // 여기서는 key를 stable string으로 정규화만 한다. (이중 prefix 방지)
+    // 여기서는 충돌 방지용 stable digest key로 정규화만 한다. (이중 prefix 방지)
     private fun cacheKey(key: Any): String = when (key) {
-        is BasicCacheKeyImplementation -> "${key.entityOrRoleName}#${canonicalString(key.id)}"
-        is CacheKeyImplementation      -> "${key.entityOrRoleName}#${canonicalString(key.id)}"
-        is NaturalIdCacheKey           -> buildString {
-            append(key.entityName)
-            append("##NaturalId[")
-            append(canonicalNaturalIdValues(key.naturalIdValues))
-            append("]")
+        is BasicCacheKeyImplementation -> digestKey(
+            kind = "basic",
+            entityOrRoleName = key.entityOrRoleName,
+            tenantId = null,
+            value = key.id,
+        )
+
+        is CacheKeyImplementation      -> digestKey(
+            kind = "cache",
+            entityOrRoleName = key.entityOrRoleName,
+            tenantId = key.tenantId,
+            value = key.id,
+        )
+
+        is NaturalIdCacheKey           -> digestKey(
+            kind = "natural-id",
+            entityOrRoleName = key.entityName,
+            tenantId = key.tenantId,
+            value = key.naturalIdValues,
+        )
+
+        else                           -> digestKey(
+            kind = "raw",
+            entityOrRoleName = key.javaClass.name,
+            tenantId = null,
+            value = key,
+        )
+    }
+
+    private fun digestKey(
+        kind: String,
+        entityOrRoleName: String,
+        tenantId: String?,
+        value: Any?,
+    ): String {
+        val canonical = canonicalBytes(kind, entityOrRoleName, tenantId, value)
+        val digest = MessageDigest.getInstance("SHA-256").digest(canonical)
+        val encoded = Base64.getUrlEncoder().withoutPadding().encodeToString(digest)
+        return "$KEY_VERSION:$encoded"
+    }
+
+    private fun canonicalBytes(
+        kind: String,
+        entityOrRoleName: String,
+        tenantId: String?,
+        value: Any?,
+    ): ByteArray =
+        ByteArrayOutputStream().use { bytes ->
+            ObjectOutputStream(bytes).use { out ->
+                out.writeUTF(KEY_VERSION)
+                out.writeUTF(kind)
+                out.writeUTF(entityOrRoleName)
+                out.writeBoolean(tenantId != null)
+                tenantId?.let(out::writeUTF)
+                out.writeCanonicalValue(value)
+            }
+            bytes.toByteArray()
         }
-        else                           -> canonicalString(key)
+
+    private fun ObjectOutputStream.writeCanonicalValue(value: Any?) {
+        when (value) {
+            null            -> writeUTF("null")
+            is Array<*>     -> writeObjectArray(value)
+            is BooleanArray -> writePrimitiveArray("boolean[]", value.toList()) { writeBoolean(it) }
+            is ByteArray    -> writeByteArray(value)
+            is CharArray    -> writePrimitiveArray("char[]", value.toList()) { writeChar(it.code) }
+            is DoubleArray  -> writePrimitiveArray("double[]", value.toList()) { writeDouble(it) }
+            is FloatArray   -> writePrimitiveArray("float[]", value.toList()) { writeFloat(it) }
+            is IntArray     -> writePrimitiveArray("int[]", value.toList()) { writeInt(it) }
+            is LongArray    -> writePrimitiveArray("long[]", value.toList()) { writeLong(it) }
+            is ShortArray   -> writePrimitiveArray("short[]", value.toList()) { writeShort(it.toInt()) }
+            is Serializable -> writeSerializableValue(value)
+            else            -> writeTextFallback(value)
+        }
     }
 
-    private fun canonicalNaturalIdValues(values: Any?): String = when (values) {
-        is Array<*>     -> values.joinToString(", ") { canonicalString(it) }
-        is BooleanArray -> values.joinToString(", ")
-        is ByteArray    -> values.joinToString(", ")
-        is CharArray    -> values.joinToString(", ")
-        is DoubleArray  -> values.joinToString(", ")
-        is FloatArray   -> values.joinToString(", ")
-        is IntArray     -> values.joinToString(", ")
-        is LongArray    -> values.joinToString(", ")
-        is ShortArray   -> values.joinToString(", ")
-        else            -> canonicalString(values)
+    private fun ObjectOutputStream.writeObjectArray(values: Array<*>) {
+        writeUTF("array")
+        writeUTF(values.javaClass.componentType?.name ?: "java.lang.Object")
+        writeInt(values.size)
+        values.forEach { writeCanonicalValue(it) }
     }
 
-    private fun canonicalString(value: Any?): String = when (value) {
-        null            -> "null"
-        is Array<*>     -> value.joinToString(prefix = "[", postfix = "]") { canonicalString(it) }
-        is BooleanArray -> value.joinToString(prefix = "[", postfix = "]")
-        is ByteArray    -> value.joinToString(prefix = "[", postfix = "]")
-        is CharArray    -> value.joinToString(prefix = "[", postfix = "]")
-        is DoubleArray  -> value.joinToString(prefix = "[", postfix = "]")
-        is FloatArray   -> value.joinToString(prefix = "[", postfix = "]")
-        is IntArray     -> value.joinToString(prefix = "[", postfix = "]")
-        is LongArray    -> value.joinToString(prefix = "[", postfix = "]")
-        is ShortArray   -> value.joinToString(prefix = "[", postfix = "]")
-        else            -> value.toString()
+    private inline fun <T> ObjectOutputStream.writePrimitiveArray(
+        typeName: String,
+        values: List<T>,
+        writeElement: ObjectOutputStream.(T) -> Unit,
+    ) {
+        writeUTF("array")
+        writeUTF(typeName)
+        writeInt(values.size)
+        values.forEach { writeElement(it) }
+    }
+
+    private fun ObjectOutputStream.writeByteArray(values: ByteArray) {
+        writeUTF("array")
+        writeUTF("byte[]")
+        writeInt(values.size)
+        write(values)
+    }
+
+    private fun ObjectOutputStream.writeSerializableValue(value: Serializable) {
+        val serialized = serializeValue(value)
+        if (serialized == null) {
+            writeTextFallback(value)
+            return
+        }
+
+        writeUTF("serializable")
+        writeUTF(value.javaClass.name)
+        writeInt(serialized.size)
+        write(serialized)
+    }
+
+    private fun serializeValue(value: Serializable): ByteArray? =
+        runCatching {
+            ByteArrayOutputStream().use { bytes ->
+                ObjectOutputStream(bytes).use { out -> out.writeObject(value) }
+                bytes.toByteArray()
+            }
+        }.getOrNull()
+
+    private fun ObjectOutputStream.writeTextFallback(value: Serializable) {
+        writeUTF("text")
+        writeUTF(value.javaClass.name)
+        writeInt(value.hashCode())
+        writeUTF(value.toString())
+    }
+
+    private fun ObjectOutputStream.writeTextFallback(value: Any) {
+        writeUTF("text")
+        writeUTF(value.javaClass.name)
+        writeUTF(value.toString())
     }
 
     /**
