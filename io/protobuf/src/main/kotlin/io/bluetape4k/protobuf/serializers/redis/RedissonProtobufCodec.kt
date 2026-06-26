@@ -25,7 +25,8 @@ typealias AnyMessage = com.google.protobuf.Any
  * - [com.google.protobuf.Message] values are encoded directly into a Netty [ByteBuf].
  * - During decoding, the class name from `Any.typeUrl` is validated against [allowedClassPrefixes]
  *   before class loading.
- * - Non-Protobuf payloads are delegated to [fallbackCodec].
+ * - The default profile is strict: non-Protobuf values and bytes are rejected.
+ * - A non-null [fallbackCodec] enables the trusted-internal mixed Protobuf + fallback profile.
  * - A trust-boundary violation throws [SecurityException] instead of falling back silently.
  *
  * ```kotlin
@@ -33,11 +34,11 @@ typealias AnyMessage = com.google.protobuf.Any
  * // Register the codec in Redisson Config to store Protobuf messages.
  * ```
  *
- * @property fallbackCodec fallback codec for non-Protobuf payloads.
+ * @property fallbackCodec trusted fallback codec for non-Protobuf payloads, or `null` for strict mode.
  * @property allowedClassPrefixes package prefixes allowed for Protobuf `Any.typeUrl` class names.
  */
 class RedissonProtobufCodec private constructor(
-    private val fallbackCodec: Codec = RedissonCodecs.Kryo5,
+    private val fallbackCodec: Codec? = null,
     private val allowedClassPrefixes: Set<String> = ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES,
     private val classLoader: ClassLoader? = null,
 ): BaseCodec() {
@@ -49,7 +50,7 @@ class RedissonProtobufCodec private constructor(
         }
     }
 
-    constructor(): this(RedissonCodecs.Kryo5, ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES, null)
+    constructor(): this(null, ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES, null)
 
     constructor(
         fallbackCodec: Codec,
@@ -57,7 +58,7 @@ class RedissonProtobufCodec private constructor(
 
     constructor(
         allowedClassPrefixes: Set<String>,
-    ): this(RedissonCodecs.Kryo5, allowedClassPrefixes, null)
+    ): this(null, allowedClassPrefixes, null)
 
     constructor(
         fallbackCodec: Codec,
@@ -65,9 +66,9 @@ class RedissonProtobufCodec private constructor(
     ): this(fallbackCodec, allowedClassPrefixes, null)
 
     // Redisson requires class-loader constructors for dynamic codec creation from configuration.
-    constructor(classLoader: ClassLoader): this(RedissonCodecs.Kryo5, ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES, classLoader)
+    constructor(classLoader: ClassLoader): this(null, ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES, classLoader)
     constructor(classLoader: ClassLoader, codec: RedissonProtobufCodec): this(
-        fallbackCodec = copy(classLoader, codec.fallbackCodec),
+        fallbackCodec = codec.fallbackCodec?.let { copy(classLoader, it) },
         allowedClassPrefixes = codec.allowedClassPrefixes,
         classLoader = classLoader,
     )
@@ -79,6 +80,17 @@ class RedissonProtobufCodec private constructor(
          * Use only for fully trusted internal Redis deployments while migrating to an allowlist.
          */
         val ALLOW_ALL_CLASSES_UNSAFE: Set<String> = setOf("*")
+
+        /**
+         * Creates a trusted-internal mixed Protobuf + fallback codec.
+         *
+         * Use this profile only for internal Redis stores whose historical bytes may contain fallback-encoded payloads.
+         */
+        fun trustedInternal(
+            fallbackCodec: Codec = RedissonCodecs.Kryo5,
+            allowedClassPrefixes: Set<String> = ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES,
+        ): RedissonProtobufCodec =
+            RedissonProtobufCodec(fallbackCodec, allowedClassPrefixes, null)
     }
 
     private val classCache = ConcurrentHashMap<String, Class<Message>>()
@@ -88,10 +100,15 @@ class RedissonProtobufCodec private constructor(
             if (graph is Message) {
                 encodeProtobufMessage(graph)
             } else {
+                val trustedFallback = fallbackCodec
+                    ?: throw IllegalArgumentException(
+                        "Strict Protobuf codec can encode only Protobuf messages. " +
+                            "Use RedissonProtobufCodec.trustedInternal() for trusted fallback payloads."
+                    )
                 log.debug {
                     "Encoding: Protobuf Message가 아닙니다. fallbackCodec[$fallbackCodec] 사용. graph class=${graph.javaClass}"
                 }
-                fallbackCodec.valueEncoder.encode(graph)
+                trustedFallback.valueEncoder.encode(graph)
             }
         }
 
@@ -99,7 +116,7 @@ class RedissonProtobufCodec private constructor(
     private val decoder: Decoder<Any> =
         Decoder { buf: ByteBuf, state: State? ->
             try {
-                val bytes = buf.getBytes(copy = false)
+                val bytes = buf.getBytes(copy = true)
                 val any = AnyMessage.parseFrom(bytes)
                 val className = any.typeUrl.substringAfterLast("/")
                 validateClassName(className)
@@ -112,10 +129,15 @@ class RedissonProtobufCodec private constructor(
             } catch (e: SecurityException) {
                 throw e
             } catch (e: Throwable) {
+                val trustedFallback = fallbackCodec
+                    ?: throw SecurityException(
+                        "Payload is not Protobuf Any and no trusted fallback codec is configured.",
+                        e
+                    )
                 log.debug(e) {
                     "Decoding: Protobuf 메시지가 아닙니다. fallbackCodec[$fallbackCodec] 사용."
                 }
-                fallbackCodec.valueDecoder.decode(Unpooled.wrappedBuffer(buf.resetReaderIndex()), state)
+                trustedFallback.valueDecoder.decode(Unpooled.wrappedBuffer(buf.getBytes(copy = true)), state)
             }
         }
 

@@ -37,6 +37,13 @@ object RedissonProtobufCodecs: KLogging() {
     val Protobuf: Codec by lazy { RedissonProtobufCodec() }
 
     /**
+     * Trusted-internal mixed Protobuf + Kryo fallback codec.
+     *
+     * Use only for internal Redis stores that already contain legacy fallback-encoded values.
+     */
+    val TrustedInternalProtobuf: Codec by lazy { RedissonProtobufCodec.trustedInternal() }
+
+    /**
      * Gzip 압축 + Protobuf 직렬화 Codec입니다.
      *
      * ```kotlin
@@ -45,6 +52,11 @@ object RedissonProtobufCodecs: KLogging() {
      * ```
      */
     val GzipProtobuf: Codec by lazy { GzipCodec(Protobuf) }
+
+    /**
+     * Trusted-internal mixed Protobuf + Kryo fallback codec with Gzip compression.
+     */
+    val TrustedInternalGzipProtobuf: Codec by lazy { GzipCodec(TrustedInternalProtobuf) }
 
     /**
      * 키는 String, 값은 Gzip+Protobuf를 사용하는 CompositeCodec입니다.
@@ -57,6 +69,13 @@ object RedissonProtobufCodecs: KLogging() {
     val GzipProtobufComposite: Codec by lazy { CompositeCodec(String, GzipProtobuf, GzipProtobuf) }
 
     /**
+     * Composite codec whose values use trusted-internal Gzip+Protobuf fallback.
+     */
+    val TrustedInternalGzipProtobufComposite: Codec by lazy {
+        CompositeCodec(String, TrustedInternalGzipProtobuf, TrustedInternalGzipProtobuf)
+    }
+
+    /**
      * LZ4 압축 + Protobuf 직렬화 Codec입니다.
      *
      * ```kotlin
@@ -65,6 +84,11 @@ object RedissonProtobufCodecs: KLogging() {
      * ```
      */
     val LZ4Protobuf: Codec by lazy { Lz4Codec(Protobuf) }
+
+    /**
+     * Trusted-internal mixed Protobuf + Kryo fallback codec with LZ4 compression.
+     */
+    val TrustedInternalLZ4Protobuf: Codec by lazy { Lz4Codec(TrustedInternalProtobuf) }
 
     /**
      * 키는 String, 값은 LZ4+Protobuf를 사용하는 CompositeCodec입니다.
@@ -77,6 +101,13 @@ object RedissonProtobufCodecs: KLogging() {
     val LZ4ProtobufComposite: Codec by lazy { CompositeCodec(String, LZ4Protobuf, LZ4Protobuf) }
 
     /**
+     * Composite codec whose values use trusted-internal LZ4+Protobuf fallback.
+     */
+    val TrustedInternalLZ4ProtobufComposite: Codec by lazy {
+        CompositeCodec(String, TrustedInternalLZ4Protobuf, TrustedInternalLZ4Protobuf)
+    }
+
+    /**
      * Snappy 압축 + Protobuf 직렬화 Codec입니다.
      *
      * ```kotlin
@@ -85,6 +116,11 @@ object RedissonProtobufCodecs: KLogging() {
      * ```
      */
     val SnappyProtobuf: Codec by lazy { SnappyCodecV2(Protobuf) }
+
+    /**
+     * Trusted-internal mixed Protobuf + Kryo fallback codec with Snappy compression.
+     */
+    val TrustedInternalSnappyProtobuf: Codec by lazy { SnappyCodecV2(TrustedInternalProtobuf) }
 
     /**
      * 키는 String, 값은 Snappy+Protobuf를 사용하는 CompositeCodec입니다.
@@ -97,6 +133,13 @@ object RedissonProtobufCodecs: KLogging() {
     val SnappyProtobufComposite: Codec by lazy { CompositeCodec(String, SnappyProtobuf, SnappyProtobuf) }
 
     /**
+     * Composite codec whose values use trusted-internal Snappy+Protobuf fallback.
+     */
+    val TrustedInternalSnappyProtobufComposite: Codec by lazy {
+        CompositeCodec(String, TrustedInternalSnappyProtobuf, TrustedInternalSnappyProtobuf)
+    }
+
+    /**
      * Zstandard 압축 + Protobuf 직렬화 Codec입니다.
      *
      * ```kotlin
@@ -107,6 +150,11 @@ object RedissonProtobufCodecs: KLogging() {
     val ZstdProtobuf: Codec by lazy { ZstdCodec(Protobuf) }
 
     /**
+     * Trusted-internal mixed Protobuf + Kryo fallback codec with Zstd compression.
+     */
+    val TrustedInternalZstdProtobuf: Codec by lazy { ZstdCodec(TrustedInternalProtobuf) }
+
+    /**
      * 키는 String, 값은 Zstd+Protobuf를 사용하는 CompositeCodec입니다.
      *
      * ```kotlin
@@ -115,5 +163,12 @@ object RedissonProtobufCodecs: KLogging() {
      * ```
      */
     val ZstdProtobufComposite: Codec by lazy { CompositeCodec(String, ZstdProtobuf, ZstdProtobuf) }
+
+    /**
+     * Composite codec whose values use trusted-internal Zstd+Protobuf fallback.
+     */
+    val TrustedInternalZstdProtobufComposite: Codec by lazy {
+        CompositeCodec(String, TrustedInternalZstdProtobuf, TrustedInternalZstdProtobuf)
+    }
 
 }

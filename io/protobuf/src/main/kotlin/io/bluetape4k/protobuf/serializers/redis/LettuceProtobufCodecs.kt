@@ -14,7 +14,8 @@ import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
  */
 object LettuceProtobufCodecs {
 
-    private val serializer: BinarySerializer by lazy { ProtobufSerializer() }
+    private val strictSerializer: BinarySerializer by lazy { ProtobufSerializer() }
+    private val trustedInternalSerializer: BinarySerializer by lazy { ProtobufSerializer.trustedInternalProtobuf() }
 
     /**
      * Protobuf Serializer를 사용하는 [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec]를 생성합니다.
@@ -25,7 +26,7 @@ object LettuceProtobufCodecs {
      * ```
      */
     fun <V: Any> protobuf(): LettuceBinaryCodec<V> =
-        LettuceBinaryCodec(serializer)
+        LettuceBinaryCodec(strictSerializer)
 
     /**
      * Protobuf Serializer와 Gzip Compressor를 사용하는 [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec]를 생성합니다.
@@ -36,7 +37,7 @@ object LettuceProtobufCodecs {
      * ```
      */
     fun <V: Any> gzipProtobuf(): LettuceBinaryCodec<V> =
-        LettuceBinaryCodec(CompressableBinarySerializer(serializer, Compressors.GZip))
+        LettuceBinaryCodec(CompressableBinarySerializer(strictSerializer, Compressors.GZip))
 
     /**
      * Protobuf Serializer와 Deflate Compressor를 사용하는 [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec]를 생성합니다.
@@ -47,7 +48,7 @@ object LettuceProtobufCodecs {
      * ```
      */
     fun <V: Any> deflateProtobuf(): LettuceBinaryCodec<V> =
-        LettuceBinaryCodec(CompressableBinarySerializer(serializer, Compressors.Deflate))
+        LettuceBinaryCodec(CompressableBinarySerializer(strictSerializer, Compressors.Deflate))
 
     /**
      * Protobuf Serializer와 LZ4 Compressor를 사용하는 [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec]를 생성합니다.
@@ -58,7 +59,7 @@ object LettuceProtobufCodecs {
      * ```
      */
     fun <V: Any> lz4Protobuf(): LettuceBinaryCodec<V> =
-        LettuceBinaryCodec(CompressableBinarySerializer(serializer, Compressors.LZ4))
+        LettuceBinaryCodec(CompressableBinarySerializer(strictSerializer, Compressors.LZ4))
 
     /**
      * Protobuf Serializer와 Snappy Compressor를 사용하는 [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec]를 생성합니다.
@@ -69,7 +70,7 @@ object LettuceProtobufCodecs {
      * ```
      */
     fun <V: Any> snappyProtobuf(): LettuceBinaryCodec<V> =
-        LettuceBinaryCodec(CompressableBinarySerializer(serializer, Compressors.Snappy))
+        LettuceBinaryCodec(CompressableBinarySerializer(strictSerializer, Compressors.Snappy))
 
     /**
      * Protobuf Serializer와 Zstd Compressor를 사용하는 [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec]를 생성합니다.
@@ -80,5 +81,43 @@ object LettuceProtobufCodecs {
      * ```
      */
     fun <V: Any> zstdProtobuf(): LettuceBinaryCodec<V> =
-        LettuceBinaryCodec(CompressableBinarySerializer(serializer, Compressors.Zstd))
+        LettuceBinaryCodec(CompressableBinarySerializer(strictSerializer, Compressors.Zstd))
+
+    /**
+     * Creates a trusted-internal mixed Protobuf + Kryo fallback codec.
+     *
+     * Use only for internal Redis stores that already contain legacy fallback-encoded values.
+     */
+    fun <V: Any> trustedInternalProtobuf(): LettuceBinaryCodec<V> =
+        LettuceBinaryCodec(trustedInternalSerializer)
+
+    /**
+     * Creates a trusted-internal mixed Protobuf + Kryo fallback codec with Gzip compression.
+     */
+    fun <V: Any> trustedInternalGzipProtobuf(): LettuceBinaryCodec<V> =
+        LettuceBinaryCodec(CompressableBinarySerializer(trustedInternalSerializer, Compressors.GZip))
+
+    /**
+     * Creates a trusted-internal mixed Protobuf + Kryo fallback codec with Deflate compression.
+     */
+    fun <V: Any> trustedInternalDeflateProtobuf(): LettuceBinaryCodec<V> =
+        LettuceBinaryCodec(CompressableBinarySerializer(trustedInternalSerializer, Compressors.Deflate))
+
+    /**
+     * Creates a trusted-internal mixed Protobuf + Kryo fallback codec with LZ4 compression.
+     */
+    fun <V: Any> trustedInternalLz4Protobuf(): LettuceBinaryCodec<V> =
+        LettuceBinaryCodec(CompressableBinarySerializer(trustedInternalSerializer, Compressors.LZ4))
+
+    /**
+     * Creates a trusted-internal mixed Protobuf + Kryo fallback codec with Snappy compression.
+     */
+    fun <V: Any> trustedInternalSnappyProtobuf(): LettuceBinaryCodec<V> =
+        LettuceBinaryCodec(CompressableBinarySerializer(trustedInternalSerializer, Compressors.Snappy))
+
+    /**
+     * Creates a trusted-internal mixed Protobuf + Kryo fallback codec with Zstd compression.
+     */
+    fun <V: Any> trustedInternalZstdProtobuf(): LettuceBinaryCodec<V> =
+        LettuceBinaryCodec(CompressableBinarySerializer(trustedInternalSerializer, Compressors.Zstd))
 }
