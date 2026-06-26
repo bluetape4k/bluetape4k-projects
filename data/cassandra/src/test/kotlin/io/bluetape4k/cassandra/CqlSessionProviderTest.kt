@@ -2,12 +2,12 @@ package io.bluetape4k.cassandra
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.closeSafe
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 import java.net.InetSocketAddress
 import java.util.*
-import io.bluetape4k.assertions.assertFailsWith
 
 class CqlSessionProviderTest: AbstractCassandraTest() {
 
@@ -17,21 +17,31 @@ class CqlSessionProviderTest: AbstractCassandraTest() {
     }
 
     @Test
-    fun `새로운 CqlSession 을 생성하고 캐싱한다`() {
+    fun `같은 connection context 의 CqlSession 을 재사용한다`() {
         val cqlSessionBuilderSupplier = {
             CqlSessionProvider.newCqlSessionBuilder(
                 InetSocketAddress(cassandra4.host, cassandra4.port),
                 CqlSessionProvider.DEFAULT_LOCAL_DATACENTER
             )
         }
+        val clientId = UUID.randomUUID()
+        val sessionIdentity = CqlSessionIdentity.of(
+            keyspace = TEST_KEYSPACE_1,
+            contextParts = listOf(
+                "contactPoint=${cassandra4.host}:${cassandra4.port}",
+                "localDatacenter=${CqlSessionProvider.DEFAULT_LOCAL_DATACENTER}",
+                "applicationName=provider-test-reuse",
+                "clientId=$clientId",
+            ),
+        )
 
-        val session1 = CqlSessionProvider.getOrCreateSession(TEST_KEYSPACE_1, cqlSessionBuilderSupplier) {
-            withApplicationName("provider-test-1")
-            withClientId(UUID.randomUUID())
+        val session1 = CqlSessionProvider.getOrCreateSession(sessionIdentity, cqlSessionBuilderSupplier) {
+            withApplicationName("provider-test-reuse")
+            withClientId(clientId)
         }
-        val session2 = CqlSessionProvider.getOrCreateSession(TEST_KEYSPACE_1, cqlSessionBuilderSupplier) {
-            withApplicationName("provider-test-2")
-            withClientId(UUID.randomUUID())
+        val session2 = CqlSessionProvider.getOrCreateSession(sessionIdentity, cqlSessionBuilderSupplier) {
+            withApplicationName("provider-test-reuse")
+            withClientId(clientId)
         }
 
         session2 shouldBeEqualTo session1
@@ -46,6 +56,30 @@ class CqlSessionProviderTest: AbstractCassandraTest() {
         session1.closeSafe()
         session2.closeSafe()
         session3.closeSafe()
+    }
+
+    @Test
+    fun `같은 keyspace 라도 다른 connection context 는 재사용하지 않는다`() {
+        val cqlSessionBuilderSupplier = {
+            CqlSessionProvider.newCqlSessionBuilder(
+                InetSocketAddress(cassandra4.host, cassandra4.port),
+                CqlSessionProvider.DEFAULT_LOCAL_DATACENTER
+            )
+        }
+
+        val session1 = CqlSessionProvider.getOrCreateSession(TEST_KEYSPACE_1, cqlSessionBuilderSupplier) {
+            withApplicationName("provider-test-context-1")
+            withClientId(UUID.randomUUID())
+        }
+        val session2 = CqlSessionProvider.getOrCreateSession(TEST_KEYSPACE_1, cqlSessionBuilderSupplier) {
+            withApplicationName("provider-test-context-2")
+            withClientId(UUID.randomUUID())
+        }
+
+        session2 shouldNotBeEqualTo session1
+
+        session1.closeSafe()
+        session2.closeSafe()
     }
 
     @Test

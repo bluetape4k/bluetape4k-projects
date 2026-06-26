@@ -62,6 +62,30 @@ val session2 = cqlSessionOf(
 session.use { /* perform operations */ }
 ```
 
+#### Cached sessions with explicit identity
+
+`CqlSessionProvider.getOrCreateSession` caches by `CqlSessionIdentity`, not by keyspace alone. Use an explicit identity when the same keyspace can be reached through different contact points, datacenters, credentials, client ids, or tenant contexts.
+
+```kotlin
+val sessionIdentity = CqlSessionIdentity.of(
+    keyspace = "tenant_data",
+    contextParts = listOf(
+        "contactPoint=cassandra-a.example.com:9042",
+        "localDatacenter=dc-a",
+        "tenant=tenant-a",
+        "clientId=analytics-worker",
+    ),
+)
+
+val tenantSession = CqlSessionProvider.getOrCreateSession(sessionIdentity) {
+    addContactPoint(InetSocketAddress("cassandra-a.example.com", 9042))
+    withLocalDatacenter("dc-a")
+    withApplicationName("analytics-worker")
+}
+```
+
+The compatibility overload that accepts only `keyspace` derives a conservative per-call identity from the builder supplier and builder lambda. That avoids silent keyspace-only reuse across different builder blocks, but stable reuse across call sites should use an explicit `CqlSessionIdentity`.
+
 ### 2. Asynchronous Queries (Coroutines)
 
 ```kotlin
