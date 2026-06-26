@@ -161,7 +161,14 @@ Codec classes:
 - `Fastjson2Codec` — Fastjson2 JSONB binary format. Stores class name header + JSONB bytes. Supports `allowedPackagePrefixes` for pre-instantiation security validation.
 - `Lz4Codec` — LZ4 compression wrapper around an `innerCodec`.
 - `ZstdCodec` — Zstd compression wrapper.
-- `GzipCodec` — GZip compression wrapper.
+- `GzipCodec` — GZip compression wrapper with bounded decompression (`maxDecompressedSize`, default 256 MiB).
+
+```kotlin
+val codec = GzipCodec(
+    innerCodec = RedissonCodecs.Fory,
+    maxDecompressedSize = 64 * 1024 * 1024,
+)
+```
 
 #### Codec Trust Profiles
 
@@ -171,6 +178,7 @@ for the shared profile vocabulary.
 | Codec family | Default profile | Safer shared-boundary option |
 |---|---|---|
 | `ForyCodec`, `Kryo5Codec`, and compressed variants | `TrustedInternal` | Use only for private Redis data controlled by one deployment boundary, or choose a secure serializer/factory where available. |
+| `GzipCodec` compressed payloads | `TrustedInternal` with bounded expansion | Tune `maxDecompressedSize` to the largest legitimate Redis value for the deployment. |
 | `Jackson3Codec` / `Fastjson2Codec` with `allowedPackagePrefixes = null` | `TrustedInternal` | Set `allowedPackagePrefixes` for `AllowListedTypes`. |
 | `Fastjson2Codec(allowedPackagePrefixes = setOf(...))` | `AllowListedTypes` | Keep prefixes as narrow as the stored DTO packages allow. |
 

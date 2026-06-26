@@ -1,10 +1,10 @@
 package io.bluetape4k.io.compressor
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class CompressorsTest {
     companion object: KLogging()
@@ -94,6 +94,26 @@ class CompressorsTest {
         }
         assertFailsWith<IllegalArgumentException> {
             GZipCompressor(-1)
+        }
+    }
+
+    @Test
+    fun `GZipCompressor 는 0 이하 maxDecompressedSize 를 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> {
+            GZipCompressor(maxDecompressedSize = 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            GZipCompressor(maxDecompressedSize = -1)
+        }
+    }
+
+    @Test
+    fun `GZipCompressor 는 maxDecompressedSize 보다 큰 압축 해제 출력을 거부한다`() {
+        val plain = ByteArray(128) { 'A'.code.toByte() }
+        val compressed = GZipCompressor().compress(plain)
+
+        assertFailsWith<IllegalArgumentException> {
+            GZipCompressor(maxDecompressedSize = 64).decompress(compressed)
         }
     }
 
