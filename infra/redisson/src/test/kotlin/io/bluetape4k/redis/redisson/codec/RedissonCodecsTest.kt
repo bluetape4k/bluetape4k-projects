@@ -1,11 +1,14 @@
 package io.bluetape4k.redis.redisson.codec
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.AbstractRedissonTest
 import io.bluetape4k.redis.redisson.RedissonTestUtils.faker
-import io.bluetape4k.assertions.shouldBeEqualTo
+import io.netty.buffer.Unpooled
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.redisson.client.codec.Codec
@@ -105,6 +108,33 @@ class RedissonCodecsTest: AbstractRedissonTest() {
     fun `codec for kotlin data class with fallback codec`(codec: Codec) {
         repeat(REPEAT_SIZE) {
             codec.verifyCodec(newCustomData())
+        }
+    }
+
+    @Test
+    fun `allow-listed JSON factories reject fallback binary payloads`() {
+        val origin = newCustomData()
+        val fallbackBuf = RedissonCodecs.Fory.valueEncoder.encode(origin)
+        val fallbackBytes = try {
+            ByteArray(fallbackBuf.readableBytes()).also {
+                fallbackBuf.getBytes(fallbackBuf.readerIndex(), it)
+            }
+        } finally {
+            fallbackBuf.release()
+        }
+
+        listOf(
+            RedissonCodecs.jackson3(setOf("io.bluetape4k.")),
+            RedissonCodecs.fastjson2(setOf("io.bluetape4k.")),
+        ).forEach { codec ->
+            val buf = Unpooled.wrappedBuffer(fallbackBytes)
+            try {
+                assertFailsWith<SecurityException> {
+                    codec.valueDecoder.decode(buf, State())
+                }
+            } finally {
+                buf.release()
+            }
         }
     }
 

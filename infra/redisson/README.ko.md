@@ -149,6 +149,12 @@ val secureCodec = Fastjson2Codec(
     allowedPackagePrefixes = setOf("com.example.", "io.bluetape4k.")
 )
 
+// 신뢰된 일회성 마이그레이션에서만 기존 Fory 바이트 fallback 허용
+val migrationCodec = Jackson3Codec(
+    allowedPackagePrefixes = setOf("com.example."),
+    allowFallbackDecode = true,
+)
+
 // 직접 조합도 가능
 val customCodec = Lz4Codec(innerCodec = ForyCodec())
 ```
@@ -156,8 +162,8 @@ val customCodec = Lz4Codec(innerCodec = ForyCodec())
 Codec 클래스:
 
 - `ForyCodec` — Apache Fory 직렬화. 직렬화 실패 시 fallback Codec(Kryo5)으로 자동 전환
-- `Jackson3Codec` — Jackson 3.x JSON 직렬화. 사람이 읽을 수 있는 JSON 텍스트로 저장
-- `Fastjson2Codec` — Fastjson2 JSONB 바이너리 포맷. 클래스 이름 헤더 + JSONB 바이트로 저장. `allowedPackagePrefixes`로 pre-instantiation 보안 검증 지원
+- `Jackson3Codec` — Jackson 3.x JSON 직렬화. 사람이 읽을 수 있는 JSON 텍스트로 저장하며, `allowedPackagePrefixes`가 있으면 binary fallback decode를 차단
+- `Fastjson2Codec` — Fastjson2 JSONB 바이너리 포맷. 클래스 이름 헤더 + JSONB 바이트로 저장. `allowedPackagePrefixes`로 pre-instantiation 보안 검증을 수행하고 allow-list 사용 시 binary fallback decode를 차단
 - `Lz4Codec` — LZ4 압축 래퍼. `innerCodec`으로 감쌈
 - `ZstdCodec` — Zstd 압축 래퍼
 - `GzipCodec` — 압축 해제 크기를 제한하는 GZip 압축 래퍼 (`maxDecompressedSize`, 기본 256 MiB)
@@ -179,7 +185,7 @@ val codec = GzipCodec(
 | `ForyCodec`, `Kryo5Codec`, 압축 변형 | `TrustedInternal` | 하나의 배포 경계가 제어하는 private Redis 데이터에만 사용하거나, 가능한 경우 secure serializer/factory를 선택합니다. |
 | `GzipCodec` 압축 payload | 확장 크기 제한이 있는 `TrustedInternal` | 배포 환경에서 정상 Redis 값의 최대 크기에 맞춰 `maxDecompressedSize`를 조정합니다. |
 | `allowedPackagePrefixes = null`인 `Jackson3Codec` / `Fastjson2Codec` | `TrustedInternal` | `allowedPackagePrefixes`를 지정해 `AllowListedTypes`로 사용합니다. |
-| `Fastjson2Codec(allowedPackagePrefixes = setOf(...))` | `AllowListedTypes` | 저장 DTO 패키지 범위만큼만 좁게 접두사를 유지합니다. |
+| `allowedPackagePrefixes = setOf(...)`인 `Jackson3Codec` / `Fastjson2Codec` | `AllowListedTypes` | 접두사를 좁게 유지합니다. binary fallback decode는 거부되며, 신뢰된 마이그레이션 구간에서만 `allowFallbackDecode = true`를 명시합니다. |
 
 #### 사용 목적별 팩토리 함수
 

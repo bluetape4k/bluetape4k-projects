@@ -13,40 +13,46 @@ import org.redisson.client.protocol.Encoder
 import tools.jackson.databind.json.JsonMapper
 
 /**
- * Jackson 3 커스텀 JSON 엔벨로프 방식으로 직렬화/역직렬화를 수행하는 Redisson [Codec] 구현체입니다.
+ * Redisson [Codec] implementation for Jackson 3 JSON envelope values.
  *
- * ## 직렬화 포맷
- * 객체를 `{"_type": "com.example.Foo", "_data": {...}}` 형태의 JSON 엔벨로프로 감싸 저장합니다.
- * `_type` 필드에 FQCN을 기록하여 역직렬화 시 타입 정보를 복원합니다.
+ * ## Wire format
  *
- * ## Jackson 3.x 보안 설계
- * Jackson 3.x에서는 `activateDefaultTyping`이 제거되었습니다. 이 Codec은 자체 엔벨로프 포맷을 사용하여
- * 동일한 다형 타입 지원을 구현하면서, 역직렬화 전에 `validateClassName`으로 클래스 이름을 검사합니다.
- * 이는 pre-materialization 보안 제어에 해당합니다.
+ * Encodes values as a JSON envelope:
+ * ```json
+ * {"_type": "com.example.Foo", "_data": {...}}
+ * ```
+ * The `_type` field stores the FQCN and is validated before class loading.
  *
- * ## 보안 경고
- * - `allowedPackagePrefixes = null`이면 모든 클래스 이름을 허용합니다 (**신뢰된 내부 Redis 환경에서만 사용**).
- * - 외부에 노출된 Redis 또는 다중 테넌트 환경에서는 [allowedPackagePrefixes]를 반드시 지정하십시오:
+ * ## Trust boundary
+ *
+ * - `allowedPackagePrefixes = null` allows all class names and keeps fallback decode enabled.
+ * - Set [allowedPackagePrefixes] for exposed or multi-tenant Redis boundaries.
+ * - When [allowedPackagePrefixes] is set, fallback decode is disabled by default so non-JSON binary
+ *   payloads cannot bypass the allow-list. Set [allowFallbackDecode] only for trusted migration reads.
+ *
+ * Example:
  *   ```kotlin
  *   val codec = Jackson3Codec(allowedPackagePrefixes = setOf("com.mycompany.", "io.bluetape4k."))
- *   // 또는 factory 사용:
  *   val codec = RedissonCodecs.jackson3(setOf("com.mycompany.", "io.bluetape4k."))
  *   ```
  *
- * ## 제한사항
- * - 루트 타입이 `List`, `Map` 등 컬렉션인 경우 원소 타입 정보가 소실됩니다. DTO 래퍼로 감싸서 사용하십시오.
- * - 직렬화 실패 시 [fallbackCodec]으로 자동 전환합니다.
+ * ## Limitations
  *
- * @property mapper Jackson 3 [JsonMapper] 인스턴스 (기본값: [io.bluetape4k.jackson3.Jackson.defaultJsonMapper])
- * @property fallbackCodec 직렬화/역직렬화 실패 시 사용할 대체 Codec (기본값: [RedissonCodecs.Fory])
- * @property classLoader 역직렬화 시 클래스 로드에 사용할 [ClassLoader]
- * @property allowedPackagePrefixes 허용할 패키지 prefix 목록. null이면 모든 클래스 허용 (보안 주의)
+ * Root collection element types are not preserved. Wrap collections in DTOs when element type fidelity
+ * matters.
+ *
+ * @property mapper Jackson 3 mapper.
+ * @property fallbackCodec fallback codec used for encode failures and trusted decode migrations.
+ * @property classLoader class loader used by Redisson dynamic codec copies.
+ * @property allowedPackagePrefixes package prefixes allowed before class loading, or null for trusted internal use.
+ * @property allowFallbackDecode whether decode can fall back to [fallbackCodec] after JSON envelope failure.
  */
 class Jackson3Codec(
     private val mapper: JsonMapper = io.bluetape4k.jackson3.Jackson.defaultJsonMapper,
     private val fallbackCodec: Codec = RedissonCodecs.Fory,
     private val classLoader: ClassLoader? = null,
     private val allowedPackagePrefixes: Set<String>? = null,
+    private val allowFallbackDecode: Boolean = allowedPackagePrefixes == null,
 ): BaseCodec() {
 
     @Suppress("UNUSED_PARAMETER")
@@ -61,6 +67,7 @@ class Jackson3Codec(
         copy(classLoader, codec.fallbackCodec),
         classLoader,
         codec.allowedPackagePrefixes,
+        codec.allowFallbackDecode,
     )
 
     companion object: KLogging() {
@@ -110,6 +117,13 @@ class Jackson3Codec(
         } catch (e: SecurityException) {
             throw e
         } catch (e: Exception) {
+            if (!allowFallbackDecode) {
+                throw SecurityException(
+                    "Jackson3Codec fallback decode is disabled for allow-listed JSON payloads. " +
+                        "Rejecting non-Jackson3 binary payload.",
+                    e,
+                )
+            }
             log.info(e) { "Decoding failed for Jackson3Codec. Using fallbackCodec[$fallbackCodec]" }
             val fallbackBuf = Unpooled.wrappedBuffer(bytes)
             try {
@@ -124,5 +138,9 @@ class Jackson3Codec(
     override fun getValueDecoder(): Decoder<Any> = decoder
 
     override fun toString(): String =
-        "Jackson3Codec(fallback=${fallbackCodec.javaClass.simpleName}, allowedPrefixes=$allowedPackagePrefixes)"
+        "Jackson3Codec(" +
+            "fallback=${fallbackCodec.javaClass.simpleName}, " +
+            "allowedPrefixes=$allowedPackagePrefixes, " +
+            "allowFallbackDecode=$allowFallbackDecode" +
+            ")"
 }

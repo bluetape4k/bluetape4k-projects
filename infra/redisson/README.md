@@ -150,6 +150,12 @@ val secureCodec = Fastjson2Codec(
     allowedPackagePrefixes = setOf("com.example.", "io.bluetape4k.")
 )
 
+// Trusted one-time migration from legacy Fory bytes into an allow-listed JSON codec
+val migrationCodec = Jackson3Codec(
+    allowedPackagePrefixes = setOf("com.example."),
+    allowFallbackDecode = true,
+)
+
 // You can also compose codecs manually
 val customCodec = Lz4Codec(innerCodec = ForyCodec())
 ```
@@ -157,8 +163,8 @@ val customCodec = Lz4Codec(innerCodec = ForyCodec())
 Codec classes:
 
 - `ForyCodec` — Apache Fory serialization. Automatically falls back to Kryo5 on serialization failure.
-- `Jackson3Codec` — Jackson 3.x JSON serialization. Stores values as human-readable JSON text.
-- `Fastjson2Codec` — Fastjson2 JSONB binary format. Stores class name header + JSONB bytes. Supports `allowedPackagePrefixes` for pre-instantiation security validation.
+- `Jackson3Codec` — Jackson 3.x JSON serialization. Stores values as human-readable JSON text and disables fallback binary decode when `allowedPackagePrefixes` is set.
+- `Fastjson2Codec` — Fastjson2 JSONB binary format. Stores class name header + JSONB bytes. Supports `allowedPackagePrefixes` for pre-instantiation security validation and disables fallback binary decode when the allow-list is set.
 - `Lz4Codec` — LZ4 compression wrapper around an `innerCodec`.
 - `ZstdCodec` — Zstd compression wrapper.
 - `GzipCodec` — GZip compression wrapper with bounded decompression (`maxDecompressedSize`, default 256 MiB).
@@ -180,7 +186,7 @@ for the shared profile vocabulary.
 | `ForyCodec`, `Kryo5Codec`, and compressed variants | `TrustedInternal` | Use only for private Redis data controlled by one deployment boundary, or choose a secure serializer/factory where available. |
 | `GzipCodec` compressed payloads | `TrustedInternal` with bounded expansion | Tune `maxDecompressedSize` to the largest legitimate Redis value for the deployment. |
 | `Jackson3Codec` / `Fastjson2Codec` with `allowedPackagePrefixes = null` | `TrustedInternal` | Set `allowedPackagePrefixes` for `AllowListedTypes`. |
-| `Fastjson2Codec(allowedPackagePrefixes = setOf(...))` | `AllowListedTypes` | Keep prefixes as narrow as the stored DTO packages allow. |
+| `Jackson3Codec` / `Fastjson2Codec` with `allowedPackagePrefixes = setOf(...)` | `AllowListedTypes` | Keep prefixes narrow. Fallback binary decode is rejected unless `allowFallbackDecode = true` is selected for a trusted migration window. |
 
 #### Use-Case Factory Functions
 

@@ -3,12 +3,12 @@ package io.bluetape4k.redis.redisson.codec
 import io.bluetape4k.fastjson2.FastjsonSerializer
 import io.bluetape4k.logging.KLogging
 import io.netty.buffer.Unpooled
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeInstanceOf
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 @DisplayName("Fastjson2Codec encode/decode & security")
 class Fastjson2CodecTest {
@@ -91,6 +91,59 @@ class Fastjson2CodecTest {
                 // Fory 바이트는 JSONB WriteClassName 포맷이 아니므로 Fastjson2Codec이 fallback으로 전환한다.
                 runCatching { fastjson2Codec.valueDecoder.decode(wrapped, null) }
                     .isSuccess.shouldNotBeNull()
+            } finally {
+                wrapped.release()
+            }
+        } finally {
+            foryEncodedBuf.release()
+        }
+    }
+
+    @Test
+    fun `allowedPackagePrefixes 가 지정된 Fastjson2Codec 은 binary fallback payload 를 거부한다`() {
+        val fallbackCodec = RedissonCodecs.Fory
+        val fastjson2Codec = Fastjson2Codec(
+            fallbackCodec = fallbackCodec,
+            allowedPackagePrefixes = setOf("io.bluetape4k."),
+        )
+
+        val original = Sample(99L, "blocked-fallback", listOf("x", "y"))
+        val foryEncodedBuf = fallbackCodec.valueEncoder.encode(original)
+        try {
+            val foryBytes = ByteArray(foryEncodedBuf.readableBytes())
+            foryEncodedBuf.getBytes(foryEncodedBuf.readerIndex(), foryBytes)
+
+            val wrapped = Unpooled.wrappedBuffer(foryBytes)
+            try {
+                assertFailsWith<SecurityException> {
+                    fastjson2Codec.valueDecoder.decode(wrapped, null)
+                }
+            } finally {
+                wrapped.release()
+            }
+        } finally {
+            foryEncodedBuf.release()
+        }
+    }
+
+    @Test
+    fun `trusted migration mode 의 Fastjson2Codec 은 allowlist 와 함께 binary fallback payload 를 허용한다`() {
+        val fallbackCodec = RedissonCodecs.Fory
+        val fastjson2Codec = Fastjson2Codec(
+            fallbackCodec = fallbackCodec,
+            allowedPackagePrefixes = setOf("io.bluetape4k."),
+            allowFallbackDecode = true,
+        )
+
+        val original = Sample(100L, "migration", listOf("legacy"))
+        val foryEncodedBuf = fallbackCodec.valueEncoder.encode(original)
+        try {
+            val foryBytes = ByteArray(foryEncodedBuf.readableBytes())
+            foryEncodedBuf.getBytes(foryEncodedBuf.readerIndex(), foryBytes)
+
+            val wrapped = Unpooled.wrappedBuffer(foryBytes)
+            try {
+                fastjson2Codec.valueDecoder.decode(wrapped, null) shouldBeEqualTo original
             } finally {
                 wrapped.release()
             }
