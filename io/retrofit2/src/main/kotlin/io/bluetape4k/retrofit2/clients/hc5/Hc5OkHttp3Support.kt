@@ -2,6 +2,7 @@ package io.bluetape4k.retrofit2.clients.hc5
 
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequest
 import io.bluetape4k.http.okhttp3.okhttp3Response
+import io.bluetape4k.http.okhttp3.redactHttpHeaderValue
 import io.bluetape4k.http.okhttp3.toTypeString
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.logging.KotlinLogging
@@ -46,7 +47,7 @@ internal fun okhttp3.Request.toSimpleHttpRequest(): SimpleHttpRequest {
     simpleRequest.setHeader(HttpHeaders.ACCEPT_ENCODING, "gzip,deflate")
 
     self.headers.forEach { (name, value) ->
-        log.trace { "Add header. $name=$value" }
+        log.trace { "Add header. $name=${redactHttpHeaderValue(name, value)}" }
         simpleRequest.setHeader(name, value)
     }
 

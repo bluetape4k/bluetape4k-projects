@@ -189,6 +189,12 @@ val client = okhttp3Client(
     addNetworkInterceptor(CachingResponseInterceptor())
 }
 
+// LoggingInterceptor redacts Authorization, Cookie, Set-Cookie,
+// API-key, and token-like headers by default.
+val clientWithCustomRedaction = okhttp3Client {
+    addInterceptor(LoggingInterceptor(log, setOf("X-Internal-Secret")))
+}
+
 // Request DSL
 val request = okhttp3RequestOf("https://httpbin.org/get") {
     get()
