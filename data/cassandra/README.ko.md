@@ -11,6 +11,7 @@
 - **Row/Gettable/Settable 확장**: 타입 안전한 값 조회/설정
 - **QueryBuilder 확장**: CQL 빌더 작성 편의 함수
 - **Statement 지원**: SimpleStatement, BoundStatement, BatchStatement 생성 DSL
+- **Mapper 헬퍼**: DataStax mapper `EntityHelper` 기반 PreparedStatement 생성과 entity binding 확장
 - **Admin 유틸**: Keyspace 생성/삭제, 버전 확인 등 관리 작업 지원
 
 ## 아키텍처 다이어그램
@@ -34,6 +35,10 @@ dependencies {
     implementation("io.github.bluetape4k:bluetape4k-cassandra:${bluetape4kVersion}")
 }
 ```
+
+이 단일 artifact에는 `io.bluetape4k.cassandra.mapper` API가 필요로 하는
+DataStax mapper runtime이 포함됩니다. Mapper helper 확장을 사용할 때
+소비자 프로젝트에서 `java-driver-mapper-runtime`을 별도로 선언할 필요가 없습니다.
 
 ## 주요 기능
 
@@ -262,7 +267,29 @@ val delete = deleteFrom("users")
     .build()
 ```
 
-### 7. Cassandra 관리 (Admin)
+### 7. DataStax Mapper 헬퍼
+
+```kotlin
+import io.bluetape4k.cassandra.mapper.*
+
+val insert = userEntityHelper.prepareInsert(session)
+val insertIfAbsent = userEntityHelper.prepareInsertIfNotExists(session)
+
+val bound = userEntityHelper.bind(
+    preparedStatement = insert,
+    entity = user,
+)
+
+val selected = session.prepare(userEntityHelper) {
+    select().all().from(keyspaceId, tableId).asCql()
+}
+```
+
+Mapper helper API는 DataStax `EntityHelper`와 `NullSavingStrategy` 타입을
+공개 시그니처에 직접 노출하므로, `bluetape4k-cassandra`는 mapper runtime을
+public dependency contract로 제공합니다.
+
+### 8. Cassandra 관리 (Admin)
 
 ```kotlin
 import io.bluetape4k.cassandra.CassandraAdmin
@@ -282,7 +309,7 @@ val version = CassandraAdmin.getReleaseVersion(session)
 println("Cassandra version: $version")
 ```
 
-### 8. 문자열 처리 유틸리티
+### 9. 문자열 처리 유틸리티
 
 ```kotlin
 import io.bluetape4k.cassandra.*
@@ -301,7 +328,7 @@ val isDoubleQuoted = """"test"""".isDoubleQuoted()  // true
 val needsQuotes = "test column".needsDoubleQuotes()  // true
 ```
 
-### 9. CqlIdentifier 지원
+### 10. CqlIdentifier 지원
 
 ```kotlin
 import io.bluetape4k.cassandra.CqlIdentifierSupport
@@ -314,7 +341,7 @@ val id2 = CqlIdentifier.fromCql("my_column")
 val idWithSpace = "my column".toCqlIdentifier()  // "my column"
 ```
 
-### 10. 비동기 ResultSet 처리
+### 11. 비동기 ResultSet 처리
 
 ```kotlin
 import io.bluetape4k.cassandra.cql.*

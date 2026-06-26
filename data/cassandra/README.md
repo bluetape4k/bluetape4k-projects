@@ -11,6 +11,7 @@ A Kotlin extension library that makes it easier to use the [Apache Cassandra](ht
 - **Row/Gettable/Settable Extensions**: Type-safe value access and mutation
 - **QueryBuilder Extensions**: Convenience functions for building CQL queries
 - **Statement Support**: DSL for creating SimpleStatement, BoundStatement, and BatchStatement
+- **Mapper Helpers**: DataStax mapper `EntityHelper` extensions for prepared statements and entity binding
 - **Admin Utilities**: Keyspace creation/deletion, version checks, and other administrative tasks
 
 ## Architecture Diagrams
@@ -34,6 +35,10 @@ dependencies {
     implementation("io.github.bluetape4k:bluetape4k-cassandra:${bluetape4kVersion}")
 }
 ```
+
+This single artifact includes the DataStax mapper runtime required by
+`io.bluetape4k.cassandra.mapper` APIs. Consumers do not need to declare
+`java-driver-mapper-runtime` separately when using the mapper helper extensions.
 
 ## Core Features
 
@@ -262,7 +267,29 @@ val delete = deleteFrom("users")
     .build()
 ```
 
-### 7. Cassandra Administration
+### 7. DataStax Mapper Helpers
+
+```kotlin
+import io.bluetape4k.cassandra.mapper.*
+
+val insert = userEntityHelper.prepareInsert(session)
+val insertIfAbsent = userEntityHelper.prepareInsertIfNotExists(session)
+
+val bound = userEntityHelper.bind(
+    preparedStatement = insert,
+    entity = user,
+)
+
+val selected = session.prepare(userEntityHelper) {
+    select().all().from(keyspaceId, tableId).asCql()
+}
+```
+
+The mapper helper APIs expose DataStax `EntityHelper` and `NullSavingStrategy`
+types directly, so `bluetape4k-cassandra` exports the mapper runtime as part of
+its public dependency contract.
+
+### 8. Cassandra Administration
 
 ```kotlin
 import io.bluetape4k.cassandra.CassandraAdmin
@@ -282,7 +309,7 @@ val version = CassandraAdmin.getReleaseVersion(session)
 println("Cassandra version: $version")
 ```
 
-### 8. String Utilities
+### 9. String Utilities
 
 ```kotlin
 import io.bluetape4k.cassandra.*
@@ -301,7 +328,7 @@ val isDoubleQuoted = """"test"""".isDoubleQuoted()  // true
 val needsQuotes = "test column".needsDoubleQuotes()  // true
 ```
 
-### 9. CqlIdentifier Support
+### 10. CqlIdentifier Support
 
 ```kotlin
 import io.bluetape4k.cassandra.CqlIdentifierSupport
@@ -314,7 +341,7 @@ val id2 = CqlIdentifier.fromCql("my_column")
 val idWithSpace = "my column".toCqlIdentifier()  // "my column"
 ```
 
-### 10. Asynchronous ResultSet Processing
+### 11. Asynchronous ResultSet Processing
 
 ```kotlin
 import io.bluetape4k.cassandra.cql.*
