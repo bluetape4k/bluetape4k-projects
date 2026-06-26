@@ -3,33 +3,39 @@ package io.bluetape4k.r2dbc.convert.postgresql
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.r2dbc.postgresql.codec.Json
+import org.springframework.core.convert.ConversionFailedException
+import org.springframework.core.convert.TypeDescriptor
 import org.springframework.core.convert.converter.Converter
 import org.springframework.data.convert.WritingConverter
 import tools.jackson.core.JacksonException
 import tools.jackson.databind.ObjectMapper
 
 /**
- * Map\<String, Any?\>를 PostgreSQL의 Json 타입으로 변환하는 Converter입니다.
+ * Converts a `Map<String, Any?>` value into a PostgreSQL [Json] value.
  *
- * @property mapper Jackson ObjectMapper 인스턴스
+ * Serialization errors are reported as [ConversionFailedException] with the original Jackson cause.
+ *
+ * @property mapper Jackson object mapper used for serialization.
  */
 @WritingConverter
 class MapToJsonConverter(
     private val mapper: ObjectMapper,
 ): Converter<Map<String, Any?>, Json> {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private val sourceType = TypeDescriptor.valueOf(Map::class.java)
+        private val targetType = TypeDescriptor.valueOf(Json::class.java)
+    }
 
     /**
-     * Map을 Json 객체로 변환합니다.
+     * Converts [source] into PostgreSQL [Json].
      *
-     * @param source 변환할 Map
-     * @return Json 객체, 변환 실패 시 빈 Json 객체
+     * @throws ConversionFailedException when Jackson cannot serialize [source].
      */
     override fun convert(source: Map<String, Any?>): Json = try {
         Json.of(mapper.writeValueAsString(source))
     } catch (e: JacksonException) {
         log.error(e) { "Fail to serialize map to Json. source=$source" }
-        Json.of("{}")
+        throw ConversionFailedException(sourceType, targetType, source, e)
     }
 }
