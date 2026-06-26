@@ -156,7 +156,7 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
     fun `isEmpty - 결과가 없으면 true 반환`() {
         val empty =
             dataSource.runQuery("SELECT id FROM Actors WHERE 1 = 0") { rs ->
-                rs.isEmpty()
+                rs.isEmptyByMovingCursor()
             }
 
         empty.shouldBeTrue()
@@ -166,10 +166,32 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
     fun `isNotEmpty - 결과가 있으면 true 반환`() {
         val notEmpty =
             dataSource.runQuery("SELECT id FROM Actors") { rs ->
-                rs.isNotEmpty()
+                rs.isNotEmptyByMovingCursor()
             }
 
         notEmpty.shouldBeTrue()
+    }
+
+    @Test
+    fun `isNotEmptyByMovingCursor positions cursor on first row`() {
+        val firstId =
+            dataSource.runQuery("SELECT id FROM Actors ORDER BY id") { rs ->
+                rs.isNotEmptyByMovingCursor().shouldBeTrue()
+                rs.getInt("id")
+            }
+
+        firstId shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `isNotEmptyByMovingCursor consumes first row before normal iteration`() {
+        val remainingIds =
+            dataSource.runQuery("SELECT id FROM Actors ORDER BY id") { rs ->
+                rs.isNotEmptyByMovingCursor().shouldBeTrue()
+                rs.toList { it.getInt("id") }
+            }
+
+        remainingIds.first() shouldBeEqualTo 2
     }
 
     // ─── count ────────────────────────────────────────────────────────────────

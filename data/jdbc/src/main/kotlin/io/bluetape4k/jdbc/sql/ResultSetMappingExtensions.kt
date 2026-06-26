@@ -393,30 +393,61 @@ inline fun ResultSet.count(crossinline predicate: (ResultSet) -> Boolean = { tru
 }
 
 /**
- * ResultSet이 비어있는지 확인합니다.
+ * Checks whether this [ResultSet] has no rows by moving the cursor once.
+ *
+ * This function calls [ResultSet.next] exactly once. For a non-empty result set
+ * it returns `false` and leaves the cursor positioned on the first row. A normal
+ * iteration helper such as [toList] will therefore continue from the second row
+ * unless the caller maps the current row first.
  *
  * ```kotlin
- * if (rs.isEmpty()) {
+ * if (rs.isEmptyByMovingCursor()) {
  *     println("No results found")
  * }
  * ```
  *
- * @return ResultSet이 비어있으면 true, 그렇지 않으면 false
+ * @return `true` when [ResultSet.next] returns `false`.
  */
-fun ResultSet.isEmpty(): Boolean = !this.next()
+fun ResultSet.isEmptyByMovingCursor(): Boolean = !isNotEmptyByMovingCursor()
 
 /**
- * ResultSet이 비어있지 않은지 확인합니다.
+ * Checks whether this [ResultSet] has at least one row by moving the cursor once.
+ *
+ * This function calls [ResultSet.next] exactly once. When it returns `true`, the
+ * cursor is positioned on the first row and the caller may read that row
+ * immediately.
  *
  * ```kotlin
- * if (rs.isNotEmpty()) {
- *     println("Found results")
+ * if (rs.isNotEmptyByMovingCursor()) {
+ *     val firstId = rs.getInt("id")
  * }
  * ```
  *
- * @return ResultSet에 행이 있으면 true, 그렇지 않으면 false
+ * @return `true` when [ResultSet.next] moves to a row.
  */
-fun ResultSet.isNotEmpty(): Boolean = !isEmpty() // this.next().also { if (it) this.previous() }
+fun ResultSet.isNotEmptyByMovingCursor(): Boolean = this.next()
+
+/**
+ * Checks whether this [ResultSet] has no rows by moving the cursor once.
+ *
+ * @return `true` when [ResultSet.next] returns `false`.
+ */
+@Deprecated(
+    message = "This helper advances the ResultSet cursor. Use isEmptyByMovingCursor() when cursor movement is intended.",
+    replaceWith = ReplaceWith("isEmptyByMovingCursor()"),
+)
+fun ResultSet.isEmpty(): Boolean = isEmptyByMovingCursor()
+
+/**
+ * Checks whether this [ResultSet] has at least one row by moving the cursor once.
+ *
+ * @return `true` when [ResultSet.next] moves to a row.
+ */
+@Deprecated(
+    message = "This helper advances the ResultSet cursor. Use isNotEmptyByMovingCursor() when cursor movement is intended.",
+    replaceWith = ReplaceWith("isNotEmptyByMovingCursor()"),
+)
+fun ResultSet.isNotEmpty(): Boolean = isNotEmptyByMovingCursor()
 
 /**
  * ResultSet의 커서를 이전 위치로 되돌립니다.

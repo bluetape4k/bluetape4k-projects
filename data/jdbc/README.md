@@ -450,10 +450,16 @@ dataSource.runQuery("SELECT * FROM users") { rs ->
 ### 15. Utility Functions
 
 ```kotlin
-// isEmpty / isNotEmpty
+// Cursor-moving emptiness checks
 dataSource.runQuery("SELECT * FROM users WHERE 1=0") { rs ->
-    rs.isEmpty()    // true
-    rs.isNotEmpty() // false
+    rs.isEmptyByMovingCursor() // true; calls ResultSet.next() once
+}
+
+dataSource.runQuery("SELECT * FROM users ORDER BY id") { rs ->
+    if (rs.isNotEmptyByMovingCursor()) {
+        // The cursor is already positioned on the first row.
+        val firstId = rs.getInt("id")
+    }
 }
 
 // count
