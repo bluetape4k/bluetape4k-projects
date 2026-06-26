@@ -31,18 +31,14 @@ dependencies {
 
     // Querydsl (선택)
     implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
-
-    // 암호화 Converter 사용 시 (Google Tink)
-    compileOnly("io.github.bluetape4k:bluetape4k-tink:${version}")
-
-    // JSON Converter 사용 시
-    compileOnly("io.github.bluetape4k:bluetape4k-jackson2:${version}")
-
-    // 직렬화 Converter 사용 시 (Kryo 또는 Apache Fory)
-    compileOnly("com.esotericsoftware:kryo:5.6.2")
-    compileOnly("org.apache.fury:fury-kotlin:0.10.0")
 }
 ```
+
+내장 converter의 런타임 의존성은 `bluetape4k-hibernate` 아티팩트 계약에 포함됩니다. 문서화된
+Tink, Jackson3, Kryo, Apache Fory, LZ4, Snappy, Zstd, Commons Compress converter 경로를
+사용하기 위해 consumer 프로젝트에서 별도의 `compileOnly` 의존성을 추가할 필요는 없습니다. 단, slim
+배포처럼 전이 런타임 의존성을 제외한다면 엔티티 매핑에 사용하는 converter 엔진은 runtime classpath에
+남겨야 합니다.
 
 > **은퇴한 Spring Boot 3 통합 참고**: Hibernate 7.x와 Spring Boot 3.x를 함께 사용하던 과거 통합 테스트는 Spring Boot 3의 `SpringBeanContainer`가 Hibernate 5 API를 구현하기 때문에 계속 비활성화되어 있습니다. 현재 bluetape4k Spring 모듈은 Hibernate 7.x 호환을 위해 Spring Boot 4 / Spring Framework 7을 기준으로 합니다. 자세한 내용은 테스트 스위트의 `DisabledWithHibernate7AndSpringBoot3` 보존 guard를 참고하세요.
 
