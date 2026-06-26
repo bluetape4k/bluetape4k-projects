@@ -98,10 +98,12 @@ tracer.spanBuilder("my-operation").useSpan { span ->
   doWork()
 }
 
-// Exceptions are recorded on the span; the original exception type is rethrown as-is
+// Helper-managed failures are recorded with redacted telemetry by default.
+// The original exception is rethrown as-is.
 tracer.spanBuilder("failing-operation").useSpan { span ->
   runCatching { doWork() }
     .onFailure {
+      // Explicit opt-in: this raw OpenTelemetry call can export the exception message.
       span.recordException(it)
       throw it
     }
@@ -183,14 +185,15 @@ tracer.withSpan("parent") {
 }
 
 // CancellationException → StatusCode.UNSET (not recorded as ERROR)
-// Other Throwable     → StatusCode.ERROR + recordException + rethrown
+// Other Throwable     → StatusCode.ERROR + redacted exception event + rethrown
 ```
 
 **Span lifecycle contracts:**
 - Normal completion → `StatusCode.OK`, span ended
 - `CancellationException` → `StatusCode.UNSET`, span ended, exception rethrown
-- Any other `Throwable` → `StatusCode.ERROR` + `recordException`, span ended, exception rethrown
-- `null` exception message → `"unspecified error"` (internal class names never leaked)
+- Any other `Throwable` → `StatusCode.ERROR` + redacted `exception` event, span ended, exception rethrown
+- Status description and `exception.message` default to `"unspecified error"` so raw exception messages are not exported by helper APIs.
+- Full exception events are explicit opt-in: call OpenTelemetry `recordException` only at boundaries where exporting that message is allowed.
 
 ### 3-B. Flow Tracing — `traced()` / `tracedCollect()`
 
@@ -224,7 +227,8 @@ flowOf(42).tracedCollect(tracer, "collect-span") { item ->
 **Contracts:**
 - Normal completion → `StatusCode.OK`
 - `CancellationException` (timeout, `take()`, cancellation) → `StatusCode.UNSET`
-- Other exception → `StatusCode.ERROR` + `recordException`, exception rethrown
+- Other exception → `StatusCode.ERROR` + redacted `exception` event, exception rethrown
+- Raw exception messages are not exported by default; explicit `recordException` calls are opt-in.
 - `traced()` vs `tracedCollect()`:
   - `traced()` — returns a new Flow; OTel context active in the **producer** coroutine
   - `tracedCollect()` — terminal operator; OTel context active in **both producer and consumer** (action) coroutines

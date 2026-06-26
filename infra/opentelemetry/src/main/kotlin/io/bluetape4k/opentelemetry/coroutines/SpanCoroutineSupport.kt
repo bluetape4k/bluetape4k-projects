@@ -20,7 +20,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  *
  * ## 동작/계약
  * - [withSpanContext]를 이용해 현재 span을 코루틴 컨텍스트에 설치합니다.
- * - 일반 예외는 span에 기록하고 `ERROR` 상태로 바꾼 뒤 원본 예외를 그대로 다시 던집니다.
+ * - 일반 예외는 redacted exception event를 기록하고 `ERROR` 상태로 바꾼 뒤 원본 예외를 그대로 다시 던집니다.
  * - [CancellationException]은 취소 의미를 보존하기 위해 span 상태를 바꾸지 않고 그대로 전파합니다.
  * - `waitTimeout`은 하위 호환용 인자이며, 현재 구현은 trace duration 왜곡을 막기 위해 즉시 종료합니다.
  *
@@ -115,7 +115,7 @@ suspend inline fun <T> SpanBuilder.useSpanSuspending(
  * ## 동작/계약
  * - 내부적으로 [SpanBuilder.useSpanSuspending]에 위임합니다.
  * - [CancellationException]은 상태 변경 없이 그대로 전파합니다 (UNSET 유지, 구조적 동시성 보존).
- * - 일반 예외는 span에 기록하고 [io.opentelemetry.api.trace.StatusCode.ERROR] 상태로 바꾼 뒤 재던집니다.
+ * - 일반 예외는 redacted exception event를 기록하고 [io.opentelemetry.api.trace.StatusCode.ERROR] 상태로 바꾼 뒤 재던집니다.
  *
  * ## 보안 경고
  * - [configure] 람다에서 PII, Authorization 토큰, 민감 헤더를 attribute로 설정하지 마세요.
@@ -150,7 +150,7 @@ public suspend fun <T> Tracer.withSpan(
  *
  * ## 동작/계약
  * - `Context.current()`에 [span]을 저장한 뒤 [asContextElement]로 코루틴 컨텍스트에 연결합니다.
- * - 일반 예외는 span에 기록하고 `ERROR` 상태를 남긴 뒤 원본 예외를 다시 던집니다.
+ * - 일반 예외는 redacted exception event와 `ERROR` 상태를 남긴 뒤 원본 예외를 다시 던집니다.
  * - [CancellationException]은 취소 전파를 보존하기 위해 가공하지 않습니다.
  * - `waitTimeout`은 하위 호환용 인자이며, 현재 구현은 trace duration 왜곡을 막기 위해 즉시 종료합니다.
  */

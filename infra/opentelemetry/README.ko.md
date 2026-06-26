@@ -98,10 +98,12 @@ tracer.spanBuilder("my-operation").useSpan { span ->
   doWork()
 }
 
-// 일반 예외는 span에 기록한 뒤 원본 예외 타입을 유지한 채 다시 던짐
+// helper가 관리하는 실패는 기본적으로 redacted telemetry로 기록합니다.
+// 원본 예외는 그대로 다시 던집니다.
 tracer.spanBuilder("failing-operation").useSpan { span ->
   runCatching { doWork() }
     .onFailure {
+      // 명시적 opt-in: 이 OpenTelemetry 원시 호출은 예외 메시지를 export할 수 있습니다.
       span.recordException(it)
       throw it
     }
@@ -182,14 +184,15 @@ tracer.withSpan("parent") {
 }
 
 // CancellationException → StatusCode.UNSET (ERROR 미기록)
-// 그 외 Throwable     → StatusCode.ERROR + recordException + 재던짐
+// 그 외 Throwable     → StatusCode.ERROR + redacted exception event + 재던짐
 ```
 
 **Span 생명주기 계약:**
 - 정상 완료 → `StatusCode.OK`, Span 종료
 - `CancellationException` → `StatusCode.UNSET`, Span 종료, 예외 재던짐
-- 그 외 `Throwable` → `StatusCode.ERROR` + `recordException`, Span 종료, 예외 재던짐
-- 예외 메시지 `null` → `"unspecified error"` (내부 클래스명 절대 노출 안 함)
+- 그 외 `Throwable` → `StatusCode.ERROR` + redacted `exception` event, Span 종료, 예외 재던짐
+- status description과 `exception.message`는 기본적으로 `"unspecified error"`를 사용해 원본 예외 메시지를 export하지 않습니다.
+- 전체 예외 이벤트가 꼭 필요하면, 해당 메시지가 외부로 나가도 되는 경계에서 OpenTelemetry `recordException`을 명시적으로 호출하세요.
 
 ### 3-B. Flow 트레이싱 — `traced()` / `tracedCollect()`
 
@@ -223,7 +226,8 @@ flowOf(42).tracedCollect(tracer, "collect-span") { item ->
 **계약:**
 - 정상 완료 → `StatusCode.OK`
 - `CancellationException` (timeout, `take()`, 취소) → `StatusCode.UNSET`
-- 그 외 예외 → `StatusCode.ERROR` + `recordException`, 예외 재던짐
+- 그 외 예외 → `StatusCode.ERROR` + redacted `exception` event, 예외 재던짐
+- 원본 예외 메시지는 기본 export하지 않으며, 명시적 `recordException` 호출만 opt-in입니다.
 - `traced()` vs `tracedCollect()` 선택 기준:
   - `traced()` — 새 Flow 반환. OTel Context는 **producer** 코루틴에만 활성화
   - `tracedCollect()` — 터미널 연산자. OTel Context는 **producer + consumer(action)** 코루틴 양쪽에 활성화

@@ -2,6 +2,7 @@ package io.bluetape4k.opentelemetry.trace
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.opentelemetry.AbstractOtelTest
+import io.bluetape4k.opentelemetry.shouldNotExpose
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter
@@ -78,6 +79,33 @@ class SpanSupportTest: AbstractOtelTest() {
         s.name shouldBeEqualTo "error-span"
         s.status.statusCode shouldBeEqualTo StatusCode.ERROR
         s.events.any { it.name == "exception" }.shouldBeTrue()
+    }
+
+    @Test
+    fun `Span use should not export raw exception message by default`() = runSuspendIO {
+        spanExporter.reset()
+
+        val secret = "token=abc123&password=super-secret"
+        val failure = IllegalStateException("database rejected $secret")
+
+        val ex = kotlin.runCatching {
+            tracer.spanBuilder("redacted-error-span").startSpan().use {
+                throw failure
+            }
+        }.exceptionOrNull()
+
+        ex.shouldNotBeNull()
+        (ex === failure).shouldBeTrue()
+
+        flush()
+
+        val finished = spanExporter.finishedSpanItems
+        finished shouldHaveSize 1
+
+        val span = finished[0]
+        span.status.statusCode shouldBeEqualTo StatusCode.ERROR
+        span.events.any { it.name == "exception" }.shouldBeTrue()
+        span.shouldNotExpose(secret)
     }
 
     @Test
