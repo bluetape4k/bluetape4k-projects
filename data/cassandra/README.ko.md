@@ -62,6 +62,30 @@ val session2 = cqlSessionOf(
 session.use { /* 작업 수행 */ }
 ```
 
+#### 명시적 identity로 Session 캐싱
+
+`CqlSessionProvider.getOrCreateSession`은 keyspace만이 아니라 `CqlSessionIdentity`를 기준으로 캐시합니다. 같은 keyspace를 서로 다른 contact point, datacenter, credential, client id, tenant context에서 사용할 수 있다면 명시적 identity를 지정하세요.
+
+```kotlin
+val sessionIdentity = CqlSessionIdentity.of(
+    keyspace = "tenant_data",
+    contextParts = listOf(
+        "contactPoint=cassandra-a.example.com:9042",
+        "localDatacenter=dc-a",
+        "tenant=tenant-a",
+        "clientId=analytics-worker",
+    ),
+)
+
+val tenantSession = CqlSessionProvider.getOrCreateSession(sessionIdentity) {
+    addContactPoint(InetSocketAddress("cassandra-a.example.com", 9042))
+    withLocalDatacenter("dc-a")
+    withApplicationName("analytics-worker")
+}
+```
+
+`keyspace`만 받는 호환 overload는 builder supplier와 builder lambda에서 보수적인 per-call identity를 만들어 사용합니다. 따라서 서로 다른 builder block이 keyspace만으로 조용히 같은 세션을 재사용하는 문제는 피하지만, 여러 call site에서 같은 context를 안정적으로 재사용하려면 `CqlSessionIdentity`를 명시하세요.
+
 ### 2. 비동기 쿼리 (Coroutines)
 
 ```kotlin

@@ -6,12 +6,51 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.utils.ShutdownQueue
+import java.io.Serializable
 import java.net.InetSocketAddress
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Stable cache identity for a Cassandra session.
+ *
+ * Use this identity to make the session cache boundary explicit when a keyspace can be reached
+ * through multiple contact points, datacenters, credentials, clients, or tenant contexts.
+ */
+data class CqlSessionIdentity(
+    val keyspace: String,
+    val context: String,
+): Serializable {
+    init {
+        keyspace.requireNotBlank("keyspace")
+        context.requireNotBlank("context")
+    }
+
+    companion object {
+        private const val serialVersionUID = 1L
+
+        /**
+         * Builds a deterministic identity from normalized context parts.
+         */
+        fun of(
+            keyspace: String,
+            contextParts: Iterable<String>,
+        ): CqlSessionIdentity {
+            keyspace.requireNotBlank("keyspace")
+            val context = contextParts
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .sorted()
+                .joinToString(separator = "|")
+                .ifBlank { "default" }
+
+            return CqlSessionIdentity(keyspace, context)
+        }
+    }
+}
+
 object CqlSessionProvider: KLogging() {
 
-    private val sessionCache = ConcurrentHashMap<String, CqlSession>()
+    private val sessionCache = ConcurrentHashMap<CqlSessionIdentity, CqlSession>()
 
     val DEFAULT_CONTACT_POINT = InetSocketAddress("localhost", 9042)
     const val DEFAULT_LOCAL_DATACENTER = "datacenter1"
@@ -39,7 +78,12 @@ object CqlSessionProvider: KLogging() {
     }
 
     /**
-     * Keyspace 별로 [CqlSession]을 생성하도록 합니다. 이미 생성된 경우에는 캐시된 [CqlSession]을 반환합니다.
+     * Creates or reuses a [CqlSession] for the resolved connection identity.
+     *
+     * The compatibility overload no longer caches by keyspace alone. It derives a conservative
+     * per-call identity from the keyspace, builder supplier, and builder lambda to avoid silently
+     * reusing a session across different builder blocks. Use the [CqlSessionIdentity] overload when
+     * same-context reuse must remain stable across call sites.
      *
      * ```
      * val session = CqlSessionProvider.getOrCreateSession("keyspace") {
@@ -61,23 +105,47 @@ object CqlSessionProvider: KLogging() {
     ): CqlSession {
         keyspace.requireNotBlank("keyspace")
 
+        val sessionIdentity = toSessionIdentity(keyspace, builderSupplier, builder)
+
+        return resolveSession(sessionIdentity, builderSupplier, builder)
+    }
+
+    /**
+     * Creates or reuses a [CqlSession] with a caller-provided cache [identity].
+     *
+     * Use this overload when the builder is created outside [CqlSessionProvider] or when the caller
+     * needs to include additional tenant, credential, or routing state in the cache boundary.
+     */
+    fun getOrCreateSession(
+        identity: CqlSessionIdentity,
+        builderSupplier: () -> CqlSessionBuilder = { newCqlSessionBuilder() },
+        builder: CqlSessionBuilder.() -> Unit,
+    ): CqlSession {
+        return resolveSession(identity, builderSupplier, builder)
+    }
+
+    private fun resolveSession(
+        identity: CqlSessionIdentity,
+        builderSupplier: () -> CqlSessionBuilder,
+        builder: CqlSessionBuilder.() -> Unit,
+    ): CqlSession {
         // Cache may still contain closed sessions from previous runs.
-        // Drop them before resolving the requested keyspace session.
+        // Drop them before resolving the requested session identity.
         val closedSessions = sessionCache.filterValues { it.isClosed }
         closedSessions.forEach {
             sessionCache.remove(it.key)
         }
 
-        return sessionCache.computeIfAbsent(keyspace) { keyspace ->
-            log.info { "Creating new CqlSession for $keyspace" }
+        return sessionCache.computeIfAbsent(identity) {
+            log.info { "Creating new CqlSession for ${identity.keyspace} (${identity.context})" }
 
             // keyspace가 없을 수 있으므로, adminSession으로 신규 keyspace를 생성하도록 합니다.
             builderSupplier().build().use { adminSession ->
-                CassandraAdmin.createKeyspace(adminSession, keyspace)
+                CassandraAdmin.createKeyspace(adminSession, identity.keyspace)
             }
 
             builderSupplier()
-                .withKeyspace(keyspace)
+                .withKeyspace(identity.keyspace)
                 .apply(builder)
                 .build()
                 .also {
@@ -85,4 +153,23 @@ object CqlSessionProvider: KLogging() {
                 }
         }
     }
+
+}
+
+private fun toSessionIdentity(
+    keyspace: String,
+    builderSupplier: () -> CqlSessionBuilder,
+    builder: CqlSessionBuilder.() -> Unit,
+): CqlSessionIdentity {
+    return CqlSessionIdentity.of(
+        keyspace = keyspace,
+        contextParts = listOf(
+            "builderSupplier=${builderSupplier.cachePart()}",
+            "builder=${builder.cachePart()}",
+        ),
+    )
+}
+
+private fun Any.cachePart(): String {
+    return "${javaClass.name}@${System.identityHashCode(this)}"
 }
