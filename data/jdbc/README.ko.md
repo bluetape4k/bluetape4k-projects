@@ -451,10 +451,16 @@ dataSource.runQuery("SELECT * FROM users") { rs ->
 ### 15. 유틸리티 함수
 
 ```kotlin
-// isEmpty / isNotEmpty
+// 커서를 이동시키는 비어 있음 확인
 dataSource.runQuery("SELECT * FROM users WHERE 1=0") { rs ->
-    rs.isEmpty()    // true
-    rs.isNotEmpty() // false
+    rs.isEmptyByMovingCursor() // true; ResultSet.next()를 한 번 호출합니다.
+}
+
+dataSource.runQuery("SELECT * FROM users ORDER BY id") { rs ->
+    if (rs.isNotEmptyByMovingCursor()) {
+        // 커서는 이미 첫 번째 row에 위치합니다.
+        val firstId = rs.getInt("id")
+    }
 }
 
 // count
