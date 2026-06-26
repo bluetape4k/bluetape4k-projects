@@ -199,6 +199,11 @@ val users = databaseClient
     .fetch()
     .flow { row, _ -> /* mapping */ }
 
+// Map-based null binding must carry the database type explicitly.
+val nullableParameters = mapOf(
+    "description" to typedNullParameter<String>()
+)
+
 // Index-based parameter binding uses Spring R2DBC's zero-based indexes.
 val indexedParams = mapOf(
     0 to "john",

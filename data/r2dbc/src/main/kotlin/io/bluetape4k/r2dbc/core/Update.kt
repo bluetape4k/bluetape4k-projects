@@ -5,6 +5,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.r2dbc.R2dbcClient
 import io.bluetape4k.r2dbc.query.Query
 import io.bluetape4k.r2dbc.support.bindMap
+import io.bluetape4k.r2dbc.support.rawNullBindingException
 import io.bluetape4k.r2dbc.support.toParameter
 import org.springframework.data.r2dbc.core.ReactiveUpdateOperation
 import org.springframework.data.r2dbc.mapping.OutboundRow
@@ -278,9 +279,10 @@ internal class UpdateValuesSpecImpl(
     override fun set(parameters: Map<String, Any?>): UpdateValuesSpec =
         apply {
             parameters.forEach { (key, value) ->
+                val field = requireValidIdentifier(key)
                 when (value) {
-                    null -> setNullable<Any>(key, value)
-                    else -> set(key, value)
+                    null -> throw rawNullBindingException(field)
+                    else -> values[field] = value
                 }
             }
         }

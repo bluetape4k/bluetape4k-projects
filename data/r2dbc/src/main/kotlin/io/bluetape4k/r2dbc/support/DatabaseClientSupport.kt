@@ -8,10 +8,12 @@ import org.springframework.r2dbc.core.DatabaseClient
 private val log by lazy { KotlinLogging.logger {} }
 
 /**
- * Query의 named parameter 정보를 매핑합니다.
+ * Binds named query parameters from a map.
  *
- * Named parameter는 `:name` 형식으로 SQL에 지정하고, Map의 키로 파라미터 이름을 지정합니다.
- * null 값은 자동으로 NULL로 바인딩됩니다.
+ * Named parameters are referenced as `:name` in SQL and mapped by key.
+ * Raw null values are rejected because they do not carry R2DBC type
+ * information. Use [typedNullParameter] or an explicit `Parameter` value when
+ * binding nullable map entries.
  *
  * ```kotlin
  * val sql = "SELECT * FROM users WHERE username = :username AND active = :active"
@@ -32,14 +34,15 @@ private val log by lazy { KotlinLogging.logger {} }
  *     .all()
  * ```
  *
- * @param parameters named query parameters (파라미터 이름 -> 값)
- * @return 파라미터가 바인딩된 [DatabaseClient.GenericExecuteSpec]
+ * @param parameters named query parameters.
+ * @return [DatabaseClient.GenericExecuteSpec] with the parameters bound.
+ * @throws IllegalArgumentException when a map entry contains a raw null value.
  */
 fun DatabaseClient.GenericExecuteSpec.bindMap(parameters: Map<String, Any?>): DatabaseClient.GenericExecuteSpec =
     parameters.entries.fold(this) { spec, entry ->
         log.trace { "bind map. name=${entry.key}, value=${entry.value}" }
         when (val value = entry.value) {
-            null -> spec.bindNull(entry.key, String::class.java)
+            null -> throw rawNullBindingException(entry.key)
             else -> spec.bind(entry.key, value.toParameter())
         }
     }
@@ -49,7 +52,9 @@ fun DatabaseClient.GenericExecuteSpec.bindMap(parameters: Map<String, Any?>): Da
  *
  * Indexed parameters follow Spring R2DBC's zero-based binding contract. The first
  * positional parameter is index `0`, the second is index `1`, and so on.
- * Null values are bound as NULL with this helper's default String type.
+ * Raw null values are rejected because they do not carry R2DBC type
+ * information. Use [typedNullParameter] or an explicit `Parameter` value when
+ * binding nullable map entries.
  *
  * ```kotlin
  * val sql = "SELECT * FROM users WHERE username = ? AND active = ?"
@@ -73,13 +78,14 @@ fun DatabaseClient.GenericExecuteSpec.bindMap(parameters: Map<String, Any?>): Da
  * @param parameters indexed query parameters from zero-based index to value.
  * @return [DatabaseClient.GenericExecuteSpec] with the parameters bound.
  * @throws IllegalArgumentException when any index is negative.
+ * @throws IllegalArgumentException when a map entry contains a raw null value.
  */
 fun DatabaseClient.GenericExecuteSpec.bindIndexedMap(parameters: Map<Int, Any?>): DatabaseClient.GenericExecuteSpec =
     parameters.entries.fold(this) { spec, entry ->
         val index = entry.key.requireZeroOrPositiveNumber("index")
         log.trace { "bind indexed map. index=$index, value=${entry.value}" }
         when (val value = entry.value) {
-            null -> spec.bindNull(index, String::class.java)
+            null -> throw rawNullBindingException("index $index")
             else -> spec.bind(index, value.toParameter())
         }
     }

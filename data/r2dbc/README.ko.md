@@ -194,6 +194,11 @@ val users = databaseClient
     .fetch()
     .flow { row, _ -> /* mapping */ }
 
+// Map 기반 null 바인딩은 DB 타입을 명시해야 합니다.
+val nullableParameters = mapOf(
+    "description" to typedNullParameter<String>()
+)
+
 // 인덱스 기반 파라미터 바인딩은 Spring R2DBC의 0-based 인덱스를 사용합니다.
 val indexedParams = mapOf(
     0 to "john",
