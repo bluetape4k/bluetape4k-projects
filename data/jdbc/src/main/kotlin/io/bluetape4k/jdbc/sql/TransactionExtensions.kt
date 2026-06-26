@@ -1,35 +1,32 @@
 package io.bluetape4k.jdbc.sql
 
-import io.bluetape4k.logging.KotlinLogging
-import io.bluetape4k.logging.warn
 import java.sql.Connection
 import java.sql.SQLException
 
-@PublishedApi
-internal val log = KotlinLogging.logger {}
-
 /**
- * 데이터베이스 트랜잭션을 실행합니다.
+ * Executes [block] inside a JDBC transaction.
  *
- * 이 함수는 자동으로 트랜잭션을 시작하고, 블록 실행이 성공하면 커밋하고,
- * 예외가 발생하면 롤백합니다. 마지막에는 Connection을 자동으로 닫습니다.
+ * The connection's `autoCommit`, isolation level, and read-only flag are restored
+ * independently to their original values. Any [Throwable] from the block or
+ * commit path triggers rollback and is rethrown unchanged. Rollback or restore
+ * failures are attached as suppressed exceptions to the primary failure.
  *
- * [CancellationException][kotlinx.coroutines.CancellationException]은 catch 없이 그대로 전파됩니다.
- * rollback/상태복원 실패는 원래 예외에 suppressed로 기록하여 무시하지 않습니다.
+ * If the block and commit succeed but state restoration fails, the restore
+ * failure is thrown instead of returning a successful result.
  *
  * ```kotlin
  * dataSource.withTransaction { conn ->
  *     conn.executeUpdate("INSERT INTO users (name) VALUES ('Alice')")
  *     conn.executeUpdate("INSERT INTO logs (message) VALUES ('User created')")
- *     // 모든 작업이 성공하면 자동으로 커밋됩니다.
+ *     // Commits automatically when all operations succeed.
  * }
  * ```
  *
- * @param T 결과 타입
- * @param isolationLevel 트랜잭션 격리 수준 (기본값: [Connection.TRANSACTION_READ_COMMITTED])
- * @param block 트랜잭션 내에서 실행할 코드 블록
- * @return 블록의 실행 결과
- * @throws SQLException 트랜잭션 실행 중 오류 발생 시
+ * @param T result type.
+ * @param isolationLevel transaction isolation level to use while running [block].
+ * @param block code to execute in the transaction.
+ * @return result returned by [block].
+ * @throws SQLException when JDBC transaction, rollback, or restore operations fail.
  */
 inline fun <T> Connection.withTransaction(
     isolationLevel: Int = Connection.TRANSACTION_READ_COMMITTED,
@@ -37,6 +34,8 @@ inline fun <T> Connection.withTransaction(
 ): T {
     val originalAutoCommit = this.autoCommit
     val originalIsolationLevel = this.transactionIsolation
+    val originalReadOnly = this.isReadOnly
+    var primaryFailure: Throwable? = null
 
     return try {
         this.autoCommit = false
@@ -45,29 +44,34 @@ inline fun <T> Connection.withTransaction(
         val result = block(this)
         this.commit()
         result
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
+        primaryFailure = e
         try {
             this.rollback()
-        } catch (rollbackEx: SQLException) {
-            // 롤백 실패 시 원래 예외에 추가 정보로 기록하여 무시하지 않음
+        } catch (rollbackEx: Throwable) {
             e.addSuppressed(rollbackEx)
         }
         throw e
     } finally {
-        // 원래 상태로 복원 실패 시에도 로그를 남겨 무시하지 않음
-        try {
-            this.autoCommit = originalAutoCommit
-            this.transactionIsolation = originalIsolationLevel
-        } catch (e: SQLException) {
-            log.warn(e) { "트랜잭션 상태 복원 실패 (autoCommit=$originalAutoCommit, isolationLevel=$originalIsolationLevel)" }
+        val restoreFailure =
+            restoreTransactionState(
+                originalAutoCommit = originalAutoCommit,
+                originalIsolationLevel = originalIsolationLevel,
+                originalReadOnly = originalReadOnly,
+            )
+
+        if (restoreFailure != null) {
+            primaryFailure?.addSuppressed(restoreFailure) ?: throw restoreFailure
         }
     }
 }
 
 /**
- * 읽기 전용 트랜잭션을 실행합니다.
+ * Executes [block] inside a read-only JDBC transaction.
  *
- * 이 함수는 읽기 작업에 최적화된 설정으로 트랜잭션을 실행합니다.
+ * The connection's original read-only flag is restored by [withTransaction], so
+ * callers that provide an already read-only connection keep that state after the
+ * transaction finishes.
  *
  * ```kotlin
  * val users = dataSource.withReadOnlyTransaction { conn ->
@@ -77,10 +81,10 @@ inline fun <T> Connection.withTransaction(
  * }
  * ```
  *
- * @param T 결과 타입
- * @param isolationLevel 트랜잭션 격리 수준 (기본값: [Connection.TRANSACTION_READ_COMMITTED])
- * @param block 트랜잭션 내에서 실행할 코드 블록
- * @return 블록의 실행 결과
+ * @param T result type.
+ * @param isolationLevel transaction isolation level to use while running [block].
+ * @param block code to execute in the read-only transaction.
+ * @return result returned by [block].
  */
 inline fun <T> Connection.withReadOnlyTransaction(
     isolationLevel: Int = Connection.TRANSACTION_READ_COMMITTED,
@@ -88,12 +92,46 @@ inline fun <T> Connection.withReadOnlyTransaction(
 ): T =
     withTransaction(isolationLevel) { conn ->
         conn.isReadOnly = true
-        try {
-            block(conn)
-        } finally {
-            conn.isReadOnly = false
+        block(conn)
+    }
+
+@PublishedApi
+internal fun Connection.restoreTransactionState(
+    originalAutoCommit: Boolean,
+    originalIsolationLevel: Int,
+    originalReadOnly: Boolean,
+): Throwable? {
+    var failure: Throwable? = null
+
+    fun recordFailure(restoreFailure: Throwable) {
+        val current = failure
+        if (current == null) {
+            failure = restoreFailure
+        } else {
+            current.addSuppressed(restoreFailure)
         }
     }
+
+    try {
+        this.autoCommit = originalAutoCommit
+    } catch (e: Throwable) {
+        recordFailure(e)
+    }
+
+    try {
+        this.transactionIsolation = originalIsolationLevel
+    } catch (e: Throwable) {
+        recordFailure(e)
+    }
+
+    try {
+        this.isReadOnly = originalReadOnly
+    } catch (e: Throwable) {
+        recordFailure(e)
+    }
+
+    return failure
+}
 
 /**
  * 지정된 격리 수준으로 트랜잭션을 실행합니다.
