@@ -70,6 +70,25 @@ configurations {
     create("testJar")
 }
 
+val consumerRuntimeTest by sourceSets.creating {
+    compileClasspath += sourceSets.main.get().output + configurations.runtimeClasspath.get()
+    runtimeClasspath += output + compileClasspath
+}
+
+val consumerRuntimeTestImplementation by configurations.getting
+
+tasks.register<Test>("consumerRuntimeTest") {
+    description = "Runs Hibernate converter smoke tests with the published runtime classpath."
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+
+    testClassesDirs = consumerRuntimeTest.output.classesDirs
+    classpath = consumerRuntimeTest.runtimeClasspath
+    useJUnitPlatform()
+}
+
+tasks.named("check") {
+    dependsOn("consumerRuntimeTest")
+}
 
 // 테스트 코드를 Jar로 만들어서 다른 프로젝트에서 참조할 수 있도록 합니다.
 tasks.register<Jar>("testJar") {
@@ -115,18 +134,16 @@ dependencies {
 
     // Converter
     // compileOnly(project(":bluetape4k-crypto"))
-    compileOnly(project(":bluetape4k-tink"))
-    compileOnly(project(":bluetape4k-jackson3"))
-    compileOnly(libs.jackson3.module.kotlin)
-    compileOnly(libs.jackson3.module.blackbird)
+    api(project(":bluetape4k-tink"))
+    api(project(":bluetape4k-jackson3"))
 
-    compileOnly(libs.kryo)
-    compileOnly(libs.fory.kotlin)  // new Apache Fory
+    runtimeOnly(libs.kryo)
+    runtimeOnly(libs.fory.kotlin)  // new Apache Fory
 
-    testImplementation(libs.commons.compress)
-    testImplementation(libs.snappy.java)
-    testImplementation(libs.lz4.java)
-    testImplementation(libs.zstd.jni)
+    runtimeOnly(libs.commons.compress)
+    runtimeOnly(libs.snappy.java)
+    runtimeOnly(libs.lz4.java)
+    runtimeOnly(libs.zstd.jni)
 
     api(project(":bluetape4k-idgenerators"))
     api(libs.java.uuid.generator)
@@ -160,4 +177,6 @@ dependencies {
 
     // JDBC 와 같이 사용
     testImplementation(project(":bluetape4k-jdbc"))
+
+    consumerRuntimeTestImplementation(project(":bluetape4k-junit5"))
 }

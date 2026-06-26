@@ -31,18 +31,14 @@ dependencies {
 
     // Querydsl (optional)
     implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
-
-    // Encryption converter (Google Tink)
-    compileOnly("io.github.bluetape4k:bluetape4k-tink:${version}")
-
-    // JSON converter
-    compileOnly("io.github.bluetape4k:bluetape4k-jackson2:${version}")
-
-    // Serialization converter (Kryo or Apache Fory)
-    compileOnly("com.esotericsoftware:kryo:5.6.2")
-    compileOnly("org.apache.fury:fury-kotlin:0.10.0")
 }
 ```
+
+Built-in converter runtime dependencies are part of the `bluetape4k-hibernate` artifact contract.
+Consumers do not need separate `compileOnly` declarations for the documented Tink, Jackson3, Kryo,
+Apache Fory, LZ4, Snappy, Zstd, or Commons Compress converter paths. If a slim deployment excludes
+transitive runtime dependencies, keep the converter engine used by your entity mappings on the runtime
+classpath.
 
 > **Retired Spring Boot 3 integration note**: Historical tests combining Hibernate 7.x with Spring Boot 3.x remain disabled because Spring Boot 3's `SpringBeanContainer` implements the Hibernate 5 API. Current bluetape4k Spring modules target Spring Boot 4 / Spring Framework 7 for Hibernate 7.x compatibility. See `DisabledWithHibernate7AndSpringBoot3` in the test suite for the archived guard.
 
