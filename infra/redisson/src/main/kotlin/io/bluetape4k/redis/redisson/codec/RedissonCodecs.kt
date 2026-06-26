@@ -375,34 +375,38 @@ object RedissonCodecs: KLogging() {
     // -------------------------------------------------------------------------
 
     /**
-     * `allowedPackagePrefixes`를 지정한 안전한 Jackson 3 JSON Codec을 생성합니다.
+     * Creates an allow-listed Jackson 3 JSON codec.
      *
-     * 외부에 노출된 Redis 또는 보안 요구사항이 있는 환경에서 [Jackson3] 싱글턴 대신 사용하십시오.
-     * 지정한 prefix에 속하지 않는 클래스 이름이 역직렬화 요청되면 [SecurityException]이 발생합니다.
+     * Use this factory instead of [Jackson3] for exposed Redis boundaries or multi-tenant data.
+     * Decode rejects class names outside [allowedPackagePrefixes], and fallback binary decode is
+     * disabled so non-JSON payloads cannot bypass the allow-list.
      *
      * ```kotlin
      * val codec = RedissonCodecs.jackson3(setOf("com.mycompany.", "io.bluetape4k."))
      * config.codec = codec
      * ```
      *
-     * @param allowedPackagePrefixes 허용할 패키지 prefix 집합 (예: `setOf("com.mycompany.", "io.bluetape4k.")`)
+     * @param allowedPackagePrefixes allowed package prefixes, for example
+     * `setOf("com.mycompany.", "io.bluetape4k.")`.
      */
     @JvmStatic
     fun jackson3(allowedPackagePrefixes: Set<String>): Codec =
         Jackson3Codec(allowedPackagePrefixes = allowedPackagePrefixes)
 
     /**
-     * `allowedPackagePrefixes`를 지정한 안전한 Fastjson2 JSONB Codec을 생성합니다.
+     * Creates an allow-listed Fastjson2 JSONB codec.
      *
-     * 외부에 노출된 Redis 또는 보안 요구사항이 있는 환경에서 [Fastjson2] 싱글턴 대신 사용하십시오.
-     * 지정한 prefix에 속하지 않는 AutoType 클래스 역직렬화 요청 시 [SecurityException]이 발생합니다.
+     * Use this factory instead of [Fastjson2] for exposed Redis boundaries or multi-tenant data.
+     * Decode rejects class names outside [allowedPackagePrefixes], and fallback binary decode is
+     * disabled so non-JSONB payloads cannot bypass the allow-list.
      *
      * ```kotlin
      * val codec = RedissonCodecs.fastjson2(setOf("com.mycompany.", "io.bluetape4k."))
      * config.codec = codec
      * ```
      *
-     * @param allowedPackagePrefixes 허용할 패키지 prefix 집합 (예: `setOf("com.mycompany.", "io.bluetape4k.")`)
+     * @param allowedPackagePrefixes allowed package prefixes, for example
+     * `setOf("com.mycompany.", "io.bluetape4k.")`.
      */
     @JvmStatic
     fun fastjson2(allowedPackagePrefixes: Set<String>): Codec =

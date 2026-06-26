@@ -2,11 +2,11 @@ package io.bluetape4k.redis.redisson.codec
 
 import io.bluetape4k.logging.KLogging
 import io.netty.buffer.Unpooled
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 @DisplayName("Jackson3Codec encode/decode & security")
 class Jackson3CodecTest {
@@ -90,6 +90,59 @@ class Jackson3CodecTest {
                 // fallback(Fory)이 원본을 복원하거나 실패해도 프로세스 예외가 전파되지 않아야 한다.
                 runCatching { jackson3Codec.valueDecoder.decode(wrapped, null) }
                     .isSuccess.shouldNotBeNull()
+            } finally {
+                wrapped.release()
+            }
+        } finally {
+            foryEncodedBuf.release()
+        }
+    }
+
+    @Test
+    fun `allowedPackagePrefixes 가 지정된 Jackson3Codec 은 binary fallback payload 를 거부한다`() {
+        val fallbackCodec = RedissonCodecs.Fory
+        val jackson3Codec = Jackson3Codec(
+            fallbackCodec = fallbackCodec,
+            allowedPackagePrefixes = setOf("io.bluetape4k."),
+        )
+
+        val original = Sample(99L, "blocked-fallback", listOf("x", "y"))
+        val foryEncodedBuf = fallbackCodec.valueEncoder.encode(original)
+        try {
+            val foryBytes = ByteArray(foryEncodedBuf.readableBytes())
+            foryEncodedBuf.getBytes(foryEncodedBuf.readerIndex(), foryBytes)
+
+            val wrapped = Unpooled.wrappedBuffer(foryBytes)
+            try {
+                assertFailsWith<SecurityException> {
+                    jackson3Codec.valueDecoder.decode(wrapped, null)
+                }
+            } finally {
+                wrapped.release()
+            }
+        } finally {
+            foryEncodedBuf.release()
+        }
+    }
+
+    @Test
+    fun `trusted migration mode 의 Jackson3Codec 은 allowlist 와 함께 binary fallback payload 를 허용한다`() {
+        val fallbackCodec = RedissonCodecs.Fory
+        val jackson3Codec = Jackson3Codec(
+            fallbackCodec = fallbackCodec,
+            allowedPackagePrefixes = setOf("io.bluetape4k."),
+            allowFallbackDecode = true,
+        )
+
+        val original = Sample(100L, "migration", listOf("legacy"))
+        val foryEncodedBuf = fallbackCodec.valueEncoder.encode(original)
+        try {
+            val foryBytes = ByteArray(foryEncodedBuf.readableBytes())
+            foryEncodedBuf.getBytes(foryEncodedBuf.readerIndex(), foryBytes)
+
+            val wrapped = Unpooled.wrappedBuffer(foryBytes)
+            try {
+                jackson3Codec.valueDecoder.decode(wrapped, null) shouldBeEqualTo original
             } finally {
                 wrapped.release()
             }

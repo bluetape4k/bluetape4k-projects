@@ -13,43 +13,46 @@ import org.redisson.client.protocol.Decoder
 import org.redisson.client.protocol.Encoder
 
 /**
- * Fastjson2 JSONB 포맷으로 직렬화/역직렬화를 수행하는 Redisson [Codec] 구현체입니다.
+ * Redisson [Codec] implementation for Fastjson2 JSONB values.
  *
- * ## 직렬화 포맷
- * 다음 구조의 바이트 배열로 인코딩합니다:
+ * ## Wire format
+ *
+ * Encodes values as:
  * ```
- * [4바이트 big-endian: className 길이] + [className UTF-8 바이트] + [JSONB 바이트]
+ * [4-byte big-endian className length] + [className UTF-8 bytes] + [JSONB bytes]
  * ```
- * 클래스 이름을 헤더에 저장하고, JSONB는 명시적 타입(`JSONB.parseObject(bytes, clazz)`)으로 디코딩합니다.
- * `WriteClassName`/`SupportAutoType`의 TYPED_ANY 제한을 우회하며 모든 중첩 타입을 올바르게 복원합니다.
  *
- * 이 포맷은 [io.bluetape4k.fastjson2.FastjsonSerializer]와 **비호환**입니다. 혼용 시 역직렬화 오류가 발생합니다.
+ * The class name is validated before class loading, then JSONB is decoded with an explicit target type.
+ * This wire format is not compatible with [io.bluetape4k.fastjson2.FastjsonSerializer].
  *
- * ## 역직렬화 보안 (Pre-instantiation 검증)
- * 역직렬화는 헤더에서 읽은 클래스 이름을 [validateClassName]으로 검사한 뒤 클래스를 로드합니다.
- * [allowedPackagePrefixes]에 포함되지 않은 클래스는 로드 전에 [SecurityException]을 던집니다.
+ * ## Trust boundary
  *
- * ## 보안 경고
- * - `allowedPackagePrefixes = null`이면 모든 클래스를 허용합니다 (**신뢰된 내부 Redis 환경에서만 사용**).
- * - 외부에 노출된 Redis 또는 다중 테넌트 환경에서는 [allowedPackagePrefixes]를 반드시 지정하십시오:
+ * - `allowedPackagePrefixes = null` allows all class names and keeps fallback decode enabled.
+ * - Set [allowedPackagePrefixes] for exposed or multi-tenant Redis boundaries.
+ * - When [allowedPackagePrefixes] is set, fallback decode is disabled by default so non-JSONB binary
+ *   payloads cannot bypass the allow-list. Set [allowFallbackDecode] only for trusted migration reads.
+ *
+ * Example:
  *   ```kotlin
  *   val codec = Fastjson2Codec(allowedPackagePrefixes = setOf("com.mycompany.", "io.bluetape4k."))
- *   // 또는 factory 사용:
  *   val codec = RedissonCodecs.fastjson2(setOf("com.mycompany.", "io.bluetape4k."))
  *   ```
  *
- * ## 제한사항
- * - 루트 타입이 `List`, `Map` 등 컬렉션인 경우 원소 타입 정보가 소실됩니다. DTO 래퍼로 감싸서 사용하십시오.
- * - 직렬화/역직렬화 실패 시 [fallbackCodec]으로 자동 전환합니다.
+ * ## Limitations
  *
- * @property fallbackCodec 직렬화/역직렬화 실패 시 사용할 대체 Codec (기본값: [RedissonCodecs.Fory])
- * @property classLoader 역직렬화 시 사용할 [ClassLoader] (Redisson 동적 생성용)
- * @property allowedPackagePrefixes 허용할 패키지 prefix 목록. null이면 모든 클래스 허용 (보안 주의)
+ * Root collection element types are not preserved. Wrap collections in DTOs when element type fidelity
+ * matters.
+ *
+ * @property fallbackCodec fallback codec used for encode failures and trusted decode migrations.
+ * @property classLoader class loader used by Redisson dynamic codec copies.
+ * @property allowedPackagePrefixes package prefixes allowed before class loading, or null for trusted internal use.
+ * @property allowFallbackDecode whether decode can fall back to [fallbackCodec] after JSONB envelope failure.
  */
 class Fastjson2Codec(
     private val fallbackCodec: Codec = RedissonCodecs.Fory,
     private val classLoader: ClassLoader? = null,
     private val allowedPackagePrefixes: Set<String>? = null,
+    private val allowFallbackDecode: Boolean = allowedPackagePrefixes == null,
 ): BaseCodec() {
 
     @Suppress("UNUSED_PARAMETER")
@@ -59,6 +62,7 @@ class Fastjson2Codec(
         copy(classLoader, codec.fallbackCodec),
         classLoader,
         codec.allowedPackagePrefixes,
+        codec.allowFallbackDecode,
     )
 
     companion object: KLogging()
@@ -115,6 +119,13 @@ class Fastjson2Codec(
         } catch (e: SecurityException) {
             throw e
         } catch (e: Exception) {
+            if (!allowFallbackDecode) {
+                throw SecurityException(
+                    "Fastjson2Codec fallback decode is disabled for allow-listed JSONB payloads. " +
+                        "Rejecting non-Fastjson2 binary payload.",
+                    e,
+                )
+            }
             log.info(e) { "Decoding failed for Fastjson2Codec. Using fallbackCodec[$fallbackCodec]" }
             val fallbackBuf = Unpooled.wrappedBuffer(bytes)
             try {
@@ -129,5 +140,9 @@ class Fastjson2Codec(
     override fun getValueDecoder(): Decoder<Any> = decoder
 
     override fun toString(): String =
-        "Fastjson2Codec(fallback=${fallbackCodec.javaClass.simpleName}, allowedPrefixes=$allowedPackagePrefixes)"
+        "Fastjson2Codec(" +
+            "fallback=${fallbackCodec.javaClass.simpleName}, " +
+            "allowedPrefixes=$allowedPackagePrefixes, " +
+            "allowFallbackDecode=$allowFallbackDecode" +
+            ")"
 }
