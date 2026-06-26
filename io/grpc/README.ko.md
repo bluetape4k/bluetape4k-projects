@@ -33,6 +33,7 @@ gRPC 서버/클라이언트 구현을 위한 Kotlin 확장 라이브러리입니
 - **gRPC 클라이언트 추상화**: 채널 관리 및 호출
 - **In-process 서버/클라이언트**: 테스트용 인메모리 통신
 - **인터셉터 지원**: 서버 인터셉터 보조
+- **안전한 클라이언트 기본값**: host/port 클라이언트 생성자는 기본적으로 transport security를 사용하고, plaintext는 local/test 용도로 명시적으로만 선택
 - **입력 검증**: host/target/name 은 blank를 허용하지 않고 port 는 `1..65535` 범위를 즉시 검증
 
 ## 사용 예시
@@ -73,30 +74,30 @@ server.blockUntilShutdown()
 
 ```kotlin
 import io.bluetape4k.grpc.AbstractGrpcClient
+import io.bluetape4k.grpc.GrpcChannelSecurity
 
 class MyGrpcClient(
-    private val host: String = "localhost",
-    private val port: Int = 50051
-): AbstractGrpcClient() {
+    host: String,
+    port: Int,
+    channelSecurity: GrpcChannelSecurity = GrpcChannelSecurity.TRANSPORT_SECURITY,
+): AbstractGrpcClient(host, port, channelSecurity) {
 
-    private lateinit var channel: ManagedChannel
-    private lateinit var stub: MyServiceGrpc.MyServiceBlockingStub
-
-    override fun connect() {
-        channel = ManagedChannelBuilder.forAddress(host, port)
-            .usePlaintext()
-            .build()
-        stub = MyServiceGrpc.newBlockingStub(channel)
-    }
-
-    override fun close() {
-        channel.shutdown()
-    }
+    private val stub = MyServiceGrpc.newBlockingStub(channel)
 
     fun doSomething(request: Request): Response {
         return stub.doSomething(request)
     }
 }
+
+// 운영 또는 공유 인프라: transport security가 기본값입니다.
+val productionClient = MyGrpcClient("api.example.com", 443)
+
+// local/test plaintext는 명시적으로 선택해야 하며 loopback host로 제한됩니다.
+val localTestClient = MyGrpcClient(
+    host = "localhost",
+    port = 50051,
+    channelSecurity = GrpcChannelSecurity.LOCAL_PLAINTEXT,
+)
 ```
 
 ### 3. In-process 서버/클라이언트 (테스트용)

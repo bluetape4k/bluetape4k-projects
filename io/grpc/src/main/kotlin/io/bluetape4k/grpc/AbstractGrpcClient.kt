@@ -10,31 +10,42 @@ import java.io.Closeable
 import java.util.concurrent.TimeUnit
 
 /**
- * [ManagedChannel] 수명주기를 관리하는 gRPC 클라이언트 베이스 클래스입니다.
+ * Base gRPC client that owns a [ManagedChannel] lifecycle.
  *
- * ## 동작/계약
- * - 기본 생성자는 `localhost:50051` 채널을 생성합니다.
- * - [close]는 채널이 살아 있으면 `shutdown + awaitTermination(5s)`를 수행합니다.
- * - 종료 실패 예외는 내부에서 무시됩니다.
+ * ## Contract
+ * - The host/port constructor uses [GrpcChannelSecurity.TRANSPORT_SECURITY] by default.
+ * - Plaintext channels require explicit [GrpcChannelSecurity.LOCAL_PLAINTEXT] opt-in and are limited to loopback hosts.
+ * - [close] calls `shutdown + awaitTermination(5s)` while the channel is alive.
+ * - Shutdown failures are swallowed after logging the shutdown attempt.
  *
  * ```kotlin
- * client.close()
- * // channel.isShutdown == true
+ * val channel = ManagedChannelBuilder.forAddress("api.example.com", 443)
+ *     .useTransportSecurity()
+ *     .build()
+ * val client = object: AbstractGrpcClient(channel) {}
  * ```
  */
 abstract class AbstractGrpcClient(
     protected val channel: ManagedChannel,
 ): Closeable {
 
-    constructor(host: String = DEFAULT_HOST, port: Int = DEFAULT_PORT): this(buildForAddress(host, port))
+    constructor(
+        host: String = DEFAULT_HOST,
+        port: Int = DEFAULT_PORT,
+        channelSecurity: GrpcChannelSecurity = GrpcChannelSecurity.TRANSPORT_SECURITY,
+    ): this(buildForAddress(host, port, channelSecurity))
 
     companion object: KLogging() {
         const val DEFAULT_HOST = "localhost"
         const val DEFAULT_PORT = 50051
 
-        private fun buildForAddress(host: String, port: Int): ManagedChannel =
+        private fun buildForAddress(
+            host: String,
+            port: Int,
+            channelSecurity: GrpcChannelSecurity,
+        ): ManagedChannel =
             managedChannel(host, port) {
-                usePlaintext()
+                applyGrpcChannelSecurity(channelSecurity, host)
                 executor(Dispatchers.IO.asExecutor())
             }
     }
