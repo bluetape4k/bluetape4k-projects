@@ -395,9 +395,22 @@ class UserData {
 - `AESStringConverter`: AES-256-GCM (비결정적, 매번 다른 암호문)
 - `DeterministicAESStringConverter`: AES-256-SIV (결정적, 동일 평문 → 동일 암호문, WHERE 절 조회 가능)
 
+암호화된 엔티티 필드는 외부에 보존된 Tink key material이 필요합니다. 기본 컨버터는 애플리케이션
+부트스트랩에서 `EncryptedStringConverterKeysets`를 설정하기 전까지 non-null 값을 처리할 때 즉시 실패합니다.
+영속 컬럼에는 프로세스 안에서 새로 생성한 keyset을 사용하지 마세요. 한 keyset으로 저장한 암호문은 재시작 후
+다른 keyset이나 다른 애플리케이션 인스턴스에서 복호화할 수 없습니다.
+
 ```kotlin
 import io.bluetape4k.hibernate.converters.AESStringConverter
 import io.bluetape4k.hibernate.converters.DeterministicAESStringConverter
+import io.bluetape4k.hibernate.converters.EncryptedStringConverterKeysets
+
+fun configureHibernateEncryption() {
+    // 보호된 외부 secret 저장소에서 JSON keyset을 읽어오세요.
+    // cleartext keyset JSON은 암호화 키 자체이므로 커밋하거나 로그로 남기면 안 됩니다.
+    EncryptedStringConverterKeysets.configureAesKeyset(System.getenv("HIBERNATE_AES_GCM_KEYSET_JSON"))
+    EncryptedStringConverterKeysets.configureDeterministicKeyset(System.getenv("HIBERNATE_AES_SIV_KEYSET_JSON"))
+}
 
 @Entity
 class SecureData {

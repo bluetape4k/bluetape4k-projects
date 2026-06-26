@@ -2,12 +2,20 @@ package io.bluetape4k.hibernate.converter
 
 import io.bluetape4k.hibernate.converters.AESStringConverter
 import io.bluetape4k.hibernate.converters.DeterministicAESStringConverter
+import io.bluetape4k.hibernate.converters.EncryptedStringConverterKeysets
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.tink.aeadKeysetHandle
+import io.bluetape4k.tink.daeadKeysetHandle
+import io.bluetape4k.tink.keyset.toJsonKeyset
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.security.GeneralSecurityException
 
 /**
  * [AESStringConverter]와 [DeterministicAESStringConverter]에 대한 단위 테스트입니다.
@@ -18,6 +26,34 @@ class EncryptedStringConverterTest {
 
     private val aesConverter = AESStringConverter()
     private val deterministicConverter = DeterministicAESStringConverter()
+
+    @BeforeEach
+    fun beforeEach() {
+        configurePersistentKeysets()
+    }
+
+    @AfterEach
+    fun afterEach() {
+        EncryptedStringConverterKeysets.resetForTesting()
+    }
+
+    @Test
+    fun `AESStringConverter는 명시적 key material 없이는 암호화하지 않는다`() {
+        EncryptedStringConverterKeysets.resetForTesting()
+
+        assertFailsWith<IllegalStateException> {
+            AESStringConverter().convertToDatabaseColumn("secret")
+        }
+    }
+
+    @Test
+    fun `DeterministicAESStringConverter는 명시적 key material 없이는 암호화하지 않는다`() {
+        EncryptedStringConverterKeysets.resetForTesting()
+
+        assertFailsWith<IllegalStateException> {
+            DeterministicAESStringConverter().convertToDatabaseColumn("secret")
+        }
+    }
 
     @Test
     fun `AESStringConverter는 문자열을 암호화하고 복호화한다`() {
@@ -114,5 +150,60 @@ class EncryptedStringConverterTest {
 
         val decrypted = deterministicConverter.convertToEntityAttribute(encrypted)
         decrypted shouldBeEqualTo plainText
+    }
+
+    @Test
+    fun `AESStringConverter는 저장된 key material 로 converter instance 사이에서 복호화한다`() {
+        val keysetJson = aeadKeysetHandle().toJsonKeyset()
+        EncryptedStringConverterKeysets.configureAesKeyset(keysetJson)
+        val encrypted = AESStringConverter().convertToDatabaseColumn("restart-safe secret")
+
+        EncryptedStringConverterKeysets.resetForTesting()
+        EncryptedStringConverterKeysets.configureAesKeyset(keysetJson)
+
+        AESStringConverter().convertToEntityAttribute(encrypted) shouldBeEqualTo "restart-safe secret"
+    }
+
+    @Test
+    fun `AESStringConverter는 다른 key material 로 저장된 암호문을 복호화하지 못한다`() {
+        EncryptedStringConverterKeysets.configureAesKeyset(aeadKeysetHandle().toJsonKeyset())
+        val encrypted = AESStringConverter().convertToDatabaseColumn("restart-unsafe secret")
+
+        EncryptedStringConverterKeysets.resetForTesting()
+        EncryptedStringConverterKeysets.configureAesKeyset(aeadKeysetHandle().toJsonKeyset())
+
+        assertFailsWith<GeneralSecurityException> {
+            AESStringConverter().convertToEntityAttribute(encrypted)
+        }
+    }
+
+    @Test
+    fun `DeterministicAESStringConverter는 저장된 key material 로 converter instance 사이에서 복호화한다`() {
+        val keysetJson = daeadKeysetHandle().toJsonKeyset()
+        EncryptedStringConverterKeysets.configureDeterministicKeyset(keysetJson)
+        val encrypted = DeterministicAESStringConverter().convertToDatabaseColumn("lookup-safe secret")
+
+        EncryptedStringConverterKeysets.resetForTesting()
+        EncryptedStringConverterKeysets.configureDeterministicKeyset(keysetJson)
+
+        DeterministicAESStringConverter().convertToEntityAttribute(encrypted) shouldBeEqualTo "lookup-safe secret"
+    }
+
+    @Test
+    fun `DeterministicAESStringConverter는 다른 key material 로 저장된 암호문을 복호화하지 못한다`() {
+        EncryptedStringConverterKeysets.configureDeterministicKeyset(daeadKeysetHandle().toJsonKeyset())
+        val encrypted = DeterministicAESStringConverter().convertToDatabaseColumn("lookup-unsafe secret")
+
+        EncryptedStringConverterKeysets.resetForTesting()
+        EncryptedStringConverterKeysets.configureDeterministicKeyset(daeadKeysetHandle().toJsonKeyset())
+
+        assertFailsWith<GeneralSecurityException> {
+            DeterministicAESStringConverter().convertToEntityAttribute(encrypted)
+        }
+    }
+
+    private fun configurePersistentKeysets() {
+        EncryptedStringConverterKeysets.configureAesKeyset(aeadKeysetHandle().toJsonKeyset())
+        EncryptedStringConverterKeysets.configureDeterministicKeyset(daeadKeysetHandle().toJsonKeyset())
     }
 }

@@ -394,13 +394,24 @@ class UserData {
 AES encryption converters based on [Google Tink](https://github.com/google/tink).
 
 - `AESStringConverter`: AES-256-GCM (non-deterministic; ciphertext differs each time)
--
+- `DeterministicAESStringConverter`: AES-256-SIV (deterministic; same plaintext → same ciphertext, supports WHERE clause lookups)
 
-`DeterministicAESStringConverter`: AES-256-SIV (deterministic; same plaintext → same ciphertext, supports WHERE clause lookups)
+Encrypted entity fields require externally persisted Tink key material. The built-in converters fail fast for
+non-null values until `EncryptedStringConverterKeysets` has been configured during application bootstrap. Do not use
+process-local generated keysets for persisted columns: ciphertext written with one generated keyset cannot be read
+after restart or by another application instance.
 
 ```kotlin
 import io.bluetape4k.hibernate.converters.AESStringConverter
 import io.bluetape4k.hibernate.converters.DeterministicAESStringConverter
+import io.bluetape4k.hibernate.converters.EncryptedStringConverterKeysets
+
+fun configureHibernateEncryption() {
+    // Load these JSON keysets from a protected external secret store.
+    // Cleartext keyset JSON is secret key material; do not commit it or log it.
+    EncryptedStringConverterKeysets.configureAesKeyset(System.getenv("HIBERNATE_AES_GCM_KEYSET_JSON"))
+    EncryptedStringConverterKeysets.configureDeterministicKeyset(System.getenv("HIBERNATE_AES_SIV_KEYSET_JSON"))
+}
 
 @Entity
 class SecureData {

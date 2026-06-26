@@ -1,10 +1,16 @@
 package io.bluetape4k.hibernate
 
+import io.bluetape4k.hibernate.converters.EncryptedStringConverterKeysets
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.tink.aeadKeysetHandle
+import io.bluetape4k.tink.daeadKeysetHandle
+import io.bluetape4k.tink.keyset.toJsonKeyset
 import jakarta.persistence.EntityManager
 import jakarta.persistence.EntityManagerFactory
 import net.datafaker.Faker
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
@@ -69,6 +75,17 @@ abstract class AbstractHibernateTest {
 
     protected val em: EntityManager get() = tem.entityManager
     protected val emf: EntityManagerFactory get() = em.entityManagerFactory
+
+    @BeforeEach
+    fun configureEncryptedStringConverters() {
+        EncryptedStringConverterKeysets.configureAesKeyset(aeadKeysetHandle().toJsonKeyset())
+        EncryptedStringConverterKeysets.configureDeterministicKeyset(daeadKeysetHandle().toJsonKeyset())
+    }
+
+    @AfterEach
+    fun resetEncryptedStringConverters() {
+        EncryptedStringConverterKeysets.resetForTesting()
+    }
 
     protected fun clear() {
         tem.clear()
