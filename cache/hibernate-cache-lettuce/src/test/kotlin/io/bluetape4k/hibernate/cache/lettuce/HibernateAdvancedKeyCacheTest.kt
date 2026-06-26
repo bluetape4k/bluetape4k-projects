@@ -4,15 +4,23 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.cache.nearcache.LettuceNearCache
+import io.bluetape4k.cache.nearcache.LettuceNearCacheConfig
 import io.bluetape4k.hibernate.cache.lettuce.model.CompositePerson
 import io.bluetape4k.hibernate.cache.lettuce.model.CompositePersonId
 import io.bluetape4k.hibernate.cache.lettuce.model.NaturalUser
 import io.bluetape4k.hibernate.cache.lettuce.model.Person
+import io.lettuce.core.RedisClient
+import io.lettuce.core.codec.StringCodec
 import org.hibernate.KeyType
+import org.hibernate.cache.internal.BasicCacheKeyImplementation
+import org.hibernate.cache.internal.NaturalIdCacheKey
 import org.hibernate.cache.spi.RegionFactory
+import org.hibernate.engine.spi.SharedSessionContractImplementor
 import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.io.Serializable
 
 class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
 
@@ -29,7 +37,7 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
     }
 
     @Test
-    fun `composite id entity는 2nd level cache를 사용하고 Redis key는 문자열이다`() {
+    fun `composite id entity는 2nd level cache를 사용하고 Redis key는 digest 문자열이다`() {
         val id = CompositePersonId(companyCode = "ACME", employeeNo = 1001L)
 
         sessionFactory.openSession().use { session ->
@@ -59,11 +67,11 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
         val redisKeys = redisKeys("$regionName:*")
 
         redisKeys.size shouldBeGreaterThan 0
-        redisKeys.any { it.contains("[ACME, 1001]") }.shouldBeTrue()
+        redisKeys.any { it.contains("hck2:") }.shouldBeTrue()
     }
 
     @Test
-    fun `natural-id cache는 hit를 만들고 Redis key는 NaturalId 문자열 표현을 사용한다`() {
+    fun `natural-id cache는 hit를 만들고 Redis key는 digest 문자열을 사용한다`() {
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
             session.persist(
@@ -98,12 +106,56 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
             regionFactory.getCaches().keys.first { it.contains("##NaturalId") || it.contains("NaturalUser") }
         val redisKeys = redisKeys("$regionName:*")
 
-        redisKeys.any { key -> key.contains("##NaturalId[") }.shouldBeTrue()
-        redisKeys.any { key -> key.contains("natural@example.com") }.shouldBeTrue()
+        redisKeys.any { key -> key.contains("hck2:") }.shouldBeTrue()
     }
 
     @Test
-    fun `update timestamps cache도 문자열 key를 사용한다`() {
+    fun `natural-id delimiter value와 composite arity는 같은 cache key로 충돌하지 않는다`() {
+        withStorageAccess("natural-id-collision-${System.nanoTime()}") { cacheName, storageAccess, session ->
+            val singleValueKey = NaturalIdCacheKey("alpha, beta", "NaturalEntity", null, 1)
+            val compositeValueKey = NaturalIdCacheKey(arrayOf("alpha", "beta"), "NaturalEntity", null, 2)
+
+            storageAccess.putIntoCache(singleValueKey, "single-value", session)
+            storageAccess.putIntoCache(compositeValueKey, "composite-value", session)
+
+            storageAccess.getFromCache(singleValueKey, session) shouldBeEqualTo "single-value"
+            storageAccess.getFromCache(compositeValueKey, session) shouldBeEqualTo "composite-value"
+            redisKeys("$cacheName:*").size shouldBeEqualTo 2
+        }
+    }
+
+    @Test
+    fun `scalar identifier와 object array identifier는 같은 cache key로 충돌하지 않는다`() {
+        withStorageAccess("array-scalar-collision-${System.nanoTime()}") { cacheName, storageAccess, session ->
+            val scalarKey = BasicCacheKeyImplementation("[1, 2]" as Serializable, "ArrayEntity", 1)
+            val arrayKey = BasicCacheKeyImplementation(arrayOf(1, 2) as Serializable, "ArrayEntity", 2)
+
+            storageAccess.putIntoCache(scalarKey, "scalar-id", session)
+            storageAccess.putIntoCache(arrayKey, "array-id", session)
+
+            storageAccess.getFromCache(scalarKey, session) shouldBeEqualTo "scalar-id"
+            storageAccess.getFromCache(arrayKey, session) shouldBeEqualTo "array-id"
+            redisKeys("$cacheName:*").size shouldBeEqualTo 2
+        }
+    }
+
+    @Test
+    fun `same toString custom identifiers는 같은 cache key로 충돌하지 않는다`() {
+        withStorageAccess("custom-id-collision-${System.nanoTime()}") { cacheName, storageAccess, session ->
+            val firstKey = BasicCacheKeyImplementation(OpaqueIdentifier("first"), "OpaqueEntity", 1)
+            val secondKey = BasicCacheKeyImplementation(OpaqueIdentifier("second"), "OpaqueEntity", 2)
+
+            storageAccess.putIntoCache(firstKey, "first-id", session)
+            storageAccess.putIntoCache(secondKey, "second-id", session)
+
+            storageAccess.getFromCache(firstKey, session) shouldBeEqualTo "first-id"
+            storageAccess.getFromCache(secondKey, session) shouldBeEqualTo "second-id"
+            redisKeys("$cacheName:*").size shouldBeEqualTo 2
+        }
+    }
+
+    @Test
+    fun `update timestamps cache도 digest 문자열 key를 사용한다`() {
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
             session.persist(
@@ -133,6 +185,46 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
         val redisKeys = redisKeys("${RegionFactory.DEFAULT_UPDATE_TIMESTAMPS_REGION_UNQUALIFIED_NAME}:*")
 
         redisKeys.shouldNotBeNull()
-        redisKeys.any { key -> key.contains("persons") }.shouldBeTrue()
+        redisKeys.any { key -> key.contains("hck2:") }.shouldBeTrue()
+    }
+
+    private fun withStorageAccess(
+        cacheName: String,
+        block: (String, LettuceNearCacheStorageAccess, SharedSessionContractImplementor) -> Unit,
+    ) {
+        val redisClient = RedisClient.create(redisUri)
+        val config = LettuceNearCacheConfig<String, String>(
+            cacheName = cacheName,
+            useRespProtocol3 = false,
+        )
+
+        @Suppress("UNCHECKED_CAST")
+        val nearCache = LettuceNearCache(redisClient, StringCodec.UTF8, config) as LettuceNearCache<Any>
+
+        redisClient.use {
+            nearCache.use { cache ->
+                try {
+                    sessionFactory.openSession().use { session ->
+                        block(
+                            cacheName,
+                            LettuceNearCacheStorageAccess(cacheName, cache),
+                            session as SharedSessionContractImplementor,
+                        )
+                    }
+                } finally {
+                    cache.clearAll()
+                }
+            }
+        }
+    }
+
+    private data class OpaqueIdentifier(
+        private val value: String,
+    ): Serializable {
+        override fun toString(): String = "opaque"
+
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
     }
 }

@@ -38,7 +38,8 @@ No user import migration is required for the reorganization.
 ![Hibernate Lettuce Cache Layer Structure diagram](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.png)
 
 - **Region Isolation**: Each region gets its own `LettuceNearCache` instance
-- **Key Prefix**: Redis key collision is prevented using the `{regionName}::{key}` format
+- **Key Prefix**: Redis keys use the `{regionName}:{key}` prefix so regions do not share a key space
+- **Hibernate Key Encoding**: Hibernate keys are normalized to a versioned collision-resistant digest before the region prefix is applied
 - **AccessType**: `NONSTRICT_READ_WRITE` is recommended (soft-locking is unnecessary in a distributed cache)
 
 ## Recent Changes
