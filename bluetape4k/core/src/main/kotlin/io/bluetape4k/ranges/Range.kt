@@ -139,6 +139,10 @@ fun <T: Comparable<T>> Range<T>.contains(other: Range<T>): Boolean {
  * ```
  */
 fun <T: Comparable<T>> Range<T>.overlaps(other: Range<T>): Boolean {
+    if (isEmpty() || other.isEmpty()) {
+        return false
+    }
+
     // 이 범위의 상한과 other의 하한이 만나는 지점
     val upperVsLower = if (isEndInclusive && other.isStartInclusive) {
         last >= other.first

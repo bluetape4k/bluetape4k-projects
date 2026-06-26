@@ -127,4 +127,19 @@ class RangeSupportTest {
         // [0, 5) overlaps (4, 10] -> true (4~5 사이에서 겹침)
         closedOpenRangeOf(0, 5).overlaps(openClosedRangeOf(4, 10)).shouldBeTrue()
     }
+
+    @Test
+    fun `empty ranges never overlap any range`() {
+        val nonEmpty = closedClosedRangeOf(0, 2)
+
+        openOpenRangeOf(1, 1).overlaps(nonEmpty).shouldBeFalse()
+        closedOpenRangeOf(1, 1).overlaps(nonEmpty).shouldBeFalse()
+        openClosedRangeOf(1, 1).overlaps(nonEmpty).shouldBeFalse()
+
+        nonEmpty.overlaps(openOpenRangeOf(1, 1)).shouldBeFalse()
+        nonEmpty.overlaps(closedOpenRangeOf(1, 1)).shouldBeFalse()
+        nonEmpty.overlaps(openClosedRangeOf(1, 1)).shouldBeFalse()
+
+        openOpenRangeOf(1, 1).overlaps(closedOpenRangeOf(1, 1)).shouldBeFalse()
+    }
 }
