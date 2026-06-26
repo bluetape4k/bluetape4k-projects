@@ -2,10 +2,12 @@ package io.bluetape4k.r2dbc.core
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.AbstractR2dbcTest
 import io.bluetape4k.r2dbc.model.User
+import io.bluetape4k.r2dbc.support.typedNullParameter
 import kotlinx.coroutines.reactor.awaitSingle
 import org.junit.jupiter.api.Test
 import org.springframework.r2dbc.core.awaitOne
@@ -71,6 +73,28 @@ class UpdateTest: AbstractR2dbcTest() {
                 .update()
                 .table("users")
                 .set(mapOf("description = 'pwned', active" to false))
+        }
+    }
+
+    @Test
+    fun `update map preserves typed null parameters`() {
+        val typedNull = typedNullParameter<String>()
+
+        val spec = client
+            .update()
+            .table("users")
+            .set(mapOf("description" to typedNull))
+
+        spec.values["description"] shouldBeSameInstanceAs typedNull
+    }
+
+    @Test
+    fun `update map rejects raw null values`() {
+        assertFailsWith<IllegalArgumentException> {
+            client
+                .update()
+                .table("users")
+                .set(mapOf("description" to null))
         }
     }
 
