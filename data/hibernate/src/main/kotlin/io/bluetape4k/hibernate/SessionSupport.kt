@@ -6,7 +6,6 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 import io.bluetape4k.support.requirePositiveNumber
-import org.hibernate.KeyType
 import org.hibernate.Session
 import org.hibernate.query.Query
 import org.slf4j.Logger
@@ -86,23 +85,26 @@ inline fun <reified T: Any> Session.findAs(id: Serializable): T? = find(T::class
 inline fun <reified T: Any> Session.getReferenceAs(id: Serializable): T = getReference(T::class.java, id)
 
 /**
- * simple natural id 값으로 엔티티를 조회합니다. 없으면 `null`을 반환합니다.
+ * Finds an entity by its simple natural id, or returns `null` when no row matches.
  *
- * ## 동작/계약
- * - Hibernate `bySimpleNaturalId(...).load(...)`에 위임합니다.
- * - `@NaturalId`가 하나인 엔티티에 사용합니다.
+ * ## Behavior
+ * - Delegates to Hibernate `bySimpleNaturalId(...).load(...)`.
+ * - Use this helper for entities that define exactly one `@NaturalId` attribute.
+ * - Uses the natural-id loader API instead of the `KeyType.NATURAL` path removed from Hibernate 7.2.
  */
+@Suppress("DEPRECATION")
 inline fun <reified T: Any> Session.findBySimpleNaturalId(naturalId: Any): T? =
-    find(T::class.java, naturalId, KeyType.NATURAL)
-// bySimpleNaturalId(T::class.java).load(naturalId)
+    bySimpleNaturalId(T::class.java).load(naturalId)
 
 /**
- * 복합 natural id 속성으로 엔티티를 조회합니다. 없으면 `null`을 반환합니다.
+ * Finds an entity by composite natural-id attributes, or returns `null` when no row matches.
  *
- * ## 동작/계약
- * - [naturalIdValues]는 비어 있을 수 없고, 각 속성명은 blank일 수 없습니다.
- * - Hibernate `byNaturalId(...).using(...).load()`에 위임합니다.
+ * ## Behavior
+ * - [naturalIdValues] must not be empty and each attribute name must not be blank.
+ * - Delegates to Hibernate `byNaturalId(...).using(...).load()`.
+ * - Uses the natural-id loader API instead of the `KeyType.NATURAL` path removed from Hibernate 7.2.
  */
+@Suppress("DEPRECATION")
 inline fun <reified T: Any> Session.findByNaturalId(
     naturalIdValues: Map<String, Any?>,
 ): T? {
@@ -111,7 +113,9 @@ inline fun <reified T: Any> Session.findByNaturalId(
     naturalIdValues.keys.forEach { attributeName ->
         attributeName.requireNotBlank("naturalIdValues.key")
     }
-    return find(T::class.java, naturalIdValues, KeyType.NATURAL)
+    return byNaturalId(T::class.java)
+        .using(naturalIdValues)
+        .load()
 }
 
 /**
