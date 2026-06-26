@@ -33,6 +33,7 @@ A Kotlin extension library for implementing gRPC servers and clients.
 - **gRPC client abstraction**: Channel management and calls
 - **In-process server/client**: In-memory communication for testing
 - **Interceptor support**: Server interceptor helpers
+- **Secure client defaults**: Host/port client constructors use transport security by default; plaintext requires explicit local/test opt-in
 - **Input validation**: host/target/name must be non-blank; port must be in the `1..65535` range — validated immediately
 
 ## Usage Examples
@@ -73,30 +74,30 @@ server.blockUntilShutdown()
 
 ```kotlin
 import io.bluetape4k.grpc.AbstractGrpcClient
+import io.bluetape4k.grpc.GrpcChannelSecurity
 
 class MyGrpcClient(
-    private val host: String = "localhost",
-    private val port: Int = 50051
-): AbstractGrpcClient() {
+    host: String,
+    port: Int,
+    channelSecurity: GrpcChannelSecurity = GrpcChannelSecurity.TRANSPORT_SECURITY,
+): AbstractGrpcClient(host, port, channelSecurity) {
 
-    private lateinit var channel: ManagedChannel
-    private lateinit var stub: MyServiceGrpc.MyServiceBlockingStub
-
-    override fun connect() {
-        channel = ManagedChannelBuilder.forAddress(host, port)
-            .usePlaintext()
-            .build()
-        stub = MyServiceGrpc.newBlockingStub(channel)
-    }
-
-    override fun close() {
-        channel.shutdown()
-    }
+    private val stub = MyServiceGrpc.newBlockingStub(channel)
 
     fun doSomething(request: Request): Response {
         return stub.doSomething(request)
     }
 }
+
+// Production or shared infrastructure: transport security is the default.
+val productionClient = MyGrpcClient("api.example.com", 443)
+
+// Local/test plaintext must be explicit and is restricted to loopback hosts.
+val localTestClient = MyGrpcClient(
+    host = "localhost",
+    port = 50051,
+    channelSecurity = GrpcChannelSecurity.LOCAL_PLAINTEXT,
+)
 ```
 
 ### 3. In-process Server/Client (for Testing)
