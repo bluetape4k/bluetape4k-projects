@@ -5,7 +5,12 @@ import okhttp3.Interceptor
 import okhttp3.Response
 
 /**
- * [okhttp3.OkHttpClient] 실행 시, 요청과 응답 정보를 [logger]에 출력하는 [Interceptor]입니다.
+ * OkHttp interceptor that logs request and response diagnostics.
+ *
+ * ## Contract
+ * - Logs request URL, connection, and redacted request headers before execution.
+ * - Logs response URL, elapsed time, and redacted response headers after execution.
+ * - Redacts credential-bearing headers by default and supports additional project-specific names.
  *
  * ```kotlin
  * val client = OkHttpClient.Builder()
@@ -13,35 +18,50 @@ import okhttp3.Response
  *    .build()
  * ```
  *
- * @property logger 로그를 출력할 [org.slf4j.Logger]
+ * @property logger Logger that receives diagnostics.
  */
 class LoggingInterceptor private constructor(
     private val logger: org.slf4j.Logger,
+    private val additionalSensitiveHeaderNames: Set<String> = emptySet(),
 ): Interceptor {
 
     companion object {
         /**
-         * [okhttp3.OkHttpClient] 실행 시, 요청과 응답 정보를 [logger]에 출력하는 [Interceptor]입니다.
+         * Creates a logging interceptor with the default sensitive header redaction policy.
          *
-         * @param logger 로그를 출력할 [org.slf4j.Logger]
+         * @param logger Logger that receives request and response diagnostics.
          */
         @JvmStatic
         operator fun invoke(logger: org.slf4j.Logger): LoggingInterceptor {
             return LoggingInterceptor(logger)
         }
+
+        /**
+         * Creates a logging interceptor with project-specific sensitive headers.
+         *
+         * @param logger Logger that receives request and response diagnostics.
+         * @param additionalSensitiveHeaderNames Extra header names whose values must be redacted.
+         */
+        @JvmStatic
+        operator fun invoke(
+            logger: org.slf4j.Logger,
+            additionalSensitiveHeaderNames: Set<String>,
+        ): LoggingInterceptor {
+            return LoggingInterceptor(logger, additionalSensitiveHeaderNames)
+        }
     }
 
     /**
-     * HTTP 요청 전송 전 URL·연결 정보·헤더를 DEBUG 로그로 출력하고,
-     * 응답 수신 후 URL·소요 시간·헤더를 DEBUG 로그로 출력합니다.
+     * Logs redacted request/response diagnostics around [chain] execution.
      *
-     * @param chain [Interceptor.Chain] 인스턴스
-     * @return [Response]
+     * @param chain OkHttp interceptor chain.
+     * @return The response returned by the next interceptor or network call.
      */
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         logger.debug {
-            "Sending request. url=${request.url}, connection=${chain.connection()}, headers=${request.headers}"
+            "Sending request. url=${request.url}, connection=${chain.connection()}, " +
+                    "headers=${request.headers.toRedactedString(additionalSensitiveHeaderNames)}"
         }
         val startMillis = System.currentTimeMillis()
 
@@ -50,7 +70,8 @@ class LoggingInterceptor private constructor(
 
         val elapsedMillis = System.currentTimeMillis() - startMillis
         logger.debug {
-            "Receive response. url=${response.request.url}, elapsed=${elapsedMillis} msec. headers=${response.headers}"
+            "Receive response. url=${response.request.url}, elapsed=${elapsedMillis} msec. " +
+                    "headers=${response.headers.toRedactedString(additionalSensitiveHeaderNames)}"
         }
 
         return response

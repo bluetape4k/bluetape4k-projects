@@ -188,6 +188,12 @@ val client = okhttp3Client(
     addNetworkInterceptor(CachingResponseInterceptor())
 }
 
+// LoggingInterceptor는 Authorization, Cookie, Set-Cookie,
+// API key, token 계열 헤더를 기본으로 마스킹합니다.
+val clientWithCustomRedaction = okhttp3Client {
+    addInterceptor(LoggingInterceptor(log, setOf("X-Internal-Secret")))
+}
+
 // Request DSL
 val request = okhttp3RequestOf("https://httpbin.org/get") {
     get()
