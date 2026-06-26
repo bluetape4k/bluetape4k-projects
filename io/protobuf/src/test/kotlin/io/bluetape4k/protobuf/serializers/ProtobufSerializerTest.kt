@@ -1,6 +1,9 @@
 package io.bluetape4k.protobuf.serializers
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.junit5.faker.Fakers
+import io.bluetape4k.io.serializer.BinarySerializationException
+import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.protobuf.messages.NestedMessage
@@ -20,6 +23,15 @@ class ProtobufSerializerTest {
     }
 
     private val serializer = ProtobufSerializer()
+
+    data class SimpleData(
+        val id: Int,
+        val name: String,
+    ): java.io.Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `serialize proto message`() {
@@ -65,18 +77,34 @@ class ProtobufSerializerTest {
     }
 
     @Test
-    fun `non-protobuf 타입은 fallback serializer로 직렬화 및 역직렬화된다`() {
-        data class SimpleData(
-            val id: Int,
-            val name: String,
-        ): java.io.Serializable
-
+    fun `strict serializer rejects non-protobuf values by default`() {
         val origin = SimpleData(1, "hello")
-        val bytes = serializer.serialize(origin)
+
+        assertFailsWith<BinarySerializationException> {
+            serializer.serialize(origin)
+        }
+    }
+
+    @Test
+    fun `strict serializer rejects non-protobuf bytes by default`() {
+        val origin = SimpleData(1, "hello")
+        val bytes = BinarySerializers.Kryo.serialize(origin)
+
+        assertFailsWith<BinarySerializationException> {
+            serializer.deserialize<SimpleData>(bytes)
+        }
+    }
+
+    @Test
+    fun `trusted internal serializer keeps fallback compatibility`() {
+        val origin = SimpleData(1, "hello")
+        val trustedInternalSerializer = ProtobufSerializer.trustedInternalProtobuf()
+
+        val bytes = trustedInternalSerializer.serialize(origin)
         bytes.shouldNotBeNull()
         (bytes.isNotEmpty()).shouldBeTrue()
 
-        val actual = serializer.deserialize<SimpleData>(bytes)
+        val actual = trustedInternalSerializer.deserialize<SimpleData>(bytes)
         actual shouldBeEqualTo origin
     }
 

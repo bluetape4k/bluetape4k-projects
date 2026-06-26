@@ -27,7 +27,7 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
         private const val REPEAT_SIZE = 10
     }
 
-    private fun getTestCodecs() = listOf(
+    private fun getStrictTestCodecs() = listOf(
         Arguments.of(RedissonProtobufCodecs.Protobuf),
         Arguments.of(RedissonProtobufCodecs.GzipProtobuf),
         Arguments.of(RedissonProtobufCodecs.GzipProtobufComposite),
@@ -37,6 +37,18 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
         Arguments.of(RedissonProtobufCodecs.SnappyProtobufComposite),
         Arguments.of(RedissonProtobufCodecs.ZstdProtobuf),
         Arguments.of(RedissonProtobufCodecs.ZstdProtobufComposite),
+    )
+
+    private fun getTrustedInternalTestCodecs() = listOf(
+        Arguments.of(RedissonProtobufCodecs.TrustedInternalProtobuf),
+        Arguments.of(RedissonProtobufCodecs.TrustedInternalGzipProtobuf),
+        Arguments.of(RedissonProtobufCodecs.TrustedInternalGzipProtobufComposite),
+        Arguments.of(RedissonProtobufCodecs.TrustedInternalLZ4Protobuf),
+        Arguments.of(RedissonProtobufCodecs.TrustedInternalLZ4ProtobufComposite),
+        Arguments.of(RedissonProtobufCodecs.TrustedInternalSnappyProtobuf),
+        Arguments.of(RedissonProtobufCodecs.TrustedInternalSnappyProtobufComposite),
+        Arguments.of(RedissonProtobufCodecs.TrustedInternalZstdProtobuf),
+        Arguments.of(RedissonProtobufCodecs.TrustedInternalZstdProtobufComposite),
     )
 
     data class CustomData(
@@ -90,14 +102,14 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
     }
 
     @ParameterizedTest(name = "codec for simple string with {0}")
-    @MethodSource("getTestCodecs")
+    @MethodSource("getTrustedInternalTestCodecs")
     fun `codec for simple string with fallback codec`(codec: Codec) {
         val origin = "Hello world! 동해물과 백두산이"
         codec.verifyCodec(origin)
     }
 
     @ParameterizedTest(name = "codec for kotlin data class with {0}")
-    @MethodSource("getTestCodecs")
+    @MethodSource("getTrustedInternalTestCodecs")
     fun `codec for kotlin data class with fallback codec`(codec: Codec) {
         repeat(REPEAT_SIZE) {
             val origin = CustomData(faker.random().nextInt(), faker.name().fullName())
@@ -106,7 +118,7 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
     }
 
     @ParameterizedTest(name = "codec for protobuf simple message with {0}")
-    @MethodSource("getTestCodecs")
+    @MethodSource("getStrictTestCodecs")
     fun `codec for protobuf simple message`(codec: Codec) {
         repeat(REPEAT_SIZE) {
             codec.verifyCodec(newSimpleMessage())
@@ -114,10 +126,34 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
     }
 
     @ParameterizedTest(name = "codec for protobuf nested message with {0}")
-    @MethodSource("getTestCodecs")
+    @MethodSource("getStrictTestCodecs")
     fun `codec for protobuf nested message`(codec: Codec) {
         repeat(REPEAT_SIZE) {
             codec.verifyCodec(newNestedMessage())
+        }
+    }
+
+    @Test
+    fun `default codec rejects non-protobuf values by default`() {
+        val codec = RedissonProtobufCodec()
+
+        assertFailsWith<IllegalArgumentException> {
+            codec.valueEncoder.encode("Hello world! 동해물과 백두산이")
+        }
+    }
+
+    @Test
+    fun `default codec rejects non-protobuf bytes by default`() {
+        val trustedInternalCodec = RedissonProtobufCodec.trustedInternal()
+        val fallbackBytes = trustedInternalCodec.valueEncoder.encode("fallback-bytes")
+        val strictCodec = RedissonProtobufCodec()
+
+        try {
+            assertFailsWith<SecurityException> {
+                strictCodec.valueDecoder.decode(fallbackBytes, State())
+            }
+        } finally {
+            fallbackBytes.release()
         }
     }
 
@@ -156,7 +192,7 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
             .build()
             .toByteArray()
 
-        val codec = RedissonProtobufCodec(
+        val codec = RedissonProtobufCodec.trustedInternal(
             fallbackCodec = SentinelFallbackCodec(fallbackValue),
             allowedClassPrefixes = RedissonProtobufCodec.ALLOW_ALL_CLASSES_UNSAFE,
         )
