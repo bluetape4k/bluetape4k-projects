@@ -8,6 +8,7 @@ import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.redis.lettuce.map.LettuceMap
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requireNotNull
 import io.lettuce.core.RedisClient
 import io.lettuce.core.codec.ByteArrayCodec
 import io.lettuce.core.codec.RedisCodec
@@ -117,9 +118,30 @@ class LettuceCacheManager(
     @Suppress("UNCHECKED_CAST")
     override fun <K: Any, V: Any> getCache(cacheName: String?, keyType: Class<K>?, valueType: Class<V>?): Cache<K, V>? {
         checkNotClosed()
-        cacheName.requireNotBlank("cacheName")
-        log.debug { "Get LettuceCache. cacheName=$cacheName, keyType=$keyType, valueType=$valueType" }
-        return caches[cacheName] as? LettuceJCache<K, V>
+        val validCacheName = cacheName.requireNotBlank("cacheName")
+        val requestedKeyType = keyType.requireNotNull("keyType")
+        val requestedValueType = valueType.requireNotNull("valueType")
+
+        log.debug {
+            "Get LettuceCache. cacheName=$validCacheName, keyType=$requestedKeyType, valueType=$requestedValueType"
+        }
+
+        val cache = caches[validCacheName] ?: return null
+        val configuration = cache.configuration
+        if (configuration.keyType != requestedKeyType) {
+            throw ClassCastException(
+                "Cache [$validCacheName] key type mismatch. requested=${requestedKeyType.name}, " +
+                    "configured=${configuration.keyType.name}"
+            )
+        }
+        if (configuration.valueType != requestedValueType) {
+            throw ClassCastException(
+                "Cache [$validCacheName] value type mismatch. requested=${requestedValueType.name}, " +
+                    "configured=${configuration.valueType.name}"
+            )
+        }
+
+        return cache as? LettuceJCache<K, V>
     }
 
     @Suppress("UNCHECKED_CAST")

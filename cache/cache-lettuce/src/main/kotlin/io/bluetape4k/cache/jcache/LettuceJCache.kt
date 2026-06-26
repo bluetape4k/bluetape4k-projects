@@ -41,7 +41,7 @@ class LettuceJCache<K: Any, V: Any>(
     private val codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
     private val ttlSeconds: Long? = null,
     private val cacheManager: LettuceCacheManager,
-    private val configuration: Configuration<K, V>,
+    internal val configuration: Configuration<K, V>,
     private val closeResource: () -> Unit = {},
 ): Cache<K, V> {
 
