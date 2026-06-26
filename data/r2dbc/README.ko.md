@@ -194,10 +194,10 @@ val users = databaseClient
     .fetch()
     .flow { row, _ -> /* mapping */ }
 
-// 인덱스 기반 파라미터 바인딩
+// 인덱스 기반 파라미터 바인딩은 Spring R2DBC의 0-based 인덱스를 사용합니다.
 val indexedParams = mapOf(
-    1 to "john",
-    2 to true
+    0 to "john",
+    1 to true
 )
 
 val users = databaseClient
