@@ -1,8 +1,13 @@
+@file:Suppress("DEPRECATION")
+
 package io.bluetape4k.hibernate.converters
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.io.serializer.BinarySerializationException
+import io.bluetape4k.io.serializer.JdkBinarySerializer
 import org.junit.jupiter.api.Test
 import java.io.Serializable
 
@@ -13,6 +18,17 @@ class ObjectAsBase64StringConverterTest {
             private const val serialVersionUID = 1L
         }
     }
+
+    data class UnexpectedData(val payload: String) : Serializable {
+        companion object {
+            private const val serialVersionUID = 1L
+        }
+    }
+
+    class TypedSampleAsBase64StringConverter: AbstractTypedObjectAsBase64StringConverter<SampleData>(
+        targetType = SampleData::class.java,
+        serializer = JdkBinarySerializer(),
+    )
 
     private val sample = SampleData("hello", 42)
 
@@ -129,5 +145,25 @@ class ObjectAsBase64StringConverterTest {
         val converter = LZ4JdkObjectAsBase64StringConverter()
         converter.convertToDatabaseColumn(null).shouldBeNull()
         converter.convertToEntityAttribute(null).shouldBeNull()
+    }
+
+    @Test
+    fun `typed Base64 string converter rejects malformed payload`() {
+        val converter = TypedSampleAsBase64StringConverter()
+
+        assertFailsWith<BinarySerializationException> {
+            converter.convertToEntityAttribute("not-base64")
+        }
+    }
+
+    @Test
+    fun `typed Base64 string converter rejects unexpected deserialized type`() {
+        val unsafeConverter = JdkObjectAsBase64StringConverter()
+        val typedConverter = TypedSampleAsBase64StringConverter()
+        val payload = unsafeConverter.convertToDatabaseColumn(UnexpectedData("unexpected"))
+
+        assertFailsWith<BinarySerializationException> {
+            typedConverter.convertToEntityAttribute(payload)
+        }
     }
 }

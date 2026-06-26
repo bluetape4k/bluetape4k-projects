@@ -357,32 +357,39 @@ val users = queryFactory
 
 #### 직렬화 Converter
 
-객체를 직렬화하여 ByteArray(Base64 인코딩)로 DB에 저장합니다. JDK / Kryo / Apache Fory 직렬화와 LZ4, Snappy, Zstd 압축을 조합할 수 있습니다.
+타입이 정해진 객체를 직렬화하여 ByteArray(Base64 인코딩)나 Base64 문자열로 DB에 저장합니다. 영속 컬럼에는 secure serializer allowlist를 사용하는 typed converter 하위 클래스를 권장합니다. 기존 generic `Any?` object converter는 deprecated 상태이며, DB row 변조, 덜 신뢰할 수 있는 시스템의 import, tenant 간 공유가 없는 trusted storage에서만 사용하세요.
 
 ```kotlin
 import io.bluetape4k.hibernate.converters.*
+import io.bluetape4k.io.serializer.KryoBinarySerializer
+
+data class UserProfile(
+    val displayName: String,
+    val tags: List<String> = emptyList(),
+): java.io.Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+}
+
+class UserProfileAsByteArrayConverter: AbstractTypedObjectAsByteArrayConverter<UserProfile>(
+    targetType = UserProfile::class.java,
+    serializer = KryoBinarySerializer.secure(UserProfile::class.java),
+)
 
 @Entity
 class UserData {
     @Id
     var id: Long? = null
 
-    // JDK 직렬화 → Base64 인코딩 → ByteArray
-    @Convert(converter = JdkObjectAsByteArrayConverter::class)
+    // 명시적 allowlist를 사용하는 typed Kryo 직렬화
+    @Convert(converter = UserProfileAsByteArrayConverter::class)
     @Column(length = 4000)
-    var metadata: Any? = null
-
-    // Kryo 직렬화 + LZ4 압축 → Base64 인코딩 → ByteArray
-    @Convert(converter = LZ4KryoObjectAsByteArrayConverter::class)
-    @Column(length = 4000)
-    var largeData: Any? = null
-
-    // Apache Fory 직렬화 + Zstd 압축 → Base64 인코딩 → ByteArray
-    @Convert(converter = ZstdForyObjectAsByteArrayConverter::class)
-    @Column(length = 4000)
-    var compressedData: Any? = null
+    var profile: UserProfile? = null
 }
 ```
+
+`AbstractTypedObjectAsByteArrayConverter`와 `AbstractTypedObjectAsBase64StringConverter`는 역직렬화된 값의 타입을 Hibernate에 반환하기 전에 확인합니다. Kryo와 Apache Fory를 사용할 때는 `KryoBinarySerializer.secure(...)`, `ForyBinarySerializer.secureFory(...)` 같은 secure serializer와 함께 사용해 converter 경계와 serializer registry가 같은 trust profile을 강제하도록 구성하세요.
 
 #### 암호화 Converter
 

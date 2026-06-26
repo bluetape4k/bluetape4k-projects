@@ -1,5 +1,12 @@
+@file:Suppress("DEPRECATION")
+
 package io.bluetape4k.hibernate.converter
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.hibernate.converters.AbstractTypedObjectAsByteArrayConverter
 import io.bluetape4k.hibernate.converters.ForyObjectAsByteArrayConverter
 import io.bluetape4k.hibernate.converters.JdkObjectAsByteArrayConverter
 import io.bluetape4k.hibernate.converters.KryoObjectAsByteArrayConverter
@@ -12,11 +19,13 @@ import io.bluetape4k.hibernate.converters.SnappyKryoObjectAsByteArrayConverter
 import io.bluetape4k.hibernate.converters.ZstdForyObjectAsByteArrayConverter
 import io.bluetape4k.hibernate.converters.ZstdJdkObjectAsByteArrayConverter
 import io.bluetape4k.hibernate.converters.ZstdKryoObjectAsByteArrayConverter
+import io.bluetape4k.io.serializer.BinarySerializationException
+import io.bluetape4k.io.serializer.ForyBinarySerializer
+import io.bluetape4k.io.serializer.JdkBinarySerializer
+import io.bluetape4k.io.serializer.KryoBinarySerializer
 import io.bluetape4k.logging.KLogging
 import jakarta.persistence.AttributeConverter
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeNull
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.Serializable
@@ -54,7 +63,36 @@ class ObjectAsByteArrayConverterTest {
         val name: String,
         val value: Int,
         val tags: List<String> = emptyList(),
-    ): Serializable
+    ): Serializable {
+        companion object {
+            private const val serialVersionUID = 1L
+        }
+    }
+
+    data class UnexpectedData(
+        val payload: String,
+    ): Serializable {
+        companion object {
+            private const val serialVersionUID = 1L
+        }
+    }
+
+    class TypedSampleAsByteArrayConverter: AbstractTypedObjectAsByteArrayConverter<SampleData>(
+        targetType = SampleData::class.java,
+        serializer = JdkBinarySerializer(),
+    )
+
+    class SecureKryoSampleAsByteArrayConverter: AbstractTypedObjectAsByteArrayConverter<SampleData>(
+        targetType = SampleData::class.java,
+        serializer = KryoBinarySerializer.secure(SampleData::class.java),
+    )
+
+    class SecureForySampleAsByteArrayConverter: AbstractTypedObjectAsByteArrayConverter<SampleData>(
+        targetType = SampleData::class.java,
+        serializer = ForyBinarySerializer(
+            fory = ForyBinarySerializer.secureFory(SampleData::class.java),
+        ),
+    )
 
     @ParameterizedTest(name = "{0} - 객체를 직렬화하고 역직렬화한다")
     @MethodSource("converters")
@@ -110,5 +148,47 @@ class ObjectAsByteArrayConverterTest {
 
         val deserialized = converter.convertToEntityAttribute(serialized)
         deserialized shouldBeEqualTo obj
+    }
+
+    @Test
+    fun `typed byte array converter rejects malformed payload`() {
+        val converter = TypedSampleAsByteArrayConverter()
+
+        assertFailsWith<BinarySerializationException> {
+            converter.convertToEntityAttribute("not-base64".toByteArray())
+        }
+    }
+
+    @Test
+    fun `typed byte array converter rejects unexpected deserialized type`() {
+        val unsafeConverter = JdkObjectAsByteArrayConverter()
+        val typedConverter = TypedSampleAsByteArrayConverter()
+        val payload = unsafeConverter.convertToDatabaseColumn(UnexpectedData("unexpected"))
+
+        assertFailsWith<BinarySerializationException> {
+            typedConverter.convertToEntityAttribute(payload)
+        }
+    }
+
+    @Test
+    fun `secure Kryo typed byte array converter rejects disallowed payload`() {
+        val unsafeConverter = KryoObjectAsByteArrayConverter()
+        val typedConverter = SecureKryoSampleAsByteArrayConverter()
+        val payload = unsafeConverter.convertToDatabaseColumn(UnexpectedData("unexpected"))
+
+        assertFailsWith<BinarySerializationException> {
+            typedConverter.convertToEntityAttribute(payload)
+        }
+    }
+
+    @Test
+    fun `secure Fory typed byte array converter rejects disallowed payload`() {
+        val unsafeConverter = ForyObjectAsByteArrayConverter()
+        val typedConverter = SecureForySampleAsByteArrayConverter()
+        val payload = unsafeConverter.convertToDatabaseColumn(UnexpectedData("unexpected"))
+
+        assertFailsWith<BinarySerializationException> {
+            typedConverter.convertToEntityAttribute(payload)
+        }
     }
 }

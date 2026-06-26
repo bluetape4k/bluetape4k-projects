@@ -1,12 +1,19 @@
+@file:Suppress("DEPRECATION")
+
 package io.bluetape4k.hibernate.converters
 
 import io.bluetape4k.codec.decodeBase64ByteArray
 import io.bluetape4k.codec.encodeBase64String
 import io.bluetape4k.io.serializer.BinarySerializer
+import io.bluetape4k.io.serializer.BinarySerializationException
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.io.serializer.JdkBinarySerializer
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
+
+private const val TRUSTED_ONLY_BASE64_STRING_CONVERTER =
+    "Generic object converters deserialize arbitrary payloads and are trusted-storage-only. " +
+            "Define an AbstractTypedObjectAsBase64StringConverter subclass with a target type and a secure serializer."
 
 /**
  * 객체를 바이너리 직렬화를 통해 Base64 인코딩된 문자열로 변환해서 DB에 저장합니다.
@@ -26,6 +33,7 @@ import jakarta.persistence.Converter
  *
  * @property serializer 바이너리 직렬화
  */
+@Deprecated(TRUSTED_ONLY_BASE64_STRING_CONVERTER)
 @Converter
 abstract class AbstractObjectAsBase64StringConverter(
     private val serializer: BinarySerializer,
@@ -41,10 +49,50 @@ abstract class AbstractObjectAsBase64StringConverter(
 }
 
 /**
+ * Typed Base64 string converter that rejects deserialized values outside [targetType].
+ *
+ * Use this base class for persistent columns that may cross a trust boundary. The serializer is still
+ * pluggable, so callers can combine the typed converter boundary with secure serializers such as
+ * `KryoBinarySerializer.secure(...)` or `ForyBinarySerializer.secureFory(...)`.
+ *
+ * ```kotlin
+ * class UserProfileAsBase64StringConverter: AbstractTypedObjectAsBase64StringConverter<UserProfile>(
+ *     targetType = UserProfile::class.java,
+ *     serializer = KryoBinarySerializer.secure(UserProfile::class.java),
+ * )
+ * ```
+ */
+@Converter
+abstract class AbstractTypedObjectAsBase64StringConverter<T: Any>(
+    private val targetType: Class<T>,
+    private val serializer: BinarySerializer,
+): AttributeConverter<T?, String?> {
+
+    override fun convertToDatabaseColumn(attribute: T?): String? {
+        return attribute?.run { serializer.serialize(this).encodeBase64String() }
+    }
+
+    override fun convertToEntityAttribute(dbData: String?): T? {
+        return try {
+            val value = dbData?.run { serializer.deserialize<Any>(this.decodeBase64ByteArray()) }
+            requireExpectedType(value, targetType)
+        } catch (e: BinarySerializationException) {
+            throw e
+        } catch (e: Throwable) {
+            throw BinarySerializationException(
+                "Fail to deserialize Hibernate Base64 string converter payload. targetType=${targetType.name}",
+                e,
+            )
+        }
+    }
+}
+
+/**
  * 객체를 Jdk 직렬화를 통해 Base64 인코딩된 문자열로 변환해서 DB에 저장합니다.
  *
  * @see BinarySerializers.Jdk
  */
+@Deprecated(TRUSTED_ONLY_BASE64_STRING_CONVERTER)
 @Converter
 class JdkObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter(JdkBinarySerializer())
 
@@ -53,6 +101,7 @@ class JdkObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter(Jd
  *
  * @see BinarySerializers.LZ4Jdk
  */
+@Deprecated(TRUSTED_ONLY_BASE64_STRING_CONVERTER)
 @Converter
 class LZ4JdkObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter(BinarySerializers.LZ4Jdk)
 
@@ -61,6 +110,7 @@ class LZ4JdkObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter
  *
  * @see BinarySerializers.SnappyJdk
  */
+@Deprecated(TRUSTED_ONLY_BASE64_STRING_CONVERTER)
 @Converter
 class SnappyJdkObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter(BinarySerializers.SnappyJdk)
 
@@ -69,6 +119,7 @@ class SnappyJdkObjectAsBase64StringConverter: AbstractObjectAsBase64StringConver
  *
  * @see BinarySerializers.ZstdJdk
  */
+@Deprecated(TRUSTED_ONLY_BASE64_STRING_CONVERTER)
 @Converter
 class ZstdJdkObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter(BinarySerializers.ZstdJdk)
 
@@ -77,6 +128,7 @@ class ZstdJdkObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverte
  *
  * @see BinarySerializers.Kryo
  */
+@Deprecated(TRUSTED_ONLY_BASE64_STRING_CONVERTER)
 @Converter
 class KryoObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter(BinarySerializers.Kryo)
 
@@ -85,6 +137,7 @@ class KryoObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter(B
  *
  * @see BinarySerializers.LZ4Kryo
  */
+@Deprecated(TRUSTED_ONLY_BASE64_STRING_CONVERTER)
 @Converter
 class LZ4KryoObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter(BinarySerializers.LZ4Kryo)
 
@@ -93,6 +146,7 @@ class LZ4KryoObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverte
  *
  * @see BinarySerializers.SnappyKryo
  */
+@Deprecated(TRUSTED_ONLY_BASE64_STRING_CONVERTER)
 @Converter
 class SnappyKryoObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter(BinarySerializers.SnappyKryo)
 
@@ -101,5 +155,6 @@ class SnappyKryoObjectAsBase64StringConverter: AbstractObjectAsBase64StringConve
  *
  * @see BinarySerializers.ZstdKryo
  */
+@Deprecated(TRUSTED_ONLY_BASE64_STRING_CONVERTER)
 @Converter
 class ZstdKryoObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter(BinarySerializers.ZstdKryo)
