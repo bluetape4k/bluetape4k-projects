@@ -219,6 +219,26 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
         }
     }
 
+    @Test
+    fun `clearAll - Redis clear 실패를 호출자에게 전파한다`() {
+        val failingCacheName = "fail-clear-" + Base58.randomString(6)
+        val failingCache =
+            LettuceNearCache(
+                redisClient = resp3Client,
+                codec = failingKeyDecodeCodec(),
+                config = LettuceNearCacheConfig(cacheName = failingCacheName)
+            )
+
+        failingCache.use { c ->
+            directCommands.set("$failingCacheName:k", "v")
+
+            assertFailsWith<Exception> {
+                c.clearAll()
+            }
+            directCommands.get("$failingCacheName:k") shouldBeEqualTo "v"
+        }
+    }
+
     // ---- TTL ----
 
     @Test
@@ -419,6 +439,20 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
 
             override fun encodeValue(value: String): ByteBuffer =
                 throw IllegalStateException("encode failure for test")
+        }
+
+    private fun failingKeyDecodeCodec(): RedisCodec<String, String> =
+        object: RedisCodec<String, String> {
+            private val delegate = StringCodec.UTF8
+
+            override fun decodeKey(bytes: ByteBuffer): String =
+                throw IllegalStateException("decode key failure for test")
+
+            override fun decodeValue(bytes: ByteBuffer): String = delegate.decodeValue(bytes)
+
+            override fun encodeKey(key: String): ByteBuffer = delegate.encodeKey(key)
+
+            override fun encodeValue(value: String): ByteBuffer = delegate.encodeValue(value)
         }
 
     private fun assertWriteFailure(block: () -> Unit) {

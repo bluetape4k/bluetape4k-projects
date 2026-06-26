@@ -339,7 +339,7 @@ class LettuceNearCache<V: Any>(
      */
     override fun clearAll() {
         clearLocal()
-        runCatching { clearBack() }
+        clearBack()
     }
 
     /**
