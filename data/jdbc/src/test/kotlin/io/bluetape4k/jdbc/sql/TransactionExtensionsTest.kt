@@ -1,13 +1,18 @@
 package io.bluetape4k.jdbc.sql
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
+import java.lang.reflect.InvocationHandler
+import java.lang.reflect.Method
+import java.lang.reflect.Proxy
 import java.sql.Connection
+import java.sql.SQLException
 
 /**
  * TransactionExtensions 테스트 클래스
@@ -69,6 +74,91 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
                 }
             count shouldBeGreaterThan 0
         }
+    }
+
+    @Test
+    fun `withReadOnlyTransaction restores pre existing readOnly state`() {
+        val recording = RecordingConnection(readOnly = true)
+
+        val result =
+            recording.connection.withReadOnlyTransaction { conn ->
+                conn.isReadOnly.shouldBeTrue()
+                "read-only"
+            }
+
+        result shouldBeEqualTo "read-only"
+        recording.readOnly.shouldBeTrue()
+    }
+
+    @Test
+    fun `withTransaction rolls back non Exception throwables`() {
+        val recording = RecordingConnection()
+        val failure = AssertionError("boom")
+
+        val thrown =
+            assertFailsWith<AssertionError> {
+                recording.connection.withTransaction {
+                    throw failure
+                }
+            }
+
+        thrown shouldBeEqualTo failure
+        recording.calls shouldContain "rollback"
+    }
+
+    @Test
+    fun `withTransaction restores pre existing autoCommit false and isolation state`() {
+        val recording =
+            RecordingConnection(
+                autoCommit = false,
+                isolation = Connection.TRANSACTION_SERIALIZABLE,
+            )
+
+        recording.connection.withTransaction { conn ->
+            conn.autoCommit.shouldBeFalse()
+            conn.transactionIsolation shouldBeEqualTo Connection.TRANSACTION_READ_COMMITTED
+        }
+
+        recording.autoCommit.shouldBeFalse()
+        recording.isolation shouldBeEqualTo Connection.TRANSACTION_SERIALIZABLE
+    }
+
+    @Test
+    fun `withTransaction suppresses restore failures on primary failure and restores independently`() {
+        val restoreFailure = SQLException("restore autoCommit")
+        val recording =
+            RecordingConnection(
+                isolation = Connection.TRANSACTION_SERIALIZABLE,
+                readOnly = true,
+                failRestoringAutoCommit = restoreFailure,
+            )
+        val primaryFailure = RuntimeException("primary")
+
+        val thrown =
+            assertFailsWith<RuntimeException> {
+                recording.connection.withTransaction { conn ->
+                    conn.isReadOnly = false
+                    throw primaryFailure
+                }
+            }
+
+        thrown shouldBeEqualTo primaryFailure
+        thrown.suppressed.toList() shouldContain restoreFailure
+        recording.calls shouldContain "setTransactionIsolation(${Connection.TRANSACTION_SERIALIZABLE})"
+        recording.calls shouldContain "setReadOnly(true)"
+    }
+
+    @Test
+    fun `withTransaction surfaces restore failure after successful commit`() {
+        val restoreFailure = SQLException("restore autoCommit")
+        val recording = RecordingConnection(failRestoringAutoCommit = restoreFailure)
+
+        val thrown =
+            assertFailsWith<SQLException> {
+                recording.connection.withTransaction {}
+            }
+
+        thrown shouldBeEqualTo restoreFailure
     }
 
     @Test
@@ -171,4 +261,102 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
             }
         count shouldBeEqualTo 0
     }
+}
+
+private class RecordingConnection(
+    autoCommit: Boolean = true,
+    isolation: Int = Connection.TRANSACTION_READ_COMMITTED,
+    readOnly: Boolean = false,
+    private val failRestoringAutoCommit: SQLException? = null,
+    private val failRestoringIsolation: SQLException? = null,
+    private val failRestoringReadOnly: SQLException? = null,
+    private val rollbackFailure: SQLException? = null,
+): InvocationHandler {
+
+    private val originalAutoCommit = autoCommit
+    private val originalIsolation = isolation
+    private val originalReadOnly = readOnly
+
+    var autoCommit: Boolean = autoCommit
+        private set
+    var isolation: Int = isolation
+        private set
+    var readOnly: Boolean = readOnly
+        private set
+
+    val calls = mutableListOf<String>()
+
+    val connection: Connection =
+        Proxy.newProxyInstance(
+            Connection::class.java.classLoader,
+            arrayOf(Connection::class.java),
+            this,
+        ) as Connection
+
+    override fun invoke(proxy: Any, method: Method, args: Array<Any?>?): Any? {
+        val arguments = args ?: emptyArray()
+
+        return when (method.name) {
+            "getAutoCommit" -> autoCommit
+            "setAutoCommit" -> {
+                val value = arguments[0] as Boolean
+                val isRestore = calls.any { it.startsWith("setAutoCommit") } && value == originalAutoCommit
+                calls.add("setAutoCommit($value)")
+                if (isRestore) failRestoringAutoCommit?.let { throw it }
+                autoCommit = value
+                null
+            }
+            "getTransactionIsolation" -> isolation
+            "setTransactionIsolation" -> {
+                val value = arguments[0] as Int
+                val isRestore =
+                    calls.any { it.startsWith("setTransactionIsolation") } && value == originalIsolation
+                calls.add("setTransactionIsolation($value)")
+                if (isRestore) failRestoringIsolation?.let { throw it }
+                isolation = value
+                null
+            }
+            "isReadOnly" -> readOnly
+            "setReadOnly" -> {
+                val value = arguments[0] as Boolean
+                val isRestore = calls.any { it.startsWith("setReadOnly") } && value == originalReadOnly
+                calls.add("setReadOnly($value)")
+                if (isRestore) failRestoringReadOnly?.let { throw it }
+                readOnly = value
+                null
+            }
+            "commit" -> {
+                calls.add("commit")
+                null
+            }
+            "rollback" -> {
+                calls.add("rollback")
+                rollbackFailure?.let { throw it }
+                null
+            }
+            "close" -> {
+                calls.add("close")
+                null
+            }
+            "isClosed" -> false
+            "toString" -> "RecordingConnection"
+            "hashCode" -> System.identityHashCode(proxy)
+            "equals" -> proxy === arguments[0]
+            else -> defaultValue(method.returnType)
+        }
+    }
+
+    private fun defaultValue(returnType: Class<*>): Any? =
+        when (returnType) {
+            Boolean::class.javaPrimitiveType -> false
+            Byte::class.javaPrimitiveType -> 0.toByte()
+            Short::class.javaPrimitiveType -> 0.toShort()
+            Int::class.javaPrimitiveType -> 0
+            Long::class.javaPrimitiveType -> 0L
+            Float::class.javaPrimitiveType -> 0F
+            Double::class.javaPrimitiveType -> 0.0
+            Char::class.javaPrimitiveType -> '\u0000'
+            Void.TYPE -> null
+            else -> null
+        }
 }
