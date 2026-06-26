@@ -97,8 +97,22 @@ inline fun <T> java.sql.Connection.executeUpdateWithGeneratedKeys(
         stmt.generatedKeys.use(keyMapper)
     }
 
+private fun List<List<Any?>>.requireConsistentBatchParameterRows() {
+    val expectedSize = firstOrNull()?.size ?: return
+
+    forEachIndexed { rowIndex, params ->
+        require(params.size == expectedSize) {
+            "Inconsistent batch parameter row size at row $rowIndex: expected $expectedSize parameters but was ${params.size}."
+        }
+    }
+}
+
 /**
- * SQL 업데이트를 PreparedStatement로 배치 실행합니다.
+ * Executes a SQL update as prepared-statement batches.
+ *
+ * All parameter rows must have the same number of values. Inconsistent rows fail
+ * before a statement is prepared, which prevents shorter rows from reusing
+ * values bound by previous rows.
  *
  * ```kotlin
  * val batchSize = 1000
@@ -111,10 +125,10 @@ inline fun <T> java.sql.Connection.executeUpdateWithGeneratedKeys(
  * )
  * ```
  *
- * @param sql 실행할 SQL 쿼리
- * @param paramsList 각 배치 항목의 파라미터 리스트들
- * @param batchSize 배치 크기 (기본값: 1000)
- * @return 각 배치 실행의 결과 배열들의 리스트
+ * @param sql SQL statement to execute.
+ * @param paramsList parameter rows for each batch item.
+ * @param batchSize maximum number of rows to execute per JDBC batch.
+ * @return result arrays for each executed batch.
  */
 fun java.sql.Connection.executeBatch(
     sql: String,
@@ -122,11 +136,13 @@ fun java.sql.Connection.executeBatch(
     batchSize: Int = 1000,
 ): List<IntArray> {
     if (paramsList.isEmpty()) return emptyList()
+    paramsList.requireConsistentBatchParameterRows()
 
     return prepareStatement(sql).use { stmt ->
         val results = mutableListOf<IntArray>()
 
         paramsList.forEachIndexed { index, params ->
+            stmt.clearParameters()
             params.forEachIndexed { paramIndex, param ->
                 stmt.setObject(paramIndex + 1, param)
             }
@@ -149,9 +165,11 @@ fun java.sql.Connection.executeBatch(
 }
 
 /**
- * SQL 업데이트를 PreparedStatement로 대량 실행합니다.
+ * Executes a SQL update as prepared-statement large batches.
  *
- * 이 함수는 executeBatch를 래핑하여 단일 결과 배열을 반환합니다.
+ * All parameter rows must have the same number of values. Inconsistent rows fail
+ * before a statement is prepared, which prevents shorter rows from reusing
+ * values bound by previous rows.
  *
  * ```kotlin
  * val paramsList = listOf(
@@ -166,10 +184,10 @@ fun java.sql.Connection.executeBatch(
  * )
  * ```
  *
- * @param sql 실행할 SQL 쿼리
- * @param paramsList 각 배치 항목의 파라미터 리스트들
- * @param batchSize 배치 크기 (기본값: 1000)
- * @return 모든 배치 실행의 결과를 합친 배열
+ * @param sql SQL statement to execute.
+ * @param paramsList parameter rows for each batch item.
+ * @param batchSize maximum number of rows to execute per JDBC batch.
+ * @return combined result array for all executed batches.
  */
 fun java.sql.Connection.executeLargeBatch(
     sql: String,
@@ -177,11 +195,13 @@ fun java.sql.Connection.executeLargeBatch(
     batchSize: Int = 1000,
 ): LongArray {
     if (paramsList.isEmpty()) return LongArray(0)
+    paramsList.requireConsistentBatchParameterRows()
 
     return prepareStatement(sql).use { stmt ->
         val results = mutableListOf<Long>()
 
         paramsList.forEachIndexed { index, params ->
+            stmt.clearParameters()
             params.forEachIndexed { paramIndex, param ->
                 stmt.setObject(paramIndex + 1, param)
             }
