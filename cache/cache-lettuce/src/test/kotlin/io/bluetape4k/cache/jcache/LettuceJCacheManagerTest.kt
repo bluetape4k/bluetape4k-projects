@@ -47,6 +47,56 @@ class LettuceJCacheManagerTest {
     }
 
     @Test
+    fun `typed getCache returns cache when key and value types match`() {
+        val config = lettuceCacheConfigOf<String, String>()
+        manager.createCache("typed-cache", config)
+
+        val retrieved = manager.getCache("typed-cache", String::class.java, String::class.java)
+
+        retrieved.shouldNotBeNull()
+    }
+
+    @Test
+    fun `typed getCache throws when key type does not match`() {
+        val config = lettuceCacheConfigOf<String, String>()
+        manager.createCache("key-mismatch-cache", config)
+
+        assertFailsWith<ClassCastException> {
+            manager.getCache("key-mismatch-cache", Int::class.java, String::class.java)
+        }
+    }
+
+    @Test
+    fun `typed getCache throws when value type does not match`() {
+        val config = lettuceCacheConfigOf<String, String>()
+        manager.createCache("value-mismatch-cache", config)
+
+        assertFailsWith<ClassCastException> {
+            manager.getCache("value-mismatch-cache", String::class.java, Int::class.java)
+        }
+    }
+
+    @Test
+    fun `typed getCache validates type arguments`() {
+        assertFailsWith<IllegalArgumentException> {
+            manager.getCache<String, String>("typed-cache", null, String::class.java)
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            manager.getCache<String, String>("typed-cache", String::class.java, null)
+        }
+    }
+
+    @Test
+    fun `typed getCache throws after close`() {
+        manager.close()
+
+        assertFailsWith<IllegalStateException> {
+            manager.getCache("closed-cache", String::class.java, String::class.java)
+        }
+    }
+
+    @Test
     fun `getCacheNames contains created cache`() {
         val config = lettuceCacheConfigOf<String, String>()
         manager.createCache("cache1", config)
