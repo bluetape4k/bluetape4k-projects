@@ -1,15 +1,20 @@
 package io.bluetape4k.jackson
 
+import com.example.disallowed.DisallowedTypedPayload
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.bluetape4k.jackson.uuid.JsonUuidModule
-import io.bluetape4k.logging.KLogging
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldContainAll
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.jackson.uuid.JsonUuidModule
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
+import java.io.Serializable
 
 class JacksonTest {
 
@@ -69,9 +74,70 @@ class JacksonTest {
     }
 
     @Test
+    fun `createTypedJsonMapper - allowed package payload round trips with property type info`() {
+        val mapper = Jackson.createTypedJsonMapper("io.bluetape4k.jackson.")
+        val original = TypedPayloadEnvelope(AllowedTypedPayload("safe"))
+
+        val json = mapper.writeValueAsString(original)
+        val restored = mapper.readValue(json, TypedPayloadEnvelope::class.java)
+
+        json shouldContain "\"@class\""
+        val payload = restored.payload.shouldBeInstanceOf<AllowedTypedPayload>()
+        payload.value shouldBeEqualTo "safe"
+    }
+
+    @Test
+    fun `createTypedJsonMapper - denied package payload is rejected`() {
+        val mapper = Jackson.createTypedJsonMapper("io.bluetape4k.jackson.")
+        val json = """
+            {
+              "payload": {
+                "@class": "${DisallowedTypedPayload::class.qualifiedName}",
+                "value": "blocked"
+              }
+            }
+        """.trimIndent()
+
+        assertFailsWith<InvalidTypeIdException> {
+            mapper.readValue(json, TypedPayloadEnvelope::class.java)
+        }
+    }
+
+    @Test
+    fun `createTypedJsonMapper - denied root payload is rejected`() {
+        val mapper = Jackson.createTypedJsonMapper("io.bluetape4k.jackson.")
+        val json = """
+            {
+              "@class": "${DisallowedTypedPayload::class.qualifiedName}",
+              "value": "blocked"
+            }
+        """.trimIndent()
+
+        assertFailsWith<InvalidTypeIdException> {
+            mapper.readValue(json, Any::class.java)
+        }
+    }
+
+    @Test
     fun `registeredModuleIdList - 등록된 모듈 ID를 List로 반환`() {
         val ids = Jackson.defaultJsonMapper.registeredModuleIdList()
         ids.shouldNotBeNull()
         (ids.isNotEmpty()).shouldBeTrue()
+    }
+}
+
+internal data class TypedPayloadEnvelope(
+    val payload: Any,
+): Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 8658783199380213352L
+    }
+}
+
+internal data class AllowedTypedPayload(
+    val value: String,
+): Serializable {
+    companion object {
+        private const val serialVersionUID: Long = -6573928863435706361L
     }
 }
