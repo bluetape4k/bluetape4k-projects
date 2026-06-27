@@ -135,6 +135,21 @@ val defaultMapper = Jackson.defaultJsonMapper
 val prettyJson = Jackson.prettyJsonWriter.writeValueAsString(data)
 ```
 
+### Safe Polymorphic Mapper
+
+Use `Jackson.createTypedJsonMapper(...)` when JSON must carry Jackson default type information.
+The allowlist is enforced against polymorphic subtype class names, and type ids are written as the
+`@class` property.
+
+```kotlin
+val mapper = Jackson.createTypedJsonMapper("com.example.model.")
+val json = mapper.writeValueAsString(value)
+val restored = mapper.readValue(json, ModelEnvelope::class.java)
+```
+
+Do not use the deprecated `Jackson.typedJsonMapper` with untrusted JSON. It keeps the legacy
+`Any`-base default typing behavior for compatibility and is unsafe for external payloads.
+
 ### JacksonSerializer
 
 ```kotlin

@@ -1,6 +1,5 @@
 package io.bluetape4k.jackson
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.json.JsonReadFeature
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -9,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectWriter
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
-import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.kotlinModule
 import io.bluetape4k.jackson.Jackson.defaultJsonMapper
@@ -22,17 +20,19 @@ import java.io.IOException
  * Bluetape4k 기본 Jackson 매퍼 구성을 제공하는 싱글턴입니다.
  *
  * ## 동작/계약
- * - [defaultJsonMapper], [typedJsonMapper]는 lazy 초기화 후 동일 인스턴스를 재사용합니다.
- * - `typed` 계열은 default typing 정보를 포함해 다형 타입 직렬화를 지원합니다.
+ * - [defaultJsonMapper] is lazily initialized and reused.
+ * - Use [createTypedJsonMapper] for allowlisted default typing.
+ * - [typedJsonMapper] is legacy compatibility API and must not be used for untrusted JSON.
  * - 매퍼 생성 중 I/O/설정 오류가 발생하면 [IllegalStateException]으로 전파됩니다.
  *
  * ```kotlin
  * val mapper = Jackson.defaultJsonMapper
- * val typedMapper = Jackson.typedJsonMapper
- * // mapper !== typedMapper
+ * val typedMapper = Jackson.createTypedJsonMapper("com.example.model.")
  * ```
  */
 object Jackson: KLogging() {
+
+    private const val DEFAULT_TYPE_PROPERTY_NAME = "@class"
 
     /** 기본 JsonMapper 인스턴스입니다. */
     val defaultJsonMapper: JsonMapper by lazy { createDefaultJsonMapper() }
@@ -69,19 +69,21 @@ object Jackson: KLogging() {
     }
 
     /**
-     * 사용자가 지정한 패키지만 허용하는 다형 타입 지원 [JsonMapper]를 생성합니다.
+     * Creates a [JsonMapper] that writes property-based type information and allows only trusted
+     * subtype packages.
      *
-     * ## 보안 주의
-     * - [allowedBasePackages]에 신뢰할 수 있는 패키지만 지정하세요.
-     * - 빈 목록은 허용되지 않으며 [IllegalArgumentException]을 발생시킵니다.
+     * ## Security contract
+     * - [allowedBasePackages] must contain trusted subtype package prefixes.
+     * - Empty allowlists are rejected with [IllegalArgumentException].
+     * - Type ids are written as the `@class` property and validated during polymorphic deserialization.
      *
      * ```kotlin
      * val mapper = Jackson.createTypedJsonMapper("com.example.", "io.myapp.")
-     * // 지정된 패키지의 타입만 다형 역직렬화 허용
+     * // Only subtypes under the supplied package prefixes are accepted.
      * ```
      *
-     * @param allowedBasePackages 허용할 기본 타입 패키지 접두사 목록 (예: `"com.example."`)
-     * @param typing 다형 타입 처리 전략 (기본값: [ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS])
+     * @param allowedBasePackages Trusted subtype package prefixes, for example `"com.example."`.
+     * @param typing Default typing strategy. Defaults to [ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS].
      */
     fun createTypedJsonMapper(
         vararg allowedBasePackages: String,
@@ -92,12 +94,12 @@ object Jackson: KLogging() {
         }
         log.info { "Create TypedJsonMapper ... allowedBasePackages=${allowedBasePackages.toList()}" }
         val validator = BasicPolymorphicTypeValidator.builder().apply {
-            allowedBasePackages.forEach { allowIfBaseType(it) }
+            allowedBasePackages.forEach { allowIfSubType(it) }
             allowIfSubTypeIsArray()
         }.build()
         return createDefaultJsonMapper().apply {
-            activateDefaultTyping(validator, typing)
-            initTypeInclusion(this)
+            activateDefaultTypingAsProperty(validator, typing, DEFAULT_TYPE_PROPERTY_NAME)
+            verifyTypeInclusion(this)
         }
     }
 
@@ -165,25 +167,20 @@ object Jackson: KLogging() {
                 // (CVE-2019-12384 계열 취약점 참고)
                 // 보안이 중요한 환경에서는 allowIfBaseType() 에 신뢰할 패키지만 명시적으로 지정하세요.
                 // 예: .allowIfBaseType("com.example.model")
-                activateDefaultTyping(
+                activateDefaultTypingAsProperty(
                     BasicPolymorphicTypeValidator.builder()
                         .allowIfBaseType(Any::class.java)
                         .allowIfSubTypeIsArray()
                         .build(),
-                    ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS
+                    ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS,
+                    DEFAULT_TYPE_PROPERTY_NAME
                 )
-                initTypeInclusion(this)
+                verifyTypeInclusion(this)
             }
         }
     }
 
-    private fun initTypeInclusion(mapper: JsonMapper) {
-        val mapTypers = StdTypeResolverBuilder().apply {
-            init(JsonTypeInfo.Id.CLASS, null)
-            inclusion(JsonTypeInfo.As.PROPERTY)
-        }
-        mapper.setDefaultTyping(mapTypers)
-
+    private fun verifyTypeInclusion(mapper: JsonMapper) {
         try {
             val s = mapper.writeValueAsBytes(1)
             mapper.readValue(s, Any::class.java)

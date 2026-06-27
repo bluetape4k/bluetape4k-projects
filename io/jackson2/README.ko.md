@@ -67,6 +67,20 @@ val defaultMapper = Jackson.defaultJsonMapper
 val prettyJson = Jackson.prettyJsonWriter.writeValueAsString(data)
 ```
 
+### 안전한 다형성 Mapper
+
+Jackson default type information이 필요한 JSON에는 `Jackson.createTypedJsonMapper(...)`를 사용하세요.
+allowlist는 다형 subtype class name에 적용되며, type id는 `@class` property로 기록됩니다.
+
+```kotlin
+val mapper = Jackson.createTypedJsonMapper("com.example.model.")
+val json = mapper.writeValueAsString(value)
+val restored = mapper.readValue(json, ModelEnvelope::class.java)
+```
+
+신뢰할 수 없는 JSON에는 deprecated된 `Jackson.typedJsonMapper`를 사용하지 마세요. 이 mapper는
+호환성을 위해 기존 `Any` base default typing 동작을 유지하므로 외부 payload에 안전하지 않습니다.
+
 ### 2. JacksonSerializer
 
 `JsonSerializer` 인터페이스를 구현하며, Jackson ObjectMapper를 사용합니다.
