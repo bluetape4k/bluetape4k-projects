@@ -4,6 +4,92 @@
 
 ---
 
+## [1.11.0] — 2026-06-27
+
+### Security
+
+- Hardened serialization, encryption, codec, SQL interpolation, and plaintext
+  transport boundaries across Jackson, Hibernate, Cassandra, Redis/Redisson,
+  Protobuf, R2DBC, Kafka Logback, HTTP logging, and gRPC helpers
+  ([#790](https://github.com/bluetape4k/bluetape4k-projects/issues/790),
+  [#791](https://github.com/bluetape4k/bluetape4k-projects/issues/791),
+  [#792](https://github.com/bluetape4k/bluetape4k-projects/issues/792),
+  [#797](https://github.com/bluetape4k/bluetape4k-projects/issues/797),
+  [#798](https://github.com/bluetape4k/bluetape4k-projects/issues/798),
+  [#799](https://github.com/bluetape4k/bluetape4k-projects/issues/799),
+  [#802](https://github.com/bluetape4k/bluetape4k-projects/issues/802),
+  [#803](https://github.com/bluetape4k/bluetape4k-projects/issues/803),
+  [#806](https://github.com/bluetape4k/bluetape4k-projects/issues/806),
+  [#809](https://github.com/bluetape4k/bluetape4k-projects/issues/809),
+  [#815](https://github.com/bluetape4k/bluetape4k-projects/issues/815),
+  [#816](https://github.com/bluetape4k/bluetape4k-projects/issues/816),
+  [#822](https://github.com/bluetape4k/bluetape4k-projects/issues/822),
+  [#848](https://github.com/bluetape4k/bluetape4k-projects/issues/848)).
+- Authenticated the gitleaks release lookup path used by secret-scanning CI
+  ([#860](https://github.com/bluetape4k/bluetape4k-projects/issues/860)).
+
+### Fixed
+
+- Restored cancellation, failure propagation, typed-null binding, JDBC/R2DBC,
+  Cassandra, Hibernate, rule-engine, date/time, measured-unit, histogram,
+  JWT, Flake, and Spring bean lookup contracts with targeted regression tests
+  ([#817](https://github.com/bluetape4k/bluetape4k-projects/issues/817),
+  [#818](https://github.com/bluetape4k/bluetape4k-projects/issues/818),
+  [#819](https://github.com/bluetape4k/bluetape4k-projects/issues/819),
+  [#823](https://github.com/bluetape4k/bluetape4k-projects/issues/823),
+  [#824](https://github.com/bluetape4k/bluetape4k-projects/issues/824),
+  [#832](https://github.com/bluetape4k/bluetape4k-projects/issues/832),
+  [#836](https://github.com/bluetape4k/bluetape4k-projects/issues/836),
+  [#845](https://github.com/bluetape4k/bluetape4k-projects/issues/845),
+  [#846](https://github.com/bluetape4k/bluetape4k-projects/issues/846),
+  [#847](https://github.com/bluetape4k/bluetape4k-projects/issues/847),
+  [#849](https://github.com/bluetape4k/bluetape4k-projects/issues/849),
+  [#850](https://github.com/bluetape4k/bluetape4k-projects/issues/850),
+  [#851](https://github.com/bluetape4k/bluetape4k-projects/issues/851),
+  [#852](https://github.com/bluetape4k/bluetape4k-projects/issues/852),
+  [#853](https://github.com/bluetape4k/bluetape4k-projects/issues/853),
+  [#854](https://github.com/bluetape4k/bluetape4k-projects/issues/854),
+  [#855](https://github.com/bluetape4k/bluetape4k-projects/issues/855),
+  [#856](https://github.com/bluetape4k/bluetape4k-projects/issues/856),
+  [#908](https://github.com/bluetape4k/bluetape4k-projects/issues/908)).
+- Preserved coroutine Flow terminal contracts and Feign coroutine `Unit`
+  response handling
+  ([#770](https://github.com/bluetape4k/bluetape4k-projects/issues/770),
+  [#773](https://github.com/bluetape4k/bluetape4k-projects/issues/773)).
+
+### Changed
+
+- Aligned Hibernate Reactive, Hibernate converter, Cassandra mapper, Redis
+  serializer, Ktor OpenAPI, and Testcontainers dependencies with their runtime
+  API exposure and deprecation boundaries
+  ([#811](https://github.com/bluetape4k/bluetape4k-projects/issues/811),
+  [#814](https://github.com/bluetape4k/bluetape4k-projects/issues/814),
+  [#830](https://github.com/bluetape4k/bluetape4k-projects/issues/830),
+  [#834](https://github.com/bluetape4k/bluetape4k-projects/issues/834),
+  [#880](https://github.com/bluetape4k/bluetape4k-projects/issues/880),
+  [#893](https://github.com/bluetape4k/bluetape4k-projects/issues/893),
+  [#912](https://github.com/bluetape4k/bluetape4k-projects/issues/912)).
+- Expanded data-module CI coverage and kept the `1.11.0` release-train
+  tracking issue closed with all milestone work completed
+  ([#900](https://github.com/bluetape4k/bluetape4k-projects/issues/900),
+  [#723](https://github.com/bluetape4k/bluetape4k-projects/issues/723)).
+
+### Documentation
+
+- Corrected consumer-facing README and API documentation for Redis serializers,
+  Hibernate Lettuce, Cassandra demos, Spring WebClient, mock servers,
+  Ktor OpenAPI, R2DBC binding, Jackson Tink keyset durability, and geo usage
+  examples
+  ([#826](https://github.com/bluetape4k/bluetape4k-projects/issues/826),
+  [#829](https://github.com/bluetape4k/bluetape4k-projects/issues/829),
+  [#833](https://github.com/bluetape4k/bluetape4k-projects/issues/833),
+  [#837](https://github.com/bluetape4k/bluetape4k-projects/issues/837),
+  [#838](https://github.com/bluetape4k/bluetape4k-projects/issues/838),
+  [#839](https://github.com/bluetape4k/bluetape4k-projects/issues/839),
+  [#840](https://github.com/bluetape4k/bluetape4k-projects/issues/840),
+  [#841](https://github.com/bluetape4k/bluetape4k-projects/issues/841),
+  [#844](https://github.com/bluetape4k/bluetape4k-projects/issues/844)).
+
 ## [1.10.0] — 2026-06-01
 
 ### Added
