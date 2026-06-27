@@ -94,7 +94,7 @@ Supported algorithms for `@JsonTinkEncrypt`:
 | `AES128_GCM`               | AES128-GCM non-deterministic — performance-focused                     |
 | `CHACHA20_POLY1305`        | ChaCha20-Poly1305 — for environments without hardware AES acceleration |
 | `XCHACHA20_POLY1305`       | XChaCha20-Poly1305 — large nonce (192-bit)                             |
-| `DETERMINISTIC_AES256_SIV` | AES256-SIV deterministic — searchable in DB                            |
+| `DETERMINISTIC_AES256_SIV` | AES256-SIV deterministic — process-local equality only                 |
 
 ### 7. Field Masking (@JsonMasker)
 
@@ -227,13 +227,18 @@ data class User(
     val username: String,
     @get:JsonTinkEncrypt                                               // AES256-GCM (default)
     val password: String,
-    @get:JsonTinkEncrypt(TinkEncryptAlgorithm.DETERMINISTIC_AES256_SIV) // deterministic encryption for DB search
+    @get:JsonTinkEncrypt(TinkEncryptAlgorithm.DETERMINISTIC_AES256_SIV) // deterministic within this JVM keyset
     val mobile: String,
 )
 
 // Serialized: { "username": "debop", "password": "AXYzK1...", "mobile": "BVp0..." }
 // Automatically decrypted on deserialization
 ```
+
+`@JsonTinkEncrypt` uses `TinkEncryptors` singleton instances, whose keysets are generated in memory for the
+current JVM process. Do not use this annotation for durable encrypted database columns or searchable indexes that must
+survive restart, rollout, or multi-instance access. For durable searchable storage, use `bluetape4k-tink` versioned
+keyset APIs such as `TinkDaeads.versioned(store)` with a protected `VersionedKeysetStore`.
 
 ### Field Masking
 

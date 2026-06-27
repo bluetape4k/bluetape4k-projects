@@ -225,13 +225,18 @@ data class User(
     val username: String,
     @get:JsonTinkEncrypt                                               // AES256-GCM (기본값)
     val password: String,
-    @get:JsonTinkEncrypt(TinkEncryptAlgorithm.DETERMINISTIC_AES256_SIV) // DB 검색 가능한 결정적 암호화
+    @get:JsonTinkEncrypt(TinkEncryptAlgorithm.DETERMINISTIC_AES256_SIV) // 현재 JVM keyset 안에서만 결정적
     val mobile: String,
 )
 
 // 직렬화: { "username": "debop", "password": "AXYzK1...", "mobile": "BVp0..." }
 // 역직렬화 시 자동 복호화
 ```
+
+`@JsonTinkEncrypt`는 현재 JVM process에서 메모리로 생성되는 `TinkEncryptors` singleton keyset을 사용합니다.
+재시작, rollout, multi-instance 접근 이후에도 유지되어야 하는 DB 컬럼 암호화나 검색 index에는 이 annotation을
+사용하지 마세요. durable searchable storage가 필요하다면 보호된 `VersionedKeysetStore`와
+`TinkDaeads.versioned(store)` 같은 `bluetape4k-tink` versioned keyset API를 사용하세요.
 
 지원 알고리즘:
 
@@ -241,7 +246,7 @@ data class User(
 | `AES128_GCM`               | AES128-GCM 비결정적 암호화 — 성능 우선          |
 | `CHACHA20_POLY1305`        | ChaCha20-Poly1305 — HW AES 가속 없는 환경  |
 | `XCHACHA20_POLY1305`       | XChaCha20-Poly1305 — 큰 nonce(192bit) |
-| `DETERMINISTIC_AES256_SIV` | AES256-SIV 결정적 암호화 — DB 검색 가능        |
+| `DETERMINISTIC_AES256_SIV` | AES256-SIV 결정적 암호화 — 현재 process 안의 equality 확인용 |
 
 ### 7. 필드 마스킹 (@JsonMasker)
 

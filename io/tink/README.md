@@ -47,8 +47,8 @@ Use this module when:
 - **Application data must be encrypted with context binding**: use
   `TinkAeads.AES256_GCM` and pass associated data such as tenant ID, entity ID,
   or column name.
-- **A database column must remain searchable**: use
-  `TinkDaeads.AES256_SIV` or `TinkEncryptors.DETERMINISTIC_AES256_SIV`, and
+- **A database column must remain searchable and durable**: use
+  `TinkDaeads.versioned(store)` with a persisted AES-SIV keyset store, and
   accept that repeated plaintext values produce repeated ciphertext values.
 - **Ciphertexts must survive key rotation**: use `TinkAeads.versioned(store)` or
   `TinkDaeads.versioned(store)` so ciphertext includes the keyset version.
@@ -248,7 +248,7 @@ import io.bluetape4k.tink.encrypt.tinkDecrypt
 val encrypted = TinkEncryptors.AES256_GCM.encrypt("secret message")
 val decrypted = TinkEncryptors.AES256_GCM.decrypt(encrypted)
 
-// Deterministic encryption (for DB search)
+// Process-local deterministic encryption. Do not use singleton keys for durable DB search.
 val ct = TinkEncryptors.DETERMINISTIC_AES256_SIV.encrypt("searchable field")
 val ct2 = TinkEncryptors.DETERMINISTIC_AES256_SIV.encrypt("searchable field")
 // ct == ct2 (deterministic)
@@ -264,7 +264,7 @@ val dec = enc.tinkDecrypt(TinkEncryptors.CHACHA20_POLY1305)
 |--------------------------------------|---------------------------|----------------------------------------------------------------------|
 | General encryption                   | AES-256-GCM               | `TinkAeads.AES256_GCM` / `TinkEncryptors.AES256_GCM`                 |
 | No hardware AES acceleration         | XChaCha20-Poly1305        | `TinkAeads.XCHACHA20_POLY1305` / `TinkEncryptors.XCHACHA20_POLY1305` |
-| Searchable DB column encryption      | AES-256-SIV               | `TinkDaeads.AES256_SIV` / `TinkEncryptors.DETERMINISTIC_AES256_SIV`  |
+| Durable searchable DB column         | AES-256-SIV               | `TinkDaeads.versioned(store)` with a persisted AES-SIV keyset store  |
 | Data integrity verification          | HMAC-SHA256               | `TinkMacs.HMAC_SHA256`                                               |
 | High-security integrity verification | HMAC-SHA512 (512-bit tag) | `TinkMacs.HMAC_SHA512_512BITTAG`                                     |
 | General-purpose hash                 | SHA-256                   | `TinkDigesters.SHA256`                                               |

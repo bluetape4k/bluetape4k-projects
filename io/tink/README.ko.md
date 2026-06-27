@@ -43,8 +43,8 @@ raw JCA/JCE API를 직접 사용할 때 실수하기 쉬운 nonce 처리, cipher
 
 - **Context binding이 필요한 애플리케이션 데이터 암호화**: `TinkAeads.AES256_GCM`을 사용하고 tenant ID,
   entity ID, column name 같은 associated data를 전달합니다.
-- **검색 가능한 DB 컬럼 암호화**: `TinkDaeads.AES256_SIV` 또는
-  `TinkEncryptors.DETERMINISTIC_AES256_SIV`를 사용합니다. 같은 평문은 같은 암호문이 된다는 점을 수용해야 합니다.
+- **검색 가능하면서 durable한 DB 컬럼 암호화**: persisted AES-SIV keyset store와
+  `TinkDaeads.versioned(store)`를 사용합니다. 같은 평문은 같은 암호문이 된다는 점을 수용해야 합니다.
 - **Key rotation 이후에도 기존 ciphertext 복호화가 필요할 때**: `TinkAeads.versioned(store)` 또는
   `TinkDaeads.versioned(store)`를 사용해 ciphertext에 keyset version을 포함합니다.
 - **여러 서비스가 active keyset을 공유해야 할 때**: Redis 기반 `VersionedKeysetStore`를 사용하되 Redis를
@@ -233,7 +233,7 @@ import io.bluetape4k.tink.encrypt.tinkDecrypt
 val encrypted = TinkEncryptors.AES256_GCM.encrypt("비밀 메시지")
 val decrypted = TinkEncryptors.AES256_GCM.decrypt(encrypted)
 
-// 결정적 암호화 (DB 검색용)
+// 현재 process 안의 결정적 암호화. durable DB 검색에는 singleton key를 사용하지 마세요.
 val ct = TinkEncryptors.DETERMINISTIC_AES256_SIV.encrypt("검색 가능한 필드")
 val ct2 = TinkEncryptors.DETERMINISTIC_AES256_SIV.encrypt("검색 가능한 필드")
 // ct == ct2 (결정적)
@@ -249,7 +249,7 @@ val dec = enc.tinkDecrypt(TinkEncryptors.CHACHA20_POLY1305)
 |-----------------|------------------------|----------------------------------------------------------------------|
 | 범용 암호화          | AES-256-GCM            | `TinkAeads.AES256_GCM` / `TinkEncryptors.AES256_GCM`                 |
 | 하드웨어 AES 없는 환경  | XChaCha20-Poly1305     | `TinkAeads.XCHACHA20_POLY1305` / `TinkEncryptors.XCHACHA20_POLY1305` |
-| DB 컬럼 검색 가능 암호화 | AES-256-SIV            | `TinkDaeads.AES256_SIV` / `TinkEncryptors.DETERMINISTIC_AES256_SIV`  |
+| durable DB 컬럼 검색 암호화 | AES-256-SIV            | persisted AES-SIV keyset store를 사용하는 `TinkDaeads.versioned(store)` |
 | 데이터 무결성 검증      | HMAC-SHA256            | `TinkMacs.HMAC_SHA256`                                               |
 | 고보안 무결성 검증      | HMAC-SHA512 (512비트 태그) | `TinkMacs.HMAC_SHA512_512BITTAG`                                     |
 | 범용 해시           | SHA-256                | `TinkDigesters.SHA256`                                               |
