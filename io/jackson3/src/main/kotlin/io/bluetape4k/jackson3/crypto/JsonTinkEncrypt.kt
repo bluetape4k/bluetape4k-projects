@@ -3,12 +3,17 @@ package io.bluetape4k.jackson3.crypto
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside
 
 /**
- * 문자열 필드를 JSON 직렬화 시 Google Tink로 암호화하고 역직렬화 시 복호화하도록 지정하는 애너테이션입니다.
+ * Marks a string field for Google Tink encryption during JSON serialization and
+ * decryption during JSON deserialization.
  *
- * ## 동작/계약
- * - [JsonTinkEncryptModule] 등록 시 [JsonTinkEncryptAnnotationIntrospector]가 serializer/deserializer를 선택합니다.
- * - [algorithm]으로 지정한 [TinkEncryptAlgorithm]의 [TinkEncryptors] 인스턴스를 사용합니다.
- * - 객체 내부 값은 변경하지 않고 JSON 표현만 암복호화합니다.
+ * ## Contract
+ * - [JsonTinkEncryptModule] registers [JsonTinkEncryptAnnotationIntrospector] to
+ *   select the serializer and deserializer.
+ * - The selected [algorithm] resolves to a [TinkEncryptors] singleton.
+ * - Singleton encryptors use process-local in-memory keysets; do not use this
+ *   annotation for durable encrypted database columns or searchable indexes.
+ * - The in-memory object value is unchanged; only the JSON representation is
+ *   encrypted or decrypted.
  *
  * ```kotlin
  * data class User(
@@ -16,11 +21,11 @@ import com.fasterxml.jackson.annotation.JacksonAnnotationsInside
  *     @get:JsonTinkEncrypt val password: String,
  *     @get:JsonTinkEncrypt(algorithm = TinkEncryptAlgorithm.DETERMINISTIC_AES256_SIV) val mobile: String,
  * )
- * // password 필드는 AES256-GCM 암호문 문자열로 직렬화됨
- * // mobile 필드는 결정적 AES256-SIV 암호문 문자열로 직렬화됨
+ * // password is serialized as an AES256-GCM ciphertext string.
+ * // mobile is serialized as a deterministic AES256-SIV ciphertext string for this JVM keyset.
  * ```
  *
- * @property algorithm 사용할 Tink 암호화 알고리즘 (기본값: [TinkEncryptAlgorithm.AES256_GCM])
+ * @property algorithm Tink encryption algorithm. Defaults to [TinkEncryptAlgorithm.AES256_GCM].
  */
 @JacksonAnnotationsInside
 @Retention(AnnotationRetention.RUNTIME)

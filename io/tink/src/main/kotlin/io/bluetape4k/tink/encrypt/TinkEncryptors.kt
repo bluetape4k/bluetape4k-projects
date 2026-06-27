@@ -13,19 +13,21 @@ import io.bluetape4k.tink.daeadKeysetHandle
 import io.bluetape4k.tink.registerTink
 
 /**
- * 미리 구성된 [TinkEncryptor] 인스턴스를 제공하는 팩토리 싱글턴입니다.
+ * Factory singleton for preconfigured [TinkEncryptor] instances.
  *
- * AEAD(비결정적)와 Deterministic AEAD(결정적) 암호화 구현체를 모두 제공합니다.
- * 각 인스턴스는 lazy 초기화되며, 서로 다른 키를 사용하므로
- * 같은 알고리즘이라도 교차 복호화가 불가능합니다.
+ * The singleton encryptors are lazily initialized with process-local in-memory
+ * keysets. They are useful for ephemeral JSON/document protection, examples,
+ * and tests, but must not be used for durable ciphertext that must survive JVM
+ * restart, rollout, or multi-instance access. Use versioned keyset APIs when
+ * ciphertext is persisted.
  *
  * ```kotlin
- * // 비결정적 암호화 (범용)
+ * // Non-deterministic encryption for ephemeral data.
  * val encrypted = TinkEncryptors.AES256_GCM.encrypt("Hello, World!")
  * val decrypted = TinkEncryptors.AES256_GCM.decrypt(encrypted)
  *
- * // 결정적 암호화 (DB 검색용)
- * val ct = TinkEncryptors.DETERMINISTIC_AES256_SIV.encrypt("검색 가능한 필드")
+ * // Deterministic equality within this singleton keyset only.
+ * val ct = TinkEncryptors.DETERMINISTIC_AES256_SIV.encrypt("searchable field")
  * ```
  */
 object TinkEncryptors: KLogging() {
@@ -34,27 +36,27 @@ object TinkEncryptors: KLogging() {
         registerTink()
     }
 
-    /** AES256-GCM 기반 비결정적 암호화. 범용 인증 암호화에 권장됩니다. */
+    /** AES256-GCM non-deterministic encryption for general authenticated encryption. */
     val AES256_GCM: TinkEncryptor by publicLazy {
         TinkAeadEncryptor(TinkAead(aeadKeysetHandle(AesGcmKeyManager.aes256GcmTemplate())))
     }
 
-    /** AES128-GCM 기반 비결정적 암호화. 성능이 중요한 경우 사용합니다. */
+    /** AES128-GCM non-deterministic encryption for performance-focused use. */
     val AES128_GCM: TinkEncryptor by publicLazy {
         TinkAeadEncryptor(TinkAead(aeadKeysetHandle(AesGcmKeyManager.aes128GcmTemplate())))
     }
 
-    /** ChaCha20-Poly1305 기반 비결정적 암호화. 하드웨어 AES 가속이 없는 환경에 적합합니다. */
+    /** ChaCha20-Poly1305 non-deterministic encryption for environments without hardware AES acceleration. */
     val CHACHA20_POLY1305: TinkEncryptor by publicLazy {
         TinkAeadEncryptor(TinkAead(aeadKeysetHandle(ChaCha20Poly1305KeyManager.chaCha20Poly1305Template())))
     }
 
-    /** XChaCha20-Poly1305 기반 비결정적 암호화. 더 큰 nonce(192bit)로 nonce 재사용 위험을 줄입니다. */
+    /** XChaCha20-Poly1305 non-deterministic encryption with a 192-bit nonce. */
     val XCHACHA20_POLY1305: TinkEncryptor by publicLazy {
         TinkAeadEncryptor(TinkAead(aeadKeysetHandle(XChaCha20Poly1305KeyManager.xChaCha20Poly1305Template())))
     }
 
-    /** AES256-SIV 기반 결정적 암호화. 동일 평문에 동일 암호문을 생성하여 DB 검색이 가능합니다. */
+    /** AES256-SIV deterministic encryption for process-local equality checks only. */
     val DETERMINISTIC_AES256_SIV: TinkEncryptor by publicLazy {
         TinkDaeadEncryptor(TinkDeterministicAead(daeadKeysetHandle(AesSivKeyManager.aes256SivTemplate())))
     }
