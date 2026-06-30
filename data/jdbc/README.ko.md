@@ -58,6 +58,69 @@ dataSource.withConnect { conn ->
 }
 ```
 
+#### 갱신형 비밀번호 DataSource
+
+`RefreshingJdbcPasswordDataSource`는 물리 JDBC 연결마다 비밀번호가 달라질
+수 있는 환경을 위한 작은 `DriverManager` 기반 `DataSource`입니다. 예를
+들어 클라우드에서 생성하는 데이터베이스 토큰을 사용할 때, 인자 없는
+`getConnection()` 호출마다 비밀번호 provider를 호출한 뒤
+`DriverManager.getConnection(url, properties)`에 위임합니다.
+
+```kotlin
+import io.bluetape4k.jdbc.datasource.JdbcPasswordProvider
+import io.bluetape4k.jdbc.datasource.RefreshingJdbcPasswordDataSource
+import io.bluetape4k.jdbc.datasource.RefreshingJdbcPasswordDataSourceConfig
+
+val refreshingDataSource = RefreshingJdbcPasswordDataSource(
+    config = RefreshingJdbcPasswordDataSourceConfig(
+        url = "jdbc:postgresql://localhost:5432/app",
+        driverClassName = "org.postgresql.Driver",
+        username = "app_user",
+        dataSourceProperties = mapOf("sslmode" to "require"),
+    ),
+    passwordProvider = JdbcPasswordProvider {
+        currentDatabaseToken()
+    },
+)
+
+refreshingDataSource.connection.use { connection ->
+    connection.prepareStatement("SELECT 1").use { statement ->
+        statement.executeQuery().use { rs ->
+            rs.next()
+        }
+    }
+}
+```
+
+Hikari로 감쌀 때는 내부 `dataSource`만 설정합니다. 이 갱신 경로에서는
+Hikari의 `jdbcUrl`, `username`, `password`, `credentialsProvider`,
+`dataSourceClassName`을 함께 설정하지 마세요. 이런 설정은 인자 없는
+`getConnection()` 계약을 우회할 수 있습니다.
+
+```kotlin
+import com.zaxxer.hikari.HikariDataSource
+
+val pooled = HikariDataSource().apply {
+    dataSource = refreshingDataSource
+    maximumPoolSize = 10
+}
+```
+
+중요 동작:
+
+- `getConnection(username, password)`는 거부됩니다. 호출자가 넘긴 인증
+  정보는 갱신 계약을 우회하기 때문입니다.
+- `getLogWriter`, `setLogWriter`, `getLoginTimeout`, `setLoginTimeout`은
+  인스턴스별 상태가 아니라 프로세스 전역 `DriverManager` 상태를
+  사용합니다.
+- 이 helper는 connection pool, 예약 refresh 서비스, async password
+  provider, 범용 정적 credential helper, 호출자 credential override
+  경로가 아닙니다.
+- `dataSourceProperties`에는 벤더 driver 옵션을 넣을 수 있지만, 비밀
+  값이 들어간 항목은 진단 메시지에 안전하지 않습니다. `user`와
+  `password` 항목은 항상 설정된 username과 현재 provider password로
+  덮어씁니다.
+
 ### 2. Statement 실행
 
 간편한 Statement 생성과 실행:

@@ -57,6 +57,67 @@ dataSource.withConnect { conn ->
 }
 ```
 
+#### Refreshing Password DataSource
+
+`RefreshingJdbcPasswordDataSource` is a small `DriverManager`-backed `DataSource`
+for passwords that can change between physical JDBC connections, such as
+cloud-generated database tokens. It calls the password provider for every
+no-argument `getConnection()` call and then delegates to
+`DriverManager.getConnection(url, properties)`.
+
+```kotlin
+import io.bluetape4k.jdbc.datasource.JdbcPasswordProvider
+import io.bluetape4k.jdbc.datasource.RefreshingJdbcPasswordDataSource
+import io.bluetape4k.jdbc.datasource.RefreshingJdbcPasswordDataSourceConfig
+
+val refreshingDataSource = RefreshingJdbcPasswordDataSource(
+    config = RefreshingJdbcPasswordDataSourceConfig(
+        url = "jdbc:postgresql://localhost:5432/app",
+        driverClassName = "org.postgresql.Driver",
+        username = "app_user",
+        dataSourceProperties = mapOf("sslmode" to "require"),
+    ),
+    passwordProvider = JdbcPasswordProvider {
+        currentDatabaseToken()
+    },
+)
+
+refreshingDataSource.connection.use { connection ->
+    connection.prepareStatement("SELECT 1").use { statement ->
+        statement.executeQuery().use { rs ->
+            rs.next()
+        }
+    }
+}
+```
+
+Wrap it with Hikari by setting the nested `dataSource`. Do not also set
+Hikari `jdbcUrl`, `username`, `password`, `credentialsProvider`, or
+`dataSourceClassName` for this refresh path, because those settings can bypass
+the no-argument `getConnection()` contract.
+
+```kotlin
+import com.zaxxer.hikari.HikariDataSource
+
+val pooled = HikariDataSource().apply {
+    dataSource = refreshingDataSource
+    maximumPoolSize = 10
+}
+```
+
+Important behavior:
+
+- `getConnection(username, password)` is rejected because caller-supplied
+  credentials would bypass the refresh contract.
+- `getLogWriter`, `setLogWriter`, `getLoginTimeout`, and `setLoginTimeout`
+  use process-wide `DriverManager` state, not per-instance state.
+- This helper is not a connection pool, scheduled refresh service, async
+  password provider, generic static credential helper, or caller-supplied
+  credential override path.
+- `dataSourceProperties` may contain vendor driver options, but secret-bearing
+  entries are not diagnostic-safe. `user` and `password` entries are always
+  overwritten by the configured username and the current provider password.
+
 ### 2. Executing Statements
 
 Simple statement creation and execution:

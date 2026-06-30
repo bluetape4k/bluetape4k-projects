@@ -136,9 +136,10 @@ Package: `io.bluetape4k.jdbc.datasource`
   - `getLogWriter`, `setLogWriter`, `getLoginTimeout`, and `setLoginTimeout`
     delegate to `DriverManager`; KDoc and README must say these methods read
     or mutate process-wide `DriverManager` state, not per-instance state.
-  - `toString()` reports only class name, sanitized URL summary, and username.
-    It must not include full JDBC URLs, URL query strings, URL userinfo, the
-    current password, or any password-like values.
+  - `toString()` reports only class name, sanitized URL summary, and a redacted
+    username marker. It must not include username values, full JDBC URLs, URL
+    query strings, URL userinfo, the current password, or any password-like
+    values.
   - `getParentLogger()` returns `Logger.getGlobal()` as the current AWS class
     does.
   - `unwrap` and `isWrapperFor` support unwrapping to the helper instance only.
@@ -247,9 +248,9 @@ AWS migration after the helper is released:
   `DriverManager` global state after execution.
 - wrapper methods report `isWrapperFor` and `unwrap` behavior.
 - `toString()` does not invoke the provider and does not expose password
-  values, full URL query strings, URL userinfo, or credential-bearing JDBC URL
-  parts. Sentinel tests include URL query parameters such as `password`,
-  `token`, and `sslpassword`.
+  values, username values, full URL query strings, URL userinfo, or
+  credential-bearing JDBC URL parts. Sentinel tests include URL query
+  parameters such as `password`, `token`, and `sslpassword`.
 - failure messages for null password, rejected caller credentials, unwrap
   failure, and driver loading do not expose password values.
 - null-password tests use sentinel URL parameters and secret-bearing
