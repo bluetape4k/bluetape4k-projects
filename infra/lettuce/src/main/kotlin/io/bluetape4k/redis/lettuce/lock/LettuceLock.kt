@@ -98,6 +98,9 @@ class LettuceLock(
         waitTime: Duration = Duration.ZERO,
         leaseTime: Duration = defaultLeaseTime,
     ): Boolean {
+        waitTime.requireZeroOrPositiveDuration("waitTime")
+        leaseTime.requirePositiveMillisDuration("leaseTime")
+
         val token = UUID.randomUUID().toString()
         val leaseMs = leaseTime.toMillis()
         val deadline = System.currentTimeMillis() + waitTime.toMillis()
@@ -134,6 +137,9 @@ class LettuceLock(
      * @throws IllegalStateException maxWaitTime 초과 시
      */
     fun lock(leaseTime: Duration = defaultLeaseTime, maxWaitTime: Duration = Duration.ofMinutes(5)) {
+        leaseTime.requirePositiveMillisDuration("leaseTime")
+        maxWaitTime.requirePositiveMillisDuration("maxWaitTime")
+
         val token = UUID.randomUUID().toString()
         val leaseMs = leaseTime.toMillis()
         val args = SetArgs().nx().px(leaseMs)
@@ -166,7 +172,7 @@ class LettuceLock(
      * @throws IllegalStateException 락을 보유하지 않은 경우
      */
     fun unlock() {
-        val token = tokenRef.getAndSet(null)
+        val token = tokenRef.value
             ?: throw IllegalStateException("현재 인스턴스가 락을 보유하지 않습니다: lockKey=$lockKey")
 
         val released = RedisScriptRunner.run<Long>(
@@ -175,6 +181,7 @@ class LettuceLock(
         if (released == 0L) {
             throw IllegalStateException("Lock 해제 실패 (토큰 불일치 또는 만료): lockKey=$lockKey")
         }
+        tokenRef.compareAndSet(token, null)
         log.debug { "Lock 해제 성공: lockKey=$lockKey" }
     }
 
@@ -201,6 +208,9 @@ class LettuceLock(
         waitTime: Duration = Duration.ZERO,
         leaseTime: Duration = defaultLeaseTime,
     ): CompletableFuture<Boolean> {
+        waitTime.requireZeroOrPositiveDuration("waitTime")
+        leaseTime.requirePositiveMillisDuration("leaseTime")
+
         val token = UUID.randomUUID().toString()
         val leaseMs = leaseTime.toMillis()
         val deadline = System.currentTimeMillis() + waitTime.toMillis()
@@ -245,6 +255,9 @@ class LettuceLock(
         leaseTime: Duration = defaultLeaseTime,
         maxWaitTime: Duration = Duration.ofMinutes(5),
     ): CompletableFuture<Unit> {
+        leaseTime.requirePositiveMillisDuration("leaseTime")
+        maxWaitTime.requirePositiveMillisDuration("maxWaitTime")
+
         val token = UUID.randomUUID().toString()
         val leaseMs = leaseTime.toMillis()
         val deadline = System.currentTimeMillis() + maxWaitTime.toMillis()
@@ -283,7 +296,7 @@ class LettuceLock(
      * @return 완료를 나타내는 CompletableFuture
      */
     fun unlockAsync(): CompletableFuture<Unit> {
-        val token = tokenRef.getAndSet(null)
+        val token = tokenRef.value
             ?: return CompletableFuture.failedFuture(
                 IllegalStateException("현재 인스턴스가 락을 보유하지 않습니다: lockKey=$lockKey")
             )
@@ -294,6 +307,7 @@ class LettuceLock(
             if (released == 0L) {
                 throw IllegalStateException("Lock 해제 실패 (토큰 불일치 또는 만료, async): lockKey=$lockKey")
             }
+            tokenRef.compareAndSet(token, null)
             log.debug { "Lock 해제 성공 (async): lockKey=$lockKey" }
         }
     }

@@ -8,10 +8,12 @@ import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.codec.StringCodec
+import io.bluetape4k.assertions.assertFailsWith
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
@@ -57,6 +59,40 @@ class LettuceSuspendLockTest: AbstractLettuceTest() {
         lock.isHeldByCurrentInstance().shouldBeTrue()
         lock.unlock()
         lock.isHeldByCurrentInstance()
+    }
+
+    @Test
+    fun `tryLock and lock - 잘못된 duration은 즉시 거부한다`() = runSuspendIO {
+        val lock = suspendLock()
+
+        assertFailsWith<IllegalArgumentException> {
+            lock.tryLock(waitTime = Duration.ofMillis(-1))
+        }
+        assertFailsWith<IllegalArgumentException> {
+            lock.tryLock(leaseTime = Duration.ZERO)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            lock.tryLock(leaseTime = Duration.ofNanos(1))
+        }
+        assertFailsWith<IllegalArgumentException> {
+            lock.lock(maxWaitTime = Duration.ZERO)
+        }
+    }
+
+    @Test
+    fun `unlock - 만료된 lock 해제 실패 시 token을 보존해 재시도할 수 있다`() = runSuspendIO {
+        val lock = suspendLock()
+        lock.lock(leaseTime = Duration.ofSeconds(5))
+        val token = connection.sync().get(lock.lockKey)
+        connection.sync().del(lock.lockKey)
+
+        assertFailsWith<IllegalStateException> {
+            lock.unlock()
+        }
+
+        connection.sync().set(lock.lockKey, token)
+        lock.unlock()
+        lock.isHeldByCurrentInstance().shouldBeFalse()
     }
 
     @Test
