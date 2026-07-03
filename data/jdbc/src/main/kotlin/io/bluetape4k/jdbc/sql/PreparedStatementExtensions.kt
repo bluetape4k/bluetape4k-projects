@@ -1,5 +1,6 @@
 package io.bluetape4k.jdbc.sql
 
+import io.bluetape4k.support.requirePositiveNumber
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Statement
@@ -135,6 +136,7 @@ fun java.sql.Connection.executeBatch(
     paramsList: List<List<Any?>>,
     batchSize: Int = 1000,
 ): List<IntArray> {
+    val checkedBatchSize = batchSize.requirePositiveNumber("batchSize")
     if (paramsList.isEmpty()) return emptyList()
     paramsList.requireConsistentBatchParameterRows()
 
@@ -149,14 +151,14 @@ fun java.sql.Connection.executeBatch(
             stmt.addBatch()
 
             // 배치 크기에 도달하면 실행
-            if ((index + 1) % batchSize == 0) {
+            if ((index + 1) % checkedBatchSize == 0) {
                 results.add(stmt.executeBatch())
                 stmt.clearBatch()
             }
         }
 
         // 남은 배치 실행
-        if (paramsList.size % batchSize != 0) {
+        if (paramsList.size % checkedBatchSize != 0) {
             results.add(stmt.executeBatch())
         }
 
@@ -194,6 +196,7 @@ fun java.sql.Connection.executeLargeBatch(
     paramsList: List<List<Any?>>,
     batchSize: Int = 1000,
 ): LongArray {
+    val checkedBatchSize = batchSize.requirePositiveNumber("batchSize")
     if (paramsList.isEmpty()) return LongArray(0)
     paramsList.requireConsistentBatchParameterRows()
 
@@ -207,13 +210,13 @@ fun java.sql.Connection.executeLargeBatch(
             }
             stmt.addBatch()
 
-            if ((index + 1) % batchSize == 0) {
+            if ((index + 1) % checkedBatchSize == 0) {
                 stmt.executeLargeBatch().forEach { results.add(it) }
                 stmt.clearBatch()
             }
         }
 
-        if (paramsList.size % batchSize != 0) {
+        if (paramsList.size % checkedBatchSize != 0) {
             stmt.executeLargeBatch().forEach { results.add(it) }
         }
 

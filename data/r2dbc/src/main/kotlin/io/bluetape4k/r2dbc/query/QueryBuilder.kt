@@ -4,6 +4,8 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.r2dbc.support.toParameter
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requirePositiveNumber
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import io.bluetape4k.utils.Systemx
 import io.r2dbc.spi.Parameters
 import kotlin.reflect.KProperty
@@ -155,7 +157,7 @@ class QueryBuilder {
      */
     fun limit(limit: Int) =
         apply {
-            this.limit = limit
+            this.limit = limit.requirePositiveNumber("limit")
         }
 
     /**
@@ -163,7 +165,7 @@ class QueryBuilder {
      */
     fun offset(offset: Int) =
         apply {
-            this.offset = offset
+            this.offset = offset.requireZeroOrPositiveNumber("offset")
         }
 
     /**

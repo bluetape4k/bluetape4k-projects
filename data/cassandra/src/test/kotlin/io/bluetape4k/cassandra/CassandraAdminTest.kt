@@ -1,10 +1,10 @@
 package io.bluetape4k.cassandra
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [CassandraAdmin]의 keyspace 생성/삭제 및 버전 조회 기능을 검증합니다.
@@ -57,6 +57,13 @@ class CassandraAdminTest : AbstractCassandraTest() {
     fun `createKeyspace 는 blank keyspace 를 허용하지 않는다`() {
         assertFailsWith<IllegalArgumentException> {
             CassandraAdmin.createKeyspace(session, " ")
+        }
+    }
+
+    @Test
+    fun `createKeyspace 는 양수가 아닌 replicationFactor 를 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> {
+            CassandraAdmin.createKeyspace(session, TEST_KEYSPACE, replicationFactor = 0)
         }
     }
 

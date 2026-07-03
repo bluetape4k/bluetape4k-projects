@@ -1,13 +1,13 @@
 package io.bluetape4k.jdbc.sql
 
-import io.bluetape4k.jdbc.model.Actor
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.jdbc.model.Actor
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * DataSourceTransactionExtensions 테스트 클래스
@@ -220,6 +220,17 @@ class DataSourceTransactionExtensionsTest: AbstractJdbcSqlTest() {
     }
 
     @Test
+    fun `DataSource executeBatch - batchSize 는 양수여야 한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            dataSource.executeBatch(
+                "INSERT INTO Actors (firstname, lastname) VALUES (?, ?)",
+                listOf(listOf("InvalidBatch", "Actor")),
+                batchSize = 0
+            )
+        }
+    }
+
+    @Test
     fun `DataSource executeBatch - inconsistent parameter rows fail fast`() {
         assertFailsWith<IllegalArgumentException> {
             dataSource.executeBatch(
@@ -285,7 +296,18 @@ class DataSourceTransactionExtensionsTest: AbstractJdbcSqlTest() {
             ) { rs ->
                 rs.next()
                 rs.getInt(1)
-            }
+        }
         count shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `DataSource executeLargeBatch - batchSize 는 양수여야 한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            dataSource.executeLargeBatch(
+                "INSERT INTO Actors (firstname, lastname) VALUES (?, ?)",
+                listOf(listOf("InvalidLargeBatch", "Actor")),
+                batchSize = -1
+            )
+        }
     }
 }
