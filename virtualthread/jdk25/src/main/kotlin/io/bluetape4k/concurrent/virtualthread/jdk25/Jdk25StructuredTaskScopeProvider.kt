@@ -17,6 +17,7 @@ import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.Function
 
 /**
@@ -55,6 +56,8 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
          *
          * [joinAction]이 실행되는 동안 [deadline]이 초과되면 owner thread를 interrupt하여
          * [InterruptedException]을 발생시키고, 이를 [TimeoutException]으로 변환합니다.
+         * timeout interrupt가 아닌 기존/외부 interrupt는 [InterruptedException]으로 보존하고
+         * caller thread의 interrupt 상태를 복구합니다.
          *
          * ## 계약
          * - [joinAction]은 [InterruptedException]을 catch하지 않고 전파해야 합니다.
@@ -75,21 +78,31 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
             val scheduler = ScheduledThreadPoolExecutor(1) { r ->
                 Thread(r, threadName).apply { isDaemon = true }
             }
+            val timeoutTriggered = AtomicBoolean(false)
             val timeoutFuture = scheduler.schedule(
-                { ownerThread.interrupt() },
+                {
+                    timeoutTriggered.set(true)
+                    ownerThread.interrupt()
+                },
                 remaining.toNanos(),
                 TimeUnit.NANOSECONDS
             )
+            var preserveInterrupt = false
             try {
                 joinAction()
             } catch (e: InterruptedException) {
-                throw TimeoutException("joinUntil deadline exceeded")
+                if (timeoutTriggered.get()) {
+                    throw TimeoutException("joinUntil deadline exceeded")
+                }
+                preserveInterrupt = true
+                ownerThread.interrupt()
+                throw e
             } finally {
                 timeoutFuture.cancel(false)
                 scheduler.shutdownNow()
-                // finally 이후 scheduled interrupt가 늦게 발화하더라도 interrupt 상태가
-                // caller thread로 누출되지 않도록 항상 clear
-                Thread.interrupted()
+                if (timeoutTriggered.get() && !preserveInterrupt) {
+                    Thread.interrupted()
+                }
             }
         }
     }
