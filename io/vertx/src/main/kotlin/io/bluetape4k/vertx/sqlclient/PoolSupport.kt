@@ -3,8 +3,11 @@ package io.bluetape4k.vertx.sqlclient
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.sqlclient.Pool
 import io.vertx.sqlclient.SqlConnection
+import io.vertx.sqlclient.Transaction
 import io.vertx.sqlclient.TransactionRollbackException
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import java.sql.SQLException
 
 /**
@@ -31,21 +34,26 @@ suspend inline fun <T> Pool.withSuspendTransaction(
 ): T {
     val conn = connection.coAwait()
     val tx = conn.begin().coAwait()
+    var primaryFailure: Throwable? = null
 
     return try {
         val result = action(conn)
         tx.commit().coAwait()
         result
     } catch (e: TransactionRollbackException) {
+        primaryFailure = e
         throw (e)
     } catch (e: CancellationException) {
-        runCatching { tx.rollback().coAwait() }
+        primaryFailure = e
+        rollbackSuppressing(tx, e)
         throw e
     } catch (e: Throwable) {
-        runCatching { tx.rollback().coAwait() }
-        throw SQLException(e)
+        val sqlException = SQLException(e)
+        primaryFailure = sqlException
+        rollbackSuppressing(tx, sqlException)
+        throw sqlException
     } finally {
-        conn.close().coAwait()
+        closeConnection(conn, primaryFailure)
     }
 }
 
@@ -72,19 +80,55 @@ suspend inline fun <T> Pool.withSuspendRollback(
 ): T {
     val conn = connection.coAwait()
     val tx = conn.begin().coAwait()
+    var primaryFailure: Throwable? = null
     return try {
         val result = action(conn)
         tx.rollback().coAwait()
         result
     } catch (e: TransactionRollbackException) {
+        primaryFailure = e
         throw (e)
     } catch (e: CancellationException) {
-        runCatching { tx.rollback().coAwait() }
+        primaryFailure = e
+        rollbackSuppressing(tx, e)
         throw e
     } catch (e: Throwable) {
-        runCatching { tx.rollback().coAwait() }
-        throw SQLException(e)
+        val sqlException = SQLException(e)
+        primaryFailure = sqlException
+        rollbackSuppressing(tx, sqlException)
+        throw sqlException
     } finally {
-        conn.close().coAwait()
+        closeConnection(conn, primaryFailure)
+    }
+}
+
+@PublishedApi
+internal suspend fun rollbackSuppressing(
+    tx: Transaction,
+    primaryFailure: Throwable,
+) {
+    try {
+        withContext(NonCancellable) {
+            tx.rollback().coAwait()
+        }
+    } catch (rollbackFailure: Throwable) {
+        primaryFailure.addSuppressed(rollbackFailure)
+    }
+}
+
+@PublishedApi
+internal suspend fun closeConnection(
+    conn: SqlConnection,
+    primaryFailure: Throwable?,
+) {
+    try {
+        withContext(NonCancellable) {
+            conn.close().coAwait()
+        }
+    } catch (closeFailure: Throwable) {
+        if (primaryFailure == null) {
+            throw closeFailure
+        }
+        primaryFailure.addSuppressed(closeFailure)
     }
 }
