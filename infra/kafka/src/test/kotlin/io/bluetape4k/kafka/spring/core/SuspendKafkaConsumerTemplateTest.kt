@@ -1,5 +1,10 @@
 package io.bluetape4k.kafka.spring.core
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.kafka.AbstractKafkaTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.testcontainers.mq.KafkaServer
@@ -15,10 +20,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.clients.consumer.OffsetAndTimestamp
@@ -32,7 +33,6 @@ import reactor.kafka.receiver.ReceiverOptions
 import java.util.*
 import java.util.function.Function
 import java.util.regex.Pattern
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [SuspendKafkaConsumerTemplate]에 대한 테스트 클래스입니다.
@@ -186,9 +186,8 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
         stubDoOnConsumer(closableReceiver, consumer)
         val template = SuspendKafkaConsumerTemplate(closableReceiver)
         val blocker = CompletableDeferred<Unit>()
-        lateinit var launchedJob: Job
 
-        launchedJob = template.launch {
+        val launchedJob: Job = template.launch {
             blocker.await()
         }
 
@@ -197,6 +196,32 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
 
         (template.coroutineContext[Job]?.isCancelled ?: false).shouldBeTrue()
         verify(exactly = 1) { (closableReceiver as AutoCloseable).close() }
+    }
+
+    @Test
+    fun `템플릿 종료 시 receiver close 실패를 전파하지 않는다`() = runTest {
+        val closeFailure = IllegalStateException("receiver close failed")
+        every { (closableReceiver as AutoCloseable).close() } throws closeFailure
+        val template = SuspendKafkaConsumerTemplate(closableReceiver)
+
+        template.close()
+
+        (template.coroutineContext[Job]?.isCancelled ?: false).shouldBeTrue()
+        verify(exactly = 1) { (closableReceiver as AutoCloseable).close() }
+    }
+
+    @Test
+    fun `템플릿 종료 시 AutoCloseable 이 아닌 receiver 도 scope 를 취소한다`() = runTest {
+        val template = SuspendKafkaConsumerTemplate(receiver)
+        val blocker = CompletableDeferred<Unit>()
+        val launchedJob: Job = template.launch {
+            blocker.await()
+        }
+
+        template.close()
+        launchedJob.cancelAndJoin()
+
+        (template.coroutineContext[Job]?.isCancelled ?: false).shouldBeTrue()
     }
 
     private fun stubDoOnConsumer(
