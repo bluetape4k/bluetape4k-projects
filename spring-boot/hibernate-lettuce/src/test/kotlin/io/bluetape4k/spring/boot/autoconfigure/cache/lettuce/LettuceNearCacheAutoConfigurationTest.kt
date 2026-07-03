@@ -1,16 +1,17 @@
 package io.bluetape4k.spring.boot.autoconfigure.cache.lettuce
 
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import jakarta.persistence.EntityManagerFactory
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import jakarta.persistence.EntityManagerFactory
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.getBean
 import org.springframework.beans.factory.getBeansOfType
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer
+import org.springframework.boot.test.context.FilteredClassLoader
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
 import java.util.function.Supplier
 
@@ -45,6 +46,18 @@ class LettuceNearCacheAutoConfigurationTest {
         contextRunner
             .withPropertyValues("bluetape4k.cache.lettuce-near.enabled=false")
             .run { context ->
+                context.getBeansOfType<HibernatePropertiesCustomizer>().shouldBeEmpty()
+            }
+    }
+
+    @Test
+    fun `Hibernate customizer가 classpath에 없으면 auto configuration이 안전하게 비활성화된다`() {
+        contextRunner
+            .withClassLoader(
+                FilteredClassLoader("org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer")
+            )
+            .run { context ->
+                context.getStartupFailure() shouldBeEqualTo null
                 context.getBeansOfType<HibernatePropertiesCustomizer>().shouldBeEmpty()
             }
     }
@@ -143,7 +156,17 @@ class LettuceNearCacheAutoConfigurationTest {
     fun `actuator auto configuration registers endpoint when entity manager exists`() {
         metricsContextRunner.run { context ->
             context.getBeansOfType<LettuceNearCacheActuatorEndpoint>().shouldHaveSize(1)
-        }
+            }
+    }
+
+    @Test
+    fun `actuator가 classpath에 없으면 endpoint auto configuration이 안전하게 비활성화된다`() {
+        metricsContextRunner
+            .withClassLoader(FilteredClassLoader("org.springframework.boot.actuate.endpoint.annotation.Endpoint"))
+            .run { context ->
+                context.getStartupFailure() shouldBeEqualTo null
+                context.getBeansOfType<LettuceNearCacheActuatorEndpoint>().shouldBeEmpty()
+            }
     }
 
     @Test
@@ -152,6 +175,16 @@ class LettuceNearCacheAutoConfigurationTest {
             .withBean(SimpleMeterRegistry::class.java, Supplier { SimpleMeterRegistry() })
             .withPropertyValues("bluetape4k.cache.lettuce-near.metrics.enabled=false")
             .run { context ->
+                context.getBeansOfType<LettuceNearCacheMetricsBinder>().shouldBeEmpty()
+            }
+    }
+
+    @Test
+    fun `micrometer가 classpath에 없으면 metrics auto configuration이 안전하게 비활성화된다`() {
+        metricsContextRunner
+            .withClassLoader(FilteredClassLoader("io.micrometer.core.instrument.MeterRegistry"))
+            .run { context ->
+                context.getStartupFailure() shouldBeEqualTo null
                 context.getBeansOfType<LettuceNearCacheMetricsBinder>().shouldBeEmpty()
             }
     }

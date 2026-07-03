@@ -2,12 +2,10 @@ package io.bluetape4k.spring.boot.autoconfigure.cache.lettuce
 
 import io.bluetape4k.hibernate.cache.lettuce.LettuceNearCacheRegionFactory
 import jakarta.persistence.EntityManagerFactory
-import org.springframework.boot.actuate.endpoint.annotation.Endpoint
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration
 import org.springframework.context.annotation.Bean
 
 /**
@@ -35,9 +33,18 @@ import org.springframework.context.annotation.Bean
  * // GET /actuator/nearcache/{region}  → 특정 region 통계
  * ```
  */
-@AutoConfiguration(after = [LettuceNearCacheHibernateAutoConfiguration::class, HibernateJpaAutoConfiguration::class])
-@ConditionalOnClass(Endpoint::class, LettuceNearCacheRegionFactory::class, EntityManagerFactory::class)
-@ConditionalOnBean(EntityManagerFactory::class)
+@AutoConfiguration(
+    after = [LettuceNearCacheHibernateAutoConfiguration::class],
+    afterName = ["org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration"],
+)
+@ConditionalOnClass(
+    name = [
+        "org.springframework.boot.actuate.endpoint.annotation.Endpoint",
+        "io.bluetape4k.hibernate.cache.lettuce.LettuceNearCacheRegionFactory",
+        "jakarta.persistence.EntityManagerFactory",
+    ]
+)
+@ConditionalOnBean(type = ["jakarta.persistence.EntityManagerFactory"])
 @ConditionalOnProperty(
     prefix = "bluetape4k.cache.lettuce-near",
     name = ["enabled"],
