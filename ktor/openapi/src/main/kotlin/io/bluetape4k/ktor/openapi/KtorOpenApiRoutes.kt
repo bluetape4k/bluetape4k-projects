@@ -7,7 +7,6 @@ import io.ktor.server.plugins.swagger.SwaggerConfig
 import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.routing.openapi.OpenApiDocSource
 import io.ktor.server.routing.Route
-import java.io.File
 
 /**
  * Adds an OpenAPI documentation endpoint backed by Ktor's official OpenAPI plugin.
@@ -30,11 +29,11 @@ fun Route.bluetape4kOpenApi(
     configure: OpenAPIConfig.() -> Unit = {},
 ): Route {
     path.requireNotBlank("path")
-    swaggerFile.requireNotBlank("swaggerFile")
+    val checkedSwaggerFile = swaggerFile.requireNotBlank("swaggerFile")
     return openAPI(path = path) {
         configure()
         if (source.isDefaultDocumentSource()) {
-            source = OpenApiDocSource.File(swaggerFile)
+            source = OpenApiDocSource.File(checkedSwaggerFile)
         }
     }
 }
@@ -44,7 +43,9 @@ fun Route.bluetape4kOpenApi(
  *
  * ## Contract
  * - The endpoint is explicit and route-scoped.
- * - [swaggerFile] is used when [configure] leaves Ktor's default document source unchanged.
+ * - [swaggerFile] is used as both the document source and Swagger UI remote path when [configure] leaves
+ *   Ktor's default document source unchanged.
+ * - Nested relative specification paths, such as `openapi/documentation.yaml`, are preserved.
  * - A caller-owned [SwaggerConfig.source] from [configure] is preserved for routing-tree or generated metadata.
  * - This helper does not generate route behavior or mutate existing routes.
  *
@@ -60,12 +61,12 @@ fun Route.bluetape4kSwaggerUi(
     configure: SwaggerConfig.() -> Unit = {},
 ): Route {
     path.requireNotBlank("path")
-    swaggerFile.requireNotBlank("swaggerFile")
+    val checkedSwaggerFile = swaggerFile.requireNotBlank("swaggerFile")
     return swaggerUI(path = path) {
         configure()
         if (source.isDefaultDocumentSource()) {
-            source = OpenApiDocSource.File(swaggerFile)
-            remotePath = File(swaggerFile).name
+            source = OpenApiDocSource.File(checkedSwaggerFile)
+            remotePath = checkedSwaggerFile
         }
     }
 }

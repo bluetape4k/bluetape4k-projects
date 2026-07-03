@@ -1,6 +1,9 @@
 package io.bluetape4k.spring.http
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.cancelAndJoin
@@ -95,6 +98,62 @@ class RestClientCoroutinesDslTest {
             )
             val result: String = restClient.suspendPatch("/test", "payload", MediaType.APPLICATION_JSON)
             result shouldBeEqualTo "patched"
+        }
+
+    @Test
+    fun `suspendGet rejects empty body with contextual contract error`() =
+        runTest {
+            mockServer.enqueue(MockResponse().setResponseCode(204))
+
+            val error = assertFailsWith<IllegalStateException> {
+                restClient.suspendGet<String>("/empty-get")
+            }
+
+            val message = error.message.shouldNotBeNull()
+            message shouldContain "GET /empty-get"
+            message shouldContain "java.lang.String"
+        }
+
+    @Test
+    fun `suspendPost rejects empty body with contextual contract error`() =
+        runTest {
+            mockServer.enqueue(MockResponse().setResponseCode(204))
+
+            val error = assertFailsWith<IllegalStateException> {
+                restClient.suspendPost<String>("/empty-post", "payload", MediaType.APPLICATION_JSON)
+            }
+
+            val message = error.message.shouldNotBeNull()
+            message shouldContain "POST /empty-post"
+            message shouldContain "java.lang.String"
+        }
+
+    @Test
+    fun `suspendPut rejects empty body with contextual contract error`() =
+        runTest {
+            mockServer.enqueue(MockResponse().setResponseCode(204))
+
+            val error = assertFailsWith<IllegalStateException> {
+                restClient.suspendPut<String>("/empty-put", "payload", MediaType.APPLICATION_JSON)
+            }
+
+            val message = error.message.shouldNotBeNull()
+            message shouldContain "PUT /empty-put"
+            message shouldContain "java.lang.String"
+        }
+
+    @Test
+    fun `suspendPatch rejects empty body with contextual contract error`() =
+        runTest {
+            mockServer.enqueue(MockResponse().setResponseCode(204))
+
+            val error = assertFailsWith<IllegalStateException> {
+                restClient.suspendPatch<String>("/empty-patch", "payload", MediaType.APPLICATION_JSON)
+            }
+
+            val message = error.message.shouldNotBeNull()
+            message shouldContain "PATCH /empty-patch"
+            message shouldContain "java.lang.String"
         }
 
     @Test
