@@ -1,6 +1,8 @@
 package io.bluetape4k.kafka.spring.core
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.error
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 import kotlinx.coroutines.CoroutineScope
@@ -495,7 +497,14 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
     private fun doClose() {
         if (closed.compareAndSet(false, true)) {
             scope.cancel("SuspendKafkaConsumerTemplate closed")
-            (receiver as? AutoCloseable)?.close()
+            val closeable = receiver as? AutoCloseable
+            if (closeable == null) {
+                // reactor-kafka 의 KafkaReceiver 가 AutoCloseable 을 구현하지 않은 경우 — 자원 누수 가능성을 명시적으로 노출한다.
+                log.warn { "KafkaReceiver does not implement AutoCloseable; underlying Kafka consumer connection may leak. receiverClass=${receiver.javaClass.name}" }
+            } else {
+                runCatching { closeable.close() }
+                    .onFailure { e -> log.error(e) { "Failed to close KafkaReceiver. receiverClass=${receiver.javaClass.name}" } }
+            }
         }
     }
 }
