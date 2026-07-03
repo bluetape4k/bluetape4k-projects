@@ -8,14 +8,16 @@ import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.codec.StringCodec
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import java.time.Duration
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.atomic.AtomicInteger
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
@@ -60,6 +62,44 @@ class LettuceLockTest: AbstractLettuceTest() {
         assertFailsWith<IllegalStateException> {
             lock.unlock()
         }
+    }
+
+    @Test
+    fun `tryLock - 잘못된 duration은 즉시 거부한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            lock.tryLock(waitTime = Duration.ofMillis(-1))
+        }
+        assertFailsWith<IllegalArgumentException> {
+            lock.tryLock(leaseTime = Duration.ZERO)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            lock.tryLock(leaseTime = Duration.ofNanos(1))
+        }
+    }
+
+    @Test
+    fun `lock - 잘못된 duration은 즉시 거부한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            lock.lock(leaseTime = Duration.ZERO)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            lock.lock(maxWaitTime = Duration.ZERO)
+        }
+    }
+
+    @Test
+    fun `unlock - 만료된 lock 해제 실패 시 token을 보존해 재시도할 수 있다`() {
+        lock.lock(leaseTime = Duration.ofSeconds(5))
+        val token = connection.sync().get(lock.lockKey)
+        connection.sync().del(lock.lockKey)
+
+        assertFailsWith<IllegalStateException> {
+            lock.unlock()
+        }
+
+        connection.sync().set(lock.lockKey, token)
+        lock.unlock()
+        lock.isHeldByCurrentInstance().shouldBeFalse()
     }
 
     @Test
@@ -113,6 +153,35 @@ class LettuceLockTest: AbstractLettuceTest() {
         } finally {
             lock.unlockAsync().get()
         }
+    }
+
+    @Test
+    fun `tryLockAsync - 잘못된 duration은 즉시 거부한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            lock.tryLockAsync(waitTime = Duration.ofMillis(-1))
+        }
+        assertFailsWith<IllegalArgumentException> {
+            lock.tryLockAsync(leaseTime = Duration.ZERO)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            lock.lockAsync(maxWaitTime = Duration.ZERO)
+        }
+    }
+
+    @Test
+    fun `unlockAsync - 만료된 lock 해제 실패 시 token을 보존해 재시도할 수 있다`() {
+        lock.lockAsync(leaseTime = Duration.ofSeconds(5)).get()
+        val token = connection.sync().get(lock.lockKey)
+        connection.sync().del(lock.lockKey)
+
+        val failure = assertFailsWith<ExecutionException> {
+            lock.unlockAsync().get()
+        }
+        failure.cause.shouldBeInstanceOf<IllegalStateException>()
+
+        connection.sync().set(lock.lockKey, token)
+        lock.unlockAsync().get()
+        lock.isHeldByCurrentInstance().shouldBeFalse()
     }
 
     // =========================================================================

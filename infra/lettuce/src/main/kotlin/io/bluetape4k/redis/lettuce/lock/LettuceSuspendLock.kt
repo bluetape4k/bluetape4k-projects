@@ -88,6 +88,9 @@ class LettuceSuspendLock(
         waitTime: Duration = Duration.ZERO,
         leaseTime: Duration = defaultLeaseTime,
     ): Boolean {
+        waitTime.requireZeroOrPositiveDuration("waitTime")
+        leaseTime.requirePositiveMillisDuration("leaseTime")
+
         val token = UUID.randomUUID().toString()
         val leaseMs = leaseTime.toMillis()
         val deadline = System.currentTimeMillis() + waitTime.toMillis()
@@ -126,6 +129,9 @@ class LettuceSuspendLock(
         leaseTime: Duration = defaultLeaseTime,
         maxWaitTime: Duration = Duration.ofMinutes(DEFAULT_MAX_WAIT_MINUTES),
     ) {
+        leaseTime.requirePositiveMillisDuration("leaseTime")
+        maxWaitTime.requirePositiveMillisDuration("maxWaitTime")
+
         val token = UUID.randomUUID().toString()
         val leaseMs = leaseTime.toMillis()
         val deadline = System.currentTimeMillis() + maxWaitTime.toMillis()
@@ -163,7 +169,7 @@ class LettuceSuspendLock(
      */
     suspend fun unlock() {
         val token =
-            tokenRef.getAndSet(null)
+            tokenRef.value
                 ?: throw IllegalStateException("현재 인스턴스가 락을 보유하지 않습니다: lockKey=$lockKey")
 
         // 개선: EVALSHA 우선 실행, NOSCRIPT 발생 시 원문 전송으로 자동 fallback.
@@ -174,6 +180,7 @@ class LettuceSuspendLock(
         if (released == 0L) {
             throw IllegalStateException("Lock 해제 실패 (토큰 불일치 또는 만료, suspend): lockKey=$lockKey")
         }
+        tokenRef.compareAndSet(token, null)
         log.debug { "Lock 해제 성공 (suspend): lockKey=$lockKey" }
     }
 }
