@@ -59,6 +59,23 @@ class KtorOpenApiRoutesTest {
     }
 
     @Test
+    fun `swagger ui endpoint preserves nested specification remote path`() = testApplication {
+        application {
+            installOpenApiTestCore()
+            routing {
+                bluetape4kSwaggerUi(swaggerFile = "openapi/documentation.yaml")
+            }
+        }
+
+        val response = client.get("/swagger/openapi/documentation.yaml")
+        val body = response.bodyAsText()
+
+        response.status shouldBeEqualTo HttpStatusCode.OK
+        body.contains("Bluetape4k Ktor OpenAPI Test") shouldBeEqualTo true
+        body.contains("/healthz") shouldBeEqualTo true
+    }
+
+    @Test
     fun `openapi endpoint preserves caller owned document source`() = testApplication {
         application {
             installOpenApiTestCore()
