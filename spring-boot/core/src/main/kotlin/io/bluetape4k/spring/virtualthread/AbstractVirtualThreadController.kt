@@ -1,13 +1,17 @@
 package io.bluetape4k.spring.virtualthread
 
+import jakarta.annotation.PreDestroy
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicReference
 
 /**
- * Virtual Thread Executor를 제공하는 컨트롤러 베이스 클래스입니다.
+ * Base controller that exposes a virtual-thread-per-task executor.
  *
- * Spring Boot 4에서는 기본으로 VT가 활성화되므로,
- * 명시적 VT Executor가 필요한 경우에만 이 클래스를 상속합니다.
+ * Use this base class only when a controller needs an explicit
+ * [ExecutorService] for virtual-thread task submission. Spring calls
+ * [closeVirtualThreadExecutor] when the controller bean is destroyed, and the
+ * shared executor is recreated on the next access if a later context needs it.
  *
  * ```kotlin
  * @RestController
@@ -19,20 +23,52 @@ import java.util.concurrent.Executors
  * ```
  */
 abstract class AbstractVirtualThreadController {
+
+    @PreDestroy
+    fun closeVirtualThreadExecutor() {
+        shutdownVirtualThreadExecutor()
+    }
+
     companion object {
+        private val executorRef = AtomicReference(newVirtualThreadExecutor())
+
         /**
-         * Virtual Thread Per Task Executor.
+         * Virtual-thread-per-task executor.
          *
-         * ## 동작/계약
-         * - `Executors.newVirtualThreadPerTaskExecutor()`로 생성됩니다.
-         * - 각 작업마다 새 가상 스레드를 할당합니다.
+         * ## Contract
+         * - Created by [Executors.newVirtualThreadPerTaskExecutor].
+         * - Allocates a new virtual thread for each submitted task.
+         * - If a Spring context shutdown closed the previous executor, the next
+         *   access returns a fresh executor instead of a closed instance.
          *
          * ```kotlin
          * val future = AbstractVirtualThreadController.virtualThreadExecutor.submit { "done" }
          * // future.get() == "done"
          * ```
          */
-        val virtualThreadExecutor: ExecutorService =
+        val virtualThreadExecutor: ExecutorService
+            get() = getOrCreateVirtualThreadExecutor()
+
+        private fun newVirtualThreadExecutor(): ExecutorService =
             Executors.newVirtualThreadPerTaskExecutor()
+
+        private fun getOrCreateVirtualThreadExecutor(): ExecutorService {
+            while (true) {
+                val current = executorRef.get()
+                if (!current.isShutdown && !current.isTerminated) {
+                    return current
+                }
+
+                val replacement = newVirtualThreadExecutor()
+                if (executorRef.compareAndSet(current, replacement)) {
+                    return replacement
+                }
+                replacement.shutdown()
+            }
+        }
+
+        internal fun shutdownVirtualThreadExecutor() {
+            executorRef.get().shutdown()
+        }
     }
 }
