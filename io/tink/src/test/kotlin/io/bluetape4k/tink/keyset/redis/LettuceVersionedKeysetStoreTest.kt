@@ -11,6 +11,7 @@ import io.bluetape4k.testcontainers.storage.RedisServer
 import io.bluetape4k.tink.aead.TinkAeads
 import io.bluetape4k.tink.keyset.VersionedTinkDaead
 import io.lettuce.core.RedisClient
+import io.lettuce.core.SetArgs
 import io.lettuce.core.codec.StringCodec
 import org.junit.jupiter.api.Test
 import java.time.Clock
@@ -96,6 +97,55 @@ class LettuceVersionedKeysetStoreTest {
         commands.set(lockKey, "owner-2")
         LettuceVersionedKeysetStore.releaseLockIfOwned(commands, lockKey, "stale-owner").shouldBeFalse()
         commands.get(lockKey) shouldBeEqualTo "owner-2"
+    }
+
+    @Test
+    fun `activation write requires live lock token`() {
+        val connection = client.connect(StringCodec.UTF8)
+        val commands = connection.sync()
+        val keyring = randomName()
+        val lockKey = "$keyring:lock"
+        val keysetsKey = "$keyring:keysets"
+        val createdAtKey = "$keyring:created-at"
+        val activeVersionKey = "$keyring:active"
+
+        commands.set(lockKey, "owner-1", SetArgs().px(1))
+        Thread.sleep(10)
+
+        LettuceVersionedKeysetStore.persistActivatedIfOwned(
+            commands = commands,
+            lockKey = lockKey,
+            keysetsKey = keysetsKey,
+            createdAtKey = createdAtKey,
+            activeVersionKey = activeVersionKey,
+            token = "owner-1",
+            lockTtlMillis = 30_000L,
+            version = "2",
+            keysetJson = "stale-keyset",
+            createdAtEpochMillis = "123",
+        ).shouldBeFalse()
+
+        commands.hget(keysetsKey, "2").shouldBeNull()
+        commands.hget(createdAtKey, "2").shouldBeNull()
+        commands.get(activeVersionKey).shouldBeNull()
+
+        commands.set(lockKey, "owner-2", SetArgs().px(30_000))
+        LettuceVersionedKeysetStore.persistActivatedIfOwned(
+            commands = commands,
+            lockKey = lockKey,
+            keysetsKey = keysetsKey,
+            createdAtKey = createdAtKey,
+            activeVersionKey = activeVersionKey,
+            token = "owner-2",
+            lockTtlMillis = 30_000L,
+            version = "2",
+            keysetJson = "live-keyset",
+            createdAtEpochMillis = "456",
+        ).shouldBeTrue()
+
+        commands.hget(keysetsKey, "2") shouldBeEqualTo "live-keyset"
+        commands.hget(createdAtKey, "2") shouldBeEqualTo "456"
+        commands.get(activeVersionKey) shouldBeEqualTo "2"
     }
 
     @Test

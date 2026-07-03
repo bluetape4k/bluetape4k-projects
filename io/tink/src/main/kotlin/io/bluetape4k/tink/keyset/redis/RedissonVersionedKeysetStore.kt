@@ -106,6 +106,9 @@ class RedissonVersionedKeysetStore(
 
     private fun persist(keyset: VersionedKeysetHandle, activate: Boolean) {
         // active version은 마지막에 갱신한다. reader가 active=N을 봤다면 keyset/createdAt도 이미 기록된 상태여야 한다.
+        if (activate) {
+            check(lock.isHeldByCurrentThread) { "Lost lock ownership for keyring=$keyringName" }
+        }
         keysetsMap[keyset.version.toString()] = keyset.keysetHandle.toJsonKeyset()
         createdAtMap[keyset.version.toString()] = keyset.createdAt.toEpochMilli().toString()
         if (activate) {
@@ -114,7 +117,7 @@ class RedissonVersionedKeysetStore(
     }
 
     private fun <T> withLock(action: () -> T): T {
-        check(lock.tryLock(5, 30, TimeUnit.SECONDS)) { "Failed to acquire lock for keyring=$keyringName" }
+        check(lock.tryLock(5, TimeUnit.SECONDS)) { "Failed to acquire lock for keyring=$keyringName" }
         return try {
             action()
         } finally {

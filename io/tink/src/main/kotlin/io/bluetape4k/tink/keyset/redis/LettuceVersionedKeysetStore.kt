@@ -50,13 +50,13 @@ class LettuceVersionedKeysetStore(
             return requireNotNull(find(activeVersion)) { "Missing keyset for activeVersion=$activeVersion" }
         }
 
-        return withLock {
+        return withLock { token ->
             val reloadedVersion = commands.get(activeVersionKey)?.toLongOrNull()
             if (reloadedVersion != null) {
                 requireNotNull(find(reloadedVersion)) { "Missing keyset for activeVersion=$reloadedVersion" }
             } else {
                 val initial = newVersionedKeyset(1L)
-                persist(initial, activate = true)
+                persist(initial, activate = true, lockToken = token)
                 initial
             }
         }
@@ -73,16 +73,16 @@ class LettuceVersionedKeysetStore(
     }
 
     override fun rotate(): VersionedKeysetHandle =
-        withLock {
+        withLock { token ->
             val nextVersion = (commands.get(activeVersionKey)?.toLongOrNull() ?: 0L) + 1L
             val rotated = newVersionedKeyset(nextVersion)
-            persist(rotated, activate = true)
+            persist(rotated, activate = true, lockToken = token)
             rotated
         }
 
     override fun rotateIfDue(rotationPeriod: Duration): VersionedKeysetHandle {
         require(rotationPeriod > Duration.ZERO) { "rotationPeriod must be positive." }
-        return withLock {
+        return withLock { token ->
             // Due 판단은 lock 안에서 다시 읽는다. 여러 caller가 같은 stale active keyset을 보고
             // 순차적으로 rotate하는 것을 막아 "한 due window당 한 번"만 회전하게 한다.
             val activeVersion = commands.get(activeVersionKey)?.toLongOrNull()
@@ -90,13 +90,13 @@ class LettuceVersionedKeysetStore(
                 requireNotNull(find(activeVersion)) { "Missing keyset for activeVersion=$activeVersion" }
             } else {
                 val initial = newVersionedKeyset(1L)
-                persist(initial, activate = true)
+                persist(initial, activate = true, lockToken = token)
                 initial
             }
             val elapsed = Duration.between(current.createdAt, Instant.now(clock))
             if (elapsed >= rotationPeriod) {
                 val rotated = newVersionedKeyset(current.version + 1L)
-                persist(rotated, activate = true)
+                persist(rotated, activate = true, lockToken = token)
                 rotated
             } else {
                 current
@@ -111,21 +111,35 @@ class LettuceVersionedKeysetStore(
             keysetHandle = KeysetHandle.generateNew(keyTemplate),
         )
 
-    private fun persist(keyset: VersionedKeysetHandle, activate: Boolean) {
+    private fun persist(keyset: VersionedKeysetHandle, activate: Boolean, lockToken: String?) {
         // active version은 마지막에 갱신한다. reader가 active=N을 봤다면 keyset/createdAt도 이미 기록된 상태여야 한다.
-        commands.hset(keysetsKey, keyset.version.toString(), keyset.keysetHandle.toJsonKeyset())
-        commands.hset(createdAtKey, keyset.version.toString(), keyset.createdAt.toEpochMilli().toString())
         if (activate) {
-            commands.set(activeVersionKey, keyset.version.toString())
+            val token = requireNotNull(lockToken) { "lockToken is required to activate a keyset" }
+            val persisted = persistActivatedIfOwned(
+                commands = commands,
+                lockKey = lockKey,
+                keysetsKey = keysetsKey,
+                createdAtKey = createdAtKey,
+                activeVersionKey = activeVersionKey,
+                token = token,
+                lockTtlMillis = LOCK_TTL_MILLIS,
+                version = keyset.version.toString(),
+                keysetJson = keyset.keysetHandle.toJsonKeyset(),
+                createdAtEpochMillis = keyset.createdAt.toEpochMilli().toString(),
+            )
+            check(persisted) { "Lost lock ownership for keyring=$keyringName" }
+        } else {
+            commands.hset(keysetsKey, keyset.version.toString(), keyset.keysetHandle.toJsonKeyset())
+            commands.hset(createdAtKey, keyset.version.toString(), keyset.createdAt.toEpochMilli().toString())
         }
     }
 
-    private fun <T> withLock(action: () -> T): T {
+    private fun <T> withLock(action: (String) -> T): T {
         val token = UUID.randomUUID().toString()
         val acquired = acquireLock(token)
         check(acquired) { "Failed to acquire lock for keyring=$keyringName" }
         return try {
-            action()
+            action(token)
         } finally {
             runCatching {
                 releaseLockIfOwned(commands, lockKey, token)
@@ -157,6 +171,15 @@ class LettuceVersionedKeysetStore(
                 "return redis.call('del', KEYS[1]) " +
                 "else return 0 end"
 
+        private const val PERSIST_ACTIVATED_IF_OWNED_SCRIPT: String =
+            "if redis.call('get', KEYS[1]) == ARGV[1] then " +
+                "redis.call('pexpire', KEYS[1], ARGV[2]) " +
+                "redis.call('hset', KEYS[2], ARGV[3], ARGV[4]) " +
+                "redis.call('hset', KEYS[3], ARGV[3], ARGV[5]) " +
+                "redis.call('set', KEYS[4], ARGV[3]) " +
+                "return 1 " +
+                "else return 0 end"
+
         internal fun releaseLockIfOwned(
             commands: io.lettuce.core.api.sync.RedisCommands<String, String>,
             lockKey: String,
@@ -171,6 +194,31 @@ class LettuceVersionedKeysetStore(
                 token
             )
             return deleted == 1L
+        }
+
+        internal fun persistActivatedIfOwned(
+            commands: io.lettuce.core.api.sync.RedisCommands<String, String>,
+            lockKey: String,
+            keysetsKey: String,
+            createdAtKey: String,
+            activeVersionKey: String,
+            token: String,
+            lockTtlMillis: Long,
+            version: String,
+            keysetJson: String,
+            createdAtEpochMillis: String,
+        ): Boolean {
+            val persisted = commands.eval<Long>(
+                PERSIST_ACTIVATED_IF_OWNED_SCRIPT,
+                ScriptOutputType.INTEGER,
+                arrayOf(lockKey, keysetsKey, createdAtKey, activeVersionKey),
+                token,
+                lockTtlMillis.toString(),
+                version,
+                keysetJson,
+                createdAtEpochMillis,
+            )
+            return persisted == 1L
         }
     }
 }
