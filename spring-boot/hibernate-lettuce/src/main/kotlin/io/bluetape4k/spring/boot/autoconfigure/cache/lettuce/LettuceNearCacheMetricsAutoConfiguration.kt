@@ -8,9 +8,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration
-import org.springframework.boot.micrometer.metrics.autoconfigure.CompositeMeterRegistryAutoConfiguration
-import org.springframework.boot.micrometer.metrics.autoconfigure.MetricsAutoConfiguration
 import org.springframework.context.annotation.Bean
 
 /**
@@ -37,15 +34,21 @@ import org.springframework.context.annotation.Bean
  * ```
  */
 @AutoConfiguration(
-    after = [
-        LettuceNearCacheHibernateAutoConfiguration::class,
-        HibernateJpaAutoConfiguration::class,
-        MetricsAutoConfiguration::class,
-        CompositeMeterRegistryAutoConfiguration::class,
+    after = [LettuceNearCacheHibernateAutoConfiguration::class],
+    afterName = [
+        "org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration",
+        "org.springframework.boot.micrometer.metrics.autoconfigure.MetricsAutoConfiguration",
+        "org.springframework.boot.micrometer.metrics.autoconfigure.CompositeMeterRegistryAutoConfiguration",
     ]
 )
-@ConditionalOnClass(LettuceNearCacheRegionFactory::class, EntityManagerFactory::class, MeterRegistry::class)
-@ConditionalOnBean(EntityManagerFactory::class, MeterRegistry::class)
+@ConditionalOnClass(
+    name = [
+        "io.bluetape4k.hibernate.cache.lettuce.LettuceNearCacheRegionFactory",
+        "jakarta.persistence.EntityManagerFactory",
+        "io.micrometer.core.instrument.MeterRegistry",
+    ]
+)
+@ConditionalOnBean(type = ["jakarta.persistence.EntityManagerFactory", "io.micrometer.core.instrument.MeterRegistry"])
 @ConditionalOnProperty(
     prefix = "bluetape4k.cache.lettuce-near.metrics",
     name = ["enabled"],

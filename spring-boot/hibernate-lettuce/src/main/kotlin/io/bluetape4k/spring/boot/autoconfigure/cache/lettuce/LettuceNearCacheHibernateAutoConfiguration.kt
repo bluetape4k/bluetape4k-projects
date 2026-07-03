@@ -1,7 +1,6 @@
 package io.bluetape4k.spring.boot.autoconfigure.cache.lettuce
 
 import io.bluetape4k.hibernate.cache.lettuce.LettuceNearCacheRegionFactory
-import jakarta.persistence.EntityManagerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -37,7 +36,13 @@ import org.springframework.context.annotation.Bean
  * ```
  */
 @AutoConfiguration
-@ConditionalOnClass(LettuceNearCacheRegionFactory::class, EntityManagerFactory::class)
+@ConditionalOnClass(
+    name = [
+        "io.bluetape4k.hibernate.cache.lettuce.LettuceNearCacheRegionFactory",
+        "jakarta.persistence.EntityManagerFactory",
+        "org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer",
+    ]
+)
 @ConditionalOnProperty(
     prefix = "bluetape4k.cache.lettuce-near",
     name = ["enabled"],
