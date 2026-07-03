@@ -155,11 +155,17 @@ inline fun <T> Connection.withIsolationLevel(
     block: (Connection) -> T,
 ): T {
     val originalLevel = this.transactionIsolation
+    var primaryFailure: Throwable? = null
     return try {
         this.transactionIsolation = level
         block(this)
+    } catch (e: Throwable) {
+        primaryFailure = e
+        throw e
     } finally {
-        this.transactionIsolation = originalLevel
+        restoreConnectionState(primaryFailure) {
+            this.transactionIsolation = originalLevel
+        }
     }
 }
 
@@ -183,11 +189,17 @@ inline fun <T> Connection.withAutoCommit(
     block: (Connection) -> T,
 ): T {
     val originalAutoCommit = this.autoCommit
+    var primaryFailure: Throwable? = null
     return try {
         this.autoCommit = autoCommit
         block(this)
+    } catch (e: Throwable) {
+        primaryFailure = e
+        throw e
     } finally {
-        this.autoCommit = originalAutoCommit
+        restoreConnectionState(primaryFailure) {
+            this.autoCommit = originalAutoCommit
+        }
     }
 }
 
@@ -209,11 +221,17 @@ inline fun <T> Connection.withAutoCommit(
  */
 inline fun <T> Connection.withReadOnly(block: (Connection) -> T): T {
     val originalReadOnly = this.isReadOnly
+    var primaryFailure: Throwable? = null
     return try {
         this.isReadOnly = true
         block(this)
+    } catch (e: Throwable) {
+        primaryFailure = e
+        throw e
     } finally {
-        this.isReadOnly = originalReadOnly
+        restoreConnectionState(primaryFailure) {
+            this.isReadOnly = originalReadOnly
+        }
     }
 }
 
@@ -236,10 +254,28 @@ inline fun <T> Connection.withHoldability(
     block: (Connection) -> T,
 ): T {
     val originalHoldability = this.holdability
+    var primaryFailure: Throwable? = null
     return try {
         this.holdability = holdability
         block(this)
+    } catch (e: Throwable) {
+        primaryFailure = e
+        throw e
     } finally {
-        this.holdability = originalHoldability
+        restoreConnectionState(primaryFailure) {
+            this.holdability = originalHoldability
+        }
+    }
+}
+
+@PublishedApi
+internal inline fun restoreConnectionState(
+    primaryFailure: Throwable?,
+    restore: () -> Unit,
+) {
+    try {
+        restore()
+    } catch (restoreFailure: Throwable) {
+        primaryFailure?.addSuppressed(restoreFailure) ?: throw restoreFailure
     }
 }

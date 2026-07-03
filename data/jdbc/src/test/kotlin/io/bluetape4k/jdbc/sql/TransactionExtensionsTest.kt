@@ -1,17 +1,18 @@
 package io.bluetape4k.jdbc.sql
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import java.sql.Connection
+import java.sql.ResultSet
 import java.sql.SQLException
 
 /**
@@ -208,6 +209,74 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
     }
 
     @Test
+    fun `withIsolationLevel suppresses restore failure on primary failure`() {
+        val restoreFailure = SQLException("restore isolation")
+        val primaryFailure = RuntimeException("primary")
+        val recording = RecordingConnection(failRestoringIsolation = restoreFailure)
+
+        val thrown =
+            assertFailsWith<RuntimeException> {
+                recording.connection.withIsolationLevel(Connection.TRANSACTION_SERIALIZABLE) {
+                    throw primaryFailure
+                }
+            }
+
+        thrown shouldBeEqualTo primaryFailure
+        thrown.suppressed.toList() shouldContain restoreFailure
+    }
+
+    @Test
+    fun `withAutoCommit suppresses restore failure on primary failure`() {
+        val restoreFailure = SQLException("restore autoCommit")
+        val primaryFailure = RuntimeException("primary")
+        val recording = RecordingConnection(failRestoringAutoCommit = restoreFailure)
+
+        val thrown =
+            assertFailsWith<RuntimeException> {
+                recording.connection.withAutoCommit(false) {
+                    throw primaryFailure
+                }
+            }
+
+        thrown shouldBeEqualTo primaryFailure
+        thrown.suppressed.toList() shouldContain restoreFailure
+    }
+
+    @Test
+    fun `withReadOnly suppresses restore failure on primary failure`() {
+        val restoreFailure = SQLException("restore readOnly")
+        val primaryFailure = RuntimeException("primary")
+        val recording = RecordingConnection(failRestoringReadOnly = restoreFailure)
+
+        val thrown =
+            assertFailsWith<RuntimeException> {
+                recording.connection.withReadOnly {
+                    throw primaryFailure
+                }
+            }
+
+        thrown shouldBeEqualTo primaryFailure
+        thrown.suppressed.toList() shouldContain restoreFailure
+    }
+
+    @Test
+    fun `withHoldability suppresses restore failure on primary failure`() {
+        val restoreFailure = SQLException("restore holdability")
+        val primaryFailure = RuntimeException("primary")
+        val recording = RecordingConnection(failRestoringHoldability = restoreFailure)
+
+        val thrown =
+            assertFailsWith<RuntimeException> {
+                recording.connection.withHoldability(ResultSet.CLOSE_CURSORS_AT_COMMIT) {
+                    throw primaryFailure
+                }
+            }
+
+        thrown shouldBeEqualTo primaryFailure
+        thrown.suppressed.toList() shouldContain restoreFailure
+    }
+
+    @Test
     fun `복합 트랜잭션 작업`() {
         val actorId =
             dataSource.withTransaction { conn ->
@@ -267,21 +336,26 @@ private class RecordingConnection(
     autoCommit: Boolean = true,
     isolation: Int = Connection.TRANSACTION_READ_COMMITTED,
     readOnly: Boolean = false,
+    holdability: Int = ResultSet.HOLD_CURSORS_OVER_COMMIT,
     private val failRestoringAutoCommit: SQLException? = null,
     private val failRestoringIsolation: SQLException? = null,
     private val failRestoringReadOnly: SQLException? = null,
+    private val failRestoringHoldability: SQLException? = null,
     private val rollbackFailure: SQLException? = null,
 ): InvocationHandler {
 
     private val originalAutoCommit = autoCommit
     private val originalIsolation = isolation
     private val originalReadOnly = readOnly
+    private val originalHoldability = holdability
 
     var autoCommit: Boolean = autoCommit
         private set
     var isolation: Int = isolation
         private set
     var readOnly: Boolean = readOnly
+        private set
+    var holdability: Int = holdability
         private set
 
     val calls = mutableListOf<String>()
@@ -323,6 +397,15 @@ private class RecordingConnection(
                 calls.add("setReadOnly($value)")
                 if (isRestore) failRestoringReadOnly?.let { throw it }
                 readOnly = value
+                null
+            }
+            "getHoldability" -> holdability
+            "setHoldability" -> {
+                val value = arguments[0] as Int
+                val isRestore = calls.any { it.startsWith("setHoldability") } && value == originalHoldability
+                calls.add("setHoldability($value)")
+                if (isRestore) failRestoringHoldability?.let { throw it }
+                holdability = value
                 null
             }
             "commit" -> {
