@@ -14,6 +14,7 @@ import kotlin.coroutines.resumeWithException
  *
  * ## 동작/계약
  * - 코루틴 취소 시 `Call.cancel()`을 호출합니다.
+ * - 취소가 응답 전달보다 먼저 완료되면 응답 바디를 닫아 연결 누수를 방지합니다.
  * - 호출이 이미 취소된 상태에서 응답/실패가 도착하면 [cancelHandler]를 호출하고 코루틴을 취소합니다.
  * - 네트워크 실패는 예외로 재개(`resumeWithException`)됩니다.
  *
@@ -33,12 +34,16 @@ suspend inline fun <T> Call<T>.suspendExecute(
 
     val callback = object: Callback<T> {
         override fun onResponse(call: Call<T>, response: Response<T>) {
-            if (call.isCanceled) {
+            if (!cont.isActive || call.isCanceled) {
+                response.closeBodyQuietly()
                 val ex = HttpException(response)
                 cancelHandler(ex)
                 cont.cancel(ex)
             } else {
-                cont.resume(response) { _, _, _ -> call.cancel() }
+                cont.resume(response) { _, deliveredResponse, _ ->
+                    deliveredResponse.closeBodyQuietly()
+                    call.cancel()
+                }
             }
         }
 
@@ -53,6 +58,12 @@ suspend inline fun <T> Call<T>.suspendExecute(
     }
 
     enqueue(callback)
+}
+
+@PublishedApi
+internal fun Response<*>.closeBodyQuietly() {
+    runCatching { raw().close() }
+    runCatching { errorBody()?.close() }
 }
 
 /**
