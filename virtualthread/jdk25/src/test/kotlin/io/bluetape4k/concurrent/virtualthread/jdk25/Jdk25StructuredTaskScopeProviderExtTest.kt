@@ -13,7 +13,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.time.Instant
+import java.util.concurrent.Executors
 import java.util.concurrent.StructuredTaskScope
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import io.bluetape4k.assertions.assertFailsWith
 
 /**
@@ -80,12 +83,88 @@ class Jdk25StructuredTaskScopeProviderExtTest {
 
     @Test
     fun `withAll joinUntil 이미 지난 데드라인에서 TimeoutException 이 발생해야 한다`() {
-        assertFailsWith<java.util.concurrent.TimeoutException> {
+        assertFailsWith<TimeoutException> {
             provider.withAll { scope ->
                 scope.fork { Thread.sleep(500); 1 }
                 scope.joinUntil(Instant.now().minusSeconds(1))
                 scope.throwIfFailed()
             }
+        }
+    }
+
+    @Test
+    fun `interruptJoinUntil timeout interrupt는 TimeoutException 으로 변환하고 interrupt 상태를 clear 해야 한다`() {
+        try {
+            assertFailsWith<TimeoutException> {
+                Jdk25StructuredTaskScopeProvider.interruptJoinUntil(
+                    deadline = Instant.now().plusMillis(100),
+                    threadName = "jdk25-test-timeout",
+                ) {
+                    Thread.sleep(5_000)
+                }
+            }
+
+            Thread.currentThread().isInterrupted.shouldBeFalse()
+        } finally {
+            Thread.interrupted()
+        }
+    }
+
+    @Test
+    fun `interruptJoinUntil 기존 interrupt는 InterruptedException 으로 보존해야 한다`() {
+        try {
+            Thread.currentThread().interrupt()
+
+            assertFailsWith<InterruptedException> {
+                Jdk25StructuredTaskScopeProvider.interruptJoinUntil(
+                    deadline = Instant.now().plusSeconds(5),
+                    threadName = "jdk25-test-pre-interrupted",
+                ) {
+                    Thread.sleep(10)
+                }
+            }
+
+            Thread.currentThread().isInterrupted.shouldBeTrue()
+        } finally {
+            Thread.interrupted()
+        }
+    }
+
+    @Test
+    fun `interruptJoinUntil 외부 interrupt는 InterruptedException 으로 보존해야 한다`() {
+        val ownerThread = Thread.currentThread()
+        val interrupter = Executors.newSingleThreadScheduledExecutor()
+        try {
+            assertFailsWith<InterruptedException> {
+                interrupter.schedule({ ownerThread.interrupt() }, 100, TimeUnit.MILLISECONDS)
+                Jdk25StructuredTaskScopeProvider.interruptJoinUntil(
+                    deadline = Instant.now().plusSeconds(5),
+                    threadName = "jdk25-test-external-interrupt",
+                ) {
+                    Thread.sleep(5_000)
+                }
+            }
+
+            Thread.currentThread().isInterrupted.shouldBeTrue()
+        } finally {
+            interrupter.shutdownNow()
+            Thread.interrupted()
+        }
+    }
+
+    @Test
+    fun `interruptJoinUntil 정상 완료는 interrupt 상태를 변경하지 않아야 한다`() {
+        try {
+            Jdk25StructuredTaskScopeProvider.interruptJoinUntil(
+                deadline = Instant.now().plusSeconds(5),
+                threadName = "jdk25-test-normal-completion",
+            ) {
+                Thread.sleep(10)
+            }
+
+            Thread.currentThread().isInterrupted.shouldBeFalse()
+        } finally {
+            Thread.interrupted()
         }
     }
 
