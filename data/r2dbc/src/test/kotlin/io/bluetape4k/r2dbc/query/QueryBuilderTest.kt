@@ -193,6 +193,26 @@ class QueryBuilderTest {
     }
 
     @Test
+    fun `limit 은 양수여야 한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            query {
+                select("select * from actor")
+                limit(0)
+            }
+        }
+    }
+
+    @Test
+    fun `offset 은 0 이상이어야 한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            query {
+                select("select * from actor")
+                offset(-1)
+            }
+        }
+    }
+
+    @Test
     fun `select with group by and having`() {
         val query = query {
             select("select actor_id, count(*) as cnt from actor")

@@ -11,6 +11,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requirePositiveNumber
 
 /**
  * Cassandra keyspace 관리 및 버전 조회 유틸리티 객체입니다.
@@ -47,15 +48,16 @@ object CassandraAdmin: KLogging() {
         keyspace: String = DEFAULT_KEYSPACE,
         replicationFactor: Int = DEFAULT_REPLICATION_FACTOR,
     ): Boolean {
-        keyspace.requireNotBlank("keyspace")
+        val checkedKeyspace = keyspace.requireNotBlank("keyspace")
+        val checkedReplicationFactor = replicationFactor.requirePositiveNumber("replicationFactor")
 
-        val stmt = SchemaBuilder.createKeyspace(keyspace)
+        val stmt = SchemaBuilder.createKeyspace(checkedKeyspace)
             .ifNotExists()
-            .withSimpleStrategy(replicationFactor)
+            .withSimpleStrategy(checkedReplicationFactor)
             .build()
 
         return session.execute(stmt).wasApplied().apply {
-            log.info { "Create Keyspace[$keyspace], replicationFactor[$replicationFactor] wasApplied [$this]" }
+            log.info { "Create Keyspace[$checkedKeyspace], replicationFactor[$checkedReplicationFactor] wasApplied [$this]" }
         }
     }
 
