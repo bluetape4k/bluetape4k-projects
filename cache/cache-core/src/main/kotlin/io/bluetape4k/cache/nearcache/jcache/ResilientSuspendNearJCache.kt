@@ -154,9 +154,7 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
 
         return when (config.getFailureStrategy) {
             GetFailureStrategy.RETURN_FRONT_OR_NULL ->
-                runCatching { backCache.get(key) }
-                    .onFailure { e -> log.warn(e) { "Back cache GET failed for key=$key, returning null" } }
-                    .getOrNull()
+                getBackOrNull(key, "Back cache GET failed for key=$key, returning null")
                     ?.also { value -> frontCache.put(key, value) }
 
             GetFailureStrategy.PROPAGATE_EXCEPTION ->
@@ -173,9 +171,7 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
         val missedKeys = (keys - result.keys).filter { !tombstones.contains(it) }
 
         missedKeys.forEach { key ->
-            runCatching { backCache.get(key) }
-                .onFailure { e -> log.warn(e) { "Back cache GET failed for key=$key during getAll" } }
-                .getOrNull()
+            getBackOrNull(key, "Back cache GET failed for key=$key during getAll")
                 ?.let { value ->
                     result[key] = value
                     frontCache.put(key, value)
@@ -237,7 +233,7 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
         if (tombstones.contains(key) || clearPending.value) return false
 
         if (!frontCache.containsKey(key)) {
-            if (!runCatching { backCache.containsKey(key) }.getOrDefault(false)) return false
+            if (!containsBackOrFalse(key, null)) return false
         }
         val replaced = backCache.replace(key, value)
         if (replaced) {
@@ -279,9 +275,7 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
     suspend fun containsKey(key: K): Boolean {
         if (tombstones.contains(key) || clearPending.value) return false
         if (frontCache.containsKey(key)) return true
-        return runCatching { backCache.containsKey(key) }
-            .onFailure { e -> log.warn(e) { "Back cache containsKey failed for key=$key" } }
-            .getOrDefault(false)
+        return containsBackOrFalse(key, "Back cache containsKey failed for key=$key")
     }
 
     /**
@@ -332,6 +326,34 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      * 로컬 캐시의 추정 크기.
      */
     fun localCacheSize(): Long = frontCache.estimatedSize()
+
+    private suspend fun getBackOrNull(
+        key: K,
+        failureMessage: String,
+    ): V? =
+        try {
+            backCache.get(key)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            log.warn(e) { failureMessage }
+            null
+        }
+
+    private suspend fun containsBackOrFalse(
+        key: K,
+        failureMessage: String?,
+    ): Boolean =
+        try {
+            backCache.containsKey(key)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (failureMessage != null) {
+                log.warn(e) { failureMessage }
+            }
+            false
+        }
 
     /**
      * 모든 리소스를 정리한다.

@@ -1,14 +1,19 @@
 package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.cache.jcache.CaffeineSuspendJCache
-import io.bluetape4k.idgenerators.uuid.Uuid
-import io.bluetape4k.junit5.awaitility.untilSuspending
-import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.cache.jcache.SuspendJCache
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.idgenerators.uuid.Uuid
+import io.bluetape4k.junit5.awaitility.untilSuspending
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
+import io.mockk.coEvery
+import io.mockk.mockk
+import kotlinx.coroutines.CancellationException
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterEach
@@ -88,6 +93,23 @@ class ResilientSuspendNearJCacheTest {
         }
 
     @Test
+    fun `get - CancellationException은 fallback하지 않고 재전파한다`() =
+        runSuspendIO {
+            val failingCache = resilientCacheWithFailingBackCache { backCache ->
+                coEvery { backCache.get("cancel-key") } throws CancellationException("cancel get")
+            }
+
+            try {
+                val error = assertFailsWith<CancellationException> {
+                    failingCache.get("cancel-key")
+                }
+                error.message shouldBeEqualTo "cancel get"
+            } finally {
+                failingCache.close()
+            }
+        }
+
+    @Test
     fun `putAll and getAll`() =
         runSuspendIO {
             val data = mapOf("a" to "1", "b" to "2", "c" to "3")
@@ -97,6 +119,23 @@ class ResilientSuspendNearJCacheTest {
             result["b"] shouldBeEqualTo "2"
             result["c"] shouldBeEqualTo "3"
             result["x"].shouldBeNull()
+        }
+
+    @Test
+    fun `getAll - CancellationException은 fallback하지 않고 재전파한다`() =
+        runSuspendIO {
+            val failingCache = resilientCacheWithFailingBackCache { backCache ->
+                coEvery { backCache.get("cancel-key") } throws CancellationException("cancel getAll")
+            }
+
+            try {
+                val error = assertFailsWith<CancellationException> {
+                    failingCache.getAll(setOf("cancel-key"))
+                }
+                error.message shouldBeEqualTo "cancel getAll"
+            } finally {
+                failingCache.close()
+            }
         }
 
     @Test
@@ -133,6 +172,23 @@ class ResilientSuspendNearJCacheTest {
         }
 
     @Test
+    fun `containsKey - CancellationException은 false fallback하지 않고 재전파한다`() =
+        runSuspendIO {
+            val failingCache = resilientCacheWithFailingBackCache { backCache ->
+                coEvery { backCache.containsKey("cancel-key") } throws CancellationException("cancel contains")
+            }
+
+            try {
+                val error = assertFailsWith<CancellationException> {
+                    failingCache.containsKey("cancel-key")
+                }
+                error.message shouldBeEqualTo "cancel contains"
+            } finally {
+                failingCache.close()
+            }
+        }
+
+    @Test
     fun `putIfAbsent - 캐시 값 없으면 추가, 있으면 기존 값 반환`() =
         runSuspendIO {
             cache.putIfAbsent("key", "first").shouldBeNull()
@@ -152,6 +208,23 @@ class ResilientSuspendNearJCacheTest {
 
             cache.replace("key", "new").shouldBeTrue()
             cache.get("key") shouldBeEqualTo "new"
+        }
+
+    @Test
+    fun `replace - containsKey CancellationException은 false fallback하지 않고 재전파한다`() =
+        runSuspendIO {
+            val failingCache = resilientCacheWithFailingBackCache { backCache ->
+                coEvery { backCache.containsKey("cancel-key") } throws CancellationException("cancel replace")
+            }
+
+            try {
+                val error = assertFailsWith<CancellationException> {
+                    failingCache.replace("cancel-key", "value")
+                }
+                error.message shouldBeEqualTo "cancel replace"
+            } finally {
+                failingCache.close()
+            }
         }
 
     @Test
@@ -217,5 +290,19 @@ class ResilientSuspendNearJCacheTest {
         c.close()
         c.close() // 중복 호출 시에도 예외 없음
         c.isClosed.shouldBeTrue()
+    }
+
+    private fun resilientCacheWithFailingBackCache(
+        configure: (SuspendJCache<String, String>) -> Unit,
+    ): ResilientSuspendNearJCache<String, String> {
+        val failingBackCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        configure(failingBackCache)
+        return ResilientSuspendNearJCache(
+            backCache = failingBackCache,
+            config = ResilientNearJCacheConfig(
+                retryMaxAttempts = 1,
+                retryWaitDuration = Duration.ofMillis(10),
+            )
+        )
     }
 }
