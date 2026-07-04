@@ -35,6 +35,11 @@ class CacheReadThroughExample: AbstractCacheExample() {
 
     companion object: KLogging() {
         const val ACTOR_SIZE = 500
+        private const val REDIS_COMMAND_RETRY_ATTEMPTS = 6
+        private val REDIS_COMMAND_TIMEOUT: Duration = Duration.ofSeconds(30)
+
+        private fun redisCommandRetryDelay(attempt: Int): Duration =
+            Duration.ofMillis((attempt + 1) * 100L)
     }
 
     @BeforeEach
@@ -63,12 +68,12 @@ class CacheReadThroughExample: AbstractCacheExample() {
             val name = randomName()
             val options = MapCacheOptions.name<Long, ActorRecord>(name)
                 .loader(actorRecordLoader)
-                .retryAttempts(3)
+                .retryAttempts(REDIS_COMMAND_RETRY_ATTEMPTS)
                 .retryDelay { attempt ->
                     log.trace { "Retry attempt=$attempt" }
-                    Duration.ofMillis(attempt * 10L + 10L)
+                    redisCommandRetryDelay(attempt)
                 }
-                .timeout(Duration.ofSeconds(10))
+                .timeout(REDIS_COMMAND_TIMEOUT)
                 .codec(defaultCodec)
 
             val cache: RMapCache<Long, ActorRecord?> = redisson.getMapCache(options)
@@ -85,13 +90,13 @@ class CacheReadThroughExample: AbstractCacheExample() {
             val name = randomName()
             val options = LocalCachedMapOptions.name<Long, ActorRecord>(name)
                 .loader(actorRecordLoader)
-                .retryAttempts(3)
+                .retryAttempts(REDIS_COMMAND_RETRY_ATTEMPTS)
                 .retryDelay { attempt ->
                     log.trace { "Retry attempt=$attempt" }
-                    Duration.ofMillis(attempt * 10L + 10L)
+                    redisCommandRetryDelay(attempt)
                 }
                 .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL
-                .timeout(Duration.ofSeconds(10))
+                .timeout(REDIS_COMMAND_TIMEOUT)
                 .codec(defaultCodec)
 
             val cache: RLocalCachedMap<Long, ActorRecord?> = redisson.getLocalCachedMap(options)
@@ -154,12 +159,12 @@ class CacheReadThroughExample: AbstractCacheExample() {
             val name = randomName()
             val options = MapCacheOptions.name<Long, ActorRecord>(name)
                 .loaderAsync(actorRecordLoaderAsync)
-                .retryAttempts(3)
+                .retryAttempts(REDIS_COMMAND_RETRY_ATTEMPTS)
                 .retryDelay { attempt ->
                     log.trace { "Retry attempt=$attempt" }
-                    Duration.ofMillis(attempt * 10L + 10L)
+                    redisCommandRetryDelay(attempt)
                 }
-                .timeout(Duration.ofSeconds(10))
+                .timeout(REDIS_COMMAND_TIMEOUT)
                 .codec(defaultCodec)
 
             val cache: RMapCache<Long, ActorRecord?> = redisson.getMapCache(options)
@@ -175,13 +180,13 @@ class CacheReadThroughExample: AbstractCacheExample() {
             val name = randomName()
             val options = LocalCachedMapOptions.name<Long, ActorRecord>(name)
                 .loaderAsync(actorRecordLoaderAsync)
-                .retryAttempts(3)
+                .retryAttempts(REDIS_COMMAND_RETRY_ATTEMPTS)
                 .retryDelay { attempt ->
                     log.trace { "Retry attempt=$attempt" }
-                    Duration.ofMillis(attempt * 10L + 10L)
+                    redisCommandRetryDelay(attempt)
                 }
                 .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL
-                .timeout(Duration.ofSeconds(10))
+                .timeout(REDIS_COMMAND_TIMEOUT)
                 .codec(defaultCodec)
 
             val cache: RLocalCachedMap<Long, ActorRecord?> = redisson.getLocalCachedMap(options)
