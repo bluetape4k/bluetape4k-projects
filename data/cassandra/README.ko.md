@@ -69,10 +69,10 @@ session.use { /* 작업 수행 */ }
 
 #### 명시적 identity로 Session 캐싱
 
-`CqlSessionProvider.getOrCreateSession`은 keyspace만이 아니라 `CqlSessionIdentity`를 기준으로 캐시합니다. 같은 keyspace를 서로 다른 contact point, datacenter, credential, client id, tenant context에서 사용할 수 있다면 명시적 identity를 지정하세요.
+`CqlSessionProvider.getOrCreateSession`은 keyspace만이 아니라 `CqlSessionIdentity`를 기준으로 캐시합니다. 같은 keyspace를 서로 다른 contact point, datacenter, credential, client id, tenant context에서 사용할 수 있다면 명시적 identity를 지정하세요. Provider는 최종 keyspace-bound session을 열기 전에 bootstrap admin session으로 keyspace를 먼저 생성합니다. 따라서 builder block에는 contact point, local datacenter, credential, TLS, application 설정처럼 bootstrap과 최종 session에 공통으로 필요한 옵션을 넣고, `withKeyspace(...)`는 넣지 마세요. 대상 keyspace는 bootstrap 이후 provider가 직접 바인딩합니다.
 
 ```kotlin
-val sessionIdentity = CqlSessionIdentity.of(
+val sessionIdentity = cqlSessionIdentityOf(
     keyspace = "tenant_data",
     contextParts = listOf(
         "contactPoint=cassandra-a.example.com:9042",
@@ -85,11 +85,12 @@ val sessionIdentity = CqlSessionIdentity.of(
 val tenantSession = CqlSessionProvider.getOrCreateSession(sessionIdentity) {
     addContactPoint(InetSocketAddress("cassandra-a.example.com", 9042))
     withLocalDatacenter("dc-a")
+    withAuthCredentials("username", "password")
     withApplicationName("analytics-worker")
 }
 ```
 
-`keyspace`만 받는 호환 overload는 builder supplier와 builder lambda에서 보수적인 per-call identity를 만들어 사용합니다. 따라서 서로 다른 builder block이 keyspace만으로 조용히 같은 세션을 재사용하는 문제는 피하지만, 여러 call site에서 같은 context를 안정적으로 재사용하려면 `CqlSessionIdentity`를 명시하세요.
+`keyspace`만 받는 호환 overload는 builder supplier와 builder lambda에서 보수적인 per-call identity를 만들어 사용합니다. 따라서 서로 다른 builder block이 keyspace만으로 조용히 같은 세션을 재사용하는 문제는 피하지만, 여러 call site에서 같은 context를 안정적으로 재사용하려면 `CqlSessionIdentity`를 명시하세요. 최종 session에만 유효한 옵션이 필요하다면 `bootstrapBuilder`와 `sessionBuilder`를 분리하는 overload를 사용하세요.
 
 ### 2. 비동기 쿼리 (Coroutines)
 

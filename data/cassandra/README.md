@@ -69,10 +69,10 @@ session.use { /* perform operations */ }
 
 #### Cached sessions with explicit identity
 
-`CqlSessionProvider.getOrCreateSession` caches by `CqlSessionIdentity`, not by keyspace alone. Use an explicit identity when the same keyspace can be reached through different contact points, datacenters, credentials, client ids, or tenant contexts.
+`CqlSessionProvider.getOrCreateSession` caches by `CqlSessionIdentity`, not by keyspace alone. Use an explicit identity when the same keyspace can be reached through different contact points, datacenters, credentials, client ids, or tenant contexts. The provider creates the keyspace with a bootstrap admin session before opening the final keyspace-bound session, so the builder block must contain shared connection options such as contact points, local datacenter, credentials, TLS, and application settings. Do not set `withKeyspace(...)` inside the shared builder block; the provider binds the target keyspace after bootstrap.
 
 ```kotlin
-val sessionIdentity = CqlSessionIdentity.of(
+val sessionIdentity = cqlSessionIdentityOf(
     keyspace = "tenant_data",
     contextParts = listOf(
         "contactPoint=cassandra-a.example.com:9042",
@@ -85,11 +85,12 @@ val sessionIdentity = CqlSessionIdentity.of(
 val tenantSession = CqlSessionProvider.getOrCreateSession(sessionIdentity) {
     addContactPoint(InetSocketAddress("cassandra-a.example.com", 9042))
     withLocalDatacenter("dc-a")
+    withAuthCredentials("username", "password")
     withApplicationName("analytics-worker")
 }
 ```
 
-The compatibility overload that accepts only `keyspace` derives a conservative per-call identity from the builder supplier and builder lambda. That avoids silent keyspace-only reuse across different builder blocks, but stable reuse across call sites should use an explicit `CqlSessionIdentity`.
+The compatibility overload that accepts only `keyspace` derives a conservative per-call identity from the builder supplier and builder lambda. That avoids silent keyspace-only reuse across different builder blocks, but stable reuse across call sites should use an explicit `CqlSessionIdentity`. If the final session needs options that are not valid for bootstrap, call the overload with separate `bootstrapBuilder` and `sessionBuilder` lambdas.
 
 ### 2. Asynchronous Queries (Coroutines)
 
