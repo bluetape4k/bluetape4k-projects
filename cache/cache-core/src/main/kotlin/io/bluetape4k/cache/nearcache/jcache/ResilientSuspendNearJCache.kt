@@ -15,10 +15,13 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -64,6 +67,8 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
 
     companion object: KLogging()
 
+    private val closeDrainTimeoutMillis: Long = 5_000L
+
     private val closed = atomic(false)
     val isClosed by closed
 
@@ -89,9 +94,7 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      */
     private val clearPending = atomic(false)
 
-    init {
-        launchWriteConsumer()
-    }
+    private val writeConsumerJob: Job = launchWriteConsumer()
 
     private fun buildRetry(): Retry {
         val intervalFn = if (config.retryExponentialBackoff) {
@@ -106,7 +109,7 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
         return Retry.of("resilient-suspend-near-cache-write-retry", retryConfig)
     }
 
-    private fun launchWriteConsumer() {
+    private fun launchWriteConsumer(): Job =
         scope.launch {
             for (cmd in writeChannel) {
                 try {
@@ -118,7 +121,6 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
                 }
             }
         }
-    }
 
     private suspend fun applyCommand(cmd: BackJCacheCommand<K, V>) {
         when (cmd) {
@@ -187,22 +189,18 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      */
     suspend fun put(key: K, value: V) {
         key.requireNotNull("key")
+        enqueueWrite(BackJCacheCommand.Put(key, value), "Write channel full for Put key=$key")
         tombstones.remove(key)
         frontCache.put(key, value)
-        writeChannel.trySend(BackJCacheCommand.Put(key, value)).also { result ->
-            if (result.isFailure) log.warn { "Write channel full, dropping Put for key=$key" }
-        }
     }
 
     /**
      * 여러 키-값 쌍을 저장한다.
      */
     suspend fun putAll(entries: Map<K, V>) {
+        enqueueWrite(BackJCacheCommand.PutAll(entries), "Write channel full for PutAll entries=${entries.size}")
         tombstones.removeAll(entries.keys)
         frontCache.putAll(entries)
-        writeChannel.trySend(BackJCacheCommand.PutAll(entries)).also { result ->
-            if (result.isFailure) log.warn { "Write channel full, dropping PutAll for ${entries.size} entries" }
-        }
     }
 
     /**
@@ -285,22 +283,18 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      */
     suspend fun remove(key: K) {
         key.requireNotNull("key")
+        enqueueWrite(BackJCacheCommand.Remove(key), "Write channel full for Remove key=$key")
         frontCache.remove(key)
         tombstones.add(key)
-        writeChannel.trySend(BackJCacheCommand.Remove(key)).also { result ->
-            if (result.isFailure) log.warn { "Write channel full, dropping Remove for key=$key" }
-        }
     }
 
     /**
      * 여러 키에 해당하는 캐시 항목을 제거한다.
      */
     suspend fun removeAll(keys: Set<K>) {
+        enqueueWrite(BackJCacheCommand.RemoveAll(keys), "Write channel full for RemoveAll keys=${keys.size}")
         frontCache.removeAll(keys)
         tombstones.addAll(keys)
-        writeChannel.trySend(BackJCacheCommand.RemoveAll(keys)).also { result ->
-            if (result.isFailure) log.warn { "Write channel full, dropping RemoveAll for ${keys.size} keys" }
-        }
     }
 
     /**
@@ -315,10 +309,13 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      * 로컬 캐시와 back cache를 모두 비운다 (write-behind).
      */
     suspend fun clearAll() {
-        clearLocal()
         clearPending.value = true
-        writeChannel.trySend(BackJCacheCommand.ClearBack()).also { result ->
-            if (result.isFailure) log.warn { "Write channel full, dropping ClearBack" }
+        try {
+            enqueueWrite(BackJCacheCommand.ClearBack(), "Write channel full for ClearBack")
+            clearLocal()
+        } catch (e: Exception) {
+            clearPending.value = false
+            throw e
         }
     }
 
@@ -360,10 +357,26 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      */
     override fun close() {
         if (closed.compareAndSet(false, true)) {
-            runCatching { scope.cancel() }
             runCatching { writeChannel.close() }
+            runCatching {
+                runBlocking {
+                    val drained = withTimeoutOrNull(closeDrainTimeoutMillis) {
+                        writeConsumerJob.join()
+                        true
+                    } ?: false
+                    if (!drained) {
+                        log.warn { "Timed out draining back cache write channel." }
+                    }
+                }
+            }
+            runCatching { scope.cancel() }
             runCatching { frontCache.close() }
             log.debug { "ResilientSuspendNearCache closed" }
         }
+    }
+
+    private fun enqueueWrite(command: BackJCacheCommand<K, V>, failureMessage: String) {
+        check(!closed.value) { "ResilientSuspendNearCache is closed" }
+        check(writeChannel.trySend(command).isSuccess) { failureMessage }
     }
 }
