@@ -1,5 +1,6 @@
 package io.bluetape4k.retrofit2.client
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
@@ -15,8 +16,11 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.IOException
+import java.time.Duration
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.concurrent.thread
 
 /**
  * Shared OkHttp [Call.Factory] conformance tests for Retrofit transport adapters.
@@ -24,6 +28,8 @@ import java.util.concurrent.TimeUnit
 abstract class CallFactoryConformanceTest: AbstractClientTest() {
 
     private lateinit var conformanceServer: MockWebServer
+
+    protected abstract fun callFactory(callTimeout: Duration): Call.Factory
 
     @BeforeEach
     fun startConformanceServer() {
@@ -93,6 +99,51 @@ abstract class CallFactoryConformanceTest: AbstractClientTest() {
         val call = callFactory.newCall(request())
 
         call.timeout().timeoutNanos() shouldBeEqualTo TimeUnit.SECONDS.toNanos(30)
+    }
+
+    @Test
+    fun `execute timeout aborts underlying request`() {
+        conformanceServer.enqueue(MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE))
+
+        val call = callFactory(Duration.ofMillis(100)).newCall(request())
+
+        val error = assertFailsWith<IOException> {
+            call.execute()
+        }
+
+        val errorMessage = error.message.shouldNotBeNull()
+        (errorMessage.contains("timeout", ignoreCase = true) ||
+            errorMessage.contains("timed out", ignoreCase = true)).shouldBeTrue()
+        call.isCanceled().shouldBeTrue()
+    }
+
+    @Test
+    fun `execute interruption aborts underlying request and restores interrupt status`() {
+        conformanceServer.enqueue(MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE))
+
+        val call = callFactory(Duration.ofSeconds(5)).newCall(request())
+        val started = CountDownLatch(1)
+        val completed = CountDownLatch(1)
+        val interruptedStatusRestored = AtomicBoolean(false)
+
+        val worker = thread(start = true, isDaemon = true, name = "retrofit-call-interrupt-test") {
+            try {
+                started.countDown()
+                call.execute()
+            } catch (e: IOException) {
+                interruptedStatusRestored.set(Thread.currentThread().isInterrupted)
+            } finally {
+                completed.countDown()
+            }
+        }
+
+        started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+        Thread.sleep(100)
+        worker.interrupt()
+
+        completed.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        interruptedStatusRestored.get().shouldBeTrue()
+        call.isCanceled().shouldBeTrue()
     }
 
     @Test
