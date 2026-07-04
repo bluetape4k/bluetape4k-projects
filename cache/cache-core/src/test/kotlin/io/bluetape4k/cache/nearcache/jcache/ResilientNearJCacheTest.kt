@@ -2,12 +2,15 @@ package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.jcacheConfiguration
-import io.bluetape4k.idgenerators.uuid.Uuid
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.idgenerators.uuid.Uuid
+import io.bluetape4k.logging.KLogging
+import io.mockk.every
+import io.mockk.mockk
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
@@ -15,6 +18,10 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import java.time.Duration
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import javax.cache.Cache
 import javax.cache.expiry.EternalExpiryPolicy
 import kotlin.time.Duration.Companion.seconds
 
@@ -79,6 +86,40 @@ class ResilientNearJCacheTest {
         // back cache는 write-behind로 비동기 반영 → awaitility 폴링
         await atMost 5.seconds until { backCache.get("wb-key") != null }
         backCache.get("wb-key") shouldBeEqualTo "wb-val"
+    }
+
+    @Test
+    fun `put - full write queue fails before front update`() {
+        val putStarted = CountDownLatch(1)
+        val releasePut = CountDownLatch(1)
+        val blockingBackCache = mockk<Cache<String, String>>(relaxed = true)
+        every { blockingBackCache.put(any(), any()) } answers {
+            putStarted.countDown()
+            releasePut.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        }
+        every { blockingBackCache.get("third") } returns null
+        val smallQueueCache = ResilientNearJCache(
+            backCache = blockingBackCache,
+            config = ResilientNearJCacheConfig(
+                writeQueueCapacity = 1,
+                retryMaxAttempts = 1,
+                retryWaitDuration = Duration.ofMillis(10),
+            )
+        )
+
+        try {
+            smallQueueCache.put("first", "1")
+            putStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            smallQueueCache.put("second", "2")
+
+            assertFailsWith<IllegalStateException> {
+                smallQueueCache.put("third", "3")
+            }
+            smallQueueCache.get("third").shouldBeNull()
+        } finally {
+            releasePut.countDown()
+            smallQueueCache.close()
+        }
     }
 
     @Test
@@ -201,6 +242,36 @@ class ResilientNearJCacheTest {
         cache.localCacheSize() shouldBeEqualTo 0L
 
         await atMost 5.seconds until { backCache.get("k1") == null }
+    }
+
+    @Test
+    fun `close drains queued write-behind commands`() {
+        val closeDrainBackCache =
+            JCaching.Caffeine.getOrCreate<String, String>(
+                name = "resilient-near-close-drain-" + randomKey(),
+                configuration =
+                    jcacheConfiguration {
+                        setExpiryPolicyFactory(EternalExpiryPolicy.factoryOf())
+                    }
+            )
+        val closeDrainCache = ResilientNearJCache(
+            backCache = closeDrainBackCache,
+            config = ResilientNearJCacheConfig(
+                writeQueueCapacity = 512,
+                retryMaxAttempts = 1,
+                retryWaitDuration = Duration.ofMillis(10),
+            )
+        )
+
+        repeat(200) { index ->
+            closeDrainCache.put("close-$index", "value-$index")
+        }
+
+        closeDrainCache.close()
+
+        repeat(200) { index ->
+            closeDrainBackCache.get("close-$index") shouldBeEqualTo "value-$index"
+        }
     }
 
     @Test

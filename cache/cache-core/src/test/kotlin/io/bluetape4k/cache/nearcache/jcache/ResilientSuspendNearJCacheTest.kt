@@ -21,6 +21,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -83,6 +85,41 @@ class ResilientSuspendNearJCacheTest {
 
             await atMost 5.seconds untilSuspending { backCache.get("wb-key") == "wb-val" }
             backCache.get("wb-key") shouldBeEqualTo "wb-val"
+        }
+
+    @Test
+    fun `put - full write channel fails before front update`() =
+        runSuspendIO {
+            val putStarted = CountDownLatch(1)
+            val releasePut = CountDownLatch(1)
+            val blockingBackCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+            coEvery { blockingBackCache.put(any(), any()) } coAnswers {
+                putStarted.countDown()
+                releasePut.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            }
+            coEvery { blockingBackCache.get("third") } returns null
+            val smallQueueCache = ResilientSuspendNearJCache(
+                backCache = blockingBackCache,
+                config = ResilientNearJCacheConfig(
+                    writeQueueCapacity = 1,
+                    retryMaxAttempts = 1,
+                    retryWaitDuration = Duration.ofMillis(10),
+                )
+            )
+
+            try {
+                smallQueueCache.put("first", "1")
+                putStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                smallQueueCache.put("second", "2")
+
+                assertFailsWith<IllegalStateException> {
+                    smallQueueCache.put("third", "3")
+                }
+                smallQueueCache.get("third").shouldBeNull()
+            } finally {
+                releasePut.countDown()
+                smallQueueCache.close()
+            }
         }
 
     @Test
@@ -282,6 +319,34 @@ class ResilientSuspendNearJCacheTest {
 
             await atMost 5.seconds untilSuspending { backCache.get("k1") == null }
             backCache.get("k1").shouldBeNull()
+        }
+
+    @Test
+    fun `close drains queued write-behind commands`() =
+        runSuspendIO {
+            val closeDrainBackCache =
+                CaffeineSuspendJCache<String, String> {
+                    maximumSize(10_000)
+                    expireAfterWrite(Duration.ofMinutes(30))
+                }
+            val closeDrainCache = ResilientSuspendNearJCache(
+                backCache = closeDrainBackCache,
+                config = ResilientNearJCacheConfig(
+                    writeQueueCapacity = 512,
+                    retryMaxAttempts = 1,
+                    retryWaitDuration = Duration.ofMillis(10),
+                )
+            )
+
+            repeat(200) { index ->
+                closeDrainCache.put("close-$index", "value-$index")
+            }
+
+            closeDrainCache.close()
+
+            repeat(200) { index ->
+                closeDrainBackCache.get("close-$index") shouldBeEqualTo "value-$index"
+            }
         }
 
     @Test

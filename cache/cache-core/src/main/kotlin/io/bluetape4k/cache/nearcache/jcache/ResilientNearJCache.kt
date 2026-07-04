@@ -59,6 +59,8 @@ class ResilientNearJCache<K: Any, V: Any>(
 
     companion object: KLogging()
 
+    private val closeDrainTimeoutMillis: Long = 5_000L
+
     private val closed = atomic(false)
     val isClosed by closed
 
@@ -85,17 +87,25 @@ class ResilientNearJCache<K: Any, V: Any>(
     private val consumerThread: Thread = virtualThread(
         name = "resilient-near-cache-writer-${config.cacheName}",
     ) {
-        while (!closed.value) {
+        while (true) {
             try {
-                val cmd = queue.take()
+                val cmd = if (closed.value) {
+                    queue.poll() ?: break
+                } else {
+                    queue.take()
+                }
                 try {
                     retry.executeRunnable { applyCommand(cmd) }
                 } catch (e: Exception) {
                     log.error(e) { "Back cache write failed after ${config.retryMaxAttempts} retries, dropping command: $cmd" }
                 }
             } catch (e: InterruptedException) {
-                Thread.currentThread().interrupt()
-                break
+                if (closed.value) {
+                    continue
+                } else {
+                    Thread.currentThread().interrupt()
+                    break
+                }
             }
         }
     }
@@ -186,22 +196,18 @@ class ResilientNearJCache<K: Any, V: Any>(
      */
     fun put(key: K, value: V) {
         key.requireNotNull("key")
+        enqueueWrite(BackJCacheCommand.Put(key, value), "Write queue full for Put key=$key")
         tombstones.remove(key)
         frontCache.put(key, value)
-        if (!queue.offer(BackJCacheCommand.Put(key, value))) {
-            log.warn { "Write queue full, dropping Put for key=$key" }
-        }
     }
 
     /**
      * 여러 키-값 쌍을 저장한다.
      */
     fun putAll(entries: Map<K, V>) {
+        enqueueWrite(BackJCacheCommand.PutAll(entries), "Write queue full for PutAll entries=${entries.size}")
         tombstones.removeAll(entries.keys)
         frontCache.putAll(entries)
-        if (!queue.offer(BackJCacheCommand.PutAll(entries))) {
-            log.warn { "Write queue full, dropping PutAll for ${entries.size} entries" }
-        }
     }
 
     /**
@@ -286,22 +292,18 @@ class ResilientNearJCache<K: Any, V: Any>(
      */
     fun remove(key: K) {
         key.requireNotNull("key")
+        enqueueWrite(BackJCacheCommand.Remove(key), "Write queue full for Remove key=$key")
         frontCache.remove(key)
         tombstones.add(key)
-        if (!queue.offer(BackJCacheCommand.Remove(key))) {
-            log.warn { "Write queue full, dropping Remove for key=$key" }
-        }
     }
 
     /**
      * 여러 키에 해당하는 캐시 항목을 제거한다.
      */
     fun removeAll(keys: Set<K>) {
+        enqueueWrite(BackJCacheCommand.RemoveAll(keys), "Write queue full for RemoveAll keys=${keys.size}")
         frontCache.removeAll(keys)
         tombstones.addAll(keys)
-        if (!queue.offer(BackJCacheCommand.RemoveAll(keys))) {
-            log.warn { "Write queue full, dropping RemoveAll for ${keys.size} keys" }
-        }
     }
 
     /**
@@ -316,10 +318,13 @@ class ResilientNearJCache<K: Any, V: Any>(
      * 로컬 캐시와 back cache를 모두 비운다 (write-behind).
      */
     fun clearAll() {
-        clearLocal()
         clearPending.value = true
-        if (!queue.offer(BackJCacheCommand.ClearBack())) {
-            log.warn { "Write queue full, dropping ClearBack" }
+        try {
+            enqueueWrite(BackJCacheCommand.ClearBack(), "Write queue full for ClearBack")
+            clearLocal()
+        } catch (e: Exception) {
+            clearPending.value = false
+            throw e
         }
     }
 
@@ -334,9 +339,21 @@ class ResilientNearJCache<K: Any, V: Any>(
     override fun close() {
         if (closed.compareAndSet(false, true)) {
             runCatching { consumerThread.interrupt() }
-            runCatching { queue.clear() }
+            runCatching {
+                if (Thread.currentThread() != consumerThread) {
+                    consumerThread.join(closeDrainTimeoutMillis)
+                    if (consumerThread.isAlive) {
+                        log.warn { "Timed out draining back cache write queue. remaining=${queue.size}" }
+                    }
+                }
+            }
             runCatching { frontCache.close() }
             log.debug { "ResilientNearCache closed" }
         }
+    }
+
+    private fun enqueueWrite(command: BackJCacheCommand<K, V>, failureMessage: String) {
+        check(!closed.value) { "ResilientNearCache is closed" }
+        check(queue.offer(command)) { failureMessage }
     }
 }
