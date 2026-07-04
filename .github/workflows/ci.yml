@@ -87,6 +87,7 @@ jobs:
       ktor: ${{ steps.filter.outputs.ktor }}
       key-utils: ${{ steps.filter.outputs.key-utils }}
       infra: ${{ steps.filter.outputs.infra }}
+      kafka-infra: ${{ steps.filter.outputs.kafka-infra }}
       telemetry-infra: ${{ steps.filter.outputs.telemetry-infra }}
       data: ${{ steps.filter.outputs.data }}
     steps:
@@ -136,6 +137,8 @@ jobs:
               - 'infra/lettuce/**'
               - 'cache/cache-lettuce/**'
               - 'cache/cache-redisson/**'
+            kafka-infra:
+              - 'infra/kafka/**'
             telemetry-infra:
               - 'infra/opentelemetry/**'
               - 'infra/kafka-logback/**'
@@ -566,7 +569,66 @@ jobs:
           path: '**/build/reports/kover/'
           retention-days: 30
 
-  # ── 7-a. Telemetry Infra 테스트 (Kafka / OpenTelemetry) ─────────────────
+  # ── 7-a. Kafka Infra 테스트 (Testcontainers) ────────────────────────────
+  test-kafka-infra:
+    name: Test / Kafka Infra
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [build, changes]
+    if: ${{ needs.changes.outputs['kafka-infra'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Test Kafka infra modules
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-kafka:test \
+              --max-workers=1 \
+              --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-kafka:koverXmlReport \
+            --max-workers=1 \
+            --no-configuration-cache
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results-kafka-infra
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-kafka-infra
+          path: '**/build/reports/kover/'
+          retention-days: 30
+
+  # ── 7-b. Telemetry Infra 테스트 (Kafka / OpenTelemetry) ─────────────────
   test-telemetry-infra:
     name: Test / Telemetry Infra
     runs-on: ubuntu-latest
@@ -627,7 +689,7 @@ jobs:
           path: '**/build/reports/kover/'
           retention-days: 30
 
-  # ── 7-b. Data 모듈 테스트 (Testcontainers) ───────────────────────────────
+  # ── 7-c. Data 모듈 테스트 (Testcontainers) ───────────────────────────────
   test-data:
     name: Test / Data
     runs-on: ubuntu-latest
@@ -708,7 +770,7 @@ jobs:
     name: Coverage Report
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra, test-telemetry-infra, test-data]
+    needs: [test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data]
     if: always()
     steps:
       - uses: actions/checkout@v7
@@ -747,7 +809,7 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [gitleaks, validate-wrapper, changes, build, test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra, test-telemetry-infra, test-data, coverage-report]
+    needs: [gitleaks, validate-wrapper, changes, build, test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data, coverage-report]
     if: always()
     steps:
       - name: Check all jobs
