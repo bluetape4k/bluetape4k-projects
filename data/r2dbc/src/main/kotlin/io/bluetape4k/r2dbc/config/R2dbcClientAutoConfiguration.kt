@@ -3,26 +3,38 @@ package io.bluetape4k.r2dbc.config
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.r2dbc.R2dbcClient
+import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.data.r2dbc.convert.MappingR2dbcConverter
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.r2dbc.core.DatabaseClient
 
 /**
- * [R2dbcClient] 를 Bean으로 자동 등록해주는 Configuration
+ * Auto-configuration that registers the default [R2dbcClient] bean.
+ *
+ * ## Contract
+ * - Activates only when all Spring R2DBC types used by the bean signature are present.
+ * - Backs off when the application already provides an [R2dbcClient] bean.
  */
-@Configuration
-@ConditionalOnClass(DatabaseClient::class)
+@AutoConfiguration
+@ConditionalOnClass(
+    name = [
+        "org.springframework.r2dbc.core.DatabaseClient",
+        "org.springframework.data.r2dbc.core.R2dbcEntityTemplate",
+        "org.springframework.data.r2dbc.convert.MappingR2dbcConverter",
+    ]
+)
 class R2dbcClientAutoConfiguration {
 
     companion object: KLogging()
 
     /**
-     * [R2dbcClient] Bean을 생성한다.
+     * Creates the default [R2dbcClient] bean from Spring R2DBC infrastructure beans.
      */
     @Bean
+    @ConditionalOnMissingBean(R2dbcClient::class)
     fun r2dbcClient(
         databaseClient: DatabaseClient,
         r2dbcEntityTemplate: R2dbcEntityTemplate,
