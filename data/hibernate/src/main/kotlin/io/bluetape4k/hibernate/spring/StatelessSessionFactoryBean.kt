@@ -18,29 +18,20 @@ import org.springframework.util.ReflectionUtils
 import java.sql.Connection
 
 /**
- * Spring 트랜잭션에 바인딩된 Hibernate [StatelessSession] 프록시를 제공하는 FactoryBean입니다.
+ * Provides a Hibernate [StatelessSession] proxy bound to the current Spring transaction.
  *
- * ## 동작/계약
- * - `getObject()`는 매 호출마다 프록시를 반환하고, 실제 세션은 메서드 호출 시 트랜잭션 컨텍스트에서 조회/생성됩니다.
- * - 활성 트랜잭션이 없으면 인터셉터의 `check(...)`에 의해 `IllegalStateException`이 발생합니다.
- * - 현재 트랜잭션 리소스에 세션이 없으면 JDBC 연결 기반으로 새 `StatelessSession`을 열고 트랜잭션 종료 시 close 합니다.
- * - 수신 객체를 직접 변경하지 않으며, 트랜잭션 리소스 바인딩으로 동작을 연결합니다.
+ * ## Contract
+ * - [getObject] returns a proxy; the real session is resolved lazily for each method call.
+ * - Calls require an active Spring transaction and fail with [IllegalStateException] outside one.
+ * - The stateless session is stored under a dedicated transaction resource key, so it cannot
+ *   collide with Spring's `SessionFactory` or `EntityManager` resource binding.
+ * - The session created by this factory is unbound and closed when the transaction completes.
  *
  * ```kotlin
- * entityManager.withStateless { stateless ->
- *     repeat(COUNT) {
- *         val master = createMaster("master-$it")
- *         stateless.insert(master)
- *         master.details.forEach { detail ->
- *             stateless.insert(detail)
- *         }
- *     }
- * }
+ * statelessSession.insert(entity)
  * ```
  *
- * 참고 : https://gist.github.com/jelies/5181262
- *
- * @param sf 트랜잭션 리소스 키와 세션 생성을 위한 Hibernate [SessionFactory]
+ * @param sf Hibernate [SessionFactory] used to create stateless sessions.
  */
 class StatelessSessionFactoryBean(
     @field:Autowired val sf: SessionFactory,
@@ -59,9 +50,11 @@ class StatelessSessionFactoryBean(
 
     class StatelessSessionInterceptor(private val sf: SessionFactory): org.aopalliance.intercept.MethodInterceptor {
 
+        private val resourceKey = StatelessSessionResourceKey(sf)
+
         override fun invoke(invocation: MethodInvocation): Any? {
             val stateless = getCurrentStatelessSession()
-            return ReflectionUtils.invokeMethod(invocation.method, stateless, invocation.arguments)
+            return ReflectionUtils.invokeMethod(invocation.method, stateless, *invocation.arguments)
         }
 
         private fun getCurrentStatelessSession(): StatelessSession {
@@ -69,7 +62,7 @@ class StatelessSessionFactoryBean(
                 "현 스레드에 활성화된 Transaction이 없습니다. StatelessSession은 Transaction하에서만 작동됩니다."
             }
 
-            return TransactionSynchronizationManager.getResource(sf) as? StatelessSession
+            return TransactionSynchronizationManager.getResource(resourceKey) as? StatelessSession
                 ?: run {
                     log.info { "현 스레드에 새로운 StatelessSession 인스턴스를 생성합니다." }
                     newStatelessSession().apply {
@@ -91,13 +84,31 @@ class StatelessSessionFactoryBean(
 
         private fun bindWithTransaction(stateless: StatelessSession) {
             log.debug { "bind stateless session with transaction. statelessSession=$stateless" }
-            TransactionSynchronizationManager.registerSynchronization(StatelessSessionSynchronization(sf, stateless))
-            TransactionSynchronizationManager.bindResource(sf, stateless)
+            TransactionSynchronizationManager.registerSynchronization(
+                StatelessSessionSynchronization(resourceKey, stateless)
+            )
+            TransactionSynchronizationManager.bindResource(resourceKey, stateless)
+        }
+    }
+
+    private class StatelessSessionResourceKey(
+        private val sessionFactory: SessionFactory,
+    ) {
+        override fun equals(other: Any?): Boolean {
+            return other is StatelessSessionResourceKey && sessionFactory === other.sessionFactory
+        }
+
+        override fun hashCode(): Int {
+            return System.identityHashCode(sessionFactory)
+        }
+
+        override fun toString(): String {
+            return "StatelessSessionResourceKey(sessionFactory=$sessionFactory)"
         }
     }
 
     private class StatelessSessionSynchronization(
-        private val sf: SessionFactory,
+        private val resourceKey: StatelessSessionResourceKey,
         private val stateless: StatelessSession,
     ): TransactionSynchronization {
 
@@ -112,8 +123,13 @@ class StatelessSessionFactoryBean(
         }
 
         override fun beforeCompletion() {
-            TransactionSynchronizationManager.unbindResource(sf)
-            stateless.close()
+            try {
+                if (TransactionSynchronizationManager.getResource(resourceKey) === stateless) {
+                    TransactionSynchronizationManager.unbindResource(resourceKey)
+                }
+            } finally {
+                stateless.close()
+            }
         }
     }
 }
