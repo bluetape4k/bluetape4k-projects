@@ -93,9 +93,45 @@ class Bluetape4kKtorObservabilityTest {
             spans shouldHaveSize 1
             val span = spans[0]
             span.kind shouldBeEqualTo SpanKind.SERVER
-            span.attributes[CORRELATION_PRESENT_KEY] shouldBeEqualTo true
+            span.attributes[CORRELATION_PRESENT_KEY].shouldBeTrue()
             span.attributes[CORRELATION_ID_KEY] shouldBeEqualTo "REQ_123Injectedraw"
             span.attributes.asMap().keys.none { it.key.equals(HttpHeaders.Authorization, ignoreCase = true) }.shouldBeTrue()
+        }
+    }
+
+    @Test
+    fun `observability installer records generated correlation id on server span`() = testTracing { tracing ->
+        testApplication {
+            application {
+                installBluetape4kKtorObservability(
+                    Bluetape4kKtorObservabilityConfig(
+                        tracing = KtorOpenTelemetryTracingConfig(
+                            openTelemetry = tracing.openTelemetry,
+                            captureSanitizedCorrelationId = true
+                        )
+                    )
+                )
+                routing {
+                    get("/ping") {
+                        call.respondText("pong")
+                    }
+                }
+            }
+
+            val response = client.get("/ping")
+            val generated = response.headers[HttpHeaders.XRequestId].shouldNotBeNull()
+
+            response.status shouldBeEqualTo HttpStatusCode.OK
+            generated.length shouldBeEqualTo KtorCorrelationId.DEFAULT_GENERATED_LENGTH
+            KtorCorrelationId.isValid(generated).shouldBeTrue()
+            tracing.flush()
+
+            val spans = tracing.spanExporter.finishedSpanItems
+            spans shouldHaveSize 1
+            val span = spans[0]
+            span.kind shouldBeEqualTo SpanKind.SERVER
+            span.attributes[CORRELATION_PRESENT_KEY].shouldBeTrue()
+            span.attributes[CORRELATION_ID_KEY] shouldBeEqualTo generated
         }
     }
 
@@ -186,7 +222,7 @@ class Bluetape4kKtorObservabilityTest {
         response.status shouldBeEqualTo HttpStatusCode.OK
         generated.shouldNotBeNull()
         generated.length shouldBeEqualTo KtorCorrelationId.DEFAULT_GENERATED_LENGTH
-        KtorCorrelationId.isValid(generated) shouldBeEqualTo true
+        KtorCorrelationId.isValid(generated).shouldBeTrue()
     }
 
     @Test
@@ -206,7 +242,7 @@ class Bluetape4kKtorObservabilityTest {
 
         client.get("/ping").status shouldBeEqualTo HttpStatusCode.OK
 
-        registry.meters.isNotEmpty() shouldBeEqualTo true
+        registry.meters.isNotEmpty().shouldBeTrue()
     }
 
     @Test
@@ -230,7 +266,7 @@ class Bluetape4kKtorObservabilityTest {
         val response = client.get("/metrics")
 
         response.status shouldBeEqualTo HttpStatusCode.OK
-        response.bodyAsText().contains("demo_requests_total") shouldBeEqualTo true
+        response.bodyAsText().contains("demo_requests_total").shouldBeTrue()
     }
 
     private class TestTracing: AutoCloseable {

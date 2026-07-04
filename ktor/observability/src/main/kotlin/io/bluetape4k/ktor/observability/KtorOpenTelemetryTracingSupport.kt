@@ -12,7 +12,8 @@ import io.opentelemetry.instrumentation.ktor.v3_0.KtorServerTelemetry
  * ## Contract
  * - Delegates HTTP server span creation to OpenTelemetry's Ktor 3 instrumentation.
  * - Uses the caller-provided [KtorOpenTelemetryTracingConfig.openTelemetry] instance.
- * - Records `correlation.present` by default and records `correlation.id` only after sanitization and opt-in.
+ * - Records `correlation.present` by default before the span ends.
+ * - Records `correlation.id` only after CallId sanitization/generation and explicit opt-in.
  */
 fun Application.installBluetape4kKtorOpenTelemetryTracing(
     config: KtorOpenTelemetryTracingConfig,
@@ -20,7 +21,7 @@ fun Application.installBluetape4kKtorOpenTelemetryTracing(
     install(KtorServerTelemetry) {
         setOpenTelemetry(config.openTelemetry)
         attributesExtractor {
-            onStart {
+            onEnd {
                 val correlationId = request.sanitizedCorrelationId(config.correlationId)
                 attributes.put(CORRELATION_PRESENT_ATTRIBUTE, correlationId != null)
                 if (config.captureSanitizedCorrelationId && correlationId != null) {
