@@ -151,7 +151,7 @@ suspend fun scrollAllDocuments() {
 }
 ```
 
-**중요**: search_after 가 올바르게 작동하려면 정렬 절에 tie-breaker (예: `_shard_doc`)를 반드시 포함해야 합니다.
+**중요**: search_after 가 올바르게 작동하려면 정렬 절에 tie-breaker (예: `_shard_doc`)를 반드시 포함해야 합니다. `searchAsFlow`는 PIT close를 non-cancellable cleanup boundary에서 수행하므로 timeout이나 collector cancellation이 발생해도 원래 cancellation을 전파하기 전에 PIT cleanup을 시도합니다.
 
 ### 4. Flow를 사용한 일괄 인덱싱
 
@@ -365,7 +365,7 @@ val client = elasticsearchAsyncClient {
 
 ### Flow 기반 페이징 (searchAsFlow)
 
-Kotlin Flow를 사용한 지연(lazy), 백프레셔 인식 페이징. PIT 생명주기를 자동으로 관리합니다.
+Kotlin Flow를 사용한 지연(lazy), 백프레셔 인식 페이징. Cancellation 중에도 best-effort non-cancellable PIT close를 수행해 PIT 생명주기를 자동으로 관리합니다.
 
 ### Coroutine 래퍼 (suspendBulk)
 

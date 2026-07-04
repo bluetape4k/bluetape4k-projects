@@ -11,9 +11,11 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.withContext
 
 @PublishedApi
 internal val log = KotlinLogging.logger {}
@@ -82,28 +84,50 @@ suspend fun ElasticsearchAsyncClient.closePointInTimeSuspending(
     return this.closePointInTime(request).await().succeeded()
 }
 
+@PublishedApi
+internal suspend fun closePointInTimeBestEffort(
+    pitId: String,
+    close: suspend (String) -> Boolean,
+) {
+    pitId.requireNotBlank("pitId")
+
+    withContext(NonCancellable) {
+        try {
+            close(pitId)
+        } catch (e: CancellationException) {
+            log.warn(e) { "Cancelled while closing ES PIT: pitId=$pitId" }
+        } catch (e: Exception) {
+            log.warn(e) { "Failed to close ES PIT: pitId=$pitId" }
+        }
+    }
+}
+
 // ---------------------------------------------------------------------------
 // search_after + PIT 기반 무한 스크롤 Flow
 // ---------------------------------------------------------------------------
 
 /**
- * `search_after` + PIT(point-in-time) 페이징을 [Flow] 로 노출하는 무한 스크롤 검색입니다.
+ * Exposes `search_after` + PIT(point-in-time) pagination as a lazy [Flow].
  *
- * Elasticsearch 의 scroll API 는 deprecated 되었으므로 본 함수는 PIT + `search_after` 조합을 사용합니다.
+ * Elasticsearch deprecated the scroll API, so this helper uses PIT with `search_after`
+ * for consistent cursor-based paging.
  *
- * ## 동작
- * 1. 함수 시작 시 [openPointInTimeSuspending] 으로 PIT 를 열어 일관된 스냅샷을 확보합니다.
- * 2. `batchSize` 만큼 search 를 반복 호출하며 `searchAfter` 커서를 다음 페이지로 갱신합니다.
- * 3. 빈 페이지가 반환되면 종료되며, 정상 종료 / 예외 / `CancellationException` 어느 경로에서도
- *    `finally` 블록에서 PIT 를 닫아 자원 누수를 막습니다.
+ * ## Behavior
+ * 1. Opens a PIT through [openPointInTimeSuspending] before the first page.
+ * 2. Repeats search requests in `batchSize` chunks and advances the `searchAfter` cursor.
+ * 3. Stops when Elasticsearch returns an empty page and closes the PIT from `finally`
+ *    for normal completion, failures, and collector cancellation.
  *
- * ## 사용 시 주의
- * - `queryBlock` 안에서 **반드시 tie-breaker 를 포함한 `sort` 를 지정**해야 합니다 (예: 정렬 기준 + `_shard_doc`).
- *   sort 가 없으면 `searchAfter` 가 동작하지 않습니다.
- * - `index`, `pit`, `size`, `searchAfter` 는 본 함수가 자동으로 채우므로 [queryBlock] 에서 다시 지정하지 마세요.
- * - PIT close 가 실패해도 leak 만 막으면 충분하므로 `runCatching` 으로 swallow 합니다.
+ * ## Usage notes
+ * - [queryBlock] must set a stable sort that includes a tie-breaker such as `_shard_doc`.
+ *   Without sorting, `searchAfter` cannot advance safely.
+ * - Do not set `index`, `pit`, `size`, or `searchAfter` inside [queryBlock]; this helper
+ *   owns those fields.
+ * - PIT close runs from a non-cancellable cleanup boundary. Close failures are logged
+ *   and swallowed so the original collector cancellation or upstream failure can continue
+ *   to propagate.
  *
- * ## 사용 예시
+ * ## Example
  * ```kotlin
  * asyncClient.searchAsFlow<MyDoc>(
  *     indexName = "my-index",
@@ -160,14 +184,9 @@ inline fun <reified T : Any> ElasticsearchAsyncClient.searchAsFlow(
                 searchAfter = lastSort
             }
         } finally {
-            // 정상/예외/취소 모든 종료 경로에서 PIT close 보장.
-            // CancellationException 은 재던짐, 그 외 close 실패는 warn 로그 후 swallow — leak 방지가 목적.
-            try {
-                client.closePointInTimeSuspending(pitId)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Throwable) {
-                log.warn(e) { "Failed to close ES PIT: pitId=$pitId" }
+            // Close PIT from a cleanup boundary that survives collector cancellation.
+            closePointInTimeBestEffort(pitId) { id ->
+                client.closePointInTimeSuspending(id)
             }
         }
     }
