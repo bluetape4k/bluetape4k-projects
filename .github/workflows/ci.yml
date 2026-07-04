@@ -113,9 +113,15 @@ jobs:
               - 'io/io/**'
               - 'io/okio/**'
               - 'io/json/**'
+              - 'io/jackson2/**'
               - 'io/jackson3/**'
+              - 'io/grpc/**'
+              - 'io/tink/**'
             io-http:
               - 'io/feign/**'
+              - 'io/http/**'
+              - 'io/retrofit2/**'
+              - 'io/vertx/**'
               - 'testing/mock-web-server/**'
               - 'testing/testcontainers/**'
             ktor:
@@ -261,7 +267,10 @@ jobs:
               :bluetape4k-io:test \
               :bluetape4k-okio:test \
               :bluetape4k-json:test \
+              :bluetape4k-jackson2:test \
               :bluetape4k-jackson3:test \
+              :bluetape4k-grpc:test \
+              :bluetape4k-tink:test \
               --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -273,7 +282,10 @@ jobs:
             :bluetape4k-io:koverXmlReport \
             :bluetape4k-okio:koverXmlReport \
             :bluetape4k-json:koverXmlReport \
+            :bluetape4k-jackson2:koverXmlReport \
             :bluetape4k-jackson3:koverXmlReport \
+            :bluetape4k-grpc:koverXmlReport \
+            :bluetape4k-tink:koverXmlReport \
             --parallel
         continue-on-error: true
 
@@ -318,19 +330,31 @@ jobs:
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
-      - name: Test Feign module
+      - name: Test HTTP client modules
         uses: nick-fields/retry@v4
         with:
           timeout_minutes: 60
           max_attempts: 3
           shell: bash
-          command: ./gradlew :bluetape4k-feign:test --no-configuration-cache
+          command: |
+            ./gradlew \
+              :bluetape4k-feign:test \
+              :bluetape4k-http:test \
+              :bluetape4k-retrofit2:test \
+              :bluetape4k-vertx:test \
+              --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
       - name: Generate Kover XML report
         if: always()
-        run: ./gradlew :bluetape4k-feign:koverXmlReport --no-configuration-cache
+        run: |
+          ./gradlew \
+            :bluetape4k-feign:koverXmlReport \
+            :bluetape4k-http:koverXmlReport \
+            :bluetape4k-retrofit2:koverXmlReport \
+            :bluetape4k-vertx:koverXmlReport \
+            --no-configuration-cache
         continue-on-error: true
 
       - name: Upload test results
