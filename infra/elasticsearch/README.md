@@ -151,7 +151,7 @@ suspend fun scrollAllDocuments() {
 }
 ```
 
-**Important**: You must include a tie-breaker in sort clause (e.g., `_shard_doc`) for search_after to work correctly.
+**Important**: You must include a tie-breaker in sort clause (e.g., `_shard_doc`) for search_after to work correctly. `searchAsFlow` closes the PIT from a non-cancellable cleanup boundary, so timeout or collector cancellation still attempts PIT cleanup before the original cancellation is propagated.
 
 ### 4. Bulk Indexing with Flow
 
@@ -365,7 +365,7 @@ val client = elasticsearchAsyncClient {
 
 ### Flow-based Pagination (searchAsFlow)
 
-Lazy, backpressure-aware pagination using Kotlin Flow. Automatically manages PIT lifecycle.
+Lazy, backpressure-aware pagination using Kotlin Flow. Automatically manages PIT lifecycle, including best-effort non-cancellable PIT close during cancellation.
 
 ### Coroutine Wrappers (suspendBulk)
 
