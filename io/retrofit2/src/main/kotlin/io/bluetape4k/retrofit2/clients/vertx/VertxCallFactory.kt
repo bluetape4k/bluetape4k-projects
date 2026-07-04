@@ -11,64 +11,76 @@ import io.vertx.core.http.HttpClient
 import io.vertx.core.http.HttpClientRequest
 import io.vertx.kotlin.core.http.requestOptionsOf
 import kotlinx.atomicfu.atomic
+import java.io.IOException
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlin.reflect.KClass
 
 /**
- * Vert.x [HttpClient] 기반 Retrofit용 OkHttp `Call.Factory`를 생성합니다.
+ * Creates a Retrofit-compatible OkHttp `Call.Factory` backed by a Vert.x [HttpClient].
  *
- * ## 동작/계약
- * - [client]를 래핑한 [VertxCallFactory]를 반환합니다.
- * - [client] 기본값은 [defaultVertxHttpClient]입니다.
+ * ## Contract
+ * - Wraps [client] without taking ownership beyond [VertxCallFactory.close].
+ * - Uses [callTimeout] for blocking `execute()` waits, Vert.x request timeout, and the advertised Okio timeout.
+ * - A blocking timeout or interruption resets the underlying Vert.x request when one exists.
  *
  * ```kotlin
- * val callFactory = vertxCallFactoryOf()
- * // callFactory != null
+ * val callFactory = vertxCallFactoryOf(callTimeout = Duration.ofSeconds(10))
+ * // callFactory can be passed to Retrofit.Builder.callFactory(...)
  * ```
  */
-fun vertxCallFactoryOf(client: HttpClient = defaultVertxHttpClient): VertxCallFactory {
-    return VertxCallFactory(client)
+fun vertxCallFactoryOf(
+    client: HttpClient = defaultVertxHttpClient,
+    callTimeout: Duration = VertxCallFactory.callTimeout,
+): VertxCallFactory {
+    return VertxCallFactory(client, callTimeout)
 }
 
 /**
- * Vert.x HTTP 요청을 OkHttp [okhttp3.Call.Factory] 인터페이스로 어댑트한 구현입니다.
+ * Adapts Vert.x HTTP requests to OkHttp [okhttp3.Call.Factory].
  *
- * ## 동작/계약
- * - [newCall]은 요청마다 독립 Call 인스턴스를 생성합니다.
- * - `execute()`는 내부 async 처리 결과를 timeout까지 대기하는 blocking 호출입니다.
- * - 네트워크/변환 오류는 [io.bluetape4k.retrofit2.toIOException]으로 변환됩니다.
+ * ## Contract
+ * - [newCall] creates an independent call instance per request.
+ * - `execute()` blocks up to [callTimeout], resets the Vert.x request on timeout/interruption,
+ *   and restores the thread interrupt flag for interruptions.
+ * - Network and conversion failures are normalized with [io.bluetape4k.retrofit2.toIOException].
  *
  * ```kotlin
- * val retrofit = retrofitOf(baseUrl, vertxCallFactoryOf())
- * // retrofit.callFactory()가 Vert.x 기반으로 동작
+ * val retrofit = retrofitOf(baseUrl, vertxCallFactoryOf(callTimeout = Duration.ofSeconds(10)))
+ * // retrofit.callFactory() uses the Vert.x transport adapter
  * ```
  */
 class VertxCallFactory private constructor(
     private val client: HttpClient,
+    private val defaultCallTimeout: Duration,
 ): okhttp3.Call.Factory, java.io.Closeable {
 
     companion object: KLogging() {
-        /** 기본 호출 타임아웃입니다. */
+        /** Default call timeout. */
         val callTimeout: Duration = Duration.ofSeconds(30L)
 
         /**
-         * [VertxCallFactory] 인스턴스를 생성합니다.
+         * Creates a [VertxCallFactory] from an existing Vert.x [HttpClient].
          *
-         * ## 동작/계약
-         * - 전달한 [client] 인스턴스를 그대로 사용합니다.
+         * ## Contract
+         * - Keeps using the caller-provided [client].
+         * - Applies [callTimeout] to each new call.
          *
          * ```kotlin
-         * val factory = VertxCallFactory(defaultVertxHttpClient)
+         * val factory = VertxCallFactory(defaultVertxHttpClient, Duration.ofSeconds(10))
          * // factory != null
          * ```
          */
         @JvmStatic
-        operator fun invoke(client: HttpClient): VertxCallFactory {
-            return VertxCallFactory(client)
+        operator fun invoke(
+            client: HttpClient,
+            callTimeout: Duration = VertxCallFactory.callTimeout,
+        ): VertxCallFactory {
+            return VertxCallFactory(client, callTimeout)
         }
     }
 
@@ -83,7 +95,7 @@ class VertxCallFactory private constructor(
      * ```
      */
     override fun newCall(request: okhttp3.Request): okhttp3.Call {
-        return VertxCall(request)
+        return VertxCall(request, defaultCallTimeout)
     }
 
     /**
@@ -101,6 +113,7 @@ class VertxCallFactory private constructor(
 
     private inner class VertxCall(
         private val okRequest: okhttp3.Request,
+        private val callTimeout: Duration,
     ): okhttp3.Call {
 
         private val promiseRef = atomic<CompletableFuture<okhttp3.Response>?>(null)
@@ -120,7 +133,18 @@ class VertxCallFactory private constructor(
             return try {
                 executeAsync().get(callTimeout.toMillis(), TimeUnit.MILLISECONDS)
             } catch (e: ExecutionException) {
-                throw (e.cause ?: e).toIOException()
+                val cause = e.cause ?: e
+                if (cause.isTimeoutLikeFailure()) {
+                    cancel()
+                }
+                throw cause.toIOException()
+            } catch (e: TimeoutException) {
+                cancel()
+                throw IOException("Call timed out after $callTimeout. request=$okRequest", e)
+            } catch (e: InterruptedException) {
+                cancel()
+                Thread.currentThread().interrupt()
+                throw IOException("Call interrupted. request=$okRequest", e)
             } catch (e: Throwable) {
                 throw e.toIOException()
             }
@@ -200,7 +224,7 @@ class VertxCallFactory private constructor(
         }
 
         override fun clone(): okhttp3.Call {
-            return VertxCall(okRequest)
+            return VertxCall(okRequest, callTimeout)
         }
 
         override fun request(): okhttp3.Request {
@@ -230,5 +254,10 @@ class VertxCallFactory private constructor(
         private fun throwAlreadyExecuted() {
             error("Already executed. request=$okRequest")
         }
+
+        private fun Throwable.isTimeoutLikeFailure(): Boolean =
+            this is TimeoutException ||
+                message?.contains("timeout", ignoreCase = true) == true ||
+                message?.contains("timed out", ignoreCase = true) == true
     }
 }

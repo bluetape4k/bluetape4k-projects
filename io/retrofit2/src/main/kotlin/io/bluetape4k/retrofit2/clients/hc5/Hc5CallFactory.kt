@@ -19,41 +19,46 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlin.reflect.KClass
 
 /**
- * Apache HC5 비동기 클라이언트를 사용하는 Retrofit용 OkHttp `Call.Factory`를 생성합니다.
+ * Creates a Retrofit-compatible OkHttp `Call.Factory` backed by Apache HC5 async client.
  *
- * ## 동작/계약
- * - [asyncClient]를 래핑한 [Hc5CallFactory]를 반환합니다.
- * - [asyncClient] 기본값은 시스템 설정 기반 `httpAsyncClientSystemOf()`입니다.
+ * ## Contract
+ * - Wraps [asyncClient] without taking ownership beyond [Hc5CallFactory.close].
+ * - Uses [callTimeout] for blocking `execute()` waits and the advertised Okio timeout.
+ * - A blocking timeout or interruption cancels the underlying HC5 request.
  *
  * ```kotlin
- * val callFactory = hc5CallFactoryOf()
- * // callFactory != null
+ * val callFactory = hc5CallFactoryOf(callTimeout = Duration.ofSeconds(10))
+ * // callFactory can be passed to Retrofit.Builder.callFactory(...)
  * ```
  */
 fun hc5CallFactoryOf(
     asyncClient: CloseableHttpAsyncClient = httpAsyncClientSystemOf(),
+    callTimeout: Duration = Hc5CallFactory.CallTimeout,
 ): Hc5CallFactory {
-    return Hc5CallFactory(asyncClient)
+    return Hc5CallFactory(asyncClient, callTimeout)
 }
 
 /**
- * Apache HC5 비동기 클라이언트를 OkHttp [okhttp3.Call.Factory]로 어댑트합니다.
+ * Adapts an Apache HC5 async client to OkHttp [okhttp3.Call.Factory].
  *
- * ## 동작/계약
- * - 생성 시 [asyncClient] 상태가 비활성(`!= ACTIVE`)이면 `start()`를 호출합니다.
- * - [newCall]은 요청마다 독립 Call 인스턴스를 생성합니다.
- * - `execute()`는 내부 async 처리 결과를 timeout까지 대기하는 blocking 호출입니다.
+ * ## Contract
+ * - Starts [asyncClient] when it is not already active.
+ * - [newCall] creates an independent call instance per request.
+ * - `execute()` blocks up to [callTimeout], cancels the HC5 future on timeout/interruption,
+ *   and restores the thread interrupt flag for interruptions.
  *
  * ```kotlin
- * val retrofit = retrofitOf(baseUrl, hc5CallFactoryOf())
- * // retrofit.callFactory()가 HC5 기반으로 동작
+ * val retrofit = retrofitOf(baseUrl, hc5CallFactoryOf(callTimeout = Duration.ofSeconds(10)))
+ * // retrofit.callFactory() uses the HC5 transport adapter
  * ```
  */
 class Hc5CallFactory private constructor(
     private val asyncClient: CloseableHttpAsyncClient,
+    private val callTimeout: Duration,
 ): okhttp3.Call.Factory, java.io.Closeable {
 
     companion object: KLogging() {
@@ -62,19 +67,23 @@ class Hc5CallFactory private constructor(
         val CallTimeout: Duration = Duration.ofSeconds(30)
 
         /**
-         * [Hc5CallFactory] 인스턴스를 생성합니다.
+         * Creates an [Hc5CallFactory] from an existing HC5 async client.
          *
-         * ## 동작/계약
-         * - 전달한 [asyncClient]를 그대로 사용합니다.
+         * ## Contract
+         * - Keeps using the caller-provided [asyncClient].
+         * - Applies [callTimeout] to each new call.
          *
          * ```kotlin
-         * val factory = Hc5CallFactory(httpAsyncClientSystemOf())
+         * val factory = Hc5CallFactory(httpAsyncClientSystemOf(), Duration.ofSeconds(10))
          * // factory != null
          * ```
          */
         @JvmStatic
-        operator fun invoke(asyncClient: CloseableHttpAsyncClient): Hc5CallFactory {
-            return Hc5CallFactory(asyncClient)
+        operator fun invoke(
+            asyncClient: CloseableHttpAsyncClient,
+            callTimeout: Duration = CallTimeout,
+        ): Hc5CallFactory {
+            return Hc5CallFactory(asyncClient, callTimeout)
         }
     }
 
@@ -95,7 +104,7 @@ class Hc5CallFactory private constructor(
      * ```
      */
     override fun newCall(request: okhttp3.Request): okhttp3.Call {
-        return AsyncClientCall(request)
+        return AsyncClientCall(request, callTimeout)
     }
 
     /**
@@ -133,7 +142,18 @@ class Hc5CallFactory private constructor(
             return try {
                 executeAsync().get(callTimeout.toMillis(), TimeUnit.MILLISECONDS)
             } catch (e: ExecutionException) {
-                throw (e.cause ?: e).toIOException()
+                val cause = e.cause ?: e
+                if (cause.isTimeoutLikeFailure()) {
+                    cancel()
+                }
+                throw cause.toIOException()
+            } catch (e: TimeoutException) {
+                cancel()
+                throw IOException("Call timed out after $callTimeout. request=$okRequest", e)
+            } catch (e: InterruptedException) {
+                cancel()
+                Thread.currentThread().interrupt()
+                throw IOException("Call interrupted. request=$okRequest", e)
             } catch (e: Throwable) {
                 throw e.toIOException()
             }
@@ -235,5 +255,10 @@ class Hc5CallFactory private constructor(
         private fun throwAlreadyExecuted() {
             error("Already executed. request=$okRequest")
         }
+
+        private fun Throwable.isTimeoutLikeFailure(): Boolean =
+            this is TimeoutException ||
+                message?.contains("timeout", ignoreCase = true) == true ||
+                message?.contains("timed out", ignoreCase = true) == true
     }
 }
