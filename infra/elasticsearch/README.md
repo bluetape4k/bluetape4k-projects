@@ -192,6 +192,12 @@ suspend fun bulkIndexDocuments() {
 }
 ```
 
+`bulkProgressListener()` uses a bounded progress-event buffer by default
+(`bufferCapacity = 256`, `onBufferOverflow = BufferOverflow.SUSPEND`). Listener callbacks never
+block Elasticsearch client threads; if collectors are too slow or absent, failed `trySend` attempts
+are logged and overflowed progress events are dropped. Tune `bufferCapacity` and
+`onBufferOverflow` when a workload needs a different retention policy.
+
 ### 5. Direct Bulk Operation
 
 ```kotlin

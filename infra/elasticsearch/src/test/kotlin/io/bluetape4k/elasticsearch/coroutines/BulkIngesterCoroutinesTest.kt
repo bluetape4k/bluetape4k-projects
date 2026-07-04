@@ -1,6 +1,13 @@
 package io.bluetape4k.elasticsearch.coroutines
 
+import co.elastic.clients.elasticsearch.core.BulkRequest
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.elasticsearch.AbstractElasticsearchTest
 import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.createTestIndex
 import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.deleteTestIndex
@@ -11,12 +18,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -121,4 +127,42 @@ class BulkIngesterCoroutinesTest : AbstractElasticsearchTest() {
         // 채널 정리 — 메모리 누수 방지
         handle.close()
     }
+
+    @Test
+    fun `bulkProgressListener drops overflowed events from bounded buffer`() = runTest {
+        val handle = bulkProgressListener<Void>(bufferCapacity = 1)
+        val (listener, events) = handle
+
+        try {
+            val request = bulkRequestOf("overflow")
+
+            listener.beforeBulk(1L, request, emptyList<Void>())
+            listener.beforeBulk(2L, request, emptyList<Void>())
+
+            val event = events.first()
+            event shouldBeInstanceOf BulkProgressEvent.Before::class
+            (event as BulkProgressEvent.Before<Void>).executionId shouldBeEqualTo 1L
+
+            withTimeoutOrNull(100.milliseconds) {
+                events.first()
+            }.shouldBeNull()
+        } finally {
+            handle.close()
+        }
+    }
+
+    private fun bulkRequestOf(id: String): BulkRequest =
+        BulkRequest.of { request ->
+            request.operations(
+                listOf(
+                    BulkOperation.of { operation ->
+                        operation.index<Map<String, String>> { index ->
+                            index.index("bulk-progress-test")
+                                .id(id)
+                                .document(mapOf("id" to id))
+                        }
+                    }
+                )
+            )
+        }
 }
