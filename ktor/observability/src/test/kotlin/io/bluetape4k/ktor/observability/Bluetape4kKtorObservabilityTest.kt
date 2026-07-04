@@ -29,6 +29,7 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.cancellation.CancellationException
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Bluetape4kKtorObservabilityTest {
@@ -138,6 +139,33 @@ class Bluetape4kKtorObservabilityTest {
             spans shouldHaveSize 1
             spans[0].kind shouldBeEqualTo SpanKind.SERVER
             spans[0].status.statusCode shouldBeEqualTo StatusCode.ERROR
+        }
+    }
+
+    @Test
+    fun `open telemetry tracing does not record error status for cancellation`() = testTracing { tracing ->
+        testApplication {
+            application {
+                installBluetape4kKtorOpenTelemetryTracing(
+                    KtorOpenTelemetryTracingConfig(openTelemetry = tracing.openTelemetry)
+                )
+                routing {
+                    get("/cancelled") {
+                        throw CancellationException("client disconnected")
+                    }
+                }
+            }
+
+            val response = client.get("/cancelled")
+            response.status shouldBeEqualTo HttpStatusCode.InternalServerError
+            tracing.flush()
+
+            val spans = tracing.spanExporter.finishedSpanItems
+            spans.none { it.status.statusCode == StatusCode.ERROR }.shouldBeTrue()
+            spans.forEach { span ->
+                span.kind shouldBeEqualTo SpanKind.SERVER
+                span.status.statusCode shouldBeEqualTo StatusCode.UNSET
+            }
         }
     }
 
