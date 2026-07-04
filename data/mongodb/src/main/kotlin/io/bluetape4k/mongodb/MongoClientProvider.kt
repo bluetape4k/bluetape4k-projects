@@ -6,59 +6,61 @@ import com.mongodb.kotlin.client.coroutine.MongoClient
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.mongodb.MongoClientProvider.DEFAULT_CONNECTION_STRING
+import io.bluetape4k.support.closeSafe
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.utils.ShutdownQueue
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * [MongoClient] 인스턴스를 연결 문자열 또는 설정 기반으로 캐싱하고 관리합니다.
+ * Caches and manages coroutine [MongoClient] instances by [MongoClientSettings].
  *
- * 동일한 키(연결 문자열 또는 [MongoClientSettings])에 대해서는 동일한 [MongoClient]
- * 인스턴스를 반환하며, JVM 종료 시 등록된 클라이언트가 자동으로 닫힙니다.
+ * Calls that resolve to equal [MongoClientSettings] share the same provider-managed
+ * [MongoClient]. Callers must not close returned clients directly because the same
+ * cached instance may be used elsewhere. Use [close] or [closeAll] to remove and
+ * close provider-managed entries. Registered clients are also closed from the JVM
+ * shutdown queue.
  *
  * ```kotlin
  * val client = MongoClientProvider.getOrCreate("mongodb://localhost:27017")
+ * MongoClientProvider.close("mongodb://localhost:27017")
  * ```
  */
 object MongoClientProvider: KLogging() {
 
-    /** 기본 MongoDB 연결 문자열입니다. */
+    /** Default MongoDB connection string. */
     const val DEFAULT_CONNECTION_STRING = "mongodb://localhost:27017"
 
-    /** 기본 데이터베이스 이름입니다. */
+    /** Default database name. */
     const val DEFAULT_DATABASE_NAME = "test"
 
-    private val clientCache = ConcurrentHashMap<String, MongoClient>()
     private val settingsClientCache = ConcurrentHashMap<MongoClientSettings, MongoClient>()
 
     /**
-     * 연결 문자열에 해당하는 코루틴 [MongoClient]를 반환합니다.
+     * Returns a coroutine [MongoClient] for [connectionString].
      *
-     * 캐시에 해당 연결 문자열의 클라이언트가 없으면 새로 생성하고
-     * [ShutdownQueue]에 종료 훅을 등록합니다.
+     * The connection string is first converted to [MongoClientSettings], then the
+     * settings-based cache is used. The returned client is provider-managed and
+     * must be closed through [close] or [closeAll].
      *
      * ```kotlin
      * val client1 = MongoClientProvider.getOrCreate("mongodb://localhost:27017")
      * val client2 = MongoClientProvider.getOrCreate("mongodb://localhost:27017")
-     * // client1 === client2 (동일 인스턴스)
+     * // client1 === client2
      * ```
      *
-     * @param connectionString MongoDB 연결 문자열 (기본값: [DEFAULT_CONNECTION_STRING])
-     * @return 캐시된 또는 새로 생성된 코루틴 [MongoClient] 인스턴스
+     * @param connectionString MongoDB connection string. Defaults to [DEFAULT_CONNECTION_STRING].
+     * @return cached or newly created coroutine [MongoClient]
      */
     fun getOrCreate(connectionString: String = DEFAULT_CONNECTION_STRING): MongoClient {
-        return clientCache.computeIfAbsent(connectionString) { url ->
-            log.info { "Creating new MongoClient for $url" }
-            MongoClient.create(url).also {
-                ShutdownQueue.register(it)
-            }
-        }
+        return getOrCreate(mongoClientSettingsOf(connectionString))
     }
 
     /**
-     * 연결 문자열과 추가 설정으로 코루틴 [MongoClient]를 반환합니다.
+     * Returns a coroutine [MongoClient] for [connectionString] plus custom settings.
      *
-     * 연결 문자열을 캐시 키로 사용합니다. 동일한 연결 문자열로 처음 호출될 때
-     * [builder]를 적용하여 클라이언트를 생성합니다.
+     * The final [MongoClientSettings] produced after applying [builder] is the cache
+     * key. Therefore the same URL can return different clients when timeout, TLS,
+     * application name, credentials, or other effective settings differ.
      *
      * ```kotlin
      * val client = MongoClientProvider.getOrCreate("mongodb://localhost:27017") {
@@ -66,31 +68,22 @@ object MongoClientProvider: KLogging() {
      * }
      * ```
      *
-     * @param connectionString MongoDB 연결 문자열 (기본값: [DEFAULT_CONNECTION_STRING])
-     * @param builder [MongoClientSettings.Builder] 추가 설정 람다
-     * @return 캐시된 또는 새로 생성된 코루틴 [MongoClient] 인스턴스
+     * @param connectionString MongoDB connection string. Defaults to [DEFAULT_CONNECTION_STRING].
+     * @param builder additional [MongoClientSettings.Builder] configuration
+     * @return cached or newly created coroutine [MongoClient]
      */
     fun getOrCreate(
         connectionString: String = DEFAULT_CONNECTION_STRING,
         builder: MongoClientSettings.Builder.() -> Unit,
     ): MongoClient {
-        return clientCache.computeIfAbsent(connectionString) { url ->
-            log.info { "Creating new MongoClient for $url with custom settings" }
-            val settings = MongoClientSettings.builder()
-                .applyConnectionString(ConnectionString(url))
-                .apply(builder)
-                .build()
-            MongoClient.create(settings).also {
-                ShutdownQueue.register(it)
-            }
-        }
+        return getOrCreate(mongoClientSettingsOf(connectionString, builder))
     }
 
     /**
-     * [MongoClientSettings]에 해당하는 코루틴 [MongoClient]를 반환합니다.
+     * Returns a coroutine [MongoClient] for [settings].
      *
-     * [MongoClientSettings]를 캐시 키로 사용합니다.
-     * `MongoClientSettings`는 `equals()`/`hashCode()`를 올바르게 구현합니다.
+     * [MongoClientSettings] is used directly as the cache key. The returned client is
+     * provider-managed and must be closed through [close] or [closeAll].
      *
      * ```kotlin
      * val settings = MongoClientSettings.builder()
@@ -99,8 +92,8 @@ object MongoClientProvider: KLogging() {
      * val client = MongoClientProvider.getOrCreate(settings)
      * ```
      *
-     * @param settings [MongoClientSettings] 인스턴스
-     * @return 캐시된 또는 새로 생성된 코루틴 [MongoClient] 인스턴스
+     * @param settings effective MongoDB client settings
+     * @return cached or newly created coroutine [MongoClient]
      */
     fun getOrCreate(settings: MongoClientSettings): MongoClient {
         return settingsClientCache.computeIfAbsent(settings) {
@@ -109,6 +102,66 @@ object MongoClientProvider: KLogging() {
                 ShutdownQueue.register(it)
             }
         }
+    }
+
+    /**
+     * Removes and closes the provider-managed [MongoClient] for [connectionString].
+     *
+     * @return `true` when a cached client was found and closed; otherwise `false`
+     */
+    fun close(connectionString: String = DEFAULT_CONNECTION_STRING): Boolean {
+        return close(mongoClientSettingsOf(connectionString))
+    }
+
+    /**
+     * Removes and closes the provider-managed [MongoClient] for [connectionString]
+     * plus custom settings.
+     *
+     * This computes the same settings key as [getOrCreate], so it can explicitly
+     * manage a shared client created by the builder overload.
+     *
+     * @return `true` when a cached client was found and closed; otherwise `false`
+     */
+    fun close(
+        connectionString: String = DEFAULT_CONNECTION_STRING,
+        builder: MongoClientSettings.Builder.() -> Unit,
+    ): Boolean {
+        return close(mongoClientSettingsOf(connectionString, builder))
+    }
+
+    /**
+     * Removes and closes the provider-managed [MongoClient] for [settings].
+     *
+     * @return `true` when a cached client was found and closed; otherwise `false`
+     */
+    fun close(settings: MongoClientSettings): Boolean {
+        return settingsClientCache.remove(settings)
+            ?.also { it.closeSafe() }
+            ?.let { true }
+            ?: false
+    }
+
+    /**
+     * Closes every provider-managed [MongoClient] and clears the cache.
+     */
+    fun closeAll() {
+        settingsClientCache.forEach { (settings, client) ->
+            if (settingsClientCache.remove(settings, client)) {
+                client.closeSafe()
+            }
+        }
+    }
+
+    private fun mongoClientSettingsOf(
+        connectionString: String,
+        builder: MongoClientSettings.Builder.() -> Unit = {},
+    ): MongoClientSettings {
+        val url = connectionString.requireNotBlank("connectionString")
+
+        return MongoClientSettings.builder()
+            .applyConnectionString(ConnectionString(url))
+            .apply(builder)
+            .build()
     }
 
 }
