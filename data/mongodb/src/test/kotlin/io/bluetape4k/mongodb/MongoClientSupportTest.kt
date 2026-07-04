@@ -2,21 +2,50 @@ package io.bluetape4k.mongodb
 
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
+import com.mongodb.kotlin.client.coroutine.ClientSession
+import com.mongodb.kotlin.client.coroutine.MongoClient
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.mongodb.bson.documentOf
+import io.mockk.clearMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.justRun
+import io.mockk.mockk
+import io.mockk.verify
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import kotlinx.coroutines.yield
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Assertions.assertNotSame
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.seconds
 
 class MongoClientSupportTest: AbstractMongoTest() {
 
     companion object: KLoggingChannel()
+
+    private val mockClient = mockk<MongoClient>()
+    private val mockSession = mockk<ClientSession>()
+
+    @BeforeEach
+    fun clearMock() {
+        clearMocks(mockClient, mockSession)
+        coEvery { mockClient.startSession() } returns mockSession
+        justRun { mockSession.startTransaction() }
+        justRun { mockSession.close() }
+    }
 
     @Test
     fun `mongoClient DSL 빌더로 MongoClient 생성`() = runTest(timeout = 30.seconds) {
@@ -100,6 +129,60 @@ class MongoClientSupportTest: AbstractMongoTest() {
         }
         // 예외가 재전파되어야 합니다
         exceptionCaught shouldBeEqualTo true
+    }
+
+    @Test
+    fun `inTransaction cancellation abort cleanup runs from NonCancellable context`() = runTest(timeout = 30.seconds) {
+        val abortCompleted = AtomicBoolean(false)
+        val cancellation = CancellationException("cancel transaction")
+
+        coEvery { mockSession.abortTransaction() } coAnswers {
+            yield()
+            abortCompleted.set(true)
+        }
+
+        val deferred = async {
+            mockClient.inTransaction {
+                currentCoroutineContext().cancel(cancellation)
+                throw cancellation
+            }
+        }
+
+        val thrown = assertFailsWith<CancellationException> {
+            deferred.await()
+        }
+
+        thrown.message shouldBeEqualTo cancellation.message
+        abortCompleted.get().shouldBeTrue()
+        cancellation.suppressed.asList().shouldBeEmpty()
+        coVerify(exactly = 1) { mockSession.abortTransaction() }
+        verify(exactly = 1) { mockSession.close() }
+    }
+
+    @Test
+    fun `inTransaction preserves abort failure as suppressed on cancellation`() = runTest(timeout = 30.seconds) {
+        val cancellation = CancellationException("cancel transaction")
+        val abortFailure = RuntimeException("abort failed")
+
+        coEvery { mockSession.abortTransaction() } throws abortFailure
+
+        val deferred = async {
+            mockClient.inTransaction {
+                currentCoroutineContext().cancel(cancellation)
+                throw cancellation
+            }
+        }
+
+        val thrown = assertFailsWith<CancellationException> {
+            deferred.await()
+        }
+
+        val suppressed = cancellation.suppressed.asList()
+        thrown.message shouldBeEqualTo cancellation.message
+        suppressed.size shouldBeEqualTo 1
+        suppressed.single().message shouldBeEqualTo abortFailure.message
+        coVerify(exactly = 1) { mockSession.abortTransaction() }
+        verify(exactly = 1) { mockSession.close() }
     }
 
     @Test
