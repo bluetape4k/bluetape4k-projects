@@ -65,6 +65,53 @@ class LettuceSuspendSemaphoreTest: AbstractLettuceTest() {
     }
 
     @Test
+    fun `releaseSuspending - owned permit 없이 반납하면 실패`() = runSuspendIO {
+        val suspendSemaphore =
+            LettuceSuspendSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
+
+        assertFailsWith<IllegalStateException> {
+            suspendSemaphore.release()
+        }
+        semaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS
+    }
+
+    @Test
+    fun `releaseSuspending - double release does not restore extra permits`() = runSuspendIO {
+        val suspendSemaphore =
+            LettuceSuspendSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
+
+        suspendSemaphore.tryAcquire().shouldBeTrue()
+        suspendSemaphore.release()
+
+        assertFailsWith<IllegalStateException> {
+            suspendSemaphore.release()
+        }
+        semaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS
+    }
+
+    @Test
+    fun `expired suspend owner lease restores permits and rejects stale release`() = runSuspendIO {
+        val suspendSemaphore = LettuceSuspendSemaphore(
+            connection = connection,
+            semaphoreKey = randomName(),
+            totalPermits = TOTAL_PERMITS,
+            leaseTime = Duration.ofMillis(20),
+        )
+        suspendSemaphore.initialize()
+
+        suspendSemaphore.tryAcquire(TOTAL_PERMITS).shouldBeTrue()
+        suspendSemaphore.availablePermits() shouldBeEqualTo 0
+
+        delay(50.milliseconds)
+
+        suspendSemaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS
+        assertFailsWith<IllegalStateException> {
+            suspendSemaphore.release(TOTAL_PERMITS)
+        }
+        suspendSemaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS
+    }
+
+    @Test
     fun `코루틴 동시성 - 최대 TOTAL_PERMITS개만 허가`() = runSuspendIO {
         val acquired = AtomicInteger(0)
 

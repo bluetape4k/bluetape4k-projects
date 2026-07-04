@@ -2,23 +2,24 @@ package io.bluetape4k.redis.lettuce.semaphore
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.script.RedisScript
 import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.bluetape4k.support.requirePositiveNumber
+import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
-import io.lettuce.core.ScriptOutputType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import java.time.Duration
+import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Lettuce Redis 클라이언트를 이용한 분산 세마포어의 코루틴(suspend) 구현체입니다.
  *
- * [LettuceSemaphore]의 코루틴 버전으로, Redis의 카운터(잔여 허가 수)를 사용하여 세마포어를 구현합니다.
- * Lua 스크립트를 통해 acquire/release를 원자적으로 처리합니다.
+ * [LettuceSemaphore]의 코루틴 버전으로, Redis의 카운터(잔여 허가 수), owner token hash,
+ * expiry sorted set을 사용하여 세마포어를 구현합니다.
+ * Lua 스크립트를 통해 acquire/release/expired-owner cleanup을 원자적으로 처리합니다.
  *
  * ```kotlin
  * val semaphore = LettuceSuspendSemaphore(connection, "my-semaphore", totalPermits = 3)
@@ -32,50 +33,24 @@ import kotlin.time.Duration.Companion.milliseconds
  * @param connection Lettuce StatefulRedisConnection (StringCodec 기반)
  * @param semaphoreKey Redis에 저장될 세마포어 키
  * @param totalPermits 전체 허가 수
+ * @param leaseTime 획득한 permit owner token의 lease time
  */
 class LettuceSuspendSemaphore(
     private val connection: StatefulRedisConnection<String, String>,
     val semaphoreKey: String,
     val totalPermits: Int,
+    private val leaseTime: Duration = Duration.ofSeconds(30),
 ) {
     companion object: KLogging() {
         private const val RETRY_DELAY_MS = 50L
-
-        // 개선: 상수 String → RedisScript 로 승격해 SHA1 을 1 회만 계산하고 EVALSHA 호출을 재사용합니다.
-
-        /**
-         * Lua: 원자적 acquire
-         * KEYS[1]=semaphoreKey, ARGV[1]=permits
-         * 반환: 남은 허가 수 (허가 수 부족 시 -1)
-         */
-        private val ACQUIRE_SCRIPT = RedisScript(
-            """
-local v = tonumber(redis.call('get', KEYS[1]))
-if v and v >= tonumber(ARGV[1]) then
-  return redis.call('decrby', KEYS[1], ARGV[1])
-else
-  return -1
-end"""
-        )
-
-        /**
-         * Lua: 원자적 release (최대값 초과 방지)
-         * KEYS[1]=semaphoreKey, ARGV[1]=permits, ARGV[2]=maxPermits
-         * 반환: 현재 남은 허가 수
-         */
-        private val RELEASE_SCRIPT = RedisScript(
-            """
-local v = tonumber(redis.call('incrby', KEYS[1], ARGV[1]))
-if v > tonumber(ARGV[2]) then
-  redis.call('set', KEYS[1], ARGV[2])
-  return tonumber(ARGV[2])
-end
-return v"""
-        )
     }
 
     // 개선: getter → final field 로 변경 (매 호출 connection.async() 호출 제거).
     private val asyncCommands: RedisAsyncCommands<String, String> = connection.async()
+    private val ownersKey = "$semaphoreKey:owners"
+    private val expirationsKey = "$semaphoreKey:expirations"
+    private val localPermits = LocalSemaphorePermits()
+    private val leaseMillis = leaseTime.requirePositiveMillis("leaseTime").toMillis()
 
     init {
         totalPermits.requirePositiveNumber("totalPermits")
@@ -99,6 +74,8 @@ return v"""
     suspend fun trySetPermits(permits: Int) {
         permits.requirePositiveNumber("permits")
         asyncCommands.set(semaphoreKey, permits.toString()).await()
+        asyncCommands.del(ownersKey, expirationsKey).await()
+        localPermits.clear()
         log.debug { "세마포어 허가 수 설정: semaphoreKey=$semaphoreKey, permits=$permits" }
     }
 
@@ -108,7 +85,10 @@ return v"""
      * @return 잔여 허가 수 (초기화 안 된 경우 0)
      */
     suspend fun availablePermits(): Int =
-        asyncCommands.get(semaphoreKey).await()?.toIntOrNull() ?: 0
+        RedisScriptRunner.runSuspending<Long>(
+            asyncCommands, LettuceSemaphoreScripts.AVAILABLE_SCRIPT, ScriptOutputType.INTEGER,
+            semaphoreKeys(), nowMillis().toString(), totalPermits.toString()
+        ).toInt()
 
     // =========================================================================
     // 코루틴 API (suspend)
@@ -129,12 +109,22 @@ return v"""
      */
     suspend fun tryAcquire(permits: Int = 1): Boolean {
         permits.requirePositiveNumber("permits")
+        val token = UUID.randomUUID().toString()
+        val now = nowMillis()
 
         val result = RedisScriptRunner.runSuspending<Long>(
-            asyncCommands, ACQUIRE_SCRIPT, ScriptOutputType.INTEGER,
-            arrayOf(semaphoreKey), permits.toString()
+            asyncCommands, LettuceSemaphoreScripts.ACQUIRE_SCRIPT, ScriptOutputType.INTEGER,
+            semaphoreKeys(),
+            now.toString(),
+            totalPermits.toString(),
+            permits.toString(),
+            token,
+            (now + leaseMillis).toString(),
         )
         val acquired = result >= 0
+        if (acquired) {
+            localPermits.record(token, permits)
+        }
         log.debug { "Semaphore tryAcquire: key=$semaphoreKey, permits=$permits, acquired=$acquired" }
         return acquired
     }
@@ -187,10 +177,33 @@ return v"""
     suspend fun release(permits: Int = 1) {
         permits.requirePositiveNumber("permits")
 
-        val remaining = RedisScriptRunner.runSuspending<Long>(
-            asyncCommands, RELEASE_SCRIPT, ScriptOutputType.INTEGER,
-            arrayOf(semaphoreKey), permits.toString(), totalPermits.toString()
-        )
-        log.debug { "Semaphore release: key=$semaphoreKey, permits=$permits, remaining=$remaining" }
+        val releases = localPermits.select(permits)
+        releases.forEach { release ->
+            val remaining = RedisScriptRunner.runSuspending<Long>(
+                asyncCommands, LettuceSemaphoreScripts.RELEASE_SCRIPT, ScriptOutputType.INTEGER,
+                semaphoreKeys(),
+                nowMillis().toString(),
+                totalPermits.toString(),
+                release.permits.toString(),
+                release.token,
+            )
+            handleReleaseResult(release, remaining)
+            log.debug { "Semaphore release: key=$semaphoreKey, permits=${release.permits}, remaining=$remaining" }
+        }
     }
+
+    private fun handleReleaseResult(release: PermitRelease, remaining: Long) {
+        when {
+            remaining >= 0L -> localPermits.markReleased(release)
+            remaining == -1L -> {
+                localPermits.markLost(release)
+                error("Semaphore permits are no longer owned or already expired: semaphoreKey=$semaphoreKey")
+            }
+            else -> error("Semaphore release exceeds owned permits: semaphoreKey=$semaphoreKey")
+        }
+    }
+
+    private fun semaphoreKeys(): Array<String> = arrayOf(semaphoreKey, ownersKey, expirationsKey)
+
+    private fun nowMillis(): Long = System.currentTimeMillis()
 }
