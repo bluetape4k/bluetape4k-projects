@@ -116,6 +116,7 @@ jobs:
               - 'io/json/**'
               - 'io/jackson2/**'
               - 'io/jackson3/**'
+              - 'io/protobuf/**'
               - 'io/grpc/**'
               - 'io/tink/**'
             io-http:
@@ -273,6 +274,7 @@ jobs:
               :bluetape4k-json:test \
               :bluetape4k-jackson2:test \
               :bluetape4k-jackson3:test \
+              :bluetape4k-protobuf:test \
               :bluetape4k-grpc:test \
               :bluetape4k-tink:test \
               --parallel
@@ -288,6 +290,7 @@ jobs:
             :bluetape4k-json:koverXmlReport \
             :bluetape4k-jackson2:koverXmlReport \
             :bluetape4k-jackson3:koverXmlReport \
+            :bluetape4k-protobuf:koverXmlReport \
             :bluetape4k-grpc:koverXmlReport \
             :bluetape4k-tink:koverXmlReport \
             --parallel
