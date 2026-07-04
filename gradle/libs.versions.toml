@@ -86,8 +86,8 @@ blaze-persistence-jakarta = "1.6.16"  # https://repo1.maven.org/maven2/com/blaze
 javers = "7.11.0"  # https://mvnrepository.com/artifact/org.javers/javers-core
 
 slf4j = "2.0.18"  # https://mvnrepository.com/artifact/org.slf4j/slf4j-api
-logback = "1.5.32"  # https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
-log4j = "2.26.0"  # https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-bom
+logback = "1.5.37"  # https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
+log4j = "2.26.1"  # https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-bom
 
 prometheus = "0.16.0"  # https://mvnrepository.com/artifact/io.prometheus/simpleclient
 micrometer = "1.16.5"  # https://mvnrepository.com/artifact/io.micrometer/micrometer-bom
