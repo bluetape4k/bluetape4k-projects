@@ -6,6 +6,13 @@ import com.mongodb.kotlin.client.coroutine.ClientSession
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeSameInstanceAs
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.mongodb.bson.documentOf
 import io.mockk.clearMocks
@@ -20,14 +27,9 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import kotlinx.coroutines.yield
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Assertions.assertNotSame
-import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.seconds
@@ -42,9 +44,15 @@ class MongoClientSupportTest: AbstractMongoTest() {
     @BeforeEach
     fun clearMock() {
         clearMocks(mockClient, mockSession)
+        MongoClientProvider.closeAll()
         coEvery { mockClient.startSession() } returns mockSession
         justRun { mockSession.startTransaction() }
         justRun { mockSession.close() }
+    }
+
+    @AfterEach
+    fun closeProviderClients() {
+        MongoClientProvider.closeAll()
     }
 
     @Test
@@ -69,17 +77,16 @@ class MongoClientSupportTest: AbstractMongoTest() {
     fun `MongoClientProvider getOrCreate 동일 URL에 동일 인스턴스 반환`() {
         val client1 = MongoClientProvider.getOrCreate(mongoServer.url)
         val client2 = MongoClientProvider.getOrCreate(mongoServer.url)
-        assertSame(client1, client2)
+
+        client1 shouldBeSameInstanceAs client2
     }
 
     @Test
     fun `MongoClientProvider getOrCreate 다른 URL에 다른 인스턴스 반환`() {
         val client1 = MongoClientProvider.getOrCreate(mongoServer.url)
-        val client2 = MongoClientProvider.getOrCreate(
-            mongoServer.url.replace("test", "other")
-        )
-        // 다른 URL이므로 다른 인스턴스
-        assertNotSame(client1, client2)
+        val client2 = MongoClientProvider.getOrCreate("${mongoServer.url}/other")
+
+        client1 shouldNotBeSameInstanceAs client2
     }
 
     @Test
@@ -89,8 +96,8 @@ class MongoClientSupportTest: AbstractMongoTest() {
             .build()
         val client1 = MongoClientProvider.getOrCreate(settings)
         val client2 = MongoClientProvider.getOrCreate(settings)
-        // 동일 설정이면 동일 인스턴스
-        assertSame(client1, client2)
+
+        client1 shouldBeSameInstanceAs client2
     }
 
     @Test
@@ -186,15 +193,50 @@ class MongoClientSupportTest: AbstractMongoTest() {
     }
 
     @Test
-    fun `MongoClientProvider getOrCreate 빌더 적용 동일 URL에 동일 인스턴스 반환`() {
+    fun `MongoClientProvider getOrCreate 빌더 적용 동일 설정에 동일 인스턴스 반환`() {
         val url = mongoServer.url
         val c1 = MongoClientProvider.getOrCreate(url) {
-            // 추가 설정 없음
+            applicationName("bt4k-provider-cache")
         }
         val c2 = MongoClientProvider.getOrCreate(url) {
-            // 동일 URL → 이미 캐시된 인스턴스 반환
+            applicationName("bt4k-provider-cache")
         }
-        assertSame(c1, c2)
+
+        c1 shouldBeSameInstanceAs c2
+    }
+
+    @Test
+    fun `MongoClientProvider getOrCreate 빌더 적용 동일 URL 다른 설정에 다른 인스턴스 반환`() {
+        val url = mongoServer.url
+        val c1 = MongoClientProvider.getOrCreate(url) {
+            applicationName("bt4k-provider-cache-first")
+        }
+        val c2 = MongoClientProvider.getOrCreate(url) {
+            applicationName("bt4k-provider-cache-second")
+        }
+
+        c1 shouldNotBeSameInstanceAs c2
+    }
+
+    @Test
+    fun `MongoClientProvider close removes provider managed cached client`() {
+        val url = mongoServer.url
+        val client1 = MongoClientProvider.getOrCreate(url) {
+            applicationName("bt4k-provider-close")
+        }
+
+        MongoClientProvider.close(url) {
+            applicationName("bt4k-provider-close")
+        }.shouldBeTrue()
+        MongoClientProvider.close(url) {
+            applicationName("bt4k-provider-close")
+        }.shouldBeFalse()
+
+        val client2 = MongoClientProvider.getOrCreate(url) {
+            applicationName("bt4k-provider-close")
+        }
+
+        client1 shouldNotBeSameInstanceAs client2
     }
 
     @Test

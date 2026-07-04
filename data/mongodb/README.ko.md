@@ -9,7 +9,7 @@ MongoDB Kotlin Coroutine Driver(v5.x)는 이미 네이티브 `suspend` 함수와
 ## 특징
 
 - **MongoClient DSL**: `mongoClient {}` 빌더, `mongoClientOf()` 편의 팩토리
-- **MongoClient 캐싱**: `MongoClientProvider` — 연결 문자열 기반 인스턴스 캐싱
+- **MongoClient 캐싱**: `MongoClientProvider` — 최종 `MongoClientSettings` 기반 공유 client 캐싱
 - **Database 확장**: reified 타입 `getCollectionOf<T>()`, `listCollectionNamesList()`
 - **Collection 확장**: `findFirst`, `exists`, `upsert`, `findAsFlow` (skip/limit/sort 통합)
 - **BSON Document DSL**: `documentOf {}` 빌더, `getAs<T>()` 타입 안전 조회
@@ -54,7 +54,25 @@ val client2 = mongoClientOf("mongodb://localhost:27017")
 
 // 연결 문자열 기반 캐싱 (동일 URL → 동일 인스턴스)
 val client3 = MongoClientProvider.getOrCreate("mongodb://localhost:27017")
+
+// 커스텀 설정은 최종 MongoClientSettings를 cache key로 사용합니다.
+// URL이 같아도 설정이 다르면 서로 다른 공유 client를 반환합니다.
+val analyticsClient = MongoClientProvider.getOrCreate("mongodb://localhost:27017") {
+    applicationName("analytics-reader")
+}
+
+// Provider가 관리하는 client는 공유됩니다. 반환된 client를 직접 닫지 마세요.
+// 명시적인 lifecycle 경계에서는 provider를 통해 cache에서 제거하고 닫습니다.
+MongoClientProvider.close("mongodb://localhost:27017") {
+    applicationName("analytics-reader")
+}
+MongoClientProvider.closeAll()
 ```
+
+`MongoClientProvider`는 provider-managed shared client를 반환합니다. 동일한
+cached instance를 다른 caller가 사용할 수 있으므로 반환된 client에 직접
+`close()`를 호출하지 마세요. 단일 cache entry는 `MongoClientProvider.close(...)`,
+테스트나 애플리케이션 종료 경계에서는 `MongoClientProvider.closeAll()`로 정리합니다.
 
 ### 2. Database & Collection 확장
 

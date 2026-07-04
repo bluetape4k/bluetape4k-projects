@@ -10,7 +10,7 @@ Since the MongoDB Kotlin Coroutine Driver (v5.x) already provides native `suspen
 ## Features
 
 - **MongoClient DSL**: `mongoClient {}` builder and `mongoClientOf()` factory function
-- **MongoClient Caching**: `MongoClientProvider` — instance caching based on connection string
+- **MongoClient Caching**: `MongoClientProvider` — shared-client caching based on final `MongoClientSettings`
 - **Database Extensions**: Reified `getCollectionOf<T>()`, `listCollectionNamesList()`
 - **Collection Extensions**: `findFirst`, `exists`, `upsert`, `findAsFlow` (skip/limit/sort in one call)
 - **BSON Document DSL**: `documentOf {}` builder, type-safe `getAs<T>()` accessor
@@ -55,7 +55,25 @@ val client2 = mongoClientOf("mongodb://localhost:27017")
 
 // Connection-string-based caching (same URL → same instance)
 val client3 = MongoClientProvider.getOrCreate("mongodb://localhost:27017")
+
+// Custom settings use the final MongoClientSettings as the cache key.
+// Same URL + different settings returns different shared clients.
+val analyticsClient = MongoClientProvider.getOrCreate("mongodb://localhost:27017") {
+    applicationName("analytics-reader")
+}
+
+// Provider-managed clients are shared. Do not close the returned client directly.
+// Remove and close it through the provider when an explicit lifecycle boundary is needed.
+MongoClientProvider.close("mongodb://localhost:27017") {
+    applicationName("analytics-reader")
+}
+MongoClientProvider.closeAll()
 ```
+
+`MongoClientProvider` returns provider-managed shared clients. Callers should not
+call `close()` on the returned client because another caller may be using the
+same cached instance. Use `MongoClientProvider.close(...)` for one cache entry or
+`MongoClientProvider.closeAll()` for test/application shutdown boundaries.
 
 ### 2. Database & Collection Extensions
 
