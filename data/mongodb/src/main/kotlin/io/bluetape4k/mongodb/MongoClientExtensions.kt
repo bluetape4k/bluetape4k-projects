@@ -6,7 +6,9 @@ import com.mongodb.kotlin.client.coroutine.MongoClient
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.error
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.withContext
 import org.slf4j.Logger
 
 private val log: Logger by lazy { KotlinLogging.logger { } }
@@ -100,23 +102,30 @@ suspend fun <T> MongoClient.inTransaction(
         //   순서가 바뀌면 일반 catch(Exception) 블록이 먼저 처리해 버린다.
         //   코루틴 취소 신호를 삼키면 해당 코루틴이 종료되지 않고 구조적 동시성(structured
         //   concurrency)이 깨지기 때문에, 반드시 abort 후 즉시 재전파(rethrow)해야 한다.
-        try {
-            session.abortTransaction()
-        } catch (abortEx: Exception) {
-            e.addSuppressed(abortEx)
-            log.error(abortEx) { "Transaction abort failed after CancellationException" }
-        }
+        session.abortTransactionSafely(e, "Transaction abort failed after CancellationException")
         throw e
     } catch (e: Exception) {
         // [WHY] 비즈니스 예외 발생 시 트랜잭션을 명시적으로 abort해야 하는 이유:
         //   MongoDB Kotlin Coroutine Driver는 세션이 닫혀도 미완료 트랜잭션을 자동 rollback하지
         //   않으므로, 예외 경로에서 직접 abortTransaction()을 호출해 서버 측 리소스를 즉시 해제한다.
-        try {
-            session.abortTransaction()
-        } catch (abortEx: Exception) {
-            e.addSuppressed(abortEx)
-            log.error(abortEx) { "Transaction abort failed" }
-        }
+        session.abortTransactionSafely(e, "Transaction abort failed")
         throw e
+    }
+}
+
+private suspend fun ClientSession.abortTransactionSafely(owner: Throwable, message: String) {
+    try {
+        withContext(NonCancellable) {
+            abortTransaction()
+        }
+    } catch (abortEx: CancellationException) {
+        owner.addSuppressed(abortEx)
+        log.error(abortEx) { message }
+        if (owner !is CancellationException) {
+            throw abortEx
+        }
+    } catch (abortEx: Exception) {
+        owner.addSuppressed(abortEx)
+        log.error(abortEx) { message }
     }
 }
