@@ -56,7 +56,8 @@ import java.util.*
         $$"auto.create.topics.enable=${topics.autoCreate:false}",
         $$"delete.topic.enable=${topic.delete:true}"
     ],
-    brokerPropertiesLocation = $$"classpath:/${broker.filename:broker}.properties"
+    brokerPropertiesLocation = $$"classpath:/${broker.filename:broker}.properties",
+    adminTimeout = 120
 )
 class WordCountExamples {
 
