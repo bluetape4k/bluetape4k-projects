@@ -70,9 +70,44 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
     }
 
     @Test
-    fun `release - 최대값 초과하지 않음`() {
-        semaphore.release(10)
+    fun `release - owned permit 없이 반납하면 실패`() {
+        assertFailsWith<IllegalStateException> {
+            semaphore.release()
+        }
         semaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS
+    }
+
+    @Test
+    fun `release - double release does not restore extra permits`() {
+        semaphore.tryAcquire().shouldBeTrue()
+        semaphore.release()
+
+        assertFailsWith<IllegalStateException> {
+            semaphore.release()
+        }
+        semaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS
+    }
+
+    @Test
+    fun `expired owner lease restores permits and rejects stale release`() {
+        val expiringSemaphore = LettuceSemaphore(
+            connection = connection,
+            semaphoreKey = randomName(),
+            totalPermits = TOTAL_PERMITS,
+            leaseTime = Duration.ofMillis(20),
+        )
+        expiringSemaphore.initialize()
+
+        expiringSemaphore.tryAcquire(TOTAL_PERMITS).shouldBeTrue()
+        expiringSemaphore.availablePermits() shouldBeEqualTo 0
+
+        Thread.sleep(50)
+
+        expiringSemaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS
+        assertFailsWith<IllegalStateException> {
+            expiringSemaphore.release(TOTAL_PERMITS)
+        }
+        expiringSemaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS
     }
 
     @Test
@@ -129,6 +164,17 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
     fun `tryAcquireAsync - 허가 소진 시 false`() {
         repeat(TOTAL_PERMITS) { semaphore.tryAcquireAsync().get().shouldBeTrue() }
         semaphore.tryAcquireAsync().get().shouldBeFalse()
+    }
+
+    @Test
+    fun `releaseAsync - double release does not restore extra permits`() {
+        semaphore.tryAcquireAsync().get().shouldBeTrue()
+        semaphore.releaseAsync().get()
+
+        assertFailsWith<IllegalStateException> {
+            semaphore.releaseAsync().get()
+        }
+        semaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS
     }
 
     // =========================================================================
