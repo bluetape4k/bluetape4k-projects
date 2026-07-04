@@ -1,5 +1,10 @@
 package io.bluetape4k.retrofit2.result
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.retrofit2.AbstractRetrofitTest
@@ -11,15 +16,22 @@ import io.bluetape4k.retrofit2.service
 import io.bluetape4k.retrofit2.services.HttpbinAnythingResponse
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
+import okhttp3.Request
+import okhttp3.ResponseBody
+import okio.Buffer
+import okio.BufferedSource
+import okio.Source
+import okio.Timeout
+import okio.buffer
 import org.junit.jupiter.api.Test
+import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.HttpException
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 
 class ResultCallTest: AbstractRetrofitTest() {
     companion object: KLoggingChannel()
@@ -136,4 +148,112 @@ class ResultCallTest: AbstractRetrofitTest() {
             result.isSuccess.shouldBeTrue()
             result.isFailure.shouldBeFalse()
         }
+
+    @Test
+    fun `execute closes error response body before returning Result failure`() {
+        val errorBody = CloseTrackingResponseBody()
+        val delegate = ControlledCall<String>(syncResponse = Response.error(404, errorBody))
+
+        val response = ResultCall(delegate).execute()
+        val result = response.body().shouldNotBeNull()
+
+        result.isFailure.shouldBeTrue()
+        val exception = result.exceptionOrNull().shouldNotBeNull()
+        exception shouldBeInstanceOf HttpException::class
+        (exception as HttpException).code() shouldBeEqualTo 404
+        errorBody.closed.shouldBeTrue()
+    }
+
+    @Test
+    fun `enqueue closes error response body before returning Result failure`() {
+        val errorBody = CloseTrackingResponseBody()
+        val delegate = ControlledCall<String>()
+        val completed = CompletableFuture<Response<Result<String>>>()
+
+        ResultCall(delegate).enqueue(
+            object: Callback<Result<String>> {
+                override fun onResponse(
+                    call: Call<Result<String>>,
+                    response: Response<Result<String>>,
+                ) {
+                    completed.complete(response)
+                }
+
+                override fun onFailure(
+                    call: Call<Result<String>>,
+                    t: Throwable,
+                ) {
+                    completed.completeExceptionally(t)
+                }
+            }
+        )
+
+        delegate.callback.onResponse(delegate, Response.error(500, errorBody))
+
+        val result = completed.get(1, TimeUnit.SECONDS).body().shouldNotBeNull()
+        result.isFailure.shouldBeTrue()
+        val exception = result.exceptionOrNull().shouldNotBeNull()
+        exception shouldBeInstanceOf HttpException::class
+        (exception as HttpException).code() shouldBeEqualTo 500
+        errorBody.closed.shouldBeTrue()
+    }
+
+    private class ControlledCall<T>(
+        private val syncResponse: Response<T>? = null,
+    ): Call<T> {
+        lateinit var callback: Callback<T>
+            private set
+
+        private var executed = false
+        private var canceled = false
+
+        override fun enqueue(callback: Callback<T>) {
+            this.callback = callback
+            executed = true
+        }
+
+        override fun execute(): Response<T> {
+            executed = true
+            return syncResponse.shouldNotBeNull()
+        }
+
+        override fun clone(): Call<T> = ControlledCall(syncResponse)
+
+        override fun isExecuted(): Boolean = executed
+
+        override fun cancel() {
+            canceled = true
+        }
+
+        override fun isCanceled(): Boolean = canceled
+
+        override fun request(): Request =
+            Request.Builder().url("https://example.test/").build()
+
+        override fun timeout(): Timeout = Timeout.NONE
+    }
+
+    private class CloseTrackingResponseBody: ResponseBody() {
+        private val source = CloseTrackingSource()
+        val closed: Boolean get() = source.closed
+
+        override fun contentType() = null
+
+        override fun contentLength(): Long = 0L
+
+        override fun source(): BufferedSource = source.buffer()
+    }
+
+    private class CloseTrackingSource: Source {
+        var closed: Boolean = false
+            private set
+
+        override fun close() {
+            closed = true
+        }
+
+        override fun read(sink: Buffer, byteCount: Long): Long = -1L
+
+        override fun timeout(): Timeout = Timeout.NONE
+    }
 }
