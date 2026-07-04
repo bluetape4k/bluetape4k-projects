@@ -40,7 +40,8 @@ import org.springframework.kafka.test.utils.KafkaTestUtils
 @SpringBootTest
 @EmbeddedKafka(
     partitions = 1,
-    topics = [TRUE_TOPIC, FALSE_TOPIC, TRUE_FALSE_INPUT_TOPIC]
+    topics = [TRUE_TOPIC, FALSE_TOPIC, TRUE_FALSE_INPUT_TOPIC],
+    adminTimeout = 120
 )
 class KafkaStreamsBranchTests {
 

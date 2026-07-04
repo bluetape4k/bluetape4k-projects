@@ -49,7 +49,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
-@EmbeddedKafka(topics = [INT_KEY_TOPIC, STRING_KEY_TOPIC])
+@EmbeddedKafka(topics = [INT_KEY_TOPIC, STRING_KEY_TOPIC], adminTimeout = 120)
 class KafkaTemplateTests {
 
     companion object: KLoggingChannel() {

@@ -72,7 +72,8 @@ import java.util.concurrent.atomic.AtomicBoolean
         $$"auto.create.topics.enable=${topics.authCreate:false}",
         $$"delete.topic.enable=${topic.delete:true}"
     ],
-    brokerPropertiesLocation = $$"classpath:/${broker.filename:broker}.properties"
+    brokerPropertiesLocation = $$"classpath:/${broker.filename:broker}.properties",
+    adminTimeout = 120
 )
 class KafkaStreamsTests {
 

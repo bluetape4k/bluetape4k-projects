@@ -56,7 +56,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 @SpringBootTest
-@EmbeddedKafka(partitions = 1, topics = ["blc1", "blc2", "blc3", "blc4", "blc5", "blc6", "blc6-dlt"])
+@EmbeddedKafka(partitions = 1, topics = ["blc1", "blc2", "blc3", "blc4", "blc5", "blc6", "blc6-dlt"], adminTimeout = 120)
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class BatchListenerConversionTests {
 
