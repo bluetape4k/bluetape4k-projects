@@ -1,11 +1,12 @@
 package io.bluetape4k.hibernate.model
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
-import java.io.Serializable
 
 class AbstractJpaEntityUnitTest {
 
@@ -92,16 +93,29 @@ class AbstractJpaEntityUnitTest {
     }
 
     @Test
-    fun `hashCode는 transient 엔티티에서 identityHashCode를 반환한다`() {
-        val entity = TestEntity("test")
-        val hash = entity.hashCode()
-        hash.shouldNotBeNull()
+    fun `동일한 transient 엔티티는 같은 hashCode를 반환한다`() {
+        val e1 = TestEntity("alice")
+        val e2 = TestEntity("alice")
+
+        e1.hashCode() shouldBeEqualTo e2.hashCode()
+    }
+
+    @Test
+    fun `동일한 transient 엔티티는 hash set에서 하나의 논리 요소로 처리된다`() {
+        val e1 = TestEntity("alice")
+        val e2 = TestEntity("alice")
+        val entities = hashSetOf(e1)
+
+        entities.add(e2).shouldBeFalse()
+
+        entities shouldHaveSize 1
+        entities.contains(e2).shouldBeTrue()
     }
 
     @Test
     fun `hashCode는 persisted 엔티티에서 id hashCode를 반환한다`() {
         val entity = TestEntity("test", id = 42L)
-        entity.hashCode().shouldNotBeNull()
+        entity.hashCode() shouldBeEqualTo 42L.hashCode()
     }
 
     @Test
