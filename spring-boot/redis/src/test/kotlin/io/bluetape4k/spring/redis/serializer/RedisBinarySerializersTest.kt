@@ -3,7 +3,7 @@ package io.bluetape4k.spring.redis.serializer
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
-import org.junit.jupiter.api.Assertions.assertArrayEquals
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -70,7 +70,9 @@ class RedisBinarySerializersTest: AbstractRedisSerializerTest() {
         val bytes = newSampleBytes()
         val compressed = serializer.serialize(bytes)
         compressed.shouldNotBeNull()
-        assertArrayEquals(bytes, serializer.deserialize(compressed))
+        val restored = serializer.deserialize(compressed)
+        restored.shouldNotBeNull()
+        restored.contentEquals(bytes).shouldBeTrue()
     }
 
     @ParameterizedTest(name = "[{1}] null 직렬화 → emptyByteArray 반환")

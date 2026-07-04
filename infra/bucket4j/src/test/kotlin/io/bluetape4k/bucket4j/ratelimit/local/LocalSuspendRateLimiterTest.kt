@@ -4,16 +4,16 @@ import io.bluetape4k.bucket4j.local.LocalSuspendBucketProvider
 import io.bluetape4k.bucket4j.ratelimit.AbstractSuspendRateLimiterTest
 import io.bluetape4k.bucket4j.ratelimit.RateLimitStatus
 import io.bluetape4k.bucket4j.ratelimit.SuspendRateLimiter
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.runBlocking
-import io.bluetape4k.assertions.shouldBeEqualTo
-import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
+import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Test
-import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
+import kotlin.time.Duration.Companion.seconds
 
 class LocalSuspendRateLimiterTest: AbstractSuspendRateLimiterTest() {
 
@@ -24,24 +24,20 @@ class LocalSuspendRateLimiterTest: AbstractSuspendRateLimiterTest() {
     override val rateLimiter: SuspendRateLimiter<String> = LocalSuspendRateLimiter(bucketProvider)
 
     @Test
-    fun `토큰 부족 시 즉시 거절해야 한다`() {
+    fun `토큰 부족 시 즉시 거절해야 한다`() = runSuspendIO {
         val key = randomKey()
 
-        runBlocking {
-            rateLimiter.consume(key, INITIAL_CAPACITY)
-        }
+        rateLimiter.consume(key, INITIAL_CAPACITY)
 
-        assertTimeoutPreemptively(Duration.ofSeconds(1)) {
-            runBlocking {
-                val result = rateLimiter.consume(key, 1)
-                result.status shouldBeEqualTo RateLimitStatus.REJECTED
-                result.consumedTokens shouldBeEqualTo 0L
-            }
+        withTimeout(1.seconds) {
+            val result = rateLimiter.consume(key, 1)
+            result.status shouldBeEqualTo RateLimitStatus.REJECTED
+            result.consumedTokens shouldBeEqualTo 0L
         }
     }
 
     @Test
-    fun `취소 예외는 전파해야 한다`() = runBlocking {
+    fun `취소 예외는 전파해야 한다`() = runSuspendIO {
         val brokenProvider = mockk<LocalSuspendBucketProvider>()
         every { brokenProvider.resolveBucket(any()) } throws CancellationException("simulated cancellation")
 

@@ -8,7 +8,6 @@ import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.domain.DomainTestConfiguration
 import io.bluetape4k.spring.cassandra.domain.model.User
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.runBlocking
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.BeforeEach
@@ -40,10 +39,8 @@ class AsyncCqlOperationsCoroutinesTest(
         User(Uuids.timeBased().toString(), faker.name().firstName(), faker.name().lastName())
 
     @BeforeEach
-    fun beforeEach() {
-        runBlocking {
-            cassandraTemplate.truncate(User::class.java).await()
-        }
+    fun beforeEach() = runSuspendIO {
+        cassandraTemplate.truncate(User::class.java).await()
     }
 
     private suspend fun insertUser(user: User): User {
