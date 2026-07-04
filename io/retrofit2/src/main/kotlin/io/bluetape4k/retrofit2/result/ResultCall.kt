@@ -13,13 +13,14 @@ import retrofit2.Response
 import java.io.IOException
 
 /**
- * `Call<T>`를 `Call<Result<T>>`로 래핑해 HTTP/네트워크 실패를 `Result.failure`로 전달하는 구현체입니다.
+ * Wraps `Call<T>` as `Call<Result<T>>` so HTTP and network failures are returned as [Result.failure].
  *
- * ## 동작/계약
- * - 성공 응답(`2xx`)은 `Result.success(body)`로 변환합니다.
- * - 비성공 응답(`4xx/5xx`)은 [HttpException]을 담은 `Result.failure`로 변환합니다.
- * - 예외/실패 경로에서도 `Callback.onResponse`를 호출하며 `Response.success(Result.failure(...))` 형태를 사용합니다.
- * - 응답 본문이 `null`이면 [IOException] 실패로 처리합니다.
+ * ## Contract
+ * - Successful HTTP responses (`2xx`) become `Result.success(body)`.
+ * - Unsuccessful HTTP responses (`4xx/5xx`) become `Result.failure(HttpException(response))`.
+ * - Unsuccessful response error bodies are closed before the failure result is returned.
+ * - Delegate callback failures are delivered through `Callback.onResponse` as `Response.success(Result.failure(...))`.
+ * - A successful HTTP response with a `null` body becomes an [IOException] failure.
  *
  * ```kotlin
  * val resultCall = ResultCall(delegateCall)
@@ -33,10 +34,10 @@ class ResultCall<T> private constructor(
 
     companion object: KLogging() {
         /**
-         * [ResultCall] 인스턴스를 생성합니다.
+         * Creates a [ResultCall] wrapper for [delegate].
          *
-         * ## 동작/계약
-         * - [delegate]가 이미 취소된 상태면 [IllegalStateException]을 발생시킵니다.
+         * ## Contract
+         * - Throws [IllegalStateException] when [delegate] is already cancelled.
          *
          * ```kotlin
          * val wrapped = ResultCall(delegate)
@@ -53,11 +54,12 @@ class ResultCall<T> private constructor(
     }
 
     /**
-     * 동기 호출을 실행하고 [Result] 형태로 반환합니다.
+     * Executes the delegate synchronously and returns a [Result] response.
      *
-     * ## 동작/계약
-     * - 원본 [delegate.execute] 예외는 `IOException(cause)`를 담은 실패 결과로 변환됩니다.
-     * - HTTP 실패도 예외를 던지지 않고 `Result.failure`로 감쌉니다.
+     * ## Contract
+     * - Exceptions from [delegate.execute] become failure results with `IOException(cause)`.
+     * - HTTP failures are wrapped as `Result.failure` instead of being thrown.
+     * - HTTP failure error bodies are closed after [HttpException] creation.
      *
      * ```kotlin
      * val result = ResultCall(delegate).execute().body()!!
@@ -80,7 +82,7 @@ class ResultCall<T> private constructor(
                 }
 
                 else                  -> {
-                    val result = Result.failure<T>(HttpException(response))
+                    val result = response.toHttpFailureResult<T>()
                     Response.success(result)
                 }
             }
@@ -91,15 +93,16 @@ class ResultCall<T> private constructor(
     }
 
     /**
-     * 비동기 호출을 실행하고 [Callback]에 `Result` 형태로 전달합니다.
+     * Executes the delegate asynchronously and delivers a [Result] response to [callback].
      *
-     * ## 동작/계약
-     * - 원본 콜백의 `onFailure`도 최종적으로 `callback.onResponse(...Result.failure...)`로 전달됩니다.
-     * - 호출자는 Retrofit `onFailure` 대신 `Result.isFailure`를 확인해 분기할 수 있습니다.
+     * ## Contract
+     * - Delegate `onFailure` is converted to `callback.onResponse(...Result.failure...)`.
+     * - HTTP failures are wrapped as `Result.failure` and close their error bodies before callback delivery.
+     * - Callers branch on `Result.isFailure` instead of Retrofit `onFailure`.
      *
      * ```kotlin
      * resultCall.enqueue(callback)
-     * // callback.onResponse에서 Result 성공/실패를 처리
+     * // callback.onResponse receives either Result.success or Result.failure
      * ```
      */
     override fun enqueue(callback: Callback<Result<T>>) {
@@ -124,7 +127,7 @@ class ResultCall<T> private constructor(
 
                     else                  -> {
                         log.warn { "Failed to execute call. response=$response" }
-                        val result = Result.failure<T>(HttpException(response))
+                        val result = response.toHttpFailureResult<T>()
                         callback.onResponse(this@ResultCall, Response.success(result))
                     }
                 }
@@ -155,4 +158,18 @@ class ResultCall<T> private constructor(
     override fun timeout(): Timeout = delegate.timeout()
 
     override fun clone(): Call<Result<T>> = ResultCall(delegate.clone())
+
+    private fun <R> Response<*>.toHttpFailureResult(): Result<R> {
+        val exception = HttpException(this)
+        closeErrorBodySuppressing(exception)
+        return Result.failure(exception)
+    }
+
+    private fun Response<*>.closeErrorBodySuppressing(primaryFailure: Throwable) {
+        try {
+            errorBody()?.close()
+        } catch (closeFailure: Throwable) {
+            primaryFailure.addSuppressed(closeFailure)
+        }
+    }
 }
