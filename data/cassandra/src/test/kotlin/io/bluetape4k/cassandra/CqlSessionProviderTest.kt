@@ -1,10 +1,11 @@
 package io.bluetape4k.cassandra
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.support.closeSafe
+import com.datastax.oss.driver.api.core.CqlSessionBuilder
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.support.closeSafe
 import org.junit.jupiter.api.Test
 import java.net.InetSocketAddress
 import java.util.*
@@ -25,7 +26,7 @@ class CqlSessionProviderTest: AbstractCassandraTest() {
             )
         }
         val clientId = UUID.randomUUID()
-        val sessionIdentity = CqlSessionIdentity.of(
+        val sessionIdentity = cqlSessionIdentityOf(
             keyspace = TEST_KEYSPACE_1,
             contextParts = listOf(
                 "contactPoint=${cassandra4.host}:${cassandra4.port}",
@@ -56,6 +57,29 @@ class CqlSessionProviderTest: AbstractCassandraTest() {
         session1.closeSafe()
         session2.closeSafe()
         session3.closeSafe()
+    }
+
+    @Test
+    fun `keyspace bootstrap 에 caller builder 설정을 적용한다`() {
+        val sessionIdentity = cqlSessionIdentityOf(
+            keyspace = "provider_bootstrap_${UUID.randomUUID().toString().take(8)}",
+            contextParts = listOf(
+                "contactPoint=${cassandra4.host}:${cassandra4.port}",
+                "localDatacenter=${CqlSessionProvider.DEFAULT_LOCAL_DATACENTER}",
+                "applicationName=provider-test-bootstrap",
+            ),
+        )
+        val bareBuilderSupplier = { CqlSessionBuilder() }
+
+        val session = CqlSessionProvider.getOrCreateSession(sessionIdentity, bareBuilderSupplier) {
+            addContactPoint(InetSocketAddress(cassandra4.host, cassandra4.port))
+            withLocalDatacenter(CqlSessionProvider.DEFAULT_LOCAL_DATACENTER)
+            withApplicationName("provider-test-bootstrap")
+        }
+
+        session.keyspace.orElseThrow().asInternal() shouldBeEqualTo sessionIdentity.keyspace
+
+        session.closeSafe()
     }
 
     @Test

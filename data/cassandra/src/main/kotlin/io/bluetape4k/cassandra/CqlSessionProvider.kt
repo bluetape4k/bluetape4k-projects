@@ -31,21 +31,33 @@ data class CqlSessionIdentity(
         /**
          * Builds a deterministic identity from normalized context parts.
          */
+        @Deprecated(
+            message = "Use the Kotlin package function cqlSessionIdentityOf().",
+            replaceWith = ReplaceWith("cqlSessionIdentityOf(keyspace, contextParts)")
+        )
         fun of(
             keyspace: String,
             contextParts: Iterable<String>,
-        ): CqlSessionIdentity {
-            keyspace.requireNotBlank("keyspace")
-            val context = contextParts
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
-                .sorted()
-                .joinToString(separator = "|")
-                .ifBlank { "default" }
-
-            return CqlSessionIdentity(keyspace, context)
-        }
+        ): CqlSessionIdentity = cqlSessionIdentityOf(keyspace, contextParts)
     }
+}
+
+/**
+ * Builds a deterministic Cassandra session cache identity from normalized context parts.
+ */
+fun cqlSessionIdentityOf(
+    keyspace: String,
+    contextParts: Iterable<String>,
+): CqlSessionIdentity {
+    keyspace.requireNotBlank("keyspace")
+    val context = contextParts
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .sorted()
+        .joinToString(separator = "|")
+        .ifBlank { "default" }
+
+    return CqlSessionIdentity(keyspace, context)
 }
 
 object CqlSessionProvider: KLogging() {
@@ -57,15 +69,15 @@ object CqlSessionProvider: KLogging() {
     const val DEFAULT_KEYSPACE = "general"
 
     /**
-     * 새로운 [CqlSessionBuilder] 를 생성합니다.
+     * Creates a new [CqlSessionBuilder] with the provided contact point and local datacenter.
      *
      * ```
      * val builder = CqlSessionProvider.newCqlSessionBuilder(InetSocketAddress("localhost", 9042), "datacenter1")
      * ```
      *
-     * @param contactPoint    Cassandra 서버 주소
-     * @param localDatacenter LocalDataCenter 이름
-     * @return [CqlSessionBuilder] 인스턴스
+     * @param contactPoint Cassandra server address.
+     * @param localDatacenter Local datacenter name.
+     * @return A configured [CqlSessionBuilder].
      */
     fun newCqlSessionBuilder(
         contactPoint: InetSocketAddress = DEFAULT_CONTACT_POINT,
@@ -88,15 +100,20 @@ object CqlSessionProvider: KLogging() {
      * ```
      * val session = CqlSessionProvider.getOrCreateSession("keyspace") {
      *   withLocalDatacenter("datacenter1")
-     *   withKeyspace("keyspace")
      *   withAuthCredentials("username", "password")
      * }
      * ```
      *
-     * @param keyspace  keyspace 명, null 이면 cql 에 keyspace 를 지정해주어야 합니다.
-     * @param builderSupplier [CqlSessionBuilder]를 제공하는 Supplier
-     * @param builder [CqlSessionBuilder]를 이용하여 설정하는 함수
-     * @return `keyspace` 전용의 [CqlSession] 인스턴스
+     * [builder] is applied to both the bootstrap admin session and the final keyspace-bound
+     * session, so secured or custom driver options are honored while creating the keyspace.
+     * Do not set the keyspace inside [builder]; this provider binds [keyspace] only after
+     * bootstrap. Use the overload with explicit `bootstrapBuilder` and `sessionBuilder` when
+     * the final session needs additional keyspace-specific settings.
+     *
+     * @param keyspace Keyspace name to bootstrap and bind.
+     * @param builderSupplier Supplier that creates a fresh [CqlSessionBuilder].
+     * @param builder Shared builder customization for bootstrap and final sessions.
+     * @return A cached [CqlSession] bound to [keyspace].
      */
     fun getOrCreateSession(
         keyspace: String = DEFAULT_KEYSPACE,
@@ -107,7 +124,12 @@ object CqlSessionProvider: KLogging() {
 
         val sessionIdentity = toSessionIdentity(keyspace, builderSupplier, builder)
 
-        return resolveSession(sessionIdentity, builderSupplier, builder)
+        return resolveSession(
+            identity = sessionIdentity,
+            builderSupplier = builderSupplier,
+            bootstrapBuilder = builder,
+            sessionBuilder = builder,
+        )
     }
 
     /**
@@ -115,19 +137,76 @@ object CqlSessionProvider: KLogging() {
      *
      * Use this overload when the builder is created outside [CqlSessionProvider] or when the caller
      * needs to include additional tenant, credential, or routing state in the cache boundary.
+     *
+     * [builder] is applied to both the bootstrap admin session and the final keyspace-bound session.
+     * Do not set the keyspace inside [builder]; this provider binds [identity.keyspace] only after
+     * bootstrap. Use the overload with explicit `bootstrapBuilder` and `sessionBuilder` when the
+     * final session needs additional keyspace-specific settings.
      */
     fun getOrCreateSession(
         identity: CqlSessionIdentity,
         builderSupplier: () -> CqlSessionBuilder = { newCqlSessionBuilder() },
         builder: CqlSessionBuilder.() -> Unit,
     ): CqlSession {
-        return resolveSession(identity, builderSupplier, builder)
+        return resolveSession(
+            identity = identity,
+            builderSupplier = builderSupplier,
+            bootstrapBuilder = builder,
+            sessionBuilder = builder,
+        )
+    }
+
+    /**
+     * Creates or reuses a [CqlSession] with separate bootstrap and final-session configuration.
+     *
+     * Use [bootstrapBuilder] for connection, credential, TLS, driver, and application settings
+     * required to create [identity.keyspace]. Use [sessionBuilder] for the same shared options plus
+     * any settings that are valid only after the keyspace exists.
+     */
+    fun getOrCreateSession(
+        identity: CqlSessionIdentity,
+        builderSupplier: () -> CqlSessionBuilder = { newCqlSessionBuilder() },
+        bootstrapBuilder: CqlSessionBuilder.() -> Unit,
+        sessionBuilder: CqlSessionBuilder.() -> Unit,
+    ): CqlSession {
+        return resolveSession(
+            identity = identity,
+            builderSupplier = builderSupplier,
+            bootstrapBuilder = bootstrapBuilder,
+            sessionBuilder = sessionBuilder,
+        )
+    }
+
+    /**
+     * Creates or reuses a [CqlSession] with separate bootstrap and final-session configuration.
+     *
+     * This overload derives a conservative cache identity from [keyspace], [builderSupplier], and
+     * [sessionBuilder]. Prefer the [CqlSessionIdentity] overload when stable cache reuse across call
+     * sites is required.
+     */
+    fun getOrCreateSession(
+        keyspace: String = DEFAULT_KEYSPACE,
+        builderSupplier: () -> CqlSessionBuilder = { newCqlSessionBuilder() },
+        bootstrapBuilder: CqlSessionBuilder.() -> Unit,
+        sessionBuilder: CqlSessionBuilder.() -> Unit,
+    ): CqlSession {
+        keyspace.requireNotBlank("keyspace")
+
+        val sessionIdentity = toSessionIdentity(keyspace, builderSupplier, sessionBuilder)
+
+        return resolveSession(
+            identity = sessionIdentity,
+            builderSupplier = builderSupplier,
+            bootstrapBuilder = bootstrapBuilder,
+            sessionBuilder = sessionBuilder,
+        )
     }
 
     private fun resolveSession(
         identity: CqlSessionIdentity,
         builderSupplier: () -> CqlSessionBuilder,
-        builder: CqlSessionBuilder.() -> Unit,
+        bootstrapBuilder: CqlSessionBuilder.() -> Unit,
+        sessionBuilder: CqlSessionBuilder.() -> Unit,
     ): CqlSession {
         // Cache may still contain closed sessions from previous runs.
         // Drop them before resolving the requested session identity.
@@ -139,14 +218,17 @@ object CqlSessionProvider: KLogging() {
         return sessionCache.computeIfAbsent(identity) {
             log.info { "Creating new CqlSession for ${identity.keyspace} (${identity.context})" }
 
-            // keyspace가 없을 수 있으므로, adminSession으로 신규 keyspace를 생성하도록 합니다.
-            builderSupplier().build().use { adminSession ->
-                CassandraAdmin.createKeyspace(adminSession, identity.keyspace)
-            }
+            // The keyspace may not exist yet, so bootstrap with an admin session before binding it.
+            builderSupplier()
+                .apply(bootstrapBuilder)
+                .build()
+                .use { adminSession ->
+                    CassandraAdmin.createKeyspace(adminSession, identity.keyspace)
+                }
 
             builderSupplier()
+                .apply(sessionBuilder)
                 .withKeyspace(identity.keyspace)
-                .apply(builder)
                 .build()
                 .also {
                     ShutdownQueue.register(it)
@@ -161,7 +243,7 @@ private fun toSessionIdentity(
     builderSupplier: () -> CqlSessionBuilder,
     builder: CqlSessionBuilder.() -> Unit,
 ): CqlSessionIdentity {
-    return CqlSessionIdentity.of(
+    return cqlSessionIdentityOf(
         keyspace = keyspace,
         contextParts = listOf(
             "builderSupplier=${builderSupplier.cachePart()}",
