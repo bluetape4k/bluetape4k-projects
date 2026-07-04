@@ -1,12 +1,12 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import kotlin.test.assertFailsWith
 
 class NearCacheResilienceConfigBuilderTest {
 

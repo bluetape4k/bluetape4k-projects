@@ -22,8 +22,6 @@ import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import io.bluetape4k.assertions.assertFailsWith
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class TimeBlockTest: AbstractPeriodTest() {
 
@@ -402,20 +400,20 @@ class TimeBlockTest: AbstractPeriodTest() {
     @Test
     fun `hasInsideWith with all ZonedDateTime`() {
         with(testData) {
-            assertFalse { reference hasInsideWith before }
-            assertFalse { reference hasInsideWith startTouching }
-            assertFalse { reference hasInsideWith startInside }
-            assertFalse { reference hasInsideWith insideStartTouching }
+            (reference hasInsideWith before).shouldBeFalse()
+            (reference hasInsideWith startTouching).shouldBeFalse()
+            (reference hasInsideWith startInside).shouldBeFalse()
+            (reference hasInsideWith insideStartTouching).shouldBeFalse()
 
-            assertTrue { reference hasInsideWith enclosingStartTouching }
-            assertTrue { reference hasInsideWith enclosing }
-            assertTrue { reference hasInsideWith enclosingEndTouching }
-            assertTrue { reference hasInsideWith exactMatch }
+            (reference hasInsideWith enclosingStartTouching).shouldBeTrue()
+            (reference hasInsideWith enclosing).shouldBeTrue()
+            (reference hasInsideWith enclosingEndTouching).shouldBeTrue()
+            (reference hasInsideWith exactMatch).shouldBeTrue()
 
-            assertFalse { reference hasInsideWith inside }
-            assertFalse { reference hasInsideWith insideEndTouching }
-            assertFalse { reference hasInsideWith endTouching }
-            assertFalse { reference hasInsideWith after }
+            (reference hasInsideWith inside).shouldBeFalse()
+            (reference hasInsideWith insideEndTouching).shouldBeFalse()
+            (reference hasInsideWith endTouching).shouldBeFalse()
+            (reference hasInsideWith after).shouldBeFalse()
         }
     }
 
@@ -423,20 +421,20 @@ class TimeBlockTest: AbstractPeriodTest() {
     fun `intersectWith with ZonedDateTime`() {
 
         with(testData) {
-            assertFalse { reference intersectWith before }
-            assertTrue { reference intersectWith startTouching }
-            assertTrue { reference intersectWith startInside }
-            assertTrue { reference intersectWith insideStartTouching }
+            (reference intersectWith before).shouldBeFalse()
+            (reference intersectWith startTouching).shouldBeTrue()
+            (reference intersectWith startInside).shouldBeTrue()
+            (reference intersectWith insideStartTouching).shouldBeTrue()
 
-            assertTrue { reference intersectWith enclosingStartTouching }
-            assertTrue { reference intersectWith enclosing }
-            assertTrue { reference intersectWith enclosingEndTouching }
-            assertTrue { reference intersectWith exactMatch }
+            (reference intersectWith enclosingStartTouching).shouldBeTrue()
+            (reference intersectWith enclosing).shouldBeTrue()
+            (reference intersectWith enclosingEndTouching).shouldBeTrue()
+            (reference intersectWith exactMatch).shouldBeTrue()
 
-            assertTrue { reference intersectWith inside }
-            assertTrue { reference intersectWith insideEndTouching }
-            assertTrue { reference intersectWith endTouching }
-            assertFalse { reference intersectWith after }
+            (reference intersectWith inside).shouldBeTrue()
+            (reference intersectWith insideEndTouching).shouldBeTrue()
+            (reference intersectWith endTouching).shouldBeTrue()
+            (reference intersectWith after).shouldBeFalse()
         }
     }
 
@@ -444,20 +442,20 @@ class TimeBlockTest: AbstractPeriodTest() {
     fun `overlapWith with ZonedDateTime`() {
 
         with(testData) {
-            assertFalse { reference overlapWith before }
-            assertFalse { reference overlapWith startTouching }
-            assertTrue { reference overlapWith startInside }
-            assertTrue { reference overlapWith insideStartTouching }
+            (reference overlapWith before).shouldBeFalse()
+            (reference overlapWith startTouching).shouldBeFalse()
+            (reference overlapWith startInside).shouldBeTrue()
+            (reference overlapWith insideStartTouching).shouldBeTrue()
 
-            assertTrue { reference overlapWith enclosingStartTouching }
-            assertTrue { reference overlapWith enclosing }
-            assertTrue { reference overlapWith enclosingEndTouching }
-            assertTrue { reference overlapWith exactMatch }
+            (reference overlapWith enclosingStartTouching).shouldBeTrue()
+            (reference overlapWith enclosing).shouldBeTrue()
+            (reference overlapWith enclosingEndTouching).shouldBeTrue()
+            (reference overlapWith exactMatch).shouldBeTrue()
 
-            assertTrue { reference overlapWith inside }
-            assertTrue { reference overlapWith insideEndTouching }
-            assertFalse { reference overlapWith endTouching }
-            assertFalse { reference overlapWith after }
+            (reference overlapWith inside).shouldBeTrue()
+            (reference overlapWith insideEndTouching).shouldBeTrue()
+            (reference overlapWith endTouching).shouldBeFalse()
+            (reference overlapWith after).shouldBeFalse()
         }
     }
 
@@ -466,20 +464,20 @@ class TimeBlockTest: AbstractPeriodTest() {
         val block = TimeBlock(start, end)
 
         // before
-        assertFalse { block intersectWith TimeBlock(start - 2.hours(), start - 1.hours()) }
-        assertTrue { block intersectWith TimeBlock(start - 1.hours(), start) }
-        assertTrue { block intersectWith TimeBlock(start - 1.hours(), start + 1.nanos()) }
+        (block intersectWith TimeBlock(start - 2.hours(), start - 1.hours())).shouldBeFalse()
+        (block intersectWith TimeBlock(start - 1.hours(), start)).shouldBeTrue()
+        (block intersectWith TimeBlock(start - 1.hours(), start + 1.nanos())).shouldBeTrue()
 
         // after
-        assertFalse { block intersectWith TimeBlock(end + 1.hours(), end + 2.hours()) }
-        assertTrue { block intersectWith TimeBlock(end, end + 1.nanos()) }
-        assertTrue { block intersectWith TimeBlock(end - 1.nanos(), end + 1.nanos()) }
+        (block intersectWith TimeBlock(end + 1.hours(), end + 2.hours())).shouldBeFalse()
+        (block intersectWith TimeBlock(end, end + 1.nanos())).shouldBeTrue()
+        (block intersectWith TimeBlock(end - 1.nanos(), end + 1.nanos())).shouldBeTrue()
 
         // intersection
-        assertTrue { block intersectWith block }
-        assertTrue { block intersectWith TimeBlock(start + 1.nanos(), end + 1.nanos()) }
-        assertTrue { block intersectWith TimeBlock(start - 1.nanos(), start + 1.nanos()) }
-        assertTrue { block intersectWith TimeBlock(end - 1.nanos(), end + 1.nanos()) }
+        (block intersectWith block).shouldBeTrue()
+        (block intersectWith TimeBlock(start + 1.nanos(), end + 1.nanos())).shouldBeTrue()
+        (block intersectWith TimeBlock(start - 1.nanos(), start + 1.nanos())).shouldBeTrue()
+        (block intersectWith TimeBlock(end - 1.nanos(), end + 1.nanos())).shouldBeTrue()
     }
 
     @Test
@@ -553,112 +551,112 @@ class TimeBlockTest: AbstractPeriodTest() {
             // reference
             reference.start shouldBeEqualTo start
             reference.end shouldBeEqualTo end
-            assertTrue { reference.readonly }
+            (reference.readonly).shouldBeTrue()
 
             // after
-            assertTrue { after.readonly }
-            assertTrue { after.start < start }
-            assertTrue { after.end < start }
+            (after.readonly).shouldBeTrue()
+            (after.start < start).shouldBeTrue()
+            (after.end < start).shouldBeTrue()
 
-            assertFalse { reference.hasInsideWith(after.start) }
-            assertFalse { reference.hasInsideWith(after.end) }
+            (reference.hasInsideWith(after.start)).shouldBeFalse()
+            (reference.hasInsideWith(after.end)).shouldBeFalse()
 
             // start touching
-            assertTrue { startTouching.readonly }
-            assertTrue { startTouching.start < start }
-            assertTrue { startTouching.end == start }
+            (startTouching.readonly).shouldBeTrue()
+            (startTouching.start < start).shouldBeTrue()
+            (startTouching.end == start).shouldBeTrue()
 
-            assertFalse { reference.hasInsideWith(startTouching.start) }
-            assertTrue { reference.hasInsideWith(startTouching.end) }
+            (reference.hasInsideWith(startTouching.start)).shouldBeFalse()
+            (reference.hasInsideWith(startTouching.end)).shouldBeTrue()
 
             // start inside
-            assertTrue { startInside.readonly }
-            assertTrue { startInside.start < start }
-            assertTrue { startInside.end < end }
+            (startInside.readonly).shouldBeTrue()
+            (startInside.start < start).shouldBeTrue()
+            (startInside.end < end).shouldBeTrue()
 
-            assertFalse { reference.hasInsideWith(startInside.start) }
-            assertTrue { reference.hasInsideWith(startInside.end) }
+            (reference.hasInsideWith(startInside.start)).shouldBeFalse()
+            (reference.hasInsideWith(startInside.end)).shouldBeTrue()
 
 
             // inside start touching
-            assertTrue { insideStartTouching.readonly }
-            assertTrue { insideStartTouching.start == start }
-            assertTrue { insideStartTouching.end > end }
+            (insideStartTouching.readonly).shouldBeTrue()
+            (insideStartTouching.start == start).shouldBeTrue()
+            (insideStartTouching.end > end).shouldBeTrue()
 
-            assertTrue { reference.hasInsideWith(insideStartTouching.start) }
-            assertFalse { reference.hasInsideWith(insideStartTouching.end) }
+            (reference.hasInsideWith(insideStartTouching.start)).shouldBeTrue()
+            (reference.hasInsideWith(insideStartTouching.end)).shouldBeFalse()
 
             // enclosing start touching
-            assertTrue { enclosingStartTouching.readonly }
-            assertTrue { enclosingStartTouching.start == start }
-            assertTrue { enclosingStartTouching.end < end }
+            (enclosingStartTouching.readonly).shouldBeTrue()
+            (enclosingStartTouching.start == start).shouldBeTrue()
+            (enclosingStartTouching.end < end).shouldBeTrue()
 
-            assertTrue { reference.hasInsideWith(enclosingStartTouching.start) }
-            assertTrue { reference.hasInsideWith(enclosingStartTouching.end) }
+            (reference.hasInsideWith(enclosingStartTouching.start)).shouldBeTrue()
+            (reference.hasInsideWith(enclosingStartTouching.end)).shouldBeTrue()
 
             // enclosing
-            assertTrue { enclosing.readonly }
-            assertTrue { enclosing.start > start }
-            assertTrue { enclosing.end < end }
+            (enclosing.readonly).shouldBeTrue()
+            (enclosing.start > start).shouldBeTrue()
+            (enclosing.end < end).shouldBeTrue()
 
-            assertTrue { reference.hasInsideWith(enclosing.start) }
-            assertTrue { reference.hasInsideWith(enclosing.end) }
+            (reference.hasInsideWith(enclosing.start)).shouldBeTrue()
+            (reference.hasInsideWith(enclosing.end)).shouldBeTrue()
 
             // enclosing end touching
-            assertTrue { enclosingEndTouching.readonly }
-            assertTrue { enclosingEndTouching.start > start }
-            assertTrue { enclosingEndTouching.end == end }
+            (enclosingEndTouching.readonly).shouldBeTrue()
+            (enclosingEndTouching.start > start).shouldBeTrue()
+            (enclosingEndTouching.end == end).shouldBeTrue()
 
-            assertTrue { reference.hasInsideWith(enclosingEndTouching.start) }
-            assertTrue { reference.hasInsideWith(enclosingEndTouching.end) }
+            (reference.hasInsideWith(enclosingEndTouching.start)).shouldBeTrue()
+            (reference.hasInsideWith(enclosingEndTouching.end)).shouldBeTrue()
 
             // exact match
-            assertTrue { exactMatch.readonly }
-            assertTrue { exactMatch.start == start }
-            assertTrue { exactMatch.end == end }
+            (exactMatch.readonly).shouldBeTrue()
+            (exactMatch.start == start).shouldBeTrue()
+            (exactMatch.end == end).shouldBeTrue()
 
-            assertTrue { reference.hasInsideWith(exactMatch.start) }
-            assertTrue { reference.hasInsideWith(exactMatch.end) }
+            (reference.hasInsideWith(exactMatch.start)).shouldBeTrue()
+            (reference.hasInsideWith(exactMatch.end)).shouldBeTrue()
 
             // inside
-            assertTrue { inside.readonly }
-            assertTrue { inside.start < start }
-            assertTrue { inside.end > end }
+            (inside.readonly).shouldBeTrue()
+            (inside.start < start).shouldBeTrue()
+            (inside.end > end).shouldBeTrue()
 
-            assertFalse { reference.hasInsideWith(inside.start) }
-            assertFalse { reference.hasInsideWith(inside.end) }
+            (reference.hasInsideWith(inside.start)).shouldBeFalse()
+            (reference.hasInsideWith(inside.end)).shouldBeFalse()
 
             // inside end touching
-            assertTrue { insideEndTouching.readonly }
-            assertTrue { insideEndTouching.start < start }
-            assertTrue { insideEndTouching.end == end }
+            (insideEndTouching.readonly).shouldBeTrue()
+            (insideEndTouching.start < start).shouldBeTrue()
+            (insideEndTouching.end == end).shouldBeTrue()
 
-            assertFalse { reference.hasInsideWith(insideEndTouching.start) }
-            assertTrue { reference.hasInsideWith(insideEndTouching.end) }
+            (reference.hasInsideWith(insideEndTouching.start)).shouldBeFalse()
+            (reference.hasInsideWith(insideEndTouching.end)).shouldBeTrue()
 
             // end inside
-            assertTrue { endInside.readonly }
-            assertTrue { endInside.start in start..end }
-            assertTrue { endInside.end > end }
+            (endInside.readonly).shouldBeTrue()
+            (endInside.start in start..end).shouldBeTrue()
+            (endInside.end > end).shouldBeTrue()
 
-            assertTrue { reference.hasInsideWith(endInside.start) }
-            assertFalse { reference.hasInsideWith(endInside.end) }
+            (reference.hasInsideWith(endInside.start)).shouldBeTrue()
+            (reference.hasInsideWith(endInside.end)).shouldBeFalse()
 
             // end Touching
-            assertTrue { endTouching.readonly }
-            assertTrue { endTouching.start == end }
-            assertTrue { endTouching.end > end }
+            (endTouching.readonly).shouldBeTrue()
+            (endTouching.start == end).shouldBeTrue()
+            (endTouching.end > end).shouldBeTrue()
 
-            assertTrue { reference.hasInsideWith(endTouching.start) }
-            assertFalse { reference.hasInsideWith(endTouching.end) }
+            (reference.hasInsideWith(endTouching.start)).shouldBeTrue()
+            (reference.hasInsideWith(endTouching.end)).shouldBeFalse()
 
             // before
-            assertTrue { before.readonly }
-            assertTrue { before.start > end }
-            assertTrue { before.end > end }
+            (before.readonly).shouldBeTrue()
+            (before.start > end).shouldBeTrue()
+            (before.end > end).shouldBeTrue()
 
-            assertFalse { reference.hasInsideWith(before.start) }
-            assertFalse { reference.hasInsideWith(before.end) }
+            (reference.hasInsideWith(before.start)).shouldBeFalse()
+            (reference.hasInsideWith(before.end)).shouldBeFalse()
         }
     }
 
