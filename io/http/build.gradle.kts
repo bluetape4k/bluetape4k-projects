@@ -126,13 +126,17 @@ dependencies {
     compileOnly(libs.httpclient5)
     compileOnly(libs.httpclient5.cache)
     compileOnly(libs.httpclient5.fluent)
-    testImplementation(libs.httpclient5.testing)
+    testImplementation(libs.httpclient5.testing) {
+        exclude(group = "org.apache.httpcomponents.core5", module = "httpcore5-testing")
+    }
 
     // Apache HttpComponent Core 5
     compileOnly(libs.httpcore5)
     compileOnly(libs.httpcore5.h2)
     compileOnly(libs.httpcore5.reactive)
-    testImplementation(libs.httpcore5.testing)
+    testImplementation(libs.httpcore5.testing) {
+        exclude(group = "org.apache.httpcomponents.core5", module = "httpcore5")
+    }
 
     compileOnly(project(":bluetape4k-cache-core"))
     compileOnly(libs.caffeine)

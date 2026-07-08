@@ -48,7 +48,9 @@ dependencies {
     compileOnly(libs.httpclient5)
     compileOnly(libs.httpclient5.cache)
     compileOnly(libs.httpclient5.fluent)
-    testImplementation(libs.httpclient5.testing)
+    testImplementation(libs.httpclient5.testing) {
+        exclude(group = "org.apache.httpcomponents.core5", module = "httpcore5-testing")
+    }
 
     // Jackson 3 (Spring Boot 4는 Jackson 3 사용)
     compileOnly(project(":bluetape4k-jackson3"))
