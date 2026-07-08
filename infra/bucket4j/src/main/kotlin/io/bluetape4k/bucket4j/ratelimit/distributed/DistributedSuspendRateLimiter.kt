@@ -9,9 +9,9 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
+import java.util.concurrent.TimeoutException
 import kotlin.time.Duration
 
 /**
@@ -75,19 +75,22 @@ class DistributedSuspendRateLimiter @JvmOverloads constructor(
             val probe = if (timeout == null) {
                 bucketProxy.tryConsumeAndReturnRemaining(numToken).await()
             } else {
-                withTimeout(timeout) {
+                withTimeoutOrNull(timeout) {
                     bucketProxy.tryConsumeAndReturnRemaining(numToken).await()
-                }
+                } ?: return timeoutResult(key, timeout)
             }
             toRateLimitResult(probe, numToken)
-        } catch (e: TimeoutCancellationException) {
-            log.warn(e) { "Rate Limiter timed out. key=$key" }
-            RateLimitResult.error(e)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             log.warn(e) { "Rate Limiter 적용에 실패했습니다. key=$key" }
             RateLimitResult.error(e)
         }
+    }
+
+    private fun timeoutResult(key: String, timeout: Duration): RateLimitResult {
+        val cause = TimeoutException("Rate Limiter timed out. key=$key, timeout=$timeout")
+        log.warn(cause) { "Rate Limiter timed out. key=$key, timeout=$timeout" }
+        return RateLimitResult.error(cause)
     }
 }

@@ -17,9 +17,13 @@ import io.github.bucket4j.distributed.proxy.ExecutionStrategy
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
@@ -94,6 +98,23 @@ class LettuceSuspendRateLimiterTest: AbstractSuspendRateLimiterTest() {
     }
 
     @Test
+    fun `distributed await 이 timeout cancellation 으로 실패하면 전파해야 한다`() = runTest {
+        val bucket = mockk<AsyncBucketProxy>()
+        val failed = CompletableFuture<ConsumptionProbe>()
+        failed.completeExceptionally(callerTimeoutCancellation())
+        every { bucket.tryConsumeAndReturnRemaining(any()) } returns failed
+
+        val provider = mockk<AsyncBucketProxyProvider>()
+        every { provider.resolveBucket(any()) } returns bucket
+
+        val limiter = DistributedSuspendRateLimiter(provider)
+
+        assertFailsWith<TimeoutCancellationException> {
+            limiter.consume(randomKey(), 1)
+        }
+    }
+
+    @Test
     fun `distributed await timeout 은 error 결과로 반환한다`() = runTest {
         val bucket = mockk<AsyncBucketProxy>()
         val pending = CompletableFuture<ConsumptionProbe>()
@@ -111,5 +132,64 @@ class LettuceSuspendRateLimiterTest: AbstractSuspendRateLimiterTest() {
 
         val result = deferred.await()
         result.status shouldBeEqualTo RateLimitStatus.ERROR
+    }
+
+    @Test
+    fun `caller timeout 은 per-call timeout 없이도 전파해야 한다`() = runTest {
+        val bucket = mockk<AsyncBucketProxy>()
+        val pending = CompletableFuture<ConsumptionProbe>()
+        every { bucket.tryConsumeAndReturnRemaining(any()) } returns pending
+
+        val provider = mockk<AsyncBucketProxyProvider>()
+        every { provider.resolveBucket(any()) } returns bucket
+
+        val limiter = DistributedSuspendRateLimiter(provider)
+        val task = async {
+            withTimeout(10.milliseconds) {
+                limiter.consume(randomKey(), 1, timeout = null)
+            }
+        }
+
+        advanceTimeBy(10.milliseconds)
+        runCurrent()
+
+        assertFailsWith<TimeoutCancellationException> {
+            task.await()
+        }
+    }
+
+    @Test
+    fun `caller timeout 은 default timeout 보다 먼저 발생하면 전파해야 한다`() = runTest {
+        val bucket = mockk<AsyncBucketProxy>()
+        val pending = CompletableFuture<ConsumptionProbe>()
+        every { bucket.tryConsumeAndReturnRemaining(any()) } returns pending
+
+        val provider = mockk<AsyncBucketProxyProvider>()
+        every { provider.resolveBucket(any()) } returns bucket
+
+        val limiter = DistributedSuspendRateLimiter(provider, defaultTimeout = 1.seconds)
+        val task = async {
+            withTimeout(10.milliseconds) {
+                limiter.consume(randomKey(), 1)
+            }
+        }
+
+        advanceTimeBy(10.milliseconds)
+        runCurrent()
+
+        assertFailsWith<TimeoutCancellationException> {
+            task.await()
+        }
+    }
+
+    private suspend fun callerTimeoutCancellation(): TimeoutCancellationException {
+        try {
+            withTimeout(1.milliseconds) {
+                delay(2.milliseconds)
+            }
+        } catch (e: TimeoutCancellationException) {
+            return e
+        }
+        error("withTimeout must throw TimeoutCancellationException")
     }
 }
