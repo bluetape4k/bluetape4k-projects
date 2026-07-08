@@ -27,4 +27,3 @@ Add a dedicated `telemetry-infra` path-filter output and `Test / Telemetry Infra
 ## Future Guard
 
 When adding CI path filters for a module family, update all four surfaces together: path-filter output, test job, `coverage-report.needs`, and `ci-status.needs`.
-
