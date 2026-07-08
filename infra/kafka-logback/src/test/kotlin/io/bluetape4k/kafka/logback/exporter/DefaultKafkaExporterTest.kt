@@ -1,5 +1,7 @@
 package io.bluetape4k.kafka.logback.exporter
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.Called
 import io.mockk.clearAllMocks
@@ -80,5 +82,29 @@ class DefaultKafkaExporterTest {
         exporter.export(producer, record, "msg", exceptionHandler)
 
         verify { exceptionHandler.handle("msg", exception) }
+    }
+
+    @Test
+    fun `kafka producer에서 일반 Exception이 발생하면 exception handler 가 호출된다`() {
+        val exception = IllegalStateException("Kafka producer is closed")
+
+        every { producer.send(record, any<Callback>()) } throws exception
+
+        val exported = exporter.export(producer, record, "msg", exceptionHandler)
+
+        exported.shouldBeFalse()
+        verify { exceptionHandler.handle("msg", exception) }
+    }
+
+    @Test
+    fun `kafka producer에서 fatal Error가 발생하면 전파한다`() {
+        val error = OutOfMemoryError("fatal")
+
+        every { producer.send(record, any<Callback>()) } throws error
+
+        assertFailsWith<OutOfMemoryError> {
+            exporter.export(producer, record, "msg", exceptionHandler)
+        }
+        verify { exceptionHandler wasNot Called }
     }
 }
