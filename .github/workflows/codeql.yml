@@ -7,7 +7,7 @@ on:
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
+    name: Analyze (${{ matrix.language }} / ${{ matrix.scope }})
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -17,7 +17,31 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [java-kotlin, python, actions]
+        include:
+          - language: actions
+            scope: workflows
+            roots: ''
+          - language: python
+            scope: python
+            roots: ''
+          - language: java-kotlin
+            scope: foundation
+            roots: bluetape4k:cache:utils
+          - language: java-kotlin
+            scope: data-io
+            roots: data:io
+          - language: java-kotlin
+            scope: infra
+            roots: infra
+          - language: java-kotlin
+            scope: frameworks
+            roots: ktor:spring-boot:virtualthread
+          # Exclude testing/testcontainers from scheduled CodeQL for now: even
+          # the single compileKotlin task stayed in Build with Gradle for more
+          # than 30 minutes under CodeQL tracing.
+          - language: java-kotlin
+            scope: testing-core
+            roots: testing/assertions:testing/junit5:testing/mock-web-server:testing/mock-webflux-server
 
     steps:
       - name: Checkout repository
@@ -43,11 +67,46 @@ jobs:
 
       - name: Build with Gradle
         if: matrix.language == 'java-kotlin'
-        # TODO(#745): Keep the re-enabled java-kotlin build compile-only;
-        # `build -x test` still schedules custom Test tasks such as k8sTest.
-        run: ./gradlew assemble --no-daemon
+        timeout-minutes: 120
+        env:
+          CODEQL_JAVA_ROOTS: ${{ matrix.roots }}
+        # Keep each CodeQL Kotlin job scoped and compiler-only. Avoid examples,
+        # demos, resources, benchmarks, archives, and distributions under
+        # CodeQL tracing.
+        run: |
+          codeql_tasks_file="$(mktemp)"
+          printf '%s\n' "$CODEQL_JAVA_ROOTS" | tr ':' '\n' | while IFS= read -r root; do
+            [ -d "$root" ] || continue
+            if [ -f "$root/build.gradle.kts" ]; then
+              printf '%s\n' "$root/build.gradle.kts"
+            else
+              find "$root" -mindepth 2 -maxdepth 2 -name build.gradle.kts -print
+            fi
+          done |
+            sed 's#/build.gradle.kts$##' |
+            grep -Ev '(^|/)([^/]*-)?demo$' |
+            while IFS= read -r module_dir; do
+              [ -d "$module_dir/src/main" ] || continue
+              base="${module_dir%%/*}"
+              name="${module_dir#*/}"
+              case "$base" in
+                bluetape4k|cache|data|infra|io|testing|utils)
+                  printf ':bluetape4k-%s:compileKotlin\n' "$name"
+                  [ -d "$module_dir/src/main/java" ] && printf ':bluetape4k-%s:compileJava\n' "$name"
+                  ;;
+                ktor|spring-boot|virtualthread)
+                  printf ':bluetape4k-%s-%s:compileKotlin\n' "$base" "$name"
+                  [ -d "$module_dir/src/main/java" ] && printf ':bluetape4k-%s-%s:compileJava\n' "$base" "$name"
+                  ;;
+              esac
+            done |
+            sort > "$codeql_tasks_file"
+
+          printf 'CodeQL Gradle tasks (%s):\n' "$(wc -l < "$codeql_tasks_file")"
+          sed 's/^/  /' "$codeql_tasks_file"
+          xargs ./gradlew --no-daemon < "$codeql_tasks_file"
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
         with:
-          category: '/language:${{ matrix.language }}'
+          category: '/language:${{ matrix.language }}/${{ matrix.scope }}'
