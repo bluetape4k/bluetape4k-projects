@@ -1,16 +1,15 @@
 package io.bluetape4k.kafka.logback.exporter
 
-import org.apache.kafka.clients.producer.BufferExhaustedException
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.errors.TimeoutException
 
 /**
- * 기본 Kafka 전송 구현체입니다.
+ * Default Kafka exporter implementation.
  *
- * ## 동작/계약
- * - [Producer.send] 비동기 전송을 사용하고 콜백 예외를 [exceptionHandler]로 전달합니다.
- * - 즉시 발생한 [BufferExhaustedException], [TimeoutException]은 handler 호출 후 `false`를 반환합니다.
+ * ## Contract
+ * - Uses asynchronous [Producer.send] and forwards callback exceptions to [exceptionHandler].
+ * - Handles synchronous non-fatal [Exception] failures with [exceptionHandler] and returns `false`.
+ * - Does not catch [Error]; fatal errors propagate to the caller.
  *
  * ```kotlin
  * val exported = DefaultKafkaExporter().export(producer, record, event, handler)
@@ -32,10 +31,8 @@ class DefaultKafkaExporter: io.bluetape4k.kafka.logback.exporter.KafkaExporter {
                 }
             }
             return true
-        } catch (e: Throwable) {
-            if (e is BufferExhaustedException || e is TimeoutException) {
-                exceptionHandler.handle(event, e)
-            }
+        } catch (e: Exception) {
+            exceptionHandler.handle(event, e)
             false
         }
     }
