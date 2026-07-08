@@ -80,7 +80,7 @@
 </g>
 <g id="flow-input" class="card blue">
 <rect x="874" y="530" width="492" height="132" rx="14"/>
-<text class="cardTitle" x="1120" y="576" text-anchor="middle">InputStream / Path</text>
+<text class="cardTitle" x="1120" y="576" text-anchor="middle">File / InputStream / Path</text>
 <line class="divider" x1="908" y1="598" x2="1332" y2="598"/>
 <text class="body" x="1120" y="626" text-anchor="middle">Suspend reader or FlowCsvReader</text>
 </g>
@@ -98,6 +98,11 @@
 <text class="body" x="1120" y="1016" text-anchor="middle">records emitted in order</text>
 <text class="body" x="1120" y="1041" text-anchor="middle">V2 converts Record to CsvRow</text>
 <text class="body" x="1120" y="1066" text-anchor="middle">cold stream starts on collect</text>
+</g>
+<g id="flow-file-lifecycle" class="card blue">
+<rect x="874" y="1120" width="492" height="78" rx="14"/>
+<text class="cardTitle" x="1120" y="1152" text-anchor="middle">File-backed Flow lifecycle</text>
+<text class="body" x="1120" y="1180" text-anchor="middle">open per collect; close on stop</text>
 </g>
 <g id="writer-input" class="card orange">
 <rect x="1564" y="530" width="492" height="132" rx="14"/>
@@ -124,6 +129,7 @@
 <path id="v1-b" class="arrow tealLine" d="M 430 864 L 430 920" marker-end="url(#flowArrowTeal)"/>
 <path id="flow-a" class="arrow blueLine" d="M 1120 662 L 1120 710" marker-end="url(#flowArrowBlue)"/>
 <path id="flow-b" class="arrow blueLine" d="M 1120 864 L 1120 920" marker-end="url(#flowArrowBlue)"/>
+<path id="flow-c" class="arrow blueLine" d="M 1120 1092 L 1120 1120" marker-end="url(#flowArrowBlue)"/>
 <path id="writer-a" class="arrow orangeLine" d="M 1810 662 L 1810 710" marker-end="url(#flowArrowOrange)"/>
 <path id="writer-b" class="arrow orangeLine" d="M 1810 864 L 1810 920" marker-end="url(#flowArrowOrange)"/>
 <g class="semantics">
