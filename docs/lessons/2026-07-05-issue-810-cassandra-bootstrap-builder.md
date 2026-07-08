@@ -15,4 +15,3 @@ The regression test uses a bare `CqlSessionBuilder` supplier and relies on the c
 ## Future Guidance
 
 Do not hide administrative side effects behind a final-session-only builder. When a helper performs DDL before returning a client/session, document which builder settings apply to the admin path and provide separate hooks when some settings are phase-specific.
-

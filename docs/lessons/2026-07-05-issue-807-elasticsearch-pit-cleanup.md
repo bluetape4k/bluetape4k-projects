@@ -15,4 +15,3 @@ A new unit test proves suspend cleanup completes after the parent coroutine is c
 ## Future Guidance
 
 When a coroutine Flow opens a remote resource and closes it with a suspend call, put the close path behind a `NonCancellable` cleanup boundary and test the helper independently from heavy infrastructure tests.
-
