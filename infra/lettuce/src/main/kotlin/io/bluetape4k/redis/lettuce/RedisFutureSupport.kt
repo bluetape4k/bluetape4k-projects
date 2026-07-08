@@ -23,7 +23,8 @@ suspend inline fun <T> RedisFuture<T>.awaitSuspending(): T = await()
  * [RedisFuture] 컬렉션의 모든 요소가 완료될 때까지 스레드 블로킹 없이 대기합니다.
  *
  * 입력 순서대로 결과를 반환합니다. 하나라도 실패하면 반환 [List]를 만들지 않고 해당 예외가 전파됩니다.
- * 빈 컬렉션은 즉시 빈 리스트를 반환합니다.
+ * 빈 컬렉션은 즉시 빈 리스트를 반환합니다. Cancelling the caller coroutine cancels every pending source
+ * [RedisFuture].
  *
  * ```kotlin
  * val results = listOf(
@@ -41,7 +42,8 @@ suspend inline fun <T> Collection<RedisFuture<out T>>.awaitAll(): List<T> = when
  * [RedisFuture] 컬렉션을 입력 순서를 보존하는 [CompletableFuture]`<List<T>>`로 변환합니다.
  *
  * 모든 future가 완료된 뒤 단일 continuation에서 결과 리스트를 만듭니다. 대량 명령에서는 future마다
- * 별도 코루틴을 만들기보다 [awaitAll] 또는 이 함수를 사용하는 편이 가볍습니다.
+ * 별도 코루틴을 만들기보다 [awaitAll] 또는 이 함수를 사용하는 편이 가볍습니다. Cancelling the returned
+ * [CompletableFuture] cancels every source [RedisFuture].
  *
  * ```kotlin
  * val future: CompletableFuture<List<T>> = listOf(

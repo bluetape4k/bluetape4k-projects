@@ -2,17 +2,23 @@ package io.bluetape4k.redis.lettuce
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.LettuceTestUtils.asyncCommands
 import io.lettuce.core.RedisFuture
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import kotlin.time.Duration.Companion.seconds
 
 class RedisFutureSupportTest: AbstractLettuceTest() {
 
@@ -69,6 +75,28 @@ class RedisFutureSupportTest: AbstractLettuceTest() {
             listOf(failed).awaitAll()
         }
         error.message shouldBeEqualTo failure.message
+    }
+
+    @Test
+    fun `awaitAll - 취소되면 대기 중인 RedisFuture 들을 취소한다`() = runSuspendIO {
+        val futures = List(3) { TestRedisFuture<String>() }
+        val task = async {
+            futures.awaitAll()
+        }
+
+        withTimeout(1.seconds) {
+            while (futures.any { it.numberOfDependents == 0 }) {
+                yield()
+            }
+        }
+        task.cancel(CancellationException("cancel Redis bulk await"))
+
+        assertFailsWith<CancellationException> {
+            task.await()
+        }
+        futures.forEach { future ->
+            future.isCancelled.shouldBeTrue()
+        }
     }
 
     @Test

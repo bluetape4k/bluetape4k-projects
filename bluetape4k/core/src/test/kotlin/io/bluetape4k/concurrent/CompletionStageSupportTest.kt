@@ -50,6 +50,22 @@ class CompletionStageSupportTest {
     }
 
     @Test
+    fun `sequence - 결과 future 가 취소되면 source stage 를 취소한다`() {
+        val stages = listOf(
+            CompletableFuture<Int>(),
+            CompletableFuture<Int>(),
+            CompletableFuture<Int>(),
+        )
+
+        val sequenced = stages.sequence()
+
+        sequenced.cancel(true).shouldBeTrue()
+        stages.forEach { stage ->
+            stage.isCancelled.shouldBeTrue()
+        }
+    }
+
+    @Test
     fun `firstCompleted 와 firstSucceeded`() {
         val failedFirst = failedCompletableFutureOf<Int>(IllegalStateException("boom"))
         val pending = CompletableFuture<Int>()

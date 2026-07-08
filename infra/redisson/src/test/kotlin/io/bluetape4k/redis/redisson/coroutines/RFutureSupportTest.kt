@@ -2,21 +2,26 @@ package io.bluetape4k.redis.redisson.coroutines
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
 import io.bluetape4k.redis.redisson.RedissonTestUtils.redisson
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.redisson.api.RFuture
 import java.util.concurrent.CompletableFuture
+import kotlin.time.Duration.Companion.seconds
 
 class RFutureSupportTest: AbstractRedissonCoroutineTest() {
 
@@ -39,6 +44,28 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
             listOf(failed).awaitAll()
         }
         error.message shouldBeEqualTo failure.message
+    }
+
+    @Test
+    fun `awaitAll cancels pending RFuture leaves when coroutine is cancelled`() = runSuspendIO {
+        val futures = List(3) { TestRFuture<String>() }
+        val task = async {
+            futures.awaitAll()
+        }
+
+        withTimeout(1.seconds) {
+            while (futures.any { it.numberOfDependents == 0 }) {
+                yield()
+            }
+        }
+        task.cancel(CancellationException("cancel Redisson bulk await"))
+
+        assertFailsWith<CancellationException> {
+            task.await()
+        }
+        futures.forEach { future ->
+            future.isCancelled.shouldBeTrue()
+        }
     }
 
     @Test
