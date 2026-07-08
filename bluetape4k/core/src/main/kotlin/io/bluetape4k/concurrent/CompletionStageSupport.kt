@@ -70,6 +70,23 @@ fun <T> CompletionStage<T>.getExceptionOrNull(): Throwable? {
     }
 }
 
+private fun <T> sequenceFutures(
+    futures: List<CompletableFuture<out T>>,
+    executor: Executor,
+): CompletableFuture<List<T>> {
+    if (futures.isEmpty()) return completableFutureOf(emptyList())
+
+    val aggregate = CompletableFuture.allOf(*futures.toTypedArray())
+    val sequenced = aggregate.thenApplyAsync({ futures.map { it.join() } }, executor)
+    sequenced.whenComplete { _, _ ->
+        if (sequenced.isCancelled) {
+            futures.forEach { it.cancel(true) }
+            aggregate.cancel(true)
+        }
+    }
+    return sequenced
+}
+
 /**
  * [CompletionStage]의 컬렉션을 `CompletableFuture<List<*>>` 로 변환합니다.
  *
@@ -78,15 +95,14 @@ fun <T> CompletionStage<T>.getExceptionOrNull(): Throwable? {
  * val results: CompletableFuture<List<Int>> = futures.sequence()
  * ```
  *
+ * Cancelling the returned future also cancels every source future.
+ *
  * @receiver Iterable<CompletionStage<out Any>>
  * @param executor Executor (default: ForkJoinExecutor)
  * @return CompletableFuture<List<*>>
  */
 fun Iterable<CompletionStage<out Any>>.sequence(executor: Executor = ForkJoinExecutor): CompletableFuture<List<*>> {
-    val futures = map { it.toCompletableFuture() }
-    if (futures.isEmpty()) return completableFutureOf(emptyList<Any>())
-    return CompletableFuture.allOf(*futures.toTypedArray())
-        .thenApplyAsync({ futures.map { it.join() } }, executor)
+    return sequenceFutures(map { it.toCompletableFuture() }, executor)
 }
 
 /**
@@ -97,14 +113,13 @@ fun Iterable<CompletionStage<out Any>>.sequence(executor: Executor = ForkJoinExe
  * val results: CompletableFuture<List<Int>> = futures.sequence()
  * ```
  *
+ * Cancelling the returned future also cancels every source future.
+ *
  * @param executor Executor (default: ForkJoinExecutor)
  * @return `CompletableFuture<List<T>>`
  */
 fun <T> Collection<CompletionStage<out T>>.sequence(executor: Executor = ForkJoinExecutor): CompletableFuture<List<T>> {
-    if (isEmpty()) return completableFutureOf(emptyList())
-    val futures = map { it.toCompletableFuture() }
-    return CompletableFuture.allOf(*futures.toTypedArray())
-        .thenApplyAsync({ futures.map { it.join() } }, executor)
+    return sequenceFutures(map { it.toCompletableFuture() }, executor)
 }
 
 /**
