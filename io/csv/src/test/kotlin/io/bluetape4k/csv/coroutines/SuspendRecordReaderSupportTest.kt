@@ -2,21 +2,25 @@ package io.bluetape4k.csv.coroutines
 
 import io.bluetape4k.csv.Record
 import io.bluetape4k.csv.model.ProductType
-import io.bluetape4k.csv.readAsTsvRecords
 import io.bluetape4k.csv.writeCsvRecords
 import io.bluetape4k.csv.writeTsvRecords
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Resourcex
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.runTest
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.io.FileNotFoundException
 
 class SuspendRecordReaderSupportTest {
 
@@ -38,7 +42,7 @@ class SuspendRecordReaderSupportTest {
     }
 
     @Test
-    fun `File에서 CSV 레코드를 읽는다`() = runTest {
+    fun `File에서 CSV 레코드를 읽는다`() = runSuspendIO {
         val csvFile = createTempCsvFile()
         val records = csvFile.readAsCsvRecordsSuspending(skipHeader = true).toList()
 
@@ -48,7 +52,7 @@ class SuspendRecordReaderSupportTest {
     }
 
     @Test
-    fun `File에서 CSV 레코드를 transform으로 읽는다`() = runTest {
+    fun `File에서 CSV 레코드를 transform으로 읽는다`() = runSuspendIO {
         val csvFile = createTempCsvFile()
         val names = csvFile.readAsCsvRecordsSuspending(skipHeader = true) { record ->
             record.getValue(0, "").trim()
@@ -60,9 +64,9 @@ class SuspendRecordReaderSupportTest {
     }
 
     @Test
-    fun `File에서 TSV 레코드를 읽는다`() = runTest {
+    fun `File에서 TSV 레코드를 읽는다`() = runSuspendIO {
         val tsvFile = createTempTsvFile()
-        val records = tsvFile.readAsTsvRecords(skipHeader = true).toList()
+        val records = tsvFile.readAsTsvRecordsSuspending(skipHeader = true).toList()
 
         log.debug { "records=$records" }
         records.shouldNotBeEmpty()
@@ -70,7 +74,7 @@ class SuspendRecordReaderSupportTest {
     }
 
     @Test
-    fun `File에서 TSV 레코드를 transform으로 읽는다`() = runTest {
+    fun `File에서 TSV 레코드를 transform으로 읽는다`() = runSuspendIO {
         val tsvFile = createTempTsvFile()
         val names = tsvFile.readAsTsvRecordsSuspending(skipHeader = true) { record ->
             record.getValue(0, "").trim()
@@ -82,7 +86,7 @@ class SuspendRecordReaderSupportTest {
     }
 
     @Test
-    fun `InputStream에서 CSV 레코드를 transform으로 읽는다`() = runTest {
+    fun `InputStream에서 CSV 레코드를 transform으로 읽는다`() = runSuspendIO {
         Resourcex.getInputStream("csv/product_type.csv")!!.buffered().use { bis ->
             val productTypes = bis
                 .readAsCsvRecordsSuspending(skipHeader = true, transform = productTypeMapper)
@@ -98,7 +102,7 @@ class SuspendRecordReaderSupportTest {
     }
 
     @Test
-    fun `InputStream에서 TSV 레코드를 transform으로 읽는다`() = runTest {
+    fun `InputStream에서 TSV 레코드를 transform으로 읽는다`() = runSuspendIO {
         Resourcex.getInputStream("csv/product_type.tsv")!!.buffered().use { bis ->
             val productTypes = bis
                 .readAsTsvRecordsSuspending(skipHeader = true, transform = productTypeMapper)
@@ -114,7 +118,7 @@ class SuspendRecordReaderSupportTest {
     }
 
     @Test
-    fun `File readAsCsvRecords는 Sequence 소비가 끝날때까지 스트림을 유지한다`() = runTest {
+    fun `File readAsCsvRecords는 Sequence 소비가 끝날때까지 스트림을 유지한다`() = runSuspendIO {
         val csvFile = createTempCsvFile()
 
         val sequence = csvFile.readAsCsvRecordsSuspending(skipHeader = true)
@@ -122,6 +126,42 @@ class SuspendRecordReaderSupportTest {
 
         records.shouldNotBeEmpty()
         records.size shouldBeGreaterThan 0
+    }
+
+    @Test
+    fun `File CSV suspending reader opens missing file only when collected`() = runSuspendIO {
+        val missingFile = File(tempDir, "missing.csv")
+
+        val flow = missingFile.readAsCsvRecordsSuspending(skipHeader = true)
+
+        assertFailsWith<FileNotFoundException> {
+            flow.toList()
+        }
+    }
+
+    @Test
+    fun `File CSV suspending flow can be collected again after early termination`() = runSuspendIO {
+        val csvFile = createTempCsvFile()
+
+        val flow = csvFile.readAsCsvRecordsSuspending(skipHeader = true)
+
+        flow.take(1).toList() shouldHaveSize 1
+        val records = flow.toList()
+
+        records shouldHaveSize 3
+        records.map { it.getValue(0, "") } shouldBeEqualTo listOf("Alice", "Bob", "Charlie")
+    }
+
+    @Test
+    fun `File TSV suspending transform flow can be collected repeatedly`() = runSuspendIO {
+        val tsvFile = createTempTsvFile()
+
+        val flow = tsvFile.readAsTsvRecordsSuspending(skipHeader = true) { record ->
+            record.getValue(0, "").trim()
+        }
+
+        flow.take(1).toList() shouldBeEqualTo listOf("Alice")
+        flow.toList() shouldBeEqualTo listOf("Alice", "Bob", "Charlie")
     }
 
     private fun createTempCsvFile(): File {

@@ -1,7 +1,11 @@
 package io.bluetape4k.csv.coroutines
 
 import io.bluetape4k.csv.Record
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
@@ -72,8 +76,11 @@ fun <T> InputStream.readAsTsvRecordsSuspending(
 fun File.readAsCsvRecordsSuspending(
     cs: Charset = UTF_8,
     skipHeader: Boolean = true,
-): Flow<Record> =
-    FileInputStream(this).buffered().readAsCsvRecordsSuspending(cs, skipHeader)
+): Flow<Record> = flow {
+    FileInputStream(this@readAsCsvRecordsSuspending).buffered().use { inputStream ->
+        emitAll(inputStream.readAsCsvRecordsSuspending(cs, skipHeader))
+    }
+}.flowOn(Dispatchers.IO)
 
 /**
  * 파일을 CSV로 읽어 변환 결과 [Flow]를 반환합니다.
@@ -86,8 +93,11 @@ fun <T> File.readAsCsvRecordsSuspending(
     cs: Charset = UTF_8,
     skipHeader: Boolean = true,
     transform: suspend (Record) -> T,
-): Flow<T> =
-    FileInputStream(this).buffered().readAsCsvRecordsSuspending(cs, skipHeader, transform)
+): Flow<T> = flow {
+    FileInputStream(this@readAsCsvRecordsSuspending).buffered().use { inputStream ->
+        emitAll(inputStream.readAsCsvRecordsSuspending(cs, skipHeader, transform))
+    }
+}.flowOn(Dispatchers.IO)
 
 /**
  * 파일을 TSV로 읽어 [Flow]를 반환합니다.
@@ -99,8 +109,11 @@ fun <T> File.readAsCsvRecordsSuspending(
 fun File.readAsTsvRecordsSuspending(
     cs: Charset = UTF_8,
     skipHeader: Boolean = true,
-): Flow<Record> =
-    FileInputStream(this).buffered().readAsTsvRecordsSuspending(cs, skipHeader)
+): Flow<Record> = flow {
+    FileInputStream(this@readAsTsvRecordsSuspending).buffered().use { inputStream ->
+        emitAll(inputStream.readAsTsvRecordsSuspending(cs, skipHeader))
+    }
+}.flowOn(Dispatchers.IO)
 
 /**
  * 파일을 TSV로 읽어 변환 결과 [Flow]를 반환합니다.
@@ -113,5 +126,8 @@ fun <T> File.readAsTsvRecordsSuspending(
     cs: Charset = UTF_8,
     skipHeader: Boolean = true,
     transform: suspend (Record) -> T,
-): Flow<T> =
-    FileInputStream(this).buffered().readAsTsvRecordsSuspending(cs, skipHeader, transform)
+): Flow<T> = flow {
+    FileInputStream(this@readAsTsvRecordsSuspending).buffered().use { inputStream ->
+        emitAll(inputStream.readAsTsvRecordsSuspending(cs, skipHeader, transform))
+    }
+}.flowOn(Dispatchers.IO)
