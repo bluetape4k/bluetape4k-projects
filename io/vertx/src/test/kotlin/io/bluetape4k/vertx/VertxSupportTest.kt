@@ -10,13 +10,22 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeSameInstanceAs
 import io.bluetape4k.assertions.shouldNotBeNull
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import java.util.concurrent.TimeUnit
 
 class VertxSupportTest : AbstractVertxTest() {
 
     companion object : KLoggingChannel()
+
+    @AfterEach
+    fun closeManagedDefaultVertx() {
+        closeDefaultVertx().asCompletableFuture().get(5, TimeUnit.SECONDS)
+    }
 
     @Test
     fun `currentVertx 는 null이 아닌 Vertx 인스턴스를 반환한다`(vertx: Vertx, testContext: VertxTestContext) =
@@ -24,6 +33,24 @@ class VertxSupportTest : AbstractVertxTest() {
             val current = currentVertx()
             current.shouldNotBeNull()
         }
+
+    @Test
+    fun `currentVertx reuses managed fallback outside Vertx context`() {
+        val first = currentVertx()
+        val second = currentVertx()
+
+        second shouldBeSameInstanceAs first
+    }
+
+    @Test
+    fun `closeDefaultVertx closes managed fallback and allows recreation`() {
+        val first = currentVertx()
+
+        closeDefaultVertx().asCompletableFuture().get(5, TimeUnit.SECONDS)
+
+        val second = currentVertx()
+        second shouldNotBeSameInstanceAs first
+    }
 
     @Test
     fun `withVertxDispatcher 는 블록을 실행하고 결과를 반환한다`(vertx: Vertx, testContext: VertxTestContext) =

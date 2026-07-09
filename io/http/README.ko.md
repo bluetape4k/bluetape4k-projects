@@ -220,13 +220,26 @@ Eclipse Vert.x의 비동기 HttpClient를 Kotlin Coroutines와 통합합니다.
 
 ```kotlin
 import io.bluetape4k.http.vertx.*
+import io.vertx.core.Vertx
 import io.vertx.kotlin.core.http.httpClientOptionsOf
 
+val vertx = Vertx.vertx()
 val options = httpClientOptionsOf(
     maxPoolSize = 20,
     keepAlive = true,
 )
-val vertxClient = vertxHttpClientOf(options)
+val vertxClient = vertxHttpClientOf(vertx, options)
+```
+
+`defaultVertxHttpClient`는 `bluetape4k-vertx`의 관리되는 기본 Vert.x 인스턴스를 사용합니다. 애플리케이션 종료
+또는 테스트 정리 시에는 기본 Vert.x를 닫기 전에 관리되는 기본 클라이언트를 닫으세요.
+
+```kotlin
+import io.bluetape4k.http.vertx.closeDefaultVertxHttpClient
+import io.bluetape4k.vertx.closeDefaultVertx
+
+closeDefaultVertxHttpClient()
+closeDefaultVertx()
 ```
 
 ### 4. Ktor Client
