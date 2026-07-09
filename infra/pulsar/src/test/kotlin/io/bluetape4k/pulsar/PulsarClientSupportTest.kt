@@ -3,9 +3,18 @@ package io.bluetape4k.pulsar
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
+import io.mockk.verify
+import kotlinx.coroutines.awaitCancellation
+import org.apache.pulsar.client.api.ClientBuilder
+import org.apache.pulsar.client.api.PulsarClient
 import org.apache.pulsar.client.api.Schema
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration.Companion.seconds
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -49,6 +58,32 @@ class PulsarClientSupportTest : AbstractPulsarTest() {
             val producer = newProducer(Schema.STRING).topic(newTopic()).create()
             producer.shouldNotBeNull()
             producer.close()
+        }
+    }
+
+    @Test
+    fun `withPulsarClient - 취소되어도 closeAsync 완료를 기다린다`() = runTest {
+        val builder = mockk<ClientBuilder>()
+        val client = mockk<PulsarClient>()
+        val closeFuture = CompletableFuture<Void>()
+
+        mockkStatic(PulsarClient::class)
+        try {
+            every { PulsarClient.builder() } returns builder
+            every { builder.serviceUrl(any()) } returns builder
+            every { builder.build() } returns client
+            every { client.closeAsync() } returns closeFuture
+
+            assertCleanupWaitsAfterCancellation(closeFuture) { entered ->
+                withPulsarClient("pulsar://localhost:6650") {
+                    entered.complete(Unit)
+                    awaitCancellation()
+                }
+            }
+
+            verify(exactly = 1) { client.closeAsync() }
+        } finally {
+            unmockkStatic(PulsarClient::class)
         }
     }
 }
