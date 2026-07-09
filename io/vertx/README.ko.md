@@ -84,6 +84,23 @@ dependencies {
 
 ## 사용 예시
 
+### 현재 및 기본 Vert.x 생명주기
+
+`currentVertx()`는 현재 Vert.x 컨텍스트가 있으면 그 owner를 반환합니다. 컨텍스트 밖에서는 호출할 때마다 숨은
+미소유 인스턴스를 만들지 않고, 관리되는 기본 Vert.x 인스턴스를 재사용합니다.
+
+```kotlin
+import io.bluetape4k.vertx.closeDefaultVertx
+import io.bluetape4k.vertx.currentVertx
+import io.bluetape4k.vertx.defaultVertx
+
+val vertx = currentVertx()
+val fallback = defaultVertx()
+
+// 애플리케이션 종료 또는 테스트 정리 시점
+closeDefaultVertx()
+```
+
 ### Verticle (Coroutines)
 
 ```kotlin
