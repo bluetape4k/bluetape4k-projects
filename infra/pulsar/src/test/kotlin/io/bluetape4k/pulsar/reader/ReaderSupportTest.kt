@@ -2,14 +2,23 @@ package io.bluetape4k.pulsar.reader
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.pulsar.AbstractPulsarTest
+import io.bluetape4k.pulsar.assertCleanupWaitsAfterCancellation
 import io.bluetape4k.pulsar.producer.sendSuspend
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.pulsar.client.api.MessageId
+import org.apache.pulsar.client.api.PulsarClient
+import org.apache.pulsar.client.api.Reader
+import org.apache.pulsar.client.api.ReaderBuilder
 import org.apache.pulsar.client.api.Schema
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration.Companion.seconds
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -55,6 +64,27 @@ class ReaderSupportTest : AbstractPulsarTest() {
             msg.value shouldBeEqualTo "withReader test"
         }
         client.close()
+    }
+
+    @Test
+    fun `withReader - 취소되어도 closeAsync 완료를 기다린다`() = runTest {
+        val client = mockk<PulsarClient>()
+        val builder = mockk<ReaderBuilder<String>>()
+        val reader = mockk<Reader<String>>()
+        val closeFuture = CompletableFuture<Void>()
+
+        every { client.newReader(Schema.STRING) } returns builder
+        every { builder.create() } returns reader
+        every { reader.closeAsync() } returns closeFuture
+
+        assertCleanupWaitsAfterCancellation(closeFuture) { entered ->
+            client.withReader(Schema.STRING) {
+                entered.complete(Unit)
+                awaitCancellation()
+            }
+        }
+
+        verify(exactly = 1) { reader.closeAsync() }
     }
 
     @Test

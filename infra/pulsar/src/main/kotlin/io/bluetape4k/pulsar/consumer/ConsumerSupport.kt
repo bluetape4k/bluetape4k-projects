@@ -1,15 +1,10 @@
 package io.bluetape4k.pulsar.consumer
 
-import io.bluetape4k.coroutines.support.awaitSuspending
-import io.bluetape4k.logging.KotlinLogging
-import io.bluetape4k.logging.warn
+import io.bluetape4k.pulsar.closeAsyncNonCancellable
 import org.apache.pulsar.client.api.Consumer
 import org.apache.pulsar.client.api.ConsumerBuilder
 import org.apache.pulsar.client.api.PulsarClient
 import org.apache.pulsar.client.api.Schema
-
-@PublishedApi
-internal val log = KotlinLogging.logger {}
 
 /**
  * [Consumer] DSL 빌더 ([PulsarClient] 확장).
@@ -59,7 +54,6 @@ suspend inline fun <T, R> PulsarClient.withConsumer(
     try {
         return block(consumer)
     } finally {
-        runCatching { consumer.closeAsync().awaitSuspending() }
-            .onFailure { log.warn(it) { "Consumer close 실패" } }
+        closeAsyncNonCancellable("Consumer") { consumer.closeAsync() }
     }
 }

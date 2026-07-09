@@ -1,8 +1,6 @@
 package io.bluetape4k.pulsar
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.logging.KotlinLogging
-import io.bluetape4k.logging.warn
 import org.apache.pulsar.client.api.ClientBuilder
 import org.apache.pulsar.client.api.PulsarClient
 
@@ -67,8 +65,7 @@ suspend inline fun <T> withPulsarClient(
     try {
         return block(client)
     } finally {
-        runCatching { client.closeAsync().awaitSuspending() }
-            .onFailure { log.warn(it) { "PulsarClient close 실패" } }
+        closeAsyncNonCancellable("PulsarClient") { client.closeAsync() }
     }
 }
 
