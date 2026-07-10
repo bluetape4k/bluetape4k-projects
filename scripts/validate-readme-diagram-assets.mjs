@@ -430,10 +430,10 @@ function routeStroke(attrs) {
 
 function validateSequenceStyle(svg) {
   const failures = [];
-  if (!/seqArrow-blue/.test(svg)) failures.push("sequence missing explicit 5x5 color arrow markers");
+  if (!hasFixedSequenceArrowMarkers(svg)) failures.push("sequence missing explicit fixed-size color arrow markers");
   if (/id="openArrow"|marker-end="url\(#openArrow\)"/.test(svg)) failures.push("sequence still uses old openArrow marker");
   if (/<path[^>]*class="(?:line|dashed)"/.test(svg)) failures.push("sequence still uses old line/dashed path classes");
-  if (!/class="labelPill"/.test(svg)) failures.push("sequence missing message label pills");
+  if (!hasSequenceMessageLabelPills(svg)) failures.push("sequence missing message label pills");
   if ((svg.match(/<path[^>]*class="[^"]*seq(?:Return)?[^"]*"/g) || []).length > 2 && !/<circle\b/.test(svg)) {
     failures.push("sequence missing numbered message badges");
   }
@@ -452,6 +452,25 @@ function validateSequenceStyle(svg) {
   const branchCrossings = countSequenceBranchLifelineCrossings(svg);
   if (branchCrossings > 0) failures.push(`sequence branch label/lifeline intersections=${branchCrossings}`);
   return failures;
+}
+
+function hasFixedSequenceArrowMarkers(svg) {
+  const markers = [...svg.matchAll(/<marker\b([^>]*)>([\s\S]*?)<\/marker>/g)];
+  if (markers.length === 0) return false;
+  return markers.every(([, attrs, body]) => {
+    const width = attrNumber(attrs, "markerWidth");
+    const height = attrNumber(attrs, "markerHeight");
+    const solidHead = /<path\b[^>]*\bfill="(?!none)[^"]+"[^>]*\/?\s*>/.test(body);
+    return Number.isFinite(width) && Number.isFinite(height) && width >= 5 && height >= 5 && solidHead;
+  });
+}
+
+function hasSequenceMessageLabelPills(svg) {
+  const labelBackgrounds = [...svg.matchAll(/<rect\b[^>]*class="([^"]+)"[^>]*>/g)]
+    .filter((match) => /(?:^|\s)(?:labelPill|label|pill|badge)(?:\s|$)/i.test(match[1]));
+  const numberedBadges = (svg.match(/<circle\b/g) || []).length;
+  const visibleNumbers = (svg.match(/>\s*\d+\s*<\/text>/g) || []).length;
+  return labelBackgrounds.length > 0 && numberedBadges > 0 && visibleNumbers > 0;
 }
 
 function countSequenceLabelCrossings(svg) {
@@ -1020,7 +1039,7 @@ function validateFooterInsideFrame(svg, labels) {
   const frameTag = svg.match(/<rect[^>]*class="[^"]*frame[^"]*"[^>]*>/)?.[0];
   const frame = frameTag ? rectFromTag(frameTag) : null;
   if (!frame) return failures;
-  const footerLabels = labels.filter((label) => /\b(?:note|pill)\b/i.test(label.className) && label.y > frame.y + frame.h * 0.72);
+  const footerLabels = labels.filter((label) => /\b(?:footer|note)\b/i.test(label.className) && label.y > frame.y + frame.h * 0.72);
   for (const footer of footerLabels) {
     if (!rectInside(footer, inset(frame, -2))) failures.push("footer outside frame");
     if (Math.abs((footer.x + footer.w / 2) - (frame.x + frame.w / 2)) > Math.max(48, frame.w * 0.12)) {
