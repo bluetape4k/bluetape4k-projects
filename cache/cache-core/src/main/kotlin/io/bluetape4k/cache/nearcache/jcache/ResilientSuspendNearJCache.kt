@@ -21,6 +21,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.ConcurrentHashMap
 
@@ -80,7 +82,12 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
     )
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val writeChannel = Channel<BackJCacheCommand<K, V>>(capacity = config.writeQueueCapacity)
+    private val writeChannel = Channel<QueuedCommand<K, V>>(capacity = config.writeQueueCapacity)
+    private val writeStateMutex = Mutex()
+    private val pendingMutationTokens = ConcurrentHashMap<K, MutationToken<V>>()
+    private val pendingClearToken = atomic<ClearToken?>(null)
+    private val stateVersion = atomic(0L)
+    private var nextCommandSequence = 0L
 
     private val retry: Retry = buildRetry()
 
@@ -112,12 +119,21 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
     private fun launchWriteConsumer(): Job =
         scope.launch {
             for (cmd in writeChannel) {
+                writeStateMutex.withLock { }
                 try {
-                    retry.executeSuspendFunction { applyCommand(cmd) }
+                    retry.executeSuspendFunction { applyCommand(cmd.command) }
+                    writeStateMutex.withLock {
+                        completeCommand(cmd, failed = false)
+                    }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    log.error(e) { "Back cache write failed after ${config.retryMaxAttempts} retries, dropping command: $cmd" }
+                    log.error(e) {
+                        "Back cache write failed after ${config.retryMaxAttempts} retries, compensating command: ${cmd.command}"
+                    }
+                    writeStateMutex.withLock {
+                        completeCommand(cmd, failed = true)
+                    }
                 }
             }
         }
@@ -126,18 +142,43 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
         when (cmd) {
             is BackJCacheCommand.Put       -> backCache.put(cmd.key, cmd.value)
             is BackJCacheCommand.PutAll    -> backCache.putAll(cmd.entries)
-            is BackJCacheCommand.Remove    -> {
-                backCache.remove(cmd.key)
-                tombstones.remove(cmd.key)
+            is BackJCacheCommand.Remove    -> backCache.remove(cmd.key)
+            is BackJCacheCommand.RemoveAll -> backCache.removeAll(cmd.keys)
+            is BackJCacheCommand.ClearBack -> backCache.clear()
+        }
+    }
+
+    private fun completeCommand(queued: QueuedCommand<K, V>, failed: Boolean) {
+        when (val command = queued.command) {
+            is BackJCacheCommand.Put       -> completePut(queued, setOf(command.key), failed)
+            is BackJCacheCommand.PutAll    -> completePut(queued, command.entries.keys, failed)
+            is BackJCacheCommand.Remove    -> completeRemove(queued, setOf(command.key))
+            is BackJCacheCommand.RemoveAll -> completeRemove(queued, command.keys)
+            is BackJCacheCommand.ClearBack -> queued.clearToken?.let { token ->
+                if (pendingClearToken.compareAndSet(token, null)) {
+                    stateVersion.incrementAndGet()
+                    clearPending.value = false
+                }
             }
-            is BackJCacheCommand.RemoveAll -> {
-                backCache.removeAll(cmd.keys)
-                tombstones.removeAll(cmd.keys)
+        }
+    }
+
+    private fun completePut(queued: QueuedCommand<K, V>, keys: Set<K>, failed: Boolean) {
+        keys.forEach { key ->
+            val token = queued.mutationTokens.getValue(key)
+            if (pendingMutationTokens.remove(key, token) && failed) {
+                stateVersion.incrementAndGet()
+                frontCache.remove(key)
             }
-            is BackJCacheCommand.ClearBack -> {
-                backCache.clear()
-                tombstones.clear()
-                clearPending.value = false
+        }
+    }
+
+    private fun completeRemove(queued: QueuedCommand<K, V>, keys: Set<K>) {
+        keys.forEach { key ->
+            val token = queued.mutationTokens.getValue(key)
+            if (pendingMutationTokens.remove(key, token)) {
+                stateVersion.incrementAndGet()
+                tombstones.remove(key)
             }
         }
     }
@@ -151,16 +192,26 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
     suspend fun get(key: K): V? {
         key.requireNotNull("key")
 
-        if (tombstones.contains(key) || clearPending.value) return null
-        frontCache.get(key)?.let { return it }
+        var frontValue: V? = null
+        val observedVersion = writeStateMutex.withLock {
+            if (tombstones.contains(key) || clearPending.value) return null
+            frontValue = frontCache.get(key)
+            stateVersion.value
+        }
+        frontValue?.let { return it }
 
         return when (config.getFailureStrategy) {
-            GetFailureStrategy.RETURN_FRONT_OR_NULL ->
-                getBackOrNull(key, "Back cache GET failed for key=$key, returning null")
-                    ?.also { value -> frontCache.put(key, value) }
+            GetFailureStrategy.RETURN_FRONT_OR_NULL -> {
+                val value = getBackOrNull(key, "Back cache GET failed for key=$key, returning null")
+                value?.let { populateFrontIfUnchanged(key, it, observedVersion) }
+                value
+            }
 
-            GetFailureStrategy.PROPAGATE_EXCEPTION ->
-                backCache.get(key)?.also { value -> frontCache.put(key, value) }
+            GetFailureStrategy.PROPAGATE_EXCEPTION -> {
+                val value = backCache.get(key)
+                value?.let { populateFrontIfUnchanged(key, it, observedVersion) }
+                value
+            }
         }
     }
 
@@ -168,18 +219,32 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      * 여러 키에 대한 값을 한 번에 조회한다.
      */
     suspend fun getAll(keys: Set<K>): Map<K, V> {
-        if (clearPending.value) return emptyMap()
-        val result = frontCache.getAll(keys).toMutableMap()
-        val missedKeys = (keys - result.keys).filter { !tombstones.contains(it) }
+        val (result, missedKeys, observedVersion) = writeStateMutex.withLock {
+            if (clearPending.value) return emptyMap()
+            val frontResult = frontCache.getAll(keys).toMutableMap()
+            Triple(
+                frontResult,
+                (keys - frontResult.keys).filter { !tombstones.contains(it) },
+                stateVersion.value,
+            )
+        }
 
         missedKeys.forEach { key ->
             getBackOrNull(key, "Back cache GET failed for key=$key during getAll")
                 ?.let { value ->
                     result[key] = value
-                    frontCache.put(key, value)
+                    populateFrontIfUnchanged(key, value, observedVersion)
                 }
         }
         return result
+    }
+
+    private suspend fun populateFrontIfUnchanged(key: K, value: V, observedVersion: Long) {
+        writeStateMutex.withLock {
+            if (stateVersion.value == observedVersion && !tombstones.contains(key) && !clearPending.value) {
+                frontCache.put(key, value)
+            }
+        }
     }
 
     /**
@@ -189,18 +254,21 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      */
     suspend fun put(key: K, value: V) {
         key.requireNotNull("key")
-        enqueueWrite(BackJCacheCommand.Put(key, value), "Write channel full for Put key=$key")
-        tombstones.remove(key)
-        frontCache.put(key, value)
+        enqueueWrite(BackJCacheCommand.Put(key, value), "Write channel full for Put key=$key") {
+            tombstones.remove(key)
+            frontCache.put(key, value)
+        }
     }
 
     /**
      * 여러 키-값 쌍을 저장한다.
      */
     suspend fun putAll(entries: Map<K, V>) {
-        enqueueWrite(BackJCacheCommand.PutAll(entries), "Write channel full for PutAll entries=${entries.size}")
-        tombstones.removeAll(entries.keys)
-        frontCache.putAll(entries)
+        val entriesSnapshot = entries.toMap()
+        enqueueWrite(BackJCacheCommand.PutAll(entriesSnapshot), "Write channel full for PutAll entries=${entries.size}") {
+            tombstones.removeAll(entriesSnapshot.keys)
+            frontCache.putAll(entriesSnapshot)
+        }
     }
 
     /**
@@ -209,16 +277,29 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      */
     suspend fun putIfAbsent(key: K, value: V): V? {
         key.requireNotNull("key")
+        return writeStateMutex.withLock {
+            frontCache.get(key)?.let { return it }
+            val pendingMutation = pendingMutationTokens[key]
+            val pendingClear = pendingClearToken.value
+            if (pendingMutation?.value != null && (pendingClear == null || pendingMutation.sequence > pendingClear.sequence)) {
+                return pendingMutation.value
+            }
 
-        val existing = get(key)
-        if (existing != null) return existing
+            if (pendingMutation != null || pendingClear != null) {
+                enqueueWriteLocked(BackJCacheCommand.Put(key, value), "Write channel full for Put key=$key") {
+                    tombstones.remove(key)
+                    frontCache.put(key, value)
+                }
+                return null
+            }
 
-        val setted = backCache.putIfAbsent(key, value)
-        return if (setted) {
-            frontCache.put(key, value)
-            null
-        } else {
-            backCache.get(key)
+            if (backCache.putIfAbsent(key, value)) {
+                stateVersion.incrementAndGet()
+                frontCache.put(key, value)
+                null
+            } else {
+                backCache.get(key)
+            }
         }
     }
 
@@ -228,16 +309,19 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      */
     suspend fun replace(key: K, value: V): Boolean {
         key.requireNotNull("key")
-        if (tombstones.contains(key) || clearPending.value) return false
+        return writeStateMutex.withLock {
+            if (pendingMutationTokens.containsKey(key) || tombstones.contains(key) || clearPending.value) return false
 
-        if (!frontCache.containsKey(key)) {
-            if (!containsBackOrFalse(key, null)) return false
+            if (!frontCache.containsKey(key)) {
+                if (!containsBackOrFalse(key, null)) return false
+            }
+            backCache.replace(key, value).also { replaced ->
+                if (replaced) {
+                    stateVersion.incrementAndGet()
+                    frontCache.put(key, value)
+                }
+            }
         }
-        val replaced = backCache.replace(key, value)
-        if (replaced) {
-            frontCache.put(key, value)
-        }
-        return replaced
     }
 
     /**
@@ -283,18 +367,21 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      */
     suspend fun remove(key: K) {
         key.requireNotNull("key")
-        enqueueWrite(BackJCacheCommand.Remove(key), "Write channel full for Remove key=$key")
-        frontCache.remove(key)
-        tombstones.add(key)
+        enqueueWrite(BackJCacheCommand.Remove(key), "Write channel full for Remove key=$key") {
+            frontCache.remove(key)
+            tombstones.add(key)
+        }
     }
 
     /**
      * 여러 키에 해당하는 캐시 항목을 제거한다.
      */
     suspend fun removeAll(keys: Set<K>) {
-        enqueueWrite(BackJCacheCommand.RemoveAll(keys), "Write channel full for RemoveAll keys=${keys.size}")
-        frontCache.removeAll(keys)
-        tombstones.addAll(keys)
+        val keysSnapshot = keys.toSet()
+        enqueueWrite(BackJCacheCommand.RemoveAll(keysSnapshot), "Write channel full for RemoveAll keys=${keys.size}") {
+            frontCache.removeAll(keysSnapshot)
+            tombstones.addAll(keysSnapshot)
+        }
     }
 
     /**
@@ -309,13 +396,9 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      * 로컬 캐시와 back cache를 모두 비운다 (write-behind).
      */
     suspend fun clearAll() {
-        clearPending.value = true
-        try {
-            enqueueWrite(BackJCacheCommand.ClearBack(), "Write channel full for ClearBack")
+        enqueueWrite(BackJCacheCommand.ClearBack(), "Write channel full for ClearBack") {
+            clearPending.value = true
             clearLocal()
-        } catch (e: Exception) {
-            clearPending.value = false
-            throw e
         }
     }
 
@@ -375,8 +458,49 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
         }
     }
 
-    private fun enqueueWrite(command: BackJCacheCommand<K, V>, failureMessage: String) {
+    private suspend fun enqueueWrite(
+        command: BackJCacheCommand<K, V>,
+        failureMessage: String,
+        updateFrontState: () -> Unit,
+    ) {
+        writeStateMutex.withLock {
+            enqueueWriteLocked(command, failureMessage, updateFrontState)
+        }
+    }
+
+    private fun enqueueWriteLocked(
+        command: BackJCacheCommand<K, V>,
+        failureMessage: String,
+        updateFrontState: () -> Unit,
+    ) {
+        val queued = QueuedCommand(command, ++nextCommandSequence)
         check(!closed.value) { "ResilientSuspendNearCache is closed" }
-        check(writeChannel.trySend(command).isSuccess) { failureMessage }
+        check(writeChannel.trySend(queued).isSuccess) { failureMessage }
+        queued.mutationTokens.forEach(pendingMutationTokens::put)
+        queued.clearToken?.let { pendingClearToken.value = it }
+        stateVersion.incrementAndGet()
+        updateFrontState()
+    }
+
+    private class MutationToken<V: Any>(
+        val value: V?,
+        val sequence: Long,
+    )
+
+    private class ClearToken(val sequence: Long)
+
+    private class QueuedCommand<K: Any, V: Any>(
+        val command: BackJCacheCommand<K, V>,
+        sequence: Long,
+    ) {
+        val mutationTokens: Map<K, MutationToken<V>> = when (command) {
+            is BackJCacheCommand.Put       -> mapOf(command.key to MutationToken(command.value, sequence))
+            is BackJCacheCommand.PutAll    -> command.entries.mapValues { MutationToken(it.value, sequence) }
+            is BackJCacheCommand.Remove    -> mapOf(command.key to MutationToken(null, sequence))
+            is BackJCacheCommand.RemoveAll -> command.keys.associateWith { MutationToken(null, sequence) }
+            is BackJCacheCommand.ClearBack -> emptyMap()
+        }
+
+        val clearToken: ClearToken? = if (command is BackJCacheCommand.ClearBack) ClearToken(sequence) else null
     }
 }
