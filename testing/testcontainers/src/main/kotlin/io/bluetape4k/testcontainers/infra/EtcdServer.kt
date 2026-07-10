@@ -60,7 +60,7 @@ class EtcdServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): EtcdServer {
             return EtcdServer(imageName, useDefaultPort, reuse)
         }
@@ -78,7 +78,7 @@ class EtcdServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): EtcdServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

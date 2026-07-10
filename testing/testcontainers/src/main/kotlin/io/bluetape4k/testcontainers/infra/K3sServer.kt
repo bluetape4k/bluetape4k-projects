@@ -63,7 +63,7 @@ class K3sServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): K3sServer = K3sServer(imageName, useDefaultPort, reuse)
 
         /**
@@ -79,7 +79,7 @@ class K3sServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): K3sServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

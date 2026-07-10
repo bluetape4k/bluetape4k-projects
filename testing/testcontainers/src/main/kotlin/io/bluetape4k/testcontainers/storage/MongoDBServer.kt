@@ -67,7 +67,7 @@ class MongoDBServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
             databaseName: String = DATABASE_NAME,
         ): MongoDBServer {
             image.requireNotBlank("image")
@@ -94,7 +94,7 @@ class MongoDBServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
             databaseName: String = DATABASE_NAME,
         ): MongoDBServer {
             return MongoDBServer(imageName, useDefaultPort, reuse, databaseName)

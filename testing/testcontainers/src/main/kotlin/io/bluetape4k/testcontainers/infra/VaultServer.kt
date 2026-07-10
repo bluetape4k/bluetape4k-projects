@@ -20,7 +20,7 @@ import org.testcontainers.vault.VaultContainer
 class VaultServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean = false,
-    reuse: Boolean = true,
+    reuse: Boolean = false,
 ): VaultContainer<VaultServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
@@ -46,7 +46,7 @@ class VaultServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): VaultServer {
             return VaultServer(imageName, useDefaultPort, reuse)
         }
@@ -69,7 +69,7 @@ class VaultServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): VaultServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

@@ -39,7 +39,7 @@ import java.time.Duration
 class FalkorDBServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean = false,
-    reuse: Boolean = true,
+    reuse: Boolean = false,
 ): GenericContainer<FalkorDBServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
@@ -72,7 +72,7 @@ class FalkorDBServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): FalkorDBServer {
             return FalkorDBServer(imageName, useDefaultPort, reuse)
         }
@@ -90,7 +90,7 @@ class FalkorDBServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): FalkorDBServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

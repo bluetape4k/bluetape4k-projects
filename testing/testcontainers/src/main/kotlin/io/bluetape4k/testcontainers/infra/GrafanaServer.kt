@@ -72,7 +72,7 @@ class GrafanaServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): GrafanaServer = GrafanaServer(imageName, useDefaultPort, reuse)
 
         /**
@@ -88,7 +88,7 @@ class GrafanaServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): GrafanaServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

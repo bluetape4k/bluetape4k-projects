@@ -70,7 +70,7 @@ class Ignite2Server private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): Ignite2Server = Ignite2Server(imageName, useDefaultPort, reuse)
 
         /**
@@ -91,7 +91,7 @@ class Ignite2Server private constructor(
             image: String = IMAGE,
             tag: String = DEFAULT_TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): Ignite2Server {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

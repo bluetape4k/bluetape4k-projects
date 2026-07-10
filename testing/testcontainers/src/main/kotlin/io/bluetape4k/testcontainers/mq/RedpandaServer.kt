@@ -54,7 +54,7 @@ class RedpandaServer private constructor(
         operator fun invoke(
             dockerImageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): RedpandaServer {
             return RedpandaServer(dockerImageName, useDefaultPort, reuse)
         }
@@ -77,7 +77,7 @@ class RedpandaServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): RedpandaServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

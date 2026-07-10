@@ -63,7 +63,7 @@ class ElasticsearchOssServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): ElasticsearchOssServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
@@ -89,7 +89,7 @@ class ElasticsearchOssServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): ElasticsearchOssServer {
             return ElasticsearchOssServer(imageName, useDefaultPort, reuse)
         }

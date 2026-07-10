@@ -61,7 +61,7 @@ class ConsulServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): ConsulServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

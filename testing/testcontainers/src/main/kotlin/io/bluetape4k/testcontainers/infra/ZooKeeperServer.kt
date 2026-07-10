@@ -24,7 +24,7 @@ import org.testcontainers.utility.DockerImageName
 class ZooKeeperServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean = false,
-    reuse: Boolean = true,
+    reuse: Boolean = false,
 ): GenericContainer<ZooKeeperServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
@@ -57,7 +57,7 @@ class ZooKeeperServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): ZooKeeperServer {
             return ZooKeeperServer(imageName, useDefaultPort, reuse)
         }
@@ -80,7 +80,7 @@ class ZooKeeperServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): ZooKeeperServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

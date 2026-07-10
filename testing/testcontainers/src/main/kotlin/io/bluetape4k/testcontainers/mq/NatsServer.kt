@@ -53,7 +53,7 @@ class NatsServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): NatsServer {
             return NatsServer(imageName, useDefaultPort, reuse)
         }
@@ -76,7 +76,7 @@ class NatsServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): NatsServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

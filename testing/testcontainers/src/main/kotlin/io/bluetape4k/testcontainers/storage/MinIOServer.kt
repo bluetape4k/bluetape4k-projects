@@ -62,7 +62,7 @@ class MinIOServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
             username: String = DEFAULT_USER,
             password: String = DEFAULT_PASSWORD,
         ): MinIOServer {
@@ -91,7 +91,7 @@ class MinIOServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
             username: String = DEFAULT_USER,
             password: String = DEFAULT_PASSWORD,
         ): MinIOServer {

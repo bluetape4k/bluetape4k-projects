@@ -39,7 +39,7 @@ import java.time.Duration
 class MemgraphServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean = false,
-    reuse: Boolean = true,
+    reuse: Boolean = false,
 ): GenericContainer<MemgraphServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
@@ -74,7 +74,7 @@ class MemgraphServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): MemgraphServer {
             return MemgraphServer(imageName, useDefaultPort, reuse)
         }
@@ -92,7 +92,7 @@ class MemgraphServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): MemgraphServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

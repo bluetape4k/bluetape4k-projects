@@ -67,7 +67,7 @@ class DynamoDbLocalServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): DynamoDbLocalServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
@@ -86,7 +86,7 @@ class DynamoDbLocalServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): DynamoDbLocalServer {
             return DynamoDbLocalServer(imageName, useDefaultPort, reuse)
         }

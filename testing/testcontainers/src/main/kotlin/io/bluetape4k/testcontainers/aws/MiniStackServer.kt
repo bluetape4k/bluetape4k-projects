@@ -95,7 +95,7 @@ class MiniStackServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): MiniStackServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
@@ -121,7 +121,7 @@ class MiniStackServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): MiniStackServer {
             return MiniStackServer(imageName, useDefaultPort, reuse)
         }

@@ -51,7 +51,7 @@ class ChromaDBServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): ChromaDBServer {
             return ChromaDBServer(imageName, useDefaultPort, reuse)
         }
@@ -74,7 +74,7 @@ class ChromaDBServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): ChromaDBServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

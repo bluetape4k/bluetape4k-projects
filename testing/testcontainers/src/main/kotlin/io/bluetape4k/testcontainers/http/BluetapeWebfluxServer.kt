@@ -79,7 +79,7 @@ class BluetapeWebfluxServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): BluetapeWebfluxServer {
             return BluetapeWebfluxServer(imageName, useDefaultPort, reuse)
         }
@@ -107,7 +107,7 @@ class BluetapeWebfluxServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): BluetapeWebfluxServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

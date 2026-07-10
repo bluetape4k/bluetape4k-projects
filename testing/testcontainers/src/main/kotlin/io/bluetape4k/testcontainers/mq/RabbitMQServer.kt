@@ -61,7 +61,7 @@ class RabbitMQServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): RabbitMQServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
@@ -81,7 +81,7 @@ class RabbitMQServer private constructor(
         operator fun invoke(
             dockerImageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): RabbitMQServer {
             return RabbitMQServer(dockerImageName, useDefaultPort, reuse)
         }

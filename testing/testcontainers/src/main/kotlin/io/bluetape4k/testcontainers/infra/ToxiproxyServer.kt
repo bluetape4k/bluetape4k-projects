@@ -41,7 +41,7 @@ import org.testcontainers.utility.DockerImageName
 class ToxiproxyServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean = false,
-    reuse: Boolean = true,
+    reuse: Boolean = false,
 ): ToxiproxyContainer(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
@@ -69,7 +69,7 @@ class ToxiproxyServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): ToxiproxyServer {
             return ToxiproxyServer(imageName, useDefaultPort, reuse)
         }
@@ -97,7 +97,7 @@ class ToxiproxyServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): ToxiproxyServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
