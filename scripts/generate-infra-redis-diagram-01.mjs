@@ -3,6 +3,13 @@ import { readFileSync, writeFileSync } from "node:fs";
 const out = "docs/images/readme-diagrams/infra-redis-diagram-01.svg";
 const W = 1680;
 const H = 1160;
+const intent = "Explain that the Redis umbrella exports Lettuce and Redisson while Spring Data Redis serializers remain an explicit separate module choice.";
+const sources = [
+  "infra/redis/README.md",
+  "infra/redis/build.gradle.kts",
+  "spring-boot/redis/src/main/kotlin/io/bluetape4k/spring/redis/serializer/RedisBinarySerializers.kt",
+  "spring-boot/redis/src/main/kotlin/io/bluetape4k/spring/redis/serializer/RedisSerializationContextSupport.kt",
+];
 
 const redisIcon = Buffer.from(
   readFileSync("/Users/debop/work/bluetape4k/bluetape4k-wiki/docs/icons/redis/redis-logo.svg", "utf8"),
@@ -26,6 +33,12 @@ const lines = [];
 const esc = (s) => s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
 function marker(id, color, open = false) {
+  if (id === "arrowOrange") {
+    lines.push(
+      `<marker id="${id}" viewBox="0 0 18 18" refX="16" refY="9" markerWidth="18" markerHeight="18" orient="auto" markerUnits="userSpaceOnUse" overflow="visible"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="${color}" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>`,
+    );
+    return;
+  }
   const fill = open ? "none" : color;
   lines.push(
     `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 9 5 L 1 9" fill="${fill}" stroke="${color}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>`,
@@ -42,7 +55,7 @@ function card({ x, y, w, h, fill, stroke, title, sub = [], icon = false, dashed 
   lines.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="16" fill="${fill}" stroke="${stroke}" stroke-width="2.8"${dashed ? ' stroke-dasharray="10 8"' : ""}/>`);
   const tx = icon ? x + 88 : x + w / 2;
   if (icon) {
-    lines.push(`<image x="${x + 28}" y="${y + 28}" width="48" height="48" href="data:image/svg+xml;base64,${redisIcon}"/>`);
+    lines.push(`<image data-bluetape4k-icon="redis/redis-icon.svg" x="${x + 28}" y="${y + 28}" width="48" height="48" href="data:image/svg+xml;base64,${redisIcon}" preserveAspectRatio="xMidYMid meet"/>`);
   }
   lines.push(`<text x="${tx}" y="${y + 42}" text-anchor="${icon ? "start" : "middle"}" class="cardTitle">${esc(title)}</text>`);
   textLines(tx, y + 72, sub, "sub", icon ? "start" : "middle", 22);
@@ -54,12 +67,18 @@ function layer(x, y, w, h, title, sub) {
   if (sub) lines.push(`<text x="${x + 28}" y="${y + 68}" class="layerSub">${esc(sub)}</text>`);
 }
 
-function path(id, d, color, dashed = false, width = 4.2) {
+function path(id, d, color, dashed = false, width = 4.2, directHead = null) {
   const dash = dashed ? ' stroke-dasharray="10 8"' : "";
-  lines.push(`<path d="${d}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round"${dash} marker-end="url(#${id})"/>`);
+  const markerEnd = directHead ? "" : ` marker-end="url(#${id})"`;
+  lines.push(`<path d="${d}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round"${dash}${markerEnd}/>`);
+  if (directHead?.open) {
+    lines.push(`<polyline points="${directHead.points}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>`);
+  } else if (directHead) {
+    lines.push(`<polygon points="${directHead.points}" fill="${color}" stroke="${color}" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>`);
+  }
 }
 
-lines.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="title desc">`);
+lines.push(`<svg data-intent="${esc(intent)}" data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="title desc">`);
 lines.push(`<title id="title">Redis umbrella module dependency structure</title>`);
 lines.push(`<desc id="desc">bluetape4k-redis exports Lettuce and Redisson; Spring Data Redis serializers remain a separate dependency choice.</desc>`);
 lines.push(`<defs><style>
@@ -159,14 +178,14 @@ card({
   icon: true,
 });
 
-path("arrowBlue", "M 310 380 L 310 430 L 380 430 L 380 566", c.blue);
-path("arrowBlue", "M 310 380 L 310 422 L 870 422 L 870 566", c.blue);
-path("arrowGreen", "M 775 380 L 775 526 L 505 526 L 505 566", c.green, true, 3.4);
-path("arrowGreen", "M 775 380 L 775 566", c.green, true, 3.4);
-path("arrowOrange", "M 1260 380 L 1260 566", c.orange, true, 3.4);
-path("arrowGreen", "M 380 734 L 380 814 L 700 814 L 700 918", c.green);
-path("arrowTeal", "M 870 734 L 870 814 L 860 814 L 860 918", c.teal);
-path("arrowOrange", "M 1325 712 L 1325 820 L 980 820 L 980 918", c.orange, true, 3.2);
+path("arrowBlue", "M 310 380 L 310 416 Q 310 430 324 430 L 366 430 Q 380 430 380 444 L 380 566", c.blue);
+path("arrowBlue", "M 310 380 L 310 408 Q 310 422 324 422 L 856 422 Q 870 422 870 436 L 870 566", c.blue);
+path("arrowGreen", "M 775 380 L 775 512 Q 775 526 761 526 L 519 526 Q 505 526 505 540 L 505 566", c.green, true, 3.4, { points: "499,554 505,566 511,554" });
+path("arrowGreen", "M 775 380 L 775 566", c.green, true, 3.4, { points: "769,554 775,566 781,554" });
+path("arrowOrange", "M 1260 380 L 1260 566", c.orange, true, 3.4, { points: "1252,548 1260,566 1268,548", open: true });
+path("arrowGreen", "M 380 734 L 380 800 Q 380 814 394 814 L 686 814 Q 700 814 700 828 L 700 918", c.green);
+path("arrowTeal", "M 870 734 L 870 804 Q 870 814 860 814 L 870 814 Q 860 814 860 824 L 860 918", c.teal);
+path("arrowOrange", "M 1325 712 L 1325 806 Q 1325 820 1311 820 L 994 820 Q 980 820 980 834 L 980 918", c.orange, true, 3.2, { points: "972,900 980,918 988,900", open: true });
 
 lines.push(`<rect x="350" y="1076" width="980" height="42" rx="15" fill="#FFFFFF" stroke="${c.border}" stroke-width="1.8"/>`);
 lines.push(`<text x="${W / 2}" y="1103" text-anchor="middle" class="note">Rule of thumb: use the umbrella for compatibility; use direct modules for leaner dependency graphs.</text>`);
