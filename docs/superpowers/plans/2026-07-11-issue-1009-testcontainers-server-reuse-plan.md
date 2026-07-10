@@ -15,7 +15,7 @@ preserving explicit local reuse and singleton-per-test-JVM Launchers.
   `withReuse(true)` remains.
 - [x] Run policy, compile, focused representative, and proportional module
   validation sequentially.
-- [ ] Update PR #1010 scope and DoD, wait for CI, then publish the replacement
+- [x] Update PR #1010 scope and DoD, wait for CI, then publish the replacement
   `1.11.1-SNAPSHOT` before downstream mutex work.
 
 ## Verification
