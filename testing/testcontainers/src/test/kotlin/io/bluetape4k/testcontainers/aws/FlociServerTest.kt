@@ -2,6 +2,7 @@ package io.bluetape4k.testcontainers.aws
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.AbstractContainerTest
@@ -9,6 +10,7 @@ import io.bluetape4k.utils.ShutdownQueue
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
+import org.testcontainers.containers.GenericContainer
 import org.junit.jupiter.api.Test
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
@@ -35,6 +37,14 @@ class FlociServerTest: AbstractContainerTest() {
     @Test
     fun `Floci server uses the current stable image tag`() {
         FlociServer.TAG shouldBeEqualTo "1.5.27"
+    }
+
+    @Test
+    fun `Floci Launcher disables Testcontainers reuse`() {
+        val server = FlociServer.Launcher.floci
+
+        server.isRunning.shouldBeTrue()
+        server.isReuseRequested.shouldBeFalse()
     }
 
     @Test
@@ -94,3 +104,10 @@ class FlociServerTest: AbstractContainerTest() {
         }
     }
 }
+
+private val GenericContainer<*>.isReuseRequested: Boolean
+    // Testcontainers does not expose this construction flag publicly.
+    get() = GenericContainer::class.java
+        .getDeclaredField("shouldBeReused")
+        .apply { isAccessible = true }
+        .getBoolean(this)

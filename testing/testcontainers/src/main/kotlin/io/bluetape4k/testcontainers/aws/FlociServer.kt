@@ -206,10 +206,11 @@ class FlociServer private constructor(
     }
 
     /**
-     * Provides reusable [FlociServer] instances for tests.
+     * Provides a shared [FlociServer] instance for tests in one JVM.
      *
      * The singleton starts on first access and is registered in [ShutdownQueue]
-     * for JVM shutdown cleanup.
+     * for JVM shutdown cleanup. It never requests Docker-level container reuse,
+     * so separate test JVMs receive isolated Floci containers.
      */
     object Launcher {
         /**
@@ -221,7 +222,7 @@ class FlociServer private constructor(
          * ```
          */
         val floci: FlociServer by lazy {
-            FlociServer().apply {
+            FlociServer(reuse = false).apply {
                 start()
                 ShutdownQueue.register(this)
             }
