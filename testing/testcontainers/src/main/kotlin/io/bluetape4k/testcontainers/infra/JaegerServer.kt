@@ -54,7 +54,7 @@ class JaegerServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): JaegerServer {
             return JaegerServer(imageName, useDefaultPort, reuse)
         }
@@ -77,7 +77,7 @@ class JaegerServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): JaegerServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

@@ -48,7 +48,7 @@ class CockroachServer private constructor(
          * @param username 사용자 이름 (기본: `test`)
          * @param password 비밀번호 (기본: `test`)
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
-         * @param reuse 재사용 여부 (기본: `true`)
+         * @param reuse 재사용 여부 (기본: `false`)
          */
         @JvmStatic
         operator fun invoke(
@@ -57,7 +57,7 @@ class CockroachServer private constructor(
             username: String = USERNAME,
             password: String = PASSWORD,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): CockroachServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
@@ -79,7 +79,7 @@ class CockroachServer private constructor(
          * @param username 사용자 이름 (기본: `test`)
          * @param password 비밀번호 (기본: `test`)
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
-         * @param reuse 재사용 여부 (기본: `true`)
+         * @param reuse 재사용 여부 (기본: `false`)
          */
         @JvmStatic
         operator fun invoke(
@@ -87,7 +87,7 @@ class CockroachServer private constructor(
             username: String = USERNAME,
             password: String = PASSWORD,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): CockroachServer {
             return CockroachServer(imageName, username, password, useDefaultPort, reuse)
         }

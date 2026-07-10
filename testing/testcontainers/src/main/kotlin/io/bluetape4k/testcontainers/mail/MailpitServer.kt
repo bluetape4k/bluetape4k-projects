@@ -27,7 +27,7 @@ import org.testcontainers.utility.DockerImageName
 class MailpitServer private constructor(
     imageName: DockerImageName,
     private val useDefaultPort: Boolean = false,
-    private val reuse: Boolean = true,
+    private val reuse: Boolean = false,
 ): GenericContainer<MailpitServer>(imageName), GenericServer, PropertyExportingServer {
 
     /**
@@ -58,7 +58,7 @@ class MailpitServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): MailpitServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
@@ -84,7 +84,7 @@ class MailpitServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): MailpitServer {
             return MailpitServer(imageName, useDefaultPort, reuse)
         }

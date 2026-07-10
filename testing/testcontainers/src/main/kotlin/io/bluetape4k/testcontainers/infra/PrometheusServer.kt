@@ -69,7 +69,7 @@ class PrometheusServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): PrometheusServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

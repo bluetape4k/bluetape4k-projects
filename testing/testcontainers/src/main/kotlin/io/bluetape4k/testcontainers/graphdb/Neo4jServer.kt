@@ -27,7 +27,7 @@ import org.testcontainers.utility.DockerImageName
 class Neo4jServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean = false,
-    reuse: Boolean = true,
+    reuse: Boolean = false,
 ): Neo4jContainer(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
@@ -57,7 +57,7 @@ class Neo4jServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): Neo4jServer {
             return Neo4jServer(imageName, useDefaultPort, reuse)
         }
@@ -75,7 +75,7 @@ class Neo4jServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): Neo4jServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

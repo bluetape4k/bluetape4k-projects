@@ -73,7 +73,7 @@ class CassandraServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): CassandraServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
@@ -99,7 +99,7 @@ class CassandraServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): CassandraServer {
             return CassandraServer(imageName, useDefaultPort, reuse)
         }

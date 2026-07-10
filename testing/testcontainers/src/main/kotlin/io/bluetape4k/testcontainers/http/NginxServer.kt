@@ -47,7 +47,7 @@ class NginxServer private constructor(
          */
         @JvmStatic
         operator fun invoke(
-            image: String = IMAGE, tag: String = TAG, useDefaultPort: Boolean = true, reuse: Boolean = true,
+            image: String = IMAGE, tag: String = TAG, useDefaultPort: Boolean = true, reuse: Boolean = false,
         ): NginxServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
@@ -70,7 +70,7 @@ class NginxServer private constructor(
          */
         @JvmStatic
         operator fun invoke(
-            imageName: DockerImageName, useDefaultPort: Boolean = true, reuse: Boolean = true,
+            imageName: DockerImageName, useDefaultPort: Boolean = true, reuse: Boolean = false,
         ): NginxServer {
             return NginxServer(imageName, useDefaultPort, reuse)
         }

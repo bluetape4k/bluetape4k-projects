@@ -88,7 +88,7 @@ class RedisClusterServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): RedisClusterServer {
             return RedisClusterServer(imageName, useDefaultPort, reuse)
         }
@@ -111,7 +111,7 @@ class RedisClusterServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): RedisClusterServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

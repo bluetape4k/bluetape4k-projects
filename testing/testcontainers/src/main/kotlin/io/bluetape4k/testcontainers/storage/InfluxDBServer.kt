@@ -26,7 +26,7 @@ import org.testcontainers.utility.DockerImageName
 class InfluxDBServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean = false,
-    reuse: Boolean = true,
+    reuse: Boolean = false,
     val organization: String = DEFAULT_ORG,
     val bucket: String = DEFAULT_BUCKET,
     val adminToken: String = DEFAULT_ADMIN_TOKEN,
@@ -69,7 +69,7 @@ class InfluxDBServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
             organization: String = DEFAULT_ORG,
             bucket: String = DEFAULT_BUCKET,
             adminToken: String = DEFAULT_ADMIN_TOKEN,
@@ -113,7 +113,7 @@ class InfluxDBServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
             organization: String = DEFAULT_ORG,
             bucket: String = DEFAULT_BUCKET,
             adminToken: String = DEFAULT_ADMIN_TOKEN,

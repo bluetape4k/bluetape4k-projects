@@ -49,8 +49,8 @@ class MySQL8Server private constructor(
          *
          * @param image             docker image (기본: `mysql`)
          * @param tag               docker image tag (기본: `8.4`)
-         * @param useDefaultPort    기본 포트를 사용할지 여부 (기본: `true`)
-         * @param reuse             재사용 여부 (기본: `true`)
+         * @param useDefaultPort    기본 포트를 사용할지 여부 (기본: `false`)
+         * @param reuse             재사용 여부 (기본: `false`)
          * @param username          사용자 이름 (기본: `test`)
          * @param password          비밀번호 (기본: `test`)
          * @param configuration      설정 (기본: `""`)
@@ -60,7 +60,7 @@ class MySQL8Server private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
             username: String = USERNAME,
             password: String = PASSWORD,
             configuration: String = "",
@@ -82,8 +82,8 @@ class MySQL8Server private constructor(
          * ```
          *
          * @param imageName         docker image name
-         * @param useDefaultPort    기본 포트를 사용할지 여부 (기본: `true`)
-         * @param reuse             재사용 여부 (기본: `true`)
+         * @param useDefaultPort    기본 포트를 사용할지 여부 (기본: `false`)
+         * @param reuse             재사용 여부 (기본: `false`)
          * @param username          사용자 이름 (기본: `test`)
          * @param password          비밀번호 (기본: `test`)
          * @param configuration      설정 (기본: `""`)
@@ -92,7 +92,7 @@ class MySQL8Server private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
             username: String = USERNAME,
             password: String = PASSWORD,
             configuration: String = "",

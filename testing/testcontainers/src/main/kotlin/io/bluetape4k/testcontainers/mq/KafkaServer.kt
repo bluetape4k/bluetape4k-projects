@@ -71,7 +71,7 @@ class KafkaServer private constructor(
             tag: String = TAG,
             useTransaction: Boolean = false,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): KafkaServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
@@ -91,7 +91,7 @@ class KafkaServer private constructor(
             imageName: DockerImageName,
             useTransaction: Boolean = false,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): KafkaServer {
             return KafkaServer(imageName, useTransaction, useDefaultPort, reuse)
         }

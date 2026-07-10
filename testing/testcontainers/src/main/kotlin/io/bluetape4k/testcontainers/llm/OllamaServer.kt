@@ -58,7 +58,7 @@ class OllamaServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): OllamaServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
@@ -83,7 +83,7 @@ class OllamaServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): OllamaServer {
             imageName.assertCompatibleWith(DockerImageName.parse(IMAGE))
             return OllamaServer(imageName, useDefaultPort, reuse)

@@ -48,7 +48,7 @@ class ZipkinServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): ZipkinServer {
             return ZipkinServer(imageName, useDefaultPort, reuse)
         }
@@ -71,7 +71,7 @@ class ZipkinServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): ZipkinServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

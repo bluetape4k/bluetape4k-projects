@@ -56,7 +56,7 @@ class HazelcastServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): HazelcastServer {
             return HazelcastServer(imageName, useDefaultPort, reuse)
         }
@@ -79,7 +79,7 @@ class HazelcastServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): HazelcastServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

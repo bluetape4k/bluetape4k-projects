@@ -20,7 +20,7 @@ import org.testcontainers.utility.DockerImageName
 class KeycloakServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean = false,
-    reuse: Boolean = true,
+    reuse: Boolean = false,
 ): KeycloakContainer(imageName.toString()), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
@@ -46,7 +46,7 @@ class KeycloakServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): KeycloakServer {
             return KeycloakServer(imageName, useDefaultPort, reuse)
         }
@@ -69,7 +69,7 @@ class KeycloakServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): KeycloakServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

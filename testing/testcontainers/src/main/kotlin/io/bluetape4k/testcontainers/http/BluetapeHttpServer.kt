@@ -77,7 +77,7 @@ class BluetapeHttpServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): BluetapeHttpServer {
             return BluetapeHttpServer(imageName, useDefaultPort, reuse)
         }
@@ -105,7 +105,7 @@ class BluetapeHttpServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): BluetapeHttpServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

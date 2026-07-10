@@ -60,7 +60,7 @@ class ElasticsearchServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
             password: String = DEFAULT_PASSWORD,
         ): ElasticsearchServer {
             return ElasticsearchServer(imageName, useDefaultPort, reuse, password)
@@ -85,7 +85,7 @@ class ElasticsearchServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
             password: String = DEFAULT_PASSWORD,
         ): ElasticsearchServer {
             image.requireNotBlank("image")

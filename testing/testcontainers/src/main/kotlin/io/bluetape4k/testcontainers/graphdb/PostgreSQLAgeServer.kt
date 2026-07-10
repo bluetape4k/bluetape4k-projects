@@ -60,13 +60,13 @@ class PostgreSQLAgeServer private constructor(
          *
          * @param imageName Docker 이미지 이름
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
-         * @param reuse 재사용 여부 (기본: `true`)
+         * @param reuse 재사용 여부 (기본: `false`)
          */
         @JvmStatic
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): PostgreSQLAgeServer {
             return PostgreSQLAgeServer(imageName, useDefaultPort, reuse)
         }
@@ -77,14 +77,14 @@ class PostgreSQLAgeServer private constructor(
          * @param image Docker 이미지 (기본: `apache/age`)
          * @param tag Docker 이미지 태그 (기본: `release_PG17_1.6.0`)
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
-         * @param reuse 재사용 여부 (기본: `true`)
+         * @param reuse 재사용 여부 (기본: `false`)
          */
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): PostgreSQLAgeServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

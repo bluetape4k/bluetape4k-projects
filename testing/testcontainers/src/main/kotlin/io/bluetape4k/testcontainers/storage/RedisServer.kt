@@ -76,7 +76,7 @@ class RedisServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): RedisServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
@@ -101,7 +101,7 @@ class RedisServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): RedisServer = RedisServer(imageName, useDefaultPort, reuse)
     }
 

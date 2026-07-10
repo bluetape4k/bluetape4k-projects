@@ -54,14 +54,14 @@ class TrinoServer private constructor(
          * @param image         Docker 이미지 이름 (기본: `trinodb/trino`)
          * @param tag           Docker 이미지 태그 (기본: `475`)
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
-         * @param reuse         컨테이너 재사용 여부 (기본: `true`)
+         * @param reuse         컨테이너 재사용 여부 (기본: `false`)
          */
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): TrinoServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
@@ -81,13 +81,13 @@ class TrinoServer private constructor(
          *
          * @param imageName     Docker 이미지 이름
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
-         * @param reuse         컨테이너 재사용 여부 (기본: `true`)
+         * @param reuse         컨테이너 재사용 여부 (기본: `false`)
          */
         @JvmStatic
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = true,
+            reuse: Boolean = false,
         ): TrinoServer {
             return TrinoServer(imageName, useDefaultPort, reuse)
         }
