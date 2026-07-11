@@ -3,6 +3,11 @@ plugins {
     kotlin("plugin.noarg")
 }
 
+tasks.withType<Test> {
+    systemProperty("java.io.tmpdir", temporaryDir)
+    systemProperty("spring.kafka.streams.state-dir", temporaryDir.resolve("kafka-streams"))
+}
+
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
     all {
