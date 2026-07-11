@@ -11,7 +11,7 @@ description: bluetape4k-projects 모듈을 선택하고 설치한 뒤 가이드,
 
 ```kotlin
 dependencies {
-    implementation(platform("io.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
 }
 ```
 
@@ -21,7 +21,7 @@ dependencies {
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-core")
+    implementation("io.github.bluetape4k:bluetape4k-core")
 }
 ```
 

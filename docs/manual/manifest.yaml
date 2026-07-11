@@ -6,7 +6,7 @@ modules:
   sourceDir: bluetape4k/annotations
   kind: library
   group: foundation
-  artifact: io.bluetape4k:bluetape4k-annotations
+  artifact: io.github.bluetape4k:bluetape4k-annotations
   en: en/modules/bluetape4k-annotations.md
   ko: ko/modules/bluetape4k-annotations.md
   sourcePaths:
@@ -20,7 +20,7 @@ modules:
   sourceDir: testing/assertions
   kind: library
   group: testing
-  artifact: io.bluetape4k:bluetape4k-assertions
+  artifact: io.github.bluetape4k:bluetape4k-assertions
   en: en/modules/bluetape4k-assertions.md
   ko: ko/modules/bluetape4k-assertions.md
   sourcePaths:
@@ -34,7 +34,7 @@ modules:
   sourceDir: io/avro
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-avro
+  artifact: io.github.bluetape4k:bluetape4k-avro
   en: en/modules/bluetape4k-avro.md
   ko: ko/modules/bluetape4k-avro.md
   sourcePaths:
@@ -48,7 +48,7 @@ modules:
   sourceDir: bluetape4k/bom
   kind: library
   group: foundation
-  artifact: io.bluetape4k:bluetape4k-bom
+  artifact: io.github.bluetape4k:bluetape4k-bom
   en: en/modules/bluetape4k-bom.md
   ko: ko/modules/bluetape4k-bom.md
   sourcePaths: []
@@ -59,7 +59,7 @@ modules:
   sourceDir: infra/bucket4j
   kind: library
   group: infrastructure
-  artifact: io.bluetape4k:bluetape4k-bucket4j
+  artifact: io.github.bluetape4k:bluetape4k-bucket4j
   en: en/modules/bluetape4k-bucket4j.md
   ko: ko/modules/bluetape4k-bucket4j.md
   sourcePaths:
@@ -73,7 +73,7 @@ modules:
   sourceDir: cache/cache-core
   kind: library
   group: caching
-  artifact: io.bluetape4k:bluetape4k-cache-core
+  artifact: io.github.bluetape4k:bluetape4k-cache-core
   en: en/modules/bluetape4k-cache-core.md
   ko: ko/modules/bluetape4k-cache-core.md
   sourcePaths:
@@ -87,7 +87,7 @@ modules:
   sourceDir: cache/cache-hazelcast
   kind: library
   group: caching
-  artifact: io.bluetape4k:bluetape4k-cache-hazelcast
+  artifact: io.github.bluetape4k:bluetape4k-cache-hazelcast
   en: en/modules/bluetape4k-cache-hazelcast.md
   ko: ko/modules/bluetape4k-cache-hazelcast.md
   sourcePaths:
@@ -102,7 +102,7 @@ modules:
   sourceDir: cache/cache-lettuce
   kind: library
   group: caching
-  artifact: io.bluetape4k:bluetape4k-cache-lettuce
+  artifact: io.github.bluetape4k:bluetape4k-cache-lettuce
   en: en/modules/bluetape4k-cache-lettuce.md
   ko: ko/modules/bluetape4k-cache-lettuce.md
   sourcePaths:
@@ -117,7 +117,7 @@ modules:
   sourceDir: cache/cache-redisson
   kind: library
   group: caching
-  artifact: io.bluetape4k:bluetape4k-cache-redisson
+  artifact: io.github.bluetape4k:bluetape4k-cache-redisson
   en: en/modules/bluetape4k-cache-redisson.md
   ko: ko/modules/bluetape4k-cache-redisson.md
   sourcePaths:
@@ -132,7 +132,7 @@ modules:
   sourceDir: data/cassandra
   kind: library
   group: data
-  artifact: io.bluetape4k:bluetape4k-cassandra
+  artifact: io.github.bluetape4k:bluetape4k-cassandra
   en: en/modules/bluetape4k-cassandra.md
   ko: ko/modules/bluetape4k-cassandra.md
   sourcePaths:
@@ -146,7 +146,7 @@ modules:
   sourceDir: bluetape4k/core
   kind: library
   group: foundation
-  artifact: io.bluetape4k:bluetape4k-core
+  artifact: io.github.bluetape4k:bluetape4k-core
   en: en/modules/bluetape4k-core.md
   ko: ko/modules/bluetape4k-core.md
   sourcePaths:
@@ -160,7 +160,7 @@ modules:
   sourceDir: bluetape4k/coroutines
   kind: library
   group: foundation
-  artifact: io.bluetape4k:bluetape4k-coroutines
+  artifact: io.github.bluetape4k:bluetape4k-coroutines
   en: en/modules/bluetape4k-coroutines.md
   ko: ko/modules/bluetape4k-coroutines.md
   sourcePaths:
@@ -174,7 +174,7 @@ modules:
   sourceDir: io/csv
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-csv
+  artifact: io.github.bluetape4k:bluetape4k-csv
   en: en/modules/bluetape4k-csv.md
   ko: ko/modules/bluetape4k-csv.md
   sourcePaths:
@@ -188,7 +188,7 @@ modules:
   sourceDir: infra/elasticsearch
   kind: library
   group: infrastructure
-  artifact: io.bluetape4k:bluetape4k-elasticsearch
+  artifact: io.github.bluetape4k:bluetape4k-elasticsearch
   en: en/modules/bluetape4k-elasticsearch.md
   ko: ko/modules/bluetape4k-elasticsearch.md
   sourcePaths:
@@ -269,7 +269,7 @@ modules:
   sourceDir: io/fastjson2
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-fastjson2
+  artifact: io.github.bluetape4k:bluetape4k-fastjson2
   en: en/modules/bluetape4k-fastjson2.md
   ko: ko/modules/bluetape4k-fastjson2.md
   sourcePaths:
@@ -283,7 +283,7 @@ modules:
   sourceDir: io/feign
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-feign
+  artifact: io.github.bluetape4k:bluetape4k-feign
   en: en/modules/bluetape4k-feign.md
   ko: ko/modules/bluetape4k-feign.md
   sourcePaths:
@@ -297,7 +297,7 @@ modules:
   sourceDir: utils/geo
   kind: library
   group: utilities
-  artifact: io.bluetape4k:bluetape4k-geo
+  artifact: io.github.bluetape4k:bluetape4k-geo
   en: en/modules/bluetape4k-geo.md
   ko: ko/modules/bluetape4k-geo.md
   sourcePaths:
@@ -312,7 +312,7 @@ modules:
   sourceDir: io/grpc
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-grpc
+  artifact: io.github.bluetape4k:bluetape4k-grpc
   en: en/modules/bluetape4k-grpc.md
   ko: ko/modules/bluetape4k-grpc.md
   sourcePaths:
@@ -326,7 +326,7 @@ modules:
   sourceDir: data/hibernate
   kind: library
   group: data
-  artifact: io.bluetape4k:bluetape4k-hibernate
+  artifact: io.github.bluetape4k:bluetape4k-hibernate
   en: en/modules/bluetape4k-hibernate.md
   ko: ko/modules/bluetape4k-hibernate.md
   sourcePaths:
@@ -340,7 +340,7 @@ modules:
   sourceDir: cache/hibernate-cache-lettuce
   kind: library
   group: caching
-  artifact: io.bluetape4k:bluetape4k-hibernate-cache-lettuce
+  artifact: io.github.bluetape4k:bluetape4k-hibernate-cache-lettuce
   en: en/modules/bluetape4k-hibernate-cache-lettuce.md
   ko: ko/modules/bluetape4k-hibernate-cache-lettuce.md
   sourcePaths:
@@ -354,7 +354,7 @@ modules:
   sourceDir: data/hibernate-reactive
   kind: library
   group: data
-  artifact: io.bluetape4k:bluetape4k-hibernate-reactive
+  artifact: io.github.bluetape4k:bluetape4k-hibernate-reactive
   en: en/modules/bluetape4k-hibernate-reactive.md
   ko: ko/modules/bluetape4k-hibernate-reactive.md
   sourcePaths:
@@ -369,7 +369,7 @@ modules:
   sourceDir: io/http
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-http
+  artifact: io.github.bluetape4k:bluetape4k-http
   en: en/modules/bluetape4k-http.md
   ko: ko/modules/bluetape4k-http.md
   sourcePaths:
@@ -383,7 +383,7 @@ modules:
   sourceDir: utils/idgenerators
   kind: library
   group: utilities
-  artifact: io.bluetape4k:bluetape4k-idgenerators
+  artifact: io.github.bluetape4k:bluetape4k-idgenerators
   en: en/modules/bluetape4k-idgenerators.md
   ko: ko/modules/bluetape4k-idgenerators.md
   sourcePaths:
@@ -397,7 +397,7 @@ modules:
   sourceDir: io/io
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-io
+  artifact: io.github.bluetape4k:bluetape4k-io
   en: en/modules/bluetape4k-io.md
   ko: ko/modules/bluetape4k-io.md
   sourcePaths:
@@ -411,7 +411,7 @@ modules:
   sourceDir: io/jackson2
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-jackson2
+  artifact: io.github.bluetape4k:bluetape4k-jackson2
   en: en/modules/bluetape4k-jackson2.md
   ko: ko/modules/bluetape4k-jackson2.md
   sourcePaths:
@@ -426,7 +426,7 @@ modules:
   sourceDir: io/jackson3
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-jackson3
+  artifact: io.github.bluetape4k:bluetape4k-jackson3
   en: en/modules/bluetape4k-jackson3.md
   ko: ko/modules/bluetape4k-jackson3.md
   sourcePaths:
@@ -441,7 +441,7 @@ modules:
   sourceDir: utils/javatimes
   kind: library
   group: utilities
-  artifact: io.bluetape4k:bluetape4k-javatimes
+  artifact: io.github.bluetape4k:bluetape4k-javatimes
   en: en/modules/bluetape4k-javatimes.md
   ko: ko/modules/bluetape4k-javatimes.md
   sourcePaths:
@@ -455,7 +455,7 @@ modules:
   sourceDir: data/jdbc
   kind: library
   group: data
-  artifact: io.bluetape4k:bluetape4k-jdbc
+  artifact: io.github.bluetape4k:bluetape4k-jdbc
   en: en/modules/bluetape4k-jdbc.md
   ko: ko/modules/bluetape4k-jdbc.md
   sourcePaths:
@@ -469,7 +469,7 @@ modules:
   sourceDir: io/json
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-json
+  artifact: io.github.bluetape4k:bluetape4k-json
   en: en/modules/bluetape4k-json.md
   ko: ko/modules/bluetape4k-json.md
   sourcePaths:
@@ -483,7 +483,7 @@ modules:
   sourceDir: testing/junit5
   kind: library
   group: testing
-  artifact: io.bluetape4k:bluetape4k-junit5
+  artifact: io.github.bluetape4k:bluetape4k-junit5
   en: en/modules/bluetape4k-junit5.md
   ko: ko/modules/bluetape4k-junit5.md
   sourcePaths:
@@ -498,7 +498,7 @@ modules:
   sourceDir: utils/jwt
   kind: library
   group: utilities
-  artifact: io.bluetape4k:bluetape4k-jwt
+  artifact: io.github.bluetape4k:bluetape4k-jwt
   en: en/modules/bluetape4k-jwt.md
   ko: ko/modules/bluetape4k-jwt.md
   sourcePaths:
@@ -513,7 +513,7 @@ modules:
   sourceDir: infra/kafka
   kind: library
   group: infrastructure
-  artifact: io.bluetape4k:bluetape4k-kafka
+  artifact: io.github.bluetape4k:bluetape4k-kafka
   en: en/modules/bluetape4k-kafka.md
   ko: ko/modules/bluetape4k-kafka.md
   sourcePaths:
@@ -527,7 +527,7 @@ modules:
   sourceDir: infra/kafka-logback
   kind: library
   group: infrastructure
-  artifact: io.bluetape4k:bluetape4k-kafka-logback
+  artifact: io.github.bluetape4k:bluetape4k-kafka-logback
   en: en/modules/bluetape4k-kafka-logback.md
   ko: ko/modules/bluetape4k-kafka-logback.md
   sourcePaths:
@@ -541,7 +541,7 @@ modules:
   sourceDir: infra/kafka4
   kind: library
   group: infrastructure
-  artifact: io.bluetape4k:bluetape4k-kafka4
+  artifact: io.github.bluetape4k:bluetape4k-kafka4
   en: en/modules/bluetape4k-kafka4.md
   ko: ko/modules/bluetape4k-kafka4.md
   sourcePaths:
@@ -555,7 +555,7 @@ modules:
   sourceDir: ktor/core
   kind: library
   group: web
-  artifact: io.bluetape4k:bluetape4k-ktor-core
+  artifact: io.github.bluetape4k:bluetape4k-ktor-core
   en: en/modules/bluetape4k-ktor-core.md
   ko: ko/modules/bluetape4k-ktor-core.md
   sourcePaths:
@@ -569,7 +569,7 @@ modules:
   sourceDir: ktor/observability
   kind: library
   group: web
-  artifact: io.bluetape4k:bluetape4k-ktor-observability
+  artifact: io.github.bluetape4k:bluetape4k-ktor-observability
   en: en/modules/bluetape4k-ktor-observability.md
   ko: ko/modules/bluetape4k-ktor-observability.md
   sourcePaths:
@@ -583,7 +583,7 @@ modules:
   sourceDir: ktor/openapi
   kind: library
   group: web
-  artifact: io.bluetape4k:bluetape4k-ktor-openapi
+  artifact: io.github.bluetape4k:bluetape4k-ktor-openapi
   en: en/modules/bluetape4k-ktor-openapi.md
   ko: ko/modules/bluetape4k-ktor-openapi.md
   sourcePaths:
@@ -597,7 +597,7 @@ modules:
   sourceDir: ktor/resilience4j
   kind: library
   group: web
-  artifact: io.bluetape4k:bluetape4k-ktor-resilience4j
+  artifact: io.github.bluetape4k:bluetape4k-ktor-resilience4j
   en: en/modules/bluetape4k-ktor-resilience4j.md
   ko: ko/modules/bluetape4k-ktor-resilience4j.md
   sourcePaths:
@@ -611,7 +611,7 @@ modules:
   sourceDir: ktor/testing
   kind: library
   group: web
-  artifact: io.bluetape4k:bluetape4k-ktor-testing
+  artifact: io.github.bluetape4k:bluetape4k-ktor-testing
   en: en/modules/bluetape4k-ktor-testing.md
   ko: ko/modules/bluetape4k-ktor-testing.md
   sourcePaths:
@@ -625,7 +625,7 @@ modules:
   sourceDir: infra/lettuce
   kind: library
   group: infrastructure
-  artifact: io.bluetape4k:bluetape4k-lettuce
+  artifact: io.github.bluetape4k:bluetape4k-lettuce
   en: en/modules/bluetape4k-lettuce.md
   ko: ko/modules/bluetape4k-lettuce.md
   sourcePaths:
@@ -639,7 +639,7 @@ modules:
   sourceDir: bluetape4k/logging
   kind: library
   group: foundation
-  artifact: io.bluetape4k:bluetape4k-logging
+  artifact: io.github.bluetape4k:bluetape4k-logging
   en: en/modules/bluetape4k-logging.md
   ko: ko/modules/bluetape4k-logging.md
   sourcePaths:
@@ -653,7 +653,7 @@ modules:
   sourceDir: utils/math
   kind: library
   group: utilities
-  artifact: io.bluetape4k:bluetape4k-math
+  artifact: io.github.bluetape4k:bluetape4k-math
   en: en/modules/bluetape4k-math.md
   ko: ko/modules/bluetape4k-math.md
   sourcePaths:
@@ -667,7 +667,7 @@ modules:
   sourceDir: utils/measured
   kind: library
   group: utilities
-  artifact: io.bluetape4k:bluetape4k-measured
+  artifact: io.github.bluetape4k:bluetape4k-measured
   en: en/modules/bluetape4k-measured.md
   ko: ko/modules/bluetape4k-measured.md
   sourcePaths:
@@ -681,7 +681,7 @@ modules:
   sourceDir: infra/micrometer
   kind: library
   group: infrastructure
-  artifact: io.bluetape4k:bluetape4k-micrometer
+  artifact: io.github.bluetape4k:bluetape4k-micrometer
   en: en/modules/bluetape4k-micrometer.md
   ko: ko/modules/bluetape4k-micrometer.md
   sourcePaths:
@@ -695,7 +695,7 @@ modules:
   sourceDir: testing/mock-web-server
   kind: library
   group: testing
-  artifact: io.bluetape4k:bluetape4k-mock-web-server
+  artifact: io.github.bluetape4k:bluetape4k-mock-web-server
   en: en/modules/bluetape4k-mock-web-server.md
   ko: ko/modules/bluetape4k-mock-web-server.md
   sourcePaths:
@@ -710,7 +710,7 @@ modules:
   sourceDir: testing/mock-webflux-server
   kind: library
   group: testing
-  artifact: io.bluetape4k:bluetape4k-mock-webflux-server
+  artifact: io.github.bluetape4k:bluetape4k-mock-webflux-server
   en: en/modules/bluetape4k-mock-webflux-server.md
   ko: ko/modules/bluetape4k-mock-webflux-server.md
   sourcePaths:
@@ -725,7 +725,7 @@ modules:
   sourceDir: utils/money
   kind: library
   group: utilities
-  artifact: io.bluetape4k:bluetape4k-money
+  artifact: io.github.bluetape4k:bluetape4k-money
   en: en/modules/bluetape4k-money.md
   ko: ko/modules/bluetape4k-money.md
   sourcePaths:
@@ -739,7 +739,7 @@ modules:
   sourceDir: data/mongodb
   kind: library
   group: data
-  artifact: io.bluetape4k:bluetape4k-mongodb
+  artifact: io.github.bluetape4k:bluetape4k-mongodb
   en: en/modules/bluetape4k-mongodb.md
   ko: ko/modules/bluetape4k-mongodb.md
   sourcePaths:
@@ -753,7 +753,7 @@ modules:
   sourceDir: utils/mutiny
   kind: library
   group: utilities
-  artifact: io.bluetape4k:bluetape4k-mutiny
+  artifact: io.github.bluetape4k:bluetape4k-mutiny
   en: en/modules/bluetape4k-mutiny.md
   ko: ko/modules/bluetape4k-mutiny.md
   sourcePaths:
@@ -767,7 +767,7 @@ modules:
   sourceDir: infra/nats
   kind: library
   group: infrastructure
-  artifact: io.bluetape4k:bluetape4k-nats
+  artifact: io.github.bluetape4k:bluetape4k-nats
   en: en/modules/bluetape4k-nats.md
   ko: ko/modules/bluetape4k-nats.md
   sourcePaths:
@@ -781,7 +781,7 @@ modules:
   sourceDir: io/netty
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-netty
+  artifact: io.github.bluetape4k:bluetape4k-netty
   en: en/modules/bluetape4k-netty.md
   ko: ko/modules/bluetape4k-netty.md
   sourcePaths:
@@ -795,7 +795,7 @@ modules:
   sourceDir: io/okio
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-okio
+  artifact: io.github.bluetape4k:bluetape4k-okio
   en: en/modules/bluetape4k-okio.md
   ko: ko/modules/bluetape4k-okio.md
   sourcePaths:
@@ -809,7 +809,7 @@ modules:
   sourceDir: infra/opentelemetry
   kind: library
   group: infrastructure
-  artifact: io.bluetape4k:bluetape4k-opentelemetry
+  artifact: io.github.bluetape4k:bluetape4k-opentelemetry
   en: en/modules/bluetape4k-opentelemetry.md
   ko: ko/modules/bluetape4k-opentelemetry.md
   sourcePaths:
@@ -823,7 +823,7 @@ modules:
   sourceDir: utils/probabilistic
   kind: library
   group: utilities
-  artifact: io.bluetape4k:bluetape4k-probabilistic
+  artifact: io.github.bluetape4k:bluetape4k-probabilistic
   en: en/modules/bluetape4k-probabilistic.md
   ko: ko/modules/bluetape4k-probabilistic.md
   sourcePaths:
@@ -836,7 +836,7 @@ modules:
   sourceDir: io/protobuf
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-protobuf
+  artifact: io.github.bluetape4k:bluetape4k-protobuf
   en: en/modules/bluetape4k-protobuf.md
   ko: ko/modules/bluetape4k-protobuf.md
   sourcePaths:
@@ -850,7 +850,7 @@ modules:
   sourceDir: infra/pulsar
   kind: library
   group: infrastructure
-  artifact: io.bluetape4k:bluetape4k-pulsar
+  artifact: io.github.bluetape4k:bluetape4k-pulsar
   en: en/modules/bluetape4k-pulsar.md
   ko: ko/modules/bluetape4k-pulsar.md
   sourcePaths:
@@ -864,7 +864,7 @@ modules:
   sourceDir: data/r2dbc
   kind: library
   group: data
-  artifact: io.bluetape4k:bluetape4k-r2dbc
+  artifact: io.github.bluetape4k:bluetape4k-r2dbc
   en: en/modules/bluetape4k-r2dbc.md
   ko: ko/modules/bluetape4k-r2dbc.md
   sourcePaths:
@@ -879,7 +879,7 @@ modules:
   sourceDir: infra/redis
   kind: library
   group: infrastructure
-  artifact: io.bluetape4k:bluetape4k-redis
+  artifact: io.github.bluetape4k:bluetape4k-redis
   en: en/modules/bluetape4k-redis.md
   ko: ko/modules/bluetape4k-redis.md
   sourcePaths: []
@@ -890,7 +890,7 @@ modules:
   sourceDir: infra/redisson
   kind: library
   group: infrastructure
-  artifact: io.bluetape4k:bluetape4k-redisson
+  artifact: io.github.bluetape4k:bluetape4k-redisson
   en: en/modules/bluetape4k-redisson.md
   ko: ko/modules/bluetape4k-redisson.md
   sourcePaths:
@@ -904,7 +904,7 @@ modules:
   sourceDir: infra/resilience4j
   kind: library
   group: infrastructure
-  artifact: io.bluetape4k:bluetape4k-resilience4j
+  artifact: io.github.bluetape4k:bluetape4k-resilience4j
   en: en/modules/bluetape4k-resilience4j.md
   ko: ko/modules/bluetape4k-resilience4j.md
   sourcePaths:
@@ -919,7 +919,7 @@ modules:
   sourceDir: io/retrofit2
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-retrofit2
+  artifact: io.github.bluetape4k:bluetape4k-retrofit2
   en: en/modules/bluetape4k-retrofit2.md
   ko: ko/modules/bluetape4k-retrofit2.md
   sourcePaths:
@@ -933,7 +933,7 @@ modules:
   sourceDir: utils/rule-engine
   kind: library
   group: utilities
-  artifact: io.bluetape4k:bluetape4k-rule-engine
+  artifact: io.github.bluetape4k:bluetape4k-rule-engine
   en: en/modules/bluetape4k-rule-engine.md
   ko: ko/modules/bluetape4k-rule-engine.md
   sourcePaths:
@@ -947,7 +947,7 @@ modules:
   sourceDir: utils/science
   kind: library
   group: utilities
-  artifact: io.bluetape4k:bluetape4k-science
+  artifact: io.github.bluetape4k:bluetape4k-science
   en: en/modules/bluetape4k-science.md
   ko: ko/modules/bluetape4k-science.md
   sourcePaths:
@@ -961,7 +961,7 @@ modules:
   sourceDir: spring-boot/cassandra
   kind: library
   group: spring
-  artifact: io.bluetape4k:bluetape4k-spring-boot-cassandra
+  artifact: io.github.bluetape4k:bluetape4k-spring-boot-cassandra
   en: en/modules/bluetape4k-spring-boot-cassandra.md
   ko: ko/modules/bluetape4k-spring-boot-cassandra.md
   sourcePaths:
@@ -975,7 +975,7 @@ modules:
   sourceDir: spring-boot/cassandra-demo
   kind: library
   group: spring
-  artifact: io.bluetape4k:bluetape4k-spring-boot-cassandra-demo
+  artifact: io.github.bluetape4k:bluetape4k-spring-boot-cassandra-demo
   en: en/modules/bluetape4k-spring-boot-cassandra-demo.md
   ko: ko/modules/bluetape4k-spring-boot-cassandra-demo.md
   sourcePaths: []
@@ -988,7 +988,7 @@ modules:
   sourceDir: spring-boot/core
   kind: library
   group: spring
-  artifact: io.bluetape4k:bluetape4k-spring-boot-core
+  artifact: io.github.bluetape4k:bluetape4k-spring-boot-core
   en: en/modules/bluetape4k-spring-boot-core.md
   ko: ko/modules/bluetape4k-spring-boot-core.md
   sourcePaths:
@@ -1002,7 +1002,7 @@ modules:
   sourceDir: spring-boot/hibernate-lettuce
   kind: library
   group: spring
-  artifact: io.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce
+  artifact: io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce
   en: en/modules/bluetape4k-spring-boot-hibernate-lettuce.md
   ko: ko/modules/bluetape4k-spring-boot-hibernate-lettuce.md
   sourcePaths:
@@ -1017,7 +1017,7 @@ modules:
   sourceDir: spring-boot/hibernate-lettuce-demo
   kind: library
   group: spring
-  artifact: io.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce-demo
+  artifact: io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce-demo
   en: en/modules/bluetape4k-spring-boot-hibernate-lettuce-demo.md
   ko: ko/modules/bluetape4k-spring-boot-hibernate-lettuce-demo.md
   sourcePaths:
@@ -1032,7 +1032,7 @@ modules:
   sourceDir: spring-boot/mongodb
   kind: library
   group: spring
-  artifact: io.bluetape4k:bluetape4k-spring-boot-mongodb
+  artifact: io.github.bluetape4k:bluetape4k-spring-boot-mongodb
   en: en/modules/bluetape4k-spring-boot-mongodb.md
   ko: ko/modules/bluetape4k-spring-boot-mongodb.md
   sourcePaths:
@@ -1047,7 +1047,7 @@ modules:
   sourceDir: spring-boot/r2dbc
   kind: library
   group: spring
-  artifact: io.bluetape4k:bluetape4k-spring-boot-r2dbc
+  artifact: io.github.bluetape4k:bluetape4k-spring-boot-r2dbc
   en: en/modules/bluetape4k-spring-boot-r2dbc.md
   ko: ko/modules/bluetape4k-spring-boot-r2dbc.md
   sourcePaths:
@@ -1061,7 +1061,7 @@ modules:
   sourceDir: spring-boot/redis
   kind: library
   group: spring
-  artifact: io.bluetape4k:bluetape4k-spring-boot-redis
+  artifact: io.github.bluetape4k:bluetape4k-spring-boot-redis
   en: en/modules/bluetape4k-spring-boot-redis.md
   ko: ko/modules/bluetape4k-spring-boot-redis.md
   sourcePaths:
@@ -1075,7 +1075,7 @@ modules:
   sourceDir: utils/states
   kind: library
   group: utilities
-  artifact: io.bluetape4k:bluetape4k-states
+  artifact: io.github.bluetape4k:bluetape4k-states
   en: en/modules/bluetape4k-states.md
   ko: ko/modules/bluetape4k-states.md
   sourcePaths:
@@ -1089,7 +1089,7 @@ modules:
   sourceDir: testing/testcontainers
   kind: library
   group: testing
-  artifact: io.bluetape4k:bluetape4k-testcontainers
+  artifact: io.github.bluetape4k:bluetape4k-testcontainers
   en: en/modules/bluetape4k-testcontainers.md
   ko: ko/modules/bluetape4k-testcontainers.md
   sourcePaths:
@@ -1104,7 +1104,7 @@ modules:
   sourceDir: io/tink
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-tink
+  artifact: io.github.bluetape4k:bluetape4k-tink
   en: en/modules/bluetape4k-tink.md
   ko: ko/modules/bluetape4k-tink.md
   sourcePaths:
@@ -1118,7 +1118,7 @@ modules:
   sourceDir: io/vertx
   kind: library
   group: io
-  artifact: io.bluetape4k:bluetape4k-vertx
+  artifact: io.github.bluetape4k:bluetape4k-vertx
   en: en/modules/bluetape4k-vertx.md
   ko: ko/modules/bluetape4k-vertx.md
   sourcePaths:
@@ -1132,7 +1132,7 @@ modules:
   sourceDir: virtualthread/api
   kind: library
   group: concurrency
-  artifact: io.bluetape4k:bluetape4k-virtualthread-api
+  artifact: io.github.bluetape4k:bluetape4k-virtualthread-api
   en: en/modules/bluetape4k-virtualthread-api.md
   ko: ko/modules/bluetape4k-virtualthread-api.md
   sourcePaths:
@@ -1146,7 +1146,7 @@ modules:
   sourceDir: virtualthread/jdk21
   kind: library
   group: concurrency
-  artifact: io.bluetape4k:bluetape4k-virtualthread-jdk21
+  artifact: io.github.bluetape4k:bluetape4k-virtualthread-jdk21
   en: en/modules/bluetape4k-virtualthread-jdk21.md
   ko: ko/modules/bluetape4k-virtualthread-jdk21.md
   sourcePaths:
@@ -1162,7 +1162,7 @@ modules:
   sourceDir: virtualthread/jdk25
   kind: library
   group: concurrency
-  artifact: io.bluetape4k:bluetape4k-virtualthread-jdk25
+  artifact: io.github.bluetape4k:bluetape4k-virtualthread-jdk25
   en: en/modules/bluetape4k-virtualthread-jdk25.md
   ko: ko/modules/bluetape4k-virtualthread-jdk25.md
   sourcePaths:
@@ -1178,7 +1178,7 @@ modules:
   sourceDir: utils/workflow
   kind: library
   group: utilities
-  artifact: io.bluetape4k:bluetape4k-workflow
+  artifact: io.github.bluetape4k:bluetape4k-workflow
   en: en/modules/bluetape4k-workflow.md
   ko: ko/modules/bluetape4k-workflow.md
   sourcePaths:
