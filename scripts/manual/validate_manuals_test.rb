@@ -87,6 +87,55 @@ class ValidateManualsTest < Minitest::Test
     end
   end
 
+  def test_rejects_a_relative_symlink_that_escapes_the_repository
+    with_fixture("valid") do |root|
+      Dir.mktmpdir("outside-manual-repository") do |outside|
+        link = File.join(root, "io/sample/outside-link")
+        File.symlink(outside, link)
+        manifest = load_manifest(root)
+        manifest["modules"].first["sourcePaths"] = ["io/sample/outside-link"]
+        write_manifest(root, manifest)
+
+        assert validator(root).errors.any? { |error| error.include?("unsafe sourcePaths path") }
+      end
+    end
+  end
+
+  def test_reports_missing_inventory_modules_and_inventory_duplicates
+    root = fixture("valid")
+    inventory = INVENTORY + [
+      INVENTORY.first.merge("projectName" => "duplicate-name"),
+      {
+        "gradlePath" => ":missing",
+        "projectName" => "missing",
+        "sourceDir" => "io/missing",
+        "kind" => "library",
+      },
+    ]
+
+    errors = ManualDocs::Validator.new(
+      inventory: inventory,
+      manifest_path: File.join(root, "docs/manual/manifest.yaml"),
+      repository_root: root,
+    ).errors
+
+    assert errors.any? { |error| error.include?("duplicate gradlePath") }
+    assert_includes errors, "missing: missing from manifest"
+  end
+
+  def test_reports_missing_or_invalid_manifest_shape
+    Dir.mktmpdir("manual-validator") do |root|
+      missing = validator(root).errors
+      assert_equal ["manual manifest not found: docs/manual/manifest.yaml"], missing
+
+      FileUtils.mkdir_p(File.join(root, "docs/manual"))
+      File.write(File.join(root, "docs/manual/manifest.yaml"), "schemaVersion: 2\nmodules: invalid\n")
+      errors = validator(root).errors
+      assert_includes errors, "manual manifest schemaVersion must be 1"
+      assert_includes errors, "manual manifest modules must be an array"
+    end
+  end
+
   def test_returns_errors_in_sorted_order
     errors = validator_for("missing-ko").errors
     assert_equal errors.sort, errors
