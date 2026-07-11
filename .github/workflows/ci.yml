@@ -598,7 +598,6 @@ jobs:
           command: |
             ./gradlew \
               :bluetape4k-kafka:test \
-              --max-workers=1 \
               --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -608,7 +607,6 @@ jobs:
         run: |
           ./gradlew \
             :bluetape4k-kafka:koverXmlReport \
-            --max-workers=1 \
             --no-configuration-cache
         continue-on-error: true
 
@@ -658,7 +656,6 @@ jobs:
             ./gradlew \
               :bluetape4k-opentelemetry:test \
               :bluetape4k-kafka-logback:test \
-              --max-workers=1 \
               --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -669,7 +666,6 @@ jobs:
           ./gradlew \
             :bluetape4k-opentelemetry:koverXmlReport \
             :bluetape4k-kafka-logback:koverXmlReport \
-            --max-workers=1 \
             --no-configuration-cache
         continue-on-error: true
 
@@ -724,7 +720,6 @@ jobs:
               :bluetape4k-r2dbc:test \
               :bluetape4k-mongodb:test \
               :bluetape4k-cassandra:test \
-              --max-workers=1 \
               --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
