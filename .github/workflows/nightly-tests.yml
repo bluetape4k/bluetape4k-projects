@@ -769,9 +769,10 @@ jobs:
               :bluetape4k-cache-core:test \
               :bluetape4k-opentelemetry:test \
               :bluetape4k-mock-web-server:test \
-              :bluetape4k-mock-webflux-server:test \
               :bluetape4k-r2dbc:test \
               --parallel
+            ./gradlew --no-configuration-cache \
+              :bluetape4k-mock-webflux-server:test
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
