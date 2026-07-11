@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-virtualthread-jdk25
 title: "Module bluetape4k-virtualthread-jdk25"
-description: "English | 한국어"
+description: "Java 25 Virtual Thread 구현체 모듈입니다."
 kind: library
 group: concurrency
 ---
@@ -10,7 +10,7 @@ group: concurrency
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Java 25 Virtual Thread 구현체 모듈입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-spring-boot-hibernate-lettuce
 title: "bluetape4k-spring-boot-hibernate-lettuce"
-description: "English | 한국어"
+description: "Hibernate 7 2nd Level Cache (Lettuce Near Cache)를 위한 Spring Boot 4 Auto-Configuration."
 kind: library
 group: spring
 ---
@@ -10,7 +10,7 @@ group: spring
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Hibernate 7 2nd Level Cache (Lettuce Near Cache)를 위한 Spring Boot 4 Auto-Configuration. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

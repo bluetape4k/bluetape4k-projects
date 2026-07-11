@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-ktor-core
 title: "bluetape4k-ktor-core"
-description: "English | 한국어"
+description: "Small Ktor server defaults for bluetape4k applications."
 kind: library
 group: web
 ---
@@ -10,7 +10,7 @@ group: web
 
 ## Problem {#problem}
 
-English | 한국어 This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+Small Ktor server defaults for bluetape4k applications. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

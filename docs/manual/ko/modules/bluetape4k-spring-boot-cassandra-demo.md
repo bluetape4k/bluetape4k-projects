@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-spring-boot-cassandra-demo
 title: "Module Examples - Cassandra & Spring Data Cassandra (Spring Boot 4)"
-description: "English | 한국어"
+description: "Apache Cassandra와 Spring Data Cassandra를 활용하는 종합 예제입니다 (Spring Boot 4.x)."
 kind: library
 group: spring
 ---
@@ -10,7 +10,7 @@ group: spring
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Apache Cassandra와 Spring Data Cassandra를 활용하는 종합 예제입니다 (Spring Boot 4.x). 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

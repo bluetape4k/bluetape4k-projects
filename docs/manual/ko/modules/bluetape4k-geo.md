@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-geo
 title: "Module bluetape4k-geo"
-description: "English | 한국어"
+description: "지리 정보 처리를 위한 단일 통합 모듈입니다. Geocode, GeoHash, GeoIP2 기능을 제공합니다."
 kind: library
 group: utilities
 ---
@@ -10,7 +10,7 @@ group: utilities
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+지리 정보 처리를 위한 단일 통합 모듈입니다. Geocode, GeoHash, GeoIP2 기능을 제공합니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

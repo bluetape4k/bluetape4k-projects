@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-ktor-openapi
 title: "bluetape4k-ktor-openapi"
-description: "English | 한국어"
+description: "Optional Ktor OpenAPI helpers for applications that want explicit documentation routes without changing route behavior."
 kind: library
 group: web
 ---
@@ -10,7 +10,7 @@ group: web
 
 ## Problem {#problem}
 
-English | 한국어 This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+Optional Ktor OpenAPI helpers for applications that want explicit documentation routes without changing route behavior. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

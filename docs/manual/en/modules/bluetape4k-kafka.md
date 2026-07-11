@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-kafka
 title: "Module bluetape4k-kafka"
-description: "A utility library for using Apache Kafka efficiently in a Kotlin environment. Provides extension functions and wrapper classes for Kafka clients, Spring Kafka, and Kafka Streams w…"
+description: "A utility library for using Apache Kafka efficiently in a Kotlin environment. Provides extension functions and wrapper classes for Kafka clients, Spring Kafka, and Kafka Streams with Kotlin Coroutines support."
 kind: library
 group: infrastructure
 ---
@@ -10,7 +10,7 @@ group: infrastructure
 
 ## Problem {#problem}
 
-A utility library for using Apache Kafka efficiently in a Kotlin environment. Provides extension functions and wrapper classes for Kafka clients, Spring Kafka, and Kafka Streams w… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+A utility library for using Apache Kafka efficiently in a Kotlin environment. Provides extension functions and wrapper classes for Kafka clients, Spring Kafka, and Kafka Streams with Kotlin Coroutines support. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

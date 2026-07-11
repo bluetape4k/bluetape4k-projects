@@ -1,7 +1,7 @@
 ---
 manualId: observability-ktor-demo
 title: "bluetape4k Ktor observability demo"
-description: "English | 한국어"
+description: "Ktor 3에서 애플리케이션이 소유한 Prometheus metrics route, opt-in OpenTelemetry tracing, bluetape4k event telemetry helper를 함께 사용하는 실행 가능한 예제입니다."
 kind: example
 group: learning
 ---
@@ -10,7 +10,7 @@ group: learning
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Ktor 3에서 애플리케이션이 소유한 Prometheus metrics route, opt-in OpenTelemetry tracing, bluetape4k event telemetry helper를 함께 사용하는 실행 가능한 예제입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-lettuce
 title: "bluetape4k-lettuce"
-description: "English | 한국어"
+description: "Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도록 확장한 모듈입니다. 고성능 바이너리 Codec과 RedisFuture → Coroutines 어댑터를 제공합니다."
 kind: library
 group: infrastructure
 ---
@@ -10,7 +10,7 @@ group: infrastructure
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도록 확장한 모듈입니다. 고성능 바이너리 Codec과 RedisFuture → Coroutines 어댑터를 제공합니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

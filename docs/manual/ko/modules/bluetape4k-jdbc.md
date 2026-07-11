@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-jdbc
 title: "Module bluetape4k-jdbc"
-description: "English | 한국어"
+description: "JDBC(Java Database Connectivity) 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브러리입니다. Connection 처리, Statement 실행, ResultSet 매핑, 트랜잭션 블록을 간결하게 만들면서도 JDBC의 기본 동작은 그대로 유지합니다."
 kind: library
 group: data
 ---
@@ -10,7 +10,7 @@ group: data
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+JDBC(Java Database Connectivity) 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브러리입니다. Connection 처리, Statement 실행, ResultSet 매핑, 트랜잭션 블록을 간결하게 만들면서도 JDBC의 기본 동작은 그대로 유지합니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

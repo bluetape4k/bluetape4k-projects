@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-mock-webflux-server
 title: "bluetape4k-mock-webflux-server"
-description: "통합 테스트용 독립 실행형 Spring Boot 4 + WebFlux Mock 서버입니다. httpbin.org, jsonplaceholder.typicode.com와 호환되는 HTTP 엔드포인트를 Kotlin Coroutines (suspend fun, Flow)로 구현합니다. Docker 컨테이너 내부에서 80(HT…"
+description: "통합 테스트용 독립 실행형 Spring Boot 4 + WebFlux Mock 서버입니다. httpbin.org, jsonplaceholder.typicode.com와 호환되는 HTTP 엔드포인트를 Kotlin Coroutines (suspend fun, Flow)로 구현합니다. Docker 컨테이너 내부에서 80(HTTP) / 8443(HTTPS) 포트로 실행됩니다."
 kind: library
 group: testing
 ---
@@ -10,7 +10,7 @@ group: testing
 
 ## 해결하는 문제 {#problem}
 
-통합 테스트용 독립 실행형 Spring Boot 4 + WebFlux Mock 서버입니다. httpbin.org, jsonplaceholder.typicode.com와 호환되는 HTTP 엔드포인트를 Kotlin Coroutines (suspend fun, Flow)로 구현합니다. Docker 컨테이너 내부에서 80(HT… 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+통합 테스트용 독립 실행형 Spring Boot 4 + WebFlux Mock 서버입니다. httpbin.org, jsonplaceholder.typicode.com와 호환되는 HTTP 엔드포인트를 Kotlin Coroutines (suspend fun, Flow)로 구현합니다. Docker 컨테이너 내부에서 80(HTTP) / 8443(HTTPS) 포트로 실행됩니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

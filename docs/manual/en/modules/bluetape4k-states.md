@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-states
 title: "bluetape4k-states"
-description: "A Kotlin DSL-based finite state machine (FSM) library for JVM backend and library code. It supports synchronous, coroutine-based, and optional reactive event/effect state machines…"
+description: "A Kotlin DSL-based finite state machine (FSM) library for JVM backend and library code."
 kind: library
 group: utilities
 ---
@@ -10,7 +10,7 @@ group: utilities
 
 ## Problem {#problem}
 
-A Kotlin DSL-based finite state machine (FSM) library for JVM backend and library code. It supports synchronous, coroutine-based, and optional reactive event/effect state machines… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+A Kotlin DSL-based finite state machine (FSM) library for JVM backend and library code. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

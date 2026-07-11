@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-cassandra
 title: "Module bluetape4k-cassandra"
-description: "English | 한국어"
+description: "Apache Cassandra Java Driver를 Kotlin에서 더욱 편리하게 사용할 수 있도록 하는 확장 라이브러리입니다."
 kind: library
 group: data
 ---
@@ -10,7 +10,7 @@ group: data
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Apache Cassandra Java Driver를 Kotlin에서 더욱 편리하게 사용할 수 있도록 하는 확장 라이브러리입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

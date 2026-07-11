@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-okio
 title: "Module bluetape4k-okio"
-description: "English | 한국어"
+description: "bluetape4k-okio는 Square의 Okio 라이브러리를 기반으로 한 고성능 I/O 확장 모듈입니다. Okio의 Source/ Sink 추상화 위에 압축, 암호화, Base64 인코딩, NIO 채널 통합, Kotlin Coroutines 비동기 I/O 등을 제공합니다."
 kind: library
 group: io
 ---
@@ -10,7 +10,7 @@ group: io
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+bluetape4k-okio는 Square의 Okio 라이브러리를 기반으로 한 고성능 I/O 확장 모듈입니다. Okio의 Source/ Sink 추상화 위에 압축, 암호화, Base64 인코딩, NIO 채널 통합, Kotlin Coroutines 비동기 I/O 등을 제공합니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

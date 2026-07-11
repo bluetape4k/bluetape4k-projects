@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-pulsar
 title: "bluetape4k-pulsar"
-description: "한국어 | English"
+description: "Apache Pulsar client extensions for Kotlin — coroutine-first, DSL-friendly, Jackson2/Jackson3 schema support."
 kind: library
 group: infrastructure
 ---
@@ -10,7 +10,7 @@ group: infrastructure
 
 ## Problem {#problem}
 
-한국어 | English This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+Apache Pulsar client extensions for Kotlin — coroutine-first, DSL-friendly, Jackson2/Jackson3 schema support. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

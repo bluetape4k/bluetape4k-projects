@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-kafka4
 title: "Module bluetape4k-kafka4"
-description: "bluetape4k-kafka4 is the Kafka 4.x line of the bluetape4k Kafka utilities. It keeps the same Kotlin-first API shape as bluetape4k-kafka, but is compiled against Kafka 4.2.x, Sprin…"
+description: "bluetape4k-kafka4 is the Kafka 4.x line of the bluetape4k Kafka utilities."
 kind: library
 group: infrastructure
 ---
@@ -10,7 +10,7 @@ group: infrastructure
 
 ## Problem {#problem}
 
-bluetape4k-kafka4 is the Kafka 4.x line of the bluetape4k Kafka utilities. It keeps the same Kotlin-first API shape as bluetape4k-kafka, but is compiled against Kafka 4.2.x, Sprin… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+bluetape4k-kafka4 is the Kafka 4.x line of the bluetape4k Kafka utilities. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

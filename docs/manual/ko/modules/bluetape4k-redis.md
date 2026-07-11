@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-redis
 title: "bluetape4k-redis"
-description: "English | 한국어"
+description: "Lettuce와 Redisson 두 Redis 클라이언트를 함께 제공하는 umbrella 모듈입니다. 기존 코드가 bluetape4k-redis를 의존하던 경우 변경 없이 계속 사용할 수 있습니다."
 kind: library
 group: infrastructure
 ---
@@ -10,7 +10,7 @@ group: infrastructure
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Lettuce와 Redisson 두 Redis 클라이언트를 함께 제공하는 umbrella 모듈입니다. 기존 코드가 bluetape4k-redis를 의존하던 경우 변경 없이 계속 사용할 수 있습니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

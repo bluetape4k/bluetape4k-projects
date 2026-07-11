@@ -1,7 +1,7 @@
 ---
 manualId: protobuf-codec-benchmark
 title: "Protobuf Codec Benchmark"
-description: "This module measures the protobuf codec paths used by bluetape4k serialization and Redisson integration code. The benchmark is intentionally narrow: it keeps a single deterministi…"
+description: "This module measures the protobuf codec paths used by bluetape4k serialization and Redisson integration code."
 kind: benchmark
 group: experiments
 ---
@@ -10,7 +10,7 @@ group: experiments
 
 ## Problem {#problem}
 
-This module measures the protobuf codec paths used by bluetape4k serialization and Redisson integration code. The benchmark is intentionally narrow: it keeps a single deterministi… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+This module measures the protobuf codec paths used by bluetape4k serialization and Redisson integration code. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

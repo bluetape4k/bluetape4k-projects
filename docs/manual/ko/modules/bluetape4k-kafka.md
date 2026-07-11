@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-kafka
 title: "Module bluetape4k-kafka"
-description: "English | 한국어"
+description: "Apache Kafka를 Kotlin 환경에서 효율적으로 사용하기 위한 유틸리티 라이브러리입니다. Kafka 클라이언트, Spring Kafka, Kafka Streams를 Kotlin 코루틴과 함께 사용할 수 있도록 다양한 확장 함수와 래퍼 클래스를 제공합니다."
 kind: library
 group: infrastructure
 ---
@@ -10,7 +10,7 @@ group: infrastructure
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Apache Kafka를 Kotlin 환경에서 효율적으로 사용하기 위한 유틸리티 라이브러리입니다. Kafka 클라이언트, Spring Kafka, Kafka Streams를 Kotlin 코루틴과 함께 사용할 수 있도록 다양한 확장 함수와 래퍼 클래스를 제공합니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

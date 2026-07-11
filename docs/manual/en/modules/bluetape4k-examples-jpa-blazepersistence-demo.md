@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-examples-jpa-blazepersistence-demo
 title: "Module Examples - JPA & Blaze Persistence"
-description: "This module demonstrates JPA query patterns with Blaze Persistence: Criteria Builder, Entity Views, offset pagination, keyset pagination, and count metadata. It is intended as a c…"
+description: "This module demonstrates JPA query patterns with Blaze Persistence: Criteria Builder, Entity Views, offset pagination, keyset pagination, and count metadata."
 kind: example
 group: learning
 ---
@@ -10,7 +10,7 @@ group: learning
 
 ## Problem {#problem}
 
-This module demonstrates JPA query patterns with Blaze Persistence: Criteria Builder, Entity Views, offset pagination, keyset pagination, and count metadata. It is intended as a c… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+This module demonstrates JPA query patterns with Blaze Persistence: Criteria Builder, Entity Views, offset pagination, keyset pagination, and count metadata. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

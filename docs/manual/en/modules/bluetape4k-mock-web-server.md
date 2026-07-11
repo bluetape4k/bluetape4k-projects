@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-mock-web-server
 title: "bluetape4k-mock-web-server"
-description: "한국어 | English"
+description: "A self-contained Spring Boot 4 + Virtual Threads HTTP mock server that replaces external HTTP dependencies in integration tests."
 kind: library
 group: testing
 ---
@@ -10,7 +10,7 @@ group: testing
 
 ## Problem {#problem}
 
-한국어 | English This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+A self-contained Spring Boot 4 + Virtual Threads HTTP mock server that replaces external HTTP dependencies in integration tests. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

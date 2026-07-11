@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-elasticsearch
 title: "Module bluetape4k-elasticsearch"
-description: "한국어 | English"
+description: "Elasticsearch client library for Kotlin with Coroutines support."
 kind: library
 group: infrastructure
 ---
@@ -10,7 +10,7 @@ group: infrastructure
 
 ## Problem {#problem}
 
-한국어 | English This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+Elasticsearch client library for Kotlin with Coroutines support. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

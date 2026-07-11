@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-jwt
 title: "Module bluetape4k-jwt"
-description: "English | 한국어"
+description: "JSON Web Token (JWT)을 생성하고 파싱하는 라이브러리입니다. jjwt 0.13.x 라이브러리를 기반으로 Kotlin 친화적인 API와 KeyChain 관리 기능을 제공합니다."
 kind: library
 group: utilities
 ---
@@ -10,7 +10,7 @@ group: utilities
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+JSON Web Token (JWT)을 생성하고 파싱하는 라이브러리입니다. jjwt 0.13.x 라이브러리를 기반으로 Kotlin 친화적인 API와 KeyChain 관리 기능을 제공합니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-jdbc
 title: "Module bluetape4k-jdbc"
-description: "A Kotlin extension library that reduces boilerplate when working with JDBC (Java Database Connectivity). It keeps connection handling, statement execution, result mapping, and tra…"
+description: "A Kotlin extension library that reduces boilerplate when working with JDBC (Java Database Connectivity)."
 kind: library
 group: data
 ---
@@ -10,7 +10,7 @@ group: data
 
 ## Problem {#problem}
 
-A Kotlin extension library that reduces boilerplate when working with JDBC (Java Database Connectivity). It keeps connection handling, statement execution, result mapping, and tra… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+A Kotlin extension library that reduces boilerplate when working with JDBC (Java Database Connectivity). This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

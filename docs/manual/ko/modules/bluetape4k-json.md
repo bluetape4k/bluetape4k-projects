@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-json
 title: "Module bluetape4k-json"
-description: "English | 한국어"
+description: "bluetape4k-json은 Jackson 2, Jackson 3, Fastjson2 모듈이 함께 쓰는 작은 JSON 직렬화 SPI입니다."
 kind: library
 group: io
 ---
@@ -10,7 +10,7 @@ group: io
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+bluetape4k-json은 Jackson 2, Jackson 3, Fastjson2 모듈이 함께 쓰는 작은 JSON 직렬화 SPI입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

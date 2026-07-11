@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-javatimes
 title: "bluetape4k-javatimes"
-description: "An advanced time-operations library for the Java Time API (java.time). Supports Joda-Time-style Temporal Intervals, a Period Framework (TimeBlock/TimeRange/DateAdd/DateDiff), Cale…"
+description: "An advanced time-operations library for the Java Time API (java.time)."
 kind: library
 group: utilities
 ---
@@ -10,7 +10,7 @@ group: utilities
 
 ## Problem {#problem}
 
-An advanced time-operations library for the Java Time API (java.time). Supports Joda-Time-style Temporal Intervals, a Period Framework (TimeBlock/TimeRange/DateAdd/DateDiff), Cale… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+An advanced time-operations library for the Java Time API (java.time). This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

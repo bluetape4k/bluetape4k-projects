@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-cache-redisson
 title: "Module bluetape4k-cache-redisson"
-description: "bluetape4k-cache-redisson provides Redisson-backed cache adapters for the bluetape4k cache APIs. It focuses on JCache integration, coroutine-friendly wrappers, Redisson RLocalCach…"
+description: "bluetape4k-cache-redisson provides Redisson-backed cache adapters for the bluetape4k cache APIs."
 kind: library
 group: caching
 ---
@@ -10,7 +10,7 @@ group: caching
 
 ## Problem {#problem}
 
-bluetape4k-cache-redisson provides Redisson-backed cache adapters for the bluetape4k cache APIs. It focuses on JCache integration, coroutine-friendly wrappers, Redisson RLocalCach… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+bluetape4k-cache-redisson provides Redisson-backed cache adapters for the bluetape4k cache APIs. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 
@@ -51,7 +51,7 @@ Add the coordinate above, refresh Gradle, and start from the smallest entry poin
 
 ## Patterns {#patterns}
 
-The README evidence is organized around **Package / Import Stability**, **Provided APIs**, **Near-Cache Capability**, **Dependency**, **Recommended Scenarios**, **Anti-Patterns**, **Examples**, **Suspend JCache**, **Native Redisson Near Cache**, and **Suspend Memoizer**. Use those topics as a navigation map, then confirm behavior in source and tests. Keep adoption narrow and connect owned resources to the caller lifecycle.
+Choose one loading contract explicitly. With **cache-aside**, the caller handles a miss, loads the value, and writes it back. With **read-through**, the cache loader owns that miss path. With **write-through**, the cache API propagates the write to the backing store before reporting success; do not describe a plain `put` as write-through unless its implementation has that contract. For a two-level Near Cache, read L1 first, consult L2 on a miss, then fill L1. Write or invalidate L2 and L1 in the order required by the implementation, and test partial failure so stale L1 data cannot silently survive a failed backend update.
 
 ## Integrations {#integrations}
 

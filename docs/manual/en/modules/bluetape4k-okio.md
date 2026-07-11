@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-okio
 title: "Module bluetape4k-okio"
-description: "bluetape4k-okio is a high-performance I/O extension module built on Square's Okio library. On top of Okio's Source/ Sink abstractions, it provides compression, encryption, Base64…"
+description: "bluetape4k-okio is a high-performance I/O extension module built on Square's Okio library."
 kind: library
 group: io
 ---
@@ -10,7 +10,7 @@ group: io
 
 ## Problem {#problem}
 
-bluetape4k-okio is a high-performance I/O extension module built on Square's Okio library. On top of Okio's Source/ Sink abstractions, it provides compression, encryption, Base64… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+bluetape4k-okio is a high-performance I/O extension module built on Square's Okio library. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

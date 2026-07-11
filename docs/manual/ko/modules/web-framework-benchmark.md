@@ -1,7 +1,7 @@
 ---
 manualId: web-framework-benchmark
 title: "Web Framework Benchmark"
-description: "English | 한국어"
+description: "이 모듈은 Ktor CIO와 Spring WebFlux로 같은 HTTP workload를 구현하고 비교합니다. JDK HttpClient로 local loopback server에 요청을 보내므로, framework routing, JSON 응답 직렬화, 요청 처리, 최소 server lifecycle 비용이 함께 측정됩니다."
 kind: benchmark
 group: experiments
 ---
@@ -10,7 +10,7 @@ group: experiments
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+이 모듈은 Ktor CIO와 Spring WebFlux로 같은 HTTP workload를 구현하고 비교합니다. JDK HttpClient로 local loopback server에 요청을 보내므로, framework routing, JSON 응답 직렬화, 요청 처리, 최소 server lifecycle 비용이 함께 측정됩니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

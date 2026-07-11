@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-mutiny
 title: "Module bluetape4k-mutiny"
-description: "English | 한국어"
+description: "SmallRye Mutiny 반응형 라이브러리를 Kotlin에서 더 쉽게 사용할 수 있도록 확장 함수와 유틸리티를 제공합니다."
 kind: library
 group: utilities
 ---
@@ -10,7 +10,7 @@ group: utilities
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+SmallRye Mutiny 반응형 라이브러리를 Kotlin에서 더 쉽게 사용할 수 있도록 확장 함수와 유틸리티를 제공합니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

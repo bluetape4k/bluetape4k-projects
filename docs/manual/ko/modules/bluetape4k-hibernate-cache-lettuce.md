@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-hibernate-cache-lettuce
 title: "Module bluetape4k-hibernate-cache-lettuce"
-description: "English | 한국어"
+description: "Hibernate 7.2 2nd Level Cache 구현체 — Lettuce Near Cache(Caffeine L1 + Redis L2) 기반. hibernate.cache.lettuce. Hibernate properties 설정만으로 모든 Region에 Near Cache가 자동 적용된다."
 kind: library
 group: caching
 ---
@@ -10,7 +10,7 @@ group: caching
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Hibernate 7.2 2nd Level Cache 구현체 — Lettuce Near Cache(Caffeine L1 + Redis L2) 기반. hibernate.cache.lettuce. Hibernate properties 설정만으로 모든 Region에 Near Cache가 자동 적용된다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 
@@ -45,7 +45,7 @@ Gradle project path는 `:bluetape4k-hibernate-cache-lettuce`, source directory�
 
 ## 권장 패턴 {#patterns}
 
-README 근거는 **패키지 / import 안정성**, **요구 사항**, **아키텍처**, **Near Cache 2-Tier 구조**, **레이어 구조**, **최근 변경**, **의존성**, **설정**, **Hibernate Properties**, **application.yml (Spring Boot 없이 직접 사용)** 순서로 탐색할 수 있습니다. 이 항목으로 방향을 잡고 source와 test에서 동작을 확인합니다. 도입 범위는 좁게 유지하고 소유한 resource를 caller lifecycle에 연결합니다.
+entity load와 region write는 Hibernate 2차 캐시 access strategy가 소유하므로 애플리케이션에서 별도의 캐시 어사이드 loader를 region 바깥에 덧씌우지 않습니다. 문서화된 topology는 Caffeine을 L1, Redis를 L2로 사용합니다. local miss에서는 L2를 확인한 뒤 L1을 채우고, write 또는 invalidation에서는 오래된 L1 entry가 Redis 상태보다 오래 남지 않도록 region strategy의 순서를 지킵니다. backend failure와 eviction 동작은 연결된 region 및 Near Cache test로 확인합니다.
 
 ## 연동 {#integrations}
 

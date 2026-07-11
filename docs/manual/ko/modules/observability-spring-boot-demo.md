@@ -1,7 +1,7 @@
 ---
 manualId: observability-spring-boot-demo
 title: "bluetape4k Spring Boot observability demo"
-description: "English | 한국어"
+description: "Spring Boot 4에서 bluetape4k observation helper를 Spring Boot Actuator Prometheus metrics와 애플리케이션 소유 OTLP tracing 설정으로 사용하는 실행 가능한 예제입니다."
 kind: example
 group: learning
 ---
@@ -10,7 +10,7 @@ group: learning
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Spring Boot 4에서 bluetape4k observation helper를 Spring Boot Actuator Prometheus metrics와 애플리케이션 소유 OTLP tracing 설정으로 사용하는 실행 가능한 예제입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

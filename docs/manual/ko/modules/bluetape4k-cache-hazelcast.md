@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-cache-hazelcast
 title: "Module bluetape4k-cache-hazelcast"
-description: "English | 한국어"
+description: "bluetape4k-cache-hazelcast는 Hazelcast 기반 JCache Provider, Coroutines 캐시 구현, 그리고 Caffeine + Hazelcast IMap 2-Tier Near Cache를 제공합니다."
 kind: library
 group: caching
 ---
@@ -10,7 +10,7 @@ group: caching
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+bluetape4k-cache-hazelcast는 Hazelcast 기반 JCache Provider, Coroutines 캐시 구현, 그리고 Caffeine + Hazelcast IMap 2-Tier Near Cache를 제공합니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 
@@ -52,7 +52,7 @@ Gradle project path는 `:bluetape4k-cache-hazelcast`, source directory는 `cache
 
 ## 권장 패턴 {#patterns}
 
-README 근거는 **패키지 / import 안정성**, **제공 기능**, **NearCache 아키텍처**, **Write-through (기본)**, **Write-behind (Resilient)**, **설치**, **Factory (HazelcastCaches)**, **JCache 기반 NearCache (nearcache.jcache 패키지)**, **Near-Cache Capability**, **NearJCache 사용 예** 순서로 탐색할 수 있습니다. 이 항목으로 방향을 잡고 source와 test에서 동작을 확인합니다. 도입 범위는 좁게 유지하고 소유한 resource를 caller lifecycle에 연결합니다.
+loading 계약을 하나로 명확히 선택합니다. **캐시 어사이드(cache-aside)**에서는 caller가 miss를 처리해 값을 load하고 cache에 다시 씁니다. **read-through**에서는 cache loader가 miss 경로를 소유합니다. **write-through**에서는 cache API가 성공을 반환하기 전에 backing store까지 write를 전파합니다. 구현에 이 계약이 없다면 일반 `put`을 write-through라고 부르지 않습니다. 2단계 Near Cache는 L1을 먼저 읽고 miss이면 L2를 조회한 뒤 L1을 채웁니다. 구현이 정한 순서대로 L2와 L1을 write 또는 invalidate하고, backend update 실패 뒤 오래된 L1 값이 남지 않는지 partial failure test로 확인합니다.
 
 ## 연동 {#integrations}
 

@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-ktor-openapi
 title: "bluetape4k-ktor-openapi"
-description: "English | 한국어"
+description: "Route 동작을 바꾸지 않고 명시적인 문서 route만 추가하려는 애플리케이션을 위한 선택적 Ktor OpenAPI helper입니다."
 kind: library
 group: web
 ---
@@ -10,7 +10,7 @@ group: web
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Route 동작을 바꾸지 않고 명시적인 문서 route만 추가하려는 애플리케이션을 위한 선택적 Ktor OpenAPI helper입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

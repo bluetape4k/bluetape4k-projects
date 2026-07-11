@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-ktor-core
 title: "bluetape4k-ktor-core"
-description: "English | 한국어"
+description: "bluetape4k 애플리케이션에서 공통으로 쓰는 작은 Ktor 서버 기본값 모듈입니다."
 kind: library
 group: web
 ---
@@ -10,7 +10,7 @@ group: web
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+bluetape4k 애플리케이션에서 공통으로 쓰는 작은 Ktor 서버 기본값 모듈입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 
