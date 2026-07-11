@@ -472,13 +472,14 @@ module ManualDocs
     end
 
     def readme_summary(readme, fallback, locale)
-      line = readme.lines.map(&:strip).find do |candidate|
-        !candidate.empty? &&
-          !candidate.start_with?("#", "[![", "![", "<", "|", "```", "---", "- ") &&
-          !candidate.match?(/\A\[?(?:English|한국어)\]?\s*\|/)
+      paragraph = readme.split(/\n\s*\n/).map(&:strip).find do |candidate|
+        first_line = candidate.lines.first.to_s.strip
+        !first_line.empty? &&
+          !first_line.start_with?("#", "[![", "![", "<", "|", "```", "---", "- ") &&
+          !first_line.match?(/\A\[?(?:English|한국어)\]?\s*\|/)
       end
       fallback_text = locale == :ko ? "#{fallback} 모듈의 현재 source와 test를 작업 중심으로 설명합니다." : "Task-oriented guide to the current #{fallback} source and tests."
-      truncate(clean_text(line || fallback_text), 180)
+      truncate(clean_text(paragraph || fallback_text), 180)
     end
 
     def clean_text(value)

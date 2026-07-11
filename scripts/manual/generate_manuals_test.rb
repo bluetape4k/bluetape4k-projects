@@ -29,6 +29,7 @@ class GenerateManualsTest < Minitest::Test
       assert_includes korean, "manualId: sample"
       assert_includes english, "SampleClient"
       assert_includes english, "SampleClientTest"
+      assert_includes english, "English sample client for remote calls."
       refute_includes korean, ", and "
       assert_equal REQUIRED_SECTIONS, english.scan(/\{#([a-z0-9-]+)\}/).flatten
       assert_equal REQUIRED_SECTIONS, korean.scan(/\{#([a-z0-9-]+)\}/).flatten
@@ -48,7 +49,7 @@ class GenerateManualsTest < Minitest::Test
       io/sample/src/test/kotlin/io/example
     ]
     paths.each { |path| FileUtils.mkdir_p(File.join(root, path)) }
-    File.write(File.join(root, "io/sample/README.md"), "# Sample module\n\nEnglish sample client for remote calls.\n")
+    File.write(File.join(root, "io/sample/README.md"), "# Sample module\n\nEnglish sample client for remote\ncalls.\n")
     File.write(File.join(root, "io/sample/README.ko.md"), "# Sample 모듈\n\n원격 호출을 위한 sample client입니다.\n")
     File.write(File.join(root, "io/sample/build.gradle.kts"), "dependencies {\n    api(libs.sample.api)\n}\n")
     File.write(File.join(root, "io/sample/src/main/kotlin/io/example/SampleClient.kt"), "class SampleClient\n")
