@@ -1,0 +1,1269 @@
+---
+schemaVersion: 1
+modules:
+- id: bluetape4k-annotations
+  gradlePath: ":bluetape4k-annotations"
+  sourceDir: bluetape4k/annotations
+  kind: library
+  group: foundation
+  artifact: io.bluetape4k:bluetape4k-annotations
+  en: en/modules/bluetape4k-annotations.md
+  ko: ko/modules/bluetape4k-annotations.md
+  sourcePaths:
+  - bluetape4k/annotations/src/main/kotlin
+  testPaths:
+  - bluetape4k/annotations/src/test/kotlin
+  - bluetape4k/annotations/src/test/resources
+  workshops: []
+- id: bluetape4k-assertions
+  gradlePath: ":bluetape4k-assertions"
+  sourceDir: testing/assertions
+  kind: library
+  group: testing
+  artifact: io.bluetape4k:bluetape4k-assertions
+  en: en/modules/bluetape4k-assertions.md
+  ko: ko/modules/bluetape4k-assertions.md
+  sourcePaths:
+  - testing/assertions/src/main/kotlin
+  testPaths:
+  - testing/assertions/src/test/kotlin
+  - testing/assertions/src/test/resources
+  workshops: []
+- id: bluetape4k-avro
+  gradlePath: ":bluetape4k-avro"
+  sourceDir: io/avro
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-avro
+  en: en/modules/bluetape4k-avro.md
+  ko: ko/modules/bluetape4k-avro.md
+  sourcePaths:
+  - io/avro/src/main/kotlin
+  testPaths:
+  - io/avro/src/test/kotlin
+  - io/avro/src/test/resources
+  workshops: []
+- id: bluetape4k-bom
+  gradlePath: ":bluetape4k-bom"
+  sourceDir: bluetape4k/bom
+  kind: library
+  group: foundation
+  artifact: io.bluetape4k:bluetape4k-bom
+  en: en/modules/bluetape4k-bom.md
+  ko: ko/modules/bluetape4k-bom.md
+  sourcePaths: []
+  testPaths: []
+  workshops: []
+- id: bluetape4k-bucket4j
+  gradlePath: ":bluetape4k-bucket4j"
+  sourceDir: infra/bucket4j
+  kind: library
+  group: infrastructure
+  artifact: io.bluetape4k:bluetape4k-bucket4j
+  en: en/modules/bluetape4k-bucket4j.md
+  ko: ko/modules/bluetape4k-bucket4j.md
+  sourcePaths:
+  - infra/bucket4j/src/main/kotlin
+  testPaths:
+  - infra/bucket4j/src/test/kotlin
+  - infra/bucket4j/src/test/resources
+  workshops: []
+- id: bluetape4k-cache-core
+  gradlePath: ":bluetape4k-cache-core"
+  sourceDir: cache/cache-core
+  kind: library
+  group: caching
+  artifact: io.bluetape4k:bluetape4k-cache-core
+  en: en/modules/bluetape4k-cache-core.md
+  ko: ko/modules/bluetape4k-cache-core.md
+  sourcePaths:
+  - cache/cache-core/src/main/kotlin
+  testPaths:
+  - cache/cache-core/src/test/kotlin
+  - cache/cache-core/src/test/resources
+  workshops: []
+- id: bluetape4k-cache-hazelcast
+  gradlePath: ":bluetape4k-cache-hazelcast"
+  sourceDir: cache/cache-hazelcast
+  kind: library
+  group: caching
+  artifact: io.bluetape4k:bluetape4k-cache-hazelcast
+  en: en/modules/bluetape4k-cache-hazelcast.md
+  ko: ko/modules/bluetape4k-cache-hazelcast.md
+  sourcePaths:
+  - cache/cache-hazelcast/src/main/kotlin
+  - cache/cache-hazelcast/src/main/resources
+  testPaths:
+  - cache/cache-hazelcast/src/test/kotlin
+  - cache/cache-hazelcast/src/test/resources
+  workshops: []
+- id: bluetape4k-cache-lettuce
+  gradlePath: ":bluetape4k-cache-lettuce"
+  sourceDir: cache/cache-lettuce
+  kind: library
+  group: caching
+  artifact: io.bluetape4k:bluetape4k-cache-lettuce
+  en: en/modules/bluetape4k-cache-lettuce.md
+  ko: ko/modules/bluetape4k-cache-lettuce.md
+  sourcePaths:
+  - cache/cache-lettuce/src/main/kotlin
+  - cache/cache-lettuce/src/main/resources
+  testPaths:
+  - cache/cache-lettuce/src/test/kotlin
+  - cache/cache-lettuce/src/test/resources
+  workshops: []
+- id: bluetape4k-cache-redisson
+  gradlePath: ":bluetape4k-cache-redisson"
+  sourceDir: cache/cache-redisson
+  kind: library
+  group: caching
+  artifact: io.bluetape4k:bluetape4k-cache-redisson
+  en: en/modules/bluetape4k-cache-redisson.md
+  ko: ko/modules/bluetape4k-cache-redisson.md
+  sourcePaths:
+  - cache/cache-redisson/src/main/kotlin
+  - cache/cache-redisson/src/main/resources
+  testPaths:
+  - cache/cache-redisson/src/test/kotlin
+  - cache/cache-redisson/src/test/resources
+  workshops: []
+- id: bluetape4k-cassandra
+  gradlePath: ":bluetape4k-cassandra"
+  sourceDir: data/cassandra
+  kind: library
+  group: data
+  artifact: io.bluetape4k:bluetape4k-cassandra
+  en: en/modules/bluetape4k-cassandra.md
+  ko: ko/modules/bluetape4k-cassandra.md
+  sourcePaths:
+  - data/cassandra/src/main/kotlin
+  testPaths:
+  - data/cassandra/src/test/kotlin
+  - data/cassandra/src/test/resources
+  workshops: []
+- id: bluetape4k-core
+  gradlePath: ":bluetape4k-core"
+  sourceDir: bluetape4k/core
+  kind: library
+  group: foundation
+  artifact: io.bluetape4k:bluetape4k-core
+  en: en/modules/bluetape4k-core.md
+  ko: ko/modules/bluetape4k-core.md
+  sourcePaths:
+  - bluetape4k/core/src/main/kotlin
+  testPaths:
+  - bluetape4k/core/src/test/kotlin
+  - bluetape4k/core/src/test/resources
+  workshops: []
+- id: bluetape4k-coroutines
+  gradlePath: ":bluetape4k-coroutines"
+  sourceDir: bluetape4k/coroutines
+  kind: library
+  group: foundation
+  artifact: io.bluetape4k:bluetape4k-coroutines
+  en: en/modules/bluetape4k-coroutines.md
+  ko: ko/modules/bluetape4k-coroutines.md
+  sourcePaths:
+  - bluetape4k/coroutines/src/main/kotlin
+  testPaths:
+  - bluetape4k/coroutines/src/test/kotlin
+  - bluetape4k/coroutines/src/test/resources
+  workshops: []
+- id: bluetape4k-csv
+  gradlePath: ":bluetape4k-csv"
+  sourceDir: io/csv
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-csv
+  en: en/modules/bluetape4k-csv.md
+  ko: ko/modules/bluetape4k-csv.md
+  sourcePaths:
+  - io/csv/src/main/kotlin
+  testPaths:
+  - io/csv/src/test/kotlin
+  - io/csv/src/test/resources
+  workshops: []
+- id: bluetape4k-elasticsearch
+  gradlePath: ":bluetape4k-elasticsearch"
+  sourceDir: infra/elasticsearch
+  kind: library
+  group: infrastructure
+  artifact: io.bluetape4k:bluetape4k-elasticsearch
+  en: en/modules/bluetape4k-elasticsearch.md
+  ko: ko/modules/bluetape4k-elasticsearch.md
+  sourcePaths:
+  - infra/elasticsearch/src/main/kotlin
+  testPaths:
+  - infra/elasticsearch/src/test/kotlin
+  - infra/elasticsearch/src/test/resources
+  workshops: []
+- id: bluetape4k-examples-coroutines-demo
+  gradlePath: ":bluetape4k-examples-coroutines-demo"
+  sourceDir: examples/coroutines-demo
+  kind: example
+  group: learning
+  artifact: 
+  en: en/modules/bluetape4k-examples-coroutines-demo.md
+  ko: ko/modules/bluetape4k-examples-coroutines-demo.md
+  sourcePaths: []
+  testPaths:
+  - examples/coroutines-demo/src/test/kotlin
+  - examples/coroutines-demo/src/test/resources
+  workshops: []
+- id: bluetape4k-examples-jpa-blazepersistence-demo
+  gradlePath: ":bluetape4k-examples-jpa-blazepersistence-demo"
+  sourceDir: examples/jpa-blazepersistence-demo
+  kind: example
+  group: learning
+  artifact: 
+  en: en/modules/bluetape4k-examples-jpa-blazepersistence-demo.md
+  ko: ko/modules/bluetape4k-examples-jpa-blazepersistence-demo.md
+  sourcePaths:
+  - examples/jpa-blazepersistence-demo/src/main/kotlin
+  testPaths:
+  - examples/jpa-blazepersistence-demo/src/test/kotlin
+  - examples/jpa-blazepersistence-demo/src/test/resources
+  workshops: []
+- id: bluetape4k-examples-jpa-querydsl-demo
+  gradlePath: ":bluetape4k-examples-jpa-querydsl-demo"
+  sourceDir: examples/jpa-querydsl-demo
+  kind: example
+  group: learning
+  artifact: 
+  en: en/modules/bluetape4k-examples-jpa-querydsl-demo.md
+  ko: ko/modules/bluetape4k-examples-jpa-querydsl-demo.md
+  sourcePaths:
+  - examples/jpa-querydsl-demo/src/main/kotlin
+  testPaths:
+  - examples/jpa-querydsl-demo/src/test/kotlin
+  - examples/jpa-querydsl-demo/src/test/resources
+  workshops: []
+- id: bluetape4k-examples-redisson-demo
+  gradlePath: ":bluetape4k-examples-redisson-demo"
+  sourceDir: examples/redisson-demo
+  kind: example
+  group: learning
+  artifact: 
+  en: en/modules/bluetape4k-examples-redisson-demo.md
+  ko: ko/modules/bluetape4k-examples-redisson-demo.md
+  sourcePaths: []
+  testPaths:
+  - examples/redisson-demo/src/test/kotlin
+  - examples/redisson-demo/src/test/resources
+  workshops: []
+- id: bluetape4k-examples-virtualthreads-demo
+  gradlePath: ":bluetape4k-examples-virtualthreads-demo"
+  sourceDir: examples/virtualthreads-demo
+  kind: example
+  group: learning
+  artifact: 
+  en: en/modules/bluetape4k-examples-virtualthreads-demo.md
+  ko: ko/modules/bluetape4k-examples-virtualthreads-demo.md
+  sourcePaths: []
+  testPaths:
+  - examples/virtualthreads-demo/src/test/kotlin
+  - examples/virtualthreads-demo/src/test/resources
+  workshops: []
+- id: bluetape4k-fastjson2
+  gradlePath: ":bluetape4k-fastjson2"
+  sourceDir: io/fastjson2
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-fastjson2
+  en: en/modules/bluetape4k-fastjson2.md
+  ko: ko/modules/bluetape4k-fastjson2.md
+  sourcePaths:
+  - io/fastjson2/src/main/kotlin
+  testPaths:
+  - io/fastjson2/src/test/kotlin
+  - io/fastjson2/src/test/resources
+  workshops: []
+- id: bluetape4k-feign
+  gradlePath: ":bluetape4k-feign"
+  sourceDir: io/feign
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-feign
+  en: en/modules/bluetape4k-feign.md
+  ko: ko/modules/bluetape4k-feign.md
+  sourcePaths:
+  - io/feign/src/main/kotlin
+  testPaths:
+  - io/feign/src/test/kotlin
+  - io/feign/src/test/resources
+  workshops: []
+- id: bluetape4k-geo
+  gradlePath: ":bluetape4k-geo"
+  sourceDir: utils/geo
+  kind: library
+  group: utilities
+  artifact: io.bluetape4k:bluetape4k-geo
+  en: en/modules/bluetape4k-geo.md
+  ko: ko/modules/bluetape4k-geo.md
+  sourcePaths:
+  - utils/geo/src/main/kotlin
+  - utils/geo/src/main/resources
+  testPaths:
+  - utils/geo/src/test/kotlin
+  - utils/geo/src/test/resources
+  workshops: []
+- id: bluetape4k-grpc
+  gradlePath: ":bluetape4k-grpc"
+  sourceDir: io/grpc
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-grpc
+  en: en/modules/bluetape4k-grpc.md
+  ko: ko/modules/bluetape4k-grpc.md
+  sourcePaths:
+  - io/grpc/src/main/kotlin
+  testPaths:
+  - io/grpc/src/test/kotlin
+  - io/grpc/src/test/resources
+  workshops: []
+- id: bluetape4k-hibernate
+  gradlePath: ":bluetape4k-hibernate"
+  sourceDir: data/hibernate
+  kind: library
+  group: data
+  artifact: io.bluetape4k:bluetape4k-hibernate
+  en: en/modules/bluetape4k-hibernate.md
+  ko: ko/modules/bluetape4k-hibernate.md
+  sourcePaths:
+  - data/hibernate/src/main/kotlin
+  testPaths:
+  - data/hibernate/src/test/kotlin
+  - data/hibernate/src/test/resources
+  workshops: []
+- id: bluetape4k-hibernate-cache-lettuce
+  gradlePath: ":bluetape4k-hibernate-cache-lettuce"
+  sourceDir: cache/hibernate-cache-lettuce
+  kind: library
+  group: caching
+  artifact: io.bluetape4k:bluetape4k-hibernate-cache-lettuce
+  en: en/modules/bluetape4k-hibernate-cache-lettuce.md
+  ko: ko/modules/bluetape4k-hibernate-cache-lettuce.md
+  sourcePaths:
+  - cache/hibernate-cache-lettuce/src/main/kotlin
+  testPaths:
+  - cache/hibernate-cache-lettuce/src/test/kotlin
+  - cache/hibernate-cache-lettuce/src/test/resources
+  workshops: []
+- id: bluetape4k-hibernate-reactive
+  gradlePath: ":bluetape4k-hibernate-reactive"
+  sourceDir: data/hibernate-reactive
+  kind: library
+  group: data
+  artifact: io.bluetape4k:bluetape4k-hibernate-reactive
+  en: en/modules/bluetape4k-hibernate-reactive.md
+  ko: ko/modules/bluetape4k-hibernate-reactive.md
+  sourcePaths:
+  - data/hibernate-reactive/src/main/kotlin
+  testPaths:
+  - data/hibernate-reactive/src/test/kotlin
+  - data/hibernate-reactive/src/test/java
+  - data/hibernate-reactive/src/test/resources
+  workshops: []
+- id: bluetape4k-http
+  gradlePath: ":bluetape4k-http"
+  sourceDir: io/http
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-http
+  en: en/modules/bluetape4k-http.md
+  ko: ko/modules/bluetape4k-http.md
+  sourcePaths:
+  - io/http/src/main/kotlin
+  testPaths:
+  - io/http/src/test/kotlin
+  - io/http/src/test/resources
+  workshops: []
+- id: bluetape4k-idgenerators
+  gradlePath: ":bluetape4k-idgenerators"
+  sourceDir: utils/idgenerators
+  kind: library
+  group: utilities
+  artifact: io.bluetape4k:bluetape4k-idgenerators
+  en: en/modules/bluetape4k-idgenerators.md
+  ko: ko/modules/bluetape4k-idgenerators.md
+  sourcePaths:
+  - utils/idgenerators/src/main/kotlin
+  testPaths:
+  - utils/idgenerators/src/test/kotlin
+  - utils/idgenerators/src/test/resources
+  workshops: []
+- id: bluetape4k-io
+  gradlePath: ":bluetape4k-io"
+  sourceDir: io/io
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-io
+  en: en/modules/bluetape4k-io.md
+  ko: ko/modules/bluetape4k-io.md
+  sourcePaths:
+  - io/io/src/main/kotlin
+  testPaths:
+  - io/io/src/test/kotlin
+  - io/io/src/test/resources
+  workshops: []
+- id: bluetape4k-jackson2
+  gradlePath: ":bluetape4k-jackson2"
+  sourceDir: io/jackson2
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-jackson2
+  en: en/modules/bluetape4k-jackson2.md
+  ko: ko/modules/bluetape4k-jackson2.md
+  sourcePaths:
+  - io/jackson2/src/main/kotlin
+  - io/jackson2/src/main/resources
+  testPaths:
+  - io/jackson2/src/test/kotlin
+  - io/jackson2/src/test/resources
+  workshops: []
+- id: bluetape4k-jackson3
+  gradlePath: ":bluetape4k-jackson3"
+  sourceDir: io/jackson3
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-jackson3
+  en: en/modules/bluetape4k-jackson3.md
+  ko: ko/modules/bluetape4k-jackson3.md
+  sourcePaths:
+  - io/jackson3/src/main/kotlin
+  - io/jackson3/src/main/resources
+  testPaths:
+  - io/jackson3/src/test/kotlin
+  - io/jackson3/src/test/resources
+  workshops: []
+- id: bluetape4k-javatimes
+  gradlePath: ":bluetape4k-javatimes"
+  sourceDir: utils/javatimes
+  kind: library
+  group: utilities
+  artifact: io.bluetape4k:bluetape4k-javatimes
+  en: en/modules/bluetape4k-javatimes.md
+  ko: ko/modules/bluetape4k-javatimes.md
+  sourcePaths:
+  - utils/javatimes/src/main/kotlin
+  testPaths:
+  - utils/javatimes/src/test/kotlin
+  - utils/javatimes/src/test/resources
+  workshops: []
+- id: bluetape4k-jdbc
+  gradlePath: ":bluetape4k-jdbc"
+  sourceDir: data/jdbc
+  kind: library
+  group: data
+  artifact: io.bluetape4k:bluetape4k-jdbc
+  en: en/modules/bluetape4k-jdbc.md
+  ko: ko/modules/bluetape4k-jdbc.md
+  sourcePaths:
+  - data/jdbc/src/main/kotlin
+  testPaths:
+  - data/jdbc/src/test/kotlin
+  - data/jdbc/src/test/resources
+  workshops: []
+- id: bluetape4k-json
+  gradlePath: ":bluetape4k-json"
+  sourceDir: io/json
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-json
+  en: en/modules/bluetape4k-json.md
+  ko: ko/modules/bluetape4k-json.md
+  sourcePaths:
+  - io/json/src/main/kotlin
+  testPaths:
+  - io/json/src/test/kotlin
+  - io/json/src/test/resources
+  workshops: []
+- id: bluetape4k-junit5
+  gradlePath: ":bluetape4k-junit5"
+  sourceDir: testing/junit5
+  kind: library
+  group: testing
+  artifact: io.bluetape4k:bluetape4k-junit5
+  en: en/modules/bluetape4k-junit5.md
+  ko: ko/modules/bluetape4k-junit5.md
+  sourcePaths:
+  - testing/junit5/src/main/kotlin
+  - testing/junit5/src/main/resources
+  testPaths:
+  - testing/junit5/src/test/kotlin
+  - testing/junit5/src/test/resources
+  workshops: []
+- id: bluetape4k-jwt
+  gradlePath: ":bluetape4k-jwt"
+  sourceDir: utils/jwt
+  kind: library
+  group: utilities
+  artifact: io.bluetape4k:bluetape4k-jwt
+  en: en/modules/bluetape4k-jwt.md
+  ko: ko/modules/bluetape4k-jwt.md
+  sourcePaths:
+  - utils/jwt/src/main/kotlin
+  - utils/jwt/src/main/resources
+  testPaths:
+  - utils/jwt/src/test/kotlin
+  - utils/jwt/src/test/resources
+  workshops: []
+- id: bluetape4k-kafka
+  gradlePath: ":bluetape4k-kafka"
+  sourceDir: infra/kafka
+  kind: library
+  group: infrastructure
+  artifact: io.bluetape4k:bluetape4k-kafka
+  en: en/modules/bluetape4k-kafka.md
+  ko: ko/modules/bluetape4k-kafka.md
+  sourcePaths:
+  - infra/kafka/src/main/kotlin
+  testPaths:
+  - infra/kafka/src/test/kotlin
+  - infra/kafka/src/test/resources
+  workshops: []
+- id: bluetape4k-kafka-logback
+  gradlePath: ":bluetape4k-kafka-logback"
+  sourceDir: infra/kafka-logback
+  kind: library
+  group: infrastructure
+  artifact: io.bluetape4k:bluetape4k-kafka-logback
+  en: en/modules/bluetape4k-kafka-logback.md
+  ko: ko/modules/bluetape4k-kafka-logback.md
+  sourcePaths:
+  - infra/kafka-logback/src/main/kotlin
+  testPaths:
+  - infra/kafka-logback/src/test/kotlin
+  - infra/kafka-logback/src/test/resources
+  workshops: []
+- id: bluetape4k-kafka4
+  gradlePath: ":bluetape4k-kafka4"
+  sourceDir: infra/kafka4
+  kind: library
+  group: infrastructure
+  artifact: io.bluetape4k:bluetape4k-kafka4
+  en: en/modules/bluetape4k-kafka4.md
+  ko: ko/modules/bluetape4k-kafka4.md
+  sourcePaths:
+  - infra/kafka4/src/main/kotlin
+  testPaths:
+  - infra/kafka4/src/test/kotlin
+  - infra/kafka4/src/test/resources
+  workshops: []
+- id: bluetape4k-ktor-core
+  gradlePath: ":bluetape4k-ktor-core"
+  sourceDir: ktor/core
+  kind: library
+  group: web
+  artifact: io.bluetape4k:bluetape4k-ktor-core
+  en: en/modules/bluetape4k-ktor-core.md
+  ko: ko/modules/bluetape4k-ktor-core.md
+  sourcePaths:
+  - ktor/core/src/main/kotlin
+  testPaths:
+  - ktor/core/src/test/kotlin
+  - ktor/core/src/test/resources
+  workshops: []
+- id: bluetape4k-ktor-observability
+  gradlePath: ":bluetape4k-ktor-observability"
+  sourceDir: ktor/observability
+  kind: library
+  group: web
+  artifact: io.bluetape4k:bluetape4k-ktor-observability
+  en: en/modules/bluetape4k-ktor-observability.md
+  ko: ko/modules/bluetape4k-ktor-observability.md
+  sourcePaths:
+  - ktor/observability/src/main/kotlin
+  testPaths:
+  - ktor/observability/src/test/kotlin
+  - ktor/observability/src/test/resources
+  workshops: []
+- id: bluetape4k-ktor-openapi
+  gradlePath: ":bluetape4k-ktor-openapi"
+  sourceDir: ktor/openapi
+  kind: library
+  group: web
+  artifact: io.bluetape4k:bluetape4k-ktor-openapi
+  en: en/modules/bluetape4k-ktor-openapi.md
+  ko: ko/modules/bluetape4k-ktor-openapi.md
+  sourcePaths:
+  - ktor/openapi/src/main/kotlin
+  testPaths:
+  - ktor/openapi/src/test/kotlin
+  - ktor/openapi/src/test/resources
+  workshops: []
+- id: bluetape4k-ktor-resilience4j
+  gradlePath: ":bluetape4k-ktor-resilience4j"
+  sourceDir: ktor/resilience4j
+  kind: library
+  group: web
+  artifact: io.bluetape4k:bluetape4k-ktor-resilience4j
+  en: en/modules/bluetape4k-ktor-resilience4j.md
+  ko: ko/modules/bluetape4k-ktor-resilience4j.md
+  sourcePaths:
+  - ktor/resilience4j/src/main/kotlin
+  testPaths:
+  - ktor/resilience4j/src/test/kotlin
+  - ktor/resilience4j/src/test/resources
+  workshops: []
+- id: bluetape4k-ktor-testing
+  gradlePath: ":bluetape4k-ktor-testing"
+  sourceDir: ktor/testing
+  kind: library
+  group: web
+  artifact: io.bluetape4k:bluetape4k-ktor-testing
+  en: en/modules/bluetape4k-ktor-testing.md
+  ko: ko/modules/bluetape4k-ktor-testing.md
+  sourcePaths:
+  - ktor/testing/src/main/kotlin
+  testPaths:
+  - ktor/testing/src/test/kotlin
+  - ktor/testing/src/test/resources
+  workshops: []
+- id: bluetape4k-lettuce
+  gradlePath: ":bluetape4k-lettuce"
+  sourceDir: infra/lettuce
+  kind: library
+  group: infrastructure
+  artifact: io.bluetape4k:bluetape4k-lettuce
+  en: en/modules/bluetape4k-lettuce.md
+  ko: ko/modules/bluetape4k-lettuce.md
+  sourcePaths:
+  - infra/lettuce/src/main/kotlin
+  testPaths:
+  - infra/lettuce/src/test/kotlin
+  - infra/lettuce/src/test/resources
+  workshops: []
+- id: bluetape4k-logging
+  gradlePath: ":bluetape4k-logging"
+  sourceDir: bluetape4k/logging
+  kind: library
+  group: foundation
+  artifact: io.bluetape4k:bluetape4k-logging
+  en: en/modules/bluetape4k-logging.md
+  ko: ko/modules/bluetape4k-logging.md
+  sourcePaths:
+  - bluetape4k/logging/src/main/kotlin
+  testPaths:
+  - bluetape4k/logging/src/test/kotlin
+  - bluetape4k/logging/src/test/resources
+  workshops: []
+- id: bluetape4k-math
+  gradlePath: ":bluetape4k-math"
+  sourceDir: utils/math
+  kind: library
+  group: utilities
+  artifact: io.bluetape4k:bluetape4k-math
+  en: en/modules/bluetape4k-math.md
+  ko: ko/modules/bluetape4k-math.md
+  sourcePaths:
+  - utils/math/src/main/kotlin
+  testPaths:
+  - utils/math/src/test/kotlin
+  - utils/math/src/test/resources
+  workshops: []
+- id: bluetape4k-measured
+  gradlePath: ":bluetape4k-measured"
+  sourceDir: utils/measured
+  kind: library
+  group: utilities
+  artifact: io.bluetape4k:bluetape4k-measured
+  en: en/modules/bluetape4k-measured.md
+  ko: ko/modules/bluetape4k-measured.md
+  sourcePaths:
+  - utils/measured/src/main/kotlin
+  testPaths:
+  - utils/measured/src/test/kotlin
+  - utils/measured/src/test/resources
+  workshops: []
+- id: bluetape4k-micrometer
+  gradlePath: ":bluetape4k-micrometer"
+  sourceDir: infra/micrometer
+  kind: library
+  group: infrastructure
+  artifact: io.bluetape4k:bluetape4k-micrometer
+  en: en/modules/bluetape4k-micrometer.md
+  ko: ko/modules/bluetape4k-micrometer.md
+  sourcePaths:
+  - infra/micrometer/src/main/kotlin
+  testPaths:
+  - infra/micrometer/src/test/kotlin
+  - infra/micrometer/src/test/resources
+  workshops: []
+- id: bluetape4k-mock-web-server
+  gradlePath: ":bluetape4k-mock-web-server"
+  sourceDir: testing/mock-web-server
+  kind: library
+  group: testing
+  artifact: io.bluetape4k:bluetape4k-mock-web-server
+  en: en/modules/bluetape4k-mock-web-server.md
+  ko: ko/modules/bluetape4k-mock-web-server.md
+  sourcePaths:
+  - testing/mock-web-server/src/main/kotlin
+  - testing/mock-web-server/src/main/resources
+  testPaths:
+  - testing/mock-web-server/src/test/kotlin
+  - testing/mock-web-server/src/test/resources
+  workshops: []
+- id: bluetape4k-mock-webflux-server
+  gradlePath: ":bluetape4k-mock-webflux-server"
+  sourceDir: testing/mock-webflux-server
+  kind: library
+  group: testing
+  artifact: io.bluetape4k:bluetape4k-mock-webflux-server
+  en: en/modules/bluetape4k-mock-webflux-server.md
+  ko: ko/modules/bluetape4k-mock-webflux-server.md
+  sourcePaths:
+  - testing/mock-webflux-server/src/main/kotlin
+  - testing/mock-webflux-server/src/main/resources
+  testPaths:
+  - testing/mock-webflux-server/src/test/kotlin
+  - testing/mock-webflux-server/src/test/resources
+  workshops: []
+- id: bluetape4k-money
+  gradlePath: ":bluetape4k-money"
+  sourceDir: utils/money
+  kind: library
+  group: utilities
+  artifact: io.bluetape4k:bluetape4k-money
+  en: en/modules/bluetape4k-money.md
+  ko: ko/modules/bluetape4k-money.md
+  sourcePaths:
+  - utils/money/src/main/kotlin
+  testPaths:
+  - utils/money/src/test/kotlin
+  - utils/money/src/test/resources
+  workshops: []
+- id: bluetape4k-mongodb
+  gradlePath: ":bluetape4k-mongodb"
+  sourceDir: data/mongodb
+  kind: library
+  group: data
+  artifact: io.bluetape4k:bluetape4k-mongodb
+  en: en/modules/bluetape4k-mongodb.md
+  ko: ko/modules/bluetape4k-mongodb.md
+  sourcePaths:
+  - data/mongodb/src/main/kotlin
+  testPaths:
+  - data/mongodb/src/test/kotlin
+  - data/mongodb/src/test/resources
+  workshops: []
+- id: bluetape4k-mutiny
+  gradlePath: ":bluetape4k-mutiny"
+  sourceDir: utils/mutiny
+  kind: library
+  group: utilities
+  artifact: io.bluetape4k:bluetape4k-mutiny
+  en: en/modules/bluetape4k-mutiny.md
+  ko: ko/modules/bluetape4k-mutiny.md
+  sourcePaths:
+  - utils/mutiny/src/main/kotlin
+  testPaths:
+  - utils/mutiny/src/test/kotlin
+  - utils/mutiny/src/test/resources
+  workshops: []
+- id: bluetape4k-nats
+  gradlePath: ":bluetape4k-nats"
+  sourceDir: infra/nats
+  kind: library
+  group: infrastructure
+  artifact: io.bluetape4k:bluetape4k-nats
+  en: en/modules/bluetape4k-nats.md
+  ko: ko/modules/bluetape4k-nats.md
+  sourcePaths:
+  - infra/nats/src/main/kotlin
+  testPaths:
+  - infra/nats/src/test/kotlin
+  - infra/nats/src/test/resources
+  workshops: []
+- id: bluetape4k-netty
+  gradlePath: ":bluetape4k-netty"
+  sourceDir: io/netty
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-netty
+  en: en/modules/bluetape4k-netty.md
+  ko: ko/modules/bluetape4k-netty.md
+  sourcePaths:
+  - io/netty/src/main/kotlin
+  testPaths:
+  - io/netty/src/test/kotlin
+  - io/netty/src/test/resources
+  workshops: []
+- id: bluetape4k-okio
+  gradlePath: ":bluetape4k-okio"
+  sourceDir: io/okio
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-okio
+  en: en/modules/bluetape4k-okio.md
+  ko: ko/modules/bluetape4k-okio.md
+  sourcePaths:
+  - io/okio/src/main/kotlin
+  testPaths:
+  - io/okio/src/test/kotlin
+  - io/okio/src/test/resources
+  workshops: []
+- id: bluetape4k-opentelemetry
+  gradlePath: ":bluetape4k-opentelemetry"
+  sourceDir: infra/opentelemetry
+  kind: library
+  group: infrastructure
+  artifact: io.bluetape4k:bluetape4k-opentelemetry
+  en: en/modules/bluetape4k-opentelemetry.md
+  ko: ko/modules/bluetape4k-opentelemetry.md
+  sourcePaths:
+  - infra/opentelemetry/src/main/kotlin
+  testPaths:
+  - infra/opentelemetry/src/test/kotlin
+  - infra/opentelemetry/src/test/resources
+  workshops: []
+- id: bluetape4k-probabilistic
+  gradlePath: ":bluetape4k-probabilistic"
+  sourceDir: utils/probabilistic
+  kind: library
+  group: utilities
+  artifact: io.bluetape4k:bluetape4k-probabilistic
+  en: en/modules/bluetape4k-probabilistic.md
+  ko: ko/modules/bluetape4k-probabilistic.md
+  sourcePaths:
+  - utils/probabilistic/src/main/kotlin
+  testPaths:
+  - utils/probabilistic/src/test/kotlin
+  workshops: []
+- id: bluetape4k-protobuf
+  gradlePath: ":bluetape4k-protobuf"
+  sourceDir: io/protobuf
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-protobuf
+  en: en/modules/bluetape4k-protobuf.md
+  ko: ko/modules/bluetape4k-protobuf.md
+  sourcePaths:
+  - io/protobuf/src/main/kotlin
+  testPaths:
+  - io/protobuf/src/test/kotlin
+  - io/protobuf/src/test/resources
+  workshops: []
+- id: bluetape4k-pulsar
+  gradlePath: ":bluetape4k-pulsar"
+  sourceDir: infra/pulsar
+  kind: library
+  group: infrastructure
+  artifact: io.bluetape4k:bluetape4k-pulsar
+  en: en/modules/bluetape4k-pulsar.md
+  ko: ko/modules/bluetape4k-pulsar.md
+  sourcePaths:
+  - infra/pulsar/src/main/kotlin
+  testPaths:
+  - infra/pulsar/src/test/kotlin
+  - infra/pulsar/src/test/resources
+  workshops: []
+- id: bluetape4k-r2dbc
+  gradlePath: ":bluetape4k-r2dbc"
+  sourceDir: data/r2dbc
+  kind: library
+  group: data
+  artifact: io.bluetape4k:bluetape4k-r2dbc
+  en: en/modules/bluetape4k-r2dbc.md
+  ko: ko/modules/bluetape4k-r2dbc.md
+  sourcePaths:
+  - data/r2dbc/src/main/kotlin
+  - data/r2dbc/src/main/resources
+  testPaths:
+  - data/r2dbc/src/test/kotlin
+  - data/r2dbc/src/test/resources
+  workshops: []
+- id: bluetape4k-redis
+  gradlePath: ":bluetape4k-redis"
+  sourceDir: infra/redis
+  kind: library
+  group: infrastructure
+  artifact: io.bluetape4k:bluetape4k-redis
+  en: en/modules/bluetape4k-redis.md
+  ko: ko/modules/bluetape4k-redis.md
+  sourcePaths: []
+  testPaths: []
+  workshops: []
+- id: bluetape4k-redisson
+  gradlePath: ":bluetape4k-redisson"
+  sourceDir: infra/redisson
+  kind: library
+  group: infrastructure
+  artifact: io.bluetape4k:bluetape4k-redisson
+  en: en/modules/bluetape4k-redisson.md
+  ko: ko/modules/bluetape4k-redisson.md
+  sourcePaths:
+  - infra/redisson/src/main/kotlin
+  testPaths:
+  - infra/redisson/src/test/kotlin
+  - infra/redisson/src/test/resources
+  workshops: []
+- id: bluetape4k-resilience4j
+  gradlePath: ":bluetape4k-resilience4j"
+  sourceDir: infra/resilience4j
+  kind: library
+  group: infrastructure
+  artifact: io.bluetape4k:bluetape4k-resilience4j
+  en: en/modules/bluetape4k-resilience4j.md
+  ko: ko/modules/bluetape4k-resilience4j.md
+  sourcePaths:
+  - infra/resilience4j/src/main/kotlin
+  - infra/resilience4j/src/main/java
+  testPaths:
+  - infra/resilience4j/src/test/kotlin
+  - infra/resilience4j/src/test/resources
+  workshops: []
+- id: bluetape4k-retrofit2
+  gradlePath: ":bluetape4k-retrofit2"
+  sourceDir: io/retrofit2
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-retrofit2
+  en: en/modules/bluetape4k-retrofit2.md
+  ko: ko/modules/bluetape4k-retrofit2.md
+  sourcePaths:
+  - io/retrofit2/src/main/kotlin
+  testPaths:
+  - io/retrofit2/src/test/kotlin
+  - io/retrofit2/src/test/resources
+  workshops: []
+- id: bluetape4k-rule-engine
+  gradlePath: ":bluetape4k-rule-engine"
+  sourceDir: utils/rule-engine
+  kind: library
+  group: utilities
+  artifact: io.bluetape4k:bluetape4k-rule-engine
+  en: en/modules/bluetape4k-rule-engine.md
+  ko: ko/modules/bluetape4k-rule-engine.md
+  sourcePaths:
+  - utils/rule-engine/src/main/kotlin
+  testPaths:
+  - utils/rule-engine/src/test/kotlin
+  - utils/rule-engine/src/test/resources
+  workshops: []
+- id: bluetape4k-science
+  gradlePath: ":bluetape4k-science"
+  sourceDir: utils/science
+  kind: library
+  group: utilities
+  artifact: io.bluetape4k:bluetape4k-science
+  en: en/modules/bluetape4k-science.md
+  ko: ko/modules/bluetape4k-science.md
+  sourcePaths:
+  - utils/science/src/main/kotlin
+  testPaths:
+  - utils/science/src/test/kotlin
+  - utils/science/src/test/resources
+  workshops: []
+- id: bluetape4k-spring-boot-cassandra
+  gradlePath: ":bluetape4k-spring-boot-cassandra"
+  sourceDir: spring-boot/cassandra
+  kind: library
+  group: spring
+  artifact: io.bluetape4k:bluetape4k-spring-boot-cassandra
+  en: en/modules/bluetape4k-spring-boot-cassandra.md
+  ko: ko/modules/bluetape4k-spring-boot-cassandra.md
+  sourcePaths:
+  - spring-boot/cassandra/src/main/kotlin
+  testPaths:
+  - spring-boot/cassandra/src/test/kotlin
+  - spring-boot/cassandra/src/test/resources
+  workshops: []
+- id: bluetape4k-spring-boot-cassandra-demo
+  gradlePath: ":bluetape4k-spring-boot-cassandra-demo"
+  sourceDir: spring-boot/cassandra-demo
+  kind: library
+  group: spring
+  artifact: io.bluetape4k:bluetape4k-spring-boot-cassandra-demo
+  en: en/modules/bluetape4k-spring-boot-cassandra-demo.md
+  ko: ko/modules/bluetape4k-spring-boot-cassandra-demo.md
+  sourcePaths: []
+  testPaths:
+  - spring-boot/cassandra-demo/src/test/kotlin
+  - spring-boot/cassandra-demo/src/test/resources
+  workshops: []
+- id: bluetape4k-spring-boot-core
+  gradlePath: ":bluetape4k-spring-boot-core"
+  sourceDir: spring-boot/core
+  kind: library
+  group: spring
+  artifact: io.bluetape4k:bluetape4k-spring-boot-core
+  en: en/modules/bluetape4k-spring-boot-core.md
+  ko: ko/modules/bluetape4k-spring-boot-core.md
+  sourcePaths:
+  - spring-boot/core/src/main/kotlin
+  testPaths:
+  - spring-boot/core/src/test/kotlin
+  - spring-boot/core/src/test/resources
+  workshops: []
+- id: bluetape4k-spring-boot-hibernate-lettuce
+  gradlePath: ":bluetape4k-spring-boot-hibernate-lettuce"
+  sourceDir: spring-boot/hibernate-lettuce
+  kind: library
+  group: spring
+  artifact: io.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce
+  en: en/modules/bluetape4k-spring-boot-hibernate-lettuce.md
+  ko: ko/modules/bluetape4k-spring-boot-hibernate-lettuce.md
+  sourcePaths:
+  - spring-boot/hibernate-lettuce/src/main/kotlin
+  - spring-boot/hibernate-lettuce/src/main/resources
+  testPaths:
+  - spring-boot/hibernate-lettuce/src/test/kotlin
+  - spring-boot/hibernate-lettuce/src/test/resources
+  workshops: []
+- id: bluetape4k-spring-boot-hibernate-lettuce-demo
+  gradlePath: ":bluetape4k-spring-boot-hibernate-lettuce-demo"
+  sourceDir: spring-boot/hibernate-lettuce-demo
+  kind: library
+  group: spring
+  artifact: io.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce-demo
+  en: en/modules/bluetape4k-spring-boot-hibernate-lettuce-demo.md
+  ko: ko/modules/bluetape4k-spring-boot-hibernate-lettuce-demo.md
+  sourcePaths:
+  - spring-boot/hibernate-lettuce-demo/src/main/kotlin
+  - spring-boot/hibernate-lettuce-demo/src/main/resources
+  testPaths:
+  - spring-boot/hibernate-lettuce-demo/src/test/kotlin
+  - spring-boot/hibernate-lettuce-demo/src/test/resources
+  workshops: []
+- id: bluetape4k-spring-boot-mongodb
+  gradlePath: ":bluetape4k-spring-boot-mongodb"
+  sourceDir: spring-boot/mongodb
+  kind: library
+  group: spring
+  artifact: io.bluetape4k:bluetape4k-spring-boot-mongodb
+  en: en/modules/bluetape4k-spring-boot-mongodb.md
+  ko: ko/modules/bluetape4k-spring-boot-mongodb.md
+  sourcePaths:
+  - spring-boot/mongodb/src/main/kotlin
+  - spring-boot/mongodb/src/main/resources
+  testPaths:
+  - spring-boot/mongodb/src/test/kotlin
+  - spring-boot/mongodb/src/test/resources
+  workshops: []
+- id: bluetape4k-spring-boot-r2dbc
+  gradlePath: ":bluetape4k-spring-boot-r2dbc"
+  sourceDir: spring-boot/r2dbc
+  kind: library
+  group: spring
+  artifact: io.bluetape4k:bluetape4k-spring-boot-r2dbc
+  en: en/modules/bluetape4k-spring-boot-r2dbc.md
+  ko: ko/modules/bluetape4k-spring-boot-r2dbc.md
+  sourcePaths:
+  - spring-boot/r2dbc/src/main/kotlin
+  testPaths:
+  - spring-boot/r2dbc/src/test/kotlin
+  - spring-boot/r2dbc/src/test/resources
+  workshops: []
+- id: bluetape4k-spring-boot-redis
+  gradlePath: ":bluetape4k-spring-boot-redis"
+  sourceDir: spring-boot/redis
+  kind: library
+  group: spring
+  artifact: io.bluetape4k:bluetape4k-spring-boot-redis
+  en: en/modules/bluetape4k-spring-boot-redis.md
+  ko: ko/modules/bluetape4k-spring-boot-redis.md
+  sourcePaths:
+  - spring-boot/redis/src/main/kotlin
+  testPaths:
+  - spring-boot/redis/src/test/kotlin
+  - spring-boot/redis/src/test/resources
+  workshops: []
+- id: bluetape4k-states
+  gradlePath: ":bluetape4k-states"
+  sourceDir: utils/states
+  kind: library
+  group: utilities
+  artifact: io.bluetape4k:bluetape4k-states
+  en: en/modules/bluetape4k-states.md
+  ko: ko/modules/bluetape4k-states.md
+  sourcePaths:
+  - utils/states/src/main/kotlin
+  testPaths:
+  - utils/states/src/test/kotlin
+  - utils/states/src/test/resources
+  workshops: []
+- id: bluetape4k-testcontainers
+  gradlePath: ":bluetape4k-testcontainers"
+  sourceDir: testing/testcontainers
+  kind: library
+  group: testing
+  artifact: io.bluetape4k:bluetape4k-testcontainers
+  en: en/modules/bluetape4k-testcontainers.md
+  ko: ko/modules/bluetape4k-testcontainers.md
+  sourcePaths:
+  - testing/testcontainers/src/main/kotlin
+  - testing/testcontainers/src/main/resources
+  testPaths:
+  - testing/testcontainers/src/test/kotlin
+  - testing/testcontainers/src/test/resources
+  workshops: []
+- id: bluetape4k-tink
+  gradlePath: ":bluetape4k-tink"
+  sourceDir: io/tink
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-tink
+  en: en/modules/bluetape4k-tink.md
+  ko: ko/modules/bluetape4k-tink.md
+  sourcePaths:
+  - io/tink/src/main/kotlin
+  testPaths:
+  - io/tink/src/test/kotlin
+  - io/tink/src/test/resources
+  workshops: []
+- id: bluetape4k-vertx
+  gradlePath: ":bluetape4k-vertx"
+  sourceDir: io/vertx
+  kind: library
+  group: io
+  artifact: io.bluetape4k:bluetape4k-vertx
+  en: en/modules/bluetape4k-vertx.md
+  ko: ko/modules/bluetape4k-vertx.md
+  sourcePaths:
+  - io/vertx/src/main/kotlin
+  testPaths:
+  - io/vertx/src/test/kotlin
+  - io/vertx/src/test/resources
+  workshops: []
+- id: bluetape4k-virtualthread-api
+  gradlePath: ":bluetape4k-virtualthread-api"
+  sourceDir: virtualthread/api
+  kind: library
+  group: concurrency
+  artifact: io.bluetape4k:bluetape4k-virtualthread-api
+  en: en/modules/bluetape4k-virtualthread-api.md
+  ko: ko/modules/bluetape4k-virtualthread-api.md
+  sourcePaths:
+  - virtualthread/api/src/main/kotlin
+  testPaths:
+  - virtualthread/api/src/test/kotlin
+  - virtualthread/api/src/test/resources
+  workshops: []
+- id: bluetape4k-virtualthread-jdk21
+  gradlePath: ":bluetape4k-virtualthread-jdk21"
+  sourceDir: virtualthread/jdk21
+  kind: library
+  group: concurrency
+  artifact: io.bluetape4k:bluetape4k-virtualthread-jdk21
+  en: en/modules/bluetape4k-virtualthread-jdk21.md
+  ko: ko/modules/bluetape4k-virtualthread-jdk21.md
+  sourcePaths:
+  - virtualthread/jdk21/src/main/kotlin
+  - virtualthread/jdk21/src/main/java
+  - virtualthread/jdk21/src/main/resources
+  testPaths:
+  - virtualthread/jdk21/src/test/kotlin
+  - virtualthread/jdk21/src/test/resources
+  workshops: []
+- id: bluetape4k-virtualthread-jdk25
+  gradlePath: ":bluetape4k-virtualthread-jdk25"
+  sourceDir: virtualthread/jdk25
+  kind: library
+  group: concurrency
+  artifact: io.bluetape4k:bluetape4k-virtualthread-jdk25
+  en: en/modules/bluetape4k-virtualthread-jdk25.md
+  ko: ko/modules/bluetape4k-virtualthread-jdk25.md
+  sourcePaths:
+  - virtualthread/jdk25/src/main/kotlin
+  - virtualthread/jdk25/src/main/java
+  - virtualthread/jdk25/src/main/resources
+  testPaths:
+  - virtualthread/jdk25/src/test/kotlin
+  - virtualthread/jdk25/src/test/resources
+  workshops: []
+- id: bluetape4k-workflow
+  gradlePath: ":bluetape4k-workflow"
+  sourceDir: utils/workflow
+  kind: library
+  group: utilities
+  artifact: io.bluetape4k:bluetape4k-workflow
+  en: en/modules/bluetape4k-workflow.md
+  ko: ko/modules/bluetape4k-workflow.md
+  sourcePaths:
+  - utils/workflow/src/main/kotlin
+  testPaths:
+  - utils/workflow/src/test/kotlin
+  - utils/workflow/src/test/resources
+  workshops: []
+- id: idgenerator-ktor-demo
+  gradlePath: ":idgenerator-ktor-demo"
+  sourceDir: examples/ktor/idgenerator-ktor-demo
+  kind: example
+  group: learning
+  artifact: 
+  en: en/modules/idgenerator-ktor-demo.md
+  ko: ko/modules/idgenerator-ktor-demo.md
+  sourcePaths:
+  - examples/ktor/idgenerator-ktor-demo/src/main/kotlin
+  testPaths:
+  - examples/ktor/idgenerator-ktor-demo/src/test/kotlin
+  - examples/ktor/idgenerator-ktor-demo/src/test/resources
+  workshops: []
+- id: idgenerator-spring-boot-demo
+  gradlePath: ":idgenerator-spring-boot-demo"
+  sourceDir: examples/spring-boot/idgenerator-spring-boot-demo
+  kind: example
+  group: learning
+  artifact: 
+  en: en/modules/idgenerator-spring-boot-demo.md
+  ko: ko/modules/idgenerator-spring-boot-demo.md
+  sourcePaths:
+  - examples/spring-boot/idgenerator-spring-boot-demo/src/main/kotlin
+  - examples/spring-boot/idgenerator-spring-boot-demo/src/main/resources
+  testPaths:
+  - examples/spring-boot/idgenerator-spring-boot-demo/src/test/kotlin
+  - examples/spring-boot/idgenerator-spring-boot-demo/src/test/resources
+  workshops: []
+- id: observability-ktor-demo
+  gradlePath: ":observability-ktor-demo"
+  sourceDir: examples/ktor/observability-ktor-demo
+  kind: example
+  group: learning
+  artifact: 
+  en: en/modules/observability-ktor-demo.md
+  ko: ko/modules/observability-ktor-demo.md
+  sourcePaths:
+  - examples/ktor/observability-ktor-demo/src/main/kotlin
+  testPaths:
+  - examples/ktor/observability-ktor-demo/src/test/kotlin
+  - examples/ktor/observability-ktor-demo/src/test/resources
+  workshops: []
+- id: observability-spring-boot-demo
+  gradlePath: ":observability-spring-boot-demo"
+  sourceDir: examples/spring-boot/observability-spring-boot-demo
+  kind: example
+  group: learning
+  artifact: 
+  en: en/modules/observability-spring-boot-demo.md
+  ko: ko/modules/observability-spring-boot-demo.md
+  sourcePaths:
+  - examples/spring-boot/observability-spring-boot-demo/src/main/kotlin
+  - examples/spring-boot/observability-spring-boot-demo/src/main/resources
+  testPaths:
+  - examples/spring-boot/observability-spring-boot-demo/src/test/kotlin
+  - examples/spring-boot/observability-spring-boot-demo/src/test/resources
+  workshops: []
+- id: protobuf-codec-benchmark
+  gradlePath: ":protobuf-codec-benchmark"
+  sourceDir: benchmark/protobuf-codec-benchmark
+  kind: benchmark
+  group: experiments
+  artifact: 
+  en: en/modules/protobuf-codec-benchmark.md
+  ko: ko/modules/protobuf-codec-benchmark.md
+  sourcePaths: []
+  testPaths: []
+  workshops: []
+- id: web-framework-benchmark
+  gradlePath: ":web-framework-benchmark"
+  sourceDir: benchmark/web-framework-benchmark
+  kind: benchmark
+  group: experiments
+  artifact: 
+  en: en/modules/web-framework-benchmark.md
+  ko: ko/modules/web-framework-benchmark.md
+  sourcePaths: []
+  testPaths: []
+  workshops: []
