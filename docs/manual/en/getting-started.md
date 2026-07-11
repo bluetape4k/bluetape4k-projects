@@ -11,7 +11,7 @@ Use the repository version published for your application and let the BOM align 
 
 ```kotlin
 dependencies {
-    implementation(platform("io.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
 }
 ```
 
@@ -21,7 +21,7 @@ Choose the smallest module that owns the capability. A module manual provides th
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-core")
+    implementation("io.github.bluetape4k:bluetape4k-core")
 }
 ```
 
