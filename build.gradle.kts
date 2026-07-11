@@ -1,3 +1,4 @@
+import groovy.json.JsonOutput
 import io.bluetape4k.gradle.applyBluetape4kPomMetadata
 import io.bluetape4k.gradle.centralSnapshotsRepository
 import io.bluetape4k.gradle.configurePublishingSigning
@@ -718,6 +719,41 @@ extensions.configure<NmcpAggregationExtension>("nmcpAggregation") {
 dependencies {
     publishableProjects.forEach { publishableProject ->
         add("nmcpAggregation", project(publishableProject.path))
+    }
+}
+
+val manualModuleInventory = layout.buildDirectory.file("manual/module-inventory.json")
+
+tasks.register("exportManualModuleInventory") {
+    outputs.file(manualModuleInventory)
+
+    doLast {
+        val repositoryRoot = project.rootDir.toPath()
+        val modules = project.subprojects
+            .sortedBy(Project::getPath)
+            .map { module ->
+                val sourceDir = repositoryRoot
+                    .relativize(module.projectDir.toPath())
+                    .toString()
+                    .replace(File.separatorChar, '/')
+                val kind = when {
+                    sourceDir.startsWith("examples/") -> "example"
+                    sourceDir.startsWith("benchmark/") -> "benchmark"
+                    else -> "library"
+                }
+
+                linkedMapOf(
+                    "gradlePath" to module.path,
+                    "projectName" to module.name,
+                    "sourceDir" to sourceDir,
+                    "kind" to kind,
+                )
+            }
+
+        manualModuleInventory.get().asFile.apply {
+            parentFile.mkdirs()
+            writeText(JsonOutput.prettyPrint(JsonOutput.toJson(modules)) + "\n")
+        }
     }
 }
 
