@@ -1,0 +1,13 @@
+schemaVersion: 1
+modules:
+  - id: sample
+    gradlePath: ":sample"
+    sourceDir: io/sample
+    kind: library
+    group: io
+    artifact: "io.example:sample"
+    en: en/modules/sample.md
+    ko: ko/modules/sample.md
+    sourcePaths: []
+    testPaths: []
+    workshops: []
