@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-money
 title: "Module bluetape4k-money"
-description: "A library built on the Java standard Money API (JSR-354) to simplify financial and currency operations. It uses the JavaMoney Moneta implementation for currency units, money calcu…"
+description: "A library built on the Java standard Money API (JSR-354) to simplify financial and currency operations. It uses the JavaMoney Moneta implementation for currency units, money calculations, and exchange-rate conversion."
 kind: library
 group: utilities
 ---
@@ -10,7 +10,7 @@ group: utilities
 
 ## Problem {#problem}
 
-A library built on the Java standard Money API (JSR-354) to simplify financial and currency operations. It uses the JavaMoney Moneta implementation for currency units, money calcu… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+A library built on the Java standard Money API (JSR-354) to simplify financial and currency operations. It uses the JavaMoney Moneta implementation for currency units, money calculations, and exchange-rate conversion. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

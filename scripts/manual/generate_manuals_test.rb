@@ -30,12 +30,18 @@ class GenerateManualsTest < Minitest::Test
       assert_includes english, "SampleClient"
       assert_includes english, "SampleClientTest"
       assert_includes english, "English sample client for remote calls."
+      assert_includes english, "cache-aside"
+      assert_includes korean, "캐시 어사이드"
+      refute_includes korean, "English | 한국어"
       refute_includes korean, ", and "
       assert_equal REQUIRED_SECTIONS, english.scan(/\{#([a-z0-9-]+)\}/).flatten
       assert_equal REQUIRED_SECTIONS, korean.scan(/\{#([a-z0-9-]+)\}/).flatten
 
       File.write(File.join(root, "docs/manual/en/modules/sample.md"), "preserve me\n")
       generator.generate(missing_only: true)
+      assert_equal "preserve me\n", File.read(File.join(root, "docs/manual/en/modules/sample.md"))
+
+      generator.generate(missing_only: false, preserve_groups: ["caching"])
       assert_equal "preserve me\n", File.read(File.join(root, "docs/manual/en/modules/sample.md"))
     end
   end
@@ -50,7 +56,7 @@ class GenerateManualsTest < Minitest::Test
     ]
     paths.each { |path| FileUtils.mkdir_p(File.join(root, path)) }
     File.write(File.join(root, "io/sample/README.md"), "# Sample module\n\nEnglish sample client for remote\ncalls.\n")
-    File.write(File.join(root, "io/sample/README.ko.md"), "# Sample 모듈\n\n원격 호출을 위한 sample client입니다.\n")
+    File.write(File.join(root, "io/sample/README.ko.md"), "# Sample 모듈\n\n[English](./README.md) | 한국어\n\n원격 호출을 위한 sample client입니다.\n")
     File.write(File.join(root, "io/sample/build.gradle.kts"), "dependencies {\n    api(libs.sample.api)\n}\n")
     File.write(File.join(root, "io/sample/src/main/kotlin/io/example/SampleClient.kt"), "class SampleClient\n")
     File.write(File.join(root, "io/sample/src/test/kotlin/io/example/SampleClientTest.kt"), "class SampleClientTest\n")
@@ -62,7 +68,7 @@ class GenerateManualsTest < Minitest::Test
           "gradlePath" => ":sample",
           "sourceDir" => "io/sample",
           "kind" => "library",
-          "group" => "io",
+          "group" => "caching",
           "artifact" => "io.github.bluetape4k:sample",
           "en" => "en/modules/sample.md",
           "ko" => "ko/modules/sample.md",

@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-spring-boot-hibernate-lettuce-demo
 title: "bluetape4k-spring-boot-hibernate-lettuce-demo"
-description: "English | 한국어"
+description: "Spring Boot 4 + Hibernate 7 2nd Level Cache (2LC) with Lettuce Near Cache 데모 애플리케이션입니다."
 kind: library
 group: spring
 ---
@@ -10,7 +10,7 @@ group: spring
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Spring Boot 4 + Hibernate 7 2nd Level Cache (2LC) with Lettuce Near Cache 데모 애플리케이션입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

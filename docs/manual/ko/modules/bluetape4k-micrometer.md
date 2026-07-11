@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-micrometer
 title: "Module bluetape4k-micrometer"
-description: "English | 한국어"
+description: "Micrometer와 Observation API를 활용한 애플리케이션 성능 측정 및 관찰(observability) 기능을 제공하는 모듈입니다."
 kind: library
 group: infrastructure
 ---
@@ -10,7 +10,7 @@ group: infrastructure
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Micrometer와 Observation API를 활용한 애플리케이션 성능 측정 및 관찰(observability) 기능을 제공하는 모듈입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-math
 title: "Module bluetape4k-math"
-description: "A library providing a wide range of mathematical capabilities including statistical operations, interpolation, integration, equation solving, and clustering — built on Apache Comm…"
+description: "A library providing a wide range of mathematical capabilities including statistical operations, interpolation, integration, equation solving, and clustering — built on Apache Commons Math3."
 kind: library
 group: utilities
 ---
@@ -10,7 +10,7 @@ group: utilities
 
 ## Problem {#problem}
 
-A library providing a wide range of mathematical capabilities including statistical operations, interpolation, integration, equation solving, and clustering — built on Apache Comm… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+A library providing a wide range of mathematical capabilities including statistical operations, interpolation, integration, equation solving, and clustering — built on Apache Commons Math3. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

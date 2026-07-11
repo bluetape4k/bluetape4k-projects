@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-spring-boot-mongodb
 title: "Module bluetape4k-spring-boot-mongodb"
-description: "English | 한국어"
+description: "Spring Data MongoDB Reactive를 Kotlin Coroutines 기반으로 편리하게 사용할 수 있도록 하는 확장 라이브러리입니다 (Spring Boot 4.x)."
 kind: library
 group: spring
 ---
@@ -10,7 +10,7 @@ group: spring
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Spring Data MongoDB Reactive를 Kotlin Coroutines 기반으로 편리하게 사용할 수 있도록 하는 확장 라이브러리입니다 (Spring Boot 4.x). 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

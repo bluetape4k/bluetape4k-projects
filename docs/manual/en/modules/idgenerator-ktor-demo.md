@@ -1,7 +1,7 @@
 ---
 manualId: idgenerator-ktor-demo
 title: "idgenerator Ktor Demo"
-description: "Runnable Ktor application that exposes bluetape4k idgenerators through HTTP endpoints. It uses the shared bluetape4k Ktor modules for JSON, standard error responses, health/readin…"
+description: "Runnable Ktor application that exposes bluetape4k idgenerators through HTTP endpoints."
 kind: example
 group: learning
 ---
@@ -10,7 +10,7 @@ group: learning
 
 ## Problem {#problem}
 
-Runnable Ktor application that exposes bluetape4k idgenerators through HTTP endpoints. It uses the shared bluetape4k Ktor modules for JSON, standard error responses, health/readin… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+Runnable Ktor application that exposes bluetape4k idgenerators through HTTP endpoints. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

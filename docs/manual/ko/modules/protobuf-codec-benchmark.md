@@ -1,7 +1,7 @@
 ---
 manualId: protobuf-codec-benchmark
 title: "Protobuf Codec Benchmark"
-description: "English | 한국어"
+description: "이 모듈은 bluetape4k 직렬화와 Redisson 연동 코드에서 사용하는 protobuf codec 경로를 측정합니다. 단일 protobuf payload를 메모리에 두고 encode/decode 처리량을 비교하므로, codec 구현 간 상대적인 차이를 보기 위한 좁은 범위의 benchmark입니다."
 kind: benchmark
 group: experiments
 ---
@@ -10,7 +10,7 @@ group: experiments
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+이 모듈은 bluetape4k 직렬화와 Redisson 연동 코드에서 사용하는 protobuf codec 경로를 측정합니다. 단일 protobuf payload를 메모리에 두고 encode/decode 처리량을 비교하므로, codec 구현 간 상대적인 차이를 보기 위한 좁은 범위의 benchmark입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

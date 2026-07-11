@@ -52,7 +52,7 @@ Add the coordinate above, refresh Gradle, and start from the smallest entry poin
 
 ## Patterns {#patterns}
 
-The README evidence is organized around **Package / Import Stability**, **Architecture Diagrams**, **LettuceNearCache Class Hierarchy**, **RESP3 CLIENT TRACKING Flow**, **Installation**, **Provided Features**, **Near-Cache Capability**, **Factory (LettuceCaches)**, **Usage Examples**, and **ResilientLettuceNearCacheConfig Options**. Use those topics as a navigation map, then confirm behavior in source and tests. Keep adoption narrow and connect owned resources to the caller lifecycle.
+Choose one loading contract explicitly. With **cache-aside**, the caller handles a miss, loads the value, and writes it back. With **read-through**, the cache loader owns that miss path. With **write-through**, the cache API propagates the write to the backing store before reporting success; do not describe a plain `put` as write-through unless its implementation has that contract. For a two-level Near Cache, read L1 first, consult L2 on a miss, then fill L1. Write or invalidate L2 and L1 in the order required by the implementation, and test partial failure so stale L1 data cannot silently survive a failed backend update.
 
 ## Integrations {#integrations}
 

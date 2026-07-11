@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-hibernate-cache-lettuce
 title: "Module bluetape4k-hibernate-cache-lettuce"
-description: "Hibernate 7.2 2nd Level Cache implementation backed by Lettuce Near Cache (Caffeine L1 + Redis L2). Simply configure hibernate.cache.lettuce. properties and Near Cache is automati…"
+description: "Hibernate 7.2 2nd Level Cache implementation backed by Lettuce Near Cache (Caffeine L1 + Redis L2). Simply configure hibernate.cache.lettuce. properties and Near Cache is automatically applied to all regions."
 kind: library
 group: caching
 ---
@@ -10,7 +10,7 @@ group: caching
 
 ## Problem {#problem}
 
-Hibernate 7.2 2nd Level Cache implementation backed by Lettuce Near Cache (Caffeine L1 + Redis L2). Simply configure hibernate.cache.lettuce. properties and Near Cache is automati… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+Hibernate 7.2 2nd Level Cache implementation backed by Lettuce Near Cache (Caffeine L1 + Redis L2). Simply configure hibernate.cache.lettuce. properties and Near Cache is automatically applied to all regions. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 
@@ -45,7 +45,7 @@ Add the coordinate above, refresh Gradle, and start from the smallest entry poin
 
 ## Patterns {#patterns}
 
-The README evidence is organized around **Package / Import Stability**, **Requirements**, **Architecture**, **Near Cache 2-Tier Structure**, **Layer Structure**, **Recent Changes**, **Dependencies**, **Configuration**, **Hibernate Properties**, and **application.yml (when used without Spring Boot)**. Use those topics as a navigation map, then confirm behavior in source and tests. Keep adoption narrow and connect owned resources to the caller lifecycle.
+Hibernate owns entity loading and region writes through its second-level-cache access strategy; application code should not add a separate cache-aside loader around the region. The documented topology uses Caffeine as L1 and Redis as L2. On a local miss, consult L2 before repopulating L1; on a write or invalidation, preserve the region strategy's ordering so stale L1 entries cannot outlive the Redis state. Verify backend-failure and eviction behavior in the linked region and Near Cache tests.
 
 ## Integrations {#integrations}
 

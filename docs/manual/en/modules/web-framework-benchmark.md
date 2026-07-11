@@ -1,7 +1,7 @@
 ---
 manualId: web-framework-benchmark
 title: "Web Framework Benchmark"
-description: "This module compares equivalent embedded HTTP workloads implemented with Ktor CIO and Spring WebFlux. The benchmark uses JDK HttpClient against local loopback servers so the compa…"
+description: "This module compares equivalent embedded HTTP workloads implemented with Ktor CIO and Spring WebFlux."
 kind: benchmark
 group: experiments
 ---
@@ -10,7 +10,7 @@ group: experiments
 
 ## Problem {#problem}
 
-This module compares equivalent embedded HTTP workloads implemented with Ktor CIO and Spring WebFlux. The benchmark uses JDK HttpClient against local loopback servers so the compa… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+This module compares equivalent embedded HTTP workloads implemented with Ktor CIO and Spring WebFlux. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

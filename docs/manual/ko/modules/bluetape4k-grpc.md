@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-grpc
 title: "Module bluetape4k-grpc"
-description: "English | 한국어"
+description: "gRPC 서버/클라이언트 구현을 위한 Kotlin 확장 라이브러리입니다."
 kind: library
 group: io
 ---
@@ -10,7 +10,7 @@ group: io
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+gRPC 서버/클라이언트 구현을 위한 Kotlin 확장 라이브러리입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

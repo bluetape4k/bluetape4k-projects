@@ -1,7 +1,7 @@
 ---
 manualId: idgenerator-ktor-demo
 title: "idgenerator Ktor Demo"
-description: "English | 한국어"
+description: "bluetape4k idgenerators를 HTTP endpoint로 노출하는 실행 가능한 Ktor application입니다. 공통 bluetape4k Ktor 모듈을 사용해 JSON, 표준 오류 응답, health/readiness route, correlation ID, call logging, test assertion을 구성합니다."
 kind: example
 group: learning
 ---
@@ -10,7 +10,7 @@ group: learning
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+bluetape4k idgenerators를 HTTP endpoint로 노출하는 실행 가능한 Ktor application입니다. 공통 bluetape4k Ktor 모듈을 사용해 JSON, 표준 오류 응답, health/readiness route, correlation ID, call logging, test assertion을 구성합니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

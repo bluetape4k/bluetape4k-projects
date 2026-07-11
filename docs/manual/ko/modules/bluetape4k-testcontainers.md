@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-testcontainers
 title: "Module bluetape4k-testcontainers"
-description: "English | 한국어"
+description: "Testcontainers 2.0.3 기반 통합 테스트를 빠르게 구성하기 위한 서버 래퍼/유틸 라이브러리입니다."
 kind: library
 group: testing
 ---
@@ -10,7 +10,7 @@ group: testing
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Testcontainers 2.0.3 기반 통합 테스트를 빠르게 구성하기 위한 서버 래퍼/유틸 라이브러리입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-measured
 title: "Module bluetape4k-measured"
-description: "English | 한국어"
+description: "bluetape4k-measured는 조합 가능한 단위 타입(Units)과 측정값(Measure) 기반으로, 복합 단위(m/s, kgm/s^2)를 타입 안전하게 표현하기 위한 모듈입니다."
 kind: library
 group: utilities
 ---
@@ -10,7 +10,7 @@ group: utilities
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+bluetape4k-measured는 조합 가능한 단위 타입(Units)과 측정값(Measure) 기반으로, 복합 단위(m/s, kgm/s^2)를 타입 안전하게 표현하기 위한 모듈입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

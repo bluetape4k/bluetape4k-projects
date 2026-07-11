@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-ktor-resilience4j
 title: "bluetape4k-ktor-resilience4j"
-description: "English | 한국어"
+description: "Route-scoped Resilience4j helpers for Ktor server applications in the bluetape4k ecosystem."
 kind: library
 group: web
 ---
@@ -10,7 +10,7 @@ group: web
 
 ## Problem {#problem}
 
-English | 한국어 This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+Route-scoped Resilience4j helpers for Ktor server applications in the bluetape4k ecosystem. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

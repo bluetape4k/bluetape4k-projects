@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-science
 title: "Module bluetape4k-science"
-description: "An integrated Kotlin module for scientific and geospatial data processing: GIS coordinate conversion, Shapefile I/O, JTS geometry operations, PostGIS database pipelines, and NetCD…"
+description: "An integrated Kotlin module for scientific and geospatial data processing: GIS coordinate conversion, Shapefile I/O, JTS geometry operations, PostGIS database pipelines, and NetCDF metadata cataloging."
 kind: library
 group: utilities
 ---
@@ -10,7 +10,7 @@ group: utilities
 
 ## Problem {#problem}
 
-An integrated Kotlin module for scientific and geospatial data processing: GIS coordinate conversion, Shapefile I/O, JTS geometry operations, PostGIS database pipelines, and NetCD… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+An integrated Kotlin module for scientific and geospatial data processing: GIS coordinate conversion, Shapefile I/O, JTS geometry operations, PostGIS database pipelines, and NetCDF metadata cataloging. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 

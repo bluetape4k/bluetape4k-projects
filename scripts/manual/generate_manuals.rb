@@ -93,10 +93,11 @@ module ManualDocs
       @manifest_path = File.expand_path(manifest_path)
     end
 
-    def generate(missing_only: true)
+    def generate(missing_only: true, preserve_groups: [])
       manifest = YAML.safe_load(File.read(@manifest_path))
       generated = []
       manifest.fetch("modules").sort_by { |entry| entry.fetch("id") }.each do |entry|
+        next if preserve_groups.include?(entry.fetch("group"))
         {"en" => :en, "ko" => :ko}.each do |field, locale|
           output = File.expand_path(entry.fetch(field), File.dirname(@manifest_path))
           next if missing_only && File.exist?(output)
@@ -180,7 +181,7 @@ module ManualDocs
 
         ## Patterns {#patterns}
 
-        #{english_patterns(facts)}
+        #{english_patterns(entry, facts)}
 
         ## Integrations {#integrations}
 
@@ -265,7 +266,7 @@ module ManualDocs
 
         ## 권장 패턴 {#patterns}
 
-        #{korean_patterns(facts)}
+        #{korean_patterns(entry, facts)}
 
         ## 연동 {#integrations}
 
@@ -376,7 +377,10 @@ module ManualDocs
       (["| Entry point | 확인할 내용 |", "| --- | --- |"] + rows).join("\n")
     end
 
-    def english_patterns(facts)
+    def english_patterns(entry, facts)
+      if entry.fetch("group") == "caching"
+        return cache_patterns_english(entry)
+      end
       if facts[:headings].empty?
         "Keep adoption narrow: choose one entry point, lock its behavior with a focused test, and connect any owned resource to the caller lifecycle."
       else
@@ -384,11 +388,30 @@ module ManualDocs
       end
     end
 
-    def korean_patterns(facts)
+    def korean_patterns(entry, facts)
+      if entry.fetch("group") == "caching"
+        return cache_patterns_korean(entry)
+      end
       if facts[:headings].empty?
         "entry point 하나를 선택하고 focused test로 동작을 고정한 뒤 소유한 resource를 caller lifecycle에 연결합니다."
       else
         "README 근거는 #{join_korean(facts[:headings].map { |heading| "**#{heading}**" })} 순서로 탐색할 수 있습니다. 이 항목으로 방향을 잡고 source와 test에서 동작을 확인합니다. 도입 범위는 좁게 유지하고 소유한 resource를 caller lifecycle에 연결합니다."
+      end
+    end
+
+    def cache_patterns_english(entry)
+      if entry.fetch("id") == "bluetape4k-hibernate-cache-lettuce"
+        "Hibernate owns entity loading and region writes through its second-level-cache access strategy; application code should not add a separate cache-aside loader around the region. The documented topology uses Caffeine as L1 and Redis as L2. On a local miss, consult L2 before repopulating L1; on a write or invalidation, preserve the region strategy's ordering so stale L1 entries cannot outlive the Redis state. Verify backend-failure and eviction behavior in the linked region and Near Cache tests."
+      else
+        "Choose one loading contract explicitly. With **cache-aside**, the caller handles a miss, loads the value, and writes it back. With **read-through**, the cache loader owns that miss path. With **write-through**, the cache API propagates the write to the backing store before reporting success; do not describe a plain `put` as write-through unless its implementation has that contract. For a two-level Near Cache, read L1 first, consult L2 on a miss, then fill L1. Write or invalidate L2 and L1 in the order required by the implementation, and test partial failure so stale L1 data cannot silently survive a failed backend update."
+      end
+    end
+
+    def cache_patterns_korean(entry)
+      if entry.fetch("id") == "bluetape4k-hibernate-cache-lettuce"
+        "entity load와 region write는 Hibernate 2차 캐시 access strategy가 소유하므로 애플리케이션에서 별도의 캐시 어사이드 loader를 region 바깥에 덧씌우지 않습니다. 문서화된 topology는 Caffeine을 L1, Redis를 L2로 사용합니다. local miss에서는 L2를 확인한 뒤 L1을 채우고, write 또는 invalidation에서는 오래된 L1 entry가 Redis 상태보다 오래 남지 않도록 region strategy의 순서를 지킵니다. backend failure와 eviction 동작은 연결된 region 및 Near Cache test로 확인합니다."
+      else
+        "loading 계약을 하나로 명확히 선택합니다. **캐시 어사이드(cache-aside)**에서는 caller가 miss를 처리해 값을 load하고 cache에 다시 씁니다. **read-through**에서는 cache loader가 miss 경로를 소유합니다. **write-through**에서는 cache API가 성공을 반환하기 전에 backing store까지 write를 전파합니다. 구현에 이 계약이 없다면 일반 `put`을 write-through라고 부르지 않습니다. 2단계 Near Cache는 L1을 먼저 읽고 miss이면 L2를 조회한 뒤 L1을 채웁니다. 구현이 정한 순서대로 L2와 L1을 write 또는 invalidate하고, backend update 실패 뒤 오래된 L1 값이 남지 않는지 partial failure test로 확인합니다."
       end
     end
 
@@ -474,12 +497,20 @@ module ManualDocs
     def readme_summary(readme, fallback, locale)
       paragraph = readme.split(/\n\s*\n/).map(&:strip).find do |candidate|
         first_line = candidate.lines.first.to_s.strip
+        cleaned = clean_text(candidate)
         !first_line.empty? &&
           !first_line.start_with?("#", "[![", "![", "<", "|", "```", "---", "- ") &&
-          !first_line.match?(/\A\[?(?:English|한국어)\]?\s*\|/)
+          !cleaned.match?(/\A(?:English\s*\|\s*한국어|한국어\s*\|\s*English)\z/)
       end
       fallback_text = locale == :ko ? "#{fallback} 모듈의 현재 source와 test를 작업 중심으로 설명합니다." : "Task-oriented guide to the current #{fallback} source and tests."
-      truncate(clean_text(paragraph || fallback_text), 180)
+      truncate_summary(clean_text(paragraph || fallback_text), 220)
+    end
+
+    def truncate_summary(value, max)
+      return value if value.length <= max
+      sentence = value[0, max].match(/\A(.+[.!?])(?:\s|\z)/)&.captures&.first
+      return sentence if sentence && sentence.length >= 60
+      truncate(value, max)
     end
 
     def clean_text(value)
@@ -527,13 +558,15 @@ module ManualDocs
 end
 
 if $PROGRAM_NAME == __FILE__
-  missing_only = ARGV.delete("--force").nil?
+  refresh_generated = ARGV.delete("--refresh-generated")
+  missing_only = refresh_generated.nil? && ARGV.delete("--force").nil?
+  preserve_groups = refresh_generated ? ["foundation"] : []
   repository_root = Dir.pwd
   manifest_path = ARGV.fetch(0, "docs/manual/manifest.yaml")
   generator = ManualDocs::ManualGenerator.new(
     repository_root: repository_root,
     manifest_path: manifest_path,
   )
-  generated = generator.generate(missing_only: missing_only)
+  generated = generator.generate(missing_only: missing_only, preserve_groups: preserve_groups)
   puts "Generated #{generated.length} manual files."
 end

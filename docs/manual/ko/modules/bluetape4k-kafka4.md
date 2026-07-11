@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-kafka4
 title: "Module bluetape4k-kafka4"
-description: "English | 한국어"
+description: "bluetape4k-kafka4는 bluetape4k Kafka 유틸리티의 Kafka 4.x 라인입니다. 기존 bluetape4k-kafka와 같은 Kotlin 우선 API 형태를 유지하되 Kafka 4.2.x, Spring Kafka 4.x, Spring Boot 4, Jackson 3 기준으로 컴파일합니다."
 kind: library
 group: infrastructure
 ---
@@ -10,7 +10,7 @@ group: infrastructure
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+bluetape4k-kafka4는 bluetape4k Kafka 유틸리티의 Kafka 4.x 라인입니다. 기존 bluetape4k-kafka와 같은 Kotlin 우선 API 형태를 유지하되 Kafka 4.2.x, Spring Kafka 4.x, Spring Boot 4, Jackson 3 기준으로 컴파일합니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 

@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-math
 title: "Module bluetape4k-math"
-description: "English | 한국어"
+description: "Apache Commons Math3를 기반으로 수학/통계 연산, 보간, 적분, 방정식 해법, 클러스터링 등 다양한 수학 기능을 제공하는 라이브러리입니다."
 kind: library
 group: utilities
 ---
@@ -10,7 +10,7 @@ group: utilities
 
 ## 해결하는 문제 {#problem}
 
-English | 한국어 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Apache Commons Math3를 기반으로 수학/통계 연산, 보간, 적분, 방정식 해법, 클러스터링 등 다양한 수학 기능을 제공하는 라이브러리입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 
