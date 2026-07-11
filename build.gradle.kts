@@ -725,35 +725,39 @@ dependencies {
 val manualModuleInventory = layout.buildDirectory.file("manual/module-inventory.json")
 
 tasks.register("exportManualModuleInventory") {
-    outputs.file(manualModuleInventory)
+    group = "documentation"
+    description = "Exports the registered Gradle module inventory for manual generation."
 
-    doLast {
-        val repositoryRoot = project.rootDir.toPath()
-        val modules = project.subprojects
-            .sortedBy(Project::getPath)
-            .map { module ->
-                val sourceDir = repositoryRoot
-                    .relativize(module.projectDir.toPath())
-                    .toString()
-                    .replace(File.separatorChar, '/')
-                val kind = when {
-                    sourceDir.startsWith("examples/") -> "example"
-                    sourceDir.startsWith("benchmark/") -> "benchmark"
-                    else -> "library"
-                }
-
-                linkedMapOf(
-                    "gradlePath" to module.path,
-                    "projectName" to module.name,
-                    "sourceDir" to sourceDir,
-                    "kind" to kind,
-                )
+    val repositoryRoot = project.rootDir.toPath()
+    val modules = project.subprojects
+        .sortedBy(Project::getPath)
+        .map { module ->
+            val sourceDir = repositoryRoot
+                .relativize(module.projectDir.toPath())
+                .toString()
+                .replace(File.separatorChar, '/')
+            val kind = when {
+                sourceDir.startsWith("examples/") -> "example"
+                sourceDir.startsWith("benchmark/") -> "benchmark"
+                else -> "library"
             }
 
-        manualModuleInventory.get().asFile.apply {
-            parentFile.mkdirs()
-            writeText(JsonOutput.prettyPrint(JsonOutput.toJson(modules)) + "\n")
+            linkedMapOf(
+                "gradlePath" to module.path,
+                "projectName" to module.name,
+                "sourceDir" to sourceDir,
+                "kind" to kind,
+            )
         }
+    val inventoryJson = JsonOutput.prettyPrint(JsonOutput.toJson(modules)) + "\n"
+    val inventoryFile = manualModuleInventory.get().asFile
+
+    inputs.property("inventoryJson", inventoryJson)
+    outputs.file(inventoryFile)
+
+    doLast {
+        inventoryFile.parentFile.mkdirs()
+        inventoryFile.writeText(inventoryJson)
     }
 }
 
