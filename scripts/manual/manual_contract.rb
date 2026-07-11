@@ -211,6 +211,8 @@ module ManualDocs
           errors << "#{label}: unsafe #{field} path #{relative_path.inspect}"
         elsif !File.exist?(absolute_path)
           errors << "#{label}: missing #{field} path #{relative_path}"
+        elsif !within?(File.realpath(absolute_path), File.realpath(@repository_root))
+          errors << "#{label}: unsafe #{field} path #{relative_path.inspect}"
         end
       end
     end
