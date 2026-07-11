@@ -1,0 +1,132 @@
+---
+manualId: bluetape4k-kafka
+title: "Module bluetape4k-kafka"
+description: "A utility library for using Apache Kafka efficiently in a Kotlin environment. Provides extension functions and wrapper classes for Kafka clients, Spring Kafka, and Kafka Streams w…"
+kind: library
+group: infrastructure
+---
+
+# Module bluetape4k-kafka
+
+## Problem {#problem}
+
+A utility library for using Apache Kafka efficiently in a Kotlin environment. Provides extension functions and wrapper classes for Kafka clients, Spring Kafka, and Kafka Streams w… This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+
+## When to use {#when-to-use}
+
+Use `bluetape4k-kafka` when the application needs client lifecycle, reconnect policy, backpressure, retries, and observability. Start with the source entry points below and confirm that their ownership and failure contracts match the calling component. Prefer a smaller standard-library or already-adopted module when it satisfies the same contract without another runtime boundary.
+
+## Coordinates {#coordinates}
+
+```kotlin
+dependencies {
+    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation("io.github.bluetape4k:bluetape4k-kafka")
+}
+```
+
+Gradle project path: `:bluetape4k-kafka`. Source directory: `infra/kafka`.
+
+## Concepts {#concepts}
+
+The first source-level concepts to inspect are `ConsumerSupport`, `ProducerSupport`, `TopicPartitionSupport`, `BinaryKafkaCodecs`, `ByteArrayKafkaCodec`, `JacksonKafkaCodec`, `KafkaCodec`, and `KafkaCodecs`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
+
+## Quick start {#quick-start}
+
+Add the coordinate above, refresh Gradle, and start from the smallest entry point that owns the required task. Open [`ConsumerSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ConsumerSupport.kt) first; it is a concrete source entry point for the module.
+
+## API by task {#api-by-task}
+
+| Entry point | What to verify |
+| --- | --- |
+| [`ConsumerSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ConsumerSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| [`ProducerSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ProducerSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| [`TopicPartitionSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/TopicPartitionSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| [`BinaryKafkaCodecs`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| [`ByteArrayKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/ByteArrayKafkaCodec.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| [`JacksonKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/JacksonKafkaCodec.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| [`KafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodec.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| [`KafkaCodecs`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodecs.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| [`StringKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/StringKafkaCodec.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| [`ProducerCoroutines`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/coroutines/ProducerCoroutines.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+
+## Patterns {#patterns}
+
+The README evidence is organized around **Features**, **Architecture Diagrams**, **Kafka API Structure**, **Producer/Consumer Message Flow**, **Kafka Streams Processing Flow**, **Installation**, **Gradle (Kotlin DSL)**, **Gradle (Groovy DSL)**, **Maven**, and **Dependencies**. Use those topics as a navigation map, then confirm behavior in source and tests. Keep adoption narrow and connect owned resources to the caller lifecycle.
+
+## Integrations {#integrations}
+
+The current build declares these integration edges:
+
+```kotlin
+implementation(platform(libs.spring.boot.dependencies))
+api(project(":bluetape4k-annotations"))
+api(project(":bluetape4k-core"))
+api(project(":bluetape4k-io"))
+compileOnly(project(":bluetape4k-resilience4j"))
+api(libs.kafka.clients)
+compileOnly(libs.kafka.streams)
+compileOnly(libs.kafka.generator)
+implementation(libs.spring.kafka)
+compileOnly(libs.spring.kafka.test)
+implementation(project(":bluetape4k-spring-boot-core"))
+implementation("org.springframework.data:spring-data-commons")
+```
+
+Treat `compileOnly` edges as caller-provided capabilities and verify runtime availability before using their APIs.
+
+## Configuration {#configuration}
+
+No module-level configuration resource was found under `src/main/resources`. Configuration is supplied through constructors, builders, function arguments, or the integrating framework; confirm defaults in source.
+
+## Failures {#failures}
+
+Failure semantics are defined by the linked entry points and tests, not inferred from the artifact name. Keep cancellation and timeout signals intact, close owned resources, and translate backend exceptions only at a boundary that can add a stable domain contract. Use the test anchors below to verify the exact behavior before adding retries or fallbacks.
+
+## Operations {#operations}
+
+Track connection state, queue depth, retries, timeouts, remote errors, and graceful shutdown. Keep capacity, timeout, retry, and shutdown settings next to the component that owns the resource; avoid process-wide defaults that hide which caller accepted the trade-off.
+
+## Testing {#testing}
+
+Run the module test task:
+
+```bash
+./gradlew :bluetape4k-kafka:test --no-configuration-cache
+```
+
+Representative test anchors:
+
+- [`AbstractKafkaTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/AbstractKafkaTest.kt)
+- [`ConsumerSupportTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/ConsumerSupportTest.kt)
+- [`ProducerSupportTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/ProducerSupportTest.kt)
+- [`TopicPartitionSupportTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/TopicPartitionSupportTest.kt)
+- [`AbstractKafkaCodecPoisonPillTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/codec/AbstractKafkaCodecPoisonPillTest.kt)
+- [`AbstractKafkaCodecTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/codec/AbstractKafkaCodecTest.kt)
+- [`ByteArrayKafkaCodecTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/codec/ByteArrayKafkaCodecTest.kt)
+- [`JacksonKafkaCodecSecurityTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/codec/JacksonKafkaCodecSecurityTest.kt)
+
+## Workshops {#workshops}
+
+No dedicated workshop path is registered in the manual manifest. Use the module README and the representative tests above as runnable evidence.
+
+## Limitations {#limitations}
+
+This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
+
+## Sources {#sources}
+
+- [Module README](../../../../infra/kafka/README.md)
+- [Module build](../../../../infra/kafka/build.gradle.kts)
+- [`ConsumerSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ConsumerSupport.kt)
+- [`ProducerSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ProducerSupport.kt)
+- [`TopicPartitionSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/TopicPartitionSupport.kt)
+- [`BinaryKafkaCodecs`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt)
+- [`ByteArrayKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/ByteArrayKafkaCodec.kt)
+- [`JacksonKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/JacksonKafkaCodec.kt)
+- [`KafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodec.kt)
+- [`KafkaCodecs`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodecs.kt)
+- [`StringKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/StringKafkaCodec.kt)
+- [`ProducerCoroutines`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/coroutines/ProducerCoroutines.kt)
+- [`AbstractKafkaTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/AbstractKafkaTest.kt)
+- [`ConsumerSupportTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/ConsumerSupportTest.kt)
