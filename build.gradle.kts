@@ -237,17 +237,9 @@ subprojects {
             }
         }
 
-        // 멀티 모듈들을 테스트 시에 동시에 실행되지 않게 하기 위해 Mutex 를 활용합니다.
-        abstract class TestMutexService: BuildService<BuildServiceParameters.None>
         abstract class SigningMutexService: BuildService<BuildServiceParameters.None>
         abstract class NmcpPublishMutexService: BuildService<BuildServiceParameters.None>
 
-        val testMutex = gradle.sharedServices.registerIfAbsent(
-            "test-mutex",
-            TestMutexService::class
-        ) {
-            maxParallelUsages.set(1)
-        }
         val signingMutex = gradle.sharedServices.registerIfAbsent(
             "signing-mutex",
             SigningMutexService::class
@@ -262,8 +254,6 @@ subprojects {
         }
 
         test {
-            usesService(testMutex)
-
             useJUnitPlatform()
 
             // bluetape4k.* 시스템 프로퍼티를 테스트 JVM에 전달 (골든 이미지 갱신 모드 등)
