@@ -35,6 +35,58 @@ class ValidateManualsTest < Minitest::Test
     assert_empty validator_for("valid").errors
   end
 
+  def test_accepts_complete_bilingual_chapters_and_paired_assets
+    assert_empty validator_for("valid").errors
+  end
+
+  def test_reports_duplicate_chapter_ids_and_frontmatter_mismatch
+    with_fixture("valid") do |root|
+      manifest = load_manifest(root)
+      chapter = manifest["modules"].first["chapters"].first
+      manifest["modules"].first["chapters"] << deep_copy(chapter)
+      write_manifest(root, manifest)
+      english = File.join(root, "docs/manual/en/modules/sample/chapter-one.md")
+      File.write(english, File.read(english).sub("chapterId: chapter-one", "chapterId: wrong"))
+
+      errors = validator(root).errors
+
+      assert_includes errors, "sample: duplicate chapter id chapter-one"
+      assert_includes errors, "sample/chapter-one: English chapterId must be chapter-one"
+    end
+  end
+
+  def test_reports_missing_chapter_asset_pair_and_orphan_asset
+    with_fixture("valid") do |root|
+      FileUtils.rm(File.join(root, "docs/manual/ko/modules/sample/chapter-one.md"))
+      FileUtils.rm(File.join(root, "docs/manual/assets/sample/model.png"))
+      File.write(
+        File.join(root, "docs/manual/assets/sample/orphan.svg"),
+        '<svg xmlns="http://www.w3.org/2000/svg"/>',
+      )
+
+      errors = validator(root).errors
+
+      assert_includes errors, "sample/chapter-one: missing Korean document"
+      assert_includes errors, "sample: missing paired asset assets/sample/model.png"
+      assert_includes errors, "manual assets: orphan asset assets/sample/orphan.svg"
+    end
+  end
+
+  def test_reports_unsafe_and_missing_manual_references
+    with_fixture("valid") do |root|
+      english = File.join(root, "docs/manual/en/modules/sample/chapter-one.md")
+      File.write(
+        english,
+        File.read(english) + "\n![Escape](../../../../../../outside.png)\n[Missing](missing.md)\n",
+      )
+
+      errors = validator(root).errors
+
+      assert errors.any? { |error| error.include?("unsafe Markdown reference") }
+      assert errors.any? { |error| error.include?("missing Markdown reference") }
+    end
+  end
+
   def test_reports_inventory_drift_duplicates_and_invalid_kind
     with_fixture("valid") do |root|
       manifest = load_manifest(root)
@@ -129,9 +181,9 @@ class ValidateManualsTest < Minitest::Test
       assert_equal ["manual manifest not found: docs/manual/manifest.yaml"], missing
 
       FileUtils.mkdir_p(File.join(root, "docs/manual"))
-      File.write(File.join(root, "docs/manual/manifest.yaml"), "schemaVersion: 2\nmodules: invalid\n")
+      File.write(File.join(root, "docs/manual/manifest.yaml"), "schemaVersion: 1\nmodules: invalid\n")
       errors = validator(root).errors
-      assert_includes errors, "manual manifest schemaVersion must be 1"
+      assert_includes errors, "manual manifest schemaVersion must be 2"
       assert_includes errors, "manual manifest modules must be an array"
     end
   end
