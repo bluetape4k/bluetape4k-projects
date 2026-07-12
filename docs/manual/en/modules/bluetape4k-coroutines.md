@@ -63,6 +63,71 @@ suspend fun loadAnswer(): Int {
 | Own a closeable scope | `DefaultCoroutineScope`, `IoCoroutineScope`, `VirtualThreadCoroutineScope` |
 | Select structured failure policy | `taskScope`, `firstSuccessTaskScope`, `supervisedTaskScope` |
 
+## Choosing the first abstraction {#decision-guide}
+
+| Requirement | Default choice | Choose a bluetape4k helper when |
+| --- | --- | --- |
+| Combine two or three suspend calls inside one request | The caller's `coroutineScope` and `async` | The same winner or zip rule appears in several places; use `DeferredSupport`. |
+| Transform a Flow asynchronously while preserving input order | `map` or `flow.async` | Element computations should overlap but emission order must remain stable. |
+| Bound a transform where throughput matters more than result order | `mapParallel` | `parallelism` can be derived from downstream capacity. |
+| Let a component own both a dispatcher and a scope | A framework lifecycle scope | If you create the dispatcher too, close the `CloseableCoroutineScope` from that lifecycle. |
+| Select the first replica to finish | `awaitAny` | Use `awaitAnyAndCancelOthers` when losers must be cancelled. Both select first completion, not first success. |
+| Model a hot stream with terminal completion or error | `StateFlow`/`SharedFlow` | Use a subject when explicit `complete()` or `emitError()` semantics are required. |
+| Bridge a JDK structured-task policy | `coroutineScope`/`supervisorScope` | Use structured helpers for direct virtual-thread fail-fast or first-success policies. |
+
+## Practical recipes {#recipes}
+
+### 1. Keep request work in the caller scope
+
+```kotlin
+suspend fun loadDashboard(userId: String): Dashboard = coroutineScope {
+    val profile = async { profileClient.load(userId) }
+    val notices = async { noticeClient.load(userId) }
+    Dashboard(profile.await(), notices.await())
+}
+```
+
+Keeping children out of a separate application scope propagates caller cancellation to both requests. Create a closeable scope only when a component truly owns background work, and connect it to the owner's `close()`.
+
+### 2. Separate ordering from throughput
+
+```kotlin
+val ordered = ids.asFlow()
+    .async { id -> client.load(id) }
+    .toList()                      // preserves input order
+
+val throughput = ids.asFlow()
+    .mapParallel(parallelism = 8) { id -> client.load(id) }
+    .toList()                      // completion order may differ
+```
+
+`mapParallel(parallelism = 1)` takes the plain `map` path and preserves order. Values above one use `flatMapMerge`, so output order must not become an API contract.
+
+### 3. Select the fastest replica and cancel losers
+
+```kotlin
+suspend fun <T> fastestReplica(
+    requests: List<Deferred<T>>,
+): T = requests.awaitAnyAndCancelOthers()
+```
+
+The winner is the first task to **complete**. If that task fails or is cancelled, its result is propagated and all losers are cancelled. Use `firstSuccessTaskScope` when the requirement is the first **successful** result.
+
+### 4. Do not lose the first PublishSubject event
+
+```kotlin
+val subject = PublishSubject<Event>()
+coroutineScope {
+    val collector = launch { subject.collect(::handle) }
+    subject.awaitCollector()
+    subject.emit(Event.Started)
+    subject.complete()
+    collector.join()
+}
+```
+
+`PublishSubject` does not replay old values, so an event emitted before registration is lost. Use `awaitCollector()` in tests and adapters where startup order matters. Terminal calls after `complete()` or `emitError()` are ignored.
+
 ## Patterns {#patterns}
 
 Use structured scopes at the narrowest lifecycle boundary. Rethrow `CancellationException` before broad exception handling. For parallel Flow work, set concurrency from the downstream service capacity rather than CPU count alone. Prefer `await()` over blocking bridges. If a type owns a scope, make the owner `Closeable` and connect it to application shutdown.
@@ -78,6 +143,25 @@ There is no central property file. Configure dispatcher, parallelism, buffer siz
 ## Failures {#failures}
 
 `await()` propagates the original computation failure and cancellation. Fail-fast task scopes cancel remaining work after the first failure; first-success scopes fail when every branch fails; supervised scopes retain partial results. Deadline-based joins throw `TimeoutException`. Blocking access from a constrained coroutine dispatcher can deadlock or starve the pool, which is why `DeferredValue.value` is deprecated.
+
+### Cancellation checklist
+
+1. Rethrow `CancellationException` before a broad `catch (e: Exception)` branch.
+2. Check that request children do not escape into an application scope and lose caller cancellation.
+3. Document the owner and close point of every dispatcher, scope, and channel created directly.
+4. Distinguish a timeout that cancels remote I/O from one that only stops the local wait.
+5. Use `supervisorScope` when a test intentionally observes child failure without cancelling its body.
+
+### Troubleshooting table
+
+| Symptom | Check first | Response |
+| --- | --- | --- |
+| Computation continues after the caller finishes | An unclosed `DeferredValue` or manually created scope | Prefer `await()` and call `close()` from the owning lifecycle. |
+| `mapParallel` changes result order | Whether `parallelism` is two or greater | Use `flow.async` or plain `map` when ordering is contractual. |
+| A remote call remains after timeout | Whether the client maps coroutine cancellation to actual I/O cancellation | Verify the client contract and add explicit deadline/idempotency policy. |
+| The first subject event disappears | Whether `emit` ran before collector registration | Use `awaitCollector()` or select a replaying subject/`StateFlow`. |
+| One child failure cancels every sibling | Whether fail-fast is the intended policy | Use `supervisorScope` or `supervisedTaskScope` when partial results are valid. |
+| Threads remain after shutdown | A scope such as `ThreadPoolCoroutineScope` owns its dispatcher | Connect the component's `close()` to application shutdown. |
 
 ## Operations {#operations}
 
