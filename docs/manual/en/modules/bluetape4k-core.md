@@ -33,6 +33,21 @@ The module is a toolbox rather than one runtime subsystem. Its main families are
 
 Validation names encode failure semantics: new `require*` helpers reject caller input with `IllegalArgumentException`. Collection capacity is part of the type contract; for example, `BoundedStack` and `RingBuffer` retain only a bounded working set.
 
+## Manual map {#manual-map}
+
+Read Core in the order boundaries move through an execution flow rather than alphabetically by API name.
+
+![Core boundary validation map](../../assets/core/validation-boundary.svg)
+
+| Design question | Chapter | Contract to decide |
+| --- | --- | --- |
+| Where should invalid caller input stop? | [Validation and invariants](./bluetape4k-core/validation.md) | Exception type, parameter name, non-null internal model |
+| How should bytes cross a text boundary? | [Encoding and data boundaries](./bluetape4k-core/encoding-data.md) | Charset, URL-safe Base64/Hex, malformed input |
+| In what order should the latest N values be retained? | [Bounded collections](./bluetape4k-core/bounded-collections.md) | Capacity, eviction, stack/ring read order |
+| Does a time query include its end? | [Time and ranges](./bluetape4k-core/time-ranges.md) | Endpoint inclusion, overlap, timezone |
+| How much active and waiting work is allowed? | [Concurrency and lifecycle](./bluetape4k-core/concurrency-lifecycle.md) | Rejection, cancellation, close order |
+| How do these contracts form one component? | [Practical Core recipes](./bluetape4k-core/recipes.md) | End-to-end tests and operational signals |
+
 ## Quick start {#quick-start}
 
 ```kotlin

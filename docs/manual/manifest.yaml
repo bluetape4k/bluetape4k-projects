@@ -168,6 +168,15 @@ modules:
   - id: recipes
     en: en/modules/bluetape4k-core/recipes.md
     ko: ko/modules/bluetape4k-core/recipes.md
+  assets:
+  - assets/core/bounded-collection-ordering.svg
+  - assets/core/bounded-collection-ordering.png
+  - assets/core/concurrent-reducer-capacity.svg
+  - assets/core/concurrent-reducer-capacity.png
+  - assets/core/shutdown-order.svg
+  - assets/core/shutdown-order.png
+  - assets/core/validation-boundary.svg
+  - assets/core/validation-boundary.png
   sourcePaths:
   - bluetape4k/core/src/main/kotlin
   testPaths:

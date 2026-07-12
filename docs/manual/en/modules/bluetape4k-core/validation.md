@@ -1,44 +1,65 @@
 ---
 title: Validation and invariants
-description: Select validation functions for public input and internal invariants.
+description: Express caller arguments, object state, and domain-rule failures at their owning boundary.
 manualId: bluetape4k-core
 chapterId: validation
 ---
 
 # Validation and invariants
 
-## Problem to solve
+Validation is the boundary that prevents invalid state from entering the system. Exception meaning follows the owner of the failed rule.
 
-Reject invalid values at the boundary while preserving exception meaning and the validated value.
+![Validation boundaries for caller arguments, object state, and domain rules](../../../assets/core/validation-boundary.svg)
 
-## Mental model
+## The three boundaries
 
-Invalid public arguments map to `IllegalArgumentException`; invalid state in an existing object maps to `IllegalStateException`.
+| Failed rule | Default tool | Surface |
+| --- | --- | --- |
+| caller argument | `require`, `requireNotBlank`, `requirePositiveNumber`, etc. | `IllegalArgumentException` |
+| state of an existing object | `check` or explicit state guard | `IllegalStateException` |
+| business/domain rule | domain validator/result/exception | domain-specific surface |
 
-## Smallest API surface
+Replacing domain failure with a generic precondition prevents callers from distinguishing retry, user feedback, and state transitions.
 
-Start with Kotlin `require` and `check`, then use Bluetape `require*` helpers for repeated null, blank, and collection conditions.
+## Helpers preserve the receiver
 
-## Complete example
+Most `require*` extensions return the validated receiver.
 
-Validate a string with `requireNotBlank` and pass the returned receiver directly to the next transformation without another non-null assertion.
+```kotlin
+class SearchRequest(rawQuery: String?, limit: Int) {
+    val query: String = rawQuery.requireNotBlank("query").trim()
+    val limit: Int = limit.requireInRange(1, 100, "limit")
+}
+```
 
-## Selection guide
+The helper set covers null/empty/blank, text containment, equality/comparison, closed/open ranges, numeric signs, and array/collection/map conditions. Keep plain `require` when it is clearer.
 
-First distinguish caller input from internal state. Do not replace a domain error with a generic precondition exception.
+## Validate before side effects
 
-## Failure, cancellation, and lifecycle contract
+```kotlin
+fun createAccount(command: CreateAccount): AccountId {
+    val email = command.email.requireNotBlank("email")
+    command.initialCredit.requireZeroOrPositiveNumber("initialCredit")
+    return repository.insert(email, command.initialCredit)
+}
+```
 
-Validate before side effects and leave no partial state after failure. Error messages must not expose secret values.
+Racy invariants still require transactions or uniqueness constraints; preconditions alone cannot make them atomic.
 
-## Operations and diagnosis
+## Messages and observability
 
-Record caller validation failures separately from server invariant violations.
+- include parameter name and expected condition;
+- never include passwords, tokens, or raw sensitive payloads;
+- count caller argument failures separately from server-state violations;
+- keep high-cardinality raw values out of metric labels.
+
+## Testing
+
+Cover values immediately below and above boundaries, null, empty, blank, open/closed endpoints, and returned receiver identity. Assert exception type and parameter name when they are public contract.
 
 ## Source and representative tests
 
-[`RequireSupport.kt`](../../../../../bluetape4k/core/src/main/kotlin/io/bluetape4k/support/RequireSupport.kt) and its tests define receiver return and exception behavior.
+- [`RequireSupport.kt`](../../../../../bluetape4k/core/src/main/kotlin/io/bluetape4k/support/RequireSupport.kt)
+- [`RequireSupportTest.kt`](../../../../../bluetape4k/core/src/test/kotlin/io/bluetape4k/support/RequireSupportTest.kt)
 
-## Next chapter and runnable workshop
-
-Continue with [Bounded collections](./bounded-collections.md) for bounded storage of validated values.
+Next, keep validated data inside a fixed memory budget with [Bounded collections](./bounded-collections.md).

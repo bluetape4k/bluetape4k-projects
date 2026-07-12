@@ -33,6 +33,21 @@ dependencies {
 
 validation 이름은 failure 의미를 드러냅니다. 새 `require*` helper는 caller 입력을 `IllegalArgumentException`으로 거부합니다. `BoundedStack`, `RingBuffer` 같은 collection은 capacity가 계약에 포함됩니다.
 
+## 매뉴얼 지도 {#manual-map}
+
+Core를 API 이름순으로 읽기보다 경계가 실행 흐름을 따라 이동하는 순서로 읽습니다.
+
+![Core boundary validation map](../../assets/core/validation-boundary.svg)
+
+| 설계 질문 | 장 | 결정할 계약 |
+| --- | --- | --- |
+| 잘못된 caller 입력을 어디서 끊을까? | [검증과 불변식](./bluetape4k-core/validation.md) | exception type, parameter name, non-null 내부 모델 |
+| bytes를 text로 어떻게 옮길까? | [Encoding과 데이터 경계](./bluetape4k-core/encoding-data.md) | charset, URL-safe Base64/Hex, malformed input |
+| 최근 N개를 어떤 순서로 유지할까? | [Bounded collections](./bluetape4k-core/bounded-collections.md) | capacity, eviction, stack/ring read order |
+| 시간 조회의 끝을 포함할까? | [시간과 범위](./bluetape4k-core/time-ranges.md) | endpoint inclusion, overlap, timezone |
+| active와 waiting work를 어디까지 허용할까? | [Concurrency와 lifecycle](./bluetape4k-core/concurrency-lifecycle.md) | rejection, cancellation, close order |
+| 위 계약을 한 component로 어떻게 묶을까? | [Core 실전 레시피](./bluetape4k-core/recipes.md) | end-to-end test와 운영 signal |
+
 ## 빠른 시작 {#quick-start}
 
 ```kotlin

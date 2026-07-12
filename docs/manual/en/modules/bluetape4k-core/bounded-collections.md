@@ -1,44 +1,54 @@
 ---
 title: Bounded collections
-description: Compare stack and ring-buffer ordering, capacity, and eviction.
+description: Compare stack and ring-buffer iteration, capacity, eviction, and thread-safety contracts.
 manualId: bluetape4k-core
 chapterId: bounded-collections
 ---
 
 # Bounded collections
 
-## Problem to solve
+`BoundedStack` and `RingBuffer` both evict the oldest value to bound memory, but expose opposite read order.
 
-Limit recent values while making traversal order and overflow eviction explicit.
+![Ordering comparison for capacity-three BoundedStack and RingBuffer](../../../assets/core/bounded-collection-ordering.svg)
 
-## Mental model
+## Choose by read semantics
 
-`BoundedStack` reads newest-first and `RingBuffer` reads oldest-first. Both evict the oldest value when capacity is exceeded.
+| Requirement | Type | Index zero | Iteration |
+| --- | --- | --- | --- |
+| newest-first undo/history | `BoundedStack` | newest/top | newest to oldest |
+| chronological recent history | `RingBuffer` | oldest/read head | oldest to newest |
 
-## Smallest API surface
+Both validate a positive capacity and protect public reads/writes with `ReentrantLock`.
 
-Use `BoundedStack` for reverse-order recent work and `RingBuffer` for chronological history.
+```kotlin
+val stack = BoundedStack<Int>(3).apply { pushAll(1, 2, 3, 4) }
+val ring = RingBuffer<Int>(3).apply { addAll(1, 2, 3, 4) }
 
-## Complete example
+check(stack.toList() == listOf(4, 3, 2))
+check(ring.toList() == listOf(2, 3, 4))
+```
 
-Insert 1, 2, 3, and 4 into capacity 3 and verify both traversal orders and eviction of 1.
+Both evict 1. `BoundedStack.pop()` removes 4 first; `RingBuffer.drop(1)` removes 2 first.
 
-## Selection guide
+## API semantics
 
-Traversal order is the primary choice. Use a concurrency primitive instead when producers, consumers, or backpressure are involved.
+`BoundedStack` offers `push`, `pop`, `peek`, `insert`, `update`, and `remove` with top-relative indexes. Empty pop/peek throws `NoSuchElementException`; invalid indexes throw `IndexOutOfBoundsException`.
 
-## Failure, cancellation, and lifecycle contract
+`RingBuffer` offers add, indexed get/set, `drop`, `removeIf`, and clear with chronological indexes. Negative drop is invalid; dropping at least the current size clears the buffer.
 
-Capacity bounds memory, not throughput. Reject an invalid capacity at construction.
+## What bounded collections are not
 
-## Operations and diagnosis
+Bounded memory is not backpressure. Overflow silently replaces old data, so use a channel, queue, or persistent log when every item must be delivered. These types also do not provide blocking producer/consumer coordination.
 
-Observe capacity hits and eviction count to confirm that data loss matches the intended policy.
+## Operations and testing
+
+Observe eviction count, capacity saturation, and snapshot size. Test wrap-around indexing/iteration, concurrent access, invalid capacity, empty operations, and insert/remove boundaries.
 
 ## Source and representative tests
 
-The contract is defined by [`BoundedStack.kt`](../../../../../bluetape4k/core/src/main/kotlin/io/bluetape4k/collections/BoundedStack.kt), [`RingBuffer.kt`](../../../../../bluetape4k/core/src/main/kotlin/io/bluetape4k/collections/RingBuffer.kt), and their tests.
+- [`BoundedStack.kt`](../../../../../bluetape4k/core/src/main/kotlin/io/bluetape4k/collections/BoundedStack.kt)
+- [`RingBuffer.kt`](../../../../../bluetape4k/core/src/main/kotlin/io/bluetape4k/collections/RingBuffer.kt)
+- [`BoundedStackTest.kt`](../../../../../bluetape4k/core/src/test/kotlin/io/bluetape4k/collections/BoundedStackTest.kt)
+- [`RingBufferTest.kt`](../../../../../bluetape4k/core/src/test/kotlin/io/bluetape4k/collections/RingBufferTest.kt)
 
-## Next chapter and runnable workshop
-
-Continue with [Concurrency and lifecycle](./concurrency-lifecycle.md) for concurrent aggregation.
+Capacity for running and waiting asynchronous work belongs in [Concurrency and lifecycle](./concurrency-lifecycle.md).

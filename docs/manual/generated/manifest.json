@@ -204,6 +204,16 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-core",
+      "assets": [
+        "assets/core/bounded-collection-ordering.svg",
+        "assets/core/bounded-collection-ordering.png",
+        "assets/core/concurrent-reducer-capacity.svg",
+        "assets/core/concurrent-reducer-capacity.png",
+        "assets/core/shutdown-order.svg",
+        "assets/core/shutdown-order.png",
+        "assets/core/validation-boundary.svg",
+        "assets/core/validation-boundary.png"
+      ],
       "chapters": [
         {
           "en": "en/modules/bluetape4k-core/validation.md",
