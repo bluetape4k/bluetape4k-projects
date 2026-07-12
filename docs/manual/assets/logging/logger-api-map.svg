@@ -21,14 +21,14 @@
     <text x="800" y="330">level guard</text><text x="800" y="363">lazy supplier + safe fallback</text><text x="800" y="396">marker / cause / MDC overloads</text>
     <text x="1300" y="330">withLoggingContext</text><text x="1300" y="363">withCoroutineLoggingContext</text><text x="1300" y="396">restore or remove in finally</text>
   </g>
-  <path d="M 300 430 V 495 Q 300 515 320 515 H 730" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#blue-arrow)"/>
-  <path d="M 800 430 V 515" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#blue-arrow)"/>
-  <path d="M 1300 430 V 495 Q 1300 515 1280 515 H 870" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#blue-arrow)"/>
+  <path d="M 300 430 V 475 Q 300 495 320 495 H 720 Q 740 495 740 515 V 530" fill="none" stroke="#527fb3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#blue-arrow)"/>
+  <path d="M 800 430 V 530" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#blue-arrow)"/>
+  <path d="M 1300 430 V 475 Q 1300 495 1280 495 H 880 Q 860 495 860 515 V 530" fill="none" stroke="#527fb3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#blue-arrow)"/>
   <rect x="525" y="530" width="550" height="150" rx="28" fill="#f4edfc" stroke="#9b7bc2" stroke-width="3" filter="url(#shadow)"/>
   <text x="800" y="586" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="32" fill="#705197">SLF4J Logger API</text>
   <text x="800" y="626" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#53697f">stable facade shared by libraries and applications</text>
   <text x="800" y="654" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="16" fill="#6d5b85">No appender, level, destination, or retention ownership here</text>
-  <path d="M 800 680 V 738" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#blue-arrow)"/>
+  <path d="M 800 680 V 754" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#blue-arrow)"/>
   <rect x="260" y="754" width="1080" height="125" rx="28" fill="#fff0f1" stroke="#b96f73" stroke-width="3"/>
   <text x="800" y="804" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#8e4d52">Application-owned Provider</text>
   <text x="800" y="842" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#53697f">one provider • encoder • appenders • routing • retention • redaction policy</text>
