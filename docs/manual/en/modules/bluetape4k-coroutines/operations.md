@@ -1,44 +1,89 @@
 ---
 title: Operations and observability
-description: Connect jobs, queues, latency, cancellation, and readiness to operational signals.
+description: Observe in-flight work, pressure, latency, cancellation, readiness, and shutdown as one lifecycle.
 manualId: bluetape4k-coroutines
 chapterId: operations
 ---
 
 # Operations and observability
 
-## Problem to solve
+Coroutine count alone does not explain behavior. Observe demand, pressure, service time, cancellation reason, and resource ownership at the same boundary.
 
-Observe which work is delayed, cancelled, or unable to terminate instead of counting coroutines alone.
+![Minimum operational signals and deterministic shutdown for a coroutine boundary](../../../assets/coroutines/observability-boundaries.svg)
 
-## Mental model
+## Minimum signal set
 
-Active jobs represent demand, queues and buffers represent pressure, latency represents service time, and cancellation represents normal termination or caller abandonment.
+| Signal | Question | Useful dimensions |
+| --- | --- | --- |
+| in-flight jobs/workers | how much demand is active | operation, owner |
+| queue/buffer depth | is production faster than downstream | component, capacity |
+| latency P50/P95/P99 | where is tail latency created | operation, outcome |
+| cancellation | caller, timeout, or shutdown | reason, owner |
+| shutdown duration | time from intake stop to release | component, phase |
 
-## Smallest API surface
+Do not put request IDs or exception messages in metric labels. Keep metrics bounded and use traces/logs for high-cardinality details.
 
-Combine trace propagation from coroutine context, Micrometer timers and counters, component readiness, and lifecycle hooks.
+## Do not count cancellation as failure
 
-## Complete example
+```kotlin
+suspend fun <T> Timer.recordSuspend(block: suspend () -> T): T {
+    val sample = Timer.start(registry)
+    try {
+        return block()
+    } catch (e: CancellationException) {
+        cancellationCounter.increment()
+        throw e
+    } catch (e: Exception) {
+        failureCounter.increment()
+        throw e
+    } finally {
+        sample.stop(this)
+    }
+}
+```
 
-Record suspend work below the request span and rethrow `CancellationException`. During component shutdown, stop intake before closing channels and owned scopes.
+Separate caller cancellation from timeout to distinguish abandonment from service latency. Do not turn normal cancellation into an error span, but record its reason and owner.
 
-## Selection guide
+## Readiness versus liveness
 
-Readiness means the component can accept new work; liveness means the process can recover. A full queue cannot be diagnosed from CPU utilization alone.
+- Readiness asks whether new work can be accepted safely.
+- Liveness asks whether the process can recover.
 
-## Failure, cancellation, and lifecycle contract
+A saturated connection pool or permanently full queue may require throttling intake or dropping readiness. CPU utilization alone is insufficient.
 
-Do not record normal cancellation as an error span. After a shutdown timeout, close remaining work and external resources explicitly.
+## Deterministic shutdown
 
-## Operations and diagnosis
+1. turn readiness off;
+2. stop listeners, consumers, and other intake;
+3. drain bounded work within an explicit timeout;
+4. terminally close channels/subjects, owned scopes, and dispatchers;
+5. record remaining jobs, threads, and resources.
 
-Put P50/P95/P99 latency, in-flight work, queue depth, timeouts, and cancellation reasons on the same dashboard.
+```kotlin
+override fun close() = runBlocking {
+    accepting.set(false)
+    withTimeoutOrNull(shutdownTimeout) { pendingJobs.joinAll() }
+    subject.complete()
+    workerScope.close()
+}
+```
 
-## Source and representative tests
+Review which thread calls `runBlocking` and the framework shutdown deadline. Never wait for a dispatcher from work running on that same constrained dispatcher.
 
-Verify owned scopes and Subjects with the current source and the `observability/micrometer-tracing-coroutines` workshop.
+## Troubleshooting order
 
-## Next chapter and runnable workshop
+| Symptom | First signal | Next check |
+| --- | --- | --- |
+| rising latency | queue wait and downstream latency | parallelism/capacity mismatch |
+| rising timeout | in-flight and retry count | retry-times-race amplification |
+| slow shutdown | remaining jobs and dispatcher threads | owner/close path |
+| first event missing | collector count and registration time | Subject startup contract |
+| cancellation pollutes errors | exception classification | rethrow `CancellationException` |
 
-Use that observability workshop and review [Lifecycle and cancellation](./lifecycle.md) for shutdown ownership.
+## Source and verification anchors
+
+- lifecycle: [`CloseableCoroutineScope.kt`](../../../../../bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/CloseableCoroutineScope.kt)
+- Flow pressure: [`AsyncFlow.kt`](../../../../../bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/flow/AsyncFlow.kt)
+- Subject cancellation: [`SubjectCancellationTest.kt`](../../../../../bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/subject/SubjectCancellationTest.kt)
+
+Finally, assemble the contracts into runnable scenarios in [Recipes and workshops](./recipes.md).

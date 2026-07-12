@@ -1,44 +1,120 @@
 ---
 title: Lifecycle and cancellation
-description: Design scope ownership, cancellation propagation, and dispatcher shutdown explicitly.
+description: Design scope ownership, cancellation propagation, and dispatcher shutdown as one contract.
 manualId: bluetape4k-coroutines
 chapterId: lifecycle
 ---
 
 # Lifecycle and cancellation
 
-## Problem to solve
+Where a coroutine ends matters more than where it starts. Moving request work into a component scope loses caller cancellation; forgetting to close a component-owned dispatcher leaks threads.
 
-Decide who stops a coroutine before deciding where to start it. Work tied to one request must not share a scope with workers that live until a component closes.
+![Creation, child cancellation, and dispatcher shutdown order for CloseableCoroutineScope](../../../assets/coroutines/scope-lifecycle.svg)
 
-## Mental model
+## The two ownership models
 
-A caller-owned scope follows the caller lifecycle. `CloseableCoroutineScope`, `DefaultCoroutineScope`, and `ThreadPoolCoroutineScope` belong to a component and use `close()` as their boundary.
+| Owner | Default choice | Termination boundary |
+| --- | --- | --- |
+| HTTP request, message handler, CLI command | caller scope and `coroutineScope` | return or caller cancellation |
+| component that survives across calls | a `CloseableCoroutineScope` implementation | component `close()` or framework shutdown |
 
-## Smallest API surface
+A request that only combines a few calls does not need a new scope.
 
-Use the supplied `CoroutineScope` and `coroutineScope` for ordinary request work. Create a closeable scope only for a component that owns an independent dispatcher.
+```kotlin
+suspend fun loadDashboard(id: String): Dashboard = coroutineScope {
+    val profile = async { profileClient.load(id) }
+    val notices = async { noticeClient.load(id) }
+    Dashboard(profile.await(), notices.await())
+}
+```
 
-## Complete example
+The children are cancelled with the caller and none can outlive the function.
 
-A component keeps its scope as state and closes it exactly once. The caller guarantees cleanup with `try/finally` or an application lifecycle hook.
+## The closeable-scope contract
 
-## Selection guide
+`CloseableCoroutineScope` guards `_closed` and `_cancelled` with atomic compare-and-set operations.
 
-Use caller ownership for work required by the call result and component ownership for workers shared across calls. Do not create a new scope for a simple parallel composition.
+1. The first `close()` changes `scopeClosed` to true.
+2. `clearJobs()` calls `cancelChildren(cause)` first.
+3. It then cancels the scope context itself.
+4. Later close or clear calls cannot reopen or repeat that state transition.
 
-## Failure, cancellation, and lifecycle contract
+`DefaultCoroutineScope` owns `Dispatchers.Default + SupervisorJob()`. Supervision isolates sibling failures during normal operation, while owner close still cancels every child.
 
-`CancellationException` is a normal termination signal and must not become an ordinary failure. A timeout can stop only the wait, so verify whether the underlying I/O is cancellable.
+```kotlin
+class ThumbnailWorker : AutoCloseable {
+    private val scope = DefaultCoroutineScope()
 
-## Operations and diagnosis
+    fun submit(imageId: String): Job = scope.launch {
+        thumbnailService.generate(imageId)
+    }
 
-Observe active jobs, dispatcher threads, and queue length together. If a thread survives shutdown, inspect the owner and its close path first.
+    override fun close() = scope.close()
+}
+```
 
-## Source and representative tests
+## Owning a dispatcher
 
-The contract comes from the [`CloseableCoroutineScope`](../../../../../bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/CloseableCoroutineScope.kt) family and [coroutines tests](../../../../../bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines).
+`ThreadPoolCoroutineScope(poolSize, name)` validates a positive pool size and combines a fixed executor dispatcher with a `SupervisorJob`. Cancelling coroutines is not enough; the executor must also be closed.
 
-## Next chapter and runnable workshop
+```kotlin
+class BlockingAdapter : AutoCloseable {
+    private val scope = ThreadPoolCoroutineScope(poolSize = 4, name = "legacy-io")
 
-Continue with [Deferred coordination](./deferred.md). Use the `spring-boot/webflux-coroutines` workshop for request lifecycle examples.
+    suspend fun <T> call(block: () -> T): T =
+        withContext(scope.coroutineContext) { block() }
+
+    override fun close() = scope.close()
+}
+```
+
+Its override calls the parent close and then closes the dispatcher behind a second CAS guard. A non-positive pool size fails at construction.
+
+## Preserve cancellation
+
+Cancellation is a structured control signal, not an ordinary application failure.
+
+```kotlin
+try {
+    remoteClient.load()
+} catch (e: CancellationException) {
+    throw e
+} catch (e: Exception) {
+    fallback(e)
+}
+```
+
+A cause passed to `clearJobs(CancellationException("shutdown"))` reaches children at their next suspension point. The representative test also verifies that the parent `Job` becomes inactive.
+
+## Testing owned resources
+
+Fixtures that create dispatchers must close them on every path.
+
+```kotlin
+private val scopeLazy = lazy { ThreadPoolCoroutineScope(poolSize = 2) }
+
+@AfterEach
+fun closeScope() {
+    if (scopeLazy.isInitialized()) scopeLazy.value.close()
+}
+```
+
+`use {}` is equally valid. The invariant is that success, failure, and assertion failure all cross the same close boundary.
+
+## Troubleshooting
+
+| Symptom | Boundary to inspect | Action |
+| --- | --- | --- |
+| work continues after a request | child escaped into application/component scope | launch inside caller scope |
+| threads remain after shutdown | owner of fixed or virtual dispatcher | connect owner close to shutdown |
+| one child failure cancels all work | `Job` versus `SupervisorJob` policy | supervise only independent results |
+| remote I/O survives a timeout | client cancellation bridge | add client deadline and idempotency rules |
+
+## Source and verification
+
+- [`CloseableCoroutineScope.kt`](../../../../../bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/CloseableCoroutineScope.kt)
+- [`DefaultCoroutineScope.kt`](../../../../../bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/DefaultCoroutineScope.kt)
+- [`ThreadPoolCoroutineScope.kt`](../../../../../bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/ThreadPoolCoroutineScope.kt)
+- [`AbstractCoroutineScopeTest.kt`](../../../../../bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/AbstractCoroutineScopeTest.kt)
+
+Next: define winner and loser-cleanup semantics in [Deferred coordination](./deferred.md).

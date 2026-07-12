@@ -1,44 +1,89 @@
 ---
 title: 운영과 관측 가능성
-description: Job, queue, latency, cancellation, readiness를 운영 신호로 연결합니다.
+description: In-flight, pressure, latency, cancellation, readiness, shutdown을 하나의 lifecycle로 관찰합니다.
 manualId: bluetape4k-coroutines
 chapterId: operations
 ---
 
 # 운영과 관측 가능성
 
-## 해결할 문제
+Coroutine 개수 하나로는 문제를 설명할 수 없습니다. 수요(in-flight), 압력(queue/buffer), 처리 시간, cancellation 이유, resource owner를 같은 경계에서 관찰해야 합니다.
 
-Coroutine 수가 아니라 어떤 작업이 지연되고 취소되며 종료되지 않는지를 관찰해야 합니다.
+![Coroutine boundary의 최소 운영 신호와 deterministic shutdown](../../../assets/coroutines/observability-boundaries.svg)
 
-## Mental model
+## 최소 signal set
 
-Active job은 수요, queue/buffer는 pressure, latency는 service time, cancellation은 정상 종료 또는 caller 포기를 나타냅니다.
+| 신호 | 질문 | 권장 차원 |
+| --- | --- | --- |
+| in-flight jobs/workers | 지금 처리 중인 수요가 얼마인가 | operation, owner |
+| queue/buffer depth | downstream보다 producer가 빠른가 | component, capacity |
+| latency P50/P95/P99 | 느린 tail이 어디서 생기는가 | operation, outcome |
+| cancellation | caller 포기, timeout, shutdown 중 무엇인가 | reason, owner |
+| shutdown duration | intake 중단부터 resource 해제까지 얼마나 걸리는가 | component, phase |
 
-## 최소 API surface
+High-cardinality request ID나 exception message를 metric label로 사용하지 않습니다. Trace/log에 남기고 metric은 bounded dimension을 유지합니다.
 
-Coroutine context의 trace propagation, Micrometer timer/counter, component readiness와 lifecycle hook을 조합합니다.
+## Cancellation을 error로 세지 않기
 
-## 완전한 예제
+```kotlin
+suspend fun <T> Timer.recordSuspend(block: suspend () -> T): T {
+    val sample = Timer.start(registry)
+    try {
+        return block()
+    } catch (e: CancellationException) {
+        cancellationCounter.increment()
+        throw e
+    } catch (e: Exception) {
+        failureCounter.increment()
+        throw e
+    } finally {
+        sample.stop(this)
+    }
+}
+```
 
-Request span 아래에 suspend 작업 시간을 기록하고 `CancellationException`은 재전파합니다. Component close에서는 intake를 멈춘 뒤 channel과 owned scope를 종료합니다.
+정상 caller cancellation과 timeout을 분리하면 사용자 포기와 service latency 문제를 구분할 수 있습니다. Cancellation을 error span으로 바꾸지 않되 reason과 owner는 기록합니다.
 
-## 선택 기준
+## Readiness와 liveness
 
-Readiness는 새 요청을 받을 수 있는 상태, liveness는 process 회복 가능성을 나타냅니다. Queue가 찬 상태를 단순 CPU 사용률로 판단하지 않습니다.
+- Readiness: 새 작업을 안전하게 받을 수 있는가.
+- Liveness: process가 회복 가능한가.
 
-## 실패·취소·수명주기 계약
+Downstream connection pool이 고갈되거나 queue가 capacity에 붙어 있으면 intake를 줄이거나 readiness를 내리는 정책이 필요할 수 있습니다. 단순 CPU 사용률만으로 판단하지 않습니다.
 
-정상 cancellation을 error span으로 바꾸지 않습니다. Shutdown timeout이 끝나면 남은 작업과 외부 resource를 명시적으로 정리합니다.
+## Deterministic shutdown
 
-## 운영과 문제 진단
+1. readiness를 내려 새 traffic routing을 막습니다.
+2. listener/consumer/intake를 중단합니다.
+3. 정한 timeout 안에서 bounded work를 drain합니다.
+4. channel/subject를 terminal state로 만들고 owned scope와 dispatcher를 닫습니다.
+5. 남은 job/thread/resource 수를 기록합니다.
 
-P50/P95/P99 latency, in-flight, queue depth, timeout, cancellation reason을 함께 대시보드에 둡니다.
+```kotlin
+override fun close() = runBlocking {
+    accepting.set(false)
+    withTimeoutOrNull(shutdownTimeout) { pendingJobs.joinAll() }
+    subject.complete()
+    workerScope.close()
+}
+```
 
-## Source와 representative test
+Production code에서는 `runBlocking`을 호출할 thread와 framework shutdown timeout을 함께 검토합니다. 동일 dispatcher 안에서 자신을 기다리는 구조를 만들지 않습니다.
 
-Owned scope와 Subject 구현, `observability/micrometer-tracing-coroutines` workshop을 현재 source와 함께 검증합니다.
+## 문제 진단 순서
 
-## 이어 읽기와 runnable workshop
+| 증상 | 먼저 볼 신호 | 다음 확인 |
+| --- | --- | --- |
+| latency 증가 | queue wait와 downstream latency | parallelism/capacity mismatch |
+| timeout 증가 | in-flight, retry count | retry × race 폭증 |
+| shutdown 지연 | 남은 job과 dispatcher thread | owner/close 경로 |
+| 첫 event 유실 | collector count와 registration 시점 | Subject startup contract |
+| cancellation이 error dashboard를 오염 | exception 분류 | `CancellationException` 재전파 |
 
-운영 예제는 observability workshop, 종료 ownership은 [수명주기와 취소](./lifecycle.md)에서 확인합니다.
+## Source와 verification anchors
+
+- Lifecycle 구현: [`CloseableCoroutineScope.kt`](../../../../../bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/CloseableCoroutineScope.kt)
+- Flow pressure: [`AsyncFlow.kt`](../../../../../bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/flow/AsyncFlow.kt)
+- Subject cancellation tests: [`SubjectCancellationTest.kt`](../../../../../bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/subject/SubjectCancellationTest.kt)
+
+끝으로 이 계약들을 실행 가능한 조합으로 묶는 [실전 레시피와 Workshop](./recipes.md)을 봅니다.

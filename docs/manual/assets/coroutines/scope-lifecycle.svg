@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120" role="img" aria-labelledby="title desc">
+  <title id="title">CloseableCoroutineScope lifecycle</title>
+  <desc id="desc">Sequence from scope creation through child work, idempotent close, child and context cancellation, and optional thread pool dispatcher shutdown.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#16324f" flood-opacity="0.12"/></filter>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#527fb3"/></marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#b96f73"/></marker>
+  </defs>
+  <rect width="1600" height="1120" fill="#f5f8fc"/>
+  <rect class="frame" x="42" y="36" width="1516" height="1048" rx="34" fill="#fffefb" stroke="#6f8daa" stroke-width="4"/>
+  <text class="title" x="800" y="102" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="50" fill="#263d56">Owned Scope, Deterministic Shutdown</text>
+  <text class="subtitle" x="800" y="143" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="21" fill="#53697f">Close is the lifecycle boundary; cancellation and resource release are its contract.</text>
+
+  <g filter="url(#shadow)">
+    <rect class="header" x="110" y="190" width="260" height="82" rx="20" fill="#e8f1fc" stroke="#6e96c7" stroke-width="3"/>
+    <rect class="header" x="470" y="190" width="300" height="82" rx="20" fill="#eef8f4" stroke="#82b6a5" stroke-width="3"/>
+    <rect class="header" x="865" y="190" width="260" height="82" rx="20" fill="#fff6e8" stroke="#c79d58" stroke-width="3"/>
+    <rect class="header" x="1230" y="190" width="260" height="82" rx="20" fill="#f4edfc" stroke="#9b7bc2" stroke-width="3"/>
+  </g>
+  <text class="participant" x="240" y="239" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="27" fill="#294e76">Owner</text>
+  <text class="participant" x="620" y="229" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="25" fill="#356c5b">Closeable Scope</text>
+  <text x="620" y="255" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="15" fill="#55766b">SupervisorJob + dispatcher</text>
+  <text class="participant" x="995" y="239" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="27" fill="#8c6427">Child Jobs</text>
+  <text class="participant" x="1360" y="229" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="25" fill="#705197">Dispatcher</text>
+  <text x="1360" y="255" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="15" fill="#6d5b85">thread pool variant</text>
+
+  <g stroke="#90a1b3" stroke-width="3" stroke-dasharray="10 10">
+    <path class="lifeline" d="M 240 274 V 950"/><path class="lifeline" d="M 620 274 V 950"/><path class="lifeline" d="M 995 274 V 950"/><path class="lifeline" d="M 1360 274 V 950"/>
+  </g>
+  <rect class="activation" x="605" y="327" width="30" height="525" rx="10" fill="#d8e9fa" stroke="#6e96c7" stroke-width="2"/>
+  <rect class="activation" x="980" y="425" width="30" height="337" rx="10" fill="#f7e8cc" stroke="#c79d58" stroke-width="2"/>
+  <rect class="activation" x="1345" y="795" width="30" height="93" rx="10" fill="#e9ddf6" stroke="#9b7bc2" stroke-width="2"/>
+
+  <rect class="pill" x="331" y="286" width="178" height="36" rx="18" fill="#fffefb" stroke="#6e96c7" stroke-width="2"/>
+  <rect class="pill" x="714" y="383" width="182" height="36" rx="18" fill="#fffefb" stroke="#6e96c7" stroke-width="2"/>
+  <rect class="pill" x="342" y="593" width="156" height="36" rx="18" fill="#fffefb" stroke="#b96f73" stroke-width="2"/>
+  <rect class="pill" x="692" y="663" width="226" height="36" rx="18" fill="#fffefb" stroke="#b96f73" stroke-width="2"/>
+  <rect class="pill" x="830" y="776" width="320" height="36" rx="18" fill="#fffefb" stroke="#9b7bc2" stroke-width="2"/>
+  <text class="num" x="316" y="312" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#405b75">1</text>
+  <text class="num" x="699" y="410" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#405b75">2</text>
+  <text class="num" x="327" y="620" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#8e4d52">3</text>
+  <text class="num" x="677" y="690" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#8e4d52">4</text>
+  <text class="num" x="790" y="803" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#705197">5</text>
+
+  <path class="call" d="M 240 327 H 600" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#arrow-blue)"/>
+  <text x="420" y="313" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#405b75">create scope</text>
+  <text x="420" y="350" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="15" fill="#6d7f91">Default or fixed thread pool</text>
+
+  <path class="call" d="M 635 425 H 975" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#arrow-blue)"/>
+  <text x="805" y="410" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#405b75">launch / async</text>
+  <path class="call" d="M 1010 493 H 1090 Q 1110 493 1110 513 V 532 Q 1110 552 1090 552 H 1015" fill="none" stroke="#82a45c" stroke-width="4" marker-end="url(#arrow-blue)"/>
+  <text x="1128" y="515" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#536e2f">siblings run independently</text>
+  <text x="1128" y="542" font-family="Comic Mono, ui-monospace, monospace" font-size="15" fill="#6d7f91">SupervisorJob isolates failure</text>
+
+  <path class="call" d="M 240 635 H 600" fill="none" stroke="#b96f73" stroke-width="4" marker-end="url(#arrow-red)"/>
+  <text x="420" y="620" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#8e4d52">close()</text>
+  <text x="420" y="658" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="15" fill="#6d7f91">CAS: only the first call enters</text>
+
+  <path class="call" d="M 635 705 H 975" fill="none" stroke="#b96f73" stroke-width="4" marker-end="url(#arrow-red)"/>
+  <text x="805" y="690" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#8e4d52">cancelChildren(cause)</text>
+  <path class="return" d="M 975 760 H 635" fill="none" stroke="#b96f73" stroke-width="4" stroke-dasharray="8 7" marker-end="url(#arrow-red)"/>
+  <text x="805" y="747" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#8e4d52">CancellationException propagates</text>
+
+  <path class="call" d="M 635 818 H 1340" fill="none" stroke="#705197" stroke-width="4" marker-end="url(#arrow-blue)"/>
+  <text x="990" y="803" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#705197">ThreadPool only: dispatcher.close()</text>
+  <path class="return" d="M 1340 880 H 635" fill="none" stroke="#705197" stroke-width="4" stroke-dasharray="8 7" marker-end="url(#arrow-blue)"/>
+  <text x="990" y="915" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="16" fill="#6d5b85">threads released once by a second CAS guard</text>
+
+  <rect x="145" y="970" width="1310" height="72" rx="22" fill="#eef8f4" stroke="#82b6a5" stroke-width="3"/>
+  <text x="800" y="1000" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="25" fill="#356c5b">Operational rule</text>
+  <text x="800" y="1028" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#55766b">The component that creates the scope owns close(); tests use use/AfterEach for the same reason.</text>
+</svg>

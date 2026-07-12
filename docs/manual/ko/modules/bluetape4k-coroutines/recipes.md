@@ -1,44 +1,105 @@
 ---
 title: 실전 레시피와 Workshop
-description: 요청 조합, replica race, Flow 변환, callback bridge를 조립합니다.
+description: Ownership, failure policy, ordering, capacity를 완전한 실행 시나리오로 조립합니다.
 manualId: bluetape4k-coroutines
 chapterId: recipes
 ---
 
 # 실전 레시피와 Workshop
 
-## 해결할 문제
+이 장은 API 목록이 아니라 앞 장의 계약을 한 시나리오 안에서 닫는 방법을 보여줍니다. 각 recipe는 owner, child policy, ordering, capacity, cleanup을 함께 명시합니다.
 
-API 하나가 아니라 ownership, failure policy, ordering, capacity를 함께 결정하는 실행 가능한 조합이 필요합니다.
+## Recipe 1: request 안에서 병렬 조회
 
-## Mental model
+```kotlin
+suspend fun dashboard(userId: String): Dashboard = coroutineScope {
+    val profile = async { profileClient.load(userId) }
+    val alerts = async { alertClient.load(userId) }
+    Dashboard(profile.await(), alerts.await())
+}
+```
 
-각 recipe는 입력 경계, child policy, 결과 ordering, resource cleanup을 한 단위로 닫습니다.
+- owner: request caller
+- failure: 둘 다 필요한 atomic result, 기본 fail-fast
+- cleanup: caller cancellation이 두 child에 전파
+- 관측: 두 dependency latency와 전체 request latency
 
-## 최소 API surface
+별도 `DefaultCoroutineScope`로 child를 탈출시키지 않습니다.
 
-`coroutineScope`, `async`, `awaitAny`, `firstSuccessTaskScope`, `mapParallel`, Subject를 필요한 만큼만 사용합니다.
+## Recipe 2: fastest completion과 first success
 
-## 완전한 예제
+```kotlin
+suspend fun fastestCache(key: String): Value = coroutineScope {
+    listOf(
+        async { localCache.get(key) },
+        async { regionalCache.get(key) },
+    ).awaitAnyAndCancelOthers()
+}
 
-HTTP 요청의 두 suspend call 조합, fastest/first-success replica, ordered/throughput-first transform, callback-to-Subject bridge를 독립 recipe로 구성합니다.
+suspend fun firstAvailable(key: String): Value = firstSuccessTaskScope {
+    fork { primary.get(key) }
+    fork { fallback.get(key) }
+    join().result { cause -> ValueUnavailable(key, cause) }
+}
+```
 
-## 선택 기준
+첫 함수는 빠른 failure도 winner입니다. 두 번째는 failure를 건너뛰고 성공을 기다립니다. Side effect에 적용한다면 idempotency가 선행 조건입니다.
 
-결과의 완전성, ordering, 허용 가능한 병렬도, caller 취소 시 cleanup을 recipe 선택 전에 기록합니다.
+## Recipe 3: ordered response와 throughput-first work
 
-## 실패·취소·수명주기 계약
+```kotlin
+val response = ids.asFlow()
+    .async(Dispatchers.IO) { catalog.load(it) }
+    .toList() // input order
 
-모든 recipe는 parent cancellation을 child에 전파하고 owned resource를 `finally` 또는 `close()`에서 정리합니다.
+events.asFlow()
+    .mapParallel(parallelism = databasePoolSize / 2) { repository.store(it) }
+    .collect() // completion order may differ
+```
 
-## 운영과 문제 진단
+Public response ordering과 background work capacity를 같은 operator로 해결하지 않습니다.
 
-Recipe별 latency와 in-flight 상한을 먼저 정하고, timeout이나 retry가 곱해져 폭증하지 않는지 확인합니다.
+## Recipe 4: callback bridge
 
-## Source와 representative test
+```kotlin
+coroutineScope {
+    val subject = PublishSubject<Event>()
+    val collector = launch { subject.collect(handler) }
+    subject.awaitCollector()
 
-각 recipe는 library representative test와 `/Users/debop/work/bluetape4k/bluetape4k-workshop/kotlin`의 대응 module을 함께 근거로 합니다.
+    val registration = source.register(
+        onEvent = { event -> launch { subject.emit(event) } },
+        onError = { error -> launch { subject.emitError(error) } },
+    )
+    try {
+        collector.join()
+    } finally {
+        registration.close()
+        collector.cancelAndJoin()
+    }
+}
+```
 
-## 이어 읽기와 runnable workshop
+Callback thread, suspending emission, registration cleanup의 owner를 실제 adapter에 맞게 조정합니다. 예제의 핵심은 collector registration을 기다리고 source registration을 `finally`에서 닫는 것입니다.
 
-Flow extensions, Ktor REST coroutines, Spring WebFlux coroutines, observability workshop을 목적에 맞게 실행합니다.
+## Workshop 실행 지도
+
+| 학습 목표 | Workshop | 이 매뉴얼의 장 |
+| --- | --- | --- |
+| Flow 병렬 enrichment | [`kotlin/flow-extensions-parallel-enrichment`](https://github.com/bluetape4k/bluetape4k-workshop/tree/develop/kotlin/flow-extensions-parallel-enrichment) | [Flow](./flow.md) |
+| race와 fallback 차이 | [`kotlin/flow-extensions-race-fallback`](https://github.com/bluetape4k/bluetape4k-workshop/tree/develop/kotlin/flow-extensions-race-fallback) | [Deferred](./deferred.md) |
+| Subject delivery 비교 | [`kotlin/flow-extensions-subject-bridge`](https://github.com/bluetape4k/bluetape4k-workshop/tree/develop/kotlin/flow-extensions-subject-bridge) | [Subjects](./subjects.md) |
+| Web request lifecycle | [`spring-boot/webflux-coroutines`](https://github.com/bluetape4k/bluetape4k-workshop/tree/develop/spring-boot/webflux-coroutines) | [Lifecycle](./lifecycle.md) |
+| trace/metric propagation | [`observability/micrometer-tracing-coroutines`](https://github.com/bluetape4k/bluetape4k-workshop/tree/develop/observability/micrometer-tracing-coroutines) | [Operations](./operations.md) |
+
+Workshop은 source of truth가 아니라 실행 가능한 companion입니다. API와 lifecycle 계약은 이 매뉴얼 및 현재 library source를 기준으로 하고, workshop은 그 계약을 바꿔가며 관찰하는 장소입니다.
+
+## 실습 순서
+
+1. 정상 경로를 실행하고 output order를 기록합니다.
+2. 가장 빠른 branch를 failure로 바꿉니다.
+3. collector/caller를 중간에 취소합니다.
+4. parallelism과 buffer를 downstream capacity보다 크게 설정해 pressure를 관찰합니다.
+5. shutdown 뒤 job/thread가 0으로 수렴하는지 확인합니다.
+
+모듈 전체 선택 지도로 돌아가려면 [Coroutine과 Flow 확장](../bluetape4k-coroutines.md)을 봅니다.

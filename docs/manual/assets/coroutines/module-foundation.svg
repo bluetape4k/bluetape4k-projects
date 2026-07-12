@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1040" viewBox="0 0 1600 1040" role="img" aria-labelledby="title desc">
+  <title id="title">Bluetape4k Coroutines manual decision map</title>
+  <desc id="desc">A three-stage map from selecting a coroutine contract, through five mechanism chapters, to operations and recipes.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#16324f" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow-blue" viewBox="0 0 14 14" refX="12" refY="7" markerWidth="14" markerHeight="14" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#527fb3"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="1040" fill="#f5f8fc"/>
+  <rect x="42" y="36" width="1516" height="968" rx="34" fill="#fffefb" stroke="#6f8daa" stroke-width="4"/>
+
+  <text x="800" y="104" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="52" fill="#263d56">Coroutines Manual Decision Map</text>
+  <text x="800" y="145" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="22" fill="#53697f">Start with the contract you must preserve, then choose the smallest helper.</text>
+
+  <rect x="500" y="190" width="600" height="112" rx="24" fill="#e8f1fc" stroke="#6e96c7" stroke-width="3" filter="url(#shadow)"/>
+  <text x="800" y="235" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#294e76">1 · Name the contract</text>
+  <text x="800" y="272" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="19" fill="#506a84">ownership | winner policy | ordering | delivery | failure semantics</text>
+
+  <path d="M 800 304 V 354" fill="none" stroke="#527fb3" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow-blue)"/>
+
+  <rect x="86" y="374" width="1428" height="362" rx="28" fill="#eef8f4" stroke="#82b6a5" stroke-width="3"/>
+  <text x="130" y="425" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="32" fill="#356c5b">2 · Learn the mechanism</text>
+  <text x="130" y="458" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#55766b">Each chapter owns one decision boundary and its failure/lifecycle contract.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="126" y="500" width="246" height="170" rx="20" fill="#fffefb" stroke="#6e96c7" stroke-width="3"/>
+    <rect x="399" y="500" width="246" height="170" rx="20" fill="#fffefb" stroke="#8da95b" stroke-width="3"/>
+    <rect x="672" y="500" width="246" height="170" rx="20" fill="#fffefb" stroke="#c39a55" stroke-width="3"/>
+    <rect x="945" y="500" width="246" height="170" rx="20" fill="#fffefb" stroke="#9677bd" stroke-width="3"/>
+    <rect x="1218" y="500" width="246" height="170" rx="20" fill="#fffefb" stroke="#b96f73" stroke-width="3"/>
+  </g>
+
+  <text x="249" y="548" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="27" fill="#294e76">Lifecycle</text>
+  <text x="249" y="580" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">Who owns the scope?</text>
+  <text x="249" y="612" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">Who closes it?</text>
+  <text x="249" y="644" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="15" fill="#6d7f91">cancellation | dispatcher</text>
+
+  <text x="522" y="548" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="27" fill="#536e2f">Deferred</text>
+  <text x="522" y="580" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">First completion</text>
+  <text x="522" y="612" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">or first success?</text>
+  <text x="522" y="644" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="15" fill="#6d7f91">winner | loser cleanup</text>
+
+  <text x="795" y="548" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="27" fill="#8c6427">Flow</text>
+  <text x="795" y="580" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">Preserve order</text>
+  <text x="795" y="612" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">or favor throughput?</text>
+  <text x="795" y="644" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="15" fill="#6d7f91">parallelism | capacity</text>
+
+  <text x="1068" y="548" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="27" fill="#705197">Subjects</text>
+  <text x="1068" y="580" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">Event, state, history,</text>
+  <text x="1068" y="612" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">fan-out, or work?</text>
+  <text x="1068" y="644" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="15" fill="#6d7f91">delivery | terminal state</text>
+
+  <text x="1341" y="548" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="25" fill="#8e4d52">Structured</text>
+  <text x="1341" y="580" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">Fail fast, supervise,</text>
+  <text x="1341" y="612" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">or take first success?</text>
+  <text x="1341" y="644" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="15" fill="#6d7f91">scope policy | siblings</text>
+
+  <path d="M 800 738 V 788" fill="none" stroke="#527fb3" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow-blue)"/>
+
+  <rect x="255" y="808" width="510" height="126" rx="23" fill="#fff6e8" stroke="#c79d58" stroke-width="3" filter="url(#shadow)"/>
+  <rect x="835" y="808" width="510" height="126" rx="23" fill="#f4edfc" stroke="#9b7bc2" stroke-width="3" filter="url(#shadow)"/>
+  <text x="510" y="855" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="29" fill="#8c6427">Operations</text>
+  <text x="510" y="887" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">pressure | cancellation | readiness</text>
+  <text x="510" y="914" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">deterministic shutdown</text>
+  <text x="1090" y="855" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="29" fill="#705197">Recipes</text>
+  <text x="1090" y="887" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">complete request and stream scenarios</text>
+  <text x="1090" y="914" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">callback bridges with owned cleanup</text>
+
+  <text x="800" y="974" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#60758a">Standard Kotlin coroutines first | Bluetape4k helpers when they make the contract explicit</text>
+</svg>

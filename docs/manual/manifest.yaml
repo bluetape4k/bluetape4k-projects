@@ -204,6 +204,21 @@ modules:
   - id: recipes
     en: en/modules/bluetape4k-coroutines/recipes.md
     ko: ko/modules/bluetape4k-coroutines/recipes.md
+  assets:
+  - assets/coroutines/deferred-race-policy.svg
+  - assets/coroutines/deferred-race-policy.png
+  - assets/coroutines/module-foundation.svg
+  - assets/coroutines/module-foundation.png
+  - assets/coroutines/observability-boundaries.svg
+  - assets/coroutines/observability-boundaries.png
+  - assets/coroutines/ordered-parallel-flow.svg
+  - assets/coroutines/ordered-parallel-flow.png
+  - assets/coroutines/scope-lifecycle.svg
+  - assets/coroutines/scope-lifecycle.png
+  - assets/coroutines/structured-policies.svg
+  - assets/coroutines/structured-policies.png
+  - assets/coroutines/subject-contracts.svg
+  - assets/coroutines/subject-contracts.png
   sourcePaths:
   - bluetape4k/coroutines/src/main/kotlin
   testPaths:

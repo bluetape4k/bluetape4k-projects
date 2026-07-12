@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1040" viewBox="0 0 1600 1040" role="img" aria-labelledby="title desc">
+  <title id="title">Deferred race policy comparison</title>
+  <desc id="desc">Comparison of first completion, first completion with loser cancellation, and first successful result policies.</desc>
+  <defs><filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#16324f" flood-opacity="0.12"/></filter></defs>
+  <rect width="1600" height="1040" fill="#f5f8fc"/>
+  <rect x="42" y="36" width="1516" height="968" rx="34" fill="#fffefb" stroke="#6f8daa" stroke-width="4"/>
+  <text x="800" y="104" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="52" fill="#263d56">Choose the Winner Policy First</text>
+  <text x="800" y="145" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="21" fill="#53697f">Fastest completion and fastest success are different business contracts.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="90" y="202" width="440" height="650" rx="28" fill="#e8f1fc" stroke="#6e96c7" stroke-width="3"/>
+    <rect x="580" y="202" width="440" height="650" rx="28" fill="#fff6e8" stroke="#c79d58" stroke-width="3"/>
+    <rect x="1070" y="202" width="440" height="650" rx="28" fill="#eef8f4" stroke="#82b6a5" stroke-width="3"/>
+  </g>
+  <text x="310" y="258" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#294e76">awaitAny</text>
+  <text x="800" y="258" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="29" fill="#8c6427">awaitAnyAndCancelOthers</text>
+  <text x="1290" y="258" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="29" fill="#356c5b">firstSuccessTaskScope</text>
+
+  <g font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#53697f">
+    <text x="310" y="302" text-anchor="middle">first completion</text><text x="800" y="302" text-anchor="middle">first completion + cleanup</text><text x="1290" y="302" text-anchor="middle">first successful value</text>
+  </g>
+
+  <g stroke-width="8" stroke-linecap="round">
+    <path d="M 150 384 H 460" stroke="#b96f73"/><path d="M 150 456 H 410" stroke="#82b6a5"/><path d="M 150 528 H 490" stroke="#6e96c7"/>
+    <path d="M 640 384 H 950" stroke="#b96f73"/><path d="M 640 456 H 900" stroke="#82b6a5"/><path d="M 640 528 H 980" stroke="#6e96c7"/>
+    <path d="M 1130 384 H 1440" stroke="#b96f73"/><path d="M 1130 456 H 1390" stroke="#82b6a5"/><path d="M 1130 528 H 1470" stroke="#6e96c7"/>
+  </g>
+  <g font-family="Comic Mono, ui-monospace, monospace" font-size="17">
+    <text x="150" y="370" fill="#8e4d52">A fails at 30 ms</text><text x="150" y="442" fill="#356c5b">B succeeds at 70 ms</text><text x="150" y="514" fill="#294e76">C succeeds at 110 ms</text>
+    <text x="640" y="370" fill="#8e4d52">A fails at 30 ms</text><text x="640" y="442" fill="#356c5b">B succeeds at 70 ms</text><text x="640" y="514" fill="#294e76">C succeeds at 110 ms</text>
+    <text x="1130" y="370" fill="#8e4d52">A fails at 30 ms</text><text x="1130" y="442" fill="#356c5b">B succeeds at 70 ms</text><text x="1130" y="514" fill="#294e76">C succeeds at 110 ms</text>
+  </g>
+
+  <rect x="132" y="580" width="356" height="112" rx="20" fill="#fffefb" stroke="#b96f73" stroke-width="3"/>
+  <rect x="622" y="580" width="356" height="112" rx="20" fill="#fffefb" stroke="#b96f73" stroke-width="3"/>
+  <rect x="1112" y="580" width="356" height="112" rx="20" fill="#fffefb" stroke="#82b6a5" stroke-width="3"/>
+  <text x="310" y="625" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="25" fill="#8e4d52">Result: throw A</text>
+  <text x="310" y="660" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="16" fill="#53697f">B and C keep running</text>
+  <text x="800" y="625" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="25" fill="#8e4d52">Result: throw A</text>
+  <text x="800" y="660" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="16" fill="#53697f">B and C are cancelled</text>
+  <text x="1290" y="625" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="25" fill="#356c5b">Result: value from B</text>
+  <text x="1290" y="660" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="16" fill="#53697f">A failure is skipped; C loses</text>
+
+  <g font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">
+    <text x="132" y="746">Use when:</text><text x="132" y="779">• remaining work is still useful</text><text x="132" y="812">• caller owns loser cleanup</text>
+    <text x="622" y="746">Use when:</text><text x="622" y="779">• any terminal result wins</text><text x="622" y="812">• losers must release capacity</text>
+    <text x="1112" y="746">Use when:</text><text x="1112" y="779">• failed replicas are tolerated</text><text x="1112" y="812">• all-failed is an error</text>
+  </g>
+
+  <rect x="230" y="888" width="1140" height="74" rx="22" fill="#f4edfc" stroke="#9b7bc2" stroke-width="3"/>
+  <text x="800" y="920" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="24" fill="#705197">Invariant</text>
+  <text x="800" y="948" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#6d5b85">Empty input is invalid; caller cancellation still cancels the coordinating scope.</text>
+</svg>

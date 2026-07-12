@@ -12,6 +12,8 @@ group: foundation
 
 Kotlin coroutines provide the primitives, but backend code still repeats scope ownership, `Deferred` coordination, Flow windowing and parallel mapping, subject-like multicast behavior, and bridges to Java structured concurrency. Repeating those pieces makes cancellation and shutdown behavior inconsistent. `bluetape4k-coroutines` packages the repository's shared contracts.
 
+![Decision map for the bluetape4k-coroutines manual](../../assets/coroutines/module-foundation.svg)
+
 ## When to use {#when-to-use}
 
 Use this module when the required operator or lifecycle abstraction already exists here and its cancellation contract matches the caller. Keep plain `coroutineScope`, `async`, and standard Flow operators when they solve the problem directly. Choose a caller-owned scope when work must stop with a request; do not create a long-lived helper scope for request-scoped work.
