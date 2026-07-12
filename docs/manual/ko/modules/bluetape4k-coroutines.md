@@ -63,6 +63,71 @@ suspend fun loadAnswer(): Int {
 | close 가능한 scope 소유 | `DefaultCoroutineScope`, `IoCoroutineScope`, `VirtualThreadCoroutineScope` |
 | structured failure policy 선택 | `taskScope`, `firstSuccessTaskScope`, `supervisedTaskScope` |
 
+## 무엇을 먼저 선택할까 {#decision-guide}
+
+| 요구 사항 | 기본 선택 | bluetape4k helper를 선택할 때 |
+| --- | --- | --- |
+| 한 request 안에서 2~3개 suspend 호출 조합 | caller의 `coroutineScope`와 `async` | 여러 곳에서 같은 winner/zip 규칙을 반복하면 `DeferredSupport`를 사용합니다. |
+| 입력 순서를 유지하는 비동기 Flow 변환 | `map` 또는 `flow.async` | 요소 계산은 겹치되 emit 순서는 유지해야 하면 `flow.async`가 맞습니다. |
+| 결과 순서보다 처리량이 중요한 bounded 변환 | `mapParallel` | downstream capacity를 근거로 `parallelism`을 제한할 수 있을 때 사용합니다. |
+| component가 dispatcher와 scope를 함께 소유 | framework lifecycle scope | dispatcher까지 직접 만들었다면 `CloseableCoroutineScope` 구현을 lifecycle에서 닫습니다. |
+| 가장 먼저 끝난 replica 결과 선택 | `awaitAny` | 나머지 작업도 취소해야 하면 `awaitAnyAndCancelOthers`를 사용합니다. 둘 다 첫 성공이 아니라 첫 완료를 선택합니다. |
+| 완료/오류 terminal event가 있는 hot stream | `StateFlow`/`SharedFlow` | 명시적인 `complete()` 또는 `emitError()` 계약이 필요할 때 subject를 선택합니다. |
+| JDK structured task policy 연결 | `coroutineScope`/`supervisorScope` | virtual-thread task scope와 first-success/fail-fast 정책을 직접 연결할 때 structured helper를 사용합니다. |
+
+## 실전 레시피 {#recipes}
+
+### 1. request lifecycle은 caller scope에 유지하기
+
+```kotlin
+suspend fun loadDashboard(userId: String): Dashboard = coroutineScope {
+    val profile = async { profileClient.load(userId) }
+    val notices = async { noticeClient.load(userId) }
+    Dashboard(profile.await(), notices.await())
+}
+```
+
+별도 application scope로 child를 탈출시키지 않으면 caller 취소가 두 요청에 함께 전달됩니다. component 자체가 background job을 소유하는 경우에만 close 가능한 scope를 만들고, owner의 `close()`와 묶습니다.
+
+### 2. 순서 보장과 처리량을 구분하기
+
+```kotlin
+val ordered = ids.asFlow()
+    .async { id -> client.load(id) }
+    .toList()                      // 입력 순서 유지
+
+val throughput = ids.asFlow()
+    .mapParallel(parallelism = 8) { id -> client.load(id) }
+    .toList()                      // 완료 순서가 달라질 수 있음
+```
+
+`mapParallel(parallelism = 1)`은 일반 `map` 경로를 사용하고 순서를 유지합니다. 2 이상이면 `flatMapMerge` 기반이므로 결과 순서를 API 계약으로 삼지 않습니다.
+
+### 3. 가장 빠른 replica를 선택하고 loser 취소하기
+
+```kotlin
+suspend fun <T> fastestReplica(
+    requests: List<Deferred<T>>,
+): T = requests.awaitAnyAndCancelOthers()
+```
+
+winner는 가장 먼저 **완료**한 작업입니다. 첫 작업이 실패하거나 취소되면 그 결과를 그대로 전달하고 나머지를 취소합니다. 첫 **성공**이 필요하면 `firstSuccessTaskScope`를 사용해야 합니다.
+
+### 4. PublishSubject의 첫 event를 잃지 않기
+
+```kotlin
+val subject = PublishSubject<Event>()
+coroutineScope {
+    val collector = launch { subject.collect(::handle) }
+    subject.awaitCollector()
+    subject.emit(Event.Started)
+    subject.complete()
+    collector.join()
+}
+```
+
+`PublishSubject`는 과거 값을 replay하지 않으므로 producer가 먼저 emit하면 첫 event가 사라질 수 있습니다. 시작 순서가 중요한 test와 adapter에서는 `awaitCollector()`로 collector 등록을 확인합니다. `complete()`나 `emitError()` 이후의 terminal 호출은 무시됩니다.
+
 ## 권장 패턴 {#patterns}
 
 structured scope는 가장 좁은 lifecycle boundary에 둡니다. broad exception 처리 전에 `CancellationException`을 다시 던집니다. parallel Flow의 concurrency는 CPU 수만 보지 말고 downstream service capacity에 맞춥니다. blocking bridge 대신 `await()`를 사용합니다. scope를 소유하는 type은 `Closeable`로 만들고 application shutdown에 연결합니다.
@@ -78,6 +143,25 @@ structured scope는 가장 좁은 lifecycle boundary에 둡니다. broad excepti
 ## 실패 동작 {#failures}
 
 `await()`는 계산의 failure와 cancellation을 그대로 전달합니다. fail-fast task scope는 첫 failure 뒤 남은 작업을 취소하고, first-success scope는 모든 branch가 실패하면 실패합니다. supervised scope는 partial result를 유지합니다. deadline join은 `TimeoutException`을 던집니다. 제한된 dispatcher에서 blocking access를 사용하면 deadlock이나 starvation이 생길 수 있어 `DeferredValue.value`가 deprecated되었습니다.
+
+### Cancellation 점검표
+
+1. `catch (e: Exception)`보다 먼저 `CancellationException`을 다시 던지는지 확인합니다.
+2. request child가 application scope로 빠져 caller cancellation을 잃지 않는지 확인합니다.
+3. 직접 만든 dispatcher/scope/channel의 owner와 close 시점을 문서화합니다.
+4. timeout이 remote 작업까지 취소하는지, 단지 local wait만 중단하는지 구분합니다.
+5. child failure를 관찰하는 test는 `supervisorScope`로 test body cancellation을 분리합니다.
+
+### 문제 진단표
+
+| 증상 | 먼저 확인할 것 | 대응 |
+| --- | --- | --- |
+| caller가 끝난 뒤에도 계산이 계속됨 | `DeferredValue` 또는 직접 만든 scope가 닫히지 않았는지 | `await()`를 우선 사용하고 owner lifecycle에서 `close()`합니다. |
+| `mapParallel` 결과 순서가 바뀜 | `parallelism`이 2 이상인지 | 순서가 계약이면 `flow.async` 또는 일반 `map`을 사용합니다. |
+| timeout 뒤에도 remote 호출이 남음 | client가 coroutine cancellation을 실제 I/O 취소로 연결하는지 | client cancellation 계약을 확인하고 별도 deadline/idempotency 정책을 둡니다. |
+| subject의 첫 event가 사라짐 | collector 등록 전에 `emit`했는지 | `awaitCollector()`를 사용하거나 replay가 필요한 subject/`StateFlow`를 선택합니다. |
+| 한 child failure가 sibling 전체를 취소함 | fail-fast가 의도한 정책인지 | partial result가 필요하면 `supervisorScope` 또는 `supervisedTaskScope`를 사용합니다. |
+| shutdown 후 thread가 남음 | `ThreadPoolCoroutineScope`처럼 dispatcher를 소유한 scope인지 | component `close()`를 application shutdown에 연결합니다. |
 
 ## 운영 {#operations}
 

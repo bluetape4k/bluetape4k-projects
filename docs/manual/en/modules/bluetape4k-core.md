@@ -59,6 +59,69 @@ fun tokenFor(userId: String?): String {
 | Compose duration, period, temporal, or quarter operations | `io.bluetape4k.time` |
 | Reduce work concurrently with explicit close semantics | `ConcurrentReducer` |
 
+## Choosing the first abstraction {#decision-guide}
+
+| Requirement | Prefer | Do not choose it when |
+| --- | --- | --- |
+| Validate nullable input and keep using the same value | `requireNotNull`, `requireNotBlank`, and `requirePositiveNumber` families | You are checking an internal invariant. These functions represent caller errors with `IllegalArgumentException`. |
+| Retain recent values in LIFO order | `BoundedStack` | Use `RingBuffer` when values must replay chronologically. |
+| Retain the latest N values in insertion order | `RingBuffer` | Use `BoundedStack` when top/pop semantics matter. |
+| Bound both concurrent asynchronous requests and their waiting queue | `ConcurrentReducer` | A coroutine semaphore or `mapParallel` is more natural when only suspend-function concurrency needs a bound. |
+| Close global resources in reverse order during JVM shutdown | `ShutdownQueue` | Close directly when a request, bean, or component lifecycle ends earlier. |
+
+## Practical recipes {#recipes}
+
+### 1. Validate at the boundary and keep internal types simple
+
+```kotlin
+import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requirePositiveNumber
+
+data class PageRequest(val cursor: String, val size: Int)
+
+fun pageRequest(cursor: String?, size: Int): PageRequest =
+    PageRequest(
+        cursor = cursor.requireNotBlank("cursor"),
+        size = size.requirePositiveNumber("size"),
+    )
+```
+
+Each `require*` function returns its validated receiver, so downstream code needs neither another nullable branch nor `!!`. Match the parameter name to the public API so an operational error identifies the invalid input immediately.
+
+### 2. Choose bounded-collection order deliberately
+
+```kotlin
+val undo = BoundedStack<String>(maxSize = 3)
+undo.pushAll("v1", "v2", "v3", "v4")
+undo.toList() // [v4, v3, v2] — top to bottom
+
+val recent = RingBuffer<String>(maxSize = 3)
+recent.addAll("v1", "v2", "v3", "v4")
+recent.toList() // [v2, v3, v4] — oldest to newest
+```
+
+Both types discard the oldest value after reaching capacity, but their read directions differ. `BoundedStack.pop()` removes the newest value; `RingBuffer.drop(n)` removes the oldest values. Both are process-local structures, not durable queues or distributed backpressure mechanisms.
+
+### 3. Put an explicit capacity boundary in front of an asynchronous API
+
+```kotlin
+import io.bluetape4k.concurrent.concurrentReducerOf
+import java.util.concurrent.CompletionStage
+
+fun <T> fetchBounded(
+    ids: List<String>,
+    fetchAsync: (String) -> CompletionStage<T>,
+): List<T> = concurrentReducerOf<T>(
+    maxConcurrency = 8,
+    maxQueueSize = 64,
+).use { reducer ->
+    ids.map { id -> reducer.add { fetchAsync(id) } }
+        .map { promise -> promise.join() }
+}
+```
+
+When the queue is full or the reducer is closed, `add` does not throw directly at the call site. It returns a `CompletableFuture` completed with `CapacityReachedException` or `RejectedExecutionException`, respectively. Always observe the returned promise. `close()` cancels queued jobs, but it does not forcibly interrupt an external `CompletionStage` that is already running.
+
 ## Patterns {#patterns}
 
 Validate at the public boundary and pass non-null values inward. Keep codecs at transport/storage boundaries instead of scattering encoding through domain logic. Choose bounded collections when unbounded growth would turn backpressure into an out-of-memory failure. Close lifecycle-owning concurrency helpers in `use`/`try-finally` blocks.
@@ -74,6 +137,16 @@ There is no global configuration file. Behavior is selected by constructor argum
 ## Failures {#failures}
 
 Validation helpers throw `IllegalArgumentException` for invalid caller input. Codec decoders propagate malformed-input errors according to the underlying codec. Bounded collections reject invalid capacities during construction. `ConcurrentReducer.close()` cancels queued work and rejects submissions after closure; callers must decide whether cancellation is an expected shutdown path or an error.
+
+### Troubleshooting table
+
+| Symptom | Check first | Response |
+| --- | --- | --- |
+| A validation error reports an unexpected value | Whether an earlier chain step transformed the receiver and whether the parameter name is correct | Validate the original boundary value once, then transform it. |
+| Recent items appear in reverse order | `BoundedStack.toList()` is newest-first while `RingBuffer.toList()` is oldest-first | Distinguish undo from history and select the matching type. |
+| A `ConcurrentReducer` promise fails through `CompletionException` | Whether the cause is `CapacityReachedException`, a task error, or a null stage | Map queue saturation to an overload policy such as retry/429 separately from task failure. |
+| Producers keep submitting after shutdown | Whether `RejectedExecutionException` in returned promises is ignored | Observe every future, stop producers, and only then close the reducer. |
+| Resource shutdown order is wrong | `ShutdownQueue` closes in reverse registration order (LIFO) | Register dependencies first and wrappers that use them afterward. |
 
 ## Operations {#operations}
 

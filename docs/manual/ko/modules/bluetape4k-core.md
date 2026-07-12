@@ -59,6 +59,69 @@ fun tokenFor(userId: String?): String {
 | duration, period, temporal, quarter 연산 | `io.bluetape4k.time` |
 | 명시적인 close 계약을 가진 concurrent reduce | `ConcurrentReducer` |
 
+## 무엇을 먼저 선택할까 {#decision-guide}
+
+| 요구 사항 | 권장 선택 | 선택하지 말아야 할 경우 |
+| --- | --- | --- |
+| nullable 입력을 검증한 뒤 같은 값을 계속 사용 | `requireNotNull`, `requireNotBlank`, `requirePositiveNumber` 계열 | 내부 불변식 검증에는 사용하지 않습니다. caller 입력 오류를 뜻하는 `IllegalArgumentException` 계약입니다. |
+| 최근 값을 LIFO로 보관 | `BoundedStack` | 시간순 재생이 필요하면 `RingBuffer`가 맞습니다. |
+| 최근 N개를 입력 순서로 보관 | `RingBuffer` | stack의 top/pop 의미가 필요하면 `BoundedStack`을 사용합니다. |
+| 비동기 요청의 동시 실행 수와 대기열을 함께 제한 | `ConcurrentReducer` | suspend 함수의 동시성만 제한한다면 coroutine semaphore나 `mapParallel`이 더 자연스럽습니다. |
+| JVM 종료 시 전역 자원을 역순으로 정리 | `ShutdownQueue` | request나 bean lifecycle처럼 더 이른 종료 시점이 있다면 그 lifecycle에서 직접 닫습니다. |
+
+## 실전 레시피 {#recipes}
+
+### 1. 경계에서 검증하고 내부 타입을 단순하게 유지하기
+
+```kotlin
+import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requirePositiveNumber
+
+data class PageRequest(val cursor: String, val size: Int)
+
+fun pageRequest(cursor: String?, size: Int): PageRequest =
+    PageRequest(
+        cursor = cursor.requireNotBlank("cursor"),
+        size = size.requirePositiveNumber("size"),
+    )
+```
+
+`require*` 함수는 검증한 receiver를 반환하므로 validation 이후 코드에서 nullable 분기나 `!!`가 필요 없습니다. 메시지의 parameter name은 API 이름과 맞춰야 운영 로그에서 어느 입력이 잘못됐는지 바로 찾을 수 있습니다.
+
+### 2. bounded collection의 순서를 의도적으로 선택하기
+
+```kotlin
+val undo = BoundedStack<String>(maxSize = 3)
+undo.pushAll("v1", "v2", "v3", "v4")
+undo.toList() // [v4, v3, v2] — top에서 bottom 순서
+
+val recent = RingBuffer<String>(maxSize = 3)
+recent.addAll("v1", "v2", "v3", "v4")
+recent.toList() // [v2, v3, v4] — 가장 오래된 값부터 순서
+```
+
+두 타입 모두 용량을 넘으면 가장 오래된 값을 버리지만 읽는 방향이 다릅니다. `BoundedStack.pop()`은 최신 값을 제거하고, `RingBuffer.drop(n)`은 오래된 값부터 제거합니다. 둘 다 process-local 자료구조이며 durable queue나 분산 backpressure를 대신하지 않습니다.
+
+### 3. 외부 비동기 API 앞에 명시적인 용량 제한 두기
+
+```kotlin
+import io.bluetape4k.concurrent.concurrentReducerOf
+import java.util.concurrent.CompletionStage
+
+fun <T> fetchBounded(
+    ids: List<String>,
+    fetchAsync: (String) -> CompletionStage<T>,
+): List<T> = concurrentReducerOf<T>(
+    maxConcurrency = 8,
+    maxQueueSize = 64,
+).use { reducer ->
+    ids.map { id -> reducer.add { fetchAsync(id) } }
+        .map { promise -> promise.join() }
+}
+```
+
+`add`는 queue가 가득 차거나 reducer가 닫힌 경우 호출 시점에 직접 throw하지 않습니다. 각각 `CapacityReachedException` 또는 `RejectedExecutionException`으로 완료된 `CompletableFuture`를 반환합니다. 따라서 반환 promise를 반드시 관찰해야 합니다. `close()`는 대기 중 작업을 취소하지만 이미 실행 중인 외부 `CompletionStage`까지 강제로 중단하지는 않습니다.
+
 ## 권장 패턴 {#patterns}
 
 public boundary에서 입력을 검증하고 내부에는 non-null 값을 넘깁니다. codec은 domain logic 곳곳이 아니라 transport나 storage 경계에서 사용합니다. 작업량이 계속 쌓일 수 있다면 unbounded collection 대신 capacity를 가진 type을 선택합니다. executor나 queue를 소유하는 helper는 `use` 또는 `try-finally`에서 닫습니다.
@@ -74,6 +137,16 @@ global 설정 파일은 없습니다. collection capacity, charset, range bounda
 ## 실패 동작 {#failures}
 
 validation helper는 잘못된 caller 입력에 `IllegalArgumentException`을 던집니다. codec decoder는 malformed input 오류를 underlying codec 계약에 따라 전달합니다. bounded collection은 잘못된 capacity를 생성 시점에 거부합니다. `ConcurrentReducer.close()`는 queue의 작업을 취소하고 이후 submission을 거부합니다.
+
+### 문제 진단표
+
+| 증상 | 먼저 확인할 것 | 대응 |
+| --- | --- | --- |
+| validation 예외의 값이 예상과 다름 | 체이닝 앞 단계에서 receiver가 변환됐는지, parameter name이 맞는지 | 경계에서 원본을 한 번 검증하고 변환을 뒤로 옮깁니다. |
+| 최근 항목의 순서가 반대로 보임 | `BoundedStack.toList()`는 최신순, `RingBuffer.toList()`는 오래된 순인지 | undo/history 요구를 구분해 타입을 바꿉니다. |
+| `ConcurrentReducer` 결과가 `CompletionException`으로 실패 | cause가 `CapacityReachedException`, task 예외, null stage인지 | queue 포화는 retry/429 같은 overload 정책으로 처리하고 task failure와 분리합니다. |
+| shutdown 후 새 작업이 계속 들어옴 | reducer promise의 `RejectedExecutionException`을 무시하는지 | 모든 반환 future를 관찰하고 producer를 먼저 중단한 뒤 reducer를 닫습니다. |
+| `ShutdownQueue` 자원 순서가 중요함 | 등록 순서의 역순(LIFO)으로 close되는지 | 의존 자원을 먼저 등록하고 그 자원을 사용하는 wrapper를 나중에 등록합니다. |
 
 ## 운영 {#operations}
 
