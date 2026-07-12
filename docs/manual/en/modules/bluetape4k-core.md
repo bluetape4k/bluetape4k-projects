@@ -1,12 +1,12 @@
 ---
 manualId: bluetape4k-core
-title: Core Kotlin utilities
+title: Core Kotlin library
 description: Validation, codecs, collections, ranges, time DSLs, reflection helpers, and small concurrency primitives used across bluetape4k.
 kind: library
 group: foundation
 ---
 
-# Core Kotlin utilities
+# Core Kotlin library
 
 ## Problem {#problem}
 
