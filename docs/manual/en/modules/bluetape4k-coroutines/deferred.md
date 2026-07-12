@@ -1,44 +1,109 @@
 ---
 title: Deferred coordination
-description: Distinguish first completion, first success, and loser cancellation policies.
+description: Implement first completion, first success, and loser cancellation as distinct policies.
 manualId: bluetape4k-coroutines
 chapterId: deferred
 ---
 
 # Deferred coordination
 
-## Problem to solve
+“The fastest task” is ambiguous. The first task to **finish** may have failed; the first task to **succeed** must produce a value. Whether losers are cancelled is a third decision.
 
-When several asynchronous tasks compete, define what to wait for and what happens to the remaining tasks.
+![Comparison of awaitAny, awaitAnyAndCancelOthers, and firstSuccessTaskScope](../../../assets/coroutines/deferred-race-policy.svg)
 
-## Mental model
+## Decision table
 
-First completion includes failure and cancellation, while first success skips failures until a value succeeds. Winner selection and loser cleanup are separate policies.
+| Requirement | API | First failure | Losers |
+| --- | --- | --- | --- |
+| observe the first terminal result | `awaitAny` | propagate | continue |
+| accept the first terminal result and reclaim capacity | `awaitAnyAndCancelOthers` | propagate | cancel |
+| skip failed replicas and accept first success | `firstSuccessTaskScope` | wait for others | cancel after winner |
+| require both results | `zip` / `zipWith` | propagate | parent policy |
 
-## Smallest API surface
+Empty input is invalid. A single element has the same result as awaiting that deferred directly.
 
-Use `DeferredValue.await()` for one owned value, `awaitAny` for first completion, `awaitAnyAndCancelOthers` when losers must stop, and `firstSuccessTaskScope` for first success.
+## First completion with cleanup
 
-## Complete example
+Start every request in the same caller scope; the coordinator does not create a long-lived owner.
 
-A replica race starts every `Deferred` in the caller scope, invokes the selected coordination function, and either retains or cancels losers according to the chosen policy.
+```kotlin
+suspend fun <T> fastestReplica(
+    replicas: List<suspend () -> T>,
+): T = coroutineScope {
+    replicas
+        .map { load -> async { load() } }
+        .awaitAnyAndCancelOthers()
+}
+```
 
-## Selection guide
+The implementation wraps each await in an indexed signal, selects the first signal to finish, and attempts to cancel every other signal and original deferred before returning or rethrowing the winner result.
 
-Choose first completion for the fastest response and first success when a failed replica should be skipped. Do not auto-cancel losers when their results are still needed for warming or comparison.
+- first success: return its value and cancel losers;
+- first failure: throw it and cancel losers;
+- first cancelled task: propagate cancellation and cancel losers;
+- caller cancellation: `ensureActive()` prevents it from being mistaken for an ordinary candidate result.
 
-## Failure, cancellation, and lifecycle contract
+## First successful result
 
-`DeferredValue` starts eagerly in an owned scope and therefore must be closed. Prefer suspending `await()` over the deprecated blocking `value` access.
+Skipping failed replicas requires the structured first-success policy.
 
-## Operations and diagnosis
+```kotlin
+suspend fun loadFromAnyProvider(): Quote = firstSuccessTaskScope {
+    fork { primary.loadQuote() }
+    fork { secondary.loadQuote() }
+    fork { archive.loadQuote() }
+    join().result { cause ->
+        QuoteUnavailable("all providers failed", cause)
+    }
+}
+```
 
-Measure loser execution and cancellation completion as well as winner latency. Repeated uncancelled races can exhaust connections and threads.
+Remaining tasks are cleaned up after a winner. If every task fails, the `result` mapper creates the domain exception.
+
+## Owning DeferredValue
+
+`DeferredValue` starts immediately in its own `DefaultCoroutineScope`, so its owner must close it.
+
+```kotlin
+suspend fun loadAnswer(): Int {
+    val value = deferredValueOf { repository.loadAnswer() }
+    return try {
+        value.await()
+    } finally {
+        value.close()
+    }
+}
+```
+
+Use `await()` in coroutine code. Blocking `value` access on a constrained dispatcher can starve or deadlock that pool.
+
+## Transform and combine
+
+`Deferred.map`, `mapAll`, `concatMap`, and `zipWith` represent the transformed result as another deferred. Source failure, source cancellation, and transform exceptions propagate unchanged.
+
+```kotlin
+val profile = async { loadProfile(id) }
+val quota = async { loadQuota(id) }
+val summary = profile.zipWith(quota) { p, q -> Summary(p, q) }
+return summary.await()
+```
+
+The helper does not transfer ownership: the scope that started the source deferreds still owns their lifecycle.
+
+## Operational checks
+
+| Signal | Why |
+| --- | --- |
+| winner latency and identity | detect replicas that fail fastest |
+| loser cancellation duration | find I/O that ignores cancellation |
+| in-flight bound per race | prevent retry-times-race amplification |
+| all-failed ratio | ensure first-success is not hiding an outage |
 
 ## Source and representative tests
 
-The evidence is [`DeferredValue.kt`](../../../../../bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/DeferredValue.kt), [`DeferredSupport.kt`](../../../../../bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/support/DeferredSupport.kt), and their representative tests.
+- [`DeferredSupport.kt`](../../../../../bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/support/DeferredSupport.kt)
+- [`DeferredValue.kt`](../../../../../bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/DeferredValue.kt)
+- [`DeferredSupportTest.kt`](../../../../../bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/support/DeferredSupportTest.kt)
+- [`StructuredConcurrencyTest.kt`](../../../../../bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/StructuredConcurrencyTest.kt)
 
-## Next chapter and runnable workshop
-
-Continue with [Ordered and parallel Flow](./flow.md) for stream concurrency and [Structured concurrency](./structured-concurrency.md) for policy scopes.
+For ordering and concurrency across stream items, continue with [Ordered and parallel Flow](./flow.md).

@@ -12,6 +12,8 @@ group: foundation
 
 Kotlin coroutine이 primitive를 제공해도 backend에서는 scope ownership, `Deferred` 조정, Flow window와 parallel map, multicast subject, Java structured concurrency bridge를 반복해서 작성합니다. 같은 코드를 여러 곳에서 만들면 cancellation과 shutdown 동작이 달라집니다. `bluetape4k-coroutines`는 저장소에서 공통으로 쓰는 계약을 모읍니다.
 
+![bluetape4k-coroutines 매뉴얼 의사결정 지도](../../assets/coroutines/module-foundation.svg)
+
 ## 사용 시점 {#when-to-use}
 
 필요한 operator나 lifecycle abstraction이 이 모듈에 있고 cancellation 계약이 caller와 맞을 때 사용합니다. `coroutineScope`, `async`, 표준 Flow operator만으로 충분하면 표준 API를 우선합니다. request가 끝날 때 작업도 끝나야 한다면 caller scope를 사용해야지, request마다 장기 scope를 새로 만들면 안 됩니다.
