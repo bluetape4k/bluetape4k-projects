@@ -713,6 +713,32 @@ modules:
   - bluetape4k/logging/src/test/kotlin
   - bluetape4k/logging/src/test/resources
   workshops: []
+  chapters:
+  - id: logger-foundation
+    en: en/modules/bluetape4k-logging/logger-foundation.md
+    ko: ko/modules/bluetape4k-logging/logger-foundation.md
+  - id: lazy-messages
+    en: en/modules/bluetape4k-logging/lazy-messages.md
+    ko: ko/modules/bluetape4k-logging/lazy-messages.md
+  - id: scoped-mdc
+    en: en/modules/bluetape4k-logging/scoped-mdc.md
+    ko: ko/modules/bluetape4k-logging/scoped-mdc.md
+  - id: coroutine-mdc
+    en: en/modules/bluetape4k-logging/coroutine-mdc.md
+    ko: ko/modules/bluetape4k-logging/coroutine-mdc.md
+  - id: async-channel
+    en: en/modules/bluetape4k-logging/async-channel.md
+    ko: ko/modules/bluetape4k-logging/async-channel.md
+  - id: operations-recipes
+    en: en/modules/bluetape4k-logging/operations-recipes.md
+    ko: ko/modules/bluetape4k-logging/operations-recipes.md
+  assets:
+  - assets/logging/logger-api-map.svg
+  - assets/logging/logger-api-map.png
+  - assets/logging/mdc-scope-lifecycle.svg
+  - assets/logging/mdc-scope-lifecycle.png
+  - assets/logging/async-channel-sequence.svg
+  - assets/logging/async-channel-sequence.png
 - id: bluetape4k-math
   gradlePath: ":bluetape4k-math"
   sourceDir: utils/math

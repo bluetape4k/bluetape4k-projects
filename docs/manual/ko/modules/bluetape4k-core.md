@@ -1,12 +1,12 @@
 ---
 manualId: bluetape4k-core
-title: Core Kotlin utility
+title: Core Kotlin 라이브러리
 description: bluetape4k 전반에서 사용하는 validation, codec, collection, range, time DSL, reflection, concurrency primitive를 제공합니다.
 kind: library
 group: foundation
 ---
 
-# Core Kotlin utility
+# Core Kotlin 라이브러리
 
 ## 해결하는 문제 {#problem}
 

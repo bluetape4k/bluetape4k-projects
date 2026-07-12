@@ -1005,6 +1005,46 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-logging",
+      "assets": [
+        "assets/logging/logger-api-map.svg",
+        "assets/logging/logger-api-map.png",
+        "assets/logging/mdc-scope-lifecycle.svg",
+        "assets/logging/mdc-scope-lifecycle.png",
+        "assets/logging/async-channel-sequence.svg",
+        "assets/logging/async-channel-sequence.png"
+      ],
+      "chapters": [
+        {
+          "en": "en/modules/bluetape4k-logging/logger-foundation.md",
+          "id": "logger-foundation",
+          "ko": "ko/modules/bluetape4k-logging/logger-foundation.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-logging/lazy-messages.md",
+          "id": "lazy-messages",
+          "ko": "ko/modules/bluetape4k-logging/lazy-messages.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-logging/scoped-mdc.md",
+          "id": "scoped-mdc",
+          "ko": "ko/modules/bluetape4k-logging/scoped-mdc.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-logging/coroutine-mdc.md",
+          "id": "coroutine-mdc",
+          "ko": "ko/modules/bluetape4k-logging/coroutine-mdc.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-logging/async-channel.md",
+          "id": "async-channel",
+          "ko": "ko/modules/bluetape4k-logging/async-channel.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-logging/operations-recipes.md",
+          "id": "operations-recipes",
+          "ko": "ko/modules/bluetape4k-logging/operations-recipes.md"
+        }
+      ],
       "en": "en/modules/bluetape4k-logging.md",
       "gradlePath": ":bluetape4k-logging",
       "group": "foundation",

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
+  <title id="title">Logging API responsibility map</title>
+  <desc id="desc">Responsibility map from logger creation through lazy message and context helpers to the application-owned SLF4J provider.</desc>
+  <defs>
+    <marker id="blue-arrow" viewBox="0 0 14 14" refX="13" refY="7" markerWidth="14" markerHeight="14" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14 Z" fill="#527fb3"/></marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#16324f" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="1600" height="980" fill="#f5f8fc"/><rect x="42" y="36" width="1516" height="908" rx="34" fill="#fffefb" stroke="#6f8daa" stroke-width="4"/>
+  <text x="800" y="105" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="52" fill="#263d56">Own the Logging Boundary, Not the Backend</text>
+  <text x="800" y="148" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="20" fill="#53697f">bluetape4k supplies Kotlin contracts; the application owns provider policy.</text>
+  <g filter="url(#shadow)">
+    <rect x="100" y="220" width="400" height="210" rx="28" fill="#e8f1fc" stroke="#6e96c7" stroke-width="3"/>
+    <rect x="600" y="220" width="400" height="210" rx="28" fill="#eef8f4" stroke="#82b6a5" stroke-width="3"/>
+    <rect x="1100" y="220" width="400" height="210" rx="28" fill="#fff6e8" stroke="#c79d58" stroke-width="3"/>
+  </g>
+  <text x="300" y="278" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#294e76">Create a Logger</text>
+  <text x="800" y="278" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#356c5b">Build an Event</text>
+  <text x="1300" y="278" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#8c6427">Carry Context</text>
+  <g font-family="Comic Mono, ui-monospace, monospace" font-size="19" fill="#53697f" text-anchor="middle">
+    <text x="300" y="330">KLogging</text><text x="300" y="363">KotlinLogging.logger(...)</text><text x="300" y="396">KLoggerFactory + name resolver</text>
+    <text x="800" y="330">level guard</text><text x="800" y="363">lazy supplier + safe fallback</text><text x="800" y="396">marker / cause / MDC overloads</text>
+    <text x="1300" y="330">withLoggingContext</text><text x="1300" y="363">withCoroutineLoggingContext</text><text x="1300" y="396">restore or remove in finally</text>
+  </g>
+  <path d="M 300 430 V 495 Q 300 515 320 515 H 730" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#blue-arrow)"/>
+  <path d="M 800 430 V 515" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#blue-arrow)"/>
+  <path d="M 1300 430 V 495 Q 1300 515 1280 515 H 870" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#blue-arrow)"/>
+  <rect x="525" y="530" width="550" height="150" rx="28" fill="#f4edfc" stroke="#9b7bc2" stroke-width="3" filter="url(#shadow)"/>
+  <text x="800" y="586" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="32" fill="#705197">SLF4J Logger API</text>
+  <text x="800" y="626" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#53697f">stable facade shared by libraries and applications</text>
+  <text x="800" y="654" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="16" fill="#6d5b85">No appender, level, destination, or retention ownership here</text>
+  <path d="M 800 680 V 738" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#blue-arrow)"/>
+  <rect x="260" y="754" width="1080" height="125" rx="28" fill="#fff0f1" stroke="#b96f73" stroke-width="3"/>
+  <text x="800" y="804" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#8e4d52">Application-owned Provider</text>
+  <text x="800" y="842" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#53697f">one provider • encoder • appenders • routing • retention • redaction policy</text>
+  <text x="800" y="916" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">Start with KLogging + scoped MDC. Add asynchronous delivery only with explicit lifecycle ownership.</text>
+</svg>
