@@ -1,5 +1,5 @@
 ---
-schemaVersion: 1
+schemaVersion: 2
 modules:
 - id: bluetape4k-annotations
   gradlePath: ":bluetape4k-annotations"
@@ -149,6 +149,25 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-core
   en: en/modules/bluetape4k-core.md
   ko: ko/modules/bluetape4k-core.md
+  chapters:
+  - id: validation
+    en: en/modules/bluetape4k-core/validation.md
+    ko: ko/modules/bluetape4k-core/validation.md
+  - id: bounded-collections
+    en: en/modules/bluetape4k-core/bounded-collections.md
+    ko: ko/modules/bluetape4k-core/bounded-collections.md
+  - id: encoding-data
+    en: en/modules/bluetape4k-core/encoding-data.md
+    ko: ko/modules/bluetape4k-core/encoding-data.md
+  - id: time-ranges
+    en: en/modules/bluetape4k-core/time-ranges.md
+    ko: ko/modules/bluetape4k-core/time-ranges.md
+  - id: concurrency-lifecycle
+    en: en/modules/bluetape4k-core/concurrency-lifecycle.md
+    ko: ko/modules/bluetape4k-core/concurrency-lifecycle.md
+  - id: recipes
+    en: en/modules/bluetape4k-core/recipes.md
+    ko: ko/modules/bluetape4k-core/recipes.md
   sourcePaths:
   - bluetape4k/core/src/main/kotlin
   testPaths:
@@ -163,6 +182,28 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-coroutines
   en: en/modules/bluetape4k-coroutines.md
   ko: ko/modules/bluetape4k-coroutines.md
+  chapters:
+  - id: lifecycle
+    en: en/modules/bluetape4k-coroutines/lifecycle.md
+    ko: ko/modules/bluetape4k-coroutines/lifecycle.md
+  - id: deferred
+    en: en/modules/bluetape4k-coroutines/deferred.md
+    ko: ko/modules/bluetape4k-coroutines/deferred.md
+  - id: flow
+    en: en/modules/bluetape4k-coroutines/flow.md
+    ko: ko/modules/bluetape4k-coroutines/flow.md
+  - id: subjects
+    en: en/modules/bluetape4k-coroutines/subjects.md
+    ko: ko/modules/bluetape4k-coroutines/subjects.md
+  - id: structured-concurrency
+    en: en/modules/bluetape4k-coroutines/structured-concurrency.md
+    ko: ko/modules/bluetape4k-coroutines/structured-concurrency.md
+  - id: operations
+    en: en/modules/bluetape4k-coroutines/operations.md
+    ko: ko/modules/bluetape4k-coroutines/operations.md
+  - id: recipes
+    en: en/modules/bluetape4k-coroutines/recipes.md
+    ko: ko/modules/bluetape4k-coroutines/recipes.md
   sourcePaths:
   - bluetape4k/coroutines/src/main/kotlin
   testPaths:

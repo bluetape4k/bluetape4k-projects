@@ -1,4 +1,4 @@
-schemaVersion: 1
+schemaVersion: 2
 modules:
   - id: sample
     gradlePath: ":sample"
@@ -14,3 +14,10 @@ modules:
       - io/sample/src/test/kotlin
     workshops:
       - workshops/sample
+    chapters:
+      - id: chapter-one
+        en: en/modules/sample/chapter-one.md
+        ko: ko/modules/sample/chapter-one.md
+    assets:
+      - assets/sample/model.svg
+      - assets/sample/model.png

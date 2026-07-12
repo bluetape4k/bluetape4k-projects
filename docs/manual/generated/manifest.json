@@ -204,6 +204,38 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-core",
+      "chapters": [
+        {
+          "en": "en/modules/bluetape4k-core/validation.md",
+          "id": "validation",
+          "ko": "ko/modules/bluetape4k-core/validation.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-core/bounded-collections.md",
+          "id": "bounded-collections",
+          "ko": "ko/modules/bluetape4k-core/bounded-collections.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-core/encoding-data.md",
+          "id": "encoding-data",
+          "ko": "ko/modules/bluetape4k-core/encoding-data.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-core/time-ranges.md",
+          "id": "time-ranges",
+          "ko": "ko/modules/bluetape4k-core/time-ranges.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-core/concurrency-lifecycle.md",
+          "id": "concurrency-lifecycle",
+          "ko": "ko/modules/bluetape4k-core/concurrency-lifecycle.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-core/recipes.md",
+          "id": "recipes",
+          "ko": "ko/modules/bluetape4k-core/recipes.md"
+        }
+      ],
       "en": "en/modules/bluetape4k-core.md",
       "gradlePath": ":bluetape4k-core",
       "group": "foundation",
@@ -224,6 +256,43 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-coroutines",
+      "chapters": [
+        {
+          "en": "en/modules/bluetape4k-coroutines/lifecycle.md",
+          "id": "lifecycle",
+          "ko": "ko/modules/bluetape4k-coroutines/lifecycle.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-coroutines/deferred.md",
+          "id": "deferred",
+          "ko": "ko/modules/bluetape4k-coroutines/deferred.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-coroutines/flow.md",
+          "id": "flow",
+          "ko": "ko/modules/bluetape4k-coroutines/flow.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-coroutines/subjects.md",
+          "id": "subjects",
+          "ko": "ko/modules/bluetape4k-coroutines/subjects.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-coroutines/structured-concurrency.md",
+          "id": "structured-concurrency",
+          "ko": "ko/modules/bluetape4k-coroutines/structured-concurrency.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-coroutines/operations.md",
+          "id": "operations",
+          "ko": "ko/modules/bluetape4k-coroutines/operations.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-coroutines/recipes.md",
+          "id": "recipes",
+          "ko": "ko/modules/bluetape4k-coroutines/recipes.md"
+        }
+      ],
       "en": "en/modules/bluetape4k-coroutines.md",
       "gradlePath": ":bluetape4k-coroutines",
       "group": "foundation",
@@ -1819,5 +1888,5 @@
       ]
     }
   ],
-  "schemaVersion": 1
+  "schemaVersion": 2
 }
