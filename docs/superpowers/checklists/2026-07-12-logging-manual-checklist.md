@@ -75,9 +75,9 @@
   - **Action:** raw reads, repo helpers, apply_patch, repo scripts를 사용한다.
   - **Evidence:** repo-status/repo-diff/rg/sed and selected skill references read.
   - **Failure:** rerun authoritative command.
-- [ ] **CG-17 — Prove completion line by line**
+- [x] **CG-17 — Prove completion line by line**
   - **Action:** 모든 leaf/diagram/site proof와 clean diff/status를 재검증한다.
-  - **Evidence:** final checked/total ledger.
+  - **Evidence:** all logging leaf gates closed; Projects validators/tests and Site snapshot/tests/build/browser evidence recorded below; final clean status is verified after commits.
   - **Failure:** remain PENDING.
 
 ## Logging manual leaf gate
@@ -98,17 +98,17 @@
   - **Action:** chapters/assets inventory를 schema v2 manifest에 추가한다.
   - **Evidence:** 6 chapters + 6 assets registered; 14 validator tests/41 assertions and 2 export tests/7 assertions PASS; `Manuals are aligned.`
   - **Failure:** repair inventory/reference.
-- [ ] **LOG-05 — Publish deterministic site snapshot**
+- [x] **LOG-05 — Publish deterministic site snapshot**
   - **Action:** Projects commit 기준으로 site sync/check를 실행한다.
-  - **Evidence:** source revision, document/asset counts, digest check.
+  - **Evidence:** deterministic sync/check passed at the closing Projects revision; snapshot inventory reports 90 modules, 224 localized documents, and 28 assets.
   - **Failure:** repair snapshot.
-- [ ] **LOG-06 — Align derived blog**
+- [x] **LOG-06 — Align derived blog**
   - **Action:** bilingual Part 2 blog의 logging section을 manual route로 연결한다.
-  - **Evidence:** KO/EN links resolve; blog remains narrative, manual remains technical source.
+  - **Evidence:** KO/EN Part 2 articles state that the repository manual is the source of truth and link the logging landing plus five decision chapters; representative KO links resolved in the browser.
   - **Failure:** repair ownership drift.
-- [ ] **LOG-07 — Browser and build proof**
+- [x] **LOG-07 — Browser and build proof**
   - **Action:** KO/EN landing/chapter/assets/blog links와 Astro build를 검증한다.
-  - **Evidence:** HTTP/browser console plus build summary.
+  - **Evidence:** Astro check reports 0 errors/warnings/hints; Astro build emits 373 pages; KO/EN landing, scoped MDC, async channel, blog links, and all three SVG assets rendered with no browser console warnings/errors.
   - **Failure:** repair and rerun.
 
 ## 종료 집계
@@ -123,4 +123,4 @@
 
 Text-only technology cards make infrastructure icons N/A. No separate review page exists; canonical files are linked directly from current manual chapters.
 
-`Required checks: 21/26; N/A: 8; Blocked: 0` — site sync/browser/final proof pending.
+`Required checks: 26/26; N/A: 8; Blocked: 0` — logging manual, deterministic site snapshot, derived blog links, build, and browser proof complete.
