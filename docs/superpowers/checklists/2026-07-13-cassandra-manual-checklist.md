@@ -65,7 +65,7 @@
   - **Failure:** stop new abstraction/dependency work.
 - [ ] **CG-07 — Lock behavior and run targeted proof**
   - **Action:** Projects manual validator/tests, Cassandra test anchors, site tests/snapshot/build를 실행한다.
-  - **Evidence:** fresh commands and results.
+  - **Evidence:** Projects PASS — Ruby manual tests 35 runs/108 assertions, failures=0/errors=0; `Manuals are aligned.`; manifest snapshot current; 1.11.0 release links 4,814 checked/0 missing; `:bluetape4k-cassandra:test` `BUILD SUCCESSFUL`. Site snapshot/build/browser는 Task 7 PENDING.
   - **Failure:** repair and rerun.
 - [x] **CG-08 — Serialize heavyweight checks**
   - **Action:** Testcontainers-backed Cassandra 검증을 단독 순차 실행하도록 고정한다.
@@ -153,17 +153,17 @@
   - **Action:** user spec review 후 `writing-plans`로 file-level implementation plan을 작성한다.
   - **Evidence:** 사용자 written spec 승인; `docs/superpowers/plans/2026-07-13-cassandra-detailed-manual.md`; 7 tasks, 5 chapter IDs, release boundary, validation commands와 execution handoff를 self-review함.
   - **Failure:** do not edit manual content.
-- [ ] **CAS-05 — Write the Korean source manual**
+- [x] **CAS-05 — Write the Korean source manual**
   - **Action:** landing과 5개 chapter를 자연스러운 한국어와 complete examples로 작성한다.
-  - **Evidence:** KO inventory, claim ledger, naturalness checks.
+  - **Evidence:** KO chapter inventory 5개(`session-lifecycle`, `coroutine-queries`, `rows-data-mapping`, `statements-query-builder`, `operations-testing`); 1.11.0 source/test claim review와 Korean naturalness 금칙어 검색 0건; 각 Task의 spec/quality review Critical/Important/Minor=0.
   - **Failure:** repair unsupported or translated prose.
-- [ ] **CAS-06 — Produce English parity**
+- [x] **CAS-06 — Produce English parity**
   - **Action:** Korean source와 같은 inventory/contract를 영어로 제공한다.
-  - **Evidence:** KO/EN frontmatter, order, links and technical parity.
+  - **Evidence:** KO/EN basename 5개 일치, 각 chapter의 frontmatter/manualId/chapterId와 heading/code/source-link 구조 검수 통과; bilingual spec/quality reviews 승인.
   - **Failure:** repair locale drift.
-- [ ] **CAS-07 — Register and validate the manifest**
+- [x] **CAS-07 — Register and validate the manifest**
   - **Action:** 5개 bilingual chapter를 manifest에 등록하고 source links를 검증한다.
-  - **Evidence:** validator output and zero missing/orphan references.
+  - **Evidence:** `docs/manual/manifest.yaml`과 generated snapshot에 5개 chapter 등록; `Manuals are aligned.`; `Manual manifest snapshot is current.`; release validator `4,814 checked, 0 missing`; Ruby tests 35 runs/108 assertions, failures=0/errors=0.
   - **Failure:** repair inventory/reference.
 - [ ] **CAS-08 — Publish the deterministic site snapshot**
   - **Action:** committed Projects source 기준으로 site snapshot을 갱신한다.
@@ -171,9 +171,9 @@
   - **Failure:** repair snapshot.
 - [ ] **CAS-09 — Verify tests, build and browser routes**
   - **Action:** relevant Cassandra tests, Projects docs checks, site tests/build와 KO/EN browser routes를 검증한다.
-  - **Evidence:** sequential command results and browser inspection.
+  - **Evidence:** Projects PASS — `:bluetape4k-cassandra:test` `BUILD SUCCESSFUL`; docs validators/tests PASS. Site tests/build와 KO/EN browser routes는 Task 7 PENDING.
   - **Failure:** repair and rerun.
 
 ## 종료 집계
 
-현재 상태는 `Required checks: 22/32; N/A: 6; Blocked: 0`이다. 미완료 항목은 `WF-05`, `CG-07`, `CG-17`, `E-05`, `E-06`, `CAS-05`부터 `CAS-09`까지이며, implementation 진행에 맞춰 즉시 갱신한다.
+현재 상태는 `Required checks: 25/32; N/A: 6; Blocked: 0`이다. 미완료 항목은 `WF-05`, `CG-07`, `CG-17`, `E-05`, `E-06`, `CAS-08`, `CAS-09`이며, Site snapshot/build/browser 검증에 맞춰 즉시 갱신한다.

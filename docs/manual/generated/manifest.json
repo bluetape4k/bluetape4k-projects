@@ -215,6 +215,33 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-cassandra",
+      "chapters": [
+        {
+          "en": "en/modules/bluetape4k-cassandra/session-lifecycle.md",
+          "id": "session-lifecycle",
+          "ko": "ko/modules/bluetape4k-cassandra/session-lifecycle.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cassandra/coroutine-queries.md",
+          "id": "coroutine-queries",
+          "ko": "ko/modules/bluetape4k-cassandra/coroutine-queries.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cassandra/rows-data-mapping.md",
+          "id": "rows-data-mapping",
+          "ko": "ko/modules/bluetape4k-cassandra/rows-data-mapping.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cassandra/statements-query-builder.md",
+          "id": "statements-query-builder",
+          "ko": "ko/modules/bluetape4k-cassandra/statements-query-builder.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cassandra/operations-testing.md",
+          "id": "operations-testing",
+          "ko": "ko/modules/bluetape4k-cassandra/operations-testing.md"
+        }
+      ],
       "en": "en/modules/bluetape4k-cassandra.md",
       "gradlePath": ":bluetape4k-cassandra",
       "group": "data",
