@@ -558,6 +558,22 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-jdbc
   en: en/modules/bluetape4k-jdbc.md
   ko: ko/modules/bluetape4k-jdbc.md
+  chapters:
+  - id: connection-lifecycle
+    en: en/modules/bluetape4k-jdbc/connection-lifecycle.md
+    ko: ko/modules/bluetape4k-jdbc/connection-lifecycle.md
+  - id: statements-batches
+    en: en/modules/bluetape4k-jdbc/statements-batches.md
+    ko: ko/modules/bluetape4k-jdbc/statements-batches.md
+  - id: resultset-mapping
+    en: en/modules/bluetape4k-jdbc/resultset-mapping.md
+    ko: ko/modules/bluetape4k-jdbc/resultset-mapping.md
+  - id: transactions
+    en: en/modules/bluetape4k-jdbc/transactions.md
+    ko: ko/modules/bluetape4k-jdbc/transactions.md
+  - id: ecosystem-paths
+    en: en/modules/bluetape4k-jdbc/ecosystem-paths.md
+    ko: ko/modules/bluetape4k-jdbc/ecosystem-paths.md
   sourcePaths:
   - data/jdbc/src/main/kotlin
   testPaths:
