@@ -149,9 +149,9 @@
   - **Action:** approved design을 spec으로 작성하고 self-review 후 commit한다.
   - **Evidence:** `docs/superpowers/specs/2026-07-13-cassandra-detailed-manual-design.md`; commit `0216925cd014428cd4b4724a18e9d2a5250f14a4`; placeholders=0, focused chapters=5, 1.11.0/post-release boundary explicit, commit diff-check clean.
   - **Failure:** repair spec and recommit.
-- [ ] **CAS-04 — Write the implementation plan**
+- [x] **CAS-04 — Write the implementation plan**
   - **Action:** user spec review 후 `writing-plans`로 file-level implementation plan을 작성한다.
-  - **Evidence:** approved spec and plan path.
+  - **Evidence:** 사용자 written spec 승인; `docs/superpowers/plans/2026-07-13-cassandra-detailed-manual.md`; 7 tasks, 5 chapter IDs, release boundary, validation commands와 execution handoff를 self-review함.
   - **Failure:** do not edit manual content.
 - [ ] **CAS-05 — Write the Korean source manual**
   - **Action:** landing과 5개 chapter를 자연스러운 한국어와 complete examples로 작성한다.
@@ -176,4 +176,4 @@
 
 ## 종료 집계
 
-현재 상태는 `Required checks: 21/32; N/A: 6; Blocked: 0`이다. 미완료 항목은 `WF-05`, `CG-07`, `CG-17`, `E-05`, `E-06`, `CAS-04`부터 `CAS-09`까지이며, spec review와 implementation 진행에 맞춰 즉시 갱신한다.
+현재 상태는 `Required checks: 22/32; N/A: 6; Blocked: 0`이다. 미완료 항목은 `WF-05`, `CG-07`, `CG-17`, `E-05`, `E-06`, `CAS-05`부터 `CAS-09`까지이며, implementation 진행에 맞춰 즉시 갱신한다.
