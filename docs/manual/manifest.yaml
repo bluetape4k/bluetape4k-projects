@@ -160,6 +160,22 @@ modules:
   - data/cassandra/src/test/kotlin
   - data/cassandra/src/test/resources
   workshops: []
+  chapters:
+  - id: session-lifecycle
+    en: en/modules/bluetape4k-cassandra/session-lifecycle.md
+    ko: ko/modules/bluetape4k-cassandra/session-lifecycle.md
+  - id: coroutine-queries
+    en: en/modules/bluetape4k-cassandra/coroutine-queries.md
+    ko: ko/modules/bluetape4k-cassandra/coroutine-queries.md
+  - id: rows-data-mapping
+    en: en/modules/bluetape4k-cassandra/rows-data-mapping.md
+    ko: ko/modules/bluetape4k-cassandra/rows-data-mapping.md
+  - id: statements-query-builder
+    en: en/modules/bluetape4k-cassandra/statements-query-builder.md
+    ko: ko/modules/bluetape4k-cassandra/statements-query-builder.md
+  - id: operations-testing
+    en: en/modules/bluetape4k-cassandra/operations-testing.md
+    ko: ko/modules/bluetape4k-cassandra/operations-testing.md
 - id: bluetape4k-core
   gradlePath: ":bluetape4k-core"
   sourceDir: bluetape4k/core

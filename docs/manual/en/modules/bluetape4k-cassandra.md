@@ -8,18 +8,18 @@ group: data
 
 # Module bluetape4k-cassandra
 
-## What this library owns
+## What this library owns {#problem}
 
 `bluetape4k-cassandra` adds Kotlin session factories, coroutine queries, and row and statement extensions to the Apache Cassandra Java Driver. It does not operate the Cassandra cluster or its schema. The application still chooses contact points, credentials, keyspaces, and when sessions end.
 
-## Decisions before adopting it
+## Decisions before adopting it {#when-to-use}
 
 - Decide whether each operation creates and closes its own session or the application reuses sessions.
 - For reuse, use bounded configuration dimensions such as contact point, datacenter, routing profile, credential version, and client id rather than request-specific values.
 - Choose blocking `execute` or coroutine-based `executeSuspending` to match the calling layer.
 - Decide whether the application may create keyspaces or deployment manages them separately.
 
-## Add the dependency
+## Add the dependency {#coordinates}
 
 Expose only the central BOM version instead of repeating versions for individual bluetape4k artifacts.
 
@@ -30,7 +30,7 @@ dependencies {
 }
 ```
 
-## First query
+## First query {#quick-start}
 
 The code that creates a direct session also closes it. Keeping the query inside `use` closes the session after either a successful return or an exception.
 
@@ -51,7 +51,7 @@ val releaseVersion = cqlSessionOf(
 }
 ```
 
-## API decision map
+## API decision map {#api-by-task}
 
 | Task | Start with | Ownership or caution |
 | --- | --- | --- |
@@ -62,7 +62,7 @@ val releaseVersion = cqlSessionOf(
 | Assemble statements and query builders | `StatementSupport`, `QueryBuilderSupport` | Keep consistency, timeout, and keyspace visible at the call site. |
 | Manage keyspaces and integration tests | `CassandraAdmin`, `AbstractCassandraTest` | Separate production DDL authority from test-container lifecycle. |
 
-## Learning path
+## Learning path {#concepts}
 
 1. [CqlSession lifecycle and cache boundaries](./bluetape4k-cassandra/session-lifecycle.md)
 2. [Coroutine queries](./bluetape4k-cassandra/coroutine-queries.md)
@@ -70,11 +70,43 @@ val releaseVersion = cqlSessionOf(
 4. [Statements and query builder](./bluetape4k-cassandra/statements-query-builder.md)
 5. [Operations and testing](./bluetape4k-cassandra/operations-testing.md)
 
-## 1.11.0 limitation
+## Recommended patterns {#patterns}
+
+Close directly created sessions where they are created, and reuse shared sessions through a bounded `CqlSessionIdentity`. Keep query values behind bind markers, map each `Row` into a domain type at the read boundary, and treat multi-page results as partially consumable and cancellable.
+
+## Integrations {#integrations}
+
+The module builds on the Apache Cassandra Java Driver core, query builder, and mapper runtime, and connects asynchronous execution and paging to Kotlin Coroutines. An application that uses mapper-generated `EntityHelper` types must also configure the DataStax mapper annotation processor in its build.
+
+## Configuration {#configuration}
+
+The application owns contact points, `localDatacenter`, authentication, TLS, keyspace, and statement consistency and timeout. Provider identities should contain only a bounded set of log-approved connection or credential configuration IDs.
+
+## Failure behavior {#failures}
+
+Blank keyspaces and local datacenters are rejected at the input boundary. Query preparation and execution, row mapping, and next-page fetch failures propagate at their respective operation boundaries. For bootstrap authentication failures, inspect the 1.11.0 admin-session settings first.
+
+## Operations {#operations}
+
+Keyspace creation and deletion are real cluster side effects. Separate production privileges and replication policy from application startup, and observe session shutdown, query and paging failures, batch size, and timeout. See [Operational boundaries and Testcontainers verification](./bluetape4k-cassandra/operations-testing.md) for the full checklist.
+
+## Testing {#testing}
+
+Tests that require real Cassandra behavior use Testcontainers and a working Docker runtime. Do not run them in parallel with other heavy integration tests.
+
+```bash
+./gradlew :bluetape4k-cassandra:test --no-build-cache --no-configuration-cache
+```
+
+## Workshops {#workshops}
+
+There is no module-specific workshop yet. The complete examples and release-pinned source and test links in each chapter provide a sequential path through sessions, coroutine paging, mapping, QueryBuilder, and operations.
+
+## 1.11.0 limitation {#limitations}
 
 In 1.11.0, `CqlSessionProvider` builds its keyspace-bootstrap admin session with `builderSupplier().build()`. The trailing builder block applies only to the final keyspace-bound session. Put contact point, local datacenter, authentication, and TLS settings required by both sessions in `builderSupplier`. This differs from the behavior introduced by PR #986 after 1.11.0.
 
-## Sources and tests
+## Sources and tests {#sources}
 
 - [`CqlSessionProvider.kt`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionProvider.kt)
 - [`CqlSessionSupport.kt`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionSupport.kt)
