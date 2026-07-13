@@ -126,3 +126,5 @@ suspend fun loadActiveUsers(session: CqlSession): List<User> {
 ## 다음 읽을 장
 
 세션 소유권이 아직 정해지지 않았다면 [세션 수명주기](./session-lifecycle.md)를 먼저 읽습니다.
+
+쿼리 결과를 업무 타입으로 옮기는 기준은 [Row와 Cassandra 값을 Kotlin 타입으로 옮기기](./rows-data-mapping.md)에서 이어집니다.
