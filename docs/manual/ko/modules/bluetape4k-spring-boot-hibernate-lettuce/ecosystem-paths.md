@@ -58,7 +58,7 @@ SQL을 직접 통제하려면 [`bluetape4k-jdbc`](../bluetape4k-jdbc.md), non-bl
 
 ## 1.11.0 소스 지도
 
-- [Spring Boot adapter source](../../../../../spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/)
-- [Hibernate cache provider source](../../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/)
-- [Spring Boot demo](../../../../../spring-boot/hibernate-lettuce-demo/)
+- [Spring Boot adapter source](../../../../../spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheHibernateAutoConfiguration.kt)
+- [Hibernate cache provider source](../../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt)
+- [Spring Boot 데모 매뉴얼](../bluetape4k-spring-boot-hibernate-lettuce-demo.md)
 - [`LettuceNearCacheIntegrationTest.kt`](../../../../../spring-boot/hibernate-lettuce/src/test/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheIntegrationTest.kt)
