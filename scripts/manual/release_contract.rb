@@ -4,6 +4,7 @@ require "set"
 
 module ManualDocs
   class ReleaseContract
+    ValidationResult = Struct.new(:errors, :checked_count, keyword_init: true)
     TAG_PATTERN = /\Av?\d+\.\d+\.\d+\z/
     SHA_PATTERN = /\A[0-9a-f]{40}\z/i
     REPOSITORY_LINK_PATTERN = /!?\[[^\]]*\]\(\s*<?((?:\.\.\/){4,}[^)\s>]+)>?(?:\s+["'][^)]*["'])?\s*\)/
@@ -16,20 +17,30 @@ module ManualDocs
     end
 
     def errors
+      validate.errors
+    end
+
+    def validate
       input_errors = validate_inputs
-      return input_errors unless input_errors.empty?
+      return result(input_errors) unless input_errors.empty?
 
       resolved_sha = resolve_tag
-      return ["release tag not found: refs/tags/#{@tag}"] unless resolved_sha
+      return result(["release tag not found: refs/tags/#{@tag}"]) unless resolved_sha
 
       unless resolved_sha.casecmp?(@expected_sha)
-        return ["release tag #{@tag} resolves to #{resolved_sha}, expected #{@expected_sha}"]
+        return result(["release tag #{@tag} resolves to #{resolved_sha}, expected #{@expected_sha}"])
       end
 
       inventory = release_inventory(resolved_sha)
-      return ["release inventory could not be read: #{resolved_sha}"] unless inventory
+      return result(["release inventory could not be read: #{resolved_sha}"]) unless inventory
 
-      missing_path_errors(inventory)
+      links = repository_links
+      errors = if links.empty?
+                 ["no repository-relative manual links found"]
+               else
+                 missing_path_errors(inventory, links)
+               end
+      result(errors, links.length)
     end
 
     private
@@ -66,21 +77,32 @@ module ManualDocs
       end
     end
 
-    def missing_path_errors(inventory)
+    def repository_links
       manual_files.flat_map do |absolute_path|
         relative_file = Pathname.new(absolute_path).relative_path_from(Pathname.new(@repository_root)).to_s
-        File.readlines(absolute_path, chomp: true).each_with_index.flat_map do |line, index|
-          line.scan(REPOSITORY_LINK_PATTERN).map do |match|
-            target = match.first
-            repository_path = repository_path_for(relative_file, target)
-            if repository_path.nil?
-              "#{relative_file}:#{index + 1}: unsafe release path: #{target}"
-            elsif !inventory.include?(repository_path)
-              "#{relative_file}:#{index + 1}: release path not found: #{repository_path}"
-            end
-          end.compact
+        content = File.read(absolute_path)
+        content.to_enum(:scan, REPOSITORY_LINK_PATTERN).map do
+          match = Regexp.last_match
+          target = match[1]
+          line = content[0...match.begin(0)].count("\n") + 1
+          [relative_file, line, target]
         end
       end
+    end
+
+    def missing_path_errors(inventory, links)
+      links.map do |relative_file, line, target|
+        repository_path = repository_path_for(relative_file, target)
+        if repository_path.nil?
+          "#{relative_file}:#{line}: unsafe release path: #{target}"
+        elsif !inventory.include?(repository_path)
+          "#{relative_file}:#{line}: release path not found: #{repository_path}"
+        end
+      end.compact
+    end
+
+    def result(errors, checked_count = 0)
+      ValidationResult.new(errors: errors, checked_count: checked_count)
     end
 
     def repository_path_for(relative_file, target)
