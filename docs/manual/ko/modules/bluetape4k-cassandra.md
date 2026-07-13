@@ -9,9 +9,13 @@ learningOrder: 620
 
 # Cassandra 코루틴 클라이언트
 
-## 이 라이브러리가 맡는 일 {#problem}
+<span id="이-라이브러리가-맡는-일"></span>
 
-`bluetape4k-cassandra`는 Apache Cassandra Java Driver 위에 Kotlin용 세션 생성 함수, 코루틴 쿼리, row와 statement 확장을 제공합니다. 이 모듈은 Cassandra cluster나 schema를 운영하지 않습니다. 애플리케이션이 접속 주소, 인증 정보, keyspace와 세션 종료 시점을 결정해야 합니다.
+## 제공하는 기능 {#problem}
+
+`bluetape4k-cassandra`는 Apache Cassandra Java Driver 위에 Kotlin용 세션 생성 함수, 세션 재사용 경계, 코루틴 쿼리, row mapping과 statement 확장을 제공합니다. 짧은 작업에서 세션을 직접 만들고 닫는 흐름부터 여러 페이지를 비동기로 읽고 드라이버 값을 Kotlin 타입으로 옮기는 작업까지, 애플리케이션 코드에서 반복되는 부분을 줄여 줍니다.
+
+이 모듈이 Cassandra cluster나 schema를 운영하는 것은 아닙니다. 접속 주소, 인증 정보, keyspace, consistency와 세션 종료 시점은 애플리케이션이 결정해야 합니다.
 
 ## 사용하기 전에 결정할 것 {#when-to-use}
 
@@ -65,11 +69,18 @@ val releaseVersion = cqlSessionOf(
 
 ## 학습 경로 {#concepts}
 
-1. [CqlSession 수명주기와 캐시 경계](./bluetape4k-cassandra/session-lifecycle.md)
-2. [코루틴 쿼리](./bluetape4k-cassandra/coroutine-queries.md)
-3. [Row와 data mapping](./bluetape4k-cassandra/rows-data-mapping.md)
-4. [Statement와 query builder](./bluetape4k-cassandra/statements-query-builder.md)
-5. [운영과 테스트](./bluetape4k-cassandra/operations-testing.md)
+아래 다섯 장은 API 이름만 나열하지 않습니다. 각 장은 문제를 이해하는 설명에서 시작해 실행 가능한 예제, API 선택 기준, 실패와 운영 경계, 1.11.0 소스와 테스트 근거까지 연결합니다. 처음 도입한다면 순서대로 읽고, 이미 사용 중이라면 지금 해결하려는 문제에 맞는 장부터 시작해도 됩니다.
+
+1. **[CqlSession 수명주기와 캐시 경계](./bluetape4k-cassandra/session-lifecycle.md)**
+   직접 만든 세션을 `use`로 닫는 가장 작은 예제부터 `CqlSessionProvider`와 `CqlSessionIdentity`로 공유 세션을 재사용하는 방법까지 설명합니다. 세션 소유권, 캐시 identity와 1.11.0 bootstrap 설정을 어디에 둘지 판단할 수 있습니다.
+2. **[코루틴 쿼리](./bluetape4k-cassandra/coroutine-queries.md)**
+   `executeSuspending`, `prepareSuspending`과 `AsyncResultSet.asFlow()`로 단일 결과와 여러 페이지를 읽는 예제를 다룹니다. 취소, mapper 예외와 다음 페이지 조회가 호출자에게 어떻게 전달되는지 확인할 수 있습니다.
+3. **[Row와 data mapping](./bluetape4k-cassandra/rows-data-mapping.md)**
+   `Row`, collection, tuple, UDT와 `CqlDuration`을 Kotlin 값과 도메인 객체로 옮기는 예제를 제공합니다. null을 기본값으로 바꿀 때와 값이 없다는 사실을 보존할 때를 구분할 수 있습니다.
+4. **[Statement와 query builder](./bluetape4k-cassandra/statements-query-builder.md)**
+   raw CQL, prepared/bound statement와 QueryBuilder로 같은 작업을 표현하는 방법을 비교합니다. bind marker, consistency, timeout, page size와 keyspace를 어느 경계에서 드러낼지 선택할 수 있습니다.
+5. **[운영과 테스트](./bluetape4k-cassandra/operations-testing.md)**
+   keyspace 생성·삭제의 side effect, 세션 종료, paging 실패와 Testcontainers 검증을 한 흐름으로 정리합니다. 운영 권한을 애플리케이션과 배포 단계 중 어디에 둘지 결정하고 대표 장애를 진단할 수 있습니다.
 
 ## 권장 패턴 {#patterns}
 
