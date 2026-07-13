@@ -618,6 +618,38 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-hibernate",
+      "chapters": [
+        {
+          "en": "en/modules/bluetape4k-hibernate/entity-model-lifecycle.md",
+          "id": "entity-model-lifecycle",
+          "ko": "ko/modules/bluetape4k-hibernate/entity-model-lifecycle.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-hibernate/entitymanager-transactions.md",
+          "id": "entitymanager-transactions",
+          "ko": "ko/modules/bluetape4k-hibernate/entitymanager-transactions.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-hibernate/queries-criteria-querydsl.md",
+          "id": "queries-criteria-querydsl",
+          "ko": "ko/modules/bluetape4k-hibernate/queries-criteria-querydsl.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-hibernate/converters-security.md",
+          "id": "converters-security",
+          "ko": "ko/modules/bluetape4k-hibernate/converters-security.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-hibernate/stateless-batch-events.md",
+          "id": "stateless-batch-events",
+          "ko": "ko/modules/bluetape4k-hibernate/stateless-batch-events.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-hibernate/ecosystem-paths.md",
+          "id": "ecosystem-paths",
+          "ko": "ko/modules/bluetape4k-hibernate/ecosystem-paths.md"
+        }
+      ],
       "en": "en/modules/bluetape4k-hibernate.md",
       "gradlePath": ":bluetape4k-hibernate",
       "group": "data",
@@ -658,6 +690,38 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-hibernate-reactive",
+      "chapters": [
+        {
+          "en": "en/modules/bluetape4k-hibernate-reactive/mutiny-stage-bootstrap.md",
+          "id": "mutiny-stage-bootstrap",
+          "ko": "ko/modules/bluetape4k-hibernate-reactive/mutiny-stage-bootstrap.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-hibernate-reactive/session-transaction-lifecycle.md",
+          "id": "session-transaction-lifecycle",
+          "ko": "ko/modules/bluetape4k-hibernate-reactive/session-transaction-lifecycle.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-hibernate-reactive/typed-queries-fetching.md",
+          "id": "typed-queries-fetching",
+          "ko": "ko/modules/bluetape4k-hibernate-reactive/typed-queries-fetching.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-hibernate-reactive/stateless-sessions.md",
+          "id": "stateless-sessions",
+          "ko": "ko/modules/bluetape4k-hibernate-reactive/stateless-sessions.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-hibernate-reactive/failure-cancellation-operations.md",
+          "id": "failure-cancellation-operations",
+          "ko": "ko/modules/bluetape4k-hibernate-reactive/failure-cancellation-operations.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-hibernate-reactive/persistence-choice.md",
+          "id": "persistence-choice",
+          "ko": "ko/modules/bluetape4k-hibernate-reactive/persistence-choice.md"
+        }
+      ],
       "en": "en/modules/bluetape4k-hibernate-reactive.md",
       "gradlePath": ":bluetape4k-hibernate-reactive",
       "group": "data",
@@ -1451,6 +1515,38 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-r2dbc",
+      "chapters": [
+        {
+          "en": "en/modules/bluetape4k-r2dbc/connections-and-pools.md",
+          "id": "connections-and-pools",
+          "ko": "ko/modules/bluetape4k-r2dbc/connections-and-pools.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-r2dbc/sql-and-binding.md",
+          "id": "sql-and-binding",
+          "ko": "ko/modules/bluetape4k-r2dbc/sql-and-binding.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-r2dbc/crud-and-mapping.md",
+          "id": "crud-and-mapping",
+          "ko": "ko/modules/bluetape4k-r2dbc/crud-and-mapping.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-r2dbc/dynamic-queries.md",
+          "id": "dynamic-queries",
+          "ko": "ko/modules/bluetape4k-r2dbc/dynamic-queries.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-r2dbc/transactions-and-lifecycle.md",
+          "id": "transactions-and-lifecycle",
+          "ko": "ko/modules/bluetape4k-r2dbc/transactions-and-lifecycle.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-r2dbc/ecosystem-paths.md",
+          "id": "ecosystem-paths",
+          "ko": "ko/modules/bluetape4k-r2dbc/ecosystem-paths.md"
+        }
+      ],
       "en": "en/modules/bluetape4k-r2dbc.md",
       "gradlePath": ":bluetape4k-r2dbc",
       "group": "data",
