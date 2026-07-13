@@ -1,22 +1,30 @@
 ---
 manualId: bluetape4k-hibernate-reactive
 title: "Module bluetape4k-hibernate-reactive"
-description: "Hibernate Reactive(Mutiny/Stage) 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브러리입니다."
+description: "Hibernate Reactive의 Mutiny·Stage API를 Kotlin 코루틴과 reified 타입으로 사용하는 방법을 설명합니다."
 kind: library
 group: data
 ---
 
 # Module bluetape4k-hibernate-reactive
 
-## 해결하는 문제 {#problem}
+## 제공하는 기능 {#problem}
 
-Hibernate Reactive(Mutiny/Stage) 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브러리입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+`bluetape4k-hibernate-reactive`는 Hibernate Reactive의 Mutiny·Stage API를 Kotlin에서 다루기 쉽게 만드는 확장 라이브러리입니다. JPA `EntityManagerFactory`를 Reactive `SessionFactory`로 변환하고, 세션과 트랜잭션을 `suspend` 블록으로 감싸며, 조회·쿼리·EntityGraph API에서 반복되는 Java `Class` 인자를 reified 타입으로 바꿉니다.
 
-## 사용 시점 {#when-to-use}
+새 ORM이나 독자적인 트랜잭션 관리자를 제공하지는 않습니다. 세션 생성과 종료, commit·rollback, query 실행은 Hibernate Reactive에 위임합니다. 따라서 Hibernate의 entity mapping을 유지하면서 Vert.x SQL Client 기반의 non-blocking I/O가 필요할 때 선택합니다.
 
-애플리케이션에 transaction boundary, connection ownership, query 동작, serialization이 필요할 때 `bluetape4k-hibernate-reactive`를 선택합니다. 아래 source entry point에서 시작해 ownership과 failure 계약이 caller lifecycle에 맞는지 확인합니다. 표준 API나 이미 도입한 더 작은 모듈이 같은 계약을 만족한다면 그쪽을 우선합니다.
+## 사용하기 전에 결정할 것 {#when-to-use}
 
-## 의존성 좌표 {#coordinates}
+- 애플리케이션의 주 API를 Mutiny `Uni`로 둘지, Java `CompletionStage`로 둘지 먼저 정합니다.
+- Reactive `SessionFactory`를 만든 계층과 애플리케이션 종료 시 닫을 계층을 일치시킵니다.
+- ORM의 persistence context와 dirty checking이 필요한지, SQL과 row mapping을 직접 제어하는 R2DBC가 더 적합한지 판단합니다.
+- 세션 콜백은 Vert.x dispatcher에서 실행되므로 blocking JDBC, 파일 I/O, 긴 CPU 작업을 넣지 않습니다.
+- lazy association을 세션 밖에서 읽지 않도록 fetch join, EntityGraph, fetch profile 또는 명시적 `fetch()` 전략을 정합니다.
+
+## 의존성 추가 {#coordinates}
+
+사용자는 Hibernate Reactive나 ORM의 개별 버전을 직접 맞추지 않고 중앙 BOM 버전만 관리합니다.
 
 ```kotlin
 dependencies {
@@ -27,104 +35,99 @@ dependencies {
 
 Gradle project path는 `:bluetape4k-hibernate-reactive`, source directory는 `data/hibernate-reactive`입니다.
 
-## 핵심 개념 {#concepts}
+## 첫 트랜잭션 {#quick-start}
 
-먼저 확인할 source 개념은 `EntityManagerFactorySupport`, `SessionFactorySupport`, `SessionSupport`, `StatelessSessionSupport`, `EntityManagerFactorySupport`, `SessionFactorySupport`, `SessionSupport`, `StatelessSessionSupport`입니다. 파일 이름은 탐색 anchor일 뿐이므로 public 계약으로 사용하기 전에 선언과 test를 함께 읽습니다.
+JPA factory를 Mutiny factory로 unwrap한 다음, `withTransactionSuspending` 안에서 Reactive API를 기다립니다.
 
-## 빠른 시작 {#quick-start}
+```kotlin
+import io.bluetape4k.hibernate.reactive.mutiny.asMutinySessionFactory
+import io.bluetape4k.hibernate.reactive.mutiny.withTransactionSuspending
+import io.smallrye.mutiny.coroutines.awaitSuspending
 
-위 좌표를 추가하고 Gradle을 refresh한 뒤 필요한 작업을 소유한 가장 작은 entry point에서 시작합니다. 먼저 [`EntityManagerFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/EntityManagerFactorySupport.kt)를 확인합니다. 이 파일이 모듈의 구체적인 source entry point입니다.
+val sessionFactory = entityManagerFactory.asMutinySessionFactory()
 
-## 작업별 API {#api-by-task}
+val saved = sessionFactory.withTransactionSuspending { session ->
+    session.persist(author).awaitSuspending()
+    author
+}
+```
 
-| Entry point | 확인할 내용 |
-| --- | --- |
-| [`EntityManagerFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/EntityManagerFactorySupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`SessionFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionFactorySupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`SessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`StatelessSessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/StatelessSessionSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`EntityManagerFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/EntityManagerFactorySupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`SessionFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionFactorySupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`SessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`StatelessSessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/StatelessSessionSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
+`withTransactionSuspending`은 factory를 닫지 않습니다. factory 소유자는 애플리케이션 종료 시 이를 닫아야 합니다.
+
+## API 선택 지도 {#api-by-task}
+
+| 필요한 작업 | Mutiny | Stage | 기억할 경계 |
+| --- | --- | --- | --- |
+| JPA factory 변환 | `asMutinySessionFactory` | `asStageSessionFactory` | 기존 provider factory를 unwrap합니다. |
+| 세션에서 suspend 작업 | `withSessionSuspending` | `withSessionSuspending` | 세션 수명주기는 Hibernate Reactive가 관리합니다. |
+| commit·rollback 경계 | `withTransactionSuspending` | `withTransactionSuspending` | 정상 완료와 실패 의미는 upstream `withTransaction`을 따릅니다. |
+| 1차 캐시 없는 작업 | `withStatelessSessionSuspending` | 같은 이름 | entity 상태 추적이 필요하면 일반 Session을 사용합니다. |
+| 타입 기반 조회 | `findAs<T>` | `findAs<T>` | Mutiny 쪽이 `LockModeType`·EntityGraph 오버로드를 더 제공합니다. |
+| typed query | `createSelectionQueryAs<R>` | 같은 이름 | 실행 실패는 `Uni` 또는 `CompletionStage` 실패로 전달됩니다. |
+| graph·native mapping | `createEntityGraphAs`, `getResultSetMappingAs` | 같은 이름 | 등록 이름과 결과 타입은 provider mapping과 일치해야 합니다. |
+
+## 학습 경로 {#concepts}
+
+아래 장은 API 이름만 나열하지 않습니다. 각 기능이 필요한 이유, 실제 코드 예제, `1.11.0` 배포 소스와 MySQL Testcontainers 기반 테스트를 함께 연결합니다. 설명을 읽은 뒤 곧바로 실행 예제와 실패 근거까지 확인할 수 있습니다.
+
+1. [Mutiny·Stage 선택과 시작](./bluetape4k-hibernate-reactive/mutiny-stage-bootstrap.md) — provider 설정, factory unwrap, 두 API의 차이를 정리합니다.
+2. [세션과 트랜잭션 수명주기](./bluetape4k-hibernate-reactive/session-transaction-lifecycle.md) — 일반·tenant·stateless 경계와 factory 소유권을 설명합니다.
+3. [타입 안전 쿼리와 fetch 계획](./bluetape4k-hibernate-reactive/typed-queries-fetching.md) — reified query, lazy association, fetch join과 EntityGraph를 다룹니다.
+4. [StatelessSession 사용법](./bluetape4k-hibernate-reactive/stateless-sessions.md) — 1차 캐시 없는 작업의 이점과 제약을 구분합니다.
+5. [실패·취소·운영](./bluetape4k-hibernate-reactive/failure-cancellation-operations.md) — 예외 전파, 취소 보존의 한계, event-loop와 pool 관측 지점을 설명합니다.
+6. [Persistence 기술 선택](./bluetape4k-hibernate-reactive/persistence-choice.md) — 일반 Hibernate/JPA, Hibernate Reactive, R2DBC의 선택 경계를 비교합니다.
+
+처음 도입한다면 1→2→3→5 순서로 읽습니다. 대량 단순 작업이 있다면 4장을, persistence 계층을 결정하는 단계라면 6장을 먼저 읽어도 됩니다.
 
 ## 권장 패턴 {#patterns}
 
-README 근거는 **주요 기능**, **의존성 추가**, **주요 기능 상세**, **1. SessionFactory 변환**, **2. Coroutine SessionFactory API**, **3. Mutiny Session / StatelessSession 확장**, **4. Stage Session / StatelessSession 확장**, **5. 예제 테스트**, **아키텍처 다이어그램**, **Reactive 확장 구조** 순서로 탐색할 수 있습니다. 이 항목으로 방향을 잡고 source와 test에서 동작을 확인합니다. 도입 범위는 좁게 유지하고 소유한 resource를 caller lifecycle에 연결합니다.
+한 use case 안에서는 Mutiny와 Stage 중 하나를 일관되게 사용합니다. transaction block을 application service의 가장 작은 원자적 작업에 두고, 모든 lazy association은 세션 범위 안에서 필요한 fetch 계획을 명시합니다. stateless session은 대량 단순 작업처럼 persistence context가 필요 없는 경우에만 선택합니다.
 
 ## 연동 {#integrations}
 
-현재 build에 선언된 integration edge는 다음과 같습니다.
+이 모듈은 `bluetape4k-hibernate`, `bluetape4k-mutiny`, `bluetape4k-vertx`, Hibernate Reactive, Mutiny Kotlin과 coroutines bridge를 API로 노출합니다. `bluetape4k-hibernate`가 전이 dependency라고 해서 blocking `EntityManager`나 JDBC helper를 Vert.x 세션 콜백 안에서 호출해도 된다는 뜻은 아닙니다.
 
-```kotlin
-implementation(platform(libs.spring.boot.dependencies))
-implementation("io.netty:netty-tcnative-classes") {
-api(project(":bluetape4k-hibernate"))
-api(project(":bluetape4k-mutiny"))
-api(project(":bluetape4k-vertx"))
-api(libs.hibernate.reactive.core)
-api(libs.jakarta.validation.api)
-implementation(libs.hibernate.validator)
-api(libs.mutiny.kotlin)
-api(libs.kotlinx.coroutines.core)
-api(libs.kotlinx.coroutines.reactive)
-compileOnly(project(":bluetape4k-tink"))
-```
-
-`compileOnly` edge는 caller가 제공해야 하는 capability이므로 API를 사용하기 전에 runtime에 실제 dependency가 있는지 확인합니다.
+Hibernate Reactive에서는 Querydsl 대신 JPA metamodel generator를 사용합니다. 테스트의 `Author_`, `Book_`와 Criteria 예제에서 typed metamodel 사용법을 확인할 수 있습니다.
 
 ## 설정 {#configuration}
 
-`src/main/resources` 아래에서 모듈 수준 설정 resource를 찾지 못했습니다. constructor, builder, function argument, 연동 framework로 설정하며 default는 source에서 확인합니다.
+Reactive persistence unit은 `org.hibernate.reactive.provider.ReactivePersistenceProvider`를 사용하고 entity를 명시적으로 등록할 수 있습니다. `1.11.0` 테스트의 XML 문서는 Jakarta Persistence XML schema 3.0이지만, dependency API는 BOM이 정한 Jakarta Persistence 3.2 계열입니다. XML schema 버전과 library API 버전을 같은 값으로 설명하지 않습니다.
+
+README의 하위 dependency 버전 표는 `1.11.0` 실제 version catalog와 맞지 않으므로 복사하지 않습니다. 애플리케이션 설정과 호환성은 중앙 BOM을 기준으로 확인합니다.
 
 ## 실패 동작 {#failures}
 
-failure 의미는 artifact 이름이 아니라 아래 entry point와 test가 결정합니다. cancellation과 timeout signal을 보존하고 소유한 resource를 닫습니다. backend exception은 안정된 domain 계약을 추가할 수 있는 boundary에서만 변환합니다. retry나 fallback을 넣기 전에 test anchor로 실제 동작을 확인합니다.
+session block의 예외는 호출자에게 전달됩니다. transaction block은 Hibernate Reactive의 `withTransaction`에 경계를 위임하므로, extension이 별도의 retry나 보상 로직을 추가하지 않습니다. typed query의 문법·mapping·lock 오류도 provider 실패로 전달됩니다.
+
+코루틴 bridge는 `CancellationException`을 명시적으로 다시 던집니다. 다만 이 소스에는 실제 driver query가 즉시 중단되는지를 검증하는 테스트가 없습니다. “코루틴을 취소하면 실행 중인 SQL도 즉시 취소된다”고 보장하면 안 됩니다.
 
 ## 운영 {#operations}
 
-pool 포화, query latency, retry, transaction rollback, schema 호환성을 관찰합니다. capacity, timeout, retry, shutdown 설정은 resource를 소유한 component 가까이에 둡니다. 누가 trade-off를 받아들였는지 알 수 없는 process-wide default는 피합니다.
+Vert.x event-loop 지연, connection pool 대기와 사용량, query latency, transaction rollback, lock timeout, lazy fetch 횟수를 함께 관찰합니다. blocking 호출 탐지와 slow query를 같은 요청 context에서 추적하고, factory shutdown이 완료되는지도 확인합니다.
 
 ## 테스트 {#testing}
 
-모듈 test task는 다음과 같습니다.
+대표 suite는 Mutiny와 Stage의 factory unwrap, session·transaction 예외 전파, typed query, EntityGraph, stateless 작업을 MySQL Testcontainers에서 검증합니다. Docker가 필요하며 테스트 설정은 병렬 실행을 끕니다.
 
 ```bash
-./gradlew :bluetape4k-hibernate-reactive:test --no-configuration-cache
+./gradlew :bluetape4k-hibernate-reactive:test --no-build-cache --no-configuration-cache
 ```
-
-대표 test anchor는 다음과 같습니다.
-
-- [`Author_`](../../../../data/hibernate-reactive/src/test/java/io/bluetape4k/hibernate/reactive/examples/model/Author_.java)
-- [`Book_`](../../../../data/hibernate-reactive/src/test/java/io/bluetape4k/hibernate/reactive/examples/model/Book_.java)
-- [`AbstractHibernateReactiveTest`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/AbstractHibernateReactiveTest.kt)
-- [`MySQLLauncher`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/MySQLLauncher.kt)
-- [`Author`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/model/Author.kt)
-- [`Book`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/model/Book.kt)
-- [`AbstractMutinyTest`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/mutiny/AbstractMutinyTest.kt)
-- [`MutinyExtrasTest`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/mutiny/MutinyExtrasTest.kt)
 
 ## 워크숍 {#workshops}
 
-manual manifest에 등록된 전용 workshop path가 없습니다. 모듈 README와 위 representative test를 실행 근거로 사용합니다.
+별도 workshop은 아직 등록되지 않았습니다. 대신 `MutinySessionFactoryExamples`, `StageSessionFactoryExamples`, 두 `SessionSupportTest`, 두 `StatelessSessionExamples`가 실행 가능한 학습 자료입니다. 각 장에서 관련 테스트를 순서대로 안내합니다.
 
-## 제한 사항 {#limitations}
+## 1.11.0 범위 {#limitations}
 
-이 페이지는 연결된 source와 test가 나타내는 현재 저장소 상태를 설명합니다. optional backend를 애플리케이션 기본값으로 만들거나 benchmark artifact 없이 성능을 단정하지 않습니다. 모듈 버전이 바뀌면 호환성과 lifecycle 설명을 다시 확인해야 합니다.
+이 매뉴얼은 `bluetape4k-projects` 1.11.0 태그의 production source와 tests만 설명합니다. 이 모듈은 schema migration, driver 수준 SQL 취소 보장, Querydsl, process-wide retry 정책을 제공하지 않습니다. `1.11.0`과 현재 production source 사이에는 추가 API가 없지만, 향후 버전 문서에서는 다시 비교해야 합니다.
 
-## 근거 {#sources}
+## Source와 tests {#sources}
 
-- [모듈 README](../../../../data/hibernate-reactive/README.ko.md)
-- [모듈 build](../../../../data/hibernate-reactive/build.gradle.kts)
-- [`EntityManagerFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/EntityManagerFactorySupport.kt)
-- [`SessionFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionFactorySupport.kt)
-- [`SessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionSupport.kt)
-- [`StatelessSessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/StatelessSessionSupport.kt)
-- [`EntityManagerFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/EntityManagerFactorySupport.kt)
-- [`SessionFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionFactorySupport.kt)
-- [`SessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionSupport.kt)
-- [`StatelessSessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/StatelessSessionSupport.kt)
-- [`Author_`](../../../../data/hibernate-reactive/src/test/java/io/bluetape4k/hibernate/reactive/examples/model/Author_.java)
-- [`Book_`](../../../../data/hibernate-reactive/src/test/java/io/bluetape4k/hibernate/reactive/examples/model/Book_.java)
-- [`AbstractHibernateReactiveTest`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/AbstractHibernateReactiveTest.kt)
-- [`MySQLLauncher`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/MySQLLauncher.kt)
+- [Mutiny `SessionFactorySupport.kt`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionFactorySupport.kt)
+- [Mutiny `SessionSupport.kt`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionSupport.kt)
+- [Mutiny `StatelessSessionSupport.kt`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/StatelessSessionSupport.kt)
+- [Stage `SessionFactorySupport.kt`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionFactorySupport.kt)
+- [Stage `SessionSupport.kt`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionSupport.kt)
+- [`MutinyExtrasTest.kt`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/mutiny/MutinyExtrasTest.kt)
+- [`StageExtrasTest.kt`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/stage/StageExtrasTest.kt)
+- [`persistence.xml`](../../../../data/hibernate-reactive/src/test/resources/META-INF/persistence.xml)

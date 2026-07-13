@@ -1,22 +1,30 @@
 ---
 manualId: bluetape4k-hibernate-reactive
 title: "Module bluetape4k-hibernate-reactive"
-description: "A Kotlin extension library that eliminates boilerplate when working with Hibernate Reactive (Mutiny/Stage)."
+description: "Use Hibernate Reactive Mutiny and Stage APIs from Kotlin coroutines with reified types."
 kind: library
 group: data
 ---
 
 # Module bluetape4k-hibernate-reactive
 
-## Problem {#problem}
+## What it provides {#problem}
 
-A Kotlin extension library that eliminates boilerplate when working with Hibernate Reactive (Mutiny/Stage). This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+`bluetape4k-hibernate-reactive` makes Hibernate Reactive's Mutiny and Stage APIs more convenient from Kotlin. It unwraps a JPA `EntityManagerFactory` as a reactive `SessionFactory`, bridges session and transaction callbacks to suspending blocks, and replaces repeated Java `Class` arguments with reified types for queries and EntityGraphs.
 
-## When to use {#when-to-use}
+It is not a separate ORM or transaction manager. Session creation and closing, commit and rollback, and query execution remain Hibernate Reactive responsibilities. Choose it when you need Vert.x SQL Client based non-blocking I/O while retaining Hibernate entity mapping.
 
-Use `bluetape4k-hibernate-reactive` when the application needs transaction boundaries, connection ownership, query behavior, and serialization. Start with the source entry points below and confirm that their ownership and failure contracts match the calling component. Prefer a smaller standard-library or already-adopted module when it satisfies the same contract without another runtime boundary.
+## Decisions before adoption {#when-to-use}
 
-## Coordinates {#coordinates}
+- Choose Mutiny `Uni` or Java `CompletionStage` as the primary API for a use case.
+- Make the component that creates the reactive factory responsible for closing it at shutdown.
+- Decide whether ORM persistence context and dirty checking are needed or whether direct SQL and row mapping with R2DBC fit better.
+- Do not run blocking JDBC, file I/O, or long CPU work in session callbacks running on the Vert.x dispatcher.
+- Plan fetch joins, EntityGraphs, fetch profiles, or explicit `fetch()` calls so lazy associations are not read outside the session.
+
+## Dependency {#coordinates}
+
+Consumers manage only the central BOM version, not individual Hibernate Reactive or ORM versions.
 
 ```kotlin
 dependencies {
@@ -27,104 +35,99 @@ dependencies {
 
 Gradle project path: `:bluetape4k-hibernate-reactive`. Source directory: `data/hibernate-reactive`.
 
-## Concepts {#concepts}
+## First transaction {#quick-start}
 
-The first source-level concepts to inspect are `EntityManagerFactorySupport`, `SessionFactorySupport`, `SessionSupport`, `StatelessSessionSupport`, `EntityManagerFactorySupport`, `SessionFactorySupport`, `SessionSupport`, and `StatelessSessionSupport`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
+Unwrap the JPA factory as a Mutiny factory, then await reactive work inside `withTransactionSuspending`.
 
-## Quick start {#quick-start}
+```kotlin
+import io.bluetape4k.hibernate.reactive.mutiny.asMutinySessionFactory
+import io.bluetape4k.hibernate.reactive.mutiny.withTransactionSuspending
+import io.smallrye.mutiny.coroutines.awaitSuspending
 
-Add the coordinate above, refresh Gradle, and start from the smallest entry point that owns the required task. Open [`EntityManagerFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/EntityManagerFactorySupport.kt) first; it is a concrete source entry point for the module.
+val sessionFactory = entityManagerFactory.asMutinySessionFactory()
 
-## API by task {#api-by-task}
+val saved = sessionFactory.withTransactionSuspending { session ->
+    session.persist(author).awaitSuspending()
+    author
+}
+```
 
-| Entry point | What to verify |
-| --- | --- |
-| [`EntityManagerFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/EntityManagerFactorySupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`SessionFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionFactorySupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`SessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`StatelessSessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/StatelessSessionSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`EntityManagerFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/EntityManagerFactorySupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`SessionFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionFactorySupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`SessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`StatelessSessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/StatelessSessionSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+`withTransactionSuspending` does not close the factory. Its owner must close it during application shutdown.
 
-## Patterns {#patterns}
+## API map {#api-by-task}
 
-The README evidence is organized around **Key Features**, **Dependency**, **Feature Details**, **1. SessionFactory Conversion**, **2. Coroutine SessionFactory API**, **3. Mutiny Session / StatelessSession Extensions**, **4. Stage Session / StatelessSession Extensions**, **5. Example Tests**, **Architecture Diagrams**, and **Reactive Extension Structure**. Use those topics as a navigation map, then confirm behavior in source and tests. Keep adoption narrow and connect owned resources to the caller lifecycle.
+| Task | Mutiny | Stage | Boundary |
+| --- | --- | --- | --- |
+| Convert a JPA factory | `asMutinySessionFactory` | `asStageSessionFactory` | Unwraps the existing provider factory. |
+| Run suspending session work | `withSessionSuspending` | same name | Hibernate Reactive owns the session lifecycle. |
+| Define commit and rollback scope | `withTransactionSuspending` | same name | Completion and failure follow upstream `withTransaction`. |
+| Work without a first-level cache | `withStatelessSessionSuspending` | same name | Use a regular Session when entity state tracking is required. |
+| Typed entity lookup | `findAs<T>` | `findAs<T>` | Mutiny has additional `LockModeType` and EntityGraph overloads. |
+| Typed query | `createSelectionQueryAs<R>` | same name | Failures surface through `Uni` or `CompletionStage`. |
+| Graph and native mapping | `createEntityGraphAs`, `getResultSetMappingAs` | same names | Registered names and result types must match provider mappings. |
+
+## Learning path {#concepts}
+
+These chapters go beyond an API inventory. Each explains why a boundary matters, gives concrete examples, and links to the 1.11.0 release source and MySQL Testcontainers tests. Readers can move directly from explanation to executable evidence.
+
+1. [Choosing and bootstrapping Mutiny or Stage](./bluetape4k-hibernate-reactive/mutiny-stage-bootstrap.md) — provider setup, factory unwrapping, and API differences.
+2. [Session and transaction lifecycle](./bluetape4k-hibernate-reactive/session-transaction-lifecycle.md) — regular, tenant, and stateless scopes plus factory ownership.
+3. [Typed queries and fetch plans](./bluetape4k-hibernate-reactive/typed-queries-fetching.md) — reified queries, lazy associations, fetch joins, and EntityGraphs.
+4. [Using StatelessSession](./bluetape4k-hibernate-reactive/stateless-sessions.md) — benefits and limits of work without a first-level cache.
+5. [Failures, cancellation, and operations](./bluetape4k-hibernate-reactive/failure-cancellation-operations.md) — exception propagation, cancellation limits, event loops, and observability.
+6. [Choosing a persistence technology](./bluetape4k-hibernate-reactive/persistence-choice.md) — conventional Hibernate/JPA, Hibernate Reactive, and R2DBC boundaries.
+
+For first adoption, follow chapters 1, 2, 3, then 5. Read chapter 4 for bulk work and chapter 6 while choosing the persistence layer.
+
+## Recommended patterns {#patterns}
+
+Use either Mutiny or Stage consistently within one use case. Place the transaction block around the smallest atomic application-service operation and resolve every lazy association with an explicit fetch plan inside that scope. Reserve stateless sessions for work that does not need a persistence context.
 
 ## Integrations {#integrations}
 
-The current build declares these integration edges:
+The module exposes `bluetape4k-hibernate`, `bluetape4k-mutiny`, `bluetape4k-vertx`, Hibernate Reactive, Mutiny Kotlin, and coroutine bridges as API dependencies. The transitive presence of `bluetape4k-hibernate` does not make blocking `EntityManager` or JDBC helpers safe inside a Vert.x session callback.
 
-```kotlin
-implementation(platform(libs.spring.boot.dependencies))
-implementation("io.netty:netty-tcnative-classes") {
-api(project(":bluetape4k-hibernate"))
-api(project(":bluetape4k-mutiny"))
-api(project(":bluetape4k-vertx"))
-api(libs.hibernate.reactive.core)
-api(libs.jakarta.validation.api)
-implementation(libs.hibernate.validator)
-api(libs.mutiny.kotlin)
-api(libs.kotlinx.coroutines.core)
-api(libs.kotlinx.coroutines.reactive)
-compileOnly(project(":bluetape4k-tink"))
-```
-
-Treat `compileOnly` edges as caller-provided capabilities and verify runtime availability before using their APIs.
+Hibernate Reactive uses the JPA metamodel generator instead of Querydsl. The `Author_` and `Book_` test types and Criteria examples show the intended typed-metamodel path.
 
 ## Configuration {#configuration}
 
-No module-level configuration resource was found under `src/main/resources`. Configuration is supplied through constructors, builders, function arguments, or the integrating framework; confirm defaults in source.
+A reactive persistence unit uses `org.hibernate.reactive.provider.ReactivePersistenceProvider` and may list entities explicitly. The 1.11.0 test XML uses the Jakarta Persistence 3.0 XML schema while the BOM resolves the Jakarta Persistence 3.2 API line. Do not describe the XML schema and library API version as the same setting.
 
-## Failures {#failures}
+The subordinate dependency versions printed in the module README do not match the 1.11.0 version catalog. Do not copy them into consumer instructions; verify compatibility through the central BOM.
 
-Failure semantics are defined by the linked entry points and tests, not inferred from the artifact name. Keep cancellation and timeout signals intact, close owned resources, and translate backend exceptions only at a boundary that can add a stable domain contract. Use the test anchors below to verify the exact behavior before adding retries or fallbacks.
+## Failure behavior {#failures}
+
+Exceptions from session work reach the caller. Transaction blocks delegate their boundary to Hibernate Reactive `withTransaction`; the extension adds no retry or compensation policy. Query syntax, mapping, and lock errors remain provider failures.
+
+The coroutine bridge explicitly rethrows `CancellationException`. However, the release has no test proving immediate cancellation of an in-flight driver query. Do not promise that cancelling the coroutine immediately cancels its SQL statement.
 
 ## Operations {#operations}
 
-Track pool saturation, query latency, retries, transaction rollbacks, and schema compatibility. Keep capacity, timeout, retry, and shutdown settings next to the component that owns the resource; avoid process-wide defaults that hide which caller accepted the trade-off.
+Observe Vert.x event-loop delay, connection pool wait and utilization, query latency, transaction rollback, lock timeout, and lazy-fetch counts together. Correlate blocking-call detection and slow queries with the request context and verify factory shutdown completes.
 
 ## Testing {#testing}
 
-Run the module test task:
+The representative suites cover Mutiny and Stage factory unwrapping, session and transaction exception propagation, typed queries, EntityGraphs, and stateless work against MySQL Testcontainers. Docker is required and the test configuration disables parallel execution.
 
 ```bash
-./gradlew :bluetape4k-hibernate-reactive:test --no-configuration-cache
+./gradlew :bluetape4k-hibernate-reactive:test --no-build-cache --no-configuration-cache
 ```
-
-Representative test anchors:
-
-- [`Author_`](../../../../data/hibernate-reactive/src/test/java/io/bluetape4k/hibernate/reactive/examples/model/Author_.java)
-- [`Book_`](../../../../data/hibernate-reactive/src/test/java/io/bluetape4k/hibernate/reactive/examples/model/Book_.java)
-- [`AbstractHibernateReactiveTest`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/AbstractHibernateReactiveTest.kt)
-- [`MySQLLauncher`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/MySQLLauncher.kt)
-- [`Author`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/model/Author.kt)
-- [`Book`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/model/Book.kt)
-- [`AbstractMutinyTest`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/mutiny/AbstractMutinyTest.kt)
-- [`MutinyExtrasTest`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/mutiny/MutinyExtrasTest.kt)
 
 ## Workshops {#workshops}
 
-No dedicated workshop path is registered in the manual manifest. Use the module README and the representative tests above as runnable evidence.
+No separate workshop is registered yet. `MutinySessionFactoryExamples`, `StageSessionFactoryExamples`, both `SessionSupportTest` classes, and both `StatelessSessionExamples` classes serve as executable learning material linked from the chapters.
 
-## Limitations {#limitations}
+## 1.11.0 scope {#limitations}
 
-This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
+This manual describes only production source and tests in the `bluetape4k-projects` 1.11.0 tag. The module does not provide schema migration, driver-level SQL cancellation guarantees, Querydsl, or a process-wide retry policy. There are no additional production APIs between 1.11.0 and the current source, but later version manuals must compare again.
 
-## Sources {#sources}
+## Source and tests {#sources}
 
-- [Module README](../../../../data/hibernate-reactive/README.md)
-- [Module build](../../../../data/hibernate-reactive/build.gradle.kts)
-- [`EntityManagerFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/EntityManagerFactorySupport.kt)
-- [`SessionFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionFactorySupport.kt)
-- [`SessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionSupport.kt)
-- [`StatelessSessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/StatelessSessionSupport.kt)
-- [`EntityManagerFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/EntityManagerFactorySupport.kt)
-- [`SessionFactorySupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionFactorySupport.kt)
-- [`SessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionSupport.kt)
-- [`StatelessSessionSupport`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/StatelessSessionSupport.kt)
-- [`Author_`](../../../../data/hibernate-reactive/src/test/java/io/bluetape4k/hibernate/reactive/examples/model/Author_.java)
-- [`Book_`](../../../../data/hibernate-reactive/src/test/java/io/bluetape4k/hibernate/reactive/examples/model/Book_.java)
-- [`AbstractHibernateReactiveTest`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/AbstractHibernateReactiveTest.kt)
-- [`MySQLLauncher`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/MySQLLauncher.kt)
+- [Mutiny `SessionFactorySupport.kt`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionFactorySupport.kt)
+- [Mutiny `SessionSupport.kt`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionSupport.kt)
+- [Mutiny `StatelessSessionSupport.kt`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/StatelessSessionSupport.kt)
+- [Stage `SessionFactorySupport.kt`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionFactorySupport.kt)
+- [Stage `SessionSupport.kt`](../../../../data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionSupport.kt)
+- [`MutinyExtrasTest.kt`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/mutiny/MutinyExtrasTest.kt)
+- [`StageExtrasTest.kt`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/stage/StageExtrasTest.kt)
+- [`persistence.xml`](../../../../data/hibernate-reactive/src/test/resources/META-INF/persistence.xml)

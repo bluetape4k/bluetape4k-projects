@@ -429,6 +429,25 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-hibernate
   en: en/modules/bluetape4k-hibernate.md
   ko: ko/modules/bluetape4k-hibernate.md
+  chapters:
+  - id: entity-model-lifecycle
+    en: en/modules/bluetape4k-hibernate/entity-model-lifecycle.md
+    ko: ko/modules/bluetape4k-hibernate/entity-model-lifecycle.md
+  - id: entitymanager-transactions
+    en: en/modules/bluetape4k-hibernate/entitymanager-transactions.md
+    ko: ko/modules/bluetape4k-hibernate/entitymanager-transactions.md
+  - id: queries-criteria-querydsl
+    en: en/modules/bluetape4k-hibernate/queries-criteria-querydsl.md
+    ko: ko/modules/bluetape4k-hibernate/queries-criteria-querydsl.md
+  - id: converters-security
+    en: en/modules/bluetape4k-hibernate/converters-security.md
+    ko: ko/modules/bluetape4k-hibernate/converters-security.md
+  - id: stateless-batch-events
+    en: en/modules/bluetape4k-hibernate/stateless-batch-events.md
+    ko: ko/modules/bluetape4k-hibernate/stateless-batch-events.md
+  - id: ecosystem-paths
+    en: en/modules/bluetape4k-hibernate/ecosystem-paths.md
+    ko: ko/modules/bluetape4k-hibernate/ecosystem-paths.md
   sourcePaths:
   - data/hibernate/src/main/kotlin
   testPaths:
@@ -457,6 +476,25 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-hibernate-reactive
   en: en/modules/bluetape4k-hibernate-reactive.md
   ko: ko/modules/bluetape4k-hibernate-reactive.md
+  chapters:
+  - id: mutiny-stage-bootstrap
+    en: en/modules/bluetape4k-hibernate-reactive/mutiny-stage-bootstrap.md
+    ko: ko/modules/bluetape4k-hibernate-reactive/mutiny-stage-bootstrap.md
+  - id: session-transaction-lifecycle
+    en: en/modules/bluetape4k-hibernate-reactive/session-transaction-lifecycle.md
+    ko: ko/modules/bluetape4k-hibernate-reactive/session-transaction-lifecycle.md
+  - id: typed-queries-fetching
+    en: en/modules/bluetape4k-hibernate-reactive/typed-queries-fetching.md
+    ko: ko/modules/bluetape4k-hibernate-reactive/typed-queries-fetching.md
+  - id: stateless-sessions
+    en: en/modules/bluetape4k-hibernate-reactive/stateless-sessions.md
+    ko: ko/modules/bluetape4k-hibernate-reactive/stateless-sessions.md
+  - id: failure-cancellation-operations
+    en: en/modules/bluetape4k-hibernate-reactive/failure-cancellation-operations.md
+    ko: ko/modules/bluetape4k-hibernate-reactive/failure-cancellation-operations.md
+  - id: persistence-choice
+    en: en/modules/bluetape4k-hibernate-reactive/persistence-choice.md
+    ko: ko/modules/bluetape4k-hibernate-reactive/persistence-choice.md
   sourcePaths:
   - data/hibernate-reactive/src/main/kotlin
   testPaths:
@@ -1009,6 +1047,25 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-r2dbc
   en: en/modules/bluetape4k-r2dbc.md
   ko: ko/modules/bluetape4k-r2dbc.md
+  chapters:
+  - id: connections-and-pools
+    en: en/modules/bluetape4k-r2dbc/connections-and-pools.md
+    ko: ko/modules/bluetape4k-r2dbc/connections-and-pools.md
+  - id: sql-and-binding
+    en: en/modules/bluetape4k-r2dbc/sql-and-binding.md
+    ko: ko/modules/bluetape4k-r2dbc/sql-and-binding.md
+  - id: crud-and-mapping
+    en: en/modules/bluetape4k-r2dbc/crud-and-mapping.md
+    ko: ko/modules/bluetape4k-r2dbc/crud-and-mapping.md
+  - id: dynamic-queries
+    en: en/modules/bluetape4k-r2dbc/dynamic-queries.md
+    ko: ko/modules/bluetape4k-r2dbc/dynamic-queries.md
+  - id: transactions-and-lifecycle
+    en: en/modules/bluetape4k-r2dbc/transactions-and-lifecycle.md
+    ko: ko/modules/bluetape4k-r2dbc/transactions-and-lifecycle.md
+  - id: ecosystem-paths
+    en: en/modules/bluetape4k-r2dbc/ecosystem-paths.md
+    ko: ko/modules/bluetape4k-r2dbc/ecosystem-paths.md
   sourcePaths:
   - data/r2dbc/src/main/kotlin
   - data/r2dbc/src/main/resources

@@ -1,136 +1,151 @@
 ---
 manualId: bluetape4k-r2dbc
 title: "Module bluetape4k-r2dbc"
-description: "A library that supports reactive data access using Coroutines and Flow in an R2DBC (Reactive Relational Database Connectivity) environment."
+description: "Run Spring R2DBC SQL with Kotlin Coroutines and Flow, including mapping, transactions, and connection-pool utilities."
 kind: library
 group: data
 ---
 
 # Module bluetape4k-r2dbc
 
-## Problem {#problem}
+## Capabilities {#problem}
 
-A library that supports reactive data access using Coroutines and Flow in an R2DBC (Reactive Relational Database Connectivity) environment. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+`bluetape4k-r2dbc` adds Kotlin-oriented execution, mapping, CRUD, and transaction helpers to Spring R2DBC's `DatabaseClient` and `R2dbcEntityTemplate`. It also provides DSLs for connection factories and pools, typed-null binding, a dynamic query builder, and PostgreSQL JSON converters.
 
-## When to use {#when-to-use}
+The module does not replace an R2DBC driver or provide a complete ORM. Callers still own SQL and transaction boundaries, and `QueryBuilder` is not a type-safe DSL that validates tables and columns at compile time. Continue to the [R2DBC ecosystem path](./bluetape4k-r2dbc/ecosystem-paths.md) when a table DSL and repository layer are required.
 
-Use `bluetape4k-r2dbc` when the application needs transaction boundaries, connection ownership, query behavior, and serialization. Start with the source entry points below and confirm that their ownership and failure contracts match the calling component. Prefer a smaller standard-library or already-adopted module when it satisfies the same contract without another runtime boundary.
+## Decisions before adoption {#when-to-use}
 
-## Coordinates {#coordinates}
+- Confirm that the call path must avoid blocking JDBC. Calling JDBC from a coroutine does not make the I/O non-blocking.
+- Decide who closes the `ConnectionPool` and directly acquired connections.
+- Decide whether Spring owns transactions or this module creates the boundary with `withTransactionSuspend`.
+- Choose domain-object mapping or raw map results.
+- Choose between waiting during overload and failing fast with bounded pending acquire and an acquire timeout.
+- Define where SQL fragments and identifiers are validated.
+
+## Dependencies {#coordinates}
+
+Consumers manage only the central `bluetape4k-dependencies` BOM version. The application selects Spring R2DBC and the database driver.
 
 ```kotlin
 dependencies {
     implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-r2dbc")
+
+    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
+    runtimeOnly("org.postgresql:r2dbc-postgresql") // replace with the selected driver
 }
 ```
 
-Gradle project path: `:bluetape4k-r2dbc`. Source directory: `data/r2dbc`.
+## First query {#quick-start}
 
-## Concepts {#concepts}
+When Spring Boot supplies `DatabaseClient`, `R2dbcEntityTemplate`, and `MappingR2dbcConverter`, the 1.11.0 auto-configuration creates `R2dbcClient`. The typed `execute<T>` path maps rows through `MappingR2dbcConverter`.
 
-The first source-level concepts to inspect are `R2dbcClient`, `R2dbcClientAutoConfiguration`, `ConnectionFactoryUtils`, `R2dbcTransactionManager`, `CompositeDatabasePopulator`, `ConnectionFactoryInitializer`, `ResourceDatabasePopulator`, and `MappingR2dbcConverter`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
+```kotlin
+import io.bluetape4k.r2dbc.R2dbcClient
+import io.bluetape4k.r2dbc.core.execute
+import kotlinx.coroutines.flow.Flow
+import org.springframework.r2dbc.core.flow
 
-## Quick start {#quick-start}
+data class AccountSummary(
+    val accountId: Long,
+    val name: String,
+)
 
-Add the coordinate above, refresh Gradle, and start from the smallest entry point that owns the required task. Open [`R2dbcClient`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/R2dbcClient.kt) first; it is a concrete source entry point for the module.
+fun findActiveAccounts(client: R2dbcClient): Flow<AccountSummary> =
+    client
+        .execute<AccountSummary>(
+            "SELECT account_id, name FROM accounts WHERE active = :active"
+        )
+        .bind("active", true)
+        .fetch()
+        .flow()
+```
 
-## API by task {#api-by-task}
+The query starts when the Flow is collected. Keep the path non-blocking and do not mix it with arbitrary blocking or separately acquired connections.
 
-| Entry point | What to verify |
-| --- | --- |
-| [`R2dbcClient`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/R2dbcClient.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`R2dbcClientAutoConfiguration`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/config/R2dbcClientAutoConfiguration.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ConnectionFactoryUtils`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/connection/ConnectionFactoryUtils.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`R2dbcTransactionManager`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/connection/R2dbcTransactionManager.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`CompositeDatabasePopulator`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/connection/init/CompositeDatabasePopulator.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ConnectionFactoryInitializer`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/connection/init/ConnectionFactoryInitializer.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ResourceDatabasePopulator`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/connection/init/ResourceDatabasePopulator.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`MappingR2dbcConverter`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/convert/MappingR2dbcConverter.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`JsonToMapConverter`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/convert/postgresql/JsonToMapConverter.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`MapToJsonConverter`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/convert/postgresql/MapToJsonConverter.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+## API map {#api-by-task}
 
-## Patterns {#patterns}
+| Task | Start with | Boundary to remember |
+| --- | --- | --- |
+| Hold the client components | `R2dbcClient` | It stores existing Spring objects; it does not create or close a pool. |
+| Configure connection options and a pool | `connectionFactoryOptionsOf`, `r2dbcConnectionPool` | The application supplies the driver and closes the pool. |
+| Execute raw SQL | `DatabaseClient.execute`, `R2dbcClient.execute` | The caller owns SQL and result cardinality. |
+| Bind named or indexed parameters | `bindMap`, `bindIndexedMap`, `bindNullable` | Raw nulls in maps are rejected; use typed nulls. |
+| Map rows to a type | `execute<T>`, `MappingR2dbcConverter.read<T>` | Converter errors propagate when columns and properties do not match. |
+| Run table-oriented CRUD | `insert`, `update`, `delete` | Table and column identifiers are checked, but the caller owns raw where SQL. |
+| Build dynamic SQL | `query`, `queryWithCount`, `QueryBuilder` | It is not type-safe, and `queryWithCount` executes its block twice. |
+| Run a suspend transaction | `withTransactionSuspend` | It connects the same `DatabaseClient` factory to a transaction manager. |
+| Initialize schema and data | `connectionFactoryInitializer`, `resourceDatabasePopulatorOf` | Attach initialization and failure policy to the application lifecycle. |
 
-The README evidence is organized around **Features**, **Architecture Diagrams**, **Extension Function API Overview**, **Core API Class Structure**, **R2DBC Query Execution Flow**, **JDBC vs R2DBC Comparison**, **Dependency**, **Core Features**, **1. R2DBC Connection Pool Tuning**, and **Tuning guide from the measurement**. Use those topics as a navigation map, then confirm behavior in source and tests. Keep adoption narrow and connect owned resources to the caller lifecycle.
+## Learning path {#concepts}
+
+Each chapter explains ownership and failure boundaries that are easy to get wrong, not just a feature list. Examples link to the 1.11.0 release source and representative tests, so readers can continue directly from the explanation to implementation and verification evidence.
+
+1. [Connections and pools](./bluetape4k-r2dbc/connections-and-pools.md) — configure connections, own the pool lifecycle, and choose overload behavior.
+2. [SQL execution and parameter binding](./bluetape4k-r2dbc/sql-and-binding.md) — use `DatabaseClient`, typed mapping, named/indexed parameters, and typed nulls.
+3. [CRUD and row mapping](./bluetape4k-r2dbc/crud-and-mapping.md) — combine raw-table and entity CRUD with identifier checks, `Readable`, and PostgreSQL JSON conversion.
+4. [Dynamic queries](./bluetape4k-r2dbc/dynamic-queries.md) — build nested predicates and count queries within the 1.11.0 validation contract.
+5. [Transactions and lifecycle](./bluetape4k-r2dbc/transactions-and-lifecycle.md) — connect commit, rollback, transaction-aware connections, and schema initialization.
+6. [R2DBC ecosystem path](./bluetape4k-r2dbc/ecosystem-paths.md) — progress from direct Spring R2DBC to this module, Spring coroutine extensions, Exposed R2DBC, and the workshop.
+
+For first adoption, read chapters 1 through 5 in order. When selecting a persistence technology, start with chapter 6 and return to the required level.
+
+## Recommended patterns {#patterns}
+
+Create the pool once during application startup and close it once during shutdown. Separate parameters from SQL and bind nullable values with typed `Parameter` objects. Place `withTransactionSuspend` around the smallest service boundary whose writes must succeed together. Keep Flow execution non-blocking and isolate any blocking bridge behind an explicit adapter boundary.
 
 ## Integrations {#integrations}
 
-The current build declares these integration edges:
+`bluetape4k-coroutines` and `r2dbc-pool` are API dependencies. Spring Data R2DBC, Spring Boot auto-configuration, Reactor, Jackson3, and database drivers are optional or `compileOnly`; add the runtime capabilities required by the APIs in use.
 
-```kotlin
-implementation(platform(libs.spring.boot.dependencies))
-api(project(":bluetape4k-core"))
-compileOnly(project(":bluetape4k-jackson3"))
-compileOnly(libs.jackson3.module.kotlin)
-api(project(":bluetape4k-coroutines"))
-api(libs.kotlinx.coroutines.core)
-api(libs.kotlinx.coroutines.reactive)
-api(libs.kotlinx.coroutines.reactor)
-compileOnly(libs.reactor.core)
-compileOnly(libs.reactor.kotlin.extensions)
-api(libs.r2dbc.pool)
-compileOnly("org.springframework.boot:spring-boot-starter-data-r2dbc")
-```
-
-Treat `compileOnly` edges as caller-provided capabilities and verify runtime availability before using their APIs.
+Use [`bluetape4k-spring-boot-r2dbc`](./bluetape4k-spring-boot-r2dbc.md) for broader Spring Data R2DBC coroutine CRUD extensions. Move to the R2DBC modules in `bluetape4k-exposed` when a table/column DSL and repository abstraction are needed.
 
 ## Configuration {#configuration}
 
-Configuration resources found in the module:
+With Spring Boot, `spring.r2dbc.*` owns driver connection settings. For direct configuration, use `R2dbcConnectionConfig` and `R2dbcPoolConfig` to set the driver, SSL, timeouts, pool size, warmup, pending queue, and validation strategy.
 
-- [`spring.factories`](../../../../data/r2dbc/src/main/resources/META-INF/spring.factories)
-- [`org.springframework.boot.autoconfigure.AutoConfiguration.imports`](../../../../data/r2dbc/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports)
+In 1.11.0, `R2dbcClientAutoConfiguration` activates when `DatabaseClient` is present and does not back off when the application defines its own `R2dbcClient` bean. Applications that configure the type directly must avoid the auto-configuration conflict themselves.
 
-Read property names and defaults from these resources and the binding source before overriding them.
+## Failure behavior {#failures}
 
-## Failures {#failures}
+`bindMap`, `bindIndexedMap`, and map-based updates reject raw `null` with `IllegalArgumentException`. Use `typedNullParameter<T>()`, `bindNullable<T>()`, or `nullValue`. Mapping and PostgreSQL JSON conversion propagate Spring conversion failures instead of silently substituting values.
 
-Failure semantics are defined by the linked entry points and tests, not inferred from the artifact name. Keep cancellation and timeout signals intact, close owned resources, and translate backend exceptions only at a boundary that can add a stable domain contract. Use the test anchors below to verify the exact behavior before adding retries or fallbacks.
+Invalid pool-size or JMX settings fail during configuration or pool conversion. An exception in a transaction block triggers rollback, and cancellation must not be swallowed as an ordinary fallback condition.
 
 ## Operations {#operations}
 
-Track pool saturation, query latency, retries, transaction rollbacks, and schema compatibility. Keep capacity, timeout, retry, and shutdown settings next to the component that owns the resource; avoid process-wide defaults that hide which caller accepted the trade-off.
+Observe active and idle connections, pending acquire, acquire timeout, connection hold time, query p95/p99, and rollbacks together. Bounded-queue failures do not automatically mean the pool should grow; they may be the intended signal that the database cannot accept more work. `validationQuery` adds a database round trip to acquisition, so prefer driver-local validation when it is sufficient.
 
 ## Testing {#testing}
 
-Run the module test task:
+The 1.11.0 release tests cover H2 SQL, CRUD, transactions, and pool saturation.
 
 ```bash
-./gradlew :bluetape4k-r2dbc:test --no-configuration-cache
+./gradlew :bluetape4k-r2dbc:test --no-build-cache --no-configuration-cache
 ```
 
-Representative test anchors:
-
-- [`AbstractR2dbcTest`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/AbstractR2dbcTest.kt)
-- [`R2dbcTestApplication`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/R2dbcTestApplication.kt)
-- [`R2dbcConfigurationTest`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/config/R2dbcConfigurationTest.kt)
-- [`ConnectionInitTest`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/connection/init/ConnectionInitTest.kt)
-- [`PostgresJsonConvertersTest`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/convert/postgresql/PostgresJsonConvertersTest.kt)
-- [`DatabaseClientBuilderTest`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/core/DatabaseClientBuilderTest.kt)
-- [`DeleteTest`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/core/DeleteTest.kt)
+Pool benchmarks are not ordinary regression tests. PostgreSQL and MySQL benchmarks use Testcontainers and should not run in parallel with other heavy database suites.
 
 ## Workshops {#workshops}
 
-No dedicated workshop path is registered in the manual manifest. Use the module README and the representative tests above as runnable evidence.
+Within the module, `ExecuteTest`, `InsertTest`, and `TransactionSupportTest` are the smallest executable examples. For a higher-level Kotlin SQL DSL and repository path, [Exposed R2DBC Workshop](https://github.com/bluetape4k/exposed-r2dbc-workshop) continues through SQL DSL, DDL/DML, coroutines, Spring WebFlux, and production patterns.
 
-## Limitations {#limitations}
+## 1.11.0 scope {#limitations}
 
-This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
+This manual targets the `bluetape4k-projects` 1.11.0 tag. It does not describe the post-release auto-configuration back-off or `QueryBuilder.limit` and `offset` precondition checks as 1.11 features. In 1.11, callers must enforce `limit > 0` and `offset >= 0`.
 
-## Sources {#sources}
+The 1.11.0 README mentions APIs that are absent from the release source: `sqlInsert`, `sqlUpdate`, `sqlDelete`, `awaitGeneratedKey`, `awaitSingleAsMap`, `awaitCount`, `awaitExists`, and `awaitList`. They are intentionally excluded; this manual uses only APIs present in release source and tests.
 
-- [Module README](../../../../data/r2dbc/README.md)
-- [Module build](../../../../data/r2dbc/build.gradle.kts)
-- [`R2dbcClient`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/R2dbcClient.kt)
-- [`R2dbcClientAutoConfiguration`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/config/R2dbcClientAutoConfiguration.kt)
-- [`ConnectionFactoryUtils`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/connection/ConnectionFactoryUtils.kt)
-- [`R2dbcTransactionManager`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/connection/R2dbcTransactionManager.kt)
-- [`CompositeDatabasePopulator`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/connection/init/CompositeDatabasePopulator.kt)
-- [`ConnectionFactoryInitializer`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/connection/init/ConnectionFactoryInitializer.kt)
-- [`ResourceDatabasePopulator`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/connection/init/ResourceDatabasePopulator.kt)
-- [`MappingR2dbcConverter`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/convert/MappingR2dbcConverter.kt)
-- [`JsonToMapConverter`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/convert/postgresql/JsonToMapConverter.kt)
-- [`MapToJsonConverter`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/convert/postgresql/MapToJsonConverter.kt)
-- [`AbstractR2dbcTest`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/AbstractR2dbcTest.kt)
-- [`R2dbcTestApplication`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/R2dbcTestApplication.kt)
+## Sources and tests {#sources}
+
+- [`R2dbcClient.kt`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/R2dbcClient.kt)
+- [`ConnectionPoolSupport.kt`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/pool/ConnectionPoolSupport.kt)
+- [`R2dbcPoolConfig.kt`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/pool/R2dbcPoolConfig.kt)
+- [`DatabaseClientSupport.kt`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/support/DatabaseClientSupport.kt)
+- [`Execute.kt`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/core/Execute.kt)
+- [`QueryBuilder.kt`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/query/QueryBuilder.kt)
+- [`TransactionSupport.kt`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/support/TransactionSupport.kt)
+- [`ExecuteTest.kt`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/core/ExecuteTest.kt)
+- [`ConnectionPoolSupportTest.kt`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/pool/ConnectionPoolSupportTest.kt)
+- [`TransactionSupportTest.kt`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/support/TransactionSupportTest.kt)
