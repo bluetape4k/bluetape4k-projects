@@ -801,6 +801,33 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-jdbc",
+      "chapters": [
+        {
+          "en": "en/modules/bluetape4k-jdbc/connection-lifecycle.md",
+          "id": "connection-lifecycle",
+          "ko": "ko/modules/bluetape4k-jdbc/connection-lifecycle.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-jdbc/statements-batches.md",
+          "id": "statements-batches",
+          "ko": "ko/modules/bluetape4k-jdbc/statements-batches.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-jdbc/resultset-mapping.md",
+          "id": "resultset-mapping",
+          "ko": "ko/modules/bluetape4k-jdbc/resultset-mapping.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-jdbc/transactions.md",
+          "id": "transactions",
+          "ko": "ko/modules/bluetape4k-jdbc/transactions.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-jdbc/ecosystem-paths.md",
+          "id": "ecosystem-paths",
+          "ko": "ko/modules/bluetape4k-jdbc/ecosystem-paths.md"
+        }
+      ],
       "en": "en/modules/bluetape4k-jdbc.md",
       "gradlePath": ":bluetape4k-jdbc",
       "group": "data",

@@ -1,123 +1,140 @@
 ---
 manualId: bluetape4k-jdbc
 title: "Module bluetape4k-jdbc"
-description: "A Kotlin extension library that reduces boilerplate when working with JDBC (Java Database Connectivity)."
+description: "Use Kotlin helpers without losing the connection, statement, ResultSet, and transaction lifecycle defined by JDBC."
 kind: library
 group: data
 ---
 
 # Module bluetape4k-jdbc
 
-## Problem {#problem}
+## Capabilities {#problem}
 
-A Kotlin extension library that reduces boilerplate when working with JDBC (Java Database Connectivity). This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+`bluetape4k-jdbc` adds Kotlin extensions to standard JDBC. It shortens the code for borrowing connections, executing prepared statements, converting `ResultSet` rows, and restoring transaction state. It is not an ORM and does not hide SQL, the connection pool, or database-driver behavior.
 
-## When to use {#when-to-use}
+Use it when you want direct SQL control without rewriting JDBC resource handling. If you instead need a typed table/query DSL or managed entity lifecycle, continue to [Choosing the next persistence layer](./bluetape4k-jdbc/ecosystem-paths.md) and evaluate Exposed or Hibernate.
 
-Use `bluetape4k-jdbc` when the application needs transaction boundaries, connection ownership, query behavior, and serialization. Start with the source entry points below and confirm that their ownership and failure contracts match the calling component. Prefer a smaller standard-library or already-adopted module when it satisfies the same contract without another runtime boundary.
+## Decisions before adoption {#when-to-use}
+
+- Decide who creates and closes the `DataSource` and connection pool.
+- Decide whether the service owns transactions or an existing Spring transaction manager does.
+- Decide whether each query fully materializes its result or truly needs a lazy sequence backed by an open `ResultSet`.
+- Bind values as prepared-statement parameters instead of interpolating them into SQL.
+- Bound input rows and JDBC batch size for bulk writes.
 
 ## Coordinates {#coordinates}
+
+Consumers manage the central BOM version, not each library version. The application separately chooses its database driver and pool implementation.
 
 ```kotlin
 dependencies {
     implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-jdbc")
+
+    runtimeOnly("org.postgresql:postgresql") // replace with the selected driver
 }
 ```
 
-Gradle project path: `:bluetape4k-jdbc`. Source directory: `data/jdbc`.
+## First query {#quick-start}
 
-## Concepts {#concepts}
+`withConnect` closes the connection borrowed from the `DataSource` when its block ends. `executeQuery` also closes its prepared statement and `ResultSet` within the same scope.
 
-The first source-level concepts to inspect are `JdbcDrivers`, `HikariSupport`, `ArgumentSetter`, `ConnectionExtensions`, `DataSourceExtensions`, `DataSourceTransactionExtensions`, and `GetColumnToken`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
+```kotlin
+import io.bluetape4k.jdbc.sql.executeQuery
+import io.bluetape4k.jdbc.sql.mapSingle
+import javax.sql.DataSource
 
-## Quick start {#quick-start}
+data class AccountSummary(
+    val id: Long,
+    val name: String,
+)
 
-Add the coordinate above, refresh Gradle, and start from the smallest entry point that owns the required task. Open [`JdbcDrivers`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/JdbcDrivers.kt) first; it is a concrete source entry point for the module.
+fun findAccount(dataSource: DataSource, id: Long): AccountSummary =
+    dataSource.executeQuery(
+        "SELECT id, name FROM accounts WHERE id = ?",
+        id,
+    ) { rs ->
+        rs.mapSingle { row ->
+            AccountSummary(
+                id = row.getLong("id"),
+                name = row.getString("name"),
+            )
+        }
+    }
+```
+
+`mapSingle` throws `NoSuchElementException` for no rows and `IllegalStateException` for multiple rows. Use `mapFirst` for a zero-or-one result contract.
 
 ## API by task {#api-by-task}
 
-| Entry point | What to verify |
-| --- | --- |
-| [`JdbcDrivers`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/JdbcDrivers.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`HikariSupport`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/hikari/HikariSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ArgumentSetter`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/ArgumentSetter.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ConnectionExtensions`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/ConnectionExtensions.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`DataSourceExtensions`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/DataSourceExtensions.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`DataSourceTransactionExtensions`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/DataSourceTransactionExtensions.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`GetColumnToken`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/GetColumnToken.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`PrepareStatementSupport`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/PrepareStatementSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`PreparedStatementArgumentSetter`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/PreparedStatementArgumentSetter.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| Task | Start with | Boundary to preserve |
+| --- | --- | --- |
+| Borrow a connection for one operation | `DataSource.withConnect` | The connection closes when the block ends. |
+| Execute direct SQL | `runQuery`, `executeUpdate`, `executeInsert` | The caller owns SQL and the resource scope. |
+| Execute parameterized SQL | `Connection.executeQuery`, `executeUpdate` | The helper creates and closes a prepared statement. |
+| Write parameter rows in batches | `executeBatch`, `executeLargeBatch` | Every row must have the same parameter count. |
+| Read SQL NULL as Kotlin nullable | `getIntOrNull`, `getLongOrNull`, and peers | Each helper checks `wasNull()` immediately after the JDBC getter. |
+| Map rows | `mapFirst`, `mapSingle`, `toList`, `extract` | Check how far each function advances the cursor. |
+| Commit, rollback, and restore state | `withTransaction`, `withReadOnlyTransaction` | Original auto-commit, isolation, and read-only state are restored. |
+| Configure HikariCP | `hikariConfigOf`, `hikariDataSourceOf` | HikariCP is `compileOnly`; the application owns the dependency and shutdown. |
 
-## Patterns {#patterns}
+## Learning path {#concepts}
 
-The README evidence is organized around **Features**, **Architecture Diagrams**, **Extension Function API Overview**, **Core API Structure**, **JDBC Query Execution Flow**, **Dependency**, **Core Features**, **1. DataSource/Connection Management**, and **2. Executing Statements**. Use those topics as a navigation map, then confirm behavior in source and tests. Keep adoption narrow and connect owned resources to the caller lifecycle.
+Each chapter focuses on a boundary that is easy to get wrong in production. Examples link directly to 1.11.0 source and representative tests, so readers can move from the explanation to the implementation evidence.
+
+1. [Connection and DataSource lifecycle](./bluetape4k-jdbc/connection-lifecycle.md) — choose connection ownership and define the Hikari helper boundary.
+2. [Prepared statements and batches](./bluetape4k-jdbc/statements-batches.md) — parameter binding, generated keys, and batch-row contracts.
+3. [Reading and mapping ResultSet](./bluetape4k-jdbc/resultset-mapping.md) — SQL NULL, cardinality, collections, cursor movement, and lazy sequences.
+4. [Transactions and state restoration](./bluetape4k-jdbc/transactions.md) — commit, rollback, and restoration of reusable connections.
+5. [Choosing the next persistence layer](./bluetape4k-jdbc/ecosystem-paths.md) — decide whether to stay with JDBC or move to Exposed or Hibernate.
+
+New users should normally read chapters 1 through 4 in order. Start with chapter 5 when selecting the persistence architecture for a project.
+
+## Recommended pattern {#patterns}
+
+The layer that creates a resource closes it. Convert rows to value objects while the `ResultSet` is open, bind SQL values as parameters, and place transactions around the smallest service operation whose statements must succeed or fail together. Keep pool size, timeouts, and shutdown in application configuration.
 
 ## Integrations {#integrations}
 
-The current build declares these integration edges:
+The module exposes `bluetape4k-core` as an API dependency. HikariCP, Tomcat JDBC, Agroal, and Spring JDBC are optional `compileOnly` integrations; their APIs do not imply that an implementation is automatically present at runtime.
 
-```kotlin
-implementation(platform(libs.spring.boot.dependencies))
-api(project(":bluetape4k-core"))
-compileOnly(libs.hikaricp)
-compileOnly(libs.tomcat.jdbc)
-compileOnly(libs.agroal.spring.boot.starter)
-compileOnly("org.springframework.boot:spring-boot-starter-jdbc")
-```
-
-Treat `compileOnly` edges as caller-provided capabilities and verify runtime availability before using their APIs.
+When Spring owns a transaction, confirm its connection binding before nesting `withTransaction`. Mixing framework-managed and direct JDBC transaction boundaries in one call path obscures commit ownership.
 
 ## Configuration {#configuration}
 
-No module-level configuration resource was found under `src/main/resources`. Configuration is supplied through constructors, builders, function arguments, or the integrating framework; confirm defaults in source.
+The application owns the JDBC URL, driver, username, credentials, pool size, connection and statement timeouts, and default isolation. This module installs no configuration file or process-wide defaults. Configure HikariCP through `hikariDataSourceOf` or the host framework's datasource settings.
 
-## Failures {#failures}
+## Failure behavior {#failures}
 
-Failure semantics are defined by the linked entry points and tests, not inferred from the artifact name. Keep cancellation and timeout signals intact, close owned resources, and translate backend exceptions only at a boundary that can add a stable domain contract. Use the test anchors below to verify the exact behavior before adding retries or fallbacks.
+Driver `SQLException`s propagate by default. Exact-one-row mappers throw when cardinality does not match. If a transaction block or commit fails, rollback is attempted; rollback and transaction-state restoration failures are attached to the original failure as suppressed exceptions.
 
 ## Operations {#operations}
 
-Track pool saturation, query latency, retries, transaction rollbacks, and schema compatibility. Keep capacity, timeout, retry, and shutdown settings next to the component that owns the resource; avoid process-wide defaults that hide which caller accepted the trade-off.
+Observe pool saturation, connection acquisition time, query latency, rollback count, batch size, and database timeouts together. Do not return lazy sequences or JDBC resources beyond their owning block, and correlate slow queries with pool timeouts in the same operation context.
 
 ## Testing {#testing}
 
-Run the module test task:
+Representative 1.11.0 tests include H2-based API coverage and a MySQL Testcontainers path. Serialize this suite with other heavy integration tests when Docker is involved.
 
 ```bash
-./gradlew :bluetape4k-jdbc:test --no-configuration-cache
+./gradlew :bluetape4k-jdbc:test --no-build-cache --no-configuration-cache
 ```
-
-Representative test anchors:
-
-- [`AbstractJdbcTest`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/AbstractJdbcTest.kt)
-- [`JdbcDriversTest`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/JdbcDriversTest.kt)
-- [`HikariSupportTest`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/hikari/HikariSupportTest.kt)
-- [`Actor`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/model/Actor.kt)
-- [`TestBean`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/model/TestBean.kt)
-- [`AbstractJdbcSqlTest`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/sql/AbstractJdbcSqlTest.kt)
-- [`ConnectionExtensionsTest`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/sql/ConnectionExtensionsTest.kt)
 
 ## Workshops {#workshops}
 
-No dedicated workshop path is registered in the manual manifest. Use the module README and the representative tests above as runnable evidence.
+No dedicated workshop repository is registered yet. The linked `JdbcTemplateTest`, `TransactionExtensionsTest`, and `ResultSetMappingExtensionsTest` serve as executable examples. A small H2 schema is enough to practice query, mapping, rollback, and batch behavior in sequence.
 
-## Limitations {#limitations}
+## 1.11.0 scope {#limitations}
 
-This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
+This manual targets the source published by the `bluetape4k-projects` 1.11.0 tag. APIs added to `develop` after the release are excluded. The module does not provide schema migration, a query DSL, entity dirty checking, or a coroutine-friendly non-blocking database driver.
 
-## Sources {#sources}
+## Sources and tests {#sources}
 
-- [Module README](../../../../data/jdbc/README.md)
-- [Module build](../../../../data/jdbc/build.gradle.kts)
-- [`JdbcDrivers`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/JdbcDrivers.kt)
-- [`HikariSupport`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/hikari/HikariSupport.kt)
-- [`ArgumentSetter`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/ArgumentSetter.kt)
-- [`ConnectionExtensions`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/ConnectionExtensions.kt)
-- [`DataSourceExtensions`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/DataSourceExtensions.kt)
-- [`DataSourceTransactionExtensions`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/DataSourceTransactionExtensions.kt)
-- [`GetColumnToken`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/GetColumnToken.kt)
-- [`PrepareStatementSupport`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/PrepareStatementSupport.kt)
-- [`PreparedStatementArgumentSetter`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/PreparedStatementArgumentSetter.kt)
-- [`AbstractJdbcTest`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/AbstractJdbcTest.kt)
-- [`JdbcDriversTest`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/JdbcDriversTest.kt)
+- [`DataSourceExtensions.kt`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/DataSourceExtensions.kt)
+- [`PreparedStatementExtensions.kt`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/PreparedStatementExtensions.kt)
+- [`ResultSetExtensions.kt`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/ResultSetExtensions.kt)
+- [`ResultSetMappingExtensions.kt`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/ResultSetMappingExtensions.kt)
+- [`TransactionExtensions.kt`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/TransactionExtensions.kt)
+- [`JdbcTemplateTest.kt`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/sql/JdbcTemplateTest.kt)
+- [`TransactionExtensionsTest.kt`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/sql/TransactionExtensionsTest.kt)
+- [`ResultSetMappingExtensionsTest.kt`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/sql/ResultSetMappingExtensionsTest.kt)
