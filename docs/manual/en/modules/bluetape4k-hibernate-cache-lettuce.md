@@ -1,120 +1,155 @@
 ---
 manualId: bluetape4k-hibernate-cache-lettuce
 title: "Module bluetape4k-hibernate-cache-lettuce"
-description: "Hibernate 7.2 2nd Level Cache implementation backed by Lettuce Near Cache (Caffeine L1 + Redis L2). Simply configure hibernate.cache.lettuce. properties and Near Cache is automatically applied to all regions."
+description: "Run Hibernate second-level caching with Caffeine L1 and Redis L2 while preserving region, TTL, invalidation, and failure boundaries."
 kind: library
-group: caching
+group: cache
 ---
 
 # Module bluetape4k-hibernate-cache-lettuce
 
-## Problem {#problem}
+## Capabilities {#problem}
 
-Hibernate 7.2 2nd Level Cache implementation backed by Lettuce Near Cache (Caffeine L1 + Redis L2). Simply configure hibernate.cache.lettuce. properties and Near Cache is automatically applied to all regions. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+`bluetape4k-hibernate-cache-lettuce` connects Hibernate ORM 7.2 second-level caching to a Lettuce Near Cache. Each Hibernate region receives a Caffeine L1 and Redis L2, covering entity, collection, natural-id, query-result, and update-timestamps regions.
 
-## When to use {#when-to-use}
+The module does not turn cache consistency into a database transaction guarantee. Most cache failures are logged and converted into a database fallback, and failed RESP3 CLIENT TRACKING startup does not stop the cache. Validate invalidation and fallback behavior in addition to hit rate.
 
-Use `bluetape4k-hibernate-cache-lettuce` when the application needs cache key design, consistency, invalidation, and backend ownership. Start with the source entry points below and confirm that their ownership and failure contracts match the calling component. Prefer a smaller standard-library or already-adopted module when it satisfies the same contract without another runtime boundary.
+## Decisions before adoption {#when-to-use}
+
+- Measure whether repeated load cost exceeds Redis and serialization overhead.
+- Select cacheable entities and collections by region.
+- Decide whether the short stale window of `NONSTRICT_READ_WRITE` is acceptable.
+- Align Caffeine expiry, Redis TTL, and Hibernate query timestamps.
+- Confirm that Redis 6+ and RESP3 CLIENT TRACKING are available.
+- Define the trust boundary for Redis data and serialization codecs.
+
+Use plain Caffeine for a small single-process cache. Use [bluetape4k-cache-lettuce](./bluetape4k-cache-lettuce.md) when the application needs a direct cache API rather than a Hibernate provider.
 
 ## Coordinates {#coordinates}
+
+Consumers manage only the central BOM version, not subordinate cache, Lettuce, and Hibernate versions. The application supplies Redis and its database driver.
 
 ```kotlin
 dependencies {
     implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-hibernate-cache-lettuce")
+
+    runtimeOnly("org.postgresql:postgresql") // replace with the selected driver
 }
 ```
 
-Gradle project path: `:bluetape4k-hibernate-cache-lettuce`. Source directory: `cache/hibernate-cache-lettuce`.
+The 1.11.0 artifact includes Fory and LZ4 runtime support. Review the security and runtime characteristics of Snappy, Zstd, Kryo, and JDK serialization when selecting another codec.
 
-## Concepts {#concepts}
+## First second-level cache {#quick-start}
 
-The first source-level concepts to inspect are `LettuceNearCacheProperties`, `LettuceNearCacheRegionFactory`, and `LettuceNearCacheStorageAccess`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
+Register the region factory and Redis connection, then annotate each cacheable entity.
 
-## Quick start {#quick-start}
+```properties
+hibernate.cache.use_second_level_cache=true
+hibernate.cache.region.factory_class=io.bluetape4k.hibernate.cache.lettuce.LettuceNearCacheRegionFactory
+hibernate.cache.lettuce.redis_uri=redis://localhost:6379
+hibernate.cache.lettuce.codec=lz4fory
+hibernate.cache.lettuce.use_resp3=true
+hibernate.cache.lettuce.local.max_size=10000
+hibernate.cache.lettuce.local.expire_after_write=30m
+hibernate.cache.lettuce.redis_ttl.default=120s
+```
 
-Add the coordinate above, refresh Gradle, and start from the smallest entry point that owns the required task. Open [`LettuceNearCacheProperties`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheProperties.kt) first; it is a concrete source entry point for the module.
+```kotlin
+@Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+class Product(
+    @Id @GeneratedValue
+    var id: Long? = null,
+    var name: String = "",
+)
+```
+
+Read the entity from a new Session when testing second-level behavior; repeated access in one Session primarily proves first-level caching.
 
 ## API by task {#api-by-task}
 
-| Entry point | What to verify |
-| --- | --- |
-| [`LettuceNearCacheProperties`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheProperties.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`LettuceNearCacheRegionFactory`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`LettuceNearCacheStorageAccess`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheStorageAccess.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| Task | Start with | Boundary to preserve |
+| --- | --- | --- |
+| Register the Hibernate provider | `LettuceNearCacheRegionFactory` | SessionFactory owns RedisClient and region-cache lifetime. |
+| Parse and validate settings | `LettuceNearCacheProperties` | Invalid codecs, booleans, sizes, and durations fail during startup. |
+| Cache entities and collections | `@Cache`, `CacheConcurrencyStrategy` | Test first- and second-level caches separately. |
+| Cache query results | `hibernate.cache.use_query_cache`, `setCacheable(true)` | The update-timestamps region has no Redis TTL. |
+| Evict keys or regions | `SessionFactory.cache.evict*` | Key and region eviction reach both L1 and L2. |
+| Inspect statistics | Hibernate statistics, `getCaches()` | Caffeine stats require `local.record_stats=true`. |
+| Integrate Spring Boot | `bluetape4k-spring-boot-hibernate-lettuce` | A separate artifact wires properties, Metrics, and Actuator. |
 
-## Patterns {#patterns}
+## Learning path {#concepts}
 
-Hibernate owns entity loading and region writes through its second-level-cache access strategy; application code should not add a separate cache-aside loader around the region. The documented topology uses Caffeine as L1 and Redis as L2. On a local miss, consult L2 before repopulating L1; on a write or invalidation, preserve the region strategy's ordering so stale L1 entries cannot outlive the Redis state. Verify backend-failure and eviction behavior in the linked region and Near Cache tests.
+Each chapter follows the actual 1.11.0 source and tests instead of repeating a property list. It explains setup, region isolation, key digests, query invalidation, Redis failures, and shutdown order with code and failure cases.
+
+1. [Near Cache architecture and regions](./bluetape4k-hibernate-cache-lettuce/architecture-regions.md)
+2. [Configuration, codecs, and TTL](./bluetape4k-hibernate-cache-lettuce/configuration-codecs-ttl.md)
+3. [Entity, collection, and query caching](./bluetape4k-hibernate-cache-lettuce/entity-query-collection-cache.md)
+4. [Keys, concurrency, and invalidation](./bluetape4k-hibernate-cache-lettuce/keys-concurrency-invalidation.md)
+5. [Lifecycle, failures, and operations](./bluetape4k-hibernate-cache-lettuce/lifecycle-failures-operations.md)
+6. [Spring Boot and ecosystem paths](./bluetape4k-hibernate-cache-lettuce/spring-boot-ecosystem.md)
+
+Read chapters 1 through 4 in order for an initial rollout, then build the operational checklist from chapter 5. Even in Spring Boot, understand the provider contract before adopting chapter 6 automation.
+
+## Recommended pattern {#patterns}
+
+Start with read-heavy data whose short stale window is acceptable. Cache only selected entities and collections, and enable query caching only for genuinely repeated query shapes. Let Hibernate drive eviction after writes instead of modifying Redis directly.
+
+Treat database fallback as the base contract. Redis failure can abruptly move traffic to the database, so alert on pool saturation, query latency, cache misses, and cache errors together.
 
 ## Integrations {#integrations}
 
-The current build declares these integration edges:
+The module combines `bluetape4k-cache-lettuce`, `bluetape4k-lettuce`, `bluetape4k-io`, and Hibernate ORM. [bluetape4k-spring-boot-hibernate-lettuce](./bluetape4k-spring-boot-hibernate-lettuce.md) maps `bluetape4k.cache.lettuce-near.*` settings to Hibernate and adds Metrics and Actuator integration.
 
-```kotlin
-api(project(":bluetape4k-cache-lettuce"))
-api(project(":bluetape4k-io"))
-implementation(libs.fory.kotlin)
-implementation(libs.lz4.java)
-implementation(libs.snappy.java)
-implementation(libs.zstd.jni)
-api(project(":bluetape4k-lettuce"))
-api(libs.hibernate.core)
-```
-
-Treat `compileOnly` edges as caller-provided capabilities and verify runtime availability before using their APIs.
+Continue with [bluetape4k-hibernate](./bluetape4k-hibernate.md) for ORM lifecycle helpers or [bluetape4k-lettuce](./bluetape4k-lettuce.md) for direct Redis APIs.
 
 ## Configuration {#configuration}
 
-No module-level configuration resource was found under `src/main/resources`. Configuration is supplied through constructors, builders, function arguments, or the integrating framework; confirm defaults in source.
+Defaults are Redis at `localhost:6379`, `lz4fory`, 10,000 L1 entries, 30-minute write expiry, 120-second Redis TTL, and RESP3 enabled. Durations accept `ms`, `s`, `m`, and `h`; a value without a suffix is seconds.
 
-## Failures {#failures}
+`hibernate.cache.lettuce.redis_ttl.<regionName>` overrides the default by region. The `default-update-timestamps-region` always disables Redis TTL to preserve query-cache invalidation.
 
-Failure semantics are defined by the linked entry points and tests, not inferred from the artifact name. Keep cancellation and timeout signals intact, close owned resources, and translate backend exceptions only at a boundary that can add a stable domain contract. Use the test anchors below to verify the exact behavior before adding retries or fallbacks.
+## Failure behavior {#failures}
+
+Invalid codecs, booleans, non-positive sizes or durations, and blank Redis URIs fail startup with `IllegalArgumentException`. At runtime, `LettuceNearCacheStorageAccess` converts Redis failures during get, put, contains, and eviction into `null`, ignored writes, `false`, and ignored eviction after logging a warning. This favors availability but requires monitoring for database fallback and stale local entries.
+
+Failed RESP3 tracking startup is also warning-only. A running cache is not proof that cross-process L1 invalidation works.
 
 ## Operations {#operations}
 
-Track hit ratio, load latency, eviction, stale reads, backend errors, and reconnect behavior. Keep capacity, timeout, retry, and shutdown settings next to the component that owns the resource; avoid process-wide defaults that hide which caller accepted the trade-off.
+Observe Hibernate second-level hit, miss, and put counts; query-cache and update-timestamps statistics; region entry counts; and Caffeine statistics. Correlate Redis latency, errors, and connections with database latency and pool saturation. Region-wide eviction uses `SCAN` and `UNLINK`, so measure completion time and Redis load for large regions.
 
 ## Testing {#testing}
 
-Run the module test task:
+The 1.11.0 suite uses H2 and Testcontainers Redis 7+ to cover entities, collections, queries, natural and composite identifiers, rollback, concurrent reads, and statistics.
 
 ```bash
-./gradlew :bluetape4k-hibernate-cache-lettuce:test --no-configuration-cache
+./gradlew :bluetape4k-hibernate-cache-lettuce:test --no-build-cache --no-configuration-cache
 ```
 
-Representative test anchors:
-
-- [`AbstractHibernateNearCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/AbstractHibernateNearCacheTest.kt)
-- [`HibernateAdvancedKeyCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateAdvancedKeyCacheTest.kt)
-- [`HibernateCacheContainmentTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateCacheContainmentTest.kt)
-- [`HibernateCacheStatisticsTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateCacheStatisticsTest.kt)
-- [`HibernateConcurrentWriteTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateConcurrentWriteTest.kt)
-- [`HibernateElementCollectionCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateElementCollectionCacheTest.kt)
-- [`HibernateEntityCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateEntityCacheTest.kt)
-- [`HibernateFirstLevelCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateFirstLevelCacheTest.kt)
+Close the Session and read again when asserting a second-level hit.
 
 ## Workshops {#workshops}
 
-No dedicated workshop path is registered in the manual manifest. Use the module README and the representative tests above as runnable evidence.
+The [Hibernate Lettuce demo](./bluetape4k-spring-boot-hibernate-lettuce-demo.md) provides a runnable Product entity, Spring Data repository, cache endpoints, and `application.yml`. Inside this module, `HibernateEntityCacheTest`, `HibernateQueryCacheTest`, and `HibernateAdvancedKeyCacheTest` are small executable lessons.
 
-## Limitations {#limitations}
+Compare broader cache-aside and read/write-through strategies in `bluetape4k-cache-lettuce` and [exposed-workshop](https://github.com/bluetape4k/exposed-workshop). Hibernate `putIntoCache` is not the same contract as an application repository implementing write-through persistence.
 
-This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
+## 1.11.0 scope {#limitations}
 
-## Sources {#sources}
+This manual targets the `bluetape4k-projects` 1.11.0 release source. The factory returns `NONSTRICT_READ_WRITE` by default, although an entity may request `READ_WRITE`. Prefer the default until distributed soft-lock overhead and eviction behavior have been measured.
 
-- [Module README](../../../../cache/hibernate-cache-lettuce/README.md)
-- [Module build](../../../../cache/hibernate-cache-lettuce/build.gradle.kts)
-- [`LettuceNearCacheProperties`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheProperties.kt)
-- [`LettuceNearCacheRegionFactory`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt)
-- [`LettuceNearCacheStorageAccess`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheStorageAccess.kt)
-- [`AbstractHibernateNearCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/AbstractHibernateNearCacheTest.kt)
-- [`HibernateAdvancedKeyCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateAdvancedKeyCacheTest.kt)
-- [`HibernateCacheContainmentTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateCacheContainmentTest.kt)
-- [`HibernateCacheStatisticsTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateCacheStatisticsTest.kt)
-- [`HibernateConcurrentWriteTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateConcurrentWriteTest.kt)
-- [`HibernateElementCollectionCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateElementCollectionCacheTest.kt)
-- [`HibernateEntityCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateEntityCacheTest.kt)
-- [`HibernateFirstLevelCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateFirstLevelCacheTest.kt)
+CLIENT TRACKING startup failure does not stop the factory. StorageAccess failures also do not fail the database transaction, so the cache must remain a rebuildable acceleration layer rather than a source of truth.
+
+## Sources and tests {#sources}
+
+- [`LettuceNearCacheProperties.kt`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheProperties.kt)
+- [`LettuceNearCacheRegionFactory.kt`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt)
+- [`LettuceNearCacheStorageAccess.kt`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheStorageAccess.kt)
+- [`LettuceNearCache.kt`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCache.kt)
+- [`LettuceNearCachePropertiesTest.kt`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCachePropertiesTest.kt)
+- [`HibernateEntityCacheTest.kt`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateEntityCacheTest.kt)
+- [`HibernateAdvancedKeyCacheTest.kt`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateAdvancedKeyCacheTest.kt)
+- [`HibernateTransactionRollbackTest.kt`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateTransactionRollbackTest.kt)

@@ -462,6 +462,25 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-hibernate-cache-lettuce
   en: en/modules/bluetape4k-hibernate-cache-lettuce.md
   ko: ko/modules/bluetape4k-hibernate-cache-lettuce.md
+  chapters:
+  - id: architecture-regions
+    en: en/modules/bluetape4k-hibernate-cache-lettuce/architecture-regions.md
+    ko: ko/modules/bluetape4k-hibernate-cache-lettuce/architecture-regions.md
+  - id: configuration-codecs-ttl
+    en: en/modules/bluetape4k-hibernate-cache-lettuce/configuration-codecs-ttl.md
+    ko: ko/modules/bluetape4k-hibernate-cache-lettuce/configuration-codecs-ttl.md
+  - id: entity-query-collection-cache
+    en: en/modules/bluetape4k-hibernate-cache-lettuce/entity-query-collection-cache.md
+    ko: ko/modules/bluetape4k-hibernate-cache-lettuce/entity-query-collection-cache.md
+  - id: keys-concurrency-invalidation
+    en: en/modules/bluetape4k-hibernate-cache-lettuce/keys-concurrency-invalidation.md
+    ko: ko/modules/bluetape4k-hibernate-cache-lettuce/keys-concurrency-invalidation.md
+  - id: lifecycle-failures-operations
+    en: en/modules/bluetape4k-hibernate-cache-lettuce/lifecycle-failures-operations.md
+    ko: ko/modules/bluetape4k-hibernate-cache-lettuce/lifecycle-failures-operations.md
+  - id: spring-boot-ecosystem
+    en: en/modules/bluetape4k-hibernate-cache-lettuce/spring-boot-ecosystem.md
+    ko: ko/modules/bluetape4k-hibernate-cache-lettuce/spring-boot-ecosystem.md
   sourcePaths:
   - cache/hibernate-cache-lettuce/src/main/kotlin
   testPaths:
@@ -1204,6 +1223,25 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce
   en: en/modules/bluetape4k-spring-boot-hibernate-lettuce.md
   ko: ko/modules/bluetape4k-spring-boot-hibernate-lettuce.md
+  chapters:
+  - id: auto-configuration-conditions
+    en: en/modules/bluetape4k-spring-boot-hibernate-lettuce/auto-configuration-conditions.md
+    ko: ko/modules/bluetape4k-spring-boot-hibernate-lettuce/auto-configuration-conditions.md
+  - id: properties-and-hibernate-mapping
+    en: en/modules/bluetape4k-spring-boot-hibernate-lettuce/properties-and-hibernate-mapping.md
+    ko: ko/modules/bluetape4k-spring-boot-hibernate-lettuce/properties-and-hibernate-mapping.md
+  - id: cache-lifecycle-ownership
+    en: en/modules/bluetape4k-spring-boot-hibernate-lettuce/cache-lifecycle-ownership.md
+    ko: ko/modules/bluetape4k-spring-boot-hibernate-lettuce/cache-lifecycle-ownership.md
+  - id: observability-actuator-metrics
+    en: en/modules/bluetape4k-spring-boot-hibernate-lettuce/observability-actuator-metrics.md
+    ko: ko/modules/bluetape4k-spring-boot-hibernate-lettuce/observability-actuator-metrics.md
+  - id: testing-and-failure-modes
+    en: en/modules/bluetape4k-spring-boot-hibernate-lettuce/testing-and-failure-modes.md
+    ko: ko/modules/bluetape4k-spring-boot-hibernate-lettuce/testing-and-failure-modes.md
+  - id: ecosystem-paths
+    en: en/modules/bluetape4k-spring-boot-hibernate-lettuce/ecosystem-paths.md
+    ko: ko/modules/bluetape4k-spring-boot-hibernate-lettuce/ecosystem-paths.md
   sourcePaths:
   - spring-boot/hibernate-lettuce/src/main/kotlin
   - spring-boot/hibernate-lettuce/src/main/resources
@@ -1249,6 +1287,25 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-spring-boot-r2dbc
   en: en/modules/bluetape4k-spring-boot-r2dbc.md
   ko: ko/modules/bluetape4k-spring-boot-r2dbc.md
+  chapters:
+  - id: entity-operations
+    en: en/modules/bluetape4k-spring-boot-r2dbc/entity-operations.md
+    ko: ko/modules/bluetape4k-spring-boot-r2dbc/entity-operations.md
+  - id: flow-and-cardinality
+    en: en/modules/bluetape4k-spring-boot-r2dbc/flow-and-cardinality.md
+    ko: ko/modules/bluetape4k-spring-boot-r2dbc/flow-and-cardinality.md
+  - id: write-operations
+    en: en/modules/bluetape4k-spring-boot-r2dbc/write-operations.md
+    ko: ko/modules/bluetape4k-spring-boot-r2dbc/write-operations.md
+  - id: queries-and-repositories
+    en: en/modules/bluetape4k-spring-boot-r2dbc/queries-and-repositories.md
+    ko: ko/modules/bluetape4k-spring-boot-r2dbc/queries-and-repositories.md
+  - id: transactions-and-testing
+    en: en/modules/bluetape4k-spring-boot-r2dbc/transactions-and-testing.md
+    ko: ko/modules/bluetape4k-spring-boot-r2dbc/transactions-and-testing.md
+  - id: ecosystem-paths
+    en: en/modules/bluetape4k-spring-boot-r2dbc/ecosystem-paths.md
+    ko: ko/modules/bluetape4k-spring-boot-r2dbc/ecosystem-paths.md
   sourcePaths:
   - spring-boot/r2dbc/src/main/kotlin
   testPaths:

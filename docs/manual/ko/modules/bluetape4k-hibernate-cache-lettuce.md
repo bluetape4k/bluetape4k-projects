@@ -1,120 +1,155 @@
 ---
 manualId: bluetape4k-hibernate-cache-lettuce
 title: "Module bluetape4k-hibernate-cache-lettuce"
-description: "Hibernate 7.2 2nd Level Cache 구현체 — Lettuce Near Cache(Caffeine L1 + Redis L2) 기반. hibernate.cache.lettuce. Hibernate properties 설정만으로 모든 Region에 Near Cache가 자동 적용된다."
+description: "Hibernate 2차 캐시를 Caffeine L1과 Redis L2로 구성하고 Region, TTL, 무효화, 장애 경계를 운영하는 방법을 설명합니다."
 kind: library
-group: caching
+group: cache
 ---
 
 # Module bluetape4k-hibernate-cache-lettuce
 
-## 해결하는 문제 {#problem}
+## 제공하는 기능 {#problem}
 
-Hibernate 7.2 2nd Level Cache 구현체 — Lettuce Near Cache(Caffeine L1 + Redis L2) 기반. hibernate.cache.lettuce. Hibernate properties 설정만으로 모든 Region에 Near Cache가 자동 적용된다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+`bluetape4k-hibernate-cache-lettuce`는 Hibernate ORM 7.2의 2차 캐시를 Lettuce Near Cache에 연결합니다. 각 Hibernate Region마다 Caffeine L1과 Redis L2를 만들고, entity·collection·natural-id·query result·update timestamps Region을 같은 저장 구조로 다룹니다.
 
-## 사용 시점 {#when-to-use}
+이 모듈은 캐시 일관성을 데이터베이스 transaction처럼 보장하지 않습니다. 캐시 오류는 대체로 로그만 남기고 DB 조회로 돌아가며, RESP3 CLIENT TRACKING이 시작되지 않아도 캐시는 계속 동작합니다. hit rate뿐 아니라 무효화와 fallback 동작을 함께 검증해야 합니다.
 
-애플리케이션에 cache key, consistency, invalidation, backend ownership이 필요할 때 `bluetape4k-hibernate-cache-lettuce`를 선택합니다. 아래 source entry point에서 시작해 ownership과 failure 계약이 caller lifecycle에 맞는지 확인합니다. 표준 API나 이미 도입한 더 작은 모듈이 같은 계약을 만족한다면 그쪽을 우선합니다.
+## 사용하기 전에 결정할 것 {#when-to-use}
 
-## 의존성 좌표 {#coordinates}
+- 반복 조회 비용이 Redis 왕복과 직렬화 비용보다 큰지 측정합니다.
+- entity와 collection 중 무엇을 캐시할지 Region별로 정합니다.
+- `NONSTRICT_READ_WRITE`의 짧은 stale window를 허용할지 판단합니다.
+- Caffeine 만료, Redis TTL과 Hibernate query timestamps의 관계를 정합니다.
+- RESP3 CLIENT TRACKING을 쓸 수 있는 Redis 6+ 환경인지 확인합니다.
+- Redis 데이터가 신뢰 경계 안에 있는지, 어떤 직렬화 codec을 허용할지 정합니다.
+
+단일 프로세스의 단순 캐시라면 일반 Caffeine이 더 작습니다. Hibernate가 아닌 직접 캐시 API가 필요하면 [bluetape4k-cache-lettuce](./bluetape4k-cache-lettuce.md)를 사용합니다.
+
+## 의존성 추가 {#coordinates}
+
+사용자는 하위 cache, Lettuce, Hibernate 버전을 따로 맞추지 않고 중앙 BOM 버전만 관리합니다. 실제 Redis 서버와 database driver는 애플리케이션이 준비합니다.
 
 ```kotlin
 dependencies {
     implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-hibernate-cache-lettuce")
+
+    runtimeOnly("org.postgresql:postgresql") // 사용하는 driver로 교체
 }
 ```
 
-Gradle project path는 `:bluetape4k-hibernate-cache-lettuce`, source directory는 `cache/hibernate-cache-lettuce`입니다.
+1.11.0 artifact는 Fory와 LZ4 runtime을 포함하지만, 선택한 codec에 따라 Snappy·Zstd·Kryo/JDK 직렬화 특성과 신뢰 경계를 따로 검토합니다.
 
-## 핵심 개념 {#concepts}
+## 첫 2차 캐시 {#quick-start}
 
-먼저 확인할 source 개념은 `LettuceNearCacheProperties`, `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`입니다. 파일 이름은 탐색 anchor일 뿐이므로 public 계약으로 사용하기 전에 선언과 test를 함께 읽습니다.
+Hibernate 설정에 RegionFactory와 Redis 연결을 등록하고, 캐시할 entity에 Hibernate `@Cache`를 붙입니다.
 
-## 빠른 시작 {#quick-start}
+```properties
+hibernate.cache.use_second_level_cache=true
+hibernate.cache.region.factory_class=io.bluetape4k.hibernate.cache.lettuce.LettuceNearCacheRegionFactory
+hibernate.cache.lettuce.redis_uri=redis://localhost:6379
+hibernate.cache.lettuce.codec=lz4fory
+hibernate.cache.lettuce.use_resp3=true
+hibernate.cache.lettuce.local.max_size=10000
+hibernate.cache.lettuce.local.expire_after_write=30m
+hibernate.cache.lettuce.redis_ttl.default=120s
+```
 
-위 좌표를 추가하고 Gradle을 refresh한 뒤 필요한 작업을 소유한 가장 작은 entry point에서 시작합니다. 먼저 [`LettuceNearCacheProperties`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheProperties.kt)를 확인합니다. 이 파일이 모듈의 구체적인 source entry point입니다.
+```kotlin
+@Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+class Product(
+    @Id @GeneratedValue
+    var id: Long? = null,
+    var name: String = "",
+)
+```
 
-## 작업별 API {#api-by-task}
+같은 entity를 새 Session에서 다시 읽어야 1차 캐시가 아니라 2차 캐시 동작을 확인할 수 있습니다.
 
-| Entry point | 확인할 내용 |
-| --- | --- |
-| [`LettuceNearCacheProperties`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheProperties.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`LettuceNearCacheRegionFactory`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`LettuceNearCacheStorageAccess`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheStorageAccess.kt) | constructor, function, ownership 계약을 확인합니다. |
+## API 선택 지도 {#api-by-task}
+
+| 필요한 작업 | 시작할 API·설정 | 기억할 경계 |
+| --- | --- | --- |
+| Hibernate RegionFactory 등록 | `LettuceNearCacheRegionFactory` | SessionFactory가 RedisClient와 Region cache 수명을 소유합니다. |
+| 설정 파싱·검증 | `LettuceNearCacheProperties` | 잘못된 codec, boolean, 크기와 duration은 시작 중 즉시 실패합니다. |
+| entity·collection cache | `@Cache`, `CacheConcurrencyStrategy` | 1차 캐시와 2차 캐시를 구분해 테스트합니다. |
+| query cache | `hibernate.cache.use_query_cache`, `setCacheable(true)` | update timestamps Region은 Redis TTL을 사용하지 않습니다. |
+| 특정 key·Region 제거 | `SessionFactory.cache.evict*` | key 제거와 Region 전체 제거 모두 L1·L2에 전달됩니다. |
+| cache 통계 | Hibernate statistics, `getCaches()` | Caffeine 통계는 `local.record_stats=true`가 필요합니다. |
+| Spring Boot 자동 설정 | `bluetape4k-spring-boot-hibernate-lettuce` | 별도 artifact가 properties·Metrics·Actuator를 연결합니다. |
+
+## 학습 경로 {#concepts}
+
+각 장은 설정 목록만 옮기지 않고 실제 1.11.0 코드와 테스트를 따라갑니다. 캐시를 처음 붙이는 과정부터 Region 격리, key digest, query invalidation, Redis 장애와 종료 순서까지 코드 예제와 실패 조건을 함께 설명합니다.
+
+1. [Near Cache 구조와 Region](./bluetape4k-hibernate-cache-lettuce/architecture-regions.md) — Caffeine L1, Redis L2와 Hibernate Region의 관계를 잡습니다.
+2. [설정, codec과 TTL](./bluetape4k-hibernate-cache-lettuce/configuration-codecs-ttl.md) — 모든 설정 키, duration, Region별 TTL과 직렬화 신뢰 경계를 확인합니다.
+3. [Entity, collection과 query cache](./bluetape4k-hibernate-cache-lettuce/entity-query-collection-cache.md) — 캐시 annotation, 새 Session 검증, query timestamps를 다룹니다.
+4. [Key, 동시성 전략과 무효화](./bluetape4k-hibernate-cache-lettuce/keys-concurrency-invalidation.md) — `hck2` digest, composite·natural id, RESP3와 `READ_WRITE` 선택 기준을 설명합니다.
+5. [수명주기, 장애와 운영](./bluetape4k-hibernate-cache-lettuce/lifecycle-failures-operations.md) — 시작·종료 순서, fallback, eviction과 관측 항목을 정리합니다.
+6. [Spring Boot와 생태계 경로](./bluetape4k-hibernate-cache-lettuce/spring-boot-ecosystem.md) — 자동 설정, demo, Hibernate·Lettuce·Exposed cache 학습 경로를 연결합니다.
+
+처음 도입한다면 1→2→3→4 순서로 읽고, 운영 점검은 5장을 기준으로 만듭니다. Spring Boot 애플리케이션이라도 먼저 이 모듈의 계약을 이해한 뒤 6장의 자동 설정으로 넘어갑니다.
 
 ## 권장 패턴 {#patterns}
 
-entity load와 region write는 Hibernate 2차 캐시 access strategy가 소유하므로 애플리케이션에서 별도의 캐시 어사이드 loader를 region 바깥에 덧씌우지 않습니다. 문서화된 topology는 Caffeine을 L1, Redis를 L2로 사용합니다. local miss에서는 L2를 확인한 뒤 L1을 채우고, write 또는 invalidation에서는 오래된 L1 entry가 Redis 상태보다 오래 남지 않도록 region strategy의 순서를 지킵니다. backend failure와 eviction 동작은 연결된 region 및 Near Cache test로 확인합니다.
+읽기 비중이 높고 stale window를 허용하는 데이터부터 작은 Region 단위로 도입합니다. entity와 collection은 필요한 곳에만 `@Cache`를 붙이고, query cache는 같은 조건의 반복 query가 실제로 많은 경우에만 켭니다. 쓰기 뒤에는 Hibernate가 수행하는 eviction을 통과시키며 Redis를 직접 수정하지 않습니다.
+
+캐시가 비어도 요청이 정상 동작하도록 DB fallback을 기본 계약으로 둡니다. Redis 장애 때 DB 부하가 갑자기 커질 수 있으므로 pool, query latency와 cache miss를 같은 경보에서 봅니다.
 
 ## 연동 {#integrations}
 
-현재 build에 선언된 integration edge는 다음과 같습니다.
+모듈은 `bluetape4k-cache-lettuce`, `bluetape4k-lettuce`, `bluetape4k-io`와 Hibernate ORM을 묶습니다. Spring Boot 4에서는 [bluetape4k-spring-boot-hibernate-lettuce](./bluetape4k-spring-boot-hibernate-lettuce.md)가 `bluetape4k.cache.lettuce-near.*` 설정을 Hibernate property로 바꾸고 Metrics·Actuator를 연결합니다.
 
-```kotlin
-api(project(":bluetape4k-cache-lettuce"))
-api(project(":bluetape4k-io"))
-implementation(libs.fory.kotlin)
-implementation(libs.lz4.java)
-implementation(libs.snappy.java)
-implementation(libs.zstd.jni)
-api(project(":bluetape4k-lettuce"))
-api(libs.hibernate.core)
-```
-
-`compileOnly` edge는 caller가 제공해야 하는 capability이므로 API를 사용하기 전에 runtime에 실제 dependency가 있는지 확인합니다.
+ORM helper와 entity lifecycle은 [bluetape4k-hibernate](./bluetape4k-hibernate.md), Redis를 직접 다루는 API는 [bluetape4k-lettuce](./bluetape4k-lettuce.md)에서 이어집니다.
 
 ## 설정 {#configuration}
 
-`src/main/resources` 아래에서 모듈 수준 설정 resource를 찾지 못했습니다. constructor, builder, function argument, 연동 framework로 설정하며 default는 source에서 확인합니다.
+기본값은 Redis `localhost:6379`, codec `lz4fory`, L1 최대 10,000개·쓰기 후 30분 만료, Redis TTL 120초, RESP3 사용입니다. 접미사가 없는 duration은 초로 읽고 `ms`, `s`, `m`, `h`를 지원합니다.
+
+Region별 TTL은 `hibernate.cache.lettuce.redis_ttl.<regionName>`으로 기본 TTL을 덮어씁니다. `default-update-timestamps-region`은 query cache invalidation 계약 때문에 설정과 무관하게 TTL이 없습니다.
 
 ## 실패 동작 {#failures}
 
-failure 의미는 artifact 이름이 아니라 아래 entry point와 test가 결정합니다. cancellation과 timeout signal을 보존하고 소유한 resource를 닫습니다. backend exception은 안정된 domain 계약을 추가할 수 있는 boundary에서만 변환합니다. retry나 fallback을 넣기 전에 test anchor로 실제 동작을 확인합니다.
+잘못된 codec, boolean, 0 이하 크기·duration과 빈 Redis URI는 시작 단계에서 `IllegalArgumentException`으로 실패합니다. 실행 중 `get`, `put`, `contains`, eviction의 Redis 오류는 `LettuceNearCacheStorageAccess`가 경고로 기록하고 각각 `null`, 무시, `false`, 무시로 바꿉니다. 이는 availability를 높이지만 Redis 장애 때 DB fallback과 stale L1 위험을 운영에서 감시해야 한다는 뜻입니다.
+
+RESP3 tracking 시작 실패도 경고만 남깁니다. 캐시가 살아 있다는 사실만으로 프로세스 간 L1 무효화가 정상이라고 판단하지 않습니다.
 
 ## 운영 {#operations}
 
-hit ratio, load latency, eviction, stale read, backend 오류, reconnect 동작을 관찰합니다. capacity, timeout, retry, shutdown 설정은 resource를 소유한 component 가까이에 둡니다. 누가 trade-off를 받아들였는지 알 수 없는 process-wide default는 피합니다.
+Hibernate의 second-level hit·miss·put, query cache hit, update timestamps, Region별 entry 수와 Caffeine 통계를 관찰합니다. Redis latency·error·connection 수, DB query latency와 pool saturation도 같은 화면에서 봅니다. `evictAllRegions`와 Region 전체 제거는 `SCAN`과 `UNLINK`를 사용하므로 Region key 수가 많을 때 완료 시간과 Redis 부하를 측정합니다.
 
 ## 테스트 {#testing}
 
-모듈 test task는 다음과 같습니다.
+1.11.0 테스트는 H2와 Testcontainers Redis 7+로 entity·collection·query·natural-id·composite key·rollback·동시 읽기와 통계를 검증합니다.
 
 ```bash
-./gradlew :bluetape4k-hibernate-cache-lettuce:test --no-configuration-cache
+./gradlew :bluetape4k-hibernate-cache-lettuce:test --no-build-cache --no-configuration-cache
 ```
 
-대표 test anchor는 다음과 같습니다.
-
-- [`AbstractHibernateNearCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/AbstractHibernateNearCacheTest.kt)
-- [`HibernateAdvancedKeyCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateAdvancedKeyCacheTest.kt)
-- [`HibernateCacheContainmentTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateCacheContainmentTest.kt)
-- [`HibernateCacheStatisticsTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateCacheStatisticsTest.kt)
-- [`HibernateConcurrentWriteTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateConcurrentWriteTest.kt)
-- [`HibernateElementCollectionCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateElementCollectionCacheTest.kt)
-- [`HibernateEntityCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateEntityCacheTest.kt)
-- [`HibernateFirstLevelCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateFirstLevelCacheTest.kt)
+테스트에서 cache hit를 확인할 때는 Session을 닫고 새 Session에서 읽습니다. 같은 Session의 반복 조회는 Hibernate 1차 캐시 검증에 가깝습니다.
 
 ## 워크숍 {#workshops}
 
-manual manifest에 등록된 전용 workshop path가 없습니다. 모듈 README와 위 representative test를 실행 근거로 사용합니다.
+[Hibernate Lettuce demo](./bluetape4k-spring-boot-hibernate-lettuce-demo.md)는 `Product` entity, Spring Data repository, cache endpoint와 실제 `application.yml`을 갖춘 실행 예제입니다. 모듈 내부에서는 `HibernateEntityCacheTest`, `HibernateQueryCacheTest`, `HibernateAdvancedKeyCacheTest`가 작은 단계별 실습 역할을 합니다.
 
-## 제한 사항 {#limitations}
+더 넓은 cache-aside·read-through·write-through 전략은 `bluetape4k-cache-lettuce`와 [exposed-workshop](https://github.com/bluetape4k/exposed-workshop)에서 비교합니다. Hibernate 2차 캐시의 `putIntoCache`를 애플리케이션 repository의 write-through 저장 패턴과 같은 개념으로 혼동하지 않습니다.
 
-이 페이지는 연결된 source와 test가 나타내는 현재 저장소 상태를 설명합니다. optional backend를 애플리케이션 기본값으로 만들거나 benchmark artifact 없이 성능을 단정하지 않습니다. 모듈 버전이 바뀌면 호환성과 lifecycle 설명을 다시 확인해야 합니다.
+## 1.11.0 범위 {#limitations}
 
-## 근거 {#sources}
+이 매뉴얼은 `bluetape4k-projects` 1.11.0 배포 소스를 기준으로 합니다. `LettuceNearCacheRegionFactory`는 기본 access type으로 `NONSTRICT_READ_WRITE`를 반환하지만 entity annotation은 `READ_WRITE`를 선택할 수도 있습니다. 분산 soft-lock의 비용과 eviction 동작을 측정하지 않았다면 기본 전략을 우선합니다.
 
-- [모듈 README](../../../../cache/hibernate-cache-lettuce/README.ko.md)
-- [모듈 build](../../../../cache/hibernate-cache-lettuce/build.gradle.kts)
-- [`LettuceNearCacheProperties`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheProperties.kt)
-- [`LettuceNearCacheRegionFactory`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt)
-- [`LettuceNearCacheStorageAccess`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheStorageAccess.kt)
-- [`AbstractHibernateNearCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/AbstractHibernateNearCacheTest.kt)
-- [`HibernateAdvancedKeyCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateAdvancedKeyCacheTest.kt)
-- [`HibernateCacheContainmentTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateCacheContainmentTest.kt)
-- [`HibernateCacheStatisticsTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateCacheStatisticsTest.kt)
-- [`HibernateConcurrentWriteTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateConcurrentWriteTest.kt)
-- [`HibernateElementCollectionCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateElementCollectionCacheTest.kt)
-- [`HibernateEntityCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateEntityCacheTest.kt)
-- [`HibernateFirstLevelCacheTest`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateFirstLevelCacheTest.kt)
+CLIENT TRACKING 시작 실패는 factory 시작을 중단하지 않습니다. StorageAccess의 cache 연산 오류도 transaction을 실패시키지 않습니다. 캐시는 source of truth가 아니라 재생성 가능한 가속 계층으로만 사용해야 합니다.
+
+## Source와 tests {#sources}
+
+- [`LettuceNearCacheProperties.kt`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheProperties.kt)
+- [`LettuceNearCacheRegionFactory.kt`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt)
+- [`LettuceNearCacheStorageAccess.kt`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheStorageAccess.kt)
+- [`LettuceNearCache.kt`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCache.kt)
+- [`LettuceNearCachePropertiesTest.kt`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCachePropertiesTest.kt)
+- [`HibernateEntityCacheTest.kt`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateEntityCacheTest.kt)
+- [`HibernateAdvancedKeyCacheTest.kt`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateAdvancedKeyCacheTest.kt)
+- [`HibernateTransactionRollbackTest.kt`](../../../../cache/hibernate-cache-lettuce/src/test/kotlin/io/bluetape4k/hibernate/cache/lettuce/HibernateTransactionRollbackTest.kt)
