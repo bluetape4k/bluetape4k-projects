@@ -15,7 +15,7 @@ group: data
 ## Decisions before adopting it
 
 - Decide whether each operation creates and closes its own session or the application reuses sessions.
-- For reuse, include contact point, datacenter, tenant, credential, and client id in the cache boundary rather than keyspace alone.
+- For reuse, use bounded configuration dimensions such as contact point, datacenter, routing profile, credential version, and client id rather than request-specific values.
 - Choose blocking `execute` or coroutine-based `executeSuspending` to match the calling layer.
 - Decide whether the application may create keyspaces or deployment manages them separately.
 

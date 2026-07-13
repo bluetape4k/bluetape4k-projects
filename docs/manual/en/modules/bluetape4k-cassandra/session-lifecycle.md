@@ -9,7 +9,7 @@ chapterId: session-lifecycle
 
 ## Problem
 
-`CqlSession` owns connection pools and driver execution resources. Creating one for every request makes ownership clear but repeatedly pays connection setup costs. Reusing sessions by keyspace alone can instead route different endpoints, tenants, or credentials through the same session. Decide whether the caller or the provider owns the session before choosing an API.
+`CqlSession` owns connection pools and driver execution resources. Creating one for every request makes ownership clear but repeatedly pays connection setup costs. Reusing sessions by keyspace alone can instead route different endpoints or configuration sets through the same session. Decide whether the caller or the provider owns the session before choosing an API.
 
 ## Direct creation
 
@@ -38,31 +38,29 @@ The function creates the session, so the function closes it. Do not continue con
 
 ## Provider identity
 
-For application-scoped reuse, put the actual connection context in `CqlSessionIdentity`. `of` trims each context part, removes empty values, and sorts the remainder into a stable context string. The same identity reuses the same open session; different identities create different sessions even when their keyspace matches.
+For application-scoped reuse, put only bounded configuration dimensions in `CqlSessionIdentity`. `of` trims each context part, removes empty values, and sorts the remainder into a stable context string. The same identity reuses the same open session; different identities create different sessions even when their keyspace matches.
 
 ```kotlin
 import com.datastax.oss.driver.api.core.CqlSession
 import io.bluetape4k.cassandra.CqlSessionIdentity
 import io.bluetape4k.cassandra.CqlSessionProvider
 import java.net.InetSocketAddress
-import java.util.UUID
 
 fun tenantOrdersSession(
-    tenant: String,
-    clientId: UUID,
     username: String,
     password: String,
 ): CqlSession {
     val contactPoint = InetSocketAddress("cassandra-a.example.com", 9042)
     val localDatacenter = "dc-a"
+    val clientId = "order-reader"
     val identity = CqlSessionIdentity.of(
         keyspace = "tenant_orders",
         contextParts = listOf(
             "contactPoint=${contactPoint.hostString}:${contactPoint.port}",
             "localDatacenter=$localDatacenter",
-            "tenant=$tenant",
+            "routingProfile=tenant-a-primary",
+            "credentialVersion=orders-v3",
             "clientId=$clientId",
-            "username=$username",
         ),
     )
 
@@ -80,7 +78,9 @@ fun tenantOrdersSession(
 }
 ```
 
-`builderSupplier` must return a fresh builder each time it is called. Do not put the password itself in the identity. If one username can refer to different credential sets, include a non-secret credential version or another stable identifier in the context.
+`builderSupplier` must return a fresh builder each time it is called. In 1.11.0, session creation logs `${identity.context}` at INFO. Never put passwords, tokens, raw usernames, tenant identifiers, or customer identifiers in the context. Use only log-approved opaque routing profile IDs or credential versions.
+
+Do not include request IDs, correlation IDs, random UUIDs, or other unbounded per-request values either. The 1.11.0 cache has no size limit or idle eviction, so each distinct value can create another session that remains until it is closed or the process shuts down. The `clientId`, `routingProfile`, and `credentialVersion` above are bounded deployment configuration values.
 
 ## 1.11.0 bootstrap limitation
 
@@ -105,7 +105,7 @@ This is the behavior before the bootstrap-builder fix merged after 1.11.0. If th
 
 Close directly created sessions with `use` or an explicit `close`. The provider registers final sessions in `ShutdownQueue`, so do not wrap a provider-managed session in `use` by default. The first caller would close a shared session and break reuse for other callers.
 
-You may still close a session when deliberately retiring an identity. On the next `getOrCreateSession` call, the provider removes cached entries whose `isClosed` flag is set before creating a replacement. `ShutdownQueue` handles process-wide cleanup at shutdown.
+The default provider-session lifetime is the lifetime of the process or owning component. To close or retire one identity explicitly, first quiesce every user of that identity and wait for in-flight work to finish. The provider has no atomic retire or evict API. Closing the session does not immediately remove its cache entry; the next `getOrCreateSession` lookup must observe and discard the closed entry. `ShutdownQueue` handles process-wide cleanup at shutdown.
 
 ## Failure table
 
@@ -113,13 +113,14 @@ You may still close a session when deliberately retiring an identity. On the nex
 | --- | --- | --- |
 | Blank keyspace | `CqlSessionIdentity` and the keyspace overload throw `IllegalArgumentException`. | Validate the keyspace at the input boundary. |
 | Blank local datacenter | `newCqlSessionBuilder` throws `IllegalArgumentException`. | Reject an empty driver setting immediately after loading configuration. |
-| Same keyspace, different connection context | Different explicit identities do not reuse the same session. | Include endpoint, datacenter, tenant, client, and a credential identifier in the context. |
-| A closed session remains cached | The provider removes `isClosed` entries and recreates the requested identity. | Do not close shared sessions per request; resolve the session again after retirement. |
+| Same keyspace, different connection context | Different explicit identities do not reuse the same session. | Put only log-safe, bounded configuration IDs in the context. |
+| Per-request values are used in identity | With no cache size limit or idle eviction, the session count keeps growing. | Exclude request IDs and random UUIDs; use deployment configuration dimensions. |
+| A closed session remains cached | The next provider lookup removes the `isClosed` entry and recreates the requested identity. | Quiesce every user first and plan around the lack of an atomic retire or evict API. |
 | Bootstrap settings exist only in the builder block | The block does not configure the admin session, so connection or authentication can fail first. | Move shared settings into `builderSupplier` or manage the keyspace separately. |
 
 ## Sources and tests
 
-- [`CqlSessionProvider.kt`](../../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionProvider.kt): identity construction, open-session reuse, closed-cache eviction, bootstrap and final session creation, and `ShutdownQueue` registration
+- [`CqlSessionProvider.kt`](../../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionProvider.kt): identity construction, INFO context logging, open-session reuse, closed-cache eviction, bootstrap and final session creation, and `ShutdownQueue` registration
 - [`CqlSessionSupport.kt`](../../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionSupport.kt): `cqlSession` and `cqlSessionOf`
 - [`CassandraAdmin.kt`](../../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CassandraAdmin.kt): `CREATE KEYSPACE IF NOT EXISTS`
 - [`ShutdownQueue.kt`](../../../../../bluetape4k/core/src/main/kotlin/io/bluetape4k/utils/ShutdownQueue.kt): cleanup of registered resources at process shutdown

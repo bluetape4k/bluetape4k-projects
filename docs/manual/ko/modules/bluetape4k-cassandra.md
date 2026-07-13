@@ -15,8 +15,8 @@ group: data
 ## 사용하기 전에 결정할 것
 
 - 한 작업 안에서 세션을 만들고 닫을지, 애플리케이션 전체에서 재사용할지 정합니다.
-- 재사용한다면 keyspace뿐 아니라 contact point, datacenter, tenant, credential, client id를 캐시 경계에 반영합니다.
-- blocking `execute`와 coroutine 기반 `executeSuspending` 가운데 호출 계층에 맞는 API를 고릅니다.
+- 재사용한다면 keyspace뿐 아니라 접속 지점, 데이터센터, 라우팅 프로필, 자격 증명 버전, client ID처럼 수가 제한된 설정 값을 캐시 경계에 반영합니다.
+- 동기 `execute`와 코루틴용 `executeSuspending` 가운데 호출 계층에 맞는 API를 고릅니다.
 - keyspace 생성 권한을 애플리케이션에 줄지, 배포 단계에서 별도로 관리할지 정합니다.
 
 ## 의존성 추가
@@ -56,11 +56,11 @@ val releaseVersion = cqlSessionOf(
 | 필요한 작업 | 시작할 API | 소유권 또는 주의점 |
 | --- | --- | --- |
 | 짧은 범위에서 세션 생성 | `cqlSessionOf`, `cqlSession` | 호출 코드가 `use`나 `close`로 종료합니다. |
-| 같은 접속 문맥의 세션 재사용 | `CqlSessionProvider`, `CqlSessionIdentity` | identity가 캐시 경계이며 provider가 종료 queue에 등록합니다. |
-| coroutine에서 query/prepare 실행 | `executeSuspending`, `prepareSuspending` | 호출 coroutine의 취소와 paging 경계를 유지합니다. |
-| row와 driver 값을 Kotlin 타입으로 변환 | `RowSupport`, `GettableSupport`, `DataTypeSupport` | null과 column type 계약을 먼저 확인합니다. |
+| 같은 접속 문맥의 세션 재사용 | `CqlSessionProvider`, `CqlSessionIdentity` | identity가 캐시 경계이며 provider가 종료 큐에 등록합니다. |
+| 코루틴에서 쿼리 실행과 prepare | `executeSuspending`, `prepareSuspending` | 호출한 코루틴의 취소와 페이지 처리 경계를 유지합니다. |
+| `Row`와 드라이버 값을 Kotlin 타입으로 변환 | `RowSupport`, `GettableSupport`, `DataTypeSupport` | null과 column type 계약을 먼저 확인합니다. |
 | statement와 query builder 조립 | `StatementSupport`, `QueryBuilderSupport` | consistency, timeout, keyspace를 호출 지점에서 드러냅니다. |
-| keyspace 관리와 통합 테스트 | `CassandraAdmin`, `AbstractCassandraTest` | 운영 DDL 권한과 테스트 container 수명주기를 분리합니다. |
+| keyspace 관리와 통합 테스트 | `CassandraAdmin`, `AbstractCassandraTest` | 운영 DDL 권한과 테스트 컨테이너 수명주기를 분리합니다. |
 
 ## 학습 경로
 
@@ -72,7 +72,7 @@ val releaseVersion = cqlSessionOf(
 
 ## 1.11.0에서 알아둘 제한
 
-1.11.0의 `CqlSessionProvider`는 keyspace bootstrap용 admin 세션을 `builderSupplier().build()`로 만듭니다. 마지막 builder block은 keyspace에 연결할 최종 세션에만 적용됩니다. 따라서 두 세션에 모두 필요한 contact point, local datacenter, 인증, TLS 설정은 `builderSupplier`에 넣어야 합니다. 이 동작은 1.11.0 뒤에 병합된 PR #986의 동작과 다릅니다.
+1.11.0의 `CqlSessionProvider`는 keyspace bootstrap용 관리 세션을 `builderSupplier().build()`로 만듭니다. 마지막 builder 블록은 keyspace에 연결할 최종 세션에만 적용됩니다. 따라서 두 세션에 모두 필요한 접속 지점, `localDatacenter`, 인증, TLS 설정은 `builderSupplier`에 넣어야 합니다. 이 동작은 1.11.0 뒤에 병합된 PR #986의 동작과 다릅니다.
 
 ## Source와 tests
 
