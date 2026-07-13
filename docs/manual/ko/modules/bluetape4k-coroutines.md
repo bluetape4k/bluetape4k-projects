@@ -22,7 +22,7 @@ Kotlin coroutine이 primitive를 제공해도 backend에서는 scope ownership, 
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-coroutines")
 }
 ```

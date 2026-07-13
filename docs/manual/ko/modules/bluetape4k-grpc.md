@@ -20,7 +20,7 @@ gRPC 서버/클라이언트 구현을 위한 Kotlin 확장 라이브러리입니
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-grpc")
 }
 ```

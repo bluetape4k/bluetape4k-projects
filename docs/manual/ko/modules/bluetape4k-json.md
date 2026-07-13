@@ -20,7 +20,7 @@ bluetape4k-json은 Jackson 2, Jackson 3, Fastjson2 모듈이 함께 쓰는 작�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-json")
 }
 ```

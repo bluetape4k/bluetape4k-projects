@@ -20,7 +20,7 @@ Use `bluetape4k-cache-core` when the application needs cache key design, consist
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-cache-core")
 }
 ```

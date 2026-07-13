@@ -20,7 +20,7 @@ Apache Cassandra Java Driver를 Kotlin에서 더욱 편리하게 사용할 수 �
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-cassandra")
 }
 ```

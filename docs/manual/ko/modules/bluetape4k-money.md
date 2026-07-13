@@ -20,7 +20,7 @@ Java 표준 Money API (JSR-354)를 기반으로 금융 및 통화 연산을 쉽�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-money")
 }
 ```

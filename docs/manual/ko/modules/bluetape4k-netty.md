@@ -20,7 +20,7 @@ Netty 라이브러리를 사용할 때 필요한 확장 함수들을 제공합�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-netty")
 }
 ```

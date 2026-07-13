@@ -20,7 +20,7 @@ Hibernate 7 2nd Level Cache (Lettuce Near Cache)를 위한 Spring Boot 4 Auto-Co
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce")
 }
 ```

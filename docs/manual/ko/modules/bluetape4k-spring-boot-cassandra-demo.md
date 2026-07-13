@@ -20,7 +20,7 @@ Apache Cassandra와 Spring Data Cassandra를 활용하는 종합 예제입니다
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-spring-boot-cassandra-demo")
 }
 ```

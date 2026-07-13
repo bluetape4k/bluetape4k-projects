@@ -20,7 +20,7 @@ JUnit 5 테스트 작성 시 반복 코드를 줄여주는 확장 라이브러�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-junit5")
 }
 ```

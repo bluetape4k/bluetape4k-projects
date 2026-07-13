@@ -20,7 +20,7 @@ Google Protocol Buffers 메시지 처리를 위한 Kotlin 확장 라이브러리
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-protobuf")
 }
 ```

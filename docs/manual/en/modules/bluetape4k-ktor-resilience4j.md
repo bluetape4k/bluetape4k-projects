@@ -20,7 +20,7 @@ Use `bluetape4k-ktor-resilience4j` when the application needs request lifecycle,
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-ktor-resilience4j")
 }
 ```

@@ -20,7 +20,7 @@ Resilience4j는 장애 격리와 회복성을 위한 경량 오픈소스 라이�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-resilience4j")
 }
 ```

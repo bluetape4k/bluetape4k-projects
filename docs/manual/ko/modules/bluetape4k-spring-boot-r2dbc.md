@@ -20,7 +20,7 @@ Spring Data R2DBC를 Kotlin Coroutines 기반으로 사용하기 편하게 확�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-spring-boot-r2dbc")
 }
 ```

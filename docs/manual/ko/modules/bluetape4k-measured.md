@@ -20,7 +20,7 @@ bluetape4k-measured는 조합 가능한 단위 타입(Units)과 측정값(Measur
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-measured")
 }
 ```

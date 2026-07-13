@@ -20,7 +20,7 @@ Vert.x 기반 비동기/Coroutines 개발을 위한 단일 통합 모듈입니�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-vertx")
 }
 ```

@@ -20,7 +20,7 @@ Kotlin + Coroutines 환경에서 쓰기 위한 Elasticsearch 클라이언트 라
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-elasticsearch")
 }
 ```

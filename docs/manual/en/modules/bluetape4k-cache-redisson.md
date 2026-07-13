@@ -20,7 +20,7 @@ Use `bluetape4k-cache-redisson` when the application needs cache key design, con
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-cache-redisson")
 }
 ```

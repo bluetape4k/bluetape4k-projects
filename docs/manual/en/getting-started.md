@@ -7,13 +7,15 @@ description: Select and install a bluetape4k-projects module, then move from gui
 
 ## 1. Import the BOM
 
-Use the repository version published for your application and let the BOM align bluetape4k artifacts.
+Choose the published `bluetape4k-dependencies` version for your application and let the central BOM align every bluetape4k artifact.
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
 }
 ```
+
+Here, `<version>` is the published version of `bluetape4k-dependencies`. The central BOM manages repository BOM versions, so consumers do not align them separately.
 
 ## 2. Add one task-focused module
 

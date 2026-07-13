@@ -20,7 +20,7 @@ Virtual Thread 기능을 JDK 버전에 독립적으로 사용할 수 있도록 �
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-virtualthread-api")
 }
 ```

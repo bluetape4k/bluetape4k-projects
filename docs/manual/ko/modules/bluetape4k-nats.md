@@ -20,7 +20,7 @@ NATS.io는 클라우드 네이티브 애플리케이션, IoT 메시징, 마이�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-nats")
 }
 ```

@@ -20,7 +20,7 @@ Kotlin DSL 기반 워크플로우 오케스트레이션 라이브러리입니다
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-workflow")
 }
 ```

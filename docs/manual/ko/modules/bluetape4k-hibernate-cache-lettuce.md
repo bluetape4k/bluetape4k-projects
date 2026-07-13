@@ -20,7 +20,7 @@ Hibernate 7.2 2nd Level Cache 구현체 — Lettuce Near Cache(Caffeine L1 + Red
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-hibernate-cache-lettuce")
 }
 ```

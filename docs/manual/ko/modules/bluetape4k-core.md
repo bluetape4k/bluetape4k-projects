@@ -20,7 +20,7 @@ backend 모듈은 일관된 exception type을 쓰는 parameter validation, byte-
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-core")
 }
 ```

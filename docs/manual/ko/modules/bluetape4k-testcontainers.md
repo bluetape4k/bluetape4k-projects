@@ -20,7 +20,7 @@ Testcontainers 2.0.3 기반 통합 테스트를 빠르게 구성하기 위한 �
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-testcontainers")
 }
 ```

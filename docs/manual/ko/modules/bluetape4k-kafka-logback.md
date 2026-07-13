@@ -20,7 +20,7 @@ English 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 b
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-kafka-logback")
 }
 ```

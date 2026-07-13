@@ -20,7 +20,7 @@ GIS 좌표 변환, Shapefile 처리, JTS 도형 연산, PostGIS 데이터베이�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-science")
 }
 ```

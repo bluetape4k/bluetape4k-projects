@@ -20,7 +20,7 @@ Use `bluetape4k-hibernate-cache-lettuce` when the application needs cache key de
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-hibernate-cache-lettuce")
 }
 ```

@@ -20,7 +20,7 @@ Hibernate ORM/JPA 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-hibernate")
 }
 ```

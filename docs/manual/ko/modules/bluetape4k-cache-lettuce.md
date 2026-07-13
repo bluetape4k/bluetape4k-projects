@@ -20,7 +20,7 @@ bluetape4k-cache-lettuce는 Lettuce(Redis) 기반 JCache Provider와 NearCache �
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-cache-lettuce")
 }
 ```

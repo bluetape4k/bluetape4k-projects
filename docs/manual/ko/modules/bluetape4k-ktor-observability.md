@@ -20,7 +20,7 @@ bluetape4k 애플리케이션에서 관측성 기본값을 명시적으로 설�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-ktor-observability")
 }
 ```

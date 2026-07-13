@@ -20,7 +20,7 @@ bluetape4k-csv는 RFC 4180을 준수하는 자체 구현 엔진을 사용하는 
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-csv")
 }
 ```

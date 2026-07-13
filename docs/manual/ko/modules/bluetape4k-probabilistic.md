@@ -20,7 +20,7 @@ JVM 애플리케이션에서 사용할 인메모리 확률적 자료구조 모�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-probabilistic")
 }
 ```
