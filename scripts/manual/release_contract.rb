@@ -8,6 +8,8 @@ module ManualDocs
     TAG_PATTERN = /\Av?\d+\.\d+\.\d+\z/
     SHA_PATTERN = /\A[0-9a-f]{40}\z/i
     REPOSITORY_LINK_PATTERN = /!?\[[^\]]*\]\(\s*<?((?:\.\.\/){4,}[^)\s>]+)>?(?:\s+["'][^)]*["'])?\s*\)/
+    REFERENCE_DEFINITION_PATTERN = /^[ \t]{0,3}\[([^\]]+)\]:[ \t]*(?:\n[ \t]+)?(?:<((?:\.\.\/){4,}[^>\r\n]+)>|((?:\.\.\/){4,}[^ \t\r\n]+))/
+    REFERENCE_USAGE_PATTERN = /!?\[([^\]]+)\](?:\[([^\]]*)\])?/
 
     def initialize(repository_root:, tag:, expected_sha:, git_runner: nil)
       @repository_root = File.expand_path(repository_root)
@@ -81,13 +83,43 @@ module ManualDocs
       manual_files.flat_map do |absolute_path|
         relative_file = Pathname.new(absolute_path).relative_path_from(Pathname.new(@repository_root)).to_s
         content = File.read(absolute_path)
-        content.to_enum(:scan, REPOSITORY_LINK_PATTERN).map do
-          match = Regexp.last_match
-          target = match[1]
-          line = content[0...match.begin(0)].count("\n") + 1
+        link_targets(content).map do |offset, target|
+          line = content[0...offset].count("\n") + 1
           [relative_file, line, target]
         end
       end
+    end
+
+    def link_targets(content)
+      inline_targets = content.to_enum(:scan, REPOSITORY_LINK_PATTERN).map do
+        match = Regexp.last_match
+        [match.begin(0), match[1]]
+      end
+      (inline_targets + reference_targets(content)).sort_by(&:first)
+    end
+
+    def reference_targets(content)
+      definitions = reference_definitions(content)
+      content.to_enum(:scan, REFERENCE_USAGE_PATTERN).map do
+        match = Regexp.last_match
+        next if ["(", ":"].include?(content[match.end(0)])
+
+        label = match[2].nil? || match[2].empty? ? match[1] : match[2]
+        target = definitions[normalize_reference_label(label)]
+        [match.begin(0), target] if target
+      end.compact
+    end
+
+    def reference_definitions(content)
+      content.to_enum(:scan, REFERENCE_DEFINITION_PATTERN).each_with_object({}) do |_captures, definitions|
+        match = Regexp.last_match
+        label = normalize_reference_label(match[1])
+        definitions[label] ||= match[2] || match[3]
+      end
+    end
+
+    def normalize_reference_label(label)
+      label.gsub(/\s+/, " ").strip.downcase
     end
 
     def missing_path_errors(inventory, links)

@@ -9,7 +9,7 @@ unless tag && expected_sha && ARGV.length == 2
 end
 
 result = ManualDocs::ReleaseContract.new(
-  repository_root: Dir.pwd,
+  repository_root: File.expand_path("../..", __dir__),
   tag: tag,
   expected_sha: expected_sha,
 ).validate

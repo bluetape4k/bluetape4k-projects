@@ -105,6 +105,73 @@ class ReleaseContractTest < Minitest::Test
     end
   end
 
+  def test_reports_a_full_reference_link_with_normalized_label
+    with_repository do |root, sha|
+      write_manual(root, <<~MARKDOWN)
+        [Missing][  LATER   Label ]
+
+        [later label]: ../../../../src/absent.kt
+      MARKDOWN
+
+      result = validator(root, sha).validate
+
+      assert_equal [
+        "docs/manual/en/modules/sample.md:1: release path not found: src/absent.kt",
+      ], result.errors
+      assert_equal 1, result.checked_count
+    end
+  end
+
+  def test_reports_an_unsafe_full_reference_link
+    with_repository do |root, sha|
+      write_manual(root, <<~MARKDOWN)
+        [Escape][unsafe]
+
+        [UNSAFE]: ../../../../../outside.kt
+      MARKDOWN
+
+      result = validator(root, sha).validate
+
+      assert_equal [
+        "docs/manual/en/modules/sample.md:1: unsafe release path: ../../../../../outside.kt",
+      ], result.errors
+      assert_equal 1, result.checked_count
+    end
+  end
+
+  def test_does_not_count_an_unused_reference_definition
+    with_repository do |root, sha|
+      write_manual(root, <<~MARKDOWN)
+        [Present](../../../../src/present.kt)
+
+        [unused]: ../../../../src/absent.kt
+      MARKDOWN
+
+      result = validator(root, sha).validate
+
+      assert_empty result.errors
+      assert_equal 1, result.checked_count
+    end
+  end
+
+  def test_counts_inline_full_collapsed_and_shortcut_reference_links
+    with_repository do |root, sha|
+      write_manual(root, <<~MARKDOWN)
+        [Inline](../../../../src/present.kt)
+        [Full][present]
+        [Present][]
+        [PRESENT]
+
+        [present]: ../../../../src/present.kt
+      MARKDOWN
+
+      result = validator(root, sha).validate
+
+      assert_empty result.errors
+      assert_equal 4, result.checked_count
+    end
+  end
+
   def test_orders_errors_by_file_and_numeric_line
     with_repository do |root, sha|
       write_manual(
@@ -185,22 +252,22 @@ class ReleaseContractTest < Minitest::Test
 
   def test_cli_reports_checked_and_missing_counts
     with_repository do |root, sha|
-      write_manual(root, <<~MARKDOWN)
-        [Present](../../../../src/present.kt)
-        [Present again](../../../../src/present.kt)
-      MARKDOWN
+      write_manual(root, "[Present](../../../../src/present.kt)\n")
+      validator_script = install_validator_scripts(root)
 
-      stdout, stderr, status = Open3.capture3(
-        RbConfig.ruby,
-        VALIDATOR_SCRIPT,
-        "1.11.0",
-        sha,
-        chdir: root,
-      )
+      Dir.mktmpdir("release-contract-outside") do |outside|
+        stdout, stderr, status = Open3.capture3(
+          RbConfig.ruby,
+          validator_script,
+          "1.11.0",
+          sha,
+          chdir: outside,
+        )
 
-      assert status.success?, stderr
-      assert_equal "Release manuals are compatible with 1.11.0 (#{sha}): 2 checked, 0 missing.\n", stdout
-      assert_empty stderr
+        assert status.success?, stderr
+        assert_equal "Release manuals are compatible with 1.11.0 (#{sha}): 1 checked, 0 missing.\n", stdout
+        assert_empty stderr
+      end
     end
   end
 
@@ -275,6 +342,14 @@ class ReleaseContractTest < Minitest::Test
     absolute = File.join(root, path)
     FileUtils.mkdir_p(File.dirname(absolute))
     File.write(absolute, content)
+  end
+
+  def install_validator_scripts(root)
+    destination = File.join(root, "scripts/manual")
+    FileUtils.mkdir_p(destination)
+    FileUtils.cp(File.join(__dir__, "release_contract.rb"), destination)
+    FileUtils.cp(VALIDATOR_SCRIPT, destination)
+    File.join(destination, "validate_release_manuals.rb")
   end
 
   def git(root, *arguments)
