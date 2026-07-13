@@ -110,7 +110,7 @@ Rows from earlier pages may already have been consumed when a later-page fetch f
 
 ## Result size and collection choice
 
-Use `toList()` only when the result is bounded and retaining every row in memory is acceptable. For results that are large or not known to be bounded, process rows with `collect`, `map`, or `transform`, and keep downstream concurrency, queues, and external calls bounded. `asFlow` does not accumulate the full result, but buffers or concurrent work introduced by the collector still need their own capacity limits.
+Use `toList()` only when the result is bounded and retaining every row in memory is acceptable. For results that are large or not known to be bounded, use `map` or `transform` to shape each value and then process it progressively with `collect`; keep downstream concurrency, queues, and external calls bounded. `map` and `transform` are also cold intermediate operators, so calling them alone does not execute the pipeline: a terminal operator such as `collect` is still required. `asFlow` does not accumulate the full result, but buffers or concurrent work introduced by the collector still need their own capacity limits.
 
 The paging order remains current-page emission followed by the next-page fetch. Adding an operator such as `buffer` downstream must not be treated as a driver-level guarantee of parallel page prefetch.
 
@@ -125,4 +125,4 @@ The paging order remains current-page emission followed by the next-page fetch. 
 
 ## Next reading
 
-If session ownership is not settled yet, start with [Session lifecycle](./session-lifecycle.md). The next chapter covers row nullability, column access, and conversion rules.
+If session ownership is not settled yet, start with [Session lifecycle](./session-lifecycle.md).

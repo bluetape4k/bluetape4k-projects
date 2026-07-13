@@ -1,6 +1,6 @@
 ---
 title: 코루틴 쿼리와 여러 페이지 읽기
-description: Java Driver의 async query를 suspend 함수와 취소 가능한 Flow로 실행합니다.
+description: Java Driver의 비동기 쿼리를 suspend 함수와 취소 가능한 Flow로 실행합니다.
 manualId: bluetape4k-cassandra
 chapterId: coroutine-queries
 ---
@@ -110,7 +110,7 @@ suspend fun loadActiveUsers(session: CqlSession): List<User> {
 
 ## 결과 크기와 수집 방식
 
-결과 상한을 알고 메모리에 모두 올려도 될 때만 `toList()`를 사용합니다. 결과가 크거나 상한이 보장되지 않으면 `collect`, `map`, `transform` 같은 연산으로 행을 순차 처리하고, 후속 처리의 동시성·큐·외부 호출 수도 제한합니다. `asFlow` 자체가 결과 전체를 모으지는 않지만, 수집자가 만든 버퍼나 동시 작업의 용량은 따로 제한해야 합니다.
+결과 상한을 알고 메모리에 모두 올려도 될 때만 `toList()`를 사용합니다. 결과가 크거나 상한이 보장되지 않으면 `map`이나 `transform`으로 필요한 값만 변환한 뒤 `collect`로 행을 순차 처리하고, 후속 처리의 동시성·큐·외부 호출 수도 제한합니다. `map`과 `transform`도 콜드 중간 연산자이므로 호출만 해서는 실행되지 않으며, `collect` 같은 종단 연산자가 필요합니다. `asFlow` 자체가 결과 전체를 모으지는 않지만, 수집자가 만든 버퍼나 동시 작업의 용량은 따로 제한해야 합니다.
 
 페이지 순회 순서는 현재 페이지 방출 후 다음 페이지 조회로 고정됩니다. 후속 처리에 `buffer` 같은 연산자를 추가해도 드라이버가 다음 페이지를 병렬로 미리 가져온다는 뜻은 아닙니다.
 
@@ -125,4 +125,4 @@ suspend fun loadActiveUsers(session: CqlSession): List<User> {
 
 ## 다음 읽을 장
 
-세션 소유권이 아직 정해지지 않았다면 [세션 수명주기](./session-lifecycle.md)를 먼저 읽습니다. 다음 장에서는 `Row`의 null 처리, 열 접근, 변환 규칙을 다룹니다.
+세션 소유권이 아직 정해지지 않았다면 [세션 수명주기](./session-lifecycle.md)를 먼저 읽습니다.
