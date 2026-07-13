@@ -42,7 +42,7 @@ fun Row.toUser(): User = User(
 | `map`, `mapWithName`, `mapWithCqlIdentifier` | 위와 같음 | 각 값을 같은 방식으로 변환하는 동적 경계 |
 | `columnCodecs()` | `CqlIdentifier` | 드라이버가 고른 `TypeCodec`을 진단 |
 
-이 함수들은 드라이버 codec을 골라 각 컬럼 값을 bytes에서 decode합니다. `toNamedMap()`은 렌더링한 CQL 이름을 기준으로 정렬하므로 select 목록 순서를 보존하는 자료구조가 아닙니다. `map` 값의 타입도 `Any?`라서 필드가 정해진 업무 모델의 기본 표현으로 쓰면 잘못된 이름과 타입을 컴파일 시점에 잡지 못합니다.
+이 함수들은 드라이버 codec을 골라 각 컬럼 값을 bytes에서 decode합니다. `toNamedMap()`은 렌더링한 CQL 이름을 기준으로 정렬하므로 select 목록 순서를 보존하는 자료구조가 아닙니다. `toMap()`, `toNamedMap()`, `toCqlIdentifierMap()`처럼 변환 함수를 받지 않는 API의 값 타입은 `Any?`라서, 필드가 정해진 업무 모델의 기본 표현으로 쓰면 잘못된 이름과 타입을 컴파일 시점에 잡지 못합니다. 반면 `map*` 함수는 변환 결과 타입 `T`를 값으로 반환합니다.
 
 그래서 map 변환은 컬럼 구성이 실행 시점에 결정되는 경계나 진단 코드에만 두고, 안정된 스키마는 `toUser()` 같은 명시적 매퍼로 옮기는 편이 낫습니다. 민감한 컬럼이 있는 `Row`를 통째로 map으로 바꿔 로그에 남기지 않습니다.
 
@@ -51,6 +51,8 @@ fun Row.toUser(): User = User(
 `getStringOrEmpty(index|name|id)`는 드라이버의 nullable `getString` 결과에 `orEmpty()`를 적용합니다. 편리하지만 Cassandra의 null과 빈 문자열을 모두 `""`로 바꿉니다.
 
 ```kotlin
+import io.bluetape4k.cassandra.cql.getStringOrEmpty
+
 val displayName = row.getStringOrEmpty("display_name")
 
 // null과 빈 문자열의 뜻이 다르면 nullable getter를 유지합니다.
@@ -140,7 +142,9 @@ val result = session.execute(statement)
 
 `prepareInsert`와 `prepareInsertIfNotExists`는 `EntityHelper`가 만든 CQL을 `CqlSession.prepare`에 넘깁니다. `bind`는 `PreparedStatement`의 builder에 entity 값을 채우고 `BoundStatement`를 반환합니다. 어느 함수도 statement를 실행하지 않으므로 마지막 실행은 호출부의 책임입니다.
 
-`bind`의 기본값은 `NullSavingStrategy.DO_NOT_SET`과 `lenient = true`입니다. null을 Cassandra null로 저장해야 하거나 누락 컬럼을 엄격하게 검사해야 한다면 호출부에서 값을 명시합니다. 이 선택은 부분 업데이트와 schema drift의 의미를 바꾸므로 관성적으로 기본값을 복사하지 않습니다.
+`bind`의 기본값은 `NullSavingStrategy.DO_NOT_SET`과 `lenient = true`입니다. `DO_NOT_SET`은 null 속성의 setter를 호출하지 않아 bind marker를 unset 상태로 남깁니다. 그래서 UPDATE라면 기존 컬럼 값을 덮어쓰지 않습니다. `SET_TO_NULL`은 null 속성도 CQL `NULL`로 바인딩합니다.
+
+`lenient = true`이면 target에 대응 컬럼이 없는 entity 속성을 건너뛰므로 일부 속성만 채운 statement가 만들어질 수 있습니다. `lenient = false`이면 computed property를 제외한 모든 entity 속성에 대응하는 target 컬럼이 있어야 하며, 하나라도 없으면 `IllegalArgumentException`이 발생합니다. 저장 의도와 prepared statement의 bind marker 구성을 확인한 뒤 두 값을 정합니다.
 
 `bluetape4k-cassandra` 1.11.0은 DataStax mapper runtime을 API dependency로 제공합니다. 하지만 애플리케이션의 `EntityHelper<T>` 코드는 mapper annotation processor가 생성해야 합니다. runtime이 classpath에 있다는 사실만으로 helper가 생기지는 않습니다. processor 설정 없이 사용한다면 직접 작성한 typed row mapper가 더 단순한 경계입니다.
 

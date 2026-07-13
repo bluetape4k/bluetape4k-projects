@@ -42,7 +42,7 @@ The mapper records that `name` is required. It treats null `tags` as an empty co
 | `map`, `mapWithName`, `mapWithCqlIdentifier` | Same as above | Apply one transformation at a dynamic boundary |
 | `columnCodecs()` | `CqlIdentifier` | Inspect the `TypeCodec` selected by the driver |
 
-These functions decode each column with the driver codec selected for its type. `toNamedMap()` sorts entries by rendered CQL name, so it does not preserve select-list order. Its values are also `Any?`, which means a misspelled field or wrong expected type is not caught at compile time.
+These functions decode each column with the driver codec selected for its type. `toNamedMap()` sorts entries by rendered CQL name, so it does not preserve select-list order. The non-transforming `toMap()`, `toNamedMap()`, and `toCqlIdentifierMap()` functions use `Any?` values, which means a misspelled field or wrong expected type is not caught at compile time. The `map*` functions instead return the transform result type `T`.
 
 Use map conversion for diagnostics or boundaries whose columns are only known at runtime. Prefer an explicit mapper such as `toUser()` for a stable domain model. Do not turn a complete row into a map and log it when the result can contain sensitive columns.
 
@@ -51,6 +51,8 @@ Use map conversion for diagnostics or boundaries whose columns are only known at
 `getStringOrEmpty(index|name|id)` applies `orEmpty()` to the nullable value returned by the driver. It therefore maps both Cassandra null and an empty string to `""`.
 
 ```kotlin
+import io.bluetape4k.cassandra.cql.getStringOrEmpty
+
 val displayName = row.getStringOrEmpty("display_name")
 
 // Preserve the nullable getter when null and empty have different meanings.
@@ -140,7 +142,9 @@ val result = session.execute(statement)
 
 `prepareInsert` and `prepareInsertIfNotExists` pass CQL produced by the `EntityHelper` to `CqlSession.prepare`. `bind` fills a prepared-statement builder from the entity and returns a `BoundStatement`. None of these functions executes the statement; execution remains the caller's responsibility.
 
-The `bind` defaults are `NullSavingStrategy.DO_NOT_SET` and `lenient = true`. Pass explicit values when null must be written as Cassandra null or missing columns must fail strictly. These choices affect partial-update and schema-drift behavior and should be domain decisions, not copied defaults.
+The `bind` defaults are `NullSavingStrategy.DO_NOT_SET` and `lenient = true`. `DO_NOT_SET` does not call a setter for a null property, leaving its bind marker unset; in an UPDATE, an existing column value is therefore not overwritten. `SET_TO_NULL` binds null properties as CQL `NULL`.
+
+With `lenient = true`, entity properties without matching target columns are skipped, so the statement may be only partially populated. With `lenient = false`, every non-computed entity property must have a matching target column or binding throws `IllegalArgumentException`. Choose both arguments after checking the intended write and the prepared statement's bind markers.
 
 `bluetape4k-cassandra` 1.11.0 exposes the DataStax mapper runtime as an API dependency. An annotation processor must still generate the application's `EntityHelper<T>` code. A runtime dependency on its own does not create helpers. Without processor configuration, an explicit typed row mapper is often the simpler boundary.
 
