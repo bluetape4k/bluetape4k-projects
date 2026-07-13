@@ -1,121 +1,165 @@
 ---
 manualId: bluetape4k-spring-boot-r2dbc
-title: "Module bluetape4k-spring-boot-r2dbc"
-description: "An extension library that makes Spring Data R2DBC easier to use with Kotlin Coroutines (Spring Boot 4.x)."
+title: "Spring Data R2DBC coroutine extensions"
+description: "Use Spring Data R2DBC entity operations through Kotlin suspend functions and Flow."
 kind: library
 group: spring
 ---
 
-# Module bluetape4k-spring-boot-r2dbc
+# Spring Data R2DBC coroutine extensions
 
-## Problem {#problem}
+## What it provides {#problem}
 
-An extension library that makes Spring Data R2DBC easier to use with Kotlin Coroutines (Spring Boot 4.x). This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+`bluetape4k-spring-boot-r2dbc` adapts Spring Data R2DBC's `R2dbcEntityOperations`, `ReactiveInsertOperation`, `ReactiveUpdateOperation`, and `ReactiveDeleteOperation` to Kotlin coroutine APIs. Multi-row reads return `Flow<T>`, single-row operations are suspending functions, and updates and deletes return their affected row count.
 
-## When to use {#when-to-use}
+The module does not create a `ConnectionFactory` or connection pool, and it contains no auto-configuration. It is a thin extension layer over the `R2dbcEntityOperations` configured by Spring Boot and the application, adapting Reactor publishers with `awaitSingle`, `awaitSingleOrNull`, and `flow`.
 
-Use `bluetape4k-spring-boot-r2dbc` when the application needs auto-configuration conditions, bean ownership, property binding, and application lifecycle. Start with the source entry points below and confirm that their ownership and failure contracts match the calling component. Prefer a smaller standard-library or already-adopted module when it satisfies the same contract without another runtime boundary.
+## Decide before using it {#when-to-use}
 
-## Coordinates {#coordinates}
+- Decide whether Spring Data R2DBC entity mapping and `Query`/`Criteria` fit the data access boundary.
+- Select the result contract: exactly one row, the first row, or multiple rows as a `Flow`.
+- Keep insert and update distinct. This module has no state-aware `save` or upsert operation.
+- Own transactions at the service or Spring configuration boundary. Calling one extension does not start a new transaction.
+- Keep driver, `ConnectionFactory`, pool capacity, and shutdown ownership in the application.
+
+For direct SQL or connection and pool helpers, start with [`bluetape4k-r2dbc`](./bluetape4k-r2dbc.md). If you need table DSLs and repository abstractions, compare Exposed R2DBC in the [ecosystem path](./bluetape4k-spring-boot-r2dbc/ecosystem-paths.md).
+
+## Add the dependency {#coordinates}
+
+Users manage only the `bluetape4k-dependencies` BOM version rather than aligning individual library versions. The application selects the database driver.
 
 ```kotlin
 dependencies {
     implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-spring-boot-r2dbc")
+
+    runtimeOnly("org.postgresql:r2dbc-postgresql") // replace with your driver
 }
 ```
 
-Gradle project path: `:bluetape4k-spring-boot-r2dbc`. Source directory: `spring-boot/r2dbc`.
+The artifact exposes `bluetape4k-r2dbc`, `bluetape4k-spring-boot-core`, and the Spring Boot Data R2DBC starter as API dependencies.
 
-## Concepts {#concepts}
+## First repository {#quick-start}
 
-The first source-level concepts to inspect are `R2dbcEntityOperationExtensions`, `ReactiveDeleteOperationExtensions`, `ReactiveInsertOperationExtensions`, `ReactiveSelectOperationExtensions`, and `ReactiveUpdateOperationExtensions`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
+Inject Spring Boot's `R2dbcEntityOperations` and use only the extensions needed by the repository.
 
-## Quick start {#quick-start}
+```kotlin
+@Repository
+class PostRepository(
+    private val operations: R2dbcEntityOperations,
+) {
+    fun findAll(): Flow<Post> =
+        operations.selectAllSuspending()
 
-Add the coordinate above, refresh Gradle, and start from the smallest entry point that owns the required task. Open [`R2dbcEntityOperationExtensions`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/R2dbcEntityOperationExtensions.kt) first; it is a concrete source entry point for the module.
+    suspend fun findById(id: Long): Post? =
+        operations.findOneByIdOrNullSuspending(id)
+
+    suspend fun insert(post: Post): Post =
+        operations.insertSuspending(post)
+}
+```
+
+The query behind `selectAllSuspending` runs when the returned `Flow` is collected. A controller can return `Flow<Post>` directly, or a service can collect it with `toList()`. Introducing a blocking bridge removes the benefit of the R2DBC path.
 
 ## API by task {#api-by-task}
 
-| Entry point | What to verify |
-| --- | --- |
-| [`R2dbcEntityOperationExtensions`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/R2dbcEntityOperationExtensions.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ReactiveDeleteOperationExtensions`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveDeleteOperationExtensions.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ReactiveInsertOperationExtensions`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveInsertOperationExtensions.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ReactiveSelectOperationExtensions`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveSelectOperationExtensions.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ReactiveUpdateOperationExtensions`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveUpdateOperationExtensions.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| Task | API | Result and boundary |
+| --- | --- | --- |
+| Exactly one row by ID | `findOneByIdSuspending<T>` | Missing or duplicate results propagate the underlying Spring Data error. |
+| Nullable row by ID | `findOneByIdOrNullSuspending<T>` | Zero rows become `null`; duplicates still fail. |
+| First row by ID | `findFirstByIdSuspending<T>`, `findFirstByIdOrNullSuspending<T>` | Multiple rows are allowed and only the first is used. |
+| Multiple rows | `selectSuspending<T>`, `selectAllSuspending<T>` | Returns a cold `Flow<T>`. |
+| One or first row | `selectOne*`, `selectFirst*` | `one` and `first` have different cardinality contracts. |
+| Existence and count | `existsSuspending<T>`, `countSuspending<T>`, `countAllSuspending<T>` | Returns `Boolean` or `Long`. |
+| Insert an entity | `insertSuspending<T>`, `insertOrNullSuspending<T>` | Returns the inserted entity; it does not update or upsert. |
+| Conditional update | `updateSuspending<T>` | Returns the affected row count. |
+| Conditional or full delete | `deleteSuspending<T>`, `deleteAllSuspending<T>` | Returns the deleted row count. |
 
-## Patterns {#patterns}
+## Learning path {#concepts}
 
-The README evidence is organized around **Key Features**, **Architecture Diagrams**, **Core Class Structure**, **R2DBC + Coroutines Data Flow**, **CRUD Operation Hierarchy**, **Coroutine Conversion Sequence**, **Installation**, **Usage Examples**, **R2dbcEntityOperations Extensions**, and **Repository Example**. Use those topics as a navigation map, then confirm behavior in source and tests. Keep adoption narrow and connect owned resources to the caller lifecycle.
+The chapters go beyond an API inventory. They use the 1.11.0 source and tests to explain the cardinality, transaction, and failure boundaries encountered in a real repository. Each chapter links directly to the relevant implementation and verification code.
 
-## Integrations {#integrations}
+1. [Start with entity operations](./bluetape4k-spring-boot-r2dbc/entity-operations.md) — Understand receiver types, ID helpers, and the configuration this module does not own.
+2. [Flow and result cardinality](./bluetape4k-spring-boot-r2dbc/flow-and-cardinality.md) — Distinguish multi-row, exactly-one, first-row, and nullable results.
+3. [Insert, update, and delete](./bluetape4k-spring-boot-r2dbc/write-operations.md) — Interpret inserted entities and affected row counts without confusing insert with save.
+4. [Queries and repositories](./bluetape4k-spring-boot-r2dbc/queries-and-repositories.md) — Build repositories and WebFlux endpoints with Spring Data `Query` and `Criteria`.
+5. [Transactions, failures, and testing](./bluetape4k-spring-boot-r2dbc/transactions-and-testing.md) — Connect external transaction ownership, cancellation, H2 integration tests, and failure assertions.
+6. [R2DBC ecosystem path](./bluetape4k-spring-boot-r2dbc/ecosystem-paths.md) — Choose the next step among core R2DBC, JDBC, Exposed R2DBC, and workshops.
 
-The current build declares these integration edges:
+New users should follow chapters 1 through 5. If the persistence technology or abstraction level is still undecided, start with chapter 6 and return to the relevant chapter.
 
-```kotlin
-implementation(platform(libs.spring.boot.dependencies))
-api(project(":bluetape4k-r2dbc"))
-api(project(":bluetape4k-spring-boot-core"))
-api("org.springframework.boot:spring-boot-starter-data-r2dbc")
-implementation(project(":bluetape4k-coroutines"))
-implementation(libs.kotlinx.coroutines.reactor)
+## Recommended patterns {#patterns}
+
+A repository should inject `R2dbcEntityOperations` and decide query shape and result cardinality. Put business transactions at a service boundary that can span several repositories. Keep a `Flow` intact until its endpoint or service consumer, and terminate a single write publisher as a suspending function.
+
+Do not replace `one` with `first` based only on naming preference. Use `one` when duplicates must surface as an error; use `first` when a sorted result intentionally selects its leading row. Check update and delete counts to distinguish a stale condition from a successful write.
+
+## Integration boundary {#integrations}
+
+The module sits on this path:
+
+```text
+WebFlux controller / coroutine service
+                  ↓
+bluetape4k Spring Data R2DBC coroutine extensions
+                  ↓
+R2dbcEntityOperations / Spring Data Query and mapping
+                  ↓
+ConnectionFactory / R2DBC driver / database
 ```
 
-Treat `compileOnly` edges as caller-provided capabilities and verify runtime availability before using their APIs.
+`bluetape4k-r2dbc` supplies connection, raw SQL, mapping, and transaction helpers. This module adds coroutine-friendly Spring Data entity operations above that layer. Both can be used together, but they should not duplicate responsibility for the same query.
 
 ## Configuration {#configuration}
 
-No module-level configuration resource was found under `src/main/resources`. Configuration is supplied through constructors, builders, function arguments, or the integrating framework; confirm defaults in source.
+The module has no property class, auto-configuration class, or `src/main/resources` configuration. Spring Boot configures `spring.r2dbc.*`, the driver, `ConnectionFactory`, and pool. Applications that configure R2DBC manually must provide `R2dbcEntityOperations` as well.
 
-## Failures {#failures}
+The 1.11.0 test application creates an H2 `ConnectionFactory` through `AbstractR2dbcConfiguration` and applies a schema with `ConnectionFactoryInitializer`. That code is a test fixture, not an auto-configuration feature of this module.
 
-Failure semantics are defined by the linked entry points and tests, not inferred from the artifact name. Keep cancellation and timeout signals intact, close owned resources, and translate backend exceptions only at a boundary that can add a stable domain contract. Use the test anchors below to verify the exact behavior before adding retries or fallbacks.
+## Failure behavior {#failures}
+
+The extensions do not turn Spring Data and driver failures into fallback values. `selectOneSuspending` does not hide zero or duplicate rows. `selectOneOrNullSuspending` maps only zero rows to `null`; duplicate rows can still fail. `selectFirstOrNullSuspending` allows duplicates because it intentionally consumes only the first result.
+
+Insert mapping failures, constraint violations, and connection acquisition errors propagate. Cancellation is not changed into success or an empty result. An update or delete count of `0L` is a normal “no matching row” result, so callers must compare it with the expected count.
 
 ## Operations {#operations}
 
-Track condition reports, startup failures, pool/client health, request latency, and graceful shutdown. Keep capacity, timeout, retry, and shutdown settings next to the component that owns the resource; avoid process-wide defaults that hide which caller accepted the trade-off.
+This module provides no metrics or health indicator. Observe query latency, pending pool acquisitions, timeouts, transaction rollbacks, and WebFlux request latency through Spring Boot, the driver, and the pool. Recollecting a `Flow` may rerun its query, so traces should make repeated subscriptions visible.
+
+A `Flow` does not automatically bound database or memory load. Add sorting and limits to the `Query`, then monitor consumer throughput and connection hold time.
 
 ## Testing {#testing}
 
-Run the module test task:
+The 1.11.0 tests use an H2 in-memory database and a real Spring Boot context to verify reads, inserts, updates, deletes, and WebFlux endpoints.
 
 ```bash
-./gradlew :bluetape4k-spring-boot-r2dbc:test --no-configuration-cache
+./gradlew :bluetape4k-spring-boot-r2dbc:test --no-build-cache --no-configuration-cache
 ```
 
-Representative test anchors:
+`R2dbcEntityOperationsExtensionsTest` verifies insert→update→select→delete→exists in one flow. `PostRepositoryTest` and `CommentRepositoryTest` cover nullable one-row lookup, first-row lookup, `Flow`, and count at the repository boundary. `PostControllerTest` verifies that `Flow` and suspending values reach a WebFlux endpoint.
 
-- [`DatabaseInitializer`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/DatabaseInitializer.kt)
-- [`R2dbcBlogApplication`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/R2dbcBlogApplication.kt)
-- [`PostController`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/controller/PostController.kt)
-- [`Comment`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/domain/Comment.kt)
-- [`CommentRepository`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/domain/CommentRepository.kt)
-- [`Post`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/domain/Post.kt)
-- [`PostRepository`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/domain/PostRepository.kt)
-- [`PostNotFoundException`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/exceptions/PostNotFoundException.kt)
+## Workshops and examples {#workshops}
 
-## Workshops {#workshops}
+The in-module `coroutines.blog` test application is the closest runnable example. Read `PostRepository`, `CommentRepository`, and `PostController` together to follow the entity→repository→WebFlux endpoint path.
 
-No dedicated workshop path is registered in the manual manifest. Use the module README and the representative tests above as runnable evidence.
+Continue to the [Exposed R2DBC Workshop](https://github.com/bluetape4k/exposed-r2dbc-workshop) for a higher-level SQL DSL and repository exercises. To start from raw R2DBC, follow the [`bluetape4k-r2dbc` learning path](./bluetape4k-r2dbc/ecosystem-paths.md).
 
-## Limitations {#limitations}
+## 1.11.0 scope {#limitations}
 
-This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
+This manual targets the `bluetape4k-projects` 1.11.0 release source. Despite `spring-boot` in the module name, it has no separate auto-configuration, conditions, property binding, or pool management. It does not generate `R2dbcRepository` implementations or extend Spring Data repository interfaces.
 
-## Sources {#sources}
+The API depends on reified types and Spring Data entity mapping. Use `bluetape4k-r2dbc` or Spring `DatabaseClient` for raw SQL, batching, detailed generated-key control, or custom row mapping.
+
+## Sources and tests {#sources}
 
 - [Module README](../../../../spring-boot/r2dbc/README.md)
 - [Module build](../../../../spring-boot/r2dbc/build.gradle.kts)
-- [`R2dbcEntityOperationExtensions`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/R2dbcEntityOperationExtensions.kt)
-- [`ReactiveDeleteOperationExtensions`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveDeleteOperationExtensions.kt)
-- [`ReactiveInsertOperationExtensions`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveInsertOperationExtensions.kt)
-- [`ReactiveSelectOperationExtensions`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveSelectOperationExtensions.kt)
-- [`ReactiveUpdateOperationExtensions`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveUpdateOperationExtensions.kt)
-- [`DatabaseInitializer`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/DatabaseInitializer.kt)
-- [`R2dbcBlogApplication`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/R2dbcBlogApplication.kt)
-- [`PostController`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/controller/PostController.kt)
-- [`Comment`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/domain/Comment.kt)
-- [`CommentRepository`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/domain/CommentRepository.kt)
-- [`Post`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/domain/Post.kt)
-- [`PostRepository`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/domain/PostRepository.kt)
+- [`R2dbcEntityOperationExtensions.kt`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/R2dbcEntityOperationExtensions.kt)
+- [`ReactiveSelectOperationExtensions.kt`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveSelectOperationExtensions.kt)
+- [`ReactiveInsertOperationExtensions.kt`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveInsertOperationExtensions.kt)
+- [`ReactiveUpdateOperationExtensions.kt`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveUpdateOperationExtensions.kt)
+- [`ReactiveDeleteOperationExtensions.kt`](../../../../spring-boot/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveDeleteOperationExtensions.kt)
+- [`R2dbcEntityOperationsExtensionsTest.kt`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/test/domain/R2dbcEntityOperationsExtensionsTest.kt)
+- [`PostRepository.kt`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/domain/PostRepository.kt)
+- [`CommentRepository.kt`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/domain/CommentRepository.kt)
+- [`PostControllerTest.kt`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/test/controller/PostControllerTest.kt)
