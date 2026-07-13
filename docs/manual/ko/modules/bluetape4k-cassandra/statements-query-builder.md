@@ -150,4 +150,4 @@ batch에 넣는 statement는 `BatchableStatement`여야 합니다. 서로 다른
 ## 앞뒤로 읽기
 
 - 이전: [Row와 Cassandra 값을 Kotlin 타입으로 옮기기](./rows-data-mapping.md)
-- 다음 주제: 실행 결과와 실패를 검증하는 operations·testing
+- 다음: [운영 경계와 Testcontainers 검증](./operations-testing.md)
