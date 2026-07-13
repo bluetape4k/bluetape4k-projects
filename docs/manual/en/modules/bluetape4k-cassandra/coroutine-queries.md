@@ -126,3 +126,5 @@ The paging order remains current-page emission followed by the next-page fetch. 
 ## Next reading
 
 If session ownership is not settled yet, start with [Session lifecycle](./session-lifecycle.md).
+
+Continue with [Map rows and Cassandra values into Kotlin types](./rows-data-mapping.md) for the result-mapping boundary.
