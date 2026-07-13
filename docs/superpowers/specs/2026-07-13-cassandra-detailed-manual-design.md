@@ -1,7 +1,7 @@
 # Cassandra 상세 매뉴얼 설계
 
 **날짜:** 2026-07-13
-**상태:** 구조 승인됨, 작성된 spec 검토 대기
+**상태:** 기본 구조 구현 완료, 학습 경로 소개 확장안 승인됨
 **대상 저장소:** `bluetape4k-projects`, `bluetape4k.github.io`
 **기준 버전:** `bluetape4k-projects` `1.11.0`
 **기준 commit:** `6187173b58e8b4c5c435c145e00e94708f31ef75`
@@ -72,6 +72,20 @@ Landing은 기능 목록을 반복하지 않고 다음 질문에 답한다.
 - statement, QueryBuilder와 mapper helper는 각각 어느 경계에서 쓰는가?
 
 첫 실행 예제는 중앙 BOM인 `bluetape4k-dependencies`와 artifact를 추가하고, 명시적으로 소유한 `CqlSession`에서 가장 작은 쿼리를 수행한 뒤 닫는 흐름을 보여준다. 이후 학습 경로를 세션 → 비동기 쿼리 → 데이터 변환 → statement 작성 → 운영과 테스트 순으로 연결한다.
+
+### 학습 경로 소개 확장
+
+Landing의 첫 기능 소개 heading은 역할의 소유권을 묻는 `이 라이브러리가 맡는 일` 대신 사용자가 바로 이해할 수 있는 `제공하는 기능`으로 바꾼다. 본문은 세션 생성, coroutine query, row mapping, statement 확장처럼 라이브러리가 실제로 더하는 기능을 먼저 설명하고, cluster와 schema 운영은 애플리케이션 책임이라는 경계를 이어서 밝힌다.
+
+학습 경로는 링크 제목만 나열하지 않는다. 목록 앞에서 다섯 장이 상세 설명, 실행 가능한 예제, API 선택 기준, 실패와 운영 경계를 함께 다룬다는 점과 권장 순서를 설명한다. 각 항목에는 다음 정보를 1~2문장으로 덧붙인다.
+
+- 해당 장에서 해결하는 실제 문제
+- 직접 따라 할 수 있는 대표 예제나 API 흐름
+- 읽고 난 뒤 내릴 수 있어야 하는 설계 또는 운영 판단
+
+세션 수명주기 → coroutine query → row mapping → statement 작성 → 운영과 테스트라는 순서는 유지한다. 처음 도입하는 사용자는 앞에서부터 읽고, 이미 사용 중인 사용자는 필요한 장으로 바로 이동할 수 있다고 안내한다. Landing에 chapter 본문을 복제하거나 긴 코드 예제를 추가하지는 않는다.
+
+한국어를 먼저 자연스럽게 다듬은 뒤 영문에 같은 정보 밀도와 목록 순서를 반영한다. Site는 이 canonical source를 다시 snapshot하며, 기존 chapter URL과 anchor ID는 유지한다.
 
 ## Chapter 1 — Session lifecycle
 
