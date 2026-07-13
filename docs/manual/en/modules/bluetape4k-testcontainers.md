@@ -103,7 +103,6 @@ Run the module test task:
 Representative test anchors:
 
 - [`AbstractContainerTest`](../../../../testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/AbstractContainerTest.kt)
-- [`ContainerReusePolicyTest`](../../../../testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/ContainerReusePolicyTest.kt)
 - [`GenericContainerExtensionsSupportTest`](../../../../testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/GenericContainerExtensionsSupportTest.kt)
 - [`GenericServerSupportTest`](../../../../testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/GenericServerSupportTest.kt)
 - [`GenericServerTest`](../../../../testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/GenericServerTest.kt)
@@ -134,4 +133,3 @@ This page documents the repository state represented by the linked source and te
 - [`LocalStackServer`](../../../../testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/aws/LocalStackServer.kt)
 - [`MiniStackServer`](../../../../testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/aws/MiniStackServer.kt)
 - [`AbstractContainerTest`](../../../../testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/AbstractContainerTest.kt)
-- [`ContainerReusePolicyTest`](../../../../testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/ContainerReusePolicyTest.kt)

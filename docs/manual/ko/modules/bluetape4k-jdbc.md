@@ -29,7 +29,7 @@ Gradle project path는 `:bluetape4k-jdbc`, source directory는 `data/jdbc`입니
 
 ## 핵심 개념 {#concepts}
 
-먼저 확인할 source 개념은 `JdbcDrivers`, `RefreshingJdbcPasswordDataSource`, `HikariSupport`, `ArgumentSetter`, `ConnectionExtensions`, `DataSourceExtensions`, `DataSourceTransactionExtensions`, `GetColumnToken`입니다. 파일 이름은 탐색 anchor일 뿐이므로 public 계약으로 사용하기 전에 선언과 test를 함께 읽습니다.
+먼저 확인할 소스 개념은 `JdbcDrivers`, `HikariSupport`, `ArgumentSetter`, `ConnectionExtensions`, `DataSourceExtensions`, `DataSourceTransactionExtensions`, `GetColumnToken`입니다. 파일 이름은 탐색용 기준점일 뿐입니다. 공개 계약으로 사용하기 전에 선언과 테스트를 함께 확인합니다.
 
 ## 빠른 시작 {#quick-start}
 
@@ -40,7 +40,6 @@ Gradle project path는 `:bluetape4k-jdbc`, source directory는 `data/jdbc`입니
 | Entry point | 확인할 내용 |
 | --- | --- |
 | [`JdbcDrivers`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/JdbcDrivers.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`RefreshingJdbcPasswordDataSource`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/datasource/RefreshingJdbcPasswordDataSource.kt) | constructor, function, ownership 계약을 확인합니다. |
 | [`HikariSupport`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/hikari/HikariSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
 | [`ArgumentSetter`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/ArgumentSetter.kt) | constructor, function, ownership 계약을 확인합니다. |
 | [`ConnectionExtensions`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/ConnectionExtensions.kt) | constructor, function, ownership 계약을 확인합니다. |
@@ -52,7 +51,7 @@ Gradle project path는 `:bluetape4k-jdbc`, source directory는 `data/jdbc`입니
 
 ## 권장 패턴 {#patterns}
 
-README 근거는 **특징**, **아키텍처 다이어그램**, **확장 함수 API 개요**, **주요 API 구조**, **JDBC 쿼리 실행 흐름**, **의존성 추가**, **주요 기능**, **1. DataSource/Connection 관리**, **갱신형 비밀번호 DataSource**, **2. Statement 실행** 순서로 탐색할 수 있습니다. 이 항목으로 방향을 잡고 source와 test에서 동작을 확인합니다. 도입 범위는 좁게 유지하고 소유한 resource를 caller lifecycle에 연결합니다.
+README는 **특징**, **아키텍처 다이어그램**, **확장 함수 API 개요**, **주요 API 구조**, **JDBC 쿼리 실행 흐름**, **의존성 추가**, **주요 기능**, **1. DataSource/Connection 관리**, **2. Statement 실행** 순서로 살펴볼 수 있습니다. 이 항목으로 방향을 잡고 소스와 테스트에서 실제 동작을 확인합니다. 도입 범위는 좁게 유지하고, 소유한 리소스의 수명 주기를 호출자와 연결합니다.
 
 ## 연동 {#integrations}
 
@@ -93,7 +92,6 @@ pool 포화, query latency, retry, transaction rollback, schema 호환성을 관
 
 - [`AbstractJdbcTest`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/AbstractJdbcTest.kt)
 - [`JdbcDriversTest`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/JdbcDriversTest.kt)
-- [`RefreshingJdbcPasswordDataSourceTest`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/datasource/RefreshingJdbcPasswordDataSourceTest.kt)
 - [`HikariSupportTest`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/hikari/HikariSupportTest.kt)
 - [`Actor`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/model/Actor.kt)
 - [`TestBean`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/model/TestBean.kt)
@@ -113,7 +111,6 @@ manual manifest에 등록된 전용 workshop path가 없습니다. 모듈 README
 - [모듈 README](../../../../data/jdbc/README.ko.md)
 - [모듈 build](../../../../data/jdbc/build.gradle.kts)
 - [`JdbcDrivers`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/JdbcDrivers.kt)
-- [`RefreshingJdbcPasswordDataSource`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/datasource/RefreshingJdbcPasswordDataSource.kt)
 - [`HikariSupport`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/hikari/HikariSupport.kt)
 - [`ArgumentSetter`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/ArgumentSetter.kt)
 - [`ConnectionExtensions`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/ConnectionExtensions.kt)

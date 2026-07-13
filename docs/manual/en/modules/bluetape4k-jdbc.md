@@ -29,7 +29,7 @@ Gradle project path: `:bluetape4k-jdbc`. Source directory: `data/jdbc`.
 
 ## Concepts {#concepts}
 
-The first source-level concepts to inspect are `JdbcDrivers`, `RefreshingJdbcPasswordDataSource`, `HikariSupport`, `ArgumentSetter`, `ConnectionExtensions`, `DataSourceExtensions`, `DataSourceTransactionExtensions`, and `GetColumnToken`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
+The first source-level concepts to inspect are `JdbcDrivers`, `HikariSupport`, `ArgumentSetter`, `ConnectionExtensions`, `DataSourceExtensions`, `DataSourceTransactionExtensions`, and `GetColumnToken`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
 
 ## Quick start {#quick-start}
 
@@ -40,7 +40,6 @@ Add the coordinate above, refresh Gradle, and start from the smallest entry poin
 | Entry point | What to verify |
 | --- | --- |
 | [`JdbcDrivers`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/JdbcDrivers.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`RefreshingJdbcPasswordDataSource`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/datasource/RefreshingJdbcPasswordDataSource.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
 | [`HikariSupport`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/hikari/HikariSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
 | [`ArgumentSetter`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/ArgumentSetter.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
 | [`ConnectionExtensions`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/ConnectionExtensions.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
@@ -52,7 +51,7 @@ Add the coordinate above, refresh Gradle, and start from the smallest entry poin
 
 ## Patterns {#patterns}
 
-The README evidence is organized around **Features**, **Architecture Diagrams**, **Extension Function API Overview**, **Core API Structure**, **JDBC Query Execution Flow**, **Dependency**, **Core Features**, **1. DataSource/Connection Management**, **Refreshing Password DataSource**, and **2. Executing Statements**. Use those topics as a navigation map, then confirm behavior in source and tests. Keep adoption narrow and connect owned resources to the caller lifecycle.
+The README evidence is organized around **Features**, **Architecture Diagrams**, **Extension Function API Overview**, **Core API Structure**, **JDBC Query Execution Flow**, **Dependency**, **Core Features**, **1. DataSource/Connection Management**, and **2. Executing Statements**. Use those topics as a navigation map, then confirm behavior in source and tests. Keep adoption narrow and connect owned resources to the caller lifecycle.
 
 ## Integrations {#integrations}
 
@@ -93,7 +92,6 @@ Representative test anchors:
 
 - [`AbstractJdbcTest`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/AbstractJdbcTest.kt)
 - [`JdbcDriversTest`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/JdbcDriversTest.kt)
-- [`RefreshingJdbcPasswordDataSourceTest`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/datasource/RefreshingJdbcPasswordDataSourceTest.kt)
 - [`HikariSupportTest`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/hikari/HikariSupportTest.kt)
 - [`Actor`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/model/Actor.kt)
 - [`TestBean`](../../../../data/jdbc/src/test/kotlin/io/bluetape4k/jdbc/model/TestBean.kt)
@@ -113,7 +111,6 @@ This page documents the repository state represented by the linked source and te
 - [Module README](../../../../data/jdbc/README.md)
 - [Module build](../../../../data/jdbc/build.gradle.kts)
 - [`JdbcDrivers`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/JdbcDrivers.kt)
-- [`RefreshingJdbcPasswordDataSource`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/datasource/RefreshingJdbcPasswordDataSource.kt)
 - [`HikariSupport`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/hikari/HikariSupport.kt)
 - [`ArgumentSetter`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/ArgumentSetter.kt)
 - [`ConnectionExtensions`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/ConnectionExtensions.kt)

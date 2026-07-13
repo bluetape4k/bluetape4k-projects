@@ -29,7 +29,7 @@ Gradle project path: `:bluetape4k-pulsar`. Source directory: `infra/pulsar`.
 
 ## Concepts {#concepts}
 
-The first source-level concepts to inspect are `PulsarClientSupport`, `PulsarCloseSupport`, `Jackson3Schema`, `JacksonSchema`, `ConsumerExtensions`, `ConsumerSupport`, `ProducerExtensions`, and `ProducerSupport`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
+The first source-level concepts to inspect are `PulsarClientSupport`, `Jackson3Schema`, `JacksonSchema`, `ConsumerExtensions`, `ConsumerSupport`, `ProducerExtensions`, and `ProducerSupport`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
 
 ## Quick start {#quick-start}
 
@@ -40,7 +40,6 @@ Add the coordinate above, refresh Gradle, and start from the smallest entry poin
 | Entry point | What to verify |
 | --- | --- |
 | [`PulsarClientSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/PulsarClientSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`PulsarCloseSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/PulsarCloseSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
 | [`Jackson3Schema`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/Jackson3Schema.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
 | [`JacksonSchema`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/JacksonSchema.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
 | [`ConsumerExtensions`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/consumer/ConsumerExtensions.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
@@ -94,7 +93,6 @@ Run the module test task:
 Representative test anchors:
 
 - [`AbstractPulsarTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/AbstractPulsarTest.kt)
-- [`PulsarCleanupCancellationTestSupport`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/PulsarCleanupCancellationTestSupport.kt)
 - [`PulsarClientSupportTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/PulsarClientSupportTest.kt)
 - [`Jackson3SchemaTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/codec/Jackson3SchemaTest.kt)
 - [`JacksonSchemaTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/codec/JacksonSchemaTest.kt)
@@ -115,7 +113,6 @@ This page documents the repository state represented by the linked source and te
 - [Module README](../../../../infra/pulsar/README.md)
 - [Module build](../../../../infra/pulsar/build.gradle.kts)
 - [`PulsarClientSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/PulsarClientSupport.kt)
-- [`PulsarCloseSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/PulsarCloseSupport.kt)
 - [`Jackson3Schema`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/Jackson3Schema.kt)
 - [`JacksonSchema`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/JacksonSchema.kt)
 - [`ConsumerExtensions`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/consumer/ConsumerExtensions.kt)
@@ -125,4 +122,3 @@ This page documents the repository state represented by the linked source and te
 - [`ReaderExtensions`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/reader/ReaderExtensions.kt)
 - [`ReaderSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/reader/ReaderSupport.kt)
 - [`AbstractPulsarTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/AbstractPulsarTest.kt)
-- [`PulsarCleanupCancellationTestSupport`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/PulsarCleanupCancellationTestSupport.kt)

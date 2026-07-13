@@ -2,6 +2,37 @@
   "modules": [
     {
       "artifact": "io.github.bluetape4k:bluetape4k-annotations",
+      "assets": [
+        "assets/annotations/annotation-decision-map.svg",
+        "assets/annotations/annotation-decision-map.png"
+      ],
+      "chapters": [
+        {
+          "en": "en/modules/bluetape4k-annotations/marker-selection.md",
+          "id": "marker-selection",
+          "ko": "ko/modules/bluetape4k-annotations/marker-selection.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-annotations/opt-in-scope.md",
+          "id": "opt-in-scope",
+          "ko": "ko/modules/bluetape4k-annotations/opt-in-scope.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-annotations/implementation-spi.md",
+          "id": "implementation-spi",
+          "ko": "ko/modules/bluetape4k-annotations/implementation-spi.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-annotations/compatibility-lifecycle.md",
+          "id": "compatibility-lifecycle",
+          "ko": "ko/modules/bluetape4k-annotations/compatibility-lifecycle.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-annotations/recipes.md",
+          "id": "recipes",
+          "ko": "ko/modules/bluetape4k-annotations/recipes.md"
+        }
+      ],
       "en": "en/modules/bluetape4k-annotations.md",
       "gradlePath": ":bluetape4k-annotations",
       "group": "foundation",

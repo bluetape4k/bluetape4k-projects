@@ -100,7 +100,6 @@ Representative test anchors:
 - [`BulkIngesterCoroutinesTest`](../../../../infra/elasticsearch/src/test/kotlin/io/bluetape4k/elasticsearch/coroutines/BulkIngesterCoroutinesTest.kt)
 - [`ElasticsearchCoroutinesTest`](../../../../infra/elasticsearch/src/test/kotlin/io/bluetape4k/elasticsearch/coroutines/ElasticsearchCoroutinesTest.kt)
 - [`SearchApiCoroutinesTest`](../../../../infra/elasticsearch/src/test/kotlin/io/bluetape4k/elasticsearch/coroutines/SearchApiCoroutinesTest.kt)
-- [`SearchApiCoroutinesUnitTest`](../../../../infra/elasticsearch/src/test/kotlin/io/bluetape4k/elasticsearch/coroutines/SearchApiCoroutinesUnitTest.kt)
 - [`ProductIndexExample`](../../../../infra/elasticsearch/src/test/kotlin/io/bluetape4k/elasticsearch/examples/ProductIndexExample.kt)
 
 ## Workshops {#workshops}

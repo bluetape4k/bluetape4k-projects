@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Bluetape API marker selection map</title>
+  <desc id="desc">A source-backed decision map that groups Bluetape opt-in markers by maturity, public boundary, operational contract, and third-party implementation risk.</desc>
+  <defs>
+    <marker id="flow-arrow" viewBox="0 0 14 14" refX="13" refY="7" markerWidth="14" markerHeight="14" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#9ed8ff" stroke="#9ed8ff"/>
+    </marker>
+    <linearGradient id="canvas" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="58%" stop-color="#182331"/>
+      <stop offset="100%" stop-color="#223047"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1f2937"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#020617" flood-opacity="0.32"/>
+    </filter>
+    <filter id="line-glow" filterUnits="userSpaceOnUse" x="-20" y="-20" width="1640" height="1040">
+      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#67e8f9" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#canvas)"/>
+  <rect x="42" y="36" width="1516" height="928" rx="34" fill="url(#panel)" stroke="#536377" stroke-width="4" filter="url(#shadow)"/>
+
+  <text x="800" y="105" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="52" fill="#f8fafc">Choose the Contract, Not the Loudest Warning</text>
+  <text x="800" y="148" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="20" fill="#b6c4d6">Start with the unstable boundary, then choose the marker and diagnostic level.</text>
+
+  <rect x="525" y="205" width="550" height="130" rx="28" fill="#172033" stroke="#8b6bd6" stroke-width="4" filter="url(#shadow)"/>
+  <text x="800" y="260" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="33" fill="#c4b5fd">What contract is not stable yet?</text>
+  <text x="800" y="300" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#d5dfeb">usage • visibility • operation • migration • third-party implementation</text>
+
+  <g fill="none" stroke="#9ed8ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 650 335 V 365 Q 650 385 630 385 H 320 Q 300 385 300 405 V 435" marker-end="url(#flow-arrow)" filter="url(#line-glow)"/>
+    <path d="M 800 335 V 435" marker-end="url(#flow-arrow)" filter="url(#line-glow)"/>
+    <path d="M 950 335 V 365 Q 950 385 970 385 H 1280 Q 1300 385 1300 405 V 435" marker-end="url(#flow-arrow)" filter="url(#line-glow)"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="100" y="435" width="400" height="330" rx="28" fill="#172033" stroke="#4c8cc8" stroke-width="4"/>
+    <rect x="600" y="435" width="400" height="330" rx="28" fill="#172033" stroke="#159c92" stroke-width="4"/>
+    <rect x="1100" y="435" width="400" height="330" rx="28" fill="#172033" stroke="#c58b2a" stroke-width="4"/>
+  </g>
+
+  <text x="300" y="495" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="32" fill="#9ed8ff">API Maturity</text>
+  <text x="800" y="495" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="32" fill="#5eead4">Boundary &amp; Operation</text>
+  <text x="1300" y="495" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="32" fill="#f6c96b">Implementation Only</text>
+
+  <g font-family="Comic Mono, ui-monospace, monospace" font-size="19" fill="#d5dfeb">
+    <text x="145" y="555">Experimental</text><text x="455" y="555" text-anchor="end" fill="#fda4af">ERROR</text>
+    <text x="145" y="603">Beta</text><text x="455" y="603" text-anchor="end" fill="#fde68a">WARNING</text>
+    <text x="145" y="651">Obsolete</text><text x="455" y="651" text-anchor="end" fill="#fda4af">ERROR</text>
+    <text x="300" y="710" text-anchor="middle" font-size="16" fill="#b6c4d6">change, stabilization, or migration state</text>
+
+    <text x="645" y="555">Internal</text><text x="955" y="555" text-anchor="end" fill="#fda4af">ERROR</text>
+    <text x="645" y="603">Delicate</text><text x="955" y="603" text-anchor="end" fill="#fde68a">WARNING</text>
+    <text x="800" y="665" text-anchor="middle" font-size="16" fill="#b6c4d6">public for technical reasons, or</text>
+    <text x="800" y="695" text-anchor="middle" font-size="16" fill="#b6c4d6">requires lifecycle / resource knowledge</text>
+
+    <text x="1145" y="555">Implementation</text><text x="1455" y="555" text-anchor="end" fill="#fde68a">WARNING</text>
+    <text x="1300" y="615" text-anchor="middle" font-size="16" fill="#b6c4d6">stable to call, not stable to implement</text>
+    <text x="1300" y="655" text-anchor="middle" font-size="16" fill="#b6c4d6">apply with @SubclassOptInRequired</text>
+    <text x="1300" y="695" text-anchor="middle" font-size="16" fill="#b6c4d6">on an interface or open base type</text>
+  </g>
+
+  <rect x="190" y="825" width="1220" height="80" rx="22" fill="#201923" stroke="#d16f75" stroke-width="3"/>
+  <text x="800" y="858" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="25" fill="#fda4af">Prefer visibility first • Keep @OptIn narrow • Revisit every opt-in during upgrades</text>
+  <text x="800" y="888" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="15" fill="#b6c4d6">Markers communicate policy; they do not replace compatibility analysis, migration notes, or Java documentation.</text>
+</svg>

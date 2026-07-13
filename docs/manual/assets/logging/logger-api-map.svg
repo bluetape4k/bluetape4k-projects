@@ -2,35 +2,39 @@
   <title id="title">Logging API responsibility map</title>
   <desc id="desc">Responsibility map from logger creation through lazy message and context helpers to the application-owned SLF4J provider.</desc>
   <defs>
-    <marker id="blue-arrow" viewBox="0 0 14 14" refX="13" refY="7" markerWidth="14" markerHeight="14" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14 Z" fill="#527fb3"/></marker>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#16324f" flood-opacity="0.12"/></filter>
+    <marker id="flow-arrow" viewBox="0 0 14 14" refX="13" refY="7" markerWidth="14" markerHeight="14" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14 Z" fill="#9ed8ff" stroke="#9ed8ff"/></marker>
+    <linearGradient id="canvas" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#111827"/><stop offset="58%" stop-color="#182331"/><stop offset="100%" stop-color="#223047"/></linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1f2937"/><stop offset="100%" stop-color="#111827"/></linearGradient>
+    <linearGradient id="contract" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#26384f"/><stop offset="100%" stop-color="#172033"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#020617" flood-opacity="0.32"/></filter>
+    <filter id="line-glow" filterUnits="userSpaceOnUse" x="-20" y="-20" width="1640" height="1020"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#67e8f9" flood-opacity="0.28"/></filter>
   </defs>
-  <rect width="1600" height="980" fill="#f5f8fc"/><rect x="42" y="36" width="1516" height="908" rx="34" fill="#fffefb" stroke="#6f8daa" stroke-width="4"/>
-  <text x="800" y="105" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="52" fill="#263d56">Own the Logging Boundary, Not the Backend</text>
-  <text x="800" y="148" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="20" fill="#53697f">bluetape4k supplies Kotlin contracts; the application owns provider policy.</text>
+  <rect width="1600" height="980" fill="url(#canvas)"/><rect x="42" y="36" width="1516" height="908" rx="34" fill="url(#panel)" stroke="#536377" stroke-width="4" filter="url(#shadow)"/>
+  <text x="800" y="105" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="52" fill="#f8fafc">Own the Logging Boundary, Not the Backend</text>
+  <text x="800" y="148" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="20" fill="#b6c4d6">bluetape4k supplies Kotlin contracts; the application owns provider policy.</text>
   <g filter="url(#shadow)">
-    <rect x="100" y="220" width="400" height="210" rx="28" fill="#e8f1fc" stroke="#6e96c7" stroke-width="3"/>
-    <rect x="600" y="220" width="400" height="210" rx="28" fill="#eef8f4" stroke="#82b6a5" stroke-width="3"/>
-    <rect x="1100" y="220" width="400" height="210" rx="28" fill="#fff6e8" stroke="#c79d58" stroke-width="3"/>
+    <rect x="100" y="220" width="400" height="210" rx="28" fill="#172033" stroke="#4c8cc8" stroke-width="4"/>
+    <rect x="600" y="220" width="400" height="210" rx="28" fill="#172033" stroke="#159c92" stroke-width="4"/>
+    <rect x="1100" y="220" width="400" height="210" rx="28" fill="#172033" stroke="#c58b2a" stroke-width="4"/>
   </g>
-  <text x="300" y="278" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#294e76">Create a Logger</text>
-  <text x="800" y="278" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#356c5b">Build an Event</text>
-  <text x="1300" y="278" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#8c6427">Carry Context</text>
-  <g font-family="Comic Mono, ui-monospace, monospace" font-size="19" fill="#53697f" text-anchor="middle">
+  <text x="300" y="278" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#9ed8ff">Create a Logger</text>
+  <text x="800" y="278" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#5eead4">Build an Event</text>
+  <text x="1300" y="278" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#f6c96b">Carry Context</text>
+  <g font-family="Comic Mono, ui-monospace, monospace" font-size="19" fill="#d5dfeb" text-anchor="middle">
     <text x="300" y="330">KLogging</text><text x="300" y="363">KotlinLogging.logger(...)</text><text x="300" y="396">KLoggerFactory + name resolver</text>
     <text x="800" y="330">level guard</text><text x="800" y="363">lazy supplier + safe fallback</text><text x="800" y="396">marker / cause / MDC overloads</text>
     <text x="1300" y="330">withLoggingContext</text><text x="1300" y="363">withCoroutineLoggingContext</text><text x="1300" y="396">restore or remove in finally</text>
   </g>
-  <path d="M 300 430 V 475 Q 300 495 320 495 H 720 Q 740 495 740 515 V 530" fill="none" stroke="#527fb3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#blue-arrow)"/>
-  <path d="M 800 430 V 530" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#blue-arrow)"/>
-  <path d="M 1300 430 V 475 Q 1300 495 1280 495 H 880 Q 860 495 860 515 V 530" fill="none" stroke="#527fb3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#blue-arrow)"/>
-  <rect x="525" y="530" width="550" height="150" rx="28" fill="#f4edfc" stroke="#9b7bc2" stroke-width="3" filter="url(#shadow)"/>
-  <text x="800" y="586" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="32" fill="#705197">SLF4J Logger API</text>
-  <text x="800" y="626" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#53697f">stable facade shared by libraries and applications</text>
-  <text x="800" y="654" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="16" fill="#6d5b85">No appender, level, destination, or retention ownership here</text>
-  <path d="M 800 680 V 754" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#blue-arrow)"/>
-  <rect x="260" y="754" width="1080" height="125" rx="28" fill="#fff0f1" stroke="#b96f73" stroke-width="3"/>
-  <text x="800" y="804" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#8e4d52">Application-owned Provider</text>
-  <text x="800" y="842" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#53697f">one provider • encoder • appenders • routing • retention • redaction policy</text>
-  <text x="800" y="916" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">Start with KLogging + scoped MDC. Add asynchronous delivery only with explicit lifecycle ownership.</text>
+  <path d="M 300 430 V 475 Q 300 495 320 495 H 720 Q 740 495 740 515 V 530" fill="none" stroke="#9ed8ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#flow-arrow)" filter="url(#line-glow)"/>
+  <path d="M 800 430 V 530" fill="none" stroke="#9ed8ff" stroke-width="4" stroke-linecap="round" marker-end="url(#flow-arrow)" filter="url(#line-glow)"/>
+  <path d="M 1300 430 V 475 Q 1300 495 1280 495 H 880 Q 860 495 860 515 V 530" fill="none" stroke="#9ed8ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#flow-arrow)" filter="url(#line-glow)"/>
+  <rect x="525" y="530" width="550" height="150" rx="28" fill="url(#contract)" stroke="#8b6bd6" stroke-width="4" filter="url(#shadow)"/>
+  <text x="800" y="586" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="32" fill="#c4b5fd">SLF4J Logger API</text>
+  <text x="800" y="626" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#d5dfeb">stable facade shared by libraries and applications</text>
+  <text x="800" y="654" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="16" fill="#b6c4d6">No appender, level, destination, or retention ownership here</text>
+  <path d="M 800 680 V 754" fill="none" stroke="#9ed8ff" stroke-width="4" stroke-linecap="round" marker-end="url(#flow-arrow)" filter="url(#line-glow)"/>
+  <rect x="260" y="754" width="1080" height="125" rx="28" fill="#201923" stroke="#d16f75" stroke-width="4" filter="url(#shadow)"/>
+  <text x="800" y="804" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#fda4af">Application-owned Provider</text>
+  <text x="800" y="842" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#d5dfeb">one provider • encoder • appenders • routing • retention • redaction policy</text>
+  <text x="800" y="916" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#b6c4d6">Start with KLogging + scoped MDC. Add asynchronous delivery only with explicit lifecycle ownership.</text>
 </svg>
