@@ -12,6 +12,18 @@ group: foundation
 
 Kotlin visibility cannot express every compatibility boundary. A declaration may need to stay public for inlining or framework integration while still being unsafe to call, unstable to implement, or scheduled for removal. `bluetape4k-annotations` makes that boundary visible to the compiler with `@RequiresOptIn` markers.
 
+![Bluetape API marker selection map](../../assets/annotations/annotation-decision-map.svg)
+
+### Reading path
+
+| Question | Chapter |
+| --- | --- |
+| Which marker fits this contract? | [Marker selection](./bluetape4k-annotations/marker-selection.md) |
+| Should `@OptIn` live on a function, class, or file? | [Opt-in scope](./bluetape4k-annotations/opt-in-scope.md) |
+| How do I permit calls but restrict third-party implementations? | [Implementation-sensitive SPI](./bluetape4k-annotations/implementation-spi.md) |
+| What happens when an API stabilizes or becomes obsolete? | [Compatibility lifecycle](./bluetape4k-annotations/compatibility-lifecycle.md) |
+| Where are complete declaration and caller examples? | [Practical recipes](./bluetape4k-annotations/recipes.md) |
+
 ## When to use {#when-to-use}
 
 Use a marker when a public declaration needs a contract stronger than prose. Choose `BluetapeExperimentalApi` for unstable use sites, `BluetapeInternalApi` for technically public internals, `BluetapeDelicateApi` for lifecycle or security-sensitive calls, `BluetapeObsoleteApi` for migration-only APIs, and `BluetapeBetaApi` for APIs expected to stabilize. Use `BluetapeImplementationApi` on SPI types that are safe to call but not yet safe to subclass.

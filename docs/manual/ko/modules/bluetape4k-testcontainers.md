@@ -103,7 +103,6 @@ fixture를 격리하고 resource 사용량을 제한하며 diagnostic을 남기�
 대표 test anchor는 다음과 같습니다.
 
 - [`AbstractContainerTest`](../../../../testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/AbstractContainerTest.kt)
-- [`ContainerReusePolicyTest`](../../../../testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/ContainerReusePolicyTest.kt)
 - [`GenericContainerExtensionsSupportTest`](../../../../testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/GenericContainerExtensionsSupportTest.kt)
 - [`GenericServerSupportTest`](../../../../testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/GenericServerSupportTest.kt)
 - [`GenericServerTest`](../../../../testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/GenericServerTest.kt)
@@ -134,4 +133,3 @@ manual manifest에 등록된 전용 workshop path가 없습니다. 모듈 README
 - [`LocalStackServer`](../../../../testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/aws/LocalStackServer.kt)
 - [`MiniStackServer`](../../../../testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/aws/MiniStackServer.kt)
 - [`AbstractContainerTest`](../../../../testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/AbstractContainerTest.kt)
-- [`ContainerReusePolicyTest`](../../../../testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/ContainerReusePolicyTest.kt)

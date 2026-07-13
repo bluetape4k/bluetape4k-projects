@@ -9,6 +9,25 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-annotations
   en: en/modules/bluetape4k-annotations.md
   ko: ko/modules/bluetape4k-annotations.md
+  chapters:
+  - id: marker-selection
+    en: en/modules/bluetape4k-annotations/marker-selection.md
+    ko: ko/modules/bluetape4k-annotations/marker-selection.md
+  - id: opt-in-scope
+    en: en/modules/bluetape4k-annotations/opt-in-scope.md
+    ko: ko/modules/bluetape4k-annotations/opt-in-scope.md
+  - id: implementation-spi
+    en: en/modules/bluetape4k-annotations/implementation-spi.md
+    ko: ko/modules/bluetape4k-annotations/implementation-spi.md
+  - id: compatibility-lifecycle
+    en: en/modules/bluetape4k-annotations/compatibility-lifecycle.md
+    ko: ko/modules/bluetape4k-annotations/compatibility-lifecycle.md
+  - id: recipes
+    en: en/modules/bluetape4k-annotations/recipes.md
+    ko: ko/modules/bluetape4k-annotations/recipes.md
+  assets:
+  - assets/annotations/annotation-decision-map.svg
+  - assets/annotations/annotation-decision-map.png
   sourcePaths:
   - bluetape4k/annotations/src/main/kotlin
   testPaths:

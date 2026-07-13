@@ -29,7 +29,7 @@ Gradle project path는 `:bluetape4k-pulsar`, source directory는 `infra/pulsar`�
 
 ## 핵심 개념 {#concepts}
 
-먼저 확인할 source 개념은 `PulsarClientSupport`, `PulsarCloseSupport`, `Jackson3Schema`, `JacksonSchema`, `ConsumerExtensions`, `ConsumerSupport`, `ProducerExtensions`, `ProducerSupport`입니다. 파일 이름은 탐색 anchor일 뿐이므로 public 계약으로 사용하기 전에 선언과 test를 함께 읽습니다.
+먼저 확인할 소스 개념은 `PulsarClientSupport`, `Jackson3Schema`, `JacksonSchema`, `ConsumerExtensions`, `ConsumerSupport`, `ProducerExtensions`, `ProducerSupport`입니다. 파일 이름은 탐색용 기준점일 뿐입니다. 공개 계약으로 사용하기 전에 선언과 테스트를 함께 확인합니다.
 
 ## 빠른 시작 {#quick-start}
 
@@ -40,7 +40,6 @@ Gradle project path는 `:bluetape4k-pulsar`, source directory는 `infra/pulsar`�
 | Entry point | 확인할 내용 |
 | --- | --- |
 | [`PulsarClientSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/PulsarClientSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`PulsarCloseSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/PulsarCloseSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
 | [`Jackson3Schema`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/Jackson3Schema.kt) | constructor, function, ownership 계약을 확인합니다. |
 | [`JacksonSchema`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/JacksonSchema.kt) | constructor, function, ownership 계약을 확인합니다. |
 | [`ConsumerExtensions`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/consumer/ConsumerExtensions.kt) | constructor, function, ownership 계약을 확인합니다. |
@@ -94,7 +93,6 @@ connection 상태, queue 깊이, retry, timeout, remote 오류, graceful shutdow
 대표 test anchor는 다음과 같습니다.
 
 - [`AbstractPulsarTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/AbstractPulsarTest.kt)
-- [`PulsarCleanupCancellationTestSupport`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/PulsarCleanupCancellationTestSupport.kt)
 - [`PulsarClientSupportTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/PulsarClientSupportTest.kt)
 - [`Jackson3SchemaTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/codec/Jackson3SchemaTest.kt)
 - [`JacksonSchemaTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/codec/JacksonSchemaTest.kt)
@@ -115,7 +113,6 @@ manual manifest에 등록된 전용 workshop path가 없습니다. 모듈 README
 - [모듈 README](../../../../infra/pulsar/README.ko.md)
 - [모듈 build](../../../../infra/pulsar/build.gradle.kts)
 - [`PulsarClientSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/PulsarClientSupport.kt)
-- [`PulsarCloseSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/PulsarCloseSupport.kt)
 - [`Jackson3Schema`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/Jackson3Schema.kt)
 - [`JacksonSchema`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/JacksonSchema.kt)
 - [`ConsumerExtensions`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/consumer/ConsumerExtensions.kt)
@@ -125,4 +122,3 @@ manual manifest에 등록된 전용 workshop path가 없습니다. 모듈 README
 - [`ReaderExtensions`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/reader/ReaderExtensions.kt)
 - [`ReaderSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/reader/ReaderSupport.kt)
 - [`AbstractPulsarTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/AbstractPulsarTest.kt)
-- [`PulsarCleanupCancellationTestSupport`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/PulsarCleanupCancellationTestSupport.kt)

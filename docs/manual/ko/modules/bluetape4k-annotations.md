@@ -10,11 +10,23 @@ group: foundation
 
 ## 해결하는 문제 {#problem}
 
-Kotlin visibility만으로 모든 호환성 경계를 표현할 수는 없습니다. inline이나 framework 통합 때문에 public이어야 하지만 직접 호출하면 안 되는 선언이 있고, 사용은 안정적이지만 외부 구현은 아직 허용하기 어려운 SPI도 있습니다. `bluetape4k-annotations`는 이런 경계를 `@RequiresOptIn` marker로 compiler에 알립니다.
+Kotlin visibility만으로는 모든 호환성 경계를 표현할 수 없습니다. inline 함수나 framework 연동 때문에 선언을 public으로 열어야 하지만 외부에서 직접 쓰면 안 되는 경우가 있습니다. 호출은 안정적이어도 외부 구현까지 허용하기에는 이른 SPI도 있습니다. `bluetape4k-annotations`는 이런 경계를 `@RequiresOptIn` marker로 compiler에 알립니다.
+
+![Bluetape API marker 선택 지도](../../assets/annotations/annotation-decision-map.svg)
+
+### 이 매뉴얼을 읽는 순서
+
+| 궁금한 점 | 읽을 장 |
+| --- | --- |
+| 어떤 marker를 붙여야 하나요? | [Marker 선택](./bluetape4k-annotations/marker-selection.md) |
+| `@OptIn`을 함수, class, file 중 어디에 둬야 하나요? | [Opt-in 범위](./bluetape4k-annotations/opt-in-scope.md) |
+| 호출은 허용하고 외부 구현만 막으려면 어떻게 하나요? | [구현 전용 SPI](./bluetape4k-annotations/implementation-spi.md) |
+| API가 안정화되거나 폐기될 때 marker는 어떻게 다루나요? | [호환성 수명주기](./bluetape4k-annotations/compatibility-lifecycle.md) |
+| 실제 선언과 호출 코드를 함께 보고 싶어요. | [실전 레시피](./bluetape4k-annotations/recipes.md) |
 
 ## 사용 시점 {#when-to-use}
 
-불안정한 호출 지점에는 `BluetapeExperimentalApi`, 기술적인 이유로 public인 내부 선언에는 `BluetapeInternalApi`, lifecycle·동시성·resource·보안 계약을 주의해야 하는 API에는 `BluetapeDelicateApi`를 사용합니다. migration 목적으로만 남긴 API는 `BluetapeObsoleteApi`, 안정화를 예상하지만 아직 변경 가능성이 있는 API는 `BluetapeBetaApi`가 맞습니다. 호출은 허용하되 상속이나 구현을 제한하려면 `BluetapeImplementationApi`를 선택합니다.
+호환성을 보장하기 이른 API에는 `BluetapeExperimentalApi`, 기술적인 이유로만 public인 선언에는 `BluetapeInternalApi`를 붙입니다. 수명주기, 동시성, 자원 관리, 보안 계약을 먼저 이해해야 하는 API라면 `BluetapeDelicateApi`가 맞습니다. 마이그레이션을 위해서만 남긴 API는 `BluetapeObsoleteApi`, 안정화가 가까워졌지만 작은 변경 가능성이 남은 API는 `BluetapeBetaApi`로 표시합니다. 호출은 허용하되 상속이나 구현을 제한하려면 `BluetapeImplementationApi`를 선택합니다.
 
 호환성 작업을 피하려고 안정된 API에 marker를 붙이면 안 됩니다. Kotlin visibility로 제한할 수 있다면 visibility를 우선합니다.
 
@@ -27,11 +39,11 @@ dependencies {
 }
 ```
 
-annotation은 binary retention을 사용합니다. downstream compile에서는 계약을 확인할 수 있지만 runtime 동작은 추가하지 않습니다.
+모든 annotation은 binary retention을 사용합니다. 사용하는 쪽에서는 compile할 때 계약을 확인할 수 있지만, runtime 동작은 추가되지 않습니다.
 
 ## 핵심 개념 {#concepts}
 
-오류 수준 marker인 `Experimental`, `Internal`, `Obsolete`는 명시적인 `@OptIn`이 없으면 compile을 막습니다. 경고 수준인 `Beta`, `Delicate`는 위험을 보여 주되 compile은 허용합니다. `BluetapeImplementationApi`는 `@SubclassOptInRequired`를 사용해 “interface 호출”과 “interface 구현”을 구분합니다.
+오류 수준 marker인 `Experimental`, `Internal`, `Obsolete`는 명시적인 `@OptIn`이 없으면 compile을 막습니다. 경고 수준인 `Beta`, `Delicate`는 위험을 알리되 compile은 허용합니다. `BluetapeImplementationApi`는 `@SubclassOptInRequired`와 함께 써서 “interface 호출”과 “interface 구현”을 구분합니다.
 
 ## 빠른 시작 {#quick-start}
 
@@ -45,7 +57,7 @@ fun unstablePlan(): String = "draft"
 fun evaluateDraft(): String = unstablePlan()
 ```
 
-opt-in 범위는 가능한 한 좁게 둡니다. file 수준 opt-in은 같은 파일의 다른 불안정 호출까지 가릴 수 있습니다.
+opt-in 범위는 가능한 한 좁게 둡니다. file 수준에 붙이면 같은 파일의 다른 불안정한 호출까지 함께 허용되므로, 의도하지 않은 사용을 놓치기 쉽습니다.
 
 ## 작업별 API {#api-by-task}
 
@@ -60,7 +72,7 @@ opt-in 범위는 가능한 한 좁게 둡니다. file 수준 opt-in은 같은 �
 
 ## 권장 패턴 {#patterns}
 
-불안정한 계약을 소유한 선언에 marker를 붙입니다. experimental API를 감싼 public wrapper는 내부에서 opt-in하고 안정된 계약을 제공하거나, wrapper에도 marker를 전파해야 합니다. SPI는 base class나 interface에 표시해 caller가 아니라 구현자가 경고를 받게 합니다.
+불안정한 계약을 가진 선언에 marker를 붙입니다. experimental API를 감싼 public wrapper라면 내부에서 opt-in한 뒤 안정된 계약을 제공하거나, wrapper에도 같은 marker를 붙여야 합니다. SPI는 base class나 interface에 표시해서 호출자가 아니라 구현자가 경고를 받게 합니다.
 
 ## 연동 {#integrations}
 
@@ -76,7 +88,7 @@ runtime 설정은 없습니다. build에서는 의존성을 추가하고, 제한
 
 ## 운영 {#operations}
 
-thread, I/O, resource lifecycle을 추가하지 않습니다. 운영상 주의점은 호환성 관리입니다. 전체 opt-in으로 경고를 숨겨 두기보다는 upgrade할 때 opt-in 지점을 다시 검토해야 합니다.
+이 모듈은 thread, I/O, resource lifecycle을 추가하지 않습니다. 운영에서 살펴볼 것은 호환성 관리입니다. compiler option으로 marker를 한꺼번에 허용해 두기보다, 버전을 올릴 때 source의 opt-in 지점을 다시 검토합니다.
 
 ## 테스트 {#testing}
 

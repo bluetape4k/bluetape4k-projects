@@ -104,7 +104,6 @@ pool 포화, query latency, retry, transaction rollback, schema 호환성을 관
 
 - [`AbstractR2dbcTest`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/AbstractR2dbcTest.kt)
 - [`R2dbcTestApplication`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/R2dbcTestApplication.kt)
-- [`R2dbcClientAutoConfigurationTest`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/config/R2dbcClientAutoConfigurationTest.kt)
 - [`R2dbcConfigurationTest`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/config/R2dbcConfigurationTest.kt)
 - [`ConnectionInitTest`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/connection/init/ConnectionInitTest.kt)
 - [`PostgresJsonConvertersTest`](../../../../data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/convert/postgresql/PostgresJsonConvertersTest.kt)
