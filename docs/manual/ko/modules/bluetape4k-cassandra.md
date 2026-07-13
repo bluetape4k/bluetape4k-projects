@@ -72,11 +72,11 @@ val releaseVersion = cqlSessionOf(
 
 ## 권장 패턴 {#patterns}
 
-직접 만든 세션은 만든 코드가 닫고, 공유 세션은 bounded `CqlSessionIdentity`로 재사용합니다. 쿼리 값은 bind marker로 분리하고, `Row`는 조회 경계에서 domain type으로 옮깁니다. 여러 페이지 결과는 부분 소비와 취소 가능성을 전제로 처리합니다.
+직접 만든 세션은 만든 코드가 닫고, 공유 세션은 종류가 제한된 설정 값으로 구성한 `CqlSessionIdentity`를 기준으로 재사용합니다. 쿼리 값은 바인드 마커로 분리하고, `Row`는 조회 경계에서 도메인 타입으로 옮깁니다. 여러 페이지 결과는 부분 소비와 취소 가능성을 전제로 처리합니다.
 
 ## 연동 {#integrations}
 
-Apache Cassandra Java Driver의 core, query builder, mapper runtime 위에서 동작하며 Kotlin Coroutines로 비동기 실행과 paging을 연결합니다. mapper-generated `EntityHelper`를 쓰려면 애플리케이션 build에도 DataStax mapper annotation processor 설정이 필요합니다.
+Apache Cassandra Java Driver의 core, query builder, mapper runtime 위에서 동작하며 Kotlin Coroutines로 비동기 실행과 paging을 연결합니다. DataStax Mapper가 생성한 `EntityHelper`를 쓰려면 애플리케이션 빌드에도 DataStax Mapper annotation processor 설정이 필요합니다.
 
 ## 설정 {#configuration}
 
@@ -84,7 +84,7 @@ Apache Cassandra Java Driver의 core, query builder, mapper runtime 위에서 �
 
 ## 실패 동작 {#failures}
 
-blank keyspace와 `localDatacenter`는 입력 경계에서 거부됩니다. query prepare·execute, row mapper와 다음 페이지 조회 실패는 각 작업 지점에서 호출자에게 전파됩니다. bootstrap 인증 오류는 1.11.0의 admin session 설정 경계를 먼저 확인합니다.
+빈 keyspace와 `localDatacenter`는 입력 경계에서 거부됩니다. 쿼리 준비·실행, 행 매퍼와 다음 페이지 조회 실패는 각 작업 지점에서 호출자에게 전파됩니다. bootstrap 인증 오류는 1.11.0의 admin session 설정 경계를 먼저 확인합니다.
 
 ## 운영 {#operations}
 
@@ -100,7 +100,7 @@ keyspace create/drop은 실제 cluster side effect입니다. 운영 권한과 re
 
 ## 워크숍 {#workshops}
 
-이 모듈 전용 workshop은 아직 없습니다. 대신 각 장의 완결된 예제와 release-pinned source/test 링크를 따라가면 session, coroutine paging, mapping, QueryBuilder와 운영 경계를 순서대로 실습할 수 있습니다.
+이 모듈 전용 워크숍은 아직 없습니다. 대신 각 장의 예제와 1.11.0으로 검증한 소스·테스트 링크를 따라가면 session, coroutine paging, mapping, QueryBuilder와 운영 경계를 순서대로 실습할 수 있습니다.
 
 ## 1.11.0에서 알아둘 제한 {#limitations}
 
