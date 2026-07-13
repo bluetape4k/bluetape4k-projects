@@ -43,28 +43,29 @@ val namedUser: SimpleStatement =
 
 ## 반복 실행은 prepare와 bind로 나눈다
 
-같은 UPDATE를 여러 값으로 실행한다면 CQL을 준비한 뒤 각 호출에서 값을 바인딩합니다.
+같은 UPDATE를 여러 값으로 실행한다면 반복 처리 밖에서 CQL을 한 번 준비하고 각 항목의 값을 바인딩합니다.
 
 ```kotlin
 import com.datastax.oss.driver.api.core.CqlSession
 import io.bluetape4k.cassandra.cql.executeSuspending
 import io.bluetape4k.cassandra.cql.prepareSuspending
 
-suspend fun renameUser(
+suspend fun renameUsers(
     session: CqlSession,
-    userId: Long,
-    newName: String,
+    renames: Iterable<Pair<Long, String>>,
 ) {
     val prepared = session.prepareSuspending(
         "UPDATE users SET name = ? WHERE id = ?",
     )
-    val bound = prepared.bind(newName, userId)
 
-    session.executeSuspending(bound)
+    for ((userId, newName) in renames) {
+        val bound = prepared.bind(newName, userId)
+        session.executeSuspending(bound)
+    }
 }
 ```
 
-marker 순서가 바뀌면 타입이 우연히 맞아도 다른 컬럼에 값이 들어갈 수 있습니다. marker가 많거나 선택적 값이 있다면 이름 기반 marker와 `boundStatementBuilder()`를 써서 이름으로 바인딩하는 편이 안전합니다. 이미 만든 `BoundStatement` 일부만 바꿀 때는 `boundStatementOf(template) { ... }`가 템플릿을 직접 변경하지 않고 새 statement를 만듭니다.
+이 예제는 한 함수 안에서 순차 실행하지만 핵심은 `PreparedStatement`를 반복마다 새로 만들지 않는다는 점입니다. marker 순서가 바뀌면 타입이 우연히 맞아도 다른 컬럼에 값이 들어갈 수 있습니다. marker가 많거나 선택적 값이 있다면 이름 기반 marker와 `boundStatementBuilder()`를 써서 이름으로 바인딩하는 편이 안전합니다. 이미 만든 `BoundStatement` 일부만 바꿀 때는 `boundStatementOf(template) { ... }`가 템플릿을 직접 변경하지 않고 새 statement를 만듭니다.
 
 ## 조건부 CRUD는 QueryBuilder로 구성한다
 

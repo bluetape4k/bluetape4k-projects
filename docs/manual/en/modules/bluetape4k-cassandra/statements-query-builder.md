@@ -43,28 +43,29 @@ Use `simpleStatementOf(query) { ... }` when page size, consistency, or another s
 
 ## Separate prepare from bind for repeated work
 
-Prepare an UPDATE once, then bind values for each execution of the same query shape.
+Prepare an UPDATE once outside the repeated work, then bind values for each item.
 
 ```kotlin
 import com.datastax.oss.driver.api.core.CqlSession
 import io.bluetape4k.cassandra.cql.executeSuspending
 import io.bluetape4k.cassandra.cql.prepareSuspending
 
-suspend fun renameUser(
+suspend fun renameUsers(
     session: CqlSession,
-    userId: Long,
-    newName: String,
+    renames: Iterable<Pair<Long, String>>,
 ) {
     val prepared = session.prepareSuspending(
         "UPDATE users SET name = ? WHERE id = ?",
     )
-    val bound = prepared.bind(newName, userId)
 
-    session.executeSuspending(bound)
+    for ((userId, newName) in renames) {
+        val bound = prepared.bind(newName, userId)
+        session.executeSuspending(bound)
+    }
 }
 ```
 
-Changing marker order can write to the wrong columns even when the Kotlin types happen to match. Prefer named markers and `boundStatementBuilder()` when a statement has many or optional values. If a caller already has a `BoundStatement` template, `boundStatementOf(template) { ... }` creates a new statement instead of mutating the template.
+This example executes sequentially inside one function; the key point is that it does not prepare the same statement inside the loop. Changing marker order can write to the wrong columns even when the Kotlin types happen to match. Prefer named markers and `boundStatementBuilder()` when a statement has many or optional values. If a caller already has a `BoundStatement` template, `boundStatementOf(template) { ... }` creates a new statement instead of mutating the template.
 
 ## Compose conditional CRUD with QueryBuilder
 
