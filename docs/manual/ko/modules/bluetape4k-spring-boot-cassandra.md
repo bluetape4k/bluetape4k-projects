@@ -20,7 +20,7 @@ Spring Data Cassandra 기반 개발에서 자주 쓰는 코루틴 확장, 편의
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-spring-boot-cassandra")
 }
 ```

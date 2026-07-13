@@ -20,7 +20,7 @@ Use `bluetape4k-geo` when the application needs input contracts, value semantics
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-geo")
 }
 ```

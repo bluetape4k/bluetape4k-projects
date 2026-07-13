@@ -20,7 +20,7 @@ Bucket4j 기반으로 애플리케이션 레벨 Rate Limiter를 구성하기 위
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-bucket4j")
 }
 ```

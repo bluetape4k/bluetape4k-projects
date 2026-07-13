@@ -20,7 +20,7 @@ bluetape4k-cache-core는 캐시 기능의 공통 API, 핵심 추상화, 그리�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-cache-core")
 }
 ```

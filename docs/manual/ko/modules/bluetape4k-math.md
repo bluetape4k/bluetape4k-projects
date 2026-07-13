@@ -20,7 +20,7 @@ Apache Commons Math3를 기반으로 수학/통계 연산, 보간, 적분, 방�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-math")
 }
 ```

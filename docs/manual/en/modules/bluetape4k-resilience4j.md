@@ -20,7 +20,7 @@ Use `bluetape4k-resilience4j` when the application needs client lifecycle, recon
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-resilience4j")
 }
 ```

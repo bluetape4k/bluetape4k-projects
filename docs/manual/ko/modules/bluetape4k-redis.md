@@ -20,7 +20,7 @@ Lettuce와 Redisson 두 Redis 클라이언트를 함께 제공하는 umbrella �
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-redis")
 }
 ```
@@ -88,4 +88,3 @@ manual manifest에 등록된 전용 workshop path가 없습니다. 모듈 README
 
 - [모듈 README](../../../../infra/redis/README.ko.md)
 - [모듈 build](../../../../infra/redis/build.gradle.kts)
-

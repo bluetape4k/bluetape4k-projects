@@ -20,7 +20,7 @@ bluetape4k-jackson3은 Jackson 3.x 라이브러리를 Kotlin DSL과 확장 함�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-jackson3")
 }
 ```

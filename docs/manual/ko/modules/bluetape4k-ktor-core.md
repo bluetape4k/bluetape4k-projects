@@ -20,7 +20,7 @@ bluetape4k 애플리케이션에서 공통으로 쓰는 작은 Ktor 서버 기�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-ktor-core")
 }
 ```

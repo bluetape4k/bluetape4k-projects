@@ -20,7 +20,7 @@ Spring Data MongoDB Reactive를 Kotlin Coroutines 기반으로 편리하게 사�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-spring-boot-mongodb")
 }
 ```

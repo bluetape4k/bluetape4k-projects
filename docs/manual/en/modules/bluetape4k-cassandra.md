@@ -20,7 +20,7 @@ Use `bluetape4k-cassandra` when the application needs transaction boundaries, co
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-cassandra")
 }
 ```

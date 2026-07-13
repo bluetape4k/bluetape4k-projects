@@ -20,7 +20,7 @@ MongoDB Kotlin Coroutine Driver를 더욱 편리하게 사용할 수 있도록 �
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-mongodb")
 }
 ```

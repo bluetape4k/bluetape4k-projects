@@ -20,7 +20,7 @@ bluetape4k-http는 다양한 HTTP 클라이언트 라이브러리를 Kotlin 확�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-http")
 }
 ```

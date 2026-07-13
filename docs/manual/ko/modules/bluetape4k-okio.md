@@ -20,7 +20,7 @@ bluetape4k-okio는 Square의 Okio 라이브러리를 기반으로 한 고성능 
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-okio")
 }
 ```

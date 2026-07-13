@@ -20,7 +20,7 @@ Spring Boot 4 + Hibernate 7 2nd Level Cache (2LC) with Lettuce Near Cache 데모
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-spring-boot-hibernate-lettuce-demo")
 }
 ```

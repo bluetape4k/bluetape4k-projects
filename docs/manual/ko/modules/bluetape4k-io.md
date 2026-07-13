@@ -20,7 +20,7 @@ bluetape4k-io는 Kotlin 기반의 고성능 I/O 유틸리티 라이브러리입�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-io")
 }
 ```

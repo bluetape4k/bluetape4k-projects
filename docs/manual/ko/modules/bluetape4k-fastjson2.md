@@ -20,7 +20,7 @@ bluetape4k-fastjson2는 Fastjson2 라이브러리를 Kotlin 확장 함수로 래
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-fastjson2")
 }
 ```

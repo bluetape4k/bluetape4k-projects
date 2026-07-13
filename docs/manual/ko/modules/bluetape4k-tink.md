@@ -20,7 +20,7 @@ Google Tink 암호화 라이브러리를 Kotlin 관용적으로 래핑한 모듈
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-tink")
 }
 ```

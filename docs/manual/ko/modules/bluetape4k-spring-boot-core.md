@@ -20,7 +20,7 @@ Spring Boot 4.x 기반 공통 기능 통합 모듈입니다. 이 매뉴얼은 RE
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-spring-boot-core")
 }
 ```

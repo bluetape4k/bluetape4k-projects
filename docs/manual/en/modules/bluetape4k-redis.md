@@ -20,7 +20,7 @@ Use `bluetape4k-redis` when the application needs client lifecycle, reconnect po
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-redis")
 }
 ```
@@ -88,4 +88,3 @@ This page documents the repository state represented by the linked source and te
 
 - [Module README](../../../../infra/redis/README.md)
 - [Module build](../../../../infra/redis/build.gradle.kts)
-

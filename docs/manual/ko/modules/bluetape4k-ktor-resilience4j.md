@@ -20,7 +20,7 @@ bluetape4k 생태계의 Ktor 서버 애플리케이션에서 route 단위로 Res
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-ktor-resilience4j")
 }
 ```

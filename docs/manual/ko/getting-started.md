@@ -7,13 +7,15 @@ description: bluetape4k-projects 모듈을 선택하고 설치한 뒤 가이드,
 
 ## 1. BOM 가져오기
 
-애플리케이션에 사용할 저장소 버전을 선택하고 BOM으로 bluetape4k artifact 버전을 정렬합니다.
+애플리케이션에서는 `bluetape4k-dependencies` 배포 버전만 선택하면 됩니다. 나머지 bluetape4k artifact 버전은 중앙 BOM이 알맞게 맞춰 줍니다.
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
 }
 ```
+
+여기서 `<version>`은 `bluetape4k-dependencies`의 배포 버전입니다. 저장소별 BOM 버전은 중앙 BOM이 관리하므로 따로 맞추지 않습니다.
 
 ## 2. 작업에 맞는 모듈 하나 추가하기
 

@@ -20,7 +20,7 @@ Kotlin 기반의 경량 Rule Engine 라이브러리입니다. Easy Rules 패턴�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-rule-engine")
 }
 ```

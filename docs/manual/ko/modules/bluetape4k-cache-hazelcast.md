@@ -20,7 +20,7 @@ bluetape4k-cache-hazelcast는 Hazelcast 기반 JCache Provider, Coroutines 캐�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-cache-hazelcast")
 }
 ```

@@ -20,7 +20,7 @@ JVM backend/library 코드를 위한 Kotlin DSL 기반 유한 상태 머신(FSM)
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-states")
 }
 ```

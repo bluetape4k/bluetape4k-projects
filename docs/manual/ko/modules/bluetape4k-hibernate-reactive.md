@@ -20,7 +20,7 @@ Hibernate Reactive(Mutiny/Stage) 사용 시 반복 코드를 줄이는 Kotlin �
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-hibernate-reactive")
 }
 ```

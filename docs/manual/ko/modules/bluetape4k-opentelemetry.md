@@ -20,7 +20,7 @@ OpenTelemetry는 클라우드 네이티브 소프트웨어를 위한 관측 가�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-opentelemetry")
 }
 ```

@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-bom
 title: Bluetape4k BOM
-description: 모든 의존성에 버전을 반복하지 않고 bluetape4k-projects의 게시 모듈 버전을 정렬합니다.
+description: 중앙 BOM이 내부에서 사용하는 bluetape4k-projects 모듈 제약 조건과 유지보수 방식을 설명합니다.
 kind: library
 group: foundation
 ---
@@ -14,19 +14,21 @@ group: foundation
 
 ## 사용 시점 {#when-to-use}
 
-두 개 이상의 bluetape4k artifact를 사용하거나 여러 service가 하나의 release line을 공유해야 할 때 BOM을 가져옵니다. 한 모듈만 시험하는 코드라면 직접 버전을 적어도 되지만, 모듈이 늘어날 가능성이 있으면 BOM을 먼저 적용하는 편이 안전합니다.
+일반 애플리케이션은 이 저장소 BOM을 직접 선택하지 않고 `bluetape4k-dependencies`를 가져옵니다. 중앙 BOM이 `bluetape4k-bom`을 비롯한 저장소별 BOM을 검증된 조합으로 묶어 줍니다.
 
-이 BOM은 `bluetape4k-projects` 모듈을 정렬합니다. Exposed 확장처럼 별도 저장소 artifact까지 함께 쓴다면 ecosystem aggregator BOM이 더 알맞을 수 있습니다.
+`bluetape4k-bom`을 직접 다루는 경우는 저장소를 배포하거나 platform constraint를 점검하거나 dependency 충돌을 재현할 때입니다. 이 페이지의 나머지 내용도 그런 유지보수 관점에서 읽으면 됩니다.
 
 ## 의존성 좌표 {#coordinates}
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-core")
     implementation("io.github.bluetape4k:bluetape4k-coroutines")
 }
 ```
+
+위 `<version>`은 `bluetape4k-dependencies`의 배포 버전입니다. `bluetape4k-bom`의 내부 버전을 애플리케이션에 따로 적지 않습니다.
 
 애플리케이션에서 BOM constraint가 다른 모든 선택보다 우선해야 할 때만 `enforcedPlatform(...)`을 사용합니다. library는 consumer의 dependency resolution 권한을 남기기 위해 보통 `platform(...)`을 사용해야 합니다.
 
@@ -42,7 +44,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-logging")
 }
 ```
@@ -60,7 +62,7 @@ BOM이 constraint를 제공하는 artifact만 버전을 생략합니다. 다른 
 
 ## 권장 패턴 {#patterns}
 
-service 모듈이 공통으로 쓰는 convention plugin이나 version catalog alias에서 platform을 한 번 선언합니다. 그 경계에서 BOM 버전은 명시하고 개별 bluetape4k dependency 버전은 생략합니다. BOM upgrade는 하나의 review 단위로 만들고 애플리케이션 compile과 integration test를 함께 실행합니다.
+service 모듈이 공통으로 쓰는 convention plugin이나 version catalog alias에서 중앙 platform을 한 번 선언합니다. 그 경계에서는 `bluetape4k-dependencies` 버전만 명시하고 개별 bluetape4k dependency 버전은 생략합니다. 중앙 BOM upgrade는 하나의 review 단위로 만들고 애플리케이션 compile과 integration test를 함께 실행합니다.
 
 ## 연동 {#integrations}
 

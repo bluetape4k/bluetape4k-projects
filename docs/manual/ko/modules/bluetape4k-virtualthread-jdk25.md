@@ -20,7 +20,7 @@ Java 25 Virtual Thread 구현체 모듈입니다. 이 매뉴얼은 README의 기
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-virtualthread-jdk25")
 }
 ```

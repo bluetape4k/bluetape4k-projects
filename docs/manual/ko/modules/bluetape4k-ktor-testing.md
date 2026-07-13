@@ -20,7 +20,7 @@ bluetape4k 생태계를 위한 Ktor 테스트 helper 모듈입니다. 이 매뉴
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-ktor-testing")
 }
 ```

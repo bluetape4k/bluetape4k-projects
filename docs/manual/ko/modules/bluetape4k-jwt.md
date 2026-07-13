@@ -20,7 +20,7 @@ JSON Web Token (JWT)을 생성하고 파싱하는 라이브러리입니다. jjwt
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-jwt")
 }
 ```

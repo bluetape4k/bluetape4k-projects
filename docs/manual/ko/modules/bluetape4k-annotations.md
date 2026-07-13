@@ -34,7 +34,7 @@ Kotlin visibility만으로는 모든 호환성 경계를 표현할 수 없습니
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-annotations")
 }
 ```

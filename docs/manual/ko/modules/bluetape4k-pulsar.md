@@ -20,7 +20,7 @@ Kotlin을 위한 Apache Pulsar 클라이언트 확장 — 코루틴 우선, DSL 
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-pulsar")
 }
 ```

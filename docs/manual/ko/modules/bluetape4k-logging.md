@@ -35,7 +35,7 @@ group: foundation
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-logging")
     runtimeOnly("ch.qos.logback:logback-classic:<version>")
 }

@@ -20,7 +20,7 @@ Apache Avro 직렬화/역직렬화를 위한 고수준 API를 제공하는 모�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-avro")
 }
 ```

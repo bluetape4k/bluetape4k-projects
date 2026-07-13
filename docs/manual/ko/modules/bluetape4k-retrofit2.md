@@ -20,7 +20,7 @@ bluetape4k-retrofit2는 Retrofit2를 Kotlin DSL과 Coroutines로 확장하여 �
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-retrofit2")
 }
 ```

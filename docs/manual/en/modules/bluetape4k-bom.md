@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-bom
 title: Bluetape4k bill of materials
-description: Align published bluetape4k-projects module versions without repeating a version on every dependency.
+description: Understand the bluetape4k-projects constraints composed by the central BOM and how maintainers validate them.
 kind: library
 group: foundation
 ---
@@ -14,19 +14,21 @@ An application often uses several bluetape4k modules. Repeating versions makes u
 
 ## When to use {#when-to-use}
 
-Import the BOM when a build uses two or more bluetape4k artifacts or when a shared convention plugin should choose one release line for many services. A single-module experiment may pin its dependency directly, but moving to the BOM early makes later module additions safer.
+Normal applications do not choose this repository BOM directly. They import `bluetape4k-dependencies`, which composes `bluetape4k-bom` and the other repository BOMs as a tested set.
 
-This BOM aligns modules from `bluetape4k-projects`; the ecosystem aggregator BOM can be a better entry point when the build also consumes separate repositories such as Exposed extensions.
+Work with `bluetape4k-bom` directly when publishing the repository, inspecting platform constraints, or reproducing a dependency conflict. The rest of this page describes that maintainer-facing surface.
 
 ## Coordinates {#coordinates}
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-core")
     implementation("io.github.bluetape4k:bluetape4k-coroutines")
 }
 ```
+
+The `<version>` above is the published version of `bluetape4k-dependencies`. Applications do not declare the internal `bluetape4k-bom` version separately.
 
 Use `enforcedPlatform(...)` only when the application intentionally wants BOM constraints to override every competing version. Library builds should normally use `platform(...)` so consumers retain dependency-resolution control.
 
@@ -42,7 +44,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-logging")
 }
 ```
@@ -60,7 +62,7 @@ After import, omit the version only for artifacts constrained by the BOM. Keep e
 
 ## Patterns {#patterns}
 
-Declare the platform once in a convention plugin or version catalog bundle used by all service modules. Keep the BOM version explicit at that boundary and omit versions on individual bluetape4k dependencies. Upgrade the BOM as one reviewed change, then run the application's compile and integration tests.
+Declare the central platform once in a convention plugin or version catalog bundle used by all service modules. Keep only the `bluetape4k-dependencies` version explicit at that boundary and omit versions on individual bluetape4k dependencies. Upgrade the central BOM as one reviewed change, then run the application's compile and integration tests.
 
 ## Integrations {#integrations}
 

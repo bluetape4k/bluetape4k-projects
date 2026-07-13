@@ -20,7 +20,7 @@ Apache Kafka를 Kotlin 환경에서 효율적으로 사용하기 위한 유틸�
 
 ```kotlin
 dependencies {
-    implementation(platform("io.github.bluetape4k:bluetape4k-bom:<version>"))
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-kafka")
 }
 ```
