@@ -28,13 +28,13 @@
   - **Action:** workflow, maintenance, writer, brainstorming, checklist/common gate와 Korean naturalness 계약을 읽는다.
   - **Evidence:** `/Users/debop/.codex/skills/{bluetape-workflow,bluetape-maintenance,bluetape-writer,brainstorming}` 및 required references를 현재 turn에서 읽음.
   - **Failure:** STOP before editing.
-- [ ] **WF-05 — Execute gates in dependency order**
+- [x] **WF-05 — Execute gates in dependency order**
   - **Action:** spec approval, plan, manual source, site snapshot, verification 순으로 진행한다.
-  - **Evidence:** 아래 gate별 fresh result.
+  - **Evidence:** spec 승인 → 7-task plan → 6개 bilingual source page → manifest/release 검증 → Testcontainers 단독 실행 → site refresh/test/build/browser 검수 순으로 완료함.
   - **Failure:** leave downstream items unchecked and repair.
 - [x] **WF-06 — Repair any skipped or weak gate**
   - **Action:** 누락되거나 약한 증거를 복구하고 영향을 받은 downstream proof를 다시 실행한다.
-  - **Evidence:** 최초 untracked-file self-review가 trailing whitespace를 보지 못한 점을 commit output에서 발견; 공백 4개를 제거하고 `git diff --cached --check`와 `git show --check HEAD`를 다시 통과함.
+  - **Evidence:** plan-only CG-08 증거를 실제 단독 실행 결과로 교체했고, 브라우저에서 발견한 상대 `.md` 링크 404는 snapshot 변환 단계에서 회귀 테스트와 함께 수정함. Site commit 뒤 발견한 EOF 빈 줄도 생성기에서 정규화하고 전체 검증을 다시 실행함.
   - **Failure:** final status BLOCKED.
 
 ## Common gates
@@ -63,9 +63,9 @@
   - **Action:** Core/Coroutines/Logging의 multi-chapter manual pattern을 재사용한다.
   - **Evidence:** manifest v2 chapter model, bilingual parity, deterministic site snapshot 구조 확인.
   - **Failure:** stop new abstraction/dependency work.
-- [ ] **CG-07 — Lock behavior and run targeted proof**
+- [x] **CG-07 — Lock behavior and run targeted proof**
   - **Action:** Projects manual validator/tests, Cassandra test anchors, site tests/snapshot/build를 실행한다.
-  - **Evidence:** Projects PASS — Ruby manual tests 35 runs/108 assertions, failures=0/errors=0; `Manuals are aligned.`; manifest snapshot current; 1.11.0 release links 4,814 checked/0 missing; `:bluetape4k-cassandra:test` `BUILD SUCCESSFUL`. Site snapshot/build/browser는 Task 7 PENDING.
+  - **Evidence:** Projects PASS — Ruby manual tests 35 runs/108 assertions, failures=0/errors=0; `Manuals are aligned.`; manifest snapshot current; 1.11.0 release links 4,814 checked/0 missing; `:bluetape4k-cassandra:test` `BUILD SUCCESSFUL`. Site PASS — snapshot 244 documents/30 assets/244 redirects, Node 86/86, Astro 47 files 진단 0건, 393 pages build.
   - **Failure:** repair and rerun.
 - [x] **CG-08 — Serialize heavyweight checks**
   - **Action:** Testcontainers-backed Cassandra 검증을 단독 순차 실행하도록 고정한다.
@@ -103,9 +103,9 @@
   - **Action:** repo helpers, raw reads, `apply_patch`, repository validators를 사용한다.
   - **Evidence:** `repo-status`, `repo-diff`, GNO, git tag reads and selected skill references.
   - **Failure:** rerun authoritative command.
-- [ ] **CG-17 — Prove completion line by line**
+- [x] **CG-17 — Prove completion line by line**
   - **Action:** router/common/leaf/locale/site proof와 scoped status를 재검증한다.
-  - **Evidence:** final counts, unchecked list and status.
+  - **Evidence:** Required 32/32, N/A 6, Blocked 0. Projects manual/release scoped status와 Site manual pipeline/snapshot scoped status는 clean이며, KO/EN 5개 chapter와 1.11.0 source links를 다시 확인함.
   - **Failure:** remain PENDING.
 
 ## Type E gates
@@ -126,13 +126,13 @@
   - **Action:** chezmoi parity applicability를 분류한다.
   - **Evidence:** N/A — no managed user-scope files.
   - **Failure:** repair source chain if scope changes.
-- [ ] **E-05 — Run maintenance verification**
+- [x] **E-05 — Run maintenance verification**
   - **Action:** diff check, targeted references, manual validation, tests, site snapshot/build/browser checks를 실행한다.
-  - **Evidence:** fresh verification ledger.
+  - **Evidence:** Projects diff/manual/manifest/release/Testcontainers 검증과 Site sync/check/snapshot/86 tests/Astro build를 fresh 실행함. 브라우저에서 KO landing·session·coroutine과 EN landing·operations를 확인하고 desktop/mobile overflow 0, broken images 0, console warnings/errors 0을 기록함.
   - **Failure:** repair before completion.
-- [ ] **E-06 — Close out durable delivery**
+- [x] **E-06 — Close out durable delivery**
   - **Action:** locale parity, source links, final diff/commits와 checklist totals를 확인한다.
-  - **Evidence:** final commit/status and counts; push remains N/A unless separately approved.
+  - **Evidence:** canonical source checkpoint `073ab365a`; Site snapshot commits `b4dd3c0`, `f699dfb`; locale inventory와 generated source links parity 통과. Projects checklist를 이 commit으로 닫으며 push/PR/merge/deploy는 수행하지 않음.
   - **Failure:** final status PENDING/BLOCKED.
 
 ## Cassandra manual leaf gates
@@ -154,7 +154,7 @@
   - **Evidence:** 사용자 written spec 승인; `docs/superpowers/plans/2026-07-13-cassandra-detailed-manual.md`; 7 tasks, 5 chapter IDs, release boundary, validation commands와 execution handoff를 self-review함.
   - **Failure:** do not edit manual content.
 - [x] **CAS-05 — Write the Korean source manual**
-  - **Action:** landing과 5개 chapter를 자연스러운 한국어와 complete examples로 작성한다.
+  - **Action:** landing과 5개 chapter를 자연스러운 한국어와 실행 흐름을 설명하는 예제로 작성한다.
   - **Evidence:** KO chapter inventory 5개(`session-lifecycle`, `coroutine-queries`, `rows-data-mapping`, `statements-query-builder`, `operations-testing`); 1.11.0 source/test claim review와 Korean naturalness 금칙어 검색 0건; 각 Task의 spec/quality review Critical/Important/Minor=0.
   - **Failure:** repair unsupported or translated prose.
 - [x] **CAS-06 — Produce English parity**
@@ -165,15 +165,15 @@
   - **Action:** 5개 bilingual chapter를 manifest에 등록하고 source links를 검증한다.
   - **Evidence:** `docs/manual/manifest.yaml`과 generated snapshot에 5개 chapter 등록; `Manuals are aligned.`; `Manual manifest snapshot is current.`; release validator `4,814 checked, 0 missing`; Ruby tests 35 runs/108 assertions, failures=0/errors=0.
   - **Failure:** repair inventory/reference.
-- [ ] **CAS-08 — Publish the deterministic site snapshot**
+- [x] **CAS-08 — Publish the deterministic site snapshot**
   - **Action:** committed Projects source 기준으로 site snapshot을 갱신한다.
-  - **Evidence:** sync/check digest, release provenance and stale cleanup proof.
+  - **Evidence:** Projects `073ab365a`에서 `--refresh 1.11.0` 후 sync check `changed=false`; generation `4732cfd1c05286222c376551c68cf098bb7b5a3ddd0fe5a8dcc460f421e4e2a9`; release commit `6187173b...` 유지, source commit만 갱신. Site commits `b4dd3c0`, `f699dfb`.
   - **Failure:** repair snapshot.
-- [ ] **CAS-09 — Verify tests, build and browser routes**
+- [x] **CAS-09 — Verify tests, build and browser routes**
   - **Action:** relevant Cassandra tests, Projects docs checks, site tests/build와 KO/EN browser routes를 검증한다.
-  - **Evidence:** Projects PASS — `:bluetape4k-cassandra:test` `BUILD SUCCESSFUL`; docs validators/tests PASS. Site tests/build와 KO/EN browser routes는 Task 7 PENDING.
+  - **Evidence:** Projects PASS — `:bluetape4k-cassandra:test` `BUILD SUCCESSFUL`; docs validators/tests PASS. Site PASS — 86/86 tests, diagnostics 0/0/0, 393 pages, KO/EN five-route QA. Landing의 5개 chapter 링크는 실제 click navigation으로 확인했고 mobile 390×844에서도 page/main/code overflow 0이었음.
   - **Failure:** repair and rerun.
 
 ## 종료 집계
 
-현재 상태는 `Required checks: 25/32; N/A: 6; Blocked: 0`이다. 미완료 항목은 `WF-05`, `CG-07`, `CG-17`, `E-05`, `E-06`, `CAS-08`, `CAS-09`이며, Site snapshot/build/browser 검증에 맞춰 즉시 갱신한다.
+최종 상태는 `Required checks: 32/32; N/A: 6; Blocked: 0`이다. unchecked 항목은 없다.
