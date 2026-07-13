@@ -9,7 +9,7 @@ chapterId: coroutine-queries
 
 ## 문제와 API 선택
 
-Java Driver의 비동기 API는 `CompletionStage`를 반환합니다. 코루틴 코드에서 비동기 결과와 콜백을 직접 이어 붙이지 말고 `executeSuspending`과 `prepareSuspending`으로 드라이버 작업이 끝날 때까지 일시 중단합니다. 실행할 입력에 맞춰 오버로드를 고릅니다.
+Java Driver의 비동기 API는 `CompletionStage`를 반환합니다. 코루틴 코드에서는 `CompletionStage` 콜백을 직접 이어 붙이는 대신 `executeSuspending`과 `prepareSuspending`으로 드라이버 작업이 끝날 때까지 기다립니다. 호출할 때 가진 입력에 맞춰 오버로드를 고릅니다.
 
 | 입력 | API | 선택 기준 |
 | --- | --- | --- |
@@ -23,7 +23,7 @@ Java Driver의 비동기 API는 `CompletionStage`를 반환합니다. 코루틴 
 
 ## 단일 쿼리
 
-위치 기반 값이 몇 개뿐이라면 CQL 오버로드가 가장 짧습니다. 이 호출은 `executeAsync`가 반환한 비동기 결과가 끝날 때까지 현재 코루틴을 일시 중단하고 `AsyncResultSet`을 반환합니다.
+위치 기반 값이 몇 개뿐이라면 CQL 오버로드가 가장 짧습니다. 이 호출은 `executeAsync`가 시작한 비동기 작업이 끝날 때까지 현재 코루틴을 일시 중단하고 `AsyncResultSet`을 반환합니다.
 
 ```kotlin
 import com.datastax.oss.driver.api.core.CqlSession
@@ -45,7 +45,7 @@ suspend fun markInactive(
 
 ## 준비된 쿼리
 
-같은 CQL을 값만 바꿔 실행한다면 먼저 `prepareSuspending`으로 준비하고 값을 바인딩합니다. 다음 예제는 준비, 실행, 한 행 읽기의 범위를 한 함수에 모았습니다.
+같은 CQL을 여러 값으로 반복 실행할 때는 먼저 `prepareSuspending`으로 준비한 뒤 값을 바인딩합니다. 다음 예제는 쿼리 준비부터 실행과 한 행 읽기까지를 한 함수에 담았습니다.
 
 ```kotlin
 import com.datastax.oss.driver.api.core.CqlSession
@@ -64,11 +64,11 @@ suspend fun findUser(session: CqlSession, id: Long): User? {
 }
 ```
 
-`String`, `SimpleStatement`, `PrepareRequest` 중 이미 가진 표현에 맞는 `prepareSuspending` 오버로드를 사용합니다. 예전 이름인 `suspendExecute`, `suspendPrepare`, `execute`, `prepare` 확장은 각각 `executeSuspending`과 `prepareSuspending`으로 전달되는 사용 중단 별칭입니다. 마이그레이션할 때 호출 이름만 새 API로 바꾸고, 새 코드에서는 이 별칭을 사용하지 않습니다.
+`String`, `SimpleStatement`, `PrepareRequest` 중 이미 가진 입력에 맞는 `prepareSuspending` 오버로드를 사용합니다. 예전 `suspendExecute`와 `execute` 별칭은 CQL과 가변 인자, 이름 기반 값 맵, `Statement` 입력을 지원합니다. `suspendPrepare`와 `prepare` 별칭은 `String`과 `SimpleStatement` 입력만 지원하며, `PrepareRequest`용 사용 중단 별칭은 없습니다. 마이그레이션할 때 각 호출을 대응하는 `executeSuspending` 또는 `prepareSuspending` 오버로드로 바꾸고, 새 코드에서는 이 별칭을 사용하지 않습니다.
 
 ## Flow 페이지 처리 모델
 
-`asFlow`가 담당하는 범위는 쿼리 실행이 아니라 이미 받은 `AsyncResultSet`의 페이지 순회입니다.
+`asFlow`는 쿼리를 실행하지 않습니다. 이미 받은 `AsyncResultSet`의 페이지를 순회합니다.
 
 ```kotlin
 import com.datastax.oss.driver.api.core.CqlSession
@@ -104,13 +104,15 @@ suspend fun loadActiveUsers(session: CqlSession): List<User> {
 
 다음 페이지를 기다리는 중 발생한 `CancellationException`은 취소 신호 그대로 다시 던집니다. 매퍼나 후속 연산에서도 `CancellationException`을 일반 실패로 감싸거나 무조건 재시도하지 않습니다. 그 밖의 매퍼 예외와 페이지 조회 예외도 변환하지 않고 수집자에게 전파됩니다.
 
-뒤쪽 페이지 조회가 실패하기 전에 앞쪽 페이지의 행은 이미 소비됐을 수 있습니다. 모든 행이 준비됐을 때만 외부 상태를 바꿔야 한다면 결과를 명시적으로 버퍼링한 뒤 한 번에 반영해야 합니다. 이 선택은 전체 결과 크기만큼 메모리를 사용할 수 있다는 비용을 동반합니다.
+매퍼가 특정 행에서 실패하거나 수집이 취소되면 그 행에서 순회가 멈춥니다. 그 전에 현재 페이지에서 이미 방출된 행은 수집자가 관찰한 결과로 남습니다. 현재 페이지를 끝까지 방출하지 못했으므로 뒤쪽 페이지는 조회하지 않습니다. 다음 페이지 조회는 현재 페이지의 모든 행을 정상적으로 방출한 뒤에만 시작됩니다.
+
+뒤쪽 페이지 조회가 실패하기 전에 앞쪽 페이지의 행은 이미 소비됐을 수 있습니다. 모든 행이 준비됐을 때만 외부 상태를 바꿔야 한다면 결과를 명시적으로 버퍼링한 뒤 한 번에 반영해야 합니다. 이때는 전체 결과 크기만큼 메모리가 들 수 있습니다.
 
 ## 결과 크기와 수집 방식
 
-결과 상한을 알고 메모리에 모두 올려도 될 때만 `toList()`를 사용합니다. 결과가 크거나 상한을 모르면 `collect`, `map`, `transform` 같은 연산으로 행을 순차 처리하고, 후속 처리의 동시성·큐·외부 호출 수도 제한합니다. `asFlow` 자체가 결과 전체를 모으지는 않지만, 수집자가 만든 버퍼나 동시 작업은 별도 용량 계획이 필요합니다.
+결과 상한을 알고 메모리에 모두 올려도 될 때만 `toList()`를 사용합니다. 결과가 크거나 상한이 보장되지 않으면 `collect`, `map`, `transform` 같은 연산으로 행을 순차 처리하고, 후속 처리의 동시성·큐·외부 호출 수도 제한합니다. `asFlow` 자체가 결과 전체를 모으지는 않지만, 수집자가 만든 버퍼나 동시 작업의 용량은 따로 제한해야 합니다.
 
-페이지 순회 순서는 현재 페이지 방출 후 다음 페이지 조회로 고정됩니다. 후속 처리에 `buffer` 같은 연산자를 추가하더라도 이를 드라이버 페이지의 병렬 선행 조회 보장으로 간주하지 않습니다.
+페이지 순회 순서는 현재 페이지 방출 후 다음 페이지 조회로 고정됩니다. 후속 처리에 `buffer` 같은 연산자를 추가해도 드라이버가 다음 페이지를 병렬로 미리 가져온다는 뜻은 아닙니다.
 
 ## 소스와 대표 테스트
 
@@ -123,4 +125,4 @@ suspend fun loadActiveUsers(session: CqlSession): List<User> {
 
 ## 다음 읽을 장
 
-세션 소유권이 아직 정해지지 않았다면 [세션 수명주기](./session-lifecycle.md)를 먼저 읽습니다. `Row`의 null 처리, 열 접근, 변환 규칙은 [Row와 데이터 매핑](./rows-data-mapping.md)에서 이어집니다.
+세션 소유권이 아직 정해지지 않았다면 [세션 수명주기](./session-lifecycle.md)를 먼저 읽습니다. 다음 장에서는 `Row`의 null 처리, 열 접근, 변환 규칙을 다룹니다.

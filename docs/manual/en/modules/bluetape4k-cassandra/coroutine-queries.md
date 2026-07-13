@@ -64,7 +64,7 @@ suspend fun findUser(session: CqlSession, id: Long): User? {
 }
 ```
 
-Choose the `prepareSuspending` overload for the representation you already have: `String`, `SimpleStatement`, or `PrepareRequest`. The older `suspendExecute`, `suspendPrepare`, `execute`, and `prepare` extensions are deprecated aliases that forward to `executeSuspending` and `prepareSuspending`. Rename those calls during migration; do not use the deprecated aliases in new code.
+Choose the `prepareSuspending` overload for the input you already have: `String`, `SimpleStatement`, or `PrepareRequest`. The deprecated `suspendExecute` and `execute` aliases cover CQL varargs, named-value maps, and `Statement` inputs. The deprecated `suspendPrepare` and `prepare` aliases cover only `String` and `SimpleStatement`; there is no deprecated alias for a `PrepareRequest`. During migration, replace each alias with the corresponding `executeSuspending` or `prepareSuspending` overload. Do not use the deprecated aliases in new code.
 
 ## Flow paging model
 
@@ -104,11 +104,13 @@ Failures surface at the stage where they occur.
 
 A `CancellationException` raised while waiting for the next page is rethrown as cancellation. Do not wrap it as an ordinary failure or retry it blindly in a mapper or downstream operation. Other mapper and fetch failures propagate to the collector without conversion.
 
+If the mapper fails on a row or collection is cancelled while processing it, traversal stops at that row. Rows emitted earlier from the current page remain observable to the collector. No later page is fetched because the current page was not exhausted. The next-page fetch starts only after every row in the current page has been emitted successfully.
+
 Rows from earlier pages may already have been consumed when a later-page fetch fails. A consumer that requires all-or-nothing effects must explicitly buffer the complete result before committing those effects. That choice can require memory proportional to the result size.
 
 ## Result size and collection choice
 
-Use `toList()` only when the result is bounded and retaining every row in memory is acceptable. For large results or streaming consumption, process rows with `collect`, `map`, or `transform`, and keep downstream concurrency, queues, and external calls bounded. `asFlow` does not accumulate the full result, but buffers or concurrent work introduced by the collector still need their own capacity limits.
+Use `toList()` only when the result is bounded and retaining every row in memory is acceptable. For results that are large or not known to be bounded, process rows with `collect`, `map`, or `transform`, and keep downstream concurrency, queues, and external calls bounded. `asFlow` does not accumulate the full result, but buffers or concurrent work introduced by the collector still need their own capacity limits.
 
 The paging order remains current-page emission followed by the next-page fetch. Adding an operator such as `buffer` downstream must not be treated as a driver-level guarantee of parallel page prefetch.
 
@@ -123,4 +125,4 @@ The paging order remains current-page emission followed by the next-page fetch. 
 
 ## Next reading
 
-If session ownership is not settled yet, start with [Session lifecycle](./session-lifecycle.md). Continue with [Rows and data mapping](./rows-data-mapping.md) for nullability, column access, and conversion rules.
+If session ownership is not settled yet, start with [Session lifecycle](./session-lifecycle.md). The next chapter covers row nullability, column access, and conversion rules.
