@@ -176,4 +176,4 @@ Avoid making `Any?` maps the default for a fixed schema, collapsing null into em
 ## Previous and next
 
 - Previous: [Coroutine queries and multi-page reads](./coroutine-queries.md)
-- Next: Choosing statements and QueryBuilder
+- Next: [Choosing statements and QueryBuilder](./statements-query-builder.md)

@@ -176,4 +176,4 @@ val result = session.execute(statement)
 ## 앞뒤로 읽기
 
 - 이전: [코루틴 쿼리와 여러 페이지 읽기](./coroutine-queries.md)
-- 다음: Statement와 QueryBuilder 선택
+- 다음: [Statement와 QueryBuilder 선택](./statements-query-builder.md)
