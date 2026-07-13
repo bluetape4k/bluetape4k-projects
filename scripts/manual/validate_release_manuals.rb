@@ -8,15 +8,15 @@ unless tag && expected_sha && ARGV.length == 2
   exit 1
 end
 
-errors = ManualDocs::ReleaseContract.new(
+result = ManualDocs::ReleaseContract.new(
   repository_root: Dir.pwd,
   tag: tag,
   expected_sha: expected_sha,
-).errors
+).validate
 
-unless errors.empty?
-  warn errors.join("\n")
+unless result.errors.empty?
+  warn result.errors.join("\n")
   exit 1
 end
 
-puts "Release manuals are compatible with #{tag} (#{expected_sha})."
+puts "Release manuals are compatible with #{tag} (#{expected_sha}): #{result.checked_count} checked, 0 missing."

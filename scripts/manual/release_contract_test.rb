@@ -1,11 +1,14 @@
 require "fileutils"
 require "minitest/autorun"
+require "open3"
+require "rbconfig"
 require "tmpdir"
 
 require_relative "release_contract"
 
 class ReleaseContractTest < Minitest::Test
   RELEASE_SHA = "a" * 40
+  VALIDATOR_SCRIPT = File.expand_path("validate_release_manuals.rb", __dir__)
 
   def test_reports_a_manual_path_that_is_missing_from_the_tag
     with_repository do |root, sha|
@@ -67,6 +70,41 @@ class ReleaseContractTest < Minitest::Test
     end
   end
 
+  def test_reports_a_multiline_missing_link_at_the_links_start_line
+    with_repository do |root, sha|
+      write_manual(root, <<~MARKDOWN)
+        Plain text
+        [Split](
+        ../../../../src/not-at-release.kt
+        )
+      MARKDOWN
+
+      errors = validator(root, sha).errors
+
+      assert_equal [
+        "docs/manual/en/modules/sample.md:2: release path not found: src/not-at-release.kt",
+      ], errors
+    end
+  end
+
+  def test_reports_a_multiline_unsafe_link_at_the_links_start_line
+    with_repository do |root, sha|
+      write_manual(root, <<~MARKDOWN)
+        Plain text
+        Another line
+        [Escape](
+        ../../../../../outside.kt
+        )
+      MARKDOWN
+
+      errors = validator(root, sha).errors
+
+      assert_equal [
+        "docs/manual/en/modules/sample.md:3: unsafe release path: ../../../../../outside.kt",
+      ], errors
+    end
+  end
+
   def test_orders_errors_by_file_and_numeric_line
     with_repository do |root, sha|
       write_manual(
@@ -116,6 +154,54 @@ class ReleaseContractTest < Minitest::Test
 
     assert_equal 1, calls.count { |arguments| arguments.first == "ls-tree" }
     assert_includes calls, ["ls-tree", "-r", "--name-only", RELEASE_SHA]
+  end
+
+  def test_exposes_the_number_of_checked_links
+    with_repository do |root, sha|
+      write_manual(root, <<~MARKDOWN)
+        [Present](../../../../src/present.kt)
+        [Present again](../../../../src/present.kt)
+      MARKDOWN
+      contract = validator(root, sha)
+
+      assert_respond_to contract, :validate
+      result = contract.validate
+      assert_empty result.errors
+      assert_equal 2, result.checked_count
+    end
+  end
+
+  def test_rejects_a_manual_set_without_repository_links
+    with_repository do |root, sha|
+      write_manual(root, "No repository source links.\n")
+      contract = validator(root, sha)
+
+      assert_respond_to contract, :validate
+      result = contract.validate
+      assert_equal ["no repository-relative manual links found"], result.errors
+      assert_equal 0, result.checked_count
+    end
+  end
+
+  def test_cli_reports_checked_and_missing_counts
+    with_repository do |root, sha|
+      write_manual(root, <<~MARKDOWN)
+        [Present](../../../../src/present.kt)
+        [Present again](../../../../src/present.kt)
+      MARKDOWN
+
+      stdout, stderr, status = Open3.capture3(
+        RbConfig.ruby,
+        VALIDATOR_SCRIPT,
+        "1.11.0",
+        sha,
+        chdir: root,
+      )
+
+      assert status.success?, stderr
+      assert_equal "Release manuals are compatible with 1.11.0 (#{sha}): 2 checked, 0 missing.\n", stdout
+      assert_empty stderr
+    end
   end
 
   def test_accepts_a_release_directory_when_the_inventory_contains_descendants
