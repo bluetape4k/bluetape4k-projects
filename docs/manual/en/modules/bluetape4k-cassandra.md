@@ -100,7 +100,7 @@ Tests that require real Cassandra behavior use Testcontainers and a working Dock
 
 ## Workshops {#workshops}
 
-There is no module-specific workshop yet. The complete examples and release-pinned source and test links in each chapter provide a sequential path through sessions, coroutine paging, mapping, QueryBuilder, and operations.
+There is no module-specific workshop yet. The examples and source/test links verified against 1.11.0 provide a sequential path through sessions, coroutine paging, mapping, QueryBuilder, and operations.
 
 ## 1.11.0 limitation {#limitations}
 

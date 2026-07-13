@@ -69,7 +69,7 @@
   - **Failure:** repair and rerun.
 - [x] **CG-08 — Serialize heavyweight checks**
   - **Action:** Testcontainers-backed Cassandra 검증을 단독 순차 실행하도록 고정한다.
-  - **Evidence:** manual implementation plan에서 Cassandra targeted test를 다른 heavy check와 병렬 실행하지 않음.
+  - **Evidence:** `repo-test-summary -- ./gradlew :bluetape4k-cassandra:test --no-build-cache --no-configuration-cache`를 다른 heavy test와 겹치지 않게 단독 실행했고, `BUILD SUCCESSFUL in 2s`와 exit 0을 확인함.
   - **Failure:** discard ambiguous parallel evidence and rerun sequentially.
 - [x] **CG-09 — Verify issue/PR metadata live**
   - **Action:** GitHub issue/PR mutation applicability를 분류한다.
