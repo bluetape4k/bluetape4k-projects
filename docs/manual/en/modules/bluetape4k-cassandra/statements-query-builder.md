@@ -150,4 +150,4 @@ Every item must be a `BatchableStatement`. Mixing unrelated partition keys or co
 ## Previous and next
 
 - Previous: [Map rows and Cassandra values into Kotlin types](./rows-data-mapping.md)
-- Next topic: validating execution results and failures in operations and testing
+- Next: [Operational boundaries and Testcontainers verification](./operations-testing.md)
