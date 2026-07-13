@@ -32,9 +32,9 @@
   - **Action:** spec approval, plan, manual source, site snapshot, verification 순으로 진행한다.
   - **Evidence:** 아래 gate별 fresh result.
   - **Failure:** leave downstream items unchecked and repair.
-- [ ] **WF-06 — Repair any skipped or weak gate**
+- [x] **WF-06 — Repair any skipped or weak gate**
   - **Action:** 누락되거나 약한 증거를 복구하고 영향을 받은 downstream proof를 다시 실행한다.
-  - **Evidence:** final checklist audit와 repair log 또는 누락 없음.
+  - **Evidence:** 최초 untracked-file self-review가 trailing whitespace를 보지 못한 점을 commit output에서 발견; 공백 4개를 제거하고 `git diff --cached --check`와 `git show --check HEAD`를 다시 통과함.
   - **Failure:** final status BLOCKED.
 
 ## Common gates
@@ -145,9 +145,9 @@
   - **Action:** one-page, hub+chapters, recipes-first 구조를 비교하고 B를 선택한다.
   - **Evidence:** 사용자 `승인`; landing + 5 focused chapters, 총 6개 페이지.
   - **Failure:** revise design before spec.
-- [ ] **CAS-03 — Commit and review the written spec**
+- [x] **CAS-03 — Commit and review the written spec**
   - **Action:** approved design을 spec으로 작성하고 self-review 후 commit한다.
-  - **Evidence:** spec path, commit SHA, placeholder/consistency/scope/ambiguity checks.
+  - **Evidence:** `docs/superpowers/specs/2026-07-13-cassandra-detailed-manual-design.md`; commit `0216925cd014428cd4b4724a18e9d2a5250f14a4`; placeholders=0, focused chapters=5, 1.11.0/post-release boundary explicit, commit diff-check clean.
   - **Failure:** repair spec and recommit.
 - [ ] **CAS-04 — Write the implementation plan**
   - **Action:** user spec review 후 `writing-plans`로 file-level implementation plan을 작성한다.
@@ -176,4 +176,4 @@
 
 ## 종료 집계
 
-현재 상태는 `Required checks: 19/32; N/A: 6; Blocked: 0`이다. 미완료 항목은 `WF-05`, `WF-06`, `CG-07`, `CG-17`, `E-05`, `E-06`, `CAS-03`부터 `CAS-09`까지이며, spec review와 implementation 진행에 맞춰 즉시 갱신한다.
+현재 상태는 `Required checks: 21/32; N/A: 6; Blocked: 0`이다. 미완료 항목은 `WF-05`, `CG-07`, `CG-17`, `E-05`, `E-06`, `CAS-04`부터 `CAS-09`까지이며, spec review와 implementation 진행에 맞춰 즉시 갱신한다.
