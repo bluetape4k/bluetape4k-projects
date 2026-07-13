@@ -1,22 +1,27 @@
 ---
 manualId: bluetape4k-cassandra
 title: "Module bluetape4k-cassandra"
-description: "Apache Cassandra Java Driver를 Kotlin에서 더욱 편리하게 사용할 수 있도록 하는 확장 라이브러리입니다."
+description: "Apache Cassandra Java Driver를 Kotlin의 세션 수명주기, 코루틴 쿼리와 타입 변환 관점에서 사용하는 방법을 설명합니다."
 kind: library
 group: data
 ---
 
 # Module bluetape4k-cassandra
 
-## 해결하는 문제 {#problem}
+## 이 라이브러리가 맡는 일
 
-Apache Cassandra Java Driver를 Kotlin에서 더욱 편리하게 사용할 수 있도록 하는 확장 라이브러리입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+`bluetape4k-cassandra`는 Apache Cassandra Java Driver 위에 Kotlin용 세션 생성 함수, 코루틴 쿼리, row와 statement 확장을 제공합니다. 이 모듈은 Cassandra cluster나 schema를 운영하지 않습니다. 애플리케이션이 접속 주소, 인증 정보, keyspace와 세션 종료 시점을 결정해야 합니다.
 
-## 사용 시점 {#when-to-use}
+## 사용하기 전에 결정할 것
 
-애플리케이션에 transaction boundary, connection ownership, query 동작, serialization이 필요할 때 `bluetape4k-cassandra`를 선택합니다. 아래 source entry point에서 시작해 ownership과 failure 계약이 caller lifecycle에 맞는지 확인합니다. 표준 API나 이미 도입한 더 작은 모듈이 같은 계약을 만족한다면 그쪽을 우선합니다.
+- 한 작업 안에서 세션을 만들고 닫을지, 애플리케이션 전체에서 재사용할지 정합니다.
+- 재사용한다면 keyspace뿐 아니라 contact point, datacenter, tenant, credential, client id를 캐시 경계에 반영합니다.
+- blocking `execute`와 coroutine 기반 `executeSuspending` 가운데 호출 계층에 맞는 API를 고릅니다.
+- keyspace 생성 권한을 애플리케이션에 줄지, 배포 단계에서 별도로 관리할지 정합니다.
 
-## 의존성 좌표 {#coordinates}
+## 의존성 추가
+
+개별 bluetape4k 버전을 반복해서 적지 않고 중앙 BOM 버전만 지정합니다.
 
 ```kotlin
 dependencies {
@@ -25,104 +30,56 @@ dependencies {
 }
 ```
 
-Gradle project path는 `:bluetape4k-cassandra`, source directory는 `data/cassandra`입니다.
+## 첫 쿼리
 
-## 핵심 개념 {#concepts}
-
-먼저 확인할 source 개념은 `CassandraAdmin`, `CqlIdentifierSupport`, `CqlQuerySupport`, `CqlSessionProvider`, `CqlSessionSupport`, `AsyncCqlSessionSupport`, `AsyncResultSetSupport`, `DataTypeSupport`입니다. 파일 이름은 탐색 anchor일 뿐이므로 public 계약으로 사용하기 전에 선언과 test를 함께 읽습니다.
-
-## 빠른 시작 {#quick-start}
-
-위 좌표를 추가하고 Gradle을 refresh한 뒤 필요한 작업을 소유한 가장 작은 entry point에서 시작합니다. 먼저 [`CassandraAdmin`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CassandraAdmin.kt)를 확인합니다. 이 파일이 모듈의 구체적인 source entry point입니다.
-
-## 작업별 API {#api-by-task}
-
-| Entry point | 확인할 내용 |
-| --- | --- |
-| [`CassandraAdmin`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CassandraAdmin.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`CqlIdentifierSupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlIdentifierSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`CqlQuerySupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlQuerySupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`CqlSessionProvider`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionProvider.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`CqlSessionSupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`AsyncCqlSessionSupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/AsyncCqlSessionSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`AsyncResultSetSupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/AsyncResultSetSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`DataTypeSupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/DataTypeSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`RowSupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/RowSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`StatementSupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/StatementSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-
-## 권장 패턴 {#patterns}
-
-README 근거는 **특징**, **아키텍처 다이어그램**, **확장 함수 API 개요**, **주요 API 구조**, **비동기 쿼리 실행 흐름**, **의존성 추가**, **주요 기능**, **1. CqlSession 생성**, **명시적 identity로 Session 캐싱**, **2. 비동기 쿼리 (Coroutines)** 순서로 탐색할 수 있습니다. 이 항목으로 방향을 잡고 source와 test에서 동작을 확인합니다. 도입 범위는 좁게 유지하고 소유한 resource를 caller lifecycle에 연결합니다.
-
-## 연동 {#integrations}
-
-현재 build에 선언된 integration edge는 다음과 같습니다.
+직접 만든 세션은 만든 코드가 닫습니다. `use` 안에 쿼리를 두면 정상 반환과 예외 모두에서 세션이 닫힙니다.
 
 ```kotlin
-api(project(":bluetape4k-io"))
-api(project(":bluetape4k-coroutines"))
-api(libs.cassandra.java.driver.core)
-api(libs.cassandra.java.driver.query.builder)
-api(libs.cassandra.java.driver.mapper.runtime)
-compileOnly(libs.cassandra.java.driver.metrics.micrometer)
-implementation(libs.kotlinx.coroutines.core)
-implementation(libs.kotlinx.coroutines.reactor)
+import io.bluetape4k.cassandra.cqlSessionOf
+import java.net.InetSocketAddress
+
+val contactPoint = InetSocketAddress("127.0.0.1", 9042)
+
+val releaseVersion = cqlSessionOf(
+    contactPoint = contactPoint,
+    localDatacenter = "datacenter1",
+    keyspaceName = "system",
+).use { session ->
+    session.execute("SELECT release_version FROM system.local")
+        .one()
+        ?.getString("release_version")
+}
 ```
 
-`compileOnly` edge는 caller가 제공해야 하는 capability이므로 API를 사용하기 전에 runtime에 실제 dependency가 있는지 확인합니다.
+## API 선택 지도
 
-## 설정 {#configuration}
+| 필요한 작업 | 시작할 API | 소유권 또는 주의점 |
+| --- | --- | --- |
+| 짧은 범위에서 세션 생성 | `cqlSessionOf`, `cqlSession` | 호출 코드가 `use`나 `close`로 종료합니다. |
+| 같은 접속 문맥의 세션 재사용 | `CqlSessionProvider`, `CqlSessionIdentity` | identity가 캐시 경계이며 provider가 종료 queue에 등록합니다. |
+| coroutine에서 query/prepare 실행 | `executeSuspending`, `prepareSuspending` | 호출 coroutine의 취소와 paging 경계를 유지합니다. |
+| row와 driver 값을 Kotlin 타입으로 변환 | `RowSupport`, `GettableSupport`, `DataTypeSupport` | null과 column type 계약을 먼저 확인합니다. |
+| statement와 query builder 조립 | `StatementSupport`, `QueryBuilderSupport` | consistency, timeout, keyspace를 호출 지점에서 드러냅니다. |
+| keyspace 관리와 통합 테스트 | `CassandraAdmin`, `AbstractCassandraTest` | 운영 DDL 권한과 테스트 container 수명주기를 분리합니다. |
 
-`src/main/resources` 아래에서 모듈 수준 설정 resource를 찾지 못했습니다. constructor, builder, function argument, 연동 framework로 설정하며 default는 source에서 확인합니다.
+## 학습 경로
 
-## 실패 동작 {#failures}
+1. [CqlSession 수명주기와 캐시 경계](./bluetape4k-cassandra/session-lifecycle.md)
+2. [코루틴 쿼리](./bluetape4k-cassandra/coroutine-queries.md)
+3. [Row와 data mapping](./bluetape4k-cassandra/rows-data-mapping.md)
+4. [Statement와 query builder](./bluetape4k-cassandra/statements-query-builder.md)
+5. [운영과 테스트](./bluetape4k-cassandra/operations-testing.md)
 
-failure 의미는 artifact 이름이 아니라 아래 entry point와 test가 결정합니다. cancellation과 timeout signal을 보존하고 소유한 resource를 닫습니다. backend exception은 안정된 domain 계약을 추가할 수 있는 boundary에서만 변환합니다. retry나 fallback을 넣기 전에 test anchor로 실제 동작을 확인합니다.
+## 1.11.0에서 알아둘 제한
 
-## 운영 {#operations}
+1.11.0의 `CqlSessionProvider`는 keyspace bootstrap용 admin 세션을 `builderSupplier().build()`로 만듭니다. 마지막 builder block은 keyspace에 연결할 최종 세션에만 적용됩니다. 따라서 두 세션에 모두 필요한 contact point, local datacenter, 인증, TLS 설정은 `builderSupplier`에 넣어야 합니다. 이 동작은 1.11.0 뒤에 병합된 PR #986의 동작과 다릅니다.
 
-pool 포화, query latency, retry, transaction rollback, schema 호환성을 관찰합니다. capacity, timeout, retry, shutdown 설정은 resource를 소유한 component 가까이에 둡니다. 누가 trade-off를 받아들였는지 알 수 없는 process-wide default는 피합니다.
+## Source와 tests
 
-## 테스트 {#testing}
-
-모듈 test task는 다음과 같습니다.
-
-```bash
-./gradlew :bluetape4k-cassandra:test --no-configuration-cache
-```
-
-대표 test anchor는 다음과 같습니다.
-
-- [`AbstractCassandraTest`](../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/AbstractCassandraTest.kt)
-- [`CassandraAdminTest`](../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/CassandraAdminTest.kt)
-- [`CqlIdentifierSupportTest`](../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/CqlIdentifierSupportTest.kt)
-- [`CqlQuerySupportTest`](../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/CqlQuerySupportTest.kt)
-- [`CqlSessionProviderTest`](../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/CqlSessionProviderTest.kt)
-- [`CqlSessionSupportTest`](../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/CqlSessionSupportTest.kt)
-- [`AsyncCqlSessionSupportTest`](../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/cql/AsyncCqlSessionSupportTest.kt)
-- [`AsyncResultSetSupportTest`](../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/cql/AsyncResultSetSupportTest.kt)
-
-## 워크숍 {#workshops}
-
-manual manifest에 등록된 전용 workshop path가 없습니다. 모듈 README와 위 representative test를 실행 근거로 사용합니다.
-
-## 제한 사항 {#limitations}
-
-이 페이지는 연결된 source와 test가 나타내는 현재 저장소 상태를 설명합니다. optional backend를 애플리케이션 기본값으로 만들거나 benchmark artifact 없이 성능을 단정하지 않습니다. 모듈 버전이 바뀌면 호환성과 lifecycle 설명을 다시 확인해야 합니다.
-
-## 근거 {#sources}
-
-- [모듈 README](../../../../data/cassandra/README.ko.md)
-- [모듈 build](../../../../data/cassandra/build.gradle.kts)
-- [`CassandraAdmin`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CassandraAdmin.kt)
-- [`CqlIdentifierSupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlIdentifierSupport.kt)
-- [`CqlQuerySupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlQuerySupport.kt)
-- [`CqlSessionProvider`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionProvider.kt)
-- [`CqlSessionSupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionSupport.kt)
-- [`AsyncCqlSessionSupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/AsyncCqlSessionSupport.kt)
-- [`AsyncResultSetSupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/AsyncResultSetSupport.kt)
-- [`DataTypeSupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/DataTypeSupport.kt)
-- [`RowSupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/RowSupport.kt)
-- [`StatementSupport`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/StatementSupport.kt)
-- [`AbstractCassandraTest`](../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/AbstractCassandraTest.kt)
-- [`CassandraAdminTest`](../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/CassandraAdminTest.kt)
+- [`CqlSessionProvider.kt`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionProvider.kt)
+- [`CqlSessionSupport.kt`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionSupport.kt)
+- [`AsyncCqlSessionSupport.kt`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/AsyncCqlSessionSupport.kt)
+- [`RowSupport.kt`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/RowSupport.kt)
+- [`StatementSupport.kt`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/StatementSupport.kt)
+- [`CqlSessionProviderTest.kt`](../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/CqlSessionProviderTest.kt)
+- [`CqlSessionSupportTest.kt`](../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/CqlSessionSupportTest.kt)
