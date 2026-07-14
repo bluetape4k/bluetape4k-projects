@@ -1,22 +1,32 @@
 ---
 manualId: bluetape4k-cache-lettuce
 title: "Module bluetape4k-cache-lettuce"
-description: "bluetape4k-cache-lettuce provides a Lettuce (Redis)-based JCache provider and NearCache implementations."
+description: "Configure Redis JCache, distributed memoizers, and Caffeine L1 plus Redis L2 near caches with explicit invalidation, TTL, and lifecycle contracts."
 kind: library
 group: caching
 ---
 
 # Module bluetape4k-cache-lettuce
 
-## Problem {#problem}
+## Capabilities {#problem}
 
-bluetape4k-cache-lettuce provides a Lettuce (Redis)-based JCache provider and NearCache implementations. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+`bluetape4k-cache-lettuce` implements the `bluetape4k-cache-core` contracts with Lettuce and Redis. It provides a Redis-hash JCache provider, synchronous and suspend JCache APIs, Redis-backed memoizers, and near caches that combine Caffeine L1 with Redis L2.
 
-## When to use {#when-to-use}
+The near cache isolates Redis keys as `cacheName:key`, fills L1 after an L2 hit, and uses RESP3 CLIENT TRACKING pushes to invalidate keys changed by another connection. Reads and writes can continue when tracking is unavailable, but cross-process L1 consistency then needs another strategy.
 
-Use `bluetape4k-cache-lettuce` when the application needs cache key design, consistency, invalidation, and backend ownership. Start with the source entry points below and confirm that their ownership and failure contracts match the calling component. Prefer a smaller standard-library or already-adopted module when it satisfies the same contract without another runtime boundary.
+## Decisions before adoption {#when-to-use}
+
+- Choose between the standard JCache API and the statistics and L1/L2 controls of `NearCacheOperations`.
+- Prefer the smaller Caffeine helpers in `bluetape4k-cache-core` for a single-JVM cache.
+- JCache TTL applies to the Redis hash for the whole cache, not to individual entries.
+- Native near-cache values use separate Redis keys, and `redisTtl` applies per key.
+- Configure the client for RESP3 and monitor tracking startup when using CLIENT TRACKING.
+- Treat the codec as a persisted wire format; migrate with a new cache name or a deliberate clear.
+- Decide who closes the `RedisClient`, manager, and per-cache connection.
 
 ## Coordinates {#coordinates}
+
+Applications manage only the central BOM version, not separate Lettuce, Caffeine, or bluetape4k module versions.
 
 ```kotlin
 dependencies {
@@ -25,110 +35,124 @@ dependencies {
 }
 ```
 
-Gradle project path: `:bluetape4k-cache-lettuce`. Source directory: `cache/cache-lettuce`.
+The application environment supplies Redis. The Gradle project is `:bluetape4k-cache-lettuce`, backed by `cache/cache-lettuce`.
 
-## Concepts {#concepts}
+## First near cache {#quick-start}
 
-The first source-level concepts to inspect are `LettuceCaches`, `LettuceCacheConfig`, `LettuceCacheManager`, `LettuceCachingProvider`, `LettuceJCache`, `LettuceJCaching`, `LettuceSuspendCacheManager`, and `LettuceSuspendJCache`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
+Start with an RESP3 client and explicit names, capacity, and expiry values.
 
-## Quick start {#quick-start}
+```kotlin
+val redisClient = RedisClient.create("redis://localhost:6379").also {
+    it.options = ClientOptions.builder()
+        .protocolVersion(ProtocolVersion.RESP3)
+        .build()
+}
 
-Add the coordinate above, refresh Gradle, and start from the smallest entry point that owns the required task. Open [`LettuceCaches`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/LettuceCaches.kt) first; it is a concrete source entry point for the module.
+val users = LettuceCaches.nearCache<User>(redisClient) {
+    cacheName = "users"
+    maxLocalSize = 10_000
+    frontExpireAfterWrite = Duration.ofMinutes(10)
+    redisTtl = Duration.ofHours(1)
+    useRespProtocol3 = true
+    recordStats = true
+}
+
+try {
+    users.put("42", user)
+    check(users.get("42") == user)
+} finally {
+    users.close()
+    redisClient.shutdown()
+}
+```
+
+`put` writes Redis first and updates L1 only after success. This is write-through between cache tiers, not a repository write-through to a database.
 
 ## API by task {#api-by-task}
 
-| Entry point | What to verify |
-| --- | --- |
-| [`LettuceCaches`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/LettuceCaches.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`LettuceCacheConfig`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceCacheConfig.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`LettuceCacheManager`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceCacheManager.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`LettuceCachingProvider`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceCachingProvider.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`LettuceJCache`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceJCache.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`LettuceJCaching`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceJCaching.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`LettuceSuspendCacheManager`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceSuspendCacheManager.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`LettuceSuspendJCache`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceSuspendJCache.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`LettuceAsyncMemoizer`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/memoizer/LettuceAsyncMemoizer.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`LettuceMemoizer`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/memoizer/LettuceMemoizer.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| Task | Start with | Boundary |
+| --- | --- | --- |
+| JCache SPI | `LettuceCachingProvider`, `LettuceCacheManager` | A provider-created manager also owns its RedisClient. |
+| Reuse an external client | `LettuceJCaching` | The manager does not close the external client. |
+| Synchronous JCache | `LettuceJCache`, `LettuceCaches.jcache` | Values share one Redis hash and its whole-cache TTL. |
+| Coroutine JCache | `LettuceSuspendJCache`, `LettuceSuspendCacheManager` | Blocking JCache calls run on `Dispatchers.IO`. |
+| Shared function results | three Lettuce memoizers | Same-key coalescing is local to one JVM `inFlight` map. |
+| Synchronous near cache | `LettuceNearCache` | Keys are strings; Redis succeeds before L1 changes. |
+| Coroutine near cache | `LettuceSuspendNearCache` | Uses Lettuce coroutine commands and async batches. |
+| JCache-based L1/L2 | `nearJCache`, `suspendNearJCache` | The composition contract comes from `cache-core`. |
+| Retry and fallback | `withResilience` | This adds the common decorator, not another Lettuce implementation. |
+
+## Learning path {#concepts}
+
+These chapters follow the 1.11.0 release source and executable tests. They explain provider identity, Redis storage, concurrent computation, L1/L2 ordering, and invalidation failures with defaults, ownership, and post-failure state.
+
+1. [JCache provider, manager, and configuration](./bluetape4k-cache-lettuce/jcache-provider-manager.md) — SPI lookup, `(ClassLoader, URI)` identity, Redis hashes, TTL, codecs, and ownership.
+2. [Synchronous and suspend JCache](./bluetape4k-cache-lettuce/sync-suspend-jcache.md) — CRUD, listeners, EntryProcessor, IO dispatching, close, and destroy.
+3. [Redis memoizers and concurrency](./bluetape4k-cache-lettuce/memoizers-concurrency.md) — sync, future, and suspend paths, JVM-local coalescing, failure, and cancellation recovery.
+4. [Near-cache L1 and L2](./bluetape4k-cache-lettuce/near-cache-l1-l2.md) — read fill, write order, key isolation, TTL, statistics, and bulk operations.
+5. [RESP3 invalidation and Lua CAS](./bluetape4k-cache-lettuce/resp3-invalidation-lua.md) — tracking registration, push payloads, `EVALSHA`, and `NOSCRIPT` fallback.
+6. [Lifecycle, tests, and ecosystem](./bluetape4k-cache-lettuce/operations-ecosystem.md) — failures and operations, then Hibernate, Spring, Exposed, and workshop paths.
+
+For JCache, start with chapters 1 and 2. For direct near-cache use, chapters 4, 5, and 6 are the shorter path.
 
 ## Patterns {#patterns}
 
-Choose one loading contract explicitly. With **cache-aside**, the caller handles a miss, loads the value, and writes it back. With **read-through**, the cache loader owns that miss path. With **write-through**, the cache API propagates the write to the backing store before reporting success; do not describe a plain `put` as write-through unless its implementation has that contract. For a two-level Near Cache, read L1 first, consult L2 on a miss, then fill L1. Write or invalidate L2 and L1 in the order required by the implementation, and test partial failure so stale L1 data cannot silently survive a failed backend update.
+Version the cache name, key encoding, value codec, and TTL as one data contract. Use a new name when the wire format changes. Populate the cache only after a source-of-truth read succeeds, and update or invalidate related keys after the data transaction completes.
+
+RESP3 invalidation arrives asynchronously. Keep values that cannot tolerate even a short stale window out of L1. When adding fallback, limit retries, concurrent loads, and database pressure so a Redis incident does not amplify into a source-store incident.
 
 ## Integrations {#integrations}
 
-The current build declares these integration edges:
+[`bluetape4k-cache-core`](./bluetape4k-cache-core.md) defines the common JCache, near-cache, and resilience contracts. [`bluetape4k-lettuce`](./bluetape4k-lettuce.md) covers clients, codecs, maps, and Redis commands. Continue to [`bluetape4k-hibernate-cache-lettuce`](./bluetape4k-hibernate-cache-lettuce.md) for Hibernate L2 cache and [`bluetape4k-spring-boot-hibernate-lettuce`](./bluetape4k-spring-boot-hibernate-lettuce.md) for Boot configuration and observability.
 
-```kotlin
-api(project(":bluetape4k-cache-core"))
-api(project(":bluetape4k-lettuce"))
-api(libs.lettuce.core)
-api(libs.caffeine)
-implementation(project(":bluetape4k-coroutines"))
-implementation(project(":bluetape4k-resilience4j"))
-implementation(libs.kotlinx.coroutines.core)
-implementation(libs.kotlinx.coroutines.reactive)
-implementation(project(":bluetape4k-protobuf"))
-implementation(project(":bluetape4k-io"))
-```
-
-Treat `compileOnly` edges as caller-provided capabilities and verify runtime availability before using their APIs.
+For database repository strategies, use [bluetape4k-exposed](https://github.com/bluetape4k/bluetape4k-exposed), [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop), and [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop). Verify a real loader/writer boundary before calling a cache operation database write-through.
 
 ## Configuration {#configuration}
 
-Configuration resources found in the module:
+`LettuceNearCacheConfig` defaults to name `lettuce-near-cache`, 10,000 L1 entries, 30-minute expire-after-write, no Redis TTL, RESP3 tracking enabled, and statistics disabled. Names cannot be blank, and sizes and durations must be positive.
 
-- [`javax.cache.spi.CachingProvider`](../../../../cache/cache-lettuce/src/main/resources/META-INF/services/javax.cache.spi.CachingProvider)
-
-Read property names and defaults from these resources and the binding source before overriding them.
+`LettuceCacheConfig.ttlSeconds` applies to the whole Redis hash. The default key encoder is `toString()`, and the default value codec is LZ4 plus Fory. Supply a `keyDecoder` to iterate a cache with non-String keys.
 
 ## Failures {#failures}
 
-Failure semantics are defined by the linked entry points and tests, not inferred from the artifact name. Keep cancellation and timeout signals intact, close owned resources, and translate backend exceptions only at a boundary that can add a stable domain contract. Use the test anchors below to verify the exact behavior before adding retries or fallbacks.
+The JCache manager rejects duplicate names, operations after close, and typed lookups that do not match configured key and value types. Codec and Redis command failures propagate.
+
+Near-cache writes update L1 only after Redis succeeds. A CLIENT TRACKING startup failure only logs a warning and leaves the cache running, so remote changes may leave stale L1 entries. Monitor tracking as a separate availability contract.
 
 ## Operations {#operations}
 
-Track hit ratio, load latency, eviction, stale reads, backend errors, and reconnect behavior. Keep capacity, timeout, retry, and shutdown settings next to the component that owns the resource; avoid process-wide defaults that hide which caller accepted the trade-off.
+Observe L1 hits, misses, evictions, size, Redis hits and misses, command latency, errors, and reconnects. Caffeine counters remain zero when `recordStats=false`. `backCacheSize` and `clearAll` scan `cacheName:*` and use `UNLINK`; measure their cost for large keyspaces.
+
+Track memoizer evaluator latency and hot keys, tracking startup and invalidation delay, and database pressure after fallback. Test the load spike produced when Redis is temporarily unavailable.
 
 ## Testing {#testing}
 
-Run the module test task:
+The module suite uses Redis Testcontainers, so run it sequentially with other heavy database suites.
 
 ```bash
-./gradlew :bluetape4k-cache-lettuce:test --no-configuration-cache
+./gradlew :bluetape4k-cache-lettuce:test --no-build-cache --no-configuration-cache
 ```
 
-Representative test anchors:
-
-- [`LettuceJCachesTest`](../../../../cache/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/LettuceJCachesTest.kt)
-- [`RedisServers`](../../../../cache/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/RedisServers.kt)
-- [`LettuceCachingProviderTest`](../../../../cache/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/jcache/LettuceCachingProviderTest.kt)
-- [`LettuceJCacheManagerTest`](../../../../cache/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/jcache/LettuceJCacheManagerTest.kt)
-- [`LettuceJCacheTest`](../../../../cache/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/jcache/LettuceJCacheTest.kt)
-- [`LettuceSuspendJCacheManagerTest`](../../../../cache/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/jcache/LettuceSuspendJCacheManagerTest.kt)
-- [`LettuceSuspendJCacheTest`](../../../../cache/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/jcache/LettuceSuspendJCacheTest.kt)
-- [`LettuceAsyncMemoizerTest`](../../../../cache/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/memoizer/LettuceAsyncMemoizerTest.kt)
+`LettuceJCacheTest` covers TTL, typed keys, and EntryProcessor. Memoizer tests cover races, failures, and cancellation. Near-cache tracking and isolation tests cover external writers, cross-instance invalidation, and scoped `clearAll`.
 
 ## Workshops {#workshops}
 
-No dedicated workshop path is registered in the manual manifest. Use the module README and the representative tests above as runnable evidence.
+Use `LettuceJCachesTest` for the smallest factory examples, `LettuceNearCacheTrackingTest` for two-instance invalidation, and `LettuceNearCacheIsolationTest` for key namespaces. Continue to [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop) and [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop) for cache-aside and database loader/writer exercises.
 
-## Limitations {#limitations}
+## 1.11.0 scope {#limitations}
 
-This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
+This manual targets release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`. JCache listeners receive operations performed by that cache instance; they are not a Redis-backed global JCache event bus.
 
-## Sources {#sources}
+Tracking startup is fail-open. With `NOLOOP`, the writing connection receives no push and the code updates its own L1 directly. `withResilience` uses a decorator from `cache-core`; there is no standalone `ResilientLettuceNearCache` implementation in this release.
 
-- [Module README](../../../../cache/cache-lettuce/README.md)
-- [Module build](../../../../cache/cache-lettuce/build.gradle.kts)
-- [`LettuceCaches`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/LettuceCaches.kt)
-- [`LettuceCacheConfig`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceCacheConfig.kt)
-- [`LettuceCacheManager`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceCacheManager.kt)
-- [`LettuceCachingProvider`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceCachingProvider.kt)
-- [`LettuceJCache`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceJCache.kt)
-- [`LettuceJCaching`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceJCaching.kt)
-- [`LettuceSuspendCacheManager`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceSuspendCacheManager.kt)
-- [`LettuceSuspendJCache`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceSuspendJCache.kt)
-- [`LettuceAsyncMemoizer`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/memoizer/LettuceAsyncMemoizer.kt)
-- [`LettuceMemoizer`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/memoizer/LettuceMemoizer.kt)
-- [`LettuceJCachesTest`](../../../../cache/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/LettuceJCachesTest.kt)
-- [`RedisServers`](../../../../cache/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/RedisServers.kt)
+## Sources and tests {#sources}
+
+- [`LettuceCaches.kt`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/LettuceCaches.kt)
+- [`LettuceCachingProvider.kt`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceCachingProvider.kt)
+- [`LettuceJCache.kt`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceJCache.kt)
+- [`LettuceSuspendJCache.kt`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/jcache/LettuceSuspendJCache.kt)
+- [`LettuceSuspendMemoizer.kt`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/memoizer/LettuceSuspendMemoizer.kt)
+- [`LettuceNearCache.kt`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCache.kt)
+- [`TrackingInvalidationListener.kt`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/TrackingInvalidationListener.kt)
+- [`LettuceJCacheTest.kt`](../../../../cache/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/jcache/LettuceJCacheTest.kt)
+- [`LettuceNearCacheTrackingTest.kt`](../../../../cache/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheTrackingTest.kt)
