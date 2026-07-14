@@ -1,132 +1,153 @@
 ---
 manualId: bluetape4k-redisson
-title: "bluetape4k-redisson"
-description: "A Kotlin extension module for the Redisson Redis client, providing DSL-based client creation, high-performance codecs, Kotlin Coroutines support, and NearCache functionality."
+title: "Module bluetape4k-redisson"
+description: "Use Redisson clients, distributed objects and streams, coroutines, codecs, local caches, and persistence boundaries from the 1.11.0 source."
 kind: library
 group: infrastructure
 ---
 
-# bluetape4k-redisson
+# Module bluetape4k-redisson
 
-## Problem {#problem}
+## Provided capabilities {#problem}
 
-A Kotlin extension module for the Redisson Redis client, providing DSL-based client creation, high-performance codecs, Kotlin Coroutines support, and NearCache functionality. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+`bluetape4k-redisson` removes recurring Kotlin integration code around Redisson. It provides DSL and YAML client creation, batch and transaction helpers, coroutine adapters for `RFuture`, Stream consumer-group helpers, codec combinations, and builders for `RMapCache` and `RLocalCachedMap`.
 
-## When to use {#when-to-use}
+The module does not own client lifecycle or choose a consistency model for the application. The application must shut down clients it creates and deploy compatible cache names, codecs, and local-cache policies across nodes. A plain `get`/`put` flow without a `MapLoader` or `MapWriter` is cache-aside, not read-through or write-through.
 
-Use `bluetape4k-redisson` when the application needs client lifecycle, reconnect policy, backpressure, retries, and observability. Start with the source entry points below and confirm that their ownership and failure contracts match the calling component. Prefer a smaller standard-library or already-adopted module when it satisfies the same contract without another runtime boundary.
+## Decisions before adoption {#when-to-use}
+
+- Decide whether Spring Boot owns the client or the application creates and shuts it down.
+- Pick one service boundary: synchronous calls, `RFuture`, or coroutines.
+- Choose codecs based on whether Redis values stay inside one deployment or cross service and version boundaries.
+- Define acceptable local-cache staleness and recovery after Pub/Sub disconnects.
+- Separate cache-aside from loader/writer-backed read-through, write-through, and write-behind.
+- Define Stream ACK, pending-message claim, retry, and duplicate-processing rules.
 
 ## Coordinates {#coordinates}
+
+Consumers manage only the `bluetape4k-dependencies` BOM version. Coroutine and codec integrations have optional runtime dependencies; add only those used by the application.
 
 ```kotlin
 dependencies {
     implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-redisson")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core") // for coroutine APIs
 }
 ```
 
-Gradle project path: `:bluetape4k-redisson`. Source directory: `infra/redisson`.
+## First client and map {#quick-start}
 
-## Concepts {#concepts}
+The component that creates the client also owns shutdown.
 
-The first source-level concepts to inspect are `RStreamSupport`, `RedissonClientExtensions`, `RedissonClientSupport`, `RedissonConst`, `CacheInvalidationStrategy`, `LocalCacheMapSupport`, `MapCacheSupport`, and `RedissonCacheConfig`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
+```kotlin
+import io.bluetape4k.redis.redisson.redissonClient
+import io.bluetape4k.redis.redisson.cache.mapCache
+import java.time.Duration
 
-## Quick start {#quick-start}
+val redisson = redissonClient {
+    useSingleServer().address = "redis://127.0.0.1:6379"
+}
 
-Add the coordinate above, refresh Gradle, and start from the smallest entry point that owns the required task. Open [`RStreamSupport`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RStreamSupport.kt) first; it is a concrete source entry point for the module.
+val users = mapCache<String, String>("users", redisson) {
+    timeToLive(Duration.ofMinutes(10))
+}
+
+try {
+    users.put("42", "Debop")
+} finally {
+    redisson.shutdown()
+}
+```
+
+This `put` writes only to Redis, so the example is cache-aside. Chapter 5 adds the loader/writer boundary required for database persistence.
 
 ## API by task {#api-by-task}
 
-| Entry point | What to verify |
-| --- | --- |
-| [`RStreamSupport`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RStreamSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`RedissonClientExtensions`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RedissonClientExtensions.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`RedissonClientSupport`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RedissonClientSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`RedissonConst`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RedissonConst.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`CacheInvalidationStrategy`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/cache/CacheInvalidationStrategy.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`LocalCacheMapSupport`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/cache/LocalCacheMapSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`MapCacheSupport`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/cache/MapCacheSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`RedissonCacheConfig`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/cache/RedissonCacheConfig.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`FastForyCodec`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/codec/FastForyCodec.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`Fastjson2Codec`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/codec/Fastjson2Codec.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| Task | Start with | Boundary to keep |
+| --- | --- | --- |
+| Create clients | `redissonClient`, `redissonClientOf`, `configFromYamlOf` | Each call creates a client and does not shut it down. |
+| Apply concurrency defaults | `applyHighConcurrencyDefaults` | CPU-derived defaults do not replace capacity tests. |
+| Batch or transaction | `withBatch`, `withTransaction` | Rollback failure does not replace the original failure; use suspend variants in coroutines. |
+| Bridge futures | `sequence`, `awaitAll`, `withSuspendedBatch`, `withSuspendedTransaction` | Propagate failures and cancellation to the caller scope. |
+| Distributed objects and streams | Redisson `RMap`, `RLock`, `RStream`; `ackAllAsync`, `claimAllAsync` | The caller owns duplicate-processing and retry policy. |
+| TTL map | `mapCache` | Entry expiration does not provide database persistence. |
+| Local cached map | `localCachedMap`, `RedissonNearCache` | Choose sync/reconnection policies and call `destroy()` at the correct time. |
+| Cache persistence | `RedissonCacheConfig.toMapOptions`, `toLocalCachedMapOptions` | Real read/write-through requires a loader and writer. |
+| Codec | `RedissonCodecs`, `Jackson3Codec`, `Fastjson2Codec`, `GzipCodec` | Treat wire compatibility, allow-lists, and expansion limits as deployment contracts. |
 
-## Patterns {#patterns}
+## Learning path {#concepts}
 
-The README evidence is organized around **Features**, **Dependency**, **Architecture Diagrams**, **Codec Selection Map**, **NearCache 2-Tier Cache Flow**, **Batch / Transaction Processing Flow**, **Usage Examples**, **1. Creating a RedissonClient**, **DSL Style**, and **YAML Configuration File**. Use those topics as a navigation map, then confirm behavior in source and tests. Keep adoption narrow and connect owned resources to the caller lifecycle.
+The chapters provide detailed explanations, focused examples, and links to the exact 1.11.0 source and tests. They emphasize ownership, failure, and consistency rather than repeating an API inventory.
+
+1. [Clients, distributed objects, and streams](./bluetape4k-redisson/client-distributed-objects-streams.md) — client ownership, batch and transactions, lock IDs, and consumer-group helpers.
+2. [Future and coroutine boundaries](./bluetape4k-redisson/future-coroutine-boundaries.md) — failure and cancellation across `RFuture`, `CompletableFuture`, and suspend APIs.
+3. [Codecs, security, and wire format](./bluetape4k-redisson/codecs-security-wire-format.md) — Fory, JSON, compression, allow-lists, and migration risks.
+4. [Local cached maps and invalidation](./bluetape4k-redisson/local-cache-pubsub-invalidation.md) — JVM front cache, Redis back cache, Pub/Sub sync, and reconnect policy.
+5. [Cache modes and persistence](./bluetape4k-redisson/cache-modes-persistence.md) — cache-aside versus loader/writer-backed read/write-through and write-behind.
+6. [Lifecycle, testing, and ecosystem](./bluetape4k-redisson/lifecycle-testing-ecosystem.md) — shutdown, operations, Testcontainers, cache-redisson, Exposed, and workshops.
+
+Read 1 through 4 for a first adoption. Read chapter 5 whenever cache and database writes must be coordinated, and chapter 6 when choosing the next ecosystem layer.
+
+## Recommended patterns {#patterns}
+
+Create one client per process or Spring application context and shut it down from the same lifecycle owner. Use batch to reduce round trips and transaction only when commands need atomicity. In coroutine code, use async commands and `await()` rather than mixing blocking `get()` calls.
+
+Treat Near Cache as a consistency choice. Align cache name, codec, `SyncStrategy`, and `ReconnectionStrategy` across nodes. Name cache-aside, write-through, and write-behind explicitly instead of calling every cache plus database flow a write-through cache.
 
 ## Integrations {#integrations}
 
-The current build declares these integration edges:
+The Redisson client is an API dependency. Spring Boot starter, coroutines, cache-core, idgenerators, Fory, Jackson, Fastjson2, and compression libraries are optional. Missing runtime support can fail during client construction or the first encode.
 
-```kotlin
-implementation(platform(libs.spring.boot.dependencies))
-api(project(":bluetape4k-core"))
-api(project(":bluetape4k-io"))
-api(project(":bluetape4k-netty"))
-api(libs.redisson)
-compileOnly(libs.redisson.spring.boot.starter)
-compileOnly(project(":bluetape4k-cache-core"))
-compileOnly(project(":bluetape4k-idgenerators"))
-compileOnly(project(":bluetape4k-coroutines"))
-compileOnly(libs.kotlinx.coroutines.core)
-compileOnly(libs.kotlinx.coroutines.reactor)
-compileOnly(libs.fory.kotlin)
-```
-
-Treat `compileOnly` edges as caller-provided capabilities and verify runtime availability before using their APIs.
+Use [`bluetape4k-cache-redisson`](./bluetape4k-cache-redisson.md) for Spring Cache integration. Follow chapters 5 and 6 for Exposed repository caching and workshop examples.
 
 ## Configuration {#configuration}
 
-No module-level configuration resource was found under `src/main/resources`. Configuration is supplied through constructors, builders, function arguments, or the integrating framework; confirm defaults in source.
+`configFromYamlOf` reads Redisson YAML from an InputStream, String, File, or URL and applies the selected codec. `applyHighConcurrencyDefaults` derives thread, pool, timeout, and retry-delay values from CPU count; tune them from Redis topology and measured command latency.
 
-## Failures {#failures}
+`RedissonCacheConfig` rejects negative TTL, size, and retry values. `toMapOptions` and `toLocalCachedMapOptions` fail with `IllegalArgumentException` instead of silently ignoring unsupported `ttl`, `maxSize`, or `deleteFromDBOnInvalidate` values.
 
-Failure semantics are defined by the linked entry points and tests, not inferred from the artifact name. Keep cancellation and timeout signals intact, close owned resources, and translate backend exceptions only at a boundary that can add a stable domain contract. Use the test anchors below to verify the exact behavior before adding retries or fallbacks.
+## Failure behavior {#failures}
+
+Synchronous and suspend transactions attempt rollback after an action failure and rethrow the original failure. Rollback failure does not replace it, while cancellation raised during suspend rollback is preserved. Stream helpers reject blank group or consumer names and empty ID collections.
+
+Unrestricted codec fallback widens the trust boundary. Package allow-lists on `Jackson3Codec` and `Fastjson2Codec` disable binary fallback decode by default. Enable migration fallback only for a bounded period and trusted Redis data.
 
 ## Operations {#operations}
 
-Track connection state, queue depth, retries, timeouts, remote errors, and graceful shutdown. Keep capacity, timeout, retry, and shutdown settings next to the component that owns the resource; avoid process-wide defaults that hide which caller accepted the trade-off.
+Observe Redis connections, command latency and timeouts, retries, reconnects, batch size, transaction rollback, Stream pending entries, Near Cache hit ratio, and stale-data incidents. Include Pub/Sub disconnect and local-cache recovery policy in failure drills.
+
+Write-behind adds delayed persistence and possible loss. Measure writer backlog, failures, retries, and drain time, and verify pending writes during shutdown.
 
 ## Testing {#testing}
 
-Run the module test task:
+The 1.11.0 tests start Redis through Testcontainers and cover clients, streams, caches, coroutines, and codecs.
 
 ```bash
-./gradlew :bluetape4k-redisson:test --no-configuration-cache
+./gradlew :bluetape4k-redisson:test --no-build-cache --no-configuration-cache
 ```
 
-Representative test anchors:
-
-- [`AbstractRedissonTest`](../../../../infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/AbstractRedissonTest.kt)
-- [`RStreamSupportTest`](../../../../infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/RStreamSupportTest.kt)
-- [`RedissonClientExtensionsTest`](../../../../infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/RedissonClientExtensionsTest.kt)
-- [`RedissonClientSupportTest`](../../../../infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/RedissonClientSupportTest.kt)
-- [`RedissonTestUtils`](../../../../infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/RedissonTestUtils.kt)
-- [`RedissonConcurrencyBenchmark`](../../../../infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/benchmark/RedissonConcurrencyBenchmark.kt)
-- [`CacheInvalidationStrategyTest`](../../../../infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/cache/CacheInvalidationStrategyTest.kt)
-- [`LocalCacheMapSupportTest`](../../../../infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/cache/LocalCacheMapSupportTest.kt)
+This is a Docker-backed heavy test and should not run in parallel with other Testcontainers suites. Documentation-only edits use source-link and document-structure checks; run the task when behavior changes.
 
 ## Workshops {#workshops}
 
-No dedicated workshop path is registered in the manual manifest. Use the module README and the representative tests above as runnable evidence.
+`RedissonClientSupportTest`, `RStreamSupportTest`, `RedissonClientCoroutineTest`, `LocalCacheMapSupportTest`, and `RedissonNearCacheTest` are the smallest executable examples. Continue with the cache chapter in [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop) and Redis examples in [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop).
 
-## Limitations {#limitations}
+## 1.11.0 scope {#limitations}
 
-This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
+This manual targets the `bluetape4k-projects` 1.11.0 release commit. `RedissonNearCache` delegates to `RLocalCachedMap`; it is not an abstraction that manually reconciles two independently written maps. `destroy()` closes only the local near-cache instance and leaves Redis data intact.
 
-## Sources {#sources}
+Preset names in `RedissonCacheConfig` do not create database read/write-through. The application must attach real `MapLoader` and `MapWriter` implementations. `deleteFromDBOnInvalidate` is not supported by option conversion in 1.11.0.
 
-- [Module README](../../../../infra/redisson/README.md)
-- [Module build](../../../../infra/redisson/build.gradle.kts)
-- [`RStreamSupport`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RStreamSupport.kt)
-- [`RedissonClientExtensions`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RedissonClientExtensions.kt)
-- [`RedissonClientSupport`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RedissonClientSupport.kt)
-- [`RedissonConst`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RedissonConst.kt)
-- [`CacheInvalidationStrategy`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/cache/CacheInvalidationStrategy.kt)
-- [`LocalCacheMapSupport`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/cache/LocalCacheMapSupport.kt)
-- [`MapCacheSupport`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/cache/MapCacheSupport.kt)
-- [`RedissonCacheConfig`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/cache/RedissonCacheConfig.kt)
-- [`FastForyCodec`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/codec/FastForyCodec.kt)
-- [`Fastjson2Codec`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/codec/Fastjson2Codec.kt)
-- [`AbstractRedissonTest`](../../../../infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/AbstractRedissonTest.kt)
-- [`RStreamSupportTest`](../../../../infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/RStreamSupportTest.kt)
+## Source and tests {#sources}
+
+- [`RedissonClientSupport.kt`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RedissonClientSupport.kt)
+- [`RedissonClientExtensions.kt`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RedissonClientExtensions.kt)
+- [`RStreamSupport.kt`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RStreamSupport.kt)
+- [`RedissonClientCoroutine.kt`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/coroutines/RedissonClientCoroutine.kt)
+- [`RedissonCacheConfig.kt`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/cache/RedissonCacheConfig.kt)
+- [`RedissonNearCache.kt`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/nearcache/RedissonNearCache.kt)
+- [`Jackson3Codec.kt`](../../../../infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/codec/Jackson3Codec.kt)
+- [`RedissonClientCoroutineTest.kt`](../../../../infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/coroutines/RedissonClientCoroutineTest.kt)
+- [`RedissonNearCacheTest.kt`](../../../../infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/nearcache/RedissonNearCacheTest.kt)
+- [`RedissonCacheConfigTest.kt`](../../../../infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/cache/RedissonCacheConfigTest.kt)

@@ -132,6 +132,38 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-cache-core",
+      "chapters": [
+        {
+          "en": "en/modules/bluetape4k-cache-core/local-providers-jcache.md",
+          "id": "local-providers-jcache",
+          "ko": "ko/modules/bluetape4k-cache-core/local-providers-jcache.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cache-core/cache-aside-loader-writer.md",
+          "id": "cache-aside-loader-writer",
+          "ko": "ko/modules/bluetape4k-cache-core/cache-aside-loader-writer.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cache-core/memoizers-single-flight.md",
+          "id": "memoizers-single-flight",
+          "ko": "ko/modules/bluetape4k-cache-core/memoizers-single-flight.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cache-core/near-cache-semantics.md",
+          "id": "near-cache-semantics",
+          "ko": "ko/modules/bluetape4k-cache-core/near-cache-semantics.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cache-core/resilience-failures-lifecycle.md",
+          "id": "resilience-failures-lifecycle",
+          "ko": "ko/modules/bluetape4k-cache-core/resilience-failures-lifecycle.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cache-core/testing-ecosystem-paths.md",
+          "id": "testing-ecosystem-paths",
+          "ko": "ko/modules/bluetape4k-cache-core/testing-ecosystem-paths.md"
+        }
+      ],
       "en": "en/modules/bluetape4k-cache-core.md",
       "gradlePath": ":bluetape4k-cache-core",
       "group": "caching",
@@ -1166,6 +1198,38 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-lettuce",
+      "chapters": [
+        {
+          "en": "en/modules/bluetape4k-lettuce/clients-and-connections.md",
+          "id": "clients-and-connections",
+          "ko": "ko/modules/bluetape4k-lettuce/clients-and-connections.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-lettuce/commands-and-coroutines.md",
+          "id": "commands-and-coroutines",
+          "ko": "ko/modules/bluetape4k-lettuce/commands-and-coroutines.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-lettuce/codecs-and-serialization.md",
+          "id": "codecs-and-serialization",
+          "ko": "ko/modules/bluetape4k-lettuce/codecs-and-serialization.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-lettuce/maps-and-cache-loading.md",
+          "id": "maps-and-cache-loading",
+          "ko": "ko/modules/bluetape4k-lettuce/maps-and-cache-loading.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-lettuce/filters-scripts-and-primitives.md",
+          "id": "filters-scripts-and-primitives",
+          "ko": "ko/modules/bluetape4k-lettuce/filters-scripts-and-primitives.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-lettuce/operations-and-ecosystem.md",
+          "id": "operations-and-ecosystem",
+          "ko": "ko/modules/bluetape4k-lettuce/operations-and-ecosystem.md"
+        }
+      ],
       "en": "en/modules/bluetape4k-lettuce.md",
       "gradlePath": ":bluetape4k-lettuce",
       "group": "infrastructure",
@@ -1619,6 +1683,38 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-redisson",
+      "chapters": [
+        {
+          "en": "en/modules/bluetape4k-redisson/client-distributed-objects-streams.md",
+          "id": "client-distributed-objects-streams",
+          "ko": "ko/modules/bluetape4k-redisson/client-distributed-objects-streams.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-redisson/future-coroutine-boundaries.md",
+          "id": "future-coroutine-boundaries",
+          "ko": "ko/modules/bluetape4k-redisson/future-coroutine-boundaries.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-redisson/codecs-security-wire-format.md",
+          "id": "codecs-security-wire-format",
+          "ko": "ko/modules/bluetape4k-redisson/codecs-security-wire-format.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-redisson/local-cache-pubsub-invalidation.md",
+          "id": "local-cache-pubsub-invalidation",
+          "ko": "ko/modules/bluetape4k-redisson/local-cache-pubsub-invalidation.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-redisson/cache-modes-persistence.md",
+          "id": "cache-modes-persistence",
+          "ko": "ko/modules/bluetape4k-redisson/cache-modes-persistence.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-redisson/lifecycle-testing-ecosystem.md",
+          "id": "lifecycle-testing-ecosystem",
+          "ko": "ko/modules/bluetape4k-redisson/lifecycle-testing-ecosystem.md"
+        }
+      ],
       "en": "en/modules/bluetape4k-redisson.md",
       "gradlePath": ":bluetape4k-redisson",
       "group": "infrastructure",
