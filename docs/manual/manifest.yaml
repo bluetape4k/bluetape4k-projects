@@ -95,6 +95,25 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-cache-core
   en: en/modules/bluetape4k-cache-core.md
   ko: ko/modules/bluetape4k-cache-core.md
+  chapters:
+  - id: local-providers-jcache
+    en: en/modules/bluetape4k-cache-core/local-providers-jcache.md
+    ko: ko/modules/bluetape4k-cache-core/local-providers-jcache.md
+  - id: cache-aside-loader-writer
+    en: en/modules/bluetape4k-cache-core/cache-aside-loader-writer.md
+    ko: ko/modules/bluetape4k-cache-core/cache-aside-loader-writer.md
+  - id: memoizers-single-flight
+    en: en/modules/bluetape4k-cache-core/memoizers-single-flight.md
+    ko: ko/modules/bluetape4k-cache-core/memoizers-single-flight.md
+  - id: near-cache-semantics
+    en: en/modules/bluetape4k-cache-core/near-cache-semantics.md
+    ko: ko/modules/bluetape4k-cache-core/near-cache-semantics.md
+  - id: resilience-failures-lifecycle
+    en: en/modules/bluetape4k-cache-core/resilience-failures-lifecycle.md
+    ko: ko/modules/bluetape4k-cache-core/resilience-failures-lifecycle.md
+  - id: testing-ecosystem-paths
+    en: en/modules/bluetape4k-cache-core/testing-ecosystem-paths.md
+    ko: ko/modules/bluetape4k-cache-core/testing-ecosystem-paths.md
   sourcePaths:
   - cache/cache-core/src/main/kotlin
   testPaths:
@@ -801,6 +820,25 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-lettuce
   en: en/modules/bluetape4k-lettuce.md
   ko: ko/modules/bluetape4k-lettuce.md
+  chapters:
+  - id: clients-and-connections
+    en: en/modules/bluetape4k-lettuce/clients-and-connections.md
+    ko: ko/modules/bluetape4k-lettuce/clients-and-connections.md
+  - id: commands-and-coroutines
+    en: en/modules/bluetape4k-lettuce/commands-and-coroutines.md
+    ko: ko/modules/bluetape4k-lettuce/commands-and-coroutines.md
+  - id: codecs-and-serialization
+    en: en/modules/bluetape4k-lettuce/codecs-and-serialization.md
+    ko: ko/modules/bluetape4k-lettuce/codecs-and-serialization.md
+  - id: maps-and-cache-loading
+    en: en/modules/bluetape4k-lettuce/maps-and-cache-loading.md
+    ko: ko/modules/bluetape4k-lettuce/maps-and-cache-loading.md
+  - id: filters-scripts-and-primitives
+    en: en/modules/bluetape4k-lettuce/filters-scripts-and-primitives.md
+    ko: ko/modules/bluetape4k-lettuce/filters-scripts-and-primitives.md
+  - id: operations-and-ecosystem
+    en: en/modules/bluetape4k-lettuce/operations-and-ecosystem.md
+    ko: ko/modules/bluetape4k-lettuce/operations-and-ecosystem.md
   sourcePaths:
   - infra/lettuce/src/main/kotlin
   testPaths:
@@ -1111,6 +1149,25 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-redisson
   en: en/modules/bluetape4k-redisson.md
   ko: ko/modules/bluetape4k-redisson.md
+  chapters:
+  - id: client-distributed-objects-streams
+    en: en/modules/bluetape4k-redisson/client-distributed-objects-streams.md
+    ko: ko/modules/bluetape4k-redisson/client-distributed-objects-streams.md
+  - id: future-coroutine-boundaries
+    en: en/modules/bluetape4k-redisson/future-coroutine-boundaries.md
+    ko: ko/modules/bluetape4k-redisson/future-coroutine-boundaries.md
+  - id: codecs-security-wire-format
+    en: en/modules/bluetape4k-redisson/codecs-security-wire-format.md
+    ko: ko/modules/bluetape4k-redisson/codecs-security-wire-format.md
+  - id: local-cache-pubsub-invalidation
+    en: en/modules/bluetape4k-redisson/local-cache-pubsub-invalidation.md
+    ko: ko/modules/bluetape4k-redisson/local-cache-pubsub-invalidation.md
+  - id: cache-modes-persistence
+    en: en/modules/bluetape4k-redisson/cache-modes-persistence.md
+    ko: ko/modules/bluetape4k-redisson/cache-modes-persistence.md
+  - id: lifecycle-testing-ecosystem
+    en: en/modules/bluetape4k-redisson/lifecycle-testing-ecosystem.md
+    ko: ko/modules/bluetape4k-redisson/lifecycle-testing-ecosystem.md
   sourcePaths:
   - infra/redisson/src/main/kotlin
   testPaths:

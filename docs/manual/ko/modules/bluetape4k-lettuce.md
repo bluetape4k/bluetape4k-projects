@@ -1,22 +1,31 @@
 ---
 manualId: bluetape4k-lettuce
-title: "bluetape4k-lettuce"
-description: "Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도록 확장한 모듈입니다. 고성능 바이너리 Codec과 RedisFuture → Coroutines 어댑터를 제공합니다."
+title: "Module bluetape4k-lettuce"
+description: "Lettuce Redis client를 Kotlin에서 운용하는 connection, coroutine, codec, map, script 도구를 설명합니다."
 kind: library
 group: infrastructure
 ---
 
-# bluetape4k-lettuce
+# Module bluetape4k-lettuce
 
-## 해결하는 문제 {#problem}
+## 제공하는 기능 {#problem}
 
-Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도록 확장한 모듈입니다. 고성능 바이너리 Codec과 RedisFuture → Coroutines 어댑터를 제공합니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+`bluetape4k-lettuce`는 Lettuce Redis client 위에 Kotlin 친화적인 client·connection factory, sync/async/coroutine command 진입점, `RedisFuture` adapter, 객체 codec과 분산 자료구조를 제공합니다. read-through/write-through map, Lua script runner, Bloom/Cuckoo filter 같은 응용 도구도 포함합니다.
 
-## 사용 시점 {#when-to-use}
+이 모듈은 Redis client lifecycle을 대신 관리하는 framework가 아닙니다. client, connection, write-behind worker를 누가 닫을지 애플리케이션이 정해야 합니다.
 
-애플리케이션에 client lifecycle, reconnect policy, backpressure, retry, observability이 필요할 때 `bluetape4k-lettuce`를 선택합니다. 아래 source entry point에서 시작해 ownership과 failure 계약이 caller lifecycle에 맞는지 확인합니다. 표준 API나 이미 도입한 더 작은 모듈이 같은 계약을 만족한다면 그쪽을 우선합니다.
+## 사용하기 전에 결정할 것 {#when-to-use}
 
-## 의존성 좌표 {#coordinates}
+- Lettuce의 raw API만 필요한지, Kotlin coroutine과 자료구조 wrapper가 필요한지 구분합니다.
+- `RedisClient`, cached connection, 공유 `ClientResources`의 종료 주체를 정합니다.
+- 동기, async future, coroutine command 중 한 호출 경로를 선택합니다.
+- Redis에 저장할 wire format과 codec 변경 절차를 먼저 고정합니다.
+- cache miss, write-through 실패, write-behind queue 포화를 어떻게 처리할지 정합니다.
+- 단일 Redis 명령으로 충분한지, Lua script가 필요한 원자 연산인지 확인합니다.
+
+## 의존성 추가 {#coordinates}
+
+사용자는 개별 library 버전을 맞추지 않고 `bluetape4k-dependencies` BOM 버전만 관리합니다.
 
 ```kotlin
 dependencies {
@@ -25,108 +34,88 @@ dependencies {
 }
 ```
 
-Gradle project path는 `:bluetape4k-lettuce`, source directory는 `infra/lettuce`입니다.
+coroutine adapter, cache abstraction, Kryo/Fory 압축 codec처럼 `compileOnly` 기능을 쓰면 해당 runtime dependency도 애플리케이션에 포함해야 합니다.
 
-## 핵심 개념 {#concepts}
+## 첫 연결 {#quick-start}
 
-먼저 확인할 source 개념은 `LettuceClients`, `LettuceConst`, `RedisCommandSupports`, `RedisFutureSupport`, `LettuceAtomicLong`, `LettuceSuspendAtomicLong`, `LettuceBinaryCodec`, `LettuceBinaryCodecs`입니다. 파일 이름은 탐색 anchor일 뿐이므로 public 계약으로 사용하기 전에 선언과 test를 함께 읽습니다.
+```kotlin
+val client = LettuceClients.clientOf("redis://localhost:6379")
+try {
+    val commands = LettuceClients.commands(client)
+    commands.set("greeting", "hello")
+    check(commands.get("greeting") == "hello")
+} finally {
+    LettuceClients.shutdown(client)
+}
+```
 
-## 빠른 시작 {#quick-start}
+`commands(client)`는 client별 cached connection을 재사용합니다. 직접 연 connection과 `LettuceLoadedMap`이 만든 connection은 각 소유자가 닫아야 합니다.
 
-위 좌표를 추가하고 Gradle을 refresh한 뒤 필요한 작업을 소유한 가장 작은 entry point에서 시작합니다. 먼저 [`LettuceClients`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/LettuceClients.kt)를 확인합니다. 이 파일이 모듈의 구체적인 source entry point입니다.
+## API 선택 지도 {#api-by-task}
 
-## 작업별 API {#api-by-task}
+| 필요한 작업 | 시작할 API | 기억할 경계 |
+| --- | --- | --- |
+| client와 cached connection | `LettuceClients` | `shutdown(client)`와 process 종료 시 `shutdown()`을 구분합니다. |
+| sync/async/coroutine command | `commands`, `asyncCommands`, `coroutinesCommands` | coroutine API는 Lettuce experimental API입니다. |
+| future를 suspend로 대기 | `awaitSuspending`, `awaitAll` | 실패와 cancellation을 숨기지 않습니다. |
+| 객체 저장 | `LettuceBinaryCodecs`, `LettuceJsonCodecs` | codec은 Redis wire format이며 임의 변경할 수 없습니다. |
+| map과 loader/writer | `LettuceMap`, `LettuceLoadedMap` | write-through와 write-behind의 실패 시점이 다릅니다. |
+| 원자 script | `RedisScriptRunner` | `EVALSHA` 후 `NOSCRIPT`일 때만 `EVAL`로 재시도합니다. |
+| 확률 자료구조 | `LettuceBloomFilter`, `LettuceCuckooFilter` | false positive와 초기화 parameter를 계약에 포함합니다. |
 
-| Entry point | 확인할 내용 |
-| --- | --- |
-| [`LettuceClients`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/LettuceClients.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`LettuceConst`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/LettuceConst.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`RedisCommandSupports`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/RedisCommandSupports.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`RedisFutureSupport`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/RedisFutureSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`LettuceAtomicLong`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/atomic/LettuceAtomicLong.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`LettuceSuspendAtomicLong`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/atomic/LettuceSuspendAtomicLong.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`LettuceBinaryCodec`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodec.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`LettuceBinaryCodecs`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodecs.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`LettuceIntCodec`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceIntCodec.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`LettuceJsonCodec`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceJsonCodec.kt) | constructor, function, ownership 계약을 확인합니다. |
+## 학습 경로 {#concepts}
+
+아래 장은 기능을 나열하는 데서 끝나지 않습니다. 1.11.0 배포 소스와 대표 테스트를 따라 client ownership, cancellation, codec 호환성, write-behind 장애를 실제 코드 예제와 함께 설명합니다.
+
+1. [Client와 connection](./bluetape4k-lettuce/clients-and-connections.md) — 공유 resource, cached connection, pipeline과 종료 책임을 정합니다.
+2. [Command와 coroutine](./bluetape4k-lettuce/commands-and-coroutines.md) — sync/async/coroutine 선택과 future 대기·취소를 다룹니다.
+3. [Codec과 직렬화](./bluetape4k-lettuce/codecs-and-serialization.md) — binary/JSON/primitive codec, 신뢰 경계와 migration을 설명합니다.
+4. [Map과 cache loader](./bluetape4k-lettuce/maps-and-cache-loading.md) — read-through, write-through, write-behind와 1.11.0 Near Cache 범위를 확인합니다.
+5. [Filter, script와 분산 primitive](./bluetape4k-lettuce/filters-scripts-and-primitives.md) — 확률 자료구조와 Lua 기반 원자 연산을 선택합니다.
+6. [운영과 생태계 경로](./bluetape4k-lettuce/operations-and-ecosystem.md) — 관측·테스트에서 cache, Hibernate, Exposed, workshop으로 이어갑니다.
 
 ## 권장 패턴 {#patterns}
 
-README 근거는 **주요 기능**, **성능 최적화**, **Codec 벤치마크 결과**, **커넥션 벤치마크 결과**, **핵심 기법**, **1. 공유 DEFAULTCLIENTRESOURCES (NCPU 스레드 풀)**, **2. 튜닝된 SocketOptions**, **3. withPipeline{} — 일괄 플러시 확장**, **4. Collection.awaitAll() — 일괄 대기**, **벤치마크에서 얻은 교훈** 순서로 탐색할 수 있습니다. 이 항목으로 방향을 잡고 source와 test에서 동작을 확인합니다. 도입 범위는 좁게 유지하고 소유한 resource를 caller lifecycle에 연결합니다.
+client는 애플리케이션 단위로 재사용하고 shutdown hook에서 닫습니다. 대량 async 명령은 `withPipeline` 안에서 발행만 하고, block 밖에서 `awaitAll()`합니다. codec 변경은 새 key prefix나 전체 cache 비우기 같은 migration 경계를 둡니다. write-behind를 선택했다면 queue 용량, flush 실패, dead-letter와 shutdown drain을 운영 지표로 취급합니다.
 
 ## 연동 {#integrations}
 
-현재 build에 선언된 integration edge는 다음과 같습니다.
-
-```kotlin
-api(project(":bluetape4k-core"))
-api(project(":bluetape4k-io"))
-api(project(":bluetape4k-netty"))
-api(libs.lettuce.core)
-compileOnly(project(":bluetape4k-coroutines"))
-compileOnly(libs.kotlinx.coroutines.core)
-compileOnly(libs.kotlinx.coroutines.reactor)
-compileOnly(project(":bluetape4k-cache-core"))
-compileOnly(libs.fory.kotlin)
-compileOnly(libs.kryo5)
-compileOnly(libs.lz4.java)
-compileOnly(libs.snappy.java)
-```
-
-`compileOnly` edge는 caller가 제공해야 하는 capability이므로 API를 사용하기 전에 runtime에 실제 dependency가 있는지 확인합니다.
+Lettuce core는 API dependency입니다. coroutine, cache-core, Kryo, Fory와 압축 serializer는 선택 기능입니다. 함수 결과 memoization은 [`bluetape4k-cache-lettuce`](./bluetape4k-cache-lettuce.md), Hibernate second-level cache는 [`bluetape4k-hibernate-cache-lettuce`](./bluetape4k-hibernate-cache-lettuce.md)에서 다룹니다.
 
 ## 설정 {#configuration}
 
-`src/main/resources` 아래에서 모듈 수준 설정 resource를 찾지 못했습니다. constructor, builder, function argument, 연동 framework로 설정하며 default는 source에서 확인합니다.
+기본 client는 NCPU 크기의 공유 `ClientResources`, keep-alive, TCP_NODELAY를 사용합니다. connect timeout은 `-Dbluetape4k.lettuce.connectTimeoutMs`로 바꿀 수 있습니다. `LettuceCacheConfig`는 TTL, key prefix, write mode, queue와 shutdown timeout을 검증합니다.
 
 ## 실패 동작 {#failures}
 
-failure 의미는 artifact 이름이 아니라 아래 entry point와 test가 결정합니다. cancellation과 timeout signal을 보존하고 소유한 resource를 닫습니다. backend exception은 안정된 domain 계약을 추가할 수 있는 boundary에서만 변환합니다. retry나 fallback을 넣기 전에 test anchor로 실제 동작을 확인합니다.
+`awaitAll()`은 하나의 future라도 실패하면 결과 list 대신 예외를 전파합니다. write-through는 writer가 실패하면 Redis를 갱신하지 않습니다. write-behind queue가 가득 차면 `IllegalStateException`이 발생하며, 반복 flush 실패는 dead-letter key/value에 기록을 시도합니다. coroutine map은 `CancellationException`을 fallback으로 삼키지 않습니다.
 
 ## 운영 {#operations}
 
-connection 상태, queue 깊이, retry, timeout, remote 오류, graceful shutdown을 관찰합니다. capacity, timeout, retry, shutdown 설정은 resource를 소유한 component 가까이에 둡니다. 누가 trade-off를 받아들였는지 알 수 없는 process-wide default는 피합니다.
+connection 수와 reconnect, command latency, pipeline batch 크기, write-behind queue와 dead-letter, cache hit/miss를 함께 관찰합니다. `LettuceClients.shutdown(client)`는 해당 client의 cached connection을 닫고, 인자 없는 `shutdown()`은 공유 resource를 닫으므로 process 종료 전에는 호출하지 않습니다.
 
 ## 테스트 {#testing}
 
-모듈 test task는 다음과 같습니다.
-
 ```bash
-./gradlew :bluetape4k-lettuce:test --no-configuration-cache
+./gradlew :bluetape4k-lettuce:test --no-build-cache --no-configuration-cache
 ```
 
-대표 test anchor는 다음과 같습니다.
-
-- [`AbstractLettuceTest`](../../../../infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/AbstractLettuceTest.kt)
-- [`AsyncCommandsTest`](../../../../infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/AsyncCommandsTest.kt)
-- [`CoroutinesCommandTest`](../../../../infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/CoroutinesCommandTest.kt)
-- [`LettuceClientsTest`](../../../../infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/LettuceClientsTest.kt)
-- [`LettuceTestUtils`](../../../../infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/LettuceTestUtils.kt)
-- [`RedisCommandSupportsTest`](../../../../infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/RedisCommandSupportsTest.kt)
-- [`RedisFutureSupportTest`](../../../../infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/RedisFutureSupportTest.kt)
-- [`LettuceAtomicLongTest`](../../../../infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/atomic/LettuceAtomicLongTest.kt)
+대표 테스트는 cached connection 재사용, future 결과 순서와 실패 전파, codec 호환성 실패, loader/writer 모드, cancellation과 script fallback을 검증합니다. Redis Testcontainers를 사용하므로 다른 heavy database suite와 병렬 실행하지 않습니다.
 
 ## 워크숍 {#workshops}
 
-manual manifest에 등록된 전용 workshop path가 없습니다. 모듈 README와 위 representative test를 실행 근거로 사용합니다.
+가장 작은 실행 예제는 `LettuceClientsTest`, `RedisFutureSupportTest`, `LettuceLoadedMapTest`, `RedisScriptTest`입니다. 실제 cache-aside와 database 경계를 연결하려면 [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop)과 [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop)의 cache 예제로 이어갑니다.
 
-## 제한 사항 {#limitations}
+## 1.11.0 범위 {#limitations}
 
-이 페이지는 연결된 source와 test가 나타내는 현재 저장소 상태를 설명합니다. optional backend를 애플리케이션 기본값으로 만들거나 benchmark artifact 없이 성능을 단정하지 않습니다. 모듈 버전이 바뀌면 호환성과 lifecycle 설명을 다시 확인해야 합니다.
+`LettuceCacheConfig`에는 Near Cache 설정이 있지만 1.11.0의 loaded map은 이를 읽지 않으며 Caffeine 저장소나 RESP3 client tracking invalidation도 구현하지 않습니다. 따라서 `READ_ONLY_WITH_NEAR_CACHE` 같은 preset을 실제 local cache 보장으로 해석하면 안 됩니다. RESP3 설정은 benchmark의 비권장 조합으로만 기록돼 있습니다.
 
-## 근거 {#sources}
+## Source와 tests {#sources}
 
-- [모듈 README](../../../../infra/lettuce/README.ko.md)
-- [모듈 build](../../../../infra/lettuce/build.gradle.kts)
-- [`LettuceClients`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/LettuceClients.kt)
-- [`LettuceConst`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/LettuceConst.kt)
-- [`RedisCommandSupports`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/RedisCommandSupports.kt)
-- [`RedisFutureSupport`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/RedisFutureSupport.kt)
-- [`LettuceAtomicLong`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/atomic/LettuceAtomicLong.kt)
-- [`LettuceSuspendAtomicLong`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/atomic/LettuceSuspendAtomicLong.kt)
-- [`LettuceBinaryCodec`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodec.kt)
-- [`LettuceBinaryCodecs`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodecs.kt)
-- [`LettuceIntCodec`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceIntCodec.kt)
-- [`LettuceJsonCodec`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceJsonCodec.kt)
-- [`AbstractLettuceTest`](../../../../infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/AbstractLettuceTest.kt)
-- [`AsyncCommandsTest`](../../../../infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/AsyncCommandsTest.kt)
+- [`LettuceClients.kt`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/LettuceClients.kt)
+- [`RedisFutureSupport.kt`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/RedisFutureSupport.kt)
+- [`LettuceBinaryCodecs.kt`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodecs.kt)
+- [`LettuceLoadedMap.kt`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/map/LettuceLoadedMap.kt)
+- [`RedisScript.kt`](../../../../infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/script/RedisScript.kt)
+- [`LettuceClientsTest.kt`](../../../../infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/LettuceClientsTest.kt)
+- [`LettuceSuspendedLoadedMapTest.kt`](../../../../infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/map/LettuceSuspendedLoadedMapTest.kt)
