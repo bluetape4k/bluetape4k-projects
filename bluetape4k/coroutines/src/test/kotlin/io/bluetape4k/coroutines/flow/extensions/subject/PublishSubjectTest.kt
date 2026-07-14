@@ -1,11 +1,21 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.junit5.coroutines.withSingleThread
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.onEach
@@ -13,18 +23,14 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldBeTrue
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.cancellation.CancellationException
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class PublishSubjectTest {
 
@@ -107,28 +113,32 @@ class PublishSubjectTest {
     }
 
     @Test
-    fun `emit and collect many items`() = runTest {
-        withSingleThread { dispatcher ->
-            val subject = PublishSubject<Int>()
-            val n = 10_000
-            val counter = AtomicInteger(0)
+    fun `concurrent producers emit all items to one collector`() = runSuspendDefault(timeout = 10.seconds) {
+        val subject = PublishSubject<Int>()
+        val producerWorkers = 8
+        val rounds = 1024
+        val expectedValues = (1..rounds).toList()
+        val produced = AtomicInteger(0)
+        val received = ConcurrentLinkedQueue<Int>()
 
-            val job = launch(dispatcher) {
-                subject.collect {
-                    counter.incrementAndGet()
-                }
-            }
-
-            subject.awaitCollectors(1)
-
-            repeat(n) { i ->
-                subject.emit(i)
-            }
-            subject.complete()
-            job.join()
-
-            counter.get() shouldBeEqualTo n
+        val collectorJob = launch {
+            subject.collect(received::add)
         }
+
+        subject.awaitCollectors(1)
+
+        SuspendedJobTester()
+            .workers(producerWorkers)
+            .rounds(rounds)
+            .add { subject.emit(produced.incrementAndGet()) }
+            .run()
+        subject.complete()
+        collectorJob.join()
+
+        produced.get() shouldBeEqualTo rounds
+        received.sorted() shouldBeEqualTo expectedValues
+        subject.collectorCount shouldBeEqualTo 0
+        subject.hasCollectors.shouldBeFalse()
     }
 
     @Test
@@ -161,37 +171,77 @@ class PublishSubjectTest {
     }
 
     @Test
-    fun `multiple collectors`() = runTest {
+    fun `concurrent producers broadcast all items to multiple collectors`() = runSuspendDefault(timeout = 10.seconds) {
         val subject = PublishSubject<Int>()
-        val n = 10_000
-        val counter1 = AtomicInteger(0)
-        val counter2 = AtomicInteger(0)
+        val producerWorkers = 8
+        val rounds = 1024
+        val expectedValues = (1..rounds).toList()
+        val produced = AtomicInteger(0)
+        val received1 = ConcurrentLinkedQueue<Int>()
+        val received2 = ConcurrentLinkedQueue<Int>()
 
-        withSingleThread { dispatcher ->
-            val job1 = launch(dispatcher) {
-                subject.collect {
-                    counter1.incrementAndGet()
+        val collectorJob1 = launch {
+            subject.collect(received1::add)
+        }.log("collectorJob1")
+        val collectorJob2 = launch {
+            subject.collect(received2::add)
+        }.log("collectorJob2")
+
+        subject.awaitCollectors(2)
+
+        SuspendedJobTester()
+            .workers(producerWorkers)
+            .rounds(rounds)
+            .add { subject.emit(produced.incrementAndGet()) }
+            .run()
+        subject.complete()
+        collectorJob1.join()
+        collectorJob2.join()
+
+        produced.get() shouldBeEqualTo rounds
+        received1.sorted() shouldBeEqualTo expectedValues
+        received2.sorted() shouldBeEqualTo expectedValues
+        received1.toList() shouldBeEqualTo received2.toList()
+        subject.collectorCount shouldBeEqualTo 0
+        subject.hasCollectors.shouldBeFalse()
+    }
+
+    @Test
+    fun `terminal signal waits for in-flight concurrent emit`() = runSuspendDefault(timeout = 10.seconds) {
+        val subject = PublishSubject<Int>()
+        val received = ConcurrentLinkedQueue<Int>()
+        val firstValueStarted = CompletableDeferred<Unit>()
+        val releaseFirstValue = CompletableDeferred<Unit>()
+
+        val collectorJob = launch {
+            subject.collect { value ->
+                received.add(value)
+                if (value == 1) {
+                    firstValueStarted.complete(Unit)
+                    releaseFirstValue.await()
                 }
-            }.log("job1")
-
-            val job2 = launch(dispatcher) {
-                subject.collect {
-                    counter2.incrementAndGet()
-                }
-            }.log("job2")
-
-            subject.awaitCollectors(2)
-
-            repeat(n) {
-                subject.emit(it)
             }
-            subject.complete()
-
-            job1.join()
-            job2.join()
         }
-        counter1.get() shouldBeEqualTo n
-        counter2.get() shouldBeEqualTo n
+
+        subject.awaitCollectors(1)
+        subject.emit(1)
+        firstValueStarted.await()
+
+        val pendingEmit = async(start = CoroutineStart.UNDISPATCHED) {
+            subject.emit(2)
+        }
+        val terminal = async(start = CoroutineStart.UNDISPATCHED) {
+            subject.complete()
+        }
+
+        releaseFirstValue.complete(Unit)
+        pendingEmit.await()
+        terminal.await()
+        collectorJob.join()
+
+        received.toList() shouldBeEqualTo listOf(1, 2)
+        subject.collectorCount shouldBeEqualTo 0
+        subject.hasCollectors.shouldBeFalse()
     }
 
     @Test

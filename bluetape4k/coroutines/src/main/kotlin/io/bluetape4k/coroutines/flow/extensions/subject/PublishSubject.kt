@@ -9,13 +9,15 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * 구독 시점 이후에 emit된 값만 전달하는 Publish Subject 구현입니다.
  *
  * ## 동작/계약
  * - 과거 값은 재생(replay)하지 않고, 현재 등록된 collector에게만 값을 전달합니다.
- * - `emit`/`complete`/`emitError`는 collector 배열을 원자적으로 교체하며, 수신 객체 내부 상태를 변경합니다.
+ * - `emit`/`complete`/`emitError`는 신호 전달을 직렬화하고 collector 배열을 원자적으로 교체합니다.
  * - `emitError`는 최초 1회만 적용되며 이후 신규 collector의 collect 시 저장된 예외가 다시 전파될 수 있습니다.
  * - collector 추가/삭제 시 배열 복사가 발생하므로 collector 변경 비용은 collector 수에 비례합니다.
  *
@@ -39,6 +41,8 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
 
     private val collectors: AtomicRef<Array<ResumableCollector<T>>> =
         atomic(EMPTY as Array<ResumableCollector<T>>)
+
+    private val signalMutex = Mutex()
 
     @Volatile
     private var error: Throwable? = null
@@ -96,6 +100,7 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
      * 현재 등록된 모든 collector에게 값을 전파합니다.
      *
      * ## 동작/계약
+     * - 동시 호출은 Subject 단위로 직렬화해 각 collector의 단일 producer 계약을 보존합니다.
      * - 호출 시점 collector 스냅샷에 대해 순회하며 `next(value)`를 호출합니다.
      * - 전달 중 `CancellationException`이 발생한 collector는 목록에서 제거합니다.
      * - 구독자가 없으면 아무 동작 없이 반환하며 값을 버퍼링하지 않습니다.
@@ -112,7 +117,7 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
      *
      * @param value 전파할 값입니다.
      */
-    override suspend fun emit(value: T) {
+    override suspend fun emit(value: T) = signalMutex.withLock {
         collectors.value.forEach { collector ->
             try {
                 collector.next(value)
@@ -127,6 +132,7 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
      * Subject를 오류 종료하고 현재 collector들에게 오류를 전파합니다.
      *
      * ## 동작/계약
+     * - 진행 중인 값 전파와 다른 종료 신호가 끝날 때까지 Subject 단위로 대기합니다.
      * - 최초 1회 호출에서만 `error`를 저장하고 collector 배열을 종료 상태로 교체합니다.
      * - 이미 종료된 이후 재호출하면 추가 동작 없이 반환합니다.
      * - 이후 신규 collect는 저장된 오류를 다시 전파할 수 있습니다.
@@ -139,9 +145,9 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
      *
      * @param ex 전파할 종료 원인 예외입니다.
      */
-    override suspend fun emitError(ex: Throwable?) {
+    override suspend fun emitError(ex: Throwable?) = signalMutex.withLock {
         if (areEqualAsAny(collectors.value, TERMINATED)) {
-            return
+            return@withLock
         }
 
         this.error = ex
@@ -159,11 +165,12 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
      * Subject를 정상 종료하고 현재 collector에게 완료 신호를 보냅니다.
      *
      * ## 동작/계약
+     * - 진행 중인 값 전파와 다른 종료 신호가 끝날 때까지 Subject 단위로 대기합니다.
      * - collector 배열을 종료 상태로 교체한 뒤 각 collector에 `complete()`를 호출합니다.
      * - 완료 이후 신규 collect는 즉시 반환될 수 있으며 과거 값은 재생되지 않습니다.
      * - 종료 전 등록된 collector가 없으면 상태 전환만 수행하고 반환합니다.
      */
-    override suspend fun complete() {
+    override suspend fun complete() = signalMutex.withLock {
         val colls = collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
         colls.forEach { collector ->
             try {
