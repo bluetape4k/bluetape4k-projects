@@ -293,11 +293,12 @@ class ResilientNearJCache<K: Any, V: Any>(
                 return null
             }
 
-            backCache.getAndPut(key, value).also { previous ->
-                if (previous == null) {
-                    stateVersion.incrementAndGet()
-                    frontCache.put(key, value)
-                }
+            if (backCache.putIfAbsent(key, value)) {
+                stateVersion.incrementAndGet()
+                frontCache.put(key, value)
+                null
+            } else {
+                backCache.get(key)
             }
         }
     }

@@ -419,6 +419,15 @@ class ResilientNearJCacheTest {
     }
 
     @Test
+    fun `putIfAbsent - back cache 기존 값은 overwrite 하지 않는다`() {
+        backCache.put("cold-key", "existing")
+
+        cache.putIfAbsent("cold-key", "new") shouldBeEqualTo "existing"
+
+        backCache.get("cold-key") shouldBeEqualTo "existing"
+    }
+
+    @Test
     fun `putIfAbsent - queued remove preserves mutation order`() {
         val removeStarted = CountDownLatch(1)
         val releaseRemove = CountDownLatch(1)
