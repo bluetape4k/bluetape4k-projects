@@ -359,7 +359,7 @@ modules:
   sourceDir: examples/coroutines-demo
   kind: example
   group: learning
-  artifact: 
+  artifact:
   en: en/modules/bluetape4k-examples-coroutines-demo.md
   ko: ko/modules/bluetape4k-examples-coroutines-demo.md
   sourcePaths: []
@@ -372,7 +372,7 @@ modules:
   sourceDir: examples/jpa-blazepersistence-demo
   kind: example
   group: learning
-  artifact: 
+  artifact:
   en: en/modules/bluetape4k-examples-jpa-blazepersistence-demo.md
   ko: ko/modules/bluetape4k-examples-jpa-blazepersistence-demo.md
   sourcePaths:
@@ -386,7 +386,7 @@ modules:
   sourceDir: examples/jpa-querydsl-demo
   kind: example
   group: learning
-  artifact: 
+  artifact:
   en: en/modules/bluetape4k-examples-jpa-querydsl-demo.md
   ko: ko/modules/bluetape4k-examples-jpa-querydsl-demo.md
   sourcePaths:
@@ -400,7 +400,7 @@ modules:
   sourceDir: examples/redisson-demo
   kind: example
   group: learning
-  artifact: 
+  artifact:
   en: en/modules/bluetape4k-examples-redisson-demo.md
   ko: ko/modules/bluetape4k-examples-redisson-demo.md
   sourcePaths: []
@@ -413,7 +413,7 @@ modules:
   sourceDir: examples/virtualthreads-demo
   kind: example
   group: learning
-  artifact: 
+  artifact:
   en: en/modules/bluetape4k-examples-virtualthreads-demo.md
   ko: ko/modules/bluetape4k-examples-virtualthreads-demo.md
   sourcePaths: []
@@ -1562,7 +1562,7 @@ modules:
   sourceDir: examples/ktor/idgenerator-ktor-demo
   kind: example
   group: learning
-  artifact: 
+  artifact:
   en: en/modules/idgenerator-ktor-demo.md
   ko: ko/modules/idgenerator-ktor-demo.md
   sourcePaths:
@@ -1576,7 +1576,7 @@ modules:
   sourceDir: examples/spring-boot/idgenerator-spring-boot-demo
   kind: example
   group: learning
-  artifact: 
+  artifact:
   en: en/modules/idgenerator-spring-boot-demo.md
   ko: ko/modules/idgenerator-spring-boot-demo.md
   sourcePaths:
@@ -1591,7 +1591,7 @@ modules:
   sourceDir: examples/ktor/observability-ktor-demo
   kind: example
   group: learning
-  artifact: 
+  artifact:
   en: en/modules/observability-ktor-demo.md
   ko: ko/modules/observability-ktor-demo.md
   sourcePaths:
@@ -1605,7 +1605,7 @@ modules:
   sourceDir: examples/spring-boot/observability-spring-boot-demo
   kind: example
   group: learning
-  artifact: 
+  artifact:
   en: en/modules/observability-spring-boot-demo.md
   ko: ko/modules/observability-spring-boot-demo.md
   sourcePaths:
@@ -1620,7 +1620,7 @@ modules:
   sourceDir: benchmark/protobuf-codec-benchmark
   kind: benchmark
   group: experiments
-  artifact: 
+  artifact:
   en: en/modules/protobuf-codec-benchmark.md
   ko: ko/modules/protobuf-codec-benchmark.md
   sourcePaths: []
@@ -1631,7 +1631,7 @@ modules:
   sourceDir: benchmark/web-framework-benchmark
   kind: benchmark
   group: experiments
-  artifact: 
+  artifact:
   en: en/modules/web-framework-benchmark.md
   ko: ko/modules/web-framework-benchmark.md
   sourcePaths: []

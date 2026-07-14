@@ -1,8 +1,8 @@
 # Core·Coroutines Manual First 설계
 
-**날짜:** 2026-07-12  
-**상태:** 승인됨  
-**대상 저장소:** `bluetape4k-projects`, `bluetape4k.github.io`  
+**날짜:** 2026-07-12
+**상태:** 승인됨
+**대상 저장소:** `bluetape4k-projects`, `bluetape4k.github.io`
 **기준 브랜치:** `feature/all-module-manuals`, `feature/ecosystem-atlas-manual`
 
 ## 배경

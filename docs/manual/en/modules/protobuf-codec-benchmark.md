@@ -82,4 +82,3 @@ This page documents the repository state represented by the linked source and te
 
 - [Module README](../../../../benchmark/protobuf-codec-benchmark/README.md)
 - [Module build](../../../../benchmark/protobuf-codec-benchmark/build.gradle.kts)
-
