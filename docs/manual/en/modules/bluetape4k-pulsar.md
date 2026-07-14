@@ -1,124 +1,156 @@
 ---
 manualId: bluetape4k-pulsar
-title: "bluetape4k-pulsar"
-description: "Apache Pulsar client extensions for Kotlin — coroutine-first, DSL-friendly, Jackson2/Jackson3 schema support."
+title: "Module bluetape4k-pulsar"
+description: "Use Apache Pulsar Java Client with Kotlin DSLs, suspending operations, Flow, and Jackson 2 or 3 JSON schemas while respecting the 1.11.0 lifecycle boundaries."
 kind: library
 group: infrastructure
 ---
 
-# bluetape4k-pulsar
+# Module bluetape4k-pulsar
 
-## Problem {#problem}
+## Provided capabilities {#problem}
 
-Apache Pulsar client extensions for Kotlin — coroutine-first, DSL-friendly, Jackson2/Jackson3 schema support. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+`bluetape4k-pulsar` adds Kotlin conveniences to Apache Pulsar Java Client. It configures client, producer, consumer, and reader builders with receiver DSLs; awaits `CompletableFuture` operations from suspending functions; and connects repeated send, receive, and read operations to `Flow`. Optional JSON `Schema<T>` implementations support Jackson 2 and Jackson 3.
 
-## When to use {#when-to-use}
+The module does not administer brokers, topics, subscriptions, or a schema registry. Pulsar Client still owns reconnects, batching, compression, routing, receiver queues, and the broker protocol. This manual separates the thin bluetape4k layer in 1.11.0 from responsibilities that remain with the application and Pulsar.
 
-Use `bluetape4k-pulsar` when the application needs client lifecycle, reconnect policy, backpressure, retries, and observability. Start with the source entry points below and confirm that their ownership and failure contracts match the calling component. Prefer a smaller standard-library or already-adopted module when it satisfies the same contract without another runtime boundary.
+## Decisions before adoption {#when-to-use}
 
-## Coordinates {#coordinates}
+- Decide whether one client lives with the application or a short task creates and closes it.
+- Choose Producer, Consumer, or Reader according to message semantics. Reader has no subscription or acknowledgement.
+- Define the Consumer subscription type and individual or cumulative acknowledgement policy.
+- Choose Jackson 2 or Jackson 3 and keep producer and consumer JSON and schema settings aligned.
+- Do not assume that the Flow adapters provide parallel sends or automatic acknowledgements.
+- If cleanup must complete during cancellation, compensate for the 1.11.0 cleanup limitation in application shutdown code.
+
+## Dependency {#coordinates}
+
+Consumers manage only the central BOM version, not individual Pulsar or Jackson versions.
 
 ```kotlin
 dependencies {
     implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
     implementation("io.github.bluetape4k:bluetape4k-pulsar")
+
+    // Add only the JSON generation that the application uses.
+    implementation("io.github.bluetape4k:bluetape4k-jackson2")
+    // implementation("io.github.bluetape4k:bluetape4k-jackson3")
 }
 ```
 
-Gradle project path: `:bluetape4k-pulsar`. Source directory: `infra/pulsar`.
+Gradle project path: `:bluetape4k-pulsar`. Source directory: `infra/pulsar`. The Jackson integrations are `compileOnly`, so the consuming application must provide the selected runtime dependency.
 
-## Concepts {#concepts}
+## First client and message {#quick-start}
 
-The first source-level concepts to inspect are `PulsarClientSupport`, `Jackson3Schema`, `JacksonSchema`, `ConsumerExtensions`, `ConsumerSupport`, `ProducerExtensions`, and `ProducerSupport`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
+```kotlin
+withPulsarClient("pulsar://localhost:6650") {
+    withProducer(Schema.STRING, { topic("persistent://public/default/orders") }) {
+        val messageId = sendSuspend {
+            value("order-1")
+            key("order-1")
+        }
+    }
+}
+```
 
-## Quick start {#quick-start}
+`withPulsarClient` and `withProducer` call `closeAsync()` when their blocks finish. In 1.11.0, close failures are logged and swallowed, and close is not wrapped in a `NonCancellable` context. These functions are convenient scope helpers, not a strong shutdown guarantee.
 
-Add the coordinate above, refresh Gradle, and start from the smallest entry point that owns the required task. Open [`PulsarClientSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/PulsarClientSupport.kt) first; it is a concrete source entry point for the module.
+## API map {#api-by-task}
 
-## API by task {#api-by-task}
+| Task | Start with | Boundary to remember |
+| --- | --- | --- |
+| Create a client | `pulsarClient`, `withPulsarClient` | Supply a URL argument or call `serviceUrl` in setup. |
+| Create a producer and send | `producer`, `withProducer`, `sendSuspend` | Pulsar Client defines builder and send semantics. |
+| Send a `Flow<T>` | `sendAsFlow` | It awaits one message at a time; it is not parallel. |
+| Create a consumer and receive | `consumer`, `withConsumer`, `receiveSuspend` | The caller selects subscription name and type. |
+| Receive continuously and ack | `receiveAsFlow`, `acknowledgeSuspend` | Flow neither acknowledges automatically nor owns the Consumer. |
+| Acknowledge cumulatively | `acknowledgeCumulativeSuspend` | It is invalid for Shared subscriptions. |
+| Read without a subscription | `reader`, `withReader`, `readNextSuspend` | Select a start position; no ack is involved. |
+| Drain currently available messages | `readAsFlow` | This finite Flow ends when `hasMessageAvailable()` is false. |
+| Encode JSON payloads | `jacksonSchema`, `jackson3Schema` | Align mapper generation and settings on both sides. |
 
-| Entry point | What to verify |
-| --- | --- |
-| [`PulsarClientSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/PulsarClientSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`Jackson3Schema`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/Jackson3Schema.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`JacksonSchema`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/JacksonSchema.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ConsumerExtensions`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/consumer/ConsumerExtensions.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ConsumerSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/consumer/ConsumerSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ProducerExtensions`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/producer/ProducerExtensions.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ProducerSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/producer/ProducerSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ReaderExtensions`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/reader/ReaderExtensions.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ReaderSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/reader/ReaderSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+## Learning path {#concepts}
 
-## Patterns {#patterns}
+The six chapters follow the 1.11.0 release source and tests from client ownership through wire contracts, message processing, and operational limits. Each chapter combines working API compositions with explicit non-goals and failure or cancellation checks.
 
-The README evidence is organized around **Architecture**, **Features**, **Dependency**, **Examples**, **Client lifecycle**, **Producer**, **Consumer**, **Reader (no subscription, no ack)**, **Custom JSON Schema**, and **Compression**. Use those topics as a navigation map, then confirm behavior in source and tests. Keep adoption narrow and connect owned resources to the caller lifecycle.
+1. [Client configuration and lifecycle](./bluetape4k-pulsar/client-lifecycle-configuration.md) — URL and builder configuration, direct ownership, block scopes, and the 1.11.0 cleanup limit.
+2. [Jackson 2 and 3 schemas and wire compatibility](./bluetape4k-pulsar/jackson-schemas-wire-compatibility.md) — `SchemaInfo`, mapper choice, runtime dependencies, and cross-generation verification.
+3. [Producers and coroutine sends](./bluetape4k-pulsar/producers-coroutine-send.md) — direct, message-DSL, and sequential Flow sends with failure boundaries.
+4. [Consumers, Flow, and acknowledgements](./bluetape4k-pulsar/consumers-flow-acknowledgement.md) — an unbounded receive Flow, individual and cumulative ack, and subscription types.
+5. [Readers and positions](./bluetape4k-pulsar/readers-and-positions.md) — subscription-free reads, `MessageId`, and finite draining behavior.
+6. [Cancellation, failures, testing, and operations](./bluetape4k-pulsar/cancellation-failures-testing-operations.md) — future cancellation, close limitations, Testcontainers evidence, and observability.
+
+For a first integration, follow 1→3→4 and complete one topic's send-and-receive path. Add chapter 2 for domain payloads and chapter 5 for replay or inspection tools.
+
+## Recommended patterns {#patterns}
+
+`PulsarClient` owns connections and threads, so do not create one per message. Let the application own a shared client and reuse producers and consumers for the lifetime of their processing components. The `with*` helpers fit bounded batch and tool operations with clear scopes.
+
+Acknowledge a Consumer message only after application processing succeeds. Treat the crash window between processing and ack, redelivery, and idempotency as application contracts. Use `sendAsFlow` for ordered sequential sends. To raise throughput, configure Pulsar batching and design bounded coroutine concurrency separately.
 
 ## Integrations {#integrations}
 
-The current build declares these integration edges:
+The module exposes `pulsar-client` as an `api` dependency, so native builders, options, and types remain available. Its base integration edge consists of `bluetape4k-core`, `bluetape4k-coroutines`, and coroutine core.
 
-```kotlin
-api(project(":bluetape4k-core"))
-api(project(":bluetape4k-coroutines"))
-api(libs.pulsar.client)
-compileOnly(project(":bluetape4k-jackson2"))
-compileOnly(libs.jackson.databind)
-compileOnly(project(":bluetape4k-jackson3"))
-compileOnly(libs.jackson3.databind)
-implementation(libs.kotlinx.coroutines.core)
-```
-
-Treat `compileOnly` edges as caller-provided capabilities and verify runtime availability before using their APIs.
+Jackson 2 and Jackson 3 support is optional. Both implementations derive Pulsar JSON schema metadata, while their respective `ObjectMapper` writes the payload bytes. Naming strategies, modules, date handling, and number settings can produce different wire JSON for the same Kotlin class. Verify compatibility with cross-producer and cross-consumer tests.
 
 ## Configuration {#configuration}
 
-No module-level configuration resource was found under `src/main/resources`. Configuration is supplied through constructors, builders, function arguments, or the integrating framework; confirm defaults in source.
+The module has no dedicated properties or resources. Configure endpoints, authentication, TLS, timeouts, and connections on `ClientBuilder`; topic, batching, and compression on `ProducerBuilder`; subscription, receiver queue, and ack timeout on `ConsumerBuilder`; and positions on `ReaderBuilder`.
+
+```kotlin
+val client = pulsarClient {
+    serviceUrl("pulsar+ssl://broker:6651")
+    tlsTrustCertsFilePath("/run/secrets/pulsar-ca.pem")
+}
+```
+
+Calling `pulsarClient()` with an empty URL and omitting `serviceUrl` from setup fails in `build()`. Do not log credentials or tokens.
 
 ## Failures {#failures}
 
-Failure semantics are defined by the linked entry points and tests, not inferred from the artifact name. Keep cancellation and timeout signals intact, close owned resources, and translate backend exceptions only at a boundary that can add a stable domain contract. Use the test anchors below to verify the exact behavior before adding retries or fallbacks.
+Client creation, send, receive, ack, and read failures propagate as Pulsar Client exceptions. The helpers add no retry, dead-letter routing, transaction, or domain-exception translation. `sendAsFlow`, `receiveAsFlow`, and `readAsFlow` terminate when their upstream or Pulsar operation fails.
+
+When a repeated Flow receives `CancellationException` while awaiting a future, it calls `future.cancel(true)` and rethrows cancellation. This does not roll back a send already accepted by the broker or prove that server-side work stopped. Block-scoped close logs failures instead of returning them to the caller, so shutdown code should observe close state and enforce its own timeout.
 
 ## Operations {#operations}
 
-Track connection state, queue depth, retries, timeouts, remote errors, and graceful shutdown. Keep capacity, timeout, retry, and shutdown settings next to the component that owns the resource; avoid process-wide defaults that hide which caller accepted the trade-off.
+Observe client connections, producer send latency and pending queues, consumer backlog, redelivery, unacknowledged counts, ack failures, and reader lag. Use bounded topic and subscription dimensions for metrics; do not use message keys or unbounded tenant identifiers as labels.
+
+Design retries together with handler idempotency. During shutdown, stop accepting new sends and receives, wait for in-flight work within a deadline, then close producers, consumers, readers, and the client. The 1.11.0 `with*` helpers alone do not guarantee cleanup completion under cancellation.
 
 ## Testing {#testing}
 
-Run the module test task:
+Release tests use `AbstractPulsarTest`, which starts a `PulsarContainer`. They verify client, producer, consumer, reader, and broker round trips, so run this suite sequentially with other Testcontainers suites.
 
 ```bash
 ./gradlew :bluetape4k-pulsar:test --no-configuration-cache
 ```
 
-Representative test anchors:
-
-- [`AbstractPulsarTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/AbstractPulsarTest.kt)
-- [`PulsarClientSupportTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/PulsarClientSupportTest.kt)
-- [`Jackson3SchemaTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/codec/Jackson3SchemaTest.kt)
-- [`JacksonSchemaTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/codec/JacksonSchemaTest.kt)
-- [`ConsumerExtensionsTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/consumer/ConsumerExtensionsTest.kt)
-- [`ConsumerSupportTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/consumer/ConsumerSupportTest.kt)
-- [`ProducerExtensionsTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/producer/ProducerExtensionsTest.kt)
+Schema encode/decode and clone behavior are useful server-free contracts. In application tests, separate mapper-specific round-trip unit tests from broker integration tests for schema compatibility, redelivery, and subscription types.
 
 ## Workshops {#workshops}
 
-No dedicated workshop path is registered in the manual manifest. Use the module README and the representative tests above as runnable evidence.
+No dedicated workshop is registered in the manual manifest. The release tests serve as small executable examples: direct, DSL, and Flow sends in `ProducerExtensionsTest`; individual and cumulative acknowledgements plus Shared rejection in `ConsumerExtensionsTest`; and earliest or latest reads in `ReaderExtensionsTest`.
 
-## Limitations {#limitations}
+Before turning these examples into an operational template, add authentication and TLS, schema evolution, idempotent handling, redelivery, and graceful shutdown tests. `AbstractPulsarTest` is a test fixture, not a published API.
 
-This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
+## 1.11.0 scope {#limitations}
 
-## Sources {#sources}
+This manual targets release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`. A later branch adds `PulsarCloseSupport` and tests for cleanup during cancellation; neither is part of 1.11.0.
 
-- [Module README](../../../../infra/pulsar/README.md)
-- [Module build](../../../../infra/pulsar/build.gradle.kts)
-- [`PulsarClientSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/PulsarClientSupport.kt)
-- [`Jackson3Schema`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/Jackson3Schema.kt)
-- [`JacksonSchema`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/JacksonSchema.kt)
-- [`ConsumerExtensions`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/consumer/ConsumerExtensions.kt)
-- [`ConsumerSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/consumer/ConsumerSupport.kt)
-- [`ProducerExtensions`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/producer/ProducerExtensions.kt)
-- [`ProducerSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/producer/ProducerSupport.kt)
-- [`ReaderExtensions`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/reader/ReaderExtensions.kt)
-- [`ReaderSupport`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/reader/ReaderSupport.kt)
-- [`AbstractPulsarTest`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/AbstractPulsarTest.kt)
+Version 1.11.0 does not provide admin APIs, topic or tenant provisioning, schema migration, transaction orchestration, retry or dead-letter policy, health indicators, or metrics exporters. Its `with*` close operation does not run in a non-cancellable context and does not rethrow close failures.
+
+## Sources and tests {#sources}
+
+- [`build.gradle.kts`](../../../../infra/pulsar/build.gradle.kts)
+- [`PulsarClientSupport.kt`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/PulsarClientSupport.kt)
+- [`JacksonSchema.kt`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/JacksonSchema.kt)
+- [`Jackson3Schema.kt`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/Jackson3Schema.kt)
+- [`ProducerExtensions.kt`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/producer/ProducerExtensions.kt)
+- [`ConsumerExtensions.kt`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/consumer/ConsumerExtensions.kt)
+- [`ReaderExtensions.kt`](../../../../infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/reader/ReaderExtensions.kt)
+- [`PulsarClientSupportTest.kt`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/PulsarClientSupportTest.kt)
+- [`ProducerExtensionsTest.kt`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/producer/ProducerExtensionsTest.kt)
+- [`ConsumerExtensionsTest.kt`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/consumer/ConsumerExtensionsTest.kt)
+- [`ReaderExtensionsTest.kt`](../../../../infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/reader/ReaderExtensionsTest.kt)
