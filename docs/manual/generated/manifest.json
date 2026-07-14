@@ -205,6 +205,38 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-cache-lettuce",
+      "chapters": [
+        {
+          "en": "en/modules/bluetape4k-cache-lettuce/jcache-provider-manager.md",
+          "id": "jcache-provider-manager",
+          "ko": "ko/modules/bluetape4k-cache-lettuce/jcache-provider-manager.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cache-lettuce/sync-suspend-jcache.md",
+          "id": "sync-suspend-jcache",
+          "ko": "ko/modules/bluetape4k-cache-lettuce/sync-suspend-jcache.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cache-lettuce/memoizers-concurrency.md",
+          "id": "memoizers-concurrency",
+          "ko": "ko/modules/bluetape4k-cache-lettuce/memoizers-concurrency.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cache-lettuce/near-cache-l1-l2.md",
+          "id": "near-cache-l1-l2",
+          "ko": "ko/modules/bluetape4k-cache-lettuce/near-cache-l1-l2.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cache-lettuce/resp3-invalidation-lua.md",
+          "id": "resp3-invalidation-lua",
+          "ko": "ko/modules/bluetape4k-cache-lettuce/resp3-invalidation-lua.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cache-lettuce/operations-ecosystem.md",
+          "id": "operations-ecosystem",
+          "ko": "ko/modules/bluetape4k-cache-lettuce/operations-ecosystem.md"
+        }
+      ],
       "en": "en/modules/bluetape4k-cache-lettuce.md",
       "gradlePath": ":bluetape4k-cache-lettuce",
       "group": "caching",
@@ -226,6 +258,38 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-cache-redisson",
+      "chapters": [
+        {
+          "en": "en/modules/bluetape4k-cache-redisson/redisson-jcache-suspend.md",
+          "id": "redisson-jcache-suspend",
+          "ko": "ko/modules/bluetape4k-cache-redisson/redisson-jcache-suspend.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cache-redisson/memoizers-concurrency.md",
+          "id": "memoizers-concurrency",
+          "ko": "ko/modules/bluetape4k-cache-redisson/memoizers-concurrency.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cache-redisson/near-cache-invalidation.md",
+          "id": "near-cache-invalidation",
+          "ko": "ko/modules/bluetape4k-cache-redisson/near-cache-invalidation.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cache-redisson/config-codec-ownership.md",
+          "id": "config-codec-ownership",
+          "ko": "ko/modules/bluetape4k-cache-redisson/config-codec-ownership.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cache-redisson/failures-cancellation-operations.md",
+          "id": "failures-cancellation-operations",
+          "ko": "ko/modules/bluetape4k-cache-redisson/failures-cancellation-operations.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-cache-redisson/ecosystem-paths.md",
+          "id": "ecosystem-paths",
+          "ko": "ko/modules/bluetape4k-cache-redisson/ecosystem-paths.md"
+        }
+      ],
       "en": "en/modules/bluetape4k-cache-redisson.md",
       "gradlePath": ":bluetape4k-cache-redisson",
       "group": "caching",
@@ -1664,6 +1728,38 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-redis",
+      "chapters": [
+        {
+          "en": "en/modules/bluetape4k-redis/umbrella-dependency-contract.md",
+          "id": "umbrella-dependency-contract",
+          "ko": "ko/modules/bluetape4k-redis/umbrella-dependency-contract.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-redis/lettuce-vs-redisson.md",
+          "id": "lettuce-vs-redisson",
+          "ko": "ko/modules/bluetape4k-redis/lettuce-vs-redisson.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-redis/selective-dependency-migration.md",
+          "id": "selective-dependency-migration",
+          "ko": "ko/modules/bluetape4k-redis/selective-dependency-migration.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-redis/lifecycle-codec-boundaries.md",
+          "id": "lifecycle-codec-boundaries",
+          "ko": "ko/modules/bluetape4k-redis/lifecycle-codec-boundaries.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-redis/cache-spring-separation.md",
+          "id": "cache-spring-separation",
+          "ko": "ko/modules/bluetape4k-redis/cache-spring-separation.md"
+        },
+        {
+          "en": "en/modules/bluetape4k-redis/testing-operations-ecosystem.md",
+          "id": "testing-operations-ecosystem",
+          "ko": "ko/modules/bluetape4k-redis/testing-operations-ecosystem.md"
+        }
+      ],
       "en": "en/modules/bluetape4k-redis.md",
       "gradlePath": ":bluetape4k-redis",
       "group": "infrastructure",

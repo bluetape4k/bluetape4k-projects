@@ -143,6 +143,25 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-cache-lettuce
   en: en/modules/bluetape4k-cache-lettuce.md
   ko: ko/modules/bluetape4k-cache-lettuce.md
+  chapters:
+  - id: jcache-provider-manager
+    en: en/modules/bluetape4k-cache-lettuce/jcache-provider-manager.md
+    ko: ko/modules/bluetape4k-cache-lettuce/jcache-provider-manager.md
+  - id: sync-suspend-jcache
+    en: en/modules/bluetape4k-cache-lettuce/sync-suspend-jcache.md
+    ko: ko/modules/bluetape4k-cache-lettuce/sync-suspend-jcache.md
+  - id: memoizers-concurrency
+    en: en/modules/bluetape4k-cache-lettuce/memoizers-concurrency.md
+    ko: ko/modules/bluetape4k-cache-lettuce/memoizers-concurrency.md
+  - id: near-cache-l1-l2
+    en: en/modules/bluetape4k-cache-lettuce/near-cache-l1-l2.md
+    ko: ko/modules/bluetape4k-cache-lettuce/near-cache-l1-l2.md
+  - id: resp3-invalidation-lua
+    en: en/modules/bluetape4k-cache-lettuce/resp3-invalidation-lua.md
+    ko: ko/modules/bluetape4k-cache-lettuce/resp3-invalidation-lua.md
+  - id: operations-ecosystem
+    en: en/modules/bluetape4k-cache-lettuce/operations-ecosystem.md
+    ko: ko/modules/bluetape4k-cache-lettuce/operations-ecosystem.md
   sourcePaths:
   - cache/cache-lettuce/src/main/kotlin
   - cache/cache-lettuce/src/main/resources
@@ -158,6 +177,25 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-cache-redisson
   en: en/modules/bluetape4k-cache-redisson.md
   ko: ko/modules/bluetape4k-cache-redisson.md
+  chapters:
+  - id: redisson-jcache-suspend
+    en: en/modules/bluetape4k-cache-redisson/redisson-jcache-suspend.md
+    ko: ko/modules/bluetape4k-cache-redisson/redisson-jcache-suspend.md
+  - id: memoizers-concurrency
+    en: en/modules/bluetape4k-cache-redisson/memoizers-concurrency.md
+    ko: ko/modules/bluetape4k-cache-redisson/memoizers-concurrency.md
+  - id: near-cache-invalidation
+    en: en/modules/bluetape4k-cache-redisson/near-cache-invalidation.md
+    ko: ko/modules/bluetape4k-cache-redisson/near-cache-invalidation.md
+  - id: config-codec-ownership
+    en: en/modules/bluetape4k-cache-redisson/config-codec-ownership.md
+    ko: ko/modules/bluetape4k-cache-redisson/config-codec-ownership.md
+  - id: failures-cancellation-operations
+    en: en/modules/bluetape4k-cache-redisson/failures-cancellation-operations.md
+    ko: ko/modules/bluetape4k-cache-redisson/failures-cancellation-operations.md
+  - id: ecosystem-paths
+    en: en/modules/bluetape4k-cache-redisson/ecosystem-paths.md
+    ko: ko/modules/bluetape4k-cache-redisson/ecosystem-paths.md
   sourcePaths:
   - cache/cache-redisson/src/main/kotlin
   - cache/cache-redisson/src/main/resources
@@ -1138,6 +1176,25 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-redis
   en: en/modules/bluetape4k-redis.md
   ko: ko/modules/bluetape4k-redis.md
+  chapters:
+  - id: umbrella-dependency-contract
+    en: en/modules/bluetape4k-redis/umbrella-dependency-contract.md
+    ko: ko/modules/bluetape4k-redis/umbrella-dependency-contract.md
+  - id: lettuce-vs-redisson
+    en: en/modules/bluetape4k-redis/lettuce-vs-redisson.md
+    ko: ko/modules/bluetape4k-redis/lettuce-vs-redisson.md
+  - id: selective-dependency-migration
+    en: en/modules/bluetape4k-redis/selective-dependency-migration.md
+    ko: ko/modules/bluetape4k-redis/selective-dependency-migration.md
+  - id: lifecycle-codec-boundaries
+    en: en/modules/bluetape4k-redis/lifecycle-codec-boundaries.md
+    ko: ko/modules/bluetape4k-redis/lifecycle-codec-boundaries.md
+  - id: cache-spring-separation
+    en: en/modules/bluetape4k-redis/cache-spring-separation.md
+    ko: ko/modules/bluetape4k-redis/cache-spring-separation.md
+  - id: testing-operations-ecosystem
+    en: en/modules/bluetape4k-redis/testing-operations-ecosystem.md
+    ko: ko/modules/bluetape4k-redis/testing-operations-ecosystem.md
   sourcePaths: []
   testPaths: []
   workshops: []

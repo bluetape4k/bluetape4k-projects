@@ -1,22 +1,31 @@
 ---
 manualId: bluetape4k-redis
-title: "bluetape4k-redis"
-description: "Lettuce와 Redisson 두 Redis 클라이언트를 함께 제공하는 umbrella 모듈입니다. 기존 코드가 bluetape4k-redis를 의존하던 경우 변경 없이 계속 사용할 수 있습니다."
+title: "Module bluetape4k-redis"
+description: "Lettuce와 Redisson을 함께 내보내는 Redis 우산 모듈의 의존성 계약, 선택 기준과 마이그레이션 경계를 설명합니다."
 kind: library
 group: infrastructure
 ---
 
-# bluetape4k-redis
+# Module bluetape4k-redis
 
-## 해결하는 문제 {#problem}
+## 제공하는 기능 {#problem}
 
-Lettuce와 Redisson 두 Redis 클라이언트를 함께 제공하는 umbrella 모듈입니다. 기존 코드가 bluetape4k-redis를 의존하던 경우 변경 없이 계속 사용할 수 있습니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+`bluetape4k-redis`는 `bluetape4k-lettuce`와 `bluetape4k-redisson`을 한 좌표로 가져오는 우산 모듈입니다. 자체 Kotlin API를 추가하지 않고 두 하위 모듈을 Gradle `api` 의존성으로 내보냅니다. 기존 애플리케이션이 두 client 계열을 함께 사용하거나, 두 계열 사이에서 점진적으로 이전할 때 의존성 진입점을 하나로 유지할 수 있습니다.
 
-## 사용 시점 {#when-to-use}
+이 이름만 보고 Spring Data Redis, Spring Cache provider나 client 자동 설정까지 포함한다고 해석하면 안 됩니다. 그런 기능은 각각 `bluetape4k-spring-boot-redis`, `bluetape4k-cache-lettuce`, `bluetape4k-cache-redisson`이 담당합니다.
 
-애플리케이션에 client lifecycle, reconnect policy, backpressure, retry, observability이 필요할 때 `bluetape4k-redis`를 선택합니다. 아래 source entry point에서 시작해 ownership과 failure 계약이 caller lifecycle에 맞는지 확인합니다. 표준 API나 이미 도입한 더 작은 모듈이 같은 계약을 만족한다면 그쪽을 우선합니다.
+## 사용하기 전에 결정할 것 {#when-to-use}
 
-## 의존성 좌표 {#coordinates}
+- 한 애플리케이션이 Lettuce와 Redisson API를 실제로 모두 사용하는지 확인합니다.
+- Redis command와 coroutine adapter가 중심이면 Lettuce만으로 충분한지 검토합니다.
+- 분산 lock·객체·Stream, Redisson Near Cache가 필요하면 Redisson을 선택합니다.
+- client lifecycle과 codec wire format을 두 구현 사이에서 공유한다고 가정하지 않습니다.
+- Spring Data Redis serializer나 Spring Cache abstraction이 목적이면 별도 모듈에서 시작합니다.
+- 마이그레이션 기간이 끝나면 우산 좌표를 필요한 client 한 개로 줄일지 결정합니다.
+
+## 의존성 추가 {#coordinates}
+
+사용자는 Lettuce, Redisson과 개별 bluetape4k 모듈 버전을 맞추지 않고 `bluetape4k-dependencies` BOM 버전만 관리합니다.
 
 ```kotlin
 dependencies {
@@ -25,66 +34,100 @@ dependencies {
 }
 ```
 
-Gradle project path는 `:bluetape4k-redis`, source directory는 `infra/redis`입니다.
+이 좌표 하나로 두 하위 artifact가 compile/runtime classpath에 들어옵니다. 하나만 사용한다면 [선택 의존성으로 전환](./bluetape4k-redis/selective-dependency-migration.md)해 classpath와 운영 책임을 줄입니다.
 
-## 핵심 개념 {#concepts}
+## 첫 선택 {#quick-start}
 
-이 모듈은 설정 또는 platform metadata이며 index할 Kotlin/Java source type이 없습니다.
+두 구현을 모두 쓰는 전환기에는 우산 모듈을 유지하되 사용 경계를 package나 adapter로 분리합니다.
 
-## 빠른 시작 {#quick-start}
+```kotlin
+dependencies {
+    implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))
+    implementation("io.github.bluetape4k:bluetape4k-redis")
+}
+```
 
-위 좌표를 추가하고 Gradle을 refresh한 뒤 필요한 작업을 소유한 가장 작은 entry point에서 시작합니다. Kotlin/Java source entry point가 없는 모듈이므로 Gradle model과 README를 확인합니다.
+새 코드가 Lettuce만 사용하고 기존 Redisson 호출을 모두 제거했다면 다음 단계에서 좌표를 `bluetape4k-lettuce`로 바꿉니다. 우산 모듈에는 호출할 factory나 초기화 함수가 없으므로 client 생성 예제는 [Lettuce 매뉴얼](./bluetape4k-lettuce.md)과 [Redisson 매뉴얼](./bluetape4k-redisson.md)에서 확인합니다.
 
-## 작업별 API {#api-by-task}
+## 작업별 선택 지도 {#api-by-task}
 
-이 모듈에는 등록된 Kotlin/Java source file이 없습니다. build model과 README가 public surface입니다.
+| 필요한 작업 | 시작할 모듈 | 선택 경계 |
+| --- | --- | --- |
+| 두 client 계열을 함께 쓰는 전환기 | `bluetape4k-redis` | 우산 모듈은 의존성만 묶습니다. |
+| Redis command, pipeline, `RedisFuture`·coroutine | `bluetape4k-lettuce` | client와 cached connection의 종료 주체를 정합니다. |
+| 분산 객체·lock·Stream, Redisson transaction | `bluetape4k-redisson` | `RedissonClient.shutdown()`과 Codec을 배포 계약으로 둡니다. |
+| 함수 결과·cache-aside abstraction | `bluetape4k-cache-lettuce` 또는 `bluetape4k-cache-redisson` | client helper와 cache provider를 구분합니다. |
+| Spring `RedisTemplate` serializer | `bluetape4k-spring-boot-redis` | 우산 모듈이 Spring bean을 만들지 않습니다. |
+
+## 학습 경로 {#concepts}
+
+아래 장은 1.11.0 배포의 실제 Gradle 계약에서 출발합니다. 우산 모듈에 없는 API나 테스트를 설명하는 대신, 하위 모듈을 안전하게 선택하고 줄이는 방법을 구체적인 build 예제와 연결합니다.
+
+1. [우산 의존성 계약](./bluetape4k-redis/umbrella-dependency-contract.md) — `api`로 내보내는 두 artifact와 우산 모듈이 하지 않는 일을 확인합니다.
+2. [Lettuce와 Redisson 선택](./bluetape4k-redis/lettuce-vs-redisson.md) — command 중심 client와 분산 객체 중심 client를 요구사항으로 비교합니다.
+3. [선택 의존성으로 전환](./bluetape4k-redis/selective-dependency-migration.md) — 사용처를 조사하고 한 client 좌표로 줄이는 순서를 설명합니다.
+4. [Lifecycle과 Codec 경계](./bluetape4k-redis/lifecycle-codec-boundaries.md) — client 종료, coroutine, keyspace와 wire format을 구현별로 관리합니다.
+5. [Cache provider와 Spring Data Redis 분리](./bluetape4k-redis/cache-spring-separation.md) — client helper, cache abstraction, serializer 모듈을 구분합니다.
+6. [테스트·운영·생태계 경로](./bluetape4k-redis/testing-operations-ecosystem.md) — 하위 모듈 테스트와 운영 지표에서 workshop·Exposed cache로 이어갑니다.
+
+처음 도입할 때는 1→2를 읽고 필요한 client만 선택합니다. 이미 우산 좌표를 사용 중이라면 3→4 순서로 실제 사용처와 호환성 경계를 고정한 뒤 의존성을 줄입니다.
 
 ## 권장 패턴 {#patterns}
 
-README 근거는 **모듈 구조**, **의존성**, **전체 포함 (umbrella)**, **필요한 클라이언트만 선택**, **하위 모듈 상세**, **bluetape4k-lettuce**, **bluetape4k-redisson**, **모듈 의존성 구조**, **노출 API Surface**, **Spring Data Redis** 순서로 탐색할 수 있습니다. 이 항목으로 방향을 잡고 source와 test에서 동작을 확인합니다. 도입 범위는 좁게 유지하고 소유한 resource를 caller lifecycle에 연결합니다.
+새 애플리케이션은 요구사항이 분명하면 Lettuce 또는 Redisson 좌표를 직접 선택합니다. 두 구현을 함께 쓰는 이유가 있는 경우에도 같은 key를 서로 다른 Codec으로 읽지 않도록 key prefix와 wire format을 분리합니다. client는 request마다 만들지 않고 application lifecycle에 묶어 한 번 생성하고 종료합니다.
+
+우산 모듈은 마이그레이션을 쉽게 시작하게 하지만 완료를 보장하지는 않습니다. 한 구현의 호출이 사라졌는지 source와 runtime classpath에서 확인한 뒤 좌표를 줄입니다.
 
 ## 연동 {#integrations}
 
-현재 build에 선언된 integration edge는 다음과 같습니다.
+1.11.0 build가 선언하는 연동은 다음 두 줄뿐입니다.
 
 ```kotlin
 api(project(":bluetape4k-lettuce"))
 api(project(":bluetape4k-redisson"))
 ```
 
-`compileOnly` edge는 caller가 제공해야 하는 capability이므로 API를 사용하기 전에 runtime에 실제 dependency가 있는지 확인합니다.
+두 모듈의 transitive·optional runtime 경계는 각 상세 매뉴얼을 따릅니다. 우산 모듈은 Spring Boot starter, Spring Cache provider, database loader/writer를 추가하지 않습니다.
 
 ## 설정 {#configuration}
 
-`src/main/resources` 아래에서 모듈 수준 설정 resource를 찾지 못했습니다. constructor, builder, function argument, 연동 framework로 설정하며 default는 source에서 확인합니다.
+`bluetape4k-redis` 자체에는 설정 class, bean, property나 resource가 없습니다. Lettuce URI·`ClientResources`, Redisson `Config`, timeout·retry·pool, Codec은 실제 client를 소유한 component에서 구성합니다. 두 구현의 설정 이름과 기본값이 같다고 가정하지 않습니다.
 
 ## 실패 동작 {#failures}
 
-failure 의미는 artifact 이름이 아니라 아래 entry point와 test가 결정합니다. cancellation과 timeout signal을 보존하고 소유한 resource를 닫습니다. backend exception은 안정된 domain 계약을 추가할 수 있는 boundary에서만 변환합니다. retry나 fallback을 넣기 전에 test anchor로 실제 동작을 확인합니다.
+우산 모듈은 예외를 변환하거나 retry·fallback을 추가하지 않습니다. 연결 실패, timeout, cancellation, Codec decode 오류는 선택한 하위 client의 계약대로 나타납니다. 두 구현을 함께 쓰면 장애 surface도 두 개가 되므로 한쪽 실패를 다른 쪽으로 자동 fallback하지 말고 데이터 일관성과 중복 실행 조건을 먼저 정의합니다.
 
 ## 운영 {#operations}
 
-connection 상태, queue 깊이, retry, timeout, remote 오류, graceful shutdown을 관찰합니다. capacity, timeout, retry, shutdown 설정은 resource를 소유한 component 가까이에 둡니다. 누가 trade-off를 받아들였는지 알 수 없는 process-wide default는 피합니다.
+사용 중인 client별 connection 수, reconnect, command latency, timeout, queue와 shutdown을 따로 관찰합니다. 같은 Redis를 쓰더라도 Lettuce와 Redisson pool은 별도입니다. 우산 좌표를 유지하는 동안에는 dependency tree와 client instance 수를 배포 점검 항목에 넣습니다.
 
 ## 테스트 {#testing}
 
-모듈 test task는 다음과 같습니다.
+우산 모듈에는 production source와 전용 테스트가 없습니다. `:bluetape4k-redis:test`가 존재하더라도 자체 동작을 검증하는 테스트 suite로 해석하면 안 됩니다. 실제 계약은 사용한 하위 모듈과 애플리케이션 통합 테스트에서 검증합니다.
 
 ```bash
-./gradlew :bluetape4k-redis:test --no-configuration-cache
+./gradlew :bluetape4k-lettuce:test --no-build-cache --no-configuration-cache
+./gradlew :bluetape4k-redisson:test --no-build-cache --no-configuration-cache
 ```
 
-manifest의 test path에서 Kotlin/Java test file을 찾지 못했습니다. module build를 확인하고 다른 곳에서 검증하지 않는 동작을 도입할 때 focused contract test를 추가합니다.
+두 task는 Redis Testcontainers를 사용하므로 다른 heavy database suite와 병렬 실행하지 않습니다. 문서만 수정할 때는 1.11.0 build·README 링크와 구조 검증으로 충분합니다.
 
 ## 워크숍 {#workshops}
 
-manual manifest에 등록된 전용 workshop path가 없습니다. 모듈 README와 위 representative test를 실행 근거로 사용합니다.
+우산 모듈 전용 workshop은 없습니다. Lettuce의 `LettuceClientsTest`, `RedisFutureSupportTest`와 Redisson의 `RedissonClientSupportTest`, `RStreamSupportTest`를 작은 실행 예제로 사용합니다. cache와 database를 연결하는 시나리오는 [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop)과 [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop)으로 이어갑니다.
 
-## 제한 사항 {#limitations}
+## 1.11.0 범위 {#limitations}
 
-이 페이지는 연결된 source와 test가 나타내는 현재 저장소 상태를 설명합니다. optional backend를 애플리케이션 기본값으로 만들거나 benchmark artifact 없이 성능을 단정하지 않습니다. 모듈 버전이 바뀌면 호환성과 lifecycle 설명을 다시 확인해야 합니다.
+이 매뉴얼은 `bluetape4k-projects` 1.11.0 배포 commit의 `infra/redis/build.gradle.kts`를 기준으로 합니다. 우산 모듈은 두 하위 artifact를 함께 제공할 뿐, 공통 facade·자동 client 선택·Spring 설정·cache provider·통합 테스트를 제공하지 않습니다.
 
-## 근거 {#sources}
+README의 `:bluetape4k-redis:test` 안내는 Gradle task 실행 방법이지 우산 모듈 자체에 테스트 코드가 있다는 뜻이 아닙니다. 하위 모듈의 이후 변경을 1.11.0 기능으로 소급해 설명하지 않습니다.
 
-- [모듈 README](../../../../infra/redis/README.ko.md)
-- [모듈 build](../../../../infra/redis/build.gradle.kts)
+## Source와 links {#sources}
+
+- [`infra/redis/build.gradle.kts`](../../../../infra/redis/build.gradle.kts)
+- [`infra/redis/README.ko.md`](../../../../infra/redis/README.ko.md)
+- [`bluetape4k-lettuce` 매뉴얼](./bluetape4k-lettuce.md)
+- [`bluetape4k-redisson` 매뉴얼](./bluetape4k-redisson.md)
+- [`bluetape4k-cache-lettuce` 매뉴얼](./bluetape4k-cache-lettuce.md)
+- [`bluetape4k-cache-redisson` 매뉴얼](./bluetape4k-cache-redisson.md)
+- [`bluetape4k-spring-boot-redis` 매뉴얼](./bluetape4k-spring-boot-redis.md)

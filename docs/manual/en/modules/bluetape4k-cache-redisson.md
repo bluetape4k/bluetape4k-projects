@@ -1,22 +1,32 @@
 ---
 manualId: bluetape4k-cache-redisson
 title: "Module bluetape4k-cache-redisson"
-description: "bluetape4k-cache-redisson provides Redisson-backed cache adapters for the bluetape4k cache APIs."
+description: "Use Redisson JCache, Redis-backed memoizers, and RLocalCachedMap near caches with explicit concurrency, invalidation, and lifecycle contracts."
 kind: library
 group: caching
 ---
 
 # Module bluetape4k-cache-redisson
 
-## Problem {#problem}
+## What this module provides {#problem}
 
-bluetape4k-cache-redisson provides Redisson-backed cache adapters for the bluetape4k cache APIs. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+`bluetape4k-cache-redisson` connects Redisson to the common APIs in `bluetape4k-cache-core`. It provides JCache and coroutine `SuspendJCache`, sync/async/suspend memoizers, and `RLocalCachedMap` near caches.
 
-## When to use {#when-to-use}
+The module does not merely create a Redis connection. It lets an application-owned Redisson client use standard cache APIs, merge same-key work within one JVM, invalidate local entries through Redisson Pub/Sub, and preserve coroutine cancellation.
 
-Use `bluetape4k-cache-redisson` when the application needs cache key design, consistency, invalidation, and backend ownership. Start with the source entry points below and confirm that their ownership and failure contracts match the calling component. Prefer a smaller standard-library or already-adopted module when it satisfies the same contract without another runtime boundary.
+## Decide before using it {#when-to-use}
 
-## Coordinates {#coordinates}
+- The application already uses Redisson or wants its distributed objects and codecs.
+- Completed values must be shared through Redis, while in-flight work only needs coordination inside one JVM.
+- You want `RLocalCachedMap` invalidation instead of maintaining a separate local cache and listener.
+- You have chosen cache-aside or an actual loader/writer-based read/write-through contract.
+- The application owns Redisson client shutdown and treats `close()` separately from entry deletion.
+
+Use [cache-core](./bluetape4k-cache-core.md) for a single-JVM cache. Read the [redisson](./bluetape4k-redisson.md) manual when you also need maps, locks, topics, or broader Redisson support.
+
+## Add the dependency {#coordinates}
+
+Consumers manage only the central BOM version, not individual Redisson or library versions.
 
 ```kotlin
 dependencies {
@@ -25,107 +35,120 @@ dependencies {
 }
 ```
 
-Gradle project path: `:bluetape4k-cache-redisson`. Source directory: `cache/cache-redisson`.
+The Gradle path is `:bluetape4k-cache-redisson`, and the source directory is `cache/cache-redisson`. The 1.11.0 directory move did not change the Maven artifact or `io.bluetape4k.cache` package.
 
-## Concepts {#concepts}
+## First Redisson near cache {#quick-start}
 
-The first source-level concepts to inspect are `RedissonCaches`, `RedissonJCaching`, `RedissonSuspendJCache`, `RedissonAsyncMemoizer`, `RedissonMemoizer`, `RedissonSuspendMemoizer`, `RedissonNearCache`, and `RedissonNearCacheConfig`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
+Create and close the Redisson client at the application boundary. Close the near-cache wrapper in its own scope.
 
-## Quick start {#quick-start}
+```kotlin
+val products = RedissonCaches.suspendNearCache<Product>(
+    redisson = redissonClient,
+    config = redissonNearCacheConfig {
+        cacheName = "products"
+        maxLocalSize = 5_000
+        timeToLive = Duration.ofMinutes(30)
+    },
+)
 
-Add the coordinate above, refresh Gradle, and start from the smallest entry point that owns the required task. Open [`RedissonCaches`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/RedissonCaches.kt) first; it is a concrete source entry point for the module.
+products.put("p:1", Product("p:1", "keyboard"))
+val product = products.get("p:1")
+products.close()
+```
 
-## API by task {#api-by-task}
+Keys are `String`, and the default codec is `RedissonCodecs.LZ4Fory`. `close()` destroys the wrapper; it is not an alias for `clearAll()`.
 
-| Entry point | What to verify |
-| --- | --- |
-| [`RedissonCaches`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/RedissonCaches.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`RedissonJCaching`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/jcache/RedissonJCaching.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`RedissonSuspendJCache`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/jcache/RedissonSuspendJCache.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`RedissonAsyncMemoizer`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/memoizer/RedissonAsyncMemoizer.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`RedissonMemoizer`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/memoizer/RedissonMemoizer.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`RedissonSuspendMemoizer`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/memoizer/RedissonSuspendMemoizer.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`RedissonNearCache`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonNearCache.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`RedissonNearCacheConfig`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonNearCacheConfig.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`RedissonSuspendNearCache`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonSuspendNearCache.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+## API selection map {#api-by-task}
 
-## Patterns {#patterns}
+| Task | Start with | Boundary |
+| --- | --- | --- |
+| Standard JCache | `RedissonJCaching`, `RedissonCaches.jcache` | A lazy singleton manager reuses a cache with the same name. |
+| Coroutine JCache | `RedissonSuspendJCache`, `suspendJCache` | Most calls await async APIs, but `getAndPut` is a get-then-put sequence. |
+| Sync result reuse | `RMap.memoizer` | The evaluator runs on the caller thread; in-flight sharing is JVM-local. |
+| Future result reuse | `RMap.asyncMemoizer` | A cache-write failure can be logged while the result future still succeeds. |
+| Suspend result reuse | `RMap.suspendMemoizer` | Failed or cancelled evaluation is not stored and can be retried. |
+| Sync near cache | `RedissonCaches.nearCache` | Calls blocking `RLocalCachedMap` operations. |
+| Suspend near cache | `RedissonCaches.suspendNearCache` | Awaits Redisson async operations; `clearLocal()` is local. |
+| Legacy front/back cache | `nearJCache`, `suspendNearJCache` | Prefer the native `RLocalCachedMap` path for new code. |
 
-Choose one loading contract explicitly. With **cache-aside**, the caller handles a miss, loads the value, and writes it back. With **read-through**, the cache loader owns that miss path. With **write-through**, the cache API propagates the write to the backing store before reporting success; do not describe a plain `put` as write-through unless its implementation has that contract. For a two-level Near Cache, read L1 first, consult L2 on a miss, then fill L1. Write or invalidate L2 and L1 in the order required by the implementation, and test partial failure so stale L1 data cannot silently survive a failed backend update.
+## Learning path {#concepts}
+
+These chapters go beyond the feature list. They follow the 1.11.0 source and runnable tests to explain defaults, races, state after failure, and operating decisions.
+
+1. [Redisson JCache and suspend wrappers](./bluetape4k-cache-redisson/redisson-jcache-suspend.md) — provider creation, cache reuse, async bridges, and non-atomic `getAndPut`.
+2. [Memoizers and same-key work sharing](./bluetape4k-cache-redisson/memoizers-concurrency.md) — JVM-local single-flight behavior across sync, future, and suspend APIs.
+3. [RLocalCachedMap near-cache invalidation](./bluetape4k-cache-redisson/near-cache-invalidation.md) — local/Redis tiers, Pub/Sub invalidation, clear scope, and metric limits.
+4. [Configuration, codecs, and client ownership](./bluetape4k-cache-redisson/config-codec-ownership.md) — TTL, idle, eviction, reconnect, wire format, and lifecycle owners.
+5. [Failures, cancellation, lifecycle, and operations](./bluetape4k-cache-redisson/failures-cancellation-operations.md) — Redis failures, partial success, cancellation, close, and telemetry.
+6. [Cache strategies and ecosystem paths](./bluetape4k-cache-redisson/ecosystem-paths.md) — cache-aside versus read/write-through/behind, then Hibernate, Spring, Exposed, and workshops.
+
+For a first adoption, read 1, 3, and 4 before adding memoization. For an existing deployment, start with the failure table in chapter 5 and the persistence boundaries in chapter 6.
+
+## Recommended patterns {#patterns}
+
+Give each cache a name that identifies its service and data contract. Set TTL and local capacity explicitly, then verify that the default `INVALIDATE` and reconnect `CLEAR` policies match the stale-read budget.
+
+Limit memoizer evaluators to repeatable reads or calculations. Completed values are shared through Redis, but the in-flight map is process-local, so separate JVMs can evaluate the same first miss.
+
+Do not call a cache `put` database write-through. Persistence write-through requires a loader or writer that actually invokes the source of truth.
 
 ## Integrations {#integrations}
 
-The current build declares these integration edges:
+This module implements `bluetape4k-cache-core` contracts and uses client/codec support from `bluetape4k-redisson`. It also connects directly to resilience4j for near-cache decorator behavior.
 
-```kotlin
-implementation(platform(libs.spring.boot.dependencies))
-api(project(":bluetape4k-cache-core"))
-api(libs.redisson)
-api(project(":bluetape4k-redisson"))
-implementation(libs.resilience4j.retry)
-implementation(libs.resilience4j.kotlin)
-implementation(project(":bluetape4k-coroutines"))
-implementation(libs.kotlinx.coroutines.core)
-```
-
-Treat `compileOnly` edges as caller-provided capabilities and verify runtime availability before using their APIs.
+[cache-core](./bluetape4k-cache-core.md) explains provider-independent contracts; [redisson](./bluetape4k-redisson.md) covers broader Redisson APIs. Persistence caching continues through [Hibernate](./bluetape4k-hibernate.md), [Spring Boot Hibernate Lettuce](./bluetape4k-spring-boot-hibernate-lettuce.md), and the Exposed workshop.
 
 ## Configuration {#configuration}
 
-Configuration resources found in the module:
+`RedissonNearCacheConfig` defaults to name `redisson-near-cache`, 10,000 local entries, no TTL or idle expiry, `INVALIDATE`, reconnect `CLEAR`, and LRU. Names cannot be blank, and capacity, TTL, and idle durations must be positive.
 
-- [`javax.cache.spi.CachingProvider`](../../../../cache/cache-redisson/src/main/resources/META-INF/services/javax.cache.spi.CachingProvider)
+The default wire codec is `LZ4Fory`. A codec change is a data-format migration: every producer and consumer of the map must agree on the key and value format.
 
-Read property names and defaults from these resources and the binding source before overriding them.
+JCache provider discovery uses `META-INF/services/javax.cache.spi.CachingProvider`. Since the manager can reuse an existing named cache, tests and tenants need distinct names.
 
-## Failures {#failures}
+## Failure behavior {#failures}
 
-Failure semantics are defined by the linked entry points and tests, not inferred from the artifact name. Keep cancellation and timeout signals intact, close owned resources, and translate backend exceptions only at a boundary that can add a stable domain contract. Use the test anchors below to verify the exact behavior before adding retries or fallbacks.
+`RedissonSuspendJCache.getAndPut` is not atomic. Use an atomic Redisson `RMap` operation when strict read-modify-write semantics are required. A suspend memoizer rethrows `CancellationException`, removes the in-flight entry, and does not store a successful value.
+
+Sync near-cache close suppresses destroy failures. Suspend close logs ordinary failures but preserves cancellation. Neither close method is a data-cleanup API.
+
+When Redis is unstable, misses can move load to the source database. Excessive retry can turn the cache into a failure amplifier, so set timeout, fallback, and source-pool budgets together.
 
 ## Operations {#operations}
 
-Track hit ratio, load latency, eviction, stale reads, backend errors, and reconnect behavior. Keep capacity, timeout, retry, and shutdown settings next to the component that owns the resource; avoid process-wide defaults that hide which caller accepted the trade-off.
+Observe Redis latency/errors/reconnects with local size and wrapper hit/miss counters. In 1.11.0, native near-cache statistics cannot split local and backend hits: local hit/miss fields are zero, and back hit/miss fields count the integrated get result. Do not interpret them as Redis round trips.
+
+Track decode failures, name collisions, capacity/eviction, Pub/Sub reconnect clears, and Redisson client shutdown. The application remains the client owner.
 
 ## Testing {#testing}
 
-Run the module test task:
+The module uses a Redis Testcontainer, so do not run it concurrently with other heavy backend suites.
 
 ```bash
-./gradlew :bluetape4k-cache-redisson:test --no-configuration-cache
+./gradlew :bluetape4k-cache-redisson:test --no-build-cache --no-configuration-cache
 ```
 
-Representative test anchors:
-
-- [`RedisServers`](../../../../cache/cache-redisson/src/test/kotlin/io/bluetape4k/cache/RedisServers.kt)
-- [`RedissonCachesTest`](../../../../cache/cache-redisson/src/test/kotlin/io/bluetape4k/cache/RedissonCachesTest.kt)
-- [`RedissonSuspendJCacheTest`](../../../../cache/cache-redisson/src/test/kotlin/io/bluetape4k/cache/jcache/RedissonSuspendJCacheTest.kt)
-- [`RedissonAsyncMemoizerTest`](../../../../cache/cache-redisson/src/test/kotlin/io/bluetape4k/cache/memoizer/RedissonAsyncMemoizerTest.kt)
-- [`RedissonMemoizerTest`](../../../../cache/cache-redisson/src/test/kotlin/io/bluetape4k/cache/memoizer/RedissonMemoizerTest.kt)
-- [`RedissonSuspendMemoizerTest`](../../../../cache/cache-redisson/src/test/kotlin/io/bluetape4k/cache/memoizer/RedissonSuspendMemoizerTest.kt)
-- [`RedissonNearCacheConfigTest`](../../../../cache/cache-redisson/src/test/kotlin/io/bluetape4k/cache/nearcache/RedissonNearCacheConfigTest.kt)
-- [`RedissonNearCacheTest`](../../../../cache/cache-redisson/src/test/kotlin/io/bluetape4k/cache/nearcache/RedissonNearCacheTest.kt)
+Factory and JCache tests cover CRUD and close. Memoizer tests cover thread, virtual-thread, and coroutine contention plus failure/cancellation recovery. Near-cache tests reuse the common cache-core conformance fixtures and add resilience cases.
 
 ## Workshops {#workshops}
 
-No dedicated workshop path is registered in the manual manifest. Use the module README and the representative tests above as runnable evidence.
+Start with the module tests. For persistence read-through, write-through, and write-behind, follow the [redisson-demo manual](./bluetape4k-examples-redisson-demo.md) and its cache-strategy tests.
 
-## Limitations {#limitations}
+The [exposed-workshop](https://github.com/bluetape4k/exposed-workshop) cache chapter connects `JdbcCacheRepository`, `EntityMapLoader`, and `EntityMapWriter`. Broader Kotlin/Spring examples continue in [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop).
 
-This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
+## 1.11.0 scope {#limitations}
 
-## Sources {#sources}
+This manual targets the `bluetape4k-projects` 1.11.0 release source. The module has no RESP3 hybrid near-cache API. Native Redisson near caches use `RLocalCachedMap`; legacy JCache near caches use a separate front/back model.
 
-- [Module README](../../../../cache/cache-redisson/README.md)
-- [Module build](../../../../cache/cache-redisson/build.gradle.kts)
-- [`RedissonCaches`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/RedissonCaches.kt)
-- [`RedissonJCaching`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/jcache/RedissonJCaching.kt)
-- [`RedissonSuspendJCache`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/jcache/RedissonSuspendJCache.kt)
-- [`RedissonAsyncMemoizer`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/memoizer/RedissonAsyncMemoizer.kt)
-- [`RedissonMemoizer`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/memoizer/RedissonMemoizer.kt)
-- [`RedissonSuspendMemoizer`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/memoizer/RedissonSuspendMemoizer.kt)
-- [`RedissonNearCache`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonNearCache.kt)
-- [`RedissonNearCacheConfig`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonNearCacheConfig.kt)
-- [`RedissonSuspendNearCache`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonSuspendNearCache.kt)
-- [`RedisServers`](../../../../cache/cache-redisson/src/test/kotlin/io/bluetape4k/cache/RedisServers.kt)
-- [`RedissonCachesTest`](../../../../cache/cache-redisson/src/test/kotlin/io/bluetape4k/cache/RedissonCachesTest.kt)
-- [`RedissonSuspendJCacheTest`](../../../../cache/cache-redisson/src/test/kotlin/io/bluetape4k/cache/jcache/RedissonSuspendJCacheTest.kt)
+Memoizer in-flight sharing is not a distributed lock. Native near-cache statistics do not provide a true local/backend split. The suspend JCache `getAndPut` wrapper is not atomic.
+
+## Source and tests {#sources}
+
+- [`RedissonCaches.kt`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/RedissonCaches.kt)
+- [`RedissonSuspendJCache.kt`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/jcache/RedissonSuspendJCache.kt)
+- [`RedissonMemoizer.kt`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/memoizer/RedissonMemoizer.kt)
+- [`RedissonSuspendMemoizer.kt`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/memoizer/RedissonSuspendMemoizer.kt)
+- [`RedissonNearCache.kt`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonNearCache.kt)
+- [`RedissonNearCacheConfig.kt`](../../../../cache/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonNearCacheConfig.kt)
+- [`RedissonSuspendMemoizerTest.kt`](../../../../cache/cache-redisson/src/test/kotlin/io/bluetape4k/cache/memoizer/RedissonSuspendMemoizerTest.kt)
+- [`RedissonNearCacheTest.kt`](../../../../cache/cache-redisson/src/test/kotlin/io/bluetape4k/cache/nearcache/RedissonNearCacheTest.kt)
