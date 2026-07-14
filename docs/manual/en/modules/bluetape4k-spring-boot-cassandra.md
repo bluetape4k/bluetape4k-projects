@@ -1,22 +1,30 @@
 ---
 manualId: bluetape4k-spring-boot-cassandra
-title: "Module bluetape4k-spring-boot-cassandra"
-description: "Provides coroutine extensions, convenience DSLs, and schema utilities for Spring Data Cassandra development (Spring Boot 4.x)."
+title: "Spring Data Cassandra coroutine library"
+description: "Use Spring Data Cassandra reactive and async APIs through Kotlin coroutines and Flow, with option, model, and schema helpers."
 kind: library
 group: spring
 ---
 
-# Module bluetape4k-spring-boot-cassandra
+# Spring Data Cassandra coroutine library
 
-## Problem {#problem}
+## What it provides {#problem}
 
-Provides coroutine extensions, convenience DSLs, and schema utilities for Spring Data Cassandra development (Spring Boot 4.x). This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+`bluetape4k-spring-boot-cassandra` connects Spring Data Cassandra reactive and async APIs to Kotlin coroutines and `Flow`. It adds suspend and Flow extensions for `ReactiveSession`, `ReactiveCassandraOperations`, `AsyncCassandraOperations`, and low-level CQL operations. It also provides option DSLs, Flow-to-batch adapters, `Persistable` and auditing base models, and mapping-metadata-based schema helpers.
 
-## When to use {#when-to-use}
+This module is not a Spring Boot starter or auto-configuration module. Spring Boot, Spring Data Cassandra, and the application still configure `CqlSession`, contact points, keyspace, authentication, driver profiles, templates, repositories, health indicators, and metric exporters. This module adapts already configured objects to Kotlin call sites.
 
-Use `bluetape4k-spring-boot-cassandra` when the application needs auto-configuration conditions, bean ownership, property binding, and application lifecycle. Start with the source entry points below and confirm that their ownership and failure contracts match the calling component. Prefer a smaller standard-library or already-adopted module when it satisfies the same contract without another runtime boundary.
+## Decide before adopting it {#when-to-use}
 
-## Coordinates {#coordinates}
+- Use this module when the application relies on Spring Data entity mapping and templates or repositories. If it only uses the DataStax Java Driver directly, [`bluetape4k-cassandra`](./bluetape4k-cassandra.md) is a smaller boundary.
+- The reactive path converts `Publisher` values to `Flow` or suspend functions. The async path awaits `CompletableFuture`. Avoid mixing both styles without a clear service boundary.
+- Flow batch adapters call `toList()` before handing values to Spring Data batch operations. They do not fit infinite or very large streams.
+- `SchemaGenerator` is a convenience tool, not a migration system. Production schema history and rollback need a separate process.
+- `AbstractCassandraAuditable.isNew()` checks `createdAt`, not the identifier. Without active auditing, an entity with an ID can still appear new.
+
+## Add the dependency {#coordinates}
+
+Consumers manage only the `bluetape4k-dependencies` BOM version, rather than aligning Spring Data, the Cassandra driver, and bluetape4k artifacts individually.
 
 ```kotlin
 dependencies {
@@ -25,108 +33,136 @@ dependencies {
 }
 ```
 
-Gradle project path: `:bluetape4k-spring-boot-cassandra`. Source directory: `spring-boot/cassandra`.
+The artifact includes the Spring Data Cassandra starter as an implementation dependency, but connection and session policies remain application configuration. DataStax mapper runtime and Micrometer driver integration are `compileOnly`; applications using them must add their runtime capabilities.
 
-## Concepts {#concepts}
+## First example {#quick-start}
 
-The first source-level concepts to inspect are `AsyncCassandraOperationsCoroutines`, `ReactiveCassandraBatchOperationsCoroutines`, `ReactiveCassandraOperationsCoroutines`, `ReactiveSelectOperationSupport`, `ReactiveSessionCoroutines`, `AsyncCqlOperationsCoroutines`, `OptionsSupport`, and `ReactiveCqlOperationsSupport`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
+Inject the `ReactiveCassandraOperations` configured by Spring Boot. Return a `Flow` for streams and use a suspend function for one result:
 
-## Quick start {#quick-start}
+```kotlin
+class UserReader(
+    private val operations: ReactiveCassandraOperations,
+) {
+    fun findAll(): Flow<User> =
+        operations.selectAsFlow<User>("SELECT * FROM users")
 
-Add the coordinate above, refresh Gradle, and start from the smallest entry point that owns the required task. Open [`AsyncCassandraOperationsCoroutines`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/AsyncCassandraOperationsCoroutines.kt) first; it is a concrete source entry point for the module.
+    suspend fun findOrNull(id: UUID): User? =
+        operations.selectOneOrNullByIdSuspending<User>(id)
+}
+```
+
+`selectAsFlow` returns a cold flow. CQL execution and row-mapping failures occur during collection, not when the function returns. Choose an `OrNull` operation when absence is valid.
 
 ## API by task {#api-by-task}
 
-| Entry point | What to verify |
-| --- | --- |
-| [`AsyncCassandraOperationsCoroutines`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/AsyncCassandraOperationsCoroutines.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ReactiveCassandraBatchOperationsCoroutines`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraBatchOperationsCoroutines.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ReactiveCassandraOperationsCoroutines`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraOperationsCoroutines.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ReactiveSelectOperationSupport`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveSelectOperationSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ReactiveSessionCoroutines`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveSessionCoroutines.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`AsyncCqlOperationsCoroutines`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/cql/AsyncCqlOperationsCoroutines.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`OptionsSupport`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/cql/OptionsSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ReactiveCqlOperationsSupport`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/cql/ReactiveCqlOperationsSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`AbstractCassandraAuditable`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/model/AbstractCassandraAuditable.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`AbstractCassandraPersistable`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/model/AbstractCassandraPersistable.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| Task | API | Boundary to keep visible |
+| --- | --- | --- |
+| Stream reactive results | `selectAsFlow`, `queryForFlow`, `queryForRowsFlow` | Subscription and errors occur during `Flow.collect`. |
+| Reactive one-row and writes | `selectOneSuspending`, `insertSuspending`, `updateSuspending`, `deleteSuspending` | Some `awaitSingle` adapters reject an empty publisher. |
+| Call the driver session | `ReactiveSession.executeSuspending`, `prepareSuspending` | Does not create or close the session; preserves statement options. |
+| Call async templates | `AsyncCassandraOperations.*Suspending` | Awaits `CompletableFuture` and preserves Spring Data failures. |
+| Map low-level CQL | `AsyncCqlOperations.querySuspending`, `ReactiveCqlOperations.queryForFlow` | The caller owns row mappers, extractors, and bind-marker types. |
+| Build options | `queryOptions`, `insertOptions`, `updateOptions`, `writeOptions`, `deleteOptions` | Preserves Spring Data builder validation and semantics. |
+| Add Flow values to a batch | `insertFlow`, `updateFlow`, `deleteFlow` | Collects all input in memory; execution remains a later batch step. |
+| Base entity models | `AbstractCassandraPersistable`, `AbstractCassandraAuditable` | Decide ID, auditing, `isNew`, and equality rules first. |
+| Write criteria | `Criteria.eq` | Alias for Spring Data `Criteria.is(value)`. |
+| Assist schema setup | `SchemaGenerator` | Reads current keyspace metadata before creating UDTs/tables or truncating. |
 
-## Patterns {#patterns}
+## Learning path {#concepts}
 
-The README evidence is organized around **Key Features**, **Architecture Diagrams**, **Core Extension and Class Structure**, **Cassandra Data Access Layer**, **Coroutine Conversion Sequence**, **Installation**, **Usage Examples**, **Coroutine Extensions**, **WriteOptions DSL**, and **Entity Definition**. Use those topics as a navigation map, then confirm behavior in source and tests. Keep adoption narrow and connect owned resources to the caller lifecycle.
+The chapters are grounded in the 1.11.0 release source and tests. They connect the API surface to session ownership, cold streams, empty results, memory use, and schema-change responsibility.
 
-## Integrations {#integrations}
+1. [Configuration and object ownership](./bluetape4k-spring-boot-cassandra/configuration-and-ownership.md) — distinguishes this library from auto-configuration and assigns `CqlSession`, template, and repository responsibilities.
+2. [Reactive operations and coroutines](./bluetape4k-spring-boot-cassandra/reactive-coroutine-operations.md) — explains execution timing and empty results when adapting publishers to Flow and suspend functions.
+3. [Async and low-level CQL operations](./bluetape4k-spring-boot-cassandra/async-and-cql-operations.md) — covers future awaiting, row mappers, extractors, and prepared-statement boundaries.
+4. [WriteOptions and batches](./bluetape4k-spring-boot-cassandra/write-options-and-batches.md) — connects TTL, timestamp, LWT, and full Flow collection.
+5. [Models, conversion, and schema](./bluetape4k-spring-boot-cassandra/models-schema-and-converters.md) — covers new-entity detection, auditing, converters, and UDT/table creation.
+6. [Failures, testing, and ecosystem paths](./bluetape4k-spring-boot-cassandra/failures-testing-and-ecosystem.md) — explains cancellation, driver failures, Testcontainers checks, and where to continue.
 
-The current build declares these integration edges:
+For a first adoption, read chapters 1 and 2. If the application uses hand-written CQL, continue with 3 and 4. Read 5 and 6 when entity and schema policies are part of the design.
 
-```kotlin
-implementation(platform(libs.spring.boot.dependencies))
-api(project(":bluetape4k-cassandra"))
-api(project(":bluetape4k-spring-boot-core"))
-api(libs.cassandra.java.driver.core)
-api(libs.cassandra.java.driver.query.builder)
-compileOnly(libs.cassandra.java.driver.mapper.runtime)
-compileOnly(libs.cassandra.java.driver.metrics.micrometer)
-compileOnly("org.springframework.boot:spring-boot-autoconfigure")
-compileOnly("org.springframework.boot:spring-boot-configuration-processor")
-implementation("org.springframework.boot:spring-boot-starter-data-cassandra")
-api(project(":bluetape4k-coroutines"))
-api(libs.kotlinx.coroutines.core)
+## Recommended patterns {#patterns}
+
+Let application configuration own `CqlSession` and Spring Data templates, then choose one data-access style per service. Use reactive plus `Flow` for streaming reads. Keep the future+suspend path for code already built around Spring Data async templates. Make absence explicit with an `OrNull` operation.
+
+Prefer prepared statements and typed mapping over string interpolation. Build TTL, timestamp, consistency, timeout, and LWT policies in option objects near the use case instead of scattering them through call sites.
+
+## Integration boundaries {#integrations}
+
+```text
+Spring Boot / application configuration
+       └── CqlSession + keyspace + driver config
+                    ↓
+       Spring Data Cassandra mapping layer
+       ├── ReactiveSession / ReactiveCassandraOperations
+       ├── AsyncCqlOperations / AsyncCassandraOperations
+       ├── CassandraTemplate and repositories
+       └── MappingContext / converter
+                    ↓
+       bluetape4k coroutine, Flow, option,
+       model, and schema helper APIs
 ```
 
-Treat `compileOnly` edges as caller-provided capabilities and verify runtime availability before using their APIs.
+`bluetape4k-cassandra` provides driver-level statement, paging, and CQL helpers. This module builds on that foundation and Spring Data Cassandra. It does not define a new Spring Data repository interface.
 
 ## Configuration {#configuration}
 
-No module-level configuration resource was found under `src/main/resources`. Configuration is supplied through constructors, builders, function arguments, or the integrating framework; confirm defaults in source.
+The 1.11.0 release contains no `src/main/resources`, `AutoConfiguration.imports`, `@ConfigurationProperties`, or auto-configuration class in this module. There is therefore no module-specific property prefix or activation condition.
 
-## Failures {#failures}
+Manage contact points, local datacenter, keyspace, authentication, request timeouts, pooling, and driver metrics through Spring Boot Cassandra settings or an application-owned `AbstractCassandraConfiguration`. The tests also configure and share their own `CqlSession`. A session is a costly, thread-safe object; do not create one per request.
 
-Failure semantics are defined by the linked entry points and tests, not inferred from the artifact name. Keep cancellation and timeout signals intact, close owned resources, and translate backend exceptions only at a boundary that can add a stable domain contract. Use the test anchors below to verify the exact behavior before adding retries or fallbacks.
+## Failure behavior {#failures}
+
+Reactive adapters use `awaitSingle`, `awaitSingleOrNull`, and `asFlow`. A non-null one-row API fails on an empty publisher, while nullable variants return `null`. A Flow propagates driver and mapping errors during collection.
+
+Async adapters use `CompletableFuture.await()` and preserve Spring Data and driver exceptions. They add no retry, timeout, fallback, or exception translation. Coroutine cancellation cancels the wait, but it does not prove that a query already submitted to Cassandra stopped on the server.
+
+`SchemaGenerator` fails when required entity metadata is unavailable. Its `truncate` operation deletes all rows when the table exists, so it does not belong in a normal production request path.
 
 ## Operations {#operations}
 
-Track condition reports, startup failures, pool/client health, request latency, and graceful shutdown. Keep capacity, timeout, retry, and shutdown settings next to the component that owns the resource; avoid process-wide defaults that hide which caller accepted the trade-off.
+The module registers no health indicator or observation bean. Configure Spring Boot Actuator and Cassandra driver metrics in the application. Observe session connectivity, request latency, timeouts, unavailable and overloaded errors, and pool utilization.
+
+Collect Flow results at a rate the consumer can handle and avoid unnecessary `toList()` calls. The batch Flow adapters deliberately collect everything, so bound their input. Isolate schema creation and truncation to deployment or test stages and record their execution.
 
 ## Testing {#testing}
 
-Run the module test task:
+Separate lightweight adapter, model, and option checks from tests that start Cassandra:
 
 ```bash
+# Fast mock and value-object checks
+./gradlew :bluetape4k-spring-boot-cassandra:test \
+  --tests '*UnitTest' --tests '*OptionsSupportTest' --tests '*AbstractCassandraModelTest'
+
+# Full module verification with Cassandra Testcontainers
 ./gradlew :bluetape4k-spring-boot-cassandra:test --no-configuration-cache
 ```
 
-Representative test anchors:
+The full suite uses `CassandraServer.Launcher.cassandra4`. Its test configurations share a companion-object `CqlSession` because creating another session for every Spring context exhausts connections. Do not pile this container-backed suite on top of other heavyweight tests in parallel.
 
-- [`AbstractCassandraCoroutineTest`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/AbstractCassandraCoroutineTest.kt)
-- [`AbstractCassandraTest`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/AbstractCassandraTest.kt)
-- [`AbstractCassandraTestConfiguration`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/AbstractCassandraTestConfiguration.kt)
-- [`AbstractReactiveCassandraTestConfiguration`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/AbstractReactiveCassandraTestConfiguration.kt)
-- [`AsyncCassandraOperationsCoroutinesUnitTest`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/AsyncCassandraOperationsCoroutinesUnitTest.kt)
-- [`ReactiveCassandraBatchOperationsCoroutinesTest`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraBatchOperationsCoroutinesTest.kt)
-- [`ReactiveCassandraOperationsCoroutinesUnitTest`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraOperationsCoroutinesUnitTest.kt)
-- [`ReactiveSelectOperationSupportTest`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/ReactiveSelectOperationSupportTest.kt)
+## Workshops and examples {#workshops}
 
-## Workshops {#workshops}
+No dedicated workshop is registered in the manual manifest. The tests provide a practical progression: start with `ReactiveSessionCoroutinesExamples`, continue with `ReactiveCassandraTemplateTest` and `AsyncCassandraTemplateTest` for CRUD, slices, and options, then read `AsyncOptimisticLockingTest` for version-based LWT failures.
 
-No dedicated workshop path is registered in the manual manifest. Use the module README and the representative tests above as runnable evidence.
+For lower-level driver APIs and paging, see [`bluetape4k-cassandra`](./bluetape4k-cassandra.md). For common Spring coroutine and context helpers, continue with [`bluetape4k-spring-boot-core`](./bluetape4k-spring-boot-core.md).
 
-## Limitations {#limitations}
+## 1.11.0 scope {#limitations}
 
-This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
+This manual describes the `bluetape4k-projects` 1.11.0 release source. Despite the artifact name, it provides no auto-configuration, property binding, health or observation integration, or repository implementation. DataStax mapper runtime and driver Micrometer integration are not automatically present at runtime either.
 
-## Sources {#sources}
+Flow batch adapters are not streaming batches; they hold all input in memory. `SchemaGenerator` does not diff an existing table or keep migration history. `AbstractCassandraAuditable` maps its last-modified user field with the source spelling `lastModified_by`; verify that it matches an existing schema naming contract.
+
+## Source and tests {#sources}
 
 - [Module README](../../../../spring-boot/cassandra/README.md)
 - [Module build](../../../../spring-boot/cassandra/build.gradle.kts)
-- [`AsyncCassandraOperationsCoroutines`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/AsyncCassandraOperationsCoroutines.kt)
-- [`ReactiveCassandraBatchOperationsCoroutines`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraBatchOperationsCoroutines.kt)
-- [`ReactiveCassandraOperationsCoroutines`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraOperationsCoroutines.kt)
-- [`ReactiveSelectOperationSupport`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveSelectOperationSupport.kt)
-- [`ReactiveSessionCoroutines`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveSessionCoroutines.kt)
-- [`AsyncCqlOperationsCoroutines`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/cql/AsyncCqlOperationsCoroutines.kt)
-- [`OptionsSupport`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/cql/OptionsSupport.kt)
-- [`ReactiveCqlOperationsSupport`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/cql/ReactiveCqlOperationsSupport.kt)
-- [`AbstractCassandraAuditable`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/model/AbstractCassandraAuditable.kt)
-- [`AbstractCassandraPersistable`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/model/AbstractCassandraPersistable.kt)
-- [`AbstractCassandraCoroutineTest`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/AbstractCassandraCoroutineTest.kt)
-- [`AbstractCassandraTest`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/AbstractCassandraTest.kt)
+- [`ReactiveCassandraOperationsCoroutines.kt`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraOperationsCoroutines.kt)
+- [`ReactiveSessionCoroutines.kt`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveSessionCoroutines.kt)
+- [`AsyncCassandraOperationsCoroutines.kt`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/AsyncCassandraOperationsCoroutines.kt)
+- [`AsyncCqlOperationsCoroutines.kt`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/cql/AsyncCqlOperationsCoroutines.kt)
+- [`OptionsSupport.kt`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/cql/OptionsSupport.kt)
+- [`SchemaGenerator.kt`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/schema/SchemaGenerator.kt)
+- [`AbstractCassandraPersistable.kt`](../../../../spring-boot/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/model/AbstractCassandraPersistable.kt)
+- [`AbstractReactiveCassandraTestConfiguration.kt`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/AbstractReactiveCassandraTestConfiguration.kt)
+- [`ReactiveCassandraOperationsCoroutinesUnitTest.kt`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraOperationsCoroutinesUnitTest.kt)
+- [`SchemaGeneratorTest.kt`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/schema/SchemaGeneratorTest.kt)
