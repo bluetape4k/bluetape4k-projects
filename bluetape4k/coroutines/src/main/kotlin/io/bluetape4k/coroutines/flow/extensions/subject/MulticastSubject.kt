@@ -11,6 +11,8 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * 지정한 collector 수가 준비될 때까지 producer를 대기시키는 multicast Subject입니다.
@@ -18,6 +20,7 @@ import kotlinx.coroutines.flow.FlowCollector
  * ## 동작/계약
  * - 생성 시 지정한 collector 수(`expectedCollectorSize`)가 모두 등록되기 전까지 `emit`은 suspend 대기합니다.
  * - 기준 수를 한 번 충족한 이후에는 이후 `emit` 호출에서 추가 대기를 하지 않습니다.
+ * - collector 등록 대기 이후 `emit`/`complete`/`emitError` 신호는 Subject 단위로 직렬화됩니다.
  * - `emit`된 값은 현재 등록된 collector 전원에게 전달되며, 취소된 collector는 제거됩니다.
  * - collector 추가/제거는 배열 복사 기반(CAS)으로 처리되어 collector 변동 비용은 collector 수에 비례합니다.
  *
@@ -55,6 +58,8 @@ class MulticastSubject<T> private constructor(
 
     private val producer = Resumable()
 
+    private val signalMutex = Mutex()
+
     private val remainingCollectors = atomic(expectedCollectorSize)
 
     @Volatile
@@ -85,6 +90,7 @@ class MulticastSubject<T> private constructor(
      *
      * ## 동작/계약
      * - `remainingCollectors > 0`이면 최소 구독자 수가 채워질 때까지 suspend 대기합니다.
+     * - collector 등록 대기 이후 동시 호출은 Subject 단위로 직렬화해 각 collector의 단일 producer 계약을 보존합니다.
      * - 대기 조건이 풀리면 호출 시점 collector 전원에게 `next(value)`를 호출합니다.
      * - 전달 중 `CancellationException`이 난 collector는 목록에서 제거됩니다.
      *
@@ -92,12 +98,14 @@ class MulticastSubject<T> private constructor(
      */
     override suspend fun emit(value: T) {
         awaitCollectors()
-        collectors.value.forEach { collector ->
-            try {
-                collector.next(value)
-            } catch (e: CancellationException) {
-                currentCoroutineContext().ensureActive() // 부모 취소 시 rethrow
-                remove(collector) // 이 collector만 개별 취소됨
+        signalMutex.withLock {
+            collectors.value.forEach { collector ->
+                try {
+                    collector.next(value)
+                } catch (e: CancellationException) {
+                    currentCoroutineContext().ensureActive() // 부모 취소 시 rethrow
+                    remove(collector) // 이 collector만 개별 취소됨
+                }
             }
         }
     }
@@ -106,6 +114,8 @@ class MulticastSubject<T> private constructor(
      * Subject를 오류 종료하고 현재 collector에게 예외를 전달합니다.
      *
      * ## 동작/계약
+     * - 진행 중인 값 전파와 다른 종료 신호가 끝날 때까지 Subject 단위로 대기합니다.
+     * - 최초 terminal 신호만 적용하며 이미 종료된 이후 재호출하면 추가 동작 없이 반환합니다.
      * - `terminated`에 예외를 저장한 뒤 collector 배열을 종료 상태로 교체합니다.
      * - 교체 시점의 collector 각각에 `error(ex)`를 호출합니다.
      * - 종료 이후 신규 collect는 등록에 실패하고 저장된 예외가 재전파될 수 있습니다.
@@ -113,7 +123,11 @@ class MulticastSubject<T> private constructor(
      * @param ex 종료 원인 예외입니다.
      */
     @Suppress("UNCHECKED_CAST")
-    override suspend fun emitError(ex: Throwable?) {
+    override suspend fun emitError(ex: Throwable?) = signalMutex.withLock {
+        if (areEqualAsAny(collectors.value, TERMINATED)) {
+            return@withLock
+        }
+
         terminated = ex
         collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
             .forEach { collector ->
@@ -130,11 +144,17 @@ class MulticastSubject<T> private constructor(
      * Subject를 정상 종료하고 현재 collector에게 완료를 전달합니다.
      *
      * ## 동작/계약
+     * - 진행 중인 값 전파와 다른 종료 신호가 끝날 때까지 Subject 단위로 대기합니다.
+     * - 최초 terminal 신호만 적용하며 이미 종료된 이후 재호출하면 추가 동작 없이 반환합니다.
      * - 내부 종료 원인을 `DONE`으로 기록하고 collector 배열을 종료 상태로 교체합니다.
      * - 교체 시점의 collector 각각에 `complete()`를 호출합니다.
      */
     @Suppress("UNCHECKED_CAST")
-    override suspend fun complete() {
+    override suspend fun complete() = signalMutex.withLock {
+        if (areEqualAsAny(collectors.value, TERMINATED)) {
+            return@withLock
+        }
+
         terminated = DONE
         collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
             .forEach { collector ->
