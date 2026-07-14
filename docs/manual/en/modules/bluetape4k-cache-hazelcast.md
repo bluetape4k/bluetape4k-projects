@@ -1,22 +1,32 @@
 ---
 manualId: bluetape4k-cache-hazelcast
 title: "Module bluetape4k-cache-hazelcast"
-description: "bluetape4k-cache-hazelcast provides a Hazelcast-based JCache provider, coroutine-friendly cache implementations, and a Caffeine + Hazelcast IMap 2-tier near cache."
+description: "Use Hazelcast JCache, IMap-backed memoizers, and near caches with explicit cluster ownership, invalidation, serialization, and failure contracts."
 kind: library
 group: caching
 ---
 
 # Module bluetape4k-cache-hazelcast
 
-## Problem {#problem}
+## Capabilities {#problem}
 
-bluetape4k-cache-hazelcast provides a Hazelcast-based JCache provider, coroutine-friendly cache implementations, and a Caffeine + Hazelcast IMap 2-tier near cache. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+`bluetape4k-cache-hazelcast` adapts an existing `HazelcastInstance` to JCache, function-result memoizers, and near caches that combine a Caffeine L1 with a Hazelcast `IMap` L2. It provides synchronous, `CompletableFuture`, and coroutine APIs and invalidates per-JVM L1 entries from `IMap` entry events.
 
-## When to use {#when-to-use}
+The module does not create or own the Hazelcast cluster. Connection, authentication, member discovery, backups, map TTL, and serialization remain application-level Hazelcast configuration. This module adds cache contracts to the supplied instance and maps.
 
-Use `bluetape4k-cache-hazelcast` when the application needs cache key design, consistency, invalidation, and backend ownership. Start with the source entry points below and confirm that their ownership and failure contracts match the calling component. Prefer a smaller standard-library or already-adopted module when it satisfies the same contract without another runtime boundary.
+## Decisions before adoption {#when-to-use}
+
+- Choose between standard JCache and the direct `IMap` near-cache and memoizer APIs.
+- Prefer the smaller Caffeine helpers in `bluetape4k-cache-core` for a single JVM.
+- Use this backend when the application already shares a Hazelcast data-grid keyspace rather than a Redis cache.
+- Native near-cache keys are strings; memoizers and JCache accept generic keys.
+- Verify that values are readable and writable under the cluster's Hazelcast serialization configuration.
+- Decide whether a short L1 stale window is acceptable and how listener registration, removal, and cluster failures will be monitored.
+- The application owns startup and shutdown of the `HazelcastInstance`.
 
 ## Coordinates {#coordinates}
+
+Applications manage only the central BOM version, not separate Hazelcast or bluetape4k module versions.
 
 ```kotlin
 dependencies {
@@ -25,106 +35,115 @@ dependencies {
 }
 ```
 
-Gradle project path: `:bluetape4k-cache-hazelcast`. Source directory: `cache/cache-hazelcast`.
+The Gradle project is `:bluetape4k-cache-hazelcast`, backed by `cache/cache-hazelcast`. The application environment supplies the Hazelcast cluster and client or member configuration.
 
-## Concepts {#concepts}
+## First near cache {#quick-start}
 
-The first source-level concepts to inspect are `HazelcastCaches`, `HazelcastJCaching`, `HazelcastSuspendJCache`, `HazelcastAsyncMemoizer`, `HazelcastMemoizer`, `HazelcastSuspendMemoizer`, `HazelcastEntryEventListener`, and `HazelcastLocalCache`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
+```kotlin
+val hazelcast: HazelcastInstance = applicationHazelcastClient()
 
-## Quick start {#quick-start}
+val users = HazelcastCaches.nearCache<User>(hazelcast) {
+    cacheName = "users-v1"
+    maxLocalSize = 10_000
+    frontExpireAfterWrite = Duration.ofMinutes(10)
+    recordStats = true
+}
 
-Add the coordinate above, refresh Gradle, and start from the smallest entry point that owns the required task. Open [`HazelcastCaches`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/HazelcastCaches.kt) first; it is a concrete source entry point for the module.
+try {
+    users.put("42", user)
+    check(users.get("42") == user)
+} finally {
+    users.close()       // removes the listener and closes Caffeine L1
+    // The application owner shuts down hazelcast.
+}
+```
+
+`put` changes L1 before calling `IMap.set`. A backend failure can therefore leave the new value in L1. Do not treat this order as a database write-through or an atomic dual write.
 
 ## API by task {#api-by-task}
 
-| Entry point | What to verify |
-| --- | --- |
-| [`HazelcastCaches`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/HazelcastCaches.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`HazelcastJCaching`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/jcache/HazelcastJCaching.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`HazelcastSuspendJCache`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/jcache/HazelcastSuspendJCache.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`HazelcastAsyncMemoizer`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/memoizer/HazelcastAsyncMemoizer.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`HazelcastMemoizer`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/memoizer/HazelcastMemoizer.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`HazelcastSuspendMemoizer`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/memoizer/HazelcastSuspendMemoizer.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`HazelcastEntryEventListener`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastEntryEventListener.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`HazelcastLocalCache`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastLocalCache.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`HazelcastNearCache`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastNearCache.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`HazelcastNearCacheConfig`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastNearCacheConfig.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| Task | Start with | Boundary |
+| --- | --- | --- |
+| Hazelcast JCache | `HazelcastJCaching`, `HazelcastCaches.jcache` | Resolves a manager for the supplied instance without SPI auto-discovery. |
+| Coroutine JCache | `HazelcastSuspendJCache` | Prefers `ICache` async operations and sends other calls to `Dispatchers.IO`. |
+| Shared function results | three Hazelcast memoizers | Same-key coalescing is local to one JVM `inFlight` map. |
+| Synchronous near cache | `HazelcastNearCache` | Combines Caffeine L1 with a String-key `IMap` L2. |
+| Coroutine near cache | `HazelcastSuspendNearCache` | Uses `await` for async calls and `Dispatchers.IO` for selected bulk and conditional calls. |
+| JCache-based L1/L2 | `nearJCache`, `suspendNearJCache` factories | Factories omit listeners to avoid listener serialization failure. |
+| Retry and fallback | `withResilience` | Adds the common `cache-core` decorator, not a Hazelcast-specific write-behind implementation. |
+
+## Learning path {#concepts}
+
+These chapters follow the 1.11.0 release source and executable tests. They cover instance ownership, async boundaries, concurrent evaluation, L1/L2 ordering, and listener serialization, including the state left behind after failures.
+
+1. [JCache and HazelcastInstance ownership](./bluetape4k-cache-hazelcast/jcache-instance-ownership.md) — provider choice, manager creation, cache names, and instance lifecycle.
+2. [Suspend JCache and async boundaries](./bluetape4k-cache-hazelcast/suspend-jcache-async-boundaries.md) — `ICache` unwrap, `await`, IO fallback, and non-atomic `getAndPut`.
+3. [IMap memoizers and concurrency](./bluetape4k-cache-hazelcast/imap-memoizers-concurrency.md) — sync, future, and suspend execution, JVM-local coalescing, and cluster races.
+4. [IMap near-cache invalidation](./bluetape4k-cache-hazelcast/imap-near-cache-invalidation.md) — Caffeine L1, `IMap` L2, entry listeners, write order, and statistics.
+5. [JCache near-cache serialization limits](./bluetape4k-cache-hazelcast/jcache-near-cache-serialization.md) — listener-factory serialization failures and the consistency limits of listener-free factories.
+6. [Configuration, failures, tests, and ecosystem](./bluetape4k-cache-hazelcast/operations-testing-ecosystem.md) — validation, shutdown, operational checks, and backend selection.
+
+For JCache, read 1, 2, then 5. For the native near cache, read 4 and 6. For shared function results, read 3 and 6.
 
 ## Patterns {#patterns}
 
-Choose one loading contract explicitly. With **cache-aside**, the caller handles a miss, loads the value, and writes it back. With **read-through**, the cache loader owns that miss path. With **write-through**, the cache API propagates the write to the backing store before reporting success; do not describe a plain `put` as write-through unless its implementation has that contract. For a two-level Near Cache, read L1 first, consult L2 on a miss, then fill L1. Write or invalidate L2 and L1 in the order required by the implementation, and test partial failure so stale L1 data cannot silently survive a failed backend update.
+Version the cache name and value serialization schema as one deployment contract. When the value format changes, verify serializer compatibility and migrate to a new map or cache name when needed. Populate the cache only after a source-of-truth read succeeds, and update or invalidate keys after the database transaction commits.
+
+Remote change events are asynchronous, so a near cache can briefly return an old value. Keep values that cannot tolerate that window out of L1. When adding fallback, bound concurrent evaluators and source-store access so a Hazelcast incident does not amplify into a database incident.
 
 ## Integrations {#integrations}
 
-The current build declares these integration edges:
+[`bluetape4k-cache-core`](./bluetape4k-cache-core.md) defines the shared JCache, near-cache, and resilience contracts. If Redis is the operational standard, compare RESP3 invalidation in [`bluetape4k-cache-lettuce`](./bluetape4k-cache-lettuce.md) with Redisson distributed objects in [`bluetape4k-cache-redisson`](./bluetape4k-cache-redisson.md).
 
-```kotlin
-api(project(":bluetape4k-cache-core"))
-api(libs.hazelcast)
-implementation(libs.resilience4j.retry)
-implementation(libs.resilience4j.kotlin)
-compileOnly(project(":bluetape4k-coroutines"))
-compileOnly(libs.kotlinx.coroutines.core)
-```
-
-Treat `compileOnly` edges as caller-provided capabilities and verify runtime availability before using their APIs.
+Hazelcast is a natural fit for applications that already use `IMap` and entry events. Design a separate repository loader and writer before calling any cache operation database write-through. Continue with [bluetape4k-exposed](https://github.com/bluetape4k/bluetape4k-exposed) and [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop) for database cache strategies.
 
 ## Configuration {#configuration}
 
-Configuration resources found in the module:
+`HazelcastNearCacheConfig` defaults to map name `hazelcast-near-cache`, 10,000 L1 entries, 30-minute expire-after-write, no expire-after-access, and disabled statistics. Names cannot be blank, and capacities and durations must be positive.
 
-- [`javax.cache.spi.CachingProvider`](../../../../cache/cache-hazelcast/src/main/resources/META-INF/services/javax.cache.spi.CachingProvider)
-
-Read property names and defaults from these resources and the binding source before overriding them.
+These options configure only Caffeine L1. Configure `IMap` backups, TTL, max-idle, in-memory format, and serializers in Hazelcast `Config` or `ClientConfig`. The module adds no separate value codec or wire format.
 
 ## Failures {#failures}
 
-Failure semantics are defined by the linked entry points and tests, not inferred from the artifact name. Keep cancellation and timeout signals intact, close owned resources, and translate backend exceptions only at a boundary that can add a stable domain contract. Use the test anchors below to verify the exact behavior before adding retries or fallbacks.
+Native near-cache `put`, `putAll`, and `remove` calls change L1 first. If the following `IMap` call fails, local and cluster state can diverge. `replace` and a successful `putIfAbsent` update L1 after the backend result. `getAndRemove` and `getAndReplace` compose multiple calls and are not single atomic operations.
+
+Direct listener-backed JCache near-cache construction serializes a listener factory that captures the Caffeine front cache and fails with `HazelcastSerializationException`. The `HazelcastCaches` factories omit the listener, so reads and writes work but peer L1 invalidation is not guaranteed.
 
 ## Operations {#operations}
 
-Track hit ratio, load latency, eviction, stale reads, backend errors, and reconnect behavior. Keep capacity, timeout, retry, and shutdown settings next to the component that owns the resource; avoid process-wide defaults that hide which caller accepted the trade-off.
+Observe L1 hits, misses, evictions, and size together with `IMap` hits and misses, entry-event delay, client reconnects, and operation latency. Caffeine counters remain zero when `recordStats=false`. For memoizers, monitor evaluator latency, failure, hot keys, and duplicate same-key computation across cluster members.
+
+`close` removes the near-cache listener and closes L1; it does not delete `IMap` data or shut down the `HazelcastInstance`. `clearAll` clears the shared map, so do not reuse one cache name across unrelated features.
 
 ## Testing {#testing}
 
-Run the module test task:
+The module suite uses Hazelcast Testcontainers. Run it sequentially with other heavyweight database suites.
 
 ```bash
-./gradlew :bluetape4k-cache-hazelcast:test --no-configuration-cache
+./gradlew :bluetape4k-cache-hazelcast:test --no-build-cache --no-configuration-cache
 ```
 
-Representative test anchors:
-
-- [`AbstractHazelcastTest`](../../../../cache/cache-hazelcast/src/test/kotlin/io/bluetape4k/cache/AbstractHazelcastTest.kt)
-- [`HazelcastCachesTest`](../../../../cache/cache-hazelcast/src/test/kotlin/io/bluetape4k/cache/HazelcastCachesTest.kt)
-- [`HazelcastServers`](../../../../cache/cache-hazelcast/src/test/kotlin/io/bluetape4k/cache/HazelcastServers.kt)
-- [`HazelcastSuspendJCacheTest`](../../../../cache/cache-hazelcast/src/test/kotlin/io/bluetape4k/cache/jcache/HazelcastSuspendJCacheTest.kt)
-- [`HazelcastAsyncMemoizerTest`](../../../../cache/cache-hazelcast/src/test/kotlin/io/bluetape4k/cache/memoizer/HazelcastAsyncMemoizerTest.kt)
-- [`HazelcastMemoizerTest`](../../../../cache/cache-hazelcast/src/test/kotlin/io/bluetape4k/cache/memoizer/HazelcastMemoizerTest.kt)
-- [`HazelcastSuspendMemoizerTest`](../../../../cache/cache-hazelcast/src/test/kotlin/io/bluetape4k/cache/memoizer/HazelcastSuspendMemoizerTest.kt)
-- [`AbstractHazelcastNearCacheTest`](../../../../cache/cache-hazelcast/src/test/kotlin/io/bluetape4k/cache/nearcache/AbstractHazelcastNearCacheTest.kt)
+Near-cache tests cover CRUD, bulk operations, statistics, and idempotent close. Memoizer tests cover same-key races and re-evaluation after failure. JCache near-cache tests lock in both the listener-backed serialization failure and the working listener-free factory behavior.
 
 ## Workshops {#workshops}
 
-No dedicated workshop path is registered in the manual manifest. Use the module README and the representative tests above as runnable evidence.
+Use `HazelcastCachesTest` for minimal factory construction and the synchronous and suspend near-cache tests for L1 misses, bulk operations, and clear boundaries. `HazelcastNearJCacheTest` also serves as a regression exercise for an unsupported listener combination rather than only a success example.
 
-## Limitations {#limitations}
+Continue to [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop) and [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop) for database cache-aside and loader/writer exercises.
 
-This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
+## 1.11.0 scope {#limitations}
 
-## Sources {#sources}
+This manual targets release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`. `META-INF/services/javax.cache.spi.CachingProvider` contains no provider class; `HazelcastJCaching` explicitly creates `HazelcastCachingProvider`.
 
-- [Module README](../../../../cache/cache-hazelcast/README.md)
-- [Module build](../../../../cache/cache-hazelcast/build.gradle.kts)
-- [`HazelcastCaches`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/HazelcastCaches.kt)
-- [`HazelcastJCaching`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/jcache/HazelcastJCaching.kt)
-- [`HazelcastSuspendJCache`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/jcache/HazelcastSuspendJCache.kt)
-- [`HazelcastAsyncMemoizer`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/memoizer/HazelcastAsyncMemoizer.kt)
-- [`HazelcastMemoizer`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/memoizer/HazelcastMemoizer.kt)
-- [`HazelcastSuspendMemoizer`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/memoizer/HazelcastSuspendMemoizer.kt)
-- [`HazelcastEntryEventListener`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastEntryEventListener.kt)
-- [`HazelcastLocalCache`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastLocalCache.kt)
-- [`HazelcastNearCache`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastNearCache.kt)
-- [`HazelcastNearCacheConfig`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastNearCacheConfig.kt)
-- [`AbstractHazelcastTest`](../../../../cache/cache-hazelcast/src/test/kotlin/io/bluetape4k/cache/AbstractHazelcastTest.kt)
-- [`HazelcastCachesTest`](../../../../cache/cache-hazelcast/src/test/kotlin/io/bluetape4k/cache/HazelcastCachesTest.kt)
+The standalone `ResilientHazelcastNearCache` and write-behind queue described by the README do not exist in this release source. Use only the `cache-core` `withResilience` decorator. Factory-created JCache near caches run in a listener-free degraded mode and do not provide peer front-cache propagation.
+
+## Sources and tests {#sources}
+
+- [`HazelcastCaches.kt`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/HazelcastCaches.kt)
+- [`HazelcastJCaching.kt`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/jcache/HazelcastJCaching.kt)
+- [`HazelcastSuspendJCache.kt`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/jcache/HazelcastSuspendJCache.kt)
+- [`HazelcastMemoizer.kt`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/memoizer/HazelcastMemoizer.kt)
+- [`HazelcastNearCache.kt`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastNearCache.kt)
+- [`HazelcastEntryEventListener.kt`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastEntryEventListener.kt)
+- [`HazelcastNearJCacheTest.kt`](../../../../cache/cache-hazelcast/src/test/kotlin/io/bluetape4k/cache/nearcache/jcache/HazelcastNearJCacheTest.kt)
+- [`HazelcastSuspendNearCacheTest.kt`](../../../../cache/cache-hazelcast/src/test/kotlin/io/bluetape4k/cache/nearcache/HazelcastSuspendNearCacheTest.kt)
