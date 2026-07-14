@@ -82,4 +82,3 @@ manual manifest에 등록된 전용 workshop path가 없습니다. 모듈 README
 
 - [모듈 README](../../../../benchmark/protobuf-codec-benchmark/README.ko.md)
 - [모듈 build](../../../../benchmark/protobuf-codec-benchmark/build.gradle.kts)
-

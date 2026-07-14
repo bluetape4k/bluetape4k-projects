@@ -82,4 +82,3 @@ This page documents the repository state represented by the linked source and te
 
 - [Module README](../../../../benchmark/web-framework-benchmark/README.md)
 - [Module build](../../../../benchmark/web-framework-benchmark/build.gradle.kts)
-
