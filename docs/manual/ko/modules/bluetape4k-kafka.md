@@ -1,22 +1,34 @@
 ---
 manualId: bluetape4k-kafka
-title: "Module bluetape4k-kafka"
-description: "Apache Kafka를 Kotlin 환경에서 효율적으로 사용하기 위한 유틸리티 라이브러리입니다. Kafka 클라이언트, Spring Kafka, Kafka Streams를 Kotlin 코루틴과 함께 사용할 수 있도록 다양한 확장 함수와 래퍼 클래스를 제공합니다."
+title: "bluetape4k-kafka"
+description: "Kafka 3.x client, coroutine producer, Spring Kafka·Reactor Kafka adapter와 Kafka Streams Kotlin factory를 1.11.0 소스 기준으로 설명합니다."
 kind: library
 group: infrastructure
 ---
 
-# Module bluetape4k-kafka
+# bluetape4k-kafka
 
-## 해결하는 문제 {#problem}
+## 제공하는 기능 {#problem}
 
-Apache Kafka를 Kotlin 환경에서 효율적으로 사용하기 위한 유틸리티 라이브러리입니다. Kafka 클라이언트, Spring Kafka, Kafka Streams를 Kotlin 코루틴과 함께 사용할 수 있도록 다양한 확장 함수와 래퍼 클래스를 제공합니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+`bluetape4k-kafka`는 Kafka를 새로 추상화하는 messaging framework가 아닙니다. Kafka 3.x client의 producer·consumer 생성, 레코드와 `TopicPartition` helper, serializer와 deserializer를 묶은 codec, coroutine 발송, Spring Kafka·Reactor Kafka adapter, Kafka Streams parameter factory를 한 artifact에 모읍니다.
 
-## 사용 시점 {#when-to-use}
+broker protocol, partition 배치, consumer group, delivery guarantee와 retry 정책은 Kafka와 각 client framework가 그대로 맡습니다. 이 매뉴얼은 helper가 줄여 주는 코드와 애플리케이션이 계속 책임져야 하는 경계를 함께 다룹니다.
 
-애플리케이션에 client lifecycle, reconnect policy, backpressure, retry, observability이 필요할 때 `bluetape4k-kafka`를 선택합니다. 아래 source entry point에서 시작해 ownership과 failure 계약이 caller lifecycle에 맞는지 확인합니다. 표준 API나 이미 도입한 더 작은 모듈이 같은 계약을 만족한다면 그쪽을 우선합니다.
+## 사용하기 전에 결정할 것 {#when-to-use}
 
-## 의존성 좌표 {#coordinates}
+다음 질문부터 답합니다.
+
+- Kafka 3.x/Spring Kafka 3.x 계열인가, Kafka 4.x/Spring Kafka 4.x 계열인가?
+- native `Producer`만 coroutine으로 기다리면 되는가, Spring `KafkaOperations`나 Reactor Kafka template까지 필요한가?
+- payload type을 header에서 복원할 것인가? 그렇다면 어떤 package만 허용할 것인가?
+- consumer offset을 자동, 수동 acknowledgment, transaction 중 어느 방식으로 관리할 것인가?
+- Kafka Streams를 쓴다면 runtime에 `kafka-streams`를 직접 제공했는가?
+
+Kafka 4.x line은 [`bluetape4k-kafka4`](./bluetape4k-kafka4.md)입니다. 두 artifact는 같은 package와 class 이름을 공유하므로 한 애플리케이션에 함께 넣지 않습니다.
+
+## 의존성 추가 {#coordinates}
+
+사용자는 생태계 BOM 버전 하나만 선택하면 됩니다.
 
 ```kotlin
 dependencies {
@@ -25,108 +37,118 @@ dependencies {
 }
 ```
 
-Gradle project path는 `:bluetape4k-kafka`, source directory는 `infra/kafka`입니다.
+Gradle project path는 `:bluetape4k-kafka`, source directory는 `infra/kafka`입니다. artifact별 버전을 따로 적지 말고 `bluetape4k-dependencies`에서 맞춘 조합을 사용합니다.
 
-## 핵심 개념 {#concepts}
+## 학습 경로 {#concepts}
 
-먼저 확인할 source 개념은 `ConsumerSupport`, `ProducerSupport`, `TopicPartitionSupport`, `BinaryKafkaCodecs`, `ByteArrayKafkaCodec`, `JacksonKafkaCodec`, `KafkaCodec`, `KafkaCodecs`입니다. 파일 이름은 탐색 anchor일 뿐이므로 public 계약으로 사용하기 전에 선언과 test를 함께 읽습니다.
+이 매뉴얼은 기능 목록이 아니라 실제 작업 순서로 읽도록 구성했습니다.
 
-## 빠른 시작 {#quick-start}
+1. [모듈 경계와 client·record helper](./bluetape4k-kafka/module-boundary-client-records.md)에서 Kafka 3.x line, resource ownership과 작은 factory를 확인합니다.
+2. [Codec, wire format과 보안](./bluetape4k-kafka/codecs-wire-format-security.md)에서 type header allowlist, poison pill과 선택형 binary backend를 결정합니다.
+3. [Coroutine producer](./bluetape4k-kafka/coroutine-producer.md)에서 callback, cancellation, `Flow` concurrency와 `flush` 시점을 익힙니다.
+4. [Spring Kafka template과 listener adapter](./bluetape4k-kafka/spring-kafka-templates-listeners.md)에서 두 `suspendSend` 계열과 Reactor Kafka template의 차이를 구분합니다.
+5. [Kafka Streams DSL factory](./bluetape4k-kafka/kafka-streams-dsl.md)에서 serde, state store와 topology ownership을 확인합니다.
+6. [실패, 테스트, 운영과 생태계](./bluetape4k-kafka/failures-testing-operations-ecosystem.md)에서 delivery, offset, 지표, `kafka4`와 `kafka-logback` 경계를 정리합니다.
 
-위 좌표를 추가하고 Gradle을 refresh한 뒤 필요한 작업을 소유한 가장 작은 entry point에서 시작합니다. 먼저 [`ConsumerSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ConsumerSupport.kt)를 확인합니다. 이 파일이 모듈의 구체적인 source entry point입니다.
+각 장에는 바로 실행할 수 있는 예제와 source·test 링크가 있습니다. 앞의 세 장으로 producer와 wire format을 먼저 고정하고, 사용하는 framework에 맞춰 Spring 또는 Streams 장으로 넘어가는 편이 좋습니다.
 
-## 작업별 API {#api-by-task}
+## 첫 producer {#quick-start}
 
-| Entry point | 확인할 내용 |
-| --- | --- |
-| [`ConsumerSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ConsumerSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`ProducerSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ProducerSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`TopicPartitionSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/TopicPartitionSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`BinaryKafkaCodecs`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`ByteArrayKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/ByteArrayKafkaCodec.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`JacksonKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/JacksonKafkaCodec.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`KafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodec.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`KafkaCodecs`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodecs.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`StringKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/StringKafkaCodec.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`ProducerCoroutines`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/coroutines/ProducerCoroutines.kt) | constructor, function, ownership 계약을 확인합니다. |
+```kotlin
+val producer = producerOf(
+    configs = mapOf(
+        "bootstrap.servers" to bootstrapServers,
+        "acks" to "all",
+        "key.serializer" to StringSerializer::class.java,
+        "value.serializer" to StringSerializer::class.java,
+    ),
+)
+
+producer.use {
+    val metadata = it.suspendSend(ProducerRecord("orders", "order-1", "created"))
+    println("partition=${metadata.partition()}, offset=${metadata.offset()}")
+}
+```
+
+`producerOf`는 새 `KafkaProducer`를 만들 뿐 singleton이나 Spring bean으로 등록하지 않습니다. 직접 만든 producer는 호출자가 닫습니다. `suspendSend`는 callback 결과를 기다리고 coroutine이 취소되면 Kafka `Future.cancel(true)`를 호출하지만, broker가 이미 받은 record까지 취소됐다고 보장하지는 않습니다.
+
+## API 선택 지도 {#api-by-task}
+
+| 작업 | 시작 API | 다음 장 |
+| --- | --- | --- |
+| native producer·consumer 생성 | `producerOf`, `consumerOf` | [모듈 경계](./bluetape4k-kafka/module-boundary-client-records.md) |
+| metric·topic-partition helper | `getMetricValueOrNull`, `topicPartitionOf` | [모듈 경계](./bluetape4k-kafka/module-boundary-client-records.md) |
+| 문자열·byte array·JSON·binary codec | `KafkaCodec`, `KafkaCodecs` | [Codec과 보안](./bluetape4k-kafka/codecs-wire-format-security.md) |
+| native producer를 suspend/Flow로 사용 | `suspendSend`, `sendAsFlow`, `sendAndForget` | [Coroutine producer](./bluetape4k-kafka/coroutine-producer.md) |
+| Spring `KafkaOperations` 발송 | `io.bluetape4k.kafka.spring.suspendSend` | [Spring 연동](./bluetape4k-kafka/spring-kafka-templates-listeners.md) |
+| Reactor Kafka producer·consumer | `SuspendKafkaProducerTemplate`, `SuspendKafkaConsumerTemplate` | [Spring 연동](./bluetape4k-kafka/spring-kafka-templates-listeners.md) |
+| Streams parameter 구성 | `consumedOf`, `materializedOf`, `streamJoinedOf` 등 | [Streams DSL](./bluetape4k-kafka/kafka-streams-dsl.md) |
 
 ## 권장 패턴 {#patterns}
 
-README 근거는 **특징**, **아키텍처 다이어그램**, **Kafka API 구조**, **Producer/Consumer 메시지 흐름**, **Kafka Streams 처리 흐름**, **설치**, **Gradle (Kotlin DSL)**, **Gradle (Groovy DSL)**, **Maven**, **의존성** 순서로 탐색할 수 있습니다. 이 항목으로 방향을 잡고 source와 test에서 동작을 확인합니다. 도입 범위는 좁게 유지하고 소유한 resource를 caller lifecycle에 연결합니다.
+- producer와 consumer는 애플리케이션 컴포넌트의 수명주기에 맞춰 한 번 만들고 닫습니다.
+- wire format과 type allowlist를 topic 계약으로 문서화하고 producer·consumer 양쪽에서 호환성 테스트를 실행합니다.
+- `suspendSend`가 성공해야 business transaction이 성공하는지, 별도 outbox로 전달할지 먼저 결정합니다.
+- consumer 처리와 offset commit의 순서를 명시합니다. exactly-once batch는 caller가 transaction을 commit 또는 abort합니다.
+- `Flow` helper의 동시성과 buffer를 처리량 요구에 맞춰 제한하고, key ordering이 필요한 workload는 partition 안의 순서를 검증합니다.
+- topic, consumer group, error class처럼 cardinality가 제한된 값을 metric label로 사용합니다. record key와 payload는 label에 넣지 않습니다.
 
 ## 연동 {#integrations}
 
-현재 build에 선언된 integration edge는 다음과 같습니다.
+1.11.0 build는 Kafka client를 API로, Spring Kafka와 Reactor Kafka를 implementation으로 사용합니다. Kafka Streams, Spring Kafka test, resilience4j, Kryo·Fory와 일부 compressor는 선택형 edge입니다. 해당 API를 호출하면 애플리케이션 runtime에도 그 dependency가 있어야 합니다.
 
-```kotlin
-implementation(platform(libs.spring.boot.dependencies))
-api(project(":bluetape4k-annotations"))
-api(project(":bluetape4k-core"))
-api(project(":bluetape4k-io"))
-compileOnly(project(":bluetape4k-resilience4j"))
-api(libs.kafka.clients)
-compileOnly(libs.kafka.streams)
-compileOnly(libs.kafka.generator)
-implementation(libs.spring.kafka)
-compileOnly(libs.spring.kafka.test)
-implementation(project(":bluetape4k-spring-boot-core"))
-implementation("org.springframework.data:spring-data-commons")
-```
-
-`compileOnly` edge는 caller가 제공해야 하는 capability이므로 API를 사용하기 전에 runtime에 실제 dependency가 있는지 확인합니다.
+`bluetape4k-kafka`는 Kafka 3.9.x/Spring Kafka 3.x/Jackson 2 line입니다. Kafka 4.2.x/Spring Kafka 4.x/Jackson 3 line은 `bluetape4k-kafka4`를 선택합니다. Logback event를 Kafka로 내보내는 기능은 별도 [`bluetape4k-kafka-logback`](./bluetape4k-kafka-logback.md) artifact가 맡습니다.
 
 ## 설정 {#configuration}
 
-`src/main/resources` 아래에서 모듈 수준 설정 resource를 찾지 못했습니다. constructor, builder, function argument, 연동 framework로 설정하며 default는 source에서 확인합니다.
+main resource나 auto-configuration은 없습니다. native client는 `Map` 또는 `Properties`, Reactor Kafka template은 `SenderOptions`·`ReceiverOptions`, Spring Kafka는 application이 구성한 `KafkaOperations`와 listener container를 사용합니다.
+
+serializer, idempotence, acknowledgments, transaction id, consumer group, offset reset, poll interval, security protocol과 TLS/SASL은 Kafka client 설정입니다. helper가 안전한 기본값으로 덮어쓰지 않습니다.
 
 ## 실패 동작 {#failures}
 
-failure 의미는 artifact 이름이 아니라 아래 entry point와 test가 결정합니다. cancellation과 timeout signal을 보존하고 소유한 resource를 닫습니다. backend exception은 안정된 domain 계약을 추가할 수 있는 boundary에서만 변환합니다. retry나 fallback을 넣기 전에 test anchor로 실제 동작을 확인합니다.
+native producer와 Spring 발송 adapter는 callback 또는 future의 예외를 suspend 호출자에게 전달합니다. coroutine 취소는 local wait와 future 취소를 시도할 뿐 전달 여부를 판정하지 못합니다. 재시도 전에 idempotent producer와 업무 idempotency를 함께 설계합니다.
+
+`AbstractKafkaCodec.deserialize`는 일반 `Exception`을 log한 뒤 `null`을 반환합니다. `CancellationException`과 JVM `Error`는 다시 던집니다. `null`을 정상 payload와 구분하고 `ErrorHandlingDeserializer`, DLQ와 metric으로 poison pill을 추적해야 합니다.
 
 ## 운영 {#operations}
 
-connection 상태, queue 깊이, retry, timeout, remote 오류, graceful shutdown을 관찰합니다. capacity, timeout, retry, shutdown 설정은 resource를 소유한 component 가까이에 둡니다. 누가 trade-off를 받아들였는지 알 수 없는 process-wide default는 피합니다.
+producer의 send error·retry·request latency·buffer available bytes, consumer lag·rebalance·poll interval·commit failure, Streams state store와 restore 상태를 관찰합니다. shutdown 순서는 새 입력 중단, in-flight 처리와 commit/flush, client close 순으로 애플리케이션이 정합니다.
+
+1.11.0은 취약한 `org.lz4:lz4-java`를 제외하고 호환 namespace의 `at.yawk.lz4` 구현을 API로 노출합니다. 의존성 tree에서 예전 artifact가 다시 들어오지 않는지 배포 전에 확인합니다.
 
 ## 테스트 {#testing}
 
-모듈 test task는 다음과 같습니다.
+server 없는 helper test부터 실행하고 Kafka가 필요한 통합 test는 순차 실행합니다.
+
+```bash
+./gradlew :bluetape4k-kafka:test \
+  --tests "io.bluetape4k.kafka.TopicPartitionSupportTest" \
+  --tests "io.bluetape4k.kafka.codec.*" \
+  --tests "io.bluetape4k.kafka.streams.kstream.KStreamDslTest" \
+  --no-configuration-cache
+```
+
+전체 task는 Testcontainers Kafka를 시작하는 test를 포함합니다.
 
 ```bash
 ./gradlew :bluetape4k-kafka:test --no-configuration-cache
 ```
 
-대표 test anchor는 다음과 같습니다.
-
-- [`AbstractKafkaTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/AbstractKafkaTest.kt)
-- [`ConsumerSupportTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/ConsumerSupportTest.kt)
-- [`ProducerSupportTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/ProducerSupportTest.kt)
-- [`TopicPartitionSupportTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/TopicPartitionSupportTest.kt)
-- [`AbstractKafkaCodecPoisonPillTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/codec/AbstractKafkaCodecPoisonPillTest.kt)
-- [`AbstractKafkaCodecTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/codec/AbstractKafkaCodecTest.kt)
-- [`ByteArrayKafkaCodecTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/codec/ByteArrayKafkaCodecTest.kt)
-- [`JacksonKafkaCodecSecurityTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/codec/JacksonKafkaCodecSecurityTest.kt)
-
 ## 워크숍 {#workshops}
 
-manual manifest에 등록된 전용 workshop path가 없습니다. 모듈 README와 위 representative test를 실행 근거로 사용합니다.
+전용 workshop은 manual manifest에 등록되어 있지 않습니다. README 예제로 API 모양을 확인한 뒤, `coroutines`, `spring/core`, `streams/kstream` test를 실행 가능한 학습 자료로 사용합니다. 애플리케이션에서는 production과 같은 serializer, security와 topic 설정으로 별도 통합 test를 둡니다.
 
-## 제한 사항 {#limitations}
+## 1.11.0 범위 {#limitations}
 
-이 페이지는 연결된 source와 test가 나타내는 현재 저장소 상태를 설명합니다. optional backend를 애플리케이션 기본값으로 만들거나 benchmark artifact 없이 성능을 단정하지 않습니다. 모듈 버전이 바뀌면 호환성과 lifecycle 설명을 다시 확인해야 합니다.
+이 매뉴얼은 release `1.11.0`의 commit `6187173b58e8b4c5c435c145e00e94708f31ef75`를 설명합니다. 현재 개발 branch에는 Kafka test 임시 directory 격리와 `SuspendKafkaConsumerTemplate.close()` 진단·예외 처리 개선이 추가되어 있습니다. 1.11.0에서는 `AutoCloseable` receiver만 닫고, 아닌 경우 별도 경고가 없으며, `close()` 예외도 직접 전파됩니다.
 
-## 근거 {#sources}
+## Source와 tests {#sources}
 
 - [모듈 README](../../../../infra/kafka/README.ko.md)
-- [모듈 build](../../../../infra/kafka/build.gradle.kts)
-- [`ConsumerSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ConsumerSupport.kt)
-- [`ProducerSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ProducerSupport.kt)
-- [`TopicPartitionSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/TopicPartitionSupport.kt)
-- [`BinaryKafkaCodecs`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt)
-- [`ByteArrayKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/ByteArrayKafkaCodec.kt)
-- [`JacksonKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/JacksonKafkaCodec.kt)
-- [`KafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodec.kt)
-- [`KafkaCodecs`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodecs.kt)
-- [`StringKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/StringKafkaCodec.kt)
-- [`ProducerCoroutines`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/coroutines/ProducerCoroutines.kt)
-- [`AbstractKafkaTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/AbstractKafkaTest.kt)
-- [`ConsumerSupportTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/ConsumerSupportTest.kt)
+- [1.11.0 build](../../../../infra/kafka/build.gradle.kts)
+- [`ProducerCoroutines.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/coroutines/ProducerCoroutines.kt)
+- [`KafkaCodec.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodec.kt)
+- [`SuspendKafkaProducerTemplate.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/spring/core/SuspendKafkaProducerTemplate.kt)
+- [`SuspendKafkaConsumerTemplate.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/spring/core/SuspendKafkaConsumerTemplate.kt)
+- [`KStreamDslTest.kt`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/streams/kstream/KStreamDslTest.kt)

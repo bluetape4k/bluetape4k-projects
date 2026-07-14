@@ -1,22 +1,34 @@
 ---
 manualId: bluetape4k-kafka
-title: "Module bluetape4k-kafka"
-description: "A utility library for using Apache Kafka efficiently in a Kotlin environment. Provides extension functions and wrapper classes for Kafka clients, Spring Kafka, and Kafka Streams with Kotlin Coroutines support."
+title: "bluetape4k-kafka"
+description: "Kafka 3.x clients, coroutine producers, Spring Kafka and Reactor Kafka adapters, and Kafka Streams Kotlin factories, based on the 1.11.0 sources."
 kind: library
 group: infrastructure
 ---
 
-# Module bluetape4k-kafka
+# bluetape4k-kafka
 
-## Problem {#problem}
+## What it provides {#problem}
 
-A utility library for using Apache Kafka efficiently in a Kotlin environment. Provides extension functions and wrapper classes for Kafka clients, Spring Kafka, and Kafka Streams with Kotlin Coroutines support. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+`bluetape4k-kafka` is not another messaging framework. It collects small Kotlin helpers around Kafka 3.x: producer and consumer creation, records and `TopicPartition`, combined serializer/deserializer codecs, coroutine sends, Spring Kafka and Reactor Kafka adapters, and Kafka Streams parameter factories.
 
-## When to use {#when-to-use}
+Kafka and the selected client framework still own the broker protocol, partition assignment, consumer groups, delivery guarantees, and retry policy. This manual covers both the code removed by the helpers and the contracts the application still owns.
 
-Use `bluetape4k-kafka` when the application needs client lifecycle, reconnect policy, backpressure, retries, and observability. Start with the source entry points below and confirm that their ownership and failure contracts match the calling component. Prefer a smaller standard-library or already-adopted module when it satisfies the same contract without another runtime boundary.
+## Decide before adoption {#when-to-use}
 
-## Coordinates {#coordinates}
+Answer these questions first:
+
+- Is the application on the Kafka 3.x/Spring Kafka 3.x line or Kafka 4.x/Spring Kafka 4.x?
+- Does it only need to await a native `Producer`, or also Spring `KafkaOperations` and Reactor Kafka templates?
+- Will payload types be restored from headers, and which packages are trusted?
+- Are offsets managed by auto acknowledgment, manual acknowledgment, or a transaction?
+- If Kafka Streams is used, is `kafka-streams` present at runtime?
+
+Use [`bluetape4k-kafka4`](./bluetape4k-kafka4.md) for Kafka 4.x. The two artifacts share package and class names, so do not place both on one application classpath.
+
+## Add the dependency {#coordinates}
+
+Consumers only select the ecosystem BOM version.
 
 ```kotlin
 dependencies {
@@ -25,108 +37,118 @@ dependencies {
 }
 ```
 
-Gradle project path: `:bluetape4k-kafka`. Source directory: `infra/kafka`.
+Gradle project path: `:bluetape4k-kafka`. Source directory: `infra/kafka`. Do not pin a separate artifact version; use the versions aligned by `bluetape4k-dependencies`.
 
-## Concepts {#concepts}
+## Learning path {#concepts}
 
-The first source-level concepts to inspect are `ConsumerSupport`, `ProducerSupport`, `TopicPartitionSupport`, `BinaryKafkaCodecs`, `ByteArrayKafkaCodec`, `JacksonKafkaCodec`, `KafkaCodec`, and `KafkaCodecs`. File names are navigation anchors; read each declaration and its tests before treating it as a public contract.
+Read the chapters in task order:
 
-## Quick start {#quick-start}
+1. [Module boundary and client/record helpers](./bluetape4k-kafka/module-boundary-client-records.md)
+2. [Codecs, wire format, and security](./bluetape4k-kafka/codecs-wire-format-security.md)
+3. [Coroutine producer](./bluetape4k-kafka/coroutine-producer.md)
+4. [Spring Kafka templates and listener adapters](./bluetape4k-kafka/spring-kafka-templates-listeners.md)
+5. [Kafka Streams DSL factories](./bluetape4k-kafka/kafka-streams-dsl.md)
+6. [Failures, testing, operations, and ecosystem](./bluetape4k-kafka/failures-testing-operations-ecosystem.md)
 
-Add the coordinate above, refresh Gradle, and start from the smallest entry point that owns the required task. Open [`ConsumerSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ConsumerSupport.kt) first; it is a concrete source entry point for the module.
+Each chapter contains examples and exact source/test links. Lock the producer and wire-format decisions in the first three chapters, then continue with the Spring or Streams chapter used by the application.
 
-## API by task {#api-by-task}
+## First producer {#quick-start}
 
-| Entry point | What to verify |
-| --- | --- |
-| [`ConsumerSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ConsumerSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ProducerSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ProducerSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`TopicPartitionSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/TopicPartitionSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`BinaryKafkaCodecs`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ByteArrayKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/ByteArrayKafkaCodec.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`JacksonKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/JacksonKafkaCodec.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`KafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodec.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`KafkaCodecs`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodecs.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`StringKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/StringKafkaCodec.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
-| [`ProducerCoroutines`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/coroutines/ProducerCoroutines.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+```kotlin
+val producer = producerOf(
+    configs = mapOf(
+        "bootstrap.servers" to bootstrapServers,
+        "acks" to "all",
+        "key.serializer" to StringSerializer::class.java,
+        "value.serializer" to StringSerializer::class.java,
+    ),
+)
 
-## Patterns {#patterns}
+producer.use {
+    val metadata = it.suspendSend(ProducerRecord("orders", "order-1", "created"))
+    println("partition=${metadata.partition()}, offset=${metadata.offset()}")
+}
+```
 
-The README evidence is organized around **Features**, **Architecture Diagrams**, **Kafka API Structure**, **Producer/Consumer Message Flow**, **Kafka Streams Processing Flow**, **Installation**, **Gradle (Kotlin DSL)**, **Gradle (Groovy DSL)**, **Maven**, and **Dependencies**. Use those topics as a navigation map, then confirm behavior in source and tests. Keep adoption narrow and connect owned resources to the caller lifecycle.
+`producerOf` creates a new `KafkaProducer`; it does not register a singleton or Spring bean. The caller closes a directly created producer. `suspendSend` cancels the Kafka future when the coroutine is cancelled, but that does not prove that the broker did not receive the record.
+
+## API map {#api-by-task}
+
+| Task | Start with | Chapter |
+| --- | --- | --- |
+| Create native producers/consumers | `producerOf`, `consumerOf` | [Module boundary](./bluetape4k-kafka/module-boundary-client-records.md) |
+| Metrics and topic-partition helpers | `getMetricValueOrNull`, `topicPartitionOf` | [Module boundary](./bluetape4k-kafka/module-boundary-client-records.md) |
+| String, byte array, JSON, binary codecs | `KafkaCodec`, `KafkaCodecs` | [Codecs and security](./bluetape4k-kafka/codecs-wire-format-security.md) |
+| Await or stream native producer sends | `suspendSend`, `sendAsFlow`, `sendAndForget` | [Coroutine producer](./bluetape4k-kafka/coroutine-producer.md) |
+| Send with Spring `KafkaOperations` | `io.bluetape4k.kafka.spring.suspendSend` | [Spring integration](./bluetape4k-kafka/spring-kafka-templates-listeners.md) |
+| Use Reactor Kafka producer/consumer | `SuspendKafkaProducerTemplate`, `SuspendKafkaConsumerTemplate` | [Spring integration](./bluetape4k-kafka/spring-kafka-templates-listeners.md) |
+| Build Streams parameters | `consumedOf`, `materializedOf`, `streamJoinedOf` | [Streams DSL](./bluetape4k-kafka/kafka-streams-dsl.md) |
+
+## Recommended patterns {#patterns}
+
+- Create producers and consumers at the owning component boundary and close them with that component.
+- Document the wire format and type allowlist as a topic contract, then cross-test old and new producers and consumers.
+- Decide whether send success is part of the business transaction or delivery is handled by an outbox.
+- Make the processing-to-offset-commit order explicit. The caller commits or aborts exactly-once batches.
+- Bound `Flow` concurrency and buffering, and test ordering within a partition when key ordering matters.
+- Use bounded metric labels such as topic, consumer group, and error class. Do not use record keys or payloads as labels.
 
 ## Integrations {#integrations}
 
-The current build declares these integration edges:
+The 1.11.0 build exposes Kafka clients as API dependencies and uses Spring Kafka and Reactor Kafka as implementation dependencies. Kafka Streams, Spring Kafka test, resilience4j, Kryo/Fory, and several compressors are optional edges. Add the corresponding runtime dependency before using those APIs.
 
-```kotlin
-implementation(platform(libs.spring.boot.dependencies))
-api(project(":bluetape4k-annotations"))
-api(project(":bluetape4k-core"))
-api(project(":bluetape4k-io"))
-compileOnly(project(":bluetape4k-resilience4j"))
-api(libs.kafka.clients)
-compileOnly(libs.kafka.streams)
-compileOnly(libs.kafka.generator)
-implementation(libs.spring.kafka)
-compileOnly(libs.spring.kafka.test)
-implementation(project(":bluetape4k-spring-boot-core"))
-implementation("org.springframework.data:spring-data-commons")
-```
-
-Treat `compileOnly` edges as caller-provided capabilities and verify runtime availability before using their APIs.
+This artifact is the Kafka 3.9.x/Spring Kafka 3.x/Jackson 2 line. Choose `bluetape4k-kafka4` for Kafka 4.2.x/Spring Kafka 4.x/Jackson 3. Sending Logback events to Kafka belongs to the separate [`bluetape4k-kafka-logback`](./bluetape4k-kafka-logback.md) artifact.
 
 ## Configuration {#configuration}
 
-No module-level configuration resource was found under `src/main/resources`. Configuration is supplied through constructors, builders, function arguments, or the integrating framework; confirm defaults in source.
+There are no main resources or auto-configuration classes. Native clients use a `Map` or `Properties`; Reactor Kafka templates use `SenderOptions` and `ReceiverOptions`; Spring Kafka uses application-owned `KafkaOperations` and listener containers.
 
-## Failures {#failures}
+Serializers, idempotence, acknowledgments, transaction IDs, consumer groups, offset reset, poll intervals, security protocols, and TLS/SASL remain Kafka client settings. The helpers do not replace them with policy defaults.
 
-Failure semantics are defined by the linked entry points and tests, not inferred from the artifact name. Keep cancellation and timeout signals intact, close owned resources, and translate backend exceptions only at a boundary that can add a stable domain contract. Use the test anchors below to verify the exact behavior before adding retries or fallbacks.
+## Failure behavior {#failures}
+
+Native and Spring send adapters propagate callback or future failures to the suspending caller. Cancellation attempts to cancel local waiting and the future; it cannot decide whether delivery happened. Design idempotent publishing before retrying.
+
+`AbstractKafkaCodec.deserialize` logs ordinary `Exception`s and returns `null`. It rethrows `CancellationException` and JVM `Error`. Distinguish `null` from valid payloads and route poison pills through metrics, `ErrorHandlingDeserializer`, and a DLQ.
 
 ## Operations {#operations}
 
-Track connection state, queue depth, retries, timeouts, remote errors, and graceful shutdown. Keep capacity, timeout, retry, and shutdown settings next to the component that owns the resource; avoid process-wide defaults that hide which caller accepted the trade-off.
+Observe producer send errors, retries, request latency, and buffer availability; consumer lag, rebalance, poll intervals, and commit failures; and Streams state-store restoration. The application owns shutdown ordering: stop input, finish or cancel in-flight work, commit/flush as required, and close clients.
+
+The 1.11.0 build excludes the vulnerable `org.lz4:lz4-java` artifact and exposes the compatible `at.yawk.lz4` implementation. Check the deployed dependency tree to ensure the old artifact is not reintroduced.
 
 ## Testing {#testing}
 
-Run the module test task:
+Run server-free helpers first:
+
+```bash
+./gradlew :bluetape4k-kafka:test \
+  --tests "io.bluetape4k.kafka.TopicPartitionSupportTest" \
+  --tests "io.bluetape4k.kafka.codec.*" \
+  --tests "io.bluetape4k.kafka.streams.kstream.KStreamDslTest" \
+  --no-configuration-cache
+```
+
+The full task includes Testcontainers-backed Kafka tests:
 
 ```bash
 ./gradlew :bluetape4k-kafka:test --no-configuration-cache
 ```
 
-Representative test anchors:
-
-- [`AbstractKafkaTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/AbstractKafkaTest.kt)
-- [`ConsumerSupportTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/ConsumerSupportTest.kt)
-- [`ProducerSupportTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/ProducerSupportTest.kt)
-- [`TopicPartitionSupportTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/TopicPartitionSupportTest.kt)
-- [`AbstractKafkaCodecPoisonPillTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/codec/AbstractKafkaCodecPoisonPillTest.kt)
-- [`AbstractKafkaCodecTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/codec/AbstractKafkaCodecTest.kt)
-- [`ByteArrayKafkaCodecTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/codec/ByteArrayKafkaCodecTest.kt)
-- [`JacksonKafkaCodecSecurityTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/codec/JacksonKafkaCodecSecurityTest.kt)
-
 ## Workshops {#workshops}
 
-No dedicated workshop path is registered in the manual manifest. Use the module README and the representative tests above as runnable evidence.
+No dedicated workshop is registered in the manual manifest. Use the README to scan the API shape and the `coroutines`, `spring/core`, and `streams/kstream` tests as runnable study material. Add application tests with production-equivalent serializers, security, and topic settings.
 
-## Limitations {#limitations}
+## 1.11.0 scope {#limitations}
 
-This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
+This manual targets release `1.11.0`, commit `6187173b58e8b4c5c435c145e00e94708f31ef75`. The development branch later added per-test temporary-directory isolation and diagnostics/error handling around `SuspendKafkaConsumerTemplate.close()`. In 1.11.0 only an `AutoCloseable` receiver is closed, a non-closeable receiver produces no warning, and a close failure propagates directly.
 
-## Sources {#sources}
+## Sources and tests {#sources}
 
 - [Module README](../../../../infra/kafka/README.md)
-- [Module build](../../../../infra/kafka/build.gradle.kts)
-- [`ConsumerSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ConsumerSupport.kt)
-- [`ProducerSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ProducerSupport.kt)
-- [`TopicPartitionSupport`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/TopicPartitionSupport.kt)
-- [`BinaryKafkaCodecs`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt)
-- [`ByteArrayKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/ByteArrayKafkaCodec.kt)
-- [`JacksonKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/JacksonKafkaCodec.kt)
-- [`KafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodec.kt)
-- [`KafkaCodecs`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodecs.kt)
-- [`StringKafkaCodec`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/StringKafkaCodec.kt)
-- [`ProducerCoroutines`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/coroutines/ProducerCoroutines.kt)
-- [`AbstractKafkaTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/AbstractKafkaTest.kt)
-- [`ConsumerSupportTest`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/ConsumerSupportTest.kt)
+- [1.11.0 build](../../../../infra/kafka/build.gradle.kts)
+- [`ProducerCoroutines.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/coroutines/ProducerCoroutines.kt)
+- [`KafkaCodec.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodec.kt)
+- [`SuspendKafkaProducerTemplate.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/spring/core/SuspendKafkaProducerTemplate.kt)
+- [`SuspendKafkaConsumerTemplate.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/spring/core/SuspendKafkaConsumerTemplate.kt)
+- [`KStreamDslTest.kt`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/streams/kstream/KStreamDslTest.kt)
