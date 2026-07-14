@@ -5,12 +5,15 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
- * 단일 생산자/단일 소비자 버퍼를 이용해 값을 비동기 전달하는 재개 가능한 collector입니다.
+ * 복수 생산자/단일 소비자 버퍼를 이용해 값을 비동기 전달하는 재개 가능한 collector입니다.
  *
  * ## 동작/계약
- * - 내부적으로 `SpscArrayQueue`를 사용해 값을 버퍼링하고, 소비 속도가 느리면 생산자가 suspend 대기합니다.
+ * - 내부적으로 `SpscArrayQueue`를 사용하고 생산자 진입을 직렬화해 값을 버퍼링합니다.
+ * - 소비 속도가 느리면 생산자가 suspend 대기합니다.
  * - `drain` 중 collector 예외가 발생하면 `cancelled`를 설정하고 이후 `next`는 `CancellationException`으로 종료됩니다.
  * - `error` 또는 `complete` 호출 후 버퍼가 비면 drain 루프가 종료되며, `error`가 있으면 해당 예외를 전파합니다.
  * - 용량(`capacity`) 기반 고정 버퍼를 사용하며 추가 컬렉션 할당 없이 슬롯 재사용 중심으로 동작합니다.
@@ -52,6 +55,7 @@ class BufferedResumableCollector<T> private constructor(capacity: Int): Resumabl
     private val available = atomic(0L)
 
     private val valueReady = Resumable()
+    private val producerMutex = Mutex()
 
     private val output: Array<Any?> = Array(1) { null }
     private val limit: Int = capacity - (capacity shr 2)
@@ -66,7 +70,7 @@ class BufferedResumableCollector<T> private constructor(capacity: Int): Resumabl
      *
      * @param value 버퍼에 추가할 값입니다.
      */
-    suspend fun next(value: T) {
+    suspend fun next(value: T) = producerMutex.withLock {
         while (!cancelled.value) {
             if (queue.offer(value)) {
                 if (available.getAndIncrement() == 0L) {
