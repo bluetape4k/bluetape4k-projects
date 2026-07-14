@@ -28,7 +28,7 @@
   <text x="800" y="105" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="52" fill="#f8fafc">Choose the Contract, Not the Loudest Warning</text>
   <text x="800" y="148" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="20" fill="#b6c4d6">Start with the unstable boundary, then choose the marker and diagnostic level.</text>
 
-  <rect x="525" y="205" width="550" height="130" rx="28" fill="#172033" stroke="#8b6bd6" stroke-width="4" filter="url(#shadow)"/>
+  <rect x="390" y="205" width="820" height="130" rx="28" fill="#172033" stroke="#8b6bd6" stroke-width="4" filter="url(#shadow)"/>
   <text x="800" y="260" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="33" fill="#c4b5fd">What contract is not stable yet?</text>
   <text x="800" y="300" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#d5dfeb">usage • visibility • operation • migration • third-party implementation</text>
 

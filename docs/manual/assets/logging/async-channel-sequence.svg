@@ -1,20 +1,84 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120" role="img" aria-labelledby="title desc">
-  <title id="title">KLoggingChannel lifecycle sequence</title><desc id="desc">A caller emits into a SharedFlow, a collector logs to SLF4J, close cancels without drain, and later events are dropped.</desc>
-  <defs><marker id="seqArrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="16" markerHeight="16" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#527fb3"/></marker><marker id="seqArrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="16" markerHeight="16" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#628f7f"/></marker><marker id="seqArrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="16" markerHeight="16" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#b96f73"/></marker><filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#16324f" flood-opacity="0.12"/></filter></defs>
-  <rect width="1800" height="1120" fill="#f5f8fc"/><rect class="frame" x="42" y="36" width="1716" height="1048" rx="34" fill="#fffefb" stroke="#6f8daa" stroke-width="4"/>
-  <text class="title" x="900" y="100" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="52" fill="#263d56">KLoggingChannel: Buffered, Not Durable</text><text class="subtitle" x="900" y="142" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="20" fill="#53697f">capacity 64 • overflow SUSPEND • close cancels • post-close drops</text>
-  <g filter="url(#shadow)"><rect class="header" x="100" y="190" width="320" height="100" rx="22" fill="#e8f1fc" stroke="#6e96c7" stroke-width="3"/><rect class="header" x="520" y="190" width="320" height="100" rx="22" fill="#fff6e8" stroke="#c79d58" stroke-width="3"/><rect class="header" x="960" y="190" width="320" height="100" rx="22" fill="#eef8f4" stroke="#82b6a5" stroke-width="3"/><rect class="header" x="1380" y="190" width="320" height="100" rx="22" fill="#f4edfc" stroke="#9b7bc2" stroke-width="3"/></g>
-  <g font-family="Architects Daughter, Comic Sans MS, cursive" font-size="28" text-anchor="middle"><text class="participant" x="260" y="235" fill="#294e76">Caller Coroutine</text><text class="participant" x="680" y="235" fill="#8c6427">MutableSharedFlow</text><text class="participant" x="1120" y="235" fill="#356c5b">Collector Job</text><text class="participant" x="1540" y="235" fill="#705197">SLF4J Provider</text></g>
-  <g font-family="Comic Mono, ui-monospace, monospace" font-size="15" fill="#53697f" text-anchor="middle"><text x="260" y="265">suspend log call</text><text x="680" y="265">replay 0 / buffer 64</text><text x="1120" y="265">instance-owned job</text><text x="1540" y="265">application-owned backend</text></g>
-  <g stroke="#9cb0c3" stroke-width="3" stroke-dasharray="9 9"><path class="lifeline" d="M260 290 V1000"/><path class="lifeline" d="M680 290 V1000"/><path class="lifeline" d="M1120 290 V1000"/><path class="lifeline" d="M1540 290 V1000"/></g>
-  <rect class="activation" x="666" y="340" width="28" height="240" rx="10" fill="#f3d8a9" stroke="#c79d58" stroke-width="2"/><rect class="activation" x="1106" y="390" width="28" height="360" rx="10" fill="#cde8dd" stroke="#82b6a5" stroke-width="2"/>
-  <rect class="labelPill" x="320" y="310" width="285" height="34" rx="17" fill="#fff" stroke="#527fb3"/><circle cx="340" cy="327" r="13" fill="#eaf4f8" stroke="#527fb3"/><text class="badgeText" x="340" y="332" text-anchor="middle" font-family="Comic Mono, monospace" font-size="14">1</text><path class="seq" d="M260 360 H666" stroke="#527fb3" stroke-width="4" marker-end="url(#seqArrow-blue)"/><text class="label" x="480" y="333" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#294e76">level guard + safe message</text>
-  <rect class="labelPill" x="748" y="370" width="310" height="34" rx="17" fill="#fff" stroke="#628f7f"/><circle cx="768" cy="387" r="13" fill="#eef7f0" stroke="#628f7f"/><text class="badgeText" x="768" y="392" text-anchor="middle" font-family="Comic Mono, monospace" font-size="14">2</text><path class="seq" d="M694 420 H1106" stroke="#628f7f" stroke-width="4" marker-end="url(#seqArrow-green)"/><text class="label" x="915" y="393" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#356c5b">collector receives LogEvent</text>
-  <rect class="labelPill" x="1187" y="440" width="305" height="34" rx="17" fill="#fff" stroke="#628f7f"/><circle cx="1207" cy="457" r="13" fill="#eef7f0" stroke="#628f7f"/><text class="badgeText" x="1207" y="462" text-anchor="middle" font-family="Comic Mono, monospace" font-size="14">3</text><path class="seq" d="M1134 490 H1540" stroke="#628f7f" stroke-width="4" marker-end="url(#seqArrow-green)"/><text class="label" x="1350" y="463" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#356c5b">emit level, message, cause</text>
-  <rect class="labelPill" x="1207" y="500" width="240" height="34" rx="17" fill="#fff" stroke="#527fb3"/><circle cx="1227" cy="517" r="13" fill="#eaf4f8" stroke="#527fb3"/><text class="badgeText" x="1227" y="522" text-anchor="middle" font-family="Comic Mono, monospace" font-size="14">4</text><path class="seqReturn" d="M1540 550 H1134" stroke="#527fb3" stroke-width="4" stroke-dasharray="10 8" marker-end="url(#seqArrow-blue)"/><text class="label" x="1337" y="523" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#294e76">backend call returns</text>
-  <rect x="125" y="635" width="1570" height="220" rx="24" fill="none" stroke="#b96f73" stroke-width="3"/><rect x="125" y="635" width="190" height="42" rx="12" fill="#fff0f1" stroke="#b96f73" stroke-width="3"/><text x="220" y="663" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#8e4d52">close / closeAndJoin</text>
-  <rect class="labelPill" x="440" y="655" width="470" height="34" rx="17" fill="#fff" stroke="#b96f73"/><circle cx="460" cy="672" r="13" fill="#fff0f1" stroke="#b96f73"/><text class="badgeText" x="460" y="677" text-anchor="middle" font-family="Comic Mono, monospace" font-size="14">5</text><path class="fail" d="M260 705 H1106" stroke="#b96f73" stroke-width="4" marker-end="url(#seqArrow-red)"/><text class="label" x="690" y="678" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#8e4d52">cancel this collector; keep injected scope</text>
-  <rect class="labelPill" x="460" y="705" width="480" height="34" rx="17" fill="#fff" stroke="#527fb3"/><circle cx="480" cy="722" r="13" fill="#eaf4f8" stroke="#527fb3"/><text class="badgeText" x="480" y="727" text-anchor="middle" font-family="Comic Mono, monospace" font-size="14">6</text><path class="seqReturn" d="M1120 755 H260" stroke="#527fb3" stroke-width="4" stroke-dasharray="10 8" marker-end="url(#seqArrow-blue)"/><text class="label" x="710" y="728" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#294e76">closeAndJoin waits; close requests cancel</text>
-  <rect class="labelPill" x="350" y="860" width="210" height="34" rx="17" fill="#fff" stroke="#b96f73"/><circle cx="370" cy="877" r="13" fill="#fff0f1" stroke="#b96f73"/><text class="badgeText" x="370" y="882" text-anchor="middle" font-family="Comic Mono, monospace" font-size="14">7</text><path class="fail" d="M260 910 H680" stroke="#b96f73" stroke-width="4" marker-end="url(#seqArrow-red)"/><text class="label" x="465" y="883" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#8e4d52">send after close</text><path class="seqReturn" d="M680 930 H260" stroke="#b96f73" stroke-width="4" stroke-dasharray="10 8" marker-end="url(#seqArrow-red)"/><text class="label" x="470" y="965" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#8e4d52">drop without blocking</text>
-  <text x="900" y="1040" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#53697f">Close is cancellation, not drain. Use a durable event pipeline when delivery is a business requirement.</text>
+  <title id="title">KLoggingChannel lifecycle sequence</title>
+  <desc id="desc">A caller emits into a SharedFlow, a collector logs to SLF4J, close cancels without drain, and later events are dropped.</desc>
+  <defs>
+    <marker id="seqArrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="16" markerHeight="16" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#8fd3ff"/></marker>
+    <marker id="seqArrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="16" markerHeight="16" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#36d6c1"/></marker>
+    <marker id="seqArrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="16" markerHeight="16" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#f28b95"/></marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="7" stdDeviation="10" flood-color="#050b16" flood-opacity="0.48"/></filter>
+  </defs>
+  <rect width="1800" height="1120" fill="#111827"/>
+  <rect class="frame" x="42" y="36" width="1716" height="1048" rx="34" fill="#1b2636" stroke="#5c6f86" stroke-width="4"/>
+
+  <text class="title" x="900" y="100" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="52" fill="#f4f7fb">KLoggingChannel: Buffered, Not Durable</text>
+  <text class="subtitle" x="900" y="142" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="20" fill="#b8c4d6">capacity 64 • overflow SUSPEND • close cancels • post-close drops</text>
+
+  <g filter="url(#shadow)">
+    <rect class="header" x="100" y="190" width="320" height="100" rx="22" fill="#182338" stroke="#5ba3e6" stroke-width="3"/>
+    <rect class="header" x="520" y="190" width="320" height="100" rx="22" fill="#221f2a" stroke="#d99a2b" stroke-width="3"/>
+    <rect class="header" x="960" y="190" width="320" height="100" rx="22" fill="#142b2d" stroke="#22b7a5" stroke-width="3"/>
+    <rect class="header" x="1380" y="190" width="320" height="100" rx="22" fill="#211d35" stroke="#9872e8" stroke-width="3"/>
+  </g>
+  <g font-family="Architects Daughter, Comic Sans MS, cursive" font-size="28" text-anchor="middle">
+    <text class="participant" x="260" y="235" fill="#8fd3ff">Caller Coroutine</text>
+    <text class="participant" x="680" y="235" fill="#f2bd59">MutableSharedFlow</text>
+    <text class="participant" x="1120" y="235" fill="#55e0cf">Collector Job</text>
+    <text class="participant" x="1540" y="235" fill="#c2a7ff">SLF4J Provider</text>
+  </g>
+  <g font-family="Comic Mono, ui-monospace, monospace" font-size="15" fill="#aebbd0" text-anchor="middle">
+    <text x="260" y="265">suspend log call</text><text x="680" y="265">replay 0 / buffer 64</text><text x="1120" y="265">instance-owned job</text><text x="1540" y="265">application-owned backend</text>
+  </g>
+
+  <g stroke="#62758a" stroke-width="3" stroke-dasharray="9 9">
+    <path class="lifeline" d="M260 290 V1000"/><path class="lifeline" d="M680 290 V1000"/><path class="lifeline" d="M1120 290 V1000"/><path class="lifeline" d="M1540 290 V1000"/>
+  </g>
+  <rect class="activation" x="666" y="340" width="28" height="240" rx="10" fill="#3a2d1a" stroke="#d99a2b" stroke-width="2"/>
+  <rect class="activation" x="1106" y="390" width="28" height="360" rx="10" fill="#163a39" stroke="#22b7a5" stroke-width="2"/>
+
+  <g font-family="Comic Mono, ui-monospace, monospace">
+    <rect class="labelPill" x="320" y="310" width="285" height="34" rx="17" fill="#182338" stroke="#8fd3ff"/>
+    <circle cx="340" cy="327" r="13" fill="#203552" stroke="#8fd3ff"/><text class="badgeText" x="340" y="332" text-anchor="middle" font-size="14" fill="#f4f7fb">1</text>
+    <path class="seq" d="M260 360 H666" fill="none" stroke="#8fd3ff" stroke-width="4" marker-end="url(#seqArrow-blue)"/>
+    <text class="label" x="480" y="333" text-anchor="middle" font-size="17" fill="#bfe6ff">level guard + safe message</text>
+
+    <rect class="labelPill" x="748" y="370" width="310" height="34" rx="17" fill="#142b2d" stroke="#36d6c1"/>
+    <circle cx="768" cy="387" r="13" fill="#17413f" stroke="#36d6c1"/><text class="badgeText" x="768" y="392" text-anchor="middle" font-size="14" fill="#f4f7fb">2</text>
+    <path class="seq" d="M694 420 H1106" fill="none" stroke="#36d6c1" stroke-width="4" marker-end="url(#seqArrow-green)"/>
+    <text class="label" x="915" y="393" text-anchor="middle" font-size="17" fill="#8cecdf">collector receives LogEvent</text>
+
+    <rect class="labelPill" x="1187" y="440" width="305" height="34" rx="17" fill="#142b2d" stroke="#36d6c1"/>
+    <circle cx="1207" cy="457" r="13" fill="#17413f" stroke="#36d6c1"/><text class="badgeText" x="1207" y="462" text-anchor="middle" font-size="14" fill="#f4f7fb">3</text>
+    <path class="seq" d="M1134 490 H1540" fill="none" stroke="#36d6c1" stroke-width="4" marker-end="url(#seqArrow-green)"/>
+    <text class="label" x="1350" y="463" text-anchor="middle" font-size="17" fill="#8cecdf">emit level, message, cause</text>
+
+    <rect class="labelPill" x="1207" y="500" width="240" height="34" rx="17" fill="#182338" stroke="#8fd3ff"/>
+    <circle cx="1227" cy="517" r="13" fill="#203552" stroke="#8fd3ff"/><text class="badgeText" x="1227" y="522" text-anchor="middle" font-size="14" fill="#f4f7fb">4</text>
+    <path class="seqReturn" d="M1540 550 H1134" fill="none" stroke="#8fd3ff" stroke-width="4" stroke-dasharray="10 8" marker-end="url(#seqArrow-blue)"/>
+    <text class="label" x="1337" y="523" text-anchor="middle" font-size="17" fill="#bfe6ff">backend call returns</text>
+  </g>
+
+  <rect class="branchFrame" x="125" y="635" width="1570" height="220" rx="24" fill="none" stroke="#f28b95" stroke-width="3"/>
+  <rect x="150" y="635" width="220" height="42" rx="12" fill="#342029" stroke="#f28b95" stroke-width="3"/>
+  <text x="260" y="663" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#ffb2ba">close / closeAndJoin</text>
+
+  <g font-family="Comic Mono, ui-monospace, monospace">
+    <rect class="labelPill" x="440" y="655" width="470" height="34" rx="17" fill="#342029" stroke="#f28b95"/>
+    <circle cx="460" cy="672" r="13" fill="#4a2630" stroke="#f28b95"/><text class="badgeText" x="460" y="677" text-anchor="middle" font-size="14" fill="#f4f7fb">5</text>
+    <path class="fail" d="M260 705 H1106" fill="none" stroke="#f28b95" stroke-width="4" marker-end="url(#seqArrow-red)"/>
+    <text class="label" x="690" y="678" text-anchor="middle" font-size="17" fill="#ffb2ba">cancel this collector; keep injected scope</text>
+
+    <rect class="labelPill" x="460" y="705" width="480" height="34" rx="17" fill="#182338" stroke="#8fd3ff"/>
+    <circle cx="480" cy="722" r="13" fill="#203552" stroke="#8fd3ff"/><text class="badgeText" x="480" y="727" text-anchor="middle" font-size="14" fill="#f4f7fb">6</text>
+    <path class="seqReturn" d="M1120 755 H260" fill="none" stroke="#8fd3ff" stroke-width="4" stroke-dasharray="10 8" marker-end="url(#seqArrow-blue)"/>
+    <text class="label" x="710" y="728" text-anchor="middle" font-size="17" fill="#bfe6ff">closeAndJoin waits; close requests cancel</text>
+
+    <rect class="labelPill" x="350" y="860" width="210" height="34" rx="17" fill="#342029" stroke="#f28b95"/>
+    <circle cx="370" cy="877" r="13" fill="#4a2630" stroke="#f28b95"/><text class="badgeText" x="370" y="882" text-anchor="middle" font-size="14" fill="#f4f7fb">7</text>
+    <path class="fail" d="M260 910 H680" fill="none" stroke="#f28b95" stroke-width="4" marker-end="url(#seqArrow-red)"/>
+    <text class="label" x="465" y="883" text-anchor="middle" font-size="17" fill="#ffb2ba">send after close</text>
+    <path class="seqReturn" d="M680 930 H260" fill="none" stroke="#f28b95" stroke-width="4" stroke-dasharray="10 8" marker-end="url(#seqArrow-red)"/>
+    <text class="label" x="470" y="965" text-anchor="middle" font-size="17" fill="#ffb2ba">drop without blocking</text>
+  </g>
+
+  <text x="900" y="1040" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#b8c4d6">Close is cancellation, not drain. Use a durable event pipeline when delivery is a business requirement.</text>
 </svg>

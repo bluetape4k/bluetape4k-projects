@@ -1,18 +1,52 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
   <title id="title">Scoped MDC lifecycle</title>
-  <desc id="desc">Nested MDC values are installed for one block and then restored or removed even after an exception.</desc>
-  <defs><marker id="arrow" viewBox="0 0 14 14" refX="13" refY="7" markerWidth="14" markerHeight="14" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14 Z" fill="#527fb3"/></marker><filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#16324f" flood-opacity="0.12"/></filter></defs>
-  <rect width="1600" height="980" fill="#f5f8fc"/><rect x="42" y="36" width="1516" height="908" rx="34" fill="#fffefb" stroke="#6f8daa" stroke-width="4"/>
-  <text x="800" y="105" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="52" fill="#263d56">MDC Belongs to the Smallest Operation</text>
-  <text x="800" y="148" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="20" fill="#53697f">Capture previous values before install; restore them in finally.</text>
-  <g filter="url(#shadow)"><rect x="90" y="240" width="390" height="390" rx="28" fill="#e8f1fc" stroke="#6e96c7" stroke-width="3"/><rect x="605" y="240" width="390" height="390" rx="28" fill="#fff6e8" stroke="#c79d58" stroke-width="3"/><rect x="1120" y="240" width="390" height="390" rx="28" fill="#eef8f4" stroke="#82b6a5" stroke-width="3"/></g>
-  <text x="285" y="300" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#294e76">1. Capture Outer</text>
-  <text x="800" y="300" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#8c6427">2. Run Inner Block</text>
-  <text x="1315" y="300" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="31" fill="#356c5b">3. Restore in finally</text>
-  <g font-family="Comic Mono, ui-monospace, monospace" font-size="20" fill="#53697f"><text x="145" y="365">traceId = outer</text><text x="145" y="405">spanId  = absent</text><text x="145" y="475">save each previous value</text><text x="145" y="515">before any put</text><text x="660" y="365">traceId = inner</text><text x="660" y="405">spanId  = span-42</text><text x="660" y="475">success or exception</text><text x="660" y="515">uses the same cleanup</text><text x="1175" y="365">traceId = outer</text><text x="1175" y="405">spanId  = removed</text><text x="1175" y="475">restorePrevious=false:</text><text x="1175" y="515">remove applied keys</text></g>
-  <path d="M 480 435 H 605" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#arrow)"/><path d="M 995 435 H 1120" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#arrow)"/>
-  <rect x="210" y="700" width="1180" height="130" rx="28" fill="#f4edfc" stroke="#9b7bc2" stroke-width="3"/>
-  <text x="800" y="750" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="29" fill="#705197">Coroutine boundary?</text>
-  <text x="800" y="792" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#53697f">Wrap the operation with MDCContext so the captured snapshot crosses dispatcher switches.</text>
-  <text x="800" y="900" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#8e4d52">Never store secrets or unbounded payloads. Configuration must emit the keys you install.</text>
+  <desc id="desc">Nested MDC values are installed for one block and then restored or removed in finally after success or failure.</desc>
+  <defs>
+    <marker id="flowArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="14" markerHeight="14" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#8fd3ff"/></marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="7" stdDeviation="10" flood-color="#050b16" flood-opacity="0.48"/></filter>
+  </defs>
+
+  <rect width="1600" height="980" fill="#111827"/>
+  <rect x="42" y="36" width="1516" height="908" rx="34" fill="#1b2636" stroke="#5c6f86" stroke-width="4"/>
+
+  <text x="800" y="105" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="52" fill="#f4f7fb">MDC Belongs to the Smallest Operation</text>
+  <text x="800" y="148" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="20" fill="#b8c4d6">Capture before install. Restore or remove every applied key in finally.</text>
+
+  <g filter="url(#shadow)">
+    <rect class="card" x="90" y="235" width="390" height="400" rx="28" fill="#182338" stroke="#5ba3e6" stroke-width="4"/>
+    <rect class="card" x="605" y="235" width="390" height="400" rx="28" fill="#221f2a" stroke="#d99a2b" stroke-width="4"/>
+    <rect class="card" x="1120" y="235" width="390" height="400" rx="28" fill="#142b2d" stroke="#22b7a5" stroke-width="4"/>
+  </g>
+
+  <g font-family="Comic Mono, ui-monospace, monospace" font-size="15" text-anchor="middle">
+    <rect x="125" y="262" width="84" height="30" rx="15" fill="#203552" stroke="#8fd3ff"/>
+    <text x="167" y="283" fill="#bfe6ff">STEP 01</text>
+    <rect x="640" y="262" width="84" height="30" rx="15" fill="#3a2d1a" stroke="#f2bd59"/>
+    <text x="682" y="283" fill="#ffd78a">STEP 02</text>
+    <rect x="1155" y="262" width="84" height="30" rx="15" fill="#17413f" stroke="#36d6c1"/>
+    <text x="1197" y="283" fill="#8cecdf">STEP 03</text>
+  </g>
+
+  <text x="285" y="335" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="32" fill="#8fd3ff">Capture Outer State</text>
+  <text x="800" y="335" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="32" fill="#f2bd59">Run Inner Block</text>
+  <text x="1315" y="335" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="32" fill="#55e0cf">Restore in finally</text>
+
+  <g font-family="Comic Mono, ui-monospace, monospace" font-size="20" fill="#d4dbea">
+    <text x="145" y="400">traceId = outer</text><text x="145" y="440">spanId  = absent</text>
+    <text x="145" y="510" fill="#b8c4d6">save each previous value</text><text x="145" y="550" fill="#b8c4d6">before any MDC.put</text>
+    <text x="660" y="400">traceId = inner</text><text x="660" y="440">spanId  = span-42</text>
+    <text x="660" y="510" fill="#b8c4d6">success or exception</text><text x="660" y="550" fill="#b8c4d6">uses the same cleanup</text>
+    <text x="1175" y="400">traceId = outer</text><text x="1175" y="440">spanId  = removed</text>
+    <text x="1175" y="510" fill="#b8c4d6">restorePrevious=false:</text><text x="1175" y="550" fill="#b8c4d6">remove applied keys</text>
+  </g>
+
+  <path class="flow" d="M480 435 H605" fill="none" stroke="#8fd3ff" stroke-width="4" marker-end="url(#flowArrow)"/>
+  <path class="flow" d="M995 435 H1120" fill="none" stroke="#8fd3ff" stroke-width="4" marker-end="url(#flowArrow)"/>
+
+  <rect x="210" y="700" width="1180" height="130" rx="28" fill="#211d35" stroke="#9872e8" stroke-width="3"/>
+  <text x="800" y="750" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="29" fill="#c2a7ff">Crossing a Coroutine Boundary?</text>
+  <text x="800" y="792" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#d4dbea">Wrap the operation with MDCContext so the captured snapshot follows dispatcher switches.</text>
+
+  <rect x="245" y="865" width="1110" height="42" rx="21" fill="#342029" stroke="#f28b95" stroke-width="2"/>
+  <text x="800" y="893" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#ffb2ba">Keep secrets and unbounded payloads out. Configure the backend to emit every key you install.</text>
 </svg>

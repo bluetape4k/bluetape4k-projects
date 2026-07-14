@@ -3,9 +3,22 @@
   <desc id="desc">Sequence from scope creation through child work, idempotent close, child and context cancellation, and optional thread pool dispatcher shutdown.</desc>
   <defs>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#16324f" flood-opacity="0.12"/></filter>
-    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#527fb3"/></marker>
-    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#b96f73"/></marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="16" markerHeight="16" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#9ed8ff"/></marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="16" markerHeight="16" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#fda4af"/></marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="16" markerHeight="16" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#bef264"/></marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="16" markerHeight="16" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#c4b5fd"/></marker>
   </defs>
+  <style>
+    [fill="#f5f8fc"] { fill: #111827; } [fill="#fffefb"], [fill="#f8fafc"] { fill: #172033; }
+    [fill="#e8f1fc"] { fill: #17243b; } [fill="#eef8f4"] { fill: #132c2c; } [fill="#fff6e8"] { fill: #302718; } [fill="#f4edfc"] { fill: #241d35; } [fill="#fff0f1"] { fill: #301c25; }
+    [fill="#d8e9fa"] { fill: #233b55; } [fill="#f7e8cc"] { fill: #49391f; } [fill="#e9ddf6"] { fill: #382b50; }
+    [fill="#263d56"] { fill: #f8fafc; } [fill="#53697f"], [fill="#506a84"], [fill="#55766b"], [fill="#60758a"], [fill="#6d7f91"], [fill="#6d5b85"], [fill="#90a1b3"] { fill: #b6c4d6; }
+    [fill="#294e76"], [fill="#405b75"], [fill="#527fb3"] { fill: #9ed8ff; } [fill="#356c5b"] { fill: #5eead4; } [fill="#8c6427"] { fill: #f6c96b; }
+    [fill="#705197"] { fill: #c4b5fd; } [fill="#8e4d52"] { fill: #fda4af; } [fill="#536e2f"] { fill: #bef264; }
+    [stroke="#6f8daa"], [stroke="#90a1b3"], [stroke="#c7d1dc"] { stroke: #536377; } [stroke="#6e96c7"], [stroke="#527fb3"] { stroke: #4c8cc8; }
+    [stroke="#82b6a5"] { stroke: #159c92; } [stroke="#c79d58"], [stroke="#c39a55"] { stroke: #c58b2a; } [stroke="#9b7bc2"], [stroke="#9677bd"], [stroke="#705197"] { stroke: #8b6bd6; }
+    [stroke="#b96f73"] { stroke: #d16f75; } [stroke="#8da95b"], [stroke="#82a45c"] { stroke: #7fa34b; }
+  </style>
   <rect width="1600" height="1120" fill="#f5f8fc"/>
   <rect class="frame" x="42" y="36" width="1516" height="1048" rx="34" fill="#fffefb" stroke="#6f8daa" stroke-width="4"/>
   <text class="title" x="800" y="102" text-anchor="middle" font-family="Architects Daughter, Comic Sans MS, cursive" font-size="50" fill="#263d56">Owned Scope, Deterministic Shutdown</text>
@@ -48,7 +61,7 @@
 
   <path class="call" d="M 635 425 H 975" fill="none" stroke="#527fb3" stroke-width="4" marker-end="url(#arrow-blue)"/>
   <text x="805" y="410" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#405b75">launch / async</text>
-  <path class="call" d="M 1010 493 H 1090 Q 1110 493 1110 513 V 532 Q 1110 552 1090 552 H 1015" fill="none" stroke="#82a45c" stroke-width="4" marker-end="url(#arrow-blue)"/>
+  <path class="call" d="M 1010 493 H 1090 Q 1110 493 1110 513 V 532 Q 1110 552 1090 552 H 1015" fill="none" stroke="#82a45c" stroke-width="4" marker-end="url(#arrow-green)"/>
   <text x="1128" y="515" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#536e2f">siblings run independently</text>
   <text x="1128" y="542" font-family="Comic Mono, ui-monospace, monospace" font-size="15" fill="#6d7f91">SupervisorJob isolates failure</text>
 
@@ -61,9 +74,9 @@
   <path class="return" d="M 975 760 H 635" fill="none" stroke="#b96f73" stroke-width="4" stroke-dasharray="8 7" marker-end="url(#arrow-red)"/>
   <text x="805" y="747" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="17" fill="#8e4d52">CancellationException propagates</text>
 
-  <path class="call" d="M 635 818 H 1340" fill="none" stroke="#705197" stroke-width="4" marker-end="url(#arrow-blue)"/>
+  <path class="call" d="M 635 818 H 1340" fill="none" stroke="#705197" stroke-width="4" marker-end="url(#arrow-purple)"/>
   <text x="990" y="803" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="18" fill="#705197">ThreadPool only: dispatcher.close()</text>
-  <path class="return" d="M 1340 880 H 635" fill="none" stroke="#705197" stroke-width="4" stroke-dasharray="8 7" marker-end="url(#arrow-blue)"/>
+  <path class="return" d="M 1340 880 H 635" fill="none" stroke="#705197" stroke-width="4" stroke-dasharray="8 7" marker-end="url(#arrow-purple)"/>
   <text x="990" y="915" text-anchor="middle" font-family="Comic Mono, ui-monospace, monospace" font-size="16" fill="#6d5b85">threads released once by a second CAS guard</text>
 
   <rect x="145" y="970" width="1310" height="72" rx="22" fill="#eef8f4" stroke="#82b6a5" stroke-width="3"/>
