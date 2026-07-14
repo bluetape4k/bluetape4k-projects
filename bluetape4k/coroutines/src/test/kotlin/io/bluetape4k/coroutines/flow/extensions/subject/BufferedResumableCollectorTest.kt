@@ -119,9 +119,10 @@ class BufferedResumableCollectorTest {
         val bc = BufferedResumableCollector<Int>(1)
         val producerWorkers = 8
         val rounds = 512
-        val expectedCount = rounds
+        val expectedValues = (1..rounds).toList()
+        val expectedCount = expectedValues.size
         val produced = AtomicInteger(0)
-        val consumed = AtomicInteger(0)
+        val received = mutableListOf<Int>()
 
         val producerJob = launch {
             SuspendedJobTester()
@@ -137,13 +138,13 @@ class BufferedResumableCollectorTest {
         yield()
 
         val collector = FlowCollector<Int> {
-            consumed.incrementAndGet()
+            received += it
         }
         bc.drain(collector)
         producerJob.join()
 
         produced.get() shouldBeEqualTo expectedCount
-        consumed.get() shouldBeEqualTo expectedCount
+        received.sorted() shouldBeEqualTo expectedValues
     }
 
     @Test
@@ -151,9 +152,10 @@ class BufferedResumableCollectorTest {
         val bc = BufferedResumableCollector<Int>(64)
         val producerWorkers = 8
         val rounds = 1024
-        val expectedCount = rounds
+        val expectedValues = (1..rounds).toList()
+        val expectedCount = expectedValues.size
         val produced = AtomicInteger(0)
-        val consumed = AtomicInteger(0)
+        val received = mutableListOf<Int>()
 
         val producerJob = launch {
             SuspendedJobTester()
@@ -169,12 +171,12 @@ class BufferedResumableCollectorTest {
         yield()
 
         val collector = FlowCollector<Int> {
-            consumed.incrementAndGet()
+            received += it
         }
         bc.drain(collector)
         producerJob.join()
 
         produced.get() shouldBeEqualTo expectedCount
-        consumed.get() shouldBeEqualTo expectedCount
+        received.sorted() shouldBeEqualTo expectedValues
     }
 }
