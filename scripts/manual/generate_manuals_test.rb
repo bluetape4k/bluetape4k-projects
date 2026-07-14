@@ -32,6 +32,10 @@ class GenerateManualsTest < Minitest::Test
       assert_includes english, "English sample client for remote calls."
       assert_includes english, "cache-aside"
       assert_includes korean, "캐시 어사이드"
+      assert_includes english, 'implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))'
+      assert_includes korean, 'implementation(platform("io.github.bluetape4k:bluetape4k-dependencies:<version>"))'
+      refute_includes english, "io.github.bluetape4k:bluetape4k-bom"
+      refute_includes korean, "io.github.bluetape4k:bluetape4k-bom"
       refute_includes korean, "English | 한국어"
       refute_includes korean, ", and "
       assert_equal REQUIRED_SECTIONS, english.scan(/\{#([a-z0-9-]+)\}/).flatten

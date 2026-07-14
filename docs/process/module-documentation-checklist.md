@@ -58,12 +58,29 @@ same change.
 - Update release notes, changelog, or migration notes only when the module
   change is user-visible.
 
+### Manual Publication Contract
+
+- Keep `docs/manual` repository links relative so the authoring source remains
+  reviewable in the same change as the implementation.
+- Run the release contract validator to prove that every relative source and
+  test target exists at the documented release commit.
+- Require the public-site snapshot publisher to rewrite repository-relative
+  links to the immutable release tag or commit. Verify representative generated
+  URLs before deployment; a link to `develop` is not release provenance.
+- Use only the central `bluetape4k-dependencies` BOM in generated consumer
+  examples. Repository-local BOM coordinates are implementation metadata, not
+  the version users should select.
+
 ## Validation Commands
 
 Run the smallest set that proves the checklist for the change:
 
 ```bash
 ./gradlew projects --no-configuration-cache
+./gradlew exportManualModuleInventory --no-configuration-cache
+ruby scripts/manual/validate_manuals.rb
+ruby scripts/manual/export_manifest.rb --check
+ruby scripts/manual/validate_release_manuals.rb 1.11.0 6187173b58e8b4c5c435c145e00e94708f31ef75
 git diff --check
 rg -n "<old-module-name>|<old-artifact-name>|<old-path>"
 rg -n "<new-module-name>|<new-artifact-name>" README.md README.ko.md .codex/references/module-groups.md AGENTS.md
@@ -90,6 +107,8 @@ test -d <module-directory>
 - Module README locale pair exists and stays synchronized.
 - CI/Nightly/example workflow impact is listed, even when no change is needed.
 - BOM/catalog impact is listed, even when automatic aggregation covers it.
+- Generated consumer examples use `bluetape4k-dependencies`, and published
+  source links resolve to the documented release rather than `develop`.
 - Stale old module names are absent or explicitly marked historical.
 
 ## Common Skip Reasons
