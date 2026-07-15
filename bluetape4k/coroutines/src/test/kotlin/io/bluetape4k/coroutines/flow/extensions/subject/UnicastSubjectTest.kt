@@ -1,24 +1,29 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
-import io.bluetape4k.junit5.coroutines.withSingleThread
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.withSingleThread
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
-import io.bluetape4k.assertions.assertFailsWith
+import kotlin.time.Duration.Companion.seconds
 
 class UnicastSubjectTest {
 
@@ -101,6 +106,43 @@ class UnicastSubjectTest {
         assertFailsWith<IllegalStateException> {
             us.take(3).log("#2").toList().shouldBeEmpty()
         }
+    }
+
+    @Test
+    fun `concurrent producers emit every item to the single collector`() = runSuspendDefault(timeout = 10.seconds) {
+        val subject = UnicastSubject<Int>()
+        val producerWorkers = 8
+        val rounds = 1024
+        val expectedValues = (1..rounds).toList()
+        val produced = AtomicInteger(0)
+        val received = ConcurrentLinkedQueue<Int>()
+        val readyProducers = AtomicInteger(0)
+        val startGate = CompletableDeferred<Unit>()
+
+        val collectorJob = launch {
+            subject.collect(received::add)
+        }
+
+        subject.awaitCollector()
+
+        SuspendedJobTester()
+            .workers(producerWorkers)
+            .rounds(rounds)
+            .add {
+                if (readyProducers.incrementAndGet() == producerWorkers) {
+                    startGate.complete(Unit)
+                }
+                startGate.await()
+                subject.emit(produced.incrementAndGet())
+            }
+            .run()
+        subject.complete()
+        collectorJob.join()
+
+        produced.get() shouldBeEqualTo rounds
+        received.sorted() shouldBeEqualTo expectedValues
+        subject.collectorCount shouldBeEqualTo 0
+        subject.collectorCancelled.shouldBeTrue()
     }
 
     @Test
