@@ -1,16 +1,21 @@
 package io.bluetape4k.concurrent.virtualthread
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -60,6 +65,37 @@ class VirtualFutureTest {
 
         val virtualFutures = virtualFutureAll(tasks = tasks)
         virtualFutures.await() shouldBeEqualTo (0 until taskSize).toList()
+    }
+
+    @Test
+    fun `timed virtualFutureAll interrupts running tasks after timeout`() {
+        val started = CountDownLatch(1)
+        val interrupted = CountDownLatch(1)
+        val release = CountDownLatch(1)
+
+        val result = virtualFutureAll(
+            tasks = listOf {
+                started.countDown()
+                try {
+                    release.await()
+                    1
+                } catch (e: InterruptedException) {
+                    interrupted.countDown()
+                    throw e
+                }
+            },
+            timeout = 2.seconds.toJavaDuration(),
+        )
+
+        try {
+            started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            assertFailsWith<ExecutionException> {
+                result.await()
+            }.cause shouldBeInstanceOf TimeoutException::class
+            interrupted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+        } finally {
+            release.countDown()
+        }
     }
 
     @Test

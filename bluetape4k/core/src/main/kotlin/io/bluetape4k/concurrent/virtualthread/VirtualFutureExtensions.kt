@@ -1,5 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread
 
+import io.bluetape4k.concurrent.asCompletableFuture
 import io.bluetape4k.concurrent.sequence
 import io.bluetape4k.utils.ShutdownQueue
 import java.time.Duration
@@ -77,8 +78,13 @@ fun <T> virtualFutureAll(
 }
 
 /**
- * 복수의 작업들을 Virtual thread 를 이용하여 비동기로 제한시간 [timeout] 동안 수행합니다. 결과는 [List]로 반환됩니다.
- * 모든 작업이 제한시간 내에 완료되지 않으면 [java.util.concurrent.TimeoutException]을 던집니다.
+ * Runs multiple tasks asynchronously on virtual threads and returns their results in input order.
+ * The aggregate future fails with [java.util.concurrent.TimeoutException] unless every task completes within [timeout].
+ *
+ * On timeout, cancellation with interruption is requested for every unfinished task.
+ * Cancellation is cooperative, so task code that ignores interruption may continue after the aggregate future completes.
+ * Awaiting a timed-out result throws [java.util.concurrent.ExecutionException] with
+ * [java.util.concurrent.TimeoutException] as its cause.
  *
  * ```kotlin
  * val tasks = listOf(
@@ -90,12 +96,11 @@ fun <T> virtualFutureAll(
  * val result = future.await() // [1, 2, 3]
  * ```
  *
- * @param T 작업 결과 타입
- * @param tasks 병렬로 실행할 작업 목록
- * @param executor 작업을 실행할 [ExecutorService] (기본값: [VirtualThreadExecutor])
- * @param timeout 각 작업의 최대 대기 시간
- * @return 모든 작업의 결과를 담은 [VirtualFuture] 인스턴스
- * @throws java.util.concurrent.TimeoutException 제한 시간 초과 시
+ * @param T task result type
+ * @param tasks tasks to execute in parallel
+ * @param executor executor used to run tasks (defaults to [VirtualThreadExecutor])
+ * @param timeout maximum duration for the aggregate operation
+ * @return a [VirtualFuture] containing every task result in input order
  */
 fun <T> virtualFutureAll(
     tasks: Collection<() -> T>,
@@ -106,7 +111,7 @@ fun <T> virtualFutureAll(
         return VirtualFuture(CompletableFuture.completedFuture(emptyList()))
     }
     val futures = tasks.map { task ->
-        CompletableFuture.supplyAsync({ task() }, executor)
+        executor.submit<T>(task).asCompletableFuture()
     }
     val combined = CompletableFuture.allOf(*futures.toTypedArray())
         .thenApply { futures.map { it.join() } }
