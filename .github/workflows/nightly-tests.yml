@@ -745,6 +745,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Validate mock server Kover isolation
+        id: validate-kover-isolation
+        run: ruby scripts/validate-nightly-kover-isolation.rb
+
       - uses: actions/setup-java@v5
         with:
           java-version: ${{ env.JAVA_VERSION }}
@@ -777,7 +781,7 @@ jobs:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
       - name: Generate Kover XML report
-        if: always()
+        if: ${{ always() && steps.validate-kover-isolation.outcome == 'success' }}
         run: |
           ./gradlew --no-configuration-cache \
             :bluetape4k-virtualthread-api:koverXmlReport \
@@ -786,9 +790,15 @@ jobs:
             :bluetape4k-cache-core:koverXmlReport \
             :bluetape4k-opentelemetry:koverXmlReport \
             :bluetape4k-mock-web-server:koverXmlReport \
-            :bluetape4k-mock-webflux-server:koverXmlReport \
             :bluetape4k-r2dbc:koverXmlReport \
             --parallel
+        continue-on-error: true
+
+      - name: Generate mock webflux Kover XML report
+        if: ${{ always() && steps.validate-kover-isolation.outcome == 'success' }}
+        run: >-
+          ./gradlew --no-configuration-cache
+          :bluetape4k-mock-webflux-server:koverXmlReport
         continue-on-error: true
 
       - name: Upload test results
