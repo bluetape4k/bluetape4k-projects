@@ -29,7 +29,7 @@ dependencies {
     // Compressors / Serializers (테스트 페이로드용)
     testImplementation(libs.lz4.java)
     testImplementation(libs.snappy.java)
-    testImplementation(libs.zstd.jni)
+    testImplementation(bt4k.zstd.jni)
     testImplementation(libs.kryo5)
-    testImplementation(libs.fory.kotlin)
+    testImplementation(bt4k.fory.kotlin)
 }

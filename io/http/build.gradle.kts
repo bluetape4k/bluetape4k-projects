@@ -123,7 +123,7 @@ dependencies {
     compileOnly(libs.okhttp3.mockwebserver)
 
     // Apache HttpCompoents HttpClient 5
-    compileOnly(libs.httpclient5)
+    compileOnly(bt4k.httpclient5)
     compileOnly(libs.httpclient5.cache)
     compileOnly(libs.httpclient5.fluent)
     testImplementation(libs.httpclient5.testing) {
@@ -131,9 +131,9 @@ dependencies {
     }
 
     // Apache HttpComponent Core 5
-    compileOnly(libs.httpcore5)
-    compileOnly(libs.httpcore5.h2)
-    compileOnly(libs.httpcore5.reactive)
+    compileOnly(bt4k.httpcore5.lib)
+    compileOnly(bt4k.httpcore5.h2)
+    compileOnly(bt4k.httpcore5.reactive)
     testImplementation(libs.httpcore5.testing) {
         exclude(group = "org.apache.httpcomponents.core5", module = "httpcore5")
     }
@@ -147,15 +147,15 @@ dependencies {
     compileOnly(libs.ktor.client.cio)
     compileOnly(libs.ktor.client.content.negotiation)
     compileOnly(libs.ktor.serialization.kotlinx.json)
-    compileOnly(libs.kotlinx.serialization.json)
+    compileOnly(bt4k.kotlinx.serialization.json)
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.ktor.client.content.negotiation)
     testImplementation(libs.ktor.serialization.kotlinx.json)
-    testImplementation(libs.kotlinx.serialization.json)
+    testImplementation(bt4k.kotlinx.serialization.json)
 
     // Vertx
     compileOnly(project(":bluetape4k-vertx"))
-    compileOnly(libs.vertx.core)
+    compileOnly(bt4k.vertx.core)
     compileOnly(libs.vertx.web.client)
     compileOnly(libs.vertx.lang.kotlin)
     compileOnly(libs.vertx.lang.kotlin.coroutines)

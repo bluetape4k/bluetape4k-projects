@@ -44,7 +44,7 @@ dependencies {
     compileOnly(libs.ucar.cdm.core)
     compileOnly(libs.ucar.netcdf4)
     // cdm-core 가 ImmutableList<Variable> 등 Guava 컬렉션을 API 표면에 노출 → 컴파일 시 필요
-    compileOnly(libs.guava)
+    compileOnly(bt4k.guava)
 
     // Micrometer — MeterRegistry 선택 주입 (compileOnly)
     compileOnly(libs.micrometer.core)
@@ -54,28 +54,28 @@ dependencies {
     compileOnly(libs.kotlinx.coroutines.core)
 
     // Exposed / DB (선택적, compileOnly) — raw JetBrains Exposed 직접 참조
-    compileOnly(libs.exposed.core)
+    compileOnly(bt4k.exposed.core)
     compileOnly(libs.exposed.dao)
-    compileOnly(libs.exposed.jdbc)
-    compileOnly(libs.exposed.java.time)
+    compileOnly(bt4k.exposed.jdbc)
+    compileOnly(bt4k.exposed.java.time)
     compileOnly(libs.exposed.json)
     compileOnly(libs.postgis.jdbc)
     // JSONB 직렬화용 Jackson, PGobject (compileOnly)
     compileOnly(libs.jackson.module.kotlin)
-    compileOnly(libs.postgresql.driver)
+    compileOnly(bt4k.postgresql)
 
     // Test
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(libs.exposed.core)
+    testImplementation(bt4k.exposed.core)
     testImplementation(libs.exposed.dao)
-    testImplementation(libs.exposed.jdbc)
-    testImplementation(libs.exposed.java.time)
+    testImplementation(bt4k.exposed.jdbc)
+    testImplementation(bt4k.exposed.java.time)
     testImplementation(libs.exposed.json)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.testcontainers.junit.jupiter)
     testImplementation(libs.testcontainers.postgresql)
 
-    testRuntimeOnly(libs.postgresql.driver)
-    testRuntimeOnly(libs.hikaricp)
+    testRuntimeOnly(bt4k.postgresql)
+    testRuntimeOnly(bt4k.hikaricp)
 }

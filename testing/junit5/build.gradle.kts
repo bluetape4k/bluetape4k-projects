@@ -24,7 +24,7 @@ dependencies {
     api(libs.java.uuid.generator)
     api(libs.random.beans)
 
-    api(libs.commons.lang3)
+    api(bt4k.commons.lang3)
     api(libs.logback.classic)
 
     api(libs.kotlinx.coroutines.core)

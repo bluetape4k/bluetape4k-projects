@@ -83,7 +83,7 @@ dependencies {
     add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
     add("benchmarkImplementation", libs.jmh.core)
 
-    add("benchmarkImplementation", libs.kotlinx.serialization.json)
+    add("benchmarkImplementation", bt4k.kotlinx.serialization.json)
     add("benchmarkImplementation", libs.ktor.server.core)
     add("benchmarkImplementation", libs.ktor.server.cio)
     add("benchmarkImplementation", libs.ktor.server.content.negotiation)

@@ -81,11 +81,11 @@ dependencies {
     api(libs.jna)
     api(libs.jna.platform)
 
-    compileOnly(libs.hikaricp)
+    compileOnly(bt4k.hikaricp)
 
     // MySQL
     compileOnly(libs.testcontainers.mysql)
-    testRuntimeOnly(libs.mysql.connector.j)
+    testRuntimeOnly(bt4k.mysql.connector.j)
 
     // MariaDB
     compileOnly(libs.testcontainers.mariadb)
@@ -93,7 +93,7 @@ dependencies {
 
     // Postgres
     compileOnly(libs.testcontainers.postgresql)
-    testRuntimeOnly(libs.postgresql.driver)
+    testRuntimeOnly(bt4k.postgresql)
 
     // CockroachDB
     compileOnly(libs.testcontainers.cockroachdb)
@@ -106,19 +106,19 @@ dependencies {
     testRuntimeOnly(libs.r2dbc.postgresql)
 
     // Redis
-    compileOnly(libs.redisson)
+    compileOnly(bt4k.redisson)
     compileOnly(libs.lettuce.core)
 
-    compileOnly(libs.fory.kotlin)  // new Apache Fory
+    compileOnly(bt4k.fory.kotlin)  // new Apache Fory
     compileOnly(libs.kryo)
 
-    compileOnly(libs.commons.compress)
+    compileOnly(bt4k.commons.compress)
     compileOnly(libs.lz4.java)
     compileOnly(libs.snappy.java)
-    compileOnly(libs.zstd.jni)
+    compileOnly(bt4k.zstd.jni)
 
     // Hazelcast
-    compileOnly(libs.hazelcast)
+    compileOnly(bt4k.hazelcast)
 
     // MongoDB
     compileOnly(libs.testcontainers.mongodb)
@@ -133,8 +133,8 @@ dependencies {
 
     // Kubernetes (K3s)
     api(libs.testcontainers.k3s)
-    compileOnly(libs.fabric8.kubernetes.client)
-    testImplementation(libs.fabric8.kubernetes.client)
+    compileOnly(bt4k.fabric8.kubernetes.client)
+    testImplementation(bt4k.fabric8.kubernetes.client)
 
     // Graph DB (Neo4j)
     compileOnly(libs.testcontainers.neo4j)
@@ -156,8 +156,8 @@ dependencies {
 
     // Kafka
     compileOnly(libs.testcontainers.kafka)
-    compileOnly(libs.kafka.clients)
-    compileOnly(libs.spring.kafka)
+    compileOnly(bt4k.kafka.clients)
+    compileOnly(bt4k.spring.kafka)
 
     // Pulsar
     compileOnly(libs.testcontainers.pulsar)
@@ -253,7 +253,7 @@ dependencies {
     // ClickHouse
     compileOnly(libs.testcontainers.clickhouse)
     testRuntimeOnly(libs.clickhouse.jdbc)
-    // testRuntimeOnly(libs.httpclient5)
+    // testRuntimeOnly(bt4k.httpclient5)
 
     // Weaviate
     compileOnly(libs.testcontainers.weaviate)

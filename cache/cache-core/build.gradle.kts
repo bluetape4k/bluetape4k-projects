@@ -1,6 +1,6 @@
 plugins {
     `java-test-fixtures`
-    alias(libs.plugins.kover)
+    alias(bt4k.plugins.kover)
 }
 
 kover {

@@ -7,7 +7,7 @@ dependencies {
 
     implementation(libs.kotlin.reflect)
 
-    api(libs.slf4j.api)
+    api(bt4k.slf4j.api)
     implementation(libs.jcl.over.slf4j)
     implementation(libs.logback.classic)
 

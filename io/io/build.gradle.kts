@@ -33,10 +33,10 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Apache Commons
-    compileOnly(libs.commons.io)
-    compileOnly(libs.commons.lang3)
-    compileOnly(libs.commons.codec)
-    compileOnly(libs.commons.compress)
+    compileOnly(bt4k.commons.io)
+    compileOnly(bt4k.commons.lang3)
+    compileOnly(bt4k.commons.codec)
+    compileOnly(bt4k.commons.compress)
 
     // Okio (compressor 내부용)
     api(libs.okio)
@@ -63,13 +63,13 @@ dependencies {
     compileOnly(libs.lz4.java)
     compileOnly(libs.snappy.java)
     compileOnly(libs.xz)
-    compileOnly(libs.zstd.jni)
+    compileOnly(bt4k.zstd.jni)
     compileOnly(libs.brotli4j)
     compileOnly(libs.brotli4j.native)
 
     // Binary Serializers
     compileOnly(libs.kryo5)
-    compileOnly(libs.fory.kotlin)  // new Apache Fory
+    compileOnly(bt4k.fory.kotlin)  // new Apache Fory
 
     // Benchmark
     testImplementation(libs.kotlinx.benchmark.runtime)

@@ -13,7 +13,7 @@ dependencies {
     api(libs.okio)
 
     // Apache Commons (base64)
-    compileOnly(libs.commons.codec)
+    compileOnly(bt4k.commons.codec)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
@@ -21,8 +21,8 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     // Compression (compress/tink 테스트에서 Compressors 사용)
-    testImplementation(libs.commons.compress)
+    testImplementation(bt4k.commons.compress)
     testImplementation(libs.lz4.java)
     testImplementation(libs.snappy.java)
-    testImplementation(libs.zstd.jni)
+    testImplementation(bt4k.zstd.jni)
 }

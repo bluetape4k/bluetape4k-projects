@@ -11,7 +11,7 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Vertx core
-    api(libs.vertx.core)
+    api(bt4k.vertx.core)
     api(libs.vertx.lang.kotlin)
     api(libs.vertx.lang.kotlin.coroutines)
     compileOnly(libs.vertx.web)
@@ -29,11 +29,11 @@ dependencies {
     implementation(libs.vertx.mysql.client)
     implementation(libs.vertx.pg.client)
     compileOnly(libs.vertx.jdbc.client)
-    compileOnly(libs.agroal.pool)
+    compileOnly(bt4k.agroal.pool)
     compileOnly(project(":bluetape4k-jackson3"))
     compileOnly(libs.jackson3.module.kotlin)
     compileOnly(libs.jackson3.module.blackbird)
-    implementation(libs.mybatis.dynamic.sql)
+    implementation(bt4k.mybatis.dynamic.sql)
 
     // Coroutines
     api(libs.kotlinx.coroutines.core)
@@ -41,7 +41,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     testRuntimeOnly(libs.h2.v2)
-    testRuntimeOnly(libs.mysql.connector.j)
+    testRuntimeOnly(bt4k.mysql.connector.j)
     testImplementation(libs.testcontainers)
     testImplementation(libs.testcontainers.mysql)
 }

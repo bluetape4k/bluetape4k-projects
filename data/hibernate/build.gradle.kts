@@ -113,7 +113,7 @@ dependencies {
     kapt(libs.jakarta.persistence.api.v32)
     api(libs.jakarta.transaction.api)
 
-    api(libs.hibernate.core)
+    api(bt4k.hibernate.core)
     api(libs.hibernate.micrometer)
 
     // NOTE: Kotlin 2.1.0 에서 QueryDSL 5.1.0 과 같이 사용하는 경우 예에가 발생한다. (QueryDSL만 사용하는 것을 추천합니다)
@@ -122,9 +122,9 @@ dependencies {
 
     // Querydsl
     // QueryDSL 7.x publishes Jakarta JPA support in the main querydsl-jpa artifact.
-    api(libs.querydsl.jpa)
-    kapt(variantOf(libs.querydsl.apt) { classifier("jakarta") })
-    kaptTest(variantOf(libs.querydsl.apt) { classifier("jakarta") })
+    api(bt4k.querydsl.jpa)
+    kapt(variantOf(bt4k.querydsl.apt) { classifier("jakarta") })
+    kaptTest(variantOf(bt4k.querydsl.apt) { classifier("jakarta") })
 
     // Validator
     api(libs.jakarta.el.api)
@@ -138,12 +138,12 @@ dependencies {
     api(project(":bluetape4k-jackson3"))
 
     runtimeOnly(libs.kryo)
-    runtimeOnly(libs.fory.kotlin)  // new Apache Fory
+    runtimeOnly(bt4k.fory.kotlin)  // new Apache Fory
 
-    runtimeOnly(libs.commons.compress)
+    runtimeOnly(bt4k.commons.compress)
     runtimeOnly(libs.snappy.java)
     runtimeOnly(libs.lz4.java)
-    runtimeOnly(libs.zstd.jni)
+    runtimeOnly(bt4k.zstd.jni)
 
     api(project(":bluetape4k-idgenerators"))
     api(libs.java.uuid.generator)
@@ -163,16 +163,16 @@ dependencies {
         exclude(group = "org.mockito", module = "mockito-core")
     }
 
-    testImplementation(libs.hikaricp)
+    testImplementation(bt4k.hikaricp)
     testRuntimeOnly(libs.h2.v2)
-    testRuntimeOnly(libs.mysql.connector.j)
+    testRuntimeOnly(bt4k.mysql.connector.j)
 
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(libs.testcontainers.mysql)
 
     // Caching 테스트
     testImplementation(project(":bluetape4k-cache-core"))
-    testImplementation(libs.hibernate.jcache)
+    testImplementation(bt4k.hibernate.jcache)
     testImplementation(libs.caffeine.jcache)
 
     // JDBC 와 같이 사용

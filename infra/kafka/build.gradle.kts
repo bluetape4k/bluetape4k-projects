@@ -28,17 +28,17 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Kafka (kafka3: 3.9.x — spring-kafka 3.x compatible)
-    api(libs.kafka.clients)
-    compileOnly(libs.kafka.streams)
-    compileOnly(libs.kafka.generator)
-    testImplementation(libs.kafka.streams.test.utils)
+    api(bt4k.kafka.clients)
+    compileOnly(bt4k.kafka.streams)
+    compileOnly(bt4k.kafka.generator)
+    testImplementation(bt4k.kafka.streams.test.utils)
     testRuntimeOnly(libs.kafka.server)
-    testRuntimeOnly(libs.kafka.server.common)
+    testRuntimeOnly(bt4k.kafka.server.common)
     testImplementation(libs.testcontainers.kafka)
 
     // Spring Kafka
-    implementation(libs.spring.kafka)
-    compileOnly(libs.spring.kafka.test)
+    implementation(bt4k.spring.kafka)
+    compileOnly(bt4k.spring.kafka.test)
     implementation(project(":bluetape4k-spring-boot-core"))
     implementation("org.springframework.data:spring-data-commons")
 
@@ -50,15 +50,15 @@ dependencies {
 
     // Codecs
     compileOnly(libs.kryo)
-    compileOnly(libs.fory.kotlin)  // new Apache Fory
+    compileOnly(bt4k.fory.kotlin)  // new Apache Fory
 
     // Compressors
-    compileOnly(libs.commons.compress)
+    compileOnly(bt4k.commons.compress)
     compileOnly(libs.snappy.java)
     // at.yawk.lz4:lz4-java 를 api 로 노출: exclude 로 org.lz4 를 제거했으므로
     // 소비자 classpath 에 at.yawk.lz4:lz4-java:1.11.0 가 반드시 있어야 kafka LZ4 codec 이 동작한다.
     api(libs.lz4.java)
-    compileOnly(libs.zstd.jni)
+    compileOnly(bt4k.zstd.jni)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))

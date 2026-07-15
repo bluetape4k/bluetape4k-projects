@@ -52,7 +52,7 @@ dependencies {
     api(project(":bluetape4k-netty"))
 
     // Redisson
-    api(libs.redisson)
+    api(bt4k.redisson)
     compileOnly(libs.redisson.spring.boot.starter)
 
     // Dependencies
@@ -66,14 +66,14 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     // Codecs
-    compileOnly(libs.fory.kotlin)
+    compileOnly(bt4k.fory.kotlin)
     compileOnly(libs.kryo5)
 
     // Compressor
-    compileOnly(libs.commons.compress)
+    compileOnly(bt4k.commons.compress)
     compileOnly(libs.snappy.java)
     compileOnly(libs.lz4.java)
-    compileOnly(libs.zstd.jni)
+    compileOnly(bt4k.zstd.jni)
 
     // Jackson 2
     compileOnly(project(":bluetape4k-jackson2"))
@@ -100,7 +100,7 @@ dependencies {
     // Redisson Map Read/Write Through test
     testImplementation(project(":bluetape4k-jdbc"))
     testRuntimeOnly(libs.h2.v2)
-    testImplementation(libs.hikaricp)
+    testImplementation(bt4k.hikaricp)
     testImplementation("org.springframework.boot:spring-boot-starter-jdbc")
 
     // Benchmark

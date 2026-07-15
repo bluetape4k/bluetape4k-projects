@@ -18,7 +18,7 @@ configurations {
 
         resolutionStrategy.eachDependency {
             if (requested.group == "org.apache.kafka") {
-                useVersion(libs.versions.kafka4.get())
+                useVersion(bt4k.versions.kafka4.get())
                 because("kafka4 모듈: root BOM의 kafka3.x 다운그레이드 방지")
             }
         }
@@ -35,16 +35,16 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Kafka (kafka4: 4.2.x — spring-kafka 4.x compatible)
-    api(libs.kafka4.clients)
-    compileOnly(libs.kafka4.streams)
-    compileOnly(libs.kafka4.generator)
-    testImplementation(libs.kafka4.streams.test.utils)
-    testRuntimeOnly(libs.kafka4.server.common)
+    api(bt4k.kafka4.clients)
+    compileOnly(bt4k.kafka4.streams)
+    compileOnly(bt4k.kafka4.generator)
+    testImplementation(bt4k.kafka4.streams.test.utils)
+    testRuntimeOnly(bt4k.kafka4.server.common)
     testImplementation(libs.testcontainers.kafka)
 
     // Spring Kafka
-    implementation(libs.spring.kafka4)
-    compileOnly(libs.spring.kafka4.test)
+    implementation(bt4k.spring.kafka4)
+    compileOnly(bt4k.spring.kafka4.test)
     implementation(project(":bluetape4k-spring-boot-core"))
     implementation("org.springframework.data:spring-data-commons")
 
@@ -56,15 +56,15 @@ dependencies {
 
     // Codecs
     compileOnly(libs.kryo5)
-    compileOnly(libs.fory.kotlin)  // new Apache Fory
+    compileOnly(bt4k.fory.kotlin)  // new Apache Fory
 
     // Compressors
-    compileOnly(libs.commons.compress)
+    compileOnly(bt4k.commons.compress)
     compileOnly(libs.snappy.java)
     // at.yawk.lz4:lz4-java 를 api 로 노출: exclude 로 org.lz4 를 제거했으므로
     // 소비자 classpath 에 at.yawk.lz4:lz4-java:1.11.0 가 반드시 있어야 kafka LZ4 codec 이 동작한다.
     api(libs.lz4.java)
-    compileOnly(libs.zstd.jni)
+    compileOnly(bt4k.zstd.jni)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))

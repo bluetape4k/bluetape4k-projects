@@ -24,14 +24,14 @@ dependencies {
     // JCache for Resilience4j Cache
     testImplementation(libs.caffeine.jcache)
     testImplementation(libs.cache2k.jcache)
-    testImplementation(libs.redisson)
+    testImplementation(bt4k.redisson)
 
     // Serializer
-    testImplementation(libs.fory.kotlin)
+    testImplementation(bt4k.fory.kotlin)
     testImplementation(libs.kryo5)
 
     // Compressor
     testImplementation(libs.lz4.java)
     testImplementation(libs.snappy.java)
-    testImplementation(libs.zstd.jni)
+    testImplementation(bt4k.zstd.jni)
 }

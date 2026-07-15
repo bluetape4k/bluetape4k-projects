@@ -123,7 +123,7 @@ dependencies {
     api(libs.r2dbc.pool)
     compileOnly("org.springframework.boot:spring-boot-starter-data-r2dbc")
     compileOnly(libs.h2.v2)
-    compileOnly(libs.r2dbc.h2)
+    compileOnly(bt4k.r2dbc.h2)
     compileOnly(libs.r2dbc.mysql)
     compileOnly(libs.r2dbc.postgresql)
 
@@ -147,10 +147,10 @@ dependencies {
     add("benchmarkImplementation", libs.testcontainers.r2dbc)
     add("benchmarkImplementation", libs.r2dbc.postgresql)
     add("benchmarkImplementation", libs.r2dbc.mysql)
-    add("benchmarkImplementation", libs.postgresql.driver)
-    add("benchmarkImplementation", libs.mysql.connector.j)
+    add("benchmarkImplementation", bt4k.postgresql)
+    add("benchmarkImplementation", bt4k.mysql.connector.j)
     add("benchmarkRuntimeOnly", libs.h2.v2)
-    add("benchmarkRuntimeOnly", libs.r2dbc.h2)
+    add("benchmarkRuntimeOnly", bt4k.r2dbc.h2)
     add("benchmarkRuntimeOnly", libs.r2dbc.postgresql)
     add("benchmarkRuntimeOnly", libs.r2dbc.mysql)
 }

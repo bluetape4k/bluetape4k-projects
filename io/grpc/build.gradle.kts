@@ -17,7 +17,7 @@ idea {
 // 참고: https://github.com/grpc/grpc-kotlin/blob/master/compiler/README.md
 protobuf {
     protoc {
-        artifact = libs.protobuf.protoc.get().toString()
+        artifact = "com.google.protobuf:protoc:${bt4k.versions.protobuf.get()}"
     }
     plugins {
         id("grpc") {

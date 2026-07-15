@@ -5,7 +5,7 @@ plugins {
     kotlin("plugin.noarg")
     kotlin("plugin.jpa")
     kotlin("kapt")
-    alias(libs.plugins.kover)
+    alias(bt4k.plugins.kover)
 }
 
 // suspend inline fun + crossinline 람다는 Vert.x dispatcher 컨텍스트에서 실행되어
@@ -105,11 +105,11 @@ dependencies {
     testImplementation(project(":bluetape4k-jackson3"))
 
     testImplementation(libs.kryo)
-    testImplementation(libs.fory.kotlin)  // new Apache Fory
+    testImplementation(bt4k.fory.kotlin)  // new Apache Fory
 
     testImplementation(libs.lz4.java)
     testImplementation(libs.snappy.java)
-    testImplementation(libs.zstd.jni)
+    testImplementation(bt4k.zstd.jni)
 
     testImplementation(project(":bluetape4k-idgenerators"))
 
@@ -124,8 +124,8 @@ dependencies {
     testImplementation(libs.vertx.mysql.client) // MySQL
     // Testcontainers MySQL 에서 검증을 위해 사용하기 위해 불가피하게 필요합니다
     // reactive 방식에서는 항상 verx-mysql-client 를 사용합니다
-    testImplementation(libs.hikaricp)
-    testImplementation(libs.mysql.connector.j)
+    testImplementation(bt4k.hikaricp)
+    testImplementation(bt4k.mysql.connector.j)
 
     // bluetape4k-data-hibernate의 entity 들을 재사용하려고 testArchives 를 참조한다
     // persistence.xml 에서도 jar-file에 entity path를 추가해야 한다

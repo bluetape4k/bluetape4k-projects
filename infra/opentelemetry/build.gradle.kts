@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.spring")
-    alias(libs.plugins.shadow)
+    alias(bt4k.plugins.shadow)
 
     id("de.undercouch.download") version "5.6.0"
 }
@@ -33,9 +33,9 @@ configurations {
 
 dependencyManagement {
     imports {
-        mavenBom(libs.opentelemetry.bom.get().toString())
+        mavenBom(bt4k.opentelemetry.bom.get().toString())
         mavenBom(libs.opentelemetry.alpha.bom.get().toString())
-        mavenBom(libs.opentelemetry.instrumentation.bom.alpha.get().toString())
+        mavenBom(bt4k.opentelemetry.instrumentation.bom.alpha.get().toString())
     }
 }
 
@@ -46,7 +46,7 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // OpenTelemetry
-    api(libs.opentelemetry.api)
+    api(bt4k.opentelemetry.api)
     api(libs.opentelemetry.sdk)
     api(libs.opentelemetry.extension.kotlin)
     compileOnly(libs.opentelemetry.sdk.extensions.autoconfigure)

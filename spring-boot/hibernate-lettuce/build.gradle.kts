@@ -49,14 +49,14 @@ dependencies {
 
     // Optional 의존성
     compileOnly("org.springframework.boot:spring-boot-starter-data-jpa")
-    compileOnly(libs.hibernate.core)
+    compileOnly(bt4k.hibernate.core)
     compileOnly(libs.micrometer.core)
     compileOnly("org.springframework.boot:spring-boot-starter-actuator")
     compileOnly("org.springframework.boot:spring-boot-micrometer-metrics")
 
     // 직렬화/압축 런타임
-    implementation(libs.fory.kotlin)
-    implementation(libs.zstd.jni)
+    implementation(bt4k.fory.kotlin)
+    implementation(bt4k.zstd.jni)
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -66,5 +66,5 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(libs.h2.v2)
-    testImplementation(libs.hikaricp)
+    testImplementation(bt4k.hikaricp)
 }

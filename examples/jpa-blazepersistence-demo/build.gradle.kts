@@ -41,7 +41,7 @@ dependencies {
 
     implementation(libs.jakarta.annotation.api)
     implementation(libs.jakarta.persistence.api.v32)
-    implementation(libs.hibernate.core)
+    implementation(bt4k.hibernate.core)
 
     implementation(libs.blaze.persistence.core.api.jakarta)
     runtimeOnly(libs.blaze.persistence.core.impl.jakarta)
@@ -63,6 +63,6 @@ dependencies {
         exclude(module = "mockito-core")
     }
 
-    testImplementation(libs.hikaricp)
+    testImplementation(bt4k.hikaricp)
     testImplementation(libs.h2.v2)
 }

@@ -7,5 +7,5 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     api(libs.javax.money.api)
-    api(libs.javamoney.moneta)
+    api(bt4k.javamoney.moneta)
 }

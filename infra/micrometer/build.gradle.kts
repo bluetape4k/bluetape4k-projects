@@ -54,7 +54,7 @@ dependencies {
     implementation(libs.jackson3.module.kotlin)
     implementation(libs.jackson3.module.blackbird)
 
-    implementation(libs.vertx.core)
+    implementation(bt4k.vertx.core)
     testImplementation(project(":bluetape4k-vertx"))
 
     // Coroutines

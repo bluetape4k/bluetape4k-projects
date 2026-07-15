@@ -1,7 +1,7 @@
 plugins {
     // Spring 관련 Plugin 은 spring-cloud-openfeign 예제를 위한 것입니다.
     kotlin("plugin.spring")
-    // alias(libs.plugins.spring.boot)
+    // alias(bt4k.plugins.spring.boot)
 }
 
 //tasks.bootJar {
@@ -52,14 +52,14 @@ dependencies {
 
     // Apache HttpCompoents HttpClient 5
     // feign_hc5 를 사용하려면, httpcore5, httpcore5-h2 도 버전을 맞춰줘야 한다 
-    api(libs.httpclient5)
+    api(bt4k.httpclient5)
     api(libs.httpclient5.cache)
-    api(libs.httpcore5)
-    api(libs.httpcore5.h2)
+    api(bt4k.httpcore5.lib)
+    api(bt4k.httpcore5.h2)
 
     // Vertx
     compileOnly(project(":bluetape4k-vertx"))
-    compileOnly(libs.vertx.core)
+    compileOnly(bt4k.vertx.core)
     compileOnly(libs.vertx.lang.kotlin)
     compileOnly(libs.vertx.lang.kotlin.coroutines)
 
