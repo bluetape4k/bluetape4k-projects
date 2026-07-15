@@ -29,10 +29,10 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Apache Commons
-    api(libs.commons.lang3)
-    compileOnly(libs.commons.codec)
-    compileOnly(libs.commons.compress)
-    compileOnly(libs.commons.io)
+    api(bt4k.commons.lang3)
+    compileOnly(bt4k.commons.codec)
+    compileOnly(bt4k.commons.compress)
+    compileOnly(bt4k.commons.io)
 
     // Hashing (XXHasher용)
     compileOnly(libs.lz4.java)

@@ -71,12 +71,12 @@ dependencies {
 
     testImplementation(libs.awaitility.kotlin)
 
-    testRuntimeOnly(libs.fory.kotlin)
+    testRuntimeOnly(bt4k.fory.kotlin)
     testRuntimeOnly(libs.kryo5)
 
     testRuntimeOnly(libs.lz4.java)
     testRuntimeOnly(libs.snappy.java)
-    testRuntimeOnly(libs.zstd.jni)
+    testRuntimeOnly(bt4k.zstd.jni)
 
     // Benchmark
     add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)

@@ -17,7 +17,7 @@ dependencies {
     // R2DBC
     api("org.springframework.boot:spring-boot-starter-data-r2dbc")
     testImplementation(libs.r2dbc.pool)
-    testImplementation(libs.r2dbc.h2)
+    testImplementation(bt4k.r2dbc.h2)
     testRuntimeOnly(libs.h2.v2)
 
     // Jackson 3

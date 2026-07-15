@@ -16,7 +16,7 @@ dependencies {
     compileOnly(libs.feign.slf4j)
     compileOnly(libs.feign.jackson)
     compileOnly("com.google.maps:google-maps-services:2.2.0")
-    compileOnly(libs.httpclient5)
+    compileOnly(bt4k.httpclient5)
     compileOnly(libs.httpclient5.cache)
 
     // geoip2: MaxMind GeoIP2

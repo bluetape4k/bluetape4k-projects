@@ -22,7 +22,7 @@ kotlin {
 
 protobuf {
     protoc {
-        artifact = libs.protobuf.protoc.get().toString()
+        artifact = "com.google.protobuf:protoc:${bt4k.versions.protobuf.get()}"
     }
     generateProtoTasks {
         all().forEach { task ->

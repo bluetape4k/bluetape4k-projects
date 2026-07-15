@@ -71,13 +71,13 @@ dependencies {
     compileOnly(project(":bluetape4k-cache-core"))
 
     // Serializer
-    compileOnly(libs.fory.kotlin)
+    compileOnly(bt4k.fory.kotlin)
     compileOnly(libs.kryo5)
 
     // Compressor
     compileOnly(libs.lz4.java)
     compileOnly(libs.snappy.java)
-    compileOnly(libs.zstd.jni)
+    compileOnly(bt4k.zstd.jni)
 
     // JSON Codecs (compileOnly - 사용자가 직접 의존성 추가)
     compileOnly(project(":bluetape4k-jackson3"))

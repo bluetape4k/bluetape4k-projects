@@ -5,7 +5,7 @@ configurations {
 dependencies {
     api(project(":bluetape4k-core"))
     api(libs.logback.classic)
-    api(libs.kafka.clients)
+    api(bt4k.kafka.clients)
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))

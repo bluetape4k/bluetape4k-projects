@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.kotlin.serialization)
+    alias(bt4k.plugins.kotlin.serialization)
 }
 
 configurations {
@@ -15,7 +15,7 @@ dependencies {
     api(libs.ktor.client.mock)
 
     implementation(libs.ktor.serialization.kotlinx.json)
-    implementation(libs.kotlinx.serialization.json)
+    implementation(bt4k.kotlinx.serialization.json)
 
     testImplementation(project(":bluetape4k-junit5"))
 }

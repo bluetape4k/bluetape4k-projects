@@ -45,7 +45,7 @@ dependencies {
     compileOnly(libs.okhttp3.logging.interceptor)
     testImplementation(libs.okhttp3.mockwebserver)
 
-    compileOnly(libs.httpclient5)
+    compileOnly(bt4k.httpclient5)
     compileOnly(libs.httpclient5.cache)
     compileOnly(libs.httpclient5.fluent)
     testImplementation(libs.httpclient5.testing) {

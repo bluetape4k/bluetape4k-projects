@@ -12,17 +12,17 @@ dependencies {
     
     // Redisson
     testImplementation(project(":bluetape4k-redisson"))
-    testImplementation(libs.redisson)
+    testImplementation(bt4k.redisson)
     testImplementation(libs.redisson.spring.boot.starter)
 
     // Codecs
     testImplementation(libs.kryo)
-    testImplementation(libs.fory.kotlin)  // new Apache Fory
+    testImplementation(bt4k.fory.kotlin)  // new Apache Fory
 
     // Compressor
     testImplementation(libs.lz4.java)
     testImplementation(libs.snappy.java)
-    testImplementation(libs.zstd.jni)
+    testImplementation(bt4k.zstd.jni)
 
     // Protobuf
     testImplementation(project(":bluetape4k-protobuf"))
@@ -52,7 +52,7 @@ dependencies {
     // Redisson Map Read/Write Through 예제를 위해 
     testImplementation(project(":bluetape4k-jdbc"))
     testRuntimeOnly(libs.h2.v2)
-    testImplementation(libs.hikaricp)
+    testImplementation(bt4k.hikaricp)
     testImplementation("org.springframework.boot:spring-boot-starter-jdbc")
 
     testImplementation("org.springframework.boot:spring-boot-starter-data-redis")
@@ -62,10 +62,10 @@ dependencies {
     }
 
     // Redisson Cache Strategy 예제 — raw JetBrains Exposed 직접 참조
-    testImplementation(libs.exposed.core)
+    testImplementation(bt4k.exposed.core)
     testImplementation(libs.exposed.dao)
-    testImplementation(libs.exposed.jdbc)
-    testImplementation(libs.exposed.java.time)
-    testImplementation(libs.exposed.spring.boot.starter)
+    testImplementation(bt4k.exposed.jdbc)
+    testImplementation(bt4k.exposed.java.time)
+    testImplementation(bt4k.exposed.spring.boot4.starter)
     testImplementation("org.springframework.boot:spring-boot-autoconfigure")
 }

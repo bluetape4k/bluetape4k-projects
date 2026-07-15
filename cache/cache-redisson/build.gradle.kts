@@ -8,7 +8,7 @@ dependencies {
     api(project(":bluetape4k-cache-core"))
 
     // Redisson JCache provider
-    api(libs.redisson)
+    api(bt4k.redisson)
     api(project(":bluetape4k-redisson"))
     // bluetape4k-resilience4j는 compileOnly(cache-redisson) 의존으로 순환 의존성 발생 → 직접 라이브러리 사용
     implementation(libs.resilience4j.retry)
@@ -29,10 +29,10 @@ dependencies {
         exclude(group = "org.mockito", module = "mockito-core")
     }
 
-    testRuntimeOnly(libs.fory.kotlin)
+    testRuntimeOnly(bt4k.fory.kotlin)
     testRuntimeOnly(libs.kryo5)
 
     testRuntimeOnly(libs.lz4.java)
     testRuntimeOnly(libs.snappy.java)
-    testRuntimeOnly(libs.zstd.jni)
+    testRuntimeOnly(bt4k.zstd.jni)
 }

@@ -22,16 +22,16 @@ dependencies {
 
     // Redis
     compileOnly(libs.lettuce.core)
-    compileOnly(libs.redisson)
+    compileOnly(bt4k.redisson)
 
     // Codecs
-    testImplementation(libs.fory.kotlin)
+    testImplementation(bt4k.fory.kotlin)
     testImplementation(libs.kryo5)
 
     // Compressor
     testImplementation(libs.lz4.java)
     testImplementation(libs.snappy.java)
-    testImplementation(libs.zstd.jni)
+    testImplementation(bt4k.zstd.jni)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))

@@ -36,12 +36,12 @@ dependencies {
     api("org.springframework.boot:spring-boot-starter-data-redis")
 
     // Runtime codecs used by the documented RedisBinarySerializers matrix
-    runtimeOnly(libs.fory.kotlin)
+    runtimeOnly(bt4k.fory.kotlin)
     runtimeOnly(libs.kryo5)
 
     // Runtime compressors used by the documented RedisBinarySerializers matrix
     runtimeOnly(libs.lz4.java)
-    runtimeOnly(libs.zstd.jni)
+    runtimeOnly(bt4k.zstd.jni)
     runtimeOnly(libs.snappy.java)
 
     testImplementation(project(":bluetape4k-junit5"))

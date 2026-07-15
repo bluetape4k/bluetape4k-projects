@@ -37,14 +37,14 @@ dependencies {
 
     // Apache HttpCompoents HttpClient 5
     // feign_hc5 를 사용하려면, httpcore5, httpcore5-h2 도 버전을 맞춰줘야 한다
-    compileOnly(libs.httpclient5)
+    compileOnly(bt4k.httpclient5)
     compileOnly(libs.httpclient5.cache)
-    compileOnly(libs.httpcore5)
-    compileOnly(libs.httpcore5.h2)
+    compileOnly(bt4k.httpcore5.lib)
+    compileOnly(bt4k.httpcore5.h2)
 
     // Vertx
     compileOnly(project(":bluetape4k-vertx"))
-    compileOnly(libs.vertx.core)
+    compileOnly(bt4k.vertx.core)
     compileOnly(libs.vertx.lang.kotlin)
     compileOnly(libs.vertx.lang.kotlin.coroutines)
 

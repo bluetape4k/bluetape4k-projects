@@ -65,12 +65,12 @@ dependencies {
 
     implementation(libs.jakarta.annotation.api)
     implementation(libs.jakarta.persistence.api)
-    implementation(libs.hibernate.core)
+    implementation(bt4k.hibernate.core)
 
     // QueryDsl
-    implementation(libs.querydsl.jpa)
-    kapt(variantOf(libs.querydsl.apt) { classifier("jakarta") })
-    kaptTest(variantOf(libs.querydsl.apt) { classifier("jakarta") })
+    implementation(bt4k.querydsl.jpa)
+    kapt(variantOf(bt4k.querydsl.apt) { classifier("jakarta") })
+    kaptTest(variantOf(bt4k.querydsl.apt) { classifier("jakarta") })
     kapt(libs.jakarta.persistence.api)
 
     // Vaidators
@@ -87,9 +87,9 @@ dependencies {
         exclude(module = "mockito-core")
     }
 
-    testImplementation(libs.hikaricp)
+    testImplementation(bt4k.hikaricp)
     testImplementation(libs.h2.v2)
-    testImplementation(libs.mysql.connector.j)
+    testImplementation(bt4k.mysql.connector.j)
 
     // TestContainers
     testImplementation(project(":bluetape4k-testcontainers"))
@@ -97,6 +97,6 @@ dependencies {
 
     // Caching 테스트
     testImplementation(project(":bluetape4k-cache-core"))
-    testImplementation(libs.hibernate.jcache)
+    testImplementation(bt4k.hibernate.jcache)
     testImplementation(libs.caffeine.jcache)
 }

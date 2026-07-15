@@ -5,7 +5,7 @@ configurations {
 dependencies {
     api(project(":bluetape4k-core"))
     compileOnly(libs.lettuce.core)
-    compileOnly(libs.redisson)
+    compileOnly(bt4k.redisson)
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 

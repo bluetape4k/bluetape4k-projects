@@ -27,12 +27,12 @@ dependencies {
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(libs.avro)
+    api(bt4k.avro)
     api(libs.avro.kotlin)
 
     // Compressor
     runtimeOnly(libs.snappy.java)
     runtimeOnly(libs.lz4.java)
-    runtimeOnly(libs.zstd.jni)
+    runtimeOnly(bt4k.zstd.jni)
     runtimeOnly(libs.xz)
 }

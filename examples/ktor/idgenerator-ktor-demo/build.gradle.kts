@@ -1,6 +1,6 @@
 plugins {
     application
-    alias(libs.plugins.kotlin.serialization)
+    alias(bt4k.plugins.kotlin.serialization)
 }
 
 configurations {

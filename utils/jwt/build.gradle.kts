@@ -21,13 +21,13 @@ dependencies {
     api(libs.jackson.module.blackbird)
 
     // Serializer
-    compileOnly(libs.fory.kotlin)
+    compileOnly(bt4k.fory.kotlin)
     compileOnly(libs.kryo5)
 
     // Compressor
     compileOnly(libs.lz4.java)
     compileOnly(libs.snappy.java)
-    compileOnly(libs.zstd.jni)
+    compileOnly(bt4k.zstd.jni)
 
     // Caching
     compileOnly(project(":bluetape4k-cache-redisson"))
@@ -39,7 +39,7 @@ dependencies {
     api(libs.java.uuid.generator)
 
     // KeyChain을 Redis 나 MongoDB에 저장하여, 다중서버가 공유하기 위한 KeyChainPersister 를 사용하기 위해
-    compileOnly(libs.redisson)
+    compileOnly(bt4k.redisson)
     compileOnly(libs.mongodb.driver.sync)
     compileOnly(libs.mongodb.driver.reactivestreams)
     compileOnly(libs.mongodb.driver.kotlin.sync)

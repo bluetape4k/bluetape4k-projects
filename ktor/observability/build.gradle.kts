@@ -3,13 +3,16 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(libs.micrometer.bom))
+    implementation(platform(bt4k.opentelemetry.instrumentation.bom.alpha))
+
     api(project(":bluetape4k-ktor-core"))
     api(libs.ktor.server.core)
     api(libs.ktor.server.call.id)
     api(libs.ktor.server.call.logging)
     api(libs.ktor.server.metrics.micrometer)
     api(libs.micrometer.core)
-    api(libs.opentelemetry.api)
+    api(bt4k.opentelemetry.api)
 
     compileOnly(libs.micrometer.registry.prometheus)
     compileOnly(libs.opentelemetry.ktor)

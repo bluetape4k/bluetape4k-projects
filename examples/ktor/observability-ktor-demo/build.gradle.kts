@@ -1,6 +1,6 @@
 plugins {
     application
-    alias(libs.plugins.kotlin.serialization)
+    alias(bt4k.plugins.kotlin.serialization)
 }
 
 configurations {
@@ -19,7 +19,7 @@ dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.cio)
     implementation(libs.micrometer.registry.prometheus)
-    implementation(libs.opentelemetry.api)
+    implementation(bt4k.opentelemetry.api)
 
     runtimeOnly(libs.logback.classic)
     runtimeOnly(libs.opentelemetry.ktor)

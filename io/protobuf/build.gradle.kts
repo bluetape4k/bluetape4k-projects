@@ -15,7 +15,7 @@ idea {
 
 protobuf {
     protoc {
-        artifact = libs.protobuf.protoc.get().toString()
+        artifact = "com.google.protobuf:protoc:${bt4k.versions.protobuf.get()}"
     }
     generateProtoTasks {
         all().forEach { task ->
@@ -38,7 +38,7 @@ configurations {
 
 dependencies {
     // Protobuf
-    api(libs.protobuf.java)
+    api(bt4k.protobuf.java)
     api(libs.protobuf.java.util)
     api(libs.protobuf.kotlin)
     api(libs.proto.google.common.protos)
@@ -52,10 +52,10 @@ dependencies {
     // Redis Codecs
     compileOnly(libs.lz4.java)
     compileOnly(libs.snappy.java)
-    compileOnly(libs.zstd.jni)
+    compileOnly(bt4k.zstd.jni)
 
     // Fallback codec
-    // compileOnly(libs.fory.kotlin)
+    // compileOnly(bt4k.fory.kotlin)
 
     // Money (MoneySupport.kt)
     compileOnly(project(":bluetape4k-money"))

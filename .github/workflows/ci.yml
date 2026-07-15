@@ -42,6 +42,7 @@ env:
   JAVA_VERSION: '21'
   JAVA_DISTRIBUTION: 'temurin'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  BLUETAPE4K_DEPENDENCIES_CATALOG_REF: '2646d2cd2d4ecc09654c2ac6ef11cfd6679f1086'
   GITLEAKS_VERSION: 'v8.30.1'
 
 jobs:
@@ -147,11 +148,47 @@ jobs:
               - 'cache/hibernate-cache-lettuce/**'
 
   # ── 2. 전체 빌드 (테스트 제외) ──────────────────────────────────────────
+  catalog-governance:
+    name: Central Catalog Governance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: bluetape4k/bluetape4k-dependencies
+          ref: ${{ env.BLUETAPE4K_DEPENDENCIES_CATALOG_REF }}
+          path: .catalog/bluetape4k-dependencies
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v5
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: wrapper
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+      - name: Verify immutable catalog checkout
+        run: test "$(git -C .catalog/bluetape4k-dependencies rev-parse HEAD)" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_REF"
+      - name: Check central catalog adoption
+        run: |
+          python3 .catalog/bluetape4k-dependencies/scripts/sync-shared-versions.py \
+            --workspace "$(dirname "$GITHUB_WORKSPACE")" \
+            --repo "${GITHUB_REPOSITORY#*/}" \
+            --check \
+            --summary
+      - name: Resolve Gradle catalog from checked-out source
+        env:
+          BLUETAPE4K_DEPENDENCIES_CATALOG_PATH: ${{ github.workspace }}/.catalog/bluetape4k-dependencies/gradle/libs.versions.toml
+        run: ./gradlew help --no-daemon
+
   build:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: validate-wrapper
+    needs: [validate-wrapper, catalog-governance]
     steps:
       - uses: actions/checkout@v7
 
@@ -809,7 +846,7 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [gitleaks, validate-wrapper, changes, build, test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data, coverage-report]
+    needs: [catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data, coverage-report]
     if: always()
     steps:
       - name: Check all jobs
