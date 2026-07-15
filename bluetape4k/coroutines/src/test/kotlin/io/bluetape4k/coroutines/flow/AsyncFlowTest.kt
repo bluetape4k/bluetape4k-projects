@@ -1,25 +1,31 @@
 package io.bluetape4k.coroutines.flow
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.concurrent.virtualthread.VT
 import io.bluetape4k.coroutines.flow.extensions.log
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class AsyncFlowTest {
 
@@ -57,6 +63,43 @@ class AsyncFlowTest {
     @RepeatedTest(REPEAT_SIZE)
     fun `asyncFlow with virtual thread dispatcher`() = runTest {
         runAsyncFlow(Dispatchers.VT)
+    }
+
+    @Test
+    fun `concurrent collectors preserve per-collector order`() = runSuspendDefault(timeout = 15.seconds) {
+        val workerCount = 8
+        val collectionCount = 32
+        val stressItems = expectedItems.take(128)
+        val readyCollectors = AtomicInteger(0)
+        val completedCollectors = AtomicInteger(0)
+        val startGate = CompletableDeferred<Unit>()
+
+        SuspendedJobTester()
+            .workers(workerCount)
+            .rounds(collectionCount)
+            .add {
+                val enteredOperator = AtomicBoolean(false)
+                val results = stressItems
+                    .asFlow()
+                    .async(Dispatchers.Default) { item ->
+                        if (enteredOperator.compareAndSet(false, true)) {
+                            if (readyCollectors.incrementAndGet() == workerCount) {
+                                startGate.complete(Unit)
+                            }
+                            startGate.await()
+                        }
+                        delay((item % 3 + 1).milliseconds)
+                        item
+                    }
+                    .toList()
+
+                results shouldBeEqualTo stressItems
+                completedCollectors.incrementAndGet()
+            }
+            .run()
+
+        readyCollectors.get() shouldBeEqualTo collectionCount
+        completedCollectors.get() shouldBeEqualTo collectionCount
     }
 
     private suspend inline fun runAsyncFlow(dispatcher: CoroutineDispatcher) {
