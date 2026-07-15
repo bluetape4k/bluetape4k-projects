@@ -2,15 +2,15 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.error
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.coroutineContext
 
 /**
@@ -19,6 +19,7 @@ import kotlin.coroutines.coroutineContext
  * ## 동작/계약
  * - 새 collector는 구독 즉시 최신 값(있다면)을 먼저 받고 이후 실시간 값을 받습니다.
  * - 기본 생성 시 초기값이 없고, `invoke(initialValue)`로 초기값을 줄 수 있습니다.
+ * - `emit`/`complete`/`emitError`는 Subject 단위로 직렬화됩니다.
  * - `complete()`/`emitError()` 이후에는 종료 상태가 되며 이후 emit은 무시됩니다.
  * - 다중 collector를 허용하며 collector별 동기화 객체를 유지하므로 collector 수에 비례한 할당이 발생합니다.
  *
@@ -61,6 +62,8 @@ class BehaviorSubject<T> private constructor(
     }
 
     private val collectors = atomic<Array<InnerCollector>>(EMPTY)
+
+    private val signalMutex = Mutex()
 
     @Volatile
     private var error: Throwable? = null
@@ -134,7 +137,9 @@ class BehaviorSubject<T> private constructor(
      *
      * ## 동작/계약
      * - 종료 상태(`DONE`)면 호출을 무시합니다.
+     * - 동시 호출은 Subject 단위로 직렬화해 linked node와 collector 알림 순서를 보존합니다.
      * - 최신 노드를 교체한 뒤 collector들을 깨워 새 값을 전달합니다.
+     * - 상태 반영 후 producer가 취소되더라도 아직 알리지 못한 collector에는 wake-up을 남깁니다.
      * - collector가 취소되면 내부 목록에서 제거합니다.
      *
      * ```kotlin
@@ -144,31 +149,26 @@ class BehaviorSubject<T> private constructor(
      * ```
      * @param value 방출할 값입니다.
      */
-    override suspend fun emit(value: T) {
-        if (current == DONE)
-            return
+    override suspend fun emit(value: T) = signalMutex.withLock {
+        if (current == DONE) {
+            return@withLock
+        }
 
         val next = Node(value)
         current.set(next)
         current = next
 
-        collectors.value.forEach { innerCollector ->
-            try {
-                innerCollector.consumeReady.await()
-                innerCollector.resume()
-            } catch (e: CancellationException) {
-                currentCoroutineContext().ensureActive() // 부모 취소 시 rethrow
-                remove(innerCollector) // 이 collector만 개별 취소됨
-            }
-        }
+        notifyCollectors(collectors.value)
     }
 
     /**
      * 오류 종료 상태로 전환합니다.
      *
      * ## 동작/계약
+     * - 진행 중인 값 전파와 다른 종료 신호가 끝날 때까지 Subject 단위로 대기합니다.
      * - 최초 종료 전환 시 error를 저장하고 `DONE` 노드로 마킹합니다.
      * - 활성 collector를 모두 깨워 종료 경로로 진행시킵니다.
+     * - 종료 상태 반영 후 호출자가 취소돼도 아직 알리지 못한 collector에는 wake-up을 남깁니다.
      * - 이후 emit/complete/emitError 호출은 무시됩니다.
      *
      * ```kotlin
@@ -181,32 +181,26 @@ class BehaviorSubject<T> private constructor(
     // 안전: DONE은 Node<Any> 타입 sentinel이며, 실제 값을 가리키지 않으므로
     // Node<T>로 캐스팅해도 런타임에서 값에 접근하지 않는 한 ClassCastException이 발생하지 않음.
     @Suppress("UNCHECKED_CAST")
-    override suspend fun emitError(ex: Throwable?) {
-        if (current == DONE)
-            return
+    override suspend fun emitError(ex: Throwable?) = signalMutex.withLock {
+        if (current == DONE) {
+            return@withLock
+        }
 
         error = ex
         current.set(DONE as Node<T>)
         current = DONE
 
-        collectors.getAndSet(TERMINATED).forEach { innerCollector ->
-            try {
-                innerCollector.consumeReady.await()
-                innerCollector.resume()
-            } catch (e: CancellationException) {
-                currentCoroutineContext().ensureActive()
-            } catch (e: Throwable) {
-                log.error(e) { "BehaviorSubject.emitError notification failed. innerCollector=$innerCollector" }
-            }
-        }
+        notifyCollectors(collectors.getAndSet(TERMINATED))
     }
 
     /**
      * 정상 완료 상태로 전환합니다.
      *
      * ## 동작/계약
+     * - 진행 중인 값 전파와 다른 종료 신호가 끝날 때까지 Subject 단위로 대기합니다.
      * - 최초 종료 전환 시 `DONE` 노드로 마킹하고 collector를 모두 깨웁니다.
      * - collector는 남은 값을 처리한 뒤 정상 종료합니다.
+     * - 종료 상태 반영 후 호출자가 취소돼도 아직 알리지 못한 collector에는 wake-up을 남깁니다.
      * - 이후 emit/complete/emitError 호출은 무시됩니다.
      *
      * ```kotlin
@@ -217,23 +211,15 @@ class BehaviorSubject<T> private constructor(
      */
     // 안전: DONE sentinel을 Node<T>로 캐스팅. sentinel의 value에 접근하지 않으므로 ClassCastException 없음.
     @Suppress("UNCHECKED_CAST")
-    override suspend fun complete() {
-        if (current == DONE)
-            return
+    override suspend fun complete() = signalMutex.withLock {
+        if (current == DONE) {
+            return@withLock
+        }
 
         current.set(DONE as Node<T>)
         current = DONE
 
-        collectors.getAndSet(TERMINATED).forEach { innerCollector ->
-            try {
-                innerCollector.consumeReady.await()
-                innerCollector.resume()
-            } catch (e: CancellationException) {
-                currentCoroutineContext().ensureActive()
-            } catch (e: Throwable) {
-                log.error(e) { "Fail to complete. innerCollector=$innerCollector" }
-            }
-        }
+        notifyCollectors(collectors.getAndSet(TERMINATED))
     }
 
 
@@ -299,6 +285,23 @@ class BehaviorSubject<T> private constructor(
         }
 
         error?.let { throw it }
+    }
+
+    private suspend fun notifyCollectors(snapshot: Array<InnerCollector>) {
+        var notified = 0
+        try {
+            while (notified < snapshot.size) {
+                val inner = snapshot[notified]
+                inner.consumeReady.await()
+                inner.resume()
+                notified++
+            }
+        } finally {
+            while (notified < snapshot.size) {
+                snapshot[notified].resume()
+                notified++
+            }
+        }
     }
 
     // 안전: TERMINATED sentinel(Array<InnerCollector>)과 실제 배열은 동일 타입이므로
