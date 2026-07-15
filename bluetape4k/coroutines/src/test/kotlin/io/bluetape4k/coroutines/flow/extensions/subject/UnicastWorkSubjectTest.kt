@@ -3,6 +3,8 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 import io.bluetape4k.coroutines.flow.extensions.flowRangeOf
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.junit5.coroutines.withSingleThread
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.coroutineScope
@@ -13,8 +15,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 class UnicastWorkSubjectTest {
 
@@ -108,6 +114,72 @@ class UnicastWorkSubjectTest {
 
         val result = us.take(3).log("#1").toList()
         result shouldBeEqualTo listOf(0, 1, 2)
+    }
+
+    @Test
+    fun `concurrent producers emit every work item exactly once`() = runSuspendDefault(timeout = 10.seconds) {
+        val subject = UnicastWorkSubject<Int>()
+        val producerWorkers = 8
+        val rounds = 1024
+        val expectedValues = (1..rounds).toList()
+        val produced = AtomicInteger(0)
+        val received = ConcurrentLinkedQueue<Int>()
+
+        val collectorJob = launch {
+            subject.collect(received::add)
+        }
+
+        subject.awaitCollector()
+
+        SuspendedJobTester()
+            .workers(producerWorkers)
+            .rounds(rounds)
+            .add { subject.emit(produced.incrementAndGet()) }
+            .run()
+        subject.complete()
+        collectorJob.join()
+
+        produced.get() shouldBeEqualTo rounds
+        received.sorted() shouldBeEqualTo expectedValues
+        subject.collectorCount shouldBeEqualTo 0
+        subject.hasCollectors.shouldBeFalse()
+    }
+
+    @Test
+    fun `chunked collector drains concurrent producer work without loss`() = runSuspendDefault(timeout = 10.seconds) {
+        val subject = UnicastWorkSubject<Int>()
+        val producerWorkers = 8
+        val rounds = 1024
+        val chunkSize = 64
+        val expectedValues = (1..rounds).toList()
+        val produced = AtomicInteger(0)
+        val received = ConcurrentLinkedQueue<Int>()
+        val chunkSizes = mutableListOf<Int>()
+
+        val collectorJob = launch {
+            while (received.size < rounds) {
+                val chunk = subject.take(chunkSize).toList()
+                chunkSizes += chunk.size
+                received.addAll(chunk)
+            }
+        }
+
+        subject.awaitCollector()
+
+        SuspendedJobTester()
+            .workers(producerWorkers)
+            .rounds(rounds)
+            .add { subject.emit(produced.incrementAndGet()) }
+            .run()
+        subject.complete()
+        collectorJob.join()
+
+        produced.get() shouldBeEqualTo rounds
+        received.sorted() shouldBeEqualTo expectedValues
+        chunkSizes shouldBeEqualTo List(rounds / chunkSize) { chunkSize }
+        subject.toList() shouldBeEqualTo emptyList()
+        subject.collectorCount shouldBeEqualTo 0
+        subject.hasCollectors.shouldBeFalse()
     }
 
     @Test
