@@ -31,4 +31,3 @@ Ant:           Apache Ant(TM) version 1.10.15 compiled on August 25 2024
 Launcher JVM:  25.0.3 (Oracle Corporation 25.0.3+9-LTS-jvmci-b01)
 Daemon JVM:    /Library/Java/JavaVirtualMachines/graalvm-jdk-25/Contents/Home (no Daemon JVM specified, using current Java home)
 OS:            Mac OS X 26.5.1 aarch64
-
