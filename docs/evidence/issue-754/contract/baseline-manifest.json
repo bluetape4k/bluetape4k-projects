@@ -2,6 +2,7 @@
   "schemaVersion": 1,
   "issue": 754,
   "slice": "contract",
+  "scopeAuthority": "https://github.com/bluetape4k/bluetape4k-projects/issues/754",
   "authority": {
     "producerCommit": "90b267871e9154f242e6de7ee9fd0539f83e509e",
     "producerTree": "f40ccbda16ddf56d4b7770c01e9b0b2cb07cedba",
@@ -40,9 +41,5 @@
     "gradle": "9.6.0",
     "gradleEmbeddedKotlin": "2.3.21",
     "fixtureCompilerKotlin": "2.4.10"
-  },
-  "approvedAuthorities": {
-    "designCommit": "f0b8bd22a61b3cf8c497377de46a090f7e0cccbe",
-    "planCommit": "8d7a2df5e25797b1c29e1c734d7534ad99c2e79a"
   }
 }

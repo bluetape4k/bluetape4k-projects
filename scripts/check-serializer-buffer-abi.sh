@@ -44,6 +44,106 @@ assert_hash() {
     [[ "$actual" == "$expected" ]] || fail "checksum mismatch for $path: expected=$expected actual=$actual"
 }
 
+tested_code_tree_sha256() {
+    local candidate="$1"
+    python3 - "$ROOT" "$candidate" <<'PY'
+import hashlib
+import pathlib
+import re
+import subprocess
+import sys
+
+repository = pathlib.Path(sys.argv[1]).resolve()
+candidate = sys.argv[2]
+if re.fullmatch(r"[0-9a-f]{40}", candidate) is None:
+    raise SystemExit("expected a full lowercase Git SHA")
+
+
+def git(*args: str, text: bool = True):
+    return subprocess.run(
+        ["git", *args],
+        cwd=repository,
+        check=True,
+        capture_output=True,
+        text=text,
+    ).stdout
+
+
+def is_serializer_contract_path(path: str) -> bool:
+    return (
+        path.startswith(("io/io/src/", "io/json/src/", "io/avro/src/"))
+        or path.startswith(("buildSrc/", "gradle/"))
+        or path in {
+            "build.gradle.kts",
+            "settings.gradle.kts",
+            "gradle.properties",
+            "scripts/check-serializer-buffer-abi.sh",
+        }
+        or path.endswith("/build.gradle.kts")
+    )
+
+
+paths = git("ls-tree", "-r", "--name-only", candidate).splitlines()
+digest = hashlib.sha256()
+for path in sorted(path for path in paths if is_serializer_contract_path(path)):
+    content = git("show", f"{candidate}:{path}", text=False)
+    digest.update(path.encode("utf-8"))
+    digest.update(b"\0")
+    digest.update(hashlib.sha256(content).hexdigest().encode("ascii"))
+    digest.update(b"\n")
+print(digest.hexdigest())
+PY
+}
+
+assert_clean_tested_code() {
+    python3 - "$ROOT" <<'PY'
+import pathlib
+import subprocess
+import sys
+
+repository = pathlib.Path(sys.argv[1]).resolve()
+
+
+def is_serializer_contract_path(path: str) -> bool:
+    return (
+        path.startswith(("io/io/src/", "io/json/src/", "io/avro/src/"))
+        or path.startswith(("buildSrc/", "gradle/"))
+        or path in {
+            "build.gradle.kts",
+            "settings.gradle.kts",
+            "gradle.properties",
+            "scripts/check-serializer-buffer-abi.sh",
+        }
+        or path.endswith("/build.gradle.kts")
+    )
+
+
+commands = (
+    ("diff", "--name-only", "-z"),
+    ("diff", "--cached", "--name-only", "-z"),
+    ("ls-files", "--others", "--exclude-standard", "-z"),
+)
+dirty = set()
+for command in commands:
+    output = subprocess.run(
+        ["git", *command],
+        cwd=repository,
+        check=True,
+        capture_output=True,
+    ).stdout
+    for raw_path in output.split(b"\0"):
+        if not raw_path:
+            continue
+        path = raw_path.decode("utf-8", errors="surrogateescape")
+        if is_serializer_contract_path(path):
+            dirty.add(path)
+
+if dirty:
+    raise SystemExit("dirty serializer contract paths: " + ", ".join(sorted(dirty)))
+print("SERIALIZER CONTRACT PATHS CLEAN")
+PY
+}
+
 resolve_single_jar() {
     local directory="$1"
     local prefix="$2"
@@ -239,9 +339,7 @@ compile_new_caller() {
 write_json_report() {
     mkdir -p "$(dirname "$JSON_REPORT")"
     local tested_code_tree_sha256
-    tested_code_tree_sha256="$(python3 "$ROOT/scripts/check-release-holds.py" \
-        --repository "$ROOT" \
-        --print-tested-code-tree-sha256 "$EXPECTED_HEAD")"
+    tested_code_tree_sha256="$(tested_code_tree_sha256 "$EXPECTED_HEAD")"
     python3 - "$ROOT" "$REPORT" "$JSON_REPORT" "$EXPECTED_HEAD" "$CURRENT_TREE" "$BASE_SHA" "$BASE_TREE" "$tested_code_tree_sha256" <<'PY'
 import json
 import pathlib
@@ -272,7 +370,6 @@ for line in text_report.read_text(encoding="utf-8").splitlines():
 payload = {
     "schemaVersion": 1,
     "issue": 754,
-    "release": "1.12.0",
     "slice": "contract",
     "status": "GREEN",
     "producerCommit": expected_head,
@@ -325,10 +422,8 @@ done
 [[ -n "$EXPECTED_HEAD" ]] || fail "--expected-head is required"
 [[ "$(git -C "$ROOT" rev-parse HEAD)" == "$EXPECTED_HEAD" ]] ||
     fail "current HEAD does not match --expected-head"
-python3 "$ROOT/scripts/check-release-holds.py" \
-    --repository "$ROOT" \
-    --assert-clean-tested-code ||
-    fail "tested serializer/build/workflow paths must be clean before ABI evidence generation"
+assert_clean_tested_code ||
+    fail "tested serializer and build paths must be clean before ABI evidence generation"
 command -v javac >/dev/null || fail "javac is required"
 command -v java >/dev/null || fail "java is required"
 command -v javap >/dev/null || fail "javap is required"
