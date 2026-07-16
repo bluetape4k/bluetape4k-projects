@@ -3,7 +3,9 @@ package io.bluetape4k.io
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import java.io.OutputStream
+import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
+import java.nio.ReadOnlyBufferException
 
 /**
  * [[java.nio.ByteBuffer]]를 저장소로 사용하는 [OutputStream] 구현체입니다.
@@ -17,6 +19,8 @@ import java.nio.ByteBuffer
  */
 open class ByteBufferOutputStream private constructor(
     private var buffer: ByteBuffer,
+    private val growable: Boolean = true,
+    private val initialPosition: Int = 0,
 ): OutputStream() {
 
     companion object: KLogging() {
@@ -102,6 +106,31 @@ open class ByteBufferOutputStream private constructor(
         fun direct(bytes: ByteArray): ByteBufferOutputStream {
             return ByteBufferOutputStream(bytes.toByteBufferDirect())
         }
+
+        /**
+         * Creates a non-growing stream over the exact supplied [buffer] view.
+         *
+         * A Java `null` argument is rejected before factory logic. A read-only buffer is rejected with
+         * [ReadOnlyBufferException]. The current position is captured as the start of this stream and the current
+         * limit is a hard write bound; storage is never grown, replaced, or detached. Writes alias caller-owned
+         * storage and advance the supplied view's position. [toByteArray] returns a copy of only the bytes written
+         * in `[capturedStart, currentPosition)` without changing the buffer.
+         *
+         * Closing this stream is an idempotent no-op and later writes remain allowed. The caller retains ownership
+         * of [buffer] and must confine both the stream and buffer view to one thread while an operation is active.
+         *
+         * @throws ReadOnlyBufferException if [buffer] is read-only
+         * @throws BufferOverflowException when a write exceeds [buffer]'s current limit
+         */
+        @JvmStatic
+        fun fixed(buffer: ByteBuffer): ByteBufferOutputStream {
+            if (buffer.isReadOnly) throw ReadOnlyBufferException()
+            return ByteBufferOutputStream(
+                buffer = buffer,
+                growable = false,
+                initialPosition = buffer.position(),
+            )
+        }
     }
 
     /**
@@ -155,12 +184,19 @@ open class ByteBufferOutputStream private constructor(
      */
     fun toByteArray(): ByteArray {
         val dup = buffer.duplicate()
-        dup.flip()
+        if (growable) {
+            dup.flip()
+        } else {
+            val end = dup.position()
+            dup.position(initialPosition)
+            dup.limit(end)
+        }
         return dup.getBytes()
     }
 
     private fun ensureCapacity(additional: Int) {
         if (additional <= buffer.remaining()) return
+        if (!growable) throw BufferOverflowException()
         val required = buffer.position() + additional
         val newCapacity = maxOf(buffer.capacity() * 2, required)
         val newBuffer = if (buffer.isDirect) {

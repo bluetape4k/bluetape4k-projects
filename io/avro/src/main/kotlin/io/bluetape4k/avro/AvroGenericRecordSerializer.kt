@@ -5,6 +5,7 @@ import io.bluetape4k.codec.encodeBase64String
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
+import java.nio.ByteBuffer
 
 /**
  * Avro `GenericRecord`를 스키마 기반으로 직렬화/역직렬화하는 인터페이스입니다.
@@ -43,6 +44,21 @@ interface AvroGenericRecordSerializer {
     fun serialize(schema: Schema, graph: GenericRecord?): ByteArray?
 
     /**
+     * Serializes [graph] under [schema] into the caller-owned [target] from its current position.
+     *
+     * This default is an allocating fallback that calls [serialize] first. A read-only target fails with
+     * `ReadOnlyBufferException` before serializer code runs. A null result writes nothing and returns `0`; insufficient
+     * remaining space fails with the raw `BufferOverflowException`.
+     *
+     * Success advances only the position by the returned count while preserving limit, capacity, and byte order.
+     * Failure restores the original position and rethrows the same throwable, including any `Error`; failed content is
+     * unspecified and is not rolled back. Normal JDK mark rules apply on success. The caller owns [target] and must keep
+     * it thread-confined while this call is active.
+     */
+    fun serializeTo(schema: Schema, graph: GenericRecord?, target: ByteBuffer): Int =
+        serializeNullableTo(target) { serialize(schema, graph) }
+
+    /**
      * Avro 바이트 배열을 [GenericData.Record]로 역직렬화합니다.
      *
      * ## 동작/계약
@@ -60,6 +76,16 @@ interface AvroGenericRecordSerializer {
      * @param avroBytes Avro 바이트 배열입니다. `null`이면 `null`을 반환합니다.
      */
     fun deserialize(schema: Schema, avroBytes: ByteArray?): GenericData.Record?
+
+    /**
+     * Deserializes trusted, caller-bounded bytes in `[source.position(), source.limit())` under [schema].
+     *
+     * This allocating fallback copies the remaining bytes to a new [ByteArray] before calling [deserialize]. Heap,
+     * direct, sliced, and read-only sources are supported. Position, limit, mark, and byte order are preserved on every
+     * path. The caller owns [source], must not mutate or share it concurrently, and must bound untrusted input first.
+     */
+    fun deserializeFrom(schema: Schema, source: ByteBuffer): GenericData.Record? =
+        deserialize(schema, copyRemaining(source))
 
     /**
      * `GenericRecord`를 Base64 Avro 문자열로 직렬화합니다.
@@ -102,3 +128,12 @@ interface AvroGenericRecordSerializer {
         return avroText?.runCatching { deserialize(schema, this.decodeBase64ByteArray()) }?.getOrNull()
     }
 }
+
+/**
+ * Deserializes the remaining trusted, caller-bounded bytes in [source] under [schema].
+ *
+ * The allocating fallback, caller ownership, thread-confinement, and source-state preservation rules of
+ * [AvroGenericRecordSerializer.deserializeFrom] apply.
+ */
+fun AvroGenericRecordSerializer.deserialize(schema: Schema, source: ByteBuffer): GenericData.Record? =
+    deserializeFrom(schema, source)

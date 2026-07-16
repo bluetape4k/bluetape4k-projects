@@ -2,6 +2,7 @@ package io.bluetape4k.json
 
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
+import java.nio.ByteBuffer
 
 /**
  * 객체의 JSON 직렬화/역직렬화를 위한 공통 인터페이스입니다.
@@ -35,6 +36,24 @@ interface JsonSerializer {
     fun serialize(graph: Any?): ByteArray
 
     /**
+     * Serializes [graph] into the caller-owned [target], beginning at its current position.
+     *
+     * This default is an allocating fallback: it obtains a [ByteArray] from [serialize] before copying it into [target].
+     * A read-only target fails with `ReadOnlyBufferException` before serializer code runs. Null input retains the
+     * existing [serialize] policy, and a zero-byte result returns `0`. Insufficient remaining space fails with the raw
+     * `BufferOverflowException`.
+     *
+     * Success advances only the position by the returned count; limit, capacity, and byte order remain unchanged.
+     * Failure restores the original position and rethrows the same throwable, including any `Error`. Failed content is
+     * unspecified and is not rolled back. Normal JDK mark invalidation rules apply on success. The caller owns the
+     * buffer and must keep it thread-confined while this call is active.
+     *
+     * @return the number of bytes written
+     */
+    fun serializeTo(graph: Any?, target: ByteBuffer): Int =
+        serializeTo(target) { serialize(graph) }
+
+    /**
      * JSON 바이트 배열을 지정 타입 객체로 역직렬화합니다.
      *
      * ## 동작/계약
@@ -48,6 +67,17 @@ interface JsonSerializer {
      * ```
      */
     fun <T: Any> deserialize(bytes: ByteArray?, clazz: Class<T>): T?
+
+    /**
+     * Deserializes the trusted, caller-bounded bytes in `[source.position(), source.limit())` as [clazz].
+     *
+     * This default is an allocating fallback that copies the remaining bytes to a new [ByteArray] before delegating to
+     * [deserialize]. It supports heap, direct, sliced, and read-only sources while preserving the source position,
+     * limit, mark, and byte order on every path. The caller owns the source and must not mutate or share it concurrently
+     * during the call. Bound untrusted input before invoking this method.
+     */
+    fun <T: Any> deserializeFrom(source: ByteBuffer, clazz: Class<T>): T? =
+        deserialize(copyRemaining(source), clazz)
 
     /**
      * 객체를 JSON 문자열로 직렬화합니다.
@@ -97,6 +127,24 @@ interface JsonSerializer {
  */
 inline fun <reified T: Any> JsonSerializer.deserialize(bytes: ByteArray?): T? =
     deserialize(bytes, T::class.java)
+
+/**
+ * Deserializes the remaining bytes in [source] as [clazz] through [JsonSerializer.deserializeFrom].
+ *
+ * The allocating fallback, caller ownership, trusted bounded-input, thread-confinement, and source-state preservation
+ * rules of [JsonSerializer.deserializeFrom] apply.
+ */
+fun <T: Any> JsonSerializer.deserialize(source: ByteBuffer, clazz: Class<T>): T? =
+    deserializeFrom(source, clazz)
+
+/**
+ * Deserializes the remaining bytes in [source] as reified [T] through [JsonSerializer.deserializeFrom].
+ *
+ * The allocating fallback, caller ownership, trusted bounded-input, thread-confinement, and source-state preservation
+ * rules of [JsonSerializer.deserializeFrom] apply.
+ */
+inline fun <reified T: Any> JsonSerializer.deserialize(source: ByteBuffer): T? =
+    deserializeFrom(source, T::class.java)
 
 /**
  * reified 타입으로 JSON 문자열을 역직렬화합니다.
