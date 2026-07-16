@@ -8,7 +8,7 @@
     {
       "module": "io",
       "path": "io/io/build/libs/bluetape4k-io-1.12.0.jar",
-      "sha256": "ab7c38e76022f1e57c09b3a26cae08bdc0a1e0ee7e48c79b02d333cbe3bc9c19"
+      "sha256": "a89f9aa75d40b2addc58475109493dad5004e1904e4abc4cce5b909efb7308d6"
     },
     {
       "module": "json",
@@ -33,13 +33,13 @@
     "legacy-java-compilation": "PASS",
     "legacy-kotlin-compilation": "PASS"
   },
-  "command": "bash scripts/check-serializer-buffer-abi.sh --build-current --expected-head e661a6ab32770f0fa594be077dff98362ec253d5",
+  "command": "bash scripts/check-serializer-buffer-abi.sh --build-current --expected-head 43f51bcfa176f50e7dfbed677c32f2306a4d01c2",
   "issue": 754,
-  "producerCommit": "e661a6ab32770f0fa594be077dff98362ec253d5",
-  "producerTree": "119c6c3a2057feb3907501c5617e18aad6f17ae4",
+  "producerCommit": "43f51bcfa176f50e7dfbed677c32f2306a4d01c2",
+  "producerTree": "2f7d61cc4a1f0a2a0758b840f02862b3ca4144bb",
   "schemaVersion": 1,
   "slice": "contract",
   "status": "GREEN",
-  "testedCodeTreeSha256": "fd29f912544dd39799eb1dd52dbc9fa9bad766f0ba721edac2f2349774ea7248",
+  "testedCodeTreeSha256": "a3dbf3040e1eaff0e6a499e6a7c26417fe6991ab2cef36f0e8ce48c5e4a82d77",
   "textReport": ".codex/compat/issue-754/90b267871e9154f242e6de7ee9fd0539f83e509e/abi-report.txt"
 }
