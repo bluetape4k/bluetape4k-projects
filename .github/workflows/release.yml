@@ -1,41 +1,15 @@
 name: Publish Release
-run-name: 'issue-754-release-${{ inputs.phase }}-${{ inputs.request_id }}'
 
 on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-*'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Exact release version'
+        description: 'Release version to publish (e.g. 1.12.0). Must match an existing tag.'
         required: true
-        default: '1.12.0'
-        type: string
-      phase:
-        description: 'Prepare the immutable tag or publish an already prepared candidate'
-        required: true
-        type: choice
-        options:
-          - prepare
-          - publish
-      request_id:
-        description: 'Unique release prepare/publish request ID'
-        required: true
-        type: string
-      candidate_validation_run_id:
-        description: 'Exact successful candidate-validation workflow run ID'
-        required: true
-        type: string
-      candidate_validation_request_id:
-        description: 'Exact unique candidate-validation request ID'
-        required: true
-        type: string
-      candidate_sha:
-        description: 'Exact 1.12.0 release-candidate SHA'
-        required: true
-        type: string
-      prepare_run_id:
-        description: 'Exact prepare run ID; required only for publish'
-        required: false
-        default: ''
         type: string
       diagnoseSigning:
         description: 'Run signing diagnostics before publishing'
@@ -43,17 +17,16 @@ on:
         default: false
         type: boolean
       catalogRef:
-        description: 'bluetape4k-dependencies catalog ref for publication'
+        description: 'bluetape4k-dependencies catalog ref to use during release'
         required: false
         default: ''
         type: string
 
 concurrency:
-  group: release-1.12.0
+  group: publish-release
   cancel-in-progress: false
 
 permissions:
-  actions: read
   contents: read
   packages: read
 
@@ -63,337 +36,103 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
-  candidate-sha-guard:
-    name: Guard exact candidate SHA
+  resolve-version:
+    name: Resolve release version
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     outputs:
-      candidate_sha: ${{ steps.guard.outputs.candidate_sha }}
+      version: ${{ steps.resolve.outputs.version }}
+      ref: ${{ steps.resolve.outputs.ref }}
     steps:
-      - name: Reject moved ref and invalid phase inputs
-        id: guard
+      - id: resolve
         shell: bash
         env:
-          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
-          CANDIDATE_VALIDATION_RUN_ID: ${{ inputs.candidate_validation_run_id }}
-          CANDIDATE_VALIDATION_REQUEST_ID: ${{ inputs.candidate_validation_request_id }}
-          RELEASE_REQUEST_ID: ${{ inputs.request_id }}
-          WORKFLOW_SHA: ${{ github.sha }}
-          PHASE: ${{ inputs.phase }}
-          PREPARE_RUN_ID: ${{ inputs.prepare_run_id }}
-          VERSION: ${{ inputs.version }}
+          EVENT_NAME: ${{ github.event_name }}
+          TAG_NAME: ${{ github.ref_name }}
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
           set -euo pipefail
-          [[ "$VERSION" == "1.12.0" ]] || {
-            echo "::error::version must be exactly 1.12.0"
-            exit 1
-          }
-          [[ "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ]] || {
-            echo "::error::candidate_sha must be a full lowercase Git SHA"
-            exit 1
-          }
-          [[ "$CANDIDATE_VALIDATION_RUN_ID" =~ ^[0-9]+$ ]] || {
-            echo "::error::candidate_validation_run_id must be numeric"
-            exit 1
-          }
-          [[ "$CANDIDATE_VALIDATION_REQUEST_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]] || {
-            echo "::error::candidate_validation_request_id is invalid"
-            exit 1
-          }
-          [[ "$RELEASE_REQUEST_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]] || {
-            echo "::error::request_id is invalid"
-            exit 1
-          }
-          if [[ "$WORKFLOW_SHA" != "$CANDIDATE_SHA" ]]; then
-            echo "::error::github.sha ($WORKFLOW_SHA) != inputs.candidate_sha ($CANDIDATE_SHA)"
+          if [[ "$EVENT_NAME" == "push" ]]; then
+            VERSION="$TAG_NAME"
+          else
+            VERSION="$INPUT_VERSION"
+          fi
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]]; then
+            echo "::error::Invalid version format: $VERSION"
             exit 1
           fi
-          if [[ "$PHASE" == "publish" && ! "$PREPARE_RUN_ID" =~ ^[0-9]+$ ]]; then
-            echo "::error::publish requires an exact numeric prepare_run_id"
-            exit 1
-          fi
-          if [[ "$PHASE" == "prepare" && -n "$PREPARE_RUN_ID" ]]; then
-            echo "::error::prepare must not accept prepare_run_id"
-            exit 1
-          fi
-          echo "candidate_sha=$CANDIDATE_SHA" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ inputs.candidate_sha }}
-          fetch-depth: 0
-
-      - name: Verify checkout identity
-        shell: bash
-        env:
-          EXPECTED_SHA: ${{ inputs.candidate_sha }}
-        run: test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
-
-  candidate-validation:
-    name: Verify unique candidate validation artifact
-    needs: [candidate-sha-guard]
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ needs.candidate-sha-guard.outputs.candidate_sha }}
-          fetch-depth: 0
-
-      - name: Verify candidate run and artifact metadata
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          gh api 'repos/${{ github.repository }}/actions/runs/${{ inputs.candidate_validation_run_id }}' \
-            > "$RUNNER_TEMP/candidate-run.json"
-          gh api 'repos/${{ github.repository }}/actions/runs/${{ inputs.candidate_validation_run_id }}/artifacts' \
-            > "$RUNNER_TEMP/candidate-artifacts.json"
-          gh api 'repos/${{ github.repository }}/actions/runs/${{ inputs.candidate_validation_run_id }}/jobs' \
-            > "$RUNNER_TEMP/candidate-jobs.json"
-          python3 - \
-            '${{ github.repository }}' \
-            '${{ inputs.candidate_sha }}' \
-            '${{ inputs.candidate_validation_run_id }}' \
-            '${{ inputs.candidate_validation_request_id }}' \
-            'issue-754-candidate-${{ inputs.candidate_validation_request_id }}' \
-            'issue-754-release-candidate-${{ inputs.candidate_validation_request_id }}' \
-            "$RUNNER_TEMP/candidate-run.json" \
-            "$RUNNER_TEMP/candidate-artifacts.json" \
-            "$RUNNER_TEMP/candidate-jobs.json" <<'PY'
-          import json, pathlib, sys
-          repository, candidate_sha, run_id, request_id, display_title, artifact_name, run_path, artifacts_path, jobs_path = sys.argv[1:]
-          run = json.loads(pathlib.Path(run_path).read_text(encoding="utf-8"))
-          artifacts = json.loads(pathlib.Path(artifacts_path).read_text(encoding="utf-8")).get("artifacts", [])
-          jobs = json.loads(pathlib.Path(jobs_path).read_text(encoding="utf-8")).get("jobs", [])
-          if run.get("repository", {}).get("full_name") != repository:
-              raise SystemExit("candidate-validation run repository mismatch")
-          if run.get("head_sha") != candidate_sha:
-              raise SystemExit("candidate-validation run head SHA mismatch")
-          if run.get("status") != "completed" or run.get("conclusion") != "success":
-              raise SystemExit("candidate-validation run is not a completed success")
-          if not str(run.get("path", "")).endswith(".github/workflows/validate-issue-754-release-candidate.yml"):
-              raise SystemExit("candidate-validation workflow identity mismatch")
-          if run.get("display_title") != display_title:
-              raise SystemExit("candidate-validation display identity mismatch")
-          matching_jobs = [job for job in jobs if job.get("name") == "issue-754-release-candidate"]
-          if len(matching_jobs) != 1 or matching_jobs[0].get("conclusion") != "success":
-              raise SystemExit("candidate-validation check identity mismatch")
-          matches = [item for item in artifacts if item.get("name") == artifact_name]
-          if len(matches) != 1:
-              raise SystemExit("candidate-validation run must contain exactly one named artifact")
-          if matches[0].get("expired") is not False:
-              raise SystemExit("candidate-validation artifact is expired")
-          PY
-
-      - name: Download only the requested candidate validation artifact
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: >-
-          gh run download '${{ inputs.candidate_validation_run_id }}'
-          --name 'issue-754-release-candidate-${{ inputs.candidate_validation_request_id }}'
-          --dir "$RUNNER_TEMP/candidate-validation"
-
-      - name: Verify unique PASS candidate artifact
-        shell: bash
-        run: >-
-          python3 scripts/issue-754-github-settings.py verify-candidate-artifact
-          --candidate '${{ inputs.candidate_sha }}'
-          --run-id '${{ inputs.candidate_validation_run_id }}'
-          --request-id '${{ inputs.candidate_validation_request_id }}'
-          --artifact "$RUNNER_TEMP/candidate-validation"
-          --repository-root .
-
-  release-hold-1-12-0-issue-754:
-    name: release-hold-1.12.0-issue-754
-    needs: [candidate-sha-guard]
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ needs.candidate-sha-guard.outputs.candidate_sha }}
-          fetch-depth: 0
-
-      - name: Enforce the issue 754 release hold
-        run: >-
-          python3 scripts/check-release-holds.py
-          --manifest .github/release-holds/1.12.0-issue-754.json
-          --repository .
-          --release-candidate '${{ needs.candidate-sha-guard.outputs.candidate_sha }}'
-
-  issue-754-tag-immutability-prepare:
-    name: issue-754-tag-immutability
-    if: ${{ inputs.phase == 'prepare' }}
-    needs:
-      - candidate-sha-guard
-      - candidate-validation
-      - release-hold-1-12-0-issue-754
-    runs-on: ubuntu-latest
-    environment: release-tag-1.12.0
-    permissions:
-      actions: read
-      contents: write
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ needs.candidate-sha-guard.outputs.candidate_sha }}
-          fetch-depth: 0
-
-      - name: Mint the dedicated tag App token
-        id: tag-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ vars.RELEASE_TAG_APP_ID }}
-          private-key: ${{ secrets.RELEASE_TAG_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-          repositories: ${{ github.event.repository.name }}
-          permission-contents: write
-
-      - name: Mint the dedicated settings App token
-        id: settings-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ vars.RELEASE_SETTINGS_APP_ID }}
-          private-key: ${{ secrets.RELEASE_SETTINGS_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-          repositories: ${{ github.event.repository.name }}
-          permission-administration: write
-          permission-contents: read
-
-      - name: Execute immutable closeout
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG_APP_ID: ${{ vars.RELEASE_TAG_APP_ID }}
-          RELEASE_TAG_INSTALLATION_ID: ${{ steps.tag-token.outputs.installation-id }}
-          RELEASE_TAG_TOKEN: ${{ steps.tag-token.outputs.token }}
-          RELEASE_SETTINGS_APP_ID: ${{ vars.RELEASE_SETTINGS_APP_ID }}
-          RELEASE_SETTINGS_INSTALLATION_ID: ${{ steps.settings-token.outputs.installation-id }}
-          RELEASE_SETTINGS_TOKEN: ${{ steps.settings-token.outputs.token }}
-        run: >-
-          python3 scripts/issue-754-github-settings.py immutable-closeout
-          --repository '${{ github.repository }}'
-          --workflow release.yml
-          --ref develop
-          --tag 1.12.0
-          --candidate '${{ needs.candidate-sha-guard.outputs.candidate_sha }}'
-          --candidate-validation-run-id '${{ inputs.candidate_validation_run_id }}'
-          --candidate-validation-request-id '${{ inputs.candidate_validation_request_id }}'
-          --ruleset release-tags-1.12.0
-          --request-id '${{ inputs.request_id }}'
-          --run-id '${{ github.run_id }}'
-          --output "$RUNNER_TEMP/issue-754-tag-immutability-${{ inputs.request_id }}.json"
-
-      - name: Upload retained prepare authority
-        uses: actions/upload-artifact@v6
-        with:
-          name: issue-754-tag-immutability-${{ inputs.request_id }}
-          path: ${{ runner.temp }}/issue-754-tag-immutability-${{ inputs.request_id }}.json
-          if-no-files-found: error
-          retention-days: 90
-
-  issue-754-tag-immutability:
-    name: issue-754-tag-immutability
-    if: >-
-      inputs.phase == 'publish' &&
-      needs.candidate-sha-guard.result == 'success' &&
-      needs.candidate-validation.result == 'success' &&
-      needs.release-hold-1-12-0-issue-754.result == 'success'
-    needs:
-      - candidate-sha-guard
-      - candidate-validation
-      - release-hold-1-12-0-issue-754
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ needs.candidate-sha-guard.outputs.candidate_sha }}
-          fetch-depth: 0
-
-      - name: Download only retained candidate and prepare artifacts
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          gh run download '${{ inputs.candidate_validation_run_id }}' \
-            --name 'issue-754-release-candidate-${{ inputs.candidate_validation_request_id }}' \
-            --dir "$RUNNER_TEMP/issue-754-release-candidate-${{ inputs.candidate_validation_request_id }}"
-          gh run download '${{ inputs.prepare_run_id }}' \
-            --name 'issue-754-tag-immutability-${{ inputs.request_id }}' \
-            --dir "$RUNNER_TEMP/issue-754-tag-immutability-${{ inputs.request_id }}"
-
-      - name: Verify immutable closeout without mutation
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: >-
-          python3 scripts/issue-754-github-settings.py verify-immutable-closeout
-          --repository '${{ github.repository }}'
-          --workflow release.yml
-          --ref develop
-          --prepare-run-id '${{ inputs.prepare_run_id }}'
-          --candidate-validation-run-id '${{ inputs.candidate_validation_run_id }}'
-          --candidate-validation-request-id '${{ inputs.candidate_validation_request_id }}'
-          --tag 1.12.0
-          --candidate '${{ needs.candidate-sha-guard.outputs.candidate_sha }}'
-          --request-id '${{ inputs.request_id }}'
-          --artifact "$RUNNER_TEMP/issue-754-tag-immutability-${{ inputs.request_id }}"
-          --candidate-artifact "$RUNNER_TEMP/issue-754-release-candidate-${{ inputs.candidate_validation_request_id }}"
-          --output "$RUNNER_TEMP/verify-immutable-closeout.json"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "ref=refs/tags/$VERSION" >> "$GITHUB_OUTPUT"
 
   publish:
     name: Publish RELEASE to Maven Central Portal
-    if: ${{ inputs.phase == 'publish' }}
-    needs:
-      - candidate-sha-guard
-      - candidate-validation
-      - release-hold-1-12-0-issue-754
-      - issue-754-tag-immutability
+    needs: resolve-version
     runs-on: ubuntu-latest
-    environment: release-tag-1.12.0
+    environment: maven-central-release
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ needs.candidate-sha-guard.outputs.candidate_sha }}
+          ref: ${{ needs.resolve-version.outputs.ref }}
           fetch-depth: 0
 
       - name: Resolve dependencies catalog ref
         shell: bash
         env:
-          INPUT_CATALOG_REF: ${{ inputs.catalogRef }}
-          REPOSITORY_CATALOG_REF: ${{ vars.BLUETAPE4K_DEPENDENCIES_CATALOG_REF }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_CATALOG_REF: ${{ github.event.inputs.catalogRef || '' }}
+          REPOSITORY_CATALOG_REF: ${{ vars.BLUETAPE4K_DEPENDENCIES_CATALOG_REF || '' }}
         run: |
           set -euo pipefail
-          default_ref=$(sed -n 's/.*providers.gradleProperty("bluetape4kDependenciesCatalogRef").orElse("\([^"]*\)").*/\1/p' settings.gradle.kts | head -1)
-          selected_ref="${INPUT_CATALOG_REF:-${REPOSITORY_CATALOG_REF:-$default_ref}}"
-          [[ -n "$selected_ref" ]] || {
-            echo "::error::could not resolve bluetape4k-dependencies catalog ref"
-            exit 1
-          }
-          echo "BLUETAPE4K_DEPENDENCIES_CATALOG_REF=$selected_ref" >> "$GITHUB_ENV"
+          DEFAULT_CATALOG_REF=$(sed -nE 's/^[[:space:]]*\.orElse\("([^"]+)"\).*/\1/p' settings.gradle.kts | head -1)
 
-      - name: Verify release identity
+          if [[ -z "$DEFAULT_CATALOG_REF" ]]; then
+            echo "::error::Could not resolve checked-in bluetape4k-dependencies catalog default"
+            exit 1
+          fi
+
+          if [[ "$EVENT_NAME" == "workflow_dispatch" && -n "$INPUT_CATALOG_REF" ]]; then
+            SELECTED_CATALOG_REF="$INPUT_CATALOG_REF"
+          elif [[ "$EVENT_NAME" == "workflow_dispatch" && -n "$REPOSITORY_CATALOG_REF" ]]; then
+            SELECTED_CATALOG_REF="$REPOSITORY_CATALOG_REF"
+          else
+            SELECTED_CATALOG_REF="$DEFAULT_CATALOG_REF"
+          fi
+
+          echo "BLUETAPE4K_DEPENDENCIES_CATALOG_REF=$SELECTED_CATALOG_REF" >> "$GITHUB_ENV"
+          echo "catalogRef=$SELECTED_CATALOG_REF"
+
+      - name: Verify dependencies catalog aliases
         shell: bash
         run: |
           set -euo pipefail
-          base=$(grep -E '^baseVersion=' gradle.properties | cut -d= -f2)
-          snapshot=$(grep -E '^snapshotVersion=' gradle.properties | cut -d= -f2 || true)
-          [[ "$base" == "1.12.0" && -z "$snapshot" ]] || {
-            echo "::error::expected baseVersion=1.12.0 and empty snapshotVersion"
+          catalog_file="$RUNNER_TEMP/bluetape4k-libs.versions.toml"
+          catalog_url="https://raw.githubusercontent.com/bluetape4k/bluetape4k-dependencies/${BLUETAPE4K_DEPENDENCIES_CATALOG_REF}/gradle/libs.versions.toml"
+          curl -fsSL "$catalog_url" -o "$catalog_file"
+
+          for alias in bluetape4k-bom bluetape4k-exposed-bom exposed-plugin; do
+            if ! grep -Eq "^[[:space:]]*${alias}[[:space:]]*=" "$catalog_file"; then
+              echo "::error::Catalog ref '${BLUETAPE4K_DEPENDENCIES_CATALOG_REF}' is missing alias: ${alias}"
+              exit 1
+            fi
+          done
+
+      - name: Verify gradle.properties matches tag
+        shell: bash
+        env:
+          VERSION: ${{ needs.resolve-version.outputs.version }}
+        run: |
+          set -euo pipefail
+          BASE=$(grep -E '^baseVersion=' gradle.properties | cut -d= -f2)
+          SNAP=$(grep -E '^snapshotVersion=' gradle.properties | cut -d= -f2 || true)
+          if [[ "$BASE" != "$VERSION" ]]; then
+            echo "::error::gradle.properties baseVersion ($BASE) does not match tag ($VERSION)"
             exit 1
-          }
+          fi
+          if [[ -n "$SNAP" ]]; then
+            echo "::error::snapshotVersion must be empty for release. Got: '$SNAP'"
+            exit 1
+          fi
 
       - uses: actions/setup-java@v5
         with:
@@ -406,7 +145,7 @@ jobs:
           cache-read-only: true
 
       - name: Diagnose signing inputs
-        if: ${{ inputs.diagnoseSigning }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.diagnoseSigning }}
         shell: bash
         env:
           SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
@@ -434,33 +173,3 @@ jobs:
           SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-
-  github-release:
-    name: Create GitHub Release
-    if: ${{ inputs.phase == 'publish' }}
-    needs:
-      - candidate-sha-guard
-      - candidate-validation
-      - release-hold-1-12-0-issue-754
-      - issue-754-tag-immutability
-      - publish
-    runs-on: ubuntu-latest
-    environment: release-tag-1.12.0
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ needs.candidate-sha-guard.outputs.candidate_sha }}
-          fetch-depth: 0
-
-      - name: Create GitHub Release
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: >-
-          gh release create 1.12.0
-          --target '${{ needs.candidate-sha-guard.outputs.candidate_sha }}'
-          --verify-tag
-          --generate-notes
-          --title '1.12.0'

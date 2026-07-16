@@ -37,7 +37,6 @@
   "issue": 754,
   "producerCommit": "9ba87611967484f3751f10428fab2a61d9e6f202",
   "producerTree": "b3187cef058e4f65e48dd4e9a1ab59392eaae017",
-  "release": "1.12.0",
   "schemaVersion": 1,
   "slice": "contract",
   "status": "GREEN",

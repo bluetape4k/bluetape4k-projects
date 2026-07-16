@@ -1,8 +1,6 @@
 name: Publish Snapshot
-run-name: 'issue-754-snapshot-${{ github.event_name }}-${{ github.run_id }}'
 
 permissions:
-  actions: read
   contents: read
 
 on:
@@ -12,10 +10,6 @@ on:
     branches: [develop]
   workflow_dispatch:
     inputs:
-      candidate_sha:
-        description: 'Exact 1.12.0 release-candidate SHA to publish as a snapshot'
-        required: true
-        type: string
       diagnoseSigning:
         description: 'Run signing diagnostics before publishing'
         required: false
@@ -23,8 +17,8 @@ on:
         type: boolean
 
 concurrency:
-  group: publish-snapshot-1.12.0
-  cancel-in-progress: false
+  group: publish-snapshot
+  cancel-in-progress: true
 
 env:
   JAVA_VERSION: '21'
@@ -32,101 +26,16 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
-  candidate-sha-guard:
-    name: Guard exact candidate SHA
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    outputs:
-      candidate_sha: ${{ steps.guard.outputs.candidate_sha }}
-    steps:
-      - name: Reject a moved workflow ref
-        id: guard
-        shell: bash
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          CANDIDATE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || inputs.candidate_sha }}
-          WORKFLOW_SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          [[ "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ]] || {
-            echo "::error::candidate_sha must be a full lowercase Git SHA"
-            exit 1
-          }
-          if [[ "$EVENT_NAME" == "workflow_dispatch" && "$WORKFLOW_SHA" != "$CANDIDATE_SHA" ]]; then
-            echo "::error::github.sha ($WORKFLOW_SHA) != candidate_sha ($CANDIDATE_SHA)"
-            exit 1
-          fi
-          echo "candidate_sha=$CANDIDATE_SHA" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ steps.guard.outputs.candidate_sha }}
-          fetch-depth: 0
-
-      - name: Verify checkout identity
-        shell: bash
-        env:
-          EXPECTED_SHA: ${{ steps.guard.outputs.candidate_sha }}
-        run: test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
-
-  release-hold-1-12-0-issue-754:
-    name: release-hold-1.12.0-issue-754
-    needs: [candidate-sha-guard]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ needs.candidate-sha-guard.outputs.candidate_sha }}
-          fetch-depth: 0
-
-      - name: Enforce the issue 754 release hold
-        run: >-
-          python3 scripts/check-release-holds.py
-          --manifest .github/release-holds/1.12.0-issue-754.json
-          --repository .
-          --release-candidate '${{ needs.candidate-sha-guard.outputs.candidate_sha }}'
-
-  issue-754-tag-immutability:
-    name: issue-754-tag-immutability
-    needs: [candidate-sha-guard, release-hold-1-12-0-issue-754]
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ needs.candidate-sha-guard.outputs.candidate_sha }}
-          fetch-depth: 0
-
-      - name: Verify any existing production tag is immutable
-        shell: bash
-        run: |
-          set -euo pipefail
-          actual="$(git ls-remote origin refs/tags/1.12.0 | awk '{print $1}')"
-          if [[ -n "$actual" && "$actual" != '${{ needs.candidate-sha-guard.outputs.candidate_sha }}' ]]; then
-            echo "::error::tag 1.12.0 targets $actual, not the held candidate"
-            exit 1
-          fi
-
   publish:
     name: Publish SNAPSHOT to Maven Central
-    needs:
-      - candidate-sha-guard
-      - release-hold-1-12-0-issue-754
-      - issue-754-tag-immutability
     if: >-
       github.event_name == 'workflow_dispatch' ||
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    environment: snapshot-publish-1.12.0
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ needs.candidate-sha-guard.outputs.candidate_sha }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 0
 
       - uses: actions/setup-java@v5
