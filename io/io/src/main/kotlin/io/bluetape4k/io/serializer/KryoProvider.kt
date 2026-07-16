@@ -1,6 +1,8 @@
 package io.bluetape4k.io.serializer
 
 import com.esotericsoftware.kryo.Kryo
+import com.esotericsoftware.kryo.io.ByteBufferInput
+import com.esotericsoftware.kryo.io.ByteBufferOutput
 import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer
@@ -15,6 +17,7 @@ import io.bluetape4k.io.serializer.KryoProvider.releaseOutput
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.objenesis.strategy.StdInstantiatorStrategy
+import java.nio.ByteBuffer
 
 /**
  * Kryo 인스턴스를 Pool 방식으로 관리하는 싱글톤 유틸리티입니다.
@@ -88,6 +91,18 @@ object KryoProvider: KLogging() {
         }
     }
 
+    private val byteBufferInputPool: Pool<PooledByteBufferInput> by lazy {
+        object: Pool<PooledByteBufferInput>(true, false, MAX_POOL_SIZE) {
+            override fun create(): PooledByteBufferInput = PooledByteBufferInput()
+        }
+    }
+
+    private val byteBufferOutputPool: Pool<PooledByteBufferOutput> by lazy {
+        object: Pool<PooledByteBufferOutput>(true, false, MAX_POOL_SIZE) {
+            override fun create(): PooledByteBufferOutput = PooledByteBufferOutput()
+        }
+    }
+
     /**
      * Pool에서 [Kryo] 인스턴스를 대여합니다.
      *
@@ -115,6 +130,22 @@ object KryoProvider: KLogging() {
      */
     fun obtainOutput(): Output = outputPool.obtain()
 
+    internal fun <T> useByteBufferInput(
+        buffer: ByteBuffer,
+        block: (ByteBufferInput) -> T,
+    ): T {
+        val input = byteBufferInputPool.obtain().apply { attach(buffer) }
+        return useWithCleanup(input, ::releaseByteBufferInput, block)
+    }
+
+    internal fun <T> useByteBufferOutput(
+        buffer: ByteBuffer,
+        block: (ByteBufferOutput) -> T,
+    ): T {
+        val output = byteBufferOutputPool.obtain().apply { attach(buffer) }
+        return useWithCleanup(output, ::releaseByteBufferOutput, block)
+    }
+
     /**
      * 사용이 끝난 [Kryo] 인스턴스를 Pool에 반납합니다.
      *
@@ -140,6 +171,16 @@ object KryoProvider: KLogging() {
      */
     fun releaseOutput(output: Output) {
         outputPool.free(output)
+    }
+
+    private fun releaseByteBufferInput(input: PooledByteBufferInput) {
+        input.detach()
+        byteBufferInputPool.free(input)
+    }
+
+    private fun releaseByteBufferOutput(output: PooledByteBufferOutput) {
+        output.detach()
+        byteBufferOutputPool.free(output)
     }
 
     /**
@@ -221,5 +262,31 @@ object KryoProvider: KLogging() {
             register(java.time.ZonedDateTime::class.java)
             register(java.math.BigDecimal::class.java)
         }
+    }
+}
+
+private class PooledByteBufferInput: ByteBufferInput(ByteBuffer.allocate(0)) {
+
+    private val detachedBuffer: ByteBuffer = byteBuffer
+
+    fun attach(buffer: ByteBuffer) {
+        setBuffer(buffer)
+    }
+
+    fun detach() {
+        setBuffer(detachedBuffer)
+    }
+}
+
+private class PooledByteBufferOutput: ByteBufferOutput(ByteBuffer.allocate(0), 0) {
+
+    private val detachedBuffer: ByteBuffer = byteBuffer
+
+    fun attach(buffer: ByteBuffer) {
+        setBuffer(buffer, buffer.capacity())
+    }
+
+    fun detach() {
+        setBuffer(detachedBuffer, 0)
     }
 }

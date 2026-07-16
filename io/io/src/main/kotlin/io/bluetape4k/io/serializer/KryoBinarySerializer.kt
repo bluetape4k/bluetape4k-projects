@@ -4,6 +4,8 @@ import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.util.Pool
 import io.bluetape4k.logging.KLogging
+import java.nio.ByteBuffer
+import java.nio.ReadOnlyBufferException
 
 /**
  *  [Kryo](https://github.com/EsotericSoftware/kryo) 라이브러리를 이용하는 [BinarySerializer]
@@ -21,6 +23,9 @@ import io.bluetape4k.logging.KLogging
  *  // 보안 사용 (등록된 클래스만 허용)
  *  val secureSerializer = KryoBinarySerializer.secure(MyData::class.java)
  *  ```
+ *
+ * [serializeTo] and [deserializeFrom] bind pooled Kryo ByteBuffer adapters to the caller's bounded range.
+ * The adapters detach caller storage before returning to the pool, including failure paths.
  *
  * @param bufferSize 내부 버퍼 크기 (기본값: [DEFAULT_BUFFER_SIZE])
  * @param kryoPool 커스텀 Kryo 풀. null이면 기본 [KryoProvider] 풀을 사용합니다.
@@ -129,6 +134,15 @@ class KryoBinarySerializer(
         }
     }
 
+    private fun <T> useKryoForBuffer(block: Kryo.() -> T): T {
+        val pool = kryoPool
+        return if (pool != null) {
+            useWithCleanup(pool.obtain(), pool::free) { kryo -> block(kryo) }
+        } else {
+            useWithCleanup(KryoProvider.obtainKryo(), KryoProvider::releaseKryo) { kryo -> block(kryo) }
+        }
+    }
+
     /**
      * I/O 직렬화에서 `doSerialize` 함수를 제공합니다.
      */
@@ -145,6 +159,27 @@ class KryoBinarySerializer(
         }
     }
 
+    override fun serializeTo(graph: Any?, target: ByteBuffer): Int {
+        if (target.isReadOnly) throw ReadOnlyBufferException()
+        val source = graph ?: return 0
+        val start = target.position()
+        val view = target.slice()
+
+        return try {
+            val written = KryoProvider.useByteBufferOutput(view) { output ->
+                useKryoForBuffer {
+                    writeClassAndObject(output, source)
+                }
+                output.position()
+            }
+            target.position(start + written)
+            written
+        } catch (failure: Throwable) {
+            target.position(start)
+            throwBufferSerializationFailure(source, failure)
+        }
+    }
+
     /**
      * I/O 직렬화에서 `doDeserialize` 함수를 제공합니다.
      */
@@ -154,6 +189,23 @@ class KryoBinarySerializer(
             useKryo {
                 readClassAndObject(input) as? T
             }
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T: Any> deserializeFrom(source: ByteBuffer): T? {
+        val sourceSize = source.remaining()
+        if (sourceSize == 0) return null
+        val view = source.slice()
+
+        return try {
+            KryoProvider.useByteBufferInput(view) { input ->
+                useKryoForBuffer {
+                    readClassAndObject(input) as? T
+                }
+            }
+        } catch (failure: Throwable) {
+            throwBufferDeserializationFailure(sourceSize, failure)
         }
     }
 }

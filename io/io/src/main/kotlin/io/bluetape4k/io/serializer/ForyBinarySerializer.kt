@@ -5,6 +5,7 @@ import org.apache.fory.Fory
 import org.apache.fory.ThreadSafeFory
 import org.apache.fory.config.CompatibleMode
 import org.apache.fory.config.Language
+import java.nio.ByteBuffer
 
 /**
  * [Fory](https://fory.apache.org/) 를 이용한 Binary 직렬화/역직렬화를 수행하는 [BinarySerializer]
@@ -18,6 +19,10 @@ import org.apache.fory.config.Language
  * val bytes = serializer.serialize("Hello, World!")
  * val text = serializer.deserialize<String>(bytes)  // text="Hello, World!"
  * ```
+ *
+ * [deserializeFrom] delegates a duplicate of the caller's bounded range to Fory's ByteBuffer API.
+ * [serializeTo] intentionally keeps the BinarySerializer ByteArray compatibility fallback because
+ * Fory's MemoryBuffer output may grow by replacing caller-provided storage.
  */
 class ForyBinarySerializer(
     private val fory: ThreadSafeFory = DefaultFory,
@@ -142,5 +147,17 @@ class ForyBinarySerializer(
     @Suppress("UNCHECKED_CAST")
     override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
         return fory.deserialize(bytes) as? T
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T: Any> deserializeFrom(source: ByteBuffer): T? {
+        val sourceSize = source.remaining()
+        if (sourceSize == 0) return null
+
+        return try {
+            fory.deserialize(source.duplicate()) as? T
+        } catch (failure: Throwable) {
+            throwBufferDeserializationFailure(sourceSize, failure)
+        }
     }
 }

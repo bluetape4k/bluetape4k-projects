@@ -1,11 +1,15 @@
 package io.bluetape4k.io.serializer
 
+import io.bluetape4k.io.ByteBufferInputStream
+import io.bluetape4k.io.ByteBufferOutputStream
 import io.bluetape4k.logging.KLogging
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputFilter
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.nio.ByteBuffer
+import java.nio.ReadOnlyBufferException
 
 /**
  * 기본 [ObjectInputFilter]. `io.bluetape4k.**`, `java.lang.**`, `java.util.**`,
@@ -41,6 +45,9 @@ val JDK_DEFAULT_OBJECT_INPUT_FILTER: ObjectInputFilter = ObjectInputFilter.Confi
  * val safeSerializer = JdkBinarySerializer(objectInputFilter = customFilter)
  * ```
  *
+ * [serializeTo] and [deserializeFrom] use fixed ByteBuffer-backed streams. The configured
+ * [objectInputFilter] is applied to both ByteArray and ByteBuffer deserialization paths.
+ *
  * @param bufferSize 버퍼 크기 (기본값: [DEFAULT_BUFFER_SIZE])
  * @param objectInputFilter 역직렬화 시 적용할 [ObjectInputFilter]. 기본값: [JDK_DEFAULT_OBJECT_INPUT_FILTER]
  */
@@ -75,6 +82,27 @@ class JdkBinarySerializer(
         return output.toByteArray()
     }
 
+    override fun serializeTo(graph: Any?, target: ByteBuffer): Int {
+        if (target.isReadOnly) throw ReadOnlyBufferException()
+        val source = graph ?: return 0
+        val start = target.position()
+        val view = target.duplicate()
+
+        return try {
+            ByteBufferOutputStream.fixed(view).use { output ->
+                ObjectOutputStream(output).use { oos ->
+                    oos.writeObject(source)
+                }
+            }
+            val written = view.position() - start
+            target.position(start + written)
+            written
+        } catch (failure: Throwable) {
+            target.position(start)
+            throwBufferSerializationFailure(source, failure)
+        }
+    }
+
     /**
      * [ObjectInputStream]을 사용하여 [bytes]를 역직렬화하고 객체를 반환합니다.
      * [objectInputFilter]가 설정된 경우 역직렬화 전에 필터를 적용합니다.
@@ -100,6 +128,26 @@ class JdkBinarySerializer(
             }.use { ois ->
                 ois.readObject() as? T
             }
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T: Any> deserializeFrom(source: ByteBuffer): T? {
+        val sourceSize = source.remaining()
+        if (sourceSize == 0) return null
+
+        return try {
+            ByteBufferInputStream(source.duplicate()).use { input ->
+                ObjectInputStream(input).apply {
+                    val filter = this@JdkBinarySerializer.objectInputFilter
+                        ?: ObjectInputFilter.Config.getSerialFilter()
+                    filter?.let { setObjectInputFilter(it) }
+                }.use { ois ->
+                    ois.readObject() as? T
+                }
+            }
+        } catch (failure: Throwable) {
+            throwBufferDeserializationFailure(sourceSize, failure)
         }
     }
 }
