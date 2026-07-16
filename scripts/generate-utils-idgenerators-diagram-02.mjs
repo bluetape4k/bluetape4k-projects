@@ -378,7 +378,7 @@ const svg = `<svg data-intent="Explain the utils/idgenerators class structure fr
     .title{font-family:"Architects Daughter";font-size:58px;fill:#0F172A}
     .subtitle{font-family:"Comic Mono";font-size:17px;fill:#475569}
     .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}
-    .panelTitle{font-family:"Architects Daughter";font-size:30px;fill:#0F172A;paint-order:stroke;stroke:#FFFFFF;stroke-width:5px;stroke-linejoin:round}
+    .panelTitle{font-family:"Architects Daughter";font-size:30px;fill:#0F172A}
     .classBox{filter:url(#shadow);stroke-width:2}
     .kind{font-family:"Comic Mono";font-size:14px;fill:#475569;font-weight:700}
     .classTitle{font-family:"Architects Daughter";font-size:28px;fill:#0F172A}

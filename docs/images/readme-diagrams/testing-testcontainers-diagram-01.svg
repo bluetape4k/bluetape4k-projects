@@ -18,7 +18,7 @@
       .title{font-family:"Architects Daughter";font-size:42px;fill:#0F172A}
       .subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
       .region{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4;stroke-dasharray:8 8}
-      .regionText{font-family:"Architects Daughter";font-size:22px;fill:#334155;paint-order:stroke;stroke:#FFFFFF;stroke-width:5px;stroke-linejoin:round}
+      .regionText{font-family:"Architects Daughter"; font-size:22px; fill:#334155;}
       .class{filter:url(#softShadow);stroke-width:2}
       .contract{fill:#EFF6FF;stroke:#2563EB}.special{fill:#ECFDF5;stroke:#16A34A}.server{fill:#FAF5FF;stroke:#9333EA}.helper{fill:#F0FDFA;stroke:#0D9488}
       .className{font-family:"Architects Daughter";font-size:23px;fill:#0F172A;text-anchor:middle}
@@ -29,7 +29,7 @@
       .extend{fill:none;stroke:#0F766E;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#extendsHead)}
       .impl{fill:none;stroke:#2563EB;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:10 8;marker-end:url(#implementsHead)}
       .uses{fill:none;stroke:#EA580C;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7;marker-end:url(#usesHead)}
-      .label{font-family:"Comic Mono";font-size:12px;fill:#475569;paint-order:stroke;stroke:#FFFFFF;stroke-width:5px;stroke-linejoin:round}
+      .label{font-family:"Comic Mono"; font-size:12px; fill:#475569;}
       .legend{font-family:"Comic Mono";font-size:13px;fill:#334155}
     </style>
   </defs>

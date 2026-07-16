@@ -29,7 +29,7 @@
       .assoc { fill: none; stroke: #2563eb; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
       .map { fill: none; stroke: #9333ea; stroke-width: 2.6; stroke-dasharray: 8 6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#openPurple); }
       .flow { fill: none; stroke: #16a34a; stroke-width: 4.0; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#flowGreen); }
-      .label { font-family: "Comic Mono"; font-size: 12px; fill: #334155; paint-order: stroke; stroke: #ffffff; stroke-width: 4px; stroke-linejoin: round; }
+      .label { font-family: "Comic Mono"; font-size: 12px; fill: #334155; }
     </style>
   </defs>
 
