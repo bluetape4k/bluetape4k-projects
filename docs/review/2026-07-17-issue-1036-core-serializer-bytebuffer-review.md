@@ -11,8 +11,8 @@
 ## Review Result
 
 - Final integrated review: APPROVE, P0=0, P1=0.
-- Performance: the JDK and Kryo paths avoid the compatibility ByteArray staging
-  path; measured allocation and pool-contention claims remain assigned to #1039.
+- Performance: the JDK and built-in Kryo paths avoid the compatibility ByteArray
+  staging path; measured allocation and pool-contention claims remain assigned to #1039.
 - Stability: Kryo adapters detach caller buffers before returning to the pool,
   and mixed concurrent success, overflow, and malformed-input calls remain isolated.
 - Security: JDK applies the configured or global `ObjectInputFilter`; Kryo and
@@ -33,6 +33,9 @@
   that always detach caller buffers before pool return.
 - Changed ByteBuffer failure logs from `graph=$graph` to bounded type metadata and
   added a regression test whose caller `toString()` throws.
+- Limited native Kryo ByteBuffer adapters to the default, secure, and fast pools.
+  Externally supplied pools retain array-backed compatibility for custom serializers
+  that call `Input.getBuffer()` or `Output.getBuffer()`.
 - Verified the resolved Fory dependency is `1.3.0` and that its ByteBuffer input
   overload accepts all supported source shapes.
 
@@ -45,6 +48,8 @@
 - Allocation rate, throughput, and Kryo pool-contention evidence are deferred to #1039.
 - Fory output remains on the compatibility ByteArray fallback because its output
   buffer may grow or detach caller storage.
+- External Kryo pools remain on the compatibility fallback because Kryo 5.6.2
+  ByteBuffer adapters reject array-buffer access used by valid custom serializers.
 
 ## Verification
 
