@@ -37,7 +37,8 @@
       .routeGreen { fill: none; stroke: #16a34a; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-green); }
       .routeAmber { fill: none; stroke: #ea580c; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-amber); }
       .routeGray { fill: none; stroke: #64748b; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 8 6; marker-end: url(#arrow-gray-open); }
-    </style>
+
+    .syntax-keyword{fill:#7E22CE}.syntax-type{fill:#0F766E}.syntax-function{fill:#1D4ED8}.syntax-string{fill:#B45309}.syntax-number{fill:#C2410C}.syntax-comment{fill:#64748B}.syntax-operator{fill:#BE123C}</style>
   </defs>
 
   <rect class="canvas" width="1680" height="1120"/>
@@ -79,7 +80,7 @@
     <rect class="card" x="500" y="512" width="680" height="160" rx="8" fill="#f0fdf4" stroke="#16a34a"/>
     <text class="cardTitle" x="840" y="552" text-anchor="middle">bluetape4k-bom</text>
     <text class="detail" x="840" y="582" text-anchor="middle">Gradle java-platform publication</text>
-    <text class="code" x="548" y="620">constraints { rootProject.subprojects ... api(this) }</text>
+    <text class="code" data-code-snippet="gradle-kotlin" x="548" y="620">constraints { rootProject.subprojects ... <tspan class="syntax-function">api</tspan>(<tspan class="syntax-keyword">this</tspan>) }</text>
     <text class="tiny" x="548" y="648">Published output: POM dependencyManagement entries, not jars or runtime beans.</text>
   </g>
 

@@ -304,7 +304,7 @@ const svg = `<svg data-intent="Explain coordinate transformation flow from curre
     .lane{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}.card{stroke-width:1.8;filter:url(#shadow)}
     .kicker{font-family:"Comic Mono";font-size:13px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}
     .body{font-family:"Comic Mono";font-size:13.5px;fill:#334155}.foot{font-family:"Comic Mono";font-size:12.5px;fill:#475569}.divider{stroke-width:1.1;opacity:.42}
-    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#334155;paint-order:stroke;stroke:#FFFFFF;stroke-width:3px;stroke-linejoin:round}
+    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#334155}
   </style>
 </defs>
 <rect class="canvas" width="${width}" height="${height}"/>

@@ -229,7 +229,7 @@ function styleBlock() {
     .title { fill: #0f172a; font-size: 32px; font-weight: 800; letter-spacing: 0; }
     .subtitle { fill: #475569; font-size: 17px; font-weight: 500; }
     .layer { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; }
-    .layerTitle { fill: #334155; font-size: 14px; font-weight: 800; letter-spacing: .2px; text-transform: uppercase; paint-order: stroke; stroke: #ffffff; stroke-width: 7px; stroke-linejoin: round; }
+    .layerTitle { fill: #334155; font-size: 14px; font-weight: 800; letter-spacing: .2px; text-transform: uppercase; }
     .card { stroke-width: 1.7; filter: url(#cardShadow); }
     .cardTitle { fill: #0f172a; font-size: 16px; font-weight: 800; }
     .cardDetail { fill: #475569; font-size: 12px; font-weight: 600; }
@@ -237,7 +237,7 @@ function styleBlock() {
     .iconStroke { fill: none; stroke: #ffffff; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
     .iconFill { fill: #ffffff; }
     .route { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow); }
-    .routeLabel { fill: #1e293b; font-size: 11px; font-weight: 700; text-anchor: middle; paint-order: stroke; stroke: #ffffff; stroke-width: 6px; stroke-linejoin: round; }
+    .routeLabel { fill: #1e293b; font-size: 11px; font-weight: 700; text-anchor: middle; }
     .legend { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; filter: url(#cardShadow); }
     .legendText { fill: #334155; font-size: 12px; font-weight: 700; }
     .footer, .chartFoot { fill: #64748b; font-size: 13px; font-weight: 600; }

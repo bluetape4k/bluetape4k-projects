@@ -164,7 +164,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
     .divider{stroke:rgba(15,23,42,.17);stroke-width:1.2}.assoc{fill:none;stroke-width:3.0;stroke-linecap:round;stroke-linejoin:round}
     .uses{fill:none;stroke-width:2.5;stroke-dasharray:8 7;stroke-linecap:round;stroke-linejoin:round}
     .realize{fill:none;stroke-width:2.4;stroke-dasharray:8 7;stroke-linecap:round;stroke-linejoin:round}
-    .label{font-family:"Comic Mono";font-size:11.6px;fill:${c.slate};paint-order:stroke;stroke:${c.frame};stroke-width:5px;stroke-linejoin:round}
+    .label{font-family:"Comic Mono";font-size:11.6px;fill:${c.slate}}
     .legend{font-family:"Comic Mono";font-size:12px;fill:${c.muted}}
   </style>
 </defs>

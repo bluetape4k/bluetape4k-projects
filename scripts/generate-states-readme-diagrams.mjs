@@ -211,7 +211,7 @@ function styleBlock() {
     .title { fill: #0f172a; font-size: 34px; font-weight: 800; letter-spacing: 0; }
     .subtitle { fill: #475569; font-size: 18px; font-weight: 500; }
     .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
-    .panelTitle { fill: #334155; font-size: 14px; font-weight: 800; letter-spacing: .2px; text-transform: uppercase; paint-order: stroke; stroke: #ffffff; stroke-width: 7px; stroke-linejoin: round; }
+    .panelTitle { fill: #334155; font-size: 14px; font-weight: 800; letter-spacing: .2px; text-transform: uppercase; }
     .card { stroke-width: 1.7; filter: url(#cardShadow); }
     .stateTitle { fill: #0f172a; font-size: 17px; font-weight: 800; }
     .stateDetail { fill: #475569; font-size: 12px; font-weight: 600; }
