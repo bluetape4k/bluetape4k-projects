@@ -391,10 +391,12 @@ names prevent the new non-null `ByteBuffer` members from making those calls
 ambiguous.
 
 The existing top-level `BinarySerializer.deserialize(ByteBuffer)` extension is
-kept at the same static JVM symbol and becomes the canonical Kotlin facade over
-the new overridable `deserializeFrom(ByteBuffer)` interface default. Recompiled
-and already compiled Kotlin callers therefore use the same extension symbol,
-which now preserves source state. It is not deprecated or removed in `1.12.0`.
+kept at the same static JVM symbol and retains its existing `getBytes()` plus
+ByteArray delegation, including the historical direct/read-only-buffer position
+consumption. The new overridable `deserializeFrom(ByteBuffer)` interface default
+is the preserving API. This avoids changing framed legacy loops while giving new
+callers one consistent source-state contract. The extension is not deprecated or
+removed in `1.12.0`.
 
 Default output implementations serialize to `ByteArray`, validate remaining
 capacity, and then perform one relative `put`. This is compatibility-only and
@@ -438,7 +440,7 @@ legacy static extension symbol remains present.
 | Caller surface | Before 1.12.0 | 1.12.0 guidance |
 |---|---|---|
 | `serializeAsByteBuffer(graph)` | Allocates a ByteArray and returns a ready-to-read wrapped buffer | Remains allocating and behavior-compatible; use `serializeTo` for caller storage |
-| Kotlin `deserialize(buffer)` extension | Heap/direct paths may differ; a direct source can advance | Same static symbol delegates to the preserving overridable `deserializeFrom` member; both recompiled and compiled callers observe preserving behavior |
+| Kotlin `deserialize(buffer)` extension | Heap/direct paths may differ; a direct source can advance | Same static symbol and legacy ByteArray delegation preserve the existing behavior; use `deserializeFrom` for source-state preservation |
 | Kotlin new output | n/a | `serializeTo` leaves target positioned after output; use returned count for framed writes |
 | Java new input | n/a | Call `deserializeFrom(buffer, ...)`; existing `deserialize(null, ...)` remains unchanged |
 
@@ -578,6 +580,10 @@ are not poisoned after overflow or malformed input.
   push-tag trigger is removed, and an installed GitHub tag ruleset
   `release-tags-1.12.0` rejects direct creation/update/deletion of `1.12.0`
   outside that workflow's release-exclusive GitHub App installation
+- Preserves releases for every version other than `1.12.0` in
+  `release-generic.yml`. Its push trigger explicitly excludes `1.12.0`, its
+  manual resolver rejects `1.12.0`, and its publication jobs retain the
+  existing `maven-central-release` environment
 - Does not close #754
 
 ### PR 2: Core serializer implementations
@@ -673,6 +679,17 @@ PR 1 must prove the validator's hold/pass/malformed/checksum/tree-mismatch cases
 and statically assert that both workflow files expose the exact mandatory job
 name and make every side-effecting publish/tag job depend on it.
 
+The committed authority records `evidenceProducerSha`, not a self-referential
+final candidate SHA. The exact candidate is an external workflow/CLI input and
+is emitted in the validation decision only after the commit exists. Validation
+recomputes `testedCodeTreeSha256` from both the producer and exact candidate;
+the covered paths include the Jackson 2, Jackson 3, and Fastjson2 implementations.
+ABI generation rejects dirty covered paths. The `proof-allocation` report is a
+distinct strict schema: `gc.alloc.rate.norm` in `B/op`, the pinned 3-fork/5-warmup/
+5-measurement protocol, two distinct runs, full JDK/JVM/heap/GC/OS/architecture
+metadata, checksummed raw artifacts, and threshold-checked per-cell results are
+required before a `PASS` can clear the hold.
+
 Because the current `release.yml` tag-push trigger runs after tag creation, PR 1
 removes that trigger and makes the checked workflow the only supported 1.12.0
 tag creator. Installing/updating the non-bypassable GitHub tag ruleset is a
@@ -680,6 +697,9 @@ separate repository-setting side effect requiring fresh user approval after PR 1
 merges. PR 1 is not operationally complete, and the release hold cannot clear,
 until `gh api` evidence records the ruleset ID, include patterns `1.12.0` and
 `release-gate-probe/issue-754/*`, allowed actor, and denied probe operations.
+The ruleset contains exact creation, update, and deletion rules. A twin ruleset
+must deny ordinary creation before the tag App creates its probe; after bypass
+removal, both ordinary and tag-App update/delete attempts must remain denied.
 
 The sole bypass actor is the dedicated GitHub App installation
 `bluetape4k-release-tag-bot`, not the generic GitHub Actions app, repository
@@ -694,6 +714,15 @@ through the protected environment. The exact `1.12.0` allow path is exercised
 only once by the approved release job after the hold clears; immutable-tag
 verification then rejects replacement or deletion.
 
+The production ref points to an annotated tag object whose exact message binds
+the release request ID and whose target binds the candidate commit. Response-loss
+reconciliation treats only that object SHA as owned by the current request. If
+bypass removal succeeds but artifact upload is interrupted, a rerun with the
+same request ID may reconstruct the closeout from the no-bypass ruleset and the
+same annotated tag; a different request, direct commit tag, or mismatched target
+remains blocked. Maven/signing secrets stay in `maven-central-release` for
+generic versions while repository-scoped copies remain forbidden.
+
 Recovery freezes all open descendants and reverts from the newest merged slice
 through the failed slice, inclusive,
 invalidates old descendant CI, and rebases or closes affected PRs. The revert
@@ -703,6 +732,10 @@ inherited gate; abandon the stack when the contract itself is reverted or a
 backend cannot preserve wire/security behavior. If publication somehow occurred,
 normal immutable-artifact policy applies: do not overwrite it; publish explicit
 corrective guidance and move recovery to a successor version.
+If Maven Central accepts publication but the workflow loses the response, do
+not retry blindly. Verify the external deployment first, keep GitHub Release
+creation blocked until that readback is authoritative, then complete the
+GitHub Release as a separately approved recovery action.
 
 ## 9. Test Design
 

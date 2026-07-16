@@ -37,23 +37,29 @@ class BinarySerializerSupportTest {
     }
 
     @Test
-    fun `deserialize ByteBuffer 확장 함수는 deserializeFrom 기본 메서드로 위임한다`() {
-        var delegated = false
+    fun `deserialize ByteBuffer 확장 함수는 기존 ByteArray 경로와 direct source 소비 동작을 유지한다`() {
+        var byteArrayDelegated = false
         val overriding =
             object: BinarySerializer {
                 override fun serialize(graph: Any?): ByteArray = ByteArray(0)
 
-                override fun <T: Any> deserialize(bytes: ByteArray?): T? = error("ByteArray path must not be called")
-
                 @Suppress("UNCHECKED_CAST")
-                override fun <T: Any> deserializeFrom(source: ByteBuffer): T? {
-                    delegated = true
-                    return "from-buffer" as T
+                override fun <T: Any> deserialize(bytes: ByteArray?): T? {
+                    byteArrayDelegated = true
+                    return "from-byte-array" as T
                 }
+
+                override fun <T: Any> deserializeFrom(source: ByteBuffer): T? =
+                    error("legacy extension must not call deserializeFrom")
             }
 
-        overriding.deserialize<String>(ByteBuffer.allocate(0)) shouldBeEqualTo "from-buffer"
-        delegated shouldBeEqualTo true
+        val source = ByteBuffer.allocateDirect(4).apply {
+            put(byteArrayOf(1, 2, 3, 4))
+            flip()
+        }
+        overriding.deserialize<String>(source) shouldBeEqualTo "from-byte-array"
+        byteArrayDelegated shouldBeEqualTo true
+        source.position() shouldBeEqualTo source.limit()
     }
 
     @Test

@@ -54,7 +54,15 @@ def git(root: Path, *args: str) -> str:
 
 def tested_path(path: str) -> bool:
     return (
-        path.startswith(("io/io/src/", "io/json/src/", "io/avro/src/", "benchmark/serializer-bytebuffer-benchmark/"))
+        path.startswith((
+            "io/io/src/",
+            "io/json/src/",
+            "io/avro/src/",
+            "io/jackson2/src/",
+            "io/jackson3/src/",
+            "io/fastjson2/src/",
+            "benchmark/serializer-bytebuffer-benchmark/",
+        ))
         or path.startswith(("buildSrc/", "gradle/"))
         or path in {"build.gradle.kts", "settings.gradle.kts", "gradle.properties"}
         or path.endswith("/build.gradle.kts")
@@ -104,7 +112,7 @@ class ReleaseHoldFixture:
             "release": "1.12.0",
             "issue": 754,
             "issueState": "closed" if complete else "open",
-            "releaseCandidateSha": self.candidate_sha,
+            "evidenceProducerSha": self.candidate_sha,
             "testedCodeTreeSha256": self.tested_code_tree_sha256,
             "slices": [],
         }
@@ -143,10 +151,64 @@ class ReleaseHoldFixture:
                         "headTreeSha": tree_sha,
                         "mergeSha": merge_sha,
                         "mergeTreeSha": tree_sha,
-                        "releaseCandidateSha": self.candidate_sha,
+                        "evidenceProducerSha": self.candidate_sha,
                         "testedCodeTreeSha256": self.tested_code_tree_sha256,
                         "conclusion": "PASS",
                     }
+                    if kind == "proof-allocation":
+                        runs = []
+                        for run_number in (1, 2):
+                            raw_path = Path(
+                                f"docs/evidence/issue-754/pr5/run-{run_number}/raw-jmh.json"
+                            )
+                            absolute_raw = root / raw_path
+                            absolute_raw.parent.mkdir(parents=True, exist_ok=True)
+                            absolute_raw.write_text(
+                                json.dumps({"metric": "gc.alloc.rate.norm", "run": run_number}) + "\n",
+                                encoding="utf-8",
+                            )
+                            runs.append(
+                                {
+                                    "runId": f"run-{run_number}",
+                                    "producerCommit": self.candidate_sha,
+                                    "testedCodeTreeSha256": self.tested_code_tree_sha256,
+                                    "benchmarkJarSha256": f"{run_number + 5:x}" * 64,
+                                    "environment": {
+                                        "jdkVendor": "Eclipse Adoptium",
+                                        "jdkVersion": "21.0.8",
+                                        "jvmFlags": ["-Xms2g", "-Xmx2g", "-XX:+UseZGC"],
+                                        "heap": "2g",
+                                        "gc": "ZGC",
+                                        "os": "Linux",
+                                        "architecture": "x86_64",
+                                    },
+                                    "rawArtifacts": [
+                                        {"path": raw_path.as_posix(), "sha256": sha256(absolute_raw)}
+                                    ],
+                                }
+                            )
+                        evidence.update(
+                            {
+                                "metric": "gc.alloc.rate.norm",
+                                "unit": "B/op",
+                                "protocol": {
+                                    "forks": 3,
+                                    "warmupIterations": 5,
+                                    "measurementIterations": 5,
+                                },
+                                "runs": runs,
+                                "cells": [
+                                    {
+                                        "name": "binary-serialize-heap",
+                                        "baselineBytesPerOp": 100.0,
+                                        "candidateBytesPerOp": 80.0,
+                                        "improvementRatio": 0.2,
+                                        "candidateForkBytesPerOp": [80.0, 81.0, 79.0],
+                                        "conclusion": "PASS",
+                                    }
+                                ],
+                            }
+                        )
                 absolute_evidence.write_text(json.dumps(evidence, sort_keys=True) + "\n", encoding="utf-8")
                 evidence_refs.append(
                     {"kind": kind, "path": evidence_path.as_posix(), "sha256": sha256(absolute_evidence)}
@@ -183,6 +245,9 @@ class ReleaseHoldFixture:
             "io/io/src/main/kotlin/Serializer.kt": "interface Serializer\n",
             "io/json/src/main/kotlin/JsonSerializer.kt": "interface JsonSerializer\n",
             "io/avro/src/main/kotlin/AvroSerializer.kt": "interface AvroSerializer\n",
+            "io/jackson2/src/main/kotlin/Jackson2Serializer.kt": "class Jackson2Serializer\n",
+            "io/jackson3/src/main/kotlin/Jackson3Serializer.kt": "class Jackson3Serializer\n",
+            "io/fastjson2/src/main/kotlin/Fastjson2Serializer.kt": "class Fastjson2Serializer\n",
             "benchmark/serializer-bytebuffer-benchmark/build.gradle.kts": "plugins {}\n",
             "scripts/check-release-holds.py": "# fixture validator\n",
             ".github/workflows/release.yml": "name: Release\n",
@@ -237,7 +302,7 @@ class ReleaseHoldFixture:
 
     def retarget_candidate(self, candidate: str, *, refresh_digest: bool):
         digest = tested_code_digest(self.root, candidate) if refresh_digest else self.manifest["testedCodeTreeSha256"]
-        self.manifest["releaseCandidateSha"] = candidate
+        self.manifest["evidenceProducerSha"] = candidate
         self.candidate_sha = candidate
         self.manifest["testedCodeTreeSha256"] = digest
         candidate_tree = git(self.root, "rev-parse", f"{candidate}^{{tree}}")
@@ -251,7 +316,11 @@ class ReleaseHoldFixture:
                     payload["producerCommit"] = candidate
                     payload["producerTree"] = candidate_tree
                 else:
-                    payload["releaseCandidateSha"] = candidate
+                    payload["evidenceProducerSha"] = candidate
+                    if reference["kind"] == "proof-allocation":
+                        for run in payload["runs"]:
+                            run["producerCommit"] = candidate
+                            run["testedCodeTreeSha256"] = digest
                     if index == len(self.SLICE_NAMES) - 1:
                         payload["mergeSha"] = candidate
                 path.write_text(json.dumps(payload, sort_keys=True) + "\n", encoding="utf-8")
@@ -272,6 +341,20 @@ class ReleaseHoldValidatorTest(unittest.TestCase):
                 str(fixture.root),
                 "--release-candidate",
                 candidate or fixture.candidate_sha,
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+    def run_clean_guard(self, repository: Path):
+        return subprocess.run(
+            [
+                "python3",
+                str(VALIDATOR),
+                "--repository",
+                str(repository),
+                "--assert-clean-tested-code",
             ],
             text=True,
             capture_output=True,
@@ -307,9 +390,9 @@ class ReleaseHoldValidatorTest(unittest.TestCase):
     def test_missing_and_unknown_manifest_fields_fail_closed(self):
         with tempfile.TemporaryDirectory() as directory:
             fixture = ReleaseHoldFixture(Path(directory))
-            del fixture.manifest["releaseCandidateSha"]
+            del fixture.manifest["evidenceProducerSha"]
             fixture.write()
-            self.assert_invalid(self.run_validator(fixture), "missing fields: releaseCandidateSha")
+            self.assert_invalid(self.run_validator(fixture), "missing fields: evidenceProducerSha")
 
             fixture = ReleaseHoldFixture(Path(directory))
             fixture.manifest["bypass"] = True
@@ -375,12 +458,12 @@ class ReleaseHoldValidatorTest(unittest.TestCase):
                 fixture.rewrite_evidence(4, payload, evidence_index=evidence_index)
             self.assert_hold(self.run_validator(fixture), "head and merge trees differ")
 
-    def test_stale_release_candidate_holds(self):
+    def test_unknown_release_candidate_fails_closed(self):
         with tempfile.TemporaryDirectory() as directory:
             fixture = ReleaseHoldFixture(Path(directory))
-            self.assert_hold(
+            self.assert_invalid(
                 self.run_validator(fixture, candidate=SECOND_SHA),
-                "release candidate SHA does not match",
+                "git diff --name-only",
             )
 
     def test_complete_manifest_passes(self):
@@ -389,6 +472,76 @@ class ReleaseHoldValidatorTest(unittest.TestCase):
             result = self.run_validator(fixture)
             self.assertEqual(0, result.returncode, result.stdout + result.stderr)
             self.assertIn("PASS", result.stdout)
+
+    def test_exact_candidate_may_follow_evidence_producer_without_code_drift(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = ReleaseHoldFixture(Path(directory))
+            candidate = fixture.commit_change(
+                ".github/release-holds/final-head-marker.txt",
+                "exact candidate is supplied externally\n",
+            )
+            result = self.run_validator(fixture, candidate=candidate)
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_exact_candidate_rejects_non_evidence_changes_even_outside_digest_allowlist(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = ReleaseHoldFixture(Path(directory))
+            candidate = fixture.commit_change(
+                "bluetape4k/core/src/main/kotlin/CoreApi.kt",
+                "class ChangedCoreApi\n",
+            )
+            self.assert_invalid(
+                self.run_validator(fixture, candidate=candidate),
+                "exact candidate contains non-evidence changes",
+            )
+
+    def test_allocation_proof_requires_protocol_environment_metrics_and_raw_checksums(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = ReleaseHoldFixture(Path(directory))
+            _, payload = fixture.evidence(4, evidence_index=1)
+            del payload["metric"]
+            fixture.rewrite_evidence(4, payload, evidence_index=1)
+            self.assert_invalid(self.run_validator(fixture), "allocation evidence missing fields: metric")
+
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = ReleaseHoldFixture(Path(directory))
+            _, payload = fixture.evidence(4, evidence_index=1)
+            raw_path = fixture.root / payload["runs"][0]["rawArtifacts"][0]["path"]
+            raw_path.write_text("tampered\n", encoding="utf-8")
+            self.assert_invalid(self.run_validator(fixture), "allocation raw artifact checksum mismatch")
+
+    def test_tested_code_digest_covers_all_json_serializer_backends(self):
+        for path in (
+            "io/jackson2/src/main/kotlin/Jackson2Serializer.kt",
+            "io/jackson3/src/main/kotlin/Jackson3Serializer.kt",
+            "io/fastjson2/src/main/kotlin/Fastjson2Serializer.kt",
+        ):
+            with self.subTest(path=path), tempfile.TemporaryDirectory() as directory:
+                fixture = ReleaseHoldFixture(Path(directory))
+                original_digest = fixture.tested_code_tree_sha256
+                candidate = fixture.commit_change(path, "class ChangedSerializer\n")
+                self.assertNotEqual(original_digest, tested_code_digest(fixture.root, candidate))
+                self.assert_invalid(
+                    self.run_validator(fixture, candidate=candidate),
+                    "exact candidate contains non-evidence changes",
+                )
+
+    def test_clean_tested_code_guard_rejects_covered_drift_but_allows_evidence_refresh(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = ReleaseHoldFixture(Path(directory))
+            covered = fixture.root / "io/io/src/main/kotlin/Serializer.kt"
+            covered.write_text("interface DirtySerializer\n", encoding="utf-8")
+            result = self.run_clean_guard(fixture.root)
+            self.assertEqual(2, result.returncode, result.stdout + result.stderr)
+            self.assertIn("dirty tested code paths", result.stdout + result.stderr)
+
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = ReleaseHoldFixture(Path(directory))
+            evidence = fixture.root / ".github/release-holds/draft.json"
+            evidence.parent.mkdir(parents=True, exist_ok=True)
+            evidence.write_text("{}\n", encoding="utf-8")
+            result = self.run_clean_guard(fixture.root)
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
 
     def test_covered_candidate_tree_drift_fails_but_excluded_evidence_drift_does_not_change_digest(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -551,13 +704,65 @@ class WorkflowHoldAuditTest(unittest.TestCase):
         self.assertNotIn("environment:", publish_immutability)
         self.assertNotIn("immutable-closeout --", publish_immutability)
 
-    def write_workflows(self, root: Path, snapshot: str, release: str, extra=None):
+    def write_workflows(self, root: Path, snapshot: str, release: str, extra=None, generic=None):
         workflows = root / ".github/workflows"
         workflows.mkdir(parents=True)
         (workflows / "publish-snapshot.yml").write_text(snapshot, encoding="utf-8")
         (workflows / "release.yml").write_text(release, encoding="utf-8")
+        generic = generic or """on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '!1.12.0'
+jobs:
+  resolve-version:
+    steps:
+      - run: |
+          if [[ "$VERSION" == "1.12.0" ]]; then
+            echo "issue-754 guarded release workflow"
+            exit 1
+          fi
+  publish:
+    needs: resolve-version
+    environment: maven-central-release
+    steps:
+      - run: ./gradlew nmcpPublishAggregationToCentralPortal
+  github-release:
+    needs: [resolve-version, publish]
+    steps:
+      - run: gh release create "$VERSION"
+"""
+        (workflows / "release-generic.yml").write_text(generic, encoding="utf-8")
         if extra:
             (workflows / "extra.yml").write_text(extra, encoding="utf-8")
+
+    def test_audit_rejects_generic_release_without_exact_1_12_exclusion(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            generic = """on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+jobs:
+  resolve-version:
+    steps:
+      - run: echo "$VERSION"
+  publish:
+    needs: resolve-version
+    environment: maven-central-release
+    steps:
+      - run: ./gradlew nmcpPublishAggregationToCentralPortal
+  github-release:
+    needs: [resolve-version, publish]
+    steps:
+      - run: gh release create "$VERSION"
+"""
+            self.write_workflows(root, "jobs: {}\n", "jobs: {}\n", generic=generic)
+            result = self.run_audit(root)
+            output = result.stdout + result.stderr
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("push tags must explicitly exclude 1.12.0", output)
+            self.assertIn("resolve-version must reject 1.12.0", output)
 
     def test_audit_rejects_release_environment_outside_release_workflow(self):
         with tempfile.TemporaryDirectory() as directory:

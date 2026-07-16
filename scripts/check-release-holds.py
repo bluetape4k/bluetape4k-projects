@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import re
 import subprocess
 import sys
@@ -19,6 +20,7 @@ ISSUE = 754
 HOLD_NAME = "release-hold-1.12.0-issue-754"
 HOLD_JOB = "release-hold-1-12-0-issue-754"
 IMMUTABILITY_JOB = "issue-754-tag-immutability"
+GENERIC_RELEASE_WORKFLOW = "release-generic.yml"
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 SLICE_NAMES = [
@@ -58,7 +60,7 @@ MANIFEST_FIELDS = {
     "release",
     "issue",
     "issueState",
-    "releaseCandidateSha",
+    "evidenceProducerSha",
     "testedCodeTreeSha256",
     "slices",
 }
@@ -84,8 +86,42 @@ EVIDENCE_REPORT_FIELDS = {
     "headTreeSha",
     "mergeSha",
     "mergeTreeSha",
-    "releaseCandidateSha",
+    "evidenceProducerSha",
     "testedCodeTreeSha256",
+    "conclusion",
+}
+ALLOCATION_REPORT_FIELDS = EVIDENCE_REPORT_FIELDS | {
+    "metric",
+    "unit",
+    "protocol",
+    "runs",
+    "cells",
+}
+ALLOCATION_PROTOCOL_FIELDS = {"forks", "warmupIterations", "measurementIterations"}
+ALLOCATION_RUN_FIELDS = {
+    "runId",
+    "producerCommit",
+    "testedCodeTreeSha256",
+    "benchmarkJarSha256",
+    "environment",
+    "rawArtifacts",
+}
+ALLOCATION_ENVIRONMENT_FIELDS = {
+    "jdkVendor",
+    "jdkVersion",
+    "jvmFlags",
+    "heap",
+    "gc",
+    "os",
+    "architecture",
+}
+ALLOCATION_ARTIFACT_FIELDS = {"path", "sha256"}
+ALLOCATION_CELL_FIELDS = {
+    "name",
+    "baselineBytesPerOp",
+    "candidateBytesPerOp",
+    "improvementRatio",
+    "candidateForkBytesPerOp",
     "conclusion",
 }
 ABI_REPORT_FIELDS = {
@@ -149,6 +185,23 @@ def require_sha(value: Any, context: str) -> str:
     return value
 
 
+def require_non_empty_string(value: Any, context: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ManifestError(f"{context} must be a non-empty string")
+    return value
+
+
+def require_finite_number(value: Any, context: str, *, positive: bool = False) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        raise ManifestError(f"{context} must be a finite number")
+    number = float(value)
+    if positive and number <= 0:
+        raise ManifestError(f"{context} must be greater than zero")
+    if not positive and number < 0:
+        raise ManifestError(f"{context} must not be negative")
+    return number
+
+
 def read_json(path: Path, context: str) -> dict[str, Any]:
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
@@ -167,7 +220,15 @@ def file_sha256(path: Path) -> str:
 
 def is_tested_code_path(path: str) -> bool:
     return (
-        path.startswith(("io/io/src/", "io/json/src/", "io/avro/src/", "benchmark/serializer-bytebuffer-benchmark/"))
+        path.startswith((
+            "io/io/src/",
+            "io/json/src/",
+            "io/avro/src/",
+            "io/jackson2/src/",
+            "io/jackson3/src/",
+            "io/fastjson2/src/",
+            "benchmark/serializer-bytebuffer-benchmark/",
+        ))
         or path.startswith(("buildSrc/", "gradle/"))
         or path in {"build.gradle.kts", "settings.gradle.kts", "gradle.properties"}
         or path.endswith("/build.gradle.kts")
@@ -209,6 +270,38 @@ def compute_tested_code_tree_sha256(repository: Path, candidate: str) -> str:
     return digest.hexdigest()
 
 
+def dirty_tested_code_paths(repository: Path) -> list[str]:
+    commands = (
+        ("diff", "--name-only", "-z"),
+        ("diff", "--cached", "--name-only", "-z"),
+        ("ls-files", "--others", "--exclude-standard", "-z"),
+    )
+    paths: set[str] = set()
+    for command in commands:
+        output = git_output(repository, *command, text=False)
+        for raw_path in output.split(b"\0"):
+            if not raw_path:
+                continue
+            path = raw_path.decode("utf-8", errors="surrogateescape")
+            if is_tested_code_path(path):
+                paths.add(path)
+    return sorted(paths)
+
+
+def non_evidence_candidate_paths(repository: Path, producer: str, candidate: str) -> list[str]:
+    output = git_output(repository, "diff", "--name-only", "-z", producer, candidate, text=False)
+    paths = {
+        raw_path.decode("utf-8", errors="surrogateescape")
+        for raw_path in output.split(b"\0")
+        if raw_path
+    }
+    return sorted(
+        path
+        for path in paths
+        if not path.startswith((".github/release-holds/", "docs/evidence/issue-754/"))
+    )
+
+
 def resolve_evidence_path(repository: Path, relative_path: Any) -> Path:
     if not isinstance(relative_path, str) or not relative_path:
         raise ManifestError("evidence path must be a non-empty repository-relative path")
@@ -233,6 +326,104 @@ def expected_checksum_paths(slice_name: str) -> list[str]:
         [path for _, path in REQUIRED_EVIDENCE[slice_name]]
         + CHECKSUM_EXTRAS.get(slice_name, [])
     )
+
+
+def validate_allocation_report(
+    report: dict[str, Any],
+    repository: Path,
+    evidence_producer_sha: str,
+    tested_code_tree_sha256: str,
+) -> None:
+    strict_fields(report, ALLOCATION_REPORT_FIELDS, "allocation evidence")
+    if report["metric"] != "gc.alloc.rate.norm" or report["unit"] != "B/op":
+        raise ManifestError("allocation evidence metric must be gc.alloc.rate.norm in B/op")
+
+    protocol = report["protocol"]
+    if not isinstance(protocol, dict):
+        raise ManifestError("allocation evidence protocol must be an object")
+    strict_fields(protocol, ALLOCATION_PROTOCOL_FIELDS, "allocation protocol")
+    if protocol != {"forks": 3, "warmupIterations": 5, "measurementIterations": 5}:
+        raise ManifestError("allocation evidence protocol must use 3 forks and 5 warmup/measurement iterations")
+
+    runs = report["runs"]
+    if not isinstance(runs, list) or len(runs) != 2:
+        raise ManifestError("allocation evidence must contain exactly two runs")
+    run_ids: set[str] = set()
+    raw_paths: set[str] = set()
+    for index, run in enumerate(runs, start=1):
+        context = f"allocation run {index}"
+        if not isinstance(run, dict):
+            raise ManifestError(f"{context} must be an object")
+        strict_fields(run, ALLOCATION_RUN_FIELDS, context)
+        run_id = require_non_empty_string(run["runId"], f"{context} runId")
+        if run_id in run_ids:
+            raise ManifestError("allocation evidence run IDs must be distinct")
+        run_ids.add(run_id)
+        if require_sha(run["producerCommit"], f"{context} producerCommit") != evidence_producer_sha:
+            raise ManifestError(f"{context} producer commit mismatch")
+        if require_sha256(run["testedCodeTreeSha256"], f"{context} testedCodeTreeSha256") != tested_code_tree_sha256:
+            raise ManifestError(f"{context} tested code tree digest mismatch")
+        require_sha256(run["benchmarkJarSha256"], f"{context} benchmarkJarSha256")
+
+        environment = run["environment"]
+        if not isinstance(environment, dict):
+            raise ManifestError(f"{context} environment must be an object")
+        strict_fields(environment, ALLOCATION_ENVIRONMENT_FIELDS, f"{context} environment")
+        for field in ALLOCATION_ENVIRONMENT_FIELDS - {"jvmFlags"}:
+            require_non_empty_string(environment[field], f"{context} environment {field}")
+        flags = environment["jvmFlags"]
+        if not isinstance(flags, list) or not flags or any(
+            not isinstance(flag, str) or not flag for flag in flags
+        ):
+            raise ManifestError(f"{context} environment jvmFlags must be a non-empty string array")
+
+        artifacts = run["rawArtifacts"]
+        if not isinstance(artifacts, list) or not artifacts:
+            raise ManifestError(f"{context} rawArtifacts must be a non-empty array")
+        for artifact in artifacts:
+            if not isinstance(artifact, dict):
+                raise ManifestError(f"{context} raw artifact must be an object")
+            strict_fields(artifact, ALLOCATION_ARTIFACT_FIELDS, f"{context} raw artifact")
+            relative_path = require_non_empty_string(artifact["path"], f"{context} raw artifact path")
+            if not relative_path.startswith("docs/evidence/issue-754/pr5/"):
+                raise ManifestError(f"{context} raw artifact path is outside the PR 5 evidence root")
+            if relative_path in raw_paths:
+                raise ManifestError(f"allocation raw artifact path is duplicated: {relative_path}")
+            raw_paths.add(relative_path)
+            expected_sha = require_sha256(artifact["sha256"], f"{context} raw artifact sha256")
+            artifact_path = resolve_evidence_path(repository, relative_path)
+            if not artifact_path.is_file() or file_sha256(artifact_path) != expected_sha:
+                raise ManifestError(f"allocation raw artifact checksum mismatch: {relative_path}")
+
+    cells = report["cells"]
+    if not isinstance(cells, list) or not cells:
+        raise ManifestError("allocation evidence cells must be a non-empty array")
+    cell_names: set[str] = set()
+    for index, cell in enumerate(cells, start=1):
+        context = f"allocation cell {index}"
+        if not isinstance(cell, dict):
+            raise ManifestError(f"{context} must be an object")
+        strict_fields(cell, ALLOCATION_CELL_FIELDS, context)
+        name = require_non_empty_string(cell["name"], f"{context} name")
+        if name in cell_names:
+            raise ManifestError(f"allocation evidence has duplicate cell: {name}")
+        cell_names.add(name)
+        baseline = require_finite_number(cell["baselineBytesPerOp"], f"{context} baselineBytesPerOp", positive=True)
+        candidate = require_finite_number(cell["candidateBytesPerOp"], f"{context} candidateBytesPerOp")
+        improvement = require_finite_number(cell["improvementRatio"], f"{context} improvementRatio")
+        expected_improvement = (baseline - candidate) / baseline
+        if not math.isclose(improvement, expected_improvement, rel_tol=1e-9, abs_tol=1e-12):
+            raise ManifestError(f"{context} improvement ratio mismatch")
+        forks = cell["candidateForkBytesPerOp"]
+        if not isinstance(forks, list) or len(forks) != 3:
+            raise ManifestError(f"{context} must contain exactly three candidate fork scores")
+        fork_scores = [
+            require_finite_number(value, f"{context} candidate fork score") for value in forks
+        ]
+        if improvement < 0.10 or any(value > baseline * 1.05 for value in fork_scores):
+            raise ManifestError(f"{context} does not satisfy the allocation threshold")
+        if cell["conclusion"] != "PASS":
+            raise ManifestError(f"{context} conclusion must be PASS")
 
 
 def validate_checksum_manifest(repository: Path, slice_name: str, reference: dict[str, Any]) -> None:
@@ -316,15 +507,31 @@ def validate_manifest(
     if manifest["issueState"] not in {"open", "closed"}:
         raise ManifestError("manifest issueState must be open or closed")
 
-    manifest_candidate = require_sha(manifest["releaseCandidateSha"], "manifest releaseCandidateSha")
+    evidence_producer_sha = require_sha(
+        manifest["evidenceProducerSha"], "manifest evidenceProducerSha"
+    )
+    non_evidence_paths = non_evidence_candidate_paths(
+        repository, evidence_producer_sha, candidate
+    )
+    if non_evidence_paths:
+        raise ManifestError(
+            "exact candidate contains non-evidence changes after the evidence producer: "
+            + ", ".join(non_evidence_paths)
+        )
     manifest_tested_digest = require_sha256(
         manifest["testedCodeTreeSha256"], "manifest testedCodeTreeSha256"
     )
-    actual_tested_digest = compute_tested_code_tree_sha256(repository, manifest_candidate)
-    if actual_tested_digest != manifest_tested_digest:
+    producer_tested_digest = compute_tested_code_tree_sha256(repository, evidence_producer_sha)
+    if producer_tested_digest != manifest_tested_digest:
+        raise ManifestError(
+            "tested code tree SHA-256 mismatch for evidence producer: "
+            f"expected {manifest_tested_digest}, actual {producer_tested_digest}"
+        )
+    candidate_tested_digest = compute_tested_code_tree_sha256(repository, candidate)
+    if candidate_tested_digest != manifest_tested_digest:
         raise ManifestError(
             "tested code tree SHA-256 mismatch for exact candidate: "
-            f"expected {manifest_tested_digest}, actual {actual_tested_digest}"
+            f"expected {manifest_tested_digest}, actual {candidate_tested_digest}"
         )
     slices = manifest["slices"]
     if not isinstance(slices, list) or len(slices) != len(SLICE_NAMES):
@@ -337,11 +544,6 @@ def validate_manifest(
     reasons: list[str] = []
     if manifest["issueState"] != "closed":
         reasons.append(f"issue {ISSUE} is open")
-    if manifest_candidate != candidate:
-        reasons.append(
-            f"release candidate SHA does not match manifest: expected {manifest_candidate}, actual {candidate}"
-        )
-
     for entry in slices:
         if not isinstance(entry, dict):
             raise ManifestError("each stack slice must be a JSON object")
@@ -439,8 +641,8 @@ def validate_manifest(
                 )
                 if report_digest != manifest_tested_digest:
                     raise ManifestError(f"slice {name} ABI tested code tree digest mismatch")
-                if report["producerCommit"] != manifest_candidate:
-                    reasons.append(f"{name} ABI evidence is stale for release candidate SHA")
+                if report["producerCommit"] != evidence_producer_sha:
+                    reasons.append(f"{name} ABI evidence is stale for evidence producer SHA")
                 if report["status"] != "GREEN":
                     reasons.append(f"{name} ABI evidence is not GREEN")
                 checks = report["checks"]
@@ -448,7 +650,15 @@ def validate_manifest(
                     reasons.append(f"{name} ABI evidence contains a non-PASS check")
                 continue
 
-            strict_fields(report, EVIDENCE_REPORT_FIELDS, "evidence report")
+            if kind == "proof-allocation":
+                validate_allocation_report(
+                    report,
+                    repository,
+                    evidence_producer_sha,
+                    manifest_tested_digest,
+                )
+            else:
+                strict_fields(report, EVIDENCE_REPORT_FIELDS, "evidence report")
             if (
                 report["schemaVersion"] != SCHEMA_VERSION
                 or report["slice"] != name
@@ -471,18 +681,14 @@ def validate_manifest(
                 for manifest_field, report_field, label in comparisons:
                     if entry[manifest_field] != report[report_field]:
                         raise ManifestError(f"slice {name} evidence {label}")
-            if report["releaseCandidateSha"] != manifest_candidate:
-                reasons.append(f"{name} evidence is stale for release candidate SHA")
+            if report["evidenceProducerSha"] != evidence_producer_sha:
+                reasons.append(f"{name} evidence is stale for evidence producer SHA")
             if report["conclusion"] != "PASS":
                 reasons.append(f"{name} evidence conclusion is not PASS")
 
         if complete_identity:
             if entry["expectedHeadTreeSha"] != entry["expectedMergeTreeSha"]:
                 reasons.append(f"{name} head and merge trees differ")
-
-    last_merge = slices[-1]["expectedMergeSha"]
-    if last_merge is not None and last_merge != manifest_candidate:
-        reasons.append("allocation-proof merge SHA is not the manifest release candidate")
 
     reasons = list(dict.fromkeys(reasons))
     try:
@@ -559,6 +765,40 @@ def contains_tag_mutation(block: str) -> bool:
     )
 
 
+def audit_generic_release_workflow(workflow: str, jobs: dict[str, str]) -> list[str]:
+    errors: list[str] = []
+    if not re.search(r"^      - '!1\.12\.0'\s*$", workflow, re.MULTILINE):
+        errors.append(f"{GENERIC_RELEASE_WORKFLOW}: push tags must explicitly exclude 1.12.0")
+
+    resolve = jobs.get("resolve-version", "")
+    if not (
+        '"$VERSION" == "1.12.0"' in resolve
+        and "issue-754 guarded release workflow" in resolve
+        and "exit 1" in resolve
+    ):
+        errors.append(f"{GENERIC_RELEASE_WORKFLOW}: resolve-version must reject 1.12.0")
+
+    publish = jobs.get("publish", "")
+    if job_needs(publish) != {"resolve-version"}:
+        errors.append(f"{GENERIC_RELEASE_WORKFLOW}: publish must need only resolve-version")
+    if "environment: maven-central-release" not in publish:
+        errors.append(f"{GENERIC_RELEASE_WORKFLOW}: publish must use maven-central-release")
+    if "nmcpPublishAggregationToCentralPortal" not in publish:
+        errors.append(f"{GENERIC_RELEASE_WORKFLOW}: publish job is missing Maven Central publication")
+
+    github_release = jobs.get("github-release", "")
+    if job_needs(github_release) != {"resolve-version", "publish"}:
+        errors.append(
+            f"{GENERIC_RELEASE_WORKFLOW}: github-release must need resolve-version and publish"
+        )
+    if "gh release create" not in github_release:
+        errors.append(f"{GENERIC_RELEASE_WORKFLOW}: github-release job is missing release creation")
+
+    if "release-tag-1.12.0" in workflow:
+        errors.append(f"{GENERIC_RELEASE_WORKFLOW}: must not use the 1.12.0 release environment")
+    return errors
+
+
 def audit_workflows(repository: Path) -> list[str]:
     workflow_dir = repository / ".github/workflows"
     errors: list[str] = []
@@ -566,12 +806,18 @@ def audit_workflows(repository: Path) -> list[str]:
         return ["workflow directory is missing"]
 
     workflows = sorted(workflow_dir.glob("*.y*ml"))
+    generic_path = workflow_dir / GENERIC_RELEASE_WORKFLOW
+    if not generic_path.is_file():
+        errors.append(f"{GENERIC_RELEASE_WORKFLOW}: generic non-1.12.0 release path is missing")
     for path in workflows:
         text = path.read_text(encoding="utf-8")
         if path.name != "release.yml" and "release-tag-1.12.0" in text:
             errors.append(f"{path.name}: release-tag-1.12.0 outside release.yml")
 
         jobs = extract_jobs(text)
+        is_generic_release = path.name == GENERIC_RELEASE_WORKFLOW
+        if is_generic_release:
+            errors.extend(audit_generic_release_workflow(text, jobs))
         if path.name in {"publish-snapshot.yml", "release.yml"}:
             hold = jobs.get(HOLD_JOB, "")
             if f"name: {HOLD_NAME}" not in hold:
@@ -583,11 +829,13 @@ def audit_workflows(repository: Path) -> list[str]:
             tag_mutation = contains_tag_mutation(block)
             protected = "environment: snapshot-publish-1.12.0" in block or "environment: release-tag-1.12.0" in block
 
-            if publication and HOLD_JOB not in needs:
+            if publication and not is_generic_release and HOLD_JOB not in needs:
                 errors.append(f"{path.name}: {job_name} does not need {HOLD_NAME}")
-            if publication and IMMUTABILITY_JOB not in needs:
+            if publication and not is_generic_release and IMMUTABILITY_JOB not in needs:
                 errors.append(f"{path.name}: {job_name} does not need {IMMUTABILITY_JOB}")
-            if (publication or protected or tag_mutation) and "candidate-sha-guard" not in needs:
+            if (
+                (publication and not is_generic_release) or protected or tag_mutation
+            ) and "candidate-sha-guard" not in needs:
                 errors.append(f"{path.name}: {job_name} does not need candidate-sha-guard")
             if protected and HOLD_JOB not in needs and job_name != HOLD_JOB:
                 errors.append(f"{path.name}: protected job {job_name} is unheld")
@@ -709,10 +957,14 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument("--report", type=Path)
     parser.add_argument("--audit-workflows", action="store_true")
     parser.add_argument("--print-tested-code-tree-sha256")
+    parser.add_argument("--assert-clean-tested-code", action="store_true")
     args = parser.parse_args(argv)
     if args.print_tested_code_tree_sha256:
-        if args.audit_workflows or args.manifest or args.release_candidate or args.report:
+        if args.audit_workflows or args.assert_clean_tested_code or args.manifest or args.release_candidate or args.report:
             parser.error("--print-tested-code-tree-sha256 cannot be combined with validation")
+    elif args.assert_clean_tested_code:
+        if args.audit_workflows or args.manifest or args.release_candidate or args.report:
+            parser.error("--assert-clean-tested-code cannot be combined with validation")
     elif args.audit_workflows:
         if args.manifest or args.release_candidate:
             parser.error("--audit-workflows cannot be combined with manifest validation")
@@ -730,6 +982,17 @@ def main(argv: list[str] | None = None) -> int:
         except ManifestError as error:
             print(f"INVALID: {error}", file=sys.stderr)
             return 2
+        return 0
+    if args.assert_clean_tested_code:
+        try:
+            dirty_paths = dirty_tested_code_paths(repository)
+        except ManifestError as error:
+            print(f"INVALID: {error}", file=sys.stderr)
+            return 2
+        if dirty_paths:
+            print(f"INVALID: dirty tested code paths: {', '.join(dirty_paths)}", file=sys.stderr)
+            return 2
+        print("TESTED CODE CLEAN")
         return 0
     if args.audit_workflows:
         errors = audit_workflows(repository)

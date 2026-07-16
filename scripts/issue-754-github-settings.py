@@ -29,6 +29,7 @@ RELEASE_SECRET_NAMES = sorted(MAVEN_SECRET_NAMES + [
 ])
 RELEASE_VARIABLE_NAMES = ["RELEASE_SETTINGS_APP_ID", "RELEASE_TAG_APP_ID"]
 RULESET_PATTERNS = ["1.12.0", "release-gate-probe/issue-754/*"]
+RULESET_RULE_TYPES = ["creation", "update", "deletion"]
 CANDIDATE_SLICE_PATHS = {
     "contract": "docs/evidence/issue-754/contract/SHA256SUMS",
     "core-serializers": "docs/evidence/issue-754/core-serializers/SHA256SUMS",
@@ -95,6 +96,7 @@ def expected_state(repository: str) -> dict[str, Any]:
             "target": "tag",
             "enforcement": "active",
             "patterns": list(RULESET_PATTERNS),
+            "rules": list(RULESET_RULE_TYPES),
             "bypassActors": [
                 {"actorType": "Integration", "actorId": 7541}
             ],
@@ -137,7 +139,7 @@ def expected_state(repository: str) -> dict[str, Any]:
         },
         "repositorySecretNames": [],
         "repositoryVariableNames": [],
-        "legacyEnvironmentSecretNames": [],
+        "legacyEnvironmentSecretNames": list(MAVEN_SECRET_NAMES),
     }
 
 
@@ -172,6 +174,8 @@ def validate_settings(state: dict[str, Any]) -> list[str]:
         errors.append("ruleset must actively target tags")
     if ruleset.get("patterns") != RULESET_PATTERNS:
         errors.append("ruleset patterns are stale or incomplete")
+    if ruleset.get("rules") != RULESET_RULE_TYPES:
+        errors.append("ruleset must protect creation, update, and deletion")
 
     apps = state.get("apps") or {}
     tag_app = apps.get("tag") or {}
@@ -221,9 +225,11 @@ def validate_settings(state: dict[str, Any]) -> list[str]:
     old_variables = sorted(set(state.get("repositoryVariableNames") or []) & set(RELEASE_VARIABLE_NAMES))
     if old_variables:
         errors.append(f"release-only variable exists at repository scope: {', '.join(old_variables)}")
-    old_legacy = sorted(set(state.get("legacyEnvironmentSecretNames") or []) & set(MAVEN_SECRET_NAMES))
-    if old_legacy:
-        errors.append(f"Maven/signing secrets remain in legacy environment: {', '.join(old_legacy)}")
+    legacy_environment_secrets = sorted(state.get("legacyEnvironmentSecretNames") or [])
+    if legacy_environment_secrets != MAVEN_SECRET_NAMES:
+        errors.append(
+            "legacy maven-central-release environment must retain exactly five Maven/signing secret names"
+        )
     return errors
 
 
@@ -473,6 +479,7 @@ def validate_immutable_closeout(closeout: dict[str, Any]) -> list[str]:
         if settings_actor.get("permissions") != {"administration": "write", "contents": "read", "metadata": "read"}:
             errors.append("prepare settings actor permissions are invalid")
     expected_probes = {
+        "ordinaryCreate": "denied",
         "ordinaryUpdate": "denied",
         "ordinaryDelete": "denied",
         "tagAppUpdate": "denied",
@@ -496,6 +503,7 @@ EXPECTED_EVENT_ACTORS = {
     "production-tag-readback": "tag",
     "ruleset-remove-bypass": "settings",
     "ruleset-readback": "settings",
+    "twin-ordinary-create": "ordinary",
     "twin-ordinary-update": "ordinary",
     "twin-ordinary-delete": "ordinary",
     "twin-tag-update": "tag",
@@ -527,6 +535,7 @@ def probe_fixture(settings_state: dict[str, Any], events: Any) -> dict[str, Any]
         "production-tag-readback": {"exact-candidate"},
         "ruleset-remove-bypass": {"accepted", "response-lost"},
         "ruleset-readback": {"no-bypass"},
+        "twin-ordinary-create": {"denied"},
         "twin-ordinary-update": {"denied"},
         "twin-ordinary-delete": {"denied"},
         "twin-tag-update": {"denied"},
@@ -554,6 +563,7 @@ def run_immutable_closeout(payload: dict[str, Any]) -> dict[str, Any]:
     ruleset["bypassActors"] = []
     result["normalizedRulesetSha256"] = stable_hash(ruleset)
     result["probes"] = {
+        "ordinaryCreate": events["twin-ordinary-create"]["outcome"],
         "ordinaryUpdate": events["twin-ordinary-update"]["outcome"],
         "ordinaryDelete": events["twin-ordinary-delete"]["outcome"],
         "tagAppUpdate": events["twin-tag-update"]["outcome"],
@@ -568,6 +578,7 @@ def run_immutable_closeout(payload: dict[str, Any]) -> dict[str, Any]:
     prerequisite_outcomes = {
         "production-tag-create": "accepted",
         "production-tag-readback": "exact-candidate",
+        "twin-ordinary-create": "denied",
         "twin-ordinary-update": "denied",
         "twin-ordinary-delete": "denied",
         "twin-tag-update": "denied",
@@ -725,6 +736,14 @@ def normalized_ruleset(ruleset: dict[str, Any], *, bypass_actors: list[Any]) -> 
     }
 
 
+def has_exact_production_rules(ruleset: dict[str, Any]) -> bool:
+    rules = ruleset.get("rules")
+    if not isinstance(rules, list):
+        return False
+    rule_types = [rule.get("type") if isinstance(rule, dict) else rule for rule in rules]
+    return len(rule_types) == len(RULESET_RULE_TYPES) and set(rule_types) == set(RULESET_RULE_TYPES)
+
+
 def list_rulesets(repository: str, token: str) -> list[dict[str, Any]]:
     _, rulesets = gh_api(f"repos/{repository}/rulesets?per_page=100", token, paginate=True)
     if not isinstance(rulesets, list):
@@ -785,6 +804,8 @@ def verify_live_immutable_state(args: argparse.Namespace, artifact: dict[str, An
     _, ruleset = gh_api(f"repos/{args.repository}/rulesets/{matches[0]['id']}", token)
     if "bypass_actors" in ruleset and ruleset.get("bypass_actors"):
         errors.append("live immutable ruleset regained a bypass actor")
+    if not has_exact_production_rules(ruleset):
+        errors.append("live immutable ruleset does not protect creation, update, and deletion")
     identity = artifact.get("rulesetIdentity") or {}
     if ruleset.get("id") != identity.get("id") or ruleset.get("updated_at") != identity.get("updatedAt"):
         errors.append("live immutable ruleset identity or update timestamp drifted")
@@ -847,6 +868,7 @@ def run_live_twin_probe(
     tag_token: str,
     settings_token: str,
     ordinary_token: str,
+    tag_bypass_actors: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     ref_collection = f"repos/{args.repository}/git/refs"
     probe_name = f"release-gate-probe/issue-754/{args.request_id}"
@@ -871,7 +893,11 @@ def run_live_twin_probe(
             "name": twin_name,
             "target": ruleset.get("target"),
             "enforcement": "active",
-            "bypass_actors": [],
+            "bypass_actors": (
+                tag_bypass_actors
+                if tag_bypass_actors is not None
+                else ruleset.get("bypass_actors") or []
+            ),
             "conditions": twin_conditions,
             "rules": ruleset.get("rules"),
         }
@@ -892,6 +918,22 @@ def run_live_twin_probe(
                     time.sleep(1)
         if not isinstance(twin_id, int):
             raise SettingsError("twin ruleset creation response is ambiguous; no probe ref was created")
+        ordinary_create = gh_api(
+            ref_collection,
+            ordinary_token,
+            method="POST",
+            payload={"ref": f"refs/tags/{probe_name}", "sha": args.candidate},
+            check=False,
+        )
+        result["ordinaryCreate"] = denied_by_ruleset(*ordinary_create)
+        if not result["ordinaryCreate"]:
+            allowed_rc, allowed_ref = gh_api(probe_read_ref, tag_token, check=False)
+            probe_created = (
+                allowed_rc == 0
+                and isinstance(allowed_ref, dict)
+                and allowed_ref.get("object", {}).get("sha") == args.candidate
+            )
+            raise SettingsError("ordinary probe tag creation was not denied by the ruleset")
         gh_api(
             ref_collection, tag_token, method="POST",
             payload={"ref": f"refs/tags/{probe_name}", "sha": args.candidate}, check=False,
@@ -900,6 +942,15 @@ def run_live_twin_probe(
         if read_rc != 0 or readback_ref.get("object", {}).get("sha") != args.candidate:
             raise SettingsError("probe tag creation did not reconcile to the candidate")
         probe_created = True
+        _, twin_with_bypass = gh_api(f"{rulesets_endpoint}/{twin_id}", settings_token)
+        no_bypass_body = normalized_ruleset(twin_with_bypass, bypass_actors=[])
+        gh_api(
+            f"{rulesets_endpoint}/{twin_id}",
+            settings_token,
+            method="PUT",
+            payload=no_bypass_body,
+            check=False,
+        )
         _, twin_readback = gh_api(f"{rulesets_endpoint}/{twin_id}", settings_token)
         result["policyMatch"] = (
             twin_readback.get("target") == ruleset.get("target")
@@ -946,7 +997,10 @@ def run_live_twin_probe(
         result["cleanup"] = twin_absent and confirmed_absent(absent_rc, absent_payload)
     if failure is not None:
         raise SettingsError(f"isolated twin probe failed after cleanup: {failure}") from failure
-    denied = all(result[name] is True for name in ("ordinaryUpdate", "ordinaryDelete", "tagUpdate", "tagDelete"))
+    denied = all(
+        result[name] is True
+        for name in ("ordinaryCreate", "ordinaryUpdate", "ordinaryDelete", "tagUpdate", "tagDelete")
+    )
     if not result.get("policyMatch") or not denied or not result["cleanup"]:
         raise SettingsError("isolated twin probe or cleanup failed; production state was not mutated")
     return result
@@ -997,6 +1051,15 @@ def existing_tag_state(returncode: int, payload: Any, candidate: str) -> str:
     raise SettingsError("production tag existence read is ambiguous")
 
 
+def require_absent_production_tag_for_prepare(
+    returncode: int,
+    payload: Any,
+    candidate: str,
+) -> None:
+    if existing_tag_state(returncode, payload, candidate) != "absent":
+        raise SettingsError("pre-existing production tag has no current prepare ownership")
+
+
 def creation_owned_by_current_run(
     returncode: int,
     payload: Any,
@@ -1012,6 +1075,57 @@ def creation_owned_by_current_run(
     )
 
 
+def annotated_tag_message(request_id: str) -> str:
+    return f"issue-754 prepare request {request_id}"
+
+
+def create_annotated_tag_object(
+    repository: str,
+    token: str,
+    *,
+    tag: str,
+    candidate: str,
+    request_id: str,
+) -> str:
+    returncode, payload = gh_api(
+        f"repos/{repository}/git/tags",
+        token,
+        method="POST",
+        payload={
+            "tag": tag,
+            "message": annotated_tag_message(request_id),
+            "object": candidate,
+            "type": "commit",
+        },
+        check=False,
+    )
+    if returncode != 0 or not isinstance(payload, dict) or not is_lower_hex(payload.get("sha"), 40):
+        raise SettingsError("annotated production tag object creation is ambiguous")
+    return payload["sha"]
+
+
+def validate_annotated_tag_object(
+    repository: str,
+    token: str,
+    object_sha: str,
+    *,
+    tag: str,
+    candidate: str,
+    request_id: str,
+) -> dict[str, Any]:
+    _, payload = gh_api(f"repos/{repository}/git/tags/{object_sha}", token)
+    if (
+        not isinstance(payload, dict)
+        or payload.get("sha") != object_sha
+        or payload.get("tag") != tag
+        or payload.get("message") != annotated_tag_message(request_id)
+        or payload.get("object", {}).get("type") != "commit"
+        or payload.get("object", {}).get("sha") != candidate
+    ):
+        raise SettingsError("annotated production tag ownership or target mismatch")
+    return payload
+
+
 def reconcile_created_tag_readback(
     read_endpoint: str,
     mutation_endpoint: str,
@@ -1019,10 +1133,12 @@ def reconcile_created_tag_readback(
     *,
     candidate: str,
     created_this_run: bool,
-) -> dict[str, Any]:
+) -> tuple[dict[str, Any], bool]:
     read_rc, readback = gh_api(read_endpoint, token, check=False)
     if read_rc == 0 and isinstance(readback, dict) and readback.get("object", {}).get("sha") == candidate:
-        return readback
+        # The expected SHA is a request-owned annotated tag object, not the candidate commit.
+        # Exact readback therefore proves ownership even when the ref POST response was lost.
+        return readback, True
     if created_this_run:
         rollback = rollback_created_tag(
             read_endpoint,
@@ -1047,7 +1163,9 @@ def apply_live_immutable_transition(
     tag_token: str,
     *,
     created_this_run: bool,
+    expected_ref_sha: str | None = None,
 ) -> dict[str, Any]:
+    expected_ref_sha = expected_ref_sha or args.candidate
     try:
         no_bypass_body = normalized_ruleset(ruleset, bypass_actors=[])
         update_rc, _ = gh_api(
@@ -1060,7 +1178,7 @@ def apply_live_immutable_transition(
         _, readback = gh_api(ruleset_endpoint, settings_token)
         readback_bypass = readback.get("bypass_actors") or []
         _, tag_readback = gh_api(production_read_ref, tag_token)
-        exact_target = tag_readback.get("object", {}).get("sha") == args.candidate
+        exact_target = tag_readback.get("object", {}).get("sha") == expected_ref_sha
     except Exception as error:
         if created_this_run:
             rollback = rollback_created_tag(
@@ -1068,7 +1186,7 @@ def apply_live_immutable_transition(
                 production_mutation_ref,
                 tag_token,
                 created_this_run=True,
-                candidate=args.candidate,
+                candidate=expected_ref_sha,
             )
             if rollback == "recognized-and-restored":
                 raise SettingsError("immutable transition failed; owned tag was rolled back") from error
@@ -1109,8 +1227,9 @@ def live_immutable_closeout(args: argparse.Namespace) -> dict[str, Any]:
     _, ruleset = gh_api(f"{rulesets_endpoint}/{ruleset_id}", settings_token)
     bypass = ruleset.get("bypass_actors") or []
     bypass_ids = {item.get("actor_id") for item in bypass}
-    if bypass_ids != {tag_actor["appId"]}:
+    if bypass_ids not in ({tag_actor["appId"]}, set()) or len(bypass) > 1:
         raise SettingsError("only the tag App may bypass the production ruleset")
+    recovery_mode = not bypass
     include_patterns = ((ruleset.get("conditions") or {}).get("ref_name") or {}).get("include") or []
     normalized_patterns = [
         str(pattern)[len("refs/tags/"):] if str(pattern).startswith("refs/tags/") else str(pattern)
@@ -1118,6 +1237,8 @@ def live_immutable_closeout(args: argparse.Namespace) -> dict[str, Any]:
     ]
     if normalized_patterns != RULESET_PATTERNS:
         raise SettingsError("production ruleset patterns are stale or incomplete")
+    if not has_exact_production_rules(ruleset):
+        raise SettingsError("production ruleset must protect creation, update, and deletion")
 
     with tempfile.TemporaryDirectory(prefix="issue-754-candidate-") as directory:
         candidate_path, candidate_report = download_candidate_artifact(args, download_token, Path(directory))
@@ -1149,44 +1270,99 @@ def live_immutable_closeout(args: argparse.Namespace) -> dict[str, Any]:
         candidate_checksum = hashlib.sha256(candidate_path.read_bytes()).hexdigest()
 
     twin = run_live_twin_probe(
-        args, ruleset, rulesets_endpoint, tag_token, settings_token, download_token
+        args,
+        ruleset,
+        rulesets_endpoint,
+        tag_token,
+        settings_token,
+        download_token,
+        tag_bypass_actors=[
+            {
+                "actor_id": tag_actor["appId"],
+                "actor_type": "Integration",
+                "bypass_mode": "always",
+            }
+        ],
     )
 
     ref_collection = f"repos/{args.repository}/git/refs"
     production_read_ref = f"repos/{args.repository}/git/ref/tags/{args.tag}"
     production_mutation_ref = f"repos/{args.repository}/git/refs/tags/{args.tag}"
     existing_rc, existing = gh_api(production_read_ref, tag_token, check=False)
-    tag_state = existing_tag_state(existing_rc, existing, args.candidate)
     created_this_run = False
-    if tag_state == "absent":
+    if confirmed_absent(existing_rc, existing):
+        if recovery_mode:
+            raise SettingsError("immutable recovery has no request-owned production tag")
+        tag_object_sha = create_annotated_tag_object(
+            args.repository,
+            tag_token,
+            tag=args.tag,
+            candidate=args.candidate,
+            request_id=args.request_id,
+        )
         create_rc, create_response = gh_api(
             ref_collection, tag_token, method="POST",
-            payload={"ref": f"refs/tags/{args.tag}", "sha": args.candidate}, check=False,
+            payload={"ref": f"refs/tags/{args.tag}", "sha": tag_object_sha}, check=False,
         )
         created_this_run = creation_owned_by_current_run(
             create_rc,
             create_response,
             tag=args.tag,
-            candidate=args.candidate,
+            candidate=tag_object_sha,
         )
-        reconcile_created_tag_readback(
+        _, created_this_run = reconcile_created_tag_readback(
             production_read_ref,
             production_mutation_ref,
             tag_token,
-            candidate=args.candidate,
+            candidate=tag_object_sha,
             created_this_run=created_this_run,
         )
+        validate_annotated_tag_object(
+            args.repository,
+            tag_token,
+            tag_object_sha,
+            tag=args.tag,
+            candidate=args.candidate,
+            request_id=args.request_id,
+        )
+    elif existing_rc == 0 and isinstance(existing, dict):
+        if not recovery_mode:
+            raise SettingsError("pre-existing production tag has no current prepare ownership")
+        tag_object_sha = existing.get("object", {}).get("sha")
+        if existing.get("object", {}).get("type") != "tag" or not is_lower_hex(tag_object_sha, 40):
+            raise SettingsError("immutable recovery tag is not an annotated request-owned tag")
+        validate_annotated_tag_object(
+            args.repository,
+            tag_token,
+            tag_object_sha,
+            tag=args.tag,
+            candidate=args.candidate,
+            request_id=args.request_id,
+        )
+    else:
+        raise SettingsError("production tag existence read is ambiguous")
 
-    transition_result = apply_live_immutable_transition(
-        args,
-        ruleset,
-        f"{rulesets_endpoint}/{ruleset_id}",
-        production_read_ref,
-        production_mutation_ref,
-        settings_token,
-        tag_token,
-        created_this_run=created_this_run,
-    )
+    if recovery_mode:
+        _, tag_readback = gh_api(production_read_ref, tag_token)
+        transition_result = {
+            "updateReturnCode": 0,
+            "readback": ruleset,
+            "readbackBypass": [],
+            "tagReadback": tag_readback,
+            "exactTarget": tag_readback.get("object", {}).get("sha") == tag_object_sha,
+        }
+    else:
+        transition_result = apply_live_immutable_transition(
+            args,
+            ruleset,
+            f"{rulesets_endpoint}/{ruleset_id}",
+            production_read_ref,
+            production_mutation_ref,
+            settings_token,
+            tag_token,
+            created_this_run=created_this_run,
+            expected_ref_sha=tag_object_sha,
+        )
     readback = transition_result["readback"]
     readback_bypass = transition_result["readbackBypass"]
     tag_readback = transition_result["tagReadback"]
@@ -1201,7 +1377,7 @@ def live_immutable_closeout(args: argparse.Namespace) -> dict[str, Any]:
             production_mutation_ref,
             tag_token,
             created_this_run=created_this_run,
-            candidate=args.candidate,
+            candidate=tag_object_sha,
         )
     elif readback_bypass or not exact_target:
         transition = "ambiguous"
@@ -1221,7 +1397,7 @@ def live_immutable_closeout(args: argparse.Namespace) -> dict[str, Any]:
         "requestId": args.request_id,
         "candidateSha": args.candidate,
         "tagName": args.tag,
-        "tagTargetSha": tag_readback.get("object", {}).get("sha"),
+        "tagTargetSha": args.candidate if exact_target else None,
         "candidateValidation": candidate_metadata,
         "normalizedRulesetSha256": stable_hash(normalized),
         "rulesetIdentity": {"id": readback.get("id"), "updatedAt": readback.get("updated_at")},
@@ -1233,6 +1409,7 @@ def live_immutable_closeout(args: argparse.Namespace) -> dict[str, Any]:
         },
         "actors": {"tag": tag_actor, "settings": settings_actor},
         "probes": {
+            "ordinaryCreate": "denied" if twin["ordinaryCreate"] is True else "unproven",
             "ordinaryUpdate": "denied" if twin["ordinaryUpdate"] is True else "unproven",
             "ordinaryDelete": "denied" if twin["ordinaryDelete"] is True else "unproven",
             "tagAppUpdate": "denied" if twin["tagUpdate"] is True else "unproven",

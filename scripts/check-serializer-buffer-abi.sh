@@ -325,6 +325,10 @@ done
 [[ -n "$EXPECTED_HEAD" ]] || fail "--expected-head is required"
 [[ "$(git -C "$ROOT" rev-parse HEAD)" == "$EXPECTED_HEAD" ]] ||
     fail "current HEAD does not match --expected-head"
+python3 "$ROOT/scripts/check-release-holds.py" \
+    --repository "$ROOT" \
+    --assert-clean-tested-code ||
+    fail "tested serializer/build/workflow paths must be clean before ABI evidence generation"
 command -v javac >/dev/null || fail "javac is required"
 command -v java >/dev/null || fail "java is required"
 command -v javap >/dev/null || fail "javap is required"

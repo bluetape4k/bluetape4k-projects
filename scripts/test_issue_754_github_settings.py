@@ -30,10 +30,17 @@ class GitHubSettingsStateMachineTest(unittest.TestCase):
 
     def test_complete_settings_pass(self):
         self.assertEqual([], self.settings.validate_settings(self.desired))
+        self.assertEqual(["creation", "update", "deletion"], self.desired["ruleset"]["rules"])
         self.assertEqual(
             ["develop"],
             self.desired["environments"]["release-tag-1.12.0"]["deploymentBranches"],
         )
+
+    def test_ruleset_requires_exact_creation_update_and_deletion_protection(self):
+        state = copy.deepcopy(self.desired)
+        state["ruleset"]["rules"] = ["update", "deletion"]
+        errors = self.settings.validate_settings(state)
+        self.assertTrue(any("creation, update, and deletion" in error for error in errors), errors)
 
     def test_actor_confusion_and_app_permissions_fail(self):
         state = copy.deepcopy(self.desired)
@@ -49,15 +56,18 @@ class GitHubSettingsStateMachineTest(unittest.TestCase):
         self.assertTrue(any("settings App permissions must be exactly" in error for error in errors), errors)
         self.assertTrue(any("only tag App" in error for error in errors), errors)
 
-    def test_repository_and_legacy_secret_scopes_fail(self):
+    def test_repository_scopes_fail_and_generic_release_secrets_stay_environment_scoped(self):
         state = copy.deepcopy(self.desired)
         state["repositorySecretNames"] = ["CENTRAL_USERNAME"]
-        state["legacyEnvironmentSecretNames"] = ["SIGNING_KEY"]
         state["repositoryVariableNames"] = ["RELEASE_TAG_APP_ID"]
         errors = self.settings.validate_settings(state)
         self.assertTrue(any("repository secret scope" in error for error in errors), errors)
-        self.assertTrue(any("legacy environment" in error for error in errors), errors)
         self.assertTrue(any("release-only variable" in error for error in errors), errors)
+
+        state = copy.deepcopy(self.desired)
+        state["legacyEnvironmentSecretNames"] = ["SIGNING_KEY"]
+        errors = self.settings.validate_settings(state)
+        self.assertTrue(any("maven-central-release environment" in error for error in errors), errors)
 
     def test_accepted_response_loss_reconciles_from_readback(self):
         current = self.settings.empty_state("bluetape4k/bluetape4k-projects")
@@ -150,6 +160,7 @@ class GitHubSettingsStateMachineTest(unittest.TestCase):
                 },
             },
             "probes": {
+                "ordinaryCreate": "denied",
                 "ordinaryUpdate": "denied",
                 "ordinaryDelete": "denied",
                 "tagAppUpdate": "denied",
@@ -239,6 +250,7 @@ class GitHubSettingsStateMachineTest(unittest.TestCase):
             {"operation": "production-tag-readback", "actor": "tag", "outcome": "exact-candidate"},
             {"operation": "ruleset-remove-bypass", "actor": "settings", "outcome": "accepted"},
             {"operation": "ruleset-readback", "actor": "settings", "outcome": "no-bypass"},
+            {"operation": "twin-ordinary-create", "actor": "ordinary", "outcome": "denied"},
             {"operation": "twin-ordinary-update", "actor": "ordinary", "outcome": "denied"},
             {"operation": "twin-ordinary-delete", "actor": "ordinary", "outcome": "denied"},
             {"operation": "twin-tag-update", "actor": "tag", "outcome": "denied"},
@@ -260,23 +272,23 @@ class GitHubSettingsStateMachineTest(unittest.TestCase):
             self.settings.run_immutable_closeout(confused)
 
         rollback = self.valid_transition_input()
-        rollback["fixtureEvents"][2]["outcome"] = "rejected"
-        rollback["fixtureEvents"][3]["outcome"] = "bypass-retained"
+        next(item for item in rollback["fixtureEvents"] if item["operation"] == "ruleset-remove-bypass")["outcome"] = "rejected"
+        next(item for item in rollback["fixtureEvents"] if item["operation"] == "ruleset-readback")["outcome"] = "bypass-retained"
         rolled_back = self.settings.run_immutable_closeout(rollback)
         self.assertEqual("HOLD", rolled_back["conclusion"])
         self.assertEqual("bypass-retained", rolled_back["transition"])
         self.assertEqual("recognized-and-restored", rolled_back["rollbackClassification"])
 
         ambiguous = self.valid_transition_input()
-        ambiguous["fixtureEvents"][2]["outcome"] = "response-lost"
-        ambiguous["fixtureEvents"][3]["outcome"] = "unknown"
+        next(item for item in ambiguous["fixtureEvents"] if item["operation"] == "ruleset-remove-bypass")["outcome"] = "response-lost"
+        next(item for item in ambiguous["fixtureEvents"] if item["operation"] == "ruleset-readback")["outcome"] = "unknown"
         blocked = self.settings.run_immutable_closeout(ambiguous)
         self.assertEqual("HOLD", blocked["conclusion"])
         self.assertEqual("ambiguous", blocked["transition"])
         self.assertEqual("unknown-drift", blocked["rollbackClassification"])
 
         accepted_loss = self.valid_transition_input()
-        accepted_loss["fixtureEvents"][2]["outcome"] = "response-lost"
+        next(item for item in accepted_loss["fixtureEvents"] if item["operation"] == "ruleset-remove-bypass")["outcome"] = "response-lost"
         reconciled = self.settings.run_immutable_closeout(accepted_loss)
         self.assertEqual("PASS", reconciled["conclusion"])
 
@@ -284,6 +296,7 @@ class GitHubSettingsStateMachineTest(unittest.TestCase):
         cases = [
             ("production-tag-create", "rejected"),
             ("production-tag-readback", "wrong-target"),
+            ("twin-ordinary-create", "allowed"),
             ("twin-ordinary-update", "allowed"),
             ("twin-tag-delete", "allowed"),
             ("twin-policy-readback", "mismatch"),
@@ -388,7 +401,7 @@ class GitHubSettingsStateMachineTest(unittest.TestCase):
             "target": "tag",
             "enforcement": "active",
             "conditions": {"ref_name": {"include": ["refs/tags/1.12.0"], "exclude": []}},
-            "rules": [{"type": "deletion"}],
+            "rules": [{"type": rule_type} for rule_type in self.settings.RULESET_RULE_TYPES],
         }
         calls = []
         probe_reads = 0
@@ -427,7 +440,7 @@ class GitHubSettingsStateMachineTest(unittest.TestCase):
             "target": "tag",
             "enforcement": "active",
             "conditions": {"ref_name": {"include": ["refs/tags/1.12.0"], "exclude": []}},
-            "rules": [{"type": "deletion"}],
+            "rules": [{"type": rule_type} for rule_type in self.settings.RULESET_RULE_TYPES],
         }
         calls = []
         list_reads = 0
@@ -467,6 +480,14 @@ class GitHubSettingsStateMachineTest(unittest.TestCase):
             )
         self.assertEqual("pre-existing-tag-retained", result)
         api.assert_not_called()
+
+    def test_prepare_rejects_preexisting_production_tag_even_at_exact_candidate(self):
+        with self.assertRaisesRegex(self.settings.SettingsError, "pre-existing production tag"):
+            self.settings.require_absent_production_tag_for_prepare(
+                0,
+                {"object": {"sha": "a" * 40}},
+                "a" * 40,
+            )
 
     def test_owned_tag_rollback_refuses_moved_candidate(self):
         with mock.patch.object(
@@ -508,7 +529,7 @@ class GitHubSettingsStateMachineTest(unittest.TestCase):
             "enforcement": "active",
             "bypass_actors": [{"actor_id": 7541}],
             "conditions": {"ref_name": {"include": self.settings.RULESET_PATTERNS, "exclude": []}},
-            "rules": [{"type": "deletion"}],
+            "rules": [{"type": rule_type} for rule_type in self.settings.RULESET_RULE_TYPES],
             "updated_at": "2026-07-16T00:00:00Z",
         }
         calls = []
@@ -543,11 +564,83 @@ class GitHubSettingsStateMachineTest(unittest.TestCase):
             ), mock.patch.object(
                 self.settings,
                 "run_live_twin_probe",
-                return_value={"ordinaryUpdate": 1, "ordinaryDelete": 1, "tagUpdate": 1, "tagDelete": 1, "policyMatch": True, "cleanup": True},
+                return_value={"ordinaryCreate": 1, "ordinaryUpdate": 1, "ordinaryDelete": 1, "tagUpdate": 1, "tagDelete": 1, "policyMatch": True, "cleanup": True},
             ), mock.patch.object(self.settings, "gh_api", side_effect=fake_api):
                 with self.assertRaisesRegex(self.settings.SettingsError, "ambiguous"):
                     self.settings.live_immutable_closeout(args)
         self.assertFalse(any(method == "POST" and endpoint.endswith("/git/refs") for method, endpoint in calls))
+
+    def test_same_request_annotated_tag_recovers_after_bypass_removal(self):
+        candidate = "a" * 40
+        tag_object_sha = "b" * 40
+        args = self.settings.argparse.Namespace(
+            repository="bluetape4k/bluetape4k-projects",
+            workflow="release.yml",
+            ref="develop",
+            tag="1.12.0",
+            candidate=candidate,
+            candidate_validation_run_id=1001,
+            candidate_validation_request_id="candidate-1001",
+            ruleset="release-tags-1.12.0",
+            request_id="release-2002",
+            run_id=2002,
+        )
+        ruleset = {
+            "id": 754,
+            "name": args.ruleset,
+            "target": "tag",
+            "enforcement": "active",
+            "bypass_actors": [],
+            "conditions": {"ref_name": {"include": self.settings.RULESET_PATTERNS, "exclude": []}},
+            "rules": [{"type": rule_type} for rule_type in self.settings.RULESET_RULE_TYPES],
+            "updated_at": "2026-07-16T00:00:00Z",
+        }
+        tag_ref = {"ref": "refs/tags/1.12.0", "object": {"type": "tag", "sha": tag_object_sha}}
+        tag_object = {
+            "sha": tag_object_sha,
+            "tag": "1.12.0",
+            "message": self.settings.annotated_tag_message(args.request_id),
+            "object": {"type": "commit", "sha": candidate},
+        }
+        calls = []
+
+        def fake_api(endpoint, token, *, method="GET", payload=None, check=True, paginate=False):
+            calls.append((method, endpoint))
+            if endpoint.endswith("/rulesets/754"):
+                return 0, ruleset
+            if endpoint.endswith("/git/ref/tags/1.12.0"):
+                return 0, tag_ref
+            if endpoint.endswith(f"/git/tags/{tag_object_sha}"):
+                return 0, tag_object
+            return 0, {}
+
+        with tempfile.TemporaryDirectory() as directory:
+            candidate_path = Path(directory) / "candidate.json"
+            candidate_path.write_text("{}\n", encoding="utf-8")
+            candidate_report = {
+                "testedCodeTreeSha256": "c" * 64,
+                "checksums": {".github/release-holds/1.12.0-issue-754.json": "d" * 64},
+                "slices": self.valid_closeout()["candidateValidation"]["evidenceSlices"],
+            }
+            with mock.patch.object(self.settings, "require_token", return_value="token"), mock.patch.object(
+                self.settings,
+                "configured_actor",
+                side_effect=[
+                    {"appId": 7541, "installationId": 75401, "permissions": {"administration": "none", "contents": "write", "metadata": "read"}},
+                    {"appId": 7542, "installationId": 75402, "permissions": {"administration": "write", "contents": "read", "metadata": "read"}},
+                ],
+            ), mock.patch.object(self.settings, "list_rulesets", return_value=[{"id": 754, "name": args.ruleset}]), mock.patch.object(
+                self.settings, "download_candidate_artifact", return_value=(candidate_path, candidate_report)
+            ), mock.patch.object(
+                self.settings,
+                "run_live_twin_probe",
+                return_value={"ordinaryCreate": 1, "ordinaryUpdate": 1, "ordinaryDelete": 1, "tagUpdate": 1, "tagDelete": 1, "policyMatch": True, "cleanup": True},
+            ), mock.patch.object(self.settings, "gh_api", side_effect=fake_api):
+                result = self.settings.live_immutable_closeout(args)
+
+        self.assertEqual("PASS", result["conclusion"])
+        self.assertEqual(candidate, result["tagTargetSha"])
+        self.assertFalse(any(method in {"POST", "PUT", "PATCH", "DELETE"} for method, _ in calls))
 
     def test_response_lost_tag_creation_is_not_owned_or_deleted(self):
         self.assertFalse(self.settings.creation_owned_by_current_run(
@@ -592,6 +685,91 @@ class GitHubSettingsStateMachineTest(unittest.TestCase):
                     created_this_run=True,
                 )
         self.assertEqual("DELETE", api.call_args_list[2].kwargs["method"])
+
+    def test_response_loss_exact_readback_preserves_ownership_for_transition_rollback(self):
+        candidate = "a" * 40
+        tag_object_sha = "b" * 40
+        with mock.patch.object(
+            self.settings,
+            "gh_api",
+            return_value=(0, {"object": {"type": "tag", "sha": tag_object_sha}}),
+        ):
+            _, created_this_run = self.settings.reconcile_created_tag_readback(
+                "repos/example/project/git/ref/tags/1.12.0",
+                "repos/example/project/git/refs/tags/1.12.0",
+                "tag-token",
+                candidate=tag_object_sha,
+                created_this_run=False,
+            )
+        self.assertTrue(created_this_run)
+
+        with mock.patch.object(
+            self.settings,
+            "gh_api",
+            return_value=(0, {"object": {"type": "commit", "sha": candidate}}),
+        ):
+            with self.assertRaisesRegex(self.settings.SettingsError, "did not reconcile"):
+                self.settings.reconcile_created_tag_readback(
+                    "repos/example/project/git/ref/tags/1.12.0",
+                    "repos/example/project/git/refs/tags/1.12.0",
+                    "tag-token",
+                    candidate=tag_object_sha,
+                    created_this_run=False,
+                )
+
+        args = self.settings.argparse.Namespace(candidate=candidate)
+        ruleset = {
+            "id": 754,
+            "target": "tag",
+            "enforcement": "active",
+            "conditions": {"ref_name": {"include": self.settings.RULESET_PATTERNS, "exclude": []}},
+            "rules": [{"type": rule_type} for rule_type in self.settings.RULESET_RULE_TYPES],
+        }
+        with mock.patch.object(
+            self.settings,
+            "gh_api",
+            side_effect=[
+                (0, {}),
+                self.settings.SettingsError("ruleset readback failed"),
+                (0, {"object": {"type": "tag", "sha": tag_object_sha}}),
+                (0, {}),
+                (1, {"message": "Not Found", "status": "404"}),
+            ],
+        ) as api:
+            with self.assertRaisesRegex(self.settings.SettingsError, "rolled back"):
+                self.settings.apply_live_immutable_transition(
+                    args,
+                    ruleset,
+                    "repos/example/project/rulesets/754",
+                    "repos/example/project/git/ref/tags/1.12.0",
+                    "repos/example/project/git/refs/tags/1.12.0",
+                    "settings-token",
+                    "tag-token",
+                    created_this_run=created_this_run,
+                    expected_ref_sha=tag_object_sha,
+                )
+        self.assertEqual("DELETE", api.call_args_list[3].kwargs["method"])
+
+    def test_annotated_tag_object_binds_request_and_candidate(self):
+        candidate = "a" * 40
+        tag_object_sha = "b" * 40
+        request_id = "release-2002"
+        payload = {
+            "sha": tag_object_sha,
+            "tag": "1.12.0",
+            "message": self.settings.annotated_tag_message(request_id),
+            "object": {"type": "commit", "sha": candidate},
+        }
+        with mock.patch.object(self.settings, "gh_api", return_value=(0, payload)):
+            validated = self.settings.validate_annotated_tag_object(
+                "bluetape4k/bluetape4k-projects",
+                "tag-token",
+                tag_object_sha,
+                tag="1.12.0",
+                candidate=candidate,
+                request_id=request_id,
+            )
+        self.assertEqual(payload, validated)
 
     def test_policy_denial_requires_ruleset_specific_response(self):
         self.assertTrue(self.settings.denied_by_ruleset(
