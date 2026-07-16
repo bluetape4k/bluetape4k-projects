@@ -2,19 +2,19 @@
   "issue": 754,
   "issueState": "open",
   "release": "1.12.0",
-  "releaseCandidateSha": "8bb5f886150afda2fc885986d6ae0cd3c74d966f",
+  "evidenceProducerSha": "9ba87611967484f3751f10428fab2a61d9e6f202",
   "schemaVersion": 1,
   "slices": [
     {
       "checksumManifest": {
         "path": "docs/evidence/issue-754/contract/SHA256SUMS",
-        "sha256": "897f088ee5d201c9736ea29a27482f4483073fadca8a5863d431695a1faf8824"
+        "sha256": "f4c8ea907b5369025f664294f913b5f10ee9dba52139087721c36c2d893d52a6"
       },
       "evidence": [
         {
           "kind": "contract-abi",
           "path": "docs/evidence/issue-754/contract/abi-report.json",
-          "sha256": "cd26ede023c650253424cd3552f2949bea42734ae6b4a3e56e1ba7fbab2ef352"
+          "sha256": "e9f31a3b21235c83a926cfbffdc560353ff69010b5199b5d1295a4ed8245f109"
         }
       ],
       "expectedHeadSha": null,
@@ -111,5 +111,5 @@
       "prState": "missing"
     }
   ],
-  "testedCodeTreeSha256": "d7ddc30e20b367edaafbb39f163bce4426e7e9ebcf1ee43ff4e1e234e37c3515"
+  "testedCodeTreeSha256": "74799dc20dc209b40499126ad97194cb2db7753ecadb31186b9319654b5209f1"
 }

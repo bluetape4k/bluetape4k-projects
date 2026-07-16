@@ -31,7 +31,7 @@
     "allocation-proof proof-allocation evidence checksum is missing"
   ],
   "release": "1.12.0",
-  "releaseCandidateSha": "8bb5f886150afda2fc885986d6ae0cd3c74d966f",
+  "releaseCandidateSha": "9ba87611967484f3751f10428fab2a61d9e6f202",
   "schemaVersion": 1,
-  "testedCodeTreeSha256": "d7ddc30e20b367edaafbb39f163bce4426e7e9ebcf1ee43ff4e1e234e37c3515"
+  "testedCodeTreeSha256": "74799dc20dc209b40499126ad97194cb2db7753ecadb31186b9319654b5209f1"
 }
