@@ -52,6 +52,15 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
         self.assertNotIn("check-release-holds.py", script)
         self.assertNotIn("release-hold", script)
 
+    def test_pull_request_ci_runs_this_policy(self) -> None:
+        workflow = (WORKFLOWS / "ci.yml").read_text(encoding="utf-8")
+
+        self.assertIn("name: Release Workflow Policy", workflow)
+        self.assertIn(
+            "python3 -m unittest scripts/test_release_workflow_policy.py -v",
+            workflow,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
