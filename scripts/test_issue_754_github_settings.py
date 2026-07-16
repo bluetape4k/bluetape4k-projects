@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 
+import base64
 import copy
 import importlib.util
 import json
+import os
+import stat
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -48,7 +52,11 @@ class GitHubSettingsStateMachineTest(unittest.TestCase):
         state["apps"]["tag"]["permissions"]["administration"] = "write"
         state["apps"]["settings"]["permissions"]["contents"] = "write"
         state["ruleset"]["bypassActors"] = [
-            {"actorType": "Integration", "actorId": state["apps"]["settings"]["installationId"]}
+            {
+                "actorType": "Integration",
+                "actorId": state["apps"]["settings"]["installationId"],
+                "bypassMode": "always",
+            }
         ]
         errors = self.settings.validate_settings(state)
         self.assertTrue(any("distinct" in error for error in errors), errors)
@@ -68,6 +76,334 @@ class GitHubSettingsStateMachineTest(unittest.TestCase):
         state["legacyEnvironmentSecretNames"] = ["SIGNING_KEY"]
         errors = self.settings.validate_settings(state)
         self.assertTrue(any("maven-central-release environment" in error for error in errors), errors)
+
+    def test_checked_config_uses_named_sources_without_literal_credentials(self):
+        config_path = REPOSITORY / ".github" / "release-holds" / "1.12.0-github-settings.json"
+        config = self.settings.read_json(config_path)
+
+        self.assertEqual([], self.settings.validate_settings_config(config))
+        serialized = json.dumps(config, sort_keys=True)
+        self.assertNotIn('"appId"', serialized)
+        self.assertNotIn('"installationId"', serialized)
+        self.assertNotIn('"privateKey"', serialized)
+        self.assertEqual(
+            "RELEASE_TAG_APP_ID",
+            config["apps"]["tag"]["appIdSource"],
+        )
+        self.assertEqual(
+            "RELEASE_SETTINGS_APP_PRIVATE_KEY",
+            config["apps"]["settings"]["privateKeySource"],
+        )
+
+    def test_checked_config_rejects_literal_or_placeholder_app_identity(self):
+        config = self.settings.read_json(
+            REPOSITORY / ".github" / "release-holds" / "1.12.0-github-settings.json"
+        )
+        config["apps"]["tag"]["appId"] = 7541
+        config["apps"]["settings"]["installationId"] = 75402
+
+        errors = self.settings.validate_settings_config(config)
+
+        self.assertTrue(any("literal App identity" in error for error in errors), errors)
+
+    def test_live_snapshot_normalizes_rulesets_environments_and_name_only_scopes(self):
+        repository = "bluetape4k/bluetape4k-projects"
+        responses = {
+            f"repos/{repository}/rulesets?per_page=100": (0, [{
+                "id": 9001,
+                "name": "release-tags-1.12.0",
+            }]),
+            f"repos/{repository}/rulesets/9001": (0, {
+                "id": 9001,
+                "name": "release-tags-1.12.0",
+                "target": "tag",
+                "enforcement": "active",
+                "conditions": {"ref_name": {"include": [
+                    "refs/tags/1.12.0",
+                    "refs/tags/release-gate-probe/issue-754/*",
+                ]}},
+                "rules": [{"type": "creation"}, {"type": "update"}, {"type": "deletion"}],
+                "bypass_actors": [{
+                    "actor_type": "Integration",
+                    "actor_id": 42001,
+                    "bypass_mode": "always",
+                }],
+            }),
+            f"repos/{repository}/environments/snapshot-publish-1.12.0": (0, {
+                "name": "snapshot-publish-1.12.0",
+                "deployment_branch_policy": {
+                    "protected_branches": False,
+                    "custom_branch_policies": True,
+                },
+                "protection_rules": [{
+                    "type": "required_reviewers",
+                    "reviewers": [{"type": "User", "reviewer": {"login": "debop", "id": 17}}],
+                }],
+            }),
+            f"repos/{repository}/environments/snapshot-publish-1.12.0/deployment-branch-policies?per_page=100": (
+                0,
+                {"branch_policies": [{"name": "develop", "type": "branch"}]},
+            ),
+            f"repos/{repository}/environments/snapshot-publish-1.12.0/secrets?per_page=100": (
+                0,
+                {"secrets": [{"name": name, "value": "must-not-be-copied"} for name in self.settings.MAVEN_SECRET_NAMES]},
+            ),
+            f"repos/{repository}/environments/snapshot-publish-1.12.0/variables?per_page=100": (0, {"variables": []}),
+            f"repos/{repository}/environments/release-tag-1.12.0": (1, {"message": "Not Found", "status": "404"}),
+            f"repos/{repository}/environments/maven-central-release": (0, {
+                "name": "maven-central-release",
+                "deployment_branch_policy": None,
+                "protection_rules": [],
+            }),
+            f"repos/{repository}/environments/maven-central-release/secrets?per_page=100": (
+                0,
+                {"secrets": [{"name": "CENTRAL_USERNAME"}]},
+            ),
+            f"repos/{repository}/environments/maven-central-release/variables?per_page=100": (0, {"variables": []}),
+            f"repos/{repository}/actions/secrets?per_page=100": (0, {"secrets": [{"name": "REPO_ONLY"}]}),
+            f"repos/{repository}/actions/variables?per_page=100": (0, {"variables": [{"name": "REPO_VAR"}]}),
+        }
+
+        def fake_api(endpoint, token, **kwargs):
+            return responses[endpoint]
+
+        with mock.patch.object(self.settings, "gh_api", side_effect=fake_api):
+            state = self.settings.snapshot_live(repository, "read-token")
+
+        self.assertEqual(self.settings.RULESET_PATTERNS, state["ruleset"]["patterns"])
+        self.assertEqual(
+            [{"actorType": "Integration", "actorId": 42001, "bypassMode": "always"}],
+            state["ruleset"]["bypassActors"],
+        )
+        self.assertEqual(
+            ["develop"],
+            state["environments"]["snapshot-publish-1.12.0"]["deploymentBranches"],
+        )
+        self.assertEqual(
+            [{"type": "User", "id": 17, "name": "debop"}],
+            state["environments"]["snapshot-publish-1.12.0"]["requiredReviewers"],
+        )
+        self.assertEqual(self.settings.MAVEN_SECRET_NAMES, state["environments"]["snapshot-publish-1.12.0"]["secretNames"])
+        self.assertNotIn("release-tag-1.12.0", state["environments"])
+        self.assertEqual(["CENTRAL_USERNAME"], state["legacyEnvironmentSecretNames"])
+        self.assertEqual(["REPO_ONLY"], state["repositorySecretNames"])
+        self.assertEqual(["REPO_VAR"], state["repositoryVariableNames"])
+        self.assertNotIn("must-not-be-copied", json.dumps(state))
+
+    def test_snapshot_cli_uses_live_read_only_path_without_fixture(self):
+        repository = "bluetape4k/bluetape4k-projects"
+        state = self.settings.empty_state(repository)
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "pre-state.json"
+            with mock.patch.object(self.settings, "require_live_token", return_value="read-token"), mock.patch.object(
+                self.settings,
+                "snapshot_live",
+                return_value=state,
+            ) as snapshot:
+                exit_code = self.settings.main([
+                    "snapshot",
+                    "--repository",
+                    repository,
+                    "--output",
+                    str(output),
+                ])
+
+            self.assertEqual(0, exit_code)
+            snapshot.assert_called_once_with(repository, "read-token")
+            self.assertEqual(state, json.loads(output.read_text(encoding="utf-8")))
+
+    def test_live_verify_reports_credential_presence_without_values(self):
+        repository = "bluetape4k/bluetape4k-projects"
+        config = REPOSITORY / ".github" / "release-holds" / "1.12.0-github-settings.json"
+        state = self.settings.empty_state(repository)
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "verify.json"
+            environment = {
+                "RELEASE_TAG_APP_ID": "42001",
+                "RELEASE_TAG_APP_PRIVATE_KEY": "super-secret-private-key",
+            }
+            with mock.patch.object(self.settings, "require_live_token", return_value="read-token"), mock.patch.object(
+                self.settings,
+                "snapshot_live",
+                return_value=state,
+            ), mock.patch.dict(self.settings.os.environ, environment, clear=True):
+                exit_code = self.settings.main([
+                    "verify",
+                    "--repository",
+                    repository,
+                    "--config",
+                    str(config),
+                    "--output",
+                    str(output),
+                ])
+
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(3, exit_code)
+            self.assertEqual("HOLD", report["decision"])
+            self.assertTrue(report["credentialSourcePresence"]["RELEASE_TAG_APP_ID"])
+            self.assertFalse(report["credentialSourcePresence"]["RELEASE_SETTINGS_APP_ID"])
+            self.assertIn("RELEASE_SETTINGS_APP_ID", report["missingCredentialSources"])
+            self.assertNotIn("super-secret-private-key", output.read_text(encoding="utf-8"))
+
+    def test_name_inventory_rejects_malformed_entries(self):
+        with self.assertRaisesRegex(self.settings.SettingsError, "invalid secrets entry"):
+            self.settings.named_items({"secrets": [{"name": 123}]}, "secrets")
+        with self.assertRaisesRegex(self.settings.SettingsError, "incomplete"):
+            self.settings.named_items(
+                {"total_count": 2, "secrets": [{"name": "ONLY_ONE"}]},
+                "secrets",
+            )
+
+    def test_deployment_policy_requires_branch_type(self):
+        with self.assertRaisesRegex(self.settings.SettingsError, "explicit branch policy"):
+            self.settings.deployment_branch_names({
+                "branch_policies": [{"name": "develop", "type": "tag"}],
+            })
+
+    def test_configured_apps_use_separate_jwts_and_observed_installation_permissions(self):
+        config = self.settings.read_json(
+            REPOSITORY / ".github" / "release-holds" / "1.12.0-github-settings.json"
+        )
+        environment = {
+            "RELEASE_TAG_APP_ID": "42001",
+            "RELEASE_TAG_INSTALLATION_ID": "43001",
+            "RELEASE_TAG_APP_PRIVATE_KEY": "tag-private-key",
+            "RELEASE_SETTINGS_APP_ID": "42002",
+            "RELEASE_SETTINGS_INSTALLATION_ID": "43002",
+            "RELEASE_SETTINGS_APP_PRIVATE_KEY": "settings-private-key",
+        }
+        installations = {
+            "tag-jwt": {
+                "id": 43001,
+                "app_id": 42001,
+                "app_slug": "bluetape4k-release-tag-bot",
+                "permissions": {"administration": "none", "contents": "write", "metadata": "read"},
+            },
+            "settings-jwt": {
+                "id": 43002,
+                "app_id": 42002,
+                "app_slug": "bluetape4k-release-settings-bot",
+                "permissions": {"administration": "write", "contents": "read", "metadata": "read"},
+            },
+        }
+
+        def fake_jwt(app_id, private_key):
+            self.assertNotEqual("", private_key)
+            return "tag-jwt" if app_id == 42001 else "settings-jwt"
+
+        def fake_api(endpoint, token, **kwargs):
+            self.assertEqual("repos/bluetape4k/bluetape4k-projects/installation", endpoint)
+            return 0, installations[token]
+
+        with mock.patch.dict(self.settings.os.environ, environment, clear=True), mock.patch.object(
+            self.settings,
+            "mint_app_jwt",
+            side_effect=fake_jwt,
+        ), mock.patch.object(self.settings, "gh_api", side_effect=fake_api):
+            apps = self.settings.snapshot_configured_apps(
+                "bluetape4k/bluetape4k-projects",
+                config,
+            )
+
+        self.assertEqual(42001, apps["tag"]["appId"])
+        self.assertEqual(43002, apps["settings"]["installationId"])
+        self.assertEqual("write", apps["settings"]["permissions"]["administration"])
+
+    def test_app_jwt_keeps_private_key_out_of_arguments_and_uses_private_temp_file(self):
+        private_key = "private-key-material"
+
+        def fake_run(command, **kwargs):
+            self.assertNotIn(private_key, " ".join(command))
+            key_path = Path(command[-1])
+            self.assertEqual(private_key, key_path.read_text(encoding="utf-8"))
+            self.assertEqual(0o600, stat.S_IMODE(os.stat(key_path).st_mode))
+            self.assertNotIn(private_key.encode("utf-8"), kwargs["input"])
+            return subprocess.CompletedProcess(command, 0, stdout=b"signature", stderr=b"")
+
+        with mock.patch.object(self.settings.subprocess, "run", side_effect=fake_run):
+            token = self.settings.mint_app_jwt(42001, private_key, now=1_000)
+
+        header, claims, signature = token.split(".")
+
+        def decode(segment):
+            return json.loads(base64.urlsafe_b64decode(segment + "=" * (-len(segment) % 4)))
+
+        self.assertEqual({"alg": "RS256", "typ": "JWT"}, decode(header))
+        self.assertEqual({"exp": 1540, "iat": 940, "iss": 42001}, decode(claims))
+        self.assertEqual(self.settings.base64url(b"signature"), signature)
+
+    def test_live_verify_passes_only_for_exact_apps_reviewer_and_sources(self):
+        repository = "bluetape4k/bluetape4k-projects"
+        config = self.settings.read_json(
+            REPOSITORY / ".github" / "release-holds" / "1.12.0-github-settings.json"
+        )
+        state = self.settings.expected_state(repository)
+        state["apps"] = {
+            "tag": {
+                "slug": "bluetape4k-release-tag-bot",
+                "appId": 42001,
+                "installationId": 43001,
+                "permissions": {"administration": "none", "contents": "write", "metadata": "read"},
+            },
+            "settings": {
+                "slug": "bluetape4k-release-settings-bot",
+                "appId": 42002,
+                "installationId": 43002,
+                "permissions": {"administration": "write", "contents": "read", "metadata": "read"},
+            },
+        }
+        state["ruleset"]["bypassActors"] = [{
+            "actorType": "Integration",
+            "actorId": 42001,
+            "bypassMode": "always",
+        }]
+        reviewer = {"type": "User", "id": 17, "name": "debop"}
+        for environment in state["environments"].values():
+            environment["requiredReviewers"] = [reviewer]
+        source_environment = {name: "present" for name in self.settings.MAVEN_SECRET_NAMES}
+        source_environment.update({
+            "RELEASE_REVIEWER_ID": "17",
+            "RELEASE_TAG_APP_ID": "42001",
+            "RELEASE_TAG_INSTALLATION_ID": "43001",
+            "RELEASE_TAG_APP_PRIVATE_KEY": "tag-private-key",
+            "RELEASE_SETTINGS_APP_ID": "42002",
+            "RELEASE_SETTINGS_INSTALLATION_ID": "43002",
+            "RELEASE_SETTINGS_APP_PRIVATE_KEY": "settings-private-key",
+        })
+
+        snapshot_without_apps = copy.deepcopy(state)
+        snapshot_without_apps["apps"] = {}
+        with mock.patch.dict(self.settings.os.environ, source_environment, clear=True), mock.patch.object(
+            self.settings,
+            "snapshot_live",
+            return_value=snapshot_without_apps,
+        ), mock.patch.object(
+            self.settings,
+            "snapshot_configured_apps",
+            return_value=state["apps"],
+        ):
+            report = self.settings.verify_live_config(repository, config, "read-token")
+
+        self.assertEqual("PASS", report["decision"], report)
+        self.assertEqual([], report["stateErrors"])
+        self.assertEqual([], report["authorityErrors"])
+
+        wrong_reviewer = copy.deepcopy(snapshot_without_apps)
+        for environment in wrong_reviewer["environments"].values():
+            environment["requiredReviewers"] = [{"type": "User", "id": 99, "name": "other"}]
+        with mock.patch.dict(self.settings.os.environ, source_environment, clear=True), mock.patch.object(
+            self.settings,
+            "snapshot_live",
+            return_value=wrong_reviewer,
+        ), mock.patch.object(
+            self.settings,
+            "snapshot_configured_apps",
+            return_value=state["apps"],
+        ):
+            report = self.settings.verify_live_config(repository, config, "read-token")
+
+        self.assertEqual("HOLD", report["decision"])
+        self.assertTrue(any("reviewer" in error for error in report["authorityErrors"]), report)
 
     def test_accepted_response_loss_reconciles_from_readback(self):
         current = self.settings.empty_state("bluetape4k/bluetape4k-projects")

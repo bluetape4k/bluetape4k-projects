@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import copy
 import hashlib
 import json
@@ -98,7 +99,7 @@ def expected_state(repository: str) -> dict[str, Any]:
             "patterns": list(RULESET_PATTERNS),
             "rules": list(RULESET_RULE_TYPES),
             "bypassActors": [
-                {"actorType": "Integration", "actorId": 7541}
+                {"actorType": "Integration", "actorId": 7541, "bypassMode": "always"}
             ],
         },
         "environments": {
@@ -193,7 +194,7 @@ def validate_settings(state: dict[str, Any]) -> list[str]:
             errors.append("settings App permissions must be exactly Administration write, Contents read, Metadata read")
 
         expected_bypass = [
-            {"actorType": "Integration", "actorId": tag_app.get("appId")}
+            {"actorType": "Integration", "actorId": tag_app.get("appId"), "bypassMode": "always"}
         ]
         if ruleset.get("bypassActors") != expected_bypass:
             errors.append("only tag App may be the ruleset bypass actor")
@@ -230,6 +231,114 @@ def validate_settings(state: dict[str, Any]) -> list[str]:
         errors.append(
             "legacy maven-central-release environment must retain exactly five Maven/signing secret names"
         )
+    return errors
+
+
+def validate_settings_config(config: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    expected_top = {
+        "schemaVersion",
+        "repository",
+        "ruleset",
+        "environments",
+        "apps",
+        "repositorySecretNames",
+        "repositoryVariableNames",
+        "legacyEnvironmentSecretNames",
+    }
+    if set(config) != expected_top:
+        errors.append("settings config fields are missing or unknown")
+        return errors
+    if config.get("schemaVersion") != SCHEMA_VERSION:
+        errors.append(f"settings config schemaVersion must be {SCHEMA_VERSION}")
+    if not isinstance(config.get("repository"), str) or "/" not in config["repository"]:
+        errors.append("settings config repository must be OWNER/REPO")
+
+    ruleset = config.get("ruleset")
+    expected_ruleset = {
+        "name": "release-tags-1.12.0",
+        "target": "tag",
+        "enforcement": "active",
+        "patterns": RULESET_PATTERNS,
+        "rules": RULESET_RULE_TYPES,
+        "bypassApp": "tag",
+    }
+    if ruleset != expected_ruleset:
+        errors.append("settings config ruleset contract is stale or incomplete")
+
+    apps = config.get("apps")
+    expected_app_sources = {
+        "tag": {
+            "appIdSource": "RELEASE_TAG_APP_ID",
+            "installationIdSource": "RELEASE_TAG_INSTALLATION_ID",
+            "privateKeySource": "RELEASE_TAG_APP_PRIVATE_KEY",
+            "permissions": {"administration": "none", "contents": "write", "metadata": "read"},
+        },
+        "settings": {
+            "appIdSource": "RELEASE_SETTINGS_APP_ID",
+            "installationIdSource": "RELEASE_SETTINGS_INSTALLATION_ID",
+            "privateKeySource": "RELEASE_SETTINGS_APP_PRIVATE_KEY",
+            "permissions": {"administration": "write", "contents": "read", "metadata": "read"},
+        },
+    }
+    if not isinstance(apps, dict) or set(apps) != set(expected_app_sources):
+        errors.append("settings config requires distinct tag and settings Apps")
+    else:
+        for role, expected in expected_app_sources.items():
+            app = apps.get(role)
+            expected_fields = set(expected) | {"slug"}
+            if isinstance(app, dict) and any(
+                field in app for field in ("appId", "installationId", "privateKey")
+            ):
+                errors.append(f"{role} App config must not contain a literal App identity or private key")
+            if not isinstance(app, dict) or set(app) != expected_fields:
+                errors.append(f"{role} App config fields are missing or unknown")
+                continue
+            if not isinstance(app.get("slug"), str) or not app["slug"]:
+                errors.append(f"{role} App slug must be non-empty")
+            for field, value in expected.items():
+                if app.get(field) != value:
+                    errors.append(f"{role} App {field} source or permissions are invalid")
+
+    environments = config.get("environments")
+    if not isinstance(environments, dict) or set(environments) != {
+        "snapshot-publish-1.12.0",
+        "release-tag-1.12.0",
+    }:
+        errors.append("settings config requires the exact 1.12.0 environments")
+    else:
+        for name, secret_names, variable_names in (
+            ("snapshot-publish-1.12.0", MAVEN_SECRET_NAMES, []),
+            ("release-tag-1.12.0", RELEASE_SECRET_NAMES, RELEASE_VARIABLE_NAMES),
+        ):
+            environment = environments.get(name)
+            expected_fields = {
+                "deploymentBranches",
+                "requiredReviewerSource",
+                "requiredReviewerType",
+                "secretNames",
+                "variableNames",
+            }
+            if not isinstance(environment, dict) or set(environment) != expected_fields:
+                errors.append(f"{name} config fields are missing or unknown")
+                continue
+            if environment.get("deploymentBranches") != ["develop"]:
+                errors.append(f"{name} must allow only develop")
+            if environment.get("requiredReviewerSource") != "RELEASE_REVIEWER_ID":
+                errors.append(f"{name} reviewer must come from RELEASE_REVIEWER_ID")
+            if environment.get("requiredReviewerType") != "User":
+                errors.append(f"{name} reviewer type must be User")
+            if sorted(environment.get("secretNames") or []) != secret_names:
+                errors.append(f"{name} secret-name ownership is invalid")
+            if sorted(environment.get("variableNames") or []) != variable_names:
+                errors.append(f"{name} variable-name ownership is invalid")
+
+    if config.get("repositorySecretNames") != []:
+        errors.append("settings config must not retain repository secrets")
+    if config.get("repositoryVariableNames") != []:
+        errors.append("settings config must not retain repository variables")
+    if sorted(config.get("legacyEnvironmentSecretNames") or []) != MAVEN_SECRET_NAMES:
+        errors.append("settings config must retain the five generic-release environment secrets")
     return errors
 
 
@@ -632,6 +741,300 @@ def gh_api(
     if paginate and isinstance(body, list) and all(isinstance(page, list) for page in body):
         body = [item for page in body for item in page]
     return result.returncode, body
+
+
+def require_live_token() -> str:
+    token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+    if token:
+        return token
+    result = subprocess.run(
+        ["gh", "auth", "token"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0 or not result.stdout.strip():
+        raise SettingsError("GitHub authentication is required for live read-only snapshot")
+    return result.stdout.strip()
+
+
+def named_items(payload: Any, field: str) -> list[str]:
+    pages = payload if isinstance(payload, list) else [payload]
+    names: list[str] = []
+    for page in pages:
+        if not isinstance(page, dict):
+            raise SettingsError(f"GitHub {field} listing returned an invalid payload")
+        items = page.get(field)
+        if not isinstance(items, list):
+            raise SettingsError(f"GitHub {field} listing returned an invalid payload")
+        total_count = page.get("total_count")
+        if isinstance(total_count, int) and total_count != len(items):
+            raise SettingsError(f"GitHub {field} listing is incomplete")
+        for item in items:
+            if not isinstance(item, dict) or not isinstance(item.get("name"), str):
+                raise SettingsError(f"GitHub {field} listing contains an invalid {field} entry")
+            names.append(item["name"])
+    return sorted(set(names))
+
+
+def normalize_ruleset(ruleset: dict[str, Any]) -> dict[str, Any]:
+    ref_name = (ruleset.get("conditions") or {}).get("ref_name") or {}
+    patterns = []
+    for pattern in ref_name.get("include") or []:
+        patterns.append(pattern.removeprefix("refs/tags/") if isinstance(pattern, str) else pattern)
+    bypass_actors = []
+    for actor in ruleset.get("bypass_actors") or []:
+        if isinstance(actor, dict):
+            bypass_actors.append({
+                "actorType": actor.get("actor_type"),
+                "actorId": actor.get("actor_id"),
+                "bypassMode": actor.get("bypass_mode"),
+            })
+    rule_types = [
+        rule.get("type") if isinstance(rule, dict) else rule
+        for rule in ruleset.get("rules") or []
+    ]
+    return {
+        "id": ruleset.get("id"),
+        "name": ruleset.get("name"),
+        "target": ruleset.get("target"),
+        "enforcement": ruleset.get("enforcement"),
+        "patterns": patterns,
+        "rules": rule_types,
+        "bypassActors": bypass_actors,
+    }
+
+
+def reviewer_names(environment: dict[str, Any]) -> list[dict[str, Any]]:
+    reviewers: list[dict[str, Any]] = []
+    for rule in environment.get("protection_rules") or []:
+        if not isinstance(rule, dict) or rule.get("type") != "required_reviewers":
+            continue
+        for entry in rule.get("reviewers") or []:
+            if not isinstance(entry, dict):
+                continue
+            reviewer = entry.get("reviewer") or {}
+            reviewer_type = entry.get("type")
+            reviewer_id = reviewer.get("id")
+            name = reviewer.get("login") or reviewer.get("slug") or reviewer.get("name")
+            if not isinstance(reviewer_type, str) or not isinstance(reviewer_id, int) or not isinstance(name, str):
+                raise SettingsError("GitHub required reviewer entry is invalid")
+            reviewers.append({"type": reviewer_type, "id": reviewer_id, "name": name})
+    return sorted(reviewers, key=lambda item: (item["type"], item["id"], item["name"]))
+
+
+def deployment_branch_names(payload: Any) -> list[str]:
+    pages = payload if isinstance(payload, list) else [payload]
+    for page in pages:
+        if not isinstance(page, dict):
+            raise SettingsError("GitHub branch_policies listing returned an invalid payload")
+        policies = page.get("branch_policies")
+        if not isinstance(policies, list):
+            raise SettingsError("GitHub branch_policies listing returned an invalid payload")
+        for policy in policies:
+            if not isinstance(policy, dict) or policy.get("type") != "branch":
+                raise SettingsError("GitHub deployment policy is not an explicit branch policy")
+    return named_items(payload, "branch_policies")
+
+
+def snapshot_environment(repository: str, name: str, token: str) -> dict[str, Any] | None:
+    base = f"repos/{repository}/environments/{name}"
+    code, environment = gh_api(base, token, check=False)
+    if code != 0:
+        if isinstance(environment, dict) and str(environment.get("status")) == "404":
+            return None
+        raise SettingsError(f"GitHub environment read failed: {name}")
+    if not isinstance(environment, dict):
+        raise SettingsError(f"GitHub environment read returned an invalid payload: {name}")
+
+    deployment_branches: list[str] = []
+    branch_policy = environment.get("deployment_branch_policy")
+    if isinstance(branch_policy, dict) and branch_policy.get("custom_branch_policies") is True:
+        _, policies = gh_api(f"{base}/deployment-branch-policies?per_page=100", token)
+        deployment_branches = deployment_branch_names(policies)
+    _, secrets = gh_api(f"{base}/secrets?per_page=100", token)
+    _, variables = gh_api(f"{base}/variables?per_page=100", token)
+    return {
+        "deploymentBranches": deployment_branches,
+        "requiredReviewers": reviewer_names(environment),
+        "secretNames": named_items(secrets, "secrets"),
+        "variableNames": named_items(variables, "variables"),
+    }
+
+
+def snapshot_live(repository: str, token: str) -> dict[str, Any]:
+    state = empty_state(repository)
+    rulesets = list_rulesets(repository, token)
+    matches = [ruleset for ruleset in rulesets if ruleset.get("name") == "release-tags-1.12.0"]
+    if len(matches) > 1:
+        raise SettingsError("multiple release-tags-1.12.0 rulesets found")
+    if matches:
+        ruleset_id = matches[0].get("id")
+        _, ruleset = gh_api(f"repos/{repository}/rulesets/{ruleset_id}", token)
+        if not isinstance(ruleset, dict):
+            raise SettingsError("GitHub ruleset read returned an invalid payload")
+        state["ruleset"] = normalize_ruleset(ruleset)
+
+    for name in ("snapshot-publish-1.12.0", "release-tag-1.12.0"):
+        environment = snapshot_environment(repository, name, token)
+        if environment is not None:
+            state["environments"][name] = environment
+
+    legacy = snapshot_environment(repository, "maven-central-release", token)
+    if legacy is not None:
+        state["legacyEnvironmentSecretNames"] = legacy["secretNames"]
+    _, repository_secrets = gh_api(f"repos/{repository}/actions/secrets?per_page=100", token)
+    _, repository_variables = gh_api(f"repos/{repository}/actions/variables?per_page=100", token)
+    state["repositorySecretNames"] = named_items(repository_secrets, "secrets")
+    state["repositoryVariableNames"] = named_items(repository_variables, "variables")
+    return state
+
+
+def base64url(payload: bytes) -> str:
+    return base64.urlsafe_b64encode(payload).rstrip(b"=").decode("ascii")
+
+
+def mint_app_jwt(app_id: int, private_key: str, *, now: int | None = None) -> str:
+    timestamp = int(time.time()) if now is None else now
+    header = base64url(json.dumps(
+        {"alg": "RS256", "typ": "JWT"},
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8"))
+    claims = base64url(json.dumps(
+        {"exp": timestamp + 540, "iat": timestamp - 60, "iss": app_id},
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8"))
+    signing_input = f"{header}.{claims}".encode("ascii")
+    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8") as key_file:
+        os.chmod(key_file.name, 0o600)
+        key_file.write(private_key)
+        key_file.flush()
+        result = subprocess.run(
+            ["openssl", "dgst", "-sha256", "-sign", key_file.name],
+            input=signing_input,
+            capture_output=True,
+            check=False,
+        )
+    if result.returncode != 0:
+        raise SettingsError("GitHub App JWT signing failed")
+    return f"{header}.{claims}.{base64url(result.stdout)}"
+
+
+def source_integer(name: str) -> int:
+    try:
+        value = int(require_token(name))
+    except ValueError as error:
+        raise SettingsError(f"{name} must contain a positive integer") from error
+    if value <= 0:
+        raise SettingsError(f"{name} must contain a positive integer")
+    return value
+
+
+def snapshot_configured_apps(repository: str, config: dict[str, Any]) -> dict[str, Any]:
+    apps: dict[str, Any] = {}
+    for role in ("tag", "settings"):
+        app_config = config["apps"][role]
+        app_id = source_integer(app_config["appIdSource"])
+        private_key = require_token(app_config["privateKeySource"])
+        app_jwt = mint_app_jwt(app_id, private_key)
+        _, installation = gh_api(f"repos/{repository}/installation", app_jwt)
+        if not isinstance(installation, dict):
+            raise SettingsError(f"{role} App installation read returned an invalid payload")
+        observed = {
+            "slug": installation.get("app_slug"),
+            "appId": installation.get("app_id"),
+            "installationId": installation.get("id"),
+            "permissions": installation.get("permissions"),
+        }
+        if (
+            not isinstance(observed["slug"], str)
+            or not isinstance(observed["appId"], int)
+            or not isinstance(observed["installationId"], int)
+            or not isinstance(observed["permissions"], dict)
+        ):
+            raise SettingsError(f"{role} App installation payload is incomplete")
+        apps[role] = observed
+    return apps
+
+
+def credential_source_names(config: dict[str, Any]) -> list[str]:
+    names = set(MAVEN_SECRET_NAMES)
+    for app in (config.get("apps") or {}).values():
+        if not isinstance(app, dict):
+            continue
+        for field in ("appIdSource", "installationIdSource", "privateKeySource"):
+            source = app.get(field)
+            if isinstance(source, str):
+                names.add(source)
+    for environment in (config.get("environments") or {}).values():
+        if not isinstance(environment, dict):
+            continue
+        reviewer_source = environment.get("requiredReviewerSource")
+        if isinstance(reviewer_source, str):
+            names.add(reviewer_source)
+    return sorted(names)
+
+
+def live_authority_errors(config: dict[str, Any], current: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    apps = current.get("apps") or {}
+    for role in ("tag", "settings"):
+        app_config = config["apps"][role]
+        observed = apps.get(role) or {}
+        expected = {
+            "slug": app_config["slug"],
+            "appId": source_integer(app_config["appIdSource"]),
+            "installationId": source_integer(app_config["installationIdSource"]),
+            "permissions": app_config["permissions"],
+        }
+        if observed != expected:
+            errors.append(f"{role} App installation identity or permissions do not match configured authority")
+
+    for name, environment_config in config["environments"].items():
+        environment = (current.get("environments") or {}).get(name) or {}
+        reviewers = environment.get("requiredReviewers") or []
+        expected_type = environment_config["requiredReviewerType"]
+        expected_id = source_integer(environment_config["requiredReviewerSource"])
+        identities = [
+            (reviewer.get("type"), reviewer.get("id"))
+            for reviewer in reviewers
+            if isinstance(reviewer, dict)
+        ]
+        if identities != [(expected_type, expected_id)]:
+            errors.append(f"{name} reviewer does not match configured authority")
+    return errors
+
+
+def verify_live_config(repository: str, config: dict[str, Any], token: str) -> dict[str, Any]:
+    config_errors = validate_settings_config(config)
+    if config.get("repository") != repository:
+        config_errors.append("settings config repository does not match --repository")
+    current = snapshot_live(repository, token)
+    source_names = credential_source_names(config)
+    source_presence = {name: bool(os.environ.get(name)) for name in source_names}
+    missing_sources = [name for name, present in source_presence.items() if not present]
+    authority_errors: list[str] = []
+    if not config_errors and not missing_sources:
+        current["apps"] = snapshot_configured_apps(repository, config)
+        authority_errors = live_authority_errors(config, current)
+    state_errors = validate_settings(current)
+    decision = (
+        "PASS"
+        if not config_errors and not state_errors and not authority_errors and not missing_sources
+        else "HOLD"
+    )
+    return {
+        "schemaVersion": SCHEMA_VERSION,
+        "decision": decision,
+        "configErrors": config_errors,
+        "stateErrors": state_errors,
+        "authorityErrors": authority_errors,
+        "currentStateSha256": stable_hash(current),
+        "credentialSourcePresence": source_presence,
+        "missingCredentialSources": missing_sources,
+    }
 
 
 def require_token(name: str) -> str:
@@ -1461,11 +1864,13 @@ def add_common(parser: argparse.ArgumentParser, *, output: bool = True) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Issue #754 GitHub release-setting state machine (fixture-safe in Task 4)"
+        description="Issue #754 GitHub release-setting state machine"
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
-    for command in ("snapshot", "verify"):
-        add_common(subparsers.add_parser(command))
+    add_common(subparsers.add_parser("snapshot"))
+    verify_settings_parser = subparsers.add_parser("verify")
+    add_common(verify_settings_parser)
+    verify_settings_parser.add_argument("--config", type=Path)
 
     probe_parser = subparsers.add_parser("probe")
     add_common(probe_parser)
@@ -1631,6 +2036,16 @@ def main(argv: list[str] | None = None) -> int:
             report = {"schemaVersion": SCHEMA_VERSION, "decision": "PASS" if not errors else "HOLD", "errors": errors}
             write_json(args.output, report)
             return 0 if not errors else 3
+
+        if args.command == "snapshot" and args.fixture_state is None:
+            write_json(args.output, snapshot_live(args.repository, require_live_token()))
+            return 0
+        if args.command == "verify" and args.fixture_state is None:
+            if args.config is None:
+                raise SettingsError("live verify requires --config")
+            report = verify_live_config(args.repository, read_json(args.config), require_live_token())
+            write_json(args.output, report)
+            return 0 if report["decision"] == "PASS" else 3
 
         current = require_fixture(args)
         if current.get("repository") != args.repository:
