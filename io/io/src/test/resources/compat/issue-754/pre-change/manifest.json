@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "issue": 754,
+  "producer": {
+    "repository": "bluetape4k/bluetape4k-projects",
+    "commit": "90b267871e9154f242e6de7ee9fd0539f83e509e",
+    "tree": "f40ccbda16ddf56d4b7770c01e9b0b2cb07cedba",
+    "baseVersion": "1.12.0",
+    "generatedAt": "2026-07-16T08:52:59Z"
+  },
+  "environment": {
+    "java": "21.0.11 Oracle GraalVM",
+    "gradle": "9.6.0",
+    "gradleEmbeddedKotlin": "2.3.21",
+    "fixtureCompilerKotlin": "2.4.10",
+    "os": "Mac OS X 26.5.2 aarch64"
+  },
+  "fixtureObject": {
+    "class": "io.bluetape4k.io.serializer.compat.issue754.java.LegacyBinaryCaller$SimpleData",
+    "fields": {
+      "id": 754,
+      "name": "issue-754",
+      "age": 12
+    }
+  },
+  "serializers": [
+    {
+      "id": "jdk",
+      "configuration": "JdkBinarySerializer defaults with JDK_DEFAULT_OBJECT_INPUT_FILTER"
+    },
+    {
+      "id": "kryo-default",
+      "version": "5.6.2",
+      "configuration": "CompatibleFieldSerializer, registration not required"
+    },
+    {
+      "id": "kryo-fast",
+      "version": "5.6.2",
+      "configuration": "FieldSerializer, registration not required"
+    },
+    {
+      "id": "fory-default",
+      "version": "1.3.0",
+      "configuration": "COMPATIBLE, async compilation, ref tracking/copy, codegen and string compression enabled"
+    },
+    {
+      "id": "fory-fast",
+      "version": "1.3.0",
+      "configuration": "SCHEMA_CONSISTENT, synchronous compilation, ref tracking/copy and string compression disabled"
+    }
+  ],
+  "jars": [
+    {
+      "module": "bluetape4k-io",
+      "path": ".codex/compat/issue-754/90b267871e9154f242e6de7ee9fd0539f83e509e/jars/bluetape4k-io-1.12.0.jar",
+      "sha256": "ddf283bdb3a17267a5a275bcc78f5cbbee7510c35a512d5fabe6a34d2c39063e"
+    },
+    {
+      "module": "bluetape4k-json",
+      "path": ".codex/compat/issue-754/90b267871e9154f242e6de7ee9fd0539f83e509e/jars/bluetape4k-json-1.12.0.jar",
+      "sha256": "e8a9930e0c7ca2aecd6088f55b15243ad3c3b490bbc97e67b9c4452d569c1329"
+    },
+    {
+      "module": "bluetape4k-avro",
+      "path": ".codex/compat/issue-754/90b267871e9154f242e6de7ee9fd0539f83e509e/jars/bluetape4k-avro-1.12.0.jar",
+      "sha256": "876396647c0f3d37b18fcfbee5648ef8764655bb4a5c2c902d70d98b81422e60"
+    }
+  ],
+  "fixtures": [
+    {
+      "path": "binary/jdk-simple-data.bin",
+      "size": 162,
+      "sha256": "90b5df96eb70b575cf2dd2cd31956c14b90f0b701f50f3008e53535a74e77870"
+    },
+    {
+      "path": "binary/kryo-default-simple-data.bin",
+      "size": 105,
+      "sha256": "18ddb15377e1066848cc9485fe2d7a8efa11ec9d3fb190c44d0d3dd4efd4f8a7"
+    },
+    {
+      "path": "binary/kryo-fast-simple-data.bin",
+      "size": 92,
+      "sha256": "e3bd2de6c7d95f7c248d9a3ca36bcd8edfc23414f1ecc260b2ed2be19be9d365"
+    },
+    {
+      "path": "binary/fory-default-simple-data.bin",
+      "size": 107,
+      "sha256": "b01f1635f860bd269ffd05b43396d22534df6196ca2f165d4b19e33a0edead3c"
+    },
+    {
+      "path": "binary/fory-fast-simple-data.bin",
+      "size": 96,
+      "sha256": "7196b4b07fdf9f22454286ce0333f67b094f7f2c57040369136ffb0a5fe1032d"
+    }
+  ]
+}

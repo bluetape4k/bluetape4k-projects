@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "issue": 754,
+  "slice": "contract",
+  "authority": {
+    "producerCommit": "90b267871e9154f242e6de7ee9fd0539f83e509e",
+    "producerTree": "f40ccbda16ddf56d4b7770c01e9b0b2cb07cedba",
+    "fixtureManifest": "io/io/src/test/resources/compat/issue-754/pre-change/manifest.json",
+    "fixtureManifestSha256": "0e9dc9274ac638a975ccf915a46adfcff130ce0aa7e4c5a44953ecb23fe58f1d",
+    "buildCommand": "./gradlew :bluetape4k-io:jar :bluetape4k-json:jar :bluetape4k-avro:jar --no-configuration-cache",
+    "buildResult": "PASS"
+  },
+  "compatibility": {
+    "legacyJavaCompilation": "PASS",
+    "legacyKotlinCompilation": "PASS",
+    "javaNullLiteralCompilation": "PASS",
+    "frozenFixtureReproduction": "PASS",
+    "newBufferDefaults": "RED",
+    "newCallerCompilationFailures": [
+      "binary",
+      "json",
+      "avro"
+    ]
+  },
+  "redObservation": {
+    "command": "bash scripts/check-serializer-buffer-abi.sh --build-current --expected-head 8d7a2df5e25797b1c29e1c734d7534ad99c2e79a",
+    "head": "8d7a2df5e25797b1c29e1c734d7534ad99c2e79a",
+    "headTree": "61f60e0e39d36a58c955b5dd07b4ceab55018317",
+    "ioJarSha256": "ddf283bdb3a17267a5a275bcc78f5cbbee7510c35a512d5fabe6a34d2c39063e",
+    "jsonJarSha256": "e8a9930e0c7ca2aecd6088f55b15243ad3c3b490bbc97e67b9c4452d569c1329",
+    "avroJarSha256": "876396647c0f3d37b18fcfbee5648ef8764655bb4a5c2c902d70d98b81422e60",
+    "targetedTest": {
+      "passing": 2,
+      "failing": 1,
+      "failure": "NoSuchMethodException: BinarySerializer.serializeTo(Object, ByteBuffer)"
+    }
+  },
+  "versions": {
+    "java": "21.0.11",
+    "gradle": "9.6.0",
+    "gradleEmbeddedKotlin": "2.3.21",
+    "fixtureCompilerKotlin": "2.4.10"
+  },
+  "approvedAuthorities": {
+    "designCommit": "f0b8bd22a61b3cf8c497377de46a090f7e0cccbe",
+    "planCommit": "8d7a2df5e25797b1c29e1c734d7534ad99c2e79a"
+  }
+}
