@@ -7,6 +7,8 @@ import io.bluetape4k.logging.KLogging
 import java.nio.ByteBuffer
 import java.nio.ReadOnlyBufferException
 
+private abstract class NativeByteBufferKryoPool: Pool<Kryo>(true, false, 1024)
+
 /**
  *  [Kryo](https://github.com/EsotericSoftware/kryo) 라이브러리를 이용하는 [BinarySerializer]
  *
@@ -24,8 +26,9 @@ import java.nio.ReadOnlyBufferException
  *  val secureSerializer = KryoBinarySerializer.secure(MyData::class.java)
  *  ```
  *
- * [serializeTo] and [deserializeFrom] bind pooled Kryo ByteBuffer adapters to the caller's bounded range.
- * The adapters detach caller storage before returning to the pool, including failure paths.
+ * [serializeTo] and [deserializeFrom] bind pooled Kryo ByteBuffer adapters to the caller's bounded range for the
+ * default, [fast], and [secure] configurations. An externally supplied [kryoPool] retains the ByteArray compatibility
+ * path because its custom serializers may require array-backed [Input] and `Output` instances.
  *
  * @param bufferSize 내부 버퍼 크기 (기본값: [DEFAULT_BUFFER_SIZE])
  * @param kryoPool 커스텀 Kryo 풀. null이면 기본 [KryoProvider] 풀을 사용합니다.
@@ -90,7 +93,7 @@ class KryoBinarySerializer(
          */
         @JvmStatic
         fun fast(): KryoBinarySerializer {
-            val pool = object: Pool<Kryo>(true, false, 1024) {
+            val pool = object: NativeByteBufferKryoPool() {
                 override fun create(): Kryo = KryoProvider.createFastKryo()
             }
             return KryoBinarySerializer(kryoPool = pool)
@@ -98,7 +101,7 @@ class KryoBinarySerializer(
 
         @JvmStatic
         fun secure(vararg classes: Class<*>): KryoBinarySerializer {
-            val pool = object: Pool<Kryo>(true, false, 1024) {
+            val pool = object: NativeByteBufferKryoPool() {
                 override fun create(): Kryo = KryoProvider.createKryo().apply {
                     isRegistrationRequired = true
                     classes.forEach { register(it) }
@@ -143,6 +146,9 @@ class KryoBinarySerializer(
         }
     }
 
+    private fun supportsNativeByteBufferAdapters(): Boolean =
+        kryoPool == null || kryoPool is NativeByteBufferKryoPool
+
     /**
      * I/O 직렬화에서 `doSerialize` 함수를 제공합니다.
      */
@@ -160,6 +166,9 @@ class KryoBinarySerializer(
     }
 
     override fun serializeTo(graph: Any?, target: ByteBuffer): Int {
+        if (!supportsNativeByteBufferAdapters()) {
+            return serializeNullableTo(target) { serialize(graph) }
+        }
         if (target.isReadOnly) throw ReadOnlyBufferException()
         val source = graph ?: return 0
         val start = target.position()
@@ -194,6 +203,9 @@ class KryoBinarySerializer(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T: Any> deserializeFrom(source: ByteBuffer): T? {
+        if (!supportsNativeByteBufferAdapters()) {
+            return deserialize(copyRemaining(source))
+        }
         val sourceSize = source.remaining()
         if (sourceSize == 0) return null
         val view = source.slice()

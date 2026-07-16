@@ -1,6 +1,7 @@
 package io.bluetape4k.io.serializer
 
 import com.esotericsoftware.kryo.Kryo
+import com.esotericsoftware.kryo.Serializer
 import com.esotericsoftware.kryo.io.ByteBufferInput
 import com.esotericsoftware.kryo.io.ByteBufferOutput
 import com.esotericsoftware.kryo.io.Input
@@ -25,7 +26,6 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.ReadOnlyBufferException
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicReference
 
 class JdkBinarySerializerByteBufferTest {
 
@@ -190,28 +190,27 @@ class KryoBinarySerializerByteBufferTest {
     }
 
     @Test
-    fun `Kryo serializer passes ByteBuffer adapters to its configured Kryo`() {
+    fun `external Kryo pools keep array backed compatibility adapters`() {
         val created = AtomicInteger()
-        val observedInput = AtomicReference<Class<*>>()
-        val observedOutput = AtomicReference<Class<*>>()
         val pool = object: Pool<Kryo>(true, false, 1) {
-            override fun create(): Kryo {
+            override fun create(): Kryo = KryoProvider.createKryo().apply {
                 created.incrementAndGet()
-                return RecordingKryo(observedInput, observedOutput)
+                register(KryoArrayBackedPayload::class.java, KryoArrayBackedPayloadSerializer())
             }
         }
         val serializer = KryoBinarySerializer(kryoPool = pool)
-        val target = configuredTarget(256)
+        val expected = KryoArrayBackedPayload("array-backed")
+        val wire = serializer.serialize(expected)
+        val target = configuredTarget(wire.size)
         val start = target.position()
 
-        val written = serializer.serializeTo("record-adapters", target)
-        val restored = serializer.deserializeFrom<String>(
+        val written = serializer.serializeTo(expected, target)
+        val restored = serializer.deserializeFrom<KryoArrayBackedPayload>(
             configuredSource(target.rangeBytes(start, written), direct = true)
         )
 
-        restored shouldBeEqualTo "record-adapters"
-        ByteBufferOutput::class.java.isAssignableFrom(observedOutput.get()).shouldBeTrue()
-        ByteBufferInput::class.java.isAssignableFrom(observedInput.get()).shouldBeTrue()
+        target.rangeBytes(start, written) shouldBeEqualTo wire
+        restored shouldBeEqualTo expected
         created.get() shouldBeEqualTo 1
     }
 
@@ -267,7 +266,7 @@ class KryoBinarySerializerByteBufferTest {
     }
 
     @Test
-    fun `custom Kryo reference configuration remains active on ByteBuffer paths`() {
+    fun `custom Kryo reference configuration remains active on compatibility buffer paths`() {
         val pool = object: Pool<Kryo>(true, false, 4) {
             override fun create(): Kryo = KryoProvider.createKryo().apply {
                 references = true
@@ -436,19 +435,24 @@ data class KryoReferencePayload(
     val id: Int = 0,
 )
 
-private class RecordingKryo(
-    private val observedInput: AtomicReference<Class<*>>,
-    private val observedOutput: AtomicReference<Class<*>>,
-): Kryo() {
+data class KryoArrayBackedPayload(
+    val text: String = "",
+)
 
-    override fun writeClassAndObject(output: Output, objectValue: Any?) {
-        observedOutput.set(output.javaClass)
-        super.writeClassAndObject(output, objectValue)
+private class KryoArrayBackedPayloadSerializer: Serializer<KryoArrayBackedPayload>() {
+
+    override fun write(kryo: Kryo, output: Output, value: KryoArrayBackedPayload) {
+        check(output.buffer.isNotEmpty())
+        output.writeString(value.text)
     }
 
-    override fun readClassAndObject(input: Input): Any? {
-        observedInput.set(input.javaClass)
-        return super.readClassAndObject(input)
+    override fun read(
+        kryo: Kryo,
+        input: Input,
+        type: Class<out KryoArrayBackedPayload>,
+    ): KryoArrayBackedPayload {
+        check(input.buffer.isNotEmpty())
+        return KryoArrayBackedPayload(input.readString())
     }
 }
 
