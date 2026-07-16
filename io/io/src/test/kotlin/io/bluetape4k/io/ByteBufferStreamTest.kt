@@ -3,6 +3,8 @@ package io.bluetape4k.io
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
+import java.nio.ByteBuffer
 
 class ByteBufferStreamTest: AbstractIOTest() {
 
@@ -59,5 +61,18 @@ class ByteBufferStreamTest: AbstractIOTest() {
 
             outputStream.toByteArray() shouldBeEqualTo bytes
         }
+    }
+
+    @Test
+    fun `existing ByteBuffer factory remains growable and includes its prefix`() {
+        val buffer = ByteBuffer.allocate(4).apply {
+            put(1)
+            put(2)
+        }
+        val outputStream = ByteBufferOutputStream(buffer)
+
+        outputStream.write(byteArrayOf(3, 4, 5, 6))
+
+        outputStream.toByteArray() shouldBeEqualTo byteArrayOf(1, 2, 3, 4, 5, 6)
     }
 }
