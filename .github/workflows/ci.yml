@@ -93,6 +93,8 @@ jobs:
       data: ${{ steps.filter.outputs.data }}
     steps:
       - uses: actions/checkout@v7
+      - name: Validate CSV CI coverage
+        run: ruby scripts/validate-ci-csv-coverage.rb
       - uses: dorny/paths-filter@v4
         id: filter
         with:
@@ -114,6 +116,7 @@ jobs:
               - 'virtualthread/jdk25/**'
             io:
               - 'io/io/**'
+              - 'io/csv/**'
               - 'io/okio/**'
               - 'io/json/**'
               - 'io/jackson2/**'
@@ -310,6 +313,7 @@ jobs:
           command: |
             ./gradlew \
               :bluetape4k-io:test \
+              :bluetape4k-csv:test \
               :bluetape4k-okio:test \
               :bluetape4k-json:test \
               :bluetape4k-jackson2:test \
@@ -326,6 +330,7 @@ jobs:
         run: |
           ./gradlew \
             :bluetape4k-io:koverXmlReport \
+            :bluetape4k-csv:koverXmlReport \
             :bluetape4k-okio:koverXmlReport \
             :bluetape4k-json:koverXmlReport \
             :bluetape4k-jackson2:koverXmlReport \
