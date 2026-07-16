@@ -16,6 +16,7 @@ AUTH_DIR="$ROOT/.codex/compat/issue-754/$BASE_SHA"
 BASE_JARS="$AUTH_DIR/jars"
 CLASSES="$AUTH_DIR/classes"
 REPORT="$AUTH_DIR/abi-report.txt"
+JSON_REPORT="$ROOT/docs/evidence/issue-754/contract/abi-report.json"
 INIT_SCRIPT="$AUTH_DIR/print-classpath.init.gradle"
 FIXTURE_ROOT="$ROOT/io/io/src/test/resources/compat/issue-754/pre-change"
 BUILD_CURRENT=false
@@ -235,6 +236,61 @@ compile_new_caller() {
     return 1
 }
 
+write_json_report() {
+    mkdir -p "$(dirname "$JSON_REPORT")"
+    local tested_code_tree_sha256
+    tested_code_tree_sha256="$(python3 "$ROOT/scripts/check-release-holds.py" \
+        --repository "$ROOT" \
+        --print-tested-code-tree-sha256 "$EXPECTED_HEAD")"
+    python3 - "$ROOT" "$REPORT" "$JSON_REPORT" "$EXPECTED_HEAD" "$CURRENT_TREE" "$BASE_SHA" "$BASE_TREE" "$tested_code_tree_sha256" <<'PY'
+import json
+import pathlib
+import re
+import sys
+
+root = pathlib.Path(sys.argv[1]).resolve()
+text_report = pathlib.Path(sys.argv[2])
+json_report = pathlib.Path(sys.argv[3])
+expected_head, current_tree, base_sha, base_tree, tested_code_tree_sha256 = sys.argv[4:]
+
+checks = {}
+artifacts = []
+for line in text_report.read_text(encoding="utf-8").splitlines():
+    match = re.fullmatch(r"([a-z0-9-]+)=PASS", line)
+    if match:
+        checks[match.group(1)] = "PASS"
+        continue
+    artifact = re.fullmatch(r"current-(io|json|avro)-jar=(.+) sha256=([0-9a-f]{64})", line)
+    if artifact:
+        path = pathlib.Path(artifact.group(2)).resolve()
+        artifacts.append({
+            "module": artifact.group(1),
+            "path": path.relative_to(root).as_posix(),
+            "sha256": artifact.group(3),
+        })
+
+payload = {
+    "schemaVersion": 1,
+    "issue": 754,
+    "release": "1.12.0",
+    "slice": "contract",
+    "status": "GREEN",
+    "producerCommit": expected_head,
+    "producerTree": current_tree,
+    "testedCodeTreeSha256": tested_code_tree_sha256,
+    "authority": {
+        "commit": base_sha,
+        "tree": base_tree,
+    },
+    "command": f"bash scripts/check-serializer-buffer-abi.sh --build-current --expected-head {expected_head}",
+    "checks": {key: checks[key] for key in sorted(checks)},
+    "artifacts": sorted(artifacts, key=lambda item: item["module"]),
+    "textReport": text_report.relative_to(root).as_posix(),
+}
+json_report.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+PY
+}
+
 assert_default_method() {
     local jar="$1"
     local class_name="$2"
@@ -354,4 +410,6 @@ java -cp "$CLASSES/current/avro:$CLASSES/legacy/avro-java:$CLASSES/legacy/avro-k
     io.bluetape4k.avro.compat.issue754.java.NewAvroBufferCaller | tee -a "$REPORT"
 
 echo "buffer-default-abi=PASS" | tee -a "$REPORT"
+write_json_report
 echo "ABI report: $REPORT"
+echo "ABI JSON report: $JSON_REPORT"

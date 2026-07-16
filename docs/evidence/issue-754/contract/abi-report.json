@@ -1,0 +1,46 @@
+{
+  "artifacts": [
+    {
+      "module": "avro",
+      "path": "io/avro/build/libs/bluetape4k-avro-1.12.0.jar",
+      "sha256": "cbe8615478f60859f06d0b770043535c28febf0e56fc3184cb5d6d0dfd6f7c27"
+    },
+    {
+      "module": "io",
+      "path": "io/io/build/libs/bluetape4k-io-1.12.0.jar",
+      "sha256": "21a19b6a2993ec185f306b97413048fb3c3644e16527b0495538377e230c6812"
+    },
+    {
+      "module": "json",
+      "path": "io/json/build/libs/bluetape4k-json-1.12.0.jar",
+      "sha256": "a55c54a9b560392e78df7c3b1eb4da6011fdfb4c6fa1503ed88c35d2eb863bd0"
+    }
+  ],
+  "authority": {
+    "commit": "90b267871e9154f242e6de7ee9fd0539f83e509e",
+    "tree": "f40ccbda16ddf56d4b7770c01e9b0b2cb07cedba"
+  },
+  "checks": {
+    "avro-default-dispatch": "PASS",
+    "avro-new-caller-compilation": "PASS",
+    "binary-default-dispatch": "PASS",
+    "binary-new-caller-compilation": "PASS",
+    "buffer-default-abi": "PASS",
+    "frozen-fixture-reproduction": "PASS",
+    "java-null-literal-compilation": "PASS",
+    "json-default-dispatch": "PASS",
+    "json-new-caller-compilation": "PASS",
+    "legacy-java-compilation": "PASS",
+    "legacy-kotlin-compilation": "PASS"
+  },
+  "command": "bash scripts/check-serializer-buffer-abi.sh --build-current --expected-head 8bb5f886150afda2fc885986d6ae0cd3c74d966f",
+  "issue": 754,
+  "producerCommit": "8bb5f886150afda2fc885986d6ae0cd3c74d966f",
+  "producerTree": "e369f1552af3099256adfbbe595187d1a74111c2",
+  "release": "1.12.0",
+  "schemaVersion": 1,
+  "slice": "contract",
+  "status": "GREEN",
+  "testedCodeTreeSha256": "d7ddc30e20b367edaafbb39f163bce4426e7e9ebcf1ee43ff4e1e234e37c3515",
+  "textReport": ".codex/compat/issue-754/90b267871e9154f242e6de7ee9fd0539f83e509e/abi-report.txt"
+}

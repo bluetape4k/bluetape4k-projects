@@ -1,0 +1,37 @@
+{
+  "decision": "HOLD",
+  "exitCode": 3,
+  "exitCodeContract": {
+    "HOLD": 3,
+    "INVALID": 2,
+    "PASS": 0
+  },
+  "issue": 754,
+  "manifest": ".github/release-holds/1.12.0-issue-754.json",
+  "reasons": [
+    "issue 754 is open",
+    "contract PR is missing",
+    "contract exact PR/head/merge identity is incomplete",
+    "core-serializers PR is missing",
+    "core-serializers exact PR/head/merge identity is incomplete",
+    "core-serializers checksum manifest is incomplete",
+    "core-serializers core-rolling-compatibility evidence checksum is missing",
+    "json-serializers PR is missing",
+    "json-serializers exact PR/head/merge identity is incomplete",
+    "json-serializers checksum manifest is incomplete",
+    "json-serializers json-security-compatibility evidence checksum is missing",
+    "avro-serializers PR is missing",
+    "avro-serializers exact PR/head/merge identity is incomplete",
+    "avro-serializers checksum manifest is incomplete",
+    "avro-serializers avro-security-ocf evidence checksum is missing",
+    "allocation-proof PR is missing",
+    "allocation-proof exact PR/head/merge identity is incomplete",
+    "allocation-proof checksum manifest is incomplete",
+    "allocation-proof proof-docs evidence checksum is missing",
+    "allocation-proof proof-allocation evidence checksum is missing"
+  ],
+  "release": "1.12.0",
+  "releaseCandidateSha": "8bb5f886150afda2fc885986d6ae0cd3c74d966f",
+  "schemaVersion": 1,
+  "testedCodeTreeSha256": "d7ddc30e20b367edaafbb39f163bce4426e7e9ebcf1ee43ff4e1e234e37c3515"
+}

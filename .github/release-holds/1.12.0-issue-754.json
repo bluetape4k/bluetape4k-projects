@@ -1,0 +1,115 @@
+{
+  "issue": 754,
+  "issueState": "open",
+  "release": "1.12.0",
+  "releaseCandidateSha": "8bb5f886150afda2fc885986d6ae0cd3c74d966f",
+  "schemaVersion": 1,
+  "slices": [
+    {
+      "checksumManifest": {
+        "path": "docs/evidence/issue-754/contract/SHA256SUMS",
+        "sha256": "897f088ee5d201c9736ea29a27482f4483073fadca8a5863d431695a1faf8824"
+      },
+      "evidence": [
+        {
+          "kind": "contract-abi",
+          "path": "docs/evidence/issue-754/contract/abi-report.json",
+          "sha256": "cd26ede023c650253424cd3552f2949bea42734ae6b4a3e56e1ba7fbab2ef352"
+        }
+      ],
+      "expectedHeadSha": null,
+      "expectedHeadTreeSha": null,
+      "expectedMergeSha": null,
+      "expectedMergeTreeSha": null,
+      "name": "contract",
+      "prNumber": null,
+      "prState": "missing"
+    },
+    {
+      "checksumManifest": {
+        "path": "docs/evidence/issue-754/core-serializers/SHA256SUMS",
+        "sha256": null
+      },
+      "evidence": [
+        {
+          "kind": "core-rolling-compatibility",
+          "path": "docs/evidence/issue-754/core-serializers/rolling-compatibility.json",
+          "sha256": null
+        }
+      ],
+      "expectedHeadSha": null,
+      "expectedHeadTreeSha": null,
+      "expectedMergeSha": null,
+      "expectedMergeTreeSha": null,
+      "name": "core-serializers",
+      "prNumber": null,
+      "prState": "missing"
+    },
+    {
+      "checksumManifest": {
+        "path": "docs/evidence/issue-754/json-serializers/SHA256SUMS",
+        "sha256": null
+      },
+      "evidence": [
+        {
+          "kind": "json-security-compatibility",
+          "path": "docs/evidence/issue-754/json-serializers/security-compatibility.json",
+          "sha256": null
+        }
+      ],
+      "expectedHeadSha": null,
+      "expectedHeadTreeSha": null,
+      "expectedMergeSha": null,
+      "expectedMergeTreeSha": null,
+      "name": "json-serializers",
+      "prNumber": null,
+      "prState": "missing"
+    },
+    {
+      "checksumManifest": {
+        "path": "docs/evidence/issue-754/avro-serializers/SHA256SUMS",
+        "sha256": null
+      },
+      "evidence": [
+        {
+          "kind": "avro-security-ocf",
+          "path": "docs/evidence/issue-754/avro-serializers/security-ocf.json",
+          "sha256": null
+        }
+      ],
+      "expectedHeadSha": null,
+      "expectedHeadTreeSha": null,
+      "expectedMergeSha": null,
+      "expectedMergeTreeSha": null,
+      "name": "avro-serializers",
+      "prNumber": null,
+      "prState": "missing"
+    },
+    {
+      "checksumManifest": {
+        "path": "docs/evidence/issue-754/allocation-proof/SHA256SUMS",
+        "sha256": null
+      },
+      "evidence": [
+        {
+          "kind": "proof-docs",
+          "path": "docs/evidence/issue-754/allocation-proof/docs-report.json",
+          "sha256": null
+        },
+        {
+          "kind": "proof-allocation",
+          "path": "docs/evidence/issue-754/allocation-proof/allocation-report.json",
+          "sha256": null
+        }
+      ],
+      "expectedHeadSha": null,
+      "expectedHeadTreeSha": null,
+      "expectedMergeSha": null,
+      "expectedMergeTreeSha": null,
+      "name": "allocation-proof",
+      "prNumber": null,
+      "prState": "missing"
+    }
+  ],
+  "testedCodeTreeSha256": "d7ddc30e20b367edaafbb39f163bce4426e7e9ebcf1ee43ff4e1e234e37c3515"
+}
