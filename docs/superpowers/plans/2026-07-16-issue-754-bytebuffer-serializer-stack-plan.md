@@ -49,7 +49,8 @@ PR head after CI and review pass.
 
 ```bash
 python3 -m unittest scripts/test_release_workflow_policy.py -v
-actionlint .github/workflows/release.yml .github/workflows/publish-snapshot.yml
+actionlint .github/workflows/ci.yml .github/workflows/release.yml \
+  .github/workflows/publish-snapshot.yml
 bash scripts/check-serializer-buffer-abi.sh \
   --build-current --expected-head "$(git rev-parse HEAD)"
 ```
