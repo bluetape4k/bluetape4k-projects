@@ -33,13 +33,13 @@
     "legacy-java-compilation": "PASS",
     "legacy-kotlin-compilation": "PASS"
   },
-  "command": "bash scripts/check-serializer-buffer-abi.sh --build-current --expected-head 9ba87611967484f3751f10428fab2a61d9e6f202",
+  "command": "bash scripts/check-serializer-buffer-abi.sh --build-current --expected-head c1f6ce0f08cdb8452d0ae3692077e94b96e97bb5",
   "issue": 754,
-  "producerCommit": "9ba87611967484f3751f10428fab2a61d9e6f202",
-  "producerTree": "b3187cef058e4f65e48dd4e9a1ab59392eaae017",
+  "producerCommit": "c1f6ce0f08cdb8452d0ae3692077e94b96e97bb5",
+  "producerTree": "18ca88aefbca05e2a0939f84400c6bf8931d3a49",
   "schemaVersion": 1,
   "slice": "contract",
   "status": "GREEN",
-  "testedCodeTreeSha256": "74799dc20dc209b40499126ad97194cb2db7753ecadb31186b9319654b5209f1",
+  "testedCodeTreeSha256": "b9b8d2c14d5a44c00269cc506fbe6b191247d9e64731ed90392243a6412b15af",
   "textReport": ".codex/compat/issue-754/90b267871e9154f242e6de7ee9fd0539f83e509e/abi-report.txt"
 }
