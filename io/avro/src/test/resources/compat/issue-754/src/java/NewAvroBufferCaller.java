@@ -49,7 +49,7 @@ public final class NewAvroBufferCaller {
             "io.bluetape4k.avro.compat.issue754.kotlin.LegacyAvroSpecificRecordImplementation"
         ).getDeclaredConstructor().newInstance();
         DummySpecificRecord specificRecord = new DummySpecificRecord();
-        require(specific.serializeTo(specificRecord, ByteBuffer.allocate(64)) > 0,
+        require(specific.serializeTo(specificRecord, ByteBuffer.allocate(128)) > 0,
             "Kotlin specific default did not write");
         require(specific.deserializeFrom(ByteBuffer.allocate(0), DummySpecificRecord.class) == null,
             "unexpected Kotlin specific value");

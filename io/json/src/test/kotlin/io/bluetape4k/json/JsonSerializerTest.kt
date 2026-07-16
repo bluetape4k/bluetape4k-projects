@@ -7,6 +7,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import java.nio.ByteBuffer
 
 /**
  * [JsonSerializer] 인터페이스의 기본 메서드 동작을 검증합니다.
@@ -92,6 +93,18 @@ class JsonSerializerTest {
         val bytes = serializer.serialize("world")
         val result: String? = serializer.deserialize(bytes)
         result.shouldNotBeNull() shouldBeEqualTo "world"
+    }
+
+    @Test
+    fun `reified deserialize - ByteBuffer 입력은 source 상태를 보존한다`() {
+        val bytes = serializer.serialize("buffer")
+        val source = ByteBuffer.wrap(bytes)
+
+        val result: String? = serializer.deserialize(source)
+
+        result.shouldNotBeNull() shouldBeEqualTo "buffer"
+        source.position() shouldBeEqualTo 0
+        source.limit() shouldBeEqualTo bytes.size
     }
 
     @Test

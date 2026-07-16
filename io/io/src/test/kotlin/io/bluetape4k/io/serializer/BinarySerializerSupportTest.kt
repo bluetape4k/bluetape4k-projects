@@ -1,9 +1,9 @@
 package io.bluetape4k.io.serializer
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
-import io.bluetape4k.assertions.assertFailsWith
 
 class BinarySerializerSupportTest {
 
@@ -33,6 +33,27 @@ class BinarySerializerSupportTest {
         buffer.position(4)
 
         serializer.deserialize<String>(buffer) shouldBeEqualTo plain
+        buffer.position() shouldBeEqualTo 4
+    }
+
+    @Test
+    fun `deserialize ByteBuffer 확장 함수는 deserializeFrom 기본 메서드로 위임한다`() {
+        var delegated = false
+        val overriding =
+            object: BinarySerializer {
+                override fun serialize(graph: Any?): ByteArray = ByteArray(0)
+
+                override fun <T: Any> deserialize(bytes: ByteArray?): T? = error("ByteArray path must not be called")
+
+                @Suppress("UNCHECKED_CAST")
+                override fun <T: Any> deserializeFrom(source: ByteBuffer): T? {
+                    delegated = true
+                    return "from-buffer" as T
+                }
+            }
+
+        overriding.deserialize<String>(ByteBuffer.allocate(0)) shouldBeEqualTo "from-buffer"
+        delegated shouldBeEqualTo true
     }
 
     @Test

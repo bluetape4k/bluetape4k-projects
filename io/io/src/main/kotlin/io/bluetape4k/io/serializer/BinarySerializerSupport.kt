@@ -1,6 +1,5 @@
 package io.bluetape4k.io.serializer
 
-import io.bluetape4k.io.getBytes
 import java.nio.ByteBuffer
 
 /**
@@ -31,7 +30,7 @@ fun BinarySerializer.serializeAsByteBuffer(graph: Any?): ByteBuffer =
  * @return 역직렬화한 객체
  */
 fun <T: Any> BinarySerializer.deserialize(buffer: ByteBuffer): T? =
-    deserialize(buffer.getBytes())
+    deserializeFrom(buffer)
 
 /**
  * 객체를 Binary 방식으로 직렬화를 하여 [okio.Buffer]로 반환합니다.

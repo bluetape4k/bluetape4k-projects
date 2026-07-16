@@ -2,6 +2,7 @@ package io.bluetape4k.avro
 
 import io.bluetape4k.codec.decodeBase64ByteArray
 import io.bluetape4k.codec.encodeBase64String
+import java.nio.ByteBuffer
 
 /**
  * Reflection 기반으로 Avro 바이트/문자열 직렬화 API를 제공하는 인터페이스입니다.
@@ -38,6 +39,21 @@ interface AvroReflectSerializer {
     fun <T> serialize(graph: T?): ByteArray?
 
     /**
+     * Serializes [graph] into the caller-owned [target] from its current position.
+     *
+     * This default is an allocating fallback that calls [serialize] first. A read-only target fails with
+     * `ReadOnlyBufferException` before serializer code runs. A null [serialize] result writes nothing and returns `0`;
+     * insufficient remaining space fails with the raw `BufferOverflowException`.
+     *
+     * Success advances only the position by the returned count. Limit, capacity, and byte order remain unchanged.
+     * Failure restores the original position and rethrows the same throwable, including any `Error`; failed content is
+     * unspecified and is not rolled back. Normal JDK mark rules apply on success. The caller owns [target] and must keep
+     * it thread-confined while this call is active.
+     */
+    fun <T> serializeTo(graph: T?, target: ByteBuffer): Int =
+        serializeNullableTo(target) { serialize(graph) }
+
+    /**
      * Avro 바이트 배열을 Reflection 경로로 지정 타입에 역직렬화합니다.
      *
      * ## 동작/계약
@@ -55,6 +71,16 @@ interface AvroReflectSerializer {
      * @param clazz 역직렬화 대상 타입 정보입니다.
      */
     fun <T> deserialize(avroBytes: ByteArray?, clazz: Class<T>): T?
+
+    /**
+     * Deserializes trusted, caller-bounded bytes in `[source.position(), source.limit())` as [clazz].
+     *
+     * This allocating fallback copies the remaining bytes to a new [ByteArray] before calling [deserialize]. Heap,
+     * direct, sliced, and read-only sources are supported. Position, limit, mark, and byte order are preserved on every
+     * path. The caller owns [source], must not mutate or share it concurrently, and must bound untrusted input first.
+     */
+    fun <T> deserializeFrom(source: ByteBuffer, clazz: Class<T>): T? =
+        deserialize(copyRemaining(source), clazz)
 
     /**
      * 객체를 Base64 문자열로 직렬화합니다.
@@ -115,6 +141,21 @@ interface AvroReflectSerializer {
 inline fun <reified T: Any> AvroReflectSerializer.deserialize(avroBytes: ByteArray?): T? {
     return deserialize(avroBytes, T::class.java)
 }
+
+/**
+ * Deserializes the remaining bytes in [source] as [clazz] through [AvroReflectSerializer.deserializeFrom].
+ */
+fun <T> AvroReflectSerializer.deserialize(source: ByteBuffer, clazz: Class<T>): T? =
+    deserializeFrom(source, clazz)
+
+/**
+ * Deserializes the remaining trusted, caller-bounded bytes in [source] as reified [T].
+ *
+ * The allocating fallback, caller ownership, thread-confinement, and source-state preservation rules of
+ * [AvroReflectSerializer.deserializeFrom] apply.
+ */
+inline fun <reified T: Any> AvroReflectSerializer.deserialize(source: ByteBuffer): T? =
+    deserializeFrom(source, T::class.java)
 
 /**
  * Base64 Avro 문자열을 reified 타입 [T]로 역직렬화합니다.

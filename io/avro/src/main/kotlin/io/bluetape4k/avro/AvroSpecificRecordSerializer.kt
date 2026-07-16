@@ -3,6 +3,7 @@ package io.bluetape4k.avro
 import io.bluetape4k.codec.decodeBase64ByteArray
 import io.bluetape4k.codec.encodeBase64String
 import org.apache.avro.specific.SpecificRecord
+import java.nio.ByteBuffer
 
 /**
  * Avro `SpecificRecord` 타입 직렬화/역직렬화 API를 제공하는 인터페이스입니다.
@@ -39,6 +40,21 @@ interface AvroSpecificRecordSerializer {
     fun <T: SpecificRecord> serialize(graph: T?): ByteArray?
 
     /**
+     * Serializes [graph] into the caller-owned [target] from its current position.
+     *
+     * This default is an allocating fallback that calls [serialize] first. A read-only target fails with
+     * `ReadOnlyBufferException` before serializer code runs. A null result writes nothing and returns `0`; insufficient
+     * remaining space fails with the raw `BufferOverflowException`.
+     *
+     * Success advances only the position by the returned count while preserving limit, capacity, and byte order.
+     * Failure restores the original position and rethrows the same throwable, including any `Error`; failed content is
+     * unspecified and is not rolled back. Normal JDK mark rules apply on success. The caller owns [target] and must keep
+     * it thread-confined while this call is active.
+     */
+    fun <T: SpecificRecord> serializeTo(graph: T?, target: ByteBuffer): Int =
+        serializeNullableTo(target) { serialize(graph) }
+
+    /**
      * Avro 바이트 배열을 지정 `SpecificRecord` 타입으로 역직렬화합니다.
      *
      * ## 동작/계약
@@ -56,6 +72,16 @@ interface AvroSpecificRecordSerializer {
      * @param clazz 역직렬화 대상 클래스입니다.
      */
     fun <T: SpecificRecord> deserialize(avroBytes: ByteArray?, clazz: Class<T>): T?
+
+    /**
+     * Deserializes trusted, caller-bounded bytes in `[source.position(), source.limit())` as [clazz].
+     *
+     * This allocating fallback copies the remaining bytes to a new [ByteArray] before calling [deserialize]. Heap,
+     * direct, sliced, and read-only sources are supported. Position, limit, mark, and byte order are preserved on every
+     * path. The caller owns [source], must not mutate or share it concurrently, and must bound untrusted input first.
+     */
+    fun <T: SpecificRecord> deserializeFrom(source: ByteBuffer, clazz: Class<T>): T? =
+        deserialize(copyRemaining(source), clazz)
 
     /**
      * `SpecificRecord`를 Base64 문자열로 직렬화합니다.
@@ -116,6 +142,21 @@ interface AvroSpecificRecordSerializer {
     fun <T: SpecificRecord> serializeList(collection: List<T>?): ByteArray?
 
     /**
+     * Serializes [collection] into the caller-owned [target] from its current position.
+     *
+     * This allocating fallback delegates to [serializeList]. Null or empty collections retain that method's policy; a
+     * null result writes nothing and returns `0`. Read-only validation occurs before serializer code, and insufficient
+     * remaining space fails with the raw `BufferOverflowException`.
+     *
+     * Success advances only the position by the returned count while preserving limit, capacity, and byte order.
+     * Failure restores the original position and rethrows the same throwable, including any `Error`; failed content is
+     * unspecified and is not rolled back. Normal JDK mark rules apply on success. The caller owns [target] and must keep
+     * it thread-confined while this call is active.
+     */
+    fun <T: SpecificRecord> serializeListTo(collection: List<T>?, target: ByteBuffer): Int =
+        serializeNullableTo(target) { serializeList(collection) }
+
+    /**
      * Avro 바이트 배열을 `SpecificRecord` 리스트로 역직렬화합니다.
      *
      * ## 동작/계약
@@ -132,6 +173,17 @@ interface AvroSpecificRecordSerializer {
      * @param clazz 리스트 요소 타입 정보입니다.
      */
     fun <T: SpecificRecord> deserializeList(avroBytes: ByteArray?, clazz: Class<T>): List<T>
+
+    /**
+     * Deserializes trusted, caller-bounded bytes in `[source.position(), source.limit())` as a list of [clazz].
+     *
+     * This allocating fallback copies the remaining bytes to a new [ByteArray] before calling [deserializeList]. Heap,
+     * direct, sliced, and read-only sources are supported. Position, limit, mark, and byte order are preserved on every
+     * path. Empty input retains [deserializeList]'s existing empty-list policy. The caller owns [source], must not mutate
+     * or share it concurrently, and must bound untrusted input first.
+     */
+    fun <T: SpecificRecord> deserializeListFrom(source: ByteBuffer, clazz: Class<T>): List<T> =
+        deserializeList(copyRemaining(source), clazz)
 }
 
 /**
@@ -151,6 +203,21 @@ interface AvroSpecificRecordSerializer {
 inline fun <reified T: SpecificRecord> AvroSpecificRecordSerializer.deserialize(avroBytes: ByteArray?): T? {
     return deserialize(avroBytes, T::class.java)
 }
+
+/**
+ * Deserializes the remaining bytes in [source] as [clazz] through [AvroSpecificRecordSerializer.deserializeFrom].
+ */
+fun <T: SpecificRecord> AvroSpecificRecordSerializer.deserialize(source: ByteBuffer, clazz: Class<T>): T? =
+    deserializeFrom(source, clazz)
+
+/**
+ * Deserializes the remaining trusted, caller-bounded bytes in [source] as reified [T].
+ *
+ * The allocating fallback, caller ownership, thread-confinement, and source-state preservation rules of
+ * [AvroSpecificRecordSerializer.deserializeFrom] apply.
+ */
+inline fun <reified T: SpecificRecord> AvroSpecificRecordSerializer.deserialize(source: ByteBuffer): T? =
+    deserializeFrom(source, T::class.java)
 
 /**
  * Base64 Avro 문자열을 reified `SpecificRecord` 타입으로 역직렬화합니다.
@@ -189,3 +256,18 @@ inline fun <reified T: SpecificRecord> AvroSpecificRecordSerializer.deserializeF
 inline fun <reified T: SpecificRecord> AvroSpecificRecordSerializer.deserializeList(avroBytes: ByteArray?): List<T> {
     return deserializeList(avroBytes, T::class.java)
 }
+
+/**
+ * Deserializes the remaining bytes in [source] as [clazz] through [AvroSpecificRecordSerializer.deserializeListFrom].
+ */
+fun <T: SpecificRecord> AvroSpecificRecordSerializer.deserializeList(source: ByteBuffer, clazz: Class<T>): List<T> =
+    deserializeListFrom(source, clazz)
+
+/**
+ * Deserializes the remaining trusted, caller-bounded bytes in [source] as a list of reified [T].
+ *
+ * The allocating fallback, caller ownership, thread-confinement, and source-state preservation rules of
+ * [AvroSpecificRecordSerializer.deserializeListFrom] apply.
+ */
+inline fun <reified T: SpecificRecord> AvroSpecificRecordSerializer.deserializeList(source: ByteBuffer): List<T> =
+    deserializeListFrom(source, T::class.java)
