@@ -11,7 +11,7 @@ begin
   case ARGV
   when ["--write"]
     contract.sync!
-    puts "release-diagrams: synchronized entries=#{contract.entries.size} release=#{contract.release_ref}"
+    puts "release-diagrams: linked entries=#{contract.entries.size} release=#{contract.release_ref} commit=#{contract.release_commit}"
   when ["--check"]
     failures = contract.errors
     if failures.empty?

@@ -110,47 +110,47 @@ This page documents the repository state represented by the linked source and te
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### All Algorithms at a Glance diagram
 
-[![All Algorithms at a Glance diagram](../../assets/readme-diagrams/utils-idgenerators-diagram-01.png)](../../assets/readme-diagrams/utils-idgenerators-diagram-01.svg)
+[![All Algorithms at a Glance diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/utils-idgenerators-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/utils-idgenerators-diagram-01.svg)
 
 _Release README: [`utils/idgenerators/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/idgenerators/README.md)_
 
 ### ID Generators Class Structure diagram
 
-[![ID Generators Class Structure diagram](../../assets/readme-diagrams/utils-idgenerators-diagram-02.png)](../../assets/readme-diagrams/utils-idgenerators-diagram-02.svg)
+[![ID Generators Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/utils-idgenerators-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/utils-idgenerators-diagram-02.svg)
 
 _Release README: [`utils/idgenerators/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/idgenerators/README.md)_
 
 ### Snowflake Bit Layout diagram
 
-[![Snowflake Bit Layout diagram](../../assets/readme-diagrams/utils-idgenerators-diagram-03.png)](../../assets/readme-diagrams/utils-idgenerators-diagram-03.svg)
+[![Snowflake Bit Layout diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/utils-idgenerators-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/utils-idgenerators-diagram-03.svg)
 
 _Release README: [`utils/idgenerators/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/idgenerators/README.md)_
 
 ### ULID (Universally Unique Lexicographically Sortable Identif. diagram
 
-[![ULID (Universally Unique Lexicographically Sortable Identif. diagram](../../assets/readme-diagrams/utils-idgenerators-diagram-04.png)](../../assets/readme-diagrams/utils-idgenerators-diagram-04.svg)
+[![ULID (Universally Unique Lexicographically Sortable Identif. diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/utils-idgenerators-diagram-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/utils-idgenerators-diagram-04.svg)
 
 _Release README: [`utils/idgenerators/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/idgenerators/README.md)_
 
 ### ULID (Universally Unique Lexicographically Sortable Identif. diagram
 
-[![ULID (Universally Unique Lexicographically Sortable Identif. diagram](../../assets/readme-diagrams/utils-idgenerators-diagram-05.png)](../../assets/readme-diagrams/utils-idgenerators-diagram-05.svg)
+[![ULID (Universally Unique Lexicographically Sortable Identif. diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/utils-idgenerators-diagram-05.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/utils-idgenerators-diagram-05.svg)
 
 _Release README: [`utils/idgenerators/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/idgenerators/README.md)_
 
 ### KSUID Layout diagram
 
-[![KSUID Layout diagram](../../assets/readme-diagrams/utils-idgenerators-diagram-06.png)](../../assets/readme-diagrams/utils-idgenerators-diagram-06.svg)
+[![KSUID Layout diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/utils-idgenerators-diagram-06.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/utils-idgenerators-diagram-06.svg)
 
 _Release README: [`utils/idgenerators/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/idgenerators/README.md)_
 
 ### Flake Layout diagram
 
-[![Flake Layout diagram](../../assets/readme-diagrams/utils-idgenerators-diagram-07.png)](../../assets/readme-diagrams/utils-idgenerators-diagram-07.svg)
+[![Flake Layout diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/utils-idgenerators-diagram-07.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/utils-idgenerators-diagram-07.svg)
 
 _Release README: [`utils/idgenerators/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/idgenerators/README.md)_
 

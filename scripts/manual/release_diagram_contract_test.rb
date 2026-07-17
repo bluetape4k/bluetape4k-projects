@@ -37,11 +37,14 @@ class ReleaseDiagramContractTest < Minitest::Test
     FileUtils.remove_entry(@tmp)
   end
 
-  def test_sync_uses_release_asset_when_snapshot_canonical_is_absent
+  def test_sync_links_release_asset_when_snapshot_canonical_is_absent
     contract.sync!
 
-    assert_equal "<svg xmlns=\"http://www.w3.org/2000/svg\"/>", File.read(@root.join("docs/manual/assets/readme-diagrams/nested/sample.svg"))
-    assert_equal PNG, File.binread(@root.join("docs/manual/assets/readme-diagrams/nested/sample.png"))
+    page = File.read(@root.join("docs/manual/en/modules/sample.md"))
+    assert_includes page, "https://raw.githubusercontent.com/example/manuals/#{@release_commit}/docs/images/readme-diagrams/nested/sample.png"
+    assert_includes page, "https://github.com/example/manuals/blob/#{@release_commit}/docs/images/readme-diagrams/nested/sample.svg"
+    refute File.exist?(@root.join("docs/manual/assets/readme-diagrams"))
+    refute_includes File.read(@root.join("docs/manual/manifest.yaml")), "assets/readme-diagrams/"
     assert_empty contract.errors
   end
 
@@ -54,15 +57,15 @@ class ReleaseDiagramContractTest < Minitest::Test
   def test_reports_manual_page_without_png_reference
     write_pages(with_reference: false)
 
-    assert_includes contract.errors, "sample: en manual page does not reference release PNG"
-    assert_includes contract.errors, "sample: ko manual page does not reference release PNG"
+    assert_includes contract.errors, "sample: en manual page does not reference release PNG URL"
+    assert_includes contract.errors, "sample: ko manual page does not reference release PNG URL"
   end
 
-  def test_reports_release_digest_mismatch
+  def test_reports_manual_mirror_directory
     contract.sync!
-    write(@root.join("docs/manual/assets/readme-diagrams/nested/sample.png"), PNG + "changed", binary: true)
+    write(@root.join("docs/manual/assets/readme-diagrams/orphan.png"), PNG, binary: true)
 
-    assert_includes contract.errors, "sample: release and mirror PNG digests differ"
+    assert_includes contract.errors, "manual mirror directory still exists: docs/manual/assets/readme-diagrams"
   end
 
   def test_rejects_unsafe_canonical_path
@@ -102,12 +105,27 @@ class ReleaseDiagramContractTest < Minitest::Test
   def write_manifest(commit)
     write(
       @root.join("docs/manual/manifest.yaml"),
-      YAML.dump({ "releaseRef" => "1.0.0", "releaseCommit" => commit }),
+      YAML.dump({
+        "repository" => "example/manuals",
+        "releaseRef" => "1.0.0",
+        "releaseCommit" => commit,
+        "overview" => {
+          "assets" => [
+            "assets/guide.svg",
+            "assets/readme-diagrams/nested/sample.png",
+            "assets/readme-diagrams/nested/sample.svg",
+          ],
+        },
+      }),
     )
   end
 
   def write_pages(with_reference:)
-    body = with_reference ? "![Sample](../../assets/readme-diagrams/nested/sample.png)\n" : "# Sample\n"
+    body = if with_reference
+             "[![Sample](../../assets/readme-diagrams/nested/sample.png)](../../assets/readme-diagrams/nested/sample.svg)\n"
+           else
+             "# Sample\n"
+           end
     write(@root.join("docs/manual/en/modules/sample.md"), body)
     write(@root.join("docs/manual/ko/modules/sample.md"), body)
   end

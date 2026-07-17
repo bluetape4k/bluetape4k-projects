@@ -118,29 +118,29 @@ This page documents the repository state represented by the linked source and te
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Compressor Hierarchy diagram
 
-[![Compressor Hierarchy diagram](../../assets/readme-diagrams/io-io-diagram-01.png)](../../assets/readme-diagrams/io-io-diagram-01.svg)
+[![Compressor Hierarchy diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/io-io-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/io-io-diagram-01.svg)
 
 _Release README: [`io/io/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/io/README.md)_
 
 ### BinarySerializer Hierarchy diagram
 
-[![BinarySerializer Hierarchy diagram](../../assets/readme-diagrams/io-io-diagram-02.png)](../../assets/readme-diagrams/io-io-diagram-02.svg)
+[![BinarySerializer Hierarchy diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/io-io-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/io-io-diagram-02.svg)
 
 _Release README: [`io/io/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/io/README.md)_
 
 ### compress/decompress Flow diagram
 
-[![compress/decompress Flow diagram](../../assets/readme-diagrams/io-io-sequence-01.png)](../../assets/readme-diagrams/io-io-sequence-01.svg)
+[![compress/decompress Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/io-io-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/io-io-sequence-01.svg)
 
 _Release README: [`io/io/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/io/README.md)_
 
 ### serialize/deserialize Flow diagram
 
-[![serialize/deserialize Flow diagram](../../assets/readme-diagrams/io-io-sequence-02.png)](../../assets/readme-diagrams/io-io-sequence-02.svg)
+[![serialize/deserialize Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/io-io-sequence-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/io-io-sequence-02.svg)
 
 _Release README: [`io/io/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/io/README.md)_
 
