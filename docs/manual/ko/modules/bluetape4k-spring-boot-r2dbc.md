@@ -163,3 +163,34 @@ API는 reified type과 Spring Data entity mapping에 의존합니다. raw SQL, b
 - [`PostRepository.kt`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/domain/PostRepository.kt)
 - [`CommentRepository.kt`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/domain/CommentRepository.kt)
 - [`PostControllerTest.kt`](../../../../spring-boot/r2dbc/src/test/kotlin/io/bluetape4k/spring/r2dbc/coroutines/blog/test/controller/PostControllerTest.kt)
+
+<!-- release-readme-diagrams:start -->
+## 배포본 다이어그램 {#release-diagrams}
+
+아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+
+### Spring Boot R2DBC 핵심 클래스 구조 다이어그램
+
+[![Spring Boot R2DBC 핵심 클래스 구조 다이어그램](../../assets/readme-diagrams/spring-boot-r2dbc-diagram-01.png)](../../assets/readme-diagrams/spring-boot-r2dbc-diagram-01.svg)
+
+_배포본 README: [`spring-boot/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.ko.md)_
+
+### R2DBC와 Coroutines 데이터 흐름 다이어그램
+
+[![R2DBC와 Coroutines 데이터 흐름 다이어그램](../../assets/readme-diagrams/spring-boot-r2dbc-diagram-02.png)](../../assets/readme-diagrams/spring-boot-r2dbc-diagram-02.svg)
+
+_배포본 README: [`spring-boot/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.ko.md)_
+
+### R2DBC CRUD 연산 계층 구조 다이어그램
+
+[![R2DBC CRUD 연산 계층 구조 다이어그램](../../assets/readme-diagrams/spring-boot-r2dbc-diagram-03.png)](../../assets/readme-diagrams/spring-boot-r2dbc-diagram-03.svg)
+
+_배포본 README: [`spring-boot/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.ko.md)_
+
+### R2DBC 코루틴 변환 시퀀스 다이어그램
+
+[![R2DBC 코루틴 변환 시퀀스 다이어그램](../../assets/readme-diagrams/spring-boot-r2dbc-sequence-01.png)](../../assets/readme-diagrams/spring-boot-r2dbc-sequence-01.svg)
+
+_배포본 README: [`spring-boot/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.ko.md)_
+
+<!-- release-readme-diagrams:end -->

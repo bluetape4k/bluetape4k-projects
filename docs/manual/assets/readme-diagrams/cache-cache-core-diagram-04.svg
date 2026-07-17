@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2360" height="1530" viewBox="0 0 2360 1530" role="img" aria-label="SuspendJCache Interface Class Diagram">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10" /></filter>
+
+  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#0F766E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="triangle-teal" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse" style="stroke-dasharray:none!important" stroke-dasharray="none"><path d="M -2 -2 L 28 11 L -2 24 Z" fill="#FFFFFF" stroke="none" stroke-dasharray="none" style="stroke-dasharray:none!important" /><path class="markerSolid" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" /></marker>
+
+  <marker id="arrow-blue" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#1D4ED8" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="triangle-blue" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse" style="stroke-dasharray:none!important" stroke-dasharray="none"><path d="M -2 -2 L 28 11 L -2 24 Z" fill="#FFFFFF" stroke="none" stroke-dasharray="none" style="stroke-dasharray:none!important" /><path class="markerSolid" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" /></marker>
+
+  <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#15803D" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="triangle-green" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse" style="stroke-dasharray:none!important" stroke-dasharray="none"><path d="M -2 -2 L 28 11 L -2 24 Z" fill="#FFFFFF" stroke="none" stroke-dasharray="none" style="stroke-dasharray:none!important" /><path class="markerSolid" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#15803D" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" /></marker>
+
+  <marker id="arrow-amber" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#C2410C" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="triangle-amber" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse" style="stroke-dasharray:none!important" stroke-dasharray="none"><path d="M -2 -2 L 28 11 L -2 24 Z" fill="#FFFFFF" stroke="none" stroke-dasharray="none" style="stroke-dasharray:none!important" /><path class="markerSolid" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#C2410C" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" /></marker>
+
+  <marker id="arrow-pink" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#BE185D" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="triangle-pink" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse" style="stroke-dasharray:none!important" stroke-dasharray="none"><path d="M -2 -2 L 28 11 L -2 24 Z" fill="#FFFFFF" stroke="none" stroke-dasharray="none" style="stroke-dasharray:none!important" /><path class="markerSolid" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#BE185D" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" /></marker>
+
+  <marker id="arrow-slate" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="triangle-slate" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse" style="stroke-dasharray:none!important" stroke-dasharray="none"><path d="M -2 -2 L 28 11 L -2 24 Z" fill="#FFFFFF" stroke="none" stroke-dasharray="none" style="stroke-dasharray:none!important" /><path class="markerSolid" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#475569" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" /></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .sectionLabel{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}
+    .chip{stroke-width:1.6}.chipText{font-family:"Comic Mono";font-size:14px;fill:#334155}
+    .classBox{stroke-width:1.8;filter:url(#shadow)}.stereotype{font-family:"Comic Mono";font-size:14px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
+    .member{font-family:"Comic Mono";font-size:14px;fill:#334155}.divider{stroke-width:1.1;opacity:.45}
+    .noteBox{stroke-width:1.7;filter:url(#shadow)}.noteTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}.noteLine{font-family:"Comic Mono";font-size:14px;fill:#334155}
+    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
+  </style>
+</defs>
+<rect class="canvas" width="2360" height="1530" />
+<rect class="frame" x="34" y="30" width="2292" height="1470" rx="8" />
+<text class="title" x="72" y="86">SuspendJCache Coroutine Interface</text>
+<text class="subtitle" x="76" y="120">cache-core JCache-like suspend contract, Flow entry model, local front cache, and two-tier near-cache usage.</text>
+<g>
+  <rect class="chip" x="1390" y="78" width="190" height="54" rx="18" fill="#F0FDFA" stroke="#0D9488" />
+  <text class="chipText" x="1485" y="112" text-anchor="middle">interface</text>
+</g>
+<g>
+  <rect class="chip" x="1605" y="78" width="220" height="54" rx="18" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="chipText" x="1715" y="112" text-anchor="middle">local impl</text>
+</g>
+<g>
+  <rect class="chip" x="1850" y="78" width="220" height="54" rx="18" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="chipText" x="1960" y="112" text-anchor="middle">near-cache</text>
+</g>
+<g>
+  <rect class="chip" x="2095" y="78" width="190" height="54" rx="18" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="chipText" x="2190" y="112" text-anchor="middle">support</text>
+</g>
+<text class="sectionLabel" x="790" y="205">Coroutine JCache contract</text>
+<text class="sectionLabel" x="390" y="785">Concrete implementations</text>
+<text class="sectionLabel" x="1605" y="785">Two-tier near-cache use</text>
+<g id="SuspendJCache">
+  <rect class="classBox" x="650" y="245" width="1000" height="385" rx="8" fill="#F0FDFA" stroke="#0D9488" />
+  <text class="stereotype" x="1150" y="273" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="1150" y="303" text-anchor="middle">SuspendJCache&lt;K,V&gt;</text>
+  <path class="divider" d="M650 321H1650" stroke="#0F766E" />
+  <text class="member" x="674" y="347">+ entries(): Flow&lt;SuspendJCacheEntry&lt;K,V&gt;&gt;</text>
+<text class="member" x="674" y="369">+ isClosed(): Boolean</text>
+<text class="member" x="674" y="391">+ unwrap(clazz): T?</text>
+  <path class="divider" d="M650 421H1650" stroke="#0F766E" />
+  <text class="member" x="674" y="447">+ suspend lifecycle: clear() / close()</text>
+<text class="member" x="674" y="469">+ suspend reads: containsKey() / get()</text>
+<text class="member" x="674" y="491">+ Flow reads: getAll() / getAll(keys)</text>
+<text class="member" x="674" y="513">+ suspend writes: put / putAll / putAllFlow / putIfAbsent</text>
+<text class="member" x="674" y="535">+ suspend mutations: getAndPut / getAndRemove / replace / remove</text>
+<text class="member" x="674" y="557">+ listener registration / deregistration</text>
+</g>
+<g id="CaffeineSuspendJCache">
+  <rect class="classBox" x="350" y="870" width="640" height="300" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="stereotype" x="670" y="898" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="classTitle" x="670" y="928" text-anchor="middle">CaffeineSuspendJCache&lt;K,V&gt;</text>
+  <path class="divider" d="M350 946H990" stroke="#1D4ED8" />
+  <text class="member" x="374" y="972">cache: AsyncCache&lt;K,V&gt;</text>
+<text class="member" x="374" y="994">closed: atomic Boolean</text>
+  <path class="divider" d="M350 1024H990" stroke="#1D4ED8" />
+  <text class="member" x="374" y="1050">front-cache implementation</text>
+<text class="member" x="374" y="1072">awaits CompletableFuture values</text>
+<text class="member" x="374" y="1094">local listener registration is a no-op</text>
+<text class="member" x="374" y="1116">close() invalidates and cleans up Caffeine</text>
+</g>
+<g id="SuspendNearJCache">
+  <rect class="classBox" x="1200" y="870" width="760" height="330" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="stereotype" x="1580" y="898" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="classTitle" x="1580" y="928" text-anchor="middle">SuspendNearJCache&lt;K,V&gt;</text>
+  <path class="divider" d="M1200 946H1960" stroke="#15803D" />
+  <text class="member" x="1224" y="972">frontCache: SuspendJCache&lt;K,V&gt;</text>
+<text class="member" x="1224" y="994">backCache: SuspendJCache&lt;K,V&gt;</text>
+<text class="member" x="1224" y="1016">SuspendJCache&lt;K,V&gt; by backCache</text>
+  <path class="divider" d="M1200 1046H1960" stroke="#15803D" />
+  <text class="member" x="1224" y="1072">get() delegates to getDeeply()</text>
+<text class="member" x="1224" y="1094">front miss reads back and fills front</text>
+<text class="member" x="1224" y="1116">writes update front then back</text>
+<text class="member" x="1224" y="1138">withoutListener() supports listener-free backends</text>
+</g>
+<g id="SuspendJCacheEntry">
+  <rect class="classBox" x="1790" y="265" width="470" height="245" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="stereotype" x="2025" y="293" text-anchor="middle">&lt;&lt;data class&gt;&gt;</text>
+  <text class="classTitle" x="2025" y="323" text-anchor="middle">SuspendJCacheEntry&lt;K,V&gt;</text>
+  <path class="divider" d="M1790 341H2260" stroke="#C2410C" />
+  <text class="member" x="1814" y="367">entryKey: K</text>
+<text class="member" x="1814" y="389">entryValue: V</text>
+  <path class="divider" d="M1790 419H2260" stroke="#C2410C" />
+  <text class="member" x="1814" y="445">implements Cache.Entry&lt;K,V&gt;</text>
+<text class="member" x="1814" y="467">unwrap only compatible classes</text>
+</g>
+<g id="SuspendJCacheEntryEventListener">
+  <rect class="classBox" x="90" y="265" width="500" height="275" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+  <text class="stereotype" x="340" y="293" text-anchor="middle">&lt;&lt;listener&gt;&gt;</text>
+  <text class="classTitle" x="340" y="323" text-anchor="middle">SuspendJCacheEntryEventListener</text>
+  <path class="divider" d="M90 341H590" stroke="#BE185D" />
+  <text class="member" x="114" y="367">generic listener for &lt;K,V&gt;</text>
+<text class="member" x="114" y="389">targetCache: SuspendJCache&lt;K,V&gt;</text>
+<text class="member" x="114" y="411">scope: SupervisorJob + Dispatchers.IO</text>
+  <path class="divider" d="M90 441H590" stroke="#BE185D" />
+  <text class="member" x="114" y="467">created/updated -&gt; putAll</text>
+<text class="member" x="114" y="489">removed/expired -&gt; removeAll</text>
+<text class="member" x="114" y="511">does not block JCache event thread</text>
+</g>
+<g>
+  <rect class="noteBox" x="250" y="1260" width="640" height="190" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="noteTitle" x="278" y="1308">Provider boundary</text>
+  <text class="noteLine" x="280" y="1352">Caffeine is cache-core local front cache</text>
+<text class="noteLine" x="280" y="1384">Lettuce/Hazelcast/Redisson provide back caches</text>
+<text class="noteLine" x="280" y="1416">All provider back caches implement the same contract</text>
+</g>
+<g>
+  <rect class="noteBox" x="1290" y="1270" width="760" height="180" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="noteTitle" x="1318" y="1318">Reading rule</text>
+  <text class="noteLine" x="1320" y="1362">Hollow triangle = implements</text>
+<text class="noteLine" x="1320" y="1394">Dashed arrow = dependency/return type</text>
+<text class="noteLine" x="1320" y="1426">04 explains SuspendJCache only; NearJCache details follow</text>
+</g>
+<g data-from="CaffeineSuspendJCache" data-to="SuspendJCache">
+  <path class="edge dashed" d="M670 870 L670 630" stroke="#1D4ED8" />
+
+  <polygon points="670,630 680,652 660,652" fill="#FFFFFF" stroke="none" />
+
+  <polygon class="markerSolid" points="670,630 680,652 660,652" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" />
+  <text class="edgeLabel" x="695" y="747">implements</text>
+</g>
+<g data-from="SuspendNearJCache" data-to="SuspendJCache">
+  <path class="edge dashed" d="M1580 870 L1580 630" stroke="#15803D" />
+
+  <polygon points="1580,630 1590,652 1570,652" fill="#FFFFFF" stroke="none" />
+
+  <polygon class="markerSolid" points="1580,630 1590,652 1570,652" fill="#FFFFFF" stroke="#15803D" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" />
+  <text class="edgeLabel" x="1605" y="747">implements</text>
+</g>
+<g data-from="SuspendJCache" data-to="SuspendJCacheEntry">
+  <path class="edge dashed"  d="M1650 405 L1790 405" stroke="#C2410C" />
+
+  <polyline points="1772,413 1790,405 1772,397" fill="none" stroke="#C2410C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
+  <text class="edgeLabel" x="1688" y="384">Flow entry</text>
+</g>
+<g data-from="SuspendJCacheEntryEventListener" data-to="SuspendJCache">
+  <path class="edge dashed"  d="M590 405 L650 405" stroke="#BE185D" />
+
+  <polyline points="632,413 650,405 632,397" fill="none" stroke="#BE185D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
+
+</g>
+<g data-from="SuspendNearJCache" data-to="CaffeineSuspendJCache">
+  <path class="edge dashed"  d="M1200 1035 L990 1035" stroke="#1D4ED8" />
+
+  <polyline points="1008,1027 990,1035 1008,1043" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
+  <text class="edgeLabel" x="1088" y="1014">front</text>
+</g>
+<g data-from="SuspendNearJCache" data-to="ProviderBoundary">
+  <path class="edge dashed"  d="M 1580 1200 L 1580 1236 Q 1580 1250 1566 1250 L 680 1250 Q 670 1250 670 1260 L 670 1260" stroke="#475569" stroke-linecap="round" stroke-linejoin="round" />
+
+  <polyline points="662,1242 670,1260 678,1242" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
+  <text class="edgeLabel" x="938" y="1229">back implementations</text>
+</g>
+</svg>

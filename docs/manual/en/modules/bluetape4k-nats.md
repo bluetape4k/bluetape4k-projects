@@ -147,6 +147,19 @@ This manual targets release commit `6187173b58e8b4c5c435c145e00e94708f31ef75` fo
 
 Spring Boot auto-configuration and a Spring Cloud Stream binder are also outside the module. `nats-spring` is only a compile-time API edge; the application supplies the dependency and lifecycle configuration.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### nats Class Structure diagram
+
+[![nats Class Structure diagram](../../assets/readme-diagrams/infra-nats-diagram-01.png)](../../assets/readme-diagrams/infra-nats-diagram-01.svg)
+
+_Release README: [`infra/nats/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/nats/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources and tests {#sources}
 
 - [`build.gradle.kts`](../../../../infra/nats/build.gradle.kts)

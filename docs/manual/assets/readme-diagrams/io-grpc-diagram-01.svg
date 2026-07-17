@@ -1,0 +1,206 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1720" height="1040" viewBox="0 0 1720 1040" role="img" aria-label="gRPC Class Structure">
+  <defs>
+    <filter id="soft-shadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.10" />
+    </filter>
+    <marker id="hollow-green" viewBox="0 0 12 10" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 11 5 L 1 9 Z" fill="#ffffff" stroke="#16a34a" stroke-width="1.8" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" />
+    </marker>
+    <marker id="hollow-blue" viewBox="0 0 12 10" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 11 5 L 1 9 Z" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" />
+    </marker>
+    <marker id="open-purple" viewBox="0 0 18 18" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible">
+      <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
+    </marker>
+    <marker id="open-orange" viewBox="0 0 18 18" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible">
+      <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
+    </marker>
+    <style>
+      svg {
+        font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif;
+      }
+      .canvas { fill: #f8fafc; }
+      .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.6; filter: url(#soft-shadow); }
+      .title { font-family: "Architects Daughter", "Comic Mono", sans-serif; font-size: 44px; fill: #0f172a; }
+      .subtitle { font-family: "Comic Mono", monospace; font-size: 16px; fill: #475569; }
+      .panel { stroke-width: 1.7; }
+      .panel-title { font-family: "Architects Daughter", "Comic Mono", sans-serif; font-size: 26px; fill: #0f172a; }
+      .uml { filter: url(#soft-shadow); }
+      .box { fill: #ffffff; stroke-width: 1.8; }
+      .iface { fill: #f0fdf4; stroke: #16a34a; }
+      .server { fill: #eff6ff; stroke: #2563eb; }
+      .client { fill: #fff7ed; stroke: #ea580c; }
+      .inprocess { fill: #faf5ff; stroke: #7c3aed; }
+      .support { fill: #f8fafc; stroke: #64748b; }
+      .class-name { font-family: "Architects Daughter", "Comic Mono", sans-serif; font-size: 21px; fill: #0f172a; }
+      .class-name-long { font-family: "Architects Daughter", "Comic Mono", sans-serif; font-size: 18px; fill: #0f172a; }
+      .stereo { font-family: "Comic Mono", monospace; font-size: 12px; fill: #64748b; }
+      .member { font-family: "Comic Mono", monospace; font-size: 12.5px; fill: #475569; }
+      .rel { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .impl-green { stroke: #16a34a; stroke-width: 2.4; stroke-dasharray: 7 5; marker-end: url(#hollow-green); }
+      .impl-blue { stroke: #2563eb; stroke-width: 2.4; stroke-dasharray: 7 5; marker-end: url(#hollow-blue); }
+      .use-purple { stroke: #7c3aed; stroke-width: 2.4; stroke-dasharray: 7 5; marker-end: url(#open-purple); }
+      .use-orange { stroke: #ea580c; stroke-width: 2.4; stroke-dasharray: 7 5; marker-end: url(#open-orange); }
+      .label { font-family: "Comic Mono", monospace; font-size: 12px; fill: #475569; }
+      .legend { font-family: "Comic Mono", monospace; font-size: 13px; fill: #475569; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1720" height="1040" />
+  <rect class="frame" x="36" y="30" width="1648" height="980" rx="8" />
+  <text class="title" x="78" y="86">gRPC Class Structure</text>
+  <text class="subtitle" x="82" y="118">Server lifecycle classes implement GrpcServer; client bases own ManagedChannel lifecycle and close it safely.</text>
+
+  <rect class="panel" x="82" y="158" width="760" height="720" rx="8" fill="#eff6ff" stroke="#bfdbfe" />
+  <text class="panel-title" x="118" y="204">Server-side lifecycle</text>
+
+  <rect class="panel" x="878" y="158" width="760" height="720" rx="8" fill="#fff7ed" stroke="#fed7aa" />
+  <text class="panel-title" x="914" y="204">Client-side channel ownership</text>
+
+  <g class="uml" transform="translate(158 242)">
+    <rect class="box iface" width="250" height="118" rx="8" />
+    <line x1="0" y1="42" x2="250" y2="42" stroke="#16a34a" stroke-width="1.2" />
+    <text class="stereo" x="125" y="19" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+    <text class="class-name" x="125" y="36" text-anchor="middle">GrpcServer</text>
+    <text class="member" x="18" y="66">+ isRunning: Boolean</text>
+    <text class="member" x="18" y="86">+ start()</text>
+    <text class="member" x="18" y="106">+ stop() / close()</text>
+  </g>
+
+  <g class="uml" transform="translate(488 242)">
+    <rect class="box support" width="226" height="118" rx="8" />
+    <line x1="0" y1="42" x2="226" y2="42" stroke="#64748b" stroke-width="1.2" />
+    <text class="stereo" x="113" y="19" text-anchor="middle">&lt;&lt;external&gt;&gt;</text>
+    <text class="class-name" x="113" y="36" text-anchor="middle">ServerBuilder</text>
+    <text class="member" x="18" y="66">+ forPort(port)</text>
+    <text class="member" x="18" y="86">+ addService()</text>
+    <text class="member" x="18" y="106">+ build()</text>
+  </g>
+
+  <g class="uml" transform="translate(150 448)">
+    <rect class="box server" width="266" height="132" rx="8" />
+    <line x1="0" y1="42" x2="266" y2="42" stroke="#2563eb" stroke-width="1.2" />
+    <text class="class-name" x="133" y="30" text-anchor="middle">AbstractGrpcServer</text>
+    <text class="member" x="18" y="66">+ port</text>
+    <text class="member" x="18" y="86">+ serviceDefinitions</text>
+    <text class="member" x="18" y="106">+ start() / stop()</text>
+    <text class="member" x="18" y="124"># createServer()</text>
+  </g>
+
+  <g class="uml" transform="translate(150 668)">
+    <rect class="box inprocess" width="266" height="132" rx="8" />
+    <line x1="0" y1="42" x2="266" y2="42" stroke="#7c3aed" stroke-width="1.2" />
+    <text class="class-name-long" x="133" y="30" text-anchor="middle">AbstractGrpcInprocessServer</text>
+    <text class="member" x="18" y="66">+ name or port ctor</text>
+    <text class="member" x="18" y="86">+ start() / stop()</text>
+    <text class="member" x="18" y="106">+ shutdownNow fallback</text>
+    <text class="member" x="18" y="124">validates name/port</text>
+  </g>
+
+  <g class="uml" transform="translate(506 448)">
+    <rect class="box support" width="220" height="132" rx="8" />
+    <line x1="0" y1="42" x2="220" y2="42" stroke="#64748b" stroke-width="1.2" />
+    <text class="class-name" x="110" y="30" text-anchor="middle">ServerSupport</text>
+    <text class="member" x="18" y="66">+ grpcServerBuilder()</text>
+    <text class="member" x="18" y="86">+ grpcServer()</text>
+    <text class="member" x="18" y="106">validates port</text>
+  </g>
+
+  <g class="uml" transform="translate(506 668)">
+    <rect class="box support" width="220" height="132" rx="8" />
+    <line x1="0" y1="42" x2="220" y2="42" stroke="#64748b" stroke-width="1.2" />
+    <text class="class-name-long" x="110" y="30" text-anchor="middle">ServerInterceptorSupport</text>
+    <text class="member" x="18" y="66">+ echo headers()</text>
+    <text class="member" x="18" y="86">+ echo trailers()</text>
+    <text class="member" x="18" y="106">metadata propagation</text>
+  </g>
+
+  <path class="rel impl-green" d="M 283 448 L 283 372" style="marker-end:none" />
+<polygon points="289,384 283,372 277,384" fill="#ffffff" stroke="#16a34a" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="label" x="296" y="412">implements</text>
+  <path class="rel impl-green" d="M 283 668 L 283 650 Q 283 638 271 638 L 134 638 Q 120 638 120 624 L 120 426 Q 120 412 134 412 L 269 412 Q 283 412 283 398 L 283 372" style="marker-end:none" />
+<polygon points="289,384 283,372 277,384" fill="#ffffff" stroke="#16a34a" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="label" x="132" y="628">implements</text>
+  <path class="rel use-purple" d="M 506 514 L 444 514 Q 430 514 430 500 L 430 374 Q 430 360 444 360 L 488 360" style="marker-end:none" />
+<polyline points="476,366 488,360 476,354" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="label" x="432" y="496">uses</text>
+  <g class="uml" transform="translate(952 242)">
+    <rect class="box support" width="220" height="118" rx="8" />
+    <line x1="0" y1="42" x2="220" y2="42" stroke="#64748b" stroke-width="1.2" />
+    <text class="stereo" x="110" y="19" text-anchor="middle">&lt;&lt;external&gt;&gt;</text>
+    <text class="class-name" x="110" y="36" text-anchor="middle">Closeable</text>
+    <text class="member" x="18" y="66">+ close()</text>
+  </g>
+
+  <g class="uml" transform="translate(1288 242)">
+    <rect class="box support" width="230" height="118" rx="8" />
+    <line x1="0" y1="42" x2="230" y2="42" stroke="#64748b" stroke-width="1.2" />
+    <text class="stereo" x="115" y="19" text-anchor="middle">&lt;&lt;external&gt;&gt;</text>
+    <text class="class-name" x="115" y="36" text-anchor="middle">ManagedChannel</text>
+    <text class="member" x="18" y="66">+ shutdown()</text>
+    <text class="member" x="18" y="86">+ awaitTermination()</text>
+    <text class="member" x="18" y="106">+ shutdownNow()</text>
+  </g>
+
+  <g class="uml" transform="translate(940 448)">
+    <rect class="box client" width="270" height="132" rx="8" />
+    <line x1="0" y1="42" x2="270" y2="42" stroke="#ea580c" stroke-width="1.2" />
+    <text class="class-name" x="135" y="30" text-anchor="middle">AbstractGrpcClient</text>
+    <text class="member" x="18" y="66"># channel: ManagedChannel</text>
+    <text class="member" x="18" y="86">+ close()</text>
+    <text class="member" x="18" y="106">localhost:50051 default</text>
+    <text class="member" x="18" y="124">IO executor channel</text>
+  </g>
+
+  <g class="uml" transform="translate(940 668)">
+    <rect class="box inprocess" width="270" height="132" rx="8" />
+    <line x1="0" y1="42" x2="270" y2="42" stroke="#7c3aed" stroke-width="1.2" />
+    <text class="class-name-long" x="135" y="30" text-anchor="middle">AbstractGrpcInprocessClient</text>
+    <text class="member" x="18" y="66">+ name or address ctor</text>
+    <text class="member" x="18" y="86">+ close()</text>
+    <text class="member" x="18" y="106">validates host/name/port</text>
+    <text class="member" x="18" y="124">shutdownNow fallback</text>
+  </g>
+
+  <g class="uml" transform="translate(1292 448)">
+    <rect class="box support" width="226" height="132" rx="8" />
+    <line x1="0" y1="42" x2="226" y2="42" stroke="#64748b" stroke-width="1.2" />
+    <text class="class-name-long" x="113" y="30" text-anchor="middle">ManagedChannelSupport</text>
+    <text class="member" x="18" y="66">+ managedChannel(host,port)</text>
+    <text class="member" x="18" y="86">+ managedChannel(target)</text>
+    <text class="member" x="18" y="106">validates inputs</text>
+  </g>
+
+  <path class="rel impl-blue" d="M 1075 448 L 1075 372" style="marker-end:none" />
+<polygon points="1081,384 1075,372 1069,384" fill="#ffffff" stroke="#2563eb" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="label" x="1090" y="412">implements</text>
+  <path class="rel impl-blue" d="M 1075 668 L 1075 650 Q 1075 638 1063 638 L 924 638 Q 910 638 910 624 L 910 426 Q 910 412 924 412 L 1061 412 Q 1075 412 1075 398 L 1075 372" style="marker-end:none" />
+<polygon points="1081,384 1075,372 1069,384" fill="#ffffff" stroke="#2563eb" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="label" x="922" y="628">implements</text>
+  <path class="rel use-purple" d="M 1210 514 L 1282 514" style="marker-end:none" />
+<polyline points="1270,520 1282,514 1270,508" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="label" x="1230" y="500">owns</text>
+  <path class="rel use-purple" d="M 1210 734 L 1246 734 Q 1260 734 1260 720 L 1260 558 Q 1260 554 1264 554 L 1282 554" style="marker-end:none" />
+<polyline points="1270,560 1282,554 1270,548" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="label" x="1220" y="724">owns</text>
+  <path class="rel use-orange" d="M 1405 448 L 1405 372" style="marker-end:none" />
+<polyline points="1411,384 1405,372 1399,384" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="label" x="1420" y="412">builds</text>
+
+  <g transform="translate(118 938)">
+    <line x1="0" y1="0" x2="34" y2="0" stroke="#16a34a" stroke-width="2.4" stroke-dasharray="7 5" />
+<polygon points="13,9 34,0 13,-9" fill="#FFFFFF" stroke="#16a34a" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+    <text class="legend" x="52" y="5">implements GrpcServer</text>
+    <line x1="270" y1="0" x2="304" y2="0" stroke="#2563eb" stroke-width="2.4" stroke-dasharray="7 5" />
+<polygon points="283,9 304,0 283,-9" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+    <text class="legend" x="322" y="5">implements Closeable</text>
+    <line x1="540" y1="0" x2="574" y2="0" stroke="#7c3aed" stroke-width="2.4" stroke-dasharray="7 5" />
+
+    <polyline points="556,8 574,0 556,-8" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+    <text class="legend" x="592" y="5">owns/uses runtime object</text>
+    <line x1="840" y1="0" x2="874" y2="0" stroke="#ea580c" stroke-width="2.4" stroke-dasharray="7 5" />
+
+    <polyline points="856,8 874,0 856,-8" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+    <text class="legend" x="892" y="5">builds builder/channel</text>
+  </g>
+</svg>

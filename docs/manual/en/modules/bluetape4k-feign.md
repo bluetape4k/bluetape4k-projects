@@ -114,6 +114,37 @@ No dedicated workshop path is registered in the manual manifest. Use the module 
 
 This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### Overall Architecture: Feign + Coroutines Integration diagram
+
+[![Overall Architecture: Feign + Coroutines Integration diagram](../../assets/readme-diagrams/io-feign-diagram-01.png)](../../assets/readme-diagrams/io-feign-diagram-01.svg)
+
+_Release README: [`io/feign/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/feign/README.md)_
+
+### Class Structure: Feign + Coroutines diagram
+
+[![Class Structure: Feign + Coroutines diagram](../../assets/readme-diagrams/io-feign-diagram-02.png)](../../assets/readme-diagrams/io-feign-diagram-02.svg)
+
+_Release README: [`io/feign/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/feign/README.md)_
+
+### HTTP Transport Layer Options diagram
+
+[![HTTP Transport Layer Options diagram](../../assets/readme-diagrams/io-feign-diagram-03.png)](../../assets/readme-diagrams/io-feign-diagram-03.svg)
+
+_Release README: [`io/feign/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/feign/README.md)_
+
+### Suspend Function HTTP Request Flow diagram
+
+[![Suspend Function HTTP Request Flow diagram](../../assets/readme-diagrams/io-feign-sequence-01.png)](../../assets/readme-diagrams/io-feign-sequence-01.svg)
+
+_Release README: [`io/feign/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/feign/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources {#sources}
 
 - [Module README](../../../../io/feign/README.md)

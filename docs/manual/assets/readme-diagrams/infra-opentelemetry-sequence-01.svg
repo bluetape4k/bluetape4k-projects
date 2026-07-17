@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1380" viewBox="0 0 1680 1380" role="img" aria-labelledby="title desc">
+<title id="title">span lifecycle in coroutine context</title>
+<desc id="desc">Tracer.withSpan creates a SpanBuilder, starts one Span, installs it into the coroutine OpenTelemetry context, runs work, records completion or failure, and always ends the Span.</desc>
+<defs><style>
+  .title{font-family:"Architects Daughter";font-size:42px;fill:#1F2937}
+  .subtitle,.msg,.role,.note,.footer{font-family:"Comic Mono";fill:#536476}
+  .subtitle{font-size:18px}.participant{font-family:"Architects Daughter";font-size:22px;fill:#1F2937}
+  .role{font-size:13px}.msg{font-size:14px}.note{font-size:13px}.footer{font-size:14px;fill:#60727d}
+  .frame{fill:#FEFEFC;stroke:#546E7A;stroke-width:2.5}.inner{fill:#FFFFFF;stroke:#D6E3EF;stroke-width:2}
+  .lifeline{stroke:#A8B8C8;stroke-width:2;stroke-dasharray:8 8}
+  .activation{rx:6;stroke-width:1.6}.pill{fill:#FFFFFF;stroke-width:1.5}.badge{font-family:"Comic Mono";font-size:12px;font-weight:700;fill:#FFFFFF}
+  .alt{fill:#FFFFFF;fill-opacity:.12;stroke:#78909C;stroke-width:2.6;stroke-dasharray:12 8}
+
+    /* sequence-style: spring-boot-cassandra-sequence-01 */
+    .title{font-family:"Architects Daughter";fill:#263238}.subtitle,.msg,.note,.footer,.detail,.role{font-family:"Comic Mono";fill:#36464f}.subtitle{font-size:16px}text.participant,.cardTitle{font-family:"Architects Daughter";fill:#1f3138}.role{fill:#546a73}.frame{fill:#fbfcf8;stroke:#41545d;stroke-width:3}.inner,.panel{fill:#ffffff;stroke:#d7e0e4;stroke-width:2}.header,.card{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}.actor{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}rect.participant{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}.lifeline{stroke:#9aaab1;stroke-width:2;stroke-dasharray:7 8}.activation{fill:#e6f2ec!important;stroke:#5b7e67!important;stroke-width:1.5}.seq,.call{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.work,.crypto{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.async{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.seqReturn,.return{fill:none;stroke-width:2.5;stroke-dasharray:8 6;stroke-linecap:round;stroke-linejoin:round}.fail,.skip{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.alt,.altBox{fill:#eef7f0;fill-opacity:.12;stroke:#78909c;stroke-width:2.4;stroke-dasharray:12 7}.divider,.branchDivider{stroke:#78909c;stroke-width:2.4;stroke-dasharray:12 8}rect.label,.labelPill,.pill{fill:#ffffff;stroke:#d7e0e4;stroke-width:1.3}.callLabel{stroke:#9cc2d1}.workLabel,.cryptoLabel{stroke:#b6c9a4}.returnLabel{stroke:#c8b38f}.asyncLabel{stroke:#b8a9d5}.failLabel{stroke:#d9abab}.callBadge{fill:#eaf4f8;stroke:#3f7d9c}.workBadge,.cryptoBadge{fill:#eef7f0;stroke:#6e8f4f}.returnBadge{fill:#fff7e8;stroke:#9b7d54}.asyncBadge{fill:#f3ecff;stroke:#7c5aa6}.failBadge{fill:#fff0f0;stroke:#b86868}text.label{font-family:"Comic Mono";font-size:14px;font-weight:700;stroke:none}.badgeText{font-family:"Comic Mono";font-size:12px;font-weight:700}.callText{fill:#2f6f8e}.workText,.cryptoText{fill:#55783f}.returnText{fill:#7f6038}.asyncText{fill:#674b91}.failText{fill:#9d4f4f}.footer{fill:#60727d}
+  </style>  <marker id="arrow1-4F83BF" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#4F83BF" stroke="#4F83BF" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow2-2F9E6B" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3E9868" stroke="#3E9868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow3-D08A2D" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" stroke="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow4-D08A2D" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" stroke="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow5-C15A7A" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C94D68" stroke="#C94D68" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow6-2E9C9B" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89" stroke="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrowSelf7-2F9E6B" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3E9868" stroke="#3E9868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrowSelf8-52616B" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#536476" stroke="#536476" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrowSelf9-C15A5A" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C94D68" stroke="#C94D68" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow10-2E9C9B" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89" stroke="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+</defs>
+<rect x="24" y="24" width="1632" height="1332" rx="22" class="frame"/>
+<text x="840" y="78" text-anchor="middle" class="title">Span Lifecycle in a Coroutine Context</text>
+<text x="840" y="110" text-anchor="middle" class="subtitle">One Span is installed into coroutine OTel context, then ended after normal, cancelled, or failed work.</text>
+<rect x="58" y="140" width="1564" height="1168" rx="18" class="inner"/>
+<rect x="100" y="160" width="190" height="76" rx="12" fill="#EAF4F8" stroke="#4F83BF" stroke-width="2.4"/>
+<text x="195" y="190" text-anchor="middle" class="participant">Caller</text>
+<text x="195" y="214" text-anchor="middle" class="role">suspend service</text>
+<line x1="195" y1="236" x2="195" y2="1260" class="lifeline"/>
+<rect x="360" y="160" width="190" height="76" rx="12" fill="#EEF7F0" stroke="#3E9868" stroke-width="2.4"/>
+<text x="455" y="190" text-anchor="middle" class="participant">Tracer</text>
+<text x="455" y="214" text-anchor="middle" class="role">withSpan DSL</text>
+<line x1="455" y1="236" x2="455" y2="1260" class="lifeline"/>
+<rect x="620" y="160" width="210" height="76" rx="12" fill="#FFF7E8" stroke="#B9851B" stroke-width="2.4"/>
+<text x="725" y="190" text-anchor="middle" class="participant">SpanBuilder</text>
+<text x="725" y="214" text-anchor="middle" class="role">configured span</text>
+<line x1="725" y1="236" x2="725" y2="1260" class="lifeline"/>
+<rect x="900" y="160" width="190" height="76" rx="12" fill="#EAF7F6" stroke="#2E8F89" stroke-width="2.4"/>
+<text x="995" y="190" text-anchor="middle" class="participant">Span</text>
+<text x="995" y="214" text-anchor="middle" class="role">status + end</text>
+<line x1="995" y1="236" x2="995" y2="1260" class="lifeline"/>
+<rect x="1160" y="160" width="210" height="76" rx="12" fill="#F3ECFF" stroke="#755BC6" stroke-width="2.4"/>
+<text x="1265" y="190" text-anchor="middle" class="participant">OTel Context</text>
+<text x="1265" y="214" text-anchor="middle" class="role">coroutine element</text>
+<line x1="1265" y1="236" x2="1265" y2="1260" class="lifeline"/>
+<rect x="1440" y="160" width="190" height="76" rx="12" fill="#FFF0F0" stroke="#C94D68" stroke-width="2.4"/>
+<text x="1535" y="190" text-anchor="middle" class="participant">Coroutine Work</text>
+<text x="1535" y="214" text-anchor="middle" class="role">user block</text>
+<line x1="1535" y1="236" x2="1535" y2="1260" class="lifeline"/>
+<rect x="447" y="300" width="16" height="862" rx="6" fill="#EEF7F0" stroke="#3E9868" class="activation"/>
+<rect x="717" y="382" width="16" height="125" rx="6" fill="#FFF7E8" stroke="#B9851B" class="activation"/>
+<rect x="987" y="502" width="16" height="660" rx="6" fill="#EAF7F6" stroke="#2E8F89" class="activation"/>
+<rect x="1257" y="640" width="16" height="260" rx="6" fill="#F3ECFF" stroke="#755BC6" class="activation"/>
+<rect x="1527" y="720" width="16" height="130" rx="6" fill="#FFF0F0" stroke="#C94D68" class="activation"/>
+<marker id="arrow1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#4F83BF" stroke="#4F83BF" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 206 320 L 444 320" fill="none" stroke="#4F83BF" stroke-width="3.2" marker-end="url(#arrow1-4F83BF)"/>
+<rect x="190" y="269" width="300" height="34" rx="17" class="pill" stroke="#4F83BF"/>
+<circle cx="214" cy="286" r="13" fill="#EAF4F8" stroke="#4F83BF"/><text fill="#4F83BF" x="214" y="290" text-anchor="middle" class="badge">1</text>
+<text x="238" y="291" class="msg" fill="#4F83BF">withSpan("operation") { ... }</text>
+<marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3E9868" stroke="#3E9868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 466 410 L 714 410" fill="none" stroke="#3E9868" stroke-width="3.2" marker-end="url(#arrow2-2F9E6B)"/>
+<rect x="465" y="359" width="330" height="34" rx="17" class="pill" stroke="#3E9868"/>
+<circle cx="489" cy="376" r="13" fill="#FBFCF8" stroke="#3E9868"/><text fill="#3E9868" x="489" y="380" text-anchor="middle" class="badge">2</text>
+<text x="513" y="381" class="msg" fill="#3E9868">spanBuilder(name).apply(configure)</text>
+<marker id="arrow3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" stroke="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 736 520 L 984 520" fill="none" stroke="#B9851B" stroke-width="3.2" marker-end="url(#arrow3-D08A2D)"/>
+<rect x="700" y="469" width="180" height="34" rx="17" class="pill" stroke="#B9851B"/>
+<circle cx="724" cy="486" r="13" fill="#FBFCF8" stroke="#B9851B"/><text fill="#B9851B" x="724" y="490" text-anchor="middle" class="badge">3</text>
+<text x="748" y="491" class="msg" fill="#B9851B">startSpan()</text>
+<marker id="arrow4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" stroke="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 1006 650 L 1254 650" fill="none" stroke="#B9851B" stroke-width="3.2" marker-end="url(#arrow4-D08A2D)"/>
+<rect x="945" y="599" width="340" height="34" rx="17" class="pill" stroke="#B9851B"/>
+<circle cx="969" cy="616" r="13" fill="#FBFCF8" stroke="#B9851B"/><text fill="#B9851B" x="969" y="620" text-anchor="middle" class="badge">4</text>
+<text x="993" y="621" class="msg" fill="#B9851B">storeInContext + asContextElement</text>
+<marker id="arrow5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C94D68" stroke="#C94D68" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 1276 730 L 1524 730" fill="none" stroke="#C94D68" stroke-width="3.2" marker-end="url(#arrow5-C15A7A)"/>
+<rect x="1205" y="679" width="210" height="34" rx="17" class="pill" stroke="#C94D68"/>
+<circle cx="1229" cy="696" r="13" fill="#FBFCF8" stroke="#C94D68"/><text fill="#C94D68" x="1229" y="700" text-anchor="middle" class="badge">5</text>
+<text x="1253" y="701" class="msg" fill="#C94D68">withContext(...)</text>
+<marker id="arrow6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89" stroke="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 1524 850 L 1006 850" fill="none" stroke="#2E8F89" stroke-width="2.8" stroke-dasharray="10 8"/>
+<polygon points="1018,844 1006,850 1018,856" fill="#2E8F89" stroke="#2E8F89" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<rect x="1120" y="799" width="220" height="34" rx="17" class="pill" stroke="#2E8F89"/>
+<circle cx="1144" cy="816" r="13" fill="#FBFCF8" stroke="#2E8F89"/><text fill="#2E8F89" x="1144" y="820" text-anchor="middle" class="badge">6</text>
+<text x="1168" y="821" class="msg" fill="#2E8F89">block returns value</text>
+<rect x="96" y="930" width="1488" height="232" rx="15" class="alt"/>
+<rect x="118" y="954" width="240" height="30" rx="15" fill="#EEF7F0" stroke="#3E9868" stroke-width="1.6"/>
+<text x="140" y="974" class="note">normal completion</text>
+<line x1="96" y1="1016" x2="1584" y2="1016" stroke="#78909C" stroke-width="2.2" stroke-dasharray="12 8"/>
+<rect x="118" y="1038" width="260" height="30" rx="15" fill="#FBFCF8" stroke="#536476" stroke-width="1.6"/>
+<text x="140" y="1058" class="note">cancellation</text>
+<line x1="96" y1="1092" x2="1584" y2="1092" stroke="#78909C" stroke-width="2.2" stroke-dasharray="12 8"/>
+<rect x="118" y="1114" width="250" height="30" rx="15" fill="#FFF0F0" stroke="#C94D68" stroke-width="1.6"/>
+<text x="140" y="1134" class="note">other Throwable</text>
+<marker id="arrowSelf7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3E9868" stroke="#3E9868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 1009 965 L 1077 965 Q 1091 965 1091 979 L 1091 989 Q 1091 1003 1077 1003 L 1017 1003" fill="none" stroke="#3E9868" stroke-width="3.0" marker-end="url(#arrowSelf7-2F9E6B)" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="1040" y="918" width="185" height="34" rx="17" class="pill" stroke="#3E9868"/>
+<circle cx="1064" cy="935" r="13" fill="#FBFCF8" stroke="#3E9868"/><text fill="#3E9868" x="1064" y="939" text-anchor="middle" class="badge">7</text>
+<text x="1088" y="940" class="msg" fill="#3E9868">setStatus(OK)</text>
+<marker id="arrowSelf8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#536476" stroke="#536476" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 1009 1048 L 1077 1048 Q 1091 1048 1091 1062 L 1091 1072 Q 1091 1086 1077 1086 L 1017 1086" fill="none" stroke="#536476" stroke-width="3.0" marker-end="url(#arrowSelf8-52616B)" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="1040" y="1001" width="230" height="34" rx="17" class="pill" stroke="#536476"/>
+<circle cx="1064" cy="1018" r="13" fill="#FBFCF8" stroke="#536476"/><text fill="#536476" x="1064" y="1022" text-anchor="middle" class="badge">8</text>
+<text x="1088" y="1023" class="msg" fill="#536476">leave status UNSET</text>
+<marker id="arrowSelf9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C94D68" stroke="#C94D68" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 1009 1128 L 1077 1128 Q 1091 1128 1091 1142 L 1091 1152 Q 1091 1166 1077 1166 L 1017 1166" fill="none" stroke="#C94D68" stroke-width="3.0" marker-end="url(#arrowSelf9-C15A5A)" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="1015" y="1081" width="265" height="34" rx="17" class="pill" stroke="#C94D68"/>
+<circle cx="1039" cy="1098" r="13" fill="#FBFCF8" stroke="#C94D68"/><text fill="#C94D68" x="1039" y="1102" text-anchor="middle" class="badge">9</text>
+<text x="1063" y="1103" class="msg" fill="#C94D68">recordException + ERROR</text>
+<marker id="arrow10" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89" stroke="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 984 1210 L 206 1210" fill="none" stroke="#2E8F89" stroke-width="2.8" stroke-dasharray="10 8"/>
+<polygon points="218,1204 206,1210 218,1216" fill="#2E8F89" stroke="#2E8F89" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<rect x="560" y="1159" width="360" height="34" rx="17" class="pill" stroke="#2E8F89"/>
+<circle cx="584" cy="1176" r="13" fill="#FBFCF8" stroke="#2E8F89"/><text fill="#2E8F89" x="584" y="1180" text-anchor="middle" class="badge">10</text>
+<text x="608" y="1181" class="msg" fill="#2E8F89">end() in finally, then return or rethrow</text>
+<rect x="96" y="1252" width="1488" height="48" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+<text x="840" y="1282" text-anchor="middle" class="footer">waitTimeout overloads stay for compatibility; the current implementation ends the Span immediately.</text>
+</svg>

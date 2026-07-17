@@ -115,3 +115,28 @@ keyspace create/drop은 실제 cluster side effect입니다. 운영 권한과 re
 - [`StatementSupport.kt`](../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/StatementSupport.kt)
 - [`CqlSessionProviderTest.kt`](../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/CqlSessionProviderTest.kt)
 - [`CqlSessionSupportTest.kt`](../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/CqlSessionSupportTest.kt)
+
+<!-- release-readme-diagrams:start -->
+## 배포본 다이어그램 {#release-diagrams}
+
+아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+
+### 확장 함수 API 개요 다이어그램
+
+[![확장 함수 API 개요 다이어그램](../../assets/readme-diagrams/data-cassandra-diagram-01.png)](../../assets/readme-diagrams/data-cassandra-diagram-01.svg)
+
+_배포본 README: [`data/cassandra/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/cassandra/README.ko.md)_
+
+### 주요 API 구조 다이어그램
+
+[![주요 API 구조 다이어그램](../../assets/readme-diagrams/data-cassandra-diagram-02.png)](../../assets/readme-diagrams/data-cassandra-diagram-02.svg)
+
+_배포본 README: [`data/cassandra/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/cassandra/README.ko.md)_
+
+### 비동기 쿼리 실행 흐름 다이어그램
+
+[![비동기 쿼리 실행 흐름 다이어그램](../../assets/readme-diagrams/data-cassandra-sequence-01.png)](../../assets/readme-diagrams/data-cassandra-sequence-01.svg)
+
+_배포본 README: [`data/cassandra/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/cassandra/README.ko.md)_
+
+<!-- release-readme-diagrams:end -->

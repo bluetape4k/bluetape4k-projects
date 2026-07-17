@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1340 820" width="1340" height="820">
+<style>
+  text { font-family: 'Architects Daughter', 'Comic Mono', 'Comic Sans MS', sans-serif; letter-spacing: 0; }
+</style>
+<defs>
+  <marker id="arrow-blue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M 0 0 L 14 7 L 0 14 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
+  </marker>
+  <marker id="arrow-green" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M 0 0 L 14 7 L 0 14 Z" fill="#16a34a" stroke="#16a34a" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
+  </marker>
+  <marker id="arrow-purple" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M 0 0 L 14 7 L 0 14 Z" fill="#9333ea" stroke="#9333ea" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
+  </marker>
+  <marker id="arrow-orange" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M 0 0 L 14 7 L 0 14 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
+  </marker>
+</defs>
+<rect width="1340" height="820" fill="#ffffff"/>
+<text x="670" y="42" fill="#111827" font-size="28" font-weight="700" text-anchor="middle" >Kafka API Structure</text>
+<text x="670" y="70" fill="#6b7280" font-size="14" font-weight="500" text-anchor="middle" >Kotlin client helpers, coroutine bridges, codecs, Spring adapters, and Streams DSL wrappers around Apache Kafka</text>
+<rect x="48" y="104" width="220" height="612" rx="14" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1.6"/>
+<text x="70" y="134" fill="#111827" font-size="15" font-weight="700" text-anchor="start" >Application code</text>
+<text x="70" y="156" fill="#6b7280" font-size="12" font-weight="500" text-anchor="start" >uses small Kotlin entrypoints</text>
+<rect x="304" y="104" width="660" height="612" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.6"/>
+<text x="326" y="134" fill="#111827" font-size="15" font-weight="700" text-anchor="start" >bluetape4k-kafka module</text>
+<text x="326" y="156" fill="#6b7280" font-size="12" font-weight="500" text-anchor="start" >source-backed API groups</text>
+<rect x="1004" y="104" width="300" height="612" rx="14" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.6"/>
+<text x="1026" y="134" fill="#111827" font-size="15" font-weight="700" text-anchor="start" >Kafka runtime</text>
+<text x="1026" y="156" fill="#6b7280" font-size="12" font-weight="500" text-anchor="start" >external broker and topics</text>
+<g id="app">
+<rect x="82" y="356" width="152" height="136" rx="10" fill="#ffffff" stroke="#d1d5db" stroke-width="1.8"/>
+<text x="102" y="387" fill="#111827" font-size="17" font-weight="700" text-anchor="start" >User code</text>
+<text x="102" y="414" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >builds records</text>
+<text x="102" y="432" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >selects codecs</text>
+<text x="102" y="450" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >collects flows</text>
+</g>
+<g id="clients">
+<rect x="344" y="170" width="256" height="132" rx="10" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.8"/>
+<text x="364" y="201" fill="#111827" font-size="17" font-weight="700" text-anchor="start" >Client factories</text>
+<text x="364" y="228" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >producerOf(...)</text>
+<text x="364" y="246" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >consumerOf(...)</text>
+<text x="364" y="264" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >TopicPartition helpers</text>
+</g>
+<g id="coroutines">
+<rect x="644" y="170" width="276" height="132" rx="10" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.8"/>
+<text x="664" y="201" fill="#111827" font-size="17" font-weight="700" text-anchor="start" >Coroutine producer</text>
+<text x="664" y="228" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >suspendSend awaits callback</text>
+<text x="664" y="246" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >sendAsFlow buffers results</text>
+<text x="664" y="264" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >cancels pending Future</text>
+</g>
+<g id="codecs">
+<rect x="344" y="366" width="256" height="150" rx="10" fill="#faf5ff" stroke="#ddd6fe" stroke-width="1.8"/>
+<text x="364" y="397" fill="#111827" font-size="17" font-weight="700" text-anchor="start" >KafkaCodecs</text>
+<text x="364" y="424" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >String / ByteArray / Jackson</text>
+<text x="364" y="442" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >Kryo, Fory and compression</text>
+<text x="364" y="460" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >type header allowlist guard</text>
+</g>
+<g id="spring">
+<rect x="644" y="366" width="276" height="150" rx="10" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.8"/>
+<text x="664" y="397" fill="#111827" font-size="17" font-weight="700" text-anchor="start" >Spring coroutine bridge</text>
+<text x="664" y="424" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >KafkaOperations.suspendSend</text>
+<text x="664" y="442" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >Suspend producer template</text>
+<text x="664" y="460" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >Suspend consumer template</text>
+</g>
+<g id="streams">
+<rect x="344" y="590" width="576" height="100" rx="10" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.8"/>
+<text x="364" y="621" fill="#111827" font-size="17" font-weight="700" text-anchor="start" >Streams DSL helpers</text>
+<text x="364" y="648" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >consumedOf, producedOf, groupedOf, materializedOf, joinedOf, windowedOf</text>
+</g>
+<g id="runtime">
+<rect x="1034" y="340" width="250" height="168" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="1.8"/>
+<image data-bluetape4k-icon="testcontainers/mq/apache-kafka.svg" href="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRDIyMTI4IiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+QXBhY2hlIEthZmthPC90aXRsZT48cGF0aCBkPSJNOS43MSAyLjEzNmExLjQzIDEuNDMgMCAwIDAtMi4wNDcgMGgtLjAwN2ExLjQ4IDEuNDggMCAwIDAtLjQyMSAxLjA0MmMwIC40MS4xNjEuNzc3LjQyMiAxLjAzOWwuMDA3LjAwN2MuMjU3LjI2NC42MTYuNDI2IDEuMDE5LjQyNi40MDQgMCAuNzY2LS4xNjIgMS4wMjctLjQyNmwuMDAzLS4wMDdjLjI2MS0uMjYyLjQyMS0uNjI5LjQyMS0xLjAzOSAwLS40MDgtLjE1OS0uNzc3LS40MjEtMS4wNDJIOS43MXpNOC42ODMgMjIuMjk1Yy40MDQgMCAuNzY2LS4xNjcgMS4wMjctLjQyOWwuMDAzLS4wMDhjLjI2MS0uMjYxLjQyMS0uNjMxLjQyMS0xLjAzNiAwLS40MS0uMTU5LS43NzgtLjQyMS0xLjA0NEg5LjcxYTEuNDIgMS40MiAwIDAgMC0xLjAyNy0uNDMyIDEuNCAxLjQgMCAwIDAtMS4wMi40MzJoLS4wMDdjLS4yNi4yNjYtLjQyMi42MzQtLjQyMiAxLjA0NCAwIC40MDYuMTYxLjc3NS40MjIgMS4wMzZsLjAwNy4wMDhjLjI1OC4yNjIuNjE3LjQyOSAxLjAyLjQyOXptNy44OS00LjQ2MmMuMzU5LS4wOTYuNjgzLS4zMy44ODItLjY4NGwuMDI3LS4wNTJhMS40NyAxLjQ3IDAgMCAwIC4xMTQtMS4wNjcgMS40NTQgMS40NTQgMCAwIDAtLjY3NS0uODk2bC0uMDIxLS4wMTRhMS40MjUgMS40MjUgMCAwIDAtMS4wNzgtLjEzMmMtLjM2LjA5MS0uNjg0LjMzNS0uODgxLjY4Ni0uMi4zNDktLjI0MS43NS0uMTQ2IDEuMTE5LjA5OS4zNjMuMzMuNjkxLjY3NS44OTZoLjAwMmMuMzQ2LjIwMy43MzcuMjM5IDEuMTAxLjE0NHptLTYuNDA1LTcuMzQyYTIuMDgzIDIuMDgzIDAgMCAwLTEuNDg1LS42MjdjLS41OCAwLTEuMTAzLjI0Mi0xLjQ4Mi42MjctLjM3OC4zODUtLjYxMi45MTYtLjYxMiAxLjUwN3MuMjMzIDEuMTI0LjYxMiAxLjUxNGEyLjA4IDIuMDggMCAwIDAgMi45NjcgMGMuMzc5LS4zOS42MTItLjkyMy42MTItMS41MTRzLS4yMzMtMS4xMjItLjYxMi0xLjUwN3ptLS44MzUtMi41MWMuODQzLjE0MSAxLjYuNTUyIDIuMTc4IDEuMTQ0aC4wMDRjLjA5Mi4wOTMuMTgyLjE5Ni4yNjUuMjk5bDEuNDQ2LS44NTFhMy4xNzYgMy4xNzYgMCAwIDEtLjA0Ny0xLjgwOCAzLjE0OSAzLjE0OSAwIDAgMSAxLjQ1Ni0xLjkyNmwuMDI1LS4wMTZhMy4wNjIgMy4wNjIgMCAwIDEgMi4zNDUtLjMwNmMuNzcuMjEgMS40NjUuNzIxIDEuODk4IDEuNDgydi4wMDJjLjQzMS43NTcuNTE4IDEuNjI2LjMxMyAyLjQwOGEzLjE0NSAzLjE0NSAwIDAgMS0xLjQ1NiAxLjkyOGwtLjE5OC4xMThoLS4wMmEzLjA5NSAzLjA5NSAwIDAgMS0yLjE1NC4yMDEgMy4xMjcgMy4xMjcgMCAwIDEtMS41MTQtLjk0NGwtMS40NDQuODQ4YTQuMTYyIDQuMTYyIDAgMCAxIDAgMi44NzlsMS40NDQuODQ2Yy40MTMtLjQ3LjkzOS0uNzg5IDEuNTE0LS45NDRhMy4wNDEgMy4wNDEgMCAwIDEgMi4zNzEuMzE5bC4wNDguMDIzdi4wMDJhMy4xNyAzLjE3IDAgMCAxIDEuNDA4IDEuOTA2IDMuMjE1IDMuMjE1IDAgMCAxLS4zMTMgMi40MDVsLS4wMjYuMDUzLS4wMDMtLjAwNWEzLjE0NyAzLjE0NyAwIDAgMS0xLjg2NyAxLjQzNiAzLjA5NiAzLjA5NiAwIDAgMS0yLjM3MS0uMzE4di0uMDA2YTMuMTU2IDMuMTU2IDAgMCAxLTEuNDU2LTEuOTI3IDMuMTc1IDMuMTc1IDAgMCAxIC4wNDctMS44MDVsLTEuNDQ2LS44NDhhMy45MDUgMy45MDUgMCAwIDEtLjI2NS4yOTRsLS4wMDQuMDA1YTMuOTM4IDMuOTM4IDAgMCAxLTIuMTc4IDEuMTM4djEuNjk5YTMuMDkgMy4wOSAwIDAgMSAxLjU2Ljg2MmwuMDAyLjAwNGMuNTY1LjU3Mi45MTQgMS4zNjguOTE0IDIuMjQzIDAgLjg3My0uMzUgMS42NjQtLjkxNCAyLjIzOWwtLjAwMi4wMDlhMy4xIDMuMSAwIDAgMS0yLjIxLjkzMSAzLjEgMy4xIDAgMCAxLTIuMjA2LS45M2gtLjAwMnYtLjAwOWEzLjE4NiAzLjE4NiAwIDAgMS0uOTE2LTIuMjM5YzAtLjg3NS4zNS0xLjY3Mi45MTYtMi4yNDN2LS4wMDRoLjAwMmEzLjEgMy4xIDAgMCAxIDEuNTU4LS44NjJ2LTEuNjk5YTMuOTI2IDMuOTI2IDAgMCAxLTIuMTc2LTEuMTM4bC0uMDA2LS4wMDVhNC4wOTggNC4wOTggMCAwIDEtMS4xNzMtMi44NzRjMC0xLjEyMi40NTItMi4xMzYgMS4xNzMtMi44NzJoLjAwNmEzLjk0NyAzLjk0NyAwIDAgMSAyLjE3Ni0xLjE0NFY2LjI4OWEzLjEzNyAzLjEzNyAwIDAgMS0xLjU1OC0uODY0aC0uMDAydi0uMDA0YTMuMTkyIDMuMTkyIDAgMCAxLS45MTYtMi4yNDNjMC0uODcxLjM1LTEuNjY5LjkxNi0yLjI0M2wuMDAyLS4wMDJBMy4wODQgMy4wODQgMCAwIDEgOC42ODMgMGMuODYxIDAgMS42NDEuMzU1IDIuMjEuOTMydi4wMDJoLjAwMmMuNTY1LjU3NC45MTQgMS4zNzIuOTE0IDIuMjQzIDAgLjg3Ni0uMzUgMS42NjctLjkxNCAyLjI0M2wtLjAwMi4wMDVhMy4xNDIgMy4xNDIgMCAwIDEtMS41Ni44NjR2MS42OTJ6bTguMTIxLTEuMTI5bC0uMDEyLS4wMTlhMS40NTIgMS40NTIgMCAwIDAtLjg3LS42NjggMS40MyAxLjQzIDAgMCAwLTEuMTAzLjE0NmguMDAyYy0uMzQ3LjItLjU4LjUyOS0uNjc3Ljg5Ni0uMDk1LjM2NS0uMDU0Ljc2OC4xNDYgMS4xMTlsLjAwNy4wMDljLjIuMzQ3LjUxOS41NzkuODc0LjY3My4zNTcuMTAzLjc1NS4wNTkgMS4wOTgtLjE0NGwuMDE5LS4wMDlhMS40NyAxLjQ3IDAgMCAwIC42NTctLjg4NSAxLjQ5MyAxLjQ5MyAwIDAgMC0uMTQxLTEuMTE4Ii8+PC9zdmc+" x="1052" y="363" width="52" height="52" preserveAspectRatio="xMidYMid meet"/>
+<text x="1112" y="371" fill="#111827" font-size="17" font-weight="700" text-anchor="start" >Apache Kafka</text>
+<text x="1112" y="398" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >brokers</text>
+<text x="1112" y="416" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >topics</text>
+<text x="1112" y="434" fill="#4b5563" font-size="13" font-weight="500" text-anchor="start" >partitions</text>
+</g>
+<path id="app-clients" d="M 234 392 L 278 392 Q 292 392 292 378 L 292 250 Q 292 236 306 236 L 344 236" fill="none" stroke="#2563eb" stroke-width="3.6"  marker-end="url(#arrow-blue)" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="274.5" y="288" width="35" height="22" rx="6" fill="#ffffff" opacity="0.94"/>
+<text x="292" y="304" fill="#2563eb" font-size="12" font-weight="700" text-anchor="middle" >create</text>
+<path id="app-codecs" d="M 234 424 H 344" fill="none" stroke="#9333ea" stroke-width="3.6"  marker-end="url(#arrow-purple)" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="269.25" y="396" width="45.5" height="22" rx="6" fill="#ffffff" opacity="0.94"/>
+<text x="292" y="412" fill="#9333ea" font-size="12" font-weight="700" text-anchor="middle" >serialize</text>
+<path id="app-streams" d="M 234 462 L 274 462 Q 288 462 288 476 L 288 626 Q 288 640 302 640 L 344 640" fill="none" stroke="#16a34a" stroke-width="3.6"  marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="267" y="536" width="42" height="22" rx="6" fill="#ffffff" opacity="0.94"/>
+<text x="288" y="552" fill="#16a34a" font-size="12" font-weight="700" text-anchor="middle" >topology</text>
+<path id="clients-runtime" d="M 600 236 L 612 236 Q 622 236 622 226 L 622 108 Q 622 94 636 94 L 1196 94 Q 1210 94 1210 108 L 1210 302 Q 1210 316 1196 316 L 1128 316 Q 1118 316 1118 326 L 1118 340" fill="none" stroke="#2563eb" stroke-width="3.4"  marker-end="url(#arrow-blue)" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="820" y="76" width="56" height="22" rx="6" fill="#ffffff" opacity="0.94"/>
+<text x="848" y="92" fill="#2563eb" font-size="12" font-weight="700" text-anchor="middle" >client calls</text>
+<path id="coroutines-runtime" d="M 920 236 L 972 236 Q 986 236 986 250 L 986 362 Q 986 376 1000 376 L 1034 376" fill="none" stroke="#16a34a" stroke-width="3.6"  marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="961.5" y="290" width="49" height="22" rx="6" fill="#ffffff" opacity="0.94"/>
+<text x="986" y="306" fill="#16a34a" font-size="12" font-weight="700" text-anchor="middle" >await send</text>
+<path id="spring-runtime" d="M 920 421 H 1034" fill="none" stroke="#ea580c" stroke-width="3.6"  marker-end="url(#arrow-orange)" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="944.25" y="393" width="59.5" height="22" rx="6" fill="#ffffff" opacity="0.94"/>
+<text x="974" y="409" fill="#ea580c" font-size="12" font-weight="700" text-anchor="middle" >reactor kafka</text>
+<path id="codecs-runtime" d="M 600 441 L 612 441 Q 622 441 622 451 L 622 522 Q 622 536 636 536 L 992 536 Q 1006 536 1006 522 L 1006 474 Q 1006 464 1016 464 L 1034 464" fill="none" stroke="#9333ea" stroke-width="3.2" stroke-dasharray="8 5" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="1022,470 1034,464 1022,458" fill="#9333ea" stroke="#9333ea" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<rect x="786" y="506" width="56" height="22" rx="6" fill="#ffffff" opacity="0.94"/>
+<text x="814" y="522" fill="#9333ea" font-size="12" font-weight="700" text-anchor="middle" >record bytes</text>
+<path id="streams-runtime" d="M 920 640 L 1104 640 Q 1118 640 1118 626 L 1118 508" fill="none" stroke="#16a34a" stroke-width="3.6"  marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="1091.75" y="554" width="52.5" height="22" rx="6" fill="#ffffff" opacity="0.94"/>
+<text x="1118" y="570" fill="#16a34a" font-size="12" font-weight="700" text-anchor="middle" >stream task</text>
+<g transform="translate(66 746)">
+<line x1="0" y1="0" x2="36" y2="0" stroke="#2563eb" stroke-width="3.6" marker-end="url(#arrow-blue)"/>
+<text x="48" y="5" fill="#6b7280" font-size="12" font-weight="600" text-anchor="start" >Kafka client API</text>
+<line x1="178" y1="0" x2="214" y2="0" stroke="#16a34a" stroke-width="3.6" marker-end="url(#arrow-green)"/>
+<text x="226" y="5" fill="#6b7280" font-size="12" font-weight="600" text-anchor="start" >Coroutine / Streams</text>
+<line x1="402" y1="0" x2="438" y2="0" stroke="#ea580c" stroke-width="3.6" marker-end="url(#arrow-orange)"/>
+<text x="450" y="5" fill="#6b7280" font-size="12" font-weight="600" text-anchor="start" >Spring bridge</text>
+<line x1="602" y1="0" x2="638" y2="0" stroke="#9333ea" stroke-width="3.2" stroke-dasharray="8 5" marker-end="url(#arrow-purple)"/>
+<text x="650" y="5" fill="#6b7280" font-size="12" font-weight="600" text-anchor="start" >Codec bytes</text>
+</g>
+</svg>

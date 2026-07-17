@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1620" height="910" viewBox="0 0 1620 910" role="img" aria-labelledby="title desc">
+<title id="title">Redisson Demo Pattern Map</title>
+<desc id="desc">Distributed locks, Redis objects, collections, and cache strategies as executable coroutine tests</desc>
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="blueArrow" viewBox="0 0 10 10" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563EB" stroke="#2563EB" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="greenArrow" viewBox="0 0 10 10" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#16A34A" stroke="#16A34A" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="orangeArrow" viewBox="0 0 10 10" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#EA580C" stroke="#EA580C" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="purpleArrow" viewBox="0 0 10 10" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#7C3AED" stroke="#7C3AED" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <style>
+    .canvas{fill:#F7F9FC} .frame{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2}
+    .panel{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:1.8;filter:url(#shadow)}
+    .group{fill:#F8FBFF;stroke:#C9D8E8;stroke-width:1.5}
+    .title{font-family:"Architects Daughter";font-size:40px;fill:#21334A;font-weight:700}
+    .subtitle{font-family:"Comic Mono";font-size:15px;fill:#536476}
+    .heading{font-family:"Architects Daughter";font-size:24px;fill:#21334A;font-weight:700}
+    .cardTitle{font-family:"Architects Daughter";font-size:21px;fill:#21334A;font-weight:700}
+    .text{font-family:"Comic Mono";font-size:13px;fill:#34465B}
+    .small{font-family:"Comic Mono";font-size:12px;fill:#536476}
+    .edgeBlue{fill:none;stroke:#2563EB;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#blueArrow)}
+    .edgeGreen{fill:none;stroke:#16A34A;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#greenArrow)}
+    .edgeOrange{fill:none;stroke:#EA580C;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#orangeArrow)}
+    .edgePurple{fill:none;stroke:#7C3AED;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#purpleArrow)}
+    .dash{stroke-dasharray:8 7}
+  </style>
+</defs>
+<rect class="canvas" width="1620" height="910"/>
+<rect class="frame" x="34" y="34" width="1552" height="842" rx="24"/>
+<text class="title" x="70" y="84">Redisson Demo Pattern Map</text>
+<text class="subtitle" x="72" y="116">Distributed locks, Redis objects, collections, and cache strategies as executable coroutine tests</text>
+<rect class="group" x="74" y="150" width="1472" height="720" rx="16"/>
+<text class="heading" x="104" y="192">Coroutine examples over Redisson Redis primitives</text>
+<g><rect class="panel" x="104" y="250" width="250" height="136" rx="14" fill="#EFF6FF" stroke="#2563EB"/>
+<text class="cardTitle" x="126" y="286">Test harness</text>
+<text class="text" x="126" y="316">AbstractRedissonCoroutineTest</text>
+<text class="text" x="126" y="338">redisson.yaml client config</text>
+<text class="text" x="126" y="360">suspend tests run examples</text>
+</g>
+<g><rect class="panel" x="430" y="204" width="280" height="136" rx="14" fill="#F0FDF4" stroke="#16A34A"/>
+<text class="cardTitle" x="452" y="240">Coordination</text>
+<text class="text" x="452" y="270">RLock, FairLock, MultiLock</text>
+<text class="text" x="452" y="292">ReadWriteLock</text>
+<text class="text" x="452" y="314">Semaphore for permits</text>
+</g>
+<g><rect class="panel" x="430" y="392" width="280" height="136" rx="14" fill="#FFF7ED" stroke="#EA580C"/>
+<text class="cardTitle" x="452" y="428">Data structures</text>
+<text class="text" x="452" y="458">Bucket, Queue, Deque</text>
+<text class="text" x="452" y="480">Sorted/Scored sets</text>
+<text class="text" x="452" y="502">Stream, Topic, Batch</text>
+</g>
+<g><rect class="panel" x="430" y="580" width="280" height="136" rx="14" fill="#FAF5FF" stroke="#7C3AED"/>
+<text class="cardTitle" x="452" y="616">Cache strategies</text>
+<text class="text" x="452" y="646">Read-through loader</text>
+<text class="text" x="452" y="668">Write-through writer</text>
+<text class="text" x="452" y="690">Write-behind async flush</text>
+</g>
+<g><rect class="panel" x="820" y="300" width="360" height="170" rx="14" fill="#F8FBFF" stroke="#64748B"/>
+<text class="cardTitle" x="842" y="336">Redisson coroutine API</text>
+<text class="text" x="842" y="366">Kotlin coroutine wrappers</text>
+<text class="text" x="842" y="388">Redis object interfaces</text>
+<text class="text" x="842" y="410">distributed behavior hidden behind types</text>
+</g>
+<g><rect class="panel" x="1270" y="300" width="260" height="170" rx="14" fill="#FFE7EC" stroke="#D85D74"/>
+<image data-bluetape4k-icon="redis/redis-icon.svg" x="1292" y="314" width="40" height="40" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBoZWlnaHQ9IjY0IiB2aWV3Qm94PSIwIDAgMzIgMzIiIHdpZHRoPSI2NCI+PGcgdHJhbnNmb3JtPSJtYXRyaXgoLjg0ODMyNyAwIDAgLjg0ODMyNyAtNy44ODM1NzMgLTkuNDQ5NjkxKSI+PHVzZSB4bGluazpocmVmPSIjQiIgZmlsbD0iI2E0MWUxMSIvPjxwYXRoIGQ9Ik00NS41MzYgMzQuOTVjLTIuMDEzIDEuMDUtMTIuNDQgNS4zMzctMTQuNjYgNi40OTRzLTMuNDUzIDEuMTQ2LTUuMjA3LjMwOC0xMi44NS01LjMyLTE0Ljg1LTYuMjc2LTIuMDQtMS42MTMtLjA3Ny0yLjM4MmwxNS4zMzItNS45MzZjMi4zMzItLjgzNiAzLjE0LS44NjcgNS4xMjYtLjE0UzQzLjU1IDMxLjg3IDQ1LjUxIDMyLjZzMi4wMzcgMS4zMS4wMjQgMi4zNnoiIGZpbGw9IiNkODJjMjAiLz48dXNlIHhsaW5rOmhyZWY9IiNCIiB5PSItNi4yMTgiIGZpbGw9IiNhNDFlMTEiLz48dXNlIHhsaW5rOmhyZWY9IiNDIiBmaWxsPSIjZDgyYzIwIi8+PHBhdGggZD0iTTQ1LjUzNiAyNi4wOThjLTIuMDEzIDEuMDUtMTIuNDQgNS4zMzctMTQuNjYgNi40OTVzLTMuNDUzIDEuMTQ2LTUuMjA3LjMwOC0xMi44NS01LjMyLTE0Ljg1LTYuMjc2Yy0xLS40NzgtMS41MjQtLjg4LTEuNTI0LTEuMjZWMjEuNTVzMTQuNDQ3LTMuMTQ1IDE2Ljc4LTMuOTgyIDMuMTQtLjg2NyA1LjEyNi0uMTQgMTMuODUzIDIuODY4IDE1LjgxNCAzLjU4N3YzLjc2YzAgLjM3Ny0uNDUyLjgtMS40NzcgMS4zMjR6IiBmaWxsPSIjYTQxZTExIi8+PHVzZSB4bGluazpocmVmPSIjQyIgeT0iLTYuNDQ5IiBmaWxsPSIjZDgyYzIwIi8+PGcgZmlsbD0iI2ZmZiI+PHBhdGggZD0iTTI5LjA5NiAyMC43MTJsLTEuMTgyLTEuOTY1LTMuNzc0LS4zNCAyLjgxNi0xLjAxNi0uODQ1LTEuNTYgMi42MzYgMS4wMyAyLjQ4Ni0uODE0LS42NzIgMS42MTIgMi41MzQuOTUtMy4yNjguMzR6TTIyLjggMjQuNjI0bDguNzQtMS4zNDItMi42NCAzLjg3MnoiLz48ZWxsaXBzZSBjeD0iMjAuNDQ0IiByeD0iNC42NzIiIHJ5PSIxLjgxMSIgY3k9IjIxLjQwMiIvPjwvZz48cGF0aCBkPSJNNDIuMTMyIDIxLjEzOGwtNS4xNyAyLjA0Mi0uMDA0LTQuMDg3eiIgZmlsbD0iIzdhMGMwMCIvPjxwYXRoIGQ9Ik0zNi45NjMgMjMuMThsLS41Ni4yMi01LjE2Ni0yLjA0MiA1LjcyMy0yLjI2NHoiIGZpbGw9IiNhZDIxMTUiLz48L2c+PGRlZnMgPjxwYXRoIGlkPSJCIiBkPSJNNDUuNTM2IDM4Ljc2NGMtMi4wMTMgMS4wNS0xMi40NCA1LjMzNy0xNC42NiA2LjQ5NHMtMy40NTMgMS4xNDYtNS4yMDcuMzA4LTEyLjg1LTUuMzItMTQuODUtNi4yNzZjLTEtLjQ3OC0xLjUyNC0uODgtMS41MjQtMS4yNnYtMy44MTNzMTQuNDQ3LTMuMTQ1IDE2Ljc4LTMuOTgyIDMuMTQtLjg2NyA1LjEyNi0uMTQgMTMuODUzIDIuODY4IDE1LjgxNCAzLjU4N3YzLjc2YzAgLjM3Ny0uNDUyLjgtMS40NzcgMS4zMjR6Ii8+PHBhdGggaWQ9IkMiIGQ9Ik00NS41MzYgMjguNzMzYy0yLjAxMyAxLjA1LTEyLjQ0IDUuMzM3LTE0LjY2IDYuNDk0cy0zLjQ1MyAxLjE0Ni01LjIwNy4zMDgtMTIuODUtNS4zMi0xNC44NS02LjI3Ni0yLjA0LTEuNjEzLS4wNzctMi4zODJsMTUuMzMyLTUuOTM1YzIuMzMyLS44MzcgMy4xNC0uODY3IDUuMTI2LS4xNHMxMi4zNSA0Ljg1MyAxNC4zMTIgNS41NyAyLjAzNyAxLjMxLjAyNCAyLjM2eiIvPjwvZGVmcz48L3N2Zz4=" preserveAspectRatio="xMidYMid meet"/>
+<text class="cardTitle" x="1348" y="336">Redis server</text>
+<text class="text" x="1348" y="366">single test endpoint</text>
+<text class="text" x="1348" y="388">shared primitive backend</text>
+<text class="text" x="1348" y="410">state cleared by tests</text>
+</g>
+<path class="edgeBlue" d="M354 318 H430"/>
+<path class="edgeBlue" d="M354 318 H388 Q404 318 404 460 H430"/>
+<path class="edgeBlue" d="M354 318 H388 Q404 318 404 648 H430"/>
+<path class="edgeGreen" d="M710 272 H778 Q794 272 794 338 H820"/>
+<path class="edgeOrange" d="M710 460 H820"/>
+<path class="edgePurple" d="M710 648 H778 Q794 648 794 430 H820"/>
+<path class="edgeGreen" d="M1180 386 H1270"/>
+<rect class="group" x="114" y="760" width="1396" height="78" rx="14" fill="#F8FBFF"/>
+<text class="text" x="150" y="792">Reader contract: pick a Redis primitive category first, then run the matching coroutine test to see Redisson usage in Kotlin style.</text>
+<text class="small" x="150" y="818">Cache examples are separated because they combine Redisson maps with loader/writer boundaries.</text>
+</svg>

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1020" viewBox="0 0 1700 1020" role="img" aria-label="JUnit5 extension component overview">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <marker id="arrowBlue" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#2563EB"/></marker>
+  <marker id="arrowTeal" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#0D9488"/></marker>
+  <marker id="arrowAmber" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#D97706"/></marker>
+  <marker id="arrowPink" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#DB2777"/></marker>
+  <marker id="arrowGreen" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#16A34A"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .lane{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.7}.laneTitle{font-family:"Architects Daughter";font-size:25px;fill:#334155}
+    .laneSub{font-family:"Comic Mono";font-size:13px;fill:#64748B}.card{filter:url(#shadow);stroke-width:1.8}
+    .cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+</defs>
+<rect class="canvas" width="1700" height="1020"/>
+  <rect class="frame" x="34" y="30" width="1632" height="960" rx="6"/>
+<text class="title" x="72" y="84">JUnit5 Extension Component Overview</text>
+<text class="subtitle" x="76" y="116">JUnit lifecycle hooks feed bluetape4k extensions, which then produce safer test setup, execution, assertions, and reports.</text>
+
+<g id="junitLayer">
+  <rect class="lane" x="70" y="160" width="455" height="800" rx="6" fill="#DBEAFE" fill-opacity="1" stroke="#BFDBFE"/>
+  <text class="laneTitle" x="98" y="202">JUnit extension inputs</text>
+  <text class="laneSub" x="98" y="228">Jupiter callbacks, context store, annotations</text>
+  <g id="context"><rect class="card" x="120" y="286" width="355" height="160" rx="5" fill="#FAF5FF" stroke="#7C3AED"/><text class="cardTitle" x="298" y="340" text-anchor="middle">ExtensionContext</text><text class="detail" x="298" y="370" text-anchor="middle">store, required test method</text><text class="detail" x="298" y="390" text-anchor="middle">parameter and lifecycle metadata</text></g>
+  <g id="engine"><rect class="card" x="120" y="500" width="355" height="94" rx="5" fill="#EFF6FF" stroke="#2563EB"/><text class="cardTitle" x="298" y="534" text-anchor="middle">Jupiter engine</text><text class="detail" x="298" y="564" text-anchor="middle">discovers test classes and extensions</text></g>
+  <g id="annotations"><rect class="card" x="120" y="722" width="355" height="112" rx="5" fill="#F0FDF4" stroke="#16A34A"/><text class="cardTitle" x="298" y="756" text-anchor="middle">Annotation shortcuts</text><text class="detail" x="298" y="786" text-anchor="middle">@StopwatchTest, @OutputCapture</text><text class="detail" x="298" y="806" text-anchor="middle">@RandomizedTest, @SystemProperty</text></g>
+</g>
+
+<g id="capabilityLayer">
+  <rect class="lane" x="600" y="160" width="545" height="760" rx="6" fill="#E5E7EB" stroke="#CBD5E1" fill-opacity="1"/>
+  <text class="laneTitle" x="628" y="202">bluetape4k testing capabilities</text>
+  <text class="laneSub" x="628" y="228">source-backed extension and helper families</text>
+  <g id="lifecycle"><rect class="card" x="690" y="258" width="385" height="96" rx="5" fill="#F0FDFA" stroke="#0D9488"/><text class="cardTitle" x="883" y="291" text-anchor="middle">Lifecycle</text><text class="detail" x="883" y="319" text-anchor="middle">StopwatchExtension, SystemPropertyExtension</text></g>
+  <g id="injection"><rect class="card" x="690" y="374" width="385" height="96" rx="5" fill="#FFF7ED" stroke="#D97706"/><text class="cardTitle" x="883" y="407" text-anchor="middle">Injection</text><text class="detail" x="883" y="435" text-anchor="middle">TempFolder, FakeValue, RandomValue parameters</text></g>
+  <g id="capture"><rect class="card" x="690" y="490" width="385" height="96" rx="5" fill="#FDF2F8" stroke="#DB2777"/><text class="cardTitle" x="883" y="523" text-anchor="middle">Output capture</text><text class="detail" x="883" y="551" text-anchor="middle">System.out / System.err and Logback appender</text></g>
+  <g id="coroutines"><rect class="card" x="690" y="606" width="385" height="96" rx="5" fill="#EFF6FF" stroke="#2563EB"/><text class="cardTitle" x="883" y="639" text-anchor="middle">Coroutine checks</text><text class="detail" x="883" y="667" text-anchor="middle">awaitSuspending and cancellation contracts</text></g>
+  <g id="stress"><rect class="card" x="690" y="722" width="385" height="112" rx="5" fill="#F7FEE7" stroke="#16A34A"/><text class="cardTitle" x="883" y="756" text-anchor="middle">Stress testers</text><text class="detail" x="883" y="786" text-anchor="middle">Multithreading, suspended jobs, structured scopes</text><text class="detail" x="883" y="806" text-anchor="middle">MultiException and timeout handling</text></g>
+</g>
+
+<g id="executionLayer">
+  <rect class="lane" x="1220" y="160" width="410" height="760" rx="6" fill="#FFEDD5" fill-opacity="1" stroke="#FED7AA"/>
+  <text class="laneTitle" x="1248" y="202">Test execution results</text>
+  <text class="laneSub" x="1248" y="228">stable fixtures, failure surfacing, reports</text>
+  <g id="fixtures"><rect class="card" x="1265" y="286" width="320" height="112" rx="5" fill="#F8FAFC" stroke="#64748B"/><text class="cardTitle" x="1425" y="320" text-anchor="middle">Fixture state</text><text class="detail" x="1425" y="350" text-anchor="middle">context store, temp root</text><text class="detail" x="1425" y="370" text-anchor="middle">system property restore</text></g>
+  <g id="failure"><rect class="card" x="1265" y="486" width="320" height="112" rx="5" fill="#FEF2F2" stroke="#DC2626"/><text class="cardTitle" x="1425" y="520" text-anchor="middle">Failure surfacing</text><text class="detail" x="1425" y="550" text-anchor="middle">MultiException collection</text><text class="detail" x="1425" y="570" text-anchor="middle">CancellationException rethrow</text></g>
+  <g id="report"><rect class="card" x="1265" y="690" width="320" height="112" rx="5" fill="#FAF5FF" stroke="#7C3AED"/><text class="cardTitle" x="1425" y="724" text-anchor="middle">Execution reports</text><text class="detail" x="1425" y="754" text-anchor="middle">RecordingExecutionListener</text><text class="detail" x="1425" y="774" text-anchor="middle">Mermaid Gantt timeline</text></g>
+</g>
+
+<path class="route" d="M475 306 L690 306" stroke="#0D9488" marker-end="url(#arrowTeal)"/>
+<path class="route" d="M475 422 L690 422" stroke="#D97706" marker-end="url(#arrowAmber)"/>
+<path class="route" d="M475 446 L560 446 Q576 446 576 462 L576 531 Q576 547 592 547 L690 547" stroke="#DB2777" marker-end="url(#arrowPink)"/>
+<path class="route" d="M475 575 L580 575 Q596 575 596 591 L596 638 Q596 654 612 654 L690 654" stroke="#2563EB" marker-end="url(#arrowBlue)"/>
+<path class="route" d="M475 778 L690 778" stroke="#16A34A" marker-end="url(#arrowGreen)"/>
+<path class="route" d="M1075 306 L1192 306 Q1202 306 1202 316 L1202 324 Q1202 334 1212 334 L1265 334" stroke="#0D9488" marker-end="url(#arrowTeal)"/>
+<path class="route" d="M1075 422 L1192 422 Q1202 422 1202 412 L1202 388 Q1202 378 1212 378 L1265 378" stroke="#D97706" marker-end="url(#arrowAmber)"/>
+<path class="route" d="M1075 548 L1265 548" stroke="#DB2777" marker-end="url(#arrowPink)"/>
+<path class="route" d="M1075 654 L1192 654 Q1208 654 1208 638 L1208 584 Q1208 568 1224 568 L1265 568" stroke="#2563EB" marker-end="url(#arrowBlue)"/>
+<path class="route" d="M1075 762 L1265 762" stroke="#16A34A" marker-end="url(#arrowGreen)"/>
+</svg>

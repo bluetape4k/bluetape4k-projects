@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="940" viewBox="0 0 1500 940" role="img" aria-label="Blaze Persistence example domain model and read path">
+  <defs>
+    <filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="flowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.1" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="openPurple" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#9333ea" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <style>
+      svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+      .canvas { fill: #f8fafc; }
+      .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; filter: url(#softShadow); }
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #0f172a; }
+      .subtitle { font-family: "Comic Mono"; font-size: 15px; fill: #475569; }
+      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .chip { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.2; }
+      .panelTitle { font-family: "Architects Daughter"; font-size: 24px; fill: #0f172a; }
+      .classBox { fill: #ffffff; stroke-width: 1.8; filter: url(#softShadow); }
+      .entity { stroke: #2563eb; }
+      .view { stroke: #9333ea; }
+      .flowBox { stroke: #16a34a; }
+      .classTitle { font-family: "Architects Daughter"; font-size: 22px; fill: #0f172a; }
+      .stereo { font-family: "Comic Mono"; font-size: 12px; fill: #64748b; }
+      .attr { font-family: "Comic Mono"; font-size: 13px; fill: #475569; }
+      .small { font-family: "Comic Mono"; font-size: 12px; fill: #64748b; }
+      .assoc { fill: none; stroke: #2563eb; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
+      .map { fill: none; stroke: #9333ea; stroke-width: 2.6; stroke-dasharray: 8 6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#openPurple); }
+      .flow { fill: none; stroke: #16a34a; stroke-width: 4.0; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#flowGreen); }
+      .label { font-family: "Comic Mono"; font-size: 12px; fill: #334155; paint-order: stroke; stroke: #ffffff; stroke-width: 4px; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1500" height="940"/>
+  <rect class="frame" x="36" y="32" width="1428" height="876" rx="8"/>
+  <text class="title" x="74" y="86">JPA Blaze Persistence Domain Model and Read Path</text>
+  <text class="subtitle" x="78" y="116">Member and Team stay as lazy JPA entities; Blaze Entity Views define the read models used by paging examples.</text>
+
+  <rect class="panel" x="78" y="158" width="1344" height="386" rx="8"/>
+  <rect class="chip" x="104" y="180" width="292" height="38" rx="8"/>
+  <text class="panelTitle" x="116" y="204">Entities and projections</text>
+
+  <g id="team">
+    <rect class="classBox entity" x="150" y="250" width="300" height="202" rx="8"/>
+    <line x1="150" y1="302" x2="450" y2="302" stroke="#bfdbfe" stroke-width="1.2"/>
+    <line x1="150" y1="382" x2="450" y2="382" stroke="#bfdbfe" stroke-width="1.2"/>
+    <text class="stereo" x="300" y="272" text-anchor="middle">&lt;&lt;JPA Entity&gt;&gt;</text>
+    <text class="classTitle" x="300" y="295" text-anchor="middle">Team</text>
+    <text class="attr" x="172" y="330">+ id: Long?</text>
+    <text class="attr" x="172" y="355">+ name: String</text>
+    <text class="attr" x="172" y="407">+ members: MutableList&lt;Member&gt;</text>
+    <text class="attr" x="172" y="432">+ addMember(), removeMember()</text>
+  </g>
+
+  <g id="member">
+    <rect class="classBox entity" x="548" y="250" width="300" height="202" rx="8"/>
+    <line x1="548" y1="302" x2="848" y2="302" stroke="#bfdbfe" stroke-width="1.2"/>
+    <line x1="548" y1="382" x2="848" y2="382" stroke="#bfdbfe" stroke-width="1.2"/>
+    <text class="stereo" x="698" y="272" text-anchor="middle">&lt;&lt;JPA Entity&gt;&gt;</text>
+    <text class="classTitle" x="698" y="295" text-anchor="middle">Member</text>
+    <text class="attr" x="570" y="330">+ id: Long?</text>
+    <text class="attr" x="570" y="355">+ name: String</text>
+    <text class="attr" x="570" y="407">+ age: Int?</text>
+    <text class="attr" x="570" y="432">+ team: Team? LAZY</text>
+  </g>
+
+  <path class="assoc" d="M 450 350 H 548"/>
+  <text class="small" x="499" y="332" text-anchor="middle">1 team</text>
+  <text class="small" x="499" y="374" text-anchor="middle">many members</text>
+
+  <g id="summaryView">
+    <rect class="classBox view" x="1012" y="236" width="302" height="120" rx="8" fill="#faf5ff"/>
+    <text class="stereo" x="1163" y="260" text-anchor="middle">&lt;&lt;EntityView(Member)&gt;&gt;</text>
+    <text class="classTitle" x="1163" y="285" text-anchor="middle">MemberSummaryView</text>
+    <text class="attr" x="1038" y="317">+ id, name, age</text>
+  </g>
+
+  <g id="teamView">
+    <rect class="classBox view" x="1012" y="388" width="302" height="120" rx="8" fill="#faf5ff"/>
+    <text class="stereo" x="1163" y="412" text-anchor="middle">&lt;&lt;EntityView(Member)&gt;&gt;</text>
+    <text class="classTitle" x="1163" y="437" text-anchor="middle">MemberTeamView</text>
+    <text class="attr" x="1038" y="469">+ id, name, age</text>
+    <text class="attr" x="1038" y="492">+ teamId, teamName</text>
+  </g>
+
+  <path class="map" d="M 848 316 H 1012" style="marker-end:none"/>
+<polyline points="1000,322 1012,316 1000,310" fill="none" stroke="#9333ea" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="map" d="M 848 396 L 916 396 Q 930 396 930 410 L 930 434 Q 930 448 944 448 L 1012 448" style="marker-end:none"/>
+<polyline points="1000,454 1012,448 1000,442" fill="none" stroke="#9333ea" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+
+  <rect class="panel" x="78" y="594" width="1344" height="232" rx="8"/>
+  <rect class="chip" x="104" y="616" width="310" height="38" rx="8"/>
+  <text class="panelTitle" x="116" y="640">Repository read path</text>
+
+  <g id="condition">
+    <rect class="classBox flowBox" x="136" y="696" width="252" height="78" rx="8" fill="#f0fdf4"/>
+    <text class="classTitle" x="262" y="727" text-anchor="middle">Search Condition</text>
+    <text class="small" x="262" y="752" text-anchor="middle">memberName, teamName, age range</text>
+  </g>
+  <g id="criteria">
+    <rect class="classBox flowBox" x="466" y="696" width="252" height="78" rx="8" fill="#f0fdf4"/>
+    <text class="classTitle" x="592" y="727" text-anchor="middle">CriteriaBuilder</text>
+    <text class="small" x="592" y="748" text-anchor="middle">leftJoin member.team</text>
+    <text class="small" x="592" y="766" text-anchor="middle">order by age,id</text>
+  </g>
+  <g id="evm">
+    <rect class="classBox flowBox" x="796" y="696" width="252" height="78" rx="8" fill="#dcfce7"/>
+    <text class="classTitle" x="922" y="727" text-anchor="middle">EntityViewManager</text>
+    <text class="small" x="922" y="752" text-anchor="middle">applySetting(MemberTeamView)</text>
+  </g>
+  <g id="page">
+    <rect class="classBox flowBox" x="1126" y="696" width="252" height="78" rx="8" fill="#f0fdf4"/>
+    <text class="classTitle" x="1252" y="727" text-anchor="middle">MemberPage</text>
+    <text class="small" x="1252" y="748" text-anchor="middle">content + count metadata</text>
+    <text class="small" x="1252" y="766" text-anchor="middle">keysetPage for next request</text>
+  </g>
+
+  <path class="flow" d="M 388 735 H 466"/>
+  <path class="flow" d="M 718 735 H 796"/>
+  <path class="flow" d="M 1048 735 H 1126"/>
+
+  <g transform="translate(116 852)">
+    <rect class="chip" x="0" y="0" width="686" height="38" rx="8"/>
+    <text class="small" x="18" y="24">Blaze Persistence adds read models and keyset paging without replacing the JPA aggregate model.</text>
+  </g>
+</svg>

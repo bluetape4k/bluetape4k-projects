@@ -1,0 +1,174 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1120" viewBox="0 0 1680 1120" role="img" aria-label="bluetape4k-core class structure">
+  <defs>
+    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10" />
+    </filter>
+    <marker id="hollow-blue" markerWidth="18" markerHeight="16" refX="17" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M1.5 1.5 L17 8 L1.5 14.5 Z" fill="#ffffff" stroke="#2563eb" stroke-width="2.1" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" />
+    </marker>
+    <marker id="hollow-teal" markerWidth="18" markerHeight="16" refX="17" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M1.5 1.5 L17 8 L1.5 14.5 Z" fill="#ffffff" stroke="#0d9488" stroke-width="2.1" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" />
+    </marker>
+    <marker id="hollow-purple" markerWidth="18" markerHeight="16" refX="17" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M1.5 1.5 L17 8 L1.5 14.5 Z" fill="#ffffff" stroke="#9333ea" stroke-width="2.1" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" />
+    </marker>
+    <marker id="open-gray" markerWidth="16" markerHeight="14" refX="14" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M2 2 L14 7 L2 12" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/>
+    </marker>
+    <style>
+      svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+      .canvas { fill: #f8fafc; }
+      .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; filter: url(#softShadow); }
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #0f172a; }
+      .subtitle { font-family: "Comic Mono"; font-size: 16px; fill: #475569; }
+      .panel { fill: #ffffff; stroke: #dbe3ef; stroke-width: 1.5; }
+      .panelTitle { font-family: "Comic Mono"; font-size: 13px; fill: #64748b; font-weight: 700; letter-spacing: .04em; }
+      .box { stroke-width: 2; filter: url(#softShadow); }
+      .name { font-family: "Architects Daughter"; font-size: 23px; fill: #0f172a; }
+      .stereo { font-family: "Comic Mono"; font-size: 12px; fill: #64748b; }
+      .member { font-family: "Comic Mono"; font-size: 13px; fill: #475569; }
+      .line { stroke: rgba(15,23,42,.12); stroke-width: 1; }
+      .implBlue { fill: none; stroke: #2563eb; stroke-width: 2.4; stroke-dasharray: 8 6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#hollow-blue); }
+      .implTeal { fill: none; stroke: #0d9488; stroke-width: 2.4; stroke-dasharray: 8 6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#hollow-teal); }
+      .implPurple { fill: none; stroke: #9333ea; stroke-width: 2.4; stroke-dasharray: 8 6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#hollow-purple); }
+      .extendsTeal { fill: none; stroke: #0d9488; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#hollow-teal); }
+      .assoc { fill: none; stroke: #64748b; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#open-gray); }
+      .label { font-family: "Comic Mono"; font-size: 12px; fill: #64748b; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1680" height="1120" />
+  <rect class="frame" x="38" y="32" width="1604" height="1056" rx="10" />
+  <text class="title" x="78" y="92">Core Class Structure</text>
+  <text class="subtitle" x="82" y="124">Representative public types from validation, codec, range, collection, and concurrency packages.</text>
+
+  <rect class="panel" x="78" y="168" width="724" height="392" rx="8" />
+  <text class="panelTitle" x="104" y="200">VALUE OBJECT CONTRACT</text>
+  <rect class="panel" x="878" y="168" width="724" height="392" rx="8" />
+  <text class="panelTitle" x="904" y="200">ENCODING API</text>
+  <rect class="panel" x="78" y="632" width="724" height="410" rx="8" />
+  <text class="panelTitle" x="104" y="664">RANGE BOUNDARY MODEL</text>
+  <rect class="panel" x="878" y="632" width="724" height="410" rx="8" />
+  <text class="panelTitle" x="904" y="664">COLLECTION AND CONCURRENCY UTILITIES</text>
+
+  <g>
+    <rect class="box" x="272" y="236" width="280" height="110" rx="8" fill="#eff6ff" stroke="#2563eb" />
+    <text class="stereo" x="412" y="262" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+    <text class="name" x="412" y="294" text-anchor="middle">ValueObject</text>
+    <line class="line" x1="272" y1="308" x2="552" y2="308" />
+    <text class="member" x="412" y="326" text-anchor="middle">extends Serializable</text>
+  </g>
+  <g>
+    <rect class="box" x="246" y="412" width="332" height="108" rx="8" fill="#eef6ff" stroke="#2563eb" />
+    <text class="stereo" x="412" y="438" text-anchor="middle">&lt;&lt;abstract class&gt;&gt;</text>
+    <text class="name" x="412" y="470" text-anchor="middle">AbstractValueObject</text>
+    <line class="line" x1="246" y1="484" x2="578" y2="484" />
+    <text class="member" x="412" y="504" text-anchor="middle">equalProperties(other)</text>
+  </g>
+  <g>
+    <rect class="box" x="86" y="410" width="132" height="88" rx="8" fill="#f8fafc" stroke="#94a3b8" />
+    <text class="name" x="152" y="446" text-anchor="middle">ToString</text>
+    <text class="name" x="152" y="474" text-anchor="middle">Builder</text>
+  </g>
+  <path class="implBlue" d="M412 412 L412 346" style="marker-end:none" />
+<polygon points="418,358 412,346 406,358" fill="#ffffff" stroke="#2563eb" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="assoc" d="M246 466 L218 466" />
+  <text class="label" x="220" y="448" text-anchor="middle">builds</text>
+
+  <g>
+    <rect class="box" x="1190" y="236" width="300" height="108" rx="8" fill="#f0fdfa" stroke="#0d9488" />
+    <text class="stereo" x="1340" y="262" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+    <text class="name" x="1340" y="294" text-anchor="middle">StringEncoder</text>
+    <line class="line" x1="1190" y1="308" x2="1490" y2="308" />
+    <text class="member" x="1340" y="328" text-anchor="middle">encode(bytes), decode(text)</text>
+  </g>
+  <g>
+    <rect class="box" x="1088" y="420" width="270" height="86" rx="8" fill="#f0fdfa" stroke="#0d9488" />
+    <text class="name" x="1223" y="456" text-anchor="middle">Base64StringEncoder</text>
+    <text class="member" x="1223" y="486" text-anchor="middle">URL-safe Base64</text>
+  </g>
+  <g>
+    <rect class="box" x="1390" y="420" width="190" height="86" rx="8" fill="#f0fdfa" stroke="#0d9488" />
+    <text class="name" x="1485" y="448" text-anchor="middle">HexString</text>
+    <text class="name" x="1485" y="474" text-anchor="middle">Encoder</text>
+    <text class="member" x="1485" y="496" text-anchor="middle">hex codec</text>
+  </g>
+  <g>
+    <rect class="box" x="930" y="214" width="128" height="70" rx="8" fill="#fff7ed" stroke="#ea580c" />
+    <text class="name" x="994" y="246" text-anchor="middle">Base58</text>
+    <text class="member" x="994" y="270" text-anchor="middle">object</text>
+  </g>
+  <g>
+    <rect class="box" x="930" y="318" width="128" height="70" rx="8" fill="#fff7ed" stroke="#ea580c" />
+    <text class="name" x="994" y="350" text-anchor="middle">Base62</text>
+    <text class="member" x="994" y="374" text-anchor="middle">object</text>
+  </g>
+  <g>
+    <rect class="box" x="930" y="422" width="128" height="70" rx="8" fill="#fff7ed" stroke="#ea580c" />
+    <text class="name" x="994" y="454" text-anchor="middle">Url62</text>
+    <text class="member" x="994" y="478" text-anchor="middle">object</text>
+  </g>
+  <path class="implTeal" d="M 1223 420 L 1223 386 Q 1223 372 1237 372 L 1274 372 Q 1288 372 1288 358 L 1288 344" style="marker-end:none" />
+<polygon points="1280,362 1288,344 1296,362" fill="#ffffff" stroke="#0d9488" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="implTeal" d="M 1485 420 L 1485 386 Q 1485 372 1471 372 L 1424 372 Q 1410 372 1410 358 L 1410 344" style="marker-end:none" />
+<polygon points="1402,362 1410,344 1418,362" fill="#ffffff" stroke="#0d9488" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+
+  <g>
+    <rect class="box" x="318" y="704" width="244" height="86" rx="8" fill="#f0fdfa" stroke="#0d9488" />
+    <text class="stereo" x="440" y="730" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+    <text class="name" x="440" y="762" text-anchor="middle">Range&lt;T&gt;</text>
+  </g>
+  <g>
+    <rect class="box" x="108" y="852" width="150" height="72" rx="8" fill="#f0fdfa" stroke="#0d9488" />
+    <text class="name" x="183" y="884" text-anchor="middle">OpenOpen</text>
+    <text class="member" x="183" y="908" text-anchor="middle">(a, b)</text>
+  </g>
+  <g>
+    <rect class="box" x="286" y="852" width="150" height="72" rx="8" fill="#f0fdfa" stroke="#0d9488" />
+    <text class="name" x="361" y="884" text-anchor="middle">OpenClosed</text>
+    <text class="member" x="361" y="908" text-anchor="middle">(a, b]</text>
+  </g>
+  <g>
+    <rect class="box" x="464" y="852" width="150" height="72" rx="8" fill="#f0fdfa" stroke="#0d9488" />
+    <text class="name" x="539" y="884" text-anchor="middle">ClosedOpen</text>
+    <text class="member" x="539" y="908" text-anchor="middle">[a, b)</text>
+  </g>
+  <g>
+    <rect class="box" x="642" y="852" width="150" height="72" rx="8" fill="#f0fdfa" stroke="#0d9488" />
+    <text class="name" x="717" y="884" text-anchor="middle">ClosedClosed</text>
+    <text class="member" x="717" y="908" text-anchor="middle">[a, b]</text>
+  </g>
+  <path class="extendsTeal" d="M 183 852 L 183 832.8 Q 183 820 195.8 820 L 402 820 Q 410 820 410 812 L 410 790" />
+  <path class="extendsTeal" d="M 361 852 L 361 832.8 Q 361 820 373.8 820 L 422 820 Q 430 820 430 812 L 430 790" />
+  <path class="extendsTeal" d="M 539 852 L 539 832.8 Q 539 820 526.2 820 L 458 820 Q 450 820 450 812 L 450 790" />
+  <path class="extendsTeal" d="M 717 852 L 717 832.8 Q 717 820 704.2 820 L 478 820 Q 470 820 470 812 L 470 790" />
+  <text class="label" x="440" y="970" text-anchor="middle">Default*Range data classes implement each boundary interface.</text>
+
+  <g>
+    <rect class="box" x="940" y="704" width="244" height="92" rx="8" fill="#faf5ff" stroke="#9333ea" />
+    <text class="name" x="1062" y="738" text-anchor="middle">BoundedStack&lt;E&gt;</text>
+    <text class="member" x="1062" y="766" text-anchor="middle">Iterable, max-size stack</text>
+  </g>
+  <g>
+    <rect class="box" x="1260" y="704" width="244" height="92" rx="8" fill="#faf5ff" stroke="#9333ea" />
+    <text class="name" x="1382" y="738" text-anchor="middle">RingBuffer&lt;E&gt;</text>
+    <text class="member" x="1382" y="766" text-anchor="middle">Iterable, overwrite buffer</text>
+  </g>
+  <g>
+    <rect class="box" x="952" y="900" width="300" height="92" rx="8" fill="#eff6ff" stroke="#2563eb" />
+    <text class="name" x="1102" y="934" text-anchor="middle">ConcurrentReducer&lt;T&gt;</text>
+    <text class="member" x="1102" y="962" text-anchor="middle">Closeable, bounded async fan-in</text>
+  </g>
+  <g>
+    <rect class="box" x="1316" y="900" width="220" height="92" rx="8" fill="#fff7ed" stroke="#ea580c" />
+    <text class="name" x="1426" y="934" text-anchor="middle">RequireSupport</text>
+    <text class="member" x="1426" y="962" text-anchor="middle">Kotlin contract validators</text>
+  </g>
+  <g>
+    <rect class="box" x="1034" y="826" width="366" height="44" rx="8" fill="#f8fafc" stroke="#94a3b8" />
+    <text class="member" x="1217" y="855" text-anchor="middle">ReentrantLock / BlockingQueue / Semaphore</text>
+  </g>
+  <path class="assoc" d="M1062 796 L1062 826" />
+  <path class="assoc" d="M1382 796 L1382 826" />
+  <path class="assoc" d="M1102 900 L1102 870" />
+</svg>

@@ -106,6 +106,55 @@ No dedicated workshop path is registered in the manual manifest. Use the module 
 
 This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### All Algorithms at a Glance diagram
+
+[![All Algorithms at a Glance diagram](../../assets/readme-diagrams/utils-idgenerators-diagram-01.png)](../../assets/readme-diagrams/utils-idgenerators-diagram-01.svg)
+
+_Release README: [`utils/idgenerators/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/idgenerators/README.md)_
+
+### ID Generators Class Structure diagram
+
+[![ID Generators Class Structure diagram](../../assets/readme-diagrams/utils-idgenerators-diagram-02.png)](../../assets/readme-diagrams/utils-idgenerators-diagram-02.svg)
+
+_Release README: [`utils/idgenerators/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/idgenerators/README.md)_
+
+### Snowflake Bit Layout diagram
+
+[![Snowflake Bit Layout diagram](../../assets/readme-diagrams/utils-idgenerators-diagram-03.png)](../../assets/readme-diagrams/utils-idgenerators-diagram-03.svg)
+
+_Release README: [`utils/idgenerators/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/idgenerators/README.md)_
+
+### ULID (Universally Unique Lexicographically Sortable Identif. diagram
+
+[![ULID (Universally Unique Lexicographically Sortable Identif. diagram](../../assets/readme-diagrams/utils-idgenerators-diagram-04.png)](../../assets/readme-diagrams/utils-idgenerators-diagram-04.svg)
+
+_Release README: [`utils/idgenerators/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/idgenerators/README.md)_
+
+### ULID (Universally Unique Lexicographically Sortable Identif. diagram
+
+[![ULID (Universally Unique Lexicographically Sortable Identif. diagram](../../assets/readme-diagrams/utils-idgenerators-diagram-05.png)](../../assets/readme-diagrams/utils-idgenerators-diagram-05.svg)
+
+_Release README: [`utils/idgenerators/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/idgenerators/README.md)_
+
+### KSUID Layout diagram
+
+[![KSUID Layout diagram](../../assets/readme-diagrams/utils-idgenerators-diagram-06.png)](../../assets/readme-diagrams/utils-idgenerators-diagram-06.svg)
+
+_Release README: [`utils/idgenerators/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/idgenerators/README.md)_
+
+### Flake Layout diagram
+
+[![Flake Layout diagram](../../assets/readme-diagrams/utils-idgenerators-diagram-07.png)](../../assets/readme-diagrams/utils-idgenerators-diagram-07.svg)
+
+_Release README: [`utils/idgenerators/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/idgenerators/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources {#sources}
 
 - [Module README](../../../../utils/idgenerators/README.md)

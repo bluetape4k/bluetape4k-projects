@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="920" viewBox="0 0 1600 920" role="img" aria-label="bluetape4k-virtualthread-jdk21 implementation structure">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10" /></filter>
+  <marker id="impl" markerWidth="16" markerHeight="16" refX="15" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 16 8 L 0 16 Z" fill="#FFFFFF" stroke="#0D9488" stroke-width="2" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+  <marker id="usesBlue" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
+  <marker id="usesAmber" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .section{font-family:"Architects Daughter";font-size:24px;fill:#334155}.card{filter:url(#shadow);stroke-width:1.8}.divider{stroke:#CBD5E1;stroke-width:1}
+    .className{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.stereo{font-family:"Comic Mono";font-size:12px;fill:#64748B}.member{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .impl{fill:none;stroke:#0D9488;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7}.uses{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7}.solid{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+</defs>
+<rect class="canvas" width="1600" height="920" />
+<rect class="frame" x="34" y="30" width="1532" height="860" rx="8" />
+<text class="title" x="72" y="84">bluetape4k-virtualthread-jdk21</text>
+<text class="subtitle" x="76" y="116">JDK 21 module registers runtime and StructuredTaskScope providers backed by Java 21 virtual threads.</text>
+
+<text class="section" x="100" y="178">Runtime service entry</text>
+<text class="section" x="900" y="178">Structured scope service entry</text>
+<g id="serviceRuntime"><rect class="card" x="145" y="210" width="470" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB" /><text class="className" x="380" y="245" text-anchor="middle" dominant-baseline="middle">VirtualThreadRuntime service</text><text class="member" x="380" y="272" text-anchor="middle" dominant-baseline="middle">META-INF/services entry loads Jdk21VirtualThreadRuntime</text></g>
+<g id="serviceProvider"><rect class="card" x="915" y="210" width="510" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488" /><text class="className" x="1170" y="245" text-anchor="middle" dominant-baseline="middle">StructuredTaskScopeProvider service</text><text class="member" x="1170" y="272" text-anchor="middle" dominant-baseline="middle">META-INF/services entry loads Jdk21StructuredTaskScopeProvider</text></g>
+
+<g id="runtime"><rect class="card" x="160" y="410" width="440" height="132" rx="8" fill="#ECFDF5" stroke="#16A34A" /><text class="stereo" x="380" y="438" text-anchor="middle">final class</text><text class="className" x="380" y="468" text-anchor="middle">Jdk21VirtualThreadRuntime</text><line class="divider" x1="180" y1="486" x2="580" y2="486" /><text class="member" x="180" y="512">runtimeName = jdk21, priority = 21</text><text class="member" x="180" y="534">isSupported when Java feature &gt;= 21</text></g>
+<g id="executor"><rect class="card" x="160" y="680" width="440" height="132" rx="8" fill="#FFF7ED" stroke="#D97706" /><text class="stereo" x="380" y="708" text-anchor="middle">JDK 21 API</text><text class="className" x="380" y="738" text-anchor="middle">Virtual thread executor</text><line class="divider" x1="180" y1="756" x2="580" y2="756" /><text class="member" x="180" y="782">Thread.ofVirtual().name(prefix, 0)</text><text class="member" x="180" y="804">Executors.newThreadPerTaskExecutor</text></g>
+
+<g id="provider"><rect class="card" x="940" y="410" width="460" height="132" rx="8" fill="#F0FDFA" stroke="#0D9488" /><text class="stereo" x="1170" y="438" text-anchor="middle">class</text><text class="className" x="1170" y="468" text-anchor="middle">Jdk21StructuredTaskScopeProvider</text><line class="divider" x1="960" y1="486" x2="1380" y2="486" /><text class="member" x="960" y="512">withAll: ShutdownOnFailure</text><text class="member" x="960" y="534">withAny: ShutdownOnSuccess</text></g>
+<g id="wrappers"><rect class="card" x="760" y="680" width="410" height="170" rx="8" fill="#FFF7ED" stroke="#D97706" /><text class="className" x="965" y="716" text-anchor="middle">JDK21 wrapper scopes</text><line class="divider" x1="780" y1="734" x2="1150" y2="734" /><text class="member" x="780" y="760">Jdk21AllScope, Jdk21AnyScope</text><text class="member" x="780" y="782">Jdk21SupervisedScope</text><text class="member" x="780" y="804">Jdk21Subtask adapts Subtask.State</text></g>
+<g id="supervised"><rect class="card" x="1240" y="700" width="300" height="132" rx="8" fill="#FDF2F8" stroke="#DB2777" /><text class="className" x="1390" y="736" text-anchor="middle">Supervised scope</text><text class="member" x="1390" y="764" text-anchor="middle">extends StructuredTaskScope</text><text class="member" x="1390" y="786" text-anchor="middle">collects Result on completion</text></g>
+
+<path class="uses" d="M380 302 L380 410" stroke="#2563EB" />
+
+
+<polyline points="372,392 380,410 388,392" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="uses" d="M1170 302 L1170 410" stroke="#2563EB" />
+
+<polyline points="1162,392 1170,410 1178,392" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="solid" d="M380 542 L380 680" stroke="#D97706" />
+
+<polyline points="372,662 380,680 388,662" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="solid" d="M 1170 542 L 1170 598 Q 1170 612 1156 612 L 979 612 Q 965 612 965 626 L 965 680" stroke="#D97706" />
+
+<polyline points="957,662 965,680 973,662" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="solid" d="M 1170 542 L 1170 612 Q 1170 626 1184 626 L 1376 626 Q 1390 626 1390 640 L 1390 700" stroke="#D97706" />
+
+<polyline points="1382,682 1390,700 1398,682" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+</svg>

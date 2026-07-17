@@ -109,6 +109,67 @@ No dedicated workshop path is registered in the manual manifest. Use the module 
 
 This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### Sink / Source Adapter Hierarchy diagram
+
+[![Sink / Source Adapter Hierarchy diagram](../../assets/readme-diagrams/io-okio-diagram-01.png)](../../assets/readme-diagrams/io-okio-diagram-01.svg)
+
+_Release README: [`io/okio/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.md)_
+
+### NIO Channel Adapter Hierarchy diagram
+
+[![NIO Channel Adapter Hierarchy diagram](../../assets/readme-diagrams/io-okio-diagram-02.png)](../../assets/readme-diagrams/io-okio-diagram-02.svg)
+
+_Release README: [`io/okio/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.md)_
+
+### Coroutines Async I/O Hierarchy diagram
+
+[![Coroutines Async I/O Hierarchy diagram](../../assets/readme-diagrams/io-okio-diagram-03.png)](../../assets/readme-diagrams/io-okio-diagram-03.svg)
+
+_Release README: [`io/okio/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.md)_
+
+### Compression Factory (Compressable) diagram
+
+[![Compression Factory (Compressable) diagram](../../assets/readme-diagrams/io-okio-diagram-04.png)](../../assets/readme-diagrams/io-okio-diagram-04.svg)
+
+_Release README: [`io/okio/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.md)_
+
+### Compression Sink (One-Shot) — compress on close diagram
+
+[![Compression Sink (One-Shot) — compress on close diagram](../../assets/readme-diagrams/io-okio-sequence-01.png)](../../assets/readme-diagrams/io-okio-sequence-01.svg)
+
+_Release README: [`io/okio/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.md)_
+
+### Compression Sink (Streaming) — compress incrementally diagram
+
+[![Compression Sink (Streaming) — compress incrementally diagram](../../assets/readme-diagrams/io-okio-sequence-02.png)](../../assets/readme-diagrams/io-okio-sequence-02.svg)
+
+_Release README: [`io/okio/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.md)_
+
+### Decompression Source (One-Shot) — decompress on first read diagram
+
+[![Decompression Source (One-Shot) — decompress on first read diagram](../../assets/readme-diagrams/io-okio-sequence-03.png)](../../assets/readme-diagrams/io-okio-sequence-03.svg)
+
+_Release README: [`io/okio/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.md)_
+
+### Tink Encryption + Compression Combined Flow diagram
+
+[![Tink Encryption + Compression Combined Flow diagram](../../assets/readme-diagrams/io-okio-sequence-04.png)](../../assets/readme-diagrams/io-okio-sequence-04.svg)
+
+_Release README: [`io/okio/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.md)_
+
+### Coroutines Async File I/O Flow diagram
+
+[![Coroutines Async File I/O Flow diagram](../../assets/readme-diagrams/io-okio-sequence-05.png)](../../assets/readme-diagrams/io-okio-sequence-05.svg)
+
+_Release README: [`io/okio/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources {#sources}
 
 - [Module README](../../../../io/okio/README.md)

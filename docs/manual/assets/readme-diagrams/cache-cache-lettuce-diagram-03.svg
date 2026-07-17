@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2320" height="980" viewBox="0 0 2320 980" role="img" aria-label="Lettuce cache stability contracts">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity=".10"/></filter>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title,.contract{font-family:"Architects Daughter";fill:#0F172A}.title{font-size:46px}.contract{font-size:31px}
+    .subtitle,.subtitle2,.line{font-family:"Comic Mono";fill:#475569}.subtitle{font-size:15.5px}.subtitle2{font-size:15px}.line{font-size:14.4px}
+    .card{stroke-width:2;filter:url(#shadow)}
+  </style>
+</defs>
+<rect class="canvas" width="2320" height="980"/>
+<rect class="frame" x="34" y="30" width="2252" height="916" rx="8"/>
+<text class="title" x="76" y="90">Lettuce Cache Stability Contracts</text>
+<text class="subtitle" x="80" y="124">The runtime contracts that keep native near caches, JCache, and memoizers predictable under failure, cancellation, and Redis edge cases.</text>
+<g>
+    <rect class="card" x="95" y="205" width="650" height="310" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+    <text class="contract" x="127" y="261">CAS replace</text>
+    <text class="subtitle2" x="129" y="297">EVALSHA first</text>
+    <path d="M95 323H745" stroke="#2563EB" stroke-width="1.1" opacity=".55"/>
+    <text class="line" x="129" y="371">NearCacheScripts wraps Lua with SHA1</text><text class="line" x="129" y="415">NOSCRIPT falls back to full EVAL</text><text class="line" x="129" y="459">KEEPTTL preserves Redis expiry</text>
+  </g>
+<g>
+    <rect class="card" x="830" y="205" width="650" height="310" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+    <text class="contract" x="862" y="261">Delete path</text>
+    <text class="subtitle2" x="864" y="297">UNLINK + SCAN</text>
+    <path d="M830 323H1480" stroke="#0D9488" stroke-width="1.1" opacity=".55"/>
+    <text class="line" x="864" y="371">remove/removeAll avoid blocking DEL</text><text class="line" x="864" y="415">clearBack scans only cacheName:*</text><text class="line" x="864" y="459">front cache is cleared separately</text>
+  </g>
+<g>
+    <rect class="card" x="1565" y="205" width="650" height="310" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+    <text class="contract" x="1597" y="261">JCache close</text>
+    <text class="subtitle2" x="1599" y="297">resource close only</text>
+    <path d="M1565 323H2215" stroke="#16A34A" stroke-width="1.1" opacity=".55"/>
+    <text class="line" x="1599" y="371">close() does not delete Redis hash data</text><text class="line" x="1599" y="415">explicit clear() is required for data removal</text><text class="line" x="1599" y="459">JSR-107 semantics stay intact</text>
+  </g>
+<g>
+    <rect class="card" x="95" y="590" width="650" height="310" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+    <text class="contract" x="127" y="646">Suspend cleanup</text>
+    <text class="subtitle2" x="129" y="682">NonCancellable close</text>
+    <path d="M95 708H745" stroke="#EA580C" stroke-width="1.1" opacity=".55"/>
+    <text class="line" x="129" y="756">manager closes remaining caches despite caller cancellation</text><text class="line" x="129" y="800">explicit cache CancellationException is rethrown after cleanup</text><text class="line" x="129" y="844">ordinary close failures are logged and skipped</text>
+  </g>
+<g>
+    <rect class="card" x="830" y="590" width="650" height="310" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+    <text class="contract" x="862" y="646">Suspend memoizer</text>
+    <text class="subtitle2" x="864" y="682">failure is not cached</text>
+    <path d="M830 708H1480" stroke="#DB2777" stroke-width="1.1" opacity=".55"/>
+    <text class="line" x="864" y="756">in-flight Deferred is removed in finally</text><text class="line" x="864" y="800">CancellationException is rethrown</text><text class="line" x="864" y="844">next call recomputes after failure</text>
+  </g>
+<g>
+    <rect class="card" x="1565" y="590" width="650" height="310" rx="8" fill="#FAF5FF" stroke="#7C3AED"/>
+    <text class="contract" x="1597" y="646">Async memoizer</text>
+    <text class="subtitle2" x="1599" y="682">exact promise removal</text>
+    <path d="M1565 708H2215" stroke="#7C3AED" stroke-width="1.1" opacity=".55"/>
+    <text class="line" x="1599" y="756">inFlight.remove(key, promise)</text><text class="line" x="1599" y="800">late completion cannot evict replacement promise</text><text class="line" x="1599" y="844">single-flight remains per JVM key</text>
+  </g>
+</svg>

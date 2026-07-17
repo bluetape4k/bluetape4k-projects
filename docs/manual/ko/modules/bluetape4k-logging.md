@@ -117,3 +117,28 @@ Logging은 tracing, audit storage, durable event delivery가 아닙니다. MDC�
 - [모듈 source](../../../../bluetape4k/logging/src/main/kotlin/io/bluetape4k/logging)
 - [대표 테스트](../../../../bluetape4k/logging/src/test/kotlin/io/bluetape4k/logging)
 - [README](../../../../bluetape4k/logging/README.ko.md)
+
+<!-- release-readme-diagrams:start -->
+## 배포본 다이어그램 {#release-diagrams}
+
+아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+
+### KLogging, KotlinLogging, MDC 도우미, 비동기 채널 로깅의 클래스 구조
+
+[![KLogging, KotlinLogging, MDC 도우미, 비동기 채널 로깅의 클래스 구조](../../assets/readme-diagrams/bluetape4k-logging-diagram-01.png)](../../assets/readme-diagrams/bluetape4k-logging-diagram-01.svg)
+
+_배포본 README: [`bluetape4k/logging/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/logging/README.ko.md)_
+
+### 레벨 가드, 지연 메시지 supplier, MDC 컨텍스트, SLF4J 출력으로 이어지는 로깅 처리 흐름
+
+[![레벨 가드, 지연 메시지 supplier, MDC 컨텍스트, SLF4J 출력으로 이어지는 로깅 처리 흐름](../../assets/readme-diagrams/bluetape4k-logging-diagram-02.png)](../../assets/readme-diagrams/bluetape4k-logging-diagram-02.svg)
+
+_배포본 README: [`bluetape4k/logging/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/logging/README.ko.md)_
+
+### SharedFlow 버퍼와 백그라운드 collector로 로그 이벤트를 출력하는 KLoggingChannel 시퀀스
+
+[![SharedFlow 버퍼와 백그라운드 collector로 로그 이벤트를 출력하는 KLoggingChannel 시퀀스](../../assets/readme-diagrams/bluetape4k-logging-sequence-01.png)](../../assets/readme-diagrams/bluetape4k-logging-sequence-01.svg)
+
+_배포본 README: [`bluetape4k/logging/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/logging/README.ko.md)_
+
+<!-- release-readme-diagrams:end -->

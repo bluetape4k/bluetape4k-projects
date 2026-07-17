@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1780" height="820" viewBox="0 0 1780 820" role="img" aria-label="Order One-Way FSM">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<marker id="arrow-startCreated" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#64748B"/></marker>
+<marker id="arrow-pay" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#2563EB"/></marker>
+<marker id="arrow-ship" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#16A34A"/></marker>
+<marker id="arrow-deliver" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#0D9488"/></marker>
+<marker id="arrow-cancelCreated" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#9333EA"/></marker>
+<marker id="arrow-cancelPaid" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#9333EA"/></marker>
+<marker id="arrow-cancelRejected" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#EA580C"/></marker>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.card,.note{filter:url(#softShadow);stroke-width:2}.stateTitle{font-family:"Architects Daughter";font-size:31px;fill:#0F172A}.detail,.noteText{font-family:"Comic Mono";font-size:14px;fill:#475569}.badge{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.2}.badgeText{font-family:"Comic Mono";font-size:11.5px;fill:#475569}.start{fill:#0F172A}.edge{fill:none;stroke-width:3.3;stroke-linecap:round;stroke-linejoin:round}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.5px;fill:#475569}</style></defs>
+<rect class="canvas" width="1780" height="820"/><rect class="frame" x="38" y="30" width="1704" height="754" rx="8"/>
+<text class="title" x="78" y="86">Order One-Way FSM</text>
+<text class="subtitle" x="82" y="118">Orders move forward from creation to delivery. Cancellation is only allowed before shipping.</text>
+<g id="edges"><path class="edge" d="M199 342 L275 342" stroke="#64748B" marker-end="url(#arrow-startCreated)"/>
+<path class="edge" d="M525 328 L635 328" stroke="#2563EB" marker-end="url(#arrow-pay)"/>
+<path class="edge" d="M885 328 L995 328" stroke="#16A34A" marker-end="url(#arrow-ship)"/>
+<path class="edge" d="M1245 328 L1355 328" stroke="#0D9488" marker-end="url(#arrow-deliver)"/>
+<path class="edge" d="M 400 405 L 400 471 Q 400 485 414 485 L 551 485 Q 565 485 565 499 L 565 555" stroke="#9333EA" marker-end="url(#arrow-cancelCreated)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge" d="M 760 405 L 760 471 Q 760 485 746 485 L 659 485 Q 645 485 645 499 L 645 555" stroke="#9333EA" marker-end="url(#arrow-cancelPaid)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge" d="M1120 405 L1120 570" stroke="#EA580C" marker-end="url(#arrow-cancelRejected)"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(201 302)"><rect width="72" height="30" rx="8"/><text x="36" y="20" text-anchor="middle">initial</text></g>
+<g class="edgeLabel" transform="translate(553 287)"><rect width="54" height="30" rx="8"/><text x="27" y="20" text-anchor="middle">Pay</text></g>
+<g class="edgeLabel" transform="translate(911 287)"><rect width="58" height="30" rx="8"/><text x="29" y="20" text-anchor="middle">Ship</text></g>
+<g class="edgeLabel" transform="translate(1261 287)"><rect width="78" height="30" rx="8"/><text x="39" y="20" text-anchor="middle">Deliver</text></g>
+<g class="edgeLabel" transform="translate(446 443)"><rect width="74" height="30" rx="8"/><text x="37" y="20" text-anchor="middle">Cancel</text></g>
+<g class="edgeLabel" transform="translate(666 443)"><rect width="74" height="30" rx="8"/><text x="37" y="20" text-anchor="middle">Cancel</text></g>
+<g class="edgeLabel" transform="translate(1172 473)"><rect width="78" height="30" rx="8"/><text x="39" y="20" text-anchor="middle">Cancel?</text></g></g>
+<circle id="start" class="start" cx="187" cy="342" r="12"/>
+<g id="created"><rect class="card" x="275" y="250" width="250" height="155" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+
+  <text class="stateTitle" x="400" y="315" text-anchor="middle">CREATED</text>
+  <text class="detail" x="400" y="350" text-anchor="middle">initial state</text>
+  <text class="detail" x="400" y="372" text-anchor="middle">can pay or cancel</text></g>
+<g id="paid"><rect class="card" x="635" y="250" width="250" height="155" rx="8" fill="#ECFDF5" stroke="#16A34A"/>
+
+  <text class="stateTitle" x="760" y="315" text-anchor="middle">PAID</text>
+  <text class="detail" x="760" y="350" text-anchor="middle">can ship or cancel</text>
+  <text class="detail" x="760" y="372" text-anchor="middle">refund path still open</text></g>
+<g id="shipped"><rect class="card" x="995" y="250" width="250" height="155" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+
+  <text class="stateTitle" x="1120" y="315" text-anchor="middle">SHIPPED</text>
+  <text class="detail" x="1120" y="350" text-anchor="middle">can only deliver</text>
+  <text class="detail" x="1120" y="372" text-anchor="middle">cancel is rejected</text></g>
+<g id="delivered"><rect class="card" x="1355" y="250" width="250" height="155" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <rect class="badge" x="1517" y="266" width="66" height="28" rx="8"/><text class="badgeText" x="1550" y="285" text-anchor="middle">final</text>
+  <text class="stateTitle" x="1480" y="315" text-anchor="middle">DELIVERED</text>
+  <text class="detail" x="1480" y="350" text-anchor="middle">successful terminal state</text></g>
+<g id="cancelled"><rect class="card" x="455" y="555" width="300" height="145" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <rect class="badge" x="667" y="571" width="66" height="28" rx="8"/><text class="badgeText" x="700" y="590" text-anchor="middle">final</text>
+  <text class="stateTitle" x="605" y="620" text-anchor="middle">CANCELLED</text>
+  <text class="detail" x="605" y="655" text-anchor="middle">terminal cancellation state</text></g>
+<g id="reject"><rect class="note" x="985" y="570" width="420" height="96" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="noteText" x="1195" y="610" text-anchor="middle">After SHIPPED, Cancel is rejected</text>
+  <text class="detail" x="1195" y="636" text-anchor="middle">test asserts this transition fails</text></g>
+</svg>

@@ -151,3 +151,28 @@ JPA 애플리케이션 형태의 예제는 [JPA Querydsl demo](./bluetape4k-exam
 - [`EntityManagerSupportTest.kt`](../../../../data/hibernate/src/test/kotlin/io/bluetape4k/hibernate/EntityManagerSupportTest.kt)
 - [`SimpleQuerydslExamples.kt`](../../../../data/hibernate/src/test/kotlin/io/bluetape4k/hibernate/querydsl/simple/SimpleQuerydslExamples.kt)
 - [`StatelessSessionStandaloneTest.kt`](../../../../data/hibernate/src/test/kotlin/io/bluetape4k/hibernate/standalone/StatelessSessionStandaloneTest.kt)
+
+<!-- release-readme-diagrams:start -->
+## 배포본 다이어그램 {#release-diagrams}
+
+아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+
+### 영속성 확장 구조 다이어그램
+
+[![영속성 확장 구조 다이어그램](../../assets/readme-diagrams/data-hibernate-diagram-01.png)](../../assets/readme-diagrams/data-hibernate-diagram-01.svg)
+
+_배포본 README: [`data/hibernate/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate/README.ko.md)_
+
+### JPA 엔티티 클래스 계층 구조 다이어그램
+
+[![JPA 엔티티 클래스 계층 구조 다이어그램](../../assets/readme-diagrams/data-hibernate-diagram-02.png)](../../assets/readme-diagrams/data-hibernate-diagram-02.svg)
+
+_배포본 README: [`data/hibernate/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate/README.ko.md)_
+
+### AttributeConverter 종류 다이어그램
+
+[![AttributeConverter 종류 다이어그램](../../assets/readme-diagrams/data-hibernate-diagram-03.png)](../../assets/readme-diagrams/data-hibernate-diagram-03.svg)
+
+_배포본 README: [`data/hibernate/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate/README.ko.md)_
+
+<!-- release-readme-diagrams:end -->

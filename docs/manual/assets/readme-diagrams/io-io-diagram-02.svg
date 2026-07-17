@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1220" viewBox="0 0 1800 1220" role="img" aria-labelledby="title desc">
+  <title id="title">bluetape4k-io binary serializer hierarchy</title>
+  <desc id="desc">UML-style map of BinarySerializer contracts, concrete JDK, Kryo, Fory serializers, compression decorator, registry choices, fast modes, and trust boundaries.</desc>
+  <defs>
+    <style>
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #263238; }
+      .subtitle, .member, .small, .footer, .label { font-family: "Comic Mono"; fill: #36464f; }
+      .subtitle { font-size: 18px; }
+      .panel-title, .lane-title, .class-title { font-family: "Architects Daughter"; fill: #1f3138; }
+      .panel-title { font-size: 25px; }
+      .lane-title { font-size: 20px; }
+      .class-title { font-size: 21px; }
+      .member { font-size: 14px; }
+      .small { font-size: 13px; }
+      .label { font-size: 12px; fill: #546a73; }
+      .footer { font-size: 14px; fill: #60727d; }
+      .frame { fill: #fbfcf8; stroke: #41545d; stroke-width: 3; }
+      .class-panel { fill: #eef6f8; stroke: #b2cbd2; stroke-width: 2; }
+      .select-panel { fill: #f7f4ed; stroke: #d0c4ad; stroke-width: 2; }
+      .rule-panel { fill: #ffffff; stroke: #c6d2d5; stroke-width: 2; }
+      .api { fill: #ffffff; stroke: #4f6c77; stroke-width: 2; }
+      .abstract { fill: #fffdf7; stroke: #8a7447; stroke-width: 2; }
+      .impl { fill: #fdfefe; stroke: #5d7b63; stroke-width: 2; }
+      .registry { fill: #f7fbff; stroke: #6c86a1; stroke-width: 2; }
+      .decorator { fill: #fff8ec; stroke: #b48748; stroke-width: 2; }
+      .warning { fill: #fffafa; stroke: #b65f68; stroke-width: 2; }
+      .sep { stroke: #d6dee2; stroke-width: 1.5; }
+      .extends { fill: none; stroke: #263238; stroke-width: 1.9; marker-end: url(#hollowDark); }
+      .realize { fill: none; stroke: #455a64; stroke-width: 1.7; stroke-dasharray: 7 5; marker-end: url(#hollowSlate); }
+      .usesBlue { fill: none; stroke: #4b74a5; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowBlue); }
+      .usesGold { fill: none; stroke: #a2743d; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowGold); }
+      .usesRed { fill: none; stroke: #b65f68; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowRed); }
+      .flowGreen { fill: none; stroke: #5d7b63; stroke-width: 2; marker-end: url(#arrowGreen); }
+      .inheritBus { fill: none; stroke: #263238; stroke-width: 1.9; }
+    </style>
+    <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="hollowDark" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#263238" stroke-width="1.7" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="hollowSlate" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#455a64" stroke-width="1.7" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="1752" height="1172" rx="20" class="frame"/>
+  <text x="900" y="78" text-anchor="middle" class="title">bluetape4k-io BinarySerializer Hierarchy</text>
+  <text x="900" y="108" text-anchor="middle" class="subtitle">Core serializers extend one failure policy; compressed serializers decorate a delegate with a Compressor.</text>
+
+  <rect x="72" y="150" width="1132" height="834" rx="16" class="class-panel"/>
+  <text x="102" y="190" class="panel-title">Class structure and registry surface</text>
+  <text x="102" y="218" class="small">BinarySerializers exposes lazy singletons, fast factories, and compression combinations over the same BinarySerializer contract.</text>
+
+  <rect x="430" y="262" width="420" height="126" rx="7" class="api" filter="url(#softShadow)"/>
+  <text x="640" y="294" text-anchor="middle" class="class-title">BinarySerializer</text>
+  <line x1="430" y1="314" x2="850" y2="314" class="sep"/>
+  <text x="462" y="340" class="member">+ serialize(Any?): ByteArray</text>
+  <text x="462" y="362" class="member">+ deserialize&lt;T&gt;(ByteArray?): T?</text>
+
+  <rect x="430" y="462" width="420" height="150" rx="7" class="abstract" filter="url(#softShadow)"/>
+  <text x="640" y="494" text-anchor="middle" class="class-title">AbstractBinarySerializer</text>
+  <line x1="430" y1="514" x2="850" y2="514" class="sep"/>
+  <text x="462" y="540" class="member"># doSerialize(graph)</text>
+  <text x="462" y="562" class="member"># doDeserialize(bytes)</text>
+  <text x="462" y="584" class="member">throws BinarySerializationException</text>
+
+  <rect x="116" y="462" width="252" height="150" rx="7" class="registry" filter="url(#softShadow)"/>
+  <text x="242" y="494" text-anchor="middle" class="class-title">BinarySerializers</text>
+  <line x1="116" y1="514" x2="368" y2="514" class="sep"/>
+  <text x="140" y="540" class="member">Default = Kryo</text>
+  <text x="140" y="562" class="member">Jdk, Kryo, Fory</text>
+  <text x="140" y="584" class="member">FastFory and compressed variants</text>
+
+  <rect x="930" y="462" width="232" height="150" rx="7" class="decorator" filter="url(#softShadow)"/>
+  <text x="1046" y="494" text-anchor="middle" class="class-title">BinarySerializer</text>
+  <text x="1046" y="518" text-anchor="middle" class="class-title">Decorator</text>
+  <line x1="930" y1="536" x2="1162" y2="536" class="sep"/>
+  <text x="954" y="562" class="member">delegates by serializer</text>
+  <text x="954" y="584" class="member">extension point</text>
+
+  <rect x="890" y="654" width="300" height="116" rx="7" class="decorator" filter="url(#softShadow)"/>
+  <text x="1040" y="686" text-anchor="middle" class="class-title">CompressableBinarySerializer</text>
+  <line x1="890" y1="706" x2="1190" y2="706" class="sep"/>
+  <text x="918" y="732" class="member">delegate serializer + compressor</text>
+  <text x="918" y="754" class="member">compresses serialized bytes</text>
+
+  <rect x="118" y="824" width="282" height="126" rx="7" class="impl" filter="url(#softShadow)"/>
+  <text x="259" y="856" text-anchor="middle" class="class-title">JdkBinarySerializer</text>
+  <line x1="118" y1="876" x2="400" y2="876" class="sep"/>
+  <text x="146" y="902" class="member">ObjectOutputStream format</text>
+  <text x="146" y="924" class="member">JEP 290 input filter</text>
+
+  <rect x="496" y="824" width="282" height="126" rx="7" class="impl" filter="url(#softShadow)"/>
+  <text x="637" y="856" text-anchor="middle" class="class-title">KryoBinarySerializer</text>
+  <line x1="496" y1="876" x2="778" y2="876" class="sep"/>
+  <text x="524" y="902" class="member">default general serializer</text>
+  <text x="524" y="924" class="member">fast() for non-null DTOs</text>
+
+  <rect x="874" y="824" width="282" height="126" rx="7" class="impl" filter="url(#softShadow)"/>
+  <text x="1015" y="856" text-anchor="middle" class="class-title">ForyBinarySerializer</text>
+  <line x1="874" y1="876" x2="1156" y2="876" class="sep"/>
+  <text x="902" y="902" class="member">COMPATIBLE mode by default</text>
+  <text x="902" y="924" class="member">fast() for volatile caches</text>
+
+  <rect x="1256" y="150" width="472" height="834" rx="16" class="select-panel"/>
+  <text x="1286" y="190" class="panel-title">Selection and trust profiles</text>
+  <text x="1286" y="218" class="small">Choose by compatibility, throughput, storage size,</text>
+  <text x="1286" y="240" class="small">and whether serialized bytes are trusted.</text>
+
+  <rect x="1316" y="294" width="352" height="118" rx="7" class="registry" filter="url(#softShadow)"/>
+  <text x="1492" y="326" text-anchor="middle" class="class-title">General default</text>
+  <line x1="1316" y1="346" x2="1668" y2="346" class="sep"/>
+  <text x="1340" y="372" class="member">BinarySerializers.Default = Kryo</text>
+  <text x="1340" y="394" class="member">Jdk is explicit and deprecated</text>
+
+  <rect x="1316" y="466" width="352" height="134" rx="7" class="impl" filter="url(#softShadow)"/>
+  <text x="1492" y="498" text-anchor="middle" class="class-title">Performance modes</text>
+  <line x1="1316" y1="518" x2="1668" y2="518" class="sep"/>
+  <text x="1340" y="544" class="member">Fory.fast(): schema-consistent</text>
+  <text x="1340" y="566" class="member">Kryo.fast(): non-null DTOs only</text>
+  <text x="1340" y="588" class="member">not wire-compatible with defaults</text>
+
+  <rect x="1316" y="654" width="352" height="126" rx="7" class="decorator" filter="url(#softShadow)"/>
+  <text x="1492" y="686" text-anchor="middle" class="class-title">Storage savings</text>
+  <line x1="1316" y1="706" x2="1668" y2="706" class="sep"/>
+  <text x="1340" y="732" class="member">LZ4 / Snappy for speed</text>
+  <text x="1340" y="754" class="member">Zstd / GZip for smaller payloads</text>
+
+  <rect x="1316" y="834" width="352" height="112" rx="7" class="warning" filter="url(#softShadow)"/>
+  <text x="1492" y="866" text-anchor="middle" class="class-title">Deserialization boundary</text>
+  <line x1="1316" y1="886" x2="1668" y2="886" class="sep"/>
+  <text x="1340" y="912" class="member">JDK filter allow-lists packages</text>
+  <text x="1340" y="934" class="member">Kryo/Fory secure modes use allow-lists</text>
+
+  <rect x="92" y="1040" width="1616" height="82" rx="14" class="rule-panel"/>
+  <text x="122" y="1072" class="panel-title">Reader contract</text>
+  <text x="122" y="1100" class="small">Null graph serializes to empty bytes; null or empty bytes deserialize to null. All other failures become BinarySerializationException at the abstract base.</text>
+
+  <path d="M 640 462 L 640 388" class="realize" style="marker-end:none"/>
+<polygon points="646,400 640,388 634,400" fill="#455a64" stroke="#455a64" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <rect x="662" y="420" width="90" height="24" rx="12" fill="#ffffff" stroke="#d7e0e4"/>
+  <text x="707" y="437" text-anchor="middle" class="label">implements</text>
+
+  <path d="M 637 824 L 637 612" class="extends"/>
+  <path d="M 259 824 L 259 803.6 Q 259 790 272.6 790 L 637 790" class="inheritBus" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 1015 824 L 1015 803.6 Q 1015 790 1001.4 790 L 637 790" class="inheritBus" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="650" y="760" width="104" height="24" rx="12" fill="#ffffff" stroke="#d7e0e4"/>
+  <text x="702" y="777" text-anchor="middle" class="label">base subclasses</text>
+
+  <path d="M 1046 462 L 1046 339 Q 1046 325 1032 325 L 850 325" class="realize" stroke-linecap="round" stroke-linejoin="round" style="marker-end:none"/>
+<polygon points="862,319 850,325 862,331" fill="#455a64" stroke="#455a64" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 1040 654 L 1040 612" class="extends"/>
+
+  <path d="M 368 536 L 430 536" class="flowGreen"/>
+
+  <text x="900" y="1158" text-anchor="middle" class="footer">github.com/bluetape4k/bluetape4k-projects - io/io README</text>
+</svg>

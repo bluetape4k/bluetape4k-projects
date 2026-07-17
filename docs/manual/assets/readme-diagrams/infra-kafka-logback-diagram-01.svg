@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1880" height="1080" viewBox="0 0 1880 1080" role="img" aria-label="Kafka Logback class structure">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="118%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity=".11" /></filter>
+  <marker id="openBlue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 10 6 L 2 10" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
+  <marker id="openOrange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 10 6 L 2 10" fill="none" stroke="#EA580C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
+  <marker id="openPurple" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 10 6 L 2 10" fill="none" stroke="#9333EA" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
+  <marker id="openTeal" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#0D9488" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
+  <marker id="openGreen" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#16A34A" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
+  <marker id="hollowBlue" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 16 8 L 1 15 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+  <marker id="hollowOrange" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 16 8 L 1 15 Z" fill="#FFFFFF" stroke="#EA580C" stroke-width="2" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+  <marker id="hollowPurple" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 16 8 L 1 15 Z" fill="#FFFFFF" stroke="#9333EA" stroke-width="2" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+  <marker id="hollowTeal" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 16 8 L 1 15 Z" fill="#FFFFFF" stroke="#0D9488" stroke-width="2" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+  <marker id="hollowSlate" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 16 8 L 1 15 Z" fill="#FFFFFF" stroke="#64748B" stroke-width="2" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:15px;fill:#475569}
+    .card{filter:url(#shadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:21px;fill:#0F172A}
+    .stereo{font-family:"Comic Mono";font-size:12px;fill:#64748B}.member{font-family:"Comic Mono";font-size:12.3px;fill:#334155}
+    .divider{stroke:rgba(15,23,42,.17);stroke-width:1.2}.assoc{fill:none;stroke-width:3.0;stroke-linecap:round;stroke-linejoin:round}
+    .uses,.realize{fill:none;stroke-width:2.5;stroke-dasharray:8 7;stroke-linecap:round;stroke-linejoin:round}
+    .extends{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+    .edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1;opacity:.96}
+    .label{font-family:"Comic Mono";font-size:11.6px;fill:#0F172A;stroke:none}
+    .legend{font-family:"Comic Mono";font-size:12px;fill:#475569}
+  </style>
+</defs>
+<rect class="canvas" width="1880" height="1080" />
+<rect class="frame" x="34" y="30" width="1812" height="1014" rx="10" />
+<text class="title" x="72" y="84">Kafka Logback Class Structure</text>
+<text class="subtitle" x="76" y="116">KafkaAppender owns Logback integration while key selection, export, and fallback behavior stay pluggable.</text>
+<g>
+  <path class="extends" d="M 545 225 H 440" stroke="#64748B" />
+<polygon points="461,216 440,225 461,234" fill="#FFFFFF" stroke="#64748B" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="extends" d="M 760 425 V 335" stroke="#2563EB" />
+<polygon points="769,356 760,335 751,356" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 545 286 L 514 286 Q 500 286 500 300 L 500 461 Q 500 475 486 475 L 440 475" stroke="#EA580C" />
+
+  <polyline points="458,467 440,475 458,483" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 975 260 H 1090" stroke="#9333EA" />
+
+  <polyline points="1072,268 1090,260 1072,252" fill="none" stroke="#9333EA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="realize" d="M 260 610 V 560" stroke="#EA580C" />
+<polygon points="269,581 260,560 251,581" fill="#FFFFFF" stroke="#EA580C" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="extends" d="M 260 830 V 780" stroke="#EA580C" />
+<polygon points="269,801 260,780 251,801" fill="#FFFFFF" stroke="#EA580C" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="realize" d="M 1270 425 V 305" stroke="#9333EA" />
+<polygon points="1279,326 1270,305 1261,326" fill="#FFFFFF" stroke="#9333EA" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 975 522 H 1090" stroke="#9333EA" />
+
+  <polyline points="1072,530 1090,522 1072,514" fill="none" stroke="#9333EA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 760 635 V 795" stroke="#16A34A" />
+
+  <polyline points="752,777 760,795 768,777" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="uses" d="M 1450 508 H 1485" stroke="#0D9488" />
+
+  <polyline points="1467,516 1485,508 1467,500" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="realize" d="M 1615 605 V 537" stroke="#0D9488" />
+<polygon points="1624,558 1615,537 1606,558" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 1615 749 V 830" stroke="#0D9488" />
+
+  <polyline points="1607,812 1615,830 1623,812" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="uses" d="M 1090 575 L 1029 575 Q 1015 575 1015 589 L 1015 841 Q 1015 855 1001 855 L 975 855" stroke="#16A34A" stroke-linecap="round" stroke-linejoin="round" />
+
+  <polyline points="993,847 975,855 993,863" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+</g>
+<g><g class="edgeLabel"><rect x="443.4" y="435" width="97.2" height="22" rx="6" /><text class="label" x="492" y="450" text-anchor="middle">keyProvider</text></g><g class="edgeLabel"><rect x="994.2" y="233" width="75.6" height="22" rx="6" /><text class="label" x="1032" y="248" text-anchor="middle">exporter</text></g><g class="edgeLabel"><rect x="997.8" y="495" width="68.4" height="22" rx="6" /><text class="label" x="1032" y="510" text-anchor="middle">exports</text></g><g class="edgeLabel"><rect x="764.2" y="703" width="111.60000000000001" height="22" rx="6" /><text class="label" x="820" y="718" text-anchor="middle">owns producer</text></g><g class="edgeLabel"><rect x="1622.2" y="780" width="75.6" height="22" rx="6" /><text class="label" x="1660" y="795" text-anchor="middle">fallback</text></g><g class="edgeLabel"><rect x="1005.4" y="610" width="61.2" height="22" rx="6" /><text class="label" x="1036" y="625" text-anchor="middle">send()</text></g></g>
+<g id="logbackBase">
+  <rect class="card" x="80" y="155" width="360" height="160" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="stereo" x="260" y="183" text-anchor="middle">Logback APIs</text>
+  <text class="cardTitle" x="260" y="213" text-anchor="middle">Appender Infrastructure</text>
+  <line class="divider" x1="104" y1="231" x2="416" y2="231" />
+  <text class="member" x="108" y="258">UnsynchronizedAppenderBase</text><text class="member" x="108" y="280">AppenderAttachable&lt;E&gt;</text><text class="member" x="108" y="302">Encoder&lt;E&gt;</text>
+</g><g id="abstractAppender">
+  <rect class="card" x="545" y="135" width="430" height="200" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="stereo" x="760" y="163" text-anchor="middle">abstract class</text>
+  <text class="cardTitle" x="760" y="193" text-anchor="middle">AbstractKafkaAppender&lt;E&gt;</text>
+  <line class="divider" x1="569" y1="211" x2="951" y2="211" />
+  <text class="member" x="573" y="238">bootstrapServers, topic, acks</text><text class="member" x="573" y="260">keyProvider: KafkaKeyProvider</text><text class="member" x="573" y="282">exporter: KafkaExporter</text><text class="member" x="573" y="304">encoder: Encoder&lt;E&gt;</text>
+</g><g id="kafkaAppender">
+  <rect class="card" x="545" y="425" width="430" height="210" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="stereo" x="760" y="453" text-anchor="middle">class</text>
+  <text class="cardTitle" x="760" y="483" text-anchor="middle">KafkaAppender&lt;E&gt;</text>
+  <line class="divider" x1="569" y1="501" x2="951" y2="501" />
+  <text class="member" x="573" y="528">defer Kafka client logs</text><text class="member" x="573" y="550">encode event -&gt; ProducerRecord</text><text class="member" x="573" y="572">export(..., exceptionHandler)</text><text class="member" x="573" y="594">flush/close producer on stop</text>
+</g><g id="producer">
+  <rect class="card" x="545" y="795" width="430" height="160" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="stereo" x="760" y="823" text-anchor="middle">Kafka client</text>
+  <image data-bluetape4k-icon="testcontainers/mq/apache-kafka.svg" x="562" y="830" width="38" height="38" href="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRDIyMTI4IiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+QXBhY2hlIEthZmthPC90aXRsZT48cGF0aCBkPSJNOS43MSAyLjEzNmExLjQzIDEuNDMgMCAwIDAtMi4wNDcgMGgtLjAwN2ExLjQ4IDEuNDggMCAwIDAtLjQyMSAxLjA0MmMwIC40MS4xNjEuNzc3LjQyMiAxLjAzOWwuMDA3LjAwN2MuMjU3LjI2NC42MTYuNDI2IDEuMDE5LjQyNi40MDQgMCAuNzY2LS4xNjIgMS4wMjctLjQyNmwuMDAzLS4wMDdjLjI2MS0uMjYyLjQyMS0uNjI5LjQyMS0xLjAzOSAwLS40MDgtLjE1OS0uNzc3LS40MjEtMS4wNDJIOS43MXpNOC42ODMgMjIuMjk1Yy40MDQgMCAuNzY2LS4xNjcgMS4wMjctLjQyOWwuMDAzLS4wMDhjLjI2MS0uMjYxLjQyMS0uNjMxLjQyMS0xLjAzNiAwLS40MS0uMTU5LS43NzgtLjQyMS0xLjA0NEg5LjcxYTEuNDIgMS40MiAwIDAgMC0xLjAyNy0uNDMyIDEuNCAxLjQgMCAwIDAtMS4wMi40MzJoLS4wMDdjLS4yNi4yNjYtLjQyMi42MzQtLjQyMiAxLjA0NCAwIC40MDYuMTYxLjc3NS40MjIgMS4wMzZsLjAwNy4wMDhjLjI1OC4yNjIuNjE3LjQyOSAxLjAyLjQyOXptNy44OS00LjQ2MmMuMzU5LS4wOTYuNjgzLS4zMy44ODItLjY4NGwuMDI3LS4wNTJhMS40NyAxLjQ3IDAgMCAwIC4xMTQtMS4wNjcgMS40NTQgMS40NTQgMCAwIDAtLjY3NS0uODk2bC0uMDIxLS4wMTRhMS40MjUgMS40MjUgMCAwIDAtMS4wNzgtLjEzMmMtLjM2LjA5MS0uNjg0LjMzNS0uODgxLjY4Ni0uMi4zNDktLjI0MS43NS0uMTQ2IDEuMTE5LjA5OS4zNjMuMzMuNjkxLjY3NS44OTZoLjAwMmMuMzQ2LjIwMy43MzcuMjM5IDEuMTAxLjE0NHptLTYuNDA1LTcuMzQyYTIuMDgzIDIuMDgzIDAgMCAwLTEuNDg1LS42MjdjLS41OCAwLTEuMTAzLjI0Mi0xLjQ4Mi42MjctLjM3OC4zODUtLjYxMi45MTYtLjYxMiAxLjUwN3MuMjMzIDEuMTI0LjYxMiAxLjUxNGEyLjA4IDIuMDggMCAwIDAgMi45NjcgMGMuMzc5LS4zOS42MTItLjkyMy42MTItMS41MTRzLS4yMzMtMS4xMjItLjYxMi0xLjUwN3ptLS44MzUtMi41MWMuODQzLjE0MSAxLjYuNTUyIDIuMTc4IDEuMTQ0aC4wMDRjLjA5Mi4wOTMuMTgyLjE5Ni4yNjUuMjk5bDEuNDQ2LS44NTFhMy4xNzYgMy4xNzYgMCAwIDEtLjA0Ny0xLjgwOCAzLjE0OSAzLjE0OSAwIDAgMSAxLjQ1Ni0xLjkyNmwuMDI1LS4wMTZhMy4wNjIgMy4wNjIgMCAwIDEgMi4zNDUtLjMwNmMuNzcuMjEgMS40NjUuNzIxIDEuODk4IDEuNDgydi4wMDJjLjQzMS43NTcuNTE4IDEuNjI2LjMxMyAyLjQwOGEzLjE0NSAzLjE0NSAwIDAgMS0xLjQ1NiAxLjkyOGwtLjE5OC4xMThoLS4wMmEzLjA5NSAzLjA5NSAwIDAgMS0yLjE1NC4yMDEgMy4xMjcgMy4xMjcgMCAwIDEtMS41MTQtLjk0NGwtMS40NDQuODQ4YTQuMTYyIDQuMTYyIDAgMCAxIDAgMi44NzlsMS40NDQuODQ2Yy40MTMtLjQ3LjkzOS0uNzg5IDEuNTE0LS45NDRhMy4wNDEgMy4wNDEgMCAwIDEgMi4zNzEuMzE5bC4wNDguMDIzdi4wMDJhMy4xNyAzLjE3IDAgMCAxIDEuNDA4IDEuOTA2IDMuMjE1IDMuMjE1IDAgMCAxLS4zMTMgMi40MDVsLS4wMjYuMDUzLS4wMDMtLjAwNWEzLjE0NyAzLjE0NyAwIDAgMS0xLjg2NyAxLjQzNiAzLjA5NiAzLjA5NiAwIDAgMS0yLjM3MS0uMzE4di0uMDA2YTMuMTU2IDMuMTU2IDAgMCAxLTEuNDU2LTEuOTI3IDMuMTc1IDMuMTc1IDAgMCAxIC4wNDctMS44MDVsLTEuNDQ2LS44NDhhMy45MDUgMy45MDUgMCAwIDEtLjI2NS4yOTRsLS4wMDQuMDA1YTMuOTM4IDMuOTM4IDAgMCAxLTIuMTc4IDEuMTM4djEuNjk5YTMuMDkgMy4wOSAwIDAgMSAxLjU2Ljg2MmwuMDAyLjAwNGMuNTY1LjU3Mi45MTQgMS4zNjguOTE0IDIuMjQzIDAgLjg3My0uMzUgMS42NjQtLjkxNCAyLjIzOWwtLjAwMi4wMDlhMy4xIDMuMSAwIDAgMS0yLjIxLjkzMSAzLjEgMy4xIDAgMCAxLTIuMjA2LS45M2gtLjAwMnYtLjAwOWEzLjE4NiAzLjE4NiAwIDAgMS0uOTE2LTIuMjM5YzAtLjg3NS4zNS0xLjY3Mi45MTYtMi4yNDN2LS4wMDRoLjAwMmEzLjEgMy4xIDAgMCAxIDEuNTU4LS44NjJ2LTEuNjk5YTMuOTI2IDMuOTI2IDAgMCAxLTIuMTc2LTEuMTM4bC0uMDA2LS4wMDVhNC4wOTggNC4wOTggMCAwIDEtMS4xNzMtMi44NzRjMC0xLjEyMi40NTItMi4xMzYgMS4xNzMtMi44NzJoLjAwNmEzLjk0NyAzLjk0NyAwIDAgMSAyLjE3Ni0xLjE0NFY2LjI4OWEzLjEzNyAzLjEzNyAwIDAgMS0xLjU1OC0uODY0aC0uMDAydi0uMDA0YTMuMTkyIDMuMTkyIDAgMCAxLS45MTYtMi4yNDNjMC0uODcxLjM1LTEuNjY5LjkxNi0yLjI0M2wuMDAyLS4wMDJBMy4wODQgMy4wODQgMCAwIDEgOC42ODMgMGMuODYxIDAgMS42NDEuMzU1IDIuMjEuOTMydi4wMDJoLjAwMmMuNTY1LjU3NC45MTQgMS4zNzIuOTE0IDIuMjQzIDAgLjg3Ni0uMzUgMS42NjctLjkxNCAyLjI0M2wtLjAwMi4wMDVhMy4xNDIgMy4xNDIgMCAwIDEtMS41Ni44NjR2MS42OTJ6bTguMTIxLTEuMTI5bC0uMDEyLS4wMTlhMS40NTIgMS40NTIgMCAwIDAtLjg3LS42NjggMS40MyAxLjQzIDAgMCAwLTEuMTAzLjE0NmguMDAyYy0uMzQ3LjItLjU4LjUyOS0uNjc3Ljg5Ni0uMDk1LjM2NS0uMDU0Ljc2OC4xNDYgMS4xMTlsLjAwNy4wMDljLjIuMzQ3LjUxOS41NzkuODc0LjY3My4zNTcuMTAzLjc1NS4wNTkgMS4wOTgtLjE0NGwuMDE5LS4wMDlhMS40NyAxLjQ3IDAgMCAwIC42NTctLjg4NSAxLjQ5MyAxLjQ5MyAwIDAgMC0uMTQxLTEuMTE4Ii8+PC9zdmc+" preserveAspectRatio="xMidYMid meet"/><text class="cardTitle" x="760" y="853" text-anchor="middle">KafkaProducer</text>
+  <line class="divider" x1="569" y1="871" x2="951" y2="871" />
+  <text class="member" x="573" y="898">Producer&lt;ByteArray, ByteArray&gt;</text><text class="member" x="573" y="920">send(record, callback)</text><text class="member" x="573" y="942">flush() / close()</text>
+</g><g id="keyApi">
+  <rect class="card" x="80" y="410" width="360" height="150" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="stereo" x="260" y="438" text-anchor="middle">interface</text>
+  <text class="cardTitle" x="260" y="468" text-anchor="middle">KafkaKeyProvider&lt;E&gt;</text>
+  <line class="divider" x1="104" y1="486" x2="416" y2="486" />
+  <text class="member" x="108" y="513">+ get(event): ByteArray?</text><text class="member" x="108" y="535">null means unkeyed record</text>
+</g><g id="keyBase">
+  <rect class="card" x="80" y="610" width="360" height="170" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="stereo" x="260" y="638" text-anchor="middle">abstract class</text>
+  <text class="cardTitle" x="260" y="668" text-anchor="middle">AbstractKafkaKeyProvider</text>
+  <line class="divider" x1="104" y1="686" x2="416" y2="686" />
+  <text class="member" x="108" y="713">ContextAwareBase + LifeCycle</text><text class="member" x="108" y="735">resets errorWasShown</text><text class="member" x="108" y="757">base for context-aware keys</text>
+</g><g id="keyImpls">
+  <rect class="card" x="80" y="830" width="360" height="170" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="stereo" x="260" y="858" text-anchor="middle">classes</text>
+  <text class="cardTitle" x="260" y="888" text-anchor="middle">Key Provider Implementations</text>
+  <line class="divider" x1="104" y1="906" x2="416" y2="906" />
+  <text class="member" x="108" y="933">Hostname / Logger / Thread</text><text class="member" x="108" y="955">ContextName extend base</text><text class="member" x="108" y="977">Null implements interface</text>
+</g><g id="exporterApi">
+  <rect class="card" x="1090" y="155" width="360" height="150" rx="8" fill="#FAF5FF" stroke="#9333EA" />
+  <text class="stereo" x="1270" y="183" text-anchor="middle">interface</text>
+  <text class="cardTitle" x="1270" y="213" text-anchor="middle">KafkaExporter</text>
+  <line class="divider" x1="1114" y1="231" x2="1426" y2="231" />
+  <text class="member" x="1118" y="258">+ export(producer, record, event)</text><text class="member" x="1118" y="280">returns immediate success flag</text>
+</g><g id="defaultExporter">
+  <rect class="card" x="1090" y="425" width="360" height="166" rx="8" fill="#FAF5FF" stroke="#9333EA" />
+  <text class="stereo" x="1270" y="453" text-anchor="middle">class</text>
+  <text class="cardTitle" x="1270" y="483" text-anchor="middle">DefaultKafkaExporter</text>
+  <line class="divider" x1="1114" y1="501" x2="1426" y2="501" />
+  <text class="member" x="1118" y="528">producer.send(record)</text><text class="member" x="1118" y="550">callback delegates failures</text><text class="member" x="1118" y="572">buffer/timeout -&gt; false</text>
+</g><g id="handlerApi">
+  <rect class="card" x="1485" y="395" width="260" height="142" rx="8" fill="#ECFDF5" stroke="#0D9488" />
+  <text class="stereo" x="1615" y="423" text-anchor="middle">fun interface</text>
+  <text class="cardTitle" x="1615" y="453" text-anchor="middle">ExportExceptionHandler</text>
+  <line class="divider" x1="1509" y1="471" x2="1721" y2="471" />
+  <text class="member" x="1513" y="498">+ handle(event, error)</text><text class="member" x="1513" y="520">custom fallback contract</text>
+</g><g id="appenderHandler">
+  <rect class="card" x="1485" y="605" width="260" height="144" rx="8" fill="#ECFDF5" stroke="#0D9488" />
+  <text class="stereo" x="1615" y="633" text-anchor="middle">KafkaAppender owned</text>
+  <text class="cardTitle" x="1615" y="663" text-anchor="middle">Fallback Handler</text>
+  <line class="divider" x1="1509" y1="681" x2="1721" y2="681" />
+  <text class="member" x="1513" y="708">warn on exception</text><text class="member" x="1513" y="730">append to fallback appenders</text>
+</g><g id="fallback">
+  <rect class="card" x="1485" y="830" width="260" height="150" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="stereo" x="1615" y="858" text-anchor="middle">Logback</text>
+  <text class="cardTitle" x="1615" y="888" text-anchor="middle">Attached Appenders</text>
+  <line class="divider" x1="1509" y1="906" x2="1721" y2="906" />
+  <text class="member" x="1513" y="933">appendLoopOnAppenders</text><text class="member" x="1513" y="955">fallback on export error</text>
+</g>
+<g transform="translate(80 1028)">
+  <path class="extends" d="M 0 0 H 58" stroke="#2563EB" />
+<polygon points="37,9 58,0 37,-9" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legend" x="72" y="5">extends</text>
+  <path class="realize" d="M 170 0 H 228" stroke="#9333EA" />
+<polygon points="207,9 228,0 207,-9" fill="#FFFFFF" stroke="#9333EA" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legend" x="242" y="5">implements</text>
+  <path class="assoc" d="M 385 0 H 443" stroke="#16A34A" />
+
+  <polyline points="425,8 443,0 425,-8" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legend" x="457" y="5">has / uses</text>
+</g>
+</svg>

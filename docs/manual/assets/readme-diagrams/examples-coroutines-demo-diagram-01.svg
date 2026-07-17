@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1520" height="880" viewBox="0 0 1520 880" role="img" aria-labelledby="title desc">
+<title id="title">Coroutines Demo Learning Map</title>
+<desc id="desc">Executable examples grouped by coroutine concept and failure boundary</desc>
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="blueArrow" viewBox="0 0 10 10" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563EB" stroke="#2563EB" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="greenArrow" viewBox="0 0 10 10" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#16A34A" stroke="#16A34A" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="orangeArrow" viewBox="0 0 10 10" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#EA580C" stroke="#EA580C" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="purpleArrow" viewBox="0 0 10 10" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#7C3AED" stroke="#7C3AED" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <style>
+    .canvas{fill:#F7F9FC} .frame{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2}
+    .panel{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:1.8;filter:url(#shadow)}
+    .group{fill:#F8FBFF;stroke:#C9D8E8;stroke-width:1.5}
+    .title{font-family:"Architects Daughter";font-size:40px;fill:#21334A;font-weight:700}
+    .subtitle{font-family:"Comic Mono";font-size:15px;fill:#536476}
+    .heading{font-family:"Architects Daughter";font-size:24px;fill:#21334A;font-weight:700}
+    .cardTitle{font-family:"Architects Daughter";font-size:21px;fill:#21334A;font-weight:700}
+    .text{font-family:"Comic Mono";font-size:13px;fill:#34465B}
+    .small{font-family:"Comic Mono";font-size:12px;fill:#536476}
+    .edgeBlue{fill:none;stroke:#2563EB;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#blueArrow)}
+    .edgeGreen{fill:none;stroke:#16A34A;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#greenArrow)}
+    .edgeOrange{fill:none;stroke:#EA580C;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#orangeArrow)}
+    .edgePurple{fill:none;stroke:#7C3AED;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#purpleArrow)}
+    .dash{stroke-dasharray:8 7}
+  </style>
+</defs>
+<rect class="canvas" width="1520" height="880"/>
+<rect class="frame" x="34" y="34" width="1452" height="812" rx="24"/>
+<text class="title" x="70" y="84">Coroutines Demo Learning Map</text>
+<text class="subtitle" x="72" y="116">Executable examples grouped by coroutine concept and failure boundary</text>
+<rect class="group" x="74" y="150" width="1372" height="690" rx="16"/>
+<text class="heading" x="104" y="192">Learning path by source package</text>
+<g><rect class="panel" x="114" y="230" width="288" height="142" rx="14" fill="#EFF6FF" stroke="#2563EB"/>
+<text class="cardTitle" x="136" y="266">Basics and scope</text>
+<text class="text" x="136" y="296">coroutineScope, launch, async</text>
+<text class="text" x="136" y="318">builders and custom scopes</text>
+<text class="text" x="136" y="340">structured concurrency habits</text>
+</g>
+<g><rect class="panel" x="450" y="230" width="288" height="142" rx="14" fill="#F0FDF4" stroke="#16A34A"/>
+<text class="cardTitle" x="472" y="266">Suspend and context</text>
+<text class="text" x="472" y="296">suspend functions</text>
+<text class="text" x="472" y="318">CoroutineContext elements</text>
+<text class="text" x="472" y="340">MDC, UUID, counter context</text>
+</g>
+<g><rect class="panel" x="786" y="230" width="288" height="142" rx="14" fill="#FFF7ED" stroke="#EA580C"/>
+<text class="cardTitle" x="808" y="266">Flow and channels</text>
+<text class="text" x="808" y="296">flow builders/operators</text>
+<text class="text" x="808" y="318">SharedFlow, StateFlow</text>
+<text class="text" x="808" y="340">Channel, Actor, select</text>
+</g>
+<g><rect class="panel" x="1122" y="230" width="288" height="142" rx="14" fill="#FAF5FF" stroke="#7C3AED"/>
+<text class="cardTitle" x="1144" y="266">Reliability and tests</text>
+<text class="text" x="1144" y="296">cancellation and timeout</text>
+<text class="text" x="1144" y="318">exception handling</text>
+<text class="text" x="1144" y="340">Turbine Flow tests</text>
+</g>
+<path class="edgeBlue" d="M402 301 H450"/>
+<path class="edgeGreen" d="M738 301 H786"/>
+<path class="edgeOrange" d="M1074 301 H1122"/>
+<g><rect class="panel" x="226" y="500" width="300" height="140" rx="14" fill="#F8FBFF" stroke="#94A3B8"/>
+<text class="cardTitle" x="248" y="536">Example entrypoints</text>
+<text class="text" x="248" y="566">guide/* mirrors official guide</text>
+<text class="text" x="248" y="588">builders/* adds local DSL patterns</text>
+<text class="text" x="248" y="610">scope/* shows lifecycle ownership</text>
+</g>
+<g><rect class="panel" x="610" y="500" width="300" height="140" rx="14" fill="#F8FBFF" stroke="#94A3B8"/>
+<text class="cardTitle" x="632" y="536">Async data streams</text>
+<text class="text" x="632" y="566">flow/* turns values into streams</text>
+<text class="text" x="632" y="588">channels/* models handoff</text>
+<text class="text" x="632" y="610">select/* chooses first ready signal</text>
+</g>
+<g><rect class="panel" x="994" y="500" width="300" height="140" rx="14" fill="#F8FBFF" stroke="#94A3B8"/>
+<text class="cardTitle" x="1016" y="536">Failure boundaries</text>
+<text class="text" x="1016" y="566">cancellation/* is cooperative</text>
+<text class="text" x="1016" y="588">exceptions/* separates handlers</text>
+<text class="text" x="1016" y="610">tests/* validates stream behavior</text>
+</g>
+<path class="edgePurple dash" d="M258 372 V452 Q258 468 274 468 H376 Q392 468 392 500" style="marker-end:none"/>
+<polygon points="386,488 392,500 398,488" fill="#7C3AED" stroke="#7C3AED" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="edgePurple dash" d="M930 372 V452 Q930 468 914 468 H776 Q760 468 760 500" style="marker-end:none"/>
+<polygon points="754,488 760,500 766,488" fill="#7C3AED" stroke="#7C3AED" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<path class="edgePurple dash" d="M1266 372 V452 Q1266 468 1250 468 H1144 Q1128 468 1128 500" style="marker-end:none"/>
+<polygon points="1122,488 1128,500 1134,488" fill="#7C3AED" stroke="#7C3AED" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<rect class="group" x="114" y="700" width="1296" height="88" rx="14" fill="#F8FBFF"/>
+<text class="text" x="150" y="735">Reader contract: use the README table to pick a package, then run the matching test class as an executable coroutine lesson.</text>
+<text class="small" x="150" y="762">The diagram groups test sources by the learning question, not by Gradle source set mechanics.</text>
+</svg>

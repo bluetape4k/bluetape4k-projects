@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="960" viewBox="0 0 1500 960" role="img" aria-label="Elasticsearch module architecture">
+  <defs>
+    <filter id="shadow" x="-8%" y="-10%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#2563eb" stroke="#2563eb" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowOlive" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#65a30d" stroke="#65a30d" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowTeal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#0d9488" stroke="#0d9488" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#ea580c" stroke="#ea580c" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 12 7 L 2 12 Z" fill="#9333ea" stroke="#9333ea" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <style>
+      svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+      .canvas { fill: #f8fafc; }
+      .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; filter: url(#shadow); }
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #0f172a; }
+      .subtitle { font-family: "Comic Mono"; font-size: 15px; fill: #475569; }
+      .lane { stroke-width: 1.4; stroke-dasharray: 7 6; }
+      .laneTitle { font-family: "Architects Daughter"; font-size: 22px; fill: #0f172a; }
+      .laneSub { font-family: "Comic Mono"; font-size: 12px; fill: #64748b; }
+      .card { stroke-width: 1.7; filter: url(#shadow); }
+      .cardTitle { font-family: "Architects Daughter"; font-size: 21px; fill: #0f172a; }
+      .detail { font-family: "Comic Mono"; font-size: 12.5px; fill: #475569; }
+      .small { font-family: "Comic Mono"; font-size: 11.5px; fill: #64748b; }
+      .route { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+      .dashed { stroke-dasharray: 9 7; }
+      .label { font-family: "Comic Mono"; font-size: 11.5px; fill: #475569; }
+      .pill { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.1; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1500" height="960"/>
+  <rect class="frame" x="36" y="30" width="1428" height="900" rx="8"/>
+  <text class="title" x="74" y="84">Elasticsearch Module Architecture</text>
+  <text class="subtitle" x="78" y="116">Client construction, transport setup, and coroutine search/bulk pipelines stay separate while sharing the official Elastic client.</text>
+
+  <g id="lane-entry">
+    <rect class="lane" x="82" y="154" width="282" height="714" rx="8" fill="#DBEAFE" fill-opacity="1" stroke="#93c5fd"/>
+    <text class="laneTitle" x="106" y="190">Application entry</text>
+    <text class="laneSub" x="106" y="213">Kotlin DSL and module defaults</text>
+  </g>
+  <g id="lane-client">
+    <rect class="lane" x="398" y="154" width="352" height="748" rx="8" fill="#FFEDD5" fill-opacity="1" stroke="#fdba74"/>
+    <text class="laneTitle" x="422" y="190">Client construction</text>
+    <text class="laneSub" x="422" y="213">factory, transport, mapper</text>
+  </g>
+  <g id="lane-coroutines">
+    <rect class="lane" x="784" y="154" width="386" height="762" rx="8" fill="#EDE9FE" fill-opacity="1" stroke="#d8b4fe"/>
+    <text class="laneTitle" x="808" y="190">Coroutine APIs</text>
+    <text class="laneSub" x="808" y="213">suspend wrappers and Flow pipelines</text>
+  </g>
+  <g id="lane-cluster">
+    <rect class="lane" x="1204" y="108" width="214" height="760" rx="8" fill="#CCFBF1" fill-opacity="1" stroke="#99f6e4"/>
+    <text class="laneTitle" x="1228" y="190">Elasticsearch</text>
+    <text class="laneSub" x="1228" y="213">external cluster APIs</text>
+  </g>
+
+  <g id="app">
+    <rect class="card" x="112" y="282" width="222" height="104" rx="8" fill="#eff6ff" stroke="#2563eb"/>
+    <text class="cardTitle" x="223" y="315" text-anchor="middle">User application</text>
+    <text class="detail" x="223" y="344" text-anchor="middle">calls DSL builders</text>
+    <text class="detail" x="223" y="365" text-anchor="middle">then uses suspend/Flow APIs</text>
+  </g>
+  <g id="dsl">
+    <rect class="card" x="112" y="510" width="222" height="114" rx="8" fill="#f0fdf4" stroke="#16a34a"/>
+    <text class="cardTitle" x="223" y="543" text-anchor="middle">Client DSL</text>
+    <text class="detail" x="223" y="572" text-anchor="middle">elasticsearchAsyncClient {}</text>
+    <text class="detail" x="223" y="593" text-anchor="middle">elasticsearchClient {}</text>
+  </g>
+
+  <g id="config">
+    <rect class="card" x="430" y="238" width="288" height="110" rx="8" fill="#fff7ed" stroke="#ea580c"/>
+    <text class="cardTitle" x="574" y="270" text-anchor="middle">Client Config</text>
+    <text class="detail" x="574" y="299" text-anchor="middle">host, port, scheme</text>
+    <text class="detail" x="574" y="320" text-anchor="middle">auth, SSL, JsonpMapper</text>
+  </g>
+  <g id="factory">
+    <rect class="card" x="430" y="410" width="288" height="116" rx="8" fill="#fff7ed" stroke="#ea580c"/>
+    <text class="cardTitle" x="574" y="443" text-anchor="middle">ElasticsearchClients</text>
+    <text class="detail" x="574" y="472" text-anchor="middle">clientOf / asyncClientOf</text>
+    <text class="detail" x="574" y="493" text-anchor="middle">transportOf()</text>
+  </g>
+  <g id="transport">
+    <rect class="card" x="430" y="614" width="288" height="102" rx="8" fill="#f7fee7" stroke="#65a30d"/>
+    <text class="cardTitle" x="574" y="646" text-anchor="middle">Rest5 Transport</text>
+    <text class="detail" x="574" y="675" text-anchor="middle">Rest5ClientTransport</text>
+    <text class="detail" x="574" y="696" text-anchor="middle">HC5, auth, SSL</text>
+  </g>
+  <g id="mapper">
+    <rect class="card" x="430" y="746" width="288" height="72" rx="8" fill="#eff6ff" stroke="#2563eb"/>
+    <text class="cardTitle" x="574" y="775" text-anchor="middle">JSON Mapper</text>
+    <text class="detail" x="574" y="801" text-anchor="middle">Jackson 3 first, Jackson 2 fallback</text>
+  </g>
+
+  <g id="client">
+    <rect class="card" x="828" y="238" width="298" height="108" rx="8" fill="#f0fdfa" stroke="#0d9488"/>
+    <text class="cardTitle" x="977" y="270" text-anchor="middle">Official clients</text>
+    <text class="detail" x="977" y="299" text-anchor="middle">ElasticsearchAsyncClient</text>
+    <text class="detail" x="977" y="320" text-anchor="middle">ElasticsearchClient</text>
+  </g>
+  <g id="suspendApis">
+    <rect class="card" x="828" y="412" width="298" height="100" rx="8" fill="#faf5ff" stroke="#9333ea"/>
+    <text class="cardTitle" x="977" y="444" text-anchor="middle">Suspend wrappers</text>
+    <text class="detail" x="977" y="473" text-anchor="middle">index/get/update/delete</text>
+    <text class="detail" x="977" y="494" text-anchor="middle">search/count/indices</text>
+  </g>
+  <g id="searchFlow">
+    <rect class="card" x="828" y="574" width="298" height="104" rx="8" fill="#f0fdfa" stroke="#0d9488"/>
+    <text class="cardTitle" x="977" y="607" text-anchor="middle">PIT Search Flow</text>
+    <text class="detail" x="977" y="636" text-anchor="middle">open PIT, page with search_after</text>
+    <text class="detail" x="977" y="657" text-anchor="middle">close PIT in finally</text>
+  </g>
+  <g id="bulkFlow">
+    <rect class="card" x="828" y="732" width="298" height="100" rx="8" fill="#fff7ed" stroke="#ea580c"/>
+    <text class="cardTitle" x="977" y="764" text-anchor="middle">Bulk pipelines</text>
+    <text class="detail" x="977" y="793" text-anchor="middle">bulkAsFlow chunks operations</text>
+    <text class="detail" x="977" y="814" text-anchor="middle">BulkIngester events as Flow</text>
+  </g>
+
+  <g id="cluster">
+    <rect class="card" x="1230" y="392" width="162" height="192" rx="8" fill="#f0fdfa" stroke="#0d9488"/>
+    <circle cx="1311" cy="438" r="28" fill="#005571"/>
+    <g transform="translate(1295 422) scale(1.35)" fill="#ffffff">
+      <path d="M13.394 0C8.683 0 4.609 2.716 2.644 6.667h15.641a4.77 4.77 0 0 0 3.073-1.11c.446-.375.864-.785 1.247-1.243l.001-.002A11.974 11.974 0 0 0 13.394 0zM1.804 8.889a12.009 12.009 0 0 0 0 6.222h14.7a3.111 3.111 0 1 0 0-6.222zm.84 8.444C4.61 21.283 8.684 24 13.395 24c3.701 0 7.011-1.677 9.212-4.312l-.001-.002a9.958 9.958 0 0 0-1.247-1.243 4.77 4.77 0 0 0-3.073-1.11z"/>
+    </g>
+    <text class="cardTitle" x="1311" y="495" text-anchor="middle">ES Cluster</text>
+    <text class="detail" x="1311" y="523" text-anchor="middle">Search and Bulk APIs</text>
+    <text class="detail" x="1311" y="544" text-anchor="middle">PIT lifecycle</text>
+  </g>
+
+  <path class="route" d="M 334 334 L 384 334 Q 398 334 398 320 L 398 307 Q 398 293 408 293 L 430 293" stroke="#2563eb" marker-end="url(#arrowBlue)"/>
+  <path class="route" d="M 223 386 V 510" stroke="#16a34a" marker-end="url(#arrowGreen)"/>
+  <path class="route" d="M 334 567 L 368 567 Q 382 567 382 553 L 382 482 Q 382 468 396 468 L 430 468" stroke="#16a34a" marker-end="url(#arrowGreen)"/>
+  <path class="route" d="M 574 348 V 410" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
+  <path class="route" d="M 718 468 L 760 468 Q 774 468 774 454 L 774 306 Q 774 292 788 292 L 828 292" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
+  <path class="route" d="M 574 526 V 614" stroke="#65a30d" marker-end="url(#arrowOlive)"/>
+  <path class="route dashed" d="M 718 782 L 744 782 Q 758 782 758 768 L 758 679 Q 758 665 744 665 L 718 665" stroke="#2563eb"/>
+<polygon points="730,659 718,665 730,671" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+
+  <path class="route" d="M 977 346 V 412" stroke="#9333ea" marker-end="url(#arrowPurple)"/>
+  <path class="route" d="M 977 512 V 574" stroke="#0d9488" marker-end="url(#arrowTeal)"/>
+  <path class="route" d="M 977 678 V 732" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
+
+  <path class="route" d="M 1126 292 L 1176 292 Q 1190 292 1190 306 L 1190 474 Q 1190 488 1204 488 L 1230 488" stroke="#0d9488" marker-end="url(#arrowTeal)"/>
+  <path class="route" d="M 1126 626 L 1172 626 Q 1186 626 1186 612 L 1186 534 Q 1186 520 1200 520 L 1230 520" stroke="#0d9488" marker-end="url(#arrowTeal)"/>
+  <path class="route" d="M 1126 782 L 1180 782 Q 1194 782 1194 768 L 1194 566 Q 1194 552 1208 552 L 1230 552" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
+
+</svg>

@@ -1,0 +1,93 @@
+<svg data-intent="Explain Flake 128-bit byte layout from current source packing order." data-evidence="utils/idgenerators/README.md; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/flake/Flake.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/utils/node/NodeIdentifier.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/utils/node/MacAddressNodeIdentifier.kt" data-source-read="utils/idgenerators/README.md; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/flake/Flake.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/utils/node/NodeIdentifier.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/utils/node/MacAddressNodeIdentifier.kt" xmlns="http://www.w3.org/2000/svg" width="3000" height="1080" viewBox="0 0 3000 1080" role="img" aria-label="Flake Layout">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}
+    .frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:58px;fill:#0F172A}
+    .subtitle{font-family:"Comic Mono";font-size:18px;fill:#475569}
+    .segmentBits{font-family:"Comic Mono";font-size:26px;fill:#0F172A;font-weight:700}
+    .segmentTitle{font-family:"Architects Daughter";font-size:36px;fill:#0F172A}
+    .segmentRange{font-family:"Comic Mono";font-size:17px;fill:#334155}
+    .card{filter:url(#shadow);stroke-width:2}
+    .cardTitle{font-family:"Architects Daughter";font-size:34px;fill:#0F172A}
+    .cardText{font-family:"Comic Mono";font-size:18px;fill:#334155}
+    .divider{stroke-width:1;opacity:.36}
+    .guide{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
+    .bitLabel{font-family:"Comic Mono";font-size:18px;fill:#475569}
+    .tick{stroke:#94A3B8;stroke-width:1.5;stroke-dasharray:6 8}
+    .tickText{font-family:"Comic Mono";font-size:17px;fill:#475569}
+  </style>
+</defs>
+<rect class="canvas" width="3000" height="1080"/>
+<rect class="frame" x="36" y="30" width="2928" height="1020" rx="8"/>
+<text class="title" x="76" y="104">Flake Layout</text>
+<text class="subtitle" x="80" y="142">128-bit byte array: 8-byte timestamp + 6-byte node id + 2-byte sequence.</text>
+<text class="bitLabel" x="200" y="244">Most significant bit</text>
+<text class="bitLabel" x="2800" y="244" text-anchor="end">Least significant bit</text>
+<g><path class="tick" d="M200 312V528"/><text class="tickText" x="200" y="296" text-anchor="middle">127</text></g>
+<g><path class="tick" d="M1466 312V528"/><text class="tickText" x="1466" y="296" text-anchor="middle">64</text></g>
+<g><path class="tick" d="M1534 312V528"/><text class="tickText" x="1534" y="296" text-anchor="middle">63</text></g>
+<g><path class="tick" d="M2441 312V528"/><text class="tickText" x="2441" y="296" text-anchor="middle">16</text></g>
+<g><path class="tick" d="M2509 312V528"/><text class="tickText" x="2509" y="296" text-anchor="middle">15</text></g>
+<g><path class="tick" d="M2800 312V528"/><text class="tickText" x="2800" y="296" text-anchor="middle">0</text></g>
+<g>
+  <rect x="200" y="330" width="1300" height="180" rx="8" fill="#EFF6FF" stroke="#2563EB" stroke-width="3"/>
+  <text class="segmentBits" x="850" y="380" text-anchor="middle">8 bytes</text>
+  <text class="segmentTitle" x="850" y="428" text-anchor="middle">timestamp</text>
+  <text class="segmentRange" x="850" y="466" text-anchor="middle">clock.millis() as Long</text>
+</g>
+<g>
+  <rect x="1500" y="330" width="975" height="180" rx="8" fill="#F0FDF4" stroke="#16A34A" stroke-width="3"/>
+  <text class="segmentBits" x="1987.5" y="380" text-anchor="middle">6 bytes</text>
+  <text class="segmentTitle" x="1987.5" y="428" text-anchor="middle">node id</text>
+  <text class="segmentRange" x="1987.5" y="466" text-anchor="middle">NodeIdentifier default: MAC</text>
+</g>
+<g>
+  <rect x="2475" y="330" width="325" height="180" rx="8" fill="#FFF7ED" stroke="#EA580C" stroke-width="3"/>
+  <text class="segmentBits" x="2637.5" y="380" text-anchor="middle">2 bytes</text>
+  <text class="segmentTitle" x="2637.5" y="428" text-anchor="middle">sequence</text>
+  <text class="segmentRange" x="2637.5" y="466" text-anchor="middle">0..65535 per millisecond</text>
+</g>
+<path class="guide" d="M 850 510 L 850 626 Q 850 640 836 640 L 539 640 Q 525 640 525 654 L 525 690" stroke="#1D4ED8"/>
+<path class="guide" d="M 1987.5 510 L 1987.5 626 Q 1987.5 640 1973.5 640 L 1209 640 Q 1195 640 1195 654 L 1195 690" stroke="#15803D"/>
+<path class="guide" d="M 2637.5 510 L 2637.5 626 Q 2637.5 640 2623.5 640 L 1879 640 Q 1865 640 1865 654 L 1865 690" stroke="#C2410C"/>
+<path class="guide" d="M 2637.5 510 L 2637.5 626 Q 2637.5 640 2623.5 640 L 2549 640 Q 2535 640 2535 654 L 2535 690" stroke="#475569"/>
+<g>
+  <rect class="card" x="230" y="690" width="590" height="250" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="525" y="744" text-anchor="middle">Timestamp packing</text>
+  <path class="divider" d="M230 772H820" stroke="#1D4ED8"/>
+  <text class="cardText" x="258" y="812">putLong(currentTime)</text>
+<text class="cardText" x="258" y="846">clock.millis() source</text>
+<text class="cardText" x="258" y="880">stored first for ordering</text>
+<text class="cardText" x="258" y="914">part of 16-byte ID</text>
+</g>
+<g>
+  <rect class="card" x="900" y="690" width="590" height="250" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="1195" y="744" text-anchor="middle">Node source</text>
+  <path class="divider" d="M900 772H1490" stroke="#15803D"/>
+  <text class="cardText" x="928" y="812">NODE_ID_BYTES = 6</text>
+<text class="cardText" x="928" y="846">NodeIdentifier.get()</text>
+<text class="cardText" x="928" y="880">MacAddressNodeIdentifier default</text>
+<text class="cardText" x="928" y="914">copied after timestamp</text>
+</g>
+<g>
+  <rect class="card" x="1570" y="690" width="590" height="250" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1865" y="744" text-anchor="middle">Sequence state</text>
+  <path class="divider" d="M1570 772H2160" stroke="#C2410C"/>
+  <text class="cardText" x="1598" y="812">putShort(sequence)</text>
+<text class="cardText" x="1598" y="846">atomic sequence counter</text>
+<text class="cardText" x="1598" y="880">MAX_SEQ = 0xFFFF</text>
+<text class="cardText" x="1598" y="914">waits for next millis on overflow</text>
+</g>
+<g>
+  <rect class="card" x="2240" y="690" width="590" height="250" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="cardTitle" x="2535" y="744" text-anchor="middle">Render helpers</text>
+  <path class="divider" d="M2240 772H2830" stroke="#475569"/>
+  <text class="cardText" x="2268" y="812">nextId(): ByteArray</text>
+<text class="cardText" x="2268" y="846">nextIdAsString(): Base62</text>
+<text class="cardText" x="2268" y="880">asHexString(id)</text>
+<text class="cardText" x="2268" y="914">asComponentString(id)</text>
+</g>
+</svg>

@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1160" viewBox="0 0 1680 1160" role="img" aria-label="Virtual Thread Class Structure">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10" /></filter>
+  <marker id="implBlue" markerWidth="16" markerHeight="16" refX="15" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 16 8 L 0 16 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+  <marker id="implTeal" markerWidth="16" markerHeight="16" refX="15" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 16 8 L 0 16 Z" fill="#FFFFFF" stroke="#0D9488" stroke-width="2" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+  <marker id="usesBlue" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
+  <marker id="usesTeal" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#0D9488" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
+  <marker id="usesAmber" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#D97706" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .section{font-family:"Architects Daughter";font-size:24px;fill:#334155}.card{filter:url(#shadow);stroke-width:1.8}
+    .className{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.stereo{font-family:"Comic Mono";font-size:12px;fill:#64748B}.member{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .divider{stroke:#CBD5E1;stroke-width:1}.impl{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7}.uses{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7}
+  </style>
+</defs>
+<rect class="canvas" width="1680" height="1160" />
+<rect class="frame" x="34" y="30" width="1612" height="1100" rx="8" />
+<text class="title" x="72" y="84">Virtual Thread Class Structure</text>
+<text class="subtitle" x="76" y="116">API facades select ServiceLoader providers; JDK modules implement runtime and StructuredTaskScope contracts.</text>
+
+<text class="section" x="92" y="178">Virtual thread runtime API</text>
+<text class="section" x="92" y="514">Structured concurrency API</text>
+<text class="section" x="92" y="872">ScopedValue task context</text>
+
+<g id="VirtualThreads">
+  <rect class="card" x="110" y="210" width="330" height="128" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="stereo" x="275" y="238" text-anchor="middle">object facade</text>
+  <text class="className" x="275" y="268" text-anchor="middle">VirtualThreads</text>
+  <line class="divider" x1="130" y1="286" x2="420" y2="286" />
+  <text class="member" x="130" y="312">+ runtime()</text>
+  <text class="member" x="130" y="334">+ threadFactory(prefix)</text>
+  <text class="member" x="130" y="356">+ executorService()</text>
+</g>
+<g id="VirtualThreadRuntime">
+  <rect class="card" x="610" y="198" width="350" height="152" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="stereo" x="785" y="226" text-anchor="middle">interface</text>
+  <text class="className" x="785" y="256" text-anchor="middle">VirtualThreadRuntime</text>
+  <line class="divider" x1="630" y1="274" x2="940" y2="274" />
+  <text class="member" x="630" y="300">+ runtimeName: String</text>
+  <text class="member" x="630" y="322">+ priority: Int</text>
+  <text class="member" x="630" y="344">+ isSupported()</text>
+</g>
+<g id="Jdk25Runtime">
+  <rect class="card" x="1140" y="170" width="360" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+  <text class="className" x="1320" y="207" text-anchor="middle">Jdk25VirtualThreadRuntime</text>
+  <text class="member" x="1320" y="234" text-anchor="middle">priority 25, vt25 executor</text>
+</g>
+<g id="Jdk21Runtime">
+  <rect class="card" x="1140" y="286" width="360" height="92" rx="8" fill="#ECFDF5" stroke="#16A34A" />
+  <text class="className" x="1320" y="323" text-anchor="middle">Jdk21VirtualThreadRuntime</text>
+  <text class="member" x="1320" y="350" text-anchor="middle">priority 21, vt21 executor</text>
+</g>
+<g id="PlatformRuntime">
+  <rect class="card" x="520" y="382" width="330" height="76" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="className" x="685" y="413" text-anchor="middle">PlatformThreadRuntime</text>
+  <text class="member" x="685" y="438" text-anchor="middle">internal fallback in VirtualThreads</text>
+</g>
+
+<g id="StructuredTaskScopes">
+  <rect class="card" x="110" y="548" width="330" height="132" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="stereo" x="275" y="576" text-anchor="middle">object facade</text>
+  <text class="className" x="275" y="606" text-anchor="middle">StructuredTaskScopes</text>
+  <line class="divider" x1="130" y1="624" x2="420" y2="624" />
+  <text class="member" x="130" y="650">+ failFast { }</text>
+  <text class="member" x="130" y="672">+ firstSuccess { }</text>
+  <text class="member" x="130" y="694">+ supervised { }</text>
+</g>
+<g id="StructuredTaskScopeProvider">
+  <rect class="card" x="590" y="536" width="390" height="156" rx="8" fill="#F0FDFA" stroke="#0D9488" />
+  <text class="stereo" x="785" y="564" text-anchor="middle">interface</text>
+  <text class="className" x="785" y="594" text-anchor="middle">StructuredTaskScopeProvider</text>
+  <line class="divider" x1="610" y1="612" x2="960" y2="612" />
+  <text class="member" x="610" y="638">+ withAll / withFailFast</text>
+  <text class="member" x="610" y="660">+ withAny / withFirstSuccess</text>
+  <text class="member" x="610" y="682">+ withSupervised</text>
+</g>
+<g id="Jdk25Provider">
+  <rect class="card" x="1120" y="500" width="440" height="98" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+  <text class="className" x="1340" y="536" text-anchor="middle">Jdk25StructuredTaskScopeProvider</text>
+  <text class="member" x="1340" y="564" text-anchor="middle">StructuredTaskScope.open + Joiner</text>
+</g>
+<g id="Jdk21Provider">
+  <rect class="card" x="1120" y="632" width="440" height="98" rx="8" fill="#ECFDF5" stroke="#16A34A" />
+  <text class="className" x="1340" y="668" text-anchor="middle">Jdk21StructuredTaskScopeProvider</text>
+  <text class="member" x="1340" y="696" text-anchor="middle">ShutdownOnFailure / ShutdownOnSuccess</text>
+</g>
+<g id="ScopeContracts">
+  <rect class="card" x="500" y="734" width="560" height="96" rx="8" fill="#FFF7ED" stroke="#D97706" />
+  <text class="className" x="780" y="770" text-anchor="middle">Scope and subtask contracts</text>
+  <text class="member" x="780" y="798" text-anchor="middle">StructuredTaskScopeAll, Any, Supervised, StructuredSubtask</text>
+</g>
+
+<g id="TaskContext">
+  <rect class="card" x="180" y="908" width="360" height="112" rx="8" fill="#FAF5FF" stroke="#9333EA" />
+  <text class="stereo" x="360" y="936" text-anchor="middle">object</text>
+  <text class="className" x="360" y="966" text-anchor="middle">TaskContext</text>
+  <text class="member" x="360" y="994" text-anchor="middle">newKey, get, run, bind</text>
+</g>
+<g id="TaskContextBindings">
+  <rect class="card" x="690" y="908" width="360" height="112" rx="8" fill="#F0FDFA" stroke="#0D9488" />
+  <text class="stereo" x="870" y="936" text-anchor="middle">builder</text>
+  <text class="className" x="870" y="966" text-anchor="middle">TaskContextBindings</text>
+  <text class="member" x="870" y="994" text-anchor="middle">and(...), run { }, call { }</text>
+</g>
+<g id="ScopedValue">
+  <rect class="card" x="1200" y="908" width="300" height="112" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="stereo" x="1350" y="936" text-anchor="middle">JDK API</text>
+  <text class="className" x="1350" y="966" text-anchor="middle">ScopedValue</text>
+  <text class="member" x="1350" y="994" text-anchor="middle">immutable scoped binding</text>
+</g>
+
+<path class="uses" d="M440 270 L610 270" stroke="#2563EB" />
+
+
+<polyline points="592,278 610,270 592,262" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="impl" d="M 1140 216 L 1010 216 Q 996 216 996 230 L 996 246 L 960 246" stroke="#2563EB" />
+<polygon points="982,236 960,246 982,256" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="impl" d="M 1140 332 L 1010 332 Q 996 332 996 318 L 996 302 L 960 302" stroke="#2563EB" />
+<polygon points="982,292 960,302 982,312" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="impl" d="M685 382 L685 350" stroke="#2563EB" />
+<polygon points="694,371 685,350 676,371" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+
+<path class="uses" d="M440 616 L590 616" stroke="#0D9488" />
+
+
+<polyline points="572,624 590,616 572,608" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="impl" d="M 1120 548 L 1010 548 Q 996 548 996 562 L 996 580 L 980 580" stroke="#0D9488" />
+<polygon points="1002,570 980,580 1002,590" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="impl" d="M 1120 680 L 1010 680 Q 996 680 996 666 L 996 648 L 980 648" stroke="#0D9488" />
+<polygon points="1002,638 980,648 1002,658" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="uses" d="M785 692 L785 734" stroke="#D97706" />
+
+<polyline points="777,716 785,734 793,716" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+
+<path class="uses" d="M540 964 L690 964" stroke="#0D9488" />
+
+
+<polyline points="672,972 690,964 672,956" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="uses" d="M1050 964 L1200 964" stroke="#0D9488" />
+
+<polyline points="1182,972 1200,964 1182,956" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+</svg>

@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2180" height="1260" viewBox="0 0 2180 1260" role="img" aria-label="rule engine class diagram"><defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity=".10"/></filter><style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:42px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:15.5px;fill:#475569}.section{fill:#F3F8FF;stroke:#94A3B8;stroke-width:1.7;stroke-dasharray:12 8}.sectionTitle{font-family:"Comic Mono";font-size:13px;fill:#475569}.umlBox{filter:url(#softShadow);stroke-width:2}.stereo{font-family:"Comic Mono";font-size:12.2px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.member{font-family:"Comic Mono";font-size:12.8px;fill:#475569}.edge{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}.implements{stroke-dasharray:8 7}.solidHead{stroke-width:1.9;stroke-linejoin:round;stroke-dasharray:none}.solidOpenHead{fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none}.edgeLabel rect{fill:#fff;stroke:#CBD5E1;stroke-width:1.2;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:11.8px;fill:#475569}</style></defs>
+<rect class="canvas" width="2180" height="1260"/><rect class="frame" x="34" y="30" width="2112" height="1194" rx="8"/>
+<text class="title" x="74" y="86">Rule Engine Class Diagram</text><text class="subtitle" x="78" y="118">Synchronous, coroutine, and forward-chaining engines share RuleEngineConfig policies; DefaultRuleEngine also exposes listener hooks around each rule.</text>
+<rect class="section" x="74" y="150" width="2028" height="1010" rx="8"/><text class="sectionTitle" x="102" y="176">engine contracts, concrete implementations, policies, and listener extension points</text>
+<g id="edges"><path class="edge implements" d="M370 575 L370 435" stroke="#2563EB"/>
+<path class="edge implements" d="M 120 1030 L 94 1030 Q 80 1030 80 1016 L 80 339 Q 80 325 94 325 L 120 325" stroke="#7C3AED" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge implements" d="M1825 575 L1825 425" stroke="#0D9488"/>
+<path class="edge has" d="M620 700 L820 700" stroke="#16A34A"/>
+<path class="edge has" d="M 620 785 L 686 785 Q 700 785 700 799 L 700 1011 Q 700 1025 714 1025 L 820 1025" stroke="#64748B" stroke-linecap="round" stroke-linejoin="round"/></g><g id="arrowheads"><path class="solidHead" d="M370 435 L362 451 L378 451 Z" fill="#FFFFFF" stroke="#2563EB"/>
+<path class="solidHead" d="M120 325 L104 317 L104 333 Z" fill="#FFFFFF" stroke="#7C3AED"/>
+<path class="solidHead" d="M1825 425 L1817 441 L1833 441 Z" fill="#FFFFFF" stroke="#0D9488"/>
+<path class="solidOpenHead" d="M807 693 L820 700 L807 707" stroke="#16A34A"/>
+<path class="solidOpenHead" d="M807 1018 L820 1025 L807 1032" stroke="#64748B"/></g><g id="labels"><g class="edgeLabel" transform="translate(634 658)"><rect width="132" height="28" rx="8"/><text x="66" y="19" text-anchor="middle">per-rule events</text></g>
+<g class="edgeLabel" transform="translate(644 906)"><rect width="122" height="28" rx="8"/><text x="61" y="19" text-anchor="middle">engine events</text></g></g><g id="ruleEngine"><rect class="umlBox" x="120" y="215" width="500" height="220" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <line x1="120" y1="281" x2="620" y2="281" stroke="#2563EB" stroke-width="1.3" opacity=".65"/><line x1="120" y1="359" x2="620" y2="359" stroke="#2563EB" stroke-width="1.3" opacity=".65"/>
+  <text class="stereo" x="370" y="240" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text><text class="classTitle" x="370" y="267" text-anchor="middle">RuleEngine</text>
+  <text class="member" x="144" y="306">+ config: RuleEngineConfig</text>
+  <text class="member" x="144" y="326">+ ruleListeners</text>
+  <text class="member" x="144" y="346">+ ruleEngineListeners</text>
+  <text class="member" x="144" y="384">+ check(ruleSet, facts)</text>
+  <text class="member" x="144" y="404">+ fire(ruleSet, facts)</text></g>
+<g id="defaultEngine"><rect class="umlBox" x="120" y="575" width="500" height="250" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <line x1="120" y1="641" x2="620" y2="641" stroke="#2563EB" stroke-width="1.3" opacity=".65"/><line x1="120" y1="699" x2="620" y2="699" stroke="#2563EB" stroke-width="1.3" opacity=".65"/>
+  <text class="stereo" x="370" y="600" text-anchor="middle">&lt;&lt;class&gt;&gt;</text><text class="classTitle" x="370" y="627" text-anchor="middle">DefaultRuleEngine</text>
+  <text class="member" x="144" y="666">- CopyOnWriteArrayList listeners</text>
+  <text class="member" x="144" y="686">+ config</text>
+  <text class="member" x="144" y="724">+ fire(ruleSet, facts)</text>
+  <text class="member" x="144" y="744">+ check(ruleSet, facts)</text>
+  <text class="member" x="144" y="764"># doFire(ruleSet, facts)</text></g>
+<g id="inference"><rect class="umlBox" x="120" y="935" width="500" height="190" rx="8" fill="#FAF5FF" stroke="#7C3AED"/>
+  <line x1="120" y1="1001" x2="620" y2="1001" stroke="#7C3AED" stroke-width="1.3" opacity=".65"/><line x1="120" y1="1041" x2="620" y2="1041" stroke="#7C3AED" stroke-width="1.3" opacity=".65"/>
+  <text class="stereo" x="370" y="960" text-anchor="middle">&lt;&lt;class&gt;&gt;</text><text class="classTitle" x="370" y="987" text-anchor="middle">InferenceRuleEngine</text>
+  <text class="member" x="144" y="1026">- delegate: DefaultRuleEngine</text>
+  <text class="member" x="144" y="1066">+ fire() loops selected candidates</text>
+  <text class="member" x="144" y="1086">+ check() delegates</text></g>
+<g id="config"><rect class="umlBox" x="820" y="215" width="520" height="250" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <line x1="820" y1="281" x2="1340" y2="281" stroke="#EA580C" stroke-width="1.3" opacity=".65"/><line x1="820" y1="379" x2="1340" y2="379" stroke="#EA580C" stroke-width="1.3" opacity=".65"/>
+  <text class="stereo" x="1080" y="240" text-anchor="middle">&lt;&lt;data class&gt;&gt;</text><text class="classTitle" x="1080" y="267" text-anchor="middle">RuleEngineConfig</text>
+  <text class="member" x="844" y="306">+ skipOnFirstAppliedRule</text>
+  <text class="member" x="844" y="326">+ skipOnFirstFailedRule</text>
+  <text class="member" x="844" y="346">+ skipOnFirstNonTriggeredRule</text>
+  <text class="member" x="844" y="366">+ priorityThreshold</text>
+  <text class="member" x="844" y="404">+ DEFAULT</text>
+  <text class="member" x="844" y="424">+ require threshold &gt;= 0</text></g>
+<g id="ruleListener"><rect class="umlBox" x="820" y="575" width="520" height="230" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <line x1="820" y1="641" x2="1340" y2="641" stroke="#16A34A" stroke-width="1.3" opacity=".65"/>
+  <text class="stereo" x="1080" y="600" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text><text class="classTitle" x="1080" y="627" text-anchor="middle">RuleListener</text>
+
+  <text class="member" x="844" y="666">+ beforeEvaluate(rule, facts): Boolean</text>
+  <text class="member" x="844" y="686">+ afterEvaluate(rule, facts, result)</text>
+  <text class="member" x="844" y="706">+ beforeExecute(rule, facts)</text>
+  <text class="member" x="844" y="726">+ afterExecute(rule, facts, exception)</text></g>
+<g id="engineListener"><rect class="umlBox" x="820" y="925" width="520" height="200" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <line x1="820" y1="991" x2="1340" y2="991" stroke="#64748B" stroke-width="1.3" opacity=".65"/>
+  <text class="stereo" x="1080" y="950" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text><text class="classTitle" x="1080" y="977" text-anchor="middle">RuleEngineListener</text>
+
+  <text class="member" x="844" y="1016">+ beforeEvaluate(rules, facts)</text>
+  <text class="member" x="844" y="1036">+ afterExecute(rules, facts)</text></g>
+<g id="suspendEngine"><rect class="umlBox" x="1575" y="215" width="500" height="210" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <line x1="1575" y1="281" x2="2075" y2="281" stroke="#0D9488" stroke-width="1.3" opacity=".65"/><line x1="1575" y1="321" x2="2075" y2="321" stroke="#0D9488" stroke-width="1.3" opacity=".65"/>
+  <text class="stereo" x="1825" y="240" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text><text class="classTitle" x="1825" y="267" text-anchor="middle">SuspendRuleEngine</text>
+  <text class="member" x="1599" y="306">+ config: RuleEngineConfig</text>
+  <text class="member" x="1599" y="346">+ suspend check(rules, facts)</text>
+  <text class="member" x="1599" y="366">+ suspend fire(rules, facts)</text></g>
+<g id="defaultSuspend"><rect class="umlBox" x="1575" y="575" width="500" height="250" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <line x1="1575" y1="641" x2="2075" y2="641" stroke="#0D9488" stroke-width="1.3" opacity=".65"/><line x1="1575" y1="681" x2="2075" y2="681" stroke="#0D9488" stroke-width="1.3" opacity=".65"/>
+  <text class="stereo" x="1825" y="600" text-anchor="middle">&lt;&lt;class&gt;&gt;</text><text class="classTitle" x="1825" y="627" text-anchor="middle">DefaultSuspendRuleEngine</text>
+  <text class="member" x="1599" y="666">+ config</text>
+  <text class="member" x="1599" y="706">+ suspend fire()</text>
+  <text class="member" x="1599" y="726">+ suspend check()</text>
+  <text class="member" x="1599" y="746">+ rethrows CancellationException</text></g></svg>

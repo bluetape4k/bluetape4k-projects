@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="980" viewBox="0 0 1500 980" role="img" aria-labelledby="title desc">
+  <title id="title">Vert.x Module Capability Architecture</title>
+  <desc id="desc">Architecture diagram showing the merged Vert.x module as vertical responsibility columns from application code through bluetape4k helpers to Vert.x runtime types.</desc>
+  <defs>
+    <style>
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #263238; }
+      .subtitle, .detail, .label, .footer { font-family: "Comic Mono"; fill: #36464f; }
+      .subtitle { font-size: 17px; }
+      .frame { fill: #fbfcf8; stroke: #41545d; stroke-width: 3; }
+      .lane { fill: #ffffff; stroke: #ccd7da; stroke-width: 1.8; }
+      .laneTitle { font-family: "Architects Daughter"; font-size: 22px; fill: #263238; }
+      .card { stroke-width: 2.2; }
+      .cardTitle { font-family: "Architects Daughter"; font-size: 22px; fill: #1f3138; }
+      .detail { font-size: 13px; }
+      .route { fill: none; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowRoute); }
+      .core { fill: none; stroke: #3f7d9c; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowCore); }
+      .web { fill: none; stroke: #6e8f4f; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowWeb); }
+      .sql { fill: none; stroke: #a97b3d; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowSql); }
+      .res { fill: none; stroke: #b86868; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowRes); }
+      .pill { fill: #ffffff; stroke: #d7e0e4; stroke-width: 1.4; }
+      .label { font-size: 13px; }
+      .footer { font-size: 14px; fill: #60727d; }
+    </style>
+    <marker id="arrowRoute" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#7b67a8"/></marker>
+    <marker id="arrowCore" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#3f7d9c"/></marker>
+    <marker id="arrowWeb" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#6e8f4f"/></marker>
+    <marker id="arrowSql" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#a97b3d"/></marker>
+    <marker id="arrowRes" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#b86868"/></marker>
+  </defs>
+
+  <rect x="24" y="24" width="1452" height="932" rx="20" class="frame"/>
+  <text x="750" y="78" text-anchor="middle" class="title">Vert.x Module Capability Architecture</text>
+  <text x="750" y="108" text-anchor="middle" class="subtitle">Merged Vert.x core, SQL, web, and Resilience4j helpers wrap application code without hiding the Vert.x runtime boundary.</text>
+
+  <rect x="76" y="150" width="310" height="638" rx="14" class="lane" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
+  <text x="106" y="188" class="laneTitle">Application inputs</text>
+  <rect x="430" y="150" width="640" height="720" rx="14" class="lane" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
+  <text x="460" y="188" class="laneTitle">bluetape4k-vertx capabilities</text>
+  <rect x="1114" y="150" width="310" height="720" rx="14" class="lane" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
+  <text x="1144" y="188" class="laneTitle">Vert.x runtime</text>
+
+  <g id="app">
+    <rect x="110" y="252" width="242" height="86" rx="10" fill="#eef5fa" stroke="#3f7d9c" class="card"/>
+    <text x="231" y="287" text-anchor="middle" class="cardTitle">Vert.x app</text>
+    <text x="231" y="317" text-anchor="middle" class="detail">routes, verticles, services</text>
+  </g>
+  <g id="config">
+    <rect x="110" y="600" width="242" height="86" rx="10" fill="#f2eef9" stroke="#7b67a8" class="card"/>
+    <text x="231" y="635" text-anchor="middle" class="cardTitle">App config</text>
+    <text x="231" y="665" text-anchor="middle" class="detail">pools, registries, policies</text>
+  </g>
+
+  <g id="core">
+    <rect x="480" y="220" width="260" height="102" rx="10" fill="#eef5fa" stroke="#3f7d9c" class="card"/>
+    <text x="610" y="253" text-anchor="middle" class="cardTitle">Core coroutine support</text>
+    <text x="610" y="283" text-anchor="middle" class="detail">currentVertx()</text>
+    <text x="610" y="303" text-anchor="middle" class="detail">dispatcher + scope helpers</text>
+  </g>
+  <g id="web">
+    <rect x="810" y="360" width="220" height="102" rx="10" fill="#eef7f0" stroke="#6e8f4f" class="card"/>
+    <text x="920" y="393" text-anchor="middle" class="cardTitle">Web helpers</text>
+    <text x="920" y="423" text-anchor="middle" class="detail">suspendHandler</text>
+    <text x="920" y="443" text-anchor="middle" class="detail">launch on dispatcher</text>
+  </g>
+  <g id="sql">
+    <rect x="480" y="545" width="260" height="112" rx="10" fill="#fff7e8" stroke="#a97b3d" class="card"/>
+    <text x="610" y="580" text-anchor="middle" class="cardTitle">SQL / MyBatis support</text>
+    <text x="610" y="610" text-anchor="middle" class="detail">suspendQuery</text>
+    <text x="610" y="630" text-anchor="middle" class="detail">transaction + row mapping</text>
+  </g>
+  <g id="resilience">
+    <rect x="810" y="708" width="220" height="112" rx="10" fill="#f9eef0" stroke="#b86868" class="card"/>
+    <text x="920" y="743" text-anchor="middle" class="cardTitle">Resilience4j</text>
+    <text x="920" y="773" text-anchor="middle" class="detail">Future decorators</text>
+    <text x="920" y="793" text-anchor="middle" class="detail">retry/circuit/fallback</text>
+  </g>
+
+  <g id="vertx">
+    <rect x="1152" y="220" width="236" height="86" rx="10" fill="#eef5fa" stroke="#3f7d9c" class="card"/>
+    <text x="1270" y="255" text-anchor="middle" class="cardTitle">Vert.x core</text>
+    <text x="1270" y="285" text-anchor="middle" class="detail">event loop + Future</text>
+  </g>
+  <g id="pool">
+    <rect x="1152" y="560" width="236" height="86" rx="10" fill="#fff7e8" stroke="#a97b3d" class="card"/>
+    <text x="1270" y="595" text-anchor="middle" class="cardTitle">SqlClient / Pool</text>
+    <text x="1270" y="625" text-anchor="middle" class="detail">Postgres, MySQL, JDBC</text>
+  </g>
+  <g id="runtime">
+    <rect x="1152" y="720" width="236" height="86" rx="10" fill="#f9eef0" stroke="#b86868" class="card"/>
+    <text x="1270" y="755" text-anchor="middle" class="cardTitle">Resilience runtime</text>
+    <text x="1270" y="785" text-anchor="middle" class="detail">CircuitBreaker, Retry</text>
+  </g>
+
+  <path class="core" d="M 352 285 L 480 285"/>
+  <path class="web" d="M 352 300 L 406 300 Q 420 300 420 314 L 420 397 Q 420 411 434 411 L 810 411"/>
+  <path class="sql" d="M 352 620 L 480 620"/>
+  <path class="res" d="M 352 650 L 406 650 Q 420 650 420 664 L 420 750 Q 420 764 434 764 L 810 764"/>
+  <path class="core" d="M 740 271 L 1152 263"/>
+  <path class="web" d="M 1030 411 L 1096 411 Q 1110 411 1110 397 L 1110 320 Q 1110 306 1124 306 L 1152 306"/>
+  <path class="sql" d="M 740 603 L 1152 603"/>
+  <path class="res" d="M 1030 764 L 1152 764"/>
+
+  <text x="750" y="928" text-anchor="middle" class="footer">github.com/bluetape4k/bluetape4k-projects - io/vertx README</text>
+</svg>

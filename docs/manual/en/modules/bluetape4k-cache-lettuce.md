@@ -145,6 +145,43 @@ This manual targets release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`. J
 
 Tracking startup is fail-open. With `NOLOOP`, the writing connection receives no push and the code updates its own L1 directly. `withResilience` uses a decorator from `cache-core`; there is no standalone `ResilientLettuceNearCache` implementation in this release.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### LettuceNearCache Class Hierarchy diagram
+
+[![LettuceNearCache Class Hierarchy diagram](../../assets/readme-diagrams/cache-cache-lettuce-diagram-01.png)](../../assets/readme-diagrams/cache-cache-lettuce-diagram-01.svg)
+
+_Release README: [`cache/cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.md)_
+
+### Lettuce JCache NearCache Structure diagram
+
+[![Lettuce JCache NearCache Structure diagram](../../assets/readme-diagrams/cache-cache-lettuce-diagram-02.png)](../../assets/readme-diagrams/cache-cache-lettuce-diagram-02.svg)
+
+_Release README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.ko.md)_
+
+### Lettuce Cache Stability Contracts diagram
+
+[![Lettuce Cache Stability Contracts diagram](../../assets/readme-diagrams/cache-cache-lettuce-diagram-03.png)](../../assets/readme-diagrams/cache-cache-lettuce-diagram-03.svg)
+
+_Release README: [`cache/cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.md)_
+
+### Native Lettuce NearCache Structure diagram
+
+[![Native Lettuce NearCache Structure diagram](../../assets/readme-diagrams/cache-cache-lettuce-diagram-04.png)](../../assets/readme-diagrams/cache-cache-lettuce-diagram-04.svg)
+
+_Release README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.ko.md)_
+
+### RESP3 CLIENT TRACKING Flow diagram
+
+[![RESP3 CLIENT TRACKING Flow diagram](../../assets/readme-diagrams/cache-cache-lettuce-sequence-01.png)](../../assets/readme-diagrams/cache-cache-lettuce-sequence-01.svg)
+
+_Release README: [`cache/cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources and tests {#sources}
 
 - [`LettuceCaches.kt`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/LettuceCaches.kt)

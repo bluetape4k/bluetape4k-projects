@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="980" viewBox="0 0 1680 980" role="img" aria-label="WorkReport State Flow">
+<defs>
+  <filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <marker id="arrow-success" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#16A34A" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-failure" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#DB2777" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-aborted" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#EA580C" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-cancelled" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#9333EA" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-strategy" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#0D9488" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-stop" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#DB2777" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-continue" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#65A30D" style="stroke-dasharray:none"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .card{filter:url(#softShadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13.5px;fill:#475569}
+    .icon{stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.edge{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 8}
+    .edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.5px;fill:#475569}
+  </style>
+</defs>
+<rect class="canvas" width="1680" height="980"/>
+<rect class="frame" x="38" y="30" width="1604" height="914" rx="8"/>
+<text class="title" x="78" y="86">WorkReport State Flow</text>
+<text class="subtitle" x="82" y="118">Failure is the only state governed by ErrorStrategy; Aborted and Cancelled bypass strategy and terminate immediately.</text>
+<g id="edges">
+  <path class="edge" data-from="execute" data-to="success" d="M 990 229 L 1066 229 Q 1080 229 1080 243 L 1080 402 Q 1080 416 1094 416 L 1130 416" stroke="#16A34A" marker-end="url(#arrow-success)"/>
+  <path class="edge" data-from="execute" data-to="failure" d="M800 288 L800 380" stroke="#DB2777" marker-end="url(#arrow-failure)"/>
+  <path class="edge" data-from="execute" data-to="aborted" d="M 610 255 L 574 255 Q 560 255 560 269 L 560 472 Q 560 486 546 486 L 500 486" stroke="#EA580C" marker-end="url(#arrow-aborted)"/>
+  <path class="edge dashed" data-from="execute" data-to="cancelled" d="M 610 220 L 554 220 Q 540 220 540 234 L 540 252 Q 540 266 526 266 L 500 266" stroke="#9333EA"/>
+<polygon points="512,260 500,266 512,272" fill="#9333EA" stroke="#9333EA" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="edge" data-from="failure" data-to="strategy" d="M800 492 L800 590" stroke="#0D9488" marker-end="url(#arrow-strategy)"/>
+  <path class="edge" data-from="strategy" data-to="stop" d="M 720 722 L 720 737.5 Q 720 751 706.5 751 L 670 751 Q 660 751 660 761 L 660 780" stroke="#DB2777" marker-end="url(#arrow-stop)"/>
+  <path class="edge" data-from="strategy" data-to="partial" d="M 900 722 L 900 737.5 Q 900 751 913.5 751 L 1050 751 Q 1060 751 1060 761 L 1060 780" stroke="#65A30D" marker-end="url(#arrow-continue)"/>
+</g>
+<g id="labels">
+  <g class="edgeLabel" transform="translate(1032 285)"><rect width="116" height="30" rx="8"/><text x="58" y="20" text-anchor="middle">COMPLETED</text></g>
+  <g class="edgeLabel" transform="translate(843 325)"><rect width="82" height="30" rx="8"/><text x="41" y="20" text-anchor="middle">FAILED</text></g>
+  <g class="edgeLabel" transform="translate(501 363)"><rect width="94" height="30" rx="8"/><text x="47" y="20" text-anchor="middle">ABORTED</text></g>
+  <g class="edgeLabel" transform="translate(486 187)"><rect width="104" height="30" rx="8"/><text x="52" y="20" text-anchor="middle">CANCELLED</text></g>
+  <g class="edgeLabel" transform="translate(811 527)"><rect width="146" height="30" rx="8"/><text x="73" y="20" text-anchor="middle">strategy decides</text></g>
+  <g class="edgeLabel" transform="translate(606 729)"><rect width="64" height="30" rx="8"/><text x="32" y="20" text-anchor="middle">STOP</text></g>
+  <g class="edgeLabel" transform="translate(968 729)"><rect width="104" height="30" rx="8"/><text x="52" y="20" text-anchor="middle">CONTINUE</text></g>
+</g>
+<g id="execute">
+  <rect class="card" x="610" y="170" width="380" height="118" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <g class="icon" transform="translate(634 194)" stroke="#2563EB"><circle cx="28" cy="28" r="22" fill="#fff"/><path d="M24 17 L40 28 L24 39 Z" fill="#2563EB" stroke="none"/></g>
+  <text class="cardTitle" x="824" y="210" text-anchor="middle">Work executes</text>
+  <text class="detail" x="800" y="246" text-anchor="middle">work.execute(context)</text>
+<text class="detail" x="800" y="265" text-anchor="middle">returns exactly one report</text>
+</g>
+<g id="success">
+  <rect class="card" x="1130" y="360" width="360" height="112" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <g class="icon" transform="translate(1154 384)" stroke="#16A34A"><circle cx="28" cy="28" r="23" fill="#fff"/><path d="M16 29 L25 38 L42 18" fill="none"/></g>
+  <text class="cardTitle" x="1320" y="400" text-anchor="middle">Success</text>
+  <text class="detail" x="1310" y="436" text-anchor="middle">continue to next work</text>
+<text class="detail" x="1310" y="455" text-anchor="middle">final report if no more work</text>
+</g>
+<g id="failure">
+  <rect class="card" x="610" y="380" width="380" height="112" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <g class="icon" transform="translate(634 404)" stroke="#DB2777"><circle cx="28" cy="28" r="23" fill="#fff"/><path d="M18 18 L38 38 M38 18 L18 38" fill="none"/></g>
+  <text class="cardTitle" x="824" y="420" text-anchor="middle">Failure</text>
+  <text class="detail" x="800" y="456" text-anchor="middle">exception or explicit failure</text>
+<text class="detail" x="800" y="475" text-anchor="middle">strategy chooses exit path</text>
+</g>
+<g id="aborted">
+  <rect class="card" x="150" y="430" width="350" height="112" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <g class="icon" transform="translate(174 454)" stroke="#EA580C"><rect x="7" y="9" width="42" height="38" rx="7" fill="#fff"/><path d="M17 19 H38 M17 29 H30 M17 39 H34" fill="none"/></g>
+  <text class="cardTitle" x="341" y="470" text-anchor="middle">Aborted</text>
+  <text class="detail" x="325" y="506" text-anchor="middle">internal early exit</text>
+<text class="detail" x="325" y="525" text-anchor="middle">ignores ErrorStrategy</text>
+</g>
+<g id="cancelled">
+  <rect class="card" x="150" y="210" width="350" height="112" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <g class="icon" transform="translate(174 234)" stroke="#9333EA"><circle cx="28" cy="28" r="23" fill="#fff"/><path d="M28 13 V28 L42 36" fill="none"/></g>
+  <text class="cardTitle" x="341" y="250" text-anchor="middle">Cancelled</text>
+  <text class="detail" x="325" y="286" text-anchor="middle">timeout or coroutine cancel</text>
+<text class="detail" x="325" y="305" text-anchor="middle">terminal external stop</text>
+</g>
+<g id="strategy">
+  <rect class="card" x="610" y="590" width="380" height="132" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <g class="icon" transform="translate(634 614)" stroke="#0D9488"><path d="M28 6 L50 28 L28 50 L6 28 Z" fill="#fff"/><path d="M19 24 H37 M19 33 H37" fill="none"/></g>
+  <text class="cardTitle" x="824" y="630" text-anchor="middle">ErrorStrategy?</text>
+  <text class="detail" x="800" y="666" text-anchor="middle">STOP returns Failure</text>
+<text class="detail" x="800" y="685" text-anchor="middle">CONTINUE accumulates failure</text>
+</g>
+<g id="stop">
+  <rect class="card" x="500" y="780" width="320" height="108" rx="8" fill="#FFF1F2" stroke="#DB2777"/>
+  <g class="icon" transform="translate(524 804)" stroke="#DB2777"><circle cx="28" cy="28" r="23" fill="#fff"/><path d="M18 18 L38 38 M38 18 L18 38" fill="none"/></g>
+  <text class="cardTitle" x="684" y="820" text-anchor="middle">Return Failure</text>
+  <text class="detail" x="660" y="856" text-anchor="middle">fail fast</text>
+<text class="detail" x="660" y="875" text-anchor="middle">returns immediately</text>
+</g>
+<g id="partial">
+  <rect class="card" x="1000" y="780" width="380" height="108" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+  <g class="icon" transform="translate(1024 804)" stroke="#65A30D"><rect x="7" y="10" width="44" height="36" rx="7" fill="#fff"/><path d="M18 24 H40 M18 34 H34" fill="none"/></g>
+  <text class="cardTitle" x="1214" y="820" text-anchor="middle">PartialSuccess</text>
+  <text class="detail" x="1190" y="856" text-anchor="middle">one or more failures</text>
+<text class="detail" x="1190" y="875" text-anchor="middle">returned after final work</text>
+</g>
+</svg>

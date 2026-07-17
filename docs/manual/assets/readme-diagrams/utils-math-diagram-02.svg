@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1940" height="1240" viewBox="0 0 1940 1240" role="img" aria-label="Math module class structure">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:42px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:15.5px;fill:#475569}.section{fill:#F3F8FF;stroke:#94A3B8;stroke-width:1.7;stroke-dasharray:12 8}.sectionTitle{font-family:"Comic Mono";font-size:13px;fill:#475569}.umlBox{filter:url(#softShadow);stroke-width:2}.stereo{font-family:"Comic Mono";font-size:12.2px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.member{font-family:"Comic Mono";font-size:12.8px;fill:#475569}.edge{fill:none;stroke-width:2.45;stroke-linecap:round;stroke-linejoin:round}.extends{stroke-dasharray:none}.implements,.uses{stroke-dasharray:8 7}.solidHead{stroke-width:1.9;stroke-linejoin:round;stroke-dasharray:none}.solidOpenHead{fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.2;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:11.8px;fill:#475569}</style></defs>
+<rect class="canvas" width="1940" height="1240"/><rect class="frame" x="34" y="30" width="1872" height="1174" rx="8"/>
+<text class="title" x="74" y="86">Math Class Structure</text>
+<text class="subtitle" x="78" y="118">The module has three real adapter hierarchies over Apache Commons Math, plus focused support classes for statistics, weighted random, and clustering.</text>
+<rect class="section" x="70" y="155" width="1810" height="735" rx="8"/><text class="sectionTitle" x="98" y="180">OOP adapter hierarchies: interface -> abstract Commons wrapper -> concrete algorithms</text>
+<rect class="section" x="70" y="925" width="1810" height="205" rx="8"/><text class="sectionTitle" x="98" y="950">support classes and data classes; most remaining APIs are top-level extension/factory functions</text>
+<g id="edges"><path class="edge implements" d="M340 425 L340 340" stroke="#2563EB"/>
+<path class="edge extends" d="M340 690 L340 575" stroke="#2563EB"/>
+<path class="edge implements" d="M970 425 L970 360" stroke="#0D9488"/>
+<path class="edge extends" d="M970 690 L970 575" stroke="#0D9488"/>
+<path class="edge implements" d="M1600 425 L1600 360" stroke="#EA580C"/>
+<path class="edge extends" d="M1600 690 L1600 575" stroke="#EA580C"/>
+<path class="edge uses" d="M 730 265 L 630 265 Q 620 265 620 255 L 620 266 Q 620 256 610 256 L 580 256" stroke="#64748B" stroke-linecap="round" stroke-linejoin="round"/></g>
+<g id="arrowheads"><path class="solidHead" d="M340 340 L333 354 L347 354 Z" fill="#FFFFFF" stroke="#2563EB"/>
+<path class="solidHead" d="M340 575 L333 589 L347 589 Z" fill="#FFFFFF" stroke="#2563EB"/>
+<path class="solidHead" d="M970 360 L963 374 L977 374 Z" fill="#FFFFFF" stroke="#0D9488"/>
+<path class="solidHead" d="M970 575 L963 589 L977 589 Z" fill="#FFFFFF" stroke="#0D9488"/>
+<path class="solidHead" d="M1600 360 L1593 374 L1607 374 Z" fill="#FFFFFF" stroke="#EA580C"/>
+<path class="solidHead" d="M1600 575 L1593 589 L1607 589 Z" fill="#FFFFFF" stroke="#EA580C"/>
+<path class="solidOpenHead" d="M592 250 L580 256 L592 262" stroke="#64748B"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(579 224)"><rect width="142" height="28" rx="8"/><text x="71" y="19" text-anchor="middle">uses Interpolator</text></g></g>
+<g id="interpolator">
+  <rect class="umlBox" x="100" y="190" width="480" height="150" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <line x1="100" y1="256" x2="580" y2="256" stroke="#2563EB" stroke-width="1.3" opacity="0.65"/>
+
+  <text class="stereo" x="340" y="215" text-anchor="middle">&lt;&lt;fun interface&gt;&gt;</text>
+  <text class="classTitle" x="340" y="242" text-anchor="middle">Interpolator</text>
+
+  <text class="member" x="124" y="303">+ interpolate(xs, ys): (Double) -&gt; Double</text>
+</g>
+<g id="abstractInterpolator">
+  <rect class="umlBox" x="100" y="425" width="480" height="150" rx="8" fill="#F8FAFC" stroke="#2563EB"/>
+  <line x1="100" y1="491" x2="580" y2="491" stroke="#2563EB" stroke-width="1.3" opacity="0.65"/>
+  <line x1="100" y1="531" x2="580" y2="531" stroke="#2563EB" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="340" y="450" text-anchor="middle">&lt;&lt;abstract&gt;&gt;</text>
+  <text class="classTitle" x="340" y="477" text-anchor="middle">AbstractInterpolator</text>
+  <text class="member" x="124" y="516"># apacheInterpolator: UnivariateInterpolator</text>
+  <text class="member" x="124" y="558">+ interpolate(xs, ys): (Double) -&gt; Double</text>
+</g>
+<g id="interpolationImpls">
+  <rect class="umlBox" x="100" y="690" width="480" height="170" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <line x1="100" y1="756" x2="580" y2="756" stroke="#2563EB" stroke-width="1.3" opacity="0.65"/>
+  <line x1="100" y1="814" x2="580" y2="814" stroke="#2563EB" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="340" y="715" text-anchor="middle">&lt;&lt;concrete&gt;&gt;</text>
+  <text class="classTitle" x="340" y="742" text-anchor="middle">Interpolator implementations</text>
+  <text class="member" x="124" y="780">Linear, Spline, Loess</text>
+  <text class="member" x="124" y="800">AkimaSpline, Neville</text>
+  <text class="member" x="124" y="842">wrap Commons Math interpolators</text>
+</g>
+<g id="integrator">
+  <rect class="umlBox" x="730" y="190" width="480" height="170" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <line x1="730" y1="256" x2="1210" y2="256" stroke="#0D9488" stroke-width="1.3" opacity="0.65"/>
+  <line x1="730" y1="296" x2="1210" y2="296" stroke="#0D9488" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="970" y="215" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="970" y="242" text-anchor="middle">Integrator</text>
+  <text class="member" x="754" y="281">+ relativeAccuracy, absoluteAccuracy</text>
+  <text class="member" x="754" y="323">+ integrate(lower, upper, fn): Double</text>
+  <text class="member" x="754" y="343">+ integrate(xs, ys, interpolator): Double</text>
+</g>
+<g id="abstractIntegrator">
+  <rect class="umlBox" x="730" y="425" width="480" height="150" rx="8" fill="#F8FAFC" stroke="#0D9488"/>
+  <line x1="730" y1="491" x2="1210" y2="491" stroke="#0D9488" stroke-width="1.3" opacity="0.65"/>
+  <line x1="730" y1="531" x2="1210" y2="531" stroke="#0D9488" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="970" y="450" text-anchor="middle">&lt;&lt;abstract&gt;&gt;</text>
+  <text class="classTitle" x="970" y="477" text-anchor="middle">AbstractIntegrator</text>
+  <text class="member" x="754" y="516"># apacheIntegrator: UnivariateIntegrator</text>
+  <text class="member" x="754" y="558">+ integrate(lower, upper, fn): Double</text>
+</g>
+<g id="integrationImpls">
+  <rect class="umlBox" x="730" y="690" width="480" height="170" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <line x1="730" y1="756" x2="1210" y2="756" stroke="#0D9488" stroke-width="1.3" opacity="0.65"/>
+  <line x1="730" y1="814" x2="1210" y2="814" stroke="#0D9488" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="970" y="715" text-anchor="middle">&lt;&lt;concrete&gt;&gt;</text>
+  <text class="classTitle" x="970" y="742" text-anchor="middle">Integrator implementations</text>
+  <text class="member" x="754" y="780">Romberg, Simpson</text>
+  <text class="member" x="754" y="800">Trapezoid, MidPoint</text>
+  <text class="member" x="754" y="842">delegate to Commons Math integrators</text>
+</g>
+<g id="equator">
+  <rect class="umlBox" x="1360" y="190" width="480" height="170" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <line x1="1360" y1="256" x2="1840" y2="256" stroke="#EA580C" stroke-width="1.3" opacity="0.65"/>
+  <line x1="1360" y1="296" x2="1840" y2="296" stroke="#EA580C" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="1600" y="215" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="1600" y="242" text-anchor="middle">Equator</text>
+  <text class="member" x="1384" y="281">+ absoluteAccuracy: Double</text>
+  <text class="member" x="1384" y="323">+ solve(min, max, fn): Double</text>
+  <text class="member" x="1384" y="343">+ solve(xs, ys): Double</text>
+</g>
+<g id="abstractEquator">
+  <rect class="umlBox" x="1360" y="425" width="480" height="150" rx="8" fill="#F8FAFC" stroke="#EA580C"/>
+  <line x1="1360" y1="491" x2="1840" y2="491" stroke="#EA580C" stroke-width="1.3" opacity="0.65"/>
+  <line x1="1360" y1="531" x2="1840" y2="531" stroke="#EA580C" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="1600" y="450" text-anchor="middle">&lt;&lt;abstract&gt;&gt;</text>
+  <text class="classTitle" x="1600" y="477" text-anchor="middle">AbstractEquator</text>
+  <text class="member" x="1384" y="516"># solver: BaseUnivariateSolver</text>
+  <text class="member" x="1384" y="558">+ solve(maxEval, min, max, fn): Double</text>
+</g>
+<g id="equationImpls">
+  <rect class="umlBox" x="1360" y="690" width="480" height="170" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <line x1="1360" y1="756" x2="1840" y2="756" stroke="#EA580C" stroke-width="1.3" opacity="0.65"/>
+  <line x1="1360" y1="814" x2="1840" y2="814" stroke="#EA580C" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="1600" y="715" text-anchor="middle">&lt;&lt;concrete&gt;&gt;</text>
+  <text class="classTitle" x="1600" y="742" text-anchor="middle">Equator implementations</text>
+  <text class="member" x="1384" y="780">Bisection, Brent, Secant</text>
+  <text class="member" x="1384" y="800">Pegasus, Ridders, RegulaFalsi</text>
+  <text class="member" x="1384" y="842">wrap Commons Math solvers</text>
+</g>
+<g id="descriptives">
+  <rect class="umlBox" x="100" y="955" width="390" height="150" rx="8" fill="#FAF5FF" stroke="#7C3AED"/>
+  <line x1="100" y1="1021" x2="490" y2="1021" stroke="#7C3AED" stroke-width="1.3" opacity="0.65"/>
+  <line x1="100" y1="1061" x2="490" y2="1061" stroke="#7C3AED" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="295" y="980" text-anchor="middle">&lt;&lt;interface + internal class&gt;&gt;</text>
+  <text class="classTitle" x="295" y="1007" text-anchor="middle">Descriptives</text>
+  <text class="member" x="124" y="1046">ApacheDescriptives wraps DescriptiveStatistics</text>
+  <text class="member" x="124" y="1088">mean, variance, percentile, get</text>
+</g>
+<g id="randomTypes">
+  <rect class="umlBox" x="550" y="955" width="390" height="150" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <line x1="550" y1="1021" x2="940" y2="1021" stroke="#16A34A" stroke-width="1.3" opacity="0.65"/>
+  <line x1="550" y1="1061" x2="940" y2="1061" stroke="#16A34A" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="745" y="980" text-anchor="middle">&lt;&lt;classes&gt;&gt;</text>
+  <text class="classTitle" x="745" y="1007" text-anchor="middle">Weighted random types</text>
+  <text class="member" x="574" y="1036">WeightedCoin</text>
+  <text class="member" x="574" y="1056">WeightedDice&lt;T&gt;</text>
+  <text class="member" x="574" y="1088">flip(), roll()</text>
+</g>
+<g id="clusteringTypes">
+  <rect class="umlBox" x="1000" y="955" width="390" height="150" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <line x1="1000" y1="1021" x2="1390" y2="1021" stroke="#DB2777" stroke-width="1.3" opacity="0.65"/>
+  <line x1="1000" y1="1061" x2="1390" y2="1061" stroke="#DB2777" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="1195" y="980" text-anchor="middle">&lt;&lt;data classes&gt;&gt;</text>
+  <text class="classTitle" x="1195" y="1007" text-anchor="middle">Clustering types</text>
+  <text class="member" x="1024" y="1046">ClusterInput&lt;T&gt;, Centroid&lt;T&gt;</text>
+  <text class="member" x="1024" y="1088">ClusterInput implements Clusterable</text>
+</g>
+<g id="functionPackages">
+  <rect class="umlBox" x="1450" y="955" width="390" height="150" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <line x1="1450" y1="1021" x2="1840" y2="1021" stroke="#64748B" stroke-width="1.3" opacity="0.65"/>
+  <line x1="1450" y1="1061" x2="1840" y2="1061" stroke="#64748B" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="1645" y="980" text-anchor="middle">&lt;&lt;top-level support&gt;&gt;</text>
+  <text class="classTitle" x="1645" y="1007" text-anchor="middle">Function packages</text>
+  <text class="member" x="1474" y="1036">statistics, special, linear</text>
+  <text class="member" x="1474" y="1056">geometry, transform, fraction</text>
+  <text class="member" x="1474" y="1088">factory and extension APIs</text>
+</g>
+</svg>

@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="980" viewBox="0 0 1500 980" role="img" aria-label="Lettuce codec API structure">
+  <defs>
+    <filter id="shadow" x="-8%" y="-10%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10" />
+    </filter>
+    <marker id="hollowBlue" markerWidth="16" markerHeight="16" refX="13" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 13 8 L 2 14 Z" fill="#ffffff" stroke="#2563eb" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
+    </marker>
+    <marker id="hollowTeal" markerWidth="16" markerHeight="16" refX="13" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 13 8 L 2 14 Z" fill="#ffffff" stroke="#0d9488" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
+    </marker>
+    <marker id="openOrange" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="openGreen" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 11 6.5 L 2 11" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/>
+    </marker>
+    <style>
+      svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+      .canvas { fill: #f8fafc; }
+      .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; filter: url(#shadow); }
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #0f172a; }
+      .subtitle { font-family: "Comic Mono"; font-size: 15px; fill: #475569; }
+      .class { stroke-width: 1.7; filter: url(#shadow); }
+      .hdr { stroke-width: 0; }
+      .name { font-family: "Architects Daughter"; font-size: 20px; fill: #0f172a; }
+      .stereo { font-family: "Comic Mono"; font-size: 11.5px; fill: #64748b; }
+      .member { font-family: "Comic Mono"; font-size: 12px; fill: #475569; }
+      .small { font-family: "Comic Mono"; font-size: 11.5px; fill: #64748b; }
+      .implements { fill: none; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 8 6; }
+      .dep { fill: none; stroke-width: 2.35; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 8 6; }
+      .group { fill-opacity: 0.42; stroke-width: 1.35; stroke-dasharray: 7 6; }
+      .groupTitle { font-family: "Architects Daughter"; font-size: 22px; fill: #0f172a; }
+      .groupSub { font-family: "Comic Mono"; font-size: 12px; fill: #64748b; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1500" height="980" />
+  <rect class="frame" x="36" y="30" width="1428" height="920" rx="8" />
+  <text class="title" x="74" y="84">Lettuce Codec API Structure</text>
+  <text class="subtitle" x="78" y="116">RedisCodec implementations split into binary, JSON, and primitive codecs; factories inject serializer/compression choices.</text>
+
+  <g id="redisCodec">
+    <rect class="class" x="180" y="166" width="1140" height="94" rx="8" fill="#eff6ff" stroke="#2563eb" />
+    <rect class="hdr" x="180" y="166" width="1140" height="38" rx="8" fill="#dbeafe" opacity="0.9" />
+    <text class="stereo" x="750" y="189" text-anchor="middle">&lt;&lt;interface implemented by every codec below&gt;&gt;</text>
+    <text class="name" x="750" y="218" text-anchor="middle">RedisCodec&lt;String, V&gt;  ·  encode/decode key and value</text>
+  </g>
+  <g id="toByteBuf">
+    <rect class="class" x="420" y="292" width="640" height="70" rx="8" fill="#f0fdfa" stroke="#0d9488" />
+    <text class="stereo" x="740" y="318" text-anchor="middle">&lt;&lt;interface implemented by binary and JSON codecs&gt;&gt;</text>
+    <text class="name" x="740" y="346" text-anchor="middle">ToByteBufEncoder  ·  direct ByteBuf key/value writes</text>
+  </g>
+
+  <g id="binary">
+    <rect class="class" x="102" y="430" width="342" height="138" rx="8" fill="#fff7ed" stroke="#ea580c" />
+    <rect class="hdr" x="102" y="430" width="342" height="42" rx="8" fill="#fed7aa" opacity="0.85" />
+    <text class="name" x="273" y="458" text-anchor="middle">LettuceBinaryCodec&lt;V&gt;</text>
+    <line x1="102" y1="482" x2="444" y2="482" stroke="#fdba74" />
+    <text class="member" x="126" y="508">+ serializer: BinarySerializer</text>
+    <text class="member" x="126" y="532">+ UTF-8 String keys</text>
+    <text class="member" x="126" y="556">+ estimate V size as -1</text>
+  </g>
+  <g id="json">
+    <rect class="class" x="568" y="430" width="342" height="138" rx="8" fill="#f0fdfa" stroke="#0d9488" />
+    <rect class="hdr" x="568" y="430" width="342" height="42" rx="8" fill="#ccfbf1" opacity="0.9" />
+    <text class="name" x="739" y="458" text-anchor="middle">LettuceJsonCodec&lt;V&gt;</text>
+    <line x1="568" y1="482" x2="910" y2="482" stroke="#99f6e4" />
+    <text class="member" x="592" y="508">+ serializer: JsonSerializer</text>
+    <text class="member" x="592" y="532">+ valueType: Class&lt;V&gt;</text>
+    <text class="member" x="592" y="556">+ no FQCN payload header</text>
+  </g>
+  <g id="primitive">
+    <rect class="class" x="1034" y="440" width="342" height="118" rx="8" fill="#faf5ff" stroke="#9333ea" />
+    <rect class="hdr" x="1034" y="440" width="342" height="42" rx="8" fill="#ede9fe" opacity="0.9" />
+    <text class="name" x="1205" y="468" text-anchor="middle">Primitive codecs</text>
+    <line x1="1034" y1="492" x2="1376" y2="492" stroke="#ddd6fe" />
+    <text class="member" x="1058" y="520">+ LettuceIntCodec</text>
+    <text class="member" x="1058" y="544">+ LettuceLongCodec</text>
+  </g>
+
+  <path class="implements" d="M 273 430 V 260" stroke="#2563eb" />
+<polygon points="282,281 273,260 264,281" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="implements" d="M 739 430 L 739 400 Q 739 386 753 386 L 1076 386 Q 1090 386 1090 372 L 1090 260" stroke="#2563eb" />
+<polygon points="1099,281 1090,260 1081,281" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="implements" d="M 1205 440 V 260" stroke="#2563eb" />
+<polygon points="1214,281 1205,260 1196,281" fill="#FFFFFF" stroke="#2563eb" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="implements" d="M 390 430 V 362" stroke="#0d9488" />
+<polygon points="399,383 390,362 381,383" fill="#FFFFFF" stroke="#0d9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="implements" d="M 739 430 V 362" stroke="#0d9488" />
+<polygon points="748,383 739,362 730,383" fill="#FFFFFF" stroke="#0d9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+
+  <rect class="group" x="82" y="640" width="604" height="240" rx="8" fill="#fff7ed" stroke="#fdba74" />
+  <text class="groupTitle" x="114" y="674">Binary serializer factories</text>
+  <text class="groupSub" x="114" y="696">LettuceBinaryCodecs creates LettuceBinaryCodec from BinarySerializers</text>
+  <g id="binaryFactories">
+    <rect class="class" x="122" y="724" width="244" height="116" rx="8" fill="#fff7ed" stroke="#ea580c" />
+    <text class="name" x="244" y="754" text-anchor="middle">LettuceBinaryCodecs</text>
+    <text class="member" x="146" y="782">+ default() = lz4Fory()</text>
+    <text class="member" x="146" y="806">+ jdk / kryo / fory</text>
+    <text class="member" x="146" y="830">+ fastFory variants</text>
+  </g>
+  <g id="binaryMatrix">
+    <rect class="class" x="408" y="724" width="238" height="116" rx="8" fill="#f7fee7" stroke="#65a30d" />
+    <text class="name" x="527" y="754" text-anchor="middle">Serializer matrix</text>
+    <text class="member" x="432" y="782">base: Jdk, Kryo, Fory</text>
+    <text class="member" x="432" y="806">compress: GZip, Deflate</text>
+    <text class="member" x="432" y="830">LZ4, Snappy, Zstd</text>
+  </g>
+
+  <rect class="group" x="754" y="640" width="336" height="240" rx="8" fill="#f0fdfa" stroke="#99f6e4" />
+  <text class="groupTitle" x="786" y="674">JSON factories</text>
+  <text class="groupSub" x="786" y="696">typed JSON codec constructors</text>
+  <g id="jsonFactories">
+    <rect class="class" x="796" y="724" width="252" height="116" rx="8" fill="#f0fdfa" stroke="#0d9488" />
+    <text class="name" x="922" y="754" text-anchor="middle">LettuceJsonCodecs</text>
+    <text class="member" x="820" y="782">+ jackson3&lt;V&gt;()</text>
+    <text class="member" x="820" y="806">+ fastjson2&lt;V&gt;()</text>
+    <text class="member" x="820" y="830">+ codec(serializer, type)</text>
+  </g>
+
+  <rect class="group" x="1158" y="640" width="264" height="240" rx="8" fill="#faf5ff" stroke="#d8b4fe" />
+  <text class="groupTitle" x="1190" y="674">Primitive values</text>
+  <text class="groupSub" x="1190" y="696">binary-compatible fixed width</text>
+  <g id="primitiveDetails">
+    <rect class="class" x="1194" y="724" width="190" height="116" rx="8" fill="#faf5ff" stroke="#9333ea" />
+    <text class="name" x="1289" y="754" text-anchor="middle">Int / Long</text>
+    <text class="member" x="1218" y="782">Int: 4-byte BE</text>
+    <text class="member" x="1218" y="806">Long: 8-byte BE</text>
+    <text class="member" x="1218" y="830">Redisson-compatible</text>
+  </g>
+
+  <path class="dep" d="M 366 782 L 380 782 Q 388 782 388 774 L 388 618 Q 388 604 374 604 L 287 604 Q 273 604 273 590 L 273 568" stroke="#ea580c" />
+
+
+  <polyline points="281,586 273,568 265,586" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 527 724 L 527 626 Q 527 612 513 612 L 444 612 Q 430 612 430 598 L 430 568" stroke="#16a34a" />
+
+  <polyline points="438,586 430,568 422,586" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 796 782 L 774 782 Q 760 782 760 768 L 760 612.4 Q 760 604 751.6 604 L 747.4 604 Q 739 604 739 595.6 L 739 568" stroke="#0d9488" />
+
+  <polyline points="747,586 739,568 731,586" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="dep" d="M 1194 782 L 1178.4 782 Q 1168 782 1168 771.6 L 1168 618 Q 1168 604 1182 604 L 1191 604 Q 1205 604 1205 590 L 1205 558" stroke="#16a34a" />
+
+  <polyline points="1213,576 1205,558 1197,576" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+</svg>

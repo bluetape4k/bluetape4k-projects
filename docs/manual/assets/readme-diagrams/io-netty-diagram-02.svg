@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-labelledby="title desc">
+  <title id="title">bluetape4k-netty smart encoding flow</title>
+  <desc id="desc">Range map for ShortSmart, IntSmart, unsigned smart encodings, nullable UInt sentinel, and VarInt continuation bytes in bluetape4k-netty.</desc>
+  <defs>
+    <style>
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #263238; }
+      .subtitle, .member, .small, .footer, .label { font-family: "Comic Mono"; fill: #36464f; }
+      .subtitle { font-size: 18px; }
+      .panel-title, .class-title { font-family: "Architects Daughter"; fill: #1f3138; }
+      .panel-title { font-size: 25px; }
+      .class-title { font-size: 21px; }
+      .member { font-size: 14px; }
+      .small { font-size: 13px; }
+      .label { font-size: 12px; fill: #546a73; }
+      .footer { font-size: 14px; fill: #60727d; }
+      .frame { fill: #fbfcf8; stroke: #41545d; stroke-width: 3; }
+      .smart-panel { fill: #eef6f8; stroke: #b2cbd2; stroke-width: 2; }
+      .side-panel { fill: #f7f4ed; stroke: #d0c4ad; stroke-width: 2; }
+      .rule-panel { fill: #ffffff; stroke: #c6d2d5; stroke-width: 2; }
+      .entry { fill: #ffffff; stroke: #4f6c77; stroke-width: 2; }
+      .signed { fill: #fffdf7; stroke: #8a7447; stroke-width: 2; }
+      .unsigned { fill: #fdfefe; stroke: #5d7b63; stroke-width: 2; }
+      .nullable { fill: #fffafa; stroke: #b65f68; stroke-width: 2; }
+      .varint { fill: #f7f3ff; stroke: #8870a8; stroke-width: 2; }
+      .bytes { fill: #f7fbff; stroke: #6c86a1; stroke-width: 2; }
+      .sep { stroke: #d6dee2; stroke-width: 1.5; }
+      .flowBlue { fill: none; stroke: #4b74a5; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowBlue); }
+      .flowGold { fill: none; stroke: #a2743d; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowGold); }
+      .flowGreen { fill: none; stroke: #5d7b63; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowGreen); }
+      .flowRed { fill: none; stroke: #b65f68; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowRed); }
+      .flowPurple { fill: none; stroke: #8870a8; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowPurple); }
+    </style>
+    <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#8870a8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="1752" height="1032" rx="20" class="frame"/>
+  <text x="900" y="78" text-anchor="middle" class="title">bluetape4k-netty Smart Encoding Flow</text>
+  <text x="900" y="108" text-anchor="middle" class="subtitle">Smart encodings are not one generic ladder: each function family owns its own byte-width range and marker rule.</text>
+
+  <rect x="72" y="150" width="1168" height="760" rx="16" class="smart-panel"/>
+  <text x="102" y="190" class="panel-title">Smart family range decisions</text>
+  <text x="102" y="218" class="small">Write functions choose a compact representation; read functions inspect the first byte or marker bit and reconstruct the value.</text>
+
+  <rect x="126" y="304" width="282" height="134" rx="7" class="entry" filter="url(#softShadow)"/>
+  <text x="267" y="336" text-anchor="middle" class="class-title">Signed callers</text>
+  <line x1="126" y1="356" x2="408" y2="356" class="sep"/>
+  <text x="154" y="382" class="member">ShortSmart read/write</text>
+  <text x="154" y="404" class="member">IntSmart read/write</text>
+
+  <rect x="514" y="256" width="300" height="154" rx="7" class="signed" filter="url(#softShadow)"/>
+  <text x="664" y="288" text-anchor="middle" class="class-title">ShortSmart</text>
+  <line x1="514" y1="308" x2="814" y2="308" class="sep"/>
+  <text x="542" y="334" class="member">-64..63: one byte</text>
+  <text x="542" y="356" class="member">-16384..16383: two bytes</text>
+  <text x="542" y="378" class="member">outside range: throw</text>
+
+  <rect x="514" y="456" width="300" height="154" rx="7" class="signed" filter="url(#softShadow)"/>
+  <text x="664" y="488" text-anchor="middle" class="class-title">IntSmart</text>
+  <line x1="514" y1="508" x2="814" y2="508" class="sep"/>
+  <text x="542" y="534" class="member">-16384..16383: two bytes</text>
+  <text x="542" y="556" class="member">signed 30-bit range: four bytes</text>
+  <text x="542" y="578" class="member">uses Int.MIN marker bit</text>
+
+  <rect x="904" y="304" width="282" height="134" rx="7" class="bytes" filter="url(#softShadow)"/>
+  <text x="1045" y="336" text-anchor="middle" class="class-title">Encoded ByteBuf bytes</text>
+  <line x1="904" y1="356" x2="1186" y2="356" class="sep"/>
+  <text x="932" y="382" class="member">compact wire payload</text>
+  <text x="932" y="404" class="member">readerIndex / writerIndex move</text>
+
+  <rect x="126" y="706" width="282" height="134" rx="7" class="entry" filter="url(#softShadow)"/>
+  <text x="267" y="738" text-anchor="middle" class="class-title">Unsigned callers</text>
+  <line x1="126" y1="758" x2="408" y2="758" class="sep"/>
+  <text x="154" y="784" class="member">UShortSmart read/write</text>
+  <text x="154" y="806" class="member">UIntSmart read/write</text>
+
+  <rect x="514" y="682" width="300" height="154" rx="7" class="unsigned" filter="url(#softShadow)"/>
+  <text x="664" y="714" text-anchor="middle" class="class-title">Unsigned smart</text>
+  <line x1="514" y1="734" x2="814" y2="734" class="sep"/>
+  <text x="542" y="760" class="member">UShort: 0..127 or 0..32767</text>
+  <text x="542" y="782" class="member">UInt: 0..32767 or Int.MAX</text>
+  <text x="542" y="804" class="member">negative values throw</text>
+
+  <rect x="904" y="706" width="282" height="134" rx="7" class="nullable" filter="url(#softShadow)"/>
+  <text x="1045" y="738" text-anchor="middle" class="class-title">Nullable UIntSmart</text>
+  <line x1="904" y1="758" x2="1186" y2="758" class="sep"/>
+  <text x="932" y="784" class="member">null: USmart.MAX_SHORT sentinel</text>
+  <text x="932" y="806" class="member">non-null follows UIntSmart ranges</text>
+
+  <rect x="1280" y="150" width="448" height="760" rx="16" class="side-panel"/>
+  <text x="1310" y="190" class="panel-title">VarInt continuation path</text>
+  <text x="1310" y="218" class="small">VarInt uses 7-bit chunks and continuation bits.</text>
+  <text x="1310" y="240" class="small">It is separate from Smart marker-bit ranges.</text>
+
+  <rect x="1330" y="326" width="348" height="150" rx="7" class="varint" filter="url(#softShadow)"/>
+  <text x="1504" y="358" text-anchor="middle" class="class-title">writeVarInt(value)</text>
+  <line x1="1330" y1="378" x2="1678" y2="378" class="sep"/>
+  <text x="1358" y="404" class="member">emit high 7-bit chunks with MSB set</text>
+  <text x="1358" y="426" class="member">final byte stores low 7 bits</text>
+  <text x="1358" y="448" class="member">1 to 5 bytes for Int</text>
+
+  <rect x="1330" y="590" width="348" height="150" rx="7" class="varint" filter="url(#softShadow)"/>
+  <text x="1504" y="622" text-anchor="middle" class="class-title">readVarInt()</text>
+  <line x1="1330" y1="642" x2="1678" y2="642" class="sep"/>
+  <text x="1358" y="668" class="member">read while byte is negative</text>
+  <text x="1358" y="690" class="member">strip continuation bit</text>
+  <text x="1358" y="712" class="member">merge chunks into Int</text>
+
+  <rect x="92" y="940" width="1616" height="82" rx="14" class="rule-panel"/>
+  <text x="122" y="972" class="panel-title">Reader contract</text>
+  <text x="122" y="1000" class="small">ShortSmart can be 1 or 2 bytes; IntSmart is 2 or 4 bytes; unsigned variants have their own positive ranges, and VarInt is a separate 7-bit continuation encoding.</text>
+
+  <path d="M 408 371 H 514" class="flowGold"/>
+  <path d="M 408 392 L 440 392 Q 454 392 454 406 L 454 519 Q 454 533 468 533 L 514 533" class="flowGold"/>
+  <path d="M 814 333 L 844 333 Q 858 333 858 347 L 858 357 Q 858 371 872 371 L 904 371" class="flowBlue"/>
+  <path d="M 814 533 L 844 533 Q 858 533 858 519 L 858 406 Q 858 392 872 392 L 904 392" class="flowBlue"/>
+  <path d="M 408 773 H 514" class="flowGreen"/>
+  <path d="M 814 773 H 904" class="flowRed"/>
+  <path d="M 1186 371 L 1228 371 Q 1240 371 1240 383 L 1240 389 Q 1240 401 1252 401 L 1330 401" class="flowPurple"/>
+  <path d="M 1504 476 V 590" class="flowPurple"/>
+</svg>

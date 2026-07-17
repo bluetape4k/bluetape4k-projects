@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1840" height="1020" viewBox="0 0 1840 1020" role="img" aria-label="DSL Builder Structure">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<marker id="arrow-codeEntry" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#2563EB"/></marker>
+<marker id="arrow-entryState" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#16A34A"/></marker>
+<marker id="arrow-entryTransitions" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#EA580C"/></marker>
+<marker id="arrow-stateValidate" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#16A34A"/></marker>
+<marker id="arrow-transitionsValidate" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#EA580C"/></marker>
+<marker id="arrow-validateRuntime" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#9333EA"/></marker>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.card{filter:url(#softShadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:14px;fill:#475569}.divider{stroke:#CBD5E1;stroke-width:1.2}.code{font-family:"Comic Mono";font-size:15px;fill:#0F172A}.fn{fill:#2563EB}.type{fill:#9333EA}.prop{fill:#16A34A}.state{fill:#EA580C}.param{fill:#0D9488}.op{fill:#0F172A}.note{fill:#475569;font-size:13px}.mutedCode{fill:#475569}.edge{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.2px;fill:#475569}</style></defs>
+<rect class="canvas" width="1840" height="1020"/><rect class="frame" x="38" y="30" width="1764" height="954" rx="8"/>
+<text class="title" x="78" y="86">DSL Builder Structure</text>
+<text class="subtitle" x="82" y="118">The DSL reads like a state-machine declaration, then builders freeze typed transition maps into the selected runtime.</text>
+<g id="edges"><path class="edge" d="M730 250 L880 250" stroke="#2563EB" marker-end="url(#arrow-codeEntry)"/>
+<path class="edge" d="M1055 335 L1055 395" stroke="#16A34A" marker-end="url(#arrow-entryState)"/>
+<path class="edge" d="M1480 335 L1480 395" stroke="#EA580C" marker-end="url(#arrow-entryTransitions)"/>
+<path class="edge" d="M1060 545 L1060 670" stroke="#16A34A" marker-end="url(#arrow-stateValidate)"/>
+<path class="edge" d="M 1480 545 L 1480 586 Q 1480 600 1466 600 L 1174 600 Q 1160 600 1160 614 L 1160 670" stroke="#EA580C" marker-end="url(#arrow-transitionsValidate)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge" d="M1240 742 L1300 742" stroke="#9333EA" marker-end="url(#arrow-validateRuntime)"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(775 209)"><rect width="60" height="30" rx="8"/><text x="30" y="20" text-anchor="middle">calls</text></g>
+<g class="edgeLabel" transform="translate(1076 350)"><rect width="100" height="30" rx="8"/><text x="50" y="20" text-anchor="middle">apply block</text></g>
+<g class="edgeLabel" transform="translate(1513 350)"><rect width="110" height="30" rx="8"/><text x="55" y="20" text-anchor="middle">collect rules</text></g>
+<g class="edgeLabel" transform="translate(1080 592)"><rect width="112" height="30" rx="8"/><text x="56" y="20" text-anchor="middle">known states</text></g>
+<g class="edgeLabel" transform="translate(1261 559)"><rect width="118" height="30" rx="8"/><text x="59" y="20" text-anchor="middle">exact + parent</text></g>
+<g class="edgeLabel" transform="translate(1216 625)"><rect width="108" height="30" rx="8"/><text x="54" y="20" text-anchor="middle">freezes maps</text></g></g>
+<g id="code"><rect class="card" x="90" y="175" width="640" height="705" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="cardTitle" x="124" y="223">DSL usage sketch</text>
+  <line class="divider" x1="118" y1="243" x2="702" y2="243"/>
+  <text class="code" x="124" y="277"><tspan class="fn">stateMachine</tspan><tspan class="op">&lt;</tspan><tspan class="type">OrderState</tspan><tspan class="op">, </tspan><tspan class="type">OrderEvent</tspan><tspan class="op">&gt; {</tspan></text>
+  <text class="code" x="158" y="311"><tspan class="prop">initialState</tspan><tspan class="op"> = </tspan><tspan class="state">Created</tspan></text>
+  <text class="code" x="158" y="345"><tspan class="prop">finalStates</tspan><tspan class="op"> = </tspan><tspan class="fn">setOf</tspan><tspan class="op">(</tspan><tspan class="state">Delivered</tspan><tspan class="op">, </tspan><tspan class="state">Cancelled</tspan><tspan class="op">)</tspan></text>
+  <text class="code mutedCode" x="124" y="379"></text>
+  <text class="code" x="158" y="413"><tspan class="fn">transition</tspan><tspan class="op">(</tspan><tspan class="state">Created</tspan><tspan class="op">, </tspan><tspan class="fn">on</tspan><tspan class="op">&lt;</tspan><tspan class="type">Pay</tspan><tspan class="op">&gt;(), </tspan><tspan class="param">to</tspan><tspan class="op"> = </tspan><tspan class="state">Paid</tspan><tspan class="op">)</tspan></text>
+  <text class="code" x="158" y="447"><tspan class="fn">transition</tspan><tspan class="op">(</tspan><tspan class="fn">state</tspan><tspan class="op">&lt;</tspan><tspan class="type">ActiveOrder</tspan><tspan class="op">&gt;(), </tspan><tspan class="fn">on</tspan><tspan class="op">&lt;</tspan><tspan class="type">Cancel</tspan><tspan class="op">&gt;(), </tspan><tspan class="param">to</tspan><tspan class="op"> = </tspan><tspan class="state">Cancelled</tspan><tspan class="op">) {</tspan></text>
+  <text class="code" x="192" y="481"><tspan class="fn">guard</tspan><tspan class="op"> { </tspan><tspan class="param">state</tspan><tspan class="op">, </tspan><tspan class="param">event</tspan><tspan class="op"> -&gt; </tspan><tspan class="param">event</tspan><tspan class="op">.</tspan><tspan class="prop">allowed</tspan><tspan class="op"> }</tspan></text>
+  <text class="code" x="158" y="515"><tspan class="op">}</tspan></text>
+  <text class="code mutedCode" x="124" y="549"></text>
+  <text class="code" x="158" y="583"><tspan class="fn">onTransition</tspan><tspan class="op"> { </tspan><tspan class="param">previous</tspan><tspan class="op">, </tspan><tspan class="param">event</tspan><tspan class="op">, </tspan><tspan class="param">next</tspan><tspan class="op"> -&gt;</tspan></text>
+  <text class="code" x="192" y="617"><tspan class="fn">audit</tspan><tspan class="op">(</tspan><tspan class="param">previous</tspan><tspan class="op">, </tspan><tspan class="param">event</tspan><tspan class="op">, </tspan><tspan class="param">next</tspan><tspan class="op">)</tspan></text>
+  <text class="code" x="158" y="651"><tspan class="op">}</tspan></text>
+  <text class="code" x="124" y="685"><tspan class="op">}</tspan></text>
+  <text class="code mutedCode" x="124" y="719"></text>
+  <text class="code note" x="124" y="753">suspendStateMachine { ... } uses the same builder shape</text>
+  <text class="code note" x="124" y="787">reactiveStateMachine { ... } adds effects and onState side effects</text></g>
+<g id="entry"><rect class="card" x="880" y="185" width="780" height="150" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="1270" y="227" text-anchor="middle">Entry functions</text>
+  <text class="detail" x="1270" y="263" text-anchor="middle">stateMachine { ... }</text>
+  <text class="detail" x="1270" y="285" text-anchor="middle">suspendStateMachine { ... }</text>
+  <text class="detail" x="1270" y="307" text-anchor="middle">reactiveStateMachine(scope) { ... }</text></g>
+<g id="state"><rect class="card" x="880" y="395" width="360" height="150" rx="8" fill="#ECFDF5" stroke="#16A34A"/>
+  <text class="cardTitle" x="1060" y="437" text-anchor="middle">Machine settings</text>
+  <text class="detail" x="1060" y="473" text-anchor="middle">initialState</text>
+  <text class="detail" x="1060" y="495" text-anchor="middle">finalStates</text>
+  <text class="detail" x="1060" y="517" text-anchor="middle">onTransition callback</text></g>
+<g id="transitions"><rect class="card" x="1300" y="395" width="360" height="150" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1480" y="437" text-anchor="middle">Transition registrations</text>
+  <text class="detail" x="1480" y="473" text-anchor="middle">transition(from, on&lt;E&gt;(), to)</text>
+  <text class="detail" x="1480" y="495" text-anchor="middle">transition(state&lt;Parent&gt;(), on&lt;E&gt;(), to)</text>
+  <text class="detail" x="1480" y="517" text-anchor="middle">guard { ... } / effect { ... }</text></g>
+<g id="validate"><rect class="card" x="880" y="670" width="360" height="145" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="1060" y="712" text-anchor="middle">Build-time validation</text>
+  <text class="detail" x="1060" y="748" text-anchor="middle">collect known states</text>
+  <text class="detail" x="1060" y="770" text-anchor="middle">reject ambiguous parent matches</text>
+  <text class="detail" x="1060" y="792" text-anchor="middle">copy maps before runtime</text></g>
+<g id="runtime"><rect class="card" x="1300" y="670" width="360" height="145" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="1480" y="712" text-anchor="middle">Runtime machine</text>
+  <text class="detail" x="1480" y="748" text-anchor="middle">DefaultStateMachine</text>
+  <text class="detail" x="1480" y="770" text-anchor="middle">SuspendStateMachine</text>
+  <text class="detail" x="1480" y="792" text-anchor="middle">DefaultReactiveStateMachine</text></g>
+</svg>

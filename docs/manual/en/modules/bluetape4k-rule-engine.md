@@ -114,6 +114,61 @@ No dedicated workshop path is registered in the manual manifest. Use the module 
 
 This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### Rule Engine Concept Overview diagram
+
+[![Rule Engine Concept Overview diagram](../../assets/readme-diagrams/utils-rule-engine-diagram-01.png)](../../assets/readme-diagrams/utils-rule-engine-diagram-01.svg)
+
+_Release README: [`utils/rule-engine/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/rule-engine/README.md)_
+
+### Core Class Diagram diagram
+
+[![Core Class Diagram diagram](../../assets/readme-diagrams/utils-rule-engine-diagram-02.png)](../../assets/readme-diagrams/utils-rule-engine-diagram-02.svg)
+
+_Release README: [`utils/rule-engine/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/rule-engine/README.md)_
+
+### Rule Engine Class Diagram
+
+[![Rule Engine Class Diagram](../../assets/readme-diagrams/utils-rule-engine-diagram-03.png)](../../assets/readme-diagrams/utils-rule-engine-diagram-03.svg)
+
+_Release README: [`utils/rule-engine/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/rule-engine/README.md)_
+
+### Composite Rules diagram
+
+[![Composite Rules diagram](../../assets/readme-diagrams/utils-rule-engine-diagram-04.png)](../../assets/readme-diagrams/utils-rule-engine-diagram-04.svg)
+
+_Release README: [`utils/rule-engine/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/rule-engine/README.md)_
+
+### InferenceRuleEngine (Forward Chaining) diagram
+
+[![InferenceRuleEngine (Forward Chaining) diagram](../../assets/readme-diagrams/utils-rule-engine-diagram-05.png)](../../assets/readme-diagrams/utils-rule-engine-diagram-05.svg)
+
+_Release README: [`utils/rule-engine/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/rule-engine/README.md)_
+
+### Rule Engine Selection Guide diagram
+
+[![Rule Engine Selection Guide diagram](../../assets/readme-diagrams/utils-rule-engine-diagram-06.png)](../../assets/readme-diagrams/utils-rule-engine-diagram-06.svg)
+
+_Release README: [`utils/rule-engine/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/rule-engine/README.md)_
+
+### Script Engine Selection Guide diagram
+
+[![Script Engine Selection Guide diagram](../../assets/readme-diagrams/utils-rule-engine-diagram-07.png)](../../assets/readme-diagrams/utils-rule-engine-diagram-07.svg)
+
+_Release README: [`utils/rule-engine/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/rule-engine/README.md)_
+
+### Rule Execution Sequence diagram
+
+[![Rule Execution Sequence diagram](../../assets/readme-diagrams/utils-rule-engine-sequence-01.png)](../../assets/readme-diagrams/utils-rule-engine-sequence-01.svg)
+
+_Release README: [`utils/rule-engine/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/rule-engine/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources {#sources}
 
 - [Module README](../../../../utils/rule-engine/README.md)

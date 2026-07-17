@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1620" height="940" viewBox="0 0 1620 940" role="img" aria-labelledby="examples-spring-boot-observability-spring-boot-demo-sequence-01-title examples-spring-boot-observability-spring-boot-demo-sequence-01-desc">
+  <title id="examples-spring-boot-observability-spring-boot-demo-sequence-01-title">Spring Boot Observability Demo Sequence</title>
+  <desc id="examples-spring-boot-observability-spring-boot-demo-sequence-01-desc">HTTP work, event observations, Prometheus scrape output, and optional trace export.</desc>
+  <defs>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#1f2937" flood-opacity="0.10"/></filter>
+
+    <marker id="arrowNeutral" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#78909C" stroke="#78909C" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowRequest" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#4F83BF" stroke="#4F83BF" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowService" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89" stroke="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowEvent" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3E9868" stroke="#3E9868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowMetrics" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" stroke="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowTrace" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#755BC6" stroke="#755BC6" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowResponse" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C94D68" stroke="#C94D68" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="seqArrow-blue" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#4F83BF" stroke="#4F83BF" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="seqArrow-green" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3E9868" stroke="#3E9868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="seqArrow-amber" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" stroke="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="seqArrow-purple" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#755BC6" stroke="#755BC6" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="seqArrow-pink" viewBox="0 0 5 5" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C94D68" stroke="#C94D68" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <style>
+      .canvas{fill:#F6F9FC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
+      .card,.participant{filter:url(#shadow);stroke-width:2}
+      .lifeline{stroke:#78909C;stroke-width:1.8;stroke-dasharray:7 8}
+      .edge{stroke-width:2.4;fill:none}
+      .sequenceEdge{stroke-width:2.3;fill:none}
+      .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1;opacity:.94}
+
+      .title{font-family:"Architects Daughter";font-size:42px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono";font-size:16px;fill:#627184;font-weight:400}
+      .cardTitle,.participantTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400}
+      .body,.messageLabel,.edgeLabel,.note,.legend{font-family:"Comic Mono";fill:#34465B;font-weight:400}
+      .body{font-size:14px}.messageLabel{font-size:13px}.edgeLabel{font-size:12px}.note{font-size:13px}.legend{font-size:12px}
+
+
+    /* sequence-style: spring-boot-cassandra-sequence-01 */
+    .title{font-family:"Architects Daughter";fill:#263238}.subtitle,.msg,.note,.footer,.detail,.role{font-family:"Comic Mono";fill:#36464f}.subtitle{font-size:16px}text.participant,.cardTitle{font-family:"Architects Daughter";fill:#1f3138}.role{fill:#546a73}.frame{fill:#fbfcf8;stroke:#41545d;stroke-width:3}.inner,.panel{fill:#ffffff;stroke:#d7e0e4;stroke-width:2}.header,.card{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}.actor{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}rect.participant{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}.lifeline{stroke:#9aaab1;stroke-width:2;stroke-dasharray:7 8}.activation{fill:#e6f2ec!important;stroke:#5b7e67!important;stroke-width:1.5}.seq,.call{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.work,.crypto{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.async{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.seqReturn,.return{fill:none;stroke-width:2.5;stroke-dasharray:8 6;stroke-linecap:round;stroke-linejoin:round}.fail,.skip{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.alt,.altBox{fill:#eef7f0;fill-opacity:.12;stroke:#78909c;stroke-width:2.4;stroke-dasharray:12 7}.divider,.branchDivider{stroke:#78909c;stroke-width:2.4;stroke-dasharray:12 8}rect.label,.labelPill,.pill{fill:#ffffff;stroke:#d7e0e4;stroke-width:1.3}.callLabel{stroke:#9cc2d1}.workLabel,.cryptoLabel{stroke:#b6c9a4}.returnLabel{stroke:#c8b38f}.asyncLabel{stroke:#b8a9d5}.failLabel{stroke:#d9abab}.callBadge{fill:#eaf4f8;stroke:#3f7d9c}.workBadge,.cryptoBadge{fill:#eef7f0;stroke:#6e8f4f}.returnBadge{fill:#fff7e8;stroke:#9b7d54}.asyncBadge{fill:#f3ecff;stroke:#7c5aa6}.failBadge{fill:#fff0f0;stroke:#b86868}text.label{font-family:"Comic Mono";font-size:14px;font-weight:700;stroke:none}.badgeText{font-family:"Comic Mono";font-size:12px;font-weight:700}.callText{fill:#2f6f8e}.workText,.cryptoText{fill:#55783f}.returnText{fill:#7f6038}.asyncText{fill:#674b91}.failText{fill:#9d4f4f}.footer{fill:#60727d}
+  </style>
+    <marker id="seqArrow-blue-5B8DEF" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#4F83BF" stroke="#4F83BF" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-blue-45A7A1" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89" stroke="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-green-58A978" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3E9868" stroke="#3E9868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-pink-DC6B82" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C94D68" stroke="#C94D68" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-amber-D6A441" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" stroke="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="seqArrow-pink-8A72D6" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#755BC6" stroke="#755BC6" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+</defs>
+  <rect class="canvas" width="1620" height="940"/>
+  <rect class="frame" x="32" y="28" width="1556" height="864" rx="26"/>
+  <text class="title" x="66" y="82">Spring Boot Observability Demo Sequence</text>
+  <text class="subtitle" x="70" y="116">HTTP work, event observations, Prometheus scrape output, and optional trace export.</text>
+
+  <g id="client">
+    <rect class="participant" x="90" y="165" width="165" height="74" rx="10" fill="#E8F3FF" stroke="#4F83BF"/>
+    <text class="participantTitle" x="172.5" y="202" text-anchor="middle" dominant-baseline="middle">Client</text>
+    <line class="lifeline" x1="172.5" y1="239" x2="172.5" y2="840" />
+  </g>
+
+  <g id="controller">
+    <rect class="participant" x="340" y="165" width="165" height="74" rx="10" fill="#E9F7F6" stroke="#2E8F89"/>
+    <text class="participantTitle" x="422.5" y="190" text-anchor="middle" dominant-baseline="middle">Spring MVC</text>
+<text class="participantTitle" x="422.5" y="214" text-anchor="middle" dominant-baseline="middle">Controller</text>
+    <line class="lifeline" x1="422.5" y1="239" x2="422.5" y2="840" />
+  </g>
+
+  <g id="springObs">
+    <rect class="participant" x="610" y="165" width="165" height="74" rx="10" fill="#E9F7F6" stroke="#2E8F89"/>
+    <text class="participantTitle" x="692.5" y="202" text-anchor="middle" dominant-baseline="middle">observeSpring</text>
+    <line class="lifeline" x1="692.5" y1="239" x2="692.5" y2="840" />
+  </g>
+
+  <g id="eventObs">
+    <rect class="participant" x="880" y="165" width="165" height="74" rx="10" fill="#EAF7EF" stroke="#3E9868"/>
+    <text class="participantTitle" x="962.5" y="190" text-anchor="middle" dominant-baseline="middle">Event</text>
+<text class="participantTitle" x="962.5" y="214" text-anchor="middle" dominant-baseline="middle">Telemetry</text>
+    <line class="lifeline" x1="962.5" y1="239" x2="962.5" y2="840" />
+  </g>
+
+  <g id="actuator">
+    <rect class="participant" x="1145" y="165" width="200" height="74" rx="10" fill="#FFF3D9" stroke="#B9851B"/>
+    <image data-bluetape4k-icon="testcontainers/infra/prometheus.svg" x="1158" y="184" width="34" height="34" href="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRTY1MjJDIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+UHJvbWV0aGV1czwvdGl0bGU+PHBhdGggZD0iTTEyIDBDNS4zNzMgMCAwIDUuMzcyIDAgMTJjMCA2LjYyNyA1LjM3MyAxMiAxMiAxMnMxMi01LjM3MyAxMi0xMmMwLTYuNjI4LTUuMzczLTEyLTEyLTEyem0wIDIyLjQ2Yy0xLjg4NSAwLTMuNDE0LTEuMjYtMy40MTQtMi44MTRoNi44MjhjMCAxLjU1My0xLjUyOCAyLjgxMy0zLjQxNCAyLjgxM3ptNS42NC0zLjc0NUg2LjM2di0yLjA0NmgxMS4yOHYyLjA0NnptLS4wNC0zLjA5OEg2LjM5MWMtLjAzNy0uMDQzLS4wNzUtLjA4Ni0uMTExLS4xMy0xLjE1NS0xLjQwMS0xLjQyNy0yLjEzMy0xLjY5LTIuODc5LS4wMDUtLjAyNSAxLjQuMjg3IDIuMzk1LjUxMSAwIDAgLjUxMy4xMTkgMS4yNjIuMjU1LS43Mi0uODQzLTEuMTQ3LTEuOTE1LTEuMTQ3LTMuMDEgMC0yLjQwNiAxLjg0NS00LjUwOCAxLjE4LTYuMjA3LjY0OC4wNTMgMS4zNCAxLjM2NyAxLjM4NyAzLjQyMi42ODktLjk1MS45NzctMi42OS45NzctMy43NTUgMC0xLjEwMy43MjctMi4zODUgMS40NTQtMi40MjktLjY0OCAxLjA2OS4xNjggMS45ODQuODk0IDQuMjU2LjI3Mi44NTQuMjM3IDIuMjkuNDQ3IDMuMjAxLjA3LTEuODkyLjM5NS00LjY1MiAxLjU5NS01LjYwNS0uNTI5IDEuMi4wNzkgMi43MDIuNDk0IDMuNDI0LjY3MSAxLjE2NCAxLjA3OCAyLjA0NyAxLjA3OCAzLjcxNmE0LjY0MiA0LjY0MiAwIDAxLTEuMTEgMi45OTZjLjc5Mi0uMTQ5IDEuMzQtLjI4MyAxLjM0LS4yODNsMi41NzMtLjUwMnMtLjM3NCAxLjUzOC0xLjgxIDMuMDE5eiIvPjwvc3ZnPg==" preserveAspectRatio="xMidYMid meet"/>
+    <text class="participantTitle" x="1260" y="190" text-anchor="middle" dominant-baseline="middle">Actuator</text>
+<text class="participantTitle" x="1260" y="214" text-anchor="middle" dominant-baseline="middle">Prometheus</text>
+    <line class="lifeline" x1="1245" y1="239" x2="1245" y2="840" />
+  </g>
+
+  <g id="otlp">
+    <rect class="participant" x="1365" y="165" width="155" height="74" rx="10" fill="#F3ECFF" stroke="#755BC6"/>
+    <text class="participantTitle" x="1442.5" y="190" text-anchor="middle" dominant-baseline="middle">OTLP</text>
+<text class="participantTitle" x="1442.5" y="214" text-anchor="middle" dominant-baseline="middle">optional</text>
+    <line class="lifeline" x1="1442.5" y1="239" x2="1442.5" y2="840" />
+  </g>
+
+  <g id="post-order">
+    <path class="seq" d="M172.5 295 L422.5 295" stroke="#4F83BF" marker-end="url(#seqArrow-blue-5B8DEF)"/>
+
+    <rect class="labelPill" x="178.65" y="258.0" width="237.7" height="34" rx="17" stroke="#4F83BF"/>
+    <circle cx="192.65" cy="275" r="13" fill="#EAF4F8" stroke="#4F83BF" stroke-width="2"/><text class="badgeText" x="192.65" y="276" text-anchor="middle" dominant-baseline="middle" fill="#4F83BF">1</text>
+    <text class="edgeLabel" x="309.5" y="276" text-anchor="middle" dominant-baseline="middle" fill="#4F83BF">POST /orders/{orderId}/events</text>
+  </g>
+
+  <g id="observe-work">
+    <path class="seq" d="M422.5 355 L692.5 355" stroke="#2E8F89" marker-end="url(#seqArrow-blue-45A7A1)"/>
+
+    <rect class="labelPill" x="453.25" y="318.0" width="208.5" height="34" rx="17" stroke="#2E8F89"/>
+    <circle cx="467.25" cy="335" r="13" fill="#EAF7F6" stroke="#2E8F89" stroke-width="2"/><text class="badgeText" x="467.25" y="336" text-anchor="middle" dominant-baseline="middle" fill="#2E8F89">2</text>
+    <text class="edgeLabel" x="569.5" y="336" text-anchor="middle" dominant-baseline="middle" fill="#2E8F89">observe HTTP service work</text>
+  </g>
+
+  <g id="publish">
+    <path class="seq" d="M692.5 415 L962.5 415" stroke="#3E9868" marker-end="url(#seqArrow-green-58A978)"/>
+
+    <rect class="labelPill" x="752.5" y="378.0" width="150" height="34" rx="17" stroke="#3E9868"/>
+    <circle cx="766.5" cy="395" r="13" fill="#EEF7F0" stroke="#3E9868" stroke-width="2"/><text class="badgeText" x="766.5" y="396" text-anchor="middle" dominant-baseline="middle" fill="#3E9868">3</text>
+    <text class="edgeLabel" x="839.5" y="396" text-anchor="middle" dominant-baseline="middle" fill="#3E9868">event.publish</text>
+  </g>
+
+  <g id="consume">
+    <path class="seq" d="M692.5 475 L962.5 475" stroke="#3E9868" marker-end="url(#seqArrow-green-58A978)"/>
+
+    <rect class="labelPill" x="752.5" y="438.0" width="150" height="34" rx="17" stroke="#3E9868"/>
+    <circle cx="766.5" cy="455" r="13" fill="#EEF7F0" stroke="#3E9868" stroke-width="2"/><text class="badgeText" x="766.5" y="456" text-anchor="middle" dominant-baseline="middle" fill="#3E9868">4</text>
+    <text class="edgeLabel" x="839.5" y="456" text-anchor="middle" dominant-baseline="middle" fill="#3E9868">event.consume</text>
+  </g>
+
+  <g id="service-response">
+    <path class="seqReturn" d="M692.5 535 L422.5 535" stroke="#C94D68" stroke-dasharray="8 7"/>
+<polygon points="434.5,529 422.5,535 434.5,541" fill="#C94D68" stroke="#C94D68" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+
+    <rect class="labelPill" x="478.8" y="498.0" width="157.4" height="34" rx="17" stroke="#C94D68"/>
+    <circle cx="492.8" cy="515" r="13" fill="#FFF0F0" stroke="#C94D68" stroke-width="2"/><text class="badgeText" x="492.8" y="516" text-anchor="middle" dominant-baseline="middle" fill="#C94D68">5</text>
+    <text class="edgeLabel" x="569.5" y="516" text-anchor="middle" dominant-baseline="middle" fill="#C94D68">OrderEventResponse</text>
+  </g>
+
+  <g id="json-response">
+    <path class="seqReturn" d="M422.5 595 L172.5 595" stroke="#C94D68" stroke-dasharray="8 7"/>
+<polygon points="184.5,589 172.5,595 184.5,601" fill="#C94D68" stroke="#C94D68" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+
+    <rect class="labelPill" x="222.5" y="558.0" width="150" height="34" rx="17" stroke="#C94D68"/>
+    <circle cx="236.5" cy="575" r="13" fill="#FFF0F0" stroke="#C94D68" stroke-width="2"/><text class="badgeText" x="236.5" y="576" text-anchor="middle" dominant-baseline="middle" fill="#C94D68">6</text>
+    <text class="edgeLabel" x="309.5" y="576" text-anchor="middle" dominant-baseline="middle" fill="#C94D68">200 JSON</text>
+  </g>
+
+  <g id="scrape">
+    <path class="seq" d="M172.5 650 L1232.5 650" stroke="#B9851B" marker-end="url(#seqArrow-amber-D6A441)"/>
+
+    <rect class="labelPill" x="601.9" y="613.0" width="201.2" height="34" rx="17" stroke="#B9851B"/>
+    <circle cx="615.9" cy="630" r="13" fill="#FFF7E8" stroke="#B9851B" stroke-width="2"/><text class="badgeText" x="615.9" y="631" text-anchor="middle" dominant-baseline="middle" fill="#B9851B">7</text>
+    <text class="edgeLabel" x="714.5" y="631" text-anchor="middle" dominant-baseline="middle" fill="#B9851B">GET /actuator/prometheus</text>
+  </g>
+
+  <g id="traces">
+    <path class="seqReturn" d="M 692.5 710 L 1442.5 710" stroke="#755BC6" stroke-dasharray="8 7"/>
+<polygon points="1430.5,716 1442.5,710 1430.5,704" fill="#755BC6" stroke="#755BC6" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+
+    <rect class="labelPill" x="974.2" y="673.0" width="186.6" height="34" rx="17" stroke="#755BC6"/>
+    <circle cx="988.2" cy="690" r="13" fill="#F3ECFF" stroke="#755BC6" stroke-width="2"/><text class="badgeText" x="988.2" y="691" text-anchor="middle" dominant-baseline="middle" fill="#755BC6">8</text>
+    <text class="edgeLabel" x="1079.5" y="691" text-anchor="middle" dominant-baseline="middle" fill="#755BC6">traces when configured</text>
+  </g>
+  <text class="note" x="810" y="850" text-anchor="middle">bluetape4k-projects observability examples - github.com/bluetape4k/bluetape4k-projects</text>
+</svg>

@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1120" viewBox="0 0 1760 1120" role="img" aria-label="HTTP benchmark profiling workflow">
+  <defs>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow-blue" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 14 8 L 2 14 Z" fill="#2563EB" stroke="#2563EB" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 14 8 L 2 14 Z" fill="#16A34A" stroke="#16A34A" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 14 8 L 2 14 Z" fill="#EA580C" stroke="#EA580C" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrow-pink" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 2 2 L 14 8 L 2 14 Z" fill="#DB2777" stroke="#DB2777" stroke-width="1.5"/>
+    </marker>
+    <style>
+      svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+      .canvas{fill:#F8FAFC}
+      .frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}
+      .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}
+      .subtitle{font-family:"Comic Mono";font-size:17px;fill:#475569}
+      .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}
+      .card{stroke-width:2;filter:url(#softShadow)}
+      .cardTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}
+      .cardTitleSmall{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}
+      .text{font-family:"Comic Mono";font-size:14px;fill:#475569}
+      .textSmall{font-family:"Comic Mono";font-size:13px;fill:#475569}
+      .code{font-family:"Comic Mono";font-size:13px;fill:#0F172A}
+      .flow{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+      .icon{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1760" height="1120"/>
+  <rect class="frame" x="36" y="30" width="1688" height="1060" rx="8"/>
+  <text class="title" x="76" y="86">Profiling Workflow</text>
+  <text class="subtitle" x="80" y="120">Add benchmarkProfile to the HTTP benchmark task; Gradle injects profiler-specific JVM args and writes artifacts under build/benchmark-profiling.</text>
+
+  <g id="command">
+    <rect class="card" x="420" y="172" width="920" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+    <text class="icon" x="458" y="204" dominant-baseline="middle">$</text>
+    <text class="cardTitle" x="880" y="204" text-anchor="middle" dominant-baseline="middle">Run HTTP benchmarks</text>
+    <text class="code" x="880" y="238" text-anchor="middle">./gradlew :bluetape4k-http:testBenchmark -PbenchmarkProfile=&lt;gc|jfr|async&gt;</text>
+  </g>
+
+  <g id="select">
+    <rect class="card" x="570" y="330" width="620" height="92" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+    <text class="cardTitle" x="880" y="362" text-anchor="middle" dominant-baseline="middle">Gradle selects profiler mode</text>
+    <text class="text" x="880" y="394" text-anchor="middle">JavaExec benchmark tasks receive mode-specific jvmArgs</text>
+  </g>
+
+  <path class="flow" d="M 880 264 L 880 330" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
+
+  <g id="modes">
+    <rect class="panel" x="100" y="492" width="1560" height="392" rx="8"/>
+
+    <g id="gc-mode">
+      <rect class="card" x="150" y="550" width="440" height="132" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+      <text class="cardTitle" x="370" y="586" text-anchor="middle" dominant-baseline="middle">gc</text>
+      <text class="textSmall" x="370" y="624" text-anchor="middle">JVM GC and safepoint logging</text>
+      <text class="code" x="370" y="650" text-anchor="middle">-Xlog:gc*,safepoint</text>
+      <rect class="card" x="150" y="744" width="440" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+      <text class="cardTitleSmall" x="370" y="774" text-anchor="middle" dominant-baseline="middle">gc.log</text>
+      <text class="textSmall" x="370" y="806" text-anchor="middle">pause, allocation, safepoint evidence</text>
+      <path class="flow" d="M 370 682 L 370 744" stroke="#16A34A" marker-end="url(#arrow-green)"/>
+    </g>
+
+    <g id="jfr-mode">
+      <rect class="card" x="660" y="550" width="440" height="132" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+      <text class="cardTitle" x="880" y="586" text-anchor="middle" dominant-baseline="middle">jfr</text>
+      <text class="textSmall" x="880" y="624" text-anchor="middle">Java Flight Recorder</text>
+      <text class="code" x="880" y="650" text-anchor="middle">-XX:StartFlightRecording</text>
+      <rect class="card" x="660" y="744" width="440" height="84" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+      <text class="cardTitleSmall" x="880" y="774" text-anchor="middle" dominant-baseline="middle">benchmark.jfr</text>
+      <text class="textSmall" x="880" y="806" text-anchor="middle">CPU, GC, locks, allocations</text>
+      <path class="flow" d="M 880 682 L 880 744" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
+    </g>
+
+    <g id="async-mode">
+      <rect class="card" x="1170" y="550" width="440" height="132" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+      <text class="cardTitle" x="1390" y="586" text-anchor="middle" dominant-baseline="middle">async</text>
+      <text class="textSmall" x="1390" y="624" text-anchor="middle">async-profiler CPU flame graph</text>
+      <text class="code" x="1390" y="650" text-anchor="middle">requires -PasyncProfilerLib=...</text>
+      <rect class="card" x="1170" y="744" width="440" height="84" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+      <text class="cardTitleSmall" x="1390" y="774" text-anchor="middle" dominant-baseline="middle">async-cpu.html</text>
+      <text class="textSmall" x="1390" y="806" text-anchor="middle">low-overhead sampling flame graph</text>
+      <path class="flow" d="M 1390 682 L 1390 744" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
+    </g>
+  </g>
+
+  <path class="flow" d="M 880 422 V462 Q 880 478 864 478 H386 Q 370 478 370 494 V550" stroke="#16A34A" marker-end="url(#arrow-green)"/>
+  <path class="flow" d="M 880 422 L 880 550" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
+  <path class="flow" d="M 880 422 V462 Q 880 478 896 478 H1374 Q 1390 478 1390 494 V550" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
+
+  <g id="output">
+    <rect class="card" x="260" y="948" width="1240" height="82" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+    <text class="cardTitleSmall" x="880" y="978" text-anchor="middle" dominant-baseline="middle">Shared output directory</text>
+    <text class="code" x="880" y="1012" text-anchor="middle">io/http/build/benchmark-profiling/</text>
+  </g>
+
+  <path class="flow" d="M 370 828 L 370 914 Q 370 930 386 930 L 870 930 Q 880 930 880 920 L 880 948" stroke="#16A34A" marker-end="url(#arrow-green)"/>
+  <path class="flow" d="M 880 828 L 880 948" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
+  <path class="flow" d="M 1390 828 L 1390 914 Q 1390 930 1374 930 L 890 930 Q 880 930 880 920 L 880 948" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
+</svg>

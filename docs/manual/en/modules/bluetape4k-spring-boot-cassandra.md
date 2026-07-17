@@ -166,3 +166,28 @@ Flow batch adapters are not streaming batches; they hold all input in memory. `S
 - [`AbstractReactiveCassandraTestConfiguration.kt`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/AbstractReactiveCassandraTestConfiguration.kt)
 - [`ReactiveCassandraOperationsCoroutinesUnitTest.kt`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraOperationsCoroutinesUnitTest.kt)
 - [`SchemaGeneratorTest.kt`](../../../../spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/schema/SchemaGeneratorTest.kt)
+
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### Core Extension and Class Structure diagram
+
+[![Core Extension and Class Structure diagram](../../assets/readme-diagrams/spring-boot-cassandra-diagram-01.png)](../../assets/readme-diagrams/spring-boot-cassandra-diagram-01.svg)
+
+_Release README: [`spring-boot/cassandra/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/cassandra/README.md)_
+
+### Cassandra Data Access Layer diagram
+
+[![Cassandra Data Access Layer diagram](../../assets/readme-diagrams/spring-boot-cassandra-diagram-02.png)](../../assets/readme-diagrams/spring-boot-cassandra-diagram-02.svg)
+
+_Release README: [`spring-boot/cassandra/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/cassandra/README.md)_
+
+### Coroutine Conversion Sequence diagram
+
+[![Coroutine Conversion Sequence diagram](../../assets/readme-diagrams/spring-boot-cassandra-sequence-01.png)](../../assets/readme-diagrams/spring-boot-cassandra-sequence-01.svg)
+
+_Release README: [`spring-boot/cassandra/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/cassandra/README.md)_
+
+<!-- release-readme-diagrams:end -->

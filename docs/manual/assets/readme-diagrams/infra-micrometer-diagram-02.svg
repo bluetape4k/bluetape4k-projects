@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1060" viewBox="0 0 1800 1060" role="img" aria-label="Micrometer Metric Collection Flow">
+  <defs>
+    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow-blue" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#2563eb" stroke="#2563eb" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#9333ea" stroke="#9333ea" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#ea580c" stroke="#ea580c" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrow-teal" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#0d9488" stroke="#0d9488" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 12 6.5 L 1 12 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.2" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+  </defs>
+
+  <style>
+    svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+    .canvas { fill: #f8fafc; }
+    .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.8; filter: url(#softShadow); }
+    .title { font-family: "Architects Daughter"; font-size: 50px; fill: #0f172a; }
+    .subtitle { font-family: "Comic Mono"; font-size: 18px; fill: #475569; }
+    .lane { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.6; }
+    .laneLabel { font-family: "Architects Daughter"; font-size: 23px; fill: #0f172a; }
+    .card { filter: url(#softShadow); stroke-width: 2.1; }
+    .source { fill: #f8fafc; stroke: #64748b; stroke-dasharray: 8 7; }
+    .timer { fill: #eff6ff; stroke: #2563eb; }
+    .obs { fill: #faf5ff; stroke: #9333ea; }
+    .event { fill: #fdf2f8; stroke: #db2777; }
+    .retrofit { fill: #fff7ed; stroke: #ea580c; }
+    .cache { fill: #f0fdfa; stroke: #0d9488; }
+    .tags { fill: #f0fdf4; stroke: #16a34a; }
+    .sink { fill: #eef2ff; stroke: #4f46e5; }
+    .name { font-family: "Architects Daughter"; font-size: 23px; fill: #0f172a; }
+    .meta { font-family: "Comic Mono"; font-size: 13.5px; fill: #475569; }
+    .tiny { font-family: "Comic Mono"; font-size: 12.5px; fill: #64748b; }
+    .blue { fill: none; stroke: #2563eb; stroke-width: 4.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-blue); }
+    .purple { fill: none; stroke: #9333ea; stroke-width: 4.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-purple); }
+    .orange { fill: none; stroke: #ea580c; stroke-width: 4.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-orange); }
+    .teal { fill: none; stroke: #0d9488; stroke-width: 4.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-teal); }
+    .green { fill: none; stroke: #16a34a; stroke-width: 3.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 9 8; marker-end: url(#arrow-green); }
+  </style>
+
+  <rect class="canvas" width="1800" height="1060"/>
+  <rect class="frame" x="38" y="32" width="1724" height="996" rx="8"/>
+
+  <text class="title" x="82" y="94">Micrometer Metric Collection Flow</text>
+  <text class="subtitle" x="86" y="128">Each entry path wraps user code or runtime objects, builds bounded tags, then records into Micrometer or Observation registries.</text>
+
+  <g id="columns">
+    <text class="tiny" x="224" y="172" text-anchor="middle">Entry point</text>
+    <text class="tiny" x="566" y="172" text-anchor="middle">Module wrapper</text>
+    <text class="tiny" x="908" y="172" text-anchor="middle">Measurement and tags</text>
+    <text class="tiny" x="1248" y="172" text-anchor="middle">Registry target</text>
+    <text class="tiny" x="1558" y="172" text-anchor="middle">Exported signal</text>
+  </g>
+
+  <rect class="lane" x="82" y="192" width="1636" height="154" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
+  <text class="laneLabel" x="112" y="228">Timer / Flow</text>
+  <rect class="card source" x="132" y="246" width="184" height="46" rx="8"/>
+  <text class="name" x="224" y="275" text-anchor="middle">suspend block</text>
+  <rect class="card timer" x="426" y="230" width="280" height="78" rx="8"/>
+  <text class="name" x="566" y="261" text-anchor="middle">TimerExtensions</text>
+  <text class="meta" x="566" y="288" text-anchor="middle">recordSuspend / withTimer</text>
+  <rect class="card timer" x="770" y="230" width="276" height="78" rx="8"/>
+  <text class="name" x="908" y="261" text-anchor="middle">elapsed duration</text>
+  <text class="meta" x="908" y="288" text-anchor="middle">System.nanoTime -> Timer.record</text>
+  <rect class="card sink" x="1132" y="230" width="232" height="78" rx="8"/>
+  <text class="name" x="1248" y="261" text-anchor="middle">MeterRegistry</text>
+  <text class="meta" x="1248" y="288" text-anchor="middle">Timer meter</text>
+  <rect class="card timer" x="1452" y="230" width="212" height="78" rx="8"/>
+  <text class="name" x="1558" y="261" text-anchor="middle">duration series</text>
+  <text class="meta" x="1558" y="288" text-anchor="middle">one record per collection</text>
+  <path class="blue" d="M 316 269 H 418"/>
+  <path class="blue" d="M 706 269 H 762"/>
+  <path class="blue" d="M 1046 269 H 1124"/>
+  <path class="blue" d="M 1364 269 H 1444"/>
+
+  <rect class="lane" x="82" y="344" width="1636" height="154" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
+  <text class="laneLabel" x="112" y="380">Observation</text>
+  <rect class="card source" x="132" y="398" width="184" height="46" rx="8"/>
+  <text class="name" x="224" y="427" text-anchor="middle">operation block</text>
+  <rect class="card obs" x="426" y="382" width="280" height="78" rx="8"/>
+  <text class="name" x="566" y="413" text-anchor="middle">Observation wrappers</text>
+  <text class="meta" x="566" y="440" text-anchor="middle">start, scope, error, stop</text>
+  <rect class="card obs" x="770" y="382" width="276" height="78" rx="8"/>
+  <text class="name" x="908" y="413" text-anchor="middle">Observation context</text>
+  <text class="meta" x="908" y="440" text-anchor="middle">Reactor + coroutine propagation</text>
+  <rect class="card sink" x="1132" y="382" width="232" height="78" rx="8"/>
+  <text class="name" x="1248" y="413" text-anchor="middle">ObservationRegistry</text>
+  <text class="meta" x="1248" y="440" text-anchor="middle">handlers observe context</text>
+  <rect class="card obs" x="1452" y="382" width="212" height="78" rx="8"/>
+  <text class="name" x="1558" y="413" text-anchor="middle">trace/span signal</text>
+  <text class="meta" x="1558" y="440" text-anchor="middle">scope cleaned in finally</text>
+  <path class="purple" d="M 316 421 H 418"/>
+  <path class="purple" d="M 706 421 H 762"/>
+  <path class="purple" d="M 1046 421 H 1124"/>
+  <path class="purple" d="M 1364 421 H 1444"/>
+
+  <rect class="lane" x="82" y="496" width="1636" height="154" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
+  <text class="laneLabel" x="112" y="532">Event telemetry</text>
+  <rect class="card source" x="132" y="550" width="184" height="46" rx="8"/>
+  <text class="name" x="224" y="579" text-anchor="middle">publish/consume</text>
+  <rect class="card event" x="426" y="534" width="280" height="78" rx="8"/>
+  <text class="name" x="566" y="565" text-anchor="middle">observeEvent*</text>
+  <text class="meta" x="566" y="592" text-anchor="middle">EventTelemetry data model</text>
+  <rect class="card event" x="770" y="534" width="276" height="78" rx="8"/>
+  <text class="name" x="908" y="565" text-anchor="middle">safe event tags</text>
+  <text class="meta" x="908" y="592" text-anchor="middle">destination, outcome, correlation</text>
+  <rect class="card sink" x="1132" y="534" width="232" height="78" rx="8"/>
+  <text class="name" x="1248" y="565" text-anchor="middle">ObservationRegistry</text>
+  <text class="meta" x="1248" y="592" text-anchor="middle">event.publish / consume</text>
+  <rect class="card event" x="1452" y="534" width="212" height="78" rx="8"/>
+  <text class="name" x="1558" y="565" text-anchor="middle">bounded series</text>
+  <text class="meta" x="1558" y="592" text-anchor="middle">no payload or raw headers</text>
+  <path class="purple" d="M 316 573 H 418"/>
+  <path class="purple" d="M 706 573 H 762"/>
+  <path class="purple" d="M 1046 573 H 1124"/>
+  <path class="purple" d="M 1364 573 H 1444"/>
+
+  <rect class="lane" x="82" y="648" width="1636" height="154" rx="8" fill="#FFEDD5" stroke="#FDBA74" fill-opacity="1"/>
+  <text class="laneLabel" x="112" y="684">Retrofit2</text>
+  <rect class="card source" x="132" y="702" width="184" height="46" rx="8"/>
+  <text class="name" x="224" y="731" text-anchor="middle">Retrofit Call</text>
+  <rect class="card retrofit" x="426" y="686" width="280" height="78" rx="8"/>
+  <text class="name" x="566" y="717" text-anchor="middle">MeasuredCall</text>
+  <text class="meta" x="566" y="744" text-anchor="middle">execute/enqueue stopwatch</text>
+  <rect class="card retrofit" x="770" y="686" width="276" height="78" rx="8"/>
+  <text class="name" x="908" y="717" text-anchor="middle">HTTP result tags</text>
+  <text class="meta" x="908" y="744" text-anchor="middle">method, uri, status, outcome</text>
+  <rect class="card sink" x="1132" y="686" width="232" height="78" rx="8"/>
+  <text class="name" x="1248" y="717" text-anchor="middle">MeterRegistry</text>
+  <text class="meta" x="1248" y="744" text-anchor="middle">retrofit2.requests Timer</text>
+  <rect class="card retrofit" x="1452" y="686" width="212" height="78" rx="8"/>
+  <text class="name" x="1558" y="717" text-anchor="middle">percentiles</text>
+  <text class="meta" x="1558" y="744" text-anchor="middle">timer cache per tag set</text>
+  <path class="orange" d="M 316 725 H 418"/>
+  <path class="orange" d="M 706 725 H 762"/>
+  <path class="orange" d="M 1046 725 H 1124"/>
+  <path class="orange" d="M 1364 725 H 1444"/>
+
+  <rect class="lane" x="82" y="800" width="1636" height="154" rx="8" fill="#FCE7F3" stroke="#F9A8D4" fill-opacity="1"/>
+  <text class="laneLabel" x="112" y="836">Cache2k + KeyValues</text>
+  <rect class="card source" x="132" y="854" width="184" height="46" rx="8"/>
+  <text class="name" x="224" y="883" text-anchor="middle">cache + tags</text>
+  <rect class="card cache" x="426" y="838" width="280" height="78" rx="8"/>
+  <text class="name" x="566" y="869" text-anchor="middle">Cache2kCacheMetrics</text>
+  <text class="meta" x="566" y="896" text-anchor="middle">bindTo registry</text>
+  <rect class="card tags" x="770" y="838" width="276" height="78" rx="8"/>
+  <text class="name" x="908" y="869" text-anchor="middle">KeyValueSupport</text>
+  <text class="meta" x="908" y="896" text-anchor="middle">validated KeyValue / KeyValues</text>
+  <rect class="card sink" x="1132" y="838" width="232" height="78" rx="8"/>
+  <text class="name" x="1248" y="869" text-anchor="middle">MeterRegistry</text>
+  <text class="meta" x="1248" y="896" text-anchor="middle">Gauge + counters</text>
+  <rect class="card cache" x="1452" y="838" width="212" height="78" rx="8"/>
+  <text class="name" x="1558" y="869" text-anchor="middle">cache series</text>
+  <text class="meta" x="1558" y="896" text-anchor="middle">size, hit/miss, load</text>
+  <path class="teal" d="M 316 877 H 418"/>
+  <path class="green" d="M 706 877 H 762" style="marker-end:none"/>
+<polygon points="750,883 762,877 750,871" fill="#16a34a" stroke="#16a34a" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="teal" d="M 1046 877 H 1124"/>
+  <path class="teal" d="M 1364 877 H 1444"/>
+
+  <g id="legend" transform="translate(112,970)">
+    <path class="blue" d="M 0 14 H 56"/>
+    <text class="tiny" x="72" y="19">Timer path</text>
+    <path class="purple" d="M 182 14 H 238"/>
+    <text class="tiny" x="254" y="19">Observation path</text>
+    <path class="orange" d="M 398 14 H 454"/>
+    <text class="tiny" x="470" y="19">Retrofit path</text>
+    <path class="teal" d="M 608 14 H 664"/>
+    <text class="tiny" x="680" y="19">Cache path</text>
+    <path class="green" d="M 802 14 H 858" style="marker-end:none"/>
+<polygon points="846,20 858,14 846,8" fill="#16a34a" stroke="#16a34a" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+    <text class="tiny" x="874" y="19">Tag helper</text>
+  </g>
+</svg>

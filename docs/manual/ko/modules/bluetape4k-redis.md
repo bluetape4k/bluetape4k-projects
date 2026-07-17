@@ -131,3 +131,22 @@ README의 `:bluetape4k-redis:test` 안내는 Gradle task 실행 방법이지 우
 - [`bluetape4k-cache-lettuce` 매뉴얼](./bluetape4k-cache-lettuce.md)
 - [`bluetape4k-cache-redisson` 매뉴얼](./bluetape4k-cache-redisson.md)
 - [`bluetape4k-spring-boot-redis` 매뉴얼](./bluetape4k-spring-boot-redis.md)
+
+<!-- release-readme-diagrams:start -->
+## 배포본 다이어그램 {#release-diagrams}
+
+아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+
+### 모듈 의존성 구조 다이어그램
+
+[![모듈 의존성 구조 다이어그램](../../assets/readme-diagrams/infra-redis-diagram-01.png)](../../assets/readme-diagrams/infra-redis-diagram-01.svg)
+
+_배포본 README: [`infra/redis/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/redis/README.ko.md)_
+
+### 노출 API Surface 다이어그램
+
+[![노출 API Surface 다이어그램](../../assets/readme-diagrams/infra-redis-diagram-02.png)](../../assets/readme-diagrams/infra-redis-diagram-02.svg)
+
+_배포본 README: [`infra/redis/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/redis/README.ko.md)_
+
+<!-- release-readme-diagrams:end -->

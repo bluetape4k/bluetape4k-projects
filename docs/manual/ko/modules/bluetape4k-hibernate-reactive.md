@@ -131,3 +131,28 @@ Vert.x event-loop 지연, connection pool 대기와 사용량, query latency, tr
 - [`MutinyExtrasTest.kt`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/mutiny/MutinyExtrasTest.kt)
 - [`StageExtrasTest.kt`](../../../../data/hibernate-reactive/src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/stage/StageExtrasTest.kt)
 - [`persistence.xml`](../../../../data/hibernate-reactive/src/test/resources/META-INF/persistence.xml)
+
+<!-- release-readme-diagrams:start -->
+## 배포본 다이어그램 {#release-diagrams}
+
+아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+
+### Reactive 확장 구조 다이어그램
+
+[![Reactive 확장 구조 다이어그램](../../assets/readme-diagrams/data-hibernate-reactive-diagram-01.png)](../../assets/readme-diagrams/data-hibernate-reactive-diagram-01.svg)
+
+_배포본 README: [`data/hibernate-reactive/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate-reactive/README.ko.md)_
+
+### Hibernate Reactive API 구조 다이어그램
+
+[![Hibernate Reactive API 구조 다이어그램](../../assets/readme-diagrams/data-hibernate-reactive-diagram-02.png)](../../assets/readme-diagrams/data-hibernate-reactive-diagram-02.svg)
+
+_배포본 README: [`data/hibernate-reactive/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate-reactive/README.ko.md)_
+
+### 세션 유형 비교 다이어그램
+
+[![세션 유형 비교 다이어그램](../../assets/readme-diagrams/data-hibernate-reactive-diagram-03.png)](../../assets/readme-diagrams/data-hibernate-reactive-diagram-03.svg)
+
+_배포본 README: [`data/hibernate-reactive/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate-reactive/README.ko.md)_
+
+<!-- release-readme-diagrams:end -->

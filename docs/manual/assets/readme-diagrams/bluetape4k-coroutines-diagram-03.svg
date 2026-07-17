@@ -1,0 +1,106 @@
+<svg data-intent="Group Flow extension APIs by the intent a reader has while choosing an operator." data-evidence="bluetape4k/coroutines/README.md; flow/extensions/*.kt; flow/AsyncFlow.kt; flow/extensions/subject/*.kt" xmlns="http://www.w3.org/2000/svg" width="1500" height="1060" viewBox="0 0 1500 1060" role="img" aria-labelledby="title desc">
+<title id="title">Flow extension categories</title>
+<desc id="desc">Flow extension operators grouped into shaping, execution control, stream coordination, hot sharing, result adapters, and test collectors.</desc>
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#203040" flood-opacity="0.11"/></filter>
+  <marker id="arrow-blue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#4F83BF"/></marker>
+  <marker id="arrow-green" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#3E9868"/></marker>
+  <marker id="arrow-amber" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#B9851B"/></marker>
+  <marker id="arrow-pink" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#C94D68"/></marker>
+  <marker id="arrow-purple" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#755BC6"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:43px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .hub{filter:url(#shadow);stroke-width:2.4}.hubTitle{font-family:"Architects Daughter";font-size:29px;fill:#22344A}.hubNote{font-family:"Comic Mono";font-size:13px;fill:#536476}
+    .zone{fill:#fff;stroke-width:2;stroke-dasharray:9 8}.zoneTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:12.5px;fill:#536476}
+    .line{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}.pill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}
+  </style>
+</defs>
+<rect class="canvas" width="1500" height="1060"/>
+<rect class="frame" x="30" y="28" width="1440" height="1004" rx="30"/>
+<text class="title" x="70" y="86">Flow Extension Categories</text>
+<text class="subtitle" x="74" y="118">Choose operators by intent: reshape values, control concurrent work, coordinate streams, or adapt results for tests.</text>
+
+<g id="flow">
+  <rect class="hub" x="562" y="160" width="376" height="94" rx="14" fill="#E8F3FF" stroke="#4F83BF"/>
+  <text class="hubTitle" x="750" y="198" text-anchor="middle">Flow&lt;T&gt; receiver</text>
+  <text class="hubNote" x="750" y="226" text-anchor="middle">cold Flow in, Flow or AsyncFlow out</text>
+</g>
+
+<g id="shape-zone">
+  <rect class="zone" x="78" y="340" width="408" height="414" rx="18" stroke="#3E9868"/>
+  <rect class="pill" x="118" y="324" width="178" height="34" rx="10"/>
+  <text class="zoneTitle" x="207" y="349" text-anchor="middle">Shape values</text>
+  <g id="batch-window">
+    <rect class="card" x="122" y="404" width="320" height="112" rx="10" fill="#EAF7EF" stroke="#3E9868"/>
+    <text class="cardTitle" x="282" y="438" text-anchor="middle">Batch &amp; window</text>
+    <text class="detail" x="282" y="468" text-anchor="middle">chunked, windowed</text>
+    <text class="detail" x="282" y="490" text-anchor="middle">sliding, bufferedSliding</text>
+  </g>
+  <g id="adjacent">
+    <rect class="card" x="122" y="566" width="320" height="112" rx="10" fill="#F0FDFA" stroke="#2E8F89"/>
+    <text class="cardTitle" x="282" y="600" text-anchor="middle">Adjacent &amp; aggregate</text>
+    <text class="detail" x="282" y="630" text-anchor="middle">pairwise, zipWithNext</text>
+    <text class="detail" x="282" y="652" text-anchor="middle">scanWith, groupBy</text>
+  </g>
+</g>
+
+<g id="execution-zone">
+  <rect class="zone" x="546" y="340" width="408" height="414" rx="18" stroke="#B9851B"/>
+  <rect class="pill" x="586" y="324" width="210" height="34" rx="10"/>
+  <text class="zoneTitle" x="691" y="349" text-anchor="middle">Control execution</text>
+  <g id="parallel">
+    <rect class="card" x="590" y="404" width="320" height="112" rx="10" fill="#FFF7E6" stroke="#B9851B"/>
+    <text class="cardTitle" x="750" y="438" text-anchor="middle">Concurrent mapping</text>
+    <text class="detail" x="750" y="468" text-anchor="middle">mapParallel, parallel()</text>
+    <text class="detail" x="750" y="490" text-anchor="middle">concatMapEager</text>
+  </g>
+  <g id="time">
+    <rect class="card" x="590" y="566" width="320" height="112" rx="10" fill="#FDF2F8" stroke="#C94D68"/>
+    <text class="cardTitle" x="750" y="600" text-anchor="middle">Timing &amp; gates</text>
+    <text class="detail" x="750" y="630" text-anchor="middle">bufferingDebounce, throttle*</text>
+    <text class="detail" x="750" y="652" text-anchor="middle">takeUntil, skipUntil</text>
+  </g>
+</g>
+
+<g id="coordination-zone">
+  <rect class="zone" x="1014" y="340" width="408" height="414" rx="18" stroke="#755BC6"/>
+  <rect class="pill" x="1054" y="324" width="230" height="34" rx="10"/>
+  <text class="zoneTitle" x="1169" y="349" text-anchor="middle">Coordinate streams</text>
+  <g id="combine">
+    <rect class="card" x="1058" y="404" width="320" height="112" rx="10" fill="#FAF5FF" stroke="#755BC6"/>
+    <text class="cardTitle" x="1218" y="438" text-anchor="middle">Merge &amp; select</text>
+    <text class="detail" x="1218" y="468" text-anchor="middle">merge, concat, amb, race</text>
+    <text class="detail" x="1218" y="490" text-anchor="middle">withLatestFrom</text>
+  </g>
+  <g id="sharing">
+    <rect class="card" x="1058" y="566" width="320" height="112" rx="10" fill="#F7FEE7" stroke="#65A30D"/>
+    <text class="cardTitle" x="1218" y="600" text-anchor="middle">Hot sharing</text>
+    <text class="detail" x="1218" y="630" text-anchor="middle">publish, replay, multicast</text>
+    <text class="detail" x="1218" y="652" text-anchor="middle">SubjectApi implementations</text>
+  </g>
+</g>
+
+<g id="result-zone">
+  <rect class="zone" x="78" y="814" width="1344" height="130" rx="18" stroke="#4F83BF"/>
+  <rect class="pill" x="118" y="798" width="248" height="34" rx="10"/>
+  <text class="zoneTitle" x="242" y="823" text-anchor="middle">Result and test adapters</text>
+  <g id="result">
+    <rect class="card" x="420" y="842" width="300" height="76" rx="10" fill="#E8F3FF" stroke="#4F83BF"/>
+    <text class="cardTitle" x="570" y="872" text-anchor="middle">Result adapters</text>
+    <text class="detail" x="570" y="898" text-anchor="middle">materialize, mapToResult, errors</text>
+  </g>
+  <g id="collectors">
+    <rect class="card" x="784" y="842" width="300" height="76" rx="10" fill="#FBFCF8" stroke="#546E7A"/>
+    <text class="cardTitle" x="934" y="872" text-anchor="middle">Terminal collectors</text>
+    <text class="detail" x="934" y="898" text-anchor="middle">Eclipse collections, assertions</text>
+  </g>
+</g>
+
+<path class="line" d="M 710 254 L 710 290 Q 710 304 696 304 L 434 304 Q 420 304 420 318 L 420 340" stroke="#3E9868" marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="line" d="M 750 254 L 750 290 Q 750 304 764 304 L 876 304 Q 890 304 890 318 L 890 340" stroke="#B9851B" marker-end="url(#arrow-amber)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="line" d="M 790 254 L 790 290 Q 790 304 804 304 L 1336 304 Q 1350 304 1350 318 L 1350 340" stroke="#755BC6" marker-end="url(#arrow-purple)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="line" d="M 750 754 V 814" stroke="#4F83BF" marker-end="url(#arrow-blue)"/>
+</svg>

@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2700" height="1420" viewBox="0 0 2700 1420" role="img" aria-label="Spring Boot R2DBC Coroutines Data Flow Diagram">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+
+  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#0F766E" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#1D4ED8" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#15803D" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#C2410C" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#BE185D" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#475569" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-violet" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#6D28D9" style="stroke-dasharray:none"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:47px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .card{stroke-width:1.8;filter:url(#shadow)}.kicker{font-family:"Comic Mono";font-size:14px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}
+    .body{font-family:"Comic Mono";font-size:14px;fill:#334155}.foot{font-family:"Comic Mono";font-size:13px;fill:#475569}.divider{stroke-width:1.1;opacity:.42}
+    .lane{font-family:"Comic Mono";font-size:16px;font-weight:700;letter-spacing:0}
+    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
+  </style>
+</defs>
+<rect class="canvas" width="2700" height="1420"/>
+<rect class="frame" x="34" y="30" width="2632" height="1360" rx="8"/>
+<text class="title" x="72" y="86">R2DBC + Coroutines Data Flow</text>
+<text class="subtitle" x="76" y="120">Read and write extension functions translate coroutine-friendly calls into Spring Data R2DBC fluent operations, then adapt Reactor results back to Flow or suspend values.</text>
+<text class="lane" x="96" y="195" fill="#475569">caller input</text>
+<g id="Caller">
+  <rect class="card" x="110" y="230" width="430" height="240" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="kicker" x="132" y="261">service / repository</text>
+  <text class="cardTitle" x="132" y="294">Coroutine caller</text>
+  <path class="divider" d="M110 316H540" stroke="#475569"/>
+  <text class="body" x="132" y="348">passes Query, id, entity, or Update</text>
+<text class="body" x="132" y="372">calls *Suspending extension functions</text>
+<text class="body" x="132" y="396">collects Flow&lt;T&gt; only when needed</text>
+  <path class="divider" d="M110 424H540" stroke="#475569"/><text class="foot" x="132" y="453">domain code stays suspend/Flow based</text>
+</g>
+<g id="IdQuery">
+  <rect class="card" x="660" y="230" width="470" height="240" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="682" y="261">id helper path</text>
+  <text class="cardTitle" x="682" y="294">Query creation</text>
+  <path class="divider" d="M660 316H1130" stroke="#15803D"/>
+  <text class="body" x="682" y="348">Criteria.where(idName).isEqual(id)</text>
+<text class="body" x="682" y="372">Query.query(criteria)</text>
+<text class="body" x="682" y="396">then delegates to select helpers</text>
+  <path class="divider" d="M660 424H1130" stroke="#15803D"/><text class="foot" x="682" y="453">used by findOneById and findFirstById</text>
+</g>
+<g id="Database">
+  <rect class="card" x="2200" y="230" width="360" height="240" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="kicker" x="2222" y="261">R2DBC driver</text>
+  <text class="cardTitle" x="2222" y="294">Relational database</text>
+  <path class="divider" d="M2200 316H2560" stroke="#475569"/>
+  <text class="body" x="2222" y="348">SQL is executed by Spring Data R2DBC</text>
+<text class="body" x="2222" y="372">rows and row counts return reactively</text>
+<text class="body" x="2222" y="396">driver remains non-blocking</text>
+  <path class="divider" d="M2200 424H2560" stroke="#475569"/><text class="foot" x="2222" y="453">external I/O boundary</text>
+</g>
+<text class="lane" x="96" y="605" fill="#1D4ED8">read path</text>
+<g id="ReadExtensions">
+  <rect class="card" x="110" y="640" width="520" height="250" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="132" y="671">R2dbcEntityOperations extensions</text>
+  <text class="cardTitle" x="132" y="704">select / exists / count</text>
+  <path class="divider" d="M110 726H630" stroke="#1D4ED8"/>
+  <text class="body" x="132" y="758">selectSuspending(query): Flow&lt;T&gt;</text>
+<text class="body" x="132" y="782">selectOne/First variants: T or T?</text>
+<text class="body" x="132" y="806">existsSuspending, countSuspending</text>
+  <path class="divider" d="M110 844H630" stroke="#1D4ED8"/><text class="foot" x="132" y="873">read API names stay XyzSuspending</text>
+</g>
+<g id="ReadFluent">
+  <rect class="card" x="760" y="640" width="520" height="250" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="782" y="671">Spring Data fluent API</text>
+  <text class="cardTitle" x="782" y="704">select&lt;T&gt;().matching(query)</text>
+  <path class="divider" d="M760 726H1280" stroke="#15803D"/>
+  <text class="body" x="782" y="758">awaitExists() for exists</text>
+<text class="body" x="782" y="782">awaitCount() for count</text>
+<text class="body" x="782" y="806">one()/first() for scalar reads</text>
+  <path class="divider" d="M760 844H1280" stroke="#15803D"/><text class="foot" x="782" y="873">the query is immutable input</text>
+</g>
+<g id="ReadAdapter">
+  <rect class="card" x="1410" y="640" width="520" height="250" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="1432" y="671">reactor bridge</text>
+  <text class="cardTitle" x="1432" y="704">flow / await adapters</text>
+  <path class="divider" d="M1410 726H1930" stroke="#0F766E"/>
+  <text class="body" x="1432" y="758">flow() converts multi-row Publisher</text>
+<text class="body" x="1432" y="782">awaitSingle() requires one value</text>
+<text class="body" x="1432" y="806">awaitSingleOrNull() maps empty to null</text>
+  <path class="divider" d="M1410 844H1930" stroke="#0F766E"/><text class="foot" x="1432" y="873">Kotlin API boundary</text>
+</g>
+<text class="lane" x="96" y="1015" fill="#C2410C">write path</text>
+<g id="WriteExtensions">
+  <rect class="card" x="110" y="1050" width="520" height="250" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="kicker" x="132" y="1081">insert / update / delete extensions</text>
+  <text class="cardTitle" x="132" y="1114">write operations</text>
+  <path class="divider" d="M110 1136H630" stroke="#C2410C"/>
+  <text class="body" x="132" y="1168">insertSuspending(entity)</text>
+<text class="body" x="132" y="1192">updateSuspending(query, update)</text>
+<text class="body" x="132" y="1216">deleteSuspending(query)</text>
+  <path class="divider" d="M110 1254H630" stroke="#C2410C"/><text class="foot" x="132" y="1283">all wait for completion explicitly</text>
+</g>
+<g id="WriteFluent">
+  <rect class="card" x="760" y="1050" width="520" height="250" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="kicker" x="782" y="1081">Spring Data fluent API</text>
+  <text class="cardTitle" x="782" y="1114">mutation pipelines</text>
+  <path class="divider" d="M760 1136H1280" stroke="#BE185D"/>
+  <text class="body" x="782" y="1168">insert&lt;T&gt;().using(entity)</text>
+<text class="body" x="782" y="1192">update&lt;T&gt;().matching(query).apply(update)</text>
+<text class="body" x="782" y="1216">delete&lt;T&gt;().matching(query).all()</text>
+  <path class="divider" d="M760 1254H1280" stroke="#BE185D"/><text class="foot" x="782" y="1283">Spring Data builds the reactive command</text>
+</g>
+<g id="WriteAdapter">
+  <rect class="card" x="1410" y="1050" width="520" height="250" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="1432" y="1081">reactor bridge</text>
+  <text class="cardTitle" x="1432" y="1114">awaitSingle result</text>
+  <path class="divider" d="M1410 1136H1930" stroke="#0F766E"/>
+  <text class="body" x="1432" y="1168">insert returns saved entity</text>
+<text class="body" x="1432" y="1192">update returns affected row count</text>
+<text class="body" x="1432" y="1216">delete returns deleted row count</text>
+  <path class="divider" d="M1410 1254H1930" stroke="#0F766E"/><text class="foot" x="1432" y="1283">suspends without blocking a thread</text>
+</g>
+<g data-from="Caller" data-to="IdQuery">
+  <path class="edge " d="M540 350 L660 350" stroke="#475569" marker-end="url(#arrow-slate)"/>
+  <text class="edgeLabel" x="570" y="329">id helpers</text>
+</g>
+<g data-from="IdQuery" data-to="ReadExtensions">
+  <path class="edge dashed" d="M 895 470 L 895 531 Q 895 545 881 545 L 384 545 Q 370 545 370 559 L 370 640" stroke="#15803D" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="364,628 370,640 376,628" fill="#15803D" stroke="#15803D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="edgeLabel" x="510" y="526">delegates as Query</text>
+</g>
+<g data-from="Caller" data-to="ReadExtensions">
+  <path class="edge dashed" d="M325 470 L325 640" stroke="#1D4ED8"/>
+<polygon points="319,628 325,640 331,628" fill="#1D4ED8" stroke="#1D4ED8" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="edgeLabel" x="245" y="575">read calls</text>
+</g>
+<g data-from="ReadExtensions" data-to="ReadFluent">
+  <path class="edge " d="M630 765 L760 765" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="660" y="744">select&lt;T&gt;()</text>
+</g>
+<g data-from="ReadFluent" data-to="ReadAdapter">
+  <path class="edge " d="M1280 765 L1410 765" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <text class="edgeLabel" x="1315" y="744">Publisher</text>
+</g>
+<g data-from="ReadAdapter" data-to="Database">
+  <path class="edge dashed" d="M 1930 765 L 2076 765 Q 2090 765 2090 751 L 2090 364 Q 2090 350 2104 350 L 2200 350" stroke="#475569" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="2188,356 2200,350 2188,344" fill="#475569" stroke="#475569" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="edgeLabel" x="1975" y="735">non-blocking driver I/O</text>
+</g>
+<g data-from="Caller" data-to="WriteExtensions">
+  <path class="edge dashed" d="M 185 470 L 185 498 Q 185 512 171 512 L 86 512 Q 72 512 72 526 L 72 1161 Q 72 1175 86 1175 L 110 1175" stroke="#C2410C" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="98,1181 110,1175 98,1169" fill="#C2410C" stroke="#C2410C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="edgeLabel" x="90" y="990">write calls</text>
+</g>
+<g data-from="WriteExtensions" data-to="WriteFluent">
+  <path class="edge " d="M630 1175 L760 1175" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <text class="edgeLabel" x="657" y="1154">build mutation</text>
+</g>
+<g data-from="WriteFluent" data-to="WriteAdapter">
+  <path class="edge " d="M1280 1175 L1410 1175" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <text class="edgeLabel" x="1315" y="1154">Publisher</text>
+</g>
+<g data-from="WriteAdapter" data-to="Database">
+  <path class="edge dashed" d="M 1930 1175 L 2126 1175 Q 2140 1175 2140 1161 L 2140 434 Q 2140 420 2154 420 L 2200 420" stroke="#475569" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="2188,426 2200,420 2188,414" fill="#475569" stroke="#475569" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="edgeLabel" x="1968" y="1135">non-blocking driver I/O</text>
+</g>
+</svg>

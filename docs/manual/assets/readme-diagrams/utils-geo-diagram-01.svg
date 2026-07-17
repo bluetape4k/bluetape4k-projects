@@ -1,0 +1,233 @@
+<svg data-intent="Explain the utils/geo module overview from current README and source packages." data-evidence="utils/geo/README.md; utils/geo/src/main/kotlin/io/bluetape4k/geohash/GeoHash.kt; utils/geo/src/main/kotlin/io/bluetape4k/geohash/queries/GeoHashBoundingBoxQuery.kt; utils/geo/src/main/kotlin/io/bluetape4k/geohash/queries/GeoHashCircleQuery.kt; utils/geo/src/main/kotlin/io/bluetape4k/geocode/google/GoogleGeoService.kt; utils/geo/src/main/kotlin/io/bluetape4k/geocode/bing/BingMapService.kt; utils/geo/src/main/kotlin/io/bluetape4k/geoip2/finder/GeoipFinder.kt; utils/geo/src/main/kotlin/io/bluetape4k/geoip2/DatabaseReaderExtensions.kt" data-source-read="utils/geo/README.md; utils/geo/src/main/kotlin/io/bluetape4k/geohash/GeoHash.kt; utils/geo/src/main/kotlin/io/bluetape4k/geohash/queries/GeoHashBoundingBoxQuery.kt; utils/geo/src/main/kotlin/io/bluetape4k/geohash/queries/GeoHashCircleQuery.kt; utils/geo/src/main/kotlin/io/bluetape4k/geocode/google/GoogleGeoService.kt; utils/geo/src/main/kotlin/io/bluetape4k/geocode/bing/BingMapService.kt; utils/geo/src/main/kotlin/io/bluetape4k/geoip2/finder/GeoipFinder.kt; utils/geo/src/main/kotlin/io/bluetape4k/geoip2/DatabaseReaderExtensions.kt" xmlns="http://www.w3.org/2000/svg" width="2800" height="1880" viewBox="0 0 2800 1880" role="img" aria-label="Geo Module Overview">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+
+  <marker id="arrow-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#475569" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#1D4ED8" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#0F766E" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#15803D" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#C2410C" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#BE185D" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-violet" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#6D28D9" style="stroke-dasharray:none"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}
+    .frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:58px;fill:#0F172A}
+    .subtitle{font-family:"Comic Mono";font-size:17px;fill:#475569}
+    .lane{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}
+    .laneTitle{font-family:"Comic Mono";font-size:15px;font-weight:700;fill:#64748B}
+    .card{filter:url(#shadow);stroke-width:2}
+    .kicker{font-family:"Comic Mono";font-size:14px;fill:#475569;font-weight:700}
+    .cardTitle{font-family:"Architects Daughter";font-size:28px;fill:#0F172A}
+    .body{font-family:"Comic Mono";font-size:16px;fill:#334155}
+    .foot{font-family:"Comic Mono";font-size:14px;fill:#475569}
+    .divider{stroke-width:1;opacity:.35}
+    .edge{fill:none;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}
+    .dashed{stroke-dasharray:10 10}
+    .edgeLabelBg{fill:#FFFFFF;stroke:#E2E8F0;stroke-width:.8;opacity:.94}
+    .edgeLabel{font-family:"Comic Mono";font-size:14px;fill:#334155}
+  </style>
+</defs>
+<rect class="canvas" width="2800" height="1880"/>
+<rect class="frame" x="36" y="30" width="2728" height="1820" rx="8"/>
+<text class="title" x="76" y="100">Geo Module Overview</text>
+<text class="subtitle" x="80" y="134">A consolidated module with one pure spatial-index lane, one provider-backed geocoding lane, and one local GeoIP2 lookup lane.</text>
+<g>
+  <rect class="lane" x="110" y="280" width="800" height="1190" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
+  <text class="laneTitle" x="140" y="384">GeoHash: in-process spatial indexing</text>
+</g>
+<g>
+  <rect class="lane" x="1000" y="280" width="800" height="1190" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
+  <text class="laneTitle" x="1030" y="384">Geocode: provider-backed address lookup</text>
+</g>
+<g>
+  <rect class="lane" x="1890" y="280" width="800" height="1190" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
+  <text class="laneTitle" x="1920" y="384">GeoIP2: MaxMind database lookup</text>
+</g>
+<g>
+  <rect class="lane" x="110" y="1530" width="2580" height="280" rx="8" fill="#FFEDD5" stroke="#FDBA74" fill-opacity="1"/>
+  <text class="laneTitle" x="140" y="1574">Optional runtime boundaries</text>
+</g>
+<g id="Module">
+  <rect class="card" x="820" y="150" width="1160" height="155" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="kicker" x="844" y="182">bluetape4k-geo</text>
+  <text class="cardTitle" x="844" y="220">Consolidated module for Geocode, GeoHash, and GeoIP2</text>
+  <path class="divider" d="M820 242H1980" stroke="#475569"/>
+  <text class="body" x="844" y="278">Former utils/geocode, utils/geohash, and utils/geoip2 surfaces now ship together.</text>
+
+</g>
+<g id="WGS84">
+  <rect class="card" x="180" y="430" width="660" height="210" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="204" y="462">geohash package</text>
+  <text class="cardTitle" x="204" y="500">WGS84Point + GeoHash</text>
+  <path class="divider" d="M180 522H840" stroke="#15803D"/>
+  <text class="body" x="204" y="558">lat/lon encode to bit precision</text>
+<text class="body" x="204" y="584">Base32 output up to 12 chars</text>
+<text class="body" x="204" y="610">bounding box retained for containment</text>
+
+</g>
+<g id="GeoHashQuery">
+  <rect class="card" x="180" y="760" width="660" height="230" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="204" y="792">queries package</text>
+  <text class="cardTitle" x="204" y="830">Bounding box and circle search</text>
+  <path class="divider" d="M180 852H840" stroke="#0F766E"/>
+  <text class="body" x="204" y="888">GeoHashBoundingBoxQuery builds search hashes</text>
+<text class="body" x="204" y="914">180-meridian boxes split into east/west searches</text>
+<text class="body" x="204" y="940">GeoHashCircleQuery wraps radius with Vincenty geodesy</text>
+
+</g>
+<g id="GeoHashUse">
+  <rect class="card" x="180" y="1110" width="660" height="210" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="204" y="1142">consumer output</text>
+  <text class="cardTitle" x="204" y="1180">Spatial key set</text>
+  <path class="divider" d="M180 1202H840" stroke="#1D4ED8"/>
+  <text class="body" x="204" y="1238">Base32 key for storage/search</text>
+<text class="body" x="204" y="1264">neighbors and adjacent cells</text>
+<text class="body" x="204" y="1290">WKT query box for diagnostics</text>
+
+</g>
+<g id="GeocodeApi">
+  <rect class="card" x="1070" y="430" width="660" height="210" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="kicker" x="1094" y="462">geocode package</text>
+  <text class="cardTitle" x="1094" y="500">Address finder contracts</text>
+  <path class="divider" d="M1070 522H1730" stroke="#C2410C"/>
+  <text class="body" x="1094" y="558">GeocodeAddressFinder returns Address?</text>
+<text class="body" x="1094" y="584">SuspendGeocodeAddressFinder adds coroutine lookup</text>
+<text class="body" x="1094" y="610">Geocode and Address are provider-neutral models</text>
+
+</g>
+<g id="Providers">
+  <rect class="card" x="1070" y="760" width="660" height="230" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="kicker" x="1094" y="792">google + bing packages</text>
+  <text class="cardTitle" x="1094" y="830">Provider adapters</text>
+  <path class="divider" d="M1070 852H1730" stroke="#BE185D"/>
+  <text class="body" x="1094" y="888">GoogleGeoService lazy-loads GeoApiContext</text>
+<text class="body" x="1094" y="914">BingMapService builds Feign and CoroutineFeign clients</text>
+<text class="body" x="1094" y="940">API keys come from environment variables</text>
+
+</g>
+<g id="ProviderOutput">
+  <rect class="card" x="1070" y="1110" width="660" height="210" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="kicker" x="1094" y="1142">consumer output</text>
+  <text class="cardTitle" x="1094" y="1180">Resolved address data</text>
+  <path class="divider" d="M1070 1202H1730" stroke="#6D28D9"/>
+  <text class="body" x="1094" y="1238">coordinates to administrative address</text>
+<text class="body" x="1094" y="1264">provider models mapped into bluetape4k Address</text>
+<text class="body" x="1094" y="1290">sync or suspend client path</text>
+
+</g>
+<g id="GeoipApi">
+  <rect class="card" x="1960" y="430" width="660" height="210" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="kicker" x="1984" y="462">geoip2 package</text>
+  <text class="cardTitle" x="1984" y="500">GeoipFinder contract</text>
+  <path class="divider" d="M1960 522H2620" stroke="#6D28D9"/>
+  <text class="body" x="1984" y="558">findAddress(InetAddress): Address?</text>
+<text class="body" x="1984" y="584">city and country finder variants</text>
+<text class="body" x="1984" y="610">typed Address for administrative location</text>
+
+</g>
+<g id="MaxMindReader">
+  <rect class="card" x="1960" y="760" width="660" height="230" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="1984" y="792">DatabaseReader extensions</text>
+  <text class="cardTitle" x="1984" y="830">Safe MaxMind reader calls</text>
+  <path class="divider" d="M1960 852H2620" stroke="#1D4ED8"/>
+  <text class="body" x="1984" y="888">tryFindCity(ip) returns Result&lt;CityResponse&gt;</text>
+<text class="body" x="1984" y="914">tryFindCountry(ip) returns Result&lt;CountryResponse&gt;</text>
+<text class="body" x="1984" y="940">lookup errors stay in Result failure</text>
+
+</g>
+<g id="GeoipOutput">
+  <rect class="card" x="1960" y="1110" width="660" height="210" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="1984" y="1142">consumer output</text>
+  <text class="cardTitle" x="1984" y="1180">IP location data</text>
+  <path class="divider" d="M1960 1202H2620" stroke="#15803D"/>
+  <text class="body" x="1984" y="1238">IP to city/country details</text>
+<text class="body" x="1984" y="1264">latitude and longitude when database contains it</text>
+<text class="body" x="1984" y="1290">local mmdb file controls freshness</text>
+
+</g>
+<g id="PureKotlin">
+  <rect class="card" x="180" y="1590" width="520" height="180" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="204" y="1622">GeoHash</text>
+  <text class="cardTitle" x="204" y="1660">No external service</text>
+  <path class="divider" d="M180 1682H700" stroke="#15803D"/>
+  <text class="body" x="204" y="1718">pure Kotlin spatial indexing</text>
+
+</g>
+<g id="MapApis">
+  <rect class="card" x="870" y="1590" width="780" height="180" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="kicker" x="894" y="1622">Geocode</text>
+  <text class="cardTitle" x="894" y="1660">Google + Bing provider clients</text>
+  <path class="divider" d="M870 1682H1650" stroke="#BE185D"/>
+  <text class="body" x="894" y="1718">Google Maps Services</text>
+<text class="body" x="894" y="1744">Bing Maps REST via Feign</text>
+
+</g>
+<g id="MaxMind">
+  <rect class="card" x="1820" y="1590" width="720" height="180" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="1844" y="1622">GeoIP2</text>
+  <text class="cardTitle" x="1844" y="1660">MaxMind local database</text>
+  <path class="divider" d="M1820 1682H2540" stroke="#1D4ED8"/>
+  <text class="body" x="1844" y="1718">GeoIP2 DatabaseReader</text>
+<text class="body" x="1844" y="1744">local mmdb files</text>
+
+</g>
+<g data-from="Module" data-to="WGS84">
+  <path class="edge " d="M 1260 305 L 1260 315 Q 1260 325 1250 325 L 524 325 Q 510 325 510 339 L 510 430" stroke="#15803D" marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect class="edgeLabelBg" x="227" y="301" width="224" height="24" rx="4"/><text class="edgeLabel" x="235" y="318">pure coordinate utilities</text>
+</g>
+<g data-from="Module" data-to="GeocodeApi">
+  <path class="edge " d="M1400 305 L1400 430" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <rect class="edgeLabelBg" x="1422" y="353" width="176" height="24" rx="4"/><text class="edgeLabel" x="1430" y="370">address lookup APIs</text>
+</g>
+<g data-from="Module" data-to="GeoipApi">
+  <path class="edge " d="M 1540 305 L 1540 315 Q 1540 325 1550 325 L 2276 325 Q 2290 325 2290 339 L 2290 430" stroke="#6D28D9" marker-end="url(#arrow-violet)" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect class="edgeLabelBg" x="2252" y="301" width="136" height="24" rx="4"/><text class="edgeLabel" x="2260" y="318">IP lookup APIs</text>
+</g>
+<g data-from="WGS84" data-to="GeoHashQuery">
+  <path class="edge " d="M510 640 L510 760" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <rect class="edgeLabelBg" x="527" y="693" width="128" height="24" rx="4"/><text class="edgeLabel" x="535" y="710">encoded cells</text>
+</g>
+<g data-from="GeoHashQuery" data-to="GeoHashUse">
+  <path class="edge " d="M510 990 L510 1110" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <rect class="edgeLabelBg" x="527" y="1043" width="128" height="24" rx="4"/><text class="edgeLabel" x="535" y="1060">search hashes</text>
+</g>
+<g data-from="GeocodeApi" data-to="Providers">
+  <path class="edge " d="M1400 640 L1400 760" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <rect class="edgeLabelBg" x="1417" y="693" width="192" height="24" rx="4"/><text class="edgeLabel" x="1425" y="710">delegates by provider</text>
+</g>
+<g data-from="Providers" data-to="ProviderOutput">
+  <path class="edge " d="M1400 990 L1400 1110" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <rect class="edgeLabelBg" x="1417" y="1043" width="144" height="24" rx="4"/><text class="edgeLabel" x="1425" y="1060">mapped response</text>
+</g>
+<g data-from="GeoipApi" data-to="MaxMindReader">
+  <path class="edge " d="M2290 640 L2290 760" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <rect class="edgeLabelBg" x="2307" y="693" width="136" height="24" rx="4"/><text class="edgeLabel" x="2315" y="710">DatabaseReader</text>
+</g>
+<g data-from="MaxMindReader" data-to="GeoipOutput">
+  <path class="edge " d="M2290 990 L2290 1110" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <rect class="edgeLabelBg" x="2307" y="1043" width="232" height="24" rx="4"/><text class="edgeLabel" x="2315" y="1060">Result unwrapped by finder</text>
+</g>
+<g data-from="GeoHashUse" data-to="PureKotlin">
+  <path class="edge dashed" d="M510 1320 L510 1590" stroke="#15803D"/>
+<polygon points="504,1578 510,1590 516,1578" fill="#15803D" stroke="#15803D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+
+</g>
+<g data-from="ProviderOutput" data-to="MapApis">
+  <path class="edge dashed" d="M1400 1320 L1400 1590" stroke="#BE185D"/>
+<polygon points="1394,1578 1400,1590 1406,1578" fill="#BE185D" stroke="#BE185D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+
+</g>
+<g data-from="GeoipOutput" data-to="MaxMind">
+  <path class="edge dashed" d="M2290 1320 L2290 1590" stroke="#1D4ED8"/>
+<polygon points="2284,1578 2290,1590 2296,1578" fill="#1D4ED8" stroke="#1D4ED8" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+
+</g>
+</svg>

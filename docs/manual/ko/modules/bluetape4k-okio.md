@@ -109,6 +109,67 @@ manual manifest에 등록된 전용 workshop path가 없습니다. 모듈 README
 
 이 페이지는 연결된 source와 test가 나타내는 현재 저장소 상태를 설명합니다. optional backend를 애플리케이션 기본값으로 만들거나 benchmark artifact 없이 성능을 단정하지 않습니다. 모듈 버전이 바뀌면 호환성과 lifecycle 설명을 다시 확인해야 합니다.
 
+<!-- release-readme-diagrams:start -->
+## 배포본 다이어그램 {#release-diagrams}
+
+아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+
+### Sink와 Source 어댑터 계층 다이어그램
+
+[![Sink와 Source 어댑터 계층 다이어그램](../../assets/readme-diagrams/io-okio-diagram-01.png)](../../assets/readme-diagrams/io-okio-diagram-01.svg)
+
+_배포본 README: [`io/okio/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.ko.md)_
+
+### NIO 채널 어댑터 계층 다이어그램
+
+[![NIO 채널 어댑터 계층 다이어그램](../../assets/readme-diagrams/io-okio-diagram-02.png)](../../assets/readme-diagrams/io-okio-diagram-02.svg)
+
+_배포본 README: [`io/okio/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.ko.md)_
+
+### Coroutines 비동기 I/O 계층 다이어그램
+
+[![Coroutines 비동기 I/O 계층 다이어그램](../../assets/readme-diagrams/io-okio-diagram-03.png)](../../assets/readme-diagrams/io-okio-diagram-03.svg)
+
+_배포본 README: [`io/okio/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.ko.md)_
+
+### Compressable 압축 팩토리 다이어그램
+
+[![Compressable 압축 팩토리 다이어그램](../../assets/readme-diagrams/io-okio-diagram-04.png)](../../assets/readme-diagrams/io-okio-diagram-04.svg)
+
+_배포본 README: [`io/okio/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.ko.md)_
+
+### 압축 Sink One-Shot close 시점 압축 시퀀스 다이어그램
+
+[![압축 Sink One-Shot close 시점 압축 시퀀스 다이어그램](../../assets/readme-diagrams/io-okio-sequence-01.png)](../../assets/readme-diagrams/io-okio-sequence-01.svg)
+
+_배포본 README: [`io/okio/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.ko.md)_
+
+### 압축 Sink Streaming 증분 압축 시퀀스 다이어그램
+
+[![압축 Sink Streaming 증분 압축 시퀀스 다이어그램](../../assets/readme-diagrams/io-okio-sequence-02.png)](../../assets/readme-diagrams/io-okio-sequence-02.svg)
+
+_배포본 README: [`io/okio/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.ko.md)_
+
+### 복원 Source One-Shot 첫 read 복원 시퀀스 다이어그램
+
+[![복원 Source One-Shot 첫 read 복원 시퀀스 다이어그램](../../assets/readme-diagrams/io-okio-sequence-03.png)](../../assets/readme-diagrams/io-okio-sequence-03.svg)
+
+_배포본 README: [`io/okio/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.ko.md)_
+
+### Tink 암호화와 압축 조합 흐름 시퀀스 다이어그램
+
+[![Tink 암호화와 압축 조합 흐름 시퀀스 다이어그램](../../assets/readme-diagrams/io-okio-sequence-04.png)](../../assets/readme-diagrams/io-okio-sequence-04.svg)
+
+_배포본 README: [`io/okio/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.ko.md)_
+
+### Coroutines 비동기 파일 I/O 흐름 시퀀스 다이어그램
+
+[![Coroutines 비동기 파일 I/O 흐름 시퀀스 다이어그램](../../assets/readme-diagrams/io-okio-sequence-05.png)](../../assets/readme-diagrams/io-okio-sequence-05.svg)
+
+_배포본 README: [`io/okio/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/okio/README.ko.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## 근거 {#sources}
 
 - [모듈 README](../../../../io/okio/README.ko.md)

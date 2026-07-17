@@ -150,6 +150,37 @@ This manual targets the `bluetape4k-projects` 1.11.0 release source. Despite `sp
 
 The API depends on reified types and Spring Data entity mapping. Use `bluetape4k-r2dbc` or Spring `DatabaseClient` for raw SQL, batching, detailed generated-key control, or custom row mapping.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### Core Class Structure diagram
+
+[![Core Class Structure diagram](../../assets/readme-diagrams/spring-boot-r2dbc-diagram-01.png)](../../assets/readme-diagrams/spring-boot-r2dbc-diagram-01.svg)
+
+_Release README: [`spring-boot/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.md)_
+
+### R2DBC + Coroutines Data Flow diagram
+
+[![R2DBC + Coroutines Data Flow diagram](../../assets/readme-diagrams/spring-boot-r2dbc-diagram-02.png)](../../assets/readme-diagrams/spring-boot-r2dbc-diagram-02.svg)
+
+_Release README: [`spring-boot/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.md)_
+
+### CRUD Operation Hierarchy diagram
+
+[![CRUD Operation Hierarchy diagram](../../assets/readme-diagrams/spring-boot-r2dbc-diagram-03.png)](../../assets/readme-diagrams/spring-boot-r2dbc-diagram-03.svg)
+
+_Release README: [`spring-boot/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.md)_
+
+### Coroutine Conversion Sequence diagram
+
+[![Coroutine Conversion Sequence diagram](../../assets/readme-diagrams/spring-boot-r2dbc-sequence-01.png)](../../assets/readme-diagrams/spring-boot-r2dbc-sequence-01.svg)
+
+_Release README: [`spring-boot/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources and tests {#sources}
 
 - [Module README](../../../../spring-boot/r2dbc/README.md)

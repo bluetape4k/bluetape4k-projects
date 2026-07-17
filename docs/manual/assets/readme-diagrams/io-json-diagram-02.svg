@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1180" viewBox="0 0 1600 1180" role="img" aria-label="bluetape4k-json serializer call flow">
+  <defs>
+    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#27343a" flood-opacity="0.13"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#4079a8" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#5b8d52" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowAmber" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 14 7 L 0 14 Z" fill="#b98220" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowRed" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 12 6 L 0 12 Z" fill="#bd6371" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <style>
+      svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+      .canvas { fill: #f8faf7; }
+      .frame { fill: #fffffb; stroke: #29363b; stroke-width: 2.2; }
+      .title { font-family: "Architects Daughter"; font-size: 38px; fill: #223037; }
+      .subtitle { font-family: "Comic Mono"; font-size: 15px; fill: #41515a; }
+      .panel-wire { fill: #eef7fb; stroke: #9dbfcb; stroke-width: 1.8; }
+      .panel-call { fill: #f3f8ef; stroke: #aec99d; stroke-width: 1.8; }
+      .panel-result { fill: #fbf6ec; stroke: #d4bd8f; stroke-width: 1.8; }
+      .panel-title { font-family: "Architects Daughter"; font-size: 25px; fill: #223037; }
+      .note { font-family: "Comic Mono"; font-size: 13px; fill: #4c5a61; }
+      .card { fill: #fffdfa; stroke-width: 2; filter: url(#softShadow); }
+      .app { stroke: #4079a8; }
+      .contract { stroke: #5b8d52; }
+      .adapter { stroke: #b98220; }
+      .bytes { stroke: #3d758f; }
+      .string { stroke: #5b8d52; }
+      .nulls { stroke: #8c7a46; }
+      .errors { stroke: #bd6371; }
+      .result { stroke: #6f7f4a; }
+      .card-title { font-family: "Architects Daughter"; font-size: 21px; fill: #223037; dominant-baseline: middle; }
+      .outcome-title { font-family: "Architects Daughter"; font-size: 19px; fill: #223037; dominant-baseline: middle; }
+      .detail { font-family: "Comic Mono"; font-size: 12px; fill: #34454d; dominant-baseline: middle; }
+      .small { font-family: "Comic Mono"; font-size: 12px; fill: #5a6970; }
+      .sep { stroke: #cfdbdf; stroke-width: 1.3; }
+      .flow-blue { fill: none; stroke: #4079a8; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowBlue); }
+      .flow-green { fill: none; stroke: #5b8d52; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowGreen); }
+      .flow-amber { fill: none; stroke: #b98220; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowAmber); }
+      .flow-red { fill: none; stroke: #bd6371; stroke-width: 2.8; stroke-dasharray: 8 7; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowRed); }
+      .bus { fill: none; stroke: #5b8d52; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+      .label { font-family: "Comic Mono"; font-size: 12px; fill: #41515a; }
+      .pill { fill: #ffffff; stroke: #d2dde1; stroke-width: 1.2; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1600" height="1180"/>
+  <rect class="frame" x="20" y="20" width="1560" height="1140" rx="18"/>
+
+  <text x="800" y="72" text-anchor="middle" class="title">bluetape4k-json Serializer Call Flow</text>
+  <text x="800" y="105" text-anchor="middle" class="subtitle">The module does not discover a backend; caller wiring selects an adapter, then every call follows the common JsonSerializer surface.</text>
+
+  <rect x="76" y="145" width="1448" height="215" rx="16" class="panel-wire"/>
+  <text x="108" y="188" class="panel-title">1. Wire one concrete adapter</text>
+  <text x="108" y="216" class="note">A dependency choice is made outside io/json: Jackson 2, Jackson 3, or Fastjson2.</text>
+
+  <rect x="76" y="420" width="1448" height="455" rx="16" class="panel-call"/>
+  <text x="108" y="463" class="panel-title">2. Call the common API</text>
+  <text x="108" y="491" class="note">ByteArray operations are required; string and reified helpers delegate or are overridden by the adapter.</text>
+
+  <rect x="76" y="925" width="1448" height="165" rx="16" class="panel-result"/>
+  <text x="108" y="968" class="panel-title">3. Return the normalized outcome</text>
+
+  <g id="app">
+    <rect x="150" y="245" width="310" height="82" rx="8" class="card app"/>
+    <text x="305" y="274" text-anchor="middle" class="card-title">Application code</text>
+    <text x="305" y="304" text-anchor="middle" class="detail">declares JsonSerializer variable</text>
+  </g>
+
+  <g id="choice">
+    <rect x="645" y="230" width="310" height="112" rx="8" class="card adapter"/>
+    <text x="800" y="257" text-anchor="middle" class="card-title">Concrete adapter</text>
+    <line x1="645" y1="284" x2="955" y2="284" class="sep"/>
+    <text x="672" y="309" class="detail">JacksonSerializer 2.x / 3.x</text>
+    <text x="672" y="333" class="detail">FastjsonSerializer JSONB path</text>
+  </g>
+
+  <g id="spi">
+    <rect x="1140" y="245" width="310" height="82" rx="8" class="card contract"/>
+    <text x="1295" y="274" text-anchor="middle" class="card-title">JsonSerializer API</text>
+    <text x="1295" y="304" text-anchor="middle" class="detail">stable caller-facing contract</text>
+  </g>
+
+  <g id="serialize">
+    <rect x="150" y="590" width="300" height="110" rx="8" class="card bytes"/>
+    <text x="300" y="618" text-anchor="middle" class="card-title">serialize(graph)</text>
+    <line x1="150" y1="645" x2="450" y2="645" class="sep"/>
+    <text x="176" y="665" class="detail">returns ByteArray</text>
+    <text x="176" y="687" class="detail">null input usually empty bytes</text>
+  </g>
+
+  <g id="deserialize">
+    <rect x="510" y="590" width="300" height="110" rx="8" class="card bytes"/>
+    <text x="660" y="618" text-anchor="middle" class="card-title">deserialize(bytes)</text>
+    <line x1="510" y1="645" x2="810" y2="645" class="sep"/>
+    <text x="536" y="665" class="detail">bytes + Class&lt;T&gt;</text>
+    <text x="536" y="687" class="detail">returns T? or throws</text>
+  </g>
+
+  <g id="stringOut">
+    <rect x="870" y="590" width="300" height="110" rx="8" class="card string"/>
+    <text x="1020" y="618" text-anchor="middle" class="card-title">serializeAsString</text>
+    <line x1="870" y1="645" x2="1170" y2="645" class="sep"/>
+    <text x="896" y="665" class="detail">default: bytes to UTF-8 text</text>
+    <text x="896" y="687" class="detail">Fastjson2 overrides JSON text</text>
+  </g>
+
+  <g id="stringIn">
+    <rect x="1230" y="590" width="300" height="110" rx="8" class="card string"/>
+    <text x="1380" y="618" text-anchor="middle" class="card-title">deserializeFromString</text>
+    <line x1="1230" y1="645" x2="1530" y2="645" class="sep"/>
+    <text x="1256" y="665" class="detail">default: text to UTF-8 bytes</text>
+    <text x="1256" y="687" class="detail">Fastjson2 overrides JSON text</text>
+  </g>
+
+  <g id="reified">
+    <rect x="510" y="760" width="660" height="66" rx="8" class="card contract"/>
+    <text x="840" y="783" text-anchor="middle" class="card-title">Kotlin reified shortcuts</text>
+    <text x="840" y="810" text-anchor="middle" class="detail">deserialize&lt;T&gt;(...) and deserializeFromString&lt;T&gt;(...) supply T::class.java</text>
+  </g>
+
+  <g id="nulls">
+    <rect x="165" y="1012" width="360" height="58" rx="8" class="card nulls"/>
+    <text x="345" y="1041" text-anchor="middle" class="outcome-title">null input stays cheap</text>
+  </g>
+
+  <g id="error">
+    <rect x="620" y="1012" width="360" height="58" rx="8" class="card errors"/>
+    <text x="800" y="1041" text-anchor="middle" class="outcome-title">failures are wrapped</text>
+  </g>
+
+  <g id="return">
+    <rect x="1040" y="1012" width="430" height="58" rx="8" class="card result"/>
+    <text x="1255" y="1041" text-anchor="middle" class="outcome-title">caller receives ByteArray, String, or T?</text>
+  </g>
+
+  <path d="M 460 286 H 645" class="flow-blue"/>
+  <path d="M 955 286 H 1140" class="flow-green"/>
+
+  <path d="M 1295 327 V 530 H 300 H 660 H 1020 H 1380" class="bus"/>
+  <path d="M 300 530 V 590" class="flow-green"/>
+  <path d="M 660 530 V 590" class="flow-green"/>
+  <path d="M 1020 530 V 590" class="flow-green"/>
+  <path d="M 1380 530 V 590" class="flow-green"/>
+
+  <path d="M 300 700 L 300 876 Q 300 890 314 890 L 331 890 Q 345 890 345 904 L 345 1012" class="flow-amber"/>
+  <path d="M 660 700 L 660 718 Q 660 730 648 730 L 494 730 Q 480 730 480 744 L 480 876 Q 480 890 494 890 L 786 890 Q 800 890 800 904 L 800 1012" class="flow-red" style="marker-end:none"/>
+<polygon points="794,1000 800,1012 806,1000" fill="#bd6371" stroke="#bd6371" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 1020 700 L 1020 718 Q 1020 730 1032 730 L 1186 730 Q 1200 730 1200 744 L 1200 876 Q 1200 890 1214 890 L 1241 890 Q 1255 890 1255 904 L 1255 1012" class="flow-green"/>
+  <path d="M 1380 700 L 1380 876 Q 1380 890 1366 890 L 1269 890 Q 1255 890 1255 904 L 1255 1012" class="flow-green"/>
+
+  <rect x="535" y="543" width="132" height="26" rx="13" class="pill"/>
+  <text x="601" y="561" text-anchor="middle" class="label">same interface</text>
+  <rect x="1192" y="760" width="166" height="26" rx="13" class="pill"/>
+  <text x="1275" y="778" text-anchor="middle" class="label">no backend lookup here</text>
+</svg>
