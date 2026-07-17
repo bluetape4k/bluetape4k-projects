@@ -2,16 +2,22 @@ package io.bluetape4k.avro.impl
 
 import io.bluetape4k.avro.AvroReflectSerializer
 import io.bluetape4k.avro.DEFAULT_CODEC_FACTORY
+import io.bluetape4k.avro.writeToFixedBuffer
+import io.bluetape4k.io.ByteBufferInputStream
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import org.apache.avro.file.CodecFactory
 import org.apache.avro.file.DataFileReader
+import org.apache.avro.file.DataFileStream
 import org.apache.avro.file.DataFileWriter
 import org.apache.avro.file.SeekableByteArrayInput
 import org.apache.avro.reflect.ReflectData
 import org.apache.avro.reflect.ReflectDatumReader
 import org.apache.avro.reflect.ReflectDatumWriter
 import java.io.ByteArrayOutputStream
+import java.nio.BufferOverflowException
+import java.nio.ByteBuffer
+import java.nio.ReadOnlyBufferException
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -98,6 +104,34 @@ class DefaultAvroReflectSerializer private constructor(
         }
     }
 
+    override fun <T> serializeTo(graph: T?, target: ByteBuffer): Int {
+        if (target.isReadOnly) throw ReadOnlyBufferException()
+        if (graph == null) return 0
+
+        return try {
+            val schema = schemaOf(graph.javaClass)
+            val datumWriter = ReflectDatumWriter<T>(schema)
+            writeToFixedBuffer(target) { output ->
+                DataFileWriter(datumWriter).setCodec(codecFactory).use { writer ->
+                    writer.create(schema, output)
+                    writer.append(graph)
+                    writer.flush()
+                }
+            }
+        } catch (failure: Throwable) {
+            when (failure) {
+                is Error,
+                is BufferOverflowException,
+                is ReadOnlyBufferException,
+                -> throw failure
+                else -> {
+                    log.error(failure) { "Reflect 기반 ByteBuffer 직렬화에 실패했습니다. clazz=${graph.javaClass.name}" }
+                    0
+                }
+            }
+        }
+    }
+
     /**
      * Avro 바이트 배열을 지정 타입으로 역직렬화합니다.
      *
@@ -130,6 +164,21 @@ class DefaultAvroReflectSerializer private constructor(
             }
         } catch (e: Throwable) {
             log.error(e) { "Reflect 기반 역직렬화에 실패했습니다. clazz=${clazz.name}, size=${avroBytes.size}" }
+            null
+        }
+    }
+
+    override fun <T> deserializeFrom(source: ByteBuffer, clazz: Class<T>): T? {
+        return try {
+            val schema = schemaOf(clazz)
+            val datumReader = ReflectDatumReader<T>(schema, schema)
+            DataFileStream(ByteBufferInputStream(source.duplicate()), datumReader).use { reader ->
+                if (reader.hasNext()) reader.next()
+                else null
+            }
+        } catch (failure: Throwable) {
+            if (failure is Error) throw failure
+            log.error(failure) { "Reflect 기반 ByteBuffer 역직렬화에 실패했습니다. clazz=${clazz.name}, size=${source.remaining()}" }
             null
         }
     }
