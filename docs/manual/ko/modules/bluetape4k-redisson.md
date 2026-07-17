@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-redisson
-title: "Module bluetape4k-redisson"
+title: "Redisson 코루틴 확장"
 description: "Redisson client, 분산 객체와 Stream, coroutine 경계, Codec, Near Cache와 cache persistence를 1.11.0 소스에 맞춰 설명합니다."
 kind: library
-group: infrastructure
+group: caching
+learningOrder: 560
 ---
 
-# Module bluetape4k-redisson
+# Redisson 코루틴 확장
 
 ## 제공하는 기능 {#problem}
 

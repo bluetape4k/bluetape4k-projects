@@ -1,9 +1,10 @@
 ---
 manualId: bluetape4k-bom
-title: Bluetape4k BOM
+title: "Bluetape4k BOM"
 description: 중앙 BOM이 내부에서 사용하는 bluetape4k-projects 모듈 제약 조건과 유지보수 방식을 설명합니다.
 kind: library
 group: foundation
+learningOrder: 100
 ---
 
 # Bluetape4k BOM

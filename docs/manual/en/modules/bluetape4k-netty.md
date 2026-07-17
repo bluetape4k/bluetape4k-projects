@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-netty
-title: "Module bluetape4k-netty"
+title: "Netty Extensions"
 description: "Extension functions for working with the Netty framework."
 kind: library
 group: io
+learningOrder: 430
 ---
 
-# Module bluetape4k-netty
+# Netty Extensions
 
 ## Problem {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-examples-coroutines-demo
-title: "Module Examples - Kotlin Coroutines"
+title: "Kotlin Coroutine Examples"
 description: "A collection of examples for learning the features and usage patterns of Kotlin Coroutines."
 kind: example
-group: learning
+group: examples
+learningOrder: 1400
 ---
 
-# Module Examples - Kotlin Coroutines
+# Kotlin Coroutine Examples
 
 ## Problem {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-testcontainers
-title: "Module bluetape4k-testcontainers"
+title: "Testcontainers Support"
 description: "A server wrapper and utility library for building integration tests quickly on top of Testcontainers 2.0.3."
 kind: library
 group: testing
+learningOrder: 1120
 ---
 
-# Module bluetape4k-testcontainers
+# Testcontainers Support
 
 ## Problem {#problem}
 

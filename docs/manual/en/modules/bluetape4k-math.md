@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-math
-title: "Module bluetape4k-math"
+title: "Mathematical Utilities"
 description: "A library providing a wide range of mathematical capabilities including statistical operations, interpolation, integration, equation solving, and clustering — built on Apache Commons Math3."
 kind: library
 group: utilities
+learningOrder: 1230
 ---
 
-# Module bluetape4k-math
+# Mathematical Utilities
 
 ## Problem {#problem}
 

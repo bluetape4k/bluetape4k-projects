@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-junit5
-title: "Module bluetape4k-junit5"
+title: "JUnit 5 Test Support"
 description: "An extension library that reduces repetitive boilerplate in JUnit 5 tests."
 kind: library
 group: testing
+learningOrder: 1100
 ---
 
-# Module bluetape4k-junit5
+# JUnit 5 Test Support
 
 ## Problem {#problem}
 

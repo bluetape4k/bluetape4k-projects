@@ -1,12 +1,13 @@
 ---
 manualId: idgenerator-ktor-demo
-title: "idgenerator Ktor Demo"
+title: "Distributed ID Generation with Ktor"
 description: "Runnable Ktor application that exposes bluetape4k idgenerators through HTTP endpoints."
 kind: example
-group: learning
+group: examples
+learningOrder: 1470
 ---
 
-# idgenerator Ktor Demo
+# Distributed ID Generation with Ktor
 
 ## Problem {#problem}
 

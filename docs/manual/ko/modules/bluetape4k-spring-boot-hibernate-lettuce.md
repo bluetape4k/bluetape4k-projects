@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-spring-boot-hibernate-lettuce
-title: "Module bluetape4k-spring-boot-hibernate-lettuce"
+title: "Spring Boot Hibernate 캐시 통합"
 description: "Spring Boot 4에서 Hibernate 2차 캐시용 Lettuce Near Cache를 자동 구성하는 조건, 설정, 수명주기와 운영 방법을 설명합니다."
 kind: library
 group: spring
+learningOrder: 950
 ---
 
-# Module bluetape4k-spring-boot-hibernate-lettuce
+# Spring Boot Hibernate 캐시 통합
 
 ## 제공하는 기능 {#problem}
 

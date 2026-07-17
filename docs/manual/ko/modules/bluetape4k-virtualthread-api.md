@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-virtualthread-api
-title: "Module bluetape4k-virtualthread-api"
+title: "가상 스레드 추상화"
 description: "Virtual Thread 기능을 JDK 버전에 독립적으로 사용할 수 있도록 추상화한 API 모듈입니다."
 kind: library
 group: concurrency
+learningOrder: 220
 ---
 
-# Module bluetape4k-virtualthread-api
+# 가상 스레드 추상화
 
 ## 해결하는 문제 {#problem}
 

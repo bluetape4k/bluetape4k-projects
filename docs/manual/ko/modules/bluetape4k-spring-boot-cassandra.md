@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-spring-boot-cassandra
-title: "Spring Data Cassandra 코루틴 라이브러리"
+title: "Spring Data Cassandra 코루틴 지원"
 description: "Spring Data Cassandra의 reactive·async API를 Kotlin coroutine과 Flow로 사용하고, 옵션·모델·스키마 작업을 단순화합니다."
 kind: library
 group: spring
+learningOrder: 910
 ---
 
-# Spring Data Cassandra 코루틴 라이브러리
+# Spring Data Cassandra 코루틴 지원
 
 ## 제공하는 기능 {#problem}
 

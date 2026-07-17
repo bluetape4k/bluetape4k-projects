@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-annotations
-title: API 성숙도 annotation
+title: "API 성숙도 애너테이션"
 description: 실험적 API, 내부 API, 주의가 필요한 API, 폐기 예정 API, beta API, 구현 제한 SPI에 명시적인 opt-in 계약을 적용합니다.
 kind: library
 group: foundation
+learningOrder: 120
 ---
 
-# API 성숙도 annotation
+# API 성숙도 애너테이션
 
 ## 해결하는 문제 {#problem}
 

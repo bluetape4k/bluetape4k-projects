@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-nats
-title: "Module bluetape4k-nats"
+title: "NATS 클라이언트 확장"
 description: "jNATS의 core messaging, JetStream, KeyValue, ObjectStore와 Service API를 Kotlin DSL과 coroutine으로 다루는 방법을 설명합니다."
 kind: library
-group: infrastructure
+group: messaging
+learningOrder: 730
 ---
 
-# Module bluetape4k-nats
+# NATS 클라이언트 확장
 
 ## 제공하는 기능 {#problem}
 

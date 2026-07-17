@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-ktor-core
-title: "bluetape4k-ktor-core"
+title: "Ktor Application Foundations"
 description: "Small Ktor server defaults for bluetape4k applications."
 kind: library
 group: web
+learningOrder: 800
 ---
 
-# bluetape4k-ktor-core
+# Ktor Application Foundations
 
 ## Problem {#problem}
 

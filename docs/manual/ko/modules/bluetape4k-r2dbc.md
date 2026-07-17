@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-r2dbc
-title: "Module bluetape4k-r2dbc"
+title: "R2DBC 코루틴 확장"
 description: "Spring R2DBC를 Kotlin Coroutines와 Flow로 다루는 SQL 실행, mapping, transaction, connection pool 도구를 설명합니다."
 kind: library
 group: data
+learningOrder: 610
 ---
 
-# Module bluetape4k-r2dbc
+# R2DBC 코루틴 확장
 
 ## 제공하는 기능 {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-csv
-title: "Module bluetape4k-csv"
+title: "CSV 데이터 처리"
 description: "bluetape4k-csv는 RFC 4180을 준수하는 자체 구현 엔진을 사용하는 Kotlin 네이티브 CSV/TSV 파싱 라이브러리입니다."
 kind: library
 group: io
+learningOrder: 320
 ---
 
-# Module bluetape4k-csv
+# CSV 데이터 처리
 
 ## 해결하는 문제 {#problem}
 

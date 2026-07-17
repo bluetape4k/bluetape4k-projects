@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-logging
-title: Kotlin logging and MDC
+title: "Kotlin Logging and MDC"
 description: Boundaries and lifecycle for lazy SLF4J logging, scoped MDC, coroutine propagation, and optional asynchronous logging.
 kind: library
 group: foundation
+learningOrder: 130
 ---
 
-# Kotlin logging and MDC
+# Kotlin Logging and MDC
 
 ## Problem {#problem}
 

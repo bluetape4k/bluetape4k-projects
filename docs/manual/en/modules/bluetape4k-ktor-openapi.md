@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-ktor-openapi
-title: "bluetape4k-ktor-openapi"
+title: "Ktor OpenAPI Integration"
 description: "Optional Ktor OpenAPI helpers for applications that want explicit documentation routes without changing route behavior."
 kind: library
 group: web
+learningOrder: 820
 ---
 
-# bluetape4k-ktor-openapi
+# Ktor OpenAPI Integration
 
 ## Problem {#problem}
 

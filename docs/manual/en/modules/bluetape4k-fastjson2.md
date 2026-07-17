@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-fastjson2
-title: "Module bluetape4k-fastjson2"
+title: "Fastjson2 Serialization"
 description: "bluetape4k-fastjson2 is a module that wraps the Fastjson2 library as Kotlin extension functions."
 kind: library
 group: io
+learningOrder: 340
 ---
 
-# Module bluetape4k-fastjson2
+# Fastjson2 Serialization
 
 ## Problem {#problem}
 

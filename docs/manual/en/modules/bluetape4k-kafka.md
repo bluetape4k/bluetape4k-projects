@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-kafka
-title: "bluetape4k-kafka"
+title: "Kafka Client Extensions"
 description: "Kafka 3.x clients, coroutine producers, Spring Kafka and Reactor Kafka adapters, and Kafka Streams Kotlin factories, based on the 1.11.0 sources."
 kind: library
-group: infrastructure
+group: messaging
+learningOrder: 700
 ---
 
-# bluetape4k-kafka
+# Kafka Client Extensions
 
 ## What it provides {#problem}
 

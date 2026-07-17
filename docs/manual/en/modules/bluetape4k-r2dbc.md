@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-r2dbc
-title: "Module bluetape4k-r2dbc"
+title: "R2DBC Coroutine Extensions"
 description: "Run Spring R2DBC SQL with Kotlin Coroutines and Flow, including mapping, transactions, and connection-pool utilities."
 kind: library
 group: data
+learningOrder: 610
 ---
 
-# Module bluetape4k-r2dbc
+# R2DBC Coroutine Extensions
 
 ## Capabilities {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-io
-title: "Module bluetape4k-io"
+title: "Kotlin I/O Utilities"
 description: "bluetape4k-io is a high-performance I/O utility library for Kotlin. It provides simple and efficient tools for file handling, compression, serialization, async I/O, and more."
 kind: library
 group: io
+learningOrder: 300
 ---
 
-# Module bluetape4k-io
+# Kotlin I/O Utilities
 
 ## Problem {#problem}
 

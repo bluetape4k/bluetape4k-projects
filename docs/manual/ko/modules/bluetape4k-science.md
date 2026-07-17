@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-science
-title: "Module bluetape4k-science"
+title: "과학 계산 유틸리티"
 description: "GIS 좌표 변환, Shapefile 처리, JTS 도형 연산, PostGIS 데이터베이스 파이프라인, NetCDF 메타데이터 카탈로그를 통합 제공하는 Kotlin 모듈입니다."
 kind: library
 group: utilities
+learningOrder: 1280
 ---
 
-# Module bluetape4k-science
+# 과학 계산 유틸리티
 
 ## 해결하는 문제 {#problem}
 

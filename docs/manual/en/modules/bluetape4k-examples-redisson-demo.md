@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-examples-redisson-demo
-title: "Module Examples - Redisson"
+title: "Redisson Examples"
 description: "A collection of examples demonstrating distributed Redis patterns using Redisson with Kotlin Coroutines."
 kind: example
-group: learning
+group: examples
+learningOrder: 1420
 ---
 
-# Module Examples - Redisson
+# Redisson Examples
 
 ## Problem {#problem}
 

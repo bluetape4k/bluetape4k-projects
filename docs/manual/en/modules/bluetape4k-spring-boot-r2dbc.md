@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-spring-boot-r2dbc
-title: "Spring Data R2DBC coroutine extensions"
+title: "Spring Data R2DBC Coroutine Support"
 description: "Use Spring Data R2DBC entity operations through Kotlin suspend functions and Flow."
 kind: library
 group: spring
+learningOrder: 930
 ---
 
-# Spring Data R2DBC coroutine extensions
+# Spring Data R2DBC Coroutine Support
 
 ## What it provides {#problem}
 

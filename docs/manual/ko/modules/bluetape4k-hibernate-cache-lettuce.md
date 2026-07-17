@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-hibernate-cache-lettuce
-title: "Module bluetape4k-hibernate-cache-lettuce"
+title: "Lettuce 기반 Hibernate 2차 캐시"
 description: "Hibernate 2차 캐시를 Caffeine L1과 Redis L2로 구성하고 Region, TTL, 무효화, 장애 경계를 운영하는 방법을 설명합니다."
 kind: library
-group: cache
+group: caching
+learningOrder: 570
 ---
 
-# Module bluetape4k-hibernate-cache-lettuce
+# Lettuce 기반 Hibernate 2차 캐시
 
 ## 제공하는 기능 {#problem}
 

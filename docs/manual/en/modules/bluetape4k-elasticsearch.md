@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-elasticsearch
-title: "Module bluetape4k-elasticsearch"
+title: "Elasticsearch Client Extensions"
 description: "Elasticsearch client library for Kotlin with Coroutines support."
 kind: library
-group: infrastructure
+group: data
+learningOrder: 660
 ---
 
-# Module bluetape4k-elasticsearch
+# Elasticsearch Client Extensions
 
 ## Problem {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-retrofit2
-title: "Module bluetape4k-retrofit2"
+title: "Retrofit 2 코루틴 확장"
 description: "bluetape4k-retrofit2는 Retrofit2를 Kotlin DSL과 Coroutines로 확장하여 제공하는 모듈입니다."
 kind: library
 group: io
+learningOrder: 420
 ---
 
-# Module bluetape4k-retrofit2
+# Retrofit 2 코루틴 확장
 
 ## 해결하는 문제 {#problem}
 

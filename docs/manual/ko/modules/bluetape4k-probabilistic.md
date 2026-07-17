@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-probabilistic
-title: "bluetape4k Probabilistic"
+title: "확률적 자료 구조"
 description: "JVM 애플리케이션에서 사용할 인메모리 확률적 자료구조 모듈입니다."
 kind: library
 group: utilities
+learningOrder: 1260
 ---
 
-# bluetape4k Probabilistic
+# 확률적 자료 구조
 
 ## 해결하는 문제 {#problem}
 

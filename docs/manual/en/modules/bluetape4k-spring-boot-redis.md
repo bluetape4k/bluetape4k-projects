@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-spring-boot-redis
-title: "Module bluetape4k-spring-boot-redis"
+title: "Spring Data Redis Coroutine Support"
 description: "Design a Spring Data Redis wire format with Kryo or Fory and compression, then apply it safely to RedisTemplate and ReactiveRedisTemplate."
 kind: library
 group: spring
+learningOrder: 940
 ---
 
-# Module bluetape4k-spring-boot-redis
+# Spring Data Redis Coroutine Support
 
 ## Capabilities {#problem}
 

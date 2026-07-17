@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-cache-hazelcast
-title: "Module bluetape4k-cache-hazelcast"
+title: "Hazelcast 캐시 통합"
 description: "Hazelcast JCache와 IMap 기반 memoizer·Near Cache를 구성하고 클러스터 소유권, 무효화, 직렬화와 실패 경계를 검증하는 방법을 설명합니다."
 kind: library
 group: caching
+learningOrder: 510
 ---
 
-# Module bluetape4k-cache-hazelcast
+# Hazelcast 캐시 통합
 
 ## 제공하는 기능 {#problem}
 

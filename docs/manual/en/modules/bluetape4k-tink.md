@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-tink
-title: "bluetape4k-tink"
+title: "Google Tink Cryptography"
 description: "An idiomatic Kotlin wrapper around Google Tink cryptography library."
 kind: library
 group: io
+learningOrder: 390
 ---
 
-# bluetape4k-tink
+# Google Tink Cryptography
 
 ## Problem {#problem}
 

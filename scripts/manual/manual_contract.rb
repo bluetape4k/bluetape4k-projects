@@ -10,11 +10,15 @@ module ManualDocs
   ].freeze
 
   VALID_KINDS = %w[library example benchmark].freeze
+  VALID_GROUPS = %w[
+    foundation concurrency io caching data messaging web spring operations
+    testing utilities examples
+  ].freeze
   MANUAL_ASSET_EXTENSIONS = %w[.png .svg].freeze
 
   class Validator
     REQUIRED_MODULE_FIELDS = %w[
-      id gradlePath sourceDir kind group artifact en ko
+      id title learningOrder gradlePath sourceDir kind group artifact en ko
       sourcePaths testPaths workshops
     ].freeze
     REQUIRED_CHAPTER_FIELDS = %w[id en ko].freeze
@@ -65,6 +69,9 @@ module ManualDocs
 
       errors.concat(validate_inventory)
       errors.concat(validate_duplicates(entries))
+      duplicate_values(entries, "learningOrder").each do |value|
+        errors << "manifest: duplicate learningOrder #{value}"
+      end
       errors.concat(validate_inventory_alignment(entries))
       entries.each { |entry| errors.concat(validate_entry(entry)) }
       errors.concat(validate_overview_assets(manifest))
@@ -151,6 +158,23 @@ module ManualDocs
       unless VALID_KINDS.include?(entry["kind"])
         errors << "#{label}: invalid kind #{entry['kind'].inspect}"
       end
+      unless VALID_GROUPS.include?(entry["group"])
+        errors << "#{label}: invalid group #{entry['group'].inspect}"
+      end
+      unless entry["learningOrder"].is_a?(Integer) && entry["learningOrder"].positive?
+        errors << "#{label}: learningOrder must be a positive integer"
+      end
+      title = entry["title"]
+      unless title.is_a?(Hash) && LOCALES.keys.all? { |locale| present?(title[locale]) }
+        errors << "#{label}: title must provide non-empty en and ko values"
+      else
+        LOCALES.each_key do |locale|
+          localized_title = title[locale].to_s.strip
+          if localized_title.casecmp(entry["id"].to_s).zero? || localized_title.match?(/\AModule(?:\s|$)/i)
+            errors << "#{label}: #{locale} title must describe the module's function"
+          end
+        end
+      end
       if %w[example benchmark].include?(entry["kind"]) && !entry["artifact"].nil?
         errors << "#{label}: #{entry['kind']} artifact must be null"
       elsif entry["kind"] == "library" && !present?(entry["artifact"])
@@ -182,9 +206,22 @@ module ManualDocs
 
       content = File.read(document_path)
       errors = []
-      manual_id = frontmatter(content)["manualId"]
-      unless manual_id == entry["id"]
+      metadata = frontmatter(content)
+      unless metadata["manualId"] == entry["id"]
         errors << "#{label}: #{language} document manualId must be #{entry['id']}"
+      end
+      expected_title = entry.dig("title", field)
+      unless metadata["title"] == expected_title
+        errors << "#{label}: #{language} document title must match manifest title"
+      end
+      unless metadata["group"] == entry["group"]
+        errors << "#{label}: #{language} document group must be #{entry['group']}"
+      end
+      unless metadata["learningOrder"] == entry["learningOrder"]
+        errors << "#{label}: #{language} document learningOrder must be #{entry['learningOrder']}"
+      end
+      unless content.match?(/^# #{Regexp.escape(expected_title.to_s)}$/)
+        errors << "#{label}: #{language} document H1 must match manifest title"
       end
       section_ids = content.scan(/^\#{1,6}\s+.*\{#([a-z0-9-]+)\}\s*$/).flatten
       (REQUIRED_SECTIONS - section_ids).each do |section|

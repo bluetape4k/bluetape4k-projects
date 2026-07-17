@@ -1,12 +1,13 @@
 ---
 manualId: idgenerator-spring-boot-demo
-title: "bluetape4k Spring Boot idgenerator demo"
+title: "Distributed ID Generation with Spring Boot"
 description: "This example shows how to expose bluetape4k-idgenerators through a Spring Boot REST application. The Ktor version is tracked separately in issue #419."
 kind: example
-group: learning
+group: examples
+learningOrder: 1480
 ---
 
-# bluetape4k Spring Boot idgenerator demo
+# Distributed ID Generation with Spring Boot
 
 ## Problem {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-cache-core
-title: "Module bluetape4k-cache-core"
+title: "캐시 추상화와 메모이제이션"
 description: "로컬 캐시, JCache, memoizer와 2단계 Near Cache의 공통 계약을 선택하고 실패·동시성·수명주기 경계를 검증하는 방법을 설명합니다."
 kind: library
 group: caching
+learningOrder: 500
 ---
 
-# Module bluetape4k-cache-core
+# 캐시 추상화와 메모이제이션
 
 ## 제공하는 기능 {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-ktor-testing
-title: "bluetape4k-ktor-testing"
+title: "Ktor 테스트 지원"
 description: "bluetape4k 생태계를 위한 Ktor 테스트 helper 모듈입니다."
 kind: library
 group: web
+learningOrder: 810
 ---
 
-# bluetape4k-ktor-testing
+# Ktor 테스트 지원
 
 ## 해결하는 문제 {#problem}
 

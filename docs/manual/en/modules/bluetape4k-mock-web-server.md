@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-mock-web-server
-title: "bluetape4k-mock-web-server"
+title: "HTTP Mock Server"
 description: "A self-contained Spring Boot 4 + Virtual Threads HTTP mock server that replaces external HTTP dependencies in integration tests."
 kind: library
 group: testing
+learningOrder: 1130
 ---
 
-# bluetape4k-mock-web-server
+# HTTP Mock Server
 
 ## Problem {#problem}
 

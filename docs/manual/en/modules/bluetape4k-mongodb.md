@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-mongodb
-title: "Module bluetape4k-mongodb"
+title: "MongoDB Coroutine Extensions"
 description: "Use MongoDB Kotlin Coroutine Driver client, collection, BSON, and aggregation APIs with small helpers that remove repeated setup without hiding driver behavior."
 kind: library
 group: data
+learningOrder: 630
 ---
 
-# Module bluetape4k-mongodb
+# MongoDB Coroutine Extensions
 
 ## What it provides {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-jdbc
-title: "Module bluetape4k-jdbc"
+title: "JDBC와 SQL 확장"
 description: "JDBC의 연결·statement·ResultSet·트랜잭션 수명주기를 유지하면서 Kotlin 코드의 반복을 줄이는 방법을 설명합니다."
 kind: library
 group: data
+learningOrder: 600
 ---
 
-# Module bluetape4k-jdbc
+# JDBC와 SQL 확장
 
 ## 제공하는 기능 {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-probabilistic
-title: "bluetape4k Probabilistic"
+title: "Probabilistic Data Structures"
 description: "In-memory probabilistic data structures for JVM applications."
 kind: library
 group: utilities
+learningOrder: 1260
 ---
 
-# bluetape4k Probabilistic
+# Probabilistic Data Structures
 
 ## Problem {#problem}
 

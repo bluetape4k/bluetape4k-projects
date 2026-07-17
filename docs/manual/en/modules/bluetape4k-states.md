@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-states
-title: "bluetape4k-states"
+title: "State Machine Utilities"
 description: "A Kotlin DSL-based finite state machine (FSM) library for JVM backend and library code."
 kind: library
 group: utilities
+learningOrder: 1290
 ---
 
-# bluetape4k-states
+# State Machine Utilities
 
 ## Problem {#problem}
 

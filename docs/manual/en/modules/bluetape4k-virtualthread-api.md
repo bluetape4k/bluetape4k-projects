@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-virtualthread-api
-title: "Module bluetape4k-virtualthread-api"
+title: "Virtual Thread Abstractions"
 description: "An API module that abstracts virtual-thread features so they can be used independently of the concrete JDK version."
 kind: library
 group: concurrency
+learningOrder: 220
 ---
 
-# Module bluetape4k-virtualthread-api
+# Virtual Thread Abstractions
 
 ## Problem {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-science
-title: "Module bluetape4k-science"
+title: "Scientific Computing Utilities"
 description: "An integrated Kotlin module for scientific and geospatial data processing: GIS coordinate conversion, Shapefile I/O, JTS geometry operations, PostGIS database pipelines, and NetCDF metadata cataloging."
 kind: library
 group: utilities
+learningOrder: 1280
 ---
 
-# Module bluetape4k-science
+# Scientific Computing Utilities
 
 ## Problem {#problem}
 

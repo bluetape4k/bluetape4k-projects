@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-jwt
-title: "Module bluetape4k-jwt"
+title: "JWT 인증 유틸리티"
 description: "JSON Web Token (JWT)을 생성하고 파싱하는 라이브러리입니다. jjwt 0.13.x 라이브러리를 기반으로 Kotlin 친화적인 API와 KeyChain 관리 기능을 제공합니다."
 kind: library
 group: utilities
+learningOrder: 1310
 ---
 
-# Module bluetape4k-jwt
+# JWT 인증 유틸리티
 
 ## 해결하는 문제 {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-hibernate-cache-lettuce
-title: "Module bluetape4k-hibernate-cache-lettuce"
+title: "Hibernate Second-Level Cache with Lettuce"
 description: "Run Hibernate second-level caching with Caffeine L1 and Redis L2 while preserving region, TTL, invalidation, and failure boundaries."
 kind: library
-group: cache
+group: caching
+learningOrder: 570
 ---
 
-# Module bluetape4k-hibernate-cache-lettuce
+# Hibernate Second-Level Cache with Lettuce
 
 ## Capabilities {#problem}
 

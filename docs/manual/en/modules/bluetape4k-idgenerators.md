@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-idgenerators
-title: "bluetape4k-idgenerators"
+title: "Distributed ID Generators"
 description: "Generates unique IDs in distributed environments using a variety of algorithms. UUID (V1–V7), ULID, KSUID, Snowflake, Flake, and Hashids are exposed through a unified IdGenerator interface."
 kind: library
 group: utilities
+learningOrder: 1200
 ---
 
-# bluetape4k-idgenerators
+# Distributed ID Generators
 
 ## Problem {#problem}
 

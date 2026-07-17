@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-feign
-title: "Module bluetape4k-feign"
+title: "Feign 선언형 HTTP 클라이언트"
 description: "bluetape4k-feign은 OpenFeign을 Kotlin DSL과 Coroutines로 확장하여 제공하는 모듈입니다."
 kind: library
 group: io
+learningOrder: 410
 ---
 
-# Module bluetape4k-feign
+# Feign 선언형 HTTP 클라이언트
 
 ## 해결하는 문제 {#problem}
 

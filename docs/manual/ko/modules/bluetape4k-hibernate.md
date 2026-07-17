@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-hibernate
-title: "Module bluetape4k-hibernate"
+title: "Hibernate와 Querydsl 확장"
 description: "Hibernate ORM과 JPA를 Kotlin에서 사용할 때 엔티티 수명주기, 쿼리, converter와 StatelessSession 경계를 다루는 방법을 설명합니다."
 kind: library
 group: data
+learningOrder: 640
 ---
 
-# Module bluetape4k-hibernate
+# Hibernate와 Querydsl 확장
 
 ## 제공하는 기능 {#problem}
 

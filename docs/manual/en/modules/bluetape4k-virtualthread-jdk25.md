@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-virtualthread-jdk25
-title: "Module bluetape4k-virtualthread-jdk25"
+title: "Virtual Threads for JDK 25"
 description: "Java 25 virtual-thread implementation module."
 kind: library
 group: concurrency
+learningOrder: 240
 ---
 
-# Module bluetape4k-virtualthread-jdk25
+# Virtual Threads for JDK 25
 
 ## Problem {#problem}
 

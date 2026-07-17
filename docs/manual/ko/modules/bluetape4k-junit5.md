@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-junit5
-title: "Module bluetape4k-junit5"
+title: "JUnit 5 테스트 지원"
 description: "JUnit 5 테스트 작성 시 반복 코드를 줄여주는 확장 라이브러리입니다."
 kind: library
 group: testing
+learningOrder: 1100
 ---
 
-# Module bluetape4k-junit5
+# JUnit 5 테스트 지원
 
 ## 해결하는 문제 {#problem}
 

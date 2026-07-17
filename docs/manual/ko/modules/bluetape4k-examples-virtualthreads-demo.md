@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-examples-virtualthreads-demo
-title: "Module Examples - Java 21 Virtual Threads"
+title: "Java 가상 스레드 예제"
 description: "Java 21의 Virtual Threads를 효과적으로 사용하기 위한 모범 사례와 규칙을 학습하는 예제 모음입니다."
 kind: example
-group: learning
+group: examples
+learningOrder: 1410
 ---
 
-# Module Examples - Java 21 Virtual Threads
+# Java 가상 스레드 예제
 
 ## 해결하는 문제 {#problem}
 

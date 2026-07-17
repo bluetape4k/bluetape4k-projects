@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-cache-lettuce
-title: "Module bluetape4k-cache-lettuce"
+title: "Lettuce JCache와 Near Cache"
 description: "Redis JCache, 분산 memoizer와 Caffeine L1·Redis L2 Near Cache를 구성하고 무효화·TTL·수명주기를 검증하는 방법을 설명합니다."
 kind: library
 group: caching
+learningOrder: 520
 ---
 
-# Module bluetape4k-cache-lettuce
+# Lettuce JCache와 Near Cache
 
 ## 제공하는 기능 {#problem}
 

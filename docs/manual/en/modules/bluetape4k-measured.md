@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-measured
-title: "Module bluetape4k-measured"
+title: "Units of Measure"
 description: "bluetape4k-measured represents compound units such as m/s and kgm/s^2 in a type-safe way, based on composable unit types (Units) and measured values (Measure)."
 kind: library
 group: utilities
+learningOrder: 1240
 ---
 
-# Module bluetape4k-measured
+# Units of Measure
 
 ## Problem {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-tink
-title: "bluetape4k-tink"
+title: "Google Tink 암호화"
 description: "Google Tink 암호화 라이브러리를 Kotlin 관용적으로 래핑한 모듈입니다."
 kind: library
 group: io
+learningOrder: 390
 ---
 
-# bluetape4k-tink
+# Google Tink 암호화
 
 ## 해결하는 문제 {#problem}
 

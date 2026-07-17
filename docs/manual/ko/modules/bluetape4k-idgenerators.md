@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-idgenerators
-title: "bluetape4k-idgenerators"
+title: "분산 ID 생성기"
 description: "분산 환경에서 Unique ID를 다양한 알고리즘으로 생성합니다. UUID(V1~V7), ULID, KSUID, Snowflake, Flake, Hashids를 통일된 IdGenerator 인터페이스로 제공합니다."
 kind: library
 group: utilities
+learningOrder: 1200
 ---
 
-# bluetape4k-idgenerators
+# 분산 ID 생성기
 
 ## 해결하는 문제 {#problem}
 

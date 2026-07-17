@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-geo
-title: "Module bluetape4k-geo"
+title: "Geospatial Utilities"
 description: "A unified module for geographic information processing. Provides Geocode, GeoHash, and GeoIP2 functionality."
 kind: library
 group: utilities
+learningOrder: 1220
 ---
 
-# Module bluetape4k-geo
+# Geospatial Utilities
 
 ## Problem {#problem}
 

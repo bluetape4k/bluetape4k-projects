@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-ktor-core
-title: "bluetape4k-ktor-core"
+title: "Ktor 애플리케이션 기반 기능"
 description: "bluetape4k 애플리케이션에서 공통으로 쓰는 작은 Ktor 서버 기본값 모듈입니다."
 kind: library
 group: web
+learningOrder: 800
 ---
 
-# bluetape4k-ktor-core
+# Ktor 애플리케이션 기반 기능
 
 ## 해결하는 문제 {#problem}
 

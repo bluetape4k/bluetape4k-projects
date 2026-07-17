@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-ktor-observability
-title: "bluetape4k-ktor-observability"
+title: "Ktor Observability"
 description: "Explicit Ktor observability defaults for bluetape4k applications."
 kind: library
 group: web
+learningOrder: 840
 ---
 
-# bluetape4k-ktor-observability
+# Ktor Observability
 
 ## Problem {#problem}
 

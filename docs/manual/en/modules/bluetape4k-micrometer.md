@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-micrometer
-title: "Module bluetape4k-micrometer"
+title: "Micrometer Metrics Extensions"
 description: "A module that provides application performance measurement and observability features using Micrometer and the Observation API."
 kind: library
-group: infrastructure
+group: operations
+learningOrder: 1020
 ---
 
-# Module bluetape4k-micrometer
+# Micrometer Metrics Extensions
 
 ## Problem {#problem}
 

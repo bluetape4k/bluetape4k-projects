@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-json
-title: "Module bluetape4k-json"
+title: "JSON Abstractions"
 description: "bluetape4k-json defines the small JSON serialization SPI shared by the Jackson 2, Jackson 3, and Fastjson2 modules."
 kind: library
 group: io
+learningOrder: 330
 ---
 
-# Module bluetape4k-json
+# JSON Abstractions
 
 ## Problem {#problem}
 

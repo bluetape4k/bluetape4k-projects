@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-virtualthread-jdk21
-title: "Module bluetape4k-virtualthread-jdk21"
+title: "Virtual Threads for JDK 21"
 description: "Java 21 virtual-thread implementation module."
 kind: library
 group: concurrency
+learningOrder: 230
 ---
 
-# Module bluetape4k-virtualthread-jdk21
+# Virtual Threads for JDK 21
 
 ## Problem {#problem}
 

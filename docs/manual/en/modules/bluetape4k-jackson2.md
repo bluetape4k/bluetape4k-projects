@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-jackson2
-title: "Module bluetape4k-jackson"
+title: "Jackson 2 Serialization"
 description: "bluetape4k-jackson2 is a module that wraps the Jackson 2.x library with Kotlin DSL and extension functions."
 kind: library
 group: io
+learningOrder: 350
 ---
 
-# Module bluetape4k-jackson
+# Jackson 2 Serialization
 
 ## Problem {#problem}
 

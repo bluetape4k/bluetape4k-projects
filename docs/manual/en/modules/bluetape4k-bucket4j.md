@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-bucket4j
-title: "Module bluetape4k-bucket4j"
+title: "Distributed Rate Limiting"
 description: "A wrapper and utility module for building application-level rate limiters using Bucket4j."
 kind: library
-group: infrastructure
+group: operations
+learningOrder: 1010
 ---
 
-# Module bluetape4k-bucket4j
+# Distributed Rate Limiting
 
 ## Problem {#problem}
 

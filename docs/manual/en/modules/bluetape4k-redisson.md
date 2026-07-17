@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-redisson
-title: "Module bluetape4k-redisson"
+title: "Redisson Coroutine Extensions"
 description: "Use Redisson clients, distributed objects and streams, coroutines, codecs, local caches, and persistence boundaries from the 1.11.0 source."
 kind: library
-group: infrastructure
+group: caching
+learningOrder: 560
 ---
 
-# Module bluetape4k-redisson
+# Redisson Coroutine Extensions
 
 ## Provided capabilities {#problem}
 

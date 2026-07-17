@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-javatimes
-title: "bluetape4k-javatimes"
+title: "Java Time 유틸리티"
 description: "Java Time API (java.time)를 위한 고급 시간 연산 라이브러리입니다. Joda-Time 스타일의 Temporal Interval, Period Framework(TimeBlock/TimeRange/DateAdd/DateDiff), Calendar Range, Kotlin 범위 스타일의 Temporal Range를 지원합니다."
 kind: library
 group: utilities
+learningOrder: 1210
 ---
 
-# bluetape4k-javatimes
+# Java Time 유틸리티
 
 ## 해결하는 문제 {#problem}
 

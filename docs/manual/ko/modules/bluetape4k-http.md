@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-http
-title: "Module bluetape4k-http"
+title: "HTTP 클라이언트 기반 기능"
 description: "bluetape4k-http는 다양한 HTTP 클라이언트 라이브러리를 Kotlin 확장 함수와 DSL로 통합하여 제공하는 모듈입니다."
 kind: library
 group: io
+learningOrder: 400
 ---
 
-# Module bluetape4k-http
+# HTTP 클라이언트 기반 기능
 
 ## 해결하는 문제 {#problem}
 

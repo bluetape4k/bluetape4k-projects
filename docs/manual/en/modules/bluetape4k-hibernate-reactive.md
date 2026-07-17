@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-hibernate-reactive
-title: "Module bluetape4k-hibernate-reactive"
+title: "Reactive Hibernate Extensions"
 description: "Use Hibernate Reactive Mutiny and Stage APIs from Kotlin coroutines with reified types."
 kind: library
 group: data
+learningOrder: 650
 ---
 
-# Module bluetape4k-hibernate-reactive
+# Reactive Hibernate Extensions
 
 ## What it provides {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-mutiny
-title: "Module bluetape4k-mutiny"
+title: "Mutiny Reactive Extensions"
 description: "Provides extension functions and utilities that make the SmallRye Mutiny reactive library easier to use in Kotlin."
 kind: library
-group: utilities
+group: concurrency
+learningOrder: 210
 ---
 
-# Module bluetape4k-mutiny
+# Mutiny Reactive Extensions
 
 ## Problem {#problem}
 

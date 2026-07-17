@@ -3,7 +3,8 @@ manualId: web-framework-benchmark
 title: "Web Framework Benchmark"
 description: "This module compares equivalent embedded HTTP workloads implemented with Ktor CIO and Spring WebFlux."
 kind: benchmark
-group: experiments
+group: examples
+learningOrder: 1520
 ---
 
 # Web Framework Benchmark

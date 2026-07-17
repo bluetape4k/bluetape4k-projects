@@ -1,12 +1,13 @@
 ---
 manualId: idgenerator-spring-boot-demo
-title: "bluetape4k Spring Boot idgenerator demo"
+title: "Spring Boot 분산 ID 생성 예제"
 description: "이 예제는 bluetape4k-idgenerators를 Spring Boot REST 애플리케이션으로 노출하는 방법을 보여줍니다. Ktor 예제는 #419에서 따로 다룹니다."
 kind: example
-group: learning
+group: examples
+learningOrder: 1480
 ---
 
-# bluetape4k Spring Boot idgenerator demo
+# Spring Boot 분산 ID 생성 예제
 
 ## 해결하는 문제 {#problem}
 

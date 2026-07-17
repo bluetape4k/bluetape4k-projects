@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-workflow
-title: "bluetape4k-workflow"
+title: "워크플로 엔진"
 description: "Kotlin DSL 기반 워크플로우 오케스트레이션 라이브러리입니다. 동기, 코루틴, Virtual Thread 실행 모델을 지원하며 선언적 DSL로 복잡한 워크플로우를 구성할 수 있습니다."
 kind: library
 group: utilities
+learningOrder: 1300
 ---
 
-# bluetape4k-workflow
+# 워크플로 엔진
 
 ## 해결하는 문제 {#problem}
 

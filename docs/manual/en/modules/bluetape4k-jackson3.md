@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-jackson3
-title: "Module bluetape4k-jackson3"
+title: "Jackson 3 Serialization"
 description: "bluetape4k-jackson3 is a module that wraps the Jackson 3.x library with Kotlin DSL and extension functions."
 kind: library
 group: io
+learningOrder: 360
 ---
 
-# Module bluetape4k-jackson3
+# Jackson 3 Serialization
 
 ## Problem {#problem}
 

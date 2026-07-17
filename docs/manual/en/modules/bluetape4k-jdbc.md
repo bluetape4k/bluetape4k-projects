@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-jdbc
-title: "Module bluetape4k-jdbc"
+title: "JDBC and SQL Extensions"
 description: "Use Kotlin helpers without losing the connection, statement, ResultSet, and transaction lifecycle defined by JDBC."
 kind: library
 group: data
+learningOrder: 600
 ---
 
-# Module bluetape4k-jdbc
+# JDBC and SQL Extensions
 
 ## Capabilities {#problem}
 

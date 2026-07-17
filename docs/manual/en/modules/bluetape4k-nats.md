@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-nats
-title: "Module bluetape4k-nats"
+title: "NATS Client Extensions"
 description: "Use jNATS core messaging, JetStream, KeyValue, ObjectStore, and Service APIs through Kotlin DSLs and coroutine adapters."
 kind: library
-group: infrastructure
+group: messaging
+learningOrder: 730
 ---
 
-# Module bluetape4k-nats
+# NATS Client Extensions
 
 ## Provided capabilities {#problem}
 

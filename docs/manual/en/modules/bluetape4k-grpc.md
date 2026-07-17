@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-grpc
-title: "Module bluetape4k-grpc"
+title: "Coroutine gRPC Extensions"
 description: "A Kotlin extension library for implementing gRPC servers and clients."
 kind: library
 group: io
+learningOrder: 440
 ---
 
-# Module bluetape4k-grpc
+# Coroutine gRPC Extensions
 
 ## Problem {#problem}
 

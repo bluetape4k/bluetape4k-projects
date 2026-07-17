@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-grpc
-title: "Module bluetape4k-grpc"
+title: "gRPC 코루틴 확장"
 description: "gRPC 서버/클라이언트 구현을 위한 Kotlin 확장 라이브러리입니다."
 kind: library
 group: io
+learningOrder: 440
 ---
 
-# Module bluetape4k-grpc
+# gRPC 코루틴 확장
 
 ## 해결하는 문제 {#problem}
 

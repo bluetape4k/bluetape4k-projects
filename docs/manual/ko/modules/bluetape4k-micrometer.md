@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-micrometer
-title: "Module bluetape4k-micrometer"
+title: "Micrometer 메트릭 확장"
 description: "Micrometer와 Observation API를 활용한 애플리케이션 성능 측정 및 관찰(observability) 기능을 제공하는 모듈입니다."
 kind: library
-group: infrastructure
+group: operations
+learningOrder: 1020
 ---
 
-# Module bluetape4k-micrometer
+# Micrometer 메트릭 확장
 
 ## 해결하는 문제 {#problem}
 

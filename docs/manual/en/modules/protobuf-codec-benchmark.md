@@ -3,7 +3,8 @@ manualId: protobuf-codec-benchmark
 title: "Protobuf Codec Benchmark"
 description: "This module measures the protobuf codec paths used by bluetape4k serialization and Redisson integration code."
 kind: benchmark
-group: experiments
+group: examples
+learningOrder: 1510
 ---
 
 # Protobuf Codec Benchmark

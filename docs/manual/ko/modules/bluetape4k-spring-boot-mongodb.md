@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-spring-boot-mongodb
-title: "Spring Data MongoDB coroutine 확장"
+title: "Spring Data MongoDB 코루틴 지원"
 description: "ReactiveMongoOperations를 Flow와 suspend 함수로 사용하고 Criteria, Query, Update를 Kotlin 문법으로 조립하는 방법을 설명합니다."
 kind: library
 group: spring
+learningOrder: 920
 ---
 
-# Spring Data MongoDB coroutine 확장
+# Spring Data MongoDB 코루틴 지원
 
 ## 제공하는 기능 {#problem}
 

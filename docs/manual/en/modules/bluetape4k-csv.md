@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-csv
-title: "Module bluetape4k-csv"
+title: "CSV Data Processing"
 description: "bluetape4k-csv is a Kotlin-native CSV/TSV parsing library with a self-implemented RFC 4180 compliant engine."
 kind: library
 group: io
+learningOrder: 320
 ---
 
-# Module bluetape4k-csv
+# CSV Data Processing
 
 ## Problem {#problem}
 

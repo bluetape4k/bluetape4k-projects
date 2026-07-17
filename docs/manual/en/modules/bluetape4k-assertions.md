@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-assertions
-title: "bluetape4k-assertions"
+title: "Fluent Test Assertions"
 description: "한국어"
 kind: library
 group: testing
+learningOrder: 1110
 ---
 
-# bluetape4k-assertions
+# Fluent Test Assertions
 
 ## Problem {#problem}
 

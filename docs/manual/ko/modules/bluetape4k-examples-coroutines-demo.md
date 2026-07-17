@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-examples-coroutines-demo
-title: "Module Examples - Kotlin Coroutines"
+title: "Kotlin 코루틴 예제"
 description: "Kotlin Coroutines의 다양한 기능과 사용 패턴을 학습하기 위한 예제 모음입니다."
 kind: example
-group: learning
+group: examples
+learningOrder: 1400
 ---
 
-# Module Examples - Kotlin Coroutines
+# Kotlin 코루틴 예제
 
 ## 해결하는 문제 {#problem}
 

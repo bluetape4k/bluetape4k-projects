@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-json
-title: "Module bluetape4k-json"
+title: "JSON 추상화"
 description: "bluetape4k-json은 Jackson 2, Jackson 3, Fastjson2 모듈이 함께 쓰는 작은 JSON 직렬화 SPI입니다."
 kind: library
 group: io
+learningOrder: 330
 ---
 
-# Module bluetape4k-json
+# JSON 추상화
 
 ## 해결하는 문제 {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-netty
-title: "Module bluetape4k-netty"
+title: "Netty 확장"
 description: "Netty 라이브러리를 사용할 때 필요한 확장 함수들을 제공합니다."
 kind: library
 group: io
+learningOrder: 430
 ---
 
-# Module bluetape4k-netty
+# Netty 확장
 
 ## 해결하는 문제 {#problem}
 

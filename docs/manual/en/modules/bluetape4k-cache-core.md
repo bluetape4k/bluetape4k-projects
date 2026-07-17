@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-cache-core
-title: "Module bluetape4k-cache-core"
+title: "Cache Abstractions and Memoization"
 description: "Choose the shared contracts for local caches, JCache, memoizers, and two-tier Near Caches, then verify concurrency, failures, and lifecycle behavior."
 kind: library
 group: caching
+learningOrder: 500
 ---
 
-# Module bluetape4k-cache-core
+# Cache Abstractions and Memoization
 
 ## Capabilities {#problem}
 
