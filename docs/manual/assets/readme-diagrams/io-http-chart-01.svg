@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="790" viewBox="0 0 1040 790" role="img" aria-labelledby="title desc">
+  <title id="title">HTTP client base throughput</title>
+  <desc id="desc">WebFlux fixture (GET /ping), @Threads(8), warmup 1×1s, measurement 1×1s. JDK Sync leads at 7,276.492 ops/s, Ktor CIO Coroutines records 2,052.281 ops/s.</desc>
+  <defs>
+    <style>
+      .title{font-family:"Architects Daughter";font-size:24px;font-weight:400;fill:#172033}
+      .subtitle{font-family:"Comic Mono";font-size:14px;fill:#526070}
+      .label{font-family:"Comic Mono";font-size:13px;fill:#172033}
+      .value{font-family:"Comic Mono";font-size:12px;fill:#172033}
+      .tick{font-family:"Comic Mono";font-size:12px;fill:#6b7280}
+    </style>
+  </defs>
+  <rect width="1040" height="790" fill="#f7f9fc"/>
+  <rect x="16" y="16" width="1008" height="758" rx="20" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
+
+  <text class="title" x="40" y="56">HTTP client base throughput</text>
+  <text class="subtitle" x="40" y="82">WebFlux fixture (GET /ping), @Threads(8), warmup 1×1s, measurement 1×1s, ops/s higher is better</text>
+
+  <!-- X axis -->
+  <line x1="280" y1="665" x2="990" y2="665" stroke="#d6dbe4" stroke-width="1.5"/>
+  <line x1="280" y1="105" x2="280" y2="665" stroke="#d6dbe4" stroke-width="1.5"/>
+
+  <!-- Grid lines -->
+  <line x1="458" y1="105" x2="458" y2="665" stroke="#e8edf3" stroke-width="1" stroke-dasharray="4 5"/>
+  <line x1="635" y1="105" x2="635" y2="665" stroke="#e8edf3" stroke-width="1" stroke-dasharray="4 5"/>
+  <line x1="813" y1="105" x2="813" y2="665" stroke="#e8edf3" stroke-width="1" stroke-dasharray="4 5"/>
+  <line x1="990" y1="105" x2="990" y2="665" stroke="#e8edf3" stroke-width="1" stroke-dasharray="4 5"/>
+
+  <!-- X axis tick labels -->
+  <text class="tick" x="280" y="695">0</text>
+  <text class="tick" x="447" y="695">2,000</text>
+  <text class="tick" x="624" y="695">4,000</text>
+  <text class="tick" x="802" y="695">6,000</text>
+  <text class="tick" x="979" y="695">8,000</text>
+
+  <!-- Row 1: JDK Sync — 7,276.492 → 646 px — blue -->
+  <text class="label" x="40" y="120">JDK Sync</text>
+  <rect x="280" y="103" width="646" height="24" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text class="value" x="934" y="120">7,276.492</text>
+
+  <!-- Row 2: HC5 Classic VirtualThread — 7,246.690 → 643 px — blue -->
+  <text class="label" x="40" y="156">HC5 Classic VirtualThread</text>
+  <rect x="280" y="139" width="643" height="24" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text class="value" x="931" y="156">7,246.690</text>
+
+  <!-- Row 3: OkHttp3 VirtualThread — 6,955.796 → 617 px — blue -->
+  <text class="label" x="40" y="192">OkHttp3 VirtualThread</text>
+  <rect x="280" y="175" width="617" height="24" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text class="value" x="905" y="192">6,955.796</text>
+
+  <!-- Row 4: JDK VirtualThread — 6,562.497 → 582 px — blue -->
+  <text class="label" x="40" y="228">JDK VirtualThread</text>
+  <rect x="280" y="211" width="582" height="24" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text class="value" x="870" y="228">6,562.497</text>
+
+  <!-- Row 5: HC5 Classic — 6,490.422 → 576 px — blue -->
+  <text class="label" x="40" y="264">HC5 Classic</text>
+  <rect x="280" y="247" width="576" height="24" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text class="value" x="864" y="264">6,490.422</text>
+
+  <!-- Row 6: JDK H2 VirtualThread — 6,275.262 → 557 px — blue -->
+  <text class="label" x="40" y="300">JDK H2 VirtualThread</text>
+  <rect x="280" y="283" width="557" height="24" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text class="value" x="845" y="300">6,275.262</text>
+
+  <!-- Row 7: HC5 Classic Coroutines — 6,230.735 → 553 px — green -->
+  <text class="label" x="40" y="336">HC5 Classic Coroutines</text>
+  <rect x="280" y="319" width="553" height="24" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text class="value" x="841" y="336">6,230.735</text>
+
+  <!-- Row 8: Vert.x WebClient Coroutines — 6,043.906 → 536 px — green -->
+  <text class="label" x="40" y="372">Vert.x WebClient Coroutines</text>
+  <rect x="280" y="355" width="536" height="24" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text class="value" x="824" y="372">6,043.906</text>
+
+  <!-- Row 9: JDK H2 Sync — 6,027.618 → 535 px — green -->
+  <text class="label" x="40" y="408">JDK H2 Sync</text>
+  <rect x="280" y="391" width="535" height="24" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text class="value" x="823" y="408">6,027.618</text>
+
+  <!-- Row 10: OkHttp3 Sync — 5,771.310 → 512 px — green -->
+  <text class="label" x="40" y="444">OkHttp3 Sync</text>
+  <rect x="280" y="427" width="512" height="24" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text class="value" x="800" y="444">5,771.310</text>
+
+  <!-- Row 11: OkHttp3 Coroutines — 5,752.350 → 510 px — green -->
+  <text class="label" x="40" y="480">OkHttp3 Coroutines</text>
+  <rect x="280" y="463" width="510" height="24" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text class="value" x="798" y="480">5,752.350</text>
+
+  <!-- Row 12: HC5 Async Coroutines — 5,520.183 → 490 px — green -->
+  <text class="label" x="40" y="516">HC5 Async Coroutines</text>
+  <rect x="280" y="499" width="490" height="24" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text class="value" x="778" y="516">5,520.183</text>
+
+  <!-- Row 13: JDK H2 Coroutines — 5,481.592 → 486 px — green -->
+  <text class="label" x="40" y="552">JDK H2 Coroutines</text>
+  <rect x="280" y="535" width="486" height="24" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text class="value" x="774" y="552">5,481.592</text>
+
+  <!-- Row 14: JDK Coroutines — 4,739.894 → 420 px — amber -->
+  <text class="label" x="40" y="588">JDK Coroutines</text>
+  <rect x="280" y="571" width="420" height="24" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text class="value" x="708" y="588">4,739.894</text>
+
+  <!-- Row 15: Ktor CIO Coroutines — 2,052.281 → 182 px — pink/red -->
+  <text class="label" x="40" y="624">Ktor CIO Coroutines</text>
+  <rect x="280" y="607" width="182" height="24" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text class="value" x="470" y="624">2,052.281</text>
+
+  <rect x="40" y="710" width="960" height="52" rx="12" fill="#f8fafc" stroke="#d8e0ea" stroke-width="1"/>
+  <text class="caption" x="520" y="728" text-anchor="middle">Source: io/http benchmark snapshot documented in README and docs/lessons/2026-05-24-http-benchmark-webflux-charts.md</text>
+  <text class="caption" x="520" y="748" text-anchor="middle">Unit/direction: ops/s, higher is better; base fixture ranks client overhead before latency and cache scenarios.</text>
+</svg>

@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-label="bluetape4k-json class structure">
+  <defs>
+    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#27343a" flood-opacity="0.13" />
+    </filter>
+    <marker id="hollowDark" markerWidth="15" markerHeight="13" refX="1.5" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 13.5 1.5 L 1.5 6.5 L 13.5 11.5 Z" fill="#ffffff" stroke="#263238" stroke-width="2.1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
+    </marker>
+    <marker id="openBlue" markerWidth="11" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1.5 1.5 L 9 5 L 1.5 8.5" fill="none" stroke="#4079a8" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="openAmber" markerWidth="11" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1.5 1.5 L 9 5 L 1.5 8.5" fill="none" stroke="#b98220" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/>
+    </marker>
+    <style>
+      svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+      .canvas { fill: #f8faf7; }
+      .frame { fill: #fffffb; stroke: #29363b; stroke-width: 2.2; }
+      .title { font-family: "Architects Daughter"; font-size: 38px; fill: #223037; }
+      .subtitle { font-family: "Comic Mono"; font-size: 15px; fill: #41515a; }
+      .panel-core { fill: #eef7fb; stroke: #9dbfcb; stroke-width: 1.8; }
+      .panel-impl { fill: #fbf6ec; stroke: #d4bd8f; stroke-width: 1.8; }
+      .panel-title { font-family: "Architects Daughter"; font-size: 25px; fill: #223037; }
+      .note { font-family: "Comic Mono"; font-size: 13px; fill: #4c5a61; }
+      .class-card { fill: #fffdfa; stroke-width: 2; filter: url(#softShadow); }
+      .interface { stroke: #3d758f; }
+      .helper { stroke: #5b8d52; }
+      .impl-jackson2 { stroke: #4079a8; }
+      .impl-jackson3 { stroke: #598b57; }
+      .impl-fastjson { stroke: #b98220; }
+      .exception { stroke: #bd6371; }
+      .class-title { font-family: "Architects Daughter"; font-size: 23px; fill: #223037; }
+      .class-title-small { font-family: "Architects Daughter"; font-size: 20px; fill: #223037; }
+      .stereo { font-family: "Comic Mono"; font-size: 12px; fill: #5a6970; }
+      .member { font-family: "Comic Mono"; font-size: 13px; fill: #34454d; }
+      .small { font-family: "Comic Mono"; font-size: 12px; fill: #5a6970; }
+      .sep { stroke: #cfdbdf; stroke-width: 1.3; }
+      .implements { fill: none; stroke: #263238; stroke-width: 1.9; stroke-dasharray: 8 7; stroke-linecap: round; stroke-linejoin: round; }
+      .implements-bus { fill: none; stroke: #263238; stroke-width: 1.9; stroke-dasharray: 8 7; stroke-linecap: round; stroke-linejoin: round; }
+      .uses-blue { fill: none; stroke: #4079a8; stroke-width: 2.1; stroke-dasharray: 7 6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#openBlue); }
+      .uses-amber { fill: none; stroke: #b98220; stroke-width: 2.1; stroke-dasharray: 7 6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#openAmber); }
+      .uses-amber-bus { fill: none; stroke: #b98220; stroke-width: 2.1; stroke-dasharray: 7 6; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1600" height="1000" />
+  <rect class="frame" x="20" y="20" width="1560" height="960" rx="18" />
+
+  <text x="800" y="72" text-anchor="middle" class="title">bluetape4k-json Class Structure</text>
+  <text x="800" y="105" text-anchor="middle" class="subtitle">JsonSerializer is the stable SPI; sibling modules provide concrete JSON engines.</text>
+
+  <rect x="70" y="145" width="1460" height="485" rx="16" class="panel-core" />
+  <text x="102" y="188" class="panel-title">Core package contract</text>
+  <text x="102" y="216" class="note">The io/json module owns the interface, default helper methods, and common failure type.</text>
+
+  <rect x="70" y="700" width="1460" height="210" rx="16" class="panel-impl" />
+  <text x="102" y="742" class="panel-title">Serializer implementations in sibling modules</text>
+  <text x="102" y="770" class="note">Applications wire one concrete serializer and keep callers typed as JsonSerializer.</text>
+
+  <g id="jsonSerializer">
+    <rect x="585" y="250" width="430" height="220" rx="7" class="class-card interface" />
+    <text x="800" y="280" text-anchor="middle" class="stereo">&lt;&lt;interface&gt;&gt;</text>
+    <text x="800" y="311" text-anchor="middle" class="class-title">JsonSerializer</text>
+    <line x1="585" y1="334" x2="1015" y2="334" class="sep" />
+    <text x="613" y="362" class="member">+ serialize(graph: Any?): ByteArray</text>
+    <text x="613" y="386" class="member">+ deserialize(bytes, clazz): T?</text>
+    <line x1="585" y1="406" x2="1015" y2="406" class="sep" />
+    <text x="613" y="434" class="member">default string helpers use UTF-8 bytes</text>
+    <text x="613" y="458" class="member">reified extensions pass T::class.java</text>
+  </g>
+
+  <g id="stringHelpers">
+    <rect x="120" y="300" width="360" height="132" rx="7" class="class-card helper" />
+    <text x="300" y="332" text-anchor="middle" class="class-title">String facade</text>
+    <line x1="120" y1="354" x2="480" y2="354" class="sep" />
+    <text x="146" y="382" class="member">serializeAsString(null) returns empty</text>
+    <text x="146" y="406" class="member">text methods delegate through UTF-8</text>
+  </g>
+
+  <g id="reifiedHelpers">
+    <rect x="1120" y="300" width="360" height="132" rx="7" class="class-card helper" />
+    <text x="1300" y="332" text-anchor="middle" class="class-title">Reified helpers</text>
+    <line x1="1120" y1="354" x2="1480" y2="354" class="sep" />
+    <text x="1146" y="382" class="member">deserialize&lt;T&gt;(bytes)</text>
+    <text x="1146" y="406" class="member">passes T::class.java</text>
+  </g>
+
+  <g id="exception">
+    <rect x="120" y="505" width="360" height="86" rx="7" class="class-card exception" />
+    <text x="300" y="536" text-anchor="middle" class="class-title-small">JsonSerializationException</text>
+    <line x1="120" y1="558" x2="480" y2="558" class="sep" />
+    <text x="146" y="582" class="member">RuntimeException + Serializable</text>
+  </g>
+
+  <g id="jackson2">
+    <rect x="150" y="795" width="360" height="88" rx="7" class="class-card impl-jackson2" />
+    <text x="330" y="827" text-anchor="middle" class="class-title">JacksonSerializer</text>
+    <line x1="150" y1="849" x2="510" y2="849" class="sep" />
+    <text x="176" y="873" class="member">bluetape4k-jackson2 ObjectMapper</text>
+  </g>
+
+  <g id="jackson3">
+    <rect x="620" y="795" width="360" height="88" rx="7" class="class-card impl-jackson3" />
+    <text x="800" y="827" text-anchor="middle" class="class-title">JacksonSerializer</text>
+    <line x1="620" y1="849" x2="980" y2="849" class="sep" />
+    <text x="646" y="873" class="member">bluetape4k-jackson3 ObjectMapper</text>
+  </g>
+
+  <g id="fastjson2">
+    <rect x="1090" y="795" width="360" height="88" rx="7" class="class-card impl-fastjson" />
+    <text x="1270" y="827" text-anchor="middle" class="class-title">FastjsonSerializer</text>
+    <line x1="1090" y1="849" x2="1450" y2="849" class="sep" />
+    <text x="1116" y="873" class="member">JSONB bytes + JSON text override</text>
+  </g>
+
+  <path d="M 585 372 H 480" class="uses-blue" style="marker-end:none" />
+<polyline points="492,366 480,372 492,378" fill="none" stroke="#4079a8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 1015 372 H 1120" class="uses-blue" style="marker-end:none" />
+<polyline points="1108,378 1120,372 1108,366" fill="none" stroke="#4079a8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+
+<path d="M 330 795 L 330 781 Q 330 775 336 775 L 800 775" class="implements-bus" />
+<path d="M 800 795 V 775" class="implements-bus" />
+<path d="M 1270 795 L 1270 781 Q 1270 775 1264 775 L 800 775" class="implements-bus" />
+<path d="M 800 775 V 486" class="implements" />
+  <path d="M 790 486 L 800 470 L 810 486 Z" fill="#ffffff" stroke="#263238" stroke-width="2.1" stroke-linejoin="round" />
+
+  <path d="M 585 434 L 534 434 Q 520 434 520 448 L 520 534 Q 520 548 506 548 L 480 548" class="uses-amber" stroke-linecap="round" stroke-linejoin="round" style="marker-end:none" />
+<polyline points="492,542 480,548 492,554" fill="none" stroke="#b98220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+
+  <rect x="90" y="930" width="1420" height="34" rx="12" fill="#ffffff" stroke="#c7d3d8" />
+  <text x="800" y="952" text-anchor="middle" class="small">io/json does not auto-select Jackson or Fastjson2. It defines the stable SPI; applications wire the concrete serializer they need.</text>
+</svg>

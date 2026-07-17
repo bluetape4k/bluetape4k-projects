@@ -39,6 +39,20 @@ class ValidateManualsTest < Minitest::Test
     assert_empty validator_for("valid").errors
   end
 
+  def test_accepts_paired_overview_assets
+    with_fixture("valid") do |root|
+      asset_root = File.join(root, "docs/manual/assets/overview")
+      FileUtils.mkdir_p(asset_root)
+      File.write(File.join(asset_root, "map.svg"), '<svg xmlns="http://www.w3.org/2000/svg"/>')
+      File.binwrite(File.join(asset_root, "map.png"), "png")
+      manifest = load_manifest(root)
+      manifest["overview"] = { "assets" => ["assets/overview/map.svg", "assets/overview/map.png"] }
+      write_manifest(root, manifest)
+
+      assert_empty validator(root).errors
+    end
+  end
+
   def test_reports_duplicate_chapter_ids_and_frontmatter_mismatch
     with_fixture("valid") do |root|
       manifest = load_manifest(root)

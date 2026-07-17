@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1020" viewBox="0 0 1800 1020" role="img" aria-label="Mock web server routing overview">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <marker id="arrowBlue" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#2563EB"/></marker>
+  <marker id="arrowTeal" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#0D9488"/></marker>
+  <marker id="arrowGreen" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#16A34A"/></marker>
+  <marker id="arrowOrange" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#D97706"/></marker>
+  <marker id="arrowPink" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#DB2777"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:42px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .lane{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.8;rx:7}.laneTitle{font-family:"Architects Daughter";font-size:26px;fill:#0F172A}.laneSub{font-family:"Comic Mono";font-size:13px;fill:#64748B}
+    .card{filter:url(#shadow);stroke-width:1.9;rx:6}.access{fill:#EFF6FF;stroke:#2563EB}.runtime{fill:#F0FDFA;stroke:#0D9488}.httpbin{fill:#FFF7ED;stroke:#D97706}.json{fill:#F0FDF4;stroke:#16A34A}.web{fill:#FDF2F8;stroke:#DB2777}.store{fill:#F8FAFC;stroke:#64748B}
+    .cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.cardText{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .arrow{fill:none;stroke-width:3.0;stroke-linecap:round;stroke-linejoin:round}.blue{stroke:#2563EB;marker-end:url(#arrowBlue)}.teal{stroke:#0D9488;marker-end:url(#arrowTeal)}.green{stroke:#16A34A;marker-end:url(#arrowGreen)}.orange{stroke:#D97706;marker-end:url(#arrowOrange)}.pink{stroke:#DB2777;marker-end:url(#arrowPink)}
+    .labelBox{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.1;rx:7}.label{font-family:"Comic Mono";font-size:12px;fill:#334155}
+  </style>
+</defs>
+<rect class="canvas" width="1800" height="1020"/>
+<rect class="frame" x="34" y="30" width="1732" height="950" rx="6"/>
+<text class="title" x="74" y="84">Mock Web Server Routing Overview</text>
+<text class="subtitle" x="78" y="118">Integration tests enter container HTTP/HTTPS ports, route through Spring MVC controllers, then use in-memory fixtures or cached static content.</text>
+
+<rect class="lane" x="76" y="160" width="300" height="760" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/>
+<text class="laneTitle" x="112" y="206">Access</text>
+<text class="laneSub" x="112" y="230">Testcontainers URLs and exposed ports</text>
+
+<rect class="lane" x="430" y="160" width="350" height="760" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
+<text class="laneTitle" x="466" y="206">Runtime</text>
+<text class="laneSub" x="466" y="230">Spring Boot 4 MVC on virtual threads</text>
+
+<rect class="lane" x="834" y="160" width="350" height="760" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
+<text class="laneTitle" x="870" y="206">Endpoint controllers</text>
+<text class="laneSub" x="870" y="230">prefix routing and request semantics</text>
+
+<rect class="lane" x="1238" y="160" width="475" height="760" fill="#FFEDD5" stroke="#FDBA74" fill-opacity="1"/>
+<text class="laneTitle" x="1274" y="206">Fixture backends</text>
+<text class="laneSub" x="1274" y="230">echo helpers, repositories, caches, resources</text>
+
+  <rect class="card access" x="112" y="292" width="228" height="126"/>
+  <text class="cardTitle" x="226" y="331" text-anchor="middle">Integration tests</text>
+  <text class="cardText" x="136" y="363">BluetapeHttpServer helper</text>
+  <text class="cardText" x="136" y="386">/httpbin, /jsonplaceholder</text>
+  <text class="cardText" x="136" y="409">/web URL helpers</text>
+
+<rect class="card access" x="112" y="590" width="228" height="126"/>
+<text class="cardTitle" x="226" y="629" text-anchor="middle">Container ports</text>
+<text class="cardText" x="136" y="661">HTTP 80</text>
+<text class="cardText" x="136" y="684">HTTPS 443</text>
+
+<rect class="card runtime" x="468" y="420" width="274" height="160"/>
+<text class="cardTitle" x="605" y="462" text-anchor="middle">Tomcat servlet server</text>
+<text class="cardText" x="492" y="494">HTTP/2 enabled</text>
+<text class="cardText" x="492" y="517">virtual threads enabled</text>
+<text class="cardText" x="492" y="540">high connection limits</text>
+
+<rect class="card runtime" x="872" y="342" width="274" height="296"/>
+<text class="cardTitle" x="1009" y="385" text-anchor="middle">Spring MVC controllers</text>
+<text class="cardText" x="896" y="421">/ping and /admin/reset</text>
+<text class="cardText" x="896" y="444">/httpbin basic + advanced</text>
+<text class="cardText" x="896" y="467">/httpbin stream + image</text>
+<text class="cardText" x="896" y="490">/jsonplaceholder CRUD</text>
+<text class="cardText" x="896" y="513">/web cached HTML</text>
+<text class="cardText" x="896" y="554">GlobalExceptionHandler maps</text>
+<text class="cardText" x="896" y="577">validation errors to responses</text>
+
+<rect class="card httpbin" x="1276" y="260" width="380" height="126"/>
+<text class="cardTitle" x="1466" y="299" text-anchor="middle">httpbin response tools</text>
+<text class="cardText" x="1302" y="331">toHttpbinResponse(): args, headers, body</text>
+<text class="cardText" x="1302" y="354">gzip/deflate, stream, delay, image</text>
+
+<rect class="card json" x="1276" y="468" width="380" height="142"/>
+<text class="cardTitle" x="1466" y="507" text-anchor="middle">JsonplaceholderService</text>
+<text class="cardText" x="1302" y="539">six InMemoryRepository instances</text>
+<text class="cardText" x="1302" y="562">ReentrantLock for atomic reload</text>
+<text class="cardText" x="1302" y="585">POST /admin/reset reloads fixtures</text>
+
+<rect class="card web" x="1276" y="692" width="380" height="126"/>
+<text class="cardTitle" x="1466" y="731" text-anchor="middle">WebContentLoader</text>
+<text class="cardText" x="1302" y="763">allowlisted HTML names only</text>
+<text class="cardText" x="1302" y="786">Caffeine cache: html-content</text>
+
+<rect class="card store" x="1276" y="840" width="380" height="58"/>
+<text class="cardText" x="1302" y="875">classpath JSON fixtures and web/html resources</text>
+
+<path class="arrow blue" d="M 226 418 L 226 492 Q 226 506 240 506 L 468 506" stroke-linecap="round" stroke-linejoin="round"/>
+<rect class="labelBox" x="250" y="474" width="142" height="24"/>
+<text class="label" x="266" y="491">mapped URL</text>
+
+<path class="arrow blue" d="M340 653 L404 653 Q420 653 420 637 L420 522 Q420 506 436 506 L468 506"/>
+<rect class="labelBox" x="350" y="620" width="112" height="24"/>
+<text class="label" x="366" y="637">port bind</text>
+
+<path class="arrow teal" d="M742 500 L872 500"/>
+<rect class="labelBox" x="774" y="469" width="92" height="24"/>
+<text class="label" x="790" y="486">dispatch</text>
+
+<path class="arrow orange" d="M1146 420 L1210 420 Q1226 420 1226 404 L1226 323 Q1226 307 1242 307 L1276 307"/>
+<rect class="labelBox" x="1176" y="377" width="104" height="24"/>
+<text class="label" x="1192" y="394">/httpbin</text>
+
+<path class="arrow green" d="M1146 500 L1276 500"/>
+<rect class="labelBox" x="1172" y="469" width="160" height="24"/>
+<text class="label" x="1188" y="486">/jsonplaceholder</text>
+
+<path class="arrow pink" d="M1146 580 L1210 580 Q1226 580 1226 596 L1226 755 Q1226 771 1242 771 L1276 771"/>
+<rect class="labelBox" x="1178" y="625" width="78" height="24"/>
+<text class="label" x="1194" y="642">/web</text>
+
+<path class="arrow green" d="M 1656 539 L 1674 539 Q 1686 539 1686 551 L 1686 861 Q 1686 869 1678 869 L 1656 869" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="arrow pink" d="M1466 818 L1466 840"/>
+</svg>

@@ -185,6 +185,31 @@ toolbox 전체를 다루는 단일 workshop은 없습니다. 상위 repository e
 
 core의 API는 범위가 넓어 lifecycle과 성능 특성이 모두 같지 않습니다. 선택한 family의 source와 test를 확인해야 합니다. encoding은 암호화가 아니고, reflection helper가 비공개 API를 안정된 계약으로 바꾸지도 않으며, bounded container는 distributed backpressure를 제공하지 않습니다.
 
+<!-- release-readme-diagrams:start -->
+## 배포본 다이어그램 {#release-diagrams}
+
+아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+
+### bluetape4k-core 모듈 구성 개요 다이어그램
+
+[![bluetape4k-core 모듈 구성 개요 다이어그램](../../assets/readme-diagrams/bluetape4k-core-diagram-01.png)](../../assets/readme-diagrams/bluetape4k-core-diagram-01.svg)
+
+_배포본 README: [`bluetape4k/core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/core/README.ko.md)_
+
+### bluetape4k-core 핵심 클래스 구조 다이어그램
+
+[![bluetape4k-core 핵심 클래스 구조 다이어그램](../../assets/readme-diagrams/bluetape4k-core-diagram-02.png)](../../assets/readme-diagrams/bluetape4k-core-diagram-02.svg)
+
+_배포본 README: [`bluetape4k/core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/core/README.ko.md)_
+
+### RequireSupport Validation 체이닝 흐름 다이어그램
+
+[![RequireSupport Validation 체이닝 흐름 다이어그램](../../assets/readme-diagrams/bluetape4k-core-sequence-01.png)](../../assets/readme-diagrams/bluetape4k-core-sequence-01.svg)
+
+_배포본 README: [`bluetape4k/core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/core/README.ko.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## 근거 {#sources}
 
 - [모듈 README와 API catalog](../../../../bluetape4k/core/README.ko.md)

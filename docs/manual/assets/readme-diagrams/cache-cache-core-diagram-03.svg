@@ -1,0 +1,204 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2330" height="1645" viewBox="0 0 2330 1645" role="img" aria-label="SuspendNearCacheOperations Coroutine Class Diagram">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10" /></filter>
+
+  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#0F766E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="triangle-teal" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse" style="stroke-dasharray:none!important" stroke-dasharray="none"><path d="M -2 -2 L 28 11 L -2 24 Z" fill="#FFFFFF" stroke="none" stroke-dasharray="none" style="stroke-dasharray:none!important" /><path class="markerSolid" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" /></marker>
+
+  <marker id="arrow-purple" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#7E22CE" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="triangle-purple" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse" style="stroke-dasharray:none!important" stroke-dasharray="none"><path d="M -2 -2 L 28 11 L -2 24 Z" fill="#FFFFFF" stroke="none" stroke-dasharray="none" style="stroke-dasharray:none!important" /><path class="markerSolid" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#7E22CE" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" /></marker>
+
+  <marker id="arrow-green" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="triangle-green" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse" style="stroke-dasharray:none!important" stroke-dasharray="none"><path d="M -2 -2 L 28 11 L -2 24 Z" fill="#FFFFFF" stroke="none" stroke-dasharray="none" style="stroke-dasharray:none!important" /><path class="markerSolid" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#15803D" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" /></marker>
+
+  <marker id="arrow-amber" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#C2410C" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="triangle-amber" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse" style="stroke-dasharray:none!important" stroke-dasharray="none"><path d="M -2 -2 L 28 11 L -2 24 Z" fill="#FFFFFF" stroke="none" stroke-dasharray="none" style="stroke-dasharray:none!important" /><path class="markerSolid" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#C2410C" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" /></marker>
+
+  <marker id="arrow-pink" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#BE185D" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="triangle-pink" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse" style="stroke-dasharray:none!important" stroke-dasharray="none"><path d="M -2 -2 L 28 11 L -2 24 Z" fill="#FFFFFF" stroke="none" stroke-dasharray="none" style="stroke-dasharray:none!important" /><path class="markerSolid" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#BE185D" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" /></marker>
+
+  <marker id="arrow-slate" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="triangle-slate" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse" style="stroke-dasharray:none!important" stroke-dasharray="none"><path d="M -2 -2 L 28 11 L -2 24 Z" fill="#FFFFFF" stroke="none" stroke-dasharray="none" style="stroke-dasharray:none!important" /><path class="markerSolid" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#475569" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" /></marker>
+
+  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#1D4ED8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="triangle-blue" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse" style="stroke-dasharray:none!important" stroke-dasharray="none"><path d="M -2 -2 L 28 11 L -2 24 Z" fill="#FFFFFF" stroke="none" stroke-dasharray="none" style="stroke-dasharray:none!important" /><path class="markerSolid" d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" /></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .sectionLabel{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}
+    .chip{stroke-width:1.6}.chipText{font-family:"Comic Mono";font-size:14px;fill:#334155}
+    .classBox{stroke-width:1.8;filter:url(#shadow)}.stereotype{font-family:"Comic Mono";font-size:14px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
+    .member{font-family:"Comic Mono";font-size:14px;fill:#334155}.divider{stroke-width:1.1;opacity:.45}
+    .noteBox{stroke-width:1.7;filter:url(#shadow)}.noteTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}.noteLine{font-family:"Comic Mono";font-size:14px;fill:#334155}
+    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
+  </style>
+</defs>
+<rect class="canvas" width="2330" height="1645" />
+<rect class="frame" x="34" y="30" width="2262" height="1585" rx="8" />
+<text class="title" x="72" y="86">SuspendNearCacheOperations Coroutine Contract</text>
+<text class="subtitle" x="76" y="120">cache-core suspend near-cache API, coroutine cancellation contract, retry policy, and local statistics boundary.</text>
+<g>
+  <rect class="chip" x="1340" y="78" width="205" height="54" rx="18" fill="#F0FDFA" stroke="#0D9488" />
+  <text class="chipText" x="1442.5" y="112" text-anchor="middle">suspend API</text>
+</g>
+<g>
+  <rect class="chip" x="1570" y="78" width="190" height="54" rx="18" fill="#FAF5FF" stroke="#9333EA" />
+  <text class="chipText" x="1665" y="112" text-anchor="middle">decorator</text>
+</g>
+<g>
+  <rect class="chip" x="1785" y="78" width="190" height="54" rx="18" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="chipText" x="1880" y="112" text-anchor="middle">statistics</text>
+</g>
+<g>
+  <rect class="chip" x="2000" y="78" width="190" height="54" rx="18" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="chipText" x="2095" y="112" text-anchor="middle">policy</text>
+</g>
+<text class="sectionLabel" x="710" y="205">Coroutine API surface</text>
+<text class="sectionLabel" x="172" y="610">Retry and cancellation policy</text>
+<text class="sectionLabel" x="1740" y="610">Local snapshot boundary</text>
+<g>
+  <rect class="noteBox" x="700" y="235" width="780" height="190" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="noteTitle" x="728" y="283">No AutoCloseable inheritance</text>
+  <text class="noteLine" x="730" y="327">AutoCloseable.close() is non-suspend</text>
+<text class="noteLine" x="730" y="359">Suspend contract declares suspend close()</text>
+<text class="noteLine" x="730" y="391">Lifecycle cleanup keeps coroutine cancellation semantics</text>
+</g>
+<g id="SuspendNearCacheOperations">
+  <rect class="classBox" x="560" y="520" width="1060" height="395" rx="8" fill="#F0FDFA" stroke="#0D9488" />
+  <text class="stereotype" x="1090" y="548" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="1090" y="578" text-anchor="middle">SuspendNearCacheOperations&lt;V&gt;</text>
+  <path class="divider" d="M560 596H1620" stroke="#0F766E" />
+  <text class="member" x="584" y="622">+ cacheName: String</text>
+<text class="member" x="584" y="644">+ isClosed: Boolean</text>
+<text class="member" x="584" y="666">+ key type fixed to String</text>
+  <path class="divider" d="M560 696H1620" stroke="#0F766E" />
+  <text class="member" x="584" y="722">+ suspend read: get / getAll / containsKey</text>
+<text class="member" x="584" y="744">+ suspend write: put / putAll / putIfAbsent / replace</text>
+<text class="member" x="584" y="766">+ suspend delete: remove / removeAll / getAndRemove / getAndReplace</text>
+<text class="member" x="584" y="788">+ local only: clearLocal() / localCacheSize() / stats()</text>
+<text class="member" x="584" y="810">+ suspend back/lifecycle: clearAll() / backCacheSize() / close()</text>
+</g>
+<g id="ResilientSuspendNearCacheDecorator">
+  <rect class="classBox" x="560" y="1180" width="1060" height="315" rx="8" fill="#FAF5FF" stroke="#9333EA" />
+  <text class="stereotype" x="1090" y="1208" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="classTitle" x="1090" y="1238" text-anchor="middle">ResilientSuspendNearCacheDecorator&lt;V&gt;</text>
+  <path class="divider" d="M560 1256H1620" stroke="#7E22CE" />
+  <text class="member" x="584" y="1282">delegate: SuspendNearCacheOperations&lt;V&gt;</text>
+<text class="member" x="584" y="1304">config: NearCacheResilienceConfig</text>
+<text class="member" x="584" y="1326">retry: resilience4j Retry</text>
+  <path class="divider" d="M560 1356H1620" stroke="#7E22CE" />
+  <text class="member" x="584" y="1382">implements the same suspend contract</text>
+<text class="member" x="584" y="1404">executeSuspendFunction wraps remote operations</text>
+<text class="member" x="584" y="1426">ignoreExceptions(CancellationException)</text>
+<text class="member" x="584" y="1448">CancellationException is rethrown from get/getAll/containsKey/close</text>
+<text class="member" x="584" y="1470">stats(), clearLocal(), localCacheSize() delegate directly</text>
+</g>
+<g id="NearCacheResilienceConfig">
+  <rect class="classBox" x="145" y="665" width="390" height="250" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="stereotype" x="340" y="693" text-anchor="middle">&lt;&lt;data class&gt;&gt;</text>
+  <text class="classTitle" x="340" y="723" text-anchor="middle">NearCacheResilienceConfig</text>
+  <path class="divider" d="M145 741H535" stroke="#C2410C" />
+  <text class="member" x="169" y="767">retryMaxAttempts</text>
+<text class="member" x="169" y="789">retryWaitDuration</text>
+<text class="member" x="169" y="811">retryExponentialBackoff</text>
+<text class="member" x="169" y="833">getFailureStrategy</text>
+  <path class="divider" d="M145 863H535" stroke="#C2410C" />
+  <text class="member" x="169" y="889">drives suspend retry policy</text>
+</g>
+<g id="GetFailureStrategy">
+  <rect class="classBox" x="145" y="1088" width="390" height="210" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="stereotype" x="340" y="1116" text-anchor="middle">&lt;&lt;enum&gt;&gt;</text>
+  <text class="classTitle" x="340" y="1146" text-anchor="middle">GetFailureStrategy</text>
+  <path class="divider" d="M145 1164H535" stroke="#C2410C" />
+  <text class="member" x="169" y="1190">RETURN_FRONT_OR_NULL</text>
+<text class="member" x="169" y="1212">PROPAGATE_EXCEPTION</text>
+  <path class="divider" d="M145 1242H535" stroke="#C2410C" />
+  <text class="member" x="169" y="1268">handles ordinary get failures only</text>
+</g>
+<g id="CancellationException">
+  <rect class="classBox" x="145" y="1360" width="390" height="185" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+  <text class="stereotype" x="340" y="1388" text-anchor="middle">&lt;&lt;coroutine signal&gt;&gt;</text>
+  <text class="classTitle" x="340" y="1418" text-anchor="middle">CancellationException</text>
+  <path class="divider" d="M145 1436H535" stroke="#BE185D" />
+  <text class="member" x="169" y="1462">not a fallback case</text>
+<text class="member" x="169" y="1484">not retried</text>
+  <path class="divider" d="M145 1514H535" stroke="#BE185D" />
+  <text class="member" x="169" y="1540">must be rethrown</text>
+</g>
+<g id="NearCacheStatistics">
+  <rect class="classBox" x="1695" y="665" width="565" height="250" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="stereotype" x="1977.5" y="693" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="1977.5" y="723" text-anchor="middle">NearCacheStatistics</text>
+  <path class="divider" d="M1695 741H2260" stroke="#15803D" />
+  <text class="member" x="1719" y="767">localHits / localMisses / localSize</text>
+<text class="member" x="1719" y="789">localEvictions</text>
+<text class="member" x="1719" y="811">backHits / backMisses</text>
+  <path class="divider" d="M1695 841H2260" stroke="#15803D" />
+  <text class="member" x="1719" y="867">+ hitRate: Double</text>
+</g>
+<g id="DefaultNearCacheStatistics">
+  <rect class="classBox" x="1695" y="1088" width="565" height="250" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="stereotype" x="1977.5" y="1116" text-anchor="middle">&lt;&lt;data class&gt;&gt;</text>
+  <text class="classTitle" x="1977.5" y="1146" text-anchor="middle">DefaultNearCacheStatistics</text>
+  <path class="divider" d="M1695 1164H2260" stroke="#15803D" />
+  <text class="member" x="1719" y="1190">immutable counter snapshot</text>
+<text class="member" x="1719" y="1212">same model as blocking API</text>
+  <path class="divider" d="M1695 1242H2260" stroke="#15803D" />
+  <text class="member" x="1719" y="1268">hitRate derived from local/back counters</text>
+<text class="member" x="1719" y="1290">stats() is non-suspend because local counters</text>
+</g>
+<g>
+  <rect class="noteBox" x="1695" y="1360" width="565" height="205" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="noteTitle" x="1723" y="1408">Reading rule</text>
+  <text class="noteLine" x="1725" y="1452">Hollow triangle = interface realization</text>
+<text class="noteLine" x="1725" y="1484">Dashed arrow = dependency</text>
+<text class="noteLine" x="1725" y="1516">This diagram is coroutine-only</text>
+</g>
+<g data-from="SuspendNearCacheOperations" data-to="NoAutoCloseable">
+  <path class="edge dashed"  d="M1090 520 L1090 425" stroke="#475569" />
+
+  <polyline points="1098,443 1090,425 1082,443" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
+  <text class="edgeLabel" x="1114" y="467">declares close()</text>
+</g>
+<g data-from="ResilientSuspendNearCacheDecorator" data-to="SuspendNearCacheOperations">
+  <path class="edge dashed" d="M1090 1180 L1090 915" stroke="#7E22CE" />
+
+  <polygon points="1090,915 1100,937 1080,937" fill="#FFFFFF" stroke="none" />
+
+  <polygon class="markerSolid" points="1090,915 1100,937 1080,937" fill="#FFFFFF" stroke="#7E22CE" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" />
+  <text class="edgeLabel" x="1114" y="1040">implements</text>
+</g>
+<g data-from="SuspendNearCacheOperations" data-to="NearCacheStatistics">
+  <path class="edge dashed"  d="M1620 770 L1695 770" stroke="#15803D" />
+
+  <polyline points="1677,778 1695,770 1677,762" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
+  <text class="edgeLabel" x="1638" y="749">stats()</text>
+</g>
+<g data-from="DefaultNearCacheStatistics" data-to="NearCacheStatistics">
+  <path class="edge dashed" d="M1978 1088 L1978 915" stroke="#15803D" />
+
+  <polygon points="1978,915 1988,937 1968,937" fill="#FFFFFF" stroke="none" />
+
+  <polygon class="markerSolid" points="1978,915 1988,937 1968,937" fill="#FFFFFF" stroke="#15803D" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="butt" stroke-dasharray="none" style="stroke-dasharray:none!important" />
+  <text class="edgeLabel" x="2003" y="988">implements</text>
+</g>
+<g data-from="ResilientSuspendNearCacheDecorator" data-to="NearCacheResilienceConfig">
+  <path class="edge dashed"  d="M 560 1285 L 555 1285 Q 545 1285 545 1275 L 545 974 Q 545 960 531 960 L 469 960 Q 455 960 455 946 L 455 915" stroke="#C2410C" stroke-linecap="round" stroke-linejoin="round" />
+
+  <polyline points="463,933 455,915 447,933" fill="none" stroke="#C2410C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
+  <text class="edgeLabel" x="556" y="992">uses</text>
+</g>
+<g data-from="NearCacheResilienceConfig" data-to="GetFailureStrategy">
+  <path class="edge dashed"  d="M340 915 L340 1088" stroke="#C2410C" />
+
+  <polyline points="332,1070 340,1088 348,1070" fill="none" stroke="#C2410C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
+  <text class="edgeLabel" x="365" y="1002">selects</text>
+</g>
+<g data-from="ResilientSuspendNearCacheDecorator" data-to="CancellationException">
+  <path class="edge dashed"  d="M560 1415 L535 1415" stroke="#BE185D" />
+
+  <polyline points="553,1407 535,1415 553,1423" fill="none" stroke="#BE185D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" />
+
+</g>
+</svg>

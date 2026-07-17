@@ -114,6 +114,37 @@ manual manifest에 등록된 전용 workshop path가 없습니다. 모듈 README
 
 이 페이지는 연결된 source와 test가 나타내는 현재 저장소 상태를 설명합니다. optional backend를 애플리케이션 기본값으로 만들거나 benchmark artifact 없이 성능을 단정하지 않습니다. 모듈 버전이 바뀌면 호환성과 lifecycle 설명을 다시 확인해야 합니다.
 
+<!-- release-readme-diagrams:start -->
+## 배포본 다이어그램 {#release-diagrams}
+
+아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+
+### OpenTelemetry 핵심 클래스 구조 다이어그램
+
+[![OpenTelemetry 핵심 클래스 구조 다이어그램](../../assets/readme-diagrams/infra-opentelemetry-diagram-01.png)](../../assets/readme-diagrams/infra-opentelemetry-diagram-01.svg)
+
+_배포본 README: [`infra/opentelemetry/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/opentelemetry/README.ko.md)_
+
+### OpenTelemetry 구성 요소 다이어그램
+
+[![OpenTelemetry 구성 요소 다이어그램](../../assets/readme-diagrams/infra-opentelemetry-diagram-02.png)](../../assets/readme-diagrams/infra-opentelemetry-diagram-02.svg)
+
+_배포본 README: [`infra/opentelemetry/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/opentelemetry/README.ko.md)_
+
+### 분산 추적 전파 다이어그램
+
+[![분산 추적 전파 다이어그램](../../assets/readme-diagrams/infra-opentelemetry-diagram-03.png)](../../assets/readme-diagrams/infra-opentelemetry-diagram-03.svg)
+
+_배포본 README: [`infra/opentelemetry/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/opentelemetry/README.ko.md)_
+
+### Coroutine 환경의 Span 생명주기 시퀀스 다이어그램
+
+[![Coroutine 환경의 Span 생명주기 시퀀스 다이어그램](../../assets/readme-diagrams/infra-opentelemetry-sequence-01.png)](../../assets/readme-diagrams/infra-opentelemetry-sequence-01.svg)
+
+_배포본 README: [`infra/opentelemetry/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/opentelemetry/README.ko.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## 근거 {#sources}
 
 - [모듈 README](../../../../infra/opentelemetry/README.ko.md)

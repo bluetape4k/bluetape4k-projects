@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2320" height="1420" viewBox="0 0 2320 1420" role="img" aria-label="Avro serializer class structure">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
+    <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#203040" flood-opacity="0.10" />
+  </filter>
+  <marker id="openArrow" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18">
+    <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#64748B" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
+  </marker>
+  <marker id="hollowTriangle" markerWidth="18" markerHeight="16" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M 2 2 L 16 8 L 2 14 Z" fill="#FFFFFF" stroke="#64748B" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
+  </marker>
+</defs>
+<style>
+  svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+  .canvas{fill:#F7FAFC}.frame{fill:#FFFFFF;stroke:#D5E0EA;stroke-width:3;filter:url(#shadow)}
+  .title{font-family:"Architects Daughter";font-size:50px;font-weight:700;fill:#172033}
+  .subtitle{font-family:"Comic Mono";font-size:18px;font-weight:700;fill:#526174}
+  .sectionLabel{font-family:"Comic Mono";font-size:17px;font-weight:700;fill:#66788D}
+  .classBox rect,.supportBox rect{filter:url(#shadow);stroke-width:3;fill:#FFFFFF}
+  .blue rect{fill:#EAF3FF;stroke:#3B82F6}.green rect{fill:#EAF9F0;stroke:#21A366}
+  .teal rect{fill:#E8FAF8;stroke:#139B91}.amber rect{fill:#FFF4D8;stroke:#D4860B}
+  .purple rect{fill:#F2EAFF;stroke:#8B5CF6}.pink rect{fill:#FFEAF1;stroke:#DB2777}
+  .gray rect{fill:#F4F6F8;stroke:#64748B}.orange rect{fill:#FFF0E4;stroke:#F05A1A}
+  .stereo{font-family:"Comic Mono";font-size:14px;font-weight:700;fill:#66788D}
+  .classTitle{font-family:"Architects Daughter";font-size:25px;font-weight:700;fill:#172033}
+  .supportTitle{font-family:"Architects Daughter";font-size:26px;font-weight:700;fill:#172033}
+  .member{font-family:"Comic Mono";font-size:15px;font-weight:700;fill:#526174}
+  .divider{stroke:#CBD5E1;stroke-width:1.5}
+  .impl{fill:none;stroke-width:3.8;stroke-dasharray:10 8;stroke-linecap:round;stroke-linejoin:round}
+  .uses{fill:none;stroke-width:3.8;stroke-linecap:round;stroke-linejoin:round}
+  .blueLine{stroke:#2563EB}.greenLine{stroke:#15803D}.tealLine{stroke:#0F8B87}.orangeLine{stroke:#EA580C}.purpleLine{stroke:#7C3AED}
+  .labelBg{fill:#FFFFFF;stroke:#D6E3EF;stroke-width:1.4;opacity:.96}
+  .edgeLabel{font-family:"Comic Mono";font-size:13.5px;font-weight:700;fill:#526174}
+  .legendText{font-family:"Comic Mono";font-size:13.5px;font-weight:700;fill:#526174}
+</style>
+<rect class="canvas" width="2320" height="1420" />
+<rect class="frame" x="38" y="34" width="2244" height="1352" rx="22" />
+<text class="title" x="86" y="100">Avro Serializer Class Structure</text>
+<text class="subtitle" x="88" y="134">Three public serializer contracts map to DataFile-based implementations with shared codec, Base64, and failure behavior.</text>
+<text class="sectionLabel" x="106" y="204">Public serializer interfaces</text>
+<g id="generic-iface" class="classBox blue">
+<rect x="110" y="240" width="620" height="190" rx="12" />
+<text class="stereo" x="420" y="274" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+<text class="classTitle" x="420" y="310" text-anchor="middle">AvroGenericRecordSerializer</text>
+<line class="divider" x1="110" y1="332" x2="730" y2="332" />
+<text class="member" x="140" y="365" text-anchor="start">+ serialize(schema, GenericRecord?)</text>
+<text class="member" x="140" y="393" text-anchor="start">+ deserialize(schema, ByteArray?)</text>
+<text class="member" x="140" y="421" text-anchor="start">+ serializeAsString(...) / deserializeFromString(...)</text>
+</g>
+<g id="specific-iface" class="classBox green">
+<rect x="850" y="240" width="620" height="190" rx="12" />
+<text class="stereo" x="1160" y="274" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+<text class="classTitle" x="1160" y="310" text-anchor="middle">AvroSpecificRecordSerializer</text>
+<line class="divider" x1="850" y1="332" x2="1470" y2="332" />
+<text class="member" x="880" y="365" text-anchor="start">+ serialize(SpecificRecord?)</text>
+<text class="member" x="880" y="393" text-anchor="start">+ deserialize(bytes, Class&lt;T&gt;)</text>
+<text class="member" x="880" y="421" text-anchor="start">+ serializeList(...) / deserializeList(...)</text>
+</g>
+<g id="reflect-iface" class="classBox teal">
+<rect x="1590" y="240" width="620" height="190" rx="12" />
+<text class="stereo" x="1900" y="274" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+<text class="classTitle" x="1900" y="310" text-anchor="middle">AvroReflectSerializer</text>
+<line class="divider" x1="1590" y1="332" x2="2210" y2="332" />
+<text class="member" x="1620" y="365" text-anchor="start">+ serialize(graph: T?)</text>
+<text class="member" x="1620" y="393" text-anchor="start">+ deserialize(bytes, Class&lt;T&gt;)</text>
+<text class="member" x="1620" y="421" text-anchor="start">+ reified deserialize helpers</text>
+</g>
+<text class="sectionLabel" x="106" y="556">Default implementations</text>
+<g id="generic-impl" class="classBox blue">
+<rect x="110" y="592" width="620" height="226" rx="12" />
+<text class="stereo" x="420" y="626" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+<text class="classTitle" x="420" y="662" text-anchor="middle">DefaultAvroGenericRecordSerializer</text>
+<line class="divider" x1="110" y1="684" x2="730" y2="684" />
+<text class="member" x="140" y="717" text-anchor="start">- codecFactory: CodecFactory</text>
+<text class="member" x="140" y="745" text-anchor="start">+ GenericDatumWriter / GenericDatumReader</text>
+<text class="member" x="140" y="773" text-anchor="start">+ schema is required at call site</text>
+<text class="member" x="140" y="801" text-anchor="start">+ failure =&gt; null, logged</text>
+</g>
+<g id="specific-impl" class="classBox green">
+<rect x="850" y="592" width="620" height="226" rx="12" />
+<text class="stereo" x="1160" y="626" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+<text class="classTitle" x="1160" y="662" text-anchor="middle">DefaultAvroSpecificRecordSerializer</text>
+<line class="divider" x1="850" y1="684" x2="1470" y2="684" />
+<text class="member" x="880" y="717" text-anchor="start">- codecFactory: CodecFactory</text>
+<text class="member" x="880" y="745" text-anchor="start">+ SpecificDatumWriter / SpecificDatumReader</text>
+<text class="member" x="880" y="773" text-anchor="start">+ single record and list APIs</text>
+<text class="member" x="880" y="801" text-anchor="start">+ failure =&gt; null or emptyList(), logged</text>
+</g>
+<g id="reflect-impl" class="classBox teal">
+<rect x="1590" y="592" width="620" height="226" rx="12" />
+<text class="stereo" x="1900" y="626" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+<text class="classTitle" x="1900" y="662" text-anchor="middle">DefaultAvroReflectSerializer</text>
+<line class="divider" x1="1590" y1="684" x2="2210" y2="684" />
+<text class="member" x="1620" y="717" text-anchor="start">- codecFactory: CodecFactory</text>
+<text class="member" x="1620" y="745" text-anchor="start">+ ReflectDatumWriter / ReflectDatumReader</text>
+<text class="member" x="1620" y="773" text-anchor="start">+ per-class schema cache</text>
+<text class="member" x="1620" y="801" text-anchor="start">+ failure =&gt; null, logged</text>
+</g>
+<text class="sectionLabel" x="106" y="970">Shared support contracts</text>
+<g id="failure" class="supportBox pink">
+<rect x="110" y="1010" width="560" height="188" rx="12" />
+<text class="supportTitle" x="390" y="1058" text-anchor="middle">Failure and string contract</text>
+<line class="divider" x1="110" y1="1080" x2="670" y2="1080" />
+<text class="member" x="140" y="1113" text-anchor="start">Base64 wrappers live on interfaces</text>
+<text class="member" x="140" y="1141" text-anchor="start">invalid Base64 returns null</text>
+<text class="member" x="140" y="1169" text-anchor="start">deserialization failures do not escape</text>
+</g>
+<g id="datafile" class="supportBox gray">
+<rect x="780" y="1010" width="760" height="188" rx="12" />
+<text class="supportTitle" x="1160" y="1058" text-anchor="middle">Avro DataFile container</text>
+<line class="divider" x1="780" y1="1080" x2="1540" y2="1080" />
+<text class="member" x="810" y="1113" text-anchor="start">DataFileWriter + DataFileReader</text>
+<text class="member" x="810" y="1141" text-anchor="start">SeekableByteArrayInput for reads</text>
+<text class="member" x="810" y="1169" text-anchor="start">serializer constructors accept CodecFactory</text>
+</g>
+<g id="reflect-cache" class="supportBox amber">
+<rect x="1650" y="1010" width="560" height="188" rx="12" />
+<text class="supportTitle" x="1930" y="1058" text-anchor="middle">Reflect schema cache</text>
+<line class="divider" x1="1650" y1="1080" x2="2210" y2="1080" />
+<text class="member" x="1680" y="1113" text-anchor="start">ConcurrentHashMap&lt;Class&lt;*&gt;, Schema&gt;</text>
+<text class="member" x="1680" y="1141" text-anchor="start">ReflectData.get().getSchema(clazz)</text>
+<text class="member" x="1680" y="1169" text-anchor="start">used only by reflection serializer</text>
+</g>
+<path id="impl-generic" class="impl blueLine" d="M 420 592 L 420 430" />
+<polygon points="429,451 420,430 411,451" fill="#FFFFFF" stroke="#64748B" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<rect class="labelBg" x="428" y="492" width="204" height="30" rx="9" />
+<text class="edgeLabel" x="530" y="512" text-anchor="middle">implements</text>
+<path id="impl-specific" class="impl greenLine" d="M 1160 592 L 1160 430" />
+<polygon points="1169,451 1160,430 1151,451" fill="#FFFFFF" stroke="#64748B" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<rect class="labelBg" x="1168" y="492" width="204" height="30" rx="9" />
+<text class="edgeLabel" x="1270" y="512" text-anchor="middle">implements</text>
+<path id="impl-reflect" class="impl tealLine" d="M 1900 592 L 1900 430" />
+<polygon points="1909,451 1900,430 1891,451" fill="#FFFFFF" stroke="#64748B" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<rect class="labelBg" x="1908" y="492" width="204" height="30" rx="9" />
+<text class="edgeLabel" x="2010" y="512" text-anchor="middle">implements</text>
+<path id="generic-datafile" class="uses blueLine" d="M 420 818 L 420 914 Q 420 928 434 928 L 1046 928 Q 1060 928 1060 942 L 1060 1010" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="1052,992 1060,1010 1068,992" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<rect class="labelBg" x="622" y="892" width="204" height="30" rx="9" />
+<text class="edgeLabel" x="724" y="912" text-anchor="middle">uses DataFile</text>
+<path id="specific-datafile" class="uses greenLine" d="M 1160 818 L 1160 1010" />
+
+<polyline points="1152,992 1160,1010 1168,992" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path id="reflect-datafile" class="uses tealLine" d="M 1900 818 L 1900 914 Q 1900 928 1886 928 L 1314 928 Q 1300 928 1300 942 L 1300 1010" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="1292,992 1300,1010 1308,992" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<rect class="labelBg" x="1498" y="892" width="204" height="30" rx="9" />
+<text class="edgeLabel" x="1600" y="912" text-anchor="middle">uses DataFile</text>
+<path id="reflect-cache-edge" class="uses orangeLine" d="M 1900 818 L 1900 1010" />
+
+<polyline points="1892,992 1900,1010 1908,992" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<rect class="labelBg" x="1918" y="906" width="204" height="30" rx="9" />
+<text class="edgeLabel" x="2020" y="926" text-anchor="middle">schemaOf(clazz)</text>
+<path id="iface-contract" class="uses purpleLine" d="M 110 382 L 84 382 Q 70 382 70 396 L 70 916 Q 70 930 84 930 L 236 930 Q 250 930 250 944 L 250 1010" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="242,992 250,1010 258,992" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<rect class="labelBg" x="66" y="890" width="204" height="30" rx="9" />
+<text class="edgeLabel" x="168" y="910" text-anchor="middle">string wrappers</text>
+<g id="legend">
+<path class="impl blueLine" d="M 110 1288 H 178" />
+<polygon points="157,1297 178,1288 157,1279" fill="#FFFFFF" stroke="#64748B" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legendText" x="198" y="1294">implements</text>
+<path class="uses orangeLine" d="M 344 1288 H 412" />
+
+<polyline points="394,1296 412,1288 394,1280" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legendText" x="432" y="1294">uses support</text>
+</g>
+</svg>

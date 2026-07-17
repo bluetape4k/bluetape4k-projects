@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2600" height="1300" viewBox="0 0 2600 1300" role="img" aria-label="Mutiny Type Diagram">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+
+  <marker id="arrow-teal" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#0F766E" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-blue" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#1D4ED8" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-green" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#15803D" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-amber" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#C2410C" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-pink" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#BE185D" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-slate" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#475569" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-violet" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#6D28D9" style="stroke-dasharray:none"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:47px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .card{stroke-width:1.8;filter:url(#shadow)}.kicker{font-family:"Comic Mono";font-size:14px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}
+    .body{font-family:"Comic Mono";font-size:14px;fill:#334155}.foot{font-family:"Comic Mono";font-size:13px;fill:#475569}.divider{stroke-width:1.1;opacity:.42}
+    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.2;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:13px;fill:#475569}
+  </style>
+</defs>
+<rect class="canvas" width="2600" height="1300"/>
+<rect class="frame" x="34" y="30" width="2532" height="1240" rx="8"/>
+<text class="title" x="72" y="86">Mutiny Type Diagram</text>
+<text class="subtitle" x="76" y="120">bluetape4k-mutiny keeps SmallRye Mutiny's Uni and Multi model, then adds Kotlin-friendly creation, conversion, and coroutine interop helpers.</text>
+<g id="Mutiny">
+  <rect class="card" x="770" y="205" width="980" height="215" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="kicker" x="792" y="236">SmallRye Mutiny</text>
+  <text class="cardTitle" x="792" y="270">Two primary reactive types</text>
+  <path class="divider" d="M770 291H1750" stroke="#475569"/>
+  <text class="body" x="792" y="323">Uni models at most one item</text>
+<text class="body" x="792" y="347">Multi models a stream of items</text>
+<text class="body" x="792" y="371">bluetape4k adds Kotlin-friendly creation and interop helpers</text>
+  <path class="divider" d="M770 374H1750" stroke="#475569"/><text class="foot" x="792" y="403">the module does not replace Mutiny; it wraps common Kotlin entry points</text>
+</g>
+<g id="Uni">
+  <rect class="card" x="150" y="555" width="600" height="260" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="172" y="586">0 or 1 item</text>
+  <text class="cardTitle" x="172" y="620">Uni&lt;T&gt;</text>
+  <path class="divider" d="M150 641H750" stroke="#1D4ED8"/>
+  <text class="body" x="172" y="673">single async result</text>
+<text class="body" x="172" y="697">null, void, item, supplier, failure</text>
+<text class="body" x="172" y="721">CompletionStage and Future bridge</text>
+<text class="body" x="172" y="745">onEach side-effect keeps the item</text>
+  <path class="divider" d="M150 769H750" stroke="#1D4ED8"/><text class="foot" x="172" y="798">closest mental model: Mono</text>
+</g>
+<g id="Multi">
+  <rect class="card" x="1850" y="555" width="600" height="260" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="kicker" x="1872" y="586">0 or more items</text>
+  <text class="cardTitle" x="1872" y="620">Multi&lt;T&gt;</text>
+  <path class="divider" d="M1850 641H2450" stroke="#6D28D9"/>
+  <text class="body" x="1872" y="673">stream of ordered items</text>
+<text class="body" x="1872" y="697">vararg, range, iterable, sequence, stream</text>
+<text class="body" x="1872" y="721">primitive arrays and progressions</text>
+<text class="body" x="1872" y="745">repeat helpers defer Uni or CompletionStage</text>
+  <path class="divider" d="M1850 769H2450" stroke="#6D28D9"/><text class="foot" x="1872" y="798">closest mental model: Flux</text>
+</g>
+<g id="UniSupport">
+  <rect class="card" x="150" y="955" width="600" height="265" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="172" y="986">UniSupport.kt</text>
+  <text class="cardTitle" x="172" y="1020">Uni helper surface</text>
+  <path class="divider" d="M150 1041H750" stroke="#15803D"/>
+  <text class="body" x="172" y="1073">voidUni(), nullUni(), uniOf(...)</text>
+<text class="body" x="172" y="1097">uniFailureOf(...)</text>
+<text class="body" x="172" y="1121">uniCompletionStageOf(...)</text>
+<text class="body" x="172" y="1145">uniFutureOf(..., timeout)</text>
+  <path class="divider" d="M150 1174H750" stroke="#15803D"/><text class="foot" x="172" y="1203">creation functions return new Uni instances</text>
+</g>
+<g id="CoroutineSupport">
+  <rect class="card" x="930" y="955" width="650" height="265" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="952" y="986">CoroutineSupport.kt</text>
+  <text class="cardTitle" x="952" y="1020">Coroutine interop</text>
+  <path class="divider" d="M930 1041H1580" stroke="#0F766E"/>
+  <text class="body" x="952" y="1073">CoroutineScope.asUni { suspend block }</text>
+<text class="body" x="952" y="1097">runs async { block(...) } in current scope</text>
+<text class="body" x="952" y="1121">uses kotlinx.coroutines.mutiny.asUni()</text>
+<text class="body" x="952" y="1145">block failures become failed Uni</text>
+  <path class="divider" d="M930 1174H1580" stroke="#0F766E"/><text class="foot" x="952" y="1203">bridge is Uni-oriented, not Multi-oriented</text>
+</g>
+<g id="MultiSupport">
+  <rect class="card" x="1850" y="955" width="600" height="265" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="kicker" x="1872" y="986">MultiSupport.kt</text>
+  <text class="cardTitle" x="1872" y="1020">Multi helper surface</text>
+  <path class="divider" d="M1850 1041H2450" stroke="#C2410C"/>
+  <text class="body" x="1872" y="1073">multiOf(...), multiRangeOf(...)</text>
+<text class="body" x="1872" y="1097">Iterable/Sequence/Stream.asMulti()</text>
+<text class="body" x="1872" y="1121">Int/Long/Float/Double arrays</text>
+<text class="body" x="1872" y="1145">MultiRepetition.deferUni/deferCompletionStage</text>
+  <path class="divider" d="M1850 1174H2450" stroke="#C2410C"/><text class="foot" x="1872" y="1203">stream sources keep order and lazy behavior</text>
+</g>
+<g data-from="Mutiny" data-to="Uni">
+  <path class="edge " d="M 1020 420 L 1020 471 Q 1020 485 1006 485 L 464 485 Q 450 485 450 499 L 450 555" stroke="#1D4ED8" marker-end="url(#arrow-blue)" stroke-linecap="round" stroke-linejoin="round"/>
+  <g class="edgeLabel" transform="translate(535 451)"><rect width="170" height="30" rx="8"/><text x="85" y="20" text-anchor="middle">single-result side</text></g>
+</g>
+<g data-from="Mutiny" data-to="Multi">
+  <path class="edge " d="M 1500 420 L 1500 471 Q 1500 485 1514 485 L 2136 485 Q 2150 485 2150 499 L 2150 555" stroke="#6D28D9" marker-end="url(#arrow-violet)" stroke-linecap="round" stroke-linejoin="round"/>
+  <g class="edgeLabel" transform="translate(1713 451)"><rect width="114" height="30" rx="8"/><text x="57" y="20" text-anchor="middle">stream side</text></g>
+</g>
+<g data-from="UniSupport" data-to="Uni">
+  <path class="edge dashed" d="M450 955 L450 815" stroke="#15803D"/>
+<polygon points="456,827 450,815 444,827" fill="#15803D" stroke="#15803D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <g class="edgeLabel" transform="translate(472 875)"><rect width="186" height="30" rx="8"/><text x="93" y="20" text-anchor="middle">creates and converts</text></g>
+</g>
+<g data-from="CoroutineSupport" data-to="Uni">
+  <path class="edge dashed" d="M 930 1075 L 844 1075 Q 830 1075 830 1061 L 830 899 Q 830 885 816 885 L 464 885 Q 450 885 450 871 L 450 815" stroke="#0F766E" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="456,827 450,815 444,827" fill="#0F766E" stroke="#0F766E" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <g class="edgeLabel" transform="translate(837 1033)"><rect width="186" height="30" rx="8"/><text x="93" y="20" text-anchor="middle">suspend block -&gt; Uni</text></g>
+</g>
+<g data-from="MultiSupport" data-to="Multi">
+  <path class="edge dashed" d="M2150 955 L2150 815" stroke="#C2410C"/>
+<polygon points="2156,827 2150,815 2144,827" fill="#C2410C" stroke="#C2410C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <g class="edgeLabel" transform="translate(2192 875)"><rect width="146" height="30" rx="8"/><text x="73" y="20" text-anchor="middle">creates streams</text></g>
+</g>
+<g data-from="Uni" data-to="Multi">
+  <path class="edge dashed" d="M750 685 L1850 685" stroke="#475569"/>
+<polygon points="1838,691 1850,685 1838,679" fill="#475569" stroke="#475569" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <g class="edgeLabel" transform="translate(1053 649)"><rect width="234" height="30" rx="8"/><text x="117" y="20" text-anchor="middle">different item cardinality</text></g>
+</g>
+</svg>

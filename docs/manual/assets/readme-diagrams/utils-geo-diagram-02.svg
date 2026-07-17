@@ -1,0 +1,340 @@
+<svg xmlns="http://www.w3.org/2000/svg" data-intent="Explain the current utils/geo class structure from source-backed class relationships." data-evidence="utils/geo/README.md; utils/geo/src/main/kotlin/io/bluetape4k/geocode/Geocode.kt; utils/geo/src/main/kotlin/io/bluetape4k/geocode/Address.kt; utils/geo/src/main/kotlin/io/bluetape4k/geocode/GeocodeAddressFinder.kt; utils/geo/src/main/kotlin/io/bluetape4k/geocode/SuspendGeocodeAddressFinder.kt; utils/geo/src/main/kotlin/io/bluetape4k/geocode/google/GoogleAddressFinder.kt; utils/geo/src/main/kotlin/io/bluetape4k/geocode/google/GoogleAddress.kt; utils/geo/src/main/kotlin/io/bluetape4k/geocode/google/GoogleGeoService.kt; utils/geo/src/main/kotlin/io/bluetape4k/geocode/bing/BingAddressFinder.kt; utils/geo/src/main/kotlin/io/bluetape4k/geocode/bing/BingAddress.kt; utils/geo/src/main/kotlin/io/bluetape4k/geocode/bing/BingMapService.kt; utils/geo/src/main/kotlin/io/bluetape4k/geocode/bing/BingMapModel.kt; utils/geo/src/main/kotlin/io/bluetape4k/geohash/GeoHash.kt; utils/geo/src/main/kotlin/io/bluetape4k/geohash/WGS84Point.kt; utils/geo/src/main/kotlin/io/bluetape4k/geohash/BoundingBox.kt; utils/geo/src/main/kotlin/io/bluetape4k/geohash/queries/GeoHashQuery.kt; utils/geo/src/main/kotlin/io/bluetape4k/geohash/queries/GeoHashBoundingBoxQuery.kt; utils/geo/src/main/kotlin/io/bluetape4k/geohash/queries/GeoHashCircleQuery.kt; utils/geo/src/main/kotlin/io/bluetape4k/geoip2/Geoip.kt; utils/geo/src/main/kotlin/io/bluetape4k/geoip2/finder/GeoipFinder.kt; utils/geo/src/main/kotlin/io/bluetape4k/geoip2/finder/GeoipCityFinder.kt; utils/geo/src/main/kotlin/io/bluetape4k/geoip2/finder/GeoipCountryFinder.kt; utils/geo/src/main/kotlin/io/bluetape4k/geoip2/Address.kt; utils/geo/src/main/kotlin/io/bluetape4k/geoip2/GeoLocation.kt" width="3460" height="2220" viewBox="0 0 3460 2220" role="img" aria-label="Geo Class Structure">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10" /></filter>
+
+  <marker id="open-slate" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="inherit-slate" markerWidth="24" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 20 11 L 3 19 Z" fill="#FFFFFF" stroke="#64748B" stroke-width="2" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+
+  <marker id="open-blue" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#1D4ED8" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="inherit-blue" markerWidth="24" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 20 11 L 3 19 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+
+  <marker id="open-teal" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#0F766E" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="inherit-teal" markerWidth="24" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 20 11 L 3 19 Z" fill="#FFFFFF" stroke="#0D9488" stroke-width="2" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+
+  <marker id="open-green" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="inherit-green" markerWidth="24" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 20 11 L 3 19 Z" fill="#FFFFFF" stroke="#16A34A" stroke-width="2" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+
+  <marker id="open-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19" fill="none" stroke="#C2410C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="inherit-amber" markerWidth="24" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 20 11 L 3 19 Z" fill="#FFFFFF" stroke="#EA580C" stroke-width="2" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+
+  <marker id="open-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19" fill="none" stroke="#BE185D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="inherit-pink" markerWidth="24" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 20 11 L 3 19 Z" fill="#FFFFFF" stroke="#DB2777" stroke-width="2" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+
+  <marker id="open-violet" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#6D28D9" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+  <marker id="inherit-violet" markerWidth="24" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 20 11 L 3 19 Z" fill="#FFFFFF" stroke="#7C3AED" stroke-width="2" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}
+    .frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:58px;fill:#0F172A}
+    .subtitle{font-family:"Comic Mono";font-size:17px;fill:#475569}
+    .column{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}
+    .columnTitle{font-family:"Architects Daughter";font-size:30px;fill:#0F172A;paint-order:stroke;stroke:#FFFFFF;stroke-width:5px;stroke-linejoin:round}
+    .columnNote{font-family:"Comic Mono";font-size:15px;fill:#64748B}
+    .classBox{filter:url(#shadow);stroke-width:2}
+    .kind{font-family:"Comic Mono";font-size:14px;fill:#475569;font-weight:700}
+    .classTitle{font-family:"Architects Daughter";font-size:28px;fill:#0F172A}
+    .member{font-family:"Comic Mono";font-size:15px;fill:#334155}
+    .divider{stroke-width:1;opacity:.38}
+    .edge{fill:none;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}
+    .dashed{stroke-dasharray:10 10}
+    .edgeLabelBg{fill:#F8FAFC;stroke:#CBD5E1;stroke-width:1;opacity:.94}
+    .edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#334155;font-weight:700}
+  </style>
+</defs>
+<rect class="canvas" width="3460" height="2220" />
+<rect class="frame" x="36" y="30" width="3388" height="2160" rx="8" />
+<text class="title" x="76" y="100">Geo Class Structure</text>
+<text class="subtitle" x="80" y="134">Current source relationships: inheritance, implementation, dependency, and contained value objects. No icons in this class diagram.</text>
+<g>
+  <rect class="column" x="80" y="215" width="1020" height="1840" rx="8" />
+  <text class="columnTitle" x="104" y="255">GeoHash model and queries</text>
+  <text class="columnNote" x="104" y="287">Value model plus query implementations for spatial search.</text>
+</g>
+<g>
+  <rect class="column" x="1220" y="215" width="1020" height="1840" rx="8" />
+  <text class="columnTitle" x="1244" y="255">Geocode reverse lookup</text>
+  <text class="columnNote" x="1244" y="287">Geocode value enters sync/suspend Google and Bing finders.</text>
+</g>
+<g>
+  <rect class="column" x="2360" y="215" width="1020" height="1840" rx="8" />
+  <text class="columnTitle" x="2384" y="255">GeoIP2 database lookup</text>
+  <text class="columnNote" x="2384" y="287">Local MaxMind readers feed city/country address mapping.</text>
+</g>
+<path class="edge" data-from="GeoHash" data-to="WGS84Point" d="M445 660 L445 528" stroke="#15803D" />
+
+<polyline points="453,546 445,528 437,546" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="GeoHash" data-to="BoundingBox" d="M735 660 L735 528" stroke="#15803D" />
+
+<polyline points="743,546 735,528 727,546" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoHashQuery" data-to="GeoHash" d="M 300 1155 L 219 1155 Q 205 1155 205 1141 L 205 794 Q 205 780 219 780 L 300 780" stroke="#0F766E" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="282,788 300,780 282,772" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoHashQuery" data-to="WGS84Point" d="M 300 1105 L 184 1105 Q 170 1105 170 1091 L 170 450 Q 170 440 160 440 L 145 440" stroke="#15803D" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="163,432 145,440 163,448" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoHashCircleQuery" data-to="GeoHashQuery" d="M 350 1435 L 350 1359 Q 350 1345 364 1345 L 494 1345 Q 508 1345 508 1331 L 508 1275" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="517,1296 508,1275 499,1296" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoHashBoundingBoxQuery" data-to="GeoHashQuery" d="M 845 1435 L 845 1359 Q 845 1345 831 1345 L 686 1345 Q 672 1345 672 1331 L 672 1275" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="681,1296 672,1275 663,1296" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoHashCircleQuery" data-to="GeoHashBoundingBoxQuery" d="M565 1550 L630 1550" stroke="#0F766E" />
+
+<polyline points="612,1558 630,1550 612,1542" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="GeoHashBoundingBoxQuery" data-to="BoundingBox" d="M 845 1435 L 845 1359 Q 845 1345 859 1345 L 1016 1345 Q 1030 1345 1030 1331 L 1030 510 Q 1030 500 1040 500 L 1040 500" stroke="#15803D" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="1022,508 1040,500 1022,492" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="GeocodeAddressFinder" data-to="SuspendGeocodeAddressFinder" d="M1730 950 L1730 844" stroke="#C2410C" />
+<polygon points="1739,865 1730,844 1721,865" fill="#FFFFFF" stroke="#C2410C" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeocodeAddressFinder" data-to="Geocode" d="M1510 950 L1510 580" stroke="#15803D" />
+
+<polyline points="1518,598 1510,580 1502,598" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GoogleAddressFinder" data-to="GeocodeAddressFinder" d="M 1480 1245 L 1480 1189 Q 1480 1175 1494 1175 L 1581 1175 Q 1595 1175 1595 1161 L 1595 1104" stroke="#BE185D" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="1604,1125 1595,1104 1586,1125" fill="#FFFFFF" stroke="#BE185D" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="BingAddressFinder" data-to="GeocodeAddressFinder" d="M 1980 1245 L 1980 1189 Q 1980 1175 1966 1175 L 1879 1175 Q 1865 1175 1865 1161 L 1865 1104" stroke="#BE185D" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="1874,1125 1865,1104 1856,1125" fill="#FFFFFF" stroke="#BE185D" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GoogleAddressFinder" data-to="GoogleAddress" d="M1480 1477 L1480 1875" stroke="#6D28D9" />
+
+<polyline points="1472,1857 1480,1875 1488,1857" fill="none" stroke="#6D28D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="BingAddressFinder" data-to="BingAddress" d="M1980 1477 L1980 1875" stroke="#6D28D9" />
+
+<polyline points="1972,1857 1980,1875 1988,1857" fill="none" stroke="#6D28D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="GoogleAddress" data-to="GeoAddress" d="M1480 1875 L1480 1799" stroke="#6D28D9" />
+<polygon points="1489,1820 1480,1799 1471,1820" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="BingAddress" data-to="GeoAddress" d="M1980 1875 L1980 1799" stroke="#6D28D9" />
+<polygon points="1989,1820 1980,1799 1971,1820" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoipCityFinder" data-to="GeoipFinder" d="M 2625 1010 L 2625 924 Q 2625 910 2639 910 L 2681 910 Q 2695 910 2695 896 L 2695 844" stroke="#15803D" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="2704,865 2695,844 2686,865" fill="#FFFFFF" stroke="#15803D" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoipCountryFinder" data-to="GeoipFinder" d="M 3115 1010 L 3115 924 Q 3115 910 3101 910 L 3059 910 Q 3045 910 3045 896 L 3045 844" stroke="#15803D" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="3054,865 3045,844 3036,865" fill="#FFFFFF" stroke="#15803D" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoipCityFinder" data-to="Geoip" d="M2625 1010 L2625 555" stroke="#475569" />
+
+<polyline points="2633,573 2625,555 2617,573" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoipCountryFinder" data-to="Geoip" d="M3115 1010 L3115 555" stroke="#475569" />
+
+<polyline points="3123,573 3115,555 3107,573" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoipCityFinder" data-to="GeoipAddress" d="M2625 1215 L2625 1390" stroke="#1D4ED8" />
+
+<polyline points="2617,1372 2625,1390 2633,1372" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="GeoipCountryFinder" data-to="GeoipAddress" d="M3115 1215 L3115 1390" stroke="#1D4ED8" />
+
+<polyline points="3107,1372 3115,1390 3123,1372" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="GeoipAddress" data-to="GeoLocation" d="M2870 1628 L2870 1775" stroke="#0F766E" />
+
+<polyline points="2862,1757 2870,1775 2878,1757" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<g id="WGS84Point">
+  <rect class="classBox" x="145" y="350" width="390" height="178" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="kind" x="340" y="380" text-anchor="middle">data class</text>
+  <text class="classTitle" x="340" y="414" text-anchor="middle">WGS84Point</text>
+  <path class="divider" d="M145 436H535" stroke="#15803D" />
+  <text class="member" x="167" y="462">latitude: Double</text>
+<text class="member" x="167" y="485">longitude: Double</text>
+
+
+</g>
+<g id="BoundingBox">
+  <rect class="classBox" x="650" y="350" width="390" height="178" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="kind" x="845" y="380" text-anchor="middle">data class</text>
+  <text class="classTitle" x="845" y="414" text-anchor="middle">BoundingBox</text>
+  <path class="divider" d="M650 436H1040" stroke="#15803D" />
+  <text class="member" x="672" y="462">south/north latitude</text>
+<text class="member" x="672" y="485">west/east longitude</text>
+<text class="member" x="672" y="508">contains(), intersects()</text>
+
+
+</g>
+<g id="GeoHash">
+  <rect class="classBox" x="300" y="660" width="580" height="238" rx="8" fill="#F0FDFA" stroke="#0D9488" />
+  <text class="kind" x="590" y="690" text-anchor="middle">class</text>
+  <text class="classTitle" x="590" y="724" text-anchor="middle">GeoHash</text>
+  <path class="divider" d="M300 746H880" stroke="#0F766E" />
+  <text class="member" x="322" y="772">bits: Long</text>
+<text class="member" x="322" y="795">point: WGS84Point</text>
+<text class="member" x="322" y="818">boundingBox: BoundingBox</text>
+<text class="member" x="322" y="841">significantBits: Byte</text>
+  <path class="divider" d="M300 866H880" stroke="#0F766E" />
+  <text class="member" x="322" y="888">toBase32(), next(), prev(), ord()</text>
+<text class="member" x="322" y="911">contains(point), within(hash)</text>
+</g>
+<g id="GeoHashQuery">
+  <rect class="classBox" x="300" y="1035" width="580" height="240" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="kind" x="590" y="1065" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="590" y="1099" text-anchor="middle">GeoHashQuery</text>
+  <path class="divider" d="M300 1121H880" stroke="#1D4ED8" />
+
+  <path class="divider" d="M300 1129H880" stroke="#1D4ED8" />
+  <text class="member" x="322" y="1151">contains(hash: GeoHash): Boolean</text>
+<text class="member" x="322" y="1174">contains(point: WGS84Point): Boolean</text>
+<text class="member" x="322" y="1197">getSearchHashes(): List&lt;GeoHash&gt;</text>
+<text class="member" x="322" y="1220">getWktBox(): String</text>
+</g>
+<g id="GeoHashCircleQuery">
+  <rect class="classBox" x="135" y="1435" width="430" height="236" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="kind" x="350" y="1465" text-anchor="middle">class</text>
+  <text class="classTitle" x="350" y="1499" text-anchor="middle">GeoHashCircleQuery</text>
+  <path class="divider" d="M135 1521H565" stroke="#1D4ED8" />
+  <text class="member" x="157" y="1547">center: WGS84Point</text>
+<text class="member" x="157" y="1570">radius: Double</text>
+<text class="member" x="157" y="1593">query: GeoHashBoundingBoxQuery</text>
+  <path class="divider" d="M135 1618H565" stroke="#1D4ED8" />
+  <text class="member" x="157" y="1640">validates radius</text>
+<text class="member" x="157" y="1663">delegates contains/search/WKT</text>
+</g>
+<g id="GeoHashBoundingBoxQuery">
+  <rect class="classBox" x="630" y="1435" width="430" height="236" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="kind" x="845" y="1465" text-anchor="middle">class</text>
+  <text class="classTitle" x="845" y="1499" text-anchor="middle">GeoHashBoundingBoxQuery</text>
+  <path class="divider" d="M630 1521H1060" stroke="#1D4ED8" />
+  <text class="member" x="652" y="1547">bbox: BoundingBox</text>
+<text class="member" x="652" y="1570">searchHashes: ArrayList&lt;GeoHash&gt;</text>
+<text class="member" x="652" y="1593">boundingBox: BoundingBox?</text>
+  <path class="divider" d="M630 1618H1060" stroke="#1D4ED8" />
+  <text class="member" x="652" y="1640">buildSearchHashes()</text>
+<text class="member" x="652" y="1663">expandSearch(centerHash, bbox)</text>
+</g>
+<g id="Geocode">
+  <rect class="classBox" x="1415" y="350" width="630" height="230" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="kind" x="1730" y="380" text-anchor="middle">data class</text>
+  <text class="classTitle" x="1730" y="414" text-anchor="middle">Geocode</text>
+  <path class="divider" d="M1415 436H2045" stroke="#15803D" />
+  <text class="member" x="1437" y="462">latitude: BigDecimal</text>
+<text class="member" x="1437" y="485">longitude: BigDecimal</text>
+  <path class="divider" d="M1415 510H2045" stroke="#15803D" />
+  <text class="member" x="1437" y="532">parse("lat,lon")</text>
+<text class="member" x="1437" y="555">round(scale, roundingMode)</text>
+<text class="member" x="1437" y="578">toLatLng() extension</text>
+</g>
+<g id="SuspendGeocodeAddressFinder">
+  <rect class="classBox" x="1360" y="690" width="740" height="154" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="kind" x="1730" y="720" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="1730" y="754" text-anchor="middle">SuspendGeocodeAddressFinder</text>
+  <path class="divider" d="M1360 776H2100" stroke="#C2410C" />
+
+  <path class="divider" d="M1360 784H2100" stroke="#C2410C" />
+  <text class="member" x="1382" y="806">suspendFindAddress(geocode, language): Address?</text>
+</g>
+<g id="GeocodeAddressFinder">
+  <rect class="classBox" x="1360" y="950" width="740" height="154" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="kind" x="1730" y="980" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="1730" y="1014" text-anchor="middle">GeocodeAddressFinder</text>
+  <path class="divider" d="M1360 1036H2100" stroke="#C2410C" />
+
+  <path class="divider" d="M1360 1044H2100" stroke="#C2410C" />
+  <text class="member" x="1382" y="1066">findAddress(geocode, language): Address?</text>
+</g>
+<g id="GoogleAddressFinder">
+  <rect class="classBox" x="1265" y="1245" width="430" height="232" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+  <text class="kind" x="1480" y="1275" text-anchor="middle">class</text>
+  <text class="classTitle" x="1480" y="1309" text-anchor="middle">GoogleAddressFinder</text>
+  <path class="divider" d="M1265 1331H1695" stroke="#BE185D" />
+  <text class="member" x="1287" y="1357">context: GeoApiContext</text>
+<text class="member" x="1287" y="1380">apiKey from GoogleGeoService</text>
+  <path class="divider" d="M1265 1405H1695" stroke="#BE185D" />
+  <text class="member" x="1287" y="1427">GeocodingApi.reverseGeocode()</text>
+<text class="member" x="1287" y="1450">callback API wrapped for suspend</text>
+</g>
+<g id="BingAddressFinder">
+  <rect class="classBox" x="1765" y="1245" width="430" height="232" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+  <text class="kind" x="1980" y="1275" text-anchor="middle">class</text>
+  <text class="classTitle" x="1980" y="1309" text-anchor="middle">BingAddressFinder</text>
+  <path class="divider" d="M1765 1331H2195" stroke="#BE185D" />
+  <text class="member" x="1787" y="1357">client: BingMapApi</text>
+<text class="member" x="1787" y="1380">asyncClient: BingMapCoroutineApi</text>
+  <path class="divider" d="M1765 1405H2195" stroke="#BE185D" />
+  <text class="member" x="1787" y="1427">client.locations()</text>
+<text class="member" x="1787" y="1450">Location.toBingAddress()</text>
+</g>
+<g id="GeoAddress">
+  <rect class="classBox" x="1360" y="1625" width="740" height="174" rx="8" fill="#F5F3FF" stroke="#7C3AED" />
+  <text class="kind" x="1730" y="1655" text-anchor="middle">abstract class</text>
+  <text class="classTitle" x="1730" y="1689" text-anchor="middle">geocode.Address</text>
+  <path class="divider" d="M1360 1711H2100" stroke="#6D28D9" />
+  <text class="member" x="1382" y="1737">country: String?</text>
+<text class="member" x="1382" y="1760">city: String?</text>
+  <path class="divider" d="M1360 1785H2100" stroke="#6D28D9" />
+  <text class="member" x="1382" y="1807">value equality by country + city</text>
+</g>
+<g id="GoogleAddress">
+  <rect class="classBox" x="1265" y="1875" width="430" height="140" rx="8" fill="#F5F3FF" stroke="#7C3AED" />
+  <text class="kind" x="1480" y="1905" text-anchor="middle">class</text>
+  <text class="classTitle" x="1480" y="1939" text-anchor="middle">GoogleAddress</text>
+  <path class="divider" d="M1265 1961H1695" stroke="#6D28D9" />
+  <text class="member" x="1287" y="1987">placeId, detail, zip</text>
+<text class="member" x="1287" y="2010">formattedAddress</text>
+
+
+</g>
+<g id="BingAddress">
+  <rect class="classBox" x="1765" y="1875" width="430" height="140" rx="8" fill="#F5F3FF" stroke="#7C3AED" />
+  <text class="kind" x="1980" y="1905" text-anchor="middle">class</text>
+  <text class="classTitle" x="1980" y="1939" text-anchor="middle">BingAddress</text>
+  <path class="divider" d="M1765 1961H2195" stroke="#6D28D9" />
+  <text class="member" x="1787" y="1987">name, detail, zip</text>
+<text class="member" x="1787" y="2010">formattedAddress</text>
+
+
+</g>
+<g id="Geoip">
+  <rect class="classBox" x="2520" y="350" width="700" height="205" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="kind" x="2870" y="380" text-anchor="middle">object</text>
+  <text class="classTitle" x="2870" y="414" text-anchor="middle">Geoip</text>
+  <path class="divider" d="M2520 436H3220" stroke="#475569" />
+  <text class="member" x="2542" y="462">asnDatabase: DatabaseReader</text>
+<text class="member" x="2542" y="485">cityDatabase: DatabaseReader</text>
+<text class="member" x="2542" y="508">countryDatabase: DatabaseReader</text>
+  <path class="divider" d="M2520 533H3220" stroke="#475569" />
+  <text class="member" x="2542" y="555">lazy readers from bundled mmdb resources</text>
+</g>
+<g id="GeoipFinder">
+  <rect class="classBox" x="2520" y="690" width="700" height="154" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="kind" x="2870" y="720" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="2870" y="754" text-anchor="middle">GeoipFinder</text>
+  <path class="divider" d="M2520 776H3220" stroke="#15803D" />
+
+  <path class="divider" d="M2520 784H3220" stroke="#15803D" />
+  <text class="member" x="2542" y="806">findAddress(ipAddress: InetAddress): Address?</text>
+</g>
+<g id="GeoipCityFinder">
+  <rect class="classBox" x="2410" y="1010" width="430" height="205" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="kind" x="2625" y="1040" text-anchor="middle">class</text>
+  <text class="classTitle" x="2625" y="1074" text-anchor="middle">GeoipCityFinder</text>
+  <path class="divider" d="M2410 1096H2840" stroke="#15803D" />
+
+  <path class="divider" d="M2410 1104H2840" stroke="#15803D" />
+  <text class="member" x="2432" y="1126">Geoip.cityDatabase.tryFindCity(ip)</text>
+<text class="member" x="2432" y="1149">Address.fromCity(ip, response)</text>
+</g>
+<g id="GeoipCountryFinder">
+  <rect class="classBox" x="2900" y="1010" width="430" height="205" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="kind" x="3115" y="1040" text-anchor="middle">class</text>
+  <text class="classTitle" x="3115" y="1074" text-anchor="middle">GeoipCountryFinder</text>
+  <path class="divider" d="M2900 1096H3330" stroke="#15803D" />
+
+  <path class="divider" d="M2900 1104H3330" stroke="#15803D" />
+  <text class="member" x="2922" y="1126">Geoip.countryDatabase.tryFindCountry(ip)</text>
+<text class="member" x="2922" y="1149">Address.fromCountry(ip, response)</text>
+</g>
+<g id="GeoipAddress">
+  <rect class="classBox" x="2520" y="1390" width="700" height="238" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="kind" x="2870" y="1420" text-anchor="middle">data class</text>
+  <text class="classTitle" x="2870" y="1454" text-anchor="middle">geoip2.Address</text>
+  <path class="divider" d="M2520 1476H3220" stroke="#1D4ED8" />
+  <text class="member" x="2542" y="1502">ipAddress, city, country, continent</text>
+<text class="member" x="2542" y="1525">geoLocation: GeoLocation?</text>
+<text class="member" x="2542" y="1548">countryIsoCode: String?</text>
+<text class="member" x="2542" y="1571">traits: Traits?</text>
+  <path class="divider" d="M2520 1596H3220" stroke="#1D4ED8" />
+  <text class="member" x="2542" y="1618">fromCity(ip, CityResponse)</text>
+<text class="member" x="2542" y="1641">fromCountry(ip, CountryResponse)</text>
+</g>
+<g id="GeoLocation">
+  <rect class="classBox" x="2520" y="1775" width="700" height="205" rx="8" fill="#F0FDFA" stroke="#0D9488" />
+  <text class="kind" x="2870" y="1805" text-anchor="middle">data class</text>
+  <text class="classTitle" x="2870" y="1839" text-anchor="middle">GeoLocation</text>
+  <path class="divider" d="M2520 1861H3220" stroke="#0F766E" />
+  <text class="member" x="2542" y="1887">latitude: Double</text>
+<text class="member" x="2542" y="1910">longitude: Double</text>
+<text class="member" x="2542" y="1933">timeZone, accuracyRadius</text>
+  <path class="divider" d="M2520 1958H3220" stroke="#0F766E" />
+  <text class="member" x="2542" y="1980">fromLocation(location)</text>
+</g>
+</svg>

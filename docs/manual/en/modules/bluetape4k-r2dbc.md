@@ -137,6 +137,37 @@ This manual targets the `bluetape4k-projects` 1.11.0 tag. It does not describe t
 
 The 1.11.0 README mentions APIs that are absent from the release source: `sqlInsert`, `sqlUpdate`, `sqlDelete`, `awaitGeneratedKey`, `awaitSingleAsMap`, `awaitCount`, `awaitExists`, and `awaitList`. They are intentionally excluded; this manual uses only APIs present in release source and tests.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### Extension Function API Overview diagram
+
+[![Extension Function API Overview diagram](../../assets/readme-diagrams/data-r2dbc-diagram-01.png)](../../assets/readme-diagrams/data-r2dbc-diagram-01.svg)
+
+_Release README: [`data/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.md)_
+
+### Core API Class Structure diagram
+
+[![Core API Class Structure diagram](../../assets/readme-diagrams/data-r2dbc-diagram-02.png)](../../assets/readme-diagrams/data-r2dbc-diagram-02.svg)
+
+_Release README: [`data/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.md)_
+
+### JDBC vs R2DBC Comparison diagram
+
+[![JDBC vs R2DBC Comparison diagram](../../assets/readme-diagrams/data-r2dbc-diagram-03.png)](../../assets/readme-diagrams/data-r2dbc-diagram-03.svg)
+
+_Release README: [`data/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.md)_
+
+### R2DBC Query Execution Flow diagram
+
+[![R2DBC Query Execution Flow diagram](../../assets/readme-diagrams/data-r2dbc-sequence-01.png)](../../assets/readme-diagrams/data-r2dbc-sequence-01.svg)
+
+_Release README: [`data/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources and tests {#sources}
 
 - [`R2dbcClient.kt`](../../../../data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/R2dbcClient.kt)

@@ -128,6 +128,31 @@ No dedicated workshop repository is registered yet. The linked `JdbcTemplateTest
 
 This manual targets the source published by the `bluetape4k-projects` 1.11.0 tag. APIs added to `develop` after the release are excluded. The module does not provide schema migration, a query DSL, entity dirty checking, or a coroutine-friendly non-blocking database driver.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### Extension Function API Overview diagram
+
+[![Extension Function API Overview diagram](../../assets/readme-diagrams/data-jdbc-diagram-01.png)](../../assets/readme-diagrams/data-jdbc-diagram-01.svg)
+
+_Release README: [`data/jdbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/jdbc/README.md)_
+
+### Core API Structure diagram
+
+[![Core API Structure diagram](../../assets/readme-diagrams/data-jdbc-diagram-02.png)](../../assets/readme-diagrams/data-jdbc-diagram-02.svg)
+
+_Release README: [`data/jdbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/jdbc/README.md)_
+
+### JDBC Query Execution Flow diagram
+
+[![JDBC Query Execution Flow diagram](../../assets/readme-diagrams/data-jdbc-sequence-01.png)](../../assets/readme-diagrams/data-jdbc-sequence-01.svg)
+
+_Release README: [`data/jdbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/jdbc/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources and tests {#sources}
 
 - [`DataSourceExtensions.kt`](../../../../data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/DataSourceExtensions.kt)

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="900" viewBox="0 0 1700 900" role="img" aria-label="bluetape4k-virtualthread-jdk25 implementation structure">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10" /></filter>
+  <marker id="usesBlue" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
+  <marker id="usesAmber" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 14 7 L 0 14" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .section{font-family:"Architects Daughter";font-size:24px;fill:#334155}.card{filter:url(#shadow);stroke-width:1.8}.divider{stroke:#CBD5E1;stroke-width:1}
+    .className{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.stereo{font-family:"Comic Mono";font-size:12px;fill:#64748B}.member{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .uses{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7}.solid{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+</defs>
+<rect class="canvas" width="1700" height="900" />
+<rect class="frame" x="34" y="30" width="1632" height="840" rx="8" />
+<text class="title" x="72" y="84">bluetape4k-virtualthread-jdk25</text>
+<text class="subtitle" x="76" y="116">JDK 25 module wins runtime selection with priority 25 and adapts StructuredTaskScope.open Joiners.</text>
+
+<text class="section" x="100" y="178">Runtime service entry</text>
+<text class="section" x="860" y="178">Structured scope service entry</text>
+<g id="serviceRuntime"><rect class="card" x="145" y="210" width="470" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB" /><text class="className" x="380" y="245" text-anchor="middle" dominant-baseline="middle">VirtualThreadRuntime service</text><text class="member" x="380" y="272" text-anchor="middle" dominant-baseline="middle">loads Jdk25VirtualThreadRuntime</text></g>
+<g id="serviceProvider"><rect class="card" x="840" y="210" width="650" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488" /><text class="className" x="1165" y="245" text-anchor="middle" dominant-baseline="middle">StructuredTaskScopeProvider service</text><text class="member" x="1165" y="272" text-anchor="middle" dominant-baseline="middle">loads Jdk25StructuredTaskScopeProvider</text></g>
+
+<g id="runtime"><rect class="card" x="160" y="400" width="440" height="132" rx="8" fill="#ECFDF5" stroke="#16A34A" /><text class="stereo" x="380" y="428" text-anchor="middle">final class</text><text class="className" x="380" y="458" text-anchor="middle">Jdk25VirtualThreadRuntime</text><line class="divider" x1="180" y1="476" x2="580" y2="476" /><text class="member" x="180" y="502">runtimeName = jdk25, priority = 25</text><text class="member" x="180" y="524">isSupported when Java feature &gt;= 25</text></g>
+<g id="executor"><rect class="card" x="160" y="660" width="440" height="132" rx="8" fill="#FFF7ED" stroke="#D97706" /><text class="stereo" x="380" y="688" text-anchor="middle">JDK 25 virtual thread API</text><text class="className" x="380" y="718" text-anchor="middle">Virtual thread executor</text><line class="divider" x1="180" y1="736" x2="580" y2="736" /><text class="member" x="180" y="762">Thread.ofVirtual().name(prefix, 0)</text><text class="member" x="180" y="784">executor prefix vt25-</text></g>
+
+<g id="provider"><rect class="card" x="890" y="390" width="580" height="160" rx="8" fill="#F0FDFA" stroke="#0D9488" /><text class="stereo" x="1180" y="418" text-anchor="middle">class</text><text class="className" x="1180" y="448" text-anchor="middle">Jdk25StructuredTaskScopeProvider</text><line class="divider" x1="910" y1="466" x2="1450" y2="466" /><text class="member" x="910" y="492">StructuredTaskScope.open(joiner, configure(name, factory))</text><text class="member" x="910" y="514">joinUntil uses interruptJoinUntil timeout bridge</text><text class="member" x="910" y="536">priority = 25, providerName = jdk25-structured-task-scope</text></g>
+
+<g id="all"><rect class="card" x="700" y="670" width="310" height="150" rx="8" fill="#FFF7ED" stroke="#D97706" /><text class="className" x="855" y="706" text-anchor="middle">withAll</text><line class="divider" x1="720" y1="724" x2="990" y2="724" /><text class="member" x="720" y="750">Joiner.awaitAllSuccessfulOrThrow()</text><text class="member" x="720" y="772">wraps Jdk25AllScope</text><text class="member" x="720" y="794">stores join failure for throwIfFailed</text></g>
+<g id="any"><rect class="card" x="1060" y="670" width="310" height="150" rx="8" fill="#EFF6FF" stroke="#2563EB" /><text class="className" x="1215" y="706" text-anchor="middle">withAny</text><line class="divider" x1="1080" y1="724" x2="1350" y2="724" /><text class="member" x="1080" y="750">Joiner.anySuccessfulResultOrThrow()</text><text class="member" x="1080" y="772">wraps Jdk25AnyScope</text><text class="member" x="1080" y="794">result maps join failure</text></g>
+<g id="supervised"><rect class="card" x="1420" y="670" width="220" height="150" rx="8" fill="#FDF2F8" stroke="#DB2777" /><text class="className" x="1530" y="706" text-anchor="middle">withSupervised</text><line class="divider" x1="1440" y1="724" x2="1620" y2="724" /><text class="member" x="1440" y="750">Joiner.awaitAll()</text><text class="member" x="1440" y="772">keeps failures</text><text class="member" x="1440" y="794">returns Result list</text></g>
+
+<path class="uses" d="M380 302 L380 400" stroke="#2563EB" />
+
+
+<polyline points="372,382 380,400 388,382" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="uses" d="M1165 302 L1165 390" stroke="#2563EB" />
+
+<polyline points="1157,372 1165,390 1173,372" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="solid" d="M380 532 L380 660" stroke="#D97706" />
+
+<polyline points="372,642 380,660 388,642" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="solid" d="M 1100 550 L 1100 596 Q 1100 610 1086 610 L 869 610 Q 855 610 855 624 L 855 670" stroke="#D97706" />
+
+<polyline points="847,652 855,670 863,652" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="solid" d="M1180 550 L1180 670" stroke="#D97706" />
+
+<polyline points="1172,652 1180,670 1188,652" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="solid" d="M 1260 550 L 1260 596 Q 1260 610 1274 610 L 1516 610 Q 1530 610 1530 624 L 1530 670" stroke="#D97706" />
+
+<polyline points="1522,652 1530,670 1538,652" fill="none" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+</svg>

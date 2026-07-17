@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1840" height="1240" viewBox="0 0 1840 1240" role="img" aria-labelledby="title desc">
+  <title id="title">bluetape4k-jackson3 class structure</title>
+  <desc id="desc">Class map of Jackson3 mapper defaults, serializer families, non-blocking parsers, and SimpleModule-based UUID, encryption, and masking extensions.</desc>
+  <defs>
+    <style>
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #263238; }
+      .subtitle, .member, .small, .footer, .label { font-family: "Comic Mono"; fill: #36464f; }
+      .subtitle { font-size: 18px; }
+      .panel-title, .class-title { font-family: "Architects Daughter"; fill: #1f3138; }
+      .panel-title { font-size: 25px; }
+      .class-title { font-size: 21px; }
+      .member { font-size: 14px; }
+      .small { font-size: 13px; }
+      .label { font-size: 12px; fill: #546a73; }
+      .footer { font-size: 14px; fill: #60727d; }
+      .frame { fill: #fbfcf8; stroke: #41545d; stroke-width: 3; }
+      .core-panel { fill: #eef6f8; stroke: #b2cbd2; stroke-width: 2; }
+      .format-panel { fill: #f4f7ef; stroke: #bfd0ae; stroke-width: 2; }
+      .feature-panel { fill: #f7f4ed; stroke: #d0c4ad; stroke-width: 2; }
+      .rule-panel { fill: #ffffff; stroke: #c6d2d5; stroke-width: 2; }
+      .api { fill: #ffffff; stroke: #4f6c77; stroke-width: 2; }
+      .mapper { fill: #f7fbff; stroke: #6c86a1; stroke-width: 2; }
+      .serializer { fill: #fffdf7; stroke: #8a7447; stroke-width: 2; }
+      .format { fill: #fdfefe; stroke: #5d7b63; stroke-width: 2; }
+      .async { fill: #fff8ec; stroke: #b48748; stroke-width: 2; }
+      .module { fill: #fffafa; stroke: #b65f68; stroke-width: 2; }
+      .sep { stroke: #d6dee2; stroke-width: 1.5; }
+      .extends { fill: none; stroke: #263238; stroke-width: 1.9; marker-end: url(#hollowDark); }
+      .inheritBus { fill: none; stroke: #263238; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+      .realize { fill: none; stroke: #455a64; stroke-width: 1.7; stroke-dasharray: 7 5; marker-end: url(#hollowSlate); }
+      .usesBlue { fill: none; stroke: #4b74a5; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowBlue); }
+      .usesGreen { fill: none; stroke: #5d7b63; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowGreen); }
+      .usesGold { fill: none; stroke: #a2743d; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowGold); }
+      .usesRed { fill: none; stroke: #b65f68; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowRed); }
+      .flowBlue { fill: none; stroke: #4b74a5; stroke-width: 2; marker-end: url(#arrowBlue); }
+    </style>
+    <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="hollowDark" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#263238" stroke-width="1.7" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="hollowSlate" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#455a64" stroke-width="1.7" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+  </defs>
+
+  <rect x="24" y="24" width="1792" height="1192" rx="20" class="frame"/>
+  <text id="main-title" x="920" y="78" text-anchor="middle" class="title">bluetape4k-jackson3 Class Structure</text>
+  <text x="920" y="108" text-anchor="middle" class="subtitle">Jackson3 replaces the package surface with tools.jackson.* while keeping mapper, serializer, streaming, and annotation extension roles explicit.</text>
+
+  <rect x="72" y="150" width="520" height="858" rx="16" class="core-panel"/>
+  <text x="102" y="190" class="panel-title">Core mapper and JSON adapter</text>
+  <text x="102" y="218" class="small">JsonMapper DSL defaults plus the bluetape4k JsonSerializer bridge.</text>
+
+  <rect x="138" y="272" width="368" height="132" rx="7" class="mapper"/>
+  <text x="322" y="304" text-anchor="middle" class="class-title">Jackson</text>
+  <line x1="138" y1="326" x2="506" y2="326" class="sep"/>
+  <text x="162" y="352" class="member">defaultJsonMapper: JsonMapper</text>
+  <text x="162" y="374" class="member">prettyJsonWriter: ObjectWriter</text>
+  <text x="162" y="396" class="member">no typed default mapper wrapper</text>
+
+  <rect x="138" y="482" width="368" height="128" rx="7" class="mapper"/>
+  <text x="322" y="514" text-anchor="middle" class="class-title">JsonMapperSupport</text>
+  <line x1="138" y1="536" x2="506" y2="536" class="sep"/>
+  <text x="162" y="562" class="member">jsonMapper { builder block }</text>
+  <text x="162" y="584" class="member">readValueOrNull / writeAsBytes</text>
+
+  <rect x="138" y="690" width="368" height="126" rx="7" class="api"/>
+  <text x="322" y="722" text-anchor="middle" class="class-title">JsonSerializer</text>
+  <line x1="138" y1="744" x2="506" y2="744" class="sep"/>
+  <text x="162" y="770" class="member">+ serialize(graph): ByteArray</text>
+  <text x="162" y="792" class="member">+ deserialize(bytes, clazz)</text>
+
+  <rect x="138" y="874" width="368" height="112" rx="7" class="serializer"/>
+  <text x="322" y="906" text-anchor="middle" class="class-title">JacksonSerializer</text>
+  <line x1="138" y1="928" x2="506" y2="928" class="sep"/>
+  <text x="162" y="954" class="member">uses ObjectMapper.writeAsBytes</text>
+  <text x="162" y="976" class="member">wraps failures as JsonSerializationException</text>
+
+  <rect x="654" y="150" width="540" height="858" rx="16" class="format-panel"/>
+  <text x="684" y="190" class="panel-title">Format serializer families</text>
+  <text x="684" y="218" class="small">Compile-only format APIs become mapper/factory/serializer singletons.</text>
+
+  <rect x="732" y="272" width="384" height="132" rx="7" class="mapper"/>
+  <text x="924" y="304" text-anchor="middle" class="class-title">ObjectMapper extensions</text>
+  <line x1="732" y1="326" x2="1116" y2="326" class="sep"/>
+  <text x="756" y="352" class="member">tools.jackson.databind.ObjectMapper</text>
+  <text x="756" y="374" class="member">registeredModuleNames / ids helpers</text>
+
+  <rect x="678" y="494" width="228" height="144" rx="7" class="format"/>
+  <text x="792" y="526" text-anchor="middle" class="class-title">JacksonBinary</text>
+  <line x1="678" y1="548" x2="906" y2="548" class="sep"/>
+  <text x="702" y="574" class="member">CBOR, ION, Smile</text>
+  <text x="702" y="596" class="member">mapper + factory</text>
+  <text x="702" y="618" class="member">format serializers</text>
+
+  <rect x="942" y="494" width="228" height="144" rx="7" class="format"/>
+  <text x="1056" y="526" text-anchor="middle" class="class-title">JacksonText</text>
+  <line x1="942" y1="548" x2="1170" y2="548" class="sep"/>
+  <text x="966" y="574" class="member">CSV, Props, TOML, YAML</text>
+  <text x="966" y="596" class="member">mapper + factory</text>
+  <text x="966" y="618" class="member">text serializers</text>
+
+  <rect x="678" y="762" width="228" height="112" rx="7" class="serializer"/>
+  <text x="792" y="794" text-anchor="middle" class="class-title">Binary serializers</text>
+  <line x1="678" y1="816" x2="906" y2="816" class="sep"/>
+  <text x="702" y="842" class="member">Cbor / Ion / Smile</text>
+  <text x="702" y="864" class="member">extend JacksonSerializer</text>
+
+  <rect x="942" y="762" width="228" height="112" rx="7" class="serializer"/>
+  <text x="1056" y="794" text-anchor="middle" class="class-title">Text serializers</text>
+  <line x1="942" y1="816" x2="1170" y2="816" class="sep"/>
+  <text x="966" y="842" class="member">Csv / Props / Toml / Yaml</text>
+  <text x="966" y="864" class="member">string oriented formats</text>
+
+  <rect x="1260" y="150" width="508" height="858" rx="16" class="feature-panel"/>
+  <text x="1290" y="190" class="panel-title">Streaming and annotation modules</text>
+  <text x="1290" y="218" class="small">Root JsonNode streams; field rules use SimpleModule.</text>
+
+  <rect x="1324" y="272" width="372" height="126" rx="7" class="async"/>
+  <text x="1510" y="304" text-anchor="middle" class="class-title">AsyncJsonParser</text>
+  <line x1="1324" y1="326" x2="1696" y2="326" class="sep"/>
+  <text x="1348" y="352" class="member">callback ByteArray chunks</text>
+  <text x="1348" y="374" class="member">endOfInput validates EOF</text>
+
+  <rect x="1324" y="462" width="372" height="126" rx="7" class="async"/>
+  <text x="1510" y="494" text-anchor="middle" class="class-title">SuspendJsonParser</text>
+  <line x1="1324" y1="516" x2="1696" y2="516" class="sep"/>
+  <text x="1348" y="542" class="member">Flow&lt;ByteArray&gt; input</text>
+  <text x="1348" y="564" class="member">consumeComplete sends EOF</text>
+
+  <rect x="1324" y="654" width="372" height="112" rx="7" class="module"/>
+  <text x="1510" y="686" text-anchor="middle" class="class-title">JsonUuidModule</text>
+  <line x1="1324" y1="708" x2="1696" y2="708" class="sep"/>
+  <text x="1348" y="734" class="member">inserts UUID annotation introspector</text>
+  <text x="1348" y="756" class="member">@JsonUuidEncoder Base62 or Plain</text>
+
+  <rect x="1324" y="824" width="372" height="134" rx="7" class="module"/>
+  <text x="1510" y="856" text-anchor="middle" class="class-title">Field modules</text>
+  <line x1="1324" y1="878" x2="1696" y2="878" class="sep"/>
+  <text x="1348" y="904" class="member">JsonTinkEncryptModule</text>
+  <text x="1348" y="926" class="member">JsonMaskerModule</text>
+  <text x="1348" y="948" class="member">serializer/deserializer selection</text>
+
+  <rect x="92" y="1048" width="1656" height="82" rx="14" class="rule-panel"/>
+  <text x="122" y="1080" class="panel-title">Reader contract</text>
+  <text x="122" y="1108" class="small">Use Jackson.defaultJsonMapper for standard JSON, JacksonBinary/JacksonText for explicit formats, streaming parsers for chunked roots, and SimpleModule extensions for field annotations.</text>
+
+  <path d="M 322 874 L 322 816" class="realize" style="marker-end:none"/>
+<polygon points="328,828 322,816 316,828" fill="#455a64" stroke="#455a64" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <rect x="346" y="838" width="90" height="24" rx="12" fill="#ffffff" stroke="#d7e0e4"/>
+  <text x="391" y="855" text-anchor="middle" class="label">implements</text>
+
+  <path d="M 322 404 L 322 482" class="usesBlue" style="marker-end:none"/>
+<polyline points="316,470 322,482 328,470" fill="none" stroke="#4b74a5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 506 338 L 732 338" class="usesBlue" style="marker-end:none"/>
+<polyline points="720,344 732,338 720,332" fill="none" stroke="#4b74a5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 924 404 L 924 438 Q 924 452 910 452 L 806 452 Q 792 452 792 466 L 792 494" class="usesGreen" stroke-linecap="round" stroke-linejoin="round" style="marker-end:none"/>
+<polyline points="786,482 792,494 798,482" fill="none" stroke="#5d7b63" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 924 404 L 924 438 Q 924 452 938 452 L 1042 452 Q 1056 452 1056 466 L 1056 494" class="usesGreen" stroke-linecap="round" stroke-linejoin="round" style="marker-end:none"/>
+<polyline points="1050,482 1056,494 1062,482" fill="none" stroke="#5d7b63" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 792 638 L 792 762" class="flowBlue"/>
+  <path d="M 1056 638 L 1056 762" class="flowBlue"/>
+
+  <path d="M 792 874 V 930" class="inheritBus"/>
+  <path d="M 1056 874 V 930" class="inheritBus"/>
+  <path d="M 1056 930 H 506" class="extends"/>
+
+  <path d="M 1194 338 H 1324" class="usesGold" style="marker-end:none"/>
+<polyline points="1312,344 1324,338 1312,332" fill="none" stroke="#a2743d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 1194 526 H 1324" class="usesGold" style="marker-end:none"/>
+<polyline points="1312,532 1324,526 1312,520" fill="none" stroke="#a2743d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 1194 710 H 1324" class="usesRed" style="marker-end:none"/>
+<polyline points="1312,716 1324,710 1312,704" fill="none" stroke="#b65f68" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path d="M 1194 890 H 1324" class="usesRed" style="marker-end:none"/>
+<polyline points="1312,896 1324,890 1312,884" fill="none" stroke="#b65f68" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+
+  <text x="920" y="1174" text-anchor="middle" class="footer">github.com/bluetape4k/bluetape4k-projects - io/jackson3 README</text>
+</svg>

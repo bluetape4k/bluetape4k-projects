@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120" role="img" aria-labelledby="title desc">
+  <title id="title">Validation Chaining Flow</title>
+  <desc id="desc">Sequence diagram for RequireSupport validation chaining: caller invokes inline validators, invalid values raise IllegalArgumentException, valid values return the receiver for the next validation call.</desc>
+  <defs>
+    <style>
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #263238; }
+      .subtitle, .detail, .footer { font-family: "Comic Mono"; fill: #36464f; }
+      .subtitle { font-size: 17px; }
+      .frame { fill: #fbfcf8; stroke: #41545d; stroke-width: 3; }
+      .participant { fill: #ffffff; stroke-width: 2.2; }
+      .lifeline { stroke: #8fa4ad; stroke-width: 2; stroke-dasharray: 8 8; }
+      .activation { fill-opacity: .16; stroke-width: 2; }
+      .alt { fill: #ffffff; fill-opacity: .12; stroke: #78909c; stroke-width: 3; stroke-dasharray: 10 8; }
+      .altLabel { font-family: "Comic Mono"; font-size: 14px; fill: #36464f; }
+      .call { fill: none; stroke: #3f7d9c; stroke-width: 3.2; stroke-linecap: round; marker-end: url(#arrowCall); }
+      .return { fill: none; stroke: #6e8f4f; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 9 7; marker-end: url(#arrowReturn); }
+      .fail { fill: none; stroke: #b86868; stroke-width: 3; stroke-linecap: round; marker-end: url(#arrowFail); }
+      .cast { fill: none; stroke: #755BC6; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 9 7; marker-end: url(#arrowCast); }
+      .label { fill: #fbfcf8; stroke-width: 1.6; }
+      .labelText { font-family: "Comic Mono"; font-size: 14px; fill: #36464f; }
+      .num { font-family: "Comic Mono"; font-size: 13px; fill: #ffffff; }
+      .footer { font-size: 14px; fill: #60727d; }
+
+    /* sequence-style: spring-boot-cassandra-sequence-01 */
+    .title{font-family:"Architects Daughter";fill:#263238}.subtitle,.msg,.note,.footer,.detail,.role{font-family:"Comic Mono";fill:#36464f}.subtitle{font-size:16px}text.participant,.cardTitle{font-family:"Architects Daughter";fill:#1f3138}.role{fill:#546a73}.frame{fill:#fbfcf8;stroke:#41545d;stroke-width:3}.inner,.panel{fill:#ffffff;stroke:#d7e0e4;stroke-width:2}.header,.card{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}.actor{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}rect.participant{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}.lifeline{stroke:#9aaab1;stroke-width:2;stroke-dasharray:7 8}.activation{fill:#e6f2ec!important;stroke:#5b7e67!important;stroke-width:1.5}.seq,.call{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.work,.crypto{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.async{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.seqReturn,.return{fill:none;stroke-width:2.5;stroke-dasharray:8 6;stroke-linecap:round;stroke-linejoin:round}.fail,.skip{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.alt,.altBox{fill:#eef7f0;fill-opacity:.12;stroke:#78909c;stroke-width:2.4;stroke-dasharray:12 7}.divider,.branchDivider{stroke:#78909c;stroke-width:2.4;stroke-dasharray:12 8}rect.label,.labelPill,.pill{fill:#ffffff;stroke:#d7e0e4;stroke-width:1.3}.callLabel{stroke:#9cc2d1}.workLabel,.cryptoLabel{stroke:#b6c9a4}.returnLabel{stroke:#c8b38f}.asyncLabel{stroke:#b8a9d5}.failLabel{stroke:#d9abab}.callBadge{fill:#eaf4f8;stroke:#3f7d9c}.workBadge,.cryptoBadge{fill:#eef7f0;stroke:#6e8f4f}.returnBadge{fill:#fff7e8;stroke:#9b7d54}.asyncBadge{fill:#f3ecff;stroke:#7c5aa6}.failBadge{fill:#fff0f0;stroke:#b86868}text.label{font-family:"Comic Mono";font-size:14px;font-weight:700;stroke:none}.badgeText{font-family:"Comic Mono";font-size:12px;font-weight:700}.callText{fill:#2f6f8e}.workText,.cryptoText{fill:#55783f}.returnText{fill:#7f6038}.asyncText{fill:#674b91}.failText{fill:#9d4f4f}.footer{fill:#60727d}
+  </style>
+    <marker id="arrowCall" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3f7d9c" stroke="#3f7d9c" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowReturn" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#6e8f4f" stroke="#6e8f4f" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowFail" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#b86868" stroke="#b86868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowCast" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#755BC6" stroke="#755BC6" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  </defs>
+
+  <rect x="24" y="24" width="1552" height="1072" rx="20" class="frame"/>
+  <text x="800" y="78" text-anchor="middle" class="title">Validation Chaining Flow</text>
+  <text x="800" y="108" text-anchor="middle" class="subtitle">RequireSupport returns the receiver after each successful inline check, so validators can be chained without losing Kotlin smart-cast guarantees.</text>
+
+  <g id="caller">
+    <rect x="112" y="160" width="248" height="72" rx="10" class="participant" stroke="#3f7d9c"/>
+    <text x="236" y="194" text-anchor="middle" class="title" style="font-size:24px">Caller</text>
+    <text x="236" y="216" text-anchor="middle" class="detail" style="font-size:13px">service / builder</text>
+    <line x1="236" y1="232" x2="236" y2="970" class="lifeline"/>
+  </g>
+  <g id="require">
+    <rect x="566" y="160" width="268" height="72" rx="10" class="participant" stroke="#6e8f4f"/>
+    <text x="700" y="194" text-anchor="middle" class="title" style="font-size:24px">RequireSupport</text>
+    <text x="700" y="216" text-anchor="middle" class="detail" style="font-size:13px">inline contract functions</text>
+    <line x1="700" y1="232" x2="700" y2="970" class="lifeline"/>
+  </g>
+  <g id="contract">
+    <rect x="1084" y="160" width="292" height="72" rx="10" class="participant" stroke="#755BC6"/>
+    <text x="1230" y="194" text-anchor="middle" class="title" style="font-size:24px">Kotlin Contract</text>
+    <text x="1230" y="216" text-anchor="middle" class="detail" style="font-size:13px">returns implies non-null</text>
+    <line x1="1230" y1="232" x2="1230" y2="970" class="lifeline"/>
+  </g>
+
+  <rect x="690" y="284" width="18" height="560" rx="7" class="activation" fill="#EEF7F0" stroke="#6e8f4f"/>
+  <rect x="1221" y="690" width="18" height="78" rx="7" class="activation" fill="#F3ECFF" stroke="#755BC6"/>
+
+  <g id="m1">
+    <path class="call" d="M 236 316 L 700 316"/>
+    <rect x="304" y="282" width="374" height="32" rx="16" class="label" stroke="#EAF4F8"/>
+    <circle cx="328" cy="298" r="13" fill="#EAF4F8"/><text fill="#3f7d9c" x="328" y="303" text-anchor="middle" class="num">1</text>
+    <text x="491" y="303" text-anchor="middle" class="labelText">username.requireNotBlank("username")</text>
+  </g>
+
+  <rect x="104" y="362" width="710" height="190" rx="18" class="alt"/>
+  <text x="132" y="392" class="altLabel">alt invalid: null or blank</text>
+  <g id="m2">
+    <path class="fail" d="M 700 458 L 236 458"/>
+    <rect x="356" y="424" width="286" height="32" rx="16" class="label" stroke="#FFF0F0"/>
+    <circle cx="380" cy="440" r="13" fill="#FBFCF8"/><text fill="#b86868" x="380" y="445" text-anchor="middle" class="num">2</text>
+    <text x="505" y="445" text-anchor="middle" class="labelText">IllegalArgumentException</text>
+  </g>
+
+  <rect x="104" y="582" width="1214" height="230" rx="18" class="alt"/>
+  <text x="132" y="612" class="altLabel">else valid: receiver is returned and smart-cast continues</text>
+  <g id="m3">
+    <path class="return" d="M 700 668 L 236 668"/>
+    <rect x="360" y="634" width="280" height="32" rx="16" class="label" stroke="#EEF7F0"/>
+    <circle cx="384" cy="650" r="13" fill="#EEF7F0"/><text fill="#6e8f4f" x="384" y="655" text-anchor="middle" class="num">3</text>
+    <text x="512" y="655" text-anchor="middle" class="labelText">username: String</text>
+  </g>
+  <g id="m4">
+    <path class="cast" d="M 700 730 L 1230 730" style="marker-end:none"/>
+<polygon points="1218,736 1230,730 1218,724" fill="#755BC6" stroke="#755BC6" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+    <rect x="842" y="696" width="344" height="32" rx="16" class="label" stroke="#F3ECFF"/>
+    <circle cx="866" cy="712" r="13" fill="#FBFCF8"/><text fill="#755BC6" x="866" y="717" text-anchor="middle" class="num">4</text>
+    <text x="1012" y="717" text-anchor="middle" class="labelText">contract narrows nullable type</text>
+  </g>
+
+  <g id="m5">
+    <path class="call" d="M 236 870 L 700 870"/>
+    <rect x="310" y="836" width="368" height="32" rx="16" class="label" stroke="#EAF4F8"/>
+    <circle cx="334" cy="852" r="13" fill="#EAF4F8"/><text fill="#3f7d9c" x="334" y="857" text-anchor="middle" class="num">5</text>
+    <text x="500" y="857" text-anchor="middle" class="labelText">.requireStartsWith("user_", "username")</text>
+  </g>
+  <g id="m6">
+    <path class="return" d="M 700 938 L 236 938"/>
+    <rect x="344" y="904" width="318" height="32" rx="16" class="label" stroke="#EEF7F0"/>
+    <circle cx="368" cy="920" r="13" fill="#EEF7F0"/><text fill="#6e8f4f" x="368" y="925" text-anchor="middle" class="num">6</text>
+    <text x="512" y="925" text-anchor="middle" class="labelText">same value, next check-ready</text>
+  </g>
+
+  <rect x="112" y="1012" width="1376" height="44" rx="12" fill="#ffffff" stroke="#D6E3EF" stroke-width="1.6"/>
+  <text x="132" y="1040" class="detail">Contract functions throw IllegalArgumentException on failed preconditions and otherwise return the original receiver for fluent validation.</text>
+  <text x="800" y="1084" text-anchor="middle" class="footer">github.com/bluetape4k/bluetape4k-projects - bluetape4k/core README</text>
+</svg>

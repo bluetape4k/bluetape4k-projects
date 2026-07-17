@@ -1,0 +1,174 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1040" viewBox="0 0 1800 1040" role="img" aria-label="NATS Class Structure">
+  <defs>
+    <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="open-blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="open-purple" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#9333ea" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="open-green" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="open-orange" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+  </defs>
+
+  <style>
+    svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+    .canvas { fill: #f8fafc; }
+    .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.8; filter: url(#softShadow); }
+    .title { font-family: "Architects Daughter"; font-size: 50px; fill: #0f172a; }
+    .subtitle { font-family: "Comic Mono"; font-size: 18px; fill: #475569; }
+    .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.7; }
+    .panelTitle { font-family: "Architects Daughter"; font-size: 27px; fill: #0f172a; }
+    .card { filter: url(#softShadow); stroke-width: 2.1; }
+    .external { fill: #f8fafc; stroke: #64748b; stroke-dasharray: 8 7; }
+    .core { fill: #eff6ff; stroke: #2563eb; }
+    .jet { fill: #faf5ff; stroke: #9333ea; }
+    .store { fill: #f0fdfa; stroke: #0d9488; }
+    .service { fill: #fff7ed; stroke: #ea580c; }
+    .dsl { fill: #f0fdf4; stroke: #16a34a; }
+    .note { fill: #fdf2f8; stroke: #db2777; }
+    .name { font-family: "Architects Daughter"; font-size: 24px; fill: #0f172a; }
+    .smallName { font-family: "Architects Daughter"; font-size: 21px; fill: #0f172a; }
+    .meta { font-family: "Comic Mono"; font-size: 13.5px; fill: #475569; }
+    .tiny { font-family: "Comic Mono"; font-size: 12.5px; fill: #64748b; }
+    .blue { fill: none; stroke: #2563eb; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 9 8; marker-end: url(#open-blue); }
+    .purple { fill: none; stroke: #9333ea; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 9 8; marker-end: url(#open-purple); }
+    .green { fill: none; stroke: #16a34a; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 9 8; marker-end: url(#open-green); }
+    .orange { fill: none; stroke: #ea580c; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 9 8; marker-end: url(#open-orange); }
+  </style>
+
+  <rect class="canvas" width="1800" height="1040"/>
+  <rect class="frame" x="38" y="32" width="1724" height="976" rx="8"/>
+
+  <text class="title" x="82" y="94">NATS Class Structure</text>
+  <text class="subtitle" x="86" y="128">Kotlin extensions and DSL factories sit on top of the NATS Java client, adding suspend bridges and safer configuration helpers.</text>
+
+  <rect class="panel" x="82" y="176" width="1636" height="180" rx="8"/>
+  <rect class="panel" x="82" y="396" width="1636" height="290" rx="8"/>
+  <rect class="panel" x="82" y="726" width="1636" height="180" rx="8"/>
+
+  <text class="panelTitle" x="112" y="218">NATS Java client surface</text>
+  <text class="panelTitle" x="112" y="438">bluetape4k-nats extension groups</text>
+  <text class="panelTitle" x="112" y="768">Objects produced or managed by the helpers</text>
+
+  <g id="connection-api">
+    <rect class="card external" x="126" y="254" width="274" height="70" rx="8"/>
+    <text class="name" x="263" y="286" text-anchor="middle">Connection</text>
+    <text class="meta" x="263" y="310" text-anchor="middle">publish, request, drain, stores</text>
+  </g>
+  <g id="jet-api">
+    <rect class="card external" x="492" y="254" width="316" height="70" rx="8"/>
+    <text class="name" x="650" y="286" text-anchor="middle">JetStream APIs</text>
+    <text class="meta" x="650" y="310" text-anchor="middle">JetStream + JetStreamManagement</text>
+  </g>
+  <g id="store-api">
+    <rect class="card external" x="900" y="254" width="316" height="70" rx="8"/>
+    <text class="name" x="1058" y="286" text-anchor="middle">KV / Object stores</text>
+    <text class="meta" x="1058" y="310" text-anchor="middle">KeyValueManagement + ObjectStore</text>
+  </g>
+  <g id="service-api">
+    <rect class="card external" x="1308" y="254" width="316" height="70" rx="8"/>
+    <image data-bluetape4k-icon="testcontainers/mq/nats.svg" x="1344" y="266" width="34" height="34" href="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjMjdBQUUxIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+TkFUUy5pbzwvdGl0bGU+PHBhdGggZD0iTTEyLjAwNCAwSC40MDR2MTguODA3aDkuOTM4bDEuNzE0IDEuNjAydi0uMDI2TDE1Ljk2NiAyNHYtNS4xOTNoNy42M1YwSDEyLjAwM3ptNy41NzggMTQuNDVIMTUuMzhMNi44OTggNi41MTl2Ny45M0g0LjExNlY0LjM3Nmg0LjM0OWw4LjM0NCA3Ljc4NFY0LjM3NWgyLjc3M1YxNC40NXoiLz48L3N2Zz4=" preserveAspectRatio="xMidYMid meet"/><text class="name" x="1466" y="286" text-anchor="middle">NATS Service API</text>
+    <text class="meta" x="1466" y="310" text-anchor="middle">ServiceBuilder + Endpoint</text>
+  </g>
+
+  <g id="conn-ext">
+    <rect class="card core" x="112" y="478" width="300" height="110" rx="8"/>
+    <text class="name" x="262" y="512" text-anchor="middle">ConnectionExtensions</text>
+    <text class="meta" x="262" y="542" text-anchor="middle">publish(String), request*</text>
+    <text class="meta" x="262" y="565" text-anchor="middle">requestSuspending, drainSuspending</text>
+  </g>
+  <g id="sub-ext">
+    <rect class="card core" x="112" y="610" width="300" height="64" rx="8"/>
+    <text class="smallName" x="262" y="638" text-anchor="middle">Subscription</text>
+    <text class="meta" x="262" y="661" text-anchor="middle">nextMessage(Duration)</text>
+  </g>
+
+  <g id="jet-ext">
+    <rect class="card jet" x="462" y="470" width="360" height="98" rx="8"/>
+    <text class="name" x="642" y="504" text-anchor="middle">JetStream extensions</text>
+    <text class="meta" x="642" y="534" text-anchor="middle">publish, publishAsync</text>
+    <text class="meta" x="642" y="557" text-anchor="middle">publishSuspending awaits ACK</text>
+  </g>
+  <g id="jsm-ext">
+    <rect class="card jet" x="462" y="596" width="360" height="70" rx="8"/>
+    <text class="smallName" x="642" y="626" text-anchor="middle">JetStreamManagement extensions</text>
+    <text class="meta" x="642" y="650" text-anchor="middle">create/update/delete, ignore not-found only</text>
+  </g>
+
+  <g id="dsl-ext">
+    <rect class="card dsl" x="872" y="470" width="372" height="112" rx="8"/>
+    <text class="name" x="1058" y="504" text-anchor="middle">Configuration DSLs</text>
+    <text class="meta" x="1058" y="534" text-anchor="middle">streamConfiguration, consumerConfiguration</text>
+    <text class="meta" x="1058" y="557" text-anchor="middle">keyValueConfiguration, objectStoreConfiguration</text>
+  </g>
+  <g id="context-ext">
+    <rect class="card dsl" x="872" y="606" width="372" height="68" rx="8"/>
+    <text class="smallName" x="1058" y="634" text-anchor="middle">consumerContextOf</text>
+    <text class="meta" x="1058" y="657" text-anchor="middle">connection + stream + config</text>
+  </g>
+
+  <g id="service-dsl">
+    <rect class="card service" x="1296" y="478" width="340" height="110" rx="8"/>
+    <text class="name" x="1466" y="512" text-anchor="middle">Service DSL</text>
+    <text class="meta" x="1466" y="542" text-anchor="middle">natsService / natsServiceOf</text>
+    <text class="meta" x="1466" y="565" text-anchor="middle">serviceEndpoint / serviceEndpointOf</text>
+  </g>
+
+  <path class="blue" d="M 263 324 V 470" style="marker-end:none"/>
+<polyline points="257,458 263,470 269,458" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="blue" d="M 262 588 V 602" style="marker-end:none"/>
+<polyline points="256,590 262,602 268,590" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="purple" d="M 650 324 V 462" style="marker-end:none"/>
+<polyline points="644,450 650,462 656,450" fill="none" stroke="#9333ea" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="purple" d="M 642 568 V 588" style="marker-end:none"/>
+<polyline points="636,576 642,588 648,576" fill="none" stroke="#9333ea" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="green" d="M 1058 324 V 462" style="marker-end:none"/>
+<polyline points="1052,450 1058,462 1064,450" fill="none" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="green" d="M 1058 582 V 598" style="marker-end:none"/>
+<polyline points="1052,586 1058,598 1064,586" fill="none" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="orange" d="M 1466 324 V 470" style="marker-end:none"/>
+<polyline points="1460,458 1466,470 1472,458" fill="none" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+
+  <g id="core-out">
+    <rect class="card core" x="126" y="808" width="274" height="70" rx="8"/>
+    <text class="name" x="263" y="840" text-anchor="middle">Message paths</text>
+    <text class="meta" x="263" y="864" text-anchor="middle">publish, request-reply, drain</text>
+  </g>
+  <g id="jet-out">
+    <rect class="card jet" x="492" y="808" width="316" height="70" rx="8"/>
+    <text class="name" x="650" y="840" text-anchor="middle">Streams + consumers</text>
+    <text class="meta" x="650" y="864" text-anchor="middle">StreamInfo, ConsumerInfo, ACKs</text>
+  </g>
+  <g id="store-out">
+    <rect class="card dsl" x="900" y="808" width="316" height="70" rx="8"/>
+    <text class="name" x="1058" y="840" text-anchor="middle">Configuration objects</text>
+    <text class="meta" x="1058" y="864" text-anchor="middle">Stream, Consumer, KV, ObjectStore</text>
+  </g>
+  <g id="service-out">
+    <rect class="card service" x="1308" y="808" width="316" height="70" rx="8"/>
+    <text class="name" x="1466" y="840" text-anchor="middle">Service instances</text>
+    <text class="meta" x="1466" y="864" text-anchor="middle">Service + ServiceEndpoint list</text>
+  </g>
+
+  <path class="blue" d="M 262 674 V 800" style="marker-end:none"/>
+<polyline points="256,788 262,800 268,788" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="purple" d="M 642 666 V 800" style="marker-end:none"/>
+<polyline points="636,788 642,800 648,788" fill="none" stroke="#9333ea" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="green" d="M 1058 674 V 800" style="marker-end:none"/>
+<polyline points="1052,788 1058,800 1064,788" fill="none" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="orange" d="M 1466 588 V 800" style="marker-end:none"/>
+<polyline points="1460,788 1466,800 1472,788" fill="none" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+
+  <g id="spring-note">
+    <rect class="card note" x="474" y="922" width="852" height="64" rx="8"/>
+    <text class="smallName" x="900" y="949" text-anchor="middle">Spring Boot support is compileOnly</text>
+    <text class="meta" x="900" y="972" text-anchor="middle">add nats-spring explicitly when the application needs it</text>
+  </g>
+</svg>

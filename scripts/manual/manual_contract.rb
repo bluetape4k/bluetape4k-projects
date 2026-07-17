@@ -67,7 +67,8 @@ module ManualDocs
       errors.concat(validate_duplicates(entries))
       errors.concat(validate_inventory_alignment(entries))
       entries.each { |entry| errors.concat(validate_entry(entry)) }
-      errors.concat(validate_orphan_assets(entries))
+      errors.concat(validate_overview_assets(manifest))
+      errors.concat(validate_orphan_assets(entries, manifest))
       errors
     end
 
@@ -277,6 +278,27 @@ module ManualDocs
       errors
     end
 
+    def validate_overview_assets(manifest)
+      overview = manifest["overview"]
+      return [] if overview.nil?
+      return ["overview: must be a mapping"] unless overview.is_a?(Hash)
+
+      assets = overview.fetch("assets", [])
+      return ["overview: assets must be an array"] unless assets.is_a?(Array)
+
+      manual_root = File.dirname(@manifest_path)
+      errors = duplicate_scalar_values(assets).map { |asset| "overview: duplicate asset #{asset}" }
+      assets.each do |relative_path|
+        unless safe_manual_asset_path?(relative_path)
+          errors << "overview: unsafe asset path #{relative_path.inspect}"
+          next
+        end
+        errors << "overview: missing asset #{relative_path}" unless File.file?(File.expand_path(relative_path, manual_root))
+      end
+      errors.concat(validate_asset_pairs({ "id" => "overview" }, assets))
+      errors
+    end
+
     def validate_asset_pairs(entry, assets)
       label = entry_label(entry)
       manual_root = File.dirname(@manifest_path)
@@ -295,7 +317,7 @@ module ManualDocs
       end
     end
 
-    def validate_orphan_assets(entries)
+    def validate_orphan_assets(entries, manifest)
       manual_root = File.dirname(@manifest_path)
       assets_root = File.join(manual_root, "assets")
       actual = MANUAL_ASSET_EXTENSIONS.flat_map do |extension|
@@ -304,6 +326,9 @@ module ManualDocs
       registered = entries.flat_map do |entry|
         entry["assets"].is_a?(Array) ? entry["assets"].grep(String) : []
       end.uniq
+      overview_assets = manifest.dig("overview", "assets")
+      registered.concat(overview_assets.grep(String)) if overview_assets.is_a?(Array)
+      registered.uniq!
 
       (actual - registered).map { |asset| "manual assets: orphan asset #{asset}" }
     end

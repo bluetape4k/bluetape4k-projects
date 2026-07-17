@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1940" viewBox="0 0 1680 1940" role="img" aria-labelledby="title desc">
+<title id="title">local rate limiter token consumption sequence</title>
+<desc id="desc">LocalRateLimiter validates input, resolves a per-key LocalBucket, consumes by ConsumptionProbe, and maps the probe to a stable RateLimitResult.</desc>
+<defs><style>
+  .title{font-family:"Architects Daughter";font-size:42px;fill:#1F2937}
+  .subtitle,.msg,.role,.note,.footer{font-family:"Comic Mono";fill:#536476}
+  .subtitle{font-size:18px}.participant{font-family:"Architects Daughter";font-size:22px;fill:#1F2937}
+  .role{font-size:13px}.msg{font-size:14px}.note{font-size:13px}.footer{font-size:14px;fill:#60727d}
+  .frame{fill:#FEFEFC;stroke:#546E7A;stroke-width:2.5}.inner{fill:#FFFFFF;stroke:#D6E3EF;stroke-width:2}
+  .lifeline{stroke:#A8B8C8;stroke-width:2;stroke-dasharray:8 8}
+  .activation{rx:6;stroke-width:1.6}.pill{fill:#FFFFFF;stroke-width:1.5}.badge{font-family:"Comic Mono";font-size:12px;font-weight:700;fill:#FFFFFF}
+  .alt{fill:#FFFFFF;fill-opacity:.12;stroke:#78909C;stroke-width:2.6;stroke-dasharray:12 8}
+
+    /* sequence-style: spring-boot-cassandra-sequence-01 */
+    .title{font-family:"Architects Daughter";fill:#263238}.subtitle,.msg,.note,.footer,.detail,.role{font-family:"Comic Mono";fill:#36464f}.subtitle{font-size:16px}text.participant,.cardTitle{font-family:"Architects Daughter";fill:#1f3138}.role{fill:#546a73}.frame{fill:#fbfcf8;stroke:#41545d;stroke-width:3}.inner,.panel{fill:#ffffff;stroke:#d7e0e4;stroke-width:2}.header,.card{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}.actor{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}rect.participant{fill:#ffffff!important;stroke:#546e7a!important;stroke-width:2;filter:url(#shadow)}.lifeline{stroke:#9aaab1;stroke-width:2;stroke-dasharray:7 8}.activation{fill:#e6f2ec!important;stroke:#5b7e67!important;stroke-width:1.5}.seq,.call{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.work,.crypto{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.async{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.seqReturn,.return{fill:none;stroke-width:2.5;stroke-dasharray:8 6;stroke-linecap:round;stroke-linejoin:round}.fail,.skip{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.alt,.altBox{fill:#eef7f0;fill-opacity:.12;stroke:#78909c;stroke-width:2.4;stroke-dasharray:12 7}.divider,.branchDivider{stroke:#78909c;stroke-width:2.4;stroke-dasharray:12 8}rect.label,.labelPill,.pill{fill:#ffffff;stroke:#d7e0e4;stroke-width:1.3}.callLabel{stroke:#9cc2d1}.workLabel,.cryptoLabel{stroke:#b6c9a4}.returnLabel{stroke:#c8b38f}.asyncLabel{stroke:#b8a9d5}.failLabel{stroke:#d9abab}.callBadge{fill:#eaf4f8;stroke:#3f7d9c}.workBadge,.cryptoBadge{fill:#eef7f0;stroke:#6e8f4f}.returnBadge{fill:#fff7e8;stroke:#9b7d54}.asyncBadge{fill:#f3ecff;stroke:#7c5aa6}.failBadge{fill:#fff0f0;stroke:#b86868}text.label{font-family:"Comic Mono";font-size:14px;font-weight:700;stroke:none}.badgeText{font-family:"Comic Mono";font-size:12px;font-weight:700}.callText{fill:#2f6f8e}.workText,.cryptoText{fill:#55783f}.returnText{fill:#7f6038}.asyncText{fill:#674b91}.failText{fill:#9d4f4f}.footer{fill:#60727d}
+  </style>  <marker id="arrow1-4F83BF" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#4F83BF" stroke="#4F83BF" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrowSelf2-2F9E6B" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3E9868" stroke="#3E9868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow3-D08A2D" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" stroke="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrowSelf4-D08A2D" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" stroke="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow5-2E9C9B" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89" stroke="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow6-D08A2D" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" stroke="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow7-2E9C9B" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89" stroke="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow8-2F9E6B" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3E9868" stroke="#3E9868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow9-2E9C9B" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89" stroke="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow10-D08A2D" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" stroke="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow11-2E9C9B" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89" stroke="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow12-C15A5A" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C94D68" stroke="#C94D68" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow13-C15A5A" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C94D68" stroke="#C94D68" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+</defs>
+<rect x="24" y="24" width="1632" height="1892" rx="22" class="frame"/>
+<text x="840" y="78" text-anchor="middle" class="title">Local Rate Limiter Token Consumption Flow</text>
+<text x="840" y="110" text-anchor="middle" class="subtitle">One Bucket4j probe maps each attempt to consumed, rejected, or error.</text>
+<rect x="58" y="140" width="1564" height="1700" rx="18" class="inner"/>
+<rect x="130" y="160" width="190" height="76" rx="12" fill="#EAF4F8" stroke="#4F83BF" stroke-width="2.4"/>
+<text x="225" y="190" text-anchor="middle" class="participant">Caller</text>
+<text x="225" y="214" text-anchor="middle" class="role">filter / service</text>
+<line x1="225" y1="236" x2="225" y2="1800" class="lifeline"/>
+<rect x="435" y="160" width="240" height="76" rx="12" fill="#EEF7F0" stroke="#3E9868" stroke-width="2.4"/>
+<text x="555" y="190" text-anchor="middle" class="participant">LocalRateLimiter</text>
+<text x="555" y="214" text-anchor="middle" class="role">consume(key,tokens)</text>
+<line x1="555" y1="236" x2="555" y2="1800" class="lifeline"/>
+<rect x="760" y="160" width="250" height="76" rx="12" fill="#FFF7E8" stroke="#B9851B" stroke-width="2.4"/>
+<text x="885" y="190" text-anchor="middle" class="participant">LocalBucketProvider</text>
+<text x="885" y="214" text-anchor="middle" class="role">keyed in-memory bucket</text>
+<line x1="885" y1="236" x2="885" y2="1800" class="lifeline"/>
+<rect x="1100" y="160" width="205" height="76" rx="12" fill="#FFF0F0" stroke="#C94D68" stroke-width="2.4"/>
+<text x="1202.5" y="190" text-anchor="middle" class="participant">LocalBucket</text>
+<text x="1202.5" y="214" text-anchor="middle" class="role">try consume probe</text>
+<line x1="1202.5" y1="236" x2="1202.5" y2="1800" class="lifeline"/>
+<rect x="1400" y="160" width="215" height="76" rx="12" fill="#EAF7F6" stroke="#2E8F89" stroke-width="2.4"/>
+<text x="1507.5" y="190" text-anchor="middle" class="participant">RateLimitResult</text>
+<text x="1507.5" y="214" text-anchor="middle" class="role">stable public result</text>
+<line x1="1507.5" y1="236" x2="1507.5" y2="1800" class="lifeline"/>
+<rect x="547" y="302" width="16" height="1496" rx="6" fill="#EEF7F0" stroke="#3E9868" class="activation"/>
+<rect x="877" y="555" width="16" height="230" rx="6" fill="#FFF7E8" stroke="#B9851B" class="activation"/>
+<rect x="1194.5" y="935" width="16" height="105" rx="6" fill="#FFF0F0" stroke="#C94D68" class="activation"/>
+<rect x="1499.5" y="1180" width="16" height="620" rx="6" fill="#EAF7F6" stroke="#2E8F89" class="activation"/>
+<marker id="arrow1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#4F83BF" stroke="#4F83BF" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 236 330 L 544 330" fill="none" stroke="#4F83BF" stroke-width="3.2" marker-end="url(#arrow1-4F83BF)"/>
+<rect x="180" y="279" width="220" height="34" rx="17" class="pill" stroke="#4F83BF"/>
+<circle cx="204" cy="296" r="13" fill="#EAF4F8" stroke="#4F83BF"/><text fill="#4F83BF" x="204" y="300" text-anchor="middle" class="badge">1</text>
+<text x="228" y="301" class="msg" fill="#4F83BF">consume(key, tokens)</text>
+<marker id="arrowSelf2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3E9868" stroke="#3E9868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 569 430 L 641 430 Q 655 430 655 444 L 655 454 Q 655 468 641 468 L 577 468" fill="none" stroke="#3E9868" stroke-width="3.0" marker-end="url(#arrowSelf2-2F9E6B)" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="610" y="383" width="285" height="34" rx="17" class="pill" stroke="#3E9868"/>
+<circle cx="634" cy="400" r="13" fill="#FBFCF8" stroke="#3E9868"/><text fill="#3E9868" x="634" y="404" text-anchor="middle" class="badge">2</text>
+<text x="658" y="405" class="msg" fill="#3E9868">validate key and token range</text>
+<marker id="arrow3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" stroke="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 566 560 L 874 560" fill="none" stroke="#B9851B" stroke-width="3.2" marker-end="url(#arrow3-D08A2D)"/>
+<rect x="585" y="509" width="203.6" height="34" rx="17" class="pill" stroke="#B9851B"/>
+<circle cx="609" cy="526" r="13" fill="#FBFCF8" stroke="#B9851B"/><text fill="#B9851B" x="609" y="530" text-anchor="middle" class="badge">3</text>
+<text x="633" y="531" class="msg" fill="#B9851B">resolveBucket(key)</text>
+<marker id="arrowSelf4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" stroke="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 899 690 L 971 690 Q 985 690 985 704 L 985 714 Q 985 728 971 728 L 907 728" fill="none" stroke="#B9851B" stroke-width="3.0" marker-end="url(#arrowSelf4-D08A2D)" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="995" y="643" width="320" height="34" rx="17" class="pill" stroke="#B9851B"/>
+<circle cx="1019" cy="660" r="13" fill="#FBFCF8" stroke="#B9851B"/><text fill="#B9851B" x="1019" y="664" text-anchor="middle" class="badge">4</text>
+<text x="1043" y="665" class="msg" fill="#B9851B">reuse cached LocalBucket per key</text>
+<marker id="arrow5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89" stroke="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 874 820 L 566 820" fill="none" stroke="#2E8F89" stroke-width="2.8" stroke-dasharray="10 8"/>
+<polygon points="578,814 566,820 578,826" fill="#2E8F89" stroke="#2E8F89" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<rect x="615" y="769" width="180" height="34" rx="17" class="pill" stroke="#2E8F89"/>
+<circle cx="639" cy="786" r="13" fill="#FBFCF8" stroke="#2E8F89"/><text fill="#2E8F89" x="639" y="790" text-anchor="middle" class="badge">5</text>
+<text x="663" y="791" class="msg" fill="#2E8F89">LocalBucket</text>
+<marker id="arrow6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" stroke="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 566 940 L 1191.5 940" fill="none" stroke="#B9851B" stroke-width="3.2" marker-end="url(#arrow6-D08A2D)"/>
+<rect x="645" y="889" width="360" height="34" rx="17" class="pill" stroke="#B9851B"/>
+<circle cx="669" cy="906" r="13" fill="#FBFCF8" stroke="#B9851B"/><text fill="#B9851B" x="669" y="910" text-anchor="middle" class="badge">6</text>
+<text x="693" y="911" class="msg" fill="#B9851B">tryConsumeAndReturnRemaining(tokens)</text>
+<marker id="arrow7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89" stroke="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 1191.5 1040 L 566 1040" fill="none" stroke="#2E8F89" stroke-width="2.8" stroke-dasharray="10 8"/>
+<polygon points="578,1034 566,1040 578,1046" fill="#2E8F89" stroke="#2E8F89" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<rect x="770" y="989" width="210" height="34" rx="17" class="pill" stroke="#2E8F89"/>
+<circle cx="794" cy="1006" r="13" fill="#FBFCF8" stroke="#2E8F89"/><text fill="#2E8F89" x="794" y="1010" text-anchor="middle" class="badge">7</text>
+<text x="818" y="1011" class="msg" fill="#2E8F89">ConsumptionProbe</text>
+<rect x="96" y="1140" width="1488" height="660" rx="15" class="alt"/>
+<rect x="118" y="1164" width="270" height="30" rx="15" fill="#EEF7F0" stroke="#3E9868" stroke-width="1.6"/>
+<text x="140" y="1184" class="note">alt probe is consumed</text>
+<line x1="96" y1="1390" x2="1584" y2="1390" stroke="#78909C" stroke-width="2.2" stroke-dasharray="12 8"/>
+<rect x="118" y="1424" width="300" height="30" rx="15" fill="#FFF7E8" stroke="#B9851B" stroke-width="1.6"/>
+<text x="140" y="1444" class="note" fill="#B9851B">else insufficient tokens</text>
+<line x1="96" y1="1595" x2="1584" y2="1595" stroke="#78909C" stroke-width="2.2" stroke-dasharray="12 8"/>
+<rect x="118" y="1630" width="295" height="30" rx="15" fill="#FFF0F0" stroke="#C94D68" stroke-width="1.6"/>
+<text x="140" y="1650" class="note" fill="#C94D68">else provider or bucket error</text>
+<marker id="arrow8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3E9868" stroke="#3E9868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 566 1260 L 1496.5 1260" fill="none" stroke="#3E9868" stroke-width="3.2" marker-end="url(#arrow8-2F9E6B)"/>
+<rect x="1050" y="1209" width="310" height="34" rx="17" class="pill" stroke="#3E9868"/>
+<circle cx="1074" cy="1226" r="13" fill="#FBFCF8" stroke="#3E9868"/><text fill="#3E9868" x="1074" y="1230" text-anchor="middle" class="badge">8</text>
+<text x="1098" y="1231" class="msg" fill="#3E9868">consumed(tokens, remaining)</text>
+<marker id="arrow9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89" stroke="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 1496.5 1340 L 236 1340" fill="none" stroke="#2E8F89" stroke-width="2.8" stroke-dasharray="10 8"/>
+<polygon points="248,1334 236,1340 248,1346" fill="#2E8F89" stroke="#2E8F89" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<rect x="505" y="1289" width="160" height="34" rx="17" class="pill" stroke="#2E8F89"/>
+<circle cx="529" cy="1306" r="13" fill="#FBFCF8" stroke="#2E8F89"/><text fill="#2E8F89" x="529" y="1310" text-anchor="middle" class="badge">9</text>
+<text x="553" y="1311" class="msg" fill="#2E8F89">CONSUMED</text>
+<marker id="arrow10" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" stroke="#B9851B" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 566 1465 L 1496.5 1465" fill="none" stroke="#B9851B" stroke-width="3.2" marker-end="url(#arrow10-D08A2D)"/>
+<rect x="1050" y="1414" width="325" height="34" rx="17" class="pill" stroke="#B9851B"/>
+<circle cx="1074" cy="1431" r="13" fill="#FBFCF8" stroke="#B9851B"/><text fill="#B9851B" x="1074" y="1435" text-anchor="middle" class="badge">10</text>
+<text x="1098" y="1436" class="msg" fill="#B9851B">rejected(remaining, retryAfter)</text>
+<marker id="arrow11" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89" stroke="#2E8F89" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 1496.5 1545 L 236 1545" fill="none" stroke="#2E8F89" stroke-width="2.8" stroke-dasharray="10 8"/>
+<polygon points="248,1539 236,1545 248,1551" fill="#2E8F89" stroke="#2E8F89" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<rect x="505" y="1494" width="160" height="34" rx="17" class="pill" stroke="#2E8F89"/>
+<circle cx="529" cy="1511" r="13" fill="#FBFCF8" stroke="#2E8F89"/><text fill="#2E8F89" x="529" y="1515" text-anchor="middle" class="badge">11</text>
+<text x="553" y="1516" class="msg" fill="#2E8F89">REJECTED</text>
+<marker id="arrow12" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C94D68" stroke="#C94D68" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 566 1670 L 1496.5 1670" fill="none" stroke="#C94D68" stroke-width="3.2" marker-end="url(#arrow12-C15A5A)"/>
+<rect x="1075" y="1619" width="280" height="34" rx="17" class="pill" stroke="#C94D68"/>
+<circle cx="1099" cy="1636" r="13" fill="#FBFCF8" stroke="#C94D68"/><text fill="#C94D68" x="1099" y="1640" text-anchor="middle" class="badge">12</text>
+<text x="1123" y="1641" class="msg" fill="#C94D68">error(sanitized message)</text>
+<marker id="arrow13" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C94D68" stroke="#C94D68" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+<path d="M 1496.5 1750 L 236 1750" fill="none" stroke="#C94D68" stroke-width="2.8" stroke-dasharray="10 8"/>
+<polygon points="248,1744 236,1750 248,1756" fill="#C94D68" stroke="#C94D68" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+<rect x="510" y="1699" width="140" height="34" rx="17" class="pill" stroke="#C94D68"/>
+<circle cx="534" cy="1716" r="13" fill="#FBFCF8" stroke="#C94D68"/><text fill="#C94D68" x="534" y="1720" text-anchor="middle" class="badge">13</text>
+<text x="558" y="1721" class="msg" fill="#C94D68">ERROR</text>
+<rect x="96" y="1858" width="1488" height="48" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+<text x="840" y="1888" text-anchor="middle" class="footer">Invalid requests fail before bucket lookup; cancellation is rethrown.</text>
+</svg>

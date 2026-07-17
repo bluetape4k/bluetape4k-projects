@@ -143,6 +143,31 @@ No dedicated workshop is registered in the manual manifest. Use the README to sc
 
 This manual targets release `1.11.0`, commit `6187173b58e8b4c5c435c145e00e94708f31ef75`. The development branch later added per-test temporary-directory isolation and diagnostics/error handling around `SuspendKafkaConsumerTemplate.close()`. In 1.11.0 only an `AutoCloseable` receiver is closed, a non-closeable receiver produces no warning, and a close failure propagates directly.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### Kafka API Structure
+
+[![Kafka API Structure](../../assets/readme-diagrams/infra-kafka-diagram-01.png)](../../assets/readme-diagrams/infra-kafka-diagram-01.svg)
+
+_Release README: [`infra/kafka/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka/README.md)_
+
+### Kafka Streams Processing Flow diagram
+
+[![Kafka Streams Processing Flow diagram](../../assets/readme-diagrams/infra-kafka-diagram-02.png)](../../assets/readme-diagrams/infra-kafka-diagram-02.svg)
+
+_Release README: [`infra/kafka/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka/README.md)_
+
+### Producer/Consumer Message Flow diagram
+
+[![Producer/Consumer Message Flow diagram](../../assets/readme-diagrams/infra-kafka-sequence-01.png)](../../assets/readme-diagrams/infra-kafka-sequence-01.svg)
+
+_Release README: [`infra/kafka/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources and tests {#sources}
 
 - [Module README](../../../../infra/kafka/README.md)

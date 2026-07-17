@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2700" height="1360" viewBox="0 0 2700 1360" role="img" aria-label="Spring Boot R2DBC CRUD Operation Hierarchy Diagram">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+
+  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#0F766E" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#1D4ED8" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#15803D" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#C2410C" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#BE185D" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-violet" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#6D28D9" style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 2 2 L 19 11 L 2 20 Z" fill="#475569" style="stroke-dasharray:none"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:47px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .card{stroke-width:1.8;filter:url(#shadow)}.kicker{font-family:"Comic Mono";font-size:14px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}
+    .body{font-family:"Comic Mono";font-size:14px;fill:#334155}.foot{font-family:"Comic Mono";font-size:13px;fill:#475569}.divider{stroke-width:1.1;opacity:.42}
+    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
+  </style>
+</defs>
+<rect class="canvas" width="2700" height="1360"/>
+<rect class="frame" x="34" y="30" width="2632" height="1300" rx="8"/>
+<text class="title" x="72" y="86">R2DBC CRUD Operation Hierarchy</text>
+<text class="subtitle" x="76" y="120">The module groups coroutine extensions by CRUD intent, then delegates each group to the matching Spring Data R2DBC fluent operation.</text>
+<g id="Root">
+  <rect class="card" x="730" y="205" width="1240" height="230" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="kicker" x="752" y="236">module surface</text>
+  <text class="cardTitle" x="752" y="269">Coroutine CRUD extensions over Spring Data R2DBC</text>
+  <path class="divider" d="M730 291H1970" stroke="#475569"/>
+  <text class="body" x="752" y="323">Adds suspend and Flow APIs without new repositories or subclasses</text>
+<text class="body" x="752" y="347">Extension receivers are R2dbcEntityOperations plus Spring Data insert/update/delete operations</text>
+<text class="body" x="752" y="371">Every branch keeps the XyzSuspending naming convention</text>
+  <path class="divider" d="M730 389H1970" stroke="#475569"/><text class="foot" x="752" y="418">diagram groups functions by CRUD intent, not by source file order</text>
+</g>
+<g id="ReadApi">
+  <rect class="card" x="100" y="585" width="520" height="270" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="122" y="616">read coroutine API</text>
+  <text class="cardTitle" x="122" y="649">Read functions</text>
+  <path class="divider" d="M100 671H620" stroke="#1D4ED8"/>
+  <text class="body" x="122" y="703">findOneById / findFirstById</text>
+<text class="body" x="122" y="727">selectAll / select(query)</text>
+<text class="body" x="122" y="751">selectOne / selectFirst</text>
+<text class="body" x="122" y="775">exists / count</text>
+  <path class="divider" d="M100 809H620" stroke="#1D4ED8"/><text class="foot" x="122" y="838">public extension functions</text>
+</g>
+<g id="ReadDelegate">
+  <rect class="card" x="100" y="1010" width="520" height="230" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="122" y="1041">Spring Data delegation</text>
+  <text class="cardTitle" x="122" y="1074">select&lt;T&gt;().matching(query)</text>
+  <path class="divider" d="M100 1096H620" stroke="#1D4ED8"/>
+  <text class="body" x="122" y="1128">Reactive command is built by Spring Data</text>
+<text class="body" x="122" y="1152">Result is adapted with flow or await APIs</text>
+  <path class="divider" d="M100 1194H620" stroke="#1D4ED8"/><text class="foot" x="122" y="1223">returns Flow&lt;T&gt;, T, T?, Boolean, Long</text>
+</g>
+<g id="UpdateApi">
+  <rect class="card" x="760" y="585" width="520" height="270" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="kicker" x="782" y="616">update coroutine API</text>
+  <text class="cardTitle" x="782" y="649">Update functions</text>
+  <path class="divider" d="M760 671H1280" stroke="#BE185D"/>
+  <text class="body" x="782" y="703">updateSuspending(query, update)</text>
+<text class="body" x="782" y="727">caller supplies Query</text>
+<text class="body" x="782" y="751">caller supplies Update</text>
+<text class="body" x="782" y="775">no entity instance is required</text>
+  <path class="divider" d="M760 809H1280" stroke="#BE185D"/><text class="foot" x="782" y="838">public extension functions</text>
+</g>
+<g id="UpdateDelegate">
+  <rect class="card" x="760" y="1010" width="520" height="230" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="kicker" x="782" y="1041">Spring Data delegation</text>
+  <text class="cardTitle" x="782" y="1074">update&lt;T&gt;().matching(query).apply(update)</text>
+  <path class="divider" d="M760 1096H1280" stroke="#BE185D"/>
+  <text class="body" x="782" y="1128">Reactive command is built by Spring Data</text>
+<text class="body" x="782" y="1152">Result is adapted with flow or await APIs</text>
+  <path class="divider" d="M760 1194H1280" stroke="#BE185D"/><text class="foot" x="782" y="1223">returns Long affected row count</text>
+</g>
+<g id="CreateApi">
+  <rect class="card" x="1420" y="585" width="520" height="270" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="kicker" x="1442" y="616">create coroutine API</text>
+  <text class="cardTitle" x="1442" y="649">Create functions</text>
+  <path class="divider" d="M1420 671H1940" stroke="#C2410C"/>
+  <text class="body" x="1442" y="703">insertSuspending(entity)</text>
+<text class="body" x="1442" y="727">insertOrNullSuspending(entity)</text>
+<text class="body" x="1442" y="751">entity is passed to using(entity)</text>
+<text class="body" x="1442" y="775">nullable variant uses awaitSingleOrNull</text>
+  <path class="divider" d="M1420 809H1940" stroke="#C2410C"/><text class="foot" x="1442" y="838">public extension functions</text>
+</g>
+<g id="CreateDelegate">
+  <rect class="card" x="1420" y="1010" width="520" height="230" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="kicker" x="1442" y="1041">Spring Data delegation</text>
+  <text class="cardTitle" x="1442" y="1074">insert&lt;T&gt;().using(entity)</text>
+  <path class="divider" d="M1420 1096H1940" stroke="#C2410C"/>
+  <text class="body" x="1442" y="1128">Reactive command is built by Spring Data</text>
+<text class="body" x="1442" y="1152">Result is adapted with flow or await APIs</text>
+  <path class="divider" d="M1420 1194H1940" stroke="#C2410C"/><text class="foot" x="1442" y="1223">returns T or T?</text>
+</g>
+<g id="DeleteApi">
+  <rect class="card" x="2080" y="585" width="520" height="270" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="kicker" x="2102" y="616">delete coroutine API</text>
+  <text class="cardTitle" x="2102" y="649">Delete functions</text>
+  <path class="divider" d="M2080 671H2600" stroke="#6D28D9"/>
+  <text class="body" x="2102" y="703">deleteSuspending(query)</text>
+<text class="body" x="2102" y="727">deleteAllSuspending()</text>
+<text class="body" x="2102" y="751">Query.empty() for deleteAll</text>
+<text class="body" x="2102" y="775">deletes all matching rows</text>
+  <path class="divider" d="M2080 809H2600" stroke="#6D28D9"/><text class="foot" x="2102" y="838">public extension functions</text>
+</g>
+<g id="DeleteDelegate">
+  <rect class="card" x="2080" y="1010" width="520" height="230" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="kicker" x="2102" y="1041">Spring Data delegation</text>
+  <text class="cardTitle" x="2102" y="1074">delete&lt;T&gt;().matching(query).all()</text>
+  <path class="divider" d="M2080 1096H2600" stroke="#6D28D9"/>
+  <text class="body" x="2102" y="1128">Reactive command is built by Spring Data</text>
+<text class="body" x="2102" y="1152">Result is adapted with flow or await APIs</text>
+  <path class="divider" d="M2080 1194H2600" stroke="#6D28D9"/><text class="foot" x="2102" y="1223">returns Long deleted row count</text>
+</g>
+<g data-from="Root" data-to="ReadApi">
+  <path class="edge " d="M 970 435 L 970 491 Q 970 505 956 505 L 374 505 Q 360 505 360 519 L 360 585" stroke="#1D4ED8" marker-end="url(#arrow-blue)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="edgeLabel" x="625" y="486">query side</text>
+</g>
+<g data-from="Root" data-to="UpdateApi">
+  <path class="edge " d="M 1180 435 L 1180 491 Q 1180 505 1166 505 L 1034 505 Q 1020 505 1020 519 L 1020 585" stroke="#BE185D" marker-end="url(#arrow-pink)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="edgeLabel" x="1068" y="486">mutation side</text>
+</g>
+<g data-from="Root" data-to="CreateApi">
+  <path class="edge " d="M 1520 435 L 1520 491 Q 1520 505 1534 505 L 1666 505 Q 1680 505 1680 519 L 1680 585" stroke="#C2410C" marker-end="url(#arrow-amber)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="edgeLabel" x="1558" y="486">insert side</text>
+</g>
+<g data-from="Root" data-to="DeleteApi">
+  <path class="edge " d="M 1780 435 L 1780 491 Q 1780 505 1794 505 L 2326 505 Q 2340 505 2340 519 L 2340 585" stroke="#6D28D9" marker-end="url(#arrow-violet)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="edgeLabel" x="2025" y="486">delete side</text>
+</g>
+<g data-from="ReadApi" data-to="ReadDelegate">
+  <path class="edge dashed" d="M360 855 L360 1010" stroke="#1D4ED8"/>
+<polygon points="354,998 360,1010 366,998" fill="#1D4ED8" stroke="#1D4ED8" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="edgeLabel" x="378" y="940">delegates to</text>
+</g>
+<g data-from="UpdateApi" data-to="UpdateDelegate">
+  <path class="edge dashed" d="M1020 855 L1020 1010" stroke="#BE185D"/>
+<polygon points="1014,998 1020,1010 1026,998" fill="#BE185D" stroke="#BE185D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="edgeLabel" x="1038" y="940">delegates to</text>
+</g>
+<g data-from="CreateApi" data-to="CreateDelegate">
+  <path class="edge dashed" d="M1680 855 L1680 1010" stroke="#C2410C"/>
+<polygon points="1674,998 1680,1010 1686,998" fill="#C2410C" stroke="#C2410C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="edgeLabel" x="1698" y="940">delegates to</text>
+</g>
+<g data-from="DeleteApi" data-to="DeleteDelegate">
+  <path class="edge dashed" d="M2340 855 L2340 1010" stroke="#6D28D9"/>
+<polygon points="2334,998 2340,1010 2346,998" fill="#6D28D9" stroke="#6D28D9" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="edgeLabel" x="2358" y="940">delegates to</text>
+</g>
+</svg>

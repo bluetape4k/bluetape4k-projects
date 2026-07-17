@@ -137,6 +137,31 @@ This manual targets release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`. `
 
 The standalone `ResilientHazelcastNearCache` and write-behind queue described by the README do not exist in this release source. Use only the `cache-core` `withResilience` decorator. Factory-created JCache near caches run in a listener-free degraded mode and do not provide peer front-cache propagation.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### HazelcastNearCache Class Hierarchy diagram
+
+[![HazelcastNearCache Class Hierarchy diagram](../../assets/readme-diagrams/cache-cache-hazelcast-diagram-01.png)](../../assets/readme-diagrams/cache-cache-hazelcast-diagram-01.svg)
+
+_Release README: [`cache/cache-hazelcast/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-hazelcast/README.md)_
+
+### HazelcastNearCache Runtime Flow diagram
+
+[![HazelcastNearCache Runtime Flow diagram](../../assets/readme-diagrams/cache-cache-hazelcast-diagram-02.png)](../../assets/readme-diagrams/cache-cache-hazelcast-diagram-02.svg)
+
+_Release README: [`cache/cache-hazelcast/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-hazelcast/README.md)_
+
+### 2-Tier NearCache Flow diagram
+
+[![2-Tier NearCache Flow diagram](../../assets/readme-diagrams/cache-cache-hazelcast-sequence-01.png)](../../assets/readme-diagrams/cache-cache-hazelcast-sequence-01.svg)
+
+_Release README: [`cache/cache-hazelcast/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-hazelcast/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources and tests {#sources}
 
 - [`HazelcastCaches.kt`](../../../../cache/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/HazelcastCaches.kt)

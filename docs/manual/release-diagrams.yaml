@@ -1,0 +1,2396 @@
+---
+schemaVersion: 1
+sourcePolicy: release-readme
+diagrams:
+- id: bluetape4k-bom-diagram-01
+  canonical: bluetape4k-bom-diagram-01
+  target: bluetape4k-bom
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-bom.md
+    ko: docs/manual/ko/modules/bluetape4k-bom.md
+  releaseReadmes:
+  - bluetape4k/bom/README.ko.md
+  - bluetape4k/bom/README.md
+- id: bluetape4k-core-diagram-01
+  canonical: bluetape4k-core-diagram-01
+  target: bluetape4k-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-core.md
+    ko: docs/manual/ko/modules/bluetape4k-core.md
+  releaseReadmes:
+  - bluetape4k/core/README.ko.md
+  - bluetape4k/core/README.md
+- id: bluetape4k-core-diagram-02
+  canonical: bluetape4k-core-diagram-02
+  target: bluetape4k-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-core.md
+    ko: docs/manual/ko/modules/bluetape4k-core.md
+  releaseReadmes:
+  - bluetape4k/core/README.ko.md
+  - bluetape4k/core/README.md
+- id: bluetape4k-core-sequence-01
+  canonical: bluetape4k-core-sequence-01
+  target: bluetape4k-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-core.md
+    ko: docs/manual/ko/modules/bluetape4k-core.md
+  releaseReadmes:
+  - bluetape4k/core/README.ko.md
+  - bluetape4k/core/README.md
+- id: bluetape4k-coroutines-diagram-01
+  canonical: bluetape4k-coroutines-diagram-01
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-coroutines-diagram-02
+  canonical: bluetape4k-coroutines-diagram-02
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-coroutines-diagram-03
+  canonical: bluetape4k-coroutines-diagram-03
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-coroutines-sequence-01
+  canonical: bluetape4k-coroutines-sequence-01
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-coroutines-sequence-02
+  canonical: bluetape4k-coroutines-sequence-02
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-coroutines-sequence-03
+  canonical: bluetape4k-coroutines-sequence-03
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-coroutines-sequence-04
+  canonical: bluetape4k-coroutines-sequence-04
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-coroutines-sequence-05
+  canonical: bluetape4k-coroutines-sequence-05
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-coroutines-sequence-06
+  canonical: bluetape4k-coroutines-sequence-06
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-coroutines-sequence-07
+  canonical: bluetape4k-coroutines-sequence-07
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-coroutines-sequence-08
+  canonical: bluetape4k-coroutines-sequence-08
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-coroutines-sequence-09
+  canonical: bluetape4k-coroutines-sequence-09
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-coroutines-sequence-10
+  canonical: bluetape4k-coroutines-sequence-10
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-coroutines-sequence-11
+  canonical: bluetape4k-coroutines-sequence-11
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-coroutines-sequence-12
+  canonical: bluetape4k-coroutines-sequence-12
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-coroutines-sequence-13
+  canonical: bluetape4k-coroutines-sequence-13
+  target: bluetape4k-coroutines
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-coroutines.md
+    ko: docs/manual/ko/modules/bluetape4k-coroutines.md
+  releaseReadmes:
+  - bluetape4k/coroutines/README.ko.md
+  - bluetape4k/coroutines/README.md
+- id: bluetape4k-logging-diagram-01
+  canonical: bluetape4k-logging-diagram-01
+  target: bluetape4k-logging
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-logging.md
+    ko: docs/manual/ko/modules/bluetape4k-logging.md
+  releaseReadmes:
+  - bluetape4k/logging/README.ko.md
+  - bluetape4k/logging/README.md
+- id: bluetape4k-logging-diagram-02
+  canonical: bluetape4k-logging-diagram-02
+  target: bluetape4k-logging
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-logging.md
+    ko: docs/manual/ko/modules/bluetape4k-logging.md
+  releaseReadmes:
+  - bluetape4k/logging/README.ko.md
+  - bluetape4k/logging/README.md
+- id: bluetape4k-logging-sequence-01
+  canonical: bluetape4k-logging-sequence-01
+  target: bluetape4k-logging
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-logging.md
+    ko: docs/manual/ko/modules/bluetape4k-logging.md
+  releaseReadmes:
+  - bluetape4k/logging/README.ko.md
+  - bluetape4k/logging/README.md
+- id: cache-cache-core-diagram-01
+  canonical: cache-cache-core-diagram-01
+  target: bluetape4k-cache-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-core.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-core.md
+  releaseReadmes:
+  - cache/cache-core/README.md
+- id: cache-cache-core-diagram-02
+  canonical: cache-cache-core-diagram-02
+  target: bluetape4k-cache-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-core.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-core.md
+  releaseReadmes:
+  - cache/cache-core/README.ko.md
+- id: cache-cache-core-diagram-03
+  canonical: cache-cache-core-diagram-03
+  target: bluetape4k-cache-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-core.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-core.md
+  releaseReadmes:
+  - cache/cache-core/README.ko.md
+- id: cache-cache-core-diagram-04
+  canonical: cache-cache-core-diagram-04
+  target: bluetape4k-cache-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-core.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-core.md
+  releaseReadmes:
+  - cache/cache-core/README.ko.md
+- id: cache-cache-core-diagram-05
+  canonical: cache-cache-core-diagram-05
+  target: bluetape4k-cache-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-core.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-core.md
+  releaseReadmes:
+  - cache/cache-core/README.ko.md
+- id: cache-cache-core-diagram-06
+  canonical: cache-cache-core-diagram-06
+  target: bluetape4k-cache-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-core.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-core.md
+  releaseReadmes:
+  - cache/cache-core/README.ko.md
+- id: cache-cache-core-sequence-01
+  canonical: cache-cache-core-sequence-01
+  target: bluetape4k-cache-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-core.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-core.md
+  releaseReadmes:
+  - cache/cache-core/README.ko.md
+  - cache/cache-core/README.md
+- id: cache-cache-core-sequence-02
+  canonical: cache-cache-core-sequence-02
+  target: bluetape4k-cache-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-core.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-core.md
+  releaseReadmes:
+  - cache/cache-core/README.ko.md
+  - cache/cache-core/README.md
+- id: cache-cache-hazelcast-diagram-01
+  canonical: cache-cache-hazelcast-diagram-01
+  target: bluetape4k-cache-hazelcast
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-hazelcast.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-hazelcast.md
+  releaseReadmes:
+  - cache/cache-hazelcast/README.ko.md
+  - cache/cache-hazelcast/README.md
+- id: cache-cache-hazelcast-diagram-02
+  canonical: cache-cache-hazelcast-diagram-02
+  target: bluetape4k-cache-hazelcast
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-hazelcast.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-hazelcast.md
+  releaseReadmes:
+  - cache/cache-hazelcast/README.ko.md
+  - cache/cache-hazelcast/README.md
+- id: cache-cache-hazelcast-sequence-01
+  canonical: cache-cache-hazelcast-sequence-01
+  target: bluetape4k-cache-hazelcast
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-hazelcast.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-hazelcast.md
+  releaseReadmes:
+  - cache/cache-hazelcast/README.ko.md
+  - cache/cache-hazelcast/README.md
+- id: cache-cache-lettuce-diagram-01
+  canonical: cache-cache-lettuce-diagram-01
+  target: bluetape4k-cache-lettuce
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-lettuce.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-lettuce.md
+  releaseReadmes:
+  - cache/cache-lettuce/README.md
+- id: cache-cache-lettuce-diagram-02
+  canonical: cache-cache-lettuce-diagram-02
+  target: bluetape4k-cache-lettuce
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-lettuce.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-lettuce.md
+  releaseReadmes:
+  - cache/cache-lettuce/README.ko.md
+- id: cache-cache-lettuce-diagram-03
+  canonical: cache-cache-lettuce-diagram-03
+  target: bluetape4k-cache-lettuce
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-lettuce.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-lettuce.md
+  releaseReadmes:
+  - cache/cache-lettuce/README.ko.md
+  - cache/cache-lettuce/README.md
+- id: cache-cache-lettuce-diagram-04
+  canonical: cache-cache-lettuce-diagram-04
+  target: bluetape4k-cache-lettuce
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-lettuce.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-lettuce.md
+  releaseReadmes:
+  - cache/cache-lettuce/README.ko.md
+- id: cache-cache-lettuce-sequence-01
+  canonical: cache-cache-lettuce-sequence-01
+  target: bluetape4k-cache-lettuce
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cache-lettuce.md
+    ko: docs/manual/ko/modules/bluetape4k-cache-lettuce.md
+  releaseReadmes:
+  - cache/cache-lettuce/README.ko.md
+  - cache/cache-lettuce/README.md
+- id: cache-hibernate-cache-lettuce-diagram-01
+  canonical: cache-hibernate-cache-lettuce-diagram-01
+  target: bluetape4k-hibernate-cache-lettuce
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-hibernate-cache-lettuce.md
+    ko: docs/manual/ko/modules/bluetape4k-hibernate-cache-lettuce.md
+  releaseReadmes:
+  - cache/hibernate-cache-lettuce/README.ko.md
+  - cache/hibernate-cache-lettuce/README.md
+- id: cache-hibernate-cache-lettuce-diagram-02
+  canonical: cache-hibernate-cache-lettuce-diagram-02
+  target: bluetape4k-hibernate-cache-lettuce
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-hibernate-cache-lettuce.md
+    ko: docs/manual/ko/modules/bluetape4k-hibernate-cache-lettuce.md
+  releaseReadmes:
+  - cache/hibernate-cache-lettuce/README.ko.md
+  - cache/hibernate-cache-lettuce/README.md
+- id: cache-hibernate-cache-lettuce-sequence-01
+  canonical: cache-hibernate-cache-lettuce-sequence-01
+  target: bluetape4k-hibernate-cache-lettuce
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-hibernate-cache-lettuce.md
+    ko: docs/manual/ko/modules/bluetape4k-hibernate-cache-lettuce.md
+  releaseReadmes:
+  - cache/hibernate-cache-lettuce/README.ko.md
+  - cache/hibernate-cache-lettuce/README.md
+- id: data-cassandra-diagram-01
+  canonical: data-cassandra-diagram-01
+  target: bluetape4k-cassandra
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cassandra.md
+    ko: docs/manual/ko/modules/bluetape4k-cassandra.md
+  releaseReadmes:
+  - data/cassandra/README.ko.md
+  - data/cassandra/README.md
+- id: data-cassandra-diagram-02
+  canonical: data-cassandra-diagram-02
+  target: bluetape4k-cassandra
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cassandra.md
+    ko: docs/manual/ko/modules/bluetape4k-cassandra.md
+  releaseReadmes:
+  - data/cassandra/README.ko.md
+  - data/cassandra/README.md
+- id: data-cassandra-sequence-01
+  canonical: data-cassandra-sequence-01
+  target: bluetape4k-cassandra
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-cassandra.md
+    ko: docs/manual/ko/modules/bluetape4k-cassandra.md
+  releaseReadmes:
+  - data/cassandra/README.ko.md
+  - data/cassandra/README.md
+- id: data-hibernate-diagram-01
+  canonical: data-hibernate-diagram-01
+  target: bluetape4k-hibernate
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-hibernate.md
+    ko: docs/manual/ko/modules/bluetape4k-hibernate.md
+  releaseReadmes:
+  - data/hibernate/README.ko.md
+  - data/hibernate/README.md
+- id: data-hibernate-diagram-02
+  canonical: data-hibernate-diagram-02
+  target: bluetape4k-hibernate
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-hibernate.md
+    ko: docs/manual/ko/modules/bluetape4k-hibernate.md
+  releaseReadmes:
+  - data/hibernate/README.ko.md
+  - data/hibernate/README.md
+- id: data-hibernate-diagram-03
+  canonical: data-hibernate-diagram-03
+  target: bluetape4k-hibernate
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-hibernate.md
+    ko: docs/manual/ko/modules/bluetape4k-hibernate.md
+  releaseReadmes:
+  - data/hibernate/README.ko.md
+  - data/hibernate/README.md
+- id: data-hibernate-reactive-diagram-01
+  canonical: data-hibernate-reactive-diagram-01
+  target: bluetape4k-hibernate-reactive
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-hibernate-reactive.md
+    ko: docs/manual/ko/modules/bluetape4k-hibernate-reactive.md
+  releaseReadmes:
+  - data/hibernate-reactive/README.ko.md
+  - data/hibernate-reactive/README.md
+- id: data-hibernate-reactive-diagram-02
+  canonical: data-hibernate-reactive-diagram-02
+  target: bluetape4k-hibernate-reactive
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-hibernate-reactive.md
+    ko: docs/manual/ko/modules/bluetape4k-hibernate-reactive.md
+  releaseReadmes:
+  - data/hibernate-reactive/README.ko.md
+  - data/hibernate-reactive/README.md
+- id: data-hibernate-reactive-diagram-03
+  canonical: data-hibernate-reactive-diagram-03
+  target: bluetape4k-hibernate-reactive
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-hibernate-reactive.md
+    ko: docs/manual/ko/modules/bluetape4k-hibernate-reactive.md
+  releaseReadmes:
+  - data/hibernate-reactive/README.ko.md
+  - data/hibernate-reactive/README.md
+- id: data-jdbc-diagram-01
+  canonical: data-jdbc-diagram-01
+  target: bluetape4k-jdbc
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-jdbc.md
+    ko: docs/manual/ko/modules/bluetape4k-jdbc.md
+  releaseReadmes:
+  - data/jdbc/README.ko.md
+  - data/jdbc/README.md
+- id: data-jdbc-diagram-02
+  canonical: data-jdbc-diagram-02
+  target: bluetape4k-jdbc
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-jdbc.md
+    ko: docs/manual/ko/modules/bluetape4k-jdbc.md
+  releaseReadmes:
+  - data/jdbc/README.ko.md
+  - data/jdbc/README.md
+- id: data-jdbc-sequence-01
+  canonical: data-jdbc-sequence-01
+  target: bluetape4k-jdbc
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-jdbc.md
+    ko: docs/manual/ko/modules/bluetape4k-jdbc.md
+  releaseReadmes:
+  - data/jdbc/README.ko.md
+  - data/jdbc/README.md
+- id: data-mongodb-diagram-01
+  canonical: data-mongodb-diagram-01
+  target: bluetape4k-mongodb
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-mongodb.md
+    ko: docs/manual/ko/modules/bluetape4k-mongodb.md
+  releaseReadmes:
+  - data/mongodb/README.ko.md
+  - data/mongodb/README.md
+- id: data-mongodb-diagram-02
+  canonical: data-mongodb-diagram-02
+  target: bluetape4k-mongodb
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-mongodb.md
+    ko: docs/manual/ko/modules/bluetape4k-mongodb.md
+  releaseReadmes:
+  - data/mongodb/README.ko.md
+  - data/mongodb/README.md
+- id: data-mongodb-diagram-03
+  canonical: data-mongodb-diagram-03
+  target: bluetape4k-mongodb
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-mongodb.md
+    ko: docs/manual/ko/modules/bluetape4k-mongodb.md
+  releaseReadmes:
+  - data/mongodb/README.ko.md
+  - data/mongodb/README.md
+- id: data-r2dbc-diagram-01
+  canonical: data-r2dbc-diagram-01
+  target: bluetape4k-r2dbc
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-r2dbc.md
+    ko: docs/manual/ko/modules/bluetape4k-r2dbc.md
+  releaseReadmes:
+  - data/r2dbc/README.ko.md
+  - data/r2dbc/README.md
+- id: data-r2dbc-diagram-02
+  canonical: data-r2dbc-diagram-02
+  target: bluetape4k-r2dbc
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-r2dbc.md
+    ko: docs/manual/ko/modules/bluetape4k-r2dbc.md
+  releaseReadmes:
+  - data/r2dbc/README.ko.md
+  - data/r2dbc/README.md
+- id: data-r2dbc-diagram-03
+  canonical: data-r2dbc-diagram-03
+  target: bluetape4k-r2dbc
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-r2dbc.md
+    ko: docs/manual/ko/modules/bluetape4k-r2dbc.md
+  releaseReadmes:
+  - data/r2dbc/README.ko.md
+  - data/r2dbc/README.md
+- id: data-r2dbc-sequence-01
+  canonical: data-r2dbc-sequence-01
+  target: bluetape4k-r2dbc
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-r2dbc.md
+    ko: docs/manual/ko/modules/bluetape4k-r2dbc.md
+  releaseReadmes:
+  - data/r2dbc/README.ko.md
+  - data/r2dbc/README.md
+- id: examples-coroutines-demo-diagram-01
+  canonical: examples-coroutines-demo-diagram-01
+  target: bluetape4k-examples-coroutines-demo
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-examples-coroutines-demo.md
+    ko: docs/manual/ko/modules/bluetape4k-examples-coroutines-demo.md
+  releaseReadmes:
+  - examples/coroutines-demo/README.ko.md
+  - examples/coroutines-demo/README.md
+- id: examples-jpa-blazepersistence-demo-diagram-01
+  canonical: examples-jpa-blazepersistence-demo-diagram-01
+  target: bluetape4k-examples-jpa-blazepersistence-demo
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-examples-jpa-blazepersistence-demo.md
+    ko: docs/manual/ko/modules/bluetape4k-examples-jpa-blazepersistence-demo.md
+  releaseReadmes:
+  - examples/jpa-blazepersistence-demo/README.ko.md
+  - examples/jpa-blazepersistence-demo/README.md
+- id: examples-jpa-querydsl-demo-diagram-01
+  canonical: examples-jpa-querydsl-demo-diagram-01
+  target: bluetape4k-examples-jpa-querydsl-demo
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-examples-jpa-querydsl-demo.md
+    ko: docs/manual/ko/modules/bluetape4k-examples-jpa-querydsl-demo.md
+  releaseReadmes:
+  - examples/jpa-querydsl-demo/README.ko.md
+  - examples/jpa-querydsl-demo/README.md
+- id: examples-ktor-idgenerator-ktor-demo-diagram-01
+  canonical: examples-ktor-idgenerator-ktor-demo-diagram-01
+  target: idgenerator-ktor-demo
+  manualPages:
+    en: docs/manual/en/modules/idgenerator-ktor-demo.md
+    ko: docs/manual/ko/modules/idgenerator-ktor-demo.md
+  releaseReadmes:
+  - examples/ktor/idgenerator-ktor-demo/README.ko.md
+  - examples/ktor/idgenerator-ktor-demo/README.md
+- id: examples-ktor-observability-ktor-demo-architecture-01
+  canonical: examples-ktor-observability-ktor-demo-architecture-01
+  target: observability-ktor-demo
+  manualPages:
+    en: docs/manual/en/modules/observability-ktor-demo.md
+    ko: docs/manual/ko/modules/observability-ktor-demo.md
+  releaseReadmes:
+  - examples/ktor/observability-ktor-demo/README.ko.md
+  - examples/ktor/observability-ktor-demo/README.md
+- id: examples-ktor-observability-ktor-demo-sequence-01
+  canonical: examples-ktor-observability-ktor-demo-sequence-01
+  target: observability-ktor-demo
+  manualPages:
+    en: docs/manual/en/modules/observability-ktor-demo.md
+    ko: docs/manual/ko/modules/observability-ktor-demo.md
+  releaseReadmes:
+  - examples/ktor/observability-ktor-demo/README.ko.md
+  - examples/ktor/observability-ktor-demo/README.md
+- id: examples-redisson-demo-diagram-01
+  canonical: examples-redisson-demo-diagram-01
+  target: bluetape4k-examples-redisson-demo
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-examples-redisson-demo.md
+    ko: docs/manual/ko/modules/bluetape4k-examples-redisson-demo.md
+  releaseReadmes:
+  - examples/redisson-demo/README.ko.md
+  - examples/redisson-demo/README.md
+- id: examples-spring-boot-idgenerator-spring-boot-demo-diagram-01
+  canonical: examples-spring-boot-idgenerator-spring-boot-demo-diagram-01
+  target: idgenerator-spring-boot-demo
+  manualPages:
+    en: docs/manual/en/modules/idgenerator-spring-boot-demo.md
+    ko: docs/manual/ko/modules/idgenerator-spring-boot-demo.md
+  releaseReadmes:
+  - examples/spring-boot/idgenerator-spring-boot-demo/README.ko.md
+  - examples/spring-boot/idgenerator-spring-boot-demo/README.md
+- id: examples-spring-boot-observability-spring-boot-demo-architecture-01
+  canonical: examples-spring-boot-observability-spring-boot-demo-architecture-01
+  target: observability-spring-boot-demo
+  manualPages:
+    en: docs/manual/en/modules/observability-spring-boot-demo.md
+    ko: docs/manual/ko/modules/observability-spring-boot-demo.md
+  releaseReadmes:
+  - examples/spring-boot/observability-spring-boot-demo/README.ko.md
+  - examples/spring-boot/observability-spring-boot-demo/README.md
+- id: examples-spring-boot-observability-spring-boot-demo-sequence-01
+  canonical: examples-spring-boot-observability-spring-boot-demo-sequence-01
+  target: observability-spring-boot-demo
+  manualPages:
+    en: docs/manual/en/modules/observability-spring-boot-demo.md
+    ko: docs/manual/ko/modules/observability-spring-boot-demo.md
+  releaseReadmes:
+  - examples/spring-boot/observability-spring-boot-demo/README.ko.md
+  - examples/spring-boot/observability-spring-boot-demo/README.md
+- id: examples-virtualthreads-demo-diagram-01
+  canonical: examples-virtualthreads-demo-diagram-01
+  target: bluetape4k-examples-virtualthreads-demo
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-examples-virtualthreads-demo.md
+    ko: docs/manual/ko/modules/bluetape4k-examples-virtualthreads-demo.md
+  releaseReadmes:
+  - examples/virtualthreads-demo/README.ko.md
+  - examples/virtualthreads-demo/README.md
+- id: infra-bucket4j-diagram-01
+  canonical: infra-bucket4j-diagram-01
+  target: bluetape4k-bucket4j
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-bucket4j.md
+    ko: docs/manual/ko/modules/bluetape4k-bucket4j.md
+  releaseReadmes:
+  - infra/bucket4j/README.ko.md
+  - infra/bucket4j/README.md
+- id: infra-bucket4j-sequence-01
+  canonical: infra-bucket4j-sequence-01
+  target: bluetape4k-bucket4j
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-bucket4j.md
+    ko: docs/manual/ko/modules/bluetape4k-bucket4j.md
+  releaseReadmes:
+  - infra/bucket4j/README.ko.md
+  - infra/bucket4j/README.md
+- id: infra-bucket4j-sequence-02
+  canonical: infra-bucket4j-sequence-02
+  target: bluetape4k-bucket4j
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-bucket4j.md
+    ko: docs/manual/ko/modules/bluetape4k-bucket4j.md
+  releaseReadmes:
+  - infra/bucket4j/README.ko.md
+  - infra/bucket4j/README.md
+- id: infra-elasticsearch-diagram-01
+  canonical: infra-elasticsearch-diagram-01
+  target: bluetape4k-elasticsearch
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-elasticsearch.md
+    ko: docs/manual/ko/modules/bluetape4k-elasticsearch.md
+  releaseReadmes:
+  - infra/elasticsearch/README.ko.md
+  - infra/elasticsearch/README.md
+- id: infra-elasticsearch-diagram-02
+  canonical: infra-elasticsearch-diagram-02
+  target: bluetape4k-elasticsearch
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-elasticsearch.md
+    ko: docs/manual/ko/modules/bluetape4k-elasticsearch.md
+  releaseReadmes:
+  - infra/elasticsearch/README.ko.md
+  - infra/elasticsearch/README.md
+- id: infra-kafka-diagram-01
+  canonical: infra-kafka-diagram-01
+  target: bluetape4k-kafka
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-kafka.md
+    ko: docs/manual/ko/modules/bluetape4k-kafka.md
+  releaseReadmes:
+  - infra/kafka/README.ko.md
+  - infra/kafka/README.md
+- id: infra-kafka-diagram-02
+  canonical: infra-kafka-diagram-02
+  target: bluetape4k-kafka
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-kafka.md
+    ko: docs/manual/ko/modules/bluetape4k-kafka.md
+  releaseReadmes:
+  - infra/kafka/README.ko.md
+  - infra/kafka/README.md
+- id: infra-kafka-logback-diagram-01
+  canonical: infra-kafka-logback-diagram-01
+  target: bluetape4k-kafka-logback
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-kafka-logback.md
+    ko: docs/manual/ko/modules/bluetape4k-kafka-logback.md
+  releaseReadmes:
+  - infra/kafka-logback/README.ko.md
+  - infra/kafka-logback/README.md
+- id: infra-kafka-logback-sequence-01
+  canonical: infra-kafka-logback-sequence-01
+  target: bluetape4k-kafka-logback
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-kafka-logback.md
+    ko: docs/manual/ko/modules/bluetape4k-kafka-logback.md
+  releaseReadmes:
+  - infra/kafka-logback/README.ko.md
+  - infra/kafka-logback/README.md
+- id: infra-kafka-sequence-01
+  canonical: infra-kafka-sequence-01
+  target: bluetape4k-kafka
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-kafka.md
+    ko: docs/manual/ko/modules/bluetape4k-kafka.md
+  releaseReadmes:
+  - infra/kafka/README.ko.md
+  - infra/kafka/README.md
+- id: infra-kafka4-diagram-01
+  canonical: infra-kafka4-diagram-01
+  target: bluetape4k-kafka4
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-kafka4.md
+    ko: docs/manual/ko/modules/bluetape4k-kafka4.md
+  releaseReadmes:
+  - infra/kafka4/README.ko.md
+  - infra/kafka4/README.md
+- id: infra-lettuce-diagram-01
+  canonical: infra-lettuce-diagram-01
+  target: bluetape4k-lettuce
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-lettuce.md
+    ko: docs/manual/ko/modules/bluetape4k-lettuce.md
+  releaseReadmes:
+  - infra/lettuce/README.ko.md
+  - infra/lettuce/README.md
+- id: infra-lettuce-diagram-02
+  canonical: infra-lettuce-diagram-02
+  target: bluetape4k-lettuce
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-lettuce.md
+    ko: docs/manual/ko/modules/bluetape4k-lettuce.md
+  releaseReadmes:
+  - infra/lettuce/README.ko.md
+  - infra/lettuce/README.md
+- id: infra-lettuce-sequence-01
+  canonical: infra-lettuce-sequence-01
+  target: bluetape4k-lettuce
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-lettuce.md
+    ko: docs/manual/ko/modules/bluetape4k-lettuce.md
+  releaseReadmes:
+  - infra/lettuce/README.ko.md
+  - infra/lettuce/README.md
+- id: infra-micrometer-diagram-01
+  canonical: infra-micrometer-diagram-01
+  target: bluetape4k-micrometer
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-micrometer.md
+    ko: docs/manual/ko/modules/bluetape4k-micrometer.md
+  releaseReadmes:
+  - infra/micrometer/README.ko.md
+  - infra/micrometer/README.md
+- id: infra-micrometer-diagram-02
+  canonical: infra-micrometer-diagram-02
+  target: bluetape4k-micrometer
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-micrometer.md
+    ko: docs/manual/ko/modules/bluetape4k-micrometer.md
+  releaseReadmes:
+  - infra/micrometer/README.ko.md
+  - infra/micrometer/README.md
+- id: infra-micrometer-diagram-03
+  canonical: infra-micrometer-diagram-03
+  target: bluetape4k-micrometer
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-micrometer.md
+    ko: docs/manual/ko/modules/bluetape4k-micrometer.md
+  releaseReadmes:
+  - infra/micrometer/README.ko.md
+  - infra/micrometer/README.md
+- id: infra-micrometer-sequence-01
+  canonical: infra-micrometer-sequence-01
+  target: bluetape4k-micrometer
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-micrometer.md
+    ko: docs/manual/ko/modules/bluetape4k-micrometer.md
+  releaseReadmes:
+  - infra/micrometer/README.ko.md
+  - infra/micrometer/README.md
+- id: infra-micrometer-sequence-02
+  canonical: infra-micrometer-sequence-02
+  target: bluetape4k-micrometer
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-micrometer.md
+    ko: docs/manual/ko/modules/bluetape4k-micrometer.md
+  releaseReadmes:
+  - infra/micrometer/README.ko.md
+  - infra/micrometer/README.md
+- id: infra-micrometer-sequence-03
+  canonical: infra-micrometer-sequence-03
+  target: bluetape4k-micrometer
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-micrometer.md
+    ko: docs/manual/ko/modules/bluetape4k-micrometer.md
+  releaseReadmes:
+  - infra/micrometer/README.ko.md
+  - infra/micrometer/README.md
+- id: infra-nats-diagram-01
+  canonical: infra-nats-diagram-01
+  target: bluetape4k-nats
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-nats.md
+    ko: docs/manual/ko/modules/bluetape4k-nats.md
+  releaseReadmes:
+  - infra/nats/README.ko.md
+  - infra/nats/README.md
+- id: infra-opentelemetry-diagram-01
+  canonical: infra-opentelemetry-diagram-01
+  target: bluetape4k-opentelemetry
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-opentelemetry.md
+    ko: docs/manual/ko/modules/bluetape4k-opentelemetry.md
+  releaseReadmes:
+  - infra/opentelemetry/README.ko.md
+  - infra/opentelemetry/README.md
+- id: infra-opentelemetry-diagram-02
+  canonical: infra-opentelemetry-diagram-02
+  target: bluetape4k-opentelemetry
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-opentelemetry.md
+    ko: docs/manual/ko/modules/bluetape4k-opentelemetry.md
+  releaseReadmes:
+  - infra/opentelemetry/README.ko.md
+  - infra/opentelemetry/README.md
+- id: infra-opentelemetry-diagram-03
+  canonical: infra-opentelemetry-diagram-03
+  target: bluetape4k-opentelemetry
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-opentelemetry.md
+    ko: docs/manual/ko/modules/bluetape4k-opentelemetry.md
+  releaseReadmes:
+  - infra/opentelemetry/README.ko.md
+  - infra/opentelemetry/README.md
+- id: infra-opentelemetry-sequence-01
+  canonical: infra-opentelemetry-sequence-01
+  target: bluetape4k-opentelemetry
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-opentelemetry.md
+    ko: docs/manual/ko/modules/bluetape4k-opentelemetry.md
+  releaseReadmes:
+  - infra/opentelemetry/README.ko.md
+  - infra/opentelemetry/README.md
+- id: infra-pulsar-diagram-01
+  canonical: infra-pulsar-diagram-01
+  target: bluetape4k-pulsar
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-pulsar.md
+    ko: docs/manual/ko/modules/bluetape4k-pulsar.md
+  releaseReadmes:
+  - infra/pulsar/README.ko.md
+  - infra/pulsar/README.md
+- id: infra-redis-diagram-01
+  canonical: infra-redis-diagram-01
+  target: bluetape4k-redis
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-redis.md
+    ko: docs/manual/ko/modules/bluetape4k-redis.md
+  releaseReadmes:
+  - infra/redis/README.ko.md
+  - infra/redis/README.md
+- id: infra-redis-diagram-02
+  canonical: infra-redis-diagram-02
+  target: bluetape4k-redis
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-redis.md
+    ko: docs/manual/ko/modules/bluetape4k-redis.md
+  releaseReadmes:
+  - infra/redis/README.ko.md
+  - infra/redis/README.md
+- id: infra-redisson-diagram-01
+  canonical: infra-redisson-diagram-01
+  target: bluetape4k-redisson
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-redisson.md
+    ko: docs/manual/ko/modules/bluetape4k-redisson.md
+  releaseReadmes:
+  - infra/redisson/README.ko.md
+  - infra/redisson/README.md
+- id: infra-redisson-diagram-02
+  canonical: infra-redisson-diagram-02
+  target: bluetape4k-redisson
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-redisson.md
+    ko: docs/manual/ko/modules/bluetape4k-redisson.md
+  releaseReadmes:
+  - infra/redisson/README.ko.md
+  - infra/redisson/README.md
+- id: infra-redisson-sequence-01
+  canonical: infra-redisson-sequence-01
+  target: bluetape4k-redisson
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-redisson.md
+    ko: docs/manual/ko/modules/bluetape4k-redisson.md
+  releaseReadmes:
+  - infra/redisson/README.ko.md
+  - infra/redisson/README.md
+- id: infra-resilience4j-diagram-01
+  canonical: infra-resilience4j-diagram-01
+  target: bluetape4k-resilience4j
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-resilience4j.md
+    ko: docs/manual/ko/modules/bluetape4k-resilience4j.md
+  releaseReadmes:
+  - infra/resilience4j/README.ko.md
+  - infra/resilience4j/README.md
+- id: infra-resilience4j-sequence-01
+  canonical: infra-resilience4j-sequence-01
+  target: bluetape4k-resilience4j
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-resilience4j.md
+    ko: docs/manual/ko/modules/bluetape4k-resilience4j.md
+  releaseReadmes:
+  - infra/resilience4j/README.ko.md
+  - infra/resilience4j/README.md
+- id: infra-resilience4j-sequence-02
+  canonical: infra-resilience4j-sequence-02
+  target: bluetape4k-resilience4j
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-resilience4j.md
+    ko: docs/manual/ko/modules/bluetape4k-resilience4j.md
+  releaseReadmes:
+  - infra/resilience4j/README.ko.md
+  - infra/resilience4j/README.md
+- id: io-avro-diagram-01
+  canonical: io-avro-diagram-01
+  target: bluetape4k-avro
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-avro.md
+    ko: docs/manual/ko/modules/bluetape4k-avro.md
+  releaseReadmes:
+  - io/avro/README.ko.md
+  - io/avro/README.md
+- id: io-avro-diagram-02
+  canonical: io-avro-diagram-02
+  target: bluetape4k-avro
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-avro.md
+    ko: docs/manual/ko/modules/bluetape4k-avro.md
+  releaseReadmes:
+  - io/avro/README.ko.md
+  - io/avro/README.md
+- id: io-avro-sequence-01
+  canonical: io-avro-sequence-01
+  target: bluetape4k-avro
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-avro.md
+    ko: docs/manual/ko/modules/bluetape4k-avro.md
+  releaseReadmes:
+  - io/avro/README.ko.md
+  - io/avro/README.md
+- id: io-csv-diagram-01
+  canonical: io-csv-diagram-01
+  target: bluetape4k-csv
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-csv.md
+    ko: docs/manual/ko/modules/bluetape4k-csv.md
+  releaseReadmes:
+  - io/csv/README.ko.md
+  - io/csv/README.md
+- id: io-csv-diagram-02
+  canonical: io-csv-diagram-02
+  target: bluetape4k-csv
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-csv.md
+    ko: docs/manual/ko/modules/bluetape4k-csv.md
+  releaseReadmes:
+  - io/csv/README.ko.md
+  - io/csv/README.md
+- id: io-fastjson2-diagram-01
+  canonical: io-fastjson2-diagram-01
+  target: bluetape4k-fastjson2
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-fastjson2.md
+    ko: docs/manual/ko/modules/bluetape4k-fastjson2.md
+  releaseReadmes:
+  - io/fastjson2/README.ko.md
+  - io/fastjson2/README.md
+- id: io-fastjson2-diagram-02
+  canonical: io-fastjson2-diagram-02
+  target: bluetape4k-fastjson2
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-fastjson2.md
+    ko: docs/manual/ko/modules/bluetape4k-fastjson2.md
+  releaseReadmes:
+  - io/fastjson2/README.ko.md
+  - io/fastjson2/README.md
+- id: io-feign-diagram-01
+  canonical: io-feign-diagram-01
+  target: bluetape4k-feign
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-feign.md
+    ko: docs/manual/ko/modules/bluetape4k-feign.md
+  releaseReadmes:
+  - io/feign/README.ko.md
+  - io/feign/README.md
+- id: io-feign-diagram-02
+  canonical: io-feign-diagram-02
+  target: bluetape4k-feign
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-feign.md
+    ko: docs/manual/ko/modules/bluetape4k-feign.md
+  releaseReadmes:
+  - io/feign/README.ko.md
+  - io/feign/README.md
+- id: io-feign-diagram-03
+  canonical: io-feign-diagram-03
+  target: bluetape4k-feign
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-feign.md
+    ko: docs/manual/ko/modules/bluetape4k-feign.md
+  releaseReadmes:
+  - io/feign/README.ko.md
+  - io/feign/README.md
+- id: io-feign-sequence-01
+  canonical: io-feign-sequence-01
+  target: bluetape4k-feign
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-feign.md
+    ko: docs/manual/ko/modules/bluetape4k-feign.md
+  releaseReadmes:
+  - io/feign/README.ko.md
+  - io/feign/README.md
+- id: io-grpc-diagram-01
+  canonical: io-grpc-diagram-01
+  target: bluetape4k-grpc
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-grpc.md
+    ko: docs/manual/ko/modules/bluetape4k-grpc.md
+  releaseReadmes:
+  - io/grpc/README.ko.md
+  - io/grpc/README.md
+- id: io-grpc-diagram-02
+  canonical: io-grpc-diagram-02
+  target: bluetape4k-grpc
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-grpc.md
+    ko: docs/manual/ko/modules/bluetape4k-grpc.md
+  releaseReadmes:
+  - io/grpc/README.ko.md
+  - io/grpc/README.md
+- id: io-grpc-sequence-01
+  canonical: io-grpc-sequence-01
+  target: bluetape4k-grpc
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-grpc.md
+    ko: docs/manual/ko/modules/bluetape4k-grpc.md
+  releaseReadmes:
+  - io/grpc/README.ko.md
+  - io/grpc/README.md
+- id: io-grpc-sequence-02
+  canonical: io-grpc-sequence-02
+  target: bluetape4k-grpc
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-grpc.md
+    ko: docs/manual/ko/modules/bluetape4k-grpc.md
+  releaseReadmes:
+  - io/grpc/README.ko.md
+  - io/grpc/README.md
+- id: io-http-chart-01
+  canonical: io-http-chart-01
+  target: bluetape4k-http
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-http.md
+    ko: docs/manual/ko/modules/bluetape4k-http.md
+  releaseReadmes:
+  - io/http/README.ko.md
+  - io/http/README.md
+- id: io-http-chart-02
+  canonical: io-http-chart-02
+  target: bluetape4k-http
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-http.md
+    ko: docs/manual/ko/modules/bluetape4k-http.md
+  releaseReadmes:
+  - io/http/README.ko.md
+  - io/http/README.md
+- id: io-http-diagram-01
+  canonical: io-http-diagram-01
+  target: bluetape4k-http
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-http.md
+    ko: docs/manual/ko/modules/bluetape4k-http.md
+  releaseReadmes:
+  - io/http/README.ko.md
+  - io/http/README.md
+- id: io-http-diagram-02
+  canonical: io-http-diagram-02
+  target: bluetape4k-http
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-http.md
+    ko: docs/manual/ko/modules/bluetape4k-http.md
+  releaseReadmes:
+  - io/http/README.ko.md
+  - io/http/README.md
+- id: io-http-diagram-03
+  canonical: io-http-diagram-03
+  target: bluetape4k-http
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-http.md
+    ko: docs/manual/ko/modules/bluetape4k-http.md
+  releaseReadmes:
+  - io/http/README.ko.md
+  - io/http/README.md
+- id: io-http-diagram-04
+  canonical: io-http-diagram-04
+  target: bluetape4k-http
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-http.md
+    ko: docs/manual/ko/modules/bluetape4k-http.md
+  releaseReadmes:
+  - io/http/README.ko.md
+  - io/http/README.md
+- id: io-http-diagram-05
+  canonical: io-http-diagram-05
+  target: bluetape4k-http
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-http.md
+    ko: docs/manual/ko/modules/bluetape4k-http.md
+  releaseReadmes:
+  - io/http/README.ko.md
+  - io/http/README.md
+- id: io-http-diagram-06
+  canonical: io-http-diagram-06
+  target: bluetape4k-http
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-http.md
+    ko: docs/manual/ko/modules/bluetape4k-http.md
+  releaseReadmes:
+  - io/http/README.ko.md
+  - io/http/README.md
+- id: io-http-sequence-01
+  canonical: io-http-sequence-01
+  target: bluetape4k-http
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-http.md
+    ko: docs/manual/ko/modules/bluetape4k-http.md
+  releaseReadmes:
+  - io/http/README.ko.md
+  - io/http/README.md
+- id: io-io-diagram-01
+  canonical: io-io-diagram-01
+  target: bluetape4k-io
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-io.md
+    ko: docs/manual/ko/modules/bluetape4k-io.md
+  releaseReadmes:
+  - io/io/README.ko.md
+  - io/io/README.md
+- id: io-io-diagram-02
+  canonical: io-io-diagram-02
+  target: bluetape4k-io
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-io.md
+    ko: docs/manual/ko/modules/bluetape4k-io.md
+  releaseReadmes:
+  - io/io/README.ko.md
+  - io/io/README.md
+- id: io-io-sequence-01
+  canonical: io-io-sequence-01
+  target: bluetape4k-io
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-io.md
+    ko: docs/manual/ko/modules/bluetape4k-io.md
+  releaseReadmes:
+  - io/io/README.ko.md
+  - io/io/README.md
+- id: io-io-sequence-02
+  canonical: io-io-sequence-02
+  target: bluetape4k-io
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-io.md
+    ko: docs/manual/ko/modules/bluetape4k-io.md
+  releaseReadmes:
+  - io/io/README.ko.md
+  - io/io/README.md
+- id: io-jackson2-diagram-01
+  canonical: io-jackson2-diagram-01
+  target: bluetape4k-jackson2
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-jackson2.md
+    ko: docs/manual/ko/modules/bluetape4k-jackson2.md
+  releaseReadmes:
+  - io/jackson2/README.ko.md
+  - io/jackson2/README.md
+- id: io-jackson2-diagram-02
+  canonical: io-jackson2-diagram-02
+  target: bluetape4k-jackson2
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-jackson2.md
+    ko: docs/manual/ko/modules/bluetape4k-jackson2.md
+  releaseReadmes:
+  - io/jackson2/README.ko.md
+  - io/jackson2/README.md
+- id: io-jackson2-sequence-01
+  canonical: io-jackson2-sequence-01
+  target: bluetape4k-jackson2
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-jackson2.md
+    ko: docs/manual/ko/modules/bluetape4k-jackson2.md
+  releaseReadmes:
+  - io/jackson2/README.ko.md
+  - io/jackson2/README.md
+- id: io-jackson3-diagram-01
+  canonical: io-jackson3-diagram-01
+  target: bluetape4k-jackson3
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-jackson3.md
+    ko: docs/manual/ko/modules/bluetape4k-jackson3.md
+  releaseReadmes:
+  - io/jackson3/README.ko.md
+  - io/jackson3/README.md
+- id: io-jackson3-diagram-02
+  canonical: io-jackson3-diagram-02
+  target: bluetape4k-jackson3
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-jackson3.md
+    ko: docs/manual/ko/modules/bluetape4k-jackson3.md
+  releaseReadmes:
+  - io/jackson3/README.ko.md
+  - io/jackson3/README.md
+- id: io-jackson3-sequence-01
+  canonical: io-jackson3-sequence-01
+  target: bluetape4k-jackson3
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-jackson3.md
+    ko: docs/manual/ko/modules/bluetape4k-jackson3.md
+  releaseReadmes:
+  - io/jackson3/README.ko.md
+  - io/jackson3/README.md
+- id: io-json-diagram-01
+  canonical: io-json-diagram-01
+  target: bluetape4k-json
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-json.md
+    ko: docs/manual/ko/modules/bluetape4k-json.md
+  releaseReadmes:
+  - io/json/README.ko.md
+  - io/json/README.md
+- id: io-json-diagram-02
+  canonical: io-json-diagram-02
+  target: bluetape4k-json
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-json.md
+    ko: docs/manual/ko/modules/bluetape4k-json.md
+  releaseReadmes:
+  - io/json/README.ko.md
+  - io/json/README.md
+- id: io-netty-diagram-01
+  canonical: io-netty-diagram-01
+  target: bluetape4k-netty
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-netty.md
+    ko: docs/manual/ko/modules/bluetape4k-netty.md
+  releaseReadmes:
+  - io/netty/README.ko.md
+  - io/netty/README.md
+- id: io-netty-diagram-02
+  canonical: io-netty-diagram-02
+  target: bluetape4k-netty
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-netty.md
+    ko: docs/manual/ko/modules/bluetape4k-netty.md
+  releaseReadmes:
+  - io/netty/README.ko.md
+  - io/netty/README.md
+- id: io-netty-diagram-03
+  canonical: io-netty-diagram-03
+  target: bluetape4k-netty
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-netty.md
+    ko: docs/manual/ko/modules/bluetape4k-netty.md
+  releaseReadmes:
+  - io/netty/README.ko.md
+  - io/netty/README.md
+- id: io-okio-diagram-01
+  canonical: io-okio-diagram-01
+  target: bluetape4k-okio
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-okio.md
+    ko: docs/manual/ko/modules/bluetape4k-okio.md
+  releaseReadmes:
+  - io/okio/README.ko.md
+  - io/okio/README.md
+- id: io-okio-diagram-02
+  canonical: io-okio-diagram-02
+  target: bluetape4k-okio
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-okio.md
+    ko: docs/manual/ko/modules/bluetape4k-okio.md
+  releaseReadmes:
+  - io/okio/README.ko.md
+  - io/okio/README.md
+- id: io-okio-diagram-03
+  canonical: io-okio-diagram-03
+  target: bluetape4k-okio
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-okio.md
+    ko: docs/manual/ko/modules/bluetape4k-okio.md
+  releaseReadmes:
+  - io/okio/README.ko.md
+  - io/okio/README.md
+- id: io-okio-diagram-04
+  canonical: io-okio-diagram-04
+  target: bluetape4k-okio
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-okio.md
+    ko: docs/manual/ko/modules/bluetape4k-okio.md
+  releaseReadmes:
+  - io/okio/README.ko.md
+  - io/okio/README.md
+- id: io-okio-sequence-01
+  canonical: io-okio-sequence-01
+  target: bluetape4k-okio
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-okio.md
+    ko: docs/manual/ko/modules/bluetape4k-okio.md
+  releaseReadmes:
+  - io/okio/README.ko.md
+  - io/okio/README.md
+- id: io-okio-sequence-02
+  canonical: io-okio-sequence-02
+  target: bluetape4k-okio
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-okio.md
+    ko: docs/manual/ko/modules/bluetape4k-okio.md
+  releaseReadmes:
+  - io/okio/README.ko.md
+  - io/okio/README.md
+- id: io-okio-sequence-03
+  canonical: io-okio-sequence-03
+  target: bluetape4k-okio
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-okio.md
+    ko: docs/manual/ko/modules/bluetape4k-okio.md
+  releaseReadmes:
+  - io/okio/README.ko.md
+  - io/okio/README.md
+- id: io-okio-sequence-04
+  canonical: io-okio-sequence-04
+  target: bluetape4k-okio
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-okio.md
+    ko: docs/manual/ko/modules/bluetape4k-okio.md
+  releaseReadmes:
+  - io/okio/README.ko.md
+  - io/okio/README.md
+- id: io-okio-sequence-05
+  canonical: io-okio-sequence-05
+  target: bluetape4k-okio
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-okio.md
+    ko: docs/manual/ko/modules/bluetape4k-okio.md
+  releaseReadmes:
+  - io/okio/README.ko.md
+  - io/okio/README.md
+- id: io-protobuf-diagram-01
+  canonical: io-protobuf-diagram-01
+  target: bluetape4k-protobuf
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-protobuf.md
+    ko: docs/manual/ko/modules/bluetape4k-protobuf.md
+  releaseReadmes:
+  - io/protobuf/README.ko.md
+  - io/protobuf/README.md
+- id: io-protobuf-diagram-02
+  canonical: io-protobuf-diagram-02
+  target: bluetape4k-protobuf
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-protobuf.md
+    ko: docs/manual/ko/modules/bluetape4k-protobuf.md
+  releaseReadmes:
+  - io/protobuf/README.ko.md
+  - io/protobuf/README.md
+- id: io-protobuf-sequence-01
+  canonical: io-protobuf-sequence-01
+  target: bluetape4k-protobuf
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-protobuf.md
+    ko: docs/manual/ko/modules/bluetape4k-protobuf.md
+  releaseReadmes:
+  - io/protobuf/README.ko.md
+  - io/protobuf/README.md
+- id: io-retrofit2-diagram-01
+  canonical: io-retrofit2-diagram-01
+  target: bluetape4k-retrofit2
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-retrofit2.md
+    ko: docs/manual/ko/modules/bluetape4k-retrofit2.md
+  releaseReadmes:
+  - io/retrofit2/README.ko.md
+  - io/retrofit2/README.md
+- id: io-retrofit2-diagram-02
+  canonical: io-retrofit2-diagram-02
+  target: bluetape4k-retrofit2
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-retrofit2.md
+    ko: docs/manual/ko/modules/bluetape4k-retrofit2.md
+  releaseReadmes:
+  - io/retrofit2/README.ko.md
+  - io/retrofit2/README.md
+- id: io-retrofit2-sequence-01
+  canonical: io-retrofit2-sequence-01
+  target: bluetape4k-retrofit2
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-retrofit2.md
+    ko: docs/manual/ko/modules/bluetape4k-retrofit2.md
+  releaseReadmes:
+  - io/retrofit2/README.ko.md
+  - io/retrofit2/README.md
+- id: io-tink-diagram-01
+  canonical: io-tink-diagram-01
+  target: bluetape4k-tink
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-tink.md
+    ko: docs/manual/ko/modules/bluetape4k-tink.md
+  releaseReadmes:
+  - io/tink/README.ko.md
+  - io/tink/README.md
+- id: io-tink-sequence-01
+  canonical: io-tink-sequence-01
+  target: bluetape4k-tink
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-tink.md
+    ko: docs/manual/ko/modules/bluetape4k-tink.md
+  releaseReadmes:
+  - io/tink/README.ko.md
+  - io/tink/README.md
+- id: io-vertx-diagram-01
+  canonical: io-vertx-diagram-01
+  target: bluetape4k-vertx
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-vertx.md
+    ko: docs/manual/ko/modules/bluetape4k-vertx.md
+  releaseReadmes:
+  - io/vertx/README.ko.md
+  - io/vertx/README.md
+- id: io-vertx-diagram-02
+  canonical: io-vertx-diagram-02
+  target: bluetape4k-vertx
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-vertx.md
+    ko: docs/manual/ko/modules/bluetape4k-vertx.md
+  releaseReadmes:
+  - io/vertx/README.ko.md
+  - io/vertx/README.md
+- id: io-vertx-diagram-03
+  canonical: io-vertx-diagram-03
+  target: bluetape4k-vertx
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-vertx.md
+    ko: docs/manual/ko/modules/bluetape4k-vertx.md
+  releaseReadmes:
+  - io/vertx/README.ko.md
+  - io/vertx/README.md
+- id: io-vertx-sequence-01
+  canonical: io-vertx-sequence-01
+  target: bluetape4k-vertx
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-vertx.md
+    ko: docs/manual/ko/modules/bluetape4k-vertx.md
+  releaseReadmes:
+  - io/vertx/README.ko.md
+  - io/vertx/README.md
+- id: ktor-core-architecture-01
+  canonical: ktor-core-architecture-01
+  target: bluetape4k-ktor-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-ktor-core.md
+    ko: docs/manual/ko/modules/bluetape4k-ktor-core.md
+  releaseReadmes:
+  - ktor/core/README.ko.md
+  - ktor/core/README.md
+- id: ktor-observability-component-01
+  canonical: ktor-observability-component-01
+  target: bluetape4k-ktor-observability
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-ktor-observability.md
+    ko: docs/manual/ko/modules/bluetape4k-ktor-observability.md
+  releaseReadmes:
+  - ktor/observability/README.ko.md
+  - ktor/observability/README.md
+- id: ktor-openapi-routes-01
+  canonical: ktor-openapi-routes-01
+  target: bluetape4k-ktor-openapi
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-ktor-openapi.md
+    ko: docs/manual/ko/modules/bluetape4k-ktor-openapi.md
+  releaseReadmes:
+  - ktor/openapi/README.ko.md
+  - ktor/openapi/README.md
+- id: ktor-resilience4j-flow-01
+  canonical: ktor-resilience4j-flow-01
+  target: bluetape4k-ktor-resilience4j
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-ktor-resilience4j.md
+    ko: docs/manual/ko/modules/bluetape4k-ktor-resilience4j.md
+  releaseReadmes:
+  - ktor/resilience4j/README.ko.md
+  - ktor/resilience4j/README.md
+- id: ktor-testing-sequence-01
+  canonical: ktor-testing-sequence-01
+  target: bluetape4k-ktor-testing
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-ktor-testing.md
+    ko: docs/manual/ko/modules/bluetape4k-ktor-testing.md
+  releaseReadmes:
+  - ktor/testing/README.ko.md
+  - ktor/testing/README.md
+- id: root-readme-en-diagram-01
+  canonical: root-readme-en-diagram-01
+  target: overview
+  manualPages:
+    en: docs/manual/en/architecture/repository-map.md
+    ko: docs/manual/ko/architecture/repository-map.md
+  releaseReadmes:
+  - README.ko.md
+  - README.md
+- id: root-readme-overview-01
+  canonical: root-readme-overview-01
+  target: overview
+  manualPages:
+    en: docs/manual/en/architecture/repository-map.md
+    ko: docs/manual/ko/architecture/repository-map.md
+  releaseReadmes:
+  - README.ko.md
+  - README.md
+- id: spring-boot-cassandra-demo-diagram-01
+  canonical: spring-boot-cassandra-demo-diagram-01
+  target: bluetape4k-spring-boot-cassandra-demo
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-cassandra-demo.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-cassandra-demo.md
+  releaseReadmes:
+  - spring-boot/cassandra-demo/README.ko.md
+  - spring-boot/cassandra-demo/README.md
+- id: spring-boot-cassandra-diagram-01
+  canonical: spring-boot-cassandra-diagram-01
+  target: bluetape4k-spring-boot-cassandra
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-cassandra.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-cassandra.md
+  releaseReadmes:
+  - spring-boot/cassandra/README.ko.md
+  - spring-boot/cassandra/README.md
+- id: spring-boot-cassandra-diagram-02
+  canonical: spring-boot-cassandra-diagram-02
+  target: bluetape4k-spring-boot-cassandra
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-cassandra.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-cassandra.md
+  releaseReadmes:
+  - spring-boot/cassandra/README.ko.md
+  - spring-boot/cassandra/README.md
+- id: spring-boot-cassandra-sequence-01
+  canonical: spring-boot-cassandra-sequence-01
+  target: bluetape4k-spring-boot-cassandra
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-cassandra.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-cassandra.md
+  releaseReadmes:
+  - spring-boot/cassandra/README.ko.md
+  - spring-boot/cassandra/README.md
+- id: spring-boot-core-diagram-01
+  canonical: spring-boot-core-diagram-01
+  target: bluetape4k-spring-boot-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-core.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-core.md
+  releaseReadmes:
+  - spring-boot/core/README.ko.md
+  - spring-boot/core/README.md
+- id: spring-boot-core-diagram-02
+  canonical: spring-boot-core-diagram-02
+  target: bluetape4k-spring-boot-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-core.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-core.md
+  releaseReadmes:
+  - spring-boot/core/README.ko.md
+  - spring-boot/core/README.md
+- id: spring-boot-core-diagram-03
+  canonical: spring-boot-core-diagram-03
+  target: bluetape4k-spring-boot-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-core.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-core.md
+  releaseReadmes:
+  - spring-boot/core/README.ko.md
+  - spring-boot/core/README.md
+- id: spring-boot-core-diagram-04
+  canonical: spring-boot-core-diagram-04
+  target: bluetape4k-spring-boot-core
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-core.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-core.md
+  releaseReadmes:
+  - spring-boot/core/README.ko.md
+  - spring-boot/core/README.md
+- id: spring-boot-hibernate-lettuce-demo-diagram-01
+  canonical: spring-boot-hibernate-lettuce-demo-diagram-01
+  target: bluetape4k-spring-boot-hibernate-lettuce-demo
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-hibernate-lettuce-demo.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-hibernate-lettuce-demo.md
+  releaseReadmes:
+  - spring-boot/hibernate-lettuce-demo/README.ko.md
+  - spring-boot/hibernate-lettuce-demo/README.md
+- id: spring-boot-hibernate-lettuce-demo-diagram-02
+  canonical: spring-boot-hibernate-lettuce-demo-diagram-02
+  target: bluetape4k-spring-boot-hibernate-lettuce-demo
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-hibernate-lettuce-demo.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-hibernate-lettuce-demo.md
+  releaseReadmes:
+  - spring-boot/hibernate-lettuce-demo/README.ko.md
+  - spring-boot/hibernate-lettuce-demo/README.md
+- id: spring-boot-hibernate-lettuce-diagram-01
+  canonical: spring-boot-hibernate-lettuce-diagram-01
+  target: bluetape4k-spring-boot-hibernate-lettuce
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-hibernate-lettuce.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-hibernate-lettuce.md
+  releaseReadmes:
+  - spring-boot/hibernate-lettuce/README.ko.md
+  - spring-boot/hibernate-lettuce/README.md
+- id: spring-boot-hibernate-lettuce-diagram-02
+  canonical: spring-boot-hibernate-lettuce-diagram-02
+  target: bluetape4k-spring-boot-hibernate-lettuce
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-hibernate-lettuce.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-hibernate-lettuce.md
+  releaseReadmes:
+  - spring-boot/hibernate-lettuce/README.ko.md
+  - spring-boot/hibernate-lettuce/README.md
+- id: spring-boot-mongodb-diagram-01
+  canonical: spring-boot-mongodb-diagram-01
+  target: bluetape4k-spring-boot-mongodb
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-mongodb.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-mongodb.md
+  releaseReadmes:
+  - spring-boot/mongodb/README.ko.md
+  - spring-boot/mongodb/README.md
+- id: spring-boot-mongodb-diagram-02
+  canonical: spring-boot-mongodb-diagram-02
+  target: bluetape4k-spring-boot-mongodb
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-mongodb.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-mongodb.md
+  releaseReadmes:
+  - spring-boot/mongodb/README.ko.md
+  - spring-boot/mongodb/README.md
+- id: spring-boot-mongodb-diagram-03
+  canonical: spring-boot-mongodb-diagram-03
+  target: bluetape4k-spring-boot-mongodb
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-mongodb.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-mongodb.md
+  releaseReadmes:
+  - spring-boot/mongodb/README.ko.md
+  - spring-boot/mongodb/README.md
+- id: spring-boot-mongodb-sequence-01
+  canonical: spring-boot-mongodb-sequence-01
+  target: bluetape4k-spring-boot-mongodb
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-mongodb.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-mongodb.md
+  releaseReadmes:
+  - spring-boot/mongodb/README.ko.md
+  - spring-boot/mongodb/README.md
+- id: spring-boot-r2dbc-diagram-01
+  canonical: spring-boot-r2dbc-diagram-01
+  target: bluetape4k-spring-boot-r2dbc
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-r2dbc.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-r2dbc.md
+  releaseReadmes:
+  - spring-boot/r2dbc/README.ko.md
+  - spring-boot/r2dbc/README.md
+- id: spring-boot-r2dbc-diagram-02
+  canonical: spring-boot-r2dbc-diagram-02
+  target: bluetape4k-spring-boot-r2dbc
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-r2dbc.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-r2dbc.md
+  releaseReadmes:
+  - spring-boot/r2dbc/README.ko.md
+  - spring-boot/r2dbc/README.md
+- id: spring-boot-r2dbc-diagram-03
+  canonical: spring-boot-r2dbc-diagram-03
+  target: bluetape4k-spring-boot-r2dbc
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-r2dbc.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-r2dbc.md
+  releaseReadmes:
+  - spring-boot/r2dbc/README.ko.md
+  - spring-boot/r2dbc/README.md
+- id: spring-boot-r2dbc-sequence-01
+  canonical: spring-boot-r2dbc-sequence-01
+  target: bluetape4k-spring-boot-r2dbc
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-r2dbc.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-r2dbc.md
+  releaseReadmes:
+  - spring-boot/r2dbc/README.ko.md
+  - spring-boot/r2dbc/README.md
+- id: spring-boot-redis-diagram-01
+  canonical: spring-boot-redis-diagram-01
+  target: bluetape4k-spring-boot-redis
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-redis.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-redis.md
+  releaseReadmes:
+  - spring-boot/redis/README.ko.md
+  - spring-boot/redis/README.md
+- id: spring-boot-redis-diagram-02
+  canonical: spring-boot-redis-diagram-02
+  target: bluetape4k-spring-boot-redis
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-spring-boot-redis.md
+    ko: docs/manual/ko/modules/bluetape4k-spring-boot-redis.md
+  releaseReadmes:
+  - spring-boot/redis/README.ko.md
+  - spring-boot/redis/README.md
+- id: testing-assertions-diagram-01
+  canonical: testing-assertions-diagram-01
+  target: bluetape4k-assertions
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-assertions.md
+    ko: docs/manual/ko/modules/bluetape4k-assertions.md
+  releaseReadmes:
+  - testing/assertions/README.ko.md
+  - testing/assertions/README.md
+- id: testing-junit5-diagram-01
+  canonical: testing-junit5-diagram-01
+  target: bluetape4k-junit5
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-junit5.md
+    ko: docs/manual/ko/modules/bluetape4k-junit5.md
+  releaseReadmes:
+  - testing/junit5/README.ko.md
+  - testing/junit5/README.md
+- id: testing-junit5-diagram-02
+  canonical: testing-junit5-diagram-02
+  target: bluetape4k-junit5
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-junit5.md
+    ko: docs/manual/ko/modules/bluetape4k-junit5.md
+  releaseReadmes:
+  - testing/junit5/README.ko.md
+  - testing/junit5/README.md
+- id: testing-junit5-diagram-03
+  canonical: testing-junit5-diagram-03
+  target: bluetape4k-junit5
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-junit5.md
+    ko: docs/manual/ko/modules/bluetape4k-junit5.md
+  releaseReadmes:
+  - testing/junit5/README.ko.md
+  - testing/junit5/README.md
+- id: testing-mock-web-server-diagram-01
+  canonical: testing-mock-web-server-diagram-01
+  target: bluetape4k-mock-web-server
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-mock-web-server.md
+    ko: docs/manual/ko/modules/bluetape4k-mock-web-server.md
+  releaseReadmes:
+  - testing/mock-web-server/README.ko.md
+  - testing/mock-web-server/README.md
+- id: testing-mock-web-server-diagram-02
+  canonical: testing-mock-web-server-diagram-02
+  target: bluetape4k-mock-web-server
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-mock-web-server.md
+    ko: docs/manual/ko/modules/bluetape4k-mock-web-server.md
+  releaseReadmes:
+  - testing/mock-web-server/README.ko.md
+  - testing/mock-web-server/README.md
+- id: testing-mock-web-server-sequence-01
+  canonical: testing-mock-web-server-sequence-01
+  target: bluetape4k-mock-web-server
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-mock-web-server.md
+    ko: docs/manual/ko/modules/bluetape4k-mock-web-server.md
+  releaseReadmes:
+  - testing/mock-web-server/README.ko.md
+  - testing/mock-web-server/README.md
+- id: testing-mock-webflux-server-diagram-01
+  canonical: testing-mock-webflux-server-diagram-01
+  target: bluetape4k-mock-webflux-server
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-mock-webflux-server.md
+    ko: docs/manual/ko/modules/bluetape4k-mock-webflux-server.md
+  releaseReadmes:
+  - testing/mock-webflux-server/README.ko.md
+  - testing/mock-webflux-server/README.md
+- id: testing-mock-webflux-server-diagram-02
+  canonical: testing-mock-webflux-server-diagram-02
+  target: bluetape4k-mock-webflux-server
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-mock-webflux-server.md
+    ko: docs/manual/ko/modules/bluetape4k-mock-webflux-server.md
+  releaseReadmes:
+  - testing/mock-webflux-server/README.ko.md
+  - testing/mock-webflux-server/README.md
+- id: testing-mock-webflux-server-sequence-01
+  canonical: testing-mock-webflux-server-sequence-01
+  target: bluetape4k-mock-webflux-server
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-mock-webflux-server.md
+    ko: docs/manual/ko/modules/bluetape4k-mock-webflux-server.md
+  releaseReadmes:
+  - testing/mock-webflux-server/README.ko.md
+  - testing/mock-webflux-server/README.md
+- id: testing-testcontainers-diagram-01
+  canonical: testing-testcontainers-diagram-01
+  target: bluetape4k-testcontainers
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-testcontainers.md
+    ko: docs/manual/ko/modules/bluetape4k-testcontainers.md
+  releaseReadmes:
+  - testing/testcontainers/README.ko.md
+  - testing/testcontainers/README.md
+- id: testing-testcontainers-diagram-02
+  canonical: testing-testcontainers-diagram-02
+  target: bluetape4k-testcontainers
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-testcontainers.md
+    ko: docs/manual/ko/modules/bluetape4k-testcontainers.md
+  releaseReadmes:
+  - testing/testcontainers/README.ko.md
+  - testing/testcontainers/README.md
+- id: testing-testcontainers-sequence-01
+  canonical: testing-testcontainers-sequence-01
+  target: bluetape4k-testcontainers
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-testcontainers.md
+    ko: docs/manual/ko/modules/bluetape4k-testcontainers.md
+  releaseReadmes:
+  - testing/testcontainers/README.ko.md
+  - testing/testcontainers/README.md
+- id: testing-testcontainers-sequence-02
+  canonical: testing-testcontainers-sequence-02
+  target: bluetape4k-testcontainers
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-testcontainers.md
+    ko: docs/manual/ko/modules/bluetape4k-testcontainers.md
+  releaseReadmes:
+  - testing/testcontainers/README.ko.md
+  - testing/testcontainers/README.md
+- id: utils-geo-diagram-01
+  canonical: utils-geo-diagram-01
+  target: bluetape4k-geo
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-geo.md
+    ko: docs/manual/ko/modules/bluetape4k-geo.md
+  releaseReadmes:
+  - utils/geo/README.ko.md
+  - utils/geo/README.md
+- id: utils-geo-diagram-02
+  canonical: utils-geo-diagram-02
+  target: bluetape4k-geo
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-geo.md
+    ko: docs/manual/ko/modules/bluetape4k-geo.md
+  releaseReadmes:
+  - utils/geo/README.ko.md
+  - utils/geo/README.md
+- id: utils-geo-sequence-01
+  canonical: utils-geo-sequence-01
+  target: bluetape4k-geo
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-geo.md
+    ko: docs/manual/ko/modules/bluetape4k-geo.md
+  releaseReadmes:
+  - utils/geo/README.ko.md
+  - utils/geo/README.md
+- id: utils-idgenerators-diagram-01
+  canonical: utils-idgenerators-diagram-01
+  target: bluetape4k-idgenerators
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-idgenerators.md
+    ko: docs/manual/ko/modules/bluetape4k-idgenerators.md
+  releaseReadmes:
+  - utils/idgenerators/README.ko.md
+  - utils/idgenerators/README.md
+- id: utils-idgenerators-diagram-02
+  canonical: utils-idgenerators-diagram-02
+  target: bluetape4k-idgenerators
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-idgenerators.md
+    ko: docs/manual/ko/modules/bluetape4k-idgenerators.md
+  releaseReadmes:
+  - utils/idgenerators/README.ko.md
+  - utils/idgenerators/README.md
+- id: utils-idgenerators-diagram-03
+  canonical: utils-idgenerators-diagram-03
+  target: bluetape4k-idgenerators
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-idgenerators.md
+    ko: docs/manual/ko/modules/bluetape4k-idgenerators.md
+  releaseReadmes:
+  - utils/idgenerators/README.ko.md
+  - utils/idgenerators/README.md
+- id: utils-idgenerators-diagram-04
+  canonical: utils-idgenerators-diagram-04
+  target: bluetape4k-idgenerators
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-idgenerators.md
+    ko: docs/manual/ko/modules/bluetape4k-idgenerators.md
+  releaseReadmes:
+  - utils/idgenerators/README.ko.md
+  - utils/idgenerators/README.md
+- id: utils-idgenerators-diagram-05
+  canonical: utils-idgenerators-diagram-05
+  target: bluetape4k-idgenerators
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-idgenerators.md
+    ko: docs/manual/ko/modules/bluetape4k-idgenerators.md
+  releaseReadmes:
+  - utils/idgenerators/README.ko.md
+  - utils/idgenerators/README.md
+- id: utils-idgenerators-diagram-06
+  canonical: utils-idgenerators-diagram-06
+  target: bluetape4k-idgenerators
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-idgenerators.md
+    ko: docs/manual/ko/modules/bluetape4k-idgenerators.md
+  releaseReadmes:
+  - utils/idgenerators/README.md
+- id: utils-idgenerators-diagram-07
+  canonical: utils-idgenerators-diagram-07
+  target: bluetape4k-idgenerators
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-idgenerators.md
+    ko: docs/manual/ko/modules/bluetape4k-idgenerators.md
+  releaseReadmes:
+  - utils/idgenerators/README.md
+- id: utils-javatimes-diagram-01
+  canonical: utils-javatimes-diagram-01
+  target: bluetape4k-javatimes
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-javatimes.md
+    ko: docs/manual/ko/modules/bluetape4k-javatimes.md
+  releaseReadmes:
+  - utils/javatimes/README.ko.md
+  - utils/javatimes/README.md
+- id: utils-javatimes-diagram-02
+  canonical: utils-javatimes-diagram-02
+  target: bluetape4k-javatimes
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-javatimes.md
+    ko: docs/manual/ko/modules/bluetape4k-javatimes.md
+  releaseReadmes:
+  - utils/javatimes/README.ko.md
+  - utils/javatimes/README.md
+- id: utils-javatimes-diagram-03
+  canonical: utils-javatimes-diagram-03
+  target: bluetape4k-javatimes
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-javatimes.md
+    ko: docs/manual/ko/modules/bluetape4k-javatimes.md
+  releaseReadmes:
+  - utils/javatimes/README.ko.md
+  - utils/javatimes/README.md
+- id: utils-jwt-diagram-01
+  canonical: utils-jwt-diagram-01
+  target: bluetape4k-jwt
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-jwt.md
+    ko: docs/manual/ko/modules/bluetape4k-jwt.md
+  releaseReadmes:
+  - utils/jwt/README.ko.md
+  - utils/jwt/README.md
+- id: utils-jwt-diagram-02
+  canonical: utils-jwt-diagram-02
+  target: bluetape4k-jwt
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-jwt.md
+    ko: docs/manual/ko/modules/bluetape4k-jwt.md
+  releaseReadmes:
+  - utils/jwt/README.ko.md
+  - utils/jwt/README.md
+- id: utils-math-diagram-01
+  canonical: utils-math-diagram-01
+  target: bluetape4k-math
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-math.md
+    ko: docs/manual/ko/modules/bluetape4k-math.md
+  releaseReadmes:
+  - utils/math/README.ko.md
+  - utils/math/README.md
+- id: utils-math-diagram-02
+  canonical: utils-math-diagram-02
+  target: bluetape4k-math
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-math.md
+    ko: docs/manual/ko/modules/bluetape4k-math.md
+  releaseReadmes:
+  - utils/math/README.ko.md
+  - utils/math/README.md
+- id: utils-measured-diagram-01
+  canonical: utils-measured-diagram-01
+  target: bluetape4k-measured
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-measured.md
+    ko: docs/manual/ko/modules/bluetape4k-measured.md
+  releaseReadmes:
+  - utils/measured/README.ko.md
+  - utils/measured/README.md
+- id: utils-measured-diagram-02
+  canonical: utils-measured-diagram-02
+  target: bluetape4k-measured
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-measured.md
+    ko: docs/manual/ko/modules/bluetape4k-measured.md
+  releaseReadmes:
+  - utils/measured/README.ko.md
+  - utils/measured/README.md
+- id: utils-money-diagram-01
+  canonical: utils-money-diagram-01
+  target: bluetape4k-money
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-money.md
+    ko: docs/manual/ko/modules/bluetape4k-money.md
+  releaseReadmes:
+  - utils/money/README.ko.md
+  - utils/money/README.md
+- id: utils-money-diagram-02
+  canonical: utils-money-diagram-02
+  target: bluetape4k-money
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-money.md
+    ko: docs/manual/ko/modules/bluetape4k-money.md
+  releaseReadmes:
+  - utils/money/README.ko.md
+  - utils/money/README.md
+- id: utils-mutiny-diagram-01
+  canonical: utils-mutiny-diagram-01
+  target: bluetape4k-mutiny
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-mutiny.md
+    ko: docs/manual/ko/modules/bluetape4k-mutiny.md
+  releaseReadmes:
+  - utils/mutiny/README.ko.md
+  - utils/mutiny/README.md
+- id: utils-mutiny-diagram-02
+  canonical: utils-mutiny-diagram-02
+  target: bluetape4k-mutiny
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-mutiny.md
+    ko: docs/manual/ko/modules/bluetape4k-mutiny.md
+  releaseReadmes:
+  - utils/mutiny/README.ko.md
+  - utils/mutiny/README.md
+- id: utils-mutiny-sequence-01
+  canonical: utils-mutiny-sequence-01
+  target: bluetape4k-mutiny
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-mutiny.md
+    ko: docs/manual/ko/modules/bluetape4k-mutiny.md
+  releaseReadmes:
+  - utils/mutiny/README.ko.md
+  - utils/mutiny/README.md
+- id: utils-rule-engine-diagram-01
+  canonical: utils-rule-engine-diagram-01
+  target: bluetape4k-rule-engine
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-rule-engine.md
+    ko: docs/manual/ko/modules/bluetape4k-rule-engine.md
+  releaseReadmes:
+  - utils/rule-engine/README.ko.md
+  - utils/rule-engine/README.md
+- id: utils-rule-engine-diagram-02
+  canonical: utils-rule-engine-diagram-02
+  target: bluetape4k-rule-engine
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-rule-engine.md
+    ko: docs/manual/ko/modules/bluetape4k-rule-engine.md
+  releaseReadmes:
+  - utils/rule-engine/README.ko.md
+  - utils/rule-engine/README.md
+- id: utils-rule-engine-diagram-03
+  canonical: utils-rule-engine-diagram-03
+  target: bluetape4k-rule-engine
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-rule-engine.md
+    ko: docs/manual/ko/modules/bluetape4k-rule-engine.md
+  releaseReadmes:
+  - utils/rule-engine/README.ko.md
+  - utils/rule-engine/README.md
+- id: utils-rule-engine-diagram-04
+  canonical: utils-rule-engine-diagram-04
+  target: bluetape4k-rule-engine
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-rule-engine.md
+    ko: docs/manual/ko/modules/bluetape4k-rule-engine.md
+  releaseReadmes:
+  - utils/rule-engine/README.ko.md
+  - utils/rule-engine/README.md
+- id: utils-rule-engine-diagram-05
+  canonical: utils-rule-engine-diagram-05
+  target: bluetape4k-rule-engine
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-rule-engine.md
+    ko: docs/manual/ko/modules/bluetape4k-rule-engine.md
+  releaseReadmes:
+  - utils/rule-engine/README.ko.md
+  - utils/rule-engine/README.md
+- id: utils-rule-engine-diagram-06
+  canonical: utils-rule-engine-diagram-06
+  target: bluetape4k-rule-engine
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-rule-engine.md
+    ko: docs/manual/ko/modules/bluetape4k-rule-engine.md
+  releaseReadmes:
+  - utils/rule-engine/README.ko.md
+  - utils/rule-engine/README.md
+- id: utils-rule-engine-diagram-07
+  canonical: utils-rule-engine-diagram-07
+  target: bluetape4k-rule-engine
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-rule-engine.md
+    ko: docs/manual/ko/modules/bluetape4k-rule-engine.md
+  releaseReadmes:
+  - utils/rule-engine/README.ko.md
+  - utils/rule-engine/README.md
+- id: utils-rule-engine-sequence-01
+  canonical: utils-rule-engine-sequence-01
+  target: bluetape4k-rule-engine
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-rule-engine.md
+    ko: docs/manual/ko/modules/bluetape4k-rule-engine.md
+  releaseReadmes:
+  - utils/rule-engine/README.ko.md
+  - utils/rule-engine/README.md
+- id: utils-science-diagram-01
+  canonical: utils-science-diagram-01
+  target: bluetape4k-science
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-science.md
+    ko: docs/manual/ko/modules/bluetape4k-science.md
+  releaseReadmes:
+  - utils/science/README.ko.md
+  - utils/science/README.md
+- id: utils-science-diagram-02
+  canonical: utils-science-diagram-02
+  target: bluetape4k-science
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-science.md
+    ko: docs/manual/ko/modules/bluetape4k-science.md
+  releaseReadmes:
+  - utils/science/README.ko.md
+  - utils/science/README.md
+- id: utils-science-diagram-03
+  canonical: utils-science-diagram-03
+  target: bluetape4k-science
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-science.md
+    ko: docs/manual/ko/modules/bluetape4k-science.md
+  releaseReadmes:
+  - utils/science/README.ko.md
+  - utils/science/README.md
+- id: utils-states-diagram-01
+  canonical: utils-states-diagram-01
+  target: bluetape4k-states
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-states.md
+    ko: docs/manual/ko/modules/bluetape4k-states.md
+  releaseReadmes:
+  - utils/states/README.ko.md
+  - utils/states/README.md
+- id: utils-states-diagram-02
+  canonical: utils-states-diagram-02
+  target: bluetape4k-states
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-states.md
+    ko: docs/manual/ko/modules/bluetape4k-states.md
+  releaseReadmes:
+  - utils/states/README.ko.md
+  - utils/states/README.md
+- id: utils-states-diagram-03
+  canonical: utils-states-diagram-03
+  target: bluetape4k-states
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-states.md
+    ko: docs/manual/ko/modules/bluetape4k-states.md
+  releaseReadmes:
+  - utils/states/README.ko.md
+  - utils/states/README.md
+- id: utils-states-diagram-04
+  canonical: utils-states-diagram-04
+  target: bluetape4k-states
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-states.md
+    ko: docs/manual/ko/modules/bluetape4k-states.md
+  releaseReadmes:
+  - utils/states/README.ko.md
+  - utils/states/README.md
+- id: utils-states-diagram-05
+  canonical: utils-states-diagram-05
+  target: bluetape4k-states
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-states.md
+    ko: docs/manual/ko/modules/bluetape4k-states.md
+  releaseReadmes:
+  - utils/states/README.ko.md
+  - utils/states/README.md
+- id: utils-states-diagram-06
+  canonical: utils-states-diagram-06
+  target: bluetape4k-states
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-states.md
+    ko: docs/manual/ko/modules/bluetape4k-states.md
+  releaseReadmes:
+  - utils/states/README.ko.md
+  - utils/states/README.md
+- id: utils-states-sequence-01
+  canonical: utils-states-sequence-01
+  target: bluetape4k-states
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-states.md
+    ko: docs/manual/ko/modules/bluetape4k-states.md
+  releaseReadmes:
+  - utils/states/README.ko.md
+  - utils/states/README.md
+- id: utils-states-sequence-02
+  canonical: utils-states-sequence-02
+  target: bluetape4k-states
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-states.md
+    ko: docs/manual/ko/modules/bluetape4k-states.md
+  releaseReadmes:
+  - utils/states/README.ko.md
+  - utils/states/README.md
+- id: utils-workflow-diagram-01
+  canonical: utils-workflow-diagram-01
+  target: bluetape4k-workflow
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-workflow.md
+    ko: docs/manual/ko/modules/bluetape4k-workflow.md
+  releaseReadmes:
+  - utils/workflow/README.ko.md
+  - utils/workflow/README.md
+- id: utils-workflow-diagram-02
+  canonical: utils-workflow-diagram-02
+  target: bluetape4k-workflow
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-workflow.md
+    ko: docs/manual/ko/modules/bluetape4k-workflow.md
+  releaseReadmes:
+  - utils/workflow/README.ko.md
+  - utils/workflow/README.md
+- id: utils-workflow-diagram-03
+  canonical: utils-workflow-diagram-03
+  target: bluetape4k-workflow
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-workflow.md
+    ko: docs/manual/ko/modules/bluetape4k-workflow.md
+  releaseReadmes:
+  - utils/workflow/README.ko.md
+  - utils/workflow/README.md
+- id: utils-workflow-diagram-04
+  canonical: utils-workflow-diagram-04
+  target: bluetape4k-workflow
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-workflow.md
+    ko: docs/manual/ko/modules/bluetape4k-workflow.md
+  releaseReadmes:
+  - utils/workflow/README.ko.md
+  - utils/workflow/README.md
+- id: utils-workflow-diagram-05
+  canonical: utils-workflow-diagram-05
+  target: bluetape4k-workflow
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-workflow.md
+    ko: docs/manual/ko/modules/bluetape4k-workflow.md
+  releaseReadmes:
+  - utils/workflow/README.ko.md
+  - utils/workflow/README.md
+- id: utils-workflow-diagram-06
+  canonical: utils-workflow-diagram-06
+  target: bluetape4k-workflow
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-workflow.md
+    ko: docs/manual/ko/modules/bluetape4k-workflow.md
+  releaseReadmes:
+  - utils/workflow/README.ko.md
+  - utils/workflow/README.md
+- id: utils-workflow-diagram-07
+  canonical: utils-workflow-diagram-07
+  target: bluetape4k-workflow
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-workflow.md
+    ko: docs/manual/ko/modules/bluetape4k-workflow.md
+  releaseReadmes:
+  - utils/workflow/README.ko.md
+  - utils/workflow/README.md
+- id: utils-workflow-diagram-08
+  canonical: utils-workflow-diagram-08
+  target: bluetape4k-workflow
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-workflow.md
+    ko: docs/manual/ko/modules/bluetape4k-workflow.md
+  releaseReadmes:
+  - utils/workflow/README.ko.md
+  - utils/workflow/README.md
+- id: virtualthread-api-diagram-01
+  canonical: virtualthread-api-diagram-01
+  target: bluetape4k-virtualthread-api
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-virtualthread-api.md
+    ko: docs/manual/ko/modules/bluetape4k-virtualthread-api.md
+  releaseReadmes:
+  - virtualthread/api/README.ko.md
+  - virtualthread/api/README.md
+- id: virtualthread-api-diagram-02
+  canonical: virtualthread-api-diagram-02
+  target: bluetape4k-virtualthread-api
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-virtualthread-api.md
+    ko: docs/manual/ko/modules/bluetape4k-virtualthread-api.md
+  releaseReadmes:
+  - virtualthread/api/README.ko.md
+  - virtualthread/api/README.md
+- id: virtualthread-diagram-01
+  canonical: virtualthread-diagram-01
+  target: overview
+  manualPages:
+    en: docs/manual/en/architecture/repository-map.md
+    ko: docs/manual/ko/architecture/repository-map.md
+  releaseReadmes:
+  - virtualthread/README.ko.md
+  - virtualthread/README.md
+- id: virtualthread-diagram-02
+  canonical: virtualthread-diagram-02
+  target: overview
+  manualPages:
+    en: docs/manual/en/architecture/repository-map.md
+    ko: docs/manual/ko/architecture/repository-map.md
+  releaseReadmes:
+  - virtualthread/README.ko.md
+  - virtualthread/README.md
+- id: virtualthread-jdk21-diagram-01
+  canonical: virtualthread-jdk21-diagram-01
+  target: bluetape4k-virtualthread-jdk21
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-virtualthread-jdk21.md
+    ko: docs/manual/ko/modules/bluetape4k-virtualthread-jdk21.md
+  releaseReadmes:
+  - virtualthread/jdk21/README.ko.md
+  - virtualthread/jdk21/README.md
+- id: virtualthread-jdk25-diagram-01
+  canonical: virtualthread-jdk25-diagram-01
+  target: bluetape4k-virtualthread-jdk25
+  manualPages:
+    en: docs/manual/en/modules/bluetape4k-virtualthread-jdk25.md
+    ko: docs/manual/ko/modules/bluetape4k-virtualthread-jdk25.md
+  releaseReadmes:
+  - virtualthread/jdk25/README.ko.md
+  - virtualthread/jdk25/README.md
+- id: virtualthread-sequence-01
+  canonical: virtualthread-sequence-01
+  target: overview
+  manualPages:
+    en: docs/manual/en/architecture/repository-map.md
+    ko: docs/manual/ko/architecture/repository-map.md
+  releaseReadmes:
+  - virtualthread/README.ko.md
+  - virtualthread/README.md

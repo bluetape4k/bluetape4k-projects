@@ -1,0 +1,110 @@
+<svg data-intent="Explain the bluetape4k-coroutines module capability groups from README and source contracts." data-evidence="bluetape4k/coroutines/README.md; DeferredValue.kt; DeferredSupport.kt; AsyncFlow.kt; ReactorContextSupport.kt; *CoroutineScope.kt" xmlns="http://www.w3.org/2000/svg" width="1520" height="1040" viewBox="0 0 1520 1040" role="img" aria-labelledby="title desc">
+<title id="title">bluetape4k-coroutines module overview</title>
+<desc id="desc">Capability map for async values, Flow operators, runtime scopes, Reactor context helpers, and test support in bluetape4k-coroutines.</desc>
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#203040" flood-opacity="0.11"/></filter>
+  <marker id="arrow-blue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#4F83BF"/></marker>
+  <marker id="arrow-green" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#3E9868"/></marker>
+  <marker id="arrow-teal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#2E8F89"/></marker>
+  <marker id="arrow-amber" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#B9851B"/></marker>
+  <marker id="arrow-pink" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#C94D68"/></marker>
+  <marker id="arrow-purple" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L12 7 L2 12 Z" fill="#755BC6"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:43px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .zone{fill:#FFFFFF;stroke-width:2;stroke-dasharray:9 8}.zoneTitle{font-family:"Architects Daughter";font-size:25px;fill:#22344A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#536476}
+    .hub{filter:url(#shadow);stroke-width:2.4}.hubTitle{font-family:"Architects Daughter";font-size:28px;fill:#22344A}.hubNote{font-family:"Comic Mono";font-size:13px;fill:#536476}
+    .line{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}.hint{font-family:"Comic Mono";font-size:12px;fill:#536476}
+    .pill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}
+  </style>
+</defs>
+<rect class="canvas" width="1520" height="1040"/>
+<rect class="frame" x="30" y="28" width="1460" height="984" rx="30"/>
+<text class="title" x="70" y="86">bluetape4k-coroutines Module Overview</text>
+<text class="subtitle" x="74" y="118">The module adds small coroutine-first building blocks around Deferred, Flow, reusable scopes, Reactor context, and tests.</text>
+
+<g id="hub">
+  <rect class="hub" x="548" y="164" width="424" height="96" rx="14" fill="#FBFCF8" stroke="#546E7A"/>
+  <text class="hubTitle" x="760" y="202" text-anchor="middle">Coroutine-first APIs</text>
+  <text class="hubNote" x="760" y="230" text-anchor="middle">compose suspend work without changing caller ownership</text>
+</g>
+
+<g id="async-zone">
+  <rect class="zone" x="78" y="312" width="640" height="268" rx="18" stroke="#3E9868"/>
+  <rect class="pill" x="118" y="296" width="174" height="34" rx="10"/>
+  <text class="zoneTitle" x="205" y="321" text-anchor="middle">Async values</text>
+  <g id="deferred-value">
+    <rect class="card" x="122" y="374" width="254" height="124" rx="10" fill="#EAF7EF" stroke="#3E9868"/>
+    <text class="cardTitle" x="249" y="410" text-anchor="middle">DeferredValue</text>
+    <text class="detail" x="249" y="442" text-anchor="middle">eager async wrapper</text>
+    <text class="detail" x="249" y="464" text-anchor="middle">await() suspend access</text>
+  </g>
+  <g id="deferred-support">
+    <rect class="card" x="418" y="374" width="254" height="124" rx="10" fill="#E9F7F6" stroke="#2E8F89"/>
+    <text class="cardTitle" x="545" y="410" text-anchor="middle">Deferred helpers</text>
+    <text class="detail" x="545" y="442" text-anchor="middle">zip, map, concatMap</text>
+    <text class="detail" x="545" y="464" text-anchor="middle">awaitAny winner logic</text>
+  </g>
+</g>
+
+<g id="flow-zone">
+  <rect class="zone" x="802" y="312" width="640" height="268" rx="18" stroke="#B9851B"/>
+  <rect class="pill" x="842" y="296" width="194" height="34" rx="10"/>
+  <text class="zoneTitle" x="939" y="321" text-anchor="middle">Flow processing</text>
+  <g id="flow-operators">
+    <rect class="card" x="846" y="374" width="254" height="124" rx="10" fill="#FFF7E6" stroke="#B9851B"/>
+    <text class="cardTitle" x="973" y="410" text-anchor="middle">Flow operators</text>
+    <text class="detail" x="973" y="442" text-anchor="middle">chunked, windowed</text>
+    <text class="detail" x="973" y="464" text-anchor="middle">throttle, merge, gates</text>
+  </g>
+  <g id="async-flow">
+    <rect class="card" x="1142" y="374" width="254" height="124" rx="10" fill="#FDF2F8" stroke="#C94D68"/>
+    <text class="cardTitle" x="1269" y="410" text-anchor="middle">AsyncFlow</text>
+    <text class="detail" x="1269" y="442" text-anchor="middle">Deferred per element</text>
+    <text class="detail" x="1269" y="464" text-anchor="middle">emit in input order</text>
+  </g>
+</g>
+
+<g id="runtime-zone">
+  <rect class="zone" x="78" y="654" width="640" height="246" rx="18" stroke="#4F83BF"/>
+  <rect class="pill" x="118" y="638" width="176" height="34" rx="10"/>
+  <text class="zoneTitle" x="206" y="663" text-anchor="middle">Runtime scope</text>
+  <g id="scopes">
+    <rect class="card" x="122" y="716" width="254" height="116" rx="10" fill="#E8F3FF" stroke="#4F83BF"/>
+    <text class="cardTitle" x="249" y="752" text-anchor="middle">Closeable scopes</text>
+    <text class="detail" x="249" y="784" text-anchor="middle">Default, IO, pool, VT</text>
+    <text class="detail" x="249" y="806" text-anchor="middle">SupervisorJob lifecycle</text>
+  </g>
+  <g id="structured">
+    <rect class="card" x="418" y="716" width="254" height="116" rx="10" fill="#EEF6FF" stroke="#4F83BF"/>
+    <text class="cardTitle" x="545" y="752" text-anchor="middle">Structured bridge</text>
+    <text class="detail" x="545" y="784" text-anchor="middle">taskScope variants</text>
+    <text class="detail" x="545" y="806" text-anchor="middle">virtual-thread joins</text>
+  </g>
+</g>
+
+<g id="integration-zone">
+  <rect class="zone" x="802" y="654" width="640" height="246" rx="18" stroke="#755BC6"/>
+  <rect class="pill" x="842" y="638" width="220" height="34" rx="10"/>
+  <text class="zoneTitle" x="952" y="663" text-anchor="middle">Integration &amp; tests</text>
+  <g id="reactor">
+    <rect class="card" x="846" y="716" width="254" height="116" rx="10" fill="#FAF5FF" stroke="#755BC6"/>
+    <text class="cardTitle" x="973" y="752" text-anchor="middle">Reactor context</text>
+    <text class="detail" x="973" y="784" text-anchor="middle">read Reactor Context</text>
+    <text class="detail" x="973" y="806" text-anchor="middle">no publisher bridge</text>
+  </g>
+  <g id="tests">
+    <rect class="card" x="1142" y="716" width="254" height="116" rx="10" fill="#F7FEE7" stroke="#65A30D"/>
+    <text class="cardTitle" x="1269" y="752" text-anchor="middle">Test support</text>
+    <text class="detail" x="1269" y="784" text-anchor="middle">Flow assertions</text>
+    <text class="detail" x="1269" y="806" text-anchor="middle">runTest helpers</text>
+  </g>
+</g>
+
+<path class="line" d="M 740 260 L 740 275.6 Q 740 286 729.6 286 L 408 286 Q 398 286 398 296 L 398 312" stroke="#3E9868" marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="line" d="M 780 260 L 780 275.6 Q 780 286 790.4 286 L 1112 286 Q 1122 286 1122 296 L 1122 312" stroke="#B9851B" marker-end="url(#arrow-amber)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="line" d="M 740 260 L 740 614 Q 740 628 726 628 L 408 628 Q 398 628 398 638 L 398 654" stroke="#4F83BF" marker-end="url(#arrow-blue)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="line" d="M 780 260 L 780 614 Q 780 628 794 628 L 1112 628 Q 1122 628 1122 638 L 1122 654" stroke="#755BC6" marker-end="url(#arrow-purple)" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

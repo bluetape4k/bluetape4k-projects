@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2520" height="1360" viewBox="0 0 2520 1360" role="img" aria-label="rule engine core class diagram">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:42px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:15.5px;fill:#475569}.section{fill:#F3F8FF;stroke:#94A3B8;stroke-width:1.7;stroke-dasharray:12 8}.sectionTitle{font-family:"Comic Mono";font-size:13px;fill:#475569}.umlBox{filter:url(#softShadow);stroke-width:2}.stereo{font-family:"Comic Mono";font-size:12.2px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.member{font-family:"Comic Mono";font-size:12.8px;fill:#475569}.edge{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}.implements,.uses{stroke-dasharray:8 7}.extends,.has{stroke-dasharray:none}.solidHead{stroke-width:1.9;stroke-linejoin:round;stroke-dasharray:none}.solidOpenHead{fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.2;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:11.8px;fill:#475569}</style></defs>
+<rect class="canvas" width="2520" height="1360"/><rect class="frame" x="34" y="30" width="2452" height="1294" rx="8"/>
+<text class="title" x="74" y="86">Rule Engine Core Class Diagram</text>
+<text class="subtitle" x="78" y="118">Rule is the executable contract; DefaultRule binds one Condition and many Actions, while RuleSet, Facts, DSL, and proxy adapters feed the engine.</text>
+<rect class="section" x="74" y="145" width="2320" height="1038" rx="8"/><text class="sectionTitle" x="102" y="170">core rule model, creation helpers, and facts passed through evaluate/execute</text>
+<g id="edges"><path class="edge implements" d="M2080 560 L2080 455" stroke="#7C3AED"/>
+<path class="edge extends" d="M2080 880 L2080 780" stroke="#7C3AED"/>
+<path class="edge has" d="M 1800 950 L 1454 950 Q 1440 950 1440 936 L 1440 459 Q 1440 445 1426 445 L 948 445 Q 935 445 935 432 L 935 410" stroke="#2563EB" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge has" d="M 1940 880 L 1940 854 Q 1940 840 1926 840 L 1524 840 Q 1510 840 1510 826 L 1510 410" stroke="#2563EB" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge uses" d="M1260 1005 L1800 1005" stroke="#0D9488"/></g>
+<g id="arrowheads"><path class="solidHead" d="M2080 455 L2072 471 L2088 471 Z" fill="#FFFFFF" stroke="#7C3AED"/>
+<path class="solidHead" d="M2080 780 L2072 796 L2088 796 Z" fill="#FFFFFF" stroke="#7C3AED"/>
+<path class="solidOpenHead" d="M928 423 L935 410 L942 423" stroke="#2563EB"/>
+<path class="solidOpenHead" d="M1503 423 L1510 410 L1517 423" stroke="#2563EB"/>
+<path class="solidOpenHead" d="M1787 998 L1800 1005 L1787 1012" stroke="#0D9488"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(1165 404)"><rect width="138" height="28" rx="8"/><text x="69" y="19" text-anchor="middle">has one condition</text></g>
+<g class="edgeLabel" transform="translate(1479 690)"><rect width="106" height="28" rx="8"/><text x="53" y="19" text-anchor="middle">has actions</text></g>
+<g class="edgeLabel" transform="translate(1376 964)"><rect width="148" height="28" rx="8"/><text x="74" y="19" text-anchor="middle">builds DefaultRule</text></g></g>
+<g id="facts">
+  <rect class="umlBox" x="120" y="220" width="470" height="235" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <line x1="120" y1="287" x2="590" y2="287" stroke="#16A34A" stroke-width="1.3" opacity="0.65"/>
+  <line x1="120" y1="327" x2="590" y2="327" stroke="#16A34A" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="355" y="245" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="classTitle" x="355" y="273" text-anchor="middle">Facts</text>
+  <text class="member" x="144" y="312">- facts: ConcurrentHashMap&lt;String, Any?&gt;</text>
+  <text class="member" x="144" y="352">+ get&lt;T&gt;(name): T?</text>
+  <text class="member" x="144" y="372">+ set(name, value)</text>
+  <text class="member" x="144" y="392">+ put/remove/containsKey</text>
+</g>
+<g id="condition">
+  <rect class="umlBox" x="720" y="220" width="430" height="190" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <line x1="720" y1="287" x2="1150" y2="287" stroke="#2563EB" stroke-width="1.3" opacity="0.65"/>
+  <line x1="720" y1="327" x2="1150" y2="327" stroke="#2563EB" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="935" y="245" text-anchor="middle">&lt;&lt;fun interface&gt;&gt;</text>
+  <text class="classTitle" x="935" y="273" text-anchor="middle">Condition</text>
+  <text class="member" x="744" y="312">+ TRUE / FALSE</text>
+  <text class="member" x="744" y="352">+ evaluate(facts): Boolean</text>
+</g>
+<g id="action">
+  <rect class="umlBox" x="1230" y="220" width="430" height="190" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <line x1="1230" y1="287" x2="1660" y2="287" stroke="#2563EB" stroke-width="1.3" opacity="0.65"/>
+
+  <text class="stereo" x="1445" y="245" text-anchor="middle">&lt;&lt;fun interface&gt;&gt;</text>
+  <text class="classTitle" x="1445" y="273" text-anchor="middle">Action</text>
+
+  <text class="member" x="1254" y="312">+ execute(facts): Unit</text>
+</g>
+<g id="rule">
+  <rect class="umlBox" x="1800" y="190" width="560" height="265" rx="8" fill="#FAF5FF" stroke="#7C3AED"/>
+  <line x1="1800" y1="257" x2="2360" y2="257" stroke="#7C3AED" stroke-width="1.3" opacity="0.65"/>
+  <line x1="1800" y1="337" x2="2360" y2="337" stroke="#7C3AED" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="2080" y="215" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="2080" y="243" text-anchor="middle">Rule</text>
+  <text class="member" x="1824" y="282">+ name: String</text>
+  <text class="member" x="1824" y="302">+ description: String</text>
+  <text class="member" x="1824" y="322">+ priority: Int</text>
+  <text class="member" x="1824" y="362">+ evaluate(facts): Boolean</text>
+  <text class="member" x="1824" y="382">+ execute(facts)</text>
+  <text class="member" x="1824" y="402">+ compareTo(other)</text>
+</g>
+<g id="ruleSet">
+  <rect class="umlBox" x="120" y="590" width="500" height="225" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <line x1="120" y1="657" x2="620" y2="657" stroke="#64748B" stroke-width="1.3" opacity="0.65"/>
+  <line x1="120" y1="697" x2="620" y2="697" stroke="#64748B" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="370" y="615" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="classTitle" x="370" y="643" text-anchor="middle">RuleSet</text>
+  <text class="member" x="144" y="682">+ rules: TreeSet&lt;Rule&gt;</text>
+  <text class="member" x="144" y="722">+ register(rule)</text>
+  <text class="member" x="144" y="742">+ registerProxy(ruleObject)</text>
+  <text class="member" x="144" y="762">+ iterator(): Iterator&lt;Rule&gt;</text>
+</g>
+<g id="ruleProxy">
+  <rect class="umlBox" x="760" y="570" width="500" height="235" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <line x1="760" y1="637" x2="1260" y2="637" stroke="#EA580C" stroke-width="1.3" opacity="0.65"/>
+  <line x1="760" y1="717" x2="1260" y2="717" stroke="#EA580C" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="1010" y="595" text-anchor="middle">&lt;&lt;InvocationHandler&gt;&gt;</text>
+  <text class="classTitle" x="1010" y="623" text-anchor="middle">RuleProxy</text>
+  <text class="member" x="784" y="662">- target: Any</text>
+  <text class="member" x="784" y="682">- conditionMethod</text>
+  <text class="member" x="784" y="702">- actionMethodBeans</text>
+  <text class="member" x="784" y="742">+ asRule(ruleObject): Rule</text>
+  <text class="member" x="784" y="762">+ invoke(proxy, method, args)</text>
+</g>
+<g id="abstractRule">
+  <rect class="umlBox" x="1800" y="560" width="560" height="220" rx="8" fill="#FAF5FF" stroke="#7C3AED"/>
+  <line x1="1800" y1="627" x2="2360" y2="627" stroke="#7C3AED" stroke-width="1.3" opacity="0.65"/>
+  <line x1="1800" y1="667" x2="2360" y2="667" stroke="#7C3AED" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="2080" y="585" text-anchor="middle">&lt;&lt;abstract class&gt;&gt;</text>
+  <text class="classTitle" x="2080" y="613" text-anchor="middle">AbstractRule</text>
+  <text class="member" x="1824" y="652">+ name / description / priority</text>
+  <text class="member" x="1824" y="692">+ evaluate(facts): Boolean = false</text>
+  <text class="member" x="1824" y="712">+ execute(facts): Unit</text>
+  <text class="member" x="1824" y="732">+ equals/hashCode by name</text>
+</g>
+<g id="ruleBuilder">
+  <rect class="umlBox" x="760" y="895" width="500" height="225" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <line x1="760" y1="962" x2="1260" y2="962" stroke="#0D9488" stroke-width="1.3" opacity="0.65"/>
+  <line x1="760" y1="1022" x2="1260" y2="1022" stroke="#0D9488" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="1010" y="920" text-anchor="middle">&lt;&lt;DSL builder&gt;&gt;</text>
+  <text class="classTitle" x="1010" y="948" text-anchor="middle">RuleBuilder</text>
+  <text class="member" x="784" y="987">+ condition: Condition</text>
+  <text class="member" x="784" y="1007">+ actions: MutableList&lt;Action&gt;</text>
+  <text class="member" x="784" y="1047">+ condition { ... }</text>
+  <text class="member" x="784" y="1067">+ action { ... }</text>
+  <text class="member" x="784" y="1087">+ build(): DefaultRule</text>
+</g>
+<g id="defaultRule">
+  <rect class="umlBox" x="1800" y="880" width="560" height="250" rx="8" fill="#FAF5FF" stroke="#7C3AED"/>
+  <line x1="1800" y1="947" x2="2360" y2="947" stroke="#7C3AED" stroke-width="1.3" opacity="0.65"/>
+  <line x1="1800" y1="1007" x2="2360" y2="1007" stroke="#7C3AED" stroke-width="1.3" opacity="0.65"/>
+  <text class="stereo" x="2080" y="905" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="classTitle" x="2080" y="933" text-anchor="middle">DefaultRule</text>
+  <text class="member" x="1824" y="972">+ condition: Condition</text>
+  <text class="member" x="1824" y="992">+ actions: List&lt;Action&gt;</text>
+  <text class="member" x="1824" y="1032">+ evaluate(facts) = condition.evaluate(facts)</text>
+  <text class="member" x="1824" y="1052">+ execute(facts) runs each action</text>
+</g>
+</svg>

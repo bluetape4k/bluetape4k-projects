@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1160" viewBox="0 0 1800 1160" role="img" aria-labelledby="title desc">
+  <title id="title">bluetape4k-ktor-resilience4j route flow</title>
+  <desc id="desc">Ktor Resilience4j flow diagram showing caller-owned policies, route-scoped helpers, withKtorResilience policy composition, safe status page mappings, and cancellation handling.</desc>
+  <defs>
+    <style>
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #263238; }
+      .subtitle, .member, .small { font-family: "Comic Mono"; fill: #36464f; }
+      .subtitle { font-size: 18px; }
+      .panel-title, .card-title { font-family: "Architects Daughter"; fill: #1f3138; }
+      .panel-title { font-size: 25px; }
+      .card-title { font-size: 22px; }
+      .member { font-size: 14px; }
+      .small { font-size: 13px; }
+      .frame { fill: #fbfcf8; stroke: #41545d; stroke-width: 3; }
+      .policy-panel { fill: #eef6f8; stroke: #b2cbd2; stroke-width: 2; }
+      .route-panel { fill: #f3f8ef; stroke: #aec99d; stroke-width: 2; }
+      .chain-panel { fill: #f7f4ed; stroke: #d0c4ad; stroke-width: 2; }
+      .error-panel { fill: #ffffff; stroke: #c6d2d5; stroke-width: 2; }
+      .policy-card { fill: #f7fbff; stroke: #4b74a5; stroke-width: 2; }
+      .route-card { fill: #fdfefe; stroke: #5d7b63; stroke-width: 2; }
+      .guard-card { fill: #fffafa; stroke: #b65f68; stroke-width: 2; }
+      .time-card { fill: #fffdf7; stroke: #a2743d; stroke-width: 2; }
+      .retry-card { fill: #f7f3ff; stroke: #8870a8; stroke-width: 2; }
+      .sep { stroke: #d6dee2; stroke-width: 1.5; }
+      .flowBlue { fill: none; stroke: #4b74a5; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowBlue); }
+      .flowGreen { fill: none; stroke: #5d7b63; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowGreen); }
+      .flowGold { fill: none; stroke: #a2743d; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowGold); }
+      .flowPurple { fill: none; stroke: #8870a8; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowPurple); }
+      .flowRed { fill: none; stroke: #b65f68; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowRed); }
+      .icon-ring { fill: #ffffff; stroke-width: 2; }
+      .icon-line { fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+    <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#8870a8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="1752" height="1112" rx="20" class="frame"/>
+  <text x="900" y="78" text-anchor="middle" class="title">bluetape4k-ktor-resilience4j Route Flow</text>
+  <text x="900" y="108" text-anchor="middle" class="subtitle">Apply caller-owned Resilience4j policies to Ktor routes without global registries or hidden plugins.</text>
+
+  <rect x="72" y="150" width="1656" height="280" rx="16" class="policy-panel"/>
+  <g transform="translate(1678 174)" aria-hidden="true">
+    <circle cx="0" cy="0" r="20" class="icon-ring" stroke="#4b74a5"/>
+    <path d="M -8 -8 H 8 V 8 H -8 Z M -4 0 H 4 M 0 -4 V 4" class="icon-line" stroke="#4b74a5"/>
+  </g>
+  <text x="102" y="190" class="panel-title">Caller-owned policy objects</text>
+  <text x="102" y="218" class="small">Policy names, registries, Micrometer tags, and lifecycle stay in the application.</text>
+
+  <rect x="132" y="250" width="270" height="54" rx="7" class="policy-card" filter="url(#softShadow)"/>
+  <text x="267" y="285" text-anchor="middle" class="card-title">TimeLimiter</text>
+
+  <rect x="492" y="250" width="270" height="54" rx="7" class="policy-card" filter="url(#softShadow)"/>
+  <text x="627" y="285" text-anchor="middle" class="card-title">RateLimiter</text>
+
+  <rect x="852" y="250" width="270" height="54" rx="7" class="policy-card" filter="url(#softShadow)"/>
+  <text x="987" y="285" text-anchor="middle" class="card-title">CircuitBreaker</text>
+
+  <rect x="1212" y="250" width="270" height="54" rx="7" class="policy-card" filter="url(#softShadow)"/>
+  <text x="1347" y="285" text-anchor="middle" class="card-title">Retry</text>
+
+  <rect x="616" y="386" width="568" height="54" rx="7" class="policy-card" filter="url(#softShadow)"/>
+  <text x="900" y="421" text-anchor="middle" class="card-title">KtorResiliencePolicies</text>
+
+  <rect x="72" y="488" width="1656" height="190" rx="16" class="route-panel"/>
+  <g transform="translate(1678 512)" aria-hidden="true">
+    <circle cx="0" cy="0" r="20" class="icon-ring" stroke="#5d7b63"/>
+    <path d="M -9 -5 L 9 -5 L -9 4 L -1.8 4 Q 3 4 2.66 -0.79 L 2.28 -6.01 Q 2 -10 5.39 -7.88 L 10 -5 L 2 0" class="icon-line" stroke="#5d7b63"/>
+  </g>
+  <text x="102" y="528" class="panel-title">Route-scoped entry points</text>
+  <text x="102" y="556" class="small">Each route or suspend block opts in explicitly; empty policies execute the handler directly.</text>
+
+  <rect x="158" y="592" width="360" height="62" rx="7" class="route-card" filter="url(#softShadow)"/>
+  <text x="338" y="631" text-anchor="middle" class="card-title">resilientGet / Post</text>
+
+  <rect x="628" y="592" width="360" height="62" rx="7" class="route-card" filter="url(#softShadow)"/>
+  <text x="808" y="631" text-anchor="middle" class="card-title">resilientRoute()</text>
+
+  <rect x="1098" y="592" width="440" height="62" rx="7" class="route-card" filter="url(#softShadow)"/>
+  <text x="1318" y="631" text-anchor="middle" class="card-title">withKtorResilience()</text>
+
+  <rect x="72" y="736" width="1656" height="204" rx="16" class="chain-panel"/>
+  <text x="102" y="776" class="panel-title">Policy composition order</text>
+  <text x="102" y="804" class="small">The protected suspend block is wrapped in the same order documented by the facade.</text>
+
+  <rect x="132" y="854" width="244" height="56" rx="7" class="time-card" filter="url(#softShadow)"/>
+  <text x="254" y="890" text-anchor="middle" class="card-title">TimeLimiter</text>
+
+  <rect x="446" y="854" width="244" height="56" rx="7" class="time-card" filter="url(#softShadow)"/>
+  <text x="568" y="890" text-anchor="middle" class="card-title">RateLimiter</text>
+
+  <rect x="760" y="854" width="244" height="56" rx="7" class="guard-card" filter="url(#softShadow)"/>
+  <text x="882" y="890" text-anchor="middle" class="card-title">CircuitBreaker</text>
+
+  <rect x="1074" y="854" width="244" height="56" rx="7" class="retry-card" filter="url(#softShadow)"/>
+  <text x="1196" y="890" text-anchor="middle" class="card-title">Retry</text>
+
+  <rect x="1388" y="854" width="244" height="56" rx="7" class="route-card" filter="url(#softShadow)"/>
+  <text x="1510" y="890" text-anchor="middle" class="card-title">Route handler</text>
+
+  <rect x="96" y="990" width="1120" height="92" rx="14" class="error-panel"/>
+  <text x="126" y="1026" class="panel-title">Safe error responses</text>
+  <text x="126" y="1052" class="small">Open circuit -> 503, rate limit -> 429, timeout -> 504. Messages stay generic for clients.</text>
+
+  <rect x="1276" y="990" width="428" height="92" rx="14" class="policy-panel"/>
+  <text x="1306" y="1026" class="panel-title">Cancellation rule</text>
+  <text x="1306" y="1052" class="small">Rethrow cancellation; do not count breaker failure.</text>
+
+  <path d="M 267 304 L 267 334 Q 267 348 281 348 L 716 348 Q 730 348 730 362 L 730 386" class="flowBlue"/>
+  <path d="M 627 304 L 627 334 Q 627 348 641 348 L 826 348 Q 840 348 840 362 L 840 386" class="flowBlue"/>
+  <path d="M 987 304 L 987 337.2 Q 987 348 976.2 348 L 970.8 348 Q 960 348 960 358.8 L 960 386" class="flowBlue"/>
+  <path d="M 1347 304 L 1347 334 Q 1347 348 1333 348 L 1084 348 Q 1070 348 1070 362 L 1070 386" class="flowBlue"/>
+  <path d="M 900 440 V 488" class="flowBlue"/>
+
+  <path d="M 338 592 L 338 584 Q 338 574 348 574 L 1308 574 Q 1318 574 1318 584 L 1318 592" class="flowGreen"/>
+  <path d="M 988 638 H 1098" class="flowGreen"/>
+  <path d="M 1318 654 V 736" class="flowGreen"/>
+
+  <path d="M 376 882 H 446" class="flowGold"/>
+  <path d="M 690 882 H 760" class="flowGold"/>
+  <path d="M 1004 882 H 1074" class="flowRed"/>
+  <path d="M 1318 882 H 1388" class="flowPurple"/>
+
+  <path d="M 882 910 L 882 950 Q 882 964 868 964 L 666 964 Q 656 964 656 974 L 656 990" class="flowRed"/>
+  <path d="M 568 910 L 568 950 Q 568 964 582 964 L 646 964 Q 656 964 656 974 L 656 990" class="flowGold"/>
+  <path d="M 254 910 L 254 950 Q 254 964 268 964 L 646 964 Q 656 964 656 974 L 656 990" class="flowGold"/>
+  <path d="M 882 910 L 882 950 Q 882 964 896 964 L 1480 964 Q 1490 964 1490 974 L 1490 990" class="flowBlue"/>
+</svg>

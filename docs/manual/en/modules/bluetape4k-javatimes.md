@@ -105,6 +105,31 @@ No dedicated workshop path is registered in the manual manifest. Use the module 
 
 This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### Feature Overview diagram
+
+[![Feature Overview diagram](../../assets/readme-diagrams/utils-javatimes-diagram-01.png)](../../assets/readme-diagrams/utils-javatimes-diagram-01.svg)
+
+_Release README: [`utils/javatimes/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/javatimes/README.md)_
+
+### Class Hierarchy — Period Framework diagram
+
+[![Class Hierarchy — Period Framework diagram](../../assets/readme-diagrams/utils-javatimes-diagram-02.png)](../../assets/readme-diagrams/utils-javatimes-diagram-02.svg)
+
+_Release README: [`utils/javatimes/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/javatimes/README.md)_
+
+### PeriodRelation — How Two Periods Relate diagram
+
+[![PeriodRelation — How Two Periods Relate diagram](../../assets/readme-diagrams/utils-javatimes-diagram-03.png)](../../assets/readme-diagrams/utils-javatimes-diagram-03.svg)
+
+_Release README: [`utils/javatimes/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/utils/javatimes/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources {#sources}
 
 - [Module README](../../../../utils/javatimes/README.md)

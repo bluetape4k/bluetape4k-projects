@@ -168,3 +168,22 @@ Testcontainers가 필요한 전체 test는 다른 database·container test와 �
 - [`LettuceNearCacheMetricsBinder.kt`](../../../../spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheMetricsBinder.kt)
 - [`LettuceNearCacheAutoConfigurationTest.kt`](../../../../spring-boot/hibernate-lettuce/src/test/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheAutoConfigurationTest.kt)
 - [`LettuceNearCacheIntegrationTest.kt`](../../../../spring-boot/hibernate-lettuce/src/test/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheIntegrationTest.kt)
+
+<!-- release-readme-diagrams:start -->
+## 배포본 다이어그램 {#release-diagrams}
+
+아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+
+### Spring Boot Hibernate Lettuce 클래스 구조도
+
+[![Spring Boot Hibernate Lettuce 클래스 구조도](../../assets/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.png)](../../assets/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.svg)
+
+_배포본 README: [`spring-boot/hibernate-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/hibernate-lettuce/README.ko.md)_
+
+### Spring Boot Hibernate Lettuce auto-configuration 처리 흐름
+
+[![Spring Boot Hibernate Lettuce auto-configuration 처리 흐름](../../assets/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.png)](../../assets/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.svg)
+
+_배포본 README: [`spring-boot/hibernate-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/hibernate-lettuce/README.ko.md)_
+
+<!-- release-readme-diagrams:end -->

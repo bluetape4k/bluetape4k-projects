@@ -143,6 +143,31 @@ This manual targets the `bluetape4k-projects` 1.11.0 release source. The factory
 
 CLIENT TRACKING startup failure does not stop the factory. StorageAccess failures also do not fail the database transaction, so the cache must remain a rebuildable acceleration layer rather than a source of truth.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### Hibernate Lettuce Near Cache 2-Tier Structure diagram
+
+[![Hibernate Lettuce Near Cache 2-Tier Structure diagram](../../assets/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.png)](../../assets/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.svg)
+
+_Release README: [`cache/hibernate-cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/hibernate-cache-lettuce/README.md)_
+
+### Hibernate Lettuce Cache Layer Structure diagram
+
+[![Hibernate Lettuce Cache Layer Structure diagram](../../assets/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.png)](../../assets/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.svg)
+
+_Release README: [`cache/hibernate-cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/hibernate-cache-lettuce/README.md)_
+
+### getFromCache / putIntoCache Flow diagram
+
+[![getFromCache / putIntoCache Flow diagram](../../assets/readme-diagrams/cache-hibernate-cache-lettuce-sequence-01.png)](../../assets/readme-diagrams/cache-hibernate-cache-lettuce-sequence-01.svg)
+
+_Release README: [`cache/hibernate-cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/hibernate-cache-lettuce/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources and tests {#sources}
 
 - [`LettuceNearCacheProperties.kt`](../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheProperties.kt)

@@ -152,3 +152,28 @@ server 없는 helper test부터 실행하고 Kafka가 필요한 통합 test는 �
 - [`SuspendKafkaProducerTemplate.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/spring/core/SuspendKafkaProducerTemplate.kt)
 - [`SuspendKafkaConsumerTemplate.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/spring/core/SuspendKafkaConsumerTemplate.kt)
 - [`KStreamDslTest.kt`](../../../../infra/kafka/src/test/kotlin/io/bluetape4k/kafka/streams/kstream/KStreamDslTest.kt)
+
+<!-- release-readme-diagrams:start -->
+## 배포본 다이어그램 {#release-diagrams}
+
+아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+
+### Kafka API 구조
+
+[![Kafka API 구조](../../assets/readme-diagrams/infra-kafka-diagram-01.png)](../../assets/readme-diagrams/infra-kafka-diagram-01.svg)
+
+_배포본 README: [`infra/kafka/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka/README.ko.md)_
+
+### Kafka Streams 다이어그램
+
+[![Kafka Streams 다이어그램](../../assets/readme-diagrams/infra-kafka-diagram-02.png)](../../assets/readme-diagrams/infra-kafka-diagram-02.svg)
+
+_배포본 README: [`infra/kafka/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka/README.ko.md)_
+
+### Producer/Consumer 다이어그램
+
+[![Producer/Consumer 다이어그램](../../assets/readme-diagrams/infra-kafka-sequence-01.png)](../../assets/readme-diagrams/infra-kafka-sequence-01.svg)
+
+_배포본 README: [`infra/kafka/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka/README.ko.md)_
+
+<!-- release-readme-diagrams:end -->

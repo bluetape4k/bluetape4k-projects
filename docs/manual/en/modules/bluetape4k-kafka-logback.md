@@ -105,6 +105,25 @@ No dedicated workshop path is registered in the manual manifest. Use the module 
 
 This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### Kafka Logback Class Structure
+
+[![Kafka Logback Class Structure](../../assets/readme-diagrams/infra-kafka-logback-diagram-01.png)](../../assets/readme-diagrams/infra-kafka-logback-diagram-01.svg)
+
+_Release README: [`infra/kafka-logback/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka-logback/README.md)_
+
+### Kafka Logback Append Flow
+
+[![Kafka Logback Append Flow](../../assets/readme-diagrams/infra-kafka-logback-sequence-01.png)](../../assets/readme-diagrams/infra-kafka-logback-sequence-01.svg)
+
+_Release README: [`infra/kafka-logback/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka-logback/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources {#sources}
 
 - [Module README](../../../../infra/kafka-logback/README.md)

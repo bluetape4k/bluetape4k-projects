@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" data-intent="Show the current io/protobuf class and support-file structure from README and source." data-evidence="io/protobuf/README.md; io/protobuf/src/main/kotlin/io/bluetape4k/protobuf; io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers" width="1680" height="1120" viewBox="0 0 1680 1120" role="img" aria-label="Protobuf Class Structure">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#203040" flood-opacity="0.10" /></filter>
+  <marker id="arrow-blue" viewBox="0 0 10 10" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#4F83BF" /></marker>
+  <marker id="arrow-green" viewBox="0 0 10 10" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3E9868" /></marker>
+  <marker id="arrow-teal" viewBox="0 0 10 10" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#2E8F89" /></marker>
+  <marker id="arrow-amber" viewBox="0 0 10 10" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B" /></marker>
+  <marker id="arrow-pink" viewBox="0 0 10 10" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C94D68" /></marker>
+  <marker id="open-blue" viewBox="0 0 10 10" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#4F83BF" stroke-width="1.8" /></marker>
+  <marker id="inherit" viewBox="0 0 12 12" markerWidth="14" markerHeight="14" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 11 6 L 1 11 Z" fill="#fff" stroke="#2E8F89" stroke-width="1.8" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#FFFFFF;stroke:#D2DFEA;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:27px;fill:#22344A}.panelNote{font-family:"Comic Mono";font-size:14px;fill:#536476}
+    .card{stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#536476}
+    .route{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dash{stroke-dasharray:9 8}.legend{font-family:"Comic Mono";font-size:12px;fill:#536476}
+  </style>
+</defs>
+<rect class="canvas" width="1680" height="1120" />
+<rect class="frame" x="30" y="28" width="1620" height="1064" rx="30" />
+<text class="title" x="70" y="86">bluetape4k-protobuf Class Structure</text>
+<text class="subtitle" x="74" y="118">Conversion extensions, Any pack/unpack helpers, and Redis codecs share a ProtobufSerializer trust boundary.</text>
+
+<g id="aliases-panel"><rect class="panel" x="82" y="164" width="1508" height="178" rx="14" /><text class="panelTitle" x="112" y="206">Type aliases and well-known protobuf surface</text><text class="panelNote" x="112" y="234">TypeAlias.kt exposes stable names for generated Message, Any, Timestamp, Duration, Date, TimeOfDay, DateTime, Money, and Empty.</text></g>
+<g id="alias-message"><rect class="card" x="128" y="260" width="250" height="58" rx="9" fill="#E8F3FF" stroke="#4F83BF" /><text class="cardTitle" x="253" y="294" text-anchor="middle">ProtoMessage</text></g>
+<g id="alias-any"><rect class="card" x="424" y="260" width="250" height="58" rx="9" fill="#EAF7EF" stroke="#3E9868" /><text class="cardTitle" x="549" y="294" text-anchor="middle">ProtoAny</text></g>
+<g id="alias-time"><rect class="card" x="720" y="260" width="250" height="58" rx="9" fill="#E9F7F6" stroke="#2E8F89" /><text class="cardTitle" x="845" y="294" text-anchor="middle">Time aliases</text></g>
+<g id="alias-money"><rect class="card" x="1016" y="260" width="250" height="58" rx="9" fill="#FFF5E6" stroke="#B9851B" /><text class="cardTitle" x="1141" y="294" text-anchor="middle">ProtoMoney</text></g>
+<g id="alias-empty"><rect class="card" x="1312" y="260" width="220" height="58" rx="9" fill="#FFF0F4" stroke="#C94D68" /><text class="cardTitle" x="1422" y="294" text-anchor="middle">PROTO_EMPTY</text></g>
+
+<g id="support-panel"><rect class="panel" x="82" y="390" width="724" height="440" rx="14" /><text class="panelTitle" x="112" y="432">Conversion support files</text><text class="panelNote" x="112" y="460">Extension functions convert between JVM domain types and protobuf well-known types.</text></g>
+<g id="timestamp"><rect class="card" x="128" y="506" width="282" height="88" rx="10" fill="#E8F3FF" stroke="#4F83BF" /><text class="cardTitle" x="269" y="540" text-anchor="middle">TimestampSupport</text><text class="detail" x="269" y="568" text-anchor="middle">Instant / Date / RFC3339</text></g>
+<g id="duration"><rect class="card" x="476" y="506" width="282" height="88" rx="10" fill="#EAF7EF" stroke="#3E9868" /><text class="cardTitle" x="617" y="540" text-anchor="middle">DurationSupport</text><text class="detail" x="617" y="568" text-anchor="middle">Duration + operators</text></g>
+<g id="datetime"><rect class="card" x="128" y="664" width="282" height="88" rx="10" fill="#E9F7F6" stroke="#2E8F89" /><text class="cardTitle" x="269" y="698" text-anchor="middle">DateTimeSupport</text><text class="detail" x="269" y="726" text-anchor="middle">LocalDate / Time / DateTime</text></g>
+<g id="money"><rect class="card" x="476" y="664" width="282" height="88" rx="10" fill="#FFF5E6" stroke="#B9851B" /><text class="cardTitle" x="617" y="698" text-anchor="middle">MoneySupport</text><text class="detail" x="617" y="726" text-anchor="middle">JavaMoney units + nanos</text></g>
+
+<g id="serializer-panel"><rect class="panel" x="874" y="390" width="716" height="440" rx="14" /><text class="panelTitle" x="904" y="432">Serialization and Redis codecs</text><text class="panelNote" x="904" y="460">ProtoMessage values use Any; other JVM objects delegate to Kryo-backed fallbacks.</text></g>
+<g id="messagesupport"><rect class="card" x="922" y="506" width="286" height="88" rx="10" fill="#F2EBFF" stroke="#755BC6" /><text class="cardTitle" x="1065" y="540" text-anchor="middle">MessageSupport</text><text class="detail" x="1065" y="568" text-anchor="middle">packMessage / unpackMessage</text></g>
+<g id="serializer"><rect class="card" x="1256" y="506" width="286" height="118" rx="10" fill="#E9F7F6" stroke="#2E8F89" /><text class="cardTitle" x="1399" y="540" text-anchor="middle">ProtobufSerializer</text><text class="detail" x="1399" y="568" text-anchor="middle">extends AbstractBinarySerializer</text><text class="detail" x="1399" y="590" text-anchor="middle">allowlist + Kryo fallback</text></g>
+<g id="lettuce"><rect class="card" x="922" y="674" width="286" height="88" rx="10" fill="#FFF5E6" stroke="#B9851B" /><text class="cardTitle" x="1065" y="708" text-anchor="middle">LettuceProtobufCodecs</text><text class="detail" x="1065" y="736" text-anchor="middle">protobuf + compressed codecs</text></g>
+<g id="redisson"><rect class="card" x="1256" y="674" width="286" height="88" rx="10" fill="#FFF0F4" stroke="#C94D68" /><text class="cardTitle" x="1399" y="708" text-anchor="middle">RedissonProtobufCodec</text><text class="detail" x="1399" y="736" text-anchor="middle">BaseCodec + allowlist decode</text></g>
+
+<g id="contract"><rect class="panel" x="112" y="884" width="1436" height="120" rx="14" fill="#FFFFFF" /><text class="panelTitle" x="146" y="928">Reader contract</text><text class="panelNote" x="146" y="960">Use conversion extensions for well-known types, MessageSupport for raw Any payloads, and ProtobufSerializer or Redis codecs at mixed-object binary boundaries.</text><text class="legend" x="146" y="988">Solid arrows show the primary API path; dashed arrows show serializer delegation.</text></g>
+
+<path class="route" d="M1208 550 H1256" stroke="#755BC6" />
+<path class="route" d="M1399 624 V674" stroke="#2E8F89" />
+<path class="route dash" d="M1065 674 V658 Q1065 642 1081 642 H1212 Q1228 642 1228 626 V626 Q1228 612 1242 612 H1256" stroke="#B9851B" />
+<path class="route dash" d="M1500 674 V624" stroke="#C94D68" />
+<path class="route" d="M444 830 V884" stroke="#4F83BF" />
+<path class="route" d="M1065 762 V884" stroke="#755BC6" />
+<path class="route" d="M1399 762 V884" stroke="#C94D68" />
+<path d="M1256 550 l-12 -7 v14 z" fill="#755BC6" />
+<path d="M1399 674 l-7 -12 h14 z" fill="#2E8F89" />
+<path d="M1256 612 l-12 -7 v14 z" fill="#B9851B" />
+<path d="M1500 624 l-7 12 h14 z" fill="#C94D68" />
+<path d="M444 884 l-7 -12 h14 z" fill="#4F83BF" />
+<path d="M1065 884 l-7 -12 h14 z" fill="#755BC6" />
+<path d="M1399 884 l-7 -12 h14 z" fill="#C94D68" />
+</svg>

@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2600" height="1340" viewBox="0 0 2600 1340" role="img" aria-label="Spring Boot R2DBC Core Class Structure Diagram">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10" /></filter>
+
+  <marker id="arrow-teal" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#0F766E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-blue" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#1D4ED8" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
+
+  <marker id="arrow-green" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
+
+  <marker id="arrow-amber" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#C2410C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-pink" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#BE185D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
+
+  <marker id="arrow-slate" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
+
+  <marker id="arrow-violet" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 15 9 L 2 16" fill="none" stroke="#6D28D9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:47px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .classBox{stroke-width:1.8;filter:url(#shadow)}.stereotype{font-family:"Comic Mono";font-size:14px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}
+    .member{font-family:"Comic Mono";font-size:14px;fill:#334155}.divider{stroke-width:1.1;opacity:.42}
+    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
+  </style>
+</defs>
+<rect class="canvas" width="2600" height="1340" />
+<rect class="frame" x="34" y="30" width="2532" height="1280" rx="8" />
+<text class="title" x="72" y="86">Spring Boot R2DBC Core Class Structure</text>
+<text class="subtitle" x="76" y="120">Coroutine extension groups over Spring Data R2DBC receivers: read helpers, typed select, insert, update, delete, and Reactor adaptation.</text>
+<g id="R2dbcEntityOperations">
+  <rect class="classBox" x="760" y="210" width="670" height="245" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="stereotype" x="1095" y="238" text-anchor="middle">&lt;&lt;Spring Data receiver&gt;&gt;</text>
+  <text class="classTitle" x="1095" y="269" text-anchor="middle">R2dbcEntityOperations</text>
+  <path class="divider" d="M760 288H1430" stroke="#475569" />
+  <text class="member" x="784" y="314">base receiver for repository-style helpers</text>
+<text class="member" x="784" y="336">also exposes select/insert/update/delete operations</text>
+  <path class="divider" d="M760 364H1430" stroke="#475569" />
+  <text class="member" x="784" y="390">extension functions add suspend and Flow APIs</text>
+<text class="member" x="784" y="412">no subclass is introduced by this module</text>
+</g>
+<g id="CoroutineSurface">
+  <rect class="classBox" x="1620" y="210" width="730" height="245" rx="8" fill="#F0FDFA" stroke="#0D9488" />
+  <text class="stereotype" x="1985" y="238" text-anchor="middle">&lt;&lt;coroutine adaptation&gt;&gt;</text>
+  <text class="classTitle" x="1985" y="269" text-anchor="middle">Reactor -&gt; Coroutine Surface</text>
+  <path class="divider" d="M1620 288H2350" stroke="#0F766E" />
+  <text class="member" x="1644" y="314">awaitSingle()</text>
+<text class="member" x="1644" y="336">awaitSingleOrNull()</text>
+<text class="member" x="1644" y="358">flow()</text>
+  <path class="divider" d="M1620 386H2350" stroke="#0F766E" />
+  <text class="member" x="1644" y="412">suspend returns: T, T?, Boolean, Long</text>
+<text class="member" x="1644" y="434">streaming returns: Flow&lt;T&gt;</text>
+</g>
+<g id="IdHelpers">
+  <rect class="classBox" x="120" y="565" width="610" height="285" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="stereotype" x="425" y="593" text-anchor="middle">&lt;&lt;extension file&gt;&gt;</text>
+  <text class="classTitle" x="425" y="624" text-anchor="middle">R2dbcEntityOperationExtensions</text>
+  <path class="divider" d="M120 643H730" stroke="#15803D" />
+  <text class="member" x="144" y="669">receiver: R2dbcEntityOperations</text>
+<text class="member" x="144" y="691">builds Query.where(idName).isEqual(id)</text>
+  <path class="divider" d="M120 719H730" stroke="#15803D" />
+  <text class="member" x="144" y="745">findOneByIdSuspending(id)</text>
+<text class="member" x="144" y="767">findOneByIdOrNullSuspending(id)</text>
+<text class="member" x="144" y="789">findFirstByIdSuspending(id)</text>
+<text class="member" x="144" y="811">findFirstByIdOrNullSuspending(id)</text>
+</g>
+<g id="SelectExtensions">
+  <rect class="classBox" x="910" y="555" width="650" height="315" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="stereotype" x="1235" y="583" text-anchor="middle">&lt;&lt;extension file&gt;&gt;</text>
+  <text class="classTitle" x="1235" y="614" text-anchor="middle">ReactiveSelectOperationExtensions</text>
+  <path class="divider" d="M910 633H1560" stroke="#1D4ED8" />
+  <text class="member" x="934" y="659">receiver: R2dbcEntityOperations</text>
+<text class="member" x="934" y="681">uses select&lt;T&gt;().matching(query)</text>
+  <path class="divider" d="M910 709H1560" stroke="#1D4ED8" />
+  <text class="member" x="934" y="735">existsSuspending(query), countSuspending(query)</text>
+<text class="member" x="934" y="757">selectSuspending(query), selectAllSuspending()</text>
+<text class="member" x="934" y="779">selectOne/First Suspense variants</text>
+<text class="member" x="934" y="801">nullable variants use awaitSingleOrNull()</text>
+</g>
+<g id="InsertExtensions">
+  <rect class="classBox" x="120" y="970" width="610" height="250" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="stereotype" x="425" y="998" text-anchor="middle">&lt;&lt;extension file&gt;&gt;</text>
+  <text class="classTitle" x="425" y="1029" text-anchor="middle">ReactiveInsertOperationExtensions</text>
+  <path class="divider" d="M120 1048H730" stroke="#C2410C" />
+  <text class="member" x="144" y="1074">receiver: ReactiveInsertOperation</text>
+<text class="member" x="144" y="1096">uses insert&lt;T&gt;().using(entity)</text>
+  <path class="divider" d="M120 1124H730" stroke="#C2410C" />
+  <text class="member" x="144" y="1150">insertSuspending(entity): T</text>
+<text class="member" x="144" y="1172">insertOrNullSuspending(entity): T?</text>
+</g>
+<g id="UpdateExtensions">
+  <rect class="classBox" x="900" y="970" width="610" height="250" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+  <text class="stereotype" x="1205" y="998" text-anchor="middle">&lt;&lt;extension file&gt;&gt;</text>
+  <text class="classTitle" x="1205" y="1029" text-anchor="middle">ReactiveUpdateOperationExtensions</text>
+  <path class="divider" d="M900 1048H1510" stroke="#BE185D" />
+  <text class="member" x="924" y="1074">receiver: ReactiveUpdateOperation</text>
+<text class="member" x="924" y="1096">uses update&lt;T&gt;().matching(query).apply(update)</text>
+  <path class="divider" d="M900 1124H1510" stroke="#BE185D" />
+  <text class="member" x="924" y="1150">updateSuspending(query, update): Long</text>
+<text class="member" x="924" y="1172">returns affected row count</text>
+</g>
+<g id="DeleteExtensions">
+  <rect class="classBox" x="1680" y="970" width="610" height="250" rx="8" fill="#F5F3FF" stroke="#7C3AED" />
+  <text class="stereotype" x="1985" y="998" text-anchor="middle">&lt;&lt;extension file&gt;&gt;</text>
+  <text class="classTitle" x="1985" y="1029" text-anchor="middle">ReactiveDeleteOperationExtensions</text>
+  <path class="divider" d="M1680 1048H2290" stroke="#6D28D9" />
+  <text class="member" x="1704" y="1074">receiver: ReactiveDeleteOperation</text>
+<text class="member" x="1704" y="1096">uses delete&lt;T&gt;().matching(query).all()</text>
+  <path class="divider" d="M1680 1124H2290" stroke="#6D28D9" />
+  <text class="member" x="1704" y="1150">deleteSuspending(query): Long</text>
+<text class="member" x="1704" y="1172">deleteAllSuspending(): Long</text>
+</g>
+<g id="QueryObjects">
+  <rect class="classBox" x="1720" y="610" width="560" height="235" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="stereotype" x="2000" y="638" text-anchor="middle">&lt;&lt;Spring Data values&gt;&gt;</text>
+  <text class="classTitle" x="2000" y="669" text-anchor="middle">Query / Criteria / Update</text>
+  <path class="divider" d="M1720 688H2280" stroke="#475569" />
+  <text class="member" x="1744" y="714">Query.empty()</text>
+<text class="member" x="1744" y="736">Criteria.where(...).isEqual(...)</text>
+<text class="member" x="1744" y="758">Update values supplied by caller</text>
+  <path class="divider" d="M1720 786H2280" stroke="#475569" />
+  <text class="member" x="1744" y="812">read helpers create Query</text>
+<text class="member" x="1744" y="834">update/delete/select consume caller Query</text>
+</g>
+<g data-from="R2dbcEntityOperations" data-to="IdHelpers">
+  <path class="edge dashed" d="M 760 335 L 424 335 Q 410 335 410 349 L 410 565" stroke="#15803D" stroke-linecap="round" stroke-linejoin="round" />
+
+  <polyline points="402,547 410,565 418,547" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <text class="edgeLabel" x="450" y="317">extension receiver</text>
+</g>
+<g data-from="R2dbcEntityOperations" data-to="SelectExtensions">
+  <path class="edge dashed" d="M1095 455 L1095 555" stroke="#1D4ED8" />
+
+  <polyline points="1087,537 1095,555 1103,537" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <text class="edgeLabel" x="1115" y="520">extension receiver</text>
+</g>
+<g data-from="IdHelpers" data-to="SelectExtensions">
+  <path class="edge " d="M730 720 L910 720" stroke="#15803D" />
+
+  <polyline points="892,728 910,720 892,712" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <text class="edgeLabel" x="755" y="699">delegates after Query creation</text>
+</g>
+<g data-from="QueryObjects" data-to="SelectExtensions">
+  <path class="edge dashed" d="M1720 720 L1560 720" stroke="#475569" />
+
+  <polyline points="1578,712 1560,720 1578,728" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <text class="edgeLabel" x="1600" y="699">query input</text>
+</g>
+<g data-from="SelectExtensions" data-to="CoroutineSurface">
+  <path class="edge " d="M 1560 640 L 1686 640 Q 1700 640 1700 626 L 1700 455" stroke="#0F766E" stroke-linecap="round" stroke-linejoin="round" />
+
+  <polyline points="1708,473 1700,455 1692,473" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <text class="edgeLabel" x="1588" y="620">await / Flow bridge</text>
+</g>
+</svg>

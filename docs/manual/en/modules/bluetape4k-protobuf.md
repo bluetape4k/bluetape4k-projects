@@ -113,6 +113,31 @@ No dedicated workshop path is registered in the manual manifest. Use the module 
 
 This page documents the repository state represented by the linked source and tests. It does not turn optional backends into application defaults or claim performance without a benchmark artifact. Re-check compatibility and lifecycle notes when the module version changes.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### Protobuf Class Structure diagram
+
+[![Protobuf Class Structure diagram](../../assets/readme-diagrams/io-protobuf-diagram-01.png)](../../assets/readme-diagrams/io-protobuf-diagram-01.svg)
+
+_Release README: [`io/protobuf/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/protobuf/README.md)_
+
+### Protobuf Type Conversion Flow diagram
+
+[![Protobuf Type Conversion Flow diagram](../../assets/readme-diagrams/io-protobuf-diagram-02.png)](../../assets/readme-diagrams/io-protobuf-diagram-02.svg)
+
+_Release README: [`io/protobuf/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/protobuf/README.md)_
+
+### ProtobufSerializer Allowlist Sequence diagram
+
+[![ProtobufSerializer Allowlist Sequence diagram](../../assets/readme-diagrams/io-protobuf-sequence-01.png)](../../assets/readme-diagrams/io-protobuf-sequence-01.svg)
+
+_Release README: [`io/protobuf/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/io/protobuf/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources {#sources}
 
 - [Module README](../../../../io/protobuf/README.md)

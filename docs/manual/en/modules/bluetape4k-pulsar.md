@@ -141,6 +141,19 @@ This manual targets release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`. A
 
 Version 1.11.0 does not provide admin APIs, topic or tenant provisioning, schema migration, transaction orchestration, retry or dead-letter policy, health indicators, or metrics exporters. Its `with*` close operation does not run in a non-cancellable context and does not rethrow close failures.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### pulsar Class Structure diagram
+
+[![pulsar Class Structure diagram](../../assets/readme-diagrams/infra-pulsar-diagram-01.png)](../../assets/readme-diagrams/infra-pulsar-diagram-01.svg)
+
+_Release README: [`infra/pulsar/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/pulsar/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources and tests {#sources}
 
 - [`build.gradle.kts`](../../../../infra/pulsar/build.gradle.kts)

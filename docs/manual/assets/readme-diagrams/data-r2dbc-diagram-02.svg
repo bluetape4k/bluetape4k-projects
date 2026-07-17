@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1880" height="1080" viewBox="0 0 1880 1080" role="img" aria-label="R2DBC core API class structure">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="118%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity=".11" /></filter>
+  <marker id="openBlue" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
+  <marker id="openGreen" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 10 6 L 2 10" fill="none" stroke="#16A34A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/></marker>
+  <marker id="openOrange" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#EA580C" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
+  <marker id="openPurple" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#9333EA" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
+  <marker id="openPink" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#DB2777" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
+  <marker id="hollowPink" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 16 8 L 1 15 Z" fill="#FFFFFF" stroke="#DB2777" stroke-width="2" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+  <marker id="hollowPurple" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 16 8 L 1 15 Z" fill="#FFFFFF" stroke="#9333EA" stroke-width="2" stroke-dasharray="none" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:15px;fill:#475569}
+    .card{filter:url(#shadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}
+    .stereo{font-family:"Comic Mono";font-size:12px;fill:#64748B}.member{font-family:"Comic Mono";font-size:12.5px;fill:#334155}
+    .divider{stroke:rgba(15,23,42,.17);stroke-width:1.2}.assoc{fill:none;stroke-width:3.0;stroke-linecap:round;stroke-linejoin:round}
+    .uses{fill:none;stroke-width:2.5;stroke-dasharray:8 7;stroke-linecap:round;stroke-linejoin:round}
+    .realize{fill:none;stroke-width:2.4;stroke-dasharray:8 7;stroke-linecap:round;stroke-linejoin:round}
+    .extends{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+    .label{font-family:"Comic Mono";font-size:11.6px;fill:#334155;paint-order:stroke;stroke:#FFFFFF;stroke-width:5px;stroke-linejoin:round}
+    .legend{font-family:"Comic Mono";font-size:12px;fill:#475569}
+  </style>
+</defs>
+<rect class="canvas" width="1880" height="1080" />
+<rect class="frame" x="34" y="30" width="1812" height="1014" rx="10" />
+<text class="title" x="72" y="84">R2DBC Core API Class Structure</text>
+<text class="subtitle" x="76" y="116">UML view of the holder, query model, typed execution spec, and CRUD spec families.</text>
+<g>
+  <path class="assoc" d="M 690 237 H 405" stroke="#2563EB" />
+
+  <polyline points="423,229 405,237 423,245" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 1120 195 H 1420" stroke="#16A34A" />
+
+  <polyline points="1402,203 1420,195 1402,187" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="assoc" d="M 1120 285 L 1236 285 Q 1250 285 1250 299 L 1250 337 Q 1250 351 1264 351 L 1420 351" stroke="#9333EA" />
+
+  <polyline points="1402,359 1420,351 1402,343" fill="none" stroke="#9333EA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="uses" d="M 435 568 H 555" stroke="#DB2777" />
+
+  <polyline points="537,576 555,568 537,560" fill="none" stroke="#DB2777" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="uses" d="M 265 658 V 770" stroke="#EA580C" />
+
+  <polyline points="257,752 265,770 273,752" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="extends" d="M 630 765 V 600" stroke="#DB2777" />
+<polygon points="639,621 630,600 621,621" fill="#FFFFFF" stroke="#DB2777" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="extends" d="M 910 765 L 910 696 Q 910 682 896 682 L 724 682 Q 710 682 710 668 L 710 600" stroke="#DB2777" />
+<polygon points="719,621 710,600 701,621" fill="#FFFFFF" stroke="#DB2777" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="realize" d="M 1228 765 V 646" stroke="#9333EA" />
+<polygon points="1237,667 1228,646 1219,667" fill="#FFFFFF" stroke="#9333EA" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="uses" d="M 1395 842 H 1435" stroke="#2563EB" />
+
+  <polyline points="1417,850 1435,842 1417,834" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+</g>
+<g><text class="label" x="545" y="225" text-anchor="middle">databaseClient</text><text class="label" x="1270" y="183" text-anchor="middle">entityTemplate</text><text class="label" x="1268" y="339" text-anchor="middle">mappingConverter</text><text class="label" x="495" y="556" text-anchor="middle">filters</text><text class="label" x="302" y="718" text-anchor="middle">builds</text><text class="label" x="1415" y="830" text-anchor="middle">fetch()</text></g>
+<g id="databaseClient">
+  <rect class="card" x="90" y="170" width="315" height="130" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="stereo" x="247.5" y="198" text-anchor="middle">Spring class</text>
+  <text class="cardTitle" x="247.5" y="228" text-anchor="middle">DatabaseClient</text>
+  <line class="divider" x1="114" y1="246" x2="381" y2="246" />
+  <text class="member" x="118" y="273">+ sql(...): ExecuteSpec</text><text class="member" x="118" y="295">+ connectionFactory</text>
+</g><g id="r2dbcClient">
+  <rect class="card" x="690" y="145" width="430" height="184" rx="8" fill="#F0FDFA" stroke="#0D9488" />
+  <text class="stereo" x="905" y="173" text-anchor="middle">class</text>
+  <text class="cardTitle" x="905" y="203" text-anchor="middle">R2dbcClient</text>
+  <line class="divider" x1="714" y1="221" x2="1096" y2="221" />
+  <text class="member" x="718" y="248">+ databaseClient: DatabaseClient</text><text class="member" x="718" y="270">+ entityTemplate: R2dbcEntityTemplate</text><text class="member" x="718" y="292">+ mappingConverter: MappingR2dbcConverter</text>
+</g><g id="entityTemplate">
+  <rect class="card" x="1420" y="126" width="360" height="112" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="stereo" x="1600" y="154" text-anchor="middle">Spring class</text>
+  <text class="cardTitle" x="1600" y="184" text-anchor="middle">R2dbcEntityTemplate</text>
+  <line class="divider" x1="1444" y1="202" x2="1756" y2="202" />
+  <text class="member" x="1448" y="229">+ insert/update/delete domain operations</text>
+</g><g id="mappingConverter">
+  <rect class="card" x="1420" y="295" width="360" height="112" rx="8" fill="#FAF5FF" stroke="#9333EA" />
+  <text class="stereo" x="1600" y="323" text-anchor="middle">Spring class</text>
+  <text class="cardTitle" x="1600" y="353" text-anchor="middle">MappingR2dbcConverter</text>
+  <line class="divider" x1="1444" y1="371" x2="1756" y2="371" />
+  <text class="member" x="1448" y="398">+ read(domainType, row, metadata)</text>
+</g><g id="queryBuilder">
+  <rect class="card" x="90" y="480" width="345" height="178" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="stereo" x="262.5" y="508" text-anchor="middle">class</text>
+  <text class="cardTitle" x="262.5" y="538" text-anchor="middle">QueryBuilder</text>
+  <line class="divider" x1="114" y1="556" x2="411" y2="556" />
+  <text class="member" x="118" y="583">- params: MutableMap</text><text class="member" x="118" y="605">- filters: Filter.Group</text><text class="member" x="118" y="627">+ build(): Query</text><text class="member" x="118" y="649">+ buildCount(): Query</text>
+</g><g id="query">
+  <rect class="card" x="90" y="770" width="345" height="190" rx="8" fill="#FFFBEB" stroke="#EA580C" />
+  <text class="stereo" x="262.5" y="798" text-anchor="middle">data class</text>
+  <text class="cardTitle" x="262.5" y="828" text-anchor="middle">Query</text>
+  <line class="divider" x1="114" y1="846" x2="411" y2="846" />
+  <text class="member" x="118" y="873">+ sqlBuffer: StringBuilder</text><text class="member" x="118" y="895">+ parameters: Map</text><text class="member" x="118" y="917">+ sql: String</text><text class="member" x="118" y="939">+ used by execute/matching</text>
+</g><g id="filter">
+  <rect class="card" x="555" y="480" width="310" height="120" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+  <text class="stereo" x="710" y="508" text-anchor="middle">sealed class</text>
+  <text class="cardTitle" x="710" y="538" text-anchor="middle">Filter</text>
+  <line class="divider" x1="579" y1="556" x2="841" y2="556" />
+  <text class="member" x="583" y="583">+ countLeaves(): Int</text>
+</g><g id="filterGroup">
+  <rect class="card" x="500" y="765" width="260" height="142" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+  <text class="stereo" x="630" y="793" text-anchor="middle">data class</text>
+  <text class="cardTitle" x="630" y="823" text-anchor="middle">Filter.Group</text>
+  <line class="divider" x1="524" y1="841" x2="736" y2="841" />
+  <text class="member" x="528" y="868">+ operator: String</text><text class="member" x="528" y="890">+ filters: MutableList</text>
+</g><g id="filterWhere">
+  <rect class="card" x="780" y="765" width="260" height="142" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+  <text class="stereo" x="910" y="793" text-anchor="middle">data class</text>
+  <text class="cardTitle" x="910" y="823" text-anchor="middle">Filter.Where</text>
+  <line class="divider" x1="804" y1="841" x2="1016" y2="841" />
+  <text class="member" x="808" y="868">+ where: String</text>
+</g><g id="bindApi">
+  <rect class="card" x="1060" y="480" width="335" height="166" rx="8" fill="#FAF5FF" stroke="#9333EA" />
+  <text class="stereo" x="1227.5" y="508" text-anchor="middle">interface</text>
+  <text class="cardTitle" x="1227.5" y="538" text-anchor="middle">BindSpec&lt;T&gt;</text>
+  <line class="divider" x1="1084" y1="556" x2="1371" y2="556" />
+  <text class="member" x="1088" y="583">+ bind(index/name, value)</text><text class="member" x="1088" y="605">+ bindNull(...)</text><text class="member" x="1088" y="627">+ fetch(): RowsFetchSpec</text>
+</g><g id="bindImpl">
+  <rect class="card" x="1060" y="765" width="335" height="160" rx="8" fill="#FAF5FF" stroke="#9333EA" />
+  <text class="stereo" x="1227.5" y="793" text-anchor="middle">internal class</text>
+  <text class="cardTitle" x="1227.5" y="823" text-anchor="middle">BindSpecImpl&lt;T&gt;</text>
+  <line class="divider" x1="1084" y1="841" x2="1371" y2="841" />
+  <text class="member" x="1088" y="868">- namedParameters</text><text class="member" x="1088" y="890">- indexedParameters</text><text class="member" x="1088" y="912">+ maps rows through converter</text>
+</g><g id="rowsFetch">
+  <rect class="card" x="1435" y="785" width="300" height="134" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="stereo" x="1585" y="813" text-anchor="middle">Spring interface</text>
+  <text class="cardTitle" x="1585" y="843" text-anchor="middle">RowsFetchSpec&lt;T&gt;</text>
+  <line class="divider" x1="1459" y1="861" x2="1711" y2="861" />
+  <text class="member" x="1463" y="888">+ all() / one()</text><text class="member" x="1463" y="910">+ await and Flow helpers</text>
+</g><g id="crudApi">
+  <rect class="card" x="1445" y="485" width="380" height="210" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="stereo" x="1635" y="513" text-anchor="middle">interfaces</text>
+  <text class="cardTitle" x="1635" y="543" text-anchor="middle">CRUD Spec Families</text>
+  <line class="divider" x1="1469" y1="561" x2="1801" y2="561" />
+  <text class="member" x="1473" y="588">InsertIntoSpec -&gt; Values / Key</text><text class="member" x="1473" y="610">UpdateTableSpec -&gt; Values</text><text class="member" x="1473" y="632">SetterSpec &lt;- UpdateValuesSpec</text><text class="member" x="1473" y="654">DeleteTableSpec -&gt; Value</text><text class="member" x="1473" y="676">impl classes build SQL specs</text>
+</g>
+<g transform="translate(90 990)">
+  <path class="assoc" d="M 0 0 H 58" stroke="#2563EB" />
+
+  <polyline points="40,8 58,0 40,-8" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legend" x="72" y="5">has/reference</text>
+  <path class="uses" d="M 214 0 H 272" stroke="#9333EA" />
+
+  <polyline points="254,8 272,0 254,-8" fill="none" stroke="#9333EA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legend" x="286" y="5">uses / builds</text>
+  <path class="realize" d="M 455 0 H 513" stroke="#9333EA" />
+<polygon points="492,9 513,0 492,-9" fill="#FFFFFF" stroke="#9333EA" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legend" x="528" y="5">implements</text>
+  <path class="extends" d="M 675 0 H 733" stroke="#DB2777" />
+<polygon points="712,9 733,0 712,-9" fill="#FFFFFF" stroke="#DB2777" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/><text class="legend" x="748" y="5">extends</text>
+</g>
+</svg>

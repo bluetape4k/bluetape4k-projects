@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1230" viewBox="0 0 1760 1230" role="img" aria-label="HTTP Client Hierarchy for Apache HC5">
+  <defs>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.12" />
+    </filter>
+    <marker id="open-teal" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18">
+      <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#0D9488" stroke-width="2.4" stroke-dasharray="none" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" />
+    </marker>
+    <marker id="open-pink" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18">
+      <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#DB2777" stroke-width="2.4" stroke-dasharray="none" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" />
+    </marker>
+    <marker id="open-orange" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18">
+      <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#EA580C" stroke-width="2.4" stroke-dasharray="none" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" />
+    </marker>
+    <marker id="open-blue" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-dasharray="none" stroke-linecap="round" stroke-linejoin="round"  style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="open-gray" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18">
+      <path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#64748B" stroke-width="2.4" stroke-dasharray="none" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" />
+    </marker>
+    <style>
+      svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+      .canvas{fill:#F8FAFC}
+      .frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}
+      .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}
+      .subtitle{font-family:"Comic Mono";font-size:17px;fill:#475569}
+      .lane{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}
+      .laneTitle{font-family:"Architects Daughter";font-size:26px;fill:#0F172A}
+      .card{stroke-width:2;filter:url(#softShadow)}
+      .typeCard{fill:#FFFFFF}
+      .className{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}
+      .member{font-family:"Comic Mono";font-size:13px;fill:#475569}
+      .label{font-family:"Comic Mono";font-size:12px;fill:#334155}
+      .badge{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
+      .solid{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+      .dashed{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:9 7}
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1760" height="1230" />
+  <rect class="frame" x="36" y="30" width="1688" height="1170" rx="8" />
+  <text class="title" x="76" y="86">HTTP Client Hierarchy (HC5)</text>
+  <text class="subtitle" x="80" y="120">HC5 support is split into classic, async, and caching factories; production helpers compose connection pools, timeout, retry, keep-alive, HTTP/2, and TLS configuration.</text>
+
+  <g id="legend">
+    <rect class="badge" x="1130" y="62" width="236" height="34" rx="8" />
+    <path class="solid" d="M1152 79 L1200 79" stroke="#2563EB" />
+
+    <polyline points="1182,87 1200,79 1182,71" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+    <text class="label" x="1216" y="83">returns / wraps</text>
+    <rect class="badge" x="1392" y="62" width="236" height="34" rx="8" />
+    <path class="dashed" d="M1414 79 L1462 79" stroke="#64748B" />
+
+    <polyline points="1444,87 1462,79 1444,71" fill="none" stroke="#64748B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+    <text class="label" x="1478" y="83">configures / uses</text>
+  </g>
+
+  <g id="classic-lane">
+    <rect class="lane" x="94" y="166" width="500" height="884" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1" />
+    <text class="laneTitle" x="130" y="212" dominant-baseline="middle">Classic blocking path</text>
+
+    <g id="classic-factories">
+      <rect class="card typeCard" x="144" y="260" width="400" height="148" rx="8" stroke="#0D9488" />
+      <text class="className" x="344" y="296" text-anchor="middle" dominant-baseline="middle">Classic client factories</text>
+      <text class="member" x="344" y="334" text-anchor="middle">httpClientOf(...)</text>
+      <text class="member" x="344" y="358" text-anchor="middle">productionHttpClientOf(...)</text>
+      <text class="member" x="344" y="382" text-anchor="middle">productionVirtualThreadHttpClientOf(...)</text>
+    </g>
+
+    <g id="classic-manager">
+      <rect class="card typeCard" x="144" y="496" width="400" height="116" rx="8" stroke="#0D9488" />
+      <text class="className" x="344" y="532" text-anchor="middle" dominant-baseline="middle">Connection manager</text>
+      <text class="member" x="344" y="570" text-anchor="middle">PoolingHttpClientConnectionManager</text>
+      <text class="member" x="344" y="594" text-anchor="middle">max total / max per route</text>
+    </g>
+
+    <g id="classic-result">
+      <rect class="card" x="144" y="858" width="400" height="110" rx="8" fill="#F0FDFA" stroke="#0D9488" />
+      <text class="className" x="344" y="896" text-anchor="middle" dominant-baseline="middle">CloseableHttpClient</text>
+      <text class="member" x="344" y="934" text-anchor="middle">synchronous execute(...)</text>
+      <text class="member" x="344" y="958" text-anchor="middle">best for VT or blocking integrations</text>
+    </g>
+  </g>
+
+  <g id="async-lane">
+    <rect class="lane" x="630" y="166" width="500" height="932" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1" />
+    <text class="laneTitle" x="666" y="212" dominant-baseline="middle">Async and coroutine path</text>
+
+    <g id="async-factories">
+      <rect class="card typeCard" x="680" y="260" width="400" height="148" rx="8" stroke="#DB2777" />
+      <text class="className" x="880" y="296" text-anchor="middle" dominant-baseline="middle">Async client factories</text>
+      <text class="member" x="880" y="334" text-anchor="middle">httpAsyncClientOf(...)</text>
+      <text class="member" x="880" y="358" text-anchor="middle">productionHttpAsyncClientOf(...)</text>
+      <text class="member" x="880" y="382" text-anchor="middle">h2AsyncClientOf(...)</text>
+    </g>
+
+    <g id="async-manager">
+      <rect class="card typeCard" x="680" y="496" width="400" height="116" rx="8" stroke="#DB2777" />
+      <text class="className" x="880" y="532" text-anchor="middle" dominant-baseline="middle">Async connection manager</text>
+      <text class="member" x="880" y="570" text-anchor="middle">PoolingAsyncClientConnectionManager</text>
+      <text class="member" x="880" y="594" text-anchor="middle">NIO pool, reactor, TLS strategy</text>
+    </g>
+
+    <g id="async-result">
+      <rect class="card" x="680" y="736" width="400" height="110" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+      <text class="className" x="880" y="774" text-anchor="middle" dominant-baseline="middle">CloseableHttpAsyncClient</text>
+      <text class="member" x="880" y="812" text-anchor="middle">execute(... Future)</text>
+      <text class="member" x="880" y="836" text-anchor="middle">client starts before requests</text>
+    </g>
+
+    <g id="coroutine-result">
+      <rect class="card" x="680" y="908" width="400" height="96" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+      <text class="className" x="880" y="944" text-anchor="middle" dominant-baseline="middle">executeSuspending(...)</text>
+      <text class="member" x="880" y="982" text-anchor="middle">awaitSuspending bridge for coroutines</text>
+    </g>
+  </g>
+
+  <g id="cache-lane">
+    <rect class="lane" x="1166" y="166" width="500" height="804" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1" />
+    <text class="laneTitle" x="1202" y="212" dominant-baseline="middle">Caching and shared support</text>
+
+    <g id="cache-factories">
+      <rect class="card typeCard" x="1216" y="260" width="400" height="148" rx="8" stroke="#EA580C" />
+      <text class="className" x="1416" y="296" text-anchor="middle" dominant-baseline="middle">Caching factories</text>
+      <text class="member" x="1416" y="334" text-anchor="middle">memoryCachingHttpClientOf(...)</text>
+      <text class="member" x="1416" y="358" text-anchor="middle">fileCachingHttpClientOf(...)</text>
+      <text class="member" x="1416" y="382" text-anchor="middle">memory/file async variants</text>
+    </g>
+
+    <g id="cache-storage">
+      <rect class="card typeCard" x="1216" y="496" width="400" height="116" rx="8" stroke="#EA580C" />
+      <text class="className" x="1416" y="532" text-anchor="middle" dominant-baseline="middle">Cache storage</text>
+      <text class="member" x="1416" y="570" text-anchor="middle">InMemoryHttpCacheStorage</text>
+      <text class="member" x="1416" y="594" text-anchor="middle">JavaCacheHttpCacheStorage or file cache</text>
+    </g>
+
+    <g id="cache-result">
+      <rect class="card" x="1216" y="736" width="400" height="140" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+      <text class="className" x="1416" y="774" text-anchor="middle" dominant-baseline="middle">Caching client outputs</text>
+      <text class="member" x="1416" y="812" text-anchor="middle">CloseableHttpClient</text>
+      <text class="member" x="1416" y="838" text-anchor="middle">CloseableHttpAsyncClient</text>
+      <text class="member" x="1416" y="864" text-anchor="middle">memory-bound or file-bound cache</text>
+    </g>
+  </g>
+
+  <path class="dashed" d="M 344 408 L 344 496" stroke="#0D9488" />
+
+
+  <polyline points="336,478 344,496 352,478" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="solid" d="M 344 612 L 344 858" stroke="#0D9488" />
+
+  <polyline points="336,840 344,858 352,840" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+
+  <path class="dashed" d="M 880 408 L 880 496" stroke="#DB2777" />
+
+
+  <polyline points="872,478 880,496 888,478" fill="none" stroke="#DB2777" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="solid" d="M 880 612 L 880 736" stroke="#DB2777" />
+
+  <polyline points="872,718 880,736 888,718" fill="none" stroke="#DB2777" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="solid" d="M 880 846 L 880 908" stroke="#2563EB" />
+
+  <polyline points="872,890 880,908 888,890" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+
+  <path class="dashed" d="M 1416 408 L 1416 496" stroke="#EA580C" />
+
+
+  <polyline points="1408,478 1416,496 1424,478" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+  <path class="solid" d="M 1416 612 L 1416 736" stroke="#EA580C" />
+
+  <polyline points="1408,718 1416,736 1424,718" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+
+  <g id="shared-support">
+    <rect class="card" x="144" y="1084" width="1472" height="70" rx="8" fill="#F8FAFC" stroke="#64748B" />
+    <text class="className" x="310" y="1120" text-anchor="middle" dominant-baseline="middle">Shared HC5 support</text>
+    <text class="member" x="620" y="1120" text-anchor="middle">RequestConfig: 5s pool, 10s connect, 30s response</text>
+    <text class="member" x="1004" y="1120" text-anchor="middle">Retry: 3 attempts / 1s interval</text>
+    <text class="member" x="1338" y="1120" text-anchor="middle">Keep-alive fallback, H2Config, TLS helpers</text>
+  </g>
+</svg>

@@ -122,6 +122,25 @@ This manual follows `infra/redis/build.gradle.kts` at the `bluetape4k-projects` 
 
 The README command for `:bluetape4k-redis:test` shows how to run a Gradle task; it does not mean that the umbrella contains test code. Changes made to submodules after 1.11.0 are not described as release behavior here.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### Module Dependency Structure diagram
+
+[![Module Dependency Structure diagram](../../assets/readme-diagrams/infra-redis-diagram-01.png)](../../assets/readme-diagrams/infra-redis-diagram-01.svg)
+
+_Release README: [`infra/redis/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/redis/README.md)_
+
+### Exported API Surface diagram
+
+[![Exported API Surface diagram](../../assets/readme-diagrams/infra-redis-diagram-02.png)](../../assets/readme-diagrams/infra-redis-diagram-02.svg)
+
+_Release README: [`infra/redis/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/redis/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources and links {#sources}
 
 - [`infra/redis/build.gradle.kts`](../../../../infra/redis/build.gradle.kts)

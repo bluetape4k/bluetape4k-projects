@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="900" viewBox="0 0 1680 900" role="img" aria-label="Repeat Flow Loop">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<marker id="arrow-startWork" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#2563EB" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-workGuard" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#16A34A" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-breakResult" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#EA580C" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-guardGate" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#9333EA" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-gateResult" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#0D9488" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-gateDelay" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#DB2777" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-delayLoop" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#DB2777" style="stroke-dasharray:none"/></marker>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.card{filter:url(#softShadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13.5px;fill:#475569}.icon{stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.edge{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 8}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.5px;fill:#475569}</style></defs>
+<rect class="canvas" width="1680" height="900"/><rect class="frame" x="38" y="30" width="1604" height="834" rx="8"/>
+<text class="title" x="78" y="86">Repeat Flow Loop</text>
+<text class="subtitle" x="82" y="118">Repeat executes at least once, stops on Aborted or Cancelled, and otherwise loops while the predicate and max iteration guard allow it.</text>
+<g id="edges"><path class="edge" d="M840 281 L840 320" stroke="#2563EB" marker-end="url(#arrow-startWork)"/>
+<path class="edge" d="M840 438 L840 480" stroke="#16A34A" marker-end="url(#arrow-workGuard)"/>
+<path class="edge" d="M 1045 539 L 1306 539 Q 1320 539 1320 553 L 1320 686" stroke="#EA580C" marker-end="url(#arrow-breakResult)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge" d="M840 598 L840 660" stroke="#9333EA" marker-end="url(#arrow-guardGate)"/>
+<path class="edge" d="M1005 745 L1140 745" stroke="#0D9488" marker-end="url(#arrow-gateResult)"/>
+<path class="edge" d="M675 745 L540 745" stroke="#DB2777" marker-end="url(#arrow-gateDelay)"/>
+<path class="edge dashed" d="M 360 686 L 360 393 Q 360 379 374 379 L 635 379" stroke="#DB2777" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="623,385 635,379 623,373" fill="#DB2777" stroke="#DB2777" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(874 289)"><rect width="76" height="30" rx="8"/><text x="38" y="20" text-anchor="middle">context</text></g>
+<g class="edgeLabel" transform="translate(877 447)"><rect width="70" height="30" rx="8"/><text x="35" y="20" text-anchor="middle">report</text></g>
+<g class="edgeLabel" transform="translate(1170 501)"><rect width="150" height="30" rx="8"/><text x="75" y="20" text-anchor="middle">aborted / cancelled</text></g>
+<g class="edgeLabel" transform="translate(874 615)"><rect width="92" height="30" rx="8"/><text x="46" y="20" text-anchor="middle">otherwise</text></g>
+<g class="edgeLabel" transform="translate(1041 703)"><rect width="58" height="30" rx="8"/><text x="29" y="20" text-anchor="middle">stop</text></g>
+<g class="edgeLabel" transform="translate(569 703)"><rect width="78" height="30" rx="8"/><text x="39" y="20" text-anchor="middle">repeat</text></g>
+<g class="edgeLabel" transform="translate(391 342)"><rect width="118" height="30" rx="8"/><text x="59" y="20" text-anchor="middle">next iteration</text></g></g>
+<g id="start"><rect class="card" x="635" y="165" width="410" height="116" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <g class="icon" transform="translate(659 189)" stroke="#2563EB"><circle cx="28" cy="28" r="22" fill="#fff"/><path d="M24 17 L40 28 L24 39 Z" fill="#2563EB" stroke="none"/></g>
+  <text class="cardTitle" x="864" y="207" text-anchor="middle">Repeat flow starts</text>
+  <text class="detail" x="840" y="243" text-anchor="middle">initial WorkReport.Success</text>
+  <text class="detail" x="840" y="262" text-anchor="middle">iteration starts at zero</text></g>
+<g id="work"><rect class="card" x="635" y="320" width="410" height="118" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <g class="icon" transform="translate(659 344)" stroke="#16A34A"><rect x="8" y="12" width="48" height="34" rx="7" fill="#fff"/><path d="M18 24 H46 M18 34 H38" fill="none"/></g>
+  <text class="cardTitle" x="864" y="362" text-anchor="middle">Execute work</text>
+  <text class="detail" x="840" y="398" text-anchor="middle">work.execute(context)</text>
+  <text class="detail" x="840" y="417" text-anchor="middle">exceptions become Failure</text></g>
+<g id="guard"><rect class="card" x="635" y="480" width="410" height="118" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <g class="icon" transform="translate(659 504)" stroke="#EA580C"><circle cx="28" cy="28" r="22" fill="#fff"/><path d="M17 17 L39 39 M39 17 L17 39" fill="none"/></g>
+  <text class="cardTitle" x="864" y="522" text-anchor="middle">Stop guard</text>
+  <text class="detail" x="840" y="558" text-anchor="middle">Aborted / Cancelled</text>
+  <text class="detail" x="840" y="577" text-anchor="middle">return immediately</text></g>
+<g id="gate"><polygon class="card" points="840,660 1005,745 840,830 675,745" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="840" y="737" text-anchor="middle">Repeat again?</text>
+  <text class="detail" x="840" y="768" text-anchor="middle">iteration &lt; maxIterations</text>
+  <text class="detail" x="840" y="787" text-anchor="middle">repeatPredicate(report)</text></g>
+<g id="delay"><rect class="card" x="180" y="686" width="360" height="118" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <g class="icon" transform="translate(204 710)" stroke="#DB2777"><circle cx="28" cy="28" r="22" fill="#fff"/><path d="M28 13 V28 L41 36" fill="none"/></g>
+  <text class="cardTitle" x="384" y="728" text-anchor="middle">Suspend delay</text>
+  <text class="detail" x="360" y="764" text-anchor="middle">suspend repeatDelay only</text>
+  <text class="detail" x="360" y="783" text-anchor="middle">before next iteration</text></g>
+<g id="result"><rect class="card" x="1140" y="686" width="380" height="118" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <g class="icon" transform="translate(1164 710)" stroke="#0D9488"><rect x="8" y="10" width="48" height="36" rx="7" fill="#fff"/><path d="M18 24 H44 M18 34 H38" fill="none"/><circle cx="46" cy="35" r="4" fill="#0D9488" stroke="none"/></g>
+  <text class="cardTitle" x="1354" y="728" text-anchor="middle">Last WorkReport</text>
+  <text class="detail" x="1330" y="764" text-anchor="middle">final report returned</text>
+  <text class="detail" x="1330" y="783" text-anchor="middle">last executed work wins</text></g>
+</svg>

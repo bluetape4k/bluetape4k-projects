@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1080" viewBox="0 0 1760 1080" role="img" aria-label="gRPC Component Overview">
+  <defs>
+    <filter id="soft-shadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow-blue" viewBox="0 0 10 10" markerWidth="14" markerHeight="14" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" markerWidth="14" markerHeight="14" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#16a34a" stroke="#16a34a" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#7c3aed" stroke="#7c3aed" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrow-orange" viewBox="0 0 10 10" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#ea580c" stroke="#ea580c" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <style>
+      svg {
+        font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif;
+      }
+      .canvas { fill: #f8fafc; }
+      .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.6; filter: url(#soft-shadow); }
+      .title { font-family: "Architects Daughter", "Comic Mono", sans-serif; font-size: 44px; fill: #0f172a; }
+      .subtitle { font-family: "Comic Mono", monospace; font-size: 16px; fill: #475569; }
+      .band { stroke-width: 1.7; }
+      .band-title { font-family: "Architects Daughter", "Comic Mono", sans-serif; font-size: 27px; fill: #0f172a; }
+      .band-sub { font-family: "Comic Mono", monospace; font-size: 13.5px; fill: #64748b; }
+      .card { stroke-width: 1.8; filter: url(#soft-shadow); }
+      .card-title { font-family: "Architects Daughter", "Comic Mono", sans-serif; font-size: 22px; fill: #0f172a; }
+      .card-sub { font-family: "Comic Mono", monospace; font-size: 13px; fill: #475569; }
+      .route-blue { fill: none; stroke: #2563eb; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-blue); }
+      .route-green { fill: none; stroke: #16a34a; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-green); }
+      .route-purple { fill: none; stroke: #7c3aed; stroke-width: 3.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-purple); }
+      .route-orange { fill: none; stroke: #ea580c; stroke-width: 3.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-orange); }
+      .label { font-family: "Comic Mono", monospace; font-size: 12px; fill: #475569; }
+      .legend { font-family: "Comic Mono", monospace; font-size: 13px; fill: #475569; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1760" height="1080"/>
+  <rect class="frame" x="36" y="30" width="1688" height="1020" rx="8"/>
+  <text class="title" x="78" y="86">gRPC Component Overview</text>
+  <text class="subtitle" x="82" y="118">The module separates lifecycle bases, helper factories, channel ownership, interceptors, and in-process test variants.</text>
+
+  <rect class="band" x="82" y="158" width="1596" height="250" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text class="band-title" x="118" y="205">Server runtime assembly</text>
+  <text class="band-sub" x="118" y="232">Application services are bound through ServerBuilder and managed by GrpcServer lifecycle classes.</text>
+
+  <g transform="translate(126 280)">
+    <rect class="card" width="260" height="84" rx="8" fill="#ffffff" stroke="#2563eb"/>
+    <text class="card-title" x="130" y="34" text-anchor="middle">Bindable services</text>
+    <text class="card-sub" x="130" y="62" text-anchor="middle">generated service impls</text>
+  </g>
+  <g transform="translate(466 280)">
+    <rect class="card" width="270" height="84" rx="8" fill="#dbeafe" stroke="#2563eb"/>
+    <text class="card-title" x="135" y="34" text-anchor="middle">ServerSupport</text>
+    <text class="card-sub" x="135" y="62" text-anchor="middle">grpcServerBuilder / grpcServer</text>
+  </g>
+  <g transform="translate(816 280)">
+    <rect class="card" width="290" height="84" rx="8" fill="#ffffff" stroke="#2563eb"/>
+    <text class="card-title" x="145" y="34" text-anchor="middle">AbstractGrpcServer</text>
+    <text class="card-sub" x="145" y="62" text-anchor="middle">start, stop, shutdown fallback</text>
+  </g>
+  <g transform="translate(1186 280)">
+    <rect class="card" width="260" height="84" rx="8" fill="#ffffff" stroke="#2563eb"/>
+    <text class="card-title" x="130" y="34" text-anchor="middle">gRPC Server</text>
+    <text class="card-sub" x="130" y="62" text-anchor="middle">port + service definitions</text>
+  </g>
+
+  <path class="route-blue" d="M 386 322 L 456 322"/>
+  <path class="route-blue" d="M 736 322 L 806 322"/>
+  <path class="route-blue" d="M 1106 322 L 1176 322"/>
+
+  <rect class="band" x="82" y="448" width="1596" height="250" rx="8" fill="#f0fdf4" stroke="#bbf7d0"/>
+  <text class="band-title" x="118" y="495">Client channel assembly</text>
+  <text class="band-sub" x="118" y="522">Client bases own ManagedChannel and close it with graceful shutdown followed by shutdownNow fallback.</text>
+
+  <g transform="translate(126 570)">
+    <rect class="card" width="260" height="84" rx="8" fill="#ffffff" stroke="#16a34a"/>
+    <text class="card-title" x="130" y="34" text-anchor="middle">Client caller</text>
+    <text class="card-sub" x="130" y="62" text-anchor="middle">typed stub methods</text>
+  </g>
+  <g transform="translate(466 570)">
+    <rect class="card" width="270" height="84" rx="8" fill="#dcfce7" stroke="#16a34a"/>
+    <text class="card-title" x="135" y="34" text-anchor="middle">AbstractGrpcClient</text>
+    <text class="card-sub" x="135" y="62" text-anchor="middle">channel owner + close()</text>
+  </g>
+  <g transform="translate(816 570)">
+    <rect class="card" width="290" height="84" rx="8" fill="#ffffff" stroke="#16a34a"/>
+    <text class="card-title" x="145" y="34" text-anchor="middle">ManagedChannelSupport</text>
+    <text class="card-sub" x="145" y="62" text-anchor="middle">host/port or target builders</text>
+  </g>
+  <g transform="translate(1186 570)">
+    <rect class="card" width="260" height="84" rx="8" fill="#ffffff" stroke="#16a34a"/>
+    <text class="card-title" x="130" y="34" text-anchor="middle">Remote gRPC API</text>
+    <text class="card-sub" x="130" y="62" text-anchor="middle">ManagedChannel calls</text>
+  </g>
+
+  <path class="route-green" d="M 386 612 L 456 612"/>
+  <path class="route-green" d="M 736 612 L 806 612"/>
+  <path class="route-green" d="M 1106 612 L 1176 612"/>
+
+  <rect class="band" x="218" y="748" width="1324" height="176" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text class="band-title" x="254" y="792">Cross-cutting support</text>
+
+  <g transform="translate(292 826)">
+    <rect class="card" width="310" height="62" rx="8" fill="#faf5ff" stroke="#7c3aed"/>
+    <text class="card-title" x="155" y="25" text-anchor="middle">In-process test variants</text>
+    <text class="card-sub" x="155" y="47" text-anchor="middle">name/address server + client</text>
+  </g>
+  <g transform="translate(718 826)">
+    <rect class="card" width="300" height="62" rx="8" fill="#fff7ed" stroke="#ea580c"/>
+    <text class="card-title" x="150" y="25" text-anchor="middle">Server interceptors</text>
+    <text class="card-sub" x="150" y="47" text-anchor="middle">echo metadata to headers/trailers</text>
+  </g>
+  <g transform="translate(1134 826)">
+    <rect class="card" width="300" height="62" rx="8" fill="#f0fdfa" stroke="#0d9488"/>
+    <text class="card-title" x="150" y="25" text-anchor="middle">Input validation</text>
+    <text class="card-sub" x="150" y="47" text-anchor="middle">host, target, name, port range</text>
+  </g>
+
+  <path class="route-purple" d="M 602 856 L 708 856"/>
+  <path class="route-orange" d="M 1018 856 L 1124 856"/>
+
+  <g transform="translate(128 982)">
+    <line x1="0" y1="0" x2="34" y2="0" stroke="#2563eb" stroke-width="4.5" marker-end="url(#arrow-blue)"/>
+    <text class="legend" x="50" y="5">server assembly</text>
+    <line x1="220" y1="0" x2="254" y2="0" stroke="#16a34a" stroke-width="4.5" marker-end="url(#arrow-green)"/>
+    <text class="legend" x="270" y="5">client channel path</text>
+    <line x1="480" y1="0" x2="514" y2="0" stroke="#7c3aed" stroke-width="3.6" marker-end="url(#arrow-purple)"/>
+    <text class="legend" x="530" y="5">test support</text>
+    <line x1="700" y1="0" x2="734" y2="0" stroke="#ea580c" stroke-width="3.6" marker-end="url(#arrow-orange)"/>
+    <text class="legend" x="750" y="5">metadata support</text>
+  </g>
+</svg>

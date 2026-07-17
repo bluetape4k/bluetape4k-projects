@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-labelledby="title desc">
+  <title id="title">bluetape4k-ktor-observability components</title>
+  <desc id="desc">Ktor observability component diagram showing application-owned telemetry inputs, explicit plugin installation, sanitized correlation IDs, logs, metrics, Prometheus route helper, and optional OpenTelemetry tracing.</desc>
+  <defs>
+    <style>
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #263238; }
+      .subtitle, .member, .small { font-family: "Comic Mono"; fill: #36464f; }
+      .subtitle { font-size: 18px; }
+      .panel-title, .class-title { font-family: "Architects Daughter"; fill: #1f3138; }
+      .panel-title { font-size: 25px; }
+      .class-title { font-size: 21px; }
+      .member { font-size: 14px; }
+      .small { font-size: 13px; }
+      .frame { fill: #fbfcf8; stroke: #41545d; stroke-width: 3; }
+      .input-panel { fill: #eef6f8; stroke: #b2cbd2; stroke-width: 2; }
+      .install-panel { fill: #f3f8ef; stroke: #aec99d; stroke-width: 2; }
+      .runtime-panel { fill: #f7f4ed; stroke: #d0c4ad; stroke-width: 2; }
+      .backend-panel { fill: #ffffff; stroke: #c6d2d5; stroke-width: 2; }
+      .app-card { fill: #f7fbff; stroke: #6c86a1; stroke-width: 2; }
+      .config-card { fill: #f7f3ff; stroke: #8870a8; stroke-width: 2; }
+      .id-card { fill: #fdfefe; stroke: #5d7b63; stroke-width: 2; }
+      .log-card { fill: #fffdf7; stroke: #a2743d; stroke-width: 2; }
+      .metric-card { fill: #fffafa; stroke: #b65f68; stroke-width: 2; }
+      .trace-card { fill: #f7f3ff; stroke: #8870a8; stroke-width: 2; }
+      .route-card { fill: #f7fbff; stroke: #4b74a5; stroke-width: 2; }
+      .sep { stroke: #d6dee2; stroke-width: 1.5; }
+      .flowSlate { fill: none; stroke: #455a64; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowSlate); }
+      .flowGreen { fill: none; stroke: #5d7b63; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowGreen); }
+      .flowGold { fill: none; stroke: #a2743d; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowGold); }
+      .flowBlue { fill: none; stroke: #4b74a5; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowBlue); }
+      .flowPurple { fill: none; stroke: #8870a8; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowPurple); }
+      .flowRed { fill: none; stroke: #b65f68; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowRed); }
+      .icon-ring { fill: #ffffff; stroke-width: 2; }
+      .icon-line { fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+    <marker id="arrowSlate" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#455a64" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#8870a8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="1752" height="1032" rx="20" class="frame"/>
+  <text x="900" y="78" text-anchor="middle" class="title">bluetape4k-ktor-observability Components</text>
+  <text x="900" y="108" text-anchor="middle" class="subtitle">The module installs Ktor observability plugins, while registries, exporters, and backends stay application-owned.</text>
+
+  <rect x="72" y="150" width="1656" height="178" rx="16" class="input-panel"/>
+  <text x="102" y="190" class="panel-title">Application-owned inputs</text>
+  <text x="102" y="218" class="small">The application creates telemetry infrastructure and decides which observability features are installed.</text>
+
+  <rect x="160" y="248" width="330" height="62" rx="7" class="app-card" filter="url(#softShadow)"/>
+  <text x="325" y="287" text-anchor="middle" class="class-title">Application.module()</text>
+
+  <rect x="560" y="248" width="330" height="62" rx="7" class="config-card" filter="url(#softShadow)"/>
+  <text x="725" y="287" text-anchor="middle" class="class-title">ObservabilityConfig</text>
+
+  <rect x="960" y="248" width="300" height="62" rx="7" class="metric-card" filter="url(#softShadow)"/>
+  <text x="1110" y="287" text-anchor="middle" class="class-title">MeterRegistry</text>
+
+  <rect x="1320" y="248" width="300" height="62" rx="7" class="trace-card" filter="url(#softShadow)"/>
+  <text x="1470" y="287" text-anchor="middle" class="class-title">OpenTelemetry</text>
+
+  <rect x="72" y="374" width="1656" height="218" rx="16" class="install-panel"/>
+  <g transform="translate(1678 398)" aria-hidden="true">
+    <circle cx="0" cy="0" r="20" class="icon-ring" stroke="#8870a8"/>
+    <path d="M -9 -4 L 9 -4 L -9 5 L 1.8 5 Q 9 5 4.92 -0.93 L 0.95 -6.7 Q -2 -11 2.4 -8.2 L 9 -4 L -2 3" class="icon-line" stroke="#8870a8"/>
+  </g>
+  <text x="102" y="414" class="panel-title">Explicit plugin installation</text>
+  <text x="102" y="442" class="small">Selected Ktor plugins are installed explicitly; Prometheus is route-only.</text>
+
+  <rect x="188" y="498" width="300" height="62" rx="7" class="id-card" filter="url(#softShadow)"/>
+  <text x="338" y="537" text-anchor="middle" class="class-title">CallId</text>
+
+  <rect x="552" y="498" width="300" height="62" rx="7" class="log-card" filter="url(#softShadow)"/>
+  <text x="702" y="537" text-anchor="middle" class="class-title">CallLogging</text>
+
+  <rect x="916" y="498" width="300" height="62" rx="7" class="metric-card" filter="url(#softShadow)"/>
+  <text x="1066" y="537" text-anchor="middle" class="class-title">MicrometerMetrics</text>
+
+  <rect x="1280" y="498" width="300" height="62" rx="7" class="trace-card" filter="url(#softShadow)"/>
+  <text x="1430" y="537" text-anchor="middle" class="class-title">KtorServerTelemetry</text>
+
+  <rect x="72" y="638" width="806" height="284" rx="16" class="runtime-panel"/>
+  <g transform="translate(828 662)" aria-hidden="true">
+    <circle cx="0" cy="0" r="20" class="icon-ring" stroke="#5d7b63"/>
+    <path d="M -9 0 H 9 M 2 -7 L 9 0 L 2 7" class="icon-line" stroke="#5d7b63"/>
+  </g>
+  <text x="102" y="678" class="panel-title">Request-time observability</text>
+  <text x="102" y="706" class="small">Request IDs are sanitized before response headers, MDC, logs, or trace attributes see them.</text>
+
+  <rect x="138" y="766" width="324" height="96" rx="7" class="id-card" filter="url(#softShadow)"/>
+  <text x="300" y="797" text-anchor="middle" class="class-title">Correlation ID policy</text>
+  <line x1="138" y1="817" x2="462" y2="817" class="sep"/>
+  <text x="166" y="843" class="member">trim, filter safe chars, cap length</text>
+
+  <rect x="522" y="766" width="300" height="96" rx="7" class="log-card" filter="url(#softShadow)"/>
+  <text x="672" y="797" text-anchor="middle" class="class-title">Request logs</text>
+  <line x1="522" y1="817" x2="822" y2="817" class="sep"/>
+  <text x="550" y="843" class="member">method, path, status, elapsed, ID</text>
+
+  <rect x="922" y="638" width="806" height="284" rx="16" class="backend-panel"/>
+  <g transform="translate(1678 662)" aria-hidden="true">
+    <circle cx="0" cy="0" r="20" class="icon-ring" stroke="#4b74a5"/>
+    <path d="M -8 -7 H 8 M -8 0 H 8 M -8 7 H 2" class="icon-line" stroke="#4b74a5"/>
+  </g>
+  <text x="952" y="678" class="panel-title">Metrics and tracing outputs</text>
+  <text x="952" y="706" class="small">Metrics and traces leave through application-provided registries and SDKs.</text>
+
+  <rect x="986" y="766" width="300" height="96" rx="7" class="route-card" filter="url(#softShadow)"/>
+  <text x="1136" y="797" text-anchor="middle" class="class-title">Prometheus scrape route</text>
+  <line x1="986" y1="817" x2="1286" y2="817" class="sep"/>
+  <text x="1014" y="843" class="member">registry.scrape() as text/plain</text>
+
+  <rect x="1348" y="766" width="300" height="96" rx="7" class="trace-card" filter="url(#softShadow)"/>
+  <text x="1498" y="797" text-anchor="middle" class="class-title">OpenTelemetry backend</text>
+  <line x1="1348" y1="817" x2="1648" y2="817" class="sep"/>
+  <text x="1376" y="843" class="member">SDK/exporters configured outside</text>
+
+  <rect x="98" y="966" width="1604" height="70" rx="14" class="input-panel"/>
+  <text x="128" y="1000" class="panel-title">Operational boundary</text>
+  <text x="128" y="1024" class="small">Use this module for Ktor plugin wiring; keep telemetry backend ownership and upgrade risk in the application.</text>
+
+  <path d="M 490 279 H 560" class="flowSlate"/>
+  <path d="M 890 279 H 960" class="flowRed"/>
+  <path d="M 1260 279 H 1320" class="flowPurple"/>
+  <path d="M 680 310 L 680 454 Q 680 468 666 468 L 346 468 Q 338 468 338 476 L 338 498" class="flowPurple"/>
+  <path d="M 770 310 L 770 454 Q 770 468 756 468 L 710 468 Q 702 468 702 476 L 702 498" class="flowPurple"/>
+  <path d="M 338 560 V 638" class="flowGreen"/>
+  <path d="M 702 560 V 638" class="flowGold"/>
+
+  <path d="M 300 766 L 300 742 Q 300 728 314 728 L 658 728 Q 672 728 672 742 L 672 766" class="flowGreen"/>
+  <path d="M 1110 310 V 498" class="flowRed"/>
+  <path d="M 1470 310 V 498" class="flowPurple"/>
+  <path d="M 1066 560 V 638" class="flowRed"/>
+  <path d="M 1430 560 V 638" class="flowPurple"/>
+  <path d="M 672 862 L 672 930 Q 672 944 686 944 L 890 944 Q 900 944 900 954 L 900 966" class="flowGold"/>
+  <path d="M 1136 862 L 1136 930 Q 1136 944 1122 944 L 910 944 Q 900 944 900 954 L 900 966" class="flowBlue"/>
+  <path d="M 1498 862 L 1498 930 Q 1498 944 1484 944 L 910 944 Q 900 944 900 954 L 900 966" class="flowPurple"/>
+</svg>

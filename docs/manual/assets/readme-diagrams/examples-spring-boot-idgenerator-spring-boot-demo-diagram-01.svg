@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="940" viewBox="0 0 1500 940" role="img" aria-label="Spring Boot idgenerator demo architecture">
+  <defs>
+    <filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#2563eb" stroke="#2563eb" stroke-width="1.1" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#16a34a" stroke="#16a34a" stroke-width="1.1" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 11 6 L 1 11 Z" fill="#ea580c" stroke="#ea580c" stroke-width="1.1" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <style>
+      svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+      .canvas { fill: #f8fafc; }
+      .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; filter: url(#softShadow); }
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #0f172a; }
+      .subtitle { font-family: "Comic Mono"; font-size: 15px; fill: #475569; }
+      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .chip { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.2; }
+      .panelTitle { font-family: "Architects Daughter"; font-size: 24px; fill: #0f172a; }
+      .card { stroke-width: 1.8; filter: url(#softShadow); }
+      .cardTitle { font-family: "Architects Daughter"; font-size: 21px; fill: #0f172a; }
+      .mono { font-family: "Comic Mono"; font-size: 13px; fill: #475569; }
+      .small { font-family: "Comic Mono"; font-size: 12px; fill: #64748b; }
+      .flow { fill: none; stroke-width: 4.2; stroke-linecap: round; stroke-linejoin: round; }
+      .configLine { fill: none; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+      .errorLine { fill: none; stroke-width: 2.8; stroke-dasharray: 8 6; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1500" height="940"/>
+  <rect class="frame" x="36" y="32" width="1428" height="876" rx="8"/>
+  <text class="title" x="74" y="86">Spring Boot idgenerator Demo Architecture</text>
+  <text class="subtitle" x="78" y="116">REST endpoints select a generator type, validate batch size, and return string IDs from bluetape4k-idgenerators.</text>
+
+  <rect class="panel" x="78" y="158" width="1344" height="164" rx="8"/>
+  <rect class="chip" x="104" y="180" width="246" height="38" rx="8"/>
+  <text class="panelTitle" x="116" y="204">Configuration</text>
+
+  <g id="yaml">
+    <rect class="card" x="164" y="236" width="254" height="58" rx="8" fill="#eff6ff" stroke="#2563eb"/>
+    <text class="cardTitle" x="291" y="260" text-anchor="middle">application.yaml</text>
+    <text class="small" x="291" y="280" text-anchor="middle">defaultBatchSize=10, maxBatchSize=100</text>
+  </g>
+  <g id="props">
+    <rect class="card" x="498" y="236" width="254" height="58" rx="8" fill="#f0fdf4" stroke="#16a34a"/>
+    <text class="cardTitle" x="625" y="260" text-anchor="middle">IdGeneratorProperties</text>
+    <text class="small" x="625" y="280" text-anchor="middle">positive values, default &lt;= max</text>
+  </g>
+  <g id="config">
+    <rect class="card" x="832" y="236" width="254" height="58" rx="8" fill="#fff7ed" stroke="#ea580c"/>
+    <text class="cardTitle" x="959" y="260" text-anchor="middle">IdGeneratorConfiguration</text>
+    <text class="small" x="959" y="280" text-anchor="middle">registers six generator beans</text>
+  </g>
+  <g id="boot">
+    <rect class="card" x="1166" y="236" width="156" height="58" rx="8" fill="#faf5ff" stroke="#9333ea"/>
+    <text class="cardTitle" x="1244" y="260" text-anchor="middle">Spring Boot</text>
+    <text class="small" x="1244" y="280" text-anchor="middle">bean wiring</text>
+  </g>
+
+  <path class="configLine" d="M 418 265 H 498" stroke="#2563eb" marker-end="url(#arrowBlue)"/>
+  <path class="configLine" d="M 752 265 H 832" stroke="#16a34a" marker-end="url(#arrowGreen)"/>
+  <path class="configLine" d="M 1086 265 H 1166" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
+
+  <rect class="panel" x="78" y="370" width="1344" height="246" rx="8"/>
+  <rect class="chip" x="104" y="392" width="276" height="38" rx="8"/>
+  <text class="panelTitle" x="116" y="416">REST request path</text>
+
+  <g id="client">
+    <rect class="card" x="116" y="474" width="186" height="78" rx="8" fill="#ffffff" stroke="#2563eb"/>
+    <text class="cardTitle" x="209" y="504" text-anchor="middle">HTTP Client</text>
+    <text class="small" x="209" y="528" text-anchor="middle">/ids/* or /idgen/*</text>
+  </g>
+  <g id="controller">
+    <rect class="card" x="366" y="474" width="230" height="78" rx="8" fill="#eff6ff" stroke="#2563eb"/>
+    <text class="cardTitle" x="481" y="504" text-anchor="middle">IdGeneratorController</text>
+    <text class="small" x="481" y="528" text-anchor="middle">explicit + generic endpoints</text>
+  </g>
+  <g id="service">
+    <rect class="card" x="648" y="474" width="254" height="78" rx="8" fill="#f0fdf4" stroke="#16a34a"/>
+    <text class="cardTitle" x="775" y="504" text-anchor="middle">IdGeneratorService</text>
+    <text class="small" x="775" y="526" text-anchor="middle">validate batch size</text>
+    <text class="small" x="775" y="544" text-anchor="middle">issue single or batch</text>
+  </g>
+  <g id="registry">
+    <rect class="card" x="966" y="474" width="230" height="78" rx="8" fill="#fff7ed" stroke="#ea580c"/>
+    <text class="cardTitle" x="1081" y="504" text-anchor="middle">IdGeneratorRegistry</text>
+    <text class="small" x="1081" y="528" text-anchor="middle">type string -> IdGeneratorEntry</text>
+  </g>
+  <g id="response">
+    <rect class="card" x="1260" y="474" width="136" height="78" rx="8" fill="#faf5ff" stroke="#9333ea"/>
+    <text class="cardTitle" x="1328" y="504" text-anchor="middle">JSON</text>
+    <text class="small" x="1328" y="526" text-anchor="middle">id, batch</text>
+    <text class="small" x="1328" y="544" text-anchor="middle">list, health</text>
+  </g>
+
+  <path class="flow" d="M 302 513 H 366" stroke="#2563eb" marker-end="url(#arrowBlue)"/>
+  <path class="flow" d="M 596 513 H 648" stroke="#2563eb" marker-end="url(#arrowBlue)"/>
+  <path class="flow" d="M 902 513 H 966" stroke="#16a34a" marker-end="url(#arrowGreen)"/>
+  <path class="flow" d="M 1196 513 H 1260" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
+
+  <path class="configLine" d="M 625 294 L 625 434 Q 625 448 639 448 L 765 448 Q 775 448 775 458 L 775 474" stroke="#16a34a" marker-end="url(#arrowGreen)"/>
+  <path class="configLine" d="M 1244 294 L 1244 330 Q 1244 344 1230 344 L 1095 344 Q 1081 344 1081 358 L 1081 474" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
+
+  <g id="errors">
+    <rect class="chip" x="650" y="578" width="472" height="34" rx="8"/>
+    <text class="small" x="670" y="600">Bad type or size -> HTTP 400 ErrorResponse.</text>
+  </g>
+  <path class="errorLine" d="M 775 552 V 578" stroke="#9333ea"/>
+
+  <rect class="panel" x="78" y="668" width="1344" height="162" rx="8"/>
+  <rect class="chip" x="104" y="690" width="300" height="38" rx="8"/>
+  <text class="panelTitle" x="116" y="714">Supported generator beans</text>
+
+  <g id="generators">
+    <rect class="card" x="144" y="754" width="172" height="44" rx="8" fill="#ffffff" stroke="#64748b"/>
+    <text class="small" x="230" y="781" text-anchor="middle">uuid-v4</text>
+    <rect class="card" x="350" y="754" width="172" height="44" rx="8" fill="#ffffff" stroke="#64748b"/>
+    <text class="small" x="436" y="781" text-anchor="middle">uuid-v7</text>
+    <rect class="card" x="556" y="754" width="172" height="44" rx="8" fill="#ffffff" stroke="#64748b"/>
+    <text class="small" x="642" y="781" text-anchor="middle">ulid</text>
+    <rect class="card" x="762" y="754" width="172" height="44" rx="8" fill="#ffffff" stroke="#64748b"/>
+    <text class="small" x="848" y="781" text-anchor="middle">ksuid</text>
+    <rect class="card" x="968" y="754" width="172" height="44" rx="8" fill="#ffffff" stroke="#64748b"/>
+    <text class="small" x="1054" y="781" text-anchor="middle">snowflake</text>
+    <rect class="card" x="1174" y="754" width="172" height="44" rx="8" fill="#ffffff" stroke="#64748b"/>
+    <text class="small" x="1260" y="781" text-anchor="middle">flake</text>
+  </g>
+
+  <path class="configLine" d="M 1081 552 L 1081 563 Q 1081 572 1090 572 L 1202 572 Q 1216 572 1216 586 L 1216 668" stroke="#ea580c" marker-end="url(#arrowOrange)"/>
+  <g transform="translate(116 858)">
+    <rect class="chip" x="0" y="0" width="602" height="38" rx="8"/>
+    <text class="small" x="18" y="24">The demo keeps generator implementations behind a stable REST type registry.</text>
+  </g>
+</svg>

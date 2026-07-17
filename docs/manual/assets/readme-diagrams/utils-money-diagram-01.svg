@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2200" height="1260" viewBox="0 0 2200 1260" role="img" aria-label="Money module API class structure">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10" /></filter>
+<marker id="arrow-moneyImpl" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path stroke-dasharray="none" d="M2 2 L20 9 L2 16 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.4" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+<marker id="arrow-fastImpl" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path stroke-dasharray="none" d="M2 2 L20 9 L2 16 Z" fill="#FFFFFF" stroke="#16A34A" stroke-width="2.4" style="stroke-dasharray:none" stroke-linejoin="round" /></marker>
+<marker id="arrow-currencyFactory" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 18" overflow="visible"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#64748B" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+<marker id="arrow-moneyFactory" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 18" overflow="visible"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+<marker id="arrow-fastFactory" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 18" overflow="visible"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#16A34A" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+<marker id="arrow-amountOps" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 18" overflow="visible"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#0D9488" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+<marker id="arrow-convertorRates" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 18" overflow="visible"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#EA580C" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+<marker id="arrow-convertorReturns" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 18" overflow="visible"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#EA580C" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+<marker id="arrow-availability" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 18" overflow="visible"><path stroke-dasharray="none" d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#9333EA" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" style="stroke-dasharray:none" /></marker>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.lane{stroke:#94A3B8;stroke-width:2.1;stroke-dasharray:12 8}.laneContracts{fill:#F3F8FF}.laneKotlin{fill:#FFFBEB}.laneTitle{font-family:"Comic Mono";font-size:13px;fill:#475569}.card{filter:url(#softShadow);stroke-width:1.9}.stereo{font-family:"Comic Mono";font-size:12.5px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.member{font-family:"Comic Mono";font-size:13px;fill:#475569}.divider{stroke:#CBD5E1;stroke-width:1.2}.edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.implements,.uses{stroke-dasharray:9 8}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.2px;fill:#475569}</style></defs>
+<rect class="canvas" width="2200" height="1260" /><rect class="frame" x="38" y="30" width="2124" height="1194" rx="8" />
+<text class="title" x="78" y="88">Money API Class Structure</text>
+<text class="subtitle" x="82" y="120">The module wraps JSR-354 and Moneta with Kotlin factories, operators, rounding, aggregation, and conversion helpers.</text>
+<rect class="lane laneContracts" x="90" y="175" width="1970" height="570" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1" /><text class="laneTitle" x="118" y="232">JSR-354 contracts and Moneta implementations</text>
+<rect class="lane laneKotlin" x="60" y="780" width="2000" height="420" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1" /><text class="laneTitle" x="118" y="807">bluetape4k-money Kotlin API surface</text>
+<g id="edges"><path class="edge implements" d="M680 510 L680 410" stroke="#2563EB" />
+<polygon points="689,431 680,410 671,431" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge implements" d="M 1200 510 L 1200 464 Q 1200 450 1186 450 L 1052 450 Q 1038 450 1038 436 L 1038 345 Q 1038 335 1028 335 L 1020 335" stroke="#16A34A" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="1041,326 1020,335 1041,344" fill="#FFFFFF" stroke="#16A34A" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge uses" d="M295 825 L295 410" stroke="#64748B" />
+
+<polyline points="303,428 295,410 287,428" fill="none" stroke="#64748B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge uses" d="M670 825 L670 660" stroke="#2563EB" />
+
+<polyline points="678,678 670,660 662,678" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge uses" d="M 1420 825 L 1420 714 Q 1420 700 1406 700 L 1214 700 Q 1200 700 1200 686 L 1200 660" stroke="#16A34A" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="1208,678 1200,660 1192,678" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge uses" d="M 1045 825 L 1045 749 Q 1045 735 1031 735 L 1014 735 Q 1000 735 1000 721 L 1000 410" stroke="#0D9488" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="1008,428 1000,410 992,428" fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge uses" d="M1810 825 L1810 410" stroke="#EA580C" />
+
+<polyline points="1818,428 1810,410 1802,428" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge uses" d="M 1630 910 L 1615 910 Q 1605 910 1605 900 L 1605 349 Q 1605 335 1591 335 L 1510 335" stroke="#EA580C" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="1528,327 1510,335 1528,343" fill="none" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge uses" d="M 1990 1108 L 2061 1108 Q 2075 1108 2075 1094 L 2075 349 Q 2075 335 2061 335 L 2020 335" stroke="#9333EA" stroke-linecap="round" stroke-linejoin="round" />
+
+<polyline points="2038,327 2020,335 2038,343" fill="none" stroke="#9333EA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(719 447)"><rect width="106" height="30" rx="8" /><text x="53" y="20" text-anchor="middle">implements</text></g>
+<g class="edgeLabel" transform="translate(1032 417)"><rect width="106" height="30" rx="8" /><text x="53" y="20" text-anchor="middle">implements</text></g>
+<g class="edgeLabel" transform="translate(302 605)"><rect width="126" height="30" rx="8" /><text x="63" y="20" text-anchor="middle">creates/caches</text></g>
+<g class="edgeLabel" transform="translate(707 729)"><rect width="82" height="30" rx="8" /><text x="41" y="20" text-anchor="middle">creates</text></g>
+<g class="edgeLabel" transform="translate(1269 667)"><rect width="82" height="30" rx="8" /><text x="41" y="20" text-anchor="middle">creates</text></g>
+<g class="edgeLabel" transform="translate(1038 703)"><rect width="104" height="30" rx="8" /><text x="52" y="20" text-anchor="middle">extensions</text></g>
+<g class="edgeLabel" transform="translate(1861 605)"><rect width="78" height="30" rx="8" /><text x="39" y="20" text-anchor="middle">queries</text></g>
+<g class="edgeLabel" transform="translate(1521 605)"><rect width="82" height="30" rx="8" /><text x="41" y="20" text-anchor="middle">returns</text></g>
+<g class="edgeLabel" transform="translate(2040 689)"><rect width="72" height="30" rx="8" /><text x="36" y="20" text-anchor="middle">checks</text></g></g>
+<g id="currencyUnit">
+  <rect class="card" x="130" y="260" width="360" height="150" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="stereo" x="310" y="290" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="cardTitle" x="310" y="318" text-anchor="middle">CurrencyUnit</text>
+  <line class="divider" x1="148" y1="332" x2="472" y2="332" />
+  <text class="member" x="154" y="348">currencyCode</text>
+  <text class="member" x="154" y="370">defaultFractionDigits</text>
+  <text class="member" x="154" y="392">provided by javax.money</text>
+</g>
+<g id="monetaryAmount">
+  <rect class="card" x="640" y="260" width="380" height="150" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="stereo" x="830" y="290" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="cardTitle" x="830" y="318" text-anchor="middle">MonetaryAmount</text>
+  <line class="divider" x1="658" y1="332" x2="1002" y2="332" />
+  <text class="member" x="664" y="348">currency + number</text>
+  <text class="member" x="664" y="370">add/subtract/multiply</text>
+  <text class="member" x="664" y="392">with(conversion/rounding)</text>
+</g>
+<g id="conversion">
+  <rect class="card" x="1150" y="260" width="360" height="150" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="stereo" x="1330" y="290" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="cardTitle" x="1330" y="318" text-anchor="middle">CurrencyConversion</text>
+  <line class="divider" x1="1168" y1="332" x2="1492" y2="332" />
+  <text class="member" x="1174" y="348">target currency</text>
+  <text class="member" x="1174" y="370">applied via with(...)</text>
+  <text class="member" x="1174" y="392">provider-backed rate</text>
+</g>
+<g id="conversions">
+  <rect class="card" x="1660" y="260" width="360" height="150" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="stereo" x="1840" y="290" text-anchor="middle">&lt;&lt;service&gt;&gt;</text>
+  <text class="cardTitle" x="1840" y="318" text-anchor="middle">MonetaryConversions</text>
+  <line class="divider" x1="1678" y1="332" x2="2002" y2="332" />
+  <text class="member" x="1684" y="348">getConversion(...)</text>
+  <text class="member" x="1684" y="370">isConversionAvailable(...)</text>
+  <text class="member" x="1684" y="392">providers: ECB, IMF</text>
+</g>
+<g id="money">
+  <rect class="card" x="500" y="510" width="360" height="150" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="stereo" x="680" y="540" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="cardTitle" x="680" y="568" text-anchor="middle">Money</text>
+  <line class="divider" x1="518" y1="582" x2="842" y2="582" />
+  <text class="member" x="524" y="598">Moneta implementation</text>
+  <text class="member" x="524" y="620">BigDecimal-oriented</text>
+  <text class="member" x="524" y="642">created by moneyOf(...)</text>
+</g>
+<g id="fastMoney">
+  <rect class="card" x="1020" y="510" width="360" height="150" rx="8" fill="#ECFDF5" stroke="#16A34A" />
+  <text class="stereo" x="1200" y="540" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="cardTitle" x="1200" y="568" text-anchor="middle">FastMoney</text>
+  <line class="divider" x1="1038" y1="582" x2="1362" y2="582" />
+  <text class="member" x="1044" y="598">Moneta implementation</text>
+  <text class="member" x="1044" y="620">Long-oriented</text>
+  <text class="member" x="1044" y="642">minor-unit helpers</text>
+</g>
+<g id="currencySupport">
+  <rect class="card" x="130" y="825" width="330" height="170" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="stereo" x="295" y="855" text-anchor="middle">&lt;&lt;Kotlin file&gt;&gt;</text>
+  <text class="cardTitle" x="295" y="883" text-anchor="middle">CurrencySupport</text>
+  <line class="divider" x1="148" y1="897" x2="442" y2="897" />
+  <text class="member" x="154" y="913">currencyUnitOf(code)</text>
+  <text class="member" x="154" y="935">Locale cache</text>
+  <text class="member" x="154" y="957">KRW / USD / EUR / CNY / JPY</text>
+</g>
+<g id="moneySupport">
+  <rect class="card" x="505" y="825" width="330" height="170" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="stereo" x="670" y="855" text-anchor="middle">&lt;&lt;Kotlin file&gt;&gt;</text>
+  <text class="cardTitle" x="670" y="883" text-anchor="middle">MoneySupport</text>
+  <line class="divider" x1="523" y1="897" x2="817" y2="897" />
+  <text class="member" x="529" y="913">moneyOf(...)</text>
+  <text class="member" x="529" y="935">Number.toMoney(...)</text>
+  <text class="member" x="529" y="957">inKRW / inUSD / inEUR</text>
+</g>
+<g id="amountSupport">
+  <rect class="card" x="880" y="825" width="330" height="170" rx="8" fill="#F0FDFA" stroke="#0D9488" />
+  <text class="stereo" x="1045" y="855" text-anchor="middle">&lt;&lt;Kotlin file&gt;&gt;</text>
+  <text class="cardTitle" x="1045" y="883" text-anchor="middle">MoneyAmountSupport</text>
+  <line class="divider" x1="898" y1="897" x2="1192" y2="897" />
+  <text class="member" x="904" y="913">MonetaryAmount factory</text>
+  <text class="member" x="904" y="935">operators + - * /</text>
+  <text class="member" x="904" y="957">round, convertTo, sum</text>
+</g>
+<g id="fastSupport">
+  <rect class="card" x="1255" y="825" width="330" height="170" rx="8" fill="#ECFDF5" stroke="#16A34A" />
+  <text class="stereo" x="1420" y="855" text-anchor="middle">&lt;&lt;Kotlin file&gt;&gt;</text>
+  <text class="cardTitle" x="1420" y="883" text-anchor="middle">FastMoneySupport</text>
+  <line class="divider" x1="1273" y1="897" x2="1567" y2="897" />
+  <text class="member" x="1279" y="913">fastMoneyOf(...)</text>
+  <text class="member" x="1279" y="935">minor-unit factories</text>
+  <text class="member" x="1279" y="957">Number.toFastMoney(...)</text>
+</g>
+<g id="convertor">
+  <rect class="card" x="1630" y="825" width="360" height="170" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="stereo" x="1810" y="855" text-anchor="middle">&lt;&lt;object&gt;&gt;</text>
+  <text class="cardTitle" x="1810" y="883" text-anchor="middle">CurrencyConvertor</text>
+  <line class="divider" x1="1648" y1="897" x2="1972" y2="897" />
+  <text class="member" x="1654" y="913">lazy target conversions</text>
+  <text class="member" x="1654" y="935">Default/KRW/USD/EUR/JPY</text>
+  <text class="member" x="1654" y="957">getConversion(currency)</text>
+</g>
+<g id="conversionSupport">
+  <rect class="card" x="1630" y="1040" width="360" height="135" rx="8" fill="#FAF5FF" stroke="#9333EA" />
+  <text class="stereo" x="1810" y="1070" text-anchor="middle">&lt;&lt;Kotlin file&gt;&gt;</text>
+  <text class="cardTitle" x="1810" y="1098" text-anchor="middle">CurrencyConversionSupport</text>
+  <line class="divider" x1="1648" y1="1112" x2="1972" y2="1112" />
+  <text class="member" x="1654" y="1128">String availability</text>
+  <text class="member" x="1654" y="1150">CurrencyUnit availability</text>
+</g>
+</svg>

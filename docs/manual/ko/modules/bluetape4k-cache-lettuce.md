@@ -158,3 +158,40 @@ RESP3 tracking 시작 실패는 cache 시작을 중단하지 않습니다. `NOLO
 - [`TrackingInvalidationListener.kt`](../../../../cache/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/TrackingInvalidationListener.kt)
 - [`LettuceJCacheTest.kt`](../../../../cache/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/jcache/LettuceJCacheTest.kt)
 - [`LettuceNearCacheTrackingTest.kt`](../../../../cache/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheTrackingTest.kt)
+
+<!-- release-readme-diagrams:start -->
+## 배포본 다이어그램 {#release-diagrams}
+
+아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+
+### LettuceNearCache 클래스 계층도
+
+[![LettuceNearCache 클래스 계층도](../../assets/readme-diagrams/cache-cache-lettuce-diagram-01.png)](../../assets/readme-diagrams/cache-cache-lettuce-diagram-01.svg)
+
+_배포본 README: [`cache/cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.md)_
+
+### Lettuce JCache NearCache 구조도
+
+[![Lettuce JCache NearCache 구조도](../../assets/readme-diagrams/cache-cache-lettuce-diagram-02.png)](../../assets/readme-diagrams/cache-cache-lettuce-diagram-02.svg)
+
+_배포본 README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.ko.md)_
+
+### Lettuce Cache Stability Contracts 다이어그램
+
+[![Lettuce Cache Stability Contracts 다이어그램](../../assets/readme-diagrams/cache-cache-lettuce-diagram-03.png)](../../assets/readme-diagrams/cache-cache-lettuce-diagram-03.svg)
+
+_배포본 README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.ko.md)_
+
+### Native Lettuce NearCache 구조도
+
+[![Native Lettuce NearCache 구조도](../../assets/readme-diagrams/cache-cache-lettuce-diagram-04.png)](../../assets/readme-diagrams/cache-cache-lettuce-diagram-04.svg)
+
+_배포본 README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.ko.md)_
+
+### RESP3 CLIENT TRACKING Invalidation 다이어그램
+
+[![RESP3 CLIENT TRACKING Invalidation 다이어그램](../../assets/readme-diagrams/cache-cache-lettuce-sequence-01.png)](../../assets/readme-diagrams/cache-cache-lettuce-sequence-01.svg)
+
+_배포본 README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.ko.md)_
+
+<!-- release-readme-diagrams:end -->

@@ -164,3 +164,34 @@ Spring Data mapping보다 MongoDB Kotlin driver API와 codec을 직접 제어하
 - [`CriteriaExtensionsTest.kt`](../../../../spring-boot/mongodb/src/test/kotlin/io/bluetape4k/spring/mongodb/query/CriteriaExtensionsTest.kt)
 - [`QueryExtensionsTest.kt`](../../../../spring-boot/mongodb/src/test/kotlin/io/bluetape4k/spring/mongodb/query/QueryExtensionsTest.kt)
 - [`UpdateExtensionsTest.kt`](../../../../spring-boot/mongodb/src/test/kotlin/io/bluetape4k/spring/mongodb/query/UpdateExtensionsTest.kt)
+
+<!-- release-readme-diagrams:start -->
+## 배포본 다이어그램 {#release-diagrams}
+
+아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+
+### Spring Boot MongoDB 코루틴 확장 구조 다이어그램
+
+[![Spring Boot MongoDB 코루틴 확장 구조 다이어그램](../../assets/readme-diagrams/spring-boot-mongodb-diagram-01.png)](../../assets/readme-diagrams/spring-boot-mongodb-diagram-01.svg)
+
+_배포본 README: [`spring-boot/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/mongodb/README.ko.md)_
+
+### ReactiveMongoOperations 코루틴 변환 흐름 다이어그램
+
+[![ReactiveMongoOperations 코루틴 변환 흐름 다이어그램](../../assets/readme-diagrams/spring-boot-mongodb-diagram-02.png)](../../assets/readme-diagrams/spring-boot-mongodb-diagram-02.svg)
+
+_배포본 README: [`spring-boot/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/mongodb/README.ko.md)_
+
+### Criteria Query Update DSL 흐름 다이어그램
+
+[![Criteria Query Update DSL 흐름 다이어그램](../../assets/readme-diagrams/spring-boot-mongodb-diagram-03.png)](../../assets/readme-diagrams/spring-boot-mongodb-diagram-03.svg)
+
+_배포본 README: [`spring-boot/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/mongodb/README.ko.md)_
+
+### MongoDB 코루틴 변환 시퀀스 다이어그램
+
+[![MongoDB 코루틴 변환 시퀀스 다이어그램](../../assets/readme-diagrams/spring-boot-mongodb-sequence-01.png)](../../assets/readme-diagrams/spring-boot-mongodb-sequence-01.svg)
+
+_배포본 README: [`spring-boot/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/mongodb/README.ko.md)_
+
+<!-- release-readme-diagrams:end -->

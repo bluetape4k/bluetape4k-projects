@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1120" viewBox="0 0 1500 1120" role="img" aria-label="Spring Boot Hibernate Lettuce activation flow">
+  <style>
+    text { font-family: 'Architects Daughter', 'Comic Mono', 'Helvetica Neue', Arial, sans-serif; dominant-baseline: alphabetic; }
+  </style>
+  <defs>
+    <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563eb" stroke="#2563eb" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrow-green" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#16a34a" stroke="#16a34a" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrow-teal" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#0f766e" stroke="#0f766e" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrow-purple" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#7c3aed" stroke="#7c3aed" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrow-orange" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#ea580c" stroke="#ea580c" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrow-rose" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 10 10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#e11d48" stroke="#e11d48" stroke-width="0" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+  </defs>
+  <rect width="1500" height="1120" fill="#ffffff"/>
+  <text x="74" y="62" font-size="30" font-weight="700" fill="#111827">Spring Boot Hibernate Lettuce Activation Flow</text>
+  <text x="74" y="92" font-size="15" fill="#64748b">Property binding creates the Hibernate cache customizer first; metrics and Actuator attach only when their optional runtime contracts are present.</text>
+
+
+  <g class="group" data-group="INPUT">
+    <rect x="52" y="132" width="422" height="248" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="1.3" stroke-dasharray="7 5"/>
+    <text x="70" y="158" font-size="14" font-weight="700" fill="#2563eb">INPUT</text>
+    <text x="70" y="179" font-size="12.5" fill="#6b7280">Dependency and configuration start the path.</text>
+  </g>
+
+  <g class="group" data-group="HIBERNATE CACHE ACTIVATION">
+    <rect x="526" y="132" width="446" height="876" rx="10" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.3" stroke-dasharray="7 5"/>
+    <text x="544" y="158" font-size="14" font-weight="700" fill="#16a34a">HIBERNATE CACHE ACTIVATION</text>
+    <text x="544" y="179" font-size="12.5" fill="#6b7280">Settings are prepared before Hibernate builds the RegionFactory.</text>
+  </g>
+
+  <g class="group" data-group="BACK-OFF AND OBSERVABILITY">
+    <rect x="1020" y="132" width="420" height="876" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="1.3" stroke-dasharray="7 5"/>
+    <text x="1038" y="158" font-size="14" font-weight="700" fill="#64748b">BACK-OFF AND OBSERVABILITY</text>
+    <text x="1038" y="179" font-size="12.5" fill="#6b7280">Disabled, metrics, and Actuator paths stay separate.</text>
+  </g>
+
+  <path class="edge" d="M438 281 L564 281" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+  <path class="edge" d="M934 281 L1058 281" fill="none" stroke="#e11d48" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<polygon points="1046,287 1058,281 1046,275" fill="#e11d48" stroke="#e11d48" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <path class="edge" d="M749 342 L749 408" fill="none" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+  <path class="edge" d="M749 532 L749 604" fill="none" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-green)"/>
+  <path class="edge" d="M749 744 L749 826" fill="none" stroke="#0f766e" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-teal)"/>
+  <path class="edge" d="M 934 888 L 976 888 Q 990 888 990 874 L 990 507 Q 990 493 1004 493 L 1058 493" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+  <path class="edge" d="M1230 556 L1230 612" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-purple)"/>
+  <path class="edge" d="M934 888 L1058 888" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-orange)"/>
+
+
+  <g class="card" data-card="App Context Starts">
+    <rect x="84" y="220" width="354" height="122" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.8"/>
+    <rect x="84" y="220" width="10" height="122" rx="5" fill="#2563eb" opacity="0.9"/>
+    <text x="110" y="254" font-size="18" font-weight="700" fill="#111827">App Context Starts</text>
+    <text x="110" y="282" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Dependency is on the classpath</text>
+<text x="110" y="301" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">application.yml binds lettuce-near.*</text>
+<text x="110" y="320" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">enabled defaults to true</text>
+  </g>
+
+  <g class="card" data-card="Condition Match">
+    <rect x="564" y="220" width="370" height="122" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.8"/>
+    <rect x="564" y="220" width="10" height="122" rx="5" fill="#64748b" opacity="0.9"/>
+    <text x="590" y="254" font-size="18" font-weight="700" fill="#111827">Condition Match</text>
+    <text x="590" y="282" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">RegionFactory + EntityManagerFactory</text>
+<text x="590" y="301" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">property bluetape4k.cache.lettuce-near.enabled</text>
+<text x="590" y="320" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">backs off when disabled</text>
+  </g>
+
+  <g class="card" data-card="Disabled Branch">
+    <rect x="1058" y="220" width="344" height="122" rx="8" fill="#fff1f2" stroke="#e11d48" stroke-width="1.8"/>
+    <rect x="1058" y="220" width="10" height="122" rx="5" fill="#e11d48" opacity="0.9"/>
+    <text x="1084" y="254" font-size="18" font-weight="700" fill="#111827">Disabled Branch</text>
+    <text x="1084" y="282" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">No HibernatePropertiesCustomizer</text>
+<text x="1084" y="301" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">No metrics binder</text>
+<text x="1084" y="320" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">No Actuator endpoint</text>
+  </g>
+
+  <g class="card" data-card="Customizer Bean">
+    <rect x="564" y="408" width="370" height="124" rx="8" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.8"/>
+    <rect x="564" y="408" width="10" height="124" rx="5" fill="#16a34a" opacity="0.9"/>
+    <text x="590" y="442" font-size="18" font-weight="700" fill="#111827">Customizer Bean</text>
+    <text x="590" y="470" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Spring Boot receives HibernatePropertiesCustomizer</text>
+<text x="590" y="489" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">auto-configuration maps properties</text>
+<text x="590" y="508" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">no user bean code is required</text>
+  </g>
+
+  <g class="card" data-card="Hibernate Settings">
+    <rect x="564" y="604" width="370" height="140" rx="8" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.8"/>
+    <rect x="564" y="604" width="10" height="140" rx="5" fill="#16a34a" opacity="0.9"/>
+    <text x="590" y="638" font-size="18" font-weight="700" fill="#111827">Hibernate Settings</text>
+    <text x="590" y="666" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">region.factory_class points to RegionFactory</text>
+<text x="590" y="685" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">second-level cache is enabled</text>
+<text x="590" y="704" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Redis URI, codec, L1 and TTL values are copied</text>
+  </g>
+
+  <g class="card" data-card="RegionFactory Runtime">
+    <rect x="564" y="826" width="430" height="126" rx="8" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.8"/>
+    <image data-bluetape4k-icon="redis/redis-icon.svg" x="590" y="854" width="40" height="40" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBoZWlnaHQ9IjY0IiB2aWV3Qm94PSIwIDAgMzIgMzIiIHdpZHRoPSI2NCI+PGcgdHJhbnNmb3JtPSJtYXRyaXgoLjg0ODMyNyAwIDAgLjg0ODMyNyAtNy44ODM1NzMgLTkuNDQ5NjkxKSI+PHVzZSB4bGluazpocmVmPSIjQiIgZmlsbD0iI2E0MWUxMSIvPjxwYXRoIGQ9Ik00NS41MzYgMzQuOTVjLTIuMDEzIDEuMDUtMTIuNDQgNS4zMzctMTQuNjYgNi40OTRzLTMuNDUzIDEuMTQ2LTUuMjA3LjMwOC0xMi44NS01LjMyLTE0Ljg1LTYuMjc2LTIuMDQtMS42MTMtLjA3Ny0yLjM4MmwxNS4zMzItNS45MzZjMi4zMzItLjgzNiAzLjE0LS44NjcgNS4xMjYtLjE0UzQzLjU1IDMxLjg3IDQ1LjUxIDMyLjZzMi4wMzcgMS4zMS4wMjQgMi4zNnoiIGZpbGw9IiNkODJjMjAiLz48dXNlIHhsaW5rOmhyZWY9IiNCIiB5PSItNi4yMTgiIGZpbGw9IiNhNDFlMTEiLz48dXNlIHhsaW5rOmhyZWY9IiNDIiBmaWxsPSIjZDgyYzIwIi8+PHBhdGggZD0iTTQ1LjUzNiAyNi4wOThjLTIuMDEzIDEuMDUtMTIuNDQgNS4zMzctMTQuNjYgNi40OTVzLTMuNDUzIDEuMTQ2LTUuMjA3LjMwOC0xMi44NS01LjMyLTE0Ljg1LTYuMjc2Yy0xLS40NzgtMS41MjQtLjg4LTEuNTI0LTEuMjZWMjEuNTVzMTQuNDQ3LTMuMTQ1IDE2Ljc4LTMuOTgyIDMuMTQtLjg2NyA1LjEyNi0uMTQgMTMuODUzIDIuODY4IDE1LjgxNCAzLjU4N3YzLjc2YzAgLjM3Ny0uNDUyLjgtMS40NzcgMS4zMjR6IiBmaWxsPSIjYTQxZTExIi8+PHVzZSB4bGluazpocmVmPSIjQyIgeT0iLTYuNDQ5IiBmaWxsPSIjZDgyYzIwIi8+PGcgZmlsbD0iI2ZmZiI+PHBhdGggZD0iTTI5LjA5NiAyMC43MTJsLTEuMTgyLTEuOTY1LTMuNzc0LS4zNCAyLjgxNi0xLjAxNi0uODQ1LTEuNTYgMi42MzYgMS4wMyAyLjQ4Ni0uODE0LS42NzIgMS42MTIgMi41MzQuOTUtMy4yNjguMzR6TTIyLjggMjQuNjI0bDguNzQtMS4zNDItMi42NCAzLjg3MnoiLz48ZWxsaXBzZSBjeD0iMjAuNDQ0IiByeD0iNC42NzIiIHJ5PSIxLjgxMSIgY3k9IjIxLjQwMiIvPjwvZz48cGF0aCBkPSJNNDIuMTMyIDIxLjEzOGwtNS4xNyAyLjA0Mi0uMDA0LTQuMDg3eiIgZmlsbD0iIzdhMGMwMCIvPjxwYXRoIGQ9Ik0zNi45NjMgMjMuMThsLS41Ni4yMi01LjE2Ni0yLjA0MiA1LjcyMy0yLjI2NHoiIGZpbGw9IiNhZDIxMTUiLz48L2c+PGRlZnMgPjxwYXRoIGlkPSJCIiBkPSJNNDUuNTM2IDM4Ljc2NGMtMi4wMTMgMS4wNS0xMi40NCA1LjMzNy0xNC42NiA2LjQ5NHMtMy40NTMgMS4xNDYtNS4yMDcuMzA4LTEyLjg1LTUuMzItMTQuODUtNi4yNzZjLTEtLjQ3OC0xLjUyNC0uODgtMS41MjQtMS4yNnYtMy44MTNzMTQuNDQ3LTMuMTQ1IDE2Ljc4LTMuOTgyIDMuMTQtLjg2NyA1LjEyNi0uMTQgMTMuODUzIDIuODY4IDE1LjgxNCAzLjU4N3YzLjc2YzAgLjM3Ny0uNDUyLjgtMS40NzcgMS4zMjR6Ii8+PHBhdGggaWQ9IkMiIGQ9Ik00NS41MzYgMjguNzMzYy0yLjAxMyAxLjA1LTEyLjQ0IDUuMzM3LTE0LjY2IDYuNDk0cy0zLjQ1MyAxLjE0Ni01LjIwNy4zMDgtMTIuODUtNS4zMi0xNC44NS02LjI3Ni0yLjA0LTEuNjEzLS4wNzctMi4zODJsMTUuMzMyLTUuOTM1YzIuMzMyLS44MzcgMy4xNC0uODY3IDUuMTI2LS4xNHMxMi4zNSA0Ljg1MyAxNC4zMTIgNS41NyAyLjAzNyAxLjMxLjAyNCAyLjM2eiIvPjwvZGVmcz48L3N2Zz4=" preserveAspectRatio="xMidYMid meet"/>
+    <rect x="564" y="826" width="10" height="126" rx="5" fill="#0f766e" opacity="0.9"/>
+    <text x="646" y="860" font-size="18" font-weight="700" fill="#111827">RegionFactory Runtime</text>
+    <text x="646" y="888" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Hibernate builds the near-cache RegionFactory</text>
+<text x="646" y="907" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">L1 Caffeine and L2 Redis hold region data</text>
+<text x="646" y="926" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Statistics become available to observers</text>
+  </g>
+
+  <g class="card" data-card="Metrics Binder">
+    <rect x="1058" y="430" width="344" height="126" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.8"/>
+    <rect x="1058" y="430" width="10" height="126" rx="5" fill="#7c3aed" opacity="0.9"/>
+    <text x="1084" y="464" font-size="18" font-weight="700" fill="#111827">Metrics Binder</text>
+    <text x="1084" y="492" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Requires MeterRegistry</text>
+<text x="1084" y="511" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">unwraps EntityManagerFactory</text>
+<text x="1084" y="530" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">registers aggregate gauges after singleton startup</text>
+  </g>
+
+  <g class="card" data-card="Micrometer Gauges">
+    <rect x="1058" y="612" width="344" height="126" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.8"/>
+    <rect x="1058" y="612" width="10" height="126" rx="5" fill="#7c3aed" opacity="0.9"/>
+    <text x="1084" y="646" font-size="18" font-weight="700" fill="#111827">Micrometer Gauges</text>
+    <text x="1084" y="674" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">lettuce.nearcache.active.regions</text>
+<text x="1084" y="693" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">lettuce.nearcache.total.local.size</text>
+<text x="1084" y="712" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">observed through /actuator/metrics</text>
+  </g>
+
+  <g class="card" data-card="Actuator Endpoint">
+    <rect x="1058" y="826" width="344" height="126" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+    <rect x="1058" y="826" width="10" height="126" rx="5" fill="#ea580c" opacity="0.9"/>
+    <text x="1084" y="860" font-size="18" font-weight="700" fill="#111827">Actuator Endpoint</text>
+    <text x="1084" y="888" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">Requires Endpoint and EntityManagerFactory</text>
+<text x="1084" y="907" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">unwraps RegionFactory and Statistics</text>
+<text x="1084" y="926" text-anchor="start" font-size="13.3" font-weight="400" fill="#475569">serves /actuator/nearcache</text>
+  </g>
+
+  <g class="legend" transform="translate(78 1058)">
+    <line x1="0" y1="0" x2="42" y2="0" stroke="#16a34a" stroke-width="3.2" marker-end="url(#arrow-green)"/>
+    <text x="58" y="5" font-size="13" fill="#475569">required activation path</text>
+    <line x1="300" y1="0" x2="342" y2="0" stroke="#7c3aed" stroke-width="3" marker-end="url(#arrow-purple)"/>
+    <text x="358" y="5" font-size="13" fill="#475569">metrics branch</text>
+    <line x1="548" y1="0" x2="590" y2="0" stroke="#ea580c" stroke-width="3" marker-end="url(#arrow-orange)"/>
+    <text x="606" y="5" font-size="13" fill="#475569">actuator branch</text>
+    <line x1="798" y1="0" x2="840" y2="0" stroke="#e11d48" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#arrow-rose)"/>
+    <text x="856" y="5" font-size="13" fill="#475569">disabled branch</text>
+  </g>
+</svg>

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="900" viewBox="0 0 1680 900" role="img" aria-label="Retry Flow Attempts">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<marker id="arrow-startAttempt" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#2563EB" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-attemptStatus" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#16A34A" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-terminalResult" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#0D9488" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-statusRetry" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#EA580C" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-exhaustedResult" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#0D9488" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-retryDelay" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#DB2777" style="stroke-dasharray:none"/></marker>
+<marker id="arrow-delayLoop" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#DB2777" style="stroke-dasharray:none"/></marker>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.card{filter:url(#softShadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13.5px;fill:#475569}.icon{stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.edge{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 8}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.5px;fill:#475569}</style></defs>
+<rect class="canvas" width="1680" height="900"/><rect class="frame" x="38" y="30" width="1604" height="834" rx="8"/>
+<text class="title" x="78" y="86">Retry Flow Attempts</text>
+<text class="subtitle" x="82" y="118">Retry attempts include the first execution. Failure retries wait with capped backoff; Success, Aborted, and Cancelled return immediately.</text>
+<g id="edges"><path class="edge" d="M840 271 L840 310" stroke="#2563EB" marker-end="url(#arrow-startAttempt)"/>
+<path class="edge" d="M840 428 L840 470" stroke="#16A34A" marker-end="url(#arrow-attemptStatus)"/>
+<path class="edge" d="M 1005 555 L 1316 555 Q 1330 555 1330 569 L 1330 691" stroke="#0D9488" marker-end="url(#arrow-terminalResult)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge" d="M840 640 L840 670" stroke="#EA580C" marker-end="url(#arrow-statusRetry)"/>
+<path class="edge" d="M1005 750 L1140 750" stroke="#0D9488" marker-end="url(#arrow-exhaustedResult)"/>
+<path class="edge" d="M675 750 L540 750" stroke="#DB2777" marker-end="url(#arrow-retryDelay)"/>
+<path class="edge dashed" d="M 360 691 L 360 383 Q 360 369 374 369 L 635 369" stroke="#DB2777" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="623,375 635,369 623,363" fill="#DB2777" stroke="#DB2777" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(884 279)"><rect width="76" height="30" rx="8"/><text x="38" y="20" text-anchor="middle">context</text></g>
+<g class="edgeLabel" transform="translate(883 437)"><rect width="70" height="30" rx="8"/><text x="35" y="20" text-anchor="middle">report</text></g>
+<g class="edgeLabel" transform="translate(1125 517)"><rect width="210" height="30" rx="8"/><text x="105" y="20" text-anchor="middle">success / aborted / cancelled</text></g>
+<g class="edgeLabel" transform="translate(885 639)"><rect width="78" height="30" rx="8"/><text x="39" y="20" text-anchor="middle">failure</text></g>
+<g class="edgeLabel" transform="translate(1026 708)"><rect width="92" height="30" rx="8"/><text x="46" y="20" text-anchor="middle">exhausted</text></g>
+<g class="edgeLabel" transform="translate(572 708)"><rect width="68" height="30" rx="8"/><text x="34" y="20" text-anchor="middle">retry</text></g>
+<g class="edgeLabel" transform="translate(424 331)"><rect width="112" height="30" rx="8"/><text x="56" y="20" text-anchor="middle">next attempt</text></g></g>
+<g id="start"><rect class="card" x="635" y="155" width="410" height="116" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <g class="icon" transform="translate(659 179)" stroke="#2563EB"><circle cx="28" cy="28" r="22" fill="#fff"/><path d="M24 17 L40 28 L24 39 Z" fill="#2563EB" stroke="none"/></g>
+  <text class="cardTitle" x="864" y="197" text-anchor="middle">Retry flow starts</text>
+  <text class="detail" x="840" y="233" text-anchor="middle">RetryPolicy maxAttempts</text>
+  <text class="detail" x="840" y="252" text-anchor="middle">delay / multiplier / maxDelay</text></g>
+<g id="attempt"><rect class="card" x="635" y="310" width="410" height="118" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <g class="icon" transform="translate(659 334)" stroke="#16A34A"><rect x="8" y="12" width="48" height="34" rx="7" fill="#fff"/><path d="M18 24 H46 M18 34 H38" fill="none"/></g>
+  <text class="cardTitle" x="864" y="352" text-anchor="middle">Attempt work</text>
+  <text class="detail" x="840" y="388" text-anchor="middle">work.execute(context)</text>
+  <text class="detail" x="840" y="407" text-anchor="middle">exceptions become Failure</text></g>
+<g id="status"><polygon class="card" points="840,470 1005,555 840,640 675,555" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="840" y="547" text-anchor="middle">Terminal status?</text>
+  <text class="detail" x="840" y="578" text-anchor="middle">Success, Aborted, Cancelled</text>
+  <text class="detail" x="840" y="596" text-anchor="middle">return immediately</text></g>
+<g id="retry"><polygon class="card" points="840,670 1005,750 840,830 675,750" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="840" y="742" text-anchor="middle">Attempts left?</text>
+  <text class="detail" x="840" y="768" text-anchor="middle">attempt &lt; maxAttempts</text>
+  <text class="detail" x="840" y="786" text-anchor="middle">otherwise final Failure</text></g>
+<g id="delay"><rect class="card" x="180" y="691" width="360" height="118" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <g class="icon" transform="translate(204 715)" stroke="#DB2777"><circle cx="28" cy="28" r="22" fill="#fff"/><path d="M28 13 V28 L41 36" fill="none"/></g>
+  <text class="cardTitle" x="384" y="733" text-anchor="middle">Backoff delay</text>
+  <text class="detail" x="360" y="769" text-anchor="middle">Thread.sleep or suspend delay</text>
+  <text class="detail" x="360" y="788" text-anchor="middle">delay = min(delay * backoff, maxDelay)</text></g>
+<g id="result"><rect class="card" x="1140" y="691" width="380" height="118" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <g class="icon" transform="translate(1164 715)" stroke="#0D9488"><rect x="8" y="10" width="48" height="36" rx="7" fill="#fff"/><path d="M18 24 H44 M18 34 H38" fill="none"/><circle cx="46" cy="35" r="4" fill="#0D9488" stroke="none"/></g>
+  <text class="cardTitle" x="1354" y="733" text-anchor="middle">Final WorkReport</text>
+  <text class="detail" x="1330" y="769" text-anchor="middle">last terminal report</text>
+  <text class="detail" x="1330" y="788" text-anchor="middle">or exhausted Failure</text></g>
+</svg>

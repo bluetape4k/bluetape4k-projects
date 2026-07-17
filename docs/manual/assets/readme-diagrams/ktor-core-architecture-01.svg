@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-labelledby="title desc">
+  <title id="title">bluetape4k-ktor-core architecture</title>
+  <desc id="desc">Ktor core architecture showing explicit application installation, configuration gates, installed runtime features, request helper usage, and JSON response contracts.</desc>
+  <defs>
+    <style>
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #263238; }
+      .subtitle, .member, .small { font-family: "Comic Mono"; fill: #36464f; }
+      .subtitle { font-size: 18px; }
+      .panel-title, .class-title { font-family: "Architects Daughter"; fill: #1f3138; }
+      .panel-title { font-size: 25px; }
+      .class-title { font-size: 21px; }
+      .member { font-size: 14px; }
+      .small { font-size: 13px; }
+      .frame { fill: #fbfcf8; stroke: #41545d; stroke-width: 3; }
+      .app-panel { fill: #eef6f8; stroke: #b2cbd2; stroke-width: 2; }
+      .install-panel { fill: #f3f8ef; stroke: #aec99d; stroke-width: 2; }
+      .runtime-panel { fill: #f7f4ed; stroke: #d0c4ad; stroke-width: 2; }
+      .contract-panel { fill: #ffffff; stroke: #c6d2d5; stroke-width: 2; }
+      .app-card { fill: #f7fbff; stroke: #6c86a1; stroke-width: 2; }
+      .config-card { fill: #f7f3ff; stroke: #8870a8; stroke-width: 2; }
+      .json-card { fill: #fdfefe; stroke: #5d7b63; stroke-width: 2; }
+      .error-card { fill: #fffafa; stroke: #b65f68; stroke-width: 2; }
+      .health-card { fill: #fffdf7; stroke: #8a7447; stroke-width: 2; }
+      .route-card { fill: #f7fbff; stroke: #4b74a5; stroke-width: 2; }
+      .sep { stroke: #d6dee2; stroke-width: 1.5; }
+      .flowSlate { fill: none; stroke: #455a64; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowSlate); }
+      .flowGreen { fill: none; stroke: #5d7b63; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowGreen); }
+      .flowGold { fill: none; stroke: #a2743d; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowGold); }
+      .flowBlue { fill: none; stroke: #4b74a5; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowBlue); }
+      .flowPurple { fill: none; stroke: #8870a8; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowPurple); }
+      .flowRed { fill: none; stroke: #b65f68; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowRed); }
+      .icon-ring { fill: #ffffff; stroke-width: 2; }
+      .icon-line { fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+    <marker id="arrowSlate" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#455a64" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#8870a8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    </marker>
+    <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="1752" height="1032" rx="20" class="frame"/>
+  <text x="900" y="78" text-anchor="middle" class="title">bluetape4k-ktor-core Architecture</text>
+  <text x="900" y="108" text-anchor="middle" class="subtitle">An explicit Ktor baseline installer, not auto-configuration: applications choose the parts they install.</text>
+
+  <rect x="72" y="152" width="1656" height="156" rx="16" class="app-panel"/>
+  <text x="102" y="192" class="panel-title">Application Layer</text>
+  <text x="102" y="220" class="small">Your Ktor module owns installation and route definitions.</text>
+
+  <rect x="170" y="238" width="380" height="54" rx="7" class="app-card" filter="url(#softShadow)"/>
+  <text x="360" y="272" text-anchor="middle" class="class-title">Application.module()</text>
+
+  <rect x="710" y="238" width="380" height="54" rx="7" class="config-card" filter="url(#softShadow)"/>
+  <text x="900" y="272" text-anchor="middle" class="class-title">installBluetape4kKtorCore()</text>
+
+  <rect x="1250" y="238" width="380" height="54" rx="7" class="route-card" filter="url(#softShadow)"/>
+  <text x="1440" y="272" text-anchor="middle" class="class-title">Application routes</text>
+
+  <rect x="72" y="354" width="1656" height="232" rx="16" class="install-panel"/>
+  <g transform="translate(1678 378)" aria-hidden="true">
+    <circle cx="0" cy="0" r="20" class="icon-ring" stroke="#8870a8"/>
+    <path d="M -9 -4 L 9 -4 L -9 5 L 1.8 5 Q 9 5 4.92 -0.93 L 0.95 -6.7 Q -2 -11 2.4 -8.2 L 9 -4 L -2 3" class="icon-line" stroke="#8870a8"/>
+  </g>
+  <text x="102" y="394" class="panel-title">Install and configuration gates</text>
+  <text x="102" y="422" class="small">Bluetape4kKtorCoreConfig toggles each installed Ktor feature independently and validates absolute health paths.</text>
+
+  <rect x="160" y="470" width="360" height="72" rx="7" class="config-card" filter="url(#softShadow)"/>
+  <text x="340" y="499" text-anchor="middle" class="class-title">Config flags</text>
+  <text x="340" y="524" text-anchor="middle" class="member">content negotiation / status pages / health</text>
+
+  <rect x="610" y="470" width="360" height="72" rx="7" class="json-card" filter="url(#softShadow)"/>
+  <text x="790" y="499" text-anchor="middle" class="class-title">Json defaults</text>
+  <text x="790" y="524" text-anchor="middle" class="member">ignore unknown, encode defaults, omit nulls</text>
+
+  <rect x="1060" y="470" width="360" height="72" rx="7" class="health-card" filter="url(#softShadow)"/>
+  <text x="1240" y="499" text-anchor="middle" class="class-title">Health paths</text>
+  <text x="1240" y="524" text-anchor="middle" class="member">/healthz and /readyz by default</text>
+
+  <rect x="72" y="636" width="806" height="270" rx="16" class="runtime-panel"/>
+  <g transform="translate(828 660)" aria-hidden="true">
+    <circle cx="0" cy="0" r="20" class="icon-ring" stroke="#5d7b63"/>
+    <path d="M -9 0 H 9 M 2 -7 L 9 0 L 2 7" class="icon-line" stroke="#5d7b63"/>
+  </g>
+  <text x="102" y="676" class="panel-title">Installed runtime features</text>
+  <text x="102" y="704" class="small">Installer-owned Ktor plugins and routes run before or beside normal application route handlers.</text>
+
+  <rect x="136" y="760" width="214" height="92" rx="7" class="json-card" filter="url(#softShadow)"/>
+  <text x="243" y="791" text-anchor="middle" class="class-title">ContentNegotiation</text>
+  <line x1="136" y1="811" x2="350" y2="811" class="sep"/>
+  <text x="164" y="837" class="member">kotlinx Json</text>
+
+  <rect x="388" y="760" width="214" height="92" rx="7" class="error-card" filter="url(#softShadow)"/>
+  <text x="495" y="791" text-anchor="middle" class="class-title">StatusPages</text>
+  <line x1="388" y1="811" x2="602" y2="811" class="sep"/>
+  <text x="416" y="837" class="member">400 / 500 JSON errors</text>
+
+  <rect x="640" y="760" width="174" height="92" rx="7" class="health-card" filter="url(#softShadow)"/>
+  <text x="727" y="791" text-anchor="middle" class="class-title">Health routes</text>
+  <line x1="640" y1="811" x2="814" y2="811" class="sep"/>
+  <text x="668" y="837" class="member">HealthResponse.up()</text>
+
+  <rect x="922" y="636" width="806" height="270" rx="16" class="contract-panel"/>
+  <g transform="translate(1678 660)" aria-hidden="true">
+    <circle cx="0" cy="0" r="20" class="icon-ring" stroke="#4b74a5"/>
+    <path d="M -8 -7 H 8 M -8 0 H 8 M -8 7 H 2" class="icon-line" stroke="#4b74a5"/>
+  </g>
+  <text x="952" y="676" class="panel-title">Route helper and response contract</text>
+  <text x="952" y="704" class="small">Route handlers call helpers directly.</text>
+  <text x="952" y="728" class="small">Invalid input becomes IllegalArgumentException; StatusPages maps it to API errors.</text>
+
+  <rect x="986" y="760" width="320" height="92" rx="7" class="route-card" filter="url(#softShadow)"/>
+  <text x="1146" y="791" text-anchor="middle" class="class-title">Request parameter helpers</text>
+  <line x1="986" y1="811" x2="1306" y2="811" class="sep"/>
+  <text x="1014" y="837" class="member">required path/query, ranged int query</text>
+
+  <rect x="1368" y="760" width="280" height="92" rx="7" class="error-card" filter="url(#softShadow)"/>
+  <text x="1508" y="791" text-anchor="middle" class="class-title">ApiErrorResponse</text>
+  <line x1="1368" y1="811" x2="1648" y2="811" class="sep"/>
+  <text x="1396" y="837" class="member">error, message, status, path</text>
+
+  <rect x="98" y="946" width="1604" height="78" rx="14" class="app-panel"/>
+  <text x="128" y="980" class="panel-title">Reader contract</text>
+  <text x="128" y="1008" class="small">Install the baseline when you want shared JSON, JSON error payloads, and health endpoints; disable pieces already owned by your application.</text>
+
+  <path d="M 550 265 H 710" class="flowSlate"/>
+  <path d="M 1090 265 H 1250" class="flowBlue"/>
+  <path d="M 900 292 V 354" class="flowPurple"/>
+  <path d="M 1440 292 V 636" class="flowBlue"/>
+
+  <path d="M 340 542 V 636" class="flowGreen"/>
+  <path d="M 790 542 V 636" class="flowRed"/>
+  <path d="M 1240 542 V 636" class="flowGold"/>
+
+  <path d="M 1306 806 H 1368" class="flowBlue"/>
+  <path d="M 495 852 L 495 876 Q 495 890 509 890 L 1494 890 Q 1508 890 1508 876 L 1508 852" class="flowRed"/>
+  <path d="M 900 906 V 946" class="flowSlate"/>
+</svg>

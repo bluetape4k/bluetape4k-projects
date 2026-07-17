@@ -139,6 +139,31 @@ This manual targets source published by the `bluetape4k-projects` 1.11.0 tag. La
 
 In 1.11.0, `StatelessSessionFactoryBean` can collide with an existing JPA resource key in a Spring transaction. Prefer explicit `SessionFactory.withStateless` to the injected Spring proxy for this release. StatelessSession itself omits cascading, dirty checking, the first-level cache, and JPA listeners.
 
+<!-- release-readme-diagrams:start -->
+## Release diagrams {#release-diagrams}
+
+These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+
+### Persistence Extension Structure diagram
+
+[![Persistence Extension Structure diagram](../../assets/readme-diagrams/data-hibernate-diagram-01.png)](../../assets/readme-diagrams/data-hibernate-diagram-01.svg)
+
+_Release README: [`data/hibernate/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate/README.md)_
+
+### JPA Entity Class Hierarchy diagram
+
+[![JPA Entity Class Hierarchy diagram](../../assets/readme-diagrams/data-hibernate-diagram-02.png)](../../assets/readme-diagrams/data-hibernate-diagram-02.svg)
+
+_Release README: [`data/hibernate/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate/README.md)_
+
+### AttributeConverter Types diagram
+
+[![AttributeConverter Types diagram](../../assets/readme-diagrams/data-hibernate-diagram-03.png)](../../assets/readme-diagrams/data-hibernate-diagram-03.svg)
+
+_Release README: [`data/hibernate/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate/README.md)_
+
+<!-- release-readme-diagrams:end -->
+
 ## Sources and tests {#sources}
 
 - [`EntityManagerFactorySupport.kt`](../../../../data/hibernate/src/main/kotlin/io/bluetape4k/hibernate/EntityManagerFactorySupport.kt)
