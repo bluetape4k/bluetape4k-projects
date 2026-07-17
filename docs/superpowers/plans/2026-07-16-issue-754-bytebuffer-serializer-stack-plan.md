@@ -27,8 +27,8 @@ PR head after CI and review pass.
 | 1 | `feat/issue-754-buffer-contract` | API defaults, fixed-buffer contract, ABI fixtures | Merged via PR #1031 |
 | corrective | `fix/issue-754-remove-release-scope` | Remove unauthorized release/settings coupling | Merged via PR #1034 |
 | 2 | `feat/issue-754-core-serializers` | JDK, Kryo, Fory lower-copy paths | Merged via PR #1040 |
-| 3 | `feat/issue-754-json-serializers` | Jackson 2/3 and Fastjson2 | Current; base `7459b84cb976a349e1bbc03fefb36d4ca50d02ee` |
-| 4 | `feat/issue-754-avro-serializers` | Reflect, generic, specific/list | Pending |
+| 3 | `feat/issue-754-json-serializers` | Jackson 2/3 and Fastjson2 | Merged via PR #1042 |
+| 4 | `feat/issue-754-avro-serializers` | Reflect, generic, specific/list | Current; base `e89bf724fd018af8c2ab4564a5c9a007fe27b46a` |
 | 5 | `feat/issue-754-allocation-proof` | Benchmarks, allocation evidence, docs | Pending |
 
 ## Slice 1: Contract And Compatibility
