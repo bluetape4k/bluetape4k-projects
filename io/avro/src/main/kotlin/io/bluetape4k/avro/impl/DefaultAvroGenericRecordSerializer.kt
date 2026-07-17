@@ -2,11 +2,14 @@ package io.bluetape4k.avro.impl
 
 import io.bluetape4k.avro.AvroGenericRecordSerializer
 import io.bluetape4k.avro.DEFAULT_CODEC_FACTORY
+import io.bluetape4k.avro.writeToFixedBuffer
+import io.bluetape4k.io.ByteBufferInputStream
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import org.apache.avro.Schema
 import org.apache.avro.file.CodecFactory
 import org.apache.avro.file.DataFileReader
+import org.apache.avro.file.DataFileStream
 import org.apache.avro.file.DataFileWriter
 import org.apache.avro.file.SeekableByteArrayInput
 import org.apache.avro.generic.GenericData
@@ -14,6 +17,9 @@ import org.apache.avro.generic.GenericDatumReader
 import org.apache.avro.generic.GenericDatumWriter
 import org.apache.avro.generic.GenericRecord
 import java.io.ByteArrayOutputStream
+import java.nio.BufferOverflowException
+import java.nio.ByteBuffer
+import java.nio.ReadOnlyBufferException
 
 /**
  * [AvroGenericRecordSerializer]의 기본 구현체입니다.
@@ -93,6 +99,33 @@ class DefaultAvroGenericRecordSerializer private constructor(
         }
     }
 
+    override fun serializeTo(schema: Schema, graph: GenericRecord?, target: ByteBuffer): Int {
+        if (target.isReadOnly) throw ReadOnlyBufferException()
+        if (graph == null) return 0
+
+        return try {
+            val datumWriter = GenericDatumWriter<GenericRecord>(schema)
+            writeToFixedBuffer(target) { output ->
+                DataFileWriter(datumWriter).setCodec(codecFactory).use { writer ->
+                    writer.create(schema, output)
+                    writer.append(graph)
+                    writer.flush()
+                }
+            }
+        } catch (failure: Throwable) {
+            when (failure) {
+                is Error,
+                is BufferOverflowException,
+                is ReadOnlyBufferException,
+                -> throw failure
+                else -> {
+                    log.error(failure) { "GenericRecord ByteBuffer 직렬화에 실패했습니다. schema=${schema.name}" }
+                    0
+                }
+            }
+        }
+    }
+
     /**
      * Avro 바이트 배열을 [GenericData.Record]로 역직렬화합니다.
      *
@@ -125,6 +158,20 @@ class DefaultAvroGenericRecordSerializer private constructor(
             }
         } catch (e: Throwable) {
             log.error(e) { "GenericRecord 역직렬화에 실패했습니다. schema=${schema.name}" }
+            null
+        }
+    }
+
+    override fun deserializeFrom(schema: Schema, source: ByteBuffer): GenericData.Record? {
+        return try {
+            val datumReader = GenericDatumReader<GenericData.Record>(schema)
+            DataFileStream(ByteBufferInputStream(source.duplicate()), datumReader).use { reader ->
+                if (reader.hasNext()) reader.next()
+                else null
+            }
+        } catch (failure: Throwable) {
+            if (failure is Error) throw failure
+            log.error(failure) { "GenericRecord ByteBuffer 역직렬화에 실패했습니다. schema=${schema.name}, size=${source.remaining()}" }
             null
         }
     }

@@ -2,17 +2,23 @@ package io.bluetape4k.avro.impl
 
 import io.bluetape4k.avro.AvroSpecificRecordSerializer
 import io.bluetape4k.avro.DEFAULT_CODEC_FACTORY
+import io.bluetape4k.avro.writeToFixedBuffer
+import io.bluetape4k.io.ByteBufferInputStream
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.support.isNullOrEmpty
 import org.apache.avro.file.CodecFactory
 import org.apache.avro.file.DataFileReader
+import org.apache.avro.file.DataFileStream
 import org.apache.avro.file.DataFileWriter
 import org.apache.avro.file.SeekableByteArrayInput
 import org.apache.avro.specific.SpecificDatumReader
 import org.apache.avro.specific.SpecificDatumWriter
 import org.apache.avro.specific.SpecificRecord
 import java.io.ByteArrayOutputStream
+import java.nio.BufferOverflowException
+import java.nio.ByteBuffer
+import java.nio.ReadOnlyBufferException
 
 /**
  * [AvroSpecificRecordSerializer]의 기본 구현체입니다.
@@ -92,6 +98,33 @@ class DefaultAvroSpecificRecordSerializer private constructor(
         }
     }
 
+    override fun <T: SpecificRecord> serializeTo(graph: T?, target: ByteBuffer): Int {
+        if (target.isReadOnly) throw ReadOnlyBufferException()
+        if (graph == null) return 0
+
+        return try {
+            val datumWriter = SpecificDatumWriter<T>(graph.schema)
+            writeToFixedBuffer(target) { output ->
+                DataFileWriter(datumWriter).setCodec(codecFactory).use { writer ->
+                    writer.create(graph.schema, output)
+                    writer.append(graph)
+                    writer.flush()
+                }
+            }
+        } catch (failure: Throwable) {
+            when (failure) {
+                is Error,
+                is BufferOverflowException,
+                is ReadOnlyBufferException,
+                -> throw failure
+                else -> {
+                    log.error(failure) { "SpecificRecord ByteBuffer 직렬화에 실패했습니다. graph=$graph" }
+                    0
+                }
+            }
+        }
+    }
+
     /**
      * `SpecificRecord` 리스트를 Avro 바이트 배열로 직렬화합니다.
      *
@@ -126,6 +159,34 @@ class DefaultAvroSpecificRecordSerializer private constructor(
         } catch (e: Throwable) {
             log.error(e) { "SpecificRecord 리스트 직렬화에 실패했습니다. size=${collection.size}" }
             null
+        }
+    }
+
+    override fun <T: SpecificRecord> serializeListTo(collection: List<T>?, target: ByteBuffer): Int {
+        if (target.isReadOnly) throw ReadOnlyBufferException()
+        if (collection.isNullOrEmpty()) return 0
+
+        return try {
+            val schema = collection.first().schema
+            val datumWriter = SpecificDatumWriter<T>(schema)
+            writeToFixedBuffer(target) { output ->
+                DataFileWriter(datumWriter).setCodec(codecFactory).use { writer ->
+                    writer.create(schema, output)
+                    collection.forEach(writer::append)
+                    writer.flush()
+                }
+            }
+        } catch (failure: Throwable) {
+            when (failure) {
+                is Error,
+                is BufferOverflowException,
+                is ReadOnlyBufferException,
+                -> throw failure
+                else -> {
+                    log.error(failure) { "SpecificRecord 리스트 ByteBuffer 직렬화에 실패했습니다. size=${collection.size}" }
+                    0
+                }
+            }
         }
     }
 
@@ -165,6 +226,20 @@ class DefaultAvroSpecificRecordSerializer private constructor(
         }
     }
 
+    override fun <T: SpecificRecord> deserializeFrom(source: ByteBuffer, clazz: Class<T>): T? {
+        return try {
+            val datumReader = SpecificDatumReader<T>(clazz)
+            DataFileStream(ByteBufferInputStream(source.duplicate()), datumReader).use { reader ->
+                if (reader.hasNext()) reader.next()
+                else null
+            }
+        } catch (failure: Throwable) {
+            if (failure is Error) throw failure
+            log.error(failure) { "SpecificRecord ByteBuffer 역직렬화에 실패했습니다. clazz=${clazz.name}" }
+            null
+        }
+    }
+
     /**
      * Avro 바이트 배열을 `SpecificRecord` 리스트로 역직렬화합니다.
      *
@@ -199,6 +274,25 @@ class DefaultAvroSpecificRecordSerializer private constructor(
             result
         } catch (e: Throwable) {
             log.error(e) { "SpecificRecord 리스트 역직렬화에 실패했습니다. clazz=${clazz.name}" }
+            emptyList()
+        }
+    }
+
+    override fun <T: SpecificRecord> deserializeListFrom(source: ByteBuffer, clazz: Class<T>): List<T> {
+        if (!source.hasRemaining()) return emptyList()
+
+        return try {
+            val result = mutableListOf<T>()
+            val datumReader = SpecificDatumReader<T>(clazz)
+            DataFileStream(ByteBufferInputStream(source.duplicate()), datumReader).use { reader ->
+                while (reader.hasNext()) {
+                    result.add(reader.next())
+                }
+            }
+            result
+        } catch (failure: Throwable) {
+            if (failure is Error) throw failure
+            log.error(failure) { "SpecificRecord 리스트 ByteBuffer 역직렬화에 실패했습니다. clazz=${clazz.name}" }
             emptyList()
         }
     }
