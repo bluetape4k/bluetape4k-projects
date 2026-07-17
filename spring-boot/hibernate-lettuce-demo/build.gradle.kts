@@ -40,7 +40,7 @@ configurations.matching { it.name.startsWith("test") }.configureEach {
 
 dependencies {
     // Spring Boot 4 BOM: platform() 방식 필수 (dependencyManagement 사용 금지 - KGP 2.3 충돌)
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform(bt4k.spring.boot4.dependencies))
 
     implementation(project(":bluetape4k-spring-boot-hibernate-lettuce"))
     implementation("org.springframework.boot:spring-boot-starter-web")

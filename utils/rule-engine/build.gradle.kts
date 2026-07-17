@@ -12,7 +12,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     // Spring BOM (SpEL 버전 관리)
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform(bt4k.spring.boot4.dependencies))
     compileOnly("org.springframework:spring-expression")
 
     // MVEL2

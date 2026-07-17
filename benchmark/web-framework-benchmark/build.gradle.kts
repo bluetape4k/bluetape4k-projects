@@ -89,7 +89,7 @@ dependencies {
     add("benchmarkImplementation", libs.ktor.server.content.negotiation)
     add("benchmarkImplementation", libs.ktor.serialization.kotlinx.json)
 
-    add("benchmarkImplementation", platform(libs.spring.boot.dependencies))
+    add("benchmarkImplementation", platform(bt4k.spring.boot4.dependencies))
     add("benchmarkImplementation", "org.springframework.boot:spring-boot-starter-webflux")
     add("benchmarkImplementation", libs.jackson3.module.kotlin)
     add("benchmarkImplementation", libs.jackson3.module.blackbird)

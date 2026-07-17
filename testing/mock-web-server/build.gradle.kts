@@ -20,9 +20,9 @@ tasks.withType<AbstractPublishToMaven>().configureEach { enabled = false }
 
 dependencies {
     // Spring Boot 4 BOM: platform() 방식 필수 (dependencyManagement 사용 금지 - KGP 2.3 충돌)
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform(bt4k.spring.boot4.dependencies))
     // Jackson 3 BOM: Spring Boot 4는 tools.jackson.* (Jackson 3) 사용
-    implementation(platform(libs.jackson3.bom))
+    implementation(platform("tools.jackson:jackson-bom:${bt4k.versions.jackson3.get()}"))
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-cache")

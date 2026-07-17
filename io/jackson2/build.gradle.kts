@@ -3,8 +3,8 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(libs.jackson.bom))
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform("com.fasterxml.jackson:jackson-bom:${bt4k.versions.jackson.asProvider().get()}"))
+    implementation(platform(bt4k.spring.boot4.dependencies))
 
     api(libs.jackson.core)
     api(libs.jackson.databind)

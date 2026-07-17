@@ -63,7 +63,7 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform(bt4k.spring.boot4.dependencies))
     constraints {
         // netty-tcnative is published on the 2.0.x line; Spring Boot 4.1 currently constrains it to Netty core 4.2.x.
         implementation("io.netty:netty-tcnative-classes") {

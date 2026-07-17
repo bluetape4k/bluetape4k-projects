@@ -110,7 +110,7 @@ jobs:
           catalog_url="https://raw.githubusercontent.com/bluetape4k/bluetape4k-dependencies/${BLUETAPE4K_DEPENDENCIES_CATALOG_REF}/gradle/libs.versions.toml"
           curl -fsSL "$catalog_url" -o "$catalog_file"
 
-          for alias in bluetape4k-bom bluetape4k-exposed-bom exposed-plugin; do
+          for alias in bluetape4k-bom bluetape4k-exposed-bom exposed-plugin spring-boot4-dependencies jackson jackson3; do
             if ! grep -Eq "^[[:space:]]*${alias}[[:space:]]*=" "$catalog_file"; then
               echo "::error::Catalog ref '${BLUETAPE4K_DEPENDENCIES_CATALOG_REF}' is missing alias: ${alias}"
               exit 1
@@ -158,6 +158,12 @@ jobs:
               value = os.environ.get(name, "")
               print(f"{name} set={bool(value)} length={len(value)}")
           PY
+
+      - name: Validate publication POMs
+        run: |
+          ./gradlew generatePomFileForBluetape4kPublication \
+            --no-daemon --no-configuration-cache --no-build-cache
+          ruby scripts/publication/validate_poms.rb
 
       - name: Publish to Central Portal
         run: >-

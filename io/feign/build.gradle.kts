@@ -13,7 +13,7 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform(bt4k.spring.boot4.dependencies))
     testImplementation(platform(libs.spring.cloud.dependencies))
 
     api(project(":bluetape4k-http"))
