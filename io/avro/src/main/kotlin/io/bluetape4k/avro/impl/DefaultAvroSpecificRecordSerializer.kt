@@ -2,6 +2,7 @@ package io.bluetape4k.avro.impl
 
 import io.bluetape4k.avro.AvroSpecificRecordSerializer
 import io.bluetape4k.avro.DEFAULT_CODEC_FACTORY
+import io.bluetape4k.avro.escapingBufferFailure
 import io.bluetape4k.avro.writeToFixedBuffer
 import io.bluetape4k.io.ByteBufferInputStream
 import io.bluetape4k.logging.KLogging
@@ -16,7 +17,6 @@ import org.apache.avro.specific.SpecificDatumReader
 import org.apache.avro.specific.SpecificDatumWriter
 import org.apache.avro.specific.SpecificRecord
 import java.io.ByteArrayOutputStream
-import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.nio.ReadOnlyBufferException
 
@@ -98,6 +98,10 @@ class DefaultAvroSpecificRecordSerializer private constructor(
         }
     }
 
+    /**
+     * Writes one Avro OCF record directly into [target]. Handled backend failures are logged and return `0`, matching
+     * this implementation's nullable ByteArray policy. Fixed-target overflow and fatal JVM errors escape to callers.
+     */
     override fun <T: SpecificRecord> serializeTo(graph: T?, target: ByteBuffer): Int {
         if (target.isReadOnly) throw ReadOnlyBufferException()
         if (graph == null) return 0
@@ -108,20 +112,12 @@ class DefaultAvroSpecificRecordSerializer private constructor(
                 DataFileWriter(datumWriter).setCodec(codecFactory).use { writer ->
                     writer.create(graph.schema, output)
                     writer.append(graph)
-                    writer.flush()
                 }
             }
         } catch (failure: Throwable) {
-            when (failure) {
-                is Error,
-                is BufferOverflowException,
-                is ReadOnlyBufferException,
-                -> throw failure
-                else -> {
-                    log.error(failure) { "SpecificRecord ByteBuffer 직렬화에 실패했습니다. graph=$graph" }
-                    0
-                }
-            }
+            failure.escapingBufferFailure()?.let { throw it }
+            log.error(failure) { "SpecificRecord ByteBuffer 직렬화에 실패했습니다. graph=$graph" }
+            0
         }
     }
 
@@ -162,6 +158,10 @@ class DefaultAvroSpecificRecordSerializer private constructor(
         }
     }
 
+    /**
+     * Writes an Avro OCF record list directly into [target]. Handled backend failures are logged and return `0`,
+     * matching this implementation's nullable ByteArray policy. Fixed-target overflow and fatal JVM errors escape.
+     */
     override fun <T: SpecificRecord> serializeListTo(collection: List<T>?, target: ByteBuffer): Int {
         if (target.isReadOnly) throw ReadOnlyBufferException()
         if (collection.isNullOrEmpty()) return 0
@@ -173,20 +173,12 @@ class DefaultAvroSpecificRecordSerializer private constructor(
                 DataFileWriter(datumWriter).setCodec(codecFactory).use { writer ->
                     writer.create(schema, output)
                     collection.forEach(writer::append)
-                    writer.flush()
                 }
             }
         } catch (failure: Throwable) {
-            when (failure) {
-                is Error,
-                is BufferOverflowException,
-                is ReadOnlyBufferException,
-                -> throw failure
-                else -> {
-                    log.error(failure) { "SpecificRecord 리스트 ByteBuffer 직렬화에 실패했습니다. size=${collection.size}" }
-                    0
-                }
-            }
+            failure.escapingBufferFailure()?.let { throw it }
+            log.error(failure) { "SpecificRecord 리스트 ByteBuffer 직렬화에 실패했습니다. size=${collection.size}" }
+            0
         }
     }
 

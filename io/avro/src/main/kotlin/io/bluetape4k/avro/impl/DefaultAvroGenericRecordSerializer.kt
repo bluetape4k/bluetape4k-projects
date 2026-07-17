@@ -2,6 +2,7 @@ package io.bluetape4k.avro.impl
 
 import io.bluetape4k.avro.AvroGenericRecordSerializer
 import io.bluetape4k.avro.DEFAULT_CODEC_FACTORY
+import io.bluetape4k.avro.escapingBufferFailure
 import io.bluetape4k.avro.writeToFixedBuffer
 import io.bluetape4k.io.ByteBufferInputStream
 import io.bluetape4k.logging.KLogging
@@ -17,7 +18,6 @@ import org.apache.avro.generic.GenericDatumReader
 import org.apache.avro.generic.GenericDatumWriter
 import org.apache.avro.generic.GenericRecord
 import java.io.ByteArrayOutputStream
-import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.nio.ReadOnlyBufferException
 
@@ -99,6 +99,10 @@ class DefaultAvroGenericRecordSerializer private constructor(
         }
     }
 
+    /**
+     * Writes an Avro OCF record directly into [target]. Handled backend failures are logged and return `0`, matching
+     * this implementation's nullable ByteArray policy. Fixed-target overflow and fatal JVM errors escape to callers.
+     */
     override fun serializeTo(schema: Schema, graph: GenericRecord?, target: ByteBuffer): Int {
         if (target.isReadOnly) throw ReadOnlyBufferException()
         if (graph == null) return 0
@@ -109,20 +113,12 @@ class DefaultAvroGenericRecordSerializer private constructor(
                 DataFileWriter(datumWriter).setCodec(codecFactory).use { writer ->
                     writer.create(schema, output)
                     writer.append(graph)
-                    writer.flush()
                 }
             }
         } catch (failure: Throwable) {
-            when (failure) {
-                is Error,
-                is BufferOverflowException,
-                is ReadOnlyBufferException,
-                -> throw failure
-                else -> {
-                    log.error(failure) { "GenericRecord ByteBuffer 직렬화에 실패했습니다. schema=${schema.name}" }
-                    0
-                }
-            }
+            failure.escapingBufferFailure()?.let { throw it }
+            log.error(failure) { "GenericRecord ByteBuffer 직렬화에 실패했습니다. schema=${schema.name}" }
+            0
         }
     }
 

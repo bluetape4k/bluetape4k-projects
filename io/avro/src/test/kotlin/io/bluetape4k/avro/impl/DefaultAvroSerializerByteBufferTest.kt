@@ -7,6 +7,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.avro.TestMessageProvider
 import io.bluetape4k.avro.message.examples.Employee
+import io.mockk.every
 import io.mockk.spyk
 import io.mockk.verify
 import org.apache.avro.Schema
@@ -132,6 +133,18 @@ class DefaultAvroSerializerByteBufferTest {
         target.limit(target.capacity())
         serializer.serializeTo(employee, target) shouldBeEqualTo legacyWire.size
         verify(exactly = 0) { serializer.serialize(any<Employee>()) }
+    }
+
+    @Test
+    fun `backend buffer overflow keeps the established handled failure policy`() {
+        val record = spyk(TestMessageProvider.createEmployee())
+        every { record.get(any<Int>()) } throws BufferOverflowException()
+        val serializer = DefaultAvroGenericRecordSerializer()
+        val target = ByteBuffer.allocate(4096).apply { position(7) }
+
+        serializer.serializeTo(Employee.getClassSchema(), record, target) shouldBeEqualTo 0
+
+        target.position() shouldBeEqualTo 7
     }
 
     @Test
