@@ -3,7 +3,7 @@
     {
       "module": "avro",
       "path": "io/avro/build/libs/bluetape4k-avro-1.12.0.jar",
-      "sha256": "715b6fef2fc9f73801e6efd7b9828b26a3bb002daf1ebb6a260164844d71a123"
+      "sha256": "ab36e2302aa48f79a52657289b614a90bb5b6a76dbc59d0ec43e646765c7f175"
     },
     {
       "module": "io",
@@ -33,13 +33,13 @@
     "legacy-java-compilation": "PASS",
     "legacy-kotlin-compilation": "PASS"
   },
-  "command": "bash scripts/check-serializer-buffer-abi.sh --build-current --expected-head 40fc6e6c8c499456ed9190f25796a2c21bb194d6",
+  "command": "bash scripts/check-serializer-buffer-abi.sh --build-current --expected-head 02abab67ea2e2627e7adce251160588432b20d69",
   "issue": 754,
-  "producerCommit": "40fc6e6c8c499456ed9190f25796a2c21bb194d6",
-  "producerTree": "48336cc22b099abaa610b02c8ac8f988a07ec445",
+  "producerCommit": "02abab67ea2e2627e7adce251160588432b20d69",
+  "producerTree": "ce24d517558d86a589ff4f6ea2cf19bbe0cf361c",
   "schemaVersion": 1,
   "slice": "contract",
   "status": "GREEN",
-  "testedCodeTreeSha256": "17b5b788e3e36ef25f923d4e86c0fff18d74e81f466be47823d96f03fa08c6fb",
+  "testedCodeTreeSha256": "e68b6cef451dac745009407eab61157997331f73575d9347b2748a6211cdddf6",
   "textReport": ".codex/compat/issue-754/90b267871e9154f242e6de7ee9fd0539f83e509e/abi-report.txt"
 }
