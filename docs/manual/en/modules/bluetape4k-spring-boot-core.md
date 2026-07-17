@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-spring-boot-core
-title: "Common boundaries for Spring Boot applications"
+title: "Spring Boot Application Foundations"
 description: "Kotlin-friendly adapters for Spring Context, HTTP, WebFlux, error responses, observations, and execution resources."
 kind: library
 group: spring
+learningOrder: 900
 ---
 
-# Common boundaries for Spring Boot applications
+# Spring Boot Application Foundations
 
 ## What it provides {#problem}
 

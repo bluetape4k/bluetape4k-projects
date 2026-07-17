@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-rule-engine
-title: "bluetape4k-rule-engine"
+title: "규칙 엔진"
 description: "Kotlin 기반의 경량 Rule Engine 라이브러리입니다. Easy Rules 패턴을 기반으로 하되, Kotlin DSL, 코루틴(SuspendRule), 어노테이션 기반 Rule 정의를 함께 지원합니다."
 kind: library
 group: utilities
+learningOrder: 1270
 ---
 
-# bluetape4k-rule-engine
+# 규칙 엔진
 
 ## 해결하는 문제 {#problem}
 

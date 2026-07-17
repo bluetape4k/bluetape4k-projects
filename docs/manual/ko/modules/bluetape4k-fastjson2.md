@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-fastjson2
-title: "Module bluetape4k-fastjson2"
+title: "Fastjson2 직렬화"
 description: "bluetape4k-fastjson2는 Fastjson2 라이브러리를 Kotlin 확장 함수로 래핑하여 제공하는 모듈입니다."
 kind: library
 group: io
+learningOrder: 340
 ---
 
-# Module bluetape4k-fastjson2
+# Fastjson2 직렬화
 
 ## 해결하는 문제 {#problem}
 

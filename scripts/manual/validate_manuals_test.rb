@@ -22,6 +22,10 @@ class ValidateManualsTest < Minitest::Test
       workshops limitations sources
     ], ManualDocs::REQUIRED_SECTIONS
     assert_equal %w[library example benchmark], ManualDocs::VALID_KINDS
+    assert_equal %w[
+      foundation concurrency io caching data messaging web spring operations
+      testing utilities examples
+    ], ManualDocs::VALID_GROUPS
   end
 
   def test_reports_missing_locale_and_required_sections
@@ -133,6 +137,60 @@ class ValidateManualsTest < Minitest::Test
       File.write(english, File.read(english).sub("manualId: sample", "manualId: other"))
 
       assert_includes validator(root).errors, "sample: English document manualId must be sample"
+    end
+  end
+
+  def test_reports_navigation_metadata_mismatch
+    with_fixture("valid") do |root|
+      english = File.join(root, "docs/manual/en/modules/sample.md")
+      korean = File.join(root, "docs/manual/ko/modules/sample.md")
+      File.write(
+        english,
+        File.read(english).sub('title: "Sample utilities"', 'title: "Wrong title"'),
+      )
+      File.write(korean, File.read(korean).sub("learningOrder: 10", "learningOrder: 20"))
+
+      errors = validator(root).errors
+
+      assert_includes errors, "sample: English document title must match manifest title"
+      assert_includes errors, "sample: Korean document learningOrder must be 10"
+    end
+  end
+
+  def test_reports_invalid_group_order_and_duplicate_learning_order
+    with_fixture("valid") do |root|
+      manifest = load_manifest(root)
+      original = manifest["modules"].first
+      manifest["modules"].first["group"] = "cache"
+      manifest["modules"] << deep_copy(original).merge(
+        "id" => "extra",
+        "gradlePath" => ":extra",
+        "sourceDir" => "io/extra",
+        "en" => "en/modules/extra.md",
+        "ko" => "ko/modules/extra.md",
+      )
+      write_manifest(root, manifest)
+
+      errors = validator(root).errors
+
+      assert_includes errors, "sample: invalid group \"cache\""
+      assert_includes errors, "manifest: duplicate learningOrder 10"
+    end
+  end
+
+  def test_rejects_generic_module_titles
+    with_fixture("valid") do |root|
+      manifest = load_manifest(root)
+      manifest["modules"].first["title"] = {
+        "en" => "Module sample",
+        "ko" => "sample",
+      }
+      write_manifest(root, manifest)
+
+      errors = validator(root).errors
+
+      assert_includes errors, "sample: en title must describe the module's function"
+      assert_includes errors, "sample: ko title must describe the module's function"
     end
   end
 

@@ -1,12 +1,13 @@
 ---
 manualId: observability-spring-boot-demo
-title: "bluetape4k Spring Boot observability demo"
+title: "Spring Boot Observability Example"
 description: "Runnable Spring Boot 4 application that shows how to use bluetape4k observation helpers with Spring Boot Actuator Prometheus metrics and application-owned OTLP tracing configuration."
 kind: example
-group: learning
+group: examples
+learningOrder: 1500
 ---
 
-# bluetape4k Spring Boot observability demo
+# Spring Boot Observability Example
 
 ## Problem {#problem}
 

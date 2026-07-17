@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-protobuf
-title: "Module bluetape4k-protobuf"
+title: "Protocol Buffers Serialization"
 description: "A Kotlin extension library for working with Google Protocol Buffers messages."
 kind: library
 group: io
+learningOrder: 380
 ---
 
-# Module bluetape4k-protobuf
+# Protocol Buffers Serialization
 
 ## Problem {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-ktor-resilience4j
-title: "bluetape4k-ktor-resilience4j"
+title: "Ktor Resilience4j 통합"
 description: "bluetape4k 생태계의 Ktor 서버 애플리케이션에서 route 단위로 Resilience4j 정책을 적용하는 helper 모듈입니다."
 kind: library
 group: web
+learningOrder: 830
 ---
 
-# bluetape4k-ktor-resilience4j
+# Ktor Resilience4j 통합
 
 ## 해결하는 문제 {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: idgenerator-ktor-demo
-title: "idgenerator Ktor Demo"
+title: "Ktor 분산 ID 생성 예제"
 description: "bluetape4k idgenerators를 HTTP endpoint로 노출하는 실행 가능한 Ktor application입니다. 공통 bluetape4k Ktor 모듈을 사용해 JSON, 표준 오류 응답, health/readiness route, correlation ID, call logging, test assertion을 구성합니다."
 kind: example
-group: learning
+group: examples
+learningOrder: 1470
 ---
 
-# idgenerator Ktor Demo
+# Ktor 분산 ID 생성 예제
 
 ## 해결하는 문제 {#problem}
 

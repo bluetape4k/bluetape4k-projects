@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-hibernate
-title: "Module bluetape4k-hibernate"
+title: "Hibernate and Querydsl Extensions"
 description: "Use Hibernate ORM and JPA from Kotlin while preserving entity, query, converter, transaction, and StatelessSession boundaries."
 kind: library
 group: data
+learningOrder: 640
 ---
 
-# Module bluetape4k-hibernate
+# Hibernate and Querydsl Extensions
 
 ## Capabilities {#problem}
 

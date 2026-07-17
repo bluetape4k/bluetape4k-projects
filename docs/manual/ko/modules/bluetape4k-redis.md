@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-redis
-title: "Module bluetape4k-redis"
+title: "Redis 명령 추상화"
 description: "Lettuce와 Redisson을 함께 내보내는 Redis 우산 모듈의 의존성 계약, 선택 기준과 마이그레이션 경계를 설명합니다."
 kind: library
-group: infrastructure
+group: caching
+learningOrder: 550
 ---
 
-# Module bluetape4k-redis
+# Redis 명령 추상화
 
 ## 제공하는 기능 {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-protobuf
-title: "Module bluetape4k-protobuf"
+title: "Protocol Buffers 직렬화"
 description: "Google Protocol Buffers 메시지 처리를 위한 Kotlin 확장 라이브러리입니다."
 kind: library
 group: io
+learningOrder: 380
 ---
 
-# Module bluetape4k-protobuf
+# Protocol Buffers 직렬화
 
 ## 해결하는 문제 {#problem}
 

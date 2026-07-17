@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-javatimes
-title: "bluetape4k-javatimes"
+title: "Java Time Utilities"
 description: "An advanced time-operations library for the Java Time API (java.time)."
 kind: library
 group: utilities
+learningOrder: 1210
 ---
 
-# bluetape4k-javatimes
+# Java Time Utilities
 
 ## Problem {#problem}
 

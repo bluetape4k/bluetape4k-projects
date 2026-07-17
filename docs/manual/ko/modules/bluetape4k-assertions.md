@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-assertions
-title: "bluetape4k-assertions"
+title: "읽기 쉬운 테스트 단언"
 description: "English"
 kind: library
 group: testing
+learningOrder: 1110
 ---
 
-# bluetape4k-assertions
+# 읽기 쉬운 테스트 단언
 
 ## 해결하는 문제 {#problem}
 

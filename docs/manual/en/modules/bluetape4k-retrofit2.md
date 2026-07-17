@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-retrofit2
-title: "Module bluetape4k-retrofit2"
+title: "Retrofit 2 Coroutine Extensions"
 description: "bluetape4k-retrofit2 is a module that extends Retrofit2 with Kotlin DSL and Coroutines support."
 kind: library
 group: io
+learningOrder: 420
 ---
 
-# Module bluetape4k-retrofit2
+# Retrofit 2 Coroutine Extensions
 
 ## Problem {#problem}
 

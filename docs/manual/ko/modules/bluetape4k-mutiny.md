@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-mutiny
-title: "Module bluetape4k-mutiny"
+title: "Mutiny 반응형 확장"
 description: "SmallRye Mutiny 반응형 라이브러리를 Kotlin에서 더 쉽게 사용할 수 있도록 확장 함수와 유틸리티를 제공합니다."
 kind: library
-group: utilities
+group: concurrency
+learningOrder: 210
 ---
 
-# Module bluetape4k-mutiny
+# Mutiny 반응형 확장
 
 ## 해결하는 문제 {#problem}
 

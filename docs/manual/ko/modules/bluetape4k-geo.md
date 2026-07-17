@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-geo
-title: "Module bluetape4k-geo"
+title: "위치 정보 유틸리티"
 description: "지리 정보 처리를 위한 단일 통합 모듈입니다. Geocode, GeoHash, GeoIP2 기능을 제공합니다."
 kind: library
 group: utilities
+learningOrder: 1220
 ---
 
-# Module bluetape4k-geo
+# 위치 정보 유틸리티
 
 ## 해결하는 문제 {#problem}
 

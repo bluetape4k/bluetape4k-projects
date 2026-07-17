@@ -1,8 +1,11 @@
 ---
 manualId: sample
+title: "샘플 유틸리티"
+group: io
+learningOrder: 10
 ---
 
-# Sample
+# 샘플 유틸리티
 
 ## 문제 {#problem}
 ## 사용 시점 {#when-to-use}

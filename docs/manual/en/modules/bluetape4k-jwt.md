@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-jwt
-title: "Module bluetape4k-jwt"
+title: "JWT Authentication Utilities"
 description: "A library for creating and parsing JSON Web Tokens (JWT). Built on jjwt 0.13.x, it provides a Kotlin-friendly API and KeyChain management."
 kind: library
 group: utilities
+learningOrder: 1310
 ---
 
-# Module bluetape4k-jwt
+# JWT Authentication Utilities
 
 ## Problem {#problem}
 

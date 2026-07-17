@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-logging
-title: Kotlin logging과 MDC
+title: "Kotlin 로깅과 MDC"
 description: lazy SLF4J logging, scoped MDC, coroutine context 전파, 선택적 비동기 logging의 경계와 수명주기를 설명합니다.
 kind: library
 group: foundation
+learningOrder: 130
 ---
 
-# Kotlin logging과 MDC
+# Kotlin 로깅과 MDC
 
 ## 해결하는 문제 {#problem}
 

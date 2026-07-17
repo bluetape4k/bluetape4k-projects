@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-lettuce
-title: "Module bluetape4k-lettuce"
+title: "Lettuce Coroutine Client"
 description: "Operate the Lettuce Redis client from Kotlin with connection, coroutine, codec, map, and script utilities."
 kind: library
-group: infrastructure
+group: caching
+learningOrder: 540
 ---
 
-# Module bluetape4k-lettuce
+# Lettuce Coroutine Client
 
 ## Capabilities {#problem}
 

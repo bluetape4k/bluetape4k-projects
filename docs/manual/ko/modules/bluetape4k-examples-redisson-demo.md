@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-examples-redisson-demo
-title: "Module Examples - Redisson"
+title: "Redisson 예제"
 description: "Redisson을 Kotlin Coroutines와 함께 사용하는 분산 Redis 패턴 예제 모음입니다."
 kind: example
-group: learning
+group: examples
+learningOrder: 1420
 ---
 
-# Module Examples - Redisson
+# Redisson 예제
 
 ## 해결하는 문제 {#problem}
 

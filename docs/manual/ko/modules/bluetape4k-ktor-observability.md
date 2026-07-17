@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-ktor-observability
-title: "bluetape4k-ktor-observability"
+title: "Ktor 관측성"
 description: "bluetape4k 애플리케이션에서 관측성 기본값을 명시적으로 설치하는 Ktor 모듈입니다."
 kind: library
 group: web
+learningOrder: 840
 ---
 
-# bluetape4k-ktor-observability
+# Ktor 관측성
 
 ## 해결하는 문제 {#problem}
 

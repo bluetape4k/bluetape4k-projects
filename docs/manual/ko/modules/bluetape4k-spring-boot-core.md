@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-spring-boot-core
-title: "Spring Boot 애플리케이션 공통 경계"
+title: "Spring Boot 애플리케이션 기반 기능"
 description: "Spring Context, HTTP, WebFlux, 오류 응답, 관측과 실행 리소스를 Kotlin답게 연결하는 공통 라이브러리입니다."
 kind: library
 group: spring
+learningOrder: 900
 ---
 
-# Spring Boot 애플리케이션 공통 경계
+# Spring Boot 애플리케이션 기반 기능
 
 ## 제공하는 기능 {#problem}
 

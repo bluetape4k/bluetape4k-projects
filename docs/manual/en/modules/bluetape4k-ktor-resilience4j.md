@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-ktor-resilience4j
-title: "bluetape4k-ktor-resilience4j"
+title: "Ktor Resilience4j Integration"
 description: "Route-scoped Resilience4j helpers for Ktor server applications in the bluetape4k ecosystem."
 kind: library
 group: web
+learningOrder: 830
 ---
 
-# bluetape4k-ktor-resilience4j
+# Ktor Resilience4j Integration
 
 ## Problem {#problem}
 

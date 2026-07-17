@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-ktor-testing
-title: "bluetape4k-ktor-testing"
+title: "Ktor Test Support"
 description: "Ktor testing helpers for the bluetape4k ecosystem."
 kind: library
 group: web
+learningOrder: 810
 ---
 
-# bluetape4k-ktor-testing
+# Ktor Test Support
 
 ## Problem {#problem}
 

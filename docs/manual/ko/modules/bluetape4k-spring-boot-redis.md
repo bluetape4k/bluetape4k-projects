@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-spring-boot-redis
-title: "Module bluetape4k-spring-boot-redis"
+title: "Spring Data Redis 코루틴 지원"
 description: "Spring Data Redis의 직렬화 형식을 Kryo·Fory와 압축 조합으로 설계하고 RedisTemplate·ReactiveRedisTemplate에 안전하게 적용하는 방법을 설명합니다."
 kind: library
 group: spring
+learningOrder: 940
 ---
 
-# Module bluetape4k-spring-boot-redis
+# Spring Data Redis 코루틴 지원
 
 ## 제공하는 기능 {#problem}
 

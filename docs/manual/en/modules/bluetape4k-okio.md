@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-okio
-title: "Module bluetape4k-okio"
+title: "Okio Extensions"
 description: "bluetape4k-okio is a high-performance I/O extension module built on Square's Okio library."
 kind: library
 group: io
+learningOrder: 310
 ---
 
-# Module bluetape4k-okio
+# Okio Extensions
 
 ## Problem {#problem}
 

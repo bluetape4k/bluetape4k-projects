@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-examples-jpa-blazepersistence-demo
-title: "Module Examples - JPA & Blaze Persistence"
+title: "JPA와 Blaze-Persistence 예제"
 description: "이 모듈은 Blaze Persistence를 사용한 JPA 쿼리 예제입니다. Criteria Builder, Entity Views, offset pagination, keyset pagination, count metadata를 다룹니다."
 kind: example
-group: learning
+group: examples
+learningOrder: 1440
 ---
 
-# Module Examples - JPA & Blaze Persistence
+# JPA와 Blaze-Persistence 예제
 
 ## 해결하는 문제 {#problem}
 

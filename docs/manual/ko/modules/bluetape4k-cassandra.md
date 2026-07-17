@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-cassandra
-title: "Module bluetape4k-cassandra"
+title: "Cassandra 코루틴 클라이언트"
 description: "Apache Cassandra Java Driver를 Kotlin의 세션 수명주기, 코루틴 쿼리와 타입 변환 관점에서 사용하는 방법을 설명합니다."
 kind: library
 group: data
+learningOrder: 620
 ---
 
-# Module bluetape4k-cassandra
+# Cassandra 코루틴 클라이언트
 
 ## 이 라이브러리가 맡는 일 {#problem}
 

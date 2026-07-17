@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-workflow
-title: "bluetape4k-workflow"
+title: "Workflow Engine"
 description: "A Kotlin DSL-based workflow orchestration library with support for sync, coroutine-based, and Virtual Thread execution models. Define complex workflows declaratively using composable flow builders."
 kind: library
 group: utilities
+learningOrder: 1300
 ---
 
-# bluetape4k-workflow
+# Workflow Engine
 
 ## Problem {#problem}
 

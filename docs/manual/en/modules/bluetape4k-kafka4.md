@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-kafka4
-title: "Module bluetape4k-kafka4"
+title: "Kafka 4 Client Extensions"
 description: "bluetape4k-kafka4 is the Kafka 4.x line of the bluetape4k Kafka utilities."
 kind: library
-group: infrastructure
+group: messaging
+learningOrder: 710
 ---
 
-# Module bluetape4k-kafka4
+# Kafka 4 Client Extensions
 
 ## Problem {#problem}
 

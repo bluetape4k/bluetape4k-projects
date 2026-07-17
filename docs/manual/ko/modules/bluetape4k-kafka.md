@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-kafka
-title: "bluetape4k-kafka"
+title: "Kafka 클라이언트 확장"
 description: "Kafka 3.x client, coroutine producer, Spring Kafka·Reactor Kafka adapter와 Kafka Streams Kotlin factory를 1.11.0 소스 기준으로 설명합니다."
 kind: library
-group: infrastructure
+group: messaging
+learningOrder: 700
 ---
 
-# bluetape4k-kafka
+# Kafka 클라이언트 확장
 
 ## 제공하는 기능 {#problem}
 

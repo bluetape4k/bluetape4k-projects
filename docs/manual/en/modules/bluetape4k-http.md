@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-http
-title: "Module bluetape4k-http"
+title: "HTTP Client Foundations"
 description: "bluetape4k-http integrates multiple HTTP client libraries through Kotlin extension functions and DSLs."
 kind: library
 group: io
+learningOrder: 400
 ---
 
-# Module bluetape4k-http
+# HTTP Client Foundations
 
 ## Problem {#problem}
 

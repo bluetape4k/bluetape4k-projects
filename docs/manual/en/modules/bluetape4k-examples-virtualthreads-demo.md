@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-examples-virtualthreads-demo
-title: "Module Examples - Java 21 Virtual Threads"
+title: "Java Virtual Thread Examples"
 description: "A collection of examples covering best practices and rules for using Java 21 Virtual Threads effectively."
 kind: example
-group: learning
+group: examples
+learningOrder: 1410
 ---
 
-# Module Examples - Java 21 Virtual Threads
+# Java Virtual Thread Examples
 
 ## Problem {#problem}
 

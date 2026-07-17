@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-spring-boot-cassandra
-title: "Spring Data Cassandra coroutine library"
+title: "Spring Data Cassandra Coroutine Support"
 description: "Use Spring Data Cassandra reactive and async APIs through Kotlin coroutines and Flow, with option, model, and schema helpers."
 kind: library
 group: spring
+learningOrder: 910
 ---
 
-# Spring Data Cassandra coroutine library
+# Spring Data Cassandra Coroutine Support
 
 ## What it provides {#problem}
 

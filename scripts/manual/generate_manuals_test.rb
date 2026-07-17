@@ -27,6 +27,10 @@ class GenerateManualsTest < Minitest::Test
       korean = File.read(File.join(root, "docs/manual/ko/modules/sample.md"))
       assert_includes english, "manualId: sample"
       assert_includes korean, "manualId: sample"
+      assert_includes english, 'title: "Sample cache client"'
+      assert_includes korean, 'title: "샘플 캐시 클라이언트"'
+      assert_includes english, "learningOrder: 10"
+      assert_includes korean, "learningOrder: 10"
       assert_includes english, "SampleClient"
       assert_includes english, "SampleClientTest"
       assert_includes english, "English sample client for remote calls."
@@ -69,6 +73,11 @@ class GenerateManualsTest < Minitest::Test
       "modules" => [
         {
           "id" => "sample",
+          "title" => {
+            "en" => "Sample cache client",
+            "ko" => "샘플 캐시 클라이언트",
+          },
+          "learningOrder" => 10,
           "gradlePath" => ":sample",
           "sourceDir" => "io/sample",
           "kind" => "library",

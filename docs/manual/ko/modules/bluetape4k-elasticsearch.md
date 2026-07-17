@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-elasticsearch
-title: "Module bluetape4k-elasticsearch"
+title: "Elasticsearch 클라이언트 확장"
 description: "Kotlin + Coroutines 환경에서 쓰기 위한 Elasticsearch 클라이언트 라이브러리입니다. Elasticsearch 9.x Java API 클라이언트를 Kotlin DSL로 만들고, suspend 함수와 Flow 기반 파이프라인으로 비동기 작업을 다루기 쉽게 해줍니다."
 kind: library
-group: infrastructure
+group: data
+learningOrder: 660
 ---
 
-# Module bluetape4k-elasticsearch
+# Elasticsearch 클라이언트 확장
 
 ## 해결하는 문제 {#problem}
 

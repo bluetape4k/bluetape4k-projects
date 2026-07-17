@@ -1,9 +1,10 @@
 ---
 manualId: bluetape4k-coroutines
-title: Coroutine과 Flow 확장
+title: "Coroutine과 Flow 확장"
 description: lifecycle을 가진 coroutine scope, Deferred helper, Flow operator, subject, structured concurrency bridge를 제공합니다.
 kind: library
-group: foundation
+group: concurrency
+learningOrder: 200
 ---
 
 # Coroutine과 Flow 확장

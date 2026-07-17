@@ -17,7 +17,7 @@ module ManualDocs
     end
 
     def current?
-      File.file?(@output_path) && File.binread(@output_path) == rendered
+      File.file?(@output_path) && File.binread(@output_path) == rendered.b
     end
 
     private

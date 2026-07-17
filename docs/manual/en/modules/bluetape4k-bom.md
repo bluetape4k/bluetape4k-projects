@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-bom
-title: Bluetape4k bill of materials
+title: "Bluetape4k Bill of Materials"
 description: Understand the bluetape4k-projects constraints composed by the central BOM and how maintainers validate them.
 kind: library
 group: foundation
+learningOrder: 100
 ---
 
-# Bluetape4k bill of materials
+# Bluetape4k Bill of Materials
 
 ## Problem {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-coroutines
-title: Coroutine and Flow extensions
+title: "Coroutine and Flow Extensions"
 description: Lifecycle-aware coroutine scopes, Deferred helpers, Flow operators, subjects, and structured-concurrency bridges.
 kind: library
-group: foundation
+group: concurrency
+learningOrder: 200
 ---
 
-# Coroutine and Flow extensions
+# Coroutine and Flow Extensions
 
 ## Problem {#problem}
 

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-kafka4
-title: "Module bluetape4k-kafka4"
+title: "Kafka 4 클라이언트 확장"
 description: "bluetape4k-kafka4는 bluetape4k Kafka 유틸리티의 Kafka 4.x 라인입니다. 기존 bluetape4k-kafka와 같은 Kotlin 우선 API 형태를 유지하되 Kafka 4.2.x, Spring Kafka 4.x, Spring Boot 4, Jackson 3 기준으로 컴파일합니다."
 kind: library
-group: infrastructure
+group: messaging
+learningOrder: 710
 ---
 
-# Module bluetape4k-kafka4
+# Kafka 4 클라이언트 확장
 
 ## 해결하는 문제 {#problem}
 

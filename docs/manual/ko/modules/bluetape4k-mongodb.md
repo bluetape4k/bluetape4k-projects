@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-mongodb
-title: "Module bluetape4k-mongodb"
+title: "MongoDB 코루틴 확장"
 description: "MongoDB Kotlin Coroutine Driver의 client·collection·BSON·aggregation API를 그대로 살리면서 반복되는 구성과 조회 패턴을 줄이는 방법을 설명합니다."
 kind: library
 group: data
+learningOrder: 630
 ---
 
-# Module bluetape4k-mongodb
+# MongoDB 코루틴 확장
 
 ## 제공하는 기능 {#problem}
 

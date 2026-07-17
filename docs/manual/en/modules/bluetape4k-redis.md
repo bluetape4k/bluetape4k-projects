@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-redis
-title: "Module bluetape4k-redis"
+title: "Redis Command Abstractions"
 description: "The dependency contract, selection rules, and migration boundaries of the Redis umbrella module that exports Lettuce and Redisson together."
 kind: library
-group: infrastructure
+group: caching
+learningOrder: 550
 ---
 
-# Module bluetape4k-redis
+# Redis Command Abstractions
 
 ## What it provides {#problem}
 

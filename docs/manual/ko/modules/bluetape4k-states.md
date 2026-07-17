@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-states
-title: "bluetape4k-states"
+title: "상태 머신 유틸리티"
 description: "JVM backend/library 코드를 위한 Kotlin DSL 기반 유한 상태 머신(FSM) 라이브러리입니다. 동기 FSM, 코루틴 FSM, 선택적 reactive event/effect runtime, Guard 조건, nested state-family 전이, StateFlow 기반 상태 관찰을 제공합니다."
 kind: library
 group: utilities
+learningOrder: 1290
 ---
 
-# bluetape4k-states
+# 상태 머신 유틸리티
 
 ## 해결하는 문제 {#problem}
 

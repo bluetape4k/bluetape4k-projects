@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-virtualthread-jdk21
-title: "Module bluetape4k-virtualthread-jdk21"
+title: "JDK 21 가상 스레드"
 description: "Java 21 Virtual Thread 구현체 모듈입니다."
 kind: library
 group: concurrency
+learningOrder: 230
 ---
 
-# Module bluetape4k-virtualthread-jdk21
+# JDK 21 가상 스레드
 
 ## 해결하는 문제 {#problem}
 

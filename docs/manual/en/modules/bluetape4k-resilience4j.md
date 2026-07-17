@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-resilience4j
-title: "Module bluetape4k-resilience4j"
+title: "Resilience Patterns with Resilience4j"
 description: "Resilience4j is a lightweight, fault-tolerance library for isolation and recovery."
 kind: library
-group: infrastructure
+group: operations
+learningOrder: 1000
 ---
 
-# Module bluetape4k-resilience4j
+# Resilience Patterns with Resilience4j
 
 ## Problem {#problem}
 

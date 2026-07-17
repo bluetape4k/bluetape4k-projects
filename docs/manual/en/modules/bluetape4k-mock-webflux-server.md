@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-mock-webflux-server
-title: "bluetape4k-mock-webflux-server"
+title: "WebFlux Mock Server"
 description: "A standalone Spring Boot 4 + WebFlux mock server for integration testing. It provides HTTP endpoints compatible with httpbin.org and jsonplaceholder.typicode.com, implemented with Kotlin Coroutines (suspend fun, Flow)."
 kind: library
 group: testing
+learningOrder: 1140
 ---
 
-# bluetape4k-mock-webflux-server
+# WebFlux Mock Server
 
 ## Problem {#problem}
 

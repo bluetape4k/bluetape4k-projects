@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-rule-engine
-title: "bluetape4k-rule-engine"
+title: "Rule Engine"
 description: "A lightweight rule engine library for Kotlin. It follows the Easy Rules pattern and adds Kotlin DSLs, coroutine support (SuspendRule), and annotation-based rule definitions."
 kind: library
 group: utilities
+learningOrder: 1270
 ---
 
-# bluetape4k-rule-engine
+# Rule Engine
 
 ## Problem {#problem}
 

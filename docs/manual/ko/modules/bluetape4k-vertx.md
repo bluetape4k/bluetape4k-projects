@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-vertx
-title: "Module bluetape4k-vertx"
+title: "Vert.x 코루틴 확장"
 description: "Vert.x 기반 비동기/Coroutines 개발을 위한 단일 통합 모듈입니다."
 kind: library
 group: io
+learningOrder: 450
 ---
 
-# Module bluetape4k-vertx
+# Vert.x 코루틴 확장
 
 ## 해결하는 문제 {#problem}
 

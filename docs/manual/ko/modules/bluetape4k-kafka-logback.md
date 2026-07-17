@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-kafka-logback
-title: "bluetape4k-kafka-logback"
+title: "Kafka Logback Appender"
 description: "English"
 kind: library
-group: infrastructure
+group: messaging
+learningOrder: 720
 ---
 
-# bluetape4k-kafka-logback
+# Kafka Logback Appender
 
 ## 해결하는 문제 {#problem}
 

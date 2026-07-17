@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-pulsar
-title: "Module bluetape4k-pulsar"
+title: "Apache Pulsar Client Extensions"
 description: "Use Apache Pulsar Java Client with Kotlin DSLs, suspending operations, Flow, and Jackson 2 or 3 JSON schemas while respecting the 1.11.0 lifecycle boundaries."
 kind: library
-group: infrastructure
+group: messaging
+learningOrder: 740
 ---
 
-# Module bluetape4k-pulsar
+# Apache Pulsar Client Extensions
 
 ## Provided capabilities {#problem}
 

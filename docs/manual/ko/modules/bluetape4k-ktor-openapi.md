@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-ktor-openapi
-title: "bluetape4k-ktor-openapi"
+title: "Ktor OpenAPI 통합"
 description: "Route 동작을 바꾸지 않고 명시적인 문서 route만 추가하려는 애플리케이션을 위한 선택적 Ktor OpenAPI helper입니다."
 kind: library
 group: web
+learningOrder: 820
 ---
 
-# bluetape4k-ktor-openapi
+# Ktor OpenAPI 통합
 
 ## 해결하는 문제 {#problem}
 

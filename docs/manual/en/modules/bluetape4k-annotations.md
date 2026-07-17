@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-annotations
-title: API maturity annotations
+title: "API Maturity Annotations"
 description: Apply explicit opt-in contracts to experimental, internal, delicate, obsolete, beta, and implementation-sensitive APIs.
 kind: library
 group: foundation
+learningOrder: 120
 ---
 
-# API maturity annotations
+# API Maturity Annotations
 
 ## Problem {#problem}
 

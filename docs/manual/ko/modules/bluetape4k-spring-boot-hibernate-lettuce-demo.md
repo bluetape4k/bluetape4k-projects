@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-spring-boot-hibernate-lettuce-demo
-title: "bluetape4k-spring-boot-hibernate-lettuce-demo"
+title: "Spring Boot Hibernate 캐시 예제"
 description: "Spring Boot 4 + Hibernate 7 2nd Level Cache (2LC) with Lettuce Near Cache 데모 애플리케이션입니다."
 kind: library
-group: spring
+group: examples
+learningOrder: 1460
 ---
 
-# bluetape4k-spring-boot-hibernate-lettuce-demo
+# Spring Boot Hibernate 캐시 예제
 
 ## 해결하는 문제 {#problem}
 

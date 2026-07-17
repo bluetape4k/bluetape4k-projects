@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-cassandra
-title: "Module bluetape4k-cassandra"
+title: "Cassandra Coroutine Client"
 description: Use the Apache Cassandra Java Driver from Kotlin with explicit session ownership, coroutine queries, and typed value mapping.
 kind: library
 group: data
+learningOrder: 620
 ---
 
-# Module bluetape4k-cassandra
+# Cassandra Coroutine Client
 
 ## What this library owns {#problem}
 

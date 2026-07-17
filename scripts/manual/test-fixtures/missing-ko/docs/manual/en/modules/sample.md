@@ -1,7 +1,10 @@
 ---
 manualId: sample
+title: "Sample utilities"
+group: io
+learningOrder: 10
 ---
 
-# Sample
+# Sample utilities
 
 ## Problem {#problem}

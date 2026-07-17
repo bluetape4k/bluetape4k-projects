@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-bucket4j
-title: "Module bluetape4k-bucket4j"
+title: "분산 요청 속도 제한"
 description: "Bucket4j 기반으로 애플리케이션 레벨 Rate Limiter를 구성하기 위한 래퍼/유틸 모듈입니다."
 kind: library
-group: infrastructure
+group: operations
+learningOrder: 1010
 ---
 
-# Module bluetape4k-bucket4j
+# 분산 요청 속도 제한
 
 ## 해결하는 문제 {#problem}
 

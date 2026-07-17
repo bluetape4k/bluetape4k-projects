@@ -1,12 +1,13 @@
 ---
 manualId: observability-ktor-demo
-title: "bluetape4k Ktor observability demo"
+title: "Ktor Observability Example"
 description: "Runnable Ktor 3 application that shows application-owned Prometheus metrics routing, opt-in OpenTelemetry tracing, and bluetape4k event telemetry helpers."
 kind: example
-group: learning
+group: examples
+learningOrder: 1490
 ---
 
-# bluetape4k Ktor observability demo
+# Ktor Observability Example
 
 ## Problem {#problem}
 

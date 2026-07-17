@@ -1,6 +1,10 @@
 schemaVersion: 2
 modules:
   - id: sample
+    title:
+      en: Sample utilities
+      ko: 샘플 유틸리티
+    learningOrder: 10
     gradlePath: ":sample"
     sourceDir: io/sample
     kind: library

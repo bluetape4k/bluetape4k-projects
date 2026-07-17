@@ -15,6 +15,9 @@ class ExportManifestTest < Minitest::Test
             id: zeta
           - sourceDir: io/alpha
             id: alpha
+            title:
+              en: Alpha utilities
+              ko: 알파 유틸리티
             chapters:
               - id: chapter-one
                 en: en/modules/alpha/chapter-one.md
@@ -32,6 +35,7 @@ class ExportManifestTest < Minitest::Test
       assert_equal %w[modules schemaVersion], parsed.keys
       assert_equal %w[alpha zeta], parsed["modules"].map { |entry| entry["id"] }
       assert_equal "chapter-one", parsed["modules"].first.fetch("chapters").first.fetch("id")
+      assert_equal "알파 유틸리티", parsed["modules"].first.dig("title", "ko")
       assert_equal %w[assets/alpha/model.svg assets/alpha/model.png], parsed["modules"].first.fetch("assets")
       assert File.binread(output).end_with?("\n")
       assert exporter.current?

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-mock-web-server
-title: "bluetape4k-mock-web-server"
+title: "HTTP 모의 서버"
 description: "외부 HTTP 의존성을 통합 테스트에서 대체하기 위한 독립형 Spring Boot 4 + Virtual Threads HTTP Mock 서버입니다. httpbin.org, jsonplaceholder.typicode.com, 간단한 웹 콘텐츠 엔드포인트를 하나의 Docker 이미지 (bluetape4k/mock-web-server)로 제공합니다."
 kind: library
 group: testing
+learningOrder: 1130
 ---
 
-# bluetape4k-mock-web-server
+# HTTP 모의 서버
 
 ## 해결하는 문제 {#problem}
 

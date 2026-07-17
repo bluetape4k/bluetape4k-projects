@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-cache-redisson
-title: "Module bluetape4k-cache-redisson"
+title: "Redisson JCache와 Near Cache"
 description: "Redisson JCache, Redis-backed memoizer, RLocalCachedMap Near Cache를 정확한 동시성·무효화·수명주기 계약과 함께 사용하는 방법을 설명합니다."
 kind: library
 group: caching
+learningOrder: 530
 ---
 
-# Module bluetape4k-cache-redisson
+# Redisson JCache와 Near Cache
 
 ## 제공하는 기능 {#problem}
 

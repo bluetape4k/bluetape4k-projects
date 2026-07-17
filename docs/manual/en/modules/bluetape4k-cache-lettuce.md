@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-cache-lettuce
-title: "Module bluetape4k-cache-lettuce"
+title: "Lettuce JCache and Near Cache"
 description: "Configure Redis JCache, distributed memoizers, and Caffeine L1 plus Redis L2 near caches with explicit invalidation, TTL, and lifecycle contracts."
 kind: library
 group: caching
+learningOrder: 520
 ---
 
-# Module bluetape4k-cache-lettuce
+# Lettuce JCache and Near Cache
 
 ## Capabilities {#problem}
 

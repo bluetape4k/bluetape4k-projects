@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-cache-hazelcast
-title: "Module bluetape4k-cache-hazelcast"
+title: "Hazelcast Cache Integration"
 description: "Use Hazelcast JCache, IMap-backed memoizers, and near caches with explicit cluster ownership, invalidation, serialization, and failure contracts."
 kind: library
 group: caching
+learningOrder: 510
 ---
 
-# Module bluetape4k-cache-hazelcast
+# Hazelcast Cache Integration
 
 ## Capabilities {#problem}
 

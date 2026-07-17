@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-money
-title: "Module bluetape4k-money"
+title: "통화 계산"
 description: "Java 표준 Money API (JSR-354)를 기반으로 금융 및 통화 연산을 쉽게 수행할 수 있는 라이브러리입니다. JavaMoney Moneta 구현체를 사용하여 통화 단위, 금액 계산, 환율 변환을 지원합니다."
 kind: library
 group: utilities
+learningOrder: 1250
 ---
 
-# Module bluetape4k-money
+# 통화 계산
 
 ## 해결하는 문제 {#problem}
 

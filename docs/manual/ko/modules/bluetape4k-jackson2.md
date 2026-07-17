@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-jackson2
-title: "Module bluetape4k-jackson"
+title: "Jackson 2 직렬화"
 description: "bluetape4k-jackson2은 Jackson 2.x 라이브러리를 Kotlin DSL과 확장 함수로 래핑하여 제공하는 모듈입니다."
 kind: library
 group: io
+learningOrder: 350
 ---
 
-# Module bluetape4k-jackson
+# Jackson 2 직렬화
 
 ## 해결하는 문제 {#problem}
 

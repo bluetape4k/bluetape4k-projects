@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-examples-jpa-querydsl-demo
-title: "Module Examples - JPA & Querydsl"
+title: "JPA with Querydsl"
 description: "A collection of examples for learning database query patterns using JPA and Querydsl."
 kind: example
-group: learning
+group: examples
+learningOrder: 1430
 ---
 
-# Module Examples - JPA & Querydsl
+# JPA with Querydsl
 
 ## Problem {#problem}
 

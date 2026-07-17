@@ -67,17 +67,23 @@ module ManualDocs
         "scope ownership, cancellation, executor lifecycle, blocking boundary, shutdown",
         "active work, queue 깊이, cancellation, timeout, executor 포화, shutdown 완료를 관찰합니다.",
       ],
-      "learning" => [
+      "messaging" => [
+        "producer and consumer lifecycle, delivery guarantees, serialization, backpressure, and retries",
+        "Track publish latency, consumer lag, retries, dead letters, rebalances, and graceful shutdown.",
+        "producer와 consumer lifecycle, delivery 보장, serialization, backpressure, retry",
+        "publish latency, consumer lag, retry, dead letter, rebalance, graceful shutdown을 관찰합니다.",
+      ],
+      "operations" => [
+        "rate limits, telemetry, resilience policy, remote-client lifecycle, and operational ownership",
+        "Track limits, latency, retries, circuit state, telemetry export, remote errors, and shutdown.",
+        "rate limit, telemetry, resilience policy, remote client lifecycle, 운영 ownership",
+        "limit, latency, retry, circuit state, telemetry export, remote 오류, shutdown을 관찰합니다.",
+      ],
+      "examples" => [
         "the runnable entry point, required services, expected behavior, and the production pattern demonstrated",
         "Run the example in an isolated environment and observe startup, dependency health, requests, and shutdown.",
         "실행 entry point, 필요한 service, 기대 동작, 예제가 보여 주는 production pattern",
         "격리된 환경에서 example을 실행하고 startup, dependency health, request, shutdown을 확인합니다.",
-      ],
-      "experiments" => [
-        "the hypothesis, benchmark task, environment, metric direction, and comparison limits",
-        "Record environment and raw results; compare only equivalent runs and watch variance and allocation.",
-        "가설, benchmark task, 환경, metric 방향, 비교 범위",
-        "환경과 raw result를 기록하고 같은 조건의 run만 비교하며 variance와 allocation을 확인합니다.",
       ],
     }.freeze
 
@@ -128,7 +134,7 @@ module ManualDocs
       dependencies = dependency_lines(build_path).first(12)
       headings = readme.scan(/^##+\s+(.+?)\s*$/).flatten.map { |heading| clean_text(heading) }.reject(&:empty?).first(10)
       {
-        title: readme_title(readme, entry.fetch("id")),
+        title: entry.fetch("title").fetch(locale.to_s),
         summary: readme_summary(readme, entry.fetch("id"), locale),
         readme_path: readme_path,
         build_path: build_path,
@@ -149,6 +155,7 @@ module ManualDocs
         description: #{yaml_string(facts[:summary])}
         kind: #{entry.fetch("kind")}
         group: #{entry.fetch("group")}
+        learningOrder: #{entry.fetch("learningOrder")}
         ---
 
         # #{facts[:title]}
@@ -234,6 +241,7 @@ module ManualDocs
         description: #{yaml_string(facts[:summary])}
         kind: #{entry.fetch("kind")}
         group: #{entry.fetch("group")}
+        learningOrder: #{entry.fetch("learningOrder")}
         ---
 
         # #{facts[:title]}

@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-avro
-title: "Module bluetape4k-avro"
+title: "Apache Avro Serialization"
 description: "A module providing a high-level API for Apache Avro serialization and deserialization."
 kind: library
 group: io
+learningOrder: 370
 ---
 
-# Module bluetape4k-avro
+# Apache Avro Serialization
 
 ## Problem {#problem}
 

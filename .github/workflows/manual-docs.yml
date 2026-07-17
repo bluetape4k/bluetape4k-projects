@@ -60,11 +60,13 @@ jobs:
           ruby scripts/manual/generate_manuals_test.rb
           ruby scripts/manual/export_manifest_test.rb
           ruby scripts/manual/release_contract_test.rb
+          ruby scripts/manual/sync_navigation_metadata_test.rb
           ruby scripts/manual/validate_manuals_test.rb
 
       - name: Validate manual source
         run: |
           ruby scripts/manual/validate_manuals.rb
+          ruby scripts/manual/sync_navigation_metadata.rb --check
           ruby scripts/manual/export_manifest.rb --check
 
       - name: Validate 1.11 release provenance

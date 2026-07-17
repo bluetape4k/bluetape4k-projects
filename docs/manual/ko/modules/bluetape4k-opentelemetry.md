@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-opentelemetry
-title: "Module bluetape4k-opentelemetry"
+title: "OpenTelemetry 추적"
 description: "OpenTelemetry는 클라우드 네이티브 소프트웨어를 위한 관측 가능성 프레임워크입니다. 이 모듈은 OpenTelemetry를 Kotlin에서 더욱 쉽고 편리하게 사용할 수 있도록 하는 확장 함수와 유틸리티를 제공합니다."
 kind: library
-group: infrastructure
+group: operations
+learningOrder: 1030
 ---
 
-# Module bluetape4k-opentelemetry
+# OpenTelemetry 추적
 
 ## 해결하는 문제 {#problem}
 

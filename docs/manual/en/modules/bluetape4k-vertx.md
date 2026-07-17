@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-vertx
-title: "Module bluetape4k-vertx"
+title: "Vert.x Coroutine Extensions"
 description: "A unified module for async and Coroutines-based development with Vert.x."
 kind: library
 group: io
+learningOrder: 450
 ---
 
-# Module bluetape4k-vertx
+# Vert.x Coroutine Extensions
 
 ## Problem {#problem}
 

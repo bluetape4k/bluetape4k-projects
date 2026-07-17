@@ -1,12 +1,13 @@
 ---
 manualId: bluetape4k-avro
-title: "Module bluetape4k-avro"
+title: "Apache Avro 직렬화"
 description: "Apache Avro 직렬화/역직렬화를 위한 고수준 API를 제공하는 모듈입니다."
 kind: library
 group: io
+learningOrder: 370
 ---
 
-# Module bluetape4k-avro
+# Apache Avro 직렬화
 
 ## 해결하는 문제 {#problem}
 
