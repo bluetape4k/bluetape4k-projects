@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "digest"
 require "fileutils"
 require "open3"
 require "pathname"
@@ -29,6 +28,14 @@ module ReleaseDiagrams
       @entries ||= load_entries
     end
 
+    def repository
+      value = manifest["repository"]
+      return value if value.is_a?(String) && value.match?(%r{\A[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\z})
+      return "bluetape4k/#{value}" if value.is_a?(String) && value.match?(/\A[A-Za-z0-9_.-]+\z/)
+
+      raise ContractError, "manual manifest repository must use owner/name or a repository slug"
+    end
+
     def release_ref
       value = manifest["releaseRef"]
       unless value.is_a?(String) && value.match?(/\A[0-9A-Za-z][0-9A-Za-z._\/-]*\z/) && !value.include?("..")
@@ -44,36 +51,25 @@ module ReleaseDiagrams
     end
 
     def errors
-      failures = inventory_errors
+      failures = inventory_errors + manifest_errors + mirror_errors
       provenance = release_provenance_errors
       failures.concat(provenance)
       failures.concat(release_entry_errors) if provenance.empty?
-      failures.concat(mirror_errors) if provenance.empty?
       failures
     rescue ContractError => error
       [error.message]
     end
 
     def sync!
-      blockers = inventory_errors + release_provenance_errors
+      blockers = release_provenance_errors
       blockers.concat(release_entry_errors) if blockers.empty?
       raise ContractError, blockers.join("\n") unless blockers.empty?
 
-      expected = []
       entries.each do |entry|
-        %w[svg png].each do |extension|
-          target = mirror_path(entry, extension)
-          target.dirname.mkpath
-          File.binwrite(target, release_asset(entry, extension))
-          expected << target.relative_path_from(mirror_root).to_s
-        end
+        entry.manual_pages.each_value { |path| rewrite_page!(path, entry) }
       end
-      if mirror_root.directory?
-        mirror_root.glob("**/*").select(&:file?).each do |path|
-          relative = path.relative_path_from(mirror_root).to_s
-          path.delete unless expected.include?(relative)
-        end
-      end
+      remove_manifest_mirrors!
+      FileUtils.rm_rf(mirror_root)
 
       failures = errors
       raise ContractError, failures.join("\n") unless failures.empty?
@@ -120,11 +116,23 @@ module ReleaseDiagrams
           page = resolved(path)
           if !page.file?
             failures << "#{entry.id}: missing #{locale} manual page #{path}"
-          elsif !page.read.include?("assets/readme-diagrams/#{entry.canonical}.png")
-            failures << "#{entry.id}: #{locale} manual page does not reference release PNG"
+            next
           end
+          content = page.read
+          failures << "#{entry.id}: #{locale} manual page does not reference release PNG URL" unless content.include?(raw_url(entry, "png"))
+          failures << "#{entry.id}: #{locale} manual page does not reference release SVG URL" unless content.include?(blob_url(entry, "svg"))
+          failures << "#{entry.id}: #{locale} manual page still references a mirrored asset" if content.include?("assets/readme-diagrams/#{entry.canonical}")
         end
       end
+    end
+
+    def manifest_errors
+      manifest_path.read.include?("assets/readme-diagrams/") ? ["manual manifest still publishes mirrored release diagrams"] : []
+    end
+
+    def mirror_errors
+      return [] unless mirror_root.exist?
+      ["manual mirror directory still exists: #{MIRROR_ROOT}"]
     end
 
     def release_provenance_errors
@@ -139,7 +147,11 @@ module ReleaseDiagrams
         failures = []
         %w[svg png].each do |extension|
           path = release_path(entry, extension)
-          failures << "#{entry.id}: missing release asset #{release_ref}:#{path}" unless git_object_exists?(path)
+          if !git_object_exists?(path)
+            failures << "#{entry.id}: missing release asset #{release_ref}:#{path}"
+          else
+            failures.concat(release_asset_errors(entry, extension))
+          end
         end
         entry.release_readmes.each do |path|
           if !git_object_exists?(path)
@@ -152,39 +164,53 @@ module ReleaseDiagrams
       end
     end
 
-    def mirror_errors
-      expected = []
-      failures = entries.flat_map do |entry|
-        %w[svg png].flat_map do |extension|
-          mirror = mirror_path(entry, extension)
-          expected << mirror.relative_path_from(mirror_root).to_s
-          if !mirror.file?
-            ["#{entry.id}: missing mirror #{extension.upcase}"]
-          elsif Digest::SHA256.file(mirror).hexdigest != Digest::SHA256.hexdigest(release_asset(entry, extension))
-            ["#{entry.id}: release and mirror #{extension.upcase} digests differ"]
-          else
-            visual_asset_errors(entry, mirror, extension)
-          end
-        end
-      end
-      if mirror_root.directory?
-        mirror_root.glob("**/*").select(&:file?).each do |path|
-          relative = path.relative_path_from(mirror_root).to_s
-          failures << "orphan mirror asset: #{relative}" unless expected.include?(relative)
-        end
-      end
-      failures
-    end
-
-    def visual_asset_errors(entry, path, extension)
+    def release_asset_errors(entry, extension)
+      content = release_asset(entry, extension)
       if extension == "png"
-        File.binread(path, 8) == PNG_SIGNATURE ? [] : ["#{entry.id}: mirror PNG signature is invalid"]
+        content.start_with?(PNG_SIGNATURE) ? [] : ["#{entry.id}: release PNG signature is invalid"]
       else
-        REXML::Document.new(path.read)
+        REXML::Document.new(content)
         []
       end
     rescue REXML::ParseException => error
-      ["#{entry.id}: mirror SVG is invalid XML: #{error.message.lines.first.to_s.strip}"]
+      ["#{entry.id}: release SVG is invalid XML: #{error.message.lines.first.to_s.strip}"]
+    end
+
+    def rewrite_page!(path, entry)
+      page = resolved(path)
+      raise ContractError, "#{entry.id}: missing manual page #{path}" unless page.file?
+      content = page.read
+      content = content.gsub(
+        /These diagrams are copied byte-for-byte from README assets in the `([^`]+)` release tag\. They describe this manual's released structure and runtime flows, not later Snapshot changes\. Select a preview to open the SVG source\./,
+        "These diagrams are loaded directly from README assets published with the `\\1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.",
+      )
+      content = content.gsub(
+        /아래 그림은 현재 개발 브랜치가 아니라 `([^`]+)` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다\. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다\. 미리보기를 누르면 SVG 원본이 열립니다\./,
+        "아래 그림은 `\\1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.",
+      )
+      %w[png svg].each do |extension|
+        local_reference = %r{(?:\.\./)+assets/readme-diagrams/#{Regexp.escape(entry.canonical)}\.#{extension}}
+        replacement = extension == "png" ? raw_url(entry, extension) : blob_url(entry, extension)
+        content = content.gsub(local_reference, replacement)
+      end
+      page.write(content)
+    end
+
+    def remove_manifest_mirrors!
+      content = manifest_path.read
+      content = content.gsub(/^\s*# release-readme-diagrams:start\n.*?^\s*# release-readme-diagrams:end\n?/m, "")
+      content = content.lines.reject { |line| line.include?("assets/readme-diagrams/") }.join
+      content = content.gsub(/^(\s*)assets:\n(?=\S|\z)/, '\\1assets: []\n')
+      manifest_path.write(content)
+      @manifest = nil
+    end
+
+    def raw_url(entry, extension)
+      "https://raw.githubusercontent.com/#{repository}/#{release_commit}/#{release_path(entry, extension)}"
+    end
+
+    def blob_url(entry, extension)
+      "https://github.com/#{repository}/blob/#{release_commit}/#{release_path(entry, extension)}"
     end
 
     def release_asset(entry, extension)
@@ -195,16 +221,16 @@ module ReleaseDiagrams
       "#{RELEASE_ROOT}/#{entry.canonical}.#{extension}"
     end
 
-    def mirror_path(entry, extension)
-      mirror_root.join("#{entry.canonical}.#{extension}")
-    end
-
     def mirror_root
       @mirror_root ||= resolved(MIRROR_ROOT)
     end
 
+    def manifest_path
+      @manifest_path ||= resolved(MANIFEST)
+    end
+
     def manifest
-      @manifest ||= load_yaml(resolved(MANIFEST), "manual manifest")
+      @manifest ||= load_yaml(manifest_path, "manual manifest")
     end
 
     def load_yaml(path, label)

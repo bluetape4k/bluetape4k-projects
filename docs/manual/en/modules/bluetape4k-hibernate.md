@@ -143,23 +143,23 @@ In 1.11.0, `StatelessSessionFactoryBean` can collide with an existing JPA resour
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Persistence Extension Structure diagram
 
-[![Persistence Extension Structure diagram](../../assets/readme-diagrams/data-hibernate-diagram-01.png)](../../assets/readme-diagrams/data-hibernate-diagram-01.svg)
+[![Persistence Extension Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-01.svg)
 
 _Release README: [`data/hibernate/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate/README.md)_
 
 ### JPA Entity Class Hierarchy diagram
 
-[![JPA Entity Class Hierarchy diagram](../../assets/readme-diagrams/data-hibernate-diagram-02.png)](../../assets/readme-diagrams/data-hibernate-diagram-02.svg)
+[![JPA Entity Class Hierarchy diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-02.svg)
 
 _Release README: [`data/hibernate/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate/README.md)_
 
 ### AttributeConverter Types diagram
 
-[![AttributeConverter Types diagram](../../assets/readme-diagrams/data-hibernate-diagram-03.png)](../../assets/readme-diagrams/data-hibernate-diagram-03.svg)
+[![AttributeConverter Types diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-03.svg)
 
 _Release README: [`data/hibernate/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate/README.md)_
 

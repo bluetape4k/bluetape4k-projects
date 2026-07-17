@@ -96,17 +96,17 @@ manual manifest에 등록된 전용 workshop path가 없습니다. 모듈 README
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### 런타임 파사드, SPI 계약, StructuredTaskScope 계약, TaskContext 도우미를 보여주는 virtualthread-api 클래스 구조
 
-[![런타임 파사드, SPI 계약, StructuredTaskScope 계약, TaskContext 도우미를 보여주는 virtualthread-api 클래스 구조](../../assets/readme-diagrams/virtualthread-api-diagram-01.png)](../../assets/readme-diagrams/virtualthread-api-diagram-01.svg)
+[![런타임 파사드, SPI 계약, StructuredTaskScope 계약, TaskContext 도우미를 보여주는 virtualthread-api 클래스 구조](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/virtualthread-api-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/virtualthread-api-diagram-01.svg)
 
 _배포본 README: [`virtualthread/api/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/virtualthread/api/README.ko.md)_
 
 ### lazy provider 발견, 지원 provider 필터링, 우선순위 정렬, fallback 위임을 보여주는 ServiceLoader 기반 런타임 선택 흐름
 
-[![lazy provider 발견, 지원 provider 필터링, 우선순위 정렬, fallback 위임을 보여주는 ServiceLoader 기반 런타임 선택 흐름](../../assets/readme-diagrams/virtualthread-api-diagram-02.png)](../../assets/readme-diagrams/virtualthread-api-diagram-02.svg)
+[![lazy provider 발견, 지원 provider 필터링, 우선순위 정렬, fallback 위임을 보여주는 ServiceLoader 기반 런타임 선택 흐름](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/virtualthread-api-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/virtualthread-api-diagram-02.svg)
 
 _배포본 README: [`virtualthread/api/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/virtualthread/api/README.ko.md)_
 

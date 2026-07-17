@@ -189,23 +189,23 @@ The breadth of core means its APIs do not share one lifecycle or performance pro
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Module Overview diagram
 
-[![Module Overview diagram](../../assets/readme-diagrams/bluetape4k-core-diagram-01.png)](../../assets/readme-diagrams/bluetape4k-core-diagram-01.svg)
+[![Module Overview diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-core-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-core-diagram-01.svg)
 
 _Release README: [`bluetape4k/core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/core/README.md)_
 
 ### Core Class Structure diagram
 
-[![Core Class Structure diagram](../../assets/readme-diagrams/bluetape4k-core-diagram-02.png)](../../assets/readme-diagrams/bluetape4k-core-diagram-02.svg)
+[![Core Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-core-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-core-diagram-02.svg)
 
 _Release README: [`bluetape4k/core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/core/README.md)_
 
 ### Validation Chaining Flow diagram
 
-[![Validation Chaining Flow diagram](../../assets/readme-diagrams/bluetape4k-core-sequence-01.png)](../../assets/readme-diagrams/bluetape4k-core-sequence-01.svg)
+[![Validation Chaining Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-core-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-core-sequence-01.svg)
 
 _Release README: [`bluetape4k/core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/core/README.md)_
 

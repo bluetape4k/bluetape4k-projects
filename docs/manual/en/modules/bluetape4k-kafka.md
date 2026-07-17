@@ -147,23 +147,23 @@ This manual targets release `1.11.0`, commit `6187173b58e8b4c5c435c145e00e94708f
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Kafka API Structure
 
-[![Kafka API Structure](../../assets/readme-diagrams/infra-kafka-diagram-01.png)](../../assets/readme-diagrams/infra-kafka-diagram-01.svg)
+[![Kafka API Structure](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-diagram-01.svg)
 
 _Release README: [`infra/kafka/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka/README.md)_
 
 ### Kafka Streams Processing Flow diagram
 
-[![Kafka Streams Processing Flow diagram](../../assets/readme-diagrams/infra-kafka-diagram-02.png)](../../assets/readme-diagrams/infra-kafka-diagram-02.svg)
+[![Kafka Streams Processing Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-diagram-02.svg)
 
 _Release README: [`infra/kafka/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka/README.md)_
 
 ### Producer/Consumer Message Flow diagram
 
-[![Producer/Consumer Message Flow diagram](../../assets/readme-diagrams/infra-kafka-sequence-01.png)](../../assets/readme-diagrams/infra-kafka-sequence-01.svg)
+[![Producer/Consumer Message Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-sequence-01.svg)
 
 _Release README: [`infra/kafka/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka/README.md)_
 

@@ -124,23 +124,23 @@ Start with `LettuceClientsTest`, `RedisFutureSupportTest`, `LettuceLoadedMapTest
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Distributed Primitive API Families diagram
 
-[![Distributed Primitive API Families diagram](../../assets/readme-diagrams/infra-lettuce-diagram-01.png)](../../assets/readme-diagrams/infra-lettuce-diagram-01.svg)
+[![Distributed Primitive API Families diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-diagram-01.svg)
 
 _Release README: [`infra/lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/lettuce/README.md)_
 
 ### Lettuce Codec API Structure diagram
 
-[![Lettuce Codec API Structure diagram](../../assets/readme-diagrams/infra-lettuce-diagram-02.png)](../../assets/readme-diagrams/infra-lettuce-diagram-02.svg)
+[![Lettuce Codec API Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-diagram-02.svg)
 
 _Release README: [`infra/lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/lettuce/README.md)_
 
 ### LettuceLoadedMap Read-Through / Write-Through Flow diagram
 
-[![LettuceLoadedMap Read-Through / Write-Through Flow diagram](../../assets/readme-diagrams/infra-lettuce-sequence-01.png)](../../assets/readme-diagrams/infra-lettuce-sequence-01.svg)
+[![LettuceLoadedMap Read-Through / Write-Through Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-sequence-01.svg)
 
 _Release README: [`infra/lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/lettuce/README.md)_
 

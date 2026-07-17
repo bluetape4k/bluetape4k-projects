@@ -154,29 +154,29 @@ pool benchmark는 일반 회귀 테스트가 아닙니다. PostgreSQL·MySQL ben
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### Extension Function API 개요
 
-[![Extension Function API 개요](../../assets/readme-diagrams/data-r2dbc-diagram-01.png)](../../assets/readme-diagrams/data-r2dbc-diagram-01.svg)
+[![Extension Function API 개요](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-01.svg)
 
 _배포본 README: [`data/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.ko.md)_
 
 ### Core API 클래스 구조도
 
-[![Core API 클래스 구조도](../../assets/readme-diagrams/data-r2dbc-diagram-02.png)](../../assets/readme-diagrams/data-r2dbc-diagram-02.svg)
+[![Core API 클래스 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-02.svg)
 
 _배포본 README: [`data/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.ko.md)_
 
 ### JDBC vs R2DBC Comparison 다이어그램
 
-[![JDBC vs R2DBC Comparison 다이어그램](../../assets/readme-diagrams/data-r2dbc-diagram-03.png)](../../assets/readme-diagrams/data-r2dbc-diagram-03.svg)
+[![JDBC vs R2DBC Comparison 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-03.svg)
 
 _배포본 README: [`data/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.ko.md)_
 
 ### R2DBC Query Execution 처리 흐름
 
-[![R2DBC Query Execution 처리 흐름](../../assets/readme-diagrams/data-r2dbc-sequence-01.png)](../../assets/readme-diagrams/data-r2dbc-sequence-01.svg)
+[![R2DBC Query Execution 처리 흐름](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-sequence-01.svg)
 
 _배포본 README: [`data/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.ko.md)_
 

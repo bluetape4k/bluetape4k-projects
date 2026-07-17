@@ -189,101 +189,101 @@ custom Flow operator를 사용해도 cold/hot stream, buffering, cancellation을
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 현재 개발 브랜치가 아니라 `1.11.0` 배포 태그의 README 자산을 바이트 단위로 그대로 옮긴 것입니다. 따라서 이후 SNAPSHOT 변경이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 SVG 원본이 열립니다.
+아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### coroutines 모듈 구성 개요 다이어그램
 
-[![coroutines 모듈 구성 개요 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-diagram-01.png)](../../assets/readme-diagrams/bluetape4k-coroutines-diagram-01.svg)
+[![coroutines 모듈 구성 개요 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-01.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 
 ### Coroutines 클래스 구조 다이어그램
 
-[![Coroutines 클래스 구조 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-diagram-02.png)](../../assets/readme-diagrams/bluetape4k-coroutines-diagram-02.svg)
+[![Coroutines 클래스 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-02.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 
 ### 1. Flow 확장 함수 카테고리 개요 다이어그램
 
-[![1. Flow 확장 함수 카테고리 개요 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-diagram-03.png)](../../assets/readme-diagrams/bluetape4k-coroutines-diagram-03.svg)
+[![1. Flow 확장 함수 카테고리 개요 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-03.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 
 ### DeferredValue eager async 사용 흐름 다이어그램
 
-[![DeferredValue eager async 사용 흐름 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-01.png)](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-01.svg)
+[![DeferredValue eager async 사용 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-01.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 
 ### 2. chunked(n) 고정 크기 청크 생성 흐름 다이어그램
 
-[![2. chunked(n) 고정 크기 청크 생성 흐름 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-02.png)](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-02.svg)
+[![2. chunked(n) 고정 크기 청크 생성 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-02.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 
 ### 3. windowed(size, step) 슬라이딩 윈도우 흐름 다이어그램
 
-[![3. windowed(size, step) 슬라이딩 윈도우 흐름 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-03.png)](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-03.svg)
+[![3. windowed(size, step) 슬라이딩 윈도우 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-03.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 
 ### 4. sliding(n) 및 bufferedSliding(n) 1칸 이동 윈도우 다이어그램
 
-[![4. sliding(n) 및 bufferedSliding(n) 1칸 이동 윈도우 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-04.png)](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-04.svg)
+[![4. sliding(n) 및 bufferedSliding(n) 1칸 이동 윈도우 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-04.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 
 ### 5. mapParallel(parallelism) 병렬 변환 흐름 다이어그램
 
-[![5. mapParallel(parallelism) 병렬 변환 흐름 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-05.png)](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-05.svg)
+[![5. mapParallel(parallelism) 병렬 변환 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-05.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-05.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 
 ### 6. concatMapEager eager 병렬 수집과 순서 보장 방출 다이어그램
 
-[![6. concatMapEager eager 병렬 수집과 순서 보장 방출 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-06.png)](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-06.svg)
+[![6. concatMapEager eager 병렬 수집과 순서 보장 방출 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-06.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-06.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 
 ### 7. bufferingDebounce(timeout) 디바운스 배치 흐름 다이어그램
 
-[![7. bufferingDebounce(timeout) 디바운스 배치 흐름 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-07.png)](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-07.svg)
+[![7. bufferingDebounce(timeout) 디바운스 배치 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-07.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-07.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 
 ### 8. throttleLeading, throttleTrailing, throttleBoth 윈도우 방출 정책 다이어그램
 
-[![8. throttleLeading, throttleTrailing, throttleBoth 윈도우 방출 정책 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-08.png)](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-08.svg)
+[![8. throttleLeading, throttleTrailing, throttleBoth 윈도우 방출 정책 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-08.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-08.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 
 ### 9. takeUntil(notifier) 및 skipUntil(notifier) 게이트 제어 다이어그램
 
-[![9. takeUntil(notifier) 및 skipUntil(notifier) 게이트 제어 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-09.png)](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-09.svg)
+[![9. takeUntil(notifier) 및 skipUntil(notifier) 게이트 제어 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-09.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-09.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 
 ### 10. merge(flows) 동시 수집과 도착 순서 병합 다이어그램
 
-[![10. merge(flows) 동시 수집과 도착 순서 병합 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-10.png)](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-10.svg)
+[![10. merge(flows) 동시 수집과 도착 순서 병합 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-10.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-10.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 
 ### 11. pairwise() 및 zipWithNext() 인접 쌍 생성 다이어그램
 
-[![11. pairwise() 및 zipWithNext() 인접 쌍 생성 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-11.png)](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-11.svg)
+[![11. pairwise() 및 zipWithNext() 인접 쌍 생성 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-11.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-11.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 
 ### 12. scanWith(initial) collect 시점 seed 생성과 누적 방출 다이어그램
 
-[![12. scanWith(initial) collect 시점 seed 생성과 누적 방출 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-12.png)](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-12.svg)
+[![12. scanWith(initial) collect 시점 seed 생성과 누적 방출 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-12.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-12.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 
 ### 13. AsyncFlow LazyDeferred 시작과 입력 순서 방출 다이어그램
 
-[![13. AsyncFlow LazyDeferred 시작과 입력 순서 방출 다이어그램](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-13.png)](../../assets/readme-diagrams/bluetape4k-coroutines-sequence-13.svg)
+[![13. AsyncFlow LazyDeferred 시작과 입력 순서 방출 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-13.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-13.svg)
 
 _배포본 README: [`bluetape4k/coroutines/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.ko.md)_
 

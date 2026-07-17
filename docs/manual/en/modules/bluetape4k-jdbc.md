@@ -132,23 +132,23 @@ This manual targets the source published by the `bluetape4k-projects` 1.11.0 tag
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Extension Function API Overview diagram
 
-[![Extension Function API Overview diagram](../../assets/readme-diagrams/data-jdbc-diagram-01.png)](../../assets/readme-diagrams/data-jdbc-diagram-01.svg)
+[![Extension Function API Overview diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-diagram-01.svg)
 
 _Release README: [`data/jdbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/jdbc/README.md)_
 
 ### Core API Structure diagram
 
-[![Core API Structure diagram](../../assets/readme-diagrams/data-jdbc-diagram-02.png)](../../assets/readme-diagrams/data-jdbc-diagram-02.svg)
+[![Core API Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-diagram-02.svg)
 
 _Release README: [`data/jdbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/jdbc/README.md)_
 
 ### JDBC Query Execution Flow diagram
 
-[![JDBC Query Execution Flow diagram](../../assets/readme-diagrams/data-jdbc-sequence-01.png)](../../assets/readme-diagrams/data-jdbc-sequence-01.svg)
+[![JDBC Query Execution Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-sequence-01.svg)
 
 _Release README: [`data/jdbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/jdbc/README.md)_
 

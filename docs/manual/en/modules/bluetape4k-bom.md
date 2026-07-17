@@ -103,11 +103,11 @@ The BOM aligns versions; it does not guarantee that every module fits the applic
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are copied byte-for-byte from README assets in the `1.11.0` release tag. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG source.
+These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### bluetape4k-bom platform constraints diagram
 
-[![bluetape4k-bom platform constraints diagram](../../assets/readme-diagrams/bluetape4k-bom-diagram-01.png)](../../assets/readme-diagrams/bluetape4k-bom-diagram-01.svg)
+[![bluetape4k-bom platform constraints diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-bom-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-bom-diagram-01.svg)
 
 _Release README: [`bluetape4k/bom/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/bom/README.md)_
 
