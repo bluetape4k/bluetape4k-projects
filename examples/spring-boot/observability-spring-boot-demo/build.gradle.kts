@@ -7,7 +7,7 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform(bt4k.spring.boot4.dependencies))
 
     implementation(project(":bluetape4k-micrometer"))
     implementation(project(":bluetape4k-spring-boot-core"))

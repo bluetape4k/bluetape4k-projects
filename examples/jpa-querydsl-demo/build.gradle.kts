@@ -59,7 +59,7 @@ configurations.matching { it.name.startsWith("test") }.configureEach {
 }
 
 dependencies {
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform(bt4k.spring.boot4.dependencies))
     implementation(project(":bluetape4k-hibernate"))
     testImplementation(project(":bluetape4k-junit5"))
 

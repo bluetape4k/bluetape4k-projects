@@ -23,7 +23,7 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform(bt4k.spring.boot4.dependencies))
     api(project(":bluetape4k-cassandra"))
     api(project(":bluetape4k-spring-boot-core"))
     testImplementation(project(":bluetape4k-jackson3"))
@@ -61,4 +61,3 @@ dependencies {
     implementation(libs.reactor.kotlin.extensions)
     testImplementation(libs.reactor.test)
 }
-

@@ -7,7 +7,7 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform(bt4k.spring.boot4.dependencies))
 
     implementation(project(":bluetape4k-idgenerators"))
     implementation("org.springframework.boot:spring-boot-starter-web")

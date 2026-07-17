@@ -102,7 +102,7 @@ artifacts {
 }
 
 dependencies {
-    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform(bt4k.spring.boot4.dependencies))
     testImplementation(platform(libs.junit.bom))
 
     api(project(":bluetape4k-core"))

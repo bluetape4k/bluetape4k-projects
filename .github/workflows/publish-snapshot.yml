@@ -63,6 +63,12 @@ jobs:
               print(f"{name} set={bool(value)} length={len(value)}")
           PY
 
+      - name: Validate publication POMs
+        run: |
+          ./gradlew generatePomFileForBluetape4kPublication -PsnapshotVersion=-SNAPSHOT \
+            --no-daemon --no-configuration-cache --no-build-cache
+          ruby scripts/publication/validate_poms.rb
+
       - name: Publish SNAPSHOT
         run: >-
           ./gradlew nmcpPublishAggregationToCentralPortalSnapshots
