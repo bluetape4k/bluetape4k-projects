@@ -9,6 +9,9 @@ import io.bluetape4k.json.JsonSerializer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.isNullOrEmpty
+import java.nio.BufferOverflowException
+import java.nio.ByteBuffer
+import java.nio.ReadOnlyBufferException
 
 /**
  * Fastjson2 기반으로 JSON 문자열/JSONB 바이트 직렬화를 제공하는 [JsonSerializer] 구현체입니다.
@@ -18,6 +21,10 @@ import io.bluetape4k.support.isNullOrEmpty
  * - `serialize(null)`은 빈 바이트 배열을, `serializeAsString(null)`은 빈 문자열을 반환합니다.
  * - 역직렬화 입력이 `null`이면 `null`을 반환합니다.
  * - fastjson2 처리 실패는 [JsonSerializationException]으로 감싸서 던집니다.
+ * - Writable array-backed [ByteBuffer] input is parsed from its backing-array range without an intermediate copy.
+ *   Direct and read-only input use a bounded compatibility copy because Fastjson2 has no public zero-copy buffer API.
+ * - [serializeTo] remains an allocating compatibility path because `JSONB.toBytes` owns its output array.
+ * - Buffer parsing uses feature-free JSONB readers and never enables AutoType.
  *
  * ```kotlin
  * val serializer = FastjsonSerializer()
@@ -71,6 +78,34 @@ class FastjsonSerializer: JsonSerializer {
     }
 
     /**
+     * Serializes through `JSONB.toBytes` and copies the result into [target].
+     * This compatibility path commits the target position only on success and does not claim allocation reduction.
+     */
+    override fun serializeTo(graph: Any?, target: ByteBuffer): Int {
+        if (target.isReadOnly) throw ReadOnlyBufferException()
+        if (graph == null) return 0
+
+        val start = target.position()
+        val view = target.duplicate()
+        return try {
+            val bytes = JSONB.toBytes(graph)
+            if (bytes.size > view.remaining()) throw BufferOverflowException()
+            view.put(bytes)
+            target.position(start + bytes.size)
+            bytes.size
+        } catch (e: Error) {
+            target.position(start)
+            throw e
+        } catch (e: BufferOverflowException) {
+            target.position(start)
+            throw e
+        } catch (e: Throwable) {
+            target.position(start)
+            throw fastjsonWriteFailure(e, graph)
+        }
+    }
+
+    /**
      * JSONB 바이트 배열을 지정 클래스 타입으로 역직렬화합니다.
      *
      * ## 동작/계약
@@ -95,6 +130,32 @@ class FastjsonSerializer: JsonSerializer {
         return try {
             JSONB.parseObject(bytes, clazz)
         } catch (e: Throwable) {
+            throw JsonSerializationException("Fail to deserialize by Fastjson2. targetType=${clazz.name}", e)
+        }
+    }
+
+    /**
+     * Parses an array-backed remaining range in place; direct and read-only sources use a bounded copy.
+     * Caller position, limit, mark, and byte order remain unchanged.
+     */
+    override fun <T: Any> deserializeFrom(source: ByteBuffer, clazz: Class<T>): T? {
+        if (!source.hasRemaining()) return null
+        return try {
+            if (source.hasArray()) {
+                JSONB.parseObject(
+                    source.array(),
+                    source.arrayOffset() + source.position(),
+                    source.remaining(),
+                    clazz,
+                )
+            } else {
+                val bytes = ByteArray(source.remaining()).also { source.duplicate().get(it) }
+                JSONB.parseObject(bytes, clazz)
+            }
+        } catch (e: Error) {
+            throw e
+        } catch (e: Throwable) {
+            findCauseError(e)?.let { throw it }
             throw JsonSerializationException("Fail to deserialize by Fastjson2. targetType=${clazz.name}", e)
         }
     }
@@ -190,6 +251,47 @@ class FastjsonSerializer: JsonSerializer {
         }
 
     /**
+     * Parses the remaining JSONB range while retaining reified parameterized type information.
+     */
+    inline fun <reified T: Any> deserialize(source: ByteBuffer): T? {
+        if (!source.hasRemaining()) return null
+        return try {
+            val clazz = T::class.java
+            if (source.hasArray()) {
+                val bytes = source.array()
+                val offset = source.arrayOffset() + source.position()
+                val length = source.remaining()
+                if (clazz.typeParameters.isEmpty()) {
+                    JSONB.parseObject(bytes, offset, length, clazz)
+                } else {
+                    JSONB.parseObject(bytes, offset, length, reference<T>().type)
+                }
+            } else {
+                val bytes = ByteArray(source.remaining()).also { source.duplicate().get(it) }
+                if (clazz.typeParameters.isEmpty()) {
+                    JSONB.parseObject(bytes, clazz)
+                } else {
+                    JSONB.parseObject(bytes, reference<T>().type)
+                }
+            }
+        } catch (e: Error) {
+            throw e
+        } catch (e: Throwable) {
+            var current: Throwable? = e
+            var depth = 0
+            while (current != null && depth < 64) {
+                if (current is Error) throw current
+                current = current.cause
+                depth++
+            }
+            throw JsonSerializationException(
+                "Fail to deserialize by Fastjson2. targetType=${T::class.java.name}",
+                e
+            )
+        }
+    }
+
+    /**
      * JSON 문자열을 reified 타입 [T]로 역직렬화합니다.
      *
      * ## 동작/계약
@@ -221,4 +323,35 @@ class FastjsonSerializer: JsonSerializer {
                 )
             }
         }
+}
+
+private fun fastjsonWriteFailure(failure: Throwable, graph: Any): Throwable {
+    findCauseFailure(failure)?.let { return it }
+    return JsonSerializationException("Fail to serialize by Fastjson2. graphType=${graph.javaClass.name}", failure)
+}
+
+private fun findCauseFailure(root: Throwable): Throwable? {
+    var current: Throwable? = root
+    var depth = 0
+    while (current != null && depth < 64) {
+        when (current) {
+            is Error -> return current
+            is BufferOverflowException ->
+                return if (current === root) current else BufferOverflowException().apply { initCause(root) }
+        }
+        current = current.cause
+        depth++
+    }
+    return null
+}
+
+private fun findCauseError(root: Throwable): Error? {
+    var current: Throwable? = root
+    var depth = 0
+    while (current != null && depth < 64) {
+        if (current is Error) return current
+        current = current.cause
+        depth++
+    }
+    return null
 }

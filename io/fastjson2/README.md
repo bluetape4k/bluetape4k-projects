@@ -50,7 +50,51 @@ try {
 
 - `serialize(null)` returns an empty `ByteArray`; `serializeAsString(null)` returns an empty string.
 - `deserialize(null)` / `deserializeFromString(null)` returns `null`.
-- All other serialization/deserialization failures throw `JsonSerializationException`.
+- Ordinary backend serialization/deserialization failures throw `JsonSerializationException`.
+
+#### ByteBuffer contract
+
+For writable array-backed heap buffers and slices, `deserializeFrom` is optimized to pass the backing array,
+offset, and remaining length directly to JSONB. Direct and read-only input use a bounded-copy compatibility
+fallback. All input paths preserve position, limit, mark, and byte order. Feature-free readers are used and
+AutoType is not enabled.
+Set a bounded limit before passing untrusted input; the serializer cannot read outside the remaining range.
+
+`serializeTo` is an allocating compatibility fallback: Fastjson2 2.0.62 exposes output through
+`JSONB.toBytes`, so the result is copied into the caller target. Output position is committed only on success;
+read-only and overflow failures remain raw buffer exceptions. The output allocation remains, and this API makes
+no lower-copy output claim.
+Fatal `Error` instances retain their identity instead of being wrapped.
+
+```kotlin
+import io.bluetape4k.fastjson2.FastjsonSerializer
+import io.bluetape4k.json.JsonSerializer
+import io.bluetape4k.json.deserialize
+import java.nio.ByteBuffer
+
+run {
+    val buffer = ByteBuffer.allocate(4096)
+    serializer.serializeTo(users, buffer)
+    buffer.flip()
+    val restored = serializer.deserialize<List<User>>(buffer)
+}
+run {
+    val buffer = ByteBuffer.wrap(serializer.serialize(usersByName))
+    val restored = serializer.deserialize<Map<String, User>>(buffer)
+}
+
+val contract: JsonSerializer = serializer
+val buffer = ByteBuffer.wrap(serializer.serialize(users))
+val rawUsers: List<*>? = contract.deserialize<List<User>>(buffer)
+```
+
+The concrete overload retains generic `Type` information. A receiver statically typed as `JsonSerializer`
+keeps the compatibility class-token behavior, so collection elements remain raw maps.
+
+```java
+ByteBuffer buffer = ByteBuffer.wrap(bytes);
+User restored = serializer.deserializeFrom(buffer, User.class);
+```
 
 ### 2. JSON String Extension Functions
 

@@ -50,7 +50,50 @@ try {
 
 - `serialize(null)`은 빈 `ByteArray`, `serializeAsString(null)`은 빈 문자열을 반환합니다.
 - `deserialize(null)` / `deserializeFromString(null)`은 `null`을 반환합니다.
-- 그 외 직렬화/역직렬화 실패는 `JsonSerializationException` 예외를 던집니다.
+- 일반적인 backend 직렬화/역직렬화 실패는 `JsonSerializationException` 예외를 던집니다.
+
+#### ByteBuffer 계약
+
+writable array-backed heap buffer와 slice의 `deserializeFrom`은 backing array, offset, remaining length를
+JSONB에 직접 전달하도록 최적화되어 있습니다. direct 및 read-only 입력은 bounded-copy 호환 fallback을
+사용합니다. 모든 입력 경로는 position, limit, mark, byte order를 보존합니다. feature-free reader를
+사용하며 AutoType을 활성화하지 않습니다.
+신뢰할 수 없는 입력은 호출 전에 limit를 설정해 범위를 제한해야 하며 serializer는 remaining 범위 밖을 읽지 않습니다.
+
+`serializeTo`는 할당이 있는 호환 fallback입니다. Fastjson2 2.0.62의 공개 출력 API가
+`JSONB.toBytes`이므로 결과를 caller target으로 복사합니다. 출력 position은 성공 시에만 반영되고
+read-only/overflow 실패는 raw buffer 예외로 유지됩니다. 이 API는 lower-copy 출력이라고 주장하지 않습니다.
+치명적인 `Error` 인스턴스는 wrapping하지 않고 동일 identity를 유지합니다.
+
+```kotlin
+import io.bluetape4k.fastjson2.FastjsonSerializer
+import io.bluetape4k.json.JsonSerializer
+import io.bluetape4k.json.deserialize
+import java.nio.ByteBuffer
+
+run {
+    val buffer = ByteBuffer.allocate(4096)
+    serializer.serializeTo(users, buffer)
+    buffer.flip()
+    val restored = serializer.deserialize<List<User>>(buffer)
+}
+run {
+    val buffer = ByteBuffer.wrap(serializer.serialize(usersByName))
+    val restored = serializer.deserialize<Map<String, User>>(buffer)
+}
+
+val contract: JsonSerializer = serializer
+val buffer = ByteBuffer.wrap(serializer.serialize(users))
+val rawUsers: List<*>? = contract.deserialize<List<User>>(buffer)
+```
+
+concrete overload는 generic `Type` 정보를 유지합니다. 정적 타입이 `JsonSerializer`인 receiver는 기존
+class-token 호환 동작을 유지하므로 collection element가 raw map으로 남습니다.
+
+```java
+ByteBuffer buffer = ByteBuffer.wrap(bytes);
+User restored = serializer.deserializeFrom(buffer, User.class);
+```
 
 ### 2. JSON 문자열 확장 함수
 

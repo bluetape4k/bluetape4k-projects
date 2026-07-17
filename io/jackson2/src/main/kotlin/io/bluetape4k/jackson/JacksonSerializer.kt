@@ -1,10 +1,15 @@
 package io.bluetape4k.jackson
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.bluetape4k.io.ByteBufferInputStream
+import io.bluetape4k.io.ByteBufferOutputStream
 import io.bluetape4k.json.JsonSerializationException
 import io.bluetape4k.json.JsonSerializer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
+import java.nio.BufferOverflowException
+import java.nio.ByteBuffer
+import java.nio.ReadOnlyBufferException
 
 /**
  * Jackson 라이브러리를 사용하는 [JsonSerializer] 구현체입니다.
@@ -14,6 +19,10 @@ import io.bluetape4k.support.emptyByteArray
  * - [serialize]는 입력이 null이면 빈 바이트 배열을 반환합니다.
  * - 역직렬화 계열은 입력이 null이면 null을 반환하고, 파싱 실패 시 [JsonSerializationException]을 던집니다.
  * - 입력 객체/바이트 배열은 mutate하지 않고 직렬화 결과를 새로 생성합니다.
+ * - [ByteBuffer] 출력은 mapper의 stream API로 caller-owned storage에 직접 쓰고, 입력은 duplicate view로 읽어
+ *   caller의 position, limit, mark, byte order를 보존합니다.
+ * - concrete reified [deserialize]는 parameterized type을 보존하지만 [JsonSerializer] receiver는 기존 raw class
+ *   token 동작을 유지합니다.
  *
  * ```kotlin
  * val serializer = JacksonSerializer()
@@ -55,6 +64,32 @@ open class JacksonSerializer(
     }
 
     /**
+     * Serializes into [target] through the configured mapper instead of the compatibility [serialize] method.
+     * The target position is committed only on success; read-only and overflow failures remain raw buffer exceptions.
+     */
+    override fun serializeTo(graph: Any?, target: ByteBuffer): Int {
+        if (target.isReadOnly) throw ReadOnlyBufferException()
+        if (graph == null) return 0
+
+        val start = target.position()
+        val view = target.duplicate()
+        return try {
+            ByteBufferOutputStream.fixed(view).use { output ->
+                val writer = mapper.writer()
+                writer.createGenerator(output).use { generator ->
+                    writer.writeValue(generator, graph)
+                }
+            }
+            val written = view.position() - start
+            target.position(start + written)
+            written
+        } catch (failure: Throwable) {
+            target.position(start)
+            throw jacksonWriteFailure(failure, graph)
+        }
+    }
+
+    /**
      * JSON [ByteArray]를 읽어 지정된 타입의 객체로 역직렬화합니다.
      *
      * ## 동작/계약
@@ -78,6 +113,20 @@ open class JacksonSerializer(
             throw JsonSerializationException("Fail to deserialize by Jackson. targetType=${clazz.name}", e)
         }
     }
+
+    /**
+     * Deserializes the remaining [source] range through a duplicate-backed stream and preserves caller state.
+     */
+    override fun <T: Any> deserializeFrom(source: ByteBuffer, clazz: Class<T>): T? =
+        try {
+            ByteBufferInputStream(source.duplicate()).use { input ->
+                mapper.readValue(input, clazz)
+            }
+        } catch (e: Error) {
+            throw e
+        } catch (e: Throwable) {
+            throw JsonSerializationException("Fail to deserialize by Jackson. targetType=${clazz.name}", e)
+        }
 
     /**
      * JSON [ByteArray]를 읽어 reified 타입 [T]의 객체로 역직렬화합니다.
@@ -122,4 +171,40 @@ open class JacksonSerializer(
                 throw JsonSerializationException("Fail to deserialize by Jackson. targetType=${T::class.java.name}", e)
             }
         }
+}
+
+/**
+ * Deserializes the remaining [source] range with a Jackson type reference, preserving generic type arguments.
+ *
+ * This stays an extension so adding it does not introduce a final JVM method on the open [JacksonSerializer] class.
+ */
+inline fun <reified T: Any> JacksonSerializer.deserialize(source: ByteBuffer): T? =
+    try {
+        ByteBufferInputStream(source.duplicate()).use { input ->
+            mapper.readValue(input, jacksonTypeRef<T>())
+        }
+    } catch (e: Error) {
+        throw e
+    } catch (e: Throwable) {
+        throw JsonSerializationException("Fail to deserialize by Jackson. targetType=${T::class.java.name}", e)
+    }
+
+private fun jacksonWriteFailure(failure: Throwable, graph: Any): Throwable {
+    findCauseFailure(failure)?.let { return it }
+    return JsonSerializationException("Fail to serialize by Jackson. graphType=${graph.javaClass.name}", failure)
+}
+
+private fun findCauseFailure(root: Throwable): Throwable? {
+    var current: Throwable? = root
+    var depth = 0
+    while (current != null && depth < 64) {
+        when (current) {
+            is Error -> return current
+            is BufferOverflowException ->
+                return if (current === root) current else BufferOverflowException().apply { initCause(root) }
+        }
+        current = current.cause
+        depth++
+    }
+    return null
 }

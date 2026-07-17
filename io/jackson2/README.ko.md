@@ -110,7 +110,51 @@ try {
 
 - `serialize(null)`은 빈 `ByteArray`를 반환합니다.
 - `deserialize(null)` / `deserializeFromString(null)`은 `null`을 반환합니다.
-- 그 외 직렬화/역직렬화 실패는 `JsonSerializationException` 예외를 던집니다.
+- 일반적인 backend 직렬화/역직렬화 실패는 `JsonSerializationException` 예외를 던집니다.
+
+#### ByteBuffer 계약
+
+`serializeTo`는 설정된 mapper의 stream API로 caller-owned buffer에 직접 쓰고, `deserializeFrom`은
+duplicate view를 읽습니다. 이 Jackson 전용 override는 호환 `serialize(): ByteArray`와
+`deserialize(ByteArray)` 메서드를 우회합니다. optimized dispatch cell이라는 의미만 가지며, 측정 전에는
+할당 개선을 주장하지 않습니다. heap, direct, slice, read-only 입력을 지원하며 입력 상태를 보존합니다. 출력 position은 성공
+시에만 이동하고, read-only target과 용량 부족은 각각 raw `ReadOnlyBufferException`,
+`BufferOverflowException`을 노출합니다. 실패한 출력 호출은 원래 position으로 rollback하지만 이미 기록된
+바이트는 불특정 상태이므로 주변 프로토콜이 요구하면 재시도 전에 지우거나 덮어써야 합니다.
+치명적인 `Error` 인스턴스는 wrapping하지 않고 동일 identity를 유지합니다.
+신뢰할 수 없는 입력은 호출 전에 limit를 설정해 범위를 제한해야 하며 serializer는 remaining 범위 밖을 읽지 않습니다.
+
+```kotlin
+import io.bluetape4k.jackson.*
+import io.bluetape4k.json.JsonSerializer
+import io.bluetape4k.json.deserialize as deserializeRaw
+import java.nio.ByteBuffer
+
+run {
+    val buffer = ByteBuffer.allocate(4096)
+    serializer.serializeTo(users, buffer)
+    buffer.flip()
+    val restored = serializer.deserialize<List<User>>(buffer)
+}
+run {
+    val buffer = ByteBuffer.wrap(serializer.serialize(usersByName))
+    val restored = serializer.deserialize<Map<String, User>>(buffer)
+}
+
+val contract: JsonSerializer = serializer
+val buffer = ByteBuffer.wrap(serializer.serialize(users))
+val rawUsers: List<*>? = contract.deserializeRaw<List<User>>(buffer)
+```
+
+concrete `JacksonSerializer` extension은 generic `TypeReference` 정보를 유지합니다. 정적 타입이
+`JsonSerializer`인 receiver는 기존 class-token 호환 fallback 계약을 사용하므로 collection element가
+raw map으로 남습니다. YAML, Properties, CSV, TOML, CBOR, Ion, Smile도 같은 buffer override를 상속합니다.
+Jackson 내부 전체에 대한 zero-allocation 주장은 하지 않습니다.
+
+```java
+ByteBuffer buffer = ByteBuffer.wrap(bytes);
+User restored = serializer.deserializeFrom(buffer, User.class);
+```
 
 ### 3. ObjectMapper 확장 함수
 

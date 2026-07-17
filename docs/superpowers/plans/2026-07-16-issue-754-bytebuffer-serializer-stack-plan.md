@@ -24,10 +24,10 @@ PR head after CI and review pass.
 
 | Slice | Branch | Scope | Status |
 |---|---|---|---|
-| 1 | `feat/issue-754-buffer-contract` | API defaults, fixed-buffer contract, ABI fixtures | Merged; preserve through corrective PR |
-| corrective | `fix/issue-754-remove-release-scope` | Remove unauthorized release/settings coupling | Current |
-| 2 | `feat/issue-754-core-serializers` | JDK, Kryo, Fory lower-copy paths | Pending |
-| 3 | `feat/issue-754-json-serializers` | Jackson 2/3 and Fastjson2 | Pending |
+| 1 | `feat/issue-754-buffer-contract` | API defaults, fixed-buffer contract, ABI fixtures | Merged via PR #1031 |
+| corrective | `fix/issue-754-remove-release-scope` | Remove unauthorized release/settings coupling | Merged via PR #1034 |
+| 2 | `feat/issue-754-core-serializers` | JDK, Kryo, Fory lower-copy paths | Merged via PR #1040 |
+| 3 | `feat/issue-754-json-serializers` | Jackson 2/3 and Fastjson2 | Current; base `7459b84cb976a349e1bbc03fefb36d4ca50d02ee` |
 | 4 | `feat/issue-754-avro-serializers` | Reflect, generic, specific/list | Pending |
 | 5 | `feat/issue-754-allocation-proof` | Benchmarks, allocation evidence, docs | Pending |
 
@@ -99,20 +99,171 @@ performance claim boundaries. Repair P0/P1 before PR creation.
 
 ## Slice 3: JSON Serializers
 
-### Task 1: Jackson 2 and Jackson 3
+### Task 1: Jackson 2 RED contract
 
-1. Add RED tests for fixed output, direct/read-only input, overflow, rollback,
-   mapper configuration, polymorphic typing, and wire compatibility.
-2. Connect mapper stream APIs to the fixed ByteBuffer adapters.
-3. Preserve exception types and caller state on all paths.
-4. Run each module's targeted tests and inherited contract proof.
+1. Add `JacksonSerializerByteBufferTest` under
+   `io/jackson2/src/test/kotlin/io/bluetape4k/jackson/`.
+2. Cover heap/direct/sliced/read-only input, non-zero position, reduced limit,
+   order/mark preservation, empty and malformed input, exact-capacity output,
+   read-only target prevalidation, raw overflow, rollback, fatal-error identity,
+   failed-call reuse, mapper configuration, old/new cross-reading, and
+   `serializeTo(null)` returning `0` without changing target position or invoking
+   the mapper.
+3. Prove `serializeTo` and `deserializeFrom` bypass the allocating `ByteArray`
+   methods with throwing/counting overrides.
+4. Prove concrete reified `List<User>` and `Map<String, User>` input retain
+   Jackson `TypeReference` semantics. Also prove a receiver statically typed as
+   `JsonSerializer` retains the existing raw class-based collection behavior and
+   that an invalid target class keeps the established failure wrapper.
+5. Exercise allowed and denied root/nested class identifiers through a typed
+   mapper and preserve the existing allowlist rejection wrapper/cause.
+6. Run the focused test and observe the expected RED failures before production
+   edits.
 
-### Task 2: Fastjson2
+   ```bash
+   ./gradlew :bluetape4k-jackson2:test \
+     --tests "io.bluetape4k.jackson.JacksonSerializerByteBufferTest" \
+     --no-configuration-cache
+   ```
 
-1. Add JSONB compatibility, direct-input, and fallback-output tests.
-2. Use a lower-copy path only if the resolved API demonstrably avoids a full
-   internal array.
-3. Otherwise retain the default and document it as ergonomic only.
+### Task 2: Jackson 2 implementation and inherited formats
+
+1. Override buffer methods in
+   `io/jackson2/src/main/kotlin/io/bluetape4k/jackson/JacksonSerializer.kt` using
+   `ByteBufferOutputStream.fixed(target.duplicate())` and
+   `ByteBufferInputStream(source.duplicate())` with mapper stream APIs.
+2. Add the concrete reified ByteBuffer API as a top-level concrete-receiver extension using
+   `jacksonTypeRef<T>()`; do not add a final JVM method to the open serializer class or a new public `Type`
+   overload to `JsonSerializer`.
+3. Return `0` before mapper work when the graph is null. Classify output
+   failures as raw read-only/overflow, identical fatal `Error`,
+   or the established `JsonSerializationException`; commit target position only
+   after successful completion.
+4. Add old/new cross-reading buffer coverage for YAML, Properties, CSV, TOML,
+   CBOR, Ion, and Smile in
+   `io/jackson2/src/test/kotlin/io/bluetape4k/jackson/JacksonFormatSerializerByteBufferTest.kt`
+   because they inherit the base override.
+5. Run focused ByteBuffer and inherited-format tests, then the full module test.
+
+   ```bash
+   ./gradlew :bluetape4k-jackson2:test \
+     --tests "io.bluetape4k.jackson.JacksonSerializerByteBufferTest" \
+     --tests "io.bluetape4k.jackson.JacksonFormatSerializerByteBufferTest" \
+     --no-configuration-cache
+   ./gradlew :bluetape4k-jackson2:test --no-configuration-cache
+   ```
+
+### Task 3: Jackson 3 RED and implementation
+
+1. Mirror Tasks 1-2 in `io/jackson3`, using Jackson 3 mapper/type-reference APIs.
+2. Add a negative ByteBuffer test proving unsolicited class-id properties do not
+   introduce default typing or instantiate arbitrary subtypes.
+3. Preserve annotation-driven polymorphism, mapper factories, failure policy,
+   caller state, reuse, and all inherited format wire semantics.
+4. Put inherited-format coverage in
+   `io/jackson3/src/test/kotlin/io/bluetape4k/jackson3/JacksonFormatSerializerByteBufferTest.kt`.
+5. Run focused ByteBuffer and inherited-format tests, then the full module test.
+
+   ```bash
+   ./gradlew :bluetape4k-jackson3:test \
+     --tests "io.bluetape4k.jackson3.JacksonSerializerByteBufferTest" \
+     --tests "io.bluetape4k.jackson3.JacksonFormatSerializerByteBufferTest" \
+     --no-configuration-cache
+   ./gradlew :bluetape4k-jackson3:test --no-configuration-cache
+   ```
+
+### Task 4: Fastjson2 capability decision and bounded optimization
+
+1. Extract the resolved Fastjson2 `2.0.62` sources into the required inspection
+   directory and inspect `JSONB.toBytes`, the `JSONReaderJSONB(InputStream)`
+   constructor, and the `byte[]` offset/length `parseObject` overloads:
+
+   ```bash
+   set -euo pipefail
+   sources_jar="$(find "$HOME/.gradle/caches/modules-2/files-2.1/com.alibaba.fastjson2/fastjson2/2.0.62" \
+     -name 'fastjson2-2.0.62-sources.jar' -print -quit)"
+   test -n "$sources_jar"
+   rm -rf .codex/lib-sources/fastjson2-2.0.62
+   mkdir -p .codex/lib-sources/fastjson2-2.0.62
+   unzip -q -o "$sources_jar" -d .codex/lib-sources/fastjson2-2.0.62
+   shasum -a 256 "$sources_jar"
+   rg -n "toBytes\(Object|JSONReaderJSONB\(Context ctx, InputStream|parseObject\(" \
+     .codex/lib-sources/fastjson2-2.0.62/com/alibaba/fastjson2/JSONB.java \
+     .codex/lib-sources/fastjson2-2.0.62/com/alibaba/fastjson2/JSONReaderJSONB.java
+   ```
+
+   Record that JSONB output and stream input allocate or grow internal arrays,
+   while the `byte[]` offset/length parser aliases an existing heap array. Store
+   the resolved sources-JAR SHA-256, exact matched source locations, conclusions,
+   and optimized/fallback matrix in
+   `docs/evidence/issue-754/json/fastjson2-2.0.62-capability.md`. Remove the
+   extracted inspection directory before preparing the PR; the evidence document
+   is the durable review artifact.
+2. Add `FastjsonSerializerByteBufferTest` covering JSONB old/new cross-reading,
+   heap/direct/sliced/read-only input, caller state, concrete reified
+   `List<User>` and `Map<String, User>`, interface-typed raw collections, invalid
+   target classes, malformed/fatal failures, retry, output overflow/rollback,
+   `serializeTo(null)` returning `0` without changing target position, and a
+   negative type-metadata/AutoType case.
+3. Override class-token `deserializeFrom` and add the concrete reified
+   `deserialize(ByteBuffer)` overload. For writable array-backed input, pass the
+   backing array, `arrayOffset() + position()`, remaining length, and respectively
+   `clazz` or `reference<T>().type` to JSONB. For direct/read-only input, copy the
+   duplicate's remaining range and call the same class/type-token parser.
+4. Override `serializeTo` as an explicitly allocating compatibility path using
+   `JSONB.toBytes`, capacity validation, a duplicate target, and commit-on-success;
+   return `0` before JSONB work for null input and do not describe it as
+   lower-copy.
+5. In class-token, reified, and output buffer paths, catch in this order: rethrow
+   the identical fatal `Error`; expose raw `ReadOnlyBufferException` and
+   `BufferOverflowException`; wrap other failures in the existing
+   `JsonSerializationException` message/cause contract; restore output position
+   on every failure. Preserve the feature-free reader context and do not enable
+   AutoType.
+6. Run the focused test, then the full Fastjson2 module test.
+
+   ```bash
+   ./gradlew :bluetape4k-fastjson2:test \
+     --tests "io.bluetape4k.fastjson2.FastjsonSerializerByteBufferTest" \
+     --no-configuration-cache
+   ./gradlew :bluetape4k-fastjson2:test --no-configuration-cache
+   ```
+
+### Task 5: Slice documentation and inherited proof
+
+1. Update the class and buffer-overload KDoc in
+   `io/jackson2/src/main/kotlin/io/bluetape4k/jackson/JacksonSerializer.kt`,
+   `io/jackson3/src/main/kotlin/io/bluetape4k/jackson3/JacksonSerializer.kt`, and
+   `io/fastjson2/src/main/kotlin/io/bluetape4k/fastjson2/FastjsonSerializer.kt`.
+2. Update `io/jackson2/README.md`, `io/jackson2/README.ko.md`,
+   `io/jackson3/README.md`, `io/jackson3/README.ko.md`,
+   `io/fastjson2/README.md`, and `io/fastjson2/README.ko.md` with buffer state
+   rules, optimized/fallback cells, the allocation-claim exclusion, a Kotlin
+   concrete `deserialize<List<User>>(buffer)` example, a Java
+   `deserializeFrom(buffer, User.class)` example, and the interface receiver's
+   raw-generic limitation.
+3. Run `git diff --check` and verify every language variant contains the
+   required contract and examples with:
+
+   ```bash
+   set -euo pipefail
+   for readme in \
+     io/jackson2/README.md io/jackson2/README.ko.md \
+     io/jackson3/README.md io/jackson3/README.ko.md \
+     io/fastjson2/README.md io/fastjson2/README.ko.md
+   do
+     rg -q "ByteBuffer" "$readme"
+     rg -q "optimized|optimization|최적화" "$readme"
+     rg -q "fallback|compatibility|호환" "$readme"
+     rg -q "allocation|할당" "$readme"
+     rg -q "JsonSerializer" "$readme"
+     rg -q 'deserialize<List<User>>\(buffer\)' "$readme"
+     rg -q 'deserialize<Map<String, User>>\(buffer\)' "$readme"
+     rg -q 'deserializeFrom\(buffer, User\.class\)' "$readme"
+   done
+   ```
+
+4. Run all three module tests and the inherited ABI script.
 
 ### Slice 3 gate
 
