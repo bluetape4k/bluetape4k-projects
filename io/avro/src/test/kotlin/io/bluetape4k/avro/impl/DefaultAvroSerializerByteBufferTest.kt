@@ -1,5 +1,7 @@
 package io.bluetape4k.avro.impl
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
@@ -15,6 +17,7 @@ import org.apache.avro.file.Codec
 import org.apache.avro.file.CodecFactory
 import org.apache.avro.generic.GenericRecord
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
@@ -145,6 +148,30 @@ class DefaultAvroSerializerByteBufferTest {
         serializer.serializeTo(Employee.getClassSchema(), record, target) shouldBeEqualTo 0
 
         target.position() shouldBeEqualTo 7
+    }
+
+    @Test
+    fun `handled failure logging does not render the caller record`() {
+        val record = spyk(TestMessageProvider.createEmployee())
+        val rendered = AtomicBoolean(false)
+        every { record.toString() } answers {
+            rendered.set(true)
+            "secret caller record"
+        }
+        val codec = codecFactory { passThroughCodec { throw IOException("backend failed") } }
+        val target = ByteBuffer.allocate(4096).apply { position(9) }
+        val logger = LoggerFactory.getLogger(DefaultAvroSpecificRecordSerializer.Companion::class.java) as Logger
+        val originalLevel = logger.level
+
+        try {
+            logger.level = Level.ERROR
+            DefaultAvroSpecificRecordSerializer(codec).serializeTo(record, target) shouldBeEqualTo 0
+        } finally {
+            logger.level = originalLevel
+        }
+
+        target.position() shouldBeEqualTo 9
+        rendered.get() shouldBeEqualTo false
     }
 
     @Test
