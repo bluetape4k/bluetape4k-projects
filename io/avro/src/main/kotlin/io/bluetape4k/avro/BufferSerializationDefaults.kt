@@ -1,6 +1,8 @@
 package io.bluetape4k.avro
 
 import io.bluetape4k.io.ByteBufferOutputStream
+import java.io.FilterOutputStream
+import java.io.IOException
 import java.io.OutputStream
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
@@ -44,27 +46,48 @@ internal inline fun writeToFixedBuffer(
     val start = target.position()
     val view = target.duplicate()
     return try {
-        ByteBufferOutputStream.fixed(view).use(write)
+        FixedTargetOutputStream(ByteBufferOutputStream.fixed(view)).use(write)
         val written = view.position() - start
         target.position(start + written)
         written
     } catch (failure: Throwable) {
         target.position(start)
-        throw failure.forBufferPath()
+        throw failure
     }
 }
 
-internal fun Throwable.forBufferPath(): Throwable {
+internal fun Throwable.escapingBufferFailure(): Throwable? {
     var current: Throwable? = this
-    var overflow: BufferOverflowException? = null
+    var targetOverflow = false
     var depth = 0
     while (current != null && depth++ < 64) {
         if (current is Error) return current
-        if (overflow == null && current is BufferOverflowException) overflow = current
+        if (current is FixedTargetOverflowSignal) targetOverflow = true
         current = current.cause?.takeUnless { it === current }
     }
-    return overflow?.let {
-        if (it === this) it
-        else BufferOverflowException().apply { initCause(this@forBufferPath) }
-    } ?: this
+    return if (targetOverflow) {
+        BufferOverflowException().apply { initCause(this@escapingBufferFailure) }
+    } else {
+        null
+    }
 }
+
+internal class FixedTargetOutputStream(
+    output: OutputStream,
+): FilterOutputStream(output) {
+
+    override fun write(b: Int) = translateOverflow { super.write(b) }
+
+    override fun write(b: ByteArray, off: Int, len: Int) =
+        translateOverflow { super.write(b, off, len) }
+
+    private inline fun translateOverflow(write: () -> Unit) {
+        try {
+            write()
+        } catch (failure: BufferOverflowException) {
+            throw FixedTargetOverflowSignal(failure)
+        }
+    }
+}
+
+private class FixedTargetOverflowSignal(cause: BufferOverflowException): IOException(cause)

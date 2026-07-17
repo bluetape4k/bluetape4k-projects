@@ -2,6 +2,7 @@ package io.bluetape4k.avro.impl
 
 import io.bluetape4k.avro.AvroReflectSerializer
 import io.bluetape4k.avro.DEFAULT_CODEC_FACTORY
+import io.bluetape4k.avro.escapingBufferFailure
 import io.bluetape4k.avro.writeToFixedBuffer
 import io.bluetape4k.io.ByteBufferInputStream
 import io.bluetape4k.logging.KLogging
@@ -15,7 +16,6 @@ import org.apache.avro.reflect.ReflectData
 import org.apache.avro.reflect.ReflectDatumReader
 import org.apache.avro.reflect.ReflectDatumWriter
 import java.io.ByteArrayOutputStream
-import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.nio.ReadOnlyBufferException
 import java.util.concurrent.ConcurrentHashMap
@@ -104,6 +104,10 @@ class DefaultAvroReflectSerializer private constructor(
         }
     }
 
+    /**
+     * Writes an Avro OCF record directly into [target]. Handled backend failures are logged and return `0`, matching
+     * this implementation's nullable ByteArray policy. Fixed-target overflow and fatal JVM errors escape to callers.
+     */
     override fun <T> serializeTo(graph: T?, target: ByteBuffer): Int {
         if (target.isReadOnly) throw ReadOnlyBufferException()
         if (graph == null) return 0
@@ -115,20 +119,12 @@ class DefaultAvroReflectSerializer private constructor(
                 DataFileWriter(datumWriter).setCodec(codecFactory).use { writer ->
                     writer.create(schema, output)
                     writer.append(graph)
-                    writer.flush()
                 }
             }
         } catch (failure: Throwable) {
-            when (failure) {
-                is Error,
-                is BufferOverflowException,
-                is ReadOnlyBufferException,
-                -> throw failure
-                else -> {
-                    log.error(failure) { "Reflect 기반 ByteBuffer 직렬화에 실패했습니다. clazz=${graph.javaClass.name}" }
-                    0
-                }
-            }
+            failure.escapingBufferFailure()?.let { throw it }
+            log.error(failure) { "Reflect 기반 ByteBuffer 직렬화에 실패했습니다. clazz=${graph.javaClass.name}" }
+            0
         }
     }
 
