@@ -85,6 +85,20 @@ Java input methods use `deserializeFrom` to avoid making existing null-literal
 calls ambiguous. Existing Kotlin `deserialize(ByteBuffer)` extensions delegate
 to the new polymorphic member.
 
+Concrete JSON serializers that already expose reified `ByteArray` overloads
+retain equivalent parameterized-type behavior for `ByteBuffer` input. In
+particular, `List<T>` and `Map<K, V>` calls must continue to use the backend's
+type-token mechanism instead of erasing the request to the raw JVM class.
+
+That parameterized behavior is available when the receiver retains its concrete
+Jackson or Fastjson serializer type, matching the existing backend-specific
+reified `ByteArray` overloads. A receiver statically typed as `JsonSerializer`
+continues to expose the class-based interface contract: Kotlin's interface
+extension and Java's `deserializeFrom(source, clazz)` cannot represent nested
+generic arguments and therefore return backend raw collection shapes for raw
+`List` or `Map` requests. Slice 3 does not add a new public `Type` API. Callers
+that need typed nested collections must retain the concrete serializer type.
+
 Avro serializers add corresponding methods for reflect, generic-record,
 specific-record, and specific-record list operations. They retain the existing
 Object Container File/DataFile wire format.
@@ -111,10 +125,21 @@ not an allocation claim.
 
 - Jackson 2 and Jackson 3 can use stream-shaped mapper APIs backed by the fixed
   ByteBuffer adapters.
-- Fastjson2 JSONB remains on the compatibility fallback unless measurement shows
-  that the resolved implementation avoids a full internal array.
-- Mapper configuration, polymorphic typing, filters, and wire bytes remain
-  authoritative.
+- The Jackson overrides live in the open base serializers and therefore apply
+  to their YAML, Properties, CSV, TOML, CBOR, Ion, and Smile subclasses. The
+  configured mapper factory remains authoritative, and every inherited format
+  must preserve old/new cross-reading compatibility.
+- Jackson 2 retains its configured allowlisted default-typing behavior. Jackson
+  3 must not gain default typing; annotation-driven polymorphism and its current
+  safe defaults remain unchanged.
+- Resolved Fastjson2 `2.0.62` JSONB output and stream input stage through an
+  internal `byte[]`, so caller-owned output, direct input, and read-only input
+  retain the compatibility fallback. An array-backed heap input may use the
+  `byte[]` offset/length parser only when it directly aliases the caller's
+  remaining range and preserves caller state.
+- Fastjson2 must not enable AutoType, class loading, or a broader reader context.
+- Mapper configuration, polymorphic typing, filters, exception policy, and wire
+  bytes remain authoritative.
 
 ### 4.4 Avro serializers
 
@@ -136,6 +161,10 @@ metadata is nondeterministic.
 - A failed call must not poison the next call or retain caller buffers.
 - No optimized path may weaken JDK filtering, Kryo/Fory registration, Jackson
   typing, Fastjson2 JSONB semantics, or Avro schema/codec handling.
+- JSON buffer paths expose raw `ReadOnlyBufferException` and
+  `BufferOverflowException`, preserve the identity of fatal `Error` instances,
+  restore the caller position on failure, and retain each backend's established
+  `JsonSerializationException` message/cause policy for ordinary failures.
 
 ## 6. Evidence
 
@@ -153,6 +182,16 @@ metadata is nondeterministic.
 Each backend PR reruns inherited contract tests and adds wire/security/resource
 tests for its own optimized path. A backend that cannot safely optimize keeps
 the default and records that limitation.
+
+The JSON slice additionally proves that Jackson does not delegate buffer calls
+through its allocating `ByteArray` methods, covers every mapper-backed Jackson
+format affected by the base override, and records the resolved Fastjson2 source
+evidence for optimized versus fallback cells. Backend KDoc and English/Korean
+README pairs describe those cells without making allocation-improvement claims.
+The concrete Jackson reified ByteBuffer API remains a top-level extension so the open serializer classes do not
+gain a final JVM method that can conflict with a legacy subclass signature. The caller matrix covers concrete reified `List<Model>` and
+`Map<String, Model>`, interface-typed raw collection calls, invalid target
+classes, and the documented Kotlin/Java migration boundary.
 
 ### Allocation slice
 
@@ -186,6 +225,8 @@ outside this design and follow their own workflows and authority gates.
 - Position, limit, order, mark, overflow, and failure contracts are tested.
 - Lower-copy claims are made only for measured backend overrides.
 - Wire, security, registration, and resource-lifecycle behavior is preserved.
+- Parameterized JSON types retain the concrete serializers' existing reified
+  behavior, and mapper-backed Jackson subformats retain their wire semantics.
 - Allocation evidence reports allocation/GC metrics rather than throughput alone.
 - English/Korean docs explain optimized versus fallback behavior.
 - No issue-specific release, credential, settings, tag, or publication machinery

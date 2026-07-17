@@ -106,7 +106,53 @@ try {
 
 - `serialize(null)` returns an empty `ByteArray`.
 - `deserialize(null)` / `deserializeFromString(null)` returns `null`.
-- All other serialization / deserialization failures throw `JsonSerializationException`.
+- Ordinary backend serialization / deserialization failures throw `JsonSerializationException`.
+
+#### ByteBuffer contract
+
+`serializeTo` streams through the configured mapper into the caller-owned buffer, and `deserializeFrom`
+reads a duplicate view. These Jackson-specific overrides bypass the compatibility `serialize(): ByteArray`
+and `deserialize(ByteArray)` methods. They are optimized dispatch cells only; allocation improvement remains
+unclaimed until it is measured.
+Heap, direct, sliced, and read-only input are supported. Input state is preserved; output position advances
+only on success. A read-only target and insufficient capacity expose raw `ReadOnlyBufferException` and
+`BufferOverflowException`, and a failed output call restores its original position. Bytes written before failure
+are unspecified; clear or overwrite them before retry when the surrounding protocol requires it.
+Fatal `Error` instances retain their identity instead of being wrapped.
+Set a bounded limit before passing untrusted input; the serializer cannot read outside the remaining range.
+
+```kotlin
+import io.bluetape4k.jackson3.*
+import io.bluetape4k.json.JsonSerializer
+import io.bluetape4k.json.deserialize as deserializeRaw
+import java.nio.ByteBuffer
+
+run {
+    val buffer = ByteBuffer.allocate(4096)
+    serializer.serializeTo(users, buffer)
+    buffer.flip()
+    val restored = serializer.deserialize<List<User>>(buffer)
+}
+run {
+    val buffer = ByteBuffer.wrap(serializer.serialize(usersByName))
+    val restored = serializer.deserialize<Map<String, User>>(buffer)
+}
+
+val contract: JsonSerializer = serializer
+val buffer = ByteBuffer.wrap(serializer.serialize(users))
+val rawUsers: List<*>? = contract.deserializeRaw<List<User>>(buffer)
+```
+
+The concrete `JacksonSerializer` extension retains generic type-reference information. A receiver statically
+typed as `JsonSerializer` uses the compatibility class-token contract, so collection elements remain raw maps.
+The same buffer override is inherited by YAML, Properties, CSV, TOML, CBOR, Ion, and Smile.
+Jackson 3 does not enable removed default typing, and no broader zero-allocation claim is made for internals.
+For untrusted polymorphic input, prefer `JsonTypeInfo.Id.NAME` with an explicit subtype list instead of class-name IDs.
+
+```java
+ByteBuffer buffer = ByteBuffer.wrap(bytes);
+User restored = serializer.deserializeFrom(buffer, User.class);
+```
 
 ### 3. ObjectMapper Extension Functions
 
