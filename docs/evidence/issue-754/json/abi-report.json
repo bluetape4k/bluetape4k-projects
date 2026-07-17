@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "issue": 1037,
+  "slice": "json-serializers",
+  "status": "GREEN",
+  "producerCommit": "3198fa3c8648033b2ae36bfd3fcecec42db23cdf",
+  "producerTree": "c63492950369da2376453cf15ebab0c89a5192ea",
+  "artifacts": [
+    {
+      "module": "jackson2",
+      "path": "io/jackson2/build/libs/bluetape4k-jackson2-1.12.0.jar",
+      "sha256": "76bf40eb7d355d6dee2a070cae274ea223ef2f3ea42d497753fac722c4db740d"
+    },
+    {
+      "module": "jackson3",
+      "path": "io/jackson3/build/libs/bluetape4k-jackson3-1.12.0.jar",
+      "sha256": "fb3c1c15689846e4540e7e4ff792c7075aa965ca8538b57202678ad8fe633c32"
+    },
+    {
+      "module": "fastjson2",
+      "path": "io/fastjson2/build/libs/bluetape4k-fastjson2-1.12.0.jar",
+      "sha256": "4c897818bee3b62f0a763ffb4db76abfdd26937a0a310733054025237c433aca"
+    }
+  ],
+  "checks": {
+    "aggregate-serializer-abi": "PASS",
+    "jackson2-open-class-has-no-bytebuffer-reified-member": "PASS",
+    "jackson2-top-level-bytebuffer-extension": "PASS",
+    "jackson3-open-class-has-no-bytebuffer-reified-member": "PASS",
+    "jackson3-top-level-bytebuffer-extension": "PASS",
+    "fastjson2-final-class-bytebuffer-member": "PASS",
+    "jackson2-external-consumer-compilation": "PASS",
+    "jackson3-external-consumer-compilation": "PASS",
+    "jackson2-complete-module-tests-455": "PASS",
+    "jackson3-complete-module-tests-456": "PASS",
+    "fastjson2-complete-module-tests-180": "PASS"
+  },
+  "publicSymbols": {
+    "jackson2Class": [
+      "public int serializeTo(java.lang.Object, java.nio.ByteBuffer)",
+      "public <T> T deserializeFrom(java.nio.ByteBuffer, java.lang.Class<T>)"
+    ],
+    "jackson2Extension": "public static final <T> T deserialize(io.bluetape4k.jackson.JacksonSerializer, java.nio.ByteBuffer)",
+    "jackson3Class": [
+      "public int serializeTo(java.lang.Object, java.nio.ByteBuffer)",
+      "public <T> T deserializeFrom(java.nio.ByteBuffer, java.lang.Class<T>)"
+    ],
+    "jackson3Extension": "public static final <T> T deserialize(io.bluetape4k.jackson3.JacksonSerializer, java.nio.ByteBuffer)",
+    "fastjson2Class": [
+      "public int serializeTo(java.lang.Object, java.nio.ByteBuffer)",
+      "public <T> T deserializeFrom(java.nio.ByteBuffer, java.lang.Class<T>)",
+      "public final <T> T deserialize(java.nio.ByteBuffer)"
+    ]
+  },
+  "commands": [
+    "bash scripts/check-serializer-buffer-abi.sh --build-current --expected-head 3198fa3c8648033b2ae36bfd3fcecec42db23cdf",
+    "./gradlew :bluetape4k-jackson2:jar :bluetape4k-jackson3:jar :bluetape4k-fastjson2:jar --no-daemon",
+    "javap -public -classpath <module-jar> <serializer-class-or-file-facade>"
+  ]
+}

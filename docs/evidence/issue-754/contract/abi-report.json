@@ -33,10 +33,10 @@
     "legacy-java-compilation": "PASS",
     "legacy-kotlin-compilation": "PASS"
   },
-  "command": "bash scripts/check-serializer-buffer-abi.sh --build-current --expected-head 43f51bcfa176f50e7dfbed677c32f2306a4d01c2",
+  "command": "bash scripts/check-serializer-buffer-abi.sh --build-current --expected-head 3198fa3c8648033b2ae36bfd3fcecec42db23cdf",
   "issue": 754,
-  "producerCommit": "43f51bcfa176f50e7dfbed677c32f2306a4d01c2",
-  "producerTree": "2f7d61cc4a1f0a2a0758b840f02862b3ca4144bb",
+  "producerCommit": "3198fa3c8648033b2ae36bfd3fcecec42db23cdf",
+  "producerTree": "c63492950369da2376453cf15ebab0c89a5192ea",
   "schemaVersion": 1,
   "slice": "contract",
   "status": "GREEN",
