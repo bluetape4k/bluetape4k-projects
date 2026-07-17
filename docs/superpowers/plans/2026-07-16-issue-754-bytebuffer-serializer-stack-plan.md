@@ -28,7 +28,7 @@ PR head after CI and review pass.
 | corrective | `fix/issue-754-remove-release-scope` | Remove unauthorized release/settings coupling | Merged via PR #1034 |
 | 2 | `feat/issue-754-core-serializers` | JDK, Kryo, Fory lower-copy paths | Merged via PR #1040 |
 | 3 | `feat/issue-754-json-serializers` | Jackson 2/3 and Fastjson2 | Merged via PR #1042 |
-| 4 | `feat/issue-754-avro-serializers` | Reflect, generic, specific/list | Current; base `e89bf724fd018af8c2ab4564a5c9a007fe27b46a` |
+| 4 | `feat/issue-754-avro-serializers` | Reflect, generic, specific/list | Implemented and verified; PR pending; base `e89bf724fd018af8c2ab4564a5c9a007fe27b46a` |
 | 5 | `feat/issue-754-allocation-proof` | Benchmarks, allocation evidence, docs | Pending |
 
 ## Slice 1: Contract And Compatibility
