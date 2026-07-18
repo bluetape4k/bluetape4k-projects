@@ -42,6 +42,11 @@ benchmark {
     }
 }
 
+tasks.matching { it.name.endsWith("BenchmarkJar") }.configureEach {
+    this as org.gradle.jvm.tasks.Jar
+    exclude("META-INF/*.RSA", "META-INF/*.DSA", "META-INF/*.SF")
+}
+
 dependencies {
     implementation(project(":bluetape4k-io"))
     implementation(project(":bluetape4k-json"))
