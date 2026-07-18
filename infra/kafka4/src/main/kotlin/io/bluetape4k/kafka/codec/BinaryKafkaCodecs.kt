@@ -4,29 +4,43 @@ import io.bluetape4k.annotations.BluetapeDelicateApi
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
 import org.apache.kafka.common.header.Headers
+import java.nio.ByteBuffer
 
 /**
- * [BinarySerializer]를 이용한 Kafka Codec
+ * Kafka codec backed by a [BinarySerializer].
  *
- * ```kotlin
- * val codec = KryoKafkaCodec()
- * val data = listOf("a", "b", "c")
- * val bytes = codec.serialize("topic", null, data)
- * val restored = codec.deserialize("topic", null, bytes)
- * // restored == listOf("a", "b", "c")
- * ```
+ * Standard Kafka calls retain their required [ByteArray] boundary. [BufferAwareKafkaCodec] methods delegate to the
+ * serializer's caller-owned buffer API without a Kafka-layer array conversion. Allocation behavior still depends on
+ * the concrete serializer because interface-default buffer methods may be allocating compatibility fallbacks.
+ *
+ * Buffer deserialization uses the same WARN-and-null poison-pill policy as standard Kafka deserialization while
+ * preserving coroutine cancellation and fatal JVM errors.
  */
 abstract class BinaryKafkaCodec(
     private val serializer: BinarySerializer,
-): AbstractKafkaCodec<Any?>() {
+): AbstractKafkaCodec<Any?>(), BufferAwareKafkaCodec<Any?> {
 
-    override fun doSerialize(topic: String?, headers: Headers?, graph: Any?): ByteArray {
-        return serializer.serialize(graph)
+    override fun doSerialize(topic: String?, headers: Headers?, graph: Any?): ByteArray =
+        serializer.serialize(graph)
+
+    override fun doDeserialize(topic: String?, headers: Headers?, bytes: ByteArray): Any? =
+        serializer.deserialize(bytes)
+
+    override fun serializeTo(
+        topic: String?,
+        headers: Headers?,
+        data: Any,
+        target: ByteBuffer,
+    ): Int {
+        // Match the standard path: a committed header is not rolled back when serializer work fails.
+        if (writeValueTypeHeader) setValueType(headers, data.javaClass)
+        return serializer.serializeTo(data, target)
     }
 
-    override fun doDeserialize(topic: String?, headers: Headers?, bytes: ByteArray): Any? {
-        return serializer.deserialize(bytes)
-    }
+    override fun deserializeFrom(topic: String?, headers: Headers?, source: ByteBuffer): Any? =
+        deserializeSafely(topic, headers, source.remaining()) {
+            serializer.deserializeFrom<Any>(source)
+        }
 }
 
 /**
