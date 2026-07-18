@@ -4,6 +4,7 @@ import java.nio.BufferOverflowException
 import java.util.ArrayDeque
 import java.util.Collections
 import java.util.IdentityHashMap
+import java.util.concurrent.CancellationException
 
 internal object BufferFailurePolicy {
 
@@ -17,6 +18,16 @@ internal object BufferFailurePolicy {
         find(cleanupFailure) { it is Error }?.let { fatal ->
             fatal.attachSuppressed(operationFailure)
             return fatal
+        }
+
+        // Cancellation is control flow and must not be translated into serialization failure.
+        find(operationFailure) { it is CancellationException }?.let { cancellation ->
+            cancellation.attachSuppressed(cleanupFailure)
+            return cancellation
+        }
+        find(cleanupFailure) { it is CancellationException }?.let { cancellation ->
+            cancellation.attachSuppressed(operationFailure)
+            return cancellation
         }
 
         if (operationFailure is BufferOverflowException) {

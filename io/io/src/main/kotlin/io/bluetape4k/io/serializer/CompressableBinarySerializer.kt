@@ -4,6 +4,7 @@ import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.isNullOrEmpty
+import java.nio.ByteBuffer
 
 /**
  * 압축을 지원하는 [BinarySerializer]
@@ -60,6 +61,21 @@ open class CompressableBinarySerializer(
             return null
         return super.deserialize(compressor.decompress(bytes))
     }
+
+    /**
+     * Serializes and compresses [graph] before copying the compressed wire bytes into caller-owned [target].
+     *
+     * This allocating compatibility path is intentional: decorator semantics take precedence over bypassing compression.
+     */
+    override fun serializeTo(graph: Any?, target: ByteBuffer): Int =
+        serializeTo(target) { serialize(graph) }
+
+    /**
+     * Copies the caller-bounded compressed bytes, decompresses them, and delegates to the wrapped serializer.
+     * Caller buffer state is preserved by the compatibility copy.
+     */
+    override fun <T: Any> deserializeFrom(source: ByteBuffer): T? =
+        deserialize(copyRemaining(source))
 
     /**
      * 직렬화기와 압축기 정보를 포함한 문자열 표현을 반환합니다.

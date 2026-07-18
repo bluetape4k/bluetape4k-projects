@@ -31,7 +31,9 @@ live issue 본문과 현재 `develop`의 `BinarySerializer` 버퍼 계약이 이
 - 새 public `BufferAwareKafkaCodec<T>` 계약
 - `BinaryKafkaCodec`의 buffer-aware 구현
 - 표준 Kafka 직렬화와 같은 value-type header 동작
-- 기존 poison-pill WARN logging과 `CancellationException`/`Error` 전파 정책
+- failure type만 기록하고 throwable/message/stack은 첨부하지 않는 sanitized poison-pill WARN logging
+- nested `CancellationException` identity와 `Error` 우선순위를 보존하는 buffer failure 분류
+- 압축 decorator의 표준 `ByteArray`/buffer 교차 wire 호환성
 - heap/direct/sliced/read-only 입력과 bounded 출력의 position/limit 계약 테스트
 - `ByteArrayKafkaCodec`의 raw binary passthrough 회귀 테스트
 - 기존 `benchmark/serializer-benchmark` 모듈의 codec-only allocation benchmark
@@ -199,6 +201,21 @@ serialization 예외는 기존 표준 경로처럼 로그로 흡수하지 않고
 - serializer별 optimized/fallback 차이를 숨기지 않도록 class KDoc에 일반 계약과
   제한을 설명한다.
 
+### 6.3 압축 decorator compatibility
+
+`CompressableBinarySerializer`의 interface delegation은 wrapper가 재정의한
+`serialize`/`deserialize`를 거치지 않으므로 buffer method에서 압축을 우회한다.
+최종 리뷰에서 확인한 이 문제는 decorator가 buffer fallback을 명시적으로
+override해 compressed wire를 생성하고 읽도록 고정한다. 이 경로의 allocation은
+wrapper 의미와 표준/buffer wire 호환성을 지키기 위한 의도적인 비용이다.
+
+### 6.4 Cancellation failure classification
+
+native serializer가 감싼 `CancellationException`은 serialization failure로 변환하지
+않는다. `BufferFailurePolicy`는 `Error`를 먼저 선택한 뒤 operation/cleanup graph의
+cancellation을 찾아 동일 instance를 반환하며, buffer failure helper도 이를 다시
+감싸지 않고 전파한다. overflow와 일반 failure 우선순위는 유지한다.
+
 ## 7. 테스트 설계
 
 제품 코드 전에 실패하는 contract test를 작성하고 다음을 고정한다.
@@ -230,7 +247,11 @@ serialization 예외는 기존 표준 경로처럼 로그로 흡수하지 않고
 - 빈 remaining 범위의 `null`
 - ordinary `Exception`은 WARN 후 `null`
 - `CancellationException`과 `Error` identity 재전파
-- 로그에 topic/header keys/data size가 있고 payload/header value가 없는지 검증
+- 로그에 topic/header keys/data size/failure type이 있고 throwable/message/stack,
+  payload/header value가 없는지 검증
+- 압축 codec은 표준 serialize → buffer deserialize와 buffer serialize → 표준
+  deserialize 양쪽 wire 호환성을 검증
+- object input filter가 감싼 cancellation도 동일 instance로 buffer 경계를 빠져나오는지 검증
 
 ### 7.4 기존 동작 회귀
 
@@ -326,7 +347,9 @@ issue #758 report 링크를 양쪽 문서에 동일하게 반영한다.
 
 ## 11. 예상 변경 범위와 승격 조건
 
-예상 production 변경은 `KafkaCodec.kt`와 `BinaryKafkaCodecs.kt` 두 파일이다.
+예상 production 변경은 `KafkaCodec.kt`와 `BinaryKafkaCodecs.kt`에 더해 최종 리뷰에서
+발견한 압축 decorator compatibility의 `CompressableBinarySerializer.kt`, cancellation
+분류/전파의 `BufferFailurePolicy.kt`와 `BufferSerializationDefaults.kt`를 포함한다.
 나머지는 focused contract test, 기존 benchmark module, EN/KO README, benchmark
 evidence, 설계/계획 문서다.
 

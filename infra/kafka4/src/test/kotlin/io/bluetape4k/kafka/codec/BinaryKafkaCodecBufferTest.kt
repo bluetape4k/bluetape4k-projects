@@ -4,8 +4,10 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
+import io.bluetape4k.annotations.BluetapeDelicateApi
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.io.serializer.BinarySerializer
@@ -13,12 +15,29 @@ import io.bluetape4k.support.toUtf8String
 import kotlinx.coroutines.CancellationException
 import org.apache.kafka.common.header.internals.RecordHeaders
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.ReadOnlyBufferException
+import java.util.stream.Stream
 
 class BinaryKafkaCodecBufferTest {
+    companion object {
+        @JvmStatic
+        @OptIn(BluetapeDelicateApi::class)
+        fun compressedCodecs(): Stream<Arguments> = Stream.of(
+            Arguments.of("LZ4 Kryo", LZ4KryoKafkaCodec()),
+            Arguments.of("LZ4 Fory", LZ4ForyKafkaCodec()),
+            Arguments.of("Snappy Kryo", SnappyKryoKafkaCodec()),
+            Arguments.of("Snappy Fory", SnappyForyKafkaCodec()),
+            Arguments.of("Zstd Kryo", ZstdKryoKafkaCodec()),
+            Arguments.of("Zstd Fory", ZstdForyKafkaCodec()),
+        )
+    }
+
     private class RecordingSerializer: BinarySerializer {
         var serializeTarget: ByteBuffer? = null
         var deserializeSource: ByteBuffer? = null
@@ -53,6 +72,48 @@ class BinaryKafkaCodecBufferTest {
         serializer: BinarySerializer,
         override val writeValueTypeHeader: Boolean = true,
     ): BinaryKafkaCodec(serializer)
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("compressedCodecs")
+    fun `compressed codecs preserve standard and buffer wire compatibility`(
+        @Suppress("UNUSED_PARAMETER") name: String,
+        codec: BufferAwareKafkaCodec<Any?>,
+    ) {
+        val payload = "trusted-compressible-kafka-payload-".repeat(256)
+        val standardWire = requireNotNull(codec.serialize("events", payload))
+        val source = ByteBuffer.allocateDirect(standardWire.size + 8).apply {
+            position(3)
+            put(standardWire)
+            flip()
+            position(3)
+            limit(3 + standardWire.size)
+        }.slice().asReadOnlyBuffer().apply { mark() }
+        val sourcePosition = source.position()
+        val sourceLimit = source.limit()
+
+        codec.deserializeFrom("events", source) shouldBeEqualTo payload
+
+        source.position() shouldBeEqualTo sourcePosition
+        source.limit() shouldBeEqualTo sourceLimit
+        source.reset().position() shouldBeEqualTo sourcePosition
+
+        val target = ByteBuffer.allocateDirect(64 * 1024).apply {
+            position(7)
+            limit(capacity() - 11)
+        }
+        val targetStart = target.position()
+        val targetLimit = target.limit()
+        val written = codec.serializeTo("events", payload, target)
+        val bufferWire = target.duplicate().apply {
+            position(targetStart)
+            limit(targetStart + written)
+        }.let { view -> ByteArray(view.remaining()).also(view::get) }
+
+        written shouldBeGreaterThan 0
+        target.position() shouldBeEqualTo targetStart + written
+        target.limit() shouldBeEqualTo targetLimit
+        codec.deserialize("events", bufferWire) shouldBeEqualTo payload
+    }
 
     @Test
     fun `buffer methods delegate exact caller buffers`() {
@@ -179,15 +240,18 @@ class BinaryKafkaCodecBufferTest {
         try {
             codec.deserializeFrom(
                 "events",
-                RecordHeaders().add("trace-id", byteArrayOf(1)),
+                RecordHeaders().add("trace-id", "secret-header".encodeToByteArray()),
                 ByteBuffer.allocate(17),
             ).shouldBeNull()
             val event = appender.list.single()
             event.level shouldBeEqualTo Level.WARN
+            event.throwableProxy.shouldBeNull()
             val message = event.formattedMessage
             message.contains("topic=events") shouldBeEqualTo true
             message.contains("trace-id") shouldBeEqualTo true
             message.contains("dataSize=17") shouldBeEqualTo true
+            message.contains("failureType=${IllegalArgumentException::class.java.name}") shouldBeEqualTo true
+            message.contains("secret-header") shouldBeEqualTo false
             message.contains("secret-payload") shouldBeEqualTo false
         } finally {
             logger.detachAppender(appender)

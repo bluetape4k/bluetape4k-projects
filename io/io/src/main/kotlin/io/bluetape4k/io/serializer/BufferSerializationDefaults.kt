@@ -6,6 +6,7 @@ import io.bluetape4k.logging.error
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.nio.ReadOnlyBufferException
+import java.util.concurrent.CancellationException
 
 internal inline fun serializeTo(
     target: ByteBuffer,
@@ -77,7 +78,9 @@ private object BufferSerializationFailureSupport: KLogging() {
         failure: Throwable,
     ): Nothing {
         val classified = BufferFailurePolicy.classify(failure, null) ?: failure
-        if (classified is Error || classified is BufferOverflowException) throw classified
+        if (classified is Error || classified is CancellationException || classified is BufferOverflowException) {
+            throw classified
+        }
 
         val graphType = graph.javaClass.name
         log.error(classified) { "Fail to serialize to ByteBuffer. graphType=$graphType" }
@@ -89,7 +92,7 @@ private object BufferSerializationFailureSupport: KLogging() {
         failure: Throwable,
     ): Nothing {
         val classified = BufferFailurePolicy.classify(failure, null) ?: failure
-        if (classified is Error) throw classified
+        if (classified is Error || classified is CancellationException) throw classified
 
         log.error(classified) { "Fail to deserialize from ByteBuffer." }
         throw BinarySerializationException("Fail to deserialize. bytesSize=$sourceSize", classified)
