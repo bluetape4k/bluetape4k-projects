@@ -36,6 +36,7 @@ live issue 본문과 현재 `develop`의 `BinarySerializer` 버퍼 계약이 이
 - `ByteArrayKafkaCodec`의 raw binary passthrough 회귀 테스트
 - 기존 `benchmark/serializer-benchmark` 모듈의 codec-only allocation benchmark
 - `infra/kafka4/README.md`와 `README.ko.md`의 동등한 사용법 및 제약 설명
+- `benchmark/serializer-benchmark/README.md`와 `README.ko.md`의 matrix 및 scope 갱신
 - 새 public API의 English KDoc와 비자명한 제약에 대한 English rationale comment
 
 ### 제외
@@ -304,6 +305,11 @@ end-to-end latency를 추론하지 않는다. chart는 필수가 아니며 raw J
 
 수치의 source of truth는 benchmark report 한 곳으로 유지한다. locale README에는
 결론을 요약하고 같은 report를 링크해 숫자 drift를 방지한다.
+
+`benchmark/serializer-benchmark/README.md`와 `README.ko.md`도 함께 갱신한다.
+현재 serializer-only 40-cell matrix와 “#758은 범위 밖”이라는 문구를 그대로
+두지 않고, 새 Kafka codec cell 수와 literal task/JMH 명령, codec-only 경계,
+issue #758 report 링크를 양쪽 문서에 동일하게 반영한다.
 
 ## 10. 호환성과 보안
 
