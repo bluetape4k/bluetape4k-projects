@@ -1210,11 +1210,11 @@ class EvidenceRunnerTest(unittest.TestCase):
                 runner.verify_dispatch_source_removals(Path("/repo"), "post", [dispatch], git_show)
 
         adversarial = {
-            "serializer_encode": '''class ProtobufSerializer { override fun serializeTo(graph: Any?, target: ByteBuffer): Int {
+            "serializer_encode": '''class ProtobufSerializer {
                 // packMessageTo(graph, target)
-                val diagnostic = "packMessageTo(graph, target)"
-                val bytes = serialize(graph); target.put(bytes); return bytes.size
-            }}''',
+                // serializeTo(graph, target)
+                val diagnostic = "serializeTo and packMessageTo(graph, target)"
+            }''',
             "serializer_decode": '''class ProtobufSerializer {
                 // override fun deserializeFrom(source: ByteBuffer) = decodeWithTrustedFallback(source)
                 val diagnostic = "deserializeFrom(source: ByteBuffer)"
@@ -1229,12 +1229,22 @@ class EvidenceRunnerTest(unittest.TestCase):
         for dispatch in runner.DISPATCH_ORDER:
             git_show.dispatch = dispatch
             runner.verify_dispatch_source_removals(Path("/repo"), "post", [dispatch], git_show)
-        removed["serializer_encode"] = "override fun serializeTo(graph: Any?, target: ByteBuffer): Int { val writer = ::packMessageTo; return writer(graph, target) }"
-        removed["redisson_contiguous"] = "private fun decodeProtobuf(buf: ByteBuf): Any { val count = buf.nioBufferCount (); val copied = \"getBytes(copy=true)\"; return any }"
-        for dispatch in ("serializer_encode", "redisson_contiguous"):
-            git_show.dispatch = dispatch
-            with self.assertRaisesRegex(ValueError, "removal predicate"):
-                runner.verify_dispatch_source_removals(Path("/repo"), "post", [dispatch], git_show)
+        rejected = {
+            "serializer_encode": ["val `serializeTo` = 1", "val ref = serializer :: serializeTo"],
+            "serializer_decode": ["val `deserializeFrom` = 1", "val ref = serializer :: deserializeFrom"],
+            "redisson_contiguous": [
+                "private fun decodeProtobuf(buf: ByteBuf): Any =\n AnyMessage.parseFrom(buf.getBytes(copy = true))",
+                "private fun decodeProtobuf(buf: ByteBuf) = helper(buf)\nprivate fun helper(buf: ByteBuf) = AnyMessage.parseFrom(buf.getBytes(copy = true))",
+                "private fun decodeProtobuf(buf: ByteBuf): Any { return AnyMessage.parseFrom(buf.getBytes(copy = true)) }\nprivate fun decodeProtobuf(buf: Other): Any { return AnyMessage.parseFrom(buf.getBytes(copy = true)) }",
+                "private fun decodeProtobuf(buf: ByteBuf): Any { val view = buf.internalNioBuffer(); return AnyMessage.parseFrom(buf.getBytes(copy = true)) }",
+                "private fun decodeProtobuf(buf: ByteBuf): Any { val `nioBufferAlias` = 1; return AnyMessage.parseFrom(buf.getBytes(copy = true)) }",
+            ],
+        }
+        for dispatch, cases in rejected.items():
+            for source in cases:
+                removed[dispatch] = source; git_show.dispatch = dispatch
+                with self.assertRaisesRegex(ValueError, "canonical"):
+                    runner.verify_dispatch_source_removals(Path("/repo"), "post", [dispatch], git_show)
 
     def test_prepared_retry_rejects_refreshed_environment_lineage(self):
         with tempfile.TemporaryDirectory() as td:
