@@ -1573,23 +1573,37 @@ def sanitize_kotlin_lexically(source):
     return "".join(output)
 
 
-def kotlin_function_body(source, name):
+def kotlin_identifiers(source):
     sanitized = sanitize_kotlin_lexically(source)
-    match = re.search(r"\bfun\s+(?:<[^{}>]*>\s*)?" + re.escape(name) + r"\s*\(", sanitized)
-    if not match: return None
-    opening = sanitized.find("{", match.end())
-    equals = sanitized.find("=", match.end())
-    if equals >= 0 and (opening < 0 or equals < opening):
-        end = sanitized.find("\n", equals + 1)
-        return sanitized[equals + 1:end if end >= 0 else len(sanitized)]
-    if opening < 0: return ""
-    depth = 0
-    for index in range(opening, len(sanitized)):
-        if sanitized[index] == "{": depth += 1
-        elif sanitized[index] == "}":
-            depth -= 1
-            if depth == 0: return sanitized[opening + 1:index]
-    return ""
+    return [token[1:-1] if token.startswith("`") else token for token in re.findall(r"`[^`\n]+`|[A-Za-z_][A-Za-z0-9_]*", sanitized)]
+
+
+def kotlin_function_declarations(source, expected_name):
+    sanitized = sanitize_kotlin_lexically(source); declarations = []
+    pattern = re.compile(r"\bfun\s+(?:<[^{}>]*>\s*)?(`[^`\n]+`|[A-Za-z_][A-Za-z0-9_]*)\s*\(")
+    for match in pattern.finditer(sanitized):
+        name = match.group(1); name = name[1:-1] if name.startswith("`") else name
+        if name != expected_name: continue
+        depth = 1; index = match.end()
+        while index < len(sanitized) and depth:
+            if sanitized[index] == "(": depth += 1
+            elif sanitized[index] == ")": depth -= 1
+            index += 1
+        opening = sanitized.find("{", index); equals = sanitized.find("=", index)
+        if equals >= 0 and (opening < 0 or equals < opening):
+            end = sanitized.find("\n", equals + 1)
+            declarations.append(("expression", sanitized[equals + 1:end if end >= 0 else len(sanitized)])); continue
+        if opening < 0:
+            declarations.append(("invalid", "")); continue
+        brace_depth = 0
+        for end in range(opening, len(sanitized)):
+            if sanitized[end] == "{": brace_depth += 1
+            elif sanitized[end] == "}":
+                brace_depth -= 1
+                if brace_depth == 0:
+                    declarations.append(("block", sanitized[opening + 1:end])); break
+        else: declarations.append(("invalid", ""))
+    return declarations
 
 
 def verify_dispatch_source_removals(repo_root, head, dispatches, command_runner=subprocess.run):
@@ -1599,19 +1613,21 @@ def verify_dispatch_source_removals(repo_root, head, dispatches, command_runner=
         if source_path not in cache:
             source, _, _ = command_text(command_runner, ["git", "show", "{}:{}".format(head, source_path)], cwd=repo_root)
             cache[source_path] = source
-        source = cache[source_path]; sanitized = sanitize_kotlin_lexically(source)
+        source = cache[source_path]; identifiers = kotlin_identifiers(source)
         if dispatch == "serializer_encode":
-            body = kotlin_function_body(source, "serializeTo")
-            retained = body is not None and bool(re.search(r"\bpackMessageTo\b", body))
+            valid = "serializeTo" not in identifiers
         elif dispatch == "serializer_decode":
-            retained = kotlin_function_body(source, "deserializeFrom") is not None
+            valid = "deserializeFrom" not in identifiers
         else:
-            body = kotlin_function_body(source, "decodeProtobuf")
-            retained = body is None or bool(re.search(r"\bnioBuffer(?:Count)?\b", body))
-            copied = body is not None and bool(re.search(r"\bgetBytes\s*\(\s*copy\s*=\s*true\s*\)", body))
-            retained = retained or not copied
-        if retained:
-            raise error(source_path, "{} removal predicate failed at committed head={}".format(dispatch, head), "commit the exact dispatch removal while retaining copied compatibility")
+            declarations = kotlin_function_declarations(source, "decodeProtobuf")
+            body = declarations[0][1] if len(declarations) == 1 and declarations[0][0] == "block" else ""
+            compact = re.sub(r"\s+", "", body)
+            body_identifiers = kotlin_identifiers(body)
+            valid = (len(declarations) == 1 and declarations[0][0] == "block" and
+                     "AnyMessage.parseFrom(buf.getBytes(copy=true))" in compact and
+                     not any("niobuffer" in identifier.lower() for identifier in body_identifiers))
+        if not valid:
+            raise error(source_path, "{} removal predicate failed; canonical expected form absent at committed head={}".format(dispatch, head), "restore inherited serializer compatibility or the single canonical copied decodeProtobuf block")
     return True
 
 
