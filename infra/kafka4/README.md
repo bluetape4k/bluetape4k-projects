@@ -171,6 +171,10 @@ range and preserves source state. Ordinary decode exceptions produce a sanitized
 but no throwable attachment, then return `null`; cancellation and fatal errors propagate. Keep buffers caller-owned
 and thread-confined during a call.
 
+Poison WARN metadata caps topic at 128 characters, header keys at 16 entries and 64 characters each, and failure type
+at 256 characters. Control characters are neutralized to prevent log injection. Payloads, exception messages, header
+values, and stack traces are never logged.
+
 Allocation claims are limited to measured Kryo codec directions in the
 [issue #758 report](../../docs/benchmarks/2026-07-19-kafka-bytebuffer-codec-allocation.md). Throughput was measured
 for diagnostics only and does not support a throughput claim; broker costs were not measured.

@@ -63,6 +63,42 @@ class AbstractKafkaCodecPoisonPillTest {
     }
 
     @Test
+    fun `poison WARN bounds metadata and neutralizes log injection characters`() {
+        val topic = "topic\r\n\t\u0000" + "T".repeat(256) + "TOPIC-TAIL"
+        val headers = RecordHeaders().apply {
+            repeat(20) { index ->
+                val key = "key-${index.toString().padStart(2, '0')}-" +
+                    "K".repeat(80) + "\r\n\t\u0001KEY-TAIL"
+                add(key, "secret-header-value-$index".toUtf8Bytes())
+            }
+        }
+        val codec = ThrowingCodec(IllegalArgumentException("secret-payload-message\r\nforged"))
+        val logger = AbstractKafkaCodec.log as Logger
+        val appender = ListAppender<ILoggingEvent>().apply { start() }
+        logger.addAppender(appender)
+        try {
+            codec.deserialize(topic, headers, "secret-payload".toUtf8Bytes()).shouldBeNull()
+
+            val event = appender.list.single()
+            val message = event.formattedMessage
+            event.level shouldBeEqualTo Level.WARN
+            event.throwableProxy.shouldBeNull()
+            (message.length <= 1600) shouldBeEqualTo true
+            message.none(Char::isISOControl) shouldBeEqualTo true
+            message.contains("TOPIC-TAIL") shouldBeEqualTo false
+            message.contains("key-15-") shouldBeEqualTo true
+            message.contains("key-16-") shouldBeEqualTo false
+            message.contains("KEY-TAIL") shouldBeEqualTo false
+            message.contains("secret-header-value") shouldBeEqualTo false
+            message.contains("secret-payload") shouldBeEqualTo false
+            message.contains("failureType=${IllegalArgumentException::class.java.name}") shouldBeEqualTo true
+        } finally {
+            logger.detachAppender(appender)
+            appender.stop()
+        }
+    }
+
+    @Test
     fun `CancellationException is rethrown with identity preserved`() {
         val failure = CancellationException("coroutine cancelled")
         val thrown = assertFailsWith<CancellationException> {

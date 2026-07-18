@@ -13,6 +13,53 @@ import org.apache.kafka.common.serialization.Serializer
 import java.io.Closeable
 import java.nio.ByteBuffer
 
+private const val POISON_LOG_TOPIC_MAX_LENGTH = 128
+private const val POISON_LOG_HEADER_KEY_MAX_COUNT = 16
+private const val POISON_LOG_HEADER_KEY_MAX_LENGTH = 64
+private const val POISON_LOG_FAILURE_TYPE_MAX_LENGTH = 256
+private const val LOG_TRUNCATION_MARKER = "..."
+
+/**
+ * Bounds and sanitizes one poison-log metadata field so broker-controlled control characters cannot forge log lines.
+ */
+@PublishedApi
+internal fun boundedPoisonLogTopic(topic: String?): String? =
+    topic?.toBoundedLogField(POISON_LOG_TOPIC_MAX_LENGTH)
+
+/**
+ * Reads only bounded header keys for poison diagnostics. Header values are deliberately never accessed.
+ */
+@PublishedApi
+internal fun boundedPoisonLogHeaderKeys(headers: Headers?): String? {
+    headers ?: return null
+    val iterator = headers.iterator()
+    val keys = ArrayList<String>(POISON_LOG_HEADER_KEY_MAX_COUNT + 1)
+    while (iterator.hasNext() && keys.size < POISON_LOG_HEADER_KEY_MAX_COUNT) {
+        keys += iterator.next().key().toBoundedLogField(POISON_LOG_HEADER_KEY_MAX_LENGTH)
+    }
+    if (iterator.hasNext()) keys += LOG_TRUNCATION_MARKER
+    return keys.joinToString(prefix = "[", postfix = "]")
+}
+
+/** Bounds the implementation-controlled failure type for a fixed upper log-message size. */
+@PublishedApi
+internal fun boundedPoisonLogFailureType(failureType: String): String =
+    failureType.toBoundedLogField(POISON_LOG_FAILURE_TYPE_MAX_LENGTH)
+
+private fun String.toBoundedLogField(maxLength: Int): String {
+    val truncated = length > maxLength
+    val contentLength = if (truncated) maxLength - LOG_TRUNCATION_MARKER.length else length
+    return buildString(maxLength) {
+        for (index in 0 until contentLength) {
+            val character = this@toBoundedLogField[index]
+            append(
+                if (character.isISOControl() || character == '\u2028' || character == '\u2029') '?' else character
+            )
+        }
+        if (truncated) append(LOG_TRUNCATION_MARKER)
+    }
+}
+
 /**
  * Kafka 의 [Serializer], [Deserializer] 기능을 한번에 제공하는 Codec 입니다.
  *
@@ -193,6 +240,8 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
      * **Poison-pill 정책**:
      * - `Exception` 발생 시 원본 throwable을 첨부하지 않은 bounded/sanitized WARN 로그를 남기고
      *   `null` 을 반환해 컨슈머 루프 진행을 막지 않는다.
+     * - topic은 128자, header key는 최대 16개·각 64자, failure type은 256자로 제한하며
+     *   control character는 중화한다. Header value와 payload는 읽거나 기록하지 않는다.
      * - 영구 손실을 막으려면 Spring-Kafka 의 `ErrorHandlingDeserializer` + `DeadLetterPublishingRecoverer` 를 함께 사용하라.
      *
      * **흡수하지 않는 예외**:
@@ -231,9 +280,12 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            val boundedTopic = boundedPoisonLogTopic(topic)
+            val boundedHeaderKeys = boundedPoisonLogHeaderKeys(headers)
+            val boundedFailureType = boundedPoisonLogFailureType(e.javaClass.name)
             log.warn {
-                "Fail to deserialize data. topic=$topic, headerKeys=${headers?.map { it.key() }}, " +
-                    "dataSize=$dataSize, failureType=${e.javaClass.name}. Returning null (poison pill skipped)."
+                "Fail to deserialize data. topic=$boundedTopic, headerKeys=$boundedHeaderKeys, " +
+                    "dataSize=$dataSize, failureType=$boundedFailureType. Returning null (poison pill skipped)."
             }
             null
         }

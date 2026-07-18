@@ -208,6 +208,9 @@ serialization 예외는 기존 표준 경로처럼 로그로 흡수하지 않고
 최종 리뷰에서 확인한 이 문제는 decorator가 buffer fallback을 명시적으로
 override해 compressed wire를 생성하고 읽도록 고정한다. 이 경로의 allocation은
 wrapper 의미와 표준/buffer wire 호환성을 지키기 위한 의도적인 비용이다.
+표준 array serializer가 모든 `Throwable`을 감싸더라도 compatibility fallback은
+`BufferFailurePolicy`로 wrapper graph를 분류해 nested `CancellationException`과
+`Error`의 동일 instance를 복원한다. 일반 wrapper와 raw buffer failure는 유지한다.
 
 ### 6.4 Cancellation failure classification
 
@@ -249,8 +252,12 @@ cancellation을 찾아 동일 instance를 반환하며, buffer failure helper도
 - `CancellationException`과 `Error` identity 재전파
 - 로그에 topic/header keys/data size/failure type이 있고 throwable/message/stack,
   payload/header value가 없는지 검증
+- poison WARN의 topic 128자, header key 16개·각 64자, failure type 256자 상한과
+  CR/LF/tab/control-character 중화를 표준/buffer 양쪽에서 검증
 - 압축 codec은 표준 serialize → buffer deserialize와 buffer serialize → 표준
   deserialize 양쪽 wire 호환성을 검증
+- 압축 compatibility fallback이 array serializer가 감싼 nested cancellation/Error를
+  output/input 양쪽에서 동일 instance로 복원하고 ordinary/raw failure는 유지하는지 검증
 - object input filter가 감싼 cancellation도 동일 instance로 buffer 경계를 빠져나오는지 검증
 
 ### 7.4 기존 동작 회귀

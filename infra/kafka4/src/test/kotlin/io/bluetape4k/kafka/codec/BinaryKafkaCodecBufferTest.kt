@@ -10,7 +10,10 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.io.compressor.Compressors
+import io.bluetape4k.io.serializer.AbstractBinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializer
+import io.bluetape4k.io.serializer.CompressableBinarySerializer
 import io.bluetape4k.support.toUtf8String
 import kotlinx.coroutines.CancellationException
 import org.apache.kafka.common.header.internals.RecordHeaders
@@ -35,6 +38,12 @@ class BinaryKafkaCodecBufferTest {
             Arguments.of("Snappy Fory", SnappyForyKafkaCodec()),
             Arguments.of("Zstd Kryo", ZstdKryoKafkaCodec()),
             Arguments.of("Zstd Fory", ZstdForyKafkaCodec()),
+        )
+
+        @JvmStatic
+        fun nestedControlFailures(): Stream<Arguments> = Stream.of(
+            Arguments.of("cancellation", CancellationException("cancelled")),
+            Arguments.of("error", AssertionError("fatal")),
         )
     }
 
@@ -68,10 +77,50 @@ class BinaryKafkaCodecBufferTest {
         override fun <T: Any> deserializeFrom(source: ByteBuffer): T? = throw failure
     }
 
+    private class WrappingArraySerializer(private val failure: Throwable): AbstractBinarySerializer() {
+        override fun doSerialize(graph: Any): ByteArray = throw failure
+        override fun <T: Any> doDeserialize(bytes: ByteArray): T? = throw failure
+    }
+
     private class TestBinaryCodec(
         serializer: BinarySerializer,
         override val writeValueTypeHeader: Boolean = true,
     ): BinaryKafkaCodec(serializer)
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("nestedControlFailures")
+    fun `compressed Kafka buffer output restores nested control failure identity`(
+        @Suppress("UNUSED_PARAMETER") name: String,
+        failure: Throwable,
+    ) {
+        val codec = TestBinaryCodec(
+            CompressableBinarySerializer(WrappingArraySerializer(failure), Compressors.LZ4),
+        )
+
+        val actual = assertFailsWith<Throwable> {
+            codec.serializeTo("events", "payload", ByteBuffer.allocate(1024))
+        }
+
+        actual shouldBeSameInstanceAs failure
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("nestedControlFailures")
+    fun `compressed Kafka buffer input restores nested control failure identity`(
+        @Suppress("UNUSED_PARAMETER") name: String,
+        failure: Throwable,
+    ) {
+        val codec = TestBinaryCodec(
+            CompressableBinarySerializer(WrappingArraySerializer(failure), Compressors.LZ4),
+        )
+        val wire = Compressors.LZ4.compress(byteArrayOf(1))
+
+        val actual = assertFailsWith<Throwable> {
+            codec.deserializeFrom("events", ByteBuffer.wrap(wire).asReadOnlyBuffer())
+        }
+
+        actual shouldBeSameInstanceAs failure
+    }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("compressedCodecs")
@@ -253,6 +302,44 @@ class BinaryKafkaCodecBufferTest {
             message.contains("failureType=${IllegalArgumentException::class.java.name}") shouldBeEqualTo true
             message.contains("secret-header") shouldBeEqualTo false
             message.contains("secret-payload") shouldBeEqualTo false
+        } finally {
+            logger.detachAppender(appender)
+            appender.stop()
+        }
+    }
+
+    @Test
+    fun `buffer poison WARN bounds metadata and neutralizes log injection characters`() {
+        val topic = "topic\r\n\t\u0000" + "T".repeat(256) + "TOPIC-TAIL"
+        val headers = RecordHeaders().apply {
+            repeat(20) { index ->
+                val key = "key-${index.toString().padStart(2, '0')}-" +
+                    "K".repeat(80) + "\r\n\t\u0001KEY-TAIL"
+                add(key, "secret-header-value-$index".encodeToByteArray())
+            }
+        }
+        val codec = TestBinaryCodec(
+            ThrowingSerializer(IllegalArgumentException("secret-payload-message\r\nforged")),
+        )
+        val logger = AbstractKafkaCodec.log as Logger
+        val appender = ListAppender<ILoggingEvent>().apply { start() }
+        logger.addAppender(appender)
+        try {
+            codec.deserializeFrom(topic, headers, ByteBuffer.allocate(17)).shouldBeNull()
+
+            val event = appender.list.single()
+            val message = event.formattedMessage
+            event.level shouldBeEqualTo Level.WARN
+            event.throwableProxy.shouldBeNull()
+            (message.length <= 1600) shouldBeEqualTo true
+            message.none(Char::isISOControl) shouldBeEqualTo true
+            message.contains("TOPIC-TAIL") shouldBeEqualTo false
+            message.contains("key-15-") shouldBeEqualTo true
+            message.contains("key-16-") shouldBeEqualTo false
+            message.contains("KEY-TAIL") shouldBeEqualTo false
+            message.contains("secret-header-value") shouldBeEqualTo false
+            message.contains("secret-payload") shouldBeEqualTo false
+            message.contains("failureType=${IllegalArgumentException::class.java.name}") shouldBeEqualTo true
         } finally {
             logger.detachAppender(appender)
             appender.stop()

@@ -1,5 +1,6 @@
 package io.bluetape4k.io.serializer
 
+import io.bluetape4k.io.BufferFailurePolicy
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
@@ -66,16 +67,30 @@ open class CompressableBinarySerializer(
      * Serializes and compresses [graph] before copying the compressed wire bytes into caller-owned [target].
      *
      * This allocating compatibility path is intentional: decorator semantics take precedence over bypassing compression.
+     * Nested cancellation and fatal failures are restored from standard-array serializer wrappers.
      */
     override fun serializeTo(graph: Any?, target: ByteBuffer): Int =
-        serializeTo(target) { serialize(graph) }
+        preserveBufferControlFailure {
+            serializeTo(target) { serialize(graph) }
+        }
 
     /**
      * Copies the caller-bounded compressed bytes, decompresses them, and delegates to the wrapped serializer.
-     * Caller buffer state is preserved by the compatibility copy.
+     * Caller buffer state is preserved by the compatibility copy, while nested cancellation and fatal failures are
+     * restored from standard-array serializer wrappers.
      */
     override fun <T: Any> deserializeFrom(source: ByteBuffer): T? =
-        deserialize(copyRemaining(source))
+        preserveBufferControlFailure {
+            deserialize(copyRemaining(source))
+        }
+
+    private inline fun <T> preserveBufferControlFailure(operation: () -> T): T =
+        try {
+            operation()
+        } catch (failure: Throwable) {
+            // Compatibility allocation may cross an array serializer that wraps control-flow failures.
+            throw BufferFailurePolicy.classify(failure, null) ?: failure
+        }
 
     /**
      * 직렬화기와 압축기 정보를 포함한 문자열 표현을 반환합니다.
