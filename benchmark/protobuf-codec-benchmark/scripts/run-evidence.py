@@ -1672,8 +1672,25 @@ def verify_dispatch_source_removals(repo_root, head, dispatches, command_runner=
     return True
 
 
+def require_durable_rollback_root(archive_root, repo_root):
+    root = Path(archive_root).resolve()
+    module_build = (Path(repo_root).resolve() / "benchmark" / "protobuf-codec-benchmark" / "build").resolve()
+    try:
+        root.relative_to(module_build)
+    except ValueError:
+        return root
+    raise error(
+        root,
+        "rollback archive resolves under Gradle clean disposable root {}".format(module_build),
+        "use repo .omx/evidence/issue-757-rollback or another durable ignored root outside module build",
+    )
+
+
 def record_rollback(state_path, dispatches, archive_root, command_runner=subprocess.run, repo_root=None):
-    state_path = Path(state_path).resolve(); state = load_json(state_path)
+    state_path = Path(state_path).resolve()
+    repo_root = Path(repo_root).resolve() if repo_root else find_repo_root(Path.cwd(), command_runner)
+    root = require_durable_rollback_root(archive_root, repo_root)
+    state = load_json(state_path)
     if len(state.get("canonical_runs", [])) != 2:
         raise error(state_path, "canonical run count={} expected=2".format(len(state.get("canonical_runs", []))), "collect exactly two state-bound canonical runs")
     verify_state_inputs(state, state_path)
@@ -1697,7 +1714,7 @@ def record_rollback(state_path, dispatches, archive_root, command_runner=subproc
         current_identity = identities[0]
         artifacts = {item["path"]: item["sha256"] for item in existing["decisions"][0]["artifacts"]}
         if (sha256_file(existing_path) != state.get("rollback_preparation_file_sha256") or
-                existing_path.parent != Path(archive_root).resolve() or
+                existing_path.parent != root or
                 [item["dispatch"] for item in existing["decisions"]] != required or
                 prepared_identity != {current_identity} or
                 artifacts.get("comparison.csv") != state.get("comparison_sha256") or
@@ -1709,7 +1726,6 @@ def record_rollback(state_path, dispatches, archive_root, command_runner=subproc
         return existing_path
     first_environment = environments[0]
     old_commit = first_environment.get("git_commit"); old_tree = first_environment.get("tree_hash")
-    repo_root = Path(repo_root).resolve() if repo_root else find_repo_root(Path.cwd(), command_runner)
     require_clean_tree(repo_root, "rollback preparation", command_runner)
     head, _, _ = command_text(command_runner, ["git", "rev-parse", "HEAD"], cwd=repo_root)
     tree, _, _ = command_text(command_runner, ["git", "rev-parse", "HEAD^{tree}"], cwd=repo_root)
@@ -1721,7 +1737,7 @@ def record_rollback(state_path, dispatches, archive_root, command_runner=subproc
         parent = previous["decisions"][-1]["post_rollback_commit"]
         if _run(command_runner, ["git", "merge-base", "--is-ancestor", parent, old_commit], cwd=repo_root).returncode:
             raise error(state_path, "measurement commit={} does not descend from predecessor post={}".format(old_commit, parent), "collect the next generation on the authenticated rollback lineage")
-    root = Path(archive_root).resolve(); root.mkdir(parents=True, exist_ok=True)
+    root.mkdir(parents=True, exist_ok=True)
     generation = state.get("rollback_bundle", {}).get("generation", 0) + 1
     archive = root / "archive-g{}-{}".format(generation, generate_run_id())
     archive.mkdir()

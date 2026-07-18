@@ -144,6 +144,44 @@ def build_rollback_state(root, comparison_rows, environments=(("old", "old-tree"
 
 
 class EvidenceRunnerTest(unittest.TestCase):
+    def test_record_rollback_rejects_gradle_build_roots_and_allows_durable_root(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "repo"; repo.mkdir()
+            module_build = repo / "benchmark" / "protobuf-codec-benchmark" / "build"
+            module_build.mkdir(parents=True)
+            state_path, _, _ = build_rollback_state(
+                repo, (("serializerDecodeDirectOptimized", "regressed"),)
+            )
+            build_alias = repo / "rollback-build-alias"
+            build_alias.symlink_to(module_build, target_is_directory=True)
+
+            for archive_root in (
+                module_build / "issue-757-rollback",
+                repo / "benchmark" / "protobuf-codec-benchmark" / "tmp" / ".." / "build" / "issue-757-rollback",
+                build_alias / "issue-757-rollback",
+            ):
+                with self.assertRaisesRegex(ValueError, "Gradle clean") as caught:
+                    runner.record_rollback(
+                        state_path, ["serializer_decode"], archive_root, repo_root=repo,
+                    )
+                self.assertIn(".omx/evidence/issue-757-rollback", str(caught.exception))
+
+            def clean_measurement_head(argv, **_kwargs):
+                if argv[1:3] == ["status", "--porcelain=v1"]:
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+                if argv[-1] == "HEAD":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"old\n", stderr=b"")
+                if argv[-1] == "HEAD^{tree}":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"old-tree\n", stderr=b"")
+                return subprocess.CompletedProcess(argv, 1, stdout=b"", stderr=b"unexpected")
+
+            durable_root = repo / ".omx" / "evidence" / "issue-757-rollback"
+            preparation = runner.record_rollback(
+                state_path, ["serializer_decode"], durable_root,
+                command_runner=clean_measurement_head, repo_root=repo,
+            )
+            self.assertEqual(durable_root.resolve(), preparation.parent)
+
     def test_record_rollback_prepares_actual_regressed_subset_then_finalize_is_idempotent(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
