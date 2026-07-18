@@ -10,6 +10,11 @@ internal object BufferFailurePolicy {
 
     private const val KRYO_OVERFLOW_CLASS = "com.esotericsoftware.kryo.io.KryoBufferOverflowException"
 
+    /** Returns only graph-nested control failures, preserving Error-before-cancellation priority. */
+    fun findControlFailure(failure: Throwable?): Throwable? =
+        find(failure) { it is Error }
+            ?: find(failure) { it is CancellationException }
+
     fun classify(operationFailure: Throwable?, cleanupFailure: Throwable?): Throwable? {
         find(operationFailure) { it is Error }?.let { fatal ->
             fatal.attachSuppressed(cleanupFailure)

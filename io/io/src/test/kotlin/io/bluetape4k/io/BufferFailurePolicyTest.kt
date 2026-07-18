@@ -126,6 +126,44 @@ class BufferFailurePolicyTest {
     }
 
     @Test
+    fun `control failure query returns Error before cancellation`() {
+        val cancellation = CancellationException("cancelled")
+        val fatal = AssertionError("fatal")
+        val failure = IllegalStateException("wrapper", cancellation).apply {
+            addSuppressed(fatal)
+        }
+
+        assertSame(fatal, BufferFailurePolicy.findControlFailure(failure))
+    }
+
+    @Test
+    fun `control failure query returns nested cancellation`() {
+        val cancellation = CancellationException("cancelled")
+        val failure = IllegalStateException("wrapper", cancellation)
+
+        assertSame(cancellation, BufferFailurePolicy.findControlFailure(failure))
+    }
+
+    @Test
+    fun `control failure query ignores JDK and Kryo overflow graphs`() {
+        val jdkOverflow = IllegalStateException("wrapper", BufferOverflowException())
+        val kryoOverflow = IllegalStateException("wrapper", KryoBufferOverflowException("native"))
+
+        assertNull(BufferFailurePolicy.findControlFailure(jdkOverflow))
+        assertNull(BufferFailurePolicy.findControlFailure(kryoOverflow))
+    }
+
+    @Test
+    fun `control failure query terminates on cycles`() {
+        val failure = IllegalStateException("wrapper")
+        val cycle = IllegalArgumentException("cycle")
+        failure.initCause(cycle)
+        cycle.addSuppressed(failure)
+
+        assertNull(BufferFailurePolicy.findControlFailure(failure))
+    }
+
+    @Test
     fun `cancellation classification does not introduce an identity cycle`() {
         val cancellation = CancellationException("cancelled")
         val operation = IllegalStateException("operation", cancellation)
