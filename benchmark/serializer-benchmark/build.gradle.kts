@@ -54,6 +54,7 @@ dependencies {
     implementation(project(":bluetape4k-jackson3"))
     implementation(project(":bluetape4k-fastjson2"))
     implementation(project(":bluetape4k-avro"))
+    implementation(project(":bluetape4k-kafka4"))
     implementation(libs.kryo5)
     implementation(bt4k.fory.kotlin)
 
