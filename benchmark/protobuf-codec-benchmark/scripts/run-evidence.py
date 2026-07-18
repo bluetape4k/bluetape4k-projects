@@ -51,6 +51,17 @@ DISPATCH_SOURCE_PATHS = {
     "serializer_decode": "io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/ProtobufSerializer.kt",
     "redisson_contiguous": "io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/redis/RedissonProtobufCodec.kt",
 }
+REDISSON_COPIED_BODY_TEMPLATE = """
+val any = AnyMessage.parseFrom(buf.getBytes(copy = true))
+val className = any.typeUrl.substringAfterLast("/")
+validateClassName(className)
+val effectiveLoader =
+    classLoader
+        ?: Thread.currentThread().contextClassLoader
+        ?: RedissonProtobufCodec::class.java.classLoader
+val clazz = messageClassResolver.resolve(className, effectiveLoader)
+return any.unpack(clazz)
+"""
 POSITIVE_PHRASE = "measured allocation reduction"
 NON_POSITIVE = "No positive reduction claim"
 
@@ -1606,6 +1617,10 @@ def kotlin_function_declarations(source, expected_name):
     return declarations
 
 
+def normalized_kotlin_body(body):
+    return re.sub(r"\s+", "", sanitize_kotlin_lexically(body))
+
+
 def verify_dispatch_source_removals(repo_root, head, dispatches, command_runner=subprocess.run):
     cache = {}
     for dispatch in dispatches:
@@ -1621,13 +1636,10 @@ def verify_dispatch_source_removals(repo_root, head, dispatches, command_runner=
         else:
             declarations = kotlin_function_declarations(source, "decodeProtobuf")
             body = declarations[0][1] if len(declarations) == 1 and declarations[0][0] == "block" else ""
-            compact = re.sub(r"\s+", "", body)
-            body_identifiers = kotlin_identifiers(body)
             valid = (len(declarations) == 1 and declarations[0][0] == "block" and
-                     "AnyMessage.parseFrom(buf.getBytes(copy=true))" in compact and
-                     not any("niobuffer" in identifier.lower() for identifier in body_identifiers))
+                     normalized_kotlin_body(body) == normalized_kotlin_body(REDISSON_COPIED_BODY_TEMPLATE))
         if not valid:
-            raise error(source_path, "{} removal predicate failed; canonical expected form absent at committed head={}".format(dispatch, head), "restore inherited serializer compatibility or the single canonical copied decodeProtobuf block")
+            raise error(source_path, "{} removal predicate failed; canonical expected form absent at committed head={}".format(dispatch, head), "restore inherited serializer compatibility or the exact copied-only decodeProtobuf body")
     return True
 
 
