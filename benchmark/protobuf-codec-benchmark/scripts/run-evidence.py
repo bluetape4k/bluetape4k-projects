@@ -25,6 +25,7 @@ from pathlib import Path
 
 
 SCHEMA_VERSION = 1
+ROLLBACK_SCHEMA_VERSION = 2
 MAX_RUN_LOG_BYTES = 16 * 1024 * 1024
 RUNNER_FAILURE_EXIT_CODE = 125
 RUNNER_PROTOCOL_FAILURE_EXIT_CODE = 126
@@ -1282,12 +1283,16 @@ def make_rollback_decision(dispatch, cells, commit, tree_hash, archive_root, fil
         except ValueError:
             raise error(path, "rollback artifact is outside archive {}".format(archive_root), "copy complete evidence into the archive first")
         artifacts.append({"path": relative, "sha256": sha256_file(path)})
-    post_commit = post_rollback_commit or commit
-    post_tree = post_rollback_tree or tree_hash
-    decision = {"dispatch": dispatch, "regressed_cells": sorted(cells), "old_commit": commit, "old_tree": tree_hash,
-                "post_rollback_commit": post_commit, "post_rollback_tree": post_tree, "lineage_parent_commit": lineage_parent_commit,
-                "removal_evidence": {"dispatch": dispatch, "regressed_cells": sorted(cells), "old_commit": commit, "old_tree": tree_hash, "post_rollback_commit": post_commit, "post_rollback_tree": post_tree, "head_changed": post_commit != commit, "tree_changed": post_tree != tree_hash},
+    decision = {"dispatch": dispatch, "regressed_cells": sorted(cells),
+                "removed_cells": sorted(DISPATCH_CELLS[dispatch]), "old_commit": commit, "old_tree": tree_hash,
                 "archive_root": archive_root.name, "artifacts": artifacts, "timestamp": timestamp, "generation": generation}
+    if post_rollback_commit is not None:
+        decision.update({"post_rollback_commit": post_rollback_commit, "post_rollback_tree": post_rollback_tree,
+                         "lineage_parent_commit": lineage_parent_commit,
+                         "removal_evidence": {"dispatch": dispatch, "removed_cells": sorted(DISPATCH_CELLS[dispatch]),
+                                              "old_commit": commit, "old_tree": tree_hash,
+                                              "post_rollback_commit": post_rollback_commit, "post_rollback_tree": post_rollback_tree,
+                                              "head_changed": post_rollback_commit != commit, "tree_changed": post_rollback_tree != tree_hash}})
     decision["decision_sha256"] = sha256_bytes(payload_json_bytes(_decision_payload(decision)))
     return decision
 
@@ -1302,37 +1307,97 @@ def _bundle_payload(bundle):
     return strip_hashes(bundle)
 
 
+def _preparation_payload(preparation):
+    return {key: value for key, value in _bundle_payload(preparation).items() if key != "preparation_sha256"}
+
+
+def write_rollback_preparation(archive_root, decisions, generation, predecessor=None):
+    root = Path(archive_root).resolve(); root.mkdir(parents=True, exist_ok=True)
+    ordered = sorted(decisions, key=lambda item: DISPATCH_ORDER.index(item["dispatch"]))
+    preparation = {"schema_version": ROLLBACK_SCHEMA_VERSION, "kind": "rollback_preparation",
+                   "generation": generation,
+                   "predecessor_bundle_sha256": sha256_file(predecessor) if predecessor else None,
+                   "decisions": ordered}
+    preparation["preparation_sha256"] = sha256_bytes(payload_json_bytes(_preparation_payload(preparation)))
+    path = root / "rollback-preparation-g{}-{}.json".format(generation, preparation["preparation_sha256"])
+    atomic_write_json(path, preparation, fail_if_exists=True)
+    return path.resolve()
+
+
+def _authenticate_decision_archive(path, item, require_finalized):
+    if item.get("removed_cells") != sorted(DISPATCH_CELLS.get(item.get("dispatch"), ())):
+        raise error(path, "decision {} removed_cells differ from fixed mapping".format(item.get("dispatch")), "restore the v2 rollback artifact")
+    calculated = sha256_bytes(payload_json_bytes(_decision_payload(item)))
+    if calculated != item.get("decision_sha256"):
+        raise error(path, "decision {} sha256 mismatch".format(item.get("dispatch")), "restore the immutable decision")
+    archive = path.parent / item.get("archive_root", ""); require_symlink_free_tree(archive)
+    comparison = None
+    for artifact in item.get("artifacts", []):
+        artifact_path = require_archive_artifact(archive / artifact["path"], archive)
+        if sha256_file(artifact_path) != artifact["sha256"]:
+            raise error(artifact_path, "rollback archive sha256 mismatch", "restore the immutable archive")
+        if Path(artifact["path"]).name == "comparison.csv": comparison = artifact_path
+    actual = sorted(p.relative_to(archive).as_posix() for p in archive.rglob("*") if p.is_file())
+    declared = sorted(a["path"] for a in item.get("artifacts", []))
+    if actual != declared or comparison is None:
+        raise error(archive, "rollback archive file set/comparison mismatch", "restore the complete immutable archive")
+    verdicts = read_comparison_verdicts(comparison)
+    actual_regressed = sorted(cell for cell in DISPATCH_CELLS[item["dispatch"]] if verdicts.get(cell) == "regressed")
+    if not actual_regressed or item.get("regressed_cells") != actual_regressed:
+        raise error(comparison, "regressed_cells observed={} expected={}".format(item.get("regressed_cells"), actual_regressed), "restore actual state-bound regression evidence")
+    if require_finalized:
+        if item.get("post_rollback_commit") == item.get("old_commit") or item.get("post_rollback_tree") == item.get("old_tree"):
+            raise error(path, "finalized decision does not prove changed head/tree", "finalize after the removal commit")
+
+
+def authenticate_rollback_preparation(path):
+    path = Path(path).resolve(); preparation = load_json(path)
+    if preparation.get("schema_version") != ROLLBACK_SCHEMA_VERSION or preparation.get("kind") != "rollback_preparation":
+        raise error(path, "not a rollback v2 preparation", "run record-rollback before changing source")
+    observed = sha256_bytes(payload_json_bytes(_preparation_payload(preparation)))
+    if observed != preparation.get("preparation_sha256"):
+        raise error(path, "rollback preparation sha256 mismatch", "restore the immutable preparation")
+    expected = "rollback-preparation-g{}-{}.json".format(preparation.get("generation"), observed)
+    if path.name != expected:
+        raise error(path, "preparation filename differs from payload", "restore the canonical immutable filename")
+    for decision in preparation.get("decisions", []): _authenticate_decision_archive(path, decision, False)
+    return preparation
+
+
 def write_rollback_bundle(archive_root, decisions, predecessor=None):
-    archive_root = Path(archive_root).resolve(); archive_root.mkdir(parents=True, exist_ok=True)
+    """Low-level fixture/helper writer; normal callers must use prepare then finalize."""
+    root = Path(archive_root).resolve(); root.mkdir(parents=True, exist_ok=True)
     dispatches = [item.get("dispatch") for item in decisions]
     if len(dispatches) != len(set(dispatches)):
-        raise error(archive_root, "duplicate rollback dispatch decisions {}".format(dispatches), "record each dispatch once")
-    if any(item not in DISPATCH_ORDER for item in dispatches):
-        raise error(archive_root, "unknown dispatch in {}".format(dispatches), "use the fixed dispatch mapping")
+        raise error(root, "duplicate rollback dispatch decisions {}".format(dispatches), "record each dispatch once")
+    previous = authenticate_rollback_bundle(predecessor) if predecessor else None
+    generation = previous["generation"] + 1 if previous else 1
+    prepared = []
+    for source in decisions:
+        item = {key: value for key, value in source.items() if key not in (
+            "post_rollback_commit", "post_rollback_tree", "lineage_parent_commit", "removal_evidence", "decision_sha256"
+        )}
+        item["generation"] = generation
+        item["decision_sha256"] = sha256_bytes(payload_json_bytes(_decision_payload(item)))
+        prepared.append(item)
+    preparation_path = write_rollback_preparation(root, prepared, generation, predecessor)
     ordered = sorted(decisions, key=lambda item: DISPATCH_ORDER.index(item["dispatch"]))
-    if predecessor:
-        previous = authenticate_rollback_bundle(predecessor)
-        generation = previous["generation"] + 1
-        all_decisions = previous["decisions"] + ordered
-        predecessor_hash = sha256_file(predecessor)
-    else:
-        generation = 1
-        all_decisions = ordered
-        predecessor_hash = None
-    all_dispatches = [item["dispatch"] for item in all_decisions]
-    if len(all_dispatches) != len(set(all_dispatches)):
-        raise error(archive_root, "duplicate or conflicting dispatch lineage {}".format(all_dispatches), "do not decide the same dispatch twice")
-    bundle = {"schema_version": SCHEMA_VERSION, "generation": generation, "predecessor_bundle_sha256": predecessor_hash, "decisions": all_decisions}
+    all_decisions = (previous["decisions"] if previous else []) + ordered
+    bundle = {"schema_version": ROLLBACK_SCHEMA_VERSION, "kind": "rollback_bundle", "generation": generation,
+              "predecessor_bundle_sha256": sha256_file(predecessor) if predecessor else None,
+              "preparation_path": preparation_path.name, "preparation_sha256": sha256_file(preparation_path),
+              "preparation_payload_sha256": load_json(preparation_path)["preparation_sha256"], "decisions": all_decisions}
     bundle["bundle_sha256"] = sha256_bytes(payload_json_bytes(_bundle_payload(bundle)))
-    path = archive_root / "rollback-bundle-g{}-{}.json".format(generation, bundle["bundle_sha256"])
+    path = root / "rollback-bundle-g{}-{}.json".format(generation, bundle["bundle_sha256"])
     atomic_write_json(path, bundle, fail_if_exists=True)
+    authenticate_rollback_bundle(path)
     return path.resolve()
 
 
 def authenticate_rollback_bundle(path):
     path = Path(path).resolve(); bundle = load_json(path)
-    if bundle.get("schema_version") != SCHEMA_VERSION:
-        raise error(path, "rollback schema_version={} != {}".format(bundle.get("schema_version"), SCHEMA_VERSION), "use a bundle generated by this runner")
+    if bundle.get("schema_version") != ROLLBACK_SCHEMA_VERSION or bundle.get("kind") != "rollback_bundle":
+        raise error(path, "rollback artifact is not a finalized v2 bundle (schema_version={}, kind={!r})".format(bundle.get("schema_version"), bundle.get("kind")), "run record-rollback, remove the dispatch, then finalize-rollback; v1 artifacts must be recreated")
     observed = sha256_bytes(payload_json_bytes(_bundle_payload(bundle)))
     expected = bundle.get("bundle_sha256")
     if observed != expected:
@@ -1340,77 +1405,23 @@ def authenticate_rollback_bundle(path):
     match = re.search(r"rollback-bundle-g(\d+)-([0-9a-f]{64})\.json$", path.name)
     if not match or int(match.group(1)) != bundle.get("generation") or match.group(2) != expected:
         raise error(path, "bundle filename generation/hash does not match payload", "restore the canonical immutable filename")
+    preparation_name = bundle.get("preparation_path")
+    preparation_path = path.parent / preparation_name if isinstance(preparation_name, str) else Path("")
+    preparation = authenticate_rollback_preparation(preparation_path)
+    if sha256_file(preparation_path) != bundle.get("preparation_sha256") or preparation.get("preparation_sha256") != bundle.get("preparation_payload_sha256"):
+        raise error(path, "preparation hash differs from finalized bundle", "restore the authenticated preparation")
     decisions = bundle.get("decisions", [])
     dispatches = [item.get("dispatch") for item in decisions]
     if len(dispatches) != len(set(dispatches)):
         raise error(path, "duplicate or conflicting decisions {}".format(dispatches), "restore one decision per dispatch")
     generations = {item.get("generation") for item in decisions}
-    if generations != set(range(1, bundle["generation"] + 1)):
-        raise error(path, "missing/reordered generations observed={} expected={}".format(sorted(generations), list(range(1, bundle["generation"] + 1))), "restore every immutable bundle generation")
     for generation in sorted(generations):
         observed_order = [item.get("dispatch") for item in decisions if item.get("generation") == generation]
         expected_order = sorted(observed_order, key=lambda item: DISPATCH_ORDER.index(item) if item in DISPATCH_ORDER else 999)
         if observed_order != expected_order:
             raise error(path, "generation {} dispatch order observed={} expected={}".format(generation, observed_order, expected_order), "restore the fixed dispatch order")
-    previous_generation = 0
-    previous_post = None
-    generation_post = {}
     for item in decisions:
-        calculated = sha256_bytes(payload_json_bytes(_decision_payload(item)))
-        if calculated != item.get("decision_sha256"):
-            raise error(path, "decision {} sha256 observed={} expected={}".format(item.get("dispatch"), calculated, item.get("decision_sha256")), "restore the immutable decision")
-        if item.get("generation", 0) > bundle["generation"] or item.get("generation", 0) < 1:
-            raise error(path, "decision generation={} is outside bundle generation={}".format(item.get("generation"), bundle["generation"]), "restore complete generation lineage")
-        generation = item["generation"]
-        post = item.get("post_rollback_commit")
-        if not isinstance(post, str) or not post:
-            raise error(path, "decision {} missing post_rollback_commit".format(item.get("dispatch")), "restore the authenticated source lineage")
-        post_tree = item.get("post_rollback_tree")
-        if post == item.get("old_commit") or post_tree == item.get("old_tree"):
-            raise error(path, "decision {} does not prove changed post-removal commit/tree".format(item.get("dispatch")), "finalize rollback only after the dispatch-removal commit")
-        expected_removal = {"dispatch": item.get("dispatch"), "regressed_cells": item.get("regressed_cells"),
-                            "old_commit": item.get("old_commit"), "old_tree": item.get("old_tree"),
-                            "post_rollback_commit": post, "post_rollback_tree": post_tree,
-                            "head_changed": True, "tree_changed": True}
-        if item.get("removal_evidence") != expected_removal:
-            raise error(path, "decision {} removal_evidence differs from authenticated lineage".format(item.get("dispatch")), "restore exact post-removal evidence")
-        if generation > previous_generation and generation > 1 and item.get("lineage_parent_commit") != previous_post:
-            raise error(path, "generation {} lineage_parent_commit={} expected={}".format(generation, item.get("lineage_parent_commit"), previous_post), "restore the exact descending source lineage")
-        if generation == 1 and item.get("lineage_parent_commit") is not None:
-            raise error(path, "generation 1 lineage_parent_commit={!r}".format(item.get("lineage_parent_commit")), "restore the lineage root")
-        if generation in generation_post and generation_post[generation] != post:
-            raise error(path, "generation {} post_rollback_commit values differ".format(generation), "bind simultaneous decisions to one post-rollback head")
-        generation_post[generation] = post
-        archive = path.parent / item.get("archive_root", "")
-        require_symlink_free_tree(archive)
-        comparison = None
-        for artifact in item.get("artifacts", []):
-            artifact_path = archive / artifact["path"]
-            try:
-                artifact_path = require_archive_artifact(artifact_path, archive)
-            except ValueError:
-                raise
-            if sha256_file(artifact_path) != artifact["sha256"]:
-                raise error(artifact_path, "rollback archive sha256/missing mismatch", "restore the immutable rollback archive")
-            if Path(artifact["path"]).name == "comparison.csv":
-                if comparison is not None:
-                    raise error(path, "multiple comparison.csv artifacts for {}".format(item.get("dispatch")), "restore exactly one state-bound comparison")
-                comparison = artifact_path
-        actual_artifacts = sorted(candidate.relative_to(archive).as_posix() for candidate in archive.rglob("*") if candidate.is_file()) if archive.is_dir() else []
-        declared_artifacts = sorted(artifact.get("path") for artifact in item.get("artifacts", []))
-        if actual_artifacts != declared_artifacts:
-            raise error(archive, "archive file set observed={} expected={}".format(actual_artifacts, declared_artifacts), "restore the complete immutable rollback archive")
-        if comparison is None:
-            raise error(path, "missing comparison.csv artifact for {}".format(item.get("dispatch")), "archive the complete state-bound comparison")
-        verdicts = read_comparison_verdicts(comparison)
-        expected_cells = sorted(DISPATCH_CELLS.get(item.get("dispatch"), ()))
-        if item.get("regressed_cells") != expected_cells:
-            raise error(path, "{} regressed_cells observed={} expected={}".format(item.get("dispatch"), item.get("regressed_cells"), expected_cells), "record the complete mapped dispatch cells")
-        for cell in expected_cells:
-            if verdicts.get(cell) != "regressed":
-                raise error(comparison, "{} verdict={} != regressed".format(cell, verdicts.get(cell)), "record rollback only from a state-bound regressed comparison")
-        previous_generation = generation
-        previous_post = post
+        _authenticate_decision_archive(path, item, True)
     return bundle
 
 
@@ -1459,21 +1470,18 @@ def record_rollback(state_path, dispatches, archive_root, command_runner=subproc
     verdicts = read_comparison_verdicts(state["comparison_path"])
     required = []
     for dispatch in DISPATCH_ORDER:
-        if all(verdicts.get(cell) == "regressed" for cell in DISPATCH_CELLS[dispatch]):
+        if any(verdicts.get(cell) == "regressed" for cell in DISPATCH_CELLS[dispatch]):
             required.append(dispatch)
     if sorted(dispatches, key=DISPATCH_ORDER.index) != required:
         raise error(state["comparison_path"], "dispatches={} mapped simultaneous regressions={}".format(dispatches, required), "record every and only simultaneously regressed dispatch")
     first_environment = load_json(Path(state["canonical_runs"][0]["absolute_path"]) / "environment.json")
     old_commit = first_environment.get("git_commit"); old_tree = first_environment.get("tree_hash")
     repo_root = Path(repo_root).resolve() if repo_root else find_repo_root(Path.cwd(), command_runner)
-    post_commit, _, _ = command_text(command_runner, ["git", "rev-parse", "HEAD"], cwd=repo_root)
-    post_tree, _, _ = command_text(command_runner, ["git", "rev-parse", "HEAD^{tree}"], cwd=repo_root)
-    post_commit = post_commit.strip(); post_tree = post_tree.strip()
-    if post_commit == old_commit or post_tree == old_tree:
-        raise error(state_path, "rollback head/tree unchanged at commit={} tree={}".format(post_commit, post_tree), "remove the regressed dispatch, commit it, then record rollback")
-    ancestor = _run(command_runner, ["git", "merge-base", "--is-ancestor", old_commit, post_commit], cwd=repo_root)
-    if ancestor.returncode:
-        raise error(state_path, "post-removal commit={} does not descend from measurement commit={}".format(post_commit, old_commit), "record rollback on the authenticated descendant branch")
+    require_clean_tree(repo_root, "rollback preparation", command_runner)
+    head, _, _ = command_text(command_runner, ["git", "rev-parse", "HEAD"], cwd=repo_root)
+    tree, _, _ = command_text(command_runner, ["git", "rev-parse", "HEAD^{tree}"], cwd=repo_root)
+    if (head.strip(), tree.strip()) != (old_commit, old_tree):
+        raise error(state_path, "preparation head/tree observed={} expected={}".format((head.strip(), tree.strip()), (old_commit, old_tree)), "checkout the exact clean measurement head before record-rollback")
     root = Path(archive_root).resolve(); root.mkdir(parents=True, exist_ok=True)
     generation = state.get("rollback_bundle", {}).get("generation", 0) + 1
     archive = root / "archive-g{}-{}".format(generation, generate_run_id())
@@ -1492,22 +1500,70 @@ def record_rollback(state_path, dispatches, archive_root, command_runner=subproc
             target = archive / source.name
             shutil.copy2(source, target, follow_symlinks=False); files.append(target)
         predecessor_decisions = state.get("rollback_bundle", {}).get("decisions", [])
-        lineage_parent = predecessor_decisions[-1].get("post_rollback_commit") if predecessor_decisions else None
-        decisions = [make_rollback_decision(dispatch, list(DISPATCH_CELLS[dispatch]), old_commit, old_tree, archive, files, generation, utc_now(), post_commit, lineage_parent, post_tree) for dispatch in required]
+        decisions = [make_rollback_decision(dispatch, [cell for cell in DISPATCH_CELLS[dispatch] if verdicts.get(cell) == "regressed"], old_commit, old_tree, archive, files, generation, utc_now()) for dispatch in required]
         predecessor = state.get("rollback_bundle_path")
         if predecessor and Path(predecessor).resolve().parent != root:
             raise error(predecessor, "predecessor bundle root differs from archive root {}".format(root), "continue the immutable chain under the original archive root")
-        bundle_path = write_rollback_bundle(root, decisions, predecessor=predecessor)
-        chain = authenticate_rollback_bundle_chain(bundle_path)
+        bundle_path = write_rollback_preparation(root, decisions, generation, predecessor=predecessor)
+        preparation = authenticate_rollback_preparation(bundle_path)
     except Exception:
         if bundle_path and Path(bundle_path).exists():
             Path(bundle_path).unlink()
         shutil.rmtree(archive, ignore_errors=True)
         raise
-    state.update({"promotable": False, "rollback_bundle_path": str(bundle_path), "rollback_bundle_sha256": sha256_file(bundle_path), "rollback_bundle": chain[-1][1], "rollback_bundle_generations": [{"path": str(path), "sha256": sha256_file(path), "generation": value["generation"]} for path, value in chain]})
+    state.update({"promotable": False, "rollback_status": "prepared",
+                  "rollback_preparation_path": str(bundle_path), "rollback_preparation_file_sha256": sha256_file(bundle_path),
+                  "rollback_preparation": preparation})
     atomic_write_json(state_path, state)
     print(bundle_path)
     return bundle_path
+
+
+def finalize_rollback(preparation_path, command_runner=subprocess.run, repo_root=None, removal_verifier=None):
+    preparation_path = Path(preparation_path).resolve(); preparation = authenticate_rollback_preparation(preparation_path)
+    repo_root = Path(repo_root).resolve() if repo_root else find_repo_root(Path.cwd(), command_runner)
+    require_clean_tree(repo_root, "rollback finalization", command_runner)
+    head, _, _ = command_text(command_runner, ["git", "rev-parse", "HEAD"], cwd=repo_root)
+    tree, _, _ = command_text(command_runner, ["git", "rev-parse", "HEAD^{tree}"], cwd=repo_root)
+    head = head.strip(); tree = tree.strip(); first = preparation["decisions"][0]
+    if head == first["old_commit"] or tree == first["old_tree"]:
+        raise error(preparation_path, "finalization head/tree did not change", "commit the symbol-scoped removal before finalizing")
+    if _run(command_runner, ["git", "merge-base", "--is-ancestor", first["old_commit"], head], cwd=repo_root).returncode:
+        raise error(preparation_path, "finalization head does not descend from measurement head", "finalize on the authenticated descendant branch")
+    if removal_verifier and not removal_verifier(repo_root, preparation, head, tree):
+        raise error(preparation_path, "dispatch removal predicate failed", "remove every prepared dispatch exactly")
+    root = preparation_path.parent; generation = preparation["generation"]
+    matching = []
+    for candidate in root.glob("rollback-bundle-g{}-*.json".format(generation)):
+        candidate_bundle = authenticate_rollback_bundle(candidate)
+        if candidate_bundle.get("preparation_sha256") == sha256_file(preparation_path): matching.append(candidate.resolve())
+        else: raise error(candidate, "conflicting finalized bundle generation", "use one preparation per generation")
+    if matching: return matching[0]
+    predecessor = None
+    if preparation.get("predecessor_bundle_sha256"):
+        candidates = [p for p in root.glob("rollback-bundle-g{}-*.json".format(generation - 1)) if sha256_file(p) == preparation["predecessor_bundle_sha256"]]
+        if len(candidates) != 1: raise error(preparation_path, "predecessor bundle mismatch", "restore exact finalized predecessor")
+        predecessor = candidates[0]; previous = authenticate_rollback_bundle(predecessor)
+        inherited = previous["decisions"]; lineage_parent = inherited[-1]["post_rollback_commit"]
+    else:
+        inherited = []; lineage_parent = None
+    finalized = []
+    for value in preparation["decisions"]:
+        decision = dict(value); decision.pop("decision_sha256", None)
+        decision.update({"post_rollback_commit": head, "post_rollback_tree": tree, "lineage_parent_commit": lineage_parent,
+                         "removal_evidence": {"dispatch": value["dispatch"], "removed_cells": value["removed_cells"],
+                                              "old_commit": value["old_commit"], "old_tree": value["old_tree"],
+                                              "post_rollback_commit": head, "post_rollback_tree": tree,
+                                              "head_changed": True, "tree_changed": True}})
+        decision["decision_sha256"] = sha256_bytes(payload_json_bytes(_decision_payload(decision))); finalized.append(decision)
+    bundle = {"schema_version": ROLLBACK_SCHEMA_VERSION, "kind": "rollback_bundle", "generation": generation,
+              "predecessor_bundle_sha256": preparation.get("predecessor_bundle_sha256"),
+              "preparation_path": preparation_path.name, "preparation_sha256": sha256_file(preparation_path),
+              "preparation_payload_sha256": preparation["preparation_sha256"], "decisions": inherited + finalized}
+    bundle["bundle_sha256"] = sha256_bytes(payload_json_bytes(_bundle_payload(bundle)))
+    path = root / "rollback-bundle-g{}-{}.json".format(generation, bundle["bundle_sha256"])
+    atomic_write_json(path, bundle, fail_if_exists=True); authenticate_rollback_bundle(path)
+    print(path); return path.resolve()
 
 
 def render_report_text(manifest):
@@ -1531,7 +1587,8 @@ def render_report_text(manifest):
     decisions = manifest.get("rollback", {}).get("decisions", [])
     if decisions:
         for decision in decisions:
-            lines.append("- `{}` removed after regression; archived cells: {}.".format(decision["dispatch"], ", ".join(decision.get("regressed_cells", []))))
+            lines.append("- `{}` removed after regression; triggering cells: {}; ineligible removed cells: {}.".format(
+                decision["dispatch"], ", ".join(decision.get("regressed_cells", [])), ", ".join(decision.get("removed_cells", []))))
     else:
         lines.append("- No rollback decision is recorded.")
     lines += ["", "## Compatibility controls", "", "Fallback and composite controls remain claim-ineligible and are reported without a positive claim.", "", "## Limitations", "", "JMH GC allocation is environment-sensitive; throughput is diagnostic and not the allocation acceptance criterion.", ""]
@@ -1541,7 +1598,7 @@ def render_report_text(manifest):
 
 
 def validate_positive_language(report, manifest, path):
-    removed = {cell for decision in manifest.get("rollback", {}).get("decisions", []) for cell in decision.get("regressed_cells", [])}
+    removed = {cell for decision in manifest.get("rollback", {}).get("decisions", []) for cell in decision.get("removed_cells", [])}
     verdicts = manifest.get("final_verdicts", {})
     reasons = manifest.get("final_reasons", {})
     accepted = set()
@@ -1864,6 +1921,7 @@ def parser():
     run = commands.add_parser("run"); run.add_argument("--state", required=True); run.add_argument("--profile", choices=sorted(PROFILE_ARGS), required=True); run.add_argument("--output-root", required=True); run.add_argument("--run-id"); run.add_argument("--concurrent-heavy-work", choices=("absent", "present", "unknown"), required=True)
     compare = commands.add_parser("compare"); compare.add_argument("--state", required=True); compare.add_argument("--output", required=True); compare.add_argument("--validation", required=True)
     rollback = commands.add_parser("record-rollback"); rollback.add_argument("--state", required=True); rollback.add_argument("--dispatch", action="append", required=True, choices=DISPATCH_ORDER); rollback.add_argument("--archive-root", required=True)
+    finalize = commands.add_parser("finalize-rollback"); finalize.add_argument("--preparation", required=True)
     promote = commands.add_parser("promote"); promote.add_argument("--state", required=True); promote.add_argument("--destination", required=True)
     replace = commands.add_parser("replace-promoted"); replace.add_argument("--state", required=True); replace.add_argument("--expected-manifest", required=True); replace.add_argument("--destination", required=True); replace.add_argument("--backup-root", required=True)
     cleanup = commands.add_parser("cleanup-replacement-backup"); cleanup.add_argument("--state", required=True); cleanup.add_argument("--manifest", required=True); cleanup.add_argument("--expected-head", required=True); cleanup.add_argument("--backup-root", required=True)
@@ -1885,6 +1943,7 @@ def main(argv=None):
     elif args.command == "run": run_benchmark(args.state, args.profile, args.output_root, args.run_id, args.concurrent_heavy_work)
     elif args.command == "compare": compare_state(args.state, args.output, args.validation)
     elif args.command == "record-rollback": record_rollback(args.state, args.dispatch, args.archive_root)
+    elif args.command == "finalize-rollback": finalize_rollback(args.preparation)
     elif args.command == "promote": promote_state(args.state, args.destination)
     elif args.command == "replace-promoted": print(replace_promoted(args.state, args.expected_manifest, args.destination, args.backup_root))
     elif args.command == "cleanup-replacement-backup": cleanup_replacement_backup(args.state, args.manifest, args.expected_head, args.backup_root)
