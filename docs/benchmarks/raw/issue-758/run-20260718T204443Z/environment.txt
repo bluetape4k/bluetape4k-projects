@@ -1,0 +1,9 @@
+60fdb9b90ba129f6bd1de4747a3f6d9e960fbdf9
+java version "21.0.11" 2026-04-21 LTS
+Java(TM) SE Runtime Environment Oracle GraalVM 21.0.11+9.1 (build 21.0.11+9-LTS-jvmci-23.1-b92)
+Java HotSpot(TM) 64-Bit Server VM Oracle GraalVM 21.0.11+9.1 (build 21.0.11+9-LTS-jvmci-23.1-b92, mixed mode, sharing)
+ProductName:		macOS
+ProductVersion:		26.5.2
+BuildVersion:		25F84
+Apple M4 Pro
+51539607552

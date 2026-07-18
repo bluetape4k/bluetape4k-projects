@@ -1,0 +1,5 @@
+run_id,benchmark,method,throughput_score,throughput_error,throughput_unit,gc_alloc_rate_norm_b_op,gc_alloc_rate_mb_s,gc_count,eligible
+run-20260718T204443Z,io.bluetape4k.benchmark.serializer.KafkaCodecAllocationBenchmark.kafkaDeserializeByteArray,kafkaDeserializeByteArray,1820696.47084991,21441.55540591501,ops/s,3328.0038476713153,5660.279632243754,101.0,false
+run-20260718T204443Z,io.bluetape4k.benchmark.serializer.KafkaCodecAllocationBenchmark.kafkaDeserializeOptimized,kafkaDeserializeOptimized,1710556.3236227538,7224.982139116874,ops/s,3168.004103248346,5057.923047752175,93.0,true
+run-20260718T204443Z,io.bluetape4k.benchmark.serializer.KafkaCodecAllocationBenchmark.kafkaSerializeByteArray,kafkaSerializeByteArray,3333579.8674079655,72633.62545477346,ops/s,1288.0021419231969,3943.6888835361738,89.0,false
+run-20260718T204443Z,io.bluetape4k.benchmark.serializer.KafkaCodecAllocationBenchmark.kafkaSerializeOptimized,kafkaSerializeOptimized,3118336.39122501,77958.04366547747,ops/s,104.00230389806492,295.441418378105,8.0,true
