@@ -4,6 +4,7 @@
 import argparse
 import csv
 import hashlib
+import importlib.util
 import json
 import math
 import os
@@ -764,6 +765,20 @@ def _read_comparison_verdicts(path):
 def validate_rollback_bundle(path):
     path = Path(path).resolve()
     bundle = _load_json(path)
+    if bundle.get("schema_version") != 2 or bundle.get("kind") != "rollback_bundle":
+        remediation = "v1 rollback artifacts must be recreated with record-rollback then finalize-rollback" if bundle.get("schema_version") == 1 else "use a finalized v2 rollback bundle, not a preparation"
+        _fail(path, "finalized v2 rollback", {"schema_version": bundle.get("schema_version"), "kind": bundle.get("kind")}, {"schema_version": 2, "kind": "rollback_bundle"}, remediation)
+    runner_path = Path(__file__).resolve().with_name("run-evidence.py")
+    spec = importlib.util.spec_from_file_location("issue757_rollback_runner", runner_path)
+    rollback_runner = importlib.util.module_from_spec(spec); spec.loader.exec_module(rollback_runner)
+    chain = rollback_runner.authenticate_rollback_bundle_chain(path)
+    authenticated = chain[-1][1]
+    ineligible = {cell for decision in authenticated["decisions"] for cell in decision["removed_cells"]}
+    return {
+        "path": str(path), "sha256": rollback_runner.sha256_file(path), "decisions": authenticated["decisions"],
+        "ineligible_cells": ineligible, "bundle": authenticated,
+        "chain_paths": [str(bundle_path) for bundle_path, _ in chain],
+    }
     if not isinstance(bundle, dict) or not isinstance(bundle.get("decisions"), list) or not bundle["decisions"]:
         _fail(path, "decisions", bundle.get("decisions") if isinstance(bundle, dict) else None, "non-empty ordered array", "record rollback from a regressed comparison")
     if bundle.get("schema_version") != 1:
