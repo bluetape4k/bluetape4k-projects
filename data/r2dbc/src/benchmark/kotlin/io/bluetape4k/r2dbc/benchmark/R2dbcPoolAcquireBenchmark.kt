@@ -1,5 +1,7 @@
 package io.bluetape4k.r2dbc.benchmark
 
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.info
 import io.bluetape4k.r2dbc.pool.R2dbcPoolConfig
 import io.bluetape4k.r2dbc.pool.connectionFactoryOptionsOf
 import io.bluetape4k.r2dbc.pool.connectionPoolOf
@@ -25,6 +27,7 @@ import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
 import org.openjdk.jmh.annotations.TearDown
 import org.openjdk.jmh.annotations.Threads
+import org.openjdk.jmh.annotations.Timeout
 import org.openjdk.jmh.annotations.Warmup
 import org.openjdk.jmh.infra.Blackhole
 import java.time.Duration
@@ -37,7 +40,8 @@ import java.util.concurrent.atomic.LongAdder
  * 측정 경로는 `Publisher`를 코루틴으로 브리지하는 실제 사용 패턴에 맞춰
  * `kotlinx-coroutines-reactor`의 `awaitSingle`과 `kotlinx-coroutines-reactive`의
  * `awaitFirstOrNull`을 사용합니다. [holdMillis]는 쿼리/트랜잭션이 커넥션을 점유하는 시간을
- * 단순 지연으로 모델링합니다.
+ * 단순 지연으로 모델링합니다. `validationMode`는 SQL 왕복이 없는 `local`과 `SELECT 1`을
+ * 실행하는 `sql`을 구분합니다.
  */
 @State(Scope.Benchmark)
 abstract class AbstractR2dbcPoolAcquireBenchmark {
@@ -47,6 +51,9 @@ abstract class AbstractR2dbcPoolAcquireBenchmark {
 
     @Param("0", "1", "5")
     var holdMillis: Long = 0
+
+    @Param("local", "sql")
+    lateinit var validationMode: String
 
     private lateinit var pool: ConnectionPool
     private lateinit var poolConfig: R2dbcPoolConfig
@@ -59,8 +66,13 @@ abstract class AbstractR2dbcPoolAcquireBenchmark {
 
     @Setup(Level.Trial)
     fun setup() {
-        poolConfig = acquireBenchmarkPoolConfig(profile)
+        poolConfig = acquireBenchmarkPoolConfig(profile, validationMode)
         pool = connectionPoolOf(connectionFactoryOptions(), poolConfig)
+        log.info {
+            "Started R2DBC pool acquire benchmark: database=$databaseName, profile=$profile, " +
+                    "holdMillis=$holdMillis, validationMode=$validationMode, " +
+                    poolConfig.describeBenchmarkPoolConfig()
+        }
     }
 
     @TearDown(Level.Trial)
@@ -68,11 +80,12 @@ abstract class AbstractR2dbcPoolAcquireBenchmark {
         if (::pool.isInitialized) {
             pool.close()
         }
-        println(
-            "pool-acquire result: database=$databaseName, profile=$profile, holdMillis=$holdMillis, " +
+        log.info {
+            "Completed R2DBC pool acquire benchmark: database=$databaseName, profile=$profile, " +
+                    "holdMillis=$holdMillis, validationMode=$validationMode, " +
                     poolConfig.describeBenchmarkPoolConfig() + ", threads=8, " +
                     "acquired=${acquired.sum()}, failed=${failed.sum()}"
-        )
+        }
     }
 
     protected fun acquireAndClose(blackhole: Blackhole) {
@@ -95,6 +108,8 @@ abstract class AbstractR2dbcPoolAcquireBenchmark {
             }
         }
     }
+
+    companion object: KLogging()
 }
 
 /**
@@ -102,7 +117,7 @@ abstract class AbstractR2dbcPoolAcquireBenchmark {
  *
  * ## 실행 방법
  * ```bash
- * ./gradlew :bluetape4k-r2dbc:benchmarkH2PoolAcquire
+ * ./gradlew :bluetape4k-r2dbc:benchmarkH2PoolAcquireBenchmark
  * ```
  */
 @State(Scope.Benchmark)
@@ -120,6 +135,7 @@ open class H2R2dbcPoolAcquireBenchmark: AbstractR2dbcPoolAcquireBenchmark() {
 
     @Benchmark
     @Threads(8)
+    @Timeout(time = 30, timeUnit = TimeUnit.SECONDS)
     fun acquireAndCloseConnection(blackhole: Blackhole) {
         acquireAndClose(blackhole)
     }
@@ -130,7 +146,7 @@ open class H2R2dbcPoolAcquireBenchmark: AbstractR2dbcPoolAcquireBenchmark() {
  *
  * ## 실행 방법
  * ```bash
- * ./gradlew :bluetape4k-r2dbc:benchmarkPostgresPoolAcquire
+ * ./gradlew :bluetape4k-r2dbc:benchmarkPostgresPoolAcquireBenchmark
  * ```
  */
 @State(Scope.Benchmark)
@@ -148,6 +164,7 @@ open class PostgreSqlR2dbcPoolAcquireBenchmark: AbstractR2dbcPoolAcquireBenchmar
 
     @Benchmark
     @Threads(8)
+    @Timeout(time = 30, timeUnit = TimeUnit.SECONDS)
     fun acquireAndCloseConnection(blackhole: Blackhole) {
         acquireAndClose(blackhole)
     }
@@ -158,7 +175,7 @@ open class PostgreSqlR2dbcPoolAcquireBenchmark: AbstractR2dbcPoolAcquireBenchmar
  *
  * ## 실행 방법
  * ```bash
- * ./gradlew :bluetape4k-r2dbc:benchmarkMysql8PoolAcquire
+ * ./gradlew :bluetape4k-r2dbc:benchmarkMysql8PoolAcquireBenchmark
  * ```
  */
 @State(Scope.Benchmark)
@@ -176,6 +193,7 @@ open class MySql8R2dbcPoolAcquireBenchmark: AbstractR2dbcPoolAcquireBenchmark() 
 
     @Benchmark
     @Threads(8)
+    @Timeout(time = 30, timeUnit = TimeUnit.SECONDS)
     fun acquireAndCloseConnection(blackhole: Blackhole) {
         acquireAndClose(blackhole)
     }
@@ -195,11 +213,13 @@ private object MySql8 {
 
 internal const val R2DBC_BENCHMARK_VALIDATION_QUERY: String = "SELECT 1"
 
-internal fun acquireBenchmarkPoolConfig(profile: String): R2dbcPoolConfig =
-    when (profile) {
+internal fun acquireBenchmarkPoolConfig(
+    profile: String,
+    validationMode: String,
+): R2dbcPoolConfig {
+    val profileConfig = when (profile) {
         "default"        -> R2dbcPoolConfig(
             maxValidationTime = Duration.ofSeconds(1),
-            validationQuery = R2DBC_BENCHMARK_VALIDATION_QUERY,
         )
         "highThroughput" -> R2dbcPoolConfig.highThroughput(
             maxSize = 64,
@@ -207,10 +227,17 @@ internal fun acquireBenchmarkPoolConfig(profile: String): R2dbcPoolConfig =
             poolName = "benchmark-r2dbc",
         ).copy(
             maxAcquireTime = Duration.ofSeconds(2),
-            validationQuery = R2DBC_BENCHMARK_VALIDATION_QUERY,
         )
         else             -> error("Unknown profile: $profile")
     }
+
+    val validationQuery = when (validationMode) {
+        "local" -> null
+        "sql"   -> R2DBC_BENCHMARK_VALIDATION_QUERY
+        else    -> error("Unknown validation mode: $validationMode")
+    }
+    return profileConfig.copy(validationQuery = validationQuery)
+}
 
 internal fun contentionBenchmarkPoolConfig(
     profile: String,

@@ -77,32 +77,49 @@ building an unbounded queue.
 Run the pool benchmarks with:
 
 ```bash
-./gradlew :bluetape4k-r2dbc:benchmarkPoolConfig
-./gradlew :bluetape4k-r2dbc:benchmarkH2PoolAcquire
-./gradlew :bluetape4k-r2dbc:benchmarkPostgresPoolAcquire
-./gradlew :bluetape4k-r2dbc:benchmarkMysql8PoolAcquire
-./gradlew :bluetape4k-r2dbc:benchmarkH2PoolContention
+./gradlew :bluetape4k-r2dbc:benchmarkPoolConfigBenchmark
+./gradlew :bluetape4k-r2dbc:benchmarkH2PoolAcquireBenchmark
+./gradlew :bluetape4k-r2dbc:benchmarkPostgresPoolAcquireBenchmark
+./gradlew :bluetape4k-r2dbc:benchmarkMysql8PoolAcquireBenchmark
+./gradlew :bluetape4k-r2dbc:benchmarkH2PoolContentionBenchmark
 ```
 
 Run PostgreSQL and MySQL benchmark tasks sequentially because they use
-Testcontainers-backed databases.
+Testcontainers-backed databases. Each acquire task measures two explicit validation modes:
 
-Recent local acquire benchmark (`8` JMH threads, `3` measurement iterations,
-`validationQuery = "SELECT 1"`) showed that pure acquire/close throughput varies by driver, while realistic connection hold time makes default and high-throughput profiles converge:
+- `local`: `ValidationDepth.LOCAL` with no validation query.
+- `sql`: `ValidationDepth.LOCAL` with `validationQuery = "SELECT 1"`.
 
-| Database                    | Hold time | Default       | High-throughput |
-|-----------------------------|-----------|---------------|-----------------|
-| H2                          | 0 ms      | 100,200 ops/s | 95,423 ops/s    |
-| H2                          | 1 ms      | 6,921 ops/s   | 6,906 ops/s     |
-| H2                          | 5 ms      | 1,430 ops/s   | 1,439 ops/s     |
-| PostgreSQL 18 Testcontainer | 0 ms      | 16,571 ops/s  | 16,960 ops/s    |
-| PostgreSQL 18 Testcontainer | 1 ms      | 4,271 ops/s   | 4,695 ops/s     |
-| PostgreSQL 18 Testcontainer | 5 ms      | 1,050 ops/s   | 1,066 ops/s     |
-| MySQL 8.4 Testcontainer     | 0 ms      | 9,007 ops/s   | 8,251 ops/s     |
-| MySQL 8.4 Testcontainer     | 1 ms      | 4,266 ops/s   | 4,279 ops/s     |
-| MySQL 8.4 Testcontainer     | 5 ms      | 918 ops/s     | 960 ops/s       |
+Every acquire benchmark method has a `30s` JMH iteration timeout. The generated Gradle
+tasks also have a `5m` task timeout so an interrupt-resistant JMH worker cannot block
+automation indefinitely. Trial lifecycle logs include the validation mode, pool
+configuration, and acquired/failed counts.
 
-![R2DBC Pool Acquire Throughput chart](../../docs/images/readme-charts/data-r2dbc-pool-acquire-throughput-chart-01.png)
+The following local snapshot was recorded on 2026-07-19 with `8` JMH threads,
+`1` warmup iteration, and `3` measurement iterations. Throughput is higher-is-better.
+The short `1s` windows produced wide error intervals, especially for `0 ms`, so these
+scores describe the observed validation cost and are not profile rankings.
+
+| Database                    | Hold time | Validation | Default ops/s | High-throughput ops/s |
+|-----------------------------|----------:|------------|--------------:|----------------------:|
+| H2                          | 0 ms      | local      | 110,992       | 93,080                |
+| H2                          | 0 ms      | sql        | 101,184       | 86,400                |
+| H2                          | 1 ms      | local      | 6,899         | 6,962                 |
+| H2                          | 1 ms      | sql        | 6,911         | 6,895                 |
+| H2                          | 5 ms      | local      | 1,417         | 1,442                 |
+| H2                          | 5 ms      | sql        | 1,430         | 1,428                 |
+| PostgreSQL 18 Testcontainer | 0 ms      | local      | 113,743       | 114,217               |
+| PostgreSQL 18 Testcontainer | 0 ms      | sql        | 16,970        | 16,780                |
+| PostgreSQL 18 Testcontainer | 1 ms      | local      | 6,312         | 6,875                 |
+| PostgreSQL 18 Testcontainer | 1 ms      | sql        | 3,981         | 4,229                 |
+| PostgreSQL 18 Testcontainer | 5 ms      | local      | 1,438         | 1,426                 |
+| PostgreSQL 18 Testcontainer | 5 ms      | sql        | 1,048         | 1,052                 |
+| MySQL 8.4 Testcontainer     | 0 ms      | local      | 17,132        | 16,176                |
+| MySQL 8.4 Testcontainer     | 0 ms      | sql        | 8,385         | 8,010                 |
+| MySQL 8.4 Testcontainer     | 1 ms      | local      | 3,952         | 3,470                 |
+| MySQL 8.4 Testcontainer     | 1 ms      | sql        | 4,075         | 3,899                 |
+| MySQL 8.4 Testcontainer     | 5 ms      | local      | 1,084         | 1,044                 |
+| MySQL 8.4 Testcontainer     | 5 ms      | sql        | 913           | 925                   |
 
 The contention benchmark uses `64` JMH threads with `maxSize` below concurrency.
 Default uses an unbounded pending queue in this benchmark; high-throughput uses
@@ -123,8 +140,8 @@ the acquired/failed trial counts.
 
 #### Tuning guide from the measurement
 
-- For pure acquire/close paths (`0 ms` hold), compare with your actual driver. H2/PostgreSQL slightly favored the high-throughput preset in this run, while MySQL 8 favored the default profile. This path is mostly a driver/pool overhead microbenchmark and should not drive server defaults by itself.
-- Use `R2dbcPoolConfig.highThroughput()` for server workloads where each request holds a connection while running SQL or a transaction. At `1 ms` and `5 ms` hold time, throughput was dominated by the hold time and the two profiles were effectively equivalent across H2, PostgreSQL, and MySQL 8, so the high-throughput preset's bounded queue and warmup behavior become the more important operational property.
+- For pure acquire/close paths (`0 ms` hold), compare `local` and `sql` within the same driver. PostgreSQL and MySQL showed a visible SQL validation cost in this snapshot, while the H2 error intervals were too wide for a ranking claim.
+- Use `R2dbcPoolConfig.highThroughput()` for server workloads where each request holds a connection while running SQL or a transaction. As hold time increases, connection occupancy can dominate validation and profile differences, so bounded queues and warmup behavior become more important than a noisy microbenchmark ranking.
 - Increase `maxSize` only when concurrent requests exceed the pool size and the database can handle the additional sessions. Under `64` contending threads, throughput scaled almost linearly with `maxSize` on the default unbounded queue path because the benchmark was connection-slot limited.
 - Treat high-throughput contention rows with large failure counts as overload evidence, not as successful SQL throughput. A bounded pending queue exposes backpressure quickly; raise `maxSize`, reduce hold time, shed traffic, or increase the pending/acquire timeout budget only when the database can absorb the extra work.
 - Long-running queries and transactions reduce the useful throughput ceiling to roughly
@@ -139,9 +156,9 @@ the acquired/failed trial counts.
 - If `maxPendingAcquire` is too low, r2dbc-pool rejects extra acquire attempts once the pool and pending queue are full. This is useful for fail-fast overload control, but it should be paired with application metrics for acquire failures/timeouts.
 - Keep `maxAcquireTime` finite.
   `2-3s` is a reasonable starting point for API services; batch jobs can use a longer timeout if waiting is preferable to failing.
-- Prefer `ValidationDepth.LOCAL` and no
-  `validationQuery` in production drivers that support local validation. The benchmark used
-  `SELECT 1` to keep H2/PostgreSQL/MySQL validation behavior consistent; a SQL validation query adds one database round trip to every connection acquisition.
+- Prefer `ValidationDepth.LOCAL` and no `validationQuery` in production drivers that support
+  local validation. Use the benchmark's `sql` mode when the deployment deliberately requires
+  `SELECT 1`; it adds one database round trip to every connection acquisition.
 - Treat benchmark numbers as local baselines, not universal limits. Re-run the DB-specific pool acquire benchmark against your driver/database shape when query latency, transaction duration, instance count, or DB connection limits change.
 
 ### 2. Executing SQL with DatabaseClient
