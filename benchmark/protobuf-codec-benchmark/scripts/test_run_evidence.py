@@ -1188,7 +1188,7 @@ class EvidenceRunnerTest(unittest.TestCase):
         removed = {
             "serializer_encode": "class ProtobufSerializer : BinarySerializer { }",
             "serializer_decode": "class ProtobufSerializer : BinarySerializer { }",
-            "redisson_contiguous": "private fun decodeProtobuf(buf: ByteBuf): Any { return AnyMessage.parseFrom(buf.getBytes(copy = true)) }",
+            "redisson_contiguous": "private fun decodeProtobuf(buf: ByteBuf): Any {" + runner.REDISSON_COPIED_BODY_TEMPLATE + "}",
         }
         paths_seen = []
         def git_show(argv, **_kwargs):
@@ -1221,10 +1221,11 @@ class EvidenceRunnerTest(unittest.TestCase):
             }''',
             "redisson_contiguous": '''class Codec { private fun decodeProtobuf(buf: ByteBuf): Any {
                 // buf.nioBufferCount(); AnyMessage.parseFrom(buf.nioBuffer())
-                val diagnostic = "getBytes(copy = true)"
-                return AnyMessage.parseFrom(buf.getBytes( copy = true ))
+                /* formatting/comment noise is harmless */
+                %s
             }}''',
         }
+        adversarial["redisson_contiguous"] %= runner.REDISSON_COPIED_BODY_TEMPLATE
         removed.update(adversarial)
         for dispatch in runner.DISPATCH_ORDER:
             git_show.dispatch = dispatch
@@ -1238,6 +1239,8 @@ class EvidenceRunnerTest(unittest.TestCase):
                 "private fun decodeProtobuf(buf: ByteBuf): Any { return AnyMessage.parseFrom(buf.getBytes(copy = true)) }\nprivate fun decodeProtobuf(buf: Other): Any { return AnyMessage.parseFrom(buf.getBytes(copy = true)) }",
                 "private fun decodeProtobuf(buf: ByteBuf): Any { val view = buf.internalNioBuffer(); return AnyMessage.parseFrom(buf.getBytes(copy = true)) }",
                 "private fun decodeProtobuf(buf: ByteBuf): Any { val `nioBufferAlias` = 1; return AnyMessage.parseFrom(buf.getBytes(copy = true)) }",
+                "private fun decodeProtobuf(buf: ByteBuf): Any { if (buf.nioBufferCount() == 1) return helper(buf); " + runner.REDISSON_COPIED_BODY_TEMPLATE + " }",
+                "private fun decodeProtobuf(buf: ByteBuf): Any { if (false) { " + runner.REDISSON_COPIED_BODY_TEMPLATE + " }; return helper(buf) }",
             ],
         }
         for dispatch, cases in rejected.items():
