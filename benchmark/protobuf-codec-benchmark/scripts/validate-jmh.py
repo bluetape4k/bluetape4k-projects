@@ -6,12 +6,18 @@ import csv
 import hashlib
 import json
 import math
+import os
+import stat
 import sys
 from collections import Counter
 from pathlib import Path
 
 
 CLAIM_THRESHOLD_PERCENT = 5.0
+MAX_RUN_LOG_BYTES = 16 * 1024 * 1024
+RUN_LOG_TAIL_BYTES = 4096
+RUN_LOG_LIMIT_MARKER = b"[runner] output truncated: log size limit exceeded"
+RUN_LOG_READ_BYTES = 64 * 1024
 EXPECTED_METHODS = {
     "serializerEncodeByteArray",
     "serializerEncodeHeapOptimized",
@@ -124,6 +130,81 @@ def sha256_file(path):
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def validate_run_log(path):
+    path = Path(path)
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        path_before = path.lstat()
+        fd = os.open(str(path), flags)
+    except OSError as error:
+        _fail(path, "run.log", str(error), "readable non-symlink regular file", "restore the bounded runner log")
+    try:
+        before = os.fstat(fd)
+        identity = (before.st_dev, before.st_ino, before.st_mode, before.st_size)
+        path_identity = (path_before.st_dev, path_before.st_ino, path_before.st_mode, path_before.st_size)
+        if path_identity != identity:
+            _fail(path, "run.log identity", path_identity, identity, "discard the mutable run")
+        if not stat.S_ISREG(before.st_mode):
+            _fail(path, "run.log type", stat.S_IFMT(before.st_mode), "regular file", "restore the bounded runner log")
+        if before.st_size > MAX_RUN_LOG_BYTES:
+            _fail(path, "run.log size", before.st_size, "<= %d bytes" % MAX_RUN_LOG_BYTES, "discard the run and repair benchmark logging")
+        digest = hashlib.sha256()
+        total = 0
+        overlap = b""
+        tail = b""
+        while True:
+            chunk = os.read(fd, RUN_LOG_READ_BYTES)
+            if not chunk:
+                break
+            total += len(chunk)
+            if total > MAX_RUN_LOG_BYTES:
+                _fail(path, "run.log size", total, "<= %d bytes" % MAX_RUN_LOG_BYTES, "discard the run and repair benchmark logging")
+            digest.update(chunk)
+            scan = overlap + chunk
+            if RUN_LOG_LIMIT_MARKER in scan:
+                _fail(path, "run.log limit marker", "present", "absent", "discard the truncated run and repair benchmark logging")
+            overlap = scan[-(len(RUN_LOG_LIMIT_MARKER) - 1):]
+            tail = (tail + chunk)[-RUN_LOG_TAIL_BYTES:]
+        after = os.fstat(fd)
+        try:
+            path_after = path.lstat()
+        except OSError as error:
+            _fail(path, "run.log identity", str(error), identity, "discard the mutable run")
+        after_identity = (after.st_dev, after.st_ino, after.st_mode, after.st_size)
+        final_path_identity = (path_after.st_dev, path_after.st_ino, path_after.st_mode, path_after.st_size)
+        if after_identity != identity or final_path_identity != identity or total != before.st_size:
+            _fail(path, "run.log file identity", (after_identity, final_path_identity, total), identity, "discard the mutable run")
+        exact_exit_line = b"exit_code=0\n"
+        if tail != exact_exit_line and not tail.endswith(b"\n" + exact_exit_line):
+            _fail(path, "run.log tail", tail[-128:].decode("utf-8", "replace"), "exit_code=0\\n", "restore a successful bounded runner log")
+    finally:
+        os.close(fd)
+    return {
+        "path": str(path),
+        "sha256": digest.hexdigest(),
+        "size": total,
+        "identity": list(identity),
+        "exit_code": 0,
+    }
+
+
+def validate_execution_artifacts(argv_record, environment, log_result, path):
+    if not isinstance(argv_record, dict):
+        _fail(path, "argv", argv_record, "object", "restore the runner argv record")
+    exit_code = argv_record.get("exit_code")
+    if isinstance(exit_code, bool) or not isinstance(exit_code, int) or exit_code != 0:
+        _fail(path, "exit_code", exit_code, "exact integer 0", "restore successful runner evidence")
+    limit_exceeded = argv_record.get("log_limit_exceeded")
+    if limit_exceeded is not False:
+        _fail(path, "log_limit_exceeded", limit_exceeded, "exact false", "discard bounded or malformed runner evidence")
+    if argv_record.get("argv") != environment.get("jmh_argv"):
+        _fail(path, "argv", argv_record.get("argv"), environment.get("jmh_argv"), "restore the exact runner command")
+    log_exit = log_result.get("exit_code") if isinstance(log_result, dict) else None
+    if isinstance(log_exit, bool) or not isinstance(log_exit, int) or log_exit != exit_code:
+        _fail(path, "log exit", log_exit, exit_code, "restore matching argv and run.log evidence")
+    return True
 
 
 def _without_hash_fields(value):
@@ -633,6 +714,10 @@ def validate_run(jar, input_path, environment_path, summary_path, validation_pat
     environment = _load_json(environment_path)
     if not isinstance(environment, dict):
         _fail(environment_path, "root", environment, "object", "regenerate environment.json")
+    log_result = validate_run_log(environment_path.parent / "run.log")
+    validate_execution_artifacts(
+        _load_json(environment_path.parent / "argv.json"), environment, log_result, environment_path.parent,
+    )
     resolved_jar, first_hash, first_identity = _validated_jar(Path(jar), environment, environment_path)
     if not is_clean_environment(environment):
         _fail(environment_path, "clean_status", {
