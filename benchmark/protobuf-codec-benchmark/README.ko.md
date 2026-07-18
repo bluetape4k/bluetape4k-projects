@@ -104,6 +104,13 @@ python3 benchmark/protobuf-codec-benchmark/scripts/validate-jmh.py compare --hel
 - `regressed`: 두 delta가 모두 `+5%` 이상이면 기록된 rollback 절차를 수행하고 fresh run 2회를 다시 수집합니다.
 - `ineligible`: baseline, composite, trusted-fallback control이며 positive claim에 사용하지 않습니다.
 
+Mapped regression이 발생하면 변경 전 clean measurement head에서 `record-rollback`을 실행해 immutable v2
+preparation을 만듭니다. Source rollback을 적용하고 commit한 다음 `finalize-rollback --preparation <path>`을
+실행합니다. Fresh `resolve-jar --rollback-bundle`에는 finalized v2 bundle만 사용할 수 있으며 v1 bundle과
+preparation file은 fail-closed됩니다. `regressed_cells`는 실제 non-empty trigger subset이고 `removed_cells`는
+`ineligible`/`removed_after_regression`이 되는 dispatch 전체 mapping입니다. Bound source lineage를 rebase 또는
+amend하면 preparation/bundle이 무효가 되므로 exact measurement head부터 절차를 다시 시작합니다.
+
 이 측정은 zero-copy를 증명하지 않습니다. Protobuf, Netty, direct buffer, fallback codec 내부에서 copy나 allocation이
 계속 발생할 수 있습니다. 또한 다른 payload, JDK, 장비, concurrency, storage 경계 전반의 throughput 향상이나 보장을
 의미하지 않습니다.

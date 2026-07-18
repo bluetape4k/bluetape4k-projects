@@ -20,6 +20,18 @@ def load_module(name, filename):
 
 
 validator = load_module("validate_jmh", "validate-jmh.py")
+runner = load_module("run_evidence_for_validator", "run-evidence.py")
+
+
+def write_v2_bundle(root, dispatch, verdicts, old="old", post="post"):
+    root = Path(root); archive = root / "archive"; archive.mkdir()
+    comparison = archive / "comparison.csv"
+    with comparison.open("w", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=("method", "verdict")); writer.writeheader()
+        for method, verdict_value in verdicts.items(): writer.writerow({"method": method, "verdict": verdict_value})
+    regressed = [cell for cell in runner.DISPATCH_CELLS[dispatch] if verdicts.get(cell) == "regressed"]
+    decision = runner.make_rollback_decision(dispatch, regressed, old, old + "-tree", archive, [comparison], 1, "now", post, None, post + "-tree")
+    return runner.write_rollback_bundle(root, [decision])
 
 
 def comparison_run(run_id, baseline=1000.0, candidate=940.0):
@@ -40,6 +52,34 @@ def environment(run_id="run-a", tree_hash="aaa"):
 
 
 class ValidateJmhTest(unittest.TestCase):
+    def test_v2_direct_only_decode_regression_removes_both_mapped_cells(self):
+        with tempfile.TemporaryDirectory() as td:
+            bundle_path = write_v2_bundle(Path(td), "serializer_decode", {
+                "serializerDecodeHeapOptimized": "inconclusive",
+                "serializerDecodeDirectOptimized": "regressed",
+            })
+            result = validator.validate_rollback_bundle(bundle_path)
+            self.assertEqual(set(runner.DISPATCH_CELLS["serializer_decode"]), result["ineligible_cells"])
+            decision = result["decisions"][0]
+            self.assertEqual(["serializerDecodeDirectOptimized"], decision["regressed_cells"])
+            self.assertEqual(sorted(runner.DISPATCH_CELLS["serializer_decode"]), decision["removed_cells"])
+            first = comparison_run("a"); second = comparison_run("b")
+            for value in (first, second):
+                value["rows"].update({
+                    "serializerDecodeByteArray": {"allocation": 1000.0, "throughput": 10.0, "eligible": False},
+                    "serializerDecodeHeapOptimized": {"allocation": 990.0, "throughput": 10.0, "eligible": True},
+                    "serializerDecodeDirectOptimized": {"allocation": 1100.0, "throughput": 10.0, "eligible": True},
+                })
+            compared = validator.compare_runs(first, second, result["ineligible_cells"])
+            for cell in runner.DISPATCH_CELLS["serializer_decode"]:
+                self.assertEqual(("ineligible", "removed_after_regression"), (compared[cell]["verdict"], compared[cell]["reason"]))
+
+            preparation = Path(td) / result["bundle"]["preparation_path"]
+            with self.assertRaisesRegex(ValueError, "finalized v2"):
+                validator.validate_rollback_bundle(preparation)
+            legacy = Path(td) / "legacy.json"; legacy.write_text(json.dumps({"schema_version": 1, "decisions": []}))
+            with self.assertRaisesRegex(ValueError, "v1"):
+                validator.validate_rollback_bundle(legacy)
     def assert_diagnostic(self, error, path):
         message = str(error)
         self.assertIn(str(path), message)
@@ -330,79 +370,25 @@ class ValidateJmhTest(unittest.TestCase):
 
     def test_rollback_bundle_authenticates_hash_cells_and_regressed_archive(self):
         with tempfile.TemporaryDirectory() as td:
-            root = Path(td)
-            comparison = root / "comparison.csv"
-            with comparison.open("w", newline="") as stream:
-                writer = csv.DictWriter(stream, fieldnames=("method", "verdict"))
-                writer.writeheader()
-                writer.writerow({"method": "serializerEncodeHeapOptimized", "verdict": "regressed"})
-                writer.writerow({"method": "serializerEncodeDirectOptimized", "verdict": "regressed"})
-            decision = {
-                "generation": 1,
-                "dispatch": "serializer_encode",
-                "cells": sorted(validator.ROLLBACK_DISPATCH_CELLS["serializer_encode"]),
-                "comparison_path": comparison.name,
-                "comparison_sha256": validator.sha256_file(comparison),
-                "old_commit": "old", "old_tree": "tree", "post_rollback_commit": "new",
-            }
-            decision["decision_sha256"] = validator.canonical_sha256(decision)
-            bundle_path = root / "bundle.json"
-            bundle_path.write_text(json.dumps({"schema_version": 1, "decisions": [decision]}))
+            root = Path(td); bundle_path = write_v2_bundle(root, "serializer_encode", {
+                "serializerEncodeHeapOptimized": "regressed", "serializerEncodeDirectOptimized": "regressed",
+            })
             bundle = validator.validate_rollback_bundle(bundle_path)
-            self.assertEqual({"serializerEncodeHeapOptimized", "serializerEncodeDirectOptimized"}, bundle["ineligible_cells"])
-            decision["cells"] = ["serializerDecodeHeapOptimized"]
-            bundle_path.write_text(json.dumps({"schema_version": 1, "decisions": [decision]}))
-            with self.assertRaisesRegex(ValueError, "cells"):
+            self.assertEqual(set(runner.DISPATCH_CELLS["serializer_encode"]), bundle["ineligible_cells"])
+            comparison = root / "archive" / "comparison.csv"; comparison.write_text("tampered")
+            with self.assertRaisesRegex(ValueError, "sha256"):
                 validator.validate_rollback_bundle(bundle_path)
 
     def test_rollback_bundle_accepts_archive_artifact_schema(self):
         with tempfile.TemporaryDirectory() as td:
-            root = Path(td); archive = root / "archive-g1"; archive.mkdir()
-            comparison = archive / "comparison.csv"
-            with comparison.open("w", newline="") as stream:
-                writer = csv.DictWriter(stream, fieldnames=("method", "verdict")); writer.writeheader()
-                for cell in validator.ROLLBACK_DISPATCH_CELLS["serializer_decode"]:
-                    writer.writerow({"method": cell, "verdict": "regressed"})
-            decision = {
-                "generation": 1, "dispatch": "serializer_decode",
-                "regressed_cells": sorted(validator.ROLLBACK_DISPATCH_CELLS["serializer_decode"]),
-                "archive_root": archive.name,
-                "artifacts": [{"path": comparison.name, "sha256": validator.sha256_file(comparison)}],
-                "old_commit": "old", "old_tree": "tree", "post_rollback_commit": "post",
-                "lineage_parent_commit": None, "timestamp": "now",
-            }
-            decision["decision_sha256"] = validator.canonical_sha256(decision)
-            bundle = {"schema_version": 1, "generation": 1, "predecessor_bundle_sha256": None, "decisions": [decision]}
-            bundle["bundle_sha256"] = validator.canonical_sha256(bundle)
-            bundle_path = root / ("rollback-bundle-g1-" + bundle["bundle_sha256"] + ".json")
-            bundle_path.write_text(json.dumps(bundle))
+            bundle_path = write_v2_bundle(Path(td), "serializer_decode", {cell: "regressed" for cell in runner.DISPATCH_CELLS["serializer_decode"]})
             result = validator.validate_rollback_bundle(bundle_path)
-            self.assertEqual(set(decision["regressed_cells"]), result["ineligible_cells"])
+            self.assertEqual(set(runner.DISPATCH_CELLS["serializer_decode"]), result["ineligible_cells"])
 
     def test_non_regressed_rollback_and_unrelated_ineligible_cell_are_rejected(self):
         with tempfile.TemporaryDirectory() as td:
-            root = Path(td); archive = root / "archive-g1"; archive.mkdir()
-            comparison = archive / "comparison.csv"
-            with comparison.open("w", newline="") as stream:
-                writer = csv.DictWriter(stream, fieldnames=("method", "verdict")); writer.writeheader()
-                for cell in validator.ROLLBACK_DISPATCH_CELLS["redisson_contiguous"]:
-                    writer.writerow({"method": cell, "verdict": "accepted"})
-            decision = {
-                "generation": 1, "dispatch": "redisson_contiguous",
-                "regressed_cells": sorted(validator.ROLLBACK_DISPATCH_CELLS["redisson_contiguous"]),
-                "archive_root": archive.name,
-                "artifacts": [{"path": comparison.name, "sha256": validator.sha256_file(comparison)}],
-                "old_commit": "old", "old_tree": "tree", "post_rollback_commit": "post",
-                "lineage_parent_commit": None, "timestamp": "now",
-            }
-            decision["decision_sha256"] = validator.canonical_sha256(decision)
-            bundle = {"schema_version": 1, "generation": 1, "predecessor_bundle_sha256": None, "decisions": [decision]}
-            bundle["bundle_sha256"] = validator.canonical_sha256(bundle)
-            bundle_path = root / ("rollback-bundle-g1-" + bundle["bundle_sha256"] + ".json")
-            bundle_path.write_text(json.dumps(bundle))
             with self.assertRaisesRegex(ValueError, "regressed") as caught:
-                validator.validate_rollback_bundle(bundle_path)
-            self.assert_diagnostic(caught.exception, comparison)
+                write_v2_bundle(Path(td), "redisson_contiguous", {"redissonDecodeContiguousOptimized": "accepted"})
 
         with self.assertRaisesRegex(ValueError, "ineligible cells") as caught:
             validator.compare_runs(
@@ -413,32 +399,17 @@ class ValidateJmhTest(unittest.TestCase):
 
     def test_chained_rollback_requires_exact_predecessor_file(self):
         with tempfile.TemporaryDirectory() as td:
-            root = Path(td); decisions = []
+            root = Path(td); bundles = []
             for generation, dispatch in ((1, "serializer_encode"), (2, "serializer_decode")):
                 archive = root / ("archive-g" + str(generation)); archive.mkdir()
                 comparison = archive / "comparison.csv"
-                with comparison.open("w", newline="") as stream:
-                    writer = csv.DictWriter(stream, fieldnames=("method", "verdict")); writer.writeheader()
-                    for cell in validator.ROLLBACK_DISPATCH_CELLS[dispatch]:
-                        writer.writerow({"method": cell, "verdict": "regressed"})
-                decision = {
-                    "generation": generation, "dispatch": dispatch,
-                    "regressed_cells": sorted(validator.ROLLBACK_DISPATCH_CELLS[dispatch]),
-                    "archive_root": archive.name,
-                    "artifacts": [{"path": comparison.name, "sha256": validator.sha256_file(comparison)}],
-                    "old_commit": "old-" + str(generation), "old_tree": "tree-" + str(generation),
-                    "post_rollback_commit": "post-" + str(generation),
-                    "lineage_parent_commit": None if generation == 1 else "post-1", "timestamp": "now",
-                }
-                decision["decision_sha256"] = validator.canonical_sha256(decision)
-                decisions.append(decision)
-            bundle = {"schema_version": 1, "generation": 2, "predecessor_bundle_sha256": "f" * 64, "decisions": decisions}
-            bundle["bundle_sha256"] = validator.canonical_sha256(bundle)
-            bundle_path = root / ("rollback-bundle-g2-" + bundle["bundle_sha256"] + ".json")
-            bundle_path.write_text(json.dumps(bundle))
+                comparison.write_text("method,verdict\n" + "".join("{},regressed\n".format(cell) for cell in runner.DISPATCH_CELLS[dispatch]))
+                decision = runner.make_rollback_decision(dispatch, list(runner.DISPATCH_CELLS[dispatch]), "old-" + str(generation), "tree-" + str(generation), archive, [comparison], generation, "now", "post-" + str(generation), None if generation == 1 else "post-1", "post-tree-" + str(generation))
+                bundles.append(runner.write_rollback_bundle(root, [decision], predecessor=bundles[-1] if bundles else None))
+            bundle_path = bundles[-1]; bundles[0].unlink()
             with self.assertRaisesRegex(ValueError, "predecessor") as caught:
                 validator.validate_rollback_bundle(bundle_path)
-            self.assert_diagnostic(caught.exception, bundle_path)
+            self.assertIn("remediation:", str(caught.exception))
 
     def test_jar_file_identity_replacement_between_hashes_is_rejected(self):
         with tempfile.TemporaryDirectory() as td:
