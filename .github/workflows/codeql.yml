@@ -23,35 +23,29 @@ jobs:
           - language: actions
             scope: workflows
             roots: ''
-            build_timeout_minutes: 120
           - language: python
             scope: python
             roots: ''
-            build_timeout_minutes: 120
           - language: java-kotlin
             scope: foundation
             roots: bluetape4k:cache:utils
-            build_timeout_minutes: 120
           - language: java-kotlin
             scope: data-io
             roots: data:io
-            build_timeout_minutes: 120
           - language: java-kotlin
             scope: infra
             roots: infra
-            build_timeout_minutes: 120
           - language: java-kotlin
             scope: frameworks
             roots: ktor:spring-boot:virtualthread
-            build_timeout_minutes: 120
+          # testing/testcontainers remains excluded: its single compileKotlin
+          # task timed out after 20 minutes while every other scope passed:
+          # https://github.com/bluetape4k/bluetape4k-projects/actions/runs/29648755583
+          # See the durable lesson for measurements and reconsideration gates:
+          # docs/lessons/2026-07-18-codeql-testcontainers-exclusion.md
           - language: java-kotlin
             scope: testing-core
             roots: testing/assertions:testing/junit5:testing/mock-web-server:testing/mock-webflux-server
-            build_timeout_minutes: 120
-          - language: java-kotlin
-            scope: testing-containers
-            roots: testing/testcontainers
-            build_timeout_minutes: 20
 
     steps:
       - name: Checkout repository
@@ -102,7 +96,7 @@ jobs:
 
       - name: Build with Gradle
         if: matrix.language == 'java-kotlin'
-        timeout-minutes: ${{ matrix.build_timeout_minutes }}
+        timeout-minutes: 120
         env:
           CODEQL_JAVA_ROOTS: ${{ matrix.roots }}
         # Keep each CodeQL Kotlin job scoped and compiler-only. Avoid examples,
