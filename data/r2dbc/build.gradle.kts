@@ -1,3 +1,5 @@
+import java.time.Duration
+
 plugins {
     kotlin("plugin.allopen")
     kotlin("plugin.spring")
@@ -96,6 +98,20 @@ benchmark {
             reportFormat = "json"
         }
     }
+}
+
+val poolAcquireBenchmarkTaskNames = setOf(
+    "benchmarkH2PoolAcquireBenchmark",
+    "benchmarkPostgresPoolAcquireBenchmark",
+    "benchmarkMysql8PoolAcquireBenchmark",
+)
+val poolAcquireBenchmarkTaskTimeout = providers
+    .gradleProperty("r2dbcPoolAcquireBenchmarkTaskTimeoutSeconds")
+    .map { Duration.ofSeconds(it.toLong()) }
+    .orElse(Duration.ofMinutes(5))
+
+tasks.matching { it.name in poolAcquireBenchmarkTaskNames }.configureEach {
+    timeout.set(poolAcquireBenchmarkTaskTimeout)
 }
 
 dependencies {

@@ -75,31 +75,43 @@ val pool = r2dbcConnectionPool("r2dbc:postgresql://user:secret@localhost:5432/ap
 풀 benchmark는 다음 task로 실행합니다.
 
 ```bash
-./gradlew :bluetape4k-r2dbc:benchmarkPoolConfig
-./gradlew :bluetape4k-r2dbc:benchmarkH2PoolAcquire
-./gradlew :bluetape4k-r2dbc:benchmarkPostgresPoolAcquire
-./gradlew :bluetape4k-r2dbc:benchmarkMysql8PoolAcquire
-./gradlew :bluetape4k-r2dbc:benchmarkH2PoolContention
+./gradlew :bluetape4k-r2dbc:benchmarkPoolConfigBenchmark
+./gradlew :bluetape4k-r2dbc:benchmarkH2PoolAcquireBenchmark
+./gradlew :bluetape4k-r2dbc:benchmarkPostgresPoolAcquireBenchmark
+./gradlew :bluetape4k-r2dbc:benchmarkMysql8PoolAcquireBenchmark
+./gradlew :bluetape4k-r2dbc:benchmarkH2PoolContentionBenchmark
 ```
 
-PostgreSQL과 MySQL benchmark는 Testcontainers 기반 DB를 사용하므로 순차로 실행하세요.
+PostgreSQL과 MySQL benchmark는 Testcontainers 기반 DB를 사용하므로 순차로 실행하세요. 각 acquire task는 다음 validation mode를 명시적으로 측정합니다.
 
-최근 로컬 acquire benchmark(`8` JMH threads, `3` measurement iterations,
-`validationQuery = "SELECT 1"`)에서는 순수 acquire/close 처리량은 드라이버마다 달랐고, 실제 커넥션 점유 시간이 들어가면 기본/고처리량 profile이 수렴했습니다.
+- `local`: `ValidationDepth.LOCAL`, validation query 없음.
+- `sql`: `ValidationDepth.LOCAL`, `validationQuery = "SELECT 1"`.
 
-| DB                          | 점유 시간 | 기본 설정         | 고처리량 프리셋      |
-|-----------------------------|-------|---------------|---------------|
-| H2                          | 0 ms  | 100,200 ops/s | 95,423 ops/s  |
-| H2                          | 1 ms  | 6,921 ops/s   | 6,906 ops/s   |
-| H2                          | 5 ms  | 1,430 ops/s   | 1,439 ops/s   |
-| PostgreSQL 18 Testcontainer | 0 ms  | 16,571 ops/s  | 16,960 ops/s  |
-| PostgreSQL 18 Testcontainer | 1 ms  | 4,271 ops/s   | 4,695 ops/s   |
-| PostgreSQL 18 Testcontainer | 5 ms  | 1,050 ops/s   | 1,066 ops/s   |
-| MySQL 8.4 Testcontainer     | 0 ms  | 9,007 ops/s   | 8,251 ops/s   |
-| MySQL 8.4 Testcontainer     | 1 ms  | 4,266 ops/s   | 4,279 ops/s   |
-| MySQL 8.4 Testcontainer     | 5 ms  | 918 ops/s     | 960 ops/s     |
+모든 acquire benchmark method에는 `30s` JMH iteration timeout이 적용됩니다. 생성된 Gradle task에도 `5m` task timeout을 적용하므로 interrupt를 무시하는 JMH worker가 automation을 무기한 막을 수 없습니다. Trial lifecycle log에는 validation mode, pool 설정, acquired/failed count가 기록됩니다.
 
-![R2DBC Pool Acquire Throughput chart](../../docs/images/readme-charts/data-r2dbc-pool-acquire-throughput-chart-01.png)
+아래 로컬 snapshot은 2026-07-19에 `8` JMH threads, `1` warmup iteration,
+`3` measurement iterations로 측정했습니다. 처리량은 높을수록 좋습니다. 짧은 `1s` 측정 구간 때문에 특히 `0 ms` 결과의 오차 구간이 넓으므로, 이 수치는 관측된 validation 비용을 설명하는 기준선이며 profile 순위가 아닙니다.
+
+| DB                          | 점유 시간 | Validation | 기본 ops/s | 고처리량 ops/s |
+|-----------------------------|----------:|------------|-----------:|----------------:|
+| H2                          | 0 ms      | local      | 110,992    | 93,080          |
+| H2                          | 0 ms      | sql        | 101,184    | 86,400          |
+| H2                          | 1 ms      | local      | 6,899      | 6,962           |
+| H2                          | 1 ms      | sql        | 6,911      | 6,895           |
+| H2                          | 5 ms      | local      | 1,417      | 1,442           |
+| H2                          | 5 ms      | sql        | 1,430      | 1,428           |
+| PostgreSQL 18 Testcontainer | 0 ms      | local      | 113,743    | 114,217         |
+| PostgreSQL 18 Testcontainer | 0 ms      | sql        | 16,970     | 16,780          |
+| PostgreSQL 18 Testcontainer | 1 ms      | local      | 6,312      | 6,875           |
+| PostgreSQL 18 Testcontainer | 1 ms      | sql        | 3,981      | 4,229           |
+| PostgreSQL 18 Testcontainer | 5 ms      | local      | 1,438      | 1,426           |
+| PostgreSQL 18 Testcontainer | 5 ms      | sql        | 1,048      | 1,052           |
+| MySQL 8.4 Testcontainer     | 0 ms      | local      | 17,132     | 16,176          |
+| MySQL 8.4 Testcontainer     | 0 ms      | sql        | 8,385      | 8,010           |
+| MySQL 8.4 Testcontainer     | 1 ms      | local      | 3,952      | 3,470           |
+| MySQL 8.4 Testcontainer     | 1 ms      | sql        | 4,075      | 3,899           |
+| MySQL 8.4 Testcontainer     | 5 ms      | local      | 1,084      | 1,044           |
+| MySQL 8.4 Testcontainer     | 5 ms      | sql        | 913        | 925             |
 
 contention benchmark는 `64` JMH threads에서 동시성보다 작은 `maxSize`를 사용합니다.
 기본 profile은 이 benchmark에서 무제한 pending queue를 사용하고, high-throughput profile은 제한된 pending acquire와
@@ -118,10 +130,8 @@ contention benchmark는 `64` JMH threads에서 동시성보다 작은 `maxSize`�
 
 #### 실측 기반 튜닝 가이드
 
-- 순수 acquire/close 경로(
-  `0 ms` 점유)는 실제 사용하는 드라이버 기준으로 비교하세요. 이번 실행에서는 H2/PostgreSQL은 고처리량 프리셋이 약간 높았고, MySQL 8은 기본 profile이 높았습니다. 이 경로는 대부분 드라이버/풀 오버헤드 microbenchmark이므로 서버 기본값을 이것만으로 결정하지 마세요.
-- 요청이 SQL 또는 트랜잭션 실행 동안 커넥션을 점유하는 서버 워크로드라면 `R2dbcPoolConfig.highThroughput()`을 사용하세요. `1 ms`,
-  `5 ms` 점유 시간에서는 H2, PostgreSQL, MySQL 8 모두 점유 시간이 처리량을 지배해 두 profile이 사실상 수렴했고, 이때는 high-throughput 프리셋의 bounded queue와 warmup 동작이 더 중요한 운영 속성이 됩니다.
+- 순수 acquire/close 경로(`0 ms` 점유)는 같은 드라이버 안에서 `local`과 `sql`을 비교하세요. 이번 snapshot에서는 PostgreSQL과 MySQL에서 SQL validation 비용이 분명했지만, H2는 오차 구간이 넓어 순위를 판단할 수 없습니다.
+- 요청이 SQL 또는 트랜잭션 실행 동안 커넥션을 점유하는 서버 워크로드라면 `R2dbcPoolConfig.highThroughput()`을 사용하세요. 점유 시간이 늘수록 connection occupancy가 validation과 profile 차이를 지배할 수 있으므로, 노이즈가 큰 microbenchmark 순위보다 bounded queue와 warmup 동작이 더 중요합니다.
 - 동시 요청 수가 풀 크기를 넘고 DB가 추가 세션을 감당할 수 있을 때만 `maxSize`를 늘리세요. `64`개 경쟁 thread에서는 커넥션 슬롯이 병목이라 처리량이
   기본 profile의 무제한 queue 경로에서 `maxSize`에 거의 선형으로 반응했습니다.
 - failure count가 큰 high-throughput contention 행은 성공 SQL 처리량이 아니라 과부하 신호로 해석하세요. 제한된 pending queue는 backpressure를 빠르게 드러냅니다. DB가 추가 작업을 감당할 수 있을 때만 `maxSize`, pending queue, acquire timeout 예산을 늘리고, 그렇지 않으면 traffic shed나 hold time 감소를 우선하세요.
@@ -135,8 +145,7 @@ contention benchmark는 `64` JMH threads에서 동시성보다 작은 `maxSize`�
   `maxSize * 4`를 사용해 짧은 burst는 흡수하되, 과부하를 숨기고 tail latency를 키우는 무제한 backlog를 피합니다.
 - `maxPendingAcquire`가 너무 작으면 풀과 pending queue가 찼을 때 r2dbc-pool이 추가 획득을 거부합니다. 이는 fail-fast 과부하 제어에 유용하지만, 애플리케이션 acquire 실패/timeout 지표와 함께 운영해야 합니다.
 - `maxAcquireTime`은 유한한 값으로 두세요. API 서비스는 `2-3s`를 시작점으로 삼고, 실패보다 대기가 나은 배치 작업은 더 길게 둘 수 있습니다.
-- 운영 드라이버가 로컬 검증을 지원한다면 `ValidationDepth.LOCAL`과 `validationQuery = null`을 우선하세요. benchmark에서
-  `SELECT 1`을 사용한 것은 H2/PostgreSQL/MySQL 검증 경로를 일관되게 만들기 위한 것이며, SQL 검증 쿼리는 커넥션 획득마다 DB 왕복을 추가합니다.
+- 운영 드라이버가 로컬 검증을 지원한다면 `ValidationDepth.LOCAL`과 `validationQuery = null`을 우선하세요. 배포 환경에서 `SELECT 1`이 명시적으로 필요할 때는 benchmark의 `sql` mode를 사용하세요. SQL 검증은 커넥션 획득마다 DB 왕복을 추가합니다.
 - 위 수치는 로컬 기준선이지 보편적 한계값이 아닙니다. 쿼리 latency, 트랜잭션 시간, 인스턴스 수, DB 커넥션 한도가 바뀌면 DB별 pool acquire benchmark를 다시 실행하세요.
 
 ### 2. DatabaseClient SQL 실행
