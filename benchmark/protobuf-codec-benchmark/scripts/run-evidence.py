@@ -145,9 +145,12 @@ def load_json(path):
     path = Path(path)
     try:
         with path.open("r", encoding="utf-8") as stream:
-            return json.load(stream)
+            value = json.load(stream)
     except (OSError, ValueError) as exc:
         raise error(path, "invalid JSON ({})".format(exc), "restore or regenerate this artifact")
+    if not isinstance(value, dict):
+        raise error(path, "JSON root type={} != object".format(type(value).__name__), "restore or regenerate this artifact as a JSON object")
+    return value
 
 
 def _run(command_runner, argv, cwd=None, pass_fds=()):
@@ -782,8 +785,6 @@ def _identity_capture(repo_root, command_runner):
     return {
         "git_commit": commit.strip(), "tree_hash": tree.strip(),
         "uname": platform.platform(), "os": platform.system(), "arch": platform.machine(), "cpu": platform.processor() or "unknown",
-        "java_version_stdout": java, "java_version_stderr": java_err, "java_version_exit_code": java_code,
-        "gradle_version_stdout": gradle, "gradle_version_stderr": gradle_err, "gradle_version_exit_code": gradle_code,
         "jvm_vendor": java_properties.get("java.vendor", "unknown"),
         "jvm_version": java_properties.get("java.version", "unknown"),
         "jdk_version": java_properties.get("java.version", "unknown"),
@@ -1029,11 +1030,21 @@ def _walk_strings(value, prefix=""):
 def _canonical_manifest_path(repo_root, relative, manifest_path):
     repo_root = Path(repo_root).resolve()
     path = repo_root / relative
-    path = path.parent.resolve() / path.name
     try:
         path.relative_to(repo_root)
     except ValueError:
         raise error(manifest_path, "path escapes repository: {}".format(relative), "regenerate the manifest")
+    current = repo_root
+    for part in Path(relative).parts:
+        current = current / part
+        try:
+            mode = current.lstat().st_mode
+        except FileNotFoundError:
+            break
+        except OSError as exc:
+            raise error(current, "manifest path lstat failed ({})".format(exc), "restore committed evidence")
+        if stat.S_ISLNK(mode):
+            raise error(current, "manifest path contains a symlink component", "replace links with repository-owned regular files")
     return path
 
 
@@ -1043,8 +1054,7 @@ def verify_manifest_files(manifest, repo_root, manifest_path, run_log_results=No
     run_log_results = run_log_results if run_log_results is not None else preflight_manifest_run_logs(manifest, repo_root, manifest_path)
     for item in manifest["files"]:
         path = _canonical_manifest_path(repo_root, item["path"], manifest_path)
-        if not path.is_file():
-            raise error(path, "manifest file is missing", "restore committed evidence")
+        require_regular_file(path, "restore committed evidence")
         observed = run_log_results[path]["sha256"] if path.name == "run.log" else sha256_file(path)
         if observed != item["sha256"]:
             raise error(path, "sha256 observed={} expected={}".format(observed, item["sha256"]), "restore committed bytes or regenerate evidence")
@@ -1288,18 +1298,32 @@ def require_symlink_free_tree(root):
     try:
         root_mode = root.lstat().st_mode
     except OSError as exc:
-        raise error(root, "rollback source lstat failed ({})".format(exc), "restore the complete state-bound source")
+        raise error(root, "artifact tree lstat failed ({})".format(exc), "restore the complete state-bound source")
     if stat.S_ISLNK(root_mode) or not stat.S_ISDIR(root_mode):
-        raise error(root, "rollback source is not a non-symlink directory", "restore a regular state-bound directory")
+        raise error(root, "artifact tree is not a non-symlink directory", "restore a regular state-bound directory")
     resolved_root = root.resolve()
     for path in root.rglob("*"):
         mode = path.lstat().st_mode
         if stat.S_ISLNK(mode):
-            raise error(path, "rollback source contains a symlink", "replace links with state-bound regular files")
+            raise error(path, "artifact tree contains a symlink", "replace links with state-bound regular files")
         try:
             path.resolve().relative_to(resolved_root)
         except ValueError:
-            raise error(path, "rollback source entry resolves outside {}".format(resolved_root), "restore the bounded source tree")
+            raise error(path, "artifact tree entry resolves outside {}".format(resolved_root), "restore the bounded source tree")
+
+
+def require_regular_file(path, remediation):
+    path = Path(path)
+    try:
+        parent_mode = path.parent.lstat().st_mode
+        mode = path.lstat().st_mode
+    except OSError as exc:
+        raise error(path, "regular file lstat failed ({})".format(exc), remediation)
+    if stat.S_ISLNK(parent_mode):
+        raise error(path.parent, "parent component is a symlink", remediation)
+    if stat.S_ISLNK(mode) or not stat.S_ISREG(mode):
+        raise error(path, "artifact is not a non-symlink regular file", remediation)
+    return path
 
 
 def require_safe_relative_path(container, value, field):
@@ -1961,19 +1985,20 @@ def verify_state_inputs(state, state_path):
     verify_pinned_jar(state, state_path)
     for run in state.get("canonical_runs", []):
         root = Path(run["absolute_path"])
-        actual_names = sorted(path.name for path in root.iterdir() if path.is_file()) if root.is_dir() else []
+        require_symlink_free_tree(root)
+        actual_names = sorted(path.name for path in root.iterdir() if path.is_file())
         if actual_names != sorted(REQUIRED_RUN_FILES):
             raise error(root, "run file set observed={} expected={}".format(actual_names, sorted(REQUIRED_RUN_FILES)), "collect a fresh complete canonical run")
         recorded = run.get("files")
         if set(recorded or {}) != set(REQUIRED_RUN_FILES):
             raise error(state_path, "state run file set observed={} expected={}".format(sorted(recorded or {}), sorted(REQUIRED_RUN_FILES)), "resolve fresh state and recollect both runs")
         for name in REQUIRED_RUN_FILES:
-            observed = sha256_file(root / name)
+            observed = sha256_file(require_regular_file(root / name, "collect fresh canonical evidence"))
             if observed != recorded[name]:
                 raise error(root / name, "state-bound sha256 observed={} expected={}".format(observed, recorded[name]), "collect fresh canonical evidence")
     for key, hash_key in (("comparison_path", "comparison_sha256"), ("comparison_validation_path", "comparison_validation_sha256")):
         path = Path(state.get(key, ""))
-        observed = sha256_file(path) if path.is_file() else None
+        observed = sha256_file(require_regular_file(path, "rerun comparison from the two state-bound runs"))
         if observed != state.get(hash_key):
             raise error(path, "state-bound sha256 observed={} expected={}".format(observed, state.get(hash_key)), "rerun comparison from the two state-bound runs")
     if state.get("rollback_bundle_path"):

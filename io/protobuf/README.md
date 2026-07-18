@@ -78,6 +78,10 @@ val codec = RedissonProtobufCodec(
 )
 ```
 
+A trusted Redisson fallback decoder must consume its temporary input synchronously and return only an independent
+object. Retaining the input, transferring it to another thread, or returning a derived `ByteBuf` view is unsupported.
+If the decoded result must preserve those bytes, return an independently owned `ByteBuf.copy()` instead.
+
 On decode, only a contiguous input that exposes exactly one NIO buffer (`nioBufferCount() == 1`) uses the lower-copy
 path. Composite input remains on the copied compatibility path, and trusted fallback decoding remains isolated through
 its own copied input. This is not a zero-copy guarantee.

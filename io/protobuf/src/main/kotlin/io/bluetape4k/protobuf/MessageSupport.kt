@@ -31,8 +31,8 @@ fun <T: Message> packMessage(message: T): ByteArray {
  * The bytes are identical to [packMessage]. Writing begins at the target's current position, so callers may use a
  * nonzero position and a bounded limit. On success, the target's byte order, limit, and capacity are preserved, and
  * its position advances by the returned byte count. The exact encoded size is preflighted against
- * [ByteBuffer.remaining]; a read-only target is
- * rejected before the size check. These preflight failures leave the target state and content unchanged.
+ * [ByteBuffer.remaining]; a read-only target is rejected before packing or checking the encoded size. These preflight
+ * failures leave the target state and content unchanged.
  *
  * A later write failure restores only the target position; already-written content is intentionally unspecified. After
  * such a failure, callers must clear, reinitialize, or discard the target before reusing it. The target remains
@@ -41,13 +41,15 @@ fun <T: Message> packMessage(message: T): ByteArray {
  * @throws ReadOnlyBufferException when [target] is read-only.
  * @throws BufferOverflowException when [target] has fewer remaining bytes than the packed message requires.
  */
-fun <T: Message> packMessageTo(message: T, target: ByteBuffer): Int =
-    writePackedAnyTo(ProtoAny.pack(message), target) { packed, buffer ->
+fun <T: Message> packMessageTo(message: T, target: ByteBuffer): Int {
+    if (target.isReadOnly) throw ReadOnlyBufferException()
+    return writePackedAnyTo(ProtoAny.pack(message), target) { packed, buffer ->
         CodedOutputStream.newInstance(buffer).also {
             packed.writeTo(it)
             it.flush()
         }
     }
+}
 
 /**
  * `Any` 바이트 배열에서 지정 타입 [T] 메시지를 언패킹합니다.

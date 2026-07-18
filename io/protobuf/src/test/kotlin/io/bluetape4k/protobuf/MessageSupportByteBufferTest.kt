@@ -3,6 +3,9 @@ package io.bluetape4k.protobuf
 import com.google.protobuf.Message
 import io.bluetape4k.protobuf.messages.TestMessage
 import io.bluetape4k.protobuf.messages.testMessage
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -14,6 +17,17 @@ import kotlin.test.assertNull
 import org.junit.jupiter.api.Test
 
 class MessageSupportByteBufferTest {
+    @Test
+    fun `packMessageTo rejects read-only target before protobuf work`() {
+        val message = mockk<Message>()
+        every { message.descriptorForType } throws AssertionError("protobuf work must not run")
+        val target = ByteBuffer.allocate(1).asReadOnlyBuffer()
+
+        assertFailsWith<ReadOnlyBufferException> { packMessageTo(message, target) }
+
+        verify(exactly = 0) { message.descriptorForType }
+    }
+
     @Test
     fun `packMessageTo writes Any wire bytes to heap and direct buffers from nonzero positions`() {
         val message = message()

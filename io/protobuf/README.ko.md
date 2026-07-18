@@ -77,6 +77,10 @@ val codec = RedissonProtobufCodec(
 )
 ```
 
+신뢰하는 Redisson fallback decoder는 임시 input을 동기적으로 모두 소비하고 독립된 객체만 반환해야 합니다.
+input을 retain하거나 다른 thread로 전달하거나 파생 `ByteBuf` view를 반환하는 방식은 지원하지 않습니다. Decode
+결과가 해당 bytes를 계속 보존해야 한다면 독립적인 소유권을 갖는 `ByteBuf.copy()`를 반환하세요.
+
 Decode 시 정확히 하나의 NIO buffer를 노출하는 contiguous input(`nioBufferCount() == 1`)만 lower-copy 경로를
 사용합니다. Composite input은 copied compatibility 경로에 남고 trusted fallback decode도 별도로 복사한 input으로
 격리됩니다. 이는 zero-copy를 보장한다는 의미가 아닙니다.

@@ -1063,6 +1063,54 @@ class EvidenceRunnerTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "concurrent_heavy_work"):
             runner.validate_heavy_work("canonical", "present", Path("state.json"))
 
+    def test_identity_capture_keeps_only_normalized_reproducibility_fields(self):
+        java_settings = b"""Property settings:
+    java.vendor = Example Vendor
+    java.version = 21.0.11
+    java.vm.name = Example VM
+    java.vm.version = 21+1
+    java.io.tmpdir = /private/tmp/issue-757-secret
+    user.dir = /Users/operator/work/repo/build
+    user.home = /Users/operator
+    user.name = operator
+"""
+        gradle_version = b"""Gradle 9.6.0
+Daemon JVM: /Users/operator/.jdks/example
+"""
+
+        def command(argv, **_kwargs):
+            if argv[:2] == ["git", "rev-parse"] and argv[-1] == "HEAD":
+                return subprocess.CompletedProcess(argv, 0, stdout=b"commit\n", stderr=b"")
+            if argv[:2] == ["git", "rev-parse"] and argv[-1] == "HEAD^{tree}":
+                return subprocess.CompletedProcess(argv, 0, stdout=b"tree\n", stderr=b"")
+            if argv[0] == "java":
+                return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=java_settings)
+            if argv[-1] == "--version":
+                return subprocess.CompletedProcess(argv, 0, stdout=gradle_version, stderr=b"")
+            return subprocess.CompletedProcess(argv, 127, stdout=b"", stderr=b"unexpected")
+
+        captured = runner._identity_capture(Path("repo"), command)
+        encoded = runner.canonical_json_bytes(captured)
+
+        self.assertEqual("Example Vendor", captured["jvm_vendor"])
+        self.assertEqual("21.0.11", captured["jvm_version"])
+        self.assertEqual("Example VM", captured["vm_name"])
+        self.assertEqual("21+1", captured["vm_version"])
+        self.assertEqual("9.6.0", captured["gradle_version"])
+        self.assertEqual({
+            "git_commit", "tree_hash", "uname", "os", "arch", "cpu",
+            "jvm_vendor", "jvm_version", "jdk_version", "vm_name", "vm_version",
+            "gradle_version",
+        }, set(captured))
+        for forbidden in (
+            b"java_version_stdout", b"java_version_stderr",
+            b"gradle_version_stdout", b"gradle_version_stderr",
+            b"operator", b"user.home", b"user.name", b"java.io.tmpdir",
+            b"/Users/", b"/private/tmp/", b"/build",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, encoded)
+
     def test_manifest_verifies_hashes_without_build_state_and_detects_tamper(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -1074,6 +1122,66 @@ class EvidenceRunnerTest(unittest.TestCase):
                 runner.validate_committed(manifest_path, repo_root=root, require_git_commit=False)
             with self.assertRaisesRegex(ValueError, "absolute/build token"):
                 runner.validate_manifest({"schema_version": 1, "files": [{"path": "docs/a", "sha256": "0" * 64}], "commands": [["java", "-jar", "/tmp/build/x.jar"]]}, manifest_path)
+
+    def test_committed_validation_rejects_final_and_parent_component_symlinks(self):
+        for component in ("final", "parent"):
+            with self.subTest(component=component), tempfile.TemporaryDirectory() as td:
+                root = Path(td) / "repo"
+                manifest_path = build_complete_delivery(root)
+                external = Path(td) / "external"
+                external.mkdir()
+                run_root = manifest_path.parent / "run-a"
+                if component == "final":
+                    victim = run_root / "metadata.json"
+                    target = external / "metadata.json"
+                    target.write_bytes(victim.read_bytes())
+                    victim.unlink()
+                    victim.symlink_to(target)
+                else:
+                    target = external / "run-a"
+                    shutil.copytree(run_root, target)
+                    shutil.rmtree(run_root)
+                    run_root.symlink_to(target, target_is_directory=True)
+
+                with self.assertRaisesRegex(ValueError, "symlink"):
+                    runner.validate_committed(manifest_path, repo_root=root, require_git_commit=False)
+
+    def test_promotion_input_gate_rejects_manifest_bound_symlink(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            jar = root / "bench-JMH.jar"; jar.write_bytes(b"jar")
+            jar_stat = jar.stat()
+            state = {
+                "benchmark_jar_path": str(jar.resolve()),
+                "benchmark_jar_sha256": runner.sha256_file(jar),
+                "benchmark_jar_stat": [jar_stat.st_dev, jar_stat.st_ino, jar_stat.st_size],
+                "canonical_runs": [],
+            }
+            for run_id in ("a", "b"):
+                run_root = root / run_id; run_root.mkdir()
+                for name in runner.REQUIRED_RUN_FILES:
+                    (run_root / name).write_text(run_id + name)
+                state["canonical_runs"].append({
+                    "run_id": run_id,
+                    "absolute_path": str(run_root),
+                    "files": {name: runner.sha256_file(run_root / name) for name in runner.REQUIRED_RUN_FILES},
+                })
+            comparison = root / "comparison.csv"; comparison.write_text("comparison")
+            validation = root / "validation.json"; validation.write_text("{}")
+            state.update({
+                "comparison_path": str(comparison),
+                "comparison_sha256": runner.sha256_file(comparison),
+                "comparison_validation_path": str(validation),
+                "comparison_validation_sha256": runner.sha256_file(validation),
+            })
+            external = root / "external-jmh.json"
+            victim = root / "a" / "jmh.json"
+            external.write_bytes(victim.read_bytes())
+            victim.unlink()
+            victim.symlink_to(external)
+
+            with self.assertRaisesRegex(ValueError, "symlink"):
+                runner.verify_state_inputs(state, root / "state.json")
 
     def test_committed_validation_rejects_oversized_run_log_before_tail_read(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1849,6 +1957,26 @@ class EvidenceRunnerTest(unittest.TestCase):
             self.assertNotEqual(0, result.returncode)
             self.assertIn("remediation:", result.stderr)
             self.assertNotIn("Traceback", result.stderr)
+
+    def test_cli_rejects_non_object_state_without_traceback_or_source_path(self):
+        with tempfile.TemporaryDirectory() as td:
+            state = Path(td) / "state.json"
+            state.write_text("[]\n")
+            result = subprocess.run(
+                [
+                    sys.executable, str(HERE / "run-evidence.py"), "run",
+                    "--state", str(state), "--profile", "smoke",
+                    "--output-root", str(Path(td) / "runs"), "--run-id", "run-fixed",
+                    "--concurrent-heavy-work", "absent",
+                ],
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("JSON root type=list", result.stderr)
+            self.assertIn("remediation:", result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+            self.assertNotIn(str(HERE / "run-evidence.py"), result.stderr)
 
     def test_generated_run_ids_are_unique_and_match_contract(self):
         first = runner.generate_run_id(); second = runner.generate_run_id()
