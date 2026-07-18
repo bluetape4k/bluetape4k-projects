@@ -1,0 +1,114 @@
+{
+  "bundle_sha256": "83bb133a97331a448a1ff4c8491f0fa58012658dd3469023071f1396b83a83dd",
+  "decisions": [
+    {
+      "archive_root": "archive-g1-run-20260718T192824.025728Z-b491361e",
+      "artifacts": [
+        {
+          "path": "comparison.csv",
+          "sha256": "e4acf045f29b804bad4ec69f71964a42696c61105c5859c65d11d86eced4caf6"
+        },
+        {
+          "path": "jar.json",
+          "sha256": "2700b2702fc6422690c48f4acedbf2eb286167a5b43b83cbeb0ca303df64bae8"
+        },
+        {
+          "path": "run-20260718T192032.258066Z-3aabf0ba/argv.json",
+          "sha256": "8e24852142899f6d148bf9955cc2b9d951983c81430cd05b7ba4e9ef9c49b378"
+        },
+        {
+          "path": "run-20260718T192032.258066Z-3aabf0ba/environment.json",
+          "sha256": "01d5fd05fb289c311ca2f7f05c346aa14d790c49a58ed103daa6c9a6fd67a9a7"
+        },
+        {
+          "path": "run-20260718T192032.258066Z-3aabf0ba/jmh.json",
+          "sha256": "2641c932d23853ba5b9a5658e6102e0dfa184cafc612ab56a26b5068ee708adb"
+        },
+        {
+          "path": "run-20260718T192032.258066Z-3aabf0ba/metadata.json",
+          "sha256": "097447d167f65150c5a4cf9f256df5c36dcfe69113e23ddbc8bb1923f8d5de65"
+        },
+        {
+          "path": "run-20260718T192032.258066Z-3aabf0ba/run.log",
+          "sha256": "295454e3d59df53a9e74d76e642b77157e53eab31454bf72353be8839130848d"
+        },
+        {
+          "path": "run-20260718T192032.258066Z-3aabf0ba/summary.csv",
+          "sha256": "7381c6ee95c4392116ecbbd83b1babc4784eb30d3efff44904961fed960ce2e9"
+        },
+        {
+          "path": "run-20260718T192032.258066Z-3aabf0ba/validation.json",
+          "sha256": "afa96942ea6dccd8b94fc449ba282b3038db777ae9f29566f1192aae2903ab43"
+        },
+        {
+          "path": "run-20260718T192426.154770Z-6ef6336c/argv.json",
+          "sha256": "f2f71155d46adb73ba6104dc3b3a1aa674e47b4a9e2866f8926f02184c20bf24"
+        },
+        {
+          "path": "run-20260718T192426.154770Z-6ef6336c/environment.json",
+          "sha256": "d37c28cd297ffeb9e5b5c3cfd86577c308f82370579f5d202298be1981c2f42f"
+        },
+        {
+          "path": "run-20260718T192426.154770Z-6ef6336c/jmh.json",
+          "sha256": "c24085a9bd3b1d765e081c0ff8ba5f4f093f3a683d01d4b47fb4aa55d8d42bec"
+        },
+        {
+          "path": "run-20260718T192426.154770Z-6ef6336c/metadata.json",
+          "sha256": "097447d167f65150c5a4cf9f256df5c36dcfe69113e23ddbc8bb1923f8d5de65"
+        },
+        {
+          "path": "run-20260718T192426.154770Z-6ef6336c/run.log",
+          "sha256": "735c0745889385c2b4319002d25cedf7a1c898b9918dbc5cb2a3ebda26cd3941"
+        },
+        {
+          "path": "run-20260718T192426.154770Z-6ef6336c/summary.csv",
+          "sha256": "056cebd475c0f55cc7f3e0badd0eebc2e8bc7c85c78d82eef1343a4efe18afe5"
+        },
+        {
+          "path": "run-20260718T192426.154770Z-6ef6336c/validation.json",
+          "sha256": "5cf2266bf5dbb06939ec2567696f965e57548d487a1fa7db212c3e88d0f0fdb5"
+        },
+        {
+          "path": "validation.json",
+          "sha256": "9deb21165d567fd2469aa74a210174704f0954837a0fdaed9790c713b6cf6e12"
+        }
+      ],
+      "decision_sha256": "27b0cb739f24d35ad593f89baeae6b4f6665152f1b33d6d7258f9590dde6e0a0",
+      "dispatch": "serializer_decode",
+      "generation": 1,
+      "lineage_parent_commit": null,
+      "old_commit": "de503310e9a908b4e01f54a53c319bc30ff97101",
+      "old_tree": "e16fae6d09d5865e94658f436ba4f3cae330a986",
+      "post_rollback_commit": "df1bed0ca5ca00720a7ee79a996d862938751b4e",
+      "post_rollback_tree": "751c356c39a06a74b0af6eb15814da8dea4be824",
+      "regressed_cells": [
+        "serializerDecodeDirectOptimized"
+      ],
+      "removal_evidence": {
+        "dispatch": "serializer_decode",
+        "head_changed": true,
+        "old_commit": "de503310e9a908b4e01f54a53c319bc30ff97101",
+        "old_tree": "e16fae6d09d5865e94658f436ba4f3cae330a986",
+        "post_rollback_commit": "df1bed0ca5ca00720a7ee79a996d862938751b4e",
+        "post_rollback_tree": "751c356c39a06a74b0af6eb15814da8dea4be824",
+        "removed_cells": [
+          "serializerDecodeDirectOptimized",
+          "serializerDecodeHeapOptimized"
+        ],
+        "tree_changed": true
+      },
+      "removed_cells": [
+        "serializerDecodeDirectOptimized",
+        "serializerDecodeHeapOptimized"
+      ],
+      "timestamp": "2026-07-18T19:28:24.031321Z"
+    }
+  ],
+  "generation": 1,
+  "kind": "rollback_bundle",
+  "predecessor_bundle_sha256": null,
+  "preparation_path": "rollback-preparation-g1-f6da3c4ee209fc0aedc3b41223d3ffad53e7f5540bf040ef880c27f7a65a8b31.json",
+  "preparation_payload_sha256": "f6da3c4ee209fc0aedc3b41223d3ffad53e7f5540bf040ef880c27f7a65a8b31",
+  "preparation_sha256": "8c6781bc43249e2d815d8e0e4f738b8e3d4a52cb23485ded4aedbd89ee401aac",
+  "schema_version": 2
+}

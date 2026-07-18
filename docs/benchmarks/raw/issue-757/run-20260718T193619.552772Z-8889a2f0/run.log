@@ -1,0 +1,1539 @@
+# JMH version: 1.37
+# VM version: JDK 21.0.11, OpenJDK 64-Bit Server VM, 21.0.11
+# VM invoker: /opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home/bin/java
+# VM options: -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility
+# Parameters: (matrixVersion = issue-757-v1, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 0.00% complete, ETA 00:03:28
+# Fork: 1 of 2
+# Warmup Iteration   1: 1989512.813 ops/s
+# Warmup Iteration   2: 2246933.376 ops/s
+# Warmup Iteration   3: 2251649.336 ops/s
+Iteration   1: 2247541.896 ops/s
+                 gc.alloc.rate:      17105.225 MB/sec
+                 gc.alloc.rate.norm: 8208.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            18.000 ms
+
+Iteration   2: 2250307.034 ops/s
+                 gc.alloc.rate:      17111.809 MB/sec
+                 gc.alloc.rate.norm: 8208.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            19.000 ms
+
+Iteration   3: 2220927.556 ops/s
+                 gc.alloc.rate:      16883.033 MB/sec
+                 gc.alloc.rate.norm: 8208.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            17.000 ms
+
+Iteration   4: 2106942.468 ops/s
+                 gc.alloc.rate:      16011.556 MB/sec
+                 gc.alloc.rate.norm: 8208.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            22.000 ms
+
+Iteration   5: 2248024.776 ops/s
+                 gc.alloc.rate:      17100.566 MB/sec
+                 gc.alloc.rate.norm: 8208.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            18.000 ms
+
+
+# Run progress: 3.85% complete, ETA 00:03:28
+# Fork: 2 of 2
+# Warmup Iteration   1: 2020754.458 ops/s
+# Warmup Iteration   2: 2149552.682 ops/s
+# Warmup Iteration   3: 2241068.649 ops/s
+Iteration   1: 2250785.423 ops/s
+                 gc.alloc.rate:      17103.770 MB/sec
+                 gc.alloc.rate.norm: 8208.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            17.000 ms
+
+Iteration   2: 2251899.111 ops/s
+                 gc.alloc.rate:      17111.326 MB/sec
+                 gc.alloc.rate.norm: 8208.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            18.000 ms
+
+Iteration   3: 2254229.189 ops/s
+                 gc.alloc.rate:      17140.920 MB/sec
+                 gc.alloc.rate.norm: 8208.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            18.000 ms
+
+Iteration   4: 2224463.337 ops/s
+                 gc.alloc.rate:      16877.557 MB/sec
+                 gc.alloc.rate.norm: 8208.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            19.000 ms
+
+Iteration   5: 2245935.280 ops/s
+                 gc.alloc.rate:      17061.552 MB/sec
+                 gc.alloc.rate.norm: 8208.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            18.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility":
+  2230105.607 ±(99.9%) 67712.881 ops/s [Average]
+  (min, avg, max) = (2106942.468, 2230105.607, 2254229.189), stdev = 44787.879
+  CI (99.9%): [2162392.726, 2297818.488] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.alloc.rate":
+  16950.731 ±(99.9%) 519.320 MB/sec [Average]
+  (min, avg, max) = (16011.556, 16950.731, 17140.920), stdev = 343.498
+  CI (99.9%): [16431.412, 17470.051] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.alloc.rate.norm":
+  8208.003 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (8208.003, 8208.003, 8208.003), stdev = 0.001
+  CI (99.9%): [8208.003, 8208.003] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.count":
+  277.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (26.000, 27.700, 28.000), stdev = 0.675
+  CI (99.9%): [277.000, 277.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.time":
+  184.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (17.000, 18.400, 22.000), stdev = 1.430
+  CI (99.9%): [184.000, 184.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, OpenJDK 64-Bit Server VM, 21.0.11
+# VM invoker: /opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home/bin/java
+# VM options: -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeContiguousOptimized
+# Parameters: (matrixVersion = issue-757-v1, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 7.69% complete, ETA 00:03:20
+# Fork: 1 of 2
+# Warmup Iteration   1: 2706963.972 ops/s
+# Warmup Iteration   2: 3026286.388 ops/s
+# Warmup Iteration   3: 3051706.545 ops/s
+Iteration   1: 3022981.282 ops/s
+                 gc.alloc.rate:      15112.957 MB/sec
+                 gc.alloc.rate.norm: 5512.002 B/op
+                 gc.count:           24.000 counts
+                 gc.time:            15.000 ms
+
+Iteration   2: 3046484.043 ops/s
+                 gc.alloc.rate:      15210.591 MB/sec
+                 gc.alloc.rate.norm: 5512.002 B/op
+                 gc.count:           25.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   3: 3021166.437 ops/s
+                 gc.alloc.rate:      15120.413 MB/sec
+                 gc.alloc.rate.norm: 5512.002 B/op
+                 gc.count:           25.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   4: 3003867.949 ops/s
+                 gc.alloc.rate:      15052.242 MB/sec
+                 gc.alloc.rate.norm: 5512.002 B/op
+                 gc.count:           25.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   5: 3046093.854 ops/s
+                 gc.alloc.rate:      15212.067 MB/sec
+                 gc.alloc.rate.norm: 5512.002 B/op
+                 gc.count:           25.000 counts
+                 gc.time:            17.000 ms
+
+
+# Run progress: 11.54% complete, ETA 00:03:11
+# Fork: 2 of 2
+# Warmup Iteration   1: 2783858.972 ops/s
+# Warmup Iteration   2: 2851245.319 ops/s
+# Warmup Iteration   3: 3099584.941 ops/s
+Iteration   1: 3102662.954 ops/s
+                 gc.alloc.rate:      15525.718 MB/sec
+                 gc.alloc.rate.norm: 5512.002 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            17.000 ms
+
+Iteration   2: 3017251.449 ops/s
+                 gc.alloc.rate:      15089.185 MB/sec
+                 gc.alloc.rate.norm: 5512.002 B/op
+                 gc.count:           25.000 counts
+                 gc.time:            18.000 ms
+
+Iteration   3: 3107961.834 ops/s
+                 gc.alloc.rate:      15554.191 MB/sec
+                 gc.alloc.rate.norm: 5512.002 B/op
+                 gc.count:           25.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   4: 3054163.776 ops/s
+                 gc.alloc.rate:      15282.616 MB/sec
+                 gc.alloc.rate.norm: 5512.002 B/op
+                 gc.count:           25.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   5: 3089698.600 ops/s
+                 gc.alloc.rate:      15451.221 MB/sec
+                 gc.alloc.rate.norm: 5512.002 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            16.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeContiguousOptimized":
+  3051233.218 ±(99.9%) 56345.190 ops/s [Average]
+  (min, avg, max) = (3003867.949, 3051233.218, 3107961.834), stdev = 37268.855
+  CI (99.9%): [2994888.027, 3107578.408] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.alloc.rate":
+  15261.120 ±(99.9%) 281.675 MB/sec [Average]
+  (min, avg, max) = (15052.242, 15261.120, 15554.191), stdev = 186.311
+  CI (99.9%): [14979.445, 15542.795] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.alloc.rate.norm":
+  5512.002 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (5512.002, 5512.002, 5512.002), stdev = 0.001
+  CI (99.9%): [5512.002, 5512.002] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.count":
+  251.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (24.000, 25.100, 26.000), stdev = 0.568
+  CI (99.9%): [251.000, 251.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.time":
+  163.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (15.000, 16.300, 18.000), stdev = 0.823
+  CI (99.9%): [163.000, 163.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, OpenJDK 64-Bit Server VM, 21.0.11
+# VM invoker: /opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home/bin/java
+# VM options: -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCopiedByteArray
+# Parameters: (matrixVersion = issue-757-v1, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 15.38% complete, ETA 00:03:03
+# Fork: 1 of 2
+# Warmup Iteration   1: 2461064.956 ops/s
+# Warmup Iteration   2: 2603490.549 ops/s
+# Warmup Iteration   3: 2649680.046 ops/s
+Iteration   1: 2658198.420 ops/s
+                 gc.alloc.rate:      18618.134 MB/sec
+                 gc.alloc.rate.norm: 7680.003 B/op
+                 gc.count:           31.000 counts
+                 gc.time:            20.000 ms
+
+Iteration   2: 2645216.784 ops/s
+                 gc.alloc.rate:      18543.348 MB/sec
+                 gc.alloc.rate.norm: 7680.003 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            20.000 ms
+
+Iteration   3: 2668882.649 ops/s
+                 gc.alloc.rate:      18688.677 MB/sec
+                 gc.alloc.rate.norm: 7680.003 B/op
+                 gc.count:           31.000 counts
+                 gc.time:            20.000 ms
+
+Iteration   4: 2636709.207 ops/s
+                 gc.alloc.rate:      18483.563 MB/sec
+                 gc.alloc.rate.norm: 7680.003 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            19.000 ms
+
+Iteration   5: 2686486.702 ops/s
+                 gc.alloc.rate:      18811.443 MB/sec
+                 gc.alloc.rate.norm: 7680.003 B/op
+                 gc.count:           31.000 counts
+                 gc.time:            20.000 ms
+
+
+# Run progress: 19.23% complete, ETA 00:02:54
+# Fork: 2 of 2
+# Warmup Iteration   1: 2333296.558 ops/s
+# Warmup Iteration   2: 2543120.653 ops/s
+# Warmup Iteration   3: 2587859.805 ops/s
+Iteration   1: 2545096.847 ops/s
+                 gc.alloc.rate:      18034.507 MB/sec
+                 gc.alloc.rate.norm: 7680.003 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            20.000 ms
+
+Iteration   2: 2566984.590 ops/s
+                 gc.alloc.rate:      18139.836 MB/sec
+                 gc.alloc.rate.norm: 7680.003 B/op
+                 gc.count:           29.000 counts
+                 gc.time:            19.000 ms
+
+Iteration   3: 2541750.583 ops/s
+                 gc.alloc.rate:      18001.846 MB/sec
+                 gc.alloc.rate.norm: 7680.003 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            19.000 ms
+
+Iteration   4: 2588643.122 ops/s
+                 gc.alloc.rate:      18209.916 MB/sec
+                 gc.alloc.rate.norm: 7680.003 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            19.000 ms
+
+Iteration   5: 2587776.954 ops/s
+                 gc.alloc.rate:      18221.493 MB/sec
+                 gc.alloc.rate.norm: 7680.003 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            20.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCopiedByteArray":
+  2612574.586 ±(99.9%) 79997.581 ops/s [Average]
+  (min, avg, max) = (2541750.583, 2612574.586, 2686486.702), stdev = 52913.447
+  CI (99.9%): [2532577.004, 2692572.167] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.alloc.rate":
+  18375.276 ±(99.9%) 436.265 MB/sec [Average]
+  (min, avg, max) = (18001.846, 18375.276, 18811.443), stdev = 288.562
+  CI (99.9%): [17939.011, 18811.541] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.alloc.rate.norm":
+  7680.003 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (7680.003, 7680.003, 7680.003), stdev = 0.001
+  CI (99.9%): [7680.003, 7680.003] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.count":
+  302.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (29.000, 30.200, 31.000), stdev = 0.632
+  CI (99.9%): [302.000, 302.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.time":
+  196.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (19.000, 19.600, 20.000), stdev = 0.516
+  CI (99.9%): [196.000, 196.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, OpenJDK 64-Bit Server VM, 21.0.11
+# VM invoker: /opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home/bin/java
+# VM options: -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeByteArray
+# Parameters: (matrixVersion = issue-757-v1, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 23.08% complete, ETA 00:02:46
+# Fork: 1 of 2
+# Warmup Iteration   1: 2809010.358 ops/s
+# Warmup Iteration   2: 2774886.452 ops/s
+# Warmup Iteration   3: 2761724.188 ops/s
+Iteration   1: 2752143.330 ops/s
+                 gc.alloc.rate:      13601.111 MB/sec
+                 gc.alloc.rate.norm: 5408.003 B/op
+                 gc.count:           22.000 counts
+                 gc.time:            15.000 ms
+
+Iteration   2: 2523853.496 ops/s
+                 gc.alloc.rate:      12483.656 MB/sec
+                 gc.alloc.rate.norm: 5408.003 B/op
+                 gc.count:           20.000 counts
+                 gc.time:            21.000 ms
+
+Iteration   3: 2632438.718 ops/s
+                 gc.alloc.rate:      13007.711 MB/sec
+                 gc.alloc.rate.norm: 5408.003 B/op
+                 gc.count:           22.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   4: 2740805.435 ops/s
+                 gc.alloc.rate:      13530.968 MB/sec
+                 gc.alloc.rate.norm: 5408.003 B/op
+                 gc.count:           22.000 counts
+                 gc.time:            15.000 ms
+
+Iteration   5: 2710863.509 ops/s
+                 gc.alloc.rate:      13389.541 MB/sec
+                 gc.alloc.rate.norm: 5408.003 B/op
+                 gc.count:           22.000 counts
+                 gc.time:            14.000 ms
+
+
+# Run progress: 26.92% complete, ETA 00:02:38
+# Fork: 2 of 2
+# Warmup Iteration   1: 2618886.815 ops/s
+# Warmup Iteration   2: 2643949.735 ops/s
+# Warmup Iteration   3: 2604610.589 ops/s
+Iteration   1: 2683237.046 ops/s
+                 gc.alloc.rate:      13254.775 MB/sec
+                 gc.alloc.rate.norm: 5408.003 B/op
+                 gc.count:           21.000 counts
+                 gc.time:            14.000 ms
+
+Iteration   2: 2763333.055 ops/s
+                 gc.alloc.rate:      13670.536 MB/sec
+                 gc.alloc.rate.norm: 5408.003 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            15.000 ms
+
+Iteration   3: 2792225.648 ops/s
+                 gc.alloc.rate:      13824.630 MB/sec
+                 gc.alloc.rate.norm: 5408.003 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            15.000 ms
+
+Iteration   4: 2736771.143 ops/s
+                 gc.alloc.rate:      13529.061 MB/sec
+                 gc.alloc.rate.norm: 5408.003 B/op
+                 gc.count:           22.000 counts
+                 gc.time:            14.000 ms
+
+Iteration   5: 2774751.608 ops/s
+                 gc.alloc.rate:      13732.735 MB/sec
+                 gc.alloc.rate.norm: 5408.003 B/op
+                 gc.count:           22.000 counts
+                 gc.time:            14.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeByteArray":
+  2711042.299 ±(99.9%) 122006.856 ops/s [Average]
+  (min, avg, max) = (2523853.496, 2711042.299, 2792225.648), stdev = 80699.981
+  CI (99.9%): [2589035.443, 2833049.155] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeByteArray:gc.alloc.rate":
+  13402.473 ±(99.9%) 607.505 MB/sec [Average]
+  (min, avg, max) = (12483.656, 13402.473, 13824.630), stdev = 401.827
+  CI (99.9%): [12794.968, 14009.977] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeByteArray:gc.alloc.rate.norm":
+  5408.003 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (5408.003, 5408.003, 5408.003), stdev = 0.001
+  CI (99.9%): [5408.003, 5408.003] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeByteArray:gc.count":
+  219.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (20.000, 21.900, 23.000), stdev = 0.876
+  CI (99.9%): [219.000, 219.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeByteArray:gc.time":
+  153.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (14.000, 15.300, 21.000), stdev = 2.111
+  CI (99.9%): [153.000, 153.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, OpenJDK 64-Bit Server VM, 21.0.11
+# VM invoker: /opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home/bin/java
+# VM options: -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeDirectOptimized
+# Parameters: (matrixVersion = issue-757-v1, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 30.77% complete, ETA 00:02:29
+# Fork: 1 of 2
+# Warmup Iteration   1: 2084574.320 ops/s
+# Warmup Iteration   2: 2401104.280 ops/s
+# Warmup Iteration   3: 2420653.771 ops/s
+Iteration   1: 2418785.241 ops/s
+                 gc.alloc.rate:      17104.605 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           29.000 counts
+                 gc.time:            18.000 ms
+
+Iteration   2: 2393306.343 ops/s
+                 gc.alloc.rate:      16913.281 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            18.000 ms
+
+Iteration   3: 2404494.196 ops/s
+                 gc.alloc.rate:      16997.812 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            18.000 ms
+
+Iteration   4: 2387949.589 ops/s
+                 gc.alloc.rate:      16869.265 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            18.000 ms
+
+Iteration   5: 2374924.756 ops/s
+                 gc.alloc.rate:      16771.865 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            16.000 ms
+
+
+# Run progress: 34.62% complete, ETA 00:02:21
+# Fork: 2 of 2
+# Warmup Iteration   1: 2203361.858 ops/s
+# Warmup Iteration   2: 2226192.738 ops/s
+# Warmup Iteration   3: 2241688.333 ops/s
+Iteration   1: 2241418.420 ops/s
+                 gc.alloc.rate:      15948.022 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   2: 2217969.180 ops/s
+                 gc.alloc.rate:      15781.688 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   3: 2235859.909 ops/s
+                 gc.alloc.rate:      15908.640 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   4: 2230745.721 ops/s
+                 gc.alloc.rate:      15863.141 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   5: 2195590.619 ops/s
+                 gc.alloc.rate:      15610.228 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            18.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeDirectOptimized":
+  2310104.397 ±(99.9%) 138962.257 ops/s [Average]
+  (min, avg, max) = (2195590.619, 2310104.397, 2418785.241), stdev = 91914.929
+  CI (99.9%): [2171142.141, 2449066.654] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.alloc.rate":
+  16376.855 ±(99.9%) 902.965 MB/sec [Average]
+  (min, avg, max) = (15610.228, 16376.855, 17104.605), stdev = 597.256
+  CI (99.9%): [15473.890, 17279.820] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.alloc.rate.norm":
+  7688.003 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (7688.003, 7688.003, 7688.003), stdev = 0.001
+  CI (99.9%): [7688.003, 7688.003] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.count":
+  270.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (26.000, 27.000, 29.000), stdev = 1.155
+  CI (99.9%): [270.000, 270.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.time":
+  170.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (16.000, 17.000, 18.000), stdev = 1.054
+  CI (99.9%): [170.000, 170.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, OpenJDK 64-Bit Server VM, 21.0.11
+# VM invoker: /opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home/bin/java
+# VM options: -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeHeapOptimized
+# Parameters: (matrixVersion = issue-757-v1, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 38.46% complete, ETA 00:02:13
+# Fork: 1 of 2
+# Warmup Iteration   1: 2211508.317 ops/s
+# Warmup Iteration   2: 2236194.242 ops/s
+# Warmup Iteration   3: 2227208.747 ops/s
+Iteration   1: 2210953.513 ops/s
+                 gc.alloc.rate:      15731.453 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   2: 2241279.812 ops/s
+                 gc.alloc.rate:      15946.720 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            17.000 ms
+
+Iteration   3: 2241619.386 ops/s
+                 gc.alloc.rate:      15944.440 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            17.000 ms
+
+Iteration   4: 2241746.961 ops/s
+                 gc.alloc.rate:      15953.602 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            17.000 ms
+
+Iteration   5: 2249782.752 ops/s
+                 gc.alloc.rate:      16008.450 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            17.000 ms
+
+
+# Run progress: 42.31% complete, ETA 00:02:05
+# Fork: 2 of 2
+# Warmup Iteration   1: 2270334.856 ops/s
+# Warmup Iteration   2: 2390867.783 ops/s
+# Warmup Iteration   3: 2376446.265 ops/s
+Iteration   1: 2357611.391 ops/s
+                 gc.alloc.rate:      16656.517 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            20.000 ms
+
+Iteration   2: 2351049.808 ops/s
+                 gc.alloc.rate:      16614.921 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            19.000 ms
+
+Iteration   3: 2387919.842 ops/s
+                 gc.alloc.rate:      16869.847 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            19.000 ms
+
+Iteration   4: 2393172.944 ops/s
+                 gc.alloc.rate:      16903.900 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            18.000 ms
+
+Iteration   5: 2348200.089 ops/s
+                 gc.alloc.rate:      16588.791 MB/sec
+                 gc.alloc.rate.norm: 7688.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            21.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeHeapOptimized":
+  2302333.650 ±(99.9%) 107267.152 ops/s [Average]
+  (min, avg, max) = (2210953.513, 2302333.650, 2393172.944), stdev = 70950.580
+  CI (99.9%): [2195066.498, 2409600.802] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.alloc.rate":
+  16321.864 ±(99.9%) 671.182 MB/sec [Average]
+  (min, avg, max) = (15731.453, 16321.864, 16903.900), stdev = 443.945
+  CI (99.9%): [15650.682, 16993.046] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.alloc.rate.norm":
+  7688.003 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (7688.003, 7688.003, 7688.003), stdev = 0.001
+  CI (99.9%): [7688.003, 7688.003] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.count":
+  269.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (26.000, 26.900, 28.000), stdev = 0.876
+  CI (99.9%): [269.000, 269.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.time":
+  181.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (16.000, 18.100, 21.000), stdev = 1.595
+  CI (99.9%): [181.000, 181.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, OpenJDK 64-Bit Server VM, 21.0.11
+# VM invoker: /opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home/bin/java
+# VM options: -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeByteArray
+# Parameters: (matrixVersion = issue-757-v1, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 46.15% complete, ETA 00:01:56
+# Fork: 1 of 2
+# Warmup Iteration   1: 3600176.923 ops/s
+# Warmup Iteration   2: 3905284.027 ops/s
+# Warmup Iteration   3: 3975064.679 ops/s
+Iteration   1: 4031456.528 ops/s
+                 gc.alloc.rate:      24754.061 MB/sec
+                 gc.alloc.rate.norm: 6976.002 B/op
+                 gc.count:           41.000 counts
+                 gc.time:            25.000 ms
+
+Iteration   2: 3907849.321 ops/s
+                 gc.alloc.rate:      24075.573 MB/sec
+                 gc.alloc.rate.norm: 6976.002 B/op
+                 gc.count:           40.000 counts
+                 gc.time:            26.000 ms
+
+Iteration   3: 3971802.954 ops/s
+                 gc.alloc.rate:      24423.780 MB/sec
+                 gc.alloc.rate.norm: 6976.002 B/op
+                 gc.count:           40.000 counts
+                 gc.time:            25.000 ms
+
+Iteration   4: 3967634.435 ops/s
+                 gc.alloc.rate:      24479.505 MB/sec
+                 gc.alloc.rate.norm: 6976.002 B/op
+                 gc.count:           40.000 counts
+                 gc.time:            25.000 ms
+
+Iteration   5: 3843406.451 ops/s
+                 gc.alloc.rate:      23743.846 MB/sec
+                 gc.alloc.rate.norm: 6976.002 B/op
+                 gc.count:           39.000 counts
+                 gc.time:            25.000 ms
+
+
+# Run progress: 50.00% complete, ETA 00:01:48
+# Fork: 2 of 2
+# Warmup Iteration   1: 3566628.267 ops/s
+# Warmup Iteration   2: 3956077.790 ops/s
+# Warmup Iteration   3: 4059439.118 ops/s
+Iteration   1: 3940061.271 ops/s
+                 gc.alloc.rate:      24319.445 MB/sec
+                 gc.alloc.rate.norm: 6976.002 B/op
+                 gc.count:           40.000 counts
+                 gc.time:            26.000 ms
+
+Iteration   2: 4024672.242 ops/s
+                 gc.alloc.rate:      24705.239 MB/sec
+                 gc.alloc.rate.norm: 6976.002 B/op
+                 gc.count:           40.000 counts
+                 gc.time:            26.000 ms
+
+Iteration   3: 4062943.261 ops/s
+                 gc.alloc.rate:      24909.057 MB/sec
+                 gc.alloc.rate.norm: 6976.002 B/op
+                 gc.count:           41.000 counts
+                 gc.time:            26.000 ms
+
+Iteration   4: 4031680.413 ops/s
+                 gc.alloc.rate:      24728.422 MB/sec
+                 gc.alloc.rate.norm: 6976.002 B/op
+                 gc.count:           41.000 counts
+                 gc.time:            25.000 ms
+
+Iteration   5: 4090421.210 ops/s
+                 gc.alloc.rate:      25098.990 MB/sec
+                 gc.alloc.rate.norm: 6976.002 B/op
+                 gc.count:           41.000 counts
+                 gc.time:            27.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeByteArray":
+  3987192.809 ±(99.9%) 114418.326 ops/s [Average]
+  (min, avg, max) = (3843406.451, 3987192.809, 4090421.210), stdev = 75680.638
+  CI (99.9%): [3872774.483, 4101611.134] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeByteArray:gc.alloc.rate":
+  24523.792 ±(99.9%) 611.018 MB/sec [Average]
+  (min, avg, max) = (23743.846, 24523.792, 25098.990), stdev = 404.151
+  CI (99.9%): [23912.774, 25134.810] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeByteArray:gc.alloc.rate.norm":
+  6976.002 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (6976.002, 6976.002, 6976.002), stdev = 0.001
+  CI (99.9%): [6976.002, 6976.002] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeByteArray:gc.count":
+  403.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (39.000, 40.300, 41.000), stdev = 0.675
+  CI (99.9%): [403.000, 403.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeByteArray:gc.time":
+  256.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (25.000, 25.600, 27.000), stdev = 0.699
+  CI (99.9%): [256.000, 256.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, OpenJDK 64-Bit Server VM, 21.0.11
+# VM invoker: /opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home/bin/java
+# VM options: -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeDirectOptimized
+# Parameters: (matrixVersion = issue-757-v1, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 53.85% complete, ETA 00:01:40
+# Fork: 1 of 2
+# Warmup Iteration   1: 3300281.243 ops/s
+# Warmup Iteration   2: 3570354.493 ops/s
+# Warmup Iteration   3: 3598678.046 ops/s
+Iteration   1: 3558163.359 ops/s
+                 gc.alloc.rate:      15467.188 MB/sec
+                 gc.alloc.rate.norm: 4832.002 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            18.000 ms
+
+Iteration   2: 3566541.028 ops/s
+                 gc.alloc.rate:      15500.258 MB/sec
+                 gc.alloc.rate.norm: 4832.002 B/op
+                 gc.count:           25.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   3: 3548110.210 ops/s
+                 gc.alloc.rate:      15430.814 MB/sec
+                 gc.alloc.rate.norm: 4832.002 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   4: 3601331.508 ops/s
+                 gc.alloc.rate:      15669.321 MB/sec
+                 gc.alloc.rate.norm: 4832.002 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   5: 3390218.137 ops/s
+                 gc.alloc.rate:      14770.780 MB/sec
+                 gc.alloc.rate.norm: 4832.002 B/op
+                 gc.count:           24.000 counts
+                 gc.time:            23.000 ms
+
+
+# Run progress: 57.69% complete, ETA 00:01:31
+# Fork: 2 of 2
+# Warmup Iteration   1: 3429031.783 ops/s
+# Warmup Iteration   2: 3680335.745 ops/s
+# Warmup Iteration   3: 3651140.322 ops/s
+Iteration   1: 3651862.946 ops/s
+                 gc.alloc.rate:      15824.704 MB/sec
+                 gc.alloc.rate.norm: 4832.002 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            17.000 ms
+
+Iteration   2: 3609563.207 ops/s
+                 gc.alloc.rate:      15628.838 MB/sec
+                 gc.alloc.rate.norm: 4832.002 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            17.000 ms
+
+Iteration   3: 3639202.415 ops/s
+                 gc.alloc.rate:      15775.022 MB/sec
+                 gc.alloc.rate.norm: 4832.002 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            17.000 ms
+
+Iteration   4: 3607932.159 ops/s
+                 gc.alloc.rate:      15640.862 MB/sec
+                 gc.alloc.rate.norm: 4832.002 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            17.000 ms
+
+Iteration   5: 3616515.897 ops/s
+                 gc.alloc.rate:      15664.560 MB/sec
+                 gc.alloc.rate.norm: 4832.002 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            17.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeDirectOptimized":
+  3578944.086 ±(99.9%) 112453.448 ops/s [Average]
+  (min, avg, max) = (3390218.137, 3578944.086, 3651862.946), stdev = 74380.993
+  CI (99.9%): [3466490.639, 3691397.534] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.alloc.rate":
+  15537.235 ±(99.9%) 449.909 MB/sec [Average]
+  (min, avg, max) = (14770.780, 15537.235, 15824.704), stdev = 297.587
+  CI (99.9%): [15087.325, 15987.144] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.alloc.rate.norm":
+  4832.002 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (4832.002, 4832.002, 4832.002), stdev = 0.001
+  CI (99.9%): [4832.002, 4832.002] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.count":
+  257.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (24.000, 25.700, 26.000), stdev = 0.675
+  CI (99.9%): [257.000, 257.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.time":
+  174.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (16.000, 17.400, 23.000), stdev = 2.066
+  CI (99.9%): [174.000, 174.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, OpenJDK 64-Bit Server VM, 21.0.11
+# VM invoker: /opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home/bin/java
+# VM options: -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeHeapOptimized
+# Parameters: (matrixVersion = issue-757-v1, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 61.54% complete, ETA 00:01:23
+# Fork: 1 of 2
+# Warmup Iteration   1: 3523829.907 ops/s
+# Warmup Iteration   2: 3747411.791 ops/s
+# Warmup Iteration   3: 3798382.508 ops/s
+Iteration   1: 3814488.568 ops/s
+                 gc.alloc.rate:      16678.108 MB/sec
+                 gc.alloc.rate.norm: 4784.002 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            18.000 ms
+
+Iteration   2: 3770907.648 ops/s
+                 gc.alloc.rate:      16440.365 MB/sec
+                 gc.alloc.rate.norm: 4784.002 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            17.000 ms
+
+Iteration   3: 3774699.716 ops/s
+                 gc.alloc.rate:      16453.122 MB/sec
+                 gc.alloc.rate.norm: 4784.002 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            17.000 ms
+
+Iteration   4: 3709618.631 ops/s
+                 gc.alloc.rate:      16143.035 MB/sec
+                 gc.alloc.rate.norm: 4784.002 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            17.000 ms
+
+Iteration   5: 3766361.245 ops/s
+                 gc.alloc.rate:      16420.916 MB/sec
+                 gc.alloc.rate.norm: 4784.002 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            18.000 ms
+
+
+# Run progress: 65.38% complete, ETA 00:01:15
+# Fork: 2 of 2
+# Warmup Iteration   1: 3224474.376 ops/s
+# Warmup Iteration   2: 3502608.478 ops/s
+# Warmup Iteration   3: 3518548.533 ops/s
+Iteration   1: 3464352.573 ops/s
+                 gc.alloc.rate:      14973.357 MB/sec
+                 gc.alloc.rate.norm: 4784.002 B/op
+                 gc.count:           25.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   2: 3497495.900 ops/s
+                 gc.alloc.rate:      15081.611 MB/sec
+                 gc.alloc.rate.norm: 4784.002 B/op
+                 gc.count:           25.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   3: 3471671.395 ops/s
+                 gc.alloc.rate:      15017.158 MB/sec
+                 gc.alloc.rate.norm: 4784.002 B/op
+                 gc.count:           25.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   4: 3461982.166 ops/s
+                 gc.alloc.rate:      14932.347 MB/sec
+                 gc.alloc.rate.norm: 4784.002 B/op
+                 gc.count:           24.000 counts
+                 gc.time:            16.000 ms
+
+Iteration   5: 3493006.650 ops/s
+                 gc.alloc.rate:      15069.947 MB/sec
+                 gc.alloc.rate.norm: 4784.002 B/op
+                 gc.count:           25.000 counts
+                 gc.time:            16.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeHeapOptimized":
+  3622458.449 ±(99.9%) 234354.298 ops/s [Average]
+  (min, avg, max) = (3461982.166, 3622458.449, 3814488.568), stdev = 155010.858
+  CI (99.9%): [3388104.151, 3856812.748] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.alloc.rate":
+  15720.997 ±(99.9%) 1143.269 MB/sec [Average]
+  (min, avg, max) = (14932.347, 15720.997, 16678.108), stdev = 756.201
+  CI (99.9%): [14577.728, 16864.265] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.alloc.rate.norm":
+  4784.002 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (4784.002, 4784.002, 4784.002), stdev = 0.001
+  CI (99.9%): [4784.002, 4784.002] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.count":
+  260.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (24.000, 26.000, 28.000), stdev = 1.333
+  CI (99.9%): [260.000, 260.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.time":
+  167.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (16.000, 16.700, 18.000), stdev = 0.823
+  CI (99.9%): [167.000, 167.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, OpenJDK 64-Bit Server VM, 21.0.11
+# VM invoker: /opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home/bin/java
+# VM options: -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility
+# Parameters: (matrixVersion = issue-757-v1, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 69.23% complete, ETA 00:01:06
+# Fork: 1 of 2
+# Warmup Iteration   1: 571305.651 ops/s
+# Warmup Iteration   2: 658715.619 ops/s
+# Warmup Iteration   3: 651488.513 ops/s
+Iteration   1: 655896.600 ops/s
+                 gc.alloc.rate:      3389.303 MB/sec
+                 gc.alloc.rate.norm: 5472.011 B/op
+                 gc.count:           6.000 counts
+                 gc.time:            5.000 ms
+
+Iteration   2: 658297.191 ops/s
+                 gc.alloc.rate:      3401.509 MB/sec
+                 gc.alloc.rate.norm: 5472.011 B/op
+                 gc.count:           6.000 counts
+                 gc.time:            4.000 ms
+
+Iteration   3: 657314.811 ops/s
+                 gc.alloc.rate:      3396.517 MB/sec
+                 gc.alloc.rate.norm: 5472.011 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            3.000 ms
+
+Iteration   4: 658518.230 ops/s
+                 gc.alloc.rate:      3403.081 MB/sec
+                 gc.alloc.rate.norm: 5472.011 B/op
+                 gc.count:           6.000 counts
+                 gc.time:            4.000 ms
+
+Iteration   5: 657568.622 ops/s
+                 gc.alloc.rate:      3397.990 MB/sec
+                 gc.alloc.rate.norm: 5472.011 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            3.000 ms
+
+
+# Run progress: 73.08% complete, ETA 00:00:58
+# Fork: 2 of 2
+# Warmup Iteration   1: 598369.811 ops/s
+# Warmup Iteration   2: 684207.151 ops/s
+# Warmup Iteration   3: 680386.801 ops/s
+Iteration   1: 685993.209 ops/s
+                 gc.alloc.rate:      3544.788 MB/sec
+                 gc.alloc.rate.norm: 5472.010 B/op
+                 gc.count:           6.000 counts
+                 gc.time:            4.000 ms
+
+Iteration   2: 675825.953 ops/s
+                 gc.alloc.rate:      3492.531 MB/sec
+                 gc.alloc.rate.norm: 5472.010 B/op
+                 gc.count:           6.000 counts
+                 gc.time:            5.000 ms
+
+Iteration   3: 686702.206 ops/s
+                 gc.alloc.rate:      3548.421 MB/sec
+                 gc.alloc.rate.norm: 5472.010 B/op
+                 gc.count:           6.000 counts
+                 gc.time:            4.000 ms
+
+Iteration   4: 682537.124 ops/s
+                 gc.alloc.rate:      3526.909 MB/sec
+                 gc.alloc.rate.norm: 5472.010 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            3.000 ms
+
+Iteration   5: 681267.905 ops/s
+                 gc.alloc.rate:      3520.406 MB/sec
+                 gc.alloc.rate.norm: 5472.010 B/op
+                 gc.count:           6.000 counts
+                 gc.time:            4.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility":
+  669992.185 ±(99.9%) 20383.481 ops/s [Average]
+  (min, avg, max) = (655896.600, 669992.185, 686702.206), stdev = 13482.411
+  CI (99.9%): [649608.704, 690375.666] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.alloc.rate":
+  3462.146 ±(99.9%) 105.324 MB/sec [Average]
+  (min, avg, max) = (3389.303, 3462.146, 3548.421), stdev = 69.666
+  CI (99.9%): [3356.821, 3567.470] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.alloc.rate.norm":
+  5472.010 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (5472.010, 5472.010, 5472.011), stdev = 0.001
+  CI (99.9%): [5472.010, 5472.011] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.count":
+  57.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (5.000, 5.700, 6.000), stdev = 0.483
+  CI (99.9%): [57.000, 57.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.time":
+  39.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (3.000, 3.900, 5.000), stdev = 0.738
+  CI (99.9%): [39.000, 39.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, OpenJDK 64-Bit Server VM, 21.0.11
+# VM invoker: /opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home/bin/java
+# VM options: -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeByteArray
+# Parameters: (matrixVersion = issue-757-v1, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 76.92% complete, ETA 00:00:50
+# Fork: 1 of 2
+# Warmup Iteration   1: 608369.481 ops/s
+# Warmup Iteration   2: 708028.310 ops/s
+# Warmup Iteration   3: 708143.864 ops/s
+Iteration   1: 706823.657 ops/s
+                 gc.alloc.rate:      3246.771 MB/sec
+                 gc.alloc.rate.norm: 4864.010 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            4.000 ms
+
+Iteration   2: 713059.902 ops/s
+                 gc.alloc.rate:      3275.243 MB/sec
+                 gc.alloc.rate.norm: 4864.010 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            3.000 ms
+
+Iteration   3: 712239.633 ops/s
+                 gc.alloc.rate:      3271.440 MB/sec
+                 gc.alloc.rate.norm: 4864.010 B/op
+                 gc.count:           6.000 counts
+                 gc.time:            4.000 ms
+
+Iteration   4: 711077.739 ops/s
+                 gc.alloc.rate:      3266.009 MB/sec
+                 gc.alloc.rate.norm: 4864.010 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            4.000 ms
+
+Iteration   5: 710715.292 ops/s
+                 gc.alloc.rate:      3264.569 MB/sec
+                 gc.alloc.rate.norm: 4864.010 B/op
+                 gc.count:           6.000 counts
+                 gc.time:            4.000 ms
+
+
+# Run progress: 80.77% complete, ETA 00:00:41
+# Fork: 2 of 2
+# Warmup Iteration   1: 642282.047 ops/s
+# Warmup Iteration   2: 720822.979 ops/s
+# Warmup Iteration   3: 719910.828 ops/s
+Iteration   1: 725983.896 ops/s
+                 gc.alloc.rate:      3332.351 MB/sec
+                 gc.alloc.rate.norm: 4864.010 B/op
+                 gc.count:           6.000 counts
+                 gc.time:            4.000 ms
+
+Iteration   2: 711890.712 ops/s
+                 gc.alloc.rate:      3267.433 MB/sec
+                 gc.alloc.rate.norm: 4864.010 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            3.000 ms
+
+Iteration   3: 724437.621 ops/s
+                 gc.alloc.rate:      3324.887 MB/sec
+                 gc.alloc.rate.norm: 4864.010 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            3.000 ms
+
+Iteration   4: 714486.003 ops/s
+                 gc.alloc.rate:      3279.462 MB/sec
+                 gc.alloc.rate.norm: 4864.010 B/op
+                 gc.count:           6.000 counts
+                 gc.time:            4.000 ms
+
+Iteration   5: 718880.616 ops/s
+                 gc.alloc.rate:      3299.271 MB/sec
+                 gc.alloc.rate.norm: 4864.010 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            3.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeByteArray":
+  714959.507 ±(99.9%) 9383.107 ops/s [Average]
+  (min, avg, max) = (706823.657, 714959.507, 725983.896), stdev = 6206.344
+  CI (99.9%): [705576.401, 724342.614] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.alloc.rate":
+  3282.744 ±(99.9%) 41.690 MB/sec [Average]
+  (min, avg, max) = (3246.771, 3282.744, 3332.351), stdev = 27.575
+  CI (99.9%): [3241.053, 3324.434] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.alloc.rate.norm":
+  4864.010 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (4864.010, 4864.010, 4864.010), stdev = 0.001
+  CI (99.9%): [4864.010, 4864.010] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.count":
+  54.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (5.000, 5.400, 6.000), stdev = 0.516
+  CI (99.9%): [54.000, 54.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.time":
+  36.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (3.000, 3.600, 4.000), stdev = 0.516
+  CI (99.9%): [36.000, 36.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, OpenJDK 64-Bit Server VM, 21.0.11
+# VM invoker: /opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home/bin/java
+# VM options: -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility
+# Parameters: (matrixVersion = issue-757-v1, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 84.62% complete, ETA 00:00:33
+# Fork: 1 of 2
+# Warmup Iteration   1: 1506505.963 ops/s
+# Warmup Iteration   2: 1593501.896 ops/s
+# Warmup Iteration   3: 1632992.542 ops/s
+Iteration   1: 1618031.610 ops/s
+                 gc.alloc.rate:      1023.503 MB/sec
+                 gc.alloc.rate.norm: 680.004 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   2: 1607185.475 ops/s
+                 gc.alloc.rate:      1016.075 MB/sec
+                 gc.alloc.rate.norm: 680.004 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            2.000 ms
+
+Iteration   3: 1608351.458 ops/s
+                 gc.alloc.rate:      1017.913 MB/sec
+                 gc.alloc.rate.norm: 680.004 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   4: 1584747.202 ops/s
+                 gc.alloc.rate:      1003.979 MB/sec
+                 gc.alloc.rate.norm: 680.004 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   5: 1628817.014 ops/s
+                 gc.alloc.rate:      1028.779 MB/sec
+                 gc.alloc.rate.norm: 680.004 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            1.000 ms
+
+
+# Run progress: 88.46% complete, ETA 00:00:25
+# Fork: 2 of 2
+# Warmup Iteration   1: 1490817.659 ops/s
+# Warmup Iteration   2: 1587520.704 ops/s
+# Warmup Iteration   3: 1603860.125 ops/s
+Iteration   1: 1600015.427 ops/s
+                 gc.alloc.rate:      1012.206 MB/sec
+                 gc.alloc.rate.norm: 680.004 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   2: 1636238.623 ops/s
+                 gc.alloc.rate:      1033.849 MB/sec
+                 gc.alloc.rate.norm: 680.004 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            2.000 ms
+
+Iteration   3: 1606505.922 ops/s
+                 gc.alloc.rate:      1015.300 MB/sec
+                 gc.alloc.rate.norm: 680.004 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   4: 1612430.407 ops/s
+                 gc.alloc.rate:      1019.286 MB/sec
+                 gc.alloc.rate.norm: 680.004 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   5: 1602548.593 ops/s
+                 gc.alloc.rate:      1014.379 MB/sec
+                 gc.alloc.rate.norm: 680.004 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            2.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility":
+  1610487.173 ±(99.9%) 22118.589 ops/s [Average]
+  (min, avg, max) = (1584747.202, 1610487.173, 1636238.623), stdev = 14630.077
+  CI (99.9%): [1588368.584, 1632605.762] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.alloc.rate":
+  1018.527 ±(99.9%) 12.856 MB/sec [Average]
+  (min, avg, max) = (1003.979, 1018.527, 1033.849), stdev = 8.504
+  CI (99.9%): [1005.671, 1031.383] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.alloc.rate.norm":
+  680.004 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (680.004, 680.004, 680.004), stdev = 0.001
+  CI (99.9%): [680.004, 680.004] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.count":
+  18.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (1.000, 1.800, 2.000), stdev = 0.422
+  CI (99.9%): [18.000, 18.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.time":
+  13.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (1.000, 1.300, 2.000), stdev = 0.483
+  CI (99.9%): [13.000, 13.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, OpenJDK 64-Bit Server VM, 21.0.11
+# VM invoker: /opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home/bin/java
+# VM options: -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeByteArray
+# Parameters: (matrixVersion = issue-757-v1, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 92.31% complete, ETA 00:00:16
+# Fork: 1 of 2
+# Warmup Iteration   1: 1444210.127 ops/s
+# Warmup Iteration   2: 1585564.187 ops/s
+# Warmup Iteration   3: 1552086.947 ops/s
+Iteration   1: 1585868.321 ops/s
+                 gc.alloc.rate:      969.798 MB/sec
+                 gc.alloc.rate.norm: 656.004 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            2.000 ms
+
+Iteration   2: 1569301.302 ops/s
+                 gc.alloc.rate:      960.573 MB/sec
+                 gc.alloc.rate.norm: 656.004 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   3: 1616097.926 ops/s
+                 gc.alloc.rate:      985.798 MB/sec
+                 gc.alloc.rate.norm: 656.004 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   4: 1623959.262 ops/s
+                 gc.alloc.rate:      989.775 MB/sec
+                 gc.alloc.rate.norm: 656.004 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   5: 1617861.388 ops/s
+                 gc.alloc.rate:      986.617 MB/sec
+                 gc.alloc.rate.norm: 656.004 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            1.000 ms
+
+
+# Run progress: 96.15% complete, ETA 00:00:08
+# Fork: 2 of 2
+# Warmup Iteration   1: 1534212.529 ops/s
+# Warmup Iteration   2: 1608335.902 ops/s
+# Warmup Iteration   3: 1648712.250 ops/s
+Iteration   1: 1626980.195 ops/s
+                 gc.alloc.rate:      992.106 MB/sec
+                 gc.alloc.rate.norm: 656.004 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   2: 1623930.373 ops/s
+                 gc.alloc.rate:      990.002 MB/sec
+                 gc.alloc.rate.norm: 656.004 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   3: 1661331.924 ops/s
+                 gc.alloc.rate:      1011.569 MB/sec
+                 gc.alloc.rate.norm: 656.004 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   4: 1619967.118 ops/s
+                 gc.alloc.rate:      987.547 MB/sec
+                 gc.alloc.rate.norm: 656.004 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            2.000 ms
+
+Iteration   5: 1651594.552 ops/s
+                 gc.alloc.rate:      1005.889 MB/sec
+                 gc.alloc.rate.norm: 656.004 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeByteArray":
+  1619689.236 ±(99.9%) 40756.497 ops/s [Average]
+  (min, avg, max) = (1569301.302, 1619689.236, 1661331.924), stdev = 26957.899
+  CI (99.9%): [1578932.739, 1660445.733] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.alloc.rate":
+  987.967 ±(99.9%) 22.481 MB/sec [Average]
+  (min, avg, max) = (960.573, 987.967, 1011.569), stdev = 14.870
+  CI (99.9%): [965.486, 1010.449] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.alloc.rate.norm":
+  656.004 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (656.004, 656.004, 656.004), stdev = 0.001
+  CI (99.9%): [656.004, 656.004] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.count":
+  16.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (1.000, 1.600, 2.000), stdev = 0.516
+  CI (99.9%): [16.000, 16.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.time":
+  12.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (1.000, 1.200, 2.000), stdev = 0.422
+  CI (99.9%): [12.000, 12.000] (assumes normal distribution)
+
+
+# Run complete. Total time: 00:03:37
+
+REMEMBER: The numbers below are just data. To gain reusable insights, you need to follow up on
+why the numbers are the way they are. Use profilers (see -prof, -lprof), design factorial
+experiments, perform baseline and negative tests that provide experimental control, make sure
+the benchmarking environment is safe on JVM/OS/HW level, ask for reviews from the domain experts.
+Do not assume the numbers tell you what you want them to tell.
+
+NOTE: Current JVM experimentally supports Compiler Blackholes, and they are in use. Please exercise
+extra caution when trusting the results, look into the generated code to check the benchmark still
+works, and factor in a small probability of new VM bugs. Additionally, while comparisons between
+different JVMs are already problematic, the performance difference caused by different Blackhole
+modes can be very significant. Please make sure you use the consistent Blackhole mode for comparisons.
+
+Benchmark                                                                           (matrixVersion)  (targetHeadroom)  (targetStart)   Mode  Cnt        Score        Error   Units
+ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility                            issue-757-v1                32              3  thrpt   10  2230105.607 ±  67712.881   ops/s
+ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.alloc.rate              issue-757-v1                32              3  thrpt   10    16950.731 ±    519.320  MB/sec
+ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.alloc.rate.norm         issue-757-v1                32              3  thrpt   10     8208.003 ±      0.001    B/op
+ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.count                   issue-757-v1                32              3  thrpt   10      277.000               counts
+ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.time                    issue-757-v1                32              3  thrpt   10      184.000                   ms
+ProtobufCodecBenchmark.redissonDecodeContiguousOptimized                               issue-757-v1                32              3  thrpt   10  3051233.218 ±  56345.190   ops/s
+ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.alloc.rate                 issue-757-v1                32              3  thrpt   10    15261.120 ±    281.675  MB/sec
+ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.alloc.rate.norm            issue-757-v1                32              3  thrpt   10     5512.002 ±      0.001    B/op
+ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.count                      issue-757-v1                32              3  thrpt   10      251.000               counts
+ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.time                       issue-757-v1                32              3  thrpt   10      163.000                   ms
+ProtobufCodecBenchmark.redissonDecodeCopiedByteArray                                   issue-757-v1                32              3  thrpt   10  2612574.586 ±  79997.581   ops/s
+ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.alloc.rate                     issue-757-v1                32              3  thrpt   10    18375.276 ±    436.265  MB/sec
+ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.alloc.rate.norm                issue-757-v1                32              3  thrpt   10     7680.003 ±      0.001    B/op
+ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.count                          issue-757-v1                32              3  thrpt   10      302.000               counts
+ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.time                           issue-757-v1                32              3  thrpt   10      196.000                   ms
+ProtobufCodecBenchmark.serializerDecodeByteArray                                       issue-757-v1                32              3  thrpt   10  2711042.299 ± 122006.856   ops/s
+ProtobufCodecBenchmark.serializerDecodeByteArray:gc.alloc.rate                         issue-757-v1                32              3  thrpt   10    13402.473 ±    607.505  MB/sec
+ProtobufCodecBenchmark.serializerDecodeByteArray:gc.alloc.rate.norm                    issue-757-v1                32              3  thrpt   10     5408.003 ±      0.001    B/op
+ProtobufCodecBenchmark.serializerDecodeByteArray:gc.count                              issue-757-v1                32              3  thrpt   10      219.000               counts
+ProtobufCodecBenchmark.serializerDecodeByteArray:gc.time                               issue-757-v1                32              3  thrpt   10      153.000                   ms
+ProtobufCodecBenchmark.serializerDecodeDirectOptimized                                 issue-757-v1                32              3  thrpt   10  2310104.397 ± 138962.257   ops/s
+ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.alloc.rate                   issue-757-v1                32              3  thrpt   10    16376.855 ±    902.965  MB/sec
+ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.alloc.rate.norm              issue-757-v1                32              3  thrpt   10     7688.003 ±      0.001    B/op
+ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.count                        issue-757-v1                32              3  thrpt   10      270.000               counts
+ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.time                         issue-757-v1                32              3  thrpt   10      170.000                   ms
+ProtobufCodecBenchmark.serializerDecodeHeapOptimized                                   issue-757-v1                32              3  thrpt   10  2302333.650 ± 107267.152   ops/s
+ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.alloc.rate                     issue-757-v1                32              3  thrpt   10    16321.864 ±    671.182  MB/sec
+ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.alloc.rate.norm                issue-757-v1                32              3  thrpt   10     7688.003 ±      0.001    B/op
+ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.count                          issue-757-v1                32              3  thrpt   10      269.000               counts
+ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.time                           issue-757-v1                32              3  thrpt   10      181.000                   ms
+ProtobufCodecBenchmark.serializerEncodeByteArray                                       issue-757-v1                32              3  thrpt   10  3987192.809 ± 114418.326   ops/s
+ProtobufCodecBenchmark.serializerEncodeByteArray:gc.alloc.rate                         issue-757-v1                32              3  thrpt   10    24523.792 ±    611.018  MB/sec
+ProtobufCodecBenchmark.serializerEncodeByteArray:gc.alloc.rate.norm                    issue-757-v1                32              3  thrpt   10     6976.002 ±      0.001    B/op
+ProtobufCodecBenchmark.serializerEncodeByteArray:gc.count                              issue-757-v1                32              3  thrpt   10      403.000               counts
+ProtobufCodecBenchmark.serializerEncodeByteArray:gc.time                               issue-757-v1                32              3  thrpt   10      256.000                   ms
+ProtobufCodecBenchmark.serializerEncodeDirectOptimized                                 issue-757-v1                32              3  thrpt   10  3578944.086 ± 112453.448   ops/s
+ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.alloc.rate                   issue-757-v1                32              3  thrpt   10    15537.235 ±    449.909  MB/sec
+ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.alloc.rate.norm              issue-757-v1                32              3  thrpt   10     4832.002 ±      0.001    B/op
+ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.count                        issue-757-v1                32              3  thrpt   10      257.000               counts
+ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.time                         issue-757-v1                32              3  thrpt   10      174.000                   ms
+ProtobufCodecBenchmark.serializerEncodeHeapOptimized                                   issue-757-v1                32              3  thrpt   10  3622458.449 ± 234354.298   ops/s
+ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.alloc.rate                     issue-757-v1                32              3  thrpt   10    15720.997 ±   1143.269  MB/sec
+ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.alloc.rate.norm                issue-757-v1                32              3  thrpt   10     4784.002 ±      0.001    B/op
+ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.count                          issue-757-v1                32              3  thrpt   10      260.000               counts
+ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.time                           issue-757-v1                32              3  thrpt   10      167.000                   ms
+ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility                        issue-757-v1                32              3  thrpt   10   669992.185 ±  20383.481   ops/s
+ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.alloc.rate          issue-757-v1                32              3  thrpt   10     3462.146 ±    105.324  MB/sec
+ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.alloc.rate.norm     issue-757-v1                32              3  thrpt   10     5472.010 ±      0.001    B/op
+ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.count               issue-757-v1                32              3  thrpt   10       57.000               counts
+ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.time                issue-757-v1                32              3  thrpt   10       39.000                   ms
+ProtobufCodecBenchmark.trustedFallbackDecodeByteArray                                  issue-757-v1                32              3  thrpt   10   714959.507 ±   9383.107   ops/s
+ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.alloc.rate                    issue-757-v1                32              3  thrpt   10     3282.744 ±     41.690  MB/sec
+ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.alloc.rate.norm               issue-757-v1                32              3  thrpt   10     4864.010 ±      0.001    B/op
+ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.count                         issue-757-v1                32              3  thrpt   10       54.000               counts
+ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.time                          issue-757-v1                32              3  thrpt   10       36.000                   ms
+ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility                        issue-757-v1                32              3  thrpt   10  1610487.173 ±  22118.589   ops/s
+ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.alloc.rate          issue-757-v1                32              3  thrpt   10     1018.527 ±     12.856  MB/sec
+ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.alloc.rate.norm     issue-757-v1                32              3  thrpt   10      680.004 ±      0.001    B/op
+ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.count               issue-757-v1                32              3  thrpt   10       18.000               counts
+ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.time                issue-757-v1                32              3  thrpt   10       13.000                   ms
+ProtobufCodecBenchmark.trustedFallbackEncodeByteArray                                  issue-757-v1                32              3  thrpt   10  1619689.236 ±  40756.497   ops/s
+ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.alloc.rate                    issue-757-v1                32              3  thrpt   10      987.967 ±     22.481  MB/sec
+ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.alloc.rate.norm               issue-757-v1                32              3  thrpt   10      656.004 ±      0.001    B/op
+ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.count                         issue-757-v1                32              3  thrpt   10       16.000               counts
+ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.time                          issue-757-v1                32              3  thrpt   10       12.000                   ms
+
+Benchmark result is saved to /Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat-issue-757-protobuf-buffer-core/benchmark/protobuf-codec-benchmark/build/issue-757-evidence/run-20260718T193619.552772Z-8889a2f0/jmh.json
+exit_code=0

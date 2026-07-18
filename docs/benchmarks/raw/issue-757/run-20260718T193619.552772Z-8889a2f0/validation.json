@@ -1,0 +1,35 @@
+{
+  "benchmark_jar_path": "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat-issue-757-protobuf-buffer-core/benchmark/protobuf-codec-benchmark/build/benchmarks/benchmark/jars/protobuf-codec-benchmark-benchmark-jmh-1.12.0-JMH.jar",
+  "benchmark_jar_sha256": "170730d955cf701de135bbfbf6ce139efb653bfdef7d064f21a01ef2577881e7",
+  "config_sha256": "e0164e0c0be103980c8239ef2a2f194d19f488177a0ea80eb0397d5d89ea51e7",
+  "environment_path": "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat-issue-757-protobuf-buffer-core/benchmark/protobuf-codec-benchmark/build/issue-757-evidence/run-20260718T193619.552772Z-8889a2f0/environment.json",
+  "input_path": "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat-issue-757-protobuf-buffer-core/benchmark/protobuf-codec-benchmark/build/issue-757-evidence/run-20260718T193619.552772Z-8889a2f0/jmh.json",
+  "method_count": 13,
+  "mode": "run",
+  "observed_config": {
+    "forks": 2,
+    "jdk_version": "21.0.11",
+    "jvm_args": [
+      "-Xms1g",
+      "-Xmx1g",
+      "-XX:+UseG1GC"
+    ],
+    "matrix_version": "issue-757-v1",
+    "measurement_time": "1 s",
+    "measurements": 5,
+    "mode": "thrpt",
+    "profiler": "gc",
+    "target_headroom": 32,
+    "target_start": 3,
+    "threads": 1,
+    "vm_name": "OpenJDK 64-Bit Server VM",
+    "vm_version": "21.0.11",
+    "warmup_time": "1 s",
+    "warmups": 3
+  },
+  "observed_config_sha256": "fe95c4601aa5022c5a04c09c3122ae857ba30ed384eff9bfd685d8651cf2570e",
+  "run_id": "run-20260718T193619.552772Z-8889a2f0",
+  "schema_version": 1,
+  "status": "passed",
+  "summary_path": "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat-issue-757-protobuf-buffer-core/benchmark/protobuf-codec-benchmark/build/issue-757-evidence/run-20260718T193619.552772Z-8889a2f0/summary.csv"
+}

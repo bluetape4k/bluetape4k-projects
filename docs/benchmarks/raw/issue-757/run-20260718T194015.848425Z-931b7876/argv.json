@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "java",
+    "-jar",
+    "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat-issue-757-protobuf-buffer-core/benchmark/protobuf-codec-benchmark/build/issue-757-evidence/run-20260718T194015.848425Z-931b7876/.pinned-execution-2c728e48c2914947/benchmark-JMH.jar",
+    "-t",
+    "1",
+    "-f",
+    "2",
+    "-wi",
+    "3",
+    "-i",
+    "5",
+    "-w",
+    "1s",
+    "-r",
+    "1s",
+    "-prof",
+    "gc",
+    "-rf",
+    "json",
+    "-rff",
+    "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat-issue-757-protobuf-buffer-core/benchmark/protobuf-codec-benchmark/build/issue-757-evidence/run-20260718T194015.848425Z-931b7876/jmh.json",
+    "-jvmArgsAppend",
+    "-Xms1g -Xmx1g -XX:+UseG1GC"
+  ],
+  "ended_at": "2026-07-18T19:43:54.545197Z",
+  "exit_code": 0,
+  "log_limit_exceeded": false,
+  "schema_version": 1,
+  "started_at": "2026-07-18T19:40:17.086296Z"
+}
