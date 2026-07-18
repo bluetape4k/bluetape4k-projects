@@ -1603,7 +1603,7 @@ def kotlin_function_declarations(source, expected_name):
         opening = sanitized.find("{", index); equals = sanitized.find("=", index)
         if equals >= 0 and (opening < 0 or equals < opening):
             end = sanitized.find("\n", equals + 1)
-            declarations.append(("expression", sanitized[equals + 1:end if end >= 0 else len(sanitized)])); continue
+            declarations.append(("expression", source[equals + 1:end if end >= 0 else len(source)])); continue
         if opening < 0:
             declarations.append(("invalid", "")); continue
         brace_depth = 0
@@ -1612,13 +1612,42 @@ def kotlin_function_declarations(source, expected_name):
             elif sanitized[end] == "}":
                 brace_depth -= 1
                 if brace_depth == 0:
-                    declarations.append(("block", sanitized[opening + 1:end])); break
+                    declarations.append(("block", source[opening + 1:end])); break
         else: declarations.append(("invalid", ""))
     return declarations
 
 
-def normalized_kotlin_body(body):
-    return re.sub(r"\s+", "", sanitize_kotlin_lexically(body))
+def kotlin_token_stream(source):
+    tokens = []; index = 0
+    while index < len(source):
+        if source[index].isspace(): index += 1; continue
+        if source.startswith("//", index):
+            newline = source.find("\n", index + 2); index = len(source) if newline < 0 else newline + 1; continue
+        if source.startswith("/*", index):
+            depth = 1; index += 2
+            while index < len(source) and depth:
+                if source.startswith("/*", index): depth += 1; index += 2
+                elif source.startswith("*/", index): depth -= 1; index += 2
+                else: index += 1
+            continue
+        if source.startswith('\"\"\"', index):
+            end = source.find('\"\"\"', index + 3); end = len(source) - 3 if end < 0 else end
+            tokens.append(source[index:end + 3]); index = end + 3; continue
+        if source[index] in ('"', "'"):
+            quote = source[index]; end = index + 1
+            while end < len(source):
+                if source[end] == "\\": end += 2; continue
+                end += 1
+                if source[end - 1] == quote: break
+            tokens.append(source[index:end]); index = end; continue
+        if source[index] == "`":
+            end = source.find("`", index + 1); end = len(source) - 1 if end < 0 else end
+            tokens.append(source[index:end + 1]); index = end + 1; continue
+        match = re.match(r"[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?", source[index:])
+        if match:
+            tokens.append(match.group(0)); index += len(match.group(0)); continue
+        tokens.append(source[index]); index += 1
+    return tuple(tokens)
 
 
 def verify_dispatch_source_removals(repo_root, head, dispatches, command_runner=subprocess.run):
@@ -1637,7 +1666,7 @@ def verify_dispatch_source_removals(repo_root, head, dispatches, command_runner=
             declarations = kotlin_function_declarations(source, "decodeProtobuf")
             body = declarations[0][1] if len(declarations) == 1 and declarations[0][0] == "block" else ""
             valid = (len(declarations) == 1 and declarations[0][0] == "block" and
-                     normalized_kotlin_body(body) == normalized_kotlin_body(REDISSON_COPIED_BODY_TEMPLATE))
+                     kotlin_token_stream(body) == kotlin_token_stream(REDISSON_COPIED_BODY_TEMPLATE))
         if not valid:
             raise error(source_path, "{} removal predicate failed; canonical expected form absent at committed head={}".format(dispatch, head), "restore inherited serializer compatibility or the exact copied-only decodeProtobuf body")
     return True

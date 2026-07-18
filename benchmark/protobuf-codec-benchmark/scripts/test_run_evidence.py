@@ -1241,6 +1241,8 @@ class EvidenceRunnerTest(unittest.TestCase):
                 "private fun decodeProtobuf(buf: ByteBuf): Any { val `nioBufferAlias` = 1; return AnyMessage.parseFrom(buf.getBytes(copy = true)) }",
                 "private fun decodeProtobuf(buf: ByteBuf): Any { if (buf.nioBufferCount() == 1) return helper(buf); " + runner.REDISSON_COPIED_BODY_TEMPLATE + " }",
                 "private fun decodeProtobuf(buf: ByteBuf): Any { if (false) { " + runner.REDISSON_COPIED_BODY_TEMPLATE + " }; return helper(buf) }",
+                "private fun decodeProtobuf(buf: ByteBuf): Any {" + runner.REDISSON_COPIED_BODY_TEMPLATE.replace('"/"', '"not-a-slash"') + "}",
+                "private fun decodeProtobuf(buf: ByteBuf): Any {" + runner.REDISSON_COPIED_BODY_TEMPLATE.replace('"/"', '"${decodeNio(buf).let { return it }}"') + "}",
             ],
         }
         for dispatch, cases in rejected.items():
