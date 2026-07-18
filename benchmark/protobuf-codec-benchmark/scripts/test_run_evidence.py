@@ -1143,6 +1143,42 @@ class EvidenceRunnerTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "simultaneous"):
                 runner.authenticate_rollback_preparation(preparation)
 
+            second = runner.make_rollback_decision(
+                "redisson_contiguous", ["redissonDecodeContiguousOptimized"], "different-old", "different-tree",
+                archive, [comparison], 1, "now",
+            )
+            mixed = runner.write_rollback_preparation(root, [decision, second], 1)
+            with self.assertRaisesRegex(ValueError, "old commit/tree"):
+                runner.authenticate_rollback_preparation(mixed)
+
+    def test_finalized_generation_rejects_mixed_post_lineage_and_unsafe_preparation_path(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); archive = root / "archive"; archive.mkdir()
+            comparison = archive / "comparison.csv"
+            comparison.write_text(
+                "method,verdict\nserializerDecodeDirectOptimized,regressed\n"
+                "redissonDecodeContiguousOptimized,regressed\n"
+            )
+            decisions = [
+                runner.make_rollback_decision("serializer_decode", ["serializerDecodeDirectOptimized"], "old", "tree", archive, [comparison], 1, "now", "post-a", None, "post-tree-a"),
+                runner.make_rollback_decision("redisson_contiguous", ["redissonDecodeContiguousOptimized"], "old", "tree", archive, [comparison], 1, "now", "post-b", None, "post-tree-b"),
+            ]
+            with self.assertRaisesRegex(ValueError, "shared post"):
+                runner.write_rollback_bundle(root, decisions)
+            for stale in root.glob("rollback-preparation-g1-*.json"):
+                stale.unlink()
+
+            decisions[1] = runner.make_rollback_decision("redisson_contiguous", ["redissonDecodeContiguousOptimized"], "old", "tree", archive, [comparison], 1, "now", "post-a", None, "post-tree-a")
+            bundle_path = runner.write_rollback_bundle(root, decisions)
+            payload = json.loads(bundle_path.read_text())
+            for unsafe in (str((root / "absolute.json").resolve()), "../traversal.json"):
+                malicious = dict(payload); malicious["preparation_path"] = unsafe
+                malicious["bundle_sha256"] = runner.sha256_bytes(runner.payload_json_bytes(runner._bundle_payload(malicious)))
+                path = root / ("rollback-bundle-g1-" + malicious["bundle_sha256"] + ".json")
+                runner.atomic_write_json(path, malicious)
+                with self.assertRaisesRegex(ValueError, "unsafe preparation_path"):
+                    runner.authenticate_rollback_bundle(path)
+
     def test_normalized_profiles_match_validator_facing_contract(self):
         canonical = runner.normalized_profile("canonical")
         self.assertEqual(2, canonical["forks"])
