@@ -341,8 +341,10 @@ raw JSON, derived CSV, environment metadata는
 
 ## 8. 실패 모드와 처리
 
-1. **Target overflow 또는 read-only target:** backend 호출 전에 실패하고 caller
-   position을 보존한다. capacity를 늘리거나 replacement buffer를 할당하지 않는다.
+1. **Target overflow 또는 read-only target:** read-only는 모든 backend 호출 전에
+   실패한다. overflow는 target write 전에 실패하지만 encoded size를 미리 알 수 없는
+   trusted fallback serialization은 선행할 수 있다. 두 경우 모두 caller position을
+   보존하며 capacity를 늘리거나 replacement buffer를 할당하지 않는다.
 2. **Malformed 또는 truncated Protobuf:** strict serializer/codec은 기존 exception
    contract로 실패한다. trusted fallback만 기존 compatibility branch를 사용한다.
 3. **Allowlist 위반 또는 prefix spoofing:** class loading 전에 차단하고 절대
