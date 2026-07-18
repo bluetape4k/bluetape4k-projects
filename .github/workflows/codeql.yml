@@ -9,6 +9,8 @@ jobs:
   analyze:
     name: Analyze (${{ matrix.language }} / ${{ matrix.scope }})
     runs-on: ubuntu-latest
+    env:
+      BLUETAPE4K_DEPENDENCIES_CATALOG_PATH: ${{ github.workspace }}/.catalog/bluetape4k-dependencies/gradle/libs.versions.toml
     permissions:
       security-events: write
       actions: read
@@ -21,31 +23,60 @@ jobs:
           - language: actions
             scope: workflows
             roots: ''
+            build_timeout_minutes: 120
           - language: python
             scope: python
             roots: ''
+            build_timeout_minutes: 120
           - language: java-kotlin
             scope: foundation
             roots: bluetape4k:cache:utils
+            build_timeout_minutes: 120
           - language: java-kotlin
             scope: data-io
             roots: data:io
+            build_timeout_minutes: 120
           - language: java-kotlin
             scope: infra
             roots: infra
+            build_timeout_minutes: 120
           - language: java-kotlin
             scope: frameworks
             roots: ktor:spring-boot:virtualthread
-          # Exclude testing/testcontainers from scheduled CodeQL for now: even
-          # the single compileKotlin task stayed in Build with Gradle for more
-          # than 30 minutes under CodeQL tracing.
+            build_timeout_minutes: 120
           - language: java-kotlin
             scope: testing-core
             roots: testing/assertions:testing/junit5:testing/mock-web-server:testing/mock-webflux-server
+            build_timeout_minutes: 120
+          - language: java-kotlin
+            scope: testing-containers
+            roots: testing/testcontainers
+            build_timeout_minutes: 20
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+
+      - name: Resolve dependencies catalog ref
+        id: catalog-ref
+        if: matrix.language == 'java-kotlin'
+        shell: bash
+        run: |
+          set -euo pipefail
+          catalog_ref="$(sed -nE 's/^[[:space:]]*\.orElse\("([^"]+)"\).*/\1/p' settings.gradle.kts | head -1)"
+          if [[ ! "$catalog_ref" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Could not resolve an immutable bluetape4k-dependencies catalog ref"
+            exit 1
+          fi
+          echo "ref=$catalog_ref" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout dependencies catalog
+        if: matrix.language == 'java-kotlin'
+        uses: actions/checkout@v7
+        with:
+          repository: bluetape4k/bluetape4k-dependencies
+          ref: ${{ steps.catalog-ref.outputs.ref }}
+          path: .catalog/bluetape4k-dependencies
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -55,8 +86,11 @@ jobs:
       - name: Pin Kotlin for CodeQL extractor
         if: matrix.language == 'java-kotlin'
         run: |
-          perl -0pi -e 's/kotlin = "2\.4\.0"/kotlin = "2.3.21"/' gradle/libs.versions.toml
-          grep -n 'kotlin = "2.3.21"' gradle/libs.versions.toml
+          set -euo pipefail
+          catalog_file="$BLUETAPE4K_DEPENDENCIES_CATALOG_PATH"
+          test "$(git -C .catalog/bluetape4k-dependencies rev-parse HEAD)" = "${{ steps.catalog-ref.outputs.ref }}"
+          perl -0pi -e 's/kotlin = "2\.4\.0"/kotlin = "2.3.21"/' "$catalog_file"
+          grep -n 'kotlin = "2.3.21"' "$catalog_file"
 
       - name: Setup JDK 21
         if: matrix.language == 'java-kotlin'
@@ -67,7 +101,7 @@ jobs:
 
       - name: Build with Gradle
         if: matrix.language == 'java-kotlin'
-        timeout-minutes: 120
+        timeout-minutes: ${{ matrix.build_timeout_minutes }}
         env:
           CODEQL_JAVA_ROOTS: ${{ matrix.roots }}
         # Keep each CodeQL Kotlin job scoped and compiler-only. Avoid examples,
