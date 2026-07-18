@@ -206,13 +206,30 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
         headers: Headers?,
         data: ByteArray?,
     ): T? =
+        data?.let { bytes ->
+            deserializeSafely(topic, headers, bytes.size) {
+                doDeserialize(topic, headers, bytes)
+            }
+        }
+
+    /**
+     * Applies the poison-pill policy without allocating a capturing lambda on the deserialization hot path.
+     * Ordinary exceptions become bounded WARN logs and `null`; cancellation and fatal JVM errors propagate.
+     */
+    protected inline fun deserializeSafely(
+        topic: String?,
+        headers: Headers?,
+        dataSize: Int,
+        operation: () -> T?,
+    ): T? =
         try {
-            data?.run { doDeserialize(topic, headers, this) }
+            operation()
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             log.warn(e) {
-                "Fail to deserialize data. topic=$topic, headerKeys=${headers?.map { it.key() }}, dataSize=${data?.size}. Returning null (poison pill skipped)."
+                "Fail to deserialize data. topic=$topic, headerKeys=${headers?.map { it.key() }}, " +
+                    "dataSize=$dataSize. Returning null (poison pill skipped)."
             }
             null
         }
