@@ -1,0 +1,14 @@
+method,baseline,run_a_allocation,run_a_baseline_allocation,run_a_delta_percent,run_b_allocation,run_b_baseline_allocation,run_b_delta_percent,eligible,reason,verdict
+redissonDecodeCompositeCompatibility,,8208.003181023592,,,8208.003161070623,,,false,compatibility_control,ineligible
+redissonDecodeContiguousOptimized,redissonDecodeCopiedByteArray,5512.002375378184,7680.002749429482,-28.22916143112514,5512.002437088168,7680.002810117112,-28.2291611947455,true,candidate,accepted
+redissonDecodeCopiedByteArray,,7680.002749429482,,,7680.002810117112,,,false,baseline,ineligible
+serializerDecodeByteArray,,5408.00265559575,,,5408.002596945864,,,false,baseline,ineligible
+serializerDecodeDirectOptimized,serializerDecodeByteArray,7688.003083341757,5408.00265559575,42.15975052058919,7688.003126981629,5408.002596945864,42.15975286926418,false,removed_after_regression,ineligible
+serializerDecodeHeapOptimized,serializerDecodeByteArray,7688.003083755195,5408.00265559575,42.15975052823413,7688.00328404641,5408.002596945864,42.15975577356717,false,removed_after_regression,ineligible
+serializerEncodeByteArray,,6976.00186579065,,,6976.001868340824,,,false,baseline,ineligible
+serializerEncodeDirectOptimized,serializerEncodeByteArray,4832.002037203262,6976.00186579065,-30.733934276899593,4832.001992498853,6976.001868340824,-30.733934943052148,true,candidate,accepted
+serializerEncodeHeapOptimized,serializerEncodeByteArray,4784.001999469893,6976.00186579065,-31.422008028266475,4784.001925893196,6976.001868340824,-31.42200910804765,true,candidate,accepted
+trustedFallbackDecodeBufferCompatibility,,5472.010342995749,,,5472.0101394775465,,,false,compatibility_control,ineligible
+trustedFallbackDecodeByteArray,,4864.009713889846,,,4864.009528656756,,,false,compatibility_control,ineligible
+trustedFallbackEncodeBufferCompatibility,,680.0043745460487,,,680.0043759415075,,,false,compatibility_control,ineligible
+trustedFallbackEncodeByteArray,,656.0043468789769,,,656.0043434606388,,,false,compatibility_control,ineligible
