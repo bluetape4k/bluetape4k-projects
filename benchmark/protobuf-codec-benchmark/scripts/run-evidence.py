@@ -1330,9 +1330,15 @@ def _authenticate_decision_archive(path, item, require_finalized):
     calculated = sha256_bytes(payload_json_bytes(_decision_payload(item)))
     if calculated != item.get("decision_sha256"):
         raise error(path, "decision {} sha256 mismatch".format(item.get("dispatch")), "restore the immutable decision")
-    archive = path.parent / item.get("archive_root", ""); require_symlink_free_tree(archive)
+    archive_root = item.get("archive_root")
+    if not isinstance(archive_root, str) or not archive_root or Path(archive_root).is_absolute() or ".." in Path(archive_root).parts:
+        raise error(path, "unsafe archive_root={!r}".format(archive_root), "restore a bundle-relative archive directory")
+    archive = path.parent / archive_root; require_symlink_free_tree(archive)
     comparison = None
     for artifact in item.get("artifacts", []):
+        relative = artifact.get("path")
+        if not isinstance(relative, str) or not relative or Path(relative).is_absolute() or ".." in Path(relative).parts:
+            raise error(path, "unsafe archive artifact path={!r}".format(relative), "restore archive-relative regular-file paths")
         artifact_path = require_archive_artifact(archive / artifact["path"], archive)
         if sha256_file(artifact_path) != artifact["sha256"]:
             raise error(artifact_path, "rollback archive sha256 mismatch", "restore the immutable archive")
@@ -1346,8 +1352,11 @@ def _authenticate_decision_archive(path, item, require_finalized):
     if not actual_regressed or item.get("regressed_cells") != actual_regressed:
         raise error(comparison, "regressed_cells observed={} expected={}".format(item.get("regressed_cells"), actual_regressed), "restore actual state-bound regression evidence")
     if require_finalized:
+        if not isinstance(item.get("post_rollback_commit"), str) or not item["post_rollback_commit"] or not isinstance(item.get("post_rollback_tree"), str) or not item["post_rollback_tree"]:
+            raise error(path, "finalized decision missing post commit/tree", "restore complete finalized source lineage")
         if item.get("post_rollback_commit") == item.get("old_commit") or item.get("post_rollback_tree") == item.get("old_tree"):
             raise error(path, "finalized decision does not prove changed head/tree", "finalize after the removal commit")
+    return archive_root, verdicts
 
 
 def authenticate_rollback_preparation(path):
@@ -1360,7 +1369,29 @@ def authenticate_rollback_preparation(path):
     expected = "rollback-preparation-g{}-{}.json".format(preparation.get("generation"), observed)
     if path.name != expected:
         raise error(path, "preparation filename differs from payload", "restore the canonical immutable filename")
-    for decision in preparation.get("decisions", []): _authenticate_decision_archive(path, decision, False)
+    decisions = preparation.get("decisions")
+    if not isinstance(decisions, list) or not decisions:
+        raise error(path, "preparation decisions must be non-empty", "record every simultaneously regressed dispatch")
+    evidence = [_authenticate_decision_archive(path, decision, False) for decision in decisions]
+    if any(decision.get("generation") != preparation.get("generation") for decision in decisions):
+        raise error(path, "preparation decision generation differs from container", "restore one exact preparation generation")
+    if any(value != evidence[0] for value in evidence[1:]):
+        raise error(path, "preparation decisions do not share one comparison/archive", "bind simultaneous decisions to one archived comparison")
+    verdicts = evidence[0][1]
+    required = [dispatch for dispatch in DISPATCH_ORDER if any(verdicts.get(cell) == "regressed" for cell in DISPATCH_CELLS[dispatch])]
+    observed_dispatches = [decision.get("dispatch") for decision in decisions]
+    if observed_dispatches != required:
+        raise error(path, "simultaneous dispatches observed={} expected={}".format(observed_dispatches, required), "record every and only simultaneously regressed dispatch")
+    predecessor_hash = preparation.get("predecessor_bundle_sha256")
+    if preparation.get("generation") == 1:
+        if predecessor_hash is not None:
+            raise error(path, "generation 1 preparation has predecessor", "restore the root preparation")
+    else:
+        candidates = [candidate for candidate in path.parent.glob("rollback-bundle-g{}-*.json".format(preparation["generation"] - 1)) if sha256_file(candidate) == predecessor_hash]
+        if len(candidates) != 1:
+            raise error(path, "preparation predecessor match count={}".format(len(candidates)), "restore the exact finalized predecessor")
+        if authenticate_rollback_bundle(candidates[0])["generation"] + 1 != preparation["generation"]:
+            raise error(path, "preparation generation is not predecessor successor", "restore contiguous rollback generations")
     return preparation
 
 
@@ -1411,6 +1442,34 @@ def authenticate_rollback_bundle(path):
     if sha256_file(preparation_path) != bundle.get("preparation_sha256") or preparation.get("preparation_sha256") != bundle.get("preparation_payload_sha256"):
         raise error(path, "preparation hash differs from finalized bundle", "restore the authenticated preparation")
     decisions = bundle.get("decisions", [])
+    if not isinstance(decisions, list) or not decisions:
+        raise error(path, "finalized decisions must be non-empty", "finalize a non-empty authenticated preparation")
+    if bundle.get("generation") == 1:
+        predecessor_decisions = []
+        if bundle.get("predecessor_bundle_sha256") is not None:
+            raise error(path, "generation 1 has predecessor", "restore the root finalized bundle")
+    else:
+        predecessor_hash = bundle.get("predecessor_bundle_sha256")
+        candidates = [candidate for candidate in path.parent.glob("rollback-bundle-g{}-*.json".format(bundle["generation"] - 1)) if sha256_file(candidate) == predecessor_hash]
+        if len(candidates) != 1:
+            raise error(path, "predecessor bundle match count={}".format(len(candidates)), "restore the exact finalized predecessor")
+        predecessor_decisions = authenticate_rollback_bundle(candidates[0])["decisions"]
+    if decisions[:len(predecessor_decisions)] != predecessor_decisions:
+        raise error(path, "finalized predecessor prefix differs", "restore the exact inherited decision prefix")
+    suffix = decisions[len(predecessor_decisions):]
+    if len(suffix) != len(preparation["decisions"]):
+        raise error(path, "finalized suffix count={} expected={}".format(len(suffix), len(preparation["decisions"])), "finalize each prepared decision exactly once")
+    final_fields = {"post_rollback_commit", "post_rollback_tree", "lineage_parent_commit", "removal_evidence", "decision_sha256"}
+    expected_parent = predecessor_decisions[-1]["post_rollback_commit"] if predecessor_decisions else None
+    for prepared, finalized in zip(preparation["decisions"], suffix):
+        prepared_core = {key: value for key, value in prepared.items() if key != "decision_sha256"}
+        finalized_core = {key: value for key, value in finalized.items() if key not in final_fields}
+        expected_removal = {"dispatch": prepared["dispatch"], "removed_cells": prepared["removed_cells"],
+                            "old_commit": prepared["old_commit"], "old_tree": prepared["old_tree"],
+                            "post_rollback_commit": finalized.get("post_rollback_commit"), "post_rollback_tree": finalized.get("post_rollback_tree"),
+                            "head_changed": True, "tree_changed": True}
+        if finalized_core != prepared_core or finalized.get("lineage_parent_commit") != expected_parent or finalized.get("removal_evidence") != expected_removal:
+            raise error(path, "finalized decision differs from prepared decision/lineage", "restore the exact one-to-one finalized transformation")
     dispatches = [item.get("dispatch") for item in decisions]
     if len(dispatches) != len(set(dispatches)):
         raise error(path, "duplicate or conflicting decisions {}".format(dispatches), "restore one decision per dispatch")
@@ -1465,6 +1524,13 @@ def read_comparison_verdicts(path):
 
 def record_rollback(state_path, dispatches, archive_root, command_runner=subprocess.run, repo_root=None):
     state_path = Path(state_path).resolve(); state = load_json(state_path)
+    if len(state.get("canonical_runs", [])) != 2:
+        raise error(state_path, "canonical run count={} expected=2".format(len(state.get("canonical_runs", []))), "collect exactly two state-bound canonical runs")
+    verify_state_inputs(state, state_path)
+    environments = [load_json(Path(run["absolute_path"]) / "environment.json") for run in state["canonical_runs"]]
+    identities = [(value.get("git_commit"), value.get("tree_hash")) for value in environments]
+    if identities[0] != identities[1]:
+        raise error(state_path, "measurement identity observed={} expected one shared commit/tree".format(identities), "recollect both canonical runs from the same clean head")
     if len(dispatches) != len(set(dispatches)):
         raise error(state_path, "duplicate dispatch arguments {}".format(dispatches), "pass each regressed dispatch once")
     verdicts = read_comparison_verdicts(state["comparison_path"])
@@ -1474,7 +1540,7 @@ def record_rollback(state_path, dispatches, archive_root, command_runner=subproc
             required.append(dispatch)
     if sorted(dispatches, key=DISPATCH_ORDER.index) != required:
         raise error(state["comparison_path"], "dispatches={} mapped simultaneous regressions={}".format(dispatches, required), "record every and only simultaneously regressed dispatch")
-    first_environment = load_json(Path(state["canonical_runs"][0]["absolute_path"]) / "environment.json")
+    first_environment = environments[0]
     old_commit = first_environment.get("git_commit"); old_tree = first_environment.get("tree_hash")
     repo_root = Path(repo_root).resolve() if repo_root else find_repo_root(Path.cwd(), command_runner)
     require_clean_tree(repo_root, "rollback preparation", command_runner)
@@ -1482,6 +1548,12 @@ def record_rollback(state_path, dispatches, archive_root, command_runner=subproc
     tree, _, _ = command_text(command_runner, ["git", "rev-parse", "HEAD^{tree}"], cwd=repo_root)
     if (head.strip(), tree.strip()) != (old_commit, old_tree):
         raise error(state_path, "preparation head/tree observed={} expected={}".format((head.strip(), tree.strip()), (old_commit, old_tree)), "checkout the exact clean measurement head before record-rollback")
+    predecessor = state.get("rollback_bundle_path")
+    if predecessor:
+        previous = authenticate_rollback_bundle(predecessor)
+        parent = previous["decisions"][-1]["post_rollback_commit"]
+        if _run(command_runner, ["git", "merge-base", "--is-ancestor", parent, old_commit], cwd=repo_root).returncode:
+            raise error(state_path, "measurement commit={} does not descend from predecessor post={}".format(old_commit, parent), "collect the next generation on the authenticated rollback lineage")
     root = Path(archive_root).resolve(); root.mkdir(parents=True, exist_ok=True)
     generation = state.get("rollback_bundle", {}).get("generation", 0) + 1
     archive = root / "archive-g{}-{}".format(generation, generate_run_id())
@@ -1501,7 +1573,6 @@ def record_rollback(state_path, dispatches, archive_root, command_runner=subproc
             shutil.copy2(source, target, follow_symlinks=False); files.append(target)
         predecessor_decisions = state.get("rollback_bundle", {}).get("decisions", [])
         decisions = [make_rollback_decision(dispatch, [cell for cell in DISPATCH_CELLS[dispatch] if verdicts.get(cell) == "regressed"], old_commit, old_tree, archive, files, generation, utc_now()) for dispatch in required]
-        predecessor = state.get("rollback_bundle_path")
         if predecessor and Path(predecessor).resolve().parent != root:
             raise error(predecessor, "predecessor bundle root differs from archive root {}".format(root), "continue the immutable chain under the original archive root")
         bundle_path = write_rollback_preparation(root, decisions, generation, predecessor=predecessor)
@@ -1530,6 +1601,12 @@ def finalize_rollback(preparation_path, command_runner=subprocess.run, repo_root
         raise error(preparation_path, "finalization head/tree did not change", "commit the symbol-scoped removal before finalizing")
     if _run(command_runner, ["git", "merge-base", "--is-ancestor", first["old_commit"], head], cwd=repo_root).returncode:
         raise error(preparation_path, "finalization head does not descend from measurement head", "finalize on the authenticated descendant branch")
+    if preparation.get("predecessor_bundle_sha256"):
+        predecessor_candidates = [candidate for candidate in preparation_path.parent.glob("rollback-bundle-g{}-*.json".format(preparation["generation"] - 1)) if sha256_file(candidate) == preparation["predecessor_bundle_sha256"]]
+        predecessor_bundle = authenticate_rollback_bundle(predecessor_candidates[0])
+        predecessor_post = predecessor_bundle["decisions"][-1]["post_rollback_commit"]
+        if _run(command_runner, ["git", "merge-base", "--is-ancestor", predecessor_post, first["old_commit"]], cwd=repo_root).returncode:
+            raise error(preparation_path, "measurement commit does not descend from predecessor post", "finalize the authenticated chained rollback lineage")
     if removal_verifier and not removal_verifier(repo_root, preparation, head, tree):
         raise error(preparation_path, "dispatch removal predicate failed", "remove every prepared dispatch exactly")
     root = preparation_path.parent; generation = preparation["generation"]

@@ -121,28 +121,36 @@ def rewrite_manifest(manifest_path, mutate):
     runner.atomic_write_json(manifest_path, manifest)
 
 
+def build_rollback_state(root, comparison_rows, environments=(("old", "old-tree"), ("old", "old-tree"))):
+    root = Path(root); evidence = root / "evidence"; evidence.mkdir()
+    jar = root / "bench-JMH.jar"; jar.write_bytes(b"jar"); jar_stat = jar.stat()
+    runs = []
+    for index, (commit, tree) in enumerate(environments):
+        run = evidence / ("run-" + chr(ord("a") + index)); run.mkdir()
+        for name in runner.REQUIRED_RUN_FILES: (run / name).write_text(name)
+        runner.atomic_write_json(run / "environment.json", {"git_commit": commit, "tree_hash": tree})
+        runs.append({"absolute_path": str(run), "files": {name: runner.sha256_file(run / name) for name in runner.REQUIRED_RUN_FILES}})
+    comparison = evidence / "comparison.csv"; comparison.write_text("method,verdict\n" + "".join("{},{}\n".format(*row) for row in comparison_rows))
+    validation = evidence / "validation.json"; validation.write_text("{}")
+    state_path = evidence / "state.json"
+    runner.atomic_write_json(state_path, {
+        "schema_version": 1, "promotable": True, "canonical_runs": runs,
+        "benchmark_jar_path": str(jar.resolve()), "benchmark_jar_sha256": runner.sha256_file(jar),
+        "benchmark_jar_stat": [jar_stat.st_dev, jar_stat.st_ino, jar_stat.st_size],
+        "comparison_path": str(comparison), "comparison_sha256": runner.sha256_file(comparison),
+        "comparison_validation_path": str(validation), "comparison_validation_sha256": runner.sha256_file(validation),
+    })
+    return state_path, comparison, validation
+
+
 class EvidenceRunnerTest(unittest.TestCase):
     def test_record_rollback_prepares_actual_regressed_subset_then_finalize_is_idempotent(self):
         with tempfile.TemporaryDirectory() as td:
-            root = Path(td); evidence = root / "evidence"; evidence.mkdir()
-            runs = []
-            for run_id in ("run-a", "run-b"):
-                run = evidence / run_id; run.mkdir()
-                runner.atomic_write_json(run / "environment.json", {"git_commit": "old", "tree_hash": "old-tree"})
-                (run / "result.txt").write_text(run_id)
-                runs.append({"absolute_path": str(run)})
-            comparison = evidence / "comparison.csv"
-            comparison.write_text(
-                "method,verdict\n"
-                "serializerDecodeHeapOptimized,inconclusive\n"
-                "serializerDecodeDirectOptimized,regressed\n"
-            )
-            validation = evidence / "validation.json"; validation.write_text("{}")
-            state_path = evidence / "state.json"
-            runner.atomic_write_json(state_path, {
-                "schema_version": 1, "promotable": True, "canonical_runs": runs,
-                "comparison_path": str(comparison), "comparison_validation_path": str(validation),
-            })
+            root = Path(td)
+            state_path, comparison, validation = build_rollback_state(root, (
+                ("serializerDecodeHeapOptimized", "inconclusive"),
+                ("serializerDecodeDirectOptimized", "regressed"),
+            ))
 
             def git_before(argv, **_kwargs):
                 if argv[1:3] == ["status", "--porcelain=v1"]:
@@ -192,13 +200,26 @@ class EvidenceRunnerTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "preparation sha256"):
                 runner.authenticate_rollback_bundle(bundle_path)
 
+    def test_record_rollback_rejects_environment_and_state_hash_drift(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); state_path, comparison, _ = build_rollback_state(
+                root, (("redissonDecodeContiguousOptimized", "regressed"),),
+                environments=(("old", "tree"), ("other", "tree")),
+            )
+            with self.assertRaisesRegex(ValueError, "measurement identity"):
+                runner.record_rollback(state_path, ["redisson_contiguous"], root / "rollback", repo_root=root)
+            state = json.loads(state_path.read_text()); state["canonical_runs"][1] = state["canonical_runs"][0]
+            runner.atomic_write_json(state_path, state)
+            comparison.write_text("method,verdict\nredissonDecodeContiguousOptimized,inconclusive\n")
+            with self.assertRaisesRegex(ValueError, "state-bound sha256"):
+                runner.record_rollback(state_path, ["redisson_contiguous"], root / "rollback", repo_root=root)
+
     def test_record_rollback_requires_clean_exact_measurement_head(self):
         with tempfile.TemporaryDirectory() as td:
-            root = Path(td); state = root / "state.json"; comparison = root / "comparison.csv"
-            run = root / "run"; run.mkdir(); runner.atomic_write_json(run / "environment.json", {"git_commit": "old", "tree_hash": "tree"})
-            comparison.write_text("method,verdict\nredissonDecodeContiguousOptimized,regressed\n")
-            validation = root / "validation.json"; validation.write_text("{}")
-            runner.atomic_write_json(state, {"canonical_runs": [{"absolute_path": str(run)}], "comparison_path": str(comparison), "comparison_validation_path": str(validation)})
+            root = Path(td); state, _, _ = build_rollback_state(
+                root, (("redissonDecodeContiguousOptimized", "regressed"),),
+                environments=(("old", "tree"), ("old", "tree")),
+            )
             def dirty(argv, **_kwargs):
                 if argv[1] == "status": return subprocess.CompletedProcess(argv, 0, stdout=b" M dirty\n", stderr=b"")
                 return subprocess.CompletedProcess(argv, 0, stdout=b"other\n", stderr=b"")
@@ -1093,12 +1114,34 @@ class EvidenceRunnerTest(unittest.TestCase):
             loaded = runner.authenticate_rollback_bundle(bundle_path)
             self.assertEqual(1, loaded["generation"])
             self.assertEqual("serializer_encode", loaded["decisions"][0]["dispatch"])
+            empty = dict(loaded); empty["decisions"] = []
+            empty["bundle_sha256"] = runner.sha256_bytes(runner.payload_json_bytes(runner._bundle_payload(empty)))
+            empty_path = root / ("rollback-bundle-g1-" + empty["bundle_sha256"] + ".json")
+            runner.atomic_write_json(empty_path, empty)
+            with self.assertRaisesRegex(ValueError, "non-empty"):
+                runner.authenticate_rollback_bundle(empty_path)
             with self.assertRaisesRegex(ValueError, "duplicate"):
                 runner.write_rollback_bundle(root, [decision, decision], predecessor=None)
             payload = json.loads(bundle_path.read_text()); payload["decisions"][0]["dispatch"] = "serializer_decode"
             bundle_path.write_text(json.dumps(payload))
             with self.assertRaisesRegex(ValueError, "sha256"):
                 runner.authenticate_rollback_bundle(bundle_path)
+
+    def test_preparation_requires_complete_simultaneous_dispatch_set(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); archive = root / "archive"; archive.mkdir()
+            comparison = archive / "comparison.csv"
+            comparison.write_text(
+                "method,verdict\nserializerDecodeDirectOptimized,regressed\n"
+                "redissonDecodeContiguousOptimized,regressed\n"
+            )
+            decision = runner.make_rollback_decision(
+                "serializer_decode", ["serializerDecodeDirectOptimized"], "old", "tree",
+                archive, [comparison], 1, "now",
+            )
+            preparation = runner.write_rollback_preparation(root, [decision], 1)
+            with self.assertRaisesRegex(ValueError, "simultaneous"):
+                runner.authenticate_rollback_preparation(preparation)
 
     def test_normalized_profiles_match_validator_facing_contract(self):
         canonical = runner.normalized_profile("canonical")
@@ -1131,6 +1174,21 @@ class EvidenceRunnerTest(unittest.TestCase):
             second_bundle = runner.write_rollback_bundle(root, [second_decision], predecessor=first_bundle)
             chain = runner.authenticate_rollback_bundle_chain(second_bundle)
             self.assertEqual([1, 2], [bundle["generation"] for _, bundle in chain])
+
+            next_root = root / "next"; next_root.mkdir()
+            state_path, _, _ = build_rollback_state(next_root, (("serializerDecodeDirectOptimized", "regressed"),), environments=(("c2", "t2"), ("c2", "t2")))
+            state = json.loads(state_path.read_text())
+            state.update({"rollback_bundle_path": str(first_bundle), "rollback_bundle_sha256": runner.sha256_file(first_bundle),
+                          "rollback_bundle": runner.authenticate_rollback_bundle(first_bundle)})
+            runner.atomic_write_json(state_path, state)
+            def non_descendant(argv, **_kwargs):
+                if argv[1] == "status": return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+                if argv[-1] == "HEAD": return subprocess.CompletedProcess(argv, 0, stdout=b"c2\n", stderr=b"")
+                if argv[-1] == "HEAD^{tree}": return subprocess.CompletedProcess(argv, 0, stdout=b"t2\n", stderr=b"")
+                if argv[1:3] == ["merge-base", "--is-ancestor"]: return subprocess.CompletedProcess(argv, 1, stdout=b"", stderr=b"no")
+                return subprocess.CompletedProcess(argv, 1, stdout=b"", stderr=b"unexpected")
+            with self.assertRaisesRegex(ValueError, "does not descend from predecessor"):
+                runner.record_rollback(state_path, ["serializer_decode"], root, command_runner=non_descendant, repo_root=root)
             first_bundle.unlink()
             with self.assertRaisesRegex(ValueError, "predecessor"):
                 runner.authenticate_rollback_bundle_chain(second_bundle)
