@@ -1542,6 +1542,56 @@ def read_comparison_verdicts(path):
     return {row.get("method") or row.get("candidate"): row.get("verdict") for row in rows}
 
 
+def sanitize_kotlin_lexically(source):
+    chars = list(source); output = list(source); index = 0; state = "code"; depth = 0
+    while index < len(chars):
+        pair = "".join(chars[index:index + 2]); triple = "".join(chars[index:index + 3])
+        if state == "code":
+            if pair == "//": output[index:index + 2] = [" "] * 2; index += 2; state = "line"; continue
+            if pair == "/*": output[index:index + 2] = [" "] * 2; index += 2; state = "block"; depth = 1; continue
+            if triple == '\"\"\"': output[index:index + 3] = [" "] * 3; index += 3; state = "triple"; continue
+            if chars[index] == '"': output[index] = " "; index += 1; state = "string"; continue
+            if chars[index] == "'": output[index] = " "; index += 1; state = "char"; continue
+            index += 1; continue
+        if state == "line":
+            if chars[index] == "\n": state = "code"; index += 1; continue
+        elif state == "block":
+            if pair == "/*": depth += 1
+            elif pair == "*/": depth -= 1
+            if depth == 0:
+                output[index] = output[index + 1] = " "; index += 2; state = "code"; continue
+        elif state == "triple" and triple == '\"\"\"' and index + 2 < len(chars):
+            output[index:index + 3] = [" "] * 3; index += 3; state = "code"; continue
+        elif state in ("string", "char"):
+            quote = '"' if state == "string" else "'"
+            if chars[index] == "\\" and index + 1 < len(chars):
+                output[index] = output[index + 1] = " "; index += 2; continue
+            if chars[index] == quote:
+                output[index] = " "; index += 1; state = "code"; continue
+        if chars[index] != "\n": output[index] = " "
+        index += 1
+    return "".join(output)
+
+
+def kotlin_function_body(source, name):
+    sanitized = sanitize_kotlin_lexically(source)
+    match = re.search(r"\bfun\s+(?:<[^{}>]*>\s*)?" + re.escape(name) + r"\s*\(", sanitized)
+    if not match: return None
+    opening = sanitized.find("{", match.end())
+    equals = sanitized.find("=", match.end())
+    if equals >= 0 and (opening < 0 or equals < opening):
+        end = sanitized.find("\n", equals + 1)
+        return sanitized[equals + 1:end if end >= 0 else len(sanitized)]
+    if opening < 0: return ""
+    depth = 0
+    for index in range(opening, len(sanitized)):
+        if sanitized[index] == "{": depth += 1
+        elif sanitized[index] == "}":
+            depth -= 1
+            if depth == 0: return sanitized[opening + 1:index]
+    return ""
+
+
 def verify_dispatch_source_removals(repo_root, head, dispatches, command_runner=subprocess.run):
     cache = {}
     for dispatch in dispatches:
@@ -1549,15 +1599,17 @@ def verify_dispatch_source_removals(repo_root, head, dispatches, command_runner=
         if source_path not in cache:
             source, _, _ = command_text(command_runner, ["git", "show", "{}:{}".format(head, source_path)], cwd=repo_root)
             cache[source_path] = source
-        source = cache[source_path]
+        source = cache[source_path]; sanitized = sanitize_kotlin_lexically(source)
         if dispatch == "serializer_encode":
-            retained = "packMessageTo(graph, target)" in source
+            body = kotlin_function_body(source, "serializeTo")
+            retained = body is not None and bool(re.search(r"\bpackMessageTo\b", body))
         elif dispatch == "serializer_decode":
-            retained = "deserializeFrom(source: ByteBuffer)" in source
+            retained = kotlin_function_body(source, "deserializeFrom") is not None
         else:
-            retained = "nioBufferCount() == 1" in source or "AnyMessage.parseFrom(buf.nioBuffer(" in source
-            if "AnyMessage.parseFrom(buf.getBytes(copy = true))" not in source:
-                retained = True
+            body = kotlin_function_body(source, "decodeProtobuf")
+            retained = body is None or bool(re.search(r"\bnioBuffer(?:Count)?\b", body))
+            copied = body is not None and bool(re.search(r"\bgetBytes\s*\(\s*copy\s*=\s*true\s*\)", body))
+            retained = retained or not copied
         if retained:
             raise error(source_path, "{} removal predicate failed at committed head={}".format(dispatch, head), "commit the exact dispatch removal while retaining copied compatibility")
     return True
@@ -1584,9 +1636,17 @@ def record_rollback(state_path, dispatches, archive_root, command_runner=subproc
     if state.get("rollback_status") == "prepared":
         existing_path = Path(state.get("rollback_preparation_path", "")).resolve()
         existing = authenticate_rollback_preparation(existing_path)
+        prepared_identity = {(item["old_commit"], item["old_tree"]) for item in existing["decisions"]}
+        current_identity = identities[0]
+        artifacts = {item["path"]: item["sha256"] for item in existing["decisions"][0]["artifacts"]}
         if (sha256_file(existing_path) != state.get("rollback_preparation_file_sha256") or
                 existing_path.parent != Path(archive_root).resolve() or
-                [item["dispatch"] for item in existing["decisions"]] != required):
+                [item["dispatch"] for item in existing["decisions"]] != required or
+                prepared_identity != {current_identity} or
+                artifacts.get("comparison.csv") != state.get("comparison_sha256") or
+                artifacts.get("validation.json") != state.get("comparison_validation_sha256")):
+            if prepared_identity != {current_identity}:
+                raise error(state_path, "stale preparation lineage={} current={}".format(sorted(prepared_identity), current_identity), "reuse only the exact original measurement state")
             raise error(state_path, "prepared rollback conflicts with requested dispatch/root", "reuse the exact recorded preparation or start from a fresh state")
         print(existing_path)
         return existing_path
