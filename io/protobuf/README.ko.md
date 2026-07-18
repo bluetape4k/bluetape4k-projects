@@ -60,17 +60,29 @@ val expandedSerializer = ProtobufSerializer(
 )
 ```
 
-비 Protobuf 객체에 대한 폴백 직렬화기도 JDK 역직렬화 RCE 위험을 피하기 위해 `Jdk`에서 `Kryo`로 변경되었습니다.
+`ProtobufSerializer()`의 기본 동작은 strict입니다. Protobuf `Message`만 처리하며 비 Protobuf 값이나
+바이트는 거부합니다. `ProtobufSerializer(fallback = nonNullSerializer)`와
+`ProtobufSerializer.trustedInternalProtobuf(...)`는 모든 producer와 저장 payload를 신뢰할 수 있는 저장소에만
+사용하는 호환 fallback입니다. 신뢰할 수 없는 payload에는 두 profile을 사용하지 마세요. fallback은 terminal
+allowlist 위반이나 `Message`가 아닌 타입으로 확인된 경우를 우회하지 않습니다.
 
-`RedissonProtobufCodec`도 Redis 값에 같은 기본 허용 목록을 사용하며, 비 Protobuf
-값의 fallback에는 Kryo5를 사용합니다. 레거시 신뢰 환경에서 이전 허용-전체 동작이
-임시로 필요하면 명시적으로 설정하세요:
+`RedissonProtobufCodec()`과 `RedissonProtobufCodec(allowedClassPrefixes)`도 strict입니다. 기본값으로 Kryo5나
+다른 fallback codec을 사용하지 않습니다. `RedissonProtobufCodec(fallbackCodec)`과
+`RedissonProtobufCodec.trustedInternal(...)`는 신뢰 저장소 전용 fallback opt-in입니다. 완전히 신뢰하는 레거시
+환경에서 Protobuf class 전체 허용이 임시로 필요할 때만 migration escape hatch를 명시적으로 설정하세요:
 
 ```kotlin
 val codec = RedissonProtobufCodec(
     allowedClassPrefixes = RedissonProtobufCodec.ALLOW_ALL_CLASSES_UNSAFE,
 )
 ```
+
+Decode 시 정확히 하나의 NIO buffer를 노출하는 contiguous input(`nioBufferCount() == 1`)만 lower-copy 경로를
+사용합니다. Composite input은 copied compatibility 경로에 남고 trusted fallback decode도 별도로 복사한 input으로
+격리됩니다. 이는 zero-copy를 보장한다는 의미가 아닙니다.
+
+`ALLOW_ALL_CLASSES_UNSAFE`는 Protobuf class allowlist만 변경합니다. fallback codec을 활성화하지 않으므로 이
+생성자에서는 비 Protobuf 값이 계속 거부됩니다.
 
 프로덕션에서는 좁은 커스텀 허용 목록을 권장합니다:
 
@@ -130,25 +142,72 @@ val backToJava = protoMoney.toJavaMoney()
 
 ```kotlin
 import io.bluetape4k.protobuf.*
+import java.nio.ByteBuffer
 
 val bytes = packMessage(myMessage)
 val restored: MyMessage? = unpackMessage(bytes)
+
+val target = ByteBuffer.allocateDirect(4096).apply { position(8) }
+val written = packMessageTo(myMessage, target)
+val source = target.duplicate().apply {
+    position(8)
+    limit(8 + written)
+}
+val decoded = unpackMessage<MyMessage>(source)
 ```
+
+caller-owned 경로는 호출 간 재사용하는 넉넉한 크기의 buffer를 위한 API입니다. 테스트나 내부 크기 검증에서는
+별도 public size API를 추가하지 않고 정확한 capacity를 계산할 수 있습니다:
+
+```kotlin
+val packed = com.google.protobuf.Any.pack(myMessage)
+val exactTarget = ByteBuffer.allocate(packed.serializedSize)
+packMessageTo(myMessage, exactTarget)
+```
+
+운영 코드에서는 의도적으로 더 큰 재사용 buffer를 유지하는 편이 좋습니다. 정확한 크기를 구하려면 실제 쓰기
+전에 packed `Any`를 먼저 만들어야 하므로 기대한 allocation 이점 일부가 사라집니다. 기존 `ByteArray` 호출자는
+마이그레이션할 필요가 없습니다.
 
 ### 6. ProtobufSerializer (BinarySerializer 구현)
 
 ```kotlin
 import io.bluetape4k.protobuf.serializers.ProtobufSerializer
+import java.nio.ByteBuffer
 
 val serializer = ProtobufSerializer()
 val bytes = serializer.serialize(protoMessage)
 val message = serializer.deserialize<MyMessage>(bytes)
+
+val target = ByteBuffer.allocateDirect(4096).apply { position(8) }
+val written = serializer.serializeTo(protoMessage, target)
+val source = target.duplicate().apply {
+    position(8)
+    limit(8 + written)
+}
+val decoded = serializer.deserializeFrom<MyMessage>(source)
+```
+
+target의 소유권은 caller에게 있습니다. preflight `BufferOverflowException`은 target을 변경하지 않지만 쓰기가
+시작된 뒤 실패하면 `position`만 복원되며 기존 바이트는 이미 덮어쓰였을 수 있습니다. 재사용하기 전에
+caller-owned prefix 전체를 다시 초기화하거나 buffer를 폐기하세요. 여기서 `HEADER_SIZE`는 caller가 정한 prefix
+경계입니다:
+
+```kotlin
+try {
+    serializer.serializeTo(message, target)
+} catch (failure: Throwable) {
+    target.clear()
+    target.position(HEADER_SIZE)
+    // 재사용하기 전에 caller-owned prefix byte를 모두 다시 쓰거나 target을 폐기합니다.
+    throw failure
+}
 ```
 
 추천 사용 방법:
 
 - 값이 모두 Protobuf 메시지라면 `packMessage` / `unpackMessage` 또는 각 메시지의 `parseFrom`을 직접 사용하는 편이 가장 단순합니다.
-- 캐시/세션/큐처럼 Protobuf 메시지와 일반 JVM 객체가 섞여 들어오는 저장소라면 `ProtobufSerializer`가 fallback serializer와 함께 더 유용합니다.
+- 내부 캐시나 세션처럼 Protobuf 메시지와 과거 JVM 객체가 섞인 신뢰 저장소에서는 모든 producer와 저장 payload를 신뢰할 수 있는지 확인한 뒤 명시적인 trusted fallback profile을 사용합니다.
 - 서비스 간 wire protocol 자체는 gRPC/Protobuf 규약에 맡기고, `ProtobufSerializer`는 애플리케이션 내부 바이너리 저장/전달 경계에서 사용하는 편이 관리가 쉽습니다.
 
 ## 주요 파일/클래스 목록

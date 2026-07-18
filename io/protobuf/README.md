@@ -60,11 +60,16 @@ val expandedSerializer = ProtobufSerializer(
 )
 ```
 
-The fallback serializer for non-Protobuf objects was also changed from `Jdk` to `Kryo` to avoid JDK deserialization RCE risks.
+`ProtobufSerializer()` is strict by default: it accepts Protobuf `Message` values and rejects non-Protobuf values or
+bytes. `ProtobufSerializer(fallback = nonNullSerializer)` and
+`ProtobufSerializer.trustedInternalProtobuf(...)` enable a compatibility fallback only for stores where every producer
+and stored payload is trusted. Do not enable either profile for untrusted payloads. A fallback never bypasses a
+terminal allowlist violation or a resolved non-`Message` type.
 
-`RedissonProtobufCodec` uses the same default allowlist for Redis values and
-uses Kryo5 as the fallback for non-Protobuf values. For legacy trusted
-deployments that need the old allow-all behavior temporarily, configure it
+`RedissonProtobufCodec()` and `RedissonProtobufCodec(allowedClassPrefixes)` are also strict. They do not use Kryo5 or
+another fallback by default. `RedissonProtobufCodec(fallbackCodec)` and
+`RedissonProtobufCodec.trustedInternal(...)` are explicit trusted-store-only fallback profiles. For a fully trusted
+legacy deployment that temporarily needs allow-all Protobuf class loading, configure the migration escape hatch
 explicitly:
 
 ```kotlin
@@ -72,6 +77,13 @@ val codec = RedissonProtobufCodec(
     allowedClassPrefixes = RedissonProtobufCodec.ALLOW_ALL_CLASSES_UNSAFE,
 )
 ```
+
+On decode, only a contiguous input that exposes exactly one NIO buffer (`nioBufferCount() == 1`) uses the lower-copy
+path. Composite input remains on the copied compatibility path, and trusted fallback decoding remains isolated through
+its own copied input. This is not a zero-copy guarantee.
+
+`ALLOW_ALL_CLASSES_UNSAFE` changes only the Protobuf class allowlist. It does not activate a fallback codec, so
+non-Protobuf values remain rejected by this constructor.
 
 Prefer a narrow custom allowlist for production:
 
@@ -131,27 +143,73 @@ val backToJava = protoMoney.toJavaMoney()
 
 ```kotlin
 import io.bluetape4k.protobuf.*
+import java.nio.ByteBuffer
 
 val bytes = packMessage(myMessage)
 val restored: MyMessage? = unpackMessage(bytes)
+
+val target = ByteBuffer.allocateDirect(4096).apply { position(8) }
+val written = packMessageTo(myMessage, target)
+val source = target.duplicate().apply {
+    position(8)
+    limit(8 + written)
+}
+val decoded = unpackMessage<MyMessage>(source)
 ```
+
+The caller-owned path is intended for an oversized buffer that is reused across calls. For tests or internal sizing
+checks, the exact capacity can be calculated without adding a separate public size API:
+
+```kotlin
+val packed = com.google.protobuf.Any.pack(myMessage)
+val exactTarget = ByteBuffer.allocate(packed.serializedSize)
+packMessageTo(myMessage, exactTarget)
+```
+
+Production callers should normally keep the deliberately larger reusable buffer. Exact sizing constructs the packed
+`Any` before the real write and gives up part of the intended allocation benefit. Existing `ByteArray` callers do not
+need to migrate.
 
 ### 6. ProtobufSerializer (BinarySerializer Implementation)
 
 ```kotlin
 import io.bluetape4k.protobuf.serializers.ProtobufSerializer
+import java.nio.ByteBuffer
 
 val serializer = ProtobufSerializer()
 val bytes = serializer.serialize(protoMessage)
 val message = serializer.deserialize<MyMessage>(bytes)
+
+val target = ByteBuffer.allocateDirect(4096).apply { position(8) }
+val written = serializer.serializeTo(protoMessage, target)
+val source = target.duplicate().apply {
+    position(8)
+    limit(8 + written)
+}
+val decoded = serializer.deserializeFrom<MyMessage>(source)
+```
+
+The target remains caller-owned. A preflight `BufferOverflowException` does not change it, but a failure after writing
+has started restores only `position`; bytes may already have been overwritten. Clear and reinitialize every
+caller-owned prefix byte, or discard the buffer before reuse (`HEADER_SIZE` is the caller's prefix boundary):
+
+```kotlin
+try {
+    serializer.serializeTo(message, target)
+} catch (failure: Throwable) {
+    target.clear()
+    target.position(HEADER_SIZE)
+    // Rewrite every caller-owned prefix byte before reuse, or discard target.
+    throw failure
+}
 ```
 
 Recommended usage patterns:
 
 - If all values are Protobuf messages, using `packMessage` / `unpackMessage` or each message's own
   `parseFrom` directly is the simplest approach.
-- For stores that mix Protobuf messages with general JVM objects (e.g., caches, sessions, queues),
-  `ProtobufSerializer` paired with a fallback serializer is more practical.
+- For trusted stores that mix Protobuf messages with historical JVM objects (e.g., internal caches or sessions), use
+  an explicit trusted fallback profile only after confirming every producer and stored payload is trusted.
 - Leave the service-to-service wire protocol to gRPC/Protobuf conventions, and use
   `ProtobufSerializer` at internal binary storage and delivery boundaries within the application.
 

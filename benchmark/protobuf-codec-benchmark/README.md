@@ -1,54 +1,109 @@
 # Protobuf Codec Benchmark
 
-This module measures the protobuf codec paths used by bluetape4k serialization
-and Redisson integration code. The benchmark is intentionally narrow: it keeps a
-single deterministic protobuf payload in memory and compares encode/decode
-throughput for the codec implementations that are used by the library modules.
+English | [한국어](./README.ko.md)
 
-![Protobuf codec throughput](../../docs/images/readme-charts/benchmark-protobuf-codec-throughput-chart-01.png)
+This module collects deterministic JMH allocation evidence for issue #757. It compares the existing `ByteArray`
+paths with caller-owned `ByteBuffer` paths in `ProtobufSerializer`, plus copied, contiguous, and composite decode paths
+in `RedissonProtobufCodec`. Throughput is retained as a diagnostic metric; `gc.alloc.rate.norm` (`B/op`) is the claim
+gate.
 
-## What It Measures
+## Exact Method Matrix
 
-The benchmark class is
-`io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark`.
+The runner and validator require exactly these 13 methods. Missing, duplicated, or additional methods fail validation.
 
-It runs JMH throughput benchmarks with two warmup iterations and three measured
-iterations, each one second long. The measured payload is a `BenchmarkMessage`
-with a stable `id`, `name`, and repeated string payload. The fallback benchmark
-uses a serializable Kotlin data object to measure the non-protobuf serialization
-path.
+| Method | Comparison role | Claim eligible |
+|---|---|---|
+| `serializerEncodeByteArray` | Serializer encode baseline | No |
+| `serializerEncodeHeapOptimized` | Heap caller-buffer candidate | Yes |
+| `serializerEncodeDirectOptimized` | Direct caller-buffer candidate | Yes |
+| `serializerDecodeByteArray` | Serializer decode baseline | No |
+| `serializerDecodeHeapOptimized` | Heap source-buffer candidate | Yes |
+| `serializerDecodeDirectOptimized` | Direct source-buffer candidate | Yes |
+| `redissonDecodeCopiedByteArray` | Redisson copied baseline | No |
+| `redissonDecodeContiguousOptimized` | Contiguous `ByteBuf` candidate | Yes |
+| `redissonDecodeCompositeCompatibility` | Composite copied compatibility control | No |
+| `trustedFallbackEncodeByteArray` | Trusted fallback encode control | No |
+| `trustedFallbackEncodeBufferCompatibility` | Trusted fallback buffer encode control | No |
+| `trustedFallbackDecodeByteArray` | Trusted fallback decode control | No |
+| `trustedFallbackDecodeBufferCompatibility` | Trusted fallback buffer decode control | No |
 
-| Benchmark | Purpose |
-|---|---|
-| `redissonProtobufEncode` | Encode a protobuf message through `RedissonProtobufCodec`. |
-| `redissonProtobufEncodeByteArrayWrappedBaseline` | Encode an already wrapped protobuf byte array through the Redisson codec path. |
-| `redissonProtobufDecode` | Decode the Redisson protobuf payload back into the protobuf message type. |
-| `protobufSerializerEncode` | Encode the protobuf message through `ProtobufSerializer`. |
-| `protobufSerializerFallbackEncode` | Encode a non-protobuf serializable object through the serializer fallback path. |
+Only the five `*Optimized` methods are eligible for a positive allocation claim. Compatibility and fallback cells are
+reported but remain claim-ineligible.
 
-## Latest Local Result
+## Build and Smoke Validation
 
-Run date: 2026-06-19. Runtime: GraalVM JDK 21.0.11. Mode: JMH throughput,
-single thread, one fork, `ops/s`.
-
-| Benchmark | Score | Error |
-|---|---:|---:|
-| `redissonProtobufEncodeByteArrayWrappedBaseline` | 4,029,806 ops/s | ±137,575 |
-| `redissonProtobufEncode` | 3,889,386 ops/s | ±624,283 |
-| `protobufSerializerEncode` | 3,714,491 ops/s | ±6,802,622 |
-| `redissonProtobufDecode` | 3,387,060 ops/s | ±479,845 |
-| `protobufSerializerFallbackEncode` | 1,440,791 ops/s | ±370,311 |
-
-The short local run is useful for comparing the relative shape of codec paths,
-not for publishing an absolute performance guarantee. The large error range on
-`protobufSerializerEncode` means the result should be refreshed with longer
-measurement windows before using it as release evidence.
-
-## Run
+Build one runnable benchmark JAR, pin its path, hash, and file identity, then run the short smoke profile from a clean
+committed tree:
 
 ```bash
-./gradlew :protobuf-codec-benchmark:benchmarkBenchmark
+./gradlew :protobuf-codec-benchmark:benchmarkBenchmarkJar --no-configuration-cache
+python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py resolve-jar \
+  --jar-dir benchmark/protobuf-codec-benchmark/build/benchmarks/benchmark/jars \
+  --state benchmark/protobuf-codec-benchmark/build/issue-757-smoke/jar.json
+python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py run \
+  --state benchmark/protobuf-codec-benchmark/build/issue-757-smoke/jar.json \
+  --profile smoke --concurrent-heavy-work absent \
+  --output-root benchmark/protobuf-codec-benchmark/build/issue-757-smoke
 ```
 
-The raw JMH JSON report is written under
-`benchmark/protobuf-codec-benchmark/build/reports/benchmarks/main/`.
+Smoke uses `-t 1 -f 1 -wi 1 -i 1 -w 1s -r 1s -prof gc -rf json`. It proves that all 13 cells emit the required
+schema, provenance, throughput, and allocation metrics; it is not publishable performance evidence. Use a fresh state
+and output root for canonical evidence.
+
+## Canonical Two-Run Protocol
+
+After a fresh clean/JAR build, resolve a new state under `build/issue-757-evidence/` and run the canonical profile twice
+without rebuilding or replacing the pinned JAR:
+
+```bash
+python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py resolve-jar \
+  --jar-dir benchmark/protobuf-codec-benchmark/build/benchmarks/benchmark/jars \
+  --state benchmark/protobuf-codec-benchmark/build/issue-757-evidence/jar.json
+python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py run \
+  --state benchmark/protobuf-codec-benchmark/build/issue-757-evidence/jar.json \
+  --profile canonical --concurrent-heavy-work absent \
+  --output-root benchmark/protobuf-codec-benchmark/build/issue-757-evidence
+python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py run \
+  --state benchmark/protobuf-codec-benchmark/build/issue-757-evidence/jar.json \
+  --profile canonical --concurrent-heavy-work absent \
+  --output-root benchmark/protobuf-codec-benchmark/build/issue-757-evidence
+python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py compare \
+  --state benchmark/protobuf-codec-benchmark/build/issue-757-evidence/jar.json \
+  --output benchmark/protobuf-codec-benchmark/build/issue-757-evidence/comparison.csv \
+  --validation benchmark/protobuf-codec-benchmark/build/issue-757-evidence/validation.json
+```
+
+The canonical JMH arguments are fixed:
+
+```text
+-t 1 -f 2 -wi 3 -i 5 -w 1s -r 1s -prof gc -rf json
+-jvmArgsAppend "-Xms1g -Xmx1g -XX:+UseG1GC"
+```
+
+`run-evidence.py run` invokes `validate-jmh.py run` for each run. `run-evidence.py compare` then invokes the equivalent
+two-run comparison validation and binds its outputs to state. For manual diagnosis, inspect the exact validator CLI
+contracts with:
+
+```bash
+python3 benchmark/protobuf-codec-benchmark/scripts/validate-jmh.py run --help
+python3 benchmark/protobuf-codec-benchmark/scripts/validate-jmh.py compare --help
+```
+
+Each run directory contains `environment.json`, `metadata.json`, `argv.json`, `run.log`, `jmh.json`, `summary.csv`, and
+`validation.json`. Final promoted evidence belongs under `docs/benchmarks/raw/issue-757/`; the final report is generated
+only from a verified delivery manifest.
+
+## Decision Rule and Limits
+
+For each eligible candidate, calculate its `gc.alloc.rate.norm` delta against the mapped baseline independently in both
+canonical runs:
+
+- `accepted`: both deltas are at most `-5%`; a narrowly scoped measured allocation-reduction claim is allowed.
+- `inconclusive`: the direction is mixed or either result is strictly between `-5%` and `+5%`; retain correct code
+  without a reduction claim.
+- `regressed`: both deltas are at least `+5%`; follow the recorded rollback workflow and collect two fresh runs.
+- `ineligible`: baseline, composite, or trusted-fallback control; never use it for a positive claim.
+
+These measurements do not prove zero-copy behavior. Protobuf, Netty, direct buffers, or fallback codecs may still copy
+or allocate internally. They also do not establish a general throughput improvement or guarantee for other payloads,
+JDKs, machines, concurrency levels, or storage boundaries.
