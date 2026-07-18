@@ -7,7 +7,6 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.protobuf.ProtoAny
 import io.bluetape4k.protobuf.ProtoMessage
 import io.bluetape4k.support.isNullOrEmpty
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Binary serializer for Protobuf messages packed as `Any`.
@@ -38,6 +37,8 @@ class ProtobufSerializer(
     private val fallback: BinarySerializer? = null,
     private val allowedClassPrefixes: Set<String> = DEFAULT_ALLOWED_PREFIXES,
 ): AbstractBinarySerializer() {
+    private val messageClassResolver = ProtobufMessageClassResolver()
+
     init {
         require(allowedClassPrefixes.all { it.isNotBlank() }) {
             "allowedClassPrefixes must not contain blank entries."
@@ -45,8 +46,6 @@ class ProtobufSerializer(
     }
 
     companion object {
-        private val messageTypes = ConcurrentHashMap<String, Class<out ProtoMessage>>()
-
         /**
          * Package prefixes allowed for class names extracted from Protobuf `Any.typeUrl`.
          */
@@ -93,15 +92,13 @@ class ProtobufSerializer(
                 "Untrusted Protobuf class: $className. Add the package to allowedClassPrefixes."
             }
 
-            val clazz =
-                messageTypes.getOrPut(className) {
-                    // initialize=false prevents static initializer execution while resolving the message class.
-                    @Suppress("UNCHECKED_CAST")
-                    Class.forName(className, false, Thread.currentThread().contextClassLoader) as Class<ProtoMessage>
-                }
+            val classLoader = Thread.currentThread().contextClassLoader ?: ProtobufSerializer::class.java.classLoader
+            val clazz = messageClassResolver.resolve(className, classLoader)
             protoAny.unpack(clazz) as? T
         } catch (e: IllegalArgumentException) {
             throw SecurityException("Blocked Protobuf deserialization: ${e.message}", e)
+        } catch (e: SecurityException) {
+            throw e
         } catch (e: Throwable) {
             val trustedFallback = fallback
                 ?: throw SecurityException(

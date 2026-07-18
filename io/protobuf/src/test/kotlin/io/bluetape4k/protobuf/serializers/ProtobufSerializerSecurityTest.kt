@@ -6,6 +6,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.protobuf.messages.TestMessage
 import io.bluetape4k.protobuf.messages.testMessage
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
@@ -20,6 +21,114 @@ import io.bluetape4k.assertions.assertFailsWith
 class ProtobufSerializerSecurityTest {
 
     companion object: KLogging()
+
+    private class CountingClassLoader(parent: ClassLoader): ClassLoader(parent) {
+        var targetLoads: Int = 0
+            private set
+
+        override fun loadClass(name: String, resolve: Boolean): Class<*> {
+            if (name == TestMessage::class.java.name) targetLoads++
+            return super.loadClass(name, resolve)
+        }
+    }
+
+    private class ChildFirstSingleClassLoader(
+        parent: ClassLoader,
+        private val targetName: String,
+        private val targetBytes: ByteArray,
+    ): ClassLoader(parent) {
+        override fun loadClass(name: String, resolve: Boolean): Class<*> =
+            synchronized(getClassLoadingLock(name)) {
+                val loaded = findLoadedClass(name)
+                val type = loaded ?: if (name == targetName) {
+                    defineClass(name, targetBytes, 0, targetBytes.size)
+                } else {
+                    super.loadClass(name, false)
+                }
+                if (resolve) resolveClass(type)
+                type
+            }
+    }
+
+    private fun classBytes(type: Class<*>): ByteArray =
+        checkNotNull(type.getResourceAsStream("/${type.name.replace('.', '/')}.class")).use { it.readBytes() }
+
+    @Test
+    fun `allowlisted non message class is a terminal security failure`() {
+        val crafted = Any.newBuilder()
+            .setTypeUrl("type.googleapis.com/java.lang.String")
+            .build()
+            .toByteArray()
+        val serializer = ProtobufSerializer(allowedClassPrefixes = setOf("java.lang."))
+
+        val failure = assertFailsWith<BinarySerializationException> {
+            serializer.deserialize<kotlin.Any>(crafted)
+        }
+
+        generateSequence(failure.cause) { it.cause }
+            .filterIsInstance<SecurityException>()
+            .first()
+            .message
+            .orEmpty()
+            .contains("does not implement com.google.protobuf.Message")
+            .shouldBeTrue()
+    }
+
+    @Test
+    fun `message class cache is isolated by effective class loader identity and null tccl decodes`() {
+        val serializer = ProtobufSerializer()
+        val bytes = serializer.serialize(testMessage { id = 7L; name = "loader" })
+        val original = Thread.currentThread().contextClassLoader
+        val first = CountingClassLoader(original)
+        val second = CountingClassLoader(original)
+
+        try {
+            Thread.currentThread().contextClassLoader = first
+            serializer.deserialize<TestMessage>(bytes).shouldNotBeNull()
+            serializer.deserialize<TestMessage>(bytes).shouldNotBeNull()
+            Thread.currentThread().contextClassLoader = second
+            serializer.deserialize<TestMessage>(bytes).shouldNotBeNull()
+            Thread.currentThread().contextClassLoader = null
+            serializer.deserialize<TestMessage>(bytes).shouldNotBeNull()
+        } finally {
+            Thread.currentThread().contextClassLoader = original
+        }
+
+        first.targetLoads shouldBeEqualTo 1
+        second.targetLoads shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `child defined same name classes stay isolated by loader identity`() {
+        val target = TestMessage::class.java
+        val first = ChildFirstSingleClassLoader(target.classLoader, target.name, classBytes(target))
+        val second = ChildFirstSingleClassLoader(target.classLoader, target.name, classBytes(target))
+        val resolver = ProtobufMessageClassResolver()
+
+        val firstType = resolver.resolve(target.name, first)
+        val secondType = resolver.resolve(target.name, second)
+
+        (firstType === secondType) shouldBeEqualTo false
+        firstType.classLoader shouldBeEqualTo first
+        secondType.classLoader shouldBeEqualTo second
+    }
+
+    @Test
+    fun `loader bucket cap and stale key cleanup are deterministic`() {
+        val loader = CountingClassLoader(TestMessage::class.java.classLoader)
+        val resolver = ProtobufMessageClassResolver()
+        resolver.seedCacheForTest(
+            loader,
+            (0..256).associate { "synthetic.Message$it" to TestMessage::class.java },
+        )
+
+        resolver.cacheSizeForTest(loader) shouldBeEqualTo 1
+        resolver.resolve(TestMessage::class.java.name, loader) shouldBeEqualTo TestMessage::class.java
+        val buckets = resolver.loaderBucketCountForTest()
+        resolver.clearAndEnqueueLoaderKeyForTest(loader) shouldBeEqualTo true
+        resolver.expungeStaleLoadersForTest()
+        resolver.loaderBucketCountForTest() shouldBeEqualTo buckets - 1
+    }
 
     // ────────────────────────────────────────────────────────────────────────────
     // 정상 경로: 허용 목록 내 클래스
