@@ -11,6 +11,7 @@ import org.apache.kafka.common.header.Headers
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serializer
 import java.io.Closeable
+import java.nio.ByteBuffer
 
 /**
  * Kafka 의 [Serializer], [Deserializer] 기능을 한번에 제공하는 Codec 입니다.
@@ -48,6 +49,33 @@ interface KafkaCodec<T>:
     override fun close() {
         // Nothing to do
     }
+}
+
+/**
+ * Opt-in Kafka codec contract for caller-owned [ByteBuffer] input and output.
+ *
+ * Standard Kafka [Serializer] and [Deserializer] calls remain [ByteArray]-based. These methods avoid an additional
+ * Kafka-layer array conversion when the backing codec already supports buffers; the concrete serializer still
+ * determines whether its implementation is optimized or an allocating compatibility fallback.
+ *
+ * Output advances the target position by the returned byte count on success. Input reads the source's current
+ * remaining range while preserving caller state. Buffers remain caller-owned and must not be mutated concurrently.
+ */
+interface BufferAwareKafkaCodec<T>: KafkaCodec<T> {
+    fun serializeTo(topic: String?, data: T & Any, target: ByteBuffer): Int =
+        serializeTo(topic, null, data, target)
+
+    fun serializeTo(
+        topic: String?,
+        headers: Headers?,
+        data: T & Any,
+        target: ByteBuffer,
+    ): Int
+
+    fun deserializeFrom(topic: String?, source: ByteBuffer): T? =
+        deserializeFrom(topic, null, source)
+
+    fun deserializeFrom(topic: String?, headers: Headers?, source: ByteBuffer): T?
 }
 
 /**
