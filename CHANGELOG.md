@@ -4,6 +4,12 @@
 
 ---
 
+## [1.12.0] — Unreleased
+
+### Performance
+
+- Added reproducible two-run JMH allocation evidence for serializer ByteBuffer paths. The report limits lower-allocation claims to the five optimized cells accepted by the 5% B/op gate and keeps compatibility, fallback, and inconclusive results explicitly separate ([#1039](https://github.com/bluetape4k/bluetape4k-projects/issues/1039), [evidence](docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)).
+
 ## [1.11.0] — 2026-06-27
 
 ### Security

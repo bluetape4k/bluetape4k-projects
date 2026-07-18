@@ -99,3 +99,7 @@ New benchmark reports should use this compact shape:
 Module-local `Benchmark.md` files may stay concise. When results are used for an
 issue or public README chart, add or update a report in this directory and link
 the module document back to that report.
+
+## Serializer Allocation Evidence
+
+- [ByteBuffer Serializer Allocation Benchmark - 2026-07-18](2026-07-18-bytebuffer-serializer-allocation.md) — two fresh JMH GC-profiler runs for issue #1039 with committed raw JSON and CSV evidence.

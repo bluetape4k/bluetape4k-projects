@@ -1,0 +1,27 @@
+run_id=run-20260718T030512Z
+commit=57a2468e9e7cb2c305a7046dd8baa10f71284f21
+ProductName:		macOS
+ProductVersion:		26.5.2
+BuildVersion:		25F84
+Darwin debop-m4-pro.local 25.5.0 Darwin Kernel Version 25.5.0: Tue Jun  9 22:28:34 PDT 2026; root:xnu-12377.121.10~1/RELEASE_ARM64_T6041 arm64
+Apple M4 Pro
+51539607552
+java version "21.0.11" 2026-04-21 LTS
+Java(TM) SE Runtime Environment Oracle GraalVM 21.0.11+9.1 (build 21.0.11+9-LTS-jvmci-23.1-b92)
+Java HotSpot(TM) 64-Bit Server VM Oracle GraalVM 21.0.11+9.1 (build 21.0.11+9-LTS-jvmci-23.1-b92, mixed mode, sharing)
+
+------------------------------------------------------------
+Gradle 9.6.0
+------------------------------------------------------------
+
+Build time:    2026-06-18 23:19:03 UTC
+Revision:      3f750f03d77e42327c5f9fcb9992110088330a32
+
+Kotlin:        2.3.21
+Groovy:        4.0.32
+Ant:           Apache Ant(TM) version 1.10.17 compiled on April 6 2026
+Launcher JVM:  21.0.11 (Oracle Corporation 21.0.11+9-LTS-jvmci-23.1-b92)
+Daemon JVM:    /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home (no Daemon JVM specified, using current Java home)
+OS:            Mac OS X 26.5.2 aarch64
+
+jmh=-t 1 -f 2 -wi 3 -i 5 -w 1s -r 1s -prof gc -rf json

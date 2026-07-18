@@ -17,6 +17,9 @@ import java.nio.ByteBuffer
  * val value: Map<*, *>? = serializer.deserialize(bytes)
  * // value?.get("id") == 1
  * ```
+ *
+ * The interface-default ByteBuffer methods are allocating compatibility fallbacks. Concrete backend verdicts are in
+ * the [issue #1039 allocation evidence](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md).
  */
 interface JsonSerializer {
 

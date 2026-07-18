@@ -429,6 +429,18 @@ io.bluetape4k.jackson3
 
 ## References
 
+### ByteBuffer allocation evidence
+
+The [issue #1039 report](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md) accepted lower allocation for Jackson 3 `serializeTo`; `deserializeFrom` was inconclusive. Interface-default compatibility remains ergonomic-only.
+
+| Path | Status | Limitation |
+|---|---|---|
+| concrete `serializeTo` | optimized; accepted | measured payload/default mapper only |
+| concrete `deserializeFrom` | optimized; inconclusive | no allocation-reduction claim |
+| interface default | compatibility fallback | ergonomic-only |
+
+Kotlin calls `serializeTo`/reified `deserializeFrom`; Java supplies the target class to the same API. Caller-owned targets must be writable and have sufficient remaining capacity. Success advances output `position` without widening `limit`; overflow/read-only failure rolls back. Duplicate-backed input preserves source `position` and `limit`.
+
 - [Jackson 3.x](https://github.com/FasterXML/jackson)
 - [Jackson 3.x Release Notes](https://github.com/FasterXML/jackson/wiki/Jackson-Release-3.0)
 - [Jackson Kotlin Module](https://github.com/FasterXML/jackson-module-kotlin)

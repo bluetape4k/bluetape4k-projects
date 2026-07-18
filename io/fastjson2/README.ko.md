@@ -207,5 +207,17 @@ io.bluetape4k.fastjson2
 
 ## 참고
 
+### ByteBuffer 할당 근거
+
+[이슈 #1039 보고서](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)에서 writable array-backed `deserializeFrom` 비교는 inconclusive였습니다. direct/read-only 입력과 모든 출력 buffer 셀은 fallback 또는 호환 control이며 사용 편의성 전용입니다.
+
+| 경로 | 상태 |
+|---|---|
+| writable array-backed 입력 | 최적화 dispatch, inconclusive |
+| direct/read-only 입력 | fallback, 사용 편의성 전용 |
+| 출력 buffer | `JSONB.toBytes` fallback, 사용 편의성 전용 |
+
+Kotlin과 Java는 같은 public 계약의 `serializeTo`/`deserializeFrom`을 호출합니다. writable target은 남은 용량이 충분해야 하며, 출력 성공은 `limit`을 넓히지 않고 `position`만 이동하고 overflow/read-only 실패는 rollback합니다. 입력은 호출자의 `position`/`limit`을 보존합니다. 결과는 JSONB, 기본 설정, 명시된 buffer 종류 밖으로 일반화하지 않습니다.
+
 - [Fastjson2](https://github.com/alibaba/fastjson2)
 - [JSONB Specification](https://github.com/alibaba/fastjson2/wiki/jsonb_format_cn)
