@@ -9,6 +9,7 @@ import io.bluetape4k.protobuf.serializers.ProtobufMessageClassResolver
 import io.bluetape4k.protobuf.serializers.ProtobufSerializer
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.CompositeByteBuf
 import io.netty.buffer.Unpooled
 import org.redisson.client.codec.BaseCodec
 import org.redisson.client.codec.Codec
@@ -187,11 +188,18 @@ class RedissonProtobufCodec private constructor(
         val visited = java.util.Collections.newSetFromMap(
             java.util.IdentityHashMap<ByteBuf, Boolean>()
         )
-        var current: ByteBuf? = this
-        while (current != null) {
+        val pending = java.util.ArrayDeque<ByteBuf>()
+        pending.add(this)
+        while (pending.isNotEmpty()) {
+            val current = pending.removeLast()
             if (current === root) return true
             if (!visited.add(current)) return true
-            current = current.unwrap()
+            current.unwrap()?.let(pending::add)
+            if (current is CompositeByteBuf) {
+                repeat(current.numComponents()) { index ->
+                    pending.add(current.component(index))
+                }
+            }
         }
         return false
     }

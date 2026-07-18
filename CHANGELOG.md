@@ -18,6 +18,12 @@
   the matrix as claim-ineligible compatibility measurements after the shared direct decode dispatch rollback; retained
   encode and Redisson claims still require the 5% B/op gate ([#1039](https://github.com/bluetape4k/bluetape4k-projects/issues/1039), [evidence](docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)).
 
+### Changed
+
+- Trusted Redisson fallback decoders must consume their temporary input synchronously and return independent values.
+  Input retention, cross-thread transfer, and derived `ByteBuf` views are unsupported; callers that must preserve the
+  decoded bytes should return an independently owned `ByteBuf.copy()`.
+
 ## [1.11.0] — 2026-06-27
 
 ### Security

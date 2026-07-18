@@ -119,6 +119,7 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
         RETAIN_AND_RETURN,
         EARLY_RELEASE_AND_RETURN,
         RETURN_SLICE,
+        RETURN_COMPOSITE_SLICE,
         THROW_AFTER_RETAIN,
     }
 
@@ -140,6 +141,8 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
                 HostileBehavior.RETAIN_AND_RETURN -> input.retain().let { "retained" }
                 HostileBehavior.EARLY_RELEASE_AND_RETURN -> input.release().let { "released" }
                 HostileBehavior.RETURN_SLICE -> input.slice()
+                HostileBehavior.RETURN_COMPOSITE_SLICE ->
+                    Unpooled.compositeBuffer().addComponent(true, input.slice())
                 HostileBehavior.THROW_AFTER_RETAIN -> {
                     input.retain()
                     throw sentinel
