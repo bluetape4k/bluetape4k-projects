@@ -22,6 +22,32 @@ class ReleaseContractTest < Minitest::Test
     end
   end
 
+  def test_skips_manuals_for_modules_that_are_not_in_the_release
+    with_repository do |root, sha|
+      write_manual(root, "[Present](../../../../src/present.kt)")
+      write_file(
+        root,
+        "docs/manual/en/modules/snapshot-only.md",
+        "[Snapshot source](../../../../benchmark/snapshot-only/src/main.kt)",
+      )
+      write_file(root, "docs/manual/manifest.yaml", <<~YAML)
+        modules:
+          - id: sample
+            sourceDir: src
+            en: en/modules/sample.md
+          - id: snapshot-only
+            sourceDir: benchmark/snapshot-only
+            en: en/modules/snapshot-only.md
+      YAML
+
+      result = validator(root, sha).validate
+
+      assert_empty result.errors
+      assert_equal 1, result.checked_count
+      assert_equal 1, result.skipped_manual_count
+    end
+  end
+
   def test_rejects_a_link_that_traverses_outside_the_repository
     with_repository do |root, sha|
       write_manual(root, "[Unsafe](../../../../../outside.kt)")

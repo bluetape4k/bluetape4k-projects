@@ -2850,6 +2850,32 @@
     },
     {
       "artifact": null,
+      "en": "en/modules/serializer-benchmark.md",
+      "gradlePath": ":serializer-benchmark",
+      "group": "examples",
+      "id": "serializer-benchmark",
+      "kind": "benchmark",
+      "ko": "ko/modules/serializer-benchmark.md",
+      "learningOrder": 1515,
+      "sourceDir": "benchmark/serializer-benchmark",
+      "sourcePaths": [
+        "benchmark/serializer-benchmark/src/main/kotlin",
+        "benchmark/serializer-benchmark/src/benchmark/kotlin"
+      ],
+      "testPaths": [
+        "benchmark/serializer-benchmark/src/test/kotlin",
+        "benchmark/serializer-benchmark/src/test/resources"
+      ],
+      "title": {
+        "en": "Serializer Allocation Benchmark",
+        "ko": "직렬화 할당량 성능 비교"
+      },
+      "workshops": [
+
+      ]
+    },
+    {
+      "artifact": null,
       "en": "en/modules/web-framework-benchmark.md",
       "gradlePath": ":web-framework-benchmark",
       "group": "examples",

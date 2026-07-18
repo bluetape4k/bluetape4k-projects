@@ -1996,6 +1996,25 @@ modules:
   sourcePaths: []
   testPaths: []
   workshops: []
+- id: serializer-benchmark
+  title:
+    en: "Serializer Allocation Benchmark"
+    ko: "직렬화 할당량 성능 비교"
+  learningOrder: 1515
+  gradlePath: ":serializer-benchmark"
+  sourceDir: benchmark/serializer-benchmark
+  kind: benchmark
+  group: examples
+  artifact:
+  en: en/modules/serializer-benchmark.md
+  ko: ko/modules/serializer-benchmark.md
+  sourcePaths:
+  - benchmark/serializer-benchmark/src/main/kotlin
+  - benchmark/serializer-benchmark/src/benchmark/kotlin
+  testPaths:
+  - benchmark/serializer-benchmark/src/test/kotlin
+  - benchmark/serializer-benchmark/src/test/resources
+  workshops: []
 - id: web-framework-benchmark
   title:
     en: "Web Framework Benchmark"

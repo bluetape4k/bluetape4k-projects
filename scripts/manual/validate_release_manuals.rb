@@ -19,4 +19,8 @@ unless result.errors.empty?
   exit 1
 end
 
-puts "Release manuals are compatible with #{tag} (#{expected_sha}): #{result.checked_count} checked, 0 missing."
+summary = "Release manuals are compatible with #{tag} (#{expected_sha}): #{result.checked_count} checked, 0 missing."
+if result.skipped_manual_count.positive?
+  summary += " #{result.skipped_manual_count} snapshot-only manuals skipped."
+end
+puts summary

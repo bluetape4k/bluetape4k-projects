@@ -1,10 +1,11 @@
 require "open3"
 require "pathname"
 require "set"
+require "yaml"
 
 module ManualDocs
   class ReleaseContract
-    ValidationResult = Struct.new(:errors, :checked_count, keyword_init: true)
+    ValidationResult = Struct.new(:errors, :checked_count, :skipped_manual_count, keyword_init: true)
     TAG_PATTERN = /\Av?\d+\.\d+\.\d+\z/
     SHA_PATTERN = /\A[0-9a-f]{40}\z/i
     REPOSITORY_LINK_PATTERN = /!?\[[^\]]*\]\(\s*<?((?:\.\.\/){4,}[^)\s>]+)>?(?:\s+["'][^)]*["'])?\s*\)/
@@ -36,13 +37,13 @@ module ManualDocs
       inventory = release_inventory(resolved_sha)
       return result(["release inventory could not be read: #{resolved_sha}"]) unless inventory
 
-      links = repository_links
+      links, skipped_manual_count = repository_links(inventory)
       errors = if links.empty?
                  ["no repository-relative manual links found"]
                else
                  missing_path_errors(inventory, links)
                end
-      result(errors, links.length)
+      result(errors, links.length, skipped_manual_count)
     end
 
     private
@@ -79,8 +80,9 @@ module ManualDocs
       end
     end
 
-    def repository_links
-      manual_files.flat_map do |absolute_path|
+    def repository_links(inventory)
+      files, skipped_manual_count = release_manual_files(inventory)
+      links = files.flat_map do |absolute_path|
         relative_file = Pathname.new(absolute_path).relative_path_from(Pathname.new(@repository_root)).to_s
         content = File.read(absolute_path)
         link_targets(content).map do |offset, target|
@@ -88,6 +90,7 @@ module ManualDocs
           [relative_file, line, target]
         end
       end
+      [links, skipped_manual_count]
     end
 
     def link_targets(content)
@@ -133,8 +136,12 @@ module ManualDocs
       end.compact
     end
 
-    def result(errors, checked_count = 0)
-      ValidationResult.new(errors: errors, checked_count: checked_count)
+    def result(errors, checked_count = 0, skipped_manual_count = 0)
+      ValidationResult.new(
+        errors: errors,
+        checked_count: checked_count,
+        skipped_manual_count: skipped_manual_count,
+      )
     end
 
     def repository_path_for(relative_file, target)
@@ -148,6 +155,44 @@ module ManualDocs
 
     def manual_files
       Dir.glob(File.join(@repository_root, "docs/manual/**/*.md")).sort
+    end
+
+    def release_manual_files(inventory)
+      files = manual_files
+      skipped = snapshot_only_manual_files(inventory) & files
+      [files - skipped, skipped.length]
+    end
+
+    def snapshot_only_manual_files(inventory)
+      manifest_path = File.join(@repository_root, "docs/manual/manifest.yaml")
+      return [] unless File.file?(manifest_path)
+
+      manifest = YAML.safe_load(File.read(manifest_path))
+      modules = manifest.is_a?(Hash) ? manifest["modules"] : nil
+      return [] unless modules.is_a?(Array)
+
+      manual_root = File.dirname(manifest_path)
+      modules.each_with_object([]) do |entry, paths|
+        next unless entry.is_a?(Hash)
+        source_dir = entry["sourceDir"]
+        next unless source_dir.is_a?(String) && !inventory.include?(source_dir)
+
+        document_paths(entry).each do |relative_path|
+          next unless relative_path.is_a?(String)
+          absolute_path = File.expand_path(relative_path, manual_root)
+          paths << absolute_path if File.file?(absolute_path)
+        end
+      end.uniq.sort
+    end
+
+    def document_paths(entry)
+      paths = [entry["en"], entry["ko"]]
+      chapters = entry["chapters"]
+      if chapters.is_a?(Array)
+        paths.concat(chapters.filter_map { |chapter| chapter["en"] if chapter.is_a?(Hash) })
+        paths.concat(chapters.filter_map { |chapter| chapter["ko"] if chapter.is_a?(Hash) })
+      end
+      paths
     end
 
     def run_git(arguments)

@@ -64,6 +64,9 @@ same change.
   reviewable in the same change as the implementation.
 - Run the release contract validator to prove that every relative source and
   test target exists at the documented release commit.
+- The validator derives snapshot-only manuals from manifest modules whose
+  `sourceDir` is absent from that release. Do not add manual skip lists or
+  weaken link checks for modules that exist in the release tree.
 - Require the public-site snapshot publisher to rewrite repository-relative
   links to the immutable release tag or commit. Verify representative generated
   URLs before deployment; a link to `develop` is not release provenance.
