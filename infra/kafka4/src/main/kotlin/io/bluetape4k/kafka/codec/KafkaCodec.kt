@@ -241,7 +241,7 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
      * - `Exception` 발생 시 원본 throwable을 첨부하지 않은 bounded/sanitized WARN 로그를 남기고
      *   `null` 을 반환해 컨슈머 루프 진행을 막지 않는다.
      * - topic은 128자, header key는 최대 16개·각 64자, failure type은 256자로 제한하며
-     *   control character는 중화한다. Header value와 payload는 읽거나 기록하지 않는다.
+     *   control character는 중화한다. Poison 진단 로그에는 header value와 payload를 기록하지 않는다.
      * - 영구 손실을 막으려면 Spring-Kafka 의 `ErrorHandlingDeserializer` + `DeadLetterPublishingRecoverer` 를 함께 사용하라.
      *
      * **흡수하지 않는 예외**:
@@ -307,9 +307,11 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
             if (allowedTypePackages.isEmpty() ||
                 allowedTypePackages.none { clazzName == it || clazzName.startsWith("$it.") }
             ) {
+                // The header and allowlist may both contain untrusted or sensitive text; log fixed metadata only.
                 log.warn {
-                    "[SECURITY] Rejected class '$clazzName' from Kafka header — not in allowedTypePackages=$allowedTypePackages. " +
-                    "If intentional, add the package to allowedTypePackages or use ALLOW_ALL_TYPES_UNSAFE (unsafe)."
+                    "[SECURITY] Rejected Kafka type header. rejectedTypeLength=${clazzName.length}, " +
+                        "allowedPackageCount=${allowedTypePackages.size}. " +
+                        "If intentional, add the package to allowedTypePackages or use ALLOW_ALL_TYPES_UNSAFE (unsafe)."
                 }
                 throw IllegalArgumentException(
                     "Class '$clazzName' is not in allowedTypePackages=$allowedTypePackages. " +
