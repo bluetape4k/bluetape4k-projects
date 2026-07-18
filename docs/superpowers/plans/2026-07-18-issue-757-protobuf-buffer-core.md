@@ -2455,11 +2455,10 @@ Do not hand-write numeric or verdict content. Task 8 Step 7 generates the report
 python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py verify-promoted \
   --state benchmark/protobuf-codec-benchmark/build/issue-757-evidence/jar.json \
   --destination docs/benchmarks/raw/issue-757
-python3 -c 'import json,pathlib,sys; d=json.load(open(sys.argv[1])); assert d["promotion_status"]=="verified"; assert pathlib.Path(d["promoted_destination"]).resolve()==pathlib.Path(sys.argv[2]).resolve(); assert d["verified_measurement_commit"] and d["verified_measurement_tree"]' \
+python3 -c 'import json,pathlib,sys; s=json.load(open(sys.argv[1])); m=json.load(open(sys.argv[3])); assert s["promotion_status"]=="verified"; assert pathlib.Path(s["promoted_destination"]).resolve()==pathlib.Path(sys.argv[2]).resolve(); assert s["source_commit"] and s["source_tree"]; assert (s["source_commit"],s["source_tree"])==(m["measurement"]["git_commit"],m["measurement"]["tree_hash"])' \
   benchmark/protobuf-codec-benchmark/build/issue-757-evidence/jar.json \
-  docs/benchmarks/raw/issue-757
-python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py validate-committed \
-  --manifest docs/benchmarks/raw/issue-757/delivery-manifest.json
+  docs/benchmarks/raw/issue-757 \
+  docs/benchmarks/raw/issue-757/delivery-manifest.json
 python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py render-report \
   --manifest docs/benchmarks/raw/issue-757/delivery-manifest.json \
   --output docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md
@@ -2479,6 +2478,8 @@ Scope-risk: narrow
 Directive: Re-run both evidence passes after any production-dispatch change
 Tested: Two validated GC-profiler runs, identity comparison, evidence links, git diff check
 Not-tested: Results do not generalize beyond the recorded payload, machine, JDK, and buffer cells"
+python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py validate-committed \
+  --manifest docs/benchmarks/raw/issue-757/delivery-manifest.json
 ```
 
 If this was a `replace-promoted` lifecycle and state contains `replacement_backup`, clean only that backup after the evidence commit is proved:
