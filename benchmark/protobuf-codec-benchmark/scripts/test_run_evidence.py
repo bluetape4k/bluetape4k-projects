@@ -122,6 +122,97 @@ def rewrite_manifest(manifest_path, mutate):
 
 
 class EvidenceRunnerTest(unittest.TestCase):
+    def test_record_rollback_prepares_actual_regressed_subset_then_finalize_is_idempotent(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); evidence = root / "evidence"; evidence.mkdir()
+            runs = []
+            for run_id in ("run-a", "run-b"):
+                run = evidence / run_id; run.mkdir()
+                runner.atomic_write_json(run / "environment.json", {"git_commit": "old", "tree_hash": "old-tree"})
+                (run / "result.txt").write_text(run_id)
+                runs.append({"absolute_path": str(run)})
+            comparison = evidence / "comparison.csv"
+            comparison.write_text(
+                "method,verdict\n"
+                "serializerDecodeHeapOptimized,inconclusive\n"
+                "serializerDecodeDirectOptimized,regressed\n"
+            )
+            validation = evidence / "validation.json"; validation.write_text("{}")
+            state_path = evidence / "state.json"
+            runner.atomic_write_json(state_path, {
+                "schema_version": 1, "promotable": True, "canonical_runs": runs,
+                "comparison_path": str(comparison), "comparison_validation_path": str(validation),
+            })
+
+            def git_before(argv, **_kwargs):
+                if argv[1:3] == ["status", "--porcelain=v1"]:
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+                if argv[-1] == "HEAD":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"old\n", stderr=b"")
+                if argv[-1] == "HEAD^{tree}":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"old-tree\n", stderr=b"")
+                return subprocess.CompletedProcess(argv, 1, stdout=b"", stderr=b"unexpected")
+
+            preparation_path = runner.record_rollback(
+                state_path, ["serializer_decode"], root / "rollback", command_runner=git_before, repo_root=root,
+            )
+            preparation = runner.authenticate_rollback_preparation(preparation_path)
+            decision = preparation["decisions"][0]
+            self.assertEqual(2, preparation["schema_version"])
+            self.assertEqual(["serializerDecodeDirectOptimized"], decision["regressed_cells"])
+            self.assertEqual(sorted(runner.DISPATCH_CELLS["serializer_decode"]), decision["removed_cells"])
+            state = json.loads(state_path.read_text())
+            self.assertEqual("prepared", state["rollback_status"])
+            self.assertFalse(state["promotable"])
+
+            def git_after(argv, **_kwargs):
+                if argv[1:3] == ["status", "--porcelain=v1"]:
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+                if argv[-1] == "HEAD":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"post\n", stderr=b"")
+                if argv[-1] == "HEAD^{tree}":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"post-tree\n", stderr=b"")
+                if argv[1:3] == ["merge-base", "--is-ancestor"]:
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+                return subprocess.CompletedProcess(argv, 1, stdout=b"", stderr=b"unexpected")
+
+            bundle_path = runner.finalize_rollback(
+                preparation_path, command_runner=git_after, repo_root=root,
+                removal_verifier=lambda *_args, **_kwargs: True,
+            )
+            self.assertEqual(bundle_path, runner.finalize_rollback(
+                preparation_path, command_runner=git_after, repo_root=root,
+                removal_verifier=lambda *_args, **_kwargs: True,
+            ))
+            bundle = runner.authenticate_rollback_bundle(bundle_path)
+            self.assertEqual(runner.sha256_file(preparation_path), bundle["preparation_sha256"])
+            self.assertEqual(sorted(runner.DISPATCH_CELLS["serializer_decode"]), bundle["decisions"][0]["removed_cells"])
+            tampered = json.loads(preparation_path.read_text()); tampered["decisions"][0]["timestamp"] = "tampered"
+            preparation_path.write_text(json.dumps(tampered))
+            with self.assertRaisesRegex(ValueError, "preparation sha256"):
+                runner.authenticate_rollback_bundle(bundle_path)
+
+    def test_record_rollback_requires_clean_exact_measurement_head(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); state = root / "state.json"; comparison = root / "comparison.csv"
+            run = root / "run"; run.mkdir(); runner.atomic_write_json(run / "environment.json", {"git_commit": "old", "tree_hash": "tree"})
+            comparison.write_text("method,verdict\nredissonDecodeContiguousOptimized,regressed\n")
+            validation = root / "validation.json"; validation.write_text("{}")
+            runner.atomic_write_json(state, {"canonical_runs": [{"absolute_path": str(run)}], "comparison_path": str(comparison), "comparison_validation_path": str(validation)})
+            def dirty(argv, **_kwargs):
+                if argv[1] == "status": return subprocess.CompletedProcess(argv, 0, stdout=b" M dirty\n", stderr=b"")
+                return subprocess.CompletedProcess(argv, 0, stdout=b"other\n", stderr=b"")
+            with self.assertRaisesRegex(ValueError, "clean"):
+                runner.record_rollback(state, ["redisson_contiguous"], root / "rollback", command_runner=dirty, repo_root=root)
+
+            preparation = root / ("rollback-preparation-g1-" + "0" * 64 + ".json")
+            preparation.write_text(json.dumps({"schema_version": 2, "kind": "rollback_preparation"}))
+            with self.assertRaisesRegex(ValueError, "finalized v2"):
+                runner.authenticate_rollback_bundle(preparation)
+            legacy = root / "rollback-bundle-g1-legacy.json"
+            legacy.write_text(json.dumps({"schema_version": 1, "decisions": []}))
+            with self.assertRaisesRegex(ValueError, "v1 artifacts must be recreated"):
+                runner.authenticate_rollback_bundle(legacy)
     def test_resolve_jar_requires_exactly_one_and_state_is_no_clobber(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -1173,7 +1264,7 @@ class EvidenceRunnerTest(unittest.TestCase):
         self.assertIn("No positive reduction claim", first)
         with self.assertRaisesRegex(ValueError, "positive reduction language"):
             runner.validate_positive_language("mixed measured allocation reduction", manifest, Path("report.md"))
-        manifest["rollback"] = {"decisions": [{"regressed_cells": ["good"]}]}
+        manifest["rollback"] = {"decisions": [{"regressed_cells": ["good"], "removed_cells": ["good"]}]}
         with self.assertRaisesRegex(ValueError, "removed/ineligible"):
             runner.validate_positive_language(first, manifest, Path("report.md"))
 
