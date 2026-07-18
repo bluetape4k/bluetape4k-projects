@@ -5,6 +5,13 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.observability.HttpOperationClassification
+import io.bluetape4k.junit5.observability.HttpOperationCorrelation
+import io.bluetape4k.junit5.observability.HttpOperationCorrelationMode
+import io.bluetape4k.junit5.observability.HttpOperationExpectation
+import io.bluetape4k.junit5.observability.HttpOperationObservation
+import io.bluetape4k.junit5.observability.HttpOperationSensitiveValues
+import io.bluetape4k.junit5.observability.assertHttpOperationObservability
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.api.trace.StatusCode
@@ -14,13 +21,18 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
@@ -246,6 +258,83 @@ class Bluetape4kKtorObservabilityTest {
     }
 
     @Test
+    fun `Ktor telemetry satisfies the shared HTTP observability conformance fixture`() = testTracing { tracing ->
+        testApplication {
+            val registry = SimpleMeterRegistry()
+            val correlationId = "request-123"
+            try {
+                application {
+                    installBluetape4kKtorObservability(
+                        Bluetape4kKtorObservabilityConfig(
+                            meterRegistry = registry,
+                            tracing = KtorOpenTelemetryTracingConfig(
+                                openTelemetry = tracing.openTelemetry,
+                                captureSanitizedCorrelationId = true,
+                            ),
+                        )
+                    )
+                    routing {
+                        post("/sales/{saleId}") {
+                            call.respondText("ok")
+                        }
+                    }
+                }
+
+                val response = client.post("/sales/sale-123?user=user-456") {
+                    header(HttpHeaders.XRequestId, correlationId)
+                    header(HttpHeaders.XForwardedFor, "203.0.113.7")
+                    contentType(ContentType.Application.Json)
+                    setBody("payload-secret")
+                }
+                tracing.flush()
+
+                val span = tracing.spanExporter.finishedSpanItems.single()
+                val timer = registry.find("ktor.http.server.requests").timers().single()
+                val metricAttributes = timer.id.tags.associate { tag ->
+                    val key = when (tag.key) {
+                        "method"      -> "http.request.method"
+                        "route"       -> "http.route"
+                        "status"      -> "http.response.status_code"
+                        else          -> tag.key
+                    }
+                    key to tag.value
+                } + ("correlation.present" to span.attributes[CORRELATION_PRESENT_KEY].toString())
+
+                assertHttpOperationObservability(
+                    observation = HttpOperationObservation(
+                        operationName = timer.id.name,
+                        routeTemplate = metricAttributes.getValue("http.route"),
+                        statusCode = response.status.value,
+                        classification = response.status.value.toHttpOperationClassification(),
+                        correlation = HttpOperationCorrelation(
+                            inbound = correlationId,
+                            outbound = response.headers[HttpHeaders.XRequestId],
+                            mode = HttpOperationCorrelationMode.PROPAGATED,
+                        ),
+                        metricAttributes = metricAttributes,
+                    ),
+                    expectation = HttpOperationExpectation(
+                        operationName = "ktor.http.server.requests",
+                        routeTemplate = "/sales/{saleId}",
+                        statusCode = 200,
+                        classification = HttpOperationClassification.SUCCESS,
+                        sensitiveValues = HttpOperationSensitiveValues(
+                            rawUrl = "http://localhost/sales/sale-123?user=user-456",
+                            query = "user=user-456",
+                            clientIp = "203.0.113.7",
+                            userId = "user-456",
+                            saleId = "sale-123",
+                            requestPayload = "payload-secret",
+                        ),
+                    ),
+                )
+            } finally {
+                registry.close()
+            }
+        }
+    }
+
+    @Test
     fun `observability config rejects micrometer installation without registry`() {
         assertFailsWith<IllegalArgumentException> {
             Bluetape4kKtorObservabilityConfig(installMicrometerMetrics = true)
@@ -283,13 +372,20 @@ class Bluetape4kKtorObservabilityTest {
         }
 
         override fun close() {
-            tracerProvider.close()
+            openTelemetry.close()
         }
     }
 
     private inline fun testTracing(block: (TestTracing) -> Unit) {
         TestTracing().use(block)
     }
+
+    private fun Int.toHttpOperationClassification(): HttpOperationClassification =
+        when (this) {
+            in 100..399 -> HttpOperationClassification.SUCCESS
+            in 400..499 -> HttpOperationClassification.CLIENT_ERROR
+            else        -> HttpOperationClassification.DEPENDENCY_FAILURE
+        }
 
     companion object {
         private val CORRELATION_PRESENT_KEY: AttributeKey<Boolean> = AttributeKey.booleanKey("correlation.present")

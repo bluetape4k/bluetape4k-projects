@@ -23,6 +23,7 @@ An extension library that reduces repetitive boilerplate in JUnit 5 tests.
 - System property helpers — set properties before a test and restore them after
 - Awaitility + coroutine helpers — `suspendUntil` / `awaitSuspending`
 - Coroutine cancellation contracts — verify propagation, waiter cleanup, and resource cancellation
+- HTTP observability conformance — verify stable routes, classifications, correlation, and sensitive-data exclusion
 - Stress-testing utilities — `MultithreadingTester`, `SuspendedJobTester`, `StructuredTaskScopeTester`
 - Parameter-source extensions — `FieldSource` for parameterized tests
 - Mermaid-based reporting — Gantt timeline of test execution
@@ -187,6 +188,52 @@ fun `cancellation cancels the underlying call`() = runSuspendIO {
 Do not wrap suspend APIs in plain `runCatching` when cancellation must propagate. `CancellationException` is the
 structured concurrency signal and must be rethrown. Use `runCatchingNonCancellation` or `resultOfNonCancellation`
 when an API intentionally returns `Result` for non-cancellation failures.
+
+### HTTP Observability Conformance
+
+Adapt a framework-owned test registry or tracer result into `HttpOperationObservation`, then verify the same contract
+from Spring Boot, Ktor, or another server integration.
+
+```kotlin
+assertHttpOperationObservability(
+    observation = HttpOperationObservation(
+        operationName = "http.server.requests",
+        routeTemplate = "/sales/{saleId}",
+        statusCode = 200,
+        classification = HttpOperationClassification.SUCCESS,
+        correlation = HttpOperationCorrelation(
+            inbound = requestId,
+            outbound = responseRequestId,
+            mode = HttpOperationCorrelationMode.PROPAGATED,
+        ),
+        metricAttributes = metricTags,
+    ),
+    expectation = HttpOperationExpectation(
+        operationName = "http.server.requests",
+        routeTemplate = "/sales/{saleId}",
+        statusCode = 200,
+        classification = HttpOperationClassification.SUCCESS,
+        sensitiveValues = HttpOperationSensitiveValues(
+            rawUrl = rawUrl,
+            query = query,
+            clientIp = clientIp,
+            userId = userId,
+            saleId = saleId,
+            requestPayload = payload,
+        ),
+    ),
+)
+```
+
+The fixture checks operation and route stability, status-compatible
+success/client-error/timeout-or-cancellation/dependency-failure classification, explicit propagated/generated/absent
+correlation semantics, and sensitive metric exclusion. All six representative sensitive inputs are required. A
+successful check logs only the bounded classification, status code, and metric-attribute count; assertion failures
+redact compared values and never log raw telemetry values.
+
+The test remains the lifecycle owner. Create and close the fake registry, tracer, exporter, and OpenTelemetry SDK in
+the Spring Boot or Ktor test; this fixture only validates the framework-neutral snapshot and does not install or close
+telemetry infrastructure.
 
 ### SystemProperty
 

@@ -23,6 +23,7 @@ JUnit 5 테스트 작성 시 반복 코드를 줄여주는 확장 라이브러�
 - **System Property 확장**: 테스트 중 시스템 속성 설정/복원
 - **Awaitility + Coroutines**: suspend 조건 대기 유틸
 - **Coroutine Cancellation Contracts**: cancellation 전파, waiter 정리, resource cancellation 검증
+- **HTTP Observability Conformance**: 안정적인 route, 결과 분류, correlation, 민감 정보 제외 검증
 - **Stress Tester**: 멀티스레드/가상스레드/코루틴 기반 스트레스 테스트
 - **Parameter Source 확장**: FieldSource 기반 인자 제공
 - **Mermaid 리포트**: 테스트 실행 결과를 Mermaid Gantt 타임라인으로 출력
@@ -257,6 +258,51 @@ suspend API에서 cancellation 전파가 필요하다면 plain `runCatching`으�
 `CancellationException`은 structured concurrency의 cancellation 신호이므로 반드시 다시 던져야 합니다.
 non-cancellation 실패만 `Result`로 반환하려면 `runCatchingNonCancellation` 또는
 `resultOfNonCancellation`을 사용하세요.
+
+### HTTP Observability Conformance
+
+Spring Boot, Ktor 같은 서버 통합 테스트에서 registry 또는 tracer 결과를 `HttpOperationObservation`으로
+변환한 뒤 같은 계약으로 검증할 수 있습니다.
+
+```kotlin
+assertHttpOperationObservability(
+    observation = HttpOperationObservation(
+        operationName = "http.server.requests",
+        routeTemplate = "/sales/{saleId}",
+        statusCode = 200,
+        classification = HttpOperationClassification.SUCCESS,
+        correlation = HttpOperationCorrelation(
+            inbound = requestId,
+            outbound = responseRequestId,
+            mode = HttpOperationCorrelationMode.PROPAGATED,
+        ),
+        metricAttributes = metricTags,
+    ),
+    expectation = HttpOperationExpectation(
+        operationName = "http.server.requests",
+        routeTemplate = "/sales/{saleId}",
+        statusCode = 200,
+        classification = HttpOperationClassification.SUCCESS,
+        sensitiveValues = HttpOperationSensitiveValues(
+            rawUrl = rawUrl,
+            query = query,
+            clientIp = clientIp,
+            userId = userId,
+            saleId = saleId,
+            requestPayload = payload,
+        ),
+    ),
+)
+```
+
+fixture는 operation과 route의 안정성, status와 일치하는
+success/client-error/timeout-or-cancellation/dependency-failure 분류, propagated/generated/absent correlation
+의미, 민감한 metric 값 제외 여부를 확인합니다. 여섯 종류의 대표 민감 입력은 모두 필수입니다. 검증에
+성공하면 classification, status code, metric attribute 개수만 로그에 남기고, assertion 실패 메시지에서는
+비교값을 redaction하여 raw telemetry 값을 기록하지 않습니다.
+
+registry, tracer, exporter, OpenTelemetry SDK의 lifecycle은 테스트가 직접 소유합니다. 이 fixture는
+framework-neutral snapshot만 검증하며 telemetry 인프라를 설치하거나 종료하지 않습니다.
 
 ### 9. Stress Tester
 
