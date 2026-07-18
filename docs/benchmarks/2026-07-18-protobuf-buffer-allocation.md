@@ -6,45 +6,45 @@ Issue #757 allocation evidence generated from the committed delivery manifest.
 
 ## Provenance
 
-- Measurement commit: `df1bed0ca5ca00720a7ee79a996d862938751b4e`
-- Measurement tree: `751c356c39a06a74b0af6eb15814da8dea4be824`
-- Delivery commit: `df1bed0ca5ca00720a7ee79a996d862938751b4e`
+- Measurement commit: `22b155fbed160e95a259a7c6695620139bbedda8`
+- Measurement tree: `7a68ec6eff87f4e35446fa5096655e9822141a9f`
+- Delivery commit: `22b155fbed160e95a259a7c6695620139bbedda8`
 
 ## Recorded commands
 
-- `java -jar <PINNED_JAR_SHA256:170730d955cf701de135bbfbf6ce139efb653bfdef7d064f21a01ef2577881e7> -t 1 -f 2 -wi 3 -i 5 -w 1s -r 1s -prof gc -rf json -rff docs/benchmarks/raw/issue-757/run-20260718T193619.552772Z-8889a2f0/jmh.json -jvmArgsAppend -Xms1g -Xmx1g -XX:+UseG1GC`
-- `java -jar <PINNED_JAR_SHA256:170730d955cf701de135bbfbf6ce139efb653bfdef7d064f21a01ef2577881e7> -t 1 -f 2 -wi 3 -i 5 -w 1s -r 1s -prof gc -rf json -rff docs/benchmarks/raw/issue-757/run-20260718T194015.848425Z-931b7876/jmh.json -jvmArgsAppend -Xms1g -Xmx1g -XX:+UseG1GC`
+- `java -jar <PINNED_JAR_SHA256:e8731752bf7fb3177f4069552f74a209d152b7df38980bd80bc4e09ab0797042> -t 1 -f 2 -wi 3 -i 5 -w 1s -r 1s -prof gc -rf json -rff docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/jmh.json -jvmArgsAppend -Xms1g -Xmx1g -XX:+UseG1GC`
+- `java -jar <PINNED_JAR_SHA256:e8731752bf7fb3177f4069552f74a209d152b7df38980bd80bc4e09ab0797042> -t 1 -f 2 -wi 3 -i 5 -w 1s -r 1s -prof gc -rf json -rff docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/jmh.json -jvmArgsAppend -Xms1g -Xmx1g -XX:+UseG1GC`
 
 ## Measurements
 
 | Method | Run | B/op | ops/s | Delta | Verdict | Reason | Claim |
 |---|---|---:|---:|---:|---|---|---|
-| redissonDecodeCompositeCompatibility | run-20260718T193619.552772Z-8889a2f0 | 8208.0031810235923 | 2230105.6069773682 | n/a | ineligible | compatibility_control | No positive reduction claim |
-| redissonDecodeContiguousOptimized | run-20260718T193619.552772Z-8889a2f0 | 5512.0023753781843 | 3051233.2176875076 | -28.22916143112514% | accepted | candidate | measured allocation reduction |
-| redissonDecodeCopiedByteArray | run-20260718T193619.552772Z-8889a2f0 | 7680.0027494294818 | 2612574.5858231261 | n/a | ineligible | baseline | No positive reduction claim |
-| serializerDecodeByteArray | run-20260718T193619.552772Z-8889a2f0 | 5408.0026555957502 | 2711042.2988752834 | n/a | ineligible | baseline | No positive reduction claim |
-| serializerDecodeDirectOptimized | run-20260718T193619.552772Z-8889a2f0 | 7688.0030833417568 | 2310104.3974763611 | 42.15975052058919% | ineligible | removed_after_regression | No positive reduction claim |
-| serializerDecodeHeapOptimized | run-20260718T193619.552772Z-8889a2f0 | 7688.0030837551949 | 2302333.6497612679 | 42.15975052823413% | ineligible | removed_after_regression | No positive reduction claim |
-| serializerEncodeByteArray | run-20260718T193619.552772Z-8889a2f0 | 6976.0018657906503 | 3987192.8086186931 | n/a | ineligible | baseline | No positive reduction claim |
-| serializerEncodeDirectOptimized | run-20260718T193619.552772Z-8889a2f0 | 4832.0020372032623 | 3578944.0864914083 | -30.733934276899593% | accepted | candidate | measured allocation reduction |
-| serializerEncodeHeapOptimized | run-20260718T193619.552772Z-8889a2f0 | 4784.0019994698932 | 3622458.4492854187 | -31.422008028266475% | accepted | candidate | measured allocation reduction |
-| trustedFallbackDecodeBufferCompatibility | run-20260718T193619.552772Z-8889a2f0 | 5472.0103429957489 | 669992.18514418579 | n/a | ineligible | compatibility_control | No positive reduction claim |
-| trustedFallbackDecodeByteArray | run-20260718T193619.552772Z-8889a2f0 | 4864.0097138898464 | 714959.50720903103 | n/a | ineligible | compatibility_control | No positive reduction claim |
-| trustedFallbackEncodeBufferCompatibility | run-20260718T193619.552772Z-8889a2f0 | 680.00437454604867 | 1610487.17309367 | n/a | ineligible | compatibility_control | No positive reduction claim |
-| trustedFallbackEncodeByteArray | run-20260718T193619.552772Z-8889a2f0 | 656.00434687897689 | 1619689.236059298 | n/a | ineligible | compatibility_control | No positive reduction claim |
-| redissonDecodeCompositeCompatibility | run-20260718T194015.848425Z-931b7876 | 8208.0031610706228 | 2252394.6633121828 | n/a | ineligible | compatibility_control | No positive reduction claim |
-| redissonDecodeContiguousOptimized | run-20260718T194015.848425Z-931b7876 | 5512.0024370881683 | 2963101.7876539617 | -28.2291611947455% | accepted | candidate | measured allocation reduction |
-| redissonDecodeCopiedByteArray | run-20260718T194015.848425Z-931b7876 | 7680.0028101171119 | 2532268.6959403465 | n/a | ineligible | baseline | No positive reduction claim |
-| serializerDecodeByteArray | run-20260718T194015.848425Z-931b7876 | 5408.0025969458638 | 2757909.4658573871 | n/a | ineligible | baseline | No positive reduction claim |
-| serializerDecodeDirectOptimized | run-20260718T194015.848425Z-931b7876 | 7688.0031269816291 | 2268371.1168481535 | 42.15975286926418% | ineligible | removed_after_regression | No positive reduction claim |
-| serializerDecodeHeapOptimized | run-20260718T194015.848425Z-931b7876 | 7688.00328404641 | 2156094.051381968 | 42.15975577356717% | ineligible | removed_after_regression | No positive reduction claim |
-| serializerEncodeByteArray | run-20260718T194015.848425Z-931b7876 | 6976.0018683408243 | 3971183.013536158 | n/a | ineligible | baseline | No positive reduction claim |
-| serializerEncodeDirectOptimized | run-20260718T194015.848425Z-931b7876 | 4832.0019924988528 | 3667526.0084177861 | -30.733934943052148% | accepted | candidate | measured allocation reduction |
-| serializerEncodeHeapOptimized | run-20260718T194015.848425Z-931b7876 | 4784.0019258931961 | 3745935.3984881318 | -31.42200910804765% | accepted | candidate | measured allocation reduction |
-| trustedFallbackDecodeBufferCompatibility | run-20260718T194015.848425Z-931b7876 | 5472.0101394775465 | 683827.14706226788 | n/a | ineligible | compatibility_control | No positive reduction claim |
-| trustedFallbackDecodeByteArray | run-20260718T194015.848425Z-931b7876 | 4864.0095286567557 | 727671.82457436912 | n/a | ineligible | compatibility_control | No positive reduction claim |
-| trustedFallbackEncodeBufferCompatibility | run-20260718T194015.848425Z-931b7876 | 680.00437594150753 | 1609647.7685469375 | n/a | ineligible | compatibility_control | No positive reduction claim |
-| trustedFallbackEncodeByteArray | run-20260718T194015.848425Z-931b7876 | 656.00434346063878 | 1622527.7124317368 | n/a | ineligible | compatibility_control | No positive reduction claim |
+| redissonDecodeCompositeCompatibility | run-20260718T210358.790209Z-d5bbb3c1 | 8208.0031049678437 | 2283179.0280207801 | n/a | ineligible | compatibility_control | No positive reduction claim |
+| redissonDecodeContiguousOptimized | run-20260718T210358.790209Z-d5bbb3c1 | 5512.0023462130948 | 3073395.6491128579 | -28.22916174984595% | accepted | candidate | measured allocation reduction |
+| redissonDecodeCopiedByteArray | run-20260718T210358.790209Z-d5bbb3c1 | 7680.002742898525 | 2604907.9583846861 | n/a | ineligible | baseline | No positive reduction claim |
+| serializerDecodeByteArray | run-20260718T210358.790209Z-d5bbb3c1 | 5408.0025761987254 | 2783449.5162272095 | n/a | ineligible | baseline | No positive reduction claim |
+| serializerDecodeDirectOptimized | run-20260718T210358.790209Z-d5bbb3c1 | 7688.003117985967 | 2283010.4273878522 | 42.159753248302806% | ineligible | removed_after_regression | No positive reduction claim |
+| serializerDecodeHeapOptimized | run-20260718T210358.790209Z-d5bbb3c1 | 7688.0030958634916 | 2287434.3632573308 | 42.15975283923356% | ineligible | removed_after_regression | No positive reduction claim |
+| serializerEncodeByteArray | run-20260718T210358.790209Z-d5bbb3c1 | 6976.0018440765562 | 4037088.3628994948 | n/a | ineligible | baseline | No positive reduction claim |
+| serializerEncodeDirectOptimized | run-20260718T210358.790209Z-d5bbb3c1 | 4832.001960110777 | 3716265.0362028591 | -30.733935166406052% | accepted | candidate | measured allocation reduction |
+| serializerEncodeHeapOptimized | run-20260718T210358.790209Z-d5bbb3c1 | 4784.0019137350764 | 3764966.881722345 | -31.422009043801285% | accepted | candidate | measured allocation reduction |
+| trustedFallbackDecodeBufferCompatibility | run-20260718T210358.790209Z-d5bbb3c1 | 5472.0100123672364 | 693230.26668167487 | n/a | ineligible | compatibility_control | No positive reduction claim |
+| trustedFallbackDecodeByteArray | run-20260718T210358.790209Z-d5bbb3c1 | 4864.0094682211939 | 732427.46314681636 | n/a | ineligible | compatibility_control | No positive reduction claim |
+| trustedFallbackEncodeBufferCompatibility | run-20260718T210358.790209Z-d5bbb3c1 | 680.00433304952855 | 1627353.9903959902 | n/a | ineligible | compatibility_control | No positive reduction claim |
+| trustedFallbackEncodeByteArray | run-20260718T210358.790209Z-d5bbb3c1 | 656.00441518770856 | 1596987.6895687275 | n/a | ineligible | compatibility_control | No positive reduction claim |
+| redissonDecodeCompositeCompatibility | run-20260718T210757.236799Z-cd971cfd | 8208.0031728151444 | 2236728.9421896366 | n/a | ineligible | compatibility_control | No positive reduction claim |
+| redissonDecodeContiguousOptimized | run-20260718T210757.236799Z-cd971cfd | 5512.0022908040173 | 3146780.2833217178 | -28.2291619975462% | accepted | candidate | measured allocation reduction |
+| redissonDecodeCopiedByteArray | run-20260718T210757.236799Z-cd971cfd | 7680.0026922014831 | 2671363.1397229671 | n/a | ineligible | baseline | No positive reduction claim |
+| serializerDecodeByteArray | run-20260718T210757.236799Z-cd971cfd | 5408.002677471738 | 2675586.5937079093 | n/a | ineligible | baseline | No positive reduction claim |
+| serializerDecodeDirectOptimized | run-20260718T210757.236799Z-cd971cfd | 7688.0031275427409 | 2261753.6392862187 | 42.15975076286227% | ineligible | removed_after_regression | No positive reduction claim |
+| serializerDecodeHeapOptimized | run-20260718T210757.236799Z-cd971cfd | 7688.0030942355388 | 2286784.2542860331 | 42.159750146974964% | ineligible | removed_after_regression | No positive reduction claim |
+| serializerEncodeByteArray | run-20260718T210757.236799Z-cd971cfd | 6976.0018241986836 | 4083784.7282593446 | n/a | ineligible | baseline | No positive reduction claim |
+| serializerEncodeDirectOptimized | run-20260718T210757.236799Z-cd971cfd | 4832.0019865004315 | 3676905.182693834 | -30.733934590742862% | accepted | candidate | measured allocation reduction |
+| serializerEncodeHeapOptimized | run-20260718T210757.236799Z-cd971cfd | 4784.0019608610555 | 3698988.5416742042 | -31.422008172846454% | accepted | candidate | measured allocation reduction |
+| trustedFallbackDecodeBufferCompatibility | run-20260718T210757.236799Z-cd971cfd | 5472.010264150962 | 675648.9655588707 | n/a | ineligible | compatibility_control | No positive reduction claim |
+| trustedFallbackDecodeByteArray | run-20260718T210757.236799Z-cd971cfd | 4864.0095431904992 | 726909.34922423318 | n/a | ineligible | compatibility_control | No positive reduction claim |
+| trustedFallbackEncodeBufferCompatibility | run-20260718T210757.236799Z-cd971cfd | 680.00429845876704 | 1639566.574601402 | n/a | ineligible | compatibility_control | No positive reduction claim |
+| trustedFallbackEncodeByteArray | run-20260718T210757.236799Z-cd971cfd | 656.00438386558778 | 1610014.2777594437 | n/a | ineligible | compatibility_control | No positive reduction claim |
 
 ## Rollback decisions
 

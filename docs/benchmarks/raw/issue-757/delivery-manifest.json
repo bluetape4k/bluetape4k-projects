@@ -3,7 +3,7 @@
     [
       "java",
       "-jar",
-      "<PINNED_JAR_SHA256:170730d955cf701de135bbfbf6ce139efb653bfdef7d064f21a01ef2577881e7>",
+      "<PINNED_JAR_SHA256:e8731752bf7fb3177f4069552f74a209d152b7df38980bd80bc4e09ab0797042>",
       "-t",
       "1",
       "-f",
@@ -21,14 +21,14 @@
       "-rf",
       "json",
       "-rff",
-      "docs/benchmarks/raw/issue-757/run-20260718T193619.552772Z-8889a2f0/jmh.json",
+      "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/jmh.json",
       "-jvmArgsAppend",
       "-Xms1g -Xmx1g -XX:+UseG1GC"
     ],
     [
       "java",
       "-jar",
-      "<PINNED_JAR_SHA256:170730d955cf701de135bbfbf6ce139efb653bfdef7d064f21a01ef2577881e7>",
+      "<PINNED_JAR_SHA256:e8731752bf7fb3177f4069552f74a209d152b7df38980bd80bc4e09ab0797042>",
       "-t",
       "1",
       "-f",
@@ -46,13 +46,13 @@
       "-rf",
       "json",
       "-rff",
-      "docs/benchmarks/raw/issue-757/run-20260718T194015.848425Z-931b7876/jmh.json",
+      "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/jmh.json",
       "-jvmArgsAppend",
       "-Xms1g -Xmx1g -XX:+UseG1GC"
     ]
   ],
   "delivery": {
-    "git_commit": "df1bed0ca5ca00720a7ee79a996d862938751b4e"
+    "git_commit": "22b155fbed160e95a259a7c6695620139bbedda8"
   },
   "files": [
     {
@@ -125,7 +125,7 @@
     },
     {
       "path": "docs/benchmarks/raw/issue-757/comparison.csv",
-      "sha256": "2b4e6ec24216a6c07ed43bb48ff54f892063cc96f64e6ad005fe2b55f22fb6b8"
+      "sha256": "e9d625b2fa4486a12215b5bc25e4dfa1e3de0bbfa4a1177830f1f73d409d3368"
     },
     {
       "path": "docs/benchmarks/raw/issue-757/rollback-bundle-g1-83bb133a97331a448a1ff4c8491f0fa58012658dd3469023071f1396b83a83dd.json",
@@ -136,64 +136,64 @@
       "sha256": "8c6781bc43249e2d815d8e0e4f738b8e3d4a52cb23485ded4aedbd89ee401aac"
     },
     {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T193619.552772Z-8889a2f0/argv.json",
-      "sha256": "ae2c1a90c8f7db4c9bc58c5351e1ec692d27a5ed3acd88171c11a097fc2c493b"
+      "path": "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/argv.json",
+      "sha256": "363db158ec12ec17a26ca01989fbee269bb98766615f153974def5d95d36b219"
     },
     {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T193619.552772Z-8889a2f0/environment.json",
-      "sha256": "52a081ac56411ef6cc12d96b23eccde26911bc5d21ef7db74e25d537d96b3733"
+      "path": "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/environment.json",
+      "sha256": "8ed4b801328deccee40aa30941f75fd1b84cbd3883dfd49691de19bed7fe108f"
     },
     {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T193619.552772Z-8889a2f0/jmh.json",
-      "sha256": "ac5b7f4d177f66c2bfa4e2c9f70e3df0672a86f9192fc1d2e23af48c7ca7c02f"
+      "path": "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/jmh.json",
+      "sha256": "16a3bcf15a7a9daf9e95e1bec074c56467be4efb507791ab416452d69efb7513"
     },
     {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T193619.552772Z-8889a2f0/metadata.json",
+      "path": "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/metadata.json",
       "sha256": "097447d167f65150c5a4cf9f256df5c36dcfe69113e23ddbc8bb1923f8d5de65"
     },
     {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T193619.552772Z-8889a2f0/run.log",
-      "sha256": "8650d00865f335b9d9007cfd0cab87323a2f4d7b51010d76ae3b5a8f7ac1a0ad"
+      "path": "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/run.log",
+      "sha256": "30a2871d91e7a9d2ca3c59103d290cae0dcb72d343ecbf39f498dc5042ab3e74"
     },
     {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T193619.552772Z-8889a2f0/summary.csv",
-      "sha256": "fc0e676ca45f28c2e016fb181402bcf9a4d56e33c633f753e8011ff6ccde1d89"
+      "path": "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/summary.csv",
+      "sha256": "a18230c5446a36f897c06ac83c9886e0c69bfe39bf679b7cba9a2ff8b6cd3802"
     },
     {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T193619.552772Z-8889a2f0/validation.json",
-      "sha256": "14c7a4255ec8fa25556e9a1c16058d24d27dd9e99fcda9ace3883ae675f0bddf"
+      "path": "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/validation.json",
+      "sha256": "089c229463569d23b534e011a9ae80732948e2e897b3d3076185a4d0e6f8c86e"
     },
     {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T194015.848425Z-931b7876/argv.json",
-      "sha256": "8fbe70872690bb6ea77a31a800436de7d86bc72e5b960bcdf82247aafe845efd"
+      "path": "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/argv.json",
+      "sha256": "2ca51d03a92a995ecf2b740aa9f434f18679a82a46cec67a9f98f10b04bcbb54"
     },
     {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T194015.848425Z-931b7876/environment.json",
-      "sha256": "36dc7888a5ec45a1f0a9c9d3cee8ff620258a9bf82b40861af65792fb4c388af"
+      "path": "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/environment.json",
+      "sha256": "f000e71d3daa5bcd086f525082f36923f358c030b19daea072176dbfffe45fbd"
     },
     {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T194015.848425Z-931b7876/jmh.json",
-      "sha256": "05f96d384470c710719f1d3c820a31ce0677c323aaeab65a0982455c752a4730"
+      "path": "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/jmh.json",
+      "sha256": "09cca4fb9a6dfa4c64111e0e8fa4667b94df25de9769477840456d8dc1dcc54b"
     },
     {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T194015.848425Z-931b7876/metadata.json",
+      "path": "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/metadata.json",
       "sha256": "097447d167f65150c5a4cf9f256df5c36dcfe69113e23ddbc8bb1923f8d5de65"
     },
     {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T194015.848425Z-931b7876/run.log",
-      "sha256": "d69c9af0d90210478d0e775db719ed030e61e04e9f26c20194efcb30649a612e"
+      "path": "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/run.log",
+      "sha256": "7c519382d81a36beab42c9bf93c974ba44bb57e355539a4c1141486aa4750036"
     },
     {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T194015.848425Z-931b7876/summary.csv",
-      "sha256": "f079afe34b6378779ecaf7d7a828a4b3d474bb04fd782ebdb05d590316bac63e"
+      "path": "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/summary.csv",
+      "sha256": "128eb2fd7092a20ef3f613dd8af749bd1f93b42b8a2352a80dbb1a6e7a425bb0"
     },
     {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T194015.848425Z-931b7876/validation.json",
-      "sha256": "5fa4f7aa60fd4660bbb8ac3d179adc15b4932129d913efd497c0c7ffc3868fcc"
+      "path": "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/validation.json",
+      "sha256": "57e4f3c6fc80717867dd2948c4a08495c34033817cd9ae78ae85555ae8e62987"
     },
     {
       "path": "docs/benchmarks/raw/issue-757/validation.json",
-      "sha256": "05d8884770d49b16905bacf617b7ad70f4ef93ded98cc1bd056b1eeea1dc36b2"
+      "sha256": "72ac429e3c9afcf72e0946d722538cf7a7ba95c741d2c38e802f3275e812f9ee"
     }
   ],
   "final_reasons": {
@@ -227,244 +227,244 @@
     "trustedFallbackEncodeByteArray": "ineligible"
   },
   "measurement": {
-    "benchmark_jar_sha256": "170730d955cf701de135bbfbf6ce139efb653bfdef7d064f21a01ef2577881e7",
-    "git_commit": "df1bed0ca5ca00720a7ee79a996d862938751b4e",
-    "tree_hash": "751c356c39a06a74b0af6eb15814da8dea4be824"
+    "benchmark_jar_sha256": "e8731752bf7fb3177f4069552f74a209d152b7df38980bd80bc4e09ab0797042",
+    "git_commit": "22b155fbed160e95a259a7c6695620139bbedda8",
+    "tree_hash": "7a68ec6eff87f4e35446fa5096655e9822141a9f"
   },
-  "report_input_sha256": "a325c130d159dec04649e3cd6c9f5b2247225386c95f11551d27b279f86b7ad1",
+  "report_input_sha256": "984822ec33c51ed92bbe228b4db27d5996c639f9727b2012074b080fefa475aa",
   "results": [
     {
-      "allocation_b_per_op": "8208.0031810235923",
+      "allocation_b_per_op": "8208.0031049678437",
       "delta_percent": "",
       "method": "redissonDecodeCompositeCompatibility",
       "reason": "compatibility_control",
-      "run": "run-20260718T193619.552772Z-8889a2f0",
-      "throughput_ops_per_s": "2230105.6069773682",
+      "run": "run-20260718T210358.790209Z-d5bbb3c1",
+      "throughput_ops_per_s": "2283179.0280207801",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "5512.0023753781843",
-      "delta_percent": "-28.22916143112514",
+      "allocation_b_per_op": "5512.0023462130948",
+      "delta_percent": "-28.22916174984595",
       "method": "redissonDecodeContiguousOptimized",
       "reason": "candidate",
-      "run": "run-20260718T193619.552772Z-8889a2f0",
-      "throughput_ops_per_s": "3051233.2176875076",
+      "run": "run-20260718T210358.790209Z-d5bbb3c1",
+      "throughput_ops_per_s": "3073395.6491128579",
       "verdict": "accepted"
     },
     {
-      "allocation_b_per_op": "7680.0027494294818",
+      "allocation_b_per_op": "7680.002742898525",
       "delta_percent": "",
       "method": "redissonDecodeCopiedByteArray",
       "reason": "baseline",
-      "run": "run-20260718T193619.552772Z-8889a2f0",
-      "throughput_ops_per_s": "2612574.5858231261",
+      "run": "run-20260718T210358.790209Z-d5bbb3c1",
+      "throughput_ops_per_s": "2604907.9583846861",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "5408.0026555957502",
+      "allocation_b_per_op": "5408.0025761987254",
       "delta_percent": "",
       "method": "serializerDecodeByteArray",
       "reason": "baseline",
-      "run": "run-20260718T193619.552772Z-8889a2f0",
-      "throughput_ops_per_s": "2711042.2988752834",
+      "run": "run-20260718T210358.790209Z-d5bbb3c1",
+      "throughput_ops_per_s": "2783449.5162272095",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "7688.0030833417568",
-      "delta_percent": "42.15975052058919",
+      "allocation_b_per_op": "7688.003117985967",
+      "delta_percent": "42.159753248302806",
       "method": "serializerDecodeDirectOptimized",
       "reason": "removed_after_regression",
-      "run": "run-20260718T193619.552772Z-8889a2f0",
-      "throughput_ops_per_s": "2310104.3974763611",
+      "run": "run-20260718T210358.790209Z-d5bbb3c1",
+      "throughput_ops_per_s": "2283010.4273878522",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "7688.0030837551949",
-      "delta_percent": "42.15975052823413",
+      "allocation_b_per_op": "7688.0030958634916",
+      "delta_percent": "42.15975283923356",
       "method": "serializerDecodeHeapOptimized",
       "reason": "removed_after_regression",
-      "run": "run-20260718T193619.552772Z-8889a2f0",
-      "throughput_ops_per_s": "2302333.6497612679",
+      "run": "run-20260718T210358.790209Z-d5bbb3c1",
+      "throughput_ops_per_s": "2287434.3632573308",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "6976.0018657906503",
+      "allocation_b_per_op": "6976.0018440765562",
       "delta_percent": "",
       "method": "serializerEncodeByteArray",
       "reason": "baseline",
-      "run": "run-20260718T193619.552772Z-8889a2f0",
-      "throughput_ops_per_s": "3987192.8086186931",
+      "run": "run-20260718T210358.790209Z-d5bbb3c1",
+      "throughput_ops_per_s": "4037088.3628994948",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "4832.0020372032623",
-      "delta_percent": "-30.733934276899593",
+      "allocation_b_per_op": "4832.001960110777",
+      "delta_percent": "-30.733935166406052",
       "method": "serializerEncodeDirectOptimized",
       "reason": "candidate",
-      "run": "run-20260718T193619.552772Z-8889a2f0",
-      "throughput_ops_per_s": "3578944.0864914083",
+      "run": "run-20260718T210358.790209Z-d5bbb3c1",
+      "throughput_ops_per_s": "3716265.0362028591",
       "verdict": "accepted"
     },
     {
-      "allocation_b_per_op": "4784.0019994698932",
-      "delta_percent": "-31.422008028266475",
+      "allocation_b_per_op": "4784.0019137350764",
+      "delta_percent": "-31.422009043801285",
       "method": "serializerEncodeHeapOptimized",
       "reason": "candidate",
-      "run": "run-20260718T193619.552772Z-8889a2f0",
-      "throughput_ops_per_s": "3622458.4492854187",
+      "run": "run-20260718T210358.790209Z-d5bbb3c1",
+      "throughput_ops_per_s": "3764966.881722345",
       "verdict": "accepted"
     },
     {
-      "allocation_b_per_op": "5472.0103429957489",
+      "allocation_b_per_op": "5472.0100123672364",
       "delta_percent": "",
       "method": "trustedFallbackDecodeBufferCompatibility",
       "reason": "compatibility_control",
-      "run": "run-20260718T193619.552772Z-8889a2f0",
-      "throughput_ops_per_s": "669992.18514418579",
+      "run": "run-20260718T210358.790209Z-d5bbb3c1",
+      "throughput_ops_per_s": "693230.26668167487",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "4864.0097138898464",
+      "allocation_b_per_op": "4864.0094682211939",
       "delta_percent": "",
       "method": "trustedFallbackDecodeByteArray",
       "reason": "compatibility_control",
-      "run": "run-20260718T193619.552772Z-8889a2f0",
-      "throughput_ops_per_s": "714959.50720903103",
+      "run": "run-20260718T210358.790209Z-d5bbb3c1",
+      "throughput_ops_per_s": "732427.46314681636",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "680.00437454604867",
+      "allocation_b_per_op": "680.00433304952855",
       "delta_percent": "",
       "method": "trustedFallbackEncodeBufferCompatibility",
       "reason": "compatibility_control",
-      "run": "run-20260718T193619.552772Z-8889a2f0",
-      "throughput_ops_per_s": "1610487.17309367",
+      "run": "run-20260718T210358.790209Z-d5bbb3c1",
+      "throughput_ops_per_s": "1627353.9903959902",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "656.00434687897689",
+      "allocation_b_per_op": "656.00441518770856",
       "delta_percent": "",
       "method": "trustedFallbackEncodeByteArray",
       "reason": "compatibility_control",
-      "run": "run-20260718T193619.552772Z-8889a2f0",
-      "throughput_ops_per_s": "1619689.236059298",
+      "run": "run-20260718T210358.790209Z-d5bbb3c1",
+      "throughput_ops_per_s": "1596987.6895687275",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "8208.0031610706228",
+      "allocation_b_per_op": "8208.0031728151444",
       "delta_percent": "",
       "method": "redissonDecodeCompositeCompatibility",
       "reason": "compatibility_control",
-      "run": "run-20260718T194015.848425Z-931b7876",
-      "throughput_ops_per_s": "2252394.6633121828",
+      "run": "run-20260718T210757.236799Z-cd971cfd",
+      "throughput_ops_per_s": "2236728.9421896366",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "5512.0024370881683",
-      "delta_percent": "-28.2291611947455",
+      "allocation_b_per_op": "5512.0022908040173",
+      "delta_percent": "-28.2291619975462",
       "method": "redissonDecodeContiguousOptimized",
       "reason": "candidate",
-      "run": "run-20260718T194015.848425Z-931b7876",
-      "throughput_ops_per_s": "2963101.7876539617",
+      "run": "run-20260718T210757.236799Z-cd971cfd",
+      "throughput_ops_per_s": "3146780.2833217178",
       "verdict": "accepted"
     },
     {
-      "allocation_b_per_op": "7680.0028101171119",
+      "allocation_b_per_op": "7680.0026922014831",
       "delta_percent": "",
       "method": "redissonDecodeCopiedByteArray",
       "reason": "baseline",
-      "run": "run-20260718T194015.848425Z-931b7876",
-      "throughput_ops_per_s": "2532268.6959403465",
+      "run": "run-20260718T210757.236799Z-cd971cfd",
+      "throughput_ops_per_s": "2671363.1397229671",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "5408.0025969458638",
+      "allocation_b_per_op": "5408.002677471738",
       "delta_percent": "",
       "method": "serializerDecodeByteArray",
       "reason": "baseline",
-      "run": "run-20260718T194015.848425Z-931b7876",
-      "throughput_ops_per_s": "2757909.4658573871",
+      "run": "run-20260718T210757.236799Z-cd971cfd",
+      "throughput_ops_per_s": "2675586.5937079093",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "7688.0031269816291",
-      "delta_percent": "42.15975286926418",
+      "allocation_b_per_op": "7688.0031275427409",
+      "delta_percent": "42.15975076286227",
       "method": "serializerDecodeDirectOptimized",
       "reason": "removed_after_regression",
-      "run": "run-20260718T194015.848425Z-931b7876",
-      "throughput_ops_per_s": "2268371.1168481535",
+      "run": "run-20260718T210757.236799Z-cd971cfd",
+      "throughput_ops_per_s": "2261753.6392862187",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "7688.00328404641",
-      "delta_percent": "42.15975577356717",
+      "allocation_b_per_op": "7688.0030942355388",
+      "delta_percent": "42.159750146974964",
       "method": "serializerDecodeHeapOptimized",
       "reason": "removed_after_regression",
-      "run": "run-20260718T194015.848425Z-931b7876",
-      "throughput_ops_per_s": "2156094.051381968",
+      "run": "run-20260718T210757.236799Z-cd971cfd",
+      "throughput_ops_per_s": "2286784.2542860331",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "6976.0018683408243",
+      "allocation_b_per_op": "6976.0018241986836",
       "delta_percent": "",
       "method": "serializerEncodeByteArray",
       "reason": "baseline",
-      "run": "run-20260718T194015.848425Z-931b7876",
-      "throughput_ops_per_s": "3971183.013536158",
+      "run": "run-20260718T210757.236799Z-cd971cfd",
+      "throughput_ops_per_s": "4083784.7282593446",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "4832.0019924988528",
-      "delta_percent": "-30.733934943052148",
+      "allocation_b_per_op": "4832.0019865004315",
+      "delta_percent": "-30.733934590742862",
       "method": "serializerEncodeDirectOptimized",
       "reason": "candidate",
-      "run": "run-20260718T194015.848425Z-931b7876",
-      "throughput_ops_per_s": "3667526.0084177861",
+      "run": "run-20260718T210757.236799Z-cd971cfd",
+      "throughput_ops_per_s": "3676905.182693834",
       "verdict": "accepted"
     },
     {
-      "allocation_b_per_op": "4784.0019258931961",
-      "delta_percent": "-31.42200910804765",
+      "allocation_b_per_op": "4784.0019608610555",
+      "delta_percent": "-31.422008172846454",
       "method": "serializerEncodeHeapOptimized",
       "reason": "candidate",
-      "run": "run-20260718T194015.848425Z-931b7876",
-      "throughput_ops_per_s": "3745935.3984881318",
+      "run": "run-20260718T210757.236799Z-cd971cfd",
+      "throughput_ops_per_s": "3698988.5416742042",
       "verdict": "accepted"
     },
     {
-      "allocation_b_per_op": "5472.0101394775465",
+      "allocation_b_per_op": "5472.010264150962",
       "delta_percent": "",
       "method": "trustedFallbackDecodeBufferCompatibility",
       "reason": "compatibility_control",
-      "run": "run-20260718T194015.848425Z-931b7876",
-      "throughput_ops_per_s": "683827.14706226788",
+      "run": "run-20260718T210757.236799Z-cd971cfd",
+      "throughput_ops_per_s": "675648.9655588707",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "4864.0095286567557",
+      "allocation_b_per_op": "4864.0095431904992",
       "delta_percent": "",
       "method": "trustedFallbackDecodeByteArray",
       "reason": "compatibility_control",
-      "run": "run-20260718T194015.848425Z-931b7876",
-      "throughput_ops_per_s": "727671.82457436912",
+      "run": "run-20260718T210757.236799Z-cd971cfd",
+      "throughput_ops_per_s": "726909.34922423318",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "680.00437594150753",
+      "allocation_b_per_op": "680.00429845876704",
       "delta_percent": "",
       "method": "trustedFallbackEncodeBufferCompatibility",
       "reason": "compatibility_control",
-      "run": "run-20260718T194015.848425Z-931b7876",
-      "throughput_ops_per_s": "1609647.7685469375",
+      "run": "run-20260718T210757.236799Z-cd971cfd",
+      "throughput_ops_per_s": "1639566.574601402",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "656.00434346063878",
+      "allocation_b_per_op": "656.00438386558778",
       "delta_percent": "",
       "method": "trustedFallbackEncodeByteArray",
       "reason": "compatibility_control",
-      "run": "run-20260718T194015.848425Z-931b7876",
-      "throughput_ops_per_s": "1622527.7124317368",
+      "run": "run-20260718T210757.236799Z-cd971cfd",
+      "throughput_ops_per_s": "1610014.2777594437",
       "verdict": "ineligible"
     }
   ],
