@@ -3,9 +3,9 @@
 [English](./README.md) | 한국어
 
 이 모듈은 issue #757의 결정론적 JMH allocation 근거를 수집합니다. `ProtobufSerializer`의 기존 `ByteArray`
-경로와 caller-owned `ByteBuffer` 경로, `RedissonProtobufCodec`의 copied/contiguous/composite decode 경로를 같은
-fixture에서 비교합니다. throughput은 진단 지표로 보존하지만 claim 판정에는 `gc.alloc.rate.norm` (`B/op`)만
-사용합니다.
+경로와 caller-owned `ByteBuffer` encode 경로 및 상속된 decode compatibility 경로,
+`RedissonProtobufCodec`의 copied/contiguous/composite decode 경로를 같은 fixture에서 비교합니다. throughput은
+진단 지표로 보존하지만 claim 판정에는 `gc.alloc.rate.norm` (`B/op`)만 사용합니다.
 
 ## 정확한 method matrix
 
@@ -17,8 +17,8 @@ runner와 validator는 아래 13개 method만 허용합니다. 누락, 중복, �
 | `serializerEncodeHeapOptimized` | Heap caller-buffer candidate | 예 |
 | `serializerEncodeDirectOptimized` | Direct caller-buffer candidate | 예 |
 | `serializerDecodeByteArray` | Serializer decode baseline | 아니요 |
-| `serializerDecodeHeapOptimized` | Heap source-buffer candidate | 예 |
-| `serializerDecodeDirectOptimized` | Direct source-buffer candidate | 예 |
+| `serializerDecodeHeapOptimized` | Heap source-buffer compatibility 측정 | 아니요 |
+| `serializerDecodeDirectOptimized` | Direct source-buffer compatibility 측정 | 아니요 |
 | `redissonDecodeCopiedByteArray` | Redisson copied baseline | 아니요 |
 | `redissonDecodeContiguousOptimized` | Contiguous `ByteBuf` candidate | 예 |
 | `redissonDecodeCompositeCompatibility` | Composite copied compatibility control | 아니요 |
@@ -27,8 +27,9 @@ runner와 validator는 아래 13개 method만 허용합니다. 누락, 중복, �
 | `trustedFallbackDecodeByteArray` | Trusted fallback decode control | 아니요 |
 | `trustedFallbackDecodeBufferCompatibility` | Trusted fallback buffer decode control | 아니요 |
 
-`*Optimized` 5개 method만 positive allocation claim 대상입니다. compatibility와 fallback cell도 결과에는 남기지만
-claim에는 사용할 수 없습니다.
+유지된 encode와 Redisson의 `*Optimized` method 3개만 positive allocation claim 대상입니다. Serializer decode
+method 2개는 shared direct decode dispatch 롤백 뒤 최종 compatibility 측정을 위해 정확한 matrix에 남겨 두며,
+다른 compatibility control 및 fallback cell과 함께 claim에는 사용할 수 없습니다.
 
 ## Build와 smoke validation
 

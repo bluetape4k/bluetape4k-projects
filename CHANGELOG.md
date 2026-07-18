@@ -8,12 +8,15 @@
 
 ### Performance
 
-- Added caller-owned `ByteBuffer` APIs for Protobuf message packing and serializer encode/decode paths while preserving
-  the existing `ByteArray` APIs for callers that do not need buffer reuse ([#757](https://github.com/bluetape4k/bluetape4k-projects/issues/757)).
+- Added caller-owned `ByteBuffer` APIs for Protobuf message packing and serializer encode while preserving the existing
+  `ByteArray` APIs; serializer decode retains the inherited copied `ByteBuffer` compatibility path
+  ([#757](https://github.com/bluetape4k/bluetape4k-projects/issues/757)).
 - Added a lower-copy contiguous Redisson `ByteBuf` decode path that avoids the codec-owned `ByteArray` copy when a
   single NIO buffer is available; composite and trusted-fallback inputs retain their isolated copied paths
   ([#757](https://github.com/bluetape4k/bluetape4k-projects/issues/757)).
-- Added reproducible two-run JMH allocation evidence for serializer ByteBuffer paths. The report limits lower-allocation claims to the five optimized cells accepted by the 5% B/op gate and keeps compatibility, fallback, and inconclusive results explicitly separate ([#1039](https://github.com/bluetape4k/bluetape4k-projects/issues/1039), [evidence](docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)).
+- Added reproducible two-run JMH allocation evidence for serializer ByteBuffer paths. Serializer decode cells remain in
+  the matrix as claim-ineligible compatibility measurements after the shared direct decode dispatch rollback; retained
+  encode and Redisson claims still require the 5% B/op gate ([#1039](https://github.com/bluetape4k/bluetape4k-projects/issues/1039), [evidence](docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)).
 
 ## [1.11.0] — 2026-06-27
 
