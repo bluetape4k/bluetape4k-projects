@@ -141,6 +141,35 @@ Available codecs:
 | `KafkaCodecs.ZstdKryo` | Zstd compression + Kryo serialization |
 | `KafkaCodecs.ZstdFory` | Zstd compression + Fory serialization for trusted inputs |
 
+### Caller-owned ByteBuffer API
+
+Kafka's standard `Serializer` and `Deserializer` interfaces remain `ByteArray`-based. Binary codecs additionally
+implement `BufferAwareKafkaCodec`, an opt-in API for callers that already own reusable buffers. This removes an
+extra Kafka-layer array conversion but is not a zero-copy Kafka boundary; the backing `BinarySerializer` may still
+use an allocating compatibility fallback.
+
+```kotlin
+val codec: BufferAwareKafkaCodec<Any?> = KafkaCodecs.Kryo
+val target = ByteBuffer.allocate(4096)
+val written = codec.serializeTo("events", event, target)
+target.flip()
+val decoded = codec.deserializeFrom("events", target.asReadOnlyBuffer())
+```
+
+```java
+BufferAwareKafkaCodec<Object> codec = KafkaCodecs.INSTANCE.getKryo();
+ByteBuffer target = ByteBuffer.allocate(4096);
+int written = codec.serializeTo("events", event, target);
+target.flip();
+Object decoded = codec.deserializeFrom("events", target.asReadOnlyBuffer());
+```
+
+Successful output advances `position` by `written` without widening `limit`. Input reads only the initial remaining
+range and preserves source state. Ordinary decode exceptions produce the existing bounded WARN log and return
+`null`; cancellation and fatal errors propagate. Keep buffers caller-owned and thread-confined during a call.
+
+Allocation claims are limited to measured Kryo codec directions in the [issue #758 report](../../docs/benchmarks/2026-07-19-kafka-bytebuffer-codec-allocation.md). Throughput and broker costs are not measured.
+
 ### Security: Fory Trust Boundary
 
 Fory-backed Kafka codecs are marked with `@BluetapeDelicateApi`. They use the
