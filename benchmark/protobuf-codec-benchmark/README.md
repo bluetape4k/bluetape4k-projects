@@ -105,9 +105,12 @@ canonical runs:
 - `regressed`: both deltas are at least `+5%`; follow the recorded rollback workflow and collect two fresh runs.
 - `ineligible`: baseline, composite, or trusted-fallback control; never use it for a positive claim.
 
-For a mapped regression, run `record-rollback` on the unchanged clean measurement head to create an immutable v2
-preparation. Apply and commit the source rollback, then run `finalize-rollback --preparation <path>`. Only the finalized
-v2 bundle may be passed to fresh `resolve-jar --rollback-bundle`; v1 bundles and preparation files fail closed. A
+For a mapped regression, run `record-rollback` on the unchanged clean measurement head with
+`--archive-root .omx/evidence/issue-757-rollback` to create an immutable v2 preparation. This durable ignored root is
+outside the module's Gradle-cleaned `build/` directory; never store immutable rollback preparations, bundles, or
+archives under `benchmark/protobuf-codec-benchmark/build/`. Apply and commit the source rollback, then run
+`finalize-rollback --preparation <path>`. Only the finalized v2 bundle may be passed to fresh
+`resolve-jar --rollback-bundle`; v1 bundles and preparation files fail closed. A
 decision's `regressed_cells` is the actual non-empty trigger subset, while `removed_cells` is the full dispatch mapping
 that becomes `ineligible` with reason `removed_after_regression`. Rebasing or amending the bound source lineage
 invalidates the preparation/bundle and requires the workflow to restart from the exact measurement head.
