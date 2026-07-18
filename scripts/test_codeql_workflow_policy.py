@@ -32,6 +32,7 @@ class CodeqlWorkflowPolicyTest(unittest.TestCase):
         self.assertIn("path: .catalog/bluetape4k-dependencies", checkout)
         self.assertIn("BLUETAPE4K_DEPENDENCIES_CATALOG_PATH", CODEQL)
         self.assertIn('catalog_file="$BLUETAPE4K_DEPENDENCIES_CATALOG_PATH"', pin)
+        self.assertIn(r's/^kotlin\h*=\h*"2\.4\.0"', pin)
         self.assertNotIn("gradle/libs.versions.toml", pin.replace("$catalog_file", ""))
 
     def test_catalog_ref_is_resolved_from_the_checked_in_settings(self) -> None:
