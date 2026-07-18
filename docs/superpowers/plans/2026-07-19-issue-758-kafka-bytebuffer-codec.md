@@ -1258,3 +1258,21 @@ Expected: CI/checks and actionable review threads are green and all three heads 
 `BinaryKafkaCodecBufferTest`, `KafkaCodecTest`를 fresh focused run으로 수행한다.
 측정 대상인 uncompressed Kryo 경로는 바뀌지 않으므로 benchmark와 raw evidence는
 재실행하거나 수정하지 않는다.
+
+### Architect follow-up hardening
+
+최종 architect 검증에서 두 경계를 추가로 강화한다.
+
+1. 압축 compatibility fallback이 표준 array serializer를 경유하면 nested
+   `CancellationException`과 `Error`가 `BinarySerializationException` 안에 숨을 수 있다.
+   `CompressableBinarySerializer`는 wire/allocation 경로를 유지하면서
+   `BufferFailurePolicy`로 wrapper graph를 분류해 동일 instance를 복원한다. 일반 wrapper,
+   `ReadOnlyBufferException`, `BufferOverflowException`은 기존 identity/동작을 유지한다.
+2. poison WARN metadata는 topic 128자, header key 16개·각 64자, failure type 256자로
+   제한한다. CR/LF/tab/ISO control 및 Unicode line separator는 중화하고, header value,
+   payload, exception message, throwable/stack은 기록하지 않는다. 긴 topic과 20개 이상의
+   공격적 header를 표준/buffer poison 경로 모두에서 RED→GREEN으로 검증한다.
+
+focused 검증은 `CompressableBinarySerializerTest`,
+`AbstractKafkaCodecPoisonPillTest`, `BinaryKafkaCodecBufferTest`, `KafkaCodecTest`를 포함한다.
+측정한 uncompressed Kryo 경로는 바뀌지 않으므로 benchmark/raw evidence는 그대로 둔다.

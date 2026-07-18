@@ -1,19 +1,27 @@
 package io.bluetape4k.io.serializer
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldNotBeNull
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.Serializable
 import java.math.BigDecimal
+import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
+import java.nio.ReadOnlyBufferException
 import java.util.*
+import java.util.concurrent.CancellationException
 import java.util.stream.Stream
 
 @RandomizedTest
@@ -47,7 +55,69 @@ class CompressableBinarySerializerTest {
 
     private fun getSerializers(): Stream<out BinarySerializer> = compressableSerializers.stream()
 
+    private fun nestedControlFailures(): Stream<Arguments> = Stream.of(
+        Arguments.of("cancellation", CancellationException("cancelled")),
+        Arguments.of("error", AssertionError("fatal")),
+    )
+
     private val memorySizeSerializer = JdkBinarySerializer()
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("nestedControlFailures")
+    fun `compressed buffer output restores nested control failure identity`(
+        @Suppress("UNUSED_PARAMETER") name: String,
+        failure: Throwable,
+    ) {
+        val serializer = CompressableBinarySerializer(WrappingArraySerializer(failure), Compressors.LZ4)
+
+        val actual = assertFailsWith<Throwable> {
+            serializer.serializeTo("payload", ByteBuffer.allocate(1024))
+        }
+
+        actual shouldBeSameInstanceAs failure
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("nestedControlFailures")
+    fun `compressed buffer input restores nested control failure identity`(
+        @Suppress("UNUSED_PARAMETER") name: String,
+        failure: Throwable,
+    ) {
+        val serializer = CompressableBinarySerializer(WrappingArraySerializer(failure), Compressors.LZ4)
+        val wire = Compressors.LZ4.compress(byteArrayOf(1))
+
+        val actual = assertFailsWith<Throwable> {
+            serializer.deserializeFrom<Any>(ByteBuffer.wrap(wire).asReadOnlyBuffer())
+        }
+
+        actual shouldBeSameInstanceAs failure
+    }
+
+    @Test
+    fun `compressed buffer fallback preserves ordinary wrappers and raw target failures`() {
+        val ordinary = BinarySerializationException("wrapped", IllegalStateException("ordinary"))
+        val serializer = CompressableBinarySerializer(ThrowingBinarySerializer(ordinary), Compressors.LZ4)
+        val compressedWire = Compressors.LZ4.compress(byteArrayOf(1))
+        val readOnly = ByteBuffer.allocate(32).asReadOnlyBuffer().apply { position(3) }
+        val tooSmall = ByteBuffer.allocate(0)
+
+        assertFailsWith<BinarySerializationException> {
+            serializer.serializeTo("payload", ByteBuffer.allocate(1024))
+        } shouldBeSameInstanceAs ordinary
+        assertFailsWith<BinarySerializationException> {
+            serializer.deserializeFrom<Any>(ByteBuffer.wrap(compressedWire))
+        } shouldBeSameInstanceAs ordinary
+        assertFailsWith<ReadOnlyBufferException> {
+            serializer.serializeTo("payload", readOnly)
+        }
+        assertFailsWith<BufferOverflowException> {
+            CompressableBinarySerializer(BinarySerializers.Jdk, Compressors.LZ4)
+                .serializeTo("payload", tooSmall)
+        }
+
+        readOnly.position() shouldBeEqualTo 3
+        tooSmall.position() shouldBeEqualTo 0
+    }
 
     @ParameterizedTest
     @MethodSource("getSerializers")
@@ -146,4 +216,18 @@ class CompressableBinarySerializerTest {
         val price: BigDecimal,
         val amount: Double,
     ): Serializable
+}
+
+private class WrappingArraySerializer(
+    private val failure: Throwable,
+): AbstractBinarySerializer() {
+    override fun doSerialize(graph: Any): ByteArray = throw failure
+    override fun <T: Any> doDeserialize(bytes: ByteArray): T? = throw failure
+}
+
+private class ThrowingBinarySerializer(
+    private val failure: Throwable,
+): BinarySerializer {
+    override fun serialize(graph: Any?): ByteArray = throw failure
+    override fun <T: Any> deserialize(bytes: ByteArray?): T? = throw failure
 }

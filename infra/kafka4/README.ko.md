@@ -171,6 +171,10 @@ buffer 직렬화에는 non-null data가 필요합니다. Kafka tombstone은 표�
 포함한 제한된 metadata만 WARN으로 기록한 뒤 `null`을 반환합니다. cancellation과 fatal error는
 전파합니다. 호출 중 버퍼는 호출자가 소유하고 한 thread에서만 사용해야 합니다.
 
+poison WARN metadata는 topic 128자, header key 16개와 key당 64자, failure type 256자로 제한합니다.
+log injection을 막기 위해 control character는 중화합니다. payload, exception message, header value,
+stack trace는 기록하지 않습니다.
+
 allocation 주장은 [issue #758 보고서](../../docs/benchmarks/2026-07-19-kafka-bytebuffer-codec-allocation.md)에서
 측정한 Kryo codec 방향으로 제한합니다. throughput은 진단 목적으로만 측정했으며 throughput 개선
 주장의 근거가 되지 않습니다. broker 비용은 측정하지 않았습니다.
