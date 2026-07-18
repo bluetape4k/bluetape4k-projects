@@ -1270,6 +1270,12 @@ def require_symlink_free_tree(root):
             raise error(path, "rollback source entry resolves outside {}".format(resolved_root), "restore the bounded source tree")
 
 
+def require_safe_relative_path(container, value, field):
+    if not isinstance(value, str) or not value or Path(value).is_absolute() or ".." in Path(value).parts:
+        raise error(container, "unsafe {}={!r}".format(field, value), "restore a non-empty bundle-relative path without traversal")
+    return value
+
+
 def make_rollback_decision(dispatch, cells, commit, tree_hash, archive_root, files, generation, timestamp, post_rollback_commit=None, lineage_parent_commit=None, post_rollback_tree=None):
     if dispatch not in DISPATCH_CELLS:
         raise error(archive_root, "unknown dispatch={!r}".format(dispatch), "select one of {}".format(DISPATCH_ORDER))
@@ -1331,14 +1337,12 @@ def _authenticate_decision_archive(path, item, require_finalized):
     if calculated != item.get("decision_sha256"):
         raise error(path, "decision {} sha256 mismatch".format(item.get("dispatch")), "restore the immutable decision")
     archive_root = item.get("archive_root")
-    if not isinstance(archive_root, str) or not archive_root or Path(archive_root).is_absolute() or ".." in Path(archive_root).parts:
-        raise error(path, "unsafe archive_root={!r}".format(archive_root), "restore a bundle-relative archive directory")
+    require_safe_relative_path(path, archive_root, "archive_root")
     archive = path.parent / archive_root; require_symlink_free_tree(archive)
     comparison = None
     for artifact in item.get("artifacts", []):
         relative = artifact.get("path")
-        if not isinstance(relative, str) or not relative or Path(relative).is_absolute() or ".." in Path(relative).parts:
-            raise error(path, "unsafe archive artifact path={!r}".format(relative), "restore archive-relative regular-file paths")
+        require_safe_relative_path(path, relative, "archive artifact path")
         artifact_path = require_archive_artifact(archive / artifact["path"], archive)
         if sha256_file(artifact_path) != artifact["sha256"]:
             raise error(artifact_path, "rollback archive sha256 mismatch", "restore the immutable archive")
@@ -1375,6 +1379,9 @@ def authenticate_rollback_preparation(path):
     evidence = [_authenticate_decision_archive(path, decision, False) for decision in decisions]
     if any(decision.get("generation") != preparation.get("generation") for decision in decisions):
         raise error(path, "preparation decision generation differs from container", "restore one exact preparation generation")
+    old_identities = {(decision.get("old_commit"), decision.get("old_tree")) for decision in decisions}
+    if len(old_identities) != 1 or any(not isinstance(value, str) or not value for identity in old_identities for value in identity):
+        raise error(path, "preparation decisions do not share one non-empty old commit/tree", "bind every simultaneous decision to the exact measurement identity")
     if any(value != evidence[0] for value in evidence[1:]):
         raise error(path, "preparation decisions do not share one comparison/archive", "bind simultaneous decisions to one archived comparison")
     verdicts = evidence[0][1]
@@ -1437,7 +1444,8 @@ def authenticate_rollback_bundle(path):
     if not match or int(match.group(1)) != bundle.get("generation") or match.group(2) != expected:
         raise error(path, "bundle filename generation/hash does not match payload", "restore the canonical immutable filename")
     preparation_name = bundle.get("preparation_path")
-    preparation_path = path.parent / preparation_name if isinstance(preparation_name, str) else Path("")
+    require_safe_relative_path(path, preparation_name, "preparation_path")
+    preparation_path = path.parent / preparation_name
     preparation = authenticate_rollback_preparation(preparation_path)
     if sha256_file(preparation_path) != bundle.get("preparation_sha256") or preparation.get("preparation_sha256") != bundle.get("preparation_payload_sha256"):
         raise error(path, "preparation hash differs from finalized bundle", "restore the authenticated preparation")
@@ -1461,6 +1469,9 @@ def authenticate_rollback_bundle(path):
         raise error(path, "finalized suffix count={} expected={}".format(len(suffix), len(preparation["decisions"])), "finalize each prepared decision exactly once")
     final_fields = {"post_rollback_commit", "post_rollback_tree", "lineage_parent_commit", "removal_evidence", "decision_sha256"}
     expected_parent = predecessor_decisions[-1]["post_rollback_commit"] if predecessor_decisions else None
+    post_identities = {(decision.get("post_rollback_commit"), decision.get("post_rollback_tree"), decision.get("lineage_parent_commit")) for decision in suffix}
+    if len(post_identities) != 1:
+        raise error(path, "finalized generation does not share post commit/tree/lineage parent", "bind every finalized decision to one shared post-removal lineage")
     for prepared, finalized in zip(preparation["decisions"], suffix):
         prepared_core = {key: value for key, value in prepared.items() if key != "decision_sha256"}
         finalized_core = {key: value for key, value in finalized.items() if key not in final_fields}
@@ -1596,10 +1607,14 @@ def finalize_rollback(preparation_path, command_runner=subprocess.run, repo_root
     require_clean_tree(repo_root, "rollback finalization", command_runner)
     head, _, _ = command_text(command_runner, ["git", "rev-parse", "HEAD"], cwd=repo_root)
     tree, _, _ = command_text(command_runner, ["git", "rev-parse", "HEAD^{tree}"], cwd=repo_root)
-    head = head.strip(); tree = tree.strip(); first = preparation["decisions"][0]
-    if head == first["old_commit"] or tree == first["old_tree"]:
+    head = head.strip(); tree = tree.strip(); decisions = preparation["decisions"]
+    old_identities = {(decision["old_commit"], decision["old_tree"]) for decision in decisions}
+    if len(old_identities) != 1:
+        raise error(preparation_path, "prepared decisions have mixed old lineage", "restore the authenticated preparation")
+    old_commit, old_tree = next(iter(old_identities)); first = decisions[0]
+    if any(head == decision["old_commit"] or tree == decision["old_tree"] for decision in decisions):
         raise error(preparation_path, "finalization head/tree did not change", "commit the symbol-scoped removal before finalizing")
-    if _run(command_runner, ["git", "merge-base", "--is-ancestor", first["old_commit"], head], cwd=repo_root).returncode:
+    if _run(command_runner, ["git", "merge-base", "--is-ancestor", old_commit, head], cwd=repo_root).returncode:
         raise error(preparation_path, "finalization head does not descend from measurement head", "finalize on the authenticated descendant branch")
     if preparation.get("predecessor_bundle_sha256"):
         predecessor_candidates = [candidate for candidate in preparation_path.parent.glob("rollback-bundle-g{}-*.json".format(preparation["generation"] - 1)) if sha256_file(candidate) == preparation["predecessor_bundle_sha256"]]
