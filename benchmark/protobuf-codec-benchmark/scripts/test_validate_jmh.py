@@ -80,6 +80,16 @@ class ValidateJmhTest(unittest.TestCase):
             legacy = Path(td) / "legacy.json"; legacy.write_text(json.dumps({"schema_version": 1, "decisions": []}))
             with self.assertRaisesRegex(ValueError, "v1"):
                 validator.validate_rollback_bundle(legacy)
+
+    def test_rollback_bundle_non_object_json_fails_concisely(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for index, value in enumerate(([], 7, None)):
+                path = root / ("non-object-{}.json".format(index)); path.write_text(json.dumps(value))
+                with self.assertRaisesRegex(ValueError, "JSON object") as caught:
+                    validator.validate_rollback_bundle(path)
+                self.assertIn(str(path), str(caught.exception))
+                self.assertIn("remediation:", str(caught.exception))
     def assert_diagnostic(self, error, path):
         message = str(error)
         self.assertIn(str(path), message)
