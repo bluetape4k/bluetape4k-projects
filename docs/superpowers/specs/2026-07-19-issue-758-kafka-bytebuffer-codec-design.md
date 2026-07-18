@@ -37,6 +37,7 @@ live issue 본문과 현재 `develop`의 `BinarySerializer` 버퍼 계약이 이
 - 기존 `benchmark/serializer-benchmark` 모듈의 codec-only allocation benchmark
 - `infra/kafka4/README.md`와 `README.ko.md`의 동등한 사용법 및 제약 설명
 - `benchmark/serializer-benchmark/README.md`와 `README.ko.md`의 matrix 및 scope 갱신
+- `docs/benchmarks/README.md` report index와 issue #758 allocation report/raw evidence
 - 새 public API의 English KDoc와 비자명한 제약에 대한 English rationale comment
 
 ### 제외
