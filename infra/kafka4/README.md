@@ -164,11 +164,16 @@ target.flip();
 Object decoded = codec.deserializeFrom("events", target.asReadOnlyBuffer());
 ```
 
-Successful output advances `position` by `written` without widening `limit`. Input reads only the initial remaining
-range and preserves source state. Ordinary decode exceptions produce the existing bounded WARN log and return
-`null`; cancellation and fatal errors propagate. Keep buffers caller-owned and thread-confined during a call.
+Buffer serialization requires non-null data. Kafka tombstones must use the standard `serialize` methods.
 
-Allocation claims are limited to measured Kryo codec directions in the [issue #758 report](../../docs/benchmarks/2026-07-19-kafka-bytebuffer-codec-allocation.md). Throughput and broker costs are not measured.
+Successful output advances `position` by `written` without widening `limit`. Input reads only the initial remaining
+range and preserves source state. Ordinary decode exceptions produce a sanitized, bounded WARN with the failure type
+but no throwable attachment, then return `null`; cancellation and fatal errors propagate. Keep buffers caller-owned
+and thread-confined during a call.
+
+Allocation claims are limited to measured Kryo codec directions in the
+[issue #758 report](../../docs/benchmarks/2026-07-19-kafka-bytebuffer-codec-allocation.md). Throughput was measured
+for diagnostics only and does not support a throughput claim; broker costs were not measured.
 
 ### Security: Fory Trust Boundary
 

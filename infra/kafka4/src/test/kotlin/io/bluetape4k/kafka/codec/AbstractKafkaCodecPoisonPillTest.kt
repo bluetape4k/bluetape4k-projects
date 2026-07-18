@@ -48,10 +48,12 @@ class AbstractKafkaCodecPoisonPillTest {
             codec.deserialize("test-topic", headers, "secret-payload".toUtf8Bytes()).shouldBeNull()
             val event = appender.list.single()
             event.level shouldBeEqualTo Level.WARN
+            event.throwableProxy.shouldBeNull()
             val message = event.formattedMessage
             message.contains("topic=test-topic") shouldBeEqualTo true
             message.contains("trace-id") shouldBeEqualTo true
             message.contains("dataSize=14") shouldBeEqualTo true
+            message.contains("failureType=${FakeException::class.java.name}") shouldBeEqualTo true
             message.contains("secret-header") shouldBeEqualTo false
             message.contains("secret-payload") shouldBeEqualTo false
         } finally {

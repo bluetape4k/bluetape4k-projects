@@ -239,7 +239,8 @@ override fun deserialize(topic: String?, headers: Headers?, data: ByteArray?): T
 
 /**
  * Applies the poison-pill policy without allocating a capturing lambda on the deserialization hot path.
- * Ordinary exceptions become bounded WARN logs and `null`; cancellation and fatal JVM errors propagate.
+ * Ordinary exceptions become sanitized, bounded WARN logs without throwable attachment and return `null`;
+ * cancellation and fatal JVM errors propagate.
  */
 protected inline fun deserializeSafely(
     topic: String?,
@@ -252,9 +253,9 @@ protected inline fun deserializeSafely(
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
-        log.warn(e) {
+        log.warn {
             "Fail to deserialize data. topic=$topic, headerKeys=${headers?.map { it.key() }}, " +
-                "dataSize=$dataSize. Returning null (poison pill skipped)."
+                "dataSize=$dataSize, failureType=${e.javaClass.name}. Returning null (poison pill skipped)."
         }
         null
     }
@@ -873,11 +874,14 @@ target.flip();
 Object decoded = codec.deserializeFrom("events", target.asReadOnlyBuffer());
 ```
 
-Successful output advances `position` by `written` without widening `limit`. Input reads only the initial remaining
-range and preserves source state. Ordinary decode exceptions produce the existing bounded WARN log and return
-`null`; cancellation and fatal errors propagate. Keep buffers caller-owned and thread-confined during a call.
+Buffer serialization requires non-null data. Kafka tombstones must use the standard `serialize` methods.
 
-Allocation claims are limited to measured Kryo codec directions in the [issue #758 report](../../docs/benchmarks/2026-07-19-kafka-bytebuffer-codec-allocation.md). Throughput and broker costs are not measured.
+Successful output advances `position` by `written` without widening `limit`. Input reads only the initial remaining
+range and preserves source state. Ordinary decode exceptions produce a sanitized, bounded WARN with the failure type
+but no throwable attachment, then return `null`; cancellation and fatal errors propagate. Keep buffers caller-owned
+and thread-confined during a call.
+
+Allocation claims are limited to measured Kryo codec directions in the [issue #758 report](../../docs/benchmarks/2026-07-19-kafka-bytebuffer-codec-allocation.md). Throughput was measured for diagnostics only and does not support a throughput claim; broker costs were not measured.
 ````
 
 - [ ] **Step 2: Add the meaning-equivalent Korean API section**
@@ -906,12 +910,14 @@ target.flip();
 Object decoded = codec.deserializeFrom("events", target.asReadOnlyBuffer());
 ```
 
-출력 성공 시 `limit`을 넓히지 않고 `written`만큼 `position`을 전진시킵니다. 입력은 최초 remaining
-범위만 읽고 source 상태를 보존합니다. 일반 decode 예외는 제한된 metadata만 WARN으로 기록하고
-`null`을 반환하며 cancellation과 fatal error는 전파합니다. 호출 중 버퍼는 호출자가 소유하고 한
-thread에서만 사용해야 합니다.
+buffer 직렬화에는 non-null data가 필요합니다. Kafka tombstone은 표준 `serialize` method를 사용해야 합니다.
 
-allocation 주장은 [issue #758 보고서](../../docs/benchmarks/2026-07-19-kafka-bytebuffer-codec-allocation.md)에서 측정한 Kryo codec 방향으로 제한합니다. throughput과 broker 비용은 측정하지 않습니다.
+출력 성공 시 `limit`을 넓히지 않고 `written`만큼 `position`을 전진시킵니다. 입력은 최초 remaining
+범위만 읽고 source 상태를 보존합니다. 일반 decode 예외는 throwable을 첨부하지 않고 failure type을
+포함한 제한된 metadata만 WARN으로 기록한 뒤 `null`을 반환합니다. cancellation과 fatal error는
+전파합니다. 호출 중 버퍼는 호출자가 소유하고 한 thread에서만 사용해야 합니다.
+
+allocation 주장은 [issue #758 보고서](../../docs/benchmarks/2026-07-19-kafka-bytebuffer-codec-allocation.md)에서 측정한 Kryo codec 방향으로 제한합니다. throughput은 진단 목적으로만 측정했으며 throughput 개선 주장의 근거가 되지 않습니다. broker 비용은 측정하지 않았습니다.
 ````
 
 - [ ] **Step 3: Update both benchmark READMEs**
@@ -1228,3 +1234,27 @@ gh pr view "$pr_number" --repo bluetape4k/bluetape4k-projects \
 ```
 
 Expected: CI/checks and actionable review threads are green and all three heads match. Do not enable auto-merge or merge. Report the exact PR/head and request fresh merge approval; use rebase merge only after approval if the final history remains suitable.
+
+---
+
+## Final review hardening
+
+최종 리뷰에서 다음 세 가지 contract gap을 추가로 고정한다.
+
+1. `CompressableBinarySerializer`가 delegated buffer method로 내부 serializer를 직접
+   호출하면 압축을 우회한다. 표준 `ByteArray`와 buffer 경로의 wire 호환성을 양방향
+   parameterized test로 먼저 재현하고, decorator가 allocating compatibility fallback을
+   명시적으로 override하도록 한다. delegated buffer method는 wrapper 의미를 깨므로 기각한다.
+2. native JDK/Kryo/Fory failure graph 안의 `CancellationException`은 `Error` 다음
+   우선순위로 동일 instance를 선택한다. operation/cleanup graph cycle을 만들지 않으며,
+   buffer failure helper도 분류된 cancellation을 다시 `BinarySerializationException`으로
+   감싸지 않는지 JDK object input filter와 serialization callback으로 검증한다.
+3. poison-pill WARN은 topic, header key, data size, failure type만 기록하고 throwable,
+   message, stack, payload, header value는 첨부하지 않는다. `log.warn(e)`는 throwable
+   proxy가 payload-derived exception message를 렌더링할 수 있으므로 기각한다.
+
+검증은 `CompressableBinarySerializerTest`, `BufferFailurePolicyTest`,
+`JdkBinarySerializerTest`, `AbstractKafkaCodecPoisonPillTest`,
+`BinaryKafkaCodecBufferTest`, `KafkaCodecTest`를 fresh focused run으로 수행한다.
+측정 대상인 uncompressed Kryo 경로는 바뀌지 않으므로 benchmark와 raw evidence는
+재실행하거나 수정하지 않는다.

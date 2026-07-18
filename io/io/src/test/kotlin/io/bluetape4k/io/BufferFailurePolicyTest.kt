@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.nio.BufferOverflowException
+import java.util.concurrent.CancellationException
 
 class BufferFailurePolicyTest {
 
@@ -99,6 +100,41 @@ class BufferFailurePolicyTest {
 
         assertSame(cleanup, actual)
         assertSame(operation, cleanup.suppressed.single())
+    }
+
+    @Test
+    fun `nested operation cancellation becomes the exact primary instance`() {
+        val cancellation = CancellationException("cancelled")
+        val operation = IllegalStateException("operation", cancellation)
+        val cleanup = IllegalArgumentException("cleanup")
+
+        val actual = BufferFailurePolicy.classify(operation, cleanup)
+
+        assertSame(cancellation, actual)
+        assertSame(cleanup, cancellation.suppressed.single())
+    }
+
+    @Test
+    fun `Error still outranks nested cancellation`() {
+        val cancellation = CancellationException("cancelled")
+        val fatal = AssertionError("fatal")
+        val operation = IllegalStateException("operation", cancellation).apply {
+            addSuppressed(fatal)
+        }
+
+        assertSame(fatal, BufferFailurePolicy.classify(operation, null))
+    }
+
+    @Test
+    fun `cancellation classification does not introduce an identity cycle`() {
+        val cancellation = CancellationException("cancelled")
+        val operation = IllegalStateException("operation", cancellation)
+        val cleanup = IllegalArgumentException("cleanup", cancellation)
+
+        val actual = BufferFailurePolicy.classify(operation, cleanup)
+
+        assertSame(cancellation, actual)
+        assertTrue(cancellation.suppressed.isEmpty())
     }
 
     @Test

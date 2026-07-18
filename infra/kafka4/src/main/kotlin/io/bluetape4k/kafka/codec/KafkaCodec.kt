@@ -58,6 +58,8 @@ interface KafkaCodec<T>:
  * Kafka-layer array conversion when the backing codec already supports buffers; the concrete serializer still
  * determines whether its implementation is optimized or an allocating compatibility fallback.
  *
+ * Buffer serialization requires non-null data. Kafka tombstones must use the standard [serialize] methods.
+ *
  * Output advances the target position by the returned byte count on success. Input reads the source's current
  * remaining range while preserving caller state. Buffers remain caller-owned and must not be mutated concurrently.
  */
@@ -189,7 +191,8 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
      * 헤더의 [VALUE_TYPE_KEY] 를 참조해 역직렬화한다.
      *
      * **Poison-pill 정책**:
-     * - `Exception` 발생 시 WARN 로그를 남기고 `null` 을 반환해 컨슈머 루프 진행을 막지 않는다.
+     * - `Exception` 발생 시 원본 throwable을 첨부하지 않은 bounded/sanitized WARN 로그를 남기고
+     *   `null` 을 반환해 컨슈머 루프 진행을 막지 않는다.
      * - 영구 손실을 막으려면 Spring-Kafka 의 `ErrorHandlingDeserializer` + `DeadLetterPublishingRecoverer` 를 함께 사용하라.
      *
      * **흡수하지 않는 예외**:
@@ -214,7 +217,8 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
 
     /**
      * Applies the poison-pill policy without allocating a capturing lambda on the deserialization hot path.
-     * Ordinary exceptions become bounded WARN logs and `null`; cancellation and fatal JVM errors propagate.
+     * Ordinary exceptions become sanitized, bounded WARN logs without throwable attachment and return `null`;
+     * cancellation and fatal JVM errors propagate.
      */
     protected inline fun deserializeSafely(
         topic: String?,
@@ -227,9 +231,9 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            log.warn(e) {
+            log.warn {
                 "Fail to deserialize data. topic=$topic, headerKeys=${headers?.map { it.key() }}, " +
-                    "dataSize=$dataSize. Returning null (poison pill skipped)."
+                    "dataSize=$dataSize, failureType=${e.javaClass.name}. Returning null (poison pill skipped)."
             }
             null
         }

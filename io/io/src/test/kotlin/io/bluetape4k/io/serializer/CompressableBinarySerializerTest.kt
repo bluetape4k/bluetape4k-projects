@@ -6,11 +6,13 @@ import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.Serializable
 import java.math.BigDecimal
+import java.nio.ByteBuffer
 import java.util.*
 import java.util.stream.Stream
 
@@ -46,6 +48,51 @@ class CompressableBinarySerializerTest {
     private fun getSerializers(): Stream<out BinarySerializer> = compressableSerializers.stream()
 
     private val memorySizeSerializer = JdkBinarySerializer()
+
+    @ParameterizedTest
+    @MethodSource("getSerializers")
+    fun `buffer output remains compatible with standard compressed wire`(serializer: BinarySerializer) {
+        val origin = "compressible-wire-payload-".repeat(256)
+        val target = ByteBuffer.allocateDirect(64 * 1024).apply {
+            position(7)
+            limit(capacity() - 11)
+        }
+        val start = target.position()
+        val limit = target.limit()
+
+        val written = serializer.serializeTo(origin, target)
+        val wire = target.duplicate().apply {
+            position(start)
+            limit(start + written)
+        }.let { view -> ByteArray(view.remaining()).also(view::get) }
+
+        written shouldBeGreaterThan 0
+        target.position() shouldBeEqualTo start + written
+        target.limit() shouldBeEqualTo limit
+        serializer.deserialize<String>(wire) shouldBeEqualTo origin
+    }
+
+    @ParameterizedTest
+    @MethodSource("getSerializers")
+    fun `standard compressed wire remains compatible with buffer input`(serializer: BinarySerializer) {
+        val origin = "compressible-wire-payload-".repeat(256)
+        val wire = serializer.serialize(origin)
+        val source = ByteBuffer.allocateDirect(wire.size + 8).apply {
+            position(3)
+            put(wire)
+            flip()
+            position(3)
+            limit(3 + wire.size)
+        }.slice().asReadOnlyBuffer().apply { mark() }
+        val position = source.position()
+        val limit = source.limit()
+
+        serializer.deserializeFrom<String>(source) shouldBeEqualTo origin
+
+        source.position() shouldBeEqualTo position
+        source.limit() shouldBeEqualTo limit
+        source.reset().position() shouldBeEqualTo position
+    }
 
     @ParameterizedTest
     @MethodSource("getSerializers")

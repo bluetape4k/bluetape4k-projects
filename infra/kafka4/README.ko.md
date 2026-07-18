@@ -163,12 +163,17 @@ target.flip();
 Object decoded = codec.deserializeFrom("events", target.asReadOnlyBuffer());
 ```
 
-출력 성공 시 `limit`을 넓히지 않고 `written`만큼 `position`을 전진시킵니다. 입력은 최초 remaining
-범위만 읽고 source 상태를 보존합니다. 일반 decode 예외는 제한된 metadata만 WARN으로 기록하고
-`null`을 반환하며 cancellation과 fatal error는 전파합니다. 호출 중 버퍼는 호출자가 소유하고 한
-thread에서만 사용해야 합니다.
+buffer 직렬화에는 non-null data가 필요합니다. Kafka tombstone은 표준 `serialize` method를
+사용해야 합니다.
 
-allocation 주장은 [issue #758 보고서](../../docs/benchmarks/2026-07-19-kafka-bytebuffer-codec-allocation.md)에서 측정한 Kryo codec 방향으로 제한합니다. throughput과 broker 비용은 측정하지 않습니다.
+출력 성공 시 `limit`을 넓히지 않고 `written`만큼 `position`을 전진시킵니다. 입력은 최초 remaining
+범위만 읽고 source 상태를 보존합니다. 일반 decode 예외는 throwable을 첨부하지 않고 failure type을
+포함한 제한된 metadata만 WARN으로 기록한 뒤 `null`을 반환합니다. cancellation과 fatal error는
+전파합니다. 호출 중 버퍼는 호출자가 소유하고 한 thread에서만 사용해야 합니다.
+
+allocation 주장은 [issue #758 보고서](../../docs/benchmarks/2026-07-19-kafka-bytebuffer-codec-allocation.md)에서
+측정한 Kryo codec 방향으로 제한합니다. throughput은 진단 목적으로만 측정했으며 throughput 개선
+주장의 근거가 되지 않습니다. broker 비용은 측정하지 않았습니다.
 
 ### 보안: Fory 신뢰 경계
 
