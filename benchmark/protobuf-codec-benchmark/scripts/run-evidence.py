@@ -46,6 +46,11 @@ DISPATCH_CELLS = {
     "serializer_decode": ("serializerDecodeHeapOptimized", "serializerDecodeDirectOptimized"),
     "redisson_contiguous": ("redissonDecodeContiguousOptimized",),
 }
+DISPATCH_SOURCE_PATHS = {
+    "serializer_encode": "io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/ProtobufSerializer.kt",
+    "serializer_decode": "io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/ProtobufSerializer.kt",
+    "redisson_contiguous": "io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/redis/RedissonProtobufCodec.kt",
+}
 POSITIVE_PHRASE = "measured allocation reduction"
 NON_POSITIVE = "No positive reduction claim"
 
@@ -1184,6 +1189,7 @@ def validate_committed_semantics(manifest, manifest_path, repo_root, run_log_res
             raise error(manifest_path, "normalized commands observed={} expected={}".format(manifest.get("commands"), reconstructed_commands), "rerun verify-promoted from both exact argv.json files")
         validator.validate_identity(reconstructed[0][1], reconstructed[1][1], str(environments[0]), str(environments[1]))
         bundle_paths = sorted(path for path in paths if path.name.startswith("rollback-bundle-g"))
+        preparation_paths = {path for path in paths if path.name.startswith("rollback-preparation-g")}
         rollback = None
         if bundle_paths:
             chain = authenticate_rollback_bundle_chain(bundle_paths[-1])
@@ -1191,6 +1197,9 @@ def validate_committed_semantics(manifest, manifest_path, repo_root, run_log_res
                 raise error(manifest_path, "committed rollback generation file set is incomplete or extra", "restore the exact immutable bundle chain")
             if chain[-1][1] != manifest.get("rollback"):
                 raise error(manifest_path, "manifest rollback payload differs from latest committed bundle", "rerun verify-promoted with the authenticated bundle")
+            expected_preparations = {(path.parent / value["preparation_path"]).resolve() for path, value in chain}
+            if preparation_paths != expected_preparations:
+                raise error(manifest_path, "committed rollback preparation file set differs", "restore every and only referenced immutable preparation")
             rollback = validator.validate_rollback_bundle(bundle_paths[-1])
         elif manifest.get("rollback") != {"decisions": []}:
             raise error(manifest_path, "rollback payload exists without committed rollback bundle files", "restore the complete immutable rollback bundle chain")
@@ -1533,6 +1542,27 @@ def read_comparison_verdicts(path):
     return {row.get("method") or row.get("candidate"): row.get("verdict") for row in rows}
 
 
+def verify_dispatch_source_removals(repo_root, head, dispatches, command_runner=subprocess.run):
+    cache = {}
+    for dispatch in dispatches:
+        source_path = DISPATCH_SOURCE_PATHS[dispatch]
+        if source_path not in cache:
+            source, _, _ = command_text(command_runner, ["git", "show", "{}:{}".format(head, source_path)], cwd=repo_root)
+            cache[source_path] = source
+        source = cache[source_path]
+        if dispatch == "serializer_encode":
+            retained = "packMessageTo(graph, target)" in source
+        elif dispatch == "serializer_decode":
+            retained = "deserializeFrom(source: ByteBuffer)" in source
+        else:
+            retained = "nioBufferCount() == 1" in source or "AnyMessage.parseFrom(buf.nioBuffer(" in source
+            if "AnyMessage.parseFrom(buf.getBytes(copy = true))" not in source:
+                retained = True
+        if retained:
+            raise error(source_path, "{} removal predicate failed at committed head={}".format(dispatch, head), "commit the exact dispatch removal while retaining copied compatibility")
+    return True
+
+
 def record_rollback(state_path, dispatches, archive_root, command_runner=subprocess.run, repo_root=None):
     state_path = Path(state_path).resolve(); state = load_json(state_path)
     if len(state.get("canonical_runs", [])) != 2:
@@ -1551,6 +1581,15 @@ def record_rollback(state_path, dispatches, archive_root, command_runner=subproc
             required.append(dispatch)
     if sorted(dispatches, key=DISPATCH_ORDER.index) != required:
         raise error(state["comparison_path"], "dispatches={} mapped simultaneous regressions={}".format(dispatches, required), "record every and only simultaneously regressed dispatch")
+    if state.get("rollback_status") == "prepared":
+        existing_path = Path(state.get("rollback_preparation_path", "")).resolve()
+        existing = authenticate_rollback_preparation(existing_path)
+        if (sha256_file(existing_path) != state.get("rollback_preparation_file_sha256") or
+                existing_path.parent != Path(archive_root).resolve() or
+                [item["dispatch"] for item in existing["decisions"]] != required):
+            raise error(state_path, "prepared rollback conflicts with requested dispatch/root", "reuse the exact recorded preparation or start from a fresh state")
+        print(existing_path)
+        return existing_path
     first_environment = environments[0]
     old_commit = first_environment.get("git_commit"); old_tree = first_environment.get("tree_hash")
     repo_root = Path(repo_root).resolve() if repo_root else find_repo_root(Path.cwd(), command_runner)
@@ -1596,7 +1635,12 @@ def record_rollback(state_path, dispatches, archive_root, command_runner=subproc
     state.update({"promotable": False, "rollback_status": "prepared",
                   "rollback_preparation_path": str(bundle_path), "rollback_preparation_file_sha256": sha256_file(bundle_path),
                   "rollback_preparation": preparation})
-    atomic_write_json(state_path, state)
+    try:
+        atomic_write_json(state_path, state)
+    except Exception:
+        Path(bundle_path).unlink(missing_ok=True)
+        shutil.rmtree(archive, ignore_errors=True)
+        raise
     print(bundle_path)
     return bundle_path
 
@@ -1622,6 +1666,7 @@ def finalize_rollback(preparation_path, command_runner=subprocess.run, repo_root
         predecessor_post = predecessor_bundle["decisions"][-1]["post_rollback_commit"]
         if _run(command_runner, ["git", "merge-base", "--is-ancestor", predecessor_post, first["old_commit"]], cwd=repo_root).returncode:
             raise error(preparation_path, "measurement commit does not descend from predecessor post", "finalize the authenticated chained rollback lineage")
+    verify_dispatch_source_removals(repo_root, head, [decision["dispatch"] for decision in decisions], command_runner)
     if removal_verifier and not removal_verifier(repo_root, preparation, head, tree):
         raise error(preparation_path, "dispatch removal predicate failed", "remove every prepared dispatch exactly")
     root = preparation_path.parent; generation = preparation["generation"]
@@ -1731,7 +1776,10 @@ def _copy_state_evidence(state, staging):
         shutil.copy2(source, staging / name)
     if state.get("rollback_bundle_path"):
         bundle = Path(state["rollback_bundle_path"])
-        for generation_path, _ in authenticate_rollback_bundle_chain(bundle):
+        for generation_path, generation in authenticate_rollback_bundle_chain(bundle):
+            preparation = generation_path.parent / generation["preparation_path"]
+            authenticate_rollback_preparation(preparation)
+            shutil.copy2(preparation, staging / preparation.name)
             shutil.copy2(generation_path, staging / generation_path.name)
         for decision in state["rollback_bundle"]["decisions"]:
             archive = bundle.parent / decision["archive_root"]
@@ -1746,7 +1794,8 @@ def expected_promoted_files(state):
         expected.update("{}/{}".format(name, filename) for filename in REQUIRED_RUN_FILES)
     expected.update(("comparison.csv", "validation.json"))
     if state.get("rollback_bundle_path"):
-        for bundle_path, _ in authenticate_rollback_bundle_chain(state["rollback_bundle_path"]):
+        for bundle_path, bundle in authenticate_rollback_bundle_chain(state["rollback_bundle_path"]):
+            expected.add(bundle["preparation_path"])
             expected.add(bundle_path.name)
         latest = state["rollback_bundle"]
         for decision in latest.get("decisions", []):
@@ -1899,6 +1948,11 @@ def verify_promoted(state_path, destination, repo_root=None, command_runner=subp
         observed = sha256_file(destination / name)
         if observed != state.get(key):
             raise error(destination / name, "promoted sha256 observed={} expected={}".format(observed, state.get(key)), "discard the destination and promote exact state-bound comparison artifacts")
+    if state.get("rollback_bundle_path"):
+        promoted_bundle = destination / Path(state["rollback_bundle_path"]).name
+        promoted_chain = authenticate_rollback_bundle_chain(promoted_bundle)
+        if promoted_chain[-1][1] != state.get("rollback_bundle"):
+            raise error(promoted_bundle, "promoted rollback payload differs from state", "restore the exact bundles, preparations, and archives")
     semantic_verify_promoted(state, destination, command_runner=command_runner, validator_path=validator_path)
     comparison_validation = load_json(destination / "validation.json")
     verdicts = comparison_validation.get("verdicts", {})
