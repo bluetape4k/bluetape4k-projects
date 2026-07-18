@@ -51,7 +51,9 @@ dependencies {
     compileOnly(libs.kotlinx.coroutines.core)
 
     testFixturesApi(project(":bluetape4k-junit5"))
-    testFixturesApi(libs.awaitility.kotlin)
+    testFixturesApi(
+        "org.awaitility:awaitility-kotlin:${bt4k.versions.awaitility.get()}",
+    )
     testFixturesImplementation(libs.kotlinx.coroutines.core)
     testFixturesImplementation(libs.kotlinx.coroutines.test)
 

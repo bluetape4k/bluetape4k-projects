@@ -30,6 +30,12 @@ dependencies {
     // Test Fixtures
     testFixturesApi(project(":bluetape4k-junit5"))
     testFixturesApi(project(":bluetape4k-testcontainers"))
+    testFixturesApi(
+        platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:${bt4k.versions.kotlinx.coroutines.get()}"),
+    )
+    testFixturesApi(
+        platform("org.testcontainers:testcontainers-bom:${bt4k.versions.testcontainers.get()}"),
+    )
     testFixturesApi(libs.elasticsearch.java)
     testFixturesApi(libs.kotlinx.coroutines.core)
     testFixturesApi(libs.kotlinx.coroutines.test)
