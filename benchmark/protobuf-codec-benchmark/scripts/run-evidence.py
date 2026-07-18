@@ -684,7 +684,7 @@ def _execute_with_anchor(argv, log_stream, payload_limit, pass_fds):
             raise close_error
 
 
-def execute_logged(argv, run_dir, command_runner=subprocess.run, pass_fds=()):
+def execute_logged(argv, run_dir, command_runner=subprocess.run, pass_fds=(), recorded_argv=None):
     run_dir = Path(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
     argv_path = run_dir / "argv.json"
@@ -746,7 +746,7 @@ def execute_logged(argv, run_dir, command_runner=subprocess.run, pass_fds=()):
     ended = utc_now()
     record = {
         "schema_version": SCHEMA_VERSION,
-        "argv": list(argv),
+        "argv": list(recorded_argv if recorded_argv is not None else argv),
         "started_at": started,
         "ended_at": ended,
         "exit_code": exit_code,
@@ -764,6 +764,10 @@ def execute_logged(argv, run_dir, command_runner=subprocess.run, pass_fds=()):
 
 def build_jmh_argv(jar, profile, result_path):
     return ["java", "-jar", str(jar)] + PROFILE_ARGS[profile] + ["-rff", str(result_path), "-jvmArgsAppend", " ".join(JVM_ARGS)]
+
+
+def pinned_jar_ref(sha256):
+    return "<PINNED_JAR_SHA256:{}>".format(sha256)
 
 
 def _identity_capture(repo_root, command_runner):
@@ -859,6 +863,8 @@ def run_benchmark(state_path, profile, output_root, run_id=None, concurrent_heav
         identity = _identity_capture(repo_root, command_runner)
         result_path = run_dir / "jmh.json"
         argv = build_jmh_argv(executed_jar, profile, result_path)
+        jar_ref = pinned_jar_ref(state["benchmark_jar_sha256"])
+        persisted_argv = build_jmh_argv(jar_ref, profile, "jmh.json")
         environment = dict(identity)
         metadata = first["value"]
         power = capture_power_state(identity["os"], command_runner)
@@ -867,13 +873,13 @@ def run_benchmark(state_path, profile, output_root, run_id=None, concurrent_heav
         verify_private_execution_jar(execution_identity, state_path)
         environment.update({
             "schema_version": SCHEMA_VERSION, "run_id": run_id, "profile": profile,
-            "benchmark_jar_path": str(canonical_jar), "benchmark_jar_sha256": state["benchmark_jar_sha256"],
-            "benchmark_jar_stat": state["benchmark_jar_stat"], "executed_jar_path": str(executed_jar), "executed_jar_stat": execution_identity["jar_stat"],
+            "benchmark_jar_ref": jar_ref, "benchmark_jar_sha256": state["benchmark_jar_sha256"],
+            "benchmark_jar_stat": state["benchmark_jar_stat"], "executed_jar_ref": jar_ref, "executed_jar_stat": execution_identity["jar_stat"],
             "metadata": metadata, "metadata_stdout": first["stdout"].decode("utf-8"),
             "metadata_stdout_sha256": first["stdout_sha256"], "metadata_stderr": first["stderr"],
             "clean_status": "clean", "initial_clean_status": initial,
             "concurrent_heavy_work": concurrent_heavy_work,
-            "power_state": power["normalized"], "power_state_capture": power, "jmh_argv": argv,
+            "power_state": power["normalized"], "power_state_capture": power, "jmh_argv": persisted_argv,
             "jmh_version": jmh_identity["normalized"], "jmh_version_capture": jmh_identity,
             "payload_size": metadata.get("payload_size"), "payload_sha256": metadata.get("payload_sha256"),
             "config_json": metadata.get("config_json"), "config_sha256": metadata.get("config_sha256"),
@@ -889,7 +895,7 @@ def run_benchmark(state_path, profile, output_root, run_id=None, concurrent_heav
         environment["metadata_prelaunch_stdout_sha256"] = second["stdout_sha256"]
         atomic_write_json(run_dir / "environment.json", environment, fail_if_exists=True)
         verify_private_execution_jar(execution_identity, state_path)
-        execute_logged(argv, run_dir, command_runner=command_runner)
+        execute_logged(argv, run_dir, command_runner=command_runner, recorded_argv=persisted_argv)
         verify_private_execution_jar(execution_identity, state_path)
         verify_pinned_jar(state, state_path)
         validator_path = Path(validator_path or Path(__file__).with_name("validate-jmh.py")).resolve()
@@ -2023,11 +2029,16 @@ def _semantic_json(value):
 
 def manifest_command(argv, environment, promoted_run, repo_root):
     normalized = []
+    expected_ref = pinned_jar_ref(environment["benchmark_jar_sha256"])
     index = 0
     while index < len(argv):
         token = argv[index]
         if token in (environment.get("benchmark_jar_path"), environment.get("executed_jar_path")):
-            normalized.append("<PINNED_JAR_SHA256:{}>".format(environment["benchmark_jar_sha256"]))
+            normalized.append(expected_ref)
+        elif token in (environment.get("benchmark_jar_ref"), environment.get("executed_jar_ref")):
+            if token != expected_ref:
+                raise error(promoted_run / "argv.json", "pinned JAR ref={!r} expected={!r}".format(token, expected_ref), "restore the SHA-bound canonical command")
+            normalized.append(token)
         elif index > 0 and argv[index - 1] == "-rff":
             normalized.append((Path(promoted_run) / "jmh.json").relative_to(repo_root).as_posix())
         elif Path(token).is_absolute() or re.search(r"(?:^|[/\\])build(?:[/\\]|$)", token):

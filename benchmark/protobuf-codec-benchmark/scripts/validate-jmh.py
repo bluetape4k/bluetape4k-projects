@@ -610,12 +610,18 @@ def _validated_jar(jar, environment, environment_path):
         _fail(jar, "jar type", "not a regular file", "regular file", "rebuild the JMH JAR")
     if jar != resolved and not jar.is_absolute():
         _fail(jar, "jar path", str(jar), str(resolved), "pass --jar as an absolute canonical path")
-    declared_path = environment.get("benchmark_jar_path")
-    if declared_path != str(resolved):
-        _fail(environment_path, "benchmark_jar_path", declared_path, str(resolved), "regenerate environment.json from the pinned JAR state")
     digest = sha256_file(resolved)
     if environment.get("benchmark_jar_sha256") != digest:
         _fail(environment_path, "benchmark_jar_sha256", environment.get("benchmark_jar_sha256"), digest, "re-resolve the JMH JAR and rerun evidence")
+    declared_path = environment.get("benchmark_jar_path")
+    if declared_path is not None:
+        if declared_path != str(resolved):
+            _fail(environment_path, "benchmark_jar_path", declared_path, str(resolved), "regenerate environment.json from the pinned JAR state")
+    else:
+        expected_ref = "<PINNED_JAR_SHA256:%s>" % digest
+        for field in ("benchmark_jar_ref", "executed_jar_ref"):
+            if environment.get(field) != expected_ref:
+                _fail(environment_path, field, environment.get(field), expected_ref, "restore the canonical SHA-bound JAR reference")
     return resolved, digest, _jar_identity(resolved)
 
 
