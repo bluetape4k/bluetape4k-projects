@@ -433,6 +433,18 @@ io.bluetape4k.jackson
 
 ## 참고
 
+### ByteBuffer 할당 근거
+
+[이슈 #1039 보고서](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)는 Jackson 2 `serializeTo`의 낮은 할당을 accepted로 판정했고 `deserializeFrom`은 inconclusive였습니다. interface 기본 구현의 호환 셀은 사용 편의성 전용입니다.
+
+| 경로 | 상태 | 한계 |
+|---|---|---|
+| concrete `serializeTo` | 최적화, accepted | 측정 payload/기본 mapper에 한정 |
+| concrete `deserializeFrom` | 최적화, inconclusive | 할당 감소 주장 없음 |
+| interface 기본 구현 | 호환 fallback | 사용 편의성 전용 |
+
+Kotlin은 `serializer.serializeTo(value, target)`과 `serializer.deserializeFrom<Value>(source)`를 사용하고 Java는 같은 메서드에 target class를 전달합니다. 호출자는 남은 용량이 충분한 writable buffer를 제공합니다. 출력 성공은 `limit`을 넓히지 않고 `position`만 이동하며 overflow/read-only 실패는 rollback합니다. 입력은 duplicate view로 source `position`과 `limit`을 보존합니다.
+
 - [Jackson](https://github.com/FasterXML/jackson)
 - [Jackson Kotlin Module](https://github.com/FasterXML/jackson-module-kotlin)
 - [Url62 (Base62)](https://github.com/nicksrandall/url62)

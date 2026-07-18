@@ -47,6 +47,8 @@ val JDK_DEFAULT_OBJECT_INPUT_FILTER: ObjectInputFilter = ObjectInputFilter.Confi
  *
  * [serializeTo] and [deserializeFrom] use fixed ByteBuffer-backed streams. The configured
  * [objectInputFilter] is applied to both ByteArray and ByteBuffer deserialization paths.
+ * The [issue #1039 evidence](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)
+ * accepted lower allocation for output; the input comparison was inconclusive.
  *
  * @param bufferSize 버퍼 크기 (기본값: [DEFAULT_BUFFER_SIZE])
  * @param objectInputFilter 역직렬화 시 적용할 [ObjectInputFilter]. 기본값: [JDK_DEFAULT_OBJECT_INPUT_FILTER]

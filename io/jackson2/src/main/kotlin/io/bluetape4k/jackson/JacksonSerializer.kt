@@ -31,6 +31,9 @@ import java.nio.ReadOnlyBufferException
  * // value?.get("id") == 1
  * ```
  *
+ * The [issue #1039 evidence](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)
+ * accepted lower allocation for measured ByteBuffer output; input was inconclusive.
+ *
  * @param mapper JSON 직렬화/역직렬화에 사용할 ObjectMapper
  */
 open class JacksonSerializer(

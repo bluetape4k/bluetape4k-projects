@@ -535,6 +535,18 @@ MIT License
 
 ## References
 
+### ByteBuffer allocation evidence
+
+The [issue #1039 allocation report](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md) accepted lower-allocation results for JDK serialization and Kryo serialization/deserialization. JDK deserialization and Fory deserialization were inconclusive; Fory output is an ergonomic-only fallback.
+
+| Serializer | `serializeTo` | `deserializeFrom` |
+|---|---|---|
+| JDK | optimized; accepted | optimized; inconclusive |
+| Kryo | optimized; accepted | optimized; accepted |
+| Fory | compatibility fallback | optimized; inconclusive |
+
+Kotlin: `serializer.serializeTo(value, target)` / `serializer.deserializeFrom<Value>(source)`. Java: `serializer.serializeTo(value, target)` / `serializer.deserializeFrom(source)`. The caller owns a writable target with sufficient remaining capacity. Success advances output `position` without widening `limit`; overflow/read-only failure rolls back state. Input reads a duplicate and preserves source `position`/`limit`. These results apply only to the measured payload and default configurations.
+
 - [bluetape4k-okio](../okio/README.md) (Okio-based I/O module)
 - [Kryo Documentation](https://github.com/EsotericSoftware/kryo)
 - [Apache Fory](https://fory.apache.org/)

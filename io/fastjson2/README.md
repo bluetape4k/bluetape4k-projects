@@ -208,5 +208,17 @@ io.bluetape4k.fastjson2
 
 ## References
 
+### ByteBuffer allocation evidence
+
+The [issue #1039 report](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md) found the writable array-backed `deserializeFrom` comparison inconclusive. Direct/read-only input and all output-buffer cells are fallback or compatibility controls and are ergonomic-only.
+
+| Path | Status |
+|---|---|
+| writable array-backed input | optimized dispatch; inconclusive |
+| direct/read-only input | fallback; ergonomic-only |
+| output buffer | `JSONB.toBytes` fallback; ergonomic-only |
+
+Kotlin and Java call `serializeTo`/`deserializeFrom` with the same public contract. A writable target needs enough remaining capacity; output success advances `position` without widening `limit`, while overflow/read-only failure rolls back. Input preserves caller `position`/`limit`. The measured result does not generalize beyond JSONB, the default configuration, and the named buffer kinds.
+
 - [Fastjson2](https://github.com/alibaba/fastjson2)
 - [JSONB Specification](https://github.com/alibaba/fastjson2/wiki/jsonb_format_cn)

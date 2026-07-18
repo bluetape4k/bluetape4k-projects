@@ -19,6 +19,9 @@ import java.nio.ByteBuffer
  * val restored = serializer.deserialize<io.bluetape4k.avro.message.examples.Employee>(bytes)
  * // restored != null
  * ```
+ *
+ * The [issue #1039 evidence](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)
+ * measured reflect paths only; both optimized comparisons were inconclusive and defaults remain compatibility fallbacks.
  */
 interface AvroReflectSerializer {
 

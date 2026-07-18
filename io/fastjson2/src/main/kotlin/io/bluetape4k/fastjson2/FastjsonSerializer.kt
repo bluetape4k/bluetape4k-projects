@@ -32,6 +32,9 @@ import java.nio.ReadOnlyBufferException
  * val restored = serializer.deserialize<Map<String, Int>>(bytes)
  * // restored == mapOf("id" to 1)
  * ```
+ *
+ * The [issue #1039 evidence](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)
+ * found array-backed input inconclusive; direct/read-only input and output remain ergonomic-only fallbacks.
  */
 class FastjsonSerializer: JsonSerializer {
 

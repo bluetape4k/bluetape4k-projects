@@ -145,6 +145,17 @@ dependencies {
 }
 ```
 
+## ByteBuffer 할당 근거
+
+[이슈 #1039 보고서](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)는 기본 reflect serializer만 측정했습니다. concrete 직렬화/역직렬화 최적화 비교는 inconclusive이며 interface 기본 호환 경로는 사용 편의성 전용입니다. Generic, specific, list serializer는 측정하지 않았고 할당 주장이 없습니다.
+
+| Reflect 경로 | 상태 |
+|---|---|
+| concrete 출력/입력 | 최적화, inconclusive |
+| interface 기본 구현 | 호환 fallback, 사용 편의성 전용 |
+
+Kotlin과 Java는 같은 `serializeTo`/`deserializeFrom` 계약을 호출합니다. 호출자는 남은 용량이 충분한 writable target을 소유합니다. 출력은 성공할 때만 `limit`을 넓히지 않고 `position`을 이동하며 overflow/read-only 실패는 rollback합니다. 입력은 duplicate로 읽어 source `position`/`limit`을 보존합니다.
+
 ## 회귀 테스트 실행
 
 `io/avro` 모듈만 빠르게 검증할 때:

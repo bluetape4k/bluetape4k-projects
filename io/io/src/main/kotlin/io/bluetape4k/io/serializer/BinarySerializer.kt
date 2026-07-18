@@ -17,6 +17,10 @@ import java.nio.ByteBuffer
  * val text = serializer.deserialize<String>(bytes)  // "Hello, World!"
  * ```
  *
+ * The interface-default ByteBuffer methods are allocating compatibility fallbacks. See the
+ * [issue #1039 allocation evidence](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)
+ * before making backend-specific allocation claims.
+ *
  * @see BinarySerializers
  * @see AbstractBinarySerializer
  */

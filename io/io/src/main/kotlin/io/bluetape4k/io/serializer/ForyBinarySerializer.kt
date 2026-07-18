@@ -23,6 +23,8 @@ import java.nio.ByteBuffer
  * [deserializeFrom] delegates a duplicate of the caller's bounded range to Fory's ByteBuffer API.
  * [serializeTo] intentionally keeps the BinarySerializer ByteArray compatibility fallback because
  * Fory's MemoryBuffer output may grow by replacing caller-provided storage.
+ * The [issue #1039 evidence](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)
+ * found input allocation inconclusive; output remains an ergonomic-only fallback.
  */
 class ForyBinarySerializer(
     private val fory: ThreadSafeFory = DefaultFory,

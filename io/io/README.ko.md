@@ -536,6 +536,18 @@ MIT License
 
 ## 참고
 
+### ByteBuffer 할당 근거
+
+[이슈 #1039 할당 보고서](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)는 JDK 직렬화와 Kryo 직렬화/역직렬화에서 낮은 할당 결과를 accepted로 판정했습니다. JDK 역직렬화와 Fory 역직렬화는 inconclusive이며 Fory 출력은 사용 편의성용 fallback입니다.
+
+| Serializer | `serializeTo` | `deserializeFrom` |
+|---|---|---|
+| JDK | 최적화, accepted | 최적화, inconclusive |
+| Kryo | 최적화, accepted | 최적화, accepted |
+| Fory | 호환 fallback | 최적화, inconclusive |
+
+Kotlin: `serializer.serializeTo(value, target)` / `serializer.deserializeFrom<Value>(source)`. Java: `serializer.serializeTo(value, target)` / `serializer.deserializeFrom(source)`. 호출자는 남은 용량이 충분한 writable target을 소유합니다. 성공하면 출력 `position`만 이동하고 `limit`은 넓어지지 않으며 overflow/read-only 실패는 상태를 rollback합니다. 입력은 duplicate로 읽어 source `position`/`limit`을 보존합니다. 근거는 측정 payload와 기본 설정에만 적용됩니다.
+
 - [bluetape4k-okio](../okio/README.ko.md) (Okio 기반 I/O 모듈)
 - [Kryo Documentation](https://github.com/EsotericSoftware/kryo)
 - [Apache Fory](https://fory.apache.org/)

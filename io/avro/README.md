@@ -148,6 +148,17 @@ dependencies {
 }
 ```
 
+## ByteBuffer allocation evidence
+
+The [issue #1039 report](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md) measured only the default reflect serializer. Its optimized serialization and deserialization comparisons were inconclusive; interface-default compatibility remains ergonomic-only. Generic, specific, and list serializers are unmeasured and have no allocation claim.
+
+| Reflect path | Status |
+|---|---|
+| concrete output/input | optimized; inconclusive |
+| interface default | compatibility fallback; ergonomic-only |
+
+Kotlin and Java call the same `serializeTo`/`deserializeFrom` contract. The caller owns a writable target with sufficient remaining capacity. Output advances `position` only on success without widening `limit`; overflow/read-only failure rolls back. Input reads a duplicate and preserves source `position`/`limit`.
+
 ## Running Tests
 
 To quickly validate only the `io/avro` module:

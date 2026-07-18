@@ -376,6 +376,18 @@ dependencies {
 
 ## References
 
+### ByteBuffer allocation evidence
+
+The [issue #1039 report](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md) accepted lower allocation for Jackson 2 `serializeTo`; `deserializeFrom` was inconclusive. The interface-default compatibility cells are ergonomic-only.
+
+| Path | Status | Limitation |
+|---|---|---|
+| concrete `serializeTo` | optimized; accepted | measured payload/default mapper only |
+| concrete `deserializeFrom` | optimized; inconclusive | no allocation-reduction claim |
+| interface default | compatibility fallback | ergonomic-only |
+
+Kotlin uses `serializer.serializeTo(value, target)` and `serializer.deserializeFrom<Value>(source)`; Java calls the same methods with the target class. The caller supplies a writable buffer with sufficient remaining capacity. Output success advances `position` without widening `limit`; overflow/read-only failure rolls back. Input preserves source `position` and `limit` through a duplicate view.
+
 - [Jackson](https://github.com/FasterXML/jackson)
 - [Jackson Kotlin Module](https://github.com/FasterXML/jackson-module-kotlin)
 - [Url62 (Base62)](https://github.com/nicksrandall/url62)

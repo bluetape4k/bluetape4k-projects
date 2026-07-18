@@ -35,6 +35,9 @@ import java.util.concurrent.ConcurrentHashMap
  * val bytes = serializer.serialize(mapOf("id" to 1))
  * // bytes != null
  * ```
+ *
+ * The [issue #1039 evidence](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)
+ * found the measured reflect ByteBuffer output and input allocation comparisons inconclusive.
  */
 class DefaultAvroReflectSerializer private constructor(
     private val codecFactory: CodecFactory,

@@ -29,6 +29,8 @@ private abstract class NativeByteBufferKryoPool: Pool<Kryo>(true, false, 1024)
  * [serializeTo] and [deserializeFrom] bind pooled Kryo ByteBuffer adapters to the caller's bounded range for the
  * default, [fast], and [secure] configurations. An externally supplied [kryoPool] retains the ByteArray compatibility
  * path because its custom serializers may require array-backed [Input] and `Output` instances.
+ * The [issue #1039 evidence](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)
+ * accepted lower allocation for both measured native output and input cells.
  *
  * @param bufferSize 내부 버퍼 크기 (기본값: [DEFAULT_BUFFER_SIZE])
  * @param kryoPool 커스텀 Kryo 풀. null이면 기본 [KryoProvider] 풀을 사용합니다.
