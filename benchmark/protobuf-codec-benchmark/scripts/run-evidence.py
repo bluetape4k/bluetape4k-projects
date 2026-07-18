@@ -1138,9 +1138,17 @@ def validate_committed_semantics(manifest, manifest_path, repo_root, run_log_res
     for name in ("comparison.csv", "validation.json"):
         if (manifest_path.parent / name).resolve() not in listed:
             raise error(manifest_path, "missing top-level {}".format(name), "restore comparison and comparison-validation artifacts")
-    environments = sorted(path for path in paths if path.name == "environment.json")
+    delivery_root = manifest_path.parent.resolve()
+    environments = sorted(
+        path for path in paths
+        if path.name == "environment.json" and path.parent.parent == delivery_root
+    )
     if len(environments) != 2:
         raise error(manifest_path, "environment count={} != 2".format(len(environments)), "restore exactly two promoted canonical runs")
+    result_run_ids = {str(row.get("run")) for row in manifest.get("results", [])}
+    environment_run_ids = {path.parent.name for path in environments}
+    if environment_run_ids != result_run_ids:
+        raise error(manifest_path, "canonical environment run_ids observed={} expected={}".format(sorted(environment_run_ids), sorted(result_run_ids)), "restore the exact manifest-bound canonical runs")
     reconstructed = []
     jar_hashes = set()
     with tempfile.TemporaryDirectory(prefix="issue-757-committed-") as td:
@@ -1234,11 +1242,14 @@ def validate_committed_semantics(manifest, manifest_path, repo_root, run_log_res
             raise error(manifest_path.parent / "validation.json", "comparison verdict/reason semantics differ", "restore the authoritative comparison validation")
         if manifest.get("final_verdicts") != verdicts or manifest.get("final_reasons") != reasons:
             raise error(manifest_path, "manifest final verdict/reason differs from reconstructed comparison", "rerun verify-promoted")
-        result_keys = {(str(row["method"]), str(row["run"])) for row in manifest.get("results", [])}
+        results = manifest.get("results", [])
+        result_keys = {(str(row["method"]), str(row["run"])) for row in results}
         expected_keys = {(method, env["run_id"]) for method in comparison for _, env, _ in reconstructed}
+        if len(results) != len(result_keys):
+            raise error(manifest_path, "duplicate report result identities observed={} unique={}".format(len(results), len(result_keys)), "record exactly one result row per method/run")
         if result_keys != expected_keys:
             raise error(manifest_path, "report results observed={} expected={}".format(sorted(result_keys), sorted(expected_keys)), "rerun verify-promoted from exact summaries")
-        result_map = {(row["method"], row["run"]): row for row in manifest.get("results", [])}
+        result_map = {(row["method"], row["run"]): row for row in results}
         for run_index, (summary, environment, _) in enumerate(reconstructed):
             for method, metrics in summary["rows"].items():
                 row = result_map[(method, environment["run_id"])]
@@ -1886,13 +1897,13 @@ def validate_positive_language(report, manifest, path):
 
 
 def render_report(manifest_path, output):
-    manifest = validate_committed(manifest_path)
+    manifest = validate_committed(manifest_path, require_git_commit=False)
     text = render_report_text(manifest)
     atomic_write_bytes(output, text.encode("utf-8"))
 
 
 def validate_report(manifest_path, input_path):
-    manifest = validate_committed(manifest_path)
+    manifest = validate_committed(manifest_path, require_git_commit=False)
     expected = render_report_text(manifest).encode("utf-8")
     observed = Path(input_path).read_bytes()
     if observed != expected:

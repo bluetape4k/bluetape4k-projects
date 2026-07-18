@@ -4,6 +4,7 @@ import io
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -108,6 +109,18 @@ def build_complete_delivery(root):
                             "verdict": row["verdict"], "reason": row["reason"]})
     manifest = runner.create_delivery_manifest(root, evidence, "measure", "tree", verdicts, {"decisions": []}, commands, results, "delivery", jar_hash, reasons)
     manifest_path = evidence / "delivery-manifest.json"; runner.atomic_write_json(manifest_path, manifest)
+    return manifest_path
+
+
+def initialize_uncommitted_delivery(root):
+    root = Path(root)
+    manifest_path = build_complete_delivery(root)
+    subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+    subprocess.run(["git", "config", "user.email", "issue-757@example.invalid"], cwd=root, check=True)
+    subprocess.run(["git", "config", "user.name", "Issue 757 Test"], cwd=root, check=True)
+    marker = root / "tracked.txt"; marker.write_text("initial\n")
+    subprocess.run(["git", "add", marker.name], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-q", "-m", "initial"], cwd=root, check=True)
     return manifest_path
 
 
@@ -1506,6 +1519,31 @@ class EvidenceRunnerTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "removed/ineligible"):
             runner.validate_positive_language(first, manifest, Path("report.md"))
 
+    def test_report_renderer_accepts_fully_validated_working_manifest_before_commit_while_strict_validation_rejects_it(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); manifest_path = initialize_uncommitted_delivery(root)
+            report_path = root / "report.md"
+
+            with self.assertRaisesRegex(ValueError, "not byte-identical to HEAD"):
+                runner.validate_committed(manifest_path, repo_root=root)
+            cli = subprocess.run(
+                [sys.executable, str(HERE / "run-evidence.py"), "validate-committed", "--manifest", str(manifest_path)],
+                cwd=root, capture_output=True, text=True,
+            )
+            self.assertNotEqual(0, cli.returncode)
+            self.assertIn("not byte-identical to HEAD", cli.stderr)
+
+            runner.render_report(manifest_path, report_path)
+            self.assertEqual(runner.render_report_text(json.loads(manifest_path.read_text())), report_path.read_text())
+
+    def test_report_validator_accepts_fully_validated_working_manifest_before_commit(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); manifest_path = initialize_uncommitted_delivery(root)
+            report_path = root / "report.md"
+            report_path.write_text(runner.render_report_text(json.loads(manifest_path.read_text())))
+
+            runner.validate_report(manifest_path, report_path)
+
     def test_run_exception_removes_private_execution_directory(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td); jars = root / "jars"; jars.mkdir()
@@ -1567,6 +1605,19 @@ class EvidenceRunnerTest(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     runner.validate_committed(manifest_path, repo_root=root, require_git_commit=False)
 
+    def test_complete_delivery_rejects_duplicate_result_identity_before_metric_use(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); manifest_path = build_complete_delivery(root)
+
+            def append_conflicting_duplicate(manifest):
+                duplicate = dict(manifest["results"][0])
+                duplicate["allocation_b_per_op"] = "0"
+                manifest["results"].append(duplicate)
+
+            rewrite_manifest(manifest_path, append_conflicting_duplicate)
+            with self.assertRaisesRegex(ValueError, "duplicate report result"):
+                runner.validate_committed(manifest_path, repo_root=root, require_git_commit=False)
+
     def test_complete_delivery_requires_exactly_two_environment_files(self):
         for count in (1, 2):
             with self.subTest(removed=count), tempfile.TemporaryDirectory() as td:
@@ -1584,6 +1635,41 @@ class EvidenceRunnerTest(unittest.TestCase):
                 runner.atomic_write_json(manifest_path, replacement)
                 with self.assertRaisesRegex(ValueError, "environment count"):
                     runner.validate_committed(manifest_path, repo_root=root, require_git_commit=False)
+
+    def test_complete_delivery_ignores_manifest_bound_nested_rollback_environments_as_canonical_runs(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); manifest_path = build_complete_delivery(root)
+            archive = manifest_path.parent / "archive-g1"
+            shutil.copytree(manifest_path.parent / "run-a", archive / "old-run-a")
+            shutil.copytree(manifest_path.parent / "run-b", archive / "old-run-b")
+            original = json.loads(manifest_path.read_text())
+            replacement = runner.create_delivery_manifest(
+                root, manifest_path.parent,
+                original["measurement"]["git_commit"], original["measurement"]["tree_hash"],
+                original["final_verdicts"], original["rollback"], original["commands"], original["results"],
+                original["delivery"]["git_commit"], original["measurement"]["benchmark_jar_sha256"],
+                original["final_reasons"],
+            )
+            runner.atomic_write_json(manifest_path, replacement)
+
+            runner.validate_committed(manifest_path, repo_root=root, require_git_commit=False)
+
+    def test_complete_delivery_rejects_extra_top_level_canonical_run(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); manifest_path = build_complete_delivery(root)
+            shutil.copytree(manifest_path.parent / "run-a", manifest_path.parent / "run-c")
+            original = json.loads(manifest_path.read_text())
+            replacement = runner.create_delivery_manifest(
+                root, manifest_path.parent,
+                original["measurement"]["git_commit"], original["measurement"]["tree_hash"],
+                original["final_verdicts"], original["rollback"], original["commands"], original["results"],
+                original["delivery"]["git_commit"], original["measurement"]["benchmark_jar_sha256"],
+                original["final_reasons"],
+            )
+            runner.atomic_write_json(manifest_path, replacement)
+
+            with self.assertRaisesRegex(ValueError, "environment count=3"):
+                runner.validate_committed(manifest_path, repo_root=root, require_git_commit=False)
 
     def test_committed_delivery_head_must_be_in_current_head_lineage(self):
         with tempfile.TemporaryDirectory() as td:
