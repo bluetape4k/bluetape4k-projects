@@ -42,15 +42,16 @@ class CodeqlWorkflowPolicyTest(unittest.TestCase):
         self.assertIn("settings.gradle.kts", resolve)
         self.assertIn('echo "ref=$catalog_ref" >> "$GITHUB_OUTPUT"', resolve)
 
-    def test_testcontainers_scope_is_isolated_and_bounded(self) -> None:
-        self.assertRegex(
+    def test_testcontainers_exclusion_has_durable_evidence(self) -> None:
+        self.assertNotIn("scope: testing-containers", CODEQL)
+        self.assertNotIn("roots: testing/testcontainers", CODEQL)
+        self.assertIn("actions/runs/29648755583", CODEQL)
+        self.assertIn(
+            "docs/lessons/2026-07-18-codeql-testcontainers-exclusion.md",
             CODEQL,
-            r"scope: testing-containers\n"
-            r"\s+roots: testing/testcontainers\n"
-            r"\s+build_timeout_minutes: 20",
         )
         build = named_step(CODEQL, "Build with Gradle")
-        self.assertIn("timeout-minutes: ${{ matrix.build_timeout_minutes }}", build)
+        self.assertIn("timeout-minutes: 120", build)
 
     def test_pull_request_ci_runs_this_policy(self) -> None:
         workflow = (WORKFLOWS / "ci.yml").read_text(encoding="utf-8")
