@@ -188,6 +188,10 @@ val source = target.duplicate().apply {
 val decoded = serializer.deserializeFrom<MyMessage>(source)
 ```
 
+`serializeTo`는 caller-owned encode 최적화를 유지합니다. `deserializeFrom`은 의도적으로 상속된
+`BinarySerializer` compatibility 경로를 사용합니다. bounded remaining bytes만 복사한 뒤 decode하며 heap, direct,
+sliced, read-only buffer의 source position, limit, mark, byte order를 보존합니다.
+
 target의 소유권은 caller에게 있습니다. preflight `BufferOverflowException`은 target을 변경하지 않지만 쓰기가
 시작된 뒤 실패하면 `position`만 복원되며 기존 바이트는 이미 덮어쓰였을 수 있습니다. 재사용하기 전에
 caller-owned prefix 전체를 다시 초기화하거나 buffer를 폐기하세요. 여기서 `HEADER_SIZE`는 caller가 정한 prefix

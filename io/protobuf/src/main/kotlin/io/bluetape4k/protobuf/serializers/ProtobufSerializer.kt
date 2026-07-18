@@ -22,10 +22,9 @@ import java.nio.ReadOnlyBufferException
  * - A non-null [fallback] enables the trusted-internal mixed Protobuf + fallback profile.
  * - [serializeTo] writes directly to a caller-owned buffer for Protobuf values; fallback values retain their
  *   allocating compatibility path. Its preflight failures are raw buffer exceptions and recovery restores position.
- * - [deserializeFrom] reads only the bounded remaining bytes through a duplicate and avoids this serializer's eager
- *   compatibility [ByteArray] copy; array-backed heap inputs may therefore avoid a serializer-owned copy. protobuf-java
- *   may still copy direct or read-only buffers internally, and any allocation benefit requires benchmark evidence.
- *   An explicitly configured trusted fallback receives a bounded [ByteArray] copy.
+ * - [deserializeFrom] retains [BinarySerializer]'s allocating compatibility path: it copies only the bounded remaining
+ *   bytes without changing caller-owned buffer state, then applies the same strict or trusted-fallback decode contract
+ *   as [deserialize].
  *
  * ## Security notes
  * - Only class names matching [allowedClassPrefixes] are loaded from `Any.typeUrl`.
@@ -116,20 +115,6 @@ class ProtobufSerializer(
     @Suppress("UNCHECKED_CAST")
     override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
         return decodeWithTrustedFallback(ByteBuffer.wrap(bytes)) { bytes }
-    }
-
-    override fun <T: Any> deserializeFrom(source: ByteBuffer): T? {
-        if (!source.hasRemaining()) return null
-        val size = source.remaining()
-        return try {
-            decodeWithTrustedFallback(source.duplicate()) {
-                ByteArray(size).also { source.duplicate().get(it) }
-            }
-        } catch (failure: Error) {
-            throw failure
-        } catch (failure: Throwable) {
-            throw BinarySerializationException("Fail to deserialize. bytesSize=${source.remaining()}", failure)
-        }
     }
 
     @Suppress("UNCHECKED_CAST")

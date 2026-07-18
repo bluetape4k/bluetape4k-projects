@@ -189,6 +189,10 @@ val source = target.duplicate().apply {
 val decoded = serializer.deserializeFrom<MyMessage>(source)
 ```
 
+`serializeTo` keeps the caller-owned encode optimization. `deserializeFrom` deliberately uses the inherited
+`BinarySerializer` compatibility path: it copies only the bounded remaining bytes before decoding and preserves the
+source position, limit, mark, and byte order for heap, direct, sliced, and read-only buffers.
+
 The target remains caller-owned. A preflight `BufferOverflowException` does not change it, but a failure after writing
 has started restores only `position`; bytes may already have been overwritten. Clear and reinitialize every
 caller-owned prefix byte, or discard the buffer before reuse (`HEADER_SIZE` is the caller's prefix boundary):

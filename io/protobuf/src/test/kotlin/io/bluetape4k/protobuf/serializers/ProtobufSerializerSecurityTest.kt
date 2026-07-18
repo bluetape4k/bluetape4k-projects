@@ -103,11 +103,15 @@ class ProtobufSerializerSecurityTest {
     }
 
     @Test
-    fun `fallback error is rethrown directly from ByteBuffer decoding`() {
+    fun `fallback error keeps the inherited ByteBuffer compatibility wrapper`() {
         val fatal = AssertionError("fatal fallback")
         val serializer = ProtobufSerializer(FallbackSpy(failure = fatal))
 
-        assertFailsWith<AssertionError> { serializer.deserializeFrom<kotlin.Any>(ByteBuffer.wrap(byteArrayOf(1))) } shouldBeEqualTo fatal
+        val failure = assertFailsWith<BinarySerializationException> {
+            serializer.deserializeFrom<kotlin.Any>(ByteBuffer.wrap(byteArrayOf(1)))
+        }
+        failure.message shouldBeEqualTo "Fail to deserialize. bytesSize=1"
+        (failure.cause === fatal) shouldBeEqualTo true
     }
 
     private fun Throwable.causeAt(depth: Int): Throwable =
@@ -236,16 +240,21 @@ class ProtobufSerializerSecurityTest {
     }
 
     @Test
-    fun `class loading errors never fallback and preserve entrypoint asymmetry`() {
+    fun `class loading errors never fallback and keep compatibility wrapper parity`() {
         listOf<LinkageError>(NoClassDefFoundError("forced"), ExceptionInInitializerError("forced")).forEach { sentinel ->
             val fallback = FallbackSpy(); val serializer = ProtobufSerializer(fallback)
             val bytes = serializer.serialize(testMessage { id = 1L })
             val loader = ForcedFailureClassLoader(TestMessage::class.java.classLoader, TestMessage::class.java.name) { sentinel }
             withContextLoader(loader) {
-                val array = assertFailsWith<BinarySerializationException> { serializer.deserialize<TestMessage>(bytes) }
-                array.message shouldBeEqualTo "Fail to deserialize. bytesSize=${bytes.size}"
-                (array.cause === sentinel) shouldBeEqualTo true
-                assertFailsWith<LinkageError> { serializer.deserializeFrom<TestMessage>(ByteBuffer.wrap(bytes)) } shouldBeEqualTo sentinel
+                listOf(
+                    assertFailsWith<BinarySerializationException> { serializer.deserialize<TestMessage>(bytes) },
+                    assertFailsWith<BinarySerializationException> {
+                        serializer.deserializeFrom<TestMessage>(ByteBuffer.wrap(bytes))
+                    },
+                ).forEach { failure ->
+                    failure.message shouldBeEqualTo "Fail to deserialize. bytesSize=${bytes.size}"
+                    (failure.cause === sentinel) shouldBeEqualTo true
+                }
             }
             fallback.deserializeCalls shouldBeEqualTo 0
         }

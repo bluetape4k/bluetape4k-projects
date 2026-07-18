@@ -24,9 +24,8 @@ class ProtobufSerializerByteBufferTest {
     }
 
     @Test
-    fun `declares ByteBuffer SPI overrides`() {
+    fun `declares only the ByteBuffer encode optimization`() {
         ProtobufSerializer::class.java.getDeclaredMethod("serializeTo", Any::class.java, ByteBuffer::class.java)
-        ProtobufSerializer::class.java.getDeclaredMethod("deserializeFrom", ByteBuffer::class.java)
     }
 
     @Test

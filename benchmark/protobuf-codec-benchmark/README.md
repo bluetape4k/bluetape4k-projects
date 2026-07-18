@@ -3,9 +3,9 @@
 English | [한국어](./README.ko.md)
 
 This module collects deterministic JMH allocation evidence for issue #757. It compares the existing `ByteArray`
-paths with caller-owned `ByteBuffer` paths in `ProtobufSerializer`, plus copied, contiguous, and composite decode paths
-in `RedissonProtobufCodec`. Throughput is retained as a diagnostic metric; `gc.alloc.rate.norm` (`B/op`) is the claim
-gate.
+paths with caller-owned `ByteBuffer` encode paths and inherited decode compatibility paths in `ProtobufSerializer`,
+plus copied, contiguous, and composite decode paths in `RedissonProtobufCodec`. Throughput is retained as a diagnostic
+metric; `gc.alloc.rate.norm` (`B/op`) is the claim gate.
 
 ## Exact Method Matrix
 
@@ -17,8 +17,8 @@ The runner and validator require exactly these 13 methods. Missing, duplicated, 
 | `serializerEncodeHeapOptimized` | Heap caller-buffer candidate | Yes |
 | `serializerEncodeDirectOptimized` | Direct caller-buffer candidate | Yes |
 | `serializerDecodeByteArray` | Serializer decode baseline | No |
-| `serializerDecodeHeapOptimized` | Heap source-buffer candidate | Yes |
-| `serializerDecodeDirectOptimized` | Direct source-buffer candidate | Yes |
+| `serializerDecodeHeapOptimized` | Heap source-buffer compatibility measurement | No |
+| `serializerDecodeDirectOptimized` | Direct source-buffer compatibility measurement | No |
 | `redissonDecodeCopiedByteArray` | Redisson copied baseline | No |
 | `redissonDecodeContiguousOptimized` | Contiguous `ByteBuf` candidate | Yes |
 | `redissonDecodeCompositeCompatibility` | Composite copied compatibility control | No |
@@ -27,8 +27,9 @@ The runner and validator require exactly these 13 methods. Missing, duplicated, 
 | `trustedFallbackDecodeByteArray` | Trusted fallback decode control | No |
 | `trustedFallbackDecodeBufferCompatibility` | Trusted fallback buffer decode control | No |
 
-Only the five `*Optimized` methods are eligible for a positive allocation claim. Compatibility and fallback cells are
-reported but remain claim-ineligible.
+Only the three retained encode and Redisson `*Optimized` methods are eligible for a positive allocation claim. The two
+serializer decode methods remain in the exact matrix for final compatibility measurement after their shared direct
+decode dispatch was rolled back; they, the other compatibility controls, and fallback cells remain claim-ineligible.
 
 ## Build and Smoke Validation
 
