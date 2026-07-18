@@ -8,6 +8,7 @@ import datetime
 import hashlib
 import importlib.util
 import json
+import math
 import os
 import platform
 import re
@@ -1847,6 +1848,15 @@ def finalize_rollback(preparation_path, command_runner=subprocess.run, repo_root
     print(path); return path.resolve()
 
 
+def report_delta_percent(value):
+    text = str(value).strip()
+    try:
+        numeric = float(text)
+    except (TypeError, ValueError):
+        return "n/a"
+    return text + "%" if math.isfinite(numeric) else "n/a"
+
+
 def render_report_text(manifest):
     lines = [
         "# Protobuf Buffer Allocation Evidence", "",
@@ -1863,7 +1873,7 @@ def render_report_text(manifest):
     for row in manifest.get("results", []):
         accepted = row.get("verdict") == "accepted"
         claim = POSITIVE_PHRASE if accepted else NON_POSITIVE
-        lines.append("| {method} | {run} | {allocation_b_per_op} | {throughput_ops_per_s} | {delta_percent}% | {verdict} | {reason} | {claim} |".format(claim=claim, **row))
+        lines.append("| {method} | {run} | {allocation_b_per_op} | {throughput_ops_per_s} | {delta} | {verdict} | {reason} | {claim} |".format(delta=report_delta_percent(row.get("delta_percent")), claim=claim, **row))
     lines += ["", "## Rollback decisions", ""]
     decisions = manifest.get("rollback", {}).get("decisions", [])
     if decisions:

@@ -1519,6 +1519,28 @@ class EvidenceRunnerTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "removed/ineligible"):
             runner.validate_positive_language(first, manifest, Path("report.md"))
 
+    def test_report_renders_empty_and_non_numeric_deltas_as_not_applicable(self):
+        manifest = {
+            "measurement": {}, "delivery": {}, "commands": [], "rollback": {"decisions": []},
+            "results": [
+                {"method": "baseline", "run": "run-a", "allocation_b_per_op": 100,
+                 "throughput_ops_per_s": 10, "delta_percent": "", "verdict": "baseline", "reason": "baseline"},
+                {"method": "compatibility", "run": "run-a", "allocation_b_per_op": 100,
+                 "throughput_ops_per_s": 10, "delta_percent": "n/a", "verdict": "compatibility", "reason": "compatibility_control"},
+                {"method": "accepted", "run": "run-a", "allocation_b_per_op": 94,
+                 "throughput_ops_per_s": 10, "delta_percent": "-6.0", "verdict": "accepted", "reason": "threshold_met"},
+            ],
+            "final_verdicts": {"baseline": "baseline", "compatibility": "compatibility", "accepted": "accepted"},
+            "final_reasons": {"baseline": "baseline", "compatibility": "compatibility_control", "accepted": "threshold_met"},
+        }
+
+        report = runner.render_report_text(manifest)
+
+        self.assertIn("| baseline | run-a | 100 | 10 | n/a |", report)
+        self.assertIn("| compatibility | run-a | 100 | 10 | n/a |", report)
+        self.assertIn("| accepted | run-a | 94 | 10 | -6.0% |", report)
+        self.assertNotIn("| % |", report)
+
     def test_report_renderer_accepts_fully_validated_working_manifest_before_commit_while_strict_validation_rejects_it(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td); manifest_path = initialize_uncommitted_delivery(root)
