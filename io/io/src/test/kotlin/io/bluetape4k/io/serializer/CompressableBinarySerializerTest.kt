@@ -1,5 +1,6 @@
 package io.bluetape4k.io.serializer
 
+import com.esotericsoftware.kryo.io.KryoBufferOverflowException
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
@@ -60,6 +61,11 @@ class CompressableBinarySerializerTest {
         Arguments.of("error", AssertionError("fatal")),
     )
 
+    private fun nestedOverflowFailures(): Stream<Arguments> = Stream.of(
+        Arguments.of("JDK overflow", BufferOverflowException()),
+        Arguments.of("Kryo overflow", KryoBufferOverflowException("native overflow")),
+    )
+
     private val memorySizeSerializer = JdkBinarySerializer()
 
     @ParameterizedTest(name = "{0}")
@@ -91,6 +97,39 @@ class CompressableBinarySerializerTest {
         }
 
         actual shouldBeSameInstanceAs failure
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("nestedOverflowFailures")
+    fun `compressed buffer output keeps ordinary wrapper around nested overflow`(
+        @Suppress("UNUSED_PARAMETER") name: String,
+        overflow: Throwable,
+    ) {
+        val outer = BinarySerializationException("ordinary wrapper", overflow)
+        val serializer = CompressableBinarySerializer(ThrowingBinarySerializer(outer), Compressors.LZ4)
+
+        val actual = assertFailsWith<BinarySerializationException> {
+            serializer.serializeTo("payload", ByteBuffer.allocate(1024))
+        }
+
+        actual shouldBeSameInstanceAs outer
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("nestedOverflowFailures")
+    fun `compressed buffer input keeps ordinary wrapper around nested overflow`(
+        @Suppress("UNUSED_PARAMETER") name: String,
+        overflow: Throwable,
+    ) {
+        val outer = BinarySerializationException("ordinary wrapper", overflow)
+        val serializer = CompressableBinarySerializer(ThrowingBinarySerializer(outer), Compressors.LZ4)
+        val wire = Compressors.LZ4.compress(byteArrayOf(1))
+
+        val actual = assertFailsWith<BinarySerializationException> {
+            serializer.deserializeFrom<Any>(ByteBuffer.wrap(wire).asReadOnlyBuffer())
+        }
+
+        actual shouldBeSameInstanceAs outer
     }
 
     @Test

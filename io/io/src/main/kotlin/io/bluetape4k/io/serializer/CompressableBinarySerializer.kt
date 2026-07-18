@@ -89,7 +89,7 @@ open class CompressableBinarySerializer(
             operation()
         } catch (failure: Throwable) {
             // Compatibility allocation may cross an array serializer that wraps control-flow failures.
-            throw BufferFailurePolicy.classify(failure, null) ?: failure
+            throw BufferFailurePolicy.findControlFailure(failure) ?: failure
         }
 
     /**
