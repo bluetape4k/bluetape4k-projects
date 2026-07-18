@@ -10,13 +10,15 @@
 java -jar build/benchmarks/benchmark/jars/*-JMH.jar -l
 java -jar build/benchmarks/benchmark/jars/*-JMH.jar '.*SerializerAllocationBenchmark.*' \
   -t 1 -f 2 -wi 3 -i 5 -w 1s -r 1s -prof gc -rf json -rff jmh.json
+java -jar build/benchmarks/benchmark/jars/*-JMH.jar '.*KafkaCodecAllocationBenchmark.*' \
+  -t 1 -f 2 -wi 3 -i 5 -w 1s -r 1s -prof gc -rf json -rff kafka-codec-jmh.json
 ```
 
 주 지표는 `gc.alloc.rate.norm`(B/op)이고 throughput은 진단용입니다. 두 번의 새 run이 모두 같은 방향으로 5% 이상 개선될 때만 긍정적인 할당 근거로 인정합니다.
 
 ## 매트릭스
 
-40개 셀은 JDK(6), Kryo(6), Fory(4), Jackson 2(6), Jackson 3(6), Fastjson2(6), Avro reflect(6)를 포함하며 직렬화와 역직렬화를 분리합니다. 호환 및 fallback 셀은 사용 편의성 비교 전용입니다.
+44개 셀은 JDK(6), Kryo(6), Fory(4), Jackson 2(6), Jackson 3(6), Fastjson2(6), Avro reflect(6), Kryo 기반 Kafka codec(4)을 포함하며 직렬화와 역직렬화를 분리합니다. 호환 및 fallback 셀은 사용 편의성 비교 전용입니다.
 
 | Backend | 출력 | 입력 |
 |---|---|---|
@@ -25,6 +27,7 @@ java -jar build/benchmarks/benchmark/jars/*-JMH.jar '.*SerializerAllocationBench
 | Jackson 2/3 | concrete 최적화 경로 | concrete 최적화 경로 |
 | Fastjson2 | fallback | array-backed 최적화, direct/read-only fallback |
 | Avro reflect | concrete 최적화 경로 | concrete 최적화 경로 |
+| Kafka Kryo codec | 표준 ByteArray 대 호출자 소유 optimized target | 표준 ByteArray 대 호출자 소유 optimized source |
 
 ## Buffer 계약
 
@@ -32,4 +35,5 @@ java -jar build/benchmarks/benchmark/jars/*-JMH.jar '.*SerializerAllocationBench
 
 Kotlin과 Java는 같은 public `serializeTo`/`deserializeFrom` 메서드를 사용합니다. 벤치마크 fixture는 Kotlin 호출을, 각 public 모듈 README는 두 언어 사용법을 제공합니다.
 
-[2026-07-18 보고서](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)와 커밋된 raw 근거를 참고하십시오. #755, #756, #757, #758은 명시적으로 범위 밖입니다.
+[2026-07-18 보고서](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)와 커밋된 raw 근거를 참고하십시오. #755, #756, #757은 계속 명시적으로 범위 밖입니다.
+#758의 allocation 근거는 [issue #758 보고서](../../docs/benchmarks/2026-07-19-kafka-bytebuffer-codec-allocation.md)에 정리합니다.
