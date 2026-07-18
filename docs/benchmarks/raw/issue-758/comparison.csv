@@ -1,0 +1,3 @@
+method,baseline,eligible,run_1_id,run_1_baseline_b_op,run_1_candidate_b_op,run_1_delta_pct,run_2_id,run_2_baseline_b_op,run_2_candidate_b_op,run_2_delta_pct,verdict
+kafkaDeserializeOptimized,kafkaDeserializeByteArray,true,run-20260718T204256Z,3316.0038829966643,3168.004115046093,-4.463196,run-20260718T204443Z,3328.0038476713153,3168.004103248346,-4.807679,inconclusive
+kafkaSerializeOptimized,kafkaSerializeByteArray,true,run-20260718T204256Z,1288.0021052118198,116.00226561432541,-90.993628,run-20260718T204443Z,1288.0021419231969,104.00230389806492,-91.9253,accepted

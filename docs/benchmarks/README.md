@@ -8,6 +8,7 @@ publishes chart artifacts under `docs/images/readme-charts/`.
 
 | Report | Scope | Raw artifacts | Chart artifact |
 |---|---|---|---|
+| [Kafka ByteBuffer Codec Allocation Benchmark](./2026-07-19-kafka-bytebuffer-codec-allocation.md) | `:bluetape4k-kafka4`, issue #758 | [`raw/issue-758/`](./raw/issue-758/) | Not produced |
 | [Protobuf Caller-Owned Buffer Benchmark](./2026-07-18-protobuf-buffer-allocation.md) | `:bluetape4k-protobuf`, `:protobuf-codec-benchmark`, issue #757 | [`raw/issue-757/`](./raw/issue-757/) | Not produced |
 | [Same-Condition IO Compressor Benchmark](./2026-06-11-io-same-condition-compressor-benchmark.md) | `:bluetape4k-io`, issue #746 | [`raw/issue-746/`](./raw/issue-746/) | Not produced |
 | [ID Generators Self-Improve Benchmark](./2026-06-11-idgenerators-self-improve-benchmark.md) | `:bluetape4k-idgenerators`, issues #738/#739 | [`raw/issue-738/`](./raw/issue-738/) | Not produced |
