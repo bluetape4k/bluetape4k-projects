@@ -2513,6 +2513,8 @@ fi
 Create `.omx/tmp/issue-757/check_scope.py` with `apply_patch`. The ignored scratch checker must compare `git diff --name-only origin/develop...HEAD` against this exact allowlist plus the two dynamic prefixes `docs/benchmarks/raw/issue-757/` and `docs/review/issue-757-protobuf-buffer-core-review.md`:
 
 ```text
+.gitattributes
+.gitignore
 CHANGELOG.md
 benchmark/protobuf-codec-benchmark/README.ko.md
 benchmark/protobuf-codec-benchmark/README.md
@@ -2523,6 +2525,7 @@ benchmark/protobuf-codec-benchmark/scripts/test_validate_jmh.py
 benchmark/protobuf-codec-benchmark/scripts/validate-jmh.py
 benchmark/protobuf-codec-benchmark/src/benchmark/kotlin/io/bluetape4k/protobuf/benchmark/ProtobufCodecBenchmark.kt
 benchmark/protobuf-codec-benchmark/src/benchmark/proto/protobuf/benchmark-message.proto
+benchmark/protobuf-codec-benchmark/src/benchmark/resources/logback.xml
 benchmark/protobuf-codec-benchmark/src/main/kotlin/io/bluetape4k/protobuf/benchmark/ProtobufCodecBenchmarkMetadata.kt
 benchmark/protobuf-codec-benchmark/src/main/kotlin/io/bluetape4k/protobuf/benchmark/ProtobufCodecBenchmarkSupport.kt
 benchmark/protobuf-codec-benchmark/src/main/proto/protobuf/benchmark-message.proto

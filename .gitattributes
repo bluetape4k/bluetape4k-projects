@@ -8,3 +8,6 @@
 # Binary files should be left untouched
 *.jar           binary
 *.mmdb filter=lfs diff=lfs merge=lfs -text
+
+# Preserve manifest-bound benchmark evidence bytes and generated whitespace.
+docs/benchmarks/raw/issue-757/** -text -whitespace

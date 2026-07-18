@@ -102,6 +102,7 @@ out/
 
 # Log file
 *.log
+!docs/benchmarks/raw/issue-757/**/run.log
 
 # SonarRunner for SonarQube
 .sonar
