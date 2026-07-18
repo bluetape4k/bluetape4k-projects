@@ -58,6 +58,18 @@ jobs:
       - name: Verify Maven-only release policy
         run: python3 -m unittest scripts/test_release_workflow_policy.py -v
 
+  codeql-policy:
+    name: CodeQL Workflow Policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify CodeQL catalog and build policy
+        run: python3 -m unittest scripts/test_codeql_workflow_policy.py -v
+
   # ── 0. 시크릿 스캔 ────────────────────────────────────────────────────────
   gitleaks:
     name: Secret Scan (gitleaks)
@@ -874,7 +886,7 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [release-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data, coverage-report]
+    needs: [release-policy, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data, coverage-report]
     if: always()
     steps:
       - name: Check all jobs
