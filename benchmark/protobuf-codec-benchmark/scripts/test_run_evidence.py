@@ -1188,7 +1188,7 @@ class EvidenceRunnerTest(unittest.TestCase):
         removed = {
             "serializer_encode": "class ProtobufSerializer : BinarySerializer { }",
             "serializer_decode": "class ProtobufSerializer : BinarySerializer { }",
-            "redisson_contiguous": "private fun decodeProtobuf(buf: ByteBuf) = AnyMessage.parseFrom(buf.getBytes(copy = true))",
+            "redisson_contiguous": "private fun decodeProtobuf(buf: ByteBuf): Any { return AnyMessage.parseFrom(buf.getBytes(copy = true)) }",
         }
         paths_seen = []
         def git_show(argv, **_kwargs):
@@ -1208,6 +1208,51 @@ class EvidenceRunnerTest(unittest.TestCase):
             git_show.dispatch = dispatch; removed[dispatch] = retained[dispatch]
             with self.assertRaisesRegex(ValueError, "removal predicate"):
                 runner.verify_dispatch_source_removals(Path("/repo"), "post", [dispatch], git_show)
+
+        adversarial = {
+            "serializer_encode": '''class ProtobufSerializer { override fun serializeTo(graph: Any?, target: ByteBuffer): Int {
+                // packMessageTo(graph, target)
+                val diagnostic = "packMessageTo(graph, target)"
+                val bytes = serialize(graph); target.put(bytes); return bytes.size
+            }}''',
+            "serializer_decode": '''class ProtobufSerializer {
+                // override fun deserializeFrom(source: ByteBuffer) = decodeWithTrustedFallback(source)
+                val diagnostic = "deserializeFrom(source: ByteBuffer)"
+            }''',
+            "redisson_contiguous": '''class Codec { private fun decodeProtobuf(buf: ByteBuf): Any {
+                // buf.nioBufferCount(); AnyMessage.parseFrom(buf.nioBuffer())
+                val diagnostic = "getBytes(copy = true)"
+                return AnyMessage.parseFrom(buf.getBytes( copy = true ))
+            }}''',
+        }
+        removed.update(adversarial)
+        for dispatch in runner.DISPATCH_ORDER:
+            git_show.dispatch = dispatch
+            runner.verify_dispatch_source_removals(Path("/repo"), "post", [dispatch], git_show)
+        removed["serializer_encode"] = "override fun serializeTo(graph: Any?, target: ByteBuffer): Int { val writer = ::packMessageTo; return writer(graph, target) }"
+        removed["redisson_contiguous"] = "private fun decodeProtobuf(buf: ByteBuf): Any { val count = buf.nioBufferCount (); val copied = \"getBytes(copy=true)\"; return any }"
+        for dispatch in ("serializer_encode", "redisson_contiguous"):
+            git_show.dispatch = dispatch
+            with self.assertRaisesRegex(ValueError, "removal predicate"):
+                runner.verify_dispatch_source_removals(Path("/repo"), "post", [dispatch], git_show)
+
+    def test_prepared_retry_rejects_refreshed_environment_lineage(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); state_path, _, _ = build_rollback_state(root, (("redissonDecodeContiguousOptimized", "regressed"),))
+            def git(argv, **_kwargs):
+                if argv[1] == "status": return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+                if argv[-1] == "HEAD": return subprocess.CompletedProcess(argv, 0, stdout=b"old\n", stderr=b"")
+                if argv[-1] == "HEAD^{tree}": return subprocess.CompletedProcess(argv, 0, stdout=b"old-tree\n", stderr=b"")
+                return subprocess.CompletedProcess(argv, 1, stdout=b"", stderr=b"unexpected")
+            runner.record_rollback(state_path, ["redisson_contiguous"], root / "rollback", command_runner=git, repo_root=root)
+            state = json.loads(state_path.read_text())
+            for run in state["canonical_runs"]:
+                environment = Path(run["absolute_path"]) / "environment.json"
+                runner.atomic_write_json(environment, {"git_commit": "new", "tree_hash": "new-tree"})
+                run["files"]["environment.json"] = runner.sha256_file(environment)
+            runner.atomic_write_json(state_path, state)
+            with self.assertRaisesRegex(ValueError, "stale preparation"):
+                runner.record_rollback(state_path, ["redisson_contiguous"], root / "rollback", command_runner=git, repo_root=root)
 
     def test_expected_promotion_includes_every_authenticated_preparation(self):
         with tempfile.TemporaryDirectory() as td:
