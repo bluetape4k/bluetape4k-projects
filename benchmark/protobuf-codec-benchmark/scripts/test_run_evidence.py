@@ -172,8 +172,13 @@ class EvidenceRunnerTest(unittest.TestCase):
             state = json.loads(state_path.read_text())
             self.assertEqual("prepared", state["rollback_status"])
             self.assertFalse(state["promotable"])
+            self.assertEqual(preparation_path, runner.record_rollback(
+                state_path, ["serializer_decode"], root / "rollback", command_runner=git_before, repo_root=root,
+            ))
 
             def git_after(argv, **_kwargs):
+                if argv[1] == "show":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"class ProtobufSerializer : BinarySerializer", stderr=b"")
                 if argv[1:3] == ["status", "--porcelain=v1"]:
                     return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
                 if argv[-1] == "HEAD":
@@ -1178,6 +1183,47 @@ class EvidenceRunnerTest(unittest.TestCase):
                 runner.atomic_write_json(path, malicious)
                 with self.assertRaisesRegex(ValueError, "unsafe preparation_path"):
                     runner.authenticate_rollback_bundle(path)
+
+    def test_dispatch_removal_predicates_read_committed_head_and_reject_retained_symbols(self):
+        removed = {
+            "serializer_encode": "class ProtobufSerializer : BinarySerializer { }",
+            "serializer_decode": "class ProtobufSerializer : BinarySerializer { }",
+            "redisson_contiguous": "private fun decodeProtobuf(buf: ByteBuf) = AnyMessage.parseFrom(buf.getBytes(copy = true))",
+        }
+        paths_seen = []
+        def git_show(argv, **_kwargs):
+            dispatch = git_show.dispatch
+            paths_seen.append(argv[-1])
+            return subprocess.CompletedProcess(argv, 0, stdout=removed[dispatch].encode(), stderr=b"")
+        for dispatch in runner.DISPATCH_ORDER:
+            git_show.dispatch = dispatch
+            runner.verify_dispatch_source_removals(Path("/repo"), "post", [dispatch], git_show)
+        self.assertTrue(all(value.startswith("post:") for value in paths_seen))
+
+        retained = dict(removed)
+        retained["serializer_encode"] = "override fun serializeTo(graph: Any?, target: ByteBuffer): Int = packMessageTo(graph, target)"
+        retained["serializer_decode"] = "override fun <T: Any> deserializeFrom(source: ByteBuffer): T? = decodeWithTrustedFallback(source)"
+        retained["redisson_contiguous"] = "if (buf.nioBufferCount() == 1) AnyMessage.parseFrom(buf.nioBuffer()) else AnyMessage.parseFrom(buf.getBytes(copy = true))"
+        for dispatch in runner.DISPATCH_ORDER:
+            git_show.dispatch = dispatch; removed[dispatch] = retained[dispatch]
+            with self.assertRaisesRegex(ValueError, "removal predicate"):
+                runner.verify_dispatch_source_removals(Path("/repo"), "post", [dispatch], git_show)
+
+    def test_expected_promotion_includes_every_authenticated_preparation(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); archive = root / "archive"; archive.mkdir()
+            comparison = archive / "comparison.csv"
+            comparison.write_text("method,verdict\nredissonDecodeContiguousOptimized,regressed\n")
+            decision = runner.make_rollback_decision("redisson_contiguous", ["redissonDecodeContiguousOptimized"], "old", "tree", archive, [comparison], 1, "now", "post", None, "post-tree")
+            bundle_path = runner.write_rollback_bundle(root, [decision])
+            bundle = runner.authenticate_rollback_bundle(bundle_path)
+            state = {"canonical_runs": [], "rollback_bundle_path": str(bundle_path), "rollback_bundle": bundle}
+            expected = runner.expected_promoted_files(state)
+            self.assertIn(bundle["preparation_path"], expected)
+            preparation = root / bundle["preparation_path"]
+            preparation.write_text("tampered")
+            with self.assertRaises(ValueError):
+                runner.expected_promoted_files(state)
 
     def test_normalized_profiles_match_validator_facing_contract(self):
         canonical = runner.normalized_profile("canonical")
