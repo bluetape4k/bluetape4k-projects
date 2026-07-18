@@ -3,9 +3,11 @@ import contextlib
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 import zipfile
 from pathlib import Path
@@ -82,7 +84,7 @@ def build_complete_delivery(root):
                        "jdk_version": "21.0.1", "vm_name": "VM", "vm_version": "21+1", "jmh_argv": argv}
         environment.update(runner.normalized_profile("canonical"))
         runner.atomic_write_json(run_root / "environment.json", environment)
-        runner.atomic_write_json(run_root / "argv.json", {"schema_version": 1, "argv": argv, "started_at": "s", "ended_at": "e", "exit_code": 0})
+        runner.atomic_write_json(run_root / "argv.json", {"schema_version": 1, "argv": argv, "started_at": "s", "ended_at": "e", "exit_code": 0, "log_limit_exceeded": False})
         (run_root / "run.log").write_text("exit_code=0\n")
         summary = run_root / "summary.csv"; validator.write_summary(summary, run_id, parsed); summaries.append(validator.read_summary(summary))
         runner.atomic_write_json(run_root / "validation.json", {"schema_version": 1, "status": "passed", "mode": "run", "run_id": run_id,
@@ -252,6 +254,28 @@ class EvidenceRunnerTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, r"metadata.*v1.*v2.*rebuild"):
             runner.capture_metadata(jar, expected=first, command_runner=command)
 
+    def test_metadata_rejects_debug_and_known_fallback_noise_but_allows_benign_stderr(self):
+        jar = Path("/benchmark-JMH.jar")
+        payload = b'{"matrix_version":"v1"}\n'
+
+        for stderr in (
+            b"12:00:00.000 DEBUG logger - noisy diagnostic\n",
+            b"Protobuf deserialization failed; delegating to the trusted fallback serializer.\n",
+        ):
+            with self.subTest(stderr=stderr), self.assertRaisesRegex(ValueError, "metadata stderr"):
+                runner.capture_metadata(
+                    jar,
+                    command_runner=lambda *_args, **_kwargs: subprocess.CompletedProcess([], 0, stdout=payload, stderr=stderr),
+                )
+
+        captured = runner.capture_metadata(
+            jar,
+            command_runner=lambda *_args, **_kwargs: subprocess.CompletedProcess(
+                [], 0, stdout=payload, stderr=b"OpenJDK warning: CDS is disabled\n",
+            ),
+        )
+        self.assertIn("CDS is disabled", captured["stderr"])
+
     def test_failed_process_preserves_argv_log_timestamps_and_exit(self):
         with tempfile.TemporaryDirectory() as td:
             run_dir = Path(td)
@@ -263,6 +287,603 @@ class EvidenceRunnerTest(unittest.TestCase):
             self.assertEqual(7, argv["exit_code"])
             self.assertIn("started_at", argv); self.assertIn("ended_at", argv)
             self.assertIn("out\nerr\nexit_code=7", (run_dir / "run.log").read_text())
+
+    def test_execute_logged_caps_output_and_terminates_the_owned_process(self):
+        with tempfile.TemporaryDirectory() as td:
+            run_dir = Path(td)
+            limit = getattr(runner, "MAX_RUN_LOG_BYTES", 8 * 1024 * 1024)
+            script = "import os,time; os.write(1, b'x' * {}); time.sleep(2)".format(limit + 65536)
+            started = time.monotonic()
+            with self.assertRaisesRegex(ValueError, "log size limit"):
+                runner.execute_logged([sys.executable, "-c", script], run_dir)
+            self.assertLess(time.monotonic() - started, 1.5)
+            self.assertLessEqual((run_dir / "run.log").stat().st_size, limit)
+            argv = json.loads((run_dir / "argv.json").read_text())
+            self.assertTrue(argv["log_limit_exceeded"])
+            self.assertEqual(getattr(runner, "RUNNER_FAILURE_EXIT_CODE", 125), argv["exit_code"])
+            log_tail = (run_dir / "run.log").read_bytes()[-256:]
+            self.assertIn(runner.RUN_LOG_LIMIT_MARKER.strip(), log_tail)
+            self.assertIn(b"exit_code=", log_tail)
+            self.assertFalse(any(path.name.startswith(".run.log.") for path in run_dir.iterdir()))
+
+    def test_execute_logged_publishes_bounded_evidence_before_reraising_anchor_protocol_failure(self):
+        original = runner._execute_with_anchor
+        protocol_error_type = getattr(runner, "AnchorProtocolError", ValueError)
+        for detail in (
+            "anchor status pipe closed before target exit status",
+            "anchor target exit status is malformed",
+            "anchor target exit status exceeded 32 bytes",
+        ):
+            with self.subTest(detail=detail), tempfile.TemporaryDirectory() as td:
+                run_dir = Path(td)
+                cause = RuntimeError("anchor cleanup completed")
+                try:
+                    raise protocol_error_type(detail) from cause
+                except protocol_error_type as failure:
+                    protocol_failure = failure
+
+                def fail_after_cleanup(*_args, **_kwargs):
+                    raise protocol_failure.with_traceback(protocol_failure.__traceback__)
+
+                runner._execute_with_anchor = fail_after_cleanup
+                try:
+                    with self.assertRaises(protocol_error_type) as raised:
+                        runner.execute_logged([sys.executable, "-c", "pass"], run_dir)
+                finally:
+                    runner._execute_with_anchor = original
+
+                self.assertIs(protocol_failure, raised.exception)
+                self.assertIs(cause, raised.exception.__cause__)
+                argv = json.loads((run_dir / "argv.json").read_text())
+                expected_exit = getattr(runner, "RUNNER_PROTOCOL_FAILURE_EXIT_CODE", 126)
+                self.assertEqual(expected_exit, argv["exit_code"])
+                self.assertFalse(argv["log_limit_exceeded"])
+                log = (run_dir / "run.log").read_bytes()
+                self.assertLessEqual(len(log), runner.MAX_RUN_LOG_BYTES)
+                self.assertIn(detail.encode("utf-8"), log)
+                self.assertTrue(log.endswith("exit_code={}\n".format(expected_exit).encode("ascii")))
+                self.assertFalse(any(path.name.startswith(".run.log.") for path in run_dir.iterdir()))
+
+    def test_execute_logged_publishes_bounded_evidence_before_reraising_owned_oserror(self):
+        original = runner.os.pipe
+        cause = RuntimeError("anchor pipe setup failed")
+        try:
+            raise OSError("anchor selector read failed") from cause
+        except OSError as failure:
+            owned_failure = failure
+
+        def fail_owned_pipe():
+            raise owned_failure.with_traceback(owned_failure.__traceback__)
+
+        runner.os.pipe = fail_owned_pipe
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                run_dir = Path(td)
+                with self.assertRaises(runner.AnchorExecutionError) as raised:
+                    runner.execute_logged([sys.executable, "-c", "pass"], run_dir)
+
+                self.assertIs(owned_failure, raised.exception.__cause__)
+                self.assertIs(cause, raised.exception.__cause__.__cause__)
+                argv = json.loads((run_dir / "argv.json").read_text())
+                self.assertEqual(127, argv["exit_code"])
+                self.assertFalse(argv["log_limit_exceeded"])
+                log = (run_dir / "run.log").read_bytes()
+                self.assertLessEqual(len(log), runner.MAX_RUN_LOG_BYTES)
+                self.assertIn(b"anchor selector read failed", log)
+                self.assertTrue(log.endswith(b"exit_code=127\n"))
+                self.assertFalse(any(path.name.startswith(".run.log.") for path in run_dir.iterdir()))
+        finally:
+            runner.os.pipe = original
+
+    def test_execute_logged_never_classifies_log_write_permission_errors_as_owned(self):
+        for persistent in (False, True):
+            with self.subTest(persistent=persistent), tempfile.TemporaryDirectory() as td:
+                run_dir = Path(td)
+                original_fdopen = runner.os.fdopen
+                fdopen_calls = []
+                cause = RuntimeError("artifact filesystem denied the write")
+                try:
+                    raise PermissionError("run.log write denied") from cause
+                except PermissionError as failure:
+                    denied = failure
+
+                class FailingLogStream:
+                    def __init__(self, raw):
+                        self.raw = raw
+                        self.failed = False
+
+                    def __enter__(self):
+                        return self
+
+                    def __exit__(self, *args):
+                        return self.raw.__exit__(*args)
+
+                    def __getattr__(self, name):
+                        return getattr(self.raw, name)
+
+                    def write(self, payload):
+                        if persistent or not self.failed:
+                            self.failed = True
+                            raise denied.with_traceback(denied.__traceback__)
+                        return self.raw.write(payload)
+
+                def fail_only_run_log(fd, mode):
+                    raw = original_fdopen(fd, mode)
+                    fdopen_calls.append(fd)
+                    return FailingLogStream(raw) if len(fdopen_calls) == 1 else raw
+
+                runner.os.fdopen = fail_only_run_log
+                try:
+                    with self.assertRaises(PermissionError) as raised:
+                        runner.execute_logged([sys.executable, "-c", "print('payload')"], run_dir)
+                finally:
+                    runner.os.fdopen = original_fdopen
+
+                self.assertIs(denied, raised.exception)
+                self.assertIs(cause, raised.exception.__cause__)
+                self.assertFalse((run_dir / "run.log").exists())
+                self.assertFalse((run_dir / "argv.json").exists())
+                self.assertFalse(any(path.name.startswith(".run.log.") for path in run_dir.iterdir()))
+
+    def test_execute_logged_does_not_capture_unowned_value_errors(self):
+        original = runner._execute_with_anchor
+
+        def fail_unrelated(*_args, **_kwargs):
+            raise ValueError("unrelated caller defect")
+
+        runner._execute_with_anchor = fail_unrelated
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                run_dir = Path(td)
+                with self.assertRaisesRegex(ValueError, "unrelated caller defect"):
+                    runner.execute_logged([sys.executable, "-c", "pass"], run_dir)
+                self.assertFalse((run_dir / "run.log").exists())
+                self.assertFalse((run_dir / "argv.json").exists())
+        finally:
+            runner._execute_with_anchor = original
+
+    def test_execute_logged_does_not_mask_artifact_permission_errors(self):
+        original = runner._publish_temporary_no_clobber
+        denied = PermissionError("diagnostic publication denied")
+
+        def reject_publish(*_args, **_kwargs):
+            raise denied
+
+        runner._publish_temporary_no_clobber = reject_publish
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                run_dir = Path(td)
+                completed = lambda *_args, **_kwargs: subprocess.CompletedProcess([], 0, stdout=b"", stderr=b"")
+                with self.assertRaises(PermissionError) as raised:
+                    runner.execute_logged(["java"], run_dir, command_runner=completed)
+                self.assertIs(denied, raised.exception)
+                self.assertFalse((run_dir / "argv.json").exists())
+                self.assertFalse(any(path.name.startswith(".run.log.") for path in run_dir.iterdir()))
+        finally:
+            runner._publish_temporary_no_clobber = original
+
+    def test_anchor_status_parser_classifies_owned_protocol_failures(self):
+        cases = (
+            (b"", "closed before target exit status"),
+            (b"invalid\n", "status is malformed"),
+            (b"1" * 33, "exceeded 32 bytes"),
+        )
+        for payload, message in cases:
+            with self.subTest(message=message):
+                status_read, status_write = os.pipe()
+                if payload:
+                    os.write(status_write, payload)
+                os.close(status_write)
+
+                class Key:
+                    fd = status_read
+                    fileobj = status_read
+                    data = "status"
+
+                class Selector:
+                    def select(self, _timeout):
+                        return [(Key(), None)]
+
+                    def unregister(self, _fileobj):
+                        pass
+
+                state = {
+                    "written": 0,
+                    "limit_exceeded": False,
+                    "status": bytearray(),
+                    "target_exit_code": None,
+                    "status_fd_open": True,
+                }
+                try:
+                    with self.assertRaisesRegex(runner.AnchorProtocolError, message):
+                        runner._consume_anchor_events(Selector(), io.BytesIO(), 1024, state)
+                finally:
+                    if state["status_fd_open"]:
+                        os.close(status_read)
+
+    def test_termination_signals_group_before_reaping_anchor(self):
+        class Anchor:
+            pid = 4321
+            returncode = 0
+
+            def poll(self):
+                events.append("poll")
+                return None
+
+            def wait(self, timeout=None):
+                events.append("wait")
+                return self.returncode
+
+        events = []
+        original = runner.os.killpg
+
+        def record_killpg(process_group_id, requested_signal):
+            events.append((process_group_id, requested_signal))
+            if requested_signal == 0:
+                return None
+
+        runner.os.killpg = record_killpg
+        try:
+            runner._terminate_owned_process(Anchor())
+        finally:
+            runner.os.killpg = original
+        self.assertEqual(
+            [(4321, runner.signal.SIGTERM), (4321, runner.signal.SIGKILL), "wait"],
+            events,
+        )
+
+    def test_normal_anchor_drain_failure_never_resignals_reaped_group(self):
+        read_fd, write_fd = os.pipe()
+        os.close(write_fd)
+
+        class Anchor:
+            pid = 4321
+            stdout = os.fdopen(read_fd, "rb", buffering=0)
+
+            def wait(self, timeout=None):
+                events.append("wait")
+                return 0
+
+        events = []
+        original_popen = runner.subprocess.Popen
+        original_killpg = runner.os.killpg
+        original_consume = runner._consume_anchor_events
+        original_drain = runner._drain_anchor_events
+
+        def complete_target(_selector, _stream, _limit, state, timeout=None, allow_missing_status=False):
+            state["target_exit_code"] = 0
+            return True
+
+        def fail_drain(*_args, **_kwargs):
+            raise RuntimeError("post-reap drain failed")
+
+        runner.subprocess.Popen = lambda *_args, **_kwargs: Anchor()
+        runner.os.killpg = lambda pgid, requested_signal: events.append((pgid, requested_signal))
+        runner._consume_anchor_events = complete_target
+        runner._drain_anchor_events = fail_drain
+        try:
+            with self.assertRaisesRegex(RuntimeError, "post-reap drain failed"):
+                runner._execute_with_anchor(["target"], io.BytesIO(), 1024, ())
+        finally:
+            runner.subprocess.Popen = original_popen
+            runner.os.killpg = original_killpg
+            runner._consume_anchor_events = original_consume
+            runner._drain_anchor_events = original_drain
+
+        self.assertEqual([(4321, runner.signal.SIGKILL), "wait"], events)
+
+    def test_persistent_anchor_read_failure_uses_one_cleanup_and_preserves_first_cause(self):
+        read_fd, write_fd = os.pipe()
+        os.close(write_fd)
+
+        class Anchor:
+            pid = 4321
+            stdout = os.fdopen(read_fd, "rb", buffering=0)
+
+            def wait(self, timeout=None):
+                events.append("wait")
+                return 0
+
+        first_cause = OSError("first selector read failure")
+        repeated_cause = OSError("repeated selector read failure")
+        causes = iter((first_cause, repeated_cause))
+        events = []
+        original_popen = runner.subprocess.Popen
+        original_killpg = runner.os.killpg
+        original_consume = runner._consume_anchor_events
+
+        def persistent_read_failure(*_args, **_kwargs):
+            cause = next(causes)
+            raise runner.AnchorExecutionError(str(cause)) from cause
+
+        runner.subprocess.Popen = lambda *_args, **_kwargs: Anchor()
+        runner.os.killpg = lambda pgid, requested_signal: events.append((pgid, requested_signal))
+        runner._consume_anchor_events = persistent_read_failure
+        try:
+            with self.assertRaises(runner.AnchorExecutionError) as raised:
+                runner._execute_with_anchor(["target"], io.BytesIO(), 1024, ())
+        finally:
+            runner.subprocess.Popen = original_popen
+            runner.os.killpg = original_killpg
+            runner._consume_anchor_events = original_consume
+
+        self.assertIs(first_cause, raised.exception.__cause__)
+        self.assertEqual(
+            [(4321, runner.signal.SIGTERM), (4321, runner.signal.SIGKILL), "wait"],
+            events,
+        )
+
+    def test_primary_anchor_failure_survives_cleanup_failure_without_retry(self):
+        read_fd, write_fd = os.pipe()
+        os.close(write_fd)
+
+        class Anchor:
+            pid = 4321
+            stdout = os.fdopen(read_fd, "rb", buffering=0)
+
+        first_cause = OSError("first selector read failure")
+        cleanup_calls = []
+        original_popen = runner.subprocess.Popen
+        original_consume = runner._consume_anchor_events
+        original_terminate = runner._terminate_owned_process
+
+        def primary_failure(*_args, **_kwargs):
+            raise runner.AnchorExecutionError(str(first_cause)) from first_cause
+
+        def cleanup_failure(*_args, **_kwargs):
+            cleanup_calls.append("cleanup")
+            raise RuntimeError("cleanup failed")
+
+        runner.subprocess.Popen = lambda *_args, **_kwargs: Anchor()
+        runner._consume_anchor_events = primary_failure
+        runner._terminate_owned_process = cleanup_failure
+        try:
+            with self.assertRaises(runner.AnchorExecutionError) as raised:
+                runner._execute_with_anchor(["target"], io.BytesIO(), 1024, ())
+        finally:
+            runner.subprocess.Popen = original_popen
+            runner._consume_anchor_events = original_consume
+            runner._terminate_owned_process = original_terminate
+
+        self.assertIs(first_cause, raised.exception.__cause__)
+        self.assertEqual(["cleanup"], cleanup_calls)
+
+    def test_protocol_failure_drain_error_still_kills_and_reaps_anchor_once(self):
+        read_fd, write_fd = os.pipe()
+        os.close(write_fd)
+
+        class Anchor:
+            pid = 4321
+            stdout = os.fdopen(read_fd, "rb", buffering=0)
+
+            def wait(self, timeout=None):
+                events.append("wait")
+                return 0
+
+        cause = RuntimeError("malformed status source")
+        try:
+            raise runner.AnchorProtocolError("anchor target exit status is malformed") from cause
+        except runner.AnchorProtocolError as failure:
+            protocol_failure = failure
+
+        events = []
+        original_popen = runner.subprocess.Popen
+        original_killpg = runner.os.killpg
+        original_consume = runner._consume_anchor_events
+        original_drain = runner._drain_anchor_events
+
+        def fail_protocol(*_args, **_kwargs):
+            raise protocol_failure.with_traceback(protocol_failure.__traceback__)
+
+        def fail_drain(*_args, **_kwargs):
+            raise RuntimeError("cleanup drain failed")
+
+        runner.subprocess.Popen = lambda *_args, **_kwargs: Anchor()
+        runner.os.killpg = lambda pgid, requested_signal: events.append((pgid, requested_signal))
+        runner._consume_anchor_events = fail_protocol
+        runner._drain_anchor_events = fail_drain
+        try:
+            with self.assertRaises(runner.AnchorProtocolError) as raised:
+                runner._execute_with_anchor(["target"], io.BytesIO(), 1024, ())
+        finally:
+            runner.subprocess.Popen = original_popen
+            runner.os.killpg = original_killpg
+            runner._consume_anchor_events = original_consume
+            runner._drain_anchor_events = original_drain
+
+        self.assertIs(protocol_failure, raised.exception)
+        self.assertIs(cause, raised.exception.__cause__)
+        self.assertEqual(
+            [(4321, runner.signal.SIGTERM), (4321, runner.signal.SIGKILL), "wait"],
+            events,
+        )
+
+    def test_primary_anchor_failure_survives_selector_close_failure(self):
+        read_fd, write_fd = os.pipe()
+        os.close(write_fd)
+
+        class Anchor:
+            pid = 4321
+            stdout = os.fdopen(read_fd, "rb", buffering=0)
+
+            def wait(self, timeout=None):
+                events.append("wait")
+                return 0
+
+        close_failure = OSError("selector close failed")
+        first_cause = OSError("first selector read failure")
+        events = []
+
+        class Selector:
+            def register(self, *_args):
+                pass
+
+            def close(self):
+                raise close_failure
+
+        original_selector = runner.selectors.DefaultSelector
+        original_popen = runner.subprocess.Popen
+        original_killpg = runner.os.killpg
+        original_consume = runner._consume_anchor_events
+
+        def primary_failure(*_args, **_kwargs):
+            raise runner.AnchorExecutionError(str(first_cause)) from first_cause
+
+        runner.selectors.DefaultSelector = Selector
+        runner.subprocess.Popen = lambda *_args, **_kwargs: Anchor()
+        runner.os.killpg = lambda pgid, requested_signal: events.append((pgid, requested_signal))
+        runner._consume_anchor_events = primary_failure
+        try:
+            with self.assertRaises(runner.AnchorExecutionError) as raised:
+                runner._execute_with_anchor(["target"], io.BytesIO(), 1024, ())
+        finally:
+            runner.selectors.DefaultSelector = original_selector
+            runner.subprocess.Popen = original_popen
+            runner.os.killpg = original_killpg
+            runner._consume_anchor_events = original_consume
+
+        self.assertIs(first_cause, raised.exception.__cause__)
+        self.assertEqual(
+            [(4321, runner.signal.SIGTERM), (4321, runner.signal.SIGKILL), "wait"],
+            events,
+        )
+
+    def test_selector_close_oserror_is_owned_when_no_primary_failure_exists(self):
+        read_fd, write_fd = os.pipe()
+        os.close(write_fd)
+
+        class Anchor:
+            pid = 4321
+            stdout = os.fdopen(read_fd, "rb", buffering=0)
+
+            def wait(self, timeout=None):
+                events.append("wait")
+                return 0
+
+        close_failure = OSError("selector close failed")
+        events = []
+
+        class Selector:
+            def register(self, *_args):
+                pass
+
+            def close(self):
+                raise close_failure
+
+        original_selector = runner.selectors.DefaultSelector
+        original_popen = runner.subprocess.Popen
+        original_killpg = runner.os.killpg
+        original_consume = runner._consume_anchor_events
+        original_drain = runner._drain_anchor_events
+
+        def complete_target(_selector, _stream, _limit, state, timeout=None, allow_missing_status=False):
+            state["target_exit_code"] = 0
+            return True
+
+        runner.selectors.DefaultSelector = Selector
+        runner.subprocess.Popen = lambda *_args, **_kwargs: Anchor()
+        runner.os.killpg = lambda pgid, requested_signal: events.append((pgid, requested_signal))
+        runner._consume_anchor_events = complete_target
+        runner._drain_anchor_events = lambda *_args, **_kwargs: None
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                run_dir = Path(td)
+                with self.assertRaises(runner.AnchorExecutionError) as raised:
+                    runner.execute_logged(["target"], run_dir)
+                self.assertIs(close_failure, raised.exception.__cause__)
+                argv = json.loads((run_dir / "argv.json").read_text())
+                self.assertEqual(127, argv["exit_code"])
+        finally:
+            runner.selectors.DefaultSelector = original_selector
+            runner.subprocess.Popen = original_popen
+            runner.os.killpg = original_killpg
+            runner._consume_anchor_events = original_consume
+            runner._drain_anchor_events = original_drain
+
+        self.assertEqual([(4321, runner.signal.SIGKILL), "wait"], events)
+
+    def test_selector_creation_failure_survives_status_descriptor_close_failures(self):
+        status_read, status_write = os.pipe()
+        original_pipe = runner.os.pipe
+        original_close = runner.os.close
+        original_selector = runner.selectors.DefaultSelector
+        root_cause = RuntimeError("selector backend unavailable")
+        try:
+            raise OSError("selector creation failed") from root_cause
+        except OSError as failure:
+            selector_failure = failure
+        descriptor_failure = OSError("status descriptor close failed")
+
+        def owned_pipe():
+            return status_read, status_write
+
+        def fail_selector_creation():
+            raise selector_failure.with_traceback(selector_failure.__traceback__)
+
+        def fail_status_close(fd):
+            if fd in (status_read, status_write):
+                raise descriptor_failure
+            return original_close(fd)
+
+        runner.os.pipe = owned_pipe
+        runner.os.close = fail_status_close
+        runner.selectors.DefaultSelector = fail_selector_creation
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                run_dir = Path(td)
+                with self.assertRaises(runner.AnchorExecutionError) as raised:
+                    runner.execute_logged(["target"], run_dir)
+                self.assertIs(selector_failure, raised.exception.__cause__)
+                self.assertIs(root_cause, raised.exception.__cause__.__cause__)
+                argv = json.loads((run_dir / "argv.json").read_text())
+                self.assertEqual(127, argv["exit_code"])
+                self.assertFalse(argv["log_limit_exceeded"])
+                self.assertEqual({"argv.json", "run.log"}, {path.name for path in run_dir.iterdir()})
+        finally:
+            runner.os.pipe = original_pipe
+            runner.os.close = original_close
+            runner.selectors.DefaultSelector = original_selector
+            original_close(status_read)
+            original_close(status_write)
+
+    def test_anchor_returns_target_exit_without_waiting_for_stdout_descendant(self):
+        with tempfile.TemporaryDirectory() as td:
+            run_dir = Path(td)
+            child = (
+                "import subprocess,sys; "
+                "p=subprocess.Popen([sys.executable,'-c','import time; time.sleep(2)']); "
+                "print('descendant_pid=%d' % p.pid, flush=True)"
+            )
+            started = time.monotonic()
+            record = runner.execute_logged([sys.executable, "-c", child], run_dir)
+            self.assertLess(time.monotonic() - started, 1.0)
+            self.assertEqual(0, record["exit_code"])
+            match = re.search(rb"descendant_pid=(\d+)", (run_dir / "run.log").read_bytes())
+            self.assertIsNotNone(match)
+            descendant_pid = int(match.group(1))
+            for _ in range(50):
+                try:
+                    os.kill(descendant_pid, 0)
+                except ProcessLookupError:
+                    break
+                time.sleep(0.01)
+            else:
+                self.fail("stdout-inheriting descendant remained alive")
+
+    def test_anchor_preserves_requested_pass_fds(self):
+        with tempfile.TemporaryDirectory() as td:
+            read_fd, write_fd = os.pipe()
+            try:
+                child = "import os; os.write({}, b'passed')".format(write_fd)
+                runner.execute_logged(
+                    [sys.executable, "-c", child], Path(td), pass_fds=(write_fd,),
+                )
+            finally:
+                os.close(write_fd)
+            try:
+                self.assertEqual(b"passed", os.read(read_fd, 16))
+            finally:
+                os.close(read_fd)
 
     def test_power_state_and_canonical_heavy_work_are_fail_closed(self):
         def unavailable(*_args, **_kwargs):
@@ -285,6 +906,55 @@ class EvidenceRunnerTest(unittest.TestCase):
                 runner.validate_committed(manifest_path, repo_root=root, require_git_commit=False)
             with self.assertRaisesRegex(ValueError, "absolute/build token"):
                 runner.validate_manifest({"schema_version": 1, "files": [{"path": "docs/a", "sha256": "0" * 64}], "commands": [["java", "-jar", "/tmp/build/x.jar"]]}, manifest_path)
+
+    def test_committed_validation_rejects_oversized_run_log_before_tail_read(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            manifest_path = build_complete_delivery(root)
+            run_log = manifest_path.parent / "run-a" / "run.log"
+            with run_log.open("wb") as stream:
+                stream.truncate(validator.MAX_RUN_LOG_BYTES + 1)
+            hashed = []
+            original = runner.sha256_file
+
+            def recording_sha256(path):
+                hashed.append(Path(path).resolve())
+                return original(path)
+
+            runner.sha256_file = recording_sha256
+            try:
+                with self.assertRaisesRegex(ValueError, "run.log.*size"):
+                    runner.validate_committed(manifest_path, repo_root=root, require_git_commit=False)
+            finally:
+                runner.sha256_file = original
+            self.assertNotIn(run_log.resolve(), hashed)
+
+    def test_runner_and_validator_share_the_exact_log_size_limit(self):
+        self.assertEqual(runner.MAX_RUN_LOG_BYTES, validator.MAX_RUN_LOG_BYTES)
+
+    def test_delivery_manifest_uses_validated_run_log_digest_without_hash_reopen(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            evidence = root / "docs" / "raw"
+            evidence.mkdir(parents=True)
+            run_log = evidence / "run.log"
+            run_log.write_text("exit_code=0\n")
+            other = evidence / "other.txt"
+            other.write_text("bounded")
+            original = runner.sha256_file
+
+            def reject_run_log(path):
+                if Path(path) == run_log:
+                    raise AssertionError("run.log was reopened for hashing")
+                return original(path)
+
+            runner.sha256_file = reject_run_log
+            try:
+                manifest = runner.create_delivery_manifest(root, evidence, "c", "t")
+            finally:
+                runner.sha256_file = original
+            entry = next(item for item in manifest["files"] if item["path"].endswith("run.log"))
+            self.assertEqual(validator.validate_run_log(run_log)["sha256"], entry["sha256"])
 
     def test_state_binds_exact_complete_run_file_set_and_hashes(self):
         with tempfile.TemporaryDirectory() as td:

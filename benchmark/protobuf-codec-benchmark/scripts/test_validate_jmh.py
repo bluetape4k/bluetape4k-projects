@@ -197,6 +197,8 @@ class ValidateJmhTest(unittest.TestCase):
             })
             environment_path = root / "environment.json"
             environment_path.write_text(json.dumps(env))
+            (root / "run.log").write_text("exit_code=0\n")
+            (root / "argv.json").write_text(json.dumps({"argv": env.get("jmh_argv"), "exit_code": 0, "log_limit_exceeded": False}))
             result = validator.validate_run(jar, input_path, environment_path, root / "summary.csv", root / "validation.json")
             self.assertEqual("passed", result["status"])
             self.assertEqual(env["benchmark_jar_sha256"], result["benchmark_jar_sha256"])
@@ -211,6 +213,67 @@ class ValidateJmhTest(unittest.TestCase):
             environment_path.write_text(json.dumps(bad))
             with self.assertRaisesRegex(ValueError, "clean_status"):
                 validator.validate_run(jar, input_path, environment_path, root / "bad.csv", root / "bad.json")
+
+            environment_path.write_text(json.dumps(env))
+            with (root / "run.log").open("wb") as stream:
+                stream.truncate(validator.MAX_RUN_LOG_BYTES + 1)
+            with self.assertRaisesRegex(ValueError, "run.log.*size"):
+                validator.validate_run(jar, input_path, environment_path, root / "oversized.csv", root / "oversized.json")
+
+    def test_run_log_rejects_limit_marker_anywhere_including_chunk_boundary(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "run.log"
+            marker = b"[runner] output truncated: log size limit exceeded"
+            for prefix in (b"ordinary\n", b"x" * (64 * 1024 - len(marker) // 2)):
+                with self.subTest(prefix_size=len(prefix)):
+                    path.write_bytes(prefix + marker + b"\nexit_code=0\n")
+                    with self.assertRaisesRegex(ValueError, "limit marker"):
+                        validator.validate_run_log(path)
+
+    def test_run_log_requires_an_exact_success_exit_line(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "run.log"
+            path.write_bytes(b"ordinary\nnot_exit_code=0\n")
+            with self.assertRaisesRegex(ValueError, "run.log tail"):
+                validator.validate_run_log(path)
+
+    def test_run_log_detects_same_size_path_inode_swap_during_read(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            path = root / "run.log"
+            payload = b"ordinary\nexit_code=0\n"
+            path.write_bytes(payload)
+            replacement = root / "replacement.log"
+            replacement.write_bytes(payload)
+            original = validator.os.read
+            swapped = []
+
+            def swap_after_read(fd, size):
+                data = original(fd, size)
+                if data and not swapped:
+                    validator.os.replace(replacement, path)
+                    swapped.append(True)
+                return data
+
+            validator.os.read = swap_after_read
+            try:
+                with self.assertRaisesRegex(ValueError, "identity"):
+                    validator.validate_run_log(path)
+            finally:
+                validator.os.read = original
+
+    def test_execution_artifacts_reject_bool_exit_limit_flag_and_log_mismatch(self):
+        environment = {"jmh_argv": ["java", "-jar", "benchmark.jar"]}
+        valid_argv = {"argv": environment["jmh_argv"], "exit_code": 0, "log_limit_exceeded": False}
+        log_result = {"exit_code": 0}
+        cases = (
+            ({**valid_argv, "exit_code": False}, log_result, "exit_code"),
+            ({**valid_argv, "log_limit_exceeded": 0}, log_result, "log_limit_exceeded"),
+            (valid_argv, {"exit_code": 1}, "log exit"),
+        )
+        for argv, observed_log, message in cases:
+            with self.subTest(message=message), self.assertRaisesRegex(ValueError, message):
+                validator.validate_execution_artifacts(argv, environment, observed_log, "run")
 
     def test_runner_argv_and_clean_gate_objects_are_manifest_observations(self):
         parsed = validator.parse_jmh_records(make_records(), "fixture.json")
@@ -454,6 +517,8 @@ def write_valid_run_fixture(root):
         "payload_sha256": "payload", "payload_size": 1,
     })
     environment_path = root / "environment.json"; environment_path.write_text(json.dumps(env))
+    (root / "run.log").write_text("exit_code=0\n")
+    (root / "argv.json").write_text(json.dumps({"argv": env.get("jmh_argv"), "exit_code": 0, "log_limit_exceeded": False}))
     return jar, input_path, environment_path
 
 

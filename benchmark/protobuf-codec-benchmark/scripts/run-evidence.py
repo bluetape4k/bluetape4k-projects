@@ -12,18 +12,28 @@ import os
 import platform
 import re
 import secrets
+import selectors
+import signal
 import shutil
 import stat
 import subprocess
 import sys
 import tempfile
+import time
 import zipfile
 from pathlib import Path
 
 
 SCHEMA_VERSION = 1
+MAX_RUN_LOG_BYTES = 16 * 1024 * 1024
+RUNNER_FAILURE_EXIT_CODE = 125
+RUNNER_PROTOCOL_FAILURE_EXIT_CODE = 126
+RUN_LOG_LIMIT_MARKER = b"\n[runner] output truncated: log size limit exceeded\n"
+RUN_LOG_PROTOCOL_MARKER = b"[runner] anchor protocol failure: "
+RUN_LOG_EXECUTION_MARKER = b"[runner] anchor execution failure: "
 REQUIRED_RUN_FILES = ("jmh.json", "metadata.json", "argv.json", "run.log", "environment.json", "summary.csv", "validation.json")
 METADATA_MAIN = "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmarkMetadata"
+FALLBACK_DEBUG_MARKER = "Protobuf deserialization failed; delegating to the trusted fallback serializer."
 JVM_ARGS = ["-Xms1g", "-Xmx1g", "-XX:+UseG1GC"]
 PROFILE_ARGS = {
     "smoke": ["-t", "1", "-f", "1", "-wi", "1", "-i", "1", "-w", "1s", "-r", "1s", "-prof", "gc", "-rf", "json"],
@@ -37,6 +47,21 @@ DISPATCH_CELLS = {
 }
 POSITIVE_PHRASE = "measured allocation reduction"
 NON_POSITIVE = "No positive reduction claim"
+
+
+class AnchorProtocolError(ValueError):
+    """The owned anchor failed to provide a trustworthy target exit status."""
+
+
+class AnchorExecutionError(RuntimeError):
+    """An OS operation owned by the anchor runner failed."""
+
+
+def _anchor_os_call(operation, function, *args, **kwargs):
+    try:
+        return function(*args, **kwargs)
+    except OSError as exc:
+        raise AnchorExecutionError("anchor {} failed: {}".format(operation, exc)) from exc
 
 
 def utc_now():
@@ -186,13 +211,20 @@ def capture_metadata(jar, expected=None, command_runner=subprocess.run, pass_fds
     stderr = _stderr(result)
     if result.returncode:
         raise error(jar, "metadata command exit_code={} stderr={!r}".format(result.returncode, stderr.decode("utf-8", "replace")), "rebuild the pinned benchmark JAR")
+    stderr_text = stderr.decode("utf-8", "replace")
+    if re.search(r"\bDEBUG\b", stderr_text) or FALLBACK_DEBUG_MARKER in stderr_text:
+        raise error(
+            jar,
+            "metadata stderr contains DEBUG/fallback diagnostic output={!r}".format(stderr_text),
+            "rebuild the benchmark JAR with the benchmark logback.xml resource",
+        )
     try:
         value = json.loads(stdout.decode("utf-8"))
     except (UnicodeDecodeError, ValueError) as exc:
         raise error(jar, "metadata stdout is not one JSON object ({})".format(exc), "rebuild the pinned benchmark JAR")
     if not isinstance(value, dict):
         raise error(jar, "metadata stdout type={} != object".format(type(value).__name__), "rebuild the pinned benchmark JAR")
-    result_value = {"value": value, "stdout": stdout, "stdout_sha256": sha256_bytes(stdout), "stderr": stderr.decode("utf-8", "replace"), "argv": argv}
+    result_value = {"value": value, "stdout": stdout, "stdout_sha256": sha256_bytes(stdout), "stderr": stderr_text, "argv": argv}
     if expected is not None and stdout != expected["stdout"]:
         raise error(jar, "metadata changed between capture and launch: first={!r} second={!r}".format(expected["stdout"].decode("utf-8", "replace"), stdout.decode("utf-8", "replace")), "rebuild the pinned benchmark JAR and start a fresh run")
     return result_value
@@ -391,21 +423,321 @@ def append_canonical_run(state, run, state_path="<state>"):
     runs.append(run)
 
 
+def _signal_owned_group(process_group_id, requested_signal):
+    try:
+        os.killpg(process_group_id, requested_signal)
+    except (ProcessLookupError, PermissionError):
+        # macOS can report EPERM for a session whose only remaining member is
+        # the already-signalled anchor zombie; anchor.wait() below still reaps it.
+        pass
+    except OSError as exc:
+        raise AnchorExecutionError("anchor process-group signal failed: {}".format(exc)) from exc
+
+
+def _terminate_owned_process(anchor, process_group_id=None, terminate_first=True, drain=None):
+    process_group_id = process_group_id if process_group_id is not None else anchor.pid
+    first_failure = None
+    first_traceback = None
+
+    def attempt(function, *args):
+        nonlocal first_failure, first_traceback
+        try:
+            return function(*args)
+        except Exception as exc:
+            if first_failure is None:
+                first_failure = exc
+                first_traceback = exc.__traceback__
+            return None
+
+    if terminate_first:
+        attempt(_signal_owned_group, process_group_id, signal.SIGTERM)
+        if drain is not None:
+            attempt(drain, 5.0)
+    attempt(_signal_owned_group, process_group_id, signal.SIGKILL)
+    exit_code = attempt(_anchor_os_call, "wait", anchor.wait)
+    if first_failure is not None:
+        raise first_failure.with_traceback(first_traceback)
+    return exit_code
+
+
+def _anchor_process(status_fd, pass_fds, target_argv):
+    exit_code = 127
+    try:
+        target = subprocess.Popen(target_argv, pass_fds=tuple(pass_fds))
+        exit_code = target.wait()
+    except OSError as exc:
+        print("anchor target launch failed: {}".format(exc), file=sys.stderr, flush=True)
+    try:
+        os.write(status_fd, "{}\n".format(exit_code).encode("ascii"))
+    finally:
+        os.close(status_fd)
+    while True:
+        signal.pause()
+
+
+def _publish_temporary_no_clobber(temporary, target):
+    try:
+        os.link(str(temporary), str(target))
+    except FileExistsError:
+        raise FileExistsError("{} exists; choose a new no-clobber path".format(target))
+    os.unlink(str(temporary))
+
+
+def _write_bounded_output(stream, chunks, payload_limit):
+    written = 0
+    for chunk in chunks:
+        if not chunk:
+            continue
+        remaining = payload_limit - written
+        if len(chunk) > remaining:
+            if remaining > 0:
+                stream.write(chunk[:remaining])
+                written += remaining
+            return written, True
+        stream.write(chunk)
+        written += len(chunk)
+    return written, False
+
+
+def _consume_anchor_events(selector, log_stream, payload_limit, state, timeout=None, allow_missing_status=False):
+    events = _anchor_os_call("selector wait", selector.select, timeout)
+    for key, _ in events:
+        try:
+            chunk = os.read(key.fd, 64 * 1024)
+        except BlockingIOError:
+            continue
+        except OSError as exc:
+            raise AnchorExecutionError("anchor stream read failed: {}".format(exc)) from exc
+        if key.data == "stdout":
+            if not chunk:
+                _anchor_os_call("selector unregister", selector.unregister, key.fileobj)
+                continue
+            remaining = payload_limit - state["written"]
+            if remaining > 0:
+                log_stream.write(chunk[:remaining])
+                state["written"] += min(len(chunk), remaining)
+            if len(chunk) > remaining:
+                state["limit_exceeded"] = True
+        else:
+            if not chunk:
+                _anchor_os_call("selector unregister", selector.unregister, key.fileobj)
+                _anchor_os_call("status descriptor close", os.close, key.fd)
+                state["status_fd_open"] = False
+                if state["target_exit_code"] is None and not allow_missing_status:
+                    raise AnchorProtocolError("anchor status pipe closed before target exit status")
+                continue
+            state["status"].extend(chunk)
+            if len(state["status"]) > 32:
+                raise AnchorProtocolError("anchor target exit status exceeded 32 bytes")
+            if b"\n" in state["status"]:
+                value = bytes(state["status"])
+                if not re.fullmatch(rb"-?\d+\n", value):
+                    raise AnchorProtocolError("anchor target exit status is malformed")
+                state["target_exit_code"] = int(value[:-1])
+                _anchor_os_call("selector unregister", selector.unregister, key.fileobj)
+                _anchor_os_call("status descriptor close", os.close, key.fd)
+                state["status_fd_open"] = False
+    return bool(events)
+
+
+def _drain_anchor_events(selector, log_stream, payload_limit, state, seconds, allow_missing_status=False):
+    deadline = time.monotonic() + seconds
+    while selector.get_map() and time.monotonic() < deadline:
+        remaining = max(0.0, deadline - time.monotonic())
+        if not _consume_anchor_events(
+            selector, log_stream, payload_limit, state, min(0.05, remaining), allow_missing_status,
+        ):
+            continue
+
+
+def _execute_with_anchor(argv, log_stream, payload_limit, pass_fds):
+    status_read, status_write = _anchor_os_call("status pipe creation", os.pipe)
+    anchor = None
+    anchor_stdout = None
+    selector = None
+    state = {
+        "written": 0,
+        "limit_exceeded": False,
+        "status": bytearray(),
+        "target_exit_code": None,
+        "status_fd_open": True,
+    }
+    primary_failure = None
+    cleanup_failure = None
+
+    def remember_cleanup_failure(operation, function, *args):
+        nonlocal cleanup_failure
+        try:
+            function(*args)
+        except Exception as exc:
+            if primary_failure is None and cleanup_failure is None:
+                cleanup_failure = (operation, exc)
+
+    try:
+        selector = _anchor_os_call("selector creation", selectors.DefaultSelector)
+        anchor_argv = [
+            sys.executable, str(Path(__file__).resolve()), "_exec-anchor",
+            "--status-fd", str(status_write),
+        ]
+        for inherited_fd in pass_fds:
+            anchor_argv.extend(("--pass-fd", str(inherited_fd)))
+        anchor_argv.extend(("--",))
+        anchor_argv.extend(argv)
+        inherited = tuple(dict.fromkeys((status_write,) + tuple(pass_fds)))
+        anchor = _anchor_os_call(
+            "launch",
+            subprocess.Popen,
+            anchor_argv,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            pass_fds=inherited,
+            start_new_session=True,
+        )
+        anchor_stdout = anchor.stdout
+        _anchor_os_call("parent status descriptor close", os.close, status_write)
+        status_write = None
+        _anchor_os_call("status nonblocking setup", os.set_blocking, status_read, False)
+        _anchor_os_call("stdout nonblocking setup", os.set_blocking, anchor.stdout.fileno(), False)
+        _anchor_os_call("stdout selector registration", selector.register, anchor.stdout, selectors.EVENT_READ, "stdout")
+        _anchor_os_call("status selector registration", selector.register, status_read, selectors.EVENT_READ, "status")
+        while state["target_exit_code"] is None and not state["limit_exceeded"]:
+            _consume_anchor_events(selector, log_stream, payload_limit, state)
+        if state["limit_exceeded"]:
+            owned_anchor = anchor
+            anchor = None
+            _terminate_owned_process(
+                owned_anchor,
+                owned_anchor.pid,
+                terminate_first=True,
+                drain=lambda seconds: _drain_anchor_events(
+                    selector, log_stream, payload_limit, state, seconds, allow_missing_status=True,
+                ),
+            )
+            exit_code = RUNNER_FAILURE_EXIT_CODE
+        else:
+            exit_code = state["target_exit_code"]
+            owned_anchor = anchor
+            anchor = None
+            _terminate_owned_process(owned_anchor, owned_anchor.pid, terminate_first=False)
+            _drain_anchor_events(selector, log_stream, payload_limit, state, 1.0)
+            if state["limit_exceeded"]:
+                exit_code = RUNNER_FAILURE_EXIT_CODE
+        return exit_code, state["limit_exceeded"]
+    except Exception as exc:
+        primary_failure = exc
+        primary_traceback = exc.__traceback__
+        if anchor is not None:
+            owned_anchor = anchor
+            anchor = None
+            try:
+                _terminate_owned_process(
+                    owned_anchor,
+                    owned_anchor.pid,
+                    terminate_first=True,
+                    drain=None if isinstance(exc, (OSError, AnchorExecutionError)) else lambda seconds: _drain_anchor_events(
+                        selector, log_stream, payload_limit, state, seconds, allow_missing_status=True,
+                    ),
+                )
+            except Exception:
+                pass
+        raise primary_failure.with_traceback(primary_traceback)
+    finally:
+        if selector is not None:
+            remember_cleanup_failure("selector close", selector.close)
+        if anchor is not None:
+            owned_anchor = anchor
+            anchor = None
+            remember_cleanup_failure("final termination", _terminate_owned_process, owned_anchor, owned_anchor.pid, True)
+        if status_write is not None:
+            remember_cleanup_failure("status write descriptor close", os.close, status_write)
+        if state["status_fd_open"]:
+            remember_cleanup_failure("status read descriptor close", os.close, status_read)
+        if anchor_stdout is not None:
+            remember_cleanup_failure("anchor stdout close", anchor_stdout.close)
+        if primary_failure is None and cleanup_failure is not None:
+            operation, close_error = cleanup_failure
+            if isinstance(close_error, AnchorExecutionError):
+                raise close_error
+            if isinstance(close_error, OSError):
+                raise AnchorExecutionError("anchor {} failed: {}".format(operation, close_error)) from close_error
+            raise close_error
+
+
 def execute_logged(argv, run_dir, command_runner=subprocess.run, pass_fds=()):
     run_dir = Path(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
+    argv_path = run_dir / "argv.json"
+    log_path = run_dir / "run.log"
+    if argv_path.exists():
+        raise FileExistsError("{} exists; choose a new no-clobber path".format(argv_path))
+    if log_path.exists():
+        raise FileExistsError("{} exists; choose a new no-clobber path".format(log_path))
+    log_fd, log_temporary_name = tempfile.mkstemp(prefix=".run.log.", dir=str(run_dir))
+    log_temporary = Path(log_temporary_name)
     started = utc_now()
+    limit_exceeded = False
+    exit_code = 127
+    owned_failure = None
+    owned_traceback = None
+    payload_limit = MAX_RUN_LOG_BYTES - len(RUN_LOG_LIMIT_MARKER) - 64
     try:
-        result = _run(command_runner, argv, pass_fds=pass_fds)
-        stdout, stderr, exit_code = _stdout(result), _stderr(result), result.returncode
-    except OSError as exc:
-        stdout, stderr, exit_code = b"", str(exc).encode("utf-8"), 127
+        with os.fdopen(log_fd, "wb") as log_stream:
+            log_fd = None
+            if command_runner is subprocess.run:
+                try:
+                    exit_code, limit_exceeded = _execute_with_anchor(
+                        argv, log_stream, payload_limit, tuple(pass_fds),
+                    )
+                except AnchorProtocolError as exc:
+                    owned_failure = exc
+                    owned_traceback = exc.__traceback__
+                    exit_code = RUNNER_PROTOCOL_FAILURE_EXIT_CODE
+                    diagnostic_marker = RUN_LOG_PROTOCOL_MARKER
+                except AnchorExecutionError as exc:
+                    owned_failure = exc
+                    owned_traceback = exc.__traceback__
+                    exit_code = 127
+                    diagnostic_marker = RUN_LOG_EXECUTION_MARKER
+                if owned_failure is not None:
+                    diagnostic = diagnostic_marker + str(owned_failure).encode("utf-8", "replace") + b"\n"
+                    remaining = max(0, payload_limit - log_stream.tell())
+                    _, diagnostic_truncated = _write_bounded_output(log_stream, (diagnostic,), remaining)
+                    limit_exceeded = limit_exceeded or diagnostic_truncated
+            else:
+                result = _run(command_runner, argv, pass_fds=pass_fds)
+                exit_code = result.returncode
+                _, limit_exceeded = _write_bounded_output(
+                    log_stream, (_stdout(result), _stderr(result)), payload_limit,
+                )
+            if limit_exceeded:
+                log_stream.write(RUN_LOG_LIMIT_MARKER)
+            log_stream.write("exit_code={}\n".format(exit_code).encode("ascii"))
+            log_stream.flush()
+            os.fsync(log_stream.fileno())
+        _publish_temporary_no_clobber(log_temporary, log_path)
+    finally:
+        if log_fd is not None:
+            os.close(log_fd)
+        try:
+            log_temporary.unlink()
+        except FileNotFoundError:
+            pass
     ended = utc_now()
-    record = {"schema_version": SCHEMA_VERSION, "argv": list(argv), "started_at": started, "ended_at": ended, "exit_code": exit_code}
-    atomic_write_json(run_dir / "argv.json", record, fail_if_exists=True)
-    atomic_write_bytes(run_dir / "run.log", stdout + stderr + "exit_code={}\n".format(exit_code).encode("ascii"), fail_if_exists=True)
+    record = {
+        "schema_version": SCHEMA_VERSION,
+        "argv": list(argv),
+        "started_at": started,
+        "ended_at": ended,
+        "exit_code": exit_code,
+        "log_limit_exceeded": limit_exceeded,
+    }
+    atomic_write_json(argv_path, record, fail_if_exists=True)
+    if owned_failure is not None:
+        raise owned_failure.with_traceback(owned_traceback)
+    if limit_exceeded:
+        raise error(log_path, "benchmark output exceeded log size limit={}".format(MAX_RUN_LOG_BYTES), "repair benchmark logging and use a fresh run ID")
     if exit_code:
-        raise error(run_dir / "run.log", "benchmark process exit_code={}".format(exit_code), "inspect run.log, repair the benchmark, and use a fresh run ID")
+        raise error(log_path, "benchmark process exit_code={}".format(exit_code), "inspect run.log, repair the benchmark, and use a fresh run ID")
     return record
 
 
@@ -676,18 +1008,26 @@ def _walk_strings(value, prefix=""):
         yield prefix, value
 
 
-def verify_manifest_files(manifest, repo_root, manifest_path):
+def _canonical_manifest_path(repo_root, relative, manifest_path):
+    repo_root = Path(repo_root).resolve()
+    path = repo_root / relative
+    path = path.parent.resolve() / path.name
+    try:
+        path.relative_to(repo_root)
+    except ValueError:
+        raise error(manifest_path, "path escapes repository: {}".format(relative), "regenerate the manifest")
+    return path
+
+
+def verify_manifest_files(manifest, repo_root, manifest_path, run_log_results=None):
     validate_manifest(manifest, manifest_path)
     repo_root = Path(repo_root).resolve()
+    run_log_results = run_log_results if run_log_results is not None else preflight_manifest_run_logs(manifest, repo_root, manifest_path)
     for item in manifest["files"]:
-        path = (repo_root / item["path"]).resolve()
-        try:
-            path.relative_to(repo_root)
-        except ValueError:
-            raise error(manifest_path, "path escapes repository: {}".format(item["path"]), "regenerate the manifest")
+        path = _canonical_manifest_path(repo_root, item["path"], manifest_path)
         if not path.is_file():
             raise error(path, "manifest file is missing", "restore committed evidence")
-        observed = sha256_file(path)
+        observed = run_log_results[path]["sha256"] if path.name == "run.log" else sha256_file(path)
         if observed != item["sha256"]:
             raise error(path, "sha256 observed={} expected={}".format(observed, item["sha256"]), "restore committed bytes or regenerate evidence")
     return True
@@ -695,11 +1035,18 @@ def verify_manifest_files(manifest, repo_root, manifest_path):
 
 def create_delivery_manifest(repo_root, destination, commit, tree_hash, final_verdicts=None, rollback=None, commands=None, results=None, delivery_commit=None, benchmark_jar_sha256=None, final_reasons=None):
     repo_root = Path(repo_root).resolve(); destination = Path(destination).resolve()
+    validator = _load_validator()
+    run_log_results = {
+        path: validator.validate_run_log(path)
+        for path in sorted(destination.rglob("run.log"))
+        if path.is_file()
+    }
     files = []
     for path in sorted(destination.rglob("*")):
         if path.is_file() and path.name != "delivery-manifest.json":
             relative = path.relative_to(repo_root)
-            files.append({"path": relative.as_posix(), "sha256": sha256_file(path)})
+            observed = run_log_results[path]["sha256"] if path.name == "run.log" else sha256_file(path)
+            files.append({"path": relative.as_posix(), "sha256": observed})
     manifest = {
         "schema_version": SCHEMA_VERSION,
         "files": files,
@@ -720,11 +1067,12 @@ def validate_committed(manifest_path, repo_root=None, require_git_commit=True, c
     manifest_path = Path(manifest_path).resolve()
     repo_root = Path(repo_root).resolve() if repo_root else find_repo_root(manifest_path.parent, command_runner)
     manifest = load_json(manifest_path)
-    verify_manifest_files(manifest, repo_root, manifest_path)
+    run_log_results = preflight_manifest_run_logs(manifest, repo_root, manifest_path)
+    verify_manifest_files(manifest, repo_root, manifest_path, run_log_results)
     report_hash = sha256_bytes(payload_json_bytes({key: manifest.get(key) for key in ("measurement", "delivery", "final_verdicts", "final_reasons", "rollback", "commands", "results")}))
     if report_hash != manifest.get("report_input_sha256"):
         raise error(manifest_path, "report_input_sha256 observed={} expected={}".format(report_hash, manifest.get("report_input_sha256")), "rerun verify-promoted")
-    validate_committed_semantics(manifest, manifest_path, repo_root)
+    validate_committed_semantics(manifest, manifest_path, repo_root, run_log_results)
     if require_git_commit:
         relative = manifest_path.relative_to(repo_root).as_posix()
         result = _run(command_runner, ["git", "show", "HEAD:" + relative], cwd=repo_root)
@@ -748,8 +1096,23 @@ def _load_validator():
     return module
 
 
-def validate_committed_semantics(manifest, manifest_path, repo_root):
+def preflight_manifest_run_logs(manifest, repo_root, manifest_path):
+    validate_manifest(manifest, manifest_path)
+    repo_root = Path(repo_root).resolve()
     validator = _load_validator()
+    results = {}
+    for item in manifest["files"]:
+        relative = Path(item["path"])
+        if relative.name != "run.log":
+            continue
+        path = _canonical_manifest_path(repo_root, relative, manifest_path)
+        results[path] = validator.validate_run_log(path)
+    return results
+
+
+def validate_committed_semantics(manifest, manifest_path, repo_root, run_log_results=None):
+    validator = _load_validator()
+    run_log_results = run_log_results if run_log_results is not None else preflight_manifest_run_logs(manifest, repo_root, manifest_path)
     paths = [(repo_root / item["path"]).resolve() for item in manifest["files"]]
     listed = set(paths)
     actual = {path.resolve() for path in manifest_path.parent.rglob("*") if path.is_file() and path.resolve() != manifest_path.resolve()}
@@ -781,8 +1144,9 @@ def validate_committed_semantics(manifest, manifest_path, repo_root):
             if sha256_bytes(stdout) != environment.get("metadata_stdout_sha256") or environment.get("metadata_prelaunch_stdout_sha256") != environment.get("metadata_stdout_sha256"):
                 raise error(environment_path, "metadata double-capture hash mismatch", "recollect evidence from the unchanged pinned JAR")
             argv = load_json(run_root / "argv.json")
-            if argv.get("argv") != environment.get("jmh_argv") or argv.get("exit_code") != 0 or not (run_root / "run.log").read_text(encoding="utf-8").endswith("exit_code=0\n"):
-                raise error(run_root / "argv.json", "argv/log/exit evidence mismatch", "restore the complete successful runner artifacts")
+            validator.validate_execution_artifacts(
+                argv, environment, run_log_results[run_root / "run.log"], run_root / "argv.json",
+            )
             if not validator.is_clean_environment(environment):
                 raise error(environment_path, "committed clean gates are not clean", "restore both exact runner clean observations")
             records = validator._load_json(run_root / "jmh.json")
@@ -1492,6 +1856,10 @@ def cleanup_replacement_backup(state_path, manifest, expected_head, backup_root,
 def parser():
     value = argparse.ArgumentParser(description=__doc__)
     commands = value.add_subparsers(dest="command", required=True)
+    anchor = commands.add_parser("_exec-anchor", help=argparse.SUPPRESS)
+    anchor.add_argument("--status-fd", type=int, required=True)
+    anchor.add_argument("--pass-fd", type=int, action="append", default=[])
+    anchor.add_argument("target_argv", nargs=argparse.REMAINDER)
     resolve = commands.add_parser("resolve-jar"); resolve.add_argument("--jar-dir", required=True); resolve.add_argument("--state", required=True); resolve.add_argument("--rollback-bundle")
     run = commands.add_parser("run"); run.add_argument("--state", required=True); run.add_argument("--profile", choices=sorted(PROFILE_ARGS), required=True); run.add_argument("--output-root", required=True); run.add_argument("--run-id"); run.add_argument("--concurrent-heavy-work", choices=("absent", "present", "unknown"), required=True)
     compare = commands.add_parser("compare"); compare.add_argument("--state", required=True); compare.add_argument("--output", required=True); compare.add_argument("--validation", required=True)
@@ -1508,7 +1876,12 @@ def parser():
 
 def main(argv=None):
     args = parser().parse_args(argv)
-    if args.command == "resolve-jar": resolve_jar(args.jar_dir, args.state, args.rollback_bundle)
+    if args.command == "_exec-anchor":
+        target_argv = args.target_argv[1:] if args.target_argv[:1] == ["--"] else args.target_argv
+        if not target_argv:
+            raise ValueError("anchor target argv must not be empty")
+        _anchor_process(args.status_fd, args.pass_fd, target_argv)
+    elif args.command == "resolve-jar": resolve_jar(args.jar_dir, args.state, args.rollback_bundle)
     elif args.command == "run": run_benchmark(args.state, args.profile, args.output_root, args.run_id, args.concurrent_heavy_work)
     elif args.command == "compare": compare_state(args.state, args.output, args.validation)
     elif args.command == "record-rollback": record_rollback(args.state, args.dispatch, args.archive_root)
