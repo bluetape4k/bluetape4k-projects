@@ -950,6 +950,15 @@ subprojects {
                     artifact(sourcesJar)
                     artifact(javadocJar)
 
+                    versionMapping {
+                        usage("java-api") {
+                            fromResolutionOf("runtimeClasspath")
+                        }
+                        usage("java-runtime") {
+                            fromResolutionResult()
+                        }
+                    }
+
                     pom {
                         applyBluetape4kPomMetadata(
                             artifactDisplayName = project.name,

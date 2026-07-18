@@ -159,11 +159,12 @@ jobs:
               print(f"{name} set={bool(value)} length={len(value)}")
           PY
 
-      - name: Validate publication POMs
+      - name: Validate publication metadata
         run: |
-          ./gradlew generatePomFileForBluetape4kPublication \
+          ./gradlew generatePomFileForBluetape4kPublication generateMetadataFileForBluetape4kPublication \
             --no-daemon --no-configuration-cache --no-build-cache
           ruby scripts/publication/validate_poms.rb
+          ruby scripts/publication/validate_module_metadata.rb
 
       - name: Publish to Central Portal
         run: >-

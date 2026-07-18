@@ -227,13 +227,16 @@ jobs:
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
-      - name: Validate publication POMs
+      - name: Validate publication metadata
         run: |
           ruby scripts/publication/publication_pom_audit_test.rb
           ruby scripts/publication/publication_pom_integration_test.rb
-          ./gradlew generatePomFileForBluetape4kPublication -PsnapshotVersion=-SNAPSHOT \
+          ruby scripts/publication/publication_module_metadata_audit_test.rb
+          ./gradlew generatePomFileForBluetape4kPublication generateMetadataFileForBluetape4kPublication \
+            -PsnapshotVersion=-SNAPSHOT \
             --no-daemon --no-configuration-cache --no-build-cache
           ruby scripts/publication/validate_poms.rb
+          ruby scripts/publication/validate_module_metadata.rb
 
   # ── 3. Core 모듈 테스트 ───────────────────────────────────────────────────
   test-core:
