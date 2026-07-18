@@ -255,6 +255,21 @@ class ValidateJmhTest(unittest.TestCase):
             self.assertTrue((root / "summary.csv").is_file())
             self.assertTrue((root / "validation.json").is_file())
 
+            canonical = dict(env)
+            canonical.pop("benchmark_jar_path")
+            canonical_ref = "<PINNED_JAR_SHA256:{}>".format(env["benchmark_jar_sha256"])
+            canonical["benchmark_jar_ref"] = canonical_ref
+            canonical["executed_jar_ref"] = canonical_ref
+            environment_path.write_text(json.dumps(canonical))
+            canonical_result = validator.validate_run(
+                jar, input_path, environment_path, root / "canonical.csv", root / "canonical.json",
+            )
+            self.assertEqual("passed", canonical_result["status"])
+            tampered_ref = dict(canonical); tampered_ref["executed_jar_ref"] = "<PINNED_JAR_SHA256:{}>".format("0" * 64)
+            environment_path.write_text(json.dumps(tampered_ref))
+            with self.assertRaisesRegex(ValueError, "executed_jar_ref"):
+                validator.validate_run(jar, input_path, environment_path, root / "bad-ref.csv", root / "bad-ref.json")
+
             bad = dict(env); bad["benchmark_jar_sha256"] = "0" * 64
             environment_path.write_text(json.dumps(bad))
             with self.assertRaisesRegex(ValueError, "benchmark_jar_sha256"):
