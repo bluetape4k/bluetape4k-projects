@@ -59,11 +59,17 @@ benchmark {
 }
 
 dependencies {
-    add("benchmarkImplementation", project(":bluetape4k-protobuf"))
-    add("benchmarkImplementation", project(":bluetape4k-redisson"))
+    implementation(project(":bluetape4k-protobuf"))
+    implementation(project(":bluetape4k-redisson"))
+    testImplementation(project(":bluetape4k-junit5"))
 
     add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
     add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
     add("benchmarkImplementation", libs.jmh.core)
     add("benchmarkRuntimeOnly", libs.logback.classic)
+}
+
+tasks.matching { it.name.endsWith("BenchmarkJar") }.configureEach {
+    this as org.gradle.jvm.tasks.Jar
+    exclude("META-INF/*.RSA", "META-INF/*.DSA", "META-INF/*.SF")
 }
