@@ -4,6 +4,7 @@ import io.bluetape4k.kafka.AbstractKafkaTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -22,6 +23,7 @@ class ByteArrayKafkaCodecTest: AbstractKafkaTest() {
         val bytes = codec.serialize(TEST_TOPIC_NAME, original)
 
         bytes.shouldNotBeNull()
+        bytes shouldBeSameInstanceAs original
         bytes shouldBeEqualTo original
     }
 
@@ -31,6 +33,7 @@ class ByteArrayKafkaCodecTest: AbstractKafkaTest() {
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, original)
 
         deserialized.shouldNotBeNull()
+        deserialized shouldBeSameInstanceAs original
         deserialized shouldBeEqualTo original
     }
 
@@ -74,6 +77,8 @@ class ByteArrayKafkaCodecTest: AbstractKafkaTest() {
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
 
         deserialized.shouldNotBeNull()
+        bytes shouldBeSameInstanceAs binaryData
+        deserialized shouldBeSameInstanceAs binaryData
         deserialized shouldBeEqualTo binaryData
     }
 
