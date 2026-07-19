@@ -163,9 +163,10 @@ def _run(command_runner, argv, cwd=None, pass_fds=(), env=None):
 
 
 def _run_provenance_git(command_runner, argv, cwd):
-    # Replacement objects and grafts must not redefine commits trusted as provenance.
+    # Replacement refs and legacy graft files must not redefine trusted provenance.
     env = os.environ.copy()
     env["GIT_NO_REPLACE_OBJECTS"] = "1"
+    env["GIT_GRAFT_FILE"] = os.devnull
     return _run(command_runner, argv, cwd=cwd, env=env)
 
 

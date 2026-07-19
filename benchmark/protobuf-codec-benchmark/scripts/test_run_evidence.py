@@ -1915,6 +1915,44 @@ Daemon JVM: /Users/operator/.jdks/example
 
             self.assertEqual(before, manifest_path.read_bytes())
 
+    def test_rebind_rebased_delivery_rejects_non_ancestor_hidden_by_git_graft(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); manifest_path, _, candidate = initialize_rebased_delivery(root, "non-ancestor")
+            before = manifest_path.read_bytes()
+            head = git_commit(root, "rev-parse", "HEAD")
+            (root / ".git" / "info" / "grafts").write_text("{} {}\n".format(head, candidate))
+
+            try:
+                runner.rebind_rebased_delivery(manifest_path, candidate, repo_root=root)
+            except ValueError as exc:
+                self.assertRegex(str(exc), "candidate ancestor observed=False expected=True")
+            else:
+                self.fail(
+                    "git graft authorized rebind; manifest_changed={}".format(
+                        before != manifest_path.read_bytes(),
+                    )
+                )
+
+            self.assertEqual(before, manifest_path.read_bytes())
+
+    def test_committed_delivery_ancestry_ignores_git_graft(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); manifest_path, _, candidate = initialize_rebased_delivery(root, "non-ancestor")
+            rewrite_manifest(
+                manifest_path,
+                lambda manifest: manifest["delivery"].update(git_commit=candidate),
+            )
+            subprocess.run(["git", "add", str(manifest_path.relative_to(root))], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "bind non-ancestor delivery"], cwd=root, check=True)
+
+            with self.assertRaisesRegex(ValueError, "not an ancestor"):
+                runner.validate_committed(manifest_path, repo_root=root)
+
+            head = git_commit(root, "rev-parse", "HEAD")
+            (root / ".git" / "info" / "grafts").write_text("{} {}\n".format(head, candidate))
+            with self.assertRaisesRegex(ValueError, "not an ancestor"):
+                runner.validate_committed(manifest_path, repo_root=root)
+
     def test_rebind_rebased_delivery_rejects_non_ancestor_candidate(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td); manifest_path, _, candidate = initialize_rebased_delivery(root, "non-ancestor")
