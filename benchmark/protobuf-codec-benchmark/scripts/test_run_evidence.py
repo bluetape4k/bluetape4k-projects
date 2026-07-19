@@ -1896,6 +1896,25 @@ Daemon JVM: /Users/operator/.jdks/example
             self.assertIn("remediation:", str(caught.exception))
             self.assertEqual(before, manifest_path.read_bytes())
 
+    def test_rebind_rebased_delivery_rejects_unequal_tree_hidden_by_git_replace(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); manifest_path, old_delivery, candidate = initialize_rebased_delivery(root, "unequal-tree")
+            before = manifest_path.read_bytes()
+            subprocess.run(["git", "replace", old_delivery, candidate], cwd=root, check=True)
+
+            try:
+                runner.rebind_rebased_delivery(manifest_path, candidate, repo_root=root)
+            except ValueError as exc:
+                self.assertRegex(str(exc), "candidate tree observed=.* expected old delivery tree")
+            else:
+                self.fail(
+                    "git replacement authorized rebind; manifest_changed={}".format(
+                        before != manifest_path.read_bytes(),
+                    )
+                )
+
+            self.assertEqual(before, manifest_path.read_bytes())
+
     def test_rebind_rebased_delivery_rejects_non_ancestor_candidate(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td); manifest_path, _, candidate = initialize_rebased_delivery(root, "non-ancestor")

@@ -153,11 +153,20 @@ def load_json(path):
     return value
 
 
-def _run(command_runner, argv, cwd=None, pass_fds=()):
+def _run(command_runner, argv, cwd=None, pass_fds=(), env=None):
     kwargs = {"cwd": str(cwd) if cwd else None, "stdout": subprocess.PIPE, "stderr": subprocess.PIPE}
     if pass_fds:
         kwargs["pass_fds"] = tuple(pass_fds)
+    if env is not None:
+        kwargs["env"] = env
     return command_runner(argv, **kwargs)
+
+
+def _run_provenance_git(command_runner, argv, cwd):
+    # Replacement objects and grafts must not redefine commits trusted as provenance.
+    env = os.environ.copy()
+    env["GIT_NO_REPLACE_OBJECTS"] = "1"
+    return _run(command_runner, argv, cwd=cwd, env=env)
 
 
 def _stdout(result):
@@ -1109,21 +1118,29 @@ def validate_committed(manifest_path, repo_root=None, require_git_commit=True, c
     validate_committed_semantics(manifest, manifest_path, repo_root, run_log_results)
     if require_git_commit:
         relative = manifest_path.relative_to(repo_root).as_posix()
-        result = _run(command_runner, ["git", "show", "HEAD:" + relative], cwd=repo_root)
+        result = _run_provenance_git(command_runner, ["git", "show", "HEAD:" + relative], cwd=repo_root)
         if result.returncode or _stdout(result) != manifest_path.read_bytes():
             raise error(manifest_path, "working manifest is not byte-identical to HEAD", "commit the verified manifest, then rerun validate-committed")
-        head, _, _ = command_text(command_runner, ["git", "rev-parse", "HEAD"], cwd=repo_root)
+        head_result = _run_provenance_git(command_runner, ["git", "rev-parse", "HEAD"], cwd=repo_root)
+        if head_result.returncode:
+            raise error(repo_root, "command={} exit_code={} stderr={!r}".format(
+                ["git", "rev-parse", "HEAD"], head_result.returncode,
+                _stderr(head_result).decode("utf-8", "replace"),
+            ), "repair the command and retry")
+        head = _stdout(head_result).decode("utf-8", "replace").strip()
         delivery = manifest.get("delivery", {}).get("git_commit")
         if not isinstance(delivery, str) or not delivery:
             raise error(manifest_path, "missing delivery git_commit", "rerun verify-promoted from a committed delivery head")
-        ancestor = _run(command_runner, ["git", "merge-base", "--is-ancestor", delivery, head.strip()], cwd=repo_root)
+        ancestor = _run_provenance_git(
+            command_runner, ["git", "merge-base", "--is-ancestor", delivery, head], cwd=repo_root,
+        )
         if ancestor.returncode:
-            raise error(manifest_path, "delivery git_commit={} is not an ancestor of committed HEAD={}".format(delivery, head.strip()), "restore the verified delivery provenance")
+            raise error(manifest_path, "delivery git_commit={} is not an ancestor of committed HEAD={}".format(delivery, head), "restore the verified delivery provenance")
     return manifest
 
 
 def _resolve_commit_tree(repo_root, revision, manifest_path, label, command_runner):
-    commit_result = _run(
+    commit_result = _run_provenance_git(
         command_runner,
         ["git", "rev-parse", "--verify", "--end-of-options", "{}^{{commit}}".format(revision)],
         cwd=repo_root,
@@ -1137,7 +1154,9 @@ def _resolve_commit_tree(repo_root, revision, manifest_path, label, command_runn
             "fetch or restore the exact commit, then retry with its explicit commit id",
         )
     commit = _stdout(commit_result).decode("utf-8", "replace").strip()
-    tree_result = _run(command_runner, ["git", "rev-parse", "{}^{{tree}}".format(commit)], cwd=repo_root)
+    tree_result = _run_provenance_git(
+        command_runner, ["git", "rev-parse", "{}^{{tree}}".format(commit)], cwd=repo_root,
+    )
     if tree_result.returncode:
         raise error(
             manifest_path,
@@ -1161,7 +1180,9 @@ def rebind_rebased_delivery(manifest_path, rebased_commit, repo_root=None, comma
             "manifest path observed={} expected=path within repo_root={}".format(manifest_path, repo_root),
             "pass the committed repository-owned delivery manifest",
         )
-    head_manifest = _run(command_runner, ["git", "show", "HEAD:" + relative], cwd=repo_root)
+    head_manifest = _run_provenance_git(
+        command_runner, ["git", "show", "HEAD:" + relative], cwd=repo_root,
+    )
     if head_manifest.returncode:
         raise error(
             manifest_path,
@@ -1217,7 +1238,7 @@ def rebind_rebased_delivery(manifest_path, rebased_commit, repo_root=None, comma
             ),
             "rebase the exact delivery commit without changing its full tree, then retry",
         )
-    ancestor = _run(
+    ancestor = _run_provenance_git(
         command_runner, ["git", "merge-base", "--is-ancestor", candidate, head], cwd=repo_root,
     )
     if ancestor.returncode:
