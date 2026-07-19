@@ -1122,6 +1122,127 @@ def validate_committed(manifest_path, repo_root=None, require_git_commit=True, c
     return manifest
 
 
+def _resolve_commit_tree(repo_root, revision, manifest_path, label, command_runner):
+    commit_result = _run(
+        command_runner,
+        ["git", "rev-parse", "--verify", "--end-of-options", "{}^{{commit}}".format(revision)],
+        cwd=repo_root,
+    )
+    if commit_result.returncode:
+        raise error(
+            manifest_path,
+            "{} observed={!r} expected=existing commit exit_code={} stderr={!r}".format(
+                label, revision, commit_result.returncode, _stderr(commit_result).decode("utf-8", "replace"),
+            ),
+            "fetch or restore the exact commit, then retry with its explicit commit id",
+        )
+    commit = _stdout(commit_result).decode("utf-8", "replace").strip()
+    tree_result = _run(command_runner, ["git", "rev-parse", "{}^{{tree}}".format(commit)], cwd=repo_root)
+    if tree_result.returncode:
+        raise error(
+            manifest_path,
+            "{} tree observed=unresolved expected=tree for commit {} exit_code={} stderr={!r}".format(
+                label, commit, tree_result.returncode, _stderr(tree_result).decode("utf-8", "replace"),
+            ),
+            "repair the local Git object database and retry",
+        )
+    tree = _stdout(tree_result).decode("utf-8", "replace").strip()
+    return commit, tree
+
+
+def rebind_rebased_delivery(manifest_path, rebased_commit, repo_root=None, command_runner=subprocess.run):
+    manifest_path = Path(manifest_path).resolve()
+    repo_root = Path(repo_root).resolve() if repo_root else find_repo_root(manifest_path.parent, command_runner)
+    try:
+        relative = manifest_path.relative_to(repo_root).as_posix()
+    except ValueError:
+        raise error(
+            manifest_path,
+            "manifest path observed={} expected=path within repo_root={}".format(manifest_path, repo_root),
+            "pass the committed repository-owned delivery manifest",
+        )
+    head_manifest = _run(command_runner, ["git", "show", "HEAD:" + relative], cwd=repo_root)
+    if head_manifest.returncode:
+        raise error(
+            manifest_path,
+            "HEAD manifest observed=unavailable expected=committed HEAD:{} exit_code={} stderr={!r}".format(
+                relative, head_manifest.returncode, _stderr(head_manifest).decode("utf-8", "replace"),
+            ),
+            "commit the verified manifest at this path, then retry",
+        )
+    try:
+        working_bytes = manifest_path.read_bytes()
+    except OSError as exc:
+        raise error(
+            manifest_path,
+            "working manifest observed=unreadable expected=readable HEAD-identical bytes ({})".format(exc),
+            "restore the committed manifest bytes, then retry",
+        )
+    committed_bytes = _stdout(head_manifest)
+    if working_bytes != committed_bytes:
+        raise error(
+            manifest_path,
+            "working manifest sha256 observed={} expected HEAD sha256={}".format(
+                sha256_bytes(working_bytes), sha256_bytes(committed_bytes),
+            ),
+            "restore or commit the exact verified manifest before rebinding provenance",
+        )
+
+    manifest = validate_committed(
+        manifest_path, repo_root=repo_root, require_git_commit=False, command_runner=command_runner,
+    )
+    delivery = manifest.get("delivery")
+    old_delivery = delivery.get("git_commit") if isinstance(delivery, dict) else None
+    if not isinstance(old_delivery, str) or not old_delivery:
+        raise error(
+            manifest_path,
+            "delivery.git_commit observed={!r} expected=non-empty committed delivery commit".format(old_delivery),
+            "restore the verified delivery provenance before rebinding",
+        )
+
+    old_commit, old_tree = _resolve_commit_tree(
+        repo_root, old_delivery, manifest_path, "delivery.git_commit", command_runner,
+    )
+    candidate, candidate_tree = _resolve_commit_tree(
+        repo_root, rebased_commit, manifest_path, "rebased candidate", command_runner,
+    )
+    head, _ = _resolve_commit_tree(repo_root, "HEAD", manifest_path, "current HEAD", command_runner)
+
+    # Full-tree equivalence prevents a provenance rebind from hiding unrelated source changes.
+    if candidate_tree != old_tree:
+        raise error(
+            manifest_path,
+            "candidate tree observed={} expected old delivery tree={} old_delivery={} candidate={}".format(
+                candidate_tree, old_tree, old_commit, candidate,
+            ),
+            "rebase the exact delivery commit without changing its full tree, then retry",
+        )
+    ancestor = _run(
+        command_runner, ["git", "merge-base", "--is-ancestor", candidate, head], cwd=repo_root,
+    )
+    if ancestor.returncode:
+        if ancestor.returncode == 1:
+            detail = "candidate ancestor observed=False expected=True candidate={} HEAD={}".format(candidate, head)
+        else:
+            detail = "candidate ancestor observed=unknown expected=True candidate={} HEAD={} exit_code={} stderr={!r}".format(
+                candidate, head, ancestor.returncode, _stderr(ancestor).decode("utf-8", "replace"),
+            )
+        raise error(
+            manifest_path,
+            detail,
+            "use the exact tree-equivalent rebased commit already contained in current HEAD",
+        )
+
+    delivery["git_commit"] = candidate
+    report_keys = ("measurement", "delivery", "final_verdicts", "final_reasons", "rollback", "commands", "results")
+    manifest["report_input_sha256"] = sha256_bytes(
+        payload_json_bytes({key: manifest[key] for key in report_keys})
+    )
+    validate_manifest(manifest, manifest_path)
+    atomic_write_json(manifest_path, manifest)
+    return manifest
+
+
 def _load_validator():
     path = Path(__file__).with_name("validate-jmh.py")
     spec = importlib.util.spec_from_file_location("issue757_validate_jmh", path)
@@ -2263,6 +2384,7 @@ def parser():
     cleanup = commands.add_parser("cleanup-replacement-backup"); cleanup.add_argument("--state", required=True); cleanup.add_argument("--manifest", required=True); cleanup.add_argument("--expected-head", required=True); cleanup.add_argument("--backup-root", required=True)
     verify = commands.add_parser("verify-promoted"); verify.add_argument("--state", required=True); verify.add_argument("--destination", required=True)
     committed = commands.add_parser("validate-committed"); committed.add_argument("--manifest", required=True)
+    rebind = commands.add_parser("rebind-rebased-delivery"); rebind.add_argument("--manifest", required=True); rebind.add_argument("--rebased-commit", required=True)
     render = commands.add_parser("render-report"); render.add_argument("--manifest", required=True); render.add_argument("--output", required=True)
     report = commands.add_parser("validate-report"); report.add_argument("--manifest", required=True); report.add_argument("--input", required=True)
     return value
@@ -2285,6 +2407,7 @@ def main(argv=None):
     elif args.command == "cleanup-replacement-backup": cleanup_replacement_backup(args.state, args.manifest, args.expected_head, args.backup_root)
     elif args.command == "verify-promoted": verify_promoted(args.state, args.destination)
     elif args.command == "validate-committed": validate_committed(args.manifest)
+    elif args.command == "rebind-rebased-delivery": rebind_rebased_delivery(args.manifest, args.rebased_commit)
     elif args.command == "render-report": render_report(args.manifest, args.output)
     elif args.command == "validate-report": validate_report(args.manifest, args.input)
 
