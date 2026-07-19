@@ -118,6 +118,7 @@ def initialize_uncommitted_delivery(root):
     subprocess.run(["git", "init", "-q"], cwd=root, check=True)
     subprocess.run(["git", "config", "user.email", "issue-757@example.invalid"], cwd=root, check=True)
     subprocess.run(["git", "config", "user.name", "Issue 757 Test"], cwd=root, check=True)
+    subprocess.run(["git", "config", "core.autocrlf", "false"], cwd=root, check=True)
     marker = root / "tracked.txt"; marker.write_text("initial\n")
     subprocess.run(["git", "add", marker.name], cwd=root, check=True)
     subprocess.run(["git", "commit", "-q", "-m", "initial"], cwd=root, check=True)
@@ -132,6 +133,47 @@ def rewrite_manifest(manifest_path, mutate):
         runner.payload_json_bytes({key: manifest[key] for key in report_keys})
     )
     runner.atomic_write_json(manifest_path, manifest)
+
+
+def git_commit(root, *args):
+    result = subprocess.run(
+        ["git", *args], cwd=root, check=True, capture_output=True, text=True,
+    )
+    return result.stdout.strip()
+
+
+def initialize_rebased_delivery(root, candidate_mode="equivalent"):
+    root = Path(root)
+    manifest_path = build_complete_delivery(root)
+    subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+    subprocess.run(["git", "config", "user.email", "issue-757@example.invalid"], cwd=root, check=True)
+    subprocess.run(["git", "config", "user.name", "Issue 757 Test"], cwd=root, check=True)
+    subprocess.run(["git", "add", "."], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-q", "-m", "delivery"], cwd=root, check=True)
+    old_delivery = git_commit(root, "rev-parse", "HEAD")
+
+    if candidate_mode == "non-ancestor":
+        subprocess.run(["git", "switch", "-q", "-c", "rebased-candidate"], cwd=root, check=True)
+        subprocess.run(["git", "commit", "-q", "--allow-empty", "-m", "rebased candidate"], cwd=root, check=True)
+        candidate = git_commit(root, "rev-parse", "HEAD")
+        subprocess.run(["git", "switch", "-q", "-c", "delivery-head", old_delivery], cwd=root, check=True)
+    else:
+        if candidate_mode == "unequal-tree":
+            marker = root / "candidate-tree-change.txt"
+            marker.write_text("changed\n")
+            subprocess.run(["git", "add", marker.name], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "changed candidate"], cwd=root, check=True)
+        else:
+            subprocess.run(["git", "commit", "-q", "--allow-empty", "-m", "rebased candidate"], cwd=root, check=True)
+        candidate = git_commit(root, "rev-parse", "HEAD")
+
+    rewrite_manifest(
+        manifest_path,
+        lambda manifest: manifest["delivery"].update(git_commit=old_delivery),
+    )
+    subprocess.run(["git", "add", str(manifest_path.relative_to(root))], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-q", "-m", "bind delivery provenance"], cwd=root, check=True)
+    return manifest_path, old_delivery, candidate
 
 
 def build_rollback_state(root, comparison_rows, environments=(("old", "old-tree"), ("old", "old-tree"))):
@@ -1822,6 +1864,117 @@ Daemon JVM: /Users/operator/.jdks/example
                 return subprocess.CompletedProcess(argv, 1, stdout=b"", stderr=b"unexpected")
             with self.assertRaisesRegex(ValueError, "not an ancestor"):
                 runner.validate_committed(manifest_path, repo_root=root, command_runner=git)
+
+    def test_rebind_rebased_delivery_updates_only_delivery_provenance_and_report_hash(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); manifest_path, _, candidate = initialize_rebased_delivery(root)
+            before = json.loads(manifest_path.read_text())
+
+            runner.main([
+                "rebind-rebased-delivery", "--manifest", str(manifest_path),
+                "--rebased-commit", candidate,
+            ])
+
+            after = json.loads(manifest_path.read_text())
+            expected = dict(before)
+            expected["delivery"] = dict(before["delivery"], git_commit=candidate)
+            report_keys = ("measurement", "delivery", "final_verdicts", "final_reasons", "rollback", "commands", "results")
+            expected["report_input_sha256"] = runner.sha256_bytes(
+                runner.payload_json_bytes({key: expected[key] for key in report_keys})
+            )
+            self.assertEqual(expected, after)
+            runner.validate_committed(manifest_path, repo_root=root, require_git_commit=False)
+
+    def test_rebind_rebased_delivery_rejects_unequal_full_tree(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); manifest_path, _, candidate = initialize_rebased_delivery(root, "unequal-tree")
+            before = manifest_path.read_bytes()
+
+            with self.assertRaisesRegex(ValueError, "candidate tree observed=.* expected old delivery tree") as caught:
+                runner.rebind_rebased_delivery(manifest_path, candidate, repo_root=root)
+
+            self.assertIn("remediation:", str(caught.exception))
+            self.assertEqual(before, manifest_path.read_bytes())
+
+    def test_rebind_rebased_delivery_rejects_unequal_tree_hidden_by_git_replace(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); manifest_path, old_delivery, candidate = initialize_rebased_delivery(root, "unequal-tree")
+            before = manifest_path.read_bytes()
+            subprocess.run(["git", "replace", old_delivery, candidate], cwd=root, check=True)
+
+            try:
+                runner.rebind_rebased_delivery(manifest_path, candidate, repo_root=root)
+            except ValueError as exc:
+                self.assertRegex(str(exc), "candidate tree observed=.* expected old delivery tree")
+            else:
+                self.fail(
+                    "git replacement authorized rebind; manifest_changed={}".format(
+                        before != manifest_path.read_bytes(),
+                    )
+                )
+
+            self.assertEqual(before, manifest_path.read_bytes())
+
+    def test_rebind_rebased_delivery_rejects_non_ancestor_hidden_by_git_graft(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); manifest_path, _, candidate = initialize_rebased_delivery(root, "non-ancestor")
+            before = manifest_path.read_bytes()
+            head = git_commit(root, "rev-parse", "HEAD")
+            (root / ".git" / "info" / "grafts").write_text("{} {}\n".format(head, candidate))
+
+            try:
+                runner.rebind_rebased_delivery(manifest_path, candidate, repo_root=root)
+            except ValueError as exc:
+                self.assertRegex(str(exc), "candidate ancestor observed=False expected=True")
+            else:
+                self.fail(
+                    "git graft authorized rebind; manifest_changed={}".format(
+                        before != manifest_path.read_bytes(),
+                    )
+                )
+
+            self.assertEqual(before, manifest_path.read_bytes())
+
+    def test_committed_delivery_ancestry_ignores_git_graft(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); manifest_path, _, candidate = initialize_rebased_delivery(root, "non-ancestor")
+            rewrite_manifest(
+                manifest_path,
+                lambda manifest: manifest["delivery"].update(git_commit=candidate),
+            )
+            subprocess.run(["git", "add", str(manifest_path.relative_to(root))], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "bind non-ancestor delivery"], cwd=root, check=True)
+
+            with self.assertRaisesRegex(ValueError, "not an ancestor"):
+                runner.validate_committed(manifest_path, repo_root=root)
+
+            head = git_commit(root, "rev-parse", "HEAD")
+            (root / ".git" / "info" / "grafts").write_text("{} {}\n".format(head, candidate))
+            with self.assertRaisesRegex(ValueError, "not an ancestor"):
+                runner.validate_committed(manifest_path, repo_root=root)
+
+    def test_rebind_rebased_delivery_rejects_non_ancestor_candidate(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); manifest_path, _, candidate = initialize_rebased_delivery(root, "non-ancestor")
+            before = manifest_path.read_bytes()
+
+            with self.assertRaisesRegex(ValueError, "candidate ancestor observed=False expected=True") as caught:
+                runner.rebind_rebased_delivery(manifest_path, candidate, repo_root=root)
+
+            self.assertIn("remediation:", str(caught.exception))
+            self.assertEqual(before, manifest_path.read_bytes())
+
+    def test_rebind_rebased_delivery_rejects_manifest_not_identical_to_head(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); manifest_path, _, candidate = initialize_rebased_delivery(root)
+            manifest_path.write_bytes(manifest_path.read_bytes() + b" ")
+            before = manifest_path.read_bytes()
+
+            with self.assertRaisesRegex(ValueError, "working manifest sha256 observed=.* expected HEAD sha256") as caught:
+                runner.rebind_rebased_delivery(manifest_path, candidate, repo_root=root)
+
+            self.assertIn("remediation:", str(caught.exception))
+            self.assertEqual(before, manifest_path.read_bytes())
 
     def test_fresh_rollback_resolution_requires_real_changed_post_removal_head(self):
         with tempfile.TemporaryDirectory() as td:

@@ -8,7 +8,7 @@ Issue #757 allocation evidence generated from the committed delivery manifest.
 
 - Measurement commit: `22b155fbed160e95a259a7c6695620139bbedda8`
 - Measurement tree: `7a68ec6eff87f4e35446fa5096655e9822141a9f`
-- Delivery commit: `22b155fbed160e95a259a7c6695620139bbedda8`
+- Delivery commit: `dcad2c556f00629b7422c8a5c23b719526a8c1f0`
 
 ## Recorded commands
 
