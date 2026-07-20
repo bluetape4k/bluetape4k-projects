@@ -400,6 +400,21 @@ class ValidateJmhTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "observed_config_sha256"):
             validator.compare_runs(first, changed)
 
+    def test_lettuce_delivery_terminal_ignores_unrelated_regressions(self):
+        verdicts = {
+            "serializerDecodeDirectOptimized": "regressed",
+            "lettuceEncodeHeapOptimized": "accepted",
+            "lettuceEncodeDirectOptimized": "accepted",
+        }
+        self.assertEqual("retained-accepted", validator.select_delivery_terminal(verdicts))
+
+        verdicts["lettuceEncodeDirectOptimized"] = "regressed"
+        self.assertEqual("rejected-after-regression", validator.select_delivery_terminal(verdicts))
+
+        verdicts["lettuceEncodeDirectOptimized"] = "inconclusive"
+        verdicts["lettuceEncodeHeapOptimized"] = "inconclusive"
+        self.assertEqual("retained-inconclusive", validator.select_delivery_terminal(verdicts))
+
     def test_rollback_bundle_authenticates_hash_cells_and_regressed_archive(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td); bundle_path = write_v2_bundle(root, "serializer_encode", {

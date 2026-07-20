@@ -2021,6 +2021,58 @@ Daemon JVM: /Users/operator/.jdks/example
             state = runner.resolve_jar(jars, root / "changed.json", bundle, command_runner=changed, repo_root=root)
             self.assertEqual(("post", "post-tree"), (state["source_commit"], state["source_tree"]))
 
+    def test_rebased_delivery_manifest_can_authenticate_prior_rollback_lineage(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); archive = root / "archive"; archive.mkdir()
+            comparison = archive / "comparison.csv"
+            comparison.write_text("method,verdict\nserializerDecodeDirectOptimized,regressed\n")
+            decision = runner.make_rollback_decision(
+                "serializer_decode", ["serializerDecodeDirectOptimized"],
+                "old", "old-tree", archive, [comparison], 1, "now", "post", None, "post-tree",
+            )
+            bundle_path = runner.write_rollback_bundle(root, [decision])
+            bundle = runner.authenticate_rollback_bundle(bundle_path)
+            jars = root / "jars"; jars.mkdir(); (jars / "bench-JMH.jar").write_bytes(b"jar")
+            manifest_path = root / "delivery-manifest.json"; manifest_path.write_text("{}\n")
+
+            original_validate = runner.validate_committed
+            original_removals = runner.verify_dispatch_source_removals
+            runner.validate_committed = lambda *_args, **_kwargs: {
+                "delivery": {"git_commit": "rebased"},
+                "rollback": bundle,
+                "files": [{
+                    "path": bundle_path.resolve().relative_to(root.resolve()).as_posix(),
+                    "sha256": runner.sha256_file(bundle_path),
+                }],
+                "final_reasons": {
+                    "serializerDecodeDirectOptimized": "removed_after_regression",
+                    "serializerDecodeHeapOptimized": "removed_after_regression",
+                },
+            }
+            runner.verify_dispatch_source_removals = lambda *_args, **_kwargs: True
+
+            def rebased(argv, **_kwargs):
+                if argv[-1] == "HEAD":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"head\n", stderr=b"")
+                if argv[-1] == "HEAD^{tree}":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"head-tree\n", stderr=b"")
+                if argv[:3] == ["git", "merge-base", "--is-ancestor"]:
+                    return subprocess.CompletedProcess(argv, 0 if argv[3] == "rebased" else 1, stdout=b"", stderr=b"")
+                return subprocess.CompletedProcess(argv, 1, stdout=b"", stderr=b"unexpected")
+
+            try:
+                state = runner.resolve_jar(
+                    jars, root / "rebased.json", bundle_path,
+                    delivery_manifest=manifest_path, command_runner=rebased, repo_root=root,
+                )
+            finally:
+                runner.validate_committed = original_validate
+                runner.verify_dispatch_source_removals = original_removals
+
+            self.assertEqual("head", state["source_commit"])
+            self.assertEqual(str(manifest_path.resolve()), state["rollback_rebase_manifest_path"])
+            self.assertEqual(runner.sha256_file(manifest_path), state["rollback_rebase_manifest_sha256"])
+
     def test_pinned_jar_stat_rejects_same_bytes_inode_swap_before_execution(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td); jars = root / "jars"; jars.mkdir()

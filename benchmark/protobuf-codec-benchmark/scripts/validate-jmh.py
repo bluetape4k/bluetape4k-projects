@@ -886,6 +886,18 @@ def write_comparison(path, comparison):
             writer.writerow(row)
 
 
+def select_delivery_terminal(verdicts):
+    lettuce_verdicts = [
+        verdicts.get("lettuceEncodeHeapOptimized"),
+        verdicts.get("lettuceEncodeDirectOptimized"),
+    ]
+    if "regressed" in lettuce_verdicts:
+        return "rejected-after-regression"
+    if "accepted" in lettuce_verdicts:
+        return "retained-accepted"
+    return "retained-inconclusive"
+
+
 def validate_compare(run_paths, environment_paths, output_path, validation_path, rollback_bundle=None):
     if len(run_paths) != 2 or len(environment_paths) != 2:
         _fail("compare CLI", "input count", {"runs": len(run_paths), "environments": len(environment_paths)}, {"runs": 2, "environments": 2}, "pass exactly two canonical runs and environments")
@@ -921,15 +933,17 @@ def validate_compare(run_paths, environment_paths, output_path, validation_path,
             _fail(path, "rollback_bundle_sha256", declared, expected, "use the exact authenticated imported rollback bundle")
     comparison = compare_runs(runs[0], runs[1], rollback["ineligible_cells"] if rollback else None, str(output_path))
     write_comparison(output_path, comparison)
+    verdicts = {method: row["verdict"] for method, row in sorted(comparison.items())}
     result = {
         "schema_version": 1, "status": "passed", "mode": "compare",
         "run_ids": [runs[0]["run_id"], runs[1]["run_id"]],
         "observed_config_sha256": runs[0]["observed_config_sha256"],
         "comparison_path": str(Path(output_path).resolve()),
         "comparison_sha256": sha256_file(output_path),
-        "verdicts": {method: row["verdict"] for method, row in sorted(comparison.items())},
+        "verdicts": verdicts,
         "reasons": {method: row["reason"] for method, row in sorted(comparison.items())},
         "rollback_bundle_sha256": rollback["sha256"] if rollback else None,
+        "delivery_terminal": select_delivery_terminal(verdicts),
     }
     _write_json(validation_path, result)
     return result

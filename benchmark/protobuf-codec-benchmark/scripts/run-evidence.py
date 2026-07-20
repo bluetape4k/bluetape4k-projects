@@ -263,7 +263,53 @@ def capture_metadata(jar, expected=None, command_runner=subprocess.run, pass_fds
     return result_value
 
 
-def resolve_jar(jar_dir, state_path, rollback_bundle=None, command_runner=subprocess.run, repo_root=None):
+def _authenticate_rebased_rollback_lineage(
+    delivery_manifest, bundle, bundle_path, head, repo_root, command_runner
+):
+    manifest_path = Path(delivery_manifest).resolve()
+    manifest = validate_committed(
+        manifest_path, repo_root=repo_root, require_git_commit=True,
+        command_runner=command_runner,
+    )
+    if manifest.get("rollback") != bundle:
+        raise error(
+            manifest_path, "rollback payload differs from imported bundle",
+            "use the committed manifest that authenticates this exact rollback generation",
+        )
+    relative_bundle = Path(bundle_path).resolve().relative_to(Path(repo_root).resolve()).as_posix()
+    files = {item.get("path"): item.get("sha256") for item in manifest.get("files", [])}
+    if files.get(relative_bundle) != sha256_file(bundle_path):
+        raise error(
+            manifest_path, "rollback bundle path/hash is not bound by the manifest",
+            "use the byte-identical committed rollback bundle recorded by the manifest",
+        )
+    delivery_commit = manifest.get("delivery", {}).get("git_commit")
+    ancestry = _run(
+        command_runner, ["git", "merge-base", "--is-ancestor", delivery_commit, head],
+        cwd=repo_root,
+    )
+    if ancestry.returncode:
+        raise error(
+            manifest_path, "rebased delivery commit={} is not an ancestor of HEAD={}".format(delivery_commit, head),
+            "checkout the authenticated rebased delivery lineage",
+        )
+    dispatches = [decision["dispatch"] for decision in bundle["decisions"]]
+    verify_dispatch_source_removals(repo_root, head, dispatches, command_runner)
+    final_reasons = manifest.get("final_reasons", {})
+    for decision in bundle["decisions"]:
+        for cell in decision["removed_cells"]:
+            if final_reasons.get(cell) != "removed_after_regression":
+                raise error(
+                    manifest_path, "removed cell {} lacks rebased rollback reason".format(cell),
+                    "restore the committed post-removal delivery manifest",
+                )
+    return manifest_path
+
+
+def resolve_jar(
+    jar_dir, state_path, rollback_bundle=None, delivery_manifest=None,
+    command_runner=subprocess.run, repo_root=None,
+):
     jar_dir = Path(jar_dir)
     state_path = Path(state_path)
     if state_path.exists():
@@ -298,7 +344,13 @@ def resolve_jar(jar_dir, state_path, rollback_bundle=None, command_runner=subpro
             raise error(bundle_path, "current HEAD={} is an archived pre-removal head".format(head.strip()), "checkout the authenticated post-removal commit before resolve-jar")
         descent = _run(command_runner, ["git", "merge-base", "--is-ancestor", post_commit, head.strip()], cwd=repo_root)
         if descent.returncode != 0:
-            raise error(bundle_path, "current source head={} does not descend from post_rollback_commit={}".format(head.strip(), post_commit), "checkout the authenticated rollback lineage before resolving a fresh JAR")
+            if not delivery_manifest:
+                raise error(bundle_path, "current source head={} does not descend from post_rollback_commit={}".format(head.strip(), post_commit), "checkout the authenticated rollback lineage before resolving a fresh JAR")
+            rebased_manifest = _authenticate_rebased_rollback_lineage(
+                delivery_manifest, bundle, bundle_path, head.strip(), repo_root, command_runner,
+            )
+            state["rollback_rebase_manifest_path"] = str(rebased_manifest)
+            state["rollback_rebase_manifest_sha256"] = sha256_file(rebased_manifest)
         if head.strip() == post_commit and tree.strip() != latest.get("post_rollback_tree"):
             raise error(bundle_path, "post-removal tree observed={} expected={}".format(tree.strip(), latest.get("post_rollback_tree")), "restore the authenticated post-removal tree")
         state["source_commit"] = head.strip(); state["source_tree"] = tree.strip()
@@ -2400,7 +2452,7 @@ def parser():
     anchor.add_argument("--status-fd", type=int, required=True)
     anchor.add_argument("--pass-fd", type=int, action="append", default=[])
     anchor.add_argument("target_argv", nargs=argparse.REMAINDER)
-    resolve = commands.add_parser("resolve-jar"); resolve.add_argument("--jar-dir", required=True); resolve.add_argument("--state", required=True); resolve.add_argument("--rollback-bundle")
+    resolve = commands.add_parser("resolve-jar"); resolve.add_argument("--jar-dir", required=True); resolve.add_argument("--state", required=True); resolve.add_argument("--rollback-bundle"); resolve.add_argument("--delivery-manifest")
     run = commands.add_parser("run"); run.add_argument("--state", required=True); run.add_argument("--profile", choices=sorted(PROFILE_ARGS), required=True); run.add_argument("--output-root", required=True); run.add_argument("--run-id"); run.add_argument("--concurrent-heavy-work", choices=("absent", "present", "unknown"), required=True)
     compare = commands.add_parser("compare"); compare.add_argument("--state", required=True); compare.add_argument("--output", required=True); compare.add_argument("--validation", required=True)
     rollback = commands.add_parser("record-rollback"); rollback.add_argument("--state", required=True); rollback.add_argument("--dispatch", action="append", required=True, choices=DISPATCH_ORDER); rollback.add_argument("--archive-root", required=True)
@@ -2423,7 +2475,7 @@ def main(argv=None):
         if not target_argv:
             raise ValueError("anchor target argv must not be empty")
         _anchor_process(args.status_fd, args.pass_fd, target_argv)
-    elif args.command == "resolve-jar": resolve_jar(args.jar_dir, args.state, args.rollback_bundle)
+    elif args.command == "resolve-jar": resolve_jar(args.jar_dir, args.state, args.rollback_bundle, args.delivery_manifest)
     elif args.command == "run": run_benchmark(args.state, args.profile, args.output_root, args.run_id, args.concurrent_heavy_work)
     elif args.command == "compare": compare_state(args.state, args.output, args.validation)
     elif args.command == "record-rollback": record_rollback(args.state, args.dispatch, args.archive_root)
