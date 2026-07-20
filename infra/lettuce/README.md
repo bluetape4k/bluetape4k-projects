@@ -37,7 +37,20 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 | `RedisScriptRunner`                 | Helper object to execute `RedisScript` via sync / async / suspend APIs with `EVALSHA`→`EVAL` fallback                                        |
 
 Protobuf codecs are provided by the `bluetape4k-protobuf` module through
-`io.bluetape4k.protobuf.serializers.LettuceProtobufCodecs`.
+`io.bluetape4k.protobuf.serializers.redis.LettuceProtobufCodecs`.
+
+The uncompressed `protobuf()` and `trustedInternalProtobuf()` factories write Protobuf messages into Lettuce's
+caller-owned `ByteBuf` through the nullable target overload. A successful write commits `writerIndex` only after the
+complete packed message is present. If encoding fails, the index is unchanged, but capacity growth or bytes in the
+attempted range may remain; clear/reinitialize that range or discard the buffer before reuse. The single-argument
+`ByteBuffer` encode/decode methods, compressed factories, non-Protobuf fallback values, and custom-prefix serializers
+keep the copied compatibility path. This is a measured allocation reduction, not a zero-copy or throughput guarantee;
+see the [issue #757 evidence](../../docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md).
+
+`LettuceBinaryCodec` is open only to expose the nullable target-taking `encodeValue(value, target)` source extension
+seam; ordinary `RedisCodec` methods remain final. The open class also makes Kotlin-generated JVM bridge methods
+overrideable, so subclasses must preserve the serializer wire and trust contract. Existing factory callers do not need
+to migrate. Java callers use `LettuceProtobufCodecs.INSTANCE.protobuf()`.
 
 `LettuceCacheConfig` constraints:
 

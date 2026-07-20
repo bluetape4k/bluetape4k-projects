@@ -3,7 +3,7 @@
     [
       "java",
       "-jar",
-      "<PINNED_JAR_SHA256:e8731752bf7fb3177f4069552f74a209d152b7df38980bd80bc4e09ab0797042>",
+      "<PINNED_JAR_SHA256:df01ceb32ce7cf51e0efbdabf94dc8920d09e568d95ed0a16b075658f9a58484>",
       "-t",
       "1",
       "-f",
@@ -21,14 +21,14 @@
       "-rf",
       "json",
       "-rff",
-      "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/jmh.json",
+      "docs/benchmarks/raw/issue-757/canonical-a/jmh.json",
       "-jvmArgsAppend",
       "-Xms1g -Xmx1g -XX:+UseG1GC"
     ],
     [
       "java",
       "-jar",
-      "<PINNED_JAR_SHA256:e8731752bf7fb3177f4069552f74a209d152b7df38980bd80bc4e09ab0797042>",
+      "<PINNED_JAR_SHA256:df01ceb32ce7cf51e0efbdabf94dc8920d09e568d95ed0a16b075658f9a58484>",
       "-t",
       "1",
       "-f",
@@ -46,13 +46,13 @@
       "-rf",
       "json",
       "-rff",
-      "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/jmh.json",
+      "docs/benchmarks/raw/issue-757/canonical-b/jmh.json",
       "-jvmArgsAppend",
       "-Xms1g -Xmx1g -XX:+UseG1GC"
     ]
   ],
   "delivery": {
-    "git_commit": "dcad2c556f00629b7422c8a5c23b719526a8c1f0"
+    "git_commit": "b0166d6dd00e50d636d52d4f74d7eebef2da1945"
   },
   "files": [
     {
@@ -124,8 +124,64 @@
       "sha256": "9deb21165d567fd2469aa74a210174704f0954837a0fdaed9790c713b6cf6e12"
     },
     {
+      "path": "docs/benchmarks/raw/issue-757/canonical-a/argv.json",
+      "sha256": "78870f308b52d1c68cfdf5045d8c9cd00ef8b75fedf682a9de6b6a9e90b5af4c"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-757/canonical-a/environment.json",
+      "sha256": "6acb21664815c97a0f118d8316cc8a3912d4b593b525339ad22f81a1bd536020"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-757/canonical-a/jmh.json",
+      "sha256": "75887a9357fcf75d73eee7f8c0d9b347c3db395925234cd8106fc3fd49d126a6"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-757/canonical-a/metadata.json",
+      "sha256": "9d0b191e07c267b930e2c3a0f6a135b63e9c7c23c3f36a02ed8e531b75626f40"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-757/canonical-a/run.log",
+      "sha256": "f4d2bd0a5400f0ba9ca8b7045ad840266b64bb2ad1969426d6eda76c80337c02"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-757/canonical-a/summary.csv",
+      "sha256": "eb0c66c2a0a89b14ce54490db221241427d01e5f984c43b3e94d5c5e4a7e9668"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-757/canonical-a/validation.json",
+      "sha256": "bea0e71ed950e9f1bee8d090b6fbc40e1992f2c435eae1ffba8ecdfa05b645fe"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-757/canonical-b/argv.json",
+      "sha256": "61372a9e168fc7e51648f50ad4cc73c432f855591c93967fda7c5a1988f970a3"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-757/canonical-b/environment.json",
+      "sha256": "5065162e5bd512ad71c068a9b1d64aa1a015a2f33d6ecb26c371696a5cb69737"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-757/canonical-b/jmh.json",
+      "sha256": "7eb77f3bafc5594a43999824417cbe9441fbc7add6b3fe6fa9d19e7caac5ace1"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-757/canonical-b/metadata.json",
+      "sha256": "9d0b191e07c267b930e2c3a0f6a135b63e9c7c23c3f36a02ed8e531b75626f40"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-757/canonical-b/run.log",
+      "sha256": "906d6ad9ef687a592142c378d70293f095c0121a43c638c1e308679045b37c17"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-757/canonical-b/summary.csv",
+      "sha256": "2a72f945502446036ec07985bf7cded57f9403800ebe7a6624cb447c5b6e057d"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-757/canonical-b/validation.json",
+      "sha256": "b242474487923cfd7b6891a2cf3a76a246b064dc5621bed9ff532f5095163a5a"
+    },
+    {
       "path": "docs/benchmarks/raw/issue-757/comparison.csv",
-      "sha256": "e9d625b2fa4486a12215b5bc25e4dfa1e3de0bbfa4a1177830f1f73d409d3368"
+      "sha256": "b584e254fee8e0df4bdb6514dab738d9065d1f839cbbfa7d1f0067e301976bfe"
     },
     {
       "path": "docs/benchmarks/raw/issue-757/rollback-bundle-g1-83bb133a97331a448a1ff4c8491f0fa58012658dd3469023071f1396b83a83dd.json",
@@ -136,67 +192,15 @@
       "sha256": "8c6781bc43249e2d815d8e0e4f738b8e3d4a52cb23485ded4aedbd89ee401aac"
     },
     {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/argv.json",
-      "sha256": "363db158ec12ec17a26ca01989fbee269bb98766615f153974def5d95d36b219"
-    },
-    {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/environment.json",
-      "sha256": "8ed4b801328deccee40aa30941f75fd1b84cbd3883dfd49691de19bed7fe108f"
-    },
-    {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/jmh.json",
-      "sha256": "16a3bcf15a7a9daf9e95e1bec074c56467be4efb507791ab416452d69efb7513"
-    },
-    {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/metadata.json",
-      "sha256": "097447d167f65150c5a4cf9f256df5c36dcfe69113e23ddbc8bb1923f8d5de65"
-    },
-    {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/run.log",
-      "sha256": "30a2871d91e7a9d2ca3c59103d290cae0dcb72d343ecbf39f498dc5042ab3e74"
-    },
-    {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/summary.csv",
-      "sha256": "a18230c5446a36f897c06ac83c9886e0c69bfe39bf679b7cba9a2ff8b6cd3802"
-    },
-    {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T210358.790209Z-d5bbb3c1/validation.json",
-      "sha256": "089c229463569d23b534e011a9ae80732948e2e897b3d3076185a4d0e6f8c86e"
-    },
-    {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/argv.json",
-      "sha256": "2ca51d03a92a995ecf2b740aa9f434f18679a82a46cec67a9f98f10b04bcbb54"
-    },
-    {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/environment.json",
-      "sha256": "f000e71d3daa5bcd086f525082f36923f358c030b19daea072176dbfffe45fbd"
-    },
-    {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/jmh.json",
-      "sha256": "09cca4fb9a6dfa4c64111e0e8fa4667b94df25de9769477840456d8dc1dcc54b"
-    },
-    {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/metadata.json",
-      "sha256": "097447d167f65150c5a4cf9f256df5c36dcfe69113e23ddbc8bb1923f8d5de65"
-    },
-    {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/run.log",
-      "sha256": "7c519382d81a36beab42c9bf93c974ba44bb57e355539a4c1141486aa4750036"
-    },
-    {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/summary.csv",
-      "sha256": "128eb2fd7092a20ef3f613dd8af749bd1f93b42b8a2352a80dbb1a6e7a425bb0"
-    },
-    {
-      "path": "docs/benchmarks/raw/issue-757/run-20260718T210757.236799Z-cd971cfd/validation.json",
-      "sha256": "57e4f3c6fc80717867dd2948c4a08495c34033817cd9ae78ae85555ae8e62987"
-    },
-    {
       "path": "docs/benchmarks/raw/issue-757/validation.json",
-      "sha256": "72ac429e3c9afcf72e0946d722538cf7a7ba95c741d2c38e802f3275e812f9ee"
+      "sha256": "e1870c3826074938593c8c79baeb2880f806e20304e0bd64ae1022d7f2ec893c"
     }
   ],
   "final_reasons": {
+    "lettuceEncodeDirectCopied": "baseline",
+    "lettuceEncodeDirectOptimized": "candidate",
+    "lettuceEncodeHeapCopied": "baseline",
+    "lettuceEncodeHeapOptimized": "candidate",
     "redissonDecodeCompositeCompatibility": "compatibility_control",
     "redissonDecodeContiguousOptimized": "candidate",
     "redissonDecodeCopiedByteArray": "baseline",
@@ -212,6 +216,10 @@
     "trustedFallbackEncodeByteArray": "compatibility_control"
   },
   "final_verdicts": {
+    "lettuceEncodeDirectCopied": "ineligible",
+    "lettuceEncodeDirectOptimized": "accepted",
+    "lettuceEncodeHeapCopied": "ineligible",
+    "lettuceEncodeHeapOptimized": "accepted",
     "redissonDecodeCompositeCompatibility": "ineligible",
     "redissonDecodeContiguousOptimized": "accepted",
     "redissonDecodeCopiedByteArray": "ineligible",
@@ -227,244 +235,316 @@
     "trustedFallbackEncodeByteArray": "ineligible"
   },
   "measurement": {
-    "benchmark_jar_sha256": "e8731752bf7fb3177f4069552f74a209d152b7df38980bd80bc4e09ab0797042",
-    "git_commit": "22b155fbed160e95a259a7c6695620139bbedda8",
-    "tree_hash": "7a68ec6eff87f4e35446fa5096655e9822141a9f"
+    "benchmark_jar_sha256": "df01ceb32ce7cf51e0efbdabf94dc8920d09e568d95ed0a16b075658f9a58484",
+    "git_commit": "b0166d6dd00e50d636d52d4f74d7eebef2da1945",
+    "tree_hash": "f7383b5ea6181f015fffbe9a61b4158c764ddc75"
   },
-  "report_input_sha256": "c39898ddf9b201493a68d663d7f0641bb0f7a764ae66dde1feb3d3a6d8787b54",
+  "report_input_sha256": "a921d63b6f047c4664238e87f66cd6f52878dd0c4ce074e455ac9d852b5352c6",
   "results": [
     {
-      "allocation_b_per_op": "8208.0031049678437",
+      "allocation_b_per_op": "6888.0022077091198",
+      "delta_percent": "",
+      "method": "lettuceEncodeDirectCopied",
+      "reason": "baseline",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "3361313.536135593",
+      "verdict": "ineligible"
+    },
+    {
+      "allocation_b_per_op": "4904.0016411301785",
+      "delta_percent": "-28.803715602158608",
+      "method": "lettuceEncodeDirectOptimized",
+      "reason": "candidate",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "4472686.0566680608",
+      "verdict": "accepted"
+    },
+    {
+      "allocation_b_per_op": "6888.0023141260335",
+      "delta_percent": "",
+      "method": "lettuceEncodeHeapCopied",
+      "reason": "baseline",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "3136338.6069624377",
+      "verdict": "ineligible"
+    },
+    {
+      "allocation_b_per_op": "4904.0017881045915",
+      "delta_percent": "-28.80371456833892",
+      "method": "lettuceEncodeHeapOptimized",
+      "reason": "candidate",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "4199388.5130471839",
+      "verdict": "accepted"
+    },
+    {
+      "allocation_b_per_op": "7984.0032628536082",
       "delta_percent": "",
       "method": "redissonDecodeCompositeCompatibility",
       "reason": "compatibility_control",
-      "run": "run-20260718T210358.790209Z-d5bbb3c1",
-      "throughput_ops_per_s": "2283179.0280207801",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "2192802.6875351137",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "5512.0023462130948",
-      "delta_percent": "-28.22916174984595",
+      "allocation_b_per_op": "5264.0024656149608",
+      "delta_percent": "-29.77587591824627",
       "method": "redissonDecodeContiguousOptimized",
       "reason": "candidate",
-      "run": "run-20260718T210358.790209Z-d5bbb3c1",
-      "throughput_ops_per_s": "3073395.6491128579",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "2954185.5010888996",
       "verdict": "accepted"
     },
     {
-      "allocation_b_per_op": "7680.002742898525",
+      "allocation_b_per_op": "7496.0030252377355",
       "delta_percent": "",
       "method": "redissonDecodeCopiedByteArray",
       "reason": "baseline",
-      "run": "run-20260718T210358.790209Z-d5bbb3c1",
-      "throughput_ops_per_s": "2604907.9583846861",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "2381381.5499590943",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "5408.0025761987254",
+      "allocation_b_per_op": "5232.0023987497025",
       "delta_percent": "",
       "method": "serializerDecodeByteArray",
       "reason": "baseline",
-      "run": "run-20260718T210358.790209Z-d5bbb3c1",
-      "throughput_ops_per_s": "2783449.5162272095",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "3047700.4096576883",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "7688.003117985967",
-      "delta_percent": "42.159753248302806",
+      "allocation_b_per_op": "7528.2542003091612",
+      "delta_percent": "43.88858464797716",
       "method": "serializerDecodeDirectOptimized",
       "reason": "removed_after_regression",
-      "run": "run-20260718T210358.790209Z-d5bbb3c1",
-      "throughput_ops_per_s": "2283010.4273878522",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "2414244.6990463426",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "7688.0030958634916",
-      "delta_percent": "42.15975283923356",
+      "allocation_b_per_op": "7512.0030642548518",
+      "delta_percent": "43.57797439179316",
       "method": "serializerDecodeHeapOptimized",
       "reason": "removed_after_regression",
-      "run": "run-20260718T210358.790209Z-d5bbb3c1",
-      "throughput_ops_per_s": "2287434.3632573308",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "2352337.486309465",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "6976.0018440765562",
+      "allocation_b_per_op": "6888.0020000056293",
       "delta_percent": "",
       "method": "serializerEncodeByteArray",
       "reason": "baseline",
-      "run": "run-20260718T210358.790209Z-d5bbb3c1",
-      "throughput_ops_per_s": "4037088.3628994948",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "3629178.8669064147",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "4832.001960110777",
-      "delta_percent": "-30.733935166406052",
+      "allocation_b_per_op": "4608.0016075101348",
+      "delta_percent": "-33.10104138317078",
       "method": "serializerEncodeDirectOptimized",
       "reason": "candidate",
-      "run": "run-20260718T210358.790209Z-d5bbb3c1",
-      "throughput_ops_per_s": "3716265.0362028591",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "4573539.2585487599",
       "verdict": "accepted"
     },
     {
-      "allocation_b_per_op": "4784.0019137350764",
-      "delta_percent": "-31.422009043801285",
+      "allocation_b_per_op": "4608.0017807231252",
+      "delta_percent": "-33.10103886846492",
       "method": "serializerEncodeHeapOptimized",
       "reason": "candidate",
-      "run": "run-20260718T210358.790209Z-d5bbb3c1",
-      "throughput_ops_per_s": "3764966.881722345",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "4185961.3739894582",
       "verdict": "accepted"
     },
     {
-      "allocation_b_per_op": "5472.0100123672364",
+      "allocation_b_per_op": "5440.0120717753389",
       "delta_percent": "",
       "method": "trustedFallbackDecodeBufferCompatibility",
       "reason": "compatibility_control",
-      "run": "run-20260718T210358.790209Z-d5bbb3c1",
-      "throughput_ops_per_s": "693230.26668167487",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "577410.3716755677",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "4864.0094682211939",
+      "allocation_b_per_op": "4832.01156307357",
       "delta_percent": "",
       "method": "trustedFallbackDecodeByteArray",
       "reason": "compatibility_control",
-      "run": "run-20260718T210358.790209Z-d5bbb3c1",
-      "throughput_ops_per_s": "732427.46314681636",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "604545.36885234865",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "680.00433304952855",
+      "allocation_b_per_op": "656.00484403984888",
       "delta_percent": "",
       "method": "trustedFallbackEncodeBufferCompatibility",
       "reason": "compatibility_control",
-      "run": "run-20260718T210358.790209Z-d5bbb3c1",
-      "throughput_ops_per_s": "1627353.9903959902",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "1464427.8528835326",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "656.00441518770856",
+      "allocation_b_per_op": "656.00477730245166",
       "delta_percent": "",
       "method": "trustedFallbackEncodeByteArray",
       "reason": "compatibility_control",
-      "run": "run-20260718T210358.790209Z-d5bbb3c1",
-      "throughput_ops_per_s": "1596987.6895687275",
+      "run": "canonical-a",
+      "throughput_ops_per_s": "1468442.2611277709",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "8208.0031728151444",
+      "allocation_b_per_op": "6888.0022031805911",
+      "delta_percent": "",
+      "method": "lettuceEncodeDirectCopied",
+      "reason": "baseline",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "3363857.96867088",
+      "verdict": "ineligible"
+    },
+    {
+      "allocation_b_per_op": "4904.0016309886032",
+      "delta_percent": "-28.80371570258586",
+      "method": "lettuceEncodeDirectOptimized",
+      "reason": "candidate",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "4484617.6493494269",
+      "verdict": "accepted"
+    },
+    {
+      "allocation_b_per_op": "6900.0023082067364",
+      "delta_percent": "",
+      "method": "lettuceEncodeHeapCopied",
+      "reason": "baseline",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "3136200.9743110342",
+      "verdict": "ineligible"
+    },
+    {
+      "allocation_b_per_op": "4904.0017847892759",
+      "delta_percent": "-28.927534140727083",
+      "method": "lettuceEncodeHeapOptimized",
+      "reason": "candidate",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "4204641.9904903676",
+      "verdict": "accepted"
+    },
+    {
+      "allocation_b_per_op": "7984.0032964447091",
       "delta_percent": "",
       "method": "redissonDecodeCompositeCompatibility",
       "reason": "compatibility_control",
-      "run": "run-20260718T210757.236799Z-cd971cfd",
-      "throughput_ops_per_s": "2236728.9421896366",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "2173589.1646821112",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "5512.0022908040173",
-      "delta_percent": "-28.2291619975462",
+      "allocation_b_per_op": "5264.0024729244142",
+      "delta_percent": "-29.77587538755605",
       "method": "redissonDecodeContiguousOptimized",
       "reason": "candidate",
-      "run": "run-20260718T210757.236799Z-cd971cfd",
-      "throughput_ops_per_s": "3146780.2833217178",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "2927634.0396610615",
       "verdict": "accepted"
     },
     {
-      "allocation_b_per_op": "7680.0026922014831",
+      "allocation_b_per_op": "7496.0029789984956",
       "delta_percent": "",
       "method": "redissonDecodeCopiedByteArray",
       "reason": "baseline",
-      "run": "run-20260718T210757.236799Z-cd971cfd",
-      "throughput_ops_per_s": "2671363.1397229671",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "2412587.9153042538",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "5408.002677471738",
+      "allocation_b_per_op": "5232.4926357837649",
       "delta_percent": "",
       "method": "serializerDecodeByteArray",
       "reason": "baseline",
-      "run": "run-20260718T210757.236799Z-cd971cfd",
-      "throughput_ops_per_s": "2675586.5937079093",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "3061203.5604348499",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "7688.0031275427409",
-      "delta_percent": "42.15975076286227",
+      "allocation_b_per_op": "7528.2806896951024",
+      "delta_percent": "43.87560984244856",
       "method": "serializerDecodeDirectOptimized",
       "reason": "removed_after_regression",
-      "run": "run-20260718T210757.236799Z-cd971cfd",
-      "throughput_ops_per_s": "2261753.6392862187",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "2409559.3842003224",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "7688.0030942355388",
-      "delta_percent": "42.159750146974964",
+      "allocation_b_per_op": "7512.0030837091135",
+      "delta_percent": "43.5645228114861",
       "method": "serializerDecodeHeapOptimized",
       "reason": "removed_after_regression",
-      "run": "run-20260718T210757.236799Z-cd971cfd",
-      "throughput_ops_per_s": "2286784.2542860331",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "2337901.7518928973",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "6976.0018241986836",
+      "allocation_b_per_op": "6888.0020408936107",
       "delta_percent": "",
       "method": "serializerEncodeByteArray",
       "reason": "baseline",
-      "run": "run-20260718T210757.236799Z-cd971cfd",
-      "throughput_ops_per_s": "4083784.7282593446",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "3591970.6536042257",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "4832.0019865004315",
-      "delta_percent": "-30.733934590742862",
+      "allocation_b_per_op": "4608.0016245395163",
+      "delta_percent": "-33.10104153305826",
       "method": "serializerEncodeDirectOptimized",
       "reason": "candidate",
-      "run": "run-20260718T210757.236799Z-cd971cfd",
-      "throughput_ops_per_s": "3676905.182693834",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "4514172.1357707391",
       "verdict": "accepted"
     },
     {
-      "allocation_b_per_op": "4784.0019608610555",
-      "delta_percent": "-31.422008172846454",
+      "allocation_b_per_op": "4620.0018361395432",
+      "delta_percent": "-32.926822484794585",
       "method": "serializerEncodeHeapOptimized",
       "reason": "candidate",
-      "run": "run-20260718T210757.236799Z-cd971cfd",
-      "throughput_ops_per_s": "3698988.5416742042",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "4084644.4322161758",
       "verdict": "accepted"
     },
     {
-      "allocation_b_per_op": "5472.010264150962",
+      "allocation_b_per_op": "5440.0122221852598",
       "delta_percent": "",
       "method": "trustedFallbackDecodeBufferCompatibility",
       "reason": "compatibility_control",
-      "run": "run-20260718T210757.236799Z-cd971cfd",
-      "throughput_ops_per_s": "675648.9655588707",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "570482.5749631105",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "4864.0095431904992",
+      "allocation_b_per_op": "4832.0114376902238",
       "delta_percent": "",
       "method": "trustedFallbackDecodeByteArray",
       "reason": "compatibility_control",
-      "run": "run-20260718T210757.236799Z-cd971cfd",
-      "throughput_ops_per_s": "726909.34922423318",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "602434.80048251175",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "680.00429845876704",
+      "allocation_b_per_op": "656.0048888290064",
       "delta_percent": "",
       "method": "trustedFallbackEncodeBufferCompatibility",
       "reason": "compatibility_control",
-      "run": "run-20260718T210757.236799Z-cd971cfd",
-      "throughput_ops_per_s": "1639566.574601402",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "1447964.6492407662",
       "verdict": "ineligible"
     },
     {
-      "allocation_b_per_op": "656.00438386558778",
+      "allocation_b_per_op": "656.00474923839067",
       "delta_percent": "",
       "method": "trustedFallbackEncodeByteArray",
       "reason": "compatibility_control",
-      "run": "run-20260718T210757.236799Z-cd971cfd",
-      "throughput_ops_per_s": "1610014.2777594437",
+      "run": "canonical-b",
+      "throughput_ops_per_s": "1481717.1410418458",
       "verdict": "ineligible"
     }
   ],

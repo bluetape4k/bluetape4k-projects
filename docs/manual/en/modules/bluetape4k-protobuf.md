@@ -55,6 +55,12 @@ Add the coordinate above, refresh Gradle, and start from the smallest entry poin
 
 The README evidence is organized around **Overview**, **Architecture**, **Protobuf Class Structure**, **Protobuf Type Conversion Flow**, **ProtobufSerializer Allowlist Sequence**, **Key Features**, **Security: ProtobufSerializer Allowlist**, **Usage Examples**, **1. Type Aliases**, and **2. Timestamp Conversion**. Use those topics as a navigation map, then confirm behavior in source and tests. Keep adoption narrow and connect owned resources to the caller lifecycle.
 
+For Lettuce, the strict uncompressed factory writes default-prefix Protobuf messages into the caller-owned `ByteBuf`.
+The trusted-internal factory keeps the same target path plus the legacy fallback and is forbidden at shared or
+untrusted boundaries. Compressed, custom-prefix, fallback, and single-argument `ByteBuffer` paths remain copied.
+Failed target writes do not commit `writerIndex`, but callers must clear attempted bytes/capacity changes or discard the
+buffer. Existing factory callers do not migrate; Java uses `LettuceProtobufCodecs.INSTANCE.protobuf()`.
+
 ## Integrations {#integrations}
 
 The current build declares these integration edges:

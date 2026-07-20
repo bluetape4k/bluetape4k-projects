@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "issue": 757,
+  "phase": "template",
+  "incident": {
+    "summary": null,
+    "affected_consumers": [],
+    "environment": null,
+    "region": null,
+    "owner": null,
+    "contact": null
+  },
+  "published_baseline": {
+    "repository": null,
+    "gav": null,
+    "digest": null,
+    "release_commit": null,
+    "release_tree": null,
+    "release_ref": null
+  },
+  "planned_recovery": {
+    "coordinate": null,
+    "digest": null,
+    "commit": null,
+    "tree": null,
+    "command": null,
+    "target": null,
+    "environment": null,
+    "region": null
+  },
+  "approval": {
+    "request_digest": null,
+    "reviewer": null,
+    "review_url": null,
+    "approved_at": null
+  },
+  "post_dispatch": {
+    "actual_coordinate": null,
+    "actual_digest": null,
+    "actual_command": null,
+    "actual_target": null,
+    "deployed_at": null
+  },
+  "observation": {
+    "window_start": null,
+    "window_end": null,
+    "queries": [],
+    "thresholds": [],
+    "results": []
+  },
+  "close": {
+    "consumer_impact_resolved": false,
+    "abi_equal": false,
+    "owner_signoff": null,
+    "reviewer_signoff": null,
+    "issue_comment_url": null
+  }
+}

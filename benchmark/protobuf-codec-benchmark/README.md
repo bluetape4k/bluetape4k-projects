@@ -4,12 +4,13 @@ English | [한국어](./README.ko.md)
 
 This module collects deterministic JMH allocation evidence for issue #757. It compares the existing `ByteArray`
 paths with caller-owned `ByteBuffer` encode paths and inherited decode compatibility paths in `ProtobufSerializer`,
-plus copied, contiguous, and composite decode paths in `RedissonProtobufCodec`. Throughput is retained as a diagnostic
-metric; `gc.alloc.rate.norm` (`B/op`) is the claim gate.
+plus copied, contiguous, and composite decode paths in `RedissonProtobufCodec`, and copied versus caller-owned
+`ByteBuf` encode paths in `LettuceProtobufCodecs`. Throughput is retained as a diagnostic metric;
+`gc.alloc.rate.norm` (`B/op`) is the claim gate.
 
 ## Exact Method Matrix
 
-The runner and validator require exactly these 13 methods. Missing, duplicated, or additional methods fail validation.
+The runner and validator require exactly these 17 methods. Missing, duplicated, or additional methods fail validation.
 
 | Method | Comparison role | Claim eligible |
 |---|---|---|
@@ -22,14 +23,20 @@ The runner and validator require exactly these 13 methods. Missing, duplicated, 
 | `redissonDecodeCopiedByteArray` | Redisson copied baseline | No |
 | `redissonDecodeContiguousOptimized` | Contiguous `ByteBuf` candidate | Yes |
 | `redissonDecodeCompositeCompatibility` | Composite copied compatibility control | No |
+| `lettuceEncodeHeapCopied` | Heap copied baseline | No |
+| `lettuceEncodeHeapOptimized` | Heap caller-owned `ByteBuf` candidate | Yes |
+| `lettuceEncodeDirectCopied` | Direct copied baseline | No |
+| `lettuceEncodeDirectOptimized` | Direct caller-owned `ByteBuf` candidate | Yes |
 | `trustedFallbackEncodeByteArray` | Trusted fallback encode control | No |
 | `trustedFallbackEncodeBufferCompatibility` | Trusted fallback buffer encode control | No |
 | `trustedFallbackDecodeByteArray` | Trusted fallback decode control | No |
 | `trustedFallbackDecodeBufferCompatibility` | Trusted fallback buffer decode control | No |
 
-Only the three retained encode and Redisson `*Optimized` methods are eligible for a positive allocation claim. The two
-serializer decode methods remain in the exact matrix for final compatibility measurement after their shared direct
-decode dispatch was rolled back; they, the other compatibility controls, and fallback cells remain claim-ineligible.
+Only the five retained serializer, Redisson, and Lettuce `*Optimized` methods are eligible for a positive allocation
+claim. The two serializer decode methods remain in the exact matrix for final compatibility measurement after their
+shared direct decode dispatch was rolled back; they, baselines, the other compatibility controls, and fallback cells
+remain claim-ineligible. The committed report records the accepted Lettuce heap/direct result without making a
+zero-copy or general throughput claim.
 
 ## Build and Smoke Validation
 
@@ -47,7 +54,7 @@ python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py run \
   --output-root benchmark/protobuf-codec-benchmark/build/issue-757-smoke
 ```
 
-Smoke uses `-t 1 -f 1 -wi 1 -i 1 -w 1s -r 1s -prof gc -rf json`. It proves that all 13 cells emit the required
+Smoke uses `-t 1 -f 1 -wi 1 -i 1 -w 1s -r 1s -prof gc -rf json`. It proves that all 17 cells emit the required
 schema, provenance, throughput, and allocation metrics; it is not publishable performance evidence. Use a fresh state
 and output root for canonical evidence.
 

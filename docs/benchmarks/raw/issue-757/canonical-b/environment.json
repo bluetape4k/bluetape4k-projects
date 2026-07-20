@@ -1,0 +1,123 @@
+{
+  "arch": "arm64",
+  "benchmark_jar_ref": "<PINNED_JAR_SHA256:df01ceb32ce7cf51e0efbdabf94dc8920d09e568d95ed0a16b075658f9a58484>",
+  "benchmark_jar_sha256": "df01ceb32ce7cf51e0efbdabf94dc8920d09e568d95ed0a16b075658f9a58484",
+  "benchmark_jar_stat": [
+    16777234,
+    246262935,
+    65395786
+  ],
+  "clean_status": "clean",
+  "concurrent_heavy_work": "absent",
+  "config_json": "{\"allocator_class\":\"io.netty.buffer.UnpooledByteBufAllocator\",\"allowed_class_prefixes\":[\"com.google.protobuf.\",\"io.bluetape4k.\"],\"direct_capacity\":2296,\"direct_initial_position\":3,\"direct_max_capacity\":2296,\"heap_capacity\":2296,\"heap_initial_position\":3,\"heap_max_capacity\":2296,\"matrix_version\":\"issue-757-lettuce-v2\",\"methods\":[\"lettuceEncodeDirectCopied\",\"lettuceEncodeDirectOptimized\",\"lettuceEncodeHeapCopied\",\"lettuceEncodeHeapOptimized\",\"redissonDecodeCompositeCompatibility\",\"redissonDecodeContiguousOptimized\",\"redissonDecodeCopiedByteArray\",\"serializerDecodeByteArray\",\"serializerDecodeDirectOptimized\",\"serializerDecodeHeapOptimized\",\"serializerEncodeByteArray\",\"serializerEncodeDirectOptimized\",\"serializerEncodeHeapOptimized\",\"trustedFallbackDecodeBufferCompatibility\",\"trustedFallbackDecodeByteArray\",\"trustedFallbackEncodeBufferCompatibility\",\"trustedFallbackEncodeByteArray\"],\"payload_identity\":\"BenchmarkMessage:id=42;payload=protobuf-payload-*128\",\"payload_sha256\":\"0263a05e9a4d5f7fd32febe8b2fa8eea49d88a6618312aedef29298c29e9e5f7\",\"redisson_codec_class\":\"io.bluetape4k.protobuf.serializers.redis.RedissonProtobufCodec\",\"serializer_class\":\"io.bluetape4k.protobuf.serializers.ProtobufSerializer\",\"target_headroom\":32,\"target_start\":3}",
+  "config_sha256": "b4673b77f650be959edf64c56ab815cee06df3754ec06fc7ec53c4521e8049ce",
+  "cpu": "arm",
+  "executed_jar_ref": "<PINNED_JAR_SHA256:df01ceb32ce7cf51e0efbdabf94dc8920d09e568d95ed0a16b075658f9a58484>",
+  "executed_jar_stat": [
+    16777234,
+    246263601,
+    65395786
+  ],
+  "forks": 2,
+  "git_commit": "b0166d6dd00e50d636d52d4f74d7eebef2da1945",
+  "gradle_version": "9.6.0",
+  "initial_clean_status": {
+    "phase": "initial",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout": ""
+  },
+  "jdk_version": "21.0.11",
+  "jmh_argv": [
+    "java",
+    "-jar",
+    "<PINNED_JAR_SHA256:df01ceb32ce7cf51e0efbdabf94dc8920d09e568d95ed0a16b075658f9a58484>",
+    "-t",
+    "1",
+    "-f",
+    "2",
+    "-wi",
+    "3",
+    "-i",
+    "5",
+    "-w",
+    "1s",
+    "-r",
+    "1s",
+    "-prof",
+    "gc",
+    "-rf",
+    "json",
+    "-rff",
+    "jmh.json",
+    "-jvmArgsAppend",
+    "-Xms1g -Xmx1g -XX:+UseG1GC"
+  ],
+  "jmh_version": "1.37",
+  "jmh_version_capture": {
+    "command": [],
+    "exit_code": 0,
+    "normalized": "1.37",
+    "source": "jar-metadata",
+    "stderr": "",
+    "stdout": ""
+  },
+  "jvm_args": [
+    "-Xms1g",
+    "-Xmx1g",
+    "-XX:+UseG1GC"
+  ],
+  "jvm_vendor": "Oracle Corporation",
+  "jvm_version": "21.0.11",
+  "matrix_version": "issue-757-lettuce-v2",
+  "measurement_time": "1 s",
+  "measurements": 5,
+  "metadata": {
+    "config_json": "{\"allocator_class\":\"io.netty.buffer.UnpooledByteBufAllocator\",\"allowed_class_prefixes\":[\"com.google.protobuf.\",\"io.bluetape4k.\"],\"direct_capacity\":2296,\"direct_initial_position\":3,\"direct_max_capacity\":2296,\"heap_capacity\":2296,\"heap_initial_position\":3,\"heap_max_capacity\":2296,\"matrix_version\":\"issue-757-lettuce-v2\",\"methods\":[\"lettuceEncodeDirectCopied\",\"lettuceEncodeDirectOptimized\",\"lettuceEncodeHeapCopied\",\"lettuceEncodeHeapOptimized\",\"redissonDecodeCompositeCompatibility\",\"redissonDecodeContiguousOptimized\",\"redissonDecodeCopiedByteArray\",\"serializerDecodeByteArray\",\"serializerDecodeDirectOptimized\",\"serializerDecodeHeapOptimized\",\"serializerEncodeByteArray\",\"serializerEncodeDirectOptimized\",\"serializerEncodeHeapOptimized\",\"trustedFallbackDecodeBufferCompatibility\",\"trustedFallbackDecodeByteArray\",\"trustedFallbackEncodeBufferCompatibility\",\"trustedFallbackEncodeByteArray\"],\"payload_identity\":\"BenchmarkMessage:id=42;payload=protobuf-payload-*128\",\"payload_sha256\":\"0263a05e9a4d5f7fd32febe8b2fa8eea49d88a6618312aedef29298c29e9e5f7\",\"redisson_codec_class\":\"io.bluetape4k.protobuf.serializers.redis.RedissonProtobufCodec\",\"serializer_class\":\"io.bluetape4k.protobuf.serializers.ProtobufSerializer\",\"target_headroom\":32,\"target_start\":3}",
+    "config_sha256": "b4673b77f650be959edf64c56ab815cee06df3754ec06fc7ec53c4521e8049ce",
+    "matrix_version": "issue-757-lettuce-v2",
+    "payload_sha256": "0263a05e9a4d5f7fd32febe8b2fa8eea49d88a6618312aedef29298c29e9e5f7",
+    "payload_size": 2264,
+    "schema_version": 1,
+    "target_headroom": 32,
+    "target_start": 3
+  },
+  "metadata_prelaunch_stdout_sha256": "08fea0231deb65d154ea0d01f5df7d0c412417c013cdd1ebc62c9ca5807abb67",
+  "metadata_stderr": "",
+  "metadata_stdout": "{\"config_json\":\"{\\\"allocator_class\\\":\\\"io.netty.buffer.UnpooledByteBufAllocator\\\",\\\"allowed_class_prefixes\\\":[\\\"com.google.protobuf.\\\",\\\"io.bluetape4k.\\\"],\\\"direct_capacity\\\":2296,\\\"direct_initial_position\\\":3,\\\"direct_max_capacity\\\":2296,\\\"heap_capacity\\\":2296,\\\"heap_initial_position\\\":3,\\\"heap_max_capacity\\\":2296,\\\"matrix_version\\\":\\\"issue-757-lettuce-v2\\\",\\\"methods\\\":[\\\"lettuceEncodeDirectCopied\\\",\\\"lettuceEncodeDirectOptimized\\\",\\\"lettuceEncodeHeapCopied\\\",\\\"lettuceEncodeHeapOptimized\\\",\\\"redissonDecodeCompositeCompatibility\\\",\\\"redissonDecodeContiguousOptimized\\\",\\\"redissonDecodeCopiedByteArray\\\",\\\"serializerDecodeByteArray\\\",\\\"serializerDecodeDirectOptimized\\\",\\\"serializerDecodeHeapOptimized\\\",\\\"serializerEncodeByteArray\\\",\\\"serializerEncodeDirectOptimized\\\",\\\"serializerEncodeHeapOptimized\\\",\\\"trustedFallbackDecodeBufferCompatibility\\\",\\\"trustedFallbackDecodeByteArray\\\",\\\"trustedFallbackEncodeBufferCompatibility\\\",\\\"trustedFallbackEncodeByteArray\\\"],\\\"payload_identity\\\":\\\"BenchmarkMessage:id=42;payload=protobuf-payload-*128\\\",\\\"payload_sha256\\\":\\\"0263a05e9a4d5f7fd32febe8b2fa8eea49d88a6618312aedef29298c29e9e5f7\\\",\\\"redisson_codec_class\\\":\\\"io.bluetape4k.protobuf.serializers.redis.RedissonProtobufCodec\\\",\\\"serializer_class\\\":\\\"io.bluetape4k.protobuf.serializers.ProtobufSerializer\\\",\\\"target_headroom\\\":32,\\\"target_start\\\":3}\",\"config_sha256\":\"b4673b77f650be959edf64c56ab815cee06df3754ec06fc7ec53c4521e8049ce\",\"matrix_version\":\"issue-757-lettuce-v2\",\"payload_sha256\":\"0263a05e9a4d5f7fd32febe8b2fa8eea49d88a6618312aedef29298c29e9e5f7\",\"payload_size\":2264,\"schema_version\":1,\"target_headroom\":32,\"target_start\":3}\n",
+  "metadata_stdout_sha256": "08fea0231deb65d154ea0d01f5df7d0c412417c013cdd1ebc62c9ca5807abb67",
+  "mode": "thrpt",
+  "os": "Darwin",
+  "payload_sha256": "0263a05e9a4d5f7fd32febe8b2fa8eea49d88a6618312aedef29298c29e9e5f7",
+  "payload_size": 2264,
+  "power_state": "ac",
+  "power_state_capture": {
+    "command": [
+      "pmset",
+      "-g",
+      "batt"
+    ],
+    "exit_code": 0,
+    "normalized": "ac",
+    "stderr": "",
+    "stdout": "Now drawing from 'AC Power'\n"
+  },
+  "prelaunch_clean_status": {
+    "phase": "pre-launch",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout": ""
+  },
+  "profile": "canonical",
+  "profiler": "gc",
+  "rollback_bundle_sha256": "a0c3a33db31998d0e7d3cba7bed5c663148442a9e993304d1cb8df4056a0acb1",
+  "run_id": "canonical-b",
+  "schema_version": 1,
+  "target_headroom": 32,
+  "target_start": 3,
+  "threads": 1,
+  "tree_hash": "f7383b5ea6181f015fffbe9a61b4158c764ddc75",
+  "uname": "macOS-26.5.2-arm64-arm-64bit",
+  "vm_name": "Java HotSpot(TM) 64-Bit Server VM",
+  "vm_version": "21.0.11+9-LTS-jvmci-23.1-b92",
+  "warmup_time": "1 s",
+  "warmups": 3
+}

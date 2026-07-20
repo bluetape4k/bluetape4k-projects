@@ -96,6 +96,31 @@ val codec = RedissonProtobufCodec(
 )
 ```
 
+### Lettuce caller-owned ByteBuf encode
+
+`LettuceProtobufCodecs.protobuf()`는 strict 기본 allowlist를 유지하면서 압축하지 않은 Protobuf message를
+Lettuce가 소유한 `ByteBuf`에 기록합니다. `trustedInternalProtobuf()`도 같은 target 경로를 사용하지만 신뢰
+Kryo fallback을 유지하므로 shared/untrusted boundary에서는 사용하면 안 됩니다.
+
+```kotlin
+val strictCodec = LettuceProtobufCodecs.protobuf<MyBluetapeMessage>()
+val trustedLegacyCodec = LettuceProtobufCodecs.trustedInternalProtobuf<MyBluetapeMessage>()
+```
+
+기본 prefix 밖의 package는 명시적인 serializer로 generic codec을 구성하며 copied compatibility 경로를 유지합니다:
+
+```kotlin
+val customCodec = LettuceBinaryCodec<MyMessage>(
+    ProtobufSerializer(allowedClassPrefixes = setOf("com.mycompany.proto.")),
+)
+```
+
+압축 factory와 단일 인자의 `ByteBuffer` encode/decode API는 바뀌지 않습니다. Target write는 성공 뒤에만
+`writerIndex`를 commit합니다. 실패하면 capacity 증가나 시도한 bytes가 남을 수 있으므로 caller가 해당 range를
+clear/reinitialize하거나 buffer를 폐기해야 합니다. Heap/direct allocation 감소 실측은
+[issue #757 report](../../docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md)에 있으며 zero-copy나 throughput
+보장은 아닙니다. Java caller는 `LettuceProtobufCodecs.INSTANCE.protobuf()`를 사용합니다.
+
 ## 사용 예시
 
 ### 1. 타입 별칭

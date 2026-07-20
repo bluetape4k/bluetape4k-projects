@@ -16,7 +16,7 @@ can influence deserialization.
 |---|---|---|
 | Kafka 3/4 Jackson codecs | `AllowListedTypes` | `emptySet()` denies all dynamic class loading; configure package prefixes for production or use `ALLOW_ALL_TYPES_UNSAFE` only for trusted legacy migration. |
 | ProtobufSerializer | `AllowListedTypes` | Defaults to `io.bluetape4k.` and `com.google.protobuf.` and rejects non-Protobuf values or bytes unless `ProtobufSerializer.trustedInternalProtobuf()` is selected. |
-| LettuceProtobufCodecs | `AllowListedTypes` | Default `*Protobuf()` factories are strict. Use `trustedInternal*Protobuf()` only for internal Redis stores that must read legacy Kryo fallback payloads. |
+| LettuceProtobufCodecs | `AllowListedTypes` | Default `*Protobuf()` factories are strict. Their caller-owned `ByteBuf` path preserves the same allowlist and wire contract. Use `trustedInternal*Protobuf()` only for internal Redis stores that must read legacy Kryo fallback payloads; compressed, fallback, custom-prefix, and single-argument `ByteBuffer` paths remain compatibility paths. |
 | RedissonProtobufCodec | `AllowListedTypes` | Default constructors and `RedissonProtobufCodecs.*Protobuf` values are strict. Use `RedissonProtobufCodec.trustedInternal()` or `RedissonProtobufCodecs.TrustedInternal*Protobuf` only for legacy fallback payloads; legacy allow-all requires `ALLOW_ALL_CLASSES_UNSAFE`. |
 | Redisson Jackson3/Fastjson2 | `TrustedInternal` by default | Set `allowedPackagePrefixes` to move JSONB/polymorphic JSON use into `AllowListedTypes`. |
 | Kryo/Fory binary serializers | `TrustedInternal` by default | Use secure factories when data crosses a shared or untrusted boundary. |
