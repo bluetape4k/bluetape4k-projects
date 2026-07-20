@@ -685,6 +685,16 @@ function parsePath(d) {
       x = Number(tokens[i++]);
       y = Number(tokens[i++]);
       points.push({ x, y });
+    } else if (command === "Q") {
+      i += 2;
+      x = Number(tokens[i++]);
+      y = Number(tokens[i++]);
+      points.push({ x, y });
+    } else if (command === "q") {
+      i += 2;
+      x += Number(tokens[i++]);
+      y += Number(tokens[i++]);
+      points.push({ x, y });
     } else {
       break;
     }

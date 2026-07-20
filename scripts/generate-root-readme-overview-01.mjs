@@ -85,7 +85,7 @@ function wrap(text, max = 34) {
 
 function markerDefs() {
   return Object.entries(palette)
-    .map(([name, [, , dark]]) => `<marker id="arrow-${name}" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M .7 .7 L 5.4 3 L .7 5.3 Z" fill="${dark}"/></marker>`)
+    .map(([name, [, , dark]]) => `<marker id="arrow-${name}" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="${dark}"/></marker>`)
     .join("\n");
 }
 
@@ -113,27 +113,26 @@ function card({ id, x, y, w, h, color, iconKind, title, count, details }) {
 </g>`;
 }
 
-function route(from, to, points, color) {
+function route(from, to, d, color) {
   const [, , dark] = palette[color];
-  const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
-  return `<path class="route" data-from="${esc(from)}" data-to="${esc(to)}" d="${d}" stroke="${dark}" marker-end="url(#arrow-${color})"/>`;
+  return `<path class="route" data-from="${esc(from)}" data-to="${esc(to)}" aria-label="${esc(from)} to ${esc(to)}" d="${d}" stroke="${dark}" marker-end="url(#arrow-${color})"/>`;
 }
 
 function pill(x, y, label, color) {
   const [fill, stroke] = palette[color];
-  return `<g><rect class="pill" x="${x}" y="${y}" width="160" height="46" rx="8" fill="${fill}" stroke="${stroke}"/><text class="pillText" x="${x + 80}" y="${y + 29}" text-anchor="middle">${esc(label)}</text></g>`;
+  return `<g><rect class="tag" x="${x}" y="${y}" width="130" height="46" rx="8" fill="${fill}" stroke="${stroke}"/><text class="tagText" x="${x + 65}" y="${y + 29}" text-anchor="middle">${esc(label)}</text></g>`;
 }
 
 const width = 2200;
 const height = 1360;
-const center = { x: 810, y: 470, w: 580, h: 300 };
+const center = { x: 850, y: 470, w: 500, h: 300 };
 
 const cards = [
   card({
     id: "foundation",
-    x: 120,
+    x: 140,
     y: 275,
-    w: 520,
+    w: 500,
     h: 190,
     color: "blue",
     iconKind: "core",
@@ -143,9 +142,9 @@ const cards = [
   }),
   card({
     id: "dataCache",
-    x: 120,
+    x: 140,
     y: 795,
-    w: 520,
+    w: 500,
     h: 210,
     color: "pink",
     iconKind: "data",
@@ -157,7 +156,7 @@ const cards = [
     id: "ioInfra",
     x: 1560,
     y: 275,
-    w: 520,
+    w: 500,
     h: 220,
     color: "teal",
     iconKind: "io",
@@ -169,7 +168,7 @@ const cards = [
     id: "apps",
     x: 1560,
     y: 770,
-    w: 520,
+    w: 500,
     h: 210,
     color: "green",
     iconKind: "app",
@@ -204,7 +203,7 @@ const cards = [
   card({
     id: "splitRepos",
     x: 690,
-    y: 150,
+    y: 210,
     w: 820,
     h: 120,
     color: "gray",
@@ -220,31 +219,33 @@ const body = [
   `<rect class="frame" x="34" y="30" width="${width - 68}" height="${height - 60}" rx="8"/>`,
   `<text class="title" x="72" y="84">Bluetape4k Projects Overview</text>`,
   `<text class="subtitle" x="76" y="118">A Kotlin/JVM backend toolkit repo: foundation libraries, data/cache, I/O/infra, app runtimes, utilities, and test support.</text>`,
-  `<rect class="focus" x="${center.x}" y="${center.y}" width="${center.w}" height="${center.h}" rx="8"/>`,
+  `<g id="repo" class="cardGroup">`,
+  `<rect class="card focus" x="${center.x}" y="${center.y}" width="${center.w}" height="${center.h}" rx="8"/>`,
   icon(center.x + 36, center.y + 34, palette.olive[1], "core"),
   `<text class="focusTitle" x="${center.x + 110}" y="${center.y + 66}">This repository</text>`,
   `<text class="focusName" x="${center.x + 110}" y="${center.y + 108}">bluetape4k-projects</text>`,
-  `<text class="focusDetail" x="${center.x + 42}" y="${center.y + 154}">Shared Kotlin/JVM backend libraries published as modular Gradle artifacts.</text>`,
+  `<text class="focusDetail" x="${center.x + 42}" y="${center.y + 154}">Shared Kotlin/JVM libraries published for reuse.</text>`,
   `<text class="focusDetail" x="${center.x + 42}" y="${center.y + 184}">Use the BOM/catalog for version alignment.</text>`,
   `<text class="focusDetail" x="${center.x + 42}" y="${center.y + 212}">Pick only the module families needed by the application.</text>`,
   pill(center.x + 44, center.y + 226, "Kotlin 2.3", "purple"),
-  pill(center.x + 214, center.y + 226, "Java 21", "amber"),
-  pill(center.x + 384, center.y + 226, "Spring Boot 4", "green"),
+  pill(center.x + 184, center.y + 226, "Java 21", "amber"),
+  pill(center.x + 324, center.y + 226, "Spring Boot 4", "green"),
+  `</g>`,
   ...cards,
-  route("foundation", "repo", [[640, 370], [810, 560]], "blue"),
-  route("dataCache", "repo", [[640, 900], [810, 650]], "pink"),
-  route("ioInfra", "repo", [[1560, 385], [1390, 560]], "teal"),
-  route("apps", "repo", [[1560, 875], [1390, 650]], "green"),
-  route("repo", "testing", [[980, 770], [785, 1020]], "amber"),
-  route("repo", "utilities", [[1220, 770], [1325, 1020]], "purple"),
-  route("splitRepos", "repo", [[1100, 270], [1100, 470]], "gray"),
+  route("foundation", "repo", "M 640 410 L 731 410 Q 745 410 745 424 L 745 546 Q 745 560 759 560 L 850 560", "blue"),
+  route("dataCache", "repo", "M 640 900 L 731 900 Q 745 900 745 886 L 745 664 Q 745 650 759 650 L 850 650", "pink"),
+  route("ioInfra", "repo", "M 1560 415 L 1469 415 Q 1455 415 1455 429 L 1455 546 Q 1455 560 1441 560 L 1350 560", "teal"),
+  route("apps", "repo", "M 1560 875 L 1469 875 Q 1455 875 1455 861 L 1455 664 Q 1455 650 1441 650 L 1350 650", "green"),
+  route("repo", "testing", "M 990 770 L 990 881 Q 990 895 976 895 L 799 895 Q 785 895 785 909 L 785 1020", "amber"),
+  route("repo", "utilities", "M 1210 770 L 1210 881 Q 1210 895 1224 895 L 1311 895 Q 1325 895 1325 909 L 1325 1020", "purple"),
+  route("splitRepos", "repo", "M 1100 330 L 1100 470", "gray"),
   `<g class="legend" transform="translate(102,1220)">
   <text class="legendTitle" x="0" y="0">How to read this overview</text>
   <text class="legendText" x="0" y="32">Center is the repository boundary. Side cards are module families currently included by settings.gradle.kts. Top card is the split-repo ecosystem kept out of this repo.</text>
 </g>`,
 ];
 
-const svg = `<svg data-intent="Recreate the root README overview as a repository boundary and module-family map, not a uniform layered inventory." data-evidence="${esc(evidence.join("; "))}; module directories counted from settings.gradle.kts groups" data-source-read="${esc(evidence.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Bluetape4k Projects Overview">
+const svg = `<svg data-intent="Recreate the root README overview as a repository boundary and module-family map, not a uniform layered inventory." data-evidence="${esc(evidence.join("; "))}; module directories counted from settings.gradle.kts groups" data-source-read="${esc(evidence.join("; "))}" data-layout="responsibility-map" data-allow-grid="true" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Bluetape4k Projects Overview">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}
@@ -254,7 +255,7 @@ const svg = `<svg data-intent="Recreate the root README overview as a repository
     .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
     .focus{fill:#F7FEE7;stroke:#65A30D;stroke-width:2.2;filter:url(#shadow)}.focusTitle{font-family:"Comic Mono";font-size:17px;fill:#475569}.focusName{font-family:"Architects Daughter";font-size:34px;fill:#0F172A}.focusDetail{font-family:"Comic Mono";font-size:15px;fill:#334155}
     .card{filter:url(#shadow);stroke-width:1.8}.cardTitle{font-family:"Architects Daughter";font-size:29px;fill:#0F172A}.count{font-family:"Comic Mono";font-size:15px;fill:#475569}.detail{font-family:"Comic Mono";font-size:15px;fill:#334155}
-    .pill{stroke-width:1.5}.pillText{font-family:"Comic Mono";font-size:14px;fill:#334155}.route{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+    .tag{stroke-width:1.5}.tagText{font-family:"Comic Mono";font-size:14px;fill:#334155}.route{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
     .legendTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}.legendText{font-family:"Comic Mono";font-size:15px;fill:#475569}
   </style>
 </defs>
