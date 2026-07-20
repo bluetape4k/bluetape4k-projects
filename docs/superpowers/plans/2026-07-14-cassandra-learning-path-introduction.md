@@ -55,15 +55,15 @@ Expected: 두 명령 모두 exit 0. 아직 새 heading과 학습 안내가 없�
 ```markdown
 아래 다섯 장은 API 이름만 나열하지 않습니다. 각 장은 문제를 이해하는 설명에서 시작해 실행 가능한 예제, API 선택 기준, 실패와 운영 경계, 1.11.0 소스와 테스트 근거까지 연결합니다. 처음 도입한다면 순서대로 읽고, 이미 사용 중이라면 지금 해결하려는 문제에 맞는 장부터 시작해도 됩니다.
 
-1. **[CqlSession 수명주기와 캐시 경계](./bluetape4k-cassandra/session-lifecycle.md)**  
+1. **[CqlSession 수명주기와 캐시 경계](./bluetape4k-cassandra/session-lifecycle.md)**
    직접 만든 세션을 `use`로 닫는 가장 작은 예제부터 `CqlSessionProvider`와 `CqlSessionIdentity`로 공유 세션을 재사용하는 방법까지 설명합니다. 세션 소유권, 캐시 identity와 1.11.0 bootstrap 설정을 어디에 둘지 판단할 수 있습니다.
-2. **[코루틴 쿼리](./bluetape4k-cassandra/coroutine-queries.md)**  
+2. **[코루틴 쿼리](./bluetape4k-cassandra/coroutine-queries.md)**
    `executeSuspending`, `prepareSuspending`과 `AsyncResultSet.asFlow()`로 단일 결과와 여러 페이지를 읽는 예제를 다룹니다. 취소, mapper 예외와 다음 페이지 조회가 호출자에게 어떻게 전달되는지 확인할 수 있습니다.
-3. **[Row와 data mapping](./bluetape4k-cassandra/rows-data-mapping.md)**  
+3. **[Row와 data mapping](./bluetape4k-cassandra/rows-data-mapping.md)**
    `Row`, collection, tuple, UDT와 `CqlDuration`을 Kotlin 값과 도메인 객체로 옮기는 예제를 제공합니다. null을 기본값으로 바꿀 때와 값이 없다는 사실을 보존할 때를 구분할 수 있습니다.
-4. **[Statement와 query builder](./bluetape4k-cassandra/statements-query-builder.md)**  
+4. **[Statement와 query builder](./bluetape4k-cassandra/statements-query-builder.md)**
    raw CQL, prepared/bound statement와 QueryBuilder로 같은 작업을 표현하는 방법을 비교합니다. bind marker, consistency, timeout, page size와 keyspace를 어느 경계에서 드러낼지 선택할 수 있습니다.
-5. **[운영과 테스트](./bluetape4k-cassandra/operations-testing.md)**  
+5. **[운영과 테스트](./bluetape4k-cassandra/operations-testing.md)**
    keyspace 생성·삭제의 side effect, 세션 종료, paging 실패와 Testcontainers 검증을 한 흐름으로 정리합니다. 운영 권한을 애플리케이션과 배포 단계 중 어디에 둘지 결정하고 대표 장애를 진단할 수 있습니다.
 ```
 
@@ -116,15 +116,15 @@ The module does not operate the Cassandra cluster or its schema. The application
 ```markdown
 The five chapters below do more than list API names. Each chapter starts with the problem, then connects runnable examples, API selection rules, failure and operational boundaries, and the supporting 1.11.0 source and tests. Read them in order when adopting the module, or jump directly to the chapter that matches a problem in an existing application.
 
-1. **[CqlSession lifecycle and cache boundaries](./bluetape4k-cassandra/session-lifecycle.md)**  
+1. **[CqlSession lifecycle and cache boundaries](./bluetape4k-cassandra/session-lifecycle.md)**
    Start with the smallest `use`-scoped session example, then move to shared-session reuse with `CqlSessionProvider` and `CqlSessionIdentity`. This chapter helps you decide session ownership, cache identity, and where 1.11.0 bootstrap settings belong.
-2. **[Coroutine queries](./bluetape4k-cassandra/coroutine-queries.md)**  
+2. **[Coroutine queries](./bluetape4k-cassandra/coroutine-queries.md)**
    Follow single-result and multi-page examples built with `executeSuspending`, `prepareSuspending`, and `AsyncResultSet.asFlow()`. See how cancellation, mapper failures, and next-page fetch failures reach the caller.
-3. **[Rows and data mapping](./bluetape4k-cassandra/rows-data-mapping.md)**  
+3. **[Rows and data mapping](./bluetape4k-cassandra/rows-data-mapping.md)**
    Map `Row`, collections, tuples, UDTs, and `CqlDuration` into Kotlin values and domain objects. Learn when a null may become a domain default and when absence must remain explicit.
-4. **[Statements and query builder](./bluetape4k-cassandra/statements-query-builder.md)**  
+4. **[Statements and query builder](./bluetape4k-cassandra/statements-query-builder.md)**
    Compare raw CQL, prepared and bound statements, and QueryBuilder for the same work. Choose where bind markers, consistency, timeout, page size, and keyspace should remain visible.
-5. **[Operations and testing](./bluetape4k-cassandra/operations-testing.md)**  
+5. **[Operations and testing](./bluetape4k-cassandra/operations-testing.md)**
    Connect keyspace side effects, session shutdown, paging failures, and Testcontainers verification. Decide whether production DDL authority belongs to the application or deployment and diagnose representative failures.
 ```
 
