@@ -38,7 +38,7 @@ METADATA_MAIN = "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmarkMetadata
 FALLBACK_DEBUG_MARKER = "Protobuf deserialization failed; delegating to the trusted fallback serializer."
 JVM_ARGS = ["-Xms1g", "-Xmx1g", "-XX:+UseG1GC"]
 PROFILE_ARGS = {
-    "smoke": ["-t", "1", "-f", "1", "-wi", "1", "-i", "1", "-w", "1s", "-r", "1s", "-prof", "gc", "-rf", "json"],
+    "smoke": ["-t", "1", "-f", "2", "-wi", "1", "-i", "1", "-w", "1s", "-r", "1s", "-prof", "gc", "-rf", "json"],
     "canonical": ["-t", "1", "-f", "2", "-wi", "3", "-i", "5", "-w", "1s", "-r", "1s", "-prof", "gc", "-rf", "json"],
 }
 DISPATCH_ORDER = ("serializer_encode", "serializer_decode", "redisson_contiguous", "lettuce_encode")
