@@ -1183,14 +1183,17 @@ def verify_generation(generation, expected_root_sha256=None):
         raise error(receipt_path, "invalid fencing token={!r}".format(receipt.get("fencing_token")), "restore the monotonic publisher fence")
     previous = receipt.get("previous_generation_id")
     previous_root = receipt.get("previous_generation_root_sha256")
+    previous_receipt = receipt.get("previous_generation_receipt_sha256")
     if previous is not None:
         require_safe_relative_path(receipt_path, previous, "previous_generation_id")
         if len(Path(previous).parts) != 1 or previous == generation.name:
             raise error(receipt_path, "invalid previous generation={!r}".format(previous), "restore an earlier direct generation")
         if not re.fullmatch(r"[0-9a-f]{64}", str(previous_root or "")):
             raise error(receipt_path, "previous generation root hash is missing", "bind the previous immutable generation root")
-    elif previous_root is not None:
-        raise error(receipt_path, "previous root exists without previous generation", "restore consistent generation lineage")
+        if not re.fullmatch(r"[0-9a-f]{64}", str(previous_receipt or "")):
+            raise error(receipt_path, "previous generation receipt hash is missing", "bind the previous immutable publisher receipt")
+    elif previous_root is not None or previous_receipt is not None:
+        raise error(receipt_path, "previous hashes exist without previous generation", "restore consistent generation lineage")
     entries, root_sha256 = generation_file_set(generation)
     if entries != receipt.get("files") or root_sha256 != receipt.get("root_sha256"):
         raise error(receipt_path, "generation file set/root hash mismatch", "restore the immutable generation bytes")
@@ -1226,10 +1229,27 @@ def verify_active_generation(evidence_root):
         pointer.get("owner"), pointer.get("input_sha256"),
     ):
         raise error(generation, "receipt/pointer owner or input binding mismatch", "restore the exact active publisher binding")
-    if (receipt.get("previous_generation_id"), receipt.get("previous_generation_root_sha256")) != (
-        pointer.get("previous_generation_id"), pointer.get("previous_generation_root_sha256"),
+    if (receipt.get("previous_generation_id"), receipt.get("previous_generation_root_sha256"),
+            receipt.get("previous_generation_receipt_sha256")) != (
+            pointer.get("previous_generation_id"), pointer.get("previous_generation_root_sha256"),
+            pointer.get("previous_generation_receipt_sha256"),
     ):
         raise error(generation, "receipt/pointer previous generation lineage mismatch", "restore the exact active lineage")
+    lineage_generation = generation
+    lineage_receipt = receipt
+    seen_lineage = set()
+    while lineage_receipt.get("previous_generation_id") is not None:
+        if lineage_generation.name in seen_lineage:
+            raise error(lineage_generation, "generation lineage cycle", "restore an acyclic immutable lineage")
+        seen_lineage.add(lineage_generation.name)
+        predecessor = evidence_root / "generations" / lineage_receipt["previous_generation_id"]
+        predecessor_receipt = verify_generation(
+            predecessor, lineage_receipt["previous_generation_root_sha256"],
+        )
+        if sha256_file(predecessor / "generation-receipt.json") != lineage_receipt["previous_generation_receipt_sha256"]:
+            raise error(predecessor, "previous generation receipt sha256 mismatch", "restore the hash-bound publisher lineage")
+        lineage_generation = predecessor
+        lineage_receipt = predecessor_receipt
     manifest = generation / "delivery-manifest.json"
     if sha256_file(manifest) != pointer.get("delivery_manifest_sha256"):
         raise error(manifest, "active manifest sha256 mismatch", "restore the exact active generation")
@@ -1269,6 +1289,8 @@ def generation_lineage_allowed_paths(evidence_root, repo_root):
         else:
             generation = evidence_root / "generations" / previous
             verify_generation(generation, receipt["previous_generation_root_sha256"])
+            if sha256_file(generation / "generation-receipt.json") != receipt["previous_generation_receipt_sha256"]:
+                raise error(generation, "previous generation receipt sha256 mismatch", "restore the hash-bound publisher lineage")
     return allowed
 
 
@@ -1309,7 +1331,7 @@ def git_delivery_authority(repo_root, head, evidence_root_relative, command_runn
     if len(Path(generation_id).parts) != 1:
         raise error(context_path, "nested generation_id={!r}".format(generation_id), "restore one direct immutable generation identifier")
     allowed = {pointer_path: sha256_bytes(pointer_raw)}
-    seen = set(); current_id = generation_id; expected_root = pointer.get("root_sha256")
+    seen = set(); current_id = generation_id; expected_root = pointer.get("root_sha256"); expected_receipt = None
     active_receipt = None
     while current_id is not None:
         if current_id in seen:
@@ -1318,6 +1340,9 @@ def git_delivery_authority(repo_root, head, evidence_root_relative, command_runn
         generation_prefix = "{}/generations/{}".format(evidence_root_relative, current_id)
         receipt_path = generation_prefix + "/generation-receipt.json"
         receipt, receipt_raw = _git_json(repo_root, head, receipt_path, context_path, command_runner)
+        receipt_sha256 = sha256_bytes(receipt_raw)
+        if expected_receipt is not None and receipt_sha256 != expected_receipt:
+            raise error(context_path, "committed predecessor receipt sha256 mismatch id={}".format(current_id), "restore the hash-bound publisher lineage")
         if receipt.get("schema_version") != 1 or receipt.get("kind") != "issue_757_evidence_generation":
             raise error(context_path, "invalid committed generation receipt={}".format(receipt_path), "restore publisher-generated receipt bytes")
         if receipt.get("generation_id") != current_id:
@@ -1345,7 +1370,7 @@ def git_delivery_authority(repo_root, head, evidence_root_relative, command_runn
         root_sha256 = sha256_bytes(payload_json_bytes(files))
         if root_sha256 != receipt.get("root_sha256") or root_sha256 != expected_root:
             raise error(context_path, "committed generation root mismatch id={}".format(current_id), "restore the hash-bound lineage")
-        allowed[receipt_path] = sha256_bytes(receipt_raw)
+        allowed[receipt_path] = receipt_sha256
         tree_result = _run_provenance_git(
             command_runner, ["git", "ls-tree", "-r", "--name-only", "-z", head, "--", generation_prefix], cwd=repo_root,
         )
@@ -1359,21 +1384,26 @@ def git_delivery_authority(repo_root, head, evidence_root_relative, command_runn
             active_receipt = receipt
         previous = receipt.get("previous_generation_id")
         previous_root = receipt.get("previous_generation_root_sha256")
+        previous_receipt = receipt.get("previous_generation_receipt_sha256")
         if previous is None:
-            if previous_root is not None:
-                raise error(context_path, "previous root without previous generation", "restore consistent committed lineage")
+            if previous_root is not None or previous_receipt is not None:
+                raise error(context_path, "previous hashes without previous generation", "restore consistent committed lineage")
             current_id = None
         else:
             require_safe_relative_path(context_path, previous, "previous_generation_id")
-            if len(Path(previous).parts) != 1 or previous == current_id or not re.fullmatch(r"[0-9a-f]{64}", str(previous_root or "")):
+            if (len(Path(previous).parts) != 1 or previous == current_id or
+                    not re.fullmatch(r"[0-9a-f]{64}", str(previous_root or "")) or
+                    not re.fullmatch(r"[0-9a-f]{64}", str(previous_receipt or ""))):
                 raise error(context_path, "invalid committed previous generation lineage", "restore an earlier hash-bound generation")
-            current_id = previous; expected_root = previous_root
+            current_id = previous; expected_root = previous_root; expected_receipt = previous_receipt
     if (active_receipt.get("root_sha256"), active_receipt.get("fencing_token"), active_receipt.get("owner"),
             active_receipt.get("input_sha256"), active_receipt.get("previous_generation_id"),
-            active_receipt.get("previous_generation_root_sha256")) != (
+            active_receipt.get("previous_generation_root_sha256"),
+            active_receipt.get("previous_generation_receipt_sha256")) != (
             pointer.get("root_sha256"), pointer.get("fencing_token"), pointer.get("owner"),
             pointer.get("input_sha256"), pointer.get("previous_generation_id"),
-            pointer.get("previous_generation_root_sha256")):
+            pointer.get("previous_generation_root_sha256"),
+            pointer.get("previous_generation_receipt_sha256")):
         raise error(context_path, "committed pointer/active receipt binding mismatch", "restore the exact publisher binding")
     active_manifest = "{}/generations/{}/delivery-manifest.json".format(evidence_root_relative, generation_id)
     if allowed.get(active_manifest) != pointer.get("delivery_manifest_sha256"):
@@ -1489,13 +1519,17 @@ def publish_generation(state_path, evidence_root, control_root, owner, legacy_ma
         previous_pointer, previous_pointer_sha256 = load_active_pointer(evidence_root)
         previous_generation_id = previous_pointer.get("generation_id") if previous_pointer else None
         previous_generation_root_sha256 = previous_pointer.get("root_sha256") if previous_pointer else None
+        previous_generation_receipt_sha256 = None
+        if previous_pointer:
+            previous_generation = verify_active_generation(evidence_root)
+            previous_generation_receipt_sha256 = sha256_file(previous_generation / "generation-receipt.json")
         if previous_pointer is None and legacy_manifest:
             previous_generation_id = _copy_legacy_generation(
                 legacy_manifest, evidence_root, generations_root, owner, token, no_replace,
             )
-            previous_generation_root_sha256 = verify_generation(
-                generations_root / previous_generation_id,
-            )["root_sha256"]
+            previous_generation = generations_root / previous_generation_id
+            previous_generation_root_sha256 = verify_generation(previous_generation)["root_sha256"]
+            previous_generation_receipt_sha256 = sha256_file(previous_generation / "generation-receipt.json")
         if destination.exists():
             receipt = verify_generation(destination)
             expected = state["generation_promotion"]
@@ -1524,6 +1558,7 @@ def publish_generation(state_path, evidence_root, control_root, owner, legacy_ma
                     "input_sha256": input_sha256, "root_sha256": root_sha256, "files": entries,
                     "previous_generation_id": previous_generation_id,
                     "previous_generation_root_sha256": previous_generation_root_sha256,
+                    "previous_generation_receipt_sha256": previous_generation_receipt_sha256,
                 }
                 atomic_write_json(staging / "generation-receipt.json", receipt, fail_if_exists=True)
                 fsync_tree(staging)
@@ -1572,6 +1607,7 @@ def publish_generation(state_path, evidence_root, control_root, owner, legacy_ma
             "delivery_manifest_sha256": sha256_file(destination / "delivery-manifest.json"),
             "fencing_token": token, "previous_generation_id": previous_generation_id,
             "previous_generation_root_sha256": previous_generation_root_sha256,
+            "previous_generation_receipt_sha256": previous_generation_receipt_sha256,
             "previous_pointer_sha256": previous_pointer_sha256, "owner": owner,
             "input_sha256": input_sha256, "delivery_documents": delivery_documents,
         }

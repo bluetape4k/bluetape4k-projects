@@ -532,6 +532,22 @@ class EvidenceRunnerTest(unittest.TestCase):
     def test_git_delivery_authority_ignores_worktree_and_binds_pointer_blobs(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td); evidence = root / "docs" / "benchmarks" / "raw" / "issue-757"
+            predecessor = evidence / "generations" / "g-previous"; predecessor.mkdir(parents=True)
+            (predecessor / "payload.json").write_text("{\"previous\":true}\n")
+            (predecessor / "delivery-manifest.json").write_text("{}\n")
+            predecessor_files, predecessor_root = runner.generation_file_set(predecessor)
+            predecessor_receipt = {
+                "schema_version": 1, "kind": "issue_757_evidence_generation",
+                "generation_id": "g-previous", "owner": "previous-owner", "fencing_token": 1,
+                "input_sha256": "9" * 64, "root_sha256": predecessor_root,
+                "files": predecessor_files, "previous_generation_id": None,
+                "previous_generation_root_sha256": None,
+                "previous_generation_receipt_sha256": None,
+            }
+            predecessor_receipt_path = predecessor / "generation-receipt.json"
+            runner.atomic_write_json(predecessor_receipt_path, predecessor_receipt)
+            predecessor_receipt_sha256 = runner.sha256_file(predecessor_receipt_path)
+
             generation = evidence / "generations" / "g-fixture"; generation.mkdir(parents=True)
             (generation / "payload.json").write_text("{}\n")
             (generation / "delivery-manifest.json").write_text("{}\n")
@@ -540,7 +556,9 @@ class EvidenceRunnerTest(unittest.TestCase):
                 "schema_version": 1, "kind": "issue_757_evidence_generation",
                 "generation_id": "g-fixture", "owner": "owner", "fencing_token": 1,
                 "input_sha256": "a" * 64, "root_sha256": root_sha256, "files": files,
-                "previous_generation_id": None, "previous_generation_root_sha256": None,
+                "previous_generation_id": "g-previous",
+                "previous_generation_root_sha256": predecessor_root,
+                "previous_generation_receipt_sha256": predecessor_receipt_sha256,
             }
             runner.atomic_write_json(generation / "generation-receipt.json", receipt)
             pointer = {
@@ -548,10 +566,17 @@ class EvidenceRunnerTest(unittest.TestCase):
                 "generation_id": "g-fixture", "root_sha256": root_sha256,
                 "delivery_manifest_sha256": runner.sha256_file(generation / "delivery-manifest.json"),
                 "fencing_token": 1, "owner": "owner", "input_sha256": "a" * 64,
-                "previous_generation_id": None, "previous_generation_root_sha256": None,
+                "previous_generation_id": "g-previous",
+                "previous_generation_root_sha256": predecessor_root,
+                "previous_generation_receipt_sha256": predecessor_receipt_sha256,
                 "previous_pointer_sha256": None, "delivery_documents": [],
             }
             runner.atomic_write_json(evidence / "active-generation.json", pointer)
+            self.assertEqual(generation.resolve(), runner.verify_active_generation(evidence))
+            runner.atomic_write_json(predecessor_receipt_path, dict(predecessor_receipt, fencing_token=99))
+            with self.assertRaisesRegex(ValueError, "previous generation receipt sha256 mismatch"):
+                runner.verify_active_generation(evidence)
+            runner.atomic_write_json(predecessor_receipt_path, predecessor_receipt)
             subprocess.run(["git", "init", "-q"], cwd=root, check=True)
             subprocess.run(["git", "config", "user.email", "issue-757@example.invalid"], cwd=root, check=True)
             subprocess.run(["git", "config", "user.name", "Issue 757 Test"], cwd=root, check=True)
@@ -565,6 +590,14 @@ class EvidenceRunnerTest(unittest.TestCase):
             authority = runner.git_delivery_authority(root, head, "docs/benchmarks/raw/issue-757")
             self.assertTrue(authority["active_manifest"].endswith("g-fixture/delivery-manifest.json"))
 
+            runner.atomic_write_json(evidence / "active-generation.json", pointer)
+            runner.atomic_write_json(predecessor_receipt_path, dict(predecessor_receipt, owner="tampered-owner"))
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "mismatched predecessor receipt"], cwd=root, check=True)
+            with self.assertRaisesRegex(ValueError, "predecessor receipt sha256 mismatch"):
+                runner.git_delivery_authority(root, "HEAD", "docs/benchmarks/raw/issue-757")
+
+            runner.atomic_write_json(predecessor_receipt_path, predecessor_receipt)
             runner.atomic_write_json(evidence / "active-generation.json", dict(pointer, owner="other-owner"))
             subprocess.run(["git", "add", "."], cwd=root, check=True)
             subprocess.run(["git", "commit", "-q", "-m", "mismatched pointer"], cwd=root, check=True)
