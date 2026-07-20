@@ -29,7 +29,7 @@ const totalModules = Object.values(moduleCounts).reduce((sum, value) => sum + va
 ensureDir(diagramDir);
 ensureDir(chartDir);
 
-writeVisual("root-readme-overview-01", rootOverviewSvg());
+execFileSync(process.execPath, [join(ROOT, "scripts/generate-root-readme-overview-01.mjs")], { stdio: "inherit" });
 writeVisual("root-readme-en-diagram-01", architectureSvg());
 writeChart("root-readme-module-chart-01", moduleChartSvg());
 
@@ -63,59 +63,6 @@ function writeChart(name, svg) {
 function writeAsset(base, svg) {
   writeFileSync(`${base}.svg`, svg);
   execFileSync(cairosvg, [`${base}.svg`, "-o", `${base}.png`, "--scale", "2"], { stdio: "inherit" });
-}
-
-function rootOverviewSvg() {
-  const width = 1640;
-  const height = 1200;
-  const cards = [
-    { id: "settings", x: 120, y: 190, w: 330, h: 86, title: "settings.gradle.kts", detail: "module registry", color: "blue" },
-    { id: "catalog", x: 655, y: 190, w: 330, h: 86, title: "libs.versions.toml", detail: "Kotlin 2.3 + Spring Boot 4.x", color: "purple" },
-    { id: "bom", x: 1190, y: 190, w: 330, h: 86, title: "bluetape4k-bom", detail: "published alignment", color: "green" },
-    { id: "foundation", x: 105, y: 395, w: 320, h: 112, title: "Foundation Runtime", detail: `${moduleCounts.bluetape4k} modules`, color: "blue" },
-    { id: "io", x: 475, y: 395, w: 320, h: 112, title: "I/O and Codecs", detail: `${moduleCounts.io} modules`, color: "teal" },
-    { id: "data", x: 845, y: 395, w: 320, h: 112, title: "Data Access", detail: `${moduleCounts.data} modules`, color: "purple" },
-    { id: "infra", x: 1215, y: 395, w: 320, h: 112, title: "Infrastructure", detail: `${moduleCounts.infra} modules`, color: "amber" },
-    { id: "cache", x: 160, y: 605, w: 320, h: 112, title: "Cache Layer", detail: `${moduleCounts.cache} modules`, color: "green" },
-    { id: "ktor", x: 520, y: 605, w: 260, h: 112, title: "Ktor Stack", detail: `${moduleCounts.ktor} modules`, color: "teal" },
-    { id: "spring", x: 860, y: 605, w: 320, h: 112, title: "Spring Boot 4", detail: `${moduleCounts["spring-boot"]} modules`, color: "blue" },
-    { id: "virtual", x: 1250, y: 605, w: 260, h: 112, title: "Virtual Threads", detail: `${moduleCounts.virtualthread} modules`, color: "olive" },
-    { id: "testing", x: 170, y: 815, w: 320, h: 112, title: "Verification", detail: `${moduleCounts.testing} testing modules`, color: "pink" },
-    { id: "utils", x: 570, y: 815, w: 320, h: 112, title: "Utility Workflows", detail: `${moduleCounts.utils} modules`, color: "purple" },
-    { id: "examples", x: 970, y: 815, w: 320, h: 112, title: "Examples", detail: `${moduleCounts.examples} demos`, color: "gray" },
-  ];
-  const routes = [
-    route("settings", "foundation", [[285, 276], [285, 338], [265, 338], [265, 395]], "discovers", "blue"),
-    route("catalog", "io", [[820, 276], [820, 338], [635, 338], [635, 395]], "governs", "purple"),
-    route("catalog", "data", [[820, 276], [820, 338], [1005, 338], [1005, 395]], "governs", "purple"),
-    route("bom", "infra", [[1355, 276], [1355, 338], [1375, 338], [1375, 395]], "publishes", "green"),
-    route("foundation", "cache", [[265, 507], [265, 555], [320, 555], [320, 605]], "shared API", "blue"),
-    route("io", "ktor", [[635, 507], [635, 605]], "HTTP stack", "teal"),
-    route("data", "spring", [[1005, 507], [1005, 605]], "data starter", "purple"),
-    route("infra", "virtual", [[1375, 507], [1375, 605]], "runtime", "amber"),
-    route("cache", "testing", [[320, 717], [320, 815]], "test matrix", "green"),
-    route("ktor", "examples", [[650, 717], [650, 775], [1130, 775], [1130, 815]], "sample apps", "teal"),
-    route("spring", "examples", [[1020, 717], [1020, 815]], "sample apps", "blue"),
-    route("utils", "examples", [[730, 927], [730, 985], [1130, 985], [1130, 927]], "domain helpers", "purple"),
-  ];
-  return frame({
-    width,
-    height,
-    title: "Bluetape4k Projects Overview",
-    subtitle: `${totalModules} current Gradle modules grouped by responsibility and runtime adoption path.`,
-    desc: "Source-backed repository overview generated from current README, settings.gradle.kts, and module directories.",
-    intent: "Explain the repository-wide bluetape4k-projects ecosystem as a responsibility map from Gradle/catalog source of truth into foundations, runtime stacks, verification, utilities, and examples.",
-    evidence: "README.md, README.ko.md, settings.gradle.kts, gradle/libs.versions.toml, module build.gradle.kts files",
-    sourceRead: "README.md;README.ko.md;settings.gradle.kts;gradle/libs.versions.toml;*/build.gradle.kts",
-    layers: [
-      layer("Source of truth", 70, 150, 1500, 160),
-      layer("Library capabilities", 70, 360, 1500, 385),
-      layer("Verification and adoption", 70, 780, 1500, 190),
-    ],
-    cards,
-    routes,
-    footer: "Latest source: README + Gradle module tree. Sequence diagrams intentionally unchanged.",
-  });
 }
 
 function architectureSvg() {

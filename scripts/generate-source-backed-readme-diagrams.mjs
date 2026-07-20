@@ -9,6 +9,9 @@ const OUT = join(ROOT, "docs/images/readme-diagrams");
 const CAIROSVG = process.env.CAIROSVG ?? "cairosvg";
 const ONLY = new Set((process.env.DIAGRAM_ONLY ?? "").split(",").map((item) => item.trim()).filter(Boolean));
 const GENERATOR_WITH_MODELS = join(ROOT, "scripts/generate-visual-audit-diagram-reworks.mjs");
+const DEDICATED_GENERATORS = new Map([
+  ["root-readme-overview-01", join(ROOT, "scripts/generate-root-readme-overview-01.mjs")],
+]);
 
 const palette = {
   blue: ["#EFF6FF", "#2563EB", "#1D4ED8"],
@@ -314,6 +317,11 @@ function main() {
   const targets = [...refs.keys()].filter((name) => includeModeled || !covered.has(name)).sort();
   const selected = targets.filter((name) => ONLY.size === 0 || ONLY.has(name));
   for (const name of selected) {
+    const dedicatedGenerator = DEDICATED_GENERATORS.get(name);
+    if (dedicatedGenerator) {
+      execFileSync(process.execPath, [dedicatedGenerator], { stdio: "inherit" });
+      continue;
+    }
     const evidence = chooseEvidence(refs.get(name));
     const svg = renderSourceBackedDiagram(name, evidence);
     const svgPath = join(OUT, `${name}.svg`);
