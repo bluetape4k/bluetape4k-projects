@@ -97,8 +97,25 @@ python3 benchmark/protobuf-codec-benchmark/scripts/validate-jmh.py compare --hel
 ```
 
 각 run directory에는 `environment.json`, `metadata.json`, `argv.json`, `run.log`, `jmh.json`, `summary.csv`,
-`validation.json`이 생성됩니다. 최종 promoted evidence는 `docs/benchmarks/raw/issue-757/`에 두며, 최종 report는
-검증된 delivery manifest에서만 생성합니다.
+`validation.json`이 생성됩니다. 최종 evidence는 immutable generation으로 publish하고 hash-bound active pointer를
+검증합니다:
+
+```bash
+python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py publish-generation \
+  --state .omx/evidence/issue-757-jmh-state.json \
+  --evidence-root docs/benchmarks/raw/issue-757 \
+  --control-root .omx/evidence/issue-757-promotion \
+  --owner issue-757-lettuce \
+  --legacy-manifest docs/benchmarks/raw/issue-757/delivery-manifest.json
+python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py verify-active-generation \
+  --evidence-root docs/benchmarks/raw/issue-757
+```
+
+Publisher는 exclusive lock, monotonic fencing token, platform atomic no-replace directory rename, fsync와 active pointer
+compare-and-swap을 사용하고 이전 generation을 모두 보존합니다. 최종 report는 active generation의 검증된 delivery
+manifest에서만 생성합니다. Report/review/evidence 전용 변경을 commit한 뒤
+`validate-final-head --manifest <active-generation>/delivery-manifest.json`을 실행합니다. Measurement 이후 production,
+build, test, benchmark 또는 KDoc drift가 있으면 fail-closed됩니다.
 
 ## 판정 규칙과 한계
 
@@ -119,6 +136,9 @@ commit한 다음 `finalize-rollback --preparation <path>`을 실행합니다. Fr
 preparation file은 fail-closed됩니다. `regressed_cells`는 실제 non-empty trigger subset이고 `removed_cells`는
 `ineligible`/`removed_after_regression`이 되는 dispatch 전체 mapping입니다. Bound source lineage를 rebase 또는
 amend하면 preparation/bundle이 무효가 되므로 exact measurement head부터 절차를 다시 시작합니다.
+`lettuce_encode` finalization은 승인된 canonical path/blob contract와 baseline ABI exact-equality verifier를 추가로
+요구합니다. Public CLI는 rejected-terminal workflow가 이 verifier를 제공하기 전까지 해당 rollback을 의도적으로
+차단합니다.
 
 이 측정은 zero-copy를 증명하지 않습니다. Protobuf, Netty, direct buffer, fallback codec 내부에서 copy나 allocation이
 계속 발생할 수 있습니다. 또한 다른 payload, JDK, 장비, concurrency, storage 경계 전반의 throughput 향상이나 보장을

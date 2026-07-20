@@ -313,6 +313,41 @@ class EvidenceRunnerTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "state-bound sha256"):
                 runner.record_rollback(state_path, ["redisson_contiguous"], root / "rollback", repo_root=root)
 
+    def test_lettuce_rollback_finalization_fails_closed_without_abi_contract_verifier(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state_path, _, _ = build_rollback_state(root, (
+                ("lettuceEncodeHeapOptimized", "regressed"),
+                ("lettuceEncodeDirectOptimized", "regressed"),
+            ))
+
+            def git(argv, **_kwargs):
+                if argv[1:3] == ["status", "--porcelain=v1"]:
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+                if argv[-1] == "HEAD":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"post\n", stderr=b"")
+                if argv[-1] == "HEAD^{tree}":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"post-tree\n", stderr=b"")
+                if argv[1:3] == ["merge-base", "--is-ancestor"]:
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+                return subprocess.CompletedProcess(argv, 1, stdout=b"", stderr=b"unexpected")
+
+            def measurement_git(argv, **_kwargs):
+                if argv[1:3] == ["status", "--porcelain=v1"]:
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+                if argv[-1] == "HEAD":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"old\n", stderr=b"")
+                if argv[-1] == "HEAD^{tree}":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"old-tree\n", stderr=b"")
+                return subprocess.CompletedProcess(argv, 1, stdout=b"", stderr=b"unexpected")
+
+            preparation = runner.record_rollback(
+                state_path, ["lettuce_encode"], root / "rollback",
+                command_runner=measurement_git, repo_root=root,
+            )
+            with self.assertRaisesRegex(ValueError, "baseline ABI exact-equality"):
+                runner.finalize_rollback(preparation, command_runner=git, repo_root=root)
+
     def test_record_rollback_requires_clean_exact_measurement_head(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td); state, _, _ = build_rollback_state(
@@ -378,6 +413,82 @@ class EvidenceRunnerTest(unittest.TestCase):
                 runner.atomic_promote(source, destination)
             with self.assertRaisesRegex(ValueError, "absolute"):
                 runner.validate_manifest({"files": [{"path": "/tmp/a", "sha256": "x"}]}, root / "manifest.json")
+
+    def test_immutable_generation_pointer_is_hash_bound_and_cas_protected(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); evidence = root / "evidence"; generations = evidence / "generations"
+            generations.mkdir(parents=True)
+            control = root / "control"
+            with runner.promotion_lock(control):
+                first_token = runner.allocate_fencing_token(control)
+                second_token = runner.allocate_fencing_token(control)
+            self.assertEqual((1, 2), (first_token, second_token))
+
+            staging = evidence / ".generation-staging-owner-2-fixture"; staging.mkdir()
+            (staging / "payload.txt").write_text("payload")
+            (staging / "delivery-manifest.json").write_text("manifest")
+            files, root_sha256 = runner.generation_file_set(staging)
+            receipt = {
+                "schema_version": 1, "kind": "issue_757_evidence_generation",
+                "generation_id": "g-fixture", "owner": "owner", "fencing_token": second_token,
+                "input_sha256": "a" * 64, "root_sha256": root_sha256, "files": files,
+                "previous_generation_id": None,
+            }
+            runner.atomic_write_json(staging / "generation-receipt.json", receipt)
+            runner.fsync_tree(staging)
+            generation = generations / "g-fixture"
+            runner.atomic_noreplace_directory(staging, generation)
+            runner.fsync_directory(generations)
+            runner.verify_generation(generation, root_sha256)
+
+            pointer = {
+                "schema_version": 1, "kind": "issue_757_active_generation",
+                "generation_id": "g-fixture", "root_sha256": root_sha256,
+                "delivery_manifest_sha256": runner.sha256_file(generation / "delivery-manifest.json"),
+                "fencing_token": second_token, "previous_generation_id": None,
+                "previous_pointer_sha256": None,
+            }
+            runner.activate_generation_pointer(evidence, pointer, None)
+            self.assertEqual(generation.resolve(), runner.verify_active_generation(evidence))
+            with self.assertRaisesRegex(ValueError, "CAS"):
+                runner.activate_generation_pointer(evidence, dict(pointer, generation_id="stale"), None)
+
+            colliding = evidence / ".generation-staging-collision"; colliding.mkdir()
+            (colliding / "payload.txt").write_text("replacement")
+            with self.assertRaises(FileExistsError):
+                runner.atomic_noreplace_directory(colliding, generation)
+            self.assertEqual("payload", (generation / "payload.txt").read_text())
+            self.assertTrue(colliding.is_dir())
+
+            (generation / "payload.txt").write_text("tampered")
+            with self.assertRaisesRegex(ValueError, "file set/root hash"):
+                runner.verify_active_generation(evidence)
+
+    def test_final_head_drift_allows_only_delivery_docs_and_evidence(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.email", "issue-757@example.invalid"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.name", "Issue 757 Test"], cwd=root, check=True)
+            source = root / "io" / "protobuf" / "Source.kt"; source.parent.mkdir(parents=True)
+            source.write_text("measurement\n")
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "measurement"], cwd=root, check=True)
+            measurement = git_commit(root, "rev-parse", "HEAD")
+            measurement_tree = git_commit(root, "rev-parse", "HEAD^{tree}")
+
+            evidence = root / "docs" / "benchmarks" / "raw" / "issue-757" / "generations" / "g-fixture"
+            evidence.mkdir(parents=True); (evidence / "payload.json").write_text("{}\n")
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "evidence"], cwd=root, check=True)
+            result = runner.verify_final_head_drift(root, measurement, measurement_tree)
+            self.assertEqual(["docs/benchmarks/raw/issue-757/generations/g-fixture/payload.json"], result["changed_paths"])
+
+            source.write_text("drift\n")
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "drift"], cwd=root, check=True)
+            with self.assertRaisesRegex(ValueError, "outside exact docs/evidence allowlist"):
+                runner.verify_final_head_drift(root, measurement, measurement_tree)
 
     def test_replace_restores_old_destination_on_second_rename_failure(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1658,6 +1769,21 @@ Daemon JVM: /Users/operator/.jdks/example
             manifest_path = destination / "delivery-manifest.json"
             runner.validate_committed(manifest_path, repo_root=root, require_git_commit=False)
             self.assertTrue(json.loads(state_path.read_text())["promotion_status"] == "verified")
+
+            evidence_root = root / "docs" / "generation-root"
+            generation = runner.publish_generation(
+                state_path, evidence_root, root / "control", "fixture-owner",
+                command_runner=command, repo_root=root,
+            )
+            self.assertEqual(generation, runner.verify_active_generation(evidence_root))
+            self.assertEqual(
+                generation,
+                runner.publish_generation(
+                    state_path, evidence_root, root / "control", "fixture-owner",
+                    command_runner=command, repo_root=root,
+                ),
+            )
+            self.assertEqual(1, len(list((evidence_root / "generations").iterdir())))
 
     def test_report_is_deterministic_and_positive_language_requires_accepted(self):
         manifest = {

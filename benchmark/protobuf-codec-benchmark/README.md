@@ -98,8 +98,24 @@ python3 benchmark/protobuf-codec-benchmark/scripts/validate-jmh.py compare --hel
 ```
 
 Each run directory contains `environment.json`, `metadata.json`, `argv.json`, `run.log`, `jmh.json`, `summary.csv`, and
-`validation.json`. Final promoted evidence belongs under `docs/benchmarks/raw/issue-757/`; the final report is generated
-only from a verified delivery manifest.
+`validation.json`. Publish final evidence as an immutable generation and then validate the hash-bound active pointer:
+
+```bash
+python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py publish-generation \
+  --state .omx/evidence/issue-757-jmh-state.json \
+  --evidence-root docs/benchmarks/raw/issue-757 \
+  --control-root .omx/evidence/issue-757-promotion \
+  --owner issue-757-lettuce \
+  --legacy-manifest docs/benchmarks/raw/issue-757/delivery-manifest.json
+python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py verify-active-generation \
+  --evidence-root docs/benchmarks/raw/issue-757
+```
+
+The publisher uses an exclusive lock, monotonic fencing token, platform atomic no-replace directory rename, fsync, and
+active-pointer compare-and-swap. It preserves every prior generation. Generate the final report only from the active
+generation's verified delivery manifest. After committing report/review/evidence-only changes, run
+`validate-final-head --manifest <active-generation>/delivery-manifest.json`; any production, build, test, benchmark, or
+KDoc drift since measurement fails closed.
 
 ## Decision Rule and Limits
 
@@ -121,6 +137,9 @@ archives under `benchmark/protobuf-codec-benchmark/build/`. Apply and commit the
 decision's `regressed_cells` is the actual non-empty trigger subset, while `removed_cells` is the full dispatch mapping
 that becomes `ineligible` with reason `removed_after_regression`. Rebasing or amending the bound source lineage
 invalidates the preparation/bundle and requires the workflow to restart from the exact measurement head.
+`lettuce_encode` finalization additionally requires the approved canonical path/blob and baseline-ABI exact-equality
+verifier. The public CLI intentionally blocks that rollback until this verifier is supplied by the rejected-terminal
+workflow.
 
 These measurements do not prove zero-copy behavior. Protobuf, Netty, direct buffers, or fallback codecs may still copy
 or allocate internally. They also do not establish a general throughput improvement or guarantee for other payloads,
