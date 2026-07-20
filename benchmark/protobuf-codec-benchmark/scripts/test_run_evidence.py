@@ -1501,7 +1501,7 @@ Daemon JVM: /Users/operator/.jdks/example
         self.assertEqual("1 s", canonical["warmup_time"])
         self.assertEqual(["-Xms1g", "-Xmx1g", "-XX:+UseG1GC"], canonical["jvm_args"])
         smoke = runner.normalized_profile("smoke")
-        self.assertEqual((1, 1, 1), (smoke["forks"], smoke["warmups"], smoke["measurements"]))
+        self.assertEqual((2, 1, 2), (smoke["forks"], smoke["warmups"], smoke["measurements"]))
 
     def test_chained_rollback_bundle_requires_every_immutable_generation(self):
         with tempfile.TemporaryDirectory() as td:

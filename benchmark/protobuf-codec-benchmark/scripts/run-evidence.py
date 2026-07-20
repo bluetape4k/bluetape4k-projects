@@ -848,7 +848,7 @@ def capture_jmh_identity(jar, command_runner=subprocess.run, pass_fds=()):
 def normalized_profile(profile):
     if profile == "canonical":
         return {"mode": "thrpt", "threads": 1, "forks": 2, "warmups": 3, "measurements": 5, "warmup_time": "1 s", "measurement_time": "1 s", "profiler": "gc", "jvm_args": list(JVM_ARGS)}
-    return {"mode": "thrpt", "threads": 1, "forks": 1, "warmups": 1, "measurements": 1, "warmup_time": "1 s", "measurement_time": "1 s", "profiler": "gc", "jvm_args": list(JVM_ARGS)}
+    return {"mode": "thrpt", "threads": 1, "forks": 2, "warmups": 1, "measurements": 2, "warmup_time": "1 s", "measurement_time": "1 s", "profiler": "gc", "jvm_args": list(JVM_ARGS)}
 
 
 def run_benchmark(state_path, profile, output_root, run_id=None, concurrent_heavy_work=None, command_runner=subprocess.run, validator_path=None, repo_root=None):
