@@ -263,14 +263,60 @@ def capture_metadata(jar, expected=None, command_runner=subprocess.run, pass_fds
     return result_value
 
 
+def _validate_legacy_rebased_manifest(manifest_path, repo_root, command_runner):
+    manifest_path = Path(manifest_path).resolve()
+    repo_root = Path(repo_root).resolve()
+    manifest = load_json(manifest_path)
+    run_log_results = preflight_manifest_run_logs(manifest, repo_root, manifest_path)
+    verify_manifest_files(manifest, repo_root, manifest_path, run_log_results)
+    report_keys = (
+        "measurement", "delivery", "final_verdicts", "final_reasons",
+        "rollback", "commands", "results",
+    )
+    report_hash = sha256_bytes(payload_json_bytes({key: manifest.get(key) for key in report_keys}))
+    if report_hash != manifest.get("report_input_sha256"):
+        raise error(
+            manifest_path, "legacy report_input_sha256 mismatch",
+            "restore the byte-identical committed delivery manifest",
+        )
+    relative = manifest_path.relative_to(repo_root).as_posix()
+    committed = _run_provenance_git(
+        command_runner, ["git", "show", "HEAD:" + relative], cwd=repo_root,
+    )
+    if committed.returncode or _stdout(committed) != manifest_path.read_bytes():
+        raise error(
+            manifest_path, "legacy manifest is not byte-identical to HEAD",
+            "restore the committed delivery manifest before importing rollback lineage",
+        )
+    head, _, _ = command_text(command_runner, ["git", "rev-parse", "HEAD"], cwd=repo_root)
+    delivery_commit = manifest.get("delivery", {}).get("git_commit")
+    ancestry = _run(
+        command_runner, ["git", "merge-base", "--is-ancestor", delivery_commit, head.strip()],
+        cwd=repo_root,
+    )
+    if ancestry.returncode:
+        raise error(
+            manifest_path, "legacy delivery commit is not an ancestor of HEAD",
+            "checkout the committed rebased delivery lineage",
+        )
+    return manifest
+
+
 def _authenticate_rebased_rollback_lineage(
     delivery_manifest, bundle, bundle_path, head, repo_root, command_runner
 ):
     manifest_path = Path(delivery_manifest).resolve()
-    manifest = validate_committed(
-        manifest_path, repo_root=repo_root, require_git_commit=True,
-        command_runner=command_runner,
-    )
+    try:
+        manifest = validate_committed(
+            manifest_path, repo_root=repo_root, require_git_commit=True,
+            command_runner=command_runner,
+        )
+    except ValueError as exc:
+        if "method matrix" not in str(exc):
+            raise
+        manifest = _validate_legacy_rebased_manifest(
+            manifest_path, repo_root, command_runner,
+        )
     if manifest.get("rollback") != bundle:
         raise error(
             manifest_path, "rollback payload differs from imported bundle",

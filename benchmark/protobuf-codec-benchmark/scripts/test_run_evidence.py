@@ -2035,9 +2035,7 @@ Daemon JVM: /Users/operator/.jdks/example
             jars = root / "jars"; jars.mkdir(); (jars / "bench-JMH.jar").write_bytes(b"jar")
             manifest_path = root / "delivery-manifest.json"; manifest_path.write_text("{}\n")
 
-            original_validate = runner.validate_committed
-            original_removals = runner.verify_dispatch_source_removals
-            runner.validate_committed = lambda *_args, **_kwargs: {
+            manifest = {
                 "delivery": {"git_commit": "rebased"},
                 "rollback": bundle,
                 "files": [{
@@ -2049,6 +2047,13 @@ Daemon JVM: /Users/operator/.jdks/example
                     "serializerDecodeHeapOptimized": "removed_after_regression",
                 },
             }
+            original_validate = runner.validate_committed
+            original_legacy_validate = runner._validate_legacy_rebased_manifest
+            original_removals = runner.verify_dispatch_source_removals
+            runner.validate_committed = lambda *_args, **_kwargs: (_ for _ in ()).throw(
+                ValueError("method matrix missing newly added cells")
+            )
+            runner._validate_legacy_rebased_manifest = lambda *_args, **_kwargs: manifest
             runner.verify_dispatch_source_removals = lambda *_args, **_kwargs: True
 
             def rebased(argv, **_kwargs):
@@ -2067,6 +2072,7 @@ Daemon JVM: /Users/operator/.jdks/example
                 )
             finally:
                 runner.validate_committed = original_validate
+                runner._validate_legacy_rebased_manifest = original_legacy_validate
                 runner.verify_dispatch_source_removals = original_removals
 
             self.assertEqual("head", state["source_commit"])
