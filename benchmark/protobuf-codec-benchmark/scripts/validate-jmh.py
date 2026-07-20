@@ -81,6 +81,12 @@ CANONICAL_PROFILE = {
     "profiler": "gc",
     "exact_jvm_args": ["-Xms1g", "-Xmx1g", "-XX:+UseG1GC"],
 }
+GRAALVM_LAUNCHER_PREFIX = [
+    "-XX:ThreadPriorityPolicy=1",
+    "-XX:+UnlockExperimentalVMOptions",
+    "-XX:+EnableJVMCIProduct",
+    "-XX:-UnlockExperimentalVMOptions",
+]
 CONFIG_KEYS = (
     "allowed_class_prefixes", "allocator_class", "direct_capacity",
     "direct_initial_position", "direct_max_capacity", "heap_capacity",
@@ -357,8 +363,15 @@ def parse_jmh_records(records, path):
     observed = _consistent_observed(records, path)
     if observed["mode"] != "thrpt":
         _fail(path, "mode", observed["mode"], "thrpt", "run the throughput benchmark profile")
-    if observed["jvm_args"] != CANONICAL_PROFILE["exact_jvm_args"]:
-        _fail(path, "jvmArgs", observed["jvm_args"], CANONICAL_PROFILE["exact_jvm_args"], "use the exact ordered -jvmArgsAppend list")
+    raw_jvm_args = observed["jvm_args"]
+    expected_jvm_args = CANONICAL_PROFILE["exact_jvm_args"]
+    if raw_jvm_args == expected_jvm_args:
+        pass
+    elif raw_jvm_args == GRAALVM_LAUNCHER_PREFIX + expected_jvm_args:
+        observed["jvm_launcher_prefix"] = GRAALVM_LAUNCHER_PREFIX
+        observed["jvm_args"] = expected_jvm_args
+    else:
+        _fail(path, "jvmArgs", raw_jvm_args, expected_jvm_args, "use the exact ordered -jvmArgsAppend list on a recognized JVM launcher")
     params = _parse_params(records, path)
     observed.update(params)
     rows = {}
