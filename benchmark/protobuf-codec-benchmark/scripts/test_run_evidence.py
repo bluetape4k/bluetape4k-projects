@@ -40,15 +40,16 @@ def complete_jmh_records():
             "jvmArgs": list(runner.JVM_ARGS),
             "params": {"matrixVersion": "v1", "targetHeadroom": "2", "targetStart": "1"},
             "primaryMetric": {"score": 10.0, "scoreUnit": "ops/s"},
-            "secondaryMetrics": {"gc.alloc.rate.norm": {"score": 100.0, "scoreUnit": "B/op"}},
+            "secondaryMetrics": {"gc.alloc.rate.norm": {"score": 100.0, "scoreError": 1.0, "scoreUnit": "B/op"}},
         })
     return records
 
 
 def benchmark_metadata():
     config = {
-        "allowed_class_prefixes": ["io.example"], "direct_capacity": 20,
-        "direct_initial_position": 0, "heap_capacity": 20, "heap_initial_position": 0,
+        "allowed_class_prefixes": ["io.example"], "allocator_class": "Allocator", "direct_capacity": 20,
+        "direct_max_capacity": 20, "direct_initial_position": 0, "heap_capacity": 20,
+        "heap_max_capacity": 20, "heap_initial_position": 0,
         "matrix_version": "v1", "methods": sorted(validator.EXPECTED_METHODS),
         "payload_identity": "fixture", "payload_sha256": "payload",
         "redisson_codec_class": "R", "serializer_class": "S",
@@ -1390,6 +1391,7 @@ Daemon JVM: /Users/operator/.jdks/example
             "serializer_encode": "class ProtobufSerializer : BinarySerializer { }",
             "serializer_decode": "class ProtobufSerializer : BinarySerializer { }",
             "redisson_contiguous": "private fun decodeProtobuf(buf: ByteBuf): Any {" + runner.REDISSON_COPIED_BODY_TEMPLATE + "}",
+            "lettuce_encode": "object LettuceProtobufCodecs { fun protobuf() = LettuceBinaryCodec(serializer) }",
         }
         paths_seen = []
         def git_show(argv, **_kwargs):
@@ -1405,6 +1407,7 @@ Daemon JVM: /Users/operator/.jdks/example
         retained["serializer_encode"] = "override fun serializeTo(graph: Any?, target: ByteBuffer): Int = packMessageTo(graph, target)"
         retained["serializer_decode"] = "override fun <T: Any> deserializeFrom(source: ByteBuffer): T? = decodeWithTrustedFallback(source)"
         retained["redisson_contiguous"] = "if (buf.nioBufferCount() == 1) AnyMessage.parseFrom(buf.nioBuffer()) else AnyMessage.parseFrom(buf.getBytes(copy = true))"
+        retained["lettuce_encode"] = "private class DirectProtobufLettuceCodec"
         for dispatch in runner.DISPATCH_ORDER:
             git_show.dispatch = dispatch; removed[dispatch] = retained[dispatch]
             with self.assertRaisesRegex(ValueError, "removal predicate"):
@@ -1425,6 +1428,10 @@ Daemon JVM: /Users/operator/.jdks/example
                 /* formatting/comment noise is harmless */
                 %s
             }}''',
+            "lettuce_encode": '''object LettuceProtobufCodecs {
+                // DirectProtobufLettuceCodec is absent after rollback.
+                fun protobuf() = LettuceBinaryCodec(serializer)
+            }''',
         }
         adversarial["redisson_contiguous"] %= runner.REDISSON_COPIED_BODY_TEMPLATE
         removed.update(adversarial)
@@ -1544,8 +1551,9 @@ Daemon JVM: /Users/operator/.jdks/example
                 archive.writestr("META-INF/maven/org.openjdk.jmh/jmh-core/pom.properties", "version=1.37\n")
             state_path = root / "state.json"; runner.resolve_jar(root / "jars", state_path)
             config = {
-                "allowed_class_prefixes": ["io.example"], "direct_capacity": 20,
-                "direct_initial_position": 0, "heap_capacity": 20, "heap_initial_position": 0,
+                "allowed_class_prefixes": ["io.example"], "allocator_class": "Allocator", "direct_capacity": 20,
+                "direct_max_capacity": 20, "direct_initial_position": 0, "heap_capacity": 20,
+                "heap_max_capacity": 20, "heap_initial_position": 0,
                 "matrix_version": "v1", "methods": sorted(validator.EXPECTED_METHODS),
                 "payload_identity": "fixture", "payload_sha256": "payload",
                 "redisson_codec_class": "R", "serializer_class": "S",

@@ -41,16 +41,18 @@ PROFILE_ARGS = {
     "smoke": ["-t", "1", "-f", "1", "-wi", "1", "-i", "1", "-w", "1s", "-r", "1s", "-prof", "gc", "-rf", "json"],
     "canonical": ["-t", "1", "-f", "2", "-wi", "3", "-i", "5", "-w", "1s", "-r", "1s", "-prof", "gc", "-rf", "json"],
 }
-DISPATCH_ORDER = ("serializer_encode", "serializer_decode", "redisson_contiguous")
+DISPATCH_ORDER = ("serializer_encode", "serializer_decode", "redisson_contiguous", "lettuce_encode")
 DISPATCH_CELLS = {
     "serializer_encode": ("serializerEncodeHeapOptimized", "serializerEncodeDirectOptimized"),
     "serializer_decode": ("serializerDecodeHeapOptimized", "serializerDecodeDirectOptimized"),
     "redisson_contiguous": ("redissonDecodeContiguousOptimized",),
+    "lettuce_encode": ("lettuceEncodeHeapOptimized", "lettuceEncodeDirectOptimized"),
 }
 DISPATCH_SOURCE_PATHS = {
     "serializer_encode": "io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/ProtobufSerializer.kt",
     "serializer_decode": "io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/ProtobufSerializer.kt",
     "redisson_contiguous": "io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/redis/RedissonProtobufCodec.kt",
+    "lettuce_encode": "io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/redis/LettuceProtobufCodecs.kt",
 }
 REDISSON_COPIED_BODY_TEMPLATE = """
 val any = AnyMessage.parseFrom(buf.getBytes(copy = true))
@@ -1847,11 +1849,13 @@ def verify_dispatch_source_removals(repo_root, head, dispatches, command_runner=
             valid = "serializeTo" not in identifiers
         elif dispatch == "serializer_decode":
             valid = "deserializeFrom" not in identifiers
-        else:
+        elif dispatch == "redisson_contiguous":
             declarations = kotlin_function_declarations(source, "decodeProtobuf")
             body = declarations[0][1] if len(declarations) == 1 and declarations[0][0] == "block" else ""
             valid = (len(declarations) == 1 and declarations[0][0] == "block" and
                      kotlin_token_stream(body) == kotlin_token_stream(REDISSON_COPIED_BODY_TEMPLATE))
+        else:
+            valid = "DirectProtobufLettuceCodec" not in identifiers
         if not valid:
             raise error(source_path, "{} removal predicate failed; canonical expected form absent at committed head={}".format(dispatch, head), "restore inherited serializer compatibility or the exact copied-only decodeProtobuf body")
     return True

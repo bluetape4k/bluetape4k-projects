@@ -34,13 +34,13 @@ def write_v2_bundle(root, dispatch, verdicts, old="old", post="post"):
     return runner.write_rollback_bundle(root, [decision])
 
 
-def comparison_run(run_id, baseline=1000.0, candidate=940.0):
+def comparison_run(run_id, baseline=1000.0, candidate=940.0, error=1.0):
     return {
         "run_id": run_id,
         "observed_config_sha256": "observed",
         "rows": {
-            "serializerEncodeByteArray": {"allocation": baseline, "throughput": 10.0, "eligible": False},
-            "serializerEncodeHeapOptimized": {"allocation": candidate, "throughput": 11.0, "eligible": True},
+            "serializerEncodeByteArray": {"allocation": baseline, "allocation_error": error, "throughput": 10.0, "eligible": False},
+            "serializerEncodeHeapOptimized": {"allocation": candidate, "allocation_error": error, "throughput": 11.0, "eligible": True},
         },
     }
 
@@ -103,6 +103,12 @@ class ValidateJmhTest(unittest.TestCase):
         )
         self.assertEqual("accepted", result["serializerEncodeHeapOptimized"]["verdict"])
 
+    def test_allocation_verdict_requires_relative_absolute_and_uncertainty_separation(self):
+        self.assertEqual("accepted", validator.allocation_verdict(100.0, 1.0, 90.0, 1.0))
+        self.assertEqual("inconclusive", validator.allocation_verdict(100.0, 1.0, 94.0, 1.0))
+        self.assertEqual("inconclusive", validator.allocation_verdict(100.0, 6.0, 90.0, 6.0))
+        self.assertEqual("regressed", validator.allocation_verdict(90.0, 1.0, 100.0, 1.0))
+
     def test_missing_and_unexpected_methods_fail(self):
         with self.assertRaisesRegex(ValueError, "missing=.*serializerEncodeByteArray"):
             validator.validate_methods([])
@@ -128,15 +134,16 @@ class ValidateJmhTest(unittest.TestCase):
 
     def test_canonical_config_has_exact_fields_and_fixed_sha(self):
         config = {
-            "allowed_class_prefixes": ["z", "a"], "direct_capacity": 8,
-            "direct_initial_position": 0, "heap_capacity": 7, "heap_initial_position": 1,
+            "allowed_class_prefixes": ["z", "a"], "allocator_class": "Allocator", "direct_capacity": 8,
+            "direct_max_capacity": 8, "direct_initial_position": 0, "heap_capacity": 7,
+            "heap_max_capacity": 7, "heap_initial_position": 1,
             "matrix_version": "v1", "methods": ["b", "a"], "payload_identity": "fixture",
             "payload_sha256": "p", "redisson_codec_class": "R", "serializer_class": "S",
             "target_headroom": 2, "target_start": 1, "ignored": "x",
         }
-        expected = '{"allowed_class_prefixes":["a","z"],"direct_capacity":8,"direct_initial_position":0,"heap_capacity":7,"heap_initial_position":1,"matrix_version":"v1","methods":["a","b"],"payload_identity":"fixture","payload_sha256":"p","redisson_codec_class":"R","serializer_class":"S","target_headroom":2,"target_start":1}'
+        expected = '{"allocator_class":"Allocator","allowed_class_prefixes":["a","z"],"direct_capacity":8,"direct_initial_position":0,"direct_max_capacity":8,"heap_capacity":7,"heap_initial_position":1,"heap_max_capacity":7,"matrix_version":"v1","methods":["a","b"],"payload_identity":"fixture","payload_sha256":"p","redisson_codec_class":"R","serializer_class":"S","target_headroom":2,"target_start":1}'
         self.assertEqual(expected, validator.canonical_config_json(config))
-        self.assertEqual("6f2abfb1ae7a91ac52673cad9fe2a04b6154a919c07d898e07c3f09ba37bd122", validator.config_sha256(config))
+        self.assertEqual(hashlib.sha256(expected.encode()).hexdigest(), validator.config_sha256(config))
         for key in validator.CONFIG_KEYS:
             changed = dict(config)
             changed[key] = ["changed"] if isinstance(config[key], list) else "changed"
@@ -385,7 +392,7 @@ class ValidateJmhTest(unittest.TestCase):
         first = {"run_id": "a", "rows": parsed["rows"], "observed_config_sha256": parsed["observed_config_sha256"]}
         second = {"run_id": "b", "rows": parsed["rows"], "observed_config_sha256": parsed["observed_config_sha256"]}
         comparison = validator.compare_runs(first, second)
-        self.assertEqual(13, len(comparison))
+        self.assertEqual(17, len(comparison))
         self.assertEqual("inconclusive", comparison["serializerEncodeHeapOptimized"]["verdict"])
         self.assertEqual("ineligible", comparison["trustedFallbackEncodeBufferCompatibility"]["verdict"])
         self.assertEqual("compatibility_control", comparison["trustedFallbackEncodeBufferCompatibility"]["reason"])
@@ -492,8 +499,9 @@ class ValidateJmhTest(unittest.TestCase):
 
 def fixture_config():
     return {
-        "allowed_class_prefixes": ["a"], "direct_capacity": 8,
-        "direct_initial_position": 0, "heap_capacity": 7, "heap_initial_position": 1,
+        "allowed_class_prefixes": ["a"], "allocator_class": "Allocator", "direct_capacity": 8,
+        "direct_max_capacity": 8, "direct_initial_position": 0, "heap_capacity": 7,
+        "heap_max_capacity": 7, "heap_initial_position": 1,
         "matrix_version": "v1", "methods": sorted(validator.EXPECTED_METHODS),
         "payload_identity": "fixture", "payload_sha256": "payload",
         "redisson_codec_class": "R", "serializer_class": "S",
@@ -552,7 +560,7 @@ def make_records():
             "jvmArgs": list(validator.CANONICAL_PROFILE["exact_jvm_args"]),
             "params": {"matrixVersion": "v1", "targetHeadroom": "2", "targetStart": "1"},
             "primaryMetric": {"score": 10.0, "scoreUnit": "ops/s"},
-            "secondaryMetrics": {"gc.alloc.rate.norm": {"score": 100.0, "scoreUnit": "B/op"}},
+            "secondaryMetrics": {"gc.alloc.rate.norm": {"score": 100.0, "scoreError": 1.0, "scoreUnit": "B/op"}},
         })
     return records
 
