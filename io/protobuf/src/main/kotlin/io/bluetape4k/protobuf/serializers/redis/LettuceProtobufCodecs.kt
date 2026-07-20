@@ -116,9 +116,12 @@ object LettuceProtobufCodecs {
      * does not promise zero-copy operation. The unchanged ByteBuffer API and all compressed or custom-prefix codecs
      * retain their compatibility path. On failure, failure-aftercare belongs to the caller because attempted bytes or
      * capacity growth may remain even though the writer index is not advanced.
+     * The default allowlist accepts Bluetape and Google Protobuf message packages. Callers that need another package
+     * prefix must construct [ProtobufSerializer] and [LettuceBinaryCodec] directly; that custom-prefix path retains
+     * the allocating compatibility implementation.
      *
      * ```kotlin
-     * val codec = LettuceProtobufCodecs.protobuf<MyMessage>()
+     * val codec = LettuceProtobufCodecs.protobuf<MyBluetapeMessage>()
      * // codec != null
      * ```
      */

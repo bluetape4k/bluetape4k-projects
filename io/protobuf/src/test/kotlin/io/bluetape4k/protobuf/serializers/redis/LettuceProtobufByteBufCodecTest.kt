@@ -17,6 +17,7 @@ import io.netty.buffer.SwappedByteBuf
 import io.netty.buffer.Unpooled
 import io.netty.util.IllegalReferenceCountException
 import org.junit.jupiter.api.Test
+import java.io.Serializable
 import java.lang.reflect.Modifier
 import java.lang.reflect.Proxy
 import java.nio.ByteBuffer
@@ -27,14 +28,105 @@ class LettuceProtobufByteBufCodecTest {
     fun `uncompressed factories use a private optimized subtype`() {
         val strict = LettuceProtobufCodecs.protobuf<Any>()
         val trusted = LettuceProtobufCodecs.trustedInternalProtobuf<Any>()
-        val compressed = LettuceProtobufCodecs.gzipProtobuf<Any>()
+        val compressed = listOf(
+            LettuceProtobufCodecs.gzipProtobuf<Any>(),
+            LettuceProtobufCodecs.deflateProtobuf<Any>(),
+            LettuceProtobufCodecs.lz4Protobuf<Any>(),
+            LettuceProtobufCodecs.snappyProtobuf<Any>(),
+            LettuceProtobufCodecs.zstdProtobuf<Any>(),
+            LettuceProtobufCodecs.trustedInternalGzipProtobuf<Any>(),
+            LettuceProtobufCodecs.trustedInternalDeflateProtobuf<Any>(),
+            LettuceProtobufCodecs.trustedInternalLz4Protobuf<Any>(),
+            LettuceProtobufCodecs.trustedInternalSnappyProtobuf<Any>(),
+            LettuceProtobufCodecs.trustedInternalZstdProtobuf<Any>(),
+        )
 
         strict.javaClass shouldBeEqualTo trusted.javaClass
-        (strict.javaClass != compressed.javaClass) shouldBeEqualTo true
+        compressed.forEach { codec ->
+            codec.javaClass shouldBeEqualTo LettuceBinaryCodec::class.java
+            (strict.javaClass != codec.javaClass) shouldBeEqualTo true
+        }
         Modifier.isPrivate(strict.javaClass.modifiers) shouldBeEqualTo true
         strict.javaClass.declaredConstructors.none {
             Modifier.isPublic(it.modifiers) || Modifier.isProtected(it.modifiers)
         } shouldBeEqualTo true
+    }
+
+    @Test
+    fun `strict trusted and custom prefix compatibility paths remain stable`() {
+        val message = redisSimpleMessage {
+            id = 757
+            name = "compatibility-matrix"
+        }
+        val expected = ProtoAny.pack(message).toByteArray()
+        val strict = LettuceProtobufCodecs.protobuf<Any>()
+
+        repeat(3) {
+            val target = Unpooled.buffer(expected.size, expected.size)
+            try {
+                strict.encodeValue(message, target)
+                target.writerIndex() shouldBeEqualTo expected.size
+                target.remainingBytes().contentEquals(expected) shouldBeEqualTo true
+                strict.decodeValue(ByteBuffer.wrap(expected)) shouldBeEqualTo message
+            } finally {
+                target.release()
+            }
+        }
+
+        val fallbackValue = CompatibilityValue(757, "trusted-fallback")
+        val strictTarget = Unpooled.buffer()
+        try {
+            assertFailsWith<BinarySerializationException> {
+                strict.encodeValue(fallbackValue, strictTarget)
+            }
+            strictTarget.writerIndex() shouldBeEqualTo 0
+        } finally {
+            strictTarget.release()
+        }
+
+        val trusted = LettuceProtobufCodecs.trustedInternalProtobuf<Any>()
+        val expectedFallback = trusted.encodeValue(fallbackValue).remainingBytes()
+        val trustedTarget = Unpooled.buffer()
+        try {
+            trusted.encodeValue(fallbackValue, trustedTarget)
+            trustedTarget.remainingBytes().contentEquals(expectedFallback) shouldBeEqualTo true
+            trusted.decodeValue(ByteBuffer.wrap(expectedFallback)) shouldBeEqualTo fallbackValue
+        } finally {
+            trustedTarget.release()
+        }
+
+        val customSerializer = ProtobufSerializer(
+            allowedClassPrefixes = setOf("io.bluetape4k.protobuf.redis.messages."),
+        )
+        val customCodec = LettuceBinaryCodec<Any>(customSerializer)
+        val customTarget = Unpooled.buffer()
+        try {
+            customCodec.encodeValue(message, customTarget)
+            customTarget.remainingBytes().contentEquals(customSerializer.serialize(message)) shouldBeEqualTo true
+            customCodec.decodeValue(ByteBuffer.wrap(expected)) shouldBeEqualTo message
+        } finally {
+            customTarget.release()
+        }
+
+        val outsidePrefix = LettuceBinaryCodec<Any>(
+            ProtobufSerializer(allowedClassPrefixes = setOf("com.google.protobuf.")),
+        )
+        assertFailsWith<BinarySerializationException> {
+            outsidePrefix.decodeValue(ByteBuffer.wrap(expected))
+        }
+    }
+
+    @Test
+    fun `java compatibility fixture executes existing target overload usage`() {
+        val message = redisSimpleMessage { id = 757 }
+        val expected = ProtoAny.pack(message).toByteArray()
+        val target = Unpooled.buffer()
+        try {
+            LettuceProtobufCodecJavaCompatibilityFixture.compileExistingUsage(message, target)
+            target.remainingBytes().contentEquals(expected) shouldBeEqualTo true
+        } finally {
+            target.release()
+        }
     }
 
     @Test
@@ -293,6 +385,17 @@ class LettuceProtobufByteBufCodecTest {
         target.resetWriterIndex()
         target.writerIndex() shouldBeEqualTo expectedWriterIndex
     }
+
+    private fun ByteBuf.remainingBytes(): ByteArray =
+        ByteArray(readableBytes()).also { bytes -> getBytes(readerIndex(), bytes) }
+
+    private fun ByteBuffer.remainingBytes(): ByteArray =
+        ByteArray(remaining()).also { bytes -> get(bytes) }
+
+    private data class CompatibilityValue(
+        val id: Int,
+        val name: String,
+    ): Serializable
 
     private class ThrowingNioByteBuf(delegate: ByteBuf): SwappedByteBuf(delegate) {
         var nioCalls: Int = 0

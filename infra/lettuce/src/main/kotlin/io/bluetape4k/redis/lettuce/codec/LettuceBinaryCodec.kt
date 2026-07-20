@@ -23,6 +23,11 @@ import java.nio.ByteBuffer
  * // value == myData
  * ```
  *
+ * The nullable target-taking [encodeValue] overload is the only supported source extension seam. Ordinary codec
+ * methods remain final. Opening this class also makes compiler-generated JVM bridge methods bytecode-overrideable;
+ * those bridges are not a supported extension API. Subclasses must override only the target overload and preserve
+ * the configured [serializer] contract.
+ *
  * @param V value type
  * @property serializer [BinarySerializer] 인스턴스
  */
