@@ -252,21 +252,30 @@ def _member_mismatch(
                 f"got {sorted(actual.modifiers)}"
             )
 
-        expected_final = baseline.effective_final(expected)
-        actual_final = candidate.effective_final(actual)
-        is_target = expected.kind == "method" and (
-            expected.name,
-            expected.descriptor,
-        ) == (TARGET_NAME, TARGET_DESCRIPTOR)
-        if allow_target_final_removal and is_target:
-            if not expected_final:
-                return f"{expected.label} baseline effective final expected true, got false"
-            if actual_final:
-                return f"{expected.label} effective final expected false, got true"
-        elif expected_final != actual_final:
+        if allow_target_final_removal:
+            expected_final = baseline.effective_final(expected)
+            actual_final = candidate.effective_final(actual)
+            is_target = expected.kind == "method" and (
+                expected.name,
+                expected.descriptor,
+            ) == (TARGET_NAME, TARGET_DESCRIPTOR)
+            if is_target:
+                if not expected_final:
+                    return (
+                        f"{expected.label} baseline effective final expected true, "
+                        "got false"
+                    )
+                if actual_final:
+                    return f"{expected.label} effective final expected false, got true"
+            elif expected_final != actual_final:
+                return (
+                    f"{expected.label} effective final expected "
+                    f"{str(expected_final).lower()}, got {str(actual_final).lower()}"
+                )
+        elif expected.final != actual.final:
             return (
-                f"{expected.label} effective final expected "
-                f"{str(expected_final).lower()}, got {str(actual_final).lower()}"
+                f"{expected.label} raw final expected "
+                f"{str(expected.final).lower()}, got {str(actual.final).lower()}"
             )
     return None
 

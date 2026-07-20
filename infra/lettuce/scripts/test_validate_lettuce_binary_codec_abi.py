@@ -337,7 +337,7 @@ class AbiValidatorTest(unittest.TestCase):
             "rejected",
             render_javap(class_final=False, members=baseline_members_open),
             render_javap(class_final=False, members=candidate_members),
-            f"method encodeValue {TARGET_DESCRIPTOR} effective final expected true, got false",
+            f"method encodeValue {TARGET_DESCRIPTOR} raw final expected true, got false",
         )
 
     def test_rejected_rejects_descriptor_change(self):
@@ -366,6 +366,37 @@ class AbiValidatorTest(unittest.TestCase):
             render_javap(),
             render_javap(members=candidate_members),
             "method toString ()Ljava/lang/String; access expected public, got protected",
+        )
+
+    def test_rejected_rejects_non_target_raw_final_addition_inside_final_class(self):
+        candidate_members = replace_member(
+            baseline_members(),
+            "(Ljava/lang/Object;)I",
+            declaration="public final int estimateSize(java.lang.Object);",
+        )
+
+        self.assert_invalid(
+            "rejected",
+            render_javap(),
+            render_javap(members=candidate_members),
+            "method estimateSize (Ljava/lang/Object;)I raw final expected false, got true",
+        )
+
+    def test_rejected_rejects_non_target_raw_final_removal_inside_final_class(self):
+        getter = "()Lio/bluetape4k/io/serializer/BinarySerializer;"
+        candidate_members = replace_member(
+            baseline_members(),
+            getter,
+            declaration=(
+                "public io.bluetape4k.io.serializer.BinarySerializer getSerializer();"
+            ),
+        )
+
+        self.assert_invalid(
+            "rejected",
+            render_javap(),
+            render_javap(members=candidate_members),
+            f"method getSerializer {getter} raw final expected true, got false",
         )
 
     def test_diagnostic_reports_the_first_structural_mismatch(self):
