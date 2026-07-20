@@ -39,3 +39,32 @@ test("validator skips card-like groups without shape geometry", (context) => {
   assert.equal(validation.failed, 0);
   assert.equal(validation.rows[0].cards, 0);
 });
+
+test("validator preserves relationship endpoint checks across Q and q bends", (context) => {
+  const root = mkdtempSync(join(tmpdir(), "readme-diagram-validator-"));
+  const diagramDir = join(root, "docs/images/readme-diagrams");
+  const report = join(root, "diagram-validation-report.json");
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+
+  mkdirSync(diagramDir, { recursive: true });
+  writeFileSync(join(diagramDir, "quadratic-routes.svg"), `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 240">
+  <title>Quadratic route endpoint validation</title>
+  <g id="source"><rect class="card" x="40" y="40" width="100" height="80" /></g>
+  <g id="target"><rect class="card" x="300" y="40" width="100" height="80" /></g>
+  <path class="route" data-from="source" data-to="target" d="M 140 70 Q 220 10 280 70" />
+  <path class="route" data-from="target" data-to="source" d="M 300 90 q -80 60 -140 0" />
+</svg>
+`, "utf8");
+
+  const result = spawnSync(process.execPath, [validator], {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, DIAGRAM_VALIDATION_REPORT: report },
+  });
+
+  assert.equal(result.status, 1, result.stderr);
+  const validation = JSON.parse(readFileSync(report, "utf8"));
+  assert.equal(validation.rows[0].paths, 2);
+  assert.ok(validation.rows[0].failures.includes("disconnected/floating connector endpoints=2"));
+});

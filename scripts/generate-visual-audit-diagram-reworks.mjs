@@ -8,6 +8,7 @@ const OUT = join(process.cwd(), "docs/images/readme-diagrams");
 const CAIROSVG = process.env.CAIROSVG ?? "cairosvg";
 const RSVG = process.env.RSVG_CONVERT ?? "/opt/homebrew/bin/rsvg-convert";
 const ONLY = new Set((process.env.DIAGRAM_ONLY ?? "").split(",").map((item) => item.trim()).filter(Boolean));
+const DEDICATED_GENERATOR_ASSETS = new Set(["root-readme-overview-01"]);
 
 const colors = {
   blue: ["#EFF6FF", "#2563EB", "#1D4ED8"],
@@ -691,44 +692,8 @@ function safeVerticalPortX(node, preferred) {
 }
 
 function renderRootOverview() {
-  renderLayeredCapabilityMap("root-readme-overview-01", "Bluetape4k Projects Overview", "The repository is organized as foundation libraries, runtime integrations, app frameworks, testing support, and examples.", [
-    { title: "Foundation", nodes: [
-      { id: "bom", title: "BOM / Gradle catalog", details: ["version alignment"], color: "gray", w: 260 },
-      { id: "core", title: "core + logging", details: ["contracts, values, diagnostics"], color: "blue", w: 300 },
-      { id: "coroutines", title: "coroutines", details: ["Flow, Deferred, scopes"], color: "green", w: 270 },
-      { id: "utils", title: "utils", details: ["time, geo, money, states"], color: "amber", w: 290 },
-    ] },
-    { title: "Library families", nodes: [
-      { id: "io", title: "I/O codecs and clients", details: ["HTTP, Feign, gRPC, JSON", "Netty, Okio, Protobuf"], color: "teal", w: 330 },
-      { id: "data", title: "Data access", details: ["JDBC, R2DBC, MongoDB", "Cassandra, Hibernate"], color: "purple", w: 330 },
-      { id: "cache", title: "Cache modules", details: ["JCache, NearCache", "Hazelcast, Lettuce, Redisson"], color: "pink", w: 340 },
-      { id: "infra", title: "Infrastructure", details: ["Kafka, Redis, OTel", "Micrometer, Resilience4j"], color: "olive", w: 340 },
-    ] },
-    { title: "Application surfaces", nodes: [
-      { id: "spring", title: "Spring Boot modules", details: ["auto-config and starters"], color: "green", w: 330 },
-      { id: "ktor", title: "Ktor modules", details: ["core, observability, testing"], color: "blue", w: 310 },
-      { id: "vt", title: "Virtual thread runtime", details: ["api, jdk21, jdk25"], color: "purple", w: 310 },
-      { id: "testing", title: "Testing support", details: ["assertions, junit5", "mock servers, containers"], color: "amber", w: 340 },
-    ] },
-    { title: "Reader entrypoints", nodes: [
-      { id: "examples", title: "Examples", details: ["end-to-end usage demos"], color: "teal", w: 330 },
-      { id: "split", title: "Sibling ecosystem repos", details: ["exposed, r2dbc, workshop", "go, rs, image, javers"], color: "pink", w: 390 },
-    ] },
-  ], [
-    ["bom", "io", "gray", true, null, { toX: 365 }],
-    ["core", "io", "blue", false, null, { toX: 430 }],
-    ["coroutines", "data", "green"],
-    ["coroutines", "infra", "green"],
-    ["utils", "cache", "amber"],
-    ["io", "spring", "teal", false, null, { toX: 365 }],
-    ["data", "spring", "purple", false, null, { toX: 415 }],
-    ["infra", "ktor", "olive"],
-    ["cache", "spring", "pink", false, null, { toX: 455 }],
-    ["spring", "examples", "green", false, null, { toX: 365 }],
-    ["ktor", "examples", "blue", false, null, { toX: 415 }],
-    ["testing", "examples", "amber", false, null, { toX: 455 }],
-    ["vt", "spring", "purple", true, null, { path: "M1058 892 L1058 866 L311 866 L311 892" }],
-  ], { width: 1580 });
+  if (ONLY.size > 0 && !ONLY.has("root-readme-overview-01")) return;
+  execFileSync(process.execPath, [join(process.cwd(), "scripts/generate-root-readme-overview-01.mjs")], { stdio: "inherit" });
 }
 
 function renderRootModuleStructure() {
@@ -2410,6 +2375,7 @@ renderKtorObservabilityDemoArchitecture();
 renderKtorObservabilityDemoSequence();
 
 for (const [file, model] of Object.entries(sourceModels)) {
+  if (DEDICATED_GENERATOR_ASSETS.has(file)) continue;
   if (existsSync(join(OUT, `${file}.svg`))) {
     stampExisting(file);
   }
