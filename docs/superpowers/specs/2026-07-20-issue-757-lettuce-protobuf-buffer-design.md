@@ -68,7 +68,9 @@ repository settings, credential 작업을 승인하지 않는다.
   Protobuf decode가 allocation을 악화시켜 compatibility-copy로 되돌린 측정 결과를
   따른다.
 - key encode/decode, `estimateSize`, Redis command framing, connection lifecycle 변경.
-- 새 serializer SPI, 새 Gradle module, 새 dependency, public factory name 변경.
+- 새 serializer SPI, 새 Gradle module, 새 external/production dependency, public factory
+  name 변경. 기존 `:bluetape4k-lettuce`에 대한 benchmark-only project dependency는
+  Lettuce comparison cell을 위해 허용한다.
 - throughput 또는 zero-copy 보장.
 
 ## 3. 검토한 접근
@@ -90,14 +92,19 @@ uncompressed factory는 선언된 반환형 `LettuceBinaryCodec<V>`를 그대로
 payload-sized `ByteArray`는 만들지 않는다. 따라서 이 설계는 allocation-free나
 zero-copy가 아니라 payload-sized handoff 제거를 측정하는 설계다.
 
-`LettuceBinaryCodec`을 `open`으로 바꾸면 상속 가능성이 public ABI에 추가된다.
+`LettuceBinaryCodec`을 `open`으로 바꾸면 상속 가능성이 public ABI에 추가되고 이후
+외부 subclass compatibility를 유지해야 하는 장기 비용이 생긴다. 이 비용은 measured
+Lettuce specialization을 기존 factory 반환형 안에서 제공하기 위해 의도적으로
+수용한다.
 변경 범위를 제한하기 위해 public one-argument constructor, `serializer` property,
 key encode/decode, single-argument value encode, decode, estimate method는 기존
 access/finality를 유지하고 target을 받는 value encode만 `open`으로 둔다. 기존
-subclass가 없으므로 동작 변경은 없지만, binary/source compatibility task, API dump,
-Java reflection 검토로 descriptor와 access flag drift 및 externally accessible
-Protobuf codec class가 없는지 증명한다. 해당 overload KDoc에는 null no-op, index commit,
-ownership, failure propagation을 포함한 override contract를 명시한다.
+subclass가 없으므로 기존 동작 변경은 없지만, baseline/candidate `javap -p -s` diff,
+Kotlin/Java compile fixture, Java reflection 검토로 descriptor와 access flag drift 및
+externally accessible Protobuf codec class가 없는지 증명한다. 허용되는 flag 변화는
+`LettuceBinaryCodec` class와 target-taking value encode overload의 `final` 제거뿐이다.
+해당 overload KDoc에는 null no-op, index commit, ownership, failure propagation을 포함한
+public override contract와 subclass compatibility 부담을 명시한다.
 
 ### 3.2 기각: 모든 `LettuceBinaryCodec`에서 `BinarySerializer.serializeTo` 사용
 
@@ -154,6 +161,9 @@ private nested subtype은 다음 순서로 dispatch한다.
 1. target이 null이면 value type 검사, pack, serialize 없이 즉시 반환한다.
 2. value가 `ProtoMessage`가 아니면 superclass compatibility path로 보낸다.
 3. 시작 `writerIndex`와 `refCnt`를 읽고 `ProtoAny.pack(value)`를 정확히 한 번 수행한다.
+   pack 자체가 실패하면 기존 `AbstractBinarySerializer.serialize`와 동일한
+   `BinarySerializationException("Fail to serialize. graphType=...")` type/message/cause
+   contract로 변환한다.
 4. packed `Any` exact size를 계산하고 `ensureWritable(size)`로 capacity를 확보한다.
 5. private bounded writer가 `[start, start + size)`에 absolute write하고 exact count를
    확인한다.
@@ -219,6 +229,9 @@ writer range에 absolute write한다. 이 output은 자체 cursor와 upper bound
 target index를 바꾸지 않는다. 성공 시 `writerIndex`를 정확히 `size`만큼 한 번
 전진시킨다. production writer는 private function dependency로 주입되어 테스트가
 부분 write 후 실패를 결정적으로 만들 수 있으나 public ABI에는 노출되지 않는다.
+테스트는 factory가 반환한 private subtype의 private constructor에 reflection으로
+접근해 writer dependency를 교체하며, 테스트 편의를 위한 `internal`/public seam은
+추가하지 않는다.
 private writer는 written count를 반환하며, 정상 반환하더라도 `written != size`이면
 exact-count guard가 예외를 발생시키고 index commit을 금지한다.
 
@@ -227,6 +240,8 @@ exact-count guard가 예외를 발생시키고 index commit을 금지한다.
 | exact/충분한 writable capacity | 기존 prefix 보존, exact byte count만큼 writer index 전진 |
 | expandable capacity | target 자체가 확장된 뒤 동일 contract로 성공 |
 | max capacity 부족 | 기존 Netty exception 전파, writer index 보존 |
+| read-only target | 기존 Netty `ReadOnlyBufferException` 전파, indices/marks/refCnt 보존 |
+| `ProtoAny.pack` 실패 | 기존 `BinarySerializationException` type/message/cause chain |
 | writer 실패 | writer index 보존, 시도된 range bytes는 undefined |
 | writer가 `size - 1` bytes 후 정상 반환 | exact-count failure, indices/marks/refCnt 보존 |
 | released target | 기존 Netty reference-count exception 전파 |
@@ -247,9 +262,10 @@ Lettuce가 생성한 temporary target의 최종 release는 Lettuce가 소유한�
 
 ## 7. Benchmark 및 evidence gate
 
-기존 `benchmark/protobuf-codec-benchmark`에 `:bluetape4k-lettuce` dependency와
-Lettuce encode cells를 추가한다. 새 benchmark module이나 profiler dependency는
-만들지 않는다.
+기존 `benchmark/protobuf-codec-benchmark`에 existing project
+`:bluetape4k-lettuce`를 benchmark-only dependency로 추가하고 Lettuce encode cells를
+추가한다. production module dependency graph, 새 benchmark module, external library,
+profiler dependency는 만들지 않는다.
 
 ### 7.1 비교 matrix
 
@@ -287,16 +303,19 @@ matrix에는 넣지 않는다.
 
 - 새 Lettuce method 하나라도 missing, unexpected, duplicate 상태다.
 - baseline/candidate pair 또는 heap/direct pair가 불완전하다.
-- `gc.alloc.rate.norm`, primary score, `B/op` unit, run identity가 누락되거나 invalid다.
+- `secondaryMetrics["gc.alloc.rate.norm"]`, 그 metric의 `score`, `scoreError`, `B/op`
+  unit 또는 run identity가 누락되거나 invalid다. `score`는 finite이고 `> 0`,
+  `scoreError`는 finite이고 `>= 0`이어야 한다. JMH `primaryMetric` throughput 값은
+  allocation 판정식에 사용하지 않는다.
 - 두 run의 method set, exact commit, tracked-tree hash, built JAR SHA-256, JDK, JVM args,
   JMH mode, forks, warmup iterations/time, measurement iterations/time, threads, profiler
   configuration, allocator class, target capacities, benchmark parameters 또는
   payload/config fingerprint가 다르다.
 - raw run ID가 같거나 evidence를 덮어쓴다.
 
-validator fixture test는 complete, missing, unexpected, wrong-unit, non-finite,
-identity mismatch, wrong method name, measurement configuration mismatch와 Lettuce pair
-mismatch를 포함한다.
+validator fixture test는 complete, missing, unexpected, wrong-unit, missing score/error,
+NaN/Infinity/negative score or error, identity mismatch, wrong method name, measurement
+configuration mismatch와 Lettuce pair mismatch를 포함한다.
 
 ### 7.3 측정 및 주장
 
@@ -304,18 +323,35 @@ mismatch를 포함한다.
 - clean implementation exact head에서 다른 heavy work와 병렬 실행하지 않고 서로
   다른 run ID로 두 번 순차 실행한다.
 - `gc.alloc.rate.norm` B/op가 primary metric이며 throughput은 diagnostic이다.
+- 아래 식의 `candidateScore`, `candidateError`, `baselineScore`, `baselineError`는 모두
+  `secondaryMetrics["gc.alloc.rate.norm"]`의 `score`와 `scoreError`다.
 - positive claim은 두 run 각각에서 `candidate <= baseline * 0.95`,
   `baseline - candidate >= 8 B/op`, 그리고
   `candidateScore + candidateError < baselineScore - baselineError`를 모두 만족할 때만
   허용한다. validator metadata에 이 exact formula와 8 B/op floor를 기록한다.
 - mixed direction, relative/absolute floor 미달 또는 uncertainty overlap은
   `inconclusive`로 기록하고 긍정 문구를 쓰지 않는다.
-- optimized subtype 제거는 두 run 각각에서 위 공식을 대칭 적용한
-  `candidate >= baseline * 1.05`, `candidate - baseline >= 8 B/op`,
+- optimized subtype 제거는 heap 또는 direct cell 중 하나라도 두 run 각각에서 위
+  공식을 대칭 적용한 `candidate >= baseline * 1.05`,
+  `candidate - baseline >= 8 B/op`,
   `candidateScore - candidateError > baselineScore + baselineError`를 모두 만족할 때
-  실행한다. validator와 neutral evidence는 유지할 수 있다.
+  실행한다. 그 외에는 cell별 positive claim을 판정하고 positive cell이 하나도 없으면
+  `retained-inconclusive`로 처리한다. validator와 neutral evidence는 유지할 수 있다.
+- delivery terminal precedence는 다음과 같다. eligible cell 하나라도 confirmed
+  regression이면 `rejected-after-regression`, 그렇지 않고 eligible cell 하나라도 두 run
+  모두 acceptance formula를 만족하면 `retained-accepted`, 나머지는
+  `retained-inconclusive`다. `retained-accepted`에서도 positive claim은 acceptance를
+  만족한 개별 cell에만 허용한다.
 - 기능 및 compatibility 테스트가 통과해도 invalid/missing evidence로 성능 주장을
   대신할 수 없다.
+
+측정 결과의 delivery terminal은 다음 세 가지다.
+
+| Terminal | Production dispatch | Claim | Issue/PR disposition |
+|---|---|---|---|
+| `retained-accepted` | 유지 | 두 run 모두 acceptance formula를 만족한 cell만 positive | direct-write AC/DoD를 적용하고 merge-ready 진행 |
+| `retained-inconclusive` | 유지 | neutral only | direct-write 기능 AC/DoD는 적용하되 성능 개선 주장은 금지하고 inconclusive evidence를 기록 |
+| `rejected-after-regression` | subtype과 `open` ABI 변화 제거 | negative/neutral only | non-closing benchmark/evidence-only PR로 merge-ready 진행하되 direct-write AC/DoD 완료나 #757 종료를 주장하지 않음 |
 
 기존 promoted evidence는 덮어쓰지 않는다. archive-aware replacement command가 먼저
 기존 promoted generation을
@@ -330,6 +366,11 @@ tracked-tree hash, built JAR SHA-256과 함께
 manifest만으로 report를 재생성하고 promoted tree validator가 immutable archive, raw, derived,
 metadata, report의 연결을 검증해야 한다. 결론은 기존 issue #757 allocation report에
 Lettuce section으로 추가하고 README는 숫자를 복제하지 않고 report를 링크한다.
+반복 replacement는 기존 `archive/` subtree를 다시 복사하지 않는다. 이전 manifest의
+`superseded_evidence` entries는 동일 path/hash로 carry-forward하고, 바로 직전 active
+generation의 non-archive file set만 새 `<old-delivery-commit>` archive에 한 번 복사한다.
+기존 rollback bundle이 참조하는 legacy archive는 해당 generation file set에 정확히 한
+번 포함하며 nested archive duplication을 validator가 거부한다.
 
 ## 8. 실패 모드와 처리
 
@@ -343,19 +384,22 @@ Lettuce section으로 추가하고 README는 숫자를 복제하지 않고 repor
 3. **max-capacity 또는 writer 실패:** writer index와 `refCnt`를 보존한다. capacity
    expansion과 attempted bytes는 rollback하지 않으며 문서화된 Netty exception을
    전파한다.
-4. **trusted fallback 우회:** only `ProtoMessage` type check가 direct dispatch를
+4. **pack failure compatibility:** `ProtoAny.pack` failure는 기존 serializer와 동일한
+   `BinarySerializationException` type/message/cause로 변환하고 target state는 보존한다.
+5. **trusted fallback 우회:** only `ProtoMessage` type check가 direct dispatch를
    활성화한다. non-Protobuf value는 기존 serializer가 처리하므로 fallback wire와
    신뢰 경계를 바꾸지 않는다.
-5. **strict profile 완화:** non-Protobuf value가 superclass path에서 성공하거나 다른
+6. **strict profile 완화:** non-Protobuf value가 superclass path에서 성공하거나 다른
    예외로 바뀌면 delivery blocker다.
-6. **buffer lifetime 오류:** codec이 retain/release하거나 bounded writer를 escape해
+7. **buffer lifetime 오류:** codec이 retain/release하거나 bounded writer를 escape해
    `refCnt`, lifetime, thread confinement가 달라지면 delivery blocker다.
-7. **compressed codec의 우발적 변경:** compressed factory가 specialized subtype을
+8. **compressed codec의 우발적 변경:** compressed factory가 specialized subtype을
    만들거나 diff/benchmark claim에 포함되면 범위 위반으로 되돌린다.
-8. **allocation 개선 미재현:** 두 fresh run이 relative 5%, absolute 8 B/op,
+9. **allocation 개선 미재현:** 두 fresh run이 relative 5%, absolute 8 B/op,
    non-overlapping uncertainty를 모두 증명하지 못하면 긍정 성능 문구를 제거한다.
-   두 run 모두 대칭 regression formula를 만족하면 optimized dispatch를 제거한다.
-9. **ABI drift:** factory descriptor, constructor, method descriptor, serializer property
+   두 run 모두 대칭 regression formula를 만족하면 optimized dispatch와 `open` ABI
+   변화를 제거하고 `rejected-after-regression` terminal로 끝낸다.
+10. **ABI drift:** factory descriptor, constructor, method descriptor, serializer property
    또는 existing Kotlin/Java caller compile이 바뀌면 delivery를 중단한다.
 
 ## 9. 테스트 전략
@@ -364,8 +408,10 @@ Lettuce section으로 추가하고 README는 숫자를 복제하지 않고 repor
 
 - 기존 generic codec의 key/value encode/decode, estimate, toString 회귀.
 - Kotlin 및 Java에서 기존 한 인자 constructor와 factory 반환형 compile proof.
-- API/binary compatibility report에서 기존 descriptor 제거 또는 변경 없음, class/method
-  access flag는 의도한 `open` 변화에만 한정됨.
+- 변경 전후 `./gradlew :bluetape4k-lettuce:compileKotlin` 산출물에
+  `javap -p -s io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec`를 실행해 기존
+  descriptor 제거/변경 없음과 class/target-overload의 허용된 `final` 변화만 확인함.
+- Kotlin 및 Java compile fixture와 reflection assertion을 targeted Gradle test로 실행함.
 - Java reflection에서 private nested Protobuf codec의 public/protected constructor와
   externally accessible codec class가 없음.
 - strict/trusted, Protobuf/non-Protobuf 조합 모두 null target 호출 시 value 검사와
@@ -373,6 +419,12 @@ Lettuce section으로 추가하고 README는 숫자를 복제하지 않고 repor
 - compressed factory가 계속 generic copied codec을 사용함.
 
 ### Protobuf direct encode
+
+이 절의 direct-writer 전용 테스트는 candidate measurement commit과 retained terminal의
+final head에 적용한다. `rejected-after-regression` final head에서는 subtype, private seam,
+그 구현에만 존재하는 테스트를 제거해 N/A로 처리하고, delivery manifest가 모든 기능
+테스트를 통과한 immutable candidate measurement commit, tracked-tree hash, JAR hash와
+negative JMH evidence를 가리키는지 검증한다.
 
 - heap/direct `ByteBuf`의 exact-capacity 및 reusable oversized target.
 - non-zero reader/writer index와 prefix 보존, exact writer-index advancement.
@@ -383,6 +435,12 @@ Lettuce section으로 추가하고 README는 숫자를 복제하지 않고 repor
   bytes는 변경될 수 있음.
 - injected writer가 `size - 1` bytes만 쓰고 정상 반환하는 경우 exact-count guard가
   실패시키며 reader/writer indices, observable marks, `refCnt`를 보존함.
+- private writer seam은 reflection으로만 주입하고 public/internal JVM surface가 추가되지
+  않았음을 reflection/API diff로 함께 검증함.
+- read-only target에서 `ReadOnlyBufferException`, reader/writer indices, observable marks,
+  `refCnt` 보존.
+- `ProtoAny.pack` failure에서 기존 `BinarySerializationException` type/message/cause와
+  target state 보존.
 - released target의 기존 Netty failure.
 - zero/one/multi-component composite, sliced/wrapped target에서 정확한 direct bytes 생성.
 - `nioBufferCount() == 1`이면서 detached NIO copy를 반환하는 hostile custom target도
@@ -404,8 +462,9 @@ Lettuce section으로 추가하고 README는 숫자를 복제하지 않고 repor
 - fixture의 heap/direct copied/optimized semantic equality와 invocation reset.
 - exact expected method set complete/missing/unexpected/duplicate/wrong-name.
 - Lettuce baseline/candidate 및 heap/direct matrix pair validation.
-- GC metric/unit/finite score, execution-parameter identity, relative/absolute/uncertainty
-  formula mismatch failure.
+- GC metric의 `score`/`scoreError`/unit/range, execution-parameter identity,
+  relative/absolute/uncertainty formula mismatch failure.
+- heap/direct mixed-cell accepted/inconclusive/regression 조합과 terminal precedence.
 - compile/smoke 후 두 fresh canonical GC-profiler run.
 
 ## 10. 문서와 전달
@@ -443,63 +502,76 @@ hot path에 새 telemetry를 넣지 않는다. consumer handoff에는 배포 전
 기간, escalation owner와 함께 Redis command encode/SET 실패율, Netty reference-count
 exception, JVM allocation/GC 변화, serialization/decode compatibility error를 기록한다.
 
-fresh 승인으로 PR이 merge된 뒤 같은 owner가 merge commit과 최종 evidence/report를
-#757에 기록하고 issue를 close한다. 이어 #898의 #757 항목을 완료 처리하고 #756에는
-Lettuce slice 완료와 compressed/custom-prefix/generic SPI 제외 범위를 링크한다. 이
-post-merge closure는 merge-ready 검증과 별도 단계이며 milestone, labels, assignee를
-다시 확인한다.
+`retained-accepted` 또는 `retained-inconclusive` terminal이 fresh 승인으로 merge된 뒤
+같은 owner가 merge commit과 최종 evidence/report를 #757에 기록하고 issue를 close한다.
+이어 #898의 #757 항목을 완료 처리하고 #756에는 Lettuce slice 완료와
+compressed/custom-prefix/generic SPI 제외 범위를 링크한다. `rejected-after-regression`
+terminal은 #757을 close하거나 #898을 완료 처리하지 않고 negative evidence와 남은
+scope를 issue에 기록한다. evidence-only PR 자체는 동일한 exact-head 검증과 fresh merge
+approval을 거쳐 merge할 수 있지만 `Closes #757` metadata를 사용하지 않는다. 이 post-merge closure는 merge-ready 검증과 별도 단계이며
+milestone, labels, assignee를 다시 확인한다.
 
 ## 11. Acceptance Criteria
 
 - uncompressed strict/trusted Protobuf factory의 public signature와 기존 호출 형태가
   유지된다.
-- target을 받는 production Lettuce Protobuf encode success path에는 최종
-  payload-sized `ByteArray` handoff가 없다.
+- `retained-accepted`/`retained-inconclusive`에서는 target을 받는 production Lettuce
+  Protobuf encode success path에 최종 payload-sized `ByteArray` handoff가 없다.
+- `rejected-after-regression`에서는 optimized subtype과 이를 위해 추가한 `open` ABI
+  변화가 최종 diff에 없고 direct-write 완료나 #757 종료를 주장하지 않는다.
 - output은 기존 `Any` wire bytes와 byte-for-byte 호환된다.
 - heap/direct/composite/wrapped target은 prefix, reader/writer indices, `refCnt`, ownership
-  계약을 지킨다.
+  계약을 지키고 read-only target은 기존 Netty 예외와 target state를 보존한다.
 - null target은 serialization 없는 no-op다. compressed, single-argument `ByteBuffer`
   encode, decode, trusted non-Protobuf, custom-prefix serializer는 명시적 compatibility
   path다.
-- strict rejection과 trusted fallback의 exception/security/wire semantics가 유지된다.
+- Protobuf pack failure, strict rejection, trusted fallback의 exception/security/wire
+  semantics가 유지된다.
 - max-capacity, writer failure, released buffer, repeated invocation 테스트가 통과한다.
-- injected writer의 exception 및 short-success 양쪽에서 exact-count guard와
-  indices/observable marks/`refCnt` 보존이 검증된다.
+- retained terminal에서는 injected writer의 exception 및 short-success 양쪽에서
+  exact-count guard와 indices/observable marks/`refCnt` 보존이 검증된다. rejected
+  terminal의 final head에서는 이 구현 전용 검사를 N/A로 처리하고 candidate measurement
+  commit의 통과 기록과 manifest-bound hash를 검증한다.
 - generic `LettuceBinaryCodec` 기존 behavior와 public descriptors가 유지된다.
 - benchmark validator가 Lettuce method/pair/metric/run drift를 fail-closed로 차단한다.
 - 두 fresh exact-head GC-profiler run과 raw/derived/environment evidence가 검증된다.
 - positive allocation claim은 두 run 모두 relative 5%, absolute 8 B/op,
   non-overlapping uncertainty를 만족한 candidate에만 존재한다.
-- 두 run 모두 대칭 regression formula를 만족하면 optimized subtype dispatch가 최종
-  diff에 없다.
+- heap 또는 direct cell 중 하나라도 두 run 모두 대칭 regression formula를 만족하면
+  optimized subtype dispatch가 최종 diff에 없고, negative evidence는 기능 검증을 통과한
+  immutable candidate measurement commit과 그 tracked-tree/JAR hash에 귀속된다.
 - KDoc, locale-paired docs, benchmark report, `CHANGELOG.md`, issue DoD가 source와
   일치한다.
-- 새 module/dependency, generic serializer SPI, compressed optimization,
-  decode optimization, release/tag/publish/settings 변경이 diff에 없다.
+- 새 module, external/production dependency, generic serializer SPI, compressed
+  optimization, decode optimization, release/tag/publish/settings 변경이 diff에 없다.
+  existing `:bluetape4k-lettuce` benchmark-only project dependency만 허용한다.
 - final exact-head review는 P0=0, P1=0이며 PR은 merge approval 경계에서 멈춘다.
 
 ## 12. Definition Of Done
 
-- 승인된 Lettuce narrow slice가 spec, plan, tests, implementation, evidence, docs에
-  추적 가능하다.
+- 승인된 Lettuce narrow slice와 세 measurement terminal 중 하나가 spec, plan, tests,
+  implementation/evidence, docs에 추적 가능하다.
 - public/source/binary compatibility, Protobuf wire/security, Netty ownership 계약이
   유지된다.
-- allocation claim이 production factory와 generic copied control의 동일-payload
-  비교 및 두-run fail-closed evidence로 검증된다.
+- allocation claim 또는 neutral/negative verdict가 production factory와 generic copied
+  control의 동일-payload 비교 및 두-run fail-closed evidence로 검증된다.
 - targeted unit/integration/benchmark tests, compatibility check, Detekt/static checks,
   `git diff --check`, 관련 module build가 fresh evidence로 통과한다.
 - promoted evidence archive, new run identities, verified delivery manifest와 regenerated
   report가 promoted-tree validator를 통과한다.
+- rejected terminal은 final head에서 direct-writer 구현/전용 테스트를 요구하지 않으며,
+  candidate measurement commit의 기능-test 통과 기록, ancestry, tracked-tree/JAR hash와
+  negative evidence 연결을 검증한다.
 - issue-linked PR의 repo/base/head, milestone, labels, assignee, final DoD heading,
   exact head가 live 상태와 일치한다.
 - merge, release, publish, tag, destructive cleanup은 각각 별도 승인 경계에 남는다.
 
 ## 13. Spec review convergence
 
-독립된 caller, API/developer, stability, security, performance, operator 여섯 관점 검토를
-수행했다. 최초 결과는 모든 관점 P0 0건이었고, 중복되는 P1/P2 findings를 아래
-결정으로 통합했다. 모두 설계에 반영했으며 최신 재검토의 승인 조건은 각 관점
-P0=0, P1=0이다.
+독립된 caller, API/developer, stability, security, performance, operator 여섯 관점 검토와
+추가 code/architecture adversarial 검토를 수행했다. 추가 검토에서 발견된 중복 P1/P2
+findings를 아래 결정으로 통합했다. 모두 설계에 반영했으며 수정 영향 범위를 같은
+code/architecture lane으로 재검토했다.
 
 | Review concern | Disposition |
 |---|---|
@@ -511,7 +583,11 @@ P0=0, P1=0이다.
 | JMH reset, observation, threshold, identity | exact method/reset/Blackhole, 5%+8 B/op+uncertainty, full metadata 반영 |
 | evidence promotion과 운영 rollback | immutable archive/manifest/tree validation, owner/trigger/revert 절차 반영 |
 | issue lifecycle | merge-ready와 post-merge #757/#898/#756 closure를 분리 |
+| regression terminal과 unconditional DoD 충돌 | accepted/inconclusive/rejected terminal별 dispatch, claim, issue disposition을 분리 |
+| benchmark project dependency와 no-dependency 충돌 | existing Lettuce benchmark-only dependency만 허용하고 external/production dependency는 금지 |
+| allocation uncertainty input | `gc.alloc.rate.norm.score/scoreError`와 finite/range fixture를 고정 |
+| serialization failure compatibility | pack failure wrapping과 raw Netty target failure 경계를 분리 |
+| ABI/seam/read-only/archive 반복성 | javap+compile+reflection, private reflection seam, read-only case, non-recursive archive를 명시 |
 
-수정본 재검토 결과는 caller, API/developer, stability, security, performance,
-operator 전 관점에서 P0=0, P1=0, P2=0이다. 이는 설계 승인 판정이며 구현 검증을
-대신하지 않는다.
+최신 통합 결과와 수정 영향 재검토는 P0=0, P1=0, P2=0, P3=0으로 승인됐다. 이 판정은
+설계 승인에 한정되며 구현 검증을 대신하지 않는다.
