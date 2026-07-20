@@ -1,10 +1,16 @@
 package io.bluetape4k.protobuf.serializers.redis
 
+import com.google.protobuf.CodedOutputStream
 import io.bluetape4k.io.compressor.Compressors
-import io.bluetape4k.io.serializer.BinarySerializer
+import io.bluetape4k.io.serializer.BinarySerializationException
 import io.bluetape4k.io.serializer.CompressableBinarySerializer
+import io.bluetape4k.protobuf.ProtoAny
+import io.bluetape4k.protobuf.ProtoMessage
 import io.bluetape4k.protobuf.serializers.ProtobufSerializer
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
+import io.netty.buffer.ByteBuf
+import java.io.OutputStream
+import java.util.Objects
 
 /**
  * Protobuf Serializer를 사용하는 [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec] 팩토리 모음.
@@ -14,11 +20,102 @@ import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
  */
 object LettuceProtobufCodecs {
 
-    private val strictSerializer: BinarySerializer by lazy { ProtobufSerializer() }
-    private val trustedInternalSerializer: BinarySerializer by lazy { ProtobufSerializer.trustedInternalProtobuf() }
+    private val strictSerializer: ProtobufSerializer by lazy { ProtobufSerializer() }
+    private val trustedInternalSerializer: ProtobufSerializer by lazy { ProtobufSerializer.trustedInternalProtobuf() }
+
+    private fun interface PackedAnyWriter {
+        fun write(packed: ProtoAny, target: ByteBuf, start: Int, end: Int): Int
+    }
+
+    private object AbsolutePackedAnyWriter: PackedAnyWriter {
+        override fun write(packed: ProtoAny, target: ByteBuf, start: Int, end: Int): Int =
+            writePackedAny(packed, target, start, end)
+    }
+
+    private class DirectProtobufLettuceCodec<V: Any> private constructor(
+        serializer: ProtobufSerializer,
+        private val writer: PackedAnyWriter = AbsolutePackedAnyWriter,
+    ): LettuceBinaryCodec<V>(serializer) {
+
+        companion object {
+            fun <V: Any> create(serializer: ProtobufSerializer): LettuceBinaryCodec<V> =
+                DirectProtobufLettuceCodec(serializer)
+        }
+
+        override fun encodeValue(value: V, target: ByteBuf?) {
+            if (target == null) return
+            if (value !is ProtoMessage) return super.encodeValue(value, target)
+
+            val packed = try {
+                ProtoAny.pack(value)
+            } catch (failure: Throwable) {
+                throw BinarySerializationException(
+                    "Fail to serialize. graphType=${value.javaClass.name}",
+                    failure,
+                )
+            }
+            val size = packed.serializedSize
+            val start = target.writerIndex()
+            target.ensureWritable(size)
+            val written = writer.write(packed, target, start, start + size)
+            check(written == size) {
+                "Packed Any writer wrote $written bytes, expected $size"
+            }
+            target.writerIndex(start + size)
+        }
+    }
+
+    private class BoundedByteBufOutputStream(
+        private val target: ByteBuf,
+        private val start: Int,
+        private val end: Int,
+    ): OutputStream() {
+        var written: Int = 0
+            private set
+
+        init {
+            require(start >= 0) { "start must not be negative" }
+            require(end >= start) { "end must not precede start" }
+            require(end <= target.capacity()) { "end exceeds target capacity" }
+        }
+
+        override fun write(value: Int) {
+            checkWritable(1)
+            target.setByte(start + written, value)
+            written++
+        }
+
+        override fun write(bytes: ByteArray, offset: Int, length: Int) {
+            Objects.checkFromIndexSize(offset, length, bytes.size)
+            checkWritable(length)
+            target.setBytes(start + written, bytes, offset, length)
+            written += length
+        }
+
+        private fun checkWritable(length: Int) {
+            if (length > end - start - written) {
+                throw IndexOutOfBoundsException(
+                    "write exceeds bounded ByteBuf range [$start, $end)",
+                )
+            }
+        }
+    }
+
+    private fun writePackedAny(packed: ProtoAny, target: ByteBuf, start: Int, end: Int): Int {
+        val output = BoundedByteBufOutputStream(target, start, end)
+        val coded = CodedOutputStream.newInstance(output, 0)
+        packed.writeTo(coded)
+        coded.flush()
+        return output.written
+    }
 
     /**
-     * Protobuf Serializer를 사용하는 [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec]를 생성합니다.
+     * Creates a strict Protobuf codec optimized for a direct ByteBuf target.
+     *
+     * The target remains caller-owned. This removes the payload-sized handoff for uncompressed Protobuf values but
+     * does not promise zero-copy operation. The unchanged ByteBuffer API and all compressed or custom-prefix codecs
+     * retain their compatibility path. On failure, failure-aftercare belongs to the caller because attempted bytes or
+     * capacity growth may remain even though the writer index is not advanced.
      *
      * ```kotlin
      * val codec = LettuceProtobufCodecs.protobuf<MyMessage>()
@@ -26,7 +123,7 @@ object LettuceProtobufCodecs {
      * ```
      */
     fun <V: Any> protobuf(): LettuceBinaryCodec<V> =
-        LettuceBinaryCodec(strictSerializer)
+        DirectProtobufLettuceCodec.create(strictSerializer)
 
     /**
      * Protobuf Serializer와 Gzip Compressor를 사용하는 [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec]를 생성합니다.
@@ -84,12 +181,13 @@ object LettuceProtobufCodecs {
         LettuceBinaryCodec(CompressableBinarySerializer(strictSerializer, Compressors.Zstd))
 
     /**
-     * Creates a trusted-internal mixed Protobuf + Kryo fallback codec.
+     * Creates a trusted-internal mixed Protobuf + Kryo fallback codec optimized for a direct ByteBuf target.
      *
-     * Use only for internal Redis stores that already contain legacy fallback-encoded values.
+     * The target is caller-owned and has the same failure-aftercare contract as [protobuf]. The unchanged ByteBuffer
+     * API, compressed factories, and any caller-configured custom-prefix serializer retain the compatibility path.
      */
     fun <V: Any> trustedInternalProtobuf(): LettuceBinaryCodec<V> =
-        LettuceBinaryCodec(trustedInternalSerializer)
+        DirectProtobufLettuceCodec.create(trustedInternalSerializer)
 
     /**
      * Creates a trusted-internal mixed Protobuf + Kryo fallback codec with Gzip compression.
