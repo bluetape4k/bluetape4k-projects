@@ -183,6 +183,9 @@ object LettuceProtobufCodecs {
     /**
      * Creates a trusted-internal mixed Protobuf + Kryo fallback codec optimized for a direct ByteBuf target.
      *
+     * Use this factory only for internal stores where every producer and stored payload is trusted. Do not use it at
+     * a shared or untrusted boundary.
+     *
      * The target is caller-owned and has the same failure-aftercare contract as [protobuf]. The unchanged ByteBuffer
      * API, compressed factories, and any caller-configured custom-prefix serializer retain the compatibility path.
      */

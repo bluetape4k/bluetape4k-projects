@@ -37,8 +37,12 @@
   "post_dispatch": {
     "actual_coordinate": null,
     "actual_digest": null,
+    "actual_commit": null,
+    "actual_tree": null,
     "actual_command": null,
     "actual_target": null,
+    "actual_environment": null,
+    "actual_region": null,
     "deployed_at": null
   },
   "observation": {

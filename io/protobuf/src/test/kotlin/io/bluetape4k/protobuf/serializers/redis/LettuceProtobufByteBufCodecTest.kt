@@ -1,17 +1,25 @@
 package io.bluetape4k.protobuf.serializers.redis
 
+import com.google.protobuf.Message
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.io.serializer.BinarySerializationException
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.protobuf.ProtoAny
 import io.bluetape4k.protobuf.redis.messages.redisSimpleMessage
 import io.bluetape4k.protobuf.serializers.ProtobufSerializer
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.SwappedByteBuf
 import io.netty.buffer.Unpooled
+import io.netty.util.IllegalReferenceCountException
 import org.junit.jupiter.api.Test
 import java.lang.reflect.Modifier
 import java.lang.reflect.Proxy
+import java.nio.ByteBuffer
 
 class LettuceProtobufByteBufCodecTest {
 
@@ -65,6 +73,8 @@ class LettuceProtobufByteBufCodecTest {
         try {
             target.writeByte(0x33)
             val start = target.writerIndex()
+            target.markReaderIndex()
+            target.markWriterIndex()
             val shortCodec = injectedCodec(serializer) { buffer, index ->
                 buffer.setByte(index, 0x7F)
                 expectedSize - 1
@@ -73,10 +83,17 @@ class LettuceProtobufByteBufCodecTest {
             assertFailsWith<IllegalStateException> {
                 shortCodec.encodeValue(message, target)
             }
+            target.refCnt() shouldBeEqualTo 1
+            target.readerIndex() shouldBeEqualTo 0
             target.writerIndex() shouldBeEqualTo start
             target.getUnsignedByte(start) shouldBeEqualTo 0x7F
+            target.resetReaderIndex()
+            target.resetWriterIndex()
+            target.writerIndex() shouldBeEqualTo start
 
             target.setZero(start, expectedSize)
+            target.markReaderIndex()
+            target.markWriterIndex()
             val failedCodec = injectedCodec(serializer) { buffer, index ->
                 buffer.setByte(index, 0x5E)
                 throw IllegalArgumentException("injected write failure")
@@ -84,16 +101,93 @@ class LettuceProtobufByteBufCodecTest {
             assertFailsWith<IllegalArgumentException> {
                 failedCodec.encodeValue(message, target)
             }
+            target.refCnt() shouldBeEqualTo 1
+            target.readerIndex() shouldBeEqualTo 0
             target.writerIndex() shouldBeEqualTo start
             target.getUnsignedByte(start) shouldBeEqualTo 0x5E
+            target.resetReaderIndex()
+            target.resetWriterIndex()
+            target.writerIndex() shouldBeEqualTo start
         } finally {
             target.release()
         }
     }
 
     @Test
-    fun `null target is a no-op`() {
-        LettuceProtobufCodecs.protobuf<Any>().encodeValue(Any(), null)
+    fun `capacity and target accessibility failures preserve committed indices`() {
+        val codec = LettuceProtobufCodecs.protobuf<Any>()
+        val message = redisSimpleMessage { id = 757 }
+        val size = ProtoAny.pack(message).serializedSize
+
+        val bounded = Unpooled.buffer(0, size - 1)
+        try {
+            bounded.markReaderIndex()
+            bounded.markWriterIndex()
+            assertFailsWith<IndexOutOfBoundsException> {
+                codec.encodeValue(message, bounded)
+            }
+            assertUncommittedState(bounded, 0)
+        } finally {
+            bounded.release()
+        }
+
+        val readOnly = Unpooled.unmodifiableBuffer(Unpooled.buffer(size, size))
+        try {
+            readOnly.markReaderIndex()
+            readOnly.markWriterIndex()
+            assertFailsWith<UnsupportedOperationException> {
+                codec.encodeValue(message, readOnly)
+            }
+            assertUncommittedState(readOnly, 0)
+        } finally {
+            readOnly.release()
+        }
+
+        val released = Unpooled.buffer(size, size)
+        released.release()
+        assertFailsWith<IllegalReferenceCountException> {
+            codec.encodeValue(message, released)
+        }
+        released.refCnt() shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `null target avoids protobuf work and pack failures retain their cause`() {
+        val codec = LettuceProtobufCodecs.protobuf<Any>()
+        val message = mockk<Message>()
+        every { message.descriptorForType } throws AssertionError("protobuf work")
+
+        codec.encodeValue(message, null)
+        verify(exactly = 0) { message.descriptorForType }
+
+        val target = Unpooled.buffer(64)
+        try {
+            target.writeByte(0x33)
+            target.markReaderIndex()
+            target.markWriterIndex()
+            val failure = assertFailsWith<BinarySerializationException> {
+                codec.encodeValue(message, target)
+            }
+            failure.message!!.startsWith("Fail to serialize. graphType=") shouldBeEqualTo true
+            (failure.cause is AssertionError) shouldBeEqualTo true
+            assertUncommittedState(target, 1)
+        } finally {
+            target.release()
+        }
+    }
+
+    @Test
+    fun `direct writer does not request a nio view`() {
+        val codec = LettuceProtobufCodecs.protobuf<Any>()
+        val message = redisSimpleMessage { id = 757 }
+        val owner = Unpooled.buffer(256)
+        val target = ThrowingNioByteBuf(owner)
+        try {
+            codec.encodeValue(message, target)
+            target.nioCalls shouldBeEqualTo 0
+        } finally {
+            target.release()
+        }
     }
 
     @Test
@@ -188,6 +282,25 @@ class LettuceProtobufByteBufCodecTest {
         } finally {
             target.release()
             target.refCnt() shouldBeEqualTo 0
+        }
+    }
+
+    private fun assertUncommittedState(target: ByteBuf, expectedWriterIndex: Int) {
+        target.refCnt() shouldBeEqualTo 1
+        target.readerIndex() shouldBeEqualTo 0
+        target.writerIndex() shouldBeEqualTo expectedWriterIndex
+        target.resetReaderIndex()
+        target.resetWriterIndex()
+        target.writerIndex() shouldBeEqualTo expectedWriterIndex
+    }
+
+    private class ThrowingNioByteBuf(delegate: ByteBuf): SwappedByteBuf(delegate) {
+        var nioCalls: Int = 0
+            private set
+
+        override fun nioBuffer(index: Int, length: Int): ByteBuffer {
+            nioCalls++
+            throw AssertionError("direct writer must not request a NIO view")
         }
     }
 }

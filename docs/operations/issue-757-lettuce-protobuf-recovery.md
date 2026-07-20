@@ -20,8 +20,11 @@ evidence를 임의로 덮어쓰지 않는다. `run-evidence.py record-rollback`�
 Published baseline과 planned recovery의 repository, GAV, digest, commit, tree, command, target을 동반 JSON 문서에
 고정한다. Planned recovery는 coordinate, digest, command, target, environment, region으로 고정한다.
 
-별도 배포 승인 전에 다음 read-only 검증을 수행한다. 첫 명령은 현재 retained ABI evidence를 검증하고, 두 번째
-명령은 현재 운영 checklist가 JSON 문법과 필수 최상위 구조를 유지하는지 확인한다.
+이 저장소에는 아직 published artifact fetch, immutable approval binding, planned/actual exact-identity 비교,
+`published-retained-vs-recovery` ABI 비교를 하나의 fail-closed 절차로 수행하는 도구가 없다. 따라서 이 문서와
+JSON template만으로 릴리스 후 recovery를 승인하거나 실행할 수 없다. 해당 검증기가 구현되고 독립 보안 검토를
+통과하기 전까지 post-release recovery는 **blocked**다. 아래 명령은 문서와 현재 로컬 evidence의 형식 점검일 뿐,
+배포 또는 recovery authorization evidence가 아니다.
 
 ```bash
 set -euo pipefail
@@ -31,12 +34,14 @@ python3 -m json.tool \
   docs/operations/templates/issue-757-lettuce-protobuf-recovery.json >/dev/null
 ```
 
-Distinct reviewer의 fresh approval은 planned recovery digest와 exact command를 대상으로 받아야 한다. 승인 전에는
-artifact publish, workflow dispatch, 배포, Redis 데이터 변경을 실행하지 않는다. 배포 후 actual identity는 approved
-planned recovery와 exact-equal이어야 한다.
+후속 검증기는 최소한 published baseline/recovery artifact를 digest로 가져오고, public ABI exact equality를
+검증하며, immutable approval receipt를 planned identity 전체에 bind하고, post-dispatch actual identity 전체가
+approved planned recovery와 exact-equal임을 검증해야 한다. Distinct reviewer의 fresh approval은 이 검증기가 만든
+proposal digest와 exact command를 대상으로 받아야 한다. 그 전에는 artifact publish, workflow dispatch, 배포,
+Redis 데이터 변경을 실행하지 않는다.
 
 관측 window에는 최소한 encode failure rate, Redis command failure rate, allocation, latency, affected consumer의
 decode 성공률을 기록한다. 사전에 고정한 threshold를 모두 만족하고 consumer impact가 해소된 뒤에만 close 단계로
 진행한다. Close 기록에는 published baseline/recovery digest, 배포 결과, 관측 query/window/threshold, owner,
 reviewer approval, #757 링크를 포함한다. ABI가 달라졌거나 actual identity가 계획과 다르면 즉시 중단하고 별도
-release/redeploy 승인을 받는다.
+release/redeploy 승인을 받는다. 현재 도구 상태에서는 이 close gate에도 도달할 수 없다.
