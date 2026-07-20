@@ -61,6 +61,7 @@ benchmark {
 dependencies {
     implementation(project(":bluetape4k-protobuf"))
     implementation(project(":bluetape4k-redisson"))
+    implementation(project(":bluetape4k-lettuce"))
     testImplementation(project(":bluetape4k-junit5"))
 
     add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
