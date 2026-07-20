@@ -61,30 +61,55 @@ class LettuceProtobufByteBufCodecTest {
         val expected = ProtoAny.pack(message).toByteArray()
         val strict = LettuceProtobufCodecs.protobuf<Any>()
 
-        repeat(3) {
-            val target = Unpooled.buffer(expected.size, expected.size)
-            try {
-                strict.encodeValue(message, target)
-                target.writerIndex() shouldBeEqualTo expected.size
-                target.remainingBytes().contentEquals(expected) shouldBeEqualTo true
+        val repeatedTarget = Unpooled.buffer(expected.size + 1, expected.size + 1)
+        try {
+            repeat(3) {
+                repeatedTarget.clear()
+                repeatedTarget.writeByte(0x5A)
+                val refCnt = repeatedTarget.refCnt()
+                strict.encodeValue(message, repeatedTarget)
+                repeatedTarget.refCnt() shouldBeEqualTo refCnt
+                repeatedTarget.readerIndex() shouldBeEqualTo 0
+                repeatedTarget.writerIndex() shouldBeEqualTo expected.size + 1
+                repeatedTarget.getUnsignedByte(0) shouldBeEqualTo 0x5A
+                val actual = ByteArray(expected.size)
+                repeatedTarget.getBytes(1, actual)
+                actual.contentEquals(expected) shouldBeEqualTo true
                 strict.decodeValue(ByteBuffer.wrap(expected)) shouldBeEqualTo message
-            } finally {
-                target.release()
             }
+        } finally {
+            repeatedTarget.release()
         }
 
         val fallbackValue = CompatibilityValue(757, "trusted-fallback")
+        val genericStrict = LettuceBinaryCodec<Any>(ProtobufSerializer())
+        val genericTarget = Unpooled.buffer()
         val strictTarget = Unpooled.buffer()
         try {
-            assertFailsWith<BinarySerializationException> {
+            val genericFailure = assertFailsWith<BinarySerializationException> {
+                genericStrict.encodeValue(fallbackValue, genericTarget)
+            }
+            val directFailure = assertFailsWith<BinarySerializationException> {
                 strict.encodeValue(fallbackValue, strictTarget)
             }
+            directFailure.message shouldBeEqualTo genericFailure.message
+            directFailure.cause?.javaClass shouldBeEqualTo genericFailure.cause?.javaClass
+            genericTarget.writerIndex() shouldBeEqualTo 0
             strictTarget.writerIndex() shouldBeEqualTo 0
         } finally {
+            genericTarget.release()
             strictTarget.release()
         }
 
         val trusted = LettuceProtobufCodecs.trustedInternalProtobuf<Any>()
+        val trustedProtobufTarget = Unpooled.buffer()
+        try {
+            trusted.encodeValue(message, trustedProtobufTarget)
+            trustedProtobufTarget.remainingBytes().contentEquals(expected) shouldBeEqualTo true
+        } finally {
+            trustedProtobufTarget.release()
+        }
+
         val expectedFallback = trusted.encodeValue(fallbackValue).remainingBytes()
         val trustedTarget = Unpooled.buffer()
         try {
