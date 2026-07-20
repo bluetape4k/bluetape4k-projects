@@ -302,21 +302,27 @@ def _validate_legacy_rebased_manifest(manifest_path, repo_root, command_runner):
     return manifest
 
 
-def _authenticate_rebased_rollback_lineage(
-    delivery_manifest, bundle, bundle_path, head, repo_root, command_runner
-):
-    manifest_path = Path(delivery_manifest).resolve()
+def _validate_committed_or_legacy_matrix(manifest_path, repo_root, command_runner):
     try:
-        manifest = validate_committed(
+        return validate_committed(
             manifest_path, repo_root=repo_root, require_git_commit=True,
             command_runner=command_runner,
         )
     except ValueError as exc:
         if "method matrix" not in str(exc):
             raise
-        manifest = _validate_legacy_rebased_manifest(
+        return _validate_legacy_rebased_manifest(
             manifest_path, repo_root, command_runner,
         )
+
+
+def _authenticate_rebased_rollback_lineage(
+    delivery_manifest, bundle, bundle_path, head, repo_root, command_runner
+):
+    manifest_path = Path(delivery_manifest).resolve()
+    manifest = _validate_committed_or_legacy_matrix(
+        manifest_path, repo_root, command_runner,
+    )
     if manifest.get("rollback") != bundle:
         raise error(
             manifest_path, "rollback payload differs from imported bundle",
@@ -2446,7 +2452,9 @@ def verify_promoted(state_path, destination, repo_root=None, command_runner=subp
 def replace_promoted(state_path, expected_manifest, destination, backup_root):
     destination = Path(destination).resolve(); expected_manifest = Path(expected_manifest).resolve()
     repo_root = find_repo_root(destination)
-    validate_committed(expected_manifest, repo_root=repo_root, require_git_commit=True)
+    _validate_committed_or_legacy_matrix(
+        expected_manifest, repo_root, subprocess.run,
+    )
     state = load_json(state_path)
     verify_state_inputs(state, state_path)
     regressions = sorted(method for method, verdict in load_json(state["comparison_validation_path"]).get("verdicts", {}).items() if verdict == "regressed")

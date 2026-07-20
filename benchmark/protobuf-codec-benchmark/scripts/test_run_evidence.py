@@ -2079,6 +2079,41 @@ Daemon JVM: /Users/operator/.jdks/example
             self.assertEqual(str(manifest_path.resolve()), state["rollback_rebase_manifest_path"])
             self.assertEqual(runner.sha256_file(manifest_path), state["rollback_rebase_manifest_sha256"])
 
+    def test_committed_manifest_fallback_is_limited_to_legacy_method_matrix_growth(self):
+        original_validate = runner.validate_committed
+        original_legacy_validate = runner._validate_legacy_rebased_manifest
+        calls = []
+        runner.validate_committed = lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            ValueError("method matrix missing newly added cells")
+        )
+        runner._validate_legacy_rebased_manifest = lambda *_args, **_kwargs: calls.append("legacy") or {"legacy": True}
+        try:
+            self.assertEqual(
+                {"legacy": True},
+                runner._validate_committed_or_legacy_matrix(
+                    "manifest.json", "repo", subprocess.run,
+                ),
+            )
+        finally:
+            runner.validate_committed = original_validate
+            runner._validate_legacy_rebased_manifest = original_legacy_validate
+        self.assertEqual(["legacy"], calls)
+
+        runner.validate_committed = lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            ValueError("sha256 mismatch")
+        )
+        runner._validate_legacy_rebased_manifest = lambda *_args, **_kwargs: self.fail(
+            "non-matrix failures must not use the legacy fallback"
+        )
+        try:
+            with self.assertRaisesRegex(ValueError, "sha256 mismatch"):
+                runner._validate_committed_or_legacy_matrix(
+                    "manifest.json", "repo", subprocess.run,
+                )
+        finally:
+            runner.validate_committed = original_validate
+            runner._validate_legacy_rebased_manifest = original_legacy_validate
+
     def test_pinned_jar_stat_rejects_same_bytes_inode_swap_before_execution(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td); jars = root / "jars"; jars.mkdir()
