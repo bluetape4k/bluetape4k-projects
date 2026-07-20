@@ -71,12 +71,11 @@ return any.unpack(clazz)
 POSITIVE_PHRASE = "measured allocation reduction"
 NON_POSITIVE = "No positive reduction claim"
 FINAL_HEAD_ALLOWED_PATHS = {
-    "docs/benchmarks/2026-07-18-issue-757-protobuf-codec-allocation.md",
+    "docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md",
     "docs/benchmarks/raw/issue-757/active-generation.json",
     "docs/review/issue-757-lettuce-protobuf-buffer-review.md",
     "docs/lessons/2026-07-20-issue-757-lettuce-protobuf-buffer.md",
 }
-FINAL_HEAD_ALLOWED_PREFIXES = ("docs/benchmarks/raw/issue-757/generations/",)
 
 
 class AnchorProtocolError(ValueError):
@@ -1158,11 +1157,11 @@ def allocate_fencing_token(control_root):
     return token
 
 
-def generation_file_set(root, excluded_names=("generation-receipt.json",)):
+def generation_file_set(root):
     root = Path(root).resolve()
     entries = []
     for path in sorted(root.rglob("*")):
-        if path.is_file() and path.name not in excluded_names:
+        if path.is_file() and path != root / "generation-receipt.json":
             entries.append({"path": path.relative_to(root).as_posix(), "sha256": sha256_file(path)})
     if not entries:
         raise error(root, "generation file set is empty", "stage complete evidence before publishing")
@@ -1172,10 +1171,29 @@ def generation_file_set(root, excluded_names=("generation-receipt.json",)):
 
 def verify_generation(generation, expected_root_sha256=None):
     generation = Path(generation).resolve(); require_symlink_free_tree(generation)
+    if generation.parent.name != "generations" or generation.name.startswith("."):
+        raise error(generation, "generation is not one direct immutable generations child", "restore the canonical generation path")
     receipt_path = generation / "generation-receipt.json"
+    require_regular_file(receipt_path, "restore the publisher-generated root receipt")
     receipt = load_json(receipt_path)
     if receipt.get("schema_version") != 1 or receipt.get("kind") != "issue_757_evidence_generation":
         raise error(receipt_path, "invalid generation receipt", "restore the publisher-generated receipt")
+    if receipt.get("generation_id") != generation.name:
+        raise error(receipt_path, "generation_id observed={!r} expected={!r}".format(receipt.get("generation_id"), generation.name), "restore the directory-bound generation receipt")
+    if not isinstance(receipt.get("owner"), str) or not receipt["owner"]:
+        raise error(receipt_path, "generation owner is missing", "restore the publisher identity")
+    if not isinstance(receipt.get("fencing_token"), int) or receipt["fencing_token"] <= 0:
+        raise error(receipt_path, "invalid fencing token={!r}".format(receipt.get("fencing_token")), "restore the monotonic publisher fence")
+    previous = receipt.get("previous_generation_id")
+    previous_root = receipt.get("previous_generation_root_sha256")
+    if previous is not None:
+        require_safe_relative_path(receipt_path, previous, "previous_generation_id")
+        if len(Path(previous).parts) != 1 or previous == generation.name:
+            raise error(receipt_path, "invalid previous generation={!r}".format(previous), "restore an earlier direct generation")
+        if not re.fullmatch(r"[0-9a-f]{64}", str(previous_root or "")):
+            raise error(receipt_path, "previous generation root hash is missing", "bind the previous immutable generation root")
+    elif previous_root is not None:
+        raise error(receipt_path, "previous root exists without previous generation", "restore consistent generation lineage")
     entries, root_sha256 = generation_file_set(generation)
     if entries != receipt.get("files") or root_sha256 != receipt.get("root_sha256"):
         raise error(receipt_path, "generation file set/root hash mismatch", "restore the immutable generation bytes")
@@ -1207,10 +1225,36 @@ def verify_active_generation(evidence_root):
     receipt = verify_generation(generation, pointer.get("root_sha256"))
     if receipt.get("fencing_token") != pointer.get("fencing_token"):
         raise error(generation, "receipt/pointer fencing token mismatch", "restore the exact active pointer")
+    if (receipt.get("previous_generation_id"), receipt.get("previous_generation_root_sha256")) != (
+        pointer.get("previous_generation_id"), pointer.get("previous_generation_root_sha256"),
+    ):
+        raise error(generation, "receipt/pointer previous generation lineage mismatch", "restore the exact active lineage")
     manifest = generation / "delivery-manifest.json"
     if sha256_file(manifest) != pointer.get("delivery_manifest_sha256"):
         raise error(manifest, "active manifest sha256 mismatch", "restore the exact active generation")
     return generation
+
+
+def generation_lineage_allowed_paths(evidence_root, repo_root):
+    evidence_root = Path(evidence_root).resolve(); repo_root = Path(repo_root).resolve()
+    generation = verify_active_generation(evidence_root)
+    allowed = {(evidence_root / "active-generation.json").relative_to(repo_root).as_posix()}
+    seen = set()
+    while generation is not None:
+        if generation.name in seen:
+            raise error(generation, "generation lineage cycle", "restore an acyclic immutable lineage")
+        seen.add(generation.name)
+        receipt = verify_generation(generation)
+        allowed.add((generation / "generation-receipt.json").relative_to(repo_root).as_posix())
+        for item in receipt["files"]:
+            allowed.add((generation / item["path"]).relative_to(repo_root).as_posix())
+        previous = receipt.get("previous_generation_id")
+        if previous is None:
+            generation = None
+        else:
+            generation = evidence_root / "generations" / previous
+            verify_generation(generation, receipt["previous_generation_root_sha256"])
+    return allowed
 
 
 def activate_generation_pointer(evidence_root, pointer, expected_previous_sha256):
@@ -1308,10 +1352,14 @@ def publish_generation(state_path, evidence_root, control_root, owner, legacy_ma
             atomic_write_json(state_path, state)
         previous_pointer, previous_pointer_sha256 = load_active_pointer(evidence_root)
         previous_generation_id = previous_pointer.get("generation_id") if previous_pointer else None
+        previous_generation_root_sha256 = previous_pointer.get("root_sha256") if previous_pointer else None
         if previous_pointer is None and legacy_manifest:
             previous_generation_id = _copy_legacy_generation(
                 legacy_manifest, evidence_root, generations_root, owner, token, no_replace,
             )
+            previous_generation_root_sha256 = verify_generation(
+                generations_root / previous_generation_id,
+            )["root_sha256"]
         if destination.exists():
             receipt = verify_generation(destination)
             expected = state["generation_promotion"]
@@ -1339,6 +1387,7 @@ def publish_generation(state_path, evidence_root, control_root, owner, legacy_ma
                     "generation_id": generation_id, "owner": owner, "fencing_token": token,
                     "input_sha256": input_sha256, "root_sha256": root_sha256, "files": entries,
                     "previous_generation_id": previous_generation_id,
+                    "previous_generation_root_sha256": previous_generation_root_sha256,
                 }
                 atomic_write_json(staging / "generation-receipt.json", receipt, fail_if_exists=True)
                 fsync_tree(staging)
@@ -1373,6 +1422,7 @@ def publish_generation(state_path, evidence_root, control_root, owner, legacy_ma
             "generation_id": generation_id, "root_sha256": root_sha256,
             "delivery_manifest_sha256": sha256_file(destination / "delivery-manifest.json"),
             "fencing_token": token, "previous_generation_id": previous_generation_id,
+            "previous_generation_root_sha256": previous_generation_root_sha256,
             "previous_pointer_sha256": previous_pointer_sha256,
         }
         activate_generation_pointer(evidence_root, pointer, previous_pointer_sha256)
@@ -1562,7 +1612,7 @@ def validate_committed(manifest_path, repo_root=None, require_git_commit=True, c
     return manifest
 
 
-def verify_final_head_drift(repo_root, measurement_commit, measurement_tree, head="HEAD", manifest_path=None, command_runner=subprocess.run):
+def verify_final_head_drift(repo_root, measurement_commit, measurement_tree, allowed_paths, head="HEAD", manifest_path=None, command_runner=subprocess.run):
     repo_root = Path(repo_root).resolve()
     manifest_path = Path(manifest_path or repo_root / "delivery-manifest.json").resolve()
     resolved_measurement, resolved_tree = _resolve_commit_tree(
@@ -1598,10 +1648,11 @@ def verify_final_head_drift(repo_root, measurement_commit, measurement_tree, hea
             "repair the local Git object database and retry",
         )
     changed = [value.decode("utf-8") for value in _stdout(changed_result).split(b"\0") if value]
-    rejected = sorted(
-        path for path in changed
-        if path not in FINAL_HEAD_ALLOWED_PATHS and not any(path.startswith(prefix) for prefix in FINAL_HEAD_ALLOWED_PREFIXES)
-    )
+    if not isinstance(allowed_paths, set) or not allowed_paths or any(
+        not isinstance(path, str) or not path or "*" in path for path in allowed_paths
+    ):
+        raise error(manifest_path, "final-head exact allowlist is empty or unsafe", "derive exact paths from the active generation lineage")
+    rejected = sorted(path for path in changed if path not in allowed_paths)
     if rejected:
         raise error(
             manifest_path,
@@ -1617,9 +1668,18 @@ def validate_final_head(manifest_path, head="HEAD", repo_root=None, command_runn
     manifest = validate_committed(
         manifest_path, repo_root=repo_root, require_git_commit=True, command_runner=command_runner,
     )
+    generation = manifest_path.parent
+    if generation.parent.name != "generations" or generation.parent.parent.name != "issue-757":
+        raise error(manifest_path, "manifest is not inside the canonical issue-757 generation root", "pass the active generation delivery manifest")
+    evidence_root = generation.parent.parent
+    active_generation = verify_active_generation(evidence_root)
+    if active_generation != generation:
+        raise error(manifest_path, "manifest generation={} is not active generation={}".format(generation.name, active_generation.name), "validate only the hash-bound active generation")
+    allowed_paths = set(FINAL_HEAD_ALLOWED_PATHS)
+    allowed_paths.update(generation_lineage_allowed_paths(evidence_root, repo_root))
     measurement = manifest.get("measurement", {})
     return verify_final_head_drift(
-        repo_root, measurement.get("git_commit"), measurement.get("tree_hash"), head,
+        repo_root, measurement.get("git_commit"), measurement.get("tree_hash"), allowed_paths, head,
         manifest_path=manifest_path, command_runner=command_runner,
     )
 
@@ -1776,7 +1836,10 @@ def validate_committed_semantics(manifest, manifest_path, repo_root, run_log_res
     run_log_results = run_log_results if run_log_results is not None else preflight_manifest_run_logs(manifest, repo_root, manifest_path)
     paths = [(repo_root / item["path"]).resolve() for item in manifest["files"]]
     listed = set(paths)
-    actual = {path.resolve() for path in manifest_path.parent.rglob("*") if path.is_file() and path.resolve() != manifest_path.resolve()}
+    ignored = {manifest_path.resolve()}
+    if manifest_path.parent.parent.name == "generations":
+        ignored.add((manifest_path.parent / "generation-receipt.json").resolve())
+    actual = {path.resolve() for path in manifest_path.parent.rglob("*") if path.is_file() and path.resolve() not in ignored}
     if listed != actual:
         raise error(manifest_path, "delivery file set observed={} expected={}".format(sorted(str(path) for path in listed), sorted(str(path) for path in actual)), "restore the complete manifest-bound delivery directory")
     for name in ("comparison.csv", "validation.json"):
@@ -2662,8 +2725,9 @@ def _semantic_json(value):
     return value
 
 
-def manifest_command(argv, environment, promoted_run, repo_root):
+def manifest_command(argv, environment, promoted_run, repo_root, canonical_run=None):
     normalized = []
+    canonical_run = Path(canonical_run or promoted_run)
     expected_ref = pinned_jar_ref(environment["benchmark_jar_sha256"])
     index = 0
     while index < len(argv):
@@ -2675,7 +2739,7 @@ def manifest_command(argv, environment, promoted_run, repo_root):
                 raise error(promoted_run / "argv.json", "pinned JAR ref={!r} expected={!r}".format(token, expected_ref), "restore the SHA-bound canonical command")
             normalized.append(token)
         elif index > 0 and argv[index - 1] == "-rff":
-            normalized.append((Path(promoted_run) / "jmh.json").relative_to(repo_root).as_posix())
+            normalized.append((canonical_run / "jmh.json").relative_to(repo_root).as_posix())
         elif Path(token).is_absolute() or re.search(r"(?:^|[/\\])build(?:[/\\]|$)", token):
             raise error(promoted_run / "argv.json", "unsafe command token={!r}".format(token), "normalize only the pinned JAR and promoted result path")
         else:
@@ -2791,9 +2855,13 @@ def verify_promoted(state_path, destination, repo_root=None, command_runner=subp
     first_environment = None
     for index, run in enumerate(state["canonical_runs"]):
         run_root = destination / Path(run["absolute_path"]).name
+        canonical_run_root = Path(canonical_destination).resolve() / run_root.name if canonical_destination else run_root
         environment = load_json(run_root / "environment.json")
         first_environment = first_environment or environment
-        commands.append(manifest_command(load_json(run_root / "argv.json")["argv"], environment, run_root, repo_root))
+        commands.append(manifest_command(
+            load_json(run_root / "argv.json")["argv"], environment, run_root, repo_root,
+            canonical_run=canonical_run_root,
+        ))
         with (run_root / "summary.csv").open(encoding="utf-8", newline="") as stream:
             for row in csv.DictReader(stream):
                 method = row["method"]

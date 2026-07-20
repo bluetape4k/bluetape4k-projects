@@ -427,6 +427,8 @@ class EvidenceRunnerTest(unittest.TestCase):
             staging = evidence / ".generation-staging-owner-2-fixture"; staging.mkdir()
             (staging / "payload.txt").write_text("payload")
             (staging / "delivery-manifest.json").write_text("manifest")
+            nested = staging / "nested" / "generation-receipt.json"; nested.parent.mkdir()
+            nested.write_text("nested-bound-payload")
             files, root_sha256 = runner.generation_file_set(staging)
             receipt = {
                 "schema_version": 1, "kind": "issue_757_evidence_generation",
@@ -460,6 +462,18 @@ class EvidenceRunnerTest(unittest.TestCase):
             self.assertEqual("payload", (generation / "payload.txt").read_text())
             self.assertTrue(colliding.is_dir())
 
+            nested = generation / "nested" / "generation-receipt.json"
+            nested.write_text("tampered")
+            with self.assertRaisesRegex(ValueError, "file set/root hash"):
+                runner.verify_active_generation(evidence)
+            nested.write_text("nested-bound-payload")
+            receipt_path = generation / "generation-receipt.json"
+            wrong_identity = json.loads(receipt_path.read_text()); wrong_identity["generation_id"] = "g-other"
+            runner.atomic_write_json(receipt_path, wrong_identity)
+            with self.assertRaisesRegex(ValueError, "generation_id"):
+                runner.verify_active_generation(evidence)
+            runner.atomic_write_json(receipt_path, receipt)
+
             (generation / "payload.txt").write_text("tampered")
             with self.assertRaisesRegex(ValueError, "file set/root hash"):
                 runner.verify_active_generation(evidence)
@@ -481,14 +495,22 @@ class EvidenceRunnerTest(unittest.TestCase):
             evidence.mkdir(parents=True); (evidence / "payload.json").write_text("{}\n")
             subprocess.run(["git", "add", "."], cwd=root, check=True)
             subprocess.run(["git", "commit", "-q", "-m", "evidence"], cwd=root, check=True)
-            result = runner.verify_final_head_drift(root, measurement, measurement_tree)
+            allowed = {"docs/benchmarks/raw/issue-757/generations/g-fixture/payload.json"}
+            result = runner.verify_final_head_drift(root, measurement, measurement_tree, allowed)
             self.assertEqual(["docs/benchmarks/raw/issue-757/generations/g-fixture/payload.json"], result["changed_paths"])
+
+            unknown = root / "docs" / "benchmarks" / "raw" / "issue-757" / "generations" / "g-unknown" / "payload.json"
+            unknown.parent.mkdir(); unknown.write_text("{}\n")
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "unknown generation"], cwd=root, check=True)
+            with self.assertRaisesRegex(ValueError, "outside exact docs/evidence allowlist"):
+                runner.verify_final_head_drift(root, measurement, measurement_tree, allowed)
 
             source.write_text("drift\n")
             subprocess.run(["git", "add", "."], cwd=root, check=True)
             subprocess.run(["git", "commit", "-q", "-m", "drift"], cwd=root, check=True)
             with self.assertRaisesRegex(ValueError, "outside exact docs/evidence allowlist"):
-                runner.verify_final_head_drift(root, measurement, measurement_tree)
+                runner.verify_final_head_drift(root, measurement, measurement_tree, allowed)
 
     def test_replace_restores_old_destination_on_second_rename_failure(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1776,6 +1798,9 @@ Daemon JVM: /Users/operator/.jdks/example
                 command_runner=command, repo_root=root,
             )
             self.assertEqual(generation, runner.verify_active_generation(evidence_root))
+            runner.validate_committed(
+                generation / "delivery-manifest.json", repo_root=root, require_git_commit=False,
+            )
             self.assertEqual(
                 generation,
                 runner.publish_generation(
