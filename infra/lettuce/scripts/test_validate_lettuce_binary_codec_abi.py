@@ -6,6 +6,8 @@ import unittest
 from pathlib import Path
 
 SCRIPT = Path(__file__).with_name("validate-lettuce-binary-codec-abi.py")
+CLASS_NAME = "io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec"
+CONSTRUCTOR_DESCRIPTOR = "(Lio/bluetape4k/io/serializer/BinarySerializer;)V"
 TARGET_DESCRIPTOR = "(Ljava/lang/Object;Lio/netty/buffer/ByteBuf;)V"
 BRIDGE_MEMBERS = {
     ("encodeKey", "(Ljava/lang/Object;)Ljava/nio/ByteBuffer;"),
@@ -21,7 +23,7 @@ validator = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(validator)
 
 
-def render_javap(*, class_final=True, members=None, reverse=False):
+def render_javap(*, class_final=True, class_name=CLASS_NAME, members=None, reverse=False):
     class_modifiers = "public final" if class_final else "public"
     declarations = members or baseline_members()
     if reverse:
@@ -32,7 +34,7 @@ def render_javap(*, class_final=True, members=None, reverse=False):
     )
     return (
         'Compiled from "LettuceBinaryCodec.kt"\n'
-        f"{class_modifiers} class io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec<V> "
+        f"{class_modifiers} class {class_name}<V> "
         "implements java.io.Serializable {\n"
         f"{body}\n"
         "}\n"
@@ -139,6 +141,122 @@ class AbiValidatorTest(unittest.TestCase):
         self.assertFalse(valid, diagnostic)
         self.assertTrue(diagnostic.startswith(f"{mode}: "), diagnostic)
         self.assertIn(first_mismatch, diagnostic)
+
+    def mode_candidate(self, mode, *, members=None, class_final=None, class_name=CLASS_NAME):
+        return render_javap(
+            class_final=(mode == "rejected") if class_final is None else class_final,
+            class_name=class_name,
+            members=(baseline_members() if mode == "rejected" else retained_members())
+            if members is None
+            else members,
+        )
+
+    def test_modes_reject_wrong_class_before_comparison(self):
+        wrong_class = "example.WrongCodec"
+        for mode in ("retained", "rejected"):
+            with self.subTest(mode=mode):
+                self.assert_invalid(
+                    mode,
+                    render_javap(class_name=wrong_class),
+                    self.mode_candidate(mode, class_name=wrong_class),
+                    f"baseline class name expected {CLASS_NAME}, got {wrong_class}",
+                )
+
+    def test_modes_reject_missing_required_constructor(self):
+        for mode in ("retained", "rejected"):
+            baseline = [m for m in baseline_members() if m[1] != CONSTRUCTOR_DESCRIPTOR]
+            candidate = [m for m in self._mode_members(mode) if m[1] != CONSTRUCTOR_DESCRIPTOR]
+            with self.subTest(mode=mode):
+                self.assert_invalid(
+                    mode,
+                    render_javap(members=baseline),
+                    self.mode_candidate(mode, members=candidate),
+                    f"baseline missing constructor {CLASS_NAME} "
+                    f"{CONSTRUCTOR_DESCRIPTOR}",
+                )
+
+    def test_modes_reject_non_public_required_constructor(self):
+        declaration = (
+            f"protected {CLASS_NAME}(io.bluetape4k.io.serializer.BinarySerializer);"
+        )
+        for mode in ("retained", "rejected"):
+            baseline = replace_member(
+                baseline_members(),
+                CONSTRUCTOR_DESCRIPTOR,
+                declaration=declaration,
+            )
+            candidate = replace_member(
+                self._mode_members(mode),
+                CONSTRUCTOR_DESCRIPTOR,
+                declaration=declaration,
+            )
+            with self.subTest(mode=mode):
+                self.assert_invalid(
+                    mode,
+                    render_javap(members=baseline),
+                    self.mode_candidate(mode, members=candidate),
+                    f"baseline constructor {CLASS_NAME} {CONSTRUCTOR_DESCRIPTOR} "
+                    "access expected public, got protected",
+                )
+
+    def test_modes_reject_missing_required_target(self):
+        def without_target(members):
+            return [
+                member
+                for member in members
+                if not ("encodeValue" in member[0] and member[1] == TARGET_DESCRIPTOR)
+            ]
+
+        for mode in ("retained", "rejected"):
+            with self.subTest(mode=mode):
+                self.assert_invalid(
+                    mode,
+                    render_javap(members=without_target(baseline_members())),
+                    self.mode_candidate(mode, members=without_target(self._mode_members(mode))),
+                    f"baseline missing method encodeValue {TARGET_DESCRIPTOR}",
+                )
+
+    def test_modes_reject_non_final_baseline_class(self):
+        for mode in ("retained", "rejected"):
+            with self.subTest(mode=mode):
+                self.assert_invalid(
+                    mode,
+                    render_javap(class_final=False),
+                    self.mode_candidate(mode, class_final=False),
+                    "baseline class final expected true, got false",
+                )
+
+    def test_modes_reject_raw_final_baseline_target(self):
+        target_final = "public final void encodeValue(V, io.netty.buffer.ByteBuf);"
+        baseline = replace_member(
+            baseline_members(),
+            TARGET_DESCRIPTOR,
+            member_name="encodeValue",
+            declaration=target_final,
+        )
+        for mode in ("retained", "rejected"):
+            candidate = (
+                retained_members()
+                if mode == "retained"
+                else replace_member(
+                    baseline_members(),
+                    TARGET_DESCRIPTOR,
+                    member_name="encodeValue",
+                    declaration=target_final,
+                )
+            )
+            with self.subTest(mode=mode):
+                self.assert_invalid(
+                    mode,
+                    render_javap(members=baseline),
+                    self.mode_candidate(mode, members=candidate),
+                    f"baseline method encodeValue {TARGET_DESCRIPTOR} raw final "
+                    "expected false, got true",
+                )
+
+    @staticmethod
+    def _mode_members(mode):
+        return baseline_members() if mode == "rejected" else retained_members()
 
     def test_retained_accepts_only_class_and_target_effective_final_removal(self):
         candidate = render_javap(
@@ -285,7 +403,8 @@ class AbiValidatorTest(unittest.TestCase):
             "retained",
             render_javap(),
             render_javap(class_final=False, members=target_final),
-            f"method encodeValue {TARGET_DESCRIPTOR} effective final expected false, got true",
+            f"candidate method encodeValue {TARGET_DESCRIPTOR} raw final expected false, "
+            "got true",
         )
 
     def test_retained_rejects_unrelated_final_removal(self):
@@ -318,26 +437,20 @@ class AbiValidatorTest(unittest.TestCase):
             "class final expected true, got false",
         )
 
-    def test_rejected_rejects_target_final_removal(self):
-        baseline_members_open = retained_members()
-        baseline_members_open = replace_member(
-            baseline_members_open,
+    def test_rejected_rejects_target_raw_final_addition(self):
+        candidate_members = replace_member(
+            baseline_members(),
             TARGET_DESCRIPTOR,
             member_name="encodeValue",
             declaration="public final void encodeValue(V, io.netty.buffer.ByteBuf);",
         )
-        candidate_members = replace_member(
-            baseline_members_open,
-            TARGET_DESCRIPTOR,
-            member_name="encodeValue",
-            declaration="public void encodeValue(V, io.netty.buffer.ByteBuf);",
-        )
 
         self.assert_invalid(
             "rejected",
-            render_javap(class_final=False, members=baseline_members_open),
-            render_javap(class_final=False, members=candidate_members),
-            f"method encodeValue {TARGET_DESCRIPTOR} raw final expected true, got false",
+            render_javap(),
+            render_javap(members=candidate_members),
+            f"candidate method encodeValue {TARGET_DESCRIPTOR} raw final expected false, "
+            "got true",
         )
 
     def test_rejected_rejects_descriptor_change(self):

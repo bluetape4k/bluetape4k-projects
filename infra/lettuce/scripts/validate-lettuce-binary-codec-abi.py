@@ -24,8 +24,12 @@ DECLARATION_MODIFIERS = frozenset(
         "default",
     }
 )
+CLASS_NAME = "io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec"
+CONSTRUCTOR_DESCRIPTOR = "(Lio/bluetape4k/io/serializer/BinarySerializer;)V"
 TARGET_NAME = "encodeValue"
 TARGET_DESCRIPTOR = "(Ljava/lang/Object;Lio/netty/buffer/ByteBuf;)V"
+CONSTRUCTOR_KEY = ("constructor", CLASS_NAME, CONSTRUCTOR_DESCRIPTOR)
+TARGET_KEY = ("method", TARGET_NAME, TARGET_DESCRIPTOR)
 COMPILER_BRIDGE_KEYS = frozenset(
     {
         ("method", "encodeKey", "(Ljava/lang/Object;)Ljava/nio/ByteBuffer;"),
@@ -221,6 +225,49 @@ def _class_mismatch(baseline: AbiClass, candidate: AbiClass) -> Optional[str]:
     return None
 
 
+def _required_invariant_mismatch(
+    abi: AbiClass,
+    role: str,
+    *,
+    expected_class_final: bool,
+    expected_target_effective_final: bool,
+) -> Optional[str]:
+    if abi.name != CLASS_NAME:
+        return f"{role} class name expected {CLASS_NAME}, got {abi.name}"
+
+    constructor = abi.members.get(CONSTRUCTOR_KEY)
+    if constructor is None:
+        return f"{role} missing constructor {CLASS_NAME} {CONSTRUCTOR_DESCRIPTOR}"
+    if constructor.access != "public":
+        return (
+            f"{role} {constructor.label} access expected public, "
+            f"got {constructor.access}"
+        )
+
+    target = abi.members.get(TARGET_KEY)
+    if target is None:
+        return f"{role} missing method {TARGET_NAME} {TARGET_DESCRIPTOR}"
+    if target.access != "public":
+        return f"{role} {target.label} access expected public, got {target.access}"
+
+    if abi.final != expected_class_final:
+        return (
+            f"{role} class final expected {str(expected_class_final).lower()}, "
+            f"got {str(abi.final).lower()}"
+        )
+    if target.final:
+        return f"{role} {target.label} raw final expected false, got true"
+
+    target_effective_final = abi.effective_final(target)
+    if target_effective_final != expected_target_effective_final:
+        return (
+            f"{role} {target.label} effective final expected "
+            f"{str(expected_target_effective_final).lower()}, "
+            f"got {str(target_effective_final).lower()}"
+        )
+    return None
+
+
 def _member_set_mismatch(baseline: AbiClass, candidate: AbiClass) -> Optional[str]:
     missing = sorted(set(baseline.members) - set(candidate.members))
     if missing:
@@ -289,21 +336,26 @@ def validate_text(baseline_text: str, candidate_text: str, mode: str):
     except AbiParseError as error:
         return False, f"{mode}: parse error: {error}"
 
-    mismatch = _class_mismatch(baseline, candidate)
+    mismatch = _required_invariant_mismatch(
+        baseline,
+        "baseline",
+        expected_class_final=True,
+        expected_target_effective_final=True,
+    )
+    if mismatch:
+        return False, f"{mode}: {mismatch}"
+    mismatch = _required_invariant_mismatch(
+        candidate,
+        "candidate",
+        expected_class_final=mode == "rejected",
+        expected_target_effective_final=mode == "rejected",
+    )
     if mismatch:
         return False, f"{mode}: {mismatch}"
 
-    if mode == "retained":
-        if not baseline.final:
-            return False, f"{mode}: baseline class final expected true, got false"
-        if candidate.final:
-            return False, f"{mode}: class final expected false, got true"
-    elif baseline.final != candidate.final:
-        return (
-            False,
-            f"{mode}: class final expected {str(baseline.final).lower()}, "
-            f"got {str(candidate.final).lower()}",
-        )
+    mismatch = _class_mismatch(baseline, candidate)
+    if mismatch:
+        return False, f"{mode}: {mismatch}"
 
     mismatch = _member_set_mismatch(baseline, candidate)
     if mismatch:
