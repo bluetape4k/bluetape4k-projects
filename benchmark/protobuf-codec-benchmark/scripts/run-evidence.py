@@ -70,12 +70,7 @@ return any.unpack(clazz)
 """
 POSITIVE_PHRASE = "measured allocation reduction"
 NON_POSITIVE = "No positive reduction claim"
-FINAL_HEAD_ALLOWED_PATHS = {
-    "docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md",
-    "docs/benchmarks/raw/issue-757/active-generation.json",
-    "docs/review/issue-757-lettuce-protobuf-buffer-review.md",
-    "docs/lessons/2026-07-20-issue-757-lettuce-protobuf-buffer.md",
-}
+DELIVERY_DOCUMENT_PATHS = {"docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md"}
 
 
 class AnchorProtocolError(ValueError):
@@ -1182,6 +1177,8 @@ def verify_generation(generation, expected_root_sha256=None):
         raise error(receipt_path, "generation_id observed={!r} expected={!r}".format(receipt.get("generation_id"), generation.name), "restore the directory-bound generation receipt")
     if not isinstance(receipt.get("owner"), str) or not receipt["owner"]:
         raise error(receipt_path, "generation owner is missing", "restore the publisher identity")
+    if not re.fullmatch(r"[0-9a-f]{64}", str(receipt.get("input_sha256", ""))):
+        raise error(receipt_path, "generation input sha256 is missing or invalid", "restore the input-bound generation receipt")
     if not isinstance(receipt.get("fencing_token"), int) or receipt["fencing_token"] <= 0:
         raise error(receipt_path, "invalid fencing token={!r}".format(receipt.get("fencing_token")), "restore the monotonic publisher fence")
     previous = receipt.get("previous_generation_id")
@@ -1225,6 +1222,10 @@ def verify_active_generation(evidence_root):
     receipt = verify_generation(generation, pointer.get("root_sha256"))
     if receipt.get("fencing_token") != pointer.get("fencing_token"):
         raise error(generation, "receipt/pointer fencing token mismatch", "restore the exact active pointer")
+    if (receipt.get("owner"), receipt.get("input_sha256")) != (
+        pointer.get("owner"), pointer.get("input_sha256"),
+    ):
+        raise error(generation, "receipt/pointer owner or input binding mismatch", "restore the exact active publisher binding")
     if (receipt.get("previous_generation_id"), receipt.get("previous_generation_root_sha256")) != (
         pointer.get("previous_generation_id"), pointer.get("previous_generation_root_sha256"),
     ):
@@ -1232,6 +1233,20 @@ def verify_active_generation(evidence_root):
     manifest = generation / "delivery-manifest.json"
     if sha256_file(manifest) != pointer.get("delivery_manifest_sha256"):
         raise error(manifest, "active manifest sha256 mismatch", "restore the exact active generation")
+    documents = pointer.get("delivery_documents", [])
+    if not isinstance(documents, list):
+        raise error(evidence_root, "delivery_documents is not an array", "restore the publisher-generated document binding")
+    seen_documents = set()
+    repo_root = find_repo_root(evidence_root) if documents else None
+    for item in documents:
+        path = item.get("path") if isinstance(item, dict) else None
+        if path not in DELIVERY_DOCUMENT_PATHS or path in seen_documents:
+            raise error(evidence_root, "unsafe or duplicate delivery document={!r}".format(path), "bind only the exact benchmark report path")
+        document = _canonical_manifest_path(repo_root, path, evidence_root / "active-generation.json")
+        require_regular_file(document, "restore the bound delivery report")
+        if sha256_file(document) != item.get("sha256"):
+            raise error(document, "delivery document sha256 mismatch", "regenerate the report before publishing the pointer")
+        seen_documents.add(path)
     return generation
 
 
@@ -1255,6 +1270,127 @@ def generation_lineage_allowed_paths(evidence_root, repo_root):
             generation = evidence_root / "generations" / previous
             verify_generation(generation, receipt["previous_generation_root_sha256"])
     return allowed
+
+
+def _git_blob(repo_root, commit, relative, context_path, command_runner):
+    if not isinstance(relative, str) or not relative or Path(relative).is_absolute() or ".." in Path(relative).parts:
+        raise error(context_path, "unsafe Git blob path={!r}".format(relative), "restore a canonical repository-relative authority path")
+    result = _run_provenance_git(command_runner, ["git", "show", "{}:{}".format(commit, relative)], cwd=repo_root)
+    if result.returncode:
+        raise error(
+            context_path,
+            "missing Git blob commit={} path={} exit_code={} stderr={!r}".format(
+                commit, relative, result.returncode, _stderr(result).decode("utf-8", "replace"),
+            ),
+            "commit the complete active generation and delivery documents",
+        )
+    return _stdout(result)
+
+
+def _git_json(repo_root, commit, relative, context_path, command_runner):
+    raw = _git_blob(repo_root, commit, relative, context_path, command_runner)
+    try:
+        value = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError) as exc:
+        raise error(context_path, "invalid committed JSON path={} ({})".format(relative, exc), "restore canonical committed authority bytes")
+    if not isinstance(value, dict):
+        raise error(context_path, "committed JSON root is not an object path={}".format(relative), "restore canonical committed authority bytes")
+    return value, raw
+
+
+def git_delivery_authority(repo_root, head, evidence_root_relative, command_runner=subprocess.run):
+    repo_root = Path(repo_root).resolve(); context_path = repo_root / evidence_root_relative / "active-generation.json"
+    pointer_path = "{}/active-generation.json".format(evidence_root_relative)
+    pointer, pointer_raw = _git_json(repo_root, head, pointer_path, context_path, command_runner)
+    if pointer.get("schema_version") != 1 or pointer.get("kind") != "issue_757_active_generation":
+        raise error(context_path, "invalid committed active pointer", "restore publisher-generated committed pointer bytes")
+    generation_id = pointer.get("generation_id")
+    require_safe_relative_path(context_path, generation_id, "generation_id")
+    if len(Path(generation_id).parts) != 1:
+        raise error(context_path, "nested generation_id={!r}".format(generation_id), "restore one direct immutable generation identifier")
+    allowed = {pointer_path: sha256_bytes(pointer_raw)}
+    seen = set(); current_id = generation_id; expected_root = pointer.get("root_sha256")
+    active_receipt = None
+    while current_id is not None:
+        if current_id in seen:
+            raise error(context_path, "committed generation lineage cycle", "restore an acyclic immutable lineage")
+        seen.add(current_id)
+        generation_prefix = "{}/generations/{}".format(evidence_root_relative, current_id)
+        receipt_path = generation_prefix + "/generation-receipt.json"
+        receipt, receipt_raw = _git_json(repo_root, head, receipt_path, context_path, command_runner)
+        if receipt.get("schema_version") != 1 or receipt.get("kind") != "issue_757_evidence_generation":
+            raise error(context_path, "invalid committed generation receipt={}".format(receipt_path), "restore publisher-generated receipt bytes")
+        if receipt.get("generation_id") != current_id:
+            raise error(context_path, "committed receipt generation_id mismatch", "restore directory-bound generation identity")
+        if not isinstance(receipt.get("owner"), str) or not receipt["owner"] or not isinstance(receipt.get("fencing_token"), int) or receipt["fencing_token"] <= 0:
+            raise error(context_path, "invalid committed owner/fencing token", "restore publisher identity and fence")
+        if not re.fullmatch(r"[0-9a-f]{64}", str(receipt.get("input_sha256", ""))):
+            raise error(context_path, "invalid committed input_sha256", "restore input-bound generation receipt")
+        files = receipt.get("files")
+        if not isinstance(files, list) or not files:
+            raise error(context_path, "committed generation files are empty", "restore the complete immutable file set")
+        seen_files = set()
+        for item in files:
+            relative = item.get("path") if isinstance(item, dict) else None
+            expected_sha = item.get("sha256") if isinstance(item, dict) else None
+            if (not isinstance(relative, str) or not relative or Path(relative).is_absolute() or
+                    ".." in Path(relative).parts or relative in seen_files or
+                    not re.fullmatch(r"[0-9a-f]{64}", str(expected_sha or ""))):
+                raise error(context_path, "unsafe committed generation file entry={!r}".format(item), "restore the canonical file set")
+            full_path = generation_prefix + "/" + relative
+            raw = _git_blob(repo_root, head, full_path, context_path, command_runner)
+            if sha256_bytes(raw) != expected_sha:
+                raise error(context_path, "committed generation blob sha256 mismatch path={}".format(full_path), "restore the exact immutable blob")
+            allowed[full_path] = expected_sha; seen_files.add(relative)
+        root_sha256 = sha256_bytes(payload_json_bytes(files))
+        if root_sha256 != receipt.get("root_sha256") or root_sha256 != expected_root:
+            raise error(context_path, "committed generation root mismatch id={}".format(current_id), "restore the hash-bound lineage")
+        allowed[receipt_path] = sha256_bytes(receipt_raw)
+        tree_result = _run_provenance_git(
+            command_runner, ["git", "ls-tree", "-r", "--name-only", "-z", head, "--", generation_prefix], cwd=repo_root,
+        )
+        if tree_result.returncode:
+            raise error(context_path, "git ls-tree failed for generation={}".format(current_id), "repair the Git object database")
+        actual_paths = {value.decode("utf-8") for value in _stdout(tree_result).split(b"\0") if value}
+        expected_paths = {receipt_path} | {generation_prefix + "/" + item["path"] for item in files}
+        if actual_paths != expected_paths:
+            raise error(context_path, "committed generation file set differs id={}".format(current_id), "remove unbound files or restore missing blobs")
+        if active_receipt is None:
+            active_receipt = receipt
+        previous = receipt.get("previous_generation_id")
+        previous_root = receipt.get("previous_generation_root_sha256")
+        if previous is None:
+            if previous_root is not None:
+                raise error(context_path, "previous root without previous generation", "restore consistent committed lineage")
+            current_id = None
+        else:
+            require_safe_relative_path(context_path, previous, "previous_generation_id")
+            if len(Path(previous).parts) != 1 or previous == current_id or not re.fullmatch(r"[0-9a-f]{64}", str(previous_root or "")):
+                raise error(context_path, "invalid committed previous generation lineage", "restore an earlier hash-bound generation")
+            current_id = previous; expected_root = previous_root
+    if (active_receipt.get("root_sha256"), active_receipt.get("fencing_token"), active_receipt.get("owner"),
+            active_receipt.get("input_sha256"), active_receipt.get("previous_generation_id"),
+            active_receipt.get("previous_generation_root_sha256")) != (
+            pointer.get("root_sha256"), pointer.get("fencing_token"), pointer.get("owner"),
+            pointer.get("input_sha256"), pointer.get("previous_generation_id"),
+            pointer.get("previous_generation_root_sha256")):
+        raise error(context_path, "committed pointer/active receipt binding mismatch", "restore the exact publisher binding")
+    active_manifest = "{}/generations/{}/delivery-manifest.json".format(evidence_root_relative, generation_id)
+    if allowed.get(active_manifest) != pointer.get("delivery_manifest_sha256"):
+        raise error(context_path, "committed active manifest binding mismatch", "restore the exact active delivery manifest")
+    documents = pointer.get("delivery_documents", [])
+    if not isinstance(documents, list):
+        raise error(context_path, "committed delivery_documents is not an array", "restore the exact report binding")
+    seen_documents = set()
+    for item in documents:
+        path = item.get("path") if isinstance(item, dict) else None
+        expected_sha = item.get("sha256") if isinstance(item, dict) else None
+        if path not in DELIVERY_DOCUMENT_PATHS or path in seen_documents or not re.fullmatch(r"[0-9a-f]{64}", str(expected_sha or "")):
+            raise error(context_path, "unsafe committed delivery document={!r}".format(item), "bind only the exact report path and blob")
+        if sha256_bytes(_git_blob(repo_root, head, path, context_path, command_runner)) != expected_sha:
+            raise error(context_path, "committed delivery document sha256 mismatch path={}".format(path), "restore the pointer-bound report blob")
+        allowed[path] = expected_sha; seen_documents.add(path)
+    return {"active_manifest": active_manifest, "allowed_blobs": allowed}
 
 
 def activate_generation_pointer(evidence_root, pointer, expected_previous_sha256):
@@ -1310,7 +1446,7 @@ def _copy_legacy_generation(legacy_manifest, evidence_root, generations_root, ow
         receipt = {
             "schema_version": 1, "kind": "issue_757_evidence_generation", "generation_id": generation_id,
             "owner": owner, "fencing_token": token, "root_sha256": root_sha256, "files": entries,
-            "source": "legacy-flat",
+            "input_sha256": sha256_file(legacy_manifest), "source": "legacy-flat",
         }
         atomic_write_json(staging / "generation-receipt.json", receipt, fail_if_exists=True)
         fsync_tree(staging)
@@ -1324,7 +1460,7 @@ def _copy_legacy_generation(legacy_manifest, evidence_root, generations_root, ow
     return generation_id
 
 
-def publish_generation(state_path, evidence_root, control_root, owner, legacy_manifest=None, command_runner=subprocess.run, validator_path=None, no_replace=atomic_noreplace_directory, repo_root=None):
+def publish_generation(state_path, evidence_root, control_root, owner, legacy_manifest=None, report_output=None, command_runner=subprocess.run, validator_path=None, no_replace=atomic_noreplace_directory, repo_root=None):
     state_path = Path(state_path).resolve(); evidence_root = Path(evidence_root).resolve()
     repo_root = Path(repo_root).resolve() if repo_root else find_repo_root(evidence_root, command_runner)
     control_root = Path(control_root).resolve(); generations_root = evidence_root / "generations"
@@ -1400,10 +1536,23 @@ def publish_generation(state_path, evidence_root, control_root, owner, legacy_ma
             finally:
                 temporary_state.unlink(missing_ok=True)
             verify_generation(destination, root_sha256)
+        delivery_documents = []
+        if report_output:
+            report_output = Path(report_output).resolve()
+            try:
+                report_relative = report_output.relative_to(repo_root).as_posix()
+            except ValueError:
+                raise error(report_output, "report is outside repository", "use the canonical issue-757 benchmark report")
+            if report_relative not in DELIVERY_DOCUMENT_PATHS:
+                raise error(report_output, "unsupported delivery document path={}".format(report_relative), "use the canonical issue-757 benchmark report")
+            render_report(destination / "delivery-manifest.json", report_output)
+            validate_report(destination / "delivery-manifest.json", report_output)
+            delivery_documents.append({"path": report_relative, "sha256": sha256_file(report_output)})
         if previous_pointer and (
             previous_pointer.get("generation_id"), previous_pointer.get("root_sha256"),
-            previous_pointer.get("fencing_token"),
-        ) == (generation_id, root_sha256, token):
+            previous_pointer.get("fencing_token"), previous_pointer.get("owner"),
+            previous_pointer.get("input_sha256"), previous_pointer.get("delivery_documents", []),
+        ) == (generation_id, root_sha256, token, owner, input_sha256, delivery_documents):
             state = load_json(state_path)
             state.update({
                 "promoted_destination": str(destination), "promotion_status": "verified",
@@ -1423,7 +1572,8 @@ def publish_generation(state_path, evidence_root, control_root, owner, legacy_ma
             "delivery_manifest_sha256": sha256_file(destination / "delivery-manifest.json"),
             "fencing_token": token, "previous_generation_id": previous_generation_id,
             "previous_generation_root_sha256": previous_generation_root_sha256,
-            "previous_pointer_sha256": previous_pointer_sha256,
+            "previous_pointer_sha256": previous_pointer_sha256, "owner": owner,
+            "input_sha256": input_sha256, "delivery_documents": delivery_documents,
         }
         activate_generation_pointer(evidence_root, pointer, previous_pointer_sha256)
         state = load_json(state_path)
@@ -1612,7 +1762,7 @@ def validate_committed(manifest_path, repo_root=None, require_git_commit=True, c
     return manifest
 
 
-def verify_final_head_drift(repo_root, measurement_commit, measurement_tree, allowed_paths, head="HEAD", manifest_path=None, command_runner=subprocess.run):
+def verify_final_head_drift(repo_root, measurement_commit, measurement_tree, allowed_blobs, head="HEAD", manifest_path=None, command_runner=subprocess.run):
     repo_root = Path(repo_root).resolve()
     manifest_path = Path(manifest_path or repo_root / "delivery-manifest.json").resolve()
     resolved_measurement, resolved_tree = _resolve_commit_tree(
@@ -1648,16 +1798,28 @@ def verify_final_head_drift(repo_root, measurement_commit, measurement_tree, all
             "repair the local Git object database and retry",
         )
     changed = [value.decode("utf-8") for value in _stdout(changed_result).split(b"\0") if value]
-    if not isinstance(allowed_paths, set) or not allowed_paths or any(
-        not isinstance(path, str) or not path or "*" in path for path in allowed_paths
+    if not isinstance(allowed_blobs, dict) or not allowed_blobs or any(
+        not isinstance(path, str) or not path or "*" in path or not re.fullmatch(r"[0-9a-f]{64}", str(digest or ""))
+        for path, digest in allowed_blobs.items()
     ):
-        raise error(manifest_path, "final-head exact allowlist is empty or unsafe", "derive exact paths from the active generation lineage")
-    rejected = sorted(path for path in changed if path not in allowed_paths)
+        raise error(manifest_path, "final-head exact path/blob allowlist is empty or unsafe", "derive exact blobs from the committed active generation lineage")
+    rejected = sorted(path for path in changed if path not in allowed_blobs)
     if rejected:
         raise error(
             manifest_path,
             "final-head drift outside exact docs/evidence allowlist={}".format(rejected),
             "rebuild and remeasure from the final production/build/test/benchmark source commit",
+        )
+    mismatched = []
+    for path in changed:
+        observed = sha256_bytes(_git_blob(repo_root, resolved_head, path, manifest_path, command_runner))
+        if observed != allowed_blobs[path]:
+            mismatched.append({"path": path, "observed": observed, "expected": allowed_blobs[path]})
+    if mismatched:
+        raise error(
+            manifest_path,
+            "final-head blob mismatch={}".format(mismatched),
+            "restore the exact pointer-bound delivery blobs",
         )
     return {"measurement_commit": resolved_measurement, "final_head": resolved_head, "changed_paths": changed}
 
@@ -1671,15 +1833,16 @@ def validate_final_head(manifest_path, head="HEAD", repo_root=None, command_runn
     generation = manifest_path.parent
     if generation.parent.name != "generations" or generation.parent.parent.name != "issue-757":
         raise error(manifest_path, "manifest is not inside the canonical issue-757 generation root", "pass the active generation delivery manifest")
-    evidence_root = generation.parent.parent
-    active_generation = verify_active_generation(evidence_root)
-    if active_generation != generation:
-        raise error(manifest_path, "manifest generation={} is not active generation={}".format(generation.name, active_generation.name), "validate only the hash-bound active generation")
-    allowed_paths = set(FINAL_HEAD_ALLOWED_PATHS)
-    allowed_paths.update(generation_lineage_allowed_paths(evidence_root, repo_root))
+    resolved_head, _ = _resolve_commit_tree(repo_root, head, manifest_path, "final head", command_runner)
+    authority = git_delivery_authority(
+        repo_root, resolved_head, generation.parent.parent.relative_to(repo_root).as_posix(), command_runner,
+    )
+    manifest_relative = manifest_path.relative_to(repo_root).as_posix()
+    if authority["active_manifest"] != manifest_relative:
+        raise error(manifest_path, "manifest={} is not committed active manifest={}".format(manifest_relative, authority["active_manifest"]), "validate only the final-commit active generation")
     measurement = manifest.get("measurement", {})
     return verify_final_head_drift(
-        repo_root, measurement.get("git_commit"), measurement.get("tree_hash"), allowed_paths, head,
+        repo_root, measurement.get("git_commit"), measurement.get("tree_hash"), authority["allowed_blobs"], resolved_head,
         manifest_path=manifest_path, command_runner=command_runner,
     )
 
@@ -2964,7 +3127,7 @@ def parser():
     rollback = commands.add_parser("record-rollback"); rollback.add_argument("--state", required=True); rollback.add_argument("--dispatch", action="append", required=True, choices=DISPATCH_ORDER); rollback.add_argument("--archive-root", required=True)
     finalize = commands.add_parser("finalize-rollback"); finalize.add_argument("--preparation", required=True)
     promote = commands.add_parser("promote"); promote.add_argument("--state", required=True); promote.add_argument("--destination", required=True)
-    publish = commands.add_parser("publish-generation"); publish.add_argument("--state", required=True); publish.add_argument("--evidence-root", required=True); publish.add_argument("--control-root", required=True); publish.add_argument("--owner", required=True); publish.add_argument("--legacy-manifest")
+    publish = commands.add_parser("publish-generation"); publish.add_argument("--state", required=True); publish.add_argument("--evidence-root", required=True); publish.add_argument("--control-root", required=True); publish.add_argument("--owner", required=True); publish.add_argument("--legacy-manifest"); publish.add_argument("--report-output")
     active = commands.add_parser("verify-active-generation"); active.add_argument("--evidence-root", required=True)
     replace = commands.add_parser("replace-promoted"); replace.add_argument("--state", required=True); replace.add_argument("--expected-manifest", required=True); replace.add_argument("--destination", required=True); replace.add_argument("--backup-root", required=True)
     cleanup = commands.add_parser("cleanup-replacement-backup"); cleanup.add_argument("--state", required=True); cleanup.add_argument("--manifest", required=True); cleanup.add_argument("--expected-head", required=True); cleanup.add_argument("--backup-root", required=True)
@@ -2990,7 +3153,7 @@ def main(argv=None):
     elif args.command == "record-rollback": record_rollback(args.state, args.dispatch, args.archive_root)
     elif args.command == "finalize-rollback": finalize_rollback(args.preparation)
     elif args.command == "promote": promote_state(args.state, args.destination)
-    elif args.command == "publish-generation": print(publish_generation(args.state, args.evidence_root, args.control_root, args.owner, args.legacy_manifest))
+    elif args.command == "publish-generation": print(publish_generation(args.state, args.evidence_root, args.control_root, args.owner, args.legacy_manifest, args.report_output))
     elif args.command == "verify-active-generation": print(verify_active_generation(args.evidence_root))
     elif args.command == "replace-promoted": print(replace_promoted(args.state, args.expected_manifest, args.destination, args.backup_root))
     elif args.command == "cleanup-replacement-backup": cleanup_replacement_backup(args.state, args.manifest, args.expected_head, args.backup_root)

@@ -106,14 +106,15 @@ python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py publish-gener
   --evidence-root docs/benchmarks/raw/issue-757 \
   --control-root .omx/evidence/issue-757-promotion \
   --owner issue-757-lettuce \
-  --legacy-manifest docs/benchmarks/raw/issue-757/delivery-manifest.json
+  --legacy-manifest docs/benchmarks/raw/issue-757/delivery-manifest.json \
+  --report-output docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md
 python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py verify-active-generation \
   --evidence-root docs/benchmarks/raw/issue-757
 ```
 
 Publisher는 exclusive lock, monotonic fencing token, platform atomic no-replace directory rename, fsync와 active pointer
-compare-and-swap을 사용하고 이전 generation을 모두 보존합니다. 최종 report는 active generation의 검증된 delivery
-manifest에서만 생성합니다. Report/review/evidence 전용 변경을 commit한 뒤
+compare-and-swap을 사용하고 이전 generation을 모두 보존합니다. Active generation의 검증된 delivery manifest에서
+결정적으로 생성한 report hash도 pointer에 결합합니다. Report/evidence 전용 변경을 commit한 뒤
 `validate-final-head --manifest <active-generation>/delivery-manifest.json`을 실행합니다. Measurement 이후 production,
 build, test, benchmark 또는 KDoc drift가 있으면 fail-closed됩니다.
 

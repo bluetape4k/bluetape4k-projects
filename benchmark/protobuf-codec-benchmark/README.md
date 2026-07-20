@@ -106,14 +106,15 @@ python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py publish-gener
   --evidence-root docs/benchmarks/raw/issue-757 \
   --control-root .omx/evidence/issue-757-promotion \
   --owner issue-757-lettuce \
-  --legacy-manifest docs/benchmarks/raw/issue-757/delivery-manifest.json
+  --legacy-manifest docs/benchmarks/raw/issue-757/delivery-manifest.json \
+  --report-output docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md
 python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py verify-active-generation \
   --evidence-root docs/benchmarks/raw/issue-757
 ```
 
 The publisher uses an exclusive lock, monotonic fencing token, platform atomic no-replace directory rename, fsync, and
-active-pointer compare-and-swap. It preserves every prior generation. Generate the final report only from the active
-generation's verified delivery manifest. After committing report/review/evidence-only changes, run
+active-pointer compare-and-swap. It preserves every prior generation and hash-binds the deterministically rendered
+report in the active pointer. After committing report/evidence-only changes, run
 `validate-final-head --manifest <active-generation>/delivery-manifest.json`; any production, build, test, benchmark, or
 KDoc drift since measurement fails closed.
 
