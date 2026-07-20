@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 import argparse
+import hashlib
+import importlib.util
+import json
 import re
+import stat
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -25,6 +29,24 @@ DECLARATION_MODIFIERS = frozenset(
     }
 )
 CLASS_NAME = "io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec"
+MANIFEST_SCHEMA = "issue757-lettuce-abi-v1"
+BASELINE_REVISION = "4ee03eb2645e6715e5ec572ffdc10fd61c2a3e88"
+BASELINE_TREE = "086f83baa7eec0cd68e68fff132542ef6db0f200"
+HELPER_API_VERSION = 1
+HELPER_PUBLIC_API = frozenset(
+    {
+        "begin_attempt",
+        "materialize_worktree",
+        "materialize_build_root",
+        "seal_artifact",
+        "cleanup_selected",
+    }
+)
+REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
+EXPECTED_HELPER = (
+    REPOSITORY_ROOT
+    / "benchmark/protobuf-codec-benchmark/scripts/issue757_detached_roots.py"
+)
 CONSTRUCTOR_DESCRIPTOR = "(Lio/bluetape4k/io/serializer/BinarySerializer;)V"
 TARGET_NAME = "encodeValue"
 TARGET_DESCRIPTOR = "(Ljava/lang/Object;Lio/netty/buffer/ByteBuf;)V"
@@ -44,6 +66,10 @@ COMPILER_BRIDGE_KEYS = frozenset(
 
 
 class AbiParseError(ValueError):
+    pass
+
+
+class ManifestError(ValueError):
     pass
 
 
@@ -370,27 +396,131 @@ def validate_text(baseline_text: str, candidate_text: str, mode: str):
     return True, f"{mode}: ABI validation passed"
 
 
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _regular_file(path_value: str, label: str) -> Path:
+    path = Path(path_value)
+    try:
+        status = path.lstat()
+    except OSError as error:
+        raise ManifestError(f"{label} is unavailable: {error}") from error
+    if not stat.S_ISREG(status.st_mode) or status.st_nlink != 1:
+        raise ManifestError(f"{label} must be a single-link regular file")
+    return path.resolve(strict=True)
+
+
+def _checkout_root(path_value: str, label: str) -> Path:
+    path = Path(path_value)
+    try:
+        status = path.lstat()
+    except OSError as error:
+        raise ManifestError(f"{label} is unavailable: {error}") from error
+    if not stat.S_ISDIR(status.st_mode):
+        raise ManifestError(f"{label} must be a directory")
+    return path.resolve(strict=True)
+
+
+def _bound_evidence(role: dict, label: str, checkout_root: Path) -> Path:
+    try:
+        evidence = role["structural"]
+        expected_hash = evidence["sha256"]
+        path = _regular_file(evidence["path"], f"{label} structural evidence")
+    except (KeyError, TypeError) as error:
+        raise ManifestError(f"{label} structural evidence binding is incomplete") from error
+    if path != checkout_root and checkout_root not in path.parents:
+        raise ManifestError(f"{label} structural evidence escapes checkout root")
+    if _sha256(path) != expected_hash:
+        raise ManifestError(f"{label} structural evidence hash mismatch")
+    return path
+
+
+def _validate_helper(binding: dict) -> None:
+    try:
+        path = _regular_file(binding["path"], "detached-root helper")
+        expected_hash = binding["sha256"]
+        api_version = binding["api_version"]
+    except (KeyError, TypeError) as error:
+        raise ManifestError("detached-root helper binding is incomplete") from error
+    if path != EXPECTED_HELPER.resolve(strict=True):
+        raise ManifestError("detached-root helper path mismatch")
+    if _sha256(path) != expected_hash:
+        raise ManifestError("detached-root helper hash mismatch")
+    spec = importlib.util.spec_from_file_location("issue757_detached_roots", path)
+    if spec is None or spec.loader is None:
+        raise ManifestError("detached-root helper cannot be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    if api_version != HELPER_API_VERSION or module.PUBLIC_API_VERSION != api_version:
+        raise ManifestError("detached-root helper API version mismatch")
+    if frozenset(module.PUBLIC_API) != HELPER_PUBLIC_API:
+        raise ManifestError("detached-root helper public API mismatch")
+
+
+def validate_manifest(manifest_path: Path):
+    manifest_path = _regular_file(str(manifest_path), "ABI manifest")
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        raise ManifestError(f"ABI manifest is unreadable: {error}") from error
+    if not isinstance(manifest, dict) or manifest.get("schema") != MANIFEST_SCHEMA:
+        raise ManifestError("ABI manifest schema mismatch")
+    mode = manifest.get("mode")
+    if mode not in {"retained", "rejected"}:
+        raise ManifestError("ABI manifest mode mismatch")
+    if manifest.get("class_name") != CLASS_NAME:
+        raise ManifestError("ABI manifest class name mismatch")
+    authority = manifest.get("authority")
+    if not isinstance(authority, dict) or authority != {
+        "baseline_revision": BASELINE_REVISION,
+        "baseline_tree": BASELINE_TREE,
+    }:
+        raise ManifestError("baseline authority mismatch")
+    _validate_helper(manifest.get("helper"))
+    try:
+        baseline_role = manifest["baseline"]
+        candidate_role = manifest["candidate"]
+        baseline_root = _checkout_root(
+            baseline_role["checkout_root"], "baseline checkout root"
+        )
+        candidate_root = _checkout_root(
+            candidate_role["checkout_root"], "candidate checkout root"
+        )
+    except (KeyError, TypeError) as error:
+        raise ManifestError("checkout root binding is incomplete") from error
+    if baseline_root == candidate_root:
+        raise ManifestError("baseline and candidate checkout roots must be distinct")
+    baseline_path = _bound_evidence(baseline_role, "baseline", baseline_root)
+    candidate_path = _bound_evidence(candidate_role, "candidate", candidate_root)
+    try:
+        baseline_text = baseline_path.read_text(encoding="utf-8")
+        candidate_text = candidate_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as error:
+        raise ManifestError(f"ABI evidence is unreadable: {error}") from error
+    return validate_text(baseline_text, candidate_text, mode)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Validate the normalized LettuceBinaryCodec javap ABI."
     )
-    parser.add_argument("--baseline", required=True, type=Path)
-    parser.add_argument("--candidate", required=True, type=Path)
-    parser.add_argument("--mode", required=True, choices=("retained", "rejected"))
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    validate_parser = subparsers.add_parser(
+        "validate", help="validate evidence bound by a capture manifest"
+    )
+    validate_parser.add_argument("--manifest", required=True, type=Path)
     arguments = parser.parse_args()
 
     try:
-        baseline_text = arguments.baseline.read_text(encoding="utf-8")
-        candidate_text = arguments.candidate.read_text(encoding="utf-8")
-    except OSError as error:
-        print(f"{arguments.mode}: unable to read ABI input: {error}", file=sys.stderr)
+        valid, diagnostic = validate_manifest(arguments.manifest)
+    except ManifestError as error:
+        print(f"manifest: {error}", file=sys.stderr)
         return 2
-
-    valid, diagnostic = validate_text(
-        baseline_text,
-        candidate_text,
-        arguments.mode,
-    )
     print(diagnostic, file=sys.stdout if valid else sys.stderr)
     return 0 if valid else 1
 

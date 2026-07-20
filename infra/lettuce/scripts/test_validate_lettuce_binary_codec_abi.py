@@ -1,4 +1,6 @@
 import importlib.util
+import hashlib
+import json
 import subprocess
 import sys
 import tempfile
@@ -6,6 +8,10 @@ import unittest
 from pathlib import Path
 
 SCRIPT = Path(__file__).with_name("validate-lettuce-binary-codec-abi.py")
+HELPER = (
+    Path(__file__).parents[3]
+    / "benchmark/protobuf-codec-benchmark/scripts/issue757_detached_roots.py"
+)
 CLASS_NAME = "io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec"
 CONSTRUCTOR_DESCRIPTOR = "(Lio/bluetape4k/io/serializer/BinarySerializer;)V"
 TARGET_DESCRIPTOR = "(Ljava/lang/Object;Lio/netty/buffer/ByteBuf;)V"
@@ -535,7 +541,7 @@ class AbiValidatorTest(unittest.TestCase):
             "access expected public, got protected",
         )
 
-    def test_cli_requires_baseline_candidate_and_mode(self):
+    def test_cli_requires_subcommand_and_rejects_legacy_two_file_surface(self):
         result = subprocess.run(
             [sys.executable, str(SCRIPT)],
             capture_output=True,
@@ -544,14 +550,34 @@ class AbiValidatorTest(unittest.TestCase):
         )
 
         self.assertNotEqual(0, result.returncode)
-        self.assertIn("--baseline", result.stderr)
-        self.assertIn("--candidate", result.stderr)
-        self.assertIn("--mode", result.stderr)
+        self.assertIn("validate", result.stderr)
 
-    def test_cli_validates_files(self):
+        legacy = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--baseline",
+                "baseline.txt",
+                "--candidate",
+                "candidate.txt",
+                "--mode",
+                "retained",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertNotEqual(0, legacy.returncode)
+
+    def test_cli_validates_manifest_bound_files(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            baseline = Path(temp_dir) / "baseline.javap"
-            candidate = Path(temp_dir) / "candidate.javap"
+            root = Path(temp_dir)
+            baseline_root = root / "baseline-root"
+            candidate_root = root / "candidate-root"
+            baseline_root.mkdir()
+            candidate_root.mkdir()
+            baseline = baseline_root / "baseline.struct.txt"
+            candidate = candidate_root / "candidate.struct.txt"
             baseline.write_text(render_javap(), encoding="utf-8")
             candidate.write_text(
                 render_javap(
@@ -561,17 +587,48 @@ class AbiValidatorTest(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
+            manifest = root / "manifest.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "schema": "issue757-lettuce-abi-v1",
+                        "mode": "retained",
+                        "class_name": CLASS_NAME,
+                        "authority": {
+                            "baseline_revision": "4ee03eb2645e6715e5ec572ffdc10fd61c2a3e88",
+                            "baseline_tree": "086f83baa7eec0cd68e68fff132542ef6db0f200",
+                        },
+                        "helper": {
+                            "path": str(HELPER.resolve()),
+                            "sha256": hashlib.sha256(HELPER.read_bytes()).hexdigest(),
+                            "api_version": 1,
+                        },
+                        "baseline": {
+                            "checkout_root": str(baseline_root),
+                            "structural": {
+                                "path": str(baseline),
+                                "sha256": hashlib.sha256(baseline.read_bytes()).hexdigest(),
+                            },
+                        },
+                        "candidate": {
+                            "checkout_root": str(candidate_root),
+                            "structural": {
+                                "path": str(candidate),
+                                "sha256": hashlib.sha256(candidate.read_bytes()).hexdigest(),
+                            },
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
 
             result = subprocess.run(
                 [
                     sys.executable,
                     str(SCRIPT),
-                    "--baseline",
-                    str(baseline),
-                    "--candidate",
-                    str(candidate),
-                    "--mode",
-                    "retained",
+                    "validate",
+                    "--manifest",
+                    str(manifest),
                 ],
                 capture_output=True,
                 text=True,
@@ -580,6 +637,44 @@ class AbiValidatorTest(unittest.TestCase):
 
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertEqual("retained: ABI validation passed\n", result.stdout)
+
+    def test_manifest_rejects_wrong_authority_hash_and_shared_root(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            structural = root / "structural.txt"
+            structural.write_text(render_javap(), encoding="utf-8")
+            payload = {
+                "schema": "issue757-lettuce-abi-v1",
+                "mode": "rejected",
+                "class_name": CLASS_NAME,
+                "authority": {
+                    "baseline_revision": "wrong",
+                    "baseline_tree": "wrong",
+                },
+                "helper": {
+                    "path": str(HELPER.resolve()),
+                    "sha256": "0" * 64,
+                    "api_version": 1,
+                },
+                "baseline": {
+                    "checkout_root": str(root),
+                    "structural": {"path": str(structural), "sha256": "0" * 64},
+                },
+                "candidate": {
+                    "checkout_root": str(root),
+                    "structural": {"path": str(structural), "sha256": "0" * 64},
+                },
+            }
+            manifest = root / "manifest.json"
+            manifest.write_text(json.dumps(payload), encoding="utf-8")
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT), "validate", "--manifest", str(manifest)],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("baseline authority", result.stderr)
 
 
 if __name__ == "__main__":
