@@ -2,6 +2,7 @@ package io.bluetape4k.protobuf.serializers.redis
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.protobuf.ProtoAny
 import io.bluetape4k.protobuf.redis.messages.redisSimpleMessage
 import io.bluetape4k.protobuf.serializers.ProtobufSerializer
@@ -93,6 +94,38 @@ class LettuceProtobufByteBufCodecTest {
     @Test
     fun `null target is a no-op`() {
         LettuceProtobufCodecs.protobuf<Any>().encodeValue(Any(), null)
+    }
+
+    @Test
+    fun `public codec ABI stays open only at the target overload`() {
+        val codecClass = LettuceBinaryCodec::class.java
+        Modifier.isPublic(codecClass.modifiers) shouldBeEqualTo true
+        Modifier.isFinal(codecClass.modifiers) shouldBeEqualTo false
+        codecClass.getDeclaredConstructor(BinarySerializer::class.java)
+
+        val targetMethod = codecClass.getMethod(
+            "encodeValue",
+            Any::class.java,
+            ByteBuf::class.java,
+        )
+        Modifier.isFinal(targetMethod.modifiers) shouldBeEqualTo false
+
+        listOf(
+            codecClass.getMethod("encodeKey", String::class.java),
+            codecClass.getMethod("encodeKey", String::class.java, ByteBuf::class.java),
+            codecClass.getMethod("encodeValue", Any::class.java),
+            codecClass.getMethod("decodeKey", java.nio.ByteBuffer::class.java),
+            codecClass.getMethod("decodeValue", java.nio.ByteBuffer::class.java),
+            codecClass.getMethod("estimateSize", Any::class.java),
+            codecClass.getMethod("toString"),
+        ).forEach { method ->
+            Modifier.isFinal(method.modifiers) shouldBeEqualTo true
+        }
+
+        codecClass.getMethod("getSerializer").returnType shouldBeEqualTo BinarySerializer::class.java
+        val optimized = LettuceProtobufCodecs.protobuf<Any>().javaClass
+        optimized.enclosingClass shouldBeEqualTo LettuceProtobufCodecs::class.java
+        Modifier.isPrivate(optimized.modifiers) shouldBeEqualTo true
     }
 
     @Suppress("UNCHECKED_CAST")
