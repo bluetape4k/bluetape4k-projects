@@ -90,14 +90,14 @@ private fun canonicalConfigJson(
     targetHeadroom: Int,
     targetStart: Int,
 ): String = buildString {
-    append("{\"allowed_class_prefixes\":").append(jsonStrings(allowedPrefixes))
-    append(",\"allocator_class\":").append(jsonString(allocatorClass))
+    append("{\"allocator_class\":").append(jsonString(allocatorClass))
+    append(",\"allowed_class_prefixes\":").append(jsonStrings(allowedPrefixes))
     append(",\"direct_capacity\":").append(directCapacity)
-    append(",\"direct_max_capacity\":").append(directMaxCapacity)
     append(",\"direct_initial_position\":").append(directInitialPosition)
+    append(",\"direct_max_capacity\":").append(directMaxCapacity)
     append(",\"heap_capacity\":").append(heapCapacity)
-    append(",\"heap_max_capacity\":").append(heapMaxCapacity)
     append(",\"heap_initial_position\":").append(heapInitialPosition)
+    append(",\"heap_max_capacity\":").append(heapMaxCapacity)
     append(",\"matrix_version\":").append(jsonString(matrixVersion))
     append(",\"methods\":").append(jsonStrings(methods))
     append(",\"payload_identity\":").append(jsonString(payloadIdentity))

@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
+import java.util.TreeMap
 
 class ProtobufCodecBenchmarkSupportTest {
     @Test
@@ -72,6 +73,15 @@ class ProtobufCodecBenchmarkSupportTest {
             metadata["schema_version"].intValue() shouldBeEqualTo 1
             metadata["target_headroom"].intValue() shouldBeEqualTo ProtobufBenchmarkMatrix.TARGET_HEADROOM
             metadata["target_start"].intValue() shouldBeEqualTo ProtobufBenchmarkMatrix.TARGET_START
+        }
+    }
+
+    @Test
+    fun `config identity uses lexicographically sorted top-level keys`() {
+        ProtobufCodecBenchmarkFixture().use { fixture ->
+            val mapper = ObjectMapper()
+            val parsed = mapper.readValue(fixture.configIdentity, Map::class.java)
+            mapper.writeValueAsString(TreeMap(parsed)) shouldBeEqualTo fixture.configIdentity
         }
     }
 
