@@ -1,0 +1,20 @@
+{
+  "delivery_documents": [
+    {
+      "path": "docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md",
+      "sha256": "790dcbec1604e0c6326bb5e895a0ff60a75639ef63bc8b7decbfc9afa8ef4f50"
+    }
+  ],
+  "delivery_manifest_sha256": "f9f8db7fd993958231b47c99e7c3052aa074dfe487f0c6deaef367d7ce5e59ae",
+  "fencing_token": 1,
+  "generation_id": "g-e11070a28a64d8e4fd62dc942b93601d",
+  "input_sha256": "e11070a28a64d8e4fd62dc942b93601dba4373114e4ade967fc16ee6c6ea229e",
+  "kind": "issue_757_active_generation",
+  "owner": "issue-757-lettuce",
+  "previous_generation_id": "legacy-b0166d6dd00e-daf71d334a4efc24",
+  "previous_generation_receipt_sha256": "e4f3a1d96c657e564227d2dec7f15c5fc1814b7bb33cc5ce478d0fedf50e6a99",
+  "previous_generation_root_sha256": "098e739cae65d9f6504ddc8fca451de5608ead38ac06e4df6afceb8bb56b87ea",
+  "previous_pointer_sha256": null,
+  "root_sha256": "54b449e68c398b34074b8468a1eaf3f253921fd8221ed82b50a813287c1ffac9",
+  "schema_version": 1
+}
