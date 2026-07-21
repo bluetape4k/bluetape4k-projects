@@ -97,11 +97,7 @@ private fun requireSameSlot(keys: List<String>, codec: RedisCodec<String, String
 }
 
 private fun Duration.requirePositiveMillis(): Long {
-    val millis = try {
-        toMillis()
-    } catch (_: ArithmeticException) {
-        throw IllegalArgumentException("ttl must fit in milliseconds.")
-    }
+    val millis = toMillis()
     require(millis > 0) { "ttl must be at least one millisecond." }
     return millis
 }

@@ -33,10 +33,18 @@ class LettuceMultiKeyLeaseSupportTest {
             { validateLeaseInput(valid, "owner", Duration.ZERO, LettuceMultiKeyLeaseConfig(), StringCodec.UTF8) },
             { validateLeaseInput(valid, "owner", Duration.ofMillis(-1), LettuceMultiKeyLeaseConfig(), StringCodec.UTF8) },
             { validateLeaseInput(valid, "owner", Duration.ofNanos(1), LettuceMultiKeyLeaseConfig(), StringCodec.UTF8) },
-            { validateLeaseInput(valid, "owner", Duration.ofSeconds(Long.MAX_VALUE), LettuceMultiKeyLeaseConfig(), StringCodec.UTF8) },
         )
 
         invalidCalls.forEach { call -> assertFailsWith<IllegalArgumentException> { call() } }
+        assertFailsWith<ArithmeticException> {
+            validateLeaseInput(
+                valid,
+                "owner",
+                Duration.ofSeconds(Long.MAX_VALUE),
+                LettuceMultiKeyLeaseConfig(),
+                StringCodec.UTF8,
+            )
+        }
     }
 
     @Test
