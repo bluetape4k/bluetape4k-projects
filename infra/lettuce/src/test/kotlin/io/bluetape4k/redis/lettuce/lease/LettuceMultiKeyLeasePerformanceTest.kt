@@ -44,6 +44,8 @@ internal class LettuceMultiKeyLeasePerformanceTest {
     @Test
     fun `characterize lease latency throughput and connection responsiveness`() = runSuspendIO {
         Files.deleteIfExists(reportPath())
+        var passedResults: List<PerformanceResult>? = null
+        var passedRedisVersion: String? = null
         RedisServer().use { server ->
             server.start()
             val client = LettuceClients.clientOf(server.host, server.port)
@@ -114,7 +116,8 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                         result.probeP99Millis shouldBeLessThan COMMAND_TIMEOUT.toMillis().toDouble()
                     }
                     probeErrors.get() shouldBeEqualTo 0
-                    writeReport(results, redisVersion)
+                    passedResults = results
+                    passedRedisVersion = redisVersion
                 } finally {
                     probeTask.cancel(true)
                 }
@@ -153,6 +156,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                 }
             }
         }
+        writeReport(checkNotNull(passedResults), checkNotNull(passedRedisVersion))
     }
 
     private fun runCombination(
@@ -215,7 +219,11 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         val combinationProbeSamples = synchronized(probeSamples) {
             probeSamples.drop(probeStart)
         }
-        (combinationProbeSamples.size >= MIN_PROBE_SAMPLES) shouldBeEqualTo true
+        val expectedProbeSamples = maxOf(
+            MIN_PROBE_SAMPLES,
+            (elapsedNanos / PROBE_INTERVAL_NANOS / PROBE_COVERAGE_DIVISOR).toInt(),
+        )
+        (combinationProbeSamples.size >= expectedProbeSamples) shouldBeEqualTo true
         val operationCount = acquireSamples.size + releaseSamples.size
         return PerformanceResult(
             keyCount = keyCount,
@@ -421,9 +429,11 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         const val WARM_UP_ROUNDS: Int = 20
         const val MEASURED_ROUNDS: Int = 100
         const val PROBE_INTERVAL_MILLIS: Long = 10L
-        const val MIN_PROBE_SAMPLES: Int = 2
+        const val MIN_PROBE_SAMPLES: Int = 10
+        const val PROBE_COVERAGE_DIVISOR: Long = 2L
         const val ROUND_TIMEOUT_SECONDS: Long = 30L
         const val NANOS_PER_MILLISECOND: Long = 1_000_000L
         const val NANOS_PER_SECOND: Long = 1_000_000_000L
+        const val PROBE_INTERVAL_NANOS: Long = PROBE_INTERVAL_MILLIS * NANOS_PER_MILLISECOND
     }
 }
