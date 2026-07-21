@@ -72,10 +72,10 @@ fun decompress(source: ByteBuffer, target: ByteBuffer): Int
 
 | Codec | 확인된 API | 제약 |
 |---|---|---|
-| LZ4 1.11.0 | absolute-offset `compress(ByteBuffer, ...)`, `decompress(ByteBuffer, ...)` | heap/direct 및 slice 지원, absolute API는 position/limit을 변경하지 않음 |
+| LZ4 1.11.0 | absolute-offset `compress(ByteBuffer, ...)`, `decompress(ByteBuffer, ...)` | heap/direct 및 slice 지원, position은 변경하지 않지만 fast decompression은 source 길이를 `capacity - offset`으로 계산함 |
 | Snappy 1.1.10.8 | `compress(ByteBuffer, ByteBuffer)`, `uncompress(ByteBuffer, ByteBuffer)` | direct→direct만 지원하고 output limit을 변경함 |
 | Snappy 1.1.10.8 | offset 기반 `byte[]` API | array-backed heap→heap 지원 |
-| zstd-jni 1.5.7-11 | direct-buffer 및 byte-array offset API | direct→direct 또는 array-backed heap→heap만 직접 지원 |
+| zstd-jni 1.5.7-11 | direct-buffer 및 byte-array offset API | direct→direct 또는 array-backed heap→heap만 직접 지원하고 native error는 반환 전에 `ZstdException`으로 변환됨 |
 | JDK 21 Deflater/Inflater | `setInput(ByteBuffer)`, `deflate(ByteBuffer)`, `inflate(ByteBuffer)` | heap/direct buffer를 처리하지만 출력 크기를 사전 확정할 수 없음 |
 | JDK/Apache framed codecs | stream API | buffer-native API가 아니므로 이번 범위에서는 compatibility fallback |
 
@@ -166,7 +166,8 @@ message는 계약하지 않는다. 둘 다 null인 경우에도 같은 예외 �
 3. source remaining이 0이면 `0`을 반환한다.
 4. backend가 exact 결과 크기를 알거나 안전상 full bound가 필수이면
    `initialTargetRemaining`을 검사한다.
-5. absolute/offset API 또는 필요한 경우에만 duplicate view에서 codec을 실행한다.
+5. absolute/offset API 또는 backend가 caller 범위를 보존하는 데 필요한 bounded/duplicate
+   view에서 codec을 실행한다.
 6. 성공한 기록량만 원본 target position에 commit한다.
 
 read-only target은 alias, empty-source, codec 초기화, 압축 또는 복원보다 먼저 거부한다.
@@ -181,8 +182,9 @@ same-object+empty는 `IllegalArgumentException`이다.
   compression은 codec 호출 전에 `BufferOverflowException`으로 실패한다.
 - destination length를 안전하게 받는 LZ4/Zstd compression은 4-byte header를 제외한
   `payloadCapacity = initialTargetRemaining - 4`를 codec에 전달한다. backend의
-  destination-too-small 결과만 raw
-  `BufferOverflowException`으로 정규화한다.
+  destination-too-small 결과만 raw `BufferOverflowException`으로 정규화한다. 현재
+  zstd-jni offset API는 native error를 code로 반환하지 않고 `ZstdException`으로 던지므로
+  `errorCode == Zstd.errDstSizeTooSmall()`인 예외만 이 정규화 대상이다.
 - Deflate처럼 출력 크기를 사전 확정할 수 없는 경로는 duplicate target에 기록하다
   공간이 소진되면 `BufferOverflowException`으로 실패한다. 원본 target position은
   복구하지만 이미 덮어쓴 byte는 unspecified이다.
@@ -221,9 +223,12 @@ same-object+empty는 `IllegalArgumentException`이다.
 backend override가 상태 계약을 반복 구현하지 않도록 internal wrapper를 둔다.
 
 - 원본 source/target state capture
-- absolute/offset 경로는 캡처한 position/remaining을 원본 buffer와 함께 사용하고 view를
-  할당하지 않음
-- Snappy direct 및 JDK Deflate처럼 position/limit을 변경하는 경로만 duplicate view 생성
+- explicit source length를 받는 absolute/offset 경로는 캡처한 position/remaining을 원본
+  buffer와 함께 사용하고 view를 할당하지 않음
+- backend가 source 범위를 `capacity`에서 유도하면 caller의 `limit`을 보존하기 위해 캡처한
+  payload range의 bounded slice를 생성함. 이 view의 position은 `0`, limit과 capacity는
+  모두 payload remaining임
+- Snappy direct 및 JDK Deflate처럼 position/limit을 변경하는 경로는 duplicate view 생성
 - backend operation 실행
 - 반환 기록량 검증: `0 <= written <= initialTargetRemaining`
 - 성공 시 원본 target position commit
@@ -238,7 +243,9 @@ header-prefixed codec은 wrapper에 전체 기록량을 반환한다. LZ4와 Zst
 `initialTargetRemaining >= 4`를 먼저 확인하고,
 `payloadCapacity = initialTargetRemaining - 4`만 native codec에 전달한다. 성공 시
 `totalWritten = 4 + payloadWritten`을 검증하고 target position 및 public 반환값에
-commit한다.
+commit한다. LZ4와 Zstd decompression은 header의 `declaredOriginalSize`를 검증하고 target
+remaining을 preflight한 뒤 native destination length도 반드시 `declaredOriginalSize`로
+제한한다. caller target이 더 커도 native codec에 더 큰 출력 범위를 주지 않는다.
 
 ## 7. backend별 설계
 
@@ -251,10 +258,18 @@ commit한다.
   LZ4가 destination-too-small을 보고할 때만 `BufferOverflowException`으로 정규화한다.
 - decompression은 source duplicate에서 4-byte header를 읽고 기존 256 MiB 제한을
   적용한다. target remaining이 원본 크기보다 작으면 codec 호출 전에 실패한다.
-- LZ4 absolute-offset API는 caller buffer position을 변경하지 않는다.
+- compression의 LZ4 absolute-offset API는 caller buffer position을 변경하지 않는다.
+- decompression payload는 header 직후부터 caller의 초기 source limit까지 bounded slice로
+  한정한다. `LZ4FastDecompressor` ByteBuffer 구현이 source length를 `capacity - offset`으로
+  유도하므로 원본 source buffer를 직접 전달하지 않는다.
+- bounded payload slice는 position `0`, limit/capacity
+  `compressedPayloadRemaining`이며 target은 명시적인 offset과
+  `declaredOriginalSize`로 제한한다. 이는 작은 view 객체만 만들며 payload-sized array는
+  할당하지 않는다.
 - `LZ4FastDecompressor` 반환값은 기록량이 아니라 compressed payload의 consumed byte다.
-  성공은 `consumed == compressedPayloadRemaining`이어야 하며, target commit 양은 header의
-  `declaredOriginalSize`다. trailing 또는 truncated payload는 성공으로 처리하지 않는다.
+  성공은 `consumed == boundedPayload.remaining()`이어야 하며, target commit 양은 header의
+  `declaredOriginalSize`다. caller limit 뒤의 capacity tail을 읽거나 trailing 또는 truncated
+  payload를 성공으로 처리하지 않는다.
 
 ### 7.2 Snappy
 
@@ -280,10 +295,16 @@ commit한다.
   length로 전달하고,
   zstd의 destination-too-small error만 `BufferOverflowException`으로 정규화한다.
 - decompression은 header의 exact size와 기존 256 MiB 제한을 먼저 검증한다.
-- native 반환 code는 `Zstd.isError`로 검사한다. compression의 destination-too-small만 raw
-  `BufferOverflowException`으로 정규화하고, 그 밖의 error code는 `Zstd.getErrorName(code)`를
-  message에 포함한 정확한 `IllegalStateException`으로 변환하며 cause는 두지 않는다. JNI가
-  직접 던진 `ZstdException`과 fatal throwable은 identity를 보존해 그대로 전파한다.
+- target remaining이 `declaredOriginalSize`보다 작으면 native 호출 전에 raw
+  `BufferOverflowException`으로 실패한다. 충분하면 native destination length를 caller target
+  remaining이 아니라 `declaredOriginalSize`로 고정해 조작된 under-declared header가 그보다
+  많은 출력을 기록하지 못하게 한다.
+- 현재 zstd-jni offset API는 성공 결과만 반환하고 native error는 내부 context에서
+  `ZstdException`으로 변환한다. compression에서
+  `errorCode == Zstd.errDstSizeTooSmall()`인 예외만 raw `BufferOverflowException`으로
+  정규화한다. decompression의 같은 error는 caller target 부족이 아니라 header/payload
+  mismatch이므로 stable message와 cause가 없는 정확한 `IllegalStateException`으로 변환한다.
+  그 밖의 `ZstdException`과 fatal throwable은 identity를 보존해 그대로 전파한다.
 - decompression 성공은 native 결과가 `declaredOriginalSize`와 정확히 같을 때만 commit한다.
   불일치는 안정적 message를 가진 정확한 `IllegalStateException`이며 cause는 두지 않는다.
   과대·과소 변조 header와 truncated payload를 성공으로 처리하지 않는다.
@@ -429,7 +450,7 @@ source와 새 target을 그대로 전달한다. target은 application이 정한 
 |---|---|
 | LZ4 | 4-byte header 구조 → declared size 범위 → target remaining → payload decode → consumed/trailing 검사 |
 | Snappy | compressed range validation → uncompressed length/256 MiB → target remaining → native decode |
-| Zstd | 4-byte header 구조 → declared size 범위 → target remaining → native decode/error → exact result 검사 |
+| Zstd | 4-byte header 구조 → declared size 범위 → target remaining → declared-size-bounded native decode/error → exact result 검사 |
 | Deflate | stream traversal 중 `DataFormatException`/상태표/target exhaustion 순으로 먼저 관찰된 확정 상태 |
 | fallback | 기존 ByteArray decompression과 security limit → exact result target overflow |
 
@@ -484,15 +505,18 @@ fallback codec도 correctness contract를 통과해야 하지만 allocation 감�
 ### 11.2 optimized backend suite
 
 - LZ4: heap/direct 모든 조합, header 경계, high-compression payload의
-  `written=declaredOriginalSize`, consumed mismatch, trailing/truncated payload
+  `written=declaredOriginalSize`, consumed mismatch, trailing/truncated payload, caller limit 뒤
+  capacity tail이 valid payload를 포함해도 bounded source만으로 실패하는 regression
 - Snappy: heap→heap, direct→direct optimized; mixed 조합 fallback; heap/direct invalid input이
   native call 전에 거부됨
 - Zstd: heap→heap, direct→direct optimized; mixed 조합 fallback; header 이후 native destination
   length가 `initialTargetRemaining - 4`임을 non-zero position, exact-limit/sentinel,
-  `initialTargetRemaining == 4` 경계로 검증; heap/direct의 native error code는 exact
-  `IllegalStateException` class/error-name/no-cause를, 직접 던진 `ZstdException`은 identity를,
-  result와 declared size mismatch는 exact class/stable-message/no-cause를 검증; 과대·과소
-  header, truncated payload
+  `initialTargetRemaining == 4` 경계로 검증; heap/direct의
+  compression `errDstSizeTooSmall` `ZstdException`만 raw `BufferOverflowException`으로
+  정규화하고 그 밖의 `ZstdException` identity를 보존하며, decompression은 native
+  destination을 `declaredOriginalSize`로 고정하고 그 경로의 `errDstSizeTooSmall` 및 successful
+  result mismatch를 exact class/stable-message/no-cause `IllegalStateException`으로 검증;
+  under-declared header+큰 target의 heap/direct regression, 과대·과소 header, truncated payload
 - Deflate: heap/direct 조합, incompressible payload, target exhaustion, corrupt input,
   dictionary/no-progress 상태, dictionary+zero-remaining target의 `BufferOverflowException`,
   exact-fit success, `end()` 1회, cleanup suppression
@@ -650,8 +674,12 @@ start, exact bounded result view를 assertion으로 검증한다. 기존 caller�
 | target remaining 부족 | exact/bound preflight 또는 duplicate write bound | raw `BufferOverflowException`, position rollback |
 | LZ4/Zstd 4-byte 미만 header | 기존 ByteArray 경로와 동일한 경계 검사 | `IndexOutOfBoundsException` |
 | LZ4/Zstd negative/oversized header | header 및 256 MiB 검사 | `IllegalArgumentException` |
-| LZ4 invalid/trailing/truncated payload | consumed와 payload range 비교 | `LZ4Exception` |
-| Zstd invalid payload 또는 size mismatch | error code와 exact result 검사 | error name 또는 stable mismatch message를 가진 정확한 `IllegalStateException`, cause 없음; JNI가 직접 던진 `ZstdException`은 identity 보존 |
+| LZ4 invalid/trailing/truncated payload | capacity-bounded payload slice와 consumed 비교 | `LZ4Exception`; caller limit 뒤 capacity tail은 입력으로 사용하지 않음 |
+| Zstd compression destination 부족 | `ZstdException.errorCode` 검사 | `errDstSizeTooSmall`만 raw `BufferOverflowException` |
+| Zstd decompression target 부족 | declared size와 target remaining preflight | native 호출 전 raw `BufferOverflowException` |
+| Zstd under-declared header | native destination을 declared size로 고정하고 `errDstSizeTooSmall` 분류 | stable mismatch message를 가진 정확한 `IllegalStateException`, cause 없음 |
+| Zstd invalid payload의 `errDstSizeTooSmall` 이외 native error | zstd-jni가 변환한 native exception | 원래 `ZstdException` identity 보존 |
+| Zstd successful result와 declared size 불일치 | exact result 검사 | stable mismatch message를 가진 정확한 `IllegalStateException`, cause 없음 |
 | Snappy invalid/truncated input | heap/direct range validation 선행 | `SnappyException`, native decompression 미실행 |
 | Deflate invalid/truncated/dictionary input | loop 상태표와 cause 보존 | 충분한 target에서는 `ZipException`; dictionary와 zero-remaining target이 동시에 관찰되면 상태표 순서에 따라 `BufferOverflowException` |
 | backend가 duplicate limit 변경 | 원본과 분리된 view에서 실행 | 원본 limit 보존 |
@@ -714,5 +742,6 @@ caller/user ergonomics의 여섯 관점을 서로 독립적으로 검토하고 m
 검토 과정에서 발견된 header payload capacity, compound failure precedence, 외부 구현체
 concurrency 및 default-method compatibility 경계, fallback decompression resource bound,
 Zstd exception taxonomy, ABI 기준물, mutable benchmark state와 evidence schema 문제는 본문에
-반영한 뒤 해당 관점에서 재검토했다. 구현 계획과 구현 review에서도 이 명세를 기준으로
-P0=0, P1=0을 다시 확인한다.
+반영한 뒤 해당 관점에서 재검토했다. 계획 단계의 dependency source·실행 검증에서 추가로
+확인한 LZ4 capacity-tail read와 zstd-jni throw-before-return 동작도 본문에 반영했다. 구현 계획과
+구현 review에서도 이 명세를 기준으로 P0=0, P1=0을 다시 확인한다.
