@@ -113,7 +113,7 @@ class RedisScriptTest : AbstractLettuceTest() {
     }
 
     @Test
-    fun `스크립팅 명령 인터페이스로 동기 비동기 코루틴 실행`() = runTest {
+    fun `스크립팅 명령 인터페이스로 동기 비동기 코루틴 실행`() = runSuspendIO {
         val syncValue = "scripting-sync"
         val asyncValue = "scripting-async"
         val suspendValue = "scripting-suspend"
@@ -170,7 +170,7 @@ class RedisScriptTest : AbstractLettuceTest() {
     // =========================================================================
 
     @Test
-    fun `코루틴 runSuspending - SET 후 GET 반환`() = runTest {
+    fun `코루틴 runSuspending - SET 후 GET 반환`() = runSuspendIO {
         val key = randomName()
         val value = "suspend-val"
 
@@ -299,7 +299,7 @@ class RedisScriptTest : AbstractLettuceTest() {
     }
 
     @Test
-    fun `INTEGER 반환 타입 스크립트 테스트`() = runTest {
+    fun `INTEGER 반환 타입 스크립트 테스트`() = runSuspendIO {
         val key = randomName()
         syncCommands.set(key, "0")
 
