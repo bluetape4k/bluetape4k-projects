@@ -8,6 +8,24 @@
 
 ### Performance
 
+<!-- issue-755-migration:start -->
+- Added opt-in caller-owned `ByteBuffer` compressor defaults with source-state
+  preservation and target position commit/rollback contracts. Compatibility
+  defaults may still allocate payload-sized arrays; codec-native paths are
+  delivered and measured separately under #755. Existing callers do not need
+  to migrate: unlike some existing one-argument `ByteBuffer` methods that may
+  consume the source position, the new two-argument methods preserve all source
+  state. Opt in only with reusable targets and an optimized storage pairing;
+  fallback pairings are correctness-only. As with standard Java interface
+  evolution, an implementation inheriting another erased-signature-equivalent
+  default may require an explicit override and is not claimed conflict-free.
+<!-- issue-755-migration:end -->
+<!-- issue-755-rollback:start -->
+- If a codec-native override proves defective, a patch keeps the public default
+  methods and wire contract and reverts only that override to the compatibility
+  fallback. Until that patch, use an existing allocating API or a documented
+  fallback storage pairing; no runtime feature flag is provided.
+<!-- issue-755-rollback:end -->
 - Added caller-owned `ByteBuffer` APIs for Protobuf message packing and serializer encode while preserving the existing
   `ByteArray` APIs; serializer decode retains the inherited copied `ByteBuffer` compatibility path
   ([#757](https://github.com/bluetape4k/bluetape4k-projects/issues/757)).

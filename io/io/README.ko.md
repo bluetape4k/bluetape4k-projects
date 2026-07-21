@@ -230,6 +230,82 @@ val boundedGzip = GZipCompressor(maxDecompressedSize = 64 * 1024 * 1024)
 val restored = boundedGzip.decompress(compressed)
 ```
 
+#### 호출자 소유 Compressor ByteBuffer API
+
+<!-- issue-755-contract:start -->
+`compress(source, target)`와 `decompress(source, target)`는 기존 구현체도 사용할 수 있는 JVM default
+메서드입니다. 호출 전후에 source의 `position`, `limit`, mark, byte order를 보존하고, target의
+`limit`, `capacity`, mark, byte order도 바꾸지 않습니다. 성공하면 반환한 기록량만큼 target
+`position`만 이동하며, 실패하면 target `position`을 원래 값으로 되돌립니다. 실패 전에 이미
+덮어쓴 byte의 내용은 보장하지 않습니다.
+
+Read-only target은 `ReadOnlyBufferException`으로 거부하고, 동일한 buffer 객체나 확인 가능한 heap
+backing-array overlap은 `IllegalArgumentException`으로 거부합니다. direct 또는 read-only view의
+alias는 안전하게 판별할 수 없으므로 source와 target이 겹치지 않게 만드는 것은 호출자 책임입니다.
+각 mutable buffer는 호출이 끝날 때까지 한 thread 안에서만 사용해야 합니다.
+
+기존 one-argument `ByteBuffer` API는 source `position`을 소비할 수 있지만, 신규 two-argument API는
+source 상태를 보존합니다. 다른 interface에서 erased signature가 같은 default를 함께 상속하는 외부
+구현체는 Java interface evolution 규칙에 따라 명시적 override가 필요할 수 있습니다. 기존 호출자는
+마이그레이션할 필요가 없습니다. 재사용 가능한 target과 검증된 optimized storage 조합을 모두 가진
+호출자만 opt-in하고, fallback 조합은 correctness-only 경로로 취급하세요.
+<!-- issue-755-contract:end -->
+
+<!-- issue-755-storage-matrix:start -->
+| Codec | heap -> heap | direct -> direct | mixed storage | Allocation claim |
+|---|---|---|---|---|
+| LZ4 | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Deflate | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Snappy | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Zstd | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Other codecs | compatibility fallback | compatibility fallback | compatibility fallback | ineligible |
+<!-- issue-755-storage-matrix:end -->
+
+<!-- issue-755-kotlin-example:start -->
+Kotlin에서는 호출자가 writable target을 준비하고 반환된 기록량으로 결과 범위를 읽습니다.
+
+```kotlin
+val source = ByteBuffer.wrap(plainData)
+val target = ByteBuffer.allocate(4096)
+val written = Compressors.LZ4.compress(source, target)
+val compressed = ByteArray(written).also { bytes ->
+    target.duplicate().flip().get(bytes)
+}
+```
+<!-- issue-755-kotlin-example:end -->
+
+<!-- issue-755-java-example:start -->
+Java에서도 같은 two-argument JVM default를 호출할 수 있습니다.
+
+```java
+Compressor compressor = Compressors.INSTANCE.getLZ4();
+ByteBuffer source = ByteBuffer.wrap(plainData);
+ByteBuffer target = ByteBuffer.allocate(4096);
+int written = compressor.compress(source, target);
+```
+<!-- issue-755-java-example:end -->
+
+<!-- issue-755-sizing-retry:start -->
+target에 남은 공간이 부족하면 raw `BufferOverflowException`이 발생하며 예외에는 required size가
+포함되지 않습니다. source 상태와 target `position`은 보존되므로 호출자는 애플리케이션 상한 안에서
+더 큰 target을 준비해 전체 작업을 재시도할 수 있습니다. 성공 전 target byte는 재사용하지 마세요.
+<!-- issue-755-sizing-retry:end -->
+
+<!-- issue-755-resource-bound:start -->
+현재 compatibility fallback은 입력과 변환 결과를 payload-sized `ByteArray`로 staging할 수 있습니다.
+특히 fallback decompression의 target은 결과를 쓰는 final-write bound일 뿐, 신뢰할 수 없는 압축
+입력의 메모리 사용을 제한하는 resource bound가 아닙니다. 신뢰 경계에서는 codec별 decompressed-size
+한도나 streaming API를 별도로 적용해야 합니다.
+<!-- issue-755-resource-bound:end -->
+
+<!-- issue-755-telemetry:start -->
+이 API는 runtime dispatch telemetry, logging, feature flag를 제공하지 않습니다. 필요한 경우 payload
+내용을 남기지 말고 codec, storage 조합, 입력/출력 size, overflow 횟수 같은 privacy-safe diagnostics를
+호출자 측에서 기록하세요. native override에 결함이 발견되면 patch에서는 public default와 wire
+contract를 유지하고 해당 override만 compatibility fallback으로 되돌립니다. patch 적용 전에는 기존
+allocating API 또는 문서에 표시된 fallback storage 조합으로 우회하세요.
+<!-- issue-755-telemetry:end -->
+
 **StreamingCompressor (대용량 스트리밍 처리):**
 
 ```kotlin
