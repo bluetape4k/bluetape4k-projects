@@ -97,3 +97,20 @@ dependencies {
     add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
     add("benchmarkImplementation", libs.jmh.core)
 }
+
+tasks.named<Test>("test") {
+    useJUnitPlatform {
+        excludeTags("performance")
+    }
+}
+
+tasks.register<Test>("multiKeyLeasePerformanceTest") {
+    description = "Runs multi-key lease Redis characterization tests."
+    group = "verification"
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform {
+        includeTags("performance")
+    }
+    shouldRunAfter(tasks.test)
+}
