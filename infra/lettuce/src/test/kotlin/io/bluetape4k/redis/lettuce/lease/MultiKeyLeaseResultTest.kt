@@ -3,7 +3,9 @@ package io.bluetape4k.redis.lettuce.lease
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldNotContain
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -33,24 +35,24 @@ class MultiKeyLeaseResultTest {
     fun `all public result variants expose the documented values`() {
         val counts = sampleCounts
 
-        MultiKeyAcquireResult.Acquired shouldBeEqualTo MultiKeyAcquireResult.Acquired
+        MultiKeyAcquireResult.Acquired shouldBeSameInstanceAs MultiKeyAcquireResult.Acquired
         MultiKeyAcquireResult.AlreadyOwned(900).minimumPttlMillis shouldBeEqualTo 900L
         MultiKeyAcquireResult.PartialOwnership(counts).counts shouldBeEqualTo counts
         MultiKeyAcquireResult.Conflicted(counts).counts shouldBeEqualTo counts
 
         MultiKeyInspectResult.Owned(800).minimumPttlMillis shouldBeEqualTo 800L
-        MultiKeyInspectResult.Lost shouldBeEqualTo MultiKeyInspectResult.Lost
+        MultiKeyInspectResult.Lost shouldBeSameInstanceAs MultiKeyInspectResult.Lost
         MultiKeyInspectResult.PartialOwnership(counts).counts shouldBeEqualTo counts
         MultiKeyInspectResult.Conflicted(counts).counts shouldBeEqualTo counts
 
-        MultiKeyRenewResult.Renewed shouldBeEqualTo MultiKeyRenewResult.Renewed
+        MultiKeyRenewResult.Renewed shouldBeSameInstanceAs MultiKeyRenewResult.Renewed
         MultiKeyRenewResult.PartialLoss(counts).counts shouldBeEqualTo counts
-        MultiKeyRenewResult.Lost shouldBeEqualTo MultiKeyRenewResult.Lost
+        MultiKeyRenewResult.Lost shouldBeSameInstanceAs MultiKeyRenewResult.Lost
         MultiKeyRenewResult.OwnershipMismatch(counts).counts shouldBeEqualTo counts
 
-        MultiKeyReleaseResult.Released shouldBeEqualTo MultiKeyReleaseResult.Released
+        MultiKeyReleaseResult.Released shouldBeSameInstanceAs MultiKeyReleaseResult.Released
         MultiKeyReleaseResult.PartialRelease(counts).counts shouldBeEqualTo counts
-        MultiKeyReleaseResult.Lost shouldBeEqualTo MultiKeyReleaseResult.Lost
+        MultiKeyReleaseResult.Lost shouldBeSameInstanceAs MultiKeyReleaseResult.Lost
         MultiKeyReleaseResult.OwnershipMismatch(counts).counts shouldBeEqualTo counts
     }
 
@@ -60,7 +62,7 @@ class MultiKeyLeaseResultTest {
             val restored = javaRoundTrip(original)
 
             restored shouldBeEqualTo original
-            restored.javaClass shouldBeEqualTo original.javaClass
+            restored.javaClass shouldBeSameInstanceAs original.javaClass
             ObjectStreamClass.lookup(original.javaClass).serialVersionUID shouldBeEqualTo 1L
         }
     }
@@ -104,9 +106,9 @@ class MultiKeyLeaseResultTest {
     fun `cross-slot exception has a stable redacted Java serialization contract`() {
         val original = MultiKeyLeaseCrossSlotException(distinctSlotCount = 2)
 
-        val restored = javaRoundTrip(original) as MultiKeyLeaseCrossSlotException
+        val restored = javaRoundTrip(original).shouldBeInstanceOf<MultiKeyLeaseCrossSlotException>()
 
-        restored.javaClass shouldBeEqualTo original.javaClass
+        restored.javaClass shouldBeSameInstanceAs original.javaClass
         restored.message shouldBeEqualTo original.message
         restored.distinctSlotCount shouldBeEqualTo original.distinctSlotCount
         ObjectStreamClass.lookup(original.javaClass).serialVersionUID shouldBeEqualTo 1L
@@ -137,9 +139,9 @@ class MultiKeyLeaseResultTest {
             invalidLeaseKeyCount = 1,
         )
 
-        val restored = javaRoundTrip(original) as MultiKeyLeaseIntegrityException
+        val restored = javaRoundTrip(original).shouldBeInstanceOf<MultiKeyLeaseIntegrityException>()
 
-        restored.javaClass shouldBeEqualTo original.javaClass
+        restored.javaClass shouldBeSameInstanceAs original.javaClass
         restored.message shouldBeEqualTo original.message
         restored.operation shouldBeEqualTo original.operation
         restored.requestedKeyCount shouldBeEqualTo original.requestedKeyCount
@@ -172,9 +174,9 @@ class MultiKeyLeaseResultTest {
             addAll(publicPropertyValues)
         }.joinToString(separator = "\n")
 
-        causeChain.first() shouldBeEqualTo exception
+        causeChain.first() shouldBeSameInstanceAs exception
         secrets.forEach { secret ->
-            observableText.contains(secret).shouldBeFalse()
+            observableText shouldNotContain secret
         }
     }
 

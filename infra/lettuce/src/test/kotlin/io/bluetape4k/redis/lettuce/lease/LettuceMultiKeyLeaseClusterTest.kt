@@ -2,9 +2,10 @@ package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBePositive
+import io.bluetape4k.assertions.shouldBeZero
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.testcontainers.storage.RedisClusterServer
@@ -27,10 +28,12 @@ internal class LettuceMultiKeyLeaseClusterTest {
                     val token = "owner-$tag"
                     try {
                         adapter.acquire(keys, token, FIVE_SECONDS) shouldBeEqualTo MultiKeyAcquireResult.Acquired
-                        (adapter.inspect(keys, token) as MultiKeyInspectResult.Owned)
-                            .minimumPttlMillis shouldBeGreaterOrEqualTo 1L
+                        adapter.inspect(keys, token)
+                            .shouldBeInstanceOf<MultiKeyInspectResult.Owned>()
+                            .minimumPttlMillis.shouldBePositive()
                         val beforeReplay = keys.map { commands.pttl(it) }
-                        (adapter.acquire(keys, token, TEN_SECONDS) is MultiKeyAcquireResult.AlreadyOwned).shouldBeTrue()
+                        adapter.acquire(keys, token, TEN_SECONDS)
+                            .shouldBeInstanceOf<MultiKeyAcquireResult.AlreadyOwned>()
                         keys.zip(beforeReplay).forEach { (key, previousPttl) ->
                             commands.pttl(key) shouldBeLessOrEqualTo previousPttl
                         }
@@ -56,7 +59,7 @@ internal class LettuceMultiKeyLeaseClusterTest {
                             adapter.renew(keys, token, TEN_SECONDS)
                         }.operation shouldBeEqualTo MultiKeyLeaseOperation.RENEW
                         adapter.release(keys, token) shouldBeEqualTo MultiKeyReleaseResult.Released
-                        commands.exists(*keys.toTypedArray()) shouldBeEqualTo 0L
+                        commands.exists(*keys.toTypedArray()).shouldBeZero()
                     } finally {
                         commands.del(*keys.toTypedArray())
                     }

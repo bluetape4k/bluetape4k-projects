@@ -3,7 +3,8 @@ package io.bluetape4k.redis.lettuce.lease
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldContentEqual
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.LettuceClients
@@ -32,13 +33,13 @@ internal class MultiKeyLeaseDocumentationTest {
     fun `README locales preserve policy structure and executable recovery`() = runSuspendIO {
         val english = readModuleFile("README.md")
         val korean = readModuleFile("README.ko.md")
-        markerOrder(english) shouldBeEqualTo REQUIRED_MARKERS
-        markerOrder(korean) shouldBeEqualTo REQUIRED_MARKERS
-        headingLevels(english) shouldBeEqualTo REQUIRED_HEADING_LEVELS
-        headingLevels(korean) shouldBeEqualTo REQUIRED_HEADING_LEVELS
+        markerOrder(english) shouldContentEqual REQUIRED_MARKERS
+        markerOrder(korean) shouldContentEqual REQUIRED_MARKERS
+        headingLevels(english) shouldContentEqual REQUIRED_HEADING_LEVELS
+        headingLevels(korean) shouldContentEqual REQUIRED_HEADING_LEVELS
         REQUIRED_POLICY_FRAGMENTS.forEach { fragment ->
-            english.contains(fragment).shouldBeTrue()
-            korean.contains(fragment).shouldBeTrue()
+            english shouldContain fragment
+            korean shouldContain fragment
         }
         REQUIRED_SECTION_CONTRACTS.forEach { (marker, orderedTerms) ->
             assertOrderedTerms(section(english, marker), orderedTerms)
@@ -125,8 +126,7 @@ internal class MultiKeyLeaseDocumentationTest {
         .toList()
 
     private fun section(readme: String, marker: String): String {
-        val start = readme.indexOf("<!-- multi-key-lease:$marker -->")
-        require(start >= 0) { "Missing README marker: $marker" }
+        val start = readme.indexOf("<!-- multi-key-lease:$marker -->").shouldBeGreaterOrEqualTo(0)
         val next = readme.indexOf("<!-- multi-key-lease:", start + 1)
         return readme.substring(start, if (next >= 0) next else readme.length)
     }

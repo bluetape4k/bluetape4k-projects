@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.lettuce.lease
 
+import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.redis.lettuce.LettuceClients
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.test.fail
 
 internal class LettuceMultiKeyLeaseCancellationTest {
 

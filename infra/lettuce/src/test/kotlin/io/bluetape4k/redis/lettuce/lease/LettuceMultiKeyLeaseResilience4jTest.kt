@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeZero
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
@@ -50,7 +51,7 @@ internal class LettuceMultiKeyLeaseResilience4jTest {
                 attempts.get() shouldBeEqualTo 2
                 policy.retry.metrics.numberOfSuccessfulCallsWithRetryAttempt shouldBeEqualTo 1
                 policy.circuitBreaker.metrics.numberOfSuccessfulCalls shouldBeEqualTo 1
-                policy.circuitBreaker.metrics.numberOfFailedCalls shouldBeEqualTo 0
+                policy.circuitBreaker.metrics.numberOfFailedCalls.shouldBeZero()
                 policy.bulkhead.metrics.availableConcurrentCalls shouldBeEqualTo 1
             } finally {
                 commands.del(*keys.toTypedArray())
@@ -155,7 +156,7 @@ internal class LettuceMultiKeyLeaseResilience4jTest {
 
         attempts.get() shouldBeEqualTo 1
         policy.retry.metrics.numberOfSuccessfulCallsWithoutRetryAttempt shouldBeEqualTo 1
-        policy.retry.metrics.numberOfSuccessfulCallsWithRetryAttempt shouldBeEqualTo 0
+        policy.retry.metrics.numberOfSuccessfulCallsWithRetryAttempt.shouldBeZero()
         policy.circuitBreaker.metrics.numberOfSuccessfulCalls shouldBeEqualTo 1
         assertNoFailureOrPermitLeak(policy)
     }
@@ -174,7 +175,7 @@ internal class LettuceMultiKeyLeaseResilience4jTest {
         }
 
         attempts.get() shouldBeEqualTo 1
-        policy.retry.metrics.numberOfSuccessfulCallsWithRetryAttempt shouldBeEqualTo 0
+        policy.retry.metrics.numberOfSuccessfulCallsWithRetryAttempt.shouldBeZero()
         assertNoFailureOrPermitLeak(policy)
     }
 
@@ -193,21 +194,21 @@ internal class LettuceMultiKeyLeaseResilience4jTest {
 
         attempts.get() shouldBeEqualTo 1
         with(policy.retry.metrics) {
-            numberOfSuccessfulCallsWithoutRetryAttempt shouldBeEqualTo 0
-            numberOfSuccessfulCallsWithRetryAttempt shouldBeEqualTo 0
-            numberOfFailedCallsWithoutRetryAttempt shouldBeEqualTo 0
-            numberOfFailedCallsWithRetryAttempt shouldBeEqualTo 0
+            numberOfSuccessfulCallsWithoutRetryAttempt.shouldBeZero()
+            numberOfSuccessfulCallsWithRetryAttempt.shouldBeZero()
+            numberOfFailedCallsWithoutRetryAttempt.shouldBeZero()
+            numberOfFailedCallsWithRetryAttempt.shouldBeZero()
         }
         with(policy.circuitBreaker.metrics) {
-            numberOfSuccessfulCalls shouldBeEqualTo 0
-            numberOfFailedCalls shouldBeEqualTo 0
-            numberOfBufferedCalls shouldBeEqualTo 0
+            numberOfSuccessfulCalls.shouldBeZero()
+            numberOfFailedCalls.shouldBeZero()
+            numberOfBufferedCalls.shouldBeZero()
         }
         policy.bulkhead.metrics.availableConcurrentCalls shouldBeEqualTo 1
     }
 
     private fun assertNoFailureOrPermitLeak(policy: Policies) {
-        policy.circuitBreaker.metrics.numberOfFailedCalls shouldBeEqualTo 0
+        policy.circuitBreaker.metrics.numberOfFailedCalls.shouldBeZero()
         policy.bulkhead.metrics.availableConcurrentCalls shouldBeEqualTo 1
     }
 

@@ -2,11 +2,14 @@ package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBePositive
+import io.bluetape4k.assertions.shouldBeZero
+import io.bluetape4k.assertions.shouldMatchAtLeastOneOf
+import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
@@ -48,9 +51,9 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
         acquire(keys, token, 10_000) shouldBeEqualTo MultiKeyAcquireResult.Acquired
         keys.forEach { key -> commands.get(key) shouldBeEqualTo token }
 
-        val before = (inspect(keys, token) as MultiKeyInspectResult.Owned).minimumPttlMillis
-        val replay = acquire(keys, token, 20_000) as MultiKeyAcquireResult.AlreadyOwned
-        val after = (inspect(keys, token) as MultiKeyInspectResult.Owned).minimumPttlMillis
+        val before = inspect(keys, token).shouldBeInstanceOf<MultiKeyInspectResult.Owned>().minimumPttlMillis
+        val replay = acquire(keys, token, 20_000).shouldBeInstanceOf<MultiKeyAcquireResult.AlreadyOwned>()
+        val after = inspect(keys, token).shouldBeInstanceOf<MultiKeyInspectResult.Owned>().minimumPttlMillis
 
         replay.minimumPttlMillis shouldBeLessOrEqualTo before
         after shouldBeLessOrEqualTo before
@@ -110,8 +113,8 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
         inspect(keys, token) shouldBeEqualTo MultiKeyInspectResult.PartialOwnership(counts(2, 1, 1, 0))
 
         commands.psetex(keys[1], 5_000, token)
-        val owned = inspect(keys, token) as MultiKeyInspectResult.Owned
-        owned.minimumPttlMillis shouldBeGreaterOrEqualTo 1L
+        val owned = inspect(keys, token).shouldBeInstanceOf<MultiKeyInspectResult.Owned>()
+        owned.minimumPttlMillis.shouldBePositive()
 
         commands.psetex(keys[1], 5_000, "other-owner")
         inspect(keys, token) shouldBeEqualTo MultiKeyInspectResult.Conflicted(counts(2, 1, 0, 1))
@@ -161,7 +164,7 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
     fun `release covers full partial lost mismatch and zero-owned mismatch states`() {
         keys.forEach { key -> commands.psetex(key, 5_000, token) }
         release(keys, token) shouldBeEqualTo MultiKeyReleaseResult.Released
-        commands.exists(*keys.toTypedArray()) shouldBeEqualTo 0L
+        commands.exists(*keys.toTypedArray()).shouldBeZero()
 
         commands.psetex(keys[0], 5_000, token)
         release(keys, token) shouldBeEqualTo MultiKeyReleaseResult.PartialRelease(counts(2, 1, 1, 0))
@@ -185,7 +188,7 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
         commands.psetex(keys[1], 5_000, token)
 
         release(keys, token) shouldBeEqualTo MultiKeyReleaseResult.Released
-        commands.exists(*keys.toTypedArray()) shouldBeEqualTo 0L
+        commands.exists(*keys.toTypedArray()).shouldBeZero()
     }
 
     @Test
@@ -212,7 +215,7 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
 
         observed shouldBeEqualTo MultiKeyInspectResult.PartialOwnership(counts(2, 1, 1, 0))
         released shouldBeEqualTo MultiKeyReleaseResult.PartialRelease(counts(2, 1, 1, 0))
-        commands.exists(*secretKeys.toTypedArray()) shouldBeEqualTo 0L
+        commands.exists(*secretKeys.toTypedArray()).shouldBeZero()
         assertSecretsAbsent(listOf(failure, observed, released), secretKey, secondSecretKey, secretToken)
     }
 
@@ -234,7 +237,7 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
             assertSecretsAbsent(listOf(failure), "not-present")
         }
         generateSequence<Throwable>(error) { current -> current.cause }
-            .any { current -> current.message == "getter failed" }.shouldBeTrue()
+            .asIterable() shouldMatchAtLeastOneOf { current -> current.message == "getter failed" }
     }
 
     private fun acquire(targetKeys: List<String>, ownerToken: String, ttlMillis: Long): MultiKeyAcquireResult =
@@ -274,7 +277,7 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
                 add(failure.toString())
             }
         }.joinToString("\n")
-        secrets.forEach { secret -> surface.contains(secret).shouldBeFalse() }
+        secrets.forEach { secret -> surface shouldNotContain secret }
     }
 
     private companion object {

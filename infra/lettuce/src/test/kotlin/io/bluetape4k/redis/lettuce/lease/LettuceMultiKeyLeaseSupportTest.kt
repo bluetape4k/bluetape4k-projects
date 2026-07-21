@@ -2,8 +2,9 @@ package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContentEqual
+import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldNotContain
 import io.lettuce.core.cluster.SlotHash
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.codec.StringCodec
@@ -58,7 +59,7 @@ class LettuceMultiKeyLeaseSupportTest {
 
         val small = hostileCollection(listOf("a:{x}", "b:{x}"))
         validateLeaseInput(small, "owner", null, LettuceMultiKeyLeaseConfig(Int.MAX_VALUE), StringCodec.UTF8).keys
-            .shouldBeEqualTo(listOf("a:{x}", "b:{x}"))
+            .shouldContentEqual(listOf("a:{x}", "b:{x}"))
     }
 
     @Test
@@ -66,10 +67,10 @@ class LettuceMultiKeyLeaseSupportTest {
         val keys = listOf("a:{one}", "b:{two}")
         val codec = NonUtf8SameSlotCodec
 
-        (SlotHash.getSlot(StringCodec.UTF8.encodeKey(keys[0])) !=
-            SlotHash.getSlot(StringCodec.UTF8.encodeKey(keys[1]))).shouldBeTrue()
+        SlotHash.getSlot(StringCodec.UTF8.encodeKey(keys[0])) shouldNotBeEqualTo
+            SlotHash.getSlot(StringCodec.UTF8.encodeKey(keys[1]))
         SlotHash.getSlot(codec.encodeKey(keys[0])) shouldBeEqualTo SlotHash.getSlot(codec.encodeKey(keys[1]))
-        validateLeaseInput(keys, "owner", null, LettuceMultiKeyLeaseConfig(), codec).keys shouldBeEqualTo keys
+        validateLeaseInput(keys, "owner", null, LettuceMultiKeyLeaseConfig(), codec).keys shouldContentEqual keys
     }
 
     @Test
@@ -84,8 +85,8 @@ class LettuceMultiKeyLeaseSupportTest {
             )
         }
         error.distinctSlotCount shouldBeEqualTo 2
-        error.message?.contains("owner-secret").shouldBeFalse()
-        error.message?.contains("a:{one}").shouldBeFalse()
+        error.message shouldNotContain "owner-secret"
+        error.message shouldNotContain "a:{one}"
     }
 
     @Test

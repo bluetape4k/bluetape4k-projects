@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.RedisFuture
@@ -121,7 +122,7 @@ internal class LettuceMultiKeyLeaseTest : MultiKeyLeaseContract() {
 
         val returned = lease.inspectAsync(listOf("lease:{dispatch}:one"), "owner")
 
-        assertFailsWith<CompletionException> { returned.join() }.cause shouldBeEqualTo failure
+        assertFailsWith<CompletionException> { returned.join() }.cause shouldBeSameInstanceAs failure
         verify(exactly = 1) {
             async.evalsha<List<Long>>(
                 any<String>(),

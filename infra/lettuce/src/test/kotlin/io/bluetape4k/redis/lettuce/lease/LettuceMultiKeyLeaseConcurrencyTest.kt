@@ -3,6 +3,7 @@ package io.bluetape4k.redis.lettuce.lease
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeZero
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
@@ -132,7 +133,7 @@ internal class LettuceMultiKeyLeaseConcurrencyTest {
                         lease.inspect(keys, token) shouldBeEqualTo MultiKeyInspectResult.Lost
                     }
 
-                commands.exists(*keys.toTypedArray()) shouldBeEqualTo 0L
+                commands.exists(*keys.toTypedArray()).shouldBeZero()
             } finally {
                 commands.del(*keys.toTypedArray())
             }

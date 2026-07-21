@@ -3,8 +3,11 @@ package io.bluetape4k.redis.lettuce.lease
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBePositive
+import io.bluetape4k.assertions.shouldBeZero
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.lettuce.core.api.sync.RedisCommands
@@ -76,9 +79,14 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
         },
         Scenario("acquire AlreadyOwned does not extend ttl") { adapter, fixture ->
             adapter.acquire(fixture.keys, fixture.token, FIVE_SECONDS)
-            val before = (adapter.inspect(fixture.keys, fixture.token) as MultiKeyInspectResult.Owned).minimumPttlMillis
-            val replay = adapter.acquire(fixture.keys, fixture.token, TEN_SECONDS) as MultiKeyAcquireResult.AlreadyOwned
-            val after = (adapter.inspect(fixture.keys, fixture.token) as MultiKeyInspectResult.Owned).minimumPttlMillis
+            val before = adapter.inspect(fixture.keys, fixture.token)
+                .shouldBeInstanceOf<MultiKeyInspectResult.Owned>()
+                .minimumPttlMillis
+            val replay = adapter.acquire(fixture.keys, fixture.token, TEN_SECONDS)
+                .shouldBeInstanceOf<MultiKeyAcquireResult.AlreadyOwned>()
+            val after = adapter.inspect(fixture.keys, fixture.token)
+                .shouldBeInstanceOf<MultiKeyInspectResult.Owned>()
+                .minimumPttlMillis
             replay.minimumPttlMillis shouldBeLessOrEqualTo before
             after shouldBeLessOrEqualTo before
             after shouldBeGreaterOrEqualTo before - TTL_TOLERANCE_MILLIS
@@ -97,8 +105,9 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
         },
         Scenario("inspect Owned") { adapter, fixture ->
             fixture.keys.forEach { commands.psetex(it, 5_000, fixture.token) }
-            (adapter.inspect(fixture.keys, fixture.token) as MultiKeyInspectResult.Owned)
-                .minimumPttlMillis shouldBeGreaterOrEqualTo 1L
+            adapter.inspect(fixture.keys, fixture.token)
+                .shouldBeInstanceOf<MultiKeyInspectResult.Owned>()
+                .minimumPttlMillis.shouldBePositive()
         },
         Scenario("inspect Lost") { adapter, fixture ->
             adapter.inspect(fixture.keys, fixture.token) shouldBeEqualTo MultiKeyInspectResult.Lost
@@ -166,7 +175,7 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
             assertFailsWith<ArithmeticException> {
                 adapter.acquire(fixture.keys, fixture.token, Duration.ofSeconds(Long.MAX_VALUE))
             }
-            commands.exists(*fixture.keys.toTypedArray()) shouldBeEqualTo 0L
+            commands.exists(*fixture.keys.toTypedArray()).shouldBeZero()
         },
         Scenario("persistent same-token integrity and release recovery") { adapter, fixture ->
             commands.set(fixture.keys[0], fixture.token)
@@ -181,14 +190,14 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
                 adapter.renew(fixture.keys, fixture.token, TEN_SECONDS)
             }.operation shouldBeEqualTo MultiKeyLeaseOperation.RENEW
             adapter.release(fixture.keys, fixture.token) shouldBeEqualTo MultiKeyReleaseResult.Released
-            commands.exists(*fixture.keys.toTypedArray()) shouldBeEqualTo 0L
+            commands.exists(*fixture.keys.toTypedArray()).shouldBeZero()
         },
         Scenario("cross-slot input fails before dispatch") { adapter, fixture ->
             val crossSlot = listOf("lease:{slot-one}:one", "lease:{slot-two}:two")
             assertFailsWith<MultiKeyLeaseCrossSlotException> {
                 adapter.inspect(crossSlot, fixture.token)
             }
-            commands.exists(*fixture.keys.toTypedArray()) shouldBeEqualTo 0L
+            commands.exists(*fixture.keys.toTypedArray()).shouldBeZero()
         },
     )
 

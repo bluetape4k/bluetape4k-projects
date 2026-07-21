@@ -5,7 +5,9 @@ import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeZero
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.LettuceClients
@@ -116,12 +118,12 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                         resultAt32.acquireP95Millis shouldBeLessOrEqualTo resultAt8.acquireP95Millis * 4.0
                     }
                     results.forEach { result ->
-                        result.errors shouldBeEqualTo 0
-                        result.timeouts shouldBeEqualTo 0
+                        result.errors.shouldBeZero()
+                        result.timeouts.shouldBeZero()
                         result.probeSampleCount shouldBeGreaterOrEqualTo MIN_PROBE_SAMPLES
                         result.probeP99Millis shouldBeLessThan COMMAND_TIMEOUT.toMillis().toDouble()
                     }
-                    probeErrors.get() shouldBeEqualTo 0
+                    probeErrors.get().shouldBeZero()
                     passedResults = results
                     passedRedisVersion = redisVersion
                 } finally {
@@ -155,7 +157,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                     attemptCleanup { connection.close() }
                 }
                 attemptCleanup { client.shutdown() }
-                attemptCleanup { workloadExecutor.activeCount shouldBeEqualTo 0 }
+                attemptCleanup { workloadExecutor.activeCount.shouldBeZero() }
                 cleanupFailures.firstOrNull()?.let { first ->
                     cleanupFailures.drop(1).forEach(first::addSuppressed)
                     bodyFailure?.addSuppressed(first) ?: throw first
@@ -217,7 +219,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         await()
             .atMost(Duration.ofSeconds(5))
             .until { executor.activeCount == 0 }
-        commands.exists(*keys.toTypedArray()) shouldBeEqualTo 0L
+        commands.exists(*keys.toTypedArray()).shouldBeZero()
         val completionsAtWorkloadEnd = probeCompletions.get()
         await()
             .atMost(COMMAND_TIMEOUT)
@@ -303,7 +305,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
             val releaseStartedAt = System.nanoTime()
             leases[winner.index].release(keys, winner.token) shouldBeEqualTo MultiKeyReleaseResult.Released
             val releaseNanos = System.nanoTime() - releaseStartedAt
-            commands.exists(*keys.toTypedArray()) shouldBeEqualTo 0L
+            commands.exists(*keys.toTypedArray()).shouldBeZero()
             return RoundMeasurement(
                 acquireNanos = attempts.map { it.acquireNanos },
                 releaseNanos = releaseNanos,
@@ -366,8 +368,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
     }
 
     private fun List<Long>.percentileMillis(percentile: Double): Double {
-        require(isNotEmpty()) { "Performance samples must not be empty." }
-        val sorted = sorted()
+        val sorted = shouldNotBeEmpty().sorted()
         val index = (ceil(percentile / 100.0 * sorted.size).toInt() - 1).coerceIn(sorted.indices)
         return sorted[index] / NANOS_PER_MILLISECOND.toDouble()
     }
