@@ -104,12 +104,30 @@ internal class LettuceMultiKeyLeaseResilience4jTest {
                     lease.acquire(keys, token, TEN_SECONDS)
                 }
 
-                assertRejectedOnce<CancellationException>(policies("cancellation-$tag")) {
+                assertCancellationExcluded(policies("cancellation-$tag")) {
                     throw CancellationException("caller cancelled")
                 }
             } finally {
                 commands.del(*keys.toTypedArray())
             }
+        }
+    }
+
+    @Test
+    fun `retry predicate accepts only approved ambiguous transport failures`() {
+        listOf(
+            IOException("response lost"),
+            RedisConnectionException("connection lost"),
+            RedisCommandTimeoutException("command timed out"),
+        ).forEach { failure ->
+            isAmbiguousTransportFailure(failure) shouldBeEqualTo true
+        }
+        listOf(
+            IllegalArgumentException("invalid input"),
+            MultiKeyLeaseIntegrityException(MultiKeyLeaseOperation.ACQUIRE, 2, 1),
+            CancellationException("caller cancelled"),
+        ).forEach { failure ->
+            isAmbiguousTransportFailure(failure) shouldBeEqualTo false
         }
     }
 
@@ -159,6 +177,34 @@ internal class LettuceMultiKeyLeaseResilience4jTest {
         assertNoFailureOrPermitLeak(policy)
     }
 
+    private suspend fun assertCancellationExcluded(
+        policy: Policies,
+        supplier: suspend () -> MultiKeyAcquireResult,
+    ) {
+        val attempts = AtomicInteger()
+
+        assertFailsWith<CancellationException> {
+            execute(policy) {
+                attempts.incrementAndGet()
+                supplier()
+            }
+        }
+
+        attempts.get() shouldBeEqualTo 1
+        with(policy.retry.metrics) {
+            numberOfSuccessfulCallsWithoutRetryAttempt shouldBeEqualTo 0
+            numberOfSuccessfulCallsWithRetryAttempt shouldBeEqualTo 0
+            numberOfFailedCallsWithoutRetryAttempt shouldBeEqualTo 0
+            numberOfFailedCallsWithRetryAttempt shouldBeEqualTo 0
+        }
+        with(policy.circuitBreaker.metrics) {
+            numberOfSuccessfulCalls shouldBeEqualTo 0
+            numberOfFailedCalls shouldBeEqualTo 0
+            numberOfBufferedCalls shouldBeEqualTo 0
+        }
+        policy.bulkhead.metrics.availableConcurrentCalls shouldBeEqualTo 1
+    }
+
     private fun assertNoFailureOrPermitLeak(policy: Policies) {
         policy.circuitBreaker.metrics.numberOfFailedCalls shouldBeEqualTo 0
         policy.bulkhead.metrics.availableConcurrentCalls shouldBeEqualTo 1
@@ -180,6 +226,7 @@ internal class LettuceMultiKeyLeaseResilience4jTest {
                 .minimumNumberOfCalls(2)
                 .failureRateThreshold(50.0F)
                 .recordException(::isAmbiguousTransportFailure)
+                .ignoreException { it is CancellationException }
                 .build(),
         )
         val bulkhead = Bulkhead.of(
