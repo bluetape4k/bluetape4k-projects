@@ -125,8 +125,14 @@ class CompressorByteBufferContractTest {
         source.position() shouldBeEqualTo 7
         tooSmall.position() shouldBeEqualTo 5
 
-        val retry = CompressorByteBufferTestSupport.writableTarget(payload.size, direct = false)
-        fallback.compress(source, retry) shouldBeEqualTo payload.size
+        val smallerPayload = payload.copyOf(payload.size - 2)
+        val retrySource = CompressorByteBufferTestSupport.heap(smallerPayload)
+        val retryStart = tooSmall.position()
+        fallback.compress(retrySource, tooSmall) shouldBeEqualTo smallerPayload.size
+        assertArrayEquals(
+            smallerPayload.reversedArray(),
+            CompressorByteBufferTestSupport.bytes(tooSmall, retryStart, smallerPayload.size),
+        )
 
         var corrupt = true
         val retrying = object: Compressor {
@@ -232,7 +238,13 @@ class CompressorByteBufferContractTest {
                 target.limit() shouldBeEqualTo targetLimit
                 CompressorByteBufferTestSupport.assertMark(source, sourceStart)
                 CompressorByteBufferTestSupport.assertMark(target, targetStart)
-                assertArrayEquals(before, CompressorByteBufferTestSupport.allBytes(target), case)
+                val after = CompressorByteBufferTestSupport.allBytes(target)
+                assertArrayEquals(before.copyOfRange(0, targetStart), after.copyOfRange(0, targetStart), "$case prefix")
+                assertArrayEquals(
+                    before.copyOfRange(targetLimit, target.capacity()),
+                    after.copyOfRange(targetLimit, target.capacity()),
+                    "$case suffix",
+                )
             }
         }
     }

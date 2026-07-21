@@ -51,20 +51,10 @@ assert_hash() {
         fail "checksum mismatch for $path: expected=$expected actual=$actual"
 }
 
-assert_clean_abi_paths() {
+assert_clean_worktree() {
     local dirty
-    dirty="$({
-        git -C "$ROOT" diff --name-only
-        git -C "$ROOT" diff --cached --name-only
-        git -C "$ROOT" ls-files --others --exclude-standard
-    } | awk '
-        /^io\/io\/src\/main\/kotlin\/io\/bluetape4k\/io\/compressor\// ||
-        /^io\/io\/src\/test\/kotlin\/io\/bluetape4k\/io\/compressor\// ||
-        /^io\/io\/src\/test\/java\/io\/bluetape4k\/io\/compressor\// ||
-        /^io\/io\/src\/test\/resources\/abi\/issue-755\// ||
-        $0 == "scripts/check-compressor-buffer-abi.sh" { print }
-    ' | sort -u)"
-    [[ -z "$dirty" ]] || fail "dirty compressor ABI paths: $dirty"
+    dirty="$(git -C "$ROOT" status --porcelain --untracked-files=all)"
+    [[ -z "$dirty" ]] || fail "worktree must be clean for exact-head ABI verification: $dirty"
 }
 
 write_init_script() {
@@ -197,6 +187,45 @@ compile_legacy_sources() {
         "$FIXTURE_ROOT/src/kotlin/LegacyCompressorCaller.kt"
 }
 
+verify_compiler_versions() {
+    local javac_version kotlin_compiler_classpath kotlin_version
+    javac_version="$(javac -version 2>&1)"
+    [[ "$javac_version" == javac\ 21* ]] ||
+        fail "fixture javac version drifted: expected major 21 actual=$javac_version"
+    kotlin_compiler_classpath="$(gradle_value "$BASE_WORKTREE" issue755PrintKotlinCompilerClasspath)"
+    kotlin_version="$(java -cp "$kotlin_compiler_classpath" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -version 2>&1)"
+    [[ "$kotlin_version" == *"kotlinc-jvm 2.4.0"* ]] ||
+        fail "fixture Kotlin compiler version drifted: expected 2.4.0 actual=$kotlin_version"
+    echo "FIXTURE COMPILER VERSIONS PASS"
+}
+
+verify_compiled_fixture_provenance() {
+    local fixture="$FIXTURE_ROOT/pre-change/legacy-compressor-fixtures.jar"
+    local generated_entries="$AUTH_DIR/generated-fixture-entries.txt"
+    local frozen_entries="$AUTH_DIR/frozen-fixture-entries.txt"
+    {
+        find "$CLASSES/legacy/java" -type f -print | sed "s#^$CLASSES/legacy/java/##"
+        find "$CLASSES/legacy/kotlin" -type f -print | sed "s#^$CLASSES/legacy/kotlin/##"
+    } | sort >"$generated_entries"
+    jar tf "$fixture" |
+        grep -E '(\.class$|META-INF/main\.kotlin_module$)' |
+        sort >"$frozen_entries"
+    cmp -s "$generated_entries" "$frozen_entries" ||
+        fail "regenerated fixture entry set differs from frozen jar"
+
+    while IFS= read -r entry; do
+        local generated
+        if [[ -f "$CLASSES/legacy/java/$entry" ]]; then
+            generated="$CLASSES/legacy/java/$entry"
+        else
+            generated="$CLASSES/legacy/kotlin/$entry"
+        fi
+        unzip -p "$fixture" "$entry" | cmp -s "$generated" - ||
+            fail "regenerated fixture bytecode differs from frozen jar entry: $entry"
+    done <"$generated_entries"
+    echo "FIXTURE SOURCE-CLASSFILE PROVENANCE PASS"
+}
+
 build_current_jar() {
     rm -f "$ROOT/io/io/build/libs"/bluetape4k-io-*.jar
     "$ROOT/gradlew" -p "$ROOT" :bluetape4k-io:jar --no-configuration-cache
@@ -304,17 +333,20 @@ done
 [[ "$BUILD_CURRENT" == true ]] || fail "--build-current is required"
 [[ "$EXPECTED_HEAD" =~ ^[0-9a-f]{40}$ ]] || fail "full --expected-head is required"
 [[ "$(git -C "$ROOT" rev-parse HEAD)" == "$EXPECTED_HEAD" ]] || fail "head drift"
-assert_clean_abi_paths
+assert_clean_worktree
 command -v javac >/dev/null || fail "javac is required"
 command -v java >/dev/null || fail "java is required"
 command -v javap >/dev/null || fail "javap is required"
+command -v unzip >/dev/null || fail "unzip is required"
 
 mkdir -p "$AUTH_DIR"
 write_init_script
 ensure_base_worktree
 verify_base_jar
+verify_compiler_versions
 compile_legacy_sources
 verify_fixture_manifest
+verify_compiled_fixture_provenance
 build_current_jar
 run_legacy_classfiles
 verify_ambiguous_null

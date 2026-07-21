@@ -266,11 +266,13 @@ Kotlin에서는 호출자가 writable target을 준비하고 반환된 기록량
 
 ```kotlin
 val source = ByteBuffer.wrap(plainData)
-val target = ByteBuffer.allocate(4096)
+val target = ByteBuffer.allocate(64 * 1024).apply { position(16) }
+val start = target.position()
 val written = Compressors.LZ4.compress(source, target)
-val compressed = ByteArray(written).also { bytes ->
-    target.duplicate().flip().get(bytes)
-}
+val compressed = target.duplicate().apply {
+    position(start)
+    limit(start + written)
+}.slice()
 ```
 <!-- issue-755-kotlin-example:end -->
 
@@ -280,8 +282,13 @@ Java에서도 같은 two-argument JVM default를 호출할 수 있습니다.
 ```java
 Compressor compressor = Compressors.INSTANCE.getLZ4();
 ByteBuffer source = ByteBuffer.wrap(plainData);
-ByteBuffer target = ByteBuffer.allocate(4096);
+ByteBuffer target = ByteBuffer.allocate(64 * 1024);
+target.position(16);
+int start = target.position();
 int written = compressor.compress(source, target);
+ByteBuffer compressed = target.duplicate();
+compressed.position(start).limit(start + written);
+compressed = compressed.slice();
 ```
 <!-- issue-755-java-example:end -->
 

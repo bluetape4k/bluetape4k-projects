@@ -79,6 +79,15 @@ def validate_readmes() -> None:
     ko_matrix = parse_matrix(sections["ko"]["issue-755-storage-matrix"], "README.ko.md matrix")
     if en_matrix != ko_matrix:
         fail("README storage matrix row/status parity drift")
+    expected_matrix = {
+        "LZ4": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "none in the core slice"),
+        "Deflate": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "none in the core slice"),
+        "Snappy": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "none in the core slice"),
+        "Zstd": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "none in the core slice"),
+        "Other codecs": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "ineligible"),
+    }
+    if en_matrix != expected_matrix:
+        fail(f"core storage matrix drift: expected={expected_matrix} actual={en_matrix}")
 
     shared_contract = (
         "position",
@@ -103,14 +112,32 @@ def validate_readmes() -> None:
         )
         require_tokens(
             sections[locale]["issue-755-kotlin-example"],
-            ("Compressors.LZ4.compress(source, target)", "ByteBuffer.allocate"),
+            (
+                "Compressors.LZ4.compress(source, target)",
+                "ByteBuffer.allocate(64 * 1024).apply { position(16) }",
+                "val start = target.position()",
+                "position(start)",
+                "limit(start + written)",
+                "}.slice()",
+            ),
             f"{locale} Kotlin example",
         )
         require_tokens(
             sections[locale]["issue-755-java-example"],
-            ("compressor.compress(source, target)", "Compressors.INSTANCE.getLZ4()"),
+            (
+                "compressor.compress(source, target)",
+                "Compressors.INSTANCE.getLZ4()",
+                "target.position(16)",
+                "int start = target.position()",
+                "compressed.position(start).limit(start + written)",
+                "compressed = compressed.slice()",
+            ),
             f"{locale} Java example",
         )
+        examples = sections[locale]["issue-755-kotlin-example"] + sections[locale]["issue-755-java-example"]
+        for forbidden in ("ByteArray(written)", ".flip()"):
+            if forbidden in examples:
+                fail(f"{locale} examples: forbidden allocating or unbounded pattern: {forbidden}")
         require_tokens(
             sections[locale]["issue-755-telemetry"],
             ("runtime dispatch telemetry", "privacy-safe", "override", "allocating API", "fallback storage"),

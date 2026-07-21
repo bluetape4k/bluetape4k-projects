@@ -8,6 +8,8 @@ internal inline fun writeToCallerBuffer(
     source: ByteBuffer,
     target: ByteBuffer,
     operation: (
+        sourceView: ByteBuffer,
+        targetView: ByteBuffer,
         sourcePosition: Int,
         sourceRemaining: Int,
         targetPosition: Int,
@@ -24,9 +26,13 @@ internal inline fun writeToCallerBuffer(
     val targetLimit = target.limit()
     val sourceOrder = source.order()
     val targetOrder = target.order()
+    val sourceView = source.duplicate().order(sourceOrder)
+    val targetView = target.duplicate().order(targetOrder)
 
     try {
         val written = operation(
+            sourceView,
+            targetView,
             sourcePosition,
             source.remaining(),
             targetPosition,
@@ -49,7 +55,13 @@ internal inline fun writeToCallerBuffer(
         target.position(targetPosition + written)
         return written
     } catch (failure: Throwable) {
-        target.position(targetPosition)
+        try {
+            target.position(targetPosition)
+        } catch (rollbackFailure: Throwable) {
+            if (rollbackFailure !== failure) {
+                failure.addSuppressed(rollbackFailure)
+            }
+        }
         throw failure
     }
 }
@@ -58,16 +70,23 @@ internal inline fun writeFallback(
     source: ByteBuffer,
     target: ByteBuffer,
     transform: (ByteArray) -> ByteArray,
-): Int = writeToCallerBuffer(source, target) { sourcePosition, sourceRemaining, targetPosition, targetRemaining ->
+): Int = writeToCallerBuffer(source, target) {
+        sourceView,
+        targetView,
+        sourcePosition,
+        sourceRemaining,
+        targetPosition,
+        targetRemaining,
+    ->
     val input = ByteArray(sourceRemaining).also { bytes ->
-        source.duplicate()
+        sourceView
             .position(sourcePosition)
             .limit(sourcePosition + sourceRemaining)
             .get(bytes)
     }
     val output = transform(input)
     if (output.size > targetRemaining) throw BufferOverflowException()
-    target.duplicate()
+    targetView
         .position(targetPosition)
         .limit(targetPosition + targetRemaining)
         .put(output)
