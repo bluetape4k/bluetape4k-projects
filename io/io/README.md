@@ -229,6 +229,96 @@ val boundedGzip = GZipCompressor(maxDecompressedSize = 64 * 1024 * 1024)
 val restored = boundedGzip.decompress(compressed)
 ```
 
+#### Caller-owned Compressor ByteBuffer API
+
+<!-- issue-755-contract:start -->
+`compress(source, target)` and `decompress(source, target)` are executable JVM
+defaults available to existing implementations. They preserve the source
+`position`, `limit`, mark, and byte order, and also preserve the target `limit`,
+`capacity`, mark, and byte order. Success advances only the target `position` by
+the returned byte count. Failure restores the target `position`; bytes overwritten
+before a failure are unspecified.
+
+A read-only target is rejected with `ReadOnlyBufferException`. The same buffer
+object and detectable overlapping heap backing-array ranges are rejected with
+`IllegalArgumentException`. Aliases through direct or read-only views cannot be
+detected safely, so callers must keep source and target storage disjoint. Each
+mutable buffer must remain confined to one thread until the call returns.
+
+Existing one-argument `ByteBuffer` APIs may consume the source `position`; the new
+two-argument APIs preserve all source state. An external implementation inheriting
+another interface default with an erased signature equivalent to this method may
+require an explicit override under normal Java interface-evolution rules. Existing callers do not need
+to migrate. Opt in only when a reusable target and a verified optimized storage
+pairing are both available; fallback pairings are correctness-only paths.
+<!-- issue-755-contract:end -->
+
+<!-- issue-755-storage-matrix:start -->
+| Codec | heap -> heap | direct -> direct | mixed storage | Allocation claim |
+|---|---|---|---|---|
+| LZ4 | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Deflate | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Snappy | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Zstd | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Other codecs | compatibility fallback | compatibility fallback | compatibility fallback | ineligible |
+<!-- issue-755-storage-matrix:end -->
+
+<!-- issue-755-kotlin-example:start -->
+Kotlin callers provide a writable target and use the returned byte count as the
+result range.
+
+```kotlin
+val source = ByteBuffer.wrap(plainData)
+val target = ByteBuffer.allocate(64 * 1024).apply { position(16) }
+val start = target.position()
+val written = Compressors.LZ4.compress(source, target)
+val compressed = target.duplicate().apply {
+    position(start)
+    limit(start + written)
+}.slice()
+```
+<!-- issue-755-kotlin-example:end -->
+
+<!-- issue-755-java-example:start -->
+Java callers can invoke the same two-argument JVM default.
+
+```java
+Compressor compressor = Compressors.INSTANCE.getLZ4();
+ByteBuffer source = ByteBuffer.wrap(plainData);
+ByteBuffer target = ByteBuffer.allocate(64 * 1024);
+target.position(16);
+int start = target.position();
+int written = compressor.compress(source, target);
+ByteBuffer compressed = target.duplicate();
+compressed.position(start).limit(start + written);
+compressed = compressed.slice();
+```
+<!-- issue-755-java-example:end -->
+
+<!-- issue-755-sizing-retry:start -->
+Insufficient target space throws raw `BufferOverflowException` without a required
+size. Because source state and the target `position` are preserved, a caller can
+allocate a larger target within its application limit and retry the whole operation.
+Do not reuse target bytes written by a failed attempt.
+<!-- issue-755-sizing-retry:end -->
+
+<!-- issue-755-resource-bound:start -->
+The current compatibility fallback may stage both input and transformed output in
+payload-sized `ByteArray` instances. In particular, its decompression target is a
+final-write bound, not a resource bound on memory consumed by untrusted compressed
+input. Apply a codec-specific decompressed-size limit or a streaming API at trust
+boundaries.
+<!-- issue-755-resource-bound:end -->
+
+<!-- issue-755-telemetry:start -->
+This API provides no runtime dispatch telemetry, logging, or feature flag. If
+needed, record privacy-safe caller diagnostics such as codec, storage pairing,
+input/output size, and overflow count without payload contents. If a native
+override proves defective, a patch keeps the public defaults and wire contract and
+reverts only that override to the compatibility fallback. Until the patch is
+available, use an existing allocating API or a documented fallback storage pairing.
+<!-- issue-755-telemetry:end -->
+
 **StreamingCompressor (for large-scale streaming):**
 
 ```kotlin

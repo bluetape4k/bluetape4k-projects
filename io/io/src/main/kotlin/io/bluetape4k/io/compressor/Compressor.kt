@@ -8,7 +8,9 @@ import io.bluetape4k.io.toInputStream
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
 import java.io.InputStream
+import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
+import java.nio.ReadOnlyBufferException
 
 /**
  * 데이터를 압축/복원하는 압축기의 최상위 인터페이스
@@ -78,6 +80,58 @@ interface Compressor {
      */
     fun decompress(compressedBuffer: ByteBuffer): ByteBuffer =
         ByteBuffer.wrap(decompress(compressedBuffer.getBytes()))
+
+    /**
+     * Compresses the remaining bytes in [source] into caller-owned [target].
+     *
+     * The source position, limit, mark, and byte order are preserved. The target
+     * limit, capacity, mark, and byte order are also preserved. On success, only
+     * the target position advances by the returned byte count. On failure, the
+     * target position is restored; bytes already overwritten are unspecified.
+     *
+     * The default implementation is an allocating compatibility path. It rejects
+     * the same buffer and overlapping writable heap-array ranges that can be
+     * detected. Aliasing through direct or read-only views cannot be detected and
+     * must be excluded by the caller. Each mutable buffer must remain confined to
+     * one thread for the duration of the call.
+     *
+     * This method does not emit runtime dispatch telemetry or logs. Callers that
+     * need diagnostics should record privacy-safe codec, storage, and size metadata.
+     *
+     * @return the number of bytes written to [target]
+     * @throws ReadOnlyBufferException when [target] is read-only
+     * @throws IllegalArgumentException when detectable source and target ranges overlap
+     * @throws BufferOverflowException when [target] has insufficient remaining capacity
+     */
+    fun compress(source: ByteBuffer, target: ByteBuffer): Int =
+        writeFallback(source, target) { bytes -> compress(bytes) }
+
+    /**
+     * Decompresses the remaining bytes in [source] into caller-owned [target].
+     *
+     * The source position, limit, mark, and byte order are preserved. The target
+     * limit, capacity, mark, and byte order are also preserved. On success, only
+     * the target position advances by the returned byte count. On failure, the
+     * target position is restored; bytes already overwritten are unspecified.
+     *
+     * The default implementation is an allocating compatibility path. Its target
+     * is only a final-write bound, not a decompression resource bound for untrusted
+     * input; callers must apply an application-level decompressed-size limit. The
+     * method rejects the same buffer and overlapping writable heap-array ranges
+     * that can be detected. Aliasing through direct or read-only views cannot be
+     * detected and must be excluded by the caller. Each mutable buffer must remain
+     * confined to one thread for the duration of the call.
+     *
+     * This method does not emit runtime dispatch telemetry or logs. Callers that
+     * need diagnostics should record privacy-safe codec, storage, and size metadata.
+     *
+     * @return the number of bytes written to [target]
+     * @throws ReadOnlyBufferException when [target] is read-only
+     * @throws IllegalArgumentException when detectable source and target ranges overlap
+     * @throws BufferOverflowException when the decompressed result does not fit [target]
+     */
+    fun decompress(source: ByteBuffer, target: ByteBuffer): Int =
+        writeFallback(source, target) { bytes -> decompress(bytes) }
 
     /**
      * 데이터를 압축합니다.
