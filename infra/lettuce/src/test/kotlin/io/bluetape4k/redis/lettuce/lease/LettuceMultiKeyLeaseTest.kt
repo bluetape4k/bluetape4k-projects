@@ -1,8 +1,11 @@
 package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
+import io.lettuce.core.RedisFuture
+import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
@@ -16,7 +19,10 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 internal class LettuceMultiKeyLeaseTest : MultiKeyLeaseContract() {
 
@@ -78,6 +84,54 @@ internal class LettuceMultiKeyLeaseTest : MultiKeyLeaseContract() {
         verify { async wasNot Called }
     }
 
+    @Test
+    fun `future methods throw validation failures before returning a future`() {
+        val async = mockk<RedisAsyncCommands<String, String>>(relaxed = true)
+        val standalone = mockk<StatefulRedisConnection<String, String>>()
+        every { standalone.sync() } returns mockk(relaxed = true)
+        every { standalone.async() } returns async
+        every { standalone.codec } returns StringCodec.UTF8
+        val lease = LettuceMultiKeyLease(standalone)
+
+        assertFailsWith<IllegalArgumentException> {
+            lease.acquireAsync(listOf("lease:{validation}:one"), "owner", Duration.ZERO)
+        }
+
+        verify { async wasNot Called }
+    }
+
+    @Test
+    fun `future methods report post-dispatch failures through exceptional completion`() {
+        val failure = IllegalStateException("redis failed after dispatch")
+        val pending = TestRedisFuture<List<Long>>().apply { completeExceptionally(failure) }
+        val async = mockk<RedisAsyncCommands<String, String>>()
+        val standalone = mockk<StatefulRedisConnection<String, String>>()
+        every { standalone.sync() } returns mockk(relaxed = true)
+        every { standalone.async() } returns async
+        every { standalone.codec } returns StringCodec.UTF8
+        every {
+            async.evalsha<List<Long>>(
+                any<String>(),
+                any<ScriptOutputType>(),
+                any<Array<String>>(),
+                *anyVararg<String>(),
+            )
+        } returns pending
+        val lease = LettuceMultiKeyLease(standalone)
+
+        val returned = lease.inspectAsync(listOf("lease:{dispatch}:one"), "owner")
+
+        assertFailsWith<CompletionException> { returned.join() }.cause shouldBeEqualTo failure
+        verify(exactly = 1) {
+            async.evalsha<List<Long>>(
+                any<String>(),
+                any<ScriptOutputType>(),
+                any<Array<String>>(),
+                *anyVararg<String>(),
+            )
+        }
+    }
+
     private fun corruptedConfig(): LettuceMultiKeyLeaseConfig = LettuceMultiKeyLeaseConfig().also { config ->
         LettuceMultiKeyLeaseConfig::class.java.getDeclaredField("maxKeys").apply {
             isAccessible = true
@@ -111,5 +165,16 @@ internal class LettuceMultiKeyLeaseTest : MultiKeyLeaseContract() {
         join()
     } catch (failure: CompletionException) {
         throw failure.cause ?: failure
+    }
+
+    private class TestRedisFuture<T>: CompletableFuture<T>(), RedisFuture<T> {
+        override fun getError(): String? = if (isCompletedExceptionally) "completed exceptionally" else null
+
+        override fun await(timeout: Long, unit: TimeUnit): Boolean = try {
+            get(timeout, unit)
+            true
+        } catch (_: TimeoutException) {
+            false
+        }
     }
 }

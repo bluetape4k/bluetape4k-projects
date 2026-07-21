@@ -22,6 +22,9 @@ import java.util.concurrent.CompletableFuture
  * Cancelling or timing out a returned [CompletableFuture] only cancels the caller's wait. It does not prove that the
  * Redis script did not execute, and it does not guarantee cancellation of the upstream Redis command. Recover an
  * ambiguous mutation with the same owner token and an authoritative state check.
+ *
+ * Future-returning methods validate their arguments before dispatch and therefore throw validation failures
+ * synchronously. Failures raised after Redis dispatch complete the returned future exceptionally.
  */
 class LettuceMultiKeyLease private constructor(
     private val syncCommands: RedisScriptingCommands<String, String>,
@@ -57,7 +60,10 @@ class LettuceMultiKeyLease private constructor(
         ownerToken,
     )
 
-    /** Asynchronously acquires every [keys] entry for [ownerToken] with [leaseTime]. */
+    /**
+     * Asynchronously acquires every [keys] entry for [ownerToken] with [leaseTime], or reports the observed ownership
+     * state. Validation failures are thrown synchronously; post-dispatch failures complete the future exceptionally.
+     */
     fun acquireAsync(
         keys: Collection<String>,
         ownerToken: String,
@@ -78,7 +84,10 @@ class LettuceMultiKeyLease private constructor(
         ownerToken,
     )
 
-    /** Asynchronously inspects whether [ownerToken] owns every [keys] entry without changing Redis state. */
+    /**
+     * Asynchronously inspects whether [ownerToken] owns every [keys] entry without changing Redis state. Validation
+     * failures are thrown synchronously; post-dispatch failures complete the future exceptionally.
+     */
     fun inspectAsync(
         keys: Collection<String>,
         ownerToken: String,
@@ -99,7 +108,10 @@ class LettuceMultiKeyLease private constructor(
         ownerToken,
     )
 
-    /** Asynchronously renews matching [keys] entries owned by [ownerToken] to [leaseTime]. */
+    /**
+     * Asynchronously renews matching [keys] entries owned by [ownerToken] to [leaseTime], without repairing missing
+     * keys. Validation failures are thrown synchronously; post-dispatch failures complete the future exceptionally.
+     */
     fun renewAsync(
         keys: Collection<String>,
         ownerToken: String,
@@ -120,7 +132,10 @@ class LettuceMultiKeyLease private constructor(
         ownerToken,
     )
 
-    /** Asynchronously releases matching [keys] entries owned by [ownerToken]. */
+    /**
+     * Asynchronously releases matching [keys] entries owned by [ownerToken], including persistent same-token recovery
+     * keys. Validation failures are thrown synchronously; post-dispatch failures complete the future exceptionally.
+     */
     fun releaseAsync(
         keys: Collection<String>,
         ownerToken: String,

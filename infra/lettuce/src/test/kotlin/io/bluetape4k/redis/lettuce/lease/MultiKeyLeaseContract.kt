@@ -50,7 +50,7 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
         }
 
     private fun fixture(adapterName: String, scenarioName: String): LeaseFixture {
-        val tag = "${adapterName.hashCode().toUInt()}-${scenarioName.hashCode().toUInt()}-${System.nanoTime()}"
+        val tag = "${randomName()}-${adapterName.hashCode().toUInt()}-${scenarioName.hashCode().toUInt()}"
         return LeaseFixture(
             keys = listOf("lease:{$tag}:one", "lease:{$tag}:two"),
             token = "owner-$tag",
