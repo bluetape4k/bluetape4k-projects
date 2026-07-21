@@ -185,10 +185,15 @@ fun `result counts are serializable pre-mutation observations`() {
 fun `stable exceptions never expose keys or tokens`() {
     val secretKey = "ticket:{sale}:user:secret-user"
     val secretToken = "owner-secret"
-    val crossSlot = assertFailsWith<MultiKeyLeaseCrossSlotException> {
-        validateLeaseInput(listOf(secretKey, "ticket:{other}:ip:x"), secretToken, null, LettuceMultiKeyLeaseConfig(), StringCodec.UTF8)
-    }
-    assertThrowableRedacted(crossSlot, secretKey, secretToken)
+    val failures = listOf(
+        MultiKeyLeaseCrossSlotException(distinctSlotCount = 2),
+        MultiKeyLeaseIntegrityException(
+            operation = MultiKeyLeaseOperation.INSPECT,
+            requestedKeyCount = 2,
+            invalidLeaseKeyCount = 1,
+        ),
+    )
+    failures.forEach { assertThrowableRedacted(it, secretKey, secretToken) }
     listOf(
         MultiKeyAcquireResult::class,
         MultiKeyInspectResult::class,
@@ -202,6 +207,8 @@ fun `stable exceptions never expose keys or tokens`() {
 `assertThrowableRedacted`는 `message`, `toString()`, public property values와 전체 cause chain을
 검사한다. 실제 Redis persistent same-token fixture에서 발생한
 `MultiKeyLeaseIntegrityException`에도 같은 helper를 적용한다.
+Task 2는 아직 구현되지 않은 Task 3 validator를 참조하지 않는다. validator가 실제
+cross-slot exception을 발생시키는 경로는 Task 3의 pre-dispatch validation test가 담당한다.
 
 - [ ] **Step 2: test compile failure를 확인한다.**
 
