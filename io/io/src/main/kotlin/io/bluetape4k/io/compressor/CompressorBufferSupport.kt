@@ -4,7 +4,7 @@ import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.nio.ReadOnlyBufferException
 
-internal inline fun writeToCallerBuffer(
+private inline fun writeToCallerBufferState(
     source: ByteBuffer,
     target: ByteBuffer,
     operation: (
@@ -71,7 +71,7 @@ internal inline fun writeToCallerBufferViews(
         targetPosition: Int,
         targetRemaining: Int,
     ) -> Int,
-): Int = writeToCallerBuffer(source, target) { sourcePosition, sourceRemaining, targetPosition, targetRemaining ->
+): Int = writeToCallerBufferState(source, target) { sourcePosition, sourceRemaining, targetPosition, targetRemaining ->
     operation(
         source.duplicate().order(source.order()),
         target.duplicate().order(target.order()),
