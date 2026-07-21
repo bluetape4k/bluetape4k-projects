@@ -45,7 +45,7 @@ internal class LettuceMultiKeyLeaseCancellationTest {
 
                     client.addListener(listener)
                     client.connect().use { commandConnection ->
-                        commandConnection.setAutoFlushCommands(false)
+                        observerConnection.sync().clientPause(SERVER_PAUSE_MILLIS) shouldBeEqualTo "OK"
                         val cancelledWait = LettuceMultiKeyLease(commandConnection)
                             .acquireAsync(keys, token, Duration.ofSeconds(5))
 
@@ -53,7 +53,6 @@ internal class LettuceMultiKeyLeaseCancellationTest {
                         cancelledWait.cancel(true).shouldBeTrue()
 
                         val commandFence = commandConnection.async().ping()
-                        commandConnection.flushCommands()
                         commandFence.get(5, TimeUnit.SECONDS) shouldBeEqualTo "PONG"
 
                         when (val settled = observerLease.inspect(keys, token)) {
@@ -77,5 +76,9 @@ internal class LettuceMultiKeyLeaseCancellationTest {
             client.shutdown()
             resources.shutdown()
         }
+    }
+
+    private companion object {
+        const val SERVER_PAUSE_MILLIS = 500L
     }
 }

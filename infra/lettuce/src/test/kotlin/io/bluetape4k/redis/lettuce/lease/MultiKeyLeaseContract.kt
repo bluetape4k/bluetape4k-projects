@@ -5,9 +5,9 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.lettuce.core.api.sync.RedisCommands
-import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
@@ -42,7 +42,7 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
         adapters.flatMap { adapter ->
             scenarios.map { scenario ->
                 DynamicTest.dynamicTest("${adapter.name}: ${scenario.name}") {
-                    runTest {
+                    runSuspendIO {
                         val fixture = fixture(adapter.name, scenario.name)
                         touchedKeys += fixture.keys
                         commands.del(*fixture.keys.toTypedArray())
