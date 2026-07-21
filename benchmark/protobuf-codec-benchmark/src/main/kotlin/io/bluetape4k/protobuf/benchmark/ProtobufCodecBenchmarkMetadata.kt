@@ -11,18 +11,22 @@ object ProtobufCodecBenchmarkMetadata {
         } finally {
             System.setOut(stdout)
         }
-        println(
-            buildString {
-                append("{\"config_json\":").append(jsonString(fixture.configIdentity))
-                append(",\"config_sha256\":").append(jsonString(fixture.configSha256))
-                append(",\"matrix_version\":").append(jsonString(ProtobufBenchmarkMatrix.VERSION))
-                append(",\"payload_sha256\":").append(jsonString(fixture.payloadSha256))
-                append(",\"payload_size\":").append(fixture.wireSize)
-                append(",\"schema_version\":1")
-                append(",\"target_headroom\":").append(ProtobufBenchmarkMatrix.TARGET_HEADROOM)
-                append(",\"target_start\":").append(ProtobufBenchmarkMatrix.TARGET_START)
-                append('}')
-            }
-        )
+        try {
+            println(
+                buildString {
+                    append("{\"config_json\":").append(jsonString(fixture.configIdentity))
+                    append(",\"config_sha256\":").append(jsonString(fixture.configSha256))
+                    append(",\"matrix_version\":").append(jsonString(ProtobufBenchmarkMatrix.VERSION))
+                    append(",\"payload_sha256\":").append(jsonString(fixture.payloadSha256))
+                    append(",\"payload_size\":").append(fixture.wireSize)
+                    append(",\"schema_version\":1")
+                    append(",\"target_headroom\":").append(ProtobufBenchmarkMatrix.TARGET_HEADROOM)
+                    append(",\"target_start\":").append(ProtobufBenchmarkMatrix.TARGET_START)
+                    append('}')
+                }
+            )
+        } finally {
+            fixture.close()
+        }
     }
 }

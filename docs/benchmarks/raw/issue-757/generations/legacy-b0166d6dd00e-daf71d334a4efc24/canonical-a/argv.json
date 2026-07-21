@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "java",
+    "-jar",
+    "<PINNED_JAR_SHA256:df01ceb32ce7cf51e0efbdabf94dc8920d09e568d95ed0a16b075658f9a58484>",
+    "-t",
+    "1",
+    "-f",
+    "2",
+    "-wi",
+    "3",
+    "-i",
+    "5",
+    "-w",
+    "1s",
+    "-r",
+    "1s",
+    "-prof",
+    "gc",
+    "-rf",
+    "json",
+    "-rff",
+    "jmh.json",
+    "-jvmArgsAppend",
+    "-Xms1g -Xmx1g -XX:+UseG1GC"
+  ],
+  "ended_at": "2026-07-20T22:26:23.570262Z",
+  "exit_code": 0,
+  "log_limit_exceeded": false,
+  "schema_version": 1,
+  "started_at": "2026-07-20T22:21:38.674623Z"
+}

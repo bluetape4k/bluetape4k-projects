@@ -40,15 +40,16 @@ def complete_jmh_records():
             "jvmArgs": list(runner.JVM_ARGS),
             "params": {"matrixVersion": "v1", "targetHeadroom": "2", "targetStart": "1"},
             "primaryMetric": {"score": 10.0, "scoreUnit": "ops/s"},
-            "secondaryMetrics": {"gc.alloc.rate.norm": {"score": 100.0, "scoreUnit": "B/op"}},
+            "secondaryMetrics": {"gc.alloc.rate.norm": {"score": 100.0, "scoreError": 1.0, "scoreUnit": "B/op"}},
         })
     return records
 
 
 def benchmark_metadata():
     config = {
-        "allowed_class_prefixes": ["io.example"], "direct_capacity": 20,
-        "direct_initial_position": 0, "heap_capacity": 20, "heap_initial_position": 0,
+        "allowed_class_prefixes": ["io.example"], "allocator_class": "Allocator", "direct_capacity": 20,
+        "direct_max_capacity": 20, "direct_initial_position": 0, "heap_capacity": 20,
+        "heap_max_capacity": 20, "heap_initial_position": 0,
         "matrix_version": "v1", "methods": sorted(validator.EXPECTED_METHODS),
         "payload_identity": "fixture", "payload_sha256": "payload",
         "redisson_codec_class": "R", "serializer_class": "S",
@@ -312,6 +313,41 @@ class EvidenceRunnerTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "state-bound sha256"):
                 runner.record_rollback(state_path, ["redisson_contiguous"], root / "rollback", repo_root=root)
 
+    def test_lettuce_rollback_finalization_fails_closed_without_abi_contract_verifier(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state_path, _, _ = build_rollback_state(root, (
+                ("lettuceEncodeHeapOptimized", "regressed"),
+                ("lettuceEncodeDirectOptimized", "regressed"),
+            ))
+
+            def git(argv, **_kwargs):
+                if argv[1:3] == ["status", "--porcelain=v1"]:
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+                if argv[-1] == "HEAD":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"post\n", stderr=b"")
+                if argv[-1] == "HEAD^{tree}":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"post-tree\n", stderr=b"")
+                if argv[1:3] == ["merge-base", "--is-ancestor"]:
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+                return subprocess.CompletedProcess(argv, 1, stdout=b"", stderr=b"unexpected")
+
+            def measurement_git(argv, **_kwargs):
+                if argv[1:3] == ["status", "--porcelain=v1"]:
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+                if argv[-1] == "HEAD":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"old\n", stderr=b"")
+                if argv[-1] == "HEAD^{tree}":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"old-tree\n", stderr=b"")
+                return subprocess.CompletedProcess(argv, 1, stdout=b"", stderr=b"unexpected")
+
+            preparation = runner.record_rollback(
+                state_path, ["lettuce_encode"], root / "rollback",
+                command_runner=measurement_git, repo_root=root,
+            )
+            with self.assertRaisesRegex(ValueError, "baseline ABI exact-equality"):
+                runner.finalize_rollback(preparation, command_runner=git, repo_root=root)
+
     def test_record_rollback_requires_clean_exact_measurement_head(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td); state, _, _ = build_rollback_state(
@@ -377,6 +413,196 @@ class EvidenceRunnerTest(unittest.TestCase):
                 runner.atomic_promote(source, destination)
             with self.assertRaisesRegex(ValueError, "absolute"):
                 runner.validate_manifest({"files": [{"path": "/tmp/a", "sha256": "x"}]}, root / "manifest.json")
+
+    def test_immutable_generation_pointer_is_hash_bound_and_cas_protected(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); evidence = root / "evidence"; generations = evidence / "generations"
+            generations.mkdir(parents=True)
+            control = root / "control"
+            with runner.promotion_lock(control):
+                first_token = runner.allocate_fencing_token(control)
+                second_token = runner.allocate_fencing_token(control)
+            self.assertEqual((1, 2), (first_token, second_token))
+
+            staging = evidence / ".generation-staging-owner-2-fixture"; staging.mkdir()
+            (staging / "payload.txt").write_text("payload")
+            (staging / "delivery-manifest.json").write_text("manifest")
+            nested = staging / "nested" / "generation-receipt.json"; nested.parent.mkdir()
+            nested.write_text("nested-bound-payload")
+            files, root_sha256 = runner.generation_file_set(staging)
+            receipt = {
+                "schema_version": 1, "kind": "issue_757_evidence_generation",
+                "generation_id": "g-fixture", "owner": "owner", "fencing_token": second_token,
+                "input_sha256": "a" * 64, "root_sha256": root_sha256, "files": files,
+                "previous_generation_id": None,
+            }
+            runner.atomic_write_json(staging / "generation-receipt.json", receipt)
+            runner.fsync_tree(staging)
+            generation = generations / "g-fixture"
+            runner.atomic_noreplace_directory(staging, generation)
+            runner.fsync_directory(generations)
+            runner.verify_generation(generation, root_sha256)
+
+            pointer = {
+                "schema_version": 1, "kind": "issue_757_active_generation",
+                "generation_id": "g-fixture", "root_sha256": root_sha256,
+                "delivery_manifest_sha256": runner.sha256_file(generation / "delivery-manifest.json"),
+                "fencing_token": second_token, "previous_generation_id": None,
+                "previous_pointer_sha256": None, "owner": "owner", "input_sha256": "a" * 64,
+                "delivery_documents": [],
+            }
+            runner.activate_generation_pointer(evidence, pointer, None)
+            self.assertEqual(generation.resolve(), runner.verify_active_generation(evidence))
+            with self.assertRaisesRegex(ValueError, "CAS"):
+                runner.activate_generation_pointer(evidence, dict(pointer, generation_id="stale"), None)
+
+            colliding = evidence / ".generation-staging-collision"; colliding.mkdir()
+            (colliding / "payload.txt").write_text("replacement")
+            with self.assertRaises(FileExistsError):
+                runner.atomic_noreplace_directory(colliding, generation)
+            self.assertEqual("payload", (generation / "payload.txt").read_text())
+            self.assertTrue(colliding.is_dir())
+
+            nested = generation / "nested" / "generation-receipt.json"
+            nested.write_text("tampered")
+            with self.assertRaisesRegex(ValueError, "file set/root hash"):
+                runner.verify_active_generation(evidence)
+            nested.write_text("nested-bound-payload")
+            receipt_path = generation / "generation-receipt.json"
+            wrong_identity = json.loads(receipt_path.read_text()); wrong_identity["generation_id"] = "g-other"
+            runner.atomic_write_json(receipt_path, wrong_identity)
+            with self.assertRaisesRegex(ValueError, "generation_id"):
+                runner.verify_active_generation(evidence)
+            runner.atomic_write_json(receipt_path, receipt)
+            wrong_owner = dict(receipt, owner="other-owner")
+            runner.atomic_write_json(receipt_path, wrong_owner)
+            with self.assertRaisesRegex(ValueError, "owner or input"):
+                runner.verify_active_generation(evidence)
+            wrong_input = dict(receipt, input_sha256="b" * 64)
+            runner.atomic_write_json(receipt_path, wrong_input)
+            with self.assertRaisesRegex(ValueError, "owner or input"):
+                runner.verify_active_generation(evidence)
+            runner.atomic_write_json(receipt_path, receipt)
+
+            (generation / "payload.txt").write_text("tampered")
+            with self.assertRaisesRegex(ValueError, "file set/root hash"):
+                runner.verify_active_generation(evidence)
+
+    def test_final_head_drift_allows_only_delivery_docs_and_evidence(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.email", "issue-757@example.invalid"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.name", "Issue 757 Test"], cwd=root, check=True)
+            source = root / "io" / "protobuf" / "Source.kt"; source.parent.mkdir(parents=True)
+            source.write_text("measurement\n")
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "measurement"], cwd=root, check=True)
+            measurement = git_commit(root, "rev-parse", "HEAD")
+            measurement_tree = git_commit(root, "rev-parse", "HEAD^{tree}")
+
+            evidence = root / "docs" / "benchmarks" / "raw" / "issue-757" / "generations" / "g-fixture"
+            evidence.mkdir(parents=True); (evidence / "payload.json").write_text("{}\n")
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "evidence"], cwd=root, check=True)
+            allowed_path = "docs/benchmarks/raw/issue-757/generations/g-fixture/payload.json"
+            allowed = {allowed_path: runner.sha256_bytes(b"{}\n")}
+            result = runner.verify_final_head_drift(root, measurement, measurement_tree, allowed)
+            self.assertEqual([allowed_path], result["changed_paths"])
+
+            (evidence / "payload.json").write_text("changed\n")
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "changed allowed blob"], cwd=root, check=True)
+            with self.assertRaisesRegex(ValueError, "blob mismatch"):
+                runner.verify_final_head_drift(root, measurement, measurement_tree, allowed)
+
+            unknown = root / "docs" / "benchmarks" / "raw" / "issue-757" / "generations" / "g-unknown" / "payload.json"
+            unknown.parent.mkdir(); unknown.write_text("{}\n")
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "unknown generation"], cwd=root, check=True)
+            with self.assertRaisesRegex(ValueError, "outside exact docs/evidence allowlist"):
+                runner.verify_final_head_drift(root, measurement, measurement_tree, allowed)
+
+            source.write_text("drift\n")
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "drift"], cwd=root, check=True)
+            with self.assertRaisesRegex(ValueError, "outside exact docs/evidence allowlist"):
+                runner.verify_final_head_drift(root, measurement, measurement_tree, allowed)
+
+    def test_git_delivery_authority_ignores_worktree_and_binds_pointer_blobs(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); evidence = root / "docs" / "benchmarks" / "raw" / "issue-757"
+            predecessor = evidence / "generations" / "g-previous"; predecessor.mkdir(parents=True)
+            (predecessor / "payload.json").write_text("{\"previous\":true}\n")
+            (predecessor / "delivery-manifest.json").write_text("{}\n")
+            predecessor_files, predecessor_root = runner.generation_file_set(predecessor)
+            predecessor_receipt = {
+                "schema_version": 1, "kind": "issue_757_evidence_generation",
+                "generation_id": "g-previous", "owner": "previous-owner", "fencing_token": 1,
+                "input_sha256": "9" * 64, "root_sha256": predecessor_root,
+                "files": predecessor_files, "previous_generation_id": None,
+                "previous_generation_root_sha256": None,
+                "previous_generation_receipt_sha256": None,
+            }
+            predecessor_receipt_path = predecessor / "generation-receipt.json"
+            runner.atomic_write_json(predecessor_receipt_path, predecessor_receipt)
+            predecessor_receipt_sha256 = runner.sha256_file(predecessor_receipt_path)
+
+            generation = evidence / "generations" / "g-fixture"; generation.mkdir(parents=True)
+            (generation / "payload.json").write_text("{}\n")
+            (generation / "delivery-manifest.json").write_text("{}\n")
+            files, root_sha256 = runner.generation_file_set(generation)
+            receipt = {
+                "schema_version": 1, "kind": "issue_757_evidence_generation",
+                "generation_id": "g-fixture", "owner": "owner", "fencing_token": 1,
+                "input_sha256": "a" * 64, "root_sha256": root_sha256, "files": files,
+                "previous_generation_id": "g-previous",
+                "previous_generation_root_sha256": predecessor_root,
+                "previous_generation_receipt_sha256": predecessor_receipt_sha256,
+            }
+            runner.atomic_write_json(generation / "generation-receipt.json", receipt)
+            pointer = {
+                "schema_version": 1, "kind": "issue_757_active_generation",
+                "generation_id": "g-fixture", "root_sha256": root_sha256,
+                "delivery_manifest_sha256": runner.sha256_file(generation / "delivery-manifest.json"),
+                "fencing_token": 1, "owner": "owner", "input_sha256": "a" * 64,
+                "previous_generation_id": "g-previous",
+                "previous_generation_root_sha256": predecessor_root,
+                "previous_generation_receipt_sha256": predecessor_receipt_sha256,
+                "previous_pointer_sha256": None, "delivery_documents": [],
+            }
+            runner.atomic_write_json(evidence / "active-generation.json", pointer)
+            self.assertEqual(generation.resolve(), runner.verify_active_generation(evidence))
+            runner.atomic_write_json(predecessor_receipt_path, dict(predecessor_receipt, fencing_token=99))
+            with self.assertRaisesRegex(ValueError, "previous generation receipt sha256 mismatch"):
+                runner.verify_active_generation(evidence)
+            runner.atomic_write_json(predecessor_receipt_path, predecessor_receipt)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.email", "issue-757@example.invalid"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.name", "Issue 757 Test"], cwd=root, check=True)
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "delivery"], cwd=root, check=True)
+            head = git_commit(root, "rev-parse", "HEAD")
+            authority = runner.git_delivery_authority(root, head, "docs/benchmarks/raw/issue-757")
+            self.assertTrue(authority["active_manifest"].endswith("g-fixture/delivery-manifest.json"))
+
+            runner.atomic_write_json(evidence / "active-generation.json", dict(pointer, generation_id="working-tree-only"))
+            authority = runner.git_delivery_authority(root, head, "docs/benchmarks/raw/issue-757")
+            self.assertTrue(authority["active_manifest"].endswith("g-fixture/delivery-manifest.json"))
+
+            runner.atomic_write_json(evidence / "active-generation.json", pointer)
+            runner.atomic_write_json(predecessor_receipt_path, dict(predecessor_receipt, owner="tampered-owner"))
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "mismatched predecessor receipt"], cwd=root, check=True)
+            with self.assertRaisesRegex(ValueError, "predecessor receipt sha256 mismatch"):
+                runner.git_delivery_authority(root, "HEAD", "docs/benchmarks/raw/issue-757")
+
+            runner.atomic_write_json(predecessor_receipt_path, predecessor_receipt)
+            runner.atomic_write_json(evidence / "active-generation.json", dict(pointer, owner="other-owner"))
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "mismatched pointer"], cwd=root, check=True)
+            with self.assertRaisesRegex(ValueError, "pointer/active receipt binding mismatch"):
+                runner.git_delivery_authority(root, "HEAD", "docs/benchmarks/raw/issue-757")
 
     def test_replace_restores_old_destination_on_second_rename_failure(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1390,6 +1616,7 @@ Daemon JVM: /Users/operator/.jdks/example
             "serializer_encode": "class ProtobufSerializer : BinarySerializer { }",
             "serializer_decode": "class ProtobufSerializer : BinarySerializer { }",
             "redisson_contiguous": "private fun decodeProtobuf(buf: ByteBuf): Any {" + runner.REDISSON_COPIED_BODY_TEMPLATE + "}",
+            "lettuce_encode": "object LettuceProtobufCodecs { fun protobuf() = LettuceBinaryCodec(serializer) }",
         }
         paths_seen = []
         def git_show(argv, **_kwargs):
@@ -1405,6 +1632,7 @@ Daemon JVM: /Users/operator/.jdks/example
         retained["serializer_encode"] = "override fun serializeTo(graph: Any?, target: ByteBuffer): Int = packMessageTo(graph, target)"
         retained["serializer_decode"] = "override fun <T: Any> deserializeFrom(source: ByteBuffer): T? = decodeWithTrustedFallback(source)"
         retained["redisson_contiguous"] = "if (buf.nioBufferCount() == 1) AnyMessage.parseFrom(buf.nioBuffer()) else AnyMessage.parseFrom(buf.getBytes(copy = true))"
+        retained["lettuce_encode"] = "private class DirectProtobufLettuceCodec"
         for dispatch in runner.DISPATCH_ORDER:
             git_show.dispatch = dispatch; removed[dispatch] = retained[dispatch]
             with self.assertRaisesRegex(ValueError, "removal predicate"):
@@ -1425,6 +1653,10 @@ Daemon JVM: /Users/operator/.jdks/example
                 /* formatting/comment noise is harmless */
                 %s
             }}''',
+            "lettuce_encode": '''object LettuceProtobufCodecs {
+                // DirectProtobufLettuceCodec is absent after rollback.
+                fun protobuf() = LettuceBinaryCodec(serializer)
+            }''',
         }
         adversarial["redisson_contiguous"] %= runner.REDISSON_COPIED_BODY_TEMPLATE
         removed.update(adversarial)
@@ -1494,7 +1726,7 @@ Daemon JVM: /Users/operator/.jdks/example
         self.assertEqual("1 s", canonical["warmup_time"])
         self.assertEqual(["-Xms1g", "-Xmx1g", "-XX:+UseG1GC"], canonical["jvm_args"])
         smoke = runner.normalized_profile("smoke")
-        self.assertEqual((1, 1, 1), (smoke["forks"], smoke["warmups"], smoke["measurements"]))
+        self.assertEqual((2, 1, 2), (smoke["forks"], smoke["warmups"], smoke["measurements"]))
 
     def test_chained_rollback_bundle_requires_every_immutable_generation(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1544,8 +1776,9 @@ Daemon JVM: /Users/operator/.jdks/example
                 archive.writestr("META-INF/maven/org.openjdk.jmh/jmh-core/pom.properties", "version=1.37\n")
             state_path = root / "state.json"; runner.resolve_jar(root / "jars", state_path)
             config = {
-                "allowed_class_prefixes": ["io.example"], "direct_capacity": 20,
-                "direct_initial_position": 0, "heap_capacity": 20, "heap_initial_position": 0,
+                "allowed_class_prefixes": ["io.example"], "allocator_class": "Allocator", "direct_capacity": 20,
+                "direct_max_capacity": 20, "direct_initial_position": 0, "heap_capacity": 20,
+                "heap_max_capacity": 20, "heap_initial_position": 0,
                 "matrix_version": "v1", "methods": sorted(validator.EXPECTED_METHODS),
                 "payload_identity": "fixture", "payload_sha256": "payload",
                 "redisson_codec_class": "R", "serializer_class": "S",
@@ -1650,6 +1883,24 @@ Daemon JVM: /Users/operator/.jdks/example
             manifest_path = destination / "delivery-manifest.json"
             runner.validate_committed(manifest_path, repo_root=root, require_git_commit=False)
             self.assertTrue(json.loads(state_path.read_text())["promotion_status"] == "verified")
+
+            evidence_root = root / "docs" / "generation-root"
+            generation = runner.publish_generation(
+                state_path, evidence_root, root / "control", "fixture-owner",
+                command_runner=command, repo_root=root,
+            )
+            self.assertEqual(generation, runner.verify_active_generation(evidence_root))
+            runner.validate_committed(
+                generation / "delivery-manifest.json", repo_root=root, require_git_commit=False,
+            )
+            self.assertEqual(
+                generation,
+                runner.publish_generation(
+                    state_path, evidence_root, root / "control", "fixture-owner",
+                    command_runner=command, repo_root=root,
+                ),
+            )
+            self.assertEqual(1, len(list((evidence_root / "generations").iterdir())))
 
     def test_report_is_deterministic_and_positive_language_requires_accepted(self):
         manifest = {
@@ -2012,6 +2263,99 @@ Daemon JVM: /Users/operator/.jdks/example
                 return subprocess.CompletedProcess(argv, 1, stdout=b"", stderr=b"unexpected")
             state = runner.resolve_jar(jars, root / "changed.json", bundle, command_runner=changed, repo_root=root)
             self.assertEqual(("post", "post-tree"), (state["source_commit"], state["source_tree"]))
+
+    def test_rebased_delivery_manifest_can_authenticate_prior_rollback_lineage(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); archive = root / "archive"; archive.mkdir()
+            comparison = archive / "comparison.csv"
+            comparison.write_text("method,verdict\nserializerDecodeDirectOptimized,regressed\n")
+            decision = runner.make_rollback_decision(
+                "serializer_decode", ["serializerDecodeDirectOptimized"],
+                "old", "old-tree", archive, [comparison], 1, "now", "post", None, "post-tree",
+            )
+            bundle_path = runner.write_rollback_bundle(root, [decision])
+            bundle = runner.authenticate_rollback_bundle(bundle_path)
+            jars = root / "jars"; jars.mkdir(); (jars / "bench-JMH.jar").write_bytes(b"jar")
+            manifest_path = root / "delivery-manifest.json"; manifest_path.write_text("{}\n")
+
+            manifest = {
+                "delivery": {"git_commit": "rebased"},
+                "rollback": bundle,
+                "files": [{
+                    "path": bundle_path.resolve().relative_to(root.resolve()).as_posix(),
+                    "sha256": runner.sha256_file(bundle_path),
+                }],
+                "final_reasons": {
+                    "serializerDecodeDirectOptimized": "removed_after_regression",
+                    "serializerDecodeHeapOptimized": "removed_after_regression",
+                },
+            }
+            original_validate = runner.validate_committed
+            original_legacy_validate = runner._validate_legacy_rebased_manifest
+            original_removals = runner.verify_dispatch_source_removals
+            runner.validate_committed = lambda *_args, **_kwargs: (_ for _ in ()).throw(
+                ValueError("method matrix missing newly added cells")
+            )
+            runner._validate_legacy_rebased_manifest = lambda *_args, **_kwargs: manifest
+            runner.verify_dispatch_source_removals = lambda *_args, **_kwargs: True
+
+            def rebased(argv, **_kwargs):
+                if argv[-1] == "HEAD":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"head\n", stderr=b"")
+                if argv[-1] == "HEAD^{tree}":
+                    return subprocess.CompletedProcess(argv, 0, stdout=b"head-tree\n", stderr=b"")
+                if argv[:3] == ["git", "merge-base", "--is-ancestor"]:
+                    return subprocess.CompletedProcess(argv, 0 if argv[3] == "rebased" else 1, stdout=b"", stderr=b"")
+                return subprocess.CompletedProcess(argv, 1, stdout=b"", stderr=b"unexpected")
+
+            try:
+                state = runner.resolve_jar(
+                    jars, root / "rebased.json", bundle_path,
+                    delivery_manifest=manifest_path, command_runner=rebased, repo_root=root,
+                )
+            finally:
+                runner.validate_committed = original_validate
+                runner._validate_legacy_rebased_manifest = original_legacy_validate
+                runner.verify_dispatch_source_removals = original_removals
+
+            self.assertEqual("head", state["source_commit"])
+            self.assertEqual(str(manifest_path.resolve()), state["rollback_rebase_manifest_path"])
+            self.assertEqual(runner.sha256_file(manifest_path), state["rollback_rebase_manifest_sha256"])
+
+    def test_committed_manifest_fallback_is_limited_to_legacy_method_matrix_growth(self):
+        original_validate = runner.validate_committed
+        original_legacy_validate = runner._validate_legacy_rebased_manifest
+        calls = []
+        runner.validate_committed = lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            ValueError("method matrix missing newly added cells")
+        )
+        runner._validate_legacy_rebased_manifest = lambda *_args, **_kwargs: calls.append("legacy") or {"legacy": True}
+        try:
+            self.assertEqual(
+                {"legacy": True},
+                runner._validate_committed_or_legacy_matrix(
+                    "manifest.json", "repo", subprocess.run,
+                ),
+            )
+        finally:
+            runner.validate_committed = original_validate
+            runner._validate_legacy_rebased_manifest = original_legacy_validate
+        self.assertEqual(["legacy"], calls)
+
+        runner.validate_committed = lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            ValueError("sha256 mismatch")
+        )
+        runner._validate_legacy_rebased_manifest = lambda *_args, **_kwargs: self.fail(
+            "non-matrix failures must not use the legacy fallback"
+        )
+        try:
+            with self.assertRaisesRegex(ValueError, "sha256 mismatch"):
+                runner._validate_committed_or_legacy_matrix(
+                    "manifest.json", "repo", subprocess.run,
+                )
+        finally:
+            runner.validate_committed = original_validate
+            runner._validate_legacy_rebased_manifest = original_legacy_validate
 
     def test_pinned_jar_stat_rejects_same_bytes_inode_swap_before_execution(self):
         with tempfile.TemporaryDirectory() as td:

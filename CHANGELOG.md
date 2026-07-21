@@ -14,6 +14,11 @@
 - Added a lower-copy contiguous Redisson `ByteBuf` decode path that avoids the codec-owned `ByteArray` copy when a
   single NIO buffer is available; composite and trusted-fallback inputs retain their isolated copied paths
   ([#757](https://github.com/bluetape4k/bluetape4k-projects/issues/757)).
+- Added a bounded absolute-index Lettuce Protobuf writer for caller-owned heap/direct `ByteBuf` targets. It commits the
+  writer index only after success and preserves copied behavior for compressed, fallback, custom-prefix, and
+  single-argument `ByteBuffer` paths. Two canonical JMH runs measured about 28.8% lower allocation than the copied
+  Lettuce baseline; this is not a zero-copy or throughput guarantee
+  ([#757](https://github.com/bluetape4k/bluetape4k-projects/issues/757), [evidence](docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md)).
 - Added reproducible two-run JMH allocation evidence for serializer ByteBuffer paths. Serializer decode cells remain in
   the matrix as claim-ineligible compatibility measurements after the shared direct decode dispatch rollback; retained
   encode and Redisson claims still require the 5% B/op gate ([#1039](https://github.com/bluetape4k/bluetape4k-projects/issues/1039), [evidence](docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)).

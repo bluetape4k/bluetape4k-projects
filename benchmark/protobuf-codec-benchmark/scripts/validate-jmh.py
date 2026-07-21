@@ -15,6 +15,7 @@ from pathlib import Path
 
 
 CLAIM_THRESHOLD_PERCENT = 5.0
+CLAIM_THRESHOLD_BYTES = 8.0
 MAX_RUN_LOG_BYTES = 16 * 1024 * 1024
 RUN_LOG_TAIL_BYTES = 4096
 RUN_LOG_LIMIT_MARKER = b"[runner] output truncated: log size limit exceeded"
@@ -33,6 +34,10 @@ EXPECTED_METHODS = {
     "trustedFallbackEncodeBufferCompatibility",
     "trustedFallbackDecodeByteArray",
     "trustedFallbackDecodeBufferCompatibility",
+    "lettuceEncodeHeapCopied",
+    "lettuceEncodeHeapOptimized",
+    "lettuceEncodeDirectCopied",
+    "lettuceEncodeDirectOptimized",
 }
 BASELINES = {
     "serializerEncodeHeapOptimized": "serializerEncodeByteArray",
@@ -40,6 +45,8 @@ BASELINES = {
     "serializerDecodeHeapOptimized": "serializerDecodeByteArray",
     "serializerDecodeDirectOptimized": "serializerDecodeByteArray",
     "redissonDecodeContiguousOptimized": "redissonDecodeCopiedByteArray",
+    "lettuceEncodeHeapOptimized": "lettuceEncodeHeapCopied",
+    "lettuceEncodeDirectOptimized": "lettuceEncodeDirectCopied",
 }
 ROLLBACK_DISPATCH_CELLS = {
     "serializer_encode": (
@@ -51,6 +58,10 @@ ROLLBACK_DISPATCH_CELLS = {
         "serializerDecodeDirectOptimized",
     ),
     "redisson_contiguous": ("redissonDecodeContiguousOptimized",),
+    "lettuce_encode": (
+        "lettuceEncodeHeapOptimized",
+        "lettuceEncodeDirectOptimized",
+    ),
 }
 IDENTITY_FIELDS = (
     "git_commit", "tree_hash", "os", "arch", "cpu", "jvm_vendor", "jvm_version",
@@ -70,9 +81,16 @@ CANONICAL_PROFILE = {
     "profiler": "gc",
     "exact_jvm_args": ["-Xms1g", "-Xmx1g", "-XX:+UseG1GC"],
 }
+GRAALVM_LAUNCHER_PREFIX = [
+    "-XX:ThreadPriorityPolicy=1",
+    "-XX:+UnlockExperimentalVMOptions",
+    "-XX:+EnableJVMCIProduct",
+    "-XX:-UnlockExperimentalVMOptions",
+]
 CONFIG_KEYS = (
-    "allowed_class_prefixes", "direct_capacity", "direct_initial_position",
-    "heap_capacity", "heap_initial_position", "matrix_version", "methods",
+    "allowed_class_prefixes", "allocator_class", "direct_capacity",
+    "direct_initial_position", "direct_max_capacity", "heap_capacity",
+    "heap_initial_position", "heap_max_capacity", "matrix_version", "methods",
     "payload_identity", "payload_sha256", "redisson_codec_class", "serializer_class",
     "target_headroom", "target_start",
 )
@@ -91,12 +109,14 @@ OBSERVED_RECORD_FIELDS = {
 }
 SUMMARY_FIELDS = (
     "run_id", "method", "throughput_ops_per_second", "allocation_bytes_per_operation",
-    "eligible", "eligibility_reason", "observed_config_sha256",
+    "allocation_error_bytes_per_operation", "eligible", "eligibility_reason",
+    "observed_config_sha256",
 )
 COMPARISON_FIELDS = (
     "method", "baseline", "run_a_allocation", "run_a_baseline_allocation",
-    "run_a_delta_percent", "run_b_allocation", "run_b_baseline_allocation",
-    "run_b_delta_percent", "eligible", "reason", "verdict",
+    "run_a_allocation_error", "run_a_baseline_allocation_error", "run_a_delta_percent",
+    "run_b_allocation", "run_b_baseline_allocation", "run_b_allocation_error",
+    "run_b_baseline_allocation_error", "run_b_delta_percent", "eligible", "reason", "verdict",
 )
 
 
@@ -237,6 +257,26 @@ def verdict(deltas, eligible):
     return "inconclusive"
 
 
+def allocation_verdict(baseline, baseline_error, candidate, candidate_error):
+    improvement = baseline - candidate
+    regression = candidate - baseline
+    relative_improvement = improvement / baseline * 100.0 if baseline > 0 else 0.0
+    relative_regression = regression / baseline * 100.0 if baseline > 0 else 0.0
+    if (
+        relative_improvement >= CLAIM_THRESHOLD_PERCENT
+        and improvement >= CLAIM_THRESHOLD_BYTES
+        and candidate + candidate_error < baseline - baseline_error
+    ):
+        return "accepted"
+    if (
+        relative_regression >= CLAIM_THRESHOLD_PERCENT
+        and regression >= CLAIM_THRESHOLD_BYTES
+        and baseline + baseline_error < candidate - candidate_error
+    ):
+        return "regressed"
+    return "inconclusive"
+
+
 def validate_methods(methods, path="JMH input"):
     if not isinstance(methods, (list, tuple)):
         _fail(path, "methods", methods, "array of benchmark method names", "regenerate the JMH JSON method matrix")
@@ -323,8 +363,15 @@ def parse_jmh_records(records, path):
     observed = _consistent_observed(records, path)
     if observed["mode"] != "thrpt":
         _fail(path, "mode", observed["mode"], "thrpt", "run the throughput benchmark profile")
-    if observed["jvm_args"] != CANONICAL_PROFILE["exact_jvm_args"]:
-        _fail(path, "jvmArgs", observed["jvm_args"], CANONICAL_PROFILE["exact_jvm_args"], "use the exact ordered -jvmArgsAppend list")
+    raw_jvm_args = observed["jvm_args"]
+    expected_jvm_args = CANONICAL_PROFILE["exact_jvm_args"]
+    if raw_jvm_args == expected_jvm_args:
+        pass
+    elif raw_jvm_args == GRAALVM_LAUNCHER_PREFIX + expected_jvm_args:
+        observed["jvm_launcher_prefix"] = GRAALVM_LAUNCHER_PREFIX
+        observed["jvm_args"] = expected_jvm_args
+    else:
+        _fail(path, "jvmArgs", raw_jvm_args, expected_jvm_args, "use the exact ordered -jvmArgsAppend list on a recognized JVM launcher")
     params = _parse_params(records, path)
     observed.update(params)
     rows = {}
@@ -343,6 +390,9 @@ def parse_jmh_records(records, path):
         rows[method] = {
             "throughput": validate_score(primary.get("score"), "%s primary score" % method, path),
             "allocation": validate_score(allocation.get("score"), "%s gc.alloc.rate.norm" % method, path),
+            "allocation_error": validate_score(
+                allocation.get("scoreError"), "%s gc.alloc.rate.norm scoreError" % method, path
+            ),
             "eligible": method in BASELINES,
             "reason": "candidate" if method in BASELINES else ("baseline" if method in BASELINES.values() else "compatibility_control"),
         }
@@ -446,12 +496,18 @@ def validate_manifest_observations(environment, parsed, path):
         except json.JSONDecodeError as error:
             _fail(path, "config_json", str(error), "valid canonical JSON", "rebuild benchmark metadata")
     if config is not None:
-        for field in ("direct_capacity", "direct_initial_position", "heap_capacity", "heap_initial_position", "target_headroom", "target_start"):
+        for field in (
+            "direct_capacity", "direct_initial_position", "direct_max_capacity",
+            "heap_capacity", "heap_initial_position", "heap_max_capacity",
+            "target_headroom", "target_start",
+        ):
             value = config.get(field)
             if isinstance(value, bool) or not isinstance(value, int):
                 _fail(path, "config_json.%s" % field, value, "JSON integer", "rebuild canonical benchmark metadata")
         if config.get("methods") != sorted(EXPECTED_METHODS):
-            _fail(path, "config_json.methods", config.get("methods"), sorted(EXPECTED_METHODS), "rebuild the exact 13-method benchmark matrix")
+            _fail(path, "config_json.methods", config.get("methods"), sorted(EXPECTED_METHODS), "rebuild the exact 17-method benchmark matrix")
+        if not isinstance(config.get("allocator_class"), str) or not config.get("allocator_class"):
+            _fail(path, "config_json.allocator_class", config.get("allocator_class"), "non-empty string", "rebuild canonical benchmark metadata")
         prefixes = config.get("allowed_class_prefixes")
         if not isinstance(prefixes, list) or any(not isinstance(value, str) for value in prefixes):
             _fail(path, "config_json.allowed_class_prefixes", prefixes, "string array", "rebuild canonical benchmark metadata")
@@ -567,20 +623,39 @@ def compare_runs(first, second, ineligible_cells=None, path="comparison"):
         if baseline not in first_rows or baseline not in second_rows:
             _fail(path, "baseline pair %s" % candidate, None, baseline, "regenerate both summaries")
         values = []
+        cell_verdicts = []
         for rows in (first_rows, second_rows):
             values.append(_delta(rows[candidate]["allocation"], rows[baseline]["allocation"], path, candidate))
+            cell_verdicts.append(
+                allocation_verdict(
+                    rows[baseline]["allocation"], rows[baseline].get("allocation_error", 0.0),
+                    rows[candidate]["allocation"], rows[candidate].get("allocation_error", 0.0),
+                )
+            )
         eligible = candidate not in ineligible_cells
         reason = "candidate" if eligible else "removed_after_regression"
+        if not eligible:
+            combined_verdict = "ineligible"
+        elif "regressed" in cell_verdicts:
+            combined_verdict = "regressed"
+        elif all(value == "accepted" for value in cell_verdicts):
+            combined_verdict = "accepted"
+        else:
+            combined_verdict = "inconclusive"
         result[candidate] = {
             "method": candidate, "baseline": baseline,
             "run_a_allocation": first_rows[candidate]["allocation"],
             "run_a_baseline_allocation": first_rows[baseline]["allocation"],
+            "run_a_allocation_error": first_rows[candidate].get("allocation_error", 0.0),
+            "run_a_baseline_allocation_error": first_rows[baseline].get("allocation_error", 0.0),
             "run_a_delta_percent": values[0],
             "run_b_allocation": second_rows[candidate]["allocation"],
             "run_b_baseline_allocation": second_rows[baseline]["allocation"],
+            "run_b_allocation_error": second_rows[candidate].get("allocation_error", 0.0),
+            "run_b_baseline_allocation_error": second_rows[baseline].get("allocation_error", 0.0),
             "run_b_delta_percent": values[1],
             "eligible": eligible, "reason": reason,
-            "verdict": verdict(values, eligible),
+            "verdict": combined_verdict,
         }
     for method in sorted(set(first_rows) - set(BASELINES)):
         reason = "baseline" if method in BASELINES.values() else "compatibility_control"
@@ -588,8 +663,12 @@ def compare_runs(first, second, ineligible_cells=None, path="comparison"):
             "method": method, "baseline": "",
             "run_a_allocation": first_rows[method]["allocation"],
             "run_a_baseline_allocation": "", "run_a_delta_percent": "",
+            "run_a_allocation_error": first_rows[method].get("allocation_error", 0.0),
+            "run_a_baseline_allocation_error": "",
             "run_b_allocation": second_rows[method]["allocation"],
             "run_b_baseline_allocation": "", "run_b_delta_percent": "",
+            "run_b_allocation_error": second_rows[method].get("allocation_error", 0.0),
+            "run_b_baseline_allocation_error": "",
             "eligible": False, "reason": reason, "verdict": "ineligible",
         }
     return result
@@ -665,6 +744,7 @@ def write_summary(path, run_id, parsed):
                 "run_id": run_id, "method": method,
                 "throughput_ops_per_second": format(row["throughput"], ".17g"),
                 "allocation_bytes_per_operation": format(row["allocation"], ".17g"),
+                "allocation_error_bytes_per_operation": format(row["allocation_error"], ".17g"),
                 "eligible": "true" if row["eligible"] else "false",
                 "eligibility_reason": row["reason"],
                 "observed_config_sha256": parsed["observed_config_sha256"],
@@ -695,6 +775,11 @@ def read_summary(path):
         rows[method] = {
             "throughput": validate_score(_csv_number(record.get("throughput_ops_per_second")), "%s throughput" % method, path),
             "allocation": validate_score(_csv_number(record.get("allocation_bytes_per_operation")), "%s allocation" % method, path),
+            "allocation_error": validate_score(
+                _csv_number(record.get("allocation_error_bytes_per_operation")),
+                "%s allocation error" % method,
+                path,
+            ),
             "eligible": record.get("eligible") == "true",
             "reason": record.get("eligibility_reason"),
         }
@@ -801,6 +886,18 @@ def write_comparison(path, comparison):
             writer.writerow(row)
 
 
+def select_delivery_terminal(verdicts):
+    lettuce_verdicts = [
+        verdicts.get("lettuceEncodeHeapOptimized"),
+        verdicts.get("lettuceEncodeDirectOptimized"),
+    ]
+    if "regressed" in lettuce_verdicts:
+        return "rejected-after-regression"
+    if "accepted" in lettuce_verdicts:
+        return "retained-accepted"
+    return "retained-inconclusive"
+
+
 def validate_compare(run_paths, environment_paths, output_path, validation_path, rollback_bundle=None):
     if len(run_paths) != 2 or len(environment_paths) != 2:
         _fail("compare CLI", "input count", {"runs": len(run_paths), "environments": len(environment_paths)}, {"runs": 2, "environments": 2}, "pass exactly two canonical runs and environments")
@@ -836,15 +933,17 @@ def validate_compare(run_paths, environment_paths, output_path, validation_path,
             _fail(path, "rollback_bundle_sha256", declared, expected, "use the exact authenticated imported rollback bundle")
     comparison = compare_runs(runs[0], runs[1], rollback["ineligible_cells"] if rollback else None, str(output_path))
     write_comparison(output_path, comparison)
+    verdicts = {method: row["verdict"] for method, row in sorted(comparison.items())}
     result = {
         "schema_version": 1, "status": "passed", "mode": "compare",
         "run_ids": [runs[0]["run_id"], runs[1]["run_id"]],
         "observed_config_sha256": runs[0]["observed_config_sha256"],
         "comparison_path": str(Path(output_path).resolve()),
         "comparison_sha256": sha256_file(output_path),
-        "verdicts": {method: row["verdict"] for method, row in sorted(comparison.items())},
+        "verdicts": verdicts,
         "reasons": {method: row["reason"] for method, row in sorted(comparison.items())},
         "rollback_bundle_sha256": rollback["sha256"] if rollback else None,
+        "delivery_terminal": select_delivery_terminal(verdicts),
     }
     _write_json(validation_path, result)
     return result

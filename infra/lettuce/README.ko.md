@@ -36,7 +36,20 @@ Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도�
 | `RedisScriptRunner`                 | `RedisScript`를 sync / async / suspend API로 실행하는 헬퍼 객체 (`EVALSHA`→`EVAL` fallback 내장)   |
 
 Protobuf Codec은 `bluetape4k-protobuf` 모듈의
-`io.bluetape4k.protobuf.serializers.LettuceProtobufCodecs`에서 제공합니다.
+`io.bluetape4k.protobuf.serializers.redis.LettuceProtobufCodecs`에서 제공합니다.
+
+압축하지 않는 `protobuf()`와 `trustedInternalProtobuf()` factory는 nullable target overload를 통해 Lettuce가
+소유한 `ByteBuf`에 Protobuf message를 기록합니다. 성공 시 packed message 전체를 기록한 뒤에만 `writerIndex`를
+commit합니다. Encode가 실패하면 index는 유지되지만 capacity 증가나 시도한 range의 bytes는 남을 수 있으므로
+재사용 전에 해당 range를 clear/reinitialize하거나 buffer를 폐기해야 합니다. 단일 인자의 `ByteBuffer`
+encode/decode, 압축 factory, 비 Protobuf fallback 값, custom-prefix serializer는 copied compatibility 경로를
+유지합니다. 이는 실측 allocation 감소이며 zero-copy나 throughput 보장은 아닙니다. 자세한 수치는
+[issue #757 근거](../../docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md)를 참고하세요.
+
+`LettuceBinaryCodec`은 nullable target-taking `encodeValue(value, target)` source extension seam만 제공하기 위해
+open이며 일반 `RedisCodec` method는 final입니다. Class를 open하면 Kotlin이 생성한 JVM bridge도 override할 수
+있으므로 subclass는 serializer의 wire와 trust 계약을 보존해야 합니다. 기존 factory caller는 migration이
+필요하지 않습니다. Java에서는 `LettuceProtobufCodecs.INSTANCE.protobuf()`를 사용합니다.
 
 `LettuceCacheConfig` 제약:
 

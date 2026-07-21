@@ -1,0 +1,2041 @@
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeDirectCopied
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 0.00% complete, ETA 00:04:32
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 3156069.951 ops/s
+# Warmup Iteration   2: 3394269.366 ops/s
+# Warmup Iteration   3: 3348838.473 ops/s
+Iteration   1: 3356772.362 ops/s
+                 gc.alloc.rate:      20557.237 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           34.000 counts
+                 gc.time:            43.000 ms
+
+Iteration   2: 3373053.893 ops/s
+                 gc.alloc.rate:      20649.238 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           34.000 counts
+                 gc.time:            42.000 ms
+
+Iteration   3: 3351154.328 ops/s
+                 gc.alloc.rate:      20522.920 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           34.000 counts
+                 gc.time:            43.000 ms
+
+Iteration   4: 3369374.522 ops/s
+                 gc.alloc.rate:      20634.597 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           34.000 counts
+                 gc.time:            42.000 ms
+
+Iteration   5: 3369334.933 ops/s
+                 gc.alloc.rate:      20638.653 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           34.000 counts
+                 gc.time:            43.000 ms
+
+
+# Run progress: 2.94% complete, ETA 00:04:36
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 3142720.371 ops/s
+# Warmup Iteration   2: 3387845.454 ops/s
+# Warmup Iteration   3: 3330004.681 ops/s
+Iteration   1: 3341309.598 ops/s
+                 gc.alloc.rate:      20449.936 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           34.000 counts
+                 gc.time:            43.000 ms
+
+Iteration   2: 3355486.749 ops/s
+                 gc.alloc.rate:      20577.259 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           34.000 counts
+                 gc.time:            41.000 ms
+
+Iteration   3: 3368451.524 ops/s
+                 gc.alloc.rate:      20645.726 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           34.000 counts
+                 gc.time:            41.000 ms
+
+Iteration   4: 3380911.338 ops/s
+                 gc.alloc.rate:      20736.860 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           34.000 counts
+                 gc.time:            41.000 ms
+
+Iteration   5: 3372730.440 ops/s
+                 gc.alloc.rate:      20671.905 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           34.000 counts
+                 gc.time:            41.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeDirectCopied":
+  3363857.969 ±(99.9%) 18349.185 ops/s [Average]
+  (min, avg, max) = (3341309.598, 3363857.969, 3380911.338), stdev = 12136.850
+  CI (99.9%): [3345508.784, 3382207.154] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeDirectCopied:gc.alloc.rate":
+  20608.433 ±(99.9%) 124.674 MB/sec [Average]
+  (min, avg, max) = (20449.936, 20608.433, 20736.860), stdev = 82.464
+  CI (99.9%): [20483.760, 20733.107] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeDirectCopied:gc.alloc.rate.norm":
+  6888.002 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (6888.002, 6888.002, 6888.002), stdev = 0.001
+  CI (99.9%): [6888.002, 6888.002] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeDirectCopied:gc.count":
+  340.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (34.000, 34.000, 34.000), stdev = 0.001
+  CI (99.9%): [340.000, 340.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeDirectCopied:gc.time":
+  420.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (41.000, 42.000, 43.000), stdev = 0.943
+  CI (99.9%): [420.000, 420.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeDirectOptimized
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 5.88% complete, ETA 00:04:27
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 3966753.632 ops/s
+# Warmup Iteration   2: 4467430.579 ops/s
+# Warmup Iteration   3: 4483956.006 ops/s
+Iteration   1: 4493626.460 ops/s
+                 gc.alloc.rate:      19855.246 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           33.000 counts
+                 gc.time:            40.000 ms
+
+Iteration   2: 4484144.486 ops/s
+                 gc.alloc.rate:      19770.699 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           32.000 counts
+                 gc.time:            40.000 ms
+
+Iteration   3: 4491823.692 ops/s
+                 gc.alloc.rate:      19818.149 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           33.000 counts
+                 gc.time:            40.000 ms
+
+Iteration   4: 4482918.931 ops/s
+                 gc.alloc.rate:      19745.441 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           33.000 counts
+                 gc.time:            42.000 ms
+
+Iteration   5: 4488018.053 ops/s
+                 gc.alloc.rate:      19780.360 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           32.000 counts
+                 gc.time:            39.000 ms
+
+
+# Run progress: 8.82% complete, ETA 00:04:19
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 3975639.046 ops/s
+# Warmup Iteration   2: 4462055.179 ops/s
+# Warmup Iteration   3: 4460806.499 ops/s
+Iteration   1: 4486427.306 ops/s
+                 gc.alloc.rate:      19815.447 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           33.000 counts
+                 gc.time:            41.000 ms
+
+Iteration   2: 4479258.047 ops/s
+                 gc.alloc.rate:      19790.510 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           33.000 counts
+                 gc.time:            39.000 ms
+
+Iteration   3: 4474590.151 ops/s
+                 gc.alloc.rate:      19735.184 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           32.000 counts
+                 gc.time:            39.000 ms
+
+Iteration   4: 4483347.035 ops/s
+                 gc.alloc.rate:      19784.815 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           33.000 counts
+                 gc.time:            40.000 ms
+
+Iteration   5: 4482022.331 ops/s
+                 gc.alloc.rate:      19760.468 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           32.000 counts
+                 gc.time:            39.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeDirectOptimized":
+  4484617.649 ±(99.9%) 8562.136 ops/s [Average]
+  (min, avg, max) = (4474590.151, 4484617.649, 4493626.460), stdev = 5663.323
+  CI (99.9%): [4476055.513, 4493179.785] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeDirectOptimized:gc.alloc.rate":
+  19785.632 ±(99.9%) 54.885 MB/sec [Average]
+  (min, avg, max) = (19735.184, 19785.632, 19855.246), stdev = 36.303
+  CI (99.9%): [19730.747, 19840.517] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeDirectOptimized:gc.alloc.rate.norm":
+  4904.002 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (4904.002, 4904.002, 4904.002), stdev = 0.001
+  CI (99.9%): [4904.002, 4904.002] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeDirectOptimized:gc.count":
+  326.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (32.000, 32.600, 33.000), stdev = 0.516
+  CI (99.9%): [326.000, 326.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeDirectOptimized:gc.time":
+  399.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (39.000, 39.900, 42.000), stdev = 0.994
+  CI (99.9%): [399.000, 399.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeHeapCopied
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 11.76% complete, ETA 00:04:11
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 2922603.656 ops/s
+# Warmup Iteration   2: 3140208.576 ops/s
+# Warmup Iteration   3: 3115490.557 ops/s
+Iteration   1: 3106850.317 ops/s
+                 gc.alloc.rate:      19441.997 MB/sec
+                 gc.alloc.rate.norm: 6912.002 B/op
+                 gc.count:           32.000 counts
+                 gc.time:            39.000 ms
+
+Iteration   2: 3114144.088 ops/s
+                 gc.alloc.rate:      19482.289 MB/sec
+                 gc.alloc.rate.norm: 6912.002 B/op
+                 gc.count:           32.000 counts
+                 gc.time:            39.000 ms
+
+Iteration   3: 3094356.891 ops/s
+                 gc.alloc.rate:      19358.997 MB/sec
+                 gc.alloc.rate.norm: 6912.002 B/op
+                 gc.count:           32.000 counts
+                 gc.time:            39.000 ms
+
+Iteration   4: 3129320.906 ops/s
+                 gc.alloc.rate:      19596.211 MB/sec
+                 gc.alloc.rate.norm: 6912.002 B/op
+                 gc.count:           32.000 counts
+                 gc.time:            38.000 ms
+
+Iteration   5: 3129467.494 ops/s
+                 gc.alloc.rate:      19600.654 MB/sec
+                 gc.alloc.rate.norm: 6912.002 B/op
+                 gc.count:           32.000 counts
+                 gc.time:            39.000 ms
+
+
+# Run progress: 14.71% complete, ETA 00:04:02
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 2939684.041 ops/s
+# Warmup Iteration   2: 3126645.262 ops/s
+# Warmup Iteration   3: 3137554.248 ops/s
+Iteration   1: 3158859.456 ops/s
+                 gc.alloc.rate:      19899.515 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           33.000 counts
+                 gc.time:            39.000 ms
+
+Iteration   2: 3164210.552 ops/s
+                 gc.alloc.rate:      19960.234 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           33.000 counts
+                 gc.time:            39.000 ms
+
+Iteration   3: 3159857.967 ops/s
+                 gc.alloc.rate:      19911.837 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           33.000 counts
+                 gc.time:            40.000 ms
+
+Iteration   4: 3144168.565 ops/s
+                 gc.alloc.rate:      19778.644 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           32.000 counts
+                 gc.time:            38.000 ms
+
+Iteration   5: 3160773.506 ops/s
+                 gc.alloc.rate:      19900.351 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           33.000 counts
+                 gc.time:            39.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeHeapCopied":
+  3136200.974 ±(99.9%) 38102.464 ops/s [Average]
+  (min, avg, max) = (3094356.891, 3136200.974, 3164210.552), stdev = 25202.421
+  CI (99.9%): [3098098.511, 3174303.438] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeHeapCopied:gc.alloc.rate":
+  19693.073 ±(99.9%) 337.737 MB/sec [Average]
+  (min, avg, max) = (19358.997, 19693.073, 19960.234), stdev = 223.392
+  CI (99.9%): [19355.336, 20030.810] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeHeapCopied:gc.alloc.rate.norm":
+  6900.002 ±(99.9%) 19.124 B/op [Average]
+  (min, avg, max) = (6888.002, 6900.002, 6912.002), stdev = 12.649
+  CI (99.9%): [6880.879, 6919.126] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeHeapCopied:gc.count":
+  324.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (32.000, 32.400, 33.000), stdev = 0.516
+  CI (99.9%): [324.000, 324.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeHeapCopied:gc.time":
+  389.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (38.000, 38.900, 40.000), stdev = 0.568
+  CI (99.9%): [389.000, 389.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeHeapOptimized
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 17.65% complete, ETA 00:03:54
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 3838494.715 ops/s
+# Warmup Iteration   2: 4243368.558 ops/s
+# Warmup Iteration   3: 4190781.931 ops/s
+Iteration   1: 4214485.093 ops/s
+                 gc.alloc.rate:      18124.177 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            36.000 ms
+
+Iteration   2: 4220874.362 ops/s
+                 gc.alloc.rate:      18148.280 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            35.000 ms
+
+Iteration   3: 4229676.236 ops/s
+                 gc.alloc.rate:      18178.316 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            36.000 ms
+
+Iteration   4: 4223208.486 ops/s
+                 gc.alloc.rate:      18157.468 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           29.000 counts
+                 gc.time:            35.000 ms
+
+Iteration   5: 4167227.699 ops/s
+                 gc.alloc.rate:      17929.295 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            36.000 ms
+
+
+# Run progress: 20.59% complete, ETA 00:03:46
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 3740873.733 ops/s
+# Warmup Iteration   2: 4249163.147 ops/s
+# Warmup Iteration   3: 4212117.021 ops/s
+Iteration   1: 4236243.524 ops/s
+                 gc.alloc.rate:      18200.011 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            34.000 ms
+
+Iteration   2: 4156483.208 ops/s
+                 gc.alloc.rate:      17890.553 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           29.000 counts
+                 gc.time:            37.000 ms
+
+Iteration   3: 4191910.196 ops/s
+                 gc.alloc.rate:      18030.269 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            37.000 ms
+
+Iteration   4: 4210548.113 ops/s
+                 gc.alloc.rate:      18097.454 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            37.000 ms
+
+Iteration   5: 4195762.988 ops/s
+                 gc.alloc.rate:      18037.317 MB/sec
+                 gc.alloc.rate.norm: 4904.002 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            37.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeHeapOptimized":
+  4204641.990 ±(99.9%) 40080.465 ops/s [Average]
+  (min, avg, max) = (4156483.208, 4204641.990, 4236243.524), stdev = 26510.746
+  CI (99.9%): [4164561.526, 4244722.455] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeHeapOptimized:gc.alloc.rate":
+  18079.314 ±(99.9%) 159.269 MB/sec [Average]
+  (min, avg, max) = (17890.553, 18079.314, 18200.011), stdev = 105.346
+  CI (99.9%): [17920.045, 18238.583] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeHeapOptimized:gc.alloc.rate.norm":
+  4904.002 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (4904.002, 4904.002, 4904.002), stdev = 0.001
+  CI (99.9%): [4904.002, 4904.002] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeHeapOptimized:gc.count":
+  298.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (29.000, 29.800, 30.000), stdev = 0.422
+  CI (99.9%): [298.000, 298.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.lettuceEncodeHeapOptimized:gc.time":
+  360.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (34.000, 36.000, 37.000), stdev = 1.054
+  CI (99.9%): [360.000, 360.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 23.53% complete, ETA 00:03:37
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 1875416.008 ops/s
+# Warmup Iteration   2: 2083349.689 ops/s
+# Warmup Iteration   3: 2185233.351 ops/s
+Iteration   1: 2180710.011 ops/s
+                 gc.alloc.rate:      15987.356 MB/sec
+                 gc.alloc.rate.norm: 7984.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   2: 2192966.079 ops/s
+                 gc.alloc.rate:      16109.863 MB/sec
+                 gc.alloc.rate.norm: 7984.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   3: 2183984.992 ops/s
+                 gc.alloc.rate:      16005.424 MB/sec
+                 gc.alloc.rate.norm: 7984.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            32.000 ms
+
+Iteration   4: 2182551.851 ops/s
+                 gc.alloc.rate:      16021.356 MB/sec
+                 gc.alloc.rate.norm: 7984.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            32.000 ms
+
+Iteration   5: 2183345.011 ops/s
+                 gc.alloc.rate:      15982.248 MB/sec
+                 gc.alloc.rate.norm: 7984.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            31.000 ms
+
+
+# Run progress: 26.47% complete, ETA 00:03:29
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 1844951.628 ops/s
+# Warmup Iteration   2: 2005627.707 ops/s
+# Warmup Iteration   3: 2161200.944 ops/s
+Iteration   1: 2159095.468 ops/s
+                 gc.alloc.rate:      15813.913 MB/sec
+                 gc.alloc.rate.norm: 7984.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            32.000 ms
+
+Iteration   2: 2159691.611 ops/s
+                 gc.alloc.rate:      15821.752 MB/sec
+                 gc.alloc.rate.norm: 7984.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   3: 2169519.147 ops/s
+                 gc.alloc.rate:      15895.908 MB/sec
+                 gc.alloc.rate.norm: 7984.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            31.000 ms
+
+Iteration   4: 2161027.266 ops/s
+                 gc.alloc.rate:      15811.594 MB/sec
+                 gc.alloc.rate.norm: 7984.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            31.000 ms
+
+Iteration   5: 2163000.212 ops/s
+                 gc.alloc.rate:      15849.991 MB/sec
+                 gc.alloc.rate.norm: 7984.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            32.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility":
+  2173589.165 ±(99.9%) 18852.485 ops/s [Average]
+  (min, avg, max) = (2159095.468, 2173589.165, 2192966.079), stdev = 12469.751
+  CI (99.9%): [2154736.680, 2192441.649] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.alloc.rate":
+  15929.941 ±(99.9%) 158.711 MB/sec [Average]
+  (min, avg, max) = (15811.594, 15929.941, 16109.863), stdev = 104.977
+  CI (99.9%): [15771.230, 16088.651] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.alloc.rate.norm":
+  7984.003 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (7984.003, 7984.003, 7984.003), stdev = 0.001
+  CI (99.9%): [7984.003, 7984.003] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.count":
+  264.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (26.000, 26.400, 27.000), stdev = 0.516
+  CI (99.9%): [264.000, 264.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.time":
+  320.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (31.000, 32.000, 33.000), stdev = 0.816
+  CI (99.9%): [320.000, 320.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeContiguousOptimized
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 29.41% complete, ETA 00:03:20
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 2705487.919 ops/s
+# Warmup Iteration   2: 2870007.675 ops/s
+# Warmup Iteration   3: 2922587.488 ops/s
+Iteration   1: 2906445.218 ops/s
+                 gc.alloc.rate:      13959.368 MB/sec
+                 gc.alloc.rate.norm: 5264.002 B/op
+                 gc.count:           24.000 counts
+                 gc.time:            30.000 ms
+
+Iteration   2: 2912100.828 ops/s
+                 gc.alloc.rate:      13966.942 MB/sec
+                 gc.alloc.rate.norm: 5264.002 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            28.000 ms
+
+Iteration   3: 2935835.897 ops/s
+                 gc.alloc.rate:      14028.288 MB/sec
+                 gc.alloc.rate.norm: 5264.002 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            28.000 ms
+
+Iteration   4: 2927513.049 ops/s
+                 gc.alloc.rate:      14027.638 MB/sec
+                 gc.alloc.rate.norm: 5264.002 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            27.000 ms
+
+Iteration   5: 2919388.144 ops/s
+                 gc.alloc.rate:      14002.077 MB/sec
+                 gc.alloc.rate.norm: 5264.003 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            28.000 ms
+
+
+# Run progress: 32.35% complete, ETA 00:03:12
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 2722036.909 ops/s
+# Warmup Iteration   2: 2872486.154 ops/s
+# Warmup Iteration   3: 2943408.496 ops/s
+Iteration   1: 2932172.938 ops/s
+                 gc.alloc.rate:      14036.599 MB/sec
+                 gc.alloc.rate.norm: 5264.002 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            29.000 ms
+
+Iteration   2: 2941492.303 ops/s
+                 gc.alloc.rate:      14058.294 MB/sec
+                 gc.alloc.rate.norm: 5264.002 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            27.000 ms
+
+Iteration   3: 2936961.546 ops/s
+                 gc.alloc.rate:      14042.362 MB/sec
+                 gc.alloc.rate.norm: 5264.002 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            29.000 ms
+
+Iteration   4: 2917452.704 ops/s
+                 gc.alloc.rate:      13966.310 MB/sec
+                 gc.alloc.rate.norm: 5264.002 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            28.000 ms
+
+Iteration   5: 2946977.770 ops/s
+                 gc.alloc.rate:      14052.184 MB/sec
+                 gc.alloc.rate.norm: 5264.003 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            28.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeContiguousOptimized":
+  2927634.040 ±(99.9%) 20177.123 ops/s [Average]
+  (min, avg, max) = (2906445.218, 2927634.040, 2946977.770), stdev = 13345.918
+  CI (99.9%): [2907456.916, 2947811.163] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.alloc.rate":
+  14014.006 ±(99.9%) 56.884 MB/sec [Average]
+  (min, avg, max) = (13959.368, 14014.006, 14058.294), stdev = 37.625
+  CI (99.9%): [13957.122, 14070.890] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.alloc.rate.norm":
+  5264.002 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (5264.002, 5264.002, 5264.003), stdev = 0.001
+  CI (99.9%): [5264.002, 5264.003] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.count":
+  231.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (23.000, 23.100, 24.000), stdev = 0.316
+  CI (99.9%): [231.000, 231.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.time":
+  282.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (27.000, 28.200, 30.000), stdev = 0.919
+  CI (99.9%): [282.000, 282.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCopiedByteArray
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 35.29% complete, ETA 00:03:04
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 2218141.880 ops/s
+# Warmup Iteration   2: 2431682.009 ops/s
+# Warmup Iteration   3: 2368028.703 ops/s
+Iteration   1: 2386200.647 ops/s
+                 gc.alloc.rate:      16350.784 MB/sec
+                 gc.alloc.rate.norm: 7496.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            31.000 ms
+
+Iteration   2: 2364066.284 ops/s
+                 gc.alloc.rate:      16186.453 MB/sec
+                 gc.alloc.rate.norm: 7496.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            34.000 ms
+
+Iteration   3: 2370841.507 ops/s
+                 gc.alloc.rate:      16227.815 MB/sec
+                 gc.alloc.rate.norm: 7496.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            32.000 ms
+
+Iteration   4: 2373228.952 ops/s
+                 gc.alloc.rate:      16240.425 MB/sec
+                 gc.alloc.rate.norm: 7496.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   5: 2366145.307 ops/s
+                 gc.alloc.rate:      16210.686 MB/sec
+                 gc.alloc.rate.norm: 7496.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            32.000 ms
+
+
+# Run progress: 38.24% complete, ETA 00:02:55
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 2227807.080 ops/s
+# Warmup Iteration   2: 2436378.509 ops/s
+# Warmup Iteration   3: 2449798.427 ops/s
+Iteration   1: 2446609.869 ops/s
+                 gc.alloc.rate:      16834.155 MB/sec
+                 gc.alloc.rate.norm: 7496.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            34.000 ms
+
+Iteration   2: 2445089.643 ops/s
+                 gc.alloc.rate:      16820.256 MB/sec
+                 gc.alloc.rate.norm: 7496.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   3: 2441806.211 ops/s
+                 gc.alloc.rate:      16802.370 MB/sec
+                 gc.alloc.rate.norm: 7496.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   4: 2469164.058 ops/s
+                 gc.alloc.rate:      17011.255 MB/sec
+                 gc.alloc.rate.norm: 7496.003 B/op
+                 gc.count:           29.000 counts
+                 gc.time:            35.000 ms
+
+Iteration   5: 2462726.675 ops/s
+                 gc.alloc.rate:      16959.247 MB/sec
+                 gc.alloc.rate.norm: 7496.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            33.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCopiedByteArray":
+  2412587.915 ±(99.9%) 66249.647 ops/s [Average]
+  (min, avg, max) = (2364066.284, 2412587.915, 2469164.058), stdev = 43820.039
+  CI (99.9%): [2346338.269, 2478837.562] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.alloc.rate":
+  16564.345 ±(99.9%) 524.276 MB/sec [Average]
+  (min, avg, max) = (16186.453, 16564.345, 17011.255), stdev = 346.776
+  CI (99.9%): [16040.069, 17088.620] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.alloc.rate.norm":
+  7496.003 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (7496.003, 7496.003, 7496.003), stdev = 0.001
+  CI (99.9%): [7496.003, 7496.003] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.count":
+  273.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (26.000, 27.300, 29.000), stdev = 0.949
+  CI (99.9%): [273.000, 273.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.time":
+  330.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (31.000, 33.000, 35.000), stdev = 1.155
+  CI (99.9%): [330.000, 330.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeByteArray
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 41.18% complete, ETA 00:02:47
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 2645064.589 ops/s
+# Warmup Iteration   2: 2821049.006 ops/s
+# Warmup Iteration   3: 2976726.537 ops/s
+Iteration   1: 2986642.698 ops/s
+                 gc.alloc.rate:      14102.290 MB/sec
+                 gc.alloc.rate.norm: 5232.228 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            29.000 ms
+
+Iteration   2: 3002832.927 ops/s
+                 gc.alloc.rate:      14148.919 MB/sec
+                 gc.alloc.rate.norm: 5232.599 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            28.000 ms
+
+Iteration   3: 2982779.483 ops/s
+                 gc.alloc.rate:      14087.591 MB/sec
+                 gc.alloc.rate.norm: 5232.605 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            29.000 ms
+
+Iteration   4: 2984777.117 ops/s
+                 gc.alloc.rate:      14110.798 MB/sec
+                 gc.alloc.rate.norm: 5232.599 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            29.000 ms
+
+Iteration   5: 2968716.455 ops/s
+                 gc.alloc.rate:      14061.219 MB/sec
+                 gc.alloc.rate.norm: 5232.601 B/op
+                 gc.count:           23.000 counts
+                 gc.time:            29.000 ms
+
+
+# Run progress: 44.12% complete, ETA 00:02:39
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 2674342.226 ops/s
+# Warmup Iteration   2: 2974130.423 ops/s
+# Warmup Iteration   3: 3122302.321 ops/s
+Iteration   1: 3127640.438 ops/s
+                 gc.alloc.rate:      14754.310 MB/sec
+                 gc.alloc.rate.norm: 5232.074 B/op
+                 gc.count:           24.000 counts
+                 gc.time:            29.000 ms
+
+Iteration   2: 3146288.782 ops/s
+                 gc.alloc.rate:      14843.879 MB/sec
+                 gc.alloc.rate.norm: 5232.499 B/op
+                 gc.count:           25.000 counts
+                 gc.time:            30.000 ms
+
+Iteration   3: 3141927.910 ops/s
+                 gc.alloc.rate:      14806.166 MB/sec
+                 gc.alloc.rate.norm: 5232.573 B/op
+                 gc.count:           24.000 counts
+                 gc.time:            30.000 ms
+
+Iteration   4: 3151183.338 ops/s
+                 gc.alloc.rate:      14868.177 MB/sec
+                 gc.alloc.rate.norm: 5232.569 B/op
+                 gc.count:           24.000 counts
+                 gc.time:            29.000 ms
+
+Iteration   5: 3119246.457 ops/s
+                 gc.alloc.rate:      14695.459 MB/sec
+                 gc.alloc.rate.norm: 5232.578 B/op
+                 gc.count:           25.000 counts
+                 gc.time:            31.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeByteArray":
+  3061203.560 ±(99.9%) 122561.779 ops/s [Average]
+  (min, avg, max) = (2968716.455, 3061203.560, 3151183.338), stdev = 81067.028
+  CI (99.9%): [2938641.782, 3183765.339] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeByteArray:gc.alloc.rate":
+  14447.881 ±(99.9%) 556.355 MB/sec [Average]
+  (min, avg, max) = (14061.219, 14447.881, 14868.177), stdev = 367.994
+  CI (99.9%): [13891.526, 15004.235] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeByteArray:gc.alloc.rate.norm":
+  5232.493 ±(99.9%) 0.281 B/op [Average]
+  (min, avg, max) = (5232.074, 5232.493, 5232.605), stdev = 0.186
+  CI (99.9%): [5232.211, 5232.774] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeByteArray:gc.count":
+  237.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (23.000, 23.700, 25.000), stdev = 0.823
+  CI (99.9%): [237.000, 237.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeByteArray:gc.time":
+  293.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (28.000, 29.300, 31.000), stdev = 0.823
+  CI (99.9%): [293.000, 293.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeDirectOptimized
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 47.06% complete, ETA 00:02:30
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 2091266.847 ops/s
+# Warmup Iteration   2: 2244525.081 ops/s
+# Warmup Iteration   3: 2444949.882 ops/s
+Iteration   1: 2437360.847 ops/s
+                 gc.alloc.rate:      16769.990 MB/sec
+                 gc.alloc.rate.norm: 7512.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            35.000 ms
+
+Iteration   2: 2437960.438 ops/s
+                 gc.alloc.rate:      16763.987 MB/sec
+                 gc.alloc.rate.norm: 7512.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   3: 2448926.833 ops/s
+                 gc.alloc.rate:      16839.835 MB/sec
+                 gc.alloc.rate.norm: 7512.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            34.000 ms
+
+Iteration   4: 2420622.975 ops/s
+                 gc.alloc.rate:      16633.393 MB/sec
+                 gc.alloc.rate.norm: 7512.003 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            36.000 ms
+
+Iteration   5: 2452510.272 ops/s
+                 gc.alloc.rate:      16869.284 MB/sec
+                 gc.alloc.rate.norm: 7512.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            34.000 ms
+
+
+# Run progress: 50.00% complete, ETA 00:02:22
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 2117768.373 ops/s
+# Warmup Iteration   2: 2176398.303 ops/s
+# Warmup Iteration   3: 2388468.366 ops/s
+Iteration   1: 2373095.982 ops/s
+                 gc.alloc.rate:      16342.650 MB/sec
+                 gc.alloc.rate.norm: 7544.433 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            34.000 ms
+
+Iteration   2: 2385236.862 ops/s
+                 gc.alloc.rate:      16427.956 MB/sec
+                 gc.alloc.rate.norm: 7544.587 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            32.000 ms
+
+Iteration   3: 2377481.013 ops/s
+                 gc.alloc.rate:      16374.143 MB/sec
+                 gc.alloc.rate.norm: 7544.592 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            36.000 ms
+
+Iteration   4: 2379021.178 ops/s
+                 gc.alloc.rate:      16382.407 MB/sec
+                 gc.alloc.rate.norm: 7544.590 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   5: 2383377.444 ops/s
+                 gc.alloc.rate:      16410.692 MB/sec
+                 gc.alloc.rate.norm: 7544.590 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            33.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeDirectOptimized":
+  2409559.384 ±(99.9%) 49543.373 ops/s [Average]
+  (min, avg, max) = (2373095.982, 2409559.384, 2452510.272), stdev = 32769.874
+  CI (99.9%): [2360016.011, 2459102.758] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.alloc.rate":
+  16581.434 ±(99.9%) 324.067 MB/sec [Average]
+  (min, avg, max) = (16342.650, 16581.434, 16869.284), stdev = 214.350
+  CI (99.9%): [16257.366, 16905.501] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.alloc.rate.norm":
+  7528.281 ±(99.9%) 25.941 B/op [Average]
+  (min, avg, max) = (7512.003, 7528.281, 7544.592), stdev = 17.158
+  CI (99.9%): [7502.340, 7554.222] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.count":
+  273.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (27.000, 27.300, 28.000), stdev = 0.483
+  CI (99.9%): [273.000, 273.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.time":
+  340.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (32.000, 34.000, 36.000), stdev = 1.333
+  CI (99.9%): [340.000, 340.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeHeapOptimized
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 52.94% complete, ETA 00:02:13
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 2143545.886 ops/s
+# Warmup Iteration   2: 2386316.634 ops/s
+# Warmup Iteration   3: 2307002.005 ops/s
+Iteration   1: 2319407.239 ops/s
+                 gc.alloc.rate:      15948.113 MB/sec
+                 gc.alloc.rate.norm: 7512.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   2: 2315583.823 ops/s
+                 gc.alloc.rate:      15913.658 MB/sec
+                 gc.alloc.rate.norm: 7512.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   3: 2326608.807 ops/s
+                 gc.alloc.rate:      15990.913 MB/sec
+                 gc.alloc.rate.norm: 7512.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   4: 2337525.275 ops/s
+                 gc.alloc.rate:      16064.520 MB/sec
+                 gc.alloc.rate.norm: 7512.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            32.000 ms
+
+Iteration   5: 2335914.454 ops/s
+                 gc.alloc.rate:      16055.404 MB/sec
+                 gc.alloc.rate.norm: 7512.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            32.000 ms
+
+
+# Run progress: 55.88% complete, ETA 00:02:05
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 2159565.419 ops/s
+# Warmup Iteration   2: 2370774.690 ops/s
+# Warmup Iteration   3: 2311622.199 ops/s
+Iteration   1: 2330027.050 ops/s
+                 gc.alloc.rate:      16013.741 MB/sec
+                 gc.alloc.rate.norm: 7512.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   2: 2346784.511 ops/s
+                 gc.alloc.rate:      16107.935 MB/sec
+                 gc.alloc.rate.norm: 7512.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            34.000 ms
+
+Iteration   3: 2342692.375 ops/s
+                 gc.alloc.rate:      16085.674 MB/sec
+                 gc.alloc.rate.norm: 7512.003 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            32.000 ms
+
+Iteration   4: 2331997.001 ops/s
+                 gc.alloc.rate:      16011.153 MB/sec
+                 gc.alloc.rate.norm: 7512.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            34.000 ms
+
+Iteration   5: 2392476.984 ops/s
+                 gc.alloc.rate:      16415.757 MB/sec
+                 gc.alloc.rate.norm: 7512.003 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            32.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeHeapOptimized":
+  2337901.752 ±(99.9%) 32460.738 ops/s [Average]
+  (min, avg, max) = (2315583.823, 2337901.752, 2392476.984), stdev = 21470.768
+  CI (99.9%): [2305441.014, 2370362.490] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.alloc.rate":
+  16060.687 ±(99.9%) 209.484 MB/sec [Average]
+  (min, avg, max) = (15913.658, 16060.687, 16415.757), stdev = 138.560
+  CI (99.9%): [15851.203, 16270.170] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.alloc.rate.norm":
+  7512.003 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (7512.003, 7512.003, 7512.003), stdev = 0.001
+  CI (99.9%): [7512.003, 7512.003] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.count":
+  264.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (26.000, 26.400, 27.000), stdev = 0.516
+  CI (99.9%): [264.000, 264.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.time":
+  328.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (32.000, 32.800, 34.000), stdev = 0.789
+  CI (99.9%): [328.000, 328.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeByteArray
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 58.82% complete, ETA 00:01:57
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 3343451.371 ops/s
+# Warmup Iteration   2: 3638121.606 ops/s
+# Warmup Iteration   3: 3668559.538 ops/s
+Iteration   1: 3623840.325 ops/s
+                 gc.alloc.rate:      22440.279 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           37.000 counts
+                 gc.time:            47.000 ms
+
+Iteration   2: 3634020.096 ops/s
+                 gc.alloc.rate:      22503.410 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           38.000 counts
+                 gc.time:            48.000 ms
+
+Iteration   3: 3622345.792 ops/s
+                 gc.alloc.rate:      22418.507 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           36.000 counts
+                 gc.time:            47.000 ms
+
+Iteration   4: 3626915.497 ops/s
+                 gc.alloc.rate:      22452.492 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           37.000 counts
+                 gc.time:            47.000 ms
+
+Iteration   5: 3625373.621 ops/s
+                 gc.alloc.rate:      22439.444 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           38.000 counts
+                 gc.time:            48.000 ms
+
+
+# Run progress: 61.76% complete, ETA 00:01:48
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 3386376.944 ops/s
+# Warmup Iteration   2: 3583465.110 ops/s
+# Warmup Iteration   3: 3606504.289 ops/s
+Iteration   1: 3567540.907 ops/s
+                 gc.alloc.rate:      22243.547 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           37.000 counts
+                 gc.time:            47.000 ms
+
+Iteration   2: 3568506.811 ops/s
+                 gc.alloc.rate:      22247.420 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           37.000 counts
+                 gc.time:            47.000 ms
+
+Iteration   3: 3553438.510 ops/s
+                 gc.alloc.rate:      22137.457 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           36.000 counts
+                 gc.time:            45.000 ms
+
+Iteration   4: 3551664.196 ops/s
+                 gc.alloc.rate:      22134.154 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           37.000 counts
+                 gc.time:            45.000 ms
+
+Iteration   5: 3546060.780 ops/s
+                 gc.alloc.rate:      22059.401 MB/sec
+                 gc.alloc.rate.norm: 6888.002 B/op
+                 gc.count:           36.000 counts
+                 gc.time:            45.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeByteArray":
+  3591970.654 ±(99.9%) 56135.412 ops/s [Average]
+  (min, avg, max) = (3546060.780, 3591970.654, 3634020.096), stdev = 37130.099
+  CI (99.9%): [3535835.242, 3648106.065] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeByteArray:gc.alloc.rate":
+  22307.611 ±(99.9%) 244.290 MB/sec [Average]
+  (min, avg, max) = (22059.401, 22307.611, 22503.410), stdev = 161.583
+  CI (99.9%): [22063.321, 22551.901] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeByteArray:gc.alloc.rate.norm":
+  6888.002 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (6888.002, 6888.002, 6888.002), stdev = 0.001
+  CI (99.9%): [6888.002, 6888.002] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeByteArray:gc.count":
+  369.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (36.000, 36.900, 38.000), stdev = 0.738
+  CI (99.9%): [369.000, 369.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeByteArray:gc.time":
+  466.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (45.000, 46.600, 48.000), stdev = 1.174
+  CI (99.9%): [466.000, 466.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeDirectOptimized
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 64.71% complete, ETA 00:01:40
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 4027362.741 ops/s
+# Warmup Iteration   2: 4408041.150 ops/s
+# Warmup Iteration   3: 4438466.769 ops/s
+Iteration   1: 4453181.575 ops/s
+                 gc.alloc.rate:      18169.758 MB/sec
+                 gc.alloc.rate.norm: 4608.002 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            39.000 ms
+
+Iteration   2: 4454337.456 ops/s
+                 gc.alloc.rate:      18259.580 MB/sec
+                 gc.alloc.rate.norm: 4608.002 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            38.000 ms
+
+Iteration   3: 4537440.652 ops/s
+                 gc.alloc.rate:      18725.371 MB/sec
+                 gc.alloc.rate.norm: 4608.002 B/op
+                 gc.count:           31.000 counts
+                 gc.time:            38.000 ms
+
+Iteration   4: 4565006.645 ops/s
+                 gc.alloc.rate:      18690.924 MB/sec
+                 gc.alloc.rate.norm: 4608.002 B/op
+                 gc.count:           30.000 counts
+                 gc.time:            37.000 ms
+
+Iteration   5: 4493230.770 ops/s
+                 gc.alloc.rate:      18582.187 MB/sec
+                 gc.alloc.rate.norm: 4608.002 B/op
+                 gc.count:           31.000 counts
+                 gc.time:            38.000 ms
+
+
+# Run progress: 67.65% complete, ETA 00:01:32
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 4190239.687 ops/s
+# Warmup Iteration   2: 4509512.048 ops/s
+# Warmup Iteration   3: 4539871.611 ops/s
+Iteration   1: 4530563.011 ops/s
+                 gc.alloc.rate:      18894.007 MB/sec
+                 gc.alloc.rate.norm: 4608.002 B/op
+                 gc.count:           31.000 counts
+                 gc.time:            38.000 ms
+
+Iteration   2: 4534391.421 ops/s
+                 gc.alloc.rate:      18911.276 MB/sec
+                 gc.alloc.rate.norm: 4608.002 B/op
+                 gc.count:           31.000 counts
+                 gc.time:            36.000 ms
+
+Iteration   3: 4516214.111 ops/s
+                 gc.alloc.rate:      18796.995 MB/sec
+                 gc.alloc.rate.norm: 4608.002 B/op
+                 gc.count:           31.000 counts
+                 gc.time:            38.000 ms
+
+Iteration   4: 4522190.379 ops/s
+                 gc.alloc.rate:      18827.994 MB/sec
+                 gc.alloc.rate.norm: 4608.002 B/op
+                 gc.count:           31.000 counts
+                 gc.time:            37.000 ms
+
+Iteration   5: 4535165.337 ops/s
+                 gc.alloc.rate:      18911.211 MB/sec
+                 gc.alloc.rate.norm: 4608.002 B/op
+                 gc.count:           31.000 counts
+                 gc.time:            37.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeDirectOptimized":
+  4514172.136 ±(99.9%) 55321.965 ops/s [Average]
+  (min, avg, max) = (4453181.575, 4514172.136, 4565006.645), stdev = 36592.054
+  CI (99.9%): [4458850.171, 4569494.101] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.alloc.rate":
+  18676.930 ±(99.9%) 402.244 MB/sec [Average]
+  (min, avg, max) = (18169.758, 18676.930, 18911.276), stdev = 266.059
+  CI (99.9%): [18274.687, 19079.174] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.alloc.rate.norm":
+  4608.002 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (4608.002, 4608.002, 4608.002), stdev = 0.001
+  CI (99.9%): [4608.002, 4608.002] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.count":
+  307.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (30.000, 30.700, 31.000), stdev = 0.483
+  CI (99.9%): [307.000, 307.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.time":
+  376.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (36.000, 37.600, 39.000), stdev = 0.843
+  CI (99.9%): [376.000, 376.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeHeapOptimized
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 70.59% complete, ETA 00:01:23
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 3911153.698 ops/s
+# Warmup Iteration   2: 4165049.567 ops/s
+# Warmup Iteration   3: 4066484.479 ops/s
+Iteration   1: 4086950.075 ops/s
+                 gc.alloc.rate:      16633.036 MB/sec
+                 gc.alloc.rate.norm: 4632.002 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   2: 4082546.861 ops/s
+                 gc.alloc.rate:      16615.741 MB/sec
+                 gc.alloc.rate.norm: 4632.002 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   3: 4077640.050 ops/s
+                 gc.alloc.rate:      16605.480 MB/sec
+                 gc.alloc.rate.norm: 4632.002 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            35.000 ms
+
+Iteration   4: 4075774.347 ops/s
+                 gc.alloc.rate:      16591.818 MB/sec
+                 gc.alloc.rate.norm: 4632.002 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   5: 4074134.983 ops/s
+                 gc.alloc.rate:      16589.197 MB/sec
+                 gc.alloc.rate.norm: 4632.002 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            33.000 ms
+
+
+# Run progress: 73.53% complete, ETA 00:01:15
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 3833765.466 ops/s
+# Warmup Iteration   2: 4180495.570 ops/s
+# Warmup Iteration   3: 4135527.097 ops/s
+Iteration   1: 4146400.172 ops/s
+                 gc.alloc.rate:      16839.660 MB/sec
+                 gc.alloc.rate.norm: 4608.002 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            34.000 ms
+
+Iteration   2: 4140085.990 ops/s
+                 gc.alloc.rate:      16808.591 MB/sec
+                 gc.alloc.rate.norm: 4608.002 B/op
+                 gc.count:           27.000 counts
+                 gc.time:            32.000 ms
+
+Iteration   3: 4151458.307 ops/s
+                 gc.alloc.rate:      16856.049 MB/sec
+                 gc.alloc.rate.norm: 4608.002 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            33.000 ms
+
+Iteration   4: 4136269.086 ops/s
+                 gc.alloc.rate:      16790.864 MB/sec
+                 gc.alloc.rate.norm: 4608.002 B/op
+                 gc.count:           28.000 counts
+                 gc.time:            34.000 ms
+
+Iteration   5: 3875184.453 ops/s
+                 gc.alloc.rate:      15742.714 MB/sec
+                 gc.alloc.rate.norm: 4608.002 B/op
+                 gc.count:           26.000 counts
+                 gc.time:            33.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeHeapOptimized":
+  4084644.432 ±(99.9%) 121512.247 ops/s [Average]
+  (min, avg, max) = (3875184.453, 4084644.432, 4151458.307), stdev = 80372.828
+  CI (99.9%): [3963132.185, 4206156.680] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.alloc.rate":
+  16607.315 ±(99.9%) 488.312 MB/sec [Average]
+  (min, avg, max) = (15742.714, 16607.315, 16856.049), stdev = 322.988
+  CI (99.9%): [16119.003, 17095.628] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.alloc.rate.norm":
+  4620.002 ±(99.9%) 19.124 B/op [Average]
+  (min, avg, max) = (4608.002, 4620.002, 4632.002), stdev = 12.649
+  CI (99.9%): [4600.878, 4639.125] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.count":
+  273.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (26.000, 27.300, 28.000), stdev = 0.675
+  CI (99.9%): [273.000, 273.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.time":
+  333.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (32.000, 33.300, 35.000), stdev = 0.823
+  CI (99.9%): [333.000, 333.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 76.47% complete, ETA 00:01:06
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 480399.103 ops/s
+# Warmup Iteration   2: 569084.919 ops/s
+# Warmup Iteration   3: 577757.756 ops/s
+Iteration   1: 578818.485 ops/s
+                 gc.alloc.rate:      2970.638 MB/sec
+                 gc.alloc.rate.norm: 5440.012 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            6.000 ms
+
+Iteration   2: 580269.075 ops/s
+                 gc.alloc.rate:      2978.216 MB/sec
+                 gc.alloc.rate.norm: 5440.012 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            6.000 ms
+
+Iteration   3: 576832.229 ops/s
+                 gc.alloc.rate:      2960.204 MB/sec
+                 gc.alloc.rate.norm: 5440.012 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            6.000 ms
+
+Iteration   4: 573263.588 ops/s
+                 gc.alloc.rate:      2941.795 MB/sec
+                 gc.alloc.rate.norm: 5440.012 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            7.000 ms
+
+Iteration   5: 576774.439 ops/s
+                 gc.alloc.rate:      2959.681 MB/sec
+                 gc.alloc.rate.norm: 5440.012 B/op
+                 gc.count:           4.000 counts
+                 gc.time:            5.000 ms
+
+
+# Run progress: 79.41% complete, ETA 00:00:58
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 472463.802 ops/s
+# Warmup Iteration   2: 559149.403 ops/s
+# Warmup Iteration   3: 562216.831 ops/s
+Iteration   1: 560991.943 ops/s
+                 gc.alloc.rate:      2879.929 MB/sec
+                 gc.alloc.rate.norm: 5440.012 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            6.000 ms
+
+Iteration   2: 563754.135 ops/s
+                 gc.alloc.rate:      2894.232 MB/sec
+                 gc.alloc.rate.norm: 5440.012 B/op
+                 gc.count:           4.000 counts
+                 gc.time:            5.000 ms
+
+Iteration   3: 560459.620 ops/s
+                 gc.alloc.rate:      2877.109 MB/sec
+                 gc.alloc.rate.norm: 5440.012 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            6.000 ms
+
+Iteration   4: 560444.455 ops/s
+                 gc.alloc.rate:      2876.939 MB/sec
+                 gc.alloc.rate.norm: 5440.012 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            6.000 ms
+
+Iteration   5: 573217.780 ops/s
+                 gc.alloc.rate:      2942.324 MB/sec
+                 gc.alloc.rate.norm: 5440.012 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            6.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility":
+  570482.575 ±(99.9%) 12312.864 ops/s [Average]
+  (min, avg, max) = (560444.455, 570482.575, 580269.075), stdev = 8144.197
+  CI (99.9%): [558169.711, 582795.439] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.alloc.rate":
+  2928.107 ±(99.9%) 62.588 MB/sec [Average]
+  (min, avg, max) = (2876.939, 2928.107, 2978.216), stdev = 41.398
+  CI (99.9%): [2865.519, 2990.694] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.alloc.rate.norm":
+  5440.012 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (5440.012, 5440.012, 5440.012), stdev = 0.001
+  CI (99.9%): [5440.012, 5440.012] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.count":
+  48.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (4.000, 4.800, 5.000), stdev = 0.422
+  CI (99.9%): [48.000, 48.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.time":
+  59.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (5.000, 5.900, 7.000), stdev = 0.568
+  CI (99.9%): [59.000, 59.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeByteArray
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 82.35% complete, ETA 00:00:50
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 537922.796 ops/s
+# Warmup Iteration   2: 631386.816 ops/s
+# Warmup Iteration   3: 603332.576 ops/s
+Iteration   1: 603313.695 ops/s
+                 gc.alloc.rate:      2748.240 MB/sec
+                 gc.alloc.rate.norm: 4832.012 B/op
+                 gc.count:           4.000 counts
+                 gc.time:            5.000 ms
+
+Iteration   2: 604319.265 ops/s
+                 gc.alloc.rate:      2752.874 MB/sec
+                 gc.alloc.rate.norm: 4832.011 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            6.000 ms
+
+Iteration   3: 605827.979 ops/s
+                 gc.alloc.rate:      2759.393 MB/sec
+                 gc.alloc.rate.norm: 4832.011 B/op
+                 gc.count:           4.000 counts
+                 gc.time:            5.000 ms
+
+Iteration   4: 606569.656 ops/s
+                 gc.alloc.rate:      2763.263 MB/sec
+                 gc.alloc.rate.norm: 4832.011 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            6.000 ms
+
+Iteration   5: 607824.700 ops/s
+                 gc.alloc.rate:      2768.307 MB/sec
+                 gc.alloc.rate.norm: 4832.012 B/op
+                 gc.count:           4.000 counts
+                 gc.time:            4.000 ms
+
+
+# Run progress: 85.29% complete, ETA 00:00:41
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 531695.272 ops/s
+# Warmup Iteration   2: 626435.194 ops/s
+# Warmup Iteration   3: 600963.113 ops/s
+Iteration   1: 598172.715 ops/s
+                 gc.alloc.rate:      2725.528 MB/sec
+                 gc.alloc.rate.norm: 4832.012 B/op
+                 gc.count:           4.000 counts
+                 gc.time:            5.000 ms
+
+Iteration   2: 597518.426 ops/s
+                 gc.alloc.rate:      2722.534 MB/sec
+                 gc.alloc.rate.norm: 4832.010 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            6.000 ms
+
+Iteration   3: 598601.009 ops/s
+                 gc.alloc.rate:      2727.190 MB/sec
+                 gc.alloc.rate.norm: 4832.012 B/op
+                 gc.count:           4.000 counts
+                 gc.time:            5.000 ms
+
+Iteration   4: 598525.498 ops/s
+                 gc.alloc.rate:      2727.181 MB/sec
+                 gc.alloc.rate.norm: 4832.012 B/op
+                 gc.count:           5.000 counts
+                 gc.time:            6.000 ms
+
+Iteration   5: 603675.063 ops/s
+                 gc.alloc.rate:      2750.346 MB/sec
+                 gc.alloc.rate.norm: 4832.012 B/op
+                 gc.count:           4.000 counts
+                 gc.time:            5.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeByteArray":
+  602434.800 ±(99.9%) 5873.594 ops/s [Average]
+  (min, avg, max) = (597518.426, 602434.800, 607824.700), stdev = 3885.019
+  CI (99.9%): [596561.206, 608308.394] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.alloc.rate":
+  2744.486 ±(99.9%) 26.191 MB/sec [Average]
+  (min, avg, max) = (2722.534, 2744.486, 2768.307), stdev = 17.324
+  CI (99.9%): [2718.295, 2770.677] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.alloc.rate.norm":
+  4832.011 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (4832.010, 4832.011, 4832.012), stdev = 0.001
+  CI (99.9%): [4832.011, 4832.012] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.count":
+  44.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (4.000, 4.400, 5.000), stdev = 0.516
+  CI (99.9%): [44.000, 44.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.time":
+  53.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (4.000, 5.300, 6.000), stdev = 0.675
+  CI (99.9%): [53.000, 53.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 88.24% complete, ETA 00:00:33
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 1295731.289 ops/s
+# Warmup Iteration   2: 1447539.075 ops/s
+# Warmup Iteration   3: 1449510.201 ops/s
+Iteration   1: 1462630.471 ops/s
+                 gc.alloc.rate:      892.840 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   2: 1445039.885 ops/s
+                 gc.alloc.rate:      879.695 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            3.000 ms
+
+Iteration   3: 1454297.990 ops/s
+                 gc.alloc.rate:      885.631 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   4: 1446031.475 ops/s
+                 gc.alloc.rate:      881.206 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   5: 1450611.720 ops/s
+                 gc.alloc.rate:      884.608 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            3.000 ms
+
+
+# Run progress: 91.18% complete, ETA 00:00:25
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 1275132.969 ops/s
+# Warmup Iteration   2: 1449095.505 ops/s
+# Warmup Iteration   3: 1443462.045 ops/s
+Iteration   1: 1449130.605 ops/s
+                 gc.alloc.rate:      883.900 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   2: 1439618.807 ops/s
+                 gc.alloc.rate:      877.386 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   3: 1442535.220 ops/s
+                 gc.alloc.rate:      880.435 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            3.000 ms
+
+Iteration   4: 1444265.281 ops/s
+                 gc.alloc.rate:      881.943 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   5: 1445485.039 ops/s
+                 gc.alloc.rate:      883.040 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            3.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility":
+  1447964.649 ±(99.9%) 10013.586 ops/s [Average]
+  (min, avg, max) = (1439618.807, 1447964.649, 1462630.471), stdev = 6623.367
+  CI (99.9%): [1437951.063, 1457978.236] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.alloc.rate":
+  883.069 ±(99.9%) 6.384 MB/sec [Average]
+  (min, avg, max) = (877.386, 883.069, 892.840), stdev = 4.222
+  CI (99.9%): [876.685, 889.452] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.alloc.rate.norm":
+  656.005 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (656.005, 656.005, 656.005), stdev = 0.001
+  CI (99.9%): [656.005, 656.005] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.count":
+  14.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (1.000, 1.400, 2.000), stdev = 0.516
+  CI (99.9%): [14.000, 14.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.time":
+  18.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (1.000, 1.800, 3.000), stdev = 1.033
+  CI (99.9%): [18.000, 18.000] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions -Xms1g -Xmx1g -XX:+UseG1GC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeByteArray
+# Parameters: (matrixVersion = issue-757-lettuce-v2, targetHeadroom = 32, targetStart = 3)
+
+# Run progress: 94.12% complete, ETA 00:00:16
+# Fork: 1 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 1312581.202 ops/s
+# Warmup Iteration   2: 1467663.000 ops/s
+# Warmup Iteration   3: 1464284.175 ops/s
+Iteration   1: 1479281.221 ops/s
+                 gc.alloc.rate:      906.696 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            2.000 ms
+
+Iteration   2: 1474680.287 ops/s
+                 gc.alloc.rate:      904.479 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            2.000 ms
+
+Iteration   3: 1473599.821 ops/s
+                 gc.alloc.rate:      904.036 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            2.000 ms
+
+Iteration   4: 1479611.094 ops/s
+                 gc.alloc.rate:      906.648 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            2.000 ms
+
+Iteration   5: 1480976.075 ops/s
+                 gc.alloc.rate:      907.739 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            2.000 ms
+
+
+# Run progress: 97.06% complete, ETA 00:00:08
+# Fork: 2 of 2
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 1308258.331 ops/s
+# Warmup Iteration   2: 1474927.509 ops/s
+# Warmup Iteration   3: 1485861.475 ops/s
+Iteration   1: 1490300.685 ops/s
+                 gc.alloc.rate:      915.849 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   2: 1485315.738 ops/s
+                 gc.alloc.rate:      910.680 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            3.000 ms
+
+Iteration   3: 1490577.389 ops/s
+                 gc.alloc.rate:      915.027 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+
+Iteration   4: 1478986.278 ops/s
+                 gc.alloc.rate:      907.027 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           2.000 counts
+                 gc.time:            2.000 ms
+
+Iteration   5: 1483842.822 ops/s
+                 gc.alloc.rate:      909.149 MB/sec
+                 gc.alloc.rate.norm: 656.005 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            2.000 ms
+
+
+
+Result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeByteArray":
+  1481717.141 ±(99.9%) 8778.524 ops/s [Average]
+  (min, avg, max) = (1473599.821, 1481717.141, 1490577.389), stdev = 5806.450
+  CI (99.9%): [1472938.617, 1490495.665] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.alloc.rate":
+  908.733 ±(99.9%) 6.105 MB/sec [Average]
+  (min, avg, max) = (904.036, 908.733, 915.849), stdev = 4.038
+  CI (99.9%): [902.628, 914.838] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.alloc.rate.norm":
+  656.005 ±(99.9%) 0.001 B/op [Average]
+  (min, avg, max) = (656.005, 656.005, 656.005), stdev = 0.001
+  CI (99.9%): [656.005, 656.005] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.count":
+  14.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (1.000, 1.400, 2.000), stdev = 0.516
+  CI (99.9%): [14.000, 14.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.time":
+  19.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (1.000, 1.900, 3.000), stdev = 0.568
+  CI (99.9%): [19.000, 19.000] (assumes normal distribution)
+
+
+# Run complete. Total time: 00:04:44
+
+REMEMBER: The numbers below are just data. To gain reusable insights, you need to follow up on
+why the numbers are the way they are. Use profilers (see -prof, -lprof), design factorial
+experiments, perform baseline and negative tests that provide experimental control, make sure
+the benchmarking environment is safe on JVM/OS/HW level, ask for reviews from the domain experts.
+Do not assume the numbers tell you what you want them to tell.
+
+NOTE: Current JVM experimentally supports Compiler Blackholes, and they are in use. Please exercise
+extra caution when trusting the results, look into the generated code to check the benchmark still
+works, and factor in a small probability of new VM bugs. Additionally, while comparisons between
+different JVMs are already problematic, the performance difference caused by different Blackhole
+modes can be very significant. Please make sure you use the consistent Blackhole mode for comparisons.
+
+Benchmark                                                                                (matrixVersion)  (targetHeadroom)  (targetStart)   Mode  Cnt        Score        Error   Units
+ProtobufCodecBenchmark.lettuceEncodeDirectCopied                                    issue-757-lettuce-v2                32              3  thrpt   10  3363857.969 ±  18349.185   ops/s
+ProtobufCodecBenchmark.lettuceEncodeDirectCopied:gc.alloc.rate                      issue-757-lettuce-v2                32              3  thrpt   10    20608.433 ±    124.674  MB/sec
+ProtobufCodecBenchmark.lettuceEncodeDirectCopied:gc.alloc.rate.norm                 issue-757-lettuce-v2                32              3  thrpt   10     6888.002 ±      0.001    B/op
+ProtobufCodecBenchmark.lettuceEncodeDirectCopied:gc.count                           issue-757-lettuce-v2                32              3  thrpt   10      340.000               counts
+ProtobufCodecBenchmark.lettuceEncodeDirectCopied:gc.time                            issue-757-lettuce-v2                32              3  thrpt   10      420.000                   ms
+ProtobufCodecBenchmark.lettuceEncodeDirectOptimized                                 issue-757-lettuce-v2                32              3  thrpt   10  4484617.649 ±   8562.136   ops/s
+ProtobufCodecBenchmark.lettuceEncodeDirectOptimized:gc.alloc.rate                   issue-757-lettuce-v2                32              3  thrpt   10    19785.632 ±     54.885  MB/sec
+ProtobufCodecBenchmark.lettuceEncodeDirectOptimized:gc.alloc.rate.norm              issue-757-lettuce-v2                32              3  thrpt   10     4904.002 ±      0.001    B/op
+ProtobufCodecBenchmark.lettuceEncodeDirectOptimized:gc.count                        issue-757-lettuce-v2                32              3  thrpt   10      326.000               counts
+ProtobufCodecBenchmark.lettuceEncodeDirectOptimized:gc.time                         issue-757-lettuce-v2                32              3  thrpt   10      399.000                   ms
+ProtobufCodecBenchmark.lettuceEncodeHeapCopied                                      issue-757-lettuce-v2                32              3  thrpt   10  3136200.974 ±  38102.464   ops/s
+ProtobufCodecBenchmark.lettuceEncodeHeapCopied:gc.alloc.rate                        issue-757-lettuce-v2                32              3  thrpt   10    19693.073 ±    337.737  MB/sec
+ProtobufCodecBenchmark.lettuceEncodeHeapCopied:gc.alloc.rate.norm                   issue-757-lettuce-v2                32              3  thrpt   10     6900.002 ±     19.124    B/op
+ProtobufCodecBenchmark.lettuceEncodeHeapCopied:gc.count                             issue-757-lettuce-v2                32              3  thrpt   10      324.000               counts
+ProtobufCodecBenchmark.lettuceEncodeHeapCopied:gc.time                              issue-757-lettuce-v2                32              3  thrpt   10      389.000                   ms
+ProtobufCodecBenchmark.lettuceEncodeHeapOptimized                                   issue-757-lettuce-v2                32              3  thrpt   10  4204641.990 ±  40080.465   ops/s
+ProtobufCodecBenchmark.lettuceEncodeHeapOptimized:gc.alloc.rate                     issue-757-lettuce-v2                32              3  thrpt   10    18079.314 ±    159.269  MB/sec
+ProtobufCodecBenchmark.lettuceEncodeHeapOptimized:gc.alloc.rate.norm                issue-757-lettuce-v2                32              3  thrpt   10     4904.002 ±      0.001    B/op
+ProtobufCodecBenchmark.lettuceEncodeHeapOptimized:gc.count                          issue-757-lettuce-v2                32              3  thrpt   10      298.000               counts
+ProtobufCodecBenchmark.lettuceEncodeHeapOptimized:gc.time                           issue-757-lettuce-v2                32              3  thrpt   10      360.000                   ms
+ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility                         issue-757-lettuce-v2                32              3  thrpt   10  2173589.165 ±  18852.485   ops/s
+ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.alloc.rate           issue-757-lettuce-v2                32              3  thrpt   10    15929.941 ±    158.711  MB/sec
+ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.alloc.rate.norm      issue-757-lettuce-v2                32              3  thrpt   10     7984.003 ±      0.001    B/op
+ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.count                issue-757-lettuce-v2                32              3  thrpt   10      264.000               counts
+ProtobufCodecBenchmark.redissonDecodeCompositeCompatibility:gc.time                 issue-757-lettuce-v2                32              3  thrpt   10      320.000                   ms
+ProtobufCodecBenchmark.redissonDecodeContiguousOptimized                            issue-757-lettuce-v2                32              3  thrpt   10  2927634.040 ±  20177.123   ops/s
+ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.alloc.rate              issue-757-lettuce-v2                32              3  thrpt   10    14014.006 ±     56.884  MB/sec
+ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.alloc.rate.norm         issue-757-lettuce-v2                32              3  thrpt   10     5264.002 ±      0.001    B/op
+ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.count                   issue-757-lettuce-v2                32              3  thrpt   10      231.000               counts
+ProtobufCodecBenchmark.redissonDecodeContiguousOptimized:gc.time                    issue-757-lettuce-v2                32              3  thrpt   10      282.000                   ms
+ProtobufCodecBenchmark.redissonDecodeCopiedByteArray                                issue-757-lettuce-v2                32              3  thrpt   10  2412587.915 ±  66249.647   ops/s
+ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.alloc.rate                  issue-757-lettuce-v2                32              3  thrpt   10    16564.345 ±    524.276  MB/sec
+ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.alloc.rate.norm             issue-757-lettuce-v2                32              3  thrpt   10     7496.003 ±      0.001    B/op
+ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.count                       issue-757-lettuce-v2                32              3  thrpt   10      273.000               counts
+ProtobufCodecBenchmark.redissonDecodeCopiedByteArray:gc.time                        issue-757-lettuce-v2                32              3  thrpt   10      330.000                   ms
+ProtobufCodecBenchmark.serializerDecodeByteArray                                    issue-757-lettuce-v2                32              3  thrpt   10  3061203.560 ± 122561.779   ops/s
+ProtobufCodecBenchmark.serializerDecodeByteArray:gc.alloc.rate                      issue-757-lettuce-v2                32              3  thrpt   10    14447.881 ±    556.355  MB/sec
+ProtobufCodecBenchmark.serializerDecodeByteArray:gc.alloc.rate.norm                 issue-757-lettuce-v2                32              3  thrpt   10     5232.493 ±      0.281    B/op
+ProtobufCodecBenchmark.serializerDecodeByteArray:gc.count                           issue-757-lettuce-v2                32              3  thrpt   10      237.000               counts
+ProtobufCodecBenchmark.serializerDecodeByteArray:gc.time                            issue-757-lettuce-v2                32              3  thrpt   10      293.000                   ms
+ProtobufCodecBenchmark.serializerDecodeDirectOptimized                              issue-757-lettuce-v2                32              3  thrpt   10  2409559.384 ±  49543.373   ops/s
+ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.alloc.rate                issue-757-lettuce-v2                32              3  thrpt   10    16581.434 ±    324.067  MB/sec
+ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.alloc.rate.norm           issue-757-lettuce-v2                32              3  thrpt   10     7528.281 ±     25.941    B/op
+ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.count                     issue-757-lettuce-v2                32              3  thrpt   10      273.000               counts
+ProtobufCodecBenchmark.serializerDecodeDirectOptimized:gc.time                      issue-757-lettuce-v2                32              3  thrpt   10      340.000                   ms
+ProtobufCodecBenchmark.serializerDecodeHeapOptimized                                issue-757-lettuce-v2                32              3  thrpt   10  2337901.752 ±  32460.738   ops/s
+ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.alloc.rate                  issue-757-lettuce-v2                32              3  thrpt   10    16060.687 ±    209.484  MB/sec
+ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.alloc.rate.norm             issue-757-lettuce-v2                32              3  thrpt   10     7512.003 ±      0.001    B/op
+ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.count                       issue-757-lettuce-v2                32              3  thrpt   10      264.000               counts
+ProtobufCodecBenchmark.serializerDecodeHeapOptimized:gc.time                        issue-757-lettuce-v2                32              3  thrpt   10      328.000                   ms
+ProtobufCodecBenchmark.serializerEncodeByteArray                                    issue-757-lettuce-v2                32              3  thrpt   10  3591970.654 ±  56135.412   ops/s
+ProtobufCodecBenchmark.serializerEncodeByteArray:gc.alloc.rate                      issue-757-lettuce-v2                32              3  thrpt   10    22307.611 ±    244.290  MB/sec
+ProtobufCodecBenchmark.serializerEncodeByteArray:gc.alloc.rate.norm                 issue-757-lettuce-v2                32              3  thrpt   10     6888.002 ±      0.001    B/op
+ProtobufCodecBenchmark.serializerEncodeByteArray:gc.count                           issue-757-lettuce-v2                32              3  thrpt   10      369.000               counts
+ProtobufCodecBenchmark.serializerEncodeByteArray:gc.time                            issue-757-lettuce-v2                32              3  thrpt   10      466.000                   ms
+ProtobufCodecBenchmark.serializerEncodeDirectOptimized                              issue-757-lettuce-v2                32              3  thrpt   10  4514172.136 ±  55321.965   ops/s
+ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.alloc.rate                issue-757-lettuce-v2                32              3  thrpt   10    18676.930 ±    402.244  MB/sec
+ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.alloc.rate.norm           issue-757-lettuce-v2                32              3  thrpt   10     4608.002 ±      0.001    B/op
+ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.count                     issue-757-lettuce-v2                32              3  thrpt   10      307.000               counts
+ProtobufCodecBenchmark.serializerEncodeDirectOptimized:gc.time                      issue-757-lettuce-v2                32              3  thrpt   10      376.000                   ms
+ProtobufCodecBenchmark.serializerEncodeHeapOptimized                                issue-757-lettuce-v2                32              3  thrpt   10  4084644.432 ± 121512.247   ops/s
+ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.alloc.rate                  issue-757-lettuce-v2                32              3  thrpt   10    16607.315 ±    488.312  MB/sec
+ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.alloc.rate.norm             issue-757-lettuce-v2                32              3  thrpt   10     4620.002 ±     19.124    B/op
+ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.count                       issue-757-lettuce-v2                32              3  thrpt   10      273.000               counts
+ProtobufCodecBenchmark.serializerEncodeHeapOptimized:gc.time                        issue-757-lettuce-v2                32              3  thrpt   10      333.000                   ms
+ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility                     issue-757-lettuce-v2                32              3  thrpt   10   570482.575 ±  12312.864   ops/s
+ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.alloc.rate       issue-757-lettuce-v2                32              3  thrpt   10     2928.107 ±     62.588  MB/sec
+ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.alloc.rate.norm  issue-757-lettuce-v2                32              3  thrpt   10     5440.012 ±      0.001    B/op
+ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.count            issue-757-lettuce-v2                32              3  thrpt   10       48.000               counts
+ProtobufCodecBenchmark.trustedFallbackDecodeBufferCompatibility:gc.time             issue-757-lettuce-v2                32              3  thrpt   10       59.000                   ms
+ProtobufCodecBenchmark.trustedFallbackDecodeByteArray                               issue-757-lettuce-v2                32              3  thrpt   10   602434.800 ±   5873.594   ops/s
+ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.alloc.rate                 issue-757-lettuce-v2                32              3  thrpt   10     2744.486 ±     26.191  MB/sec
+ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.alloc.rate.norm            issue-757-lettuce-v2                32              3  thrpt   10     4832.011 ±      0.001    B/op
+ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.count                      issue-757-lettuce-v2                32              3  thrpt   10       44.000               counts
+ProtobufCodecBenchmark.trustedFallbackDecodeByteArray:gc.time                       issue-757-lettuce-v2                32              3  thrpt   10       53.000                   ms
+ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility                     issue-757-lettuce-v2                32              3  thrpt   10  1447964.649 ±  10013.586   ops/s
+ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.alloc.rate       issue-757-lettuce-v2                32              3  thrpt   10      883.069 ±      6.384  MB/sec
+ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.alloc.rate.norm  issue-757-lettuce-v2                32              3  thrpt   10      656.005 ±      0.001    B/op
+ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.count            issue-757-lettuce-v2                32              3  thrpt   10       14.000               counts
+ProtobufCodecBenchmark.trustedFallbackEncodeBufferCompatibility:gc.time             issue-757-lettuce-v2                32              3  thrpt   10       18.000                   ms
+ProtobufCodecBenchmark.trustedFallbackEncodeByteArray                               issue-757-lettuce-v2                32              3  thrpt   10  1481717.141 ±   8778.524   ops/s
+ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.alloc.rate                 issue-757-lettuce-v2                32              3  thrpt   10      908.733 ±      6.105  MB/sec
+ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.alloc.rate.norm            issue-757-lettuce-v2                32              3  thrpt   10      656.005 ±      0.001    B/op
+ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.count                      issue-757-lettuce-v2                32              3  thrpt   10       14.000               counts
+ProtobufCodecBenchmark.trustedFallbackEncodeByteArray:gc.time                       issue-757-lettuce-v2                32              3  thrpt   10       19.000                   ms
+
+Benchmark result is saved to /Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat-issue-757-lettuce-protobuf-buffer/.omx/evidence/issue-757-jmh-v5/canonical-b/jmh.json
+exit_code=0

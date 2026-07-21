@@ -4,12 +4,13 @@ English | [한국어](./README.ko.md)
 
 This module collects deterministic JMH allocation evidence for issue #757. It compares the existing `ByteArray`
 paths with caller-owned `ByteBuffer` encode paths and inherited decode compatibility paths in `ProtobufSerializer`,
-plus copied, contiguous, and composite decode paths in `RedissonProtobufCodec`. Throughput is retained as a diagnostic
-metric; `gc.alloc.rate.norm` (`B/op`) is the claim gate.
+plus copied, contiguous, and composite decode paths in `RedissonProtobufCodec`, and copied versus caller-owned
+`ByteBuf` encode paths in `LettuceProtobufCodecs`. Throughput is retained as a diagnostic metric;
+`gc.alloc.rate.norm` (`B/op`) is the claim gate.
 
 ## Exact Method Matrix
 
-The runner and validator require exactly these 13 methods. Missing, duplicated, or additional methods fail validation.
+The runner and validator require exactly these 17 methods. Missing, duplicated, or additional methods fail validation.
 
 | Method | Comparison role | Claim eligible |
 |---|---|---|
@@ -22,14 +23,20 @@ The runner and validator require exactly these 13 methods. Missing, duplicated, 
 | `redissonDecodeCopiedByteArray` | Redisson copied baseline | No |
 | `redissonDecodeContiguousOptimized` | Contiguous `ByteBuf` candidate | Yes |
 | `redissonDecodeCompositeCompatibility` | Composite copied compatibility control | No |
+| `lettuceEncodeHeapCopied` | Heap copied baseline | No |
+| `lettuceEncodeHeapOptimized` | Heap caller-owned `ByteBuf` candidate | Yes |
+| `lettuceEncodeDirectCopied` | Direct copied baseline | No |
+| `lettuceEncodeDirectOptimized` | Direct caller-owned `ByteBuf` candidate | Yes |
 | `trustedFallbackEncodeByteArray` | Trusted fallback encode control | No |
 | `trustedFallbackEncodeBufferCompatibility` | Trusted fallback buffer encode control | No |
 | `trustedFallbackDecodeByteArray` | Trusted fallback decode control | No |
 | `trustedFallbackDecodeBufferCompatibility` | Trusted fallback buffer decode control | No |
 
-Only the three retained encode and Redisson `*Optimized` methods are eligible for a positive allocation claim. The two
-serializer decode methods remain in the exact matrix for final compatibility measurement after their shared direct
-decode dispatch was rolled back; they, the other compatibility controls, and fallback cells remain claim-ineligible.
+Only the five retained serializer, Redisson, and Lettuce `*Optimized` methods are eligible for a positive allocation
+claim. The two serializer decode methods remain in the exact matrix for final compatibility measurement after their
+shared direct decode dispatch was rolled back; they, baselines, the other compatibility controls, and fallback cells
+remain claim-ineligible. The committed report records the accepted Lettuce heap/direct result without making a
+zero-copy or general throughput claim.
 
 ## Build and Smoke Validation
 
@@ -47,7 +54,7 @@ python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py run \
   --output-root benchmark/protobuf-codec-benchmark/build/issue-757-smoke
 ```
 
-Smoke uses `-t 1 -f 1 -wi 1 -i 1 -w 1s -r 1s -prof gc -rf json`. It proves that all 13 cells emit the required
+Smoke uses `-t 1 -f 1 -wi 1 -i 1 -w 1s -r 1s -prof gc -rf json`. It proves that all 17 cells emit the required
 schema, provenance, throughput, and allocation metrics; it is not publishable performance evidence. Use a fresh state
 and output root for canonical evidence.
 
@@ -91,8 +98,25 @@ python3 benchmark/protobuf-codec-benchmark/scripts/validate-jmh.py compare --hel
 ```
 
 Each run directory contains `environment.json`, `metadata.json`, `argv.json`, `run.log`, `jmh.json`, `summary.csv`, and
-`validation.json`. Final promoted evidence belongs under `docs/benchmarks/raw/issue-757/`; the final report is generated
-only from a verified delivery manifest.
+`validation.json`. Publish final evidence as an immutable generation and then validate the hash-bound active pointer:
+
+```bash
+python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py publish-generation \
+  --state .omx/evidence/issue-757-jmh-state.json \
+  --evidence-root docs/benchmarks/raw/issue-757 \
+  --control-root .omx/evidence/issue-757-promotion \
+  --owner issue-757-lettuce \
+  --legacy-manifest docs/benchmarks/raw/issue-757/delivery-manifest.json \
+  --report-output docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md
+python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py verify-active-generation \
+  --evidence-root docs/benchmarks/raw/issue-757
+```
+
+The publisher uses an exclusive lock, monotonic fencing token, platform atomic no-replace directory rename, fsync, and
+active-pointer compare-and-swap. It preserves every prior generation and hash-binds the deterministically rendered
+report in the active pointer. After committing report/evidence-only changes, run
+`validate-final-head --manifest <active-generation>/delivery-manifest.json`; any production, build, test, benchmark, or
+KDoc drift since measurement fails closed.
 
 ## Decision Rule and Limits
 
@@ -114,6 +138,9 @@ archives under `benchmark/protobuf-codec-benchmark/build/`. Apply and commit the
 decision's `regressed_cells` is the actual non-empty trigger subset, while `removed_cells` is the full dispatch mapping
 that becomes `ineligible` with reason `removed_after_regression`. Rebasing or amending the bound source lineage
 invalidates the preparation/bundle and requires the workflow to restart from the exact measurement head.
+`lettuce_encode` finalization additionally requires the approved canonical path/blob and baseline-ABI exact-equality
+verifier. The public CLI intentionally blocks that rollback until this verifier is supplied by the rejected-terminal
+workflow.
 
 These measurements do not prove zero-copy behavior. Protobuf, Netty, direct buffers, or fallback codecs may still copy
 or allocate internally. They also do not establish a general throughput improvement or guarantee for other payloads,

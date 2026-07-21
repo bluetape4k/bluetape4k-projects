@@ -1,0 +1,52 @@
+{
+  "comparison_path": "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat-issue-757-lettuce-protobuf-buffer/.omx/evidence/issue-757-jmh-v9/comparison.csv",
+  "comparison_sha256": "4f541b53dce4bac2d519175a82a747bef498287adec7b6f703f65229e9923bfd",
+  "delivery_terminal": "retained-accepted",
+  "mode": "compare",
+  "observed_config_sha256": "dc0a5bf9ec07582204be0d2489ba15c1286f794c76463f3ad6224b54b6ff2365",
+  "reasons": {
+    "lettuceEncodeDirectCopied": "baseline",
+    "lettuceEncodeDirectOptimized": "candidate",
+    "lettuceEncodeHeapCopied": "baseline",
+    "lettuceEncodeHeapOptimized": "candidate",
+    "redissonDecodeCompositeCompatibility": "compatibility_control",
+    "redissonDecodeContiguousOptimized": "candidate",
+    "redissonDecodeCopiedByteArray": "baseline",
+    "serializerDecodeByteArray": "baseline",
+    "serializerDecodeDirectOptimized": "removed_after_regression",
+    "serializerDecodeHeapOptimized": "removed_after_regression",
+    "serializerEncodeByteArray": "baseline",
+    "serializerEncodeDirectOptimized": "candidate",
+    "serializerEncodeHeapOptimized": "candidate",
+    "trustedFallbackDecodeBufferCompatibility": "compatibility_control",
+    "trustedFallbackDecodeByteArray": "compatibility_control",
+    "trustedFallbackEncodeBufferCompatibility": "compatibility_control",
+    "trustedFallbackEncodeByteArray": "compatibility_control"
+  },
+  "rollback_bundle_sha256": "a0c3a33db31998d0e7d3cba7bed5c663148442a9e993304d1cb8df4056a0acb1",
+  "run_ids": [
+    "run-20260720T233154.066805Z-a9ec6e4f",
+    "run-20260720T233655.039662Z-5ce2db11"
+  ],
+  "schema_version": 1,
+  "status": "passed",
+  "verdicts": {
+    "lettuceEncodeDirectCopied": "ineligible",
+    "lettuceEncodeDirectOptimized": "accepted",
+    "lettuceEncodeHeapCopied": "ineligible",
+    "lettuceEncodeHeapOptimized": "accepted",
+    "redissonDecodeCompositeCompatibility": "ineligible",
+    "redissonDecodeContiguousOptimized": "accepted",
+    "redissonDecodeCopiedByteArray": "ineligible",
+    "serializerDecodeByteArray": "ineligible",
+    "serializerDecodeDirectOptimized": "ineligible",
+    "serializerDecodeHeapOptimized": "ineligible",
+    "serializerEncodeByteArray": "ineligible",
+    "serializerEncodeDirectOptimized": "accepted",
+    "serializerEncodeHeapOptimized": "accepted",
+    "trustedFallbackDecodeBufferCompatibility": "ineligible",
+    "trustedFallbackDecodeByteArray": "ineligible",
+    "trustedFallbackEncodeBufferCompatibility": "ineligible",
+    "trustedFallbackEncodeByteArray": "ineligible"
+  }
+}

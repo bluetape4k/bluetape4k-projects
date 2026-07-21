@@ -55,6 +55,13 @@ Gradle project path는 `:bluetape4k-protobuf`, source directory는 `io/protobuf`
 
 README 근거는 **개요**, **아키텍처**, **Protobuf 클래스 구조**, **Protobuf 타입 변환 흐름**, **ProtobufSerializer 허용 목록 시퀀스**, **주요 기능**, **보안: ProtobufSerializer 허용 목록**, **사용 예시**, **1. 타입 별칭**, **2. Timestamp 변환** 순서로 탐색할 수 있습니다. 이 항목으로 방향을 잡고 source와 test에서 동작을 확인합니다. 도입 범위는 좁게 유지하고 소유한 resource를 caller lifecycle에 연결합니다.
 
+Lettuce의 strict uncompressed factory는 기본 prefix Protobuf message를 caller-owned `ByteBuf`에 기록합니다.
+Trusted-internal factory는 같은 target 경로와 legacy fallback을 함께 사용하므로 shared/untrusted boundary에서는
+금지합니다. 압축, custom-prefix, fallback, 단일 인자의 `ByteBuffer` 경로는 copied 동작을 유지합니다. 실패한
+target write는 `writerIndex`를 commit하지 않지만 caller는 시도한 bytes/capacity 변경을 clear하거나 buffer를
+폐기해야 합니다. 기존 factory caller는 migration이 없으며 Java에서는
+`LettuceProtobufCodecs.INSTANCE.protobuf()`를 사용합니다.
+
 ## 연동 {#integrations}
 
 현재 build에 선언된 integration edge는 다음과 같습니다.

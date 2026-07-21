@@ -23,10 +23,15 @@ import java.nio.ByteBuffer
  * // value == myData
  * ```
  *
+ * The nullable target-taking [encodeValue] overload is the only supported source extension seam. Ordinary codec
+ * methods remain final. Opening this class also makes compiler-generated JVM bridge methods bytecode-overrideable;
+ * those bridges are not a supported extension API. Subclasses must override only the target overload and preserve
+ * the configured [serializer] contract.
+ *
  * @param V value type
  * @property serializer [BinarySerializer] 인스턴스
  */
-class LettuceBinaryCodec<V: Any>(
+open class LettuceBinaryCodec<V: Any>(
     val serializer: BinarySerializer,
 ): RedisCodec<String, V>, ToByteBufEncoder<String, V> {
 
@@ -34,27 +39,35 @@ class LettuceBinaryCodec<V: Any>(
         val EMPTY_BYTEBUFFER: ByteBuffer = ByteBuffer.allocate(0)
     }
 
-    override fun encodeKey(key: String?): ByteBuffer {
+    final override fun encodeKey(key: String?): ByteBuffer {
         return key?.run { ByteBuffer.wrap(this.toUtf8Bytes()) } ?: EMPTY_BYTEBUFFER
     }
 
-    override fun encodeKey(key: String?, target: ByteBuf) {
+    final override fun encodeKey(key: String?, target: ByteBuf) {
         key?.run { target.writeBytes(this.toUtf8Bytes()) }
     }
 
-    override fun encodeValue(value: V): ByteBuffer {
+    final override fun encodeValue(value: V): ByteBuffer {
         return ByteBuffer.wrap(serializer.serialize(value))
     }
 
+    /**
+     * Encodes [value] into the caller-owned [target].
+     *
+     * A null target is a no-op. The caller owns the target and its lifetime. A successful override must commit the
+     * writer index only after the complete value has been written. A failed override may leave attempted bytes or
+     * capacity changes behind, but it must not advance the writer index. Subclasses are responsible for preserving
+     * wire-format and security compatibility with their configured [serializer].
+     */
     override fun encodeValue(value: V, target: ByteBuf?) {
         target?.run { writeBytes(serializer.serialize(value)) }
     }
 
-    override fun decodeKey(bytes: ByteBuffer?): String? {
+    final override fun decodeKey(bytes: ByteBuffer?): String? {
         return bytes?.getAllBytes()?.toUtf8String()
     }
 
-    override fun decodeValue(bytes: ByteBuffer?): V? {
+    final override fun decodeValue(bytes: ByteBuffer?): V? {
         return bytes?.getAllBytes()?.run { serializer.deserialize(this) }
     }
 
@@ -71,7 +84,7 @@ class LettuceBinaryCodec<V: Any>(
      * - ByteBuffer: 남은 바이트 수
      * - V 타입: -1 (estimate 불가 표시, Netty 가 동적으로 확장)
      */
-    override fun estimateSize(keyOrValue: Any?): Int = when (keyOrValue) {
+    final override fun estimateSize(keyOrValue: Any?): Int = when (keyOrValue) {
         null          -> 0
         is String     -> keyOrValue.toUtf8Bytes().size
         is ByteArray  -> keyOrValue.size
@@ -79,7 +92,7 @@ class LettuceBinaryCodec<V: Any>(
         else          -> -1
     }
 
-    override fun toString(): String {
+    final override fun toString(): String {
         return "LettuceBinaryCodec(serializer=${serializer.javaClass.simpleName})"
     }
 }

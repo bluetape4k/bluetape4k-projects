@@ -9,6 +9,7 @@ import kotlinx.benchmark.State
 import org.openjdk.jmh.annotations.Level
 import org.openjdk.jmh.annotations.Param
 import org.openjdk.jmh.annotations.Setup
+import org.openjdk.jmh.annotations.TearDown
 import java.util.concurrent.TimeUnit
 
 @State(Scope.Thread)
@@ -37,6 +38,9 @@ class ProtobufCodecBenchmark {
     @Setup(Level.Invocation)
     fun resetInvocation() = fixture.resetInvocation()
 
+    @TearDown(Level.Trial)
+    fun tearDown() = fixture.close()
+
     @Benchmark fun serializerEncodeByteArray() = fixture.serializerEncodeByteArray()
     @Benchmark fun serializerEncodeHeapOptimized() = fixture.serializerEncodeHeap()
     @Benchmark fun serializerEncodeDirectOptimized() = fixture.serializerEncodeDirect()
@@ -50,4 +54,8 @@ class ProtobufCodecBenchmark {
     @Benchmark fun trustedFallbackEncodeBufferCompatibility() = fixture.trustedEncodeBuffer()
     @Benchmark fun trustedFallbackDecodeByteArray() = fixture.trustedDecodeByteArray()
     @Benchmark fun trustedFallbackDecodeBufferCompatibility() = fixture.trustedDecodeBuffer()
+    @Benchmark fun lettuceEncodeHeapCopied() = fixture.lettuceEncodeHeapCopied()
+    @Benchmark fun lettuceEncodeHeapOptimized() = fixture.lettuceEncodeHeapOptimized()
+    @Benchmark fun lettuceEncodeDirectCopied() = fixture.lettuceEncodeDirectCopied()
+    @Benchmark fun lettuceEncodeDirectOptimized() = fixture.lettuceEncodeDirectOptimized()
 }

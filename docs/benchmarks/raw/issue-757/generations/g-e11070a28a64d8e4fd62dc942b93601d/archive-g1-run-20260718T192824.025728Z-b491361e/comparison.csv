@@ -1,0 +1,14 @@
+method,baseline,run_a_allocation,run_a_baseline_allocation,run_a_delta_percent,run_b_allocation,run_b_baseline_allocation,run_b_delta_percent,eligible,reason,verdict
+redissonDecodeCompositeCompatibility,,8208.003215481764,,,8208.003177988921,,,false,compatibility_control,ineligible
+redissonDecodeContiguousOptimized,redissonDecodeCopiedByteArray,5512.002455510079,7680.00285067778,-28.229161333922804,5512.002601535869,7680.002784257706,-28.229158811839937,true,candidate,accepted
+redissonDecodeCopiedByteArray,,7680.00285067778,,,7680.002784257706,,,false,baseline,ineligible
+serializerDecodeByteArray,,5504.002811509027,,,5504.002382874574,,,false,baseline,ineligible
+serializerDecodeDirectOptimized,serializerDecodeByteArray,7800.002957055107,5504.002811509027,41.71509761486818,7800.002869107125,5504.002382874574,41.71510705330434,true,candidate,regressed
+serializerDecodeHeapOptimized,serializerDecodeByteArray,5512.002364350509,5504.002811509027,0.14534063872123587,5512.002390950881,5504.002382874574,0.14534892101787977,true,candidate,inconclusive
+serializerEncodeByteArray,,6976.001899549499,,,6976.001879817729,,,false,baseline,ineligible
+serializerEncodeDirectOptimized,serializerEncodeByteArray,4832.0020425951225,6976.001899549499,-30.733934534806153,4832.002013659022,6976.001879817729,-30.733934753680515,true,candidate,accepted
+serializerEncodeHeapOptimized,serializerEncodeByteArray,4784.002044063315,6976.001899549499,-31.422007720894406,4784.001972777465,6976.001879817729,-31.42200854879266,true,candidate,accepted
+trustedFallbackDecodeBufferCompatibility,,5500.01070657082,,,5480.010431768074,,,false,compatibility_control,ineligible
+trustedFallbackDecodeByteArray,,4864.009993443831,,,4864.009728885383,,,false,compatibility_control,ineligible
+trustedFallbackEncodeBufferCompatibility,,680.0044350265531,,,680.0045352777145,,,false,compatibility_control,ineligible
+trustedFallbackEncodeByteArray,,656.004439826673,,,656.0044665015699,,,false,compatibility_control,ineligible

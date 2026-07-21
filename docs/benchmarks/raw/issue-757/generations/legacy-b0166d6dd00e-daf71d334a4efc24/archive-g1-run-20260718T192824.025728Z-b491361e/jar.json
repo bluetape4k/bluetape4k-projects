@@ -1,0 +1,49 @@
+{
+  "benchmark_jar_path": "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/issue757-rollback-reproof-de503310e/benchmark/protobuf-codec-benchmark/build/benchmarks/benchmark/jars/protobuf-codec-benchmark-benchmark-jmh-1.12.0-JMH.jar",
+  "benchmark_jar_sha256": "bbcacc2d5e7bd0e8028cf10548d4029516bf59256659daafd4753235eda435d9",
+  "benchmark_jar_stat": [
+    16777234,
+    244412799,
+    62348725
+  ],
+  "canonical_runs": [
+    {
+      "absolute_path": "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/issue757-rollback-reproof-de503310e/benchmark/protobuf-codec-benchmark/build/issue-757-evidence/run-20260718T192032.258066Z-3aabf0ba",
+      "environment_sha256": "01d5fd05fb289c311ca2f7f05c346aa14d790c49a58ed103daa6c9a6fd67a9a7",
+      "files": {
+        "argv.json": "8e24852142899f6d148bf9955cc2b9d951983c81430cd05b7ba4e9ef9c49b378",
+        "environment.json": "01d5fd05fb289c311ca2f7f05c346aa14d790c49a58ed103daa6c9a6fd67a9a7",
+        "jmh.json": "2641c932d23853ba5b9a5658e6102e0dfa184cafc612ab56a26b5068ee708adb",
+        "metadata.json": "097447d167f65150c5a4cf9f256df5c36dcfe69113e23ddbc8bb1923f8d5de65",
+        "run.log": "295454e3d59df53a9e74d76e642b77157e53eab31454bf72353be8839130848d",
+        "summary.csv": "7381c6ee95c4392116ecbbd83b1babc4784eb30d3efff44904961fed960ce2e9",
+        "validation.json": "afa96942ea6dccd8b94fc449ba282b3038db777ae9f29566f1192aae2903ab43"
+      },
+      "run_id": "run-20260718T192032.258066Z-3aabf0ba",
+      "summary_sha256": "7381c6ee95c4392116ecbbd83b1babc4784eb30d3efff44904961fed960ce2e9",
+      "validation_sha256": "afa96942ea6dccd8b94fc449ba282b3038db777ae9f29566f1192aae2903ab43"
+    },
+    {
+      "absolute_path": "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/issue757-rollback-reproof-de503310e/benchmark/protobuf-codec-benchmark/build/issue-757-evidence/run-20260718T192426.154770Z-6ef6336c",
+      "environment_sha256": "d37c28cd297ffeb9e5b5c3cfd86577c308f82370579f5d202298be1981c2f42f",
+      "files": {
+        "argv.json": "f2f71155d46adb73ba6104dc3b3a1aa674e47b4a9e2866f8926f02184c20bf24",
+        "environment.json": "d37c28cd297ffeb9e5b5c3cfd86577c308f82370579f5d202298be1981c2f42f",
+        "jmh.json": "c24085a9bd3b1d765e081c0ff8ba5f4f093f3a683d01d4b47fb4aa55d8d42bec",
+        "metadata.json": "097447d167f65150c5a4cf9f256df5c36dcfe69113e23ddbc8bb1923f8d5de65",
+        "run.log": "735c0745889385c2b4319002d25cedf7a1c898b9918dbc5cb2a3ebda26cd3941",
+        "summary.csv": "056cebd475c0f55cc7f3e0badd0eebc2e8bc7c85c78d82eef1343a4efe18afe5",
+        "validation.json": "5cf2266bf5dbb06939ec2567696f965e57548d487a1fa7db212c3e88d0f0fdb5"
+      },
+      "run_id": "run-20260718T192426.154770Z-6ef6336c",
+      "summary_sha256": "056cebd475c0f55cc7f3e0badd0eebc2e8bc7c85c78d82eef1343a4efe18afe5",
+      "validation_sha256": "5cf2266bf5dbb06939ec2567696f965e57548d487a1fa7db212c3e88d0f0fdb5"
+    }
+  ],
+  "comparison_path": "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/issue757-rollback-reproof-de503310e/benchmark/protobuf-codec-benchmark/build/issue-757-evidence/comparison.csv",
+  "comparison_sha256": "e4acf045f29b804bad4ec69f71964a42696c61105c5859c65d11d86eced4caf6",
+  "comparison_validation_path": "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/issue757-rollback-reproof-de503310e/benchmark/protobuf-codec-benchmark/build/issue-757-evidence/validation.json",
+  "comparison_validation_sha256": "9deb21165d567fd2469aa74a210174704f0954837a0fdaed9790c713b6cf6e12",
+  "promotable": true,
+  "schema_version": 1
+}

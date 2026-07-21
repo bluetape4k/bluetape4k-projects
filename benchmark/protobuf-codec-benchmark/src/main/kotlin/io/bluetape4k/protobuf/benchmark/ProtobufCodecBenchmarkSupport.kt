@@ -5,9 +5,12 @@ import com.google.protobuf.Message
 import io.bluetape4k.protobuf.benchmark.messages.BenchmarkMessage
 import io.bluetape4k.protobuf.benchmark.messages.benchmarkMessage
 import io.bluetape4k.protobuf.serializers.ProtobufSerializer
+import io.bluetape4k.protobuf.serializers.redis.LettuceProtobufCodecs
 import io.bluetape4k.protobuf.serializers.redis.RedissonProtobufCodec
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
+import io.netty.buffer.UnpooledByteBufAllocator
 import org.redisson.client.handler.State
 import java.io.Serializable
 import java.nio.ByteBuffer
@@ -15,7 +18,7 @@ import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap
 
 object ProtobufBenchmarkMatrix {
-    const val VERSION = "issue-757-v1"
+    const val VERSION = "issue-757-lettuce-v2"
     const val TARGET_HEADROOM = 32
     const val TARGET_START = 3
     const val PAYLOAD_IDENTITY = "BenchmarkMessage:id=42;payload=protobuf-payload-*128"
@@ -33,6 +36,16 @@ object ProtobufBenchmarkMatrix {
         "trustedFallbackEncodeBufferCompatibility",
         "trustedFallbackDecodeByteArray",
         "trustedFallbackDecodeBufferCompatibility",
+        "lettuceEncodeHeapCopied",
+        "lettuceEncodeHeapOptimized",
+        "lettuceEncodeDirectCopied",
+        "lettuceEncodeDirectOptimized",
+    )
+    val lettuceMethods = setOf(
+        "lettuceEncodeHeapCopied",
+        "lettuceEncodeHeapOptimized",
+        "lettuceEncodeDirectCopied",
+        "lettuceEncodeDirectOptimized",
     )
     val claimEligible = expectedMethods.filterTo(mutableSetOf()) { it.endsWith("Optimized") }
 }
@@ -61,9 +74,12 @@ private fun jsonStrings(values: List<String>): String =
 
 private fun canonicalConfigJson(
     allowedPrefixes: List<String>,
+    allocatorClass: String,
     directCapacity: Int,
+    directMaxCapacity: Int,
     directInitialPosition: Int,
     heapCapacity: Int,
+    heapMaxCapacity: Int,
     heapInitialPosition: Int,
     matrixVersion: String,
     methods: List<String>,
@@ -74,11 +90,14 @@ private fun canonicalConfigJson(
     targetHeadroom: Int,
     targetStart: Int,
 ): String = buildString {
-    append("{\"allowed_class_prefixes\":").append(jsonStrings(allowedPrefixes))
+    append("{\"allocator_class\":").append(jsonString(allocatorClass))
+    append(",\"allowed_class_prefixes\":").append(jsonStrings(allowedPrefixes))
     append(",\"direct_capacity\":").append(directCapacity)
     append(",\"direct_initial_position\":").append(directInitialPosition)
+    append(",\"direct_max_capacity\":").append(directMaxCapacity)
     append(",\"heap_capacity\":").append(heapCapacity)
     append(",\"heap_initial_position\":").append(heapInitialPosition)
+    append(",\"heap_max_capacity\":").append(heapMaxCapacity)
     append(",\"matrix_version\":").append(jsonString(matrixVersion))
     append(",\"methods\":").append(jsonStrings(methods))
     append(",\"payload_identity\":").append(jsonString(payloadIdentity))
@@ -100,7 +119,7 @@ internal fun ByteBuffer.targetBytes(written: Int): ByteArray {
     return ByteArray(written).also(source::get)
 }
 
-class ProtobufCodecBenchmarkFixture {
+class ProtobufCodecBenchmarkFixture: AutoCloseable {
     val payload: BenchmarkMessage = benchmarkMessage {
         id = 42L
         payload = "protobuf-payload-".repeat(128)
@@ -108,6 +127,8 @@ class ProtobufCodecBenchmarkFixture {
     private val serializer = ProtobufSerializer()
     private val trusted = ProtobufSerializer.trustedInternalProtobuf()
     private val redisson = RedissonProtobufCodec()
+    private val lettuceCopied = LettuceBinaryCodec<Any>(ProtobufSerializer())
+    private val lettuceOptimized = LettuceProtobufCodecs.protobuf<Any>()
     private val redissonBaselineClasses = ConcurrentHashMap<String, Class<out Message>>()
     private val fallback = FallbackPayload(42L, List(64) { "value-$it" })
     private val wire = serializer.serialize(payload)
@@ -119,6 +140,11 @@ class ProtobufCodecBenchmarkFixture {
     private val directSource = ByteBuffer.allocateDirect(wire.size).apply { put(wire).flip() }
     private val fallbackSource = ByteBuffer.wrap(fallbackWire)
     private val redissonInput: ByteBuf = Unpooled.unreleasableBuffer(Unpooled.wrappedBuffer(wire))
+    private val lettuceCapacity = wire.size + ProtobufBenchmarkMatrix.TARGET_HEADROOM
+    private val lettuceHeapCopied = Unpooled.buffer(lettuceCapacity, lettuceCapacity)
+    private val lettuceHeapOptimized = Unpooled.buffer(lettuceCapacity, lettuceCapacity)
+    private val lettuceDirectCopied = Unpooled.directBuffer(lettuceCapacity, lettuceCapacity)
+    private val lettuceDirectOptimized = Unpooled.directBuffer(lettuceCapacity, lettuceCapacity)
 
     val payloadSha256: String = MessageDigest.getInstance("SHA-256")
         .digest(wire)
@@ -126,9 +152,12 @@ class ProtobufCodecBenchmarkFixture {
     val wireSize: Int get() = wire.size
     val configIdentity: String = canonicalConfigJson(
         allowedPrefixes = ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES.sorted(),
-        directCapacity = directTarget.capacity(),
+        allocatorClass = UnpooledByteBufAllocator.DEFAULT.javaClass.name,
+        directCapacity = lettuceDirectOptimized.capacity(),
+        directMaxCapacity = lettuceDirectOptimized.maxCapacity(),
         directInitialPosition = ProtobufBenchmarkMatrix.TARGET_START,
-        heapCapacity = heapTarget.capacity(),
+        heapCapacity = lettuceHeapOptimized.capacity(),
+        heapMaxCapacity = lettuceHeapOptimized.maxCapacity(),
         heapInitialPosition = ProtobufBenchmarkMatrix.TARGET_START,
         matrixVersion = ProtobufBenchmarkMatrix.VERSION,
         methods = ProtobufBenchmarkMatrix.expectedMethods.sorted(),
@@ -151,6 +180,10 @@ class ProtobufCodecBenchmarkFixture {
         directSource.position(0).limit(wire.size)
         fallbackSource.position(0).limit(fallbackWire.size)
         redissonInput.setIndex(0, wire.size)
+        resetLettuceTarget(lettuceHeapCopied)
+        resetLettuceTarget(lettuceHeapOptimized)
+        resetLettuceTarget(lettuceDirectCopied)
+        resetLettuceTarget(lettuceDirectOptimized)
     }
 
     fun serializerEncodeByteArray(): ByteArray = serializer.serialize(payload)
@@ -195,6 +228,16 @@ class ProtobufCodecBenchmarkFixture {
         }
     }
 
+    fun lettuceEncodeHeapCopied(): Int = encodeLettuce(lettuceCopied, lettuceHeapCopied)
+    fun lettuceEncodeHeapOptimized(): Int = encodeLettuce(lettuceOptimized, lettuceHeapOptimized)
+    fun lettuceEncodeDirectCopied(): Int = encodeLettuce(lettuceCopied, lettuceDirectCopied)
+    fun lettuceEncodeDirectOptimized(): Int = encodeLettuce(lettuceOptimized, lettuceDirectOptimized)
+
+    internal fun lettuceHeapCopiedBytes(): ByteArray = lettuceHeapCopied.encodedBytes()
+    internal fun lettuceHeapOptimizedBytes(): ByteArray = lettuceHeapOptimized.encodedBytes()
+    internal fun lettuceDirectCopiedBytes(): ByteArray = lettuceDirectCopied.encodedBytes()
+    internal fun lettuceDirectOptimizedBytes(): ByteArray = lettuceDirectOptimized.encodedBytes()
+
     fun trustedEncodeByteArray(): ByteArray = trusted.serialize(fallback)
     fun trustedEncodeBuffer(): Int = trusted.serializeTo(fallback, fallbackTarget)
     internal fun trustedTargetBytes(written: Int): ByteArray = fallbackTarget.targetBytes(written)
@@ -238,6 +281,22 @@ class ProtobufCodecBenchmarkFixture {
         check(redissonDecodeComposite() == payload)
 
         resetInvocation()
+        lettuceEncodeHeapCopied()
+        check(lettuceHeapCopiedBytes().contentEquals(wire))
+
+        resetInvocation()
+        lettuceEncodeHeapOptimized()
+        check(lettuceHeapOptimizedBytes().contentEquals(wire))
+
+        resetInvocation()
+        lettuceEncodeDirectCopied()
+        check(lettuceDirectCopiedBytes().contentEquals(wire))
+
+        resetInvocation()
+        lettuceEncodeDirectOptimized()
+        check(lettuceDirectOptimizedBytes().contentEquals(wire))
+
+        resetInvocation()
         check(trustedEncodeByteArray().contentEquals(fallbackWire))
 
         resetInvocation()
@@ -250,5 +309,37 @@ class ProtobufCodecBenchmarkFixture {
 
         resetInvocation()
         check(trustedDecodeBuffer() == fallback)
+    }
+
+    override fun close() {
+        listOf(
+            lettuceHeapCopied,
+            lettuceHeapOptimized,
+            lettuceDirectCopied,
+            lettuceDirectOptimized,
+        ).forEach { buffer ->
+            if (buffer.refCnt() > 0) buffer.release()
+        }
+    }
+
+    private fun resetLettuceTarget(target: ByteBuf) {
+        target.setZero(0, ProtobufBenchmarkMatrix.TARGET_START)
+        target.setIndex(0, ProtobufBenchmarkMatrix.TARGET_START)
+    }
+
+    private fun encodeLettuce(codec: LettuceBinaryCodec<Any>, target: ByteBuf): Int {
+        codec.encodeValue(payload, target)
+        val start = ProtobufBenchmarkMatrix.TARGET_START
+        val last = target.writerIndex() - 1
+        check(last >= start)
+        return target.writerIndex() xor
+            target.getUnsignedByte(start).toInt() xor
+            target.getUnsignedByte(last).toInt()
+    }
+
+    private fun ByteBuf.encodedBytes(): ByteArray {
+        val start = ProtobufBenchmarkMatrix.TARGET_START
+        val length = writerIndex() - start
+        return ByteArray(length).also { getBytes(start, it) }
     }
 }

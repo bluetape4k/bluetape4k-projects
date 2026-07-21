@@ -1,0 +1,43 @@
+{
+  "comparison_path": "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/issue757-rollback-reproof-de503310e/benchmark/protobuf-codec-benchmark/build/issue-757-evidence/comparison.csv",
+  "comparison_sha256": "e4acf045f29b804bad4ec69f71964a42696c61105c5859c65d11d86eced4caf6",
+  "mode": "compare",
+  "observed_config_sha256": "fe95c4601aa5022c5a04c09c3122ae857ba30ed384eff9bfd685d8651cf2570e",
+  "reasons": {
+    "redissonDecodeCompositeCompatibility": "compatibility_control",
+    "redissonDecodeContiguousOptimized": "candidate",
+    "redissonDecodeCopiedByteArray": "baseline",
+    "serializerDecodeByteArray": "baseline",
+    "serializerDecodeDirectOptimized": "candidate",
+    "serializerDecodeHeapOptimized": "candidate",
+    "serializerEncodeByteArray": "baseline",
+    "serializerEncodeDirectOptimized": "candidate",
+    "serializerEncodeHeapOptimized": "candidate",
+    "trustedFallbackDecodeBufferCompatibility": "compatibility_control",
+    "trustedFallbackDecodeByteArray": "compatibility_control",
+    "trustedFallbackEncodeBufferCompatibility": "compatibility_control",
+    "trustedFallbackEncodeByteArray": "compatibility_control"
+  },
+  "rollback_bundle_sha256": null,
+  "run_ids": [
+    "run-20260718T192032.258066Z-3aabf0ba",
+    "run-20260718T192426.154770Z-6ef6336c"
+  ],
+  "schema_version": 1,
+  "status": "passed",
+  "verdicts": {
+    "redissonDecodeCompositeCompatibility": "ineligible",
+    "redissonDecodeContiguousOptimized": "accepted",
+    "redissonDecodeCopiedByteArray": "ineligible",
+    "serializerDecodeByteArray": "ineligible",
+    "serializerDecodeDirectOptimized": "regressed",
+    "serializerDecodeHeapOptimized": "inconclusive",
+    "serializerEncodeByteArray": "ineligible",
+    "serializerEncodeDirectOptimized": "accepted",
+    "serializerEncodeHeapOptimized": "accepted",
+    "trustedFallbackDecodeBufferCompatibility": "ineligible",
+    "trustedFallbackDecodeByteArray": "ineligible",
+    "trustedFallbackEncodeBufferCompatibility": "ineligible",
+    "trustedFallbackEncodeByteArray": "ineligible"
+  }
+}

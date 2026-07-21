@@ -1,0 +1,41 @@
+{
+  "benchmark_jar_path": "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat-issue-757-lettuce-protobuf-buffer/benchmark/protobuf-codec-benchmark/build/benchmarks/benchmark/jars/protobuf-codec-benchmark-benchmark-jmh-1.12.0-JMH.jar",
+  "benchmark_jar_sha256": "df01ceb32ce7cf51e0efbdabf94dc8920d09e568d95ed0a16b075658f9a58484",
+  "config_sha256": "b4673b77f650be959edf64c56ab815cee06df3754ec06fc7ec53c4521e8049ce",
+  "environment_path": "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat-issue-757-lettuce-protobuf-buffer/.omx/evidence/issue-757-jmh-v5/canonical-a/environment.json",
+  "input_path": "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat-issue-757-lettuce-protobuf-buffer/.omx/evidence/issue-757-jmh-v5/canonical-a/jmh.json",
+  "method_count": 17,
+  "mode": "run",
+  "observed_config": {
+    "forks": 2,
+    "jdk_version": "21.0.11",
+    "jvm_args": [
+      "-Xms1g",
+      "-Xmx1g",
+      "-XX:+UseG1GC"
+    ],
+    "jvm_launcher_prefix": [
+      "-XX:ThreadPriorityPolicy=1",
+      "-XX:+UnlockExperimentalVMOptions",
+      "-XX:+EnableJVMCIProduct",
+      "-XX:-UnlockExperimentalVMOptions"
+    ],
+    "matrix_version": "issue-757-lettuce-v2",
+    "measurement_time": "1 s",
+    "measurements": 5,
+    "mode": "thrpt",
+    "profiler": "gc",
+    "target_headroom": 32,
+    "target_start": 3,
+    "threads": 1,
+    "vm_name": "Java HotSpot(TM) 64-Bit Server VM",
+    "vm_version": "21.0.11+9-LTS-jvmci-23.1-b92",
+    "warmup_time": "1 s",
+    "warmups": 3
+  },
+  "observed_config_sha256": "dc0a5bf9ec07582204be0d2489ba15c1286f794c76463f3ad6224b54b6ff2365",
+  "run_id": "canonical-a",
+  "schema_version": 1,
+  "status": "passed",
+  "summary_path": "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat-issue-757-lettuce-protobuf-buffer/.omx/evidence/issue-757-jmh-v5/canonical-a/summary.csv"
+}
