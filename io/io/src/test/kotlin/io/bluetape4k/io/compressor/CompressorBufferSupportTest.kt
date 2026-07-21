@@ -17,7 +17,7 @@ class CompressorBufferSupportTest {
         val targetStart = target.position()
         val targetLimit = target.limit()
 
-        val written = writeToCallerBuffer(source, target) { sourceView, targetView, _, _, _, _ ->
+        val written = writeToCallerBufferViews(source, target) { sourceView, targetView, _, _, _, _ ->
             sourceView.clear()
             sourceView.order(ByteOrder.BIG_ENDIAN)
             targetView.clear()
@@ -45,7 +45,7 @@ class CompressorBufferSupportTest {
         val targetStart = target.position()
 
         val actual = assertFailsWith<Throwable> {
-            writeToCallerBuffer(source, target) { sourceView, targetView, _, _, _, _ ->
+            writeToCallerBufferViews(source, target) { sourceView, targetView, _, _, _, _ ->
                 sourceView.clear()
                 targetView.limit(0)
                 throw expected
@@ -67,7 +67,7 @@ class CompressorBufferSupportTest {
         val targetStart = target.position()
 
         assertFailsWith<IllegalStateException> {
-            writeToCallerBuffer(source, target) { _, _, _, _, _, targetRemaining -> targetRemaining + 1 }
+            writeToCallerBufferViews(source, target) { _, _, _, _, _, targetRemaining -> targetRemaining + 1 }
         }
 
         source.position() shouldBeEqualTo sourceStart

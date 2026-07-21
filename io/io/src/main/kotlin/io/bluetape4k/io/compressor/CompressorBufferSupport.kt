@@ -8,8 +8,6 @@ internal inline fun writeToCallerBuffer(
     source: ByteBuffer,
     target: ByteBuffer,
     operation: (
-        sourceView: ByteBuffer,
-        targetView: ByteBuffer,
         sourcePosition: Int,
         sourceRemaining: Int,
         targetPosition: Int,
@@ -26,13 +24,9 @@ internal inline fun writeToCallerBuffer(
     val targetLimit = target.limit()
     val sourceOrder = source.order()
     val targetOrder = target.order()
-    val sourceView = source.duplicate().order(sourceOrder)
-    val targetView = target.duplicate().order(targetOrder)
 
     try {
         val written = operation(
-            sourceView,
-            targetView,
             sourcePosition,
             source.remaining(),
             targetPosition,
@@ -66,11 +60,33 @@ internal inline fun writeToCallerBuffer(
     }
 }
 
+internal inline fun writeToCallerBufferViews(
+    source: ByteBuffer,
+    target: ByteBuffer,
+    operation: (
+        sourceView: ByteBuffer,
+        targetView: ByteBuffer,
+        sourcePosition: Int,
+        sourceRemaining: Int,
+        targetPosition: Int,
+        targetRemaining: Int,
+    ) -> Int,
+): Int = writeToCallerBuffer(source, target) { sourcePosition, sourceRemaining, targetPosition, targetRemaining ->
+    operation(
+        source.duplicate().order(source.order()),
+        target.duplicate().order(target.order()),
+        sourcePosition,
+        sourceRemaining,
+        targetPosition,
+        targetRemaining,
+    )
+}
+
 internal inline fun writeFallback(
     source: ByteBuffer,
     target: ByteBuffer,
     transform: (ByteArray) -> ByteArray,
-): Int = writeToCallerBuffer(source, target) {
+): Int = writeToCallerBufferViews(source, target) {
         sourceView,
         targetView,
         sourcePosition,

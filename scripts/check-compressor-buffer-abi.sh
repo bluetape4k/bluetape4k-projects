@@ -96,8 +96,8 @@ ensure_base_worktree() {
         fail "baseline worktree is not pinned to $BASE_SHA"
     [[ "$(git -C "$BASE_WORKTREE" rev-parse 'HEAD^{tree}')" == "$BASE_TREE" ]] ||
         fail "baseline tree mismatch"
-    [[ -z "$(git -C "$BASE_WORKTREE" status --porcelain --untracked-files=no)" ]] ||
-        fail "baseline worktree has tracked changes"
+    [[ -z "$(git -C "$BASE_WORKTREE" status --porcelain --untracked-files=all)" ]] ||
+        fail "baseline worktree has tracked or untracked changes"
 }
 
 resolve_single_jar() {
