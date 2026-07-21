@@ -1,8 +1,14 @@
 package io.bluetape4k.redis.lettuce.lease
 
+import io.bluetape4k.redis.lettuce.script.RedisScript
+import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
+import io.lettuce.core.ScriptOutputType
+import io.lettuce.core.api.async.RedisScriptingAsyncCommands
+import io.lettuce.core.api.sync.RedisScriptingCommands
 import io.lettuce.core.cluster.SlotHash
 import io.lettuce.core.codec.RedisCodec
 import java.time.Duration
+import java.util.concurrent.CompletableFuture
 
 internal data class ValidatedLeaseInput(
     val keys: List<String>,
@@ -20,6 +26,143 @@ internal fun validateLeaseInput(
     val snapshot = snapshotKeys(keys, config.maxKeys)
     requireSameSlot(snapshot, codec)
     return ValidatedLeaseInput(snapshot, ttl?.requirePositiveMillis())
+}
+
+internal fun runAcquire(
+    commands: RedisScriptingCommands<String, String>,
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+): MultiKeyAcquireResult = decodeAcquire(
+    runLeaseScript(commands, ACQUIRE_SCRIPT, input, ownerToken, requireTtl = true),
+)
+
+internal fun runAcquireAsync(
+    commands: RedisScriptingAsyncCommands<String, String>,
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+): CompletableFuture<MultiKeyAcquireResult> =
+    runLeaseScriptAsync(commands, ACQUIRE_SCRIPT, input, ownerToken, requireTtl = true)
+        .thenApply(::decodeAcquire)
+
+internal suspend fun runAcquireSuspending(
+    commands: RedisScriptingAsyncCommands<String, String>,
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+): MultiKeyAcquireResult = decodeAcquire(
+    runLeaseScriptSuspending(commands, ACQUIRE_SCRIPT, input, ownerToken, requireTtl = true),
+)
+
+internal fun runInspect(
+    commands: RedisScriptingCommands<String, String>,
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+): MultiKeyInspectResult = decodeInspect(runLeaseScript(commands, INSPECT_SCRIPT, input, ownerToken))
+
+internal fun runInspectAsync(
+    commands: RedisScriptingAsyncCommands<String, String>,
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+): CompletableFuture<MultiKeyInspectResult> =
+    runLeaseScriptAsync(commands, INSPECT_SCRIPT, input, ownerToken).thenApply(::decodeInspect)
+
+internal suspend fun runInspectSuspending(
+    commands: RedisScriptingAsyncCommands<String, String>,
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+): MultiKeyInspectResult = decodeInspect(runLeaseScriptSuspending(commands, INSPECT_SCRIPT, input, ownerToken))
+
+internal fun runRenew(
+    commands: RedisScriptingCommands<String, String>,
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+): MultiKeyRenewResult = decodeRenew(
+    runLeaseScript(commands, RENEW_SCRIPT, input, ownerToken, requireTtl = true),
+)
+
+internal fun runRenewAsync(
+    commands: RedisScriptingAsyncCommands<String, String>,
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+): CompletableFuture<MultiKeyRenewResult> =
+    runLeaseScriptAsync(commands, RENEW_SCRIPT, input, ownerToken, requireTtl = true).thenApply(::decodeRenew)
+
+internal suspend fun runRenewSuspending(
+    commands: RedisScriptingAsyncCommands<String, String>,
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+): MultiKeyRenewResult = decodeRenew(
+    runLeaseScriptSuspending(commands, RENEW_SCRIPT, input, ownerToken, requireTtl = true),
+)
+
+internal fun runRelease(
+    commands: RedisScriptingCommands<String, String>,
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+): MultiKeyReleaseResult = decodeRelease(runLeaseScript(commands, RELEASE_SCRIPT, input, ownerToken))
+
+internal fun runReleaseAsync(
+    commands: RedisScriptingAsyncCommands<String, String>,
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+): CompletableFuture<MultiKeyReleaseResult> =
+    runLeaseScriptAsync(commands, RELEASE_SCRIPT, input, ownerToken).thenApply(::decodeRelease)
+
+internal suspend fun runReleaseSuspending(
+    commands: RedisScriptingAsyncCommands<String, String>,
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+): MultiKeyReleaseResult = decodeRelease(runLeaseScriptSuspending(commands, RELEASE_SCRIPT, input, ownerToken))
+
+private fun runLeaseScript(
+    commands: RedisScriptingCommands<String, String>,
+    script: RedisScript,
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+    requireTtl: Boolean = false,
+): List<Long> = RedisScriptRunner.run(
+    commands,
+    script,
+    ScriptOutputType.MULTI,
+    input.keys.toTypedArray(),
+    *scriptArguments(input, ownerToken, requireTtl),
+)
+
+private fun runLeaseScriptAsync(
+    commands: RedisScriptingAsyncCommands<String, String>,
+    script: RedisScript,
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+    requireTtl: Boolean = false,
+): CompletableFuture<List<Long>> = RedisScriptRunner.runAsync(
+    commands,
+    script,
+    ScriptOutputType.MULTI,
+    input.keys.toTypedArray(),
+    *scriptArguments(input, ownerToken, requireTtl),
+)
+
+private suspend fun runLeaseScriptSuspending(
+    commands: RedisScriptingAsyncCommands<String, String>,
+    script: RedisScript,
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+    requireTtl: Boolean = false,
+): List<Long> = RedisScriptRunner.runSuspending(
+    commands,
+    script,
+    ScriptOutputType.MULTI,
+    input.keys.toTypedArray(),
+    *scriptArguments(input, ownerToken, requireTtl),
+)
+
+private fun scriptArguments(
+    input: ValidatedLeaseInput,
+    ownerToken: String,
+    requireTtl: Boolean,
+): Array<String> = if (requireTtl) {
+    arrayOf(ownerToken, checkNotNull(input.ttlMillis) { "Validated lease input requires a TTL." }.toString())
+} else {
+    arrayOf(ownerToken)
 }
 
 internal fun decodeAcquire(vector: List<Long>): MultiKeyAcquireResult {
@@ -169,6 +312,132 @@ private fun Long.toIntExact(): Int {
 }
 
 private fun invalidVector(): Nothing = throw IllegalStateException("Malformed multi-key lease response.")
+
+private val ACQUIRE_SCRIPT = RedisScript(
+    """
+    local token = ARGV[1]
+    local ttl = tonumber(ARGV[2])
+    if not ttl or ttl <= 0 then error('invalid lease ttl') end
+
+    local requested = #KEYS
+    local owned, missing, mismatched, invalidTtl, minimumPttl = 0, 0, 0, 0, -1
+    for _, key in ipairs(KEYS) do
+      local value = redis.call('GET', key)
+      if not value then
+        missing = missing + 1
+      elseif value == token then
+        owned = owned + 1
+        local pttl = redis.call('PTTL', key)
+        if pttl < 0 then
+          invalidTtl = invalidTtl + 1
+        elseif minimumPttl < 0 or pttl < minimumPttl then
+          minimumPttl = pttl
+        end
+      else
+        mismatched = mismatched + 1
+      end
+    end
+
+    if invalidTtl > 0 then return {90, requested, owned, missing, mismatched, invalidTtl, -1} end
+    if mismatched > 0 then return {13, requested, owned, missing, mismatched, 0, -1} end
+    if owned == requested then return {11, requested, owned, missing, mismatched, 0, minimumPttl} end
+    if owned > 0 then return {12, requested, owned, missing, mismatched, 0, -1} end
+
+    for _, key in ipairs(KEYS) do
+      redis.call('SET', key, token, 'PX', ttl)
+    end
+    return {10, requested, owned, missing, mismatched, 0, -1}
+    """.trimIndent(),
+)
+
+private val INSPECT_SCRIPT = RedisScript(
+    """
+    local token = ARGV[1]
+    local requested = #KEYS
+    local owned, missing, mismatched, invalidTtl, minimumPttl = 0, 0, 0, 0, -1
+    for _, key in ipairs(KEYS) do
+      local value = redis.call('GET', key)
+      if not value then
+        missing = missing + 1
+      elseif value == token then
+        owned = owned + 1
+        local pttl = redis.call('PTTL', key)
+        if pttl < 0 then
+          invalidTtl = invalidTtl + 1
+        elseif minimumPttl < 0 or pttl < minimumPttl then
+          minimumPttl = pttl
+        end
+      else
+        mismatched = mismatched + 1
+      end
+    end
+
+    if invalidTtl > 0 then return {90, requested, owned, missing, mismatched, invalidTtl, -1} end
+    if mismatched > 0 then return {23, requested, owned, missing, mismatched, 0, -1} end
+    if owned == requested then return {20, requested, owned, missing, mismatched, 0, minimumPttl} end
+    if owned > 0 then return {22, requested, owned, missing, mismatched, 0, -1} end
+    return {21, requested, owned, missing, mismatched, 0, -1}
+    """.trimIndent(),
+)
+
+private val RENEW_SCRIPT = RedisScript(
+    """
+    local token = ARGV[1]
+    local ttl = tonumber(ARGV[2])
+    if not ttl or ttl <= 0 then error('invalid lease ttl') end
+
+    local requested = #KEYS
+    local owned, missing, mismatched, invalidTtl = 0, 0, 0, 0
+    local ownedKeys = {}
+    for _, key in ipairs(KEYS) do
+      local value = redis.call('GET', key)
+      if not value then
+        missing = missing + 1
+      elseif value == token then
+        owned = owned + 1
+        ownedKeys[#ownedKeys + 1] = key
+        if redis.call('PTTL', key) < 0 then invalidTtl = invalidTtl + 1 end
+      else
+        mismatched = mismatched + 1
+      end
+    end
+
+    if invalidTtl > 0 then return {90, requested, owned, missing, mismatched, invalidTtl, -1} end
+    for _, key in ipairs(ownedKeys) do redis.call('PEXPIRE', key, ttl) end
+
+    if mismatched > 0 then return {43, requested, owned, missing, mismatched, 0, -1} end
+    if owned == requested then return {40, requested, owned, missing, mismatched, 0, -1} end
+    if owned > 0 then return {41, requested, owned, missing, mismatched, 0, -1} end
+    return {42, requested, owned, missing, mismatched, 0, -1}
+    """.trimIndent(),
+)
+
+private val RELEASE_SCRIPT = RedisScript(
+    """
+    local token = ARGV[1]
+    local requested = #KEYS
+    local owned, missing, mismatched = 0, 0, 0
+    local ownedKeys = {}
+    for _, key in ipairs(KEYS) do
+      local value = redis.call('GET', key)
+      if not value then
+        missing = missing + 1
+      elseif value == token then
+        owned = owned + 1
+        ownedKeys[#ownedKeys + 1] = key
+      else
+        mismatched = mismatched + 1
+      end
+    end
+
+    for _, key in ipairs(ownedKeys) do redis.call('DEL', key) end
+
+    if mismatched > 0 then return {53, requested, owned, missing, mismatched, 0, -1} end
+    if owned == requested then return {50, requested, owned, missing, mismatched, 0, -1} end
+    if owned > 0 then return {51, requested, owned, missing, mismatched, 0, -1} end
+    return {52, requested, owned, missing, mismatched, 0, -1}
+    """.trimIndent(),
+)
 
 private const val VECTOR_SIZE = 7
 private const val NO_PTTL = -1L
