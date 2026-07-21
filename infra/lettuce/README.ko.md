@@ -416,8 +416,8 @@ if (suspendLock.tryLock(waitTime = 5.seconds)) {
 ### 다중 키 소유권 Lease
 
 `LettuceMultiKeyLease`는 제한된 키 집합에 대해 한 소유자를 원자적으로 조정합니다. 모든 키는 동일한 Redis
-Cluster hash tag를 공유해야 하며, lease는 advisory single-writer guard입니다. 영속적인 비즈니스 불변식은
-database 또는 다른 authoritative store에 유지해야 합니다.
+Cluster slot에 매핑되어야 하며, shared hash tag가 이를 보장하는 일반적인 방법입니다. lease는 advisory
+single-writer guard입니다. 영속적인 비즈니스 불변식은 database 또는 다른 authoritative store에 유지해야 합니다.
 
 ```kotlin
 import io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLease
@@ -510,7 +510,9 @@ suspend fun recoverAfterAmbiguousMutation(
 | release | `Released`, `PartialRelease`, `Lost`, `OwnershipMismatch` | `PartialRelease`/`OwnershipMismatch`를 durable authority와 reconcile합니다. |
 
 모든 counts는 mutation 전 관찰한 소유권입니다. renew 또는 release 완료가 모호하면 새 token이 아니라 같은
-token으로 먼저 inspect합니다. `Lost`만으로는 이전 release 성공과 expiry를 구분할 수 없습니다.
+token으로 먼저 inspect합니다. `Lost`만으로는 이전 release 성공과 expiry를 구분할 수 없습니다. 반환된
+`CompletableFuture`를 cancel해도 caller wait만 취소되며 upstream 또는 Redis server execution 취소를 증명하지
+않습니다. 이 결과도 모호한 완료로 취급하고 같은 token으로 복구합니다.
 
 <!-- multi-key-lease:security-telemetry -->
 #### 보안과 Telemetry

@@ -31,6 +31,12 @@ JSON을 최신 evidence로 오인할 수 있어 non-cacheable, always-run, fail-
 README smoke fixture도 처음에는 production 예제와 다른 작은 Retry/Bulkhead 수치를 사용했다. 테스트가
 compile된다는 사실만으로 source-equivalence를 증명할 수 없었다. 두 locale의 marker/heading뿐 아니라 resilience
 수치, exhaustive result 순서, migration 6단계, lost-token runbook 순서를 함께 검증하도록 강화했다.
+최종 review에서는 future cancellation이 caller wait만 끝내고 Redis 실행 취소를 증명하지 않는다는 계약도
+README에서 빠진 것이 발견됐다. 양쪽 locale에 이를 ambiguous completion으로 명시하고 smoke test에 고정했다.
+
+초기 spec은 모든 Lua script의 추가 메모리를 O(1)이라고 단정했지만 renew/release는 mutation 대상 key를
+`ownedKeys`에 보관하므로 O(n)이다. 구현은 `maxKeys`로 bounded되어 있었고, spec의 성능 전제를 실제 구현에
+맞게 바로잡았다.
 
 Publication 검증에서 `resilience4j` 문자열 전체를 금지하면 repository 공통 dependency-management의
 `resilience4j-bom`까지 false positive가 된다. 실제 누출 검사는 production `runtimeClasspath`와 POM의

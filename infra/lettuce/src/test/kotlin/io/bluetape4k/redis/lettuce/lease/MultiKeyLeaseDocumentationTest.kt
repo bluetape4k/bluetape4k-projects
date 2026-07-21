@@ -176,6 +176,9 @@ internal class MultiKeyLeaseDocumentationTest {
             "ACL",
             "TLS",
             "dual-write",
+            "CompletableFuture",
+            "caller wait",
+            "Redis server execution",
         )
         val REQUIRED_SECTION_CONTRACTS: Map<String, List<String>> = mapOf(
             "recovery" to listOf(

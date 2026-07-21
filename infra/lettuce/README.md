@@ -419,9 +419,9 @@ if (suspendLock.tryLock(waitTime = 5.seconds)) {
 <!-- multi-key-lease:basic -->
 ### Multi-Key Ownership Lease
 
-`LettuceMultiKeyLease` atomically coordinates one owner across a bounded set of keys. Every key must share one Redis
-Cluster hash tag, and the lease remains an advisory, single-writer guard: keep the durable business invariant in a
-database or another authoritative store.
+`LettuceMultiKeyLease` atomically coordinates one owner across a bounded set of keys. Every key must map to the same
+Redis Cluster slot; a shared hash tag is the usual way to guarantee that. The lease remains an advisory, single-writer
+guard: keep the durable business invariant in a database or another authoritative store.
 
 ```kotlin
 import io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLease
@@ -515,7 +515,9 @@ suspend fun recoverAfterAmbiguousMutation(
 
 All counts describe the ownership observed before mutation. After ambiguous renew or release completion, inspect with
 the same token first; never switch to a new token as a recovery probe. `Lost` alone cannot distinguish a prior
-successful release from expiry.
+successful release from expiry. Cancelling a returned `CompletableFuture` cancels only the caller wait; it does not
+prove that upstream or Redis server execution was cancelled. Treat that outcome as ambiguous and recover with the
+same token.
 
 <!-- multi-key-lease:security-telemetry -->
 #### Security and Telemetry
