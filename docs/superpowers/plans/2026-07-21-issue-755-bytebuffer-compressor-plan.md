@@ -26,9 +26,10 @@
 - machine-readable workflow run:
   `20260721T115110Z-8e06d9a0`, manifest SHA-256
   `3e9a92a4ea0bef991d0613c8fad9b4fa90b27c520e16d1588005105aebd27638`, initial receipt
-  checksum `9e1435c164dd203997fe9d41a49d8d95cb68d60de6f5074e76471e051262456e`, 현재 상태
-  `planned`. coordinator mutation의 `--expected-head`는 manifest SHA가 아니라 직전 receipt
-  checksum이다.
+  checksum `9e1435c164dd203997fe9d41a49d8d95cb68d60de6f5074e76471e051262456e`. WF-04A fallback
+  terminal 상태는 `blocked`, sequence `5`, checksum
+  `b0458931bc1b8a3f2b173f04116b010c938d804f737aae081daeed292ef3cda1`이다. 이 checksum은
+  final documented checklist closeout까지 immutable evidence로 보존한다.
 - 이번 계획 승인 전 stop condition: implementation, push, PR creation을 시작하지 않는다.
 - 계획 승인 후 stop condition: 각 PR은 exact-head CI/review 수렴 후 fresh merge 승인을 별도로 받고,
   승인 전에는 다음 slice branch를 만들지 않는다.
@@ -49,8 +50,8 @@
 
 각 slice는 하나의 worktree만 쓰고 native/JNI test와 benchmark는 다른 worktree와 병렬 실행하지
 않는다. PR이 merge되면 `develop`을 fast-forward한 다음 ancestry를 확인하고 해당 local
-worktree를 run completion까지 보존한다. coordination/core worktree와 모든 local/remote branch 삭제는
-final run completion 뒤 별도 명시 cleanup 승인을 받기 전까지 수행하지 않는다.
+worktree를 final documented checklist/PR train completion까지 보존한다. coordination/core worktree와
+모든 local/remote branch 삭제는 그 completion 뒤 별도 명시 cleanup 승인을 받기 전까지 수행하지 않는다.
 
 ### 2.1 모든 slice의 merge-ready와 post-approval checkpoint
 
@@ -77,8 +78,10 @@ gh pr view "$pr_number" --repo "$repo" \
 
 candidate_key="${branch//\//-}"
 candidate_stamp="$(date -u +%Y%m%dT%H%M%SZ)"
-readiness_receipt_checksum="$(python3 -c 'import json; print(json.load(open("/Users/debop/work/bluetape4k/.bluetape/runs/20260721T115110Z-8e06d9a0/run.json"))["last_checksum"])')"
-test "${#readiness_receipt_checksum}" -eq 64
+readiness_run_file=/Users/debop/work/bluetape4k/.bluetape/runs/20260721T115110Z-8e06d9a0/run.json
+test "$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["state"])' "$readiness_run_file")" = blocked
+readiness_receipt_checksum="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["last_checksum"])' "$readiness_run_file")"
+test "$readiness_receipt_checksum" = b0458931bc1b8a3f2b173f04116b010c938d804f737aae081daeed292ef3cda1
 candidate_file="/Users/debop/work/bluetape4k/.bluetape/inputs/issue755/merge-candidates/${candidate_key}-${expected_head}-${candidate_stamp}.json"
 test ! -e "$candidate_file"
 ```
@@ -340,7 +343,179 @@ fun decompress(source: ByteBuffer, target: ByteBuffer): Int
 **Write scope:** `.bluetape` coordinator state만 helper가 기록; repository source 변경 없음
 **Pattern skill:** `bluetape-workflow`, `bluetape-full-feature`
 
-- [ ] **Step 0.1: plan approval을 machine-readable run에 기록한다**
+### Rejected 2026-07-22 coordinator reservation workaround
+
+> **실행 금지:** 아래 reservation/active-lane workaround는 검토 과정에서 폐기했다. current runtime의
+> `evaluate_run_completion`은 owner가 아닌 reservation lane도 `completed`가 아니면 run completion을
+> 막고, pending reservation을 안전하게 완료할 native-work evidence가 없기 때문이다. 아래 기록은
+> 검토된 대안과 폐기 근거를 보존할 뿐, Task 0 실행 authority가 아니다.
+
+실행 중 `topology-register`가 아직 생성되지 않은 미래 owner lane을 거부한다는 current runtime
+contract가 확인되었다. 동시에 lane deadline은 `lane-create` 시점에 immutable이라, 사용자 merge 승인
+뒤에 시작할 미래 lane을 미리 만든 뒤 그대로 dispatch하면 liveness evidence가 stale해진다. 이 보정은
+product/API/ABI 설계를 바꾸지 않으며 아래 Task 0.3/0.4의 “현재 component만 lane-create” 문장과
+generic lifecycle block보다 우선한다.
+
+1. initial topology 등록 전 일곱 exact `*-lane`을 모두 **reservation lane**으로 생성한다. reservation은
+   native agent를 spawn하지 않고 `pending`으로만 유지한다. 현재 run에서 이미 생성된
+   `core-api-lane`은 그대로 core reservation으로 취급한다.
+2. initial topology는 reservation lane을 owner로 사용한다. `topology.json`의 component/check/dependency
+   snapshot은 그대로 유지한다.
+3. component dependency가 covered되고 실제 dispatch가 준비된 직전에 fresh timestamp로
+   `<component>-exec-<attempt>` active lane을 생성한다. active lane은 reservation과 같은 write scope,
+   `parent_lane_id=<component>-lane`, `replacement_count=0`, 30초 startup deadline, 10분 command
+   deadline을 가진다.
+4. `topology-<component>-active.json`으로 full seven-component snapshot을 재등록하되 해당 component의
+   `owner_lane`만 active lane으로 바꾼다. runtime replay가 기존 coverage/evidence를 보존한다.
+5. owner 교체가 성공한 뒤 reservation lane을 `lane-cancel`로 terminal 처리하고, active lane만
+   `lane-start → native spawn → startup-ack`한다. native lane은 사용자 merge 승인 대기 전에 반드시
+   terminal 처리한다.
+6. active lane이 15분 안에 완료되지 않으면 liveness contract에 따라 interrupt/main takeover를 수행하고
+   distinct attempt lane을 만든다. expired reservation deadline을 active evidence로 사용하지 않는다.
+
+reservation agent id는 `<planned-agent-id>-reservation`, active agent id는 기존 artifact matrix의 planned
+agent id를 쓴다. current run의 `core-api-lane`만 이미 planned agent id로 생성됐으므로 그 id를
+reservation identity로 유지하고 active core agent id를 `issue755-core-api-executor-1`로 쓴다. 이
+예외는 coordinator identity에만 적용되며 source write scope와 review ownership은 변하지 않는다.
+
+각 reservation input은
+`/Users/debop/work/bluetape4k/.bluetape/inputs/issue755/coordinator/reservations/<component>.json`,
+active input은 `coordinator/lanes/<component>-exec-<attempt>.json`, topology snapshot은
+`/Users/debop/work/bluetape4k/.bluetape/inputs/issue755/topology-<component>-active.json`에 둔다.
+모든 JSON은 `apply_patch`로 만든다. 다음 순서를 exact authority로 사용한다.
+
+```bash
+set -euo pipefail
+flow=/Users/debop/.codex/skills/bluetape-workflow/scripts/bluetape-flow.py
+state_root=/Users/debop/work/bluetape4k/.bluetape
+run_id=20260721T115110Z-8e06d9a0
+owner=/Users/debop/work/bluetape4k/.bluetape/handles/issue755-plan-owner.json
+input_root=/Users/debop/work/bluetape4k/.bluetape/inputs/issue755/coordinator
+receipt_head() {
+  python3 -c 'import json; print(json.load(open("/Users/debop/work/bluetape4k/.bluetape/runs/20260721T115110Z-8e06d9a0/run.json"))["last_checksum"])'
+}
+
+for component_id in lz4 deflate snappy zstd benchmark-docs review-delivery; do
+  python3 "$flow" --state-root "$state_root" lane-create \
+    --run-id "$run_id" --owner-file "$owner" --expected-head "$(receipt_head)" \
+    --input "$input_root/reservations/$component_id.json" \
+    --evidence "$input_root/evidence/lane-reserve-$component_id.json"
+done
+python3 "$flow" --state-root "$state_root" topology-register \
+  --run-id "$run_id" --owner-file "$owner" --expected-head "$(receipt_head)" \
+  --evidence /Users/debop/work/bluetape4k/.bluetape/inputs/issue755/topology-evidence.json \
+  --input /Users/debop/work/bluetape4k/.bluetape/inputs/issue755/topology.json
+python3 "$flow" --state-root "$state_root" verify --run-id "$run_id"
+```
+
+각 component dispatch는 active lane JSON/topology JSON/evidence를 먼저 생성한 뒤 다음 block을 사용한다.
+`component_id`, `active_lane_id`, `active_agent_id`는 current component의 exact artifact identity다.
+
+```bash
+set -euo pipefail
+flow=/Users/debop/.codex/skills/bluetape-workflow/scripts/bluetape-flow.py
+state_root=/Users/debop/work/bluetape4k/.bluetape
+run_id=20260721T115110Z-8e06d9a0
+owner=/Users/debop/work/bluetape4k/.bluetape/handles/issue755-plan-owner.json
+input_root=/Users/debop/work/bluetape4k/.bluetape/inputs/issue755/coordinator
+: "${component_id:?set exact component id}"
+: "${active_lane_id:?set <component>-exec-<attempt>}"
+: "${active_agent_id:?set exact active agent id}"
+reservation_lane_id="$component_id-lane"
+receipt_head() {
+  python3 -c 'import json; print(json.load(open("/Users/debop/work/bluetape4k/.bluetape/runs/20260721T115110Z-8e06d9a0/run.json"))["last_checksum"])'
+}
+
+python3 "$flow" --state-root "$state_root" lane-create \
+  --run-id "$run_id" --owner-file "$owner" --expected-head "$(receipt_head)" \
+  --input "$input_root/lanes/$active_lane_id.json" \
+  --evidence "$input_root/evidence/lane-create-$active_lane_id.json"
+python3 "$flow" --state-root "$state_root" topology-register \
+  --run-id "$run_id" --owner-file "$owner" --expected-head "$(receipt_head)" \
+  --evidence "$input_root/evidence/topology-$component_id-active.json" \
+  --input "/Users/debop/work/bluetape4k/.bluetape/inputs/issue755/topology-$component_id-active.json"
+cancelled_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+python3 "$flow" --state-root "$state_root" lane-cancel \
+  --run-id "$run_id" --owner-file "$owner" --expected-head "$(receipt_head)" \
+  --lane-id "$reservation_lane_id" \
+  --agent-id "$(python3 -c 'import json,sys; d=json.load(open("/Users/debop/work/bluetape4k/.bluetape/runs/20260721T115110Z-8e06d9a0/run.json")); print(d["lanes"][sys.argv[1]]["agent_id"])' "$reservation_lane_id")" \
+  --at "$cancelled_at" --reason "reservation replaced by fresh-deadline active lane" \
+  --evidence "$input_root/evidence/lane-cancel-$component_id-reservation.json"
+started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+python3 "$flow" --state-root "$state_root" lane-start \
+  --run-id "$run_id" --owner-file "$owner" --expected-head "$(receipt_head)" \
+  --lane-id "$active_lane_id" --agent-id "$active_agent_id" --at "$started_at" \
+  --evidence "$input_root/evidence/lane-start-$active_lane_id.json"
+# Main session performs the native spawn now, then records startup-ack from the observed result.
+```
+
+### Active 2026-07-22 WF-04A fallback
+
+current `bluetape-flow.py`는 seven-component topology의 모든 `owner_lane`이 initial
+`topology-register` 전에 존재하도록 요구한다. 반면 future lane의 startup/command deadline은
+`lane-create` 때 immutable이며, 이 plan은 각 PR merge 승인 뒤 다음 component를 dispatch하므로 future
+dispatch 시점에 deadline을 fresh하게 만들 수 없다. reservation을 cancel/block해도
+`evaluate_run_completion`이 모든 lane의 `completed` 상태를 요구해 run을 닫을 수 없다.
+
+따라서 current run `20260721T115110Z-8e06d9a0`은 helper의 `run-block`으로 terminal evidence를 남기고,
+`bluetape-workflow` WF-04A failure branch에 따라 machine-readable coordinator 없이 이 문서의
+router/common/Type-A checklist와 native subagent liveness contract로 계속한다. `.bluetape` receipt는
+helper 외 경로로 수정하지 않는다. 이 fallback은 product/API/ABI, PR topology, merge 승인 gate를
+변경하지 않는다. coordinator가 deferred owner lane 또는 lane-start deadline refresh를 지원하기 전에는
+이 seven-component run을 재개하거나 새로 만들지 않는다.
+
+`/Users/debop/work/bluetape4k/.bluetape/inputs/issue755/coordinator/evidence/run-block-topology-deadline-incompatibility.json`
+은 `apply_patch`로 다음 exact one-element list를 만든다.
+
+```json
+[{"kind":"tool","summary":"Block issue755 run because current coordinator cannot model deferred owner lanes with fresh deadlines","path":"docs/superpowers/plans/2026-07-21-issue-755-bytebuffer-compressor-plan.md"}]
+```
+
+다음 block만 active run terminalization authority다. `running`에서 중단되면 fresh receipt head로
+`run-block`을 한 번 실행하고, 이미 `blocked`이면 mutation 없이 verify한다. 그 밖의 state는 exit 65로
+fail closed한다. postcondition은 `state=blocked`, checksum chain valid, printed terminal checksum이다.
+
+```bash
+set -euo pipefail
+flow=/Users/debop/.codex/skills/bluetape-workflow/scripts/bluetape-flow.py
+state_root=/Users/debop/work/bluetape4k/.bluetape
+run_id=20260721T115110Z-8e06d9a0
+owner=/Users/debop/work/bluetape4k/.bluetape/handles/issue755-plan-owner.json
+run_file=/Users/debop/work/bluetape4k/.bluetape/runs/20260721T115110Z-8e06d9a0/run.json
+evidence=/Users/debop/work/bluetape4k/.bluetape/inputs/issue755/coordinator/evidence/run-block-topology-deadline-incompatibility.json
+state="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["state"])' "$run_file")"
+case "$state" in
+  running)
+    blocked_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    expected_head="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["last_checksum"])' "$run_file")"
+    python3 "$flow" --state-root "$state_root" run-block \
+      --run-id "$run_id" --owner-file "$owner" --expected-head "$expected_head" \
+      --at "$blocked_at" \
+      --reason "current coordinator cannot model deferred topology owners with fresh immutable deadlines" \
+      --evidence "$evidence"
+    ;;
+  blocked) ;;
+  *) exit 65 ;;
+esac
+python3 "$flow" --state-root "$state_root" verify --run-id "$run_id"
+python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); assert d["state"] == "blocked"; print(d["last_checksum"])' "$run_file"
+```
+
+terminal block evidence는 sequence `5`, checksum
+`b0458931bc1b8a3f2b173f04116b010c938d804f737aae081daeed292ef3cda1`로 확인됐다.
+
+- [x] **Step 0.F — WF-04A fallback을 terminal evidence로 고정한다**
+  - **Action:** helper-only `run-block`을 fresh receipt head에서 실행하고 receipt chain/state를 검증했다.
+  - **Evidence:** run `20260721T115110Z-8e06d9a0`, sequence `5`, state `blocked`, checksum
+    `b0458931bc1b8a3f2b173f04116b010c938d804f737aae081daeed292ef3cda1`, `verify` PASS.
+  - **Failure:** checksum/state가 달라지면 source/PR progression을 멈추고 helper `verify`와 receipt
+    diagnosis로 돌아간다. direct `.bluetape` mutation은 금지한다.
+
+Task 0.1–0.5의 coordinator commands는 최초 계획과 실제 실패 지점을 보존하는 audit record다.
+**Active WF-04A fallback에서는 아래 Task 0.1–0.5 commands를 다시 실행하지 않는다.** source
+implementation은 CG-01–CG-10, A-01–A-09, TDD, native liveness, six-perspective review를 계속 적용한다.
+
+#### Audit Step 0.1 — N/A under WF-04A: 최초 plan approval receipt record
 
 repository edit 전에 `apply_patch`로 다음 두 regular JSON files를 만든다.
 
@@ -369,7 +544,7 @@ python3 /Users/debop/.codex/skills/bluetape-workflow/scripts/bluetape-flow.py \
 
 Expected: receipt가 `run-start`를 safe next로 반환하고 owner fencing value는 출력하지 않는다.
 
-- [ ] **Step 0.2: run을 시작하고 coordination branch를 검증한다**
+#### Audit Step 0.2 — N/A under WF-04A: 최초 run-start record
 
 ```bash
 set -euo pipefail
@@ -389,7 +564,7 @@ git merge-base --is-ancestor origin/develop HEAD
 Expected: branch는 `feat/issue-755-bytebuffer-compressor`, working tree clean, `origin/develop`가
 ancestor다. 불일치하면 source edit 전에 중단한다.
 
-- [ ] **Step 0.3: core lane을 만들고 seven-component topology를 등록한다**
+#### Audit Step 0.3 — N/A under WF-04A: 실패한 topology registration record
 
 `topology-register` input은 manifest의 일곱 component를 required로 등록한다.
 
@@ -505,7 +680,7 @@ core의 `lane-start → native spawn → startup-ack`은 topology verify 직후 
 직전 receipt SHA-256이다. 첫 승인만 위 pinned checksum을 쓰고 이후에는
 `run.json.last_checksum`을 fresh하게 읽는다.
 
-- [ ] **Step 0.4: 각 component의 exact coordinator lifecycle을 실행한다**
+#### Audit Step 0.4 — N/A under WF-04A: coordinator lifecycle record
 
 각 component 시작 시 아래 case가 lane/agent/check set을 exact하게 고정한다. `core-api`만 Step 0.3에서
 이미 `lane-create`했으므로 그 호출을 건너뛴다. 나머지는 동일 artifact matrix의 lane JSON과
@@ -657,7 +832,7 @@ python3 "$flow" --state-root "$state_root" verify --run-id "$run_id"
 그 component의 check evidence path들과 final commit/PR/merge identity를 fresh refs로 가진다.
 모든 일곱 component에 대해 closure block과 `verify`가 성공해야 Task 11 `completion-check`로 간다.
 
-- [ ] **Step 0.5: safety block의 fail-fast shell semantics를 smoke 검증한다**
+#### Audit Step 0.5 — N/A under WF-04A: original coordinator safety block record
 
 ```bash
 set -euo pipefail
@@ -684,14 +859,17 @@ Expected: deliberate failed precondition 뒤 marker mutation은 실행되지 않
 merge, coordinator, verification, evidence, commit/push block은 모두 첫 명령이
 `set -euo pipefail`이고, standalone script definition만 shebang을 첫 줄로 허용한다.
 
-**Step DoD:** workflow run이 approved/started, seven-component topology가 registered이고 core slice의 branch/base/clean boundary가 증명된다.
+**Step DoD:** WF-04A fallback에서 run의 blocked checksum과 valid receipt chain이 고정되고, core
+slice의 branch/base/clean boundary 및 documented checklist 실행 authority가 증명된다. initial
+seven-component topology registration은 current runtime incompatibility evidence로 FAIL/N/A가 아니라
+WF-04A fallback 처리되며 source implementation을 block하지 않는다.
 
 ---
 
 ## Task 1: Core RED — public contract와 ABI authority를 먼저 고정한다
 
 **Complexity:** 높음
-**Dependency:** Task 0
+**Dependency:** Task 0 WF-04A fallback DoD PASS
 **Write scope:** core test/ABI resources와 `scripts/check-compressor-buffer-abi.sh`만
 **Pattern skill:** `bluetape-kotlin-patterns`, `test-driven-development`
 
@@ -3444,24 +3622,30 @@ CI와 current review/thread가 exact head에서 수렴하면 PR number/head SHA�
 
 ---
 
-## Task 11: final merge 승인 후 coordinator run을 완료하고 cleanup gate에서 멈춘다
+## Task 11: final merge 승인 후 documented checklist를 닫고 cleanup gate에서 멈춘다
 
 **Complexity:** 중간
 **Dependency:** final PR exact-head fresh merge approval
-**Write scope:** GitHub merge와 `.bluetape` coordinator receipt only
+**Write scope:** approved GitHub merge와 local sync only; terminal blocked `.bluetape` receipt는 read-only
 **Pattern skill:** `bluetape-workflow`, `finishing-a-development-branch`
+
+> **Active WF-04A fallback:** Step 11.2의 original `completion-check`/`complete` commands는 audit
+> record이며 실행하지 않는다. terminal blocked receipt를 그대로 보존하고 documented checklist와
+> exact-head PR train을 final completion authority로 사용한다.
 
 - [ ] **Step 11.1: approved final PR을 exact head로 merge하고 local develop을 sync한다**
 
 Section 2.1의 post-approval checkpoint를 final PR number와 approved `expected_head`에 그대로 실행한다.
 merge state, merge OID와 `origin/develop` ancestry가 모두 증명되지 않으면 coordinator completion으로
-넘어가지 않는다.
+넘어가지 않는다. Active fallback에서는 이 문장의 coordinator completion을 documented checklist
+closeout으로 읽는다.
 
 - [ ] **Step 11.2: 남은 component evidence와 main verification을 닫는다**
 
-Task 10.6 commit에서 `benchmark-docs` lane/check/evidence를 covered로 닫고, final PR merge 뒤
-`review-delivery` lane의 `tests`, `abi`, `evidence`, `review`, `ci`, `merge` check를 actual artifact/PR
-evidence로 기록해 covered로 닫는다. 모든 lane은 terminal `completed`여야 한다.
+Active WF-04A fallback에서는 Task 10.6의 committed evidence와 final PR merge 뒤 documented
+router/common/Type-A checklist를 actual artifact/PR evidence로 닫는다. coordinator component/lane을
+추가하거나 terminal blocked run을 `complete`로 전이하지 않는다. 아래 original completion block은
+실행 금지 audit record다.
 
 ```bash
 set -euo pipefail
@@ -3479,19 +3663,33 @@ python3 /Users/debop/.codex/skills/bluetape-workflow/scripts/bluetape-flow.py \
   --run-id 20260721T115110Z-8e06d9a0
 ```
 
-`completion-evidence.json`은 final merge OID, exact final PR/head, full verification summary와 evidence
-report path를 가진 fresh refs다. 첫 `completion-check`는 required lanes/topology/checks/evidence가
-충족되고 `complete`가 main verification을 기록할 수 있음을 보여야 한다. final `verify`는 run state
-`completed`와 checksum chain integrity를 보여야 한다.
+Original machine path에서 `completion-evidence.json`은 final merge OID, exact final PR/head, full
+verification summary와 evidence report path를 가진 fresh refs였다. 위 original block과 이 설명은
+Active fallback에서 실행 authority가 없으며, run state `completed`를 요구하지 않는다.
+
+Active fallback의 대체 proof는 `verify` 성공, `run.json.state == "blocked"`, Task 0에 고정한 terminal
+blocked checksum 불변, final PR merge OID/ancestry, 그리고 documented checklist의 전 항목 수렴이다.
+
+```bash
+set -euo pipefail
+flow=/Users/debop/.codex/skills/bluetape-workflow/scripts/bluetape-flow.py
+state_root=/Users/debop/work/bluetape4k/.bluetape
+run_id=20260721T115110Z-8e06d9a0
+run_file=/Users/debop/work/bluetape4k/.bluetape/runs/20260721T115110Z-8e06d9a0/run.json
+python3 "$flow" --state-root "$state_root" verify --run-id "$run_id"
+python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); assert d["state"] == "blocked"; assert d["last_checksum"] == "b0458931bc1b8a3f2b173f04116b010c938d804f737aae081daeed292ef3cda1"' "$run_file"
+```
 
 - [ ] **Step 11.3: local sync 결과를 보고하고 cleanup 승인을 별도로 기다린다**
 
-main `develop == origin/develop`, merged PR state, completed coordinator run을 보고한다. cleanup 전
+main `develop == origin/develop`, merged PR state, terminal blocked receipt checksum과 completed
+documented checklist를 보고한다. cleanup 전
 `worktree-list`로 issue #755의 exact 6개 worktree(core, LZ4, Deflate, Snappy, Zstd, evidence)를
 다시 열거한다. 이 6개 worktree와 대응 local/remote branches는 이 단계에서 삭제하지 않는다.
 사용자가 worktree/branch cleanup 범위를 명시적으로 승인한 뒤에만 targeted cleanup을 수행한다.
 
-**Step DoD:** issue #755 final PR이 merged, local develop synced, coordinator run completed이며 cleanup은 별도 승인 대기다.
+**Step DoD:** issue #755 final PR이 merged, local develop synced, Task 0의 terminal blocked receipt
+checksum이 그대로 보존되고 documented checklist/PR train이 완료됐으며 cleanup은 별도 승인 대기다.
 
 ---
 
