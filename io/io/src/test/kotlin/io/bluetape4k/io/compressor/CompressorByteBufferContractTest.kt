@@ -1,6 +1,7 @@
 package io.bluetape4k.io.compressor
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.should
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldContentEqual
@@ -207,11 +208,12 @@ class CompressorByteBufferContractTest {
                 target.limit() shouldBeEqualTo targetLimit
                 target.order() shouldBeEqualTo targetOrder
                 CompressorByteBufferTestSupport.assertMark(target, targetStart)
-                CompressorByteBufferTestSupport.bytes(target, targetStart, expected.size) shouldContentEqual expected
-                CompressorByteBufferTestSupport.allBytes(target).copyOfRange(0, targetStart) shouldContentEqual
-                        before.copyOfRange(0, targetStart)
-                CompressorByteBufferTestSupport.allBytes(target).copyOfRange(targetLimit, target.capacity()) shouldContentEqual
-                        before.copyOfRange(targetLimit, target.capacity())
+                CompressorByteBufferTestSupport.bytes(target, targetStart, expected.size)
+                    .shouldContentEqual(expected, case)
+                CompressorByteBufferTestSupport.allBytes(target).copyOfRange(0, targetStart)
+                    .shouldContentEqual(before.copyOfRange(0, targetStart), "$case prefix")
+                CompressorByteBufferTestSupport.allBytes(target).copyOfRange(targetLimit, target.capacity())
+                    .shouldContentEqual(before.copyOfRange(targetLimit, target.capacity()), "$case suffix")
             }
         }
     }
@@ -239,11 +241,16 @@ class CompressorByteBufferContractTest {
                 CompressorByteBufferTestSupport.assertMark(source, sourceStart)
                 CompressorByteBufferTestSupport.assertMark(target, targetStart)
                 val after = CompressorByteBufferTestSupport.allBytes(target)
-                after.copyOfRange(0, targetStart) shouldContentEqual before.copyOfRange(0, targetStart)
-                after.copyOfRange(targetLimit, target.capacity()) shouldContentEqual
-                        before.copyOfRange(targetLimit, target.capacity())
+                after.copyOfRange(0, targetStart)
+                    .shouldContentEqual(before.copyOfRange(0, targetStart), "$case prefix")
+                after.copyOfRange(targetLimit, target.capacity())
+                    .shouldContentEqual(before.copyOfRange(targetLimit, target.capacity()), "$case suffix")
             }
         }
+    }
+
+    private fun ByteArray.shouldContentEqual(expected: ByteArray, case: String) {
+        should("$case: expected byte content equality") { actual -> actual.contentEquals(expected) }
     }
 
     private fun throwingCompressor(failure: Throwable): Compressor = object: Compressor {
