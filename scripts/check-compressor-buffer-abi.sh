@@ -11,7 +11,8 @@ COMMON_DIR="$(git rev-parse --path-format=absolute --git-common-dir)"
 MAIN_ROOT="$(dirname "$COMMON_DIR")"
 FIXTURE_ROOT="$ROOT/io/io/src/test/resources/abi/issue-755"
 AUTH_DIR="$ROOT/.codex/compat/issue-755/$BASE_SHA"
-BASE_WORKTREE="$MAIN_ROOT/.worktrees/compat/issue-755-base"
+BASE_WORKTREE=""
+BASE_WORKTREE_PARENT="$MAIN_ROOT/.worktrees/compat"
 BASE_JAR="$AUTH_DIR/base/bluetape4k-io-1.12.0.jar"
 CURRENT_JAR="$AUTH_DIR/current/bluetape4k-io-1.12.0.jar"
 CLASSES="$AUTH_DIR/classes"
@@ -87,11 +88,11 @@ gradle_value() {
 }
 
 ensure_base_worktree() {
-    if [[ ! -d "$BASE_WORKTREE" ]]; then
-        mkdir -p "$(dirname "$BASE_WORKTREE")"
-        git -C "$MAIN_ROOT" worktree add --detach "$BASE_WORKTREE" "$BASE_SHA" >/dev/null
-        CREATED_BASE_WORKTREE=true
-    fi
+    mkdir -p "$BASE_WORKTREE_PARENT"
+    BASE_WORKTREE="$(mktemp -d "$BASE_WORKTREE_PARENT/issue-755-base.XXXXXX")"
+    rmdir "$BASE_WORKTREE"
+    git -C "$MAIN_ROOT" worktree add --detach "$BASE_WORKTREE" "$BASE_SHA" >/dev/null
+    CREATED_BASE_WORKTREE=true
     [[ "$(git -C "$BASE_WORKTREE" rev-parse HEAD)" == "$BASE_SHA" ]] ||
         fail "baseline worktree is not pinned to $BASE_SHA"
     [[ "$(git -C "$BASE_WORKTREE" rev-parse 'HEAD^{tree}')" == "$BASE_TREE" ]] ||

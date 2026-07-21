@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 
@@ -45,6 +46,13 @@ def require_tokens(section: str, tokens: tuple[str, ...], label: str) -> None:
         fail(f"{label}: missing required text: {', '.join(missing)}")
 
 
+def extract_code_block(section: str, language: str, label: str) -> str:
+    matches = re.findall(rf"```{re.escape(language)}\n(.*?)\n```", section, flags=re.DOTALL)
+    if len(matches) != 1:
+        fail(f"{label}: expected exactly one {language} code block")
+    return matches[0].strip()
+
+
 def parse_matrix(section: str, label: str) -> dict[str, tuple[str, ...]]:
     rows: dict[str, tuple[str, ...]] = {}
     for line in section.splitlines():
@@ -79,6 +87,14 @@ def validate_readmes() -> None:
     ko_matrix = parse_matrix(sections["ko"]["issue-755-storage-matrix"], "README.ko.md matrix")
     if en_matrix != ko_matrix:
         fail("README storage matrix row/status parity drift")
+    for marker, language in (
+        ("issue-755-kotlin-example", "kotlin"),
+        ("issue-755-java-example", "java"),
+    ):
+        en_code = extract_code_block(sections["en"][marker], language, f"English {marker}")
+        ko_code = extract_code_block(sections["ko"][marker], language, f"Korean {marker}")
+        if en_code != ko_code:
+            fail(f"README {language} example locale parity drift")
     expected_matrix = {
         "LZ4": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "none in the core slice"),
         "Deflate": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "none in the core slice"),
