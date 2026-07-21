@@ -1,3 +1,6 @@
+import java.nio.file.Files
+import java.nio.file.Path
+
 plugins {
     kotlin("plugin.allopen")
     alias(libs.plugins.kotlinx.benchmark)
@@ -111,6 +114,16 @@ tasks.register<Test>("multiKeyLeasePerformanceTest") {
     classpath = sourceSets["test"].runtimeClasspath
     useJUnitPlatform {
         includeTags("performance")
+    }
+    val reportPath = layout.buildDirectory.file("reports/multi-key-lease-performance/results.json")
+        .get()
+        .asFile
+        .absolutePath
+    outputs.file(reportPath)
+    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
+    doFirst {
+        Files.deleteIfExists(Path.of(reportPath))
     }
     shouldRunAfter(tasks.test)
 }
