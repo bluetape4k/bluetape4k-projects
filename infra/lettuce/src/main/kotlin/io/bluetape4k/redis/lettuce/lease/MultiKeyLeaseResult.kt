@@ -174,7 +174,11 @@ class MultiKeyLeaseCrossSlotException(
     val distinctSlotCount: Int,
 ): IllegalArgumentException(
     "Multi-key lease requires one Redis Cluster slot; distinctSlotCount=$distinctSlotCount.",
-)
+) {
+    private companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 /**
  * Reports an internally inconsistent multi-key lease response without exposing lease secrets.
@@ -190,4 +194,8 @@ class MultiKeyLeaseIntegrityException(
 ): IllegalStateException(
     "Multi-key lease integrity failure: operation=$operation, " +
         "requestedKeyCount=$requestedKeyCount, invalidLeaseKeyCount=$invalidLeaseKeyCount.",
-)
+) {
+    private companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}

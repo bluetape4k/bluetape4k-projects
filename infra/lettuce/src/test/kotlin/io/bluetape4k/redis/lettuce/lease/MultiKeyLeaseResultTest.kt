@@ -100,6 +100,19 @@ class MultiKeyLeaseResultTest {
     }
 
     @Test
+    fun `cross-slot exception has a stable redacted Java serialization contract`() {
+        val original = MultiKeyLeaseCrossSlotException(distinctSlotCount = 2)
+
+        val restored = javaRoundTrip(original) as MultiKeyLeaseCrossSlotException
+
+        restored.javaClass shouldBeEqualTo original.javaClass
+        restored.message shouldBeEqualTo original.message
+        restored.distinctSlotCount shouldBeEqualTo original.distinctSlotCount
+        ObjectStreamClass.lookup(original.javaClass).serialVersionUID shouldBeEqualTo 1L
+        assertSecretsAbsent(restored, secretKey, secretToken)
+    }
+
+    @Test
     fun `integrity exception exposes only operation and counts`() {
         val exception = MultiKeyLeaseIntegrityException(
             operation = MultiKeyLeaseOperation.INSPECT,
@@ -113,6 +126,25 @@ class MultiKeyLeaseResultTest {
         exception.message shouldBeEqualTo
             "Multi-key lease integrity failure: operation=INSPECT, requestedKeyCount=2, invalidLeaseKeyCount=1."
         assertSecretsAbsent(exception, secretKey, secretToken)
+    }
+
+    @Test
+    fun `integrity exception has a stable redacted Java serialization contract`() {
+        val original = MultiKeyLeaseIntegrityException(
+            operation = MultiKeyLeaseOperation.INSPECT,
+            requestedKeyCount = 2,
+            invalidLeaseKeyCount = 1,
+        )
+
+        val restored = javaRoundTrip(original) as MultiKeyLeaseIntegrityException
+
+        restored.javaClass shouldBeEqualTo original.javaClass
+        restored.message shouldBeEqualTo original.message
+        restored.operation shouldBeEqualTo original.operation
+        restored.requestedKeyCount shouldBeEqualTo original.requestedKeyCount
+        restored.invalidLeaseKeyCount shouldBeEqualTo original.invalidLeaseKeyCount
+        ObjectStreamClass.lookup(original.javaClass).serialVersionUID shouldBeEqualTo 1L
+        assertSecretsAbsent(restored, secretKey, secretToken)
     }
 
     private fun javaRoundTrip(original: Serializable): Any =
