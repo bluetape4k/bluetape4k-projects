@@ -31,7 +31,6 @@ internal class LettuceMultiKeyLeaseCancellationTest {
                 }
             }
         }
-        client.addListener(listener)
 
         val tag = UUID.randomUUID().toString()
         val keys = listOf("lease:{$tag}:one", "lease:{$tag}:two")
@@ -39,12 +38,13 @@ internal class LettuceMultiKeyLeaseCancellationTest {
         try {
             client.connect().use { observerConnection ->
                 try {
-                    client.connect().use { commandConnection ->
-                        val observerLease = LettuceMultiKeyLease(observerConnection)
-                        observerLease.acquire(keys, token, Duration.ofSeconds(5)) shouldBeEqualTo
-                            MultiKeyAcquireResult.Acquired
-                        observerLease.release(keys, token) shouldBeEqualTo MultiKeyReleaseResult.Released
+                    val observerLease = LettuceMultiKeyLease(observerConnection)
+                    observerLease.acquire(keys, token, Duration.ofSeconds(5)) shouldBeEqualTo
+                        MultiKeyAcquireResult.Acquired
+                    observerLease.release(keys, token) shouldBeEqualTo MultiKeyReleaseResult.Released
 
+                    client.addListener(listener)
+                    client.connect().use { commandConnection ->
                         commandConnection.setAutoFlushCommands(false)
                         val cancelledWait = LettuceMultiKeyLease(commandConnection)
                             .acquireAsync(keys, token, Duration.ofSeconds(5))
@@ -69,11 +69,11 @@ internal class LettuceMultiKeyLeaseCancellationTest {
                         }
                     }
                 } finally {
+                    client.removeListener(listener)
                     observerConnection.sync().del(*keys.toTypedArray())
                 }
             }
         } finally {
-            client.removeListener(listener)
             client.shutdown()
             resources.shutdown()
         }
