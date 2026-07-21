@@ -11,7 +11,6 @@ import io.lettuce.core.protocol.CommandType
 import io.lettuce.core.resource.DefaultClientResources
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.fail
@@ -32,7 +31,7 @@ internal class LettuceMultiKeyLeaseCancellationTest {
             }
         }
 
-        val tag = UUID.randomUUID().toString()
+        val tag = LettuceTestUtils.randomName()
         val keys = listOf("lease:{$tag}:one", "lease:{$tag}:two")
         val token = "owner-$tag"
         try {

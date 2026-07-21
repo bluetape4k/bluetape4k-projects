@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.lettuce.lease
 
+import io.bluetape4k.support.requirePositiveNumber
 import java.io.Serializable
 
 /**
@@ -12,7 +13,7 @@ data class LettuceMultiKeyLeaseConfig(
     val maxKeys: Int = 32,
 ): Serializable {
     init {
-        require(maxKeys > 0) { "maxKeys must be greater than zero." }
+        maxKeys.requirePositiveNumber("maxKeys")
     }
 
     private companion object {

@@ -1,8 +1,12 @@
 package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceConst
@@ -21,7 +25,6 @@ import java.time.Duration
 import java.time.Instant
 import java.util.Collections
 import java.util.Locale
-import java.util.UUID
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
@@ -37,6 +40,9 @@ import kotlin.math.ceil
  *
  * Re-run `:bluetape4k-lettuce:multiKeyLeasePerformanceTest` after changing the Lua scripts or the default `maxKeys`.
  * Absolute latency is environment-dependent; the regression assertion compares normalized p95 values within one run.
+ * This test deliberately owns a dedicated Redis server and explicit executors: a shared launcher would contaminate
+ * latency samples, while `MultithreadingTester` cannot preserve per-attempt timing, persistent connections, and the
+ * independently scheduled PING probe that this characterization requires.
  */
 @Tag("performance")
 internal class LettuceMultiKeyLeasePerformanceTest {
@@ -79,7 +85,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                     TimeUnit.MILLISECONDS,
                 )
                 try {
-                    val runId = UUID.randomUUID().toString()
+                    val runId = Base58.randomString(12)
                     val results = COMBINATIONS.map { (keyCount, concurrency) ->
                         runCombination(
                             runId,
@@ -112,7 +118,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                     results.forEach { result ->
                         result.errors shouldBeEqualTo 0
                         result.timeouts shouldBeEqualTo 0
-                        (result.probeSampleCount >= MIN_PROBE_SAMPLES) shouldBeEqualTo true
+                        result.probeSampleCount shouldBeGreaterOrEqualTo MIN_PROBE_SAMPLES
                         result.probeP99Millis shouldBeLessThan COMMAND_TIMEOUT.toMillis().toDouble()
                     }
                     probeErrors.get() shouldBeEqualTo 0
@@ -135,13 +141,13 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                 }
                 attemptCleanup {
                     probeExecutor.shutdownNow()
-                    probeExecutor.awaitTermination(10, TimeUnit.SECONDS) shouldBeEqualTo true
+                    probeExecutor.awaitTermination(10, TimeUnit.SECONDS).shouldBeTrue()
                 }
                 attemptCleanup {
                     workloadExecutor.shutdown()
                     if (!workloadExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
                         workloadExecutor.shutdownNow()
-                        workloadExecutor.awaitTermination(10, TimeUnit.SECONDS) shouldBeEqualTo true
+                        workloadExecutor.awaitTermination(10, TimeUnit.SECONDS).shouldBeTrue()
                     }
                 }
                 attemptCleanup { probeConnection?.close() }
@@ -223,7 +229,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
             MIN_PROBE_SAMPLES,
             (elapsedNanos / PROBE_INTERVAL_NANOS / PROBE_COVERAGE_DIVISOR).toInt(),
         )
-        (combinationProbeSamples.size >= expectedProbeSamples) shouldBeEqualTo true
+        combinationProbeSamples.size shouldBeGreaterOrEqualTo expectedProbeSamples
         val operationCount = acquireSamples.size + releaseSamples.size
         return PerformanceResult(
             keyCount = keyCount,
@@ -258,7 +264,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         val futures = leases.mapIndexed { index, lease ->
             executor.submit<AcquireAttempt> {
                 barrier.await()
-                val token = "owner-$round-$index-${UUID.randomUUID()}"
+                val token = "owner-$round-$index-${Base58.randomString(22)}"
                 val startedAt = System.nanoTime()
                 try {
                     AcquireAttempt(
@@ -289,9 +295,9 @@ internal class LettuceMultiKeyLeasePerformanceTest {
             }
             val winners = attempts.filter { it.result == MultiKeyAcquireResult.Acquired }
             val losers = attempts.filter { it.result is MultiKeyAcquireResult.Conflicted }
-            winners.size shouldBeEqualTo 1
-            losers.size shouldBeEqualTo leases.size - 1
-            attempts.size shouldBeEqualTo winners.size + losers.size
+            winners shouldHaveSize 1
+            losers shouldHaveSize leases.size - 1
+            attempts shouldHaveSize leases.size
 
             val winner = winners.single()
             val releaseStartedAt = System.nanoTime()

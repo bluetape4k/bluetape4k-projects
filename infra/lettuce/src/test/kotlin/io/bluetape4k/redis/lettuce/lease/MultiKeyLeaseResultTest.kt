@@ -3,6 +3,7 @@ package io.bluetape4k.redis.lettuce.lease
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -173,7 +174,7 @@ class MultiKeyLeaseResultTest {
 
         causeChain.first() shouldBeEqualTo exception
         secrets.forEach { secret ->
-            observableText.contains(secret).shouldBeEqualTo(false)
+            observableText.contains(secret).shouldBeFalse()
         }
     }
 

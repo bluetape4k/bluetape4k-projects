@@ -1,6 +1,8 @@
 package io.bluetape4k.redis.lettuce.script
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
@@ -22,6 +24,9 @@ import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -82,7 +87,7 @@ class RedisScriptTest : AbstractLettuceTest() {
     fun `다른 스크립트는 다른 SHA1을 반환한다`() {
         val script1 = RedisScript("return 1")
         val script2 = RedisScript("return 2")
-        (script1.sha1 == script2.sha1) shouldBeEqualTo false
+        (script1.sha1 == script2.sha1).shouldBeFalse()
     }
 
     @Test
@@ -291,6 +296,38 @@ class RedisScriptTest : AbstractLettuceTest() {
             "value",
         ) shouldBeEqualTo "value"
 
+        verify(exactly = 1) {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+            commands.eval<String>(setAndReturnScript.source, ScriptOutputType.VALUE, keys, "value")
+        }
+        confirmVerified(commands)
+    }
+
+    @Test
+    fun `suspend NOSCRIPT fallback cancellation cancels the eval future`() = runTest {
+        val commands = mockk<RedisScriptingAsyncCommands<String, String>>()
+        val keys = arrayOf("key:{suspend-cancel}")
+        val fallback = TestRedisFuture<String>()
+        every {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+        } returns failedRedisFuture(RedisNoScriptException("NOSCRIPT"))
+        every {
+            commands.eval<String>(setAndReturnScript.source, ScriptOutputType.VALUE, keys, "value")
+        } returns fallback
+
+        val job = launch {
+            RedisScriptRunner.runSuspending<String>(
+                commands,
+                setAndReturnScript,
+                ScriptOutputType.VALUE,
+                keys,
+                "value",
+            )
+        }
+        runCurrent()
+        job.cancelAndJoin()
+
+        fallback.isCancelled.shouldBeTrue()
         verify(exactly = 1) {
             commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
             commands.eval<String>(setAndReturnScript.source, ScriptOutputType.VALUE, keys, "value")

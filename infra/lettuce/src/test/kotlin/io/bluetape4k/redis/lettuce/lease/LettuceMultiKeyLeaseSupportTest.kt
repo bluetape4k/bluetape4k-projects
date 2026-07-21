@@ -2,6 +2,8 @@ package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.lettuce.core.cluster.SlotHash
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.codec.StringCodec
@@ -65,7 +67,7 @@ class LettuceMultiKeyLeaseSupportTest {
         val codec = NonUtf8SameSlotCodec
 
         (SlotHash.getSlot(StringCodec.UTF8.encodeKey(keys[0])) !=
-            SlotHash.getSlot(StringCodec.UTF8.encodeKey(keys[1]))) shouldBeEqualTo true
+            SlotHash.getSlot(StringCodec.UTF8.encodeKey(keys[1]))).shouldBeTrue()
         SlotHash.getSlot(codec.encodeKey(keys[0])) shouldBeEqualTo SlotHash.getSlot(codec.encodeKey(keys[1]))
         validateLeaseInput(keys, "owner", null, LettuceMultiKeyLeaseConfig(), codec).keys shouldBeEqualTo keys
     }
@@ -82,8 +84,8 @@ class LettuceMultiKeyLeaseSupportTest {
             )
         }
         error.distinctSlotCount shouldBeEqualTo 2
-        (error.message?.contains("owner-secret") == false) shouldBeEqualTo true
-        (error.message?.contains("a:{one}") == false) shouldBeEqualTo true
+        error.message?.contains("owner-secret").shouldBeFalse()
+        error.message?.contains("a:{one}").shouldBeFalse()
     }
 
     @Test

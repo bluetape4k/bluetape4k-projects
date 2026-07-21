@@ -2,7 +2,9 @@ package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
@@ -20,7 +22,6 @@ import kotlinx.coroutines.CancellationException
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.time.Duration
-import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 
 internal class LettuceMultiKeyLeaseResilience4jTest {
@@ -28,7 +29,7 @@ internal class LettuceMultiKeyLeaseResilience4jTest {
     @Test
     fun `ambiguous acquire response retries with the same token and recovers replay`() = runSuspendIO {
         LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8).use { connection ->
-            val tag = UUID.randomUUID().toString()
+            val tag = LettuceTestUtils.randomName()
             val keys = listOf("lease:{$tag}:one", "lease:{$tag}:two")
             val token = "owner-$tag"
             val commands = connection.sync()
@@ -60,7 +61,7 @@ internal class LettuceMultiKeyLeaseResilience4jTest {
     @Test
     fun `domain results remain logical successes and are never retried`() = runSuspendIO {
         LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8).use { connection ->
-            val tag = UUID.randomUUID().toString()
+            val tag = LettuceTestUtils.randomName()
             val keys = listOf("lease:{$tag}:one", "lease:{$tag}:two")
             val token = "owner-$tag"
             val commands = connection.sync()
@@ -88,7 +89,7 @@ internal class LettuceMultiKeyLeaseResilience4jTest {
     @Test
     fun `validation integrity and cancellation failures are never retried or leaked`() = runSuspendIO {
         LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8).use { connection ->
-            val tag = UUID.randomUUID().toString()
+            val tag = LettuceTestUtils.randomName()
             val keys = listOf("lease:{$tag}:one", "lease:{$tag}:two")
             val token = "owner-$tag"
             val commands = connection.sync()
@@ -120,14 +121,14 @@ internal class LettuceMultiKeyLeaseResilience4jTest {
             RedisConnectionException("connection lost"),
             RedisCommandTimeoutException("command timed out"),
         ).forEach { failure ->
-            isAmbiguousTransportFailure(failure) shouldBeEqualTo true
+            isAmbiguousTransportFailure(failure).shouldBeTrue()
         }
         listOf(
             IllegalArgumentException("invalid input"),
             MultiKeyLeaseIntegrityException(MultiKeyLeaseOperation.ACQUIRE, 2, 1),
             CancellationException("caller cancelled"),
         ).forEach { failure ->
-            isAmbiguousTransportFailure(failure) shouldBeEqualTo false
+            isAmbiguousTransportFailure(failure).shouldBeFalse()
         }
     }
 

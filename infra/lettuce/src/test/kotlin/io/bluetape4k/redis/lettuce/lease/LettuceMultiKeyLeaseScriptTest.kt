@@ -2,9 +2,11 @@ package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
@@ -232,7 +234,7 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
             assertSecretsAbsent(listOf(failure), "not-present")
         }
         generateSequence<Throwable>(error) { current -> current.cause }
-            .any { current -> current.message == "getter failed" } shouldBeEqualTo true
+            .any { current -> current.message == "getter failed" }.shouldBeTrue()
     }
 
     private fun acquire(targetKeys: List<String>, ownerToken: String, ttlMillis: Long): MultiKeyAcquireResult =
@@ -272,7 +274,7 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
                 add(failure.toString())
             }
         }.joinToString("\n")
-        secrets.forEach { secret -> surface.contains(secret) shouldBeEqualTo false }
+        secrets.forEach { secret -> surface.contains(secret).shouldBeFalse() }
     }
 
     private companion object {

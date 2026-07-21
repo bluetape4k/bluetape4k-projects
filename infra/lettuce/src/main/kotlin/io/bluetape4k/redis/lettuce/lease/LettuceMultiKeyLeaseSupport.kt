@@ -2,6 +2,8 @@ package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.redis.lettuce.script.RedisScript
 import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
+import io.bluetape4k.support.requireLt
+import io.bluetape4k.support.requirePositiveNumber
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.async.RedisScriptingAsyncCommands
 import io.lettuce.core.api.sync.RedisScriptingCommands
@@ -22,6 +24,7 @@ internal fun validateLeaseInput(
     config: LettuceMultiKeyLeaseConfig,
     codec: RedisCodec<String, String>,
 ): ValidatedLeaseInput {
+    // `requireNotBlank` includes the rejected value in its message; owner tokens must never be exposed.
     require(ownerToken.isNotBlank()) { "ownerToken must not be blank." }
     val snapshot = snapshotKeys(keys, config.maxKeys)
     requireSameSlot(snapshot, codec)
@@ -220,9 +223,10 @@ private fun snapshotKeys(keys: Collection<String>, maxKeys: Int): List<String> {
     val snapshot = ArrayList<String>(minOf(maxKeys, 32))
     val distinctKeys = HashSet<String>(minOf(maxKeys, 32))
     val iterator = keys.iterator()
+    // `requireNotEmpty` and `requireNotBlank` include rejected key values; keep those checks redacted.
     require(iterator.hasNext()) { "keys must not be empty." }
     while (iterator.hasNext()) {
-        require(snapshot.size < maxKeys) { "keys exceed the configured limit." }
+        snapshot.size.requireLt(maxKeys, "keys.size")
         val key = iterator.next()
         require(key.isNotBlank()) { "keys must not contain blank values." }
         require(distinctKeys.add(key)) { "keys must not contain duplicates." }
@@ -240,9 +244,7 @@ private fun requireSameSlot(keys: List<String>, codec: RedisCodec<String, String
 }
 
 private fun Duration.requirePositiveMillis(): Long {
-    val millis = toMillis()
-    require(millis > 0) { "ttl must be at least one millisecond." }
-    return millis
+    return toMillis().requirePositiveNumber("ttl")
 }
 
 private data class DecodedVector(

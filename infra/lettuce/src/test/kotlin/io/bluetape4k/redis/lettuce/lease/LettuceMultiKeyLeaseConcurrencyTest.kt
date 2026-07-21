@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
@@ -9,7 +10,6 @@ import io.lettuce.core.codec.StringCodec
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import java.util.UUID
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.atomic.AtomicReference
 
@@ -19,7 +19,7 @@ internal class LettuceMultiKeyLeaseConcurrencyTest {
     fun `overlapping callers create only the winning key set`() {
         LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8).use { firstConnection ->
             LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8).use { secondConnection ->
-                val tag = UUID.randomUUID().toString()
+                val tag = LettuceTestUtils.randomName()
                 val shared = "lease:{$tag}:shared"
                 val firstOnly = "lease:{$tag}:first"
                 val secondOnly = "lease:{$tag}:second"
@@ -55,7 +55,7 @@ internal class LettuceMultiKeyLeaseConcurrencyTest {
 
                     val firstWon = firstResult.get() == MultiKeyAcquireResult.Acquired
                     val secondWon = secondResult.get() == MultiKeyAcquireResult.Acquired
-                    (firstWon xor secondWon) shouldBeEqualTo true
+                    (firstWon xor secondWon).shouldBeTrue()
                     if (firstWon) {
                         secondResult.get() shouldBeEqualTo
                             MultiKeyAcquireResult.Conflicted(MultiKeyLeaseCounts(2, 0, 1, 1))
@@ -79,7 +79,7 @@ internal class LettuceMultiKeyLeaseConcurrencyTest {
     @Test
     fun `hostile ownership changes preserve keys owned by replacement callers`() {
         LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8).use { connection ->
-            val tag = UUID.randomUUID().toString()
+            val tag = LettuceTestUtils.randomName()
             val keys = listOf("lease:{$tag}:one", "lease:{$tag}:two")
             val owner = "owner-$tag"
             val stale = "stale-$tag"
@@ -116,7 +116,7 @@ internal class LettuceMultiKeyLeaseConcurrencyTest {
     @Test
     fun `expired lease converges to full loss without exact sleeps`() {
         LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8).use { connection ->
-            val tag = UUID.randomUUID().toString()
+            val tag = LettuceTestUtils.randomName()
             val keys = listOf("lease:{$tag}:one", "lease:{$tag}:two")
             val token = "owner-$tag"
             val commands = connection.sync()

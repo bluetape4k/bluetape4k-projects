@@ -1,7 +1,10 @@
 package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
@@ -21,7 +24,6 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Duration
-import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 
 internal class MultiKeyLeaseDocumentationTest {
@@ -35,8 +37,8 @@ internal class MultiKeyLeaseDocumentationTest {
         headingLevels(english) shouldBeEqualTo REQUIRED_HEADING_LEVELS
         headingLevels(korean) shouldBeEqualTo REQUIRED_HEADING_LEVELS
         REQUIRED_POLICY_FRAGMENTS.forEach { fragment ->
-            english.contains(fragment) shouldBeEqualTo true
-            korean.contains(fragment) shouldBeEqualTo true
+            english.contains(fragment).shouldBeTrue()
+            korean.contains(fragment).shouldBeTrue()
         }
         REQUIRED_SECTION_CONTRACTS.forEach { (marker, orderedTerms) ->
             assertOrderedTerms(section(english, marker), orderedTerms)
@@ -44,9 +46,9 @@ internal class MultiKeyLeaseDocumentationTest {
         }
 
         LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8).use { connection ->
-            val tag = UUID.randomUUID().toString()
+            val tag = LettuceTestUtils.randomName()
             val keys = listOf("ticket:{$tag}:ip", "ticket:{$tag}:user")
-            val ownerToken = UUID.randomUUID().toString()
+            val ownerToken = Base58.randomString(22)
             val commands = connection.sync()
             val lease = LettuceSuspendMultiKeyLease(connection)
             val retryable: (Throwable) -> Boolean = {
@@ -133,7 +135,7 @@ internal class MultiKeyLeaseDocumentationTest {
         var cursor = 0
         orderedTerms.forEach { term ->
             val next = section.indexOf(term, cursor, ignoreCase = true)
-            (next >= cursor) shouldBeEqualTo true
+            next shouldBeGreaterOrEqualTo cursor
             cursor = next + term.length
         }
     }

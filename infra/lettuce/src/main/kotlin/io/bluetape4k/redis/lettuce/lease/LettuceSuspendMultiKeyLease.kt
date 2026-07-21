@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.lettuce.lease
 
+import io.bluetape4k.support.requirePositiveNumber
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisScriptingAsyncCommands
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
@@ -49,7 +50,7 @@ class LettuceSuspendMultiKeyLease private constructor(
     ) : this(connection.async(), connection.codec, config)
 
     init {
-        require(config.maxKeys > 0) { "maxKeys must be positive." }
+        config.maxKeys.requirePositiveNumber("config.maxKeys")
     }
 
     /** Acquires every [keys] entry for [ownerToken] with [leaseTime], or reports the observed ownership state. */
