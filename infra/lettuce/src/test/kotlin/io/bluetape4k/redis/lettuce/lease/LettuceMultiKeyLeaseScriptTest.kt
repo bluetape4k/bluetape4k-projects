@@ -214,6 +214,27 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
         assertSecretsAbsent(listOf(failure, observed, released), secretKey, secondSecretKey, secretToken)
     }
 
+    @Test
+    fun `redaction assertion inspects public properties on nested causes`() {
+        val secret = "nested-cause-property-secret"
+        val failure = RuntimeException("outer failure", SecretPropertyException(secret))
+
+        assertFailsWith<AssertionError> {
+            assertSecretsAbsent(listOf(failure), secret)
+        }
+    }
+
+    @Test
+    fun `redaction assertion fails closed when a public getter throws`() {
+        val failure = ThrowingPropertyException()
+
+        val error = assertFailsWith<Exception> {
+            assertSecretsAbsent(listOf(failure), "not-present")
+        }
+        generateSequence<Throwable>(error) { current -> current.cause }
+            .any { current -> current.message == "getter failed" } shouldBeEqualTo true
+    }
+
     private fun acquire(targetKeys: List<String>, ownerToken: String, ttlMillis: Long): MultiKeyAcquireResult =
         runAcquire(commands, ValidatedLeaseInput(targetKeys, ttlMillis), ownerToken)
 
@@ -230,17 +251,23 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
         MultiKeyLeaseCounts(requested, owned, missing, mismatched)
 
     private fun assertSecretsAbsent(observables: List<Any>, vararg secrets: String) {
-        val throwables = observables.filterIsInstance<Throwable>()
+        val causeChain = observables.filterIsInstance<Throwable>()
             .flatMap { failure -> generateSequence(failure) { current -> current.cause }.toList() }
-        val publicPropertyValues = observables.flatMap { observable ->
+        val fullObservableSurface = buildList {
+            addAll(observables)
+            causeChain.forEach { cause ->
+                if (none { observable -> observable === cause }) add(cause)
+            }
+        }
+        val publicPropertyValues = fullObservableSurface.flatMap { observable ->
             observable::class.memberProperties
                 .filter { property -> property.visibility == KVisibility.PUBLIC }
-                .mapNotNull { property -> runCatching { property.getter.call(observable) }.getOrNull() }
+                .map { property -> property.getter.call(observable) }
         }
         val surface = buildList {
-            addAll(observables.map(Any::toString))
-            addAll(publicPropertyValues.map(Any::toString))
-            throwables.forEach { failure ->
+            addAll(fullObservableSurface.map(Any::toString))
+            addAll(publicPropertyValues.map { value -> value.toString() })
+            causeChain.forEach { failure ->
                 add(failure.message.orEmpty())
                 add(failure.toString())
             }
@@ -259,5 +286,14 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
             error('injected')
             """.trimIndent(),
         )
+    }
+
+    class SecretPropertyException(
+        val publicSecret: String,
+    ) : RuntimeException()
+
+    class ThrowingPropertyException : RuntimeException() {
+        val inaccessibleSurface: String
+            get() = error("getter failed")
     }
 }
