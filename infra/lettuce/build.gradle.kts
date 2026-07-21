@@ -89,6 +89,7 @@ dependencies {
     compileOnly(libs.fastjson2.kotlin)
 
     testImplementation(project(":bluetape4k-junit5"))
+    testImplementation(project(":bluetape4k-resilience4j"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Benchmark
