@@ -1,9 +1,10 @@
 package io.bluetape4k.io.compressor
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 import java.security.MessageDigest
@@ -14,17 +15,17 @@ class CompressorBufferAbiCompatibilityTest {
     fun `frozen pre-change authority matches its manifest`() {
         val root = "abi/issue-755/pre-change"
         val manifest = javaClass.classLoader.getResourceAsStream("$root/manifest.json").use { input ->
-            ObjectMapper().readTree(requireNotNull(input))
+            ObjectMapper().readTree(input.shouldNotBeNull())
         }
         val fixture = javaClass.classLoader.getResourceAsStream("$root/legacy-compressor-fixtures.jar").use { input ->
-            requireNotNull(input).readBytes()
+            input.shouldNotBeNull().readBytes()
         }
 
-        assertEquals(PRE_CHANGE_COMMIT, manifest.path("producer").path("commit").asText())
-        assertEquals(PRE_CHANGE_TREE, manifest.path("producer").path("tree").asText())
-        assertEquals(BASELINE_JAR_SHA, manifest.path("baselineJar").path("sha256").asText())
-        assertFalse(manifest.path("fixtureJar").path("containsCompressorClass").asBoolean())
-        assertEquals(manifest.path("fixtureJar").path("sha256").asText(), fixture.sha256())
+        manifest.path("producer").path("commit").asText() shouldBeEqualTo PRE_CHANGE_COMMIT
+        manifest.path("producer").path("tree").asText() shouldBeEqualTo PRE_CHANGE_TREE
+        manifest.path("baselineJar").path("sha256").asText() shouldBeEqualTo BASELINE_JAR_SHA
+        manifest.path("fixtureJar").path("containsCompressorClass").asBoolean().shouldBeFalse()
+        fixture.sha256() shouldBeEqualTo manifest.path("fixtureJar").path("sha256").asText()
     }
 
     @Test
@@ -32,8 +33,8 @@ class CompressorBufferAbiCompatibilityTest {
         val compress = Compressor::class.java.getMethod("compress", ByteBuffer::class.java, ByteBuffer::class.java)
         val decompress = Compressor::class.java.getMethod("decompress", ByteBuffer::class.java, ByteBuffer::class.java)
 
-        assertTrue(compress.isDefault, "compress(ByteBuffer, ByteBuffer) must be a JVM default")
-        assertTrue(decompress.isDefault, "decompress(ByteBuffer, ByteBuffer) must be a JVM default")
+        compress.isDefault.shouldBeTrue()
+        decompress.isDefault.shouldBeTrue()
     }
 
     private fun ByteArray.sha256(): String =

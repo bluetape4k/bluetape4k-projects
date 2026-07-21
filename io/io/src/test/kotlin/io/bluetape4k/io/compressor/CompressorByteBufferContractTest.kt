@@ -2,8 +2,8 @@ package io.bluetape4k.io.compressor
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import org.junit.jupiter.api.Assertions.assertArrayEquals
-import org.junit.jupiter.api.Assertions.assertSame
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldContentEqual
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -84,7 +84,7 @@ class CompressorByteBufferContractTest {
 
         source.position() shouldBeEqualTo 2
         target.position() shouldBeEqualTo targetStart
-        assertArrayEquals(before, CompressorByteBufferTestSupport.allBytes(target))
+        CompressorByteBufferTestSupport.allBytes(target) shouldContentEqual before
         fallback.compressInvocations.get() shouldBeEqualTo 0
         fallback.decompressInvocations.get() shouldBeEqualTo 0
     }
@@ -104,12 +104,12 @@ class CompressorByteBufferContractTest {
             val targetStart = target.position()
 
             val compressFailure = assertFailsWith<Throwable> { compressor.compress(source, target) }
-            assertSame(expected, compressFailure)
+            compressFailure shouldBeSameInstanceAs expected
             source.position() shouldBeEqualTo sourceStart
             target.position() shouldBeEqualTo targetStart
 
             val decompressFailure = assertFailsWith<Throwable> { compressor.decompress(source, target) }
-            assertSame(expected, decompressFailure)
+            decompressFailure shouldBeSameInstanceAs expected
             source.position() shouldBeEqualTo sourceStart
             target.position() shouldBeEqualTo targetStart
         }
@@ -129,10 +129,8 @@ class CompressorByteBufferContractTest {
         val retrySource = CompressorByteBufferTestSupport.heap(smallerPayload)
         val retryStart = tooSmall.position()
         fallback.compress(retrySource, tooSmall) shouldBeEqualTo smallerPayload.size
-        assertArrayEquals(
-            smallerPayload.reversedArray(),
-            CompressorByteBufferTestSupport.bytes(tooSmall, retryStart, smallerPayload.size),
-        )
+        CompressorByteBufferTestSupport.bytes(tooSmall, retryStart, smallerPayload.size) shouldContentEqual
+                smallerPayload.reversedArray()
 
         var corrupt = true
         val retrying = object: Compressor {
@@ -173,12 +171,12 @@ class CompressorByteBufferContractTest {
             val legacyWire = compressor.compress(payload)
             val newTarget = CompressorByteBufferTestSupport.writableTarget(payload.size, direct = true)
             compressor.decompress(CompressorByteBufferTestSupport.direct(legacyWire), newTarget) shouldBeEqualTo payload.size
-            assertArrayEquals(payload, CompressorByteBufferTestSupport.bytes(newTarget, 5, payload.size))
+            CompressorByteBufferTestSupport.bytes(newTarget, 5, payload.size) shouldContentEqual payload
 
             val wireTarget = CompressorByteBufferTestSupport.writableTarget(legacyWire.size, direct = true)
             compressor.compress(CompressorByteBufferTestSupport.heap(payload), wireTarget) shouldBeEqualTo legacyWire.size
             val newWire = CompressorByteBufferTestSupport.bytes(wireTarget, 5, legacyWire.size)
-            assertArrayEquals(payload, compressor.decompress(newWire))
+            compressor.decompress(newWire) shouldContentEqual payload
         }
     }
 
@@ -209,9 +207,11 @@ class CompressorByteBufferContractTest {
                 target.limit() shouldBeEqualTo targetLimit
                 target.order() shouldBeEqualTo targetOrder
                 CompressorByteBufferTestSupport.assertMark(target, targetStart)
-                assertArrayEquals(expected, CompressorByteBufferTestSupport.bytes(target, targetStart, expected.size), case)
-                assertArrayEquals(before.copyOfRange(0, targetStart), CompressorByteBufferTestSupport.allBytes(target).copyOfRange(0, targetStart), "$case prefix")
-                assertArrayEquals(before.copyOfRange(targetLimit, target.capacity()), CompressorByteBufferTestSupport.allBytes(target).copyOfRange(targetLimit, target.capacity()), "$case suffix")
+                CompressorByteBufferTestSupport.bytes(target, targetStart, expected.size) shouldContentEqual expected
+                CompressorByteBufferTestSupport.allBytes(target).copyOfRange(0, targetStart) shouldContentEqual
+                        before.copyOfRange(0, targetStart)
+                CompressorByteBufferTestSupport.allBytes(target).copyOfRange(targetLimit, target.capacity()) shouldContentEqual
+                        before.copyOfRange(targetLimit, target.capacity())
             }
         }
     }
@@ -239,12 +239,9 @@ class CompressorByteBufferContractTest {
                 CompressorByteBufferTestSupport.assertMark(source, sourceStart)
                 CompressorByteBufferTestSupport.assertMark(target, targetStart)
                 val after = CompressorByteBufferTestSupport.allBytes(target)
-                assertArrayEquals(before.copyOfRange(0, targetStart), after.copyOfRange(0, targetStart), "$case prefix")
-                assertArrayEquals(
-                    before.copyOfRange(targetLimit, target.capacity()),
-                    after.copyOfRange(targetLimit, target.capacity()),
-                    "$case suffix",
-                )
+                after.copyOfRange(0, targetStart) shouldContentEqual before.copyOfRange(0, targetStart)
+                after.copyOfRange(targetLimit, target.capacity()) shouldContentEqual
+                        before.copyOfRange(targetLimit, target.capacity())
             }
         }
     }

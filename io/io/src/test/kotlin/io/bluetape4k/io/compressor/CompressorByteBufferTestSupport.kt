@@ -1,5 +1,6 @@
 package io.bluetape4k.io.compressor
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.concurrent.atomic.AtomicInteger
@@ -68,9 +69,7 @@ internal object CompressorByteBufferTestSupport {
     fun assertMark(buffer: ByteBuffer, expected: Int) {
         val duplicate = buffer.duplicate()
         duplicate.reset()
-        check(duplicate.position() == expected) {
-            "Expected mark=$expected, actual=${duplicate.position()}"
-        }
+        duplicate.position() shouldBeEqualTo expected
     }
 
     private fun source(bytes: ByteArray, prefix: Int, suffix: Int, direct: Boolean): ByteBuffer =

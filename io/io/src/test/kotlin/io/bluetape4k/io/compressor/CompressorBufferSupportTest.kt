@@ -2,7 +2,7 @@ package io.bluetape4k.io.compressor
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import org.junit.jupiter.api.Assertions.assertSame
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import org.junit.jupiter.api.Test
 import java.nio.ByteOrder
 
@@ -52,7 +52,7 @@ class CompressorBufferSupportTest {
             }
         }
 
-        assertSame(expected, actual)
+        actual shouldBeSameInstanceAs expected
         source.position() shouldBeEqualTo sourceStart
         target.position() shouldBeEqualTo targetStart
         CompressorByteBufferTestSupport.assertMark(source, sourceStart)
