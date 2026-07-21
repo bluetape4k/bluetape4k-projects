@@ -1,9 +1,9 @@
 package io.bluetape4k.redis.lettuce.script
 
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
@@ -87,7 +87,7 @@ class RedisScriptTest : AbstractLettuceTest() {
     fun `다른 스크립트는 다른 SHA1을 반환한다`() {
         val script1 = RedisScript("return 1")
         val script2 = RedisScript("return 2")
-        (script1.sha1 == script2.sha1).shouldBeFalse()
+        script1.sha1 shouldNotBeEqualTo script2.sha1
     }
 
     @Test
