@@ -1,3 +1,6 @@
+import java.nio.file.Files
+import java.nio.file.Path
+
 plugins {
     kotlin("plugin.allopen")
     alias(libs.plugins.kotlinx.benchmark)
@@ -89,10 +92,38 @@ dependencies {
     compileOnly(libs.fastjson2.kotlin)
 
     testImplementation(project(":bluetape4k-junit5"))
+    testImplementation(project(":bluetape4k-resilience4j"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Benchmark
     add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
     add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
     add("benchmarkImplementation", libs.jmh.core)
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform {
+        excludeTags("performance")
+    }
+}
+
+tasks.register<Test>("multiKeyLeasePerformanceTest") {
+    description = "Runs multi-key lease Redis characterization tests."
+    group = "verification"
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform {
+        includeTags("performance")
+    }
+    val reportPath = layout.buildDirectory.file("reports/multi-key-lease-performance/results.json")
+        .get()
+        .asFile
+        .absolutePath
+    outputs.file(reportPath)
+    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
+    doFirst {
+        Files.deleteIfExists(Path.of(reportPath))
+    }
+    shouldRunAfter(tasks.test)
 }

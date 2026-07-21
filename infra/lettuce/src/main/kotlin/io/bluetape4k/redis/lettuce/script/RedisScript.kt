@@ -6,7 +6,9 @@ import io.bluetape4k.redis.lettuce.awaitSuspending
 import io.lettuce.core.RedisNoScriptException
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.async.RedisAsyncCommands
+import io.lettuce.core.api.async.RedisScriptingAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
+import io.lettuce.core.api.sync.RedisScriptingCommands
 import java.security.MessageDigest
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
@@ -57,6 +59,23 @@ object RedisScriptRunner: KLogging() {
         outputType: ScriptOutputType,
         keys: Array<String>,
         vararg args: String,
+    ): T = runScripting(commands, script, outputType, keys, *args)
+
+    /** Runs the script through a cluster-compatible synchronous scripting interface. */
+    fun <T> run(
+        commands: RedisScriptingCommands<String, String>,
+        script: RedisScript,
+        outputType: ScriptOutputType,
+        keys: Array<String>,
+        vararg args: String,
+    ): T = runScripting(commands, script, outputType, keys, *args)
+
+    private fun <T> runScripting(
+        commands: RedisScriptingCommands<String, String>,
+        script: RedisScript,
+        outputType: ScriptOutputType,
+        keys: Array<String>,
+        vararg args: String,
     ): T {
         return try {
             commands.evalsha<T>(script.sha1, outputType, keys, *args)
@@ -69,6 +88,23 @@ object RedisScriptRunner: KLogging() {
     /** 비동기: `EVALSHA` 우선, NOSCRIPT 시 원문 전송 fallback 한 [CompletableFuture]. */
     fun <T> runAsync(
         commands: RedisAsyncCommands<String, String>,
+        script: RedisScript,
+        outputType: ScriptOutputType,
+        keys: Array<String>,
+        vararg args: String,
+    ): CompletableFuture<T> = runAsyncScripting(commands, script, outputType, keys, *args)
+
+    /** Runs the script through a cluster-compatible asynchronous scripting interface. */
+    fun <T> runAsync(
+        commands: RedisScriptingAsyncCommands<String, String>,
+        script: RedisScript,
+        outputType: ScriptOutputType,
+        keys: Array<String>,
+        vararg args: String,
+    ): CompletableFuture<T> = runAsyncScripting(commands, script, outputType, keys, *args)
+
+    private fun <T> runAsyncScripting(
+        commands: RedisScriptingAsyncCommands<String, String>,
         script: RedisScript,
         outputType: ScriptOutputType,
         keys: Array<String>,
@@ -89,6 +125,23 @@ object RedisScriptRunner: KLogging() {
     /** 코루틴: `EVALSHA` 우선, NOSCRIPT 시 원문 전송 fallback. */
     suspend fun <T> runSuspending(
         commands: RedisAsyncCommands<String, String>,
+        script: RedisScript,
+        outputType: ScriptOutputType,
+        keys: Array<String>,
+        vararg args: String,
+    ): T = runSuspendingScripting(commands, script, outputType, keys, *args)
+
+    /** Runs the script suspending through a cluster-compatible asynchronous scripting interface. */
+    suspend fun <T> runSuspending(
+        commands: RedisScriptingAsyncCommands<String, String>,
+        script: RedisScript,
+        outputType: ScriptOutputType,
+        keys: Array<String>,
+        vararg args: String,
+    ): T = runSuspendingScripting(commands, script, outputType, keys, *args)
+
+    private suspend fun <T> runSuspendingScripting(
+        commands: RedisScriptingAsyncCommands<String, String>,
         script: RedisScript,
         outputType: ScriptOutputType,
         keys: Array<String>,

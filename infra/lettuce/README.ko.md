@@ -26,6 +26,8 @@ Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도�
 | `LettuceSuspendSemaphore`           | 분산 세마포어 (suspend 전용)                                                                     |
 | `LettuceLock`                       | 분산 뮤텍스 락 (sync + async). 코루틴 버전: `LettuceSuspendLock`                                    |
 | `LettuceSuspendLock`                | 분산 뮤텍스 락 (suspend 전용)                                                                    |
+| `LettuceMultiKeyLease`              | 제한된 same-slot 키 집합의 원자적 소유권 lease (sync + async)                                      |
+| `LettuceSuspendMultiKeyLease`       | 제한된 same-slot 키 집합의 원자적 소유권 lease (suspend 전용)                                        |
 | `LettuceHyperLogLog<V>`             | Redis HyperLogLog 근사 카디널리티 추정 (sync). 코루틴 버전: `LettuceSuspendHyperLogLog<V>`             |
 | `LettuceSuspendHyperLogLog<V>`      | Redis HyperLogLog 근사 카디널리티 추정 (suspend 전용)                                               |
 | `LettuceBloomFilter`                | Redis BitSet 기반 Bloom Filter (sync). 코루틴 버전: `LettuceSuspendBloomFilter`                 |
@@ -409,6 +411,132 @@ if (suspendLock.tryLock(waitTime = 5.seconds)) {
     try { doWork() } finally { suspendLock.unlock() }
 }
 ```
+
+<!-- multi-key-lease:basic -->
+### 다중 키 소유권 Lease
+
+`LettuceMultiKeyLease`는 제한된 키 집합에 대해 한 소유자를 원자적으로 조정합니다. 모든 키는 동일한 Redis
+Cluster slot에 매핑되어야 하며, shared hash tag가 이를 보장하는 일반적인 방법입니다. lease는 advisory
+single-writer guard입니다. 영속적인 비즈니스 불변식은 database 또는 다른 authoritative store에 유지해야 합니다.
+
+```kotlin
+import io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLease
+import io.bluetape4k.redis.lettuce.lease.MultiKeyAcquireResult
+import java.time.Duration
+import java.util.UUID
+
+val lease = LettuceMultiKeyLease(connection)
+val keys = listOf(
+    "ticket:{sale-42}:inflight:ip:$ipDigest",
+    "ticket:{sale-42}:inflight:user:$userDigest",
+)
+val ownerToken = UUID.randomUUID().toString()
+when (val result = lease.acquire(keys, ownerToken, Duration.ofSeconds(10))) {
+    MultiKeyAcquireResult.Acquired -> startWorkflow()
+    is MultiKeyAcquireResult.AlreadyOwned -> recoverExistingAttempt(result.minimumPttlMillis)
+    is MultiKeyAcquireResult.PartialOwnership -> reconcileWithDurableAuthority(result.counts)
+    is MultiKeyAcquireResult.Conflicted -> reject(result.counts)
+}
+```
+
+고엔트로피 owner token은 retry decorator 밖에서 한 번 생성하고 모든 attempt에서 재사용합니다. Acquire만
+same-token deterministic replay(`AlreadyOwned`)를 제공합니다.
+
+<!-- multi-key-lease:resilience -->
+#### Retry, Circuit Breaker, Bulkhead
+
+resilience policy는 lease 외부에 둡니다. 모호한 transport failure만 retry하고 validation, cancellation,
+integrity exception, domain result는 retry하지 않습니다.
+
+```kotlin
+val retryable: (Throwable) -> Boolean = {
+    it is IOException || it is RedisConnectionException || it is RedisCommandTimeoutException
+}
+val retry = Retry.of(
+    "ticket-lease",
+    RetryConfig.custom<Any?>()
+        .maxAttempts(2)
+        .waitDuration(Duration.ofMillis(50))
+        .retryOnException(retryable)
+        .build(),
+)
+val circuitBreaker = CircuitBreaker.of(
+    "ticket-lease",
+    CircuitBreakerConfig.custom()
+        .slidingWindowSize(20)
+        .minimumNumberOfCalls(10)
+        .failureRateThreshold(50.0F)
+        .recordException(retryable)
+        .ignoreException { it is CancellationException }
+        .build(),
+)
+val bulkhead = Bulkhead.of(
+    "ticket-lease",
+    BulkheadConfig.custom()
+        .maxConcurrentCalls(32)
+        .maxWaitDuration(Duration.ofMillis(100))
+        .build(),
+)
+
+val ownerToken = UUID.randomUUID().toString() // decorator 밖에서 한 번만 생성
+val result = SuspendDecorators.ofSupplier {
+    suspendLease.acquire(keys, ownerToken, Duration.ofSeconds(10))
+}
+    .withRetry(retry)
+    .withCircuitBreaker(circuitBreaker)
+    .withBulkhead(bulkhead)
+    .invoke()
+```
+
+production retry backoff는 제한된 non-zero 값이어야 합니다. `Duration.ZERO`는 deterministic test에서만
+사용합니다. 위 decorator 순서는 Retry -> CircuitBreaker -> Bulkhead로 의도된 순서입니다.
+
+<!-- multi-key-lease:recovery -->
+#### Result와 모호한 완료 복구
+
+```kotlin
+suspend fun recoverAfterAmbiguousMutation(
+    lease: LettuceSuspendMultiKeyLease,
+    keys: List<String>,
+    ownerToken: String,
+): MultiKeyInspectResult = lease.inspect(keys, ownerToken)
+```
+
+| Operation | 전체 result | Caller 조치 |
+|---|---|---|
+| acquire | `Acquired`, `AlreadyOwned`, `PartialOwnership`, `Conflicted` | 계속/replay하거나 reconcile/reject합니다. partial/conflict result에서는 mutation이 없습니다. |
+| inspect | `Owned`, `Lost`, `PartialOwnership`, `Conflicted` | `Owned`를 현재 증거로 사용하고 partial/conflict 상태를 reconcile합니다. |
+| renew | `Renewed`, `PartialLoss`, `Lost`, `OwnershipMismatch` | `PartialLoss`/`OwnershipMismatch`를 durable authority와 reconcile합니다. |
+| release | `Released`, `PartialRelease`, `Lost`, `OwnershipMismatch` | `PartialRelease`/`OwnershipMismatch`를 durable authority와 reconcile합니다. |
+
+모든 counts는 mutation 전 관찰한 소유권입니다. renew 또는 release 완료가 모호하면 새 token이 아니라 같은
+token으로 먼저 inspect합니다. `Lost`만으로는 이전 release 성공과 expiry를 구분할 수 없습니다. 반환된
+`CompletableFuture`를 cancel해도 caller wait만 취소되며 upstream 또는 Redis server execution 취소를 증명하지
+않습니다. 이 결과도 모호한 완료로 취급하고 같은 token으로 복구합니다.
+
+<!-- multi-key-lease:security-telemetry -->
+#### 보안과 Telemetry
+
+owner token은 credential이 아닙니다. JWT, session token, 사용자 식별자, PII를 재사용하지 마십시오. Redis는
+owner token을 plaintext로 저장하므로 Redis ACL과 TLS가 실제 보안 경계입니다. Metric dimension은 제한된
+`operation`, `result`, `exception`만 허용하며 key/token은 log, trace, metric label에 절대 기록하지 않습니다.
+
+<!-- multi-key-lease:migration -->
+#### Cutover와 Rollback
+
+1. production key가 shared slot인지 확인하고 durable database guard를 유지합니다.
+2. 기존 writer를 중지합니다.
+3. 기존 최대 TTL만큼 drain하거나 기존 token으로 정리합니다.
+4. 같은 namespace, hash-tag, token 계약으로 새 writer를 활성화합니다.
+5. dual-write를 금지합니다.
+6. rollback은 역순으로 새 writer 중지, drain 또는 정리, durable authority 확인, 기존 writer 재활성화를 수행합니다.
+
+<!-- multi-key-lease:lost-token -->
+#### Token 유실 Persistent-Key Runbook
+
+예상 owner token을 가진 persistent key는 `MultiKeyLeaseIntegrityException`을 발생시킵니다. 운영 승인을 받아
+exact namespace/key 집합을 확인한 뒤 그 집합만 수동 삭제하거나 namespace를 교체하고, writer를 활성화하기
+전에 Redis 상태와 durable authority를 다시 검증합니다.
 
 ## Memoizer (함수 결과 Redis 캐싱)
 
