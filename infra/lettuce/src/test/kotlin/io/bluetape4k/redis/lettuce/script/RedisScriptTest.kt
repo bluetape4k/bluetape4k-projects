@@ -6,6 +6,10 @@ import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.ScriptOutputType
+import io.lettuce.core.api.async.RedisAsyncCommands
+import io.lettuce.core.api.async.RedisScriptingAsyncCommands
+import io.lettuce.core.api.sync.RedisCommands
+import io.lettuce.core.api.sync.RedisScriptingCommands
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldBeEqualTo
@@ -34,13 +38,21 @@ class RedisScriptTest : AbstractLettuceTest() {
         """.trimIndent()
     )
 
-    private lateinit var syncCommands: io.lettuce.core.api.sync.RedisCommands<String, String>
-    private lateinit var asyncCommands: io.lettuce.core.api.async.RedisAsyncCommands<String, String>
+    private lateinit var syncCommands: RedisCommands<String, String>
+    private lateinit var asyncCommands: RedisAsyncCommands<String, String>
+    private lateinit var syncScriptingCommands: RedisScriptingCommands<String, String>
+    private lateinit var asyncScriptingCommands: RedisScriptingAsyncCommands<String, String>
 
     @BeforeEach
     fun setup() {
-        syncCommands = connection.sync()
-        asyncCommands = connection.async()
+        connection.sync().let { commands ->
+            syncCommands = commands
+            syncScriptingCommands = commands
+        }
+        connection.async().let { commands ->
+            asyncCommands = commands
+            asyncScriptingCommands = commands
+        }
     }
 
     // =========================================================================
@@ -104,6 +116,39 @@ class RedisScriptTest : AbstractLettuceTest() {
         )
 
         result shouldBeEqualTo value
+    }
+
+    @Test
+    fun `스크립팅 명령 인터페이스로 동기 비동기 코루틴 실행`() = runTest {
+        val syncValue = "scripting-sync"
+        val asyncValue = "scripting-async"
+        val suspendValue = "scripting-suspend"
+
+        val syncResult: String = RedisScriptRunner.run(
+            syncScriptingCommands,
+            setAndReturnScript,
+            ScriptOutputType.VALUE,
+            arrayOf(randomName()),
+            syncValue,
+        )
+        val asyncResult: String = RedisScriptRunner.runAsync<String>(
+            asyncScriptingCommands,
+            setAndReturnScript,
+            ScriptOutputType.VALUE,
+            arrayOf(randomName()),
+            asyncValue,
+        ).get()
+        val suspendResult: String = RedisScriptRunner.runSuspending(
+            asyncScriptingCommands,
+            setAndReturnScript,
+            ScriptOutputType.VALUE,
+            arrayOf(randomName()),
+            suspendValue,
+        )
+
+        syncResult shouldBeEqualTo syncValue
+        asyncResult shouldBeEqualTo asyncValue
+        suspendResult shouldBeEqualTo suspendValue
     }
 
     // =========================================================================
