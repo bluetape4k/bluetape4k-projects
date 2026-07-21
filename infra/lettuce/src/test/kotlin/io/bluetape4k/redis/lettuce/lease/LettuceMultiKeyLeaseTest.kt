@@ -141,23 +141,23 @@ internal class LettuceMultiKeyLeaseTest : MultiKeyLeaseContract() {
 
     private fun syncAdapter(target: LettuceMultiKeyLease): MultiKeyLeaseAdapter = object : MultiKeyLeaseAdapter {
         override val name: String = "sync"
-        override fun acquire(keys: Collection<String>, ownerToken: String, leaseTime: Duration) =
+        override suspend fun acquire(keys: Collection<String>, ownerToken: String, leaseTime: Duration) =
             target.acquire(keys, ownerToken, leaseTime)
-        override fun inspect(keys: Collection<String>, ownerToken: String) = target.inspect(keys, ownerToken)
-        override fun renew(keys: Collection<String>, ownerToken: String, leaseTime: Duration) =
+        override suspend fun inspect(keys: Collection<String>, ownerToken: String) = target.inspect(keys, ownerToken)
+        override suspend fun renew(keys: Collection<String>, ownerToken: String, leaseTime: Duration) =
             target.renew(keys, ownerToken, leaseTime)
-        override fun release(keys: Collection<String>, ownerToken: String) = target.release(keys, ownerToken)
+        override suspend fun release(keys: Collection<String>, ownerToken: String) = target.release(keys, ownerToken)
     }
 
     private fun asyncAdapter(target: LettuceMultiKeyLease): MultiKeyLeaseAdapter = object : MultiKeyLeaseAdapter {
         override val name: String = "future"
-        override fun acquire(keys: Collection<String>, ownerToken: String, leaseTime: Duration) =
+        override suspend fun acquire(keys: Collection<String>, ownerToken: String, leaseTime: Duration) =
             target.acquireAsync(keys, ownerToken, leaseTime).joinUnwrapped()
-        override fun inspect(keys: Collection<String>, ownerToken: String) =
+        override suspend fun inspect(keys: Collection<String>, ownerToken: String) =
             target.inspectAsync(keys, ownerToken).joinUnwrapped()
-        override fun renew(keys: Collection<String>, ownerToken: String, leaseTime: Duration) =
+        override suspend fun renew(keys: Collection<String>, ownerToken: String, leaseTime: Duration) =
             target.renewAsync(keys, ownerToken, leaseTime).joinUnwrapped()
-        override fun release(keys: Collection<String>, ownerToken: String) =
+        override suspend fun release(keys: Collection<String>, ownerToken: String) =
             target.releaseAsync(keys, ownerToken).joinUnwrapped()
     }
 

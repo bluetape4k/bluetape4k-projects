@@ -7,6 +7,7 @@ import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.lettuce.core.api.sync.RedisCommands
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
@@ -15,10 +16,10 @@ import java.time.Duration
 internal interface MultiKeyLeaseAdapter {
     val name: String
 
-    fun acquire(keys: Collection<String>, ownerToken: String, leaseTime: Duration): MultiKeyAcquireResult
-    fun inspect(keys: Collection<String>, ownerToken: String): MultiKeyInspectResult
-    fun renew(keys: Collection<String>, ownerToken: String, leaseTime: Duration): MultiKeyRenewResult
-    fun release(keys: Collection<String>, ownerToken: String): MultiKeyReleaseResult
+    suspend fun acquire(keys: Collection<String>, ownerToken: String, leaseTime: Duration): MultiKeyAcquireResult
+    suspend fun inspect(keys: Collection<String>, ownerToken: String): MultiKeyInspectResult
+    suspend fun renew(keys: Collection<String>, ownerToken: String, leaseTime: Duration): MultiKeyRenewResult
+    suspend fun release(keys: Collection<String>, ownerToken: String): MultiKeyReleaseResult
 }
 
 internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
@@ -41,10 +42,12 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
         adapters.flatMap { adapter ->
             scenarios.map { scenario ->
                 DynamicTest.dynamicTest("${adapter.name}: ${scenario.name}") {
-                    val fixture = fixture(adapter.name, scenario.name)
-                    touchedKeys += fixture.keys
-                    commands.del(*fixture.keys.toTypedArray())
-                    scenario.run(adapter, fixture)
+                    runTest {
+                        val fixture = fixture(adapter.name, scenario.name)
+                        touchedKeys += fixture.keys
+                        commands.del(*fixture.keys.toTypedArray())
+                        scenario.run(adapter, fixture)
+                    }
                 }
             }
         }
@@ -64,7 +67,7 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
 
     private class Scenario(
         val name: String,
-        val run: (MultiKeyLeaseAdapter, LeaseFixture) -> Unit,
+        val run: suspend (MultiKeyLeaseAdapter, LeaseFixture) -> Unit,
     )
 
     private val scenarios: List<Scenario> = listOf(
@@ -150,7 +153,7 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
             commands.get(fixture.keys[1]) shouldBeEqualTo OTHER_OWNER
         },
         Scenario("invalid inputs fail before dispatch") { adapter, fixture ->
-            val invalidCalls = listOf<() -> Unit>(
+            val invalidCalls = listOf<suspend () -> Unit>(
                 { adapter.inspect(emptyList(), fixture.token) },
                 { adapter.inspect(listOf(" "), fixture.token) },
                 { adapter.inspect(listOf(fixture.keys[0], fixture.keys[0]), fixture.token) },
