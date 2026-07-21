@@ -27,6 +27,9 @@ cancellation, 응답 유실 뒤의 ambiguous completion까지 해결할 수 없�
 유지하면 raw 기준으로 16배 회귀를 허용한다는 review가 나왔다. 최종적으로 승인된 key당 gate와 더 엄격한
 raw p95 4배 gate를 함께 적용했다. 성능 task도 기본 Gradle cache/up-to-date 동작을 그대로 사용하면 stale
 JSON을 최신 evidence로 오인할 수 있어 non-cacheable, always-run, fail-closed stale-report 삭제로 바꿨다.
+그 뒤에도 assertion 전에 report를 쓰면 실패 실행이 정상 JSON을 남길 수 있었다. 모든 gate 통과 뒤
+`status=passed` report를 같은 directory의 임시 파일에 쓰고 atomic move하도록 바꿨다. Redis probe도 workload
+종료 직후 snapshot만 취하면 마지막 blocked PING을 누락하므로 completion fence와 최소 sample 수를 추가했다.
 
 README smoke fixture도 처음에는 production 예제와 다른 작은 Retry/Bulkhead 수치를 사용했다. 테스트가
 compile된다는 사실만으로 source-equivalence를 증명할 수 없었다. 두 locale의 marker/heading뿐 아니라 resilience

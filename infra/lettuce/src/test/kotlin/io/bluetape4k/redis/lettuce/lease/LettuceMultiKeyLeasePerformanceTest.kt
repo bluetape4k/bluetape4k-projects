@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.LettuceConst
 import io.bluetape4k.testcontainers.storage.RedisServer
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisCommandTimeoutException
@@ -15,7 +16,9 @@ import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 import java.time.Duration
+import java.time.Instant
 import java.util.Collections
 import java.util.Locale
 import java.util.UUID
@@ -40,6 +43,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
 
     @Test
     fun `characterize lease latency throughput and connection responsiveness`() = runSuspendIO {
+        Files.deleteIfExists(reportPath())
         RedisServer().use { server ->
             server.start()
             val client = LettuceClients.clientOf(server.host, server.port)
@@ -55,6 +59,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                 probeConnection = client.connect(StringCodec.UTF8)
                 val probeSamples = Collections.synchronizedList(mutableListOf<Long>())
                 val probeErrors = AtomicInteger()
+                val probeCompletions = AtomicInteger()
                 val probeTask = probeExecutor.scheduleAtFixedRate(
                     {
                         val startedAt = System.nanoTime()
@@ -63,6 +68,8 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                             probeSamples += System.nanoTime() - startedAt
                         } catch (_: Throwable) {
                             probeErrors.incrementAndGet()
+                        } finally {
+                            probeCompletions.incrementAndGet()
                         }
                     },
                     0L,
@@ -79,6 +86,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                             workloadConnections,
                             workloadExecutor,
                             probeSamples,
+                            probeCompletions,
                         )
                     }
 
@@ -88,7 +96,6 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                         ?.substringAfter(':')
                         ?.trim()
                         ?: "unknown"
-                    writeReport(results, redisVersion)
                     CONCURRENCY_LEVELS.forEach { concurrency ->
                         val resultAt8 = results.single {
                             it.keyCount == 8 && it.concurrency == concurrency
@@ -103,9 +110,11 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                     results.forEach { result ->
                         result.errors shouldBeEqualTo 0
                         result.timeouts shouldBeEqualTo 0
-                        result.probeP99Millis shouldBeLessThan CONNECTION_TIMEOUT.toMillis().toDouble()
+                        (result.probeSampleCount >= MIN_PROBE_SAMPLES) shouldBeEqualTo true
+                        result.probeP99Millis shouldBeLessThan COMMAND_TIMEOUT.toMillis().toDouble()
                     }
                     probeErrors.get() shouldBeEqualTo 0
+                    writeReport(results, redisVersion)
                 } finally {
                     probeTask.cancel(true)
                 }
@@ -123,13 +132,13 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                 }
                 attemptCleanup {
                     probeExecutor.shutdownNow()
-                    probeExecutor.awaitTermination(10, TimeUnit.SECONDS)
+                    probeExecutor.awaitTermination(10, TimeUnit.SECONDS) shouldBeEqualTo true
                 }
                 attemptCleanup {
                     workloadExecutor.shutdown()
                     if (!workloadExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
                         workloadExecutor.shutdownNow()
-                        workloadExecutor.awaitTermination(10, TimeUnit.SECONDS)
+                        workloadExecutor.awaitTermination(10, TimeUnit.SECONDS) shouldBeEqualTo true
                     }
                 }
                 attemptCleanup { probeConnection?.close() }
@@ -153,6 +162,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         connections: List<StatefulRedisConnection<String, String>>,
         executor: ThreadPoolExecutor,
         probeSamples: MutableList<Long>,
+        probeCompletions: AtomicInteger,
     ): PerformanceResult {
         val tag = "perf-$runId-$keyCount-$concurrency"
         val keys = List(keyCount) { index -> "lease:{$tag}:$index" }
@@ -198,9 +208,14 @@ internal class LettuceMultiKeyLeasePerformanceTest {
             .atMost(Duration.ofSeconds(5))
             .until { executor.activeCount == 0 }
         commands.exists(*keys.toTypedArray()) shouldBeEqualTo 0L
+        val completionsAtWorkloadEnd = probeCompletions.get()
+        await()
+            .atMost(COMMAND_TIMEOUT)
+            .until { probeCompletions.get() > completionsAtWorkloadEnd }
         val combinationProbeSamples = synchronized(probeSamples) {
             probeSamples.drop(probeStart)
         }
+        (combinationProbeSamples.size >= MIN_PROBE_SAMPLES) shouldBeEqualTo true
         val operationCount = acquireSamples.size + releaseSamples.size
         return PerformanceResult(
             keyCount = keyCount,
@@ -213,6 +228,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
             scenarioThroughputPerSecond = operationCount * NANOS_PER_SECOND.toDouble() / elapsedNanos,
             probeP95Millis = combinationProbeSamples.percentileMillis(95.0),
             probeP99Millis = combinationProbeSamples.percentileMillis(99.0),
+            probeSampleCount = combinationProbeSamples.size,
             acquiredCount = acquiredCount,
             conflictedCount = conflictedCount,
             timeouts = timeouts.get(),
@@ -292,6 +308,8 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         val report = buildString {
             appendLine("{")
             appendLine("  \"redisImage\": \"${RedisServer.IMAGE}:${RedisServer.TAG}\",")
+            appendLine("  \"status\": \"passed\",")
+            appendLine("  \"generatedAt\": \"${Instant.now()}\",")
             appendLine("  \"redisVersion\": \"$redisVersion\",")
             appendLine("  \"javaVersion\": \"${System.getProperty("java.version")}\",")
             appendLine("  \"kotlinVersion\": \"${KotlinVersion.CURRENT}\",")
@@ -310,7 +328,18 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         }
         val reportPath = reportPath()
         Files.createDirectories(reportPath.parent)
-        Files.writeString(reportPath, report)
+        val temporaryPath = Files.createTempFile(reportPath.parent, "results-", ".json.tmp")
+        try {
+            Files.writeString(temporaryPath, report)
+            Files.move(
+                temporaryPath,
+                reportPath,
+                StandardCopyOption.ATOMIC_MOVE,
+                StandardCopyOption.REPLACE_EXISTING,
+            )
+        } finally {
+            Files.deleteIfExists(temporaryPath)
+        }
     }
 
     private fun reportPath(): Path {
@@ -341,6 +370,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         append("\"scenarioThroughputPerSecond\":${scenarioThroughputPerSecond.jsonNumber()},")
         append("\"probeP95Millis\":${probeP95Millis.jsonNumber()},")
         append("\"probeP99Millis\":${probeP99Millis.jsonNumber()},")
+        append("\"probeSampleCount\":$probeSampleCount,")
         append("\"acquiredCount\":$acquiredCount,")
         append("\"conflictedCount\":$conflictedCount,")
         append("\"timeouts\":$timeouts,")
@@ -375,6 +405,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         val scenarioThroughputPerSecond: Double,
         val probeP95Millis: Double,
         val probeP99Millis: Double,
+        val probeSampleCount: Int,
         val acquiredCount: Int,
         val conflictedCount: Int,
         val timeouts: Int,
@@ -385,13 +416,12 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         val CONCURRENCY_LEVELS: List<Int> = listOf(1, 16)
         val COMBINATIONS: List<Pair<Int, Int>> = listOf(1 to 1, 32 to 16, 8 to 1, 1 to 16, 32 to 1, 8 to 16)
         val LEASE_TIME: Duration = Duration.ofSeconds(10)
-        val CONNECTION_TIMEOUT: Duration = Duration.ofMillis(
-            System.getProperty("bluetape4k.lettuce.connectTimeoutMs", "5000").toLong(),
-        )
+        val COMMAND_TIMEOUT: Duration = Duration.ofMillis(LettuceConst.DEFAULT_TIMEOUT_MILLIS)
         const val MAX_CONCURRENCY: Int = 16
         const val WARM_UP_ROUNDS: Int = 20
         const val MEASURED_ROUNDS: Int = 100
         const val PROBE_INTERVAL_MILLIS: Long = 10L
+        const val MIN_PROBE_SAMPLES: Int = 2
         const val ROUND_TIMEOUT_SECONDS: Long = 30L
         const val NANOS_PER_MILLISECOND: Long = 1_000_000L
         const val NANOS_PER_SECOND: Long = 1_000_000_000L

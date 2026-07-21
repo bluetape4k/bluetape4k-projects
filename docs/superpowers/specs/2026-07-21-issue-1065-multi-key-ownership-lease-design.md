@@ -414,9 +414,9 @@ API는 hash tag 자체를 강제하지 않는다. 자연스럽게 같은 slot인
 
 모든 script의 시간 복잡도는 O(n)이다. acquire/inspect의 추가 Lua 메모리는 O(1)이고,
 renew/release는 mutation 대상 key를 보관하므로 추가 Lua 메모리가 O(n)이며 `n <= maxKeys`로 제한된다.
-최악의 내부 Redis command 수는 acquire/inspect/renew/release 모두 key당 값 조회 한 번과
-상태별 `PTTL`, `SET`, `PEXPIRE`, `DEL` 중 최대 한 번, 즉 `2n`이다. 기본 `maxKeys = 32`는
-한 번의 script에서 최대 64개 내부 command로 작업을 제한하는 보수적 상한이다.
+최악의 내부 Redis command 수는 acquire/inspect/release가 `2n`이고, renew는 owned key마다
+`GET + PTTL + PEXPIRE`를 수행하므로 `3n`이다. 기본 `maxKeys = 32`는 한 번의 script에서
+최대 96개 내부 command로 작업을 제한하는 보수적 상한이다.
 `maxKeys`를 높이는 소비자는 아래 성능 characterization을 다시 실행해야 한다.
 
 ### 9.1 Acquire script
