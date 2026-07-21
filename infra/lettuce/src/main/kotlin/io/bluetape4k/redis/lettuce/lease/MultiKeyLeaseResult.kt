@@ -52,7 +52,7 @@ sealed interface MultiKeyAcquireResult: Serializable {
         }
     }
 
-    /** Indicates that only some requested leases were owned by the requester. */
+    /** Indicates an owned-and-missing state with no lease owned by another requester. */
     data class PartialOwnership(
         val counts: MultiKeyLeaseCounts,
     ): MultiKeyAcquireResult {
@@ -88,12 +88,12 @@ sealed interface MultiKeyInspectResult: Serializable {
         }
     }
 
-    /** Indicates that none of the requested leases is owned by the requester. */
+    /** Indicates that every requested lease is missing. */
     data object Lost: MultiKeyInspectResult {
         private const val serialVersionUID: Long = 1L
     }
 
-    /** Indicates that only some requested leases are owned by the requester. */
+    /** Indicates an owned-and-missing state with no lease owned by another requester. */
     data class PartialOwnership(
         val counts: MultiKeyLeaseCounts,
     ): MultiKeyInspectResult {
@@ -125,7 +125,7 @@ sealed interface MultiKeyRenewResult: Serializable {
         private const val serialVersionUID: Long = 1L
     }
 
-    /** Indicates that only some requested leases could be renewed. */
+    /** Indicates an owned-and-missing state with no lease owned by another requester. */
     data class PartialLoss(
         val counts: MultiKeyLeaseCounts,
     ): MultiKeyRenewResult {
@@ -134,7 +134,7 @@ sealed interface MultiKeyRenewResult: Serializable {
         }
     }
 
-    /** Indicates that none of the requested leases remained owned. */
+    /** Indicates that every requested lease is missing. */
     data object Lost: MultiKeyRenewResult {
         private const val serialVersionUID: Long = 1L
     }
@@ -162,7 +162,7 @@ sealed interface MultiKeyReleaseResult: Serializable {
         private const val serialVersionUID: Long = 1L
     }
 
-    /** Indicates that only some requested leases could be released. */
+    /** Indicates an owned-and-missing state with no lease owned by another requester. */
     data class PartialRelease(
         val counts: MultiKeyLeaseCounts,
     ): MultiKeyReleaseResult {
@@ -171,7 +171,7 @@ sealed interface MultiKeyReleaseResult: Serializable {
         }
     }
 
-    /** Indicates that none of the requested leases remained owned. */
+    /** Indicates that every requested lease is missing. */
     data object Lost: MultiKeyReleaseResult {
         private const val serialVersionUID: Long = 1L
     }
