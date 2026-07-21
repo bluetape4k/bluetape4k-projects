@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
+import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 
-const out = "docs/images/readme-diagrams/infra-lettuce-diagram-01.svg";
+const svgPath = "docs/images/readme-diagrams/infra-lettuce-diagram-01.svg";
+const pngPath = "docs/images/readme-diagrams/infra-lettuce-diagram-01.png";
 
-const svg = String.raw`<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1060" viewBox="0 0 1500 1060" role="img" aria-label="Lettuce distributed primitive API families">
+const svg = String.raw`<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1180" viewBox="0 0 1500 1180" role="img" aria-label="Lettuce distributed primitive API families">
   <defs>
     <filter id="shadow" x="-8%" y="-10%" width="116%" height="124%">
       <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
@@ -37,20 +39,20 @@ const svg = String.raw`<svg xmlns="http://www.w3.org/2000/svg" width="1500" heig
     </style>
   </defs>
 
-  <rect class="canvas" width="1500" height="1060"/>
-  <rect class="frame" x="36" y="30" width="1428" height="996" rx="8"/>
+  <rect class="canvas" width="1500" height="1180"/>
+  <rect class="frame" x="36" y="30" width="1428" height="1116" rx="8"/>
   <text class="title" x="74" y="84">Lettuce Distributed Primitive API Families</text>
   <text class="subtitle" x="78" y="116">Each Redis-backed primitive has a sync/CompletableFuture wrapper and a suspend-first counterpart instead of one shared superclass.</text>
 
-  <rect class="column" x="78" y="156" width="318" height="790" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+  <rect class="column" x="78" y="156" width="318" height="910" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
   <text class="colTitle" x="110" y="194">Redis backing model</text>
   <text class="colSub" x="110" y="216">what each primitive stores in Redis</text>
 
-  <rect class="column" x="444" y="156" width="412" height="790" rx="8" fill="#fff7ed" stroke="#fdba74"/>
+  <rect class="column" x="444" y="156" width="412" height="910" rx="8" fill="#fff7ed" stroke="#fdba74"/>
   <text class="colTitle" x="476" y="194">Sync + async classes</text>
   <text class="colSub" x="476" y="216">blocking APIs plus CompletableFuture variants</text>
 
-  <rect class="column" x="904" y="156" width="518" height="790" rx="8" fill="#f0fdfa" stroke="#99f6e4"/>
+  <rect class="column" x="904" y="156" width="518" height="910" rx="8" fill="#f0fdfa" stroke="#99f6e4"/>
   <text class="colTitle" x="936" y="194">Suspend classes</text>
   <text class="colSub" x="936" y="216">RedisFuture.await() and coroutine-native control paths</text>
 
@@ -69,16 +71,22 @@ const svg = String.raw`<svg xmlns="http://www.w3.org/2000/svg" width="1500" heig
     <text class="cardTitle" x="237" y="509" text-anchor="middle">Lease key</text>
     <text class="detail" x="237" y="534" text-anchor="middle">SET NX PX + token Lua</text>
   </g>
+  <g id="multiKeyLeaseKeys">
+    <rect class="card" x="108" y="586" width="258" height="92" rx="8" fill="#eff6ff" stroke="#2563eb"/>
+    <text class="cardTitle" x="237" y="617" text-anchor="middle">Same-slot lease keys</text>
+    <text class="detail" x="237" y="644" text-anchor="middle">shared hash tag + owner token</text>
+    <text class="detail" x="237" y="663" text-anchor="middle">atomic Lua + per-key TTL</text>
+  </g>
   <g id="semaphoreKey">
-    <rect class="card" x="108" y="586" width="258" height="78" rx="8" fill="#eff6ff" stroke="#2563eb"/>
-    <text class="cardTitle" x="237" y="617" text-anchor="middle">Permit counter</text>
-    <text class="detail" x="237" y="642" text-anchor="middle">decr/incr Lua scripts</text>
+    <rect class="card" x="108" y="714" width="258" height="78" rx="8" fill="#eff6ff" stroke="#2563eb"/>
+    <text class="cardTitle" x="237" y="745" text-anchor="middle">Permit counter</text>
+    <text class="detail" x="237" y="770" text-anchor="middle">decr/incr Lua scripts</text>
   </g>
   <g id="probabilistic">
-    <rect class="card" x="108" y="694" width="258" height="88" rx="8" fill="#eff6ff" stroke="#2563eb"/>
-    <text class="cardTitle" x="237" y="726" text-anchor="middle">Approx structures</text>
-    <text class="detail" x="237" y="753" text-anchor="middle">PFADD / PFCOUNT</text>
-    <text class="detail" x="237" y="773" text-anchor="middle">BitSet / bucket arrays</text>
+    <rect class="card" x="108" y="822" width="258" height="88" rx="8" fill="#eff6ff" stroke="#2563eb"/>
+    <text class="cardTitle" x="237" y="854" text-anchor="middle">Approx structures</text>
+    <text class="detail" x="237" y="881" text-anchor="middle">PFADD / PFCOUNT</text>
+    <text class="detail" x="237" y="901" text-anchor="middle">BitSet / bucket arrays</text>
   </g>
 
   <g id="maps">
@@ -97,21 +105,27 @@ const svg = String.raw`<svg xmlns="http://www.w3.org/2000/svg" width="1500" heig
     <text class="cardTitle" x="650" y="512" text-anchor="middle">LettuceLock</text>
     <text class="detail" x="650" y="536" text-anchor="middle">non-reentrant mutex with UUID token</text>
   </g>
+  <g id="multiKeyLease">
+    <rect class="card" x="484" y="580" width="332" height="104" rx="8" fill="#fff7ed" stroke="#ea580c"/>
+    <text class="cardTitle" x="650" y="612" text-anchor="middle">Multi-Key Lease</text>
+    <text class="detail" x="650" y="640" text-anchor="middle">LettuceMultiKeyLease</text>
+    <text class="detail" x="650" y="661" text-anchor="middle">sync + CompletableFuture operations</text>
+  </g>
   <g id="semaphore">
-    <rect class="card" x="484" y="590" width="332" height="70" rx="8" fill="#fff7ed" stroke="#ea580c"/>
-    <text class="cardTitle" x="650" y="620" text-anchor="middle">LettuceSemaphore</text>
-    <text class="detail" x="650" y="644" text-anchor="middle">bounded permits with Lua guards</text>
+    <rect class="card" x="484" y="718" width="332" height="70" rx="8" fill="#fff7ed" stroke="#ea580c"/>
+    <text class="cardTitle" x="650" y="748" text-anchor="middle">LettuceSemaphore</text>
+    <text class="detail" x="650" y="772" text-anchor="middle">bounded permits with Lua guards</text>
   </g>
   <g id="approx">
-    <rect class="card" x="484" y="708" width="332" height="100" rx="8" fill="#fff7ed" stroke="#ea580c"/>
-    <text class="cardTitle" x="650" y="740" text-anchor="middle">Cardinality and filters</text>
-    <text class="detail" x="650" y="767" text-anchor="middle">LettuceHyperLogLog</text>
-    <text class="detail" x="650" y="788" text-anchor="middle">LettuceBloomFilter / CuckooFilter</text>
+    <rect class="card" x="484" y="836" width="332" height="100" rx="8" fill="#fff7ed" stroke="#ea580c"/>
+    <text class="cardTitle" x="650" y="868" text-anchor="middle">Cardinality and filters</text>
+    <text class="detail" x="650" y="895" text-anchor="middle">LettuceHyperLogLog</text>
+    <text class="detail" x="650" y="916" text-anchor="middle">LettuceBloomFilter / CuckooFilter</text>
   </g>
   <g id="scripts">
-    <rect class="card" x="484" y="846" width="332" height="62" rx="8" fill="#f0fdf4" stroke="#16a34a"/>
-    <text class="cardTitle" x="650" y="873" text-anchor="middle">RedisScriptRunner</text>
-    <text class="detail" x="650" y="895" text-anchor="middle">EVALSHA-first fallback for Lua paths</text>
+    <rect class="card" x="484" y="974" width="332" height="62" rx="8" fill="#f0fdf4" stroke="#16a34a"/>
+    <text class="cardTitle" x="650" y="1001" text-anchor="middle">RedisScriptRunner</text>
+    <text class="detail" x="650" y="1023" text-anchor="middle">EVALSHA-first fallback for Lua paths</text>
   </g>
 
   <g id="suspendMaps">
@@ -130,36 +144,46 @@ const svg = String.raw`<svg xmlns="http://www.w3.org/2000/svg" width="1500" heig
     <text class="cardTitle" x="1156" y="512" text-anchor="middle">LettuceSuspendLock</text>
     <text class="detail" x="1156" y="536" text-anchor="middle">delay-based retry without thread pinning</text>
   </g>
+  <g id="suspendMultiKeyLease">
+    <rect class="card" x="946" y="580" width="420" height="104" rx="8" fill="#f0fdfa" stroke="#0d9488"/>
+    <text class="cardTitle" x="1156" y="612" text-anchor="middle">Suspend Multi-Key Lease</text>
+    <text class="detail" x="1156" y="640" text-anchor="middle">LettuceSuspendMultiKeyLease</text>
+    <text class="detail" x="1156" y="661" text-anchor="middle">suspend acquire / inspect / renew / release</text>
+  </g>
   <g id="suspendSemaphore">
-    <rect class="card" x="946" y="590" width="420" height="70" rx="8" fill="#f0fdfa" stroke="#0d9488"/>
-    <text class="cardTitle" x="1156" y="620" text-anchor="middle">LettuceSuspendSemaphore</text>
-    <text class="detail" x="1156" y="644" text-anchor="middle">suspend acquire/release operations</text>
+    <rect class="card" x="946" y="718" width="420" height="70" rx="8" fill="#f0fdfa" stroke="#0d9488"/>
+    <text class="cardTitle" x="1156" y="748" text-anchor="middle">LettuceSuspendSemaphore</text>
+    <text class="detail" x="1156" y="772" text-anchor="middle">suspend acquire/release operations</text>
   </g>
   <g id="suspendApprox">
-    <rect class="card" x="946" y="708" width="420" height="100" rx="8" fill="#f0fdfa" stroke="#0d9488"/>
-    <text class="cardTitle" x="1156" y="740" text-anchor="middle">Suspend cardinality and filters</text>
-    <text class="detail" x="1156" y="767" text-anchor="middle">LettuceSuspendHyperLogLog</text>
-    <text class="detail" x="1156" y="788" text-anchor="middle">SuspendBloomFilter / SuspendCuckooFilter</text>
+    <rect class="card" x="946" y="836" width="420" height="100" rx="8" fill="#f0fdfa" stroke="#0d9488"/>
+    <text class="cardTitle" x="1156" y="868" text-anchor="middle">Suspend cardinality and filters</text>
+    <text class="detail" x="1156" y="895" text-anchor="middle">LettuceSuspendHyperLogLog</text>
+    <text class="detail" x="1156" y="916" text-anchor="middle">SuspendBloomFilter / SuspendCuckooFilter</text>
   </g>
   <g id="future">
-    <rect class="card" x="946" y="846" width="420" height="62" rx="8" fill="#f0fdf4" stroke="#16a34a"/>
-    <text class="cardTitle" x="1156" y="873" text-anchor="middle">RedisFuture adapters</text>
-    <text class="detail" x="1156" y="895" text-anchor="middle">awaitSuspending() / awaitAll()</text>
+    <rect class="card" x="946" y="974" width="420" height="62" rx="8" fill="#f0fdf4" stroke="#16a34a"/>
+    <text class="cardTitle" x="1156" y="1001" text-anchor="middle">RedisFuture adapters</text>
+    <text class="detail" x="1156" y="1023" text-anchor="middle">awaitSuspending() / awaitAll()</text>
   </g>
 
   <path class="flow" d="M 366 297 H 484" stroke="#2563eb" marker-end="url(#openBlue)"/>
   <path class="flow" d="M 366 409 H 484" stroke="#2563eb" marker-end="url(#openBlue)"/>
   <path class="flow" d="M 366 517 H 484" stroke="#2563eb" marker-end="url(#openBlue)"/>
-  <path class="flow" d="M 366 625 H 484" stroke="#2563eb" marker-end="url(#openBlue)"/>
-  <path class="flow" d="M 366 738 H 484" stroke="#2563eb" marker-end="url(#openBlue)"/>
+  <path class="flow" d="M 366 632 H 484" stroke="#2563eb" marker-end="url(#openBlue)"/>
+  <path class="flow" d="M 366 753 H 484" stroke="#2563eb" marker-end="url(#openBlue)"/>
+  <path class="flow" d="M 366 866 H 484" stroke="#2563eb" marker-end="url(#openBlue)"/>
 
   <path class="dep" d="M 816 296 H 946" stroke="#0d9488" marker-end="url(#openTeal)"/>
   <path class="dep" d="M 816 409 H 946" stroke="#0d9488" marker-end="url(#openTeal)"/>
   <path class="dep" d="M 816 517 H 946" stroke="#0d9488" marker-end="url(#openTeal)"/>
-  <path class="dep" d="M 816 625 H 946" stroke="#0d9488" marker-end="url(#openTeal)"/>
-  <path class="dep" d="M 816 758 H 946" stroke="#0d9488" marker-end="url(#openTeal)"/>
+  <path class="dep" d="M 816 632 H 946" stroke="#0d9488" marker-end="url(#openTeal)"/>
+  <path class="dep" d="M 816 753 H 946" stroke="#0d9488" marker-end="url(#openTeal)"/>
+  <path class="dep" d="M 816 886 H 946" stroke="#0d9488" marker-end="url(#openTeal)"/>
 
 </svg>`;
 
-writeFileSync(out, `${svg}\n`);
-console.log(`wrote ${out}`);
+writeFileSync(svgPath, `${svg.replace(/[ \t]+$/gm, "")}\n`);
+execFileSync(process.env.CAIROSVG ?? "cairosvg", [svgPath, "-o", pngPath, "--scale", "2"], { stdio: "inherit" });
+console.log(`wrote ${svgPath}`);
+console.log(`wrote ${pngPath}`);

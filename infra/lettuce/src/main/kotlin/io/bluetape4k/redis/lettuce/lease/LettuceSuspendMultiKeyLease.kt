@@ -9,13 +9,23 @@ import java.time.Duration
 /**
  * Provides suspending, stateless Redis operations for one ownership lease spanning multiple keys.
  *
- * Every operation executes one Lua script, but this primitive is an advisory coordination boundary rather than a
- * distributed transaction or durable source of truth. All keys must resolve to one Redis Cluster slot. A shared hash
- * tag such as `ticket:{sale-42}:ip` and `ticket:{sale-42}:user` is the usual way to preserve that routing constraint.
+ * Every operation executes one Lua script, but this primitive is a single-writer advisory coordination boundary,
+ * not a distributed transaction or durable source of truth. All keys must resolve to one Redis Cluster slot. A
+ * shared hash tag such as `ticket:{sale-42}:ip` and `ticket:{sale-42}:user` preserves that routing constraint.
+ * Validation calculates the slot from the actual wire bytes produced by the connection's [RedisCodec.encodeKey], so
+ * a custom String key codec is checked with the same bytes that Lettuce uses for client-side routing.
  *
- * Generate a high-entropy owner token for each logical acquisition and reuse that same token for inspection,
- * renewal, release, and ambiguous-completion recovery. Do not reuse credentials, JWTs, personal identifiers, or
- * session tokens, and do not place lease keys or owner tokens in logs or metric labels.
+ * Generate an external high-entropy owner token once per logical acquisition and reuse it for every attempt,
+ * inspection, renewal, release, and ambiguous-completion recovery. Only acquire supports deterministic same-token
+ * replay, which returns [MultiKeyAcquireResult.AlreadyOwned]; renew and release must recover an ambiguous completion
+ * by inspecting with the same token first. Inspect is read-only and may be retried under a bounded transport policy.
+ * Partial ownership, partial release, or ownership mismatch requires
+ * reconciliation against a durable authority. A persistent same-token key is an integrity failure reported as
+ * [MultiKeyLeaseIntegrityException], not a normal lease.
+ *
+ * The owner token is not an authentication credential. Never reuse a JWT, session token, user identifier, or PII,
+ * and never place lease keys or tokens in logs or metric labels. Redis stores the token as plaintext; Redis ACLs and
+ * TLS are the actual confidentiality and access-control boundary.
  *
  * Coroutine cancellation cancels a pending Redis future, but it does not prove that a dispatched script did not
  * execute. Recover an ambiguous mutation with the same owner token and an authoritative state check.

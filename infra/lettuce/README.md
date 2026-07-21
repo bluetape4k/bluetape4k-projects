@@ -27,6 +27,8 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 | `LettuceSuspendSemaphore`           | Distributed semaphore (suspend-only)                                                                                                         |
 | `LettuceLock`                       | Distributed mutex lock (sync + async). Coroutine variant: `LettuceSuspendLock`                                                               |
 | `LettuceSuspendLock`                | Distributed mutex lock (suspend-only)                                                                                                        |
+| `LettuceMultiKeyLease`              | Same-slot atomic ownership lease across bounded keys (sync + async)                                                                           |
+| `LettuceSuspendMultiKeyLease`       | Same-slot atomic ownership lease across bounded keys (suspend-only)                                                                           |
 | `LettuceHyperLogLog<V>`             | Redis HyperLogLog approximate cardinality estimation (sync). Coroutine variant: `LettuceSuspendHyperLogLog<V>`                               |
 | `LettuceSuspendHyperLogLog<V>`      | Redis HyperLogLog approximate cardinality estimation (suspend-only)                                                                          |
 | `LettuceBloomFilter`                | Redis BitSet-based Bloom Filter (sync). Coroutine variant: `LettuceSuspendBloomFilter`                                                       |
@@ -413,6 +415,131 @@ if (suspendLock.tryLock(waitTime = 5.seconds)) {
     try { doWork() } finally { suspendLock.unlock() }
 }
 ```
+
+<!-- multi-key-lease:basic -->
+### Multi-Key Ownership Lease
+
+`LettuceMultiKeyLease` atomically coordinates one owner across a bounded set of keys. Every key must share one Redis
+Cluster hash tag, and the lease remains an advisory, single-writer guard: keep the durable business invariant in a
+database or another authoritative store.
+
+```kotlin
+import io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLease
+import io.bluetape4k.redis.lettuce.lease.MultiKeyAcquireResult
+import java.time.Duration
+import java.util.UUID
+
+val lease = LettuceMultiKeyLease(connection)
+val keys = listOf(
+    "ticket:{sale-42}:inflight:ip:$ipDigest",
+    "ticket:{sale-42}:inflight:user:$userDigest",
+)
+val ownerToken = UUID.randomUUID().toString()
+when (val result = lease.acquire(keys, ownerToken, Duration.ofSeconds(10))) {
+    MultiKeyAcquireResult.Acquired -> startWorkflow()
+    is MultiKeyAcquireResult.AlreadyOwned -> recoverExistingAttempt(result.minimumPttlMillis)
+    is MultiKeyAcquireResult.PartialOwnership -> reconcileWithDurableAuthority(result.counts)
+    is MultiKeyAcquireResult.Conflicted -> reject(result.counts)
+}
+```
+
+Generate the high-entropy owner token outside any retry decorator and reuse it for every attempt. Acquire is the only
+operation with deterministic same-token replay (`AlreadyOwned`).
+
+<!-- multi-key-lease:resilience -->
+#### Retry, Circuit Breaker, and Bulkhead
+
+Keep resilience policy outside the lease. Retry only ambiguous transport failures; validation, cancellation, integrity
+exceptions, and domain results are not retryable.
+
+```kotlin
+val retryable: (Throwable) -> Boolean = {
+    it is IOException || it is RedisConnectionException || it is RedisCommandTimeoutException
+}
+val retry = Retry.of(
+    "ticket-lease",
+    RetryConfig.custom<Any?>()
+        .maxAttempts(2)
+        .waitDuration(Duration.ofMillis(50))
+        .retryOnException(retryable)
+        .build(),
+)
+val circuitBreaker = CircuitBreaker.of(
+    "ticket-lease",
+    CircuitBreakerConfig.custom()
+        .slidingWindowSize(20)
+        .minimumNumberOfCalls(10)
+        .failureRateThreshold(50.0F)
+        .recordException(retryable)
+        .ignoreException { it is CancellationException }
+        .build(),
+)
+val bulkhead = Bulkhead.of(
+    "ticket-lease",
+    BulkheadConfig.custom()
+        .maxConcurrentCalls(32)
+        .maxWaitDuration(Duration.ofMillis(100))
+        .build(),
+)
+
+val ownerToken = UUID.randomUUID().toString() // once, outside the decorators
+val result = SuspendDecorators.ofSupplier {
+    suspendLease.acquire(keys, ownerToken, Duration.ofSeconds(10))
+}
+    .withRetry(retry)
+    .withCircuitBreaker(circuitBreaker)
+    .withBulkhead(bulkhead)
+    .invoke()
+```
+
+Production retry backoff must be bounded and non-zero. `Duration.ZERO` is appropriate only for deterministic tests.
+The decorator order above is intentional: Retry -> CircuitBreaker -> Bulkhead.
+
+<!-- multi-key-lease:recovery -->
+#### Result and Ambiguous-Completion Recovery
+
+```kotlin
+suspend fun recoverAfterAmbiguousMutation(
+    lease: LettuceSuspendMultiKeyLease,
+    keys: List<String>,
+    ownerToken: String,
+): MultiKeyInspectResult = lease.inspect(keys, ownerToken)
+```
+
+| Operation | Exhaustive results | Caller action |
+|---|---|---|
+| acquire | `Acquired`, `AlreadyOwned`, `PartialOwnership`, `Conflicted` | Continue/replay, or reconcile/reject; no mutation occurs for partial/conflict results. |
+| inspect | `Owned`, `Lost`, `PartialOwnership`, `Conflicted` | Treat `Owned` as current evidence; reconcile partial/conflict state. |
+| renew | `Renewed`, `PartialLoss`, `Lost`, `OwnershipMismatch` | Reconcile `PartialLoss`/`OwnershipMismatch` with durable authority. |
+| release | `Released`, `PartialRelease`, `Lost`, `OwnershipMismatch` | Reconcile `PartialRelease`/`OwnershipMismatch` with durable authority. |
+
+All counts describe the ownership observed before mutation. After ambiguous renew or release completion, inspect with
+the same token first; never switch to a new token as a recovery probe. `Lost` alone cannot distinguish a prior
+successful release from expiry.
+
+<!-- multi-key-lease:security-telemetry -->
+#### Security and Telemetry
+
+The owner token is not a credential. Never reuse a JWT, session token, user identifier, or PII. Redis stores owner
+tokens in plaintext, so Redis ACLs and TLS are the actual security boundary. Metrics may use only bounded
+`operation`, `result`, and `exception` dimensions; never emit a key/token in logs, traces, or metric labels.
+
+<!-- multi-key-lease:migration -->
+#### Cutover and Rollback
+
+1. Verify production keys use a shared slot and keep the durable database guard active.
+2. Stop the old writer.
+3. Drain for the old maximum TTL or clean up with the old token.
+4. Enable the new writer with the same namespace, hash-tag, and token contract.
+5. Prohibit dual-write.
+6. Rollback in reverse: stop the new writer, drain or clean up, verify durable authority, then re-enable the old writer.
+
+<!-- multi-key-lease:lost-token -->
+#### Lost-Token Persistent-Key Runbook
+
+A persistent key with the expected owner token raises `MultiKeyLeaseIntegrityException`. With operator approval,
+confirm the exact namespace/key set, then manually delete only that set or replace the namespace, and reverify both
+Redis state and the durable authority before enabling a writer.
 
 ## Memoizer (Caching Function Results in Redis)
 

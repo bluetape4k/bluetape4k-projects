@@ -11,7 +11,8 @@ enum class MultiKeyLeaseOperation {
 }
 
 /**
- * Describes the ownership state observed before a lease mutation.
+ * Describes the ownership state observed before a lease mutation. Counts never describe a partially applied write;
+ * callers should use them as reconciliation evidence against their durable authority.
  *
  * @property requestedKeys number of requested keys
  * @property ownedKeys number of keys owned by the requester
@@ -29,7 +30,12 @@ data class MultiKeyLeaseCounts(
     }
 }
 
-/** Represents every outcome of acquiring a multi-key lease. */
+/**
+ * Represents every outcome of acquiring a multi-key lease.
+ *
+ * [AlreadyOwned] is the deterministic same-token replay outcome. [PartialOwnership] and [Conflicted] perform no
+ * mutation and require caller policy rather than automatic repair.
+ */
 sealed interface MultiKeyAcquireResult: Serializable {
 
     /** Indicates that every requested lease was acquired. */
@@ -65,7 +71,12 @@ sealed interface MultiKeyAcquireResult: Serializable {
     }
 }
 
-/** Represents every outcome of inspecting a multi-key lease. */
+/**
+ * Represents every outcome of inspecting a multi-key lease without mutation.
+ *
+ * [Lost] cannot distinguish expiry from a previously completed release. Partial or conflicting ownership must be
+ * reconciled with a durable authority.
+ */
 sealed interface MultiKeyInspectResult: Serializable {
 
     /** Indicates that every requested lease is owned by the requester. */
@@ -101,7 +112,12 @@ sealed interface MultiKeyInspectResult: Serializable {
     }
 }
 
-/** Represents every outcome of renewing a multi-key lease. */
+/**
+ * Represents every outcome of renewing a multi-key lease.
+ *
+ * Renew never recreates missing keys. After ambiguous completion, inspect using the same token before deciding
+ * whether to continue. [PartialLoss] and [OwnershipMismatch] require durable reconciliation.
+ */
 sealed interface MultiKeyRenewResult: Serializable {
 
     /** Indicates that every requested lease was renewed. */
@@ -133,7 +149,12 @@ sealed interface MultiKeyRenewResult: Serializable {
     }
 }
 
-/** Represents every outcome of releasing a multi-key lease. */
+/**
+ * Represents every outcome of releasing a multi-key lease.
+ *
+ * After ambiguous completion, inspect using the same token first. [Lost] cannot distinguish a completed release from
+ * expiry. [PartialRelease] and [OwnershipMismatch] require durable reconciliation.
+ */
 sealed interface MultiKeyReleaseResult: Serializable {
 
     /** Indicates that every requested lease was released. */
@@ -181,7 +202,8 @@ class MultiKeyLeaseCrossSlotException(
 }
 
 /**
- * Reports an internally inconsistent multi-key lease response without exposing lease secrets.
+ * Reports an internally inconsistent multi-key lease response without exposing lease secrets. A persistent key with
+ * the same owner token is one source of this exception because a valid lease must always have a positive TTL.
  *
  * @property operation operation that observed the inconsistent response
  * @property requestedKeyCount number of requested keys
