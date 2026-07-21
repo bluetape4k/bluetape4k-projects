@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "producer": {
+    "commit": "a065a8e88cf246975660c68df2dd78dfb5b6dc4d",
+    "tree": "50cf7789648c0091b6c16de6cf5eb495c26510f8"
+  },
+  "compiler": {
+    "java": "21",
+    "kotlin": "2.4.0",
+    "languageVersion": "2.3",
+    "apiVersion": "2.3",
+    "jvmDefault": "enable"
+  },
+  "baselineJar": {
+    "path": "bluetape4k-io-1.12.0.jar",
+    "sha256": "34d280b0cb465ffca2a23a2aa57895cc3ba9c08ea18f57c706443b91a0eae6f1"
+  },
+  "fixtureJar": {
+    "path": "legacy-compressor-fixtures.jar",
+    "containsCompressorClass": false,
+    "sha256": "7e0e1cbec137460ddbac5d16bedb89b81864bfd7e6f5766e4177dbf3ea29abce"
+  }
+}
