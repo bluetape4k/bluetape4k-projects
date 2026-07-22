@@ -17,7 +17,7 @@ class HttpIdempotencyTerminalScenariosTest {
         runConformanceScenarios(adapter, limits, terminalScenarios())
 
         adapter.completedScenarioCount shouldBeEqualTo 6
-        adapter.maximumObservedWaiters shouldBeEqualTo 0
+        adapter.maximumObservedWaiters shouldBeEqualTo limits.maxWaitersPerKey
         adapter.quiescence() shouldBeEqualTo HttpIdempotencyQuiescence(0, 0, 0)
     }
 

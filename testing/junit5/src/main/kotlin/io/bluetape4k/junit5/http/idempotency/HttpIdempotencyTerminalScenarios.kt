@@ -101,6 +101,10 @@ private suspend fun assertUnauthorizedIsRecordIndistinguishable(
     val authorized = request(idempotencyKeys = listOf("foreign-record-key"))
     val owner = async { exchangeChecked(adapter, config, authorized) }
     adapter.awaitOwnerStarted(authorized)
+    val authorizedWaiters = List(config.maxWaitersPerKey) {
+        async { exchangeChecked(adapter, config, authorized) }
+    }
+    adapter.awaitWaiterCount(authorized, config.maxWaitersPerKey)
 
     mapOf(
         "unauthenticated" to unauthenticatedResponse(),
@@ -121,19 +125,24 @@ private suspend fun assertUnauthorizedIsRecordIndistinguishable(
         adapter.sideEffectCount(present) shouldBeEqualTo 0
         adapter.sideEffectCount(conflicting) shouldBeEqualTo 0
         adapter.sideEffectCount(absent) shouldBeEqualTo 0
-        adapter.quiescence().activeWaiters shouldBeEqualTo 0
+        adapter.quiescence().activeWaiters shouldBeEqualTo config.maxWaitersPerKey
     }
 
     adapter.completeOwner(authorized, createdResponse())
     owner.await()
+    authorizedWaiters.forEach { waiter ->
+        waiter.await() shouldBeEqualTo createdResponse().withReplayFlag(true)
+    }
 
     mapOf(
         "unauthenticated" to unauthenticatedResponse(),
         "tenant-a-read-only" to unauthorizedResponse(),
     ).forEach { (profile, expected) ->
         val present = authorized.copy(authenticationProfile = profile)
+        val conflicting = present.copy(requestBody = "{\"name\":\"terminal-changed\"}")
         val absent = present.copy(idempotencyKeys = listOf("absent-terminal-record-key"))
         exchangeChecked(adapter, config, present) shouldBeEqualTo expected
+        exchangeChecked(adapter, config, conflicting) shouldBeEqualTo expected
         exchangeChecked(adapter, config, absent) shouldBeEqualTo expected
         adapter.quiescence().activeWaiters shouldBeEqualTo 0
     }
