@@ -6,7 +6,9 @@ import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-const validator = join(dirname(fileURLToPath(import.meta.url)), "validate-readme-diagram-assets.mjs");
+const scriptsDir = dirname(fileURLToPath(import.meta.url));
+const repositoryRoot = dirname(scriptsDir);
+const validator = join(scriptsDir, "validate-readme-diagram-assets.mjs");
 
 test("validator skips card-like groups without shape geometry", (context) => {
   const root = mkdtempSync(join(tmpdir(), "readme-diagram-validator-"));
@@ -67,4 +69,31 @@ test("validator preserves relationship endpoint checks across Q and q bends", (c
   const validation = JSON.parse(readFileSync(report, "utf8"));
   assert.equal(validation.rows[0].paths, 2);
   assert.ok(validation.rows[0].failures.includes("disconnected/floating connector endpoints=2"));
+});
+
+test("canonical infra Lettuce diagram has no card text overflow", (context) => {
+  const root = mkdtempSync(join(tmpdir(), "readme-diagram-validator-"));
+  const diagramDir = join(root, "docs/images/readme-diagrams");
+  const diagramName = "infra-lettuce-diagram-01.svg";
+  const report = join(root, "diagram-validation-report.json");
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+
+  mkdirSync(diagramDir, { recursive: true });
+  writeFileSync(
+    join(diagramDir, diagramName),
+    readFileSync(join(repositoryRoot, "docs/images/readme-diagrams", diagramName), "utf8"),
+    "utf8",
+  );
+
+  const result = spawnSync(process.execPath, [validator], {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, DIAGRAM_VALIDATION_REPORT: report },
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  const validation = JSON.parse(readFileSync(report, "utf8"));
+  assert.equal(validation.total, 1);
+  assert.equal(validation.failed, 0);
+  assert.deepEqual(validation.rows[0].failures, []);
 });
