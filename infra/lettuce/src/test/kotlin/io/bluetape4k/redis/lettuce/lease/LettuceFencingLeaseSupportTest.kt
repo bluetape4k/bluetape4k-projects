@@ -209,7 +209,7 @@ class LettuceFencingLeaseSupportTest {
             classifyFencingBackendFailure(
                 FencingLeaseOperation.ACQUIRE,
                 RedisConnectionException(secretMessage),
-                config.domainFingerprint(),
+                config::domainFingerprint,
             )
 
             val message = appender.list.single().formattedMessage

@@ -9,6 +9,7 @@ import io.lettuce.core.RedisCommandTimeoutException
 import io.lettuce.core.RedisConnectionException
 import io.lettuce.core.RedisException
 import io.lettuce.core.ScriptOutputType
+import io.lettuce.core.api.async.RedisScriptingAsyncCommands
 import io.lettuce.core.api.sync.RedisScriptingCommands
 import io.lettuce.core.cluster.SlotHash
 import io.lettuce.core.codec.RedisCodec
@@ -18,6 +19,7 @@ import java.util.Collections
 import java.util.HexFormat
 import java.util.IdentityHashMap
 import java.util.concurrent.CancellationException
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeoutException
@@ -148,7 +150,7 @@ internal fun Throwable.unwrapFencingCompletionCause(): Throwable {
 internal fun classifyFencingBackendFailure(
     operation: FencingLeaseOperation,
     error: Throwable,
-    domainFingerprint: String? = null,
+    domainFingerprint: (() -> String)? = null,
 ): FencingLeaseBackendFailure {
     val cause = error.unwrapFencingCompletionCause()
     val kind = when (cause) {
@@ -164,7 +166,7 @@ internal fun classifyFencingBackendFailure(
             operation,
             failure,
             cause.javaClass.name,
-            domainFingerprint,
+            domainFingerprint?.invoke(),
         )
     }
 }
@@ -351,6 +353,69 @@ private fun runFencingScript(
     arrayOf(keys.lease, keys.counter),
     *arguments,
 )
+
+internal fun runFencingScriptAsync(
+    commands: RedisScriptingAsyncCommands<String, String>,
+    script: RedisScript,
+    keys: FencingLeaseKeys,
+    vararg arguments: String,
+): CompletableFuture<List<String>> = RedisScriptRunner.runAsync(
+    commands,
+    script,
+    ScriptOutputType.MULTI,
+    arrayOf(keys.lease, keys.counter),
+    *arguments,
+)
+
+internal suspend fun runFencingScriptSuspending(
+    commands: RedisScriptingAsyncCommands<String, String>,
+    script: RedisScript,
+    keys: FencingLeaseKeys,
+    vararg arguments: String,
+): List<String> = RedisScriptRunner.runSuspending(
+    commands,
+    script,
+    ScriptOutputType.MULTI,
+    arrayOf(keys.lease, keys.counter),
+    *arguments,
+)
+
+internal fun <R> CompletableFuture<List<String>>.decodeCancellable(
+    operation: FencingLeaseOperation,
+    domainFingerprint: () -> String,
+    decode: (List<String>) -> R,
+    backendFailure: (FencingLeaseBackendFailure) -> R,
+): CompletableFuture<R> {
+    val source = this
+    val mapped = object: CompletableFuture<R>() {
+        override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
+            val cancelled = super.cancel(mayInterruptIfRunning)
+            if (cancelled) {
+                source.cancel(mayInterruptIfRunning)
+            }
+            return cancelled
+        }
+    }
+    source.whenComplete { frame, error ->
+        when {
+            source.isCancelled -> mapped.cancel(false)
+            error != null -> try {
+                val failure = classifyFencingBackendFailure(operation, error, domainFingerprint)
+                mapped.complete(backendFailure(failure))
+            } catch (_: CancellationException) {
+                mapped.cancel(false)
+            } catch (failure: Throwable) {
+                mapped.completeExceptionally(failure)
+            }
+            else -> try {
+                mapped.complete(decode(frame))
+            } catch (failure: Throwable) {
+                mapped.completeExceptionally(failure)
+            }
+        }
+    }
+    return mapped
+}
 
 private data class DecodedFencingFrame(
     val status: String,
