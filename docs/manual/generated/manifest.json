@@ -1230,13 +1230,6 @@
     },
     {
       "artifact": "io.github.bluetape4k:bluetape4k-junit5",
-      "chapters": [
-        {
-          "en": "en/modules/bluetape4k-junit5/http-idempotency-conformance.md",
-          "id": "http-idempotency-conformance",
-          "ko": "ko/modules/bluetape4k-junit5/http-idempotency-conformance.md"
-        }
-      ],
       "en": "en/modules/bluetape4k-junit5.md",
       "gradlePath": ":bluetape4k-junit5",
       "group": "testing",

@@ -50,7 +50,6 @@ Gradle project path는 `:bluetape4k-junit5`, source directory는 `testing/junit5
 | [`CoroutineSupport`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/coroutines/CoroutineSupport.kt) | constructor, function, ownership 계약을 확인합니다. |
 | [`SuspendedJobTester`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/coroutines/SuspendedJobTester.kt) | constructor, function, ownership 계약을 확인합니다. |
 | [`FakeValueExtension`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/faker/FakeValueExtension.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`assertBoundedWaitHttpIdempotencyConformance`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/BoundedWaitHttpIdempotencyConformance.kt) | [도입 및 운영 chapter](bluetape4k-junit5/http-idempotency-conformance.md)와 함께 bounded-wait HTTP 정책을 검증합니다. |
 
 ## 권장 패턴 {#patterns}
 
@@ -112,8 +111,6 @@ fixture를 격리하고 resource 사용량을 제한하며 diagnostic을 남기�
 - [`CoroutineSupportTest`](../../../../testing/junit5/src/test/kotlin/io/bluetape4k/junit5/coroutines/CoroutineSupportTest.kt)
 - [`SuspendedJobTesterTest`](../../../../testing/junit5/src/test/kotlin/io/bluetape4k/junit5/coroutines/SuspendedJobTesterTest.kt)
 - [`DataFakerExamples`](../../../../testing/junit5/src/test/kotlin/io/bluetape4k/junit5/faker/DataFakerExamples.kt)
-- [`KtorHttpIdempotencyConformanceTest`](../../../../ktor/testing/src/test/kotlin/io/bluetape4k/ktor/testing/idempotency/KtorHttpIdempotencyConformanceTest.kt)
-- [`SpringHttpIdempotencyConformanceTest`](../../../../spring-boot/core/src/test/kotlin/io/bluetape4k/spring/idempotency/SpringHttpIdempotencyConformanceTest.kt)
 
 ## 워크숍 {#workshops}
 
@@ -150,7 +147,6 @@ _배포본 README: [`testing/junit5/README.ko.md`](https://github.com/bluetape4k
 
 ## 근거 {#sources}
 
-- [Bounded-wait HTTP idempotency conformance](bluetape4k-junit5/http-idempotency-conformance.md)
 - [모듈 README](../../../../testing/junit5/README.ko.md)
 - [모듈 build](../../../../testing/junit5/build.gradle.kts)
 - [`ExtensionContext`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/ExtensionContext.kt)
@@ -163,8 +159,5 @@ _배포본 README: [`testing/junit5/README.ko.md`](https://github.com/bluetape4k
 - [`CoroutineSupport`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/coroutines/CoroutineSupport.kt)
 - [`SuspendedJobTester`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/coroutines/SuspendedJobTester.kt)
 - [`FakeValueExtension`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/faker/FakeValueExtension.kt)
-- [`assertBoundedWaitHttpIdempotencyConformance`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/BoundedWaitHttpIdempotencyConformance.kt)
-- [`KtorHttpIdempotencyConformanceTest`](../../../../ktor/testing/src/test/kotlin/io/bluetape4k/ktor/testing/idempotency/KtorHttpIdempotencyConformanceTest.kt)
-- [`SpringHttpIdempotencyConformanceTest`](../../../../spring-boot/core/src/test/kotlin/io/bluetape4k/spring/idempotency/SpringHttpIdempotencyConformanceTest.kt)
 - [`ExtensionContextSupportTest`](../../../../testing/junit5/src/test/kotlin/io/bluetape4k/junit5/ExtensionContextSupportTest.kt)
 - [`AwaitilityCoroutinesTest`](../../../../testing/junit5/src/test/kotlin/io/bluetape4k/junit5/awaitility/AwaitilityCoroutinesTest.kt)

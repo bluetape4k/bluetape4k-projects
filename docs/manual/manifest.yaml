@@ -870,10 +870,6 @@ modules:
   artifact: io.github.bluetape4k:bluetape4k-junit5
   en: en/modules/bluetape4k-junit5.md
   ko: ko/modules/bluetape4k-junit5.md
-  chapters:
-  - id: http-idempotency-conformance
-    en: en/modules/bluetape4k-junit5/http-idempotency-conformance.md
-    ko: ko/modules/bluetape4k-junit5/http-idempotency-conformance.md
   sourcePaths:
   - testing/junit5/src/main/kotlin
   - testing/junit5/src/main/resources
