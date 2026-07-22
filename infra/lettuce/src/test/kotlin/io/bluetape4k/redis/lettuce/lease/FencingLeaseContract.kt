@@ -8,9 +8,9 @@ import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBePositive
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
-import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.api.StatefulRedisConnection
+import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
@@ -32,6 +32,8 @@ internal abstract class FencingLeaseContract : AbstractLettuceTest() {
     private lateinit var config: LettuceFencingLeaseConfig
     private lateinit var keys: FencingLeaseKeys
     private lateinit var adapter: FencingLeaseAdapter
+    private lateinit var connection: StatefulRedisConnection<String, String>
+    private lateinit var commands: RedisCommands<String, String>
 
     private val owner = FencingOwnerId.from("contract-owner")
     private val contender = FencingOwnerId.from("contract-contender")
@@ -43,6 +45,8 @@ internal abstract class FencingLeaseContract : AbstractLettuceTest() {
 
     @BeforeEach
     fun setUpContract() {
+        connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
+        commands = connection.sync()
         config = LettuceFencingLeaseConfig("contract", "lease-${randomName().substringAfter(':')}", 11)
         keys = deriveFencingLeaseKeys(config, StringCodec.UTF8)
         commands.del(keys.lease, keys.counter)
@@ -51,7 +55,11 @@ internal abstract class FencingLeaseContract : AbstractLettuceTest() {
 
     @AfterEach
     fun tearDownContract() {
-        commands.del(keys.lease, keys.counter)
+        try {
+            commands.del(keys.lease, keys.counter)
+        } finally {
+            connection.close()
+        }
     }
 
     @Test
@@ -151,8 +159,5 @@ internal abstract class FencingLeaseContract : AbstractLettuceTest() {
     private companion object {
         val DEFAULT_LEASE: Duration = Duration.ofSeconds(5)
         val LONGER_LEASE: Duration = Duration.ofSeconds(30)
-
-        val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
-        val commands by lazy { connection.sync() }
     }
 }

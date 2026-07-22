@@ -8,7 +8,6 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldContentEqual
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.resilience4j.SuspendDecorators
 import io.github.resilience4j.bulkhead.Bulkhead
@@ -158,7 +157,7 @@ internal class FencingLeaseDocumentationTest {
     private fun assertDiagnosticExample(diagnosticSource: String) {
         diagnosticSource.indexOf("redis.call('STRLEN', KEYS[2])") shouldBeLessThan
             diagnosticSource.indexOf("redis.call('GET', KEYS[2])")
-        LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8).use { connection ->
+        LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
             val tag = LettuceTestUtils.randomName().substringAfter(':')
             val config = LettuceFencingLeaseConfig("documentation", tag, 81)
             val keys = deriveFencingLeaseKeys(config, StringCodec.UTF8)

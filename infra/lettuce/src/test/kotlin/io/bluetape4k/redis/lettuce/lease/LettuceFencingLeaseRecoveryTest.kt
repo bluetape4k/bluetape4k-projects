@@ -4,7 +4,6 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.sync.RedisCommands
@@ -106,7 +105,7 @@ internal class LettuceFencingLeaseRecoveryTest {
 
     @Test
     fun `bootstrap readiness requires exact durable counter invariants and tuple guard`() {
-        LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8).use { connection ->
+        LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
             val tag = LettuceTestUtils.randomName().substringAfter(':')
             val config = LettuceFencingLeaseConfig("recovery", tag, 41)
             val keys = deriveFencingLeaseKeys(config, StringCodec.UTF8)
@@ -134,7 +133,7 @@ internal class LettuceFencingLeaseRecoveryTest {
 
     @Test
     fun `read only diagnostic classifies bounded states and repair preserves the counter`() {
-        LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8).use { connection ->
+        LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
             val tag = LettuceTestUtils.randomName().substringAfter(':')
             val config = LettuceFencingLeaseConfig("diagnostic", tag, 51)
             val keys = deriveFencingLeaseKeys(config, StringCodec.UTF8)

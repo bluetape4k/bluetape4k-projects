@@ -7,7 +7,6 @@ import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldBeZero
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.resilience4j.SuspendDecorators
 import io.github.resilience4j.bulkhead.Bulkhead
@@ -65,7 +64,7 @@ internal class LettuceFencingLeaseResilience4jTest {
 
     @Test
     fun `ambiguous acquire retries with the same owner and recovers the Redis token`() = runSuspendIO {
-        LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8).use { connection ->
+        LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
             val tag = LettuceTestUtils.randomName().substringAfter(':')
             val config = LettuceFencingLeaseConfig("resilience", tag, 31)
             val keys = deriveFencingLeaseKeys(config, StringCodec.UTF8)
