@@ -24,6 +24,13 @@ SCOPE=""
 BUILD_CURRENT=false
 REQUIRE_DIRECT=""
 CREATED_WORKTREES=()
+JDK_JAVA="${JAVA_HOME:-}/bin/java"
+GRADLE_TOOLCHAIN_ARGS=(
+    --no-configuration-cache
+    -Porg.gradle.java.installations.auto-detect=false
+    -Porg.gradle.java.installations.auto-download=false
+    "-Porg.gradle.java.installations.paths=${JAVA_HOME:-}"
+)
 
 usage() {
     echo "Usage: $0 --scope <interface|full> --build-current --expected-head <full-git-sha> [--require-direct-candidates jdk,kryo,jackson2,jackson3]"
@@ -36,6 +43,14 @@ fail() {
 
 sha256() {
     shasum -a 256 "$1" | awk '{print $1}'
+}
+
+javac() {
+    "$JDK_JAVA" -m jdk.compiler/com.sun.tools.javac.Main "$@"
+}
+
+javap() {
+    "$JDK_JAVA" -m jdk.jdeps/com.sun.tools.javap.Main "$@"
 }
 
 cleanup() {
@@ -126,7 +141,7 @@ runtime_classpath() {
     local worktree="$1"
     local project="$2"
     "$worktree/gradlew" -q -p "$worktree" -I "$INIT_SCRIPT" \
-        ":$project:issue756PrintRuntimeClasspath" --no-configuration-cache | tail -n 1
+        ":$project:issue756PrintRuntimeClasspath" "${GRADLE_TOOLCHAIN_ARGS[@]}" | tail -n 1
 }
 
 create_authority_worktree() {
@@ -162,7 +177,8 @@ build_authority_jars() {
     local worktree="$2"
     rm -f "$worktree/io/io/build/libs"/bluetape4k-io-*.jar
     rm -f "$worktree/io/json/build/libs"/bluetape4k-json-*.jar
-    "$worktree/gradlew" -p "$worktree" :bluetape4k-io:jar :bluetape4k-json:jar --no-configuration-cache
+    "$worktree/gradlew" -p "$worktree" :bluetape4k-io:jar :bluetape4k-json:jar \
+        "${GRADLE_TOOLCHAIN_ARGS[@]}"
     cp "$(resolve_single_jar "$worktree/io/io/build/libs" bluetape4k-io)" "$JAR_DIR/$label-io.jar"
     cp "$(resolve_single_jar "$worktree/io/json/build/libs" bluetape4k-json)" "$JAR_DIR/$label-json.jar"
 }
@@ -176,7 +192,7 @@ build_current_jars() {
         rm -f "$ROOT/io/jackson3/build/libs"/bluetape4k-jackson3-*.jar
         tasks+=(:bluetape4k-jackson2:jar :bluetape4k-jackson3:jar)
     fi
-    "$ROOT/gradlew" -p "$ROOT" "${tasks[@]}" --no-configuration-cache
+    "$ROOT/gradlew" -p "$ROOT" "${tasks[@]}" "${GRADLE_TOOLCHAIN_ARGS[@]}"
     cp "$(resolve_single_jar "$ROOT/io/io/build/libs" bluetape4k-io)" "$JAR_DIR/current-io.jar"
     cp "$(resolve_single_jar "$ROOT/io/json/build/libs" bluetape4k-json)" "$JAR_DIR/current-json.jar"
     if [[ "$SCOPE" == "full" ]]; then
@@ -231,7 +247,7 @@ compile_authority_fixtures() {
 compile_current_fixtures() {
     local output="$CLASS_DIR/current"
     local current_cp="$JAR_DIR/current-io.jar:$JAR_DIR/current-json.jar"
-    local io_cp json_cp
+    local io_cp json_cp jackson2_cp jackson3_cp
     io_cp="$(runtime_classpath "$ROOT" bluetape4k-io)"
     json_cp="$(runtime_classpath "$ROOT" bluetape4k-json)"
     current_cp="$current_cp:$io_cp:$json_cp"
@@ -242,6 +258,21 @@ compile_current_fixtures() {
         "$JSON_FIXTURES/kotlin/LegacyDualSerializer.kt"
     javac --release 21 -cp "$current_cp" -d "$output/caller" \
         "$BINARY_FIXTURES/java/ConcreteSerializerStreamCaller.java"
+
+    if [[ "$SCOPE" == "full" ]]; then
+        jackson2_cp="$(runtime_classpath "$ROOT" bluetape4k-jackson2)"
+        jackson3_cp="$(runtime_classpath "$ROOT" bluetape4k-jackson3)"
+        mkdir -p "$output/direct" "$output/decorator-java" "$output/decorator-kotlin"
+        javac --release 21 \
+            -cp "$current_cp:$JAR_DIR/current-jackson2.jar:$JAR_DIR/current-jackson3.jar:$jackson2_cp:$jackson3_cp" \
+            -d "$output/direct" \
+            "$BINARY_FIXTURES/java/ConcreteDirectSerializerStreamCaller.java"
+        javac --release 21 -cp "$current_cp" -d "$output/decorator-java" \
+            "$BINARY_FIXTURES/java/LegacyBinaryDecorator.java"
+        compile_kotlin "$output/decorator-kotlin" "$current_cp" \
+            "$BINARY_FIXTURES/kotlin/LegacyBinaryDecorator.kt"
+        echo "candidate-old-decorator-source-recompile=PASS" | tee -a "$REPORT"
+    fi
 
     cat > "$AUTH_DIR/OldNullSerializeToCaller.java" <<'JAVA'
 import io.bluetape4k.io.serializer.BinarySerializer;
@@ -268,15 +299,15 @@ run_authority_fixtures() {
     local io_cp json_cp
     io_cp="$(runtime_classpath "$ROOT" bluetape4k-io)"
     json_cp="$(runtime_classpath "$ROOT" bluetape4k-json)"
-    java -cp "$output/binary-java:$current:$io_cp" \
+    "$JDK_JAVA" -cp "$output/binary-java:$current:$io_cp" \
         io.bluetape4k.io.serializer.compat.issue756.java.LegacyBinaryStreamCaller | tee -a "$REPORT"
-    java -cp "$output/binary-kotlin:$current:$io_cp" \
+    "$JDK_JAVA" -cp "$output/binary-kotlin:$current:$io_cp" \
         io.bluetape4k.io.serializer.compat.issue756.kotlin.LegacyBinaryStreamCallerKt | tee -a "$REPORT"
-    java -cp "$output/json-java:$current:$json_cp" \
+    "$JDK_JAVA" -cp "$output/json-java:$current:$json_cp" \
         io.bluetape4k.json.compat.issue756.java.LegacyJsonStreamCaller | tee -a "$REPORT"
-    java -cp "$output/json-kotlin:$current:$json_cp" \
+    "$JDK_JAVA" -cp "$output/json-kotlin:$current:$json_cp" \
         io.bluetape4k.json.compat.issue756.kotlin.LegacyJsonStreamCallerKt | tee -a "$REPORT"
-    java -cp "$CLASS_DIR/current/caller:$output/dual-java:$output/dual-kotlin:$current:$io_cp:$json_cp" \
+    "$JDK_JAVA" -cp "$CLASS_DIR/current/caller:$output/dual-java:$output/dual-kotlin:$current:$io_cp:$json_cp" \
         io.bluetape4k.io.serializer.compat.issue756.java.ConcreteSerializerStreamCaller dual | tee -a "$REPORT"
     echo "$label-old-callers-implementors=PASS" | tee -a "$REPORT"
     echo "$label-dual-source-defaults=PASS" | tee -a "$REPORT"
@@ -287,7 +318,7 @@ run_current_dual_fixture() {
     local io_cp json_cp
     io_cp="$(runtime_classpath "$ROOT" bluetape4k-io)"
     json_cp="$(runtime_classpath "$ROOT" bluetape4k-json)"
-    java -cp "$CLASS_DIR/current/caller:$CLASS_DIR/current/dual-java:$CLASS_DIR/current/dual-kotlin:$current:$io_cp:$json_cp" \
+    "$JDK_JAVA" -cp "$CLASS_DIR/current/caller:$CLASS_DIR/current/dual-java:$CLASS_DIR/current/dual-kotlin:$current:$io_cp:$json_cp" \
         io.bluetape4k.io.serializer.compat.issue756.java.ConcreteSerializerStreamCaller dual | tee -a "$REPORT"
     echo "candidate-null-literal-distinct-streams=PASS" | tee -a "$REPORT"
     echo "reflection-interface-defaults=PASS" | tee -a "$REPORT"
@@ -341,18 +372,20 @@ is_required_direct() {
 
 verify_full_scope() {
     local current="$JAR_DIR/current-io.jar:$JAR_DIR/current-json.jar"
-    local io_cp json_cp
+    local io_cp json_cp jackson2_cp jackson3_cp
     io_cp="$(runtime_classpath "$ROOT" bluetape4k-io)"
     json_cp="$(runtime_classpath "$ROOT" bluetape4k-json)"
+    jackson2_cp="$(runtime_classpath "$ROOT" bluetape4k-jackson2)"
+    jackson3_cp="$(runtime_classpath "$ROOT" bluetape4k-jackson3)"
     assert_declared_throws "$JAR_DIR/current-io.jar" \
         io.bluetape4k.io.serializer.BinarySerializerDecorator serializeBinaryToStream
     assert_declared_throws "$JAR_DIR/current-io.jar" \
         io.bluetape4k.io.serializer.CompressableBinarySerializer serializeBinaryToStream
 
     local label output
-    for label in release base; do
+    for label in release base current; do
         output="$CLASS_DIR/$label"
-        java -cp "$CLASS_DIR/current/caller:$output/decorator-java:$output/decorator-kotlin:$current:$io_cp:$json_cp" \
+        "$JDK_JAVA" -cp "$CLASS_DIR/current/caller:$output/decorator-java:$output/decorator-kotlin:$current:$io_cp:$json_cp" \
             io.bluetape4k.io.serializer.compat.issue756.java.ConcreteSerializerStreamCaller decorator | tee -a "$REPORT"
     done
 
@@ -369,6 +402,10 @@ verify_full_scope() {
             is_required_direct "$name" && fail "required direct candidate inherits instead of declaring stream dispatch: $name"
         fi
     done
+    "$JDK_JAVA" \
+        -cp "$CLASS_DIR/current/direct:$current:$JAR_DIR/current-jackson2.jar:$JAR_DIR/current-jackson3.jar:$io_cp:$json_cp:$jackson2_cp:$jackson3_cp" \
+        io.bluetape4k.io.serializer.compat.issue756.java.ConcreteDirectSerializerStreamCaller | tee -a "$REPORT"
+    echo "concrete-type-java-callers=PASS" | tee -a "$REPORT"
     echo "decorator-concrete-stream-abi=PASS" | tee -a "$REPORT"
 }
 
@@ -434,9 +471,13 @@ if [[ -n "$REQUIRE_DIRECT" ]]; then
         fail "invalid --require-direct-candidates list: $REQUIRE_DIRECT"
 fi
 
-for tool in git java javac javap jar kotlinc python3 shasum awk find sed grep; do
+[[ -n "${JAVA_HOME:-}" ]] || fail "JAVA_HOME is required"
+[[ -x "$JDK_JAVA" ]] || fail "JAVA_HOME does not provide an executable java launcher"
+for tool in git kotlinc python3 shasum awk find sed grep; do
     command -v "$tool" >/dev/null || fail "$tool is required"
 done
+"$JDK_JAVA" -m jdk.compiler/com.sun.tools.javac.Main -version >/dev/null
+"$JDK_JAVA" -m jdk.jdeps/com.sun.tools.javap.Main -version >/dev/null
 assert_clean_inputs
 
 rm -rf "$CLASS_DIR" "$JAR_DIR"
