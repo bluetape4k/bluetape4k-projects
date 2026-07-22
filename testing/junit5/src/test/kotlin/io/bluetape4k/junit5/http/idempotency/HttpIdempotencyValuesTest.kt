@@ -62,6 +62,7 @@ class HttpIdempotencyValuesTest {
             request.toString(),
             request.idempotencyKeys.toString(),
             request.idempotencyKeys.subList(0, 1).toString(),
+            javaReversedRendering(request.idempotencyKeys),
             response.toString(),
             response.headers.toString(),
             response.headers.keys.toString(),
@@ -70,6 +71,7 @@ class HttpIdempotencyValuesTest {
             response.headers.entries.first().toString(),
             response.headers.values.first().toString(),
             response.headers.values.first().subList(0, 1).toString(),
+            javaReversedRendering(response.headers.values.first()),
             config.toString(),
             config.replayHeaderAllowlist.toString(),
         ).forEach { rendering ->
@@ -95,6 +97,9 @@ class HttpIdempotencyValuesTest {
             (keyIterator as MutableIterator<String>).remove()
         }
     }
+
+    private fun javaReversedRendering(values: List<String>): String =
+        values.javaClass.getMethod("reversed").invoke(values).toString()
 
     @Test
     fun `assertion diagnostics do not reveal caller controlled values`() {
