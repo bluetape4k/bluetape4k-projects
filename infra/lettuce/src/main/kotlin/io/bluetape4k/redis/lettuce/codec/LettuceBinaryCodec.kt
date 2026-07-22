@@ -60,7 +60,20 @@ open class LettuceBinaryCodec<V: Any>(
      * wire-format and security compatibility with their configured [serializer].
      */
     override fun encodeValue(value: V, target: ByteBuf?) {
-        target?.run { writeBytes(serializer.serialize(value)) }
+        if (target == null) return
+
+        val output = BoundedByteBufOutputStream(target)
+        try {
+            val reported = serializer.serializeBinaryToStream(value, output)
+            val actual = output.writtenBytes()
+            check(reported == actual) {
+                "Serializer reported $reported bytes but wrote $actual bytes."
+            }
+            output.verifySnapshot()
+            target.writerIndex(Math.addExact(output.startIndex(), actual))
+        } finally {
+            output.seal()
+        }
     }
 
     final override fun decodeKey(bytes: ByteBuffer?): String? {
