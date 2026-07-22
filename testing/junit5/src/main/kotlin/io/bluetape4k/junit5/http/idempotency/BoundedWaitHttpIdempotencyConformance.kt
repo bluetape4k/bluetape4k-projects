@@ -15,14 +15,6 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
-internal data class ConformanceScenario(
-    val name: String,
-    val run: suspend (
-        BoundedWaitHttpIdempotencyAdapter,
-        BoundedWaitHttpIdempotencyConformanceConfig,
-    ) -> Unit,
-)
-
 /**
  * Verifies the bounded-wait HTTP idempotency profile through [adapter].
  *
@@ -40,6 +32,7 @@ suspend fun assertBoundedWaitHttpIdempotencyConformance(
     scenarios = terminalScenarios() + inFlightScenarios() + boundaryScenarios(),
 )
 
+@JvmSynthetic
 internal suspend fun runConformanceScenarios(
     adapter: BoundedWaitHttpIdempotencyAdapter,
     config: BoundedWaitHttpIdempotencyConformanceConfig,
@@ -139,6 +132,7 @@ private suspend fun <T> withMonotonicWatchdog(
     }
 }
 
+@JvmSynthetic
 internal suspend fun exchangeChecked(
     adapter: BoundedWaitHttpIdempotencyAdapter,
     config: BoundedWaitHttpIdempotencyConformanceConfig,
@@ -260,6 +254,7 @@ private val REPLAY_HEADER_DENYLIST = setOf(
     "x-api-key",
 )
 
+@JvmSynthetic
 internal fun isReplayHeaderDenied(name: String): Boolean =
     name in REPLAY_HEADER_DENYLIST ||
             name.contains("credential") ||

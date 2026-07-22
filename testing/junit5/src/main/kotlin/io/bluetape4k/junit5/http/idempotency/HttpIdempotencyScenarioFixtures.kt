@@ -1,6 +1,16 @@
+@file:JvmSynthetic
+
 package io.bluetape4k.junit5.http.idempotency
 
 import java.time.Duration
+
+internal class ConformanceScenario(
+    val name: String,
+    val run: suspend (
+        BoundedWaitHttpIdempotencyAdapter,
+        BoundedWaitHttpIdempotencyConformanceConfig,
+    ) -> Unit,
+)
 
 internal fun request(
     authenticationProfile: String = "tenant-a-principal",

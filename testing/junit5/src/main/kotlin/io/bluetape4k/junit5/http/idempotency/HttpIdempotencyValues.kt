@@ -318,6 +318,7 @@ data class HttpIdempotencyQuiescence(
     }
 }
 
+@JvmSynthetic
 internal fun requireBoundedUtf8(value: String, maxBytes: Int, field: String): Int {
     val bytes = try {
         Charsets.UTF_8.newEncoder()

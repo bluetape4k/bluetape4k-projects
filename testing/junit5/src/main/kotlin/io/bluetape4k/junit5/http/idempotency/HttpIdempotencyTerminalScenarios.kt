@@ -1,3 +1,5 @@
+@file:JvmSynthetic
+
 package io.bluetape4k.junit5.http.idempotency
 
 import io.bluetape4k.assertions.shouldBeEqualTo
