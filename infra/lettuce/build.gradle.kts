@@ -103,8 +103,21 @@ dependencies {
 
 tasks.named<Test>("test") {
     useJUnitPlatform {
-        excludeTags("performance")
+        excludeTags("performance", "fencing-topology")
     }
+}
+
+tasks.register<Test>("fencingLeaseTopologyRecoveryTest") {
+    description = "Runs fencing lease Redis promotion and restore recovery tests."
+    group = "verification"
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform {
+        includeTags("fencing-topology")
+    }
+    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
+    shouldRunAfter(tasks.test)
 }
 
 tasks.register<Test>("multiKeyLeasePerformanceTest") {
