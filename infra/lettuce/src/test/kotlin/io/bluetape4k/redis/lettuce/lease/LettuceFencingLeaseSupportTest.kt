@@ -102,6 +102,18 @@ class LettuceFencingLeaseSupportTest {
     }
 
     @Test
+    fun `Redis lease time stays within the exact Lua integer range`() {
+        MAX_EXACT_REDIS_LEASE_TIME_MILLIS.requireRedisFencingLeaseTimeMillis() shouldBeEqualTo
+            MAX_EXACT_REDIS_LEASE_TIME_MILLIS
+
+        val error = assertFailsWith<IllegalArgumentException> {
+            (MAX_EXACT_REDIS_LEASE_TIME_MILLIS + 1).requireRedisFencingLeaseTimeMillis()
+        }
+        error.message shouldBeEqualTo "leaseTimeMillis exceeds the exact Redis Lua integer range."
+        error.cause shouldBeEqualTo null
+    }
+
+    @Test
     fun `token epoch mismatch is rejected`() {
         val config = LettuceFencingLeaseConfig("orders", "rebuild", 7)
 

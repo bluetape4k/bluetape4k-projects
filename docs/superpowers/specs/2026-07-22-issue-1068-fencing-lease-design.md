@@ -414,7 +414,9 @@ class LettuceSuspendFencingLease private constructor(
 모든 operation은 caller가 준 argument를 dispatch 전에 검증한다. 특히 TTL은 positive
 millisecond로 정확히 변환 가능해야 하며 0, negative, sub-millisecond, overflow
 duration을 거절한다. `Duration.toMillis()`의 `ArithmeticException`을 포함한 변환 실패는
-raw exception을 노출하지 않고 `IllegalArgumentException`으로 정규화한다.
+raw exception을 노출하지 않고 `IllegalArgumentException`으로 정규화한다. 변환된 TTL은
+Lua가 integer와 `PTTL` reply를 정확히 다룰 수 있도록 `2^53 - 1` milliseconds 이하여야 하며,
+이 상한 초과도 Redis dispatch 전에 `IllegalArgumentException`으로 거절한다.
 `renew`와 `release`는 `token.epoch == config.epoch`를 dispatch 전에 검증하며 다른 epoch는
 `IllegalArgumentException`이다. 같은 tuple을 가진 다른 resource의 token은 token 자체에
 domain identity가 없어 검출할 수 없으므로, caller가 resource-bound handle/storage로
@@ -810,6 +812,8 @@ counter는 어떤 repair에서도 삭제, 감소, TTL 설정, 같은 epoch boots
   backend kind가 되고 cancellation/decoder/non-Lettuce exception은 분류되지 않는 test.
 - sub-millisecond와 `Duration.toMillis()` overflow가 세 API 모두 dispatch 전에
   `IllegalArgumentException`이 되는 parity test.
+- `2^53 - 1` milliseconds TTL은 실제 Redis acquire/replay/inspect에서 canonical decimal
+  reply를 유지하고, 그보다 큰 TTL은 세 API 모두 dispatch 전에 거절하는 test.
 - 다른 epoch token의 renew/release가 dispatch 전에 거절되고, 같은 tuple의 다른 resource
   token은 primitive가 식별할 수 없어 resource-bound caller handle이 필요한 misuse test.
 - 모든 public config/value/failure/result variant의 Java serialization round-trip과

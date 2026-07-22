@@ -409,7 +409,7 @@ Not-tested: fencing lease integration is introduced later
   - derived key가 정확히 `fence:{namespace:resourceName}:<epoch>:lease|counter`.
   - default/custom codec 모두 `SlotHash.getSlot(codec.encodeKey(key))`를 사용하고, wire bytes가 다른 slot이면 stable `IllegalArgumentException`이며 command mock interaction은 0.
   - decimal parser는 `0`, positive canonical decimal, `Long.MAX_VALUE`를 허용하고 sign, leading zero, whitespace, empty, non-digit, 20+ byte를 거절.
-  - TTL은 positive whole millisecond만 허용하며 nanos-only, zero, negative, `toMillis()` overflow를 모두 `IllegalArgumentException`으로 정규화.
+  - TTL은 positive whole millisecond로 변환하고 nanos-only, zero, negative, `toMillis()` overflow를 모두 `IllegalArgumentException`으로 정규화. operation wrapper는 exact Lua integer/TTL reply를 위해 `2^53 - 1` milliseconds 상한도 dispatch 전에 검증.
   - token epoch mismatch는 renew/release dispatch 전에 거절.
   - `CompletionException`/`ExecutionException` 최대 8단계 unwrap, identity cycle 방지, chain 어디의 `CancellationException`도 rethrow.
   - `RedisConnectionException`→`CONNECTION`, `RedisCommandTimeoutException`/`TimeoutException`→`TIMEOUT`, 다른 `RedisException`→`COMMAND`.
@@ -502,6 +502,8 @@ internal fun Duration.requireFencingLeaseMillis(): Long {
 }
 ```
 
+- [ ] Redis operation TTL은 `2^53 - 1` milliseconds 이하로 제한해 `PEXPIRE` absolute timestamp overflow와 Lua `PTTL` precision loss를 write 전에 차단한다. `PTTL` wire field는 `string.format('%.0f', ttl)`로 canonical decimal을 유지한다.
+
 - [ ] operation별 decoder와 result factory를 분리하되 unknown status/field count/malformed success payload는 `FencingLeaseProtocolException`으로만 실패하게 한다.
 - [ ] backend classifier는 public result를 받는 operation wrapper 하나에서 공유하고 raw `Throwable`을 public value나 log message에 넣지 않는다.
 - [ ] `domainFingerprint`가 필요할 때만 `namespace + NUL + resourceName + NUL + epoch` SHA-256 앞 12 bytes를 24 lowercase hex로 계산하며 metric label API는 추가하지 않는다.
@@ -562,6 +564,7 @@ Expected: script runner/decoder operation이 없어 test compilation 또는 asse
 ### 5.2 GREEN — fixed O(1) Lua protocol
 
 - [ ] script 공통 preflight는 두 exact key만 사용하고 mutation 전에 다음을 모두 판정한다.
+  - acquire/renew TTL argument의 canonical positive decimal과 `2^53 - 1` 상한.
   - counter `TYPE`, `PTTL`, `STRLEN`, canonical decimal과 범위.
   - lease `TYPE`, `PTTL`, `HLEN`, fixed field `HSTRLEN`, fixed `HMGET`, stored epoch와 counter relation.
   - lease `PTTL == -2`는 absent로 재분류하고 `-1`은 `MALFORMED_LEASE`.
