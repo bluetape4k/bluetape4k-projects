@@ -42,6 +42,23 @@ EXPECTED_FIXTURE_SHAPE = {
     "writer_index": 7,
     "headroom": 505,
 }
+POOLED_FIXTURE_FIELDS = (
+    "heap_allocator_class",
+    "direct_allocator_class",
+    "heap_buffer_class",
+    "direct_buffer_class",
+    "num_heap_arenas",
+    "num_direct_arenas",
+)
+JAVA_RUNTIME_FIELDS = (
+    "executable",
+    "java_home",
+    "vendor",
+    "version",
+    "vm_name",
+    "vm_version",
+    "jvm_args",
+)
 ALLOCATION_THRESHOLD_PERCENT = Decimal("5.000")
 THROUGHPUT_FLOOR_PERCENT = Decimal("-20.000")
 ALLOWED_POST_MEASUREMENT_EXACT = frozenset(
@@ -352,13 +369,27 @@ def _validate_protocol(metadata):
 
 def _validate_fixture(metadata):
     fixture = _require_mapping(metadata.get("fixture"), "FIXTURE_MISMATCH", "fixture")
-    _require_keys(fixture, ("payload_sha256", *EXPECTED_FIXTURE_SHAPE), "FIXTURE_MISMATCH", "fixture")
+    _require_keys(
+        fixture,
+        ("payload_sha256", *EXPECTED_FIXTURE_SHAPE, *POOLED_FIXTURE_FIELDS),
+        "FIXTURE_MISMATCH",
+        "fixture",
+    )
     for field, expected in EXPECTED_FIXTURE_SHAPE.items():
         if fixture[field] != expected:
             fail("FIXTURE_MISMATCH", f"fixture.{field} expected {expected}, got {fixture[field]}")
     payload_sha = fixture["payload_sha256"]
     if not isinstance(payload_sha, str) or len(payload_sha) != 64:
         fail("FIXTURE_MISMATCH", "fixture.payload_sha256 must be 64 characters")
+    for field in ("heap_allocator_class", "direct_allocator_class"):
+        if fixture[field] != EXPECTED_FIXTURE_SHAPE["allocator_class"]:
+            fail("FIXTURE_MISMATCH", f"fixture.{field} must be PooledByteBufAllocator")
+    for field in ("heap_buffer_class", "direct_buffer_class"):
+        if not isinstance(fixture[field], str) or ".Pooled" not in fixture[field]:
+            fail("FIXTURE_MISMATCH", f"fixture.{field} must identify a pooled buffer")
+    for field in ("num_heap_arenas", "num_direct_arenas"):
+        if not isinstance(fixture[field], int) or fixture[field] <= 0:
+            fail("FIXTURE_MISMATCH", f"fixture.{field} must be positive")
     return fixture
 
 
@@ -507,6 +538,7 @@ def validate_metadata(metadata, *, validate_files=True):
         "preflight",
         "preflight_sha256",
         "dispatch",
+        "java_runtime",
     )
     _require_keys(metadata, required, "SOURCE_IDENTITY_MISMATCH", "metadata")
     if metadata["schema_version"] != 1:
@@ -520,6 +552,7 @@ def validate_metadata(metadata, *, validate_files=True):
         if not isinstance(value, str) or len(value) != 40:
             fail("SOURCE_IDENTITY_MISMATCH", f"{field} must be a 40-character Git object ID")
     _validate_protocol(metadata)
+    _validate_java_runtime(metadata["java_runtime"])
     fixture = _validate_fixture(metadata)
     matrix = validate_matrix(metadata["matrix"])
     _validate_preflight(metadata, fixture, matrix)
@@ -545,8 +578,51 @@ def _jmh_method(record):
     return benchmark[len(prefix) :]
 
 
+def _validate_java_runtime(runtime):
+    runtime = _require_mapping(runtime, "JVM_IDENTITY_MISMATCH", "java_runtime")
+    _require_keys(runtime, JAVA_RUNTIME_FIELDS, "JVM_IDENTITY_MISMATCH", "java_runtime")
+    for field in JAVA_RUNTIME_FIELDS[:-1]:
+        if not isinstance(runtime[field], str) or not runtime[field]:
+            fail("JVM_IDENTITY_MISMATCH", f"java_runtime.{field} must be non-empty")
+    if not isinstance(runtime["jvm_args"], list) or not all(
+        isinstance(value, str) for value in runtime["jvm_args"]
+    ):
+        fail("JVM_IDENTITY_MISMATCH", "java_runtime.jvm_args must be a string array")
+    return runtime
+
+
+def jmh_runtime_identity(records):
+    records = _require_list(records, "MATRIX_EXACT", "JMH result")
+    if not records:
+        fail("MATRIX_EXACT", "JMH result must not be empty")
+    identities = []
+    for index, raw in enumerate(records):
+        record = _require_mapping(raw, "MATRIX_EXACT", f"JMH[{index}]")
+        identity = {
+            "executable": record.get("jvm"),
+            "version": record.get("jdkVersion"),
+            "vm_name": record.get("vmName"),
+            "vm_version": record.get("vmVersion"),
+            "jvm_args": record.get("jvmArgs"),
+        }
+        for field in ("executable", "version", "vm_name", "vm_version"):
+            if not isinstance(identity[field], str) or not identity[field]:
+                fail("JVM_IDENTITY_MISMATCH", f"JMH[{index}].{field} must be non-empty")
+        if not isinstance(identity["jvm_args"], list) or not all(
+            isinstance(value, str) for value in identity["jvm_args"]
+        ):
+            fail("JVM_IDENTITY_MISMATCH", f"JMH[{index}].jvm_args must be a string array")
+        identities.append(identity)
+    expected = identities[0]
+    for index, identity in enumerate(identities[1:], start=1):
+        if _canonical_json(identity) != _canonical_json(expected):
+            fail("JVM_IDENTITY_MISMATCH", f"JMH runtime identity drifted at record {index}")
+    return expected
+
+
 def validate_jmh_records(records):
     records = _require_list(records, "MATRIX_EXACT", "JMH result")
+    runtime = jmh_runtime_identity(records)
     rows = {}
     for index, raw in enumerate(records):
         record = _require_mapping(raw, "MATRIX_EXACT", f"JMH[{index}]")
@@ -614,7 +690,7 @@ def validate_jmh_records(records):
     if set(rows) != EXPECTED_METHOD_SET:
         missing = sorted(EXPECTED_METHOD_SET - set(rows))
         fail("MATRIX_EXACT", f"missing JMH methods: {missing}")
-    return {"rows": rows}
+    return {"rows": rows, "runtime": runtime}
 
 
 def allocation_delta_percent(baseline, candidate):
@@ -715,6 +791,7 @@ IDENTITY_FIELDS = (
     "preflight",
     "preflight_sha256",
     "dispatch",
+    "java_runtime",
 )
 
 
@@ -741,6 +818,13 @@ def validate_run_bundle(run_dir):
     _validate_run_artifacts(run_dir, metadata)
     records = _read_json(run_dir / "jmh.json", "MATRIX_EXACT")
     parsed = validate_jmh_records(records)
+    runtime = _validate_java_runtime(metadata["java_runtime"])
+    expected_record_runtime = {
+        field: runtime[field]
+        for field in ("executable", "version", "vm_name", "vm_version", "jvm_args")
+    }
+    if _canonical_json(parsed["runtime"]) != _canonical_json(expected_record_runtime):
+        fail("JVM_IDENTITY_MISMATCH", "JMH records differ from metadata.java_runtime")
     return {
         "schema_version": 1,
         "status": "passed",
@@ -748,6 +832,7 @@ def validate_run_bundle(run_dir):
         "method_count": len(parsed["rows"]),
         "dispatch": dispatch,
         "rows": parsed["rows"],
+        "runtime": runtime,
         "metadata": metadata,
     }
 
@@ -818,6 +903,7 @@ def _validate_run_artifacts(run_dir, metadata):
         "jmh_command",
         "classpath",
         "protocol",
+        "java_runtime",
     )
     _require_keys(environment, required, "ENVIRONMENT_MISMATCH", "environment.json")
     if environment["schema_version"] != 1:
@@ -829,6 +915,7 @@ def _validate_run_artifacts(run_dir, metadata):
         "jmh_command": argv_document["argv"],
         "classpath": metadata["classpath"],
         "protocol": metadata["protocol"],
+        "java_runtime": metadata["java_runtime"],
     }
     for field, expected in bindings.items():
         if environment[field] != expected:
@@ -855,6 +942,25 @@ def _git(root, *arguments):
     return completed.stdout.strip()
 
 
+def _git_name_status_paths(root, *arguments):
+    output = _git(root, "diff", "--name-status", "-z", "--find-renames", *arguments)
+    tokens = output.split("\0") if output else []
+    entries = []
+    index = 0
+    while index < len(tokens):
+        status = tokens[index]
+        index += 1
+        if not status:
+            continue
+        path_count = 2 if status[0] in ("R", "C") else 1
+        if index + path_count > len(tokens):
+            fail("SOURCE_IDENTITY_MISMATCH", "malformed git name-status output")
+        paths = tokens[index : index + path_count]
+        index += path_count
+        entries.extend({"status": status, "path": path} for path in paths if path)
+    return entries
+
+
 def _path_allowed(path):
     normalized = path.replace(os.sep, "/")
     return normalized in ALLOWED_POST_MEASUREMENT_EXACT or normalized.startswith(
@@ -873,14 +979,12 @@ def validate_delivery_commits(repository_root, benchmark_input_sha, final_delive
     )
     if completed.returncode != 0:
         fail("BENCHMARK_NOT_ANCESTOR", "benchmark input is not an ancestor of final delivery")
-    output = _git(
+    entries = _git_name_status_paths(
         root,
-        "diff",
-        "--name-only",
         "--diff-filter=ACDMRTUXB",
         f"{benchmark_input_sha}..{final_delivery_sha}",
     )
-    paths = sorted(path for path in output.splitlines() if path)
+    paths = sorted({entry["path"] for entry in entries})
     forbidden = [path for path in paths if not _path_allowed(path)]
     if forbidden:
         fail("POST_MEASUREMENT_PATH", f"paths outside allowlist: {forbidden}")
@@ -890,15 +994,16 @@ def validate_delivery_commits(repository_root, benchmark_input_sha, final_delive
 def validate_post_measurement_working_tree(repository_root):
     root = Path(repository_root)
     commands = (
-        ("staged", ("diff", "--cached", "--name-only", "--diff-filter=ACDMRTUXB")),
-        ("unstaged", ("diff", "--name-only", "--diff-filter=ACDMRTUXB")),
-        ("untracked", ("ls-files", "--others", "--exclude-standard")),
+        ("staged", ("--cached", "--diff-filter=ACDMRTUXB")),
+        ("unstaged", ("--diff-filter=ACDMRTUXB",)),
     )
     observed = []
     for state, arguments in commands:
-        for path in _git(root, *arguments).splitlines():
-            if path:
-                observed.append({"state": state, "path": path})
+        for entry in _git_name_status_paths(root, *arguments):
+            observed.append({"state": state, **entry})
+    for path in _git(root, "ls-files", "--others", "--exclude-standard").splitlines():
+        if path:
+            observed.append({"state": "untracked", "status": "?", "path": path})
     forbidden = [entry for entry in observed if not _path_allowed(entry["path"])]
     if forbidden:
         fail("WORKING_TREE_PATH", f"working-tree paths outside allowlist: {forbidden}")
@@ -1016,6 +1121,7 @@ def validate_evidence_root(root, expected_benchmark_input_sha=None):
         "benchmark_jar": first["metadata"]["benchmark_jar"],
         "classpath": first["metadata"]["classpath"],
         "protocol": first["metadata"]["protocol"],
+        "java_runtime": first["metadata"]["java_runtime"],
         "preflight_sha256": first["metadata"]["preflight_sha256"],
         "canonical_runs": ["canonical-a", "canonical-b"],
         "comparison_sha256": _sha256_file(root / "comparison.csv"),

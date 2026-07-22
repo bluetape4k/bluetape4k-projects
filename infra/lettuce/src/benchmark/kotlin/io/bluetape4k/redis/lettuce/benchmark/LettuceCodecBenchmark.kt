@@ -59,7 +59,7 @@ enum class Issue756TargetKind {
  * Shared caller-owned target lifecycle for the exact issue #756 promotion matrix.
  *
  * Value construction, target allocation, and target reset stay outside timed methods. Both paths start at the same
- * non-zero writer index in a fixed-capacity, non-pooled target, and both verify that no capacity growth occurred.
+ * non-zero writer index in a fixed-capacity, pooled target, and both verify that no capacity growth occurred.
  */
 abstract class Issue756TargetState(
     private val targetKind: Issue756TargetKind,
@@ -94,6 +94,7 @@ abstract class Issue756TargetState(
         }
         initialCapacity = target.capacity()
         initialMaxCapacity = target.maxCapacity()
+        requireIssue756PooledTarget(target, targetKind)
         verifyTargetIdentity()
     }
 
@@ -167,6 +168,26 @@ abstract class Issue756TargetState(
             "Issue 756 target allocator kind changed."
         }
     }
+}
+
+internal fun requireIssue756PooledTarget(target: ByteBuf, targetKind: Issue756TargetKind): String {
+    val allocator = target.alloc()
+    check(allocator is PooledByteBufAllocator) { "Issue 756 target allocator must be pooled." }
+    val metric = allocator.metric()
+    val arenaCount = when (targetKind) {
+        Issue756TargetKind.HEAP   -> metric.numHeapArenas()
+        Issue756TargetKind.DIRECT -> metric.numDirectArenas()
+    }
+    check(arenaCount > 0) { "Issue 756 target allocator has no ${targetKind.name.lowercase()} arenas." }
+    var root = target
+    while (true) {
+        val unwrapped = root.unwrap() ?: break
+        if (unwrapped === root) break
+        root = unwrapped
+    }
+    val bufferClass = root.javaClass.name
+    check(".Pooled" in bufferClass) { "Issue 756 target is not backed by a pooled buffer: $bufferClass" }
+    return bufferClass
 }
 
 abstract class Issue756BinaryState(

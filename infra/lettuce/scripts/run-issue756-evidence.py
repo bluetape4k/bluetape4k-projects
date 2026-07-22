@@ -50,6 +50,14 @@ FIXTURE = {
     "writer_index": 7,
     "headroom": 505,
 }
+POOLED_FIXTURE_FIELDS = (
+    "heap_allocator_class",
+    "direct_allocator_class",
+    "heap_buffer_class",
+    "direct_buffer_class",
+    "num_heap_arenas",
+    "num_direct_arenas",
+)
 
 
 def _method_name(backend, target, path):
@@ -329,6 +337,21 @@ def parse_preflight_stdout(stdout):
         fail("PREFLIGHT_MISMATCH", "preflight method matrix mismatch")
     if not isinstance(value.get("fixture_sha256"), str) or len(value["fixture_sha256"]) != 64:
         fail("PREFLIGHT_MISMATCH", "preflight fixture_sha256 must be 64 characters")
+    fixture = value.get("fixture")
+    if not isinstance(fixture, dict):
+        fail("PREFLIGHT_MISMATCH", "preflight fixture must be an object")
+    for field in POOLED_FIXTURE_FIELDS:
+        if field not in fixture:
+            fail("PREFLIGHT_MISMATCH", f"preflight fixture missing {field}")
+    for field in ("heap_allocator_class", "direct_allocator_class"):
+        if fixture[field] != "io.netty.buffer.PooledByteBufAllocator":
+            fail("PREFLIGHT_MISMATCH", f"preflight fixture {field} is not pooled")
+    for field in ("heap_buffer_class", "direct_buffer_class"):
+        if not isinstance(fixture[field], str) or ".Pooled" not in fixture[field]:
+            fail("PREFLIGHT_MISMATCH", f"preflight fixture {field} is not pooled")
+    for field in ("num_heap_arenas", "num_direct_arenas"):
+        if not isinstance(fixture[field], int) or fixture[field] <= 0:
+            fail("PREFLIGHT_MISMATCH", f"preflight fixture {field} must be positive")
     return value
 
 
@@ -350,7 +373,7 @@ def parse_benchmark_list(stdout):
     }
 
 
-def build_metadata(run_id, source, classpath, preflight):
+def build_metadata(run_id, source, classpath, preflight, java_runtime):
     fixture = dict(FIXTURE)
     fixture.update(preflight.get("fixture", {}))
     if "payload_sha256" not in fixture:
@@ -371,7 +394,56 @@ def build_metadata(run_id, source, classpath, preflight):
         "preflight": preflight,
         "preflight_sha256": hashlib.sha256(canonical_json_bytes(preflight)).hexdigest(),
         "dispatch": dispatch,
+        "java_runtime": java_runtime,
     }
+
+
+def java_launcher_identity():
+    executable = shutil.which("java")
+    if executable is None:
+        fail("JVM_IDENTITY_MISMATCH", "java launcher is not available")
+    resolved = str(Path(executable).resolve())
+    completed = subprocess.run(
+        [resolved, "-XshowSettings:properties", "-version"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        fail("JVM_IDENTITY_MISMATCH", "java launcher property probe failed")
+    properties = {}
+    for line in (completed.stdout + "\n" + completed.stderr).splitlines():
+        match = re.match(r"\s*([^=]+?)\s*=\s*(.*)\s*$", line)
+        if match:
+            properties[match.group(1)] = match.group(2)
+    required = ("java.home", "java.vendor", "java.version", "java.vm.name", "java.vm.version")
+    missing = [field for field in required if not properties.get(field)]
+    if missing:
+        fail("JVM_IDENTITY_MISMATCH", f"java launcher properties missing: {missing}")
+    java_home = Path(properties["java.home"]).resolve()
+    runtime_executable = (java_home / "bin" / "java").resolve()
+    if not runtime_executable.is_file():
+        fail("JVM_IDENTITY_MISMATCH", "java.home does not contain bin/java")
+    return {
+        "executable": str(runtime_executable),
+        "java_home": str(java_home),
+        "vendor": properties["java.vendor"],
+        "version": properties["java.version"],
+        "vm_name": properties["java.vm.name"],
+        "vm_version": properties["java.vm.version"],
+    }
+
+
+def bind_java_runtime(launcher, records, validator):
+    observed = validator.jmh_runtime_identity(records)
+    for field in ("executable", "version", "vm_name", "vm_version"):
+        expected = launcher[field]
+        actual = observed[field]
+        if field == "executable":
+            actual = str(Path(actual).resolve())
+        if actual != expected:
+            fail("JVM_IDENTITY_MISMATCH", f"JMH {field} differs from resolved launcher")
+    return {**launcher, "jvm_args": observed["jvm_args"]}
 
 
 def _init_script_text():
@@ -481,7 +553,7 @@ def _cpu_model():
     return platform.processor() or "unknown"
 
 
-def environment_document(run_id, source, classpath, build_command, jmh_argv):
+def environment_document(run_id, source, classpath, build_command, jmh_argv, java_runtime):
     return {
         "schema_version": 1,
         "run_id": run_id,
@@ -499,6 +571,7 @@ def environment_document(run_id, source, classpath, build_command, jmh_argv):
         "jmh_command": [str(value) for value in jmh_argv],
         "classpath": classpath,
         "protocol": dict(PROTOCOL),
+        "java_runtime": java_runtime,
     }
 
 
@@ -510,17 +583,11 @@ def _load_validator():
     return module
 
 
-def _run_canonical(run_id, output_root, source, classpath, build_command, preflight):
+def _run_canonical(run_id, output_root, source, classpath, build_command, preflight, launcher):
     run_root = output_root / run_id
     run_root.mkdir(parents=True, exist_ok=False)
     result_path = run_root / "jmh.json"
     jmh_argv = fixed_jmh_argv(classpath[0]["path"], result_path, _classpath_paths(classpath))
-    metadata = build_metadata(run_id, source, classpath, preflight)
-    atomic_write_json(run_root / "metadata.json", metadata)
-    atomic_write_json(
-        run_root / "environment.json",
-        environment_document(run_id, source, classpath, build_command, jmh_argv),
-    )
     started_at = datetime.now(timezone.utc).isoformat()
     with (run_root / "run.log").open("w", encoding="utf-8") as log:
         completed = subprocess.run(
@@ -545,6 +612,15 @@ def _run_canonical(run_id, output_root, source, classpath, build_command, prefli
     if completed.returncode != 0:
         fail("COMMAND_FAILED", f"canonical JMH {run_id} exited {completed.returncode}")
     validator = _load_validator()
+    with result_path.open(encoding="utf-8") as stream:
+        records = json.load(stream)
+    java_runtime = bind_java_runtime(launcher, records, validator)
+    metadata = build_metadata(run_id, source, classpath, preflight, java_runtime)
+    atomic_write_json(run_root / "metadata.json", metadata)
+    atomic_write_json(
+        run_root / "environment.json",
+        environment_document(run_id, source, classpath, build_command, jmh_argv, java_runtime),
+    )
     validation = validator.validate_run_bundle(run_root)
     validator._write_summary(run_root / "summary.csv", validation)
     public = {
@@ -556,16 +632,16 @@ def _run_canonical(run_id, output_root, source, classpath, build_command, prefli
     return validation
 
 
-def run_two_canonical(output_root, source, classpath, build_command, preflight):
+def run_two_canonical(output_root, source, classpath, build_command, preflight, launcher):
     output_root = Path(output_root)
     output_root.mkdir(parents=True, exist_ok=True)
     if any((output_root / run_id).exists() for run_id in ("canonical-a", "canonical-b")):
         fail("OUTPUT_EXISTS", "canonical output directories already exist")
     first = _run_canonical(
-        "canonical-a", output_root, source, classpath, build_command, preflight
+        "canonical-a", output_root, source, classpath, build_command, preflight, launcher
     )
     second = _run_canonical(
-        "canonical-b", output_root, source, classpath, build_command, preflight
+        "canonical-b", output_root, source, classpath, build_command, preflight, launcher
     )
     validator = _load_validator()
     validator.validate_canonical_identity(first["metadata"], second["metadata"])
@@ -590,6 +666,7 @@ def run_two_canonical(output_root, source, classpath, build_command, preflight):
         "classpath": classpath,
         "protocol": dict(PROTOCOL),
         "preflight_sha256": hashlib.sha256(canonical_json_bytes(preflight)).hexdigest(),
+        "java_runtime": first["metadata"]["java_runtime"],
         "canonical_runs": ["canonical-a", "canonical-b"],
         "comparison_sha256": sha256_file(output_root / "comparison.csv"),
         "validation_sha256": sha256_file(output_root / "validation.json"),
@@ -628,6 +705,7 @@ def main(argv=None):
             fail("PROTOCOL_MISMATCH", "runs must be exactly canonical-a canonical-b")
         require_clean_repository(arguments.repository_root)
         source = require_expected_head(arguments.repository_root, arguments.expected_head)
+        launcher = java_launcher_identity()
         classpath, build_command = build_pinned_classpath(os.environ.copy())
         preflight = run_preflight(classpath)
         if arguments.preflight_only:
@@ -637,6 +715,7 @@ def main(argv=None):
                 "source": source,
                 "classpath": classpath,
                 "preflight": preflight,
+                "java_launcher": launcher,
             }
         elif arguments.list_benchmarks:
             result = {
@@ -644,6 +723,7 @@ def main(argv=None):
                 "mode": "list-benchmarks",
                 "source": source,
                 "benchmarks": list_benchmarks(classpath),
+                "java_launcher": launcher,
             }
         else:
             result = run_two_canonical(
@@ -652,6 +732,7 @@ def main(argv=None):
                 classpath,
                 build_command,
                 preflight,
+                launcher,
             )
         print(canonical_json_bytes(result).decode("utf-8"))
         return 0

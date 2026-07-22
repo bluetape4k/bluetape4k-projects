@@ -134,11 +134,23 @@ private data class DispatchReport(
 private data class FixtureReport(
     val payloadSha256: String,
     val allocatorClass: String,
+    val heapAllocatorClass: String,
+    val directAllocatorClass: String,
+    val heapBufferClass: String,
+    val directBufferClass: String,
+    val numHeapArenas: Int,
+    val numDirectArenas: Int,
 ) {
     fun toJson(): String = buildString {
         append('{')
         appendJsonField("payload_sha256", payloadSha256)
         appendJsonField("allocator_class", allocatorClass)
+        appendJsonField("heap_allocator_class", heapAllocatorClass)
+        appendJsonField("direct_allocator_class", directAllocatorClass)
+        appendJsonField("heap_buffer_class", heapBufferClass)
+        appendJsonField("direct_buffer_class", directBufferClass)
+        append("\"num_heap_arenas\":$numHeapArenas,")
+        append("\"num_direct_arenas\":$numDirectArenas,")
         append("\"pooled\":true,")
         append("\"capacity\":$ISSUE756_TARGET_CAPACITY,")
         append("\"max_capacity\":$ISSUE756_TARGET_CAPACITY,")
@@ -219,14 +231,27 @@ object LettuceCodecBenchmarkPreflight {
 
         val retainedChecks = PreflightBackend.entries.associateWith(::verifyReadOnlyParity)
         val dispatch = PreflightBackend.entries.associateWith(::dispatchReport)
-        val fixtureTarget = newTarget(Issue756TargetKind.HEAP)
-        val allocatorClass = try {
-            check(fixtureTarget.alloc() is PooledByteBufAllocator) { "Issue 756 target must be pooled." }
-            fixtureTarget.alloc().javaClass.name
+        val heapTarget = newTarget(Issue756TargetKind.HEAP)
+        val directTarget = newTarget(Issue756TargetKind.DIRECT)
+        val fixture = try {
+            val heapBufferClass = requireIssue756PooledTarget(heapTarget, Issue756TargetKind.HEAP)
+            val directBufferClass = requireIssue756PooledTarget(directTarget, Issue756TargetKind.DIRECT)
+            val heapAllocator = heapTarget.alloc() as PooledByteBufAllocator
+            val directAllocator = directTarget.alloc() as PooledByteBufAllocator
+            FixtureReport(
+                payloadSha256 = payloadSha256,
+                allocatorClass = PooledByteBufAllocator::class.java.name,
+                heapAllocatorClass = heapAllocator.javaClass.name,
+                directAllocatorClass = directAllocator.javaClass.name,
+                heapBufferClass = heapBufferClass,
+                directBufferClass = directBufferClass,
+                numHeapArenas = heapAllocator.metric().numHeapArenas(),
+                numDirectArenas = directAllocator.metric().numDirectArenas(),
+            )
         } finally {
-            fixtureTarget.release()
+            heapTarget.release()
+            directTarget.release()
         }
-        val fixture = FixtureReport(payloadSha256, allocatorClass)
         val fixtureSha256 = sha256(
             buildString {
                 append(fixture.toJson())

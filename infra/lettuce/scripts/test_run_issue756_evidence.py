@@ -6,6 +6,7 @@ import unittest
 import warnings
 import zipfile
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 
@@ -20,6 +21,16 @@ def load_module(name, filename):
 
 
 runner = load_module("run_issue756_evidence", "run-issue756-evidence.py")
+
+TEST_JAVA_RUNTIME = {
+    "executable": "/test/java/bin/java",
+    "java_home": "/test/java",
+    "vendor": "Test Vendor",
+    "version": "21.0.12",
+    "vm_name": "Test VM",
+    "vm_version": "21.0.12-test",
+    "jvm_args": ["-Xms256m"],
+}
 
 
 class RunnerContractTest(unittest.TestCase):
@@ -180,6 +191,14 @@ class RunnerContractTest(unittest.TestCase):
             "schema_version": 1,
             "status": "passed",
             "fixture_sha256": "f" * 64,
+            "fixture": {
+                "heap_allocator_class": "io.netty.buffer.PooledByteBufAllocator",
+                "direct_allocator_class": "io.netty.buffer.PooledByteBufAllocator",
+                "heap_buffer_class": "io.netty.buffer.PooledUnsafeHeapByteBuf",
+                "direct_buffer_class": "io.netty.buffer.PooledUnsafeDirectByteBuf",
+                "num_heap_arenas": 1,
+                "num_direct_arenas": 1,
+            },
             "cells": [{"method": method} for method in runner.EXPECTED_METHODS],
             "dispatch": {
                 backend: {
@@ -202,6 +221,24 @@ class RunnerContractTest(unittest.TestCase):
                 "PREFLIGHT_MISMATCH",
                 lambda changed=changed: runner.parse_preflight_stdout(json.dumps(changed)),
             )
+
+    def test_preflight_output_rejects_unverified_pooled_fixture(self):
+        fixture = {
+            "schema_version": 1,
+            "status": "passed",
+            "fixture_sha256": "f" * 64,
+            "fixture": {
+                "allocator_class": "io.netty.buffer.PooledByteBufAllocator",
+                "pooled": True,
+            },
+            "cells": [{"method": method} for method in runner.EXPECTED_METHODS],
+            "dispatch": {},
+        }
+
+        self.assert_reason(
+            "PREFLIGHT_MISMATCH",
+            lambda: runner.parse_preflight_stdout(json.dumps(fixture)),
+        )
 
     def test_list_output_requires_exact_matrix_and_allows_named_diagnostics(self):
         promotion = [runner.BENCHMARK_CLASS + "." + method for method in runner.EXPECTED_METHODS]
@@ -244,12 +281,39 @@ class RunnerContractTest(unittest.TestCase):
                 {"benchmark_input_sha": "a" * 40, "benchmark_input_tree": "b" * 40},
                 classpath,
                 preflight,
+                TEST_JAVA_RUNTIME,
             )
             self.assertEqual(classpath, metadata["classpath"])
             expected_hash = hashlib.sha256(
                 json.dumps(preflight, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest()
             self.assertEqual(expected_hash, metadata["preflight_sha256"])
+            self.assertEqual(TEST_JAVA_RUNTIME, metadata["java_runtime"])
+
+    def test_java_launcher_identity_resolves_runtime_home_and_vendor(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            java_home = Path(temporary) / "jdk"
+            runtime = java_home / "bin" / "java"
+            runtime.parent.mkdir(parents=True)
+            runtime.write_text("", encoding="utf-8")
+            probe = "\n".join(
+                (
+                    f"    java.home = {java_home}",
+                    "    java.vendor = Test Vendor",
+                    "    java.version = 21.0.12",
+                    "    java.vm.name = Test VM",
+                    "    java.vm.version = 21.0.12-test",
+                )
+            )
+            completed = SimpleNamespace(returncode=0, stdout="", stderr=probe)
+            with mock.patch.object(runner.shutil, "which", return_value="/usr/bin/java"), mock.patch.object(
+                runner.subprocess, "run", return_value=completed
+            ):
+                identity = runner.java_launcher_identity()
+
+            self.assertEqual(str(runtime.resolve()), identity["executable"])
+            self.assertEqual("Test Vendor", identity["vendor"])
+            self.assertEqual("21.0.12-test", identity["vm_version"])
 
 
 if __name__ == "__main__":

@@ -24,6 +24,15 @@ validator = load_module("validate_issue756_jmh", "validate-issue756-jmh.py")
 
 BACKENDS = ("jdk", "kryo", "jackson2", "jackson3")
 TARGETS = ("heap", "direct")
+TEST_JAVA_RUNTIME = {
+    "executable": "/test/java/bin/java",
+    "java_home": "/test/java",
+    "vendor": "Test Vendor",
+    "version": "21.0.12",
+    "vm_name": "Test VM",
+    "vm_version": "21.0.12-test",
+    "jvm_args": ["-Xms256m"],
+}
 
 
 def method_name(backend, target, path):
@@ -66,6 +75,11 @@ def jmh_record(cell, allocation=100.0, throughput=10.0):
         "forks": 2,
         "warmupIterations": 3,
         "measurementIterations": 5,
+        "jdkVersion": TEST_JAVA_RUNTIME["version"],
+        "vmName": TEST_JAVA_RUNTIME["vm_name"],
+        "vmVersion": TEST_JAVA_RUNTIME["vm_version"],
+        "jvm": TEST_JAVA_RUNTIME["executable"],
+        "jvmArgs": TEST_JAVA_RUNTIME["jvm_args"],
         "primaryMetric": {
             "score": throughput,
             "scoreError": 0.1,
@@ -147,6 +161,12 @@ def metadata(root, run_id="canonical-a"):
         "payload_sha256": payload_sha,
         "allocator_class": "io.netty.buffer.PooledByteBufAllocator",
         "pooled": True,
+        "heap_allocator_class": "io.netty.buffer.PooledByteBufAllocator",
+        "direct_allocator_class": "io.netty.buffer.PooledByteBufAllocator",
+        "heap_buffer_class": "io.netty.buffer.PooledUnsafeHeapByteBuf",
+        "direct_buffer_class": "io.netty.buffer.PooledUnsafeDirectByteBuf",
+        "num_heap_arenas": 1,
+        "num_direct_arenas": 1,
         "capacity": 512,
         "max_capacity": 512,
         "reader_index": 3,
@@ -203,6 +223,7 @@ def metadata(root, run_id="canonical-a"):
             json.dumps(preflight, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest(),
         "dispatch": dispatch,
+        "java_runtime": copy.deepcopy(TEST_JAVA_RUNTIME),
     }
 
 
@@ -261,6 +282,7 @@ def write_run(root, run_id="canonical-a", candidate_allocation=94.0):
                 "jmh_command": argv,
                 "classpath": metadata_value["classpath"],
                 "protocol": metadata_value["protocol"],
+                "java_runtime": metadata_value["java_runtime"],
             }
         ),
         encoding="utf-8",
@@ -328,6 +350,10 @@ class ValidatorFixtureTest(unittest.TestCase):
             for field, drift in (
                 ("payload_sha256", "x" * 64),
                 ("allocator_class", "wrong"),
+                ("heap_buffer_class", "io.netty.buffer.UnpooledHeapByteBuf"),
+                ("direct_buffer_class", "io.netty.buffer.UnpooledDirectByteBuf"),
+                ("num_heap_arenas", 0),
+                ("num_direct_arenas", 0),
                 ("capacity", 511),
                 ("max_capacity", 513),
                 ("writer_index", 8),
@@ -541,6 +567,29 @@ class ValidatorFixtureTest(unittest.TestCase):
                 "ENVIRONMENT_MISMATCH", lambda: validator.validate_run_bundle(run)
             )
 
+    def test_run_bundle_rejects_jmh_runtime_identity_drift(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            run = write_run(Path(temporary))
+            result_path = run / "jmh.json"
+            records = json.loads(result_path.read_text())
+            for record in records:
+                record.update(
+                    {
+                        "jdkVersion": "21.0.12",
+                        "vmName": "Test VM",
+                        "vmVersion": "21.0.12-test",
+                        "jvm": "/test/java/bin/java",
+                        "jvmArgs": ["-Xms256m"],
+                    }
+                )
+            records[0]["vmVersion"] = "drifted"
+            result_path.write_text(json.dumps(records), encoding="utf-8")
+
+            self.assert_reason(
+                "JVM_IDENTITY_MISMATCH",
+                lambda: validator.validate_run_bundle(run),
+            )
+
     def test_dirty_build_input_and_source_identity_drift_are_rejected(self):
         with tempfile.TemporaryDirectory() as temporary:
             value = metadata(Path(temporary))
@@ -696,6 +745,47 @@ class DeliveryValidationTest(unittest.TestCase):
             final_sha = self.git(root, "rev-parse", "HEAD")
             result = validator.validate_delivery_commits(root, input_sha, final_sha)
             self.assertEqual([str(allowed.relative_to(root))], result["changed_paths"])
+
+    def test_committed_rename_checks_source_and_destination_paths(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            forbidden = root / "infra" / "lettuce" / "src" / "main.kt"
+            forbidden.parent.mkdir(parents=True)
+            forbidden.write_text("input\n", encoding="utf-8")
+            input_sha = self.initialize_repository(root)
+            self.git(root, "add", ".")
+            self.git(root, "commit", "-q", "-m", "fixture")
+            input_sha = self.git(root, "rev-parse", "HEAD")
+
+            allowed = root / "docs" / "benchmarks" / "raw" / "issue-756" / "main.kt"
+            allowed.parent.mkdir(parents=True)
+            self.git(root, "mv", str(forbidden.relative_to(root)), str(allowed.relative_to(root)))
+            self.git(root, "commit", "-q", "-m", "rename")
+            final_sha = self.git(root, "rev-parse", "HEAD")
+
+            with self.assertRaises(validator.ValidationError) as caught:
+                validator.validate_delivery_commits(root, input_sha, final_sha)
+            self.assertEqual("POST_MEASUREMENT_PATH", caught.exception.reason_code)
+
+    def test_working_tree_rename_checks_source_and_destination_paths(self):
+        for state in ("staged", "unstaged"):
+            with self.subTest(state=state), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                self.initialize_repository(root)
+                forbidden = root / "infra" / "lettuce" / "src" / "main.kt"
+                forbidden.parent.mkdir(parents=True)
+                forbidden.write_text("input\n", encoding="utf-8")
+                self.git(root, "add", ".")
+                self.git(root, "commit", "-q", "-m", "fixture")
+                allowed = root / "docs" / "benchmarks" / "raw" / "issue-756" / "main.kt"
+                allowed.parent.mkdir(parents=True)
+                self.git(root, "mv", str(forbidden.relative_to(root)), str(allowed.relative_to(root)))
+                if state == "unstaged":
+                    self.git(root, "reset", "-q")
+
+                with self.assertRaises(validator.ValidationError) as caught:
+                    validator.validate_post_measurement_working_tree(root)
+                self.assertEqual("WORKING_TREE_PATH", caught.exception.reason_code)
 
     def test_working_tree_staged_unstaged_untracked_paths_fail_outside_allowlist(self):
         cases = ("staged", "unstaged", "untracked")
