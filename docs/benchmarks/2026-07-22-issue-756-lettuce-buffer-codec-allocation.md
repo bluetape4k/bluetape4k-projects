@@ -80,7 +80,8 @@ python3 infra/lettuce/scripts/validate-issue756-jmh.py \
 - [Canonical B metadata](raw/issue-756/canonical-b/metadata.json), [environment](raw/issue-756/canonical-b/environment.json), [argv](raw/issue-756/canonical-b/argv.json), [JMH JSON](raw/issue-756/canonical-b/jmh.json), [summary](raw/issue-756/canonical-b/summary.csv), [validation](raw/issue-756/canonical-b/validation.json)
 - [Two-run comparison](raw/issue-756/comparison.csv), [delivery manifest](raw/issue-756/delivery-manifest.json), [root validation](raw/issue-756/validation.json)
 
-표와 committed raw artifact가 수치의 source of truth이다. 별도 chart는 만들지 않았다.
+README의 [allocation summary chart](../images/readme-charts/infra-lettuce-issue756-allocation-chart-01.png)는 결과를
+빠르게 읽기 위한 요약이다. 표와 committed raw artifact가 수치의 source of truth이다.
 
 ## 한계와 재측정 조건
 

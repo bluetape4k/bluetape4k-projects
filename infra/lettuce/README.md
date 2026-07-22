@@ -88,6 +88,13 @@ no-growth path:
 | Jackson 2 | accepted | accepted | allocation reduction in the exact measured cells |
 | Jackson 3 | inconclusive | inconclusive | ergonomic direct path only; no allocation claim |
 
+![Issue #756 allocation delta chart](../../docs/images/readme-charts/infra-lettuce-issue756-allocation-chart-01.png)
+
+The chart summarizes allocation delta versus the allocating baseline. Heap and direct values agree to the displayed
+precision in both canonical runs for each backend. JDK, Kryo, and Jackson 2 satisfy the two-run acceptance rule;
+Jackson 3 allocates more, so it remains ergonomic-only. The benchmark table and committed raw CSV remain the numeric
+source of truth.
+
 Do not generalize these results to one-argument encode, decode, compressed/Fory/Fastjson codecs, other payloads,
 capacity growth, target sizes, allocator/pooling choices, zero-copy, or throughput. There is no runtime auto-fallback,
 feature flag, or dispatch telemetry. If a retained direct path is defective, roll back to the previous artifact/codec

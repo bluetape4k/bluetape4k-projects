@@ -87,6 +87,13 @@ payload/기본 serializer config, pooled 512-byte pre-sized reusable heap/direct
 | Jackson 2 | accepted | accepted | 정확히 측정한 cell의 allocation 감소 |
 | Jackson 3 | inconclusive | inconclusive | ergonomic direct path 전용, allocation 주장 없음 |
 
+![이슈 #756 allocation 변화 차트](../../docs/images/readme-charts/infra-lettuce-issue756-allocation-chart-01.png)
+
+차트는 allocating baseline 대비 allocation 변화율을 요약합니다. 각 backend의 heap/direct 값은 두 canonical
+run에서 표시 정밀도 범위로 일치합니다. JDK, Kryo, Jackson 2만 two-run acceptance rule을 통과했고, Jackson 3는
+allocation이 증가해 ergonomic direct path로만 유지합니다. 수치의 source of truth는 benchmark 표와 committed raw
+CSV입니다.
+
 단일 인자 encode, decode, 압축/Fory/Fastjson codec, 다른 payload, capacity growth, target 크기,
 allocator/pooling 선택, zero-copy, throughput에는 일반화하지 마세요. Runtime auto-fallback, feature flag,
 dispatch telemetry는 없습니다. 유지한 direct path에 결함이 있으면 previous artifact/codec deployment로
