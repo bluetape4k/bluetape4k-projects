@@ -1,0 +1,16 @@
+{
+  "benchmark_input_sha": "d0fc3488fa61eecee8329d50531e0a9d5e53dcd5",
+  "benchmark_input_tree": "d0ac6b0acddd6c33aaa4eb9f53b8043a2c4264f9",
+  "schema_version": 1,
+  "status": "passed",
+  "verdicts": {
+    "jackson2/direct": "accepted",
+    "jackson2/heap": "accepted",
+    "jackson3/direct": "inconclusive",
+    "jackson3/heap": "inconclusive",
+    "jdk/direct": "accepted",
+    "jdk/heap": "accepted",
+    "kryo/direct": "accepted",
+    "kryo/heap": "accepted"
+  }
+}
