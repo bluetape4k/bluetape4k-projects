@@ -30,9 +30,10 @@ CREATED_WORKTREES=()
 JDK_JAVA="${JAVA_HOME:-}/bin/java"
 GRADLE_TOOLCHAIN_ARGS=(
     --no-configuration-cache
-    -Porg.gradle.java.installations.auto-detect=false
-    -Porg.gradle.java.installations.auto-download=false
-    "-Porg.gradle.java.installations.paths=${JAVA_HOME:-}"
+    -Dorg.gradle.java.installations.auto-detect=false
+    -Dorg.gradle.java.installations.auto-download=false
+    "-Dorg.gradle.java.installations.paths=${JAVA_HOME:-}"
+    --console=plain
 )
 
 usage() {
@@ -158,7 +159,9 @@ gradle.afterProject { project, state ->
     ]) {
         project.tasks.register("issue756PrintRuntimeClasspath") {
             doLast {
-                println(project.extensions.getByType(SourceSetContainer).getByName("main").runtimeClasspath.asPath)
+                def main = project.extensions.getByType(SourceSetContainer).getByName("main")
+                def consumerClasspath = project.files(main.compileClasspath, main.runtimeClasspath)
+                println("ISSUE756_CONSUMER_CLASSPATH=" + consumerClasspath.asPath)
             }
         }
     }
@@ -169,8 +172,16 @@ GRADLE
 runtime_classpath() {
     local worktree="$1"
     local project="$2"
-    "$worktree/gradlew" -q -p "$worktree" -I "$INIT_SCRIPT" \
-        ":$project:issue756PrintRuntimeClasspath" "${GRADLE_TOOLCHAIN_ARGS[@]}" | tail -n 1
+    local output classpath marker_count
+    output="$(
+        "$worktree/gradlew" -q -p "$worktree" -I "$INIT_SCRIPT" \
+            ":$project:issue756PrintRuntimeClasspath" "${GRADLE_TOOLCHAIN_ARGS[@]}"
+    )" || fail "failed to resolve consumer classpath for $project in $worktree"
+    classpath="$(printf '%s\n' "$output" | sed -n 's/^ISSUE756_CONSUMER_CLASSPATH=//p')"
+    marker_count="$(printf '%s\n' "$output" | grep -c '^ISSUE756_CONSUMER_CLASSPATH=' || true)"
+    [[ "$marker_count" == "1" && -n "$classpath" ]] ||
+        fail "expected one consumer classpath marker for $project in $worktree, found $marker_count"
+    printf '%s\n' "$classpath"
 }
 
 create_authority_worktree() {
