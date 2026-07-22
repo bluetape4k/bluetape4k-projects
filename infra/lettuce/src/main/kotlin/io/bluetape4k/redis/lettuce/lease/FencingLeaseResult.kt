@@ -51,7 +51,12 @@ data class FencingLeaseIntegrityFailure(
     }
 }
 
-/** Represents every outcome of explicitly initializing a new fencing counter. */
+/**
+ * Represents every outcome of explicitly initializing a new fencing counter.
+ *
+ * Bootstrap is a control-plane operation for an externally approved epoch. [AlreadyInitialized] is not proof that
+ * downstream tuple guards or rollout readiness are complete, and a missing counter must never be repaired implicitly.
+ */
 sealed interface FencingBootstrapResult: Serializable {
 
     /** Indicates that the previously absent counter was initialized to zero. */
@@ -66,7 +71,11 @@ sealed interface FencingBootstrapResult: Serializable {
         private fun readResolve(): Any = AlreadyInitialized
     }
 
-    /** Indicates that stored lease or counter state violated an integrity invariant. */
+    /**
+     * Indicates that stored lease or counter state violated an integrity invariant.
+     *
+     * @property failure sanitized integrity category
+     */
     data class IntegrityFailure(
         val failure: FencingLeaseIntegrityFailure,
     ): FencingBootstrapResult {
@@ -79,7 +88,11 @@ sealed interface FencingBootstrapResult: Serializable {
         }
     }
 
-    /** Indicates an allowlisted Redis backend failure with ambiguous completion. */
+    /**
+     * Indicates an allowlisted Redis backend failure with ambiguous completion.
+     *
+     * @property failure sanitized backend category
+     */
     data class BackendFailure(
         val failure: FencingLeaseBackendFailure,
     ): FencingBootstrapResult {
@@ -97,10 +110,19 @@ sealed interface FencingBootstrapResult: Serializable {
     }
 }
 
-/** Represents every outcome of acquiring a fencing lease. */
+/**
+ * Represents every outcome of acquiring a fencing lease.
+ *
+ * [AlreadyOwned] is deterministic same-owner recovery after ambiguous completion. [CounterUnavailable],
+ * [SequenceExhausted], and [IntegrityFailure] are fail-closed outcomes and must not be treated as backend retries.
+ */
 sealed interface FencingAcquireResult: Serializable {
 
-    /** Indicates that a new lease and token were created for the owner. */
+    /**
+     * Indicates that a new lease and token were created for the owner.
+     *
+     * @property token newly allocated fencing token
+     */
     data class Acquired(
         val token: FencingToken,
     ): FencingAcquireResult {
@@ -113,7 +135,12 @@ sealed interface FencingAcquireResult: Serializable {
         }
     }
 
-    /** Indicates deterministic recovery of the same owner's active lease without allocating a new token. */
+    /**
+     * Indicates deterministic recovery of the same owner's active lease without allocating a new token.
+     *
+     * @property token previously allocated fencing token
+     * @property remainingTtlMillis remaining lease TTL in milliseconds
+     */
     data class AlreadyOwned(
         val token: FencingToken,
         val remainingTtlMillis: Long,
@@ -131,7 +158,11 @@ sealed interface FencingAcquireResult: Serializable {
         }
     }
 
-    /** Indicates that another owner currently holds the lease. */
+    /**
+     * Indicates that another owner currently holds the lease.
+     *
+     * @property remainingTtlMillis remaining competing lease TTL in milliseconds
+     */
     data class Contended(
         val remainingTtlMillis: Long,
     ): FencingAcquireResult {
@@ -154,13 +185,17 @@ sealed interface FencingAcquireResult: Serializable {
         private fun readResolve(): Any = CounterUnavailable
     }
 
-    /** Indicates that the current epoch has allocated its final sequence. */
+    /** Indicates terminal sequence overflow for the current epoch; callers must cut over to a higher durable epoch. */
     data object SequenceExhausted: FencingAcquireResult {
         private const val serialVersionUID: Long = 1L
         private fun readResolve(): Any = SequenceExhausted
     }
 
-    /** Indicates that stored lease or counter state violated an integrity invariant. */
+    /**
+     * Indicates that stored lease or counter state violated an integrity invariant.
+     *
+     * @property failure sanitized integrity category
+     */
     data class IntegrityFailure(
         val failure: FencingLeaseIntegrityFailure,
     ): FencingAcquireResult {
@@ -173,7 +208,11 @@ sealed interface FencingAcquireResult: Serializable {
         }
     }
 
-    /** Indicates an allowlisted Redis backend failure with ambiguous completion. */
+    /**
+     * Indicates an allowlisted Redis backend failure with ambiguous completion.
+     *
+     * @property failure sanitized backend category
+     */
     data class BackendFailure(
         val failure: FencingLeaseBackendFailure,
     ): FencingAcquireResult {
@@ -191,10 +230,20 @@ sealed interface FencingAcquireResult: Serializable {
     }
 }
 
-/** Represents every outcome of inspecting a fencing lease without mutation. */
+/**
+ * Represents every outcome of inspecting a fencing lease without mutation.
+ *
+ * Inspection supports operation-specific reconciliation but cannot prove whether an expired lease was released or
+ * merely timed out. Callers must stop downstream writes for [Lost] or [Contended].
+ */
 sealed interface FencingInspectResult: Serializable {
 
-    /** Indicates that the requested owner still holds the active lease. */
+    /**
+     * Indicates that the requested owner still holds the active lease.
+     *
+     * @property token active fencing token
+     * @property remainingTtlMillis remaining lease TTL in milliseconds
+     */
     data class Owned(
         val token: FencingToken,
         val remainingTtlMillis: Long,
@@ -218,7 +267,11 @@ sealed interface FencingInspectResult: Serializable {
         private fun readResolve(): Any = Lost
     }
 
-    /** Indicates that another owner currently holds the active lease. */
+    /**
+     * Indicates that another owner currently holds the active lease.
+     *
+     * @property remainingTtlMillis remaining competing lease TTL in milliseconds
+     */
     data class Contended(
         val remainingTtlMillis: Long,
     ): FencingInspectResult {
@@ -235,7 +288,11 @@ sealed interface FencingInspectResult: Serializable {
         }
     }
 
-    /** Indicates that stored lease or counter state violated an integrity invariant. */
+    /**
+     * Indicates that stored lease or counter state violated an integrity invariant.
+     *
+     * @property failure sanitized integrity category
+     */
     data class IntegrityFailure(
         val failure: FencingLeaseIntegrityFailure,
     ): FencingInspectResult {
@@ -248,7 +305,11 @@ sealed interface FencingInspectResult: Serializable {
         }
     }
 
-    /** Indicates an allowlisted Redis backend failure. */
+    /**
+     * Indicates an allowlisted Redis backend failure.
+     *
+     * @property failure sanitized backend category
+     */
     data class BackendFailure(
         val failure: FencingLeaseBackendFailure,
     ): FencingInspectResult {
@@ -266,7 +327,12 @@ sealed interface FencingInspectResult: Serializable {
     }
 }
 
-/** Represents every outcome of renewing an existing fencing lease. */
+/**
+ * Represents every outcome of renewing an existing fencing lease.
+ *
+ * Renew requires the same owner capability and token. A [BackendFailure] is an ambiguous completion; reconcile with
+ * the same owner and token instead of issuing a new acquisition identity.
+ */
 sealed interface FencingRenewResult: Serializable {
 
     /** Indicates that the matching lease TTL was renewed. */
@@ -287,7 +353,11 @@ sealed interface FencingRenewResult: Serializable {
         private fun readResolve(): Any = OwnershipMismatch
     }
 
-    /** Indicates that stored lease or counter state violated an integrity invariant. */
+    /**
+     * Indicates that stored lease or counter state violated an integrity invariant.
+     *
+     * @property failure sanitized integrity category
+     */
     data class IntegrityFailure(
         val failure: FencingLeaseIntegrityFailure,
     ): FencingRenewResult {
@@ -300,7 +370,11 @@ sealed interface FencingRenewResult: Serializable {
         }
     }
 
-    /** Indicates an allowlisted Redis backend failure with ambiguous completion. */
+    /**
+     * Indicates an allowlisted Redis backend failure with ambiguous completion.
+     *
+     * @property failure sanitized backend category
+     */
     data class BackendFailure(
         val failure: FencingLeaseBackendFailure,
     ): FencingRenewResult {
@@ -318,7 +392,12 @@ sealed interface FencingRenewResult: Serializable {
     }
 }
 
-/** Represents every outcome of releasing an existing fencing lease. */
+/**
+ * Represents every outcome of releasing an existing fencing lease.
+ *
+ * Release requires the same owner capability and token. A [BackendFailure] is an ambiguous completion; reconcile
+ * before discarding durable ownership state.
+ */
 sealed interface FencingReleaseResult: Serializable {
 
     /** Indicates that the matching active lease was removed. */
@@ -339,7 +418,11 @@ sealed interface FencingReleaseResult: Serializable {
         private fun readResolve(): Any = OwnershipMismatch
     }
 
-    /** Indicates that stored lease or counter state violated an integrity invariant. */
+    /**
+     * Indicates that stored lease or counter state violated an integrity invariant.
+     *
+     * @property failure sanitized integrity category
+     */
     data class IntegrityFailure(
         val failure: FencingLeaseIntegrityFailure,
     ): FencingReleaseResult {
@@ -352,7 +435,11 @@ sealed interface FencingReleaseResult: Serializable {
         }
     }
 
-    /** Indicates an allowlisted Redis backend failure with ambiguous completion. */
+    /**
+     * Indicates an allowlisted Redis backend failure with ambiguous completion.
+     *
+     * @property failure sanitized backend category
+     */
     data class BackendFailure(
         val failure: FencingLeaseBackendFailure,
     ): FencingReleaseResult {

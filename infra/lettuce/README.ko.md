@@ -28,6 +28,8 @@ Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도�
 | `LettuceSuspendLock`                | 분산 뮤텍스 락 (suspend 전용)                                                                    |
 | `LettuceMultiKeyLease`              | 제한된 same-slot 키 집합의 원자적 소유권 lease (sync + async)                                      |
 | `LettuceSuspendMultiKeyLease`       | 제한된 same-slot 키 집합의 원자적 소유권 lease (suspend 전용)                                        |
+| `LettuceFencingLease`               | 정렬 가능한 `(epoch, sequence)` token을 발급하는 config-bound Redis fencing lease (sync + async)       |
+| `LettuceSuspendFencingLease`        | 정렬 가능한 `(epoch, sequence)` token을 발급하는 config-bound Redis fencing lease (suspend 전용)         |
 | `LettuceHyperLogLog<V>`             | Redis HyperLogLog 근사 카디널리티 추정 (sync). 코루틴 버전: `LettuceSuspendHyperLogLog<V>`             |
 | `LettuceSuspendHyperLogLog<V>`      | Redis HyperLogLog 근사 카디널리티 추정 (suspend 전용)                                               |
 | `LettuceBloomFilter`                | Redis BitSet 기반 Bloom Filter (sync). 코루틴 버전: `LettuceSuspendBloomFilter`                 |
@@ -537,6 +539,195 @@ owner token을 plaintext로 저장하므로 Redis ACL과 TLS가 실제 보안 �
 예상 owner token을 가진 persistent key는 `MultiKeyLeaseIntegrityException`을 발생시킵니다. 운영 승인을 받아
 exact namespace/key 집합을 확인한 뒤 그 집합만 수동 삭제하거나 namespace를 교체하고, writer를 활성화하기
 전에 Redis 상태와 durable authority를 다시 검증합니다.
+
+<!-- fencing-lease:basic -->
+### Downstream Stale Writer 차단을 위한 Fencing Lease
+
+불투명한 advisory ownership guard만 필요하면 `LettuceMultiKeyLease`를 사용합니다. 보호 대상 downstream
+resource가 정렬 token을 영속 저장하고 strict compare할 때만 `LettuceFencingLease` 또는
+`LettuceSuspendFencingLease`를 사용합니다. `LettuceFencingLeaseConfig(namespace, resourceName, epoch)`는 인스턴스
+생성 시 하나의 ordering domain을 고정합니다. 파생된 lease/counter key는 동일한 Redis Cluster slot을 사용합니다.
+
+`epoch`은 durable external authority가 발급합니다. 새로 승인된 epoch에만 `bootstrap`을 명시적으로 호출합니다.
+Acquire가 `CounterUnavailable`을 반환해도 bootstrap 권한이 생기지 않습니다. acquire를 중지하고 최초 배포인지
+history loss인지 판정해야 합니다. Counter 유실 뒤 같은 epoch를 bootstrap하거나 binary rollback/restore recovery에서
+epoch를 낮추면 안 됩니다. Token은 `(epoch, sequence)`만 가지며 resource identity를 포함하지 않습니다.
+
+<!-- fencing-lease:downstream-guard -->
+#### Durable Downstream Tuple Guard
+
+Stable resource identity와 token의 두 field를 함께 저장합니다. PostgreSQL-style migration과 strict update 예시:
+
+```sql
+ALTER TABLE guarded_resource
+    ADD COLUMN fence_epoch BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN fence_sequence BIGINT NOT NULL DEFAULT 0;
+
+UPDATE guarded_resource
+SET fence_epoch = :epoch,
+    fence_sequence = :sequence,
+    payload = :payload
+WHERE id = :id
+  AND (fence_epoch, fence_sequence) < (:epoch, :sequence);
+```
+
+`affectedRows == 1`일 때만 write를 승인합니다. `0`은 같은 token 또는 stale token을 거절한 것입니다. Business
+idempotency key는 별도 column과 policy로 관리합니다. Fencing order와 business idempotency는 서로 다른 문제입니다.
+
+<!-- fencing-lease:resilience -->
+#### Caller-Owned Retry, Circuit Breaker, Bulkhead
+
+Primitive는 backend failure를 result value로 반환합니다. `FencingAcquireResult.BackendFailure`만 retry하고, 모호하게
+성공한 acquire가 새 token 발급 대신 `AlreadyOwned`가 되도록 같은 owner ID를 재사용합니다. Validation,
+cancellation, protocol exception은 caller layer에서 retry나 circuit breaker 기록 없이 빠져나가야 합니다. 다음
+decorator chain은 의도된 순서입니다. Retry가 가장 안쪽이고 CircuitBreaker는 최종 result 한 번만 보며 Bulkhead가
+가장 바깥쪽입니다.
+
+```kotlin
+val retry = Retry.of(
+    "fencing-acquire",
+    RetryConfig.custom<FencingAcquireResult>()
+        .maxAttempts(2)
+        .waitDuration(Duration.ofMillis(50))
+        .retryOnResult { it is FencingAcquireResult.BackendFailure }
+        .retryOnException { false }
+        .build(),
+)
+val circuitBreaker = CircuitBreaker.of(
+    "fencing-acquire",
+    CircuitBreakerConfig.custom()
+        .slidingWindowSize(20)
+        .minimumNumberOfCalls(10)
+        .failureRateThreshold(50.0F)
+        .recordResult { it is FencingAcquireResult.BackendFailure }
+        .ignoreException { true }
+        .build(),
+)
+val bulkhead = Bulkhead.of(
+    "fencing-acquire",
+    BulkheadConfig.custom()
+        .maxConcurrentCalls(32)
+        .maxWaitDuration(Duration.ofMillis(100))
+        .build(),
+)
+
+val result = SuspendDecorators.ofSupplier {
+    lease.acquire(ownerId, leaseTime)
+}
+    .withRetry(retry)
+    .withCircuitBreaker(circuitBreaker)
+    .withBulkhead(bulkhead)
+    .invoke()
+```
+
+Production backoff는 bounded non-zero 값이어야 합니다. Bootstrap, inspect, renew, release에도 operation별
+`BackendFailure` predicate만 적용하고 Redis primitive 내부에 retry loop를 추가하지 않습니다.
+
+<!-- fencing-lease:recovery -->
+#### Epoch Recovery와 Rollback
+
+Promotion, known-old backup restore 같은 external history-loss signal은 다음 control-plane 순서를 요구합니다.
+
+```text
+pause -> block old acquire -> drain lease and downstream writer -> CAS bump epoch ->
+bootstrap -> verify readiness and tuple guard -> rollout -> confirm old absence -> resume
+```
+
+CAS allocator는 durable해야 하며 정확히 하나의 higher epoch만 허용해야 합니다. Readiness는 counter가 string이고
+`PTTL=-1`이며 canonical non-negative decimal이고 downstream strict tuple guard가 활성화된 경우에만 통과합니다.
+Mixed epoch이면 abort합니다. 이전 binary나 lower epoch를 resume하지 않습니다. Downstream에 higher epoch가 이미
+저장됐다면 sequence가 더 크더라도 restore된 lower-epoch token을 모두 거절해야 합니다.
+
+<!-- fencing-lease:diagnostics -->
+#### Bounded Read-Only 진단과 수동 복구
+
+다음 fixed-two-key Lua를 `EVAL_RO`로 실행하고 exact derived lease key, counter key, expected epoch만 전달합니다.
+결과는 stable classification과 bounded lease-only repair-candidate boolean입니다. Owner, token, key, stored value를
+반환하지 않으며 `KEYS`, `SCAN`, `HGETALL`도 사용하지 않습니다.
+
+```lua
+local counter_type = redis.call('TYPE', KEYS[2])['ok']
+if counter_type == 'none' then return {'COUNTER_MISSING', '0'} end
+if counter_type ~= 'string' then return {'COUNTER_INVALID', '0'} end
+if redis.call('PTTL', KEYS[2]) ~= -1 then return {'COUNTER_INVALID', '0'} end
+local counter_length = redis.call('STRLEN', KEYS[2])
+if counter_length < 1 or counter_length > 19 then return {'COUNTER_INVALID', '0'} end
+local counter = redis.call('GET', KEYS[2])
+local counter_valid = counter == '0' or string.match(counter, '^[1-9][0-9]*$')
+counter_valid = counter_valid and (#counter < 19 or counter <= '9223372036854775807')
+if not counter_valid then return {'COUNTER_INVALID', '0'} end
+
+local lease_type = redis.call('TYPE', KEYS[1])['ok']
+if lease_type == 'none' then return {'CLEAN', '0'} end
+if lease_type ~= 'hash' then return {'LEASE_MALFORMED', '0'} end
+if redis.call('HLEN', KEYS[1]) ~= 3 then return {'LEASE_MALFORMED', '0'} end
+local owner_length = redis.call('HSTRLEN', KEYS[1], 'owner')
+local epoch_length = redis.call('HSTRLEN', KEYS[1], 'epoch')
+local sequence_length = redis.call('HSTRLEN', KEYS[1], 'sequence')
+if owner_length < 1 or owner_length > 256 or epoch_length < 1 or epoch_length > 19 or
+   sequence_length < 1 or sequence_length > 19 then
+    return {'LEASE_MALFORMED', '0'}
+end
+local fields = redis.call('HMGET', KEYS[1], 'owner', 'epoch', 'sequence')
+local epoch = fields[2]
+local sequence = fields[3]
+if not string.match(epoch, '^[1-9][0-9]*$') then return {'LEASE_MALFORMED', '0'} end
+if not string.match(sequence, '^[1-9][0-9]*$') then return {'LEASE_MALFORMED', '0'} end
+if epoch ~= ARGV[1] then return {'LEASE_MALFORMED', '0'} end
+if #epoch > 19 or (#epoch == 19 and epoch > '9223372036854775807') then
+    return {'LEASE_MALFORMED', '0'}
+end
+if #sequence > 19 or (#sequence == 19 and sequence > '9223372036854775807') then
+    return {'LEASE_MALFORMED', '0'}
+end
+if #counter < #sequence or (#counter == #sequence and counter < sequence) then
+    return {'COUNTER_BEHIND_LEASE', '0'}
+end
+if redis.call('PTTL', KEYS[1]) == -1 then return {'LEASE_NO_TTL', '1'} end
+return {'ACTIVE', '0'}
+```
+
+수동 delete는 네 조건을 모두 만족할 때만 허용합니다. Incident가 pause되고 old acquire가 차단돼야 합니다. Lease와
+downstream writer가 모두 drain돼야 합니다. Counter는 valid, persistent이며 lease보다 뒤처지면 안 됩니다. 마지막으로
+exact classification이 `LEASE_NO_TTL`이어야 합니다. Lease key만 삭제합니다. Counter를 delete, decrement, expire,
+recreate하면 안 됩니다.
+
+운영 mapping: `CounterUnavailable`은 acquire를 pause하고 history를 진단합니다. `IntegrityFailure`는 모든 mutation을
+pause하고 이 read-only diagnostic과 runbook을 실행합니다. `SequenceExhausted`는 higher-epoch cutover를 시작합니다.
+`BackendFailure`는 operation별 ambiguous completion을 reconcile합니다. External restore/promotion signal은 즉시 전체
+pause-to-cutover 순서를 시작합니다.
+
+<!-- fencing-lease:caller-actions -->
+#### 전체 Result별 Caller 조치
+
+| Result | Required caller action |
+|---|---|
+| `Initialized`, `AlreadyInitialized` | Readiness를 확인한 뒤 승인된 epoch rollout만 계속합니다. |
+| `Acquired`, `AlreadyOwned`, `Owned`, `Renewed` | 정상 ownership 경로를 계속하고 token을 stable resource/domain identity와 함께 저장합니다. |
+| `Released` | Local ownership을 폐기하고 downstream write를 금지합니다. |
+| acquire `Contended` | TTL 또는 bounded backoff 뒤 새 owner로 시도하며 backend retry로 취급하지 않습니다. |
+| inspect `Contended` | Local ownership을 폐기하고 downstream write를 금지합니다. |
+| `Lost`, `OwnershipMismatch` | Local ownership을 폐기하고 downstream write를 금지합니다. |
+| `CounterUnavailable` | Acquire를 중지하고 최초 배포인지 history loss인지 판정하며 result만 보고 bootstrap하지 않습니다. |
+| `SequenceExhausted` | Retry하지 않고 higher-epoch cutover를 alert하며 max epoch이면 domain을 freeze/migrate합니다. |
+| `IntegrityFailure` | Retry와 mutation을 중지하고 read-only diagnosis와 승인된 runbook을 실행합니다. |
+| `BackendFailure` | Operation별 ambiguous completion을 reconcile하며 policy retry는 같은 owner/token을 사용합니다. |
+
+<!-- fencing-lease:security-telemetry -->
+#### 보안과 Telemetry
+
+Owner ID는 Redis에 저장되는 capability material입니다. High-entropy 값을 만들고 credential, JWT, session token,
+사용자 식별자, PII를 재사용하지 않습니다. Redis ACL과 TLS를 사용합니다. Log에는 allowlisted operation, result,
+backend-or-integrity kind, bounded domain fingerprint만 허용합니다. Metric label은 `operation`, `result`, `kind`만
+사용하며 `namespace/resource/owner/token/fingerprint`는 금지된 metric-label dimension입니다.
+
+<!-- fencing-lease:limitations -->
+#### 보장 범위와 비보장 범위
+
+Primitive는 config-bound domain 안에서 atomic Redis lease mutation과 monotonically ordered token을 제공합니다.
+exactly-once 실행, business idempotency, durable correctness, 자동 database fencing, durable epoch allocation,
+topology failure detection, 자동 recovery는 제공하지 않습니다. 이는 caller와 operator 책임입니다. Fencing lease는
+multi-key ownership lease를 보완하며 자동 대체하지 않습니다.
 
 ## Memoizer (함수 결과 Redis 캐싱)
 

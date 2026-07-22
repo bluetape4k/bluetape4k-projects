@@ -10,7 +10,8 @@ import java.nio.charset.StandardCharsets
  * Identifies one Redis fencing-token ordering domain.
  *
  * Tokens are comparable only within the same [namespace] and [resourceName]. The [epoch] must be allocated by a
- * durable external authority and must never be lowered during rollback or recovery.
+ * durable external authority and must not be lowered during rollback or recovery. One config instance binds every
+ * operation to the same derived lease/counter keys; the encoded keys are validated to share one Redis Cluster slot.
  *
  * @property namespace stable namespace used to derive the Redis Cluster hash tag
  * @property resourceName stable logical resource name used to derive the Redis Cluster hash tag
@@ -44,8 +45,9 @@ data class LettuceFencingLeaseConfig(
 /**
  * Opaque identifier for one logical fencing-lease acquisition attempt.
  *
- * Reuse an owner ID only when reconciling an ambiguous response from the same logical attempt. The raw value is
- * intentionally excluded from [toString].
+ * The identifier is an ownership capability, not a fencing token. Reuse the same owner ID only when reconciling an
+ * ambiguous response from the same logical acquisition attempt; a new owner ID cannot recover that active lease.
+ * The raw value is intentionally excluded from [toString].
  */
 class FencingOwnerId private constructor(
     internal val value: String,
@@ -57,16 +59,20 @@ class FencingOwnerId private constructor(
         }
     }
 
+    /** Compares owner IDs by their opaque value. */
     override fun equals(other: Any?): Boolean = other is FencingOwnerId && value == other.value
 
+    /** Returns a hash derived from the opaque owner-ID value. */
     override fun hashCode(): Int = value.hashCode()
 
+    /** Returns a redacted representation that never exposes the owner-ID value. */
     override fun toString(): String = "FencingOwnerId(<redacted>)"
 
     private fun readResolve(): Any = restoreFencingSerializedValue("FencingOwnerId") {
         FencingOwnerId(value)
     }
 
+    /** Creates owner IDs for new or externally identified logical acquisition attempts. */
     companion object {
         private const val serialVersionUID: Long = 1L
         private const val MAX_UTF8_BYTES = 256
@@ -87,8 +93,9 @@ class FencingOwnerId private constructor(
 /**
  * Monotonic fencing token ordered lexicographically by [epoch] and then [sequence].
  *
- * The numeric tuple is intentionally excluded from [toString]. Downstream systems must persist the tuple together
- * with stable resource identity and reject tokens that are not strictly greater than the last accepted token.
+ * The token deliberately carries no namespace, resource name, or other domain identity. The numeric tuple is
+ * intentionally excluded from [toString]. Downstream systems must persist it together with stable resource identity
+ * and use a strict tuple guard that rejects tokens that are not strictly greater than the last accepted token.
  *
  * @property epoch positive ordering-domain generation
  * @property sequence positive sequence allocated within [epoch]
@@ -102,11 +109,13 @@ data class FencingToken(
         sequence.requirePositiveNumber("sequence")
     }
 
+    /** Compares tokens lexicographically by epoch and then sequence. */
     override fun compareTo(other: FencingToken): Int {
         val epochComparison = epoch.compareTo(other.epoch)
         return if (epochComparison != 0) epochComparison else sequence.compareTo(other.sequence)
     }
 
+    /** Returns a redacted representation that never exposes the token tuple. */
     override fun toString(): String = "FencingToken(<redacted>)"
 
     private fun readResolve(): Any = restoreFencingSerializedValue("FencingToken") {

@@ -223,7 +223,7 @@ internal class LettuceFencingLeaseRecoveryTest {
         keys: FencingLeaseKeys,
         expectedEpoch: Long,
     ): List<String> = commands.evalReadOnly(
-        DIAGNOSTIC_LUA,
+        FENCING_DIAGNOSTIC_LUA,
         ScriptOutputType.MULTI,
         arrayOf(keys.lease, keys.counter),
         expectedEpoch.toString(),
@@ -368,17 +368,19 @@ internal class LettuceFencingLeaseRecoveryTest {
             get() = incidentPaused && downstreamDrained && counterValidAndPersistent && leaseConfirmedAnomalous
     }
 
-    private companion object {
-        val FULL_REPAIR_ELIGIBILITY = RepairEligibility(true, true, true, true)
-        val DIAGNOSTIC_LUA: String =
+    companion object {
+        private val FULL_REPAIR_ELIGIBILITY = RepairEligibility(true, true, true, true)
+        val FENCING_DIAGNOSTIC_LUA: String =
             """
             local counter_type = redis.call('TYPE', KEYS[2])['ok']
             if counter_type == 'none' then return {'COUNTER_MISSING', '0'} end
             if counter_type ~= 'string' then return {'COUNTER_INVALID', '0'} end
             if redis.call('PTTL', KEYS[2]) ~= -1 then return {'COUNTER_INVALID', '0'} end
+            local counter_length = redis.call('STRLEN', KEYS[2])
+            if counter_length < 1 or counter_length > 19 then return {'COUNTER_INVALID', '0'} end
             local counter = redis.call('GET', KEYS[2])
             local counter_valid = counter == '0' or string.match(counter, '^[1-9][0-9]*$')
-            counter_valid = counter_valid and (#counter < 19 or (#counter == 19 and counter <= '9223372036854775807'))
+            counter_valid = counter_valid and (#counter < 19 or counter <= '9223372036854775807')
             if not counter_valid then return {'COUNTER_INVALID', '0'} end
 
             local lease_type = redis.call('TYPE', KEYS[1])['ok']

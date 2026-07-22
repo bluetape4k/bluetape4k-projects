@@ -10,7 +10,9 @@ import java.util.concurrent.CancellationException
  * Provides suspending access to one Redis fencing-lease ordering domain.
  *
  * Coroutine cancellation is propagated and never converted into a lease result. A cancelled mutation can still have
- * reached Redis, so callers must reconcile ambiguous completion with the same owner ID or token.
+ * reached Redis, so callers must reconcile ambiguous completion with the same owner ID or token. The supplied config
+ * binds the instance to one namespace, resource, and durable epoch; downstream strict tuple comparison remains a
+ * caller-owned durability boundary.
  */
 class LettuceSuspendFencingLease private constructor(
     private val executor: FencingScriptExecutor,
@@ -19,19 +21,19 @@ class LettuceSuspendFencingLease private constructor(
 ) {
     private val keys: FencingLeaseKeys = deriveFencingLeaseKeys(config, codec)
 
-    /** Creates a suspending fencing lease over a standalone Redis connection. */
+    /** Creates a config-bound suspending lease after validating the encoded lease/counter key slot. */
     constructor(
         connection: StatefulRedisConnection<String, String>,
         config: LettuceFencingLeaseConfig,
     ): this(DefaultFencingScriptExecutor(connection.sync(), connection.async()), connection.codec, config)
 
-    /** Creates a suspending fencing lease over a Redis Cluster connection after validating the encoded key slot. */
+    /** Creates a Redis Cluster suspending lease after validating the codec-produced lease/counter key slot. */
     constructor(
         connection: StatefulRedisClusterConnection<String, String>,
         config: LettuceFencingLeaseConfig,
     ): this(DefaultFencingScriptExecutor(connection.sync(), connection.async()), connection.codec, config)
 
-    /** Initializes the counter for a new, externally approved epoch without repairing old history. */
+    /** Initializes a new externally approved epoch; this never reconstructs or repairs lost same-epoch history. */
     suspend fun bootstrap(): FencingBootstrapResult = classified(
         FencingLeaseOperation.BOOTSTRAP,
         FencingBootstrapResult::BackendFailure,
@@ -41,7 +43,7 @@ class LettuceSuspendFencingLease private constructor(
         )
     }
 
-    /** Acquires the lease or reports the active competing owner without exposing its identity. */
+    /** Acquires the lease; reconcile cancellation or backend ambiguity only with the same [ownerId]. */
     suspend fun acquire(ownerId: FencingOwnerId, leaseTime: Duration): FencingAcquireResult {
         val leaseTimeMillis = leaseTime.validatedFencingLeaseTimeMillis()
         return classified(FencingLeaseOperation.ACQUIRE, FencingAcquireResult::BackendFailure) {
@@ -55,7 +57,7 @@ class LettuceSuspendFencingLease private constructor(
         }
     }
 
-    /** Inspects current ownership without extending the lease TTL. */
+    /** Inspects current ownership without extending TTL or mutating the counter. */
     suspend fun inspect(ownerId: FencingOwnerId): FencingInspectResult = classified(
         FencingLeaseOperation.INSPECT,
         FencingInspectResult::BackendFailure,
@@ -65,7 +67,7 @@ class LettuceSuspendFencingLease private constructor(
         )
     }
 
-    /** Renews the lease only when both owner ID and fencing token still match. */
+    /** Renews only the matching owner/token and rejects a cross-epoch token before Redis dispatch. */
     suspend fun renew(
         ownerId: FencingOwnerId,
         token: FencingToken,
@@ -84,7 +86,7 @@ class LettuceSuspendFencingLease private constructor(
         }
     }
 
-    /** Releases the lease only when both owner ID and fencing token still match. */
+    /** Releases only the matching owner/token and rejects a cross-epoch token before Redis dispatch. */
     suspend fun release(ownerId: FencingOwnerId, token: FencingToken): FencingReleaseResult {
         requireFencingTokenEpoch(config, token)
         return classified(FencingLeaseOperation.RELEASE, FencingReleaseResult::BackendFailure) {
@@ -107,7 +109,7 @@ class LettuceSuspendFencingLease private constructor(
     }
 
     internal companion object {
-        fun createForTesting(
+        internal fun createForTesting(
             executor: FencingScriptExecutor,
             codec: RedisCodec<String, String>,
             config: LettuceFencingLeaseConfig,

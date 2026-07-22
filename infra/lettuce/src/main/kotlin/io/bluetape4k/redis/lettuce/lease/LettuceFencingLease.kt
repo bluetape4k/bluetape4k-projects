@@ -10,7 +10,9 @@ import java.util.concurrent.CompletableFuture
  * Provides blocking and [CompletableFuture]-based access to one Redis fencing-lease ordering domain.
  *
  * A fencing token proves ordering, not durable business correctness. Persist every accepted token together with the
- * resource identity and reject downstream writes whose token is not strictly greater than the stored token.
+ * resource identity and reject downstream writes whose token is not strictly greater than the stored token. Redis Lua
+ * serializes acquisition for a hot resource, but exactly-once work and business idempotency remain caller concerns.
+ * The supplied config binds the instance to one namespace, resource, and durable epoch.
  */
 class LettuceFencingLease private constructor(
     private val executor: FencingScriptExecutor,
@@ -19,19 +21,19 @@ class LettuceFencingLease private constructor(
 ) {
     private val keys: FencingLeaseKeys = deriveFencingLeaseKeys(config, codec)
 
-    /** Creates a fencing lease over a standalone Redis connection. */
+    /** Creates a config-bound fencing lease after validating that encoded lease/counter keys share one slot. */
     constructor(
         connection: StatefulRedisConnection<String, String>,
         config: LettuceFencingLeaseConfig,
     ): this(DefaultFencingScriptExecutor(connection.sync(), connection.async()), connection.codec, config)
 
-    /** Creates a fencing lease over a Redis Cluster connection after validating the encoded key slot. */
+    /** Creates a Redis Cluster fencing lease after validating the codec-produced lease/counter key slot. */
     constructor(
         connection: StatefulRedisClusterConnection<String, String>,
         config: LettuceFencingLeaseConfig,
     ): this(DefaultFencingScriptExecutor(connection.sync(), connection.async()), connection.codec, config)
 
-    /** Initializes the counter for a new, externally approved epoch without repairing old history. */
+    /** Initializes a new externally approved epoch; this never reconstructs or repairs lost same-epoch history. */
     fun bootstrap(): FencingBootstrapResult = classified(
         FencingLeaseOperation.BOOTSTRAP,
         FencingBootstrapResult::BackendFailure,
@@ -39,7 +41,7 @@ class LettuceFencingLease private constructor(
         decodeFencingBootstrap(executor.run(FencingLeaseOperation.BOOTSTRAP, keys, fencingBootstrapArgs(config)))
     }
 
-    /** Asynchronously initializes the counter for a new, externally approved epoch. */
+    /** Asynchronously initializes a new externally approved epoch without repairing lost history. */
     fun bootstrapAsync(): CompletableFuture<FencingBootstrapResult> =
         executor.runAsync(FencingLeaseOperation.BOOTSTRAP, keys, fencingBootstrapArgs(config))
             .decodeCancellable(
@@ -49,7 +51,7 @@ class LettuceFencingLease private constructor(
                 FencingBootstrapResult::BackendFailure,
             )
 
-    /** Acquires the lease or reports the active competing owner without exposing its identity. */
+    /** Acquires the lease; retry ambiguous completion only with the same [ownerId]. */
     fun acquire(ownerId: FencingOwnerId, leaseTime: Duration): FencingAcquireResult {
         val leaseTimeMillis = leaseTime.validatedFencingLeaseTimeMillis()
         return classified(FencingLeaseOperation.ACQUIRE, FencingAcquireResult::BackendFailure) {
@@ -59,7 +61,11 @@ class LettuceFencingLease private constructor(
         }
     }
 
-    /** Asynchronously acquires the lease while preserving cancellation of the active Redis command. */
+    /**
+     * Asynchronously acquires the lease while preserving cancellation of the active Redis command.
+     *
+     * Cancellation does not prove that Redis skipped the mutation; reconcile with the same [ownerId].
+     */
     fun acquireAsync(
         ownerId: FencingOwnerId,
         leaseTime: Duration,
@@ -77,7 +83,7 @@ class LettuceFencingLease private constructor(
         )
     }
 
-    /** Inspects current ownership without extending the lease TTL. */
+    /** Inspects current ownership without extending TTL or mutating the counter. */
     fun inspect(ownerId: FencingOwnerId): FencingInspectResult = classified(
         FencingLeaseOperation.INSPECT,
         FencingInspectResult::BackendFailure,
@@ -85,7 +91,7 @@ class LettuceFencingLease private constructor(
         decodeFencingInspect(executor.run(FencingLeaseOperation.INSPECT, keys, fencingInspectArgs(config, ownerId)))
     }
 
-    /** Asynchronously inspects current ownership without extending the lease TTL. */
+    /** Asynchronously inspects current ownership without extending TTL or mutating the counter. */
     fun inspectAsync(ownerId: FencingOwnerId): CompletableFuture<FencingInspectResult> =
         executor.runAsync(
             FencingLeaseOperation.INSPECT,
@@ -98,7 +104,7 @@ class LettuceFencingLease private constructor(
             FencingInspectResult::BackendFailure,
         )
 
-    /** Renews the lease only when both owner ID and fencing token still match. */
+    /** Renews only the matching owner/token; a cross-epoch token is rejected before Redis dispatch. */
     fun renew(
         ownerId: FencingOwnerId,
         token: FencingToken,
@@ -113,7 +119,7 @@ class LettuceFencingLease private constructor(
         }
     }
 
-    /** Asynchronously renews the lease only when both owner ID and fencing token still match. */
+    /** Asynchronously renews the matching owner/token and rejects a cross-epoch token before dispatch. */
     fun renewAsync(
         ownerId: FencingOwnerId,
         token: FencingToken,
@@ -133,7 +139,7 @@ class LettuceFencingLease private constructor(
         )
     }
 
-    /** Releases the lease only when both owner ID and fencing token still match. */
+    /** Releases only the matching owner/token; a cross-epoch token is rejected before Redis dispatch. */
     fun release(ownerId: FencingOwnerId, token: FencingToken): FencingReleaseResult {
         requireFencingTokenEpoch(config, token)
         return classified(FencingLeaseOperation.RELEASE, FencingReleaseResult::BackendFailure) {
@@ -141,7 +147,7 @@ class LettuceFencingLease private constructor(
         }
     }
 
-    /** Asynchronously releases the lease only when both owner ID and fencing token still match. */
+    /** Asynchronously releases the matching owner/token and rejects a cross-epoch token before dispatch. */
     fun releaseAsync(
         ownerId: FencingOwnerId,
         token: FencingToken,
@@ -170,7 +176,7 @@ class LettuceFencingLease private constructor(
     }
 
     internal companion object {
-        fun createForTesting(
+        internal fun createForTesting(
             executor: FencingScriptExecutor,
             codec: RedisCodec<String, String>,
             config: LettuceFencingLeaseConfig,
