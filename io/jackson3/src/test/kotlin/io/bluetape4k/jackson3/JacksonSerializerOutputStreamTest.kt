@@ -30,6 +30,7 @@ import tools.jackson.databind.module.SimpleModule
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.OutputStream
+import java.io.Serializable
 import java.util.concurrent.CancellationException
 
 class JacksonSerializerOutputStreamTest {
@@ -257,7 +258,11 @@ private data class StreamFormatCase(
     val name: String,
     val serializer: JacksonSerializer,
     val value: Any = CollectionItem(24, "format"),
-)
+): Serializable {
+    private companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 private object Jackson3UppercaseStringSerializer: ValueSerializer<String>() {
     override fun serialize(value: String, generator: JsonGenerator, context: SerializationContext) {
@@ -268,4 +273,8 @@ private object Jackson3UppercaseStringSerializer: ValueSerializer<String>() {
 private data class Jackson3ConfiguredValue(
     val displayName: String,
     val optionalValue: String?,
-)
+): Serializable {
+    private companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}

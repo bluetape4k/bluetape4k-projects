@@ -30,6 +30,7 @@ import org.junit.jupiter.api.TestFactory
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.OutputStream
+import java.io.Serializable
 import java.util.concurrent.CancellationException
 
 class JacksonSerializerOutputStreamTest {
@@ -70,7 +71,7 @@ class JacksonSerializerOutputStreamTest {
     fun `custom mapper module naming inclusion과 pretty policy를 direct stream에서도 적용한다`() {
         val mapper = Jackson.createDefaultJsonMapper()
             .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
-            .setSerializationInclusion(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            .setDefaultPropertyInclusion(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
             .enable(SerializationFeature.INDENT_OUTPUT)
             .registerModule(
                 SimpleModule().addSerializer(String::class.java, UppercaseStringSerializer),
@@ -267,17 +268,29 @@ private object UppercaseStringSerializer: JacksonValueSerializer<String>() {
 private data class StreamValue(
     val id: Int,
     val name: String,
-)
+): Serializable {
+    private companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 private data class ConfiguredValue(
     val displayName: String,
     val optionalValue: String?,
-)
+): Serializable {
+    private companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 private data class StreamFormatCase(
     val name: String,
     val serializer: JacksonSerializer,
     val value: Any = StreamValue(23, "format"),
-)
+): Serializable {
+    private companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 private class JacksonStreamFatalError: Error()
