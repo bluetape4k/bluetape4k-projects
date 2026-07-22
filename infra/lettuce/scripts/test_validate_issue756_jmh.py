@@ -545,6 +545,27 @@ class ValidatorFixtureTest(unittest.TestCase):
                 lambda: validator.validate_metadata(value),
             )
 
+    def test_preflight_fixture_hash_binds_actual_pooled_target_fields(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            for field, drift in (
+                ("heap_buffer_class", "io.netty.buffer.PooledHeapByteBuf"),
+                ("direct_buffer_class", "io.netty.buffer.PooledDirectByteBuf"),
+                ("num_heap_arenas", 2),
+                ("num_direct_arenas", 2),
+            ):
+                value = metadata(Path(temporary))
+                value["preflight"]["fixture"][field] = drift
+                value["preflight_sha256"] = hashlib.sha256(
+                    json.dumps(
+                        value["preflight"], sort_keys=True, separators=(",", ":")
+                    ).encode()
+                ).hexdigest()
+                with self.subTest(field=field):
+                    self.assert_reason(
+                        "PREFLIGHT_BINDING_MISMATCH",
+                        lambda value=value: validator.validate_metadata(value),
+                    )
+
     def test_run_bundle_binds_argv_environment_and_profiler(self):
         with tempfile.TemporaryDirectory() as temporary:
             run = write_run(Path(temporary))

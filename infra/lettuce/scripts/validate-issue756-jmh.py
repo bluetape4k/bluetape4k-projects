@@ -153,6 +153,12 @@ def preflight_fixture_sha256(preflight):
         "{"
         f'"payload_sha256":{json.dumps(fixture["payload_sha256"])},'
         f'"allocator_class":{json.dumps(fixture["allocator_class"])},'
+        f'"heap_allocator_class":{json.dumps(fixture["heap_allocator_class"])},'
+        f'"direct_allocator_class":{json.dumps(fixture["direct_allocator_class"])},'
+        f'"heap_buffer_class":{json.dumps(fixture["heap_buffer_class"])},'
+        f'"direct_buffer_class":{json.dumps(fixture["direct_buffer_class"])},'
+        f'"num_heap_arenas":{fixture["num_heap_arenas"]},'
+        f'"num_direct_arenas":{fixture["num_direct_arenas"]},'
         f'"pooled":{str(fixture["pooled"]).lower()},'
         f'"capacity":{fixture["capacity"]},'
         f'"max_capacity":{fixture["max_capacity"]},'
