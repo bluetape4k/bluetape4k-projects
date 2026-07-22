@@ -7,9 +7,44 @@ import io.bluetape4k.json.JsonSerializer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
 import tools.jackson.databind.ObjectMapper
+import java.io.IOException
+import java.io.OutputStream
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.nio.ReadOnlyBufferException
+
+private const val JACKSON3_OUTPUT_LIMIT_MESSAGE = "Serialized output exceeds Int.MAX_VALUE bytes."
+
+private class Jackson3CallerOwnedCountingOutputStream(
+    private val target: OutputStream,
+): OutputStream() {
+
+    var written: Int = 0
+        private set
+
+    override fun write(value: Int) {
+        val next = checkedCount(1)
+        target.write(value)
+        written = next
+    }
+
+    override fun write(bytes: ByteArray, offset: Int, length: Int) {
+        val next = checkedCount(length)
+        target.write(bytes, offset, length)
+        written = next
+    }
+
+    override fun flush() = Unit
+
+    override fun close() = Unit
+
+    private fun checkedCount(length: Int): Int =
+        try {
+            Math.addExact(written, length)
+        } catch (failure: ArithmeticException) {
+            throw IllegalStateException(JACKSON3_OUTPUT_LIMIT_MESSAGE, failure)
+        }
+}
 
 /**
  * Jackson 3 기반 [JsonSerializer] 구현체입니다.
@@ -62,6 +97,26 @@ open class JacksonSerializer(
             requireNotNull(mapper.writeAsBytes(graph)) { "mapper.writeAsBytes returned null." }
         } catch (e: Throwable) {
             throw JsonSerializationException("Fail to serialize by Jackson3. graphType=${graph.javaClass.name}", e)
+        }
+    }
+
+    /**
+     * Serializes [graph] directly through this serializer's configured mapper while preserving caller ownership of
+     * [target]. Encoder close drains buffered wire bytes without flushing or closing the caller stream.
+     */
+    @Throws(IOException::class)
+    override fun serializeJsonToStream(graph: Any?, target: OutputStream): Int {
+        val source = graph ?: return 0
+        val output = Jackson3CallerOwnedCountingOutputStream(target)
+
+        return try {
+            val writer = mapper.writer()
+            writer.createGenerator(output).use { generator ->
+                writer.writeValue(generator, source)
+            }
+            output.written
+        } catch (failure: Throwable) {
+            throw jackson3WriteFailure(failure, source)
         }
     }
 
