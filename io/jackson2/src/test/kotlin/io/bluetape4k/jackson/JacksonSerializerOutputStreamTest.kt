@@ -31,6 +31,8 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.io.Serializable
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.concurrent.CancellationException
 
 class JacksonSerializerOutputStreamTest {
@@ -103,11 +105,35 @@ class JacksonSerializerOutputStreamTest {
         serializer.deserialize(target.toByteArray(), TypedPayloadEnvelope::class.java)
             ?.payload.shouldBeInstanceOf<AllowedTypedPayload>()
             .value shouldBeEqualTo "safe"
+        serializer.deserializeFrom(boundedDirectSource(target.toByteArray()), TypedPayloadEnvelope::class.java)
+            ?.payload.shouldBeInstanceOf<AllowedTypedPayload>()
+            .value shouldBeEqualTo "safe"
 
         val denied = """{"payload":{"@class":"${DisallowedTypedPayload::class.qualifiedName}","value":"blocked"}}"""
-        assertFailsWith<JsonSerializationException> {
+        val arrayFailure = assertFailsWith<JsonSerializationException> {
             serializer.deserialize(denied.toByteArray(), TypedPayloadEnvelope::class.java)
         }
+        val directFailure = assertFailsWith<JsonSerializationException> {
+            serializer.deserializeFrom(boundedDirectSource(denied.toByteArray()), TypedPayloadEnvelope::class.java)
+        }
+
+        directFailure.javaClass shouldBeEqualTo arrayFailure.javaClass
+        directFailure.cause?.javaClass shouldBeEqualTo arrayFailure.cause?.javaClass
+    }
+
+    @Test
+    fun `corrupt JSON은 ByteArray와 bounded direct decode failure 분류가 같다`() {
+        val serializer = JacksonSerializer()
+        val corrupt = "{not-json".encodeToByteArray()
+        val arrayFailure = assertFailsWith<JsonSerializationException> {
+            serializer.deserialize(corrupt, StreamValue::class.java)
+        }
+        val directFailure = assertFailsWith<JsonSerializationException> {
+            serializer.deserializeFrom(boundedDirectSource(corrupt), StreamValue::class.java)
+        }
+
+        directFailure.javaClass shouldBeEqualTo arrayFailure.javaClass
+        directFailure.cause?.javaClass shouldBeEqualTo arrayFailure.cause?.javaClass
     }
 
     @Test
@@ -211,6 +237,17 @@ class JacksonSerializerOutputStreamTest {
                 .enable(SerializationFeature.INDENT_OUTPUT),
         ),
     )
+
+    private fun boundedDirectSource(bytes: ByteArray): ByteBuffer =
+        ByteBuffer.allocateDirect(bytes.size + 4).apply {
+            put(byteArrayOf(0x51, 0x52))
+            put(bytes)
+            put(byteArrayOf(0x53, 0x54))
+            position(2)
+            limit(2 + bytes.size)
+            order(ByteOrder.LITTLE_ENDIAN)
+            mark()
+        }
 
     private fun formatCases(): List<StreamFormatCase> = listOf(
         StreamFormatCase("YAML", YamlJacksonSerializer()),

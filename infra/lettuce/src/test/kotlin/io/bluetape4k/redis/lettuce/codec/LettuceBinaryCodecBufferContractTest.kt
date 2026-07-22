@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.io.OutputStream
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.ReadOnlyBufferException
 
 class LettuceBinaryCodecBufferContractTest {
 
@@ -278,10 +280,111 @@ class LettuceBinaryCodecBufferContractTest {
         }
     }
 
+    @Test
+    fun `decode borrows only a bounded read only remaining view and preserves caller state`() {
+        binarySources().forEach { (name, source) ->
+            val retainedViews = mutableListOf<ByteBuffer>()
+            val serializer = RecordingBinarySerializer().apply {
+                deserializeBehavior = { view ->
+                    retainedViews += view
+                    view.position() shouldBeEqualTo 0
+                    view.limit() shouldBeEqualTo WIRE.size
+                    view.capacity() shouldBeEqualTo WIRE.size
+                    view.order() shouldBeEqualTo ByteOrder.LITTLE_ENDIAN
+                    view.isReadOnly.shouldBeTrue()
+                    (!view.hasArray()).shouldBeTrue()
+                    assertFailsWith<UnsupportedOperationException> { view.array() }
+                    assertFailsWith<UnsupportedOperationException> { view.arrayOffset() }
+                    assertFailsWith<ReadOnlyBufferException> { view.put(0, 0x33.toByte()) }
+                    view.clear()
+                    view.remainingBytes().contentEquals(WIRE).shouldBeTrue()
+                    VALUE
+                }
+            }
+            val start = source.position()
+            val limit = source.limit()
+            val order = source.order()
+
+            try {
+                LettuceBinaryCodec<String>(serializer).decodeValue(source) shouldBeEqualTo VALUE
+
+                serializer.deserializeBufferCalls shouldBeEqualTo 1
+                serializer.deserializeArrayCalls shouldBeEqualTo 0
+                source.position() shouldBeEqualTo start
+                source.limit() shouldBeEqualTo limit
+                source.order() shouldBeEqualTo order
+                source.reset()
+                source.position() shouldBeEqualTo start
+                retainedViews.single().capacity() shouldBeEqualTo WIRE.size
+                assertFailsWith<IndexOutOfBoundsException> { retainedViews.single().get(WIRE.size) }
+            } catch (failure: Throwable) {
+                throw AssertionError("binary decode source fixture failed: $name", failure)
+            }
+        }
+    }
+
+    @Test
+    fun `decode failure keeps caller state and retained view cannot expose surrounding secrets`() {
+        val sentinel = IOException("bounded decode failure")
+        lateinit var retainedView: ByteBuffer
+        val serializer = RecordingBinarySerializer().apply {
+            deserializeBehavior = { view ->
+                retainedView = view
+                view.clear()
+                throw sentinel
+            }
+        }
+        val source = binarySources().first().second
+        val start = source.position()
+        val limit = source.limit()
+        val order = source.order()
+
+        val actual = assertFailsWith<IOException> {
+            LettuceBinaryCodec<String>(serializer).decodeValue(source)
+        }
+
+        actual shouldBeSameInstanceAs sentinel
+        source.position() shouldBeEqualTo start
+        source.limit() shouldBeEqualTo limit
+        source.order() shouldBeEqualTo order
+        source.reset()
+        source.position() shouldBeEqualTo start
+        retainedView.capacity() shouldBeEqualTo WIRE.size
+        retainedView.remainingBytes().contentEquals(WIRE).shouldBeTrue()
+        assertFailsWith<IndexOutOfBoundsException> { retainedView.get(WIRE.size) }
+        (actual.message?.contains(PREFIX_SECRET) == false).shouldBeTrue()
+        (actual.message?.contains(SUFFIX_SECRET) == false).shouldBeTrue()
+    }
+
+    @Test
+    fun `decode preserves the interface allocating fallback for serializers without a direct override`() {
+        val serializer = object: BinarySerializer {
+            var arrayCalls: Int = 0
+
+            override fun serialize(graph: Any?): ByteArray = WIRE.copyOf()
+
+            @Suppress("UNCHECKED_CAST")
+            override fun <T: Any> deserialize(bytes: ByteArray?): T? {
+                arrayCalls++
+                bytes?.contentEquals(WIRE).shouldBeTrue()
+                return VALUE as T
+            }
+        }
+        val source = binarySources().first().second
+
+        LettuceBinaryCodec<String>(serializer).decodeValue(source) shouldBeEqualTo VALUE
+
+        serializer.arrayCalls shouldBeEqualTo 1
+    }
+
     private class RecordingBinarySerializer: BinarySerializer {
         var arrayCalls: Int = 0
             private set
         var streamCalls: Int = 0
+            private set
+        var deserializeArrayCalls: Int = 0
+            private set
+        var deserializeBufferCalls: Int = 0
             private set
         var retainedOutput: OutputStream? = null
         var streamBehavior: (OutputStream) -> Int = { output ->
@@ -296,7 +399,19 @@ class LettuceBinaryCodecBufferContractTest {
             return streamBehavior(target)
         }
 
-        override fun <T: Any> deserialize(bytes: ByteArray?): T? = null
+        var deserializeBehavior: (ByteBuffer) -> Any? = { VALUE }
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T: Any> deserialize(bytes: ByteArray?): T? {
+            deserializeArrayCalls++
+            return VALUE as T
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T: Any> deserializeFrom(source: ByteBuffer): T? {
+            deserializeBufferCalls++
+            return deserializeBehavior(source) as T?
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -357,6 +472,26 @@ class LettuceBinaryCodecBufferContractTest {
         "bounded slice" to Unpooled.buffer(64, 64).slice(0, 16).clear(),
     )
 
+    private fun binarySources(): List<Pair<String, ByteBuffer>> = listOf(
+        "heap" to configuredBinarySource(ByteBuffer.allocate(WIRE.size + 4)),
+        "direct" to configuredBinarySource(ByteBuffer.allocateDirect(WIRE.size + 4)),
+        "slice" to configuredBinarySource(ByteBuffer.allocate(WIRE.size + 8).position(2).slice()),
+        "read only" to configuredBinarySource(ByteBuffer.allocate(WIRE.size + 4)).asReadOnlyBuffer().apply {
+            order(ByteOrder.LITTLE_ENDIAN)
+            mark()
+        },
+    )
+
+    private fun configuredBinarySource(source: ByteBuffer): ByteBuffer = source.apply {
+        put(PREFIX_SECRET.encodeToByteArray())
+        put(WIRE)
+        put(SUFFIX_SECRET.encodeToByteArray())
+        position(PREFIX_SECRET.length)
+        limit(PREFIX_SECRET.length + WIRE.size)
+        order(ByteOrder.LITTLE_ENDIAN)
+        mark()
+    }
+
     private fun ByteBuf.bytes(index: Int, length: Int): ByteArray =
         ByteArray(length).also { bytes -> getBytes(index, bytes) }
 
@@ -365,6 +500,8 @@ class LettuceBinaryCodecBufferContractTest {
 
     private companion object {
         const val PREFIX: Int = 0x5A
+        const val PREFIX_SECRET: String = "P!"
+        const val SUFFIX_SECRET: String = "S!"
         const val VALUE: String = "buffer-contract"
         val WIRE: ByteArray = byteArrayOf(1, 2, 3, 4)
     }

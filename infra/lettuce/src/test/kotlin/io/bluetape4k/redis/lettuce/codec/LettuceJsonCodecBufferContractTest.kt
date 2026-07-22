@@ -13,6 +13,8 @@ import java.io.IOException
 import java.io.OutputStream
 import java.lang.reflect.Modifier
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.ReadOnlyBufferException
 
 class LettuceJsonCodecBufferContractTest {
 
@@ -187,10 +189,113 @@ class LettuceJsonCodecBufferContractTest {
         Modifier.isFinal(LettuceJsonCodec::class.java.modifiers).shouldBeTrue()
     }
 
+    @Test
+    fun `JSON decode borrows only a bounded read only remaining view and preserves caller state`() {
+        jsonSources().forEach { (name, source) ->
+            val retainedViews = mutableListOf<ByteBuffer>()
+            val serializer = RecordingJsonSerializer().apply {
+                deserializeBehavior = { view, clazz ->
+                    clazz shouldBeEqualTo String::class.java
+                    retainedViews += view
+                    view.position() shouldBeEqualTo 0
+                    view.limit() shouldBeEqualTo JSON_WIRE.size
+                    view.capacity() shouldBeEqualTo JSON_WIRE.size
+                    view.order() shouldBeEqualTo ByteOrder.LITTLE_ENDIAN
+                    view.isReadOnly.shouldBeTrue()
+                    (!view.hasArray()).shouldBeTrue()
+                    assertFailsWith<UnsupportedOperationException> { view.array() }
+                    assertFailsWith<UnsupportedOperationException> { view.arrayOffset() }
+                    assertFailsWith<ReadOnlyBufferException> { view.put(0, 0x33.toByte()) }
+                    view.clear()
+                    view.remainingBytes().contentEquals(JSON_WIRE).shouldBeTrue()
+                    VALUE
+                }
+            }
+            val start = source.position()
+            val limit = source.limit()
+            val order = source.order()
+
+            try {
+                LettuceJsonCodec(serializer, String::class.java).decodeValue(source) shouldBeEqualTo VALUE
+
+                serializer.deserializeBufferCalls shouldBeEqualTo 1
+                serializer.deserializeArrayCalls shouldBeEqualTo 0
+                source.position() shouldBeEqualTo start
+                source.limit() shouldBeEqualTo limit
+                source.order() shouldBeEqualTo order
+                source.reset()
+                source.position() shouldBeEqualTo start
+                retainedViews.single().capacity() shouldBeEqualTo JSON_WIRE.size
+                assertFailsWith<IndexOutOfBoundsException> { retainedViews.single().get(JSON_WIRE.size) }
+            } catch (failure: Throwable) {
+                throw AssertionError("JSON decode source fixture failed: $name", failure)
+            }
+        }
+    }
+
+    @Test
+    fun `JSON decode failure keeps state and retained view cannot expose surrounding secrets`() {
+        val sentinel = IOException("bounded JSON decode failure")
+        lateinit var retainedView: ByteBuffer
+        val serializer = RecordingJsonSerializer().apply {
+            deserializeBehavior = { view, _ ->
+                retainedView = view
+                view.clear()
+                throw sentinel
+            }
+        }
+        val source = jsonSources().first().second
+        val start = source.position()
+        val limit = source.limit()
+        val order = source.order()
+
+        val actual = assertFailsWith<IOException> {
+            LettuceJsonCodec(serializer, String::class.java).decodeValue(source)
+        }
+
+        actual shouldBeSameInstanceAs sentinel
+        source.position() shouldBeEqualTo start
+        source.limit() shouldBeEqualTo limit
+        source.order() shouldBeEqualTo order
+        source.reset()
+        source.position() shouldBeEqualTo start
+        retainedView.capacity() shouldBeEqualTo JSON_WIRE.size
+        retainedView.remainingBytes().contentEquals(JSON_WIRE).shouldBeTrue()
+        assertFailsWith<IndexOutOfBoundsException> { retainedView.get(JSON_WIRE.size) }
+        (actual.message?.contains(PREFIX_SECRET) == false).shouldBeTrue()
+        (actual.message?.contains(SUFFIX_SECRET) == false).shouldBeTrue()
+    }
+
+    @Test
+    fun `JSON decode preserves the interface allocating fallback without a direct override`() {
+        val serializer = object: JsonSerializer {
+            var arrayCalls: Int = 0
+
+            override fun serialize(graph: Any?): ByteArray = JSON_WIRE.copyOf()
+
+            @Suppress("UNCHECKED_CAST")
+            override fun <T: Any> deserialize(bytes: ByteArray?, clazz: Class<T>): T? {
+                arrayCalls++
+                clazz shouldBeEqualTo String::class.java
+                bytes?.contentEquals(JSON_WIRE).shouldBeTrue()
+                return VALUE as T
+            }
+        }
+        val source = jsonSources().first().second
+
+        LettuceJsonCodec(serializer, String::class.java).decodeValue(source) shouldBeEqualTo VALUE
+
+        serializer.arrayCalls shouldBeEqualTo 1
+    }
+
     private class RecordingJsonSerializer: JsonSerializer {
         var arrayCalls: Int = 0
             private set
         var streamCalls: Int = 0
+            private set
+        var deserializeArrayCalls: Int = 0
+            private set
+        var deserializeBufferCalls: Int = 0
             private set
         var retainedOutput: OutputStream? = null
         var streamBehavior: (OutputStream) -> Int = { output ->
@@ -205,7 +310,19 @@ class LettuceJsonCodecBufferContractTest {
             return streamBehavior(target)
         }
 
-        override fun <T: Any> deserialize(bytes: ByteArray?, clazz: Class<T>): T? = null
+        var deserializeBehavior: (ByteBuffer, Class<*>) -> Any? = { _, _ -> VALUE }
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T: Any> deserialize(bytes: ByteArray?, clazz: Class<T>): T? {
+            deserializeArrayCalls++
+            return VALUE as T
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T: Any> deserializeFrom(source: ByteBuffer, clazz: Class<T>): T? {
+            deserializeBufferCalls++
+            return deserializeBehavior(source, clazz) as T?
+        }
     }
 
     private fun jsonTargets(): List<Pair<String, ByteBuf>> = listOf(
@@ -216,6 +333,26 @@ class LettuceJsonCodecBufferContractTest {
         "bounded slice" to Unpooled.buffer(64, 64).slice(0, 16).clear(),
     )
 
+    private fun jsonSources(): List<Pair<String, ByteBuffer>> = listOf(
+        "heap" to configuredJsonSource(ByteBuffer.allocate(JSON_WIRE.size + 4)),
+        "direct" to configuredJsonSource(ByteBuffer.allocateDirect(JSON_WIRE.size + 4)),
+        "slice" to configuredJsonSource(ByteBuffer.allocate(JSON_WIRE.size + 8).position(2).slice()),
+        "read only" to configuredJsonSource(ByteBuffer.allocate(JSON_WIRE.size + 4)).asReadOnlyBuffer().apply {
+            order(ByteOrder.LITTLE_ENDIAN)
+            mark()
+        },
+    )
+
+    private fun configuredJsonSource(source: ByteBuffer): ByteBuffer = source.apply {
+        put(PREFIX_SECRET.encodeToByteArray())
+        put(JSON_WIRE)
+        put(SUFFIX_SECRET.encodeToByteArray())
+        position(PREFIX_SECRET.length)
+        limit(PREFIX_SECRET.length + JSON_WIRE.size)
+        order(ByteOrder.LITTLE_ENDIAN)
+        mark()
+    }
+
     private fun ByteBuf.bytes(index: Int, length: Int): ByteArray =
         ByteArray(length).also { bytes -> getBytes(index, bytes) }
 
@@ -224,6 +361,8 @@ class LettuceJsonCodecBufferContractTest {
 
     private companion object {
         const val PREFIX: Int = 0x5A
+        const val PREFIX_SECRET: String = "P!"
+        const val SUFFIX_SECRET: String = "S!"
         const val VALUE: String = "json-contract"
         val JSON_WIRE: ByteArray = "\"value\"".encodeToByteArray()
     }

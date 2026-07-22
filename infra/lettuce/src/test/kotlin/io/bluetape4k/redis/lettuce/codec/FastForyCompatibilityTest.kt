@@ -1,11 +1,12 @@
 package io.bluetape4k.redis.lettuce.codec
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.io.serializer.BinarySerializationException
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [LettuceBinaryCodecs.fastFory]와 [LettuceBinaryCodecs.fory] 간의 와이어 포맷 호환성 검증 테스트.
@@ -20,7 +21,7 @@ import io.bluetape4k.assertions.assertFailsWith
  */
 class FastForyCompatibilityTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val fastForyCodec = LettuceBinaryCodecs.fastFory<Any>()
     private val foryCodec = LettuceBinaryCodecs.fory<Any>()
@@ -29,7 +30,11 @@ class FastForyCompatibilityTest {
         val id: Int,
         val name: String,
         val value: Double,
-    ) : java.io.Serializable
+    ): java.io.Serializable {
+        private companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
 
     private val testData = SampleData(id = 42, name = "lettuce-test", value = 2.718)
 
@@ -61,7 +66,7 @@ class FastForyCompatibilityTest {
         // ByteBuffer position을 rewind해야 재사용 가능
         encoded.rewind()
 
-        assertFailsWith<Exception> {
+        assertFailsWith<AssertionError> {
             fastForyCodec.decodeValue(encoded)
         }
     }
@@ -80,7 +85,7 @@ class FastForyCompatibilityTest {
         val encoded = fastForyCodec.encodeValue(testData)
         encoded.rewind()
 
-        assertFailsWith<Exception> {
+        assertFailsWith<BinarySerializationException> {
             foryCodec.decodeValue(encoded)
         }
     }

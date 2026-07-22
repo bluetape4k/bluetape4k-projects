@@ -81,7 +81,7 @@ open class LettuceBinaryCodec<V: Any>(
     }
 
     final override fun decodeValue(bytes: ByteBuffer?): V? {
-        return bytes?.getAllBytes()?.run { serializer.deserialize(this) }
+        return bytes?.let { serializer.deserializeFrom(it.boundedReadView()) }
     }
 
     /**
@@ -109,3 +109,6 @@ open class LettuceBinaryCodec<V: Any>(
         return "LettuceBinaryCodec(serializer=${serializer.javaClass.simpleName})"
     }
 }
+
+private fun ByteBuffer.boundedReadView(): ByteBuffer =
+    duplicate().slice().asReadOnlyBuffer().order(order())

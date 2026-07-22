@@ -31,6 +31,8 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.io.Serializable
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.concurrent.CancellationException
 
 class JacksonSerializerOutputStreamTest {
@@ -159,6 +161,7 @@ class JacksonSerializerOutputStreamTest {
         serializer.serializeJsonToStream(professor, professorTarget) shouldBeEqualTo professorWire.size
         professorTarget.toByteArray() shouldBeEqualTo professorWire
         serializer.deserialize(professorTarget.toByteArray(), Person::class.java) shouldBeEqualTo professor
+        serializer.deserializeFrom(boundedDirectSource(professorWire), Person::class.java) shouldBeEqualTo professor
 
         val metadata = mapOf("@class" to "java.lang.ProcessBuilder", "value" to "blocked")
         val metadataTarget = RecordingOutputStream()
@@ -167,6 +170,34 @@ class JacksonSerializerOutputStreamTest {
         metadataTarget.toByteArray() shouldBeEqualTo metadataWire
         serializer.deserialize(metadataTarget.toByteArray(), Any::class.java)
             .shouldBeInstanceOf<Map<*, *>>() shouldBeEqualTo metadata
+        serializer.deserializeFrom(boundedDirectSource(metadataWire), Any::class.java)
+            .shouldBeInstanceOf<Map<*, *>>() shouldBeEqualTo metadata
+
+        val malicious = """{"@class":"java.lang.ProcessBuilder","name":"blocked","age":1}"""
+        val arrayFailure = assertFailsWith<JsonSerializationException> {
+            serializer.deserialize(malicious.toByteArray(), Person::class.java)
+        }
+        val directFailure = assertFailsWith<JsonSerializationException> {
+            serializer.deserializeFrom(boundedDirectSource(malicious.toByteArray()), Person::class.java)
+        }
+
+        directFailure.javaClass shouldBeEqualTo arrayFailure.javaClass
+        directFailure.cause?.javaClass shouldBeEqualTo arrayFailure.cause?.javaClass
+    }
+
+    @Test
+    fun `corrupt JSON은 ByteArray와 bounded direct decode failure 분류가 같다`() {
+        val serializer = JacksonSerializer()
+        val corrupt = "{not-json".encodeToByteArray()
+        val arrayFailure = assertFailsWith<JsonSerializationException> {
+            serializer.deserialize(corrupt, CollectionItem::class.java)
+        }
+        val directFailure = assertFailsWith<JsonSerializationException> {
+            serializer.deserializeFrom(boundedDirectSource(corrupt), CollectionItem::class.java)
+        }
+
+        directFailure.javaClass shouldBeEqualTo arrayFailure.javaClass
+        directFailure.cause?.javaClass shouldBeEqualTo arrayFailure.cause?.javaClass
     }
 
     @TestFactory
@@ -220,6 +251,17 @@ class JacksonSerializerOutputStreamTest {
         StreamFormatCase("Ion", IonJacksonSerializer()),
         StreamFormatCase("Smile", SmileJacksonSerializer()),
     )
+
+    private fun boundedDirectSource(bytes: ByteArray): ByteBuffer =
+        ByteBuffer.allocateDirect(bytes.size + 4).apply {
+            put(byteArrayOf(0x51, 0x52))
+            put(bytes)
+            put(byteArrayOf(0x53, 0x54))
+            position(2)
+            limit(2 + bytes.size)
+            order(ByteOrder.LITTLE_ENDIAN)
+            mark()
+        }
 
     private class RecordingOutputStream(
         var writeFailure: Throwable? = null,

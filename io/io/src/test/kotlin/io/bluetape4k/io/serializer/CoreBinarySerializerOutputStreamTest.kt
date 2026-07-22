@@ -15,8 +15,11 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.io.ObjectInputFilter
 import java.io.OutputStream
 import java.io.Serializable
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.concurrent.CancellationException
 
 class CoreBinarySerializerOutputStreamTest {
@@ -194,12 +197,108 @@ class CoreBinarySerializerOutputStreamTest {
         target.closeCount shouldBeEqualTo 0
     }
 
+    @Test
+    fun `JDK default와 custom input filter는 ByteArray와 bounded direct decode에서 동일하다`() {
+        val value = UnregisteredPayload("filter-parity")
+        val defaults = JdkBinarySerializer()
+        val wire = defaults.serialize(value)
+
+        defaults.deserialize<UnregisteredPayload>(wire) shouldBeEqualTo value
+        defaults.deserializeFrom<UnregisteredPayload>(boundedDirectSource(wire)) shouldBeEqualTo value
+
+        val rejecting = JdkBinarySerializer(
+            objectInputFilter = ObjectInputFilter.Config.createFilter("java.lang.*;!*")
+        )
+        val arrayFailure = assertFailsWith<BinarySerializationException> {
+            rejecting.deserialize<UnregisteredPayload>(wire)
+        }
+        val directFailure = assertFailsWith<BinarySerializationException> {
+            rejecting.deserializeFrom<UnregisteredPayload>(boundedDirectSource(wire))
+        }
+
+        directFailure.javaClass shouldBeEqualTo arrayFailure.javaClass
+        directFailure.cause?.javaClass shouldBeEqualTo arrayFailure.cause?.javaClass
+        (directFailure.cause is java.io.InvalidClassException).shouldBeTrue()
+    }
+
+    @Test
+    fun `secure Kryo registration은 ByteArray와 bounded direct decode에서 동일하다`() {
+        val serializer = KryoBinarySerializer.secure(UnregisteredPayload::class.java)
+        val value = UnregisteredPayload("registered")
+        val wire = serializer.serialize(value)
+
+        serializer.deserialize<UnregisteredPayload>(wire) shouldBeEqualTo value
+        serializer.deserializeFrom<UnregisteredPayload>(boundedDirectSource(wire)) shouldBeEqualTo value
+
+        val rejectedWire = KryoBinarySerializer().serialize(KryoReferencePayload(91))
+        val arrayFailure = assertFailsWith<BinarySerializationException> {
+            serializer.deserialize<KryoReferencePayload>(rejectedWire)
+        }
+        val directFailure = assertFailsWith<BinarySerializationException> {
+            serializer.deserializeFrom<KryoReferencePayload>(boundedDirectSource(rejectedWire))
+        }
+
+        directFailure.javaClass shouldBeEqualTo arrayFailure.javaClass
+        directFailure.cause?.javaClass shouldBeEqualTo arrayFailure.cause?.javaClass
+    }
+
+    @Test
+    fun `custom Kryo pool fallback decodes bounded direct input with ByteArray parity`() {
+        val pool = object: Pool<Kryo>(true, false, 1) {
+            override fun create(): Kryo = KryoProvider.createKryo().apply {
+                isRegistrationRequired = true
+                references = true
+                register(KryoReferencePayload::class.java)
+                register(ArrayList::class.java)
+            }
+        }
+        val shared = KryoReferencePayload(23)
+        val value = arrayListOf(shared, shared)
+        val serializer = KryoBinarySerializer(kryoPool = pool)
+        val wire = serializer.serialize(value)
+
+        val arrayDecoded = requireNotNull(serializer.deserialize<ArrayList<KryoReferencePayload>>(wire))
+        val directDecoded = requireNotNull(
+            serializer.deserializeFrom<ArrayList<KryoReferencePayload>>(boundedDirectSource(wire))
+        )
+
+        arrayDecoded shouldBeEqualTo directDecoded
+        (directDecoded[0] === directDecoded[1]).shouldBeTrue()
+    }
+
+    @Test
+    fun `JDK와 Kryo corrupt input은 ByteArray와 bounded direct decode failure 분류가 같다`() {
+        listOf(JdkBinarySerializer(), KryoBinarySerializer()).forEach { serializer ->
+            val corrupt = byteArrayOf(1, 2, 3, 4)
+            val arrayFailure = assertFailsWith<BinarySerializationException> {
+                serializer.deserialize<Any>(corrupt)
+            }
+            val directFailure = assertFailsWith<BinarySerializationException> {
+                serializer.deserializeFrom<Any>(boundedDirectSource(corrupt))
+            }
+
+            directFailure.javaClass shouldBeEqualTo arrayFailure.javaClass
+            directFailure.cause?.javaClass shouldBeEqualTo arrayFailure.cause?.javaClass
+        }
+    }
+
     private fun serializers(): List<BinarySerializer> = listOf(
         JdkBinarySerializer(),
         KryoBinarySerializer(),
         KryoBinarySerializer.fast(),
         KryoBinarySerializer.secure(String::class.java),
     )
+
+    private fun boundedDirectSource(bytes: ByteArray): ByteBuffer =
+        ByteBuffer.allocateDirect(bytes.size + 4).apply {
+            put(byteArrayOf(0x51, 0x52))
+            put(bytes)
+            put(byteArrayOf(0x53, 0x54))
+            position(2)
+            limit(2 + bytes.size)
+            order(ByteOrder.LITTLE_ENDIAN)
+            mark()
+        }
 
     private fun verifyCountOverflow(className: String) {
         val target = RecordingOutputStream()

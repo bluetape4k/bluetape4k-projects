@@ -78,7 +78,7 @@ class LettuceJsonCodec<V: Any>(
         bytes?.getAllBytes()?.toUtf8String()
 
     override fun decodeValue(bytes: ByteBuffer?): V? =
-        bytes?.getAllBytes()?.run { serializer.deserialize(this, valueType) }
+        bytes?.let { serializer.deserializeFrom(it.boundedReadView(), valueType) }
 
     /**
      * 키 또는 값의 직렬화 크기를 추정합니다.
@@ -103,3 +103,6 @@ class LettuceJsonCodec<V: Any>(
     override fun toString(): String =
         "LettuceJsonCodec(serializer=${serializer.javaClass.simpleName}, valueType=${valueType.simpleName})"
 }
+
+private fun ByteBuffer.boundedReadView(): ByteBuffer =
+    duplicate().slice().asReadOnlyBuffer().order(order())
