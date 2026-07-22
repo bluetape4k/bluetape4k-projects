@@ -55,6 +55,44 @@ open이며 일반 `RedisCodec` method는 final입니다. Class를 open하면 Kot
 있으므로 subclass는 serializer의 wire와 trust 계약을 보존해야 합니다. 기존 factory caller는 migration이
 필요하지 않습니다. Java에서는 `LettuceProtobufCodecs.INSTANCE.protobuf()`를 사용합니다.
 
+### 호출자 소유 serializer target 계약
+
+Built-in codec의 target-taking binary encode는 `serializeBinaryToStream`, target-taking JSON encode는
+`serializeJsonToStream`을 호출합니다. 두 serializer interface 기본 구현은 allocating 호환 fallback이므로
+direct stream 기록은 concrete serializer가 명시적으로 제공해야 합니다. Codec은 bounded absolute-index
+writer를 통해 caller-owned `ByteBuf`를 동기 borrow하며 target을 retain, close, flush, release하지 않습니다.
+Built-in 호출은 serializer 보고 count와 target snapshot을 검증하고 complete wire가 기록된 뒤 성공 시에만
+`writerIndex`를 한 번 commit합니다.
+
+Mutable target은 호출이 끝날 때까지 한 thread에 가두세요. Concurrent `readerIndex`, `writerIndex`, `refCnt`,
+capacity boundary drift는 지원하지 않으며 fail-closed입니다. Codec은 concurrent mutation을 복구하지 않습니다.
+Encode 실패 시 `writerIndex`는 commit되지 않지만 attempted bytes와 capacity growth가 남을 수 있습니다. 이
+계약과 `release()`는 byte wipe를 보장하지 않습니다. Target의 full capacity를 logging하지 말고 재사용 전에
+attempted range를 폐기/reinitialize하거나 allocator의 disposal policy를 따르세요.
+
+`LettuceBinaryCodec.encodeValue(value, target)`만 지원되는 custom target override seam입니다. Subclass
+override는 built-in의 count/snapshot/success-only commit 보장을 자동 상속하지 않으므로 wire와 trust 호환을
+직접 보존해야 합니다. `LettuceJsonCodec`은 final이며 같은 custom seam이 없습니다. Decode는 bounded
+read-only, non-array-backed `ByteBuffer` view를 `deserializeFrom`에 전달합니다. Custom serializer는 이 동기
+borrow를 지원하거나 interface의 allocating 기본 구현을 상속해야 합니다.
+
+[이슈 #756 근거](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md)는 측정
+payload/기본 serializer config, pooled 512-byte pre-sized reusable heap/direct target, no-growth 경로에만
+적용됩니다.
+
+| Serializer | Heap | Direct | 주장 |
+|---|---|---|---|
+| JDK | accepted | accepted | 정확히 측정한 cell의 allocation 감소 |
+| Kryo | accepted | accepted | 정확히 측정한 cell의 allocation 감소 |
+| Jackson 2 | accepted | accepted | 정확히 측정한 cell의 allocation 감소 |
+| Jackson 3 | inconclusive | inconclusive | ergonomic direct path 전용, allocation 주장 없음 |
+
+단일 인자 encode, decode, 압축/Fory/Fastjson codec, 다른 payload, capacity growth, target 크기,
+allocator/pooling 선택, zero-copy, throughput에는 일반화하지 마세요. Runtime auto-fallback, feature flag,
+dispatch telemetry는 없습니다. 유지한 direct path에 결함이 있으면 previous artifact/codec deployment로
+rollback합니다. Implementation이 바뀌면 allocation 주장을 재사용하기 전에 canonical run 두 번을 새로
+수집해야 합니다.
+
 `LettuceCacheConfig` 제약:
 
 - `writeBehindBatchSize`, `writeBehindQueueCapacity`, `writeRetryAttempts`, `nearCacheMaxSize`는 0보다 커야 합니다.

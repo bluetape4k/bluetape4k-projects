@@ -441,6 +441,45 @@ The [issue #1039 report](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-
 
 Kotlin calls `serializeTo`/reified `deserializeFrom`; Java supplies the target class to the same API. Caller-owned targets must be writable and have sufficient remaining capacity. Success advances output `position` without widening `limit`; overflow/read-only failure rolls back. Duplicate-backed input preserves source `position` and `limit`.
 
+### Caller-owned `OutputStream` API
+
+`JacksonSerializer.serializeJsonToStream` writes through the configured mapper without first materializing JSON as a
+`ByteArray`; the interface default remains an allocating compatibility fallback. The stream is borrowed only for the
+synchronous call and is never retained, closed, or flushed by the serializer. Keep the call and destination
+thread-confined. Stage the output and discard it on failure because partial JSON may remain.
+
+```kotlin
+val serializer = JacksonSerializer()
+val staging = ByteArrayOutputStream()
+val json = try {
+    serializer.serializeJsonToStream(value, staging)
+    staging.toByteArray()
+} catch (e: IOException) {
+    staging.reset()
+    throw e
+} finally {
+    staging.close()
+}
+```
+
+```java
+static byte[] encode(JacksonSerializer serializer, Object value) throws IOException {
+    ByteArrayOutputStream staging = new ByteArrayOutputStream();
+    try (staging) {
+        serializer.serializeJsonToStream(value, staging);
+        return staging.toByteArray();
+    } catch (IOException failure) {
+        staging.reset();
+        throw failure;
+    }
+}
+```
+
+`deserializeFrom` supports Lettuce's read-only, non-array-backed bounded view while preserving caller state. The
+[issue #756 report](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md) classified Jackson 3
+heap/direct Lettuce cells as inconclusive: retain the ergonomic direct path, but make no allocation-reduction claim.
+The result is limited to the measured payload/default mapper, pooled pre-sized 512-byte reusable targets, and no growth.
+
 - [Jackson 3.x](https://github.com/FasterXML/jackson)
 - [Jackson 3.x Release Notes](https://github.com/FasterXML/jackson/wiki/Jackson-Release-3.0)
 - [Jackson Kotlin Module](https://github.com/FasterXML/jackson-module-kotlin)

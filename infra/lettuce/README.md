@@ -56,6 +56,43 @@ seam; ordinary `RedisCodec` methods remain final. The open class also makes Kotl
 overrideable, so subclasses must preserve the serializer wire and trust contract. Existing factory callers do not need
 to migrate. Java callers use `LettuceProtobufCodecs.INSTANCE.protobuf()`.
 
+### Caller-owned serializer target contract
+
+For built-in codecs, target-taking binary encode calls `serializeBinaryToStream`; target-taking JSON encode calls
+`serializeJsonToStream`. Both serializer interface defaults are allocating compatibility fallbacks, so direct stream
+writing is opt-in per concrete serializer. The codec borrows the caller-owned `ByteBuf` synchronously through a bounded
+absolute-index writer. It never retains, closes, flushes, or releases the target. A successful built-in call verifies
+the serializer-reported count and target snapshot, then commits `writerIndex` exactly once after the complete wire is
+present.
+
+Keep each mutable target thread-confined until the call returns. Concurrent `readerIndex`, `writerIndex`, `refCnt`, or
+capacity-boundary drift is unsupported and fails closed; the codec does not repair concurrent mutation. On any encode
+failure, `writerIndex` is not committed, but attempted bytes and capacity growth may remain. Neither this contract nor
+`release()` guarantees byte wiping. Do not log the target's full capacity. Discard/reinitialize the attempted range or
+follow the allocator's disposal policy before reuse.
+
+Only `LettuceBinaryCodec.encodeValue(value, target)` is a supported custom target override seam. A subclass override
+does not automatically inherit the built-in count/snapshot/success-only commit guarantees and must preserve wire and
+trust compatibility itself. `LettuceJsonCodec` is final and exposes no equivalent custom seam. Decode passes a bounded
+read-only, non-array-backed `ByteBuffer` view to `deserializeFrom`; a custom serializer must support that synchronous
+borrow, or inherit the interface allocating default.
+
+The [issue #756 evidence](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md) applies only
+to the measured payload/default serializer configuration, pooled pre-sized reusable 512-byte heap/direct targets, and
+no-growth path:
+
+| Serializer | Heap | Direct | Claim |
+|---|---|---|---|
+| JDK | accepted | accepted | allocation reduction in the exact measured cells |
+| Kryo | accepted | accepted | allocation reduction in the exact measured cells |
+| Jackson 2 | accepted | accepted | allocation reduction in the exact measured cells |
+| Jackson 3 | inconclusive | inconclusive | ergonomic direct path only; no allocation claim |
+
+Do not generalize these results to one-argument encode, decode, compressed/Fory/Fastjson codecs, other payloads,
+capacity growth, target sizes, allocator/pooling choices, zero-copy, or throughput. There is no runtime auto-fallback,
+feature flag, or dispatch telemetry. If a retained direct path is defective, roll back to the previous artifact/codec
+deployment; any implementation change requires two fresh canonical runs before reusing an allocation claim.
+
 `LettuceCacheConfig` constraints:
 
 - `writeBehindBatchSize`, `writeBehindQueueCapacity`, `writeRetryAttempts`, and

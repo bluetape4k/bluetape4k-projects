@@ -435,6 +435,46 @@ io.bluetape4k.jackson3
 
 Kotlin은 `serializeTo`와 reified `deserializeFrom`을 호출하고 Java는 같은 API에 target class를 전달합니다. 호출자 소유 target은 writable이고 남은 용량이 충분해야 합니다. 성공은 `limit`을 넓히지 않고 출력 `position`만 이동하며 overflow/read-only 실패는 rollback합니다. duplicate 기반 입력은 source `position`과 `limit`을 보존합니다.
 
+### 호출자 소유 `OutputStream` API
+
+`JacksonSerializer.serializeJsonToStream`은 JSON을 먼저 `ByteArray`로 만들지 않고 설정된 mapper를 통해
+stream에 기록하며, interface 기본 구현은 allocating 호환 fallback으로 남습니다. Serializer는 동기 호출
+동안만 stream을 borrow하고 보관, close, flush하지 않습니다. 호출과 destination을 한 thread에 가두세요.
+실패 시 partial JSON이 남을 수 있으므로 staging output을 사용하고 실패 결과를 폐기해야 합니다.
+
+```kotlin
+val serializer = JacksonSerializer()
+val staging = ByteArrayOutputStream()
+val json = try {
+    serializer.serializeJsonToStream(value, staging)
+    staging.toByteArray()
+} catch (e: IOException) {
+    staging.reset()
+    throw e
+} finally {
+    staging.close()
+}
+```
+
+```java
+static byte[] encode(JacksonSerializer serializer, Object value) throws IOException {
+    ByteArrayOutputStream staging = new ByteArrayOutputStream();
+    try (staging) {
+        serializer.serializeJsonToStream(value, staging);
+        return staging.toByteArray();
+    } catch (IOException failure) {
+        staging.reset();
+        throw failure;
+    }
+}
+```
+
+`deserializeFrom`은 Lettuce의 read-only, non-array-backed bounded view를 지원하면서 caller state를 보존합니다.
+[이슈 #756 보고서](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md)는 Jackson 3
+heap/direct Lettuce cell을 inconclusive로 판정했습니다. Ergonomic direct path는 유지하지만 allocation 감소를
+주장하지 않습니다. 결과는 측정 payload/기본 mapper, pooled 512-byte pre-sized reusable target, no-growth
+조건에만 적용됩니다.
+
 - [Jackson 3.x](https://github.com/FasterXML/jackson)
 - [Jackson 3.x Release Notes](https://github.com/FasterXML/jackson/wiki/Jackson-Release-3.0)
 - [Jackson Kotlin Module](https://github.com/FasterXML/jackson-module-kotlin)
