@@ -5,6 +5,8 @@ import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.isNullOrEmpty
+import java.io.IOException
+import java.io.OutputStream
 import java.nio.ByteBuffer
 
 /**
@@ -62,6 +64,20 @@ open class CompressableBinarySerializer(
             return null
         return super.deserialize(compressor.decompress(bytes))
     }
+
+    /**
+     * Serializes and compresses [graph] before writing the compressed wire bytes into caller-owned [target].
+     *
+     * This allocating compatibility path intentionally preserves compression and restores nested control-flow
+     * failures that standard-array serializer wrappers may hide.
+     */
+    @Throws(IOException::class)
+    override fun serializeBinaryToStream(graph: Any?, target: OutputStream): Int =
+        preserveBufferControlFailure {
+            val bytes = serialize(graph)
+            target.write(bytes)
+            bytes.size
+        }
 
     /**
      * Serializes and compresses [graph] before copying the compressed wire bytes into caller-owned [target].

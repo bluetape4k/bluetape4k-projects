@@ -445,6 +445,45 @@ io.bluetape4k.jackson
 
 Kotlin은 `serializer.serializeTo(value, target)`과 `serializer.deserializeFrom<Value>(source)`를 사용하고 Java는 같은 메서드에 target class를 전달합니다. 호출자는 남은 용량이 충분한 writable buffer를 제공합니다. 출력 성공은 `limit`을 넓히지 않고 `position`만 이동하며 overflow/read-only 실패는 rollback합니다. 입력은 duplicate view로 source `position`과 `limit`을 보존합니다.
 
+### 호출자 소유 `OutputStream` API
+
+`JacksonSerializer.serializeJsonToStream`은 JSON을 먼저 `ByteArray`로 만들지 않고 설정된 mapper를 통해
+stream에 기록합니다. Interface 기본 구현은 allocating 호환 fallback으로 남습니다. Serializer는 동기 호출
+동안만 stream을 borrow하며 보관, close, flush하지 않습니다. 호출과 destination을 한 thread에 가두고,
+예외가 발생하면 partial JSON이 남을 수 있으므로 staging output을 사용하세요.
+
+```kotlin
+val serializer = JacksonSerializer()
+val staging = ByteArrayOutputStream()
+val json = try {
+    serializer.serializeJsonToStream(value, staging)
+    staging.toByteArray()
+} catch (e: IOException) {
+    staging.reset()
+    throw e
+} finally {
+    staging.close()
+}
+```
+
+```java
+static byte[] encode(JacksonSerializer serializer, Object value) throws IOException {
+    ByteArrayOutputStream staging = new ByteArrayOutputStream();
+    try (staging) {
+        serializer.serializeJsonToStream(value, staging);
+        return staging.toByteArray();
+    } catch (IOException failure) {
+        staging.reset();
+        throw failure;
+    }
+}
+```
+
+`deserializeFrom`은 Lettuce가 전달하는 read-only, non-array-backed bounded view를 지원하고 caller state를
+보존합니다. [이슈 #756 보고서](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md)는
+측정 payload/기본 mapper, pooled 512-byte pre-sized reusable target, no-growth 조건의 Jackson 2 heap/direct
+Lettuce cell만 낮은 allocation으로 accepted했습니다. Zero-copy, decode allocation, 일반 처리량 주장이 아닙니다.
+
 - [Jackson](https://github.com/FasterXML/jackson)
 - [Jackson Kotlin Module](https://github.com/FasterXML/jackson-module-kotlin)
 - [Url62 (Base62)](https://github.com/nicksrandall/url62)

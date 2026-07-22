@@ -1,0 +1,10 @@
+chart-gate: asset=infra-lettuce-issue756-allocation-chart-01
+source=docs/benchmarks/raw/issue-756/comparison.csv
+metric=allocation delta percent versus allocating baseline
+unitDirection=PASS
+heapDirectSeries=PASS
+canonicalRuns=PASS
+verdictBoundary=PASS
+interpretationBoundary=PASS
+sourceOfTruth=benchmark report table plus committed raw artifact
+status=PASS

@@ -637,6 +637,47 @@ The [issue #1039 allocation report](../../docs/benchmarks/2026-07-18-bytebuffer-
 
 Kotlin: `serializer.serializeTo(value, target)` / `serializer.deserializeFrom<Value>(source)`. Java: `serializer.serializeTo(value, target)` / `serializer.deserializeFrom(source)`. The caller owns a writable target with sufficient remaining capacity. Success advances output `position` without widening `limit`; overflow/read-only failure rolls back state. Input reads a duplicate and preserves source `position`/`limit`. These results apply only to the measured payload and default configurations.
 
+### Caller-owned `OutputStream` API
+
+`serializeBinaryToStream(graph, target)` is an opt-in caller-owned destination API. The `BinarySerializer` interface
+default is an allocating compatibility fallback (`serialize` to `ByteArray`, then `write`); JDK and Kryo provide direct
+stream implementations. The serializer borrows the stream synchronously and must not retain, close, or flush it. Keep
+the serializer invocation and mutable destination thread-confined. A destination failure can leave partial bytes, so
+stage or discard the destination before publication instead of trying to reuse the failed range.
+
+```kotlin
+val staging = ByteArrayOutputStream()
+val wire = try {
+    serializer.serializeBinaryToStream(value, staging)
+    staging.toByteArray()
+} catch (e: IOException) {
+    staging.reset() // discard partial output
+    throw e
+} finally {
+    staging.close() // caller owns the lifecycle
+}
+```
+
+```java
+static byte[] encode(BinarySerializer serializer, Object value) throws IOException {
+    ByteArrayOutputStream staging = new ByteArrayOutputStream();
+    try (staging) {
+        serializer.serializeBinaryToStream(value, staging);
+        return staging.toByteArray();
+    } catch (IOException failure) {
+        staging.reset(); // discard partial output
+        throw failure;
+    }
+}
+```
+
+An external `deserializeFrom` override must accept the read-only, non-array-backed bounded view used by Lettuce and
+borrow it only for the synchronous call. If it cannot honor that contract, inherit the interface allocating default.
+The [issue #756 Lettuce evidence](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md)
+accepted allocation reduction only for JDK and Kryo heap/direct codec cells with the measured payload/default config,
+pooled pre-sized 512-byte reusable targets, and no capacity growth. It does not cover Fory, compressed serializers,
+one-argument encode, decode, other payloads, capacities, or pooling choices.
+
 - [bluetape4k-okio](../okio/README.md) (Okio-based I/O module)
 - [Kryo Documentation](https://github.com/EsotericSoftware/kryo)
 - [Apache Fory](https://fory.apache.org/)

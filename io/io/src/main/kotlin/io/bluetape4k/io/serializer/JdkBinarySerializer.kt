@@ -5,11 +5,46 @@ import io.bluetape4k.io.ByteBufferOutputStream
 import io.bluetape4k.logging.KLogging
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.io.ObjectInputFilter
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.io.OutputStream
 import java.nio.ByteBuffer
 import java.nio.ReadOnlyBufferException
+
+private const val JDK_OUTPUT_LIMIT_MESSAGE = "Serialized output exceeds Int.MAX_VALUE bytes."
+
+private class JdkCallerOwnedCountingOutputStream(
+    private val target: OutputStream,
+): OutputStream() {
+
+    var written: Int = 0
+        private set
+
+    override fun write(value: Int) {
+        val next = checkedCount(1)
+        target.write(value)
+        written = next
+    }
+
+    override fun write(bytes: ByteArray, offset: Int, length: Int) {
+        val next = checkedCount(length)
+        target.write(bytes, offset, length)
+        written = next
+    }
+
+    override fun flush() = Unit
+
+    override fun close() = Unit
+
+    private fun checkedCount(length: Int): Int =
+        try {
+            Math.addExact(written, length)
+        } catch (failure: ArithmeticException) {
+            throw IllegalStateException(JDK_OUTPUT_LIMIT_MESSAGE, failure)
+        }
+}
 
 /**
  * 기본 [ObjectInputFilter]. `io.bluetape4k.**`, `java.lang.**`, `java.util.**`,
@@ -82,6 +117,21 @@ class JdkBinarySerializer(
             oos.writeObject(graph)
         }
         return output.toByteArray()
+    }
+
+    @Throws(IOException::class)
+    override fun serializeBinaryToStream(graph: Any?, target: OutputStream): Int {
+        val source = graph ?: return 0
+        val output = JdkCallerOwnedCountingOutputStream(target)
+
+        return try {
+            ObjectOutputStream(output).use { stream ->
+                stream.writeObject(source)
+            }
+            output.written
+        } catch (failure: Throwable) {
+            throwBufferSerializationFailure(source, failure)
+        }
     }
 
     override fun serializeTo(graph: Any?, target: ByteBuffer): Int {

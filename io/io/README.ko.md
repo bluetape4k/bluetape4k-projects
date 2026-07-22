@@ -631,6 +631,48 @@ MIT License
 
 Kotlin: `serializer.serializeTo(value, target)` / `serializer.deserializeFrom<Value>(source)`. Java: `serializer.serializeTo(value, target)` / `serializer.deserializeFrom(source)`. 호출자는 남은 용량이 충분한 writable target을 소유합니다. 성공하면 출력 `position`만 이동하고 `limit`은 넓어지지 않으며 overflow/read-only 실패는 상태를 rollback합니다. 입력은 duplicate로 읽어 source `position`/`limit`을 보존합니다. 근거는 측정 payload와 기본 설정에만 적용됩니다.
 
+### 호출자 소유 `OutputStream` API
+
+`serializeBinaryToStream(graph, target)`은 호출자가 명시적으로 선택하는 caller-owned destination API입니다.
+`BinarySerializer` interface 기본 구현은 `serialize`로 `ByteArray`를 만든 뒤 `write`하는 allocating 호환
+fallback이며, JDK와 Kryo 구현체는 stream에 직접 기록합니다. Serializer는 stream을 동기 borrow할 뿐 보관,
+close, flush하지 않습니다. Serializer 호출과 mutable destination은 한 thread에 가둬야 합니다. Destination
+실패 시 partial bytes가 남을 수 있으므로 실패한 range를 재사용하지 말고 staging destination을 폐기한 뒤
+성공 결과만 게시하세요.
+
+```kotlin
+val staging = ByteArrayOutputStream()
+val wire = try {
+    serializer.serializeBinaryToStream(value, staging)
+    staging.toByteArray()
+} catch (e: IOException) {
+    staging.reset() // partial output 폐기
+    throw e
+} finally {
+    staging.close() // lifecycle은 호출자 소유
+}
+```
+
+```java
+static byte[] encode(BinarySerializer serializer, Object value) throws IOException {
+    ByteArrayOutputStream staging = new ByteArrayOutputStream();
+    try (staging) {
+        serializer.serializeBinaryToStream(value, staging);
+        return staging.toByteArray();
+    } catch (IOException failure) {
+        staging.reset(); // partial output 폐기
+        throw failure;
+    }
+}
+```
+
+외부 `deserializeFrom` override는 Lettuce가 전달하는 read-only, non-array-backed bounded view를 지원하고 동기
+호출 동안만 borrow해야 합니다. 이 계약을 지킬 수 없다면 interface의 allocating 기본 구현을 상속하세요.
+[이슈 #756 Lettuce 근거](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md)는
+측정 payload/기본 config, pooled 512-byte pre-sized reusable target, no-growth 조건에서 JDK와 Kryo의
+heap/direct codec cell만 allocation 감소로 accepted했습니다. Fory, 압축 serializer, 단일 인자 encode, decode,
+다른 payload/capacity/pooling에는 일반화할 수 없습니다.
+
 - [bluetape4k-okio](../okio/README.ko.md) (Okio 기반 I/O 모듈)
 - [Kryo Documentation](https://github.com/EsotericSoftware/kryo)
 - [Apache Fory](https://fory.apache.org/)

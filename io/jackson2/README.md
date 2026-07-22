@@ -388,6 +388,45 @@ The [issue #1039 report](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-
 
 Kotlin uses `serializer.serializeTo(value, target)` and `serializer.deserializeFrom<Value>(source)`; Java calls the same methods with the target class. The caller supplies a writable buffer with sufficient remaining capacity. Output success advances `position` without widening `limit`; overflow/read-only failure rolls back. Input preserves source `position` and `limit` through a duplicate view.
 
+### Caller-owned `OutputStream` API
+
+`JacksonSerializer.serializeJsonToStream` writes through the configured mapper without first materializing the JSON
+as a `ByteArray`. The interface default remains an allocating compatibility fallback. The stream is borrowed only for
+the synchronous call; the serializer does not retain, close, or flush it. Keep the call and destination thread-confined
+and stage output because an exception can leave partial JSON in the destination.
+
+```kotlin
+val serializer = JacksonSerializer()
+val staging = ByteArrayOutputStream()
+val json = try {
+    serializer.serializeJsonToStream(value, staging)
+    staging.toByteArray()
+} catch (e: IOException) {
+    staging.reset()
+    throw e
+} finally {
+    staging.close()
+}
+```
+
+```java
+static byte[] encode(JacksonSerializer serializer, Object value) throws IOException {
+    ByteArrayOutputStream staging = new ByteArrayOutputStream();
+    try (staging) {
+        serializer.serializeJsonToStream(value, staging);
+        return staging.toByteArray();
+    } catch (IOException failure) {
+        staging.reset();
+        throw failure;
+    }
+}
+```
+
+`deserializeFrom` accepts the read-only, non-array-backed bounded view used by Lettuce and preserves caller state.
+The [issue #756 report](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md) accepted lower
+allocation only for Jackson 2 heap/direct Lettuce cells with the measured payload/default mapper, pooled pre-sized
+512-byte reusable targets, and no growth. It is not a zero-copy, decode-allocation, or general throughput claim.
+
 - [Jackson](https://github.com/FasterXML/jackson)
 - [Jackson Kotlin Module](https://github.com/FasterXML/jackson-module-kotlin)
 - [Url62 (Base62)](https://github.com/nicksrandall/url62)

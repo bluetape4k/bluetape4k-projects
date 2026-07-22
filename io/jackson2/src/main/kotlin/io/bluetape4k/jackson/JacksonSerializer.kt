@@ -7,9 +7,44 @@ import io.bluetape4k.json.JsonSerializationException
 import io.bluetape4k.json.JsonSerializer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
+import java.io.IOException
+import java.io.OutputStream
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.nio.ReadOnlyBufferException
+
+private const val JACKSON_OUTPUT_LIMIT_MESSAGE = "Serialized output exceeds Int.MAX_VALUE bytes."
+
+private class JacksonCallerOwnedCountingOutputStream(
+    private val target: OutputStream,
+): OutputStream() {
+
+    var written: Int = 0
+        private set
+
+    override fun write(value: Int) {
+        val next = checkedCount(1)
+        target.write(value)
+        written = next
+    }
+
+    override fun write(bytes: ByteArray, offset: Int, length: Int) {
+        val next = checkedCount(length)
+        target.write(bytes, offset, length)
+        written = next
+    }
+
+    override fun flush() = Unit
+
+    override fun close() = Unit
+
+    private fun checkedCount(length: Int): Int =
+        try {
+            Math.addExact(written, length)
+        } catch (failure: ArithmeticException) {
+            throw IllegalStateException(JACKSON_OUTPUT_LIMIT_MESSAGE, failure)
+        }
+}
 
 /**
  * Jackson 라이브러리를 사용하는 [JsonSerializer] 구현체입니다.
@@ -63,6 +98,22 @@ open class JacksonSerializer(
             requireNotNull(mapper.writeAsBytes(graph)) { "mapper.writeAsBytes returned null." }
         } catch (e: Throwable) {
             throw JsonSerializationException("Fail to serialize by Jackson. graphType=${graph.javaClass.name}", e)
+        }
+    }
+
+    @Throws(IOException::class)
+    override fun serializeJsonToStream(graph: Any?, target: OutputStream): Int {
+        val source = graph ?: return 0
+        val output = JacksonCallerOwnedCountingOutputStream(target)
+
+        return try {
+            val writer = mapper.writer()
+            writer.createGenerator(output).use { generator ->
+                writer.writeValue(generator, source)
+            }
+            output.written
+        } catch (failure: Throwable) {
+            throw jacksonWriteFailure(failure, source)
         }
     }
 

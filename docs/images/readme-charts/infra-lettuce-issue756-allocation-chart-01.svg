@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="1000" viewBox="0 0 1360 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Issue 756 Lettuce serializer allocation delta</title>
+  <desc id="desc">Grouped horizontal bars show canonical allocation delta versus the allocating baseline for heap and direct targets. Higher is better. JDK, Kryo, and Jackson 2 are accepted; Jackson 3 is inconclusive and has no allocation claim.</desc>
+  <defs>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.08"/></filter>
+    <style>
+      .canvas{fill:#F6F9FD}.frame{fill:#FFFFFF;stroke:#C9D8E8;stroke-width:2}.panel{fill:#FFFFFF;stroke:#C9D8E8;stroke-width:1.8;filter:url(#shadow)}.note{fill:#F7FBFF;stroke:#4F83FF;stroke-width:1.5}.accepted{fill:#F2FFFB;stroke:#18BFA7;stroke-width:1.8}.inconclusive{fill:#FFF8ED;stroke:#FFB45C;stroke-width:1.8}.title{font-family:"Architects Daughter";font-size:34px;fill:#22304A;font-weight:700}.panelTitle{font-family:"Architects Daughter";font-size:23px;fill:#22304A;font-weight:700}.subtitle,.label,.axis,.value,.small,.tiny,.legend{font-family:"Comic Mono";fill:#22304A}.subtitle{font-size:14px;fill:#5B6B83}.label{font-size:14px;font-weight:700}.axis{font-size:11px;fill:#5B6B83}.value{font-size:12px;font-weight:700}.small{font-size:12px}.tiny{font-size:10px;fill:#5B6B83}.legend{font-size:12px}.grid{stroke:#E1E9F3;stroke-width:1}.zero{stroke:#6B7C94;stroke-width:2}.axisLine{stroke:#B7C8DC;stroke-width:1.4}.heap{fill:#BBD8FF;stroke:#6EA6FF;stroke-width:1.4}.direct{fill:#B8F1E8;stroke:#18BFA7;stroke-width:1.4}.heapWarn{fill:#FFE0B8;stroke:#FF9F43;stroke-width:1.4}.directWarn{fill:#FFD1A3;stroke:#FF8A34;stroke-width:1.4}
+    </style>
+  </defs>
+  <rect class="canvas" width="1360" height="1000"/>
+  <rect class="frame" x="0.5" y="0.5" width="1359" height="999" rx="14"/>
+  <text class="title" x="680" y="54" text-anchor="middle">Lettuce serializer target handoff: allocation delta</text>
+  <text class="subtitle" x="680" y="78" text-anchor="middle">Issue #756 canonical A/B / candidate encoding versus allocating baseline / higher is better</text>
+  <g>
+    <rect x="332" y="94" width="696" height="30" rx="15" fill="#F7FBFF" stroke="#4F83FF" stroke-width="1.4"/>
+    <text class="tiny" x="680" y="109" text-anchor="middle" dominant-baseline="middle">Fixed payload / default serializer configuration / pooled 512-byte reusable no-growth target</text>
+  </g>
+  <g>
+    <rect x="910" y="143" width="18" height="12" rx="4" class="heap"/><text class="legend" x="936" y="153" dominant-baseline="middle">Heap target</text>
+    <rect x="1045" y="143" width="18" height="12" rx="4" class="direct"/><text class="legend" x="1071" y="153" dominant-baseline="middle">Direct target</text>
+    <rect x="1180" y="143" width="18" height="12" rx="4" class="inconclusive"/><text class="legend" x="1206" y="153" dominant-baseline="middle">No claim</text>
+  </g>
+  <rect class="panel" x="56" y="170" width="1248" height="520" rx="14"/>
+  <text class="panelTitle" x="88" y="213">Allocation delta across two canonical runs</text>
+  <text class="axis" x="1120" y="207" text-anchor="middle">Allocation delta (%) / 0% = unchanged</text>
+  <line class="grid" x1="400" y1="230" x2="400" y2="618"/><text class="axis" x="400" y="642" text-anchor="middle">-175</text>
+  <line class="grid" x1="532.7" y1="230" x2="532.7" y2="618"/><text class="axis" x="532.7" y="642" text-anchor="middle">-125</text>
+  <line class="grid" x1="665.5" y1="230" x2="665.5" y2="618"/><text class="axis" x="665.5" y="642" text-anchor="middle">-75</text>
+  <line class="grid" x1="798.2" y1="230" x2="798.2" y2="618"/><text class="axis" x="798.2" y="642" text-anchor="middle">-25</text>
+  <line class="zero" x1="864.5" y1="230" x2="864.5" y2="618"/><text class="axis" x="864.5" y="642" text-anchor="middle">0</text>
+  <line class="grid" x1="997.3" y1="230" x2="997.3" y2="618"/><text class="axis" x="997.3" y="642" text-anchor="middle">+50</text>
+  <line class="grid" x1="1130" y1="230" x2="1130" y2="618"/><text class="axis" x="1130" y="642" text-anchor="middle">+100</text>
+  <line class="axisLine" x1="400" y1="618" x2="1130" y2="618"/>
+  <text class="label" x="88" y="279">JDK</text><text class="tiny" x="88" y="296">accepted</text>
+  <rect x="864.5" y="258" width="206.9" height="16" rx="5" class="heap"/><text class="value" x="1081.4" y="270">+77.97%</text>
+  <rect x="864.5" y="282" width="206.9" height="16" rx="5" class="direct"/><text class="value" x="1081.4" y="294">+77.97%</text>
+  <rect class="accepted" x="1170" y="264" width="102" height="30" rx="15"/><text class="tiny" x="1221" y="279" text-anchor="middle" dominant-baseline="middle">accepted</text>
+  <line class="grid" x1="88" y1="330" x2="1272" y2="330"/>
+  <text class="label" x="88" y="379">Kryo</text><text class="tiny" x="88" y="396">accepted</text>
+  <rect x="864.5" y="358" width="148.3" height="16" rx="5" class="heap"/><text class="value" x="1022.8" y="370">+55.88%</text>
+  <rect x="864.5" y="382" width="148.3" height="16" rx="5" class="direct"/><text class="value" x="1022.8" y="394">+55.88%</text>
+  <rect class="accepted" x="1170" y="364" width="102" height="30" rx="15"/><text class="tiny" x="1221" y="379" text-anchor="middle" dominant-baseline="middle">accepted</text>
+  <line class="grid" x1="88" y1="430" x2="1272" y2="430"/>
+  <text class="label" x="88" y="479">Jackson 2</text><text class="tiny" x="88" y="496">accepted</text>
+  <rect x="864.5" y="458" width="265.5" height="16" rx="5" class="heap"/><text class="value" x="1128" y="470" text-anchor="end">+100.00%</text>
+  <rect x="864.5" y="482" width="265.5" height="16" rx="5" class="direct"/><text class="value" x="1128" y="494" text-anchor="end">+100.00%</text>
+  <rect class="accepted" x="1170" y="464" width="102" height="30" rx="15"/><text class="tiny" x="1221" y="479" text-anchor="middle" dominant-baseline="middle">accepted</text>
+  <line class="grid" x1="88" y1="530" x2="1272" y2="530"/>
+  <text class="label" x="88" y="579">Jackson 3</text><text class="tiny" x="88" y="596">inconclusive</text>
+  <rect x="456.8" y="558" width="407.7" height="16" rx="5" class="heapWarn"/><text class="value" x="446.8" y="570" text-anchor="end">-153.57%</text>
+  <rect x="456.8" y="582" width="407.7" height="16" rx="5" class="directWarn"/><text class="value" x="446.8" y="594" text-anchor="end">-153.57%</text>
+  <rect class="inconclusive" x="1160" y="564" width="122" height="30" rx="15"/><text class="tiny" x="1221" y="579" text-anchor="middle" dominant-baseline="middle">no allocation claim</text>
+  <g>
+    <rect class="note" x="56" y="720" width="1248" height="214" rx="14"/>
+    <text class="panelTitle" x="88" y="764">Interpretation and boundaries</text>
+    <text class="small" x="88" y="802">Accepted exact cells: JDK +77.97%, Kryo +55.88%, and Jackson 2 +100.00% in both canonical runs.</text>
+    <text class="small" x="88" y="830">Jackson 3 allocation increased by 153.57%; its direct path remains ergonomic-only, with no allocation-improvement claim.</text>
+    <text class="small" x="88" y="870">This chart summarizes allocation only. It does not prove throughput, zero-copy, decode allocation, compression, Redis RTT, or other configurations.</text>
+    <text class="tiny" x="88" y="908">Source of truth: issue #756 benchmark table and committed raw comparison.csv. Values rounded to two decimals for display.</text>
+  </g>
+</svg>

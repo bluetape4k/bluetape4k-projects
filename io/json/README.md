@@ -100,6 +100,46 @@ dependencies {
 }
 ```
 
+## Caller-owned `OutputStream` API
+
+`serializeJsonToStream(graph, target)` is an opt-in caller-owned destination API. The `JsonSerializer` interface
+default allocates through `serialize` and then writes the resulting `ByteArray`; a concrete backend may override it
+with a direct stream writer. The serializer borrows the stream synchronously and must not retain, close, or flush it.
+Keep the call and mutable destination thread-confined. If serialization or destination writing fails, partial output
+may remain; publish only a successful staging result and discard the failed destination.
+
+```kotlin
+val staging = ByteArrayOutputStream()
+val json = try {
+    serializer.serializeJsonToStream(value, staging)
+    staging.toByteArray()
+} catch (e: IOException) {
+    staging.reset()
+    throw e
+} finally {
+    staging.close()
+}
+```
+
+```java
+static byte[] encode(JsonSerializer serializer, Object value) throws IOException {
+    ByteArrayOutputStream staging = new ByteArrayOutputStream();
+    try (staging) {
+        serializer.serializeJsonToStream(value, staging);
+        return staging.toByteArray();
+    } catch (IOException failure) {
+        staging.reset();
+        throw failure;
+    }
+}
+```
+
+A custom `deserializeFrom` implementation must synchronously support read-only, non-array-backed bounded views, or
+inherit the interface allocating default. Allocation claims are backend-specific: the
+[issue #756 report](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md) accepted only
+Jackson 2 heap/direct Lettuce cells. Jackson 3 was inconclusive, and Fastjson, one-argument encode, decode, other
+payloads/configurations, target sizes, capacity growth, and pooling choices were not established.
+
 ## References
 
 - [Jakarta JSON Processing](https://jakarta.ee/specifications/jsonp/)

@@ -2,6 +2,12 @@
 
 set -euo pipefail
 
+for argument in "$@"; do
+    if [[ "$argument" == "--scope" ]]; then
+        exec "$(dirname "$0")/check-serializer-stream-abi.sh" "$@"
+    fi
+done
+
 readonly BASE_SHA="90b267871e9154f242e6de7ee9fd0539f83e509e"
 readonly BASE_TREE="f40ccbda16ddf56d4b7770c01e9b0b2cb07cedba"
 readonly IO_JAR_SHA="ddf283bdb3a17267a5a275bcc78f5cbbee7510c35a512d5fabe6a34d2c39063e"

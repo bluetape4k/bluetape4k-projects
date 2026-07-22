@@ -96,6 +96,46 @@ dependencies {
 }
 ```
 
+## 호출자 소유 `OutputStream` API
+
+`serializeJsonToStream(graph, target)`은 호출자가 명시적으로 선택하는 caller-owned destination API입니다.
+`JsonSerializer` interface 기본 구현은 `serialize`로 `ByteArray`를 할당한 뒤 stream에 기록하며, concrete
+backend는 direct stream writer로 override할 수 있습니다. Serializer는 stream을 동기 borrow할 뿐 보관,
+close, flush하지 않습니다. 호출과 mutable destination은 한 thread에 가두세요. 직렬화나 destination write가
+실패하면 partial output이 남을 수 있으므로 성공한 staging 결과만 게시하고 실패한 destination은 폐기합니다.
+
+```kotlin
+val staging = ByteArrayOutputStream()
+val json = try {
+    serializer.serializeJsonToStream(value, staging)
+    staging.toByteArray()
+} catch (e: IOException) {
+    staging.reset()
+    throw e
+} finally {
+    staging.close()
+}
+```
+
+```java
+static byte[] encode(JsonSerializer serializer, Object value) throws IOException {
+    ByteArrayOutputStream staging = new ByteArrayOutputStream();
+    try (staging) {
+        serializer.serializeJsonToStream(value, staging);
+        return staging.toByteArray();
+    } catch (IOException failure) {
+        staging.reset();
+        throw failure;
+    }
+}
+```
+
+Custom `deserializeFrom` 구현은 read-only, non-array-backed bounded view를 동기 호출 동안 지원해야 하며,
+불가능하면 interface의 allocating 기본 구현을 상속해야 합니다. Allocation 주장은 backend별로 제한됩니다.
+[이슈 #756 보고서](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md)는 Jackson 2
+heap/direct Lettuce cell만 accepted했고 Jackson 3는 inconclusive였습니다. Fastjson, 단일 인자 encode, decode,
+다른 payload/configuration, target 크기, capacity growth, pooling 선택은 입증하지 않았습니다.
+
 ## 참고
 
 - [Jakarta JSON Processing](https://jakarta.ee/specifications/jsonp/)

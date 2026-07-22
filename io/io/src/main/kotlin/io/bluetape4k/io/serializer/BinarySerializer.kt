@@ -1,5 +1,7 @@
 package io.bluetape4k.io.serializer
 
+import java.io.IOException
+import java.io.OutputStream
 import java.nio.ByteBuffer
 
 /**
@@ -33,6 +35,26 @@ interface BinarySerializer {
      * @return 직렬화된 데이터
      */
     fun serialize(graph: Any?): ByteArray
+
+    /**
+     * Serializes [graph] and writes the resulting bytes to the caller-owned [target].
+     *
+     * This interface default is an allocating fallback: it first obtains a [ByteArray] from [serialize], then writes
+     * that array to [target]. Null input and zero-byte results retain [serialize]'s existing policy. On success, the
+     * returned count is exactly the number of bytes written and is bounded by [Int.MAX_VALUE].
+     *
+     * The target is borrowed synchronously and is not retained after the call. This method neither flushes nor closes
+     * it. Serializer and destination failures propagate unchanged; a failed destination may already contain partial
+     * output.
+     *
+     * @return the exact number of bytes written
+     */
+    @Throws(IOException::class)
+    fun serializeBinaryToStream(graph: Any?, target: OutputStream): Int {
+        val bytes = serialize(graph)
+        target.write(bytes)
+        return bytes.size
+    }
 
     /**
      * Serializes [graph] into the caller-owned [target], starting at its current position.
