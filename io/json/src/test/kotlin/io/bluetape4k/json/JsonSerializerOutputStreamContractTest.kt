@@ -25,16 +25,37 @@ class JsonSerializerOutputStreamContractTest {
     }
 
     @Test
-    fun `null and zero-byte results retain the existing serializer policy`() {
-        val serializer = jsonSerializer()
+    fun `null input delegates to the backend serializer policy`() {
+        var serializeCount = 0
+        val serializer = jsonSerializer(serialize = { graph ->
+            serializeCount++
+            if (graph == null) JSON_NULL_PAYLOAD else JSON_PAYLOAD
+        })
         val target = RecordingOutputStream()
-        val expected = serializer.serialize(null)
 
         val written = serializer.serializeJsonToStream(null, target)
 
-        expected shouldBeEqualTo byteArrayOf()
-        target.toByteArray() shouldBeEqualTo expected
-        written shouldBeEqualTo expected.size
+        serializeCount shouldBeEqualTo 1
+        target.toByteArray() shouldBeEqualTo JSON_NULL_PAYLOAD
+        written shouldBeEqualTo JSON_NULL_PAYLOAD.size
+        target.flushCount shouldBeEqualTo 0
+        target.closeCount shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `non-null zero-byte result writes nothing and returns zero`() {
+        var serializeCount = 0
+        val serializer = jsonSerializer(serialize = {
+            serializeCount++
+            byteArrayOf()
+        })
+        val target = RecordingOutputStream()
+
+        val written = serializer.serializeJsonToStream("empty-json-value", target)
+
+        serializeCount shouldBeEqualTo 1
+        target.toByteArray() shouldBeEqualTo byteArrayOf()
+        written shouldBeEqualTo 0
         target.flushCount shouldBeEqualTo 0
         target.closeCount shouldBeEqualTo 0
     }
@@ -139,5 +160,6 @@ class JsonSerializerOutputStreamContractTest {
 
     private companion object {
         val JSON_PAYLOAD: ByteArray = byteArrayOf(2, 4, 6, 8)
+        val JSON_NULL_PAYLOAD: ByteArray = "null".encodeToByteArray()
     }
 }

@@ -25,16 +25,37 @@ class BinarySerializerOutputStreamContractTest {
     }
 
     @Test
-    fun `null and zero-byte results retain the existing serializer policy`() {
-        val serializer = binarySerializer()
+    fun `null input delegates to the existing serializer policy`() {
+        var serializeCount = 0
+        val serializer = binarySerializer(serialize = { graph ->
+            serializeCount++
+            if (graph == null) byteArrayOf() else BINARY_PAYLOAD
+        })
         val target = RecordingOutputStream()
-        val expected = serializer.serialize(null)
 
         val written = serializer.serializeBinaryToStream(null, target)
 
-        expected shouldBeEqualTo byteArrayOf()
-        target.toByteArray() shouldBeEqualTo expected
-        written shouldBeEqualTo expected.size
+        serializeCount shouldBeEqualTo 1
+        target.toByteArray() shouldBeEqualTo byteArrayOf()
+        written shouldBeEqualTo 0
+        target.flushCount shouldBeEqualTo 0
+        target.closeCount shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `non-null zero-byte result writes nothing and returns zero`() {
+        var serializeCount = 0
+        val serializer = binarySerializer(serialize = {
+            serializeCount++
+            byteArrayOf()
+        })
+        val target = RecordingOutputStream()
+
+        val written = serializer.serializeBinaryToStream("empty-binary-value", target)
+
+        serializeCount shouldBeEqualTo 1
+        target.toByteArray() shouldBeEqualTo byteArrayOf()
+        written shouldBeEqualTo 0
         target.flushCount shouldBeEqualTo 0
         target.closeCount shouldBeEqualTo 0
     }
