@@ -99,7 +99,9 @@ gate를 통과해 구현할 경우 Redisson은 Lettuce 모듈에 의존하지 �
 
 codec fallback log는 기존 semantic failure에서만 기존 info/debug level과 비민감 내용을 유지한다. adapter failure 자체는 fallback log를 만들지 않는다.
 
-candidate buffer는 성공해 ownership을 이전하기 전 caller에게 escape하지 않는다. 실패 시 written range zeroization은 현행 serializer buffer와 같은 정책으로 요구하지 않지만 readable range로 노출하지 않고 release한다. success-transfer flag와 `finally`를 사용해 candidate는 실패 시 exact-once release하고, 성공 반환 buffer는 재-release하지 않는다. fallback도 실패하면 원래 semantic failure를 보존하며 cleanup failure는 suppress한다.
+candidate buffer는 성공해 ownership을 이전하기 전 caller에게 escape하지 않는다. 실패 시 written range zeroization은 현행 serializer buffer와 같은 정책으로 요구하지 않지만 readable range로 노출하지 않고 release한다. success-transfer flag와 `finally`를 사용해 candidate는 실패 시 exact-once release하고, 성공 반환 buffer는 재-release하지 않는다.
+
+encode/decode fallback 자체가 실패하면 **fallback failure가 현행처럼 terminal exception identity/type/cause로 전파**된다. primary semantic failure는 기존 level로 log되지만 terminal failure를 대체하지 않는다. candidate cleanup failure는 terminal failure가 있으면 suppressed되고, 단독이면 전파된다.
 
 ### 4.5 Redisson raw Fory/FastFory decode
 
@@ -163,6 +165,7 @@ view 생성·precondition이 실패하면 `ByteBufUtil.getBytes(...)`로 copy한
 - direct encode 예외에서 candidate buffer가 release되고 기존 Kryo5/Fory fallback 및 기존 예외 semantics가 유지되는지 검증한다.
 - direct encode feasibility candidate의 success-transfer/exact-once release를 direct failure + baseline success, direct failure + baseline/fallback failure, fatal failure로 나눠 검증한다.
 - view precondition failure와 direct primary failure를 분리해 primary/fallback 호출 횟수, catch domain, log 횟수, bounded-range sentinel 비노출을 검증한다.
+- injected fallback failure로 Fory/FastFory encode/decode 각각 fallback terminal identity/type/cause, primary log count, candidate exact-once release를 검증한다.
 - public constructor/ABI는 유지하되 internal serializer factory와 output-buffer factory seam으로 semantic/destination/control/fatal failure와 exact interaction을 결정적으로 주입한다. copy-constructor는 같은 runtime 설정을 보존한다.
 - touched test는 `runCatching`/non-null smoke assertion 대신 bluetape4k assertions, `assertFailsWith`, exact interaction/refCnt assertion을 사용한다.
 - `FastForyCompatibilityTest`의 비대칭 mode contract를 회귀 검증한다.
@@ -171,22 +174,32 @@ Testcontainers가 필요한 Redis integration path는 모듈·worktree 간 병�
 
 ## 7. Benchmark와 evidence
 
-기존 #1072 evidence runner/16-cell validator는 수정하지 않는다. 이 slice는 두 모듈의 독립 benchmark source set을 유지한다. `infra/lettuce`에는 4 pair/8 method JAR·runner, `infra/redisson`에는 8 pair/16 method JAR·runner를 만들고, repository-level `issue-756-fory-codec-followup` aggregate manifest/validator가 두 artifact의 총 12 pair/24 method를 묶어 검증한다. benchmark-only cross-module dependency나 새 module은 추가하지 않는다.
+기존 #1072 evidence runner/16-cell validator는 수정하지 않는다. 이 slice는 두 모듈의 독립 benchmark source set을 유지한다. `infra/lettuce`에는 고정 4 pair/8 method JAR·runner, `infra/redisson`에는 아래 disposition에 따라 6 pair/12 method 또는 8 pair/16 method JAR·runner를 만든다. repository-level `issue-756-fory-codec-followup` aggregate manifest/validator가 두 artifact를 묶어 검증하며 benchmark-only cross-module dependency나 새 module은 추가하지 않는다.
 
-측정은 다음 **12개 baseline/candidate pair, 24 timed methods**로 고정한다.
+Redisson encode gate는 두 단계다.
+
+1. **Non-promotable feasibility probe:** benchmark-local candidate로 현행 encode 대비 방향성과 ownership/capacity를 확인한다. 이 수치는 README/chart claim에 사용할 수 없다.
+2. probe가 유망할 때만 production codec path를 구현한다. 구현 뒤 이전 probe를 폐기하고 실제 production path로 fresh canonical A/B를 실행한다. documentation 승격은 이 canonical 결과만 사용한다.
+
+aggregate manifest는 `encodeDisposition=rejected|implemented`를 고정한다. `rejected`이면 canonical matrix는 encode를 제외한 정확히 10 pair/20 methods이고 feasibility raw evidence만 별도 첨부한다. `implemented`이면 actual codec encode를 포함한 정확히 12 pair/24 methods다. validator는 disposition과 cardinality가 맞지 않으면 실패한다.
+
+측정 후보와 conditional canonical cardinality는 다음과 같다.
 
 | Pair 범위 | Mode | Buffer shape | pair 수 | 승격 가능 여부 |
 |---|---|---|---:|---|
 | Lettuce serialize | Fory, FastFory | heap target, direct target | 4 | 가능 |
 | Redisson decode | Fory, FastFory | single-NIO heap, single-NIO direct | 4 | 가능 |
 | Redisson decode fallback | Fory, FastFory | composite | 2 | 불가 — fallback overhead 확인 전용 |
-| Redisson encode feasibility | Fory, FastFory | 현행 wrapped byte array 대 fresh `Unpooled.buffer(256, Int.MAX_VALUE)` | 2 | gate 통과 시에만 production 후보 |
+| Redisson encode | Fory, FastFory | 현행 wrapped byte array 대 fresh `Unpooled.buffer(256, Int.MAX_VALUE)` | 2 | probe는 승격 불가, implemented disposition의 production path만 승격 가능 |
 
 각 pair는 baseline byte-array route와 candidate route를 같은 fixture·payload·동일 process 환경에서 일대일 비교한다. cold/internal-buffer-growth probe는 timed acceptance matrix 밖에서 별도 수행하고, canonical matrix는 충분히 warmed 상태에서 측정한다. primary metric은 `gc.alloc.rate.norm` (bytes/op)이며 throughput은 diagnostic metric이다.
 
 실행 전 fail-closed preflight는 다음을 모두 확인한다.
 
-- module-local exact 8/16-method set와 aggregate 24-method pair mapping, baseline `serialize()`/candidate `serializeBinaryToStream()` dispatch 횟수
+- disposition별 module-local exact 8+12 또는 8+16 method set와 aggregate 20/24-method pair mapping
+- serialize baseline의 `serialize()` 1회/candidate의 `serializeBinaryToStream()` 1회 및 반대 path 0회
+- decode byte-array baseline의 `deserialize(byte[])` 1회; single-NIO candidate의 `deserializeFrom(ByteBuffer)` 1회와 array path 0회; composite candidate의 copied array path 1회와 direct path 0회
+- fallback은 선언된 primary failure 뒤에만 1회 호출되며 이 dispatch identity를 exact timed method와 binding
 - exact wire/count parity, 동일 주입 Fory identity/mode/registration, fixture/payload hash
 - Lettuce target allocator와 heap/direct 실제 class, Redisson allocator·initial/max capacity·growth·release identity
 - decode input index/marks/refCnt 및 sentinel 불변, composite fallback의 non-promotable 분류
@@ -200,7 +213,7 @@ candidate를 README/chart의 **accepted** 셀로 승격하려면 두 canonical r
 
 코드·테스트·evidence가 승인된 뒤에만 README와 chart를 갱신한다.
 
-- `ForyBinarySerializer`, `LettuceBinaryCodecs.fory()/fastFory()`, Redisson `ForyCodec`/`FastForyCodec` KDoc를 실제 accepted 경로와 동기화한다.
+- `ForyBinarySerializer`, `LettuceBinaryCodecs.fory()/fastFory()`, Redisson `ForyCodec`/`FastForyCodec` KDoc를 실제 accepted 경로와 동기화한다. Redisson KDoc에는 등록 없는 기본 Fory(`requireClassRegistration(false)`)를 사용하므로 trusted Redis payload 전용이며 untrusted input의 secure deserialization 경계를 제공하지 않는다고 경고한다.
 - KDoc는 raw-only 범위, Fory 내부 buffer/copy가 남아 zero-copy가 아님, caller migration이 필요 없음, gate 탈락 후보는 fallback/inconclusive임을 명시한다.
 - Lettuce의 FastFory 무-fallback과 Redisson의 FastFory→Fory 비대칭 fallback을 transport별로 분리해 설명하며 서로의 동작으로 일반화하지 않는다.
 - 한국어/영어 문서는 같은 codec matrix와 같은 수치·caveat를 유지한다.
