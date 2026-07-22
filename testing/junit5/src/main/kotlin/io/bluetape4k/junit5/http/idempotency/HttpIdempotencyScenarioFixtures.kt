@@ -57,6 +57,27 @@ internal fun unauthorizedResponse(): HttpIdempotencyResponse = HttpIdempotencyRe
     problemCode = "forbidden",
 )
 
+internal fun invalidIdempotencyRequestResponse(): HttpIdempotencyResponse = HttpIdempotencyResponse(
+    statusCode = 400,
+    body = "{\"code\":\"invalid_idempotency_request\"}",
+    headers = mapOf("content-type" to listOf("application/problem+json")),
+    problemCode = "invalid_idempotency_request",
+)
+
+internal fun oversizedRequestResponse(): HttpIdempotencyResponse = HttpIdempotencyResponse(
+    statusCode = 413,
+    body = "{\"code\":\"idempotency_request_too_large\"}",
+    headers = mapOf("content-type" to listOf("application/problem+json")),
+    problemCode = "idempotency_request_too_large",
+)
+
+internal fun unsafeReplaySnapshotResponse(): HttpIdempotencyResponse = HttpIdempotencyResponse(
+    statusCode = 500,
+    body = "{\"code\":\"idempotency_snapshot_rejected\"}",
+    headers = mapOf("content-type" to listOf("application/problem+json")),
+    problemCode = "idempotency_snapshot_rejected",
+)
+
 internal fun inFlightTimeoutResponse(
     config: BoundedWaitHttpIdempotencyConformanceConfig,
 ): HttpIdempotencyResponse = HttpIdempotencyResponse(

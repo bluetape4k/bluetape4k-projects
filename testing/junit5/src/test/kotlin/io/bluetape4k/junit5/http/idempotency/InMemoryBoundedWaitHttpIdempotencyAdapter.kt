@@ -9,6 +9,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
+import java.math.BigDecimal
 import java.security.MessageDigest
 import java.time.Duration
 import java.util.HexFormat
@@ -29,6 +30,8 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
     private val activeWaiters = AtomicInteger()
     private val maximumWaiters = AtomicInteger()
     private val openGates = AtomicInteger()
+    private val persistedReplaySnapshots = AtomicInteger()
+    private val unsafeReplayPersists = AtomicInteger()
     private val waiterSequence = AtomicLong()
     private val nextOwnerCleanupAttempt = AtomicReference<CompletableDeferred<Unit>?>()
     private val nextWaiterCleanupAttempt = AtomicReference<CompletableDeferred<Unit>?>()
@@ -40,8 +43,15 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
     val maximumObservedWaiters: Int
         get() = maximumWaiters.get()
 
+    val unsafeReplayPersistCount: Int
+        get() = unsafeReplayPersists.get()
+
+    val persistedReplaySnapshotCount: Int
+        get() = persistedReplaySnapshots.get()
+
     override suspend fun exchange(request: HttpIdempotencyRequest): HttpIdempotencyResponse {
         authenticateAndAuthorize(request)?.let { return it }
+        validateIngress(request)?.let { return it }
         val scope = serverResolvedScope(request)
         val fingerprint = fingerprint(request)
         return when (val action = mutex.withLock { decideExchange(scope, fingerprint) }) {
@@ -69,23 +79,33 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
         request: HttpIdempotencyRequest,
         outcome: HttpIdempotencyResponse,
     ) {
+        val replayableOutcome = replayableOutcomeOrNull(outcome)
+        if (replayableOutcome == null) {
+            rejectUnsafeSnapshot(request)
+            return
+        }
         val selected = mutex.withLock {
             val record = records[serverResolvedScope(request)]
                 ?: error("Owner was not started; values redacted.")
             check(record.state == TestState.InFlight) { "Owner is not in flight; values redacted." }
             record.state = TestState.Terminal
-            record.response = outcome
+            record.response = replayableOutcome
+            record.expiresAt = virtualNow.plus(config.retention)
+            persistedReplaySnapshots.incrementAndGet()
+            if (!isPersistedReplaySnapshotSafe(checkNotNull(record.response))) {
+                unsafeReplayPersists.incrementAndGet()
+            }
             openGates.decrementAndGet()
             val waiterOutcomes = record.waiters.values.map { waiter ->
                 waiter to if (virtualNow >= waiter.deadline) {
                     inFlightTimeoutResponse(config)
                 } else {
-                    outcome.withReplayFlag(true)
+                    replayableOutcome.withReplayFlag(true)
                 }
             }
             removeAllWaiters(record)
             CompletionSelection(
-                owner = record.ownerCompletion to outcome.withReplayFlag(false),
+                owner = record.ownerCompletion to replayableOutcome.withReplayFlag(false),
                 waiters = waiterOutcomes,
             )
         }
@@ -163,8 +183,10 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
         pending.ownerSignals.forEach { completion -> completion.cancel(cancellation) }
     }
 
-    override fun sideEffectCount(request: HttpIdempotencyRequest): Int =
-        sideEffects[serverResolvedScopeOrDenied(request)]?.get() ?: 0
+    override fun sideEffectCount(request: HttpIdempotencyRequest): Int {
+        if (request.idempotencyKeys.size != 1) return 0
+        return sideEffects[serverResolvedScopeOrDenied(request)]?.get() ?: 0
+    }
 
     override fun quiescence(): HttpIdempotencyQuiescence = HttpIdempotencyQuiescence(
         activeWaiters = activeWaiters.get(),
@@ -191,16 +213,12 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
     private fun decideExchange(scope: String, fingerprint: String): ExchangeAction {
         val existing = records[scope]
         if (existing == null) {
-            val signal = ownerSignals.getOrPut(scope) { CompletableDeferred() }
-            val record = TestRecord(
-                fingerprint = fingerprint,
-                responseDeliveryGate = responseDeliveryGates[scope],
-            )
-            records[scope] = record
-            sideEffects.computeIfAbsent(scope) { AtomicInteger() }.incrementAndGet()
-            openGates.incrementAndGet()
-            signal.complete(Unit)
-            return ExchangeAction.Owner(scope, record)
+            return createOwner(scope, fingerprint)
+        }
+        if (existing.state == TestState.Terminal && virtualNow >= checkNotNull(existing.expiresAt)) {
+            records.remove(scope)
+            ownerSignals.remove(scope)
+            return createOwner(scope, fingerprint)
         }
         if (existing.fingerprint != fingerprint) {
             return ExchangeAction.Immediate(idempotencyConflictResponse())
@@ -212,6 +230,19 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
             )
             TestState.Abandoned -> error("Abandoned records must not remain visible.")
         }
+    }
+
+    private fun createOwner(scope: String, fingerprint: String): ExchangeAction.Owner {
+        val signal = ownerSignals.getOrPut(scope) { CompletableDeferred() }
+        val record = TestRecord(
+            fingerprint = fingerprint,
+            responseDeliveryGate = responseDeliveryGates[scope],
+        )
+        records[scope] = record
+        sideEffects.computeIfAbsent(scope) { AtomicInteger() }.incrementAndGet()
+        openGates.incrementAndGet()
+        signal.complete(Unit)
+        return ExchangeAction.Owner(scope, record)
     }
 
     private fun registerWaiterOrReject(scope: String, record: TestRecord): ExchangeAction {
@@ -284,6 +315,28 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
         return AbandonSelection(owner, waiters)
     }
 
+    private suspend fun rejectUnsafeSnapshot(request: HttpIdempotencyRequest) {
+        val selected = mutex.withLock {
+            val scope = serverResolvedScope(request)
+            val record = records[scope] ?: error("Owner was not started; values redacted.")
+            check(record.state == TestState.InFlight) { "Owner is not in flight; values redacted." }
+            records.remove(scope)
+            ownerSignals.remove(scope)
+            openGates.decrementAndGet()
+            removeResponseDeliveryGate(scope)
+            sideEffects[scope]?.decrementAndGet()
+            val response = unsafeReplaySnapshotResponse()
+            val waiters = record.waiters.values.map { waiter -> waiter to response }
+            removeAllWaiters(record)
+            CompletionSelection(
+                owner = record.ownerCompletion to response,
+                waiters = waiters,
+            )
+        }
+        selected.owner.first.complete(selected.owner.second)
+        selected.waiters.forEach { (waiter, response) -> waiter.completion.complete(response) }
+    }
+
     private fun removeAllWaiters(record: TestRecord) {
         val removed = record.waiters.size
         record.waiters.clear()
@@ -319,6 +372,23 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
             else -> unauthorizedResponse()
         }
 
+    private fun validateIngress(request: HttpIdempotencyRequest): HttpIdempotencyResponse? {
+        if (request.requestBody.toByteArray(Charsets.UTF_8).size > config.maxRequestBodyBytes) {
+            return oversizedRequestResponse()
+        }
+        if (request.idempotencyKeys.size != 1) return invalidIdempotencyRequestResponse()
+        val key = request.idempotencyKeys.single()
+        if (key.toByteArray(Charsets.UTF_8).size > config.maxIdempotencyKeyBytes ||
+            key.isEmpty() || key.any { character -> character.code !in 0x21..0x7e }
+        ) {
+            return invalidIdempotencyRequestResponse()
+        }
+        if (canonicalPayloadOrNull(request.requestBody) == null) {
+            return invalidIdempotencyRequestResponse()
+        }
+        return null
+    }
+
     private fun serverResolvedScope(request: HttpIdempotencyRequest): String {
         val tenant = when (request.authenticationProfile) {
             "tenant-a-principal" -> "tenant-a"
@@ -344,7 +414,63 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
             DENIED_SCOPE
         }
 
-    private fun fingerprint(request: HttpIdempotencyRequest): String = digest(request.requestBody)
+    private fun fingerprint(request: HttpIdempotencyRequest): String =
+        digest(checkNotNull(canonicalPayloadOrNull(request.requestBody)))
+
+    private fun canonicalPayloadOrNull(body: String): String? =
+        try {
+            JsonCanonicalizer(body).canonicalize()
+        } catch (_: InvalidJsonException) {
+            null
+        }
+
+    private fun replayableOutcomeOrNull(outcome: HttpIdempotencyResponse): HttpIdempotencyResponse? {
+        if (outcome.body.toByteArray(Charsets.UTF_8).size > config.maxReplayBodyBytes) return null
+        val connectionNominatedHeaders = outcome.headers["connection"].orEmpty()
+            .flatMap { value -> value.split(',') }
+            .map { name -> name.trim().lowercase() }
+            .filter(String::isNotEmpty)
+            .toSet()
+        val headers = outcome.headers.filterKeys { name ->
+            (name == CONTENT_TYPE_HEADER || name in config.replayHeaderAllowlist) &&
+                    !isReplayHeaderDenied(name) &&
+                    name !in connectionNominatedHeaders
+        }
+        if (headers.size > config.maxReplayHeaderNames) return null
+        var aggregateBytes = 0L
+        headers.forEach { (name, values) ->
+            if (values.size > config.maxReplayValuesPerHeader) return null
+            aggregateBytes += name.toByteArray(Charsets.UTF_8).size
+            if (aggregateBytes > config.maxReplayHeaderBytes) return null
+            values.forEach { value ->
+                val bytes = value.toByteArray(Charsets.UTF_8).size
+                if (bytes > config.maxReplayHeaderValueBytes) return null
+                aggregateBytes += bytes
+                if (aggregateBytes > config.maxReplayHeaderBytes) return null
+            }
+        }
+        return outcome.copy(headers = headers)
+    }
+
+    private fun isPersistedReplaySnapshotSafe(response: HttpIdempotencyResponse): Boolean {
+        if (response.body.toByteArray(Charsets.UTF_8).size > config.maxReplayBodyBytes) return false
+        if (response.headers.size > config.maxReplayHeaderNames) return false
+        var aggregateBytes = 0L
+        for ((name, values) in response.headers) {
+            if (isReplayHeaderDenied(name)) return false
+            if (name != CONTENT_TYPE_HEADER && name !in config.replayHeaderAllowlist) return false
+            if (values.size > config.maxReplayValuesPerHeader) return false
+            aggregateBytes += name.toByteArray(Charsets.UTF_8).size
+            if (aggregateBytes > config.maxReplayHeaderBytes) return false
+            for (value in values) {
+                val valueBytes = value.toByteArray(Charsets.UTF_8).size
+                if (valueBytes > config.maxReplayHeaderValueBytes) return false
+                aggregateBytes += valueBytes
+                if (aggregateBytes > config.maxReplayHeaderBytes) return false
+            }
+        }
+        return true
+    }
 
     private fun digest(value: String): String = HexFormat.of().formatHex(
         MessageDigest.getInstance("SHA-256").digest(value.toByteArray(Charsets.UTF_8)),
@@ -355,6 +481,7 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
         val responseDeliveryGate: CompletableDeferred<Unit>?,
         var state: TestState = TestState.InFlight,
         var response: HttpIdempotencyResponse? = null,
+        var expiresAt: Duration? = null,
         val ownerCompletion: CompletableDeferred<HttpIdempotencyResponse> = CompletableDeferred(),
         val waiters: MutableMap<Long, TestWaiter> = linkedMapOf(),
         val waiterCount: MutableStateFlow<Int> = MutableStateFlow(0),
@@ -399,7 +526,212 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
         val ownerSignals: List<CompletableDeferred<Unit>>,
     )
 
+    private class JsonCanonicalizer(private val source: String) {
+        private var index = 0
+        private var depth = 0
+
+        fun canonicalize(): String {
+            skipWhitespace()
+            val value = parseValue()
+            skipWhitespace()
+            if (index != source.length) invalidJson()
+            return value
+        }
+
+        private fun parseValue(): String {
+            skipWhitespace()
+            return when (peek()) {
+                '{' -> parseObject()
+                '[' -> parseArray()
+                '"' -> quote(parseString())
+                't' -> parseLiteral("true")
+                'f' -> parseLiteral("false")
+                'n' -> parseLiteral("null")
+                '-', in '0'..'9' -> parseNumber()
+                else -> invalidJson()
+            }
+        }
+
+        private fun parseObject(): String {
+            enterContainer()
+            expect('{')
+            skipWhitespace()
+            if (consume('}')) return "{}".also { leaveContainer() }
+            val members = linkedMapOf<String, String>()
+            while (true) {
+                skipWhitespace()
+                if (peek() != '"') invalidJson()
+                val name = parseString()
+                if (name in members) invalidJson()
+                skipWhitespace()
+                expect(':')
+                members[name] = parseValue()
+                skipWhitespace()
+                if (consume('}')) break
+                expect(',')
+            }
+            return members.entries.sortedBy { entry -> entry.key }
+                .joinToString(prefix = "{", postfix = "}") { (name, value) -> "${quote(name)}:$value" }
+                .also { leaveContainer() }
+        }
+
+        private fun parseArray(): String {
+            enterContainer()
+            expect('[')
+            skipWhitespace()
+            if (consume(']')) return "[]".also { leaveContainer() }
+            val values = mutableListOf<String>()
+            while (true) {
+                values += parseValue()
+                skipWhitespace()
+                if (consume(']')) break
+                expect(',')
+            }
+            return values.joinToString(prefix = "[", postfix = "]").also { leaveContainer() }
+        }
+
+        private fun parseString(): String {
+            expect('"')
+            val decoded = StringBuilder()
+            while (index < source.length) {
+                when (val character = source[index++]) {
+                    '"' -> return decoded.toString()
+                    '\\' -> decoded.append(parseEscape())
+                    else -> {
+                        if (character.code < 0x20) invalidJson()
+                        decoded.append(character)
+                    }
+                }
+            }
+            invalidJson()
+        }
+
+        private fun parseEscape(): String {
+            if (index >= source.length) invalidJson()
+            return when (val escaped = source[index++]) {
+                '"', '\\', '/' -> escaped.toString()
+                'b' -> "\b"
+                'f' -> "\u000c"
+                'n' -> "\n"
+                'r' -> "\r"
+                't' -> "\t"
+                'u' -> parseUnicodeEscape()
+                else -> invalidJson()
+            }
+        }
+
+        private fun parseUnicodeEscape(): String {
+            val first = parseUnicodeCodeUnit()
+            if (first.isLowSurrogate()) invalidJson()
+            if (!first.isHighSurrogate()) return first.toString()
+            if (index + 2 > source.length || source[index] != '\\' || source[index + 1] != 'u') invalidJson()
+            index += 2
+            val second = parseUnicodeCodeUnit()
+            if (!second.isLowSurrogate()) invalidJson()
+            return charArrayOf(first, second).concatToString()
+        }
+
+        private fun parseUnicodeCodeUnit(): Char {
+            if (index + 4 > source.length) invalidJson()
+            val digits = source.substring(index, index + 4)
+            if (digits.any { digit -> digit.digitToIntOrNull(16) == null }) invalidJson()
+            index += 4
+            return digits.toInt(16).toChar()
+        }
+
+        private fun parseNumber(): String {
+            val start = index
+            consume('-')
+            when (peek()) {
+                '0' -> {
+                    index++
+                    if (peek() in '0'..'9') invalidJson()
+                }
+                in '1'..'9' -> while (peek() in '0'..'9') index++
+                else -> invalidJson()
+            }
+            if (consume('.')) {
+                if (peek() !in '0'..'9') invalidJson()
+                while (peek() in '0'..'9') index++
+            }
+            if (peek() == 'e' || peek() == 'E') {
+                index++
+                if (peek() == '+' || peek() == '-') index++
+                if (peek() !in '0'..'9') invalidJson()
+                while (peek() in '0'..'9') index++
+            }
+            val number = try {
+                BigDecimal(source.substring(start, index)).stripTrailingZeros()
+            } catch (_: NumberFormatException) {
+                invalidJson()
+            }
+            return if (number.compareTo(BigDecimal.ZERO) == 0) "0" else number.toString()
+        }
+
+        private fun parseLiteral(literal: String): String {
+            if (!source.startsWith(literal, index)) invalidJson()
+            index += literal.length
+            return literal
+        }
+
+        private fun quote(value: String): String = buildString {
+            append('"')
+            value.forEach { character ->
+                when (character) {
+                    '"' -> append("\\\"")
+                    '\\' -> append("\\\\")
+                    '\b' -> append("\\b")
+                    '\u000c' -> append("\\f")
+                    '\n' -> append("\\n")
+                    '\r' -> append("\\r")
+                    '\t' -> append("\\t")
+                    else -> if (character.code < 0x20) {
+                        append("\\u")
+                        append(character.code.toString(16).padStart(4, '0'))
+                    } else {
+                        append(character)
+                    }
+                }
+            }
+            append('"')
+        }
+
+        private fun expect(expected: Char) {
+            if (!consume(expected)) invalidJson()
+        }
+
+        private fun consume(expected: Char): Boolean =
+            if (peek() == expected) {
+                index++
+                true
+            } else {
+                false
+            }
+
+        private fun peek(): Char = source.getOrNull(index) ?: END_OF_INPUT
+
+        private fun skipWhitespace() {
+            while (peek() == ' ' || peek() == '\t' || peek() == '\n' || peek() == '\r') index++
+        }
+
+        private fun enterContainer() {
+            depth++
+            if (depth > MAX_JSON_DEPTH) invalidJson()
+        }
+
+        private fun leaveContainer() {
+            depth--
+        }
+
+        private fun invalidJson(): Nothing = throw InvalidJsonException()
+    }
+
+    private class InvalidJsonException: IllegalArgumentException()
+
     private companion object {
+        const val END_OF_INPUT = '\u0000'
+        const val MAX_JSON_DEPTH = 128
+        const val CONTENT_TYPE_HEADER = "content-type"
         const val DENIED_SCOPE = "denied"
         const val RESET_WAITER_COUNT = -1
     }

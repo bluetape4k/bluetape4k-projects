@@ -23,6 +23,23 @@ internal data class ConformanceScenario(
     ) -> Unit,
 )
 
+/**
+ * Verifies the bounded-wait HTTP idempotency profile through [adapter].
+ *
+ * The caller owns the HTTP application and any blocking dispatcher. This runner owns and closes
+ * only its monotonic watchdog scheduler. Passing this fixture proves observable HTTP behavior, not
+ * durable persistence, restart recovery, or exactly-once external side effects. The shared proof
+ * accepts at most 32 waiters per key; larger production limits require separate load tests.
+ */
+suspend fun assertBoundedWaitHttpIdempotencyConformance(
+    adapter: BoundedWaitHttpIdempotencyAdapter,
+    config: BoundedWaitHttpIdempotencyConformanceConfig,
+) = runConformanceScenarios(
+    adapter = adapter,
+    config = config,
+    scenarios = terminalScenarios() + inFlightScenarios() + boundaryScenarios(),
+)
+
 internal suspend fun runConformanceScenarios(
     adapter: BoundedWaitHttpIdempotencyAdapter,
     config: BoundedWaitHttpIdempotencyConformanceConfig,
@@ -152,8 +169,12 @@ private fun validateReplaySnapshot(
     config: BoundedWaitHttpIdempotencyConformanceConfig,
 ) {
     requireBoundedUtf8(response.body, config.maxReplayBodyBytes, "responseBody")
+    require(response.headers.keys.none(::isReplayHeaderDenied)) {
+        "Replay snapshot contains a prohibited header."
+    }
     val replayHeaders = response.headers.filterKeys { name ->
-        name == CONTENT_TYPE_HEADER || name in config.replayHeaderAllowlist
+        name == CONTENT_TYPE_HEADER ||
+                name in config.replayHeaderAllowlist && !isReplayHeaderDenied(name)
     }
     require(replayHeaders.size <= config.maxReplayHeaderNames) {
         "Replay snapshot has too many header names."
@@ -221,4 +242,29 @@ private const val MAX_CONFORMANCE_WAITERS_PER_KEY = 32
 private const val WATCHDOG_THREAD_NAME = "http-idempotency-watchdog"
 private const val WATCHDOG_SHUTDOWN_SECONDS = 5L
 private const val CONTENT_TYPE_HEADER = "content-type"
+private val REPLAY_HEADER_DENYLIST = setOf(
+    "authentication-info",
+    "authorization",
+    "connection",
+    "cookie",
+    "keep-alive",
+    "proxy-authenticate",
+    "proxy-authentication-info",
+    "proxy-authorization",
+    "set-cookie",
+    "te",
+    "trailer",
+    "transfer-encoding",
+    "upgrade",
+    "www-authenticate",
+    "x-api-key",
+)
+
+internal fun isReplayHeaderDenied(name: String): Boolean =
+    name in REPLAY_HEADER_DENYLIST ||
+            name.contains("credential") ||
+            name.contains("secret") ||
+            name.endsWith("-token") ||
+            name.endsWith("-api-key")
+
 private const val FINAL_CLEANUP_SCENARIO = "final-cleanup"

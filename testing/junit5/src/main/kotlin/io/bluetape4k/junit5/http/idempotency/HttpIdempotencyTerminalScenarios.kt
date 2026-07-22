@@ -52,8 +52,8 @@ private suspend fun assertDifferentPayloadConflictIsImmediate(
     adapter: BoundedWaitHttpIdempotencyAdapter,
     config: BoundedWaitHttpIdempotencyConformanceConfig,
 ) = coroutineScope {
-    val ownerCommand = request(idempotencyKeys = listOf("conflict-key"), requestBody = "A")
-    val conflict = ownerCommand.copy(requestBody = "B")
+    val ownerCommand = request(idempotencyKeys = listOf("conflict-key"), requestBody = "\"A\"")
+    val conflict = ownerCommand.copy(requestBody = "\"B\"")
     val owner = async { exchangeChecked(adapter, config, ownerCommand) }
 
     adapter.awaitOwnerStarted(ownerCommand)
