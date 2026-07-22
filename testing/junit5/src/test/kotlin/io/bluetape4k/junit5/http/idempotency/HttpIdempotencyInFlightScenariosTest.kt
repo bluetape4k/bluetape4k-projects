@@ -1,5 +1,6 @@
 package io.bluetape4k.junit5.http.idempotency
 
+import io.bluetape4k.assertions.coInvoking
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
@@ -125,7 +126,7 @@ class HttpIdempotencyInFlightScenariosTest {
         val adapter = InMemoryBoundedWaitHttpIdempotencyAdapter(limits)
         val pendingOwner = request(idempotencyKeys = listOf("pending-owner-control-key"))
         val ownerObservation = async(start = CoroutineStart.UNDISPATCHED) {
-            runCatching { adapter.awaitOwnerStarted(pendingOwner) }.exceptionOrNull()
+            coInvoking { adapter.awaitOwnerStarted(pendingOwner) } shouldThrow CancellationException::class
         }
 
         adapter.resetScenario()
@@ -135,7 +136,7 @@ class HttpIdempotencyInFlightScenariosTest {
         val owner = async { exchangeChecked(adapter, limits, pendingWaiter) }
         adapter.awaitOwnerStarted(pendingWaiter)
         val waiterObservation = async(start = CoroutineStart.UNDISPATCHED) {
-            runCatching { adapter.awaitWaiterCount(pendingWaiter, 1) }.exceptionOrNull()
+            coInvoking { adapter.awaitWaiterCount(pendingWaiter, 1) } shouldThrow IllegalStateException::class
         }
 
         adapter.resetScenario()
@@ -151,7 +152,7 @@ class HttpIdempotencyInFlightScenariosTest {
         val command = request(idempotencyKeys = listOf("reset-delivery-hold-key"))
         adapter.holdOwnerResponseDelivery(command)
         val owner = async {
-            runCatching { exchangeChecked(adapter, limits, command) }.exceptionOrNull()
+            coInvoking { exchangeChecked(adapter, limits, command) } shouldThrow CancellationException::class
         }
         adapter.awaitOwnerStarted(command)
         adapter.completeOwner(command, createdResponse())
