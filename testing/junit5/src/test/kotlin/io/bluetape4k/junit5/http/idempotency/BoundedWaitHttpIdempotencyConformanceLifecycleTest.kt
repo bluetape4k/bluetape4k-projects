@@ -8,11 +8,15 @@ import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.Collections
 import java.util.concurrent.atomic.AtomicInteger
 
 class BoundedWaitHttpIdempotencyConformanceLifecycleTest {
@@ -66,7 +70,9 @@ class BoundedWaitHttpIdempotencyConformanceLifecycleTest {
         throwableText(failure) shouldNotContain "key-secret"
         throwableText(failure) shouldNotContain "body-secret"
         adapter.cancelledExchangeCount.get() shouldBeEqualTo 1
+        adapter.childStartedCount.get() shouldBeEqualTo 1
         adapter.resetCount.get() shouldBeEqualTo 2
+        adapter.quiescence() shouldBeEqualTo HttpIdempotencyQuiescence(0, 0, 0)
         liveWatchdogThreadCount() shouldBeEqualTo 0
     }
 
@@ -95,7 +101,9 @@ class BoundedWaitHttpIdempotencyConformanceLifecycleTest {
         runner.cancelAndJoin()
 
         adapter.cancelledExchangeCount.get() shouldBeEqualTo 1
+        adapter.childStartedCount.get() shouldBeEqualTo 1
         adapter.resetCount.get() shouldBeEqualTo 2
+        adapter.quiescence() shouldBeEqualTo HttpIdempotencyQuiescence(0, 0, 0)
         liveWatchdogThreadCount() shouldBeEqualTo 0
     }
 
@@ -215,6 +223,37 @@ class BoundedWaitHttpIdempotencyConformanceLifecycleTest {
     }
 
     @Test
+    fun `configured replay header aggregate fails at the breached value`() = runSuspendIO {
+        val adapter = RecordingAdapter(
+            response = HttpIdempotencyResponse(
+                statusCode = 201,
+                body = "{}",
+                headers = mapOf(
+                    "content-type" to listOf("application/json"),
+                    "x-proof" to listOf("header-secret".repeat(8)),
+                ),
+            ),
+        )
+
+        val failure = assertFailsWith<IllegalArgumentException> {
+            runConformanceScenarios(
+                adapter,
+                config(
+                    maxReplayHeaderBytes = 64,
+                    replayHeaderAllowlist = setOf("x-proof"),
+                ),
+                listOf(ConformanceScenario("bounded-headers") { target, limits ->
+                    exchangeChecked(target, limits, request())
+                }),
+            )
+        }
+
+        failure.message.orEmpty() shouldContain "aggregate"
+        throwableText(failure) shouldNotContain "header-secret"
+        adapter.exchangeCount.get() shouldBeEqualTo 1
+    }
+
+    @Test
     fun `reset remains a cooperative suspend boundary`() = runSuspendIO {
         val resetStarted = CompletableDeferred<Unit>()
         val adapter = RecordingAdapter(resetBlock = {
@@ -239,10 +278,22 @@ class BoundedWaitHttpIdempotencyConformanceLifecycleTest {
         val exchangeCount = AtomicInteger()
         val resetCount = AtomicInteger()
         val cancelledExchangeCount = AtomicInteger()
+        val childStartedCount = AtomicInteger()
+        private val activeChildren: MutableSet<Job> = Collections.synchronizedSet(mutableSetOf())
 
-        override suspend fun exchange(request: HttpIdempotencyRequest): HttpIdempotencyResponse {
+        override suspend fun exchange(request: HttpIdempotencyRequest): HttpIdempotencyResponse = coroutineScope {
             exchangeCount.incrementAndGet()
-            return exchangeBlock?.invoke(this) ?: response
+            val child = launch(start = CoroutineStart.UNDISPATCHED) {
+                childStartedCount.incrementAndGet()
+                awaitCancellation()
+            }
+            activeChildren.add(child)
+            try {
+                exchangeBlock?.invoke(this@RecordingAdapter) ?: response
+            } finally {
+                child.cancelAndJoin()
+                activeChildren.remove(child)
+            }
         }
 
         override suspend fun awaitOwnerStarted(request: HttpIdempotencyRequest) = Unit
@@ -262,11 +313,19 @@ class BoundedWaitHttpIdempotencyConformanceLifecycleTest {
 
         override suspend fun resetScenario() {
             resetCount.incrementAndGet()
+            activeChildrenSnapshot().forEach { child -> child.cancelAndJoin() }
             resetBlock?.invoke(this)
         }
 
         override fun sideEffectCount(request: HttpIdempotencyRequest): Int = 0
-        override fun quiescence(): HttpIdempotencyQuiescence = quiescenceValue
+
+        override fun quiescence(): HttpIdempotencyQuiescence = quiescenceValue.copy(
+            activeChildTasks = quiescenceValue.activeChildTasks + activeChildrenSnapshot().count(Job::isActive),
+        )
+
+        private fun activeChildrenSnapshot(): List<Job> = synchronized(activeChildren) {
+            activeChildren.toList()
+        }
     }
 
     private fun liveWatchdogThreadCount(): Int =

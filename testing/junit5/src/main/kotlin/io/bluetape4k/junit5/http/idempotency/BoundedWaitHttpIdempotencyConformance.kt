@@ -161,19 +161,29 @@ private fun validateReplaySnapshot(
         require(values.size <= config.maxReplayValuesPerHeader) {
             "Replay snapshot has too many values."
         }
-        aggregateBytes += name.toByteArray(Charsets.UTF_8).size
+        aggregateBytes = addReplayHeaderBytes(
+            aggregateBytes,
+            name.toByteArray(Charsets.UTF_8).size,
+            config.maxReplayHeaderBytes,
+        )
         values.forEach { value ->
-            aggregateBytes += requireBoundedUtf8(
-                value,
-                config.maxReplayHeaderValueBytes,
-                "replayHeaderValue",
+            aggregateBytes = addReplayHeaderBytes(
+                aggregateBytes,
+                requireBoundedUtf8(
+                    value,
+                    config.maxReplayHeaderValueBytes,
+                    "replayHeaderValue",
+                ),
+                config.maxReplayHeaderBytes,
             )
         }
     }
-    require(aggregateBytes <= config.maxReplayHeaderBytes) {
-        "Replay snapshot exceeds aggregate bytes."
-    }
 }
+
+private fun addReplayHeaderBytes(current: Long, additional: Int, maximum: Int): Long =
+    (current + additional).also { total ->
+        require(total <= maximum) { "Replay snapshot exceeds aggregate bytes." }
+    }
 
 private fun newWatchdog(): ScheduledExecutorService =
     Executors.newSingleThreadScheduledExecutor { runnable ->
