@@ -50,6 +50,7 @@ Add the coordinate above, refresh Gradle, and start from the smallest entry poin
 | [`CoroutineSupport`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/coroutines/CoroutineSupport.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
 | [`SuspendedJobTester`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/coroutines/SuspendedJobTester.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
 | [`FakeValueExtension`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/faker/FakeValueExtension.kt) | Inspect this declaration's constructors, functions, and ownership contract. |
+| [`assertBoundedWaitHttpIdempotencyConformance`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/BoundedWaitHttpIdempotencyConformance.kt) | Verify the bounded-wait HTTP policy with the [adoption and operations chapter](bluetape4k-junit5/http-idempotency-conformance.md). |
 
 ## Patterns {#patterns}
 
@@ -111,6 +112,8 @@ Representative test anchors:
 - [`CoroutineSupportTest`](../../../../testing/junit5/src/test/kotlin/io/bluetape4k/junit5/coroutines/CoroutineSupportTest.kt)
 - [`SuspendedJobTesterTest`](../../../../testing/junit5/src/test/kotlin/io/bluetape4k/junit5/coroutines/SuspendedJobTesterTest.kt)
 - [`DataFakerExamples`](../../../../testing/junit5/src/test/kotlin/io/bluetape4k/junit5/faker/DataFakerExamples.kt)
+- [`KtorHttpIdempotencyConformanceTest`](../../../../ktor/testing/src/test/kotlin/io/bluetape4k/ktor/testing/idempotency/KtorHttpIdempotencyConformanceTest.kt)
+- [`SpringHttpIdempotencyConformanceTest`](../../../../spring-boot/core/src/test/kotlin/io/bluetape4k/spring/idempotency/SpringHttpIdempotencyConformanceTest.kt)
 
 ## Workshops {#workshops}
 
@@ -147,6 +150,7 @@ _Release README: [`testing/junit5/README.md`](https://github.com/bluetape4k/blue
 
 ## Sources {#sources}
 
+- [Bounded-wait HTTP idempotency conformance](bluetape4k-junit5/http-idempotency-conformance.md)
 - [Module README](../../../../testing/junit5/README.md)
 - [Module build](../../../../testing/junit5/build.gradle.kts)
 - [`ExtensionContext`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/ExtensionContext.kt)
@@ -159,5 +163,8 @@ _Release README: [`testing/junit5/README.md`](https://github.com/bluetape4k/blue
 - [`CoroutineSupport`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/coroutines/CoroutineSupport.kt)
 - [`SuspendedJobTester`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/coroutines/SuspendedJobTester.kt)
 - [`FakeValueExtension`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/faker/FakeValueExtension.kt)
+- [`assertBoundedWaitHttpIdempotencyConformance`](../../../../testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/BoundedWaitHttpIdempotencyConformance.kt)
+- [`KtorHttpIdempotencyConformanceTest`](../../../../ktor/testing/src/test/kotlin/io/bluetape4k/ktor/testing/idempotency/KtorHttpIdempotencyConformanceTest.kt)
+- [`SpringHttpIdempotencyConformanceTest`](../../../../spring-boot/core/src/test/kotlin/io/bluetape4k/spring/idempotency/SpringHttpIdempotencyConformanceTest.kt)
 - [`ExtensionContextSupportTest`](../../../../testing/junit5/src/test/kotlin/io/bluetape4k/junit5/ExtensionContextSupportTest.kt)
 - [`AwaitilityCoroutinesTest`](../../../../testing/junit5/src/test/kotlin/io/bluetape4k/junit5/awaitility/AwaitilityCoroutinesTest.kt)
