@@ -2,6 +2,7 @@ package io.bluetape4k.junit5.http.idempotency
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
@@ -153,6 +154,14 @@ class HttpIdempotencyValuesTest {
         assertFailsWith<IllegalArgumentException> {
             response(headers = mapOf("x" to List(16) { "v".repeat(65_536) }))
         }
+        val aggregateFailure = assertFailsWith<IllegalArgumentException> {
+            response(
+                headers = mapOf(
+                    "x" to List(16) { "v".repeat(65_536) } + "\uD800",
+                ),
+            )
+        }
+        aggregateFailure.message.orEmpty() shouldContain "aggregate"
         assertFailsWith<IllegalArgumentException> { response(headers = mapOf("x" to listOf("\uD800"))) }
     }
 

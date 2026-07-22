@@ -345,16 +345,26 @@ private fun canonicalHeaders(source: Map<String, List<String>>): Map<String, Lis
         val normalizedName = name.lowercase()
         require(normalizedName !in canonical) { "headers contain duplicate names." }
         require(values.size in 1..100) { "headers contain an invalid value count." }
-        aggregateBytes += normalizedName.toByteArray(Charsets.UTF_8).size
+        aggregateBytes = addHeaderBytes(
+            aggregateBytes,
+            normalizedName.toByteArray(Charsets.UTF_8).size,
+        )
         val copiedValues = values.map { value ->
-            aggregateBytes += requireBoundedUtf8(value, 65_536, "headerValue")
+            aggregateBytes = addHeaderBytes(
+                aggregateBytes,
+                requireBoundedUtf8(value, 65_536, "headerValue"),
+            )
             value
         }
         canonical[normalizedName] = RedactedImmutableList(copiedValues)
     }
-    require(aggregateBytes <= 1_048_576L) { "headers exceed the aggregate byte limit." }
     return RedactedImmutableMap(canonical)
 }
+
+private fun addHeaderBytes(current: Long, additional: Int): Long =
+    (current + additional).also { total ->
+        require(total <= 1_048_576L) { "headers exceed the aggregate byte limit." }
+    }
 
 private fun canonicalHeaderNames(source: Set<String>): Set<String> {
     require(source.size <= 100) { "replayHeaderAllowlist contains too many names." }
