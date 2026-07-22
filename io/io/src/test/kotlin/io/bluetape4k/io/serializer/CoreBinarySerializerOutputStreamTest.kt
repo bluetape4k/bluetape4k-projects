@@ -114,6 +114,7 @@ class CoreBinarySerializerOutputStreamTest {
             CancellationException("cancelled") to CancellationException::class.java,
             AssertionError("fatal") to AssertionError::class.java,
         )
+        val expected = serializer.serialize(VALUE)
 
         mockkObject(KryoProvider)
         try {
@@ -132,8 +133,16 @@ class CoreBinarySerializerOutputStreamTest {
                 borrowed.outputStream shouldBeEqualTo null
             }
 
-            verify(exactly = failures.size) { KryoProvider.obtainOutput() }
-            verify(exactly = failures.size) { KryoProvider.releaseOutput(borrowed) }
+            val target = RecordingOutputStream()
+
+            serializer.serializeBinaryToStream(VALUE, target) shouldBeEqualTo expected.size
+            target.toByteArray() shouldBeEqualTo expected
+            target.flushCount shouldBeEqualTo 0
+            target.closeCount shouldBeEqualTo 0
+            borrowed.outputStream shouldBeEqualTo null
+
+            verify(exactly = failures.size + 1) { KryoProvider.obtainOutput() }
+            verify(exactly = failures.size + 1) { KryoProvider.releaseOutput(borrowed) }
         } finally {
             unmockkObject(KryoProvider)
             borrowed.setOutputStream(null)
@@ -146,10 +155,13 @@ class CoreBinarySerializerOutputStreamTest {
         val pool = object: Pool<Kryo>(true, false, 1) {
             override fun create(): Kryo = KryoProvider.createKryo().apply {
                 isRegistrationRequired = true
-                register(RegisteredPayload::class.java)
+                references = true
+                register(KryoReferencePayload::class.java)
+                register(ArrayList::class.java)
             }
         }
-        val value = RegisteredPayload("custom-pool")
+        val shared = KryoReferencePayload(17)
+        val value = arrayListOf(shared, shared)
         val expected = KryoBinarySerializer(kryoPool = pool).serialize(value)
         val serializer = spyk(KryoBinarySerializer(kryoPool = pool))
         val target = RecordingOutputStream()
@@ -162,6 +174,9 @@ class CoreBinarySerializerOutputStreamTest {
         target.flushCount shouldBeEqualTo 0
         target.closeCount shouldBeEqualTo 0
         verify(exactly = 1) { serializer.serialize(value) }
+
+        val restored = requireNotNull(serializer.deserialize<ArrayList<KryoReferencePayload>>(target.toByteArray()))
+        (restored[0] === restored[1]).shouldBeTrue()
     }
 
     @Test
@@ -244,8 +259,6 @@ class CoreBinarySerializerOutputStreamTest {
     private companion object {
         const val VALUE = "stream-value"
     }
-
-    private data class RegisteredPayload(val value: String)
 
     private data class UnregisteredPayload(val value: String)
 }
