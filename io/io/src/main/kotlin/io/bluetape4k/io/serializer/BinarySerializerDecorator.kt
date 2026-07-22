@@ -1,6 +1,8 @@
 package io.bluetape4k.io.serializer
 
 import io.bluetape4k.logging.KLogging
+import java.io.IOException
+import java.io.OutputStream
 
 /**
  * [BinarySerializer]를 Decorator pattern으로 감싸기 위한 기반 클래스입니다.
@@ -30,5 +32,18 @@ open class BinarySerializerDecorator(
 ): BinarySerializer by serializer {
 
     companion object: KLogging()
+
+    /**
+     * Serializes through this decorator's virtual [serialize] contract before writing to caller-owned [target].
+     *
+     * The allocating compatibility path is intentional: Kotlin interface delegation would otherwise bypass
+     * serializer transforms supplied by subclasses of this decorator.
+     */
+    @Throws(IOException::class)
+    override fun serializeBinaryToStream(graph: Any?, target: OutputStream): Int {
+        val bytes = serialize(graph)
+        target.write(bytes)
+        return bytes.size
+    }
 
 }
