@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.OutputStream
+import java.io.Serializable
 import java.util.concurrent.CancellationException
 
 class CoreBinarySerializerOutputStreamTest {
@@ -260,5 +261,9 @@ class CoreBinarySerializerOutputStreamTest {
         const val VALUE = "stream-value"
     }
 
-    private data class UnregisteredPayload(val value: String)
+    private data class UnregisteredPayload(val value: String): Serializable {
+        private companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
 }
