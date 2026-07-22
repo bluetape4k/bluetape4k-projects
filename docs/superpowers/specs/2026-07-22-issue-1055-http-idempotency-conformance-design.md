@@ -122,7 +122,7 @@ HTTP stack이 fixture를 사용하기 어렵고 framework별 scenario 제외가 
 
 | 역할 | 설계 이름 | 책임 |
 | --- | --- | --- |
-| request snapshot | `HttpIdempotencyRequest` | operation, resource identity, key와 bounded request body를 test request로 표현 |
+| request snapshot | `HttpIdempotencyRequest` | operation, resource identity, key header values와 bounded request body를 test request로 표현 |
 | response snapshot | `HttpIdempotencyResponse` | status, body, replay-safe header와 stable problem code를 표현 |
 | expectation/config | `BoundedWaitHttpIdempotencyConformanceConfig` | timeout, waiter limit, retention, retry hint와 replay bounds를 명시 |
 | framework boundary | `BoundedWaitHttpIdempotencyAdapter` | request exchange와 deterministic test control을 제공 |
@@ -133,13 +133,15 @@ HTTP stack이 fixture를 사용하기 어렵고 framework별 scenario 제외가 
 않는다. 구현 계획에서 유지할 공개 declaration 모양은 다음과 같다.
 
 ```kotlin
-data class HttpIdempotencyRequest(
+class HttpIdempotencyRequest(
     val authenticationProfile: String,
     val operation: String,
     val resourceIdentity: String,
-    val idempotencyKey: String,
+    idempotencyKeys: List<String>,
     val requestBody: String,
-): Serializable
+): Serializable {
+    val idempotencyKeys: List<String>
+}
 
 class HttpIdempotencyResponse(
     val statusCode: Int,
@@ -201,7 +203,7 @@ handle이며 HTTP에서 caller가 tenant를 직접 지정하게 하는 header가
 hidden dispatcher를 만들지 않고 caller의 structured coroutine scope에서 실행한다. MockMvc adapter는
 자신이 소유한 bounded executor에서 blocking exchange만 격리하며 runner contract를 바꾸지 않는다.
 
-collection-bearing response/config의 public constructor는 collection parameter를 property로 직접
+collection-bearing request/response/config의 public constructor는 collection parameter를 property로 직접
 보관하지 않고 nested collection까지 canonical deep copy한 immutable property를 만든다. 명시적인
 `copy`-equivalent member도 public constructor를 다시 호출하며 equality/hash와 serialization은
 canonical content 기준이다.
@@ -221,13 +223,18 @@ config는 constructor와 copy-equivalent 생성 경로에서 다음 불변식을
 
 request/response constructor와 deserialization은 config가 없어도 검증 가능한 intrinsic invariant를
 검증한다. identity field는 nonblank이고 `authenticationProfile`은 512 UTF-8 bytes,
-`operation`/`resourceIdentity`는 1,024 UTF-8 bytes 이하이며, key/body/header는 config가 허용할 수 있는
+`operation`/`resourceIdentity`는 1,024 UTF-8 bytes 이하이다. `idempotencyKeys`는 normal request 한 개와
+duplicate-header negative vector 두 개만 표현하도록 `1..2` values를 deep-copy한다. 복사는 input
+order와 multiplicity를 그대로 보존하고 equality/hash/serialization도 ordered list 기준이다. adapter는
+각 원소를 별도 반복 `Idempotency-Key` header value로 전송하며 merge하거나 deduplicate하지 않는다.
+각 key/body/header는 config가 허용할 수 있는
 위 absolute ceiling을 넘지 않는다. response status는 `100..599`, body는 valid UTF-8이고
 `problemCode`는 nullable lower snake case다. response header key는 lower-case로 normalize하고 value
 순서를 보존한 immutable map으로 canonicalize한다. request/response equality와 hash는
 canonical string, header와 body content를 기준으로 하며 source collection mutation의 영향을 받지 않는다.
 
-runner는 정상 scenario의 key/request-body fixture가 configured bound 이내인지 확인한다. oversized
+runner는 정상 scenario의 single key/request-body fixture가 configured bound 이내인지 확인한다. duplicate
+negative vector만 두 key values를 사용한다. oversized
 negative scenario는 configured limit보다 정확히 1 byte 크고 각 intrinsic 8,192/16,777,216-byte
 ceiling 이내인 key/body를 `adapter.exchange`로 실제 전송한다. reference application/adapter가 같은
 config를 HTTP ingress에 적용해 거절하므로 shared runner가 black-box 결과를 관찰할 수 있다. runner는 exchange 뒤 replay
