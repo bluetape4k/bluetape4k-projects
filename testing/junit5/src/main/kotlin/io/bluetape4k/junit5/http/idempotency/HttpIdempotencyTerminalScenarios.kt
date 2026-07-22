@@ -88,6 +88,8 @@ private suspend fun assertCrossTenantIsolation(
     ownerB.await() shouldBeEqualTo createdResponse().withReplayFlag(false)
     exchangeChecked(adapter, config, tenantA) shouldBeEqualTo createdResponse().withReplayFlag(true)
     exchangeChecked(adapter, config, tenantB) shouldBeEqualTo createdResponse().withReplayFlag(true)
+    adapter.sideEffectCount(tenantA) shouldBeEqualTo 1
+    adapter.sideEffectCount(tenantB) shouldBeEqualTo 1
 }
 
 private suspend fun assertUnauthorizedIsRecordIndistinguishable(
@@ -114,6 +116,7 @@ private suspend fun assertUnauthorizedIsRecordIndistinguishable(
         presentResponse shouldBeEqualTo absentResponse
         adapter.sideEffectCount(present) shouldBeEqualTo 0
         adapter.sideEffectCount(absent) shouldBeEqualTo 0
+        adapter.quiescence().activeWaiters shouldBeEqualTo 0
     }
     adapter.sideEffectCount(authorized) shouldBeEqualTo 1
     adapter.quiescence() shouldBeEqualTo HttpIdempotencyQuiescence(0, 0, 0)

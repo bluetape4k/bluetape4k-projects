@@ -22,10 +22,14 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
     private val ownerSignals = mutableMapOf<String, CompletableDeferred<Unit>>()
     private val sideEffects = ConcurrentHashMap<String, AtomicInteger>()
     private val activeWaiters = AtomicInteger()
+    private val maximumWaiters = AtomicInteger()
     private val openGates = AtomicInteger()
 
     var completedScenarioCount: Int = 0
         private set
+
+    val maximumObservedWaiters: Int
+        get() = maximumWaiters.get()
 
     override suspend fun exchange(request: HttpIdempotencyRequest): HttpIdempotencyResponse {
         authenticateAndAuthorize(request)?.let { return it }
@@ -131,7 +135,8 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
         return when (existing.state) {
             TestState.InFlight -> {
                 existing.waiterCount.value++
-                activeWaiters.incrementAndGet()
+                val observed = activeWaiters.incrementAndGet()
+                maximumWaiters.updateAndGet { current -> maxOf(current, observed) }
                 ExchangeAction.Waiter(existing)
             }
             TestState.Terminal -> ExchangeAction.Immediate(
