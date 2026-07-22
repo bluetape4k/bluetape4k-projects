@@ -61,6 +61,7 @@ class HttpIdempotencyValuesTest {
         listOf(
             request.toString(),
             request.idempotencyKeys.toString(),
+            request.idempotencyKeys.subList(0, 1).toString(),
             response.toString(),
             response.headers.toString(),
             response.headers.keys.toString(),
@@ -68,6 +69,7 @@ class HttpIdempotencyValuesTest {
             response.headers.entries.toString(),
             response.headers.entries.first().toString(),
             response.headers.values.first().toString(),
+            response.headers.values.first().subList(0, 1).toString(),
             config.toString(),
             config.replayHeaderAllowlist.toString(),
         ).forEach { rendering ->

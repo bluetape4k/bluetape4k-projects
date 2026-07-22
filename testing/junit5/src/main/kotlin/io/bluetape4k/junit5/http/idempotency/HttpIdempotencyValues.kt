@@ -398,6 +398,8 @@ private class RedactedImmutableList<E>(source: Collection<E>): AbstractList<E>()
 
     override val size: Int get() = content.size
     override fun get(index: Int): E = content[index]
+    override fun subList(fromIndex: Int, toIndex: Int): List<E> =
+        RedactedImmutableList(content.subList(fromIndex, toIndex))
     override fun equals(other: Any?): Boolean = content == other
     override fun hashCode(): Int = content.hashCode()
     override fun toString(): String = REDACTED
