@@ -87,8 +87,16 @@ internal class LettuceFencingLeaseFailureTest {
         val syncCommands = mockk<RedisScriptingCommands<String, String>>()
         val futureCommands = mockk<RedisScriptingAsyncCommands<String, String>>()
         val suspendCommands = mockk<RedisScriptingAsyncCommands<String, String>>()
-        val lease = LettuceFencingLease.fromCommands(syncCommands, futureCommands, StringCodec.UTF8, config)
-        val suspendLease = LettuceSuspendFencingLease.fromCommands(suspendCommands, StringCodec.UTF8, config)
+        val lease = LettuceFencingLease.createForTesting(
+            DefaultFencingScriptExecutor(syncCommands, futureCommands),
+            StringCodec.UTF8,
+            config,
+        )
+        val suspendLease = LettuceSuspendFencingLease.createForTesting(
+            DefaultFencingScriptExecutor(mockk(), suspendCommands),
+            StringCodec.UTF8,
+            config,
+        )
         val ownerId = FencingOwnerId.from("validation-owner")
         val otherEpoch = FencingToken(config.epoch + 1, 1)
         val invalidLeaseTimes = listOf(
@@ -144,7 +152,11 @@ internal class LettuceFencingLeaseFailureTest {
                 config.epoch.toString(),
             )
         } throws error
-        return LettuceFencingLease.fromCommands(commands, mockk(), StringCodec.UTF8, config)
+        return LettuceFencingLease.createForTesting(
+            DefaultFencingScriptExecutor(commands, mockk()),
+            StringCodec.UTF8,
+            config,
+        )
     }
 
     private fun futureLease(error: Throwable): LettuceFencingLease =
@@ -163,7 +175,11 @@ internal class LettuceFencingLeaseFailureTest {
                 config.epoch.toString(),
             )
         } returns frame
-        return LettuceFencingLease.fromCommands(commands, mockk(), StringCodec.UTF8, config)
+        return LettuceFencingLease.createForTesting(
+            DefaultFencingScriptExecutor(commands, mockk()),
+            StringCodec.UTF8,
+            config,
+        )
     }
 
     private fun futureLease(frame: List<String>): LettuceFencingLease =
@@ -173,10 +189,18 @@ internal class LettuceFencingLeaseFailureTest {
         suspendLease(asyncCommands(completedRedisFuture(frame)))
 
     private fun lease(commands: RedisScriptingAsyncCommands<String, String>): LettuceFencingLease =
-        LettuceFencingLease.fromCommands(mockk(), commands, StringCodec.UTF8, config)
+        LettuceFencingLease.createForTesting(
+            DefaultFencingScriptExecutor(mockk(), commands),
+            StringCodec.UTF8,
+            config,
+        )
 
     private fun suspendLease(commands: RedisScriptingAsyncCommands<String, String>): LettuceSuspendFencingLease =
-        LettuceSuspendFencingLease.fromCommands(commands, StringCodec.UTF8, config)
+        LettuceSuspendFencingLease.createForTesting(
+            DefaultFencingScriptExecutor(mockk(), commands),
+            StringCodec.UTF8,
+            config,
+        )
 
     private fun asyncCommands(
         evalsha: RedisFuture<List<String>>,

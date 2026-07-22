@@ -1,10 +1,10 @@
 package io.bluetape4k.redis.lettuce.lease
 
 import io.lettuce.core.api.StatefulRedisConnection
-import io.lettuce.core.api.async.RedisScriptingAsyncCommands
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
 import io.lettuce.core.codec.RedisCodec
 import java.time.Duration
+import java.util.concurrent.CancellationException
 
 /**
  * Provides suspending access to one Redis fencing-lease ordering domain.
@@ -13,7 +13,7 @@ import java.time.Duration
  * reached Redis, so callers must reconcile ambiguous completion with the same owner ID or token.
  */
 class LettuceSuspendFencingLease private constructor(
-    private val asyncCommands: RedisScriptingAsyncCommands<String, String>,
+    private val executor: FencingScriptExecutor,
     codec: RedisCodec<String, String>,
     private val config: LettuceFencingLeaseConfig,
 ) {
@@ -23,13 +23,13 @@ class LettuceSuspendFencingLease private constructor(
     constructor(
         connection: StatefulRedisConnection<String, String>,
         config: LettuceFencingLeaseConfig,
-    ): this(connection.async(), connection.codec, config)
+    ): this(DefaultFencingScriptExecutor(connection.sync(), connection.async()), connection.codec, config)
 
     /** Creates a suspending fencing lease over a Redis Cluster connection after validating the encoded key slot. */
     constructor(
         connection: StatefulRedisClusterConnection<String, String>,
         config: LettuceFencingLeaseConfig,
-    ): this(connection.async(), connection.codec, config)
+    ): this(DefaultFencingScriptExecutor(connection.sync(), connection.async()), connection.codec, config)
 
     /** Initializes the counter for a new, externally approved epoch without repairing old history. */
     suspend fun bootstrap(): FencingBootstrapResult = classified(
@@ -37,12 +37,7 @@ class LettuceSuspendFencingLease private constructor(
         FencingBootstrapResult::BackendFailure,
     ) {
         decodeFencingBootstrap(
-            runFencingScriptSuspending(
-                asyncCommands,
-                FencingLeaseScripts.BOOTSTRAP,
-                keys,
-                config.epoch.toString(),
-            ),
+            executor.runSuspending(FencingLeaseOperation.BOOTSTRAP, keys, fencingBootstrapArgs(config)),
         )
     }
 
@@ -51,13 +46,10 @@ class LettuceSuspendFencingLease private constructor(
         val leaseTimeMillis = leaseTime.validatedFencingLeaseTimeMillis()
         return classified(FencingLeaseOperation.ACQUIRE, FencingAcquireResult::BackendFailure) {
             decodeFencingAcquire(
-                runFencingScriptSuspending(
-                    asyncCommands,
-                    FencingLeaseScripts.ACQUIRE,
+                executor.runSuspending(
+                    FencingLeaseOperation.ACQUIRE,
                     keys,
-                    ownerId.value,
-                    config.epoch.toString(),
-                    leaseTimeMillis.toString(),
+                    fencingAcquireArgs(config, ownerId, leaseTimeMillis),
                 ),
             )
         }
@@ -69,13 +61,7 @@ class LettuceSuspendFencingLease private constructor(
         FencingInspectResult::BackendFailure,
     ) {
         decodeFencingInspect(
-            runFencingScriptSuspending(
-                asyncCommands,
-                FencingLeaseScripts.INSPECT,
-                keys,
-                ownerId.value,
-                config.epoch.toString(),
-            ),
+            executor.runSuspending(FencingLeaseOperation.INSPECT, keys, fencingInspectArgs(config, ownerId)),
         )
     }
 
@@ -89,14 +75,10 @@ class LettuceSuspendFencingLease private constructor(
         val leaseTimeMillis = leaseTime.validatedFencingLeaseTimeMillis()
         return classified(FencingLeaseOperation.RENEW, FencingRenewResult::BackendFailure) {
             decodeFencingRenew(
-                runFencingScriptSuspending(
-                    asyncCommands,
-                    FencingLeaseScripts.RENEW,
+                executor.runSuspending(
+                    FencingLeaseOperation.RENEW,
                     keys,
-                    ownerId.value,
-                    token.epoch.toString(),
-                    token.sequence.toString(),
-                    leaseTimeMillis.toString(),
+                    fencingRenewArgs(ownerId, token, leaseTimeMillis),
                 ),
             )
         }
@@ -107,14 +89,7 @@ class LettuceSuspendFencingLease private constructor(
         requireFencingTokenEpoch(config, token)
         return classified(FencingLeaseOperation.RELEASE, FencingReleaseResult::BackendFailure) {
             decodeFencingRelease(
-                runFencingScriptSuspending(
-                    asyncCommands,
-                    FencingLeaseScripts.RELEASE,
-                    keys,
-                    ownerId.value,
-                    token.epoch.toString(),
-                    token.sequence.toString(),
-                ),
+                executor.runSuspending(FencingLeaseOperation.RELEASE, keys, fencingReleaseArgs(ownerId, token)),
             )
         }
     }
@@ -125,15 +100,17 @@ class LettuceSuspendFencingLease private constructor(
         crossinline block: suspend () -> R,
     ): R = try {
         block()
+    } catch (error: CancellationException) {
+        throw error
     } catch (error: Exception) {
         backendFailure(classifyFencingBackendFailure(operation, error, config::domainFingerprint))
     }
 
     internal companion object {
-        fun fromCommands(
-            asyncCommands: RedisScriptingAsyncCommands<String, String>,
+        fun createForTesting(
+            executor: FencingScriptExecutor,
             codec: RedisCodec<String, String>,
             config: LettuceFencingLeaseConfig,
-        ): LettuceSuspendFencingLease = LettuceSuspendFencingLease(asyncCommands, codec, config)
+        ): LettuceSuspendFencingLease = LettuceSuspendFencingLease(executor, codec, config)
     }
 }

@@ -37,6 +37,50 @@ internal enum class FencingLeaseOperation {
     RELEASE,
 }
 
+internal interface FencingScriptExecutor {
+    fun run(
+        operation: FencingLeaseOperation,
+        keys: FencingLeaseKeys,
+        args: List<String>,
+    ): List<String>
+
+    fun runAsync(
+        operation: FencingLeaseOperation,
+        keys: FencingLeaseKeys,
+        args: List<String>,
+    ): CompletableFuture<List<String>>
+
+    suspend fun runSuspending(
+        operation: FencingLeaseOperation,
+        keys: FencingLeaseKeys,
+        args: List<String>,
+    ): List<String>
+}
+
+internal class DefaultFencingScriptExecutor(
+    private val syncCommands: RedisScriptingCommands<String, String>,
+    private val asyncCommands: RedisScriptingAsyncCommands<String, String>,
+): FencingScriptExecutor {
+    override fun run(
+        operation: FencingLeaseOperation,
+        keys: FencingLeaseKeys,
+        args: List<String>,
+    ): List<String> = runFencingScript(syncCommands, operation.script, keys, *args.toTypedArray())
+
+    override fun runAsync(
+        operation: FencingLeaseOperation,
+        keys: FencingLeaseKeys,
+        args: List<String>,
+    ): CompletableFuture<List<String>> =
+        runFencingScriptAsync(asyncCommands, operation.script, keys, *args.toTypedArray())
+
+    override suspend fun runSuspending(
+        operation: FencingLeaseOperation,
+        keys: FencingLeaseKeys,
+        args: List<String>,
+    ): List<String> = runFencingScriptSuspending(asyncCommands, operation.script, keys, *args.toTypedArray())
+}
+
 internal class FencingLeaseProtocolException: IllegalStateException(
     "Malformed fencing lease response.",
 ) {
@@ -119,6 +163,29 @@ internal fun requireFencingTokenEpoch(
     }
     return token
 }
+
+internal fun fencingBootstrapArgs(config: LettuceFencingLeaseConfig): List<String> =
+    listOf(config.epoch.toString())
+
+internal fun fencingAcquireArgs(
+    config: LettuceFencingLeaseConfig,
+    ownerId: FencingOwnerId,
+    leaseTimeMillis: Long,
+): List<String> = listOf(ownerId.value, config.epoch.toString(), leaseTimeMillis.toString())
+
+internal fun fencingInspectArgs(
+    config: LettuceFencingLeaseConfig,
+    ownerId: FencingOwnerId,
+): List<String> = listOf(ownerId.value, config.epoch.toString())
+
+internal fun fencingRenewArgs(
+    ownerId: FencingOwnerId,
+    token: FencingToken,
+    leaseTimeMillis: Long,
+): List<String> = listOf(ownerId.value, token.epoch.toString(), token.sequence.toString(), leaseTimeMillis.toString())
+
+internal fun fencingReleaseArgs(ownerId: FencingOwnerId, token: FencingToken): List<String> =
+    listOf(ownerId.value, token.epoch.toString(), token.sequence.toString())
 
 internal fun Throwable.unwrapFencingCompletionCause(): Throwable {
     val seen = Collections.newSetFromMap(IdentityHashMap<Throwable, Boolean>())
@@ -260,7 +327,12 @@ internal fun runFencingBootstrap(
     keys: FencingLeaseKeys,
     config: LettuceFencingLeaseConfig,
 ): FencingBootstrapResult = decodeFencingBootstrap(
-    runFencingScript(commands, FencingLeaseScripts.BOOTSTRAP, keys, config.epoch.toString()),
+    runFencingScript(
+        commands,
+        FencingLeaseOperation.BOOTSTRAP.script,
+        keys,
+        *fencingBootstrapArgs(config).toTypedArray(),
+    ),
 )
 
 internal fun runFencingAcquire(
@@ -274,11 +346,9 @@ internal fun runFencingAcquire(
     return decodeFencingAcquire(
         runFencingScript(
             commands,
-            FencingLeaseScripts.ACQUIRE,
+            FencingLeaseOperation.ACQUIRE.script,
             keys,
-            ownerId.value,
-            config.epoch.toString(),
-            leaseTimeMillis.toString(),
+            *fencingAcquireArgs(config, ownerId, leaseTimeMillis).toTypedArray(),
         ),
     )
 }
@@ -291,10 +361,9 @@ internal fun runFencingInspect(
 ): FencingInspectResult = decodeFencingInspect(
     runFencingScript(
         commands,
-        FencingLeaseScripts.INSPECT,
+        FencingLeaseOperation.INSPECT.script,
         keys,
-        ownerId.value,
-        config.epoch.toString(),
+        *fencingInspectArgs(config, ownerId).toTypedArray(),
     ),
 )
 
@@ -311,12 +380,9 @@ internal fun runFencingRenew(
     return decodeFencingRenew(
         runFencingScript(
             commands,
-            FencingLeaseScripts.RENEW,
+            FencingLeaseOperation.RENEW.script,
             keys,
-            ownerId.value,
-            token.epoch.toString(),
-            token.sequence.toString(),
-            leaseTimeMillis.toString(),
+            *fencingRenewArgs(ownerId, token, leaseTimeMillis).toTypedArray(),
         ),
     )
 }
@@ -332,14 +398,21 @@ internal fun runFencingRelease(
     return decodeFencingRelease(
         runFencingScript(
             commands,
-            FencingLeaseScripts.RELEASE,
+            FencingLeaseOperation.RELEASE.script,
             keys,
-            ownerId.value,
-            token.epoch.toString(),
-            token.sequence.toString(),
+            *fencingReleaseArgs(ownerId, token).toTypedArray(),
         ),
     )
 }
+
+private val FencingLeaseOperation.script: RedisScript
+    get() = when (this) {
+        FencingLeaseOperation.BOOTSTRAP -> FencingLeaseScripts.BOOTSTRAP
+        FencingLeaseOperation.ACQUIRE -> FencingLeaseScripts.ACQUIRE
+        FencingLeaseOperation.INSPECT -> FencingLeaseScripts.INSPECT
+        FencingLeaseOperation.RENEW -> FencingLeaseScripts.RENEW
+        FencingLeaseOperation.RELEASE -> FencingLeaseScripts.RELEASE
+    }
 
 private fun runFencingScript(
     commands: RedisScriptingCommands<String, String>,
