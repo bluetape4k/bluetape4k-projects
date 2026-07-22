@@ -85,7 +85,9 @@ private suspend fun runOneScenario(
     }
 
     scenarioFailure?.let { failure ->
-        cleanupFailure?.let(failure::addSuppressed)
+        cleanupFailure
+            ?.takeUnless { it === failure }
+            ?.let(failure::addSuppressed)
         throw failure
     }
     cleanupFailure?.let { throw it }

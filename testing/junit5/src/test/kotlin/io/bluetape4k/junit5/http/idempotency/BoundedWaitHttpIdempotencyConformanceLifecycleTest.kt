@@ -2,6 +2,8 @@ package io.bluetape4k.junit5.http.idempotency
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
@@ -123,6 +125,24 @@ class BoundedWaitHttpIdempotencyConformanceLifecycleTest {
 
         failure.message shouldBeEqualTo "primary-redacted"
         failure.suppressed.map { it.message } shouldBeEqualTo listOf("cleanup-redacted", "cleanup-redacted")
+        liveWatchdogThreadCount() shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `same scenario and cleanup failure instance preserves primary identity`() = runSuspendIO {
+        val shared = SharedFailure(1)
+        val adapter = RecordingAdapter(resetBlock = { throw shared })
+
+        val failure = assertFailsWith<SharedFailure> {
+            runConformanceScenarios(
+                adapter,
+                config(),
+                listOf(ConformanceScenario("shared-failure") { _, _ -> throw shared }),
+            )
+        }
+
+        failure shouldBeSameInstanceAs shared
+        failure.suppressed.shouldBeEmpty()
         liveWatchdogThreadCount() shouldBeEqualTo 0
     }
 
@@ -327,6 +347,10 @@ class BoundedWaitHttpIdempotencyConformanceLifecycleTest {
             activeChildren.toList()
         }
     }
+
+    private class SharedFailure(
+        @Suppress("UNUSED_PARAMETER") marker: Int,
+    ): RuntimeException("shared-redacted")
 
     private fun liveWatchdogThreadCount(): Int =
         Thread.getAllStackTraces().keys.count { it.isAlive && it.name == "http-idempotency-watchdog" }
