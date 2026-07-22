@@ -649,6 +649,10 @@ interface BoundedWaitHttpIdempotencyAdapter {
     suspend fun awaitWaiterCount(request: HttpIdempotencyRequest, expected: Int)
     /** Releases the owner with a terminal replayable [outcome]. */
     suspend fun completeOwner(request: HttpIdempotencyRequest, outcome: HttpIdempotencyResponse)
+    /** Arms a post-commit response-delivery hold before [request] starts. */
+    suspend fun holdOwnerResponseDelivery(request: HttpIdempotencyRequest)
+    /** Releases a response delivery hold; cancellation/reset also reclaim it exactly once. */
+    suspend fun releaseOwnerResponseDelivery(request: HttpIdempotencyRequest)
     /** Releases the owner with a transient non-replayable [outcome]. */
     suspend fun abandonOwner(request: HttpIdempotencyRequest, outcome: HttpIdempotencyResponse)
     /** Advances only the adapter's behavioral virtual clock. */
@@ -661,6 +665,10 @@ interface BoundedWaitHttpIdempotencyAdapter {
     fun quiescence(): HttpIdempotencyQuiescence
 }
 ```
+
+`holdOwnerResponseDelivery`는 owner 시작 전에 호출한다. 이 control은 terminal commit과 HTTP response
+delivery 사이의 disconnect를 wall-clock race 없이 재현하며, owner cancellation 또는 scenario reset이
+발생하면 adapter가 hold를 정확히 한 번 회수해야 한다.
 
 - [ ] **Step 4: fixture/config preflight, response bounds와 watchdog cleanup 구현**
 

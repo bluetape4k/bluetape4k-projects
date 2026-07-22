@@ -57,6 +57,30 @@ internal fun unauthorizedResponse(): HttpIdempotencyResponse = HttpIdempotencyRe
     problemCode = "forbidden",
 )
 
+internal fun inFlightTimeoutResponse(
+    config: BoundedWaitHttpIdempotencyConformanceConfig,
+): HttpIdempotencyResponse = HttpIdempotencyResponse(
+    statusCode = 409,
+    body = "{\"code\":\"idempotency_in_flight\"}",
+    headers = mapOf(
+        "content-type" to listOf("application/problem+json"),
+        "retry-after" to listOf(config.inFlightRetryAfter.seconds.toString()),
+    ),
+    problemCode = "idempotency_in_flight",
+)
+
+internal fun waiterOverflowResponse(
+    config: BoundedWaitHttpIdempotencyConformanceConfig,
+): HttpIdempotencyResponse = HttpIdempotencyResponse(
+    statusCode = 429,
+    body = "{\"code\":\"idempotency_waiters_exceeded\"}",
+    headers = mapOf(
+        "content-type" to listOf("application/problem+json"),
+        "retry-after" to listOf(config.overflowRetryAfter.seconds.toString()),
+    ),
+    problemCode = "idempotency_waiters_exceeded",
+)
+
 internal fun HttpIdempotencyResponse.withReplayFlag(replayed: Boolean): HttpIdempotencyResponse = copy(
     headers = headers + ("idempotency-replayed" to listOf(replayed.toString())),
 )

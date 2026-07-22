@@ -182,6 +182,8 @@ interface BoundedWaitHttpIdempotencyAdapter {
     suspend fun awaitOwnerStarted(request: HttpIdempotencyRequest)
     suspend fun awaitWaiterCount(request: HttpIdempotencyRequest, expected: Int)
     suspend fun completeOwner(request: HttpIdempotencyRequest, outcome: HttpIdempotencyResponse)
+    suspend fun holdOwnerResponseDelivery(request: HttpIdempotencyRequest)
+    suspend fun releaseOwnerResponseDelivery(request: HttpIdempotencyRequest)
     suspend fun abandonOwner(request: HttpIdempotencyRequest, outcome: HttpIdempotencyResponse)
     suspend fun advanceTimeBy(duration: Duration)
     suspend fun resetScenario()
@@ -194,6 +196,10 @@ suspend fun assertBoundedWaitHttpIdempotencyConformance(
     config: BoundedWaitHttpIdempotencyConformanceConfig,
 )
 ```
+
+`holdOwnerResponseDelivery`는 request owner가 시작되기 전에 arm한다. terminal outcome은 정상적으로
+commit되지만 response delivery는 release, owner cancellation 또는 scenario reset까지 보류된다.
+cancellation/reset cleanup은 delivery hold를 정확히 한 번 회수하며 terminal record를 abandon하지 않는다.
 
 여기서 `Duration`은 `java.time.Duration`이다. public signature에는 Spring, Ktor, repository,
 lock, persistence, production clock, dispatcher 또는 executor type을 넣지 않는다.

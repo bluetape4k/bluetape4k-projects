@@ -23,6 +23,17 @@ interface BoundedWaitHttpIdempotencyAdapter {
     /** Releases the owner of [request] with a terminal replayable [outcome]. */
     suspend fun completeOwner(request: HttpIdempotencyRequest, outcome: HttpIdempotencyResponse)
 
+    /**
+     * Arms a response-delivery hold before [request] starts.
+     *
+     * The owner remains suspended after its terminal outcome commits until the hold is released or
+     * the owner is cancelled. Cancellation and [resetScenario] must reclaim the hold exactly once.
+     */
+    suspend fun holdOwnerResponseDelivery(request: HttpIdempotencyRequest)
+
+    /** Releases a response delivery previously held by [holdOwnerResponseDelivery]. */
+    suspend fun releaseOwnerResponseDelivery(request: HttpIdempotencyRequest)
+
     /** Releases the owner of [request] with a transient non-replayable [outcome]. */
     suspend fun abandonOwner(request: HttpIdempotencyRequest, outcome: HttpIdempotencyResponse)
 

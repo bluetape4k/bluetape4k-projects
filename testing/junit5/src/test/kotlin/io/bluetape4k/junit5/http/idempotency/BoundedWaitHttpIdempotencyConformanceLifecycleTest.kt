@@ -324,6 +324,10 @@ class BoundedWaitHttpIdempotencyConformanceLifecycleTest {
             outcome: HttpIdempotencyResponse,
         ) = Unit
 
+        override suspend fun holdOwnerResponseDelivery(request: HttpIdempotencyRequest) = Unit
+
+        override suspend fun releaseOwnerResponseDelivery(request: HttpIdempotencyRequest) = Unit
+
         override suspend fun abandonOwner(
             request: HttpIdempotencyRequest,
             outcome: HttpIdempotencyResponse,
