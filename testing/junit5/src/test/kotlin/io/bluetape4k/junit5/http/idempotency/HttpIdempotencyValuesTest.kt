@@ -168,14 +168,17 @@ class HttpIdempotencyValuesTest {
         config(waitTimeout = Duration.ofSeconds(60))
         assertFailsWith<IllegalArgumentException> { config(waitTimeout = Duration.ZERO) }
         assertFailsWith<IllegalArgumentException> { config(waitTimeout = Duration.ofSeconds(60).plusNanos(1)) }
+        assertFailsWith<IllegalArgumentException> { config(waitTimeout = Duration.ofSeconds(Long.MAX_VALUE)) }
         config(scenarioTimeout = Duration.ofSeconds(1))
         config(scenarioTimeout = Duration.ofSeconds(60))
         assertFailsWith<IllegalArgumentException> { config(scenarioTimeout = Duration.ofNanos(999_999_999)) }
         assertFailsWith<IllegalArgumentException> { config(scenarioTimeout = Duration.ofSeconds(61)) }
+        assertFailsWith<IllegalArgumentException> { config(scenarioTimeout = Duration.ofSeconds(Long.MAX_VALUE)) }
         config(retention = Duration.ofNanos(1))
         config(retention = Duration.ofDays(365))
         assertFailsWith<IllegalArgumentException> { config(retention = Duration.ZERO) }
         assertFailsWith<IllegalArgumentException> { config(retention = Duration.ofDays(365).plusNanos(1)) }
+        assertFailsWith<IllegalArgumentException> { config(retention = Duration.ofSeconds(Long.MAX_VALUE)) }
 
         assertIntBoundaries(1, 10_000) { config(maxWaitersPerKey = it) }
         assertIntBoundaries(1, 8_191) { config(maxIdempotencyKeyBytes = it) }
@@ -192,6 +195,7 @@ class HttpIdempotencyValuesTest {
             Duration.ZERO,
             Duration.ofMillis(1),
             Duration.ofSeconds(86_401),
+            Duration.ofSeconds(Long.MAX_VALUE),
         ).forEach { invalid ->
             assertFailsWith<IllegalArgumentException> { config(inFlightRetryAfter = invalid) }
             assertFailsWith<IllegalArgumentException> { config(overflowRetryAfter = invalid) }
