@@ -29,6 +29,8 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 | `LettuceSuspendLock`                | Distributed mutex lock (suspend-only)                                                                                                        |
 | `LettuceMultiKeyLease`              | Same-slot atomic ownership lease across bounded keys (sync + async)                                                                           |
 | `LettuceSuspendMultiKeyLease`       | Same-slot atomic ownership lease across bounded keys (suspend-only)                                                                           |
+| `LettuceFencingLease`               | Config-bound Redis fencing lease with ordered `(epoch, sequence)` tokens (sync + async)                                                       |
+| `LettuceSuspendFencingLease`        | Config-bound Redis fencing lease with ordered `(epoch, sequence)` tokens (suspend-only)                                                       |
 | `LettuceHyperLogLog<V>`             | Redis HyperLogLog approximate cardinality estimation (sync). Coroutine variant: `LettuceSuspendHyperLogLog<V>`                               |
 | `LettuceSuspendHyperLogLog<V>`      | Redis HyperLogLog approximate cardinality estimation (suspend-only)                                                                          |
 | `LettuceBloomFilter`                | Redis BitSet-based Bloom Filter (sync). Coroutine variant: `LettuceSuspendBloomFilter`                                                       |
@@ -542,6 +544,194 @@ tokens in plaintext, so Redis ACLs and TLS are the actual security boundary. Met
 A persistent key with the expected owner token raises `MultiKeyLeaseIntegrityException`. With operator approval,
 confirm the exact namespace/key set, then manually delete only that set or replace the namespace, and reverify both
 Redis state and the durable authority before enabling a writer.
+
+<!-- fencing-lease:basic -->
+### Fencing Lease for Downstream Stale-Writer Rejection
+
+Use `LettuceMultiKeyLease` when an opaque advisory ownership guard is sufficient. Use `LettuceFencingLease` or
+`LettuceSuspendFencingLease` only when every protected downstream resource durably stores and strictly compares an
+ordered token. `LettuceFencingLeaseConfig(namespace, resourceName, epoch)` fixes one ordering domain at instance
+creation. The derived lease and counter keys share one Redis Cluster slot.
+
+`epoch` comes from a durable external authority. Call `bootstrap` explicitly only for a newly approved epoch. An
+acquire returning `CounterUnavailable` is not permission to bootstrap: stop acquisition and determine whether this is
+first deployment or history loss. Never bootstrap the same epoch after counter loss, and never lower an epoch during
+binary rollback or restore recovery. A token contains only `(epoch, sequence)`; it does not contain resource identity.
+
+<!-- fencing-lease:downstream-guard -->
+#### Durable Downstream Tuple Guard
+
+Store stable resource identity and both token fields together. PostgreSQL-style schema migration and strict update:
+
+```sql
+ALTER TABLE guarded_resource
+    ADD COLUMN fence_epoch BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN fence_sequence BIGINT NOT NULL DEFAULT 0;
+
+UPDATE guarded_resource
+SET fence_epoch = :epoch,
+    fence_sequence = :sequence,
+    payload = :payload
+WHERE id = :id
+  AND (fence_epoch, fence_sequence) < (:epoch, :sequence);
+```
+
+Accept the write only when `affectedRows == 1`. A result of `0` rejects a same or stale token. Keep the business
+idempotency key in a separate column and policy; fencing order and business idempotency solve different problems.
+
+<!-- fencing-lease:resilience -->
+#### Caller-Owned Retry, Circuit Breaker, and Bulkhead
+
+The primitive returns backend failures as result values. Retry only `FencingAcquireResult.BackendFailure`, and reuse
+the same owner ID so an ambiguous successful acquire returns `AlreadyOwned` instead of allocating another token.
+Validation, cancellation, and protocol exceptions stay in the caller layer and must escape without retry or circuit
+breaker recording. The exact decorator chain is intentional: Retry is innermost, CircuitBreaker sees one final result,
+and Bulkhead is outermost.
+
+```kotlin
+val retry = Retry.of(
+    "fencing-acquire",
+    RetryConfig.custom<FencingAcquireResult>()
+        .maxAttempts(2)
+        .waitDuration(Duration.ofMillis(50))
+        .retryOnResult { it is FencingAcquireResult.BackendFailure }
+        .retryOnException { false }
+        .build(),
+)
+val circuitBreaker = CircuitBreaker.of(
+    "fencing-acquire",
+    CircuitBreakerConfig.custom()
+        .slidingWindowSize(20)
+        .minimumNumberOfCalls(10)
+        .failureRateThreshold(50.0F)
+        .recordResult { it is FencingAcquireResult.BackendFailure }
+        .ignoreException { true }
+        .build(),
+)
+val bulkhead = Bulkhead.of(
+    "fencing-acquire",
+    BulkheadConfig.custom()
+        .maxConcurrentCalls(32)
+        .maxWaitDuration(Duration.ofMillis(100))
+        .build(),
+)
+
+val result = SuspendDecorators.ofSupplier {
+    lease.acquire(ownerId, leaseTime)
+}
+    .withRetry(retry)
+    .withCircuitBreaker(circuitBreaker)
+    .withBulkhead(bulkhead)
+    .invoke()
+```
+
+Use bounded, non-zero production backoff. Apply an operation-specific `BackendFailure` predicate for bootstrap,
+inspect, renew, and release; do not add retry loops to the Redis primitive.
+
+<!-- fencing-lease:recovery -->
+#### Epoch Recovery and Rollback
+
+Promotion, known-old backup restore, or other external history-loss signals require this control-plane order:
+
+```text
+pause -> block old acquire -> drain lease and downstream writer -> CAS bump epoch ->
+bootstrap -> verify readiness and tuple guard -> rollout -> confirm old absence -> resume
+```
+
+The CAS allocator must be durable and permit exactly one higher epoch. Readiness requires a string counter with
+`PTTL=-1`, canonical non-negative decimal content, and the downstream strict tuple guard enabled. Abort on mixed
+epochs. Never resume an old binary or lower epoch; downstream state at a higher epoch must reject all restored
+lower-epoch tokens even when their sequence is larger.
+
+<!-- fencing-lease:diagnostics -->
+#### Bounded Read-Only Diagnosis and Manual Repair
+
+Run the following fixed-two-key Lua with `EVAL_RO`, passing only the exact derived lease key, counter key, and expected
+epoch. It returns a stable classification and a bounded lease-only repair-candidate boolean. It never returns owner,
+token, key, or stored values and never uses `KEYS`, `SCAN`, or `HGETALL`.
+
+```lua
+local counter_type = redis.call('TYPE', KEYS[2])['ok']
+if counter_type == 'none' then return {'COUNTER_MISSING', '0'} end
+if counter_type ~= 'string' then return {'COUNTER_INVALID', '0'} end
+if redis.call('PTTL', KEYS[2]) ~= -1 then return {'COUNTER_INVALID', '0'} end
+local counter_length = redis.call('STRLEN', KEYS[2])
+if counter_length < 1 or counter_length > 19 then return {'COUNTER_INVALID', '0'} end
+local counter = redis.call('GET', KEYS[2])
+local counter_valid = counter == '0' or string.match(counter, '^[1-9][0-9]*$')
+counter_valid = counter_valid and (#counter < 19 or counter <= '9223372036854775807')
+if not counter_valid then return {'COUNTER_INVALID', '0'} end
+
+local lease_type = redis.call('TYPE', KEYS[1])['ok']
+if lease_type == 'none' then return {'CLEAN', '0'} end
+if lease_type ~= 'hash' then return {'LEASE_MALFORMED', '0'} end
+if redis.call('HLEN', KEYS[1]) ~= 3 then return {'LEASE_MALFORMED', '0'} end
+local owner_length = redis.call('HSTRLEN', KEYS[1], 'owner')
+local epoch_length = redis.call('HSTRLEN', KEYS[1], 'epoch')
+local sequence_length = redis.call('HSTRLEN', KEYS[1], 'sequence')
+if owner_length < 1 or owner_length > 256 or epoch_length < 1 or epoch_length > 19 or
+   sequence_length < 1 or sequence_length > 19 then
+    return {'LEASE_MALFORMED', '0'}
+end
+local fields = redis.call('HMGET', KEYS[1], 'owner', 'epoch', 'sequence')
+local epoch = fields[2]
+local sequence = fields[3]
+if not string.match(epoch, '^[1-9][0-9]*$') then return {'LEASE_MALFORMED', '0'} end
+if not string.match(sequence, '^[1-9][0-9]*$') then return {'LEASE_MALFORMED', '0'} end
+if epoch ~= ARGV[1] then return {'LEASE_MALFORMED', '0'} end
+if #epoch > 19 or (#epoch == 19 and epoch > '9223372036854775807') then
+    return {'LEASE_MALFORMED', '0'}
+end
+if #sequence > 19 or (#sequence == 19 and sequence > '9223372036854775807') then
+    return {'LEASE_MALFORMED', '0'}
+end
+if #counter < #sequence or (#counter == #sequence and counter < sequence) then
+    return {'COUNTER_BEHIND_LEASE', '0'}
+end
+if redis.call('PTTL', KEYS[1]) == -1 then return {'LEASE_NO_TTL', '1'} end
+return {'ACTIVE', '0'}
+```
+
+Manual deletion is allowed only when all four conditions hold: the incident is paused and old acquire is blocked; all
+lease and downstream writers are drained; the counter is valid, persistent, and not behind the lease; and the exact
+classification is `LEASE_NO_TTL`. Delete only the lease key. Never delete, decrement, expire, or recreate the counter.
+
+Operational mapping: `CounterUnavailable` pauses acquire and triggers history diagnosis; `IntegrityFailure` pauses all
+mutation and uses this read-only diagnostic; `SequenceExhausted` triggers a higher-epoch cutover; `BackendFailure`
+triggers operation-specific ambiguous-completion reconciliation; an external restore/promotion signal immediately
+starts the full pause-to-cutover sequence.
+
+<!-- fencing-lease:caller-actions -->
+#### Exhaustive Result Actions
+
+| Result | Required caller action |
+|---|---|
+| `Initialized`, `AlreadyInitialized` | Verify readiness, then continue only the approved epoch rollout. |
+| `Acquired`, `AlreadyOwned`, `Owned`, `Renewed` | Continue the ownership path; store the token with stable resource/domain identity. |
+| `Released` | Discard local ownership and prohibit downstream writes. |
+| acquire `Contended` | Retry with a new owner only after TTL or bounded backoff; never treat it as a backend retry. |
+| inspect `Contended` | Discard local ownership and prohibit downstream writes. |
+| `Lost`, `OwnershipMismatch` | Discard local ownership and prohibit downstream writes. |
+| `CounterUnavailable` | Stop acquire and determine first deployment versus history loss; never bootstrap from this result alone. |
+| `SequenceExhausted` | Do not retry; alert for higher-epoch cutover, or freeze/migrate the domain at maximum epoch. |
+| `IntegrityFailure` | Stop retry and mutation; run read-only diagnosis and the approved runbook. |
+| `BackendFailure` | Reconcile operation-specific ambiguous completion; policy retry must reuse the same owner/token. |
+
+<!-- fencing-lease:security-telemetry -->
+#### Security and Telemetry
+
+Owner IDs are capability material stored in Redis. Generate high-entropy values and never reuse credentials, JWTs,
+session tokens, user identifiers, or PII. Use Redis ACLs and TLS. Logs may include only an allowlisted operation,
+result, backend-or-integrity kind, and bounded domain fingerprint. Metrics may label only `operation`, `result`, and
+`kind`; `namespace/resource/owner/token/fingerprint` are forbidden metric-label dimensions.
+
+<!-- fencing-lease:limitations -->
+#### Guarantees and Non-Guarantees
+
+The primitive provides atomic Redis lease mutation and monotonically ordered tokens within a config-bound domain. It
+does not provide exactly-once execution, business idempotency, durable correctness, automatic database fencing,
+durable epoch allocation, topology failure detection, or automatic recovery. Those remain caller and operator
+responsibilities. This fencing lease complements rather than automatically replaces the multi-key ownership lease.
 
 ## Memoizer (Caching Function Results in Redis)
 
