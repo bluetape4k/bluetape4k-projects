@@ -29,6 +29,7 @@ REQUIRE_DIRECT=""
 CREATED_WORKTREES=()
 JDK_JAVA="${JAVA_HOME:-}/bin/java"
 GRADLE_TOOLCHAIN_ARGS=(
+    --no-daemon
     --no-configuration-cache
     -Dorg.gradle.java.installations.auto-detect=false
     -Dorg.gradle.java.installations.auto-download=false
