@@ -1,6 +1,8 @@
 package io.bluetape4k.redis.lettuce.script
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeEqualTo
@@ -31,6 +33,8 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
@@ -270,6 +274,221 @@ class RedisScriptTest : AbstractLettuceTest() {
             "value",
         ).get() shouldBeEqualTo "value"
 
+        verify(exactly = 1) {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+            commands.eval<String>(setAndReturnScript.source, ScriptOutputType.VALUE, keys, "value")
+        }
+        confirmVerified(commands)
+    }
+
+    @Test
+    fun `cancelling async result while evalsha is pending cancels evalsha`() {
+        val commands = mockk<RedisScriptingAsyncCommands<String, String>>()
+        val keys = arrayOf("key:{async-cancel-evalsha}")
+        val evalsha = TestRedisFuture<String>()
+        every {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+        } returns evalsha
+
+        val result = RedisScriptRunner.runAsync<String>(
+            commands,
+            setAndReturnScript,
+            ScriptOutputType.VALUE,
+            keys,
+            "value",
+        )
+
+        result.cancel(true).shouldBeTrue()
+
+        result.isCancelled.shouldBeTrue()
+        evalsha.isCancelled.shouldBeTrue()
+        verify(exactly = 1) {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+        }
+        confirmVerified(commands)
+    }
+
+    @Test
+    fun `cancelling async result after NOSCRIPT cancels eval fallback`() {
+        val commands = mockk<RedisScriptingAsyncCommands<String, String>>()
+        val keys = arrayOf("key:{async-cancel-eval}")
+        val evalsha = TestRedisFuture<String>()
+        val fallback = TestRedisFuture<String>()
+        every {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+        } returns evalsha
+        every {
+            commands.eval<String>(setAndReturnScript.source, ScriptOutputType.VALUE, keys, "value")
+        } returns fallback
+
+        val result = RedisScriptRunner.runAsync<String>(
+            commands,
+            setAndReturnScript,
+            ScriptOutputType.VALUE,
+            keys,
+            "value",
+        )
+        evalsha.completeExceptionally(RedisNoScriptException("NOSCRIPT"))
+
+        result.cancel(true).shouldBeTrue()
+
+        result.isCancelled.shouldBeTrue()
+        fallback.isCancelled.shouldBeTrue()
+        verify(exactly = 1) {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+            commands.eval<String>(setAndReturnScript.source, ScriptOutputType.VALUE, keys, "value")
+        }
+        confirmVerified(commands)
+    }
+
+    @Test
+    fun `async cancellation during NOSCRIPT handoff cancels the attached fallback`() {
+        val commands = mockk<RedisScriptingAsyncCommands<String, String>>()
+        val keys = arrayOf("key:{async-cancel-race}")
+        val evalsha = TestRedisFuture<String>()
+        val fallback = TestRedisFuture<String>()
+        val fallbackEntered = CountDownLatch(1)
+        val allowFallbackReturn = CountDownLatch(1)
+        every {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+        } returns evalsha
+        every {
+            commands.eval<String>(setAndReturnScript.source, ScriptOutputType.VALUE, keys, "value")
+        } answers {
+            fallbackEntered.countDown()
+            allowFallbackReturn.await(5, TimeUnit.SECONDS)
+            fallback
+        }
+
+        val result = RedisScriptRunner.runAsync<String>(
+            commands,
+            setAndReturnScript,
+            ScriptOutputType.VALUE,
+            keys,
+            "value",
+        )
+        val handoff = CompletableFuture.runAsync {
+            evalsha.completeExceptionally(RedisNoScriptException("NOSCRIPT"))
+        }
+        fallbackEntered.await(5, TimeUnit.SECONDS).shouldBeTrue()
+
+        result.cancel(true).shouldBeTrue()
+        allowFallbackReturn.countDown()
+        handoff.get(5, TimeUnit.SECONDS)
+
+        result.isCancelled.shouldBeTrue()
+        fallback.isCancelled.shouldBeTrue()
+        verify(exactly = 1) {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+            commands.eval<String>(setAndReturnScript.source, ScriptOutputType.VALUE, keys, "value")
+        }
+        confirmVerified(commands)
+    }
+
+    @Test
+    fun `synchronous evalsha failure completes returned future exceptionally`() {
+        val commands = mockk<RedisScriptingAsyncCommands<String, String>>()
+        val keys = arrayOf("key:{async-evalsha-throw}")
+        val backendFailure = IllegalStateException("evalsha dispatch failed")
+        every {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+        } throws backendFailure
+
+        val result = RedisScriptRunner.runAsync<String>(
+            commands,
+            setAndReturnScript,
+            ScriptOutputType.VALUE,
+            keys,
+            "value",
+        )
+
+        result.isDone.shouldBeTrue()
+        result.isCompletedExceptionally.shouldBeTrue()
+        assertFailsWith<ExecutionException> { result.get() }.cause shouldBeSameInstanceAs backendFailure
+        verify(exactly = 1) {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+        }
+        confirmVerified(commands)
+    }
+
+    @Test
+    fun `synchronous eval fallback failure completes returned future exceptionally`() {
+        val commands = mockk<RedisScriptingAsyncCommands<String, String>>()
+        val keys = arrayOf("key:{async-eval-throw}")
+        val backendFailure = IllegalStateException("eval dispatch failed")
+        every {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+        } returns failedRedisFuture(RedisNoScriptException("NOSCRIPT"))
+        every {
+            commands.eval<String>(setAndReturnScript.source, ScriptOutputType.VALUE, keys, "value")
+        } throws backendFailure
+
+        val result = RedisScriptRunner.runAsync<String>(
+            commands,
+            setAndReturnScript,
+            ScriptOutputType.VALUE,
+            keys,
+            "value",
+        )
+
+        result.isDone.shouldBeTrue()
+        result.isCompletedExceptionally.shouldBeTrue()
+        assertFailsWith<ExecutionException> { result.get() }.cause shouldBeSameInstanceAs backendFailure
+        verify(exactly = 1) {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+            commands.eval<String>(setAndReturnScript.source, ScriptOutputType.VALUE, keys, "value")
+        }
+        confirmVerified(commands)
+    }
+
+    @Test
+    fun `async non NOSCRIPT failure completes exceptionally without fallback`() {
+        val commands = mockk<RedisScriptingAsyncCommands<String, String>>()
+        val keys = arrayOf("key:{async-command-failure}")
+        val backendFailure = IllegalStateException("command failed")
+        every {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+        } returns failedRedisFuture(backendFailure)
+
+        val result = RedisScriptRunner.runAsync<String>(
+            commands,
+            setAndReturnScript,
+            ScriptOutputType.VALUE,
+            keys,
+            "value",
+        )
+
+        result.isDone.shouldBeTrue()
+        result.isCompletedExceptionally.shouldBeTrue()
+        assertFailsWith<ExecutionException> { result.get() }.cause shouldBeSameInstanceAs backendFailure
+        verify(exactly = 1) {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+        }
+        confirmVerified(commands)
+    }
+
+    @Test
+    fun `NOSCRIPT from eval fallback is terminal and does not dispatch eval again`() {
+        val commands = mockk<RedisScriptingAsyncCommands<String, String>>()
+        val keys = arrayOf("key:{async-fallback-noscript}")
+        val fallbackFailure = RedisNoScriptException("NOSCRIPT from eval")
+        val repeatedDispatch = IllegalStateException("eval dispatched more than once")
+        every {
+            commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
+        } returns failedRedisFuture(RedisNoScriptException("NOSCRIPT"))
+        every {
+            commands.eval<String>(setAndReturnScript.source, ScriptOutputType.VALUE, keys, "value")
+        } returns failedRedisFuture(fallbackFailure) andThenThrows repeatedDispatch
+
+        val result = RedisScriptRunner.runAsync<String>(
+            commands,
+            setAndReturnScript,
+            ScriptOutputType.VALUE,
+            keys,
+            "value",
+        )
+
+        assertFailsWith<ExecutionException> { result.get() }.cause shouldBeSameInstanceAs fallbackFailure
         verify(exactly = 1) {
             commands.evalsha<String>(setAndReturnScript.sha1, ScriptOutputType.VALUE, keys, "value")
             commands.eval<String>(setAndReturnScript.source, ScriptOutputType.VALUE, keys, "value")

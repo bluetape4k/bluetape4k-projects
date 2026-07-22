@@ -10,8 +10,10 @@ import io.lettuce.core.api.async.RedisScriptingAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.api.sync.RedisScriptingCommands
 import java.security.MessageDigest
+import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * 재사용되는 Redis Lua 스크립트를 표현합니다.
@@ -110,16 +112,68 @@ object RedisScriptRunner: KLogging() {
         keys: Array<String>,
         vararg args: String,
     ): CompletableFuture<T> {
-        val future = commands.evalsha<T>(script.sha1, outputType, keys, *args).toCompletableFuture()
-        return future.exceptionallyCompose { error ->
-            val cause = if (error is CompletionException) error.cause ?: error else error
-            if (cause is RedisNoScriptException) {
-                log.debug { "NOSCRIPT(async) → 원문 전송 fallback (sha1=${script.sha1})" }
-                commands.eval<T>(script.source, outputType, keys, *args).toCompletableFuture()
-            } else {
-                CompletableFuture.failedFuture(cause)
+        val current = AtomicReference<CompletableFuture<T>>()
+        val result = object: CompletableFuture<T>() {
+            override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
+                val cancelled = super.cancel(mayInterruptIfRunning)
+                if (cancelled) {
+                    current.get()?.cancel(mayInterruptIfRunning)
+                }
+                return cancelled
             }
         }
+
+        lateinit var attach: (CompletableFuture<T>, Boolean) -> Unit
+        val dispatch: ((() -> CompletableFuture<T>), Boolean) -> Unit = { command, fallbackOnNoScript ->
+            if (!result.isDone) {
+                val upstream = try {
+                    command()
+                } catch (_: CancellationException) {
+                    result.cancel(false)
+                    null
+                } catch (error: Exception) {
+                    result.completeExceptionally(error)
+                    null
+                }
+                if (upstream != null) {
+                    attach(upstream, fallbackOnNoScript)
+                }
+            }
+        }
+
+        attach = { upstream, fallbackOnNoScript ->
+            current.set(upstream)
+            if (result.isCancelled) {
+                upstream.cancel(true)
+            } else {
+                upstream.whenComplete { value, error ->
+                    when (val cause = error?.unwrapCompletionCause()) {
+                        null -> result.complete(value)
+                        is CancellationException -> result.cancel(false)
+                        is RedisNoScriptException -> {
+                            if (fallbackOnNoScript && !result.isCancelled) {
+                                log.debug { "NOSCRIPT(async) → 원문 전송 fallback (sha1=${script.sha1})" }
+                                dispatch(
+                                    {
+                                        commands.eval<T>(script.source, outputType, keys, *args).toCompletableFuture()
+                                    },
+                                    false,
+                                )
+                            } else if (!result.isDone) {
+                                result.completeExceptionally(cause)
+                            }
+                        }
+                        else -> result.completeExceptionally(cause)
+                    }
+                }
+            }
+        }
+
+        dispatch(
+            { commands.evalsha<T>(script.sha1, outputType, keys, *args).toCompletableFuture() },
+            true,
+        )
+        return result
     }
 
     /** 코루틴: `EVALSHA` 우선, NOSCRIPT 시 원문 전송 fallback. */
@@ -155,3 +209,6 @@ object RedisScriptRunner: KLogging() {
         }
     }
 }
+
+private fun Throwable.unwrapCompletionCause(): Throwable =
+    if (this is CompletionException) cause ?: this else this
