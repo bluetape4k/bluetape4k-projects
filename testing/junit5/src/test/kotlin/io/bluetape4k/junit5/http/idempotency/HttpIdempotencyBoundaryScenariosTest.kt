@@ -36,6 +36,25 @@ class HttpIdempotencyBoundaryScenariosTest {
         adapter.quiescence() shouldBeEqualTo HttpIdempotencyQuiescence(0, 0, 0)
     }
 
+    @Test
+    fun `legal intrinsic replay maxima do not manufacture unrepresentable overflow values`() = runSuspendIO {
+        val limits = config(
+            maxReplayBodyBytes = 16_777_216,
+            maxReplayHeaderNames = 100,
+            maxReplayValuesPerHeader = 100,
+            maxReplayHeaderValueBytes = 65_536,
+            maxReplayHeaderBytes = 1_048_576,
+            replayHeaderAllowlist = setOf("etag"),
+        )
+        val adapter = InMemoryBoundedWaitHttpIdempotencyAdapter(limits)
+
+        val replayBounds = boundaryScenarios().single { scenario -> scenario.name == "replay-snapshot-bounds" }
+        runConformanceScenarios(adapter, limits, listOf(replayBounds))
+
+        adapter.completedScenarioCount shouldBeEqualTo 1
+        adapter.quiescence() shouldBeEqualTo HttpIdempotencyQuiescence(0, 0, 0)
+    }
+
     private fun boundaryConfig(): BoundedWaitHttpIdempotencyConformanceConfig = config(
         maxRequestBodyBytes = 64,
         replayHeaderAllowlist = buildSet {

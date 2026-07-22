@@ -64,6 +64,11 @@ returns `409 idempotency_in_flight` with `Retry-After` and releases its slot.
 Persist only an explicit replay allowlist. `Authorization`, `Cookie`, credential-like headers, and hop-by-hop headers
 are non-overridable denylist entries even when an adopter places them in the allowlist.
 
+A blocking adapter must also budget executor threads for admitted requests. The shared three-key fan-in scenario needs
+at least `3 * (maxWaitersPerKey + 1) + 1` threads so owners and waiters cannot occupy every thread before an overflow
+probe runs. This is a test-harness lower bound, not a production sizing recommendation; size production pools from the
+actual global and tenant fan-in, or use caller-owned virtual threads when the blocking boundary supports them.
+
 ## Signals and actions
 
 | Signal increases | Owning capacity layer | Safe response |
@@ -148,10 +153,11 @@ testApplication {
 The compile-checked
 [`SpringHttpIdempotencyConformanceTest`](../../../../../spring-boot/core/src/test/kotlin/io/bluetape4k/spring/idempotency/SpringHttpIdempotencyConformanceTest.kt)
 uses MockMvc, bounds declared and unknown-length bodies before controller lookup, and wraps blocking execution with
-`runInterruptible`. The caller creates and closes the bounded executor/dispatcher.
+`runInterruptible`. The caller creates and closes the bounded executor/dispatcher. For the documented
+`maxWaitersPerKey = 8`, the shared fan-in formula requires at least 28 threads; the example rounds that up to 32.
 
 ```kotlin
-Executors.newFixedThreadPool(8).asCoroutineDispatcher().use { dispatcher ->
+Executors.newFixedThreadPool(32).asCoroutineDispatcher().use { dispatcher ->
     val adapter = SpringBoundedWaitHttpIdempotencyAdapter(mockMvc, application, dispatcher, config)
     assertBoundedWaitHttpIdempotencyConformance(adapter, config)
 }
@@ -162,7 +168,9 @@ Executors.newFixedThreadPool(8).asCoroutineDispatcher().use { dispatcher ->
 The fixture is not a store, middleware package, distributed lock, rate limiter, or transaction coordinator. It does not
 prove database isolation, cross-node failover, restart recovery, network partition behavior, external `exactly-once`
 effects, or performance at production limits. It tests a synthetic bounded UTF-8 command profile and requires adopters
-to prove every omitted production boundary.
+to prove every omitted production boundary. `scenarioTimeout` is a cooperative watchdog: adapters must suspend
+cooperatively, and blocking framework calls must use a caller-owned interruptible dispatcher. It cannot safely
+force-stop code that ignores cancellation or thread interruption.
 
 ## Verification
 

@@ -101,6 +101,29 @@ private suspend fun assertUnauthorizedIsRecordIndistinguishable(
     val authorized = request(idempotencyKeys = listOf("foreign-record-key"))
     val owner = async { exchangeChecked(adapter, config, authorized) }
     adapter.awaitOwnerStarted(authorized)
+
+    mapOf(
+        "unauthenticated" to unauthenticatedResponse(),
+        "tenant-a-read-only" to unauthorizedResponse(),
+    ).forEach { (profile, expected) ->
+        val present = authorized.copy(authenticationProfile = profile)
+        val conflicting = present.copy(requestBody = "{\"name\":\"changed\"}")
+        val absent = present.copy(idempotencyKeys = listOf("absent-record-key"))
+
+        val presentResponse = exchangeChecked(adapter, config, present)
+        val conflictingResponse = exchangeChecked(adapter, config, conflicting)
+        val absentResponse = exchangeChecked(adapter, config, absent)
+        presentResponse shouldBeEqualTo expected
+        conflictingResponse shouldBeEqualTo expected
+        absentResponse shouldBeEqualTo expected
+        presentResponse shouldBeEqualTo conflictingResponse
+        presentResponse shouldBeEqualTo absentResponse
+        adapter.sideEffectCount(present) shouldBeEqualTo 0
+        adapter.sideEffectCount(conflicting) shouldBeEqualTo 0
+        adapter.sideEffectCount(absent) shouldBeEqualTo 0
+        adapter.quiescence().activeWaiters shouldBeEqualTo 0
+    }
+
     adapter.completeOwner(authorized, createdResponse())
     owner.await()
 
@@ -109,15 +132,9 @@ private suspend fun assertUnauthorizedIsRecordIndistinguishable(
         "tenant-a-read-only" to unauthorizedResponse(),
     ).forEach { (profile, expected) ->
         val present = authorized.copy(authenticationProfile = profile)
-        val absent = present.copy(idempotencyKeys = listOf("absent-record-key"))
-
-        val presentResponse = exchangeChecked(adapter, config, present)
-        val absentResponse = exchangeChecked(adapter, config, absent)
-        presentResponse shouldBeEqualTo expected
-        absentResponse shouldBeEqualTo expected
-        presentResponse shouldBeEqualTo absentResponse
-        adapter.sideEffectCount(present) shouldBeEqualTo 0
-        adapter.sideEffectCount(absent) shouldBeEqualTo 0
+        val absent = present.copy(idempotencyKeys = listOf("absent-terminal-record-key"))
+        exchangeChecked(adapter, config, present) shouldBeEqualTo expected
+        exchangeChecked(adapter, config, absent) shouldBeEqualTo expected
         adapter.quiescence().activeWaiters shouldBeEqualTo 0
     }
     adapter.sideEffectCount(authorized) shouldBeEqualTo 1

@@ -363,7 +363,10 @@ credential 계열, hop-by-hop header는 allowlist에 넣어도 해제할 수 없
 `maxWaitersPerKey`는 한 key의 duplicate fan-in만 제한합니다. tenant/global connection limit, rate limit,
 admission control을 대신하지 않습니다. shared conformance workload의 `maxWaitersPerKey <= 32`는 test를 bounded로
 유지하기 위한 제한이지 production 권고값이 아닙니다. 더 큰 production limit은 대표 test instance와 별도
-load test로 검증합니다.
+load test로 검증합니다. blocking adapter는 shared three-key fan-in scenario를 위해 test executor thread를
+최소 `3 * (maxWaitersPerKey + 1) + 1`개 확보하거나 caller-owned virtual thread를 사용해야 합니다.
+`scenarioTimeout`은 cooperative하므로 blocking call은 interruptible bridge를 사용해야 하며 non-cooperative
+code를 안전하게 force-stop할 수는 없습니다.
 
 compile-checked reference는
 [`KtorHttpIdempotencyConformanceTest`](../../ktor/testing/src/test/kotlin/io/bluetape4k/ktor/testing/idempotency/KtorHttpIdempotencyConformanceTest.kt)와

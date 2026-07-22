@@ -214,6 +214,7 @@ private suspend fun assertReplayHeaderDenylistAndAggregateBounds(
             headers = mapOf(
                 "Content-Type" to listOf("application/json"),
                 "ETag" to listOf("widget-v1"),
+                "X-Unlisted-Sentinel" to listOf("must-not-replay"),
                 "Authorization" to listOf("secret-authorization"),
                 "Cookie" to listOf("secret-cookie"),
                 "Set-Cookie" to listOf("secret-set-cookie"),
@@ -242,6 +243,7 @@ private suspend fun assertReplayHeaderDenylistAndAggregateBounds(
     listOf(first, replay).forEach { response ->
         response.headers["content-type"] shouldBeEqualTo listOf("application/json")
         response.headers["etag"] shouldBeEqualTo listOf("widget-v1")
+        response.headers.keys.shouldNotContain("x-unlisted-sentinel")
         PROHIBITED_REPLAY_HEADERS.forEach { name -> response.headers.keys.shouldNotContain(name) }
     }
 
@@ -261,29 +263,7 @@ private suspend fun assertReplayHeaderDenylistAndAggregateBounds(
         response.headers["etag"] shouldBeEqualTo listOf("widget-v2")
     }
 
-    val unsafeOutcomes = listOf(
-        createdResponse().copy(body = "x".repeat(config.maxReplayBodyBytes + 1)),
-        createdResponse().copy(headers = mapOf(
-            "content-type" to listOf("x".repeat(config.maxReplayHeaderValueBytes + 1)),
-        )),
-        createdResponse().copy(headers = mapOf(
-            "content-type" to List(config.maxReplayValuesPerHeader + 1) { "value-$it" },
-        )),
-        createdResponse().copy(headers = buildMap {
-            put("content-type", listOf("application/json"))
-            config.replayHeaderAllowlist
-                .filter { name -> name.startsWith("x-safe-") }
-                .take(config.maxReplayHeaderNames)
-                .forEach { name ->
-                    put(name, listOf("value"))
-                }
-        }),
-        createdResponse().copy(headers = mapOf(
-            "content-type" to List(config.maxReplayValuesPerHeader) {
-                "x".repeat(config.maxReplayHeaderValueBytes)
-            },
-        )),
-    )
+    val unsafeOutcomes = hostileReplayOutcomes(config)
     unsafeOutcomes.forEachIndexed { index, outcome ->
         val command = request(idempotencyKeys = listOf("unsafe-snapshot-$index"))
         val owner = async { exchangeChecked(adapter, config, command) }
@@ -295,6 +275,62 @@ private suspend fun assertReplayHeaderDenylistAndAggregateBounds(
         completeNewOwner(adapter, config, command)
         adapter.sideEffectCount(command) shouldBeEqualTo 1
     }
+}
+
+private fun hostileReplayOutcomes(
+    config: BoundedWaitHttpIdempotencyConformanceConfig,
+): List<HttpIdempotencyResponse> = buildList {
+    if (config.maxReplayBodyBytes < INTRINSIC_MAX_BODY_BYTES) {
+        add(createdResponse().copy(body = "x".repeat(config.maxReplayBodyBytes + 1)))
+    }
+    if (config.maxReplayHeaderValueBytes < INTRINSIC_MAX_HEADER_VALUE_BYTES) {
+        add(createdResponse().copy(headers = mapOf(
+            "content-type" to listOf("x".repeat(config.maxReplayHeaderValueBytes + 1)),
+        )))
+    }
+    if (config.maxReplayValuesPerHeader < INTRINSIC_MAX_VALUES_PER_HEADER) {
+        add(createdResponse().copy(headers = mapOf(
+            "content-type" to List(config.maxReplayValuesPerHeader + 1) { "value-$it" },
+        )))
+    }
+    replayHeaderNameOverflow(config)?.let(::add)
+    replayHeaderAggregateOverflow(config)?.let(::add)
+}
+
+private fun replayHeaderNameOverflow(
+    config: BoundedWaitHttpIdempotencyConformanceConfig,
+): HttpIdempotencyResponse? {
+    if (config.maxReplayHeaderNames >= INTRINSIC_MAX_HEADER_NAMES) return null
+    val safeNames = config.replayHeaderAllowlist
+        .asSequence()
+        .filterNot(::isReplayHeaderDenied)
+        .filterNot { name -> name == CONTENT_TYPE }
+        .take(config.maxReplayHeaderNames)
+        .toList()
+    if (safeNames.size != config.maxReplayHeaderNames) return null
+    return createdResponse().copy(headers = buildMap {
+        put(CONTENT_TYPE, listOf("application/json"))
+        safeNames.forEach { name -> put(name, listOf("value")) }
+    })
+}
+
+private fun replayHeaderAggregateOverflow(
+    config: BoundedWaitHttpIdempotencyConformanceConfig,
+): HttpIdempotencyResponse? {
+    if (config.maxReplayHeaderBytes >= INTRINSIC_MAX_HEADER_BYTES) return null
+    val requiredValueBytes = (config.maxReplayHeaderBytes + 1 - CONTENT_TYPE.length).coerceAtLeast(0)
+    val valueCount = maxOf(
+        1,
+        (requiredValueBytes + config.maxReplayHeaderValueBytes - 1) / config.maxReplayHeaderValueBytes,
+    )
+    if (valueCount > config.maxReplayValuesPerHeader) return null
+    var remaining = requiredValueBytes
+    val values = List(valueCount) {
+        val size = minOf(remaining, config.maxReplayHeaderValueBytes)
+        remaining -= size
+        "x".repeat(size)
+    }
+    return createdResponse().copy(headers = mapOf(CONTENT_TYPE to values))
 }
 
 private suspend fun assertRepeatedFanInAcrossKeys(
@@ -408,3 +444,9 @@ private val PROHIBITED_REPLAY_HEADERS = setOf(
     "x-hop",
     "x-secret",
 )
+private const val CONTENT_TYPE = "content-type"
+private const val INTRINSIC_MAX_BODY_BYTES = 16_777_216
+private const val INTRINSIC_MAX_HEADER_NAMES = 100
+private const val INTRINSIC_MAX_VALUES_PER_HEADER = 100
+private const val INTRINSIC_MAX_HEADER_VALUE_BYTES = 65_536
+private const val INTRINSIC_MAX_HEADER_BYTES = 1_048_576

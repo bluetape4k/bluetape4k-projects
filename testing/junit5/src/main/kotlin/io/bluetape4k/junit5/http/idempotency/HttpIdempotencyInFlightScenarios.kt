@@ -201,8 +201,11 @@ private suspend fun assertOwnerDisconnectBeforeAndAfterCommit(
     val beforeCommit = request(idempotencyKeys = listOf("disconnect-before-key"))
     val disconnectedOwner = async { exchangeChecked(adapter, config, beforeCommit) }
     adapter.awaitOwnerStarted(beforeCommit)
+    val strandedWaiter = async { exchangeChecked(adapter, config, beforeCommit) }
+    adapter.awaitWaiterCount(beforeCommit, 1)
     disconnectedOwner.cancelAndJoin()
     disconnectedOwner.isCancelled.shouldBeTrue()
+    strandedWaiter.await() shouldBeEqualTo transientFailureResponse()
     adapter.quiescence() shouldBeEqualTo HttpIdempotencyQuiescence(0, 0, 0)
 
     val replacement = async { exchangeChecked(adapter, config, beforeCommit) }

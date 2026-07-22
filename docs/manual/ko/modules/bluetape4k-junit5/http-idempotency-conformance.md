@@ -64,6 +64,12 @@ waiter가 timeout되면 slot을 반환하고 `Retry-After`가 있는 `409 idempo
 명시적인 replay allowlist만 저장합니다. `Authorization`, `Cookie`, credential 계열 header와 hop-by-hop header는
 adopter가 allowlist에 넣어도 해제할 수 없는 denylist입니다.
 
+blocking adapter는 admitted request를 위한 executor thread budget도 확보해야 합니다. shared three-key fan-in
+scenario는 owner와 waiter가 모든 thread를 점유해 overflow probe 실행을 막지 않도록 최소
+`3 * (maxWaitersPerKey + 1) + 1` thread가 필요합니다. 이는 test harness의 하한이지 production sizing
+권고값이 아닙니다. production pool은 실제 global/tenant fan-in으로 산정하거나 blocking boundary가 지원하면
+caller-owned virtual thread를 사용합니다.
+
 ## 신호와 대응
 
 | 증가한 신호 | 소유 capacity layer | 안전한 대응 |
@@ -150,10 +156,11 @@ testApplication {
 compile-checked
 [`SpringHttpIdempotencyConformanceTest`](../../../../../spring-boot/core/src/test/kotlin/io/bluetape4k/spring/idempotency/SpringHttpIdempotencyConformanceTest.kt)는
 MockMvc를 사용하고 controller lookup 전에 declared/unknown-length body를 제한하며 blocking execution을
-`runInterruptible`로 감쌉니다. caller가 bounded executor/dispatcher를 만들고 닫습니다.
+`runInterruptible`로 감쌉니다. caller가 bounded executor/dispatcher를 만들고 닫습니다. 문서 예제의
+`maxWaitersPerKey = 8`에는 shared fan-in 공식상 최소 28 thread가 필요하므로 32로 올림합니다.
 
 ```kotlin
-Executors.newFixedThreadPool(8).asCoroutineDispatcher().use { dispatcher ->
+Executors.newFixedThreadPool(32).asCoroutineDispatcher().use { dispatcher ->
     val adapter = SpringBoundedWaitHttpIdempotencyAdapter(mockMvc, application, dispatcher, config)
     assertBoundedWaitHttpIdempotencyConformance(adapter, config)
 }
@@ -164,7 +171,9 @@ Executors.newFixedThreadPool(8).asCoroutineDispatcher().use { dispatcher ->
 fixture는 store, middleware package, distributed lock, rate limiter, transaction coordinator가 아닙니다.
 database isolation, cross-node failover, restart recovery, network partition 동작, external `exactly-once` effect,
 production limit의 성능을 증명하지 않습니다. synthetic bounded UTF-8 command profile을 검증하며 빠진 모든
-production boundary는 adopter가 증명해야 합니다.
+production boundary는 adopter가 증명해야 합니다. `scenarioTimeout`은 cooperative watchdog입니다. adapter는
+cooperatively suspend해야 하며 blocking framework call은 caller-owned interruptible dispatcher를 사용해야
+합니다. cancellation이나 thread interruption을 무시하는 코드를 안전하게 force-stop할 수는 없습니다.
 
 ## 검증
 

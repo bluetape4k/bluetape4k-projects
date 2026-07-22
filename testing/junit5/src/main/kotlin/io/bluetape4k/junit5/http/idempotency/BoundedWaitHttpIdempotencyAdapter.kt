@@ -7,7 +7,10 @@ import java.time.Duration
  *
  * The runner invokes this adapter in the caller's structured scope. The caller closes the HTTP
  * application and any blocking dispatcher after the runner returns. Implementations must preserve
- * cancellation and must never log raw keys, request bodies, responses, or headers.
+ * cancellation and must never log raw keys, request bodies, responses, or headers. A blocking HTTP
+ * boundary must run on a caller-owned bounded or virtual-thread dispatcher and use an interruptible
+ * bridge. The scenario watchdog is cooperative and cannot force-stop code that ignores cancellation
+ * or thread interruption.
  */
 interface BoundedWaitHttpIdempotencyAdapter {
 

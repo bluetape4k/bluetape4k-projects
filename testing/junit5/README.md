@@ -294,7 +294,9 @@ and hop-by-hop headers remain non-overridable denylist entries even when configu
 `maxWaitersPerKey` bounds only duplicate fan-in for one key. It does not replace tenant/global connection limits, rate
 limits, or admission control. The shared conformance workload accepts `maxWaitersPerKey <= 32` so tests stay bounded;
 that ceiling is not a production recommendation. Validate a larger production limit with a representative test instance
-and a separate load test.
+and a separate load test. A blocking adapter needs at least `3 * (maxWaitersPerKey + 1) + 1` test-executor threads for
+the shared three-key fan-in scenario, or caller-owned virtual threads. `scenarioTimeout` is cooperative; blocking calls
+must use an interruptible bridge, and non-cooperative code cannot be force-stopped safely.
 
 The compile-checked references are
 [`KtorHttpIdempotencyConformanceTest`](../../ktor/testing/src/test/kotlin/io/bluetape4k/ktor/testing/idempotency/KtorHttpIdempotencyConformanceTest.kt)

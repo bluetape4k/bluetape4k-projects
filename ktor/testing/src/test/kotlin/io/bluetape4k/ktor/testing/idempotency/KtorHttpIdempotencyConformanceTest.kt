@@ -38,7 +38,6 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.selects.select
@@ -197,14 +196,13 @@ private class KtorBoundedWaitHttpIdempotencyAdapter(
     override suspend fun exchange(request: HttpIdempotencyRequest): HttpIdempotencyResponse {
         val exchangeId = exchangeSequence.incrementAndGet()
         val cancellation = application.registerExchangeCancellation(exchangeId)
-        // The test engine may finish client cancellation before the route observes it. Map the
-        // exact exchange synchronously so cancelAndJoin also proves server-side quiescence.
+        // Wake the exact server exchange as soon as cancellation begins. Suspending cleanup stays
+        // in the structured catch path below; completion callbacks must never block an event loop.
         val cancellationHandle = currentCoroutineContext()[Job]?.invokeOnCompletion(
             onCancelling = true,
             invokeImmediately = true,
         ) { cause ->
             if (cause is CancellationException) {
-                runBlocking { application.cancelExchange(exchangeId) }
                 cancellation.signal.complete(Unit)
             }
         }
@@ -216,6 +214,9 @@ private class KtorBoundedWaitHttpIdempotencyAdapter(
                 headers { request.idempotencyKeys.forEach { value -> append(IDEMPOTENCY_KEY, value) } }
                 setBody(request.requestBody)
             }
+        } catch (cancelled: CancellationException) {
+            withContext(NonCancellable) { application.cancelExchange(exchangeId) }
+            throw cancelled
         } finally {
             cancellationHandle?.dispose()
         }

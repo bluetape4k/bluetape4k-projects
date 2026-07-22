@@ -3,11 +3,12 @@ package io.bluetape4k.junit5.http.idempotency
 import io.bluetape4k.assertions.shouldBeEqualTo
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
 import java.time.Duration
@@ -22,6 +23,9 @@ import java.util.concurrent.TimeUnit
  * only its monotonic watchdog scheduler. Passing this fixture proves observable HTTP behavior, not
  * durable persistence, restart recovery, or exactly-once external side effects. The shared proof
  * accepts at most 32 waiters per key; larger production limits require separate load tests.
+ * [BoundedWaitHttpIdempotencyAdapter] implementations must suspend cooperatively and isolate
+ * blocking framework calls on caller-owned interruptible dispatchers; the watchdog cannot safely
+ * force-stop non-cooperative code.
  */
 suspend fun assertBoundedWaitHttpIdempotencyConformance(
     adapter: BoundedWaitHttpIdempotencyAdapter,
@@ -109,13 +113,13 @@ private suspend fun <T> withMonotonicWatchdog(
     scenario: String,
     block: suspend () -> T,
 ): T = coroutineScope {
-    val work = async(start = CoroutineStart.UNDISPATCHED) { block() }
     val expired = CompletableDeferred<Unit>()
     val timeoutTask = watchdog.schedule(
         { expired.complete(Unit) },
         timeout.toNanos(),
         TimeUnit.NANOSECONDS,
     )
+    val work = async { block() }
     try {
         select {
             work.onAwait { it }
@@ -210,15 +214,19 @@ private fun newWatchdog(): ScheduledExecutorService =
             .unstarted(runnable)
     }
 
-private fun shutdownWatchdog(watchdog: ScheduledExecutorService): Throwable? =
-    try {
-        watchdog.shutdownNow()
-        check(watchdog.awaitTermination(WATCHDOG_SHUTDOWN_SECONDS, TimeUnit.SECONDS)) {
-            "HTTP idempotency watchdog did not terminate."
+private suspend fun shutdownWatchdog(watchdog: ScheduledExecutorService): Throwable? =
+    withContext(NonCancellable) {
+        try {
+            runInterruptible(Dispatchers.IO) {
+                watchdog.shutdownNow()
+                check(watchdog.awaitTermination(WATCHDOG_SHUTDOWN_SECONDS, TimeUnit.SECONDS)) {
+                    "HTTP idempotency watchdog did not terminate."
+                }
+            }
+            null
+        } catch (failure: Throwable) {
+            failure
         }
-        null
-    } catch (failure: Throwable) {
-        failure
     }
 
 private suspend inline fun captureFailure(crossinline block: suspend () -> Unit): Throwable? =
