@@ -80,6 +80,7 @@ Netty `ByteBufOutputStream` source는 write할 때 underlying `ByteBuf.writerInd
 
 - `BinarySerializer` caller-owned `OutputStream` API와 compatibility default
 - `JsonSerializer` caller-owned `OutputStream` API와 compatibility default
+- `BinarySerializerDecorator.serializeBinaryToStream`의 allocating semantic-preserving override
 - JDK, Kryo, Jackson 2, Jackson 3의 direct-output 후보 override
 - `CompressableBinarySerializer.serializeBinaryToStream`의 allocating wire-preserving override
 - `LettuceBinaryCodec`과 `LettuceJsonCodec`의 bounded absolute-index target encode
@@ -127,8 +128,15 @@ default를 양쪽에 추가하면 두 interface를 함께 구현한 기존 class
 때문이다. interface와 모든 concrete override는 `@Throws(IOException::class)`를 선언해 Java caller가
 checked stream failure를 catch/declare할 수 있게 한다.
 
-직접 output을 지원하는 serializer만 override한다. override 유무는 API capability를 나타내지만,
+backend direct output 후보는 capability가 있을 때만 override한다. semantic decorator는 자체 wire behavior를
+보존하기 위해 allocating override를 둘 수 있으므로 override 유무만으로 allocation 개선을 뜻하지 않는다.
 allocation 개선 표시는 benchmark evidence가 별도로 결정한다.
+
+public open `BinarySerializerDecorator`는 Kotlin delegation이 새 default를 wrapped serializer로 직접
+forward해 외부 subclass의 `serialize(graph)` override semantics를 우회하지 않도록
+`serializeBinaryToStream`을 명시적으로 override한다. 이 path는 자신의 virtual `serialize(graph)` 결과를
+기록하는 allocating semantic-preserving fallback이다. `CompressableBinarySerializer`는 control-failure
+복원과 compressed wire 의도를 명시하기 위해 별도 override를 유지한다.
 
 ### 5.2 caller-owned stream 계약
 
@@ -145,7 +153,9 @@ allocation 개선 표시는 benchmark evidence가 별도로 결정한다.
 - interface default에서 기존 `serialize(graph)`가 실패하면 그 API의 기존 type/cause/identity를 그대로
   전파하고, 이후 `target.write`가 실패하면 원 throwable을 그대로 전파한다.
 - backend direct override는 기존 ByteBuffer direct 경로의 serialization exception type/cause 분류와
-  raw control-failure 복원 정책을 유지한다.
+  control-failure 정책을 backend별로 그대로 유지한다. JDK/Kryo가 raw cancellation을 복원하는 경로는
+  identity를 보존하고, Jackson 2/3가 cancellation을 `JsonSerializationException`으로 분류하는 현재
+  경로는 동일 wrapper type/cause를 유지한다.
 - compressed compatibility override는 자체 `serialize(graph)`로 압축 wire를 만든 뒤 기록하며 nested
   `Error`와 cancellation을 기존 `BufferFailurePolicy`로 복원한다.
 
@@ -202,9 +212,11 @@ writer-index commit, no retain/release를 직접 책임진다. built-in base 보
 ### 5.4 Lettuce decode
 
 decode는 null이 아닌 Lettuce `ByteBuffer`의 `[position, limit)`를
-`source.duplicate().slice().order(source.order())`로 분리하고 serializer의 `deserializeFrom`에
+`source.duplicate().slice().asReadOnlyBuffer().order(source.order())`로 분리하고 serializer의 `deserializeFrom`에
 전달한다. 이 view의 capacity 자체가 원본 remaining으로 제한되어 serializer가 `clear()` 또는
-`limit(capacity)`를 호출해도 prefix/suffix가 노출되지 않는다.
+`limit(capacity)`를 호출해도 prefix/suffix가 노출되지 않는다. heap source에서도 read-only view는
+`hasArray == false`이고 `array()`/`arrayOffset()` 접근과 content mutation을 차단해 backing array를 통한
+bounds 우회를 허용하지 않는다.
 
 - 원본 position, limit, mark, byte order를 성공과 실패 모두 보존한다.
 - codec 계층은 추가 `ByteArray`를 만들지 않는다.
@@ -273,7 +285,8 @@ buffer는 호출 동안 thread-confined여야 한다.
 | interface default의 stream write failure | 원 throwable identity 보존 |
 | direct backend의 bounds/capacity/read-only failure | 기존 backend serialization exception 분류와 cause identity 보존 |
 | serializer failure | 기존 serializer exception type/cause 계약 보존 |
-| direct backend의 `Error`/cancellation | 기존 ByteBuffer direct 경로처럼 raw identity 보존 |
+| direct backend의 `Error` | 기존 ByteBuffer direct 경로처럼 raw identity 보존 |
+| direct backend의 cancellation | 기존 ByteBuffer backend별 type/cause 계약 보존; Jackson 2/3는 기존 `JsonSerializationException` 분류 유지 |
 | compressed compatibility의 nested `Error`/cancellation | `BufferFailurePolicy`로 raw identity 복원 |
 | serialized count `Int.MAX_VALUE` 초과 | stable `IllegalStateException`, direct backend는 기존 wrapper/cause 정책 적용 |
 | 반환량과 실제 기록량 불일치 | stable message의 cause 없는 `IllegalStateException` |
@@ -296,7 +309,8 @@ encode도 동일한 wire를 생성해야 한다.
 - serializer instance와 configuration을 그대로 재사용한다.
 - JDK object filter, Kryo registration/pool policy, Jackson mapper configuration을 우회하지 않는다.
 - fallback 허용 범위나 allowed package policy를 넓히지 않는다.
-- bounded decode view는 caller가 제공한 `[position, limit)` 밖을 노출하지 않는다.
+- bounded read-only decode view는 caller가 제공한 `[position, limit)` 밖을 capacity, backing array 또는
+  mutation API로 노출하지 않는다.
 - raw payload, secret, key/value content를 logging하지 않는다.
 
 ### 9.3 source 및 ABI
@@ -399,6 +413,7 @@ encode도 동일한 wire를 생성해야 한다.
 - caller stream 비보관 계약과 flush-count/close-count zero
 - `Int.MAX_VALUE` count 경계와 stable overflow failure
 - compressed compatibility wire parity, wrapped serializer direct method 미호출, nested cancellation/Error 복원
+- old/new Java·Kotlin `BinarySerializerDecorator` subclass의 `serialize(graph)` override semantics 보존
 - Kotlin/Java old caller source 및 ABI fixture
 
 ### 11.2 Lettuce encode
@@ -427,6 +442,7 @@ encode도 동일한 wire를 생성해야 한다.
 - 성공/실패 시 position, limit, mark, byte order 보존
 - little-endian order 전달 관찰
 - serializer가 view `clear()`/limit 확장을 시도해도 prefix/suffix 비노출
+- heap source에서도 derived view의 `hasArray == false`, `array()`/`arrayOffset()` 차단, content mutation 차단
 - empty/null input
 - corrupt/untrusted input exception parity
 - direct backend와 compatibility backend dispatch
@@ -468,6 +484,10 @@ benchmark dependency를 추가하지 않는다.
 - `gc.alloc.rate.norm`을 primary metric으로 사용
 - throughput은 diagnostic metric으로 보존
 - 한 번 build한 exact-HEAD pinned JAR로 canonical run 두 번을 수행한다.
+- canonical run 전에 독립 Kotlin preflight가 16개 method의 backend/config/payload/target-kind identity,
+  frozen copied baseline과 candidate의 distinct dispatch, wire/count/prefix parity를 실행 검증한다.
+- retained backend별 read-only target preflight는 codec-visible exception type/cause와
+  writerIndex/readerIndex/marks/refCnt 보존을 기존 ByteBuffer backend contract와 비교한다.
 
 ### 12.2 판정
 
@@ -481,6 +501,9 @@ benchmark dependency를 추가하지 않는다.
 - `ineligible`: compatibility/default fallback, wire/security parity 실패, 또는 어느 run에서든 throughput
   차단 조건을 충족해 direct override를 제거한 backend
 
+evidence metadata는 backend별 stream method declaring class와 `declared-direct`/`inherited-default` dispatch를
+기록한다. `inherited-default`는 측정 수치와 무관하게 terminal `ineligible`이며 validator가 재분류하지 않는다.
+
 한 cell의 accepted 결과를 다른 serializer, payload, decode, compressed codec에 일반화하지 않는다.
 
 ### 12.3 evidence artifact
@@ -493,6 +516,11 @@ benchmark dependency를 추가하지 않는다.
 - benchmark command와 limitation
 - exact measurement HEAD/JAR hash binding
 - expected matrix, candidate-to-baseline 일대일 mapping, run metadata의 fail-closed validator 결과
+
+validator는 `gc.alloc.rate.norm`의 unit이 정확히 `B/op`이고 score/scoreError가 finite·non-negative이며
+baseline score가 positive인지 확인한다. throughput primary metric은 mode `thrpt`, unit `ops/ms`, finite
+positive score와 finite·non-negative scoreError를 요구한다. NaN, Infinity, 음수, 잘못된 unit은 evidence를
+거부한다.
 
 manifest는 OS/kernel, CPU model과 logical core count, JDK vendor/version, JVM options, Gradle/JMH 전체
 명령, allocator/pooled 설정, payload hash, warmup/measurement/fork/thread 설정과 실행 시각을 포함한다.
@@ -533,8 +561,9 @@ benchmark input SHA와 final delivery SHA는 구분한다. measurement artifact�
 - `io/jackson2/README.md`, `io/jackson2/README.ko.md`, `io/jackson3/README.md`,
   `io/jackson3/README.ko.md`를 동등하게 갱신한다.
 - `infra/lettuce/README.md`와 `README.ko.md`를 동등하게 갱신한다.
-- serializer API 문서에는 Kotlin/Java 예제, allocating default, caller ownership, partial failure,
-  `Int.MAX_VALUE` count bound를 명시한다.
+- serializer API 문서에는 Kotlin/Java direct-call 예제, allocating default, caller ownership, partial failure,
+  `Int.MAX_VALUE` count bound를 명시한다. Java 예제는 checked `IOException` catch/declare와 caller-owned
+  stream의 close/flush 책임을 보이고, 두 예제 모두 실패한 partial destination 폐기 또는 staging을 설명한다.
 - Lettuce 문서에는 commit-on-success, dirty attempted range, no retain/release를 명시한다.
 - failed stream 결과는 유효 payload로 재사용하지 않고 destination을 reset할 수 없으면 폐기한다.
   transactional write가 필요하면 caller가 별도 staging을 제공해야 한다.
@@ -544,9 +573,13 @@ benchmark input SHA와 final delivery SHA는 구분한다. measurement artifact�
 - codec/adapter가 만든 exception과 log는 key/value, payload bytes, target content를 포함하지 않는다.
 - 기존 serializer가 생성한 exception message/cause는 codec 밖의 기존 신뢰 경계로 그대로 전파한다.
 - capability matrix는 measured verdict만 사용한다.
+- allocation claim에는 exact measured payload/config, allocator/pooled 여부, pre-sized reusable target과
+  no-growth 조건을 함께 적고 그 밖의 payload/capacity/pooling에 일반화하지 않는다.
 - throughput 또는 zero-copy 개선을 약속하지 않는다.
 - Redisson 및 compression low-allocation backend optimization만 후속 slice로 명시한다.
-- 기존 Lettuce factory caller는 설정·데이터 rewrite·migration 없이 새 dispatch를 사용한다.
+- built-in serializer와 read-only/non-array-backed synchronous view 계약을 이미 지키는 custom override를
+  사용하는 기존 Lettuce factory caller는 설정·데이터 rewrite 없이 새 dispatch를 사용한다. `array()` 또는
+  content mutation이 필요한 custom override는 interface allocating default를 사용하도록 수정해야 한다.
   serializer 직접 caller의 `serializeBinaryToStream`/`serializeJsonToStream` 사용만 opt-in이며
   fallback/inconclusive backend에는
   allocation 개선을 보장하지 않는다.
