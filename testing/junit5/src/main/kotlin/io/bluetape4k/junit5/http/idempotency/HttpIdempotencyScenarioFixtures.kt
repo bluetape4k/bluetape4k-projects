@@ -36,6 +36,31 @@ internal fun transientFailureResponse(): HttpIdempotencyResponse = HttpIdempoten
     problemCode = "temporarily_unavailable",
 )
 
+internal fun idempotencyConflictResponse(): HttpIdempotencyResponse = HttpIdempotencyResponse(
+    statusCode = 409,
+    body = "{\"code\":\"idempotency_key_reused\"}",
+    headers = mapOf("content-type" to listOf("application/problem+json")),
+    problemCode = "idempotency_key_reused",
+)
+
+internal fun unauthenticatedResponse(): HttpIdempotencyResponse = HttpIdempotencyResponse(
+    statusCode = 401,
+    body = "{\"code\":\"authentication_required\"}",
+    headers = mapOf("content-type" to listOf("application/problem+json")),
+    problemCode = "authentication_required",
+)
+
+internal fun unauthorizedResponse(): HttpIdempotencyResponse = HttpIdempotencyResponse(
+    statusCode = 403,
+    body = "{\"code\":\"forbidden\"}",
+    headers = mapOf("content-type" to listOf("application/problem+json")),
+    problemCode = "forbidden",
+)
+
+internal fun HttpIdempotencyResponse.withReplayFlag(replayed: Boolean): HttpIdempotencyResponse = copy(
+    headers = headers + ("idempotency-replayed" to listOf(replayed.toString())),
+)
+
 internal fun representativeNormalRequests(): List<HttpIdempotencyRequest> = listOf(
     request(),
     request(
