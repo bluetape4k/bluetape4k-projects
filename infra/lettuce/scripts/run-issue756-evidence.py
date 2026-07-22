@@ -377,7 +377,9 @@ def build_metadata(run_id, source, classpath, preflight):
 def _init_script_text():
     return r"""
 gradle.projectsEvaluated {
-    def project = gradle.rootProject.findProject(':bluetape4k-jackson2')
+    def project = gradle.rootProject.allprojects.find {
+        it.path == ':bluetape4k-jackson2'
+    }
     if (project == null) {
         throw new GradleException('missing :bluetape4k-jackson2')
     }
