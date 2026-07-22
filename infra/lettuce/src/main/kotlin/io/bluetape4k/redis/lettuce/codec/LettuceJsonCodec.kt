@@ -9,6 +9,7 @@ import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.codec.ToByteBufEncoder
 import io.netty.buffer.ByteBuf
 import java.nio.ByteBuffer
+import java.nio.ReadOnlyBufferException
 
 /**
  * Lettuce [RedisCodec] 구현체로, Value를 [JsonSerializer]를 이용하여 JSON 포맷으로 직렬화/역직렬화합니다.
@@ -57,8 +58,16 @@ class LettuceJsonCodec<V: Any>(
     override fun encodeValue(value: V): ByteBuffer =
         ByteBuffer.wrap(serializer.serialize(value))
 
+    /**
+     * Encodes [value] into the caller-owned [target].
+     *
+     * A null target is a no-op. A read-only target fails before serializer dispatch and preserves its observable
+     * indices, marks, and reference count. Success commits the writer index only after the complete wire is written;
+     * failure may leave attempted content or capacity changes but does not commit the writer index.
+     */
     override fun encodeValue(value: V, target: ByteBuf?) {
         if (target == null) return
+        if (target.isReadOnly) throw ReadOnlyBufferException()
 
         val output = BoundedByteBufOutputStream(target)
         try {

@@ -75,6 +75,33 @@ class LettuceBinaryCodecBufferContractTest {
     }
 
     @Test
+    fun `read only target fails before serializer dispatch and preserves observable state`() {
+        val serializer = RecordingBinarySerializer()
+        val target = Unpooled.buffer(8, 8).writeZero(7).readerIndex(3).asReadOnly()
+        try {
+            target.markReaderIndex()
+            target.markWriterIndex()
+            val referenceCount = target.refCnt()
+
+            assertFailsWith<ReadOnlyBufferException> {
+                LettuceBinaryCodec<String>(serializer).encodeValue(VALUE, target)
+            }
+
+            serializer.streamCalls shouldBeEqualTo 0
+            serializer.arrayCalls shouldBeEqualTo 0
+            target.readerIndex() shouldBeEqualTo 3
+            target.writerIndex() shouldBeEqualTo 7
+            target.refCnt() shouldBeEqualTo referenceCount
+            target.resetReaderIndex()
+            target.resetWriterIndex()
+            target.readerIndex() shouldBeEqualTo 3
+            target.writerIndex() shouldBeEqualTo 7
+        } finally {
+            target.release()
+        }
+    }
+
+    @Test
     fun `reported and actual count mismatch fails without committing`() {
         val serializer = RecordingBinarySerializer().apply {
             streamBehavior = { output ->

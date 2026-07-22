@@ -9,6 +9,7 @@ import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.codec.ToByteBufEncoder
 import io.netty.buffer.ByteBuf
 import java.nio.ByteBuffer
+import java.nio.ReadOnlyBufferException
 
 /**
  * Lettuce [RedisCodec] 구현체
@@ -54,13 +55,15 @@ open class LettuceBinaryCodec<V: Any>(
     /**
      * Encodes [value] into the caller-owned [target].
      *
-     * A null target is a no-op. The caller owns the target and its lifetime. A successful override must commit the
-     * writer index only after the complete value has been written. A failed override may leave attempted bytes or
-     * capacity changes behind, but it must not advance the writer index. Subclasses are responsible for preserving
-     * wire-format and security compatibility with their configured [serializer].
+     * A null target is a no-op. A read-only target fails before serializer dispatch and preserves its observable
+     * indices, marks, and reference count. The caller owns the target and its lifetime. A successful override must
+     * commit the writer index only after the complete value has been written. A failed override may leave attempted
+     * bytes or capacity changes behind, but it must not advance the writer index. Subclasses are responsible for
+     * preserving wire-format and security compatibility with their configured [serializer].
      */
     override fun encodeValue(value: V, target: ByteBuf?) {
         if (target == null) return
+        if (target.isReadOnly) throw ReadOnlyBufferException()
 
         val output = BoundedByteBufOutputStream(target)
         try {
