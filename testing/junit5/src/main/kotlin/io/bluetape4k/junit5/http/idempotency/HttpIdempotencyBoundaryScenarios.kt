@@ -10,6 +10,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
+import java.io.Serializable
 
 internal fun boundaryScenarios(): List<ConformanceScenario> = listOf(
     ConformanceScenario("retention-expiry") { adapter, config ->
@@ -301,7 +302,7 @@ private suspend fun assertRepeatedFanInAcrossKeys(
     repeat(5) { round ->
         coroutineScope {
             val keys = List(3) { index -> "fan-in-$round-$index" }
-            val completions = Channel<Pair<Int, HttpIdempotencyResponse>>(Channel.UNLIMITED)
+            val completions = Channel<CompletedAttempt>(Channel.UNLIMITED)
             val owners = keys.map { key ->
                 async(start = CoroutineStart.UNDISPATCHED) {
                     exchangeChecked(adapter, config, request(idempotencyKeys = listOf(key)))
@@ -310,10 +311,10 @@ private suspend fun assertRepeatedFanInAcrossKeys(
             keys.forEach { key -> adapter.awaitOwnerStarted(request(idempotencyKeys = listOf(key))) }
 
             val attempts = keys.mapIndexed { keyIndex, key ->
-                List(config.maxWaitersPerKey + 2) {
+                List(config.maxWaitersPerKey + 2) { attemptIndex ->
                     async(start = CoroutineStart.UNDISPATCHED) {
                         exchangeChecked(adapter, config, request(idempotencyKeys = listOf(key))).also { response ->
-                            completions.send(keyIndex to response)
+                            completions.send(CompletedAttempt(keyIndex, attemptIndex, response))
                         }
                     }
                 }
@@ -323,14 +324,13 @@ private suspend fun assertRepeatedFanInAcrossKeys(
             }
 
             val overflowByIndex = List(keys.size * 2) { completions.receive() }
-                .groupBy({ it.first }, { it.second })
-            attempts.forEach { deferred ->
-                deferred.drop(config.maxWaitersPerKey).awaitAll()
-            }
+                .groupBy(CompletedAttempt::keyIndex)
             keys.indices.forEach { keyIndex ->
-                overflowByIndex.getValue(keyIndex).also { responses ->
-                    responses shouldHaveSize 2
-                }.forEach { response ->
+                overflowByIndex.getValue(keyIndex).also { completed ->
+                    completed shouldHaveSize 2
+                }.forEach { completed ->
+                    attempts[keyIndex][completed.attemptIndex].await()
+                    val response = completed.response
                     response.statusCode shouldBeEqualTo 429
                     response.problemCode shouldBeEqualTo "idempotency_waiters_exceeded"
                     response.headers["retry-after"] shouldBeEqualTo
@@ -342,12 +342,16 @@ private suspend fun assertRepeatedFanInAcrossKeys(
             attempts.first().awaitAll()
             owners.first().await().statusCode shouldBeEqualTo 201
             owners.drop(1).forEach { owner -> owner.isCompleted.shouldBeFalse() }
-            attempts.drop(1).forEach { deferred ->
-                deferred.take(config.maxWaitersPerKey).forEach { waiter ->
-                    waiter.isCompleted.shouldBeFalse()
-                }
-                deferred.drop(config.maxWaitersPerKey).forEach { overflow ->
-                    overflow.isCompleted.shouldBeTrue()
+            attempts.drop(1).forEachIndexed { offset, deferred ->
+                val keyIndex = offset + 1
+                val overflowIndexes = overflowByIndex.getValue(keyIndex)
+                    .mapTo(mutableSetOf(), CompletedAttempt::attemptIndex)
+                deferred.forEachIndexed { attemptIndex, attempt ->
+                    if (attemptIndex in overflowIndexes) {
+                        attempt.isCompleted.shouldBeTrue()
+                    } else {
+                        attempt.isCompleted.shouldBeFalse()
+                    }
                 }
             }
             keys.drop(1).forEach { key ->
@@ -368,6 +372,16 @@ private suspend fun assertRepeatedFanInAcrossKeys(
         }
     }
     adapter.quiescence() shouldBeEqualTo HttpIdempotencyQuiescence(0, 0, 0)
+}
+
+private data class CompletedAttempt(
+    val keyIndex: Int,
+    val attemptIndex: Int,
+    val response: HttpIdempotencyResponse,
+): Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
 }
 
 private val PROHIBITED_REPLAY_HEADERS = setOf(
