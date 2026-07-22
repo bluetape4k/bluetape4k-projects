@@ -3,7 +3,6 @@ package io.bluetape4k.junit5.http.idempotency
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
@@ -13,6 +12,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
@@ -81,23 +81,27 @@ class BoundedWaitHttpIdempotencyConformanceLifecycleTest {
 
     @Test
     fun `watchdog is armed before guarded work reaches its first suspension`() = runSuspendIO {
-        val startedAt = System.nanoTime()
+        val guardedWorkStarted = CompletableDeferred<Unit>()
 
-        val failure = assertFailsWith<AssertionError> {
-            runConformanceScenarios(
-                adapter = RecordingAdapter(),
-                config = config(scenarioTimeout = Duration.ofSeconds(1)),
-                scenarios = listOf(
-                    ConformanceScenario("pre-suspension-stall") { _, _ ->
-                        Thread.sleep(1_200)
-                        awaitCancellation()
-                    },
-                ),
-            )
+        val run = async {
+            assertFailsWith<AssertionError> {
+                runConformanceScenarios(
+                    adapter = RecordingAdapter(),
+                    config = config(scenarioTimeout = Duration.ofSeconds(1)),
+                    scenarios = listOf(
+                        ConformanceScenario("pre-suspension-stall") { _, _ ->
+                            guardedWorkStarted.complete(Unit)
+                            Thread.sleep(1_200)
+                            awaitCancellation()
+                        },
+                    ),
+                )
+            }
         }
 
-        val elapsedMillis = Duration.ofNanos(System.nanoTime() - startedAt).toMillis()
-        elapsedMillis shouldBeLessThan 2_000L
+        guardedWorkStarted.await()
+        liveWatchdogThreadCount() shouldBeEqualTo 1
+        val failure = run.await()
         failure.message.orEmpty() shouldContain "scenario=pre-suspension-stall"
         liveWatchdogThreadCount() shouldBeEqualTo 0
     }
