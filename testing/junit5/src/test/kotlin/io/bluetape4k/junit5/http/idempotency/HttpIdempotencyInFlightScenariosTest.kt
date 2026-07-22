@@ -2,6 +2,7 @@ package io.bluetape4k.junit5.http.idempotency
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.CancellationException
@@ -128,7 +129,7 @@ class HttpIdempotencyInFlightScenariosTest {
         }
 
         adapter.resetScenario()
-        (ownerObservation.await() is CancellationException).shouldBeTrue()
+        ownerObservation.await().shouldBeInstanceOf<CancellationException>()
 
         val pendingWaiter = request(idempotencyKeys = listOf("pending-waiter-control-key"))
         val owner = async { exchangeChecked(adapter, limits, pendingWaiter) }
@@ -138,7 +139,7 @@ class HttpIdempotencyInFlightScenariosTest {
         }
 
         adapter.resetScenario()
-        (waiterObservation.await() is IllegalStateException).shouldBeTrue()
+        waiterObservation.await().shouldBeInstanceOf<IllegalStateException>()
         owner.join()
         adapter.quiescence() shouldBeEqualTo HttpIdempotencyQuiescence(0, 0, 0)
     }
@@ -157,7 +158,7 @@ class HttpIdempotencyInFlightScenariosTest {
 
         adapter.resetScenario()
 
-        (owner.await() is CancellationException).shouldBeTrue()
+        owner.await().shouldBeInstanceOf<CancellationException>()
         adapter.quiescence() shouldBeEqualTo HttpIdempotencyQuiescence(0, 0, 0)
     }
 
