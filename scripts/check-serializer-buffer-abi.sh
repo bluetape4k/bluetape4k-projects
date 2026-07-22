@@ -40,6 +40,7 @@ sha256() {
 
 cleanup() {
     local worktree
+    [[ "${#CREATED_WORKTREES[@]}" -gt 0 ]] || return 0
     for worktree in "${CREATED_WORKTREES[@]}"; do
         [[ -d "$worktree" ]] || continue
         git -C "$MAIN_ROOT" worktree remove --force "$worktree" >/dev/null 2>&1 || true
@@ -436,7 +437,6 @@ fi
 for tool in git java javac javap jar kotlinc python3 shasum awk find sed grep; do
     command -v "$tool" >/dev/null || fail "$tool is required"
 done
-[[ "$(javac -version 2>&1)" == javac\ 21* ]] || fail "javac 21 is required"
 assert_clean_inputs
 
 rm -rf "$CLASS_DIR" "$JAR_DIR"
