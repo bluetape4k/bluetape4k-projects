@@ -2,12 +2,48 @@ package io.bluetape4k.io.serializer
 
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Input
+import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryo.util.Pool
 import io.bluetape4k.logging.KLogging
+import java.io.IOException
+import java.io.OutputStream
 import java.nio.ByteBuffer
 import java.nio.ReadOnlyBufferException
 
 private abstract class NativeByteBufferKryoPool: Pool<Kryo>(true, false, 1024)
+
+private const val KRYO_OUTPUT_LIMIT_MESSAGE = "Serialized output exceeds Int.MAX_VALUE bytes."
+
+private class KryoCallerOwnedCountingOutputStream(
+    private val target: OutputStream,
+): OutputStream() {
+
+    var written: Int = 0
+        private set
+
+    override fun write(value: Int) {
+        val next = checkedCount(1)
+        target.write(value)
+        written = next
+    }
+
+    override fun write(bytes: ByteArray, offset: Int, length: Int) {
+        val next = checkedCount(length)
+        target.write(bytes, offset, length)
+        written = next
+    }
+
+    override fun flush() = Unit
+
+    override fun close() = Unit
+
+    private fun checkedCount(length: Int): Int =
+        try {
+            Math.addExact(written, length)
+        } catch (failure: ArithmeticException) {
+            throw IllegalStateException(KRYO_OUTPUT_LIMIT_MESSAGE, failure)
+        }
+}
 
 /**
  *  [Kryo](https://github.com/EsotericSoftware/kryo) 라이브러리를 이용하는 [BinarySerializer]
@@ -165,6 +201,37 @@ class KryoBinarySerializer(
         } finally {
             KryoProvider.releaseOutput(output)
         }
+    }
+
+    @Throws(IOException::class)
+    override fun serializeBinaryToStream(graph: Any?, target: OutputStream): Int {
+        if (!supportsNativeByteBufferAdapters()) {
+            val bytes = serialize(graph)
+            target.write(bytes)
+            return bytes.size
+        }
+        val source = graph ?: return 0
+        val countingTarget = KryoCallerOwnedCountingOutputStream(target)
+        val output = KryoProvider.obtainOutput().apply {
+            setOutputStream(countingTarget)
+        }
+
+        return try {
+            useWithCleanup(output, ::releaseStreamOutput) { stream ->
+                useKryoForBuffer {
+                    writeClassAndObject(stream, source)
+                }
+                stream.flush()
+                countingTarget.written
+            }
+        } catch (failure: Throwable) {
+            throwBufferSerializationFailure(source, failure)
+        }
+    }
+
+    private fun releaseStreamOutput(output: Output) {
+        output.setOutputStream(null)
+        KryoProvider.releaseOutput(output)
     }
 
     override fun serializeTo(graph: Any?, target: ByteBuffer): Int {
