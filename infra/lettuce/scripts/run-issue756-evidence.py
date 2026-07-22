@@ -376,19 +376,15 @@ def build_metadata(run_id, source, classpath, preflight):
 
 def _init_script_text():
     return r"""
-gradle.projectsEvaluated {
-    def project = gradle.rootProject.allprojects.find {
-        it.path == ':bluetape4k-jackson2'
-    }
-    if (project == null) {
-        throw new GradleException('missing :bluetape4k-jackson2')
-    }
-    project.tasks.register('issue756PrintRuntimeArtifacts') {
-        doLast {
-            project.configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts
-                .collect { it.file.canonicalFile }
-                .sort { a, b -> a.absolutePath <=> b.absolutePath }
-                .each { println('ISSUE756_RUNTIME_ARTIFACT=' + it.absolutePath) }
+gradle.beforeProject { candidate ->
+    if (candidate.path == ':bluetape4k-jackson2') {
+        candidate.tasks.register('issue756PrintRuntimeArtifacts') {
+            doLast {
+                candidate.configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts
+                    .collect { it.file.canonicalFile }
+                    .sort { a, b -> a.absolutePath <=> b.absolutePath }
+                    .each { println('ISSUE756_RUNTIME_ARTIFACT=' + it.absolutePath) }
+            }
         }
     }
 }
