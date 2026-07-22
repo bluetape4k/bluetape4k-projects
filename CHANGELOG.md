@@ -6,6 +6,16 @@
 
 ## [1.12.0] — Unreleased
 
+### Added
+
+- Added an opt-in bounded-wait HTTP idempotency conformance fixture for JUnit 5,
+  with identical Ktor and Spring MockMvc reference proofs. It validates observable
+  HTTP behavior only; adopters still own atomic persistence, restart recovery,
+  authorization, rate limiting, and external-side-effect idempotency
+  ([#1055](https://github.com/bluetape4k/bluetape4k-projects/issues/1055)). Adoption
+  is opt-in and can be rolled back by removing the fixture call or pinning the
+  previous library version; changing the public policy requires client migration.
+
 ### Performance
 
 <!-- issue-755-migration:start -->

@@ -304,6 +304,84 @@ success/client-error/timeout-or-cancellation/dependency-failure 분류, propagat
 registry, tracer, exporter, OpenTelemetry SDK의 lifecycle은 테스트가 직접 소유합니다. 이 fixture는
 framework-neutral snapshot만 검증하며 telemetry 인프라를 설치하거나 종료하지 않습니다.
 
+### Bounded-Wait HTTP Idempotency Conformance
+
+opt-in fixture로 framework adapter가 동일한 observable HTTP 계약을 만족하는지 검증합니다. 아래 설정은
+instance-scoped test input이며 production 기본값이 아닙니다.
+
+```kotlin
+val config = BoundedWaitHttpIdempotencyConformanceConfig(
+    waitTimeout = Duration.ofSeconds(2),
+    scenarioTimeout = Duration.ofSeconds(15),
+    maxWaitersPerKey = 8,
+    retention = Duration.ofHours(24),
+    inFlightRetryAfter = Duration.ofSeconds(1),
+    overflowRetryAfter = Duration.ofSeconds(2),
+    maxIdempotencyKeyBytes = 255,
+    maxRequestBodyBytes = 64 * 1024,
+    maxReplayBodyBytes = 64 * 1024,
+    maxReplayHeaderNames = 8,
+    maxReplayValuesPerHeader = 4,
+    maxReplayHeaderValueBytes = 4 * 1024,
+    maxReplayHeaderBytes = 16 * 1024,
+)
+assertBoundedWaitHttpIdempotencyConformance(adapter, config)
+```
+
+| 관찰 | 안정된 결과 | caller 대응 |
+| --- | --- | --- |
+| 첫 요청이 실행 ownership을 얻음 | `Idempotency-Replayed: false`가 있는 terminal application response | 일반 response 처리를 계속합니다. |
+| 같은 command가 terminal record에 도달함 | `Idempotency-Replayed: true`가 있는 동일 terminal response | terminal replay로 처리하고 business effect를 반복하지 않습니다. |
+| 같은 key에 다른 canonical payload를 보냄 | `409 idempotency_key_reused` | 자동 retry를 멈추고 key 재사용을 조사합니다. |
+| bounded waiter가 `waitTimeout`에 도달함 | `Retry-After`가 있는 `409 idempotency_in_flight` | retry horizon 안에서 ambiguous/retriable response로 처리합니다. |
+| per-key waiter budget이 가득 참 | `Retry-After`가 있는 `429 idempotency_waiters_exceeded` | backoff하고 tenant/global admission control을 적용합니다. |
+| authentication 또는 authorization 실패 | record 존재 여부와 무관한 application의 일반 `401` 또는 `403` | idempotency lookup 전에 authenticate/authorize합니다. |
+
+`Retry-After`는 양의 delta-seconds 값입니다. `409 idempotency_in_flight`는 `inFlightRetryAfter`를 사용하고,
+`429 idempotency_waiters_exceeded`는 `overflowRetryAfter`를 사용합니다. HTTP-date는 이 fixture 계약 밖입니다.
+
+caller key lifecycle은 다음과 같이 명시적으로 운영합니다.
+
+| 상황 | caller 대응 |
+| --- | --- |
+| Ambiguous/retriable response | 문서화한 retry horizon 안에서만 같은 key와 canonical payload로 다시 요청합니다. |
+| Terminal replay | replay된 terminal response를 받아들이고 해당 business command의 retry를 끝냅니다. |
+| Changed-payload conflict | `idempotency_key_reused`를 caller defect로 처리하고 같은 key 뒤의 payload를 바꾸지 않습니다. |
+| Retention expiry | 설정한 경계부터 같은 key가 새 ownership을 얻을 수 있다고 봅니다. |
+| New business intent | 새 key를 생성하고 이전 command의 key를 재활용하지 않습니다. |
+
+fixture를 도입하기 전에 적합성 gate를 적용합니다.
+
+| 입력 또는 operation | 지원 판단 |
+| --- | --- |
+| canonical representation을 가진 bounded UTF-8 command | shared proof가 지원합니다. |
+| Binary, large, multipart, streaming body | 이 fixture가 지원하지 않습니다. domain-specific fingerprint와 integration proof를 사용합니다. |
+| SSE, WebSocket, long-running operation | 지원하지 않습니다. `status-resource` 정책을 우선합니다. |
+| External provider side effect | observable HTTP behavior만 포함하며 provider idempotency와 reconciliation은 별도로 증명합니다. |
+
+lookup 전에 authentication과 authorization을 끝내고 tenant scope는 server에서 결정합니다. raw key, payload,
+tenant identifier를 로그에 남기지 않습니다. 명시적 replay allowlist만 저장하며, `Authorization`, `Cookie`,
+credential 계열, hop-by-hop header는 allowlist에 넣어도 해제할 수 없는 denylist입니다.
+
+`maxWaitersPerKey`는 한 key의 duplicate fan-in만 제한합니다. tenant/global connection limit, rate limit,
+admission control을 대신하지 않습니다. shared conformance workload의 `maxWaitersPerKey <= 32`는 test를 bounded로
+유지하기 위한 제한이지 production 권고값이 아닙니다. 더 큰 production limit은 대표 test instance와 별도
+load test로 검증합니다. blocking adapter는 shared three-key fan-in scenario를 위해 test executor thread를
+최소 `3 * (maxWaitersPerKey + 1) + 1`개 확보하거나 caller-owned virtual thread를 사용해야 합니다.
+`scenarioTimeout`은 cooperative하므로 blocking call은 interruptible bridge를 사용해야 하며 non-cooperative
+code를 안전하게 force-stop할 수는 없습니다.
+
+compile-checked reference는
+[`KtorHttpIdempotencyConformanceTest`](../../ktor/testing/src/test/kotlin/io/bluetape4k/ktor/testing/idempotency/KtorHttpIdempotencyConformanceTest.kt)와
+[`SpringHttpIdempotencyConformanceTest`](../../spring-boot/core/src/test/kotlin/io/bluetape4k/spring/idempotency/SpringHttpIdempotencyConformanceTest.kt)입니다.
+Ktor test는 `testApplication`을 소유하고 Spring test는 blocking executor/dispatcher를 소유하고 닫습니다.
+fixture는 자체 watchdog만 소유하며 각 scenario 뒤에 adapter cleanup을 호출합니다.
+
+fixture PASS는 in-memory observable HTTP behavior만 증명합니다. business result와 idempotency record의 atomic
+commit, restart/crash recovery, external `exactly-once` effect는 증명하지 않습니다. 이 boundary는 durable
+integration test로 확인합니다. 도입은 opt-in이며 rollback은 fixture 호출 제거 또는 이전 library version
+pin입니다. public 정책을 바꾸려면 API versioning과 client migration 안내가 필요합니다.
+
 ### 9. Stress Tester
 
 #### 실행 모델 요약

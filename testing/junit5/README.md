@@ -235,6 +235,84 @@ The test remains the lifecycle owner. Create and close the fake registry, tracer
 the Spring Boot or Ktor test; this fixture only validates the framework-neutral snapshot and does not install or close
 telemetry infrastructure.
 
+### Bounded-Wait HTTP Idempotency Conformance
+
+Use the opt-in fixture to verify a framework adapter against the same observable HTTP contract. The configuration is
+instance-scoped test input, not a set of production defaults.
+
+```kotlin
+val config = BoundedWaitHttpIdempotencyConformanceConfig(
+    waitTimeout = Duration.ofSeconds(2),
+    scenarioTimeout = Duration.ofSeconds(15),
+    maxWaitersPerKey = 8,
+    retention = Duration.ofHours(24),
+    inFlightRetryAfter = Duration.ofSeconds(1),
+    overflowRetryAfter = Duration.ofSeconds(2),
+    maxIdempotencyKeyBytes = 255,
+    maxRequestBodyBytes = 64 * 1024,
+    maxReplayBodyBytes = 64 * 1024,
+    maxReplayHeaderNames = 8,
+    maxReplayValuesPerHeader = 4,
+    maxReplayHeaderValueBytes = 4 * 1024,
+    maxReplayHeaderBytes = 16 * 1024,
+)
+assertBoundedWaitHttpIdempotencyConformance(adapter, config)
+```
+
+| Observation | Stable result | Caller action |
+| --- | --- | --- |
+| First request owns execution | Terminal application response with `Idempotency-Replayed: false` | Continue normal response handling. |
+| Same command reaches a terminal record | Same terminal response with `Idempotency-Replayed: true` | Treat it as terminal replay; do not repeat the business effect. |
+| Same key has a different canonical payload | `409 idempotency_key_reused` | Stop automatic retries and investigate key reuse. |
+| A bounded waiter reaches `waitTimeout` | `409 idempotency_in_flight` with `Retry-After` | Treat it as an ambiguous, retriable response within the retry horizon. |
+| The per-key waiter budget is full | `429 idempotency_waiters_exceeded` with `Retry-After` | Back off and apply tenant/global admission controls. |
+| Authentication or authorization fails | The application's normal `401` or `403`, independent of record presence | Authenticate and authorize before idempotency lookup. |
+
+`Retry-After` is a positive delta-seconds value: `409 idempotency_in_flight` uses `inFlightRetryAfter`, while
+`429 idempotency_waiters_exceeded` uses `overflowRetryAfter`. HTTP-date is outside this fixture contract.
+
+The caller key lifecycle is deliberately explicit:
+
+| Situation | Caller action |
+| --- | --- |
+| Ambiguous/retriable response | Reuse the same key and canonical payload only while the documented retry horizon remains open. |
+| Terminal replay | Accept the replayed terminal response and stop retrying that business command. |
+| Changed-payload conflict | Treat `idempotency_key_reused` as a caller defect; never mutate the payload behind the same key. |
+| Retention expiry | Expect the same key to become eligible for new ownership at the configured boundary. |
+| New business intent | Generate a new key; do not recycle a previous command's key. |
+
+Apply a suitability gate before adopting the fixture:
+
+| Input or operation | Support decision |
+| --- | --- |
+| Bounded UTF-8 command with a canonical representation | Supported by the shared proof. |
+| Binary, large, multipart, or streaming body | Unsupported by this fixture; use a domain-specific fingerprint and integration proof. |
+| SSE, WebSocket, or long-running operation | Unsupported; prefer a `status-resource` policy. |
+| External provider side effect | Observable HTTP behavior is covered, but provider idempotency and reconciliation need separate proof. |
+
+Resolve authentication and authorization before lookup, derive tenant scope on the server, and never log raw keys,
+payloads, or tenant identifiers. Persist only an explicit replay allowlist. `Authorization`, `Cookie`, credential-like,
+and hop-by-hop headers remain non-overridable denylist entries even when configured in the allowlist.
+
+`maxWaitersPerKey` bounds only duplicate fan-in for one key. It does not replace tenant/global connection limits, rate
+limits, or admission control. The shared conformance workload accepts `maxWaitersPerKey <= 32` so tests stay bounded;
+that ceiling is not a production recommendation. Validate a larger production limit with a representative test instance
+and a separate load test. A blocking adapter needs at least `3 * (maxWaitersPerKey + 1) + 1` test-executor threads for
+the shared three-key fan-in scenario, or caller-owned virtual threads. `scenarioTimeout` is cooperative; blocking calls
+must use an interruptible bridge, and non-cooperative code cannot be force-stopped safely.
+
+The compile-checked references are
+[`KtorHttpIdempotencyConformanceTest`](../../ktor/testing/src/test/kotlin/io/bluetape4k/ktor/testing/idempotency/KtorHttpIdempotencyConformanceTest.kt)
+and
+[`SpringHttpIdempotencyConformanceTest`](../../spring-boot/core/src/test/kotlin/io/bluetape4k/spring/idempotency/SpringHttpIdempotencyConformanceTest.kt).
+The Ktor test owns `testApplication`; the Spring test owns and closes its blocking executor/dispatcher. The fixture owns
+only its watchdog and calls adapter cleanup after each scenario.
+
+Passing the fixture proves in-memory, observable HTTP behavior only. It does not prove atomic business-result and
+idempotency-record commit, restart/crash recovery, or external `exactly-once` effects. Add durable integration tests for
+those boundaries. Adoption is opt-in; rollback means removing the fixture call or pinning the previous library version.
+Changing the public policy requires API versioning and client migration guidance.
+
 ### SystemProperty
 
 ```kotlin
