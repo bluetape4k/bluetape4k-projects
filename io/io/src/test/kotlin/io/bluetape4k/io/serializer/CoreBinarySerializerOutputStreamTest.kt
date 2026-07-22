@@ -1,13 +1,17 @@
 package io.bluetape4k.io.serializer
 
 import com.esotericsoftware.kryo.Kryo
+import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryo.util.Pool
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.mockk.every
+import io.mockk.mockkObject
 import io.mockk.spyk
+import io.mockk.unmockkObject
+import io.mockk.verify
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -102,34 +106,74 @@ class CoreBinarySerializerOutputStreamTest {
     }
 
     @Test
-    fun `Kryo pooled output은 failure 뒤 반환되어 다음 호출에서 재사용할 수 있다`() {
+    fun `Kryo pooled output은 모든 failure 뒤 caller target에서 분리해 반환한다`() {
         val serializer = KryoBinarySerializer()
-        val writeFailure = IOException("target failure")
+        val borrowed = KryoProvider.obtainOutput()
+        val failures = listOf(
+            IOException("target failure") to BinarySerializationException::class.java,
+            CancellationException("cancelled") to CancellationException::class.java,
+            AssertionError("fatal") to AssertionError::class.java,
+        )
 
-        assertFailsWith<BinarySerializationException> {
-            serializer.serializeBinaryToStream(VALUE, RecordingOutputStream(writeFailure))
+        mockkObject(KryoProvider)
+        try {
+            every { KryoProvider.obtainOutput() } returns borrowed
+            every { KryoProvider.releaseOutput(borrowed) } returns Unit
+
+            failures.forEach { (failure, expectedType) ->
+                val actual = assertFailsWith<Throwable> {
+                    serializer.serializeBinaryToStream(VALUE, RecordingOutputStream(failure))
+                }
+
+                expectedType.isInstance(actual).shouldBeTrue()
+                if (failure !is IOException) {
+                    actual shouldBeSameInstanceAs failure
+                }
+                borrowed.outputStream shouldBeEqualTo null
+            }
+
+            verify(exactly = failures.size) { KryoProvider.obtainOutput() }
+            verify(exactly = failures.size) { KryoProvider.releaseOutput(borrowed) }
+        } finally {
+            unmockkObject(KryoProvider)
+            borrowed.setOutputStream(null)
+            KryoProvider.releaseOutput(borrowed)
         }
-        val target = RecordingOutputStream()
-
-        val written = serializer.serializeBinaryToStream(VALUE, target)
-
-        target.toByteArray() shouldBeEqualTo serializer.serialize(VALUE)
-        written shouldBeEqualTo target.toByteArray().size
     }
 
     @Test
-    fun `custom Kryo pool은 allocating fallback wire format을 보존한다`() {
+    fun `custom Kryo pool은 구별 가능한 allocating fallback wire format을 보존한다`() {
         val pool = object: Pool<Kryo>(true, false, 1) {
-            override fun create(): Kryo = KryoProvider.createKryo()
+            override fun create(): Kryo = KryoProvider.createKryo().apply {
+                isRegistrationRequired = true
+                register(RegisteredPayload::class.java)
+            }
         }
-        val serializer = KryoBinarySerializer(kryoPool = pool)
+        val value = RegisteredPayload("custom-pool")
+        val expected = KryoBinarySerializer(kryoPool = pool).serialize(value)
+        val serializer = spyk(KryoBinarySerializer(kryoPool = pool))
         val target = RecordingOutputStream()
-        val expected = serializer.serialize(VALUE)
+        every { serializer.serialize(value) } returns expected
 
-        val written = serializer.serializeBinaryToStream(VALUE, target)
+        val written = serializer.serializeBinaryToStream(value, target)
 
         target.toByteArray() shouldBeEqualTo expected
         written shouldBeEqualTo expected.size
+        target.flushCount shouldBeEqualTo 0
+        target.closeCount shouldBeEqualTo 0
+        verify(exactly = 1) { serializer.serialize(value) }
+    }
+
+    @Test
+    fun `secure Kryo native stream은 미등록 값을 target mutation 전에 거부한다`() {
+        val serializer = KryoBinarySerializer.secure(String::class.java)
+        val target = RecordingOutputStream()
+
+        assertFailsWith<BinarySerializationException> {
+            serializer.serializeBinaryToStream(UnregisteredPayload("blocked"), target)
+        }
+
+        target.toByteArray() shouldBeEqualTo byteArrayOf()
         target.flushCount shouldBeEqualTo 0
         target.closeCount shouldBeEqualTo 0
     }
@@ -151,13 +195,18 @@ class CoreBinarySerializerOutputStreamTest {
             setInt(output, Int.MAX_VALUE)
         }
 
-        val actual = assertFailsWith<IllegalStateException> {
-            output.write(0)
-        }
+        listOf<(OutputStream) -> Unit>(
+            { it.write(0) },
+            { it.write(byteArrayOf(1, 2, 3), 1, 1) },
+        ).forEach { write ->
+            val actual = assertFailsWith<IllegalStateException> {
+                write(output)
+            }
 
-        actual.message shouldBeEqualTo "Serialized output exceeds Int.MAX_VALUE bytes."
-        (actual.cause is ArithmeticException).shouldBeTrue()
-        target.toByteArray() shouldBeEqualTo byteArrayOf()
+            actual.message shouldBeEqualTo "Serialized output exceeds Int.MAX_VALUE bytes."
+            (actual.cause is ArithmeticException).shouldBeTrue()
+            target.toByteArray() shouldBeEqualTo byteArrayOf()
+        }
     }
 
     private class RecordingOutputStream(
@@ -195,4 +244,8 @@ class CoreBinarySerializerOutputStreamTest {
     private companion object {
         const val VALUE = "stream-value"
     }
+
+    private data class RegisteredPayload(val value: String)
+
+    private data class UnregisteredPayload(val value: String)
 }
