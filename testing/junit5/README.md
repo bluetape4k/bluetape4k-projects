@@ -268,6 +268,9 @@ assertBoundedWaitHttpIdempotencyConformance(adapter, config)
 | The per-key waiter budget is full | `429 idempotency_waiters_exceeded` with `Retry-After` | Back off and apply tenant/global admission controls. |
 | Authentication or authorization fails | The application's normal `401` or `403`, independent of record presence | Authenticate and authorize before idempotency lookup. |
 
+`Retry-After` is a positive delta-seconds value: `409 idempotency_in_flight` uses `inFlightRetryAfter`, while
+`429 idempotency_waiters_exceeded` uses `overflowRetryAfter`. HTTP-date is outside this fixture contract.
+
 The caller key lifecycle is deliberately explicit:
 
 | Situation | Caller action |

@@ -337,6 +337,9 @@ assertBoundedWaitHttpIdempotencyConformance(adapter, config)
 | per-key waiter budget이 가득 참 | `Retry-After`가 있는 `429 idempotency_waiters_exceeded` | backoff하고 tenant/global admission control을 적용합니다. |
 | authentication 또는 authorization 실패 | record 존재 여부와 무관한 application의 일반 `401` 또는 `403` | idempotency lookup 전에 authenticate/authorize합니다. |
 
+`Retry-After`는 양의 delta-seconds 값입니다. `409 idempotency_in_flight`는 `inFlightRetryAfter`를 사용하고,
+`429 idempotency_waiters_exceeded`는 `overflowRetryAfter`를 사용합니다. HTTP-date는 이 fixture 계약 밖입니다.
+
 caller key lifecycle은 다음과 같이 명시적으로 운영합니다.
 
 | 상황 | caller 대응 |

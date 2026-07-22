@@ -61,6 +61,9 @@ request-size limit, admission control을 대신하지 않습니다. request가 w
 layer에서 제한합니다. waiter budget이 가득 차면 `Retry-After`가 있는 `429 idempotency_waiters_exceeded`를,
 waiter가 timeout되면 slot을 반환하고 `Retry-After`가 있는 `409 idempotency_in_flight`를 반환합니다.
 
+`Retry-After`는 양의 delta-seconds 값입니다. `409` 결과는 `inFlightRetryAfter`를 사용하고 `429` 결과는
+`overflowRetryAfter`를 사용합니다. HTTP-date는 shared fixture 계약 밖입니다.
+
 명시적인 replay allowlist만 저장합니다. `Authorization`, `Cookie`, credential 계열 header와 hop-by-hop header는
 adopter가 allowlist에 넣어도 해제할 수 없는 denylist입니다.
 

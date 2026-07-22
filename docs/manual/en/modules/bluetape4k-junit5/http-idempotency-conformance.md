@@ -61,6 +61,9 @@ limits, request-size limits, or admission control. Enforce those owning capacity
 waiter slot. A full waiter budget returns `429 idempotency_waiters_exceeded` with `Retry-After`; a timed-out waiter
 returns `409 idempotency_in_flight` with `Retry-After` and releases its slot.
 
+`Retry-After` is a positive delta-seconds value. The `409` outcome uses `inFlightRetryAfter`; the `429` outcome uses
+`overflowRetryAfter`. HTTP-date is outside the shared fixture contract.
+
 Persist only an explicit replay allowlist. `Authorization`, `Cookie`, credential-like headers, and hop-by-hop headers
 are non-overridable denylist entries even when an adopter places them in the allowlist.
 
