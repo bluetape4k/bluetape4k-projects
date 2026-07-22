@@ -1,0 +1,12 @@
+{
+  "dispatch": {
+    "jackson2": "declared-direct",
+    "jackson3": "declared-direct",
+    "jdk": "declared-direct",
+    "kryo": "declared-direct"
+  },
+  "method_count": 16,
+  "run_id": "canonical-b",
+  "schema_version": 1,
+  "status": "passed"
+}
