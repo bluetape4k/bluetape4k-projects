@@ -125,7 +125,7 @@ view 생성·precondition이 실패하면 `ByteBufUtil.getBytes(...)`로 copy한
 
 이 작업에는 feature flag나 per-call dispatch telemetry가 없다. hot path에 새 log/metric을 추가하지 않고 기존 codec fallback 로그의 level·횟수·비민감 정보 계약만 유지한다. 운영 확인 수단은 artifact version/hash와 committed benchmark evidence다.
 
-출시 전 wire parity, ownership, exception taxonomy, allocation 또는 throughput gate가 실패하면 해당 direct candidate를 제거한다. 출시 후 회귀는 known-good PR #1072 merge artifact로 rollback하고, 이전↔신규 artifact의 교차 decode fixture와 rollback 후 Redis smoke test를 재실행한다.
+출시 전 wire parity, ownership, exception taxonomy, allocation 또는 throughput gate가 실패하면 해당 direct candidate를 revert한다. 출시 전 rollback은 candidate commit 제거다. 출시 후 rollback은 release checklist가 미리 고정한 `io.bluetape4k:bluetape4k-io`, `io.bluetape4k:bluetape4k-lettuce`, `io.bluetape4k:bluetape4k-redisson`의 exact known-good version과 JAR SHA-256으로 복귀하는 것이다. release executor가 rollback owner이며, 이전↔신규 artifact 교차 decode fixture와 rollback 후 Redis smoke test를 재실행한다.
 
 ## 5. 호환성 계약
 
@@ -178,8 +178,10 @@ Testcontainers가 필요한 Redis integration path는 모듈·worktree 간 병�
 
 Redisson encode gate는 두 단계다.
 
-1. **Non-promotable feasibility probe:** benchmark-local candidate로 현행 encode 대비 방향성과 ownership/capacity를 확인한다. 이 수치는 README/chart claim에 사용할 수 없다.
+1. **Non-promotable feasibility probe:** benchmark-local candidate로 현행 encode 대비 방향성과 ownership/capacity를 canonical profile과 동일한 독립 2회(`probe-a`, `probe-b`) 측정으로 확인한다. 이 수치는 README/chart claim에 사용할 수 없다.
 2. probe가 유망할 때만 production codec path를 구현한다. 구현 뒤 이전 probe를 폐기하고 실제 production path로 fresh canonical A/B를 실행한다. documentation 승격은 이 canonical 결과만 사용한다.
+
+probe는 두 run 모두 preflight/wire/ownership/release 검증을 통과하고, allocation point reduction이 5% 이상이며 `candidate score + scoreError < baseline score - scoreError`이고, throughput delta가 `>-20%`일 때만 `implemented`로 진행한다. 누락·NaN·interval overlap·한 run 기준 실패·capacity/refCnt drift·throughput `<=-20%` 중 하나라도 있으면 `rejected`다.
 
 aggregate manifest는 `encodeDisposition=rejected|implemented`를 고정한다. `rejected`이면 canonical matrix는 encode를 제외한 정확히 10 pair/20 methods이고 feasibility raw evidence만 별도 첨부한다. `implemented`이면 actual codec encode를 포함한 정확히 12 pair/24 methods다. validator는 disposition과 cardinality가 맞지 않으면 실패한다.
 
@@ -194,6 +196,8 @@ aggregate manifest는 `encodeDisposition=rejected|implemented`를 고정한다. 
 
 각 pair는 baseline byte-array route와 candidate route를 같은 fixture·payload·동일 process 환경에서 일대일 비교한다. cold/internal-buffer-growth probe는 timed acceptance matrix 밖에서 별도 수행하고, canonical matrix는 충분히 warmed 상태에서 측정한다. primary metric은 `gc.alloc.rate.norm` (bytes/op)이며 throughput은 diagnostic metric이다.
 
+probe와 canonical profile은 `1 thread`, `2 forks`, `3 x 1s warmup`, `5 x 1s measurement`, throughput `ops/ms`, GC profiler, `-Xms1g -Xmx1g -XX:+UseG1GC`로 고정한다. payload는 기존 `Issue756BenchmarkData(id=756L, name="lettuce-buffer-codec", description="A".repeat(96))` 하나를 두 모듈이 공유하며 source manifest에 payload SHA-256을 고정한다. raw authority 경로는 `docs/benchmarks/raw/issue-756-fory-followup/{feasibility,lettuce,redisson}/{probe-a,probe-b,canonical-a,canonical-b}` 중 단계에 맞는 leaf이고 aggregate manifest/report는 `docs/benchmarks/raw/issue-756-fory-followup/`에 둔다.
+
 실행 전 fail-closed preflight는 다음을 모두 확인한다.
 
 - disposition별 module-local exact 8+12 또는 8+16 method set와 aggregate 20/24-method pair mapping
@@ -207,7 +211,7 @@ aggregate manifest는 `encodeDisposition=rejected|implemented`를 고정한다. 
 
 각 module-local canonical run A/B의 raw JMH JSON은 append-only authority이며 aggregate derived table은 이를 재생성한 결과다. 생성 owner와 독립 validator owner를 분리한다. 어느 한쪽 benchmark source, fixture, allocator 설정, JVM/JMH argv, executable hash 또는 timed production path가 바뀌면 두 모듈의 두 run을 전부 무효화하고 다시 측정한다. measurement SHA에서 delivery SHA까지 허용되는 변경은 docs/chart/validation artifact뿐이며 validator가 ancestry와 changed-path allowlist를 확인한다.
 
-candidate를 README/chart의 **accepted** 셀로 승격하려면 두 canonical run 모두에서 allocation 감소가 5% 이상이고, raw `scoreError`/confidence interval이 그 감소와 겹치지 않으며, throughput이 baseline 대비 20%보다 크게 악화되지 않아야 한다. 측정 불안정·parity 실패·fallback-only 셀은 `fallback` 또는 `inconclusive`로 남기며 수치를 일반화하지 않는다.
+candidate를 README/chart의 **accepted** 셀로 승격하려면 두 canonical run 모두에서 allocation point reduction이 5% 이상이고 `candidate score + scoreError < baseline score - scoreError`이며 throughput delta가 `>-20%`여야 한다. 누락·NaN·interval overlap·한 run 기준 실패·parity 실패·fallback-only 셀은 `rejected`, `fallback`, 또는 `inconclusive`로 남기며 수치를 일반화하지 않는다.
 
 ## 8. 문서와 chart 원칙
 
@@ -243,7 +247,7 @@ candidate를 README/chart의 **accepted** 셀로 승격하려면 두 canonical r
 - [ ] serializer/Lettuce/Redisson KDoc와 한국어/영어 README/chart가 accepted evidence, transport별 fallback, raw-only 범위를 동일하게 반영한다.
 - [ ] P0/P1 없는 spec/plan review, targeted tests, module tests, relevant detekt, `git diff --check`를 모두 통과한다.
 - [ ] 이전↔신규 artifact 교차 decode와 rollback 후 Redis smoke 절차가 release evidence에 포함된다.
-- [ ] #756은 raw Fory/FastFory accepted scope와 기존 #1072 scope가 완료된 뒤에만 close하며 #755 compression 작업은 별도 issue 상태로 추적한다.
+- [ ] #756은 모든 in-scope candidate가 `accepted`, 문서화된 `inconclusive`, 또는 문서화된 `rejected` 중 하나의 terminal disposition을 갖고 code/KDoc/README/chart와 일치할 때 close한다. #755 compression 작업은 별도 issue 상태로 추적한다.
 
 ## 10. 열린 구현 확인 항목
 
