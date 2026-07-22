@@ -2,28 +2,31 @@
 
 set -euo pipefail
 
-readonly BASE_SHA="90b267871e9154f242e6de7ee9fd0539f83e509e"
-readonly BASE_TREE="f40ccbda16ddf56d4b7770c01e9b0b2cb07cedba"
-readonly IO_JAR_SHA="ddf283bdb3a17267a5a275bcc78f5cbbee7510c35a512d5fabe6a34d2c39063e"
-readonly JSON_JAR_SHA="e8a9930e0c7ca2aecd6088f55b15243ad3c3b490bbc97e67b9c4452d569c1329"
-readonly AVRO_JAR_SHA="876396647c0f3d37b18fcfbee5648ef8764655bb4a5c2c902d70d98b81422e60"
+readonly RELEASE_SHA="6187173b58e8b4c5c435c145e00e94708f31ef75"
+readonly RELEASE_TREE="daa12f3cfb185926fe2ff09e571288059953d85c"
+readonly BASE_SHA="b00cc5440e47ad803e5aac21528b560fdd3b0474"
+readonly BASE_TREE="48f9dee849a0c3de0a89c3b05ff5c827c9233fce"
 
 ROOT="$(git rev-parse --show-toplevel)"
 COMMON_DIR="$(git rev-parse --path-format=absolute --git-common-dir)"
 MAIN_ROOT="$(dirname "$COMMON_DIR")"
-BASE_WORKTREE="$MAIN_ROOT/.worktrees/compat/issue-754-base"
-AUTH_DIR="$ROOT/.codex/compat/issue-754/$BASE_SHA"
-BASE_JARS="$AUTH_DIR/jars"
-CLASSES="$AUTH_DIR/classes"
+AUTH_DIR="$ROOT/.codex/compat/issue-756"
+JAR_DIR="$AUTH_DIR/jars"
+CLASS_DIR="$AUTH_DIR/classes"
 REPORT="$AUTH_DIR/abi-report.txt"
-JSON_REPORT="$ROOT/docs/evidence/issue-754/contract/abi-report.json"
-INIT_SCRIPT="$AUTH_DIR/print-classpath.init.gradle"
-FIXTURE_ROOT="$ROOT/io/io/src/test/resources/compat/issue-754/pre-change"
-BUILD_CURRENT=false
+INIT_SCRIPT="$AUTH_DIR/issue756-classpaths.init.gradle"
+BINARY_FIXTURES="$ROOT/io/io/src/test/resources/compat/issue-756/src"
+JSON_FIXTURES="$ROOT/io/json/src/test/resources/compat/issue-756/src"
+RELEASE_WORKTREE=""
+BASE_WORKTREE=""
 EXPECTED_HEAD=""
+SCOPE=""
+BUILD_CURRENT=false
+REQUIRE_DIRECT=""
+CREATED_WORKTREES=()
 
 usage() {
-    echo "Usage: $0 --build-current --expected-head <commit>"
+    echo "Usage: $0 --scope <interface|full> --build-current --expected-head <full-git-sha> [--require-direct-candidates jdk,kryo,jackson2,jackson3]"
 }
 
 fail() {
@@ -35,141 +38,82 @@ sha256() {
     shasum -a 256 "$1" | awk '{print $1}'
 }
 
-assert_hash() {
-    local path="$1"
-    local expected="$2"
-    [[ -f "$path" ]] || fail "missing authority artifact: $path"
-    local actual
-    actual="$(sha256 "$path")"
-    [[ "$actual" == "$expected" ]] || fail "checksum mismatch for $path: expected=$expected actual=$actual"
+cleanup() {
+    local worktree
+    for worktree in "${CREATED_WORKTREES[@]}"; do
+        [[ -d "$worktree" ]] || continue
+        git -C "$MAIN_ROOT" worktree remove --force "$worktree" >/dev/null 2>&1 || true
+    done
 }
 
-tested_code_tree_sha256() {
-    local candidate="$1"
-    python3 - "$ROOT" "$candidate" <<'PY'
-import hashlib
-import pathlib
-import re
-import subprocess
-import sys
+trap cleanup EXIT
 
-repository = pathlib.Path(sys.argv[1]).resolve()
-candidate = sys.argv[2]
-if re.fullmatch(r"[0-9a-f]{40}", candidate) is None:
-    raise SystemExit("expected a full lowercase Git SHA")
-
-
-def git(*args: str, text: bool = True):
-    return subprocess.run(
-        ["git", *args],
-        cwd=repository,
-        check=True,
-        capture_output=True,
-        text=text,
-    ).stdout
-
-
-def is_serializer_contract_path(path: str) -> bool:
-    return (
-        path.startswith(("io/io/src/", "io/json/src/", "io/avro/src/"))
-        or path.startswith(("buildSrc/", "gradle/"))
-        or path in {
-            "build.gradle.kts",
-            "settings.gradle.kts",
-            "gradle.properties",
-            "scripts/check-serializer-buffer-abi.sh",
-        }
-        or path.endswith("/build.gradle.kts")
-    )
-
-
-paths = git("ls-tree", "-r", "--name-only", candidate).splitlines()
-digest = hashlib.sha256()
-for path in sorted(path for path in paths if is_serializer_contract_path(path)):
-    content = git("show", f"{candidate}:{path}", text=False)
-    digest.update(path.encode("utf-8"))
-    digest.update(b"\0")
-    digest.update(hashlib.sha256(content).hexdigest().encode("ascii"))
-    digest.update(b"\n")
-print(digest.hexdigest())
-PY
-}
-
-assert_clean_tested_code() {
+assert_clean_inputs() {
     python3 - "$ROOT" <<'PY'
 import pathlib
 import subprocess
 import sys
 
-repository = pathlib.Path(sys.argv[1]).resolve()
+root = pathlib.Path(sys.argv[1])
 
-
-def is_serializer_contract_path(path: str) -> bool:
+def in_scope(path: str) -> bool:
     return (
-        path.startswith(("io/io/src/", "io/json/src/", "io/avro/src/"))
-        or path.startswith(("buildSrc/", "gradle/"))
+        path.startswith((
+            "io/io/src/main/",
+            "io/json/src/main/",
+            "io/jackson2/src/main/",
+            "io/jackson3/src/main/",
+            "io/io/src/test/resources/compat/issue-756/",
+            "io/json/src/test/resources/compat/issue-756/",
+            "buildSrc/",
+            "gradle/",
+        ))
         or path in {
             "build.gradle.kts",
             "settings.gradle.kts",
             "gradle.properties",
+            "io/io/build.gradle.kts",
+            "io/json/build.gradle.kts",
+            "io/jackson2/build.gradle.kts",
+            "io/jackson3/build.gradle.kts",
             "scripts/check-serializer-buffer-abi.sh",
         }
-        or path.endswith("/build.gradle.kts")
     )
 
-
-commands = (
+dirty = set()
+for command in (
     ("diff", "--name-only", "-z"),
     ("diff", "--cached", "--name-only", "-z"),
     ("ls-files", "--others", "--exclude-standard", "-z"),
-)
-dirty = set()
-for command in commands:
-    output = subprocess.run(
-        ["git", *command],
-        cwd=repository,
-        check=True,
-        capture_output=True,
-    ).stdout
-    for raw_path in output.split(b"\0"):
-        if not raw_path:
-            continue
-        path = raw_path.decode("utf-8", errors="surrogateescape")
-        if is_serializer_contract_path(path):
-            dirty.add(path)
+):
+    output = subprocess.run(["git", *command], cwd=root, check=True, capture_output=True).stdout
+    dirty.update(
+        raw.decode("utf-8", errors="surrogateescape")
+        for raw in output.split(b"\0")
+        if raw and in_scope(raw.decode("utf-8", errors="surrogateescape"))
+    )
 
 if dirty:
-    raise SystemExit("dirty serializer contract paths: " + ", ".join(sorted(dirty)))
-print("SERIALIZER CONTRACT PATHS CLEAN")
+    raise SystemExit("dirty serializer source/fixture/script inputs: " + ", ".join(sorted(dirty)))
+print("SERIALIZER ABI INPUTS CLEAN")
 PY
 }
 
-resolve_single_jar() {
-    local directory="$1"
-    local prefix="$2"
-    local candidates
-    local count
-    candidates="$(find "$directory" -maxdepth 1 -type f -name "$prefix-*.jar" | sort)"
-    count="$(printf '%s\n' "$candidates" | sed '/^$/d' | wc -l | tr -d ' ')"
-    [[ "$count" == "1" ]] || fail "expected exactly one $prefix jar in $directory, found $count: $candidates"
-    printf '%s\n' "$candidates"
-}
-
-write_classpath_init_script() {
+write_init_script() {
     mkdir -p "$AUTH_DIR"
     cat > "$INIT_SCRIPT" <<'GRADLE'
 import org.gradle.api.tasks.SourceSetContainer
 
 gradle.afterProject { project, state ->
-    if (!state.failure && project.path in [":bluetape4k-io", ":bluetape4k-json", ":bluetape4k-avro"]) {
-        project.tasks.register("issue754PrintRuntimeClasspath") {
+    if (!state.failure && project.path in [
+        ":bluetape4k-io",
+        ":bluetape4k-json",
+        ":bluetape4k-jackson2",
+        ":bluetape4k-jackson3",
+    ]) {
+        project.tasks.register("issue756PrintRuntimeClasspath") {
             doLast {
                 println(project.extensions.getByType(SourceSetContainer).getByName("main").runtimeClasspath.asPath)
-            }
-        }
-        project.tasks.register("issue754PrintTestRuntimeClasspath") {
-            doLast {
-                println(project.extensions.getByType(SourceSetContainer).getByName("test").runtimeClasspath.asPath)
             }
         }
     }
@@ -180,224 +124,280 @@ GRADLE
 runtime_classpath() {
     local worktree="$1"
     local project="$2"
-    local source_set="$3"
-    local task="issue754PrintRuntimeClasspath"
-    if [[ "$source_set" == "test" ]]; then
-        task="issue754PrintTestRuntimeClasspath"
-    fi
-    "$worktree/gradlew" -q -p "$worktree" -I "$INIT_SCRIPT" ":$project:$task" --no-configuration-cache |
-        tail -n 1
+    "$worktree/gradlew" -q -p "$worktree" -I "$INIT_SCRIPT" \
+        ":$project:issue756PrintRuntimeClasspath" --no-configuration-cache | tail -n 1
 }
 
-ensure_base_worktree() {
-    if [[ ! -d "$BASE_WORKTREE" ]]; then
-        git -C "$MAIN_ROOT" worktree add --detach "$BASE_WORKTREE" "$BASE_SHA"
-    fi
-    [[ "$(git -C "$BASE_WORKTREE" rev-parse HEAD)" == "$BASE_SHA" ]] ||
-        fail "baseline worktree is not pinned to $BASE_SHA: $BASE_WORKTREE"
-    [[ "$(git -C "$BASE_WORKTREE" rev-parse 'HEAD^{tree}')" == "$BASE_TREE" ]] ||
-        fail "baseline tree mismatch: $BASE_WORKTREE"
-    [[ -z "$(git -C "$BASE_WORKTREE" status --porcelain --untracked-files=no)" ]] ||
-        fail "baseline worktree has tracked changes: $BASE_WORKTREE"
+create_authority_worktree() {
+    local variable="$1"
+    local label="$2"
+    local commit="$3"
+    local tree="$4"
+    local parent="$MAIN_ROOT/.worktrees/compat"
+    local worktree
+    mkdir -p "$parent"
+    worktree="$(mktemp -d "$parent/issue-756-$label.XXXXXX")"
+    rmdir "$worktree"
+    git -C "$MAIN_ROOT" worktree add --detach "$worktree" "$commit" >/dev/null
+    CREATED_WORKTREES+=("$worktree")
+    [[ "$(git -C "$worktree" rev-parse HEAD)" == "$commit" ]] || fail "$label authority commit mismatch"
+    [[ "$(git -C "$worktree" rev-parse 'HEAD^{tree}')" == "$tree" ]] || fail "$label authority tree mismatch"
+    [[ -z "$(git -C "$worktree" status --porcelain --untracked-files=all)" ]] || fail "$label authority worktree is dirty"
+    printf -v "$variable" '%s' "$worktree"
 }
 
-build_base_jars() {
-    ensure_base_worktree
-    mkdir -p "$BASE_JARS"
-    "$BASE_WORKTREE/gradlew" -p "$BASE_WORKTREE" \
-        :bluetape4k-io:jar :bluetape4k-json:jar :bluetape4k-avro:jar \
-        --no-configuration-cache
-
-    local io_jar json_jar avro_jar
-    io_jar="$(resolve_single_jar "$BASE_WORKTREE/io/io/build/libs" "bluetape4k-io")"
-    json_jar="$(resolve_single_jar "$BASE_WORKTREE/io/json/build/libs" "bluetape4k-json")"
-    avro_jar="$(resolve_single_jar "$BASE_WORKTREE/io/avro/build/libs" "bluetape4k-avro")"
-    cp "$io_jar" "$BASE_JARS/"
-    cp "$json_jar" "$BASE_JARS/"
-    cp "$avro_jar" "$BASE_JARS/"
+resolve_single_jar() {
+    local directory="$1"
+    local prefix="$2"
+    local candidates count
+    candidates="$(find "$directory" -maxdepth 1 -type f -name "$prefix-*.jar" | sort)"
+    count="$(printf '%s\n' "$candidates" | sed '/^$/d' | wc -l | tr -d ' ')"
+    [[ "$count" == "1" ]] || fail "expected one $prefix jar in $directory, found $count: $candidates"
+    printf '%s\n' "$candidates"
 }
 
-verify_base_jars() {
-    local io_jar="$BASE_JARS/bluetape4k-io-1.12.0.jar"
-    local json_jar="$BASE_JARS/bluetape4k-json-1.12.0.jar"
-    local avro_jar="$BASE_JARS/bluetape4k-avro-1.12.0.jar"
-    if [[ ! -f "$io_jar" || ! -f "$json_jar" || ! -f "$avro_jar" ]]; then
-        build_base_jars
-    fi
-    assert_hash "$io_jar" "$IO_JAR_SHA"
-    assert_hash "$json_jar" "$JSON_JAR_SHA"
-    assert_hash "$avro_jar" "$AVRO_JAR_SHA"
-}
-
-verify_frozen_fixtures() {
-    assert_hash "$FIXTURE_ROOT/binary/jdk-simple-data.bin" \
-        "90b5df96eb70b575cf2dd2cd31956c14b90f0b701f50f3008e53535a74e77870"
-    assert_hash "$FIXTURE_ROOT/binary/kryo-default-simple-data.bin" \
-        "18ddb15377e1066848cc9485fe2d7a8efa11ec9d3fb190c44d0d3dd4efd4f8a7"
-    assert_hash "$FIXTURE_ROOT/binary/kryo-fast-simple-data.bin" \
-        "e3bd2de6c7d95f7c248d9a3ca36bcd8edfc23414f1ecc260b2ed2be19be9d365"
-    assert_hash "$FIXTURE_ROOT/binary/fory-default-simple-data.bin" \
-        "b01f1635f860bd269ffd05b43396d22534df6196ca2f165d4b19e33a0edead3c"
-    assert_hash "$FIXTURE_ROOT/binary/fory-fast-simple-data.bin" \
-        "7196b4b07fdf9f22454286ce0333f67b094f7f2c57040369136ffb0a5fe1032d"
-}
-
-avro_api_jar() {
-    local classpath="$1"
-    local result
-    result="$(printf '%s' "$classpath" | tr ':' '\n' | grep '/org.apache.avro/avro/1.12.1/.*/avro-1.12.1.jar$' | head -n 1)"
-    [[ -n "$result" ]] || fail "could not resolve Apache Avro 1.12.1 from the Gradle classpath"
-    printf '%s\n' "$result"
-}
-
-compile_legacy_fixtures() {
-    local avro_jar="$1"
-    rm -rf "$CLASSES/legacy"
-    mkdir -p "$CLASSES/legacy/binary-java" "$CLASSES/legacy/binary-kotlin"
-    mkdir -p "$CLASSES/legacy/json-java" "$CLASSES/legacy/json-kotlin"
-    mkdir -p "$CLASSES/legacy/avro-java" "$CLASSES/legacy/avro-kotlin"
-
-    javac -source 21 -target 21 \
-        -cp "$BASE_JARS/bluetape4k-io-1.12.0.jar" \
-        -d "$CLASSES/legacy/binary-java" \
-        "$ROOT/io/io/src/test/resources/compat/issue-754/src/java/LegacyBinaryCaller.java" \
-        "$ROOT/io/io/src/test/resources/compat/issue-754/src/java/LegacyBinaryImplementation.java"
-    kotlinc -jvm-target 21 \
-        -classpath "$BASE_JARS/bluetape4k-io-1.12.0.jar" \
-        -d "$CLASSES/legacy/binary-kotlin" \
-        "$ROOT/io/io/src/test/resources/compat/issue-754/src/kotlin/LegacyBinaryCaller.kt" \
-        "$ROOT/io/io/src/test/resources/compat/issue-754/src/kotlin/LegacyBinaryImplementation.kt"
-
-    javac -source 21 -target 21 \
-        -cp "$BASE_JARS/bluetape4k-json-1.12.0.jar" \
-        -d "$CLASSES/legacy/json-java" \
-        "$ROOT/io/json/src/test/resources/compat/issue-754/src/java/LegacyJsonCaller.java" \
-        "$ROOT/io/json/src/test/resources/compat/issue-754/src/java/LegacyJsonImplementation.java"
-    kotlinc -jvm-target 21 \
-        -classpath "$BASE_JARS/bluetape4k-json-1.12.0.jar" \
-        -d "$CLASSES/legacy/json-kotlin" \
-        "$ROOT/io/json/src/test/resources/compat/issue-754/src/kotlin/LegacyJsonCaller.kt" \
-        "$ROOT/io/json/src/test/resources/compat/issue-754/src/kotlin/LegacyJsonImplementation.kt"
-
-    javac -source 21 -target 21 \
-        -cp "$BASE_JARS/bluetape4k-avro-1.12.0.jar:$avro_jar" \
-        -d "$CLASSES/legacy/avro-java" \
-        "$ROOT/io/avro/src/test/resources/compat/issue-754/src/java/LegacyAvroCaller.java" \
-        "$ROOT/io/avro/src/test/resources/compat/issue-754/src/java/LegacyAvroReflectImplementation.java" \
-        "$ROOT/io/avro/src/test/resources/compat/issue-754/src/java/LegacyAvroGenericRecordImplementation.java" \
-        "$ROOT/io/avro/src/test/resources/compat/issue-754/src/java/LegacyAvroSpecificRecordImplementation.java"
-    kotlinc -jvm-target 21 \
-        -classpath "$BASE_JARS/bluetape4k-avro-1.12.0.jar:$avro_jar" \
-        -d "$CLASSES/legacy/avro-kotlin" \
-        "$ROOT/io/avro/src/test/resources/compat/issue-754/src/kotlin/LegacyAvroCaller.kt" \
-        "$ROOT/io/avro/src/test/resources/compat/issue-754/src/kotlin/LegacyAvroReflectImplementation.kt" \
-        "$ROOT/io/avro/src/test/resources/compat/issue-754/src/kotlin/LegacyAvroGenericRecordImplementation.kt" \
-        "$ROOT/io/avro/src/test/resources/compat/issue-754/src/kotlin/LegacyAvroSpecificRecordImplementation.kt"
-}
-
-regenerate_and_compare_fixtures() {
-    local base_test_cp="$1"
-    local generated="$AUTH_DIR/regenerated-fixtures"
-    rm -rf "$CLASSES/generator" "$generated"
-    mkdir -p "$CLASSES/generator" "$generated"
-    javac -source 21 -target 21 \
-        -cp "$BASE_JARS/bluetape4k-io-1.12.0.jar:$CLASSES/legacy/binary-java:$base_test_cp" \
-        -d "$CLASSES/generator" \
-        "$ROOT/io/io/src/test/resources/compat/issue-754/src/java/GenerateBinaryFixtures.java"
-    java -cp "$CLASSES/generator:$CLASSES/legacy/binary-java:$BASE_JARS/bluetape4k-io-1.12.0.jar:$base_test_cp" \
-        io.bluetape4k.io.serializer.compat.issue754.java.GenerateBinaryFixtures "$generated"
-
-    local name
-    for name in jdk-simple-data.bin kryo-default-simple-data.bin kryo-fast-simple-data.bin \
-        fory-default-simple-data.bin fory-fast-simple-data.bin; do
-        cmp "$generated/$name" "$FIXTURE_ROOT/binary/$name" || fail "baseline fixture is not reproducible: $name"
-    done
+build_authority_jars() {
+    local label="$1"
+    local worktree="$2"
+    rm -f "$worktree/io/io/build/libs"/bluetape4k-io-*.jar
+    rm -f "$worktree/io/json/build/libs"/bluetape4k-json-*.jar
+    "$worktree/gradlew" -p "$worktree" :bluetape4k-io:jar :bluetape4k-json:jar --no-configuration-cache
+    cp "$(resolve_single_jar "$worktree/io/io/build/libs" bluetape4k-io)" "$JAR_DIR/$label-io.jar"
+    cp "$(resolve_single_jar "$worktree/io/json/build/libs" bluetape4k-json)" "$JAR_DIR/$label-json.jar"
 }
 
 build_current_jars() {
     rm -f "$ROOT/io/io/build/libs"/bluetape4k-io-*.jar
     rm -f "$ROOT/io/json/build/libs"/bluetape4k-json-*.jar
-    rm -f "$ROOT/io/avro/build/libs"/bluetape4k-avro-*.jar
-    "$ROOT/gradlew" -p "$ROOT" \
-        :bluetape4k-io:jar :bluetape4k-json:jar :bluetape4k-avro:jar \
-        --no-configuration-cache
-}
-
-compile_new_caller() {
-    local label="$1"
-    local output="$2"
-    local classpath="$3"
-    shift 3
-    if javac -source 21 -target 21 -cp "$classpath" -d "$output" "$@" >> "$REPORT" 2>&1; then
-        echo "$label-new-caller-compilation=PASS" | tee -a "$REPORT"
-        return 0
+    local tasks=(:bluetape4k-io:jar :bluetape4k-json:jar)
+    if [[ "$SCOPE" == "full" ]]; then
+        rm -f "$ROOT/io/jackson2/build/libs"/bluetape4k-jackson2-*.jar
+        rm -f "$ROOT/io/jackson3/build/libs"/bluetape4k-jackson3-*.jar
+        tasks+=(:bluetape4k-jackson2:jar :bluetape4k-jackson3:jar)
     fi
-    echo "$label-new-caller-compilation=FAIL" | tee -a "$REPORT"
-    return 1
+    "$ROOT/gradlew" -p "$ROOT" "${tasks[@]}" --no-configuration-cache
+    cp "$(resolve_single_jar "$ROOT/io/io/build/libs" bluetape4k-io)" "$JAR_DIR/current-io.jar"
+    cp "$(resolve_single_jar "$ROOT/io/json/build/libs" bluetape4k-json)" "$JAR_DIR/current-json.jar"
+    if [[ "$SCOPE" == "full" ]]; then
+        cp "$(resolve_single_jar "$ROOT/io/jackson2/build/libs" bluetape4k-jackson2)" "$JAR_DIR/current-jackson2.jar"
+        cp "$(resolve_single_jar "$ROOT/io/jackson3/build/libs" bluetape4k-jackson3)" "$JAR_DIR/current-jackson3.jar"
+    fi
 }
 
-write_json_report() {
-    mkdir -p "$(dirname "$JSON_REPORT")"
-    local tested_code_tree_sha256
-    tested_code_tree_sha256="$(tested_code_tree_sha256 "$EXPECTED_HEAD")"
-    python3 - "$ROOT" "$REPORT" "$JSON_REPORT" "$EXPECTED_HEAD" "$CURRENT_TREE" "$BASE_SHA" "$BASE_TREE" "$tested_code_tree_sha256" <<'PY'
-import json
-import pathlib
-import re
-import sys
-
-root = pathlib.Path(sys.argv[1]).resolve()
-text_report = pathlib.Path(sys.argv[2])
-json_report = pathlib.Path(sys.argv[3])
-expected_head, current_tree, base_sha, base_tree, tested_code_tree_sha256 = sys.argv[4:]
-
-checks = {}
-artifacts = []
-for line in text_report.read_text(encoding="utf-8").splitlines():
-    match = re.fullmatch(r"([a-z0-9-]+)=PASS", line)
-    if match:
-        checks[match.group(1)] = "PASS"
-        continue
-    artifact = re.fullmatch(r"current-(io|json|avro)-jar=(.+) sha256=([0-9a-f]{64})", line)
-    if artifact:
-        path = pathlib.Path(artifact.group(2)).resolve()
-        artifacts.append({
-            "module": artifact.group(1),
-            "path": path.relative_to(root).as_posix(),
-            "sha256": artifact.group(3),
-        })
-
-payload = {
-    "schemaVersion": 1,
-    "issue": 754,
-    "slice": "contract",
-    "status": "GREEN",
-    "producerCommit": expected_head,
-    "producerTree": current_tree,
-    "testedCodeTreeSha256": tested_code_tree_sha256,
-    "authority": {
-        "commit": base_sha,
-        "tree": base_tree,
-    },
-    "command": f"bash scripts/check-serializer-buffer-abi.sh --build-current --expected-head {expected_head}",
-    "checks": {key: checks[key] for key in sorted(checks)},
-    "artifacts": sorted(artifacts, key=lambda item: item["module"]),
-    "textReport": text_report.relative_to(root).as_posix(),
-}
-json_report.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-PY
+compile_kotlin() {
+    local output="$1"
+    local classpath="$2"
+    shift 2
+    mkdir -p "$output"
+    kotlinc -jvm-target 21 -classpath "$classpath" -d "$output" "$@"
 }
 
-assert_default_method() {
+compile_authority_fixtures() {
+    local label="$1"
+    local worktree="$2"
+    local io_jar="$JAR_DIR/$label-io.jar"
+    local json_jar="$JAR_DIR/$label-json.jar"
+    local output="$CLASS_DIR/$label"
+    local io_cp json_cp
+    io_cp="$(runtime_classpath "$worktree" bluetape4k-io)"
+    json_cp="$(runtime_classpath "$worktree" bluetape4k-json)"
+    mkdir -p "$output"/{binary-java,binary-kotlin,json-java,json-kotlin,dual-java,dual-kotlin}
+
+    javac --release 21 -cp "$io_jar:$io_cp" -d "$output/binary-java" \
+        "$BINARY_FIXTURES/java/LegacyBinaryImplementation.java" \
+        "$BINARY_FIXTURES/java/LegacyBinaryStreamCaller.java"
+    compile_kotlin "$output/binary-kotlin" "$io_jar:$io_cp" \
+        "$BINARY_FIXTURES/kotlin/LegacyBinaryStreamCaller.kt"
+    javac --release 21 -cp "$json_jar:$json_cp" -d "$output/json-java" \
+        "$JSON_FIXTURES/java/LegacyJsonImplementation.java" \
+        "$JSON_FIXTURES/java/LegacyJsonStreamCaller.java"
+    compile_kotlin "$output/json-kotlin" "$json_jar:$json_cp" \
+        "$JSON_FIXTURES/kotlin/LegacyJsonStreamCaller.kt"
+    javac --release 21 -cp "$io_jar:$json_jar:$io_cp:$json_cp" -d "$output/dual-java" \
+        "$JSON_FIXTURES/java/LegacyDualSerializer.java"
+    compile_kotlin "$output/dual-kotlin" "$io_jar:$json_jar:$io_cp:$json_cp" \
+        "$JSON_FIXTURES/kotlin/LegacyDualSerializer.kt"
+
+    if [[ "$SCOPE" == "full" ]]; then
+        mkdir -p "$output/decorator-java" "$output/decorator-kotlin"
+        javac --release 21 -cp "$io_jar:$io_cp" -d "$output/decorator-java" \
+            "$BINARY_FIXTURES/java/LegacyBinaryDecorator.java"
+        compile_kotlin "$output/decorator-kotlin" "$io_jar:$io_cp" \
+            "$BINARY_FIXTURES/kotlin/LegacyBinaryDecorator.kt"
+    fi
+}
+
+compile_current_fixtures() {
+    local output="$CLASS_DIR/current"
+    local current_cp="$JAR_DIR/current-io.jar:$JAR_DIR/current-json.jar"
+    local io_cp json_cp
+    io_cp="$(runtime_classpath "$ROOT" bluetape4k-io)"
+    json_cp="$(runtime_classpath "$ROOT" bluetape4k-json)"
+    current_cp="$current_cp:$io_cp:$json_cp"
+    mkdir -p "$output"/{dual-java,dual-kotlin,caller,null-base,null-current}
+    javac --release 21 -cp "$current_cp" -d "$output/dual-java" \
+        "$JSON_FIXTURES/java/LegacyDualSerializer.java"
+    compile_kotlin "$output/dual-kotlin" "$current_cp" \
+        "$JSON_FIXTURES/kotlin/LegacyDualSerializer.kt"
+    javac --release 21 -cp "$current_cp" -d "$output/caller" \
+        "$BINARY_FIXTURES/java/ConcreteSerializerStreamCaller.java"
+
+    cat > "$AUTH_DIR/OldNullSerializeToCaller.java" <<'JAVA'
+import io.bluetape4k.io.serializer.BinarySerializer;
+import io.bluetape4k.json.JsonSerializer;
+
+final class OldNullSerializeToCaller {
+    static void call(BinarySerializer binary, JsonSerializer json) {
+        binary.serializeTo("binary", null);
+        json.serializeTo("json", null);
+    }
+}
+JAVA
+    javac --release 21 -cp "$JAR_DIR/base-io.jar:$JAR_DIR/base-json.jar" \
+        -d "$output/null-base" "$AUTH_DIR/OldNullSerializeToCaller.java"
+    javac --release 21 -cp "$current_cp" -d "$output/null-current" \
+        "$AUTH_DIR/OldNullSerializeToCaller.java"
+    echo "old-null-literal-base-current=PASS" | tee -a "$REPORT"
+}
+
+run_authority_fixtures() {
+    local label="$1"
+    local output="$CLASS_DIR/$label"
+    local current="$JAR_DIR/current-io.jar:$JAR_DIR/current-json.jar"
+    local io_cp json_cp
+    io_cp="$(runtime_classpath "$ROOT" bluetape4k-io)"
+    json_cp="$(runtime_classpath "$ROOT" bluetape4k-json)"
+    java -cp "$output/binary-java:$current:$io_cp" \
+        io.bluetape4k.io.serializer.compat.issue756.java.LegacyBinaryStreamCaller | tee -a "$REPORT"
+    java -cp "$output/binary-kotlin:$current:$io_cp" \
+        io.bluetape4k.io.serializer.compat.issue756.kotlin.LegacyBinaryStreamCallerKt | tee -a "$REPORT"
+    java -cp "$output/json-java:$current:$json_cp" \
+        io.bluetape4k.json.compat.issue756.java.LegacyJsonStreamCaller | tee -a "$REPORT"
+    java -cp "$output/json-kotlin:$current:$json_cp" \
+        io.bluetape4k.json.compat.issue756.kotlin.LegacyJsonStreamCallerKt | tee -a "$REPORT"
+    java -cp "$CLASS_DIR/current/caller:$output/dual-java:$output/dual-kotlin:$current:$io_cp:$json_cp" \
+        io.bluetape4k.io.serializer.compat.issue756.java.ConcreteSerializerStreamCaller dual | tee -a "$REPORT"
+    echo "$label-old-callers-implementors=PASS" | tee -a "$REPORT"
+    echo "$label-dual-source-defaults=PASS" | tee -a "$REPORT"
+}
+
+run_current_dual_fixture() {
+    local current="$JAR_DIR/current-io.jar:$JAR_DIR/current-json.jar"
+    local io_cp json_cp
+    io_cp="$(runtime_classpath "$ROOT" bluetape4k-io)"
+    json_cp="$(runtime_classpath "$ROOT" bluetape4k-json)"
+    java -cp "$CLASS_DIR/current/caller:$CLASS_DIR/current/dual-java:$CLASS_DIR/current/dual-kotlin:$current:$io_cp:$json_cp" \
+        io.bluetape4k.io.serializer.compat.issue756.java.ConcreteSerializerStreamCaller dual | tee -a "$REPORT"
+    echo "candidate-null-literal-distinct-streams=PASS" | tee -a "$REPORT"
+    echo "reflection-interface-defaults=PASS" | tee -a "$REPORT"
+}
+
+assert_default_throws() {
     local jar="$1"
     local class_name="$2"
     local method="$3"
-    javap -classpath "$jar" "$class_name" | grep -Eq " default .*${method}\\(" ||
-        fail "$class_name.$method is not an executable JVM default"
+    local report
+    report="$AUTH_DIR/$(printf '%s-%s' "$class_name" "$method" | tr '. ' '--').javap.txt"
+    javap -classpath "$jar" -p "$class_name" > "$report"
+    grep -F "public default int $method(java.lang.Object, java.io.OutputStream) throws java.io.IOException;" "$report" >/dev/null ||
+        fail "$class_name.$method is not a default exposing throws java.io.IOException"
+}
+
+assert_declared_throws() {
+    local classpath="$1"
+    local class_name="$2"
+    local method="$3"
+    local report
+    report="$AUTH_DIR/$(printf '%s-%s' "$class_name" "$method" | tr '. ' '--').javap.txt"
+    javap -classpath "$classpath" -p "$class_name" > "$report"
+    grep -F "public int $method(java.lang.Object, java.io.OutputStream) throws java.io.IOException;" "$report" >/dev/null ||
+        fail "$class_name.$method is not directly declared with throws java.io.IOException"
+}
+
+verify_interface_javap() {
+    assert_default_throws "$JAR_DIR/current-io.jar" \
+        io.bluetape4k.io.serializer.BinarySerializer serializeBinaryToStream
+    assert_default_throws "$JAR_DIR/current-json.jar" \
+        io.bluetape4k.json.JsonSerializer serializeJsonToStream
+    echo "interface-method-is-default=PASS" | tee -a "$REPORT"
+    echo "interface-checked-ioexception=PASS" | tee -a "$REPORT"
+}
+
+candidate_spec() {
+    case "$1" in
+        jdk) echo "$JAR_DIR/current-io.jar|io.bluetape4k.io.serializer.JdkBinarySerializer|serializeBinaryToStream" ;;
+        kryo) echo "$JAR_DIR/current-io.jar|io.bluetape4k.io.serializer.KryoBinarySerializer|serializeBinaryToStream" ;;
+        jackson2) echo "$JAR_DIR/current-jackson2.jar:$JAR_DIR/current-json.jar|io.bluetape4k.jackson.JacksonSerializer|serializeJsonToStream" ;;
+        jackson3) echo "$JAR_DIR/current-jackson3.jar:$JAR_DIR/current-json.jar|io.bluetape4k.jackson3.JacksonSerializer|serializeJsonToStream" ;;
+        *) fail "unrecognized direct candidate: $1" ;;
+    esac
+}
+
+is_required_direct() {
+    local name="$1"
+    [[ ",${REQUIRE_DIRECT}," == *",$name,"* ]]
+}
+
+verify_full_scope() {
+    local current="$JAR_DIR/current-io.jar:$JAR_DIR/current-json.jar"
+    local io_cp json_cp
+    io_cp="$(runtime_classpath "$ROOT" bluetape4k-io)"
+    json_cp="$(runtime_classpath "$ROOT" bluetape4k-json)"
+    assert_declared_throws "$JAR_DIR/current-io.jar" \
+        io.bluetape4k.io.serializer.BinarySerializerDecorator serializeBinaryToStream
+    assert_declared_throws "$JAR_DIR/current-io.jar" \
+        io.bluetape4k.io.serializer.CompressableBinarySerializer serializeBinaryToStream
+
+    local label output
+    for label in release base; do
+        output="$CLASS_DIR/$label"
+        java -cp "$CLASS_DIR/current/caller:$output/decorator-java:$output/decorator-kotlin:$current:$io_cp:$json_cp" \
+            io.bluetape4k.io.serializer.compat.issue756.java.ConcreteSerializerStreamCaller decorator | tee -a "$REPORT"
+    done
+
+    local name spec classpath class_name method javap_report
+    for name in jdk kryo jackson2 jackson3; do
+        spec="$(candidate_spec "$name")"
+        IFS='|' read -r classpath class_name method <<< "$spec"
+        javap_report="$AUTH_DIR/direct-$name.javap.txt"
+        javap -classpath "$classpath" -p "$class_name" > "$javap_report" || fail "missing concrete candidate: $name"
+        if grep -F "public int $method(java.lang.Object, java.io.OutputStream) throws java.io.IOException;" "$javap_report" >/dev/null; then
+            echo "direct-candidate-$name=DECLARED" | tee -a "$REPORT"
+        else
+            echo "direct-candidate-$name=INHERITED" | tee -a "$REPORT"
+            is_required_direct "$name" && fail "required direct candidate inherits instead of declaring stream dispatch: $name"
+        fi
+    done
+    echo "decorator-concrete-stream-abi=PASS" | tee -a "$REPORT"
+}
+
+write_hash_report() {
+    local current_tree
+    current_tree="$(git -C "$ROOT" rev-parse 'HEAD^{tree}')"
+    {
+        echo "scope=$SCOPE"
+        echo "release-commit=$RELEASE_SHA"
+        echo "release-tree=$RELEASE_TREE"
+        echo "release-io-jar=$JAR_DIR/release-io.jar sha256=$(sha256 "$JAR_DIR/release-io.jar")"
+        echo "release-json-jar=$JAR_DIR/release-json.jar sha256=$(sha256 "$JAR_DIR/release-json.jar")"
+        echo "base-commit=$BASE_SHA"
+        echo "base-tree=$BASE_TREE"
+        echo "base-io-jar=$JAR_DIR/base-io.jar sha256=$(sha256 "$JAR_DIR/base-io.jar")"
+        echo "base-json-jar=$JAR_DIR/base-json.jar sha256=$(sha256 "$JAR_DIR/base-json.jar")"
+        echo "current-commit=$EXPECTED_HEAD"
+        echo "current-tree=$current_tree"
+        echo "current-io-jar=$JAR_DIR/current-io.jar sha256=$(sha256 "$JAR_DIR/current-io.jar")"
+        echo "current-json-jar=$JAR_DIR/current-json.jar sha256=$(sha256 "$JAR_DIR/current-json.jar")"
+    } >> "$REPORT"
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        --scope)
+            [[ $# -ge 2 ]] || fail "--scope requires interface or full"
+            SCOPE="$2"
+            shift 2
+            ;;
         --build-current)
             BUILD_CURRENT=true
             shift
@@ -407,108 +407,61 @@ while [[ $# -gt 0 ]]; do
             EXPECTED_HEAD="$2"
             shift 2
             ;;
+        --require-direct-candidates)
+            [[ $# -ge 2 ]] || fail "--require-direct-candidates requires a comma-separated list"
+            REQUIRE_DIRECT="$2"
+            shift 2
+            ;;
         --help|-h)
             usage
             exit 0
             ;;
         *)
             usage >&2
-            fail "unknown argument: $1"
+            fail "unrecognized argument: $1"
             ;;
     esac
 done
 
+[[ "$SCOPE" == "interface" || "$SCOPE" == "full" ]] || fail "unrecognized scope: $SCOPE"
 [[ "$BUILD_CURRENT" == true ]] || fail "--build-current is required"
-[[ -n "$EXPECTED_HEAD" ]] || fail "--expected-head is required"
-[[ "$(git -C "$ROOT" rev-parse HEAD)" == "$EXPECTED_HEAD" ]] ||
-    fail "current HEAD does not match --expected-head"
-assert_clean_tested_code ||
-    fail "tested serializer and build paths must be clean before ABI evidence generation"
-command -v javac >/dev/null || fail "javac is required"
-command -v java >/dev/null || fail "java is required"
-command -v javap >/dev/null || fail "javap is required"
-command -v kotlinc >/dev/null || fail "kotlinc is required"
-
-mkdir -p "$AUTH_DIR"
-: > "$REPORT"
-write_classpath_init_script
-ensure_base_worktree
-verify_base_jars
-verify_frozen_fixtures
-
-BASE_AVRO_TEST_CP="$(runtime_classpath "$BASE_WORKTREE" "bluetape4k-avro" "test")"
-AVRO_API_JAR="$(avro_api_jar "$BASE_AVRO_TEST_CP")"
-compile_legacy_fixtures "$AVRO_API_JAR"
-BASE_IO_TEST_CP="$(runtime_classpath "$BASE_WORKTREE" "bluetape4k-io" "test")"
-regenerate_and_compare_fixtures "$BASE_IO_TEST_CP"
-
-echo "authority-commit=$BASE_SHA" | tee -a "$REPORT"
-echo "authority-tree=$BASE_TREE" | tee -a "$REPORT"
-echo "legacy-java-compilation=PASS" | tee -a "$REPORT"
-echo "legacy-kotlin-compilation=PASS" | tee -a "$REPORT"
-echo "java-null-literal-compilation=PASS" | tee -a "$REPORT"
-echo "frozen-fixture-reproduction=PASS" | tee -a "$REPORT"
-
-build_current_jars
-CURRENT_IO_JAR="$(resolve_single_jar "$ROOT/io/io/build/libs" "bluetape4k-io")"
-CURRENT_JSON_JAR="$(resolve_single_jar "$ROOT/io/json/build/libs" "bluetape4k-json")"
-CURRENT_AVRO_JAR="$(resolve_single_jar "$ROOT/io/avro/build/libs" "bluetape4k-avro")"
-CURRENT_HEAD="$(git -C "$ROOT" rev-parse HEAD)"
-CURRENT_TREE="$(git -C "$ROOT" rev-parse 'HEAD^{tree}')"
-
-echo "current-head=$CURRENT_HEAD" | tee -a "$REPORT"
-echo "current-head-tree=$CURRENT_TREE" | tee -a "$REPORT"
-echo "current-io-jar=$CURRENT_IO_JAR sha256=$(sha256 "$CURRENT_IO_JAR")" | tee -a "$REPORT"
-echo "current-json-jar=$CURRENT_JSON_JAR sha256=$(sha256 "$CURRENT_JSON_JAR")" | tee -a "$REPORT"
-echo "current-avro-jar=$CURRENT_AVRO_JAR sha256=$(sha256 "$CURRENT_AVRO_JAR")" | tee -a "$REPORT"
-
-rm -rf "$CLASSES/current"
-mkdir -p "$CLASSES/current/binary" "$CLASSES/current/json" "$CLASSES/current/avro"
-new_failures=0
-compile_new_caller binary "$CLASSES/current/binary" \
-    "$CURRENT_IO_JAR:$CLASSES/legacy/binary-java:$CLASSES/legacy/binary-kotlin" \
-    "$ROOT/io/io/src/test/resources/compat/issue-754/src/java/NewBinaryBufferCaller.java" || new_failures=$((new_failures + 1))
-compile_new_caller json "$CLASSES/current/json" \
-    "$CURRENT_JSON_JAR:$CLASSES/legacy/json-java:$CLASSES/legacy/json-kotlin" \
-    "$ROOT/io/json/src/test/resources/compat/issue-754/src/java/NewJsonBufferCaller.java" || new_failures=$((new_failures + 1))
-compile_new_caller avro "$CLASSES/current/avro" \
-    "$CURRENT_AVRO_JAR:$CURRENT_IO_JAR:$AVRO_API_JAR:$CLASSES/legacy/avro-java:$CLASSES/legacy/avro-kotlin" \
-    "$ROOT/io/avro/src/test/resources/compat/issue-754/src/java/NewAvroBufferCaller.java" || new_failures=$((new_failures + 1))
-
-if [[ "$new_failures" -ne 0 ]]; then
-    echo "buffer-default-abi=RED ($new_failures new caller compilations failed)" | tee -a "$REPORT"
-    echo "ABI report: $REPORT" >&2
-    exit 1
+[[ "$EXPECTED_HEAD" =~ ^[0-9a-f]{40}$ ]] || fail "full lowercase --expected-head is required"
+[[ "$(git -C "$ROOT" rev-parse HEAD)" == "$EXPECTED_HEAD" ]] || fail "current HEAD does not match --expected-head"
+[[ "$SCOPE" == "full" || -z "$REQUIRE_DIRECT" ]] || fail "--require-direct-candidates requires --scope full"
+if [[ -n "$REQUIRE_DIRECT" ]]; then
+    [[ "$REQUIRE_DIRECT" =~ ^(jdk|kryo|jackson2|jackson3)(,(jdk|kryo|jackson2|jackson3))*$ ]] ||
+        fail "invalid --require-direct-candidates list: $REQUIRE_DIRECT"
 fi
 
-assert_default_method "$CURRENT_IO_JAR" "io.bluetape4k.io.serializer.BinarySerializer" "serializeTo"
-assert_default_method "$CURRENT_IO_JAR" "io.bluetape4k.io.serializer.BinarySerializer" "deserializeFrom"
-assert_default_method "$CURRENT_JSON_JAR" "io.bluetape4k.json.JsonSerializer" "serializeTo"
-assert_default_method "$CURRENT_JSON_JAR" "io.bluetape4k.json.JsonSerializer" "deserializeFrom"
-assert_default_method "$CURRENT_AVRO_JAR" "io.bluetape4k.avro.AvroReflectSerializer" "serializeTo"
-assert_default_method "$CURRENT_AVRO_JAR" "io.bluetape4k.avro.AvroReflectSerializer" "deserializeFrom"
-assert_default_method "$CURRENT_AVRO_JAR" "io.bluetape4k.avro.AvroGenericRecordSerializer" "serializeTo"
-assert_default_method "$CURRENT_AVRO_JAR" "io.bluetape4k.avro.AvroGenericRecordSerializer" "deserializeFrom"
-assert_default_method "$CURRENT_AVRO_JAR" "io.bluetape4k.avro.AvroSpecificRecordSerializer" "serializeTo"
-assert_default_method "$CURRENT_AVRO_JAR" "io.bluetape4k.avro.AvroSpecificRecordSerializer" "deserializeFrom"
-assert_default_method "$CURRENT_AVRO_JAR" "io.bluetape4k.avro.AvroSpecificRecordSerializer" "serializeListTo"
-assert_default_method "$CURRENT_AVRO_JAR" "io.bluetape4k.avro.AvroSpecificRecordSerializer" "deserializeListFrom"
-javap -classpath "$CURRENT_IO_JAR" io.bluetape4k.io.serializer.BinarySerializerSupportKt |
-    grep -Eq 'deserialize\(io\.bluetape4k\.io\.serializer\.BinarySerializer, java\.nio\.ByteBuffer\)' ||
-    fail "legacy BinarySerializer.deserialize(ByteBuffer) static JVM symbol is missing"
+for tool in git java javac javap jar kotlinc python3 shasum awk find sed grep; do
+    command -v "$tool" >/dev/null || fail "$tool is required"
+done
+[[ "$(javac -version 2>&1)" == javac\ 21* ]] || fail "javac 21 is required"
+assert_clean_inputs
 
-CURRENT_IO_CP="$(runtime_classpath "$ROOT" "bluetape4k-io" "main")"
-CURRENT_JSON_CP="$(runtime_classpath "$ROOT" "bluetape4k-json" "main")"
-CURRENT_AVRO_CP="$(runtime_classpath "$ROOT" "bluetape4k-avro" "main")"
+rm -rf "$CLASS_DIR" "$JAR_DIR"
+mkdir -p "$CLASS_DIR" "$JAR_DIR"
+: > "$REPORT"
+write_init_script
+create_authority_worktree RELEASE_WORKTREE release "$RELEASE_SHA" "$RELEASE_TREE"
+create_authority_worktree BASE_WORKTREE base "$BASE_SHA" "$BASE_TREE"
+build_authority_jars release "$RELEASE_WORKTREE"
+build_authority_jars base "$BASE_WORKTREE"
+build_current_jars
+write_hash_report
+compile_authority_fixtures release "$RELEASE_WORKTREE"
+compile_authority_fixtures base "$BASE_WORKTREE"
+compile_current_fixtures
+run_authority_fixtures release
+run_authority_fixtures base
+run_current_dual_fixture
+verify_interface_javap
 
-java -cp "$CLASSES/current/binary:$CLASSES/legacy/binary-java:$CLASSES/legacy/binary-kotlin:$CURRENT_IO_JAR:$CURRENT_IO_CP" \
-    io.bluetape4k.io.serializer.compat.issue754.java.NewBinaryBufferCaller | tee -a "$REPORT"
-java -cp "$CLASSES/current/json:$CLASSES/legacy/json-java:$CLASSES/legacy/json-kotlin:$CURRENT_JSON_JAR:$CURRENT_JSON_CP" \
-    io.bluetape4k.json.compat.issue754.java.NewJsonBufferCaller | tee -a "$REPORT"
-java -cp "$CLASSES/current/avro:$CLASSES/legacy/avro-java:$CLASSES/legacy/avro-kotlin:$CURRENT_AVRO_JAR:$CURRENT_IO_JAR:$CURRENT_AVRO_CP" \
-    io.bluetape4k.avro.compat.issue754.java.NewAvroBufferCaller | tee -a "$REPORT"
+if [[ "$SCOPE" == "full" ]]; then
+    verify_full_scope
+else
+    echo "decorator-concrete-stream-abi=DEFERRED" | tee -a "$REPORT"
+fi
 
-echo "buffer-default-abi=PASS" | tee -a "$REPORT"
-write_json_report
+echo "SERIALIZER STREAM ABI PASS scope=$SCOPE head=$EXPECTED_HEAD" | tee -a "$REPORT"
 echo "ABI report: $REPORT"
-echo "ABI JSON report: $JSON_REPORT"
