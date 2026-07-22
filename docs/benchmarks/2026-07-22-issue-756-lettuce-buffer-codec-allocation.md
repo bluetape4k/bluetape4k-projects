@@ -43,7 +43,7 @@ python3 infra/lettuce/scripts/validate-issue756-jmh.py \
   --final-delivery-sha "$(git rev-parse HEAD)"
 ```
 
-첫 validator 명령은 고정 benchmark input과 post-measurement allowlist를 검증한다. 마지막 명령은 raw evidence와 보고서를 커밋한 최종 전달 HEAD에서 실행한다. runner가 기록한 전체 Gradle/JMH argv, runtime classpath 경로·순서·SHA-256은 각 run의 `environment.json`과 `argv.json`에 있다.
+첫 validator 명령은 고정 benchmark input identity를 검증한다. 마지막 명령은 raw evidence와 보고서를 커밋한 최종 전달 HEAD에서 post-measurement ancestry와 allowlist를 함께 검증한다. runner가 기록한 전체 Gradle/JMH argv, runtime classpath 경로·순서·SHA-256은 각 run의 `environment.json`과 `argv.json`에 있다.
 
 ## 판정 규칙
 
