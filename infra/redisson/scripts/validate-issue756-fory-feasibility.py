@@ -181,7 +181,7 @@ def validate_leaf(evidence_root, run_id):
             )
         )
     with (leaf / "summary.csv").open("w", encoding="utf-8", newline="") as stream:
-        writer = csv.writer(stream)
+        writer = csv.writer(stream, lineterminator="\n")
         writer.writerow(("backend", "path", "allocation_B_per_op", "allocation_error", "throughput_ops_per_ms"))
         writer.writerows(rows)
     comparison = {"schemaVersion": 1, "runId": run_id, "results": results}

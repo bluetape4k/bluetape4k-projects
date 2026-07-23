@@ -1,0 +1,22 @@
+{
+  "results": {
+    "fastFory": {
+      "accepted": false,
+      "allocationRatio": 1.259259117133066,
+      "baselineAllocation": 216.00021856174962,
+      "candidateAllocation": 272.00024452661813,
+      "reason": "allocationRatio=1.259259, allocationIntervalSeparated=False, throughputDelta=-0.106946",
+      "throughputDelta": -0.10694642915265062
+    },
+    "fory": {
+      "accepted": false,
+      "allocationRatio": 1.1724136110215628,
+      "baselineAllocation": 232.00025478120438,
+      "candidateAllocation": 272.0002564659544,
+      "reason": "allocationRatio=1.172414, allocationIntervalSeparated=False, throughputDelta=-0.006161",
+      "throughputDelta": -0.006161142093555005
+    }
+  },
+  "runId": "probe-b",
+  "schemaVersion": 1
+}

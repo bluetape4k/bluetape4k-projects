@@ -1,0 +1,11 @@
+{
+  "benchmarkJarSha256": "2b033519f0fcee4fcf7a16163c29420289e6df3a5318b1c37d9a496fc1123ddb",
+  "encodeDisposition": "rejected",
+  "probeDisposition": "rejected",
+  "reason": "probe-a/fory: allocationRatio=1.172414, allocationIntervalSeparated=False, throughputDelta=-0.068311; probe-a/fastFory: allocationRatio=1.259259, allocationIntervalSeparated=False, throughputDelta=-0.126853; probe-b/fory: allocationRatio=1.172414, allocationIntervalSeparated=False, throughputDelta=-0.006161; probe-b/fastFory: allocationRatio=1.259259, allocationIntervalSeparated=False, throughputDelta=-0.106946",
+  "runs": [
+    "probe-a",
+    "probe-b"
+  ],
+  "schemaVersion": 1
+}

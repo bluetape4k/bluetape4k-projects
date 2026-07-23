@@ -169,6 +169,7 @@ def main():
                 )
             if completed.returncode != 0:
                 raise RuntimeError(f"{run_id} JMH failed; see {leaf / 'run.log'}")
+            write_json(jmh, json.loads(jmh.read_text(encoding="utf-8")))
             write_json(leaf / "argv.json", {"schemaVersion": 1, "argv": base_argv})
             environment = {
                 "schemaVersion": 1,
