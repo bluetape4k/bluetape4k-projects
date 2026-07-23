@@ -1,0 +1,35 @@
+{
+  "canonical_method_count": 20,
+  "encodeDisposition": "rejected",
+  "modules": {
+    "lettuce": {
+      "jar_sha256": "bfb80752cc5c1f6a0fe9016b3462fc7fafc39415125c7d07d76a2824b2725a37",
+      "runs": {
+        "canonical-a": "lettuce/canonical-a",
+        "canonical-b": "lettuce/canonical-b"
+      }
+    },
+    "redisson": {
+      "jar_sha256": "2b033519f0fcee4fcf7a16163c29420289e6df3a5318b1c37d9a496fc1123ddb",
+      "runs": {
+        "canonical-a": "redisson/canonical-a",
+        "canonical-b": "redisson/canonical-b"
+      }
+    }
+  },
+  "schema_version": 1,
+  "source": {
+    "ancestry_verified": true,
+    "append_only_raw_verified": true,
+    "changed_paths": [
+      "docs/benchmarks/raw/issue-756-fory-followup/",
+      "docs/superpowers/",
+      "infra/lettuce/",
+      "infra/redisson/",
+      "io/io/"
+    ],
+    "clean": true,
+    "existing_issue756_raw_sha256": "ec6f64c12f84742d92c66262a48bab4dff924cfa6e65d6a8c607d2cf65beab10",
+    "merge_base": "origin/develop"
+  }
+}
