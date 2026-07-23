@@ -10,6 +10,7 @@ import json
 import os
 import re
 import subprocess
+import zipfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -62,6 +63,21 @@ def write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
 
+def normalize_jar(source: Path, destination: Path) -> Path:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(source, "r") as input_archive:
+        with zipfile.ZipFile(destination, "w", allowZip64=True) as output_archive:
+            seen = set()
+            for info in input_archive.infolist():
+                upper = info.filename.upper()
+                if upper.startswith("META-INF/") and upper.endswith((".SF", ".RSA", ".DSA", ".EC")):
+                    continue
+                if info.filename in seen:
+                    continue
+                seen.add(info.filename)
+                output_archive.writestr(info, input_archive.read(info.filename))
+    return destination
+
 
 def build_jar() -> Path:
     subprocess.run(
@@ -69,10 +85,13 @@ def build_jar() -> Path:
         cwd=REPO,
         check=True,
     )
-    jars = sorted((REPO / "infra/redisson/build/libs").glob("*-benchmark.jar"))
+    jars = sorted((REPO / "infra/redisson/build/benchmarks/benchmark/jars").glob("*-JMH.jar"))
     if len(jars) != 1:
         raise RunnerError(f"expected one benchmark jar, found {len(jars)}")
-    return jars[0]
+    return normalize_jar(
+        jars[0],
+        REPO / "infra/redisson/build/issue756/fory-canonical-executable.jar",
+    )
 
 
 def main() -> int:
