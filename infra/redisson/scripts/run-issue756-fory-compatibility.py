@@ -403,7 +403,7 @@ def run_checked(command: list[str], label: str, timeout_seconds: int = 120) -> s
             f"{label}_FAILED exit={completed.returncode}\n"
             f"{completed.stdout[-2000:]}\n{completed.stderr[-2000:]}"
         )
-    return completed.stdout.strip()
+    return completed.stdout.rstrip("\n")
 
 
 def compile_harness(current_classpath: list[Path]) -> Path:

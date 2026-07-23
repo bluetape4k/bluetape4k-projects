@@ -39,20 +39,29 @@
       "path": "infra/redisson/build/classes/java/test"
     },
     {
+      "fileCount": 43,
       "kind": "directory",
-      "path": "infra/redisson/build/classes/kotlin/main"
+      "path": "infra/redisson/build/classes/kotlin/main",
+      "sha256": "f65d6e7d1582855e159a442e82e5e1b1f54778596cc11b3224a2d81b1b0f96e6",
+      "size": 280452
     },
     {
+      "fileCount": 118,
       "kind": "directory",
-      "path": "infra/redisson/build/classes/kotlin/test"
+      "path": "infra/redisson/build/classes/kotlin/test",
+      "sha256": "224de70d50a6eee6af37bb674bb253f7807537510ca2756e21946852d84ef77f",
+      "size": 727994
     },
     {
       "kind": "missing",
       "path": "infra/redisson/build/resources/main"
     },
     {
+      "fileCount": 6,
       "kind": "directory",
-      "path": "infra/redisson/build/resources/test"
+      "path": "infra/redisson/build/resources/test",
+      "sha256": "c48eeda525fb52429bf47df930743bcfbdab0f4699f170bd36f36ad627035f49",
+      "size": 2467
     },
     {
       "kind": "jar",

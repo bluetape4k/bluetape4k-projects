@@ -1,4 +1,5 @@
 {
+  "excludedGeneratedOutput": "docs/benchmarks/raw/issue-756-fory-followup/release",
   "fixtures": [
     {
       "codec": "fory",
@@ -49,8 +50,9 @@
       "writer": "new"
     }
   ],
-  "generatedAt": "2026-07-23T04:49:53.636884+00:00",
-  "gitHead": "7a71404b5f6bc629c60a5dc78cad6a6da930937f",
+  "generatedAt": "2026-07-23T05:04:33.182710+00:00",
+  "inputCommit": "375c50c57631261a8a53f46ec3e48f1fca5ea75c",
+  "inputTree": "4eb12a883e1d49286689c3d2d5fd3500129fa3b2",
   "knownGoodVersion": "1.11.0",
   "limitations": [
     "This fixture proves codec-level wire compatibility; it does not publish artifacts.",
@@ -58,6 +60,7 @@
   ],
   "schemaVersion": 1,
   "scope": "Fory/FastFory raw Redisson codec cross-version decode",
+  "sourceRelevantClean": true,
   "status": "passed",
   "targetVersion": "1.12.0"
 }
