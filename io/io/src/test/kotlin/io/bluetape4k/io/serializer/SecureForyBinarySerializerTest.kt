@@ -2,10 +2,11 @@ package io.bluetape4k.io.serializer
 
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
+import java.io.ByteArrayOutputStream
 
 /**
  * 보안 설정의 [ForyBinarySerializer] 사용 예제 테스트
@@ -58,12 +59,37 @@ class SecureForyBinarySerializerTest {
     }
 
     @Test
+    fun `등록된 클래스의 secure Fory stream bytes는 serialize bytes와 같다`() {
+        val expected = AllowedPerson(name = "secure-stream", age = 31)
+        val target = ByteArrayOutputStream()
+        val wire = serializer.serialize(expected)
+
+        val written = serializer.serializeBinaryToStream(expected, target)
+
+        target.toByteArray() shouldBeEqualTo wire
+        written shouldBeEqualTo wire.size
+    }
+
+    @Test
     fun `등록되지 않은 클래스는 직렬화 시 BinarySerializationException이 발생한다`() {
         val unregistered = UnregisteredOrder(id = 1L, item = "laptop")
 
         assertFailsWith<BinarySerializationException> {
             serializer.serialize(unregistered)
         }
+    }
+
+    @Test
+    fun `등록되지 않은 클래스의 secure Fory stream 직렬화는 borrowed target을 변경하지 않는다`() {
+        val target = RecordingForyOutputStream()
+
+        assertFailsWith<BinarySerializationException> {
+            serializer.serializeBinaryToStream(UnregisteredOrder(id = 2L, item = "monitor"), target)
+        }
+
+        target.toByteArray() shouldBeEqualTo byteArrayOf()
+        target.flushCount shouldBeEqualTo 0
+        target.closeCount shouldBeEqualTo 0
     }
 
     @Test

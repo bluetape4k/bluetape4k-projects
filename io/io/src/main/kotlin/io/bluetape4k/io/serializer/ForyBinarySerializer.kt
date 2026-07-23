@@ -5,7 +5,58 @@ import org.apache.fory.Fory
 import org.apache.fory.ThreadSafeFory
 import org.apache.fory.config.CompatibleMode
 import org.apache.fory.config.Language
+import java.io.IOException
+import java.io.OutputStream
 import java.nio.ByteBuffer
+
+private const val FORY_OUTPUT_LIMIT_MESSAGE = "Serialized output exceeds Int.MAX_VALUE bytes."
+
+private class ForyBorrowedTargetWriteFailure(
+    cause: Throwable,
+): RuntimeException(cause)
+
+private class ForyOutputCountOverflowFailure(
+    cause: ArithmeticException,
+): IllegalStateException(FORY_OUTPUT_LIMIT_MESSAGE, cause)
+
+private class ForyCallerOwnedCountingOutputStream(
+    private val target: OutputStream,
+): OutputStream() {
+
+    var written: Int = 0
+        private set
+
+    override fun write(value: Int) {
+        val next = checkedCount(1)
+        writeToTarget { target.write(value) }
+        written = next
+    }
+
+    override fun write(bytes: ByteArray, offset: Int, length: Int) {
+        val next = checkedCount(length)
+        writeToTarget { target.write(bytes, offset, length) }
+        written = next
+    }
+
+    override fun flush() = Unit
+
+    override fun close() = Unit
+
+    private fun checkedCount(length: Int): Int =
+        try {
+            Math.addExact(written, length)
+        } catch (failure: ArithmeticException) {
+            throw ForyOutputCountOverflowFailure(failure)
+        }
+
+    private inline fun writeToTarget(block: () -> Unit) {
+        try {
+            block()
+        } catch (failure: Throwable) {
+            throw ForyBorrowedTargetWriteFailure(failure)
+        }
+    }
+}
 
 /**
  * [Fory](https://fory.apache.org/) 를 이용한 Binary 직렬화/역직렬화를 수행하는 [BinarySerializer]
@@ -21,6 +72,9 @@ import java.nio.ByteBuffer
  * ```
  *
  * [deserializeFrom] delegates a duplicate of the caller's bounded range to Fory's ByteBuffer API.
+ * [serializeBinaryToStream] writes through Fory's `OutputStream` overload and avoids the returned/handoff payload
+ * array. The target is borrowed synchronously and is not retained, flushed, or closed. Fory may still use its
+ * reusable internal `MemoryBuffer` while serializing.
  * [serializeTo] intentionally keeps the BinarySerializer ByteArray compatibility fallback because
  * Fory's MemoryBuffer output may grow by replacing caller-provided storage.
  * The [issue #1039 evidence](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)
@@ -141,6 +195,23 @@ class ForyBinarySerializer(
      */
     override fun doSerialize(graph: Any): ByteArray {
         return fory.serialize(graph)
+    }
+
+    @Throws(IOException::class)
+    override fun serializeBinaryToStream(graph: Any?, target: OutputStream): Int {
+        val source = graph ?: return 0
+        val output = ForyCallerOwnedCountingOutputStream(target)
+
+        return try {
+            fory.serialize(output, source)
+            output.written
+        } catch (failure: ForyBorrowedTargetWriteFailure) {
+            throw checkNotNull(failure.cause)
+        } catch (failure: ForyOutputCountOverflowFailure) {
+            throw failure
+        } catch (failure: Throwable) {
+            throw BinarySerializationException("Fail to serialize. graphType=${source.javaClass.name}", failure)
+        }
     }
 
     /**
