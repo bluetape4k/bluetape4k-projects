@@ -1,0 +1,87 @@
+{
+  "methods": [
+    {
+      "backend": "fory",
+      "method": "foryHeapCopiedBaseline",
+      "path": "baseline",
+      "prefix_preserved": true,
+      "state_preserved": true,
+      "target": "heap",
+      "wire_sha256": "7a4f5a4b272d8f4a1a4cd867ba39c5a0947746cdf37668efa9f319c4c7f50010",
+      "written_count": 206
+    },
+    {
+      "backend": "fory",
+      "method": "foryHeapCandidate",
+      "path": "candidate",
+      "prefix_preserved": true,
+      "state_preserved": true,
+      "target": "heap",
+      "wire_sha256": "7a4f5a4b272d8f4a1a4cd867ba39c5a0947746cdf37668efa9f319c4c7f50010",
+      "written_count": 206
+    },
+    {
+      "backend": "fory",
+      "method": "foryDirectCopiedBaseline",
+      "path": "baseline",
+      "prefix_preserved": true,
+      "state_preserved": true,
+      "target": "direct",
+      "wire_sha256": "7a4f5a4b272d8f4a1a4cd867ba39c5a0947746cdf37668efa9f319c4c7f50010",
+      "written_count": 206
+    },
+    {
+      "backend": "fory",
+      "method": "foryDirectCandidate",
+      "path": "candidate",
+      "prefix_preserved": true,
+      "state_preserved": true,
+      "target": "direct",
+      "wire_sha256": "7a4f5a4b272d8f4a1a4cd867ba39c5a0947746cdf37668efa9f319c4c7f50010",
+      "written_count": 206
+    },
+    {
+      "backend": "fastFory",
+      "method": "fastForyHeapCopiedBaseline",
+      "path": "baseline",
+      "prefix_preserved": true,
+      "state_preserved": true,
+      "target": "heap",
+      "wire_sha256": "bcbdbd388e409675716e49b96fe99f84457e3d40d783d22a4675c8eebd6741f9",
+      "written_count": 183
+    },
+    {
+      "backend": "fastFory",
+      "method": "fastForyHeapCandidate",
+      "path": "candidate",
+      "prefix_preserved": true,
+      "state_preserved": true,
+      "target": "heap",
+      "wire_sha256": "bcbdbd388e409675716e49b96fe99f84457e3d40d783d22a4675c8eebd6741f9",
+      "written_count": 183
+    },
+    {
+      "backend": "fastFory",
+      "method": "fastForyDirectCopiedBaseline",
+      "path": "baseline",
+      "prefix_preserved": true,
+      "state_preserved": true,
+      "target": "direct",
+      "wire_sha256": "bcbdbd388e409675716e49b96fe99f84457e3d40d783d22a4675c8eebd6741f9",
+      "written_count": 183
+    },
+    {
+      "backend": "fastFory",
+      "method": "fastForyDirectCandidate",
+      "path": "candidate",
+      "prefix_preserved": true,
+      "state_preserved": true,
+      "target": "direct",
+      "wire_sha256": "bcbdbd388e409675716e49b96fe99f84457e3d40d783d22a4675c8eebd6741f9",
+      "written_count": 183
+    }
+  ],
+  "payload_sha256": "7a4f5a4b272d8f4a1a4cd867ba39c5a0947746cdf37668efa9f319c4c7f50010",
+  "schema_version": 1,
+  "status": "passed"
+}

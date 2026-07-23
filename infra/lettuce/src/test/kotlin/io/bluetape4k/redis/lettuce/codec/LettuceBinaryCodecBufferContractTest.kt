@@ -285,10 +285,104 @@ class LettuceBinaryCodecBufferContractTest {
             val actual = assertFailsWith<IOException> {
                 LettuceBinaryCodec<String>(RecordingBinarySerializer()).encodeValue(VALUE, partial)
             }
-            generateSequence(actual as Throwable?) { it.cause }.any { it === sentinel }.shouldBeTrue()
+            actual shouldBeSameInstanceAs sentinel
             partial.writerIndex() shouldBeEqualTo start
         } finally {
             partial.release()
+        }
+    }
+
+    @Test
+    fun `raw Fory codecs preserve caller owned pooled targets across successful writes`() {
+        rawForyCodecFactories().forEach { (codecName, codecFactory) ->
+            val codec = codecFactory()
+            val expected = codec.encodeValue(RAW_FORY_VALUE).remainingBytes()
+
+            pooledRawTargets(initialCapacity = 8, maxCapacity = 512).forEach { (targetName, targetFactory) ->
+                val target = targetFactory()
+                try {
+                    val start = prepareRawForyTarget(target, suffixIndex = RAW_START + expected.size)
+                    val readerMark = target.readerIndex()
+                    val writerMark = target.writerIndex()
+                    val referenceCount = target.refCnt()
+
+                    codec.encodeValue(RAW_FORY_VALUE, target)
+
+                    target.readerIndex() shouldBeEqualTo readerMark
+                    target.writerIndex() shouldBeEqualTo start + expected.size
+                    target.refCnt() shouldBeEqualTo referenceCount
+                    target.getUnsignedByte(RAW_PREFIX_INDEX).toInt() shouldBeEqualTo RAW_PREFIX
+                    target.getUnsignedByte(RAW_SUFFIX_INDEX).toInt() shouldBeEqualTo RAW_SUFFIX
+                    target.getUnsignedByte(start + expected.size).toInt() shouldBeEqualTo RAW_SUFFIX
+                    target.bytes(start, expected.size).contentEquals(expected).shouldBeTrue()
+                    codec.decodeValue(ByteBuffer.wrap(target.bytes(start, expected.size))) shouldBeEqualTo RAW_FORY_VALUE
+                    assertRawForyMarks(target, readerMark, writerMark)
+                } catch (failure: Throwable) {
+                    throw AssertionError("raw Fory success fixture failed: $codecName/$targetName", failure)
+                } finally {
+                    target.release()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `raw Fory codecs leave pooled targets uncommitted when bounded capacity is insufficient`() {
+        rawForyCodecFactories().forEach { (codecName, codecFactory) ->
+            val codec = codecFactory()
+            val expected = codec.encodeValue(RAW_FORY_VALUE).remainingBytes()
+            val maxCapacity = RAW_START + expected.size - 1
+
+            pooledRawTargets(initialCapacity = maxCapacity, maxCapacity = maxCapacity).forEach { (targetName, targetFactory) ->
+                val target = targetFactory()
+                try {
+                    val start = prepareRawForyTarget(target, suffixIndex = maxCapacity - 1)
+                    val readerMark = target.readerIndex()
+                    val writerMark = target.writerIndex()
+                    val referenceCount = target.refCnt()
+
+                    assertFailsWith<Throwable> {
+                        codec.encodeValue(RAW_FORY_VALUE, target)
+                    }
+
+                    assertRawForyFailureState(target, start, readerMark, writerMark, referenceCount, maxCapacity - 1)
+                } catch (failure: Throwable) {
+                    throw AssertionError("raw Fory capacity fixture failed: $codecName/$targetName", failure)
+                } finally {
+                    target.release()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `raw Fory codecs leave pooled targets uncommitted when destination writes fail`() {
+        rawForyCodecFactories().forEach { (codecName, codecFactory) ->
+            val codec = codecFactory()
+            val expected = codec.encodeValue(RAW_FORY_VALUE).remainingBytes()
+            val maxCapacity = RAW_START + expected.size + 8
+
+            pooledRawTargets(initialCapacity = maxCapacity, maxCapacity = maxCapacity).forEach { (targetName, targetFactory) ->
+                val delegate = targetFactory()
+                val destinationFailure = IOException("raw Fory destination failure")
+                val target = BinaryPartialFailingByteBuf(delegate, destinationFailure)
+                try {
+                    val start = prepareRawForyTarget(target, suffixIndex = RAW_START + expected.size + 1)
+                    val readerMark = target.readerIndex()
+                    val writerMark = target.writerIndex()
+                    val referenceCount = target.refCnt()
+
+                    assertFailsWith<IOException> {
+                        codec.encodeValue(RAW_FORY_VALUE, target)
+                    } shouldBeSameInstanceAs destinationFailure
+
+                    assertRawForyFailureState(target, start, readerMark, writerMark, referenceCount, RAW_START + expected.size + 1)
+                } catch (failure: Throwable) {
+                    throw AssertionError("raw Fory destination fixture failed: $codecName/$targetName", failure)
+                } finally {
+                    target.release()
+                }
+            }
         }
     }
 
@@ -499,6 +593,52 @@ class LettuceBinaryCodecBufferContractTest {
         "bounded slice" to Unpooled.buffer(64, 64).slice(0, 16).clear(),
     )
 
+    private fun rawForyCodecFactories(): List<Pair<String, () -> LettuceBinaryCodec<String>>> = listOf(
+        "Fory" to { LettuceBinaryCodecs.fory<String>() },
+        "FastFory" to { LettuceBinaryCodecs.fastFory<String>() },
+    )
+
+    private fun pooledRawTargets(initialCapacity: Int, maxCapacity: Int): List<Pair<String, () -> ByteBuf>> = listOf(
+        "pooled heap" to { PooledByteBufAllocator.DEFAULT.heapBuffer(initialCapacity, maxCapacity) },
+        "pooled direct" to { PooledByteBufAllocator.DEFAULT.directBuffer(initialCapacity, maxCapacity) },
+    )
+
+    private fun prepareRawForyTarget(target: ByteBuf, suffixIndex: Int): Int {
+        target.capacity(suffixIndex + 1)
+        target.setByte(RAW_PREFIX_INDEX, RAW_PREFIX)
+        target.setByte(RAW_SUFFIX_INDEX, RAW_SUFFIX)
+        target.writerIndex(RAW_START)
+        target.readerIndex(RAW_READER_INDEX)
+        target.markReaderIndex()
+        target.markWriterIndex()
+        target.setByte(suffixIndex, RAW_SUFFIX)
+        return target.writerIndex()
+    }
+
+    private fun assertRawForyFailureState(
+        target: ByteBuf,
+        start: Int,
+        readerMark: Int,
+        writerMark: Int,
+        referenceCount: Int,
+        suffixIndex: Int,
+    ) {
+        target.readerIndex() shouldBeEqualTo readerMark
+        target.writerIndex() shouldBeEqualTo start
+        target.refCnt() shouldBeEqualTo referenceCount
+        target.getUnsignedByte(RAW_PREFIX_INDEX).toInt() shouldBeEqualTo RAW_PREFIX
+        target.getUnsignedByte(RAW_SUFFIX_INDEX).toInt() shouldBeEqualTo RAW_SUFFIX
+        target.getUnsignedByte(suffixIndex).toInt() shouldBeEqualTo RAW_SUFFIX
+        assertRawForyMarks(target, readerMark, writerMark)
+    }
+
+    private fun assertRawForyMarks(target: ByteBuf, readerMark: Int, writerMark: Int) {
+        target.resetReaderIndex()
+        target.readerIndex() shouldBeEqualTo readerMark
+        target.resetWriterIndex()
+        target.writerIndex() shouldBeEqualTo writerMark
+    }
+
     private fun binarySources(): List<Pair<String, ByteBuffer>> = listOf(
         "heap" to configuredBinarySource(ByteBuffer.allocate(WIRE.size + 4)),
         "direct" to configuredBinarySource(ByteBuffer.allocateDirect(WIRE.size + 4)),
@@ -531,5 +671,12 @@ class LettuceBinaryCodecBufferContractTest {
         const val SUFFIX_SECRET: String = "S!"
         const val VALUE: String = "buffer-contract"
         val WIRE: ByteArray = byteArrayOf(1, 2, 3, 4)
+        const val RAW_FORY_VALUE: String = "raw-fory-buffer-contract"
+        const val RAW_PREFIX_INDEX: Int = 0
+        const val RAW_READER_INDEX: Int = 1
+        const val RAW_SUFFIX_INDEX: Int = 1
+        const val RAW_START: Int = 2
+        const val RAW_PREFIX: Int = 0x5A
+        const val RAW_SUFFIX: Int = 0x6B
     }
 }

@@ -1,0 +1,7 @@
+backend,operation,source,allocation_ratio,throughput_delta,disposition
+fory,decode,heap,1.2999998818231195,-0.18488066527776958,rejected
+fory,decode,direct,0.7142861864426374,-0.06061733170329253,accepted
+fory,decode,composite,1.0000000162701563,-0.02674633753623601,fallback
+fastFory,decode,heap,1.2222224031999782,-0.2925079330009286,rejected
+fastFory,decode,direct,0.7301591831673278,-0.13182977883432723,accepted
+fastFory,decode,composite,1.0000000340235031,-0.0621297160140436,fallback

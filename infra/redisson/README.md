@@ -169,6 +169,32 @@ Codec classes:
 - `ZstdCodec` — Zstd compression wrapper.
 - `GzipCodec` — GZip compression wrapper with bounded decompression (`maxDecompressedSize`, default 256 MiB).
 
+#### Raw Fory/FastFory buffer boundary
+
+For uncompressed `ForyCodec` and `FastForyCodec`, a single-NIO-component heap or direct `ByteBuf` is decoded through a
+bounded read-only view. Composite or otherwise non-NIO buffers, and direct-view failures, use the copied compatibility
+path. Both paths preserve the input `readerIndex` and `writerIndex`. Apache Fory still uses an internal reusable
+`MemoryBuffer`, so the retained view path is not zero-copy. Encode ownership is a separate evidence gate and must not
+be inferred from decode results; compressed wrappers retain their existing copied path.
+
+`FastForyCodec` may fall back to legacy Fory bytes, but `ForyCodec` cannot read FastFory bytes. Keeping the same codec
+requires no caller API or payload migration; changing modes requires an explicit cache migration or eviction. These
+registration-disabled codecs must decode only trusted payloads. The committed
+[issue #756 Fory follow-up evidence](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md) records the
+terminal disposition for every raw Redisson cell:
+
+| Raw path | Fory | FastFory |
+|---|---|---|
+| Direct decode | accepted: 28.57138% allocation reduction in canonical A/B | accepted: 26.98408% |
+| Heap decode | rejected: allocation increased by 20–30% | rejected: allocation increased by 22.22% |
+| Composite decode | fallback: copied compatibility only; non-promotable | fallback: copied compatibility only; non-promotable |
+| Encode | rejected by feasibility probe; existing allocating path retained | rejected by feasibility probe; existing allocating path retained |
+
+![Issue #756 accepted Fory allocation reductions](../../docs/images/readme-charts/issue756-fory-followup-allocation-chart-01.png)
+
+Only the two direct decode cells carry an allocation-improvement claim. There is no runtime feature flag or dispatch
+telemetry.
+
 ```kotlin
 val codec = GzipCodec(
     innerCodec = RedissonCodecs.Fory,

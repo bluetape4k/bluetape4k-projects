@@ -1,0 +1,45 @@
+{
+  "files": [
+    {
+      "path": "artifact-manifest.json",
+      "sha256": "e87cabc2e289a46e6bcc846e7f05b7142c4afdcc0e60243d10ace4c84887c105",
+      "size": 1760
+    },
+    {
+      "path": "classpath-manifest.json",
+      "sha256": "f530b6e869289a82c990e31f55e33116cc536a34c041c291d4321fd0e3a4d5d6",
+      "size": 147480
+    },
+    {
+      "path": "compatibility-results.json",
+      "sha256": "0ca34ee2791aafd203a9e2e8a87363a1417bf589d03ceb89b0dbee1ee991e572",
+      "size": 2331
+    },
+    {
+      "path": "fixtures/fast-fory-new-write-old-read.bin",
+      "sha256": "33bccf9073de3a786af8e337d7d096cad6aaea751a48bb3c57173291965a9e97",
+      "size": 131
+    },
+    {
+      "path": "fixtures/fast-fory-old-write-new-read.bin",
+      "sha256": "33bccf9073de3a786af8e337d7d096cad6aaea751a48bb3c57173291965a9e97",
+      "size": 131
+    },
+    {
+      "path": "fixtures/fory-new-write-old-read.bin",
+      "sha256": "3100041495e1a58422b09e369d893bf11bdb76d0400f7a82ce9adc30182c3d9e",
+      "size": 134
+    },
+    {
+      "path": "fixtures/fory-old-write-new-read.bin",
+      "sha256": "3100041495e1a58422b09e369d893bf11bdb76d0400f7a82ce9adc30182c3d9e",
+      "size": 134
+    },
+    {
+      "path": "rollback-smoke.json",
+      "sha256": "870a3b4b5bc597d68db10b8e6a587592d7bc1d16e16adae2c30e93479e3e2c76",
+      "size": 1113
+    }
+  ],
+  "schemaVersion": 1
+}

@@ -51,7 +51,12 @@ object LettuceBinaryCodecs {
     fun <V: Any> kryo(): LettuceBinaryCodec<V> = codec(BinarySerializers.Kryo)
 
     /**
-     * Fory Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     * Creates a [LettuceBinaryCodec] with the raw Fory serializer.
+     *
+     * One-argument encode still creates a [ByteArray]. Caller-owned target encode uses the bounded stream path to
+     * avoid the codec-level handoff array and commits the writer index only after success. Fory retains its internal
+     * reusable buffer, so this is not zero-copy. Compressed Fory codecs retain their byte-array/compression path.
+     * Existing callers need no migration when they keep the same codec mode.
      */
     fun <V: Any> fory(): LettuceBinaryCodec<V> = codec(BinarySerializers.Fory)
 
@@ -139,9 +144,12 @@ object LettuceBinaryCodecs {
     // -------------------------------------------------------------------------
 
     /**
-     * FastFory Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     * Creates a [LettuceBinaryCodec] with the raw FastFory serializer.
      *
-     * FastFory는 `CompatibleMode.SCHEMA_CONSISTENT`를 사용하는 고성능 직렬화기입니다.
+     * FastFory uses `CompatibleMode.SCHEMA_CONSISTENT`. One-argument encode still creates a [ByteArray].
+     * Caller-owned target encode avoids only the codec-level handoff array; Fory's internal buffer remains, so this
+     * is not zero-copy. Compressed FastFory codecs retain their byte-array/compression path. Lettuce does not fall
+     * back from FastFory to Fory, and existing callers need no migration when they keep the same codec mode.
      *
      * ```kotlin
      * val codec = LettuceBinaryCodecs.fastFory<MyData>()
@@ -150,12 +158,12 @@ object LettuceBinaryCodecs {
      * val result = connection.sync().get("key")
      * ```
      *
-     * ⚠️ **와이어 포맷 경고**
-     * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **와이어 포맷이 상호 비호환**합니다.
-     * - fallback이 없으므로 기존 Fory 데이터를 FastFory로 읽으면 역직렬화 오류가 발생합니다.
-     * - **휘발성 캐시(Redis, 메모리 캐시) 전용** — 영속 저장에 사용하지 마십시오.
-     * - **순환 참조 객체 불가** (refTracking=false).
-     * - **스키마 진화 불가** — 필드 추가/제거 시 기존 데이터 역직렬화 실패.
+     * ⚠️ **Wire-format warning**
+     * - Uses `CompatibleMode.SCHEMA_CONSISTENT` and is **not wire-compatible** with the default Fory codec.
+     * - There is no fallback, so reading existing Fory data with FastFory fails deserialization.
+     * - Use only for **ephemeral caches** such as Redis or in-memory caches, never persistent storage.
+     * - Cyclic object graphs are unsupported because `refTracking=false`.
+     * - Schema evolution is unsupported; adding or removing fields prevents old payloads from being decoded.
      */
     fun <V: Any> fastFory(): LettuceBinaryCodec<V> = codec(BinarySerializers.FastFory)
 

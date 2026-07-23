@@ -1,0 +1,47 @@
+{
+  "benchmarkJarSha256": "2b033519f0fcee4fcf7a16163c29420289e6df3a5318b1c37d9a496fc1123ddb",
+  "benchmarkSourceSha256": "ba1218b07f9cf7a513eb105810f1afa2df9f39484ecabbc9c2b1c0b174fd3dfb",
+  "buildCommand": [
+    "./gradlew",
+    ":bluetape4k-redisson:benchmarkBenchmarkJar",
+    "--no-daemon",
+    "--no-configuration-cache"
+  ],
+  "commandSha256": "89e05b7b45b8b8a764d7e1015be9c1f7da8ab9cf5aa3a2117d476d806c248cd8",
+  "commit": "ec63df866ea08be4973e437e4a2a3fad2eba2e47",
+  "dirtyPaths": [],
+  "preflight": {
+    "checks": [
+      {
+        "backend": "fory",
+        "bufferClass": "io.netty.buffer.UnpooledByteBufAllocator$InstrumentedUnpooledUnsafeHeapByteBuf",
+        "finalCapacity": 256,
+        "growthCount": 0,
+        "heap": true,
+        "initialCapacity": 256,
+        "released": true,
+        "wireSha256": "10db4ff684e1cd74b807d7136f5e2cb75464ef1ac4795b28cf1b99a66c222b32",
+        "written": 210
+      },
+      {
+        "backend": "fastFory",
+        "bufferClass": "io.netty.buffer.UnpooledByteBufAllocator$InstrumentedUnpooledUnsafeHeapByteBuf",
+        "finalCapacity": 256,
+        "growthCount": 0,
+        "heap": true,
+        "initialCapacity": 256,
+        "released": true,
+        "wireSha256": "82e8d73248148ea857a35aaeac5b86527b1dc8c8c157aa5ae4b89dbe463951fa",
+        "written": 194
+      }
+    ],
+    "payloadSha256": "5d8a934f362eee59b74c0a63d605130c0dacadea95ef5693e945772b6d43d856",
+    "schemaVersion": 1,
+    "status": "passed"
+  },
+  "recordedAt": "2026-07-23T04:15:39.159912+00:00",
+  "repositoryClean": true,
+  "runId": "probe-b",
+  "schemaVersion": 1,
+  "tree": "bb3617e2296b83c38871f9fa94f50b5c4f11b764"
+}

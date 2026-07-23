@@ -1,0 +1,2907 @@
+{
+  "current": [
+    {
+      "kind": "jar",
+      "path": "bluetape4k/core/build/libs/bluetape4k-core-1.12.0.jar",
+      "sha256": "9a3e28bf7207c4562d991c20239977dc8d9f152311d950fa7852e112493ae00f",
+      "size": 861105
+    },
+    {
+      "kind": "jar",
+      "path": "bluetape4k/coroutines/build/libs/bluetape4k-coroutines-1.12.0.jar",
+      "sha256": "0ea634b97847b8ecfba6086195f317c99b303850da707992bbe130507145ab69",
+      "size": 982156
+    },
+    {
+      "kind": "jar",
+      "path": "bluetape4k/logging/build/libs/bluetape4k-logging-1.12.0.jar",
+      "sha256": "4bb2fb3c0d4b4401ac984c6791ed49d77eb7a5fc23861aab727cd59c043cc034",
+      "size": 87205
+    },
+    {
+      "kind": "jar",
+      "path": "cache/cache-core/build/libs/bluetape4k-cache-core-1.12.0.jar",
+      "sha256": "2fdcebe62c635909de46d2d8766ee4f9c471a14d121adb6935396015768d0e39",
+      "size": 459009
+    },
+    {
+      "kind": "jar",
+      "path": "data/jdbc/build/libs/bluetape4k-jdbc-1.12.0.jar",
+      "sha256": "96983a2964c1f2adecb45254530ea718cfaedcb65eb9053cf6491365821b9871",
+      "size": 108565
+    },
+    {
+      "kind": "missing",
+      "path": "infra/redisson/build/classes/java/main"
+    },
+    {
+      "kind": "missing",
+      "path": "infra/redisson/build/classes/java/test"
+    },
+    {
+      "fileCount": 43,
+      "kind": "directory",
+      "path": "infra/redisson/build/classes/kotlin/main",
+      "sha256": "f65d6e7d1582855e159a442e82e5e1b1f54778596cc11b3224a2d81b1b0f96e6",
+      "size": 280452
+    },
+    {
+      "fileCount": 118,
+      "kind": "directory",
+      "path": "infra/redisson/build/classes/kotlin/test",
+      "sha256": "224de70d50a6eee6af37bb674bb253f7807537510ca2756e21946852d84ef77f",
+      "size": 727994
+    },
+    {
+      "kind": "missing",
+      "path": "infra/redisson/build/resources/main"
+    },
+    {
+      "fileCount": 6,
+      "kind": "directory",
+      "path": "infra/redisson/build/resources/test",
+      "sha256": "c48eeda525fb52429bf47df930743bcfbdab0f4699f170bd36f36ad627035f49",
+      "size": 2467
+    },
+    {
+      "kind": "jar",
+      "path": "io/fastjson2/build/libs/bluetape4k-fastjson2-1.12.0.jar",
+      "sha256": "478d7270f58cf058752bf649110b21b39e97ad2c8006eff409d86fa4721563e3",
+      "size": 27097
+    },
+    {
+      "kind": "jar",
+      "path": "io/io/build/libs/bluetape4k-io-1.12.0.jar",
+      "sha256": "a249412bb20cf672ab7110e408d6de359b895f7fb64f956da16f4bada75fd363",
+      "size": 248420
+    },
+    {
+      "kind": "jar",
+      "path": "io/jackson2/build/libs/bluetape4k-jackson2-1.12.0.jar",
+      "sha256": "dcb71ebf3d0dd230206ad4289d3d0f7098310fa08481d7f6d709ea13333a150a",
+      "size": 160783
+    },
+    {
+      "kind": "jar",
+      "path": "io/jackson3/build/libs/bluetape4k-jackson3-1.12.0.jar",
+      "sha256": "84ad34a531cc9c116b4677a252bac57600a747fd620fce8721286bbeaa7ec071",
+      "size": 169459
+    },
+    {
+      "kind": "jar",
+      "path": "io/json/build/libs/bluetape4k-json-1.12.0.jar",
+      "sha256": "dc80f0c50b9f5dddceaf7d88f4a890ea286252ac229ccc03f420a899a158c73b",
+      "size": 9673
+    },
+    {
+      "kind": "jar",
+      "path": "io/netty/build/libs/bluetape4k-netty-1.12.0.jar",
+      "sha256": "935309d227845dae506dd648acb000dc65b424712ee0ea7c6c1772f451e2d1b2",
+      "size": 36519
+    },
+    {
+      "kind": "jar",
+      "path": "testing/assertions/build/libs/bluetape4k-assertions-1.12.0.jar",
+      "sha256": "1d0d0640e8401f1a559c67412056254f00d1cd6743ac4e028eab4aa82d262db9",
+      "size": 92008
+    },
+    {
+      "kind": "jar",
+      "path": "testing/junit5/build/libs/bluetape4k-junit5-1.12.0.jar",
+      "sha256": "00765bbfbd1eff89badfa8f71a63d2d4f538e71ed30ed630188ccd4dec35f795",
+      "size": 536390
+    },
+    {
+      "kind": "jar",
+      "path": "testing/testcontainers/build/libs/bluetape4k-testcontainers-1.12.0.jar",
+      "sha256": "2ebc7dba9f4e7e6c7b2890e22b4a0dce5359f9689f9bcc3b8ccdc46cd2bc5106",
+      "size": 482375
+    },
+    {
+      "kind": "jar",
+      "path": "utils/idgenerators/build/libs/bluetape4k-idgenerators-1.12.0.jar",
+      "sha256": "e1f0bf6807143c41215fcb9cd693a6bb4af435300f27af7db3c87d7b556d1e94",
+      "size": 162510
+    },
+    {
+      "kind": "jar",
+      "path": "virtualthread/api/build/libs/bluetape4k-virtualthread-api-1.12.0.jar",
+      "sha256": "e81a9d64ddc06aefa521b7d2ab2fe5238422f1b26179153133672592800488a4",
+      "size": 34969
+    },
+    {
+      "kind": "jar",
+      "path": "virtualthread/jdk21/build/libs/bluetape4k-virtualthread-jdk21-1.12.0.jar",
+      "sha256": "bc061ec54c79a007153621464482021e0f89ad24d1d9a2c614496186fe48c088",
+      "size": 22691
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/at.yawk.lz4/lz4-java/1.11.0/b9669fb5e3ccf50a579c9a4f750cab37ce8fce1b/lz4-java-1.11.0.jar",
+      "sha256": "535c5578cab5dcd0a438e202df80091632b873c0370c25d9b1c1ad1d73577207",
+      "size": 896932
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/ch.qos.logback/logback-classic/1.5.37/7c95bc3f7a4d9ad53bf632272818a923c85b9ad3/logback-classic-1.5.37.jar",
+      "sha256": "fd68ff5aa2760857ac5b7ad301e98bc6c18a74d60d7e016da1a608307c9eead7",
+      "size": 287123
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/ch.qos.logback/logback-core/1.5.37/41df60907428d396d02134253eee8bd385a31601/logback-core-1.5.37.jar",
+      "sha256": "c142955d757d923c6c626296bd97be2e0db1cfd33adeadbf2e2927403391e0a1",
+      "size": 641094
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.alibaba.fastjson2/fastjson2-kotlin/2.0.62/2b26bb4c3e27bee701e1ebc79e1d771ae225088c/fastjson2-kotlin-2.0.62.jar",
+      "sha256": "a5968fb4a3f5cfa6a931a25decbadaceb4d9dfefd3f67fe0b230032b3138b8ed",
+      "size": 22991
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.alibaba.fastjson2/fastjson2/2.0.62/9b96073a571470f389a8d2d9b26aded42aeb3239/fastjson2-2.0.62.jar",
+      "sha256": "b0ca13b9925d6c4395c4341e55ef4307b0f06e7110a3b473976638fbb253a4b0",
+      "size": 2214568
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.datastax.cassandra/cassandra-driver-core/3.10.0/7ed4ab9050c496bde71ef9d6bf6c6b82a405a33f/cassandra-driver-core-3.10.0.jar",
+      "sha256": "09c4d54009e942e3afb8755c5fd51abac8ba721e407b61dcb22f435d1a33c1a1",
+      "size": 1189022
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.esotericsoftware/kryo/5.6.2/c20a8ba517e93cb78001fd64da796f1ac5cd8214/kryo-5.6.2.jar",
+      "sha256": "4e8b1d2f4977187af8a51a957329722dc1cdc56a7c94fbb5a791e82897629cff",
+      "size": 373885
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.esotericsoftware/minlog/1.3.1/a406e29d3a44d5f020d7b3218aee6d0952db4f73/minlog-1.3.1.jar",
+      "sha256": "5d4d632cfbebfe0a7644501cc303570b691406181bee65e9916b921c767d7c72",
+      "size": 5923
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.esotericsoftware/reflectasm/1.11.9/fd51ad1705d5e27d8785550172a4ab0cb9b8ad23/reflectasm-1.11.9.jar",
+      "sha256": "712b44da79a5b7f47a28cbfcb3d8ecfc872fae349c48aa4d3e38a5d69956afce",
+      "size": 72265
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.22/15c67f9498d6934cff9510fc70c5a12e52290457/jackson-annotations-2.22.jar",
+      "sha256": "21ddb598807d3a51a876704eb979d9296e1c6a6f47ab1826ff88c6d6a127a2d0",
+      "size": 84211
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.22.1/da7ffb60088d7e8f37ecdd3b617520971cc7b9bf/jackson-core-2.22.1.jar",
+      "sha256": "941ff029bcdb93e83d209ce516c1a7fb8bbac07d0a2fa122f5bf194b2cd7b4f4",
+      "size": 594171
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.22.1/9e2fb91831cce9cb9262909cd76647508949f232/jackson-databind-2.22.1.jar",
+      "sha256": "7dcd7e53bec1f56c7ad278bd1ca0840bebcc595d61ce44d6a8439abb75b965b2",
+      "size": 1706404
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.dataformat/jackson-dataformat-protobuf/2.22.1/f291abc836c6d63d22f80639f92670d2d59855d1/jackson-dataformat-protobuf-2.22.1.jar",
+      "sha256": "939d8bdcfd4bac1c6a3a8439ca980a49e5f2d7cc3712586c554da6cfb4a35228",
+      "size": 235451
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.22.1/ef21a94e7b5603f57ca1efe9215513d210d96320/jackson-datatype-jdk8-2.22.1.jar",
+      "sha256": "2d5ee03fcaa017db0c947a5921ede8b39481d1d637af39079840a87d55e907eb",
+      "size": 36038
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.22.1/3377a0589c1b0e62bbe245ac8e9f56fa7d7b8bb9/jackson-datatype-jsr310-2.22.1.jar",
+      "sha256": "85da45b7e5e565418963ff8f0dcb184365b0557c15468933f4318dde5c3ce845",
+      "size": 136581
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.module/jackson-module-blackbird/2.22.1/b0cf091c9c0bbb90008cc32e45ab15096bdd3de0/jackson-module-blackbird-2.22.1.jar",
+      "sha256": "f39289def4930c5379e734f2c844d764684fe12b738498980be180dbcab97fc7",
+      "size": 64472
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.module/jackson-module-kotlin/2.22.1/4f702127f5870773ae5baf95f84f695a55aa17da/jackson-module-kotlin-2.22.1.jar",
+      "sha256": "37f44b1403a9532742a3695c9c0cd04c161fd6b338fe6e4fc6e6ffa26e0a1f33",
+      "size": 253159
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.module/jackson-module-parameter-names/2.22.1/6776897d180781c6190f0e6832c8e2cdaefe78b9/jackson-module-parameter-names-2.22.1.jar",
+      "sha256": "dc344110fed9779bee54291044d1d209bac31ce9844f5b1a217ce46bd74891f9",
+      "size": 10183
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.uuid/java-uuid-generator/5.2.0/3ca5091c87cd327880f09447e62b86b8b93db256/java-uuid-generator-5.2.0.jar",
+      "sha256": "5724d6a0f27db90d45af884f4520bce581f29eebe21840d07cae22b670bb8ebb",
+      "size": 57348
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.ben-manes.caffeine/caffeine/3.2.4/c63b303adf59c733d2a96125ad6670e938a2c15d/caffeine-3.2.4.jar",
+      "sha256": "9d9d2cfd681fd9272ded3d27c9930db12f89f732345975aa113ebc223bbf1224",
+      "size": 1029147
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.ben-manes.caffeine/jcache/3.2.4/150763e243ff26f62e42d23289ea0a0b86635c34/jcache-3.2.4.jar",
+      "sha256": "4413eb044d9f37f89aa1067295e10041721d5b8ec79ded16480d36573efb415a",
+      "size": 119501
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.curious-odd-man/rgxgen/3.1/59e5610dfd89af7a04894cf2578318a9d3e5c52c/rgxgen-3.1.jar",
+      "sha256": "091e94e0fe6d45695a625278c1fcf5286576d48fd6ad499d2b69d6b971cce6ff",
+      "size": 172945
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.docker-java/docker-java-api/3.7.1/2df91233a782749e85139991cc94d4ef40b59038/docker-java-api-3.7.1.jar",
+      "sha256": "dad153d484b1f4ef009e2fdbad27e07aeb3191122da52b8985507ac504300081",
+      "size": 500124
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.docker-java/docker-java-transport-zerodep/3.7.1/6b1af9996b2004703a41e0fbbf1031cabbbe4e6b/docker-java-transport-zerodep-3.7.1.jar",
+      "sha256": "b89bdb1754160323597f9ea32a7fe7a4a3aa8f5b3b43b88e8d71fff3b267ab21",
+      "size": 2304500
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.docker-java/docker-java-transport/3.7.1/7b8f1b7486e83f2871d9f98a7e12c529dfddc9c2/docker-java-transport-3.7.1.jar",
+      "sha256": "d15eec8034bf0f92c2a48ca9172691804048115c96dc853272f9486fa2695c3c",
+      "size": 38830
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.jnr/jffi/1.2.16/3c1f0edf2df2c6e0419d60d0baa59659211624cb/jffi-1.2.16-native.jar",
+      "sha256": "ef78953e3dbf47fab94469190bc2a6d601566a21d4651f73c822bad1c02b64fe",
+      "size": 664435
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.jnr/jffi/1.2.16/5c1149dfcc9a16f85c8d9b8797f03806667cb9f1/jffi-1.2.16.jar",
+      "sha256": "7a616bb7dc6e10531a28a098078f8184df9b008d5231bdc5f1c131839385335f",
+      "size": 150998
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.jnr/jnr-constants/0.9.9/33f23994e09aeb49880aa01e12e8e9eff058c14c/jnr-constants-0.9.9.jar",
+      "sha256": "6862e69646fb726684d8610bc5a65740feab5f235d8d1dc7596113bd1ad54181",
+      "size": 359323
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.jnr/jnr-ffi/2.1.7/31a7391a212069303935a1df29566b7372d3ef9f/jnr-ffi-2.1.7.jar",
+      "sha256": "2ed1bedf59935cd3cc0964bac5cd91638b2e966a82041fe0a6c85f52279c9b34",
+      "size": 681158
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.jnr/jnr-posix/3.0.44/1f8e4551454e613c04f6d4045ed9d5b98e21980f/jnr-posix-3.0.44.jar",
+      "sha256": "8442c39b21a82eab9f07039ddd5caeb1707247e1bf45c2abf3150869393ce182",
+      "size": 239993
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.jnr/jnr-x86asm/1.0.2/6936bbd6c5b235665d87bd450f5e13b52d4b48/jnr-x86asm-1.0.2.jar",
+      "sha256": "39f3675b910e6e9b93825f8284bec9f4ad3044cd20a6f7c8ff9e2f8695ebf21e",
+      "size": 219943
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.luben/zstd-jni/1.5.7-11/4e88b2ca784e3530070c074dc38052876e74b9ab/zstd-jni-1.5.7-11.jar",
+      "sha256": "e45c18832293934924e4f2f1dd97ee2083a74def46caeeea1346cf817a37cea4",
+      "size": 7569993
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.google.errorprone/error_prone_annotations/2.49.0/8b42a2e3865f6e0576da3fad51dbb96732ff0f14/error_prone_annotations-2.49.0.jar",
+      "sha256": "3b1003e51b8ae56fdbd7c71073e81d1683b97e6c4dff5a9151164d59b769d13c",
+      "size": 20255
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.google.guava/failureaccess/1.0.3/aeaffd00d57023a2c947393ed251f0354f0985fc/failureaccess-1.0.3.jar",
+      "sha256": "cbfc3906b19b8f55dd7cfd6dfe0aa4532e834250d7f080bd8d211a3e246b59cb",
+      "size": 10763
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.google.guava/guava/33.6.0-jre/c376b13067cc99a5774403530953f7b05a91e218/guava-33.6.0-jre.jar",
+      "sha256": "dc573e1fca4fd5454f4a5fd3d7da2df03002876a4175bafc14a95980dd7713b3",
+      "size": 3064793
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.google.guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/b421526c5f297295adef1c886e5246c39d4ac629/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
+      "sha256": "b372a037d4230aa57fbeffdef30fd6123f9c0c2db85d0aced00c91b974f33f99",
+      "size": 2199
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.google.j2objc/j2objc-annotations/3.1/a892ca9507839bbdb900d64310ac98256cab992f/j2objc-annotations-3.1.jar",
+      "sha256": "84d3a150518485f8140ea99b8a985656749629f6433c92b80c75b36aba3b099b",
+      "size": 16762
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.googlecode.libphonenumber/libphonenumber/9.0.23/3ea2b1517acab474ef1af503f483d75fd4a159cb/libphonenumber-9.0.23.jar",
+      "sha256": "981c82de5d01044146be2939cb880a27f4fc32eb7bcdddcdc8484d839f8a44ed",
+      "size": 359550
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.h2database/h2/2.4.240/686180ad33981ad943fdc0ab381e619b2c2fdfe5/h2-2.4.240.jar",
+      "sha256": "29b70e427cc1c40cdc376283adbb0cc62853073797bb5fe5761f81fe73d57ce0",
+      "size": 2685418
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.squareup.okio/okio-jvm/3.17.0/a12d684ec0df9541b3869ae60a4a5257fd3613df/okio-jvm-3.17.0.jar",
+      "sha256": "3b13dcc3e1573047c2d507fc4f7fcb0bb0cbcd9d395da21d20e09406e2cd6a73",
+      "size": 381985
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.squareup/protoparser/4.0.3/e61ee0b108059d97f43143eb2ee7a1be8059a30e/protoparser-4.0.3.jar",
+      "sha256": "3fb82ea4d0b8c9cd4858c8e42d0355028b696ce99c4c8b89568f8a74d63f9855",
+      "size": 79710
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.typesafe/config/1.4.7/597570b76b8db2ee8aece97e114981fec04718f8/config-1.4.7.jar",
+      "sha256": "85ae590d22465136e8776bf692d89b81486556bacd2c48aa0281f0c9c54fc044",
+      "size": 297018
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.zaxxer/HikariCP/7.1.0/13ac26e0d5ef25ae7f1515e59e525c500f013ccc/HikariCP-7.1.0.jar",
+      "sha256": "2be45c641b841e81df87292e181f2c203500c5f0e9a1676f135927387f3cf40b",
+      "size": 172996
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/commons-codec/commons-codec/1.22.0/6b3eb4beb7058c2a638f5f17bcb388649fd339dd/commons-codec-1.22.0.jar",
+      "sha256": "d164fe79f262c32d9b18a0b5b2d317d1c27653d5e98fd2b998c24bf901c72ce4",
+      "size": 420480
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/commons-io/commons-io/2.22.0/5b1e18bc0ad651ed878029d83f88d9c8189fd51e/commons-io-2.22.0.jar",
+      "sha256": "2b9a7b1f726fb86216dbd2c8321eabe0221dbd5b1be81c18e1cb53811b104758",
+      "size": 609182
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/commons-logging/commons-logging/1.4.0/e8f6313365dfa0580e49c58837afc8caa9b4ce05/commons-logging-1.4.0.jar",
+      "sha256": "d175dbd751dd782a63bde28c7a039520e971f25e84b79c19b8435edc3603e0dc",
+      "size": 75828
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.dropwizard.metrics/metrics-core/3.2.2/cd9886f498ee2ab2d994f0c779e5553b2c450416/metrics-core-3.2.2.jar",
+      "sha256": "5c6f685e41664d10c70c65837cba9e58d39ff3896811e3b5707a934b11c85ad0",
+      "size": 129402
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.github.benas/random-beans/3.9.0/31c39ccd008071a47e5328ef791a96b7508e6593/random-beans-3.9.0.jar",
+      "sha256": "ebe25e74bb15c7ca5689d2bbef97f8e7fa5ce0af802aa7cca3596417fcaa7b28",
+      "size": 151365
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.github.classgraph/classgraph/4.6.18/c9e805b7b2d84a087f53814352e46d934ddb524b/classgraph-4.6.18.jar",
+      "sha256": "baa3fbcb3808ce83ccfb2546cfd6d75845b72436385f851ac90c102b8e0ecb8a",
+      "size": 420826
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.github.resilience4j/resilience4j-core/2.4.0/917315545f2ae0221ef3d6c27337b9ba6cba2702/resilience4j-core-2.4.0.jar",
+      "sha256": "a15d25c4709a4c12432cd0a4f620e37a00a82dbe112f5d1a7a68b31325ffc978",
+      "size": 98603
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.github.resilience4j/resilience4j-kotlin/2.4.0/a7b6b62dc41ed1de0f3905c24865bd989e2fc281/resilience4j-kotlin-2.4.0.jar",
+      "sha256": "5eafe4ac84626c22efcf759f7e60637ea6f5788f2b6d95b201e8dcc2d3a814d0",
+      "size": 101619
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.github.resilience4j/resilience4j-retry/2.4.0/7072ed9351dc3a38a7c5a4a1ca21d3355e1f6453/resilience4j-retry-2.4.0.jar",
+      "sha256": "13cd52c89b69b9dbd68188877f16bdbeb3ae524d351a2d947f31ae07684c420a",
+      "size": 51145
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.micrometer/micrometer-commons/1.16.5/f8c25a4e35d5049d41d8446b111b9891ae407881/micrometer-commons-1.16.5.jar",
+      "sha256": "b0cc8c620453ef71e22d6c4ec5c496cc112f964b4e826b9f87182fc97512c8f9",
+      "size": 51752
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.micrometer/micrometer-observation/1.16.5/9dff48a7a9dd84d9083e30a36855bb21a7d6836e/micrometer-observation-1.16.5.jar",
+      "sha256": "4406f33535185ff896375e9a81a4b8694e28bf20c1089b24de0325d87f63dfe7",
+      "size": 83926
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.mockk/mockk-agent-api-jvm/1.14.9/a823c7aebc0396b4201c0d397ac352fad30c76d8/mockk-agent-api-jvm-1.14.9.jar",
+      "sha256": "9459d7eb7694b6e0039e19f7d1a89dfc7ae1fa782ff8d38f2952bda1ffa39242",
+      "size": 49903
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.mockk/mockk-agent-jvm/1.14.9/e1e1acc201dc6ec3bfb9d2d8f10e5960eda3c9f0/mockk-agent-jvm-1.14.9.jar",
+      "sha256": "bb3af4f281c8d5d50141cad9d1a1f8dde9d2bd695b68054777830957708ea0b4",
+      "size": 92818
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.mockk/mockk-core-jvm/1.14.9/79bd4a6018f7cf10b6b5cc539048804f1225cc21/mockk-core-jvm-1.14.9.jar",
+      "sha256": "53a0ab8742aac4d1a6538cc77c6067de7e1a9c1a35358a873faa9c5ed2d58e51",
+      "size": 8448
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.mockk/mockk-dsl-jvm/1.14.9/225fb4b9cec3b5de3419778476ca58700c4872b5/mockk-dsl-jvm-1.14.9.jar",
+      "sha256": "439d2847a5ed8566ac09ba0515aeb7b7d118698fbaf97038536144d9ba325795",
+      "size": 484888
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.mockk/mockk-jvm/1.14.9/4eb489953dee964371c015facfd859117e970e9a/mockk-jvm-1.14.9.jar",
+      "sha256": "b24806ca815d085bddc52fc663d84ab6671fbd782eece7bb2718d5e4992b3d65",
+      "size": 559299
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-all/4.2.16.Final/65ecfa91f2e50f156f89ab999c20473d6bbc1052/netty-all-4.2.16.Final.jar",
+      "sha256": "b27c6ad392d2186c2f29c263dd0fa2d832a3929666d51c2f080286a18acf81e0",
+      "size": 4924
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-buffer/4.2.16.Final/5397ef65dcb60670e0e0dba4854522873af3070/netty-buffer-4.2.16.Final.jar",
+      "sha256": "cc36ae9fbd0b03fe755eb4eb4424ca53b59cfd297d7fd47d49e5b1059beded6c",
+      "size": 378032
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-base/4.2.16.Final/1a01d45a9efc228c6d747525848b065e0656b5f/netty-codec-base-4.2.16.Final.jar",
+      "sha256": "feb410225938d9970de6b624a0c031d079804fa5cc5e1ec6e9298f16db5998a7",
+      "size": 155355
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-classes-quic/4.2.16.Final/29e04d2f81b70c0b9e2646030dddc878786015be/netty-codec-classes-quic-4.2.16.Final.jar",
+      "sha256": "9b2856532681b109ecc1d15ba81341665fea4ba1aab78788e3d74c1aff38ca00",
+      "size": 265344
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-compression/4.2.16.Final/bdbbcfcdbe217b95c14a04df4fc5d31213d5c27c/netty-codec-compression-4.2.16.Final.jar",
+      "sha256": "13c8565414dd2115281303ef4ad1f7cc69bd7771d8d12c7d2fb31307dff26d11",
+      "size": 183349
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-dns/4.2.16.Final/7533d77b74323f20848e5d8051b1dcec0336bb8/netty-codec-dns-4.2.16.Final.jar",
+      "sha256": "f06a6f68d81877ab9da7bf29583a333ad1da5daaa2db26e27d344092499d8f19",
+      "size": 71406
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-haproxy/4.2.16.Final/42afb55a64b8bad73fe2580927724c4068394b39/netty-codec-haproxy-4.2.16.Final.jar",
+      "sha256": "bada016d30eb0adcb0703bc5f34391482ed044675d111f830263d6f3e300675d",
+      "size": 39193
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-http/4.2.16.Final/b5e0715df90047ee5a0138c8f704f43c751009e4/netty-codec-http-4.2.16.Final.jar",
+      "sha256": "0d16f981de8d0d304a2ab1a81f0a674892089fbaa8a583100aebb4a5b00456ec",
+      "size": 678387
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-http2/4.2.16.Final/7af476eb447afe6e933938f09a5097823cf6c46c/netty-codec-http2-4.2.16.Final.jar",
+      "sha256": "fe1ffc7ed6bfb40f91c4e265fe76e3be7f9049deef0e8cf5a992420e4f02b542",
+      "size": 496150
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-http3/4.2.16.Final/506ab30d26e401aeb52922b9baf000d17f355957/netty-codec-http3-4.2.16.Final.jar",
+      "sha256": "94a4b22187d0240bc299366a5135d439affd1fafd3b5162764e86d290d2e85a4",
+      "size": 225991
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-marshalling/4.2.16.Final/8fa72501beb27e474e339a4259f4de8e2f628dad/netty-codec-marshalling-4.2.16.Final.jar",
+      "sha256": "9691818c6e59a97e454f8381c86dfe840302168d985098a278dca07781efc75e",
+      "size": 20377
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-memcache/4.2.16.Final/4be33e7be80222dbbb00f3fbd6f1b2d7f956b14d/netty-codec-memcache-4.2.16.Final.jar",
+      "sha256": "f5fe075b58e60e9346cccdaf92b993981d35750e9b8649f37b9800e7b2cabbf8",
+      "size": 48502
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-mqtt/4.2.16.Final/fca239eea71abeede7a27a851045ba407ddff21f/netty-codec-mqtt-4.2.16.Final.jar",
+      "sha256": "010329fabd6dd0913a64bd2464c8cc8ea3e4fbbce1f9b74744ddf3e2b1a5c63f",
+      "size": 113435
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-native-quic/4.2.16.Final/19a23720a19f3d37038ad98d9d096e10a269e42d/netty-codec-native-quic-4.2.16.Final-linux-aarch_64.jar",
+      "sha256": "b338c76fee30c1b8b655e3e992e88dffa71591fecb35e1fed70089dc3696e0f6",
+      "size": 2602076
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-native-quic/4.2.16.Final/4f08dddd953f49291d9a43bcde0f8d96cf8c2dcf/netty-codec-native-quic-4.2.16.Final-osx-aarch_64.jar",
+      "sha256": "93c4fcc7a63888cbbc621ff2774632234344518503fca967b77d6cb7f241a8ce",
+      "size": 2343939
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-native-quic/4.2.16.Final/6f4fa17b350d63f6e8d7043a0f3e944fc97bc49f/netty-codec-native-quic-4.2.16.Final-windows-x86_64.jar",
+      "sha256": "ebe477b5374382f0d34583907b7441dc59c52492c890f946154deff47883041d",
+      "size": 1546315
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-native-quic/4.2.16.Final/d2508e60272931ae0fa56e4b4db9430f880f34b7/netty-codec-native-quic-4.2.16.Final-linux-x86_64.jar",
+      "sha256": "3c29587f8b2953032bd37fc20e3eda5bb7270e5e1e09b496f2c024f8ac8b5dc1",
+      "size": 2748609
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-native-quic/4.2.16.Final/db28f6e4771837c0d7b14c691a03d73e1ee42f42/netty-codec-native-quic-4.2.16.Final-osx-x86_64.jar",
+      "sha256": "15cecee5ab661a650fa5c3513fd0c6d84f27d5dcc0eddcdc1b9619649b08fe12",
+      "size": 2494977
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-protobuf/4.2.16.Final/bbd61e19ebbad9a3da1856da418316b2a3fbdbde/netty-codec-protobuf-4.2.16.Final.jar",
+      "sha256": "bb66f23ccb543dd842ddda91b6c8e97e222220d2efa5459f6a46a22ade3b2170",
+      "size": 15108
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-redis/4.2.16.Final/4d27efa32f8631baa97f1ed3e63c9febd400c3f5/netty-codec-redis-4.2.16.Final.jar",
+      "sha256": "c0a444400f77cdd84e2ae2c038989251e0cc5c18eb424c66ef6b2ee04594a7ed",
+      "size": 48727
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-smtp/4.2.16.Final/d25fa1d1f6d6735ded9d1160e66643307b8b274e/netty-codec-smtp-4.2.16.Final.jar",
+      "sha256": "4ab037af210ba24ac08dee8ef94bec506c1be1992fdf0862a464bcb5f32537cf",
+      "size": 23729
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-socks/4.2.16.Final/d227dd8807b28382ade355eaae4678d4a7cd13c/netty-codec-socks-4.2.16.Final.jar",
+      "sha256": "e5230b4c467755bb570c846c8e3c0ffadcb1b568c1cd9a3a4ee946734baae54d",
+      "size": 132178
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-stomp/4.2.16.Final/e3678d58509546d54c1cb2fcac566115727ddc0/netty-codec-stomp-4.2.16.Final.jar",
+      "sha256": "b150e456535d05311657e14b6ac21c86c2cc6d3412788af51b56e37a7705fd17",
+      "size": 37284
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-xml/4.2.16.Final/2975be7e9fc48ec00dba7b01638dd0f8f34ba9be/netty-codec-xml-4.2.16.Final.jar",
+      "sha256": "7c565870856fcdcaf44db041b58adcdfe4ae795d5a193d1b303d913e28821766",
+      "size": 23526
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec/4.2.16.Final/5ff5de5c29d6aa51bd4a52dac6abef7a6c2a8aae/netty-codec-4.2.16.Final.jar",
+      "sha256": "41868bcc428954e707e39a30686ceddc0bd238391d3989d04dfb72d5f0735926",
+      "size": 3953
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-common/4.2.16.Final/c2bc7fa5acfa2afc777e944d84f0aa65559cc81e/netty-common-4.2.16.Final.jar",
+      "sha256": "9825ee68a0dc4cd2b53e2f532502401b2211bad9b77e8b04882d9e64487283ff",
+      "size": 819965
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-handler-proxy/4.2.16.Final/df9f359db740a1dd2d3a02608cb8b43daf63c9d2/netty-handler-proxy-4.2.16.Final.jar",
+      "sha256": "c53706ebaffd2fcef17b5f675b81eab4be13a714886cb4b2a7d0b73275cd39fe",
+      "size": 26791
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-handler-ssl-ocsp/4.2.16.Final/eac493d90d4213f271585c607f2f4aa2045d2c22/netty-handler-ssl-ocsp-4.2.16.Final.jar",
+      "sha256": "d914fcf20ef940a9788680460bd95bd1b4086cd9fb68393b3824064946d8c22c",
+      "size": 29486
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-handler/4.2.16.Final/cc82873ae4b6d14effe480740ad838de09add70d/netty-handler-4.2.16.Final.jar",
+      "sha256": "a259ca496da05ac1981f95cd856211f894a328056a6129e9cd70dbbd5df401f7",
+      "size": 587814
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-resolver-dns-classes-macos/4.2.16.Final/d0acd35178a860b0e1832fdd748137968e44feb6/netty-resolver-dns-classes-macos-4.2.16.Final.jar",
+      "sha256": "b56f3fb411435ce44c195355cf4e6b64efa4195697327b721809efcf62874371",
+      "size": 9842
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-resolver-dns-native-macos/4.2.16.Final/22daeb917287455801fa4a123110bd513514246e/netty-resolver-dns-native-macos-4.2.16.Final-osx-aarch_64.jar",
+      "sha256": "49aad04e202267fe7ac0a291c2f2fa38bdebf7f1e13955d2afcc4648aa4bd406",
+      "size": 20781
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-resolver-dns-native-macos/4.2.16.Final/398f969a870b666bb6fbc92ed1ce974608dc61c/netty-resolver-dns-native-macos-4.2.16.Final-osx-x86_64.jar",
+      "sha256": "4b2e3959723db674f18bee8b602c7634e47c0bd9f42041d1069c428df464582c",
+      "size": 20433
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-resolver-dns/4.2.16.Final/efbe0a1f5bf910c3d9a4ebef53fd3c982543dde6/netty-resolver-dns-4.2.16.Final.jar",
+      "sha256": "4e8adad4d30e4344accf74922fc10d9cdbc162d72b2136bdf371bb3864e0b03d",
+      "size": 174347
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-resolver/4.2.16.Final/fcea6d64273b59ab9127b68c16ae98af34642139/netty-resolver-4.2.16.Final.jar",
+      "sha256": "c9eca6a99036485cf1d186b4a6a595b0a54c53808319ee03924270eae04c32bb",
+      "size": 32975
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-classes-epoll/4.2.16.Final/cf90c7b892e284ba9f1545dce170168369b3b9d6/netty-transport-classes-epoll-4.2.16.Final.jar",
+      "sha256": "9f2b53210db9c8d24e787ed43f3896aaf30d686ed270c7afbb29ab6330c6aa23",
+      "size": 159935
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-classes-io_uring/4.2.16.Final/d4788328f8a2145e26d6e80f2f3ddc2f73bc24a4/netty-transport-classes-io_uring-4.2.16.Final.jar",
+      "sha256": "2f0b189834aa2c945b2ef965fed301c9883b45a8c54408e2565724f46510a59e",
+      "size": 195522
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-classes-kqueue/4.2.16.Final/fa2bcf8c71626510f6fae173f78182117b70f7a/netty-transport-classes-kqueue-4.2.16.Final.jar",
+      "sha256": "6599b495f69420cb240ab0a1aa60a19a2df3bc72791729170e0993727637a689",
+      "size": 116819
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-epoll/4.2.16.Final/3fbb6d9aa97f86b5c2868b7e7149ada325f57daa/netty-transport-native-epoll-4.2.16.Final-linux-riscv64.jar",
+      "sha256": "453eaeae88b7acf3edb17e0b01897dbc587825b3e8240c68b32f861915d6c0e9",
+      "size": 38194
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-epoll/4.2.16.Final/439c24f5c27c220deb042b42e4048d606edeb78d/netty-transport-native-epoll-4.2.16.Final-linux-x86_64.jar",
+      "sha256": "2e00548e731948881d0c73ee79d2ead759254e750929406a1d595484758f0267",
+      "size": 42393
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-epoll/4.2.16.Final/eed34f3b37b4c46a0cbb49456ccc4e3bd7195e4c/netty-transport-native-epoll-4.2.16.Final-linux-aarch_64.jar",
+      "sha256": "212cc7d81390e31b580a1fb91b6c8d963b43e762ed072c555e2b09ad4476e928",
+      "size": 43899
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-io_uring/4.2.16.Final/77402a81d80186301463e0be5f2425f1b43cf4c/netty-transport-native-io_uring-4.2.16.Final-linux-aarch_64.jar",
+      "sha256": "4eca317be67a3799e2e12e17a8bb4144128384217da7b72ed1b75fd8687914e9",
+      "size": 43044
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-io_uring/4.2.16.Final/b3fbc3b04eed8e89f284484e45989f718f58a085/netty-transport-native-io_uring-4.2.16.Final-linux-riscv64.jar",
+      "sha256": "8a3066ea77d2c55d828cc7149903aa711604c72e4f9f0f5cb5df84f8ef1fe631",
+      "size": 37167
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-io_uring/4.2.16.Final/cd2900ef8eedf232ac9dbc1b6140267d720d4272/netty-transport-native-io_uring-4.2.16.Final-linux-x86_64.jar",
+      "sha256": "9b6c6a6c50f4940401919b6d074e35da5a8c7239f24bd6fc530b6cac9c87ac49",
+      "size": 42589
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-kqueue/4.2.16.Final/dd9d41b06355a6a1815d902ee087a693aab83755/netty-transport-native-kqueue-4.2.16.Final-osx-x86_64.jar",
+      "sha256": "05a09a4ab51f488f0c22f42ccce6c06935afbfac51173fae44170465aa072828",
+      "size": 26737
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-kqueue/4.2.16.Final/ddb942cad6c0e978caa2215757512b36c5ffacec/netty-transport-native-kqueue-4.2.16.Final-osx-aarch_64.jar",
+      "sha256": "796c503f7a80217177bd315f6448263134ee0f9042627d5fd698c760bcf99c8c",
+      "size": 27482
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-unix-common/4.2.16.Final/3cf32390f1b80af890ac44aa0698c2ff58c2a4d7/netty-transport-native-unix-common-4.2.16.Final.jar",
+      "sha256": "41ca8fe192083d17917be7ddcecded4da4fc1db1d1656d03d0bcb14e2f431155",
+      "size": 46877
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-rxtx/4.2.16.Final/9c2a92b1a066a73f958f4584972a142bd4e54dbc/netty-transport-rxtx-4.2.16.Final.jar",
+      "sha256": "01942a72d716db20ef24bec17eb313d9736b61ded7d1c4647cd1096df6bdae60",
+      "size": 18607
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-sctp/4.2.16.Final/72bb9808fddd75854c23d7b165bec6b6e2fa3010/netty-transport-sctp-4.2.16.Final.jar",
+      "sha256": "908271a2e1e4940a2ae9615e80bfb967394692f5dda005a332c545ed5b7dde2c",
+      "size": 53103
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-udt/4.2.16.Final/dfa9958dd9fdbfee45622475b017835122457e37/netty-transport-udt-4.2.16.Final.jar",
+      "sha256": "0f072ebf51b5642adbc2129cf5d06f96d6a94b0912d7cae2cbb8287df73deaef",
+      "size": 33074
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport/4.2.16.Final/ae87a3bec51d503475a19fbd718bf777f2fc06c6/netty-transport-4.2.16.Final.jar",
+      "sha256": "cfa3f654caff906653385f4b7ddaa539d795b78f5711a622482b17d2b73484c0",
+      "size": 549855
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.projectreactor/reactor-core/3.8.6/76285d63d5da4ed8679357628dd5309b0feb77ff/reactor-core-3.8.6.jar",
+      "sha256": "ffc646b225465efce55d3ea350f1bcd1d27d4a56e912323e316dd8e6d04bff11",
+      "size": 1938752
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.reactivex.rxjava3/rxjava/3.1.12/5f67300384802bde3f6d62701ffec804b770700b/rxjava-3.1.12.jar",
+      "sha256": "1808a433ef55dcc2965523e512ab914a5d0d727228a2683ed7559d7cccf44e37",
+      "size": 2665456
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/jakarta.activation/jakarta.activation-api/2.1.4/9e5c2a0d75dde71a0bedc4dbdbe47b78a5dc50f8/jakarta.activation-api-2.1.4.jar",
+      "sha256": "c9db52100ce6c8aac95cc39075f95720d2e561b11f8051b81c121ad4effd7004",
+      "size": 67380
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/jakarta.annotation/jakarta.annotation-api/3.0.0/54f928fadec906a99d558536756d171917b9d936/jakarta.annotation-api-3.0.0.jar",
+      "sha256": "b01f55552284cfb149411e64eabca75e942d26d2e1786b32914250e4330afaa2",
+      "size": 26378
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/jakarta.inject/jakarta.inject-api/2.0.1/4c28afe1991a941d7702fe1362c365f0a8641d1e/jakarta.inject-api-2.0.1.jar",
+      "sha256": "f7dc98062fccf14126abb751b64fab12c312566e8cbdc8483598bffcea93af7c",
+      "size": 10681
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/jakarta.json/jakarta.json-api/2.1.3/4febd83e1d9d1561d078af460ecd19532383735c/jakarta.json-api-2.1.3.jar",
+      "sha256": "bc934142805ea1d794f1440563965a3861a2a9fb7414ecd3fe44f26500734414",
+      "size": 48629
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/jakarta.xml.bind/jakarta.xml.bind-api/4.0.5/161811f36cad3c65991502e80317f2f6703361df/jakarta.xml.bind-api-4.0.5.jar",
+      "sha256": "5e489b6c874c4119e003ff1403db523ee3a8959ec499f3de29e77245efccf216",
+      "size": 131219
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/javax.cache/cache-api/1.1.1/c56fb980eb5208bfee29a9a5b9d951aba076bd91/cache-api-1.1.1.jar",
+      "sha256": "9f34e007edfa82a7b2a2e1b969477dcf5099ce7f4f926fb54ce7e27c4a0cd54b",
+      "size": 51281
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar",
+      "sha256": "8e495b634469d64fb8acfa3495a065cbacc8a0fff55ce1e31007be4c16dc57d3",
+      "size": 384581
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.18.4/7ef8cd821c4a69426fa7c99a6070b8b1b02e3abf/byte-buddy-agent-1.18.4.jar",
+      "sha256": "f22dd13a5a501fa84948d9332e9624794dbb3532f843a30d2faaeba5e5078953",
+      "size": 366533
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy/1.18.11/8fcc3779ff85fae5164cd1b977798ca1af388e06/byte-buddy-1.18.11.jar",
+      "sha256": "e32f454c2c1f4aca982f9ec764ed892d9a6eee7e8a77f435cbdd180f6ffdb821",
+      "size": 4656510
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/net.datafaker/datafaker/2.5.4/afc8b76b45ae67ae7d7007fb5eb141934b5dd72b/datafaker-2.5.4.jar",
+      "sha256": "abb3c8fb70e057d4d8c29c4847ded2c9cdb165e8ca9c4e5ec5cb0c93e5b24f64",
+      "size": 3046899
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/net.java.dev.jna/jna-platform/5.18.1/dd817f391efc492041c9ae91127527c13750a789/jna-platform-5.18.1.jar",
+      "sha256": "ad14c1b1ec4f43d396231219dfa635ebf828f738eac9f890ea1bc07795892d9a",
+      "size": 1380744
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/net.java.dev.jna/jna/5.18.1/b27ba04287cc4abe769642fe8318d39fc89bf937/jna-5.18.1.jar",
+      "sha256": "260c4b1e22b1db9e110ee441c4f13ce115f841fa48c41d78750986214b395557",
+      "size": 2002994
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.commons/commons-compress/1.28.0/e482f2c7a88dac3c497e96aa420b6a769f59c8d7/commons-compress-1.28.0.jar",
+      "sha256": "e1522945218456f3649a39bc4afd70ce4bd466221519dba7d378f2141a4642ca",
+      "size": 1117221
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.commons/commons-lang3/3.20.0/65897b3e5731220962e659e001904af3c3cbeba9/commons-lang3-3.20.0.jar",
+      "sha256": "69e5c9fa35da7a51a5fd2099dfe56a2d8d32cf233e2f6d770e796146440263f4",
+      "size": 713862
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.fory/fory-core/1.3.0/b4756fde9a3d49f85fc21e29c24ff49017fd6df0/fory-core-1.3.0.jar",
+      "sha256": "6450221caabc524a819aeed172ace0aab51c91f102ecf10609d25ad5e492548a",
+      "size": 2673564
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.fory/fory-kotlin/1.3.0/5856b81cf50758b3828fd4816ea3c52a566d532a/fory-kotlin-1.3.0.jar",
+      "sha256": "ab11eb7b5ec341e1900f43cdf97c96d0e25b1e6143084803648c316d6aa4ad94",
+      "size": 83157
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.httpcomponents.client5/httpclient5-fluent/5.6.2/d16dce1834fa60f7c747a9876f15d4d9c6b02543/httpclient5-fluent-5.6.2.jar",
+      "sha256": "0607d10406a1f2b1e56f926c62275ec3548f8c9abdf27ffae9fd167fd26d193c",
+      "size": 25878
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.httpcomponents.client5/httpclient5/5.6.2/10ab45a37a2f4174492045840cdb5eb12c4336e7/httpclient5-5.6.2.jar",
+      "sha256": "f3bf571b04dffe005ff29b965b9e3a88846aac6e63f24eae38a86d1979ea49a3",
+      "size": 1056212
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.httpcomponents.core5/httpcore5-h2/5.4.3/33bcd37d645539d27c65e17420843fd7f6c0ebf4/httpcore5-h2-5.4.3.jar",
+      "sha256": "c7db7026b8e2dea39132b04a6069f6671e2858309b20a146ec5c7dd6ed73a0b6",
+      "size": 263675
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.httpcomponents.core5/httpcore5/5.4.3/32a0699fbcb103f5621c00983ee8f5aac080e4a6/httpcore5-5.4.3.jar",
+      "sha256": "18bfbbabb478dfb67f31aeaf428c387f3c3df654582e1309f708ee1f3086830a",
+      "size": 955121
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-api/2.26.1/b9864ed8d0c01f65f3b0bf70f1447e5cc1b49c24/log4j-api-2.26.1.jar",
+      "sha256": "f1810a4704ccce019d02bba029dc02a4f2ac0c997f647b465e7d409c1927f822",
+      "size": 351428
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-to-slf4j/2.26.1/a5100727b898c513fda177a4f388299a5fe5955f/log4j-to-slf4j-2.26.1.jar",
+      "sha256": "6b10bc838a3c773b3fd02979c7ef4e7a443371fa89bda4415d89099bbee224df",
+      "size": 24196
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.awaitility/awaitility-kotlin/4.3.0/c58eb0d0f6136f793c453bdcb97801f34e5a8c1c/awaitility-kotlin-4.3.0.jar",
+      "sha256": "b5d3155ccabf33d68dc47d301bd4ed2321dbce669d93e42aad62690d387ed15a",
+      "size": 9956
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.awaitility/awaitility/4.3.0/f0c0bc1e404e500bab3f498b922eaedeae1c0207/awaitility-4.3.0.jar",
+      "sha256": "ee58568ea5945dcf988551501655183dc184e23e45a8e013fdfd9036194e6f7b",
+      "size": 97552
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.codehaus.janino/commons-compiler/3.1.12/501779107b06a981ff359eab7369ff7a2bf077e/commons-compiler-3.1.12.jar",
+      "sha256": "17ea25d860225f4b59d0a512b4995f2e4711bdae5e15736cbcd5f6ce4dda8f7c",
+      "size": 171943
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.codehaus.janino/janino/3.1.12/ffcd3dfa84057ef76092b6b66c53871a97ae40b8/janino-3.1.12.jar",
+      "sha256": "5699878c31e71c9a94cf472f95a2dad52ca7b0449c099276b8bd7e992a43595b",
+      "size": 956369
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/3.0/254f69f4b0ca22198acfc19fcdd5f96140431c3e/hamcrest-core-3.0.jar",
+      "sha256": "b78a3a81692f421cc01fc17ded9a45e9fb6f3949c712f8ec4d01da6b8c06bc6e",
+      "size": 2403
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.hamcrest/hamcrest/3.0/8fd9b78a8e6a6510a078a9e30e9e86a6035cfaf7/hamcrest-3.0.jar",
+      "sha256": "5d66b6a4a680755cb6ed7cb104fa7835ef644667586ff0737adeb977c39ecdbc",
+      "size": 126373
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jctools/jctools-core/4.0.6/2467452e7631e485b062d5d507ff73cdb04e3f11/jctools-core-4.0.6.jar",
+      "sha256": "374fb4660436a70ba131e15ca7bab8423424c737898a894fb276841c94bdd962",
+      "size": 499875
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-reflect/2.4.0/532cc727c0960d12f4c9acb6a6c2c4a3e08187b/kotlin-reflect-2.4.0.jar",
+      "sha256": "f0d8e8908624eb4478bb131e9f887366680d2e239741195e548fa5c906963b90",
+      "size": 3750099
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/2.4.0/65464dd63e7ab1b7cb29f2b2554971088deb50f3/kotlin-stdlib-jdk7-2.4.0.jar",
+      "sha256": "5072265564b6b0296f9c7b21fee65edee760c5697436f5ae7427033fa58fc034",
+      "size": 946
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/2.4.0/ff44d8831b07b547fc0263e33304e876788d6f0d/kotlin-stdlib-jdk8-2.4.0.jar",
+      "sha256": "d96b4e297136b8a4b2b88c1adcdc64d92e90d52a417e4315cdcf964adede8aa2",
+      "size": 952
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.4.0/4e9f4b531dce5c7dee58ed2de9a8b9a763c8dc6c/kotlin-stdlib-2.4.0.jar",
+      "sha256": "ccb14ff83fabcb11458b798dbc9824748ccdffeec79c9aba789e6ed1cda86b1c",
+      "size": 1841929
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-test-junit5/2.4.0/3a25dcc853e90ef0ee264b0f532791966bea9cb6/kotlin-test-junit5-2.4.0.jar",
+      "sha256": "305492a09546af4121b922f19a62b48bab650c31dc1e6ff187decc6859335675",
+      "size": 5191
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-test/2.4.0/c9a0c254adade886172cb021c0b099d8be1a5fc4/kotlin-test-2.4.0.jar",
+      "sha256": "38099e38d81f394d7ae3eb73ad0a2b6379629a293ba8cfe5485ee7f836124943",
+      "size": 101516
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlinx/atomicfu-jvm/0.32.1/766417c1430c117100e14af193c4fdbe6034b5e6/atomicfu-jvm-0.32.1.jar",
+      "sha256": "ed751540ac22c78abf14d1aeb5ab1866f4f2809e6ee635f5dcf0fecbcd226c62",
+      "size": 60609
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.11.0/3d57dc678bd8d72a60e7adf0eca5c54e3f4f4b79/kotlinx-coroutines-core-jvm-1.11.0.jar",
+      "sha256": "d1d75aa01dffbb4d1c520e67e4c4e7f5f6174718e7cb4632412503f2f0e604fa",
+      "size": 1577052
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-reactive/1.11.0/18a20c47a2c43aea5ad949ed93dcb52705ed454b/kotlinx-coroutines-reactive-1.11.0.jar",
+      "sha256": "fe9a650030c413d96f049e88ef92d86a17bbc3a129b9208cfbeaa0e90e60dca7",
+      "size": 67255
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-reactor/1.11.0/f7f9a8ec00884c92dc0154ac448b5074449c9851/kotlinx-coroutines-reactor-1.11.0.jar",
+      "sha256": "d630597ddab7971ecd9770472bb23cb4903175231a65cbd0d504d32d85ae6c47",
+      "size": 35644
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-slf4j/1.11.0/556153d93573d016dd4e5df37e3d03d07d8d303/kotlinx-coroutines-slf4j-1.11.0.jar",
+      "sha256": "1043471e7d5f99680df3a056cf766276e0fe339e48030dea503fc1c94c33743e",
+      "size": 4446
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-test-jvm/1.11.0/1dfe8ce2b805d913922f283b386895bd0979dfcb/kotlinx-coroutines-test-jvm-1.11.0.jar",
+      "sha256": "d4f7ee71da708af4719dceb6d3200c8f9dc5146ea1a812cb628ed53c64196f96",
+      "size": 105295
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains/annotations/26.1.0/c1e9226d7ca6661020c58c94397da0cc3673d5e4/annotations-26.1.0.jar",
+      "sha256": "ebc7aec252ed0c7d2d04c039d7f00e69f7b86b1f493c741d67b3ef31b986b054",
+      "size": 31094
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jodd/jodd-util/6.3.0/1568f4d0f60dee75c8881fb0ebe44f0ab9fa3b38/jodd-util-6.3.0.jar",
+      "sha256": "e5c676715897124101f74900dd1f98ebbcad9da3ab2dffbac6e7712612094427",
+      "size": 337658
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jspecify/jspecify/1.0.0/7425a601c1c7ec76645a78d22b8c6a627edee507/jspecify-1.0.0.jar",
+      "sha256": "1fad6e6be7557781e4d33729d49ae1cdc8fdda6fe477bb0cc68ce351eafdfbab",
+      "size": 3819
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-api/6.0.3/2e6cfb62db85350179f0408ed5270f7cdf8cefda/junit-jupiter-api-6.0.3.jar",
+      "sha256": "d655d7e6f0c7ae07f10a2f3bbaaebb6d30e9b26204a068ad9e9b3950aa28792c",
+      "size": 250715
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-engine/6.0.3/e26f7e17d06cfc85ba7643b5ad00c87d5f2084dd/junit-jupiter-engine-6.0.3.jar",
+      "sha256": "1e2fab61ad27ea08fc7c70dd9677cf8c6d1ae5434d42dcfdd633b12c7e7c04d0",
+      "size": 356052
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-migrationsupport/6.0.3/ef32e813500144481af6f57156be2292cfe4b15d/junit-jupiter-migrationsupport-6.0.3.jar",
+      "sha256": "9c650cb316d6037aed783daaec9616f47d3567c4eaee972c7211128330df69b9",
+      "size": 30817
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-params/6.0.3/6cd3efadd171a3ddd70413868a9c3af988a45907/junit-jupiter-params-6.0.3.jar",
+      "sha256": "cf2947e2302b9f8c8a059259a277881c1cadae8fbc2514c16a925cfeb7beb2e5",
+      "size": 296557
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter/6.0.3/da72f4bc0feccbca639b901ace26e3a62512ebec/junit-jupiter-6.0.3.jar",
+      "sha256": "784b65815f479a0c99a9d3a573b142e2a525efb6025d97f751b19e72f90aeda3",
+      "size": 6378
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/6.0.3/1093a7faa2ba47c28aa83f378d9a2083463bb20c/junit-platform-commons-6.0.3.jar",
+      "sha256": "39f262d09c3d52719fe0b77f080e90a3695e285d779a41b232e17963ae5da200",
+      "size": 171256
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.platform/junit-platform-engine/6.0.3/101305612e7daa4ce978d3ba73fd02dd4a5f22d9/junit-platform-engine-6.0.3.jar",
+      "sha256": "491e9e4f745f161b8a8e4186a1a7c6a450ea12c70930c9aedae427215301d947",
+      "size": 280233
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.platform/junit-platform-launcher/6.0.3/4a721cdd640ebdaa4c6850f5eee0b0377cf698b0/junit-platform-launcher-6.0.3.jar",
+      "sha256": "315608372e4dc44bca0ccb3ae8a07ecc206b3367033fa05748a03ccd563f1301",
+      "size": 246132
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.objenesis/objenesis/3.5/848ebc672f1e42d62c9357bd0882374c4e21895f/objenesis-3.5.jar",
+      "sha256": "6f5abd42cf3ebc0f2bdae73dbc57820fc4a1cb8930492841e29e9a9f9dcc86e0",
+      "size": 49459
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.3.0/152ea56b3a72f655d4fd677fc0ef2596c3dd5e6e/opentest4j-1.3.0.jar",
+      "sha256": "48e2df636cab6563ced64dcdff8abb2355627cb236ef0bf37598682ddf742f1b",
+      "size": 14304
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.osgi/org.osgi.namespace.extender/1.0.1/18c5eac4fe14b1d1914e62ea0e95abe80af31a9c/org.osgi.namespace.extender-1.0.1.jar",
+      "sha256": "93d798bde7fa760961408c8a10a965ca7ba1dbf98a3a706c86d8290f528ad519",
+      "size": 11648
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.osgi/org.osgi.service.component.annotations/1.5.1/3a26aabd81c76d47e19a377daf5f54d3f3541412/org.osgi.service.component.annotations-1.5.1.jar",
+      "sha256": "42c080de090896f45d2a4e980a261d5b6addeee07ec4b201f01de95ab562b448",
+      "size": 43348
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.osgi/org.osgi.util.function/1.0.0/1f38195e5eab663c162989a4a2186e8d62c2cc1d/org.osgi.util.function-1.0.0.jar",
+      "sha256": "4ff9329012c01a0c69c05721a6bd0b910d40a0d32108284e59c1a6215cee7a43",
+      "size": 12548
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.osgi/org.osgi.util.promise/1.0.0/ebbbe7a061d665afa565b6369ef62d8c9df16f1a/org.osgi.util.promise-1.0.0.jar",
+      "sha256": "7d619c925716f21ae17654529543d00ea56810784040f6ed8c6d6f901526ee67",
+      "size": 42975
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.osgi/osgi.annotation/8.1.0/59d42736bcc0af2144ba5c1a12ff7c08ea4b7e12/osgi.annotation-8.1.0.jar",
+      "sha256": "68afeb86a5322675d4dfe3df5863c7d8a37b34c18e3a8e41553f1ab3ac15d78f",
+      "size": 35779
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.ow2.asm/asm-analysis/9.10.1/8d49f14d51f632cb1d87c88d1ceaf50db0d8af1b/asm-analysis-9.10.1.jar",
+      "sha256": "dede75a21306b65974ecd8f87114ff6970f09fb794157a4ca09ab25c888c2bfc",
+      "size": 35140
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.ow2.asm/asm-commons/9.10.1/4229e4c55fd8e01c23f9fe9884075cc628aacc50/asm-commons-9.10.1.jar",
+      "sha256": "6d0abefb7cbf972ea16edb37ec14835372505063a45f976ab7ea889ed9497895",
+      "size": 74840
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.ow2.asm/asm-tree/9.10.1/e244332a17564c1d1572449399a842de35881be2/asm-tree-9.10.1.jar",
+      "sha256": "3dfb0d5b6a106cd40b5b250e39935fbf2f927f4477546a5369a3ac609cf0506b",
+      "size": 51958
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.ow2.asm/asm-util/9.10.1/7bb9d450e8d4cbf9f9e04096c44bbfe7fba80b15/asm-util-9.10.1.jar",
+      "sha256": "1bb99d091fba2597dc6d51193e9bbcf0d8447e7ed96bd8f0198b18152f09655c",
+      "size": 95628
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.ow2.asm/asm/9.10.1/ada2141c0cc52ee8f5c48cd5fa4ce0e794f22236/asm-9.10.1.jar",
+      "sha256": "ed825d10ab1399c8c0cb669e688cf0c8c82629b4c8399b58352b68e92ca10fcb",
+      "size": 126151
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.reactivestreams/reactive-streams/1.0.4/3864a1320d97d7b045f729a326e1e077661f31b7/reactive-streams-1.0.4.jar",
+      "sha256": "f75ca597789b3dac58f61857b9ac2e1034a68fa672db35055a8fb4509e325f28",
+      "size": 11640
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.redisson/redisson-spring-boot-starter/4.6.1/aef297ba097bd660350bbc045d8d2c32285696fd/redisson-spring-boot-starter-4.6.1.jar",
+      "sha256": "9aa05dcfd1a7f9b7799ef881cd504c86e9ff5b975cdc1e45dd8be61facddf401",
+      "size": 19327
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.redisson/redisson-spring-data-41/4.6.1/5eefe558e693cf77f5e7882df788386246c2eb43/redisson-spring-data-41-4.6.1.jar",
+      "sha256": "37f5fecd25c141f99d07cf04a98e6fba027c9016f730cc36275807742255c419",
+      "size": 268420
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.redisson/redisson/4.6.1/8fe8f7df15a0aa1d90e86649d5b6a824f493323/redisson-4.6.1.jar",
+      "sha256": "d5224140b4eb38e8aff12379f91d914ab07edcea37dfb0f6907007811a7e166a",
+      "size": 2918128
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.rnorth.duct-tape/duct-tape/1.0.8/92edc22a9ab2f3e17c9bf700aaee377d50e8b530/duct-tape-1.0.8.jar",
+      "sha256": "31cef12ddec979d1f86d7cf708c41a17da523d05c685fd6642e9d0b2addb7240",
+      "size": 25402
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.slf4j/jcl-over-slf4j/2.0.18/fb36c10c70e27bb427bb3cec86ac30bb83f667c7/jcl-over-slf4j-2.0.18.jar",
+      "sha256": "ec5c36d57d2dbe100f84878f944575cb7871da32c7a115b8d7e0721277045d67",
+      "size": 18422
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.slf4j/jul-to-slf4j/2.0.18/79739c98001d5c9d078d087d5a348ec9e474ec8f/jul-to-slf4j-2.0.18.jar",
+      "sha256": "cbb7d1aaaa9e871eb1a06594abd911bf97027152976edf1edc315be75239204e",
+      "size": 6347
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.slf4j/log4j-over-slf4j/2.0.18/9346cfcbbe1cd58c8f80ca04de4c709fba22052c/log4j-over-slf4j-2.0.18.jar",
+      "sha256": "d030643b4b3371ac79ce9a5bf2e4f82b65ee5621e2c0c6bbfb254d74c9a90df6",
+      "size": 26532
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.slf4j/slf4j-api/2.0.18/78a9e7a37cd6360e0b818e86341b24123d28d4df/slf4j-api-2.0.18.jar",
+      "sha256": "44508fd1576500688c790b190acdd16fec4f8c79a3e0b900afd70503cf055f55",
+      "size": 69982
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-autoconfigure/4.1.0/a921df4e39389e43dacac5615a1185708ee8a960/spring-boot-autoconfigure-4.1.0.jar",
+      "sha256": "0fcaa3050ba835ca6b3879f81cd48dc590a6262f53bbf10d2a95c70bf7c048ac",
+      "size": 372738
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-data-commons/4.1.0/3d587cffcde8c18fa784e0486a2c0a8a4728f262/spring-boot-data-commons-4.1.0.jar",
+      "sha256": "44613292a91c231d81d39d05b10550b9988e7dcaf3b931b700e86fb0ac029937",
+      "size": 30270
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-data-redis/4.1.0/ae52af2d818ca43d61c486e5cff5d0e81d545c4c/spring-boot-data-redis-4.1.0.jar",
+      "sha256": "a3cee050807b8e0b437678ab40319930dfcffc7eb1da9bb57bf8e10900967e24",
+      "size": 89919
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-jdbc/4.1.0/71f00c6af0ae910530d9fce8f5ae6e54c595f690/spring-boot-jdbc-4.1.0.jar",
+      "sha256": "3b5aab97e72d8a15a40546c31365ed2090cf25451e18762add8ed22cbb4ead43",
+      "size": 204600
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-netty/4.1.0/b570590821eda412d77a1f815007037c6652dc7e/spring-boot-netty-4.1.0.jar",
+      "sha256": "397e145402d1c556b1ac2ea154218ba88a83153adac9a7e5a4534dc6cc7d780c",
+      "size": 9807
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-persistence/4.1.0/12b6d5aa8a97c458a5c8eba8e8cb0e38e326d9d8/spring-boot-persistence-4.1.0.jar",
+      "sha256": "d9d926224c738bd6152718c078134e3aea1057db4d6a452c37ad120893e0e4d6",
+      "size": 16030
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-sql/4.1.0/7a5ef86020d10e926b2e98e1d7b4b79258fb2f38/spring-boot-sql-4.1.0.jar",
+      "sha256": "2826a5380675337f4c5b3e90db02279e68a2c9a7eb2b2ac312828c05fb827a9a",
+      "size": 36056
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-data-redis/4.1.0/efdaaedff624a7f406d53d2d945ee71676d7759a/spring-boot-starter-data-redis-4.1.0.jar",
+      "sha256": "85d475bcc240f0c8e2a142b0278d6063d11e64522823abe34d92a8c4dfb50c75",
+      "size": 4782
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-jdbc/4.1.0/aa7c6585dd28891cb052d95606776076b5445df2/spring-boot-starter-jdbc-4.1.0.jar",
+      "sha256": "ce3e3dfdde267f11d21960715967b59713575cab8e5e8b3b00fba6a3bb022c99",
+      "size": 4766
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-logging/4.1.0/f2e2615d9fb27a035a8fc7aef19670769739ae76/spring-boot-starter-logging-4.1.0.jar",
+      "sha256": "73a6a42d2b6a589bd722aa107800829d0b20b731d94135f53c4b744db8beafbf",
+      "size": 4739
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter/4.1.0/4d1f5fcf982ec75223a3ee44169e268b6dd044f7/spring-boot-starter-4.1.0.jar",
+      "sha256": "40352b3fc0834d5830f66d40100fc8afa8ac73e24a134c7779bd42b72f2d6506",
+      "size": 4765
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-transaction/4.1.0/93b102fb7c2eb6558b8e52fb24f1152c837db3f6/spring-boot-transaction-4.1.0.jar",
+      "sha256": "5402dfeef5d6633b485d6ce8d1cfb2116c7a55e70f8f5dbd31b69ca43e006f13",
+      "size": 21029
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot/4.1.0/bcf26d4c27ab080ef60c13220e96a37d687f9e26/spring-boot-4.1.0.jar",
+      "sha256": "b23951a3a7f867e38db4729b8594e1b72374516f386b1dd9cf4d5317d6d3f91f",
+      "size": 1391652
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.data/spring-data-commons/4.1.0/e8d1077d09c20e9ecf3574a72ce5cc90a29b902a/spring-data-commons-4.1.0.jar",
+      "sha256": "c9e41d45b30aacc0ce50c4426f0650a3544c066ab5d6d0304840e6f878388c5c",
+      "size": 1773391
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.data/spring-data-keyvalue/4.1.0/9ade00273c269ca0d50c4d2d5f564d21a84f94f7/spring-data-keyvalue-4.1.0.jar",
+      "sha256": "1cab6685ee820428a9fb48eab4a5cb48ddcab1dfdb2467b9afb3c47f5455d19b",
+      "size": 142597
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.data/spring-data-redis/4.1.0/db3c9ffef46e71f2697d28d8654021220766b4e/spring-data-redis-4.1.0.jar",
+      "sha256": "c9f7c6d38c98e4240250c0c3969758b26763c4e0e87726915a71855062ae6cb2",
+      "size": 2453205
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-aop/7.0.8/b73e58e9b7dbc4db6b4ebbe3336be0e901b0d261/spring-aop-7.0.8.jar",
+      "sha256": "1178f039e087884174e2affc46e484f4a8bd7f2a4e011d33dd9137709f740f80",
+      "size": 426204
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-beans/7.0.8/829cdf4c82a9409e0e10922b9e57e2ef12d5f04d/spring-beans-7.0.8.jar",
+      "sha256": "6ec2e361a8872a71d8b1ff66f1bcb8cfa29fcc437931998919da7cecfb59b45b",
+      "size": 928037
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-context-support/7.0.8/1c9bd9da34fca09f3423d86f8e33bd9c099232eb/spring-context-support-7.0.8.jar",
+      "sha256": "9ab80715682c47ad66a1a2c0e9ab2be9ec3d828276f281597f12c5208147b92e",
+      "size": 177619
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-context/7.0.8/6c58b590fd8d71afc36797cf6555e82500f1eb64/spring-context-7.0.8.jar",
+      "sha256": "1eb7d552414ebac00e30ab3e809138d810785f6d2c4271db77cdf0181f308f19",
+      "size": 1398484
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-core/7.0.8/25f5ebd179f92d7d12779e3761c96da4b0109ad/spring-core-7.0.8.jar",
+      "sha256": "726ba2a5130833644bdf267a55ff26e1f52e8dcc9aa1ffa06904ca9c14619f25",
+      "size": 2035553
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-expression/7.0.8/bb844eefd513820e356b575d7ea0f7084147af59/spring-expression-7.0.8.jar",
+      "sha256": "3c97c38ab59c77ee886e08ccf8096f6bb58a1245f68dfed7a40e93f41c435f9a",
+      "size": 325993
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-jdbc/7.0.8/f979da380cd01fd363510ca98a7f544d1959a914/spring-jdbc-7.0.8.jar",
+      "sha256": "7d6bbf130ed919d5f4f01ec0ea771ab59ac3936ab29f50fd3a705c0119871e32",
+      "size": 480644
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-messaging/7.0.8/2379224f4c36aeaeceb706750138b8ca9d265916/spring-messaging-7.0.8.jar",
+      "sha256": "0f96694ebb88fed6bf4aef608010c23ee922a476dd71e0fab76ca9ed0eaa70b0",
+      "size": 613599
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-oxm/7.0.8/e74c099072565db0552b56691449e52b79f6f23e/spring-oxm-7.0.8.jar",
+      "sha256": "67f91ffb41a94cf0e443f02ee6f740d52e10a84cabae218cdb0de65f87a82172",
+      "size": 60103
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-tx/7.0.8/96c66acfb3920457421a9cb3648a32e62f42f815/spring-tx-7.0.8.jar",
+      "sha256": "57e8fdb6de949e7ec2617683fec03af0253bdbdf4bf3d2651a926a94413df283",
+      "size": 292080
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.testcontainers/testcontainers-cassandra/2.0.5/5a29efc8911634d12290ccb983668f45669c738f/testcontainers-cassandra-2.0.5.jar",
+      "sha256": "c6ce343636e40330da6ffa317ca4a56bf09affd3e272445d0176498497218cbe",
+      "size": 16403
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.testcontainers/testcontainers-database-commons/2.0.5/bc1eeea337c461c108507f596122b3e6fdb62122/testcontainers-database-commons-2.0.5.jar",
+      "sha256": "0ebbc62bdcfb315cb840a63fbaa148b455927666d9034b5e5c00009d84c755b0",
+      "size": 15029
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.testcontainers/testcontainers-junit-jupiter/2.0.5/89bd1ef45ec60b17b323c747da1e6f2af6187543/testcontainers-junit-jupiter-2.0.5.jar",
+      "sha256": "d66eb7f257a85833a8cc973e3814d740967d40a7db1a0de0040653c6ed236748",
+      "size": 14917
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.testcontainers/testcontainers-k3s/2.0.5/ced546d00e96dfb4802b95756dcd147aa3462d57/testcontainers-k3s-2.0.5.jar",
+      "sha256": "7be44e2fe253122f550638c7824b956bf82a8e195941497c9b30edc3c6c87c5e",
+      "size": 61524
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.testcontainers/testcontainers/2.0.5/7e5013c78fd678ba8958db23c6883274019f2f2f/testcontainers-2.0.5.jar",
+      "sha256": "0466f481343d5f350a91274cd7bf984308cbaf90d706247fd1cf4b1a8010c2e1",
+      "size": 17789146
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.xerial.snappy/snappy-java/1.1.10.8/ccbaa2b5ea6a023a27c44daf2d6cdec0e138592d/snappy-java-1.1.10.8.jar",
+      "sha256": "50485d06037fea3d6e40c968386feeca6338cc9872e25549593ff3eb352cefcc",
+      "size": 2445419
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.yaml/snakeyaml/2.6/2bc14918a2f8d5414749ab12d0c590cd3198b8c1/snakeyaml-2.6.jar",
+      "sha256": "c8f7a98e7394adda02f6317249710e4d1b4c7a25aa8c7eace0c2eea52eb8bf85",
+      "size": 340068
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/tools.jackson.core/jackson-core/3.2.0/ebf2fc67340907abfc4891ed74ba4c4419e2b47e/jackson-core-3.2.0.jar",
+      "sha256": "5e353ce53c6901105dfcbf183e3220c17072e334e552b818a4bb1b99decea596",
+      "size": 604593
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/tools.jackson.core/jackson-databind/3.2.0/45c1083a04086e6b7a0d008ac6c56655567690d0/jackson-databind-3.2.0.jar",
+      "sha256": "3ef94a3dddeafc247c50230fad0315981b2ce4ae6e91cfb4368a86f328904e4f",
+      "size": 1967936
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/tools.jackson.module/jackson-module-kotlin/3.2.0/8591fec5f80271ab0c0ba85bd0ae0b953b0c91a2/jackson-module-kotlin-3.2.0.jar",
+      "sha256": "27b42872aabff2ad58bed72e837cd1cf8c7e53d896dee8654f8e8b24f94aacfc",
+      "size": 222001
+    }
+  ],
+  "knownGood": [
+    {
+      "kind": "jar",
+      "path": "infra/redisson/build/issue756-release/known-good/bluetape4k-io-1.11.0.jar",
+      "sha256": "e5d41857bb7196c7fac8ecdfa773deb658f649ccbb78608064807fea1a823ea5",
+      "size": 203468
+    },
+    {
+      "kind": "jar",
+      "path": "infra/redisson/build/issue756-release/known-good/bluetape4k-lettuce-1.11.0.jar",
+      "sha256": "bd38da234b3dcd586d5a5458a95c4996c49585f945146fedb411a8c0810b962a",
+      "size": 284894
+    },
+    {
+      "kind": "jar",
+      "path": "infra/redisson/build/issue756-release/known-good/bluetape4k-redisson-1.11.0.jar",
+      "sha256": "a8018e61ac2c0d3e592efdcf694d2785c709269f22378d00c8f000dfffc628a1",
+      "size": 97662
+    },
+    {
+      "kind": "jar",
+      "path": "bluetape4k/core/build/libs/bluetape4k-core-1.12.0.jar",
+      "sha256": "9a3e28bf7207c4562d991c20239977dc8d9f152311d950fa7852e112493ae00f",
+      "size": 861105
+    },
+    {
+      "kind": "jar",
+      "path": "bluetape4k/coroutines/build/libs/bluetape4k-coroutines-1.12.0.jar",
+      "sha256": "0ea634b97847b8ecfba6086195f317c99b303850da707992bbe130507145ab69",
+      "size": 982156
+    },
+    {
+      "kind": "jar",
+      "path": "bluetape4k/logging/build/libs/bluetape4k-logging-1.12.0.jar",
+      "sha256": "4bb2fb3c0d4b4401ac984c6791ed49d77eb7a5fc23861aab727cd59c043cc034",
+      "size": 87205
+    },
+    {
+      "kind": "jar",
+      "path": "cache/cache-core/build/libs/bluetape4k-cache-core-1.12.0.jar",
+      "sha256": "2fdcebe62c635909de46d2d8766ee4f9c471a14d121adb6935396015768d0e39",
+      "size": 459009
+    },
+    {
+      "kind": "jar",
+      "path": "data/jdbc/build/libs/bluetape4k-jdbc-1.12.0.jar",
+      "sha256": "96983a2964c1f2adecb45254530ea718cfaedcb65eb9053cf6491365821b9871",
+      "size": 108565
+    },
+    {
+      "kind": "jar",
+      "path": "io/fastjson2/build/libs/bluetape4k-fastjson2-1.12.0.jar",
+      "sha256": "478d7270f58cf058752bf649110b21b39e97ad2c8006eff409d86fa4721563e3",
+      "size": 27097
+    },
+    {
+      "kind": "jar",
+      "path": "io/jackson2/build/libs/bluetape4k-jackson2-1.12.0.jar",
+      "sha256": "dcb71ebf3d0dd230206ad4289d3d0f7098310fa08481d7f6d709ea13333a150a",
+      "size": 160783
+    },
+    {
+      "kind": "jar",
+      "path": "io/jackson3/build/libs/bluetape4k-jackson3-1.12.0.jar",
+      "sha256": "84ad34a531cc9c116b4677a252bac57600a747fd620fce8721286bbeaa7ec071",
+      "size": 169459
+    },
+    {
+      "kind": "jar",
+      "path": "io/json/build/libs/bluetape4k-json-1.12.0.jar",
+      "sha256": "dc80f0c50b9f5dddceaf7d88f4a890ea286252ac229ccc03f420a899a158c73b",
+      "size": 9673
+    },
+    {
+      "kind": "jar",
+      "path": "io/netty/build/libs/bluetape4k-netty-1.12.0.jar",
+      "sha256": "935309d227845dae506dd648acb000dc65b424712ee0ea7c6c1772f451e2d1b2",
+      "size": 36519
+    },
+    {
+      "kind": "jar",
+      "path": "testing/assertions/build/libs/bluetape4k-assertions-1.12.0.jar",
+      "sha256": "1d0d0640e8401f1a559c67412056254f00d1cd6743ac4e028eab4aa82d262db9",
+      "size": 92008
+    },
+    {
+      "kind": "jar",
+      "path": "testing/junit5/build/libs/bluetape4k-junit5-1.12.0.jar",
+      "sha256": "00765bbfbd1eff89badfa8f71a63d2d4f538e71ed30ed630188ccd4dec35f795",
+      "size": 536390
+    },
+    {
+      "kind": "jar",
+      "path": "testing/testcontainers/build/libs/bluetape4k-testcontainers-1.12.0.jar",
+      "sha256": "2ebc7dba9f4e7e6c7b2890e22b4a0dce5359f9689f9bcc3b8ccdc46cd2bc5106",
+      "size": 482375
+    },
+    {
+      "kind": "jar",
+      "path": "utils/idgenerators/build/libs/bluetape4k-idgenerators-1.12.0.jar",
+      "sha256": "e1f0bf6807143c41215fcb9cd693a6bb4af435300f27af7db3c87d7b556d1e94",
+      "size": 162510
+    },
+    {
+      "kind": "jar",
+      "path": "virtualthread/api/build/libs/bluetape4k-virtualthread-api-1.12.0.jar",
+      "sha256": "e81a9d64ddc06aefa521b7d2ab2fe5238422f1b26179153133672592800488a4",
+      "size": 34969
+    },
+    {
+      "kind": "jar",
+      "path": "virtualthread/jdk21/build/libs/bluetape4k-virtualthread-jdk21-1.12.0.jar",
+      "sha256": "bc061ec54c79a007153621464482021e0f89ad24d1d9a2c614496186fe48c088",
+      "size": 22691
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/at.yawk.lz4/lz4-java/1.11.0/b9669fb5e3ccf50a579c9a4f750cab37ce8fce1b/lz4-java-1.11.0.jar",
+      "sha256": "535c5578cab5dcd0a438e202df80091632b873c0370c25d9b1c1ad1d73577207",
+      "size": 896932
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/ch.qos.logback/logback-classic/1.5.37/7c95bc3f7a4d9ad53bf632272818a923c85b9ad3/logback-classic-1.5.37.jar",
+      "sha256": "fd68ff5aa2760857ac5b7ad301e98bc6c18a74d60d7e016da1a608307c9eead7",
+      "size": 287123
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/ch.qos.logback/logback-core/1.5.37/41df60907428d396d02134253eee8bd385a31601/logback-core-1.5.37.jar",
+      "sha256": "c142955d757d923c6c626296bd97be2e0db1cfd33adeadbf2e2927403391e0a1",
+      "size": 641094
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.alibaba.fastjson2/fastjson2-kotlin/2.0.62/2b26bb4c3e27bee701e1ebc79e1d771ae225088c/fastjson2-kotlin-2.0.62.jar",
+      "sha256": "a5968fb4a3f5cfa6a931a25decbadaceb4d9dfefd3f67fe0b230032b3138b8ed",
+      "size": 22991
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.alibaba.fastjson2/fastjson2/2.0.62/9b96073a571470f389a8d2d9b26aded42aeb3239/fastjson2-2.0.62.jar",
+      "sha256": "b0ca13b9925d6c4395c4341e55ef4307b0f06e7110a3b473976638fbb253a4b0",
+      "size": 2214568
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.datastax.cassandra/cassandra-driver-core/3.10.0/7ed4ab9050c496bde71ef9d6bf6c6b82a405a33f/cassandra-driver-core-3.10.0.jar",
+      "sha256": "09c4d54009e942e3afb8755c5fd51abac8ba721e407b61dcb22f435d1a33c1a1",
+      "size": 1189022
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.esotericsoftware/kryo/5.6.2/c20a8ba517e93cb78001fd64da796f1ac5cd8214/kryo-5.6.2.jar",
+      "sha256": "4e8b1d2f4977187af8a51a957329722dc1cdc56a7c94fbb5a791e82897629cff",
+      "size": 373885
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.esotericsoftware/minlog/1.3.1/a406e29d3a44d5f020d7b3218aee6d0952db4f73/minlog-1.3.1.jar",
+      "sha256": "5d4d632cfbebfe0a7644501cc303570b691406181bee65e9916b921c767d7c72",
+      "size": 5923
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.esotericsoftware/reflectasm/1.11.9/fd51ad1705d5e27d8785550172a4ab0cb9b8ad23/reflectasm-1.11.9.jar",
+      "sha256": "712b44da79a5b7f47a28cbfcb3d8ecfc872fae349c48aa4d3e38a5d69956afce",
+      "size": 72265
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.22/15c67f9498d6934cff9510fc70c5a12e52290457/jackson-annotations-2.22.jar",
+      "sha256": "21ddb598807d3a51a876704eb979d9296e1c6a6f47ab1826ff88c6d6a127a2d0",
+      "size": 84211
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.22.1/da7ffb60088d7e8f37ecdd3b617520971cc7b9bf/jackson-core-2.22.1.jar",
+      "sha256": "941ff029bcdb93e83d209ce516c1a7fb8bbac07d0a2fa122f5bf194b2cd7b4f4",
+      "size": 594171
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.22.1/9e2fb91831cce9cb9262909cd76647508949f232/jackson-databind-2.22.1.jar",
+      "sha256": "7dcd7e53bec1f56c7ad278bd1ca0840bebcc595d61ce44d6a8439abb75b965b2",
+      "size": 1706404
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.dataformat/jackson-dataformat-protobuf/2.22.1/f291abc836c6d63d22f80639f92670d2d59855d1/jackson-dataformat-protobuf-2.22.1.jar",
+      "sha256": "939d8bdcfd4bac1c6a3a8439ca980a49e5f2d7cc3712586c554da6cfb4a35228",
+      "size": 235451
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.22.1/ef21a94e7b5603f57ca1efe9215513d210d96320/jackson-datatype-jdk8-2.22.1.jar",
+      "sha256": "2d5ee03fcaa017db0c947a5921ede8b39481d1d637af39079840a87d55e907eb",
+      "size": 36038
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.22.1/3377a0589c1b0e62bbe245ac8e9f56fa7d7b8bb9/jackson-datatype-jsr310-2.22.1.jar",
+      "sha256": "85da45b7e5e565418963ff8f0dcb184365b0557c15468933f4318dde5c3ce845",
+      "size": 136581
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.module/jackson-module-blackbird/2.22.1/b0cf091c9c0bbb90008cc32e45ab15096bdd3de0/jackson-module-blackbird-2.22.1.jar",
+      "sha256": "f39289def4930c5379e734f2c844d764684fe12b738498980be180dbcab97fc7",
+      "size": 64472
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.module/jackson-module-kotlin/2.22.1/4f702127f5870773ae5baf95f84f695a55aa17da/jackson-module-kotlin-2.22.1.jar",
+      "sha256": "37f44b1403a9532742a3695c9c0cd04c161fd6b338fe6e4fc6e6ffa26e0a1f33",
+      "size": 253159
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.jackson.module/jackson-module-parameter-names/2.22.1/6776897d180781c6190f0e6832c8e2cdaefe78b9/jackson-module-parameter-names-2.22.1.jar",
+      "sha256": "dc344110fed9779bee54291044d1d209bac31ce9844f5b1a217ce46bd74891f9",
+      "size": 10183
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.fasterxml.uuid/java-uuid-generator/5.2.0/3ca5091c87cd327880f09447e62b86b8b93db256/java-uuid-generator-5.2.0.jar",
+      "sha256": "5724d6a0f27db90d45af884f4520bce581f29eebe21840d07cae22b670bb8ebb",
+      "size": 57348
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.ben-manes.caffeine/caffeine/3.2.4/c63b303adf59c733d2a96125ad6670e938a2c15d/caffeine-3.2.4.jar",
+      "sha256": "9d9d2cfd681fd9272ded3d27c9930db12f89f732345975aa113ebc223bbf1224",
+      "size": 1029147
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.ben-manes.caffeine/jcache/3.2.4/150763e243ff26f62e42d23289ea0a0b86635c34/jcache-3.2.4.jar",
+      "sha256": "4413eb044d9f37f89aa1067295e10041721d5b8ec79ded16480d36573efb415a",
+      "size": 119501
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.curious-odd-man/rgxgen/3.1/59e5610dfd89af7a04894cf2578318a9d3e5c52c/rgxgen-3.1.jar",
+      "sha256": "091e94e0fe6d45695a625278c1fcf5286576d48fd6ad499d2b69d6b971cce6ff",
+      "size": 172945
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.docker-java/docker-java-api/3.7.1/2df91233a782749e85139991cc94d4ef40b59038/docker-java-api-3.7.1.jar",
+      "sha256": "dad153d484b1f4ef009e2fdbad27e07aeb3191122da52b8985507ac504300081",
+      "size": 500124
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.docker-java/docker-java-transport-zerodep/3.7.1/6b1af9996b2004703a41e0fbbf1031cabbbe4e6b/docker-java-transport-zerodep-3.7.1.jar",
+      "sha256": "b89bdb1754160323597f9ea32a7fe7a4a3aa8f5b3b43b88e8d71fff3b267ab21",
+      "size": 2304500
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.docker-java/docker-java-transport/3.7.1/7b8f1b7486e83f2871d9f98a7e12c529dfddc9c2/docker-java-transport-3.7.1.jar",
+      "sha256": "d15eec8034bf0f92c2a48ca9172691804048115c96dc853272f9486fa2695c3c",
+      "size": 38830
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.jnr/jffi/1.2.16/3c1f0edf2df2c6e0419d60d0baa59659211624cb/jffi-1.2.16-native.jar",
+      "sha256": "ef78953e3dbf47fab94469190bc2a6d601566a21d4651f73c822bad1c02b64fe",
+      "size": 664435
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.jnr/jffi/1.2.16/5c1149dfcc9a16f85c8d9b8797f03806667cb9f1/jffi-1.2.16.jar",
+      "sha256": "7a616bb7dc6e10531a28a098078f8184df9b008d5231bdc5f1c131839385335f",
+      "size": 150998
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.jnr/jnr-constants/0.9.9/33f23994e09aeb49880aa01e12e8e9eff058c14c/jnr-constants-0.9.9.jar",
+      "sha256": "6862e69646fb726684d8610bc5a65740feab5f235d8d1dc7596113bd1ad54181",
+      "size": 359323
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.jnr/jnr-ffi/2.1.7/31a7391a212069303935a1df29566b7372d3ef9f/jnr-ffi-2.1.7.jar",
+      "sha256": "2ed1bedf59935cd3cc0964bac5cd91638b2e966a82041fe0a6c85f52279c9b34",
+      "size": 681158
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.jnr/jnr-posix/3.0.44/1f8e4551454e613c04f6d4045ed9d5b98e21980f/jnr-posix-3.0.44.jar",
+      "sha256": "8442c39b21a82eab9f07039ddd5caeb1707247e1bf45c2abf3150869393ce182",
+      "size": 239993
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.jnr/jnr-x86asm/1.0.2/6936bbd6c5b235665d87bd450f5e13b52d4b48/jnr-x86asm-1.0.2.jar",
+      "sha256": "39f3675b910e6e9b93825f8284bec9f4ad3044cd20a6f7c8ff9e2f8695ebf21e",
+      "size": 219943
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.github.luben/zstd-jni/1.5.7-11/4e88b2ca784e3530070c074dc38052876e74b9ab/zstd-jni-1.5.7-11.jar",
+      "sha256": "e45c18832293934924e4f2f1dd97ee2083a74def46caeeea1346cf817a37cea4",
+      "size": 7569993
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.google.errorprone/error_prone_annotations/2.49.0/8b42a2e3865f6e0576da3fad51dbb96732ff0f14/error_prone_annotations-2.49.0.jar",
+      "sha256": "3b1003e51b8ae56fdbd7c71073e81d1683b97e6c4dff5a9151164d59b769d13c",
+      "size": 20255
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.google.guava/failureaccess/1.0.3/aeaffd00d57023a2c947393ed251f0354f0985fc/failureaccess-1.0.3.jar",
+      "sha256": "cbfc3906b19b8f55dd7cfd6dfe0aa4532e834250d7f080bd8d211a3e246b59cb",
+      "size": 10763
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.google.guava/guava/33.6.0-jre/c376b13067cc99a5774403530953f7b05a91e218/guava-33.6.0-jre.jar",
+      "sha256": "dc573e1fca4fd5454f4a5fd3d7da2df03002876a4175bafc14a95980dd7713b3",
+      "size": 3064793
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.google.guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/b421526c5f297295adef1c886e5246c39d4ac629/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
+      "sha256": "b372a037d4230aa57fbeffdef30fd6123f9c0c2db85d0aced00c91b974f33f99",
+      "size": 2199
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.google.j2objc/j2objc-annotations/3.1/a892ca9507839bbdb900d64310ac98256cab992f/j2objc-annotations-3.1.jar",
+      "sha256": "84d3a150518485f8140ea99b8a985656749629f6433c92b80c75b36aba3b099b",
+      "size": 16762
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.googlecode.libphonenumber/libphonenumber/9.0.23/3ea2b1517acab474ef1af503f483d75fd4a159cb/libphonenumber-9.0.23.jar",
+      "sha256": "981c82de5d01044146be2939cb880a27f4fc32eb7bcdddcdc8484d839f8a44ed",
+      "size": 359550
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.h2database/h2/2.4.240/686180ad33981ad943fdc0ab381e619b2c2fdfe5/h2-2.4.240.jar",
+      "sha256": "29b70e427cc1c40cdc376283adbb0cc62853073797bb5fe5761f81fe73d57ce0",
+      "size": 2685418
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.squareup.okio/okio-jvm/3.17.0/a12d684ec0df9541b3869ae60a4a5257fd3613df/okio-jvm-3.17.0.jar",
+      "sha256": "3b13dcc3e1573047c2d507fc4f7fcb0bb0cbcd9d395da21d20e09406e2cd6a73",
+      "size": 381985
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.squareup/protoparser/4.0.3/e61ee0b108059d97f43143eb2ee7a1be8059a30e/protoparser-4.0.3.jar",
+      "sha256": "3fb82ea4d0b8c9cd4858c8e42d0355028b696ce99c4c8b89568f8a74d63f9855",
+      "size": 79710
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.typesafe/config/1.4.7/597570b76b8db2ee8aece97e114981fec04718f8/config-1.4.7.jar",
+      "sha256": "85ae590d22465136e8776bf692d89b81486556bacd2c48aa0281f0c9c54fc044",
+      "size": 297018
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.zaxxer/HikariCP/7.1.0/13ac26e0d5ef25ae7f1515e59e525c500f013ccc/HikariCP-7.1.0.jar",
+      "sha256": "2be45c641b841e81df87292e181f2c203500c5f0e9a1676f135927387f3cf40b",
+      "size": 172996
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/commons-codec/commons-codec/1.22.0/6b3eb4beb7058c2a638f5f17bcb388649fd339dd/commons-codec-1.22.0.jar",
+      "sha256": "d164fe79f262c32d9b18a0b5b2d317d1c27653d5e98fd2b998c24bf901c72ce4",
+      "size": 420480
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/commons-io/commons-io/2.22.0/5b1e18bc0ad651ed878029d83f88d9c8189fd51e/commons-io-2.22.0.jar",
+      "sha256": "2b9a7b1f726fb86216dbd2c8321eabe0221dbd5b1be81c18e1cb53811b104758",
+      "size": 609182
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/commons-logging/commons-logging/1.4.0/e8f6313365dfa0580e49c58837afc8caa9b4ce05/commons-logging-1.4.0.jar",
+      "sha256": "d175dbd751dd782a63bde28c7a039520e971f25e84b79c19b8435edc3603e0dc",
+      "size": 75828
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.dropwizard.metrics/metrics-core/3.2.2/cd9886f498ee2ab2d994f0c779e5553b2c450416/metrics-core-3.2.2.jar",
+      "sha256": "5c6f685e41664d10c70c65837cba9e58d39ff3896811e3b5707a934b11c85ad0",
+      "size": 129402
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.github.benas/random-beans/3.9.0/31c39ccd008071a47e5328ef791a96b7508e6593/random-beans-3.9.0.jar",
+      "sha256": "ebe25e74bb15c7ca5689d2bbef97f8e7fa5ce0af802aa7cca3596417fcaa7b28",
+      "size": 151365
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.github.classgraph/classgraph/4.6.18/c9e805b7b2d84a087f53814352e46d934ddb524b/classgraph-4.6.18.jar",
+      "sha256": "baa3fbcb3808ce83ccfb2546cfd6d75845b72436385f851ac90c102b8e0ecb8a",
+      "size": 420826
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.github.resilience4j/resilience4j-core/2.4.0/917315545f2ae0221ef3d6c27337b9ba6cba2702/resilience4j-core-2.4.0.jar",
+      "sha256": "a15d25c4709a4c12432cd0a4f620e37a00a82dbe112f5d1a7a68b31325ffc978",
+      "size": 98603
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.github.resilience4j/resilience4j-kotlin/2.4.0/a7b6b62dc41ed1de0f3905c24865bd989e2fc281/resilience4j-kotlin-2.4.0.jar",
+      "sha256": "5eafe4ac84626c22efcf759f7e60637ea6f5788f2b6d95b201e8dcc2d3a814d0",
+      "size": 101619
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.github.resilience4j/resilience4j-retry/2.4.0/7072ed9351dc3a38a7c5a4a1ca21d3355e1f6453/resilience4j-retry-2.4.0.jar",
+      "sha256": "13cd52c89b69b9dbd68188877f16bdbeb3ae524d351a2d947f31ae07684c420a",
+      "size": 51145
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.micrometer/micrometer-commons/1.16.5/f8c25a4e35d5049d41d8446b111b9891ae407881/micrometer-commons-1.16.5.jar",
+      "sha256": "b0cc8c620453ef71e22d6c4ec5c496cc112f964b4e826b9f87182fc97512c8f9",
+      "size": 51752
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.micrometer/micrometer-observation/1.16.5/9dff48a7a9dd84d9083e30a36855bb21a7d6836e/micrometer-observation-1.16.5.jar",
+      "sha256": "4406f33535185ff896375e9a81a4b8694e28bf20c1089b24de0325d87f63dfe7",
+      "size": 83926
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.mockk/mockk-agent-api-jvm/1.14.9/a823c7aebc0396b4201c0d397ac352fad30c76d8/mockk-agent-api-jvm-1.14.9.jar",
+      "sha256": "9459d7eb7694b6e0039e19f7d1a89dfc7ae1fa782ff8d38f2952bda1ffa39242",
+      "size": 49903
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.mockk/mockk-agent-jvm/1.14.9/e1e1acc201dc6ec3bfb9d2d8f10e5960eda3c9f0/mockk-agent-jvm-1.14.9.jar",
+      "sha256": "bb3af4f281c8d5d50141cad9d1a1f8dde9d2bd695b68054777830957708ea0b4",
+      "size": 92818
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.mockk/mockk-core-jvm/1.14.9/79bd4a6018f7cf10b6b5cc539048804f1225cc21/mockk-core-jvm-1.14.9.jar",
+      "sha256": "53a0ab8742aac4d1a6538cc77c6067de7e1a9c1a35358a873faa9c5ed2d58e51",
+      "size": 8448
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.mockk/mockk-dsl-jvm/1.14.9/225fb4b9cec3b5de3419778476ca58700c4872b5/mockk-dsl-jvm-1.14.9.jar",
+      "sha256": "439d2847a5ed8566ac09ba0515aeb7b7d118698fbaf97038536144d9ba325795",
+      "size": 484888
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.mockk/mockk-jvm/1.14.9/4eb489953dee964371c015facfd859117e970e9a/mockk-jvm-1.14.9.jar",
+      "sha256": "b24806ca815d085bddc52fc663d84ab6671fbd782eece7bb2718d5e4992b3d65",
+      "size": 559299
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-all/4.2.16.Final/65ecfa91f2e50f156f89ab999c20473d6bbc1052/netty-all-4.2.16.Final.jar",
+      "sha256": "b27c6ad392d2186c2f29c263dd0fa2d832a3929666d51c2f080286a18acf81e0",
+      "size": 4924
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-buffer/4.2.16.Final/5397ef65dcb60670e0e0dba4854522873af3070/netty-buffer-4.2.16.Final.jar",
+      "sha256": "cc36ae9fbd0b03fe755eb4eb4424ca53b59cfd297d7fd47d49e5b1059beded6c",
+      "size": 378032
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-base/4.2.16.Final/1a01d45a9efc228c6d747525848b065e0656b5f/netty-codec-base-4.2.16.Final.jar",
+      "sha256": "feb410225938d9970de6b624a0c031d079804fa5cc5e1ec6e9298f16db5998a7",
+      "size": 155355
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-classes-quic/4.2.16.Final/29e04d2f81b70c0b9e2646030dddc878786015be/netty-codec-classes-quic-4.2.16.Final.jar",
+      "sha256": "9b2856532681b109ecc1d15ba81341665fea4ba1aab78788e3d74c1aff38ca00",
+      "size": 265344
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-compression/4.2.16.Final/bdbbcfcdbe217b95c14a04df4fc5d31213d5c27c/netty-codec-compression-4.2.16.Final.jar",
+      "sha256": "13c8565414dd2115281303ef4ad1f7cc69bd7771d8d12c7d2fb31307dff26d11",
+      "size": 183349
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-dns/4.2.16.Final/7533d77b74323f20848e5d8051b1dcec0336bb8/netty-codec-dns-4.2.16.Final.jar",
+      "sha256": "f06a6f68d81877ab9da7bf29583a333ad1da5daaa2db26e27d344092499d8f19",
+      "size": 71406
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-haproxy/4.2.16.Final/42afb55a64b8bad73fe2580927724c4068394b39/netty-codec-haproxy-4.2.16.Final.jar",
+      "sha256": "bada016d30eb0adcb0703bc5f34391482ed044675d111f830263d6f3e300675d",
+      "size": 39193
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-http/4.2.16.Final/b5e0715df90047ee5a0138c8f704f43c751009e4/netty-codec-http-4.2.16.Final.jar",
+      "sha256": "0d16f981de8d0d304a2ab1a81f0a674892089fbaa8a583100aebb4a5b00456ec",
+      "size": 678387
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-http2/4.2.16.Final/7af476eb447afe6e933938f09a5097823cf6c46c/netty-codec-http2-4.2.16.Final.jar",
+      "sha256": "fe1ffc7ed6bfb40f91c4e265fe76e3be7f9049deef0e8cf5a992420e4f02b542",
+      "size": 496150
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-http3/4.2.16.Final/506ab30d26e401aeb52922b9baf000d17f355957/netty-codec-http3-4.2.16.Final.jar",
+      "sha256": "94a4b22187d0240bc299366a5135d439affd1fafd3b5162764e86d290d2e85a4",
+      "size": 225991
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-marshalling/4.2.16.Final/8fa72501beb27e474e339a4259f4de8e2f628dad/netty-codec-marshalling-4.2.16.Final.jar",
+      "sha256": "9691818c6e59a97e454f8381c86dfe840302168d985098a278dca07781efc75e",
+      "size": 20377
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-memcache/4.2.16.Final/4be33e7be80222dbbb00f3fbd6f1b2d7f956b14d/netty-codec-memcache-4.2.16.Final.jar",
+      "sha256": "f5fe075b58e60e9346cccdaf92b993981d35750e9b8649f37b9800e7b2cabbf8",
+      "size": 48502
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-mqtt/4.2.16.Final/fca239eea71abeede7a27a851045ba407ddff21f/netty-codec-mqtt-4.2.16.Final.jar",
+      "sha256": "010329fabd6dd0913a64bd2464c8cc8ea3e4fbbce1f9b74744ddf3e2b1a5c63f",
+      "size": 113435
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-native-quic/4.2.16.Final/19a23720a19f3d37038ad98d9d096e10a269e42d/netty-codec-native-quic-4.2.16.Final-linux-aarch_64.jar",
+      "sha256": "b338c76fee30c1b8b655e3e992e88dffa71591fecb35e1fed70089dc3696e0f6",
+      "size": 2602076
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-native-quic/4.2.16.Final/4f08dddd953f49291d9a43bcde0f8d96cf8c2dcf/netty-codec-native-quic-4.2.16.Final-osx-aarch_64.jar",
+      "sha256": "93c4fcc7a63888cbbc621ff2774632234344518503fca967b77d6cb7f241a8ce",
+      "size": 2343939
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-native-quic/4.2.16.Final/6f4fa17b350d63f6e8d7043a0f3e944fc97bc49f/netty-codec-native-quic-4.2.16.Final-windows-x86_64.jar",
+      "sha256": "ebe477b5374382f0d34583907b7441dc59c52492c890f946154deff47883041d",
+      "size": 1546315
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-native-quic/4.2.16.Final/d2508e60272931ae0fa56e4b4db9430f880f34b7/netty-codec-native-quic-4.2.16.Final-linux-x86_64.jar",
+      "sha256": "3c29587f8b2953032bd37fc20e3eda5bb7270e5e1e09b496f2c024f8ac8b5dc1",
+      "size": 2748609
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-native-quic/4.2.16.Final/db28f6e4771837c0d7b14c691a03d73e1ee42f42/netty-codec-native-quic-4.2.16.Final-osx-x86_64.jar",
+      "sha256": "15cecee5ab661a650fa5c3513fd0c6d84f27d5dcc0eddcdc1b9619649b08fe12",
+      "size": 2494977
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-protobuf/4.2.16.Final/bbd61e19ebbad9a3da1856da418316b2a3fbdbde/netty-codec-protobuf-4.2.16.Final.jar",
+      "sha256": "bb66f23ccb543dd842ddda91b6c8e97e222220d2efa5459f6a46a22ade3b2170",
+      "size": 15108
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-redis/4.2.16.Final/4d27efa32f8631baa97f1ed3e63c9febd400c3f5/netty-codec-redis-4.2.16.Final.jar",
+      "sha256": "c0a444400f77cdd84e2ae2c038989251e0cc5c18eb424c66ef6b2ee04594a7ed",
+      "size": 48727
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-smtp/4.2.16.Final/d25fa1d1f6d6735ded9d1160e66643307b8b274e/netty-codec-smtp-4.2.16.Final.jar",
+      "sha256": "4ab037af210ba24ac08dee8ef94bec506c1be1992fdf0862a464bcb5f32537cf",
+      "size": 23729
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-socks/4.2.16.Final/d227dd8807b28382ade355eaae4678d4a7cd13c/netty-codec-socks-4.2.16.Final.jar",
+      "sha256": "e5230b4c467755bb570c846c8e3c0ffadcb1b568c1cd9a3a4ee946734baae54d",
+      "size": 132178
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-stomp/4.2.16.Final/e3678d58509546d54c1cb2fcac566115727ddc0/netty-codec-stomp-4.2.16.Final.jar",
+      "sha256": "b150e456535d05311657e14b6ac21c86c2cc6d3412788af51b56e37a7705fd17",
+      "size": 37284
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec-xml/4.2.16.Final/2975be7e9fc48ec00dba7b01638dd0f8f34ba9be/netty-codec-xml-4.2.16.Final.jar",
+      "sha256": "7c565870856fcdcaf44db041b58adcdfe4ae795d5a193d1b303d913e28821766",
+      "size": 23526
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-codec/4.2.16.Final/5ff5de5c29d6aa51bd4a52dac6abef7a6c2a8aae/netty-codec-4.2.16.Final.jar",
+      "sha256": "41868bcc428954e707e39a30686ceddc0bd238391d3989d04dfb72d5f0735926",
+      "size": 3953
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-common/4.2.16.Final/c2bc7fa5acfa2afc777e944d84f0aa65559cc81e/netty-common-4.2.16.Final.jar",
+      "sha256": "9825ee68a0dc4cd2b53e2f532502401b2211bad9b77e8b04882d9e64487283ff",
+      "size": 819965
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-handler-proxy/4.2.16.Final/df9f359db740a1dd2d3a02608cb8b43daf63c9d2/netty-handler-proxy-4.2.16.Final.jar",
+      "sha256": "c53706ebaffd2fcef17b5f675b81eab4be13a714886cb4b2a7d0b73275cd39fe",
+      "size": 26791
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-handler-ssl-ocsp/4.2.16.Final/eac493d90d4213f271585c607f2f4aa2045d2c22/netty-handler-ssl-ocsp-4.2.16.Final.jar",
+      "sha256": "d914fcf20ef940a9788680460bd95bd1b4086cd9fb68393b3824064946d8c22c",
+      "size": 29486
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-handler/4.2.16.Final/cc82873ae4b6d14effe480740ad838de09add70d/netty-handler-4.2.16.Final.jar",
+      "sha256": "a259ca496da05ac1981f95cd856211f894a328056a6129e9cd70dbbd5df401f7",
+      "size": 587814
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-resolver-dns-classes-macos/4.2.16.Final/d0acd35178a860b0e1832fdd748137968e44feb6/netty-resolver-dns-classes-macos-4.2.16.Final.jar",
+      "sha256": "b56f3fb411435ce44c195355cf4e6b64efa4195697327b721809efcf62874371",
+      "size": 9842
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-resolver-dns-native-macos/4.2.16.Final/22daeb917287455801fa4a123110bd513514246e/netty-resolver-dns-native-macos-4.2.16.Final-osx-aarch_64.jar",
+      "sha256": "49aad04e202267fe7ac0a291c2f2fa38bdebf7f1e13955d2afcc4648aa4bd406",
+      "size": 20781
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-resolver-dns-native-macos/4.2.16.Final/398f969a870b666bb6fbc92ed1ce974608dc61c/netty-resolver-dns-native-macos-4.2.16.Final-osx-x86_64.jar",
+      "sha256": "4b2e3959723db674f18bee8b602c7634e47c0bd9f42041d1069c428df464582c",
+      "size": 20433
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-resolver-dns/4.2.16.Final/efbe0a1f5bf910c3d9a4ebef53fd3c982543dde6/netty-resolver-dns-4.2.16.Final.jar",
+      "sha256": "4e8adad4d30e4344accf74922fc10d9cdbc162d72b2136bdf371bb3864e0b03d",
+      "size": 174347
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-resolver/4.2.16.Final/fcea6d64273b59ab9127b68c16ae98af34642139/netty-resolver-4.2.16.Final.jar",
+      "sha256": "c9eca6a99036485cf1d186b4a6a595b0a54c53808319ee03924270eae04c32bb",
+      "size": 32975
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-classes-epoll/4.2.16.Final/cf90c7b892e284ba9f1545dce170168369b3b9d6/netty-transport-classes-epoll-4.2.16.Final.jar",
+      "sha256": "9f2b53210db9c8d24e787ed43f3896aaf30d686ed270c7afbb29ab6330c6aa23",
+      "size": 159935
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-classes-io_uring/4.2.16.Final/d4788328f8a2145e26d6e80f2f3ddc2f73bc24a4/netty-transport-classes-io_uring-4.2.16.Final.jar",
+      "sha256": "2f0b189834aa2c945b2ef965fed301c9883b45a8c54408e2565724f46510a59e",
+      "size": 195522
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-classes-kqueue/4.2.16.Final/fa2bcf8c71626510f6fae173f78182117b70f7a/netty-transport-classes-kqueue-4.2.16.Final.jar",
+      "sha256": "6599b495f69420cb240ab0a1aa60a19a2df3bc72791729170e0993727637a689",
+      "size": 116819
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-epoll/4.2.16.Final/3fbb6d9aa97f86b5c2868b7e7149ada325f57daa/netty-transport-native-epoll-4.2.16.Final-linux-riscv64.jar",
+      "sha256": "453eaeae88b7acf3edb17e0b01897dbc587825b3e8240c68b32f861915d6c0e9",
+      "size": 38194
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-epoll/4.2.16.Final/439c24f5c27c220deb042b42e4048d606edeb78d/netty-transport-native-epoll-4.2.16.Final-linux-x86_64.jar",
+      "sha256": "2e00548e731948881d0c73ee79d2ead759254e750929406a1d595484758f0267",
+      "size": 42393
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-epoll/4.2.16.Final/eed34f3b37b4c46a0cbb49456ccc4e3bd7195e4c/netty-transport-native-epoll-4.2.16.Final-linux-aarch_64.jar",
+      "sha256": "212cc7d81390e31b580a1fb91b6c8d963b43e762ed072c555e2b09ad4476e928",
+      "size": 43899
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-io_uring/4.2.16.Final/77402a81d80186301463e0be5f2425f1b43cf4c/netty-transport-native-io_uring-4.2.16.Final-linux-aarch_64.jar",
+      "sha256": "4eca317be67a3799e2e12e17a8bb4144128384217da7b72ed1b75fd8687914e9",
+      "size": 43044
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-io_uring/4.2.16.Final/b3fbc3b04eed8e89f284484e45989f718f58a085/netty-transport-native-io_uring-4.2.16.Final-linux-riscv64.jar",
+      "sha256": "8a3066ea77d2c55d828cc7149903aa711604c72e4f9f0f5cb5df84f8ef1fe631",
+      "size": 37167
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-io_uring/4.2.16.Final/cd2900ef8eedf232ac9dbc1b6140267d720d4272/netty-transport-native-io_uring-4.2.16.Final-linux-x86_64.jar",
+      "sha256": "9b6c6a6c50f4940401919b6d074e35da5a8c7239f24bd6fc530b6cac9c87ac49",
+      "size": 42589
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-kqueue/4.2.16.Final/dd9d41b06355a6a1815d902ee087a693aab83755/netty-transport-native-kqueue-4.2.16.Final-osx-x86_64.jar",
+      "sha256": "05a09a4ab51f488f0c22f42ccce6c06935afbfac51173fae44170465aa072828",
+      "size": 26737
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-kqueue/4.2.16.Final/ddb942cad6c0e978caa2215757512b36c5ffacec/netty-transport-native-kqueue-4.2.16.Final-osx-aarch_64.jar",
+      "sha256": "796c503f7a80217177bd315f6448263134ee0f9042627d5fd698c760bcf99c8c",
+      "size": 27482
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-native-unix-common/4.2.16.Final/3cf32390f1b80af890ac44aa0698c2ff58c2a4d7/netty-transport-native-unix-common-4.2.16.Final.jar",
+      "sha256": "41ca8fe192083d17917be7ddcecded4da4fc1db1d1656d03d0bcb14e2f431155",
+      "size": 46877
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-rxtx/4.2.16.Final/9c2a92b1a066a73f958f4584972a142bd4e54dbc/netty-transport-rxtx-4.2.16.Final.jar",
+      "sha256": "01942a72d716db20ef24bec17eb313d9736b61ded7d1c4647cd1096df6bdae60",
+      "size": 18607
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-sctp/4.2.16.Final/72bb9808fddd75854c23d7b165bec6b6e2fa3010/netty-transport-sctp-4.2.16.Final.jar",
+      "sha256": "908271a2e1e4940a2ae9615e80bfb967394692f5dda005a332c545ed5b7dde2c",
+      "size": 53103
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport-udt/4.2.16.Final/dfa9958dd9fdbfee45622475b017835122457e37/netty-transport-udt-4.2.16.Final.jar",
+      "sha256": "0f072ebf51b5642adbc2129cf5d06f96d6a94b0912d7cae2cbb8287df73deaef",
+      "size": 33074
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.netty/netty-transport/4.2.16.Final/ae87a3bec51d503475a19fbd718bf777f2fc06c6/netty-transport-4.2.16.Final.jar",
+      "sha256": "cfa3f654caff906653385f4b7ddaa539d795b78f5711a622482b17d2b73484c0",
+      "size": 549855
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.projectreactor/reactor-core/3.8.6/76285d63d5da4ed8679357628dd5309b0feb77ff/reactor-core-3.8.6.jar",
+      "sha256": "ffc646b225465efce55d3ea350f1bcd1d27d4a56e912323e316dd8e6d04bff11",
+      "size": 1938752
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/io.reactivex.rxjava3/rxjava/3.1.12/5f67300384802bde3f6d62701ffec804b770700b/rxjava-3.1.12.jar",
+      "sha256": "1808a433ef55dcc2965523e512ab914a5d0d727228a2683ed7559d7cccf44e37",
+      "size": 2665456
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/jakarta.activation/jakarta.activation-api/2.1.4/9e5c2a0d75dde71a0bedc4dbdbe47b78a5dc50f8/jakarta.activation-api-2.1.4.jar",
+      "sha256": "c9db52100ce6c8aac95cc39075f95720d2e561b11f8051b81c121ad4effd7004",
+      "size": 67380
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/jakarta.annotation/jakarta.annotation-api/3.0.0/54f928fadec906a99d558536756d171917b9d936/jakarta.annotation-api-3.0.0.jar",
+      "sha256": "b01f55552284cfb149411e64eabca75e942d26d2e1786b32914250e4330afaa2",
+      "size": 26378
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/jakarta.inject/jakarta.inject-api/2.0.1/4c28afe1991a941d7702fe1362c365f0a8641d1e/jakarta.inject-api-2.0.1.jar",
+      "sha256": "f7dc98062fccf14126abb751b64fab12c312566e8cbdc8483598bffcea93af7c",
+      "size": 10681
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/jakarta.json/jakarta.json-api/2.1.3/4febd83e1d9d1561d078af460ecd19532383735c/jakarta.json-api-2.1.3.jar",
+      "sha256": "bc934142805ea1d794f1440563965a3861a2a9fb7414ecd3fe44f26500734414",
+      "size": 48629
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/jakarta.xml.bind/jakarta.xml.bind-api/4.0.5/161811f36cad3c65991502e80317f2f6703361df/jakarta.xml.bind-api-4.0.5.jar",
+      "sha256": "5e489b6c874c4119e003ff1403db523ee3a8959ec499f3de29e77245efccf216",
+      "size": 131219
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/javax.cache/cache-api/1.1.1/c56fb980eb5208bfee29a9a5b9d951aba076bd91/cache-api-1.1.1.jar",
+      "sha256": "9f34e007edfa82a7b2a2e1b969477dcf5099ce7f4f926fb54ce7e27c4a0cd54b",
+      "size": 51281
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar",
+      "sha256": "8e495b634469d64fb8acfa3495a065cbacc8a0fff55ce1e31007be4c16dc57d3",
+      "size": 384581
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.18.4/7ef8cd821c4a69426fa7c99a6070b8b1b02e3abf/byte-buddy-agent-1.18.4.jar",
+      "sha256": "f22dd13a5a501fa84948d9332e9624794dbb3532f843a30d2faaeba5e5078953",
+      "size": 366533
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy/1.18.11/8fcc3779ff85fae5164cd1b977798ca1af388e06/byte-buddy-1.18.11.jar",
+      "sha256": "e32f454c2c1f4aca982f9ec764ed892d9a6eee7e8a77f435cbdd180f6ffdb821",
+      "size": 4656510
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/net.datafaker/datafaker/2.5.4/afc8b76b45ae67ae7d7007fb5eb141934b5dd72b/datafaker-2.5.4.jar",
+      "sha256": "abb3c8fb70e057d4d8c29c4847ded2c9cdb165e8ca9c4e5ec5cb0c93e5b24f64",
+      "size": 3046899
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/net.java.dev.jna/jna-platform/5.18.1/dd817f391efc492041c9ae91127527c13750a789/jna-platform-5.18.1.jar",
+      "sha256": "ad14c1b1ec4f43d396231219dfa635ebf828f738eac9f890ea1bc07795892d9a",
+      "size": 1380744
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/net.java.dev.jna/jna/5.18.1/b27ba04287cc4abe769642fe8318d39fc89bf937/jna-5.18.1.jar",
+      "sha256": "260c4b1e22b1db9e110ee441c4f13ce115f841fa48c41d78750986214b395557",
+      "size": 2002994
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.commons/commons-compress/1.28.0/e482f2c7a88dac3c497e96aa420b6a769f59c8d7/commons-compress-1.28.0.jar",
+      "sha256": "e1522945218456f3649a39bc4afd70ce4bd466221519dba7d378f2141a4642ca",
+      "size": 1117221
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.commons/commons-lang3/3.20.0/65897b3e5731220962e659e001904af3c3cbeba9/commons-lang3-3.20.0.jar",
+      "sha256": "69e5c9fa35da7a51a5fd2099dfe56a2d8d32cf233e2f6d770e796146440263f4",
+      "size": 713862
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.fory/fory-core/1.3.0/b4756fde9a3d49f85fc21e29c24ff49017fd6df0/fory-core-1.3.0.jar",
+      "sha256": "6450221caabc524a819aeed172ace0aab51c91f102ecf10609d25ad5e492548a",
+      "size": 2673564
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.fory/fory-kotlin/1.3.0/5856b81cf50758b3828fd4816ea3c52a566d532a/fory-kotlin-1.3.0.jar",
+      "sha256": "ab11eb7b5ec341e1900f43cdf97c96d0e25b1e6143084803648c316d6aa4ad94",
+      "size": 83157
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.httpcomponents.client5/httpclient5-fluent/5.6.2/d16dce1834fa60f7c747a9876f15d4d9c6b02543/httpclient5-fluent-5.6.2.jar",
+      "sha256": "0607d10406a1f2b1e56f926c62275ec3548f8c9abdf27ffae9fd167fd26d193c",
+      "size": 25878
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.httpcomponents.client5/httpclient5/5.6.2/10ab45a37a2f4174492045840cdb5eb12c4336e7/httpclient5-5.6.2.jar",
+      "sha256": "f3bf571b04dffe005ff29b965b9e3a88846aac6e63f24eae38a86d1979ea49a3",
+      "size": 1056212
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.httpcomponents.core5/httpcore5-h2/5.4.3/33bcd37d645539d27c65e17420843fd7f6c0ebf4/httpcore5-h2-5.4.3.jar",
+      "sha256": "c7db7026b8e2dea39132b04a6069f6671e2858309b20a146ec5c7dd6ed73a0b6",
+      "size": 263675
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.httpcomponents.core5/httpcore5/5.4.3/32a0699fbcb103f5621c00983ee8f5aac080e4a6/httpcore5-5.4.3.jar",
+      "sha256": "18bfbbabb478dfb67f31aeaf428c387f3c3df654582e1309f708ee1f3086830a",
+      "size": 955121
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-api/2.26.1/b9864ed8d0c01f65f3b0bf70f1447e5cc1b49c24/log4j-api-2.26.1.jar",
+      "sha256": "f1810a4704ccce019d02bba029dc02a4f2ac0c997f647b465e7d409c1927f822",
+      "size": 351428
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-to-slf4j/2.26.1/a5100727b898c513fda177a4f388299a5fe5955f/log4j-to-slf4j-2.26.1.jar",
+      "sha256": "6b10bc838a3c773b3fd02979c7ef4e7a443371fa89bda4415d89099bbee224df",
+      "size": 24196
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.awaitility/awaitility-kotlin/4.3.0/c58eb0d0f6136f793c453bdcb97801f34e5a8c1c/awaitility-kotlin-4.3.0.jar",
+      "sha256": "b5d3155ccabf33d68dc47d301bd4ed2321dbce669d93e42aad62690d387ed15a",
+      "size": 9956
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.awaitility/awaitility/4.3.0/f0c0bc1e404e500bab3f498b922eaedeae1c0207/awaitility-4.3.0.jar",
+      "sha256": "ee58568ea5945dcf988551501655183dc184e23e45a8e013fdfd9036194e6f7b",
+      "size": 97552
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.codehaus.janino/commons-compiler/3.1.12/501779107b06a981ff359eab7369ff7a2bf077e/commons-compiler-3.1.12.jar",
+      "sha256": "17ea25d860225f4b59d0a512b4995f2e4711bdae5e15736cbcd5f6ce4dda8f7c",
+      "size": 171943
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.codehaus.janino/janino/3.1.12/ffcd3dfa84057ef76092b6b66c53871a97ae40b8/janino-3.1.12.jar",
+      "sha256": "5699878c31e71c9a94cf472f95a2dad52ca7b0449c099276b8bd7e992a43595b",
+      "size": 956369
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/3.0/254f69f4b0ca22198acfc19fcdd5f96140431c3e/hamcrest-core-3.0.jar",
+      "sha256": "b78a3a81692f421cc01fc17ded9a45e9fb6f3949c712f8ec4d01da6b8c06bc6e",
+      "size": 2403
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.hamcrest/hamcrest/3.0/8fd9b78a8e6a6510a078a9e30e9e86a6035cfaf7/hamcrest-3.0.jar",
+      "sha256": "5d66b6a4a680755cb6ed7cb104fa7835ef644667586ff0737adeb977c39ecdbc",
+      "size": 126373
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jctools/jctools-core/4.0.6/2467452e7631e485b062d5d507ff73cdb04e3f11/jctools-core-4.0.6.jar",
+      "sha256": "374fb4660436a70ba131e15ca7bab8423424c737898a894fb276841c94bdd962",
+      "size": 499875
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-reflect/2.4.0/532cc727c0960d12f4c9acb6a6c2c4a3e08187b/kotlin-reflect-2.4.0.jar",
+      "sha256": "f0d8e8908624eb4478bb131e9f887366680d2e239741195e548fa5c906963b90",
+      "size": 3750099
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/2.4.0/65464dd63e7ab1b7cb29f2b2554971088deb50f3/kotlin-stdlib-jdk7-2.4.0.jar",
+      "sha256": "5072265564b6b0296f9c7b21fee65edee760c5697436f5ae7427033fa58fc034",
+      "size": 946
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/2.4.0/ff44d8831b07b547fc0263e33304e876788d6f0d/kotlin-stdlib-jdk8-2.4.0.jar",
+      "sha256": "d96b4e297136b8a4b2b88c1adcdc64d92e90d52a417e4315cdcf964adede8aa2",
+      "size": 952
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.4.0/4e9f4b531dce5c7dee58ed2de9a8b9a763c8dc6c/kotlin-stdlib-2.4.0.jar",
+      "sha256": "ccb14ff83fabcb11458b798dbc9824748ccdffeec79c9aba789e6ed1cda86b1c",
+      "size": 1841929
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-test-junit5/2.4.0/3a25dcc853e90ef0ee264b0f532791966bea9cb6/kotlin-test-junit5-2.4.0.jar",
+      "sha256": "305492a09546af4121b922f19a62b48bab650c31dc1e6ff187decc6859335675",
+      "size": 5191
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-test/2.4.0/c9a0c254adade886172cb021c0b099d8be1a5fc4/kotlin-test-2.4.0.jar",
+      "sha256": "38099e38d81f394d7ae3eb73ad0a2b6379629a293ba8cfe5485ee7f836124943",
+      "size": 101516
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlinx/atomicfu-jvm/0.32.1/766417c1430c117100e14af193c4fdbe6034b5e6/atomicfu-jvm-0.32.1.jar",
+      "sha256": "ed751540ac22c78abf14d1aeb5ab1866f4f2809e6ee635f5dcf0fecbcd226c62",
+      "size": 60609
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.11.0/3d57dc678bd8d72a60e7adf0eca5c54e3f4f4b79/kotlinx-coroutines-core-jvm-1.11.0.jar",
+      "sha256": "d1d75aa01dffbb4d1c520e67e4c4e7f5f6174718e7cb4632412503f2f0e604fa",
+      "size": 1577052
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-reactive/1.11.0/18a20c47a2c43aea5ad949ed93dcb52705ed454b/kotlinx-coroutines-reactive-1.11.0.jar",
+      "sha256": "fe9a650030c413d96f049e88ef92d86a17bbc3a129b9208cfbeaa0e90e60dca7",
+      "size": 67255
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-reactor/1.11.0/f7f9a8ec00884c92dc0154ac448b5074449c9851/kotlinx-coroutines-reactor-1.11.0.jar",
+      "sha256": "d630597ddab7971ecd9770472bb23cb4903175231a65cbd0d504d32d85ae6c47",
+      "size": 35644
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-slf4j/1.11.0/556153d93573d016dd4e5df37e3d03d07d8d303/kotlinx-coroutines-slf4j-1.11.0.jar",
+      "sha256": "1043471e7d5f99680df3a056cf766276e0fe339e48030dea503fc1c94c33743e",
+      "size": 4446
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-test-jvm/1.11.0/1dfe8ce2b805d913922f283b386895bd0979dfcb/kotlinx-coroutines-test-jvm-1.11.0.jar",
+      "sha256": "d4f7ee71da708af4719dceb6d3200c8f9dc5146ea1a812cb628ed53c64196f96",
+      "size": 105295
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jetbrains/annotations/26.1.0/c1e9226d7ca6661020c58c94397da0cc3673d5e4/annotations-26.1.0.jar",
+      "sha256": "ebc7aec252ed0c7d2d04c039d7f00e69f7b86b1f493c741d67b3ef31b986b054",
+      "size": 31094
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jodd/jodd-util/6.3.0/1568f4d0f60dee75c8881fb0ebe44f0ab9fa3b38/jodd-util-6.3.0.jar",
+      "sha256": "e5c676715897124101f74900dd1f98ebbcad9da3ab2dffbac6e7712612094427",
+      "size": 337658
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.jspecify/jspecify/1.0.0/7425a601c1c7ec76645a78d22b8c6a627edee507/jspecify-1.0.0.jar",
+      "sha256": "1fad6e6be7557781e4d33729d49ae1cdc8fdda6fe477bb0cc68ce351eafdfbab",
+      "size": 3819
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-api/6.0.3/2e6cfb62db85350179f0408ed5270f7cdf8cefda/junit-jupiter-api-6.0.3.jar",
+      "sha256": "d655d7e6f0c7ae07f10a2f3bbaaebb6d30e9b26204a068ad9e9b3950aa28792c",
+      "size": 250715
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-engine/6.0.3/e26f7e17d06cfc85ba7643b5ad00c87d5f2084dd/junit-jupiter-engine-6.0.3.jar",
+      "sha256": "1e2fab61ad27ea08fc7c70dd9677cf8c6d1ae5434d42dcfdd633b12c7e7c04d0",
+      "size": 356052
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-migrationsupport/6.0.3/ef32e813500144481af6f57156be2292cfe4b15d/junit-jupiter-migrationsupport-6.0.3.jar",
+      "sha256": "9c650cb316d6037aed783daaec9616f47d3567c4eaee972c7211128330df69b9",
+      "size": 30817
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-params/6.0.3/6cd3efadd171a3ddd70413868a9c3af988a45907/junit-jupiter-params-6.0.3.jar",
+      "sha256": "cf2947e2302b9f8c8a059259a277881c1cadae8fbc2514c16a925cfeb7beb2e5",
+      "size": 296557
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter/6.0.3/da72f4bc0feccbca639b901ace26e3a62512ebec/junit-jupiter-6.0.3.jar",
+      "sha256": "784b65815f479a0c99a9d3a573b142e2a525efb6025d97f751b19e72f90aeda3",
+      "size": 6378
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/6.0.3/1093a7faa2ba47c28aa83f378d9a2083463bb20c/junit-platform-commons-6.0.3.jar",
+      "sha256": "39f262d09c3d52719fe0b77f080e90a3695e285d779a41b232e17963ae5da200",
+      "size": 171256
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.platform/junit-platform-engine/6.0.3/101305612e7daa4ce978d3ba73fd02dd4a5f22d9/junit-platform-engine-6.0.3.jar",
+      "sha256": "491e9e4f745f161b8a8e4186a1a7c6a450ea12c70930c9aedae427215301d947",
+      "size": 280233
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.junit.platform/junit-platform-launcher/6.0.3/4a721cdd640ebdaa4c6850f5eee0b0377cf698b0/junit-platform-launcher-6.0.3.jar",
+      "sha256": "315608372e4dc44bca0ccb3ae8a07ecc206b3367033fa05748a03ccd563f1301",
+      "size": 246132
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.objenesis/objenesis/3.5/848ebc672f1e42d62c9357bd0882374c4e21895f/objenesis-3.5.jar",
+      "sha256": "6f5abd42cf3ebc0f2bdae73dbc57820fc4a1cb8930492841e29e9a9f9dcc86e0",
+      "size": 49459
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.3.0/152ea56b3a72f655d4fd677fc0ef2596c3dd5e6e/opentest4j-1.3.0.jar",
+      "sha256": "48e2df636cab6563ced64dcdff8abb2355627cb236ef0bf37598682ddf742f1b",
+      "size": 14304
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.osgi/org.osgi.namespace.extender/1.0.1/18c5eac4fe14b1d1914e62ea0e95abe80af31a9c/org.osgi.namespace.extender-1.0.1.jar",
+      "sha256": "93d798bde7fa760961408c8a10a965ca7ba1dbf98a3a706c86d8290f528ad519",
+      "size": 11648
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.osgi/org.osgi.service.component.annotations/1.5.1/3a26aabd81c76d47e19a377daf5f54d3f3541412/org.osgi.service.component.annotations-1.5.1.jar",
+      "sha256": "42c080de090896f45d2a4e980a261d5b6addeee07ec4b201f01de95ab562b448",
+      "size": 43348
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.osgi/org.osgi.util.function/1.0.0/1f38195e5eab663c162989a4a2186e8d62c2cc1d/org.osgi.util.function-1.0.0.jar",
+      "sha256": "4ff9329012c01a0c69c05721a6bd0b910d40a0d32108284e59c1a6215cee7a43",
+      "size": 12548
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.osgi/org.osgi.util.promise/1.0.0/ebbbe7a061d665afa565b6369ef62d8c9df16f1a/org.osgi.util.promise-1.0.0.jar",
+      "sha256": "7d619c925716f21ae17654529543d00ea56810784040f6ed8c6d6f901526ee67",
+      "size": 42975
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.osgi/osgi.annotation/8.1.0/59d42736bcc0af2144ba5c1a12ff7c08ea4b7e12/osgi.annotation-8.1.0.jar",
+      "sha256": "68afeb86a5322675d4dfe3df5863c7d8a37b34c18e3a8e41553f1ab3ac15d78f",
+      "size": 35779
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.ow2.asm/asm-analysis/9.10.1/8d49f14d51f632cb1d87c88d1ceaf50db0d8af1b/asm-analysis-9.10.1.jar",
+      "sha256": "dede75a21306b65974ecd8f87114ff6970f09fb794157a4ca09ab25c888c2bfc",
+      "size": 35140
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.ow2.asm/asm-commons/9.10.1/4229e4c55fd8e01c23f9fe9884075cc628aacc50/asm-commons-9.10.1.jar",
+      "sha256": "6d0abefb7cbf972ea16edb37ec14835372505063a45f976ab7ea889ed9497895",
+      "size": 74840
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.ow2.asm/asm-tree/9.10.1/e244332a17564c1d1572449399a842de35881be2/asm-tree-9.10.1.jar",
+      "sha256": "3dfb0d5b6a106cd40b5b250e39935fbf2f927f4477546a5369a3ac609cf0506b",
+      "size": 51958
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.ow2.asm/asm-util/9.10.1/7bb9d450e8d4cbf9f9e04096c44bbfe7fba80b15/asm-util-9.10.1.jar",
+      "sha256": "1bb99d091fba2597dc6d51193e9bbcf0d8447e7ed96bd8f0198b18152f09655c",
+      "size": 95628
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.ow2.asm/asm/9.10.1/ada2141c0cc52ee8f5c48cd5fa4ce0e794f22236/asm-9.10.1.jar",
+      "sha256": "ed825d10ab1399c8c0cb669e688cf0c8c82629b4c8399b58352b68e92ca10fcb",
+      "size": 126151
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.reactivestreams/reactive-streams/1.0.4/3864a1320d97d7b045f729a326e1e077661f31b7/reactive-streams-1.0.4.jar",
+      "sha256": "f75ca597789b3dac58f61857b9ac2e1034a68fa672db35055a8fb4509e325f28",
+      "size": 11640
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.redisson/redisson-spring-boot-starter/4.6.1/aef297ba097bd660350bbc045d8d2c32285696fd/redisson-spring-boot-starter-4.6.1.jar",
+      "sha256": "9aa05dcfd1a7f9b7799ef881cd504c86e9ff5b975cdc1e45dd8be61facddf401",
+      "size": 19327
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.redisson/redisson-spring-data-41/4.6.1/5eefe558e693cf77f5e7882df788386246c2eb43/redisson-spring-data-41-4.6.1.jar",
+      "sha256": "37f5fecd25c141f99d07cf04a98e6fba027c9016f730cc36275807742255c419",
+      "size": 268420
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.redisson/redisson/4.6.1/8fe8f7df15a0aa1d90e86649d5b6a824f493323/redisson-4.6.1.jar",
+      "sha256": "d5224140b4eb38e8aff12379f91d914ab07edcea37dfb0f6907007811a7e166a",
+      "size": 2918128
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.rnorth.duct-tape/duct-tape/1.0.8/92edc22a9ab2f3e17c9bf700aaee377d50e8b530/duct-tape-1.0.8.jar",
+      "sha256": "31cef12ddec979d1f86d7cf708c41a17da523d05c685fd6642e9d0b2addb7240",
+      "size": 25402
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.slf4j/jcl-over-slf4j/2.0.18/fb36c10c70e27bb427bb3cec86ac30bb83f667c7/jcl-over-slf4j-2.0.18.jar",
+      "sha256": "ec5c36d57d2dbe100f84878f944575cb7871da32c7a115b8d7e0721277045d67",
+      "size": 18422
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.slf4j/jul-to-slf4j/2.0.18/79739c98001d5c9d078d087d5a348ec9e474ec8f/jul-to-slf4j-2.0.18.jar",
+      "sha256": "cbb7d1aaaa9e871eb1a06594abd911bf97027152976edf1edc315be75239204e",
+      "size": 6347
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.slf4j/log4j-over-slf4j/2.0.18/9346cfcbbe1cd58c8f80ca04de4c709fba22052c/log4j-over-slf4j-2.0.18.jar",
+      "sha256": "d030643b4b3371ac79ce9a5bf2e4f82b65ee5621e2c0c6bbfb254d74c9a90df6",
+      "size": 26532
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.slf4j/slf4j-api/2.0.18/78a9e7a37cd6360e0b818e86341b24123d28d4df/slf4j-api-2.0.18.jar",
+      "sha256": "44508fd1576500688c790b190acdd16fec4f8c79a3e0b900afd70503cf055f55",
+      "size": 69982
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-autoconfigure/4.1.0/a921df4e39389e43dacac5615a1185708ee8a960/spring-boot-autoconfigure-4.1.0.jar",
+      "sha256": "0fcaa3050ba835ca6b3879f81cd48dc590a6262f53bbf10d2a95c70bf7c048ac",
+      "size": 372738
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-data-commons/4.1.0/3d587cffcde8c18fa784e0486a2c0a8a4728f262/spring-boot-data-commons-4.1.0.jar",
+      "sha256": "44613292a91c231d81d39d05b10550b9988e7dcaf3b931b700e86fb0ac029937",
+      "size": 30270
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-data-redis/4.1.0/ae52af2d818ca43d61c486e5cff5d0e81d545c4c/spring-boot-data-redis-4.1.0.jar",
+      "sha256": "a3cee050807b8e0b437678ab40319930dfcffc7eb1da9bb57bf8e10900967e24",
+      "size": 89919
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-jdbc/4.1.0/71f00c6af0ae910530d9fce8f5ae6e54c595f690/spring-boot-jdbc-4.1.0.jar",
+      "sha256": "3b5aab97e72d8a15a40546c31365ed2090cf25451e18762add8ed22cbb4ead43",
+      "size": 204600
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-netty/4.1.0/b570590821eda412d77a1f815007037c6652dc7e/spring-boot-netty-4.1.0.jar",
+      "sha256": "397e145402d1c556b1ac2ea154218ba88a83153adac9a7e5a4534dc6cc7d780c",
+      "size": 9807
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-persistence/4.1.0/12b6d5aa8a97c458a5c8eba8e8cb0e38e326d9d8/spring-boot-persistence-4.1.0.jar",
+      "sha256": "d9d926224c738bd6152718c078134e3aea1057db4d6a452c37ad120893e0e4d6",
+      "size": 16030
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-sql/4.1.0/7a5ef86020d10e926b2e98e1d7b4b79258fb2f38/spring-boot-sql-4.1.0.jar",
+      "sha256": "2826a5380675337f4c5b3e90db02279e68a2c9a7eb2b2ac312828c05fb827a9a",
+      "size": 36056
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-data-redis/4.1.0/efdaaedff624a7f406d53d2d945ee71676d7759a/spring-boot-starter-data-redis-4.1.0.jar",
+      "sha256": "85d475bcc240f0c8e2a142b0278d6063d11e64522823abe34d92a8c4dfb50c75",
+      "size": 4782
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-jdbc/4.1.0/aa7c6585dd28891cb052d95606776076b5445df2/spring-boot-starter-jdbc-4.1.0.jar",
+      "sha256": "ce3e3dfdde267f11d21960715967b59713575cab8e5e8b3b00fba6a3bb022c99",
+      "size": 4766
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-logging/4.1.0/f2e2615d9fb27a035a8fc7aef19670769739ae76/spring-boot-starter-logging-4.1.0.jar",
+      "sha256": "73a6a42d2b6a589bd722aa107800829d0b20b731d94135f53c4b744db8beafbf",
+      "size": 4739
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter/4.1.0/4d1f5fcf982ec75223a3ee44169e268b6dd044f7/spring-boot-starter-4.1.0.jar",
+      "sha256": "40352b3fc0834d5830f66d40100fc8afa8ac73e24a134c7779bd42b72f2d6506",
+      "size": 4765
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-transaction/4.1.0/93b102fb7c2eb6558b8e52fb24f1152c837db3f6/spring-boot-transaction-4.1.0.jar",
+      "sha256": "5402dfeef5d6633b485d6ce8d1cfb2116c7a55e70f8f5dbd31b69ca43e006f13",
+      "size": 21029
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.boot/spring-boot/4.1.0/bcf26d4c27ab080ef60c13220e96a37d687f9e26/spring-boot-4.1.0.jar",
+      "sha256": "b23951a3a7f867e38db4729b8594e1b72374516f386b1dd9cf4d5317d6d3f91f",
+      "size": 1391652
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.data/spring-data-commons/4.1.0/e8d1077d09c20e9ecf3574a72ce5cc90a29b902a/spring-data-commons-4.1.0.jar",
+      "sha256": "c9e41d45b30aacc0ce50c4426f0650a3544c066ab5d6d0304840e6f878388c5c",
+      "size": 1773391
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.data/spring-data-keyvalue/4.1.0/9ade00273c269ca0d50c4d2d5f564d21a84f94f7/spring-data-keyvalue-4.1.0.jar",
+      "sha256": "1cab6685ee820428a9fb48eab4a5cb48ddcab1dfdb2467b9afb3c47f5455d19b",
+      "size": 142597
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework.data/spring-data-redis/4.1.0/db3c9ffef46e71f2697d28d8654021220766b4e/spring-data-redis-4.1.0.jar",
+      "sha256": "c9f7c6d38c98e4240250c0c3969758b26763c4e0e87726915a71855062ae6cb2",
+      "size": 2453205
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-aop/7.0.8/b73e58e9b7dbc4db6b4ebbe3336be0e901b0d261/spring-aop-7.0.8.jar",
+      "sha256": "1178f039e087884174e2affc46e484f4a8bd7f2a4e011d33dd9137709f740f80",
+      "size": 426204
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-beans/7.0.8/829cdf4c82a9409e0e10922b9e57e2ef12d5f04d/spring-beans-7.0.8.jar",
+      "sha256": "6ec2e361a8872a71d8b1ff66f1bcb8cfa29fcc437931998919da7cecfb59b45b",
+      "size": 928037
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-context-support/7.0.8/1c9bd9da34fca09f3423d86f8e33bd9c099232eb/spring-context-support-7.0.8.jar",
+      "sha256": "9ab80715682c47ad66a1a2c0e9ab2be9ec3d828276f281597f12c5208147b92e",
+      "size": 177619
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-context/7.0.8/6c58b590fd8d71afc36797cf6555e82500f1eb64/spring-context-7.0.8.jar",
+      "sha256": "1eb7d552414ebac00e30ab3e809138d810785f6d2c4271db77cdf0181f308f19",
+      "size": 1398484
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-core/7.0.8/25f5ebd179f92d7d12779e3761c96da4b0109ad/spring-core-7.0.8.jar",
+      "sha256": "726ba2a5130833644bdf267a55ff26e1f52e8dcc9aa1ffa06904ca9c14619f25",
+      "size": 2035553
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-expression/7.0.8/bb844eefd513820e356b575d7ea0f7084147af59/spring-expression-7.0.8.jar",
+      "sha256": "3c97c38ab59c77ee886e08ccf8096f6bb58a1245f68dfed7a40e93f41c435f9a",
+      "size": 325993
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-jdbc/7.0.8/f979da380cd01fd363510ca98a7f544d1959a914/spring-jdbc-7.0.8.jar",
+      "sha256": "7d6bbf130ed919d5f4f01ec0ea771ab59ac3936ab29f50fd3a705c0119871e32",
+      "size": 480644
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-messaging/7.0.8/2379224f4c36aeaeceb706750138b8ca9d265916/spring-messaging-7.0.8.jar",
+      "sha256": "0f96694ebb88fed6bf4aef608010c23ee922a476dd71e0fab76ca9ed0eaa70b0",
+      "size": 613599
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-oxm/7.0.8/e74c099072565db0552b56691449e52b79f6f23e/spring-oxm-7.0.8.jar",
+      "sha256": "67f91ffb41a94cf0e443f02ee6f740d52e10a84cabae218cdb0de65f87a82172",
+      "size": 60103
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.springframework/spring-tx/7.0.8/96c66acfb3920457421a9cb3648a32e62f42f815/spring-tx-7.0.8.jar",
+      "sha256": "57e8fdb6de949e7ec2617683fec03af0253bdbdf4bf3d2651a926a94413df283",
+      "size": 292080
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.testcontainers/testcontainers-cassandra/2.0.5/5a29efc8911634d12290ccb983668f45669c738f/testcontainers-cassandra-2.0.5.jar",
+      "sha256": "c6ce343636e40330da6ffa317ca4a56bf09affd3e272445d0176498497218cbe",
+      "size": 16403
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.testcontainers/testcontainers-database-commons/2.0.5/bc1eeea337c461c108507f596122b3e6fdb62122/testcontainers-database-commons-2.0.5.jar",
+      "sha256": "0ebbc62bdcfb315cb840a63fbaa148b455927666d9034b5e5c00009d84c755b0",
+      "size": 15029
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.testcontainers/testcontainers-junit-jupiter/2.0.5/89bd1ef45ec60b17b323c747da1e6f2af6187543/testcontainers-junit-jupiter-2.0.5.jar",
+      "sha256": "d66eb7f257a85833a8cc973e3814d740967d40a7db1a0de0040653c6ed236748",
+      "size": 14917
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.testcontainers/testcontainers-k3s/2.0.5/ced546d00e96dfb4802b95756dcd147aa3462d57/testcontainers-k3s-2.0.5.jar",
+      "sha256": "7be44e2fe253122f550638c7824b956bf82a8e195941497c9b30edc3c6c87c5e",
+      "size": 61524
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.testcontainers/testcontainers/2.0.5/7e5013c78fd678ba8958db23c6883274019f2f2f/testcontainers-2.0.5.jar",
+      "sha256": "0466f481343d5f350a91274cd7bf984308cbaf90d706247fd1cf4b1a8010c2e1",
+      "size": 17789146
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.xerial.snappy/snappy-java/1.1.10.8/ccbaa2b5ea6a023a27c44daf2d6cdec0e138592d/snappy-java-1.1.10.8.jar",
+      "sha256": "50485d06037fea3d6e40c968386feeca6338cc9872e25549593ff3eb352cefcc",
+      "size": 2445419
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.yaml/snakeyaml/2.6/2bc14918a2f8d5414749ab12d0c590cd3198b8c1/snakeyaml-2.6.jar",
+      "sha256": "c8f7a98e7394adda02f6317249710e4d1b4c7a25aa8c7eace0c2eea52eb8bf85",
+      "size": 340068
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/tools.jackson.core/jackson-core/3.2.0/ebf2fc67340907abfc4891ed74ba4c4419e2b47e/jackson-core-3.2.0.jar",
+      "sha256": "5e353ce53c6901105dfcbf183e3220c17072e334e552b818a4bb1b99decea596",
+      "size": 604593
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/tools.jackson.core/jackson-databind/3.2.0/45c1083a04086e6b7a0d008ac6c56655567690d0/jackson-databind-3.2.0.jar",
+      "sha256": "3ef94a3dddeafc247c50230fad0315981b2ce4ae6e91cfb4368a86f328904e4f",
+      "size": 1967936
+    },
+    {
+      "kind": "jar",
+      "path": "$GRADLE_USER_HOME/caches/modules-2/files-2.1/tools.jackson.module/jackson-module-kotlin/3.2.0/8591fec5f80271ab0c0ba85bd0ae0b953b0c91a2/jackson-module-kotlin-3.2.0.jar",
+      "sha256": "27b42872aabff2ad58bed72e837cd1cf8c7e53d896dee8654f8e8b24f94aacfc",
+      "size": 222001
+    }
+  ],
+  "replacementPolicy": {
+    "prependedPinnedCoordinates": [
+      "io.github.bluetape4k:bluetape4k-io:1.11.0",
+      "io.github.bluetape4k:bluetape4k-lettuce:1.11.0",
+      "io.github.bluetape4k:bluetape4k-redisson:1.11.0"
+    ],
+    "removedCurrentOutputs": [
+      "io/io/build",
+      "infra/lettuce/build",
+      "infra/redisson/build"
+    ]
+  }
+}

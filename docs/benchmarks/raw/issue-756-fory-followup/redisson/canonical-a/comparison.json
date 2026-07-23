@@ -1,0 +1,74 @@
+[
+  {
+    "backend": "fory",
+    "operation": "decode",
+    "source": "heap",
+    "baseline": "foryHeapDecodeCopiedBaseline",
+    "candidate": "foryHeapDecodeCandidate",
+    "promotable": true,
+    "allocation_ratio": 1.2999998818231195,
+    "throughput_delta": -0.18488066527776958,
+    "error_intervals_separated": false,
+    "disposition": "rejected"
+  },
+  {
+    "backend": "fory",
+    "operation": "decode",
+    "source": "direct",
+    "baseline": "foryDirectDecodeCopiedBaseline",
+    "candidate": "foryDirectDecodeCandidate",
+    "promotable": true,
+    "allocation_ratio": 0.7142861864426374,
+    "throughput_delta": -0.06061733170329253,
+    "error_intervals_separated": true,
+    "disposition": "accepted"
+  },
+  {
+    "backend": "fory",
+    "operation": "decode",
+    "source": "composite",
+    "baseline": "foryCompositeDecodeCopiedBaseline",
+    "candidate": "foryCompositeDecodeCandidate",
+    "promotable": false,
+    "allocation_ratio": 1.0000000162701563,
+    "throughput_delta": -0.02674633753623601,
+    "error_intervals_separated": false,
+    "disposition": "fallback"
+  },
+  {
+    "backend": "fastFory",
+    "operation": "decode",
+    "source": "heap",
+    "baseline": "fastForyHeapDecodeCopiedBaseline",
+    "candidate": "fastForyHeapDecodeCandidate",
+    "promotable": true,
+    "allocation_ratio": 1.2222224031999782,
+    "throughput_delta": -0.2925079330009286,
+    "error_intervals_separated": false,
+    "disposition": "rejected"
+  },
+  {
+    "backend": "fastFory",
+    "operation": "decode",
+    "source": "direct",
+    "baseline": "fastForyDirectDecodeCopiedBaseline",
+    "candidate": "fastForyDirectDecodeCandidate",
+    "promotable": true,
+    "allocation_ratio": 0.7301591831673278,
+    "throughput_delta": -0.13182977883432723,
+    "error_intervals_separated": true,
+    "disposition": "accepted"
+  },
+  {
+    "backend": "fastFory",
+    "operation": "decode",
+    "source": "composite",
+    "baseline": "fastForyCompositeDecodeCopiedBaseline",
+    "candidate": "fastForyCompositeDecodeCandidate",
+    "promotable": false,
+    "allocation_ratio": 1.0000000340235031,
+    "throughput_delta": -0.0621297160140436,
+    "error_intervals_separated": false,
+    "disposition": "fallback"
+  }
+]

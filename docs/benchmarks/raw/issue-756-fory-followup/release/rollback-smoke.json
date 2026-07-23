@@ -1,0 +1,32 @@
+{
+  "checks": [
+    {
+      "codec": "fory",
+      "roundTripEvidence": "ROUNDTRIP_OK",
+      "status": "passed"
+    },
+    {
+      "codec": "fast-fory",
+      "roundTripEvidence": "ROUNDTRIP_OK",
+      "status": "passed"
+    }
+  ],
+  "excludedGeneratedOutput": "docs/benchmarks/raw/issue-756-fory-followup/release",
+  "generatedAt": "2026-07-23T05:05:30.948606+00:00",
+  "inputCommit": "bbe59d5d7ea14eb3bd0cbaa3c1942fb83441dcdc",
+  "inputTree": "09bc4b749f57da9fede249cb7efc375b1dd3a42f",
+  "knownGoodVersion": "1.11.0",
+  "limitation": "Redis was unavailable at redis://127.0.0.1:6379; this deterministic fallback proves known-good Fory/FastFory codec round trips but not networked Redis SET/GET.",
+  "mode": "codec-level",
+  "pinnedCoordinates": [
+    "io.github.bluetape4k:bluetape4k-io:1.11.0",
+    "io.github.bluetape4k:bluetape4k-lettuce:1.11.0",
+    "io.github.bluetape4k:bluetape4k-redisson:1.11.0"
+  ],
+  "publicationGate": "blocked",
+  "publishingPerformed": false,
+  "repositoryUrl": "https://repo.maven.apache.org/maven2",
+  "schemaVersion": 1,
+  "sourceRelevantClean": true,
+  "status": "limited"
+}

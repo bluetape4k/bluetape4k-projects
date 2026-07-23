@@ -1,0 +1,14 @@
+chart-gate: asset=issue756-fory-followup-allocation-chart-01
+source=docs/images/readme-charts/issue756-fory-followup-allocation-chart-01-source.json
+manifest=docs/benchmarks/raw/issue-756-fory-followup/manifest.json
+manifestSha256=68f81d30c406ab24770127b92c4bef2a11ebfc66169a7ccf648d02d7efd50aae
+metric=allocation reduction percent versus copied baseline
+acceptedCells=6
+excludedRejectedCells=4
+excludedFallbackCells=2
+excludedInconclusiveCells=0
+canonicalRuns=2
+acceptedOnly=PASS
+unitDirection=PASS
+sourceBinding=PASS
+status=PASS

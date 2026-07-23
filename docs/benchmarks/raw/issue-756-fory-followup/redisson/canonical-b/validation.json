@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "encodeDisposition": "rejected",
+  "method_count": 12,
+  "comparisons": [
+    {
+      "backend": "fory",
+      "operation": "decode",
+      "source": "heap",
+      "baseline": "foryHeapDecodeCopiedBaseline",
+      "candidate": "foryHeapDecodeCandidate",
+      "promotable": true,
+      "allocation_ratio": 1.2000001369233442,
+      "throughput_delta": -0.19944453219083313,
+      "error_intervals_separated": false,
+      "disposition": "rejected"
+    },
+    {
+      "backend": "fory",
+      "operation": "decode",
+      "source": "direct",
+      "baseline": "foryDirectDecodeCopiedBaseline",
+      "candidate": "foryDirectDecodeCandidate",
+      "promotable": true,
+      "allocation_ratio": 0.714286240343619,
+      "throughput_delta": -0.09746607236463412,
+      "error_intervals_separated": true,
+      "disposition": "accepted"
+    },
+    {
+      "backend": "fory",
+      "operation": "decode",
+      "source": "composite",
+      "baseline": "foryCompositeDecodeCopiedBaseline",
+      "candidate": "foryCompositeDecodeCandidate",
+      "promotable": false,
+      "allocation_ratio": 1.0000000288449347,
+      "throughput_delta": -0.04579696479317341,
+      "error_intervals_separated": false,
+      "disposition": "fallback"
+    },
+    {
+      "backend": "fastFory",
+      "operation": "decode",
+      "source": "heap",
+      "baseline": "fastForyHeapDecodeCopiedBaseline",
+      "candidate": "fastForyHeapDecodeCandidate",
+      "promotable": true,
+      "allocation_ratio": 1.2222224007233742,
+      "throughput_delta": -0.28768162749517956,
+      "error_intervals_separated": false,
+      "disposition": "rejected"
+    },
+    {
+      "backend": "fastFory",
+      "operation": "decode",
+      "source": "direct",
+      "baseline": "fastForyDirectDecodeCopiedBaseline",
+      "candidate": "fastForyDirectDecodeCandidate",
+      "promotable": true,
+      "allocation_ratio": 0.7301591506764463,
+      "throughput_delta": -0.10362763222340421,
+      "error_intervals_separated": true,
+      "disposition": "accepted"
+    },
+    {
+      "backend": "fastFory",
+      "operation": "decode",
+      "source": "composite",
+      "baseline": "fastForyCompositeDecodeCopiedBaseline",
+      "candidate": "fastForyCompositeDecodeCandidate",
+      "promotable": false,
+      "allocation_ratio": 1.000000040124464,
+      "throughput_delta": -0.07235010016149168,
+      "error_intervals_separated": false,
+      "disposition": "fallback"
+    }
+  ],
+  "hashes": {
+    "jmh.json": "547648c9c8fcfe61cb32a418179395723cab125a77e44ee07e5dbb068c8cfa86",
+    "preflight.json": "3a845d0c7bf67a2e1e75adf4e212d89d123dbc67c4eae7616758621e8aaf6395",
+    "argv.json": "1bf42203931b2fd0890eb07e40dbd6f0104f094439aeaa2ec0b54dfdc8707f7d",
+    "environment.json": "69d5a23d895d9582b8386119cfa18de001bcf32486d7de88f3168d6dab496f5e",
+    "metadata.json": "e9a3af87cc02b3d880309ccea7ca27ecb6bb0281f96975dced1bb717e16e49e1",
+    "comparison.json": "2bfefad0d576711a5bf21e3b7a2651ef3ca51d9f4a77c346798a7bb8d6664568",
+    "summary.csv": "8c90a9f73cfdea30160933663c87cad953c68f6d7bc4c3bf1c53e645d6e4af91"
+  }
+}

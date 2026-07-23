@@ -100,6 +100,28 @@ dispatch telemetry는 없습니다. 유지한 direct path에 결함이 있으면
 rollback합니다. Implementation이 바뀌면 allocation 주장을 재사용하기 전에 canonical run 두 번을 새로
 수집해야 합니다.
 
+#### Raw Fory/FastFory 경계
+
+압축하지 않는 `fory()`와 `fastFory()` factory의 target-taking encode는 같은 bounded caller-owned
+`ByteBuf` writer를 사용합니다. 이 경로는 codec 수준의 handoff `ByteArray`를 제거하지만 Apache Fory의 내부
+재사용 `MemoryBuffer`와 destination으로의 최종 기록은 남으므로 zero-copy가 아닙니다. 단일 인자 encode와
+모든 압축 factory는 allocating 호환 경로를 유지합니다.
+
+같은 factory를 유지하면 caller API나 payload migration은 필요하지 않습니다. `fastFory()`에는 Fory
+fallback이 없고 `fory()`와 wire-incompatible하므로 mode 전환에는 명시적인 cache migration 또는 eviction이
+필요합니다. Committed [issue #756 Fory 후속 근거](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md)에서
+accepted인 정확한 cell에만 allocation 주장을 부여할 수 있습니다.
+
+| Raw target-taking encode | Heap | Direct |
+|---|---:|---:|
+| Fory | accepted: canonical A/B에서 allocation 99.99947% 감소 | accepted: 99.99949–99.99950% |
+| FastFory | accepted: 99.99952–99.99954% | accepted: 99.99950–99.99954% |
+
+![이슈 #756 accepted Fory allocation 감소](../../docs/images/readme-charts/issue756-fory-followup-allocation-chart-01.png)
+
+Lettuce의 정확한 4개 cell은 모두 accepted입니다. 이 allocation 수치는 zero-copy나 일반적인 throughput
+개선을 뜻하지 않습니다. 이 경로에는 runtime auto-fallback, feature flag, dispatch telemetry가 없습니다.
+
 `LettuceCacheConfig` 제약:
 
 - `writeBehindBatchSize`, `writeBehindQueueCapacity`, `writeRetryAttempts`, `nearCacheMaxSize`는 0보다 커야 합니다.

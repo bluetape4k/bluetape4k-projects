@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="920" viewBox="0 0 1400 920" role="img" aria-labelledby="title desc" data-manifest-sha="68f81d30c406ab24770127b92c4bef2a11ebfc66169a7ccf648d02d7efd50aae" data-source-file="issue756-fory-followup-allocation-chart-01-source.json">
+  <title id="title">Issue 756 Fory allocation reduction in accepted canonical cells</title>
+  <desc id="desc">Grouped horizontal bars compare allocation reduction in canonical runs A and B for the six accepted Fory and FastFory codec cells. Higher is better. Rejected encode and heap decode cells and composite fallback cells are intentionally not plotted.</desc>
+  <defs>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.08"/></filter>
+    <style>
+      .canvas{fill:#F6F9FD}.frame{fill:#FFFFFF;stroke:#C9D8E8;stroke-width:2}.panel{fill:#FFFFFF;stroke:#C9D8E8;stroke-width:1.8;filter:url(#shadow)}.note{fill:#F7FBFF;stroke:#4F83FF;stroke-width:1.5}
+      .title{font-family:"Architects Daughter";font-size:34px;fill:#22304A;font-weight:700}.panelTitle{font-family:"Architects Daughter";font-size:23px;fill:#22304A;font-weight:700}
+      .subtitle,.label,.axis,.value,.small,.tiny,.legend{font-family:"Comic Mono";fill:#22304A}.subtitle{font-size:14px;fill:#5B6B83}.label{font-size:14px;font-weight:700}.axis{font-size:11px;fill:#5B6B83}.value{font-size:12px;font-weight:700}.small{font-size:12px}.tiny{font-size:10px;fill:#5B6B83}.legend{font-size:12px}
+      .grid{stroke:#E1E9F3;stroke-width:1}.axisLine{stroke:#B7C8DC;stroke-width:1.4}.runA{fill:#8BB8FF;stroke:#4F83FF;stroke-width:1.4}.runB{fill:#75D9C7;stroke:#18A98F;stroke-width:1.4}.divider{stroke:#E1E9F3;stroke-width:1}
+    </style>
+  </defs>
+  <rect class="canvas" width="1400" height="920"/>
+  <rect class="frame" x="0.5" y="0.5" width="1399" height="919" rx="14"/>
+  <text class="title" x="700" y="54" text-anchor="middle">Fory codec handoff: accepted allocation reductions</text>
+  <text class="subtitle" x="700" y="80" text-anchor="middle">Issue #756 canonical A/B / exact measured cells only / higher is better</text>
+  <g>
+    <rect x="1030" y="105" width="18" height="12" rx="4" class="runA"/><text class="legend" x="1056" y="115" dominant-baseline="middle">Canonical A (%)</text>
+    <rect x="1190" y="105" width="18" height="12" rx="4" class="runB"/><text class="legend" x="1216" y="115" dominant-baseline="middle">Canonical B (%)</text>
+  </g>
+  <rect class="panel" x="54" y="138" width="1292" height="584" rx="14"/>
+  <text class="panelTitle" x="86" y="180">Allocation reduction versus copied baseline</text>
+  <text class="axis" x="865" y="180" text-anchor="middle">Allocation reduction (%)</text>
+  <line class="grid" x1="470" y1="202" x2="470" y2="660"/><text class="axis" x="470" y="686" text-anchor="middle">0</text>
+  <line class="grid" x1="662.5" y1="202" x2="662.5" y2="660"/><text class="axis" x="662.5" y="686" text-anchor="middle">25</text>
+  <line class="grid" x1="855" y1="202" x2="855" y2="660"/><text class="axis" x="855" y="686" text-anchor="middle">50</text>
+  <line class="grid" x1="1047.5" y1="202" x2="1047.5" y2="660"/><text class="axis" x="1047.5" y="686" text-anchor="middle">75</text>
+  <line class="grid" x1="1240" y1="202" x2="1240" y2="660"/><text class="axis" x="1240" y="686" text-anchor="middle">100</text>
+  <line class="axisLine" x1="470" y1="660" x2="1240" y2="660"/>
+
+  <g data-cell-id="lettuce-fory-heap-encode" data-run-a="99.99947489059508" data-run-b="99.9994700485132">
+    <text class="label" x="86" y="235">Lettuce / Fory / heap encode</text>
+    <rect x="470" y="216" width="769.996" height="16" rx="5" class="runA"/><text class="value" x="1228" y="228" text-anchor="end">99.9995%</text>
+    <rect x="470" y="240" width="769.996" height="16" rx="5" class="runB"/><text class="value" x="1228" y="252" text-anchor="end">99.9995%</text>
+  </g>
+  <line class="divider" x1="86" y1="272" x2="1314" y2="272"/>
+  <g data-cell-id="lettuce-fory-direct-encode" data-run-a="99.99949687899122" data-run-b="99.99949488572157">
+    <text class="label" x="86" y="310">Lettuce / Fory / direct encode</text>
+    <rect x="470" y="291" width="769.996" height="16" rx="5" class="runA"/><text class="value" x="1228" y="303" text-anchor="end">99.9995%</text>
+    <rect x="470" y="315" width="769.996" height="16" rx="5" class="runB"/><text class="value" x="1228" y="327" text-anchor="end">99.9995%</text>
+  </g>
+  <line class="divider" x1="86" y1="347" x2="1314" y2="347"/>
+  <g data-cell-id="lettuce-fastFory-heap-encode" data-run-a="99.99951805057865" data-run-b="99.99954496957335">
+    <text class="label" x="86" y="385">Lettuce / FastFory / heap encode</text>
+    <rect x="470" y="366" width="769.997" height="16" rx="5" class="runA"/><text class="value" x="1228" y="378" text-anchor="end">99.9995%</text>
+    <rect x="470" y="390" width="769.997" height="16" rx="5" class="runB"/><text class="value" x="1228" y="402" text-anchor="end">99.9995%</text>
+  </g>
+  <line class="divider" x1="86" y1="422" x2="1314" y2="422"/>
+  <g data-cell-id="lettuce-fastFory-direct-encode" data-run-a="99.99950096303584" data-run-b="99.99954252696271">
+    <text class="label" x="86" y="460">Lettuce / FastFory / direct encode</text>
+    <rect x="470" y="441" width="769.996" height="16" rx="5" class="runA"/><text class="value" x="1228" y="453" text-anchor="end">99.9995%</text>
+    <rect x="470" y="465" width="769.996" height="16" rx="5" class="runB"/><text class="value" x="1228" y="477" text-anchor="end">99.9995%</text>
+  </g>
+  <line class="divider" x1="86" y1="497" x2="1314" y2="497"/>
+  <g data-cell-id="redisson-fory-direct-decode" data-run-a="28.57138135573626" data-run-b="28.5713759656381">
+    <text class="label" x="86" y="535">Redisson / Fory / direct decode</text>
+    <rect x="470" y="516" width="220" height="16" rx="5" class="runA"/><text class="value" x="700" y="528">28.57%</text>
+    <rect x="470" y="540" width="220" height="16" rx="5" class="runB"/><text class="value" x="700" y="552">28.57%</text>
+  </g>
+  <line class="divider" x1="86" y1="572" x2="1314" y2="572"/>
+  <g data-cell-id="redisson-fastFory-direct-decode" data-run-a="26.98408168326722" data-run-b="26.98408493235537">
+    <text class="label" x="86" y="610">Redisson / FastFory / direct decode</text>
+    <rect x="470" y="591" width="207.778" height="16" rx="5" class="runA"/><text class="value" x="687.778" y="603">26.98%</text>
+    <rect x="470" y="615" width="207.778" height="16" rx="5" class="runB"/><text class="value" x="687.778" y="627">26.98%</text>
+  </g>
+
+  <g>
+    <rect class="note" x="54" y="750" width="1292" height="120" rx="14"/>
+    <text class="panelTitle" x="86" y="790">Promotion boundary</text>
+    <text class="small" x="86" y="824">Only cells accepted in both canonical runs are plotted. Redisson heap decode and encode are rejected.</text>
+    <text class="small" x="86" y="850">Composite decode is a non-promotable fallback. Labels are rounded to four decimals; this is not a zero-allocation or zero-copy claim.</text>
+  </g>
+</svg>

@@ -5,14 +5,65 @@ import org.apache.fory.Fory
 import org.apache.fory.ThreadSafeFory
 import org.apache.fory.config.CompatibleMode
 import org.apache.fory.config.Language
+import java.io.IOException
+import java.io.OutputStream
 import java.nio.ByteBuffer
 
+private const val FORY_OUTPUT_LIMIT_MESSAGE = "Serialized output exceeds Int.MAX_VALUE bytes."
+
+private class ForyBorrowedTargetWriteFailure(
+    cause: Throwable,
+): RuntimeException(cause)
+
+private class ForyOutputCountOverflowFailure(
+    cause: ArithmeticException,
+): IllegalStateException(FORY_OUTPUT_LIMIT_MESSAGE, cause)
+
+private class ForyCallerOwnedCountingOutputStream(
+    private val target: OutputStream,
+): OutputStream() {
+
+    var written: Int = 0
+        private set
+
+    override fun write(value: Int) {
+        val next = checkedCount(1)
+        writeToTarget { target.write(value) }
+        written = next
+    }
+
+    override fun write(bytes: ByteArray, offset: Int, length: Int) {
+        val next = checkedCount(length)
+        writeToTarget { target.write(bytes, offset, length) }
+        written = next
+    }
+
+    override fun flush() = Unit
+
+    override fun close() = Unit
+
+    private fun checkedCount(length: Int): Int =
+        try {
+            Math.addExact(written, length)
+        } catch (failure: ArithmeticException) {
+            throw ForyOutputCountOverflowFailure(failure)
+        }
+
+    private inline fun writeToTarget(block: () -> Unit) {
+        try {
+            block()
+        } catch (failure: Throwable) {
+            throw ForyBorrowedTargetWriteFailure(failure)
+        }
+    }
+}
+
 /**
- * [Fory](https://fory.apache.org/) 를 이용한 Binary 직렬화/역직렬화를 수행하는 [BinarySerializer]
+ * A [BinarySerializer] backed by [Fory](https://fory.apache.org/).
  *
- * > **보안 경고**: 기본 설정(`requireClassRegistration(false)`)은 등록되지 않은 모든 클래스의 역직렬화를 허용합니다.
- * > 신뢰할 수 없는 데이터 소스에서 역직렬화할 경우 임의 코드 실행(RCE) 취약점이 발생할 수 있습니다.
- * > 보안이 중요한 환경에서는 `requireClassRegistration(true)`로 변경하고 허용할 클래스를 명시적으로 등록하세요.
+ * > **Security warning:** The default configuration uses `requireClassRegistration(false)` and is intended only
+ * > for trusted payloads. Use [secureFory] and an explicit registration allow-list when deserializing across a
+ * > boundary that is not fully controlled by the application.
  *
  * ```
  * val serializer = ForyBinarySerializer()
@@ -20,7 +71,10 @@ import java.nio.ByteBuffer
  * val text = serializer.deserialize<String>(bytes)  // text="Hello, World!"
  * ```
  *
- * [deserializeFrom] delegates a duplicate of the caller's bounded range to Fory's ByteBuffer API.
+ * [deserializeFrom] delegates a duplicate of the caller's bounded range to Fory's `ByteBuffer` API.
+ * [serializeBinaryToStream] writes through Fory's `OutputStream` overload and avoids only the returned/handoff
+ * payload array. The target is borrowed synchronously and is not retained, flushed, or closed. Fory still uses its
+ * reusable internal `MemoryBuffer`, so this is not a zero-copy serializer.
  * [serializeTo] intentionally keeps the BinarySerializer ByteArray compatibility fallback because
  * Fory's MemoryBuffer output may grow by replacing caller-provided storage.
  * The [issue #1039 evidence](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)
@@ -63,30 +117,31 @@ class ForyBinarySerializer(
         }
 
         /**
-         * SCHEMA_CONSISTENT + refTracking 비활성화로 최적화된 [ForyBinarySerializer]를 반환합니다.
+         * Returns a [ForyBinarySerializer] configured with `SCHEMA_CONSISTENT` and reference tracking disabled.
          *
-         * 기본 [ForyBinarySerializer] 대비 처리량이 약 +70% 향상됩니다.
+         * Throughput depends on the payload and runtime profile. Use committed benchmark evidence for the exact
+         * workload instead of assuming a fixed uplift over the default serializer.
          *
-         * ## 적합한 사용 사례
-         * - Redis·메시지큐 등 **휘발성** 캐시: 데이터 수명이 배포 단위와 같아 포맷 변경이 무해합니다.
-         * - 클래스 구조가 변경되지 않는 **고정 스키마** DTO.
-         * - 순환 참조 없는 **DAG** 형태의 객체 그래프.
+         * ## Suitable use cases
+         * - **Ephemeral** caches such as Redis or message queues, where data lifetime follows deployments.
+         * - **Fixed-schema** DTOs whose class structure does not change.
+         * - **DAG-shaped** object graphs without cyclic references.
          *
-         * ## 사용하면 안 되는 경우
-         * - **영속화된 바이너리 데이터** (DB·파일 저장): SCHEMA_CONSISTENT 포맷은 기본 COMPATIBLE 포맷과
-         *   호환되지 않아 기존 데이터를 역직렬화할 수 없습니다.
-         * - **순환 참조** 객체 (`refTracking=false`): 무한 루프 또는 스택 오버플로우가 발생합니다.
-         * - 런타임에 **필드가 추가·제거**되는 스키마 진화가 필요한 경우.
+         * ## Do not use when
+         * - Binary data is **persisted** in a database or file. `SCHEMA_CONSISTENT` is not wire-compatible with
+         *   the default `COMPATIBLE` format and cannot read those existing payloads.
+         * - Object graphs contain **cyclic references**. With `refTracking=false`, they can loop or overflow the stack.
+         * - Schema evolution requires fields to be **added or removed** at runtime.
          *
          * ```kotlin
-         * // ✅ 올바른 사용: 휘발성 캐시, 고정 스키마 DTO
+         * // Correct: ephemeral cache and fixed-schema DTO
          * val serializer = ForyBinarySerializer.fast()
          * val bytes = serializer.serialize(myDto)
          *
-         * // ❌ 잘못된 사용: 기본 Fory로 직렬화한 데이터를 fast()로 역직렬화 시도
-         * val legacy = ForyBinarySerializer()   // COMPATIBLE 모드
+         * // Incorrect: trying to decode default Fory bytes with fast()
+         * val legacy = ForyBinarySerializer()   // COMPATIBLE mode
          * val legacyBytes = legacy.serialize(myDto)
-         * serializer.deserialize<MyDto>(legacyBytes) // 오류 또는 잘못된 결과
+         * serializer.deserialize<MyDto>(legacyBytes) // failure or invalid result
          * ```
          */
         @JvmStatic
@@ -141,6 +196,23 @@ class ForyBinarySerializer(
      */
     override fun doSerialize(graph: Any): ByteArray {
         return fory.serialize(graph)
+    }
+
+    @Throws(IOException::class)
+    override fun serializeBinaryToStream(graph: Any?, target: OutputStream): Int {
+        val source = graph ?: return 0
+        val output = ForyCallerOwnedCountingOutputStream(target)
+
+        return try {
+            fory.serialize(output, source)
+            output.written
+        } catch (failure: ForyBorrowedTargetWriteFailure) {
+            throw checkNotNull(failure.cause)
+        } catch (failure: ForyOutputCountOverflowFailure) {
+            throw failure
+        } catch (failure: Throwable) {
+            throw BinarySerializationException("Fail to serialize. graphType=${source.javaClass.name}", failure)
+        }
     }
 
     /**

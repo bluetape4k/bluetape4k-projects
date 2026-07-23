@@ -11,12 +11,16 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import org.apache.fory.ThreadSafeFory
 import org.junit.jupiter.api.Test
 import untrusted.payload.UntrustedPayload
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.io.OutputStream
 import java.io.Serializable
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
@@ -25,6 +29,7 @@ import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.ReadOnlyBufferException
+import java.util.concurrent.CancellationException
 import java.util.concurrent.atomic.AtomicInteger
 
 class JdkBinarySerializerByteBufferTest {
@@ -327,7 +332,131 @@ class KryoBinarySerializerByteBufferTest {
     }
 }
 
-class ForyBinarySerializerByteBufferTest {
+class CoreBinarySerializerByteBufferTest {
+
+    @Test
+    fun `serializeBinaryToStream delegates to the Fory OutputStream overload`() {
+        val wire = byteArrayOf(4, 3, 2, 1)
+        val handler = RecordingForyHandler(
+            encoded = wire,
+            rejectByteArraySerialize = true,
+            streamWrite = { output ->
+                output.write(wire)
+                output.flush()
+                output.close()
+            },
+        )
+        val serializer = ForyBinarySerializer(handler.proxy())
+        val target = RecordingForyOutputStream()
+
+        val written = serializer.serializeBinaryToStream("value", target)
+
+        written shouldBeEqualTo wire.size
+        target.toByteArray() shouldBeEqualTo wire
+        handler.streamSerializeCalls shouldBeEqualTo 1
+        handler.byteArraySerializeCalls shouldBeEqualTo 0
+        target.flushCount shouldBeEqualTo 0
+        target.closeCount shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `Fory stream normalizes primary serialization failure while preserving borrowed target failures`() {
+        val primaryFailure = IllegalArgumentException("primary failure")
+        val primaryHandler = RecordingForyHandler(
+            rejectByteArraySerialize = true,
+            streamSerializeFailure = primaryFailure,
+        )
+        val primaryTarget = RecordingForyOutputStream()
+
+        val primaryActual = assertFailsWith<BinarySerializationException> {
+            ForyBinarySerializer(primaryHandler.proxy()).serializeBinaryToStream("value", primaryTarget)
+        }
+
+        primaryActual.cause shouldBeSameInstanceAs primaryFailure
+        primaryTarget.toByteArray() shouldBeEqualTo byteArrayOf()
+        primaryTarget.flushCount shouldBeEqualTo 0
+        primaryTarget.closeCount shouldBeEqualTo 0
+
+        val primaryCancellation = CancellationException("primary cancellation")
+        val cancellationTarget = RecordingForyOutputStream()
+
+        val cancellationActual = assertFailsWith<BinarySerializationException> {
+            ForyBinarySerializer(
+                RecordingForyHandler(
+                    rejectByteArraySerialize = true,
+                    streamSerializeFailure = primaryCancellation,
+                ).proxy()
+            ).serializeBinaryToStream("value", cancellationTarget)
+        }
+
+        cancellationActual.cause shouldBeSameInstanceAs primaryCancellation
+        cancellationTarget.toByteArray() shouldBeEqualTo byteArrayOf()
+        cancellationTarget.flushCount shouldBeEqualTo 0
+        cancellationTarget.closeCount shouldBeEqualTo 0
+
+        listOf<Throwable>(
+            IOException("target I/O failure"),
+            IllegalStateException("target runtime failure"),
+            AssertionError("target error failure"),
+            CancellationException("target cancellation failure"),
+        ).forEach { targetFailure ->
+            val handler = RecordingForyHandler(encoded = byteArrayOf(1, 2, 3), rejectByteArraySerialize = true)
+            val target = RecordingForyOutputStream(writeFailure = targetFailure)
+
+            val actual = assertFailsWith<Throwable> {
+                ForyBinarySerializer(handler.proxy()).serializeBinaryToStream("value", target)
+            }
+
+            actual shouldBeSameInstanceAs targetFailure
+            target.flushCount shouldBeEqualTo 0
+            target.closeCount shouldBeEqualTo 0
+        }
+    }
+
+    @Test
+    fun `Fory stream counts only complete writes when a target leaves partial output then fails`() {
+        val writeFailure = IOException("partial target failure")
+        val handler = RecordingForyHandler(
+            encoded = byteArrayOf(1, 2, 3, 4),
+            rejectByteArraySerialize = true,
+            streamWrite = { output ->
+                output.write(byteArrayOf(1, 2))
+                output.write(byteArrayOf(3, 4))
+            },
+        )
+        val target = RecordingForyOutputStream(writeFailure = writeFailure, bytesBeforeFailure = 1, failOnWrite = 2)
+
+        val actual = assertFailsWith<IOException> {
+            ForyBinarySerializer(handler.proxy()).serializeBinaryToStream("value", target)
+        }
+
+        actual shouldBeSameInstanceAs writeFailure
+        target.toByteArray() shouldBeEqualTo byteArrayOf(1, 2, 3)
+        val countedOutput = handler.receivedStream.shouldNotBeNull()
+        countedOutput.writtenCount() shouldBeEqualTo 2
+        target.flushCount shouldBeEqualTo 0
+        target.closeCount shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `Fory stream rejects output counts above Int MAX before touching the target`() {
+        val handler = RecordingForyHandler(
+            encoded = byteArrayOf(1),
+            rejectByteArraySerialize = true,
+            beforeStreamWrite = { output -> output.setWrittenCount(Int.MAX_VALUE) },
+        )
+        val target = RecordingForyOutputStream()
+
+        val actual = assertFailsWith<IllegalStateException> {
+            ForyBinarySerializer(handler.proxy()).serializeBinaryToStream("value", target)
+        }
+
+        actual.message shouldBeEqualTo "Serialized output exceeds Int.MAX_VALUE bytes."
+        (actual.cause is ArithmeticException).shouldBeTrue()
+        target.toByteArray() shouldBeEqualTo byteArrayOf()
+        target.flushCount shouldBeEqualTo 0
+        target.closeCount shouldBeEqualTo 0
+    }
 
     @Test
     fun `deserializeFrom delegates the caller range to the Fory ByteBuffer overload`() {
@@ -459,12 +588,18 @@ private class KryoArrayBackedPayloadSerializer: Serializer<KryoArrayBackedPayloa
 private class RecordingForyHandler(
     private val decoded: Any? = null,
     private val encoded: ByteArray = byteArrayOf(),
+    private val rejectByteArraySerialize: Boolean = false,
+    private val streamSerializeFailure: Throwable? = null,
+    private val beforeStreamWrite: (OutputStream) -> Unit = {},
+    private val streamWrite: (OutputStream) -> Unit = { output -> output.write(encoded) },
 ): InvocationHandler {
 
     var byteBufferDeserializeCalls: Int = 0
     var byteArrayDeserializeCalls: Int = 0
     var byteArraySerializeCalls: Int = 0
+    var streamSerializeCalls: Int = 0
     var receivedBuffer: ByteBuffer? = null
+    var receivedStream: OutputStream? = null
 
     fun proxy(): ThreadSafeFory = Proxy.newProxyInstance(
         ThreadSafeFory::class.java.classLoader,
@@ -494,12 +629,88 @@ private class RecordingForyHandler(
                 decoded
             }
             method.name == "serialize" && args?.size == 1 -> {
+                if (rejectByteArraySerialize) {
+                    error("Unexpected ThreadSafeFory call: serialize(Object)")
+                }
                 byteArraySerializeCalls++
                 encoded
+            }
+            method.name == "serialize" && args?.size == 2 && args[0] is OutputStream -> {
+                streamSerializeCalls++
+                val output = args[0] as OutputStream
+                receivedStream = output
+                beforeStreamWrite(output)
+                streamSerializeFailure?.let { throw it }
+                streamWrite(output)
+                null
             }
             else -> error("Unexpected ThreadSafeFory call: ${method.name}")
         }
     }
+}
+
+internal class RecordingForyOutputStream(
+    private val writeFailure: Throwable? = null,
+    private val bytesBeforeFailure: Int = 0,
+    private val failOnWrite: Int = 1,
+): OutputStream() {
+    private val output = ByteArrayOutputStream()
+
+    var flushCount: Int = 0
+        private set
+
+    var closeCount: Int = 0
+        private set
+
+    private var writeCount: Int = 0
+
+    override fun write(value: Int) {
+        writeCount++
+        writeFailure?.takeIf { writeCount == failOnWrite }?.let { throw it }
+        output.write(value)
+    }
+
+    override fun write(bytes: ByteArray, offset: Int, length: Int) {
+        writeCount++
+        writeFailure?.takeIf { writeCount == failOnWrite }?.let { failure ->
+            output.write(bytes, offset, minOf(bytesBeforeFailure, length))
+            throw failure
+        }
+        output.write(bytes, offset, length)
+    }
+
+    override fun flush() {
+        flushCount++
+    }
+
+    override fun close() {
+        closeCount++
+    }
+
+    fun toByteArray(): ByteArray = output.toByteArray()
+}
+
+private const val FORY_CALLER_OWNED_COUNTING_OUTPUT_STREAM_CLASS =
+    "io.bluetape4k.io.serializer.ForyCallerOwnedCountingOutputStream"
+
+private fun OutputStream.writtenCount(): Int = withForyWrittenField { it.getInt(this) }
+
+private fun OutputStream.setWrittenCount(value: Int): Unit = withForyWrittenField { it.setInt(this, value) }
+
+private inline fun <T> OutputStream.withForyWrittenField(access: (java.lang.reflect.Field) -> T): T {
+    check(javaClass.name == FORY_CALLER_OWNED_COUNTING_OUTPUT_STREAM_CLASS) {
+        "Count-overflow test requires runtime class $FORY_CALLER_OWNED_COUNTING_OUTPUT_STREAM_CLASS, " +
+            "but received ${javaClass.name}."
+    }
+    val field = try {
+        javaClass.getDeclaredField("written").apply { isAccessible = true }
+    } catch (failure: ReflectiveOperationException) {
+        throw AssertionError(
+            "Count-overflow test requires $FORY_CALLER_OWNED_COUNTING_OUTPUT_STREAM_CLASS to expose field 'written'.",
+            failure,
+        )
+    }
+    return access(field)
 }
 
 private fun configuredTarget(

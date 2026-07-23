@@ -1,0 +1,46 @@
+[
+  {
+    "backend": "fory",
+    "target": "heap",
+    "baseline": "foryHeapCopiedBaseline",
+    "candidate": "foryHeapCandidate",
+    "promotable": true,
+    "allocation_ratio": 5.251094049159132e-06,
+    "throughput_delta": 0.08703268530839603,
+    "error_intervals_separated": true,
+    "disposition": "accepted"
+  },
+  {
+    "backend": "fory",
+    "target": "direct",
+    "baseline": "foryDirectCopiedBaseline",
+    "candidate": "foryDirectCandidate",
+    "promotable": true,
+    "allocation_ratio": 5.031210087803233e-06,
+    "throughput_delta": 0.024175506761107135,
+    "error_intervals_separated": true,
+    "disposition": "accepted"
+  },
+  {
+    "backend": "fastFory",
+    "target": "heap",
+    "baseline": "fastForyHeapCopiedBaseline",
+    "candidate": "fastForyHeapCandidate",
+    "promotable": true,
+    "allocation_ratio": 4.819494213533855e-06,
+    "throughput_delta": 0.417077104600178,
+    "error_intervals_separated": true,
+    "disposition": "accepted"
+  },
+  {
+    "backend": "fastFory",
+    "target": "direct",
+    "baseline": "fastForyDirectCopiedBaseline",
+    "candidate": "fastForyDirectCandidate",
+    "promotable": true,
+    "allocation_ratio": 4.990369641578008e-06,
+    "throughput_delta": -0.0029508151387463988,
+    "error_intervals_separated": true,
+    "disposition": "accepted"
+  }
+]

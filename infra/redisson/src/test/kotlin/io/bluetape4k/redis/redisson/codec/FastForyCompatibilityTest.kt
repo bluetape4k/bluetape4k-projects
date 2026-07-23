@@ -2,10 +2,22 @@ package io.bluetape4k.redis.redisson.codec
 
 import io.bluetape4k.logging.KLogging
 import io.netty.buffer.Unpooled
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.io.serializer.BinarySerializationException
+import io.bluetape4k.junit5.output.InMemoryLogbackAppender
+import io.mockk.every
+import io.mockk.spyk
+import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.redisson.client.handler.State
+import java.util.concurrent.CancellationException
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * [FastForyCodec]과 [ForyCodec] 간의 와이어 포맷 호환성 검증 테스트.
@@ -39,10 +51,292 @@ class FastForyCompatibilityTest {
         val buf = fastForyCodec.valueEncoder.encode(testData)
         try {
             val decoded = fastForyCodec.valueDecoder.decode(buf, State())
-            decoded.shouldNotBeNull()
             decoded shouldBeEqualTo testData
         } finally {
             buf.release()
+        }
+    }
+
+    @Test
+    fun `FastForyCodec uses direct NIO decode for a single buffer`() {
+        val encoded = fastForyCodec.valueEncoder.encode(testData)
+        val input = spyk(encoded)
+
+        try {
+            val readerIndex = input.readerIndex()
+            val readableBytes = input.readableBytes()
+
+            fastForyCodec.valueDecoder.decode(input, State()) shouldBeEqualTo testData
+
+            verify(exactly = 1) { input.nioBufferCount() }
+            verify(exactly = 1) { input.nioBuffer(readerIndex, readableBytes) }
+        } finally {
+            encoded.release()
+        }
+    }
+
+    @Test
+    fun `FastFory direct decode preserves the bounded readable range and caller state`() {
+        val payload = byteArrayOf(4, 5, 6)
+        val serializer = RecordingForySerializer(
+            directResult = { source ->
+                source.isReadOnly.shouldBeTrue()
+                "direct-fast"
+            },
+        )
+        val copyCalls = AtomicInteger()
+        val fallback = RecordingFallbackCodec { error("Unexpected fallback") }
+        val codec = FastForyCodec.create(
+            fallbackCodec = fallback,
+            runtime = ForyCodecRuntime(
+                serializerFactory = { serializer },
+                copiedBytesFactory = {
+                    copyCalls.incrementAndGet()
+                    copiedReadableBytes(it)
+                },
+            ),
+        )
+        val input = framedCodecInput(payload, direct = true)
+        val state = CodecInputState.capture(input)
+
+        try {
+            codec.valueDecoder.decode(input, State()) shouldBeEqualTo "direct-fast"
+            serializer.directCalls shouldBeEqualTo 1
+            serializer.copiedCalls shouldBeEqualTo 0
+            serializer.directBytes shouldContainSame payload
+            copyCalls.get() shouldBeEqualTo 0
+            fallback.decodeCalls shouldBeEqualTo 0
+            state.shouldRemainUnchanged(input)
+        } finally {
+            input.release()
+        }
+    }
+
+    @Test
+    fun `FastFory view failure invokes copied primary once`() {
+        val serializer = RecordingForySerializer(copiedResult = { "copied-fast" })
+        val copyCalls = AtomicInteger()
+        val fallback = RecordingFallbackCodec { error("Unexpected fallback") }
+        val codec = FastForyCodec.create(
+            fallbackCodec = fallback,
+            runtime = ForyCodecRuntime(
+                serializerFactory = { serializer },
+                readableViewFactory = { throw CancellationException("view") },
+                copiedBytesFactory = {
+                    copyCalls.incrementAndGet()
+                    copiedReadableBytes(it)
+                },
+            ),
+        )
+        val input = framedCodecInput(byteArrayOf(7, 8))
+        val state = CodecInputState.capture(input)
+
+        try {
+            codec.valueDecoder.decode(input, State()) shouldBeEqualTo "copied-fast"
+            serializer.directCalls shouldBeEqualTo 0
+            serializer.copiedCalls shouldBeEqualTo 1
+            copyCalls.get() shouldBeEqualTo 1
+            fallback.decodeCalls shouldBeEqualTo 0
+            state.shouldRemainUnchanged(input)
+        } finally {
+            input.release()
+        }
+    }
+
+    @Test
+    fun `FastFory copied-primary setup failure propagates once without fallback logging`() {
+        val copyFailure = IllegalStateException("copy")
+        val copyCalls = AtomicInteger()
+        val serializer = RecordingForySerializer(copiedResult = { error("Unexpected primary decode") })
+        val fallback = RecordingFallbackCodec { error("Unexpected fallback") }
+        val codec = FastForyCodec.create(
+            fallbackCodec = fallback,
+            runtime = ForyCodecRuntime(
+                serializerFactory = { serializer },
+                readableViewFactory = { null },
+                copiedBytesFactory = {
+                    copyCalls.incrementAndGet()
+                    throw copyFailure
+                },
+            ),
+        )
+        val input = framedCodecInput(byteArrayOf(7, 8))
+
+        InMemoryLogbackAppender(FastForyCodec::class).use { appender ->
+            try {
+                val failure = assertFailsWith<IllegalStateException> {
+                    codec.valueDecoder.decode(input, State())
+                }
+
+                failure shouldBeSameInstanceAs copyFailure
+                copyCalls.get() shouldBeEqualTo 1
+                serializer.copiedCalls shouldBeEqualTo 0
+                serializer.directCalls shouldBeEqualTo 0
+                fallback.decodeCalls shouldBeEqualTo 0
+                appender.messages.filter { it.startsWith("FastFory decode 실패") } shouldHaveSize 0
+            } finally {
+                input.release()
+            }
+        }
+    }
+
+    @Test
+    fun `FastFory composite input stays on the copied primary route`() {
+        val serializer = RecordingForySerializer(copiedResult = { "composite-fast" })
+        val codec = FastForyCodec.create(runtime = ForyCodecRuntime(serializerFactory = { serializer }))
+        val input = Unpooled.compositeBuffer()
+            .addComponents(
+                true,
+                Unpooled.wrappedBuffer(byteArrayOf(5)),
+                Unpooled.wrappedBuffer(byteArrayOf(6)),
+            )
+        input.markReaderIndex()
+        input.markWriterIndex()
+        val state = CodecInputState.capture(input)
+
+        try {
+            input.nioBufferCount() shouldBeEqualTo 2
+            codec.valueDecoder.decode(input, State()) shouldBeEqualTo "composite-fast"
+            serializer.directCalls shouldBeEqualTo 0
+            serializer.copiedCalls shouldBeEqualTo 1
+            state.shouldRemainUnchanged(input)
+        } finally {
+            input.release()
+        }
+    }
+
+    @Test
+    fun `FastFory direct failures are normalized into runtime fallback once`() {
+        val payload = byteArrayOf(1, 4, 9)
+        val cancellation = CancellationException("cancel")
+        val fatal = AssertionError("fatal")
+        val failures = listOf(
+            IllegalArgumentException("semantic"),
+            cancellation,
+            fatal,
+            BinarySerializationException("nested", cancellation),
+            BinarySerializationException("nested", fatal),
+        )
+
+        InMemoryLogbackAppender(FastForyCodec::class).use { appender ->
+            failures.forEachIndexed { index, directFailure ->
+                val serializer = RecordingForySerializer(directResult = { throw directFailure })
+                val copyCalls = AtomicInteger()
+                val fallback = RecordingFallbackCodec { "fast-fallback-$index" }
+                val codec = FastForyCodec.create(
+                    fallbackCodec = fallback,
+                    runtime = ForyCodecRuntime(
+                        serializerFactory = { serializer },
+                        copiedBytesFactory = {
+                            copyCalls.incrementAndGet()
+                            copiedReadableBytes(it)
+                        },
+                    ),
+                )
+                val input = framedCodecInput(payload)
+                val state = CodecInputState.capture(input)
+
+                try {
+                    codec.valueDecoder.decode(input, State()) shouldBeEqualTo "fast-fallback-$index"
+                    serializer.directCalls shouldBeEqualTo 1
+                    serializer.copiedCalls shouldBeEqualTo 0
+                    copyCalls.get() shouldBeEqualTo 1
+                    fallback.decodeCalls shouldBeEqualTo 1
+                    fallback.decodedBytes shouldContainSame payload
+                    state.shouldRemainUnchanged(input)
+                } finally {
+                    input.release()
+                }
+            }
+
+            appender.messages
+                .filter { it.startsWith("FastFory decode 실패") } shouldHaveSize failures.size
+        }
+    }
+
+    @Test
+    fun `FastFory copied-primary checked Exception does not cross the runtime catch boundary`() {
+        val primary = Exception("checked")
+        val serializer = RecordingForySerializer(copiedResult = { throw primary })
+        val fallback = RecordingFallbackCodec { error("Unexpected fallback") }
+        val codec = FastForyCodec.create(
+            fallbackCodec = fallback,
+            runtime = ForyCodecRuntime(
+                serializerFactory = { serializer },
+                readableViewFactory = { null },
+            ),
+        )
+        val input = framedCodecInput(byteArrayOf(2))
+
+        try {
+            val failure = assertFailsWith<Exception> {
+                codec.valueDecoder.decode(input, State())
+            }
+            failure shouldBeSameInstanceAs primary
+            serializer.copiedCalls shouldBeEqualTo 1
+            fallback.decodeCalls shouldBeEqualTo 0
+        } finally {
+            input.release()
+        }
+    }
+
+    @Test
+    fun `FastFory fallback terminal failure preserves its identity`() {
+        val primary = IllegalArgumentException("primary")
+        val terminal = IllegalStateException("terminal")
+        val serializer = RecordingForySerializer(directResult = { throw primary })
+        val fallback = RecordingFallbackCodec { throw terminal }
+        val codec = FastForyCodec.create(
+            fallbackCodec = fallback,
+            runtime = ForyCodecRuntime(serializerFactory = { serializer }),
+        )
+        val input = framedCodecInput(byteArrayOf(3))
+
+        try {
+            val failure = assertFailsWith<IllegalStateException> {
+                codec.valueDecoder.decode(input, State())
+            }
+            failure shouldBeSameInstanceAs terminal
+            serializer.directCalls shouldBeEqualTo 1
+            serializer.copiedCalls shouldBeEqualTo 0
+            fallback.decodeCalls shouldBeEqualTo 1
+        } finally {
+            input.release()
+        }
+    }
+
+    @Test
+    fun `FastFory fallback terminal failure suppresses cleanup failure`() {
+        val payload = byteArrayOf(3, 1, 4)
+        val primary = IllegalArgumentException("primary")
+        val terminal = IllegalStateException("terminal")
+        val cleanup = AssertionError("cleanup")
+        val serializer = RecordingForySerializer(directResult = { throw primary })
+        val fallback = RecordingFallbackCodec { throw terminal }
+        val fallbackBuffer = spyk(Unpooled.wrappedBuffer(payload))
+        every { fallbackBuffer.release() } throws cleanup
+        val codec = FastForyCodec.create(
+            fallbackCodec = fallback,
+            runtime = ForyCodecRuntime(
+                serializerFactory = { serializer },
+                fallbackBufferFactory = { fallbackBuffer },
+            ),
+        )
+        val input = framedCodecInput(payload)
+
+        try {
+            val failure = assertFailsWith<IllegalStateException> {
+                codec.valueDecoder.decode(input, State())
+            }
+
+            failure shouldBeSameInstanceAs terminal
+            failure.suppressed.toList() shouldContainSame listOf(cleanup)
+            serializer.directCalls shouldBeEqualTo 1
+            serializer.copiedCalls shouldBeEqualTo 0
+            fallback.decodeCalls shouldBeEqualTo 1
+            verify(exactly = 1) { fallbackBuffer.release() }
+        } finally {
+            input.release()
         }
     }
 
@@ -62,7 +356,6 @@ class FastForyCompatibilityTest {
         val decodeBuf = Unpooled.wrappedBuffer(bytes)
         try {
             val decoded = fastForyCodec.valueDecoder.decode(decodeBuf, State())
-            decoded.shouldNotBeNull()
             decoded shouldBeEqualTo testData
         } finally {
             decodeBuf.release()
@@ -80,10 +373,24 @@ class FastForyCompatibilityTest {
         val buf = copied.valueEncoder.encode(testData)
         try {
             val decoded = copied.valueDecoder.decode(buf, State())
-            decoded.shouldNotBeNull()
             decoded shouldBeEqualTo testData
         } finally {
             buf.release()
+        }
+    }
+
+    @Test
+    fun `copy constructor preserves injected FastFory runtime configuration`() {
+        val serializer = RecordingForySerializer(directResult = { "copied-runtime" })
+        val codec = FastForyCodec.create(runtime = ForyCodecRuntime(serializerFactory = { serializer }))
+        val copied = FastForyCodec(Thread.currentThread().contextClassLoader, codec)
+        val input = framedCodecInput(byteArrayOf(6))
+
+        try {
+            copied.valueDecoder.decode(input, State()) shouldBeEqualTo "copied-runtime"
+            serializer.directCalls shouldBeEqualTo 1
+        } finally {
+            input.release()
         }
     }
 
@@ -107,11 +414,7 @@ class FastForyCompatibilityTest {
         val decodeBuf = Unpooled.wrappedBuffer(bytes)
         try {
             val decoded = foryCodec.valueDecoder.decode(decodeBuf, State())
-            // null이거나 원본과 다른 값이 반환됩니다 (비호환)
-            // decoded가 null이거나 원본 testData와 다른 값임을 검증합니다
-            check(decoded == null || decoded != testData) {
-                "ForyCodec should NOT correctly decode FastFory-encoded data, but got: $decoded"
-            }
+            decoded shouldNotBeEqualTo testData
         } finally {
             decodeBuf.release()
         }

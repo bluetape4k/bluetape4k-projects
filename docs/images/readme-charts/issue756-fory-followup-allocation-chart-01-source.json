@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "manifest": "docs/benchmarks/raw/issue-756-fory-followup/manifest.json",
+  "manifest_sha256": "68f81d30c406ab24770127b92c4bef2a11ebfc66169a7ccf648d02d7efd50aae",
+  "metric": {
+    "name": "allocation_reduction",
+    "formula": "(1 - candidate_allocation / baseline_allocation) * 100",
+    "unit": "%",
+    "direction": "higher-is-better"
+  },
+  "runs": [
+    "canonical-a",
+    "canonical-b"
+  ],
+  "accepted_cells": [
+    {
+      "id": "lettuce-fory-heap-encode",
+      "module": "lettuce",
+      "backend": "fory",
+      "operation": "encode",
+      "storage": "heap",
+      "canonical_a": {
+        "allocation_ratio": 0.000005251094049159132,
+        "allocation_reduction_percent": 99.99947489059508
+      },
+      "canonical_b": {
+        "allocation_ratio": 0.000005299514867960183,
+        "allocation_reduction_percent": 99.9994700485132
+      }
+    },
+    {
+      "id": "lettuce-fory-direct-encode",
+      "module": "lettuce",
+      "backend": "fory",
+      "operation": "encode",
+      "storage": "direct",
+      "canonical_a": {
+        "allocation_ratio": 0.000005031210087803233,
+        "allocation_reduction_percent": 99.99949687899122
+      },
+      "canonical_b": {
+        "allocation_ratio": 0.0000050511427843121486,
+        "allocation_reduction_percent": 99.99949488572157
+      }
+    },
+    {
+      "id": "lettuce-fastFory-heap-encode",
+      "module": "lettuce",
+      "backend": "fastFory",
+      "operation": "encode",
+      "storage": "heap",
+      "canonical_a": {
+        "allocation_ratio": 0.000004819494213533855,
+        "allocation_reduction_percent": 99.99951805057865
+      },
+      "canonical_b": {
+        "allocation_ratio": 0.0000045503042662528236,
+        "allocation_reduction_percent": 99.99954496957335
+      }
+    },
+    {
+      "id": "lettuce-fastFory-direct-encode",
+      "module": "lettuce",
+      "backend": "fastFory",
+      "operation": "encode",
+      "storage": "direct",
+      "canonical_a": {
+        "allocation_ratio": 0.000004990369641578008,
+        "allocation_reduction_percent": 99.99950096303584
+      },
+      "canonical_b": {
+        "allocation_ratio": 0.00000457473037295122,
+        "allocation_reduction_percent": 99.99954252696271
+      }
+    },
+    {
+      "id": "redisson-fory-direct-decode",
+      "module": "redisson",
+      "backend": "fory",
+      "operation": "decode",
+      "storage": "direct",
+      "canonical_a": {
+        "allocation_ratio": 0.7142861864426374,
+        "allocation_reduction_percent": 28.57138135573626
+      },
+      "canonical_b": {
+        "allocation_ratio": 0.714286240343619,
+        "allocation_reduction_percent": 28.5713759656381
+      }
+    },
+    {
+      "id": "redisson-fastFory-direct-decode",
+      "module": "redisson",
+      "backend": "fastFory",
+      "operation": "decode",
+      "storage": "direct",
+      "canonical_a": {
+        "allocation_ratio": 0.7301591831673278,
+        "allocation_reduction_percent": 26.98408168326722
+      },
+      "canonical_b": {
+        "allocation_ratio": 0.7301591506764463,
+        "allocation_reduction_percent": 26.98408493235537
+      }
+    }
+  ],
+  "excluded_dispositions": {
+    "rejected": [
+      "redisson-fory-heap-decode",
+      "redisson-fastFory-heap-decode",
+      "redisson-fory-encode",
+      "redisson-fastFory-encode"
+    ],
+    "fallback": [
+      "redisson-fory-composite-decode",
+      "redisson-fastFory-composite-decode"
+    ],
+    "inconclusive": []
+  },
+  "outputs": {
+    "svg": "docs/images/readme-charts/issue756-fory-followup-allocation-chart-01.svg",
+    "png": "docs/images/readme-charts/issue756-fory-followup-allocation-chart-01.png",
+    "summary": "docs/images/readme-charts/issue756-fory-followup-allocation-chart-01-summary.txt",
+    "svg_width": 1400,
+    "svg_height": 920,
+    "png_width": 2800,
+    "png_height": 1840
+  }
+}

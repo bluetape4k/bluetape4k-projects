@@ -4,7 +4,6 @@ import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.netty.buffer.ByteBuf
-import io.netty.buffer.ByteBufUtil
 import io.netty.buffer.Unpooled
 import org.redisson.client.codec.BaseCodec
 import org.redisson.client.codec.Codec
@@ -13,28 +12,31 @@ import org.redisson.client.protocol.Decoder
 import org.redisson.client.protocol.Encoder
 
 /**
- * Apache Fory `SCHEMA_CONSISTENT` 모드(FastFory)로 직렬화/역직렬화를 수행하는 Redisson [Codec] 구현체입니다.
+ * A Redisson [Codec] backed by Apache Fory in `SCHEMA_CONSISTENT` mode.
  *
- * ## 특징
- * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하여 기본 [ForyCodec](COMPATIBLE 모드)보다 더 빠른 직렬화 속도를 제공합니다.
- * - 직렬화 실패 시 [fallbackCodec]([ForyCodec])으로 자동 전환하여 안정성을 보장합니다.
- * - 순환 참조 추적이 비활성화(`refTracking=false`)되어 있어 단순 객체 그래프에 최적화되어 있습니다.
+ * Single-NIO heap/direct input is decoded from a bounded read-only view. Composite/non-NIO input and unsafe view
+ * construction use the copied compatibility path. Fory's internal reusable buffer remains, so this is not a
+ * zero-copy codec. This raw-codec behavior does not apply to compression wrappers.
  *
- * ## 사용 예
+ * FastFory encode/decode failures retain the existing [fallbackCodec] contract. This codec can therefore read
+ * compatible-mode Fory payloads through fallback, while [ForyCodec] cannot read FastFory payloads. Existing callers
+ * need no migration when they keep the same codec mode.
+ *
+ * ## Example
  * ```kotlin
  * val config = Config()
  * config.codec = FastForyCodec()
  * val redisson = Redisson.create(config)
  * ```
  *
- * ## ⚠️ 와이어 포맷 경고
- * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **와이어 포맷이 상호 비호환**합니다.
- * - **비대칭 호환성**: 이 codec은 구 Fory(COMPATIBLE) 데이터를 fallback으로 읽을 수 있습니다. 반대(ForyCodec으로 FastFory 데이터 읽기)는 불가합니다.
- * - **휘발성 캐시(Redis, 메모리 캐시) 전용** — 영속 저장에 사용하지 마십시오.
- * - **순환 참조 객체 불가** (refTracking=false).
- * - **스키마 진화 불가** — 필드 추가/제거 시 기존 데이터 역직렬화 실패.
+ * ## Wire-format warning
+ * - `SCHEMA_CONSISTENT` is not wire-compatible with the default Fory `COMPATIBLE` mode.
+ * - Use this codec only for volatile caches with a fixed schema and no cyclic references.
  *
- * @property fallbackCodec 직렬화/역직렬화 실패 시 사용할 대체 Codec (기본값: [RedissonCodecs.Fory])
+ * **Security warning:** The default registration-off decoder is intended only for trusted Redis payloads.
+ * It does not provide a secure deserialization boundary for untrusted input.
+ *
+ * @property fallbackCodec codec used after a supported FastFory failure (default: [RedissonCodecs.Fory])
  * @see io.bluetape4k.io.serializer.FastForyBinarySerializer
  * @see io.bluetape4k.io.serializer.BinarySerializers.FastFory
  */
@@ -42,14 +44,23 @@ class FastForyCodec(
     private val fallbackCodec: Codec = RedissonCodecs.Fory,
 ): BaseCodec() {
 
+    private var runtime = ForyCodecRuntime(serializerFactory = { BinarySerializers.FastFory })
+
     // classLoader를 인자로 받는 보조 생성자는 Redisson에서 환경설정 정보를 바탕으로 동적으로 Codec 생성 시에 필요합니다.
     @Suppress("UNUSED_PARAMETER")
     constructor(classLoader: ClassLoader): this(RedissonCodecs.Fory)
-    constructor(classLoader: ClassLoader, codec: FastForyCodec): this(copy(classLoader, codec.fallbackCodec))
+    constructor(classLoader: ClassLoader, codec: FastForyCodec): this(copy(classLoader, codec.fallbackCodec)) {
+        runtime = codec.runtime
+    }
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        internal fun create(
+            fallbackCodec: Codec = RedissonCodecs.Fory,
+            runtime: ForyCodecRuntime,
+        ): FastForyCodec = FastForyCodec(fallbackCodec).also { it.runtime = runtime }
+    }
 
-    private val fory by lazy { BinarySerializers.FastFory }
+    private val fory by lazy { runtime.serializerFactory() }
 
     private val encoder: Encoder = Encoder { graph ->
         try {
@@ -63,17 +74,28 @@ class FastForyCodec(
     }
 
     private val decoder: Decoder<Any> = Decoder { buf: ByteBuf, state: State? ->
-        val bytes = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), true)
-        try {
-            fory.deserialize(bytes)
-        } catch (e: RuntimeException) {
-            // 역직렬화 실패 시 fallback — 기존 Fory 포맷 데이터 읽기 경로
-            log.debug(e) { "FastFory decode 실패, fallbackCodec[$fallbackCodec]으로 재시도" }
-            val fallbackBuf = Unpooled.wrappedBuffer(bytes)
+        val directView = tryReadOnlyReadableNioView(buf, runtime.readableViewFactory)
+        if (directView == null) {
+            val bytes = runtime.copiedBytesFactory(buf)
             try {
-                fallbackCodec.valueDecoder.decode(fallbackBuf, state)
-            } finally {
-                fallbackBuf.release()
+                fory.deserialize<Any>(bytes)
+            } catch (e: RuntimeException) {
+                // 역직렬화 실패 시 fallback — 기존 Fory 포맷 데이터 읽기 경로
+                log.debug(e) { "FastFory decode 실패, fallbackCodec[$fallbackCodec]으로 재시도" }
+                decodeWithFallbackBuffer(bytes, runtime.fallbackBufferFactory) { fallbackBuf ->
+                    fallbackCodec.valueDecoder.decode(fallbackBuf, state)
+                }
+            }
+        } else {
+            try {
+                fory.deserializeDirectWithLegacyNormalization(directView, buf.readableBytes())
+            } catch (e: RuntimeException) {
+                // 역직렬화 실패 시 fallback — 기존 Fory 포맷 데이터 읽기 경로
+                log.debug(e) { "FastFory decode 실패, fallbackCodec[$fallbackCodec]으로 재시도" }
+                val bytes = runtime.copiedBytesFactory(buf)
+                decodeWithFallbackBuffer(bytes, runtime.fallbackBufferFactory) { fallbackBuf ->
+                    fallbackCodec.valueDecoder.decode(fallbackBuf, state)
+                }
             }
         }
     }

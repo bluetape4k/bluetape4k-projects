@@ -1,0 +1,16 @@
+{
+  "architecture": "arm64",
+  "benchmarkJarSha256": "2b033519f0fcee4fcf7a16163c29420289e6df3a5318b1c37d9a496fc1123ddb",
+  "commit": "ec63df866ea08be4973e437e4a2a3fad2eba2e47",
+  "cpuModel": "Apple M4 Pro",
+  "gradleVersion": "9.6.0",
+  "javaHome": null,
+  "javaVendor": "recorded-by-java-version-output",
+  "javaVersion": "java version \"21.0.12\" 2026-07-21 LTS",
+  "javaVm": "Java HotSpot(TM) 64-Bit Server VM Oracle GraalVM 21.0.12+7.1 (build 21.0.12+7-LTS-jvmci-23.1-b96, mixed mode, sharing)",
+  "kernel": "25.5.0",
+  "logicalCores": 12,
+  "os": "Darwin",
+  "runId": "probe-b",
+  "schemaVersion": 1
+}
