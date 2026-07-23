@@ -68,7 +68,7 @@ Run:
 
 ```bash
 ./gradlew :bluetape4k-io:test --tests '*CoreBinarySerializerByteBufferTest' --tests '*ForyBinarySerializerTest' --tests '*SecureForyBinarySerializerTest'
-./gradlew :bluetape4k-io:detekt :bluetape4k-io:detektTest
+./gradlew :bluetape4k-io:check
 git diff --check
 ```
 
@@ -105,7 +105,7 @@ Run:
 
 ```bash
 ./gradlew :bluetape4k-lettuce:test --tests '*LettuceBinaryCodec*' --tests '*Fory*'
-./gradlew :bluetape4k-lettuce:detekt :bluetape4k-lettuce:detektTest
+./gradlew :bluetape4k-lettuce:check
 git diff --check
 ```
 
@@ -152,7 +152,7 @@ Run:
 
 ```bash
 ./gradlew :bluetape4k-redisson:test --tests '*ForyCodecTest' --tests '*FastForyCompatibilityTest'
-./gradlew :bluetape4k-redisson:detekt :bluetape4k-redisson:detektTest
+./gradlew :bluetape4k-redisson:check
 git diff --check
 ```
 
@@ -283,7 +283,7 @@ Expected: no unsupported zero-copy claim; only validated measurements appear in 
 
 ## Task 10: Final verification, review, and handoff
 
-- [ ] Run targeted tests for `io`, Lettuce, and Redisson sequentially with separate Gradle invocations; then sequential affected-module `build` and detekt checks.
+- [ ] Run targeted tests for `io`, Lettuce, and Redisson sequentially with separate Gradle invocations; then sequential affected-module `check`/`build` validation. Detekt is root-only and has no subproject source task, so do not claim module-local Detekt coverage.
 - [ ] Run every evidence validator and `git diff --check`; inspect generated artifacts and ensure no placeholder values remain.
 - [ ] Verify the release cross-decode and rollback-smoke artifact from Task 9 before review or documentation promotion.
 - [ ] Perform six independent reviews (performance, stability, security, operations, developer/API, caller/user). Resolve P0/P1, re-run affected checks, and record disposition evidence.
@@ -295,9 +295,9 @@ Final commands:
 ./gradlew :bluetape4k-io:test
 ./gradlew :bluetape4k-lettuce:test
 ./gradlew :bluetape4k-redisson:test
-./gradlew :bluetape4k-io:build :bluetape4k-io:detekt :bluetape4k-io:detektTest
-./gradlew :bluetape4k-lettuce:build :bluetape4k-lettuce:detekt :bluetape4k-lettuce:detektTest
-./gradlew :bluetape4k-redisson:build :bluetape4k-redisson:detekt :bluetape4k-redisson:detektTest
+./gradlew :bluetape4k-io:check :bluetape4k-io:build
+./gradlew :bluetape4k-lettuce:check :bluetape4k-lettuce:build
+./gradlew :bluetape4k-redisson:check :bluetape4k-redisson:build
 python3 docs/benchmarks/raw/issue-756-fory-followup/validate-issue756-fory-followup.py
 python3 infra/redisson/scripts/run-issue756-fory-compatibility.py
 python3 infra/redisson/scripts/run-issue756-fory-rollback-smoke.py
