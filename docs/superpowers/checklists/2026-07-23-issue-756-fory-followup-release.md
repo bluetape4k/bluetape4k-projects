@@ -36,7 +36,8 @@ and must not be invented or inferred from local build output.
   `docs/benchmarks/raw/issue-756-fory-followup/release/classpath-manifest.json`
 - [x] Old-write/new-read and new-write/old-read pass for both Fory and FastFory:
   `docs/benchmarks/raw/issue-756-fory-followup/release/compatibility-results.json`
-- [x] The non-publishing rollback smoke result is recorded:
+- [x] The non-publishing rollback smoke result is recorded. A codec-level result
+  is `limited` and keeps the publication gate blocked:
   `docs/benchmarks/raw/issue-756-fory-followup/release/rollback-smoke.json`
 - [x] Release evidence file hashes are recorded:
   `docs/benchmarks/raw/issue-756-fory-followup/release/release-manifest.json`
@@ -63,6 +64,8 @@ and must not be invented or inferred from local build output.
   version set.
 - [ ] Re-run the aggregate validator, compatibility runner, and rollback smoke
   from the exact release commit.
+- [ ] Require rollback evidence with `mode=redis`, `status=passed`, and
+  `publicationGate=passed`; codec-level fallback is documentation-only evidence.
 - [ ] Verify CI and review state for the exact release commit.
 - [ ] Publish only through the repository release workflow after every hold is
   cleared.
@@ -91,5 +94,5 @@ If a regression is found after publication:
 Release evidence preparation is complete, but publication is blocked by design
 until explicit authority and staged `1.12.0` hashes exist. The recorded rollback
 smoke used the deterministic codec-level path because Redis was unavailable;
-this proves known-good codec round trips but does not claim a networked Redis
-SET/GET result.
+its `limited` status proves known-good codec round trips but does not claim a
+networked Redis SET/GET result and cannot clear the publication gate.

@@ -30,26 +30,26 @@
 
   <g data-cell-id="lettuce-fory-heap-encode" data-run-a="99.99947489059508" data-run-b="99.9994700485132">
     <text class="label" x="86" y="235">Lettuce / Fory / heap encode</text>
-    <rect x="470" y="216" width="769.996" height="16" rx="5" class="runA"/><text class="value" x="1228" y="228" text-anchor="end">100.00%</text>
-    <rect x="470" y="240" width="769.996" height="16" rx="5" class="runB"/><text class="value" x="1228" y="252" text-anchor="end">100.00%</text>
+    <rect x="470" y="216" width="769.996" height="16" rx="5" class="runA"/><text class="value" x="1228" y="228" text-anchor="end">99.9995%</text>
+    <rect x="470" y="240" width="769.996" height="16" rx="5" class="runB"/><text class="value" x="1228" y="252" text-anchor="end">99.9995%</text>
   </g>
   <line class="divider" x1="86" y1="272" x2="1314" y2="272"/>
   <g data-cell-id="lettuce-fory-direct-encode" data-run-a="99.99949687899122" data-run-b="99.99949488572157">
     <text class="label" x="86" y="310">Lettuce / Fory / direct encode</text>
-    <rect x="470" y="291" width="769.996" height="16" rx="5" class="runA"/><text class="value" x="1228" y="303" text-anchor="end">100.00%</text>
-    <rect x="470" y="315" width="769.996" height="16" rx="5" class="runB"/><text class="value" x="1228" y="327" text-anchor="end">100.00%</text>
+    <rect x="470" y="291" width="769.996" height="16" rx="5" class="runA"/><text class="value" x="1228" y="303" text-anchor="end">99.9995%</text>
+    <rect x="470" y="315" width="769.996" height="16" rx="5" class="runB"/><text class="value" x="1228" y="327" text-anchor="end">99.9995%</text>
   </g>
   <line class="divider" x1="86" y1="347" x2="1314" y2="347"/>
   <g data-cell-id="lettuce-fastFory-heap-encode" data-run-a="99.99951805057865" data-run-b="99.99954496957335">
     <text class="label" x="86" y="385">Lettuce / FastFory / heap encode</text>
-    <rect x="470" y="366" width="769.997" height="16" rx="5" class="runA"/><text class="value" x="1228" y="378" text-anchor="end">100.00%</text>
-    <rect x="470" y="390" width="769.997" height="16" rx="5" class="runB"/><text class="value" x="1228" y="402" text-anchor="end">100.00%</text>
+    <rect x="470" y="366" width="769.997" height="16" rx="5" class="runA"/><text class="value" x="1228" y="378" text-anchor="end">99.9995%</text>
+    <rect x="470" y="390" width="769.997" height="16" rx="5" class="runB"/><text class="value" x="1228" y="402" text-anchor="end">99.9995%</text>
   </g>
   <line class="divider" x1="86" y1="422" x2="1314" y2="422"/>
   <g data-cell-id="lettuce-fastFory-direct-encode" data-run-a="99.99950096303584" data-run-b="99.99954252696271">
     <text class="label" x="86" y="460">Lettuce / FastFory / direct encode</text>
-    <rect x="470" y="441" width="769.996" height="16" rx="5" class="runA"/><text class="value" x="1228" y="453" text-anchor="end">100.00%</text>
-    <rect x="470" y="465" width="769.996" height="16" rx="5" class="runB"/><text class="value" x="1228" y="477" text-anchor="end">100.00%</text>
+    <rect x="470" y="441" width="769.996" height="16" rx="5" class="runA"/><text class="value" x="1228" y="453" text-anchor="end">99.9995%</text>
+    <rect x="470" y="465" width="769.996" height="16" rx="5" class="runB"/><text class="value" x="1228" y="477" text-anchor="end">99.9995%</text>
   </g>
   <line class="divider" x1="86" y1="497" x2="1314" y2="497"/>
   <g data-cell-id="redisson-fory-direct-decode" data-run-a="28.57138135573626" data-run-b="28.5713759656381">
@@ -68,6 +68,6 @@
     <rect class="note" x="54" y="750" width="1292" height="120" rx="14"/>
     <text class="panelTitle" x="86" y="790">Promotion boundary</text>
     <text class="small" x="86" y="824">Only cells accepted in both canonical runs are plotted. Redisson heap decode and encode are rejected.</text>
-    <text class="small" x="86" y="850">Composite decode remains a correctness fallback and is never promotable. This is allocation evidence, not a zero-copy claim.</text>
+    <text class="small" x="86" y="850">Composite decode is a non-promotable fallback. Labels are rounded to four decimals; this is not a zero-allocation or zero-copy claim.</text>
   </g>
 </svg>

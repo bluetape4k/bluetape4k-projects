@@ -127,12 +127,21 @@ def run_codec_level_smoke(runner, old_classpath, harness):
     return checks
 
 
+def classify_smoke(mode: str) -> tuple[str, str]:
+    if mode == "redis":
+        return "passed", "passed"
+    if mode == "codec-level":
+        return "limited", "blocked"
+    raise ValueError(f"Unknown rollback smoke mode: {mode}")
+
+
 def main() -> int:
     runner = load_compatibility_runner()
     output_root = runner.OUTPUT_ROOT
     cache_root = runner.BUILD_ROOT / "known-good"
     try:
         artifact_manifest = runner.download_and_verify(runner.REPOSITORY_URL, cache_root)
+        input_state = runner.git_input_state()
         current, old, _ = runner.build_classpaths(artifact_manifest, cache_root)
         harness = runner.compile_harness(current)
         host, port = redis_endpoint()
@@ -154,12 +163,14 @@ def main() -> int:
                 f"Redis was unavailable at redis://{host}:{port}; this deterministic fallback "
                 "proves known-good Fory/FastFory codec round trips but not networked Redis SET/GET."
             )
+        status, publication_gate = classify_smoke(mode)
         evidence = {
             "schemaVersion": 1,
             "generatedAt": datetime.now(timezone.utc).isoformat(),
-            "gitHead": runner.git_head(),
-            "status": "passed",
+            **input_state,
+            "status": status,
             "mode": mode,
+            "publicationGate": publication_gate,
             "publishingPerformed": False,
             "knownGoodVersion": runner.KNOWN_GOOD_VERSION,
             "repositoryUrl": runner.REPOSITORY_URL,
@@ -189,7 +200,10 @@ def main() -> int:
                 ],
             },
         )
-        print(f"ROLLBACK_SMOKE_OK mode={mode} checks={len(checks)} output={output_root}")
+        print(
+            f"ROLLBACK_SMOKE_RECORDED status={status} mode={mode} "
+            f"publicationGate={publication_gate} checks={len(checks)} output={output_root}"
+        )
         return 0
     except (OSError, RuntimeError, ValueError) as failure:
         print(str(failure), file=sys.stderr)

@@ -2,12 +2,12 @@
 
 **상태:** 구현 계획 작성 전 검토
 
-**이슈:** [#756 Reduce Redis codec allocation with ByteBuffer and ByteBuf paths](https://github.com/bluetape4k/bluetape4k-projects/issues/756)  
-**마일스톤:** `1.12.0`  
-**브랜치:** `feat/issue-756-fory-codec-followup`  
-**기준 커밋:** `137d87cfeb6fe9dc45b727daf8c1e81e35a9babf`  
-**유형:** Type A — 여러 모듈의 직렬화 경계, ownership 계약, 측정 증거를 함께 바꾸는 기능 작업  
-**선행 작업:** PR #1072 (`Lettuce` JDK/Kryo/Jackson2/Jackson3 bounded `ByteBuf` writer)
+- **이슈:** [#756 Reduce Redis codec allocation with ByteBuffer and ByteBuf paths](https://github.com/bluetape4k/bluetape4k-projects/issues/756)
+- **마일스톤:** `1.12.0`
+- **브랜치:** `feat/issue-756-fory-codec-followup`
+- **기준 커밋:** `137d87cfeb6fe9dc45b727daf8c1e81e35a9babf`
+- **유형:** Type A — 여러 모듈의 직렬화 경계, ownership 계약, 측정 증거를 함께 바꾸는 기능 작업
+- **선행 작업:** PR #1072 (`Lettuce` JDK/Kryo/Jackson2/Jackson3 bounded `ByteBuf` writer)
 
 ## 1. 문제와 목표
 
@@ -125,7 +125,7 @@ view 생성·precondition이 실패하면 `ByteBufUtil.getBytes(...)`로 copy한
 
 이 작업에는 feature flag나 per-call dispatch telemetry가 없다. hot path에 새 log/metric을 추가하지 않고 기존 codec fallback 로그의 level·횟수·비민감 정보 계약만 유지한다. 운영 확인 수단은 artifact version/hash와 committed benchmark evidence다.
 
-출시 전 wire parity, ownership, exception taxonomy, allocation 또는 throughput gate가 실패하면 해당 direct candidate를 revert한다. 출시 전 rollback은 candidate commit 제거다. 출시 후 rollback은 release checklist가 미리 고정한 `io.bluetape4k:bluetape4k-io`, `io.bluetape4k:bluetape4k-lettuce`, `io.bluetape4k:bluetape4k-redisson`의 exact known-good version과 JAR SHA-256으로 복귀하는 것이다. release executor가 rollback owner이며, 이전↔신규 artifact 교차 decode fixture와 rollback 후 Redis smoke test를 재실행한다.
+출시 전 wire parity, ownership, exception taxonomy, allocation 또는 throughput gate가 실패하면 해당 direct candidate를 revert한다. 출시 전 rollback은 candidate commit 제거다. 출시 후 rollback은 release checklist가 미리 고정한 `io.github.bluetape4k:bluetape4k-io`, `io.github.bluetape4k:bluetape4k-lettuce`, `io.github.bluetape4k:bluetape4k-redisson`의 exact known-good version과 JAR SHA-256으로 복귀하는 것이다. release executor가 rollback owner이며, 이전↔신규 artifact 교차 decode fixture와 rollback 후 Redis smoke test를 재실행한다.
 
 ## 5. 호환성 계약
 

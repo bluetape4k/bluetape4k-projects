@@ -20,32 +20,32 @@ import org.redisson.codec.SerializationCodec
 import org.redisson.codec.SnappyCodecV2
 
 /**
- * Redisson에서 사용할 수 있는 다양한 [Codec] 인스턴스를 모아놓은 객체입니다.
+ * Collects reusable [Codec] instances for Redisson.
  *
- * Redisson 기본 제공 Codec보다 성능이 우수한 커스텀 Codec과 직렬화+압축 조합 Codec을 제공합니다.
+ * Provides custom codecs and serializer/compressor combinations in addition to Redisson's built-in codecs.
  *
- * ## 직렬화 방식
- * - [Kryo5]: Kryo5 직렬화 (빠르고 컴팩트한 바이너리 포맷)
+ * ## Serialization
+ * - [Kryo5]: Kryo5 serialization with a compact binary format
  * - [Fory]: Apache Fory serialization (default)
- * - [Jdk]: JDK 기본 직렬화 (호환성 높지만 속도 느림)
- * - [Jackson3]: Jackson 3 커스텀 JSON 엔벨로프 (`_type`/`_data`) — human-readable, non-JVM 클라이언트 연동
- * - [Fastjson2]: Fastjson2 JSONB WriteClassName — JSONB 바이너리, non-JVM 클라이언트 연동
+ * - [Jdk]: JDK serialization for compatibility-sensitive legacy integration
+ * - [Jackson3]: Jackson 3 custom JSON envelope (`_type`/`_data`) for human-readable, non-JVM integration
+ * - [Fastjson2]: Fastjson2 JSONB with `WriteClassName` for binary non-JVM integration
  *
- * ## 압축 방식
- * - Gzip: 높은 압축률, 느린 속도
- * - LZ4: 낮은 압축률, 매우 빠른 속도 (캐시 환경에 권장)
- * - Snappy: LZ4와 유사한 특성, Google 제공
- * - Zstd: Gzip 수준의 압축률 + LZ4 수준의 속도
+ * ## Compression
+ * - Gzip: higher compression ratio with lower throughput
+ * - LZ4: lower compression ratio with high throughput, suitable for caches
+ * - Snappy: characteristics similar to LZ4
+ * - Zstd: a balance between Gzip-like compression and LZ4-like throughput
  *
  * ## Composite Codec
- * Map 키는 [String] Codec, 값은 지정한 직렬화+압축 Codec을 사용하는 [CompositeCodec] 조합입니다.
- * Map, Set, SortedSet 등 컬렉션 타입에 유용합니다.
+ * Composite codecs use [String] for map keys and a selected serializer/compressor codec for values.
+ * They are useful for collection types such as maps, sets, and sorted sets.
  *
- * ## 권장 조합
- * - 범용 고성능: [LZ4Fory] 또는 [LZ4ForyComposite]
- * - 압축률 우선: [ZstdFory] 또는 [ZstdForyComposite]
- * - 호환성 우선: [Jdk]
- * - Human-readable JSON: [Jackson3] (신뢰된 환경) 또는 [jackson3] (보안 factory)
+ * ## Recommended combinations
+ * - General high throughput: [LZ4Fory] or [LZ4ForyComposite]
+ * - Compression ratio first: [ZstdFory] or [ZstdForyComposite]
+ * - Compatibility first: [Jdk]
+ * - Human-readable JSON: [Jackson3] in trusted environments or the secured [jackson3] factory
  */
 object RedissonCodecs: KLogging() {
 

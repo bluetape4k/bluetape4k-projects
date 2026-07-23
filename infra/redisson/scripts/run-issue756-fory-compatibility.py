@@ -23,6 +23,8 @@ TARGET_VERSION = "1.12.0"
 KNOWN_GOOD_VERSION = "1.11.0"
 OUTPUT_ROOT = REPOSITORY_ROOT / "docs/benchmarks/raw/issue-756-fory-followup/release"
 BUILD_ROOT = REPOSITORY_ROOT / "infra/redisson/build/issue756-release"
+MAX_ARTIFACT_BYTES = 64 * 1024 * 1024
+RELEASE_OUTPUT_RELATIVE = OUTPUT_ROOT.relative_to(REPOSITORY_ROOT).as_posix()
 
 PINNED_ARTIFACTS = (
     {
@@ -151,6 +153,24 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def directory_sha256(path: Path) -> tuple[str, int, int]:
+    digest = hashlib.sha256()
+    file_count = 0
+    total_size = 0
+    for child in sorted(candidate for candidate in path.rglob("*") if candidate.is_file()):
+        relative = child.relative_to(path).as_posix().encode()
+        digest.update(len(relative).to_bytes(4, byteorder="big"))
+        digest.update(relative)
+        size = child.stat().st_size
+        digest.update(size.to_bytes(8, byteorder="big"))
+        with child.open("rb") as stream:
+            for block in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(block)
+        file_count += 1
+        total_size += size
+    return digest.hexdigest(), file_count, total_size
+
+
 def write_json(path: Path, value) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -170,19 +190,41 @@ def download_and_verify(repository_url: str, cache_root: Path) -> dict:
     for artifact in PINNED_ARTIFACTS:
         url = artifact_url(repository_url, artifact)
         target = cache_root / f'{artifact["artifact"]}-{artifact["version"]}.jar'
+        partial = target.with_suffix(f"{target.suffix}.part")
         target.parent.mkdir(parents=True, exist_ok=True)
+        target.unlink(missing_ok=True)
+        partial.unlink(missing_ok=True)
         try:
             with urllib.request.urlopen(url, timeout=30) as response:
-                target.write_bytes(response.read())
+                content_length = response.headers.get("Content-Length")
+                if content_length is not None and int(content_length) > MAX_ARTIFACT_BYTES:
+                    raise RuntimeError(
+                        f'ARTIFACT_TOO_LARGE {artifact["artifact"]}: '
+                        f"contentLength={content_length} limit={MAX_ARTIFACT_BYTES}"
+                    )
+                digest = hashlib.sha256()
+                size = 0
+                with partial.open("wb") as stream:
+                    while block := response.read(1024 * 1024):
+                        size += len(block)
+                        if size > MAX_ARTIFACT_BYTES:
+                            raise RuntimeError(
+                                f'ARTIFACT_TOO_LARGE {artifact["artifact"]}: '
+                                f"received={size} limit={MAX_ARTIFACT_BYTES}"
+                            )
+                        digest.update(block)
+                        stream.write(block)
         except Exception as failure:
+            partial.unlink(missing_ok=True)
             raise RuntimeError(f'DOWNLOAD_FAILED {artifact["artifact"]}: {failure}') from failure
-        actual = sha256(target)
+        actual = digest.hexdigest()
         if actual != artifact["sha256"]:
-            target.unlink(missing_ok=True)
+            partial.unlink(missing_ok=True)
             raise RuntimeError(
                 f'CHECKSUM_MISMATCH {artifact["artifact"]}: '
                 f'expected={artifact["sha256"]} actual={actual}'
             )
+        partial.replace(target)
         records.append(
             {
                 **artifact,
@@ -190,7 +232,7 @@ def download_and_verify(repository_url: str, cache_root: Path) -> dict:
                 "repositoryUrl": repository_url,
                 "downloadUrl": url,
                 "file": target.name,
-                "size": target.stat().st_size,
+                "size": size,
                 "verified": True,
             }
         )
@@ -260,7 +302,10 @@ def gradle_runtime_classpath() -> list[Path]:
             capture_output=True,
             text=True,
             check=False,
+            timeout=600,
         )
+    except subprocess.TimeoutExpired as failure:
+        raise RuntimeError("CLASSPATH_BUILD_TIMEOUT seconds=600") from failure
     finally:
         Path(script_name).unlink(missing_ok=True)
     if completed.returncode != 0:
@@ -309,6 +354,11 @@ def classpath_record(path: Path) -> dict:
     if path.is_file():
         record["sha256"] = sha256(path)
         record["size"] = path.stat().st_size
+    elif path.is_dir():
+        digest, file_count, total_size = directory_sha256(path)
+        record["sha256"] = digest
+        record["fileCount"] = file_count
+        record["size"] = total_size
     return record
 
 
@@ -336,14 +386,18 @@ def build_classpaths(artifact_manifest: dict, cache_root: Path) -> tuple[list[Pa
     return current, old, manifest
 
 
-def run_checked(command: list[str], label: str) -> str:
-    completed = subprocess.run(
-        command,
-        cwd=REPOSITORY_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+def run_checked(command: list[str], label: str, timeout_seconds: int = 120) -> str:
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=REPOSITORY_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=timeout_seconds,
+        )
+    except subprocess.TimeoutExpired as failure:
+        raise RuntimeError(f"{label}_TIMEOUT seconds={timeout_seconds}") from failure
     if completed.returncode != 0:
         raise RuntimeError(
             f"{label}_FAILED exit={completed.returncode}\n"
@@ -400,6 +454,31 @@ def java_fixture(
 
 def git_head() -> str:
     return run_checked(["git", "rev-parse", "HEAD"], "GIT_HEAD")
+
+
+def git_input_state() -> dict:
+    commit = git_head()
+    tree = run_checked(["git", "rev-parse", "HEAD^{tree}"], "GIT_TREE")
+    porcelain = run_checked(
+        ["git", "status", "--porcelain", "--untracked-files=all"],
+        "GIT_STATUS",
+    )
+    dirty_paths = []
+    for line in porcelain.splitlines():
+        path = line[3:]
+        if " -> " in path:
+            path = path.split(" -> ", 1)[1]
+        if path == RELEASE_OUTPUT_RELATIVE or path.startswith(f"{RELEASE_OUTPUT_RELATIVE}/"):
+            continue
+        dirty_paths.append(path)
+    if dirty_paths:
+        raise RuntimeError(f"DIRTY_INPUT_TREE paths={dirty_paths}")
+    return {
+        "inputCommit": commit,
+        "inputTree": tree,
+        "sourceRelevantClean": True,
+        "excludedGeneratedOutput": RELEASE_OUTPUT_RELATIVE,
+    }
 
 
 def execute_matrix(
@@ -460,13 +539,14 @@ def main() -> int:
         if args.verify_only:
             print("CHECKSUMS_OK")
             return 0
+        input_state = git_input_state()
         current, old, classpath_manifest = build_classpaths(artifact_manifest, cache_root)
         harness = compile_harness(current)
         results = execute_matrix(output_root, current, old, harness)
         evidence = {
             "schemaVersion": 1,
             "generatedAt": datetime.now(timezone.utc).isoformat(),
-            "gitHead": git_head(),
+            **input_state,
             "targetVersion": TARGET_VERSION,
             "knownGoodVersion": KNOWN_GOOD_VERSION,
             "scope": "Fory/FastFory raw Redisson codec cross-version decode",

@@ -8,13 +8,22 @@ import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from unittest import mock
 
 
 SCRIPT = Path(__file__).with_name("run-issue756-fory-compatibility.py")
+ROLLBACK_SCRIPT = Path(__file__).with_name("run-issue756-fory-rollback-smoke.py")
 
 
 def load_runner():
     spec = importlib.util.spec_from_file_location("issue756_fory_compatibility", SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_rollback_runner():
+    spec = importlib.util.spec_from_file_location("issue756_fory_rollback", ROLLBACK_SCRIPT)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -111,6 +120,62 @@ class Issue756ForyCompatibilityRunnerTest(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "not checksum verified"):
             runner.validate_artifact_manifest(manifest)
+
+    def test_input_state_rejects_dirty_paths_outside_generated_release_output(self):
+        runner = load_runner()
+
+        with mock.patch.object(
+            runner,
+            "run_checked",
+            side_effect=["commit", "tree", " M infra/redisson/src/main/kotlin/Codec.kt"],
+        ):
+            with self.assertRaisesRegex(RuntimeError, "DIRTY_INPUT_TREE"):
+                runner.git_input_state()
+
+    def test_input_state_excludes_only_generated_release_output(self):
+        runner = load_runner()
+        generated = runner.RELEASE_OUTPUT_RELATIVE
+
+        with mock.patch.object(
+            runner,
+            "run_checked",
+            side_effect=[
+                "commit",
+                "tree",
+                f" M {generated}/compatibility-results.json\n"
+                f"?? {generated}/fixtures/new.bin",
+            ],
+        ):
+            self.assertEqual(
+                {
+                    "inputCommit": "commit",
+                    "inputTree": "tree",
+                    "sourceRelevantClean": True,
+                    "excludedGeneratedOutput": generated,
+                },
+                runner.git_input_state(),
+            )
+
+    def test_directory_classpath_record_has_content_hash(self):
+        runner = load_runner()
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "nested").mkdir()
+            (root / "nested" / "fixture.class").write_bytes(b"compiled")
+
+            record = runner.classpath_record(root)
+
+            self.assertEqual("directory", record["kind"])
+            self.assertEqual(1, record["fileCount"])
+            self.assertEqual(8, record["size"])
+            self.assertEqual(64, len(record["sha256"]))
+
+    def test_rollback_codec_only_result_blocks_publication(self):
+        rollback = load_rollback_runner()
+
+        self.assertEqual(("passed", "passed"), rollback.classify_smoke("redis"))
+        self.assertEqual(("limited", "blocked"), rollback.classify_smoke("codec-level"))
 
 
 if __name__ == "__main__":

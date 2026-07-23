@@ -12,7 +12,7 @@
     },
     {
       "path": "compatibility-results.json",
-      "sha256": "badee02939f7f2362d8f29c84e51c57302bea2026d2d489385875e1a2e5fea26",
+      "sha256": "4487793c27ce356966df3885fc9922ecfe7ab5e51c3440ed2d4fbc62bb42109a",
       "size": 2153
     },
     {
@@ -37,7 +37,7 @@
     },
     {
       "path": "rollback-smoke.json",
-      "sha256": "264b6c87929246bdcc61f67ab0014c9dcce68467dfad0919d09317f253ea4420",
+      "sha256": "1b708e7e0078a3e7df1aeb94ad2a1f3a848239325f3f5577a26cb050737a9143",
       "size": 902
     }
   ],

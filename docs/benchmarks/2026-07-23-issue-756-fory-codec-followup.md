@@ -69,6 +69,7 @@ destination write는 그대로이므로 이 결과는 zero-copy 근거가 아니
 
 차트에는 두 run 모두 `accepted`인 6개 cell만 표시한다. Redisson heap decode의
 `rejected` 2개 cell과 composite copied `fallback` 2개 cell을 0으로 그리지 않았다.
+Lettuce label은 소수점 넷째 자리로 반올림하며, `100%`나 zero-allocation을 뜻하지 않는다.
 차트 source는 aggregate manifest SHA-256에 묶여 있으며
 [`validate-chart-source.py`](./raw/issue-756-fory-followup/validate-chart-source.py)가
 raw comparison, SVG metadata, PNG 크기, summary를 fail-closed로 대조한다.
@@ -118,6 +119,9 @@ Redisson encode candidate는 두 probe에서 모두 allocation gate를 통과하
 - [Redisson canonical A](raw/issue-756-fory-followup/redisson/canonical-a/),
   [Redisson canonical B](raw/issue-756-fory-followup/redisson/canonical-b/)
 - [Encode feasibility](raw/issue-756-fory-followup/feasibility/)
+- [Release checklist](../superpowers/checklists/2026-07-23-issue-756-fory-followup-release.md),
+  [cross-version compatibility](raw/issue-756-fory-followup/release/compatibility-results.json),
+  [rollback smoke](raw/issue-756-fory-followup/release/rollback-smoke.json)
 - [Chart source](../images/readme-charts/issue756-fory-followup-allocation-chart-01-source.json),
   [SVG](../images/readme-charts/issue756-fory-followup-allocation-chart-01.svg),
   [PNG](../images/readme-charts/issue756-fory-followup-allocation-chart-01.png)
