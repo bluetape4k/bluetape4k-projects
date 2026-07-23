@@ -7,13 +7,13 @@
     },
     {
       "path": "classpath-manifest.json",
-      "sha256": "2e66bdcb06f4b5ee37d56512425807a5dd2dda957b900f8bf0af582b0b424086",
-      "size": 147095
+      "sha256": "f530b6e869289a82c990e31f55e33116cc536a34c041c291d4321fd0e3a4d5d6",
+      "size": 147480
     },
     {
       "path": "compatibility-results.json",
-      "sha256": "4487793c27ce356966df3885fc9922ecfe7ab5e51c3440ed2d4fbc62bb42109a",
-      "size": 2153
+      "sha256": "0ca34ee2791aafd203a9e2e8a87363a1417bf589d03ceb89b0dbee1ee991e572",
+      "size": 2331
     },
     {
       "path": "fixtures/fast-fory-new-write-old-read.bin",
@@ -37,8 +37,8 @@
     },
     {
       "path": "rollback-smoke.json",
-      "sha256": "1b708e7e0078a3e7df1aeb94ad2a1f3a848239325f3f5577a26cb050737a9143",
-      "size": 902
+      "sha256": "870a3b4b5bc597d68db10b8e6a587592d7bc1d16e16adae2c30e93479e3e2c76",
+      "size": 1113
     }
   ],
   "schemaVersion": 1
