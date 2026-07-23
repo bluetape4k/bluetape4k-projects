@@ -24,7 +24,7 @@ Kotlin Backend 개발을 위한 핵심 유틸리티 라이브러리입니다. Bl
 
 ## 주요 기능
 
-- **Validation (RequireSupport)**: 파라미터 검증을 위한 Contract 기반 함수들
+- **Validation (RequireSupport / CheckSupport)**: 호출자 검증과 상태 불변식 검증을 위한 Contract 기반 함수들
 - **Encoding/Decoding (Codec)**: Base58, Base62, Hex, URL62 등 다양한 인코딩
 - **String Support**: UTF-8 바이트 변환과 바이트 경계 안전 `truncateUtf8(maxBytes)`
 - **Type Extensions**: 모든 기본 타입에 대한 Kotlin 스타일 확장 함수
@@ -110,6 +110,21 @@ fun setQuantity(quantity: Int) {
 fun validateScore(score: Double) {
     score.requireGe(0.0, "score")
         .requireLe(100.0, "score")
+}
+```
+
+#### 상태 불변식 검증
+
+`CheckSupport`는 객체와 컴포넌트의 상태를 검증할 수 있도록 `RequireSupport`와 대칭인 API를 제공합니다.
+검증에 실패하면 `IllegalArgumentException` 대신 `IllegalStateException`이 발생합니다.
+
+```kotlin
+import io.bluetape4k.support.checkNotNull
+import io.bluetape4k.support.checkPositiveNumber
+
+fun nextBatch(currentBatch: Batch?, remaining: Int): Batch {
+    remaining.checkPositiveNumber("remaining")
+    return currentBatch.checkNotNull("currentBatch")
 }
 ```
 
