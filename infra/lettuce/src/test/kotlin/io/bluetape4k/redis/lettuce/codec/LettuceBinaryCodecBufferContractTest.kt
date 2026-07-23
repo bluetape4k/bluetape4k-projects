@@ -298,7 +298,8 @@ class LettuceBinaryCodecBufferContractTest {
             val codec = codecFactory()
             val expected = codec.encodeValue(RAW_FORY_VALUE).remainingBytes()
 
-            pooledRawTargets(initialCapacity = 8, maxCapacity = 512).forEach { (targetName, target) ->
+            pooledRawTargets(initialCapacity = 8, maxCapacity = 512).forEach { (targetName, targetFactory) ->
+                val target = targetFactory()
                 try {
                     val start = prepareRawForyTarget(target, suffixIndex = RAW_START + expected.size)
                     val readerMark = target.readerIndex()
@@ -332,7 +333,8 @@ class LettuceBinaryCodecBufferContractTest {
             val expected = codec.encodeValue(RAW_FORY_VALUE).remainingBytes()
             val maxCapacity = RAW_START + expected.size - 1
 
-            pooledRawTargets(initialCapacity = maxCapacity, maxCapacity = maxCapacity).forEach { (targetName, target) ->
+            pooledRawTargets(initialCapacity = maxCapacity, maxCapacity = maxCapacity).forEach { (targetName, targetFactory) ->
+                val target = targetFactory()
                 try {
                     val start = prepareRawForyTarget(target, suffixIndex = maxCapacity - 1)
                     val readerMark = target.readerIndex()
@@ -360,7 +362,8 @@ class LettuceBinaryCodecBufferContractTest {
             val expected = codec.encodeValue(RAW_FORY_VALUE).remainingBytes()
             val maxCapacity = RAW_START + expected.size + 8
 
-            pooledRawTargets(initialCapacity = maxCapacity, maxCapacity = maxCapacity).forEach { (targetName, delegate) ->
+            pooledRawTargets(initialCapacity = maxCapacity, maxCapacity = maxCapacity).forEach { (targetName, targetFactory) ->
+                val delegate = targetFactory()
                 val destinationFailure = IOException("raw Fory destination failure")
                 val target = BinaryPartialFailingByteBuf(delegate, destinationFailure)
                 try {
@@ -595,9 +598,9 @@ class LettuceBinaryCodecBufferContractTest {
         "FastFory" to { LettuceBinaryCodecs.fastFory<String>() },
     )
 
-    private fun pooledRawTargets(initialCapacity: Int, maxCapacity: Int): List<Pair<String, ByteBuf>> = listOf(
-        "pooled heap" to PooledByteBufAllocator.DEFAULT.heapBuffer(initialCapacity, maxCapacity),
-        "pooled direct" to PooledByteBufAllocator.DEFAULT.directBuffer(initialCapacity, maxCapacity),
+    private fun pooledRawTargets(initialCapacity: Int, maxCapacity: Int): List<Pair<String, () -> ByteBuf>> = listOf(
+        "pooled heap" to { PooledByteBufAllocator.DEFAULT.heapBuffer(initialCapacity, maxCapacity) },
+        "pooled direct" to { PooledByteBufAllocator.DEFAULT.directBuffer(initialCapacity, maxCapacity) },
     )
 
     private fun prepareRawForyTarget(target: ByteBuf, suffixIndex: Int): Int {
