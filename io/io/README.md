@@ -655,8 +655,13 @@ compatibility behavior.
 
 Existing callers need no API or payload migration when they keep the same serializer mode. Fory and FastFory remain
 wire-incompatible modes, so switching between them still requires an explicit cache migration or eviction. Allocation
-claims apply only to benchmark cells accepted by the committed issue #756 follow-up evidence; an inconclusive or
-rejected cell carries no optimization claim.
+claims apply only to benchmark cells accepted by the committed
+[issue #756 follow-up evidence](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md): all four raw
+Lettuce Fory/FastFory heap/direct encode cells and only the two raw Redisson direct decode cells. Redisson heap decode
+is rejected, composite decode is a non-promotable copied fallback, and Redisson encode is rejected by the feasibility
+probe. No compression path is included, and registration-off decode is for trusted payloads only.
+
+![Issue #756 accepted Fory allocation reductions](../../docs/images/readme-charts/issue756-fory-followup-allocation-chart-01.png)
 
 ```kotlin
 val staging = ByteArrayOutputStream()

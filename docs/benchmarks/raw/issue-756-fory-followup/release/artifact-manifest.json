@@ -1,0 +1,41 @@
+{
+  "artifacts": [
+    {
+      "artifact": "bluetape4k-io",
+      "coordinate": "io.github.bluetape4k:bluetape4k-io:1.11.0",
+      "downloadUrl": "https://repo.maven.apache.org/maven2/io/github/bluetape4k/bluetape4k-io/1.11.0/bluetape4k-io-1.11.0.jar",
+      "file": "bluetape4k-io-1.11.0.jar",
+      "group": "io.github.bluetape4k",
+      "repositoryUrl": "https://repo.maven.apache.org/maven2",
+      "sha256": "e5d41857bb7196c7fac8ecdfa773deb658f649ccbb78608064807fea1a823ea5",
+      "size": 203468,
+      "verified": true,
+      "version": "1.11.0"
+    },
+    {
+      "artifact": "bluetape4k-lettuce",
+      "coordinate": "io.github.bluetape4k:bluetape4k-lettuce:1.11.0",
+      "downloadUrl": "https://repo.maven.apache.org/maven2/io/github/bluetape4k/bluetape4k-lettuce/1.11.0/bluetape4k-lettuce-1.11.0.jar",
+      "file": "bluetape4k-lettuce-1.11.0.jar",
+      "group": "io.github.bluetape4k",
+      "repositoryUrl": "https://repo.maven.apache.org/maven2",
+      "sha256": "bd38da234b3dcd586d5a5458a95c4996c49585f945146fedb411a8c0810b962a",
+      "size": 284894,
+      "verified": true,
+      "version": "1.11.0"
+    },
+    {
+      "artifact": "bluetape4k-redisson",
+      "coordinate": "io.github.bluetape4k:bluetape4k-redisson:1.11.0",
+      "downloadUrl": "https://repo.maven.apache.org/maven2/io/github/bluetape4k/bluetape4k-redisson/1.11.0/bluetape4k-redisson-1.11.0.jar",
+      "file": "bluetape4k-redisson-1.11.0.jar",
+      "group": "io.github.bluetape4k",
+      "repositoryUrl": "https://repo.maven.apache.org/maven2",
+      "sha256": "a8018e61ac2c0d3e592efdcf694d2785c709269f22378d00c8f000dfffc628a1",
+      "size": 97662,
+      "verified": true,
+      "version": "1.11.0"
+    }
+  ],
+  "repositoryUrl": "https://repo.maven.apache.org/maven2"
+}

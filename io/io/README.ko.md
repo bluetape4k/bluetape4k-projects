@@ -650,8 +650,14 @@ allocating 호환 동작을 유지합니다.
 
 같은 serializer mode를 유지하는 기존 caller는 API나 payload migration이 필요하지 않습니다. Fory와
 FastFory는 계속 wire-incompatible mode이므로 mode 전환에는 명시적인 cache migration 또는 eviction이
-필요합니다. Allocation 주장은 committed issue #756 후속 근거에서 accepted로 판정된 benchmark cell에만
-적용되며 inconclusive 또는 rejected cell에는 최적화 주장을 부여하지 않습니다.
+필요합니다. Allocation 주장은 committed
+[issue #756 후속 근거](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md)에서 accepted로 판정된
+raw Lettuce Fory/FastFory heap/direct encode 4개 cell과 raw Redisson direct decode 2개 cell에만 적용합니다.
+Redisson heap decode는 rejected, composite decode는 non-promotable copied fallback이며 Redisson encode는
+feasibility probe에서 rejected입니다. 압축 경로는 포함하지 않으며 registration-off decode에는 신뢰된
+payload만 사용해야 합니다.
+
+![이슈 #756 accepted Fory allocation 감소](../../docs/images/readme-charts/issue756-fory-followup-allocation-chart-01.png)
 
 ```kotlin
 val staging = ByteArrayOutputStream()

@@ -179,8 +179,20 @@ view로 decode합니다. Composite 또는 non-NIO buffer와 direct view 실패�
 `FastForyCodec`은 legacy Fory bytes로 fallback할 수 있지만 `ForyCodec`은 FastFory bytes를 읽을 수 없습니다.
 같은 codec을 유지하면 caller API나 payload migration은 필요하지 않으며 mode 전환에는 명시적인 cache
 migration 또는 eviction이 필요합니다. Registration을 끈 이 codec들은 신뢰된 payload만 decode해야 합니다.
-Committed issue #756 후속 근거에서 accepted인 정확한 cell에만 allocation 주장을 부여할 수 있습니다. Runtime
-feature flag와 dispatch telemetry는 없습니다.
+Committed [issue #756 Fory 후속 근거](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md)는
+Redisson raw cell의 최종 disposition을 모두 기록합니다.
+
+| Raw 경로 | Fory | FastFory |
+|---|---|---|
+| Direct decode | accepted: canonical A/B에서 allocation 28.57138% 감소 | accepted: 26.98408% 감소 |
+| Heap decode | rejected: allocation 20–30% 증가 | rejected: allocation 22.22% 증가 |
+| Composite decode | fallback: copied compatibility 전용, non-promotable | fallback: copied compatibility 전용, non-promotable |
+| Encode | feasibility probe에서 rejected, 기존 allocating 경로 유지 | feasibility probe에서 rejected, 기존 allocating 경로 유지 |
+
+![이슈 #756 accepted Fory allocation 감소](../../docs/images/readme-charts/issue756-fory-followup-allocation-chart-01.png)
+
+Direct decode 2개 cell만 allocation 개선 주장을 부여합니다. Runtime feature flag와 dispatch telemetry는
+없습니다.
 
 ```kotlin
 val codec = GzipCodec(

@@ -179,8 +179,21 @@ be inferred from decode results; compressed wrappers retain their existing copie
 
 `FastForyCodec` may fall back to legacy Fory bytes, but `ForyCodec` cannot read FastFory bytes. Keeping the same codec
 requires no caller API or payload migration; changing modes requires an explicit cache migration or eviction. These
-registration-disabled codecs must decode only trusted payloads. Only exact cells accepted by the committed issue #756
-follow-up evidence may carry an allocation claim. There is no runtime feature flag or dispatch telemetry.
+registration-disabled codecs must decode only trusted payloads. The committed
+[issue #756 Fory follow-up evidence](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md) records the
+terminal disposition for every raw Redisson cell:
+
+| Raw path | Fory | FastFory |
+|---|---|---|
+| Direct decode | accepted: 28.57138% allocation reduction in canonical A/B | accepted: 26.98408% |
+| Heap decode | rejected: allocation increased by 20–30% | rejected: allocation increased by 22.22% |
+| Composite decode | fallback: copied compatibility only; non-promotable | fallback: copied compatibility only; non-promotable |
+| Encode | rejected by feasibility probe; existing allocating path retained | rejected by feasibility probe; existing allocating path retained |
+
+![Issue #756 accepted Fory allocation reductions](../../docs/images/readme-charts/issue756-fory-followup-allocation-chart-01.png)
+
+Only the two direct decode cells carry an allocation-improvement claim. There is no runtime feature flag or dispatch
+telemetry.
 
 ```kotlin
 val codec = GzipCodec(

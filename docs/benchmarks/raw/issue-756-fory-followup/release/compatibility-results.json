@@ -1,0 +1,63 @@
+{
+  "fixtures": [
+    {
+      "codec": "fory",
+      "fixture": "fixtures/fory-old-write-new-read.bin",
+      "fixtureSha256": "3100041495e1a58422b09e369d893bf11bdb76d0400f7a82ce9adc30182c3d9e",
+      "fixtureSize": 134,
+      "id": "fory-old-write-new-read",
+      "readEvidence": "READ_OK bytes=134",
+      "reader": "new",
+      "status": "passed",
+      "writeEvidence": "WRITE_OK bytes=134",
+      "writer": "old"
+    },
+    {
+      "codec": "fory",
+      "fixture": "fixtures/fory-new-write-old-read.bin",
+      "fixtureSha256": "3100041495e1a58422b09e369d893bf11bdb76d0400f7a82ce9adc30182c3d9e",
+      "fixtureSize": 134,
+      "id": "fory-new-write-old-read",
+      "readEvidence": "READ_OK bytes=134",
+      "reader": "old",
+      "status": "passed",
+      "writeEvidence": "WRITE_OK bytes=134",
+      "writer": "new"
+    },
+    {
+      "codec": "fast-fory",
+      "fixture": "fixtures/fast-fory-old-write-new-read.bin",
+      "fixtureSha256": "33bccf9073de3a786af8e337d7d096cad6aaea751a48bb3c57173291965a9e97",
+      "fixtureSize": 131,
+      "id": "fast-fory-old-write-new-read",
+      "readEvidence": "READ_OK bytes=131",
+      "reader": "new",
+      "status": "passed",
+      "writeEvidence": "WRITE_OK bytes=131",
+      "writer": "old"
+    },
+    {
+      "codec": "fast-fory",
+      "fixture": "fixtures/fast-fory-new-write-old-read.bin",
+      "fixtureSha256": "33bccf9073de3a786af8e337d7d096cad6aaea751a48bb3c57173291965a9e97",
+      "fixtureSize": 131,
+      "id": "fast-fory-new-write-old-read",
+      "readEvidence": "READ_OK bytes=131",
+      "reader": "old",
+      "status": "passed",
+      "writeEvidence": "WRITE_OK bytes=131",
+      "writer": "new"
+    }
+  ],
+  "generatedAt": "2026-07-23T04:44:04.122438+00:00",
+  "gitHead": "c4b60352be9efec6e6d168ad4bb6f36bbe1c6ef7",
+  "knownGoodVersion": "1.11.0",
+  "limitations": [
+    "This fixture proves codec-level wire compatibility; it does not publish artifacts.",
+    "Compression wrappers are outside the issue #756 follow-up scope."
+  ],
+  "schemaVersion": 1,
+  "scope": "Fory/FastFory raw Redisson codec cross-version decode",
+  "status": "passed",
+  "targetVersion": "1.12.0"
+}

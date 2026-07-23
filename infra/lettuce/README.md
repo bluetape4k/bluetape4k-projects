@@ -109,8 +109,18 @@ factory retain the allocating compatibility path.
 
 Keeping the same factory requires no caller API or payload migration. `fastFory()` has no Fory fallback and remains
 wire-incompatible with `fory()`, so changing modes requires an explicit cache migration or eviction. Only exact cells
-accepted by the committed issue #756 follow-up evidence may carry an allocation claim. There is no runtime
-auto-fallback, feature flag, or dispatch telemetry for this path.
+accepted by the committed [issue #756 Fory follow-up evidence](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md)
+may carry an allocation claim:
+
+| Raw target-taking encode | Heap | Direct |
+|---|---:|---:|
+| Fory | accepted: 99.99947% allocation reduction in canonical A/B | accepted: 99.99949–99.99950% |
+| FastFory | accepted: 99.99952–99.99954% | accepted: 99.99950–99.99954% |
+
+![Issue #756 accepted Fory allocation reductions](../../docs/images/readme-charts/issue756-fory-followup-allocation-chart-01.png)
+
+All four exact Lettuce cells are accepted. The allocation values do not imply zero-copy or a general throughput gain.
+There is no runtime auto-fallback, feature flag, or dispatch telemetry for this path.
 
 `LettuceCacheConfig` constraints:
 

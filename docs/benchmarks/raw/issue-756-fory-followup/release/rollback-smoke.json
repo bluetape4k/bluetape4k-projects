@@ -1,0 +1,28 @@
+{
+  "checks": [
+    {
+      "codec": "fory",
+      "roundTripEvidence": "ROUNDTRIP_OK",
+      "status": "passed"
+    },
+    {
+      "codec": "fast-fory",
+      "roundTripEvidence": "ROUNDTRIP_OK",
+      "status": "passed"
+    }
+  ],
+  "generatedAt": "2026-07-23T04:44:14.162434+00:00",
+  "gitHead": "c4b60352be9efec6e6d168ad4bb6f36bbe1c6ef7",
+  "knownGoodVersion": "1.11.0",
+  "limitation": "Redis was unavailable at redis://127.0.0.1:6379; this deterministic fallback proves known-good Fory/FastFory codec round trips but not networked Redis SET/GET.",
+  "mode": "codec-level",
+  "pinnedCoordinates": [
+    "io.github.bluetape4k:bluetape4k-io:1.11.0",
+    "io.github.bluetape4k:bluetape4k-lettuce:1.11.0",
+    "io.github.bluetape4k:bluetape4k-redisson:1.11.0"
+  ],
+  "publishingPerformed": false,
+  "repositoryUrl": "https://repo.maven.apache.org/maven2",
+  "schemaVersion": 1,
+  "status": "passed"
+}
