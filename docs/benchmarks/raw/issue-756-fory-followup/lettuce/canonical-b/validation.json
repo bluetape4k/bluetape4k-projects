@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "method_count": 8,
+  "comparisons": [
+    {
+      "backend": "fory",
+      "target": "heap",
+      "baseline": "foryHeapCopiedBaseline",
+      "candidate": "foryHeapCandidate",
+      "promotable": true,
+      "allocation_ratio": 5.299514867960183e-06,
+      "throughput_delta": 0.014436357987712922,
+      "error_intervals_separated": true,
+      "disposition": "accepted"
+    },
+    {
+      "backend": "fory",
+      "target": "direct",
+      "baseline": "foryDirectCopiedBaseline",
+      "candidate": "foryDirectCandidate",
+      "promotable": true,
+      "allocation_ratio": 5.0511427843121486e-06,
+      "throughput_delta": 0.07027284385503862,
+      "error_intervals_separated": true,
+      "disposition": "accepted"
+    },
+    {
+      "backend": "fastFory",
+      "target": "heap",
+      "baseline": "fastForyHeapCopiedBaseline",
+      "candidate": "fastForyHeapCandidate",
+      "promotable": true,
+      "allocation_ratio": 4.5503042662528236e-06,
+      "throughput_delta": 0.13802624681695663,
+      "error_intervals_separated": true,
+      "disposition": "accepted"
+    },
+    {
+      "backend": "fastFory",
+      "target": "direct",
+      "baseline": "fastForyDirectCopiedBaseline",
+      "candidate": "fastForyDirectCandidate",
+      "promotable": true,
+      "allocation_ratio": 4.57473037295122e-06,
+      "throughput_delta": 0.04913161381740827,
+      "error_intervals_separated": true,
+      "disposition": "accepted"
+    }
+  ],
+  "hashes": {
+    "jmh.json": "87053391e24e3d0544e139e25a835684cea21c0d85c5351fecde3f0bc02b4b78",
+    "preflight.json": "3ca735f45c2accc072d69a844cabf73b8e2c5e3d1f2d633f1806ce30c6e55764",
+    "argv.json": "483be42c1a612d62720e2797f2b9033d68e68824dd4bb4a10833ede445c72746",
+    "environment.json": "69d5a23d895d9582b8386119cfa18de001bcf32486d7de88f3168d6dab496f5e",
+    "metadata.json": "18ee13461def484eab03a2a3fd94afbc0e50480d6541bef22e285199cf60397c",
+    "comparison.json": "dcef4721f150ff72a050c6a294bd39141e18d3c447f1ea10555f8e86f0bbf574",
+    "summary.csv": "8669b031018c2bb57c1ef517ceacf50a76ab08b2d8c2d648238b86402c9c26e8"
+  }
+}

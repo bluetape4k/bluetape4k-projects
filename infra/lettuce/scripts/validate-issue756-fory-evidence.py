@@ -135,6 +135,7 @@ def validate_leaf(root: Path) -> dict:
         writer = csv.DictWriter(
             stream,
             fieldnames=("backend", "target", "allocation_ratio", "throughput_delta", "disposition"),
+            lineterminator="\n",
         )
         writer.writeheader()
         for row in comparisons:

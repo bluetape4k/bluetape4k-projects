@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "method_count": 8,
+  "comparisons": [
+    {
+      "backend": "fory",
+      "target": "heap",
+      "baseline": "foryHeapCopiedBaseline",
+      "candidate": "foryHeapCandidate",
+      "promotable": true,
+      "allocation_ratio": 5.251094049159132e-06,
+      "throughput_delta": 0.08703268530839603,
+      "error_intervals_separated": true,
+      "disposition": "accepted"
+    },
+    {
+      "backend": "fory",
+      "target": "direct",
+      "baseline": "foryDirectCopiedBaseline",
+      "candidate": "foryDirectCandidate",
+      "promotable": true,
+      "allocation_ratio": 5.031210087803233e-06,
+      "throughput_delta": 0.024175506761107135,
+      "error_intervals_separated": true,
+      "disposition": "accepted"
+    },
+    {
+      "backend": "fastFory",
+      "target": "heap",
+      "baseline": "fastForyHeapCopiedBaseline",
+      "candidate": "fastForyHeapCandidate",
+      "promotable": true,
+      "allocation_ratio": 4.819494213533855e-06,
+      "throughput_delta": 0.417077104600178,
+      "error_intervals_separated": true,
+      "disposition": "accepted"
+    },
+    {
+      "backend": "fastFory",
+      "target": "direct",
+      "baseline": "fastForyDirectCopiedBaseline",
+      "candidate": "fastForyDirectCandidate",
+      "promotable": true,
+      "allocation_ratio": 4.990369641578008e-06,
+      "throughput_delta": -0.0029508151387463988,
+      "error_intervals_separated": true,
+      "disposition": "accepted"
+    }
+  ],
+  "hashes": {
+    "jmh.json": "5c5df0914823157f7ef9653630d59b5be5773b7b708863a18d2c6262f4252718",
+    "preflight.json": "3ca735f45c2accc072d69a844cabf73b8e2c5e3d1f2d633f1806ce30c6e55764",
+    "argv.json": "6865f2b24322c7d6f2d5334a2a7ae53e78c937b03211b836fd5e6d0c6c854221",
+    "environment.json": "69d5a23d895d9582b8386119cfa18de001bcf32486d7de88f3168d6dab496f5e",
+    "metadata.json": "0c2434a4f880b3f7c03067894466e10c07c7e7833979efddc4e1710e40b90b6c",
+    "comparison.json": "206457a4285f1bd2612d5ae4d469d3138a31da0f1f57547128fbd7049631c2c8",
+    "summary.csv": "c9895b5f453e2b18162427bbfd1db3aaa02d4a32d36759d2dbdc98a6c7398982"
+  }
+}

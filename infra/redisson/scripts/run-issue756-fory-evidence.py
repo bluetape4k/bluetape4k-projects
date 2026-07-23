@@ -127,6 +127,7 @@ def main() -> int:
             {"head": head, "jar_sha256": jar_sha, "run": run_name, "encodeDisposition": args.encode_disposition},
         )
         subprocess.run(argv, cwd=REPO, check=True)
+        write_json(root / "jmh.json", json.loads((root / "jmh.json").read_text()))
         validator.validate_leaf(root, args.encode_disposition)
     return 0
 

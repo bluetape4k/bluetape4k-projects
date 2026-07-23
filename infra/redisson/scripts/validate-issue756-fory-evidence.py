@@ -154,7 +154,7 @@ def validate_leaf(root: Path, encode_disposition: str) -> dict:
     (root / "comparison.json").write_text(json.dumps(comparisons, indent=2) + "\n")
     with (root / "summary.csv").open("w", newline="") as stream:
         fields = ("backend", "operation", "source", "allocation_ratio", "throughput_delta", "disposition")
-        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer = csv.DictWriter(stream, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for row in comparisons:
             writer.writerow({name: row[name] for name in fields})

@@ -125,6 +125,7 @@ def main() -> int:
         )
         write_json(root / "metadata.json", {"head": head, "jar_sha256": jar_sha, "run": run_name})
         subprocess.run(argv, cwd=REPO, check=True)
+        write_json(root / "jmh.json", json.loads((root / "jmh.json").read_text()))
         validator.validate_leaf(root)
     return 0
 
