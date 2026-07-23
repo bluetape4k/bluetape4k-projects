@@ -640,6 +640,19 @@ close, flush하지 않습니다. Serializer 호출과 mutable destination은 한
 실패 시 partial bytes가 남을 수 있으므로 실패한 range를 재사용하지 말고 staging destination을 폐기한 뒤
 성공 결과만 게시하세요.
 
+#### Raw Fory/FastFory stream 경계
+
+`ForyBinarySerializer`와 `FastForyBinarySerializer`는 압축하지 않는 출력에서 caller-owned stream 경로를
+명시적으로 제공합니다. 이 경로는 codec 수준의 반환용 `ByteArray`와 후속 copy를 제거하지만 Apache Fory는
+여전히 재사용 `MemoryBuffer`에 직렬화한 뒤 destination으로 기록합니다. 따라서 이는 handoff copy를 줄이는
+경로이지 zero-copy가 아닙니다. 단일 인자 `serialize`, `serializeTo(ByteBuffer)`, 압축 serializer 경로는
+allocating 호환 동작을 유지합니다.
+
+같은 serializer mode를 유지하는 기존 caller는 API나 payload migration이 필요하지 않습니다. Fory와
+FastFory는 계속 wire-incompatible mode이므로 mode 전환에는 명시적인 cache migration 또는 eviction이
+필요합니다. Allocation 주장은 committed issue #756 후속 근거에서 accepted로 판정된 benchmark cell에만
+적용되며 inconclusive 또는 rejected cell에는 최적화 주장을 부여하지 않습니다.
+
 ```kotlin
 val staging = ByteArrayOutputStream()
 val wire = try {

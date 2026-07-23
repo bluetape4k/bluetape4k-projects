@@ -13,28 +13,26 @@ import org.redisson.client.protocol.Encoder
 import org.redisson.codec.Kryo5Codec
 
 /**
- * Apache Fory 알고리즘으로 직렬화/역직렬화를 수행하는 Redisson [Codec] 구현체입니다.
+ * A Redisson [Codec] backed by Apache Fory.
  *
- * ## 특징
- * - Apache Fory는 JDK 직렬화나 Kryo5 대비 2~10배 빠른 직렬화 속도를 제공합니다.
- * - 스키마 없이 대부분의 Java/Kotlin 타입을 자동으로 처리합니다.
- * - 직렬화 실패 시 [fallbackCodec]([Kryo5Codec])으로 자동 전환하여 안정성을 보장합니다.
+ * Single-NIO heap/direct input is decoded from a bounded read-only view without changing caller-owned `ByteBuf`
+ * indices, marks, or reference count. Composite/non-NIO input and unsafe view construction use the copied
+ * compatibility path. Fory's internal reusable buffer remains, so the direct view is not a zero-copy codec.
  *
- * ## 주의사항
- * - Fory 직렬화는 클래스 구조 변경에 민감합니다. 클래스를 변경할 경우 기존 데이터와 호환성 문제가 발생할 수 있습니다.
- * - 직렬화 대상 클래스가 Fory에서 지원되지 않으면 [fallbackCodec]으로 처리됩니다.
+ * Encode and decode failures retain the existing [fallbackCodec] contract. Existing callers need no API or payload
+ * migration. This raw-codec behavior does not apply to compression wrappers.
  *
  * **Security warning:** The default registration-off decoder is intended only for trusted Redis payloads.
  * It does not provide a secure deserialization boundary for untrusted input.
  *
- * ## 사용 예
+ * ## Example
  * ```kotlin
  * val config = Config()
  * config.codec = ForyCodec()
  * val redisson = Redisson.create(config)
  * ```
  *
- * @property fallbackCodec 직렬화/역직렬화 실패 시 사용할 대체 Codec (기본값: [Kryo5Codec])
+ * @property fallbackCodec codec used after a supported Fory failure (default: [Kryo5Codec])
  * @see io.bluetape4k.io.serializer.ForyBinarySerializer
  * @see io.bluetape4k.io.serializer.BinarySerializers.Fory
  */

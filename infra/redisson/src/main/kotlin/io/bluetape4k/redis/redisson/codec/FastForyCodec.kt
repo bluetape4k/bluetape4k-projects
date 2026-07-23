@@ -12,31 +12,31 @@ import org.redisson.client.protocol.Decoder
 import org.redisson.client.protocol.Encoder
 
 /**
- * Apache Fory `SCHEMA_CONSISTENT` 모드(FastFory)로 직렬화/역직렬화를 수행하는 Redisson [Codec] 구현체입니다.
+ * A Redisson [Codec] backed by Apache Fory in `SCHEMA_CONSISTENT` mode.
  *
- * ## 특징
- * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하여 기본 [ForyCodec](COMPATIBLE 모드)보다 더 빠른 직렬화 속도를 제공합니다.
- * - 직렬화 실패 시 [fallbackCodec]([ForyCodec])으로 자동 전환하여 안정성을 보장합니다.
- * - 순환 참조 추적이 비활성화(`refTracking=false`)되어 있어 단순 객체 그래프에 최적화되어 있습니다.
+ * Single-NIO heap/direct input is decoded from a bounded read-only view. Composite/non-NIO input and unsafe view
+ * construction use the copied compatibility path. Fory's internal reusable buffer remains, so this is not a
+ * zero-copy codec. This raw-codec behavior does not apply to compression wrappers.
  *
- * ## 사용 예
+ * FastFory encode/decode failures retain the existing [fallbackCodec] contract. This codec can therefore read
+ * compatible-mode Fory payloads through fallback, while [ForyCodec] cannot read FastFory payloads. Existing callers
+ * need no migration when they keep the same codec mode.
+ *
+ * ## Example
  * ```kotlin
  * val config = Config()
  * config.codec = FastForyCodec()
  * val redisson = Redisson.create(config)
  * ```
  *
- * ## ⚠️ 와이어 포맷 경고
- * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **와이어 포맷이 상호 비호환**합니다.
- * - **비대칭 호환성**: 이 codec은 구 Fory(COMPATIBLE) 데이터를 fallback으로 읽을 수 있습니다. 반대(ForyCodec으로 FastFory 데이터 읽기)는 불가합니다.
- * - **휘발성 캐시(Redis, 메모리 캐시) 전용** — 영속 저장에 사용하지 마십시오.
- * - **순환 참조 객체 불가** (refTracking=false).
- * - **스키마 진화 불가** — 필드 추가/제거 시 기존 데이터 역직렬화 실패.
+ * ## Wire-format warning
+ * - `SCHEMA_CONSISTENT` is not wire-compatible with the default Fory `COMPATIBLE` mode.
+ * - Use this codec only for volatile caches with a fixed schema and no cyclic references.
  *
  * **Security warning:** The default registration-off decoder is intended only for trusted Redis payloads.
  * It does not provide a secure deserialization boundary for untrusted input.
  *
- * @property fallbackCodec 직렬화/역직렬화 실패 시 사용할 대체 Codec (기본값: [RedissonCodecs.Fory])
+ * @property fallbackCodec codec used after a supported FastFory failure (default: [RedissonCodecs.Fory])
  * @see io.bluetape4k.io.serializer.FastForyBinarySerializer
  * @see io.bluetape4k.io.serializer.BinarySerializers.FastFory
  */

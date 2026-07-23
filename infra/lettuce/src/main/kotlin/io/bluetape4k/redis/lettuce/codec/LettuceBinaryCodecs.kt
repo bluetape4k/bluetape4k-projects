@@ -51,12 +51,12 @@ object LettuceBinaryCodecs {
     fun <V: Any> kryo(): LettuceBinaryCodec<V> = codec(BinarySerializers.Kryo)
 
     /**
-     * Fory Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     * Creates a [LettuceBinaryCodec] with the raw Fory serializer.
      *
-     * 단일 인자 인코딩은 계속 [ByteArray]를 생성합니다. 호출자 소유 target 인코딩은 raw Fory가 direct
-     * stream/ByteBuffer override를 제공할 때에만 bounded OutputStream 경로로 codec-level intermediary를
-     * 제거하고 writer index를 마지막에 한 번만 커밋합니다. 이는 보편적인 zero-copy 보장이 아니며, 압축 Fory
-     * 계열은 기존 ByteArray/압축 경로를 유지합니다.
+     * One-argument encode still creates a [ByteArray]. Caller-owned target encode uses the bounded stream path to
+     * avoid the codec-level handoff array and commits the writer index only after success. Fory retains its internal
+     * reusable buffer, so this is not zero-copy. Compressed Fory codecs retain their byte-array/compression path.
+     * Existing callers need no migration when they keep the same codec mode.
      */
     fun <V: Any> fory(): LettuceBinaryCodec<V> = codec(BinarySerializers.Fory)
 
@@ -144,13 +144,12 @@ object LettuceBinaryCodecs {
     // -------------------------------------------------------------------------
 
     /**
-     * FastFory Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     * Creates a [LettuceBinaryCodec] with the raw FastFory serializer.
      *
-     * FastFory는 `CompatibleMode.SCHEMA_CONSISTENT`를 사용하는 고성능 직렬화기입니다.
-     * 단일 인자 인코딩은 계속 [ByteArray]를 생성합니다. 호출자 소유 target 인코딩은 raw FastFory가 direct
-     * stream/ByteBuffer override를 제공할 때에만 bounded OutputStream 경로로 codec-level intermediary를
-     * 제거하고 writer index를 마지막에 한 번만 커밋합니다. 이는 보편적인 zero-copy 보장이 아니며, 압축 FastFory
-     * 계열은 기존 ByteArray/압축 경로를 유지합니다.
+     * FastFory uses `CompatibleMode.SCHEMA_CONSISTENT`. One-argument encode still creates a [ByteArray].
+     * Caller-owned target encode avoids only the codec-level handoff array; Fory's internal buffer remains, so this
+     * is not zero-copy. Compressed FastFory codecs retain their byte-array/compression path. Lettuce does not fall
+     * back from FastFory to Fory, and existing callers need no migration when they keep the same codec mode.
      *
      * ```kotlin
      * val codec = LettuceBinaryCodecs.fastFory<MyData>()

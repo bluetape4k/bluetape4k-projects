@@ -169,6 +169,19 @@ Codec classes:
 - `ZstdCodec` — Zstd compression wrapper.
 - `GzipCodec` — GZip compression wrapper with bounded decompression (`maxDecompressedSize`, default 256 MiB).
 
+#### Raw Fory/FastFory buffer boundary
+
+For uncompressed `ForyCodec` and `FastForyCodec`, a single-NIO-component heap or direct `ByteBuf` is decoded through a
+bounded read-only view. Composite or otherwise non-NIO buffers, and direct-view failures, use the copied compatibility
+path. Both paths preserve the input `readerIndex` and `writerIndex`. Apache Fory still uses an internal reusable
+`MemoryBuffer`, so the retained view path is not zero-copy. Encode ownership is a separate evidence gate and must not
+be inferred from decode results; compressed wrappers retain their existing copied path.
+
+`FastForyCodec` may fall back to legacy Fory bytes, but `ForyCodec` cannot read FastFory bytes. Keeping the same codec
+requires no caller API or payload migration; changing modes requires an explicit cache migration or eviction. These
+registration-disabled codecs must decode only trusted payloads. Only exact cells accepted by the committed issue #756
+follow-up evidence may carry an allocation claim. There is no runtime feature flag or dispatch telemetry.
+
 ```kotlin
 val codec = GzipCodec(
     innerCodec = RedissonCodecs.Fory,

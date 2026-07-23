@@ -645,6 +645,19 @@ stream implementations. The serializer borrows the stream synchronously and must
 the serializer invocation and mutable destination thread-confined. A destination failure can leave partial bytes, so
 stage or discard the destination before publication instead of trying to reuse the failed range.
 
+#### Raw Fory/FastFory stream boundary
+
+`ForyBinarySerializer` and `FastForyBinarySerializer` opt into the caller-owned stream path for uncompressed output.
+This removes the codec-level return-and-copy `ByteArray`, but Apache Fory still serializes through its reusable
+`MemoryBuffer` before writing to the destination. The path is therefore lower-handoff-copy, not zero-copy. The
+single-argument `serialize`, `serializeTo(ByteBuffer)`, and compressed serializer paths retain their allocating
+compatibility behavior.
+
+Existing callers need no API or payload migration when they keep the same serializer mode. Fory and FastFory remain
+wire-incompatible modes, so switching between them still requires an explicit cache migration or eviction. Allocation
+claims apply only to benchmark cells accepted by the committed issue #756 follow-up evidence; an inconclusive or
+rejected cell carries no optimization claim.
+
 ```kotlin
 val staging = ByteArrayOutputStream()
 val wire = try {

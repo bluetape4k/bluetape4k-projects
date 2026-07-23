@@ -168,6 +168,20 @@ Codec 클래스:
 - `ZstdCodec` — Zstd 압축 래퍼
 - `GzipCodec` — 압축 해제 크기를 제한하는 GZip 압축 래퍼 (`maxDecompressedSize`, 기본 256 MiB)
 
+#### Raw Fory/FastFory buffer 경계
+
+압축하지 않는 `ForyCodec`과 `FastForyCodec`은 single-NIO-component heap/direct `ByteBuf`를 bounded read-only
+view로 decode합니다. Composite 또는 non-NIO buffer와 direct view 실패는 copied 호환 경로를 사용합니다. 두
+경로 모두 입력 `readerIndex`와 `writerIndex`를 보존합니다. Apache Fory는 계속 내부 재사용 `MemoryBuffer`를
+사용하므로 유지된 view 경로도 zero-copy가 아닙니다. Encode ownership은 별도 근거 gate이며 decode 결과에서
+추론하면 안 됩니다. 압축 wrapper는 기존 copied 경로를 유지합니다.
+
+`FastForyCodec`은 legacy Fory bytes로 fallback할 수 있지만 `ForyCodec`은 FastFory bytes를 읽을 수 없습니다.
+같은 codec을 유지하면 caller API나 payload migration은 필요하지 않으며 mode 전환에는 명시적인 cache
+migration 또는 eviction이 필요합니다. Registration을 끈 이 codec들은 신뢰된 payload만 decode해야 합니다.
+Committed issue #756 후속 근거에서 accepted인 정확한 cell에만 allocation 주장을 부여할 수 있습니다. Runtime
+feature flag와 dispatch telemetry는 없습니다.
+
 ```kotlin
 val codec = GzipCodec(
     innerCodec = RedissonCodecs.Fory,

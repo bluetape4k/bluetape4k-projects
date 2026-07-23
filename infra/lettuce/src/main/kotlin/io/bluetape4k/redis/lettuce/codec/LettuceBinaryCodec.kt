@@ -12,8 +12,7 @@ import java.nio.ByteBuffer
 import java.nio.ReadOnlyBufferException
 
 /**
- * Lettuce [RedisCodec] 구현체
- * Value 를 [BinarySerializer]를 이용하여 직렬화/역직렬화합니다. (압축 기능도 제공합니다)
+ * A Lettuce [RedisCodec] that serializes values with a [BinarySerializer].
  *
  * ```kotlin
  * val codec = LettuceBinaryCodec<MyData>(BinarySerializers.LZ4Kryo)
@@ -29,8 +28,13 @@ import java.nio.ReadOnlyBufferException
  * those bridges are not a supported extension API. Subclasses must override only the target overload and preserve
  * the configured [serializer] contract.
  *
+ * Built-in raw Fory/FastFory serializers can avoid the codec-level handoff array on this target-taking path.
+ * Fory still writes from its internal reusable buffer, so the path is not zero-copy. One-argument encode and
+ * compressed Fory/FastFory serializers retain their allocating compatibility paths. Existing callers do not need
+ * an API or payload migration when they keep the same serializer mode.
+ *
  * @param V value type
- * @property serializer [BinarySerializer] 인스턴스
+ * @property serializer serializer used for values
  */
 open class LettuceBinaryCodec<V: Any>(
     val serializer: BinarySerializer,
@@ -60,6 +64,8 @@ open class LettuceBinaryCodec<V: Any>(
      * commit the writer index only after the complete value has been written. A failed override may leave attempted
      * bytes or capacity changes behind, but it must not advance the writer index. Subclasses are responsible for
      * preserving wire-format and security compatibility with their configured [serializer].
+     *
+     * This method does not introduce a runtime fallback, feature flag, or dispatch telemetry.
      */
     override fun encodeValue(value: V, target: ByteBuf?) {
         if (target == null) return

@@ -59,11 +59,11 @@ private class ForyCallerOwnedCountingOutputStream(
 }
 
 /**
- * [Fory](https://fory.apache.org/) 를 이용한 Binary 직렬화/역직렬화를 수행하는 [BinarySerializer]
+ * A [BinarySerializer] backed by [Fory](https://fory.apache.org/).
  *
- * > **보안 경고**: 기본 설정(`requireClassRegistration(false)`)은 등록되지 않은 모든 클래스의 역직렬화를 허용합니다.
- * > 신뢰할 수 없는 데이터 소스에서 역직렬화할 경우 임의 코드 실행(RCE) 취약점이 발생할 수 있습니다.
- * > 보안이 중요한 환경에서는 `requireClassRegistration(true)`로 변경하고 허용할 클래스를 명시적으로 등록하세요.
+ * > **Security warning:** The default configuration uses `requireClassRegistration(false)` and is intended only
+ * > for trusted payloads. Use [secureFory] and an explicit registration allow-list when deserializing across a
+ * > boundary that is not fully controlled by the application.
  *
  * ```
  * val serializer = ForyBinarySerializer()
@@ -71,10 +71,10 @@ private class ForyCallerOwnedCountingOutputStream(
  * val text = serializer.deserialize<String>(bytes)  // text="Hello, World!"
  * ```
  *
- * [deserializeFrom] delegates a duplicate of the caller's bounded range to Fory's ByteBuffer API.
- * [serializeBinaryToStream] writes through Fory's `OutputStream` overload and avoids the returned/handoff payload
- * array. The target is borrowed synchronously and is not retained, flushed, or closed. Fory may still use its
- * reusable internal `MemoryBuffer` while serializing.
+ * [deserializeFrom] delegates a duplicate of the caller's bounded range to Fory's `ByteBuffer` API.
+ * [serializeBinaryToStream] writes through Fory's `OutputStream` overload and avoids only the returned/handoff
+ * payload array. The target is borrowed synchronously and is not retained, flushed, or closed. Fory still uses its
+ * reusable internal `MemoryBuffer`, so this is not a zero-copy serializer.
  * [serializeTo] intentionally keeps the BinarySerializer ByteArray compatibility fallback because
  * Fory's MemoryBuffer output may grow by replacing caller-provided storage.
  * The [issue #1039 evidence](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)
@@ -117,9 +117,10 @@ class ForyBinarySerializer(
         }
 
         /**
-         * SCHEMA_CONSISTENT + refTracking 비활성화로 최적화된 [ForyBinarySerializer]를 반환합니다.
+         * Returns a [ForyBinarySerializer] configured with `SCHEMA_CONSISTENT` and reference tracking disabled.
          *
-         * 기본 [ForyBinarySerializer] 대비 처리량이 약 +70% 향상됩니다.
+         * Throughput depends on the payload and runtime profile. Use committed benchmark evidence for the exact
+         * workload instead of assuming a fixed uplift over the default serializer.
          *
          * ## 적합한 사용 사례
          * - Redis·메시지큐 등 **휘발성** 캐시: 데이터 수명이 배포 단위와 같아 포맷 변경이 무해합니다.

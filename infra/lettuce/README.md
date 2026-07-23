@@ -100,6 +100,18 @@ capacity growth, target sizes, allocator/pooling choices, zero-copy, or throughp
 feature flag, or dispatch telemetry. If a retained direct path is defective, roll back to the previous artifact/codec
 deployment; any implementation change requires two fresh canonical runs before reusing an allocation claim.
 
+#### Raw Fory/FastFory boundary
+
+The uncompressed `fory()` and `fastFory()` factories use the same bounded caller-owned `ByteBuf` writer for their
+target-taking encode path. That path removes the codec-level handoff `ByteArray`, while Apache Fory's internal reusable
+`MemoryBuffer` and its final destination write remain; it is not zero-copy. One-argument encode and every compressed
+factory retain the allocating compatibility path.
+
+Keeping the same factory requires no caller API or payload migration. `fastFory()` has no Fory fallback and remains
+wire-incompatible with `fory()`, so changing modes requires an explicit cache migration or eviction. Only exact cells
+accepted by the committed issue #756 follow-up evidence may carry an allocation claim. There is no runtime
+auto-fallback, feature flag, or dispatch telemetry for this path.
+
 `LettuceCacheConfig` constraints:
 
 - `writeBehindBatchSize`, `writeBehindQueueCapacity`, `writeRetryAttempts`, and

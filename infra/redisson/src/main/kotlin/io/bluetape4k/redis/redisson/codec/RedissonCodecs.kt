@@ -26,7 +26,7 @@ import org.redisson.codec.SnappyCodecV2
  *
  * ## 직렬화 방식
  * - [Kryo5]: Kryo5 직렬화 (빠르고 컴팩트한 바이너리 포맷)
- * - [Fory]: Apache Fory 직렬화 (Kryo5 대비 2~10배 빠름, 기본값)
+ * - [Fory]: Apache Fory serialization (default)
  * - [Jdk]: JDK 기본 직렬화 (호환성 높지만 속도 느림)
  * - [Jackson3]: Jackson 3 커스텀 JSON 엔벨로프 (`_type`/`_data`) — human-readable, non-JVM 클라이언트 연동
  * - [Fastjson2]: Fastjson2 JSONB WriteClassName — JSONB 바이너리, non-JVM 클라이언트 연동
@@ -71,8 +71,7 @@ object RedissonCodecs: KLogging() {
     val Kryo5: Codec by lazy { Kryo5Codec() }
 
     /**
-     * Apache Fory 직렬화 Codec.
-     * Kryo5 대비 2~10배 빠른 직렬화 속도를 제공하며, 직렬화 실패 시 Kryo5로 자동 전환합니다.
+     * Apache Fory serialization codec. Falls back to Kryo5 after a supported serialization failure.
      */
     val Fory: Codec by lazy { ForyCodec() }
 
