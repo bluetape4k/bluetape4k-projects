@@ -1,0 +1,127 @@
+{
+  "encode_disposition": "rejected",
+  "methods": [
+    {
+      "backend": "fory",
+      "method": "foryHeapDecodeCopiedBaseline",
+      "mode": "byte-array-baseline",
+      "path": "baseline",
+      "promotable": true,
+      "source": "heap",
+      "state_preserved": true,
+      "wire_sha256": "b83ff87bb35bf40900b90b5d24bb13dfbd2712dc9f72e57aa73dd30ae1e18f07"
+    },
+    {
+      "backend": "fory",
+      "method": "foryHeapDecodeCandidate",
+      "mode": "direct-nio",
+      "path": "candidate",
+      "promotable": true,
+      "source": "heap",
+      "state_preserved": true,
+      "wire_sha256": "b83ff87bb35bf40900b90b5d24bb13dfbd2712dc9f72e57aa73dd30ae1e18f07"
+    },
+    {
+      "backend": "fory",
+      "method": "foryDirectDecodeCopiedBaseline",
+      "mode": "byte-array-baseline",
+      "path": "baseline",
+      "promotable": true,
+      "source": "direct",
+      "state_preserved": true,
+      "wire_sha256": "b83ff87bb35bf40900b90b5d24bb13dfbd2712dc9f72e57aa73dd30ae1e18f07"
+    },
+    {
+      "backend": "fory",
+      "method": "foryDirectDecodeCandidate",
+      "mode": "direct-nio",
+      "path": "candidate",
+      "promotable": true,
+      "source": "direct",
+      "state_preserved": true,
+      "wire_sha256": "b83ff87bb35bf40900b90b5d24bb13dfbd2712dc9f72e57aa73dd30ae1e18f07"
+    },
+    {
+      "backend": "fory",
+      "method": "foryCompositeDecodeCopiedBaseline",
+      "mode": "byte-array-baseline",
+      "path": "baseline",
+      "promotable": false,
+      "source": "composite",
+      "state_preserved": true,
+      "wire_sha256": "b83ff87bb35bf40900b90b5d24bb13dfbd2712dc9f72e57aa73dd30ae1e18f07"
+    },
+    {
+      "backend": "fory",
+      "method": "foryCompositeDecodeCandidate",
+      "mode": "copied-fallback",
+      "path": "candidate",
+      "promotable": false,
+      "source": "composite",
+      "state_preserved": true,
+      "wire_sha256": "b83ff87bb35bf40900b90b5d24bb13dfbd2712dc9f72e57aa73dd30ae1e18f07"
+    },
+    {
+      "backend": "fastFory",
+      "method": "fastForyHeapDecodeCopiedBaseline",
+      "mode": "byte-array-baseline",
+      "path": "baseline",
+      "promotable": true,
+      "source": "heap",
+      "state_preserved": true,
+      "wire_sha256": "193539ad9aa1c50422b88a78aec58110897eb98642362a7127847d80aa09a41b"
+    },
+    {
+      "backend": "fastFory",
+      "method": "fastForyHeapDecodeCandidate",
+      "mode": "direct-nio",
+      "path": "candidate",
+      "promotable": true,
+      "source": "heap",
+      "state_preserved": true,
+      "wire_sha256": "193539ad9aa1c50422b88a78aec58110897eb98642362a7127847d80aa09a41b"
+    },
+    {
+      "backend": "fastFory",
+      "method": "fastForyDirectDecodeCopiedBaseline",
+      "mode": "byte-array-baseline",
+      "path": "baseline",
+      "promotable": true,
+      "source": "direct",
+      "state_preserved": true,
+      "wire_sha256": "193539ad9aa1c50422b88a78aec58110897eb98642362a7127847d80aa09a41b"
+    },
+    {
+      "backend": "fastFory",
+      "method": "fastForyDirectDecodeCandidate",
+      "mode": "direct-nio",
+      "path": "candidate",
+      "promotable": true,
+      "source": "direct",
+      "state_preserved": true,
+      "wire_sha256": "193539ad9aa1c50422b88a78aec58110897eb98642362a7127847d80aa09a41b"
+    },
+    {
+      "backend": "fastFory",
+      "method": "fastForyCompositeDecodeCopiedBaseline",
+      "mode": "byte-array-baseline",
+      "path": "baseline",
+      "promotable": false,
+      "source": "composite",
+      "state_preserved": true,
+      "wire_sha256": "193539ad9aa1c50422b88a78aec58110897eb98642362a7127847d80aa09a41b"
+    },
+    {
+      "backend": "fastFory",
+      "method": "fastForyCompositeDecodeCandidate",
+      "mode": "copied-fallback",
+      "path": "candidate",
+      "promotable": false,
+      "source": "composite",
+      "state_preserved": true,
+      "wire_sha256": "193539ad9aa1c50422b88a78aec58110897eb98642362a7127847d80aa09a41b"
+    }
+  ],
+  "schema_version": 1,
+  "status": "passed"
+}
