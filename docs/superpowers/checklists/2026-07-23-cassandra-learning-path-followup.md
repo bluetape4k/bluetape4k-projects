@@ -33,25 +33,25 @@
 
 ## Projects delivery
 
-- [ ] **E-01 — 최신 develop 위로 복구 branch를 재정렬한다**
+- [x] **E-01 — 최신 develop 위로 복구 branch를 재정렬한다**
   - **Action:** 현재 `origin/develop`에 rebase하고 충돌을 문서 scope 안에서 해결한다.
-  - **Evidence:** rebase 결과와 clean worktree.
+  - **Evidence:** `git rebase origin/develop`가 다섯 커밋을 충돌 없이 적용했고, rebase 후 worktree는 clean이다.
   - **Failure:** 충돌 내용을 보존하고 중단한다.
-- [ ] **E-02 — 한영 manual 계약을 검증한다**
+- [x] **E-02 — 한영 manual 계약을 검증한다**
   - **Action:** Cassandra landing의 기능 소개·학습 경로·호환 anchor를 대조한다.
-  - **Evidence:** EN/KO parity 및 targeted search 결과.
+  - **Evidence:** 두 landing 모두 legacy anchor, 새 heading, 다섯 chapter 설명을 포함한다. `CqlSessionProvider`와 `executeSuspending`은 현재 Cassandra 소스 graph에서도 확인했다.
   - **Failure:** 문구 또는 anchor drift를 수정한다.
-- [ ] **E-03 — 문서 검증을 실행한다**
+- [x] **E-03 — 문서 검증을 실행한다**
   - **Action:** manual validator, manifest check, `git diff --check`를 실행한다.
-  - **Evidence:** 각 명령의 성공 출력.
+  - **Evidence:** `validate_manuals_test.rb` 18 runs/56 assertions, `generate_manuals_test.rb` 1 run/39 assertions, validator와 manifest check가 성공했다.
   - **Failure:** PR 생성을 중단하고 수정한다.
-- [ ] **CG-09 — lesson gate를 판단한다**
+- [x] **CG-09 — lesson gate를 판단한다**
   - **Action:** 복구·재정렬에서 재사용 가능한 교훈이 생겼는지 diff와 이력을 검토한다.
-  - **Evidence:** 새 lesson 또는 네 가지 부재 근거를 기록한다.
+  - **Evidence:** `docs/lessons/2026-07-23-cassandra-learning-path-recovery.md`에 stale canonical branch와 versioned Site snapshot의 순서 의존성을 기록했다.
   - **Failure:** pre-PR proof를 중단한다.
-- [ ] **CG-10 — 최종 pre-PR proof를 수렴한다**
+- [x] **CG-10 — 최종 pre-PR proof를 수렴한다**
   - **Action:** 최종 diff·검증·문서 review를 완료하고 Lore 형식으로 커밋한다.
-  - **Evidence:** P0=0/P1=0, exact local SHA.
+  - **Evidence:** manual validator·manifest check·`git diff --check`를 rebase 후 다시 통과했고, scoped diff review에서 P0=0/P1=0이다. exact local SHA는 PR publication 직전에 재확인한다.
   - **Failure:** PR 생성을 중단한다.
 - [ ] **CG-11..15 — Projects PR을 생성하고 merge-ready를 보고한다**
   - **Action:** exact head push, PR metadata/CI/review를 완료한다.
