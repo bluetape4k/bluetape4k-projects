@@ -30,6 +30,18 @@
   - **Action:** 기존 Cassandra 상세 매뉴얼 spec·plan·checklist를 기준으로 한다.
   - **Evidence:** `2026-07-13-cassandra-detailed-manual-design.md`, 기존 manual checklist.
   - **Failure:** 새 문서 구조를 임의로 추가하지 않는다.
+- [x] **CG-06 — 공개 문서 계약을 증명한다**
+  - **Action:** 한영 landing과 대표 chapter link·legacy anchor를 함께 검토한다.
+  - **Evidence:** 두 locale에 같은 다섯 chapter와 이전 heading anchor가 있으며, public API·README 등록 변경은 없다.
+  - **Failure:** parity 또는 링크 drift를 수정한다.
+- [x] **CG-07 — targeted 문서 proof를 실행한다**
+  - **Action:** manual validator, generator test, manifest check, diff check를 실행한다.
+  - **Evidence:** validator 18 runs/56 assertions, generator 1 run/39 assertions, alignment·manifest·diff check 성공.
+  - **Failure:** 수정 후 모든 문서 proof를 다시 실행한다.
+- [x] **CG-08 — heavyweight 검증을 제외한다**
+  - **Action:** Testcontainers·real DB·native·emulator·benchmark 검증 필요성을 분류한다.
+  - **Evidence:** Markdown·계획·lesson만 변경하며 라이브러리 동작과 실행 환경은 변경하지 않아 N/A다.
+  - **Failure:** 실행 동작 변경이 발견되면 순차 heavyweight 검증으로 재분류한다.
 
 ## Projects delivery
 
