@@ -24,7 +24,7 @@ A foundational utility library for Kotlin backend development. It provides the c
 
 ## Features
 
-- **Validation (RequireSupport)**: Contract-based parameter validation functions
+- **Validation (RequireSupport / CheckSupport)**: Contract-based caller validation and state-invariant functions
 - **Encoding/Decoding (Codec)**: Multiple encoding schemes — Base58, Base62, Hex, URL62
 - **String Support**: UTF-8 byte conversion and byte-safe `truncateUtf8(maxBytes)`
 - **Type Extensions**: Kotlin-style extension functions for all primitive types
@@ -110,6 +110,21 @@ fun setQuantity(quantity: Int) {
 fun validateScore(score: Double) {
     score.requireGe(0.0, "score")
         .requireLe(100.0, "score")
+}
+```
+
+#### State Invariant Checks
+
+`CheckSupport` mirrors the `RequireSupport` API for object and component state.
+Failed checks throw `IllegalStateException` instead of `IllegalArgumentException`.
+
+```kotlin
+import io.bluetape4k.support.checkNotNull
+import io.bluetape4k.support.checkPositiveNumber
+
+fun nextBatch(currentBatch: Batch?, remaining: Int): Batch {
+    remaining.checkPositiveNumber("remaining")
+    return currentBatch.checkNotNull("currentBatch")
 }
 ```
 
