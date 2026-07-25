@@ -1,5 +1,4 @@
-@file:OptIn(ExperimentalContracts::class)
-@file:Suppress("NOTHING_TO_INLINE")
+@file:OptIn(ExperimentalContracts::class) @file:Suppress("NOTHING_TO_INLINE")
 
 package io.bluetape4k.support
 
@@ -19,11 +18,14 @@ import kotlin.contracts.contract
  * // result == "blue"
  * ```
  */
-inline fun <T: Any> T?.requireNotNull(parameterName: String): T {
+inline fun <T: Any> T?.requireNotNull(parameterName: String): T =
+    requireNotNull { "$parameterName[$this] must not be null." }
+
+inline fun <T: Any> T?.requireNotNull(lazyMessage: () -> Any): T {
     contract {
         returns() implies (this@requireNotNull != null)
     }
-    require(this != null) { "$parameterName[$this] must not be null." }
+    require(this != null) { lazyMessage() }
     return this
 }
 
@@ -40,11 +42,13 @@ inline fun <T: Any> T?.requireNotNull(parameterName: String): T {
  * // result == null
  * ```
  */
-inline fun <T: Any> T?.requireNull(parameterName: String): T? {
+inline fun <T: Any> T?.requireNull(parameterName: String): T? = requireNull { "$parameterName[$this] must be null." }
+
+inline fun <T: Any> T?.requireNull(lazyMessage: () -> Any): T? {
     contract {
         returns() implies (this@requireNull == null)
     }
-    require(this == null) { "$parameterName[$this] must be null." }
+    require(this == null) { lazyMessage() }
     return this
 }
 
@@ -61,12 +65,15 @@ inline fun <T: Any> T?.requireNull(parameterName: String): T? {
  * // result == "blue"
  * ```
  */
-inline fun <T: CharSequence> T?.requireNotEmpty(parameterName: String): T {
+inline fun <T: CharSequence> T?.requireNotEmpty(parameterName: String): T =
+    requireNotEmpty { "$parameterName[$this] must not be empty." }
+
+inline fun <T: CharSequence> T?.requireNotEmpty(lazyMessage: () -> Any): T {
     contract {
         returnsNotNull() implies (this@requireNotEmpty != null)
     }
-    val self = this.requireNotNull(parameterName)
-    require(self.isNotEmpty()) { "$parameterName[$self] must not be empty." }
+    val self = this.requireNotNull(lazyMessage)
+    require(self.isNotEmpty()) { lazyMessage() }
     return self
 }
 
@@ -83,11 +90,14 @@ inline fun <T: CharSequence> T?.requireNotEmpty(parameterName: String): T {
  * // result == ""
  * ```
  */
-inline fun <T: CharSequence> T?.requireNullOrEmpty(parameterName: String): T? {
+inline fun <T: CharSequence> T?.requireNullOrEmpty(parameterName: String): T? =
+    requireNullOrEmpty { "$parameterName[$this] must be null or empty." }
+
+inline fun <T: CharSequence> T?.requireNullOrEmpty(lazyMessage: () -> Any): T? {
     contract {
         returns() implies (this@requireNullOrEmpty == null)
     }
-    require(this.isNullOrEmpty()) { "$parameterName[$this] must be null or empty." }
+    require(this.isNullOrEmpty()) { lazyMessage() }
     return this
 }
 
@@ -104,12 +114,15 @@ inline fun <T: CharSequence> T?.requireNullOrEmpty(parameterName: String): T? {
  * // result == "blue"
  * ```
  */
-inline fun <T: CharSequence> T?.requireNotBlank(parameterName: String): T {
+inline fun <T: CharSequence> T?.requireNotBlank(parameterName: String): T =
+    requireNotBlank { "$parameterName[$this] must not be blank." }
+
+inline fun <T: CharSequence> T?.requireNotBlank(lazyMessage: () -> Any): T {
     contract {
         returnsNotNull() implies (this@requireNotBlank != null)
     }
-    val self = this.requireNotNull(parameterName)
-    require(self.isNotBlank()) { "$parameterName[$self] must not be blank." }
+    val self = this.requireNotNull(lazyMessage)
+    require(self.isNotBlank()) { lazyMessage() }
     return self
 }
 
@@ -126,11 +139,14 @@ inline fun <T: CharSequence> T?.requireNotBlank(parameterName: String): T {
  * // result == "   "
  * ```
  */
-inline fun <T: CharSequence> T?.requireNullOrBlank(parameterName: String): T? {
+inline fun <T: CharSequence> T?.requireNullOrBlank(parameterName: String): T? =
+    requireNullOrBlank { "$parameterName[$this] must be null or blank." }
+
+inline fun <T: CharSequence> T?.requireNullOrBlank(noinline lazyMessage: () -> Any): T? {
     contract {
         returns() implies (this@requireNullOrBlank == null)
     }
-    require(this.isNullOrBlank()) { "$parameterName[$this] must be null or blank." }
+    require(this.isNullOrBlank()) { lazyMessage() }
     return this
 }
 
@@ -148,10 +164,13 @@ inline fun <T: CharSequence> T?.requireNullOrBlank(parameterName: String): T? {
  * // result == "blue"
  * ```
  */
-inline fun <T: CharSequence> T?.requireContains(other: CharSequence, parameterName: String): T {
-    this.requireNotNull(parameterName)
-    require(this.contains(other)) { "$parameterName[$this] must contain $other" }
-    return this
+inline fun <T: CharSequence> T?.requireContains(other: CharSequence, parameterName: String): T =
+    requireContains(other) { "$parameterName[$this] must contain $other" }
+
+inline fun <T: CharSequence> T?.requireContains(other: CharSequence, lazyMessage: () -> Any): T {
+    val value = this.requireNotNull { lazyMessage() }
+    require(value.contains(other)) { lazyMessage() }
+    return value
 }
 
 /**
@@ -171,10 +190,14 @@ inline fun <T: CharSequence> T?.requireStartsWith(
     prefix: CharSequence,
     parameterName: String,
     ignoreCase: Boolean = false,
+): T = requireStartsWith(prefix, ignoreCase) { "$parameterName[$this] must start with $prefix" }
+
+inline fun <T: CharSequence> T?.requireStartsWith(
+    prefix: CharSequence, ignoreCase: Boolean = false, lazyMessage: () -> Any
 ): T {
-    this.requireNotNull(parameterName)
-    require(this.startsWith(prefix, ignoreCase)) { "$parameterName[$this] must start with $prefix" }
-    return this
+    val value = requireNotNull(lazyMessage)
+    require(value.startsWith(prefix, ignoreCase)) { lazyMessage() }
+    return value
 }
 
 /**
@@ -195,9 +218,9 @@ inline fun <T: CharSequence> T?.requireEndsWith(
     parameterName: String,
     ignoreCase: Boolean = false,
 ): T {
-    this.requireNotNull(parameterName)
-    require(this.endsWith(suffix, ignoreCase)) { "$parameterName[$this] must end with $suffix" }
-    return this
+    val result = requireNotNull(parameterName)
+    require(result.endsWith(suffix, ignoreCase)) { "$parameterName[$result] must end with $suffix" }
+    return result
 }
 
 /**
@@ -213,8 +236,12 @@ inline fun <T: CharSequence> T?.requireEndsWith(
  * // result == 10
  * ```
  */
-inline fun <T> T.requireEquals(expected: T, parameterName: String): T = apply {
-    require(this == expected) { "$parameterName[$this] must be equal to $expected" }
+inline fun <T> T.requireEquals(expected: T, parameterName: String): T =
+    requireEquals(expected) { "$parameterName[$this] must be equal to $expected" }
+
+inline fun <T> T.requireEquals(expected: T, lazyMessage: () -> Any): T {
+    require(this == expected) { lazyMessage() }
+    return this
 }
 
 /**
@@ -230,8 +257,12 @@ inline fun <T> T.requireEquals(expected: T, parameterName: String): T = apply {
  * // result == 10
  * ```
  */
-inline fun <T: Comparable<T>> T.requireGt(expected: T, parameterName: String): T = apply {
-    require(this > expected) { "$parameterName[$this] must be greater than $expected." }
+inline fun <T: Comparable<T>> T.requireGt(expected: T, parameterName: String): T =
+    requireGt(expected) { "$parameterName[$this] must be greater than $expected." }
+
+inline fun <T: Comparable<T>> T.requireGt(expected: T, lazyMessage: () -> Any): T {
+    require(this > expected) { lazyMessage() }
+    return this
 }
 
 /**
@@ -247,8 +278,12 @@ inline fun <T: Comparable<T>> T.requireGt(expected: T, parameterName: String): T
  * // result == 10
  * ```
  */
-inline fun <T: Comparable<T>> T.requireGe(expected: T, parameterName: String): T = apply {
-    require(this >= expected) { "$parameterName[$this] must be greater than or equal to $expected." }
+inline fun <T: Comparable<T>> T.requireGe(expected: T, parameterName: String): T =
+    requireGe(expected) { "$parameterName[$this] must be greater than or equal to $expected." }
+
+inline fun <T: Comparable<T>> T.requireGe(expected: T, lazyMessage: () -> Any): T {
+    require(this >= expected) { lazyMessage() }
+    return this
 }
 
 /**
@@ -264,9 +299,14 @@ inline fun <T: Comparable<T>> T.requireGe(expected: T, parameterName: String): T
  * // result == 1
  * ```
  */
-inline fun <T: Comparable<T>> T.requireLt(expected: T, parameterName: String): T = apply {
-    require(this < expected) { "$parameterName[$this] must be less than $expected." }
+inline fun <T: Comparable<T>> T.requireLt(expected: T, parameterName: String): T =
+    requireLt(expected) { "$parameterName[$this] must be less than $expected." }
+
+inline fun <T: Comparable<T>> T.requireLt(expected: T, lazyMessage: () -> Any): T {
+    require(this < expected) { lazyMessage() }
+    return this
 }
+
 
 /**
  * requireLe 기능을 제공합니다.
@@ -281,8 +321,12 @@ inline fun <T: Comparable<T>> T.requireLt(expected: T, parameterName: String): T
  * // result == 10
  * ```
  */
-inline fun <T: Comparable<T>> T.requireLe(expected: T, parameterName: String): T = apply {
-    require(this <= expected) { "$parameterName[$this] must be less than or equal to $expected." }
+inline fun <T: Comparable<T>> T.requireLe(expected: T, parameterName: String): T =
+    requireLe(expected) { "$parameterName[$this] must be less than or equal to $expected." }
+
+inline fun <T: Comparable<T>> T.requireLe(expected: T, lazyMessage: () -> Any): T {
+    require(this <= expected) { lazyMessage() }
+    return this
 }
 
 /**
@@ -298,8 +342,12 @@ inline fun <T: Comparable<T>> T.requireLe(expected: T, parameterName: String): T
  * // result == 5
  * ```
  */
-inline fun <T: Comparable<T>> T.requireInRange(start: T, endInclusive: T, parameterName: String) = apply {
-    require(this in start..endInclusive) { "$parameterName[$this] must be in range ($start .. $endInclusive)" }
+inline fun <T: Comparable<T>> T.requireInRange(start: T, endInclusive: T, parameterName: String) =
+    requireInRange(start, endInclusive) { "$parameterName[$this] must be in range ($start .. $endInclusive)" }
+
+inline fun <T: Comparable<T>> T.requireInRange(start: T, endInclusive: T, lazyMessage: () -> Any): T {
+    require(this in start..endInclusive) { lazyMessage() }
+    return this
 }
 
 /**
@@ -315,8 +363,12 @@ inline fun <T: Comparable<T>> T.requireInRange(start: T, endInclusive: T, parame
  * // result == 5
  * ```
  */
-inline fun <T: Comparable<T>> T.requireInOpenRange(start: T, endExclusive: T, parameterName: String): T = apply {
-    require(this in start..<endExclusive) { "$start <= $parameterName[$this] < $endExclusive" }
+inline fun <T: Comparable<T>> T.requireInOpenRange(start: T, endExclusive: T, parameterName: String): T =
+    requireInOpenRange(start, endExclusive) { "$start <= $parameterName[$this] < $endExclusive" }
+
+inline fun <T: Comparable<T>> T.requireInOpenRange(start: T, endExclusive: T, lazyMessage: () -> Any): T {
+    require(this in start..<endExclusive) { lazyMessage() }
+    return this
 }
 
 /**
@@ -336,6 +388,11 @@ inline fun <T> T.requireZeroOrPositiveNumber(parameterName: String): T where T: 
     toDouble().requireGe(0.0, parameterName)
 }
 
+inline fun <T> T.requireZeroOrPositiveNumber(lazyMessage: () -> Any): T where T: Number, T: Comparable<T> {
+    toDouble().requireGe(0.0, lazyMessage)
+    return this
+}
+
 /**
  * requirePositiveNumber 기능을 제공합니다.
  *
@@ -351,6 +408,11 @@ inline fun <T> T.requireZeroOrPositiveNumber(parameterName: String): T where T: 
  */
 inline fun <T> T.requirePositiveNumber(parameterName: String): T where T: Number, T: Comparable<T> = apply {
     toDouble().requireGt(0.0, parameterName)
+}
+
+inline fun <T> T.requirePositiveNumber(lazyMessage: () -> Any): T where T: Number, T: Comparable<T> {
+    toDouble().requireGt(0.0, lazyMessage)
+    return this
 }
 
 /**
@@ -370,6 +432,11 @@ inline fun <T> T.requireZeroOrNegativeNumber(parameterName: String): T where T: 
     toDouble().requireLe(0.0, parameterName)
 }
 
+inline fun <T> T.requireZeroOrNegativeNumber(lazyMessage: () -> Any): T where T: Number, T: Comparable<T> {
+    toDouble().requireLe(0.0, lazyMessage)
+    return this
+}
+
 /**
  * requireNegativeNumber 기능을 제공합니다.
  *
@@ -387,6 +454,11 @@ inline fun <T> T.requireNegativeNumber(parameterName: String): T where T: Number
     toDouble().requireLt(0.0, parameterName)
 }
 
+inline fun <T> T.requireNegativeNumber(lazyMessage: () -> Any): T where T: Number, T: Comparable<T> {
+    toDouble().requireLt(0.0, lazyMessage)
+    return this
+}
+
 /**
  * Requires this array to be non-null and non-empty, then returns the same array.
  *
@@ -401,9 +473,12 @@ inline fun <T> T.requireNegativeNumber(parameterName: String): T where T: Number
  * // result.size == 2
  * ```
  */
-inline fun <T> Array<T>?.requireNotEmpty(parameterName: String): Array<T> {
-    val self = this ?: throw IllegalArgumentException("$parameterName[$this] must not be null or empty.")
-    require(self.isNotEmpty()) { "$parameterName[$self] must not be null or empty." }
+inline fun <T> Array<T>?.requireNotEmpty(parameterName: String): Array<T> =
+    requireNotEmpty { "$parameterName must not be null or empty." }
+
+inline fun <T> Array<T>?.requireNotEmpty(lazyMessage: () -> Any): Array<T> {
+    val self = this ?: throw IllegalArgumentException(lazyMessage().toString())
+    require(self.isNotEmpty()) { lazyMessage() }
     return self
 }
 
@@ -421,9 +496,12 @@ inline fun <T> Array<T>?.requireNotEmpty(parameterName: String): Array<T> {
  * // result.size == 2
  * ```
  */
-inline fun <T> Collection<T>?.requireNotEmpty(parameterName: String): Collection<T> {
-    val self = this ?: throw IllegalArgumentException("$parameterName[$this] must not be null or empty.")
-    require(self.isNotEmpty()) { "$parameterName[$self] must not be null or empty." }
+inline fun <T> Collection<T>?.requireNotEmpty(parameterName: String): Collection<T> =
+    requireNotEmpty { "$parameterName must not be null or empty." }
+
+inline fun <T> Collection<T>?.requireNotEmpty(lazyMessage: () -> Any): Collection<T> {
+    val self = this ?: throw IllegalArgumentException(lazyMessage().toString())
+    require(self.isNotEmpty()) { lazyMessage() }
     return self
 }
 
@@ -441,9 +519,12 @@ inline fun <T> Collection<T>?.requireNotEmpty(parameterName: String): Collection
  * // result["a"] == 1
  * ```
  */
-inline fun <K, V> Map<K, V>?.requireNotEmpty(parameterName: String): Map<K, V> {
-    val self = this ?: throw IllegalArgumentException("$parameterName must not be null or empty.")
-    require(self.isNotEmpty()) { "$parameterName must not be null or empty." }
+inline fun <K, V> Map<K, V>?.requireNotEmpty(parameterName: String): Map<K, V> =
+    requireNotEmpty { "$parameterName must not be null or empty." }
+
+inline fun <K, V> Map<K, V>?.requireNotEmpty(lazyMessage: () -> Any): Map<K, V> {
+    val self = this ?: throw IllegalArgumentException(lazyMessage().toString())
+    require(self.isNotEmpty()) { lazyMessage() }
     return self
 }
 
@@ -462,8 +543,12 @@ inline fun <K, V> Map<K, V>?.requireNotEmpty(parameterName: String): Map<K, V> {
  */
 inline fun <K, V> Map<K, V>?.requireHasKey(key: K, parameterName: String): Map<K, V> {
     requireNotEmpty(parameterName)
-    val self = this ?: throw IllegalArgumentException("$parameterName must not be null or empty.")
-    require(self.containsKey(key)) { "$parameterName must contain key $key" }
+    return requireHasKey(key) { "$parameterName must contain key $key" }
+}
+
+inline fun <K, V> Map<K, V>?.requireHasKey(key: K, lazyMessage: () -> Any): Map<K, V> {
+    val self = this ?: throw IllegalArgumentException(lazyMessage().toString())
+    require(self.containsKey(key)) { lazyMessage() }
     return self
 }
 
@@ -482,8 +567,12 @@ inline fun <K, V> Map<K, V>?.requireHasKey(key: K, parameterName: String): Map<K
  */
 inline fun <K, V> Map<K, V>?.requireHasValue(value: V, parameterName: String): Map<K, V> {
     requireNotEmpty(parameterName)
-    val self = this ?: throw IllegalArgumentException("$parameterName must not be null or empty.")
-    require(self.containsValue(value)) { "$parameterName must contain value $value" }
+    return requireHasValue(value) { "$parameterName must contain value $value" }
+}
+
+inline fun <K, V> Map<K, V>?.requireHasValue(value: V, lazyMessage: () -> Any): Map<K, V> {
+    val self = this ?: throw IllegalArgumentException(lazyMessage().toString())
+    require(self.containsValue(value)) { lazyMessage() }
     return self
 }
 
@@ -502,8 +591,12 @@ inline fun <K, V> Map<K, V>?.requireHasValue(value: V, parameterName: String): M
  */
 inline fun <K, V> Map<K, V>?.requireContains(key: K, value: V, parameterName: String): Map<K, V> {
     requireNotEmpty(parameterName)
-    val self = this ?: throw IllegalArgumentException("$parameterName must not be null or empty.")
-    require(self[key] == value) { "$parameterName must contain ($key, $value)" }
+    return requireContains(key, value) { "$parameterName must contain ($key, $value)" }
+}
+
+inline fun <K, V> Map<K, V>?.requireContains(key: K, value: V, lazyMessage: () -> Any): Map<K, V> {
+    val self = this ?: throw IllegalArgumentException(lazyMessage().toString())
+    require(self[key] == value) { lazyMessage() }
     return self
 }
 
@@ -529,6 +622,7 @@ inline fun <T: CharSequence> T?.requireLengthInRange(
     }
     return self
 }
+
 
 /**
  * Requires a nullable collection to have a size within the inclusive range.
@@ -643,7 +737,5 @@ inline fun Float.requireFinite(parameterName: String, noinline lazyMessage: (() 
  * ```
  */
 inline fun Double.requireFinite(parameterName: String, noinline lazyMessage: (() -> Any)? = null): Double = apply {
-    require(isFinite()) {
-        lazyMessage?.invoke() ?: "$parameterName must be finite."
-    }
+    require(isFinite()) { lazyMessage?.invoke() ?: "$parameterName must be finite." }
 }

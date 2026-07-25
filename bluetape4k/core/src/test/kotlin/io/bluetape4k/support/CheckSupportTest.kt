@@ -1,11 +1,15 @@
 package io.bluetape4k.support
 
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class CheckSupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `check null and not-null state`() {
@@ -22,8 +26,8 @@ class CheckSupportTest {
     @Test
     fun `check string emptiness and blankness`() {
         val value: String? = "blue"
-        (value.checkNotEmpty("value") === value).shouldBeTrue()
-        (value.checkNotBlank("value") === value).shouldBeTrue()
+        value.checkNotEmpty("value") shouldBe value
+        value.checkNotBlank("value") shouldBe value
 
         shouldFailCheck { (null as String?).checkNotEmpty("value") }
         shouldFailCheck { "".checkNotEmpty("value") }
