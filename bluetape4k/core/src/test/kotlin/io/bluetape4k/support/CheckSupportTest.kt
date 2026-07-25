@@ -1,6 +1,7 @@
 package io.bluetape4k.support
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
@@ -52,6 +53,59 @@ class CheckSupportTest {
         shouldFailCheck { "hello".checkContains("world", "value") }
         shouldFailCheck { "hello world".checkStartsWith("world", "value") }
         shouldFailCheck { "hello world".checkEndsWith("hello", "value") }
+    }
+
+    @Test
+    fun `check bounded lengths and sizes`() {
+        val text: String? = "blue"
+        (text.checkLengthInRange(4, 4, "text") === text).shouldBeTrue()
+        shouldFailCheck { "".checkLengthInRange(1, 4, "text") }
+        shouldFailCheck { (null as String?).checkLengthInRange(1, 4, "text") }
+
+        val array = arrayOf(1, 2)
+        (array.checkSizeInRange(1, 2, "items") === array).shouldBeTrue()
+        shouldFailCheck { emptyArray<Int>().checkSizeInRange(1, 2, "items") }
+        shouldFailCheck { (null as Array<Int>?).checkSizeInRange(1, 2, "items") }
+
+        val collection = listOf(1, 2)
+        (collection.checkSizeInRange(1, 2, "items") === collection).shouldBeTrue()
+        shouldFailCheck { listOf(1, 2, 3).checkSizeInRange(1, 2, "items") }
+
+        val map = mapOf("one" to 1)
+        (map.checkSizeInRange(1, 2, "items") === map).shouldBeTrue()
+        shouldFailCheck { emptyMap<String, Int>().checkSizeInRange(1, 2, "items") }
+    }
+
+    @Test
+    fun `check regex and finite checks`() {
+        val value: String? = "SKU-42"
+        (value.checkMatches(Regex("SKU-\\d+"), "sku") === value).shouldBeTrue()
+        val failure = shouldFailCheck { "secret".checkMatches(Regex("SKU-\\d+"), "sku") }
+        failure.message.orEmpty().contains("secret").shouldBeFalse()
+
+        1.0f.checkFinite("ratio") shouldBeEqualTo 1.0f
+        Double.MAX_VALUE.checkFinite("ratio") shouldBeEqualTo Double.MAX_VALUE
+        shouldFailCheck { Float.NaN.checkFinite("ratio") }
+        shouldFailCheck { Double.NEGATIVE_INFINITY.checkFinite("ratio") }
+    }
+
+    @Test
+    fun `check validation messages are lazy and customizable`() {
+        var evaluated = false
+        "blue".checkLengthInRange(1, 4, "text") {
+            evaluated = true
+            "custom"
+        }
+        evaluated.shouldBeFalse()
+
+        val failure = shouldFailCheck {
+            "too long".checkLengthInRange(1, 4, "text") {
+                evaluated = true
+                "custom length"
+            }
+        }
+        evaluated.shouldBeTrue()
+        failure.message.shouldBeEqualTo("custom length")
     }
 
     @Test

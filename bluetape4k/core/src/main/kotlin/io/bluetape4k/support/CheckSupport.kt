@@ -497,3 +497,144 @@ inline fun <K, V> Map<K, V>?.checkContains(key: K, value: V, parameterName: Stri
     check(self[key] == value) { "$parameterName must contain ($key, $value)" }
     return self
 }
+
+/**
+ * Checks that a nullable character sequence has a length within the inclusive range.
+ *
+ * ```kotlin
+ * val id = ("order-42" as String?).checkLengthInRange(1, 80, "id")
+ * ```
+ */
+inline fun <T: CharSequence> T?.checkLengthInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): T {
+    contract {
+        returnsNotNull() implies (this@checkLengthInRange != null)
+    }
+    val self = this.checkNotNull(parameterName)
+    check(self.length in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName length must be between $start and $endInclusive."
+    }
+    return self
+}
+
+/**
+ * Checks that a nullable collection has a size within the inclusive range.
+ *
+ * ```kotlin
+ * val items = (listOf(1, 2) as List<Int>?).checkSizeInRange(1, 50, "items")
+ * ```
+ */
+inline fun <T> Collection<T>?.checkSizeInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Collection<T> {
+    contract {
+        returnsNotNull() implies (this@checkSizeInRange != null)
+    }
+    val self = this.checkNotNull(parameterName)
+    check(self.size in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName size must be between $start and $endInclusive."
+    }
+    return self
+}
+
+/**
+ * Checks that a nullable map has a size within the inclusive range.
+ *
+ * ```kotlin
+ * val attributes = (mapOf("state" to "ready") as Map<String, String>?)
+ *     .checkSizeInRange(1, 10, "attributes")
+ * ```
+ */
+inline fun <K, V> Map<K, V>?.checkSizeInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Map<K, V> {
+    contract {
+        returnsNotNull() implies (this@checkSizeInRange != null)
+    }
+    val self = this.checkNotNull(parameterName)
+    check(self.size in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName size must be between $start and $endInclusive."
+    }
+    return self
+}
+
+/**
+ * Checks that a nullable array has a size within the inclusive range.
+ *
+ * ```kotlin
+ * val values = (arrayOf(1, 2) as Array<Int>?).checkSizeInRange(1, 10, "values")
+ * ```
+ */
+inline fun <T> Array<T>?.checkSizeInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Array<T> {
+    contract {
+        returnsNotNull() implies (this@checkSizeInRange != null)
+    }
+    val self = this.checkNotNull(parameterName)
+    check(self.size in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName size must be between $start and $endInclusive."
+    }
+    return self
+}
+
+/**
+ * Checks that a nullable character sequence matches [regex].
+ *
+ * ```kotlin
+ * val sku = ("SKU-42" as String?).checkMatches(Regex("SKU-\\d+"), "sku")
+ * ```
+ */
+inline fun <T: CharSequence> T?.checkMatches(
+    regex: Regex,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): T {
+    contract {
+        returnsNotNull() implies (this@checkMatches != null)
+    }
+    val self = this.checkNotNull(parameterName)
+    check(regex.matches(self)) {
+        lazyMessage?.invoke() ?: "$parameterName must match the expected pattern."
+    }
+    return self
+}
+
+/**
+ * Checks that a `Float` value is finite.
+ *
+ * ```kotlin
+ * val ratio = 0.5f.checkFinite("ratio")
+ * ```
+ */
+inline fun Float.checkFinite(parameterName: String, noinline lazyMessage: (() -> Any)? = null): Float = apply {
+    check(isFinite()) {
+        lazyMessage?.invoke() ?: "$parameterName must be finite."
+    }
+}
+
+/**
+ * Checks that a `Double` value is finite.
+ *
+ * ```kotlin
+ * val ratio = 0.5.checkFinite("ratio")
+ * ```
+ */
+inline fun Double.checkFinite(parameterName: String, noinline lazyMessage: (() -> Any)? = null): Double = apply {
+    check(isFinite()) {
+        lazyMessage?.invoke() ?: "$parameterName must be finite."
+    }
+}
