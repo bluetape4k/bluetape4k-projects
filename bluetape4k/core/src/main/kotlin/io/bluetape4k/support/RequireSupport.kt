@@ -506,3 +506,144 @@ inline fun <K, V> Map<K, V>?.requireContains(key: K, value: V, parameterName: St
     require(self[key] == value) { "$parameterName must contain ($key, $value)" }
     return self
 }
+
+/**
+ * Requires a nullable character sequence to have a length within the inclusive range.
+ *
+ * ```kotlin
+ * val id = ("order-42" as String?).requireLengthInRange(1, 80, "id")
+ * ```
+ */
+inline fun <T: CharSequence> T?.requireLengthInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): T {
+    contract {
+        returnsNotNull() implies (this@requireLengthInRange != null)
+    }
+    val self = this.requireNotNull(parameterName)
+    require(self.length in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName length must be between $start and $endInclusive."
+    }
+    return self
+}
+
+/**
+ * Requires a nullable collection to have a size within the inclusive range.
+ *
+ * ```kotlin
+ * val items = (listOf(1, 2) as List<Int>?).requireSizeInRange(1, 50, "items")
+ * ```
+ */
+inline fun <T> Collection<T>?.requireSizeInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Collection<T> {
+    contract {
+        returnsNotNull() implies (this@requireSizeInRange != null)
+    }
+    val self = this.requireNotNull(parameterName)
+    require(self.size in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName size must be between $start and $endInclusive."
+    }
+    return self
+}
+
+/**
+ * Requires a nullable map to have a size within the inclusive range.
+ *
+ * ```kotlin
+ * val attributes = (mapOf("state" to "ready") as Map<String, String>?)
+ *     .requireSizeInRange(1, 10, "attributes")
+ * ```
+ */
+inline fun <K, V> Map<K, V>?.requireSizeInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Map<K, V> {
+    contract {
+        returnsNotNull() implies (this@requireSizeInRange != null)
+    }
+    val self = this.requireNotNull(parameterName)
+    require(self.size in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName size must be between $start and $endInclusive."
+    }
+    return self
+}
+
+/**
+ * Requires a nullable array to have a size within the inclusive range.
+ *
+ * ```kotlin
+ * val values = (arrayOf(1, 2) as Array<Int>?).requireSizeInRange(1, 10, "values")
+ * ```
+ */
+inline fun <T> Array<T>?.requireSizeInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Array<T> {
+    contract {
+        returnsNotNull() implies (this@requireSizeInRange != null)
+    }
+    val self = this.requireNotNull(parameterName)
+    require(self.size in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName size must be between $start and $endInclusive."
+    }
+    return self
+}
+
+/**
+ * Requires a nullable character sequence to match [regex].
+ *
+ * ```kotlin
+ * val sku = ("SKU-42" as String?).requireMatches(Regex("SKU-\\d+"), "sku")
+ * ```
+ */
+inline fun <T: CharSequence> T?.requireMatches(
+    regex: Regex,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): T {
+    contract {
+        returnsNotNull() implies (this@requireMatches != null)
+    }
+    val self = this.requireNotNull(parameterName)
+    require(regex.matches(self)) {
+        lazyMessage?.invoke() ?: "$parameterName must match the expected pattern."
+    }
+    return self
+}
+
+/**
+ * Requires a finite `Float` value.
+ *
+ * ```kotlin
+ * val ratio = 0.5f.requireFinite("ratio")
+ * ```
+ */
+inline fun Float.requireFinite(parameterName: String, noinline lazyMessage: (() -> Any)? = null): Float = apply {
+    require(isFinite()) {
+        lazyMessage?.invoke() ?: "$parameterName must be finite."
+    }
+}
+
+/**
+ * Requires a finite `Double` value.
+ *
+ * ```kotlin
+ * val ratio = 0.5.requireFinite("ratio")
+ * ```
+ */
+inline fun Double.requireFinite(parameterName: String, noinline lazyMessage: (() -> Any)? = null): Double = apply {
+    require(isFinite()) {
+        lazyMessage?.invoke() ?: "$parameterName must be finite."
+    }
+}

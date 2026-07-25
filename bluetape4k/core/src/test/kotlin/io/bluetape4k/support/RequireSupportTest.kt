@@ -71,6 +71,60 @@ class RequireSupportTest {
     }
 
     @Test
+    fun `require bounded lengths and sizes`() {
+        val text: String? = "blue"
+        (text.requireLengthInRange(4, 4, "text") === text).shouldBeTrue()
+        shouldFailRequire { "".requireLengthInRange(1, 4, "text") }
+        shouldFailRequire { "bluebird".requireLengthInRange(1, 4, "text") }
+        shouldFailRequire { (null as String?).requireLengthInRange(1, 4, "text") }
+
+        val array = arrayOf(1, 2)
+        (array.requireSizeInRange(1, 2, "items") === array).shouldBeTrue()
+        shouldFailRequire { emptyArray<Int>().requireSizeInRange(1, 2, "items") }
+        shouldFailRequire { (null as Array<Int>?).requireSizeInRange(1, 2, "items") }
+
+        val collection = listOf(1, 2)
+        (collection.requireSizeInRange(1, 2, "items") === collection).shouldBeTrue()
+        shouldFailRequire { listOf(1, 2, 3).requireSizeInRange(1, 2, "items") }
+
+        val map = mapOf("one" to 1)
+        (map.requireSizeInRange(1, 2, "items") === map).shouldBeTrue()
+        shouldFailRequire { emptyMap<String, Int>().requireSizeInRange(1, 2, "items") }
+    }
+
+    @Test
+    fun `require regex and finite checks`() {
+        val value: String? = "SKU-42"
+        (value.requireMatches(Regex("SKU-\\d+"), "sku") === value).shouldBeTrue()
+        val failure = shouldFailRequire { "secret".requireMatches(Regex("SKU-\\d+"), "sku") }
+        failure.message.orEmpty().contains("secret").shouldBeFalse()
+
+        1.0f.requireFinite("ratio")
+        Double.MAX_VALUE.requireFinite("ratio")
+        shouldFailRequire { Float.NaN.requireFinite("ratio") }
+        shouldFailRequire { Double.POSITIVE_INFINITY.requireFinite("ratio") }
+    }
+
+    @Test
+    fun `require validation messages are lazy and customizable`() {
+        var evaluated = false
+        "blue".requireLengthInRange(1, 4, "text") {
+            evaluated = true
+            "custom"
+        }
+        evaluated.shouldBeFalse()
+
+        val failure = shouldFailRequire {
+            "too long".requireLengthInRange(1, 4, "text") {
+                evaluated = true
+                "custom length"
+            }
+        }
+        evaluated.shouldBeTrue()
+        failure.message.shouldBeEqualTo("custom length")
+    }
+
+    @Test
     fun `require comparable ordering and equality`() {
         42.requireEquals(42, "x"); shouldFailRequire { 42.requireEquals(99, "x") }
 
