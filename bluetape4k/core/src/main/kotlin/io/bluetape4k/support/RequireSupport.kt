@@ -388,54 +388,63 @@ inline fun <T> T.requireNegativeNumber(parameterName: String): T where T: Number
 }
 
 /**
- * requireNotEmpty 기능을 제공합니다.
+ * Requires this array to be non-null and non-empty, then returns the same array.
  *
- * ## 동작/계약
- * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
- * - 조건을 만족하면 수신 값을 그대로 반환합니다.
- * - 수신 객체를 변경하지 않습니다.
+ * The returned array is the same instance as the receiver.
+ *
+ * - Throws [IllegalArgumentException] when the contract is not satisfied.
+ * - Returns the original receiver when the contract is satisfied.
+ * - Does not mutate the receiver.
  *
  * ```kotlin
  * val result = arrayOf(1, 2).requireNotEmpty("items")
  * // result.size == 2
  * ```
  */
-inline fun <T> Array<T>?.requireNotEmpty(parameterName: String) = apply {
-    require(!this.isNullOrEmpty()) { "$parameterName[$this] must not be null or empty." }
+inline fun <T> Array<T>?.requireNotEmpty(parameterName: String): Array<T> {
+    val self = this ?: throw IllegalArgumentException("$parameterName[$this] must not be null or empty.")
+    require(self.isNotEmpty()) { "$parameterName[$self] must not be null or empty." }
+    return self
 }
 
 /**
- * requireNotEmpty 기능을 제공합니다.
+ * Requires this collection to be non-null and non-empty, then returns the same collection.
  *
- * ## 동작/계약
- * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
- * - 조건을 만족하면 수신 값을 그대로 반환합니다.
- * - 수신 객체를 변경하지 않습니다.
+ * The returned collection is the same instance as the receiver.
+ *
+ * - Throws [IllegalArgumentException] when the contract is not satisfied.
+ * - Returns the original receiver when the contract is satisfied.
+ * - Does not mutate the receiver.
  *
  * ```kotlin
  * val result = listOf(1, 2).requireNotEmpty("items")
  * // result.size == 2
  * ```
  */
-inline fun <T> Collection<T>?.requireNotEmpty(parameterName: String) = apply {
-    require(!this.isNullOrEmpty()) { "$parameterName[$this] must not be null or empty." }
+inline fun <T> Collection<T>?.requireNotEmpty(parameterName: String): Collection<T> {
+    val self = this ?: throw IllegalArgumentException("$parameterName[$this] must not be null or empty.")
+    require(self.isNotEmpty()) { "$parameterName[$self] must not be null or empty." }
+    return self
 }
 
 /**
- * requireNotEmpty 기능을 제공합니다.
+ * Requires this map to be non-null and non-empty, then returns the same map.
  *
- * ## 동작/계약
- * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
- * - 조건을 만족하면 수신 값을 그대로 반환합니다.
- * - 수신 객체를 변경하지 않습니다.
+ * The returned map is the same instance as the receiver.
+ *
+ * - Throws [IllegalArgumentException] when the contract is not satisfied.
+ * - Returns the original receiver when the contract is satisfied.
+ * - Does not mutate the receiver.
  *
  * ```kotlin
  * val result = mapOf("a" to 1).requireNotEmpty("map")
  * // result["a"] == 1
  * ```
  */
-inline fun <K, V> Map<K, V>?.requireNotEmpty(parameterName: String) = apply {
-    require(!this.isNullOrEmpty()) { "$parameterName must not be null or empty." }
+inline fun <K, V> Map<K, V>?.requireNotEmpty(parameterName: String): Map<K, V> {
+    val self = this ?: throw IllegalArgumentException("$parameterName must not be null or empty.")
+    require(self.isNotEmpty()) { "$parameterName must not be null or empty." }
+    return self
 }
 
 /**
