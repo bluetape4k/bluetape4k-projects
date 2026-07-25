@@ -61,11 +61,34 @@
 | User/Caller | 0 | 0 | 통과 |
 | Main-session integration | 0 | 0 | 통과 |
 
+### 사용자 보강 요구: README 다이어그램
+
+사용자는 Lock API를 표와 코드만으로 설명하지 말고 README에서 다이어그램으로 쉽게 이해할 수 있어야 한다고
+명시했다. 주 세션은 계획 Task 12를 다음과 같이 보강하고 일관성을 다시 확인했다.
+
+- capability matrix 옆에 여섯 Lock 선택과 공용 runtime/Redis/관측 경계를 보여주는 architecture diagram을
+  배치한다.
+- 첫 acquire 예제 앞에 acquire, contention/reentry, watchdog, ambiguous cancellation, same-identity reconcile,
+  release, close 경로를 보여주는 sequence diagram을 배치한다.
+- 영문과 한글에 별도 SVG/PNG를 사용해 reader-facing label을 자연스럽게 현지화한다.
+- 네 자산을 한 번에 하나씩 source-read -> SVG edit -> XML/text normalization -> CairoSVG `-s 2` PNG render
+  -> 공통/종류별 audit -> full-size PNG inspection 순서로 검증한다.
+- `DIA-01`..`DIA-08`, 공통 `DIA-COM-*`, 종류별 `DIA-ARC-*` / `DIA-SEQ-*` 증거 ledger,
+  README/guide embed test, targeted repository diagram validator, PR DoD 증거를 구현 게이트로 고정했다.
+- 현재 전체 validator는 기존 268개 자산 중 134개가 실패한다. 이 무관한 baseline을 Lock 통과 조건으로
+  오인하지 않도록 exact-filename target filter와 기본 동작 호환성 테스트를 계획에 추가했다. 신규 네 SVG
+  target은 반드시 `total=4 failed=0`이어야 한다.
+
+이 보강은 Lock delivery의 문서/시각화 범위만 확장하며 생산 API, Redis protocol, Delivery 2/3 경계를
+변경하지 않는다. 계획 통합 판정은 계속 `P0=0 / P1=0`이다.
+
 ## 5. 잔여 위험과 다음 게이트
 
 - 이 계획은 Redis Lua, 실제 Lettuce Cluster redirect, Testcontainers 동시성, Dokka/Java source compatibility를 아직 실행하지 않았다. 이는 구현 Task 1-13의 검증 대상이다.
 - 공용 모델과 neutral runtime 파일은 충돌 가능성이 높으므로 Tasks 1-4는 주 구현자가 소유해야 한다.
 - Redis/Testcontainers 검증은 worktree와 module 사이에서도 순차 실행해야 한다.
+- 네 diagram은 Tasks 3-10의 실제 구현을 다시 읽은 뒤 만들어야 하며, 현재 계획 단계에서는 미리 그려
+  구현과 어긋난 시각 자료를 만들지 않는다.
 - Delivery 1 merge 전에는 Synchronizer 구현을 포함하지 않는다. merge 및 local sync 후 Delivery 2 계획을 현재 코드 기준으로 새로 작성한다.
 - PR 생성은 계획의 고정된 repo/base/head 범위와 Task 14 전제조건을 만족한 뒤 수행한다. merge는 별도의 최신 사용자 승인 없이는 수행하지 않는다.
 

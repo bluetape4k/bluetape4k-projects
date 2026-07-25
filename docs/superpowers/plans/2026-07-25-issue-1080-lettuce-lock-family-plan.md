@@ -1,12 +1,12 @@
 # Issue #1080 Lettuce Lock Family Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use `subagent-driven-development` (recommended) or `executing-plans` to implement this plan task-by-task. Follow `bluetape-full-feature`, `bluetape-workflow`, `bluetape-kotlin-patterns`, `kotlin-coroutines-skill`, and `test-driven-development`. Testcontainers-backed Redis tasks are serialized across worktrees.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use `subagent-driven-development` (recommended) or `executing-plans` to implement this plan task-by-task. Follow `bluetape-full-feature`, `bluetape-workflow`, `bluetape-kotlin-patterns`, `kotlin-coroutines-skill`, `test-driven-development`, `bluetape-writer`, and `bluetape-diagram`. Testcontainers-backed Redis tasks are serialized across worktrees.
 
 **Goal:** Deliver the first approved #1080 PR as an additive, Redisson-shaped Lettuce Lock family with six lock objects, logical-owner reentrancy, generation-safe handles, fixed/watchdog leases, bounded waiting, typed failure/reconciliation, Redis Cluster safety, and blocking/async/suspend semantic parity.
 
 **Architecture:** Public identity, handle, config, result, and six lock objects live under `io.bluetape4k.redis.lettuce.lock`. Redis-neutral key, script, deadline, runtime, task-registry, and sanitized protocol support lives under `io.bluetape4k.redis.lettuce.coordination.internal` without leaking into public signatures. Lock-specific Lua, result decoding, wait loops, fair/read-write admission, fencing, and multi-lock composition live under `lock.internal`. Existing `LettuceLock`, fencing lease, multi-key lease, and semaphore APIs remain source/binary compatible and unchanged in this delivery.
 
-**Tech Stack:** Kotlin 2.3, Java 21, Lettuce, Redis Lua, Kotlin Coroutines, `CompletableFuture`, JUnit 5, `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-testcontainers`, Gradle Kotlin DSL.
+**Tech Stack:** Kotlin 2.3, Java 21, Lettuce, Redis Lua, Kotlin Coroutines, `CompletableFuture`, JUnit 5, `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-testcontainers`, Gradle Kotlin DSL, SVG, CairoSVG.
 
 **Approved design:** `docs/superpowers/specs/2026-07-25-issue-1080-lettuce-locks-synchronizers-design.md`
 
@@ -1451,10 +1451,46 @@ Not-tested: Long-duration production traffic
 - Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockDocumentationTest.kt`
 - Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockApiSurfaceTest.kt`
 - Create: `infra/lettuce/src/test/java/io/bluetape4k/redis/lettuce/lock/LettuceLockJavaDocumentationTest.java`
+- Create: `docs/images/readme-diagrams/infra-lettuce-diagram-03.svg`
+- Create: `docs/images/readme-diagrams/infra-lettuce-diagram-03.png`
+- Create: `docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.svg`
+- Create: `docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.png`
+- Create: `docs/images/readme-diagrams/infra-lettuce-sequence-02.svg`
+- Create: `docs/images/readme-diagrams/infra-lettuce-sequence-02.png`
+- Create: `docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.svg`
+- Create: `docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.png`
+- Create: `docs/superpowers/reviews/2026-07-25-issue-1080-lock-diagram-review.md`
+- Modify: `scripts/validate-readme-diagram-assets.mjs`
+- Modify: `scripts/validate-readme-diagram-assets_test.mjs`
 - Modify: all new public Kotlin files for final English KDoc
 
 - [ ] Add the six Lock types and suspend counterparts to both feature tables.
 - [ ] Add a capability/selection matrix covering distributed, fair, fenced, read-write, spin, and multi-lock.
+- [ ] Add a Lock-family architecture diagram directly beside the capability/selection matrix. It must answer “which
+      Lock object should I choose, and what infrastructure is shared?” by showing all six object families, blocking /
+      async / suspend surfaces, the neutral coordination runtime, Lua/Redis Cluster state, observation sink, and the
+      explicit legacy compatibility boundary.
+- [ ] Add a Lock lifecycle sequence diagram before the first acquisition example. It must show caller, public facade,
+      coordination runtime, Lua/Redis participants and the ordered acquire/reentry-or-contention, wait, watchdog,
+      ambiguous cancellation, same-identity reconcile, release, and close-without-implicit-unlock paths. Keep
+      alternatives chronological instead of turning the sequence into a generic flowchart.
+- [ ] Use separate localized assets. `README.md` and `CoordinationLocks.md` embed
+      `infra-lettuce-diagram-03.png` and `infra-lettuce-sequence-02.png`; their Korean companions embed the `-ko.png`
+      assets. English and Korean SVGs share geometry and technical identifiers but use natural locale-specific
+      reader-facing labels.
+- [ ] Build each of the four SVG/PNG pairs one at a time after Tasks 3-10 are green: re-read the final README section
+      and implementing source, edit one SVG, normalize/parse, render its PNG with CairoSVG `-s 2`, run common plus
+      architecture/sequence audits, inspect the full-size PNG, and record evidence before moving to the next asset.
+- [ ] Instantiate `DIA-01` through `DIA-08`, every applicable `DIA-COM-*`, and the matching `DIA-ARC-*` or
+      `DIA-SEQ-*` rows for every asset in `2026-07-25-issue-1080-lock-diagram-review.md`. Record source/readme paths,
+      two sequence reference PNGs, the nearest Lettuce architecture reference, XML/render commands, PNG dimensions,
+      text hazards, connector/card/label counts, endpoint/mixed-corner/sequence results, full-size inspection, README
+      embeds, locale parity, and `Blocked=0`. `WEAK`, `UNAVAILABLE`, zero meaningful counts, or SVG-only success does
+      not pass.
+- [ ] Extend the existing README diagram validator with an exact-filename `DIAGRAM_VALIDATION_TARGETS` filter. The
+      unset/default behavior must remain the current full repository scan. Add positive, missing-target, duplicate,
+      and default-compatibility tests; do not hide target failures behind the repository's pre-existing full-scan
+      failures.
 - [ ] Add compile-tested blocking, async, and suspend examples with explicit owner/request lifecycle.
 - [ ] Add a nested reentry example that stores the outer and inner acquisition handles, releases the inner handle once,
       then the outer handle once, proves duplicate release is `AlreadyReleased`, and explains that every successful
@@ -1483,6 +1519,8 @@ Not-tested: Long-duration production traffic
       `coordination-locks:ambiguous-reconcile`, `coordination-locks:watchdog-leak`,
       `coordination-locks:namespace-migration`, and `coordination-locks:alerts`, plus required fragments for every
       documented operator action and §7 signal.
+- [ ] Make `LockDocumentationTest` verify the exact locale-specific architecture/sequence PNG embeds and non-empty,
+      reader-facing alt text in both READMEs and both long-form guides.
 - [ ] Keep `README.md` and public KDoc in English; keep the `.ko.md` companion semantically equivalent.
 - [ ] State non-goals: no Java thread ownership, no indefinite wait/watchdog, no cross-slot best effort, no read upgrade,
       no exactly-once/stale-work-stop claim, and no implicit unlock on close.
@@ -1495,11 +1533,81 @@ Run:
   --tests '*LockApiSurfaceTest' \
   --tests '*LettuceLockJavaDocumentationTest'
 ./gradlew :bluetape4k-lettuce:dokkaGenerate
+node scripts/validate-readme-diagram-assets_test.mjs
+DIAGRAM_VALIDATION_TARGETS='infra-lettuce-diagram-03.svg,infra-lettuce-diagram-03-ko.svg,infra-lettuce-sequence-02.svg,infra-lettuce-sequence-02-ko.svg' \
+  DIAGRAM_VALIDATION_REPORT=infra/lettuce/build/reports/coordination-lock-diagrams.json \
+  node scripts/validate-readme-diagram-assets.mjs
+
+DIAGRAM_SKILLS_ROOT="${CODEX_HOME:-$HOME/.codex}/skills/bluetape-diagram/scripts"
+
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-svg-text-normalize.py" \
+  docs/images/readme-diagrams/infra-lettuce-diagram-03.svg
+xmllint --noout docs/images/readme-diagrams/infra-lettuce-diagram-03.svg
+cairosvg docs/images/readme-diagrams/infra-lettuce-diagram-03.svg \
+  -o docs/images/readme-diagrams/infra-lettuce-diagram-03.png -s 2
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-connector-audit.py" \
+  docs/images/readme-diagrams/infra-lettuce-diagram-03.svg
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-geometry-audit.py" --fail-diagonal \
+  docs/images/readme-diagrams/infra-lettuce-diagram-03.svg
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-endpoint-audit.py" \
+  docs/images/readme-diagrams/infra-lettuce-diagram-03.svg
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-mixed-corner-audit.py" \
+  docs/images/readme-diagrams/infra-lettuce-diagram-03.svg
+
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-svg-text-normalize.py" \
+  docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.svg
+xmllint --noout docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.svg
+cairosvg docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.svg \
+  -o docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.png -s 2
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-connector-audit.py" \
+  docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.svg
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-geometry-audit.py" --fail-diagonal \
+  docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.svg
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-endpoint-audit.py" \
+  docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.svg
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-mixed-corner-audit.py" \
+  docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.svg
+
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-svg-text-normalize.py" \
+  docs/images/readme-diagrams/infra-lettuce-sequence-02.svg
+xmllint --noout docs/images/readme-diagrams/infra-lettuce-sequence-02.svg
+cairosvg docs/images/readme-diagrams/infra-lettuce-sequence-02.svg \
+  -o docs/images/readme-diagrams/infra-lettuce-sequence-02.png -s 2
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-connector-audit.py" \
+  docs/images/readme-diagrams/infra-lettuce-sequence-02.svg
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-geometry-audit.py" --fail-diagonal \
+  docs/images/readme-diagrams/infra-lettuce-sequence-02.svg
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-endpoint-audit.py" \
+  docs/images/readme-diagrams/infra-lettuce-sequence-02.svg
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-mixed-corner-audit.py" \
+  docs/images/readme-diagrams/infra-lettuce-sequence-02.svg
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-sequence-style-audit.py" \
+  docs/images/readme-diagrams/infra-lettuce-sequence-02.svg
+
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-svg-text-normalize.py" \
+  docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.svg
+xmllint --noout docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.svg
+cairosvg docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.svg \
+  -o docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.png -s 2
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-connector-audit.py" \
+  docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.svg
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-geometry-audit.py" --fail-diagonal \
+  docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.svg
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-endpoint-audit.py" \
+  docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.svg
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-mixed-corner-audit.py" \
+  docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.svg
+python3 "$DIAGRAM_SKILLS_ROOT/diagram-sequence-style-audit.py" \
+  docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.svg
+
 git diff --check
 ```
 
 Expected: examples compile/run, Dokka succeeds, locale content has the same capability rows, and Markdown has no
-whitespace errors.
+whitespace errors. All four SVGs parse and pass the triggered audits, all four canonical `-s 2` PNGs exist and were
+inspected full-size after the last coordinate change, README/guides embed the correct locale assets, the repository
+diagram validator's exact four-file target reports `total=4 failed=0`, its default full-scan behavior remains
+compatible, and the diagram ledger reports every applicable `DIA-*` row with `Blocked=0`.
 
 Commit:
 
@@ -1511,7 +1619,7 @@ Rejected: Redisson semantic-parity claim | Only the object mental model is adopt
 Confidence: high
 Scope-risk: moderate
 Directive: Keep English and Korean capability, recovery, and operator guidance aligned
-Tested: Documentation examples, Dokka, locale parity, and diff check
+Tested: Documentation examples, Dokka, locale parity, four diagram ledgers, CairoSVG renders, visual audits, README embeds, and diff check
 Not-tested: External documentation rendering
 ```
 
@@ -1532,6 +1640,12 @@ repo-test-summary -- ./gradlew :bluetape4k-lettuce:coordinationLockPerformanceTe
 ./gradlew :bluetape4k-lettuce:check
 ./gradlew :bluetape4k-lettuce:dokkaGenerate
 ./gradlew detekt
+node scripts/validate-readme-diagram-assets_test.mjs
+DIAGRAM_VALIDATION_TARGETS='infra-lettuce-diagram-03.svg,infra-lettuce-diagram-03-ko.svg,infra-lettuce-sequence-02.svg,infra-lettuce-sequence-02-ko.svg' \
+  DIAGRAM_VALIDATION_REPORT=infra/lettuce/build/reports/coordination-lock-diagrams.json \
+  node scripts/validate-readme-diagram-assets.mjs
+rg -n 'Required checks: [1-9][0-9]*/[1-9][0-9]*; N/A: [0-9]+; Blocked: 0' \
+  docs/superpowers/reviews/2026-07-25-issue-1080-lock-diagram-review.md
 git diff --check
 ```
 
@@ -1540,6 +1654,9 @@ Expected:
 - targeted and full module tests pass;
 - topology and performance evidence tasks pass sequentially;
 - check, Dokka, and Detekt pass;
+- the targeted README diagram validator reports `total=4 failed=0`, its default behavior regression tests pass, all
+  four Lock diagram assets have complete evidence ledgers, and the final full-size PNG inspection reports no open
+  visual defect;
 - no unresolved diagnostics or deprecation warnings exist in touched Kotlin;
 - working diff contains only Delivery 1 artifacts.
 
@@ -1593,6 +1710,9 @@ Not-tested: Live GitHub CI environment
 - [ ] Mirror issue assignee, milestone, and labels.
 - [ ] Keep `## DoD Status` as the final PR-body section.
 - [ ] Include the three-delivery boundary and state that this PR closes only the Lock delivery, not the whole issue.
+- [ ] Include the four Lock diagram asset pairs and the completed `DIA-01`..`DIA-08`, `DIA-COM-*`, and applicable
+      `DIA-ARC-*` / `DIA-SEQ-*` evidence ledger in `## DoD Status`; do not summarize them as an unfalsifiable
+      “diagram checklist passed.”
 - [ ] Verify the live rendered PR body, metadata, checks, review threads, and required human-review artifacts.
 - [ ] Address CI/review defects within Delivery 1, rerun affected validation, and update review evidence.
 - [ ] Report the exact PR/head SHA as merge-ready and stop for fresh user merge approval.
@@ -1631,6 +1751,7 @@ The PR must not:
 | Cluster slot and topology ambiguity | Tasks 9-10 |
 | Compatibility with existing primitives | Tasks 3, 6, 9, 12-13 |
 | English/Korean docs and runbook | Task 12 |
+| Reader-facing Lock architecture and lifecycle diagrams | Task 12 localized SVG/PNG pairs, visual audits, full-size inspection, and embed tests |
 | Performance/stability/security/operator/API/caller review | Task 13 |
 
 ---
@@ -1653,6 +1774,7 @@ The PR must not:
 | Cluster redirect repeats mutation | duplicate generation/hold count | same-identity reconcile; no blind retry | stop affected path; inspect handle/request; rerun Task 10 |
 | Protocol/memory DoS | oversized reply/queue/task growth | strict input/reply/capacity bounds | close runtime, isolate namespace, rerun Tasks 1-2/10 |
 | Metric cardinality or secret leak | raw name/ID in labels/logs | allowlist and redaction tests | disable observation sink; rotate credentials if exposed |
+| README diagrams drift from implementation | source/read markers, locale embed test, or visual audit fails | create only after Tasks 3-10; source-backed localized assets; one-asset render/inspect loop | block docs/PR gate; regenerate the affected asset; rerun Task 12 |
 | Legacy behavior regression | existing lease/lock suite fails | additive files; optional extraction only with full regression | revert extraction; retain semantic reuse only |
 | PR becomes issue-wide monolith | Synchronizer files appear in diff | path/scope audit and PR wording | remove out-of-scope changes before push |
 
@@ -1675,7 +1797,13 @@ rg -n 'TODO|FIXME|TBD|placeholder|implement later' \
   infra/lettuce/README.md \
   infra/lettuce/README.ko.md \
   infra/lettuce/CoordinationLocks.md \
-  infra/lettuce/CoordinationLocks.ko.md
+  infra/lettuce/CoordinationLocks.ko.md \
+  docs/images/readme-diagrams/infra-lettuce-diagram-03.svg \
+  docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.svg \
+  docs/images/readme-diagrams/infra-lettuce-sequence-02.svg \
+  docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.svg
+DIAGRAM_VALIDATION_TARGETS='infra-lettuce-diagram-03.svg,infra-lettuce-diagram-03-ko.svg,infra-lettuce-sequence-02.svg,infra-lettuce-sequence-02-ko.svg' \
+  node scripts/validate-readme-diagram-assets.mjs
 ```
 
 Expected:
@@ -1684,6 +1812,7 @@ Expected:
 - no unrelated module path;
 - no whitespace error;
 - no placeholder marker in production, test, or documentation;
+- four locale-correct Lock SVG/PNG pairs are embedded, rendered, visually inspected, and validator-clean;
 - existing legacy public classes still present and not newly deprecated.
 
 Public-surface parity check:
