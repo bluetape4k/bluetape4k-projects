@@ -2,6 +2,7 @@ package io.bluetape4k.support
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
@@ -112,18 +113,36 @@ class RequireSupportTest {
 
     @Test
     fun `require collection and array not empty`() {
-        arrayOf(1, 2, 3).requireNotEmpty("x")
+        val array = arrayOf(1, 2, 3)
+        (array.requireNotEmpty("x") === array).shouldBeTrue()
         shouldFailRequire { emptyArray<Int>().requireNotEmpty("x") }
         shouldFailRequire { (null as Array<Int>?).requireNotEmpty("x") }
 
-        listOf(1, 2, 3).requireNotEmpty("x")
+        val list = listOf(1, 2, 3)
+        (list.requireNotEmpty("x") === list).shouldBeTrue()
         shouldFailRequire { emptyList<Int>().requireNotEmpty("x") }
         shouldFailRequire { (null as List<Int>?).requireNotEmpty("x") }
     }
 
     @Test
+    fun `require not empty returns non-null collection types`() {
+        val nullableArray: Array<Int>? = arrayOf(1, 2)
+        val array: Array<Int> = nullableArray.requireNotEmpty("items")
+        array.size.shouldBeEqualTo(2)
+
+        val nullableCollection: Collection<Int>? = listOf(1, 2)
+        val collection: Collection<Int> = nullableCollection.requireNotEmpty("items")
+        collection.size.shouldBeEqualTo(2)
+
+        val nullableMap: Map<String, Int>? = mapOf("one" to 1)
+        val map: Map<String, Int> = nullableMap.requireNotEmpty("items")
+        map.size.shouldBeEqualTo(1)
+    }
+
+    @Test
     fun `require map operations`() {
-        mapOf("a" to 1).requireNotEmpty("x")
+        val map = mapOf("a" to 1)
+        (map.requireNotEmpty("x") === map).shouldBeTrue()
         shouldFailRequire { emptyMap<String, Int>().requireNotEmpty("x") }
         shouldFailRequire { (null as Map<String, Int>?).requireNotEmpty("x") }
 

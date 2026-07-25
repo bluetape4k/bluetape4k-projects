@@ -382,7 +382,7 @@ inline fun <T> T.checkNegativeNumber(parameterName: String): T where T: Number, 
 }
 
 /**
- * Provides the `checkNotEmpty` invariant check.
+ * Requires this array to be non-null and non-empty, then returns the same array.
  *
  * ## Contract
  * - Throws [IllegalStateException] when the invariant is not satisfied.
@@ -394,12 +394,14 @@ inline fun <T> T.checkNegativeNumber(parameterName: String): T where T: Number, 
  * // result.size == 2
  * ```
  */
-inline fun <T> Array<T>?.checkNotEmpty(parameterName: String) = apply {
-    check(!this.isNullOrEmpty()) { "$parameterName[$this] must not be null or empty." }
+inline fun <T> Array<T>?.checkNotEmpty(parameterName: String): Array<T> {
+    val self = this ?: throw IllegalStateException("$parameterName[$this] must not be null or empty.")
+    check(self.isNotEmpty()) { "$parameterName[$self] must not be null or empty." }
+    return self
 }
 
 /**
- * Provides the `checkNotEmpty` invariant check.
+ * Requires this collection to be non-null and non-empty, then returns the same collection.
  *
  * ## Contract
  * - Throws [IllegalStateException] when the invariant is not satisfied.
@@ -411,12 +413,14 @@ inline fun <T> Array<T>?.checkNotEmpty(parameterName: String) = apply {
  * // result.size == 2
  * ```
  */
-inline fun <T> Collection<T>?.checkNotEmpty(parameterName: String) = apply {
-    check(!this.isNullOrEmpty()) { "$parameterName[$this] must not be null or empty." }
+inline fun <T> Collection<T>?.checkNotEmpty(parameterName: String): Collection<T> {
+    val self = this ?: throw IllegalStateException("$parameterName[$this] must not be null or empty.")
+    check(self.isNotEmpty()) { "$parameterName[$self] must not be null or empty." }
+    return self
 }
 
 /**
- * Provides the `checkNotEmpty` invariant check.
+ * Requires this map to be non-null and non-empty, then returns the same map.
  *
  * ## Contract
  * - Throws [IllegalStateException] when the invariant is not satisfied.
@@ -428,8 +432,10 @@ inline fun <T> Collection<T>?.checkNotEmpty(parameterName: String) = apply {
  * // result["a"] == 1
  * ```
  */
-inline fun <K, V> Map<K, V>?.checkNotEmpty(parameterName: String) = apply {
-    check(!this.isNullOrEmpty()) { "$parameterName must not be null or empty." }
+inline fun <K, V> Map<K, V>?.checkNotEmpty(parameterName: String): Map<K, V> {
+    val self = this ?: throw IllegalStateException("$parameterName must not be null or empty.")
+    check(self.isNotEmpty()) { "$parameterName must not be null or empty." }
+    return self
 }
 
 /**

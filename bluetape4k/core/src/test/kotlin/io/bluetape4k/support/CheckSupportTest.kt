@@ -107,6 +107,21 @@ class CheckSupportTest {
     }
 
     @Test
+    fun `check not empty returns non-null collection types`() {
+        val nullableArray: Array<Int>? = arrayOf(1, 2)
+        val array: Array<Int> = nullableArray.checkNotEmpty("items")
+        array.size.shouldBeEqualTo(2)
+
+        val nullableCollection: Collection<Int>? = listOf(1, 2)
+        val collection: Collection<Int> = nullableCollection.checkNotEmpty("items")
+        collection.size.shouldBeEqualTo(2)
+
+        val nullableMap: Map<String, Int>? = mapOf("one" to 1)
+        val map: Map<String, Int> = nullableMap.checkNotEmpty("items")
+        map.size.shouldBeEqualTo(1)
+    }
+
+    @Test
     fun `check map operations`() {
         val map = mapOf("a" to 1, "b" to 2)
         (map.checkNotEmpty("map") === map).shouldBeTrue()
@@ -115,6 +130,7 @@ class CheckSupportTest {
         (map.checkContains("a", 1, "map") === map).shouldBeTrue()
 
         shouldFailCheck { emptyMap<String, Int>().checkNotEmpty("map") }
+        shouldFailCheck { (null as Map<String, Int>?).checkNotEmpty("map") }
         shouldFailCheck { map.checkHasKey("missing", "map") }
         shouldFailCheck { map.checkHasValue(99, "map") }
         shouldFailCheck { map.checkContains("a", 99, "map") }
