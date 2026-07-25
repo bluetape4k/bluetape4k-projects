@@ -19,11 +19,14 @@ import kotlin.contracts.contract
  * // result == "blue"
  * ```
  */
-inline fun <T: Any> T?.checkNotNull(parameterName: String): T {
+inline fun <T: Any> T?.checkNotNull(parameterName: String): T =
+    checkNotNull { "$parameterName[$this] must not be null." }
+
+inline fun <T: Any> T?.checkNotNull(lazyMessage: () -> Any): T {
     contract {
         returns() implies (this@checkNotNull != null)
     }
-    check(this != null) { "$parameterName[$this] must not be null." }
+    check(this != null) { lazyMessage() }
     return this
 }
 
@@ -40,11 +43,14 @@ inline fun <T: Any> T?.checkNotNull(parameterName: String): T {
  * // result == null
  * ```
  */
-inline fun <T: Any> T?.checkNull(parameterName: String): T? {
+inline fun <T: Any> T?.checkNull(parameterName: String): T? =
+    checkNull { "$parameterName[$this] must be null." }
+
+inline fun <T: Any> T?.checkNull(lazyMessage: () -> Any): T? {
     contract {
         returns() implies (this@checkNull == null)
     }
-    check(this == null) { "$parameterName[$this] must be null." }
+    check(this == null) { lazyMessage() }
     return this
 }
 
@@ -61,12 +67,15 @@ inline fun <T: Any> T?.checkNull(parameterName: String): T? {
  * // result == "blue"
  * ```
  */
-inline fun <T: CharSequence> T?.checkNotEmpty(parameterName: String): T {
+inline fun <T: CharSequence> T?.checkNotEmpty(parameterName: String): T =
+    checkNotEmpty { "$parameterName must not be empty." }
+
+inline fun <T: CharSequence> T?.checkNotEmpty(lazyMessage: () -> Any): T {
     contract {
         returnsNotNull() implies (this@checkNotEmpty != null)
     }
-    val self = this.checkNotNull(parameterName)
-    check(self.isNotEmpty()) { "$parameterName[$self] must not be empty." }
+    val self = checkNotNull(lazyMessage)
+    check(self.isNotEmpty()) { lazyMessage() }
     return self
 }
 
@@ -83,8 +92,11 @@ inline fun <T: CharSequence> T?.checkNotEmpty(parameterName: String): T {
  * // result == ""
  * ```
  */
-inline fun <T: CharSequence> T?.checkNullOrEmpty(parameterName: String): T? {
-    check(this.isNullOrEmpty()) { "$parameterName[$this] must be null or empty." }
+inline fun <T: CharSequence> T?.checkNullOrEmpty(parameterName: String): T? =
+    checkNullOrEmpty { "$parameterName must be null or empty." }
+
+inline fun <T: CharSequence> T?.checkNullOrEmpty(lazyMessage: () -> Any): T? {
+    check(this.isNullOrEmpty()) { lazyMessage() }
     return this
 }
 
@@ -101,12 +113,15 @@ inline fun <T: CharSequence> T?.checkNullOrEmpty(parameterName: String): T? {
  * // result == "blue"
  * ```
  */
-inline fun <T: CharSequence> T?.checkNotBlank(parameterName: String): T {
+inline fun <T: CharSequence> T?.checkNotBlank(parameterName: String): T =
+    checkNotBlank { "$parameterName must not be blank." }
+
+inline fun <T: CharSequence> T?.checkNotBlank(lazyMessage: () -> Any): T {
     contract {
         returnsNotNull() implies (this@checkNotBlank != null)
     }
-    val self = this.checkNotNull(parameterName)
-    check(self.isNotBlank()) { "$parameterName[$self] must not be blank." }
+    val self = this.checkNotNull(lazyMessage)
+    check(self.isNotBlank()) { lazyMessage() }
     return self
 }
 
@@ -123,8 +138,11 @@ inline fun <T: CharSequence> T?.checkNotBlank(parameterName: String): T {
  * // result == "   "
  * ```
  */
-inline fun <T: CharSequence> T?.checkNullOrBlank(parameterName: String): T? {
-    check(this.isNullOrBlank()) { "$parameterName[$this] must be null or blank." }
+inline fun <T: CharSequence> T?.checkNullOrBlank(parameterName: String): T? =
+    checkNullOrBlank { "$parameterName must be null or blank." }
+
+inline fun <T: CharSequence> T?.checkNullOrBlank(lazyMessage: () -> Any): T? {
+    check(this.isNullOrBlank()) { lazyMessage() }
     return this
 }
 
@@ -142,11 +160,15 @@ inline fun <T: CharSequence> T?.checkNullOrBlank(parameterName: String): T? {
  * // result == "blue"
  * ```
  */
-inline fun <T: CharSequence> T?.checkContains(other: CharSequence, parameterName: String): T {
-    this.checkNotNull(parameterName)
-    check(this.contains(other)) { "$parameterName[$this] must contain $other" }
-    return this
+inline fun <T: CharSequence> T?.checkContains(other: CharSequence, parameterName: String): T =
+    checkContains(other) { "$parameterName must contain $other" }
+
+inline fun <T: CharSequence> T?.checkContains(other: CharSequence, lazyMessage: () -> Any): T {
+    val self = this.checkNotNull(lazyMessage)
+    check(self.contains(other)) { lazyMessage() }
+    return self
 }
+
 
 /**
  * Provides the `checkStartsWith` invariant check.
@@ -165,10 +187,17 @@ inline fun <T: CharSequence> T?.checkStartsWith(
     prefix: CharSequence,
     parameterName: String,
     ignoreCase: Boolean = false,
+): T =
+    checkStartsWith(prefix, ignoreCase) { "$parameterName[$this] must start with $prefix" }
+
+inline fun <T: CharSequence> T?.checkStartsWith(
+    prefix: CharSequence,
+    ignoreCase: Boolean = false,
+    lazyMessage: () -> Any,
 ): T {
-    this.checkNotNull(parameterName)
-    check(this.startsWith(prefix, ignoreCase)) { "$parameterName[$this] must start with $prefix" }
-    return this
+    val self = this.checkNotNull(lazyMessage)
+    check(self.startsWith(prefix, ignoreCase)) { lazyMessage() }
+    return self
 }
 
 /**
@@ -188,10 +217,17 @@ inline fun <T: CharSequence> T?.checkEndsWith(
     suffix: CharSequence,
     parameterName: String,
     ignoreCase: Boolean = false,
+): T =
+    checkEndsWith(suffix, ignoreCase) { "$parameterName[$this] must end with $suffix" }
+
+inline fun <T: CharSequence> T?.checkEndsWith(
+    suffix: CharSequence,
+    ignoreCase: Boolean = false,
+    lazyMessage: () -> Any,
 ): T {
-    this.checkNotNull(parameterName)
-    check(this.endsWith(suffix, ignoreCase)) { "$parameterName[$this] must end with $suffix" }
-    return this
+    val self = checkNotNull(lazyMessage)
+    check(self.endsWith(suffix, ignoreCase)) { lazyMessage() }
+    return self
 }
 
 /**
@@ -207,8 +243,12 @@ inline fun <T: CharSequence> T?.checkEndsWith(
  * // result == 10
  * ```
  */
-inline fun <T> T.checkEquals(expected: T, parameterName: String): T = apply {
-    check(this == expected) { "$parameterName[$this] must be equal to $expected" }
+inline fun <T> T.checkEquals(expected: T, parameterName: String): T =
+    checkEquals(expected) { "$parameterName[$this] must be equal to $expected" }
+
+inline fun <T> T.checkEquals(expected: T, lazyMessage: () -> Any): T {
+    check(this == expected) { lazyMessage() }
+    return this
 }
 
 /**
@@ -224,8 +264,11 @@ inline fun <T> T.checkEquals(expected: T, parameterName: String): T = apply {
  * // result == 10
  * ```
  */
-inline fun <T: Comparable<T>> T.checkGt(expected: T, parameterName: String): T = apply {
-    check(this > expected) { "$parameterName[$this] must be greater than $expected." }
+inline fun <T: Comparable<T>> T.checkGt(expected: T, parameterName: String): T =
+    checkGt(expected) { "$parameterName[$this] must be greater than $expected." }
+
+inline fun <T: Comparable<T>> T.checkGt(expected: T, lazyMessage: () -> Any): T = apply {
+    check(this > expected) { lazyMessage() }
 }
 
 /**
@@ -241,8 +284,11 @@ inline fun <T: Comparable<T>> T.checkGt(expected: T, parameterName: String): T =
  * // result == 10
  * ```
  */
-inline fun <T: Comparable<T>> T.checkGe(expected: T, parameterName: String): T = apply {
-    check(this >= expected) { "$parameterName[$this] must be greater than or equal to $expected." }
+inline fun <T: Comparable<T>> T.checkGe(expected: T, parameterName: String): T =
+    checkGe(expected) { "$parameterName[$this] must be greater than or equal to $expected." }
+
+inline fun <T: Comparable<T>> T.checkGe(expected: T, lazyMessage: () -> Any): T = apply {
+    check(this >= expected) { lazyMessage() }
 }
 
 /**
@@ -258,8 +304,11 @@ inline fun <T: Comparable<T>> T.checkGe(expected: T, parameterName: String): T =
  * // result == 1
  * ```
  */
-inline fun <T: Comparable<T>> T.checkLt(expected: T, parameterName: String): T = apply {
-    check(this < expected) { "$parameterName[$this] must be less than $expected." }
+inline fun <T: Comparable<T>> T.checkLt(expected: T, parameterName: String): T =
+    checkLt(expected) { "$parameterName[$this] must be less than $expected." }
+
+inline fun <T: Comparable<T>> T.checkLt(expected: T, lazyMessage: () -> Any): T = apply {
+    check(this < expected) { lazyMessage() }
 }
 
 /**
@@ -275,8 +324,11 @@ inline fun <T: Comparable<T>> T.checkLt(expected: T, parameterName: String): T =
  * // result == 10
  * ```
  */
-inline fun <T: Comparable<T>> T.checkLe(expected: T, parameterName: String): T = apply {
-    check(this <= expected) { "$parameterName[$this] must be less than or equal to $expected." }
+inline fun <T: Comparable<T>> T.checkLe(expected: T, parameterName: String): T =
+    checkLe(expected) { "$parameterName[$this] must be less than or equal to $expected." }
+
+inline fun <T: Comparable<T>> T.checkLe(expected: T, lazyMessage: () -> Any): T = apply {
+    check(this <= expected) { lazyMessage() }
 }
 
 /**
@@ -292,8 +344,11 @@ inline fun <T: Comparable<T>> T.checkLe(expected: T, parameterName: String): T =
  * // result == 5
  * ```
  */
-inline fun <T: Comparable<T>> T.checkInRange(start: T, endInclusive: T, parameterName: String) = apply {
-    check(this in start..endInclusive) { "$parameterName[$this] must be in range ($start .. $endInclusive)" }
+inline fun <T: Comparable<T>> T.checkInRange(start: T, endInclusive: T, parameterName: String) =
+    checkInRange(start, endInclusive) { "$parameterName[$this] must be in range ($start .. $endInclusive)" }
+
+inline fun <T: Comparable<T>> T.checkInRange(start: T, endInclusive: T, lazyMessage: () -> Any) = apply {
+    check(this in start..endInclusive) { lazyMessage() }
 }
 
 /**
@@ -309,8 +364,11 @@ inline fun <T: Comparable<T>> T.checkInRange(start: T, endInclusive: T, paramete
  * // result == 5
  * ```
  */
-inline fun <T: Comparable<T>> T.checkInOpenRange(start: T, endExclusive: T, parameterName: String): T = apply {
-    check(this in start..<endExclusive) { "$start <= $parameterName[$this] < $endExclusive" }
+inline fun <T: Comparable<T>> T.checkInOpenRange(start: T, endExclusive: T, parameterName: String): T =
+    checkInOpenRange(start, endExclusive) { "$start <= $parameterName[$this] < $endExclusive" }
+
+inline fun <T: Comparable<T>> T.checkInOpenRange(start: T, endExclusive: T, lazyMessage: () -> Any): T = apply {
+    check(this in start..<endExclusive) { lazyMessage() }
 }
 
 /**
@@ -330,6 +388,10 @@ inline fun <T> T.checkZeroOrPositiveNumber(parameterName: String): T where T: Nu
     toDouble().checkGe(0.0, parameterName)
 }
 
+inline fun <T> T.checkZeroOrPositiveNumber(lazyMessage: () -> Any): T where T: Number, T: Comparable<T> = apply {
+    toDouble().checkGe(0.0, lazyMessage)
+}
+
 /**
  * Provides the `checkPositiveNumber` invariant check.
  *
@@ -345,6 +407,10 @@ inline fun <T> T.checkZeroOrPositiveNumber(parameterName: String): T where T: Nu
  */
 inline fun <T> T.checkPositiveNumber(parameterName: String): T where T: Number, T: Comparable<T> = apply {
     toDouble().checkGt(0.0, parameterName)
+}
+
+inline fun <T> T.checkPositiveNumber(lazyMessage: () -> Any): T where T: Number, T: Comparable<T> = apply {
+    toDouble().checkGt(0.0, lazyMessage)
 }
 
 /**
@@ -364,6 +430,10 @@ inline fun <T> T.checkZeroOrNegativeNumber(parameterName: String): T where T: Nu
     toDouble().checkLe(0.0, parameterName)
 }
 
+inline fun <T> T.checkZeroOrNegativeNumber(lazyMessage: () -> Any): T where T: Number, T: Comparable<T> = apply {
+    toDouble().checkLe(0.0, lazyMessage)
+}
+
 /**
  * Provides the `checkNegativeNumber` invariant check.
  *
@@ -381,6 +451,10 @@ inline fun <T> T.checkNegativeNumber(parameterName: String): T where T: Number, 
     toDouble().checkLt(0.0, parameterName)
 }
 
+inline fun <T> T.checkNegativeNumber(lazyMessage: () -> Any): T where T: Number, T: Comparable<T> = apply {
+    toDouble().checkLt(0.0, lazyMessage)
+}
+
 /**
  * Requires this array to be non-null and non-empty, then returns the same array.
  *
@@ -394,9 +468,12 @@ inline fun <T> T.checkNegativeNumber(parameterName: String): T where T: Number, 
  * // result.size == 2
  * ```
  */
-inline fun <T> Array<T>?.checkNotEmpty(parameterName: String): Array<T> {
-    val self = this ?: throw IllegalStateException("$parameterName[$this] must not be null or empty.")
-    check(self.isNotEmpty()) { "$parameterName[$self] must not be null or empty." }
+inline fun <T> Array<T>?.checkNotEmpty(parameterName: String): Array<T> =
+    checkNotEmpty { "$parameterName[$this] must not be null or empty." }
+
+inline fun <T> Array<T>?.checkNotEmpty(lazyMessage: () -> Any): Array<T> {
+    val self = this ?: throw IllegalStateException(lazyMessage().toString())
+    check(self.isNotEmpty()) { lazyMessage() }
     return self
 }
 
@@ -413,9 +490,12 @@ inline fun <T> Array<T>?.checkNotEmpty(parameterName: String): Array<T> {
  * // result.size == 2
  * ```
  */
-inline fun <T> Collection<T>?.checkNotEmpty(parameterName: String): Collection<T> {
-    val self = this ?: throw IllegalStateException("$parameterName[$this] must not be null or empty.")
-    check(self.isNotEmpty()) { "$parameterName[$self] must not be null or empty." }
+inline fun <T> Collection<T>?.checkNotEmpty(parameterName: String): Collection<T> =
+    checkNotEmpty { "$parameterName must not be null or empty." }
+
+inline fun <T> Collection<T>?.checkNotEmpty(lazyMessage: () -> Any): Collection<T> {
+    val self = this ?: throw IllegalStateException(lazyMessage().toString())
+    check(self.isNotEmpty()) { lazyMessage() }
     return self
 }
 
@@ -432,9 +512,12 @@ inline fun <T> Collection<T>?.checkNotEmpty(parameterName: String): Collection<T
  * // result["a"] == 1
  * ```
  */
-inline fun <K, V> Map<K, V>?.checkNotEmpty(parameterName: String): Map<K, V> {
-    val self = this ?: throw IllegalStateException("$parameterName must not be null or empty.")
-    check(self.isNotEmpty()) { "$parameterName must not be null or empty." }
+inline fun <K, V> Map<K, V>?.checkNotEmpty(parameterName: String): Map<K, V> =
+    checkNotEmpty { "$parameterName must not be null or empty." }
+
+inline fun <K, V> Map<K, V>?.checkNotEmpty(lazyMessage: () -> Any): Map<K, V> {
+    val self = this ?: throw IllegalStateException(lazyMessage().toString())
+    check(self.isNotEmpty()) { lazyMessage() }
     return self
 }
 
@@ -451,10 +534,13 @@ inline fun <K, V> Map<K, V>?.checkNotEmpty(parameterName: String): Map<K, V> {
  * // result["a"] == 1
  * ```
  */
-inline fun <K, V> Map<K, V>?.checkHasKey(key: K, parameterName: String): Map<K, V> {
-    checkNotEmpty(parameterName)
-    val self = this ?: throw IllegalStateException("$parameterName must not be null or empty.")
-    check(self.containsKey(key)) { "$parameterName must contain key $key" }
+inline fun <K, V> Map<K, V>?.checkHasKey(key: K, parameterName: String): Map<K, V> =
+    checkHasKey(key) { "$parameterName must contain key $key" }
+
+inline fun <K, V> Map<K, V>?.checkHasKey(key: K, lazyMessage: () -> Any): Map<K, V> {
+    checkNotEmpty(lazyMessage)
+    val self = this ?: throw IllegalStateException(lazyMessage().toString())
+    check(self.containsKey(key)) { lazyMessage() }
     return self
 }
 
@@ -471,10 +557,13 @@ inline fun <K, V> Map<K, V>?.checkHasKey(key: K, parameterName: String): Map<K, 
  * // result["a"] == 1
  * ```
  */
-inline fun <K, V> Map<K, V>?.checkHasValue(value: V, parameterName: String): Map<K, V> {
-    checkNotEmpty(parameterName)
-    val self = this ?: throw IllegalStateException("$parameterName must not be null or empty.")
-    check(self.containsValue(value)) { "$parameterName must contain value $value" }
+inline fun <K, V> Map<K, V>?.checkHasValue(value: V, parameterName: String): Map<K, V> =
+    checkHasValue(value) { "$parameterName must contain value $value" }
+
+inline fun <K, V> Map<K, V>?.checkHasValue(value: V, lazyMessage: () -> Any): Map<K, V> {
+    checkNotEmpty(lazyMessage)
+    val self = this ?: throw IllegalStateException(lazyMessage().toString())
+    check(self.containsValue(value)) { lazyMessage() }
     return self
 }
 
@@ -491,10 +580,13 @@ inline fun <K, V> Map<K, V>?.checkHasValue(value: V, parameterName: String): Map
  * // result["a"] == 1
  * ```
  */
-inline fun <K, V> Map<K, V>?.checkContains(key: K, value: V, parameterName: String): Map<K, V> {
-    checkNotEmpty(parameterName)
-    val self = this ?: throw IllegalStateException("$parameterName must not be null or empty.")
-    check(self[key] == value) { "$parameterName must contain ($key, $value)" }
+inline fun <K, V> Map<K, V>?.checkContains(key: K, value: V, parameterName: String): Map<K, V> =
+    checkContains(key, value) { "$parameterName must contain ($key, $value)" }
+
+inline fun <K, V> Map<K, V>?.checkContains(key: K, value: V, lazyMessage: () -> Any): Map<K, V> {
+    checkNotEmpty(lazyMessage)
+    val self = this ?: throw IllegalStateException(lazyMessage().toString())
+    check(self[key] == value) { lazyMessage() }
     return self
 }
 
