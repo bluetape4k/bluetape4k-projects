@@ -27,7 +27,7 @@ class LockObservationTest {
             .map { it.name }
             .sorted() shouldBeEqualTo
             listOf("failureKind", "leasePolicy", "objectKind", "operation", "outcome")
-        (observation is Serializable) shouldBeEqualTo false
+        Serializable::class.java.isAssignableFrom(observation.javaClass) shouldBeEqualTo false
     }
 
     @Test
