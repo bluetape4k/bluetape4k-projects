@@ -108,6 +108,12 @@ class LockResultTest {
             DowngradeResult.BackendFailure(backend),
             DowngradeResult.IntegrityFailure(integrity),
             DowngradeResult.Ambiguous(LockRecoveryAction.INSPECT_HANDLE),
+            FencedBootstrapResult.Initialized,
+            FencedBootstrapResult.AlreadyInitialized,
+            FencedBootstrapResult.Closed,
+            FencedBootstrapResult.BackendFailure(backend),
+            FencedBootstrapResult.IntegrityFailure(integrity),
+            FencedBootstrapResult.Ambiguous(LockRecoveryAction.INSPECT_HANDLE),
         )
 
         samples.forEach { original ->
@@ -120,6 +126,7 @@ class LockResultTest {
             LockReconcileResult.NotFound,
             LockMutationResult.AlreadyReleased,
             DowngradeResult.Expired,
+            FencedBootstrapResult.Initialized,
         ).forEach { singleton ->
             javaRoundTrip(singleton) shouldBeSameInstanceAs singleton
         }

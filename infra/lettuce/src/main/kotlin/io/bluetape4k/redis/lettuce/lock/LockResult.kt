@@ -468,6 +468,66 @@ sealed interface DowngradeResult: Serializable {
     }
 }
 
+/** Outcomes of explicitly initializing the fencing counter for one fenced-lock epoch. */
+sealed interface FencedBootstrapResult: Serializable {
+
+    /** The previously absent fencing counter was initialized. */
+    data object Initialized: FencedBootstrapResult {
+        private const val serialVersionUID: Long = 1L
+        private fun readResolve(): Any = Initialized
+    }
+
+    /** A valid fencing counter already exists for this epoch. */
+    data object AlreadyInitialized: FencedBootstrapResult {
+        private const val serialVersionUID: Long = 1L
+        private fun readResolve(): Any = AlreadyInitialized
+    }
+
+    /** The fenced-lock object is closed. */
+    data object Closed: FencedBootstrapResult {
+        private const val serialVersionUID: Long = 1L
+        private fun readResolve(): Any = Closed
+    }
+
+    /** Redis transport or command execution failed with a sanitized category. */
+    data class BackendFailure(
+        val failure: LockBackendFailure,
+    ): FencedBootstrapResult {
+        private fun readResolve(): Any = restoreLockSerializedValue("FencedBootstrapResult.BackendFailure") { copy() }
+
+        private companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
+
+    /** Redis state or reply violated a fail-closed fencing invariant. */
+    data class IntegrityFailure(
+        val failure: LockIntegrityFailure,
+    ): FencedBootstrapResult {
+        private fun readResolve(): Any =
+            restoreLockSerializedValue("FencedBootstrapResult.IntegrityFailure") { copy() }
+
+        private companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
+
+    /** Bootstrap dispatch may have completed and requires fenced-state inspection. */
+    data class Ambiguous(
+        val recoveryAction: LockRecoveryAction,
+    ): FencedBootstrapResult {
+        private fun readResolve(): Any = restoreLockSerializedValue("FencedBootstrapResult.Ambiguous") { copy() }
+
+        private companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
+
+    private companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
+
 private fun validateOwnedPayload(holdCount: Int, remainingTtlMillis: Long) {
     require(holdCount > 0) { "Hold count must be positive." }
     require(remainingTtlMillis >= 0L) { "Remaining TTL must not be negative." }
