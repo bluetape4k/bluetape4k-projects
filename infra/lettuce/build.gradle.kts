@@ -103,7 +103,12 @@ dependencies {
 
 tasks.named<Test>("test") {
     useJUnitPlatform {
-        excludeTags("performance", "fencing-topology", "coordination-lock-topology")
+        excludeTags(
+            "performance",
+            "fencing-topology",
+            "coordination-lock-topology",
+            "coordination-lock-performance",
+        )
     }
 }
 
@@ -142,6 +147,27 @@ tasks.register<Test>("multiKeyLeasePerformanceTest") {
         includeTags("performance")
     }
     val reportPath = layout.buildDirectory.file("reports/multi-key-lease-performance/results.json")
+        .get()
+        .asFile
+        .absolutePath
+    outputs.file(reportPath)
+    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
+    doFirst {
+        Files.deleteIfExists(Path.of(reportPath))
+    }
+    shouldRunAfter(tasks.test)
+}
+
+tasks.register<Test>("coordinationLockPerformanceTest") {
+    description = "Runs coordination lock command-budget and bounded-state characterization tests."
+    group = "verification"
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform {
+        includeTags("coordination-lock-performance")
+    }
+    val reportPath = layout.buildDirectory.file("reports/coordination-lock-performance/results.json")
         .get()
         .asFile
         .absolutePath
