@@ -1046,7 +1046,7 @@ internal class ReadWriteLockClient private constructor(
         val args = acquireArgs(kind, ownerId, requestId, leasePolicy, Duration.ZERO)
         if (closed.get()) return LockAcquireResult.Closed
         return rwClassified(
-            backend = { LockAcquireResult.BackendFailure(it) },
+            backend = { acquireBackendResult(ownerId, requestId, it) },
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             action = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
@@ -1066,7 +1066,7 @@ internal class ReadWriteLockClient private constructor(
         return executor.runAsync(ReadWriteLockOperation.ACQUIRE, keys, args)
             .rwMap(
                 decode = { decodeAttempt(it, keys, kind, ownerId, requestId).toPublic(AtomicReference()) },
-                backend = { LockAcquireResult.BackendFailure(it) },
+                backend = { acquireBackendResult(ownerId, requestId, it) },
                 integrity = { LockAcquireResult.IntegrityFailure(it) },
                 action = LockRecoveryAction.RECONCILE_REQUEST,
             )
@@ -1081,7 +1081,7 @@ internal class ReadWriteLockClient private constructor(
         val args = acquireArgs(kind, ownerId, requestId, leasePolicy, Duration.ZERO)
         if (closed.get()) return LockAcquireResult.Closed
         return rwClassifiedSuspending(
-            backend = { LockAcquireResult.BackendFailure(it) },
+            backend = { acquireBackendResult(ownerId, requestId, it) },
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             action = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
@@ -1227,7 +1227,7 @@ internal class ReadWriteLockClient private constructor(
     ): LockAcquireResult<LockHandle> {
         if (closed.get()) return LockAcquireResult.Closed
         return rwClassified(
-            backend = { LockAcquireResult.BackendFailure(it) },
+            backend = { acquireBackendResult(ownerId, requestId, it) },
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             action = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
@@ -1262,7 +1262,7 @@ internal class ReadWriteLockClient private constructor(
                 acquireArgs(kind, ownerId, requestId, leasePolicy, waitTime),
             ).rwMap(
                 decode = { decodeAttempt(it, keys, kind, ownerId, requestId).toPublic(identity) },
-                backend = { LockAcquireResult.BackendFailure(it) },
+                backend = { acquireBackendResult(ownerId, requestId, it) },
                 integrity = { LockAcquireResult.IntegrityFailure(it) },
                 action = LockRecoveryAction.RECONCILE_REQUEST,
             )
@@ -1278,7 +1278,7 @@ internal class ReadWriteLockClient private constructor(
     ): LockAcquireResult<LockHandle> {
         if (closed.get()) return LockAcquireResult.Closed
         return rwClassifiedSuspending(
-            backend = { LockAcquireResult.BackendFailure(it) },
+            backend = { acquireBackendResult(ownerId, requestId, it) },
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             action = LockRecoveryAction.RECONCILE_REQUEST,
         ) {

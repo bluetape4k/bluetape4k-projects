@@ -37,6 +37,7 @@ import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisScriptingAsyncCommands
 import io.lettuce.core.api.sync.RedisScriptingCommands
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
+import java.io.Serializable
 import java.time.Duration
 import java.util.Collections
 import java.util.IdentityHashMap
@@ -150,7 +151,7 @@ internal class DistributedLockClient(
         return executor.runAsync(DistributedLockOperation.ACQUIRE, keys, args)
             .mapResult(
                 decode = { registerWatchdog(decodeAcquire(it, keys, ownerId, requestId)) },
-                backend = { LockAcquireResult.BackendFailure(it) },
+                backend = { acquireBackendResult(ownerId, requestId, it) },
                 integrity = { LockAcquireResult.IntegrityFailure(it) },
                 recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
             )
@@ -164,7 +165,7 @@ internal class DistributedLockClient(
         val args = acquireArgs(ownerId, requestId, leasePolicy, config.maxReentrantHolds)
         if (closed.get()) return LockAcquireResult.Closed
         return classifiedSuspending(
-            backend = { LockAcquireResult.BackendFailure(it) },
+            backend = { acquireBackendResult(ownerId, requestId, it) },
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
@@ -627,7 +628,7 @@ internal class DistributedLockClient(
         command: () -> List<String>,
     ): LockAcquireResult<LockHandle> =
         classified(
-            backend = { LockAcquireResult.BackendFailure(it) },
+            backend = { acquireBackendResult(ownerId, requestId, it) },
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
@@ -678,6 +679,18 @@ internal class DistributedLockClient(
         }
     }
 }
+
+internal fun <H: Serializable> acquireBackendResult(
+    ownerId: LockOwnerId,
+    requestId: LockRequestId,
+    failure: LockBackendFailure,
+): LockAcquireResult<H> =
+    when (failure.kind) {
+        LockBackendFailureKind.CONNECTION,
+        LockBackendFailureKind.TIMEOUT,
+        -> LockAcquireResult.Ambiguous(ownerId, requestId, LockRecoveryAction.RECONCILE_REQUEST)
+        LockBackendFailureKind.COMMAND -> LockAcquireResult.BackendFailure(failure)
+    }
 
 private inline fun <R> classified(
     backend: (LockBackendFailure) -> R,

@@ -553,7 +553,7 @@ internal class FairLockClient private constructor(
         val args = acquireArgs(ownerId, requestId, leasePolicy, Duration.ZERO)
         if (closed.get()) return LockAcquireResult.Closed
         return fairClassified(
-            backend = { LockAcquireResult.BackendFailure(it) },
+            backend = { acquireBackendResult(ownerId, requestId, it) },
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             action = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
@@ -571,7 +571,7 @@ internal class FairLockClient private constructor(
         return executor.runAsync(FairLockOperation.ACQUIRE, keys, args)
             .fairMap(
                 decode = { decodeAttempt(it, keys, ownerId, requestId) },
-                backend = { FairAttempt.Result(LockAcquireResult.BackendFailure(it)) },
+                backend = { FairAttempt.Result(acquireBackendResult(ownerId, requestId, it)) },
                 integrity = { FairAttempt.Result(LockAcquireResult.IntegrityFailure(it)) },
                 action = LockRecoveryAction.RECONCILE_REQUEST,
             ).thenCompose(::materializeAttemptAsync)
@@ -585,7 +585,7 @@ internal class FairLockClient private constructor(
         val args = acquireArgs(ownerId, requestId, leasePolicy, Duration.ZERO)
         if (closed.get()) return LockAcquireResult.Closed
         return fairClassifiedSuspending(
-            backend = { LockAcquireResult.BackendFailure(it) },
+            backend = { acquireBackendResult(ownerId, requestId, it) },
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             action = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
@@ -785,7 +785,7 @@ internal class FairLockClient private constructor(
         waiterIdentity: AtomicReference<FairWaiterIdentity?>,
     ): LockAcquireResult<LockHandle> =
         fairClassified(
-            backend = { LockAcquireResult.BackendFailure(it) },
+            backend = { acquireBackendResult(ownerId, requestId, it) },
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             action = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
@@ -810,7 +810,7 @@ internal class FairLockClient private constructor(
             acquireArgs(ownerId, requestId, leasePolicy, waitTime),
         ).fairMap(
             decode = { decodeAttempt(it, keys, ownerId, requestId) },
-            backend = { FairAttempt.Result(LockAcquireResult.BackendFailure(it)) },
+            backend = { FairAttempt.Result(acquireBackendResult(ownerId, requestId, it)) },
             integrity = { FairAttempt.Result(LockAcquireResult.IntegrityFailure(it)) },
             action = LockRecoveryAction.RECONCILE_REQUEST,
         ).thenCompose { attempt ->
@@ -830,7 +830,7 @@ internal class FairLockClient private constructor(
         waiterIdentity: AtomicReference<FairWaiterIdentity?>,
     ): LockAcquireResult<LockHandle> =
         fairClassifiedSuspending(
-            backend = { LockAcquireResult.BackendFailure(it) },
+            backend = { acquireBackendResult(ownerId, requestId, it) },
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             action = LockRecoveryAction.RECONCILE_REQUEST,
         ) {

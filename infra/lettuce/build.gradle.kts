@@ -103,7 +103,7 @@ dependencies {
 
 tasks.named<Test>("test") {
     useJUnitPlatform {
-        excludeTags("performance", "fencing-topology")
+        excludeTags("performance", "fencing-topology", "coordination-lock-topology")
     }
 }
 
@@ -114,6 +114,19 @@ tasks.register<Test>("fencingLeaseTopologyRecoveryTest") {
     classpath = sourceSets["test"].runtimeClasspath
     useJUnitPlatform {
         includeTags("fencing-topology")
+    }
+    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
+    shouldRunAfter(tasks.test)
+}
+
+tasks.register<Test>("coordinationLockTopologyRecoveryTest") {
+    description = "Runs coordination lock Redis Cluster topology compatibility tests."
+    group = "verification"
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform {
+        includeTags("coordination-lock-topology")
     }
     outputs.upToDateWhen { false }
     outputs.cacheIf { false }

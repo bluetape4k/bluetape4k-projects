@@ -845,7 +845,7 @@ internal class FencedLockClient(
         return executor.runAsync(FencedLockOperation.ACQUIRE, keys, args)
             .mapResult(
                 decode = { registerWatchdog(decodeFencedAcquire(it, keys, ownerId, requestId)) },
-                backend = { LockAcquireResult.BackendFailure(it) },
+                backend = { acquireBackendResult(ownerId, requestId, it) },
                 integrity = { LockAcquireResult.IntegrityFailure(it) },
                 recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
             )
@@ -859,7 +859,7 @@ internal class FencedLockClient(
         val args = fencedAcquireArgs(ownerId, requestId, leasePolicy, config.lock.maxReentrantHolds, config.epoch)
         if (closed.get()) return LockAcquireResult.Closed
         return classifiedSuspending(
-            backend = { LockAcquireResult.BackendFailure(it) },
+            backend = { acquireBackendResult(ownerId, requestId, it) },
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
@@ -1341,7 +1341,7 @@ internal class FencedLockClient(
         command: () -> List<String>,
     ): LockAcquireResult<FencedLockHandle> =
         classified(
-            backend = { LockAcquireResult.BackendFailure(it) },
+            backend = { acquireBackendResult(ownerId, requestId, it) },
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
