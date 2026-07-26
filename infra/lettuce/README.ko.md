@@ -24,8 +24,20 @@ Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도�
 | `LettuceSuspendAtomicLong`          | 분산 AtomicLong (suspend 전용)                                                               |
 | `LettuceSemaphore`                  | 분산 세마포어 (sync + async). 코루틴 버전: `LettuceSuspendSemaphore`                                |
 | `LettuceSuspendSemaphore`           | 분산 세마포어 (suspend 전용)                                                                     |
-| `LettuceLock`                       | 분산 뮤텍스 락 (sync + async). 코루틴 버전: `LettuceSuspendLock`                                    |
-| `LettuceSuspendLock`                | 분산 뮤텍스 락 (suspend 전용)                                                                    |
+| `LettuceDistributedLock`            | identity/handle 생명주기와 typed outcome을 제공하는 재진입 분산 Lock                                   |
+| `LettuceSuspendDistributedLock`     | identity/handle 생명주기를 제공하는 suspend 분산 Lock                                                |
+| `LettuceFairLock`                   | 제한된 waiter cleanup을 포함한 FIFO 분산 Lock (sync + async)                                        |
+| `LettuceSuspendFairLock`            | identity/handle 생명주기를 제공하는 suspend fair Lock                                                |
+| `LettuceFencedLock`                 | 단조 증가 epoch/token semantics와 typed 획득 상태를 제공하는 fenced Lock                               |
+| `LettuceSuspendFencedLock`          | 단조 증가 epoch/token semantics를 제공하는 suspend fenced Lock                                        |
+| `LettuceReadWriteLock`              | handle 기반 read/write view와 downgrade를 제공하는 분산 Lock                                         |
+| `LettuceSuspendReadWriteLock`       | read/write handle view를 제공하는 suspend 분산 Lock                                                  |
+| `LettuceSpinLock`                   | 제한된 attempt와 명시적 ownership handle을 사용하는 spin-first Lock                                  |
+| `LettuceSuspendSpinLock`            | 제한된 attempt를 사용하는 suspend spin-first Lock                                                    |
+| `LettuceMultiLock`                  | same-slot resource 집합을 원자적으로 획득하는 all-or-nothing Lock                                      |
+| `LettuceSuspendMultiLock`           | same-slot resource 집합을 원자적으로 획득하는 suspend multi-lock                                       |
+| `LettuceLock`                       | 호환 token mutex (sync + async). Coroutine 버전: `LettuceSuspendLock`                               |
+| `LettuceSuspendLock`                | 호환 token mutex (suspend 전용)                                                                   |
 | `LettuceMultiKeyLease`              | 제한된 same-slot 키 집합의 원자적 소유권 lease (sync + async)                                      |
 | `LettuceSuspendMultiKeyLease`       | 제한된 same-slot 키 집합의 원자적 소유권 lease (suspend 전용)                                        |
 | `LettuceFencingLease`               | 정렬 가능한 `(epoch, sequence)` token을 발급하는 config-bound Redis fencing lease (sync + async)       |
@@ -462,7 +474,32 @@ if (suspendSemaphore.tryAcquire()) {
 }
 ```
 
-### LettuceLock — 분산 뮤텍스 락
+## 분산 동기화 primitive
+
+Semantics에 따라 객체를 선택합니다. 여섯 패밀리는 모두 명시적 owner/request identity, typed outcome,
+handle 기반 release, standalone/Cluster factory, blocking/async/suspend 표면을 제공합니다.
+
+| 객체 패밀리 | 주 용도 | 핵심 규칙 |
+|---|---|---|
+| Distributed | 재진입 배타 제어 | 성공한 request마다 handle 하나 |
+| Fair | FIFO admission | 제한된 waiter cleanup |
+| Fenced | stale writer 거부 | downstream은 엄격히 큰 token만 허용 |
+| Read-write | read 공유 | writer preference, downgrade만 지원 |
+| Spin | 짧은 임계 구역 | 제한된 backoff와 attempt rate |
+| Multi-lock | 원자적 resource 집합 | 모든 key는 동일 Cluster slot |
+
+![Lettuce 분산 동기화 Lock 선택과 공통 런타임](../../docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.png)
+
+![획득, 경합, watchdog, 재조정, 해제, 종료 생명주기](../../docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.png)
+
+Compile-tested blocking/async/suspend, 재진입, fencing, 복구, 운영, migration 지침은
+[분산 동기화 Lock](./CoordinationLocks.ko.md)을 참고하세요.
+
+### LettuceLock — 호환 Token Mutex
+
+`LettuceLock`과 `LettuceSuspendLock`은 지원되는 compatibility token mutex이며 Delivery 1에서 deprecated가
+아닙니다. 명시적 identity, reconciliation, 특화 handle 또는 policy 계약이 필요할 때만
+`LettuceDistributedLock`이나 다른 분산 동기화 객체를 선택하세요.
 
 ```kotlin
 import io.bluetape4k.redis.lettuce.lock.LettuceLock

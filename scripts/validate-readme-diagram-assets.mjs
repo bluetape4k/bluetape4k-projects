@@ -8,14 +8,34 @@ const DIAGRAM_DIR = join(ROOT, "docs/images/readme-diagrams");
 const REPORT = process.env.DIAGRAM_VALIDATION_REPORT || "/tmp/bluetape4k-projects-diagram-validation-report.json";
 const MIN_CLEARANCE = 8;
 
-const files = readdirSync(DIAGRAM_DIR)
+const availableFiles = readdirSync(DIAGRAM_DIR)
     .filter((file) => file.endsWith(".svg"))
     .sort();
 
 const failures = [];
 const rows = [];
+const targetSelection = selectValidationTargets(availableFiles, process.env.DIAGRAM_VALIDATION_TARGETS);
 
-for (const file of files) {
+if (targetSelection.failures.length > 0) {
+    for (const failure of targetSelection.failures) {
+        const row = {
+            file: failure.file,
+            title: "",
+            kind: "unclassified",
+            cards: 0,
+            paths: 0,
+            hasPanels: false,
+            failures: [failure.message],
+        };
+        rows.push(row);
+        failures.push(row);
+    }
+} else {
+    validateFiles(targetSelection.files);
+}
+
+function validateFiles(files) {
+    for (const file of files) {
     const svg = readFileSync(join(DIAGRAM_DIR, file), "utf8");
     const title = extractTitle(svg);
     const kind = classify(file, title);
@@ -118,9 +138,10 @@ for (const file of files) {
         if (avoidableDoglegs > 0) fileFailures.push(`avoidable doglegs=${avoidableDoglegs}`);
     }
 
-    const row = {file, title, kind, cards: cards.length, paths: paths.length, hasPanels, failures: fileFailures};
-    rows.push(row);
-    if (fileFailures.length > 0) failures.push(row);
+        const row = {file, title, kind, cards: cards.length, paths: paths.length, hasPanels, failures: fileFailures};
+        rows.push(row);
+        if (fileFailures.length > 0) failures.push(row);
+    }
 }
 
 writeFileSync(REPORT, `${JSON.stringify({total: rows.length, failed: failures.length, rows}, null, 2)}\n`);
@@ -132,6 +153,36 @@ console.error(`readme diagram validation: total=${rows.length} failed=${failures
 
 if (failures.length > 0) {
     process.exit(1);
+}
+
+function selectValidationTargets(availableFiles, rawTargets) {
+    if (rawTargets === undefined || rawTargets.trim() === "") {
+        return {files: availableFiles, failures: []};
+    }
+
+    const targets = rawTargets.split(",").map((target) => target.trim());
+    const selectionFailures = [];
+    const seen = new Set();
+
+    for (const target of targets) {
+        if (!target || target !== target.split(/[\\/]/).at(-1) || !target.endsWith(".svg")) {
+            selectionFailures.push({
+                file: target || "<empty>",
+                message: `invalid exact SVG target: ${target || "<empty>"}`,
+            });
+            continue;
+        }
+        if (seen.has(target)) {
+            selectionFailures.push({file: target, message: `duplicate validation target: ${target}`});
+            continue;
+        }
+        seen.add(target);
+        if (!availableFiles.includes(target)) {
+            selectionFailures.push({file: target, message: `missing validation target: ${target}`});
+        }
+    }
+
+    return {files: selectionFailures.length === 0 ? targets : [], failures: selectionFailures};
 }
 
 function extractTitle(svg) {
@@ -219,6 +270,9 @@ function validateSourcePurpose(svg, file, title, kind, cards, routes) {
 
 function extractCards(svg) {
     const cards = [];
+    const routedIds = new Set(
+        [...svg.matchAll(/\bdata-(?:from|to)="([^"]+)"/g)].map((match) => match[1]),
+    );
     for (const group of transformedGroups(svg)) {
         const rectTag = [...group.body.matchAll(/<rect[^>]*>/g)]
             .map((match) => match[0])
@@ -230,7 +284,7 @@ function extractCards(svg) {
             h: attrNumber(rectTag, "height"),
         } : polygonRect(group.body);
         if (!rect || [rect.x, rect.y, rect.w, rect.h].some((value) => Number.isNaN(value))) continue;
-        if ((rect.w > 500 && rect.h > 160) || rect.h > 300) continue;
+        if (((rect.w > 500 && rect.h > 160) || rect.h > 300) && !routedIds.has(group.id)) continue;
         const labels = [...group.body.matchAll(/<text[^>]*>([\s\S]*?)<\/text>/g)].map((match) => cleanText(match[1])).filter(Boolean);
         cards.push({
             id: group.id || labels[0] || `card-${cards.length + 1}`,
@@ -266,7 +320,7 @@ function extractCards(svg) {
         if (!rect) continue;
         if ([rect.x, rect.y, rect.w, rect.h].some((value) => Number.isNaN(value))) continue;
         const labels = [...body.matchAll(/<text[^>]*>([\s\S]*?)<\/text>/g)].map((match) => cleanText(match[1])).filter(Boolean);
-        if ((rect.w > 500 && rect.h > 160) || rect.h > 300) continue;
+        if (((rect.w > 500 && rect.h > 160) || rect.h > 300) && !routedIds.has(groupId)) continue;
         cards.push({
             id: groupId || labels[0] || `card-${cards.length + 1}`,
             label: labels[0] || groupId || `card-${cards.length + 1}`,

@@ -1,4 +1,4 @@
-# bluetape4k-lettuce
+# Module bluetape4k-lettuce
 
 English | [한국어](./README.ko.md)
 
@@ -25,8 +25,20 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 | `LettuceSuspendAtomicLong`          | Distributed AtomicLong (suspend-only)                                                                                                        |
 | `LettuceSemaphore`                  | Distributed semaphore (sync + async). Coroutine variant: `LettuceSuspendSemaphore`                                                           |
 | `LettuceSuspendSemaphore`           | Distributed semaphore (suspend-only)                                                                                                         |
-| `LettuceLock`                       | Distributed mutex lock (sync + async). Coroutine variant: `LettuceSuspendLock`                                                               |
-| `LettuceSuspendLock`                | Distributed mutex lock (suspend-only)                                                                                                        |
+| `LettuceDistributedLock`            | Reentrant-capable distributed lock with identity/handle lifecycle and typed outcomes                                                       |
+| `LettuceSuspendDistributedLock`     | Suspend distributed lock with identity/handle lifecycle and typed outcomes                                                                   |
+| `LettuceFairLock`                   | Fair queueing distributed lock (sync + async + suspend)                                                                                    |
+| `LettuceSuspendFairLock`            | Suspend fair lock with identity/handle lifecycle                                                                                              |
+| `LettuceFencedLock`                 | Fenced lock with monotonic epoch/token semantics and typed acquisition state                                                                  |
+| `LettuceSuspendFencedLock`          | Suspend fenced lock with monotonic epoch/token semantics                                                                                      |
+| `LettuceReadWriteLock`              | Read/write lock pair with handle-based read/write downgrade flow                                                                              |
+| `LettuceSuspendReadWriteLock`       | Suspend read/write lock pair with read/write handle views                                                                                     |
+| `LettuceSpinLock`                   | Spin-first lock using bounded attempts and explicit ownership handles                                                                           |
+| `LettuceSuspendSpinLock`            | Suspend spin-first lock with bounded attempts                                                                                                 |
+| `LettuceMultiLock`                  | All-or-nothing multi-key lock with same-slot safe composition                                                                                 |
+| `LettuceSuspendMultiLock`           | Suspend all-or-nothing multi-key lock with same-slot composition                                                                              |
+| `LettuceLock`                       | Compatibility token mutex (sync + async). Coroutine variant: `LettuceSuspendLock`                                                            |
+| `LettuceSuspendLock`                | Compatibility token mutex (suspend-only)                                                                                                      |
 | `LettuceMultiKeyLease`              | Same-slot atomic ownership lease across bounded keys (sync + async)                                                                           |
 | `LettuceSuspendMultiKeyLease`       | Same-slot atomic ownership lease across bounded keys (suspend-only)                                                                           |
 | `LettuceFencingLease`               | Config-bound Redis fencing lease with ordered `(epoch, sequence)` tokens (sync + async)                                                       |
@@ -465,7 +477,32 @@ if (suspendSemaphore.tryAcquire()) {
 }
 ```
 
-### LettuceLock — Distributed Mutex Lock
+## Coordination primitives
+
+Choose the object by semantics; all six families provide explicit owner/request identity, typed outcomes, handle-based
+release, standalone/Cluster factories, and blocking/async/suspend surfaces.
+
+| Object family | Primary use | Distinguishing rule |
+|---|---|---|
+| Distributed | Reentrant exclusion | One handle per successful request |
+| Fair | FIFO admission | Bounded waiter cleanup |
+| Fenced | Stale-writer rejection | Downstream accepts strictly greater tokens |
+| Read-write | Shared reads | Writer preference; downgrade only |
+| Spin | Short critical sections | Bounded backoff and attempt rate |
+| Multi-lock | Atomic resource set | Every key must share one Cluster slot |
+
+![How to select a Lettuce coordination Lock and what runtime it shares](../../docs/images/readme-diagrams/infra-lettuce-diagram-03.png)
+
+![Acquisition, contention, watchdog, reconciliation, release, and close lifecycle](../../docs/images/readme-diagrams/infra-lettuce-sequence-02.png)
+
+See [Coordination Locks](./CoordinationLocks.md) for compile-tested blocking, async, suspend, reentry, fencing, recovery,
+operations, and migration guidance.
+
+### LettuceLock — Compatibility Token Mutex
+
+`LettuceLock` and `LettuceSuspendLock` are supported compatibility token mutexes. They are not deprecated in Delivery 1.
+Choose `LettuceDistributedLock` or another coordination object only when its explicit identity, reconciliation,
+specialized handle, or policy contract is needed.
 
 ```kotlin
 import io.bluetape4k.redis.lettuce.lock.LettuceLock

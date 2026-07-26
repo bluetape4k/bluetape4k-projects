@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1080" viewBox="0 0 1900 1080" role="img"
+     aria-label="Lettuce coordination lock 패밀리 아키텍처"
+     data-allow-grid="true"
+     data-intent="호출자가 여섯 coordination lock 객체 중 하나를 고르고 공통 API 표면, 중립 runtime, Redis Lua 상태, observation sink, 기존 API 호환 경계를 함께 이해하도록 돕는다."
+     data-evidence="infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock;infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal;infra/lettuce/README.ko.md"
+     data-source-read="infra/lettuce/README.ko.md;infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceDistributedLock.kt;infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/LockCommandExecutor.kt;infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/LockWaitSupport.kt;infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/CoordinationObservation.kt">
+  <title>Lettuce Coordination Lock 패밀리 아키텍처</title>
+  <desc>여섯 lock 객체군은 blocking, async, suspend API와 중립 coordination runtime, Lua 기반 Redis Cluster 상태, 식별자를 노출하지 않는 관측 신호를 공유한다. 기존 lock과 lease는 명시적인 호환 경계에서 계속 지원한다.</desc>
+  <defs>
+    <filter id="shadow" x="-8%" y="-10%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#3f7d9c"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#6e8f4f"/>
+    </marker>
+    <marker id="arrowAmber" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9 Z" fill="#a2743d"/>
+    </marker>
+    <style>
+      svg { font-family: "goorm Sans Code", "goorm Sans", sans-serif; }
+      .canvas { fill: #f8fafc; }
+      .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; filter: url(#shadow); }
+      .title { font-family: "goorm Sans", sans-serif; font-size: 44px; font-weight: 700; fill: #0f172a; }
+      .subtitle { font-family: "goorm Sans", sans-serif; font-size: 17px; fill: #475569; }
+      .card { stroke-width: 2; filter: url(#shadow); }
+      .cardTitle { font-family: "goorm Sans", sans-serif; font-size: 27px; font-weight: 700; fill: #172033; }
+      .heading { font-family: "goorm Sans", sans-serif; font-size: 20px; font-weight: 700; fill: #172033; }
+      .detail { font-family: "goorm Sans", sans-serif; font-size: 15px; fill: #475569; }
+      .identifier { font-size: 15px; fill: #334155; }
+      .small { font-family: "goorm Sans", sans-serif; font-size: 13px; fill: #64748b; }
+      .route { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+      .compat { stroke-dasharray: 9 7; }
+      .legend { font-family: "goorm Sans", sans-serif; font-size: 13px; fill: #64748b; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1900" height="1080"/>
+  <rect class="frame" x="32" y="28" width="1836" height="1020" rx="18"/>
+  <text class="title" x="80" y="92">Lettuce Coordination Lock 패밀리</text>
+  <text class="subtitle" x="84" y="126">조정 의미에 맞는 객체를 고른다. 새 객체는 식별자, 제한된 대기, Lua 실행, 수명주기 제어, 안전한 관측 구조를 공유한다.</text>
+
+  <g id="families">
+    <rect class="card" x="80" y="180" width="690" height="430" rx="12" fill="#eff6ff" stroke="#3f7d9c"/>
+    <text class="cardTitle" x="120" y="226">객체 패밀리 선택</text>
+    <text class="small" x="120" y="254">각 항목은 LettuceXLock과 LettuceSuspendXLock을 제공한다.</text>
+
+    <text class="heading" x="125" y="306">Distributed</text>
+    <text class="detail" x="125" y="330">재진입 mutex</text>
+    <text class="small" x="125" y="350">fixed / watchdog lease</text>
+    <text class="heading" x="125" y="382">Fair</text>
+    <text class="detail" x="125" y="406">FIFO phase</text>
+    <text class="small" x="125" y="426">제한된 stale waiter 정리</text>
+    <text class="heading" x="125" y="458">Fenced</text>
+    <text class="detail" x="125" y="482">단조 증가 fencing token</text>
+
+    <text class="heading" x="445" y="306">ReadWrite</text>
+    <text class="detail" x="445" y="330">read / write view</text>
+    <text class="small" x="445" y="350">write-to-read downgrade</text>
+    <text class="heading" x="445" y="382">Spin</text>
+    <text class="detail" x="445" y="406">제한된 재시도율</text>
+    <text class="small" x="445" y="426">무제한 busy loop 없음</text>
+    <text class="heading" x="445" y="458">Multi</text>
+    <text class="detail" x="445" y="482">같은 slot에서 원자적 획득</text>
+    <text class="small" x="445" y="502">여러 lock 이름을 한 번에 처리</text>
+
+    <rect x="118" y="525" width="614" height="52" rx="9" fill="#dbeafe" stroke="#93c5fd"/>
+    <text class="detail" x="425" y="557" text-anchor="middle">성공한 요청 하나마다 request-bound handle 하나가 생긴다.</text>
+  </g>
+
+  <g id="surfaces">
+    <rect class="card" x="865" y="180" width="410" height="300" rx="12" fill="#fff7ed" stroke="#a2743d"/>
+    <text class="cardTitle" x="905" y="226">Public API 표면</text>
+    <text class="heading" x="920" y="286">Blocking</text>
+    <text class="identifier" x="1035" y="286">acquire / release / reconcile</text>
+    <text class="heading" x="920" y="346">Async</text>
+    <text class="identifier" x="1035" y="346">CompletableFuture</text>
+    <text class="heading" x="920" y="406">Suspend</text>
+    <text class="detail" x="1035" y="406">취소 가능한 제한 대기</text>
+    <text class="small" x="920" y="448">명시적인 LockOwnerId + LockRequestId</text>
+  </g>
+
+  <g id="runtime">
+    <rect class="card" x="865" y="610" width="410" height="270" rx="12" fill="#f0fdf4" stroke="#6e8f4f"/>
+    <text class="cardTitle" x="905" y="656">중립 coordination runtime</text>
+    <text class="detail" x="920" y="706">제한된 대기와 재시도 scheduling</text>
+    <text class="detail" x="920" y="742">watchdog 등록과 renewal 상한</text>
+    <text class="detail" x="920" y="778">같은 식별자를 사용한 ambiguous reconcile</text>
+    <text class="detail" x="920" y="814">close는 로컬 작업만 중단, implicit unlock 없음</text>
+    <text class="small" x="920" y="852">특정 public Lock 구현에 의존하지 않는다.</text>
+  </g>
+
+  <g id="observation">
+    <rect class="card" x="1430" y="180" width="370" height="210" rx="12" fill="#f5f3ff" stroke="#7c6ac7"/>
+    <text class="cardTitle" x="1470" y="226">Observation sink</text>
+    <text class="detail" x="1470" y="276">event / counter / duration</text>
+    <text class="detail" x="1470" y="312">허용한 dimension만 기록</text>
+    <text class="small" x="1470" y="350">식별자와 Redis key는 항상 redacted</text>
+  </g>
+
+  <g id="redis">
+    <rect class="card" x="1430" y="610" width="370" height="270" rx="12" fill="#fff1f2" stroke="#b86868"/>
+    <text class="cardTitle" x="1470" y="656">Lua + Redis Cluster 상태</text>
+    <text class="identifier" x="1470" y="706">NOSCRIPT면 EVALSHA 다음 EVAL</text>
+    <text class="detail" x="1470" y="742">versioned, same-slot keyspace</text>
+    <text class="identifier" x="1470" y="778">generation / holds / wait queues</text>
+    <text class="detail" x="1470" y="814">원자적 inspect / renew / release</text>
+    <text class="small" x="1470" y="852">cross-slot 입력은 dispatch 전에 실패한다.</text>
+  </g>
+
+  <g id="legacy">
+    <rect class="card" x="80" y="741" width="690" height="210" rx="12" fill="#fffbeb" stroke="#a2743d" stroke-dasharray="9 7"/>
+    <text class="cardTitle" x="120" y="787">기존 API 호환 경계</text>
+    <text class="identifier" x="120" y="831">LettuceLock / LettuceSuspendLock</text>
+    <text class="identifier" x="120" y="867">LettuceFencingLease / LettuceSuspendFencingLease</text>
+    <text class="identifier" x="120" y="903">LettuceMultiKeyLease / LettuceSuspendMultiKeyLease</text>
+    <text class="small" x="120" y="935">계속 지원하며 deprecated가 아니다. 새 객체와 의미는 다르다.</text>
+  </g>
+
+  <path class="route" data-from="families" data-to="surfaces" d="M 770 395 H 865" stroke="#3f7d9c" marker-end="url(#arrowBlue)"/>
+  <path class="route" data-from="surfaces" data-to="runtime" d="M 1070 480 V 610" stroke="#6e8f4f" marker-end="url(#arrowGreen)"/>
+  <path class="route" data-from="runtime" data-to="redis" d="M 1275 745 H 1430" stroke="#6e8f4f" marker-end="url(#arrowGreen)"/>
+  <path class="route" data-from="runtime" data-to="observation" d="M 1275 650 H 1350 Q 1380 650 1380 620 V 315 Q 1380 285 1410 285 H 1430" stroke="#7c6ac7" marker-end="url(#arrowBlue)"/>
+  <path class="route compat" data-from="legacy" data-to="runtime" d="M 770 846 H 865" stroke="#a2743d" marker-end="url(#arrowAmber)"/>
+
+  <text class="legend" x="84" y="998">실선: 공통 실행 경로 / 점선 amber: 명시적인 기존 API 호환 경계</text>
+</svg>
