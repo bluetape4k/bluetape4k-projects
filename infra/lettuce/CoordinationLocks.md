@@ -8,14 +8,14 @@ surfaces remain supported and are not deprecated in Delivery 1.
 
 ## Choose a Lock object
 
-| Family | Choose it for | Specialized contract |
-|---|---|---|
-| `LettuceDistributedLock` | Reentrant single-resource exclusion | `LockHandle`, fixed or watchdog lease |
-| `LettuceFairLock` | FIFO admission with bounded stale-waiter cleanup | `LockHandle`, `CleanupPending` |
-| `LettuceFencedLock` | Downstream stale-writer rejection | `FencedLockHandle`, `(epoch, sequence)` token |
-| `LettuceReadWriteLock` | Writer-preference read sharing | `ReadLockHandle`, `WriteLockHandle`, downgrade |
-| `LettuceSpinLock` | Very short critical sections with bounded polling | `LockHandle`, bounded backoff and rate |
-| `LettuceMultiLock` | Atomic all-or-nothing same-slot resource sets | `MultiLockHandle`, immutable normalized names |
+| Family | Characteristics | Recommended uses | Prefer another object when | Required caller or infrastructure behavior |
+|---|---|---|---|---|
+| `LettuceDistributedLock` | Reentrant single-resource exclusion with fixed or watchdog lease | Order processing, duplicate-job prevention, and one aggregate or resource mutation | Admission order matters, stale writers must be rejected, or multiple resources must be acquired atomically | Treat the lock as advisory and release every successful `LockHandle` exactly once |
+| `LettuceFairLock` | FIFO admission with bounded stale-waiter cleanup | Contended work where predictable admission order and reduced starvation matter more than the smallest coordination overhead | Throughput is more important than ordering, or contention is uncommon | Handle `CleanupPending` and budget for the additional Redis queue state |
+| `LettuceFencedLock` | Reentrant exclusion plus a monotonic `(epoch, sequence)` fencing token | Database, storage, or external-system writes where a delayed former owner must be rejected | The protected downstream cannot persist and compare fencing tokens | Accept a write only when its token is strictly greater than the last accepted token |
+| `LettuceReadWriteLock` | Concurrent readers, writer preference, and atomic write-to-read downgrade; upgrade is unsupported | Read-heavy shared metadata or configuration with occasional exclusive updates | Writes dominate, a simple exclusive lock is sufficient, or read-to-write upgrade is required | Release each read/write handle and redesign upgrade flows as release-then-acquire |
+| `LettuceSpinLock` | Scheduled polling with bounded backoff, jitter, and attempt rate | Low-contention work with a very short critical section | Holds or waits may be long, contention is sustained, or extra Redis polling is undesirable | Keep hold time short and configure an explicit retry and attempt-rate budget |
+| `LettuceMultiLock` | Atomic all-or-nothing acquisition of an immutable, normalized resource set | A small, known set of related resources that must be protected together | Resources span Redis Cluster slots or the resource set is large or changes during ownership | Put every key in one Cluster slot and keep the constituent names unchanged |
 
 Every family also has a suspend counterpart: `LettuceSuspendDistributedLock`, `LettuceSuspendFairLock`,
 `LettuceSuspendFencedLock`, `LettuceSuspendReadWriteLock`, `LettuceSuspendSpinLock`, and

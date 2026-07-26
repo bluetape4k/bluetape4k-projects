@@ -482,14 +482,14 @@ if (suspendSemaphore.tryAcquire()) {
 Choose the object by semantics; all six families provide explicit owner/request identity, typed outcomes, handle-based
 release, standalone/Cluster factories, and blocking/async/suspend surfaces.
 
-| Object family | Primary use | Distinguishing rule |
-|---|---|---|
-| Distributed | Reentrant exclusion | One handle per successful request |
-| Fair | FIFO admission | Bounded waiter cleanup |
-| Fenced | Stale-writer rejection | Downstream accepts strictly greater tokens |
-| Read-write | Shared reads | Writer preference; downgrade only |
-| Spin | Short critical sections | Bounded backoff and attempt rate |
-| Multi-lock | Atomic resource set | Every key must share one Cluster slot |
+| Object family | Key characteristics | Recommended uses | Main constraint |
+|---|---|---|---|
+| `LettuceDistributedLock` | Reentrant single-resource exclusion | Order processing, duplicate-job prevention, and one aggregate mutation | Advisory ownership; use fencing when stale writers must be rejected |
+| `LettuceFairLock` | FIFO admission and bounded waiter cleanup | Contended work that values predictable admission and reduced starvation | Additional Redis queue state and cleanup outcomes |
+| `LettuceFencedLock` | Monotonic fencing token | Durable downstream writes that must reject a delayed former owner | Downstream must persist and compare strictly increasing tokens |
+| `LettuceReadWriteLock` | Concurrent readers, writer preference, downgrade only | Read-heavy shared metadata with occasional exclusive updates | Read-to-write upgrade is unsupported |
+| `LettuceSpinLock` | Bounded scheduled polling and attempt rate | Low-contention, very short critical sections | Avoid long waits, long holds, and sustained contention |
+| `LettuceMultiLock` | Atomic all-or-nothing resource set | A small, fixed group of related resources | Every key must share one Redis Cluster slot |
 
 ![How to select a Lettuce coordination Lock and what runtime it shares](../../docs/images/readme-diagrams/infra-lettuce-diagram-03.png)
 

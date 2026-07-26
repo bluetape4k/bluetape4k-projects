@@ -479,14 +479,14 @@ if (suspendSemaphore.tryAcquire()) {
 Semantics에 따라 객체를 선택합니다. 여섯 패밀리는 모두 명시적 owner/request identity, typed outcome,
 handle 기반 release, standalone/Cluster factory, blocking/async/suspend 표면을 제공합니다.
 
-| 객체 패밀리 | 주 용도 | 핵심 규칙 |
-|---|---|---|
-| Distributed | 재진입 배타 제어 | 성공한 request마다 handle 하나 |
-| Fair | FIFO admission | 제한된 waiter cleanup |
-| Fenced | stale writer 거부 | downstream은 엄격히 큰 token만 허용 |
-| Read-write | read 공유 | writer preference, downgrade만 지원 |
-| Spin | 짧은 임계 구역 | 제한된 backoff와 attempt rate |
-| Multi-lock | 원자적 resource 집합 | 모든 key는 동일 Cluster slot |
+| 객체 패밀리 | 핵심 특성 | 추천 적용 사례 | 주요 제약 |
+|---|---|---|---|
+| `LettuceDistributedLock` | 재진입 단일 resource 배타 제어 | 주문 처리, 중복 작업 방지, 단일 aggregate 변경 | Advisory ownership이므로 stale writer 차단에는 fencing 필요 |
+| `LettuceFairLock` | FIFO admission과 제한된 waiter cleanup | 예측 가능한 진입 순서와 starvation 감소가 중요한 경합 작업 | 추가 Redis queue 상태와 cleanup 결과 처리 필요 |
+| `LettuceFencedLock` | 단조 증가 fencing token | 지연된 이전 owner를 거부해야 하는 durable downstream 쓰기 | Downstream이 엄격히 증가하는 token을 저장하고 비교해야 함 |
+| `LettuceReadWriteLock` | 동시 reader, writer preference, downgrade만 지원 | 간헐적 배타 갱신이 있는 read-heavy 공유 metadata | Read-to-write upgrade 미지원 |
+| `LettuceSpinLock` | 제한된 scheduled polling과 attempt rate | 경합이 낮고 임계 구역이 매우 짧은 작업 | 긴 wait/hold 및 지속적인 경합에는 부적합 |
+| `LettuceMultiLock` | 원자적 all-or-nothing resource 집합 | 작고 고정된 연관 resource 묶음 | 모든 key가 동일 Redis Cluster slot을 사용해야 함 |
 
 ![Lettuce 분산 동기화 Lock 선택과 공통 런타임](../../docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.png)
 
