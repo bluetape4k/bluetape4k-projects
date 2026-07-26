@@ -9,6 +9,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.protobuf.redis.messages.RedisSimpleMessage
+import io.bluetape4k.protobuf.redis.messages.copy
 import io.bluetape4k.protobuf.redis.messages.redisNestedMessage
 import io.bluetape4k.protobuf.redis.messages.redisSimpleMessage
 import io.netty.buffer.ByteBuf
@@ -70,7 +71,7 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
         private val decoded: Any,
     ): BaseCodec() {
         private val encoder = Encoder { Unpooled.EMPTY_BUFFER }
-        private val decoder = Decoder<Any> { _, _ -> decoded }
+        private val decoder = Decoder { _, _ -> decoded }
 
         override fun getValueEncoder(): Encoder = encoder
 
@@ -84,7 +85,7 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
         var seen: ByteBuf? = null
             private set
 
-        private val decoder = Decoder<Any> { input, _ ->
+        private val decoder = Decoder { input, _ ->
             seen = input
             failure?.let { throw it }
             checkNotNull(result)
