@@ -52,7 +52,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Verify Maven-only release policy
@@ -64,7 +64,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Verify CodeQL catalog and build policy
@@ -186,7 +186,7 @@ jobs:
           repository: bluetape4k/bluetape4k-dependencies
           ref: ${{ env.BLUETAPE4K_DEPENDENCIES_CATALOG_REF }}
           path: .catalog/bluetape4k-dependencies
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - uses: actions/setup-java@v5
