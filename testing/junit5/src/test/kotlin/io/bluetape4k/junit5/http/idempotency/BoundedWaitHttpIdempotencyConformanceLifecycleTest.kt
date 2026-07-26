@@ -1,14 +1,13 @@
 package io.bluetape4k.junit5.http.idempotency
 
 import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
@@ -19,7 +18,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import java.util.Collections
+import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 class BoundedWaitHttpIdempotencyConformanceLifecycleTest {
@@ -182,7 +181,7 @@ class BoundedWaitHttpIdempotencyConformanceLifecycleTest {
             runConformanceScenarios(
                 adapter,
                 config(scenarioTimeout = Duration.ofSeconds(1)),
-                listOf(ConformanceScenario("success") { _, _ -> Unit }),
+                listOf(ConformanceScenario("success") { _, _ -> }),
             )
         }
 
@@ -199,7 +198,7 @@ class BoundedWaitHttpIdempotencyConformanceLifecycleTest {
             runConformanceScenarios(
                 adapter,
                 config(),
-                listOf(ConformanceScenario("leaked-waiter") { _, _ -> Unit }),
+                listOf(ConformanceScenario("leaked-waiter") { _, _ -> }),
             )
         }
 
