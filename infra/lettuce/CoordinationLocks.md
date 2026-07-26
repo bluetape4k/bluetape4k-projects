@@ -47,13 +47,20 @@ val result = lock.acquire(
     LeasePolicy.Fixed(Duration.ofSeconds(15)),
 )
 
+fun releaseSuccessfully(handle: LockHandle) = try {
+    processOrder()
+} finally {
+    lock.release(handle)
+}
+
 when (result) {
-    is LockAcquireResult.Acquired -> try {
-        processOrder()
-    } finally {
-        lock.release(result.handle)
-    }
-    is LockAcquireResult.Ambiguous -> lock.reconcile(result.ownerId, result.requestId)
+    is LockAcquireResult.Acquired -> releaseSuccessfully(result.handle)
+    is LockAcquireResult.Reentered -> releaseSuccessfully(result.handle)
+    is LockAcquireResult.Ambiguous ->
+        when (val reconciled = lock.reconcile(result.ownerId, result.requestId)) {
+            is LockReconcileResult.Owned -> releaseSuccessfully(reconciled.handle)
+            else -> recordReconciliation(reconciled)
+        }
     LockAcquireResult.TimedOut -> deferOrder()
     else -> recordRejectedAcquisition(result)
 }
@@ -73,11 +80,19 @@ val future: CompletableFuture<LockAcquireResult<LockHandle>> =
     )
 
 future.thenCompose { result ->
-    when (result) {
+    val completion: CompletableFuture<*> = when (result) {
         is LockAcquireResult.Acquired -> lock.releaseAsync(result.handle)
         is LockAcquireResult.Reentered -> lock.releaseAsync(result.handle)
+        is LockAcquireResult.Ambiguous ->
+            lock.reconcileAsync(result.ownerId, result.requestId).thenCompose { reconciled ->
+                when (reconciled) {
+                    is LockReconcileResult.Owned -> lock.releaseAsync(reconciled.handle)
+                    else -> CompletableFuture.completedFuture(null)
+                }
+            }
         else -> CompletableFuture.completedFuture(null)
     }
+    completion.thenAccept {}
 }
 ```
 
@@ -95,7 +110,12 @@ when (val result = suspendLock.acquire(
     LeasePolicy.Fixed(Duration.ofSeconds(15)),
 )) {
     is LockAcquireResult.Acquired -> suspendLock.release(result.handle)
-    is LockAcquireResult.Ambiguous -> suspendLock.reconcile(result.ownerId, result.requestId)
+    is LockAcquireResult.Reentered -> suspendLock.release(result.handle)
+    is LockAcquireResult.Ambiguous ->
+        when (val reconciled = suspendLock.reconcile(result.ownerId, result.requestId)) {
+            is LockReconcileResult.Owned -> suspendLock.release(reconciled.handle)
+            else -> Unit
+        }
     else -> Unit
 }
 suspendLock.close() // non-suspending: stops local registrations and new work

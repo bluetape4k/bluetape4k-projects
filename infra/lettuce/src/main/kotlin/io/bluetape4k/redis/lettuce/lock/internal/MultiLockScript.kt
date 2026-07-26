@@ -35,7 +35,6 @@ import io.bluetape4k.redis.lettuce.lock.MultiLockHandle
 import io.bluetape4k.redis.lettuce.lock.toRedisMillisCeil
 import io.bluetape4k.redis.lettuce.lock.recordSafely
 import io.bluetape4k.redis.lettuce.script.RedisScript
-import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.lettuce.core.RedisCommandTimeoutException
 import io.lettuce.core.RedisConnectionException
 import io.lettuce.core.RedisException
@@ -125,11 +124,13 @@ internal class MultiLockClient private constructor(
     private val async: RedisScriptingAsyncCommands<String, String>,
     private val registration: CoordinationRuntime.CoordinationObjectRegistration,
     private val observationSink: LockObservationSink,
+    private val observationRecorder: LockObservationRecorder,
 ) {
     private val closed = AtomicBoolean()
     private val pendingAsync = ConcurrentHashMap.newKeySet<CompletableFuture<LockAcquireResult<MultiLockHandle>>>()
     private val watchdogs =
         ConcurrentHashMap<MultiLockHandle, CoordinationRuntime.CoordinationTaskRegistration>()
+    private val waitObservation = LockWaitObservation(observationRecorder)
 
     fun tryAcquire(
         ownerId: LockOwnerId,
@@ -198,12 +199,25 @@ internal class MultiLockClient private constructor(
         leasePolicy: LeasePolicy,
     ): LockAcquireResult<MultiLockHandle> {
         val deadline = multiDeadline(waitTime)
-        while (true) {
-            val result = tryAcquire(ownerId, requestId, leasePolicy)
-            if (result !is LockAcquireResult.Contended) return result
-            val remaining = deadline.remainingNanos()
-            if (remaining == 0L) return LockAcquireResult.TimedOut
-            LockSupport.parkNanos(minOf(remaining, MULTI_RETRY_DELAY.toNanos()))
+        val observation = waitObservation.begin()
+        var outcome = LockOutcome.CANCELLED
+        try {
+            while (true) {
+                val result = tryAcquire(ownerId, requestId, leasePolicy)
+                if (result !is LockAcquireResult.Contended) {
+                    outcome = result.observationOutcome()
+                    return result
+                }
+                observation.onContended()
+                val remaining = deadline.remainingNanos()
+                if (remaining == 0L) {
+                    outcome = LockOutcome.TIMED_OUT
+                    return LockAcquireResult.TimedOut
+                }
+                LockSupport.parkNanos(minOf(remaining, MULTI_RETRY_DELAY.toNanos()))
+            }
+        } finally {
+            observation.complete(outcome)
         }
     }
 
@@ -214,6 +228,7 @@ internal class MultiLockClient private constructor(
         leasePolicy: LeasePolicy,
     ): CompletableFuture<LockAcquireResult<MultiLockHandle>> {
         val deadline = multiDeadline(waitTime)
+        val observation = waitObservation.begin()
         val target = CompletableFuture<LockAcquireResult<MultiLockHandle>>()
         val scheduled = AtomicReference<CoordinationRuntime.CoordinationTaskRegistration?>()
         val inFlight = AtomicReference<CompletableFuture<LockAcquireResult<MultiLockHandle>>?>()
@@ -258,7 +273,10 @@ internal class MultiLockClient private constructor(
                             result.acquiredHandleOrNull()?.let(::releaseAbandoned)
                         } else {
                             if (error != null) target.completeExceptionally(error)
-                            else if (result is LockAcquireResult.Contended) schedule()
+                            else if (result is LockAcquireResult.Contended) {
+                                observation.onContended()
+                                schedule()
+                            }
                             else {
                                 val registered = registerWatchdog(result)
                                 if (!target.complete(registered)) {
@@ -270,10 +288,17 @@ internal class MultiLockClient private constructor(
                 }
             }
         }
-        target.whenComplete { _, _ ->
+        target.whenComplete { value, error ->
             pendingAsync -= target
             scheduled.getAndSet(null)?.close()
             inFlight.getAndSet(null)?.let { pending -> if (!pending.isDone) pending.cancel(false) }
+            observation.complete(
+                when {
+                    target.isCancelled -> LockOutcome.CANCELLED
+                    error != null -> LockOutcome.BACKEND_FAILED
+                    else -> value.observationOutcome()
+                },
+            )
         }
         retry()
         return target
@@ -286,12 +311,25 @@ internal class MultiLockClient private constructor(
         leasePolicy: LeasePolicy,
     ): LockAcquireResult<MultiLockHandle> {
         val deadline = multiDeadline(waitTime)
-        while (true) {
-            val result = tryAcquireSuspending(ownerId, requestId, leasePolicy)
-            if (result !is LockAcquireResult.Contended) return result
-            val remaining = deadline.remainingNanos()
-            if (remaining == 0L) return LockAcquireResult.TimedOut
-            delay(Duration.ofNanos(minOf(remaining, MULTI_RETRY_DELAY.toNanos())).toKotlinDuration())
+        val observation = waitObservation.begin()
+        var outcome = LockOutcome.CANCELLED
+        try {
+            while (true) {
+                val result = tryAcquireSuspending(ownerId, requestId, leasePolicy)
+                if (result !is LockAcquireResult.Contended) {
+                    outcome = result.observationOutcome()
+                    return result
+                }
+                observation.onContended()
+                val remaining = deadline.remainingNanos()
+                if (remaining == 0L) {
+                    outcome = LockOutcome.TIMED_OUT
+                    return LockAcquireResult.TimedOut
+                }
+                delay(Duration.ofNanos(minOf(remaining, MULTI_RETRY_DELAY.toNanos())).toKotlinDuration())
+            }
+        } finally {
+            observation.complete(outcome)
         }
     }
 
@@ -490,27 +528,33 @@ internal class MultiLockClient private constructor(
     }
 
     private fun run(operation: MultiLockOperation, arguments: List<Any>): List<String> =
-        RedisScriptRunner.run(
+        observationRecorder.runScript(
             sync,
             MULTI_LOCK_SCRIPT,
             ScriptOutputType.MULTI,
             keys.all.toTypedArray(),
-            operation.wire,
-            keys.states.size.toString(),
-            keys.fingerprint,
-            *arguments.map(Any::toString).toTypedArray(),
+            operation.toLockOperation(),
+            args = arrayOf(
+                operation.wire,
+                keys.states.size.toString(),
+                keys.fingerprint,
+                *arguments.map(Any::toString).toTypedArray(),
+            ),
         )
 
     private fun runAsync(operation: MultiLockOperation, arguments: List<Any>): CompletableFuture<List<String>> =
-        RedisScriptRunner.runAsync(
+        observationRecorder.runScriptAsync(
             async,
             MULTI_LOCK_SCRIPT,
             ScriptOutputType.MULTI,
             keys.all.toTypedArray(),
-            operation.wire,
-            keys.states.size.toString(),
-            keys.fingerprint,
-            *arguments.map(Any::toString).toTypedArray(),
+            operation.toLockOperation(),
+            args = arrayOf(
+                operation.wire,
+                keys.states.size.toString(),
+                keys.fingerprint,
+                *arguments.map(Any::toString).toTypedArray(),
+            ),
         )
 
     private fun tryAcquireAsyncRaw(
@@ -798,6 +842,7 @@ internal class MultiLockClient private constructor(
             observationSink: LockObservationSink = LockObservationSink.NOOP,
         ): MultiLockClient {
             val keys = deriveMultiLockKeys(names, config, connection.codec)
+            val observationRecorder = LockObservationRecorder(LockKind.MULTI, observationSink)
             val runtime = CoordinationRuntime.forConnection(
                 connection,
                 scheduler = scheduler?.let(::ScheduledExecutorCoordinationScheduler),
@@ -807,8 +852,9 @@ internal class MultiLockClient private constructor(
                 config,
                 connection.sync(),
                 connection.async(),
-                runtime.registerObject(keys.fingerprint),
+                runtime.registerObject(keys.fingerprint, observationRecorder.asCoordinationObserver()),
                 observationSink,
+                observationRecorder,
             )
         }
 
@@ -820,6 +866,7 @@ internal class MultiLockClient private constructor(
             observationSink: LockObservationSink = LockObservationSink.NOOP,
         ): MultiLockClient {
             val keys = deriveMultiLockKeys(names, config, connection.codec)
+            val observationRecorder = LockObservationRecorder(LockKind.MULTI, observationSink)
             val runtime = CoordinationRuntime.forConnection(
                 connection,
                 scheduler = scheduler?.let(::ScheduledExecutorCoordinationScheduler),
@@ -829,8 +876,9 @@ internal class MultiLockClient private constructor(
                 config,
                 connection.sync(),
                 connection.async(),
-                runtime.registerObject(keys.fingerprint),
+                runtime.registerObject(keys.fingerprint, observationRecorder.asCoordinationObserver()),
                 observationSink,
+                observationRecorder,
             )
         }
     }
@@ -843,6 +891,15 @@ private enum class MultiLockOperation(val wire: String) {
     RENEW("RENEW"),
     RELEASE("RELEASE"),
 }
+
+private fun MultiLockOperation.toLockOperation(): LockOperation =
+    when (this) {
+        MultiLockOperation.ACQUIRE -> LockOperation.ACQUIRE
+        MultiLockOperation.INSPECT -> LockOperation.INSPECT
+        MultiLockOperation.RECONCILE -> LockOperation.RECONCILE
+        MultiLockOperation.RENEW -> LockOperation.RENEW
+        MultiLockOperation.RELEASE -> LockOperation.RELEASE
+    }
 
 private fun LockHandle.asDistributed(): LockHandle = copy(kind = LockKind.DISTRIBUTED)
 private fun LockHandle.asMulti(): LockHandle = copy(kind = LockKind.MULTI)

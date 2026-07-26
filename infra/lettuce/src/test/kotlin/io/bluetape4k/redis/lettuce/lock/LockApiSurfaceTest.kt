@@ -587,19 +587,36 @@ internal class LockApiSurfaceTest {
         requestId: LockRequestId,
     ) {
         val result = lock.tryAcquire(ownerId, requestId, LeasePolicy.Fixed(Duration.ofSeconds(10)))
-        if (result is LockAcquireResult.Acquired) {
-            lock.inspect(result.handle)
-            lock.release(result.handle)
+        when (result) {
+            is LockAcquireResult.Acquired -> {
+                lock.inspect(result.handle)
+                lock.release(result.handle)
+            }
+            is LockAcquireResult.Reentered -> lock.release(result.handle)
+            is LockAcquireResult.Ambiguous ->
+                when (val reconciled = lock.reconcile(result.ownerId, result.requestId)) {
+                    is LockReconcileResult.Owned -> lock.release(reconciled.handle)
+                    else -> Unit
+                }
+            else -> Unit
         }
 
         lock.tryAcquireAsync(ownerId, requestId, LeasePolicy.Fixed(Duration.ofSeconds(10)))
-            .thenApply { asyncResult ->
-                when (asyncResult) {
+            .thenCompose { asyncResult ->
+                val completion: CompletableFuture<*> = when (asyncResult) {
                     is LockAcquireResult.Acquired -> lock.releaseAsync(asyncResult.handle)
+                    is LockAcquireResult.Reentered -> lock.releaseAsync(asyncResult.handle)
+                    is LockAcquireResult.Ambiguous ->
+                        lock.reconcileAsync(asyncResult.ownerId, asyncResult.requestId).thenCompose { reconciled ->
+                            when (reconciled) {
+                                is LockReconcileResult.Owned -> lock.releaseAsync(reconciled.handle)
+                                else -> CompletableFuture.completedFuture(null)
+                            }
+                        }
                     else -> CompletableFuture.completedFuture(null)
                 }
+                completion.thenAccept {}
             }
-            .thenCompose { it }
 
         val outer = lock.tryAcquire(
             ownerId,
@@ -623,9 +640,18 @@ internal class LockApiSurfaceTest {
         requestId: LockRequestId,
     ) {
         val result = lock.tryAcquire(ownerId, requestId, LeasePolicy.Fixed(Duration.ofSeconds(10)))
-        if (result is LockAcquireResult.Acquired) {
-            lock.inspect(result.handle)
-            lock.release(result.handle)
+        when (result) {
+            is LockAcquireResult.Acquired -> {
+                lock.inspect(result.handle)
+                lock.release(result.handle)
+            }
+            is LockAcquireResult.Reentered -> lock.release(result.handle)
+            is LockAcquireResult.Ambiguous ->
+                when (val reconciled = lock.reconcile(result.ownerId, result.requestId)) {
+                    is LockReconcileResult.Owned -> lock.release(reconciled.handle)
+                    else -> Unit
+                }
+            else -> Unit
         }
         lock.close()
     }

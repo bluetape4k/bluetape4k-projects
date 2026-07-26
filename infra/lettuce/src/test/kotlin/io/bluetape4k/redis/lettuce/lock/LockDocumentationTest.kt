@@ -61,6 +61,21 @@ internal class LockDocumentationTest {
     }
 
     @Test
+    fun `caller examples release every successful hold and reconcile ambiguous completion`() {
+        listOf("CoordinationLocks.md", "CoordinationLocks.ko.md").forEach { name ->
+            val content = readModuleFile(name)
+
+            content shouldContain "is LockAcquireResult.Acquired -> releaseSuccessfully(result.handle)"
+            content shouldContain "is LockAcquireResult.Reentered -> releaseSuccessfully(result.handle)"
+            content shouldContain "lock.reconcileAsync(result.ownerId, result.requestId).thenCompose"
+            content shouldContain "is LockReconcileResult.Owned -> lock.releaseAsync(reconciled.handle)"
+            content shouldContain "is LockAcquireResult.Reentered -> suspendLock.release(result.handle)"
+            content shouldContain "suspendLock.reconcile(result.ownerId, result.requestId)"
+            content shouldContain "is LockReconcileResult.Owned -> suspendLock.release(reconciled.handle)"
+        }
+    }
+
+    @Test
     fun `readmes and guides embed locale-specific diagrams with reader-facing alt text`() {
         val documents = mapOf(
             "README.md" to listOf(

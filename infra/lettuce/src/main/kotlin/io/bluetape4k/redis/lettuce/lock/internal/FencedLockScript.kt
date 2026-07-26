@@ -34,7 +34,6 @@ import io.bluetape4k.redis.lettuce.lock.LockRecoveryAction
 import io.bluetape4k.redis.lettuce.lock.LockRequestId
 import io.bluetape4k.redis.lettuce.lock.recordSafely
 import io.bluetape4k.redis.lettuce.lock.toRedisMillisCeil
-import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.bluetape4k.redis.lettuce.script.RedisScript
 import io.lettuce.core.RedisCommandTimeoutException
 import io.lettuce.core.RedisConnectionException
@@ -708,6 +707,13 @@ private fun LockAcquireResult<LockHandle>.toFencedAcquire(
         else -> @Suppress("UNCHECKED_CAST") (this as LockAcquireResult<FencedLockHandle>)
     }
 
+private fun LockAcquireResult<FencedLockHandle>?.acquiredHandleOrNull(): FencedLockHandle? =
+    when (this) {
+        is LockAcquireResult.Acquired -> handle
+        is LockAcquireResult.Reentered -> handle
+        else -> null
+    }
+
 internal interface FencedLockCommandExecutor {
     fun run(
         operation: FencedLockOperation,
@@ -731,19 +737,20 @@ internal interface FencedLockCommandExecutor {
 internal class DefaultFencedLockCommandExecutor(
     private val syncCommands: RedisScriptingCommands<String, String>,
     private val asyncCommands: RedisScriptingAsyncCommands<String, String>,
+    private val observationRecorder: LockObservationRecorder,
 ): FencedLockCommandExecutor {
     override fun run(
         operation: FencedLockOperation,
         keys: FencedLockKeys,
         args: List<String>,
     ): List<String> =
-        RedisScriptRunner.run(
+        observationRecorder.runScript(
             syncCommands,
             FENCED_LOCK_SCRIPT,
             ScriptOutputType.MULTI,
             keys.all,
-            operation.wireValue,
-            *args.toTypedArray(),
+            operation.toLockOperation(),
+            args = arrayOf(operation.wireValue, *args.toTypedArray()),
         )
 
     override fun runAsync(
@@ -751,13 +758,13 @@ internal class DefaultFencedLockCommandExecutor(
         keys: FencedLockKeys,
         args: List<String>,
     ): CompletableFuture<List<String>> =
-        RedisScriptRunner.runAsync(
+        observationRecorder.runScriptAsync(
             asyncCommands,
             FENCED_LOCK_SCRIPT,
             ScriptOutputType.MULTI,
             keys.all,
-            operation.wireValue,
-            *args.toTypedArray(),
+            operation.toLockOperation(),
+            args = arrayOf(operation.wireValue, *args.toTypedArray()),
         )
 
     override suspend fun runSuspending(
@@ -765,13 +772,13 @@ internal class DefaultFencedLockCommandExecutor(
         keys: FencedLockKeys,
         args: List<String>,
     ): List<String> =
-        RedisScriptRunner.runSuspending(
+        observationRecorder.runScriptSuspending(
             asyncCommands,
             FENCED_LOCK_SCRIPT,
             ScriptOutputType.MULTI,
             keys.all,
-            operation.wireValue,
-            *args.toTypedArray(),
+            operation.toLockOperation(),
+            args = arrayOf(operation.wireValue, *args.toTypedArray()),
         )
 }
 
@@ -783,7 +790,11 @@ internal class FencedLockClient(
     private val observationSink: LockObservationSink,
 ) {
     private val closed = AtomicBoolean()
-    private val waitSupport = LockWaitSupport(registration, closed::get)
+    private val waitSupport = LockWaitSupport(
+        registration,
+        closed::get,
+        waitObservation = LockWaitObservation(LockObservationRecorder(LockKind.FENCED, observationSink)),
+    )
     private val watchdogs = ConcurrentHashMap<FencedLockHandle, CoordinationRuntime.CoordinationTaskRegistration>()
 
     fun bootstrapFencing(): FencedBootstrapResult {
@@ -848,6 +859,11 @@ internal class FencedLockClient(
                 backend = { acquireBackendResult(ownerId, requestId, it) },
                 integrity = { LockAcquireResult.IntegrityFailure(it) },
                 recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
+                onLateSuccess = { raw ->
+                    decodeFencedAcquire(raw, keys, ownerId, requestId)
+                        .acquiredHandleOrNull()
+                        ?.let(::releaseAbandoned)
+                },
             )
     }
 
@@ -893,14 +909,25 @@ internal class FencedLockClient(
     ): CompletableFuture<LockAcquireResult<FencedLockHandle>> {
         fencedAcquireArgs(ownerId, requestId, leasePolicy, config.lock.maxReentrantHolds, config.epoch)
         val acquired = AtomicReference<FencedLockHandle?>()
-        val pending = waitSupport.acquireAsync(waitTime) {
-            tryAcquireAsync(ownerId, requestId, leasePolicy).thenApply { it.toBaseAcquire(acquired) }
+        val pending = waitSupport.acquireAsync(
+            waitTime,
+            abandonedRelease = {
+                acquired.getAndSet(null)?.let(::releaseAbandoned)
+            },
+        ) {
+            toBaseAcquireAsync(tryAcquireAsync(ownerId, requestId, leasePolicy), acquired)
         }
         val mapped = CompletableFuture<LockAcquireResult<FencedLockHandle>>()
         pending.whenComplete { result, error ->
-            if (mapped.isDone) return@whenComplete
+            if (mapped.isDone) {
+                acquired.get()?.let(::releaseAbandoned)
+                return@whenComplete
+            }
             if (error == null) {
-                mapped.complete(result.toFencedAcquire(acquired.get()))
+                val fenced = result.toFencedAcquire(acquired.get())
+                if (!mapped.complete(fenced)) {
+                    fenced.acquiredHandleOrNull()?.let(::releaseAbandoned)
+                }
             } else {
                 mapped.completeExceptionally(error)
             }
@@ -909,6 +936,31 @@ internal class FencedLockClient(
             if (mapped.isCancelled && !pending.isDone) {
                 pending.cancel(false)
             }
+        }
+        return mapped
+    }
+
+    private fun toBaseAcquireAsync(
+        source: CompletableFuture<LockAcquireResult<FencedLockHandle>>,
+        acquired: AtomicReference<FencedLockHandle?>,
+    ): CompletableFuture<LockAcquireResult<LockHandle>> {
+        val mapped = CompletableFuture<LockAcquireResult<LockHandle>>()
+        source.whenComplete { value, error ->
+            if (mapped.isDone) {
+                value.acquiredHandleOrNull()?.let(::releaseAbandoned)
+                return@whenComplete
+            }
+            if (error != null) {
+                mapped.completeExceptionally(error)
+            } else {
+                val base = value.toBaseAcquire(acquired)
+                if (!mapped.complete(base)) {
+                    value.acquiredHandleOrNull()?.let(::releaseAbandoned)
+                }
+            }
+        }
+        mapped.whenComplete { _, _ ->
+            if (mapped.isCancelled && !source.isDone) source.cancel(false)
         }
         return mapped
     }
@@ -1117,6 +1169,16 @@ internal class FencedLockClient(
                 decodeFencedRelease(executor.runSuspending(FencedLockOperation.RELEASE, keys, args)),
             )
         }
+    }
+
+    private fun releaseAbandoned(handle: FencedLockHandle) {
+        validateHandle(handle)
+        removeWatchdog(handle)
+        executor.runAsync(
+            FencedLockOperation.RELEASE,
+            keys,
+            fencedHandleArgs(handle) + FENCED_TERMINAL_TTL_MILLIS.toString(),
+        ).exceptionally { null }
     }
 
     fun close() {
@@ -1357,6 +1419,7 @@ internal class FencedLockClient(
             observationSink: LockObservationSink = LockObservationSink.NOOP,
         ): FencedLockClient {
             val keys = deriveFencedLockKeys(name, config, connection.codec)
+            val observationRecorder = LockObservationRecorder(LockKind.FENCED, observationSink)
             val runtime = CoordinationRuntime.forConnection(
                 connection,
                 scheduler = scheduler?.let(::ScheduledExecutorCoordinationScheduler),
@@ -1364,8 +1427,8 @@ internal class FencedLockClient(
             return FencedLockClient(
                 keys,
                 config,
-                DefaultFencedLockCommandExecutor(connection.sync(), connection.async()),
-                runtime.registerObject(keys.fingerprint),
+                DefaultFencedLockCommandExecutor(connection.sync(), connection.async(), observationRecorder),
+                runtime.registerObject(keys.fingerprint, observationRecorder.asCoordinationObserver()),
                 observationSink,
             )
         }
@@ -1378,6 +1441,7 @@ internal class FencedLockClient(
             observationSink: LockObservationSink = LockObservationSink.NOOP,
         ): FencedLockClient {
             val keys = deriveFencedLockKeys(name, config, connection.codec)
+            val observationRecorder = LockObservationRecorder(LockKind.FENCED, observationSink)
             val runtime = CoordinationRuntime.forConnection(
                 connection,
                 scheduler = scheduler?.let(::ScheduledExecutorCoordinationScheduler),
@@ -1385,13 +1449,24 @@ internal class FencedLockClient(
             return FencedLockClient(
                 keys,
                 config,
-                DefaultFencedLockCommandExecutor(connection.sync(), connection.async()),
-                runtime.registerObject(keys.fingerprint),
+                DefaultFencedLockCommandExecutor(connection.sync(), connection.async(), observationRecorder),
+                runtime.registerObject(keys.fingerprint, observationRecorder.asCoordinationObserver()),
                 observationSink,
             )
         }
     }
 }
+
+private fun FencedLockOperation.toLockOperation(): LockOperation =
+    when (this) {
+        FencedLockOperation.BOOTSTRAP,
+        FencedLockOperation.INSPECT,
+        -> LockOperation.INSPECT
+        FencedLockOperation.ACQUIRE -> LockOperation.ACQUIRE
+        FencedLockOperation.RECONCILE -> LockOperation.RECONCILE
+        FencedLockOperation.RENEW -> LockOperation.RENEW
+        FencedLockOperation.RELEASE -> LockOperation.RELEASE
+    }
 
 private inline fun <R> classified(
     backend: (LockBackendFailure) -> R,
@@ -1442,10 +1517,16 @@ private fun <R> CompletableFuture<List<String>>.mapResult(
     backend: (LockBackendFailure) -> R,
     integrity: (LockIntegrityFailure) -> R,
     recoveryAction: LockRecoveryAction,
+    onLateSuccess: (List<String>) -> Unit = {},
 ): CompletableFuture<R> {
     val mapped = CompletableFuture<R>()
     whenComplete { value, error ->
-        if (mapped.isDone) return@whenComplete
+        if (mapped.isDone) {
+            if (error == null) {
+                runCatching { onLateSuccess(value) }
+            }
+            return@whenComplete
+        }
         try {
             val result = if (error == null) {
                 try {

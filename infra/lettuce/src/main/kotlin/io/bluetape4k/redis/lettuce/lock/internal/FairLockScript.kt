@@ -18,15 +18,14 @@ import io.bluetape4k.redis.lettuce.lock.LockIntegrityFailure
 import io.bluetape4k.redis.lettuce.lock.LockIntegrityFailureKind
 import io.bluetape4k.redis.lettuce.lock.LockKind
 import io.bluetape4k.redis.lettuce.lock.LockMutationResult
-import io.bluetape4k.redis.lettuce.lock.LockObservation
 import io.bluetape4k.redis.lettuce.lock.LockObservationSink
+import io.bluetape4k.redis.lettuce.lock.LockOperation
 import io.bluetape4k.redis.lettuce.lock.LockOwnerId
 import io.bluetape4k.redis.lettuce.lock.LockReconcileResult
 import io.bluetape4k.redis.lettuce.lock.LockRecoveryAction
 import io.bluetape4k.redis.lettuce.lock.LockRequestId
 import io.bluetape4k.redis.lettuce.lock.toRedisMillisCeil
 import io.bluetape4k.redis.lettuce.script.RedisScript
-import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.lettuce.core.RedisCommandTimeoutException
 import io.lettuce.core.RedisConnectionException
 import io.lettuce.core.RedisException
@@ -481,15 +480,16 @@ private interface FairLockCommandExecutor {
 private class DefaultFairLockCommandExecutor(
     private val sync: RedisScriptingCommands<String, String>,
     private val async: RedisScriptingAsyncCommands<String, String>,
+    private val observationRecorder: LockObservationRecorder,
 ): FairLockCommandExecutor {
     override fun run(operation: FairLockOperation, keys: FairLockKeys, args: List<String>): List<String> =
-        RedisScriptRunner.run(
+        observationRecorder.runScript(
             sync,
             FAIR_LOCK_SCRIPT,
             ScriptOutputType.MULTI,
             keys.all,
-            operation.wireValue,
-            *args.toTypedArray(),
+            operation.toLockOperation(),
+            args = arrayOf(operation.wireValue, *args.toTypedArray()),
         )
 
     override fun runAsync(
@@ -497,13 +497,13 @@ private class DefaultFairLockCommandExecutor(
         keys: FairLockKeys,
         args: List<String>,
     ): CompletableFuture<List<String>> =
-        RedisScriptRunner.runAsync(
+        observationRecorder.runScriptAsync(
             async,
             FAIR_LOCK_SCRIPT,
             ScriptOutputType.MULTI,
             keys.all,
-            operation.wireValue,
-            *args.toTypedArray(),
+            operation.toLockOperation(),
+            args = arrayOf(operation.wireValue, *args.toTypedArray()),
         )
 
     override suspend fun runSuspending(
@@ -511,13 +511,13 @@ private class DefaultFairLockCommandExecutor(
         keys: FairLockKeys,
         args: List<String>,
     ): List<String> =
-        RedisScriptRunner.runSuspending(
+        observationRecorder.runScriptSuspending(
             async,
             FAIR_LOCK_SCRIPT,
             ScriptOutputType.MULTI,
             keys.all,
-            operation.wireValue,
-            *args.toTypedArray(),
+            operation.toLockOperation(),
+            args = arrayOf(operation.wireValue, *args.toTypedArray()),
         )
 }
 
@@ -540,10 +540,15 @@ internal class FairLockClient private constructor(
     private val config: FairLockConfig,
     private val executor: FairLockCommandExecutor,
     private val registration: CoordinationRuntime.CoordinationObjectRegistration,
+    private val observationRecorder: LockObservationRecorder,
     private val distributed: DistributedLockClient,
 ) {
     private val closed = AtomicBoolean()
-    private val waitSupport = LockWaitSupport(registration, closed::get)
+    private val waitSupport = LockWaitSupport(
+        registration,
+        closed::get,
+        waitObservation = LockWaitObservation(observationRecorder),
+    )
 
     fun tryAcquire(
         ownerId: LockOwnerId,
@@ -1058,6 +1063,8 @@ internal class FairLockClient private constructor(
             observationSink: LockObservationSink = LockObservationSink.NOOP,
         ): FairLockClient {
             val keys = deriveFairLockKeys(name, config, connection.codec)
+            val fairSink = observationSink.withObjectKind(LockKind.FAIR)
+            val observationRecorder = LockObservationRecorder(LockKind.FAIR, fairSink)
             val runtime = CoordinationRuntime.forConnection(
                 connection,
                 scheduler = scheduler?.let(::ScheduledExecutorCoordinationScheduler),
@@ -1065,14 +1072,15 @@ internal class FairLockClient private constructor(
             return FairLockClient(
                 keys,
                 config,
-                DefaultFairLockCommandExecutor(connection.sync(), connection.async()),
-                runtime.registerObject(keys.fingerprint),
+                DefaultFairLockCommandExecutor(connection.sync(), connection.async(), observationRecorder),
+                runtime.registerObject(keys.fingerprint, observationRecorder.asCoordinationObserver()),
+                observationRecorder,
                 DistributedLockClient.create(
                     connection,
                     name,
                     config.lock,
                     scheduler,
-                    observationSink.asFairObservationSink(),
+                    fairSink,
                 ),
             )
         }
@@ -1085,6 +1093,8 @@ internal class FairLockClient private constructor(
             observationSink: LockObservationSink = LockObservationSink.NOOP,
         ): FairLockClient {
             val keys = deriveFairLockKeys(name, config, connection.codec)
+            val fairSink = observationSink.withObjectKind(LockKind.FAIR)
+            val observationRecorder = LockObservationRecorder(LockKind.FAIR, fairSink)
             val runtime = CoordinationRuntime.forConnection(
                 connection,
                 scheduler = scheduler?.let(::ScheduledExecutorCoordinationScheduler),
@@ -1092,14 +1102,15 @@ internal class FairLockClient private constructor(
             return FairLockClient(
                 keys,
                 config,
-                DefaultFairLockCommandExecutor(connection.sync(), connection.async()),
-                runtime.registerObject(keys.fingerprint),
+                DefaultFairLockCommandExecutor(connection.sync(), connection.async(), observationRecorder),
+                runtime.registerObject(keys.fingerprint, observationRecorder.asCoordinationObserver()),
+                observationRecorder,
                 DistributedLockClient.create(
                     connection,
                     name,
                     config.lock,
                     scheduler,
-                    observationSink.asFairObservationSink(),
+                    fairSink,
                 ),
             )
         }
@@ -1245,23 +1256,11 @@ private fun mapMutation(result: LockMutationResult<LockHandle>): LockMutationRes
         else -> result
     }
 
-private fun LockObservationSink.asFairObservationSink(): LockObservationSink =
-    LockObservationSink { observation ->
-        val fair = when (observation) {
-            is LockObservation.Counter ->
-                observation.copy(dimensions = observation.dimensions.copy(objectKind = LockKind.FAIR))
-            is LockObservation.Gauge ->
-                observation.copy(dimensions = observation.dimensions.copy(objectKind = LockKind.FAIR))
-            is LockObservation.Histogram ->
-                observation.copy(dimensions = observation.dimensions.copy(objectKind = LockKind.FAIR))
-            is LockObservation.Event ->
-                observation.copy(event = observation.event.copy(objectKind = LockKind.FAIR))
-        }
-        try {
-            record(fair)
-        } catch (_: Exception) {
-            // Observations never alter fair-lock behavior.
-        }
+private fun FairLockOperation.toLockOperation(): LockOperation =
+    when (this) {
+        FairLockOperation.ACQUIRE -> LockOperation.ACQUIRE
+        FairLockOperation.RECONCILE -> LockOperation.RECONCILE
+        FairLockOperation.REMOVE -> LockOperation.CLEANUP
     }
 
 private inline fun <R> fairClassified(

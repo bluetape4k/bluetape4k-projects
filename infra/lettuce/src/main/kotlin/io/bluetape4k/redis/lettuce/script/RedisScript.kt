@@ -13,6 +13,7 @@ import java.security.MessageDigest
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
 /**
@@ -72,6 +73,29 @@ object RedisScriptRunner: KLogging() {
         vararg args: String,
     ): T = runScripting(commands, script, outputType, keys, *args)
 
+    internal fun <T> runObserved(
+        commands: RedisScriptingCommands<String, String>,
+        script: RedisScript,
+        outputType: ScriptOutputType,
+        keys: Array<String>,
+        observer: RedisScriptExecutionObserver,
+        vararg args: String,
+    ): T {
+        val started = System.nanoTime()
+        var noScriptFallback = false
+        return try {
+            try {
+                commands.evalsha<T>(script.sha1, outputType, keys, *args)
+            } catch (_: RedisNoScriptException) {
+                noScriptFallback = true
+                log.debug { "NOSCRIPT → 원문 전송 fallback (sha1=${script.sha1})" }
+                commands.eval<T>(script.source, outputType, keys, *args)
+            }
+        } finally {
+            observer.recordSafely(RedisScriptExecutionObservation(System.nanoTime() - started, noScriptFallback))
+        }
+    }
+
     private fun <T> runScripting(
         commands: RedisScriptingCommands<String, String>,
         script: RedisScript,
@@ -105,13 +129,35 @@ object RedisScriptRunner: KLogging() {
         vararg args: String,
     ): CompletableFuture<T> = runAsyncScripting(commands, script, outputType, keys, *args)
 
+    internal fun <T> runAsyncObserved(
+        commands: RedisScriptingAsyncCommands<String, String>,
+        script: RedisScript,
+        outputType: ScriptOutputType,
+        keys: Array<String>,
+        observer: RedisScriptExecutionObserver,
+        vararg args: String,
+    ): CompletableFuture<T> =
+        runAsyncScripting(commands, script, outputType, keys, observer, *args)
+
     private fun <T> runAsyncScripting(
         commands: RedisScriptingAsyncCommands<String, String>,
         script: RedisScript,
         outputType: ScriptOutputType,
         keys: Array<String>,
         vararg args: String,
+    ): CompletableFuture<T> =
+        runAsyncScripting(commands, script, outputType, keys, RedisScriptExecutionObserver.NOOP, *args)
+
+    private fun <T> runAsyncScripting(
+        commands: RedisScriptingAsyncCommands<String, String>,
+        script: RedisScript,
+        outputType: ScriptOutputType,
+        keys: Array<String>,
+        observer: RedisScriptExecutionObserver,
+        vararg args: String,
     ): CompletableFuture<T> {
+        val started = System.nanoTime()
+        val noScriptFallback = AtomicBoolean()
         val current = AtomicReference<CompletableFuture<T>>()
         val result = object: CompletableFuture<T>() {
             override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
@@ -152,6 +198,7 @@ object RedisScriptRunner: KLogging() {
                         is CancellationException -> result.cancel(false)
                         is RedisNoScriptException -> {
                             if (fallbackOnNoScript && !result.isCancelled) {
+                                noScriptFallback.set(true)
                                 log.debug { "NOSCRIPT(async) → 원문 전송 fallback (sha1=${script.sha1})" }
                                 dispatch(
                                     {
@@ -167,6 +214,9 @@ object RedisScriptRunner: KLogging() {
                     }
                 }
             }
+        }
+        result.whenComplete { _, _ ->
+            observer.recordSafely(RedisScriptExecutionObservation(System.nanoTime() - started, noScriptFallback.get()))
         }
 
         dispatch(
@@ -194,6 +244,29 @@ object RedisScriptRunner: KLogging() {
         vararg args: String,
     ): T = runSuspendingScripting(commands, script, outputType, keys, *args)
 
+    internal suspend fun <T> runSuspendingObserved(
+        commands: RedisScriptingAsyncCommands<String, String>,
+        script: RedisScript,
+        outputType: ScriptOutputType,
+        keys: Array<String>,
+        observer: RedisScriptExecutionObserver,
+        vararg args: String,
+    ): T {
+        val started = System.nanoTime()
+        var noScriptFallback = false
+        return try {
+            try {
+                commands.evalsha<T>(script.sha1, outputType, keys, *args).awaitSuspending()
+            } catch (_: RedisNoScriptException) {
+                noScriptFallback = true
+                log.debug { "NOSCRIPT(suspend) → 원문 전송 fallback (sha1=${script.sha1})" }
+                commands.eval<T>(script.source, outputType, keys, *args).awaitSuspending()
+            }
+        } finally {
+            observer.recordSafely(RedisScriptExecutionObservation(System.nanoTime() - started, noScriptFallback))
+        }
+    }
+
     private suspend fun <T> runSuspendingScripting(
         commands: RedisScriptingAsyncCommands<String, String>,
         script: RedisScript,
@@ -212,3 +285,24 @@ object RedisScriptRunner: KLogging() {
 
 private fun Throwable.unwrapCompletionCause(): Throwable =
     if (this is CompletionException) cause ?: this else this
+
+internal data class RedisScriptExecutionObservation(
+    val elapsedNanos: Long,
+    val noScriptFallback: Boolean,
+)
+
+internal fun interface RedisScriptExecutionObserver {
+    fun record(observation: RedisScriptExecutionObservation)
+
+    companion object {
+        val NOOP: RedisScriptExecutionObserver = RedisScriptExecutionObserver {}
+    }
+}
+
+private fun RedisScriptExecutionObserver.recordSafely(observation: RedisScriptExecutionObservation) {
+    try {
+        record(observation)
+    } catch (_: Exception) {
+        // Script observations must never alter script results or cancellation behavior.
+    }
+}

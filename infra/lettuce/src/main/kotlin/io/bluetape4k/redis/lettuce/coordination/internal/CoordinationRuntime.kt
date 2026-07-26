@@ -70,9 +70,10 @@ internal class CoordinationRuntime(
     private val ticker: MonotonicTicker = MonotonicTicker.SYSTEM,
     scheduler: CoordinationScheduler? = null,
     val limits: CoordinationRuntimeLimits = CoordinationRuntimeLimits(),
-    private val observer: CoordinationObserver = CoordinationObserver(),
+    observer: CoordinationObserver = CoordinationObserver(),
     private val watchdogDelay: (Duration) -> Duration = ::earlyJitteredWatchdogDelay,
 ) {
+    private val defaultObserver = observer
     private val lock = ReentrantLock()
     private val ownsScheduler = scheduler == null
     private val scheduler = scheduler ?: ExecutorCoordinationScheduler()
@@ -98,12 +99,15 @@ internal class CoordinationRuntime(
     val activeWatchdogs: Int get() = lock.withLock { tasks.values.count { it.kind == TaskKind.WATCHDOG } }
     val dueBacklog: Int get() = lock.withLock { dueBacklogLocked(ticker.readNanos()) }
 
-    fun registerObject(fingerprint: String): CoordinationObjectRegistration {
+    fun registerObject(
+        fingerprint: String,
+        observer: CoordinationObserver = defaultObserver,
+    ): CoordinationObjectRegistration {
         require(fingerprint.matches(FINGERPRINT_PATTERN)) { "fingerprint has an invalid format" }
         val (registration, objectCount) = lock.withLock {
             check(!closed) { "coordination runtime is closed" }
             val id = objectSequence.incrementAndGet()
-            objects[id] = ObjectState(id, fingerprint)
+            objects[id] = ObjectState(id, fingerprint, observer = observer)
             CoordinationObjectRegistration(id) to objects.size.toDouble()
         }
         observer.emit(CoordinationObservationName.OBJECTS, value = objectCount)
@@ -135,9 +139,9 @@ internal class CoordinationRuntime(
                 }
                 dueCount++
                 if (next.kind == TaskKind.WATCHDOG && now >= next.lifetimeDeadlineNanos) {
-                    observations += PendingObservation(CoordinationObservationName.OWNERSHIP_LOSS)
+                    observations += PendingObservation(next.observer, CoordinationObservationName.OWNERSHIP_LOSS)
                     if (removeTaskLocked(next)) {
-                        activitySnapshot = activitySnapshotLocked()
+                        activitySnapshot = activitySnapshotLocked(next.objectId, next.observer)
                         next.ownershipLossAction?.let(ownershipLossActions::add)
                     }
                     continue
@@ -145,10 +149,10 @@ internal class CoordinationRuntime(
                 if (next.inFlight) {
                     if (now >= next.ttlDeadlineNanos) {
                         missedCount++
-                        observations += PendingObservation(CoordinationObservationName.WATCHDOG_MISSED)
-                        observations += PendingObservation(CoordinationObservationName.OWNERSHIP_LOSS)
+                        observations += PendingObservation(next.observer, CoordinationObservationName.WATCHDOG_MISSED)
+                        observations += PendingObservation(next.observer, CoordinationObservationName.OWNERSHIP_LOSS)
                         if (removeTaskLocked(next)) {
-                            activitySnapshot = activitySnapshotLocked()
+                            activitySnapshot = activitySnapshotLocked(next.objectId, next.observer)
                             next.ownershipLossAction?.let(ownershipLossActions::add)
                         }
                     }
@@ -158,7 +162,7 @@ internal class CoordinationRuntime(
                     TaskKind.SCHEDULED -> {
                         tasks.remove(next.id)
                         next.closed = true
-                        activitySnapshot = activitySnapshotLocked()
+                        activitySnapshot = activitySnapshotLocked(next.objectId, next.observer)
                     }
                     TaskKind.WATCHDOG -> {
                         next.inFlight = true
@@ -182,7 +186,9 @@ internal class CoordinationRuntime(
             if (nextDelay != null) {
                 scheduleDrainLocked(nextDelay, now)
             }
-            observations += PendingObservation(CoordinationObservationName.DUE_BACKLOG, backlog.toDouble())
+            objects.values.map { it.observer }.distinct().forEach { objectObserver ->
+                observations += PendingObservation(objectObserver, CoordinationObservationName.DUE_BACKLOG, backlog.toDouble())
+            }
             CoordinationDrainResult(dispatches.size, backlog, nextDelay)
         }
 
@@ -257,7 +263,7 @@ internal class CoordinationRuntime(
             ) {
                 if (current === task) {
                     if (removeTaskLocked(task)) {
-                        activitySnapshot = activitySnapshotLocked()
+                        activitySnapshot = activitySnapshotLocked(task.objectId, task.observer)
                     }
                 }
                 rejectedLateCompletions++
@@ -270,19 +276,19 @@ internal class CoordinationRuntime(
             if (now >= task.ttlDeadlineNanos || now >= task.lifetimeDeadlineNanos) {
                 if (now >= task.ttlDeadlineNanos) {
                     missedCount++
-                    observations += PendingObservation(CoordinationObservationName.WATCHDOG_MISSED)
+                    observations += PendingObservation(task.observer, CoordinationObservationName.WATCHDOG_MISSED)
                 }
-                observations += PendingObservation(CoordinationObservationName.OWNERSHIP_LOSS)
+                observations += PendingObservation(task.observer, CoordinationObservationName.OWNERSHIP_LOSS)
                 if (removeTaskLocked(task)) {
-                    activitySnapshot = activitySnapshotLocked()
+                    activitySnapshot = activitySnapshotLocked(task.objectId, task.observer)
                     ownershipLossAction = task.ownershipLossAction
                 }
                 return@withLock
             }
             if (error != null || outcome == CoordinationRenewalOutcome.OWNERSHIP_LOST) {
-                observations += PendingObservation(CoordinationObservationName.OWNERSHIP_LOSS)
+                observations += PendingObservation(task.observer, CoordinationObservationName.OWNERSHIP_LOSS)
                 if (removeTaskLocked(task)) {
-                    activitySnapshot = activitySnapshotLocked()
+                    activitySnapshot = activitySnapshotLocked(task.objectId, task.observer)
                     ownershipLossAction = task.ownershipLossAction
                 }
                 return@withLock
@@ -291,7 +297,7 @@ internal class CoordinationRuntime(
             val completionDelay = now - task.renewalDueAtNanos
             if (completionDelay > 0L) {
                 lateCount++
-                observations += PendingObservation(CoordinationObservationName.WATCHDOG_LATE)
+                observations += PendingObservation(task.observer, CoordinationObservationName.WATCHDOG_LATE)
             }
             task.ttlDeadlineNanos = saturatingAdd(now, task.ttlNanos)
             task.dueAtNanos = minOf(
@@ -311,8 +317,10 @@ internal class CoordinationRuntime(
         var activitySnapshot: ActivitySnapshot? = null
         var objectCount: Double? = null
         var closeActions: List<() -> Unit> = emptyList()
+        var objectObserver: CoordinationObserver? = null
         lock.withLock {
             val objectState = objects.remove(objectId) ?: return
+            objectObserver = objectState.observer
             objectState.closed = true
             closeActions = objectState.closeActions.toList()
             objectState.closeActions.clear()
@@ -324,7 +332,7 @@ internal class CoordinationRuntime(
             if (objects.isEmpty()) {
                 closedRuntime = closeRuntimeLocked()
             }
-            activitySnapshot = activitySnapshotLocked()
+            activitySnapshot = activitySnapshotLocked(objectId, objectState.observer)
             objectCount = objects.size.toDouble()
         }
         runCloseActions(closeActions)
@@ -332,7 +340,9 @@ internal class CoordinationRuntime(
             finishRuntimeClose(removeFromRegistry = true)
         }
         activitySnapshot?.let(::emitActivityGauges)
-        objectCount?.let { observer.emit(CoordinationObservationName.OBJECTS, value = it) }
+        objectCount?.let { count ->
+            objectObserver?.emit(CoordinationObservationName.OBJECTS, value = count)
+        }
     }
 
     private fun closeRuntime(removeFromRegistry: Boolean) {
@@ -433,16 +443,17 @@ internal class CoordinationRuntime(
                     scheduledAction = scheduledAction,
                     ownershipLossAction = ownershipLossAction,
                     renewAction = renewAction,
+                    observer = objectState.observer,
                 )
                 tasks[task.id] = task
                 dueQueue.add(task)
                 scheduleNextLocked(now)
-                CoordinationTaskRegistration(task) to activitySnapshotLocked()
+                CoordinationTaskRegistration(task) to activitySnapshotLocked(objectId, objectState.observer)
             }
             emitActivityGauges(activitySnapshot)
             return registration
         } catch (error: CoordinationCapacityException) {
-            observer.emit(CoordinationObservationName.CAPACITY_REJECTION)
+            objectObserver(objectId).emit(CoordinationObservationName.CAPACITY_REJECTION)
             throw error
         }
     }
@@ -513,18 +524,26 @@ internal class CoordinationRuntime(
             false
         }
 
-    private fun activitySnapshotLocked(): ActivitySnapshot =
+    private fun activitySnapshotLocked(
+        objectId: Long? = null,
+        observer: CoordinationObserver = defaultObserver,
+    ): ActivitySnapshot =
         ActivitySnapshot(
-            activeTasks = tasks.values.count { it.kind == TaskKind.SCHEDULED }.toDouble(),
-            activeWatchdogs = tasks.values.count { it.kind == TaskKind.WATCHDOG }.toDouble(),
+            activeTasks = tasks.values.count {
+                it.kind == TaskKind.SCHEDULED && (objectId == null || it.objectId == objectId)
+            }.toDouble(),
+            activeWatchdogs = tasks.values.count {
+                it.kind == TaskKind.WATCHDOG && (objectId == null || it.objectId == objectId)
+            }.toDouble(),
+            observer = observer,
         )
 
     private fun emitActivityGauges(snapshot: ActivitySnapshot) {
-        observer.emit(
+        snapshot.observer.emit(
             CoordinationObservationName.ACTIVE_TASKS,
             value = snapshot.activeTasks,
         )
-        observer.emit(
+        snapshot.observer.emit(
             CoordinationObservationName.ACTIVE_WATCHDOGS,
             value = snapshot.activeWatchdogs,
         )
@@ -532,9 +551,12 @@ internal class CoordinationRuntime(
 
     private fun emitObservations(observations: Iterable<PendingObservation>) {
         observations.forEach { observation ->
-            observer.emit(observation.name, value = observation.value)
+            observation.observer.emit(observation.name, value = observation.value)
         }
     }
+
+    private fun objectObserver(objectId: Long): CoordinationObserver =
+        lock.withLock { objects[objectId]?.observer } ?: defaultObserver
 
     private fun runCloseActions(actions: Iterable<() -> Unit>) {
         actions.forEach { action ->
@@ -634,7 +656,7 @@ internal class CoordinationRuntime(
 
         override fun close() {
             val activitySnapshot = lock.withLock {
-                if (removeTaskLocked(task)) activitySnapshotLocked() else null
+                if (removeTaskLocked(task)) activitySnapshotLocked(task.objectId, task.observer) else null
             }
             activitySnapshot?.let(::emitActivityGauges)
         }
@@ -643,6 +665,7 @@ internal class CoordinationRuntime(
     private data class ObjectState(
         val id: Long,
         val fingerprint: String,
+        val observer: CoordinationObserver,
         var closed: Boolean = false,
         val closeActions: MutableList<() -> Unit> = mutableListOf(),
     )
@@ -650,9 +673,11 @@ internal class CoordinationRuntime(
     private data class ActivitySnapshot(
         val activeTasks: Double,
         val activeWatchdogs: Double,
+        val observer: CoordinationObserver,
     )
 
     private data class PendingObservation(
+        val observer: CoordinationObserver,
         val name: CoordinationObservationName,
         val value: Double = 1.0,
     )
@@ -672,6 +697,7 @@ internal class CoordinationRuntime(
         val scheduledAction: (() -> Unit)?,
         val ownershipLossAction: (() -> Unit)?,
         val renewAction: (() -> CompletableFuture<CoordinationRenewalOutcome>)?,
+        val observer: CoordinationObserver,
         var inFlight: Boolean = false,
         var closed: Boolean = false,
     )

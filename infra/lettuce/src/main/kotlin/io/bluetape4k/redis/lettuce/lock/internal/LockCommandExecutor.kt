@@ -28,7 +28,6 @@ import io.bluetape4k.redis.lettuce.lock.LockReconcileResult
 import io.bluetape4k.redis.lettuce.lock.LockRecoveryAction
 import io.bluetape4k.redis.lettuce.lock.LockRequestId
 import io.bluetape4k.redis.lettuce.lock.recordSafely
-import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.lettuce.core.RedisCommandTimeoutException
 import io.lettuce.core.RedisConnectionException
 import io.lettuce.core.RedisException
@@ -74,19 +73,21 @@ internal interface LockCommandExecutor {
 internal class DefaultLockCommandExecutor(
     private val syncCommands: RedisScriptingCommands<String, String>,
     private val asyncCommands: RedisScriptingAsyncCommands<String, String>,
+    private val observationRecorder: LockObservationRecorder =
+        LockObservationRecorder(LockKind.DISTRIBUTED, LockObservationSink.NOOP),
 ): LockCommandExecutor {
     override fun run(
         operation: DistributedLockOperation,
         keys: DistributedLockKeys,
         args: List<String>,
     ): List<String> =
-        RedisScriptRunner.run(
+        observationRecorder.runScript(
             syncCommands,
             DISTRIBUTED_LOCK_SCRIPT,
             ScriptOutputType.MULTI,
             keys.all,
-            operation.wireValue,
-            *args.toTypedArray(),
+            operation.toLockOperation(),
+            args = arrayOf(operation.wireValue, *args.toTypedArray()),
         )
 
     override fun runAsync(
@@ -94,13 +95,13 @@ internal class DefaultLockCommandExecutor(
         keys: DistributedLockKeys,
         args: List<String>,
     ): CompletableFuture<List<String>> =
-        RedisScriptRunner.runAsync(
+        observationRecorder.runScriptAsync(
             asyncCommands,
             DISTRIBUTED_LOCK_SCRIPT,
             ScriptOutputType.MULTI,
             keys.all,
-            operation.wireValue,
-            *args.toTypedArray(),
+            operation.toLockOperation(),
+            args = arrayOf(operation.wireValue, *args.toTypedArray()),
         )
 
     override suspend fun runSuspending(
@@ -108,13 +109,13 @@ internal class DefaultLockCommandExecutor(
         keys: DistributedLockKeys,
         args: List<String>,
     ): List<String> =
-        RedisScriptRunner.runSuspending(
+        observationRecorder.runScriptSuspending(
             asyncCommands,
             DISTRIBUTED_LOCK_SCRIPT,
             ScriptOutputType.MULTI,
             keys.all,
-            operation.wireValue,
-            *args.toTypedArray(),
+            operation.toLockOperation(),
+            args = arrayOf(operation.wireValue, *args.toTypedArray()),
         )
 }
 
@@ -122,11 +123,18 @@ internal class DistributedLockClient(
     private val keys: DistributedLockKeys,
     private val config: LockConfig,
     private val executor: LockCommandExecutor,
-    private val registration: CoordinationRuntime.CoordinationObjectRegistration,
+    internal val registration: CoordinationRuntime.CoordinationObjectRegistration,
     private val observationSink: LockObservationSink,
+    private val observationRecorder: LockObservationRecorder =
+        LockObservationRecorder(LockKind.DISTRIBUTED, observationSink),
 ) {
     private val closed = AtomicBoolean()
-    private val waitSupport = LockWaitSupport(registration, closed::get)
+    private val waitSupport = LockWaitSupport(
+        registration,
+        closed::get,
+        releaseAbandoned = ::releaseAbandoned,
+        waitObservation = LockWaitObservation(observationRecorder),
+    )
     private val watchdogs = ConcurrentHashMap<LockHandle, CoordinationRuntime.CoordinationTaskRegistration>()
 
     fun tryAcquire(
@@ -154,6 +162,9 @@ internal class DistributedLockClient(
                 backend = { acquireBackendResult(ownerId, requestId, it) },
                 integrity = { LockAcquireResult.IntegrityFailure(it) },
                 recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
+                onLateSuccess = { raw ->
+                    decodeAcquire(raw, keys, ownerId, requestId).acquiredHandleOrNull()?.let(::releaseAbandoned)
+                },
             )
     }
 
@@ -407,6 +418,16 @@ internal class DistributedLockClient(
         }
     }
 
+    private fun releaseAbandoned(handle: LockHandle) {
+        validateHandle(handle)
+        removeWatchdog(handle)
+        executor.runAsync(
+            DistributedLockOperation.RELEASE,
+            keys,
+            handleArgs(handle) + TERMINAL_TTL_MILLIS.toString(),
+        ).exceptionally { null }
+    }
+
     fun close() {
         if (closed.compareAndSet(false, true)) {
             waitSupport.close()
@@ -644,6 +665,7 @@ internal class DistributedLockClient(
             observationSink: LockObservationSink = LockObservationSink.NOOP,
         ): DistributedLockClient {
             val keys = deriveDistributedLockKeys(name, config, connection.codec)
+            val observationRecorder = LockObservationRecorder(LockKind.DISTRIBUTED, observationSink)
             val runtime = CoordinationRuntime.forConnection(
                 connection,
                 scheduler = scheduler?.let(::ScheduledExecutorCoordinationScheduler),
@@ -651,9 +673,14 @@ internal class DistributedLockClient(
             return DistributedLockClient(
                 keys,
                 config,
-                DefaultLockCommandExecutor(connection.sync(), connection.async()),
-                runtime.registerObject(keys.fingerprint),
+                DefaultLockCommandExecutor(
+                    connection.sync(),
+                    connection.async(),
+                    observationRecorder,
+                ),
+                runtime.registerObject(keys.fingerprint, observationRecorder.asCoordinationObserver()),
                 observationSink,
+                observationRecorder,
             )
         }
 
@@ -665,6 +692,7 @@ internal class DistributedLockClient(
             observationSink: LockObservationSink = LockObservationSink.NOOP,
         ): DistributedLockClient {
             val keys = deriveDistributedLockKeys(name, config, connection.codec)
+            val observationRecorder = LockObservationRecorder(LockKind.DISTRIBUTED, observationSink)
             val runtime = CoordinationRuntime.forConnection(
                 connection,
                 scheduler = scheduler?.let(::ScheduledExecutorCoordinationScheduler),
@@ -672,9 +700,14 @@ internal class DistributedLockClient(
             return DistributedLockClient(
                 keys,
                 config,
-                DefaultLockCommandExecutor(connection.sync(), connection.async()),
-                runtime.registerObject(keys.fingerprint),
+                DefaultLockCommandExecutor(
+                    connection.sync(),
+                    connection.async(),
+                    observationRecorder,
+                ),
+                runtime.registerObject(keys.fingerprint, observationRecorder.asCoordinationObserver()),
                 observationSink,
+                observationRecorder,
             )
         }
     }
@@ -690,6 +723,15 @@ internal fun <H: Serializable> acquireBackendResult(
         LockBackendFailureKind.TIMEOUT,
         -> LockAcquireResult.Ambiguous(ownerId, requestId, LockRecoveryAction.RECONCILE_REQUEST)
         LockBackendFailureKind.COMMAND -> LockAcquireResult.BackendFailure(failure)
+    }
+
+private fun DistributedLockOperation.toLockOperation(): LockOperation =
+    when (this) {
+        DistributedLockOperation.ACQUIRE -> LockOperation.ACQUIRE
+        DistributedLockOperation.INSPECT -> LockOperation.INSPECT
+        DistributedLockOperation.RECONCILE -> LockOperation.RECONCILE
+        DistributedLockOperation.RENEW -> LockOperation.RENEW
+        DistributedLockOperation.RELEASE -> LockOperation.RELEASE
     }
 
 private inline fun <R> classified(
@@ -741,10 +783,16 @@ private fun <R> CompletableFuture<List<String>>.mapResult(
     backend: (LockBackendFailure) -> R,
     integrity: (LockIntegrityFailure) -> R,
     recoveryAction: LockRecoveryAction,
+    onLateSuccess: (List<String>) -> Unit = {},
 ): CompletableFuture<R> {
     val mapped = CompletableFuture<R>()
     whenComplete { value, error ->
-        if (mapped.isDone) return@whenComplete
+        if (mapped.isDone) {
+            if (error == null) {
+                runCatching { onLateSuccess(value) }
+            }
+            return@whenComplete
+        }
         try {
             val result = if (error == null) {
                 try {
@@ -804,6 +852,13 @@ private fun Throwable.unwrapCompletionCause(): Throwable {
     if (current is CancellationException) throw current
     return current
 }
+
+private fun LockAcquireResult<LockHandle>?.acquiredHandleOrNull(): LockHandle? =
+    when (this) {
+        is LockAcquireResult.Acquired -> handle
+        is LockAcquireResult.Reentered -> handle
+        else -> null
+    }
 
 private const val MAX_COMPLETION_DEPTH = 8
 private const val TERMINAL_TTL_MILLIS = 7L * 24L * 60L * 60L * 1_000L

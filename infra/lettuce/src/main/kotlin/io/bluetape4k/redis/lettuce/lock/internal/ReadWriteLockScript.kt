@@ -37,7 +37,6 @@ import io.bluetape4k.redis.lettuce.lock.WriteLockHandle
 import io.bluetape4k.redis.lettuce.lock.recordSafely
 import io.bluetape4k.redis.lettuce.lock.toRedisMillisCeil
 import io.bluetape4k.redis.lettuce.script.RedisScript
-import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.lettuce.core.RedisCommandTimeoutException
 import io.lettuce.core.RedisConnectionException
 import io.lettuce.core.RedisException
@@ -657,6 +656,17 @@ internal enum class ReadWriteLockOperation(val wireValue: String) {
     DOWNGRADE("DOWNGRADE"),
 }
 
+private fun ReadWriteLockOperation.toLockOperation(): LockOperation =
+    when (this) {
+        ReadWriteLockOperation.ACQUIRE -> LockOperation.ACQUIRE
+        ReadWriteLockOperation.RECONCILE -> LockOperation.RECONCILE
+        ReadWriteLockOperation.REMOVE -> LockOperation.CLEANUP
+        ReadWriteLockOperation.INSPECT -> LockOperation.INSPECT
+        ReadWriteLockOperation.RENEW -> LockOperation.RENEW
+        ReadWriteLockOperation.RELEASE -> LockOperation.RELEASE
+        ReadWriteLockOperation.DOWNGRADE -> LockOperation.DOWNGRADE
+    }
+
 internal data class ReadWriteLockKeys(
     val state: String,
     val generation: String,
@@ -717,15 +727,18 @@ private interface ReadWriteLockCommandExecutor {
 private class DefaultReadWriteLockCommandExecutor(
     private val sync: RedisScriptingCommands<String, String>,
     private val async: RedisScriptingAsyncCommands<String, String>,
+    private val readObservationRecorder: LockObservationRecorder,
+    private val writeObservationRecorder: LockObservationRecorder,
 ): ReadWriteLockCommandExecutor {
     override fun run(
         operation: ReadWriteLockOperation,
         keys: ReadWriteLockKeys,
         args: List<String>,
     ): List<String> =
-        RedisScriptRunner.run(
+        recorder(operation, args).runScript(
             sync, READ_WRITE_LOCK_SCRIPT, ScriptOutputType.MULTI, keys.all,
-            operation.wireValue, *args.toTypedArray(),
+            operation.toLockOperation(),
+            args = arrayOf(operation.wireValue, *args.toTypedArray()),
         )
 
     override fun runAsync(
@@ -733,9 +746,10 @@ private class DefaultReadWriteLockCommandExecutor(
         keys: ReadWriteLockKeys,
         args: List<String>,
     ): CompletableFuture<List<String>> =
-        RedisScriptRunner.runAsync(
+        recorder(operation, args).runScriptAsync(
             async, READ_WRITE_LOCK_SCRIPT, ScriptOutputType.MULTI, keys.all,
-            operation.wireValue, *args.toTypedArray(),
+            operation.toLockOperation(),
+            args = arrayOf(operation.wireValue, *args.toTypedArray()),
         )
 
     override suspend fun runSuspending(
@@ -743,10 +757,21 @@ private class DefaultReadWriteLockCommandExecutor(
         keys: ReadWriteLockKeys,
         args: List<String>,
     ): List<String> =
-        RedisScriptRunner.runSuspending(
+        recorder(operation, args).runScriptSuspending(
             async, READ_WRITE_LOCK_SCRIPT, ScriptOutputType.MULTI, keys.all,
-            operation.wireValue, *args.toTypedArray(),
+            operation.toLockOperation(),
+            args = arrayOf(operation.wireValue, *args.toTypedArray()),
         )
+
+    private fun recorder(
+        operation: ReadWriteLockOperation,
+        args: List<String>,
+    ): LockObservationRecorder =
+        if (operation == ReadWriteLockOperation.DOWNGRADE || args.firstOrNull() == LockKind.WRITE.rwMode) {
+            writeObservationRecorder
+        } else {
+            readObservationRecorder
+        }
 }
 
 private data class ReadWriteWaiterIdentity(
@@ -773,6 +798,8 @@ internal class ReadWriteLockClient private constructor(
     private val watchdogs = ConcurrentHashMap<LockHandle, CoordinationRuntime.CoordinationTaskRegistration>()
     private val pendingAsync = ConcurrentHashMap.newKeySet<CompletableFuture<LockAcquireResult<LockHandle>>>()
     private val pendingSignals = ConcurrentHashMap.newKeySet<CompletableFuture<Unit>>()
+    private val readWaitObservation = LockWaitObservation(LockObservationRecorder(LockKind.READ, observationSink))
+    private val writeWaitObservation = LockWaitObservation(LockObservationRecorder(LockKind.WRITE, observationSink))
 
     fun tryAcquireRead(
         ownerId: LockOwnerId,
@@ -786,9 +813,10 @@ internal class ReadWriteLockClient private constructor(
         requestId: LockRequestId,
         leasePolicy: LeasePolicy,
     ): CompletableFuture<LockAcquireResult<ReadLockHandle>> =
-        tryAcquireAsync(LockKind.READ, ownerId, requestId, leasePolicy)
-            .thenApply(::registerWatchdog)
-            .thenApply(::mapReadAcquire)
+        mapHandleResultAsync(
+            tryAcquireAsync(LockKind.READ, ownerId, requestId, leasePolicy),
+            LockAcquireResult<LockHandle>::acquiredHandleOrNull,
+        ) { mapReadAcquire(registerWatchdog(it)) }
 
     suspend fun tryAcquireReadSuspending(
         ownerId: LockOwnerId,
@@ -811,9 +839,10 @@ internal class ReadWriteLockClient private constructor(
         waitTime: Duration,
         leasePolicy: LeasePolicy,
     ): CompletableFuture<LockAcquireResult<ReadLockHandle>> =
-        acquireAsync(LockKind.READ, ownerId, requestId, waitTime, leasePolicy)
-            .thenApply(::registerWatchdog)
-            .thenApply(::mapReadAcquire)
+        mapHandleResultAsync(
+            acquireAsync(LockKind.READ, ownerId, requestId, waitTime, leasePolicy),
+            LockAcquireResult<LockHandle>::acquiredHandleOrNull,
+        ) { mapReadAcquire(registerWatchdog(it)) }
 
     suspend fun acquireReadSuspending(
         ownerId: LockOwnerId,
@@ -839,9 +868,10 @@ internal class ReadWriteLockClient private constructor(
         ownerId: LockOwnerId,
         requestId: LockRequestId,
     ): CompletableFuture<LockReconcileResult<ReadLockHandle>> =
-        reconcileAsync(LockKind.READ, ownerId, requestId)
-            .thenApply(::registerWatchdog)
-            .thenApply(::mapReadReconcile)
+        mapHandleResultAsync(
+            reconcileAsync(LockKind.READ, ownerId, requestId),
+            LockReconcileResult<LockHandle>::ownedHandleOrNull,
+        ) { mapReadReconcile(registerWatchdog(it)) }
 
     suspend fun reconcileReadSuspending(
         ownerId: LockOwnerId,
@@ -889,9 +919,10 @@ internal class ReadWriteLockClient private constructor(
         requestId: LockRequestId,
         leasePolicy: LeasePolicy,
     ): CompletableFuture<LockAcquireResult<WriteLockHandle>> =
-        tryAcquireAsync(LockKind.WRITE, ownerId, requestId, leasePolicy)
-            .thenApply(::registerWatchdog)
-            .thenApply(::mapWriteAcquire)
+        mapHandleResultAsync(
+            tryAcquireAsync(LockKind.WRITE, ownerId, requestId, leasePolicy),
+            LockAcquireResult<LockHandle>::acquiredHandleOrNull,
+        ) { mapWriteAcquire(registerWatchdog(it)) }
 
     suspend fun tryAcquireWriteSuspending(
         ownerId: LockOwnerId,
@@ -914,9 +945,10 @@ internal class ReadWriteLockClient private constructor(
         waitTime: Duration,
         leasePolicy: LeasePolicy,
     ): CompletableFuture<LockAcquireResult<WriteLockHandle>> =
-        acquireAsync(LockKind.WRITE, ownerId, requestId, waitTime, leasePolicy)
-            .thenApply(::registerWatchdog)
-            .thenApply(::mapWriteAcquire)
+        mapHandleResultAsync(
+            acquireAsync(LockKind.WRITE, ownerId, requestId, waitTime, leasePolicy),
+            LockAcquireResult<LockHandle>::acquiredHandleOrNull,
+        ) { mapWriteAcquire(registerWatchdog(it)) }
 
     suspend fun acquireWriteSuspending(
         ownerId: LockOwnerId,
@@ -942,9 +974,10 @@ internal class ReadWriteLockClient private constructor(
         ownerId: LockOwnerId,
         requestId: LockRequestId,
     ): CompletableFuture<LockReconcileResult<WriteLockHandle>> =
-        reconcileAsync(LockKind.WRITE, ownerId, requestId)
-            .thenApply(::registerWatchdog)
-            .thenApply(::mapWriteReconcile)
+        mapHandleResultAsync(
+            reconcileAsync(LockKind.WRITE, ownerId, requestId),
+            LockReconcileResult<LockHandle>::ownedHandleOrNull,
+        ) { mapWriteReconcile(registerWatchdog(it)) }
 
     suspend fun reconcileWriteSuspending(
         ownerId: LockOwnerId,
@@ -1037,6 +1070,16 @@ internal class ReadWriteLockClient private constructor(
         }
     }
 
+    private fun <S, R> mapHandleResultAsync(
+        source: CompletableFuture<S>,
+        acquiredHandle: (S) -> LockHandle?,
+        transform: (S) -> R,
+    ): CompletableFuture<R> =
+        mapHandleResultAsync(source, acquiredHandle, transform, ::releaseAbandoned)
+
+    private fun waitObservation(kind: LockKind): LockWaitObservation =
+        if (kind == LockKind.WRITE) writeWaitObservation else readWaitObservation
+
     private fun tryAcquire(
         kind: LockKind,
         ownerId: LockOwnerId,
@@ -1069,6 +1112,10 @@ internal class ReadWriteLockClient private constructor(
                 backend = { acquireBackendResult(ownerId, requestId, it) },
                 integrity = { LockAcquireResult.IntegrityFailure(it) },
                 action = LockRecoveryAction.RECONCILE_REQUEST,
+                onLateSuccess = { raw ->
+                    val late = decodeAttempt(raw, keys, kind, ownerId, requestId).toPublic(AtomicReference())
+                    late.acquiredHandleOrNull()?.let(::releaseAbandoned)
+                },
             )
     }
 
@@ -1103,14 +1150,28 @@ internal class ReadWriteLockClient private constructor(
         leasePolicy: LeasePolicy,
     ): LockAcquireResult<LockHandle> {
         validateWait(waitTime)
+        val observation = waitObservation(kind).begin()
         val identity = AtomicReference<ReadWriteWaiterIdentity?>()
         val deadline = CoordinationDeadline.after(waitTime.toKotlinDuration())
-        while (true) {
-            val result = acquireAttempt(kind, ownerId, requestId, leasePolicy, waitTime, identity)
-            if (result !is LockAcquireResult.Contended) return result
-            val remaining = deadline.remainingNanos()
-            if (remaining == 0L) return cleanupTimedOut(kind, ownerId, requestId, identity.get())
-            LockSupport.parkNanos(minOf(remaining, RW_RETRY_DELAY.toNanos()))
+        var outcome = LockOutcome.CANCELLED
+        try {
+            while (true) {
+                val result = acquireAttempt(kind, ownerId, requestId, leasePolicy, waitTime, identity)
+                if (result !is LockAcquireResult.Contended) {
+                    outcome = result.observationOutcome()
+                    return result
+                }
+                observation.onContended()
+                val remaining = deadline.remainingNanos()
+                if (remaining == 0L) {
+                    val timedOut = cleanupTimedOut(kind, ownerId, requestId, identity.get())
+                    outcome = timedOut.observationOutcome()
+                    return timedOut
+                }
+                LockSupport.parkNanos(minOf(remaining, RW_RETRY_DELAY.toNanos()))
+            }
+        } finally {
+            observation.complete(outcome)
         }
     }
 
@@ -1123,6 +1184,7 @@ internal class ReadWriteLockClient private constructor(
     ): CompletableFuture<LockAcquireResult<LockHandle>> {
         validateWait(waitTime)
         if (closed.get()) return CompletableFuture.completedFuture(LockAcquireResult.Closed)
+        val observation = waitObservation(kind).begin()
         val identity = AtomicReference<ReadWriteWaiterIdentity?>()
         val deadline = CoordinationDeadline.after(waitTime.toKotlinDuration())
         val result = CompletableFuture<LockAcquireResult<LockHandle>>()
@@ -1158,14 +1220,20 @@ internal class ReadWriteLockClient private constructor(
                 inFlight.set(pending)
                 pending.whenComplete { value, error ->
                     inFlight.compareAndSet(pending, null)
-                    if (result.isDone) return@whenComplete
+                    if (result.isDone) {
+                        value.acquiredHandleOrNull()?.let(::releaseAbandoned)
+                        return@whenComplete
+                    }
                     if (error != null) result.completeExceptionally(error)
-                    else if (value is LockAcquireResult.Contended) schedule()
-                    else result.complete(value)
+                    else if (value is LockAcquireResult.Contended) {
+                        observation.onContended()
+                        schedule()
+                    }
+                    else if (!result.complete(value)) value.acquiredHandleOrNull()?.let(::releaseAbandoned)
                 }
             }
         }
-        result.whenComplete { value, _ ->
+        result.whenComplete { value, error ->
             pendingAsync -= result
             scheduled.getAndSet(null)?.close()
             val pending = inFlight.getAndSet(null)
@@ -1181,6 +1249,13 @@ internal class ReadWriteLockClient private constructor(
             } else {
                 pending?.cancel(false)
             }
+            observation.complete(
+                when {
+                    result.isCancelled -> LockOutcome.CANCELLED
+                    error != null -> LockOutcome.BACKEND_FAILED
+                    else -> value.observationOutcome()
+                },
+            )
         }
         retry()
         return result
@@ -1194,14 +1269,24 @@ internal class ReadWriteLockClient private constructor(
         leasePolicy: LeasePolicy,
     ): LockAcquireResult<LockHandle> {
         validateWait(waitTime)
+        val observation = waitObservation(kind).begin()
         val identity = AtomicReference<ReadWriteWaiterIdentity?>()
         val deadline = CoordinationDeadline.after(waitTime.toKotlinDuration())
+        var outcome = LockOutcome.CANCELLED
         return try {
             while (true) {
                 val result = acquireAttemptSuspending(kind, ownerId, requestId, leasePolicy, waitTime, identity)
-                if (result !is LockAcquireResult.Contended) return result
+                if (result !is LockAcquireResult.Contended) {
+                    outcome = result.observationOutcome()
+                    return result
+                }
+                observation.onContended()
                 val remaining = deadline.remainingNanos()
-                if (remaining == 0L) return cleanupTimedOutSuspending(kind, ownerId, requestId, identity.get())
+                if (remaining == 0L) {
+                    val timedOut = cleanupTimedOutSuspending(kind, ownerId, requestId, identity.get())
+                    outcome = timedOut.observationOutcome()
+                    return timedOut
+                }
                 val delay = Duration.ofNanos(minOf(remaining, RW_RETRY_DELAY.toNanos()))
                 awaitRetry(delay)
             }
@@ -1214,6 +1299,8 @@ internal class ReadWriteLockClient private constructor(
                 }
             }
             throw cancelled
+        } finally {
+            observation.complete(outcome)
         }
     }
 
@@ -1265,6 +1352,11 @@ internal class ReadWriteLockClient private constructor(
                 backend = { acquireBackendResult(ownerId, requestId, it) },
                 integrity = { LockAcquireResult.IntegrityFailure(it) },
                 action = LockRecoveryAction.RECONCILE_REQUEST,
+                onLateSuccess = { raw ->
+                    val late = decodeAttempt(raw, keys, kind, ownerId, requestId).toPublic(identity)
+                    late.acquiredHandleOrNull()?.let(::releaseAbandoned)
+                    identity.get()?.let { removeWaiterAsync(kind, ownerId, requestId, it) }
+                },
             )
         }
 
@@ -1481,6 +1573,16 @@ internal class ReadWriteLockClient private constructor(
             integrity = { LockMutationResult.IntegrityFailure(it) },
             action = LockRecoveryAction.RETRY_SAME_HANDLE,
         )
+    }
+
+    private fun releaseAbandoned(handle: LockHandle) {
+        validateHandle(handle, handle.kind)
+        removeWatchdog(handle)
+        executor.runAsync(
+            ReadWriteLockOperation.RELEASE,
+            keys,
+            handleArgs(handle, handle.kind) + RW_TERMINAL_TTL_MILLIS.toString(),
+        ).exceptionally { null }
     }
 
     private suspend fun releaseSuspending(
@@ -1886,6 +1988,8 @@ internal class ReadWriteLockClient private constructor(
             observationSink: LockObservationSink = LockObservationSink.NOOP,
         ): ReadWriteLockClient {
             val keys = deriveReadWriteLockKeys(name, config, connection.codec)
+            val readObservationRecorder = LockObservationRecorder(LockKind.READ, observationSink)
+            val writeObservationRecorder = LockObservationRecorder(LockKind.WRITE, observationSink)
             val runtime = CoordinationRuntime.forConnection(
                 connection,
                 scheduler = scheduler?.let(::ScheduledExecutorCoordinationScheduler),
@@ -1893,8 +1997,16 @@ internal class ReadWriteLockClient private constructor(
             return ReadWriteLockClient(
                 keys,
                 config,
-                DefaultReadWriteLockCommandExecutor(connection.sync(), connection.async()),
-                runtime.registerObject(keys.fingerprint),
+                DefaultReadWriteLockCommandExecutor(
+                    connection.sync(),
+                    connection.async(),
+                    readObservationRecorder,
+                    writeObservationRecorder,
+                ),
+                runtime.registerObject(
+                    keys.fingerprint,
+                    coordinationObserver(readObservationRecorder, writeObservationRecorder),
+                ),
                 observationSink,
             )
         }
@@ -1907,6 +2019,8 @@ internal class ReadWriteLockClient private constructor(
             observationSink: LockObservationSink = LockObservationSink.NOOP,
         ): ReadWriteLockClient {
             val keys = deriveReadWriteLockKeys(name, config, connection.codec)
+            val readObservationRecorder = LockObservationRecorder(LockKind.READ, observationSink)
+            val writeObservationRecorder = LockObservationRecorder(LockKind.WRITE, observationSink)
             val runtime = CoordinationRuntime.forConnection(
                 connection,
                 scheduler = scheduler?.let(::ScheduledExecutorCoordinationScheduler),
@@ -1914,8 +2028,16 @@ internal class ReadWriteLockClient private constructor(
             return ReadWriteLockClient(
                 keys,
                 config,
-                DefaultReadWriteLockCommandExecutor(connection.sync(), connection.async()),
-                runtime.registerObject(keys.fingerprint),
+                DefaultReadWriteLockCommandExecutor(
+                    connection.sync(),
+                    connection.async(),
+                    readObservationRecorder,
+                    writeObservationRecorder,
+                ),
+                runtime.registerObject(
+                    keys.fingerprint,
+                    coordinationObserver(readObservationRecorder, writeObservationRecorder),
+                ),
                 observationSink,
             )
         }
@@ -2347,10 +2469,16 @@ private fun <R> CompletableFuture<List<String>>.rwMap(
     backend: (LockBackendFailure) -> R,
     integrity: (LockIntegrityFailure) -> R,
     action: LockRecoveryAction,
+    onLateSuccess: (List<String>) -> Unit = {},
 ): CompletableFuture<R> {
     val mapped = CompletableFuture<R>()
     whenComplete { value, error ->
-        if (mapped.isDone) return@whenComplete
+        if (mapped.isDone) {
+            if (error == null) {
+                runCatching { onLateSuccess(value) }
+            }
+            return@whenComplete
+        }
         try {
             mapped.complete(
                 if (error == null) {
@@ -2371,6 +2499,37 @@ private fun <R> CompletableFuture<List<String>>.rwMap(
     }
     mapped.whenComplete { _, _ ->
         if (mapped.isCancelled && !isDone) cancel(false)
+    }
+    return mapped
+}
+
+internal fun <S, R> mapHandleResultAsync(
+    source: CompletableFuture<S>,
+    acquiredHandle: (S) -> LockHandle?,
+    transform: (S) -> R,
+    releaseAbandoned: (LockHandle) -> Unit,
+): CompletableFuture<R> {
+    val mapped = CompletableFuture<R>()
+    source.whenComplete { value, error ->
+        if (mapped.isDone) {
+            if (error == null) acquiredHandle(value)?.let(releaseAbandoned)
+            return@whenComplete
+        }
+        if (error != null) {
+            mapped.completeExceptionally(error)
+        } else {
+            try {
+                val transformed = transform(value)
+                if (!mapped.complete(transformed)) {
+                    acquiredHandle(value)?.let(releaseAbandoned)
+                }
+            } catch (failure: Throwable) {
+                mapped.completeExceptionally(failure)
+            }
+        }
+    }
+    mapped.whenComplete { _, _ ->
+        if (mapped.isCancelled && !source.isDone) source.cancel(false)
     }
     return mapped
 }
@@ -2437,6 +2596,16 @@ private fun String.rwCanonicalLong(positive: Boolean): Long {
 
 private fun ByteBuffer.rwBytes(): ByteArray =
     duplicate().let { copy -> ByteArray(copy.remaining()).also(copy::get) }
+
+private fun LockAcquireResult<LockHandle>?.acquiredHandleOrNull(): LockHandle? =
+    when (this) {
+        is LockAcquireResult.Acquired -> handle
+        is LockAcquireResult.Reentered -> handle
+        else -> null
+    }
+
+private fun LockReconcileResult<LockHandle>.ownedHandleOrNull(): LockHandle? =
+    (this as? LockReconcileResult.Owned)?.handle
 
 private fun rwMalformedReply(): Nothing =
     throw CoordinationProtocolException(
