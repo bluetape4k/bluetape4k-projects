@@ -347,8 +347,8 @@ class LettuceProtobufByteBufCodecTest {
         val codec = LettuceProtobufCodecs.protobuf<Any>()
         val constructor = codec.javaClass.declaredConstructors.single { candidate ->
             !candidate.isSynthetic &&
-                candidate.parameterCount == 2 &&
-                candidate.parameterTypes[0] == ProtobufSerializer::class.java
+                    candidate.parameterCount == 2 &&
+                    candidate.parameterTypes[0] == ProtobufSerializer::class.java
         }.apply { isAccessible = true }
         val writerType = constructor.parameterTypes[1]
         val writer = Proxy.newProxyInstance(
@@ -356,14 +356,14 @@ class LettuceProtobufByteBufCodecTest {
             arrayOf(writerType),
         ) { proxy, method, arguments ->
             when (method.name) {
-                "write" -> {
+                "write"  -> {
                     requireNotNull(arguments)
                     write(arguments[1] as ByteBuf, arguments[2] as Int)
                 }
                 "toString" -> "InjectedPackedAnyWriter"
                 "hashCode" -> System.identityHashCode(proxy)
                 "equals" -> proxy === arguments?.singleOrNull()
-                else -> error("Unexpected writer method: ${method.name}")
+                else     -> error("Unexpected writer method: ${method.name}")
             }
         }
         return constructor.newInstance(serializer, writer) as LettuceBinaryCodec<Any>

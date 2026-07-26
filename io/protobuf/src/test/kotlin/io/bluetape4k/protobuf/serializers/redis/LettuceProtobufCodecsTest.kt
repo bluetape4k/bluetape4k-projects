@@ -47,13 +47,19 @@ class LettuceProtobufCodecsTest: AbstractLettuceTest() {
             LettuceProtobufCodecs.deflateProtobuf<Any>(),
             LettuceProtobufCodecs.trustedInternalDeflateProtobuf<Any>(),
         ),
-        Arguments.of(LettuceProtobufCodecs.gzipProtobuf<Any>(), LettuceProtobufCodecs.trustedInternalGzipProtobuf<Any>()),
+        Arguments.of(
+            LettuceProtobufCodecs.gzipProtobuf<Any>(),
+            LettuceProtobufCodecs.trustedInternalGzipProtobuf<Any>()
+        ),
         Arguments.of(LettuceProtobufCodecs.lz4Protobuf<Any>(), LettuceProtobufCodecs.trustedInternalLz4Protobuf<Any>()),
         Arguments.of(
             LettuceProtobufCodecs.snappyProtobuf<Any>(),
             LettuceProtobufCodecs.trustedInternalSnappyProtobuf<Any>(),
         ),
-        Arguments.of(LettuceProtobufCodecs.zstdProtobuf<Any>(), LettuceProtobufCodecs.trustedInternalZstdProtobuf<Any>()),
+        Arguments.of(
+            LettuceProtobufCodecs.zstdProtobuf<Any>(),
+            LettuceProtobufCodecs.trustedInternalZstdProtobuf<Any>()
+        ),
     )
 
     @ParameterizedTest(name = "codec={0}")

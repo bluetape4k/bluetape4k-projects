@@ -65,14 +65,8 @@ Implements the `JsonSerializer` interface backed by Jackson's `ObjectMapper`.
 
 `serializeTo` streams through the configured mapper into the caller-owned buffer, and `deserializeFrom`
 reads a duplicate view. These Jackson-specific overrides bypass the compatibility `serialize(): ByteArray`
-and `deserialize(ByteArray)` methods. They are optimized dispatch cells only; allocation improvement remains
-unclaimed until it is measured.
-Heap, direct, sliced, and read-only input are supported. Input state is preserved; output position advances
-only on success. A read-only target and insufficient capacity expose raw `ReadOnlyBufferException` and
-`BufferOverflowException`, and a failed output call restores its original position. Bytes written before failure
-are unspecified; clear or overwrite them before retry when the surrounding protocol requires it.
-Fatal `Error` instances retain their identity instead of being wrapped.
-Set a bounded limit before passing untrusted input; the serializer cannot read outside the remaining range.
+and `deserialize(ByteArray)` methods. They are optimized dispatch cells only; allocation improvement remains unclaimed until it is measured. Heap, direct, sliced, and read-only input are supported. Input state is preserved; output position advances only on success. A read-only target and insufficient capacity expose raw `ReadOnlyBufferException` and
+`BufferOverflowException`, and a failed output call restores its original position. Bytes written before failure are unspecified; clear or overwrite them before retry when the surrounding protocol requires it. Fatal `Error` instances retain their identity instead of being wrapped. Set a bounded limit before passing untrusted input; the serializer cannot read outside the remaining range.
 
 ```kotlin
 import io.bluetape4k.jackson.*
@@ -96,10 +90,7 @@ val buffer = ByteBuffer.wrap(serializer.serialize(users))
 val rawUsers: List<*>? = contract.deserializeRaw<List<User>>(buffer)
 ```
 
-The concrete `JacksonSerializer` extension retains generic `TypeReference` information. A receiver statically
-typed as `JsonSerializer` uses the compatibility class-token contract, so collection elements remain raw maps.
-The same buffer override is inherited by YAML, Properties, CSV, TOML, CBOR, Ion, and Smile.
-No broader zero-allocation claim is made for Jackson internals.
+The concrete `JacksonSerializer` extension retains generic `TypeReference` information. A receiver statically typed as `JsonSerializer` uses the compatibility class-token contract, so collection elements remain raw maps. The same buffer override is inherited by YAML, Properties, CSV, TOML, CBOR, Ion, and Smile. No broader zero-allocation claim is made for Jackson internals.
 
 ```java
 ByteBuffer buffer = ByteBuffer.wrap(bytes);
@@ -182,8 +173,7 @@ val prettyJson = Jackson.prettyJsonWriter.writeValueAsString(data)
 
 ### Safe Polymorphic Mapper
 
-Use `Jackson.createTypedJsonMapper(...)` when JSON must carry Jackson default type information.
-The allowlist is enforced against polymorphic subtype class names, and type ids are written as the
+Use `Jackson.createTypedJsonMapper(...)` when JSON must carry Jackson default type information. The allowlist is enforced against polymorphic subtype class names, and type ids are written as the
 `@class` property.
 
 ```kotlin
@@ -295,10 +285,7 @@ data class User(
 // Automatically decrypted on deserialization
 ```
 
-`@JsonTinkEncrypt` uses `TinkEncryptors` singleton instances, whose keysets are generated in memory for the
-current JVM process. Do not use this annotation for durable encrypted database columns or searchable indexes that must
-survive restart, rollout, or multi-instance access. For durable searchable storage, use `bluetape4k-tink` versioned
-keyset APIs such as `TinkDaeads.versioned(store)` with a protected `VersionedKeysetStore`.
+`@JsonTinkEncrypt` uses `TinkEncryptors` singleton instances, whose keysets are generated in memory for the current JVM process. Do not use this annotation for durable encrypted database columns or searchable indexes that must survive restart, rollout, or multi-instance access. For durable searchable storage, use `bluetape4k-tink` versioned keyset APIs such as `TinkDaeads.versioned(store)` with a protected `VersionedKeysetStore`.
 
 ### Field Masking
 
@@ -380,20 +367,17 @@ dependencies {
 
 The [issue #1039 report](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md) accepted lower allocation for Jackson 2 `serializeTo`; `deserializeFrom` was inconclusive. The interface-default compatibility cells are ergonomic-only.
 
-| Path | Status | Limitation |
-|---|---|---|
-| concrete `serializeTo` | optimized; accepted | measured payload/default mapper only |
-| concrete `deserializeFrom` | optimized; inconclusive | no allocation-reduction claim |
-| interface default | compatibility fallback | ergonomic-only |
+| Path                       | Status                  | Limitation                           |
+|----------------------------|-------------------------|--------------------------------------|
+| concrete `serializeTo`     | optimized; accepted     | measured payload/default mapper only |
+| concrete `deserializeFrom` | optimized; inconclusive | no allocation-reduction claim        |
+| interface default          | compatibility fallback  | ergonomic-only                       |
 
 Kotlin uses `serializer.serializeTo(value, target)` and `serializer.deserializeFrom<Value>(source)`; Java calls the same methods with the target class. The caller supplies a writable buffer with sufficient remaining capacity. Output success advances `position` without widening `limit`; overflow/read-only failure rolls back. Input preserves source `position` and `limit` through a duplicate view.
 
 ### Caller-owned `OutputStream` API
 
-`JacksonSerializer.serializeJsonToStream` writes through the configured mapper without first materializing the JSON
-as a `ByteArray`. The interface default remains an allocating compatibility fallback. The stream is borrowed only for
-the synchronous call; the serializer does not retain, close, or flush it. Keep the call and destination thread-confined
-and stage output because an exception can leave partial JSON in the destination.
+`JacksonSerializer.serializeJsonToStream` writes through the configured mapper without first materializing the JSON as a `ByteArray`. The interface default remains an allocating compatibility fallback. The stream is borrowed only for the synchronous call; the serializer does not retain, close, or flush it. Keep the call and destination thread-confined and stage output because an exception can leave partial JSON in the destination.
 
 ```kotlin
 val serializer = JacksonSerializer()
@@ -422,10 +406,7 @@ static byte[] encode(JacksonSerializer serializer, Object value) throws IOExcept
 }
 ```
 
-`deserializeFrom` accepts the read-only, non-array-backed bounded view used by Lettuce and preserves caller state.
-The [issue #756 report](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md) accepted lower
-allocation only for Jackson 2 heap/direct Lettuce cells with the measured payload/default mapper, pooled pre-sized
-512-byte reusable targets, and no growth. It is not a zero-copy, decode-allocation, or general throughput claim.
+`deserializeFrom` accepts the read-only, non-array-backed bounded view used by Lettuce and preserves caller state. The [issue #756 report](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md) accepted lower allocation only for Jackson 2 heap/direct Lettuce cells with the measured payload/default mapper, pooled pre-sized 512-byte reusable targets, and no growth. It is not a zero-copy, decode-allocation, or general throughput claim.
 
 - [Jackson](https://github.com/FasterXML/jackson)
 - [Jackson Kotlin Module](https://github.com/FasterXML/jackson-module-kotlin)

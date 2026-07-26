@@ -30,10 +30,13 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 - **분산 SQL 엔진**: Trino
 - **HTTP Mock 지원**: WireMock, NginxServer
 - **LLM 지원**: `ChromaDBServer` (벡터 DB, 포트 8000), `OllamaServer` (로컬 LLM 추론, 포트 11434)
-- **AWS 에뮬레이터**: `AwsEmulatorServer` 공통 인터페이스; `MiniStackServer`(31+ 서비스, MIT 라이선스, 권장), `FlociServer`(LocalStack 대체 OSS 경로), `LocalStackServer`(@Deprecated)
+- **AWS
+  에뮬레이터**: `AwsEmulatorServer` 공통 인터페이스; `MiniStackServer`(31+ 서비스, MIT 라이선스, 권장), `FlociServer`(LocalStack 대체 OSS 경로), `LocalStackServer`(@Deprecated)
 - **임베디드 SQS**: `ElasticMqServer` — Docker 없이 JVM 내 SQS 서버 실행
 - **메일 테스트**: `MailpitServer` — SMTP + Web UI로 이메일 통합 테스트 지원
-- **관측성**: `ZipkinServer` — 분산 추적 (`openzipkin/zipkin-slim:2.23`), `GrafanaServer` — 대시보드 + 데이터소스 프로비저닝 (`grafana/grafana:11.6.1`), `K3sServer` — 경량 Kubernetes 클러스터 (`rancher/k3s`; `--privileged` Docker 모드 필요)
+-
+
+**관측성**: `ZipkinServer` — 분산 추적 (`openzipkin/zipkin-slim:2.23`), `GrafanaServer` — 대시보드 + 데이터소스 프로비저닝 (`grafana/grafana:11.6.1`), `K3sServer` — 경량 Kubernetes 클러스터 (`rancher/k3s`; `--privileged` Docker 모드 필요)
 - **고정 포트 매핑 옵션**: `useDefaultPort=true` 설정 시 기본 포트로 바인딩
 - **시스템 프로퍼티 자동 등록**: 컨테이너 시작 시 연결 정보 자동 등록
 - **Spring Boot 설정 단순화**: `${testcontainers...}` placeholder로 연결 정보 주입
@@ -52,44 +55,44 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 
 ### 서버별 export 키
 
-| 서버                  | namespace       | 주요 키                                                                                |
-|---------------------|-----------------|-------------------------------------------------------------------------------------|
-| PostgreSQLServer    | `postgresql`    | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`            |
-| PostgisServer       | `postgis`       | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`            |
-| PgvectorServer      | `pgvector`      | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`            |
-| MySQL8Server        | `mysql`         | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`            |
-| MariaDBServer       | `mariadb`       | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`            |
-| CockroachServer     | `cockroach`     | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`            |
-| ClickHouseServer    | `clickhouse`    | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`            |
-| TrinoServer         | `trino`         | `jdbc-url`, `username`                                                              |
-| RedisServer         | `redis`         | `host`, `port`, `url`                                                               |
-| MongoDBServer       | `mongo`         | `host`, `port`, `url`                                                               |
-| ElasticsearchServer | `elasticsearch` | `host`, `port`, `url`                                                               |
-| KafkaServer         | `kafka`         | `host`, `port`, `url`, `bootstrap-servers`, `bound-port-numbers`                    |
-| RedpandaServer      | `redpanda`      | `host`, `port`, `url`, `admin-port`, `schema-registry-port`, `rest-proxy-port`      |
-| NatsServer          | `nats`          | `host`, `port`, `url`, `cluster-port`, `monitor-port`                               |
-| PulsarServer        | `pulsar`        | `host`, `port`, `url`, `broker-url`, `broker-port`, `broker-http-port`              |
-| RabbitMQServer      | `rabbitmq`      | `host`, `port`, `url`, `amqp-url`, `amqp-port`, `amqps-port`, `management-url`      |
-| LocalStackServer    | `localstack`    | `host`, `port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName` |
-| FlociServer         | `floci`         | `host`, `port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName` |
-| MiniStackServer     | `ministack`     | `host`, `port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName` |
-| ElasticMqServer     | `elasticmq`     | `host`, `port`, `url`, `sqsEndpoint`                                                |
-| MailpitServer       | `mailpit`       | `host`, `port`, `url`, `smtpPort`, `uiPort`, `uiUrl`                               |
-| PrometheusServer    | `prometheus`    | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`  |
-| GrafanaServer       | `grafana`       | `host`, `port`, `url`                                                               |
-| K3sServer           | `k3s`           | `host`, `port`, `url`                                                               |
-| ConsulServer        | `consul`        | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                          |
-| JaegerServer          | `jaeger`           | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port` |
-| ElasticsearchOssServer| `elasticsearch-oss`| `host`, `port`, `url`                                                               |
-| HazelcastServer       | `hazelcast`        | `host`, `port`, `url`                                                               |
-| Ignite2Server         | `ignite2`          | `host`, `port`, `url`                                                               |
-| Ignite3Server         | `ignite3`          | `host`, `port`, `url`, `rest-port`                                                  |
-| ZipkinServer          | `zipkin`           | `host`, `port`, `url`                                                               |
-| NginxServer           | `nginx`            | `host`, `port`, `url`                                                               |
-| ChromaDBServer        | `chromadb`         | `host`, `port`, `url`                                                               |
-| OllamaServer          | `ollama`           | `host`, `port`, `url`                                                               |
-| BluetapeHttpServer    | `bluetape-http`    | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
-| BluetapeWebfluxServer | `bluetape-webflux` | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
+| 서버                   | namespace           | 주요 키                                                                                                                                                              |
+|------------------------|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| PostgreSQLServer       | `postgresql`        | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`                                                                                             |
+| PostgisServer          | `postgis`           | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`                                                                                             |
+| PgvectorServer         | `pgvector`          | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`                                                                                             |
+| MySQL8Server           | `mysql`             | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`                                                                                             |
+| MariaDBServer          | `mariadb`           | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`                                                                                             |
+| CockroachServer        | `cockroach`         | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`                                                                                             |
+| ClickHouseServer       | `clickhouse`        | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`                                                                                             |
+| TrinoServer            | `trino`             | `jdbc-url`, `username`                                                                                                                                               |
+| RedisServer            | `redis`             | `host`, `port`, `url`                                                                                                                                                |
+| MongoDBServer          | `mongo`             | `host`, `port`, `url`                                                                                                                                                |
+| ElasticsearchServer    | `elasticsearch`     | `host`, `port`, `url`                                                                                                                                                |
+| KafkaServer            | `kafka`             | `host`, `port`, `url`, `bootstrap-servers`, `bound-port-numbers`                                                                                                     |
+| RedpandaServer         | `redpanda`          | `host`, `port`, `url`, `admin-port`, `schema-registry-port`, `rest-proxy-port`                                                                                       |
+| NatsServer             | `nats`              | `host`, `port`, `url`, `cluster-port`, `monitor-port`                                                                                                                |
+| PulsarServer           | `pulsar`            | `host`, `port`, `url`, `broker-url`, `broker-port`, `broker-http-port`                                                                                               |
+| RabbitMQServer         | `rabbitmq`          | `host`, `port`, `url`, `amqp-url`, `amqp-port`, `amqps-port`, `management-url`                                                                                       |
+| LocalStackServer       | `localstack`        | `host`, `port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName`                                                                                   |
+| FlociServer            | `floci`             | `host`, `port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName`                                                                                   |
+| MiniStackServer        | `ministack`         | `host`, `port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName`                                                                                   |
+| ElasticMqServer        | `elasticmq`         | `host`, `port`, `url`, `sqsEndpoint`                                                                                                                                 |
+| MailpitServer          | `mailpit`           | `host`, `port`, `url`, `smtpPort`, `uiPort`, `uiUrl`                                                                                                                 |
+| PrometheusServer       | `prometheus`        | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`                                                                                   |
+| GrafanaServer          | `grafana`           | `host`, `port`, `url`                                                                                                                                                |
+| K3sServer              | `k3s`               | `host`, `port`, `url`                                                                                                                                                |
+| ConsulServer           | `consul`            | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                                                                                                           |
+| JaegerServer           | `jaeger`            | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port`                                                                                  |
+| ElasticsearchOssServer | `elasticsearch-oss` | `host`, `port`, `url`                                                                                                                                                |
+| HazelcastServer        | `hazelcast`         | `host`, `port`, `url`                                                                                                                                                |
+| Ignite2Server          | `ignite2`           | `host`, `port`, `url`                                                                                                                                                |
+| Ignite3Server          | `ignite3`           | `host`, `port`, `url`, `rest-port`                                                                                                                                   |
+| ZipkinServer           | `zipkin`            | `host`, `port`, `url`                                                                                                                                                |
+| NginxServer            | `nginx`             | `host`, `port`, `url`                                                                                                                                                |
+| ChromaDBServer         | `chromadb`          | `host`, `port`, `url`                                                                                                                                                |
+| OllamaServer           | `ollama`            | `host`, `port`, `url`                                                                                                                                                |
+| BluetapeHttpServer     | `bluetape-http`     | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
+| BluetapeWebfluxServer  | `bluetape-webflux`  | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 
 ## 사용 예
 
@@ -124,12 +127,12 @@ val server = PostgreSQLServer.Launcher.withExtensions("uuid-ossp", "hstore")
 
 ### Graph DB 서버
 
-| 서버 클래스             | Docker 이미지            | 기본 태그               | 프로토콜   | 기본 포트    |
-|------------------------|--------------------------|------------------------|-----------|-------------|
-| `Neo4jServer`          | `neo4j`                  | `5.26.24`              | Bolt/HTTP | 7687 / 7474 |
-| `MemgraphServer`       | `memgraph/memgraph`      | `3.9.0`                | Bolt      | 7687        |
-| `FalkorDBServer`       | `falkordb/falkordb`      | `v4.18.1`              | Redis     | 6379        |
-| `PostgreSQLAgeServer`  | `apache/age`             | `release_PG17_1.6.0`  | JDBC      | 5432        |
+| 서버 클래스           | Docker 이미지       | 기본 태그            | 프로토콜  | 기본 포트   |
+|-----------------------|---------------------|----------------------|-----------|-------------|
+| `Neo4jServer`         | `neo4j`             | `5.26.24`            | Bolt/HTTP | 7687 / 7474 |
+| `MemgraphServer`      | `memgraph/memgraph` | `3.9.0`              | Bolt      | 7687        |
+| `FalkorDBServer`      | `falkordb/falkordb` | `v4.18.1`            | Redis     | 6379        |
+| `PostgreSQLAgeServer` | `apache/age`        | `release_PG17_1.6.0` | JDBC      | 5432        |
 
 ```kotlin
 // Neo4j 서버
@@ -162,8 +165,7 @@ verify(getRequestedFor(urlEqualTo("/hello")))
 
 ### BluetapeHttpServer (httpbin + jsonplaceholder + web)
 
-`BluetapeHttpServer`는 `bluetape4k/mock-web-server` Docker 이미지를 실행합니다.
-httpbin, jsonplaceholder, web 컨텐츠 엔드포인트를 하나의 컨테이너에서 제공합니다.
+`BluetapeHttpServer`는 `bluetape4k/mock-web-server` Docker 이미지를 실행합니다. httpbin, jsonplaceholder, web 컨텐츠 엔드포인트를 하나의 컨테이너에서 제공합니다.
 
 ```kotlin
 // 싱글턴 — 모든 테스트에서 공유
@@ -180,14 +182,14 @@ val webUrl              = server.webUrl             // http://host:<port>/web
 
 `start()` 이후 아래 시스템 프로퍼티가 자동으로 등록됩니다:
 
-| 프로퍼티 키                                            | 예시 값                                    |
-|---------------------------------------------------|-----------------------------------------|
-| `testcontainers.bluetape-http.host`               | `localhost`                             |
-| `testcontainers.bluetape-http.port`               | `<동적>`                                  |
-| `testcontainers.bluetape-http.url`                | `http://localhost:<동적>`                 |
-| `testcontainers.bluetape-http.httpbin-url`        | `http://localhost:<동적>/httpbin`         |
+| 프로퍼티 키                                        | 예시 값                                   |
+|----------------------------------------------------|-------------------------------------------|
+| `testcontainers.bluetape-http.host`                | `localhost`                               |
+| `testcontainers.bluetape-http.port`                | `<동적>`                                  |
+| `testcontainers.bluetape-http.url`                 | `http://localhost:<동적>`                 |
+| `testcontainers.bluetape-http.httpbin-url`         | `http://localhost:<동적>/httpbin`         |
 | `testcontainers.bluetape-http.jsonplaceholder-url` | `http://localhost:<동적>/jsonplaceholder` |
-| `testcontainers.bluetape-http.web-url`            | `http://localhost:<동적>/web`             |
+| `testcontainers.bluetape-http.web-url`             | `http://localhost:<동적>/web`             |
 
 #### Spring Boot `application-test.yml`
 
@@ -211,8 +213,7 @@ val server = BluetapeHttpServer(useDefaultPort = true).apply { start() }
 
 ### BluetapeWebfluxServer (Spring WebFlux + Coroutines)
 
-`BluetapeWebfluxServer`는 `bluetape4k/mock-webflux-server` Docker 이미지를 실행합니다.
-Spring Boot 4 WebFlux + Coroutines 기반으로, httpbin/jsonplaceholder/web 엔드포인트를 동일하게 제공합니다.
+`BluetapeWebfluxServer`는 `bluetape4k/mock-webflux-server` Docker 이미지를 실행합니다. Spring Boot 4 WebFlux + Coroutines 기반으로, httpbin/jsonplaceholder/web 엔드포인트를 동일하게 제공합니다.
 
 ```kotlin
 // 싱글턴 — 모든 테스트에서 공유
@@ -229,16 +230,16 @@ val webUrl              = server.webUrl             // http://host:<port>/web
 
 `start()` 이후 아래 시스템 프로퍼티가 자동으로 등록됩니다:
 
-| 프로퍼티 키                                                  | 예시 값                                    |
-|----------------------------------------------------------|-----------------------------------------|
-| `testcontainers.bluetape-webflux.host`                   | `localhost`                             |
-| `testcontainers.bluetape-webflux.port`                   | `<동적>`                                  |
-| `testcontainers.bluetape-webflux.url`                    | `http://localhost:<동적>`                 |
-| `testcontainers.bluetape-webflux.httpbin-url`            | `http://localhost:<동적>/httpbin`         |
-| `testcontainers.bluetape-webflux.jsonplaceholder-url`    | `http://localhost:<동적>/jsonplaceholder` |
-| `testcontainers.bluetape-webflux.web-url`                | `http://localhost:<동적>/web`             |
-| `testcontainers.bluetape-webflux.https-port`             | `<동적>`                                  |
-| `testcontainers.bluetape-webflux.https-url`              | `https://localhost:<동적>`                |
+| 프로퍼티 키                                           | 예시 값                                   |
+|-------------------------------------------------------|-------------------------------------------|
+| `testcontainers.bluetape-webflux.host`                | `localhost`                               |
+| `testcontainers.bluetape-webflux.port`                | `<동적>`                                  |
+| `testcontainers.bluetape-webflux.url`                 | `http://localhost:<동적>`                 |
+| `testcontainers.bluetape-webflux.httpbin-url`         | `http://localhost:<동적>/httpbin`         |
+| `testcontainers.bluetape-webflux.jsonplaceholder-url` | `http://localhost:<동적>/jsonplaceholder` |
+| `testcontainers.bluetape-webflux.web-url`             | `http://localhost:<동적>/web`             |
+| `testcontainers.bluetape-webflux.https-port`          | `<동적>`                                  |
+| `testcontainers.bluetape-webflux.https-url`           | `https://localhost:<동적>`                |
 
 #### Spring Boot `application-test.yml`
 
@@ -318,7 +319,7 @@ client.use {
 ![(Toxiproxy) diagram](../../docs/images/readme-diagrams/testing-testcontainers-sequence-02.png)
 
 - `RedisServer`는 실제 Upstream 서버입니다.
-- `ToxiproxyServer`는 프록시 컨테이너입니다. Control API 포트(`8474`)와 프록시 포트 범위(`8666~8697`)를 노출합니다.
+- `ToxiproxyServer`는 프록시 컨테이너입니다. Control API 포트 (`8474`)와 프록시 포트 범위 (`8666~8697`)를 노출합니다.
 - `ToxiproxyClient`는 Control API에 붙어서 프록시를 만들고 toxic을 추가/삭제하는 관리용 클라이언트입니다.
 - `DOWNSTREAM latency`는 Upstream 응답이 클라이언트로 돌아오는 구간을 늦춥니다.
 

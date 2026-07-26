@@ -2,8 +2,7 @@
 
 English | [한국어](./README.ko.md)
 
-Runnable Ktor 3 application that shows application-owned Prometheus metrics routing, opt-in
-OpenTelemetry tracing, and bluetape4k event telemetry helpers.
+Runnable Ktor 3 application that shows application-owned Prometheus metrics routing, opt-in OpenTelemetry tracing, and bluetape4k event telemetry helpers.
 
 ## Example Scenario
 
@@ -16,15 +15,13 @@ The demo models a Ktor application that owns its observability plumbing explicit
 5. The application exposes its own Prometheus scrape endpoint at `/metrics`.
 6. Passing an `OpenTelemetry` SDK instance enables Ktor server spans; passing `null` keeps tracing disabled.
 
-This intentionally differs from the Spring Boot demo: Ktor has no Actuator endpoint, so the application
-owns the registry and route.
+This intentionally differs from the Spring Boot demo: Ktor has no Actuator endpoint, so the application owns the registry and route.
 
 ## Architecture
 
 ![Ktor observability demo architecture](../../../docs/images/readme-diagrams/examples-ktor-observability-ktor-demo-architecture-01.png)
 
-The scrape route is application-owned. `prometheusScrapeRoute(registry)` only exposes the registry
-content; it does not create global exporters or backend connections.
+The scrape route is application-owned. `prometheusScrapeRoute(registry)` only exposes the registry content; it does not create global exporters or backend connections.
 
 ## Sequence Diagram
 
@@ -40,8 +37,7 @@ content; it does not create global exporters or backend connections.
 
 ## Configuration
 
-Ktor does not expose Prometheus through Actuator. The application owns the registry and explicitly
-mounts the scrape route:
+Ktor does not expose Prometheus through Actuator. The application owns the registry and explicitly mounts the scrape route:
 
 ```kotlin
 val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
@@ -58,8 +54,7 @@ routing {
 }
 ```
 
-Passing `null` for the `OpenTelemetry` instance keeps tracing disabled. Tests use an in-memory SDK
-exporter, so no external collector is required.
+Passing `null` for the `OpenTelemetry` instance keeps tracing disabled. Tests use an in-memory SDK exporter, so no external collector is required.
 
 ## Run
 

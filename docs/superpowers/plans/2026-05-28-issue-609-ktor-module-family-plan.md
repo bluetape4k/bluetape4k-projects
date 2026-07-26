@@ -1,7 +1,6 @@
 # Issue #609 Ktor Module Family Plan
 
-Date: 2026-05-28
-Repo: `bluetape4k-projects`
+Date: 2026-05-28 Repo: `bluetape4k-projects`
 Issues: #609, #610, #611, #612, #613, #614, #615, #616
 
 ## Objective
@@ -51,8 +50,7 @@ Tasks:
 
 - Add `includeModules("ktor", withBaseDir = true)`.
 - Create minimal modules with package roots and dependency declarations.
-- Add missing catalog aliases only when existing aliases do not cover required
-  Ktor plugins.
+- Add missing catalog aliases only when existing aliases do not cover required Ktor plugins.
 - Run `./gradlew projects`.
 
 Validation:
@@ -71,8 +69,7 @@ Tasks:
 
 - Implement JSON defaults.
 - Implement baseline explicit installer.
-- Keep runtime framework objects such as `Json` out of `Serializable` public
-  value objects; use classes/builders or serializable option values honestly.
+- Keep runtime framework objects such as `Json` out of `Serializable` public value objects; use classes/builders or serializable option values honestly.
 - Implement API error response model.
 - Implement `StatusPages` mapping helpers.
 - Implement health/readiness route helpers.
@@ -132,8 +129,7 @@ Tasks:
 - Implement JSON test client factory.
 - Implement response decode helpers.
 - Implement status/body/error assertion helpers with bluetape4k assertions.
-- Decide whether `MockEngine` helpers belong in this module or backlog client
-  work.
+- Decide whether `MockEngine` helpers belong in this module or backlog client work.
 
 Tests:
 
@@ -168,8 +164,7 @@ Validation:
 
 Exit:
 
-- The migrated example proves the module family removes framework setup
-  boilerplate without hiding domain behavior.
+- The migrated example proves the module family removes framework setup boilerplate without hiding domain behavior.
 
 ### PR 7: #616 CI/docs/release metadata
 
@@ -187,8 +182,7 @@ Validation:
 - `actionlint`
 - `./gradlew projects`
 - Relevant Gradle compile/test tasks.
-- Manual workflow dispatch only when workflow behavior is changed enough to
-  require it.
+- Manual workflow dispatch only when workflow behavior is changed enough to require it.
 
 Exit:
 
@@ -214,12 +208,10 @@ Use the local 7-tier frame for each PR:
 6. Performance/stability.
 7. Documentation/release evidence.
 
-P0/P1 findings block the next PR. P2/P3 findings can be fixed in the PR or
-converted into follow-up issues with rationale.
+P0/P1 findings block the next PR. P2/P3 findings can be fixed in the PR or converted into follow-up issues with rationale.
 
 ## Stop Conditions
 
 - Stop #610 after the design PR is open and linked to #610.
-- Stop implementation PRs when targeted tests pass, local review has P0/P1 = 0,
-  docs are updated, and the PR is opened.
+- Stop implementation PRs when targeted tests pass, local review has P0/P1 = 0, docs are updated, and the PR is opened.
 - Do not merge automatically.

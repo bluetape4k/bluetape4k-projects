@@ -1,5 +1,7 @@
 package io.bluetape4k.http.jdk
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.http.AbstractHttpTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -7,8 +9,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 import java.net.URI
 import java.net.http.HttpRequest

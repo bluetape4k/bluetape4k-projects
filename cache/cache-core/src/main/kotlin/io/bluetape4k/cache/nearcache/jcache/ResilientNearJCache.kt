@@ -1,7 +1,6 @@
 package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.cache.nearcache.GetFailureStrategy
-
 import io.bluetape4k.concurrent.virtualthread.virtualThread
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -15,8 +14,8 @@ import kotlinx.atomicfu.atomic
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 import javax.cache.Cache
+import kotlin.concurrent.withLock
 
 /**
  * Resilient JCache 기반 Near Cache (2-tier: Caffeine front + JCache back) - 동기(Blocking) 구현.

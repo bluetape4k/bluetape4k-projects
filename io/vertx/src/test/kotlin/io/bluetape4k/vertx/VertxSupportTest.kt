@@ -1,26 +1,26 @@
 package io.bluetape4k.vertx
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeSameInstanceAs
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.vertx.tests.withTestContext
 import io.bluetape4k.vertx.tests.withSuspendTestContext
+import io.bluetape4k.vertx.tests.withTestContext
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeSameInstanceAs
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeSameInstanceAs
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 
-class VertxSupportTest : AbstractVertxTest() {
+class VertxSupportTest: AbstractVertxTest() {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     @AfterEach
     fun closeManagedDefaultVertx() {

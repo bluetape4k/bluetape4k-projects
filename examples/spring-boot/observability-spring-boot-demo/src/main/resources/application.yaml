@@ -1,26 +1,26 @@
 management:
-  defaults:
-    metrics:
-      export:
-        enabled: false
-  endpoints:
-    web:
-      exposure:
-        include: health,info,prometheus
-  endpoint:
+    defaults:
+        metrics:
+            export:
+                enabled: false
+    endpoints:
+        web:
+            exposure:
+                include: health,info,prometheus
+    endpoint:
+        prometheus:
+            access: read_only
     prometheus:
-      access: read_only
-  prometheus:
-    metrics:
-      export:
-        enabled: true
-  tracing:
-    sampling:
-      probability: 1.0
-  otlp:
+        metrics:
+            export:
+                enabled: true
     tracing:
-      endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:http://localhost:4318/v1/traces}
+        sampling:
+            probability: 1.0
+    otlp:
+        tracing:
+            endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:http://localhost:4318/v1/traces}
 
 logging:
-  level:
-    io.bluetape4k.examples.spring.observability: INFO
+    level:
+        io.bluetape4k.examples.spring.observability: INFO

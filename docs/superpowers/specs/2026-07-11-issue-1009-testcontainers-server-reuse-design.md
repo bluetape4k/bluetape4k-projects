@@ -2,24 +2,15 @@
 
 ## Problem
 
-The Testcontainers module exposes 53 `XxxServer` wrappers with 111 public or
-internal `reuse` parameters defaulting to `true`. On hosts that enable
-Testcontainers reuse, direct construction and JVM-scoped Launchers can attach
-to containers created by another Gradle process, defeating module isolation.
+The Testcontainers module exposes 53 `XxxServer` wrappers with 111 public or internal `reuse` parameters defaulting to `true`. On hosts that enable Testcontainers reuse, direct construction and JVM-scoped Launchers can attach to containers created by another Gradle process, defeating module isolation.
 
 ## Decision
 
-Every Server wrapper defaults `reuse` to `false`. Container reuse remains
-available only when a caller explicitly passes `reuse = true`. Launchers keep
-their lazy singleton-per-JVM lifecycle and therefore continue sharing one
-container inside a module while separate module JVMs receive independent
-containers.
+Every Server wrapper defaults `reuse` to `false`. Container reuse remains available only when a caller explicitly passes `reuse = true`. Launchers keep their lazy singleton-per-JVM lifecycle and therefore continue sharing one container inside a module while separate module JVMs receive independent containers.
 
 ## Compatibility
 
-This changes default runtime behavior but not source or binary signatures.
-Callers intentionally relying on reusable containers must opt in explicitly.
-CI and ordinary tests never opt in.
+This changes default runtime behavior but not source or binary signatures. Callers intentionally relying on reusable containers must opt in explicitly. CI and ordinary tests never opt in.
 
 ## Boundaries
 

@@ -1,13 +1,13 @@
 # Redis JSON Codec Implementation Plan
 
 > **For agentic workers:
-** If available, use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (
-`- [ ]`) syntax for tracking.
+> ** If available, use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (
+> `- [ ]`) syntax for tracking.
 
 **Goal:** `infra/redisson`과
-`infra/lettuce` 모듈에 JSON 기반 코덱(Jackson3Codec, Fastjson2Codec, LettuceJsonCodec)을 추가하여 human-readable Redis 데이터와 non-JVM 클라이언트 연동을 지원한다.
+`infra/lettuce` 모듈에 JSON 기반 코덱 (Jackson3Codec, Fastjson2Codec, LettuceJsonCodec)을 추가하여 human-readable Redis 데이터와 non-JVM 클라이언트 연동을 지원한다.
 
-**Architecture:** Redisson은 `BaseCodec`을 상속하며 커스텀 타입 엔벨로프(
+**Architecture:** Redisson은 `BaseCodec`을 상속하며 커스텀 타입 엔벨로프 (
 `{"_type","_data"}` for Jackson3, JSONB WriteClassName for Fastjson2)로 역직렬화 시 타입을 복원한다. Lettuce는
 `RedisCodec<String,V>` + `ToByteBufEncoder`를 구현하며 생성 시 `Class<V>`를 받아 타입 임베딩 없이 동작한다. 두 모듈 모두
 `allowedPackagePrefixes` 보안 파라미터를 제공한다.
@@ -481,13 +481,13 @@
 
 - [ ] **Step 5: Decoder 구현**
 
-  > ⚠️ **보안 핵심**: `JSONB.parseObject(..., SupportAutoType)` 호출 시 Fastjson2는 **역직렬화(객체 생성)와 동시에** 클래스를 로드합니다.
+  > ⚠️ **보안 핵심**: `JSONB.parseObject(..., SupportAutoType)` 호출 시 Fastjson2는 **역직렬화 (객체 생성)와 동시에** 클래스를 로드합니다.
   > `JSONB.parseTypeName(bytes)`는 fastjson2 2.0.61에 **존재하지 않습니다** (Codex 검증 확인).
   > `JSONB.parse(bytes)`로 `@type` 필드를 추출하는 방식도 객체를 먼저 생성하므로 pre-materialization 보안 제어가 되지 않습니다.
 
   **올바른 구현 전략** — `JSONReader.autoTypeFilter` + `JSONFactory.createReadContext` 기반:
     - `allowedPackagePrefixes != null`인 경우: `JSONReader.autoTypeFilter(*prefixes.toTypedArray())`로 필터를 생성하고
-      `JSONFactory.createReadContext(filter, JSONReader.Feature.SupportAutoType)`으로 Context를 얻는다. Fastjson2는 autoTypeFilter가 등록되면 클래스 로드 직전(pre-instantiation)에 필터를 호출하므로 gadget 공격 방어에 충분하다.
+      `JSONFactory.createReadContext(filter, JSONReader.Feature.SupportAutoType)`으로 Context를 얻는다. Fastjson2는 autoTypeFilter가 등록되면 클래스 로드 직전 (pre-instantiation)에 필터를 호출하므로 gadget 공격 방어에 충분하다.
     - `allowedPackagePrefixes == null`인 경우: 기본 `SupportAutoType`으로 동작 (trusted Redis only 계약).
 
   ```kotlin
@@ -579,7 +579,7 @@
    * ```kotlin
    * val safeCodec = Jackson3Codec(allowedPackagePrefixes = setOf("com.mycompany.", "io.bluetape4k."))
    * ```
-  */ val Jackson3: Codec by lazy { Jackson3Codec() }
+  */ val Jackson3: Codec by lazy { Jackson3Codec () }
 
   /**
     * Fastjson2 JSONB Codec. WriteClassName으로 타입 정보를 JSONB 바이너리에 임베딩합니다.
@@ -588,27 +588,27 @@
     * **신뢰된 내부 Redis 환경에서만 사용**하십시오.
     * 외부 노출 Redis에서는 [Fastjson2Codec]을 직접 생성하고 `allowedPackagePrefixes`를 지정하십시오:
     * ```kotlin
-    * val safeCodec = Fastjson2Codec(allowedPackagePrefixes = setOf("com.mycompany.", "io.bluetape4k."))
+  * val safeCodec = Fastjson2Codec (allowedPackagePrefixes = setOf ("com.mycompany.", "io.bluetape4k."))
     * ```
-  */ val Fastjson2: Codec by lazy { Fastjson2Codec() }
+  */ val Fastjson2: Codec by lazy { Fastjson2Codec () }
 
-  /** Map 키: String, 값: Jackson3 JSON을 사용하는 복합 Codec */ val Jackson3Composite: Codec by lazy { CompositeCodec(String, Jackson3, Jackson3) }
+  /** Map 키: String, 값: Jackson3 JSON을 사용하는 복합 Codec */ val Jackson3Composite: Codec by lazy { CompositeCodec (String, Jackson3, Jackson3) }
 
-  /** Map 키: String, 값: Fastjson2 JSONB를 사용하는 복합 Codec */ val Fastjson2Composite: Codec by lazy { CompositeCodec(String, Fastjson2, Fastjson2) }
+  /** Map 키: String, 값: Fastjson2 JSONB를 사용하는 복합 Codec */ val Fastjson2Composite: Codec by lazy { CompositeCodec (String, Fastjson2, Fastjson2) }
 
   /**
     * `allowedPackagePrefixes`를 지정한 안전한 Jackson3 Codec을 생성합니다.
     * 외부 노출 Redis 또는 보안 요구사항이 있는 경우 이 함수를 기본으로 사용하십시오.
     *
     * 예: `RedissonCodecs.jackson3(setOf("com.mycompany.", "io.bluetape4k."))`
-      */ fun jackson3(allowedPackagePrefixes: Set<String>): Codec = Jackson3Codec(allowedPackagePrefixes = allowedPackagePrefixes)
+      */ fun jackson3 (allowedPackagePrefixes: Set<String>): Codec = Jackson3Codec (allowedPackagePrefixes = allowedPackagePrefixes)
 
   /**
     * `allowedPackagePrefixes`를 지정한 안전한 Fastjson2 JSONB Codec을 생성합니다.
     * 외부 노출 Redis 또는 보안 요구사항이 있는 경우 이 함수를 기본으로 사용하십시오.
     *
     * 예: `RedissonCodecs.fastjson2(setOf("com.mycompany.", "io.bluetape4k."))`
-      */ fun fastjson2(allowedPackagePrefixes: Set<String>): Codec = Fastjson2Codec(allowedPackagePrefixes = allowedPackagePrefixes)
+      */ fun fastjson2 (allowedPackagePrefixes: Set<String>): Codec = Fastjson2Codec (allowedPackagePrefixes = allowedPackagePrefixes)
   ```
 
 - [ ] **Step 3: compile 확인**
@@ -721,7 +721,7 @@
   > **지원 범위 — Jackson3와 동일하게 통일**: 루트 타입 `List<T>`, `Map<K,V>`는 이번 스펙에서 지원하지 않습니다.
   > Fastjson2 JSONB `WriteClassName`은 `java.util.ArrayList` 등 구현 클래스 이름을 저장하므로 Jackson3와 동일한 제한이 적용됩니다.
   > 루트 Collection 사용 시 DTO 래퍼로 감싸도록 KDoc에 명시합니다.
-  > JSON codec(Jackson3/Fastjson2) 간 API 계약을 일관되게 유지합니다.
+  > JSON codec (Jackson3/Fastjson2) 간 API 계약을 일관되게 유지합니다.
 
 - [ ] **Step 4: fallback 테스트**
 
@@ -735,7 +735,7 @@
 
 - [ ] **Step 7: Fastjson2Codec ↔ FastjsonSerializer 비호환성 검증**
 
-  > ⚠️ **주의**: `FastjsonSerializer`로 인코딩한 JSONB 바이트(WriteClassName 없음)를 `Fastjson2Codec`의 decoder에 전달하면
+  > ⚠️ **주의**: `FastjsonSerializer`로 인코딩한 JSONB 바이트 (WriteClassName 없음)를 `Fastjson2Codec`의 decoder에 전달하면
   > `JSONB.parseObject(..., SupportAutoType)`은 타입 정보가 없으므로 `JSONObject` / `Map` 류로 **성공적으로** 역직렬화할 수 있습니다.
   > 따라서 테스트의 기대값은 "예외 발생" 이 아니라 **"도메인 타입 roundtrip 계약 불일치"** 입니다.
 
@@ -757,7 +757,7 @@
       }
   }
   ```
-  반대 방향도 동일: `Fastjson2Codec`으로 인코딩(WriteClassName 포함) → `FastjsonSerializer.deserialize(bytes, Sample::class.java)` 결과가
+  반대 방향도 동일: `Fastjson2Codec`으로 인코딩 (WriteClassName 포함) → `FastjsonSerializer.deserialize(bytes, Sample::class.java)` 결과가
   `null` 이거나 역직렬화 실패인지 확인. KDoc에 "**FastjsonSerializer와 데이터 포맷 비호환**" 주석이 있는지 확인.
 
 - [ ] **Step 8: 테스트 실행**
@@ -1297,8 +1297,8 @@ T2 ──┬── T8 ──┬── T9 ── T12 ── T14
 
 ## Complexity Summary
 
-| Task | Description                        | Complexity |
-|------|------------------------------------|------------|
+| Task | Description                          | Complexity |
+|------|--------------------------------------|------------|
 | T1   | infra/redisson/build.gradle.kts 수정 | **low**    |
 | T2   | infra/lettuce/build.gradle.kts 수정  | **low**    |
 | T3   | Jackson3Codec.kt 생성 (Redisson)     | **high**   |
@@ -1311,11 +1311,11 @@ T2 ──┬── T8 ──┬── T9 ── T12 ── T14
 | T10  | LettuceJsonCodecTest.kt 생성         | **medium** |
 | T11  | RedissonCodecBenchmark.kt 생성       | **medium** |
 | T12  | LettuceCodecBenchmark.kt 생성        | **medium** |
-| T13  | 전체 테스트 실행 검증                       | **low**    |
-| T14  | 벤치마크 실행                            | **low**    |
+| T13  | 전체 테스트 실행 검증                | **low**    |
+| T14  | 벤치마크 실행                        | **low**    |
 | T15  | README.md + README.ko.md 갱신        | **low**    |
-| T16  | KDoc (한국어) 검증 및 보완                 | **low**    |
-| T17  | superpowers index 업데이트             | **low**    |
-| T18  | CLAUDE.md 업데이트                     | **low**    |
+| T16  | KDoc (한국어) 검증 및 보완           | **low**    |
+| T17  | superpowers index 업데이트           | **low**    |
+| T18  | CLAUDE.md 업데이트                   | **low**    |
 
 **Estimated total**: ~8-10 hours (3 high + 4 medium + 11 low)

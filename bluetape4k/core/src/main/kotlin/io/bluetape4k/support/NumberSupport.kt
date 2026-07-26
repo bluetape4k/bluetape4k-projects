@@ -100,7 +100,7 @@ val DefaultDecimalFormat: DecimalFormat get() = DecimalFormat(defaultNumberForma
  * val humanReadable = number.toHuman()  // 1,234,567,890
  * ```
  *
- * @param decimalFormat DecimalFormat (default: #,##0.#)
+ * @param pattern DecimalFormat (default: #,##0.#)
  */
 inline fun Number.toHuman(pattern: String = defaultNumberFormatPattern): String =
     DecimalFormat(pattern).format(this)
@@ -163,7 +163,7 @@ fun String.decodeBigInt(): BigInteger {
         str.startsWith("0x", ignoreCase = true) -> str.substring(2) to 16
         str.startsWith("#")                     -> str.substring(1) to 16
         str.startsWith("0") && str.length > 1   -> str.substring(1) to 8
-        else                                     -> str to 10
+        else -> str to 10
     }
 
     val result = BigInteger(digits, radix)

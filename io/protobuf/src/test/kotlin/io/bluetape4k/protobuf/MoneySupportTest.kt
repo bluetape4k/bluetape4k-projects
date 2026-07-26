@@ -1,8 +1,8 @@
 package io.bluetape4k.protobuf
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.javamoney.moneta.Money
 import org.junit.jupiter.api.Test
 

@@ -1,5 +1,7 @@
 package io.bluetape4k.okio.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -10,9 +12,7 @@ import kotlinx.coroutines.coroutineScope
 import net.datafaker.Faker
 import okio.Buffer
 import okio.IOException
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class SuspendedPipeTest: AbstractOkioTest() {
 

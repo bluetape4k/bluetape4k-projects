@@ -2,8 +2,7 @@
 
 [English](./README.md) | 한국어
 
-Ktor 3에서 애플리케이션이 소유한 Prometheus metrics route, opt-in OpenTelemetry tracing,
-bluetape4k event telemetry helper를 함께 사용하는 실행 가능한 예제입니다.
+Ktor 3에서 애플리케이션이 소유한 Prometheus metrics route, opt-in OpenTelemetry tracing, bluetape4k event telemetry helper를 함께 사용하는 실행 가능한 예제입니다.
 
 ## 예제 시나리오
 
@@ -22,8 +21,7 @@ Spring Boot 예제와 달리 Ktor에는 Actuator endpoint가 없습니다. 따�
 
 ![Ktor observability demo architecture](../../../docs/images/readme-diagrams/examples-ktor-observability-ktor-demo-architecture-01.png)
 
-Scrape route는 애플리케이션이 소유합니다. `prometheusScrapeRoute(registry)`는 registry 내용을
-노출할 뿐, global exporter나 backend 연결을 만들지 않습니다.
+Scrape route는 애플리케이션이 소유합니다. `prometheusScrapeRoute(registry)`는 registry 내용을 노출할 뿐, global exporter나 backend 연결을 만들지 않습니다.
 
 ## Sequence Diagram
 

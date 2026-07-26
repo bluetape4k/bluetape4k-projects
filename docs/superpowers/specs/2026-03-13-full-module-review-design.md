@@ -1,7 +1,6 @@
 # bluetape4k-projects 전체 모듈 심층 코드 리뷰 & 테스트 보강 설계
 
-**날짜**: 2026-03-13
-**방식**: 의존성 웨이브 병렬 처리 (B안)
+**날짜**: 2026-03-13 **방식**: 의존성 웨이브 병렬 처리 (B안)
 **진행**: 자율 진행 (자동 커밋, 승인 없음)
 
 ## 목표
@@ -28,23 +27,23 @@
 
 ## 웨이브 구성
 
-| 웨이브 | 모듈                                                                                                                                                                       |
-|-----|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| W1  | bluetape4k/logging, testing/junit5                                                                                                                                       |
-| W2  | bluetape4k/core                                                                                                                                                          |
-| W3  | bluetape4k/coroutines, testing/testcontainers                                                                                                                            |
-| W4  | io/io, io/okio, io/json, io/jackson, io/jackson3, io/tink, io/crypto                                                                                                     |
-| W5  | io/jackson-binary, io/jackson-text, io/jackson3-binary, io/jackson3-text, io/fastjson2, io/avro, io/csv, io/protobuf, io/feign, io/http, io/netty, io/retrofit2, io/grpc |
-| W6  | data/jdbc, data/r2dbc, data/exposed-core                                                                                                                                 |
-| W7  | data/exposed-dao, data/exposed-jdbc, data/exposed-r2dbc, data/exposed-*, data/cassandra, data/mongodb, data/hibernate, data/hibernate-reactive                           |
-| W8  | infra/lettuce, infra/redisson                                                                                                                                            |
-| W9  | infra/bucket4j, infra/cache-*, infra/kafka, infra/micrometer, infra/nats, infra/opentelemetry, infra/resilience4j                                                        |
-| W10 | utils/* (전체)                                                                                                                                                             |
-| W11 | spring/*                                                                                                                                                                 |
-| W12 | vertx/*                                                                                                                                                                  |
-| W13 | aws/*                                                                                                                                                                    |
-| W14 | aws-kotlin/*                                                                                                                                                             |
-| W15 | examples/*                                                                                                                                                               |
+| 웨이브 | 모듈                                                                                                                                                                     |
+|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| W1     | bluetape4k/logging, testing/junit5                                                                                                                                       |
+| W2     | bluetape4k/core                                                                                                                                                          |
+| W3     | bluetape4k/coroutines, testing/testcontainers                                                                                                                            |
+| W4     | io/io, io/okio, io/json, io/jackson, io/jackson3, io/tink, io/crypto                                                                                                     |
+| W5     | io/jackson-binary, io/jackson-text, io/jackson3-binary, io/jackson3-text, io/fastjson2, io/avro, io/csv, io/protobuf, io/feign, io/http, io/netty, io/retrofit2, io/grpc |
+| W6     | data/jdbc, data/r2dbc, data/exposed-core                                                                                                                                 |
+| W7     | data/exposed-dao, data/exposed-jdbc, data/exposed-r2dbc, data/exposed-*, data/cassandra, data/mongodb, data/hibernate, data/hibernate-reactive                           |
+| W8     | infra/lettuce, infra/redisson                                                                                                                                            |
+| W9     | infra/bucket4j, infra/cache-*, infra/kafka, infra/micrometer, infra/nats, infra/opentelemetry, infra/resilience4j                                                        |
+| W10    | utils/* (전체)                                                                                                                                                           |
+| W11    | spring/*                                                                                                                                                                 |
+| W12    | vertx/*                                                                                                                                                                  |
+| W13    | aws/*                                                                                                                                                                    |
+| W14    | aws-kotlin/*                                                                                                                                                             |
+| W15    | examples/*                                                                                                                                                               |
 
 ## 커밋 전략
 

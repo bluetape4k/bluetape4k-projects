@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { writeFileSync } from "node:fs";
+import {writeFileSync} from "node:fs";
 
 const out = "docs/images/readme-diagrams/infra-elasticsearch-diagram-01.svg";
 

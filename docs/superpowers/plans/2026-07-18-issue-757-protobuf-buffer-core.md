@@ -1,12 +1,14 @@
 # Issue #757 Protobuf Buffer Core Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use `$subagent-driven-development` (recommended) or `$executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use `$subagent-driven-development` (recommended) or `$executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add caller-owned Protobuf `ByteBuffer` APIs, route strict serializer and contiguous Redisson decode through lower-copy paths, and prove benchmark completeness plus allocation claims with two fail-closed runs.
 
 **Architecture:** Keep `ByteArray` and trusted fallback behavior intact while adding a shared loader-scoped Protobuf message resolver and explicit buffer overrides. Redisson uses a bounded NIO view only for single-component inputs and retains an isolated copied compatibility path for composite and trusted fallback inputs. The existing protobuf benchmark module becomes a thread-confined allocation harness with a module-local validator and exact-head evidence protocol.
 
-**Tech Stack:** Kotlin 2.3, Java 21 `ByteBuffer`, Protobuf 4.35.1 `Any`/`CodedOutputStream`, Netty `ByteBuf`, Redisson codec APIs, JUnit 5, kotlinx-benchmark/JMH, Python 3 `unittest`.
+**Tech
+Stack:** Kotlin 2.3, Java 21 `ByteBuffer`, Protobuf 4.35.1 `Any`/`CodedOutputStream`, Netty `ByteBuf`, Redisson codec APIs, JUnit 5, kotlinx-benchmark/JMH, Python 3 `unittest`.
 
 ---
 
@@ -67,12 +69,12 @@
 
 Evidence invalidation is fail-closed:
 
-| Post-promotion change | Required lifecycle |
-|---|---|
-| production dispatch, JMH fixture/method matrix, canonical config/payload, metadata emitter, dependency/JAR input, JVM profile | invalidate the manifest; build a fresh JAR; collect two fresh runs; compare, promote/replace, verify, regenerate report/manifest; rerun Performance plus every affected review lens |
-| validator/runner metric parsing, verdict semantics, identity rules | fresh runs unless a reviewer proves metric inputs and semantics are byte-for-byte unchanged; otherwise no revalidation shortcut |
-| report renderer or delivery-contract wording only | run `validate-committed`, keep and revalidate the unchanged delivery manifest, regenerate/validate only the report, then rerun Operator/Caller review; if the manifest schema or authority contract changed, use the validator/runner row instead; raw metrics remain immutable |
-| promoted raw evidence, environment, comparison, validation, or rollback archive | treat as tamper; restore exact committed bytes or run the full fresh-evidence lifecycle |
+| Post-promotion change                                                                                                         | Required lifecycle                                                                                                                                                                                                                                                              |
+|-------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| production dispatch, JMH fixture/method matrix, canonical config/payload, metadata emitter, dependency/JAR input, JVM profile | invalidate the manifest; build a fresh JAR; collect two fresh runs; compare, promote/replace, verify, regenerate report/manifest; rerun Performance plus every affected review lens                                                                                             |
+| validator/runner metric parsing, verdict semantics, identity rules                                                            | fresh runs unless a reviewer proves metric inputs and semantics are byte-for-byte unchanged; otherwise no revalidation shortcut                                                                                                                                                 |
+| report renderer or delivery-contract wording only                                                                             | run `validate-committed`, keep and revalidate the unchanged delivery manifest, regenerate/validate only the report, then rerun Operator/Caller review; if the manifest schema or authority contract changed, use the validator/runner row instead; raw metrics remain immutable |
+| promoted raw evidence, environment, comparison, validation, or rollback archive                                               | treat as tamper; restore exact committed bytes or run the full fresh-evidence lifecycle                                                                                                                                                                                         |
 
 Initial promotion remains no-clobber. A legitimate post-promotion replacement uses `run-evidence.py replace-promoted --state <new-state> --expected-manifest <tracked-old-manifest> --destination docs/benchmarks/raw/issue-757 --backup-root .omx/tmp/issue-757/evidence-backups`. It verifies the tracked old directory against its manifest, builds/verifies the complete new sibling directory, atomically moves the old canonical directory to a unique ignored backup and the new directory into place, restores the old directory on any failure, and records the one exact backup path in state. Git history plus the ignored backup preserves recovery. Only after the replacement manifest is committed at `HEAD`, `git show HEAD:docs/benchmarks/raw/issue-757/delivery-manifest.json` is byte-identical to the working file, and `validate-committed` succeeds may `cleanup-replacement-backup` remove that state-recorded backup; it rejects an unverified manifest/head, a path outside the configured backup root, or any path other than the recorded backup. Fixtures cover old-manifest drift, destination collision, failure between both renames, successful restore, cleanup refusal, exact single-backup cleanup, and clean-checkout validation of the replacement.
 
@@ -888,14 +890,14 @@ Add exact regression assertions for both `deserialize(bytes)` and `deserializeFr
 
 Use this exception matrix as the test oracle; `N` is the exact bounded input size for both entry points:
 
-| Failure | `deserialize(ByteArray)` | `deserializeFrom(ByteBuffer)` |
-|---|---|---|
-| strict malformed protobuf | outer `BinarySerializationException("Fail to deserialize. bytesSize=N")`; cause depth 1 is `SecurityException("Payload is not Protobuf Any and no trusted fallback serializer is configured.")`; cause depth 2 is the original `InvalidProtocolBufferException` | identical outer type/message and cause chain |
-| strict allowed class not found | same outer and depth-1 messages; cause depth 2 is the original `ClassNotFoundException` | identical |
-| strict protobuf `Any.unpack` type/payload failure | same outer and depth-1 messages; cause depth 2 is the original unpack `InvalidProtocolBufferException` | identical |
-| terminal allowlist/non-`Message` rejection | same outer message; cause depth 1 is `SecurityException`; fallback call count is zero | identical |
-| trusted fallback serializer failure | same outer message; cause depth 1 is the fallback's `BinarySerializationException`; its cause remains the backend failure at depth 2 | identical |
-| JVM `Error` | preserve the inherited `AbstractBinarySerializer` contract: outer `BinarySerializationException("Fail to deserialize. bytesSize=N")`, cause depth 1 is the same `Error` instance | preserve the buffer SPI contract: rethrow the same `Error` instance without wrapping |
+| Failure                                           | `deserialize(ByteArray)`                                                                                                                                                                                                                                        | `deserializeFrom(ByteBuffer)`                                                        |
+|---------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| strict malformed protobuf                         | outer `BinarySerializationException("Fail to deserialize. bytesSize=N")`; cause depth 1 is `SecurityException("Payload is not Protobuf Any and no trusted fallback serializer is configured.")`; cause depth 2 is the original `InvalidProtocolBufferException` | identical outer type/message and cause chain                                         |
+| strict allowed class not found                    | same outer and depth-1 messages; cause depth 2 is the original `ClassNotFoundException`                                                                                                                                                                         | identical                                                                            |
+| strict protobuf `Any.unpack` type/payload failure | same outer and depth-1 messages; cause depth 2 is the original unpack `InvalidProtocolBufferException`                                                                                                                                                          | identical                                                                            |
+| terminal allowlist/non-`Message` rejection        | same outer message; cause depth 1 is `SecurityException`; fallback call count is zero                                                                                                                                                                           | identical                                                                            |
+| trusted fallback serializer failure               | same outer message; cause depth 1 is the fallback's `BinarySerializationException`; its cause remains the backend failure at depth 2                                                                                                                            | identical                                                                            |
+| JVM `Error`                                       | preserve the inherited `AbstractBinarySerializer` contract: outer `BinarySerializationException("Fail to deserialize. bytesSize=N")`, cause depth 1 is the same `Error` instance                                                                                | preserve the buffer SPI contract: rethrow the same `Error` instance without wrapping |
 
 Construct each payload deterministically, assert exact `message`, cause class, cause depth, and object identity for `Error`. Except for the documented raw-buffer `Error` classification, `deserializeFrom` must reproduce the same wrapper depth as `deserialize(ByteArray)`. This requires `deserializeFrom` to wrap a fallback `BinarySerializationException` once more; do not special-case it for direct rethrow.
 
@@ -2218,9 +2220,7 @@ python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py run \
 
 The smoke profile is fixed at `-t 1 -f 1 -wi 1 -i 1 -w 1s -r 1s -prof gc -rf json`; the validator's `run` mode validates schema, provenance, and metrics, while final `compare` mode enforces the canonical evidence profile.
 
-Expected: all 13 methods present and validation status `passed`.
-If the smoke fails, repair the scripts/tests, repeat Step 4, commit the repair with Lore trailers, and rerun the smoke from the new clean head. Do not bypass the runner clean-tree gate.
-The smoke root/state is never reused for canonical evidence. Task 8 creates the distinct `build/issue-757-evidence/jar.json` only after its fresh clean/JAR build.
+Expected: all 13 methods present and validation status `passed`. If the smoke fails, repair the scripts/tests, repeat Step 4, commit the repair with Lore trailers, and rerun the smoke from the new clean head. Do not bypass the runner clean-tree gate. The smoke root/state is never reused for canonical evidence. Task 8 creates the distinct `build/issue-757-evidence/jar.json` only after its fresh clean/JAR build.
 
 ### Task 7: Document the public contract and prepare a clean implementation head
 
@@ -2428,11 +2428,11 @@ Expected: each eligible cell is exactly `accepted`, `inconclusive`, or `regresse
 
 Rollback is dependency-ordered and symbol-scoped; do not use whole-commit `git revert` when a commit mixes retained public APIs with optimized dispatch:
 
-| Regression cell | Remove/revert | Required tests | Documentation/evidence repair |
-|---|---|---|---|
+| Regression cell               | Remove/revert                                                                                                               | Required tests                                                                            | Documentation/evidence repair                                                                                                                      |
+|-------------------------------|-----------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
 | serializer encode heap/direct | `ProtobufSerializer.serializeTo` ProtoMessage direct branch in `ProtobufSerializer.kt`; retain public `MessageSupport` APIs | `ProtobufSerializerByteBufferTest`, `ProtobufSerializerSecurityTest`, full protobuf suite | remove serializer encode reduction wording from both locale READMEs, benchmark README/report/index, and CHANGELOG; keep compatibility-only wording |
-| serializer decode heap/direct | `ProtobufSerializer.deserializeFrom` direct parse branch; restore copied SPI compatibility dispatch | same serializer/security/full suite | remove serializer decode reduction wording from the same docs/KDoc surfaces |
-| Redisson contiguous decode | contiguous `nioBuffer` branch in `RedissonProtobufCodec.Decoder`; retain isolated copied composite/fallback path | `RedissonProtobufCodecTest`, serializer/security/full suite | remove contiguous Redisson reduction wording from both locale READMEs, codec KDoc, benchmark report/index, and CHANGELOG |
+| serializer decode heap/direct | `ProtobufSerializer.deserializeFrom` direct parse branch; restore copied SPI compatibility dispatch                         | same serializer/security/full suite                                                       | remove serializer decode reduction wording from the same docs/KDoc surfaces                                                                        |
+| Redisson contiguous decode    | contiguous `nioBuffer` branch in `RedissonProtobufCodec.Decoder`; retain isolated copied composite/fallback path            | `RedissonProtobufCodecTest`, serializer/security/full suite                               | remove contiguous Redisson reduction wording from both locale READMEs, codec KDoc, benchmark report/index, and CHANGELOG                           |
 
 Rollback 순서는 고정이다: (1) pre-change clean head에서 Gradle clean 외부 `.omx/evidence/issue-757-rollback`에 `record-rollback` preparation 생성, (2) module `build/`의 기존 measurement staging은 disposable obsolete 경로로 분리하되 immutable archive는 외부 durable root에 유지, (3) symbol-scoped code/docs rollback commit, (4) affected/전체 검증, (5) 같은 preparation으로 `finalize-rollback`, (6) finalized bundle을 import한 fresh JAR/state에서 새로운 run ID 두 개 수집. old metrics는 `regressed_cells` trigger 근거로만 사용하며 final performance evidence로 재사용하지 않는다. 전체 `removed_cells`는 최종 compare에서 `ineligible`/`removed_after_regression`이고 retained regression은 다음 generation을 시작하기 전에 promotion을 차단한다.
 

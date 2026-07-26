@@ -3,23 +3,23 @@
 ## 순서
 
 1. `bluetape4k-coroutines` 리뷰
-   - cancellation 전파가 필요한 `runCatching` 경로를 정리한다.
-   - `DeferredSupport`와 Subject 계열 edge test를 추가한다.
-   - public API KDoc/README 예제를 보강한다.
-   - targeted test와 `:bluetape4k-coroutines:test`를 실행한다.
-   - 6-Tier gate를 수행해 P0/P1을 제거한다.
+    - cancellation 전파가 필요한 `runCatching` 경로를 정리한다.
+    - `DeferredSupport`와 Subject 계열 edge test를 추가한다.
+    - public API KDoc/README 예제를 보강한다.
+    - targeted test와 `:bluetape4k-coroutines:test`를 실행한다.
+    - 6-Tier gate를 수행해 P0/P1을 제거한다.
 
 2. `bluetape4k-io` 리뷰
-   - file/path/zip/compressor/serializer public contract를 점검한다.
-   - nullable/blank/empty/invalid path, resource cleanup edge test를 추가한다.
-   - public API KDoc/README 예제를 보강한다.
-   - targeted test와 `:bluetape4k-io:test`를 실행한다.
-   - 6-Tier gate를 수행해 P0/P1을 제거한다.
+    - file/path/zip/compressor/serializer public contract를 점검한다.
+    - nullable/blank/empty/invalid path, resource cleanup edge test를 추가한다.
+    - public API KDoc/README 예제를 보강한다.
+    - targeted test와 `:bluetape4k-io:test`를 실행한다.
+    - 6-Tier gate를 수행해 P0/P1을 제거한다.
 
 3. 통합 마무리
-   - diff review, module verification evidence 정리.
-   - Lore commit 작성.
-   - branch push 및 draft PR 생성.
+    - diff review, module verification evidence 정리.
+    - Lore commit 작성.
+    - branch push 및 draft PR 생성.
 
 ## Coroutines 현재 판단
 

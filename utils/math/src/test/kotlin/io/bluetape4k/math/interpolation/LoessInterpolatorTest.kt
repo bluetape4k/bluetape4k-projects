@@ -1,9 +1,9 @@
 package io.bluetape4k.math.interpolation
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.support.emptyDoubleArray
 import org.apache.commons.math3.exception.NoDataException
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class LoessInterpolatorTest: AbstractInterpolationTest() {
 

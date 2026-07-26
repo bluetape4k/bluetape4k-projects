@@ -4,11 +4,11 @@ import feign.DefaultRetryer
 import feign.Param
 import feign.RequestLine
 import feign.hc5.ApacheHttp5Client
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.http.okhttp3.mock.baseUrl
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

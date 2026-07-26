@@ -9,25 +9,20 @@
 
 ## Okio를 쓰는 이유
 
-Okio는 `java.io`와 `java.nio`를 직접 사용할 때 자주 생기는 장황한 코드, 불필요한 할당, 애매한
-read 계약을 줄이기 위한 실용적인 I/O 계층입니다. 핵심 모델은 작습니다. 데이터는 `Source`와
-`Sink`를 통해 흐르고, 호출자는 보통 `BufferedSource`, `BufferedSink`, `Buffer`, `ByteString`으로
-작업합니다.
+Okio는 `java.io`와 `java.nio`를 직접 사용할 때 자주 생기는 장황한 코드, 불필요한 할당, 애매한 read 계약을 줄이기 위한 실용적인 I/O 계층입니다. 핵심 모델은 작습니다. 데이터는 `Source`와
+`Sink`를 통해 흐르고, 호출자는 보통 `BufferedSource`, `BufferedSink`, `Buffer`, `ByteString`으로 작업합니다.
 
 주요 장점:
 
 - **조합 가능한 스트림 파이프라인**: 압축, 암호화, Base64, hashing, channel adapter를
   `Source`/`Sink` 위의 작은 decorator로 단계적으로 조합할 수 있습니다.
-- **효율적인 버퍼링**: `Buffer`는 재사용 가능한 segment로 byte를 저장하며, buffer 간 데이터
-  이동 시 매번 전체 byte를 복사하지 않아도 됩니다.
-- **값으로 다루는 바이너리 데이터**: `ByteString`은 immutable byte sequence이므로 비교, 인코딩,
-  디코딩, hashing, 모듈 경계 전달에 적합합니다.
-- **byte와 text를 하나의 API로 처리**: raw byte, UTF-8, primitive number, line-oriented protocol을
-  같은 buffered API로 다룰 수 있어 byte stream과 reader/writer wrapper를 오갈 필요가 줄어듭니다.
+- **효율적인 버퍼링**: `Buffer`는 재사용 가능한 segment로 byte를 저장하며, buffer 간 데이터 이동 시 매번 전체 byte를 복사하지 않아도 됩니다.
+- **값으로 다루는 바이너리 데이터**: `ByteString`은 immutable byte sequence이므로 비교, 인코딩, 디코딩, hashing, 모듈 경계 전달에 적합합니다.
+- **byte와 text를 하나의 API로
+  처리**: raw byte, UTF-8, primitive number, line-oriented protocol을 같은 buffered API로 다룰 수 있어 byte stream과 reader/writer wrapper를 오갈 필요가 줄어듭니다.
 - **더 안전한 I/O 계약**: `Timeout`, 단순한 `Source`/`Sink` 인터페이스, buffered read를 통해
   `InputStream.available()` 또는 single-byte read에 의존하는 오류를 피할 수 있습니다.
-- **테스트 용이성**: `Buffer`는 source와 sink 역할을 모두 할 수 있어 codec/protocol 로직을 파일,
-  socket, 임시 stream 없이 검증하기 쉽습니다.
+- **테스트 용이성**: `Buffer`는 source와 sink 역할을 모두 할 수 있어 codec/protocol 로직을 파일, socket, 임시 stream 없이 검증하기 쉽습니다.
 - **이 모듈의 coroutine 확장**: `SuspendedSource`, `SuspendedSink`, suspended file/socket channel,
   `SuspendedPipe`를 통해 Okio 스타일 pipeline을 structured concurrency 코드에서도 사용할 수 있습니다.
 
@@ -67,21 +62,19 @@ read 계약을 줄이기 위한 실용적인 I/O 계층입니다. 핵심 모델�
 
 다음 요구가 있다면 `bluetape4k-okio` 사용을 권장합니다:
 
-- **Protocol 또는 payload codec**: binary protocol, framed message, length-prefixed record,
-  checksum, UTF-8 line parser를 `Buffer`와 `BufferedSource` 기반으로 구현할 때.
-- **Streaming transformation**: `Source`/`Sink` 형태를 유지하면서 압축, 복원, 암호화, 복호화,
-  Base64 인코딩을 조합해야 할 때.
-- **대용량 payload 처리**: payload 전체를 하나의 byte array로 올리면 안 되는 경우 streaming
-  compressor, DAEAD chunk encryption, buffered copy를 사용할 때.
+- **Protocol 또는 payload
+  codec**: binary protocol, framed message, length-prefixed record, checksum, UTF-8 line parser를 `Buffer`와 `BufferedSource` 기반으로 구현할 때.
+- **Streaming transformation**: `Source`/`Sink` 형태를 유지하면서 압축, 복원, 암호화, 복호화, Base64 인코딩을 조합해야 할 때.
+- **대용량 payload
+  처리**: payload 전체를 하나의 byte array로 올리면 안 되는 경우 streaming compressor, DAEAD chunk encryption, buffered copy를 사용할 때.
 - **레거시 I/O와 현대적 I/O 연결**: `InputStream`, `OutputStream`, `ReadableByteChannel`,
   `WritableByteChannel`, `FileChannel`을 하나의 Okio 기반 pipeline으로 맞출 때.
-- **Coroutine 기반 서비스**: 호출자가 이미 structured concurrency를 사용하고 있고 raw stream
-  호출로 coroutine dispatcher를 blocking하면 안 되는 경우 suspended file/socket adapter와
+- **Coroutine 기반
+  서비스**: 호출자가 이미 structured concurrency를 사용하고 있고 raw stream 호출로 coroutine dispatcher를 blocking하면 안 되는 경우 suspended file/socket adapter와
   `SuspendedPipe`를 사용할 때.
-- **I/O 코드의 결정적 테스트**: source와 sink를 `Buffer`로 모델링하고, 파일/socket 테스트는
-  integration boundary에만 둘 때.
-- **보안 민감 payload envelope**: payload가 여러 번 나뉘어 기록되고 associated data를 각 frame과
-  함께 인증해야 할 때 DAEAD chunk encryption을 사용할 때.
+- **I/O 코드의 결정적 테스트**: source와 sink를 `Buffer`로 모델링하고, 파일/socket 테스트는 integration boundary에만 둘 때.
+- **보안 민감 payload
+  envelope**: payload가 여러 번 나뉘어 기록되고 associated data를 각 frame과 함께 인증해야 할 때 DAEAD chunk encryption을 사용할 때.
 
 권장 기본값:
 
@@ -90,11 +83,9 @@ read 계약을 줄이기 위한 실용적인 I/O 계층입니다. 핵심 모델�
 - 여러 번의 write로 만들어지는 암호화 payload에는 DAEAD chunk encryption을 우선 사용합니다.
 - 프로토콜 요구가 없다면 압축을 먼저 적용하고 그 결과를 암호화합니다.
 - public immutable boundary에는 `ByteString`, 내부 mutable 작업 영역에는 `Buffer`를 사용합니다.
-- coroutine 코드에서는 blocking stream을 직접 감싸기보다 `SuspendedSource`/`SuspendedSink`와
-  suspended buffered API를 사용합니다.
+- coroutine 코드에서는 blocking stream을 직접 감싸기보다 `SuspendedSource`/`SuspendedSink`와 suspended buffered API를 사용합니다.
 - blocking Okio `Source`/`Sink`를 `asSuspended()`로 변환하면 bridge가 `runInterruptible`과
-  `Dispatchers.IO`로 delegate를 실행하므로, coroutine 취소가 진행 중인 blocking read/write/flush/close를
-  interrupt합니다.
+  `Dispatchers.IO`로 delegate를 실행하므로, coroutine 취소가 진행 중인 blocking read/write/flush/close를 interrupt합니다.
 
 ## Anti-Patterns
 
@@ -102,26 +93,21 @@ read 계약을 줄이기 위한 실용적인 I/O 계층입니다. 핵심 모델�
 
 - **`InputStream.available()`에 의존하지 마세요.** read 가능 여부 판단에는 `request`, `require`,
   `exhausted`, `readUtf8Line`, protocol-specific length check 같은 buffered Okio API를 사용하세요.
-- **hot path에서 raw stream을 1 byte씩 읽지 마세요.** source를 buffer로 감싸고 `BufferedSource`에서
-  byte, string, primitive 값을 읽으세요.
-- **입력이 제한되어 있고 신뢰할 수 있는 경우가 아니면 `readByteArray()`나 `readUtf8()`로 큰 stream을
-  한 번에 materialize하지 마세요.** sink로 streaming하거나 frame 단위로 처리하세요.
-- **압축/암호화 sink의 `close()`를 빠뜨리지 마세요.** 일부 adapter는 footer, frame, ciphertext를
-  close 시점에 확정합니다.
-- **multi-write payload에 legacy `TinkEncryptSink`를 사용하지 마세요.** write마다 독립 ciphertext가
-  만들어지는 반면 matching decrypt source는 단일 ciphertext를 기대합니다. incremental write에는
-  DAEAD chunk encryption을 사용하세요.
-- **DAEAD 복호화에 다른 associated data를 넘기지 마세요.** associated data는 인증 대상이며 암호화
-  시점과 완전히 같은 값을 사용해야 합니다.
-- **coroutine cancellation을 삼키지 마세요.** 특히 `close()`나 cleanup 경로에서 broad exception
-  handling 전에 `CancellationException`을 다시 던져야 합니다.
-- **양수 read 요청에 `0L`을 반복 반환하는 `SuspendedSource`를 구현하지 마세요.** 양수 read는 진행,
-  진행 가능 시점까지 suspend, EOF의 `-1L` 중 하나여야 합니다. Buffered suspended source는 무한 루프를
-  막기 위해 반복 no-progress read 이후 빠르게 실패합니다.
-- **ownership 규칙 없이 mutable `Buffer`를 여러 thread/coroutine에서 공유하지 마세요.** 경계를
-  넘길 때는 `SuspendedPipe`, immutable `ByteString`, 또는 상위 queue/channel을 사용하세요.
-- **one-shot adapter와 streaming adapter를 혼용하지 마세요.** one-shot 압축/복원은 전체 payload를
-  버퍼링합니다. 입력이 제한되지 않았다면 streaming adapter가 더 안전한 기본값입니다.
+- **hot path에서 raw stream을 1 byte씩 읽지 마세요.** source를 buffer로 감싸고 `BufferedSource`에서 byte, string, primitive 값을 읽으세요.
+- **입력이 제한되어 있고 신뢰할 수 있는 경우가 아니면 `readByteArray()`나 `readUtf8()`로 큰 stream을 한 번에 materialize하지
+  마세요.** sink로 streaming하거나 frame 단위로 처리하세요.
+- **압축/암호화 sink의 `close()`를 빠뜨리지 마세요.** 일부 adapter는 footer, frame, ciphertext를 close 시점에 확정합니다.
+- **multi-write payload에 legacy `TinkEncryptSink`를 사용하지
+  마세요.** write마다 독립 ciphertext가 만들어지는 반면 matching decrypt source는 단일 ciphertext를 기대합니다. incremental write에는 DAEAD chunk encryption을 사용하세요.
+- **DAEAD 복호화에 다른 associated data를 넘기지 마세요.** associated data는 인증 대상이며 암호화 시점과 완전히 같은 값을 사용해야 합니다.
+- **coroutine cancellation을 삼키지
+  마세요.** 특히 `close()`나 cleanup 경로에서 broad exception handling 전에 `CancellationException`을 다시 던져야 합니다.
+- **양수 read 요청에 `0L`을 반복 반환하는 `SuspendedSource`를 구현하지
+  마세요.** 양수 read는 진행, 진행 가능 시점까지 suspend, EOF의 `-1L` 중 하나여야 합니다. Buffered suspended source는 무한 루프를 막기 위해 반복 no-progress read 이후 빠르게 실패합니다.
+- **ownership 규칙 없이 mutable `Buffer`를 여러 thread/coroutine에서 공유하지
+  마세요.** 경계를 넘길 때는 `SuspendedPipe`, immutable `ByteString`, 또는 상위 queue/channel을 사용하세요.
+- **one-shot adapter와 streaming adapter를 혼용하지
+  마세요.** one-shot 압축/복원은 전체 payload를 버퍼링합니다. 입력이 제한되지 않았다면 streaming adapter가 더 안전한 기본값입니다.
 
 ## 주요 기능
 
@@ -221,13 +207,9 @@ decryptSource.read(result, Long.MAX_VALUE)
 ```
 
 레거시 `TinkEncryptSink`/`TinkDecryptSource` 쌍은 스트림 전체를 **단일 ciphertext**로 취급합니다.
-`TinkEncryptSink`는 `close()` 시점에 암호화를 확정하고, `TinkDecryptSource`는 위임 Source를
-끝까지 읽은 뒤 단일 ciphertext로 복호화합니다. 복수의 `write()` 호출은 복수의 독립 ciphertext를
-생성하므로 `TinkDecryptSource`로 복호화할 수 없습니다. 기존 단일 ciphertext payload 호환이
-필요할 때만 이 어댑터를 사용하세요.
+`TinkEncryptSink`는 `close()` 시점에 암호화를 확정하고, `TinkDecryptSource`는 위임 Source를 끝까지 읽은 뒤 단일 ciphertext로 복호화합니다. 복수의 `write()` 호출은 복수의 독립 ciphertext를 생성하므로 `TinkDecryptSource`로 복호화할 수 없습니다. 기존 단일 ciphertext payload 호환이 필요할 때만 이 어댑터를 사용하세요.
 
-대용량 payload 또는 여러 번의 `write()` 호출로 기록되는 데이터에는 DAEAD 청크 어댑터를 사용합니다.
-복호화는 한 번에 하나의 청크 ciphertext만 메모리에 적재하므로 페이로드 전체를 메모리에 올리지 않습니다:
+대용량 payload 또는 여러 번의 `write()` 호출로 기록되는 데이터에는 DAEAD 청크 어댑터를 사용합니다. 복호화는 한 번에 하나의 청크 ciphertext만 메모리에 적재하므로 페이로드 전체를 메모리에 올리지 않습니다:
 
 ```kotlin
 import io.bluetape4k.okio.tink.*
@@ -255,15 +237,10 @@ encrypted.asDaeadChunkDecryptSource(
 ```
 
 DAEAD 청크 암호화는 각 frame을 `[1-byte flags][8-byte big-endian ciphertext length][ciphertext]`
-형식으로 기록합니다. `DEFAULT_DAEAD_CHUNK_SIZE`는 64 KiB입니다. 청크 index와 final-frame flag는
-DAEAD associated data에 바인딩되므로 frame 순서 변경, 중복 재생, whole-frame truncation은 복호화 중
-실패하며, final frame 뒤에 trailing data가 남아도 실패합니다. final frame은 `close()`에서 기록되므로
-암호화 Sink는 반드시 닫아야 하며, `use {}` 사용을 권장합니다.
-이는 v2 DAEAD chunk format이며 기존 `[8-byte length][ciphertext]` frame과 wire-compatible하지 않습니다.
+형식으로 기록합니다. `DEFAULT_DAEAD_CHUNK_SIZE`는 64 KiB입니다. 청크 index와 final-frame flag는 DAEAD associated data에 바인딩되므로 frame 순서 변경, 중복 재생, whole-frame truncation은 복호화 중 실패하며, final frame 뒤에 trailing data가 남아도 실패합니다. final frame은 `close()`에서 기록되므로 암호화 Sink는 반드시 닫아야 하며, `use {}` 사용을 권장합니다. 이는 v2 DAEAD chunk format이며 기존 `[8-byte length][ciphertext]` frame과 wire-compatible하지 않습니다.
 
-Deterministic AEAD는 같은 키, 평문, 연관 데이터에 대해 같은 암호문을 생성합니다.
-따라서 반복 평문 청크 패턴이 노출될 수 있습니다. 연관 데이터는 인증되지만 암호화되지 않으며,
-**복호화할 때 암호화 시점과 같은 값을 전달해야 합니다**.
+Deterministic AEAD는 같은 키, 평문, 연관 데이터에 대해 같은 암호문을 생성합니다. 따라서 반복 평문 청크 패턴이 노출될 수 있습니다. 연관 데이터는 인증되지만 암호화되지 않으며, **복호화할 때
+암호화 시점과 같은 값을 전달해야 합니다**.
 
 **암호화 + 압축 조합:**
 
@@ -326,10 +303,8 @@ val socketSink = SuspendedSocketChannelSink(socketChannel)
 버퍼링된 suspended source는 잘못 구현되었거나 non-blocking 성격의 delegate가 양수 read 요청에
 `0L`을 반복 반환하는 상황을 방어합니다. `request`, `skip`, `select`, `indexOf`,
 `readAll`처럼 추가 데이터가 필요한 연산은 무한 루프 대신 반복 no-progress read 이후
-`IOException`을 던집니다.
-파일/소켓 suspended adapter는 `force()`, `flush()`, `close()` 같은 blocking cleanup 경계를
-`runInterruptible(Dispatchers.IO)`로 실행합니다. 따라서 coroutine이 취소되면 해당 리소스 경계의
-blocking 호출도 interrupt되어, 반환될 때까지 무기한 기다리지 않습니다.
+`IOException`을 던집니다. 파일/소켓 suspended adapter는 `force()`, `flush()`, `close()` 같은 blocking cleanup 경계를
+`runInterruptible(Dispatchers.IO)`로 실행합니다. 따라서 coroutine이 취소되면 해당 리소스 경계의 blocking 호출도 interrupt되어, 반환될 때까지 무기한 기다리지 않습니다.
 
 **Suspended Pipe (생산자-소비자 패턴):**
 

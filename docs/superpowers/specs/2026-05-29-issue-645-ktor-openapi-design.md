@@ -2,21 +2,17 @@
 
 ## Context
 
-Issue #645 asks for optional Ktor OpenAPI/documentation support that adds
-reusable value without replacing Ktor routing. The route behavior must stay
-independent from documentation generation.
+Issue #645 asks for optional Ktor OpenAPI/documentation support that adds reusable value without replacing Ktor routing. The route behavior must stay independent from documentation generation.
 
 ## Dependency Evaluation
 
 Ktor 3.5.0 provides official OpenAPI and Swagger UI support:
 
-- `ktor-server-openapi` serves OpenAPI documentation from an existing YAML/JSON
-  file or from runtime metadata.
+- `ktor-server-openapi` serves OpenAPI documentation from an existing YAML/JSON file or from runtime metadata.
 - `ktor-server-routing-openapi` provides runtime route annotation APIs such as
   `.describe {}` and can be combined with compiler-generated metadata.
 - `ktor-server-swagger` serves Swagger UI.
-- `swagger-codegen-generators` is optional and only needed for custom renderer
-  generation.
+- `swagger-codegen-generators` is optional and only needed for custom renderer generation.
 
 References:
 
@@ -25,13 +21,11 @@ References:
 
 The repository catalog already governs the Ktor version, so the new aliases use
 `version.ref = "ktor"` and do not introduce a second compatibility line.
-`swagger-codegen-generators` is intentionally not added because the module only
-needs route documentation endpoints, not custom code generation.
+`swagger-codegen-generators` is intentionally not added because the module only needs route documentation endpoints, not custom code generation.
 
 ## Decision
 
-Publish `:bluetape4k-ktor-openapi` as a thin wrapper over the official Ktor
-OpenAPI and Swagger UI plugins.
+Publish `:bluetape4k-ktor-openapi` as a thin wrapper over the official Ktor OpenAPI and Swagger UI plugins.
 
 The module provides:
 
@@ -48,15 +42,10 @@ Applications remain responsible for:
 
 ## Risks
 
-- Ktor's runtime annotation APIs are marked experimental by upstream; this
-  module documents them but does not wrap their unstable types.
-- Static specs can drift from actual route behavior. Keep route metadata close
-  to route declarations or use compiler/runtime metadata where practical.
-- Static specs should include `components.schemas`, even when empty, because the
-  Ktor OpenAPI HTML renderer delegates to Swagger Codegen internals that expect
-  the schema map to exist.
-- Swagger UI rendering behavior belongs to Ktor; bluetape4k should not fork or
-  proxy the UI assets.
+- Ktor's runtime annotation APIs are marked experimental by upstream; this module documents them but does not wrap their unstable types.
+- Static specs can drift from actual route behavior. Keep route metadata close to route declarations or use compiler/runtime metadata where practical.
+- Static specs should include `components.schemas`, even when empty, because the Ktor OpenAPI HTML renderer delegates to Swagger Codegen internals that expect the schema map to exist.
+- Swagger UI rendering behavior belongs to Ktor; bluetape4k should not fork or proxy the UI assets.
 
 ## Done
 

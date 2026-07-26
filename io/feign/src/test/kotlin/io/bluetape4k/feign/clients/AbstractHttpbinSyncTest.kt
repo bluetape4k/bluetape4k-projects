@@ -1,12 +1,12 @@
 package io.bluetape4k.feign.clients
 
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.feign.client
 import io.bluetape4k.feign.services.HttpbinService
 import io.bluetape4k.feign.services.Post
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test

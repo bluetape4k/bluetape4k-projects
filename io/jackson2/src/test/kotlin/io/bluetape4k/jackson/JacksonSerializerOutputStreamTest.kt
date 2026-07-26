@@ -2,7 +2,6 @@ package io.bluetape4k.jackson
 
 import com.example.disallowed.DisallowedTypedPayload
 import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.JsonSerializer as JacksonValueSerializer
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.SerializerProvider
@@ -34,6 +33,7 @@ import java.io.Serializable
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.concurrent.CancellationException
+import com.fasterxml.jackson.databind.JsonSerializer as JacksonValueSerializer
 
 class JacksonSerializerOutputStreamTest {
 

@@ -1,15 +1,15 @@
 package io.bluetape4k.csv.internal
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.StringWriter
 
 class DelimitedWriterTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private fun writerOf(lineSep: String = "\r\n"): Pair<StringWriter, DelimitedWriter> {
         val sw = StringWriter()

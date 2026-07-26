@@ -16,9 +16,9 @@ import java.io.Serializable
 
 class ReactiveSelectOperationSupportTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
-    data class TestEntity(val id: String = "test-id", val name: String = "Test") : Serializable
+    data class TestEntity(val id: String = "test-id", val name: String = "Test"): Serializable
 
     private val testEntity = TestEntity()
 

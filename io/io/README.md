@@ -22,8 +22,7 @@ English | [한국어](./README.ko.md)
 
 `compress()` and `decompress()` are throwing APIs: null or empty input returns
 `emptyByteArray`, but implementation failures are propagated to the caller. Use
-`compressOrNull()` / `decompressOrNull()` when corrupt input or compression
-failure should be represented as `null` instead of an exception.
+`compressOrNull()` / `decompressOrNull()` when corrupt input or compression failure should be represented as `null` instead of an exception.
 
 ### serialize/deserialize Flow
 
@@ -52,8 +51,7 @@ A unified interface for multiple compression algorithms.
 - **Storage optimization**: BZip2, Zstd (ratio over speed)
 - **File archives**: Zip (preserves directory structure)
 
-`Compressors.GZip` rejects decompressed output above 256 MiB by default to avoid
-unbounded gzip expansion. Create `GZipCompressor(maxDecompressedSize = bytes)`
+`Compressors.GZip` rejects decompressed output above 256 MiB by default to avoid unbounded gzip expansion. Create `GZipCompressor(maxDecompressedSize = bytes)`
 directly when a trusted boundary needs a different limit.
 
 ### 2. Serialization (BinarySerializer)
@@ -80,30 +78,31 @@ Multiple implementations for serializing and deserializing objects to/from binar
 - **Standard performance**: `BinarySerializers.Kryo`, `BinarySerializers.Fory`
 - **Storage savings**: LZ4Kryo, ZstdFory (with compression)
 
-**fast() API — High-Performance Modes:**
+**fast () API — High-Performance Modes:**
 
 Both `ForyBinarySerializer` and `KryoBinarySerializer` provide a `fast()` factory that enables high-throughput serialization for appropriate use cases.
 
-| Serializer | Mode | Throughput | Nullable types? | Use case |
-|---|---|---|---|---|
-| `ForyBinarySerializer.fast()` | SCHEMA_CONSISTENT, no refTracking | ~116K ops/s (+71%) | ✅ Supported | Volatile caches, fixed-schema DTOs, DAG graphs |
-| `KryoBinarySerializer.fast()` | FieldSerializer, no chunk headers | ~68K ops/s (+97%) | ❌ Not supported | Non-null fixed-schema DTOs only |
-| `BinarySerializers.Fory` | COMPATIBLE, refTracking | ~68K ops/s | ✅ Supported | Schema evolution, persistent storage |
-| `BinarySerializers.Kryo` | CompatibleFieldSerializer | ~34K ops/s | ✅ Supported | General use, nullable fields |
+| Serializer                    | Mode                              | Throughput         | Nullable types?  | Use case                                       |
+|-------------------------------|-----------------------------------|--------------------|------------------|------------------------------------------------|
+| `ForyBinarySerializer.fast()` | SCHEMA_CONSISTENT, no refTracking | ~116K ops/s (+71%) | ✅ Supported     | Volatile caches, fixed-schema DTOs, DAG graphs |
+| `KryoBinarySerializer.fast()` | FieldSerializer, no chunk headers | ~68K ops/s (+97%)  | ❌ Not supported | Non-null fixed-schema DTOs only                |
+| `BinarySerializers.Fory`      | COMPATIBLE, refTracking           | ~68K ops/s         | ✅ Supported     | Schema evolution, persistent storage           |
+| `BinarySerializers.Kryo`      | CompatibleFieldSerializer         | ~34K ops/s         | ✅ Supported     | General use, nullable fields                   |
 
-> ⚠️ **Wire Format Warning**: FastFory uses `CompatibleMode.SCHEMA_CONSISTENT` and is **NOT compatible** with the default Fory codec (`CompatibleMode.COMPATIBLE`). Use only for volatile caches (Redis, in-memory). No schema evolution support.
+> ⚠️ **Wire Format Warning**: FastFory uses `CompatibleMode.SCHEMA_CONSISTENT` and is **NOT
+compatible** with the default Fory codec (`CompatibleMode.COMPATIBLE`). Use only for volatile caches (Redis, in-memory). No schema evolution support.
 
 **FastFory Serializers (Compressed Variants):**
 
 Combine FastFory performance with compression for maximum storage savings in volatile caches.
 
-| Serializer | Compression | Throughput | Size reduction | Use case |
-|---|---|---|---|---|
-| `BinarySerializers.FastFory` | None | ~116K ops/s | — | Fast volatile cache, no compression |
-| `BinarySerializers.LZ4FastFory` | LZ4 | ~25K ops/s | 40-60% | Balanced speed and size |
-| `BinarySerializers.ZstdFastFory` | Zstd | ~18K ops/s | 50-70% | Best compression ratio (recommended) |
-| `BinarySerializers.SnappyFastFory` | Snappy | ~30K ops/s | 30-50% | Fast compression, moderate size |
-| `BinarySerializers.GZipFastFory` | GZip | ~12K ops/s | 60-80% | Highest compression (slowest) |
+| Serializer                         | Compression | Throughput  | Size reduction | Use case                             |
+|------------------------------------|-------------|-------------|----------------|--------------------------------------|
+| `BinarySerializers.FastFory`       | None        | ~116K ops/s | —              | Fast volatile cache, no compression  |
+| `BinarySerializers.LZ4FastFory`    | LZ4         | ~25K ops/s  | 40-60%         | Balanced speed and size              |
+| `BinarySerializers.ZstdFastFory`   | Zstd        | ~18K ops/s  | 50-70%         | Best compression ratio (recommended) |
+| `BinarySerializers.SnappyFastFory` | Snappy      | ~30K ops/s  | 30-50%         | Fast compression, moderate size      |
+| `BinarySerializers.GZipFastFory`   | GZip        | ~12K ops/s  | 60-80%         | Highest compression (slowest)        |
 
 > Benchmark: 20× `SimpleData` objects each containing a 4096-byte `ByteArray` field.
 > Measurement: JMH throughput, 3-second intervals, JVM warmup 4 iterations.
@@ -125,23 +124,21 @@ Supports lightweight async processing using Virtual Threads.
 
 #### Serialization Trust Profiles
 
-Codec documentation uses `SerializationTrustProfile` names to describe the
-deserialization boundary:
+Codec documentation uses `SerializationTrustProfile` names to describe the deserialization boundary:
 
-| Profile | Meaning |
-|---|---|
-| `TrustedInternal` | Data is read only from a fully trusted internal boundary. |
-| `AllowListedTypes` | Dynamic class/type loading is restricted by package prefixes, class names, or object input filters. |
-| `NoDynamicTypeLoading` | The caller supplies the target type statically; serialized data does not choose the class. |
-| `UnsafeLegacyCompatibility` | Legacy allow-all behavior is enabled only through an explicit unsafe name. |
+| Profile                     | Meaning                                                                                             |
+|-----------------------------|-----------------------------------------------------------------------------------------------------|
+| `TrustedInternal`           | Data is read only from a fully trusted internal boundary.                                           |
+| `AllowListedTypes`          | Dynamic class/type loading is restricted by package prefixes, class names, or object input filters. |
+| `NoDynamicTypeLoading`      | The caller supplies the target type statically; serialized data does not choose the class.          |
+| `UnsafeLegacyCompatibility` | Legacy allow-all behavior is enabled only through an explicit unsafe name.                          |
 
 See [Serialization Trust Profiles](../../docs/security/serialization-trust-profiles.md)
 for codec defaults and migration guidance.
 
 #### JDK Serialization Filter (JEP 290)
 
-`JdkBinarySerializer` now applies `JDK_DEFAULT_OBJECT_INPUT_FILTER` by default, which only allows
-the following packages for deserialization (all others are rejected):
+`JdkBinarySerializer` now applies `JDK_DEFAULT_OBJECT_INPUT_FILTER` by default, which only allows the following packages for deserialization (all others are rejected):
 
 - `io.bluetape4k.**`
 - `java.lang.*`, `java.util.**`, `java.io.*`, `java.math.**`, `java.time.**`, `java.net.*`, `java.sql.*`
@@ -161,18 +158,16 @@ val serializer = JdkBinarySerializer(objectInputFilter = customFilter)
 
 `unzip()` now enforces two hard limits:
 
-| Constant | Value | Description |
-|---|---|---|
-| `ZIP_MAX_ENTRIES` | 10,000 | Maximum number of ZIP entries |
-| `ZIP_MAX_UNCOMPRESSED_SIZE` | 1 GB | Maximum total uncompressed bytes |
+| Constant                    | Value  | Description                      |
+|-----------------------------|--------|----------------------------------|
+| `ZIP_MAX_ENTRIES`           | 10,000 | Maximum number of ZIP entries    |
+| `ZIP_MAX_UNCOMPRESSED_SIZE` | 1 GB   | Maximum total uncompressed bytes |
 
-Exceeding either limit throws `IllegalArgumentException`. The limit is checked from ZIP metadata
-and again while bytes are actually extracted.
+Exceeding either limit throws `IllegalArgumentException`. The limit is checked from ZIP metadata and again while bytes are actually extracted.
 
 #### Safe Path Combination
 
-Use `combineSafe` when appending user-provided relative paths under a trusted base directory.
-It rejects parent traversal and absolute paths.
+Use `combineSafe` when appending user-provided relative paths under a trusted base directory. It rejects parent traversal and absolute paths.
 
 ```kotlin
 import io.bluetape4k.io.combineSafe
@@ -232,40 +227,30 @@ val restored = boundedGzip.decompress(compressed)
 #### Caller-owned Compressor ByteBuffer API
 
 <!-- issue-755-contract:start -->
-`compress(source, target)` and `decompress(source, target)` are executable JVM
-defaults available to existing implementations. They preserve the source
+`compress(source, target)` and `decompress(source, target)` are executable JVM defaults available to existing implementations. They preserve the source
 `position`, `limit`, mark, and byte order, and also preserve the target `limit`,
-`capacity`, mark, and byte order. Success advances only the target `position` by
-the returned byte count. Failure restores the target `position`; bytes overwritten
-before a failure are unspecified.
+`capacity`, mark, and byte order. Success advances only the target `position` by the returned byte count. Failure restores the target `position`; bytes overwritten before a failure are unspecified.
 
-A read-only target is rejected with `ReadOnlyBufferException`. The same buffer
-object and detectable overlapping heap backing-array ranges are rejected with
-`IllegalArgumentException`. Aliases through direct or read-only views cannot be
-detected safely, so callers must keep source and target storage disjoint. Each
-mutable buffer must remain confined to one thread until the call returns.
+A read-only target is rejected with `ReadOnlyBufferException`. The same buffer object and detectable overlapping heap backing-array ranges are rejected with
+`IllegalArgumentException`. Aliases through direct or read-only views cannot be detected safely, so callers must keep source and target storage disjoint. Each mutable buffer must remain confined to one thread until the call returns.
 
-Existing one-argument `ByteBuffer` APIs may consume the source `position`; the new
-two-argument APIs preserve all source state. An external implementation inheriting
-another interface default with an erased signature equivalent to this method may
-require an explicit override under normal Java interface-evolution rules. Existing callers do not need
-to migrate. Opt in only when a reusable target and a verified optimized storage
-pairing are both available; fallback pairings are correctness-only paths.
+Existing one-argument `ByteBuffer` APIs may consume the source `position`; the new two-argument APIs preserve all source state. An external implementation inheriting another interface default with an erased signature equivalent to this method may require an explicit override under normal Java interface-evolution rules. Existing callers do not need to migrate. Opt in only when a reusable target and a verified optimized storage pairing are both available; fallback pairings are correctness-only paths.
 <!-- issue-755-contract:end -->
 
 <!-- issue-755-storage-matrix:start -->
-| Codec | heap -> heap | direct -> direct | mixed storage | Allocation claim |
-|---|---|---|---|---|
-| LZ4 | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
-| Deflate | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
-| Snappy | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
-| Zstd | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
-| Other codecs | compatibility fallback | compatibility fallback | compatibility fallback | ineligible |
+
+| Codec        | heap -> heap           | direct -> direct       | mixed storage          | Allocation claim       |
+|--------------|------------------------|------------------------|------------------------|------------------------|
+| LZ4          | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Deflate      | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Snappy       | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Zstd         | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Other codecs | compatibility fallback | compatibility fallback | compatibility fallback | ineligible             |
+
 <!-- issue-755-storage-matrix:end -->
 
 <!-- issue-755-kotlin-example:start -->
-Kotlin callers provide a writable target and use the returned byte count as the
-result range.
+Kotlin callers provide a writable target and use the returned byte count as the result range.
 
 ```kotlin
 val source = ByteBuffer.wrap(plainData)
@@ -277,6 +262,7 @@ val compressed = target.duplicate().apply {
     limit(start + written)
 }.slice()
 ```
+
 <!-- issue-755-kotlin-example:end -->
 
 <!-- issue-755-java-example:start -->
@@ -293,30 +279,19 @@ ByteBuffer compressed = target.duplicate();
 compressed.position(start).limit(start + written);
 compressed = compressed.slice();
 ```
+
 <!-- issue-755-java-example:end -->
 
 <!-- issue-755-sizing-retry:start -->
-Insufficient target space throws raw `BufferOverflowException` without a required
-size. Because source state and the target `position` are preserved, a caller can
-allocate a larger target within its application limit and retry the whole operation.
-Do not reuse target bytes written by a failed attempt.
+Insufficient target space throws raw `BufferOverflowException` without a required size. Because source state and the target `position` are preserved, a caller can allocate a larger target within its application limit and retry the whole operation. Do not reuse target bytes written by a failed attempt.
 <!-- issue-755-sizing-retry:end -->
 
 <!-- issue-755-resource-bound:start -->
-The current compatibility fallback may stage both input and transformed output in
-payload-sized `ByteArray` instances. In particular, its decompression target is a
-final-write bound, not a resource bound on memory consumed by untrusted compressed
-input. Apply a codec-specific decompressed-size limit or a streaming API at trust
-boundaries.
+The current compatibility fallback may stage both input and transformed output in payload-sized `ByteArray` instances. In particular, its decompression target is a final-write bound, not a resource bound on memory consumed by untrusted compressed input. Apply a codec-specific decompressed-size limit or a streaming API at trust boundaries.
 <!-- issue-755-resource-bound:end -->
 
 <!-- issue-755-telemetry:start -->
-This API provides no runtime dispatch telemetry, logging, or feature flag. If
-needed, record privacy-safe caller diagnostics such as codec, storage pairing,
-input/output size, and overflow count without payload contents. If a native
-override proves defective, a patch keeps the public defaults and wire contract and
-reverts only that override to the compatibility fallback. Until the patch is
-available, use an existing allocating API or a documented fallback storage pairing.
+This API provides no runtime dispatch telemetry, logging, or feature flag. If needed, record privacy-safe caller diagnostics such as codec, storage pairing, input/output size, and overflow count without payload contents. If a native override proves defective, a patch keeps the public defaults and wire contract and reverts only that override to the compatibility fallback. Until the patch is available, use an existing allocating API or a documented fallback storage pairing.
 <!-- issue-755-telemetry:end -->
 
 **StreamingCompressor (for large-scale streaming):**
@@ -512,19 +487,18 @@ path.tryReadAllBytes().onSuccess { bytes ->
 
 ### Serialization Performance Comparison
 
-Throughput for serializing/deserializing a collection of 20 `SimpleData` objects.
-JMH throughput mode, 3-second measurement intervals, 4 warmup iterations.
+Throughput for serializing/deserializing a collection of 20 `SimpleData` objects. JMH throughput mode, 3-second measurement intervals, 4 warmup iterations.
 
-**With byte array fields (4096 bytes) — standard vs fast():**
+**With byte array fields (4096 bytes) — standard vs fast ():**
 
-| Serializer | ops/s | vs standard | Notes |
-|---|---|---|---|
-| `ForyBinarySerializer.fast()` | ~116,000 | +71% | SCHEMA_CONSISTENT + no refTracking |
-| `KryoBinarySerializer.fast()` | ~68,000 | +97% | FieldSerializer + outputPool reuse |
-| `BinarySerializers.Fory` | ~68,000 | baseline | COMPATIBLE mode, nullable ✅ |
-| `BinarySerializers.Kryo` | ~34,000 | baseline | CompatibleFieldSerializer, nullable ✅ |
-| Jdk | ~8,431 | — | Java standard |
-| Jackson | ~4,323 | — | Disadvantaged for binary data |
+| Serializer                    | ops/s    | vs standard | Notes                                  |
+|-------------------------------|----------|-------------|----------------------------------------|
+| `ForyBinarySerializer.fast()` | ~116,000 | +71%        | SCHEMA_CONSISTENT + no refTracking     |
+| `KryoBinarySerializer.fast()` | ~68,000  | +97%        | FieldSerializer + outputPool reuse     |
+| `BinarySerializers.Fory`      | ~68,000  | baseline    | COMPATIBLE mode, nullable ✅           |
+| `BinarySerializers.Kryo`      | ~34,000  | baseline    | CompatibleFieldSerializer, nullable ✅ |
+| Jdk                           | ~8,431   | —           | Java standard                          |
+| Jackson                       | ~4,323   | —           | Disadvantaged for binary data          |
 
 ![Serializer Fast Mode Throughput chart](../../docs/images/readme-charts/io-fast-serializer-throughput-chart-01.png)
 
@@ -629,37 +603,25 @@ MIT License
 
 The [issue #1039 allocation report](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md) accepted lower-allocation results for JDK serialization and Kryo serialization/deserialization. JDK deserialization and Fory deserialization were inconclusive; Fory output is an ergonomic-only fallback.
 
-| Serializer | `serializeTo` | `deserializeFrom` |
-|---|---|---|
-| JDK | optimized; accepted | optimized; inconclusive |
-| Kryo | optimized; accepted | optimized; accepted |
-| Fory | compatibility fallback | optimized; inconclusive |
+| Serializer | `serializeTo`          | `deserializeFrom`       |
+|------------|------------------------|-------------------------|
+| JDK        | optimized; accepted    | optimized; inconclusive |
+| Kryo       | optimized; accepted    | optimized; accepted     |
+| Fory       | compatibility fallback | optimized; inconclusive |
 
 Kotlin: `serializer.serializeTo(value, target)` / `serializer.deserializeFrom<Value>(source)`. Java: `serializer.serializeTo(value, target)` / `serializer.deserializeFrom(source)`. The caller owns a writable target with sufficient remaining capacity. Success advances output `position` without widening `limit`; overflow/read-only failure rolls back state. Input reads a duplicate and preserves source `position`/`limit`. These results apply only to the measured payload and default configurations.
 
 ### Caller-owned `OutputStream` API
 
-`serializeBinaryToStream(graph, target)` is an opt-in caller-owned destination API. The `BinarySerializer` interface
-default is an allocating compatibility fallback (`serialize` to `ByteArray`, then `write`); JDK and Kryo provide direct
-stream implementations. The serializer borrows the stream synchronously and must not retain, close, or flush it. Keep
-the serializer invocation and mutable destination thread-confined. A destination failure can leave partial bytes, so
-stage or discard the destination before publication instead of trying to reuse the failed range.
+`serializeBinaryToStream(graph, target)` is an opt-in caller-owned destination API. The `BinarySerializer` interface default is an allocating compatibility fallback (`serialize` to `ByteArray`, then `write`); JDK and Kryo provide direct stream implementations. The serializer borrows the stream synchronously and must not retain, close, or flush it. Keep the serializer invocation and mutable destination thread-confined. A destination failure can leave partial bytes, so stage or discard the destination before publication instead of trying to reuse the failed range.
 
 #### Raw Fory/FastFory stream boundary
 
-`ForyBinarySerializer` and `FastForyBinarySerializer` opt into the caller-owned stream path for uncompressed output.
-This removes the codec-level return-and-copy `ByteArray`, but Apache Fory still serializes through its reusable
-`MemoryBuffer` before writing to the destination. The path is therefore lower-handoff-copy, not zero-copy. The
-single-argument `serialize`, `serializeTo(ByteBuffer)`, and compressed serializer paths retain their allocating
-compatibility behavior.
+`ForyBinarySerializer` and `FastForyBinarySerializer` opt into the caller-owned stream path for uncompressed output. This removes the codec-level return-and-copy `ByteArray`, but Apache Fory still serializes through its reusable
+`MemoryBuffer` before writing to the destination. The path is therefore lower-handoff-copy, not zero-copy. The single-argument `serialize`, `serializeTo(ByteBuffer)`, and compressed serializer paths retain their allocating compatibility behavior.
 
-Existing callers need no API or payload migration when they keep the same serializer mode. Fory and FastFory remain
-wire-incompatible modes, so switching between them still requires an explicit cache migration or eviction. Allocation
-claims apply only to benchmark cells accepted by the committed
-[issue #756 follow-up evidence](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md): all four raw
-Lettuce Fory/FastFory heap/direct encode cells and only the two raw Redisson direct decode cells. Redisson heap decode
-is rejected, composite decode is a non-promotable copied fallback, and Redisson encode is rejected by the feasibility
-probe. No compression path is included, and registration-off decode is for trusted payloads only.
+Existing callers need no API or payload migration when they keep the same serializer mode. Fory and FastFory remain wire-incompatible modes, so switching between them still requires an explicit cache migration or eviction. Allocation claims apply only to benchmark cells accepted by the committed
+[issue #756 follow-up evidence](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md): all four raw Lettuce Fory/FastFory heap/direct encode cells and only the two raw Redisson direct decode cells. Redisson heap decode is rejected, composite decode is a non-promotable copied fallback, and Redisson encode is rejected by the feasibility probe. No compression path is included, and registration-off decode is for trusted payloads only.
 
 ![Issue #756 accepted Fory allocation reductions](../../docs/images/readme-charts/issue756-fory-followup-allocation-chart-01.png)
 
@@ -689,12 +651,8 @@ static byte[] encode(BinarySerializer serializer, Object value) throws IOExcepti
 }
 ```
 
-An external `deserializeFrom` override must accept the read-only, non-array-backed bounded view used by Lettuce and
-borrow it only for the synchronous call. If it cannot honor that contract, inherit the interface allocating default.
-The [issue #756 Lettuce evidence](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md)
-accepted allocation reduction only for JDK and Kryo heap/direct codec cells with the measured payload/default config,
-pooled pre-sized 512-byte reusable targets, and no capacity growth. It does not cover Fory, compressed serializers,
-one-argument encode, decode, other payloads, capacities, or pooling choices.
+An external `deserializeFrom` override must accept the read-only, non-array-backed bounded view used by Lettuce and borrow it only for the synchronous call. If it cannot honor that contract, inherit the interface allocating default. The [issue #756 Lettuce evidence](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md)
+accepted allocation reduction only for JDK and Kryo heap/direct codec cells with the measured payload/default config, pooled pre-sized 512-byte reusable targets, and no capacity growth. It does not cover Fory, compressed serializers, one-argument encode, decode, other payloads, capacities, or pooling choices.
 
 - [bluetape4k-okio](../okio/README.md) (Okio-based I/O module)
 - [Kryo Documentation](https://github.com/EsotericSoftware/kryo)

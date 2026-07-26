@@ -62,47 +62,47 @@ Context7 `/sksamuel/scrimage` 조사 결과:
 핵심 파일:
 
 - `utils/images/build.gradle.kts`
-  - 이미 `project(":bluetape4k-coroutines")`, `kotlinx_coroutines_core`, `kotlinx_coroutines_test`, `scrimage_core`, `scrimage_filters` 의존성이 있다.
-  - 새 의존성 없이 구현 가능하다.
+    - 이미 `project(":bluetape4k-coroutines")`, `kotlinx_coroutines_core`, `kotlinx_coroutines_test`, `scrimage_core`, `scrimage_filters` 의존성이 있다.
+    - 새 의존성 없이 구현 가능하다.
 - `utils/images/src/main/kotlin/io/bluetape4k/images/ImmutableImageSupport.kt`
-  - `immutableImageOf(File|Path|ByteArray|InputStream)`와 `suspendImmutableImageOf(File|Path)`가 있다.
-  - `ImmutableImage.suspendBytes(writer)`와 `suspendWrite(writer, destPath)`가 있다.
+    - `immutableImageOf(File|Path|ByteArray|InputStream)`와 `suspendImmutableImageOf(File|Path)`가 있다.
+    - `ImmutableImage.suspendBytes(writer)`와 `suspendWrite(writer, destPath)`가 있다.
 - `utils/images/src/main/kotlin/io/bluetape4k/images/coroutines/SuspendImageWriter.kt`
-  - `suspendWrite`가 `Dispatchers.IO`에서 blocking writer 호출을 감싼다.
+    - `suspendWrite`가 `Dispatchers.IO`에서 blocking writer 호출을 감싼다.
 - `utils/images/src/main/kotlin/io/bluetape4k/images/coroutines/SuspendJpegWriter.kt`
-  - scrimage `JpegWriter`를 상속하며 `withCompression`, `withProgressive`를 반환 타입 유지 방식으로 제공한다.
+    - scrimage `JpegWriter`를 상속하며 `withCompression`, `withProgressive`를 반환 타입 유지 방식으로 제공한다.
 - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/dsl/ImageFilterChain.kt`
-  - `ImageFilterChain`이 native `Filter`와 pixel transform을 누적하고 `PipelineFilter`로 인접 native 필터를 compact 한다.
+    - `ImageFilterChain`이 native `Filter`와 pixel transform을 누적하고 `PipelineFilter`로 인접 native 필터를 compact 한다.
 - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/dsl/ImageFilterChainBlurOps.kt`
-  - `gaussianBlur(radius)`가 이미 존재하며 입력 검증을 수행한다.
+    - `gaussianBlur(radius)`가 이미 존재하며 입력 검증을 수행한다.
 - `utils/images/src/main/kotlin/io/bluetape4k/images/transforms/dsl/ImageFilterChainTransformOps.kt`
-  - `smartCrop`, `autoCrop`, `rotate`, `flip`, `perspectiveTransform`, `clahe`가 기존 filter chain에 통합되어 있다.
+    - `smartCrop`, `autoCrop`, `rotate`, `flip`, `perspectiveTransform`, `clahe`가 기존 filter chain에 통합되어 있다.
 - `utils/images/src/main/kotlin/io/bluetape4k/images/transforms/SmartCrop.kt`
-  - `smartCropTo(width, height)`와 `suspendSmartCrop(...)`가 존재한다.
+    - `smartCropTo(width, height)`와 `suspendSmartCrop(...)`가 존재한다.
 - `utils/images/src/main/kotlin/io/bluetape4k/images/splitter/ImageSplitter.kt`
-  - 긴 이미지를 높이 기준으로 분할해 `Flow<ByteArray>`로 내보내며 `async`/`buffer` 패턴을 사용한다.
+    - 긴 이미지를 높이 기준으로 분할해 `Flow<ByteArray>`로 내보내며 `async`/`buffer` 패턴을 사용한다.
 
 테스트/문서:
 
 - `utils/images/src/test/kotlin/io/bluetape4k/images/AbstractImageTest.kt`
-  - 공통 fixture 경로와 `writeToFileAsync(Flow<ByteArray>, ...)` 헬퍼가 있다.
+    - 공통 fixture 경로와 `writeToFileAsync(Flow<ByteArray>, ...)` 헬퍼가 있다.
 - `utils/images/src/test/kotlin/io/bluetape4k/images/transforms/SmartCropTest.kt`
-  - smart crop 동작과 suspend variant를 검증한다.
+    - smart crop 동작과 suspend variant를 검증한다.
 - `utils/images/src/test/kotlin/io/bluetape4k/images/filters/WatermarkFilterTest.kt`
-  - watermark 결과를 fixture와 비교한다.
+    - watermark 결과를 fixture와 비교한다.
 - `utils/images/README.md`, `README.ko.md`
-  - split/compress Flow 사용 예제가 이미 있다.
+    - split/compress Flow 사용 예제가 이미 있다.
 
 ### `bluetape4k-coroutines`
 
 핵심 파일:
 
 - `bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/flow/extensions/mapParallel.kt`
-  - `Flow<T>.mapParallel(parallelism, context, transform)`가 이미 있다.
-  - parallelism은 최소 1로 보정하며, 1이면 일반 `map`, 그 외는 `flatMapMerge(concurrency)` 경로를 사용한다.
-  - 결과 순서는 보장하지 않는다고 KDoc에 명시되어 있다.
+    - `Flow<T>.mapParallel(parallelism, context, transform)`가 이미 있다.
+    - parallelism은 최소 1로 보정하며, 1이면 일반 `map`, 그 외는 `flatMapMerge(concurrency)` 경로를 사용한다.
+    - 결과 순서는 보장하지 않는다고 KDoc에 명시되어 있다.
 - `bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/flow/AsyncFlow.kt`
-  - 순서 보장 async Flow 래퍼가 있다.
+    - 순서 보장 async Flow 래퍼가 있다.
 
 적용 결정:
 
@@ -132,15 +132,15 @@ Context7 `/sksamuel/scrimage` 조사 결과:
 
 ## 5. 채택/부분 채택/스킵 결정
 
-| 대상 | 결정 | 근거 |
-|------|------|------|
-| `suspendImmutableImageOf` | 채택 | Path/File 로딩의 기존 코루틴 API이며 byte 기반 비동기 로딩 계약 보유 |
-| `SuspendImageWriter` / `SuspendJpegWriter` | 채택 | 출력 포맷 추상화가 이미 있고 blocking write를 `Dispatchers.IO`로 감쌈 |
-| `ImageFilterChain` + filter/transform DSL | 채택 | Issue #135 예시의 `gaussianBlur`, `smartCrop`, transform chain을 기존 DSL로 표현 가능 |
-| `mapParallel` | 채택 | `flatMapMerge(concurrency)` 공식 패턴을 이미 모듈화함 |
-| `AsyncFlow` | 부분 채택 | 결과 순서 보장이 별도 요구되면 사용. 기본 batch 처리에는 처리량 우선으로 `mapParallel` 사용 |
-| `ImageSplitter` | 부분 채택 | Flow/async 패턴과 테스트 참고용. 2D tile split/merge에는 새 `TileProcessor` 필요 |
-| 새 외부 라이브러리 | 스킵 | 기존 scrimage/coroutines 의존성으로 구현 가능 |
+| 대상                                       | 결정      | 근거                                                                                        |
+|--------------------------------------------|-----------|---------------------------------------------------------------------------------------------|
+| `suspendImmutableImageOf`                  | 채택      | Path/File 로딩의 기존 코루틴 API이며 byte 기반 비동기 로딩 계약 보유                        |
+| `SuspendImageWriter` / `SuspendJpegWriter` | 채택      | 출력 포맷 추상화가 이미 있고 blocking write를 `Dispatchers.IO`로 감쌈                       |
+| `ImageFilterChain` + filter/transform DSL  | 채택      | Issue #135 예시의 `gaussianBlur`, `smartCrop`, transform chain을 기존 DSL로 표현 가능       |
+| `mapParallel`                              | 채택      | `flatMapMerge(concurrency)` 공식 패턴을 이미 모듈화함                                       |
+| `AsyncFlow`                                | 부분 채택 | 결과 순서 보장이 별도 요구되면 사용. 기본 batch 처리에는 처리량 우선으로 `mapParallel` 사용 |
+| `ImageSplitter`                            | 부분 채택 | Flow/async 패턴과 테스트 참고용. 2D tile split/merge에는 새 `TileProcessor` 필요            |
+| 새 외부 라이브러리                         | 스킵      | 기존 scrimage/coroutines 의존성으로 구현 가능                                               |
 
 ## 6. 실패 신호와 재현 조건
 

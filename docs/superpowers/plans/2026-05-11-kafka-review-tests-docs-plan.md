@@ -3,19 +3,19 @@
 ## Plan
 
 1. Align public documentation with the actual codec API.
-   - Replace stale FST references with Fory.
-   - Add the missing compressed codec constants to English/Korean README tables and diagrams.
+    - Replace stale FST references with Fory.
+    - Add the missing compressed codec constants to English/Korean README tables and diagrams.
 2. Harden public KDoc.
-   - Update `KafkaCodecs` binary codec description and example.
-   - Document `suspendSend` failure and cancellation contract.
-   - Fix `topicPartitionOf` validation helper naming.
+    - Update `KafkaCodecs` binary codec description and example.
+    - Document `suspendSend` failure and cancellation contract.
+    - Fix `topicPartitionOf` validation helper naming.
 3. Add edge tests.
-   - `suspendSend` propagates callback failures.
-   - cancelling the coroutine cancels the returned Kafka future.
-   - `SuspendedJobTester` exercises repeated concurrent suspend sends.
+    - `suspendSend` propagates callback failures.
+    - cancelling the coroutine cancels the returned Kafka future.
+    - `SuspendedJobTester` exercises repeated concurrent suspend sends.
 4. Run the local CI-light gate.
-   - `git diff --check`
-   - inspect `git diff --stat`
+    - `git diff --check`
+    - inspect `git diff --stat`
 5. Commit, push, and open a draft PR so GitHub CI validates the module.
 
 ## 6-Tier Gate
@@ -49,4 +49,3 @@ Tests use mock Kafka producers for edge behavior so they do not add broker start
 - P0: none
 - P1: none after planned documentation updates
 - P2: coroutine edge tests and stale helper KDoc addressed
-

@@ -1,5 +1,7 @@
 package io.bluetape4k.vertx.resilience4j
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.asCompletableFuture
@@ -8,8 +10,6 @@ import io.github.resilience4j.kotlin.retry.RetryConfig
 import io.github.resilience4j.retry.Retry
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.Executors

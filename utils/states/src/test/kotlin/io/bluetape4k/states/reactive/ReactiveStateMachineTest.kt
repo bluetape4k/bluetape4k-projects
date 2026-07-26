@@ -37,7 +37,8 @@ class ReactiveStateMachineTest {
         data object Flipped: Effect()
     }
 
-    @Test fun `send processes concurrent events sequentially`() = runTest {
+    @Test
+    fun `send processes concurrent events sequentially`() = runTest {
         val machine = reactiveStateMachine<Step, Event, Effect>(backgroundScope) {
             initialState = A
             transition(A, on<Event.Flip>(), to = B)
@@ -52,7 +53,8 @@ class ReactiveStateMachineTest {
         machine.close()
     }
 
-    @Test fun `transition effects are delivered as one-time effects`() = runTest {
+    @Test
+    fun `transition effects are delivered as one-time effects`() = runTest {
         val machine = reactiveStateMachine<Step, Event, Effect>(backgroundScope) {
             initialState = A
             transition(A, on<Event.Flip>(), to = B) {
@@ -73,7 +75,8 @@ class ReactiveStateMachineTest {
         machine.close()
     }
 
-    @Test fun `state side effect starts on entry and cancels on exit`() = runTest {
+    @Test
+    fun `state side effect starts on entry and cancels on exit`() = runTest {
         var starts = 0
         var cancellations = 0
         val machine = reactiveStateMachine<Step, Event, Effect>(backgroundScope) {
@@ -100,7 +103,8 @@ class ReactiveStateMachineTest {
         machine.close()
     }
 
-    @Test fun `keyed side effect does not restart when logical key is unchanged`() = runTest {
+    @Test
+    fun `keyed side effect does not restart when logical key is unchanged`() = runTest {
         var starts = 0
         val first = Editing(1, "a")
         val second = Editing(1, "b")
@@ -127,7 +131,8 @@ class ReactiveStateMachineTest {
         machine.close()
     }
 
-    @Test fun `side effect without key restarts when matching state data changes`() = runTest {
+    @Test
+    fun `side effect without key restarts when matching state data changes`() = runTest {
         var starts = 0
         val first = Editing(1, "a")
         val second = Editing(1, "b")
@@ -150,7 +155,8 @@ class ReactiveStateMachineTest {
         machine.close()
     }
 
-    @Test fun `transition effect can enqueue follow-up event without deadlock`() = runTest {
+    @Test
+    fun `transition effect can enqueue follow-up event without deadlock`() = runTest {
         val machine = reactiveStateMachine<Step, Event, Effect>(backgroundScope) {
             initialState = A
             transition(A, on<Event.Flip>(), to = B) {
@@ -166,7 +172,8 @@ class ReactiveStateMachineTest {
         machine.close()
     }
 
-    @Test fun `failed follow-up event does not cancel the machine`() = runTest {
+    @Test
+    fun `failed follow-up event does not cancel the machine`() = runTest {
         val machine = reactiveStateMachine<Step, Event, Effect>(backgroundScope) {
             initialState = A
             transition(A, on<Event.Flip>(), to = B) {
@@ -185,7 +192,8 @@ class ReactiveStateMachineTest {
         machine.close()
     }
 
-    @Test fun `cancellation from transition effect is propagated`() = runTest {
+    @Test
+    fun `cancellation from transition effect is propagated`() = runTest {
         val machine = reactiveStateMachine<Step, Event, Effect>(backgroundScope) {
             initialState = A
             transition(A, on<Event.Flip>(), to = B) {
@@ -199,7 +207,8 @@ class ReactiveStateMachineTest {
         machine.close()
     }
 
-    @Test fun `transition effect cancellation still restarts state side effects`() = runTest {
+    @Test
+    fun `transition effect cancellation still restarts state side effects`() = runTest {
         var initialStarts = 0
         var initialCancellations = 0
         var targetStarts = 0
@@ -239,7 +248,8 @@ class ReactiveStateMachineTest {
         machine.close()
     }
 
-    @Test fun `close cancels side effects and rejects future events`() = runTest {
+    @Test
+    fun `close cancels side effects and rejects future events`() = runTest {
         var cancellations = 0
         val machine = reactiveStateMachine<Step, Event, Effect>(backgroundScope) {
             initialState = A

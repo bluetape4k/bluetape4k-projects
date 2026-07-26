@@ -1,10 +1,10 @@
 package io.bluetape4k.csv.v2
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.StringWriter
@@ -12,7 +12,7 @@ import java.nio.file.Path
 
 class FlowCsvWriterTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @TempDir
     lateinit var tempDir: Path

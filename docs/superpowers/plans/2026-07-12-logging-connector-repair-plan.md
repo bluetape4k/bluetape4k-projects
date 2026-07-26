@@ -1,6 +1,7 @@
 # Logging Diagram Connector Repair Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Make all logging diagram arrows visibly and geometrically connect to their target boundaries.
 
@@ -13,6 +14,7 @@
 ### Task 1: Repair logger responsibility-map connectors
 
 **Files:**
+
 - Modify: `docs/manual/assets/logging/logger-api-map.svg`
 - Regenerate: `docs/manual/assets/logging/logger-api-map.png`
 
@@ -23,6 +25,7 @@
 ### Task 2: Repair MDC lifecycle connectors
 
 **Files:**
+
 - Modify: `docs/manual/assets/logging/mdc-scope-lifecycle.svg`
 - Regenerate: `docs/manual/assets/logging/mdc-scope-lifecycle.png`
 
@@ -33,6 +36,7 @@
 ### Task 3: Repair async sequence message endpoints
 
 **Files:**
+
 - Modify: `docs/manual/assets/logging/async-channel-sequence.svg`
 - Regenerate: `docs/manual/assets/logging/async-channel-sequence.png`
 
@@ -43,6 +47,7 @@
 ### Task 4: Publish and verify the derived site snapshot
 
 **Files:**
+
 - Regenerate: `public/manual-assets/bluetape4k-projects/logging/*`
 - Regenerate: `src/data/manual/bluetape4k-projects.snapshot.json`
 - Regenerate: synchronized manual metadata under `src/content/docs/**/manual/bluetape4k-projects/`

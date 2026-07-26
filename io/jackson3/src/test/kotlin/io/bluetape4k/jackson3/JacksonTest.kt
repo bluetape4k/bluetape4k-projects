@@ -1,11 +1,11 @@
 package io.bluetape4k.jackson3
 
-import io.bluetape4k.jackson3.uuid.JsonUuidModule
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.jackson3.uuid.JsonUuidModule
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class JacksonTest {
@@ -44,6 +44,7 @@ class JacksonTest {
         val mapper = Jackson.createDefaultJsonMapper()
         mapper.shouldNotBeNull()
         data class Sample(val name: String, val value: Int)
+
         val json = mapper.writeValueAsString(Sample("test", 42))
         json.shouldNotBeNull()
         (json.contains("name")).shouldBeTrue()

@@ -1,6 +1,5 @@
 package io.bluetape4k.examples.idgenerator.service
 
-import io.bluetape4k.idgenerators.IdGenerator
 import io.bluetape4k.idgenerators.flake.Flake
 import io.bluetape4k.idgenerators.ksuid.KsuidGenerator
 import io.bluetape4k.idgenerators.snowflake.SnowflakeGenerator

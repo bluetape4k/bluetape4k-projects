@@ -1,16 +1,16 @@
 package io.bluetape4k.resilience4j.timelimiter
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.timelimiter.TimeLimiter
 import io.github.resilience4j.timelimiter.TimeLimiterConfig
 import kotlinx.coroutines.delay
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeoutException
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 
 class TimeLimiterExtensionsTest {
@@ -113,6 +113,7 @@ class TimeLimiterExtensionsTest {
     @Test
     fun `completableFuture - 비동기 결과를 변환한다`() {
         val tl = defaultTimeLimiter()
+
         @Suppress("UNCHECKED_CAST")
         val func = tl.completableFuture { input: Int ->
             CompletableFuture.supplyAsync { input * 2 } as CompletableFuture<Int>
@@ -124,6 +125,7 @@ class TimeLimiterExtensionsTest {
     @Test
     fun `decorateCompletableFuture - 비동기 결과를 변환한다`() {
         val tl = defaultTimeLimiter()
+
         @Suppress("UNCHECKED_CAST")
         val func = tl.decorateCompletableFuture { input: Int ->
             CompletableFuture.supplyAsync { input * 2 } as CompletableFuture<Int>

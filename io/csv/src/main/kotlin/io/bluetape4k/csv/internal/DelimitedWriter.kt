@@ -23,9 +23,9 @@ internal class DelimitedWriter(
     private val quote: Char,
     private val quoteEscape: Char,
     private val lineSeparator: String,
-) : Closeable {
+): Closeable {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 필드가 인용 문자로 감싸야 하는지 판단합니다.
@@ -85,7 +85,8 @@ internal class DelimitedWriter(
             first = false
 
             when (field) {
-                null -> { /* 인용 없는 빈 필드 — 아무것도 쓰지 않음 */ }
+                null -> { /* 인용 없는 빈 필드 — 아무것도 쓰지 않음 */
+                }
                 is String -> {
                     if (field.isEmpty()) {
                         writeQuoted(field)  // "" → "" 인용 출력

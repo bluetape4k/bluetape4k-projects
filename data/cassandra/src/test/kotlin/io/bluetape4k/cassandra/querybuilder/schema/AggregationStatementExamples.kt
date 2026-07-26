@@ -3,9 +3,9 @@ package io.bluetape4k.cassandra.querybuilder.schema
 import com.datastax.oss.driver.api.core.type.DataTypes
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createAggregate
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropAggregate
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cassandra.querybuilder.tupleTerm
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class AggregationStatementExamples {

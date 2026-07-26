@@ -12,17 +12,18 @@
 
 ### 1.1 배경
 
-`bluetape4k` 프로젝트는 AWS 통합 테스트(`aws/`, `aws-kotlin/`, `spring-boot3/aws-*`, `spring-boot4/aws-*`)에서 LocalStack(`localstack/localstack:4`)을 단일 에뮬레이터로 사용해 왔다. 그러나 다음과 같은 환경 변화가 발생했다.
+`bluetape4k` 프로젝트는 AWS 통합 테스트 (`aws/`, `aws-kotlin/`, `spring-boot3/aws-*`, `spring-boot4/aws-*`)에서 LocalStack (`localstack/localstack:4`)을 단일 에뮬레이터로 사용해 왔다. 그러나 다음과 같은 환경 변화가 발생했다.
 
-| 항목 | 상태 | 일자 |
-|------|------|------|
-| LocalStack | GitHub repo `localstack/localstack` archived (read-only) | 2026-03-23 |
-| MinIO | 핵심 서버 archived, AIStor로 rebrand | 2026-04-25 |
-| floci | LocalStack 대체 OSS 에뮬레이터 (latest `1.5.7`, Docker Hub `floci/floci`) | 활발히 개발 중 |
-| ElasticMQ | SQS 호환 in-process 서버 (`1.6.12`) | 활발히 유지 보수 |
-| Mailpit | SMTP 캡처 + Web UI 메일 테스트 도구 (`1.29`) | 활발히 유지 보수 |
+| 항목       | 상태                                                                      | 일자             |
+|------------|---------------------------------------------------------------------------|------------------|
+| LocalStack | GitHub repo `localstack/localstack` archived (read-only)                  | 2026-03-23       |
+| MinIO      | 핵심 서버 archived, AIStor로 rebrand                                      | 2026-04-25       |
+| floci      | LocalStack 대체 OSS 에뮬레이터 (latest `1.5.7`, Docker Hub `floci/floci`) | 활발히 개발 중   |
+| ElasticMQ  | SQS 호환 in-process 서버 (`1.6.12`)                                       | 활발히 유지 보수 |
+| Mailpit    | SMTP 캡처 + Web UI 메일 테스트 도구 (`1.29`)                              | 활발히 유지 보수 |
 
 LocalStack/MinIO를 그대로 유지하면 다음 리스크가 누적된다.
+
 - 보안 취약점 패치 정지
 - AWS API 신규 동작 미반영 (S3 conditional write, SES v2 등)
 - Apple Silicon/ARM64 이미지 업데이트 정지
@@ -38,7 +39,7 @@ LocalStack/MinIO를 그대로 유지하면 다음 리스크가 누적된다.
 ### 1.3 비-목표
 
 - AWS 실서비스 대상 통합 테스트 추가 (현 LocalStack 기반 테스트만 등가 변환)
-- floci에서 미지원하는 stateful 서비스(Lambda/RDS/ElastiCache) 도입
+- floci에서 미지원하는 stateful 서비스 (Lambda/RDS/ElastiCache) 도입
 - AWS Kotlin SDK / AWS Java SDK 자체 버전 업그레이드
 - `aws-mock-bedrock` 등 외부 모킹 도구 추가
 
@@ -46,49 +47,56 @@ LocalStack/MinIO를 그대로 유지하면 다음 리스크가 누적된다.
 
 ## 2. 설계 리스크 (Failure Modes)
 
-연구 결과(Step 1-R)로부터 식별된 리스크와 대응 방향이다.
+연구 결과 (Step 1-R)로부터 식별된 리스크와 대응 방향이다.
 
 ### Risk R1 — floci/Mailpit는 공식 testcontainers 모듈이 없다
 
-**증상**: `LocalStackContainer`처럼 직접 `extends` 가능한 testcontainers 클래스가 없으므로 `GenericContainer<T>` 래핑 패턴(`KeycloakServer`와 동일)을 사용해야 한다.
+**증상**: `LocalStackContainer`처럼 직접 `extends` 가능한 testcontainers 클래스가 없으므로 `GenericContainer<T>` 래핑 패턴 (`KeycloakServer`와 동일)을 사용해야 한다.
 
 **리스크**:
+
 - `LocalStackContainer.withServices(...)`처럼 강타입 enum이 없어 사용자가 잘못된 서비스 이름을 넣어도 컴파일 단에서 잡지 못한다.
 - `LocalStackContainer.endpoint`처럼 SDK가 신뢰하는 endpoint provider 호환 메서드가 없으면 기존 호출 코드가 깨진다.
 
 **대응**:
+
 - `FlociServer`에 `withServices(vararg services: String)` + `validateServices()` 가드를 둔다.
 - `endpoint`/`accessKey`/`secretKey`/`region` API 시그니처를 LocalStackContainer와 호환되도록 노출 (extension function으로 보강).
 
 ### Risk R2 — Wire-protocol/credentials 호환성이 보장되지 않는다
 
-**증상**: floci는 LocalStack과 동일한 wire protocol(port 4566)을 표방하지만, 모든 SDK 동작이 일치한다는 보장은 없다. 특히 SES SMTP relay, KMS 키 형식, S3 presigned URL의 host header 처리 등에서 미세한 차이가 있을 수 있다.
+**증상**: floci는 LocalStack과 동일한 wire protocol (port 4566)을 표방하지만, 모든 SDK 동작이 일치한다는 보장은 없다. 특히 SES SMTP relay, KMS 키 형식, S3 presigned URL의 host header 처리 등에서 미세한 차이가 있을 수 있다.
 
 **리스크**:
-- 하드 스왑(Option A) 시 한 모듈이 깨지면 전체 통합 테스트가 막힌다.
+
+- 하드 스왑 (Option A) 시 한 모듈이 깨지면 전체 통합 테스트가 막힌다.
 - 마이그레이션 전후 동작 차이를 검증할 회귀 채널이 없다.
 
 **대응**:
-- AbstractAwsTest 추상화 레이어(Option B 채택)로 LocalStack/floci를 동시 빌드/실행 가능하게 한다.
+
+- AbstractAwsTest 추상화 레이어 (Option B 채택)로 LocalStack/floci를 동시 빌드/실행 가능하게 한다.
 - floci 이전에 LocalStackServer 호환 테스트를 한 번 더 그린으로 만든 뒤, FlociServer로 같은 테스트를 다시 돌려 회귀를 비교한다 (후속 이슈에서 진행).
 
-### Risk R3 — Stateful 서비스(Lambda 등) 사용 가능성 차단
+### Risk R3 — Stateful 서비스 (Lambda 등) 사용 가능성 차단
 
 **증상**: floci는 일부 stateful 서비스 실행 시 `/var/run/docker.sock` bind-mount가 필요하다. 현재 사용 중인 10개 서비스는 모두 stateless이지만, 향후 Lambda/RDS 도입 시 docker socket 노출이 보안 정책상 문제될 수 있다.
 
 **대응**:
+
 - `FlociServer`에 `withDockerSocket()` 옵션 메서드를 두되 기본값은 비활성.
 - KDoc 및 README에 "stateful 서비스 사용 시에만 docker socket 마운트" 정책 명시.
 
 ### Risk R4 — ElasticMQ Scala 의존성 폭발
 
-**증상**: ElasticMQ 임베드(`elasticmq-rest-sqs_2.13:1.6.12`) 도입 시 Scala 표준 라이브러리(`scala-library`, `scala-reflect`) 약 6MB가 추가된다.
+**증상**: ElasticMQ 임베드 (`elasticmq-rest-sqs_2.13:1.6.12`) 도입 시 Scala 표준 라이브러리 (`scala-library`, `scala-reflect`) 약 6MB가 추가된다.
 
 **리스크**:
+
 - bluetape4k는 현재 Scala 의존성이 0이다 → 첫 도입의 영향 범위가 크다.
 - `bluetape4k-testcontainers`가 Scala를 transitive로 끌고 가면 모든 모듈에 영향.
 
 **대응**:
+
 - ElasticMQ 의존성은 `compileOnly` + `testRuntimeOnly`로 묶어 production transitive에서 제외.
 - `ElasticMqServer`는 별도 패키지 `io.bluetape4k.testcontainers.aws.embedded`로 격리하여 사용자가 명시적으로 import할 때만 활성화되도록 한다.
 
@@ -97,10 +105,12 @@ LocalStack/MinIO를 그대로 유지하면 다음 리스크가 누적된다.
 **증상**: Mailpit은 SMTP 트래픽 캡처 도구이지 AWS SES API 서버가 아니다. 따라서 `SesClient.sendEmail()`을 직접 받지는 못한다.
 
 **리스크**:
+
 - 사용자가 "Mailpit 띄우면 SES 테스트가 된다"고 오해할 수 있다.
 - Floci SES + Mailpit SMTP relay 조합이 필수인데 이 결합 방식을 오해하면 메일 캡처가 작동하지 않는다.
 
 **대응**:
+
 - KDoc에 "Mailpit은 SMTP 캡처용이며, SES API는 floci가 담당하고 floci → Mailpit으로 SMTP relay 설정해야 한다"고 명시.
 - `MailpitServer.Launcher`에 `wireToFloci(floci: FlociServer)` helper를 제공하여 페어링 패턴을 표준화.
 
@@ -109,8 +119,9 @@ LocalStack/MinIO를 그대로 유지하면 다음 리스크가 누적된다.
 **증상**: 기존 `LocalStackServer.Launcher.localStack`은 `lazy { ... }` JVM 싱글턴이다. AbstractAwsTest를 추상화하면서 두 에뮬레이터를 모두 띄우면 testcontainers reuse 캐시가 충돌하거나 포트가 중복될 수 있다.
 
 **대응**:
+
 - 빌드 단위에서는 둘 중 하나만 활성화 (시스템 프로퍼티 또는 Gradle property로 선택).
-- 기본은 LocalStack(현 동작) 유지, CI 매트릭스에서 floci profile을 별도로 추가한다 (T16에서 도입).
+- 기본은 LocalStack (현 동작) 유지, CI 매트릭스에서 floci profile을 별도로 추가한다 (T16에서 도입).
 - AbstractAwsTest의 `awsEmulator` lazy는 기존 `LocalStackServer.Launcher.localStack` 싱글턴에 위임하여 이중 초기화를 방지한다.
 
 ### Risk R7 — `AwsEmulatorServer` 인터페이스의 Java getter 충돌
@@ -118,16 +129,18 @@ LocalStack/MinIO를 그대로 유지하면 다음 리스크가 누적된다.
 **증상**: `LocalStackServer`는 `LocalStackContainer`를 상속하며, parent class는 Java로 작성된 `getEndpoint(): URI`, `getAccessKey(): String`, `getSecretKey(): String`, `getRegion(): String` 메서드를 노출한다. Kotlin에서 인터페이스에 `val endpoint: URI`, `val accessKey: String` 등을 선언하면 컴파일러는 자동으로 `getEndpoint()` getter를 기대하지만, Java 부모 클래스의 동명 메서드와 시그니처 충돌이 발생한다.
 
 **대응**:
+
 - 인터페이스 구현체는 명시적 override로 Java getter에 위임한다 (§4.6 참조).
 - `AwsEmulatorServer` 인터페이스 KDoc에 "Java testcontainers 클래스를 상속하는 구현체는 충돌 회피를 위해 모든 추상 프로퍼티를 명시적으로 override해야 한다"고 명시.
 
 ### Risk R8 — AWS SDK 의존성의 leaky abstraction
 
-**증상**: `bluetape4k-testcontainers` 모듈은 현재 AWS SDK 의존성이 0이다. 인터페이스에 `credentialsProvider(): AwsCredentialsProvider`를 선언하면 모든 testcontainers 소비자(비-AWS 모듈 포함)가 AWS SDK를 classpath에 두어야 한다.
+**증상**: `bluetape4k-testcontainers` 모듈은 현재 AWS SDK 의존성이 0이다. 인터페이스에 `credentialsProvider(): AwsCredentialsProvider`를 선언하면 모든 testcontainers 소비자 (비-AWS 모듈 포함)가 AWS SDK를 classpath에 두어야 한다.
 
 **대응**:
+
 - 인터페이스에서 `credentialsProvider()` 메서드를 제거하고, 대신 별도 extension 파일 `AwsEmulatorServerExtensions.kt`에서 `compileOnly(Libs.aws2_auth)`로 격리.
-- 각 구현체(LocalStackServer, FlociServer)는 자체적으로 `getCredentialProvider()` 메서드를 가지되 공통 인터페이스 의무는 아니다.
+- 각 구현체 (LocalStackServer, FlociServer)는 자체적으로 `getCredentialProvider()` 메서드를 가지되 공통 인터페이스 의무는 아니다.
 
 ---
 
@@ -139,13 +152,14 @@ LocalStack/MinIO를 그대로 유지하면 다음 리스크가 누적된다.
 
 **개요**: `AbstractAwsTest`의 `localStackServer` 필드를 `flociServer: FlociServer`로 교체하고, 기존 `LocalStackServer`는 즉시 삭제 또는 `@Deprecated`만 표시한다.
 
-| 장점 | 단점 |
-|------|------|
-| 변경 범위 최소, 코드가 단순 | 회귀 발생 시 즉시 롤백 불가 |
-| 추상화 오버헤드 없음 | 호환성 사이클이 없어 외부 사용자(라이브러리 소비자)에게 즉시 영향 |
-| | wire-protocol 차이로 발생하는 미묘한 회귀를 LocalStack과 비교 검증 불가능 |
+| 장점                        | 단점                                                                      |
+|-----------------------------|---------------------------------------------------------------------------|
+| 변경 범위 최소, 코드가 단순 | 회귀 발생 시 즉시 롤백 불가                                               |
+| 추상화 오버헤드 없음        | 호환성 사이클이 없어 외부 사용자(라이브러리 소비자)에게 즉시 영향         |
+|                             | wire-protocol 차이로 발생하는 미묘한 회귀를 LocalStack과 비교 검증 불가능 |
 
-**평가**: bluetape4k는 외부에 publish되는 라이브러리이며, archived dependency 마이그레이션은 신중한 전환이 표준이다. 한 릴리스 사이클의 `@Deprecated` 호환을 두는 관행과 충돌. **채택 부적합**.
+**평가**: bluetape4k는 외부에 publish되는 라이브러리이며, archived dependency 마이그레이션은 신중한 전환이 표준이다. 한 릴리스 사이클의 `@Deprecated` 호환을 두는 관행과 충돌.
+**채택 부적합**.
 
 ### Option B — `AwsEmulatorServer` 인터페이스 (LocalStackServer/FlociServer 모두 구현)
 
@@ -163,27 +177,27 @@ interface AwsEmulatorServer : GenericServer, PropertyExportingServer {
 
 > AWS SDK 의존성은 인터페이스에 포함하지 않는다 (Risk R8 참조). `AwsCredentialsProvider` 변환은 `AwsEmulatorServerExtensions.kt`의 extension function으로 별도 제공.
 
-| 장점 | 단점 |
-|------|------|
-| LocalStack/floci를 동시 지원 → 회귀 비교 가능 | 인터페이스 진화 시 두 구현 모두 손봐야 함 |
+| 장점                                                    | 단점                                                                                          |
+|---------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| LocalStack/floci를 동시 지원 → 회귀 비교 가능           | 인터페이스 진화 시 두 구현 모두 손봐야 함                                                     |
 | 외부 사용자도 한 인터페이스만 의존 → SDK 전환 비용 낮음 | 인터페이스 단계에서 LocalStack 고유 API(`withNetworkAliases` 등)가 가려짐 → escape hatch 필요 |
-| Deprecation 사이클 자연스럽게 표현 가능 | 단순 swap보다 작업량 많음 |
+| Deprecation 사이클 자연스럽게 표현 가능                 | 단순 swap보다 작업량 많음                                                                     |
 
-**평가**: bluetape4k 컨벤션(`GenericServer`, `PropertyExportingServer`)과 동질적. 회귀 검증 채널을 제공한다. **채택**.
+**평가**: bluetape4k 컨벤션 (`GenericServer`, `PropertyExportingServer`)과 동질적. 회귀 검증 채널을 제공한다. **채택**.
 
-### Option C — System Property 플래그(`bluetape4k.aws.emulator=floci|localstack`)만 도입
+### Option C — System Property 플래그 (`bluetape4k.aws.emulator=floci|localstack`)만 도입
 
 **개요**: 인터페이스 없이 `AbstractAwsTest.companion`에서 `System.getProperty("bluetape4k.aws.emulator", "localstack")` 분기로 두 에뮬레이터를 선택. 결과 객체는 `Any` 또는 sealed class.
 
-| 장점 | 단점 |
-|------|------|
-| 런타임 플래그로 가장 빠르게 toggle 가능 | 분기 로직이 사용 측마다 흩어짐 → DRY 위반 |
-| 인터페이스 추상화 없음 → 빠른 도입 | 컴파일 타임 안전성 부족, sealed class로 보강 시 결국 인터페이스 패턴과 유사 |
-| | 사용자 코드에서도 분기를 노출해야 함 |
+| 장점                                    | 단점                                                                        |
+|-----------------------------------------|-----------------------------------------------------------------------------|
+| 런타임 플래그로 가장 빠르게 toggle 가능 | 분기 로직이 사용 측마다 흩어짐 → DRY 위반                                   |
+| 인터페이스 추상화 없음 → 빠른 도입      | 컴파일 타임 안전성 부족, sealed class로 보강 시 결국 인터페이스 패턴과 유사 |
+|                                         | 사용자 코드에서도 분기를 노출해야 함                                        |
 
 **평가**: 플래그 자체는 Option B와 결합해도 되지만, 단독으로 쓰면 코드가 분산된다. **Option B에 흡수**(시스템 프로퍼티는 Launcher 내부에서 활용).
 
-### 채택 — Option B + Option C(보조)
+### 채택 — Option B + Option C (보조)
 
 - 공통 contract: `AwsEmulatorServer` 인터페이스 (AWS SDK 비-의존)
 - `LocalStackServer`/`FlociServer` 모두 인터페이스 구현
@@ -194,7 +208,10 @@ interface AwsEmulatorServer : GenericServer, PropertyExportingServer {
 
 ### 보조 컴포넌트: ElasticMqServer는 `AwsEmulatorServer`를 구현하지 않는다
 
-`ElasticMqServer`는 **`AwsEmulatorServer`를 구현하지 않는다**. Docker 기반이 아닌 JVM 내장 서버이며 SQS 전용 API만 제공하기 때문이다. 따라서 `AbstractAwsTest`의 교체 대상이 아니라, **SQS 전용 단위 테스트에서 Docker 없이 사용하는 보조 유틸리티**로 위치한다. 사용자는 명시적으로 `ElasticMqServer().use { ... }` 형태로 호출하며, AWS SDK의 `SqsClient`를 위한 endpoint URI/credentials만 노출한다.
+`ElasticMqServer`는 **`AwsEmulatorServer`를 구현하지
+않는다**. Docker 기반이 아닌 JVM 내장 서버이며 SQS 전용 API만 제공하기 때문이다. 따라서 `AbstractAwsTest`의 교체 대상이 아니라, **SQS 전용 단위 테스트에서 Docker 없이
+사용하는 보조
+유틸리티**로 위치한다. 사용자는 명시적으로 `ElasticMqServer().use { ... }` 형태로 호출하며, AWS SDK의 `SqsClient`를 위한 endpoint URI/credentials만 노출한다.
 
 ---
 
@@ -323,11 +340,8 @@ import java.net.URI
  *     start()
  * }
  * ```
- */
-class FlociServer private constructor(
-    imageName: DockerImageName,
-    useDefaultPort: Boolean,
-    reuse: Boolean,
+
+*/ class FlociServer private constructor (imageName: DockerImageName, useDefaultPort: Boolean, reuse: Boolean,
 ) : GenericContainer<FlociServer>(imageName), AwsEmulatorServer {
 
     companion object : KLogging() {
@@ -438,7 +452,9 @@ class FlociServer private constructor(
                 ShutdownQueue.register(this)
             }
     }
+
 }
+
 ```
 
 ### 4.4 `ElasticMqServer` (임베드 SQS — `AwsEmulatorServer` 비-구현)
@@ -474,9 +490,8 @@ import java.net.ServerSocket
  *     val sqs = SqsClient.builder().endpointOverride(mq.endpoint).build()
  * }
  * ```
- */
-class ElasticMqServer private constructor(
-    private val requestedPort: Int,
+
+*/ class ElasticMqServer private constructor (private val requestedPort: Int,
 ) : AutoCloseable, PropertyExportingServer {
 
     companion object : KLogging() {
@@ -539,7 +554,9 @@ class ElasticMqServer private constructor(
             }
         }
     }
+
 }
+
 ```
 
 > ⚠ Scala 의존(`org.elasticmq:elasticmq-rest-sqs_2.13:1.6.12`)은 **`compileOnly` + `testRuntimeOnly`** 로만 노출하여 transitive에서 격리한다.
@@ -678,6 +695,7 @@ class LocalStackServer ... : LocalStackContainer(...), AwsEmulatorServer {
 ```
 
 `MinIOServer`:
+
 ```kotlin
 @Deprecated(
     message = "MinIO core가 archived(2026-04-25), AIStor로 rebrand. S3 통합 테스트는 FlociServer 사용 권장.",
@@ -744,6 +762,7 @@ abstract class AbstractAwsTest {
 `aws/aws-kotlin/AbstractAwsTest.kt`는 현재 extension function들을 `LocalStackContainer` receiver에 정의한다 (예: `LocalStackContainer.endpointUrl`). `awsEmulator: AwsEmulatorServer` 타입으로 전환하면 호출이 컴파일 깨진다.
 
 **해결 방안**:
+
 1. 새 extension function은 `AwsEmulatorServer` receiver로 재정의:
    ```kotlin
    val AwsEmulatorServer.endpointUrl: Url
@@ -795,11 +814,11 @@ testRuntimeOnly(Libs.elasticmq)
 
 ### 4.9 시스템 프로퍼티 export 키 명세
 
-| Server | namespace | keys |
-|--------|-----------|------|
-| FlociServer | `floci` | `host, port, url, endpoint, access-key, secret-key, region, services` |
-| ElasticMqServer | `elasticmq` | `host, port, url, endpoint, access-key, secret-key, region` |
-| MailpitServer | `mailpit` | `host, smtp-port, ui-port, smtp-url, web-url, api-url` |
+| Server          | namespace   | keys                                                                  |
+|-----------------|-------------|-----------------------------------------------------------------------|
+| FlociServer     | `floci`     | `host, port, url, endpoint, access-key, secret-key, region, services` |
+| ElasticMqServer | `elasticmq` | `host, port, url, endpoint, access-key, secret-key, region`           |
+| MailpitServer   | `mailpit`   | `host, smtp-port, ui-port, smtp-url, web-url, api-url`                |
 
 모두 `testcontainers.<namespace>.<key>` 형식 (`PropertyExportingServer` 컨벤션 준수).
 
@@ -807,29 +826,29 @@ testRuntimeOnly(Libs.elasticmq)
 
 ## 5. 태스크 초안
 
-| # | Task | 산출물 | 종속성 |
-|---|------|--------|--------|
-| T1 | `AwsEmulatorServer` 인터페이스 작성 + KDoc (Java getter 충돌 / SDK 의존성 격리 가이드 포함) | `testcontainers/aws/AwsEmulatorServer.kt` | — |
-| T1a | `AwsEmulatorServerExtensions.kt` 작성 (AWS SDK v2 변환 extension, compileOnly) | `testcontainers/aws/AwsEmulatorServerExtensions.kt` | T1 |
-| T2 | `LocalStackServer`에 `AwsEmulatorServer` 구현 + 명시 override 위임 + `@Deprecated` | LocalStackServer.kt 수정 | T1 |
-| T3 | `MinIOServer`에 `@Deprecated` 추가 | MinIOServer.kt 수정 | — |
-| T4 | `FlociServer` 신규 작성 (Wait.forListeningPort fallback) | `testcontainers/aws/FlociServer.kt` | T1 |
-| T5 | `ElasticMqServer` 신규 작성 + Libs.kt에 `elasticmq` 등록 (`AwsEmulatorServer` 비-구현 명시) | `testcontainers/aws/embedded/ElasticMqServer.kt`, Libs.kt | — |
-| T6 | `MailpitServer` 신규 작성 (`mail/` 패키지 신설) | `testcontainers/mail/MailpitServer.kt` | — |
-| T7 | testcontainers `build.gradle.kts`에 의존성 추가 (AWS SDK v2 compileOnly, elasticmq compileOnly) | `testing/testcontainers/build.gradle.kts` | T4, T5 |
-| T8 | testcontainers 단위 테스트 작성: FlociServer/ElasticMqServer/MailpitServer 각각 start/stop + propertyKeys/properties 검증 | `testing/testcontainers/src/test/kotlin/...` | T4, T5, T6 |
-| T9 | `aws/aws/AbstractAwsTest`에 `awsEmulator` 도입, 기존 Launcher 싱글턴에 위임 (이중 초기화 방지), `localStackServer` alias 호환 유지 | `aws/aws/src/test/kotlin/io/bluetape4k/aws/AbstractAwsTest.kt` | T1, T2, T4 |
-| T10 | `aws/aws-kotlin/AbstractAwsTest` 동일 패턴 적용 + `AwsEmulatorServer.endpointUrl`/`kotlinCredentialsProvider` extension 신규 정의 + 기존 `LocalStackContainer.endpointUrl` 등 extension `@Deprecated` 처리 | `aws/aws-kotlin/src/test/kotlin/io/bluetape4k/aws/kotlin/AbstractAwsTest.kt` 외 extension 파일 | T1, T2, T4 |
-| T11 | 회귀 검증: 기본(localstack) profile로 `./gradlew :bluetape4k-aws:test :bluetape4k-aws-kotlin:test` 통과 확인 | 테스트 결과 로그 | T9, T10 |
-| T12 | 회귀 검증: floci profile (`-Dbluetape4k.aws.emulator=floci`) 로 동일 모듈 smoke test 통과 확인 (실패 항목은 후속 이슈로 분리) | 테스트 결과 로그 | T9, T10 |
-| T13 | README.md / README.ko.md 업데이트: `bluetape4k-testcontainers` 모듈에 floci/ElasticMQ/Mailpit 섹션 추가, LocalStack/MinIO Deprecated 표기 | README 2개 | T4~T6 |
-| T13a | 루트 `CLAUDE.md` 업데이트 — Key Design Patterns 섹션에 `AwsEmulatorServer` 인터페이스와 LocalStack→floci 마이그레이션 정책 문서화, `testing/` 모듈 그룹 항목 갱신 | `CLAUDE.md` | T1, T4 |
-| T14 | `docs/superpowers/index/2026-04.md` 항목 추가 + INDEX 카운트 갱신 | 인덱스 파일 2개 | 전 작업 |
-| T15 | `/wiki-update`로 본 spec을 wiki 인덱싱 | wiki 페이지 | 본 spec 작성 후 |
-| T16 | `.github/workflows/nightly-tests.yml` 수정 — `test-aws` job에 floci profile 매트릭스 추가 (`-Dbluetape4k.aws.emulator=floci`), `continue-on-error: true`로 스모크 검증 | `.github/workflows/nightly-tests.yml` | T9, T10 |
-| T17 | ~~`ci.yml` AWS job 동기화 검토~~ **N/A** — `ci.yml`에 AWS 전용 job 없음. nightly-tests.yml의 `test-aws` job만 존재하므로 T16에서 완결. | N/A | T16 |
+| #    | Task                                                                                                                                                                                                       | 산출물                                                                                         | 종속성          |
+|------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|-----------------|
+| T1   | `AwsEmulatorServer` 인터페이스 작성 + KDoc (Java getter 충돌 / SDK 의존성 격리 가이드 포함)                                                                                                                | `testcontainers/aws/AwsEmulatorServer.kt`                                                      | —               |
+| T1a  | `AwsEmulatorServerExtensions.kt` 작성 (AWS SDK v2 변환 extension, compileOnly)                                                                                                                             | `testcontainers/aws/AwsEmulatorServerExtensions.kt`                                            | T1              |
+| T2   | `LocalStackServer`에 `AwsEmulatorServer` 구현 + 명시 override 위임 + `@Deprecated`                                                                                                                         | LocalStackServer.kt 수정                                                                       | T1              |
+| T3   | `MinIOServer`에 `@Deprecated` 추가                                                                                                                                                                         | MinIOServer.kt 수정                                                                            | —               |
+| T4   | `FlociServer` 신규 작성 (Wait.forListeningPort fallback)                                                                                                                                                   | `testcontainers/aws/FlociServer.kt`                                                            | T1              |
+| T5   | `ElasticMqServer` 신규 작성 + Libs.kt에 `elasticmq` 등록 (`AwsEmulatorServer` 비-구현 명시)                                                                                                                | `testcontainers/aws/embedded/ElasticMqServer.kt`, Libs.kt                                      | —               |
+| T6   | `MailpitServer` 신규 작성 (`mail/` 패키지 신설)                                                                                                                                                            | `testcontainers/mail/MailpitServer.kt`                                                         | —               |
+| T7   | testcontainers `build.gradle.kts`에 의존성 추가 (AWS SDK v2 compileOnly, elasticmq compileOnly)                                                                                                            | `testing/testcontainers/build.gradle.kts`                                                      | T4, T5          |
+| T8   | testcontainers 단위 테스트 작성: FlociServer/ElasticMqServer/MailpitServer 각각 start/stop + propertyKeys/properties 검증                                                                                  | `testing/testcontainers/src/test/kotlin/...`                                                   | T4, T5, T6      |
+| T9   | `aws/aws/AbstractAwsTest`에 `awsEmulator` 도입, 기존 Launcher 싱글턴에 위임 (이중 초기화 방지), `localStackServer` alias 호환 유지                                                                         | `aws/aws/src/test/kotlin/io/bluetape4k/aws/AbstractAwsTest.kt`                                 | T1, T2, T4      |
+| T10  | `aws/aws-kotlin/AbstractAwsTest` 동일 패턴 적용 + `AwsEmulatorServer.endpointUrl`/`kotlinCredentialsProvider` extension 신규 정의 + 기존 `LocalStackContainer.endpointUrl` 등 extension `@Deprecated` 처리 | `aws/aws-kotlin/src/test/kotlin/io/bluetape4k/aws/kotlin/AbstractAwsTest.kt` 외 extension 파일 | T1, T2, T4      |
+| T11  | 회귀 검증: 기본(localstack) profile로 `./gradlew :bluetape4k-aws:test :bluetape4k-aws-kotlin:test` 통과 확인                                                                                               | 테스트 결과 로그                                                                               | T9, T10         |
+| T12  | 회귀 검증: floci profile (`-Dbluetape4k.aws.emulator=floci`) 로 동일 모듈 smoke test 통과 확인 (실패 항목은 후속 이슈로 분리)                                                                              | 테스트 결과 로그                                                                               | T9, T10         |
+| T13  | README.md / README.ko.md 업데이트: `bluetape4k-testcontainers` 모듈에 floci/ElasticMQ/Mailpit 섹션 추가, LocalStack/MinIO Deprecated 표기                                                                  | README 2개                                                                                     | T4~T6           |
+| T13a | 루트 `CLAUDE.md` 업데이트 — Key Design Patterns 섹션에 `AwsEmulatorServer` 인터페이스와 LocalStack→floci 마이그레이션 정책 문서화, `testing/` 모듈 그룹 항목 갱신                                          | `CLAUDE.md`                                                                                    | T1, T4          |
+| T14  | `docs/superpowers/index/2026-04.md` 항목 추가 + INDEX 카운트 갱신                                                                                                                                          | 인덱스 파일 2개                                                                                | 전 작업         |
+| T15  | `/wiki-update`로 본 spec을 wiki 인덱싱                                                                                                                                                                     | wiki 페이지                                                                                    | 본 spec 작성 후 |
+| T16  | `.github/workflows/nightly-tests.yml` 수정 — `test-aws` job에 floci profile 매트릭스 추가 (`-Dbluetape4k.aws.emulator=floci`), `continue-on-error: true`로 스모크 검증                                     | `.github/workflows/nightly-tests.yml`                                                          | T9, T10         |
+| T17  | ~~`ci.yml` AWS job 동기화 검토~~ **N/A** — `ci.yml`에 AWS 전용 job 없음. nightly-tests.yml의 `test-aws` job만 존재하므로 T16에서 완결.                                                                     | N/A                                                                                            | T16             |
 
-> Plan 단계(Step 2)에서 위 태스크를 phase로 묶고 acceptance criteria/예상 작업 시간을 보강한다.
+> Plan 단계 (Step 2)에서 위 태스크를 phase로 묶고 acceptance criteria/예상 작업 시간을 보강한다.
 > **총 18개 태스크** (T1, T1a, T2~T13, T13a, T14, T15, T16, T17). T17은 N/A.
 
 ---
@@ -838,14 +857,14 @@ testRuntimeOnly(Libs.elasticmq)
 
 다음 항목은 본 이슈에서 다루지 않으며, 별도 이슈로 분리한다.
 
-| 항목 | 사유 |
-|------|------|
-| 개별 AWS 모듈 테스트 파일(`io/bluetape4k/aws/s3/...` 등)의 floci 전환 | 모듈 단위 회귀 검증이 필요하여 분리 |
-| `spring-boot3/aws-*`, `spring-boot4/aws-*` 의 floci 전환 | Spring auto-configuration 영향 큰 별도 작업 |
-| Lambda/RDS/ElastiCache 등 stateful 서비스 도입 | docker socket 노출, security review 필요 |
-| LocalStack/MinIO 코드 완전 삭제 | 한 릴리스 사이클 호환 후 진행 (`v1.8.0` 후보) |
-| AWS SDK v2 / AWS Kotlin SDK 자체 버전 업그레이드 | 의존 변경이 대규모 — 별도 이슈 |
-| `aws-mock-bedrock` 등 LLM 관련 모킹 도구 도입 | bluetape4k-llm 모듈에서 별도 검토 |
+| 항목                                                                  | 사유                                          |
+|-----------------------------------------------------------------------|-----------------------------------------------|
+| 개별 AWS 모듈 테스트 파일(`io/bluetape4k/aws/s3/...` 등)의 floci 전환 | 모듈 단위 회귀 검증이 필요하여 분리           |
+| `spring-boot3/aws-*`, `spring-boot4/aws-*` 의 floci 전환              | Spring auto-configuration 영향 큰 별도 작업   |
+| Lambda/RDS/ElastiCache 등 stateful 서비스 도입                        | docker socket 노출, security review 필요      |
+| LocalStack/MinIO 코드 완전 삭제                                       | 한 릴리스 사이클 호환 후 진행 (`v1.8.0` 후보) |
+| AWS SDK v2 / AWS Kotlin SDK 자체 버전 업그레이드                      | 의존 변경이 대규모 — 별도 이슈                |
+| `aws-mock-bedrock` 등 LLM 관련 모킹 도구 도입                         | bluetape4k-llm 모듈에서 별도 검토             |
 
 ---
 
@@ -854,7 +873,7 @@ testRuntimeOnly(Libs.elasticmq)
 ### Acceptance Criteria
 
 - [ ] `./gradlew :bluetape4k-testcontainers:test`가 신규 서버 단위 테스트 포함 전수 통과
-- [ ] `./gradlew :bluetape4k-aws:test :bluetape4k-aws-kotlin:test` 가 default profile(`localstack`)로 회귀 없이 통과
+- [ ] `./gradlew :bluetape4k-aws:test :bluetape4k-aws-kotlin:test` 가 default profile (`localstack`)로 회귀 없이 통과
 - [ ] floci profile smoke test에서 SQS/SNS/S3 기본 시나리오 1건 이상 통과 (회귀 항목은 후속 이슈에 등록)
 - [ ] LocalStackServer/MinIOServer 호출부에서 `@Deprecated` 경고 정상 노출 (컴파일 에러 없음)
 - [ ] README/README.ko.md에 신규 서버 섹션과 deprecation 안내 반영
@@ -874,19 +893,19 @@ testRuntimeOnly(Libs.elasticmq)
 
 ## 8. 결정 로그
 
-| 결정 | 채택안 | 이유 |
-|------|--------|------|
-| AbstractAwsTest 추상화 방식 | Option B (인터페이스) | 회귀 검증 채널 + bluetape4k 컨벤션 일치 |
-| LocalStack/MinIO 즉시 삭제 여부 | 한 릴리스 호환 후 삭제 | 외부 라이브러리 소비자 보호 |
-| ElasticMQ Docker화 vs 임베드 | 임베드(in-process) | docker 미사용 단위 테스트 활용 가능, Scala 의존은 격리 |
-| ElasticMQ가 `AwsEmulatorServer` 구현 여부 | 비-구현 (보조 유틸리티) | SQS 전용, Docker 비-사용, AbstractAwsTest 교체 대상 아님 |
-| Mailpit 단독 vs floci 페어링 | 페어링 (SES API는 floci, 캡처는 Mailpit) | Mailpit이 SES API 비구현이므로 단독으로는 불완전 |
-| floci docker socket | 기본 비활성, 명시 메서드(`withDockerSocket`)로만 활성화 | 보안 표면 최소화 |
-| floci profile 기본값 | LocalStack 유지, floci는 `-D` 플래그 | 한 릴리스 호환 사이클 정책 |
-| floci health check 전략 | `Wait.forListeningPort()` (안전 fallback) | floci `/_localstack/health` 지원 미확정. TODO 코멘트 + 추후 교체 |
-| `AwsEmulatorServer`가 AWS SDK 노출 여부 | 비-노출 (extension 파일로 분리) | testcontainers 모듈의 AWS SDK leaky abstraction 방지 |
-| AbstractAwsTest의 awsEmulator 초기화 | 기존 Launcher 싱글턴에 위임 | 이중 초기화 / testcontainers reuse 캐시 충돌 방지 |
-| floci Docker 이미지 경로 | `floci/floci:1.5.7` (Docker Hub) | 공식 배포 채널 확인. GitHub Container Registry 경로(`ghcr.io/floci-io/floci`)는 미사용 |
+| 결정                                      | 채택안                                                  | 이유                                                                                   |
+|-------------------------------------------|---------------------------------------------------------|----------------------------------------------------------------------------------------|
+| AbstractAwsTest 추상화 방식               | Option B (인터페이스)                                   | 회귀 검증 채널 + bluetape4k 컨벤션 일치                                                |
+| LocalStack/MinIO 즉시 삭제 여부           | 한 릴리스 호환 후 삭제                                  | 외부 라이브러리 소비자 보호                                                            |
+| ElasticMQ Docker화 vs 임베드              | 임베드(in-process)                                      | docker 미사용 단위 테스트 활용 가능, Scala 의존은 격리                                 |
+| ElasticMQ가 `AwsEmulatorServer` 구현 여부 | 비-구현 (보조 유틸리티)                                 | SQS 전용, Docker 비-사용, AbstractAwsTest 교체 대상 아님                               |
+| Mailpit 단독 vs floci 페어링              | 페어링 (SES API는 floci, 캡처는 Mailpit)                | Mailpit이 SES API 비구현이므로 단독으로는 불완전                                       |
+| floci docker socket                       | 기본 비활성, 명시 메서드(`withDockerSocket`)로만 활성화 | 보안 표면 최소화                                                                       |
+| floci profile 기본값                      | LocalStack 유지, floci는 `-D` 플래그                    | 한 릴리스 호환 사이클 정책                                                             |
+| floci health check 전략                   | `Wait.forListeningPort()` (안전 fallback)               | floci `/_localstack/health` 지원 미확정. TODO 코멘트 + 추후 교체                       |
+| `AwsEmulatorServer`가 AWS SDK 노출 여부   | 비-노출 (extension 파일로 분리)                         | testcontainers 모듈의 AWS SDK leaky abstraction 방지                                   |
+| AbstractAwsTest의 awsEmulator 초기화      | 기존 Launcher 싱글턴에 위임                             | 이중 초기화 / testcontainers reuse 캐시 충돌 방지                                      |
+| floci Docker 이미지 경로                  | `floci/floci:1.5.7` (Docker Hub)                        | 공식 배포 채널 확인. GitHub Container Registry 경로(`ghcr.io/floci-io/floci`)는 미사용 |
 
 ---
 

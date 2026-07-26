@@ -1,7 +1,7 @@
 package io.bluetape4k.idgenerators.ksuid
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 

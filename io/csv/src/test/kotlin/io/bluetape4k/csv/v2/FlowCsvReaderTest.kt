@@ -1,13 +1,13 @@
 package io.bluetape4k.csv.v2
 
-import io.bluetape4k.logging.KLogging
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayInputStream
@@ -15,7 +15,7 @@ import java.nio.file.Path
 
 class FlowCsvReaderTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @TempDir
     lateinit var tempDir: Path

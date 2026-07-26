@@ -1,17 +1,17 @@
 package io.bluetape4k.feign.clients
 
-import io.bluetape4k.feign.AbstractFeignTest
-import io.bluetape4k.feign.services.HttpbinAnythingResponse
-import io.bluetape4k.feign.services.Post
-import io.bluetape4k.jackson3.Jackson
-import tools.jackson.databind.json.JsonMapper
-import io.bluetape4k.junit5.random.RandomizedTest
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldNotBeNullOrBlank
+import io.bluetape4k.feign.AbstractFeignTest
+import io.bluetape4k.feign.services.HttpbinAnythingResponse
+import io.bluetape4k.feign.services.Post
+import io.bluetape4k.jackson3.Jackson
+import io.bluetape4k.junit5.random.RandomizedTest
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.trace
+import tools.jackson.databind.json.JsonMapper
 
 @RandomizedTest
 abstract class AbstractHttpbinTest: AbstractFeignTest() {

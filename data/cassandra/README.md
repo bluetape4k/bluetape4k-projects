@@ -287,8 +287,7 @@ val selected = session.prepare(userEntityHelper) {
 ```
 
 The mapper helper APIs expose DataStax `EntityHelper` and `NullSavingStrategy`
-types directly, so `bluetape4k-cassandra` exports the mapper runtime as part of
-its public dependency contract.
+types directly, so `bluetape4k-cassandra` exports the mapper runtime as part of its public dependency contract.
 
 ### 8. Cassandra Administration
 

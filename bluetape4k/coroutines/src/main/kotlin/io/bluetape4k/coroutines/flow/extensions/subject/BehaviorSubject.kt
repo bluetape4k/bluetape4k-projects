@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.coroutines.coroutineContext
 
 /**
  * 가장 최근 값을 유지하고 새 collector에게 즉시 전달하는 Subject입니다.

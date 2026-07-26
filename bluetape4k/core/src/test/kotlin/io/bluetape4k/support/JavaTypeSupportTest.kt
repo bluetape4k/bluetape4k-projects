@@ -1,9 +1,9 @@
 package io.bluetape4k.support
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.lang.reflect.Type
-import io.bluetape4k.assertions.assertFailsWith
 
 class JavaTypeSupportTest {
 
@@ -28,4 +28,3 @@ class JavaTypeSupportTest {
         }
     }
 }
-

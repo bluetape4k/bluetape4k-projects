@@ -12,12 +12,12 @@ import io.micrometer.common.KeyValues
 import io.micrometer.observation.ObservationRegistry
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.stereotype.Service
 import java.io.Serializable
 
 private const val REQUEST_ID_HEADER = "X-Request-Id"

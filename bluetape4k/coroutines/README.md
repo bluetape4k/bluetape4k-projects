@@ -199,18 +199,18 @@ val vtScope = VirtualThreadCoroutineScope()
 
 #### Suspend entry points
 
-| Function | Behavior | Underlying |
-|---|---|---|
-| `taskScope { }` | Fail-fast: first failure cancels remaining tasks | `StructuredTaskScopes.failFast` |
-| `failFastTaskScope { }` | Alias for `taskScope` with explicit name | `StructuredTaskScopes.failFast` |
-| `firstSuccessTaskScope<T> { }` | First-success: returns earliest success, cancels rest | `StructuredTaskScopes.firstSuccess` |
-| `supervisedTaskScope<T, R> { }` | Supervised: all tasks run; partial failures allowed | `StructuredTaskScopes.supervised` |
+| Function                        | Behavior                                              | Underlying                          |
+|---------------------------------|-------------------------------------------------------|-------------------------------------|
+| `taskScope { }`                 | Fail-fast: first failure cancels remaining tasks      | `StructuredTaskScopes.failFast`     |
+| `failFastTaskScope { }`         | Alias for `taskScope` with explicit name              | `StructuredTaskScopes.failFast`     |
+| `firstSuccessTaskScope<T> { }`  | First-success: returns earliest success, cancels rest | `StructuredTaskScopes.firstSuccess` |
+| `supervisedTaskScope<T, R> { }` | Supervised: all tasks run; partial failures allowed   | `StructuredTaskScopes.supervised`   |
 
 #### Async (non-blocking) entry points
 
-| Function | Returns | Usage |
-|---|---|---|
-| `CoroutineScope.asyncTaskScope { }` | `Deferred<T>` | Parallel fail-fast scopes via `awaitAll` |
+| Function                                            | Returns       | Usage                                     |
+|-----------------------------------------------------|---------------|-------------------------------------------|
+| `CoroutineScope.asyncTaskScope { }`                 | `Deferred<T>` | Parallel fail-fast scopes via `awaitAll`  |
 | `CoroutineScope.asyncSupervisedTaskScope<T, R> { }` | `Deferred<R>` | Parallel supervised scopes via `awaitAll` |
 
 Inside each block, `this` is the scope — call `fork { }`, `join()`, `throwIfFailed()`, `results()`, etc. directly.
@@ -284,7 +284,7 @@ These APIs read Reactor `Context`. They do not create Reactor publishers or brid
 
 Groups input elements into `List`s of size `n`. Emits the final partial chunk as well (`partialWindow=true` by default).
 
-![2. chunked(n) — Fixed-Size Chunks diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-02.png)
+![2. chunked (n) — Fixed-Size Chunks diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-02.png)
 
 ---
 
@@ -292,7 +292,7 @@ Groups input elements into `List`s of size `n`. Emits the final partial chunk as
 
 Emits windows of size `size`, advancing by `step` each time.
 
-![3. windowed(size, step) — Sliding Window diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-03.png)
+![3. windowed (size, step) — Sliding Window diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-03.png)
 
 ---
 
@@ -301,7 +301,7 @@ Emits windows of size `size`, advancing by `step` each time.
 `sliding` is equivalent to `windowed(size, step=1)`.
 `bufferedSliding` maintains a buffer and emits a snapshot on every element.
 
-![4. sliding(n) / bufferedSliding(n) — One-Step Sliding Window diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-04.png)
+![4. sliding (n) / bufferedSliding (n) — One-Step Sliding Window diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-04.png)
 
 ---
 
@@ -309,9 +309,12 @@ Emits windows of size `size`, advancing by `step` each time.
 
 Runs the transform function on up to `parallelism` elements concurrently. Result order is not guaranteed.
 
-> **Performance (2026-04-21)**: `FlowParallel` and `FlowSequential` were redesigned with per-rail `Channel` buffers and a `select`-based fan-in. Benchmark results show a **+32.7% geomean** throughput gain across all parallel operators, with `mapParallel` showing up to **+506%** improvement. `AsyncFlow` also benefits from removing the `LazyDeferred` atomic wrapper.
+> **Performance (
+2026-04-21)**: `FlowParallel` and `FlowSequential` were redesigned with per-rail `Channel` buffers and a `select`-based fan-in. Benchmark results show a
+> **+32.7% geomean** throughput gain across all parallel operators, with `mapParallel` showing up to
+> **+506%** improvement. `AsyncFlow` also benefits from removing the `LazyDeferred` atomic wrapper.
 
-![5. mapParallel(parallelism) — Parallel Transformation diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-05.png)
+![5. mapParallel (parallelism) — Parallel Transformation diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-05.png)
 
 ---
 
@@ -327,7 +330,7 @@ Starts inner Flows eagerly and concurrently, but **emits results in source order
 
 Buffers values arriving within `timeout` and emits them together as a `List`. Resets the timeout on each new arrival.
 
-![7. bufferingDebounce(timeout) — Debounced Batching diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-07.png)
+![7. bufferingDebounce (timeout) — Debounced Batching diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-07.png)
 
 ---
 
@@ -343,7 +346,7 @@ Within a fixed window, emits the first element (leading), last element (trailing
 
 `takeUntil` passes source values until the notifier emits. `skipUntil` drops source values until the notifier opens the gate.
 
-![9. takeUntil(notifier) / skipUntil(notifier) — Gate Control diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-09.png)
+![9. takeUntil (notifier) / skipUntil (notifier) — Gate Control diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-09.png)
 
 ---
 
@@ -351,7 +354,7 @@ Within a fixed window, emits the first element (leading), last element (trailing
 
 Collects multiple Flows concurrently and emits values in arrival order.
 
-![10. merge(flows) — Unordered Merge diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-10.png)
+![10. merge (flows) — Unordered Merge diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-10.png)
 
 ---
 
@@ -359,7 +362,7 @@ Collects multiple Flows concurrently and emits values in arrival order.
 
 Pairs adjacent elements as `Pair`, optionally applying a transform. `zipWithNext` is an alias for `pairwise`.
 
-![11. pairwise() / zipWithNext() — Adjacent Pairs diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-11.png)
+![11. pairwise () / zipWithNext () — Adjacent Pairs diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-11.png)
 
 ---
 
@@ -367,7 +370,7 @@ Pairs adjacent elements as `Pair`, optionally applying a transform. `zipWithNext
 
 Calls `initialSupplier` at collect time to produce the seed, then emits each accumulated result.
 
-![12. scanWith(initial) { } — Lazy Scan Seed diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-12.png)
+![12. scanWith (initial) { } — Lazy Scan Seed diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-12.png)
 
 ---
 

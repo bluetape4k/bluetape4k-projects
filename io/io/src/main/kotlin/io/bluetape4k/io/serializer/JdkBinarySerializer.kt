@@ -58,8 +58,8 @@ private class JdkCallerOwnedCountingOutputStream(
  */
 val JDK_DEFAULT_OBJECT_INPUT_FILTER: ObjectInputFilter = ObjectInputFilter.Config.createFilter(
     "io.bluetape4k.**;java.lang.*;java.lang.**;java.util.*;java.util.**;" +
-        "java.io.*;java.math.*;java.math.**;java.time.*;java.time.**;" +
-        "java.net.*;java.sql.*;kotlin.*;kotlin.**;!*"
+            "java.io.*;java.math.*;java.math.**;java.time.*;java.time.**;" +
+            "java.net.*;java.sql.*;kotlin.*;kotlin.**;!*"
 )
 
 /**

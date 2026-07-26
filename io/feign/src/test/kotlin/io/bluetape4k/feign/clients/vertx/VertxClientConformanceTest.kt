@@ -4,7 +4,7 @@ import feign.AsyncClient
 import feign.Client
 import io.bluetape4k.feign.clients.FeignAsyncClientConformanceTest
 import io.bluetape4k.feign.clients.FeignSyncClientConformanceTest
-import java.util.Optional
+import java.util.*
 
 class VertxClientConformanceTest: FeignSyncClientConformanceTest() {
 

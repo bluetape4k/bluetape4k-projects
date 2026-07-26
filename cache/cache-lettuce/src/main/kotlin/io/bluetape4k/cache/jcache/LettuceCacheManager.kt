@@ -131,13 +131,13 @@ class LettuceCacheManager(
         if (configuration.keyType != requestedKeyType) {
             throw ClassCastException(
                 "Cache [$validCacheName] key type mismatch. requested=${requestedKeyType.name}, " +
-                    "configured=${configuration.keyType.name}"
+                        "configured=${configuration.keyType.name}"
             )
         }
         if (configuration.valueType != requestedValueType) {
             throw ClassCastException(
                 "Cache [$validCacheName] value type mismatch. requested=${requestedValueType.name}, " +
-                    "configured=${configuration.valueType.name}"
+                        "configured=${configuration.valueType.name}"
             )
         }
 

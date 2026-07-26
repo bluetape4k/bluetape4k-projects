@@ -1,8 +1,6 @@
 # Logging Manual First 설계
 
-**날짜:** 2026-07-12
-**상태:** 승인됨 — 전체 모듈 확장 방향과 첫 대상 `logging` 실행 승인
-**대상:** `bluetape4k-projects`, `bluetape4k.github.io`
+**날짜:** 2026-07-12 **상태:** 승인됨 — 전체 모듈 확장 방향과 첫 대상 `logging` 실행 승인 **대상:** `bluetape4k-projects`, `bluetape4k.github.io`
 
 ## 목표
 

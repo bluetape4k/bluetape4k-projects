@@ -8,7 +8,6 @@ import io.bluetape4k.idgenerators.uuid.Uuid
 import io.bluetape4k.idgenerators.uuid.UuidGenerator
 import io.bluetape4k.ktor.core.installBluetape4kKtorCore
 import io.ktor.server.application.Application
-import io.ktor.server.application.call
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.response.respond
@@ -45,7 +44,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import java.io.Serializable as JavaSerializable
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -53,6 +51,7 @@ import java.net.http.HttpResponse
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
+import java.io.Serializable as JavaSerializable
 
 private const val LOOPBACK = "127.0.0.1"
 private const val DEFAULT_BATCH_SIZE = 10

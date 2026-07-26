@@ -1,12 +1,152 @@
 #!/usr/bin/env node
-import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
-const out="docs/images/readme-diagrams/data-hibernate-reactive-diagram-02", W=2180, H=1260;
-const c={ink:"#0F172A",muted:"#475569",canvas:"#F8FAFC",frame:"#FFFFFF",line:"#CBD5E1",blue:"#2563EB",teal:"#0D9488",orange:"#EA580C",purple:"#7C3AED",gray:"#64748B"};
-const sources=["data/hibernate-reactive/README.md","data/hibernate-reactive/README.ko.md","data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionFactorySupport.kt","data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionSupport.kt","data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/StatelessSessionSupport.kt","data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionFactorySupport.kt","data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionSupport.kt","data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/StatelessSessionSupport.kt"]; for(const s of sources) if(!existsSync(s)) throw new Error(`Missing source evidence: ${s}`);
-if(!/Hibernate Reactive API Structure[\s\S]*data-hibernate-reactive-diagram-02\.png/.test(readFileSync(sources[0],"utf8"))) throw new Error("README diagram slot not found");
-const boxes={ mutinyFactory:{x:120,y:205,w:500,h:185,fill:"#F0FDFA",stroke:c.teal,st:"<<Mutiny extension file>>",title:"SessionFactorySupport",attrs:["withSessionSuspending", "withTransactionSuspending"],methods:["async(currentVertxDispatcher()).asUni()", "awaitSuspending()"]}, stageFactory:{x:1560,y:205,w:500,h:185,fill:"#EFF6FF",stroke:c.blue,st:"<<Stage extension file>>",title:"SessionFactorySupport",attrs:["withSessionSuspending", "withTransactionSuspending"],methods:["async(currentVertxDispatcher()).asCompletableFuture()", "await()"]}, mutinySession:{x:120,y:530,w:500,h:205,fill:"#F0FDFA",stroke:c.teal,st:"<<Mutiny extension file>>",title:"SessionSupport",attrs:["findAs / getReferenceAs", "createQueryAs / createNativeQueryAs"],methods:["EntityGraph helpers", "ResultSetMapping helpers"]}, stageSession:{x:1560,y:530,w:500,h:205,fill:"#EFF6FF",stroke:c.blue,st:"<<Stage extension file>>",title:"SessionSupport",attrs:["findAs / getReferenceAs", "createQueryAs / createNativeQueryAs"],methods:["CompletionStage results", "same naming as Mutiny"]}, mutinyStateless:{x:120,y:900,w:500,h:205,fill:"#FFF7ED",stroke:c.orange,st:"<<Mutiny stateless file>>",title:"StatelessSessionSupport",attrs:["getAs / create*QueryAs", "EntityGraph helpers"],methods:["Uni results", "no first-level cache"]}, stageStateless:{x:1560,y:900,w:500,h:205,fill:"#FFF7ED",stroke:c.orange,st:"<<Stage stateless file>>",title:"StatelessSessionSupport",attrs:["getAs / create*QueryAs", "EntityGraph helpers"],methods:["CompletionStage results", "no first-level cache"]}, contract:{x:760,y:535,w:660,h:220,fill:"#F8FAFC",stroke:c.gray,st:"<<shared API contract>>",title:"Same Kotlin Facade",attrs:["reified type parameters", "typed query creation", "graph/mapping lookup"],methods:["Mutiny returns Uni<T>", "Stage returns CompletionStage<T>", "same extension names across packages"]}, coroutine:{x:810,y:790,w:560,h:150,fill:"#F5F3FF",stroke:c.purple,st:"<<coroutine bridge>>",title:"Suspending Factory Helpers",attrs:["withSessionSuspending", "withTransactionSuspending"],methods:["await Uni or CompletionStage", "rethrow CancellationException"]}};
-const edges=[["uses",c.teal,"M620 300 L690 300 L690 585 L760 585", "Mutiny facade",690,420],["uses",c.blue,"M1560 300 L1490 300 L1490 585 L1420 585","Stage facade",1490,420],["uses",c.teal,"M620 632 L760 632","typed API",690,607],["uses",c.blue,"M1560 632 L1420 632","typed API",1490,607],["uses",c.orange,"M620 1002 L740 1002 L740 710 L760 710","stateless",690,974],["uses",c.orange,"M1560 1002 L1440 1002 L1440 710 L1420 710","stateless",1490,974],["uses",c.purple,"M1090 755 L1090 790","coroutine bridge",1090,775]];
-function esc(v){return String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");} function box(id){const b=boxes[id],s1=b.y+62,s2=b.y+116;return `<g><rect class="umlBox" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="8" fill="${b.fill}" stroke="${b.stroke}"/><line x1="${b.x}" y1="${s1}" x2="${b.x+b.w}" y2="${s1}" stroke="${b.stroke}"/><line x1="${b.x}" y1="${s2}" x2="${b.x+b.w}" y2="${s2}" stroke="${b.stroke}"/><text class="stereo" x="${b.x+b.w/2}" y="${b.y+23}" text-anchor="middle">${esc(b.st)}</text><text class="classTitle" x="${b.x+b.w/2}" y="${b.y+49}" text-anchor="middle">${esc(b.title)}</text>${b.attrs.map((l,i)=>`<text class="member" x="${b.x+22}" y="${b.y+86+i*20}">${esc(l)}</text>`).join("")}${b.methods.map((l,i)=>`<text class="member" x="${b.x+22}" y="${b.y+142+i*20}">${esc(l)}</text>`).join("")}</g>`;} function nums(d){return d.match(/-?\d+(?:\.\d+)?/g).map(Number);} function head(e){const n=nums(e[2]),end={x:n[n.length-2],y:n[n.length-1]},prev={x:n[n.length-4],y:n[n.length-3]},dx=end.x-prev.x,dy=end.y-prev.y;if(dx<0)return `<path class="open" d="M${end.x+13} ${end.y-7} L${end.x} ${end.y} L${end.x+13} ${end.y+7}" stroke="${e[1]}"/>`;if(dx>0)return `<path class="open" d="M${end.x-13} ${end.y-7} L${end.x} ${end.y} L${end.x-13} ${end.y+7}" stroke="${e[1]}"/>`;if(dy<0)return `<path class="open" d="M${end.x-7} ${end.y+13} L${end.x} ${end.y} L${end.x+7} ${end.y+13}" stroke="${e[1]}"/>`;return `<path class="open" d="M${end.x-7} ${end.y-13} L${end.x} ${end.y} L${end.x+7} ${end.y-13}" stroke="${e[1]}"/>`;} function label(e){const w=Math.max(80,e[3].length*7.5+18);return `<g class="edgeLabel" transform="translate(${e[4]-w/2} ${e[5]-14})"><rect width="${w}" height="27" rx="8"/><text x="${w/2}" y="18" text-anchor="middle">${esc(e[3])}</text></g>`;}
-const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Hibernate Reactive API structure"><defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity=".10"/></filter><style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${c.canvas}}.frame{fill:${c.frame};stroke:${c.line};stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:42px;fill:${c.ink}}.subtitle,.sectionTitle{font-family:"Comic Mono";font-size:15px;fill:${c.muted}}.section{fill:#F3F8FF;stroke:#94A3B8;stroke-width:1.6;stroke-dasharray:12 8}.umlBox{filter:url(#softShadow);stroke-width:2}.stereo{font-family:"Comic Mono";font-size:12px;fill:${c.muted}}.classTitle{font-family:"Architects Daughter";font-size:22px;fill:${c.ink}}.member{font-family:"Comic Mono";font-size:12.5px;fill:${c.muted}}.edge{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7}.open{fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none}.edgeLabel rect{fill:#fff;stroke:${c.line};stroke-width:1.2;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:11.8px;fill:${c.muted}}</style></defs><rect class="canvas" width="${W}" height="${H}"/><rect class="frame" x="34" y="30" width="${W-68}" height="${H-66}" rx="8"/><text class="title" x="76" y="86">Hibernate Reactive API Structure</text><text class="subtitle" x="78" y="118">Mutiny and Stage packages intentionally mirror names while preserving their native async return types.</text><rect class="section" x="62" y="140" width="2056" height="1000" rx="8"/><text class="sectionTitle" x="90" y="165">Dashed open arrows show package contributions to the shared Kotlin facade contract.</text><g>${edges.map(e=>`<path class="edge" d="${e[2]}" stroke="${e[1]}"/>`).join("")}</g><g>${edges.map(head).join("")}</g><g>${edges.map(label).join("")}</g>${Object.keys(boxes).map(box).join("")}</svg>`;
-writeFileSync(`${out}.svg`, svg.replace(/[ \t]+$/gm,"")); execFileSync(`${process.env.HOME}/.local/bin/cairosvg`, [`${out}.svg`,"-o",`${out}.png`,"-s","2"], {stdio:"inherit"}); console.log(`Generated ${out}.svg`); console.log(`Generated ${out}.png`);
+import {execFileSync} from "node:child_process";
+import {existsSync, readFileSync, writeFileSync} from "node:fs";
+
+const out = "docs/images/readme-diagrams/data-hibernate-reactive-diagram-02", W = 2180, H = 1260;
+const c = {
+    ink: "#0F172A",
+    muted: "#475569",
+    canvas: "#F8FAFC",
+    frame: "#FFFFFF",
+    line: "#CBD5E1",
+    blue: "#2563EB",
+    teal: "#0D9488",
+    orange: "#EA580C",
+    purple: "#7C3AED",
+    gray: "#64748B"
+};
+const sources = ["data/hibernate-reactive/README.md", "data/hibernate-reactive/README.ko.md", "data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionFactorySupport.kt", "data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionSupport.kt", "data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/StatelessSessionSupport.kt", "data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionFactorySupport.kt", "data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionSupport.kt", "data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/StatelessSessionSupport.kt"];
+for (const s of sources) if (!existsSync(s)) throw new Error(`Missing source evidence: ${s}`);
+if (!/Hibernate Reactive API Structure[\s\S]*data-hibernate-reactive-diagram-02\.png/.test(readFileSync(sources[0], "utf8"))) throw new Error("README diagram slot not found");
+const boxes = {
+    mutinyFactory: {
+        x: 120,
+        y: 205,
+        w: 500,
+        h: 185,
+        fill: "#F0FDFA",
+        stroke: c.teal,
+        st: "<<Mutiny extension file>>",
+        title: "SessionFactorySupport",
+        attrs: ["withSessionSuspending", "withTransactionSuspending"],
+        methods: ["async(currentVertxDispatcher()).asUni()", "awaitSuspending()"]
+    },
+    stageFactory: {
+        x: 1560,
+        y: 205,
+        w: 500,
+        h: 185,
+        fill: "#EFF6FF",
+        stroke: c.blue,
+        st: "<<Stage extension file>>",
+        title: "SessionFactorySupport",
+        attrs: ["withSessionSuspending", "withTransactionSuspending"],
+        methods: ["async(currentVertxDispatcher()).asCompletableFuture()", "await()"]
+    },
+    mutinySession: {
+        x: 120,
+        y: 530,
+        w: 500,
+        h: 205,
+        fill: "#F0FDFA",
+        stroke: c.teal,
+        st: "<<Mutiny extension file>>",
+        title: "SessionSupport",
+        attrs: ["findAs / getReferenceAs", "createQueryAs / createNativeQueryAs"],
+        methods: ["EntityGraph helpers", "ResultSetMapping helpers"]
+    },
+    stageSession: {
+        x: 1560,
+        y: 530,
+        w: 500,
+        h: 205,
+        fill: "#EFF6FF",
+        stroke: c.blue,
+        st: "<<Stage extension file>>",
+        title: "SessionSupport",
+        attrs: ["findAs / getReferenceAs", "createQueryAs / createNativeQueryAs"],
+        methods: ["CompletionStage results", "same naming as Mutiny"]
+    },
+    mutinyStateless: {
+        x: 120,
+        y: 900,
+        w: 500,
+        h: 205,
+        fill: "#FFF7ED",
+        stroke: c.orange,
+        st: "<<Mutiny stateless file>>",
+        title: "StatelessSessionSupport",
+        attrs: ["getAs / create*QueryAs", "EntityGraph helpers"],
+        methods: ["Uni results", "no first-level cache"]
+    },
+    stageStateless: {
+        x: 1560,
+        y: 900,
+        w: 500,
+        h: 205,
+        fill: "#FFF7ED",
+        stroke: c.orange,
+        st: "<<Stage stateless file>>",
+        title: "StatelessSessionSupport",
+        attrs: ["getAs / create*QueryAs", "EntityGraph helpers"],
+        methods: ["CompletionStage results", "no first-level cache"]
+    },
+    contract: {
+        x: 760,
+        y: 535,
+        w: 660,
+        h: 220,
+        fill: "#F8FAFC",
+        stroke: c.gray,
+        st: "<<shared API contract>>",
+        title: "Same Kotlin Facade",
+        attrs: ["reified type parameters", "typed query creation", "graph/mapping lookup"],
+        methods: ["Mutiny returns Uni<T>", "Stage returns CompletionStage<T>", "same extension names across packages"]
+    },
+    coroutine: {
+        x: 810,
+        y: 790,
+        w: 560,
+        h: 150,
+        fill: "#F5F3FF",
+        stroke: c.purple,
+        st: "<<coroutine bridge>>",
+        title: "Suspending Factory Helpers",
+        attrs: ["withSessionSuspending", "withTransactionSuspending"],
+        methods: ["await Uni or CompletionStage", "rethrow CancellationException"]
+    }
+};
+const edges = [["uses", c.teal, "M620 300 L690 300 L690 585 L760 585", "Mutiny facade", 690, 420], ["uses", c.blue, "M1560 300 L1490 300 L1490 585 L1420 585", "Stage facade", 1490, 420], ["uses", c.teal, "M620 632 L760 632", "typed API", 690, 607], ["uses", c.blue, "M1560 632 L1420 632", "typed API", 1490, 607], ["uses", c.orange, "M620 1002 L740 1002 L740 710 L760 710", "stateless", 690, 974], ["uses", c.orange, "M1560 1002 L1440 1002 L1440 710 L1420 710", "stateless", 1490, 974], ["uses", c.purple, "M1090 755 L1090 790", "coroutine bridge", 1090, 775]];
+
+function esc(v) {
+    return String(v).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+}
+
+function box(id) {
+    const b = boxes[id], s1 = b.y + 62, s2 = b.y + 116;
+    return `<g><rect class="umlBox" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="8" fill="${b.fill}" stroke="${b.stroke}"/><line x1="${b.x}" y1="${s1}" x2="${b.x + b.w}" y2="${s1}" stroke="${b.stroke}"/><line x1="${b.x}" y1="${s2}" x2="${b.x + b.w}" y2="${s2}" stroke="${b.stroke}"/><text class="stereo" x="${b.x + b.w / 2}" y="${b.y + 23}" text-anchor="middle">${esc(b.st)}</text><text class="classTitle" x="${b.x + b.w / 2}" y="${b.y + 49}" text-anchor="middle">${esc(b.title)}</text>${b.attrs.map((l, i) => `<text class="member" x="${b.x + 22}" y="${b.y + 86 + i * 20}">${esc(l)}</text>`).join("")}${b.methods.map((l, i) => `<text class="member" x="${b.x + 22}" y="${b.y + 142 + i * 20}">${esc(l)}</text>`).join("")}</g>`;
+}
+
+function nums(d) {
+    return d.match(/-?\d+(?:\.\d+)?/g).map(Number);
+}
+
+function head(e) {
+    const n = nums(e[2]), end = {x: n[n.length - 2], y: n[n.length - 1]},
+        prev = {x: n[n.length - 4], y: n[n.length - 3]}, dx = end.x - prev.x, dy = end.y - prev.y;
+    if (dx < 0) return `<path class="open" d="M${end.x + 13} ${end.y - 7} L${end.x} ${end.y} L${end.x + 13} ${end.y + 7}" stroke="${e[1]}"/>`;
+    if (dx > 0) return `<path class="open" d="M${end.x - 13} ${end.y - 7} L${end.x} ${end.y} L${end.x - 13} ${end.y + 7}" stroke="${e[1]}"/>`;
+    if (dy < 0) return `<path class="open" d="M${end.x - 7} ${end.y + 13} L${end.x} ${end.y} L${end.x + 7} ${end.y + 13}" stroke="${e[1]}"/>`;
+    return `<path class="open" d="M${end.x - 7} ${end.y - 13} L${end.x} ${end.y} L${end.x + 7} ${end.y - 13}" stroke="${e[1]}"/>`;
+}
+
+function label(e) {
+    const w = Math.max(80, e[3].length * 7.5 + 18);
+    return `<g class="edgeLabel" transform="translate(${e[4] - w / 2} ${e[5] - 14})"><rect width="${w}" height="27" rx="8"/><text x="${w / 2}" y="18" text-anchor="middle">${esc(e[3])}</text></g>`;
+}
+
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Hibernate Reactive API structure"><defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity=".10"/></filter><style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${c.canvas}}.frame{fill:${c.frame};stroke:${c.line};stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:42px;fill:${c.ink}}.subtitle,.sectionTitle{font-family:"Comic Mono";font-size:15px;fill:${c.muted}}.section{fill:#F3F8FF;stroke:#94A3B8;stroke-width:1.6;stroke-dasharray:12 8}.umlBox{filter:url(#softShadow);stroke-width:2}.stereo{font-family:"Comic Mono";font-size:12px;fill:${c.muted}}.classTitle{font-family:"Architects Daughter";font-size:22px;fill:${c.ink}}.member{font-family:"Comic Mono";font-size:12.5px;fill:${c.muted}}.edge{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7}.open{fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none}.edgeLabel rect{fill:#fff;stroke:${c.line};stroke-width:1.2;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:11.8px;fill:${c.muted}}</style></defs><rect class="canvas" width="${W}" height="${H}"/><rect class="frame" x="34" y="30" width="${W - 68}" height="${H - 66}" rx="8"/><text class="title" x="76" y="86">Hibernate Reactive API Structure</text><text class="subtitle" x="78" y="118">Mutiny and Stage packages intentionally mirror names while preserving their native async return types.</text><rect class="section" x="62" y="140" width="2056" height="1000" rx="8"/><text class="sectionTitle" x="90" y="165">Dashed open arrows show package contributions to the shared Kotlin facade contract.</text><g>${edges.map(e => `<path class="edge" d="${e[2]}" stroke="${e[1]}"/>`).join("")}</g><g>${edges.map(head).join("")}</g><g>${edges.map(label).join("")}</g>${Object.keys(boxes).map(box).join("")}</svg>`;
+writeFileSync(`${out}.svg`, svg.replace(/[ \t]+$/gm, ""));
+execFileSync(`${process.env.HOME}/.local/bin/cairosvg`, [`${out}.svg`, "-o", `${out}.png`, "-s", "2"], {stdio: "inherit"});
+console.log(`Generated ${out}.svg`);
+console.log(`Generated ${out}.png`);

@@ -1,10 +1,10 @@
 package io.bluetape4k.resilience4j.cache
 
-import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 
 class SuspendJCacheExtensionsTest {

@@ -1,8 +1,8 @@
 package io.bluetape4k.math.fraction
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.logging.KLogging
 import org.apache.commons.math3.fraction.Fraction
 import org.junit.jupiter.api.Test
 

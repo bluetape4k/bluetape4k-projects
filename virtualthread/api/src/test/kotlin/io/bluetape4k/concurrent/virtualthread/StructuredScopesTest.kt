@@ -13,7 +13,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import java.time.Instant
-import java.util.ServiceConfigurationError
+import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
@@ -112,10 +112,10 @@ class StructuredScopesTest {
     @Test
     fun `all scope joinUntil 구현체가 deadline 을 위임할 수 있어야 한다`() {
         var joinUntilCalled = false
-        val scope = object : StructuredTaskScopeAll {
+        val scope = object: StructuredTaskScopeAll {
             override fun <T> fork(task: () -> T): StructuredSubtask<T> {
                 @Suppress("UNCHECKED_CAST")
-                return object : StructuredSubtask<T> {
+                return object: StructuredSubtask<T> {
                     override fun get(): T = task()
                     override fun state(): StructuredTaskScope.Subtask.State = StructuredTaskScope.Subtask.State.SUCCESS
                     override fun exceptionOrNull(): Throwable? = null

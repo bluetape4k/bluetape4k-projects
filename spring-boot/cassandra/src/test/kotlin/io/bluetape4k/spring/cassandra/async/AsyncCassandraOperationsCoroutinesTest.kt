@@ -2,10 +2,19 @@ package io.bluetape4k.spring.cassandra.async
 
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.uuid.Uuids
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.countSuspending
+import io.bluetape4k.spring.cassandra.cql.deleteOptions
+import io.bluetape4k.spring.cassandra.cql.insertOptions
+import io.bluetape4k.spring.cassandra.cql.updateOptions
 import io.bluetape4k.spring.cassandra.deleteByIdSuspending
 import io.bluetape4k.spring.cassandra.deleteSuspending
 import io.bluetape4k.spring.cassandra.domain.DomainTestConfiguration
@@ -13,26 +22,17 @@ import io.bluetape4k.spring.cassandra.domain.model.User
 import io.bluetape4k.spring.cassandra.domain.model.UserToken
 import io.bluetape4k.spring.cassandra.existsSuspending
 import io.bluetape4k.spring.cassandra.insertSuspending
+import io.bluetape4k.spring.cassandra.query.eq
 import io.bluetape4k.spring.cassandra.selectOneByIdSuspending
 import io.bluetape4k.spring.cassandra.selectOneOrNullSuspending
 import io.bluetape4k.spring.cassandra.selectSuspending
 import io.bluetape4k.spring.cassandra.sliceSuspending
 import io.bluetape4k.spring.cassandra.truncateSuspending
 import io.bluetape4k.spring.cassandra.updateSuspending
-import io.bluetape4k.spring.cassandra.cql.deleteOptions
-import io.bluetape4k.spring.cassandra.cql.insertOptions
-import io.bluetape4k.spring.cassandra.cql.updateOptions
-import io.bluetape4k.spring.cassandra.query.eq
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContainSame
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,16 +40,16 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.cassandra.core.AsyncCassandraTemplate
 import org.springframework.data.cassandra.core.query.CassandraPageRequest
 import org.springframework.data.cassandra.core.query.Query
+import org.springframework.data.cassandra.core.query.Update
 import org.springframework.data.cassandra.core.query.query
 import org.springframework.data.cassandra.core.query.where
-import org.springframework.data.cassandra.core.query.Update
 
 @SpringBootTest(classes = [DomainTestConfiguration::class])
 class AsyncCassandraOperationsCoroutinesTest(
     @param:Autowired private val cqlSession: CqlSession,
-) : AbstractCassandraCoroutineTest("async-ops-coroutines") {
+): AbstractCassandraCoroutineTest("async-ops-coroutines") {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     private val operations: AsyncCassandraTemplate by lazy {
         AsyncCassandraTemplate(cqlSession).apply {

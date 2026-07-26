@@ -1,11 +1,11 @@
 package io.bluetape4k.math
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import kotlin.math.PI
-import io.bluetape4k.assertions.assertFailsWith
 
 class MathConstsTest {
 

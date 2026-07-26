@@ -9,8 +9,7 @@
 
 ## 개요
 
-`infra/pulsar` 모듈을 신규 추가한다. Apache Pulsar Java Client(3.3.9)를 Kotlin Coroutines / Flow 로 감싸는
-extension function 우선의 래퍼 라이브러리이다. 산출물은 12개 Task 로 분할되며 각 Task는 독립적으로 검증 가능하다.
+`infra/pulsar` 모듈을 신규 추가한다. Apache Pulsar Java Client (3.3.9)를 Kotlin Coroutines / Flow 로 감싸는 extension function 우선의 래퍼 라이브러리이다. 산출물은 12개 Task 로 분할되며 각 Task는 독립적으로 검증 가능하다.
 
 ### 모듈 패키지 루트
 
@@ -21,7 +20,7 @@ extension function 우선의 래퍼 라이브러리이다. 산출물은 12개 Ta
 - **Extension functions 우선** (object 메서드 금지)
 - **CompletableFuture → Coroutine**: `awaitSuspending()` 사용 (`bluetape4k-coroutines`)
 - **Flow 변환 폴링 패턴**: `flow { while (currentCoroutineContext().isActive) { ... } }`
-  + 취소 시 대기 중 `CompletableFuture.cancel(true)` 명시적 호출
+    + 취소 시 대기 중 `CompletableFuture.cancel(true)` 명시적 호출
 - **DSL**: `pulsarClient {}`, `producer {}`, `consumer {}`, `reader {}`
 - **withXxx {}**: `suspend inline fun` + `try/finally { closeAsync().awaitSuspending() }`
 - top-level 파일 로깅: `private val log = KotlinLogging.logger {}`
@@ -32,9 +31,11 @@ extension function 우선의 래퍼 라이브러리이다. 산출물은 12개 Ta
 ## Tasks
 
 ### T1 — 모듈 Gradle 설정 + 테스트 리소스
+
 **complexity: medium**
 
 생성 파일:
+
 - `infra/pulsar/build.gradle.kts`
 - `infra/pulsar/src/test/resources/junit-platform.properties`
 - `infra/pulsar/src/test/resources/logback-test.xml`
@@ -86,19 +87,21 @@ junit.jupiter.execution.parallel.mode.default=concurrent
 junit.jupiter.execution.parallel.mode.classes.default=concurrent
 ```
 
-`logback-test.xml` — 기존 모듈(예: `infra/nats/src/test/resources/logback-test.xml`)을 그대로 복사하고
-패키지명만 `io.bluetape4k.pulsar` 로 교체.
+`logback-test.xml` — 기존 모듈 (예: `infra/nats/src/test/resources/logback-test.xml`)을 그대로 복사하고 패키지명만 `io.bluetape4k.pulsar` 로 교체.
 
 **검증**:
+
 - `./gradlew :bluetape4k-pulsar:dependencies` 실행 시 `pulsar_client`, `kotlinx_coroutines_core` 해석 성공
 - `./gradlew :bluetape4k-pulsar:compileKotlin` 통과 (소스가 비어 있어도 OK)
 
 ---
 
 ### T2 — PulsarClientSupport (DSL + withPulsarClient)
+
 **complexity: medium**
 
 생성 파일:
+
 - `infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/PulsarClientSupport.kt`
 
 구현 힌트:
@@ -148,6 +151,7 @@ suspend inline fun <T> withPulsarClient(
 ```
 
 **주의**:
+
 - `inline fun` + `crossinline` 사용. `noinline` 은 inline 컨텍스트로 람다를 전달할 수 없는 setup 람다에 적용
 - finally 의 close 실패가 본 예외를 가리지 않도록 `runCatching` 사용
 
@@ -156,9 +160,11 @@ suspend inline fun <T> withPulsarClient(
 ---
 
 ### T3 — ProducerSupport + ProducerExtensions
+
 **complexity: medium**
 
 생성 파일:
+
 - `infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/producer/ProducerSupport.kt`
 - `infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/producer/ProducerExtensions.kt`
 
@@ -224,23 +230,23 @@ suspend fun <T> Producer<T>.sendSuspend(message: T): MessageId =
  * TypedMessageBuilder DSL 기반 send.
  *
  * ```
- * producer.sendSuspend<Order> {
- *     value(order); key("order-${order.id}"); property("v", "1")
- * }
- * ```
- */
-suspend fun <T> Producer<T>.sendSuspend(
-    setup: TypedMessageBuilder<T>.() -> Unit,
-): MessageId = newMessage().apply(setup).sendAsync().awaitSuspending()
+
+* producer.sendSuspend<Order> {
+*     value(order); key("order-${order.id}"); property("v", "1")
+* }
+* ```
+
+*/ suspend fun <T> Producer<T>.sendSuspend (setup: TypedMessageBuilder<T>. () -> Unit,
+): MessageId = newMessage ().apply (setup).sendAsync ().awaitSuspending ()
 
 /**
- * Flow 기반 배치 발행.
- *
- * 첫 실패 시 Flow 가 즉시 종료되고 예외가 전파된다 (재시도는 호출자 책임).
- * map 의 suspend 람다 안에서 sendSuspend 호출 — 실패 시 자연스럽게 throw.
- */
-fun <T> Producer<T>.sendAsFlow(messages: Flow<T>): Flow<MessageId> =
-    messages.map { sendSuspend(it) }
+
+* Flow 기반 배치 발행.
+*
+* 첫 실패 시 Flow 가 즉시 종료되고 예외가 전파된다 (재시도는 호출자 책임).
+* map 의 suspend 람다 안에서 sendSuspend 호출 — 실패 시 자연스럽게 throw.
+  */ fun <T> Producer<T>.sendAsFlow (messages: Flow<T>): Flow<MessageId> = messages.map { sendSuspend (it) }
+
 ```
 
 **주의**:
@@ -344,8 +350,9 @@ suspend fun <T> Consumer<T>.acknowledgeCumulativeSuspend(message: Message<T>) {
 ```
 
 **주의**:
-- `negativeAcknowledge` 확장 **생략 확정**: Pulsar `Consumer` 인터페이스에 동일 시그니처 메서드가 이미 존재.
-  확장이 인스턴스 메서드보다 우선되지 않으므로 무의미. DoD에서도 제외됨.
+
+- `negativeAcknowledge` 확장 **생략
+  확정**: Pulsar `Consumer` 인터페이스에 동일 시그니처 메서드가 이미 존재. 확장이 인스턴스 메서드보다 우선되지 않으므로 무의미. DoD에서도 제외됨.
 - `currentCoroutineContext().isActive` 사용 (`coroutineContext` 임포트 필요 없음)
 
 **검증**: T8 `ConsumerExtensionsTest` 에서 검증.
@@ -353,9 +360,11 @@ suspend fun <T> Consumer<T>.acknowledgeCumulativeSuspend(message: Message<T>) {
 ---
 
 ### T5 — ReaderSupport + ReaderExtensions
+
 **complexity: medium**
 
 생성 파일:
+
 - `infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/reader/ReaderSupport.kt`
 - `infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/reader/ReaderExtensions.kt`
 
@@ -408,8 +417,8 @@ fun <T> Reader<T>.readAsFlow(): Flow<Message<T>> = flow {
 ```
 
 **주의**:
-- `hasMessageAvailable()` 은 동기 호출. Pulsar Java Client 내부에서 캐시된 큐를 확인하는 방식이므로
-  대부분 비블로킹이나, 확인 필요 시 `withContext(Dispatchers.IO)` 로 감싸서 테스트해볼 것.
+
+- `hasMessageAvailable()` 은 동기 호출. Pulsar Java Client 내부에서 캐시된 큐를 확인하는 방식이므로 대부분 비블로킹이나, 확인 필요 시 `withContext(Dispatchers.IO)` 로 감싸서 테스트해볼 것.
 - T9 테스트에서 동작 확인.
 
 **검증**: T9 `ReaderExtensionsTest` 에서 검증.
@@ -417,9 +426,11 @@ fun <T> Reader<T>.readAsFlow(): Flow<Message<T>> = flow {
 ---
 
 ### T6 — Jackson Schema (compileOnly)
+
 **complexity: medium**
 
 생성 파일:
+
 - `infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/JacksonSchema.kt` (Jackson2)
 - `infra/pulsar/src/main/kotlin/io/bluetape4k/pulsar/codec/Jackson3Schema.kt` (Jackson3)
 
@@ -489,6 +500,7 @@ inline fun <reified T> jackson3Schema(
 Jackson3 의 default mapper 헬퍼는 `bluetape4k-jackson3` 모듈의 정확한 API 명을 확인해서 사용 (`io.bluetape4k.jackson3.Jackson3.defaultJsonMapper` 등이 있는지 검토; 없으면 default 인자 제거하고 호출자가 mapper 전달).
 
 **주의**:
+
 - `Schema<T>.clone()` 은 Pulsar 인터페이스 요구. 새 인스턴스 반환
 - `getSchemaInfo()` 의 schema bytes 는 `ByteArray(0)` — 브로커 호환성 우선
 
@@ -497,9 +509,11 @@ Jackson3 의 default mapper 헬퍼는 `bluetape4k-jackson3` 모듈의 정확한 
 ---
 
 ### T7 — AbstractPulsarTest + ProducerExtensionsTest
+
 **complexity: medium**
 
 생성 파일:
+
 - `infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/AbstractPulsarTest.kt`
 - `infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/producer/ProducerExtensionsTest.kt`
 
@@ -573,6 +587,7 @@ class ProducerExtensionsTest : AbstractPulsarTest() {
 ```
 
 **주의**:
+
 - `runTest(timeout = 30.seconds)` 로 타임아웃 반드시 명시 (Pulsar 컨테이너 첫 시작 시 시간 소요)
   → T7 코드 블록의 두 테스트도 `runTest(timeout = 30.seconds)` / `runTest(timeout = 60.seconds)` 적용
 - bluetape4k-assertions matcher: `shouldBeEqualTo`, `shouldNotBeNull` (절대 `(x == y).shouldBeTrue()` 금지)
@@ -583,12 +598,15 @@ class ProducerExtensionsTest : AbstractPulsarTest() {
 ---
 
 ### T8 — ConsumerExtensionsTest
+
 **complexity: medium**
 
 생성 파일:
+
 - `infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/consumer/ConsumerExtensionsTest.kt`
 
 테스트 케이스:
+
 1. `receiveSuspend + acknowledgeSuspend 라운드트립` — Producer 1건 발행 후 Consumer 1건 수신 + ack
 2. `receiveAsFlow - Exclusive 구독에서 10건 소비` — `take(10).toList()` 로 Flow 종료, 그 후 ack 일괄
 3. `acknowledgeCumulativeSuspend - Shared 구독에서 예외 발생 확인` — Shared subscription 에서 cumulative ack 호출 시 `PulsarClientException` 발생 검증
@@ -635,6 +653,7 @@ fun `receiveAsFlow - Exclusive 10건 소비`() = runTest(timeout = 60.seconds) {
 ```
 
 테스트 케이스 3 힌트:
+
 ```kotlin
 @Test
 fun `acknowledgeCumulativeSuspend - Shared 구독에서 예외 발생`() = runTest(timeout = 30.seconds) {
@@ -653,6 +672,7 @@ fun `acknowledgeCumulativeSuspend - Shared 구독에서 예외 발생`() = runTe
 ```
 
 **주의**:
+
 - subscription 은 producer 발행 **이전에** 생성되어야 메시지 손실 없음. `withConsumer {}` 가 outer
 - `take(total)` 로 Flow 종료 — `receiveAsFlow` 의 cancel 경로 검증 효과
 
@@ -661,12 +681,15 @@ fun `acknowledgeCumulativeSuspend - Shared 구독에서 예외 발생`() = runTe
 ---
 
 ### T9 — ReaderExtensionsTest
+
 **complexity: medium**
 
 생성 파일:
+
 - `infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/reader/ReaderExtensionsTest.kt`
 
 테스트 케이스:
+
 1. `readNextSuspend - earliest 부터 첫 메시지 읽기` — 발행 후 `MessageId.earliest` Reader 로 1건 읽기
 2. `readAsFlow - hasMessageAvailable 기반 종료` — 5건 발행 후 Flow 가 5건만 emit 후 정상 종료
 
@@ -693,9 +716,11 @@ fun `readAsFlow - 발행한 모든 메시지 읽고 종료`() = runTest(timeout 
 ---
 
 ### T10 — JacksonSchemaTest + Jackson3SchemaTest
+
 **complexity: medium**
 
 생성 파일:
+
 - `infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/codec/JacksonSchemaTest.kt`
 - `infra/pulsar/src/test/kotlin/io/bluetape4k/pulsar/codec/Jackson3SchemaTest.kt`
 
@@ -706,6 +731,7 @@ data class Order(val id: Long, val name: String, val amount: Double)
 ```
 
 테스트 케이스:
+
 1. `encode → decode 라운드트립` — `schema.decode(schema.encode(order)) shouldBeEqualTo order`
 2. `getSchemaInfo - SchemaType.JSON 검증` — `info.type shouldBeEqualTo SchemaType.JSON`,
    `info.name shouldBeEqualTo "Order"`, `info.schema.shouldBeEmpty()`
@@ -737,6 +763,7 @@ class JacksonSchemaTest {
 Jackson3 테스트는 `jackson3Schema(mapper)` 시그니처에 맞춰 mapper 전달.
 
 Jackson3 mapper 생성 힌트:
+
 ```kotlin
 // bluetape4k-jackson3 의 Jackson3.defaultJsonMapper 또는
 // tools.jackson.module.kotlin.jsonMapper { addModule(kotlinModule()) }
@@ -744,6 +771,7 @@ Jackson3 mapper 생성 힌트:
 ```
 
 **주의**:
+
 - 두 테스트 모두 testcontainers 불필요 (순수 단위 테스트) → 빠름
 - Pulsar 브로커 통합 라운드트립은 별도로 안 함 (Producer/Consumer 테스트가 STRING schema 만 사용)
 
@@ -752,16 +780,19 @@ Jackson3 mapper 생성 힌트:
 ---
 
 ### T11 — README.md + README.ko.md
+
 **complexity: low**
 
 생성 파일:
+
 - `infra/pulsar/README.md` (English)
 - `infra/pulsar/README.ko.md` (Korean)
 
 요구사항:
+
 - 제목 바로 아래 언어 전환 링크
-  - `README.md` → `[한국어](./README.ko.md) | English`
-  - `README.ko.md` → `한국어 | [English](./README.md)`
+    - `README.md` → `[한국어](./README.ko.md) | English`
+    - `README.ko.md` → `한국어 | [English](./README.md)`
 - Mermaid Class diagram 포함 (PulsarClient ↔ Producer/Consumer/Reader 관계)
 - 구조: **Architecture → UML → Features → Examples**
 - 예시 코드: `pulsarClient {}`, `withProducer/withConsumer/withReader`, `sendSuspend`, `receiveAsFlow`, `jacksonSchema`
@@ -788,9 +819,11 @@ classDiagram
 ---
 
 ### T13 — bluetape4k-patterns 체크리스트 검증
+
 **complexity: low**
 
 `bluetape4k-patterns` 스킬 기준 전수 점검:
+
 - [ ] 모든 public API KDoc 한국어 기재 여부
 - [ ] 클래스 `companion object : KLogging()` 누락 없음
 - [ ] top-level 파일 `private val log = KotlinLogging.logger {}` 누락 없음
@@ -800,20 +833,24 @@ classDiagram
 ---
 
 ### T12 — CLAUDE.md 업데이트
+
 **complexity: low**
 
 대상 파일:
+
 - `CLAUDE.md` (루트 — 워크트리 cwd 기준 `/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat/infra-pulsar/CLAUDE.md`
   와 `/Users/debop/work/bluetape4k/bluetape4k-projects/CLAUDE.md` 양쪽 동기화 필요 시 검토)
 
 수정 위치: `## Module Groups` 테이블, `infra/` 행.
 
 기존:
+
 ```
 | `infra/`         | `lettuce`, `redisson`, `kafka`, `resilience4j`, `bucket4j`, `micrometer`, `opentelemetry`, `cache-*`, `elasticsearch`       |
 ```
 
 수정 후:
+
 ```
 | `infra/`         | `lettuce`, `redisson`, `kafka`, `pulsar`, `resilience4j`, `bucket4j`, `micrometer`, `opentelemetry`, `cache-*`, `elasticsearch` |
 ```
@@ -827,12 +864,14 @@ classDiagram
 T1 → T2 → T3 → T4 → T5 → T6 (구현 6 Task 완료) → T7 → T8 → T9 → T10 (테스트 4 Task) → T13 (patterns 체크) → T11 → T12 (문서)
 
 각 Task 완료 후 즉시 컴파일 확인:
+
 - T1: `./gradlew :bluetape4k-pulsar:compileKotlin`
 - T2~T6: `./gradlew :bluetape4k-pulsar:compileKotlin`
 - T7~T10: `./gradlew :bluetape4k-pulsar:test`
 - T11~T12: 문서 체크
 
 전체 완료 후:
+
 - `./gradlew :bluetape4k-pulsar:build`
 - `./gradlew :bluetape4k-pulsar:detekt`
 - code-reviewer 에이전트 실행 → HIGH/CRITICAL 해소
@@ -843,6 +882,7 @@ T1 → T2 → T3 → T4 → T5 → T6 (구현 6 Task 완료) → T7 → T8 → T
 ## DoD 체크리스트 (스펙 §7)
 
 ### 구현
+
 - [ ] T1: 모듈 등록 + 의존성 + test resources
 - [ ] T2: `pulsarClient {}` / `withPulsarClient {}`
 - [ ] T3: `producer {}` / `withProducer {}` / `sendSuspend` / `sendAsFlow`
@@ -851,12 +891,14 @@ T1 → T2 → T3 → T4 → T5 → T6 (구현 6 Task 완료) → T7 → T8 → T
 - [ ] T6: Jackson2 `jacksonSchema<T>()` + Jackson3 `jackson3Schema<T>()` (SchemaInfo 포함)
 
 ### 코드 품질
+
 - [ ] 모든 public API 한국어 KDoc
 - [ ] top-level 파일 `private val log = KotlinLogging.logger {}`
 - [ ] 클래스 파일 `companion object : KLogging()`
 - [ ] bluetape4k-assertions matcher 일관 사용 (shouldBeEqualTo / shouldNotBeNull)
 
 ### 테스트
+
 - [ ] T7: ProducerExtensionsTest 통과
 - [ ] T8: ConsumerExtensionsTest 통과 (UUID subscriptionName)
 - [ ] T9: ReaderExtensionsTest 통과
@@ -864,13 +906,16 @@ T1 → T2 → T3 → T4 → T5 → T6 (구현 6 Task 완료) → T7 → T8 → T
 - [ ] `junit-platform.properties` + `logback-test.xml` 포함
 
 ### 코드 품질 추가
+
 - [ ] T13: bluetape4k-patterns 체크리스트 전수 통과
 
 ### 문서
+
 - [ ] T11: README.md + README.ko.md (Mermaid + 언어 전환 링크)
 - [ ] T12: CLAUDE.md `infra/` 그룹에 `pulsar` 추가
 
 ### PR 전 필수
+
 - [ ] `./gradlew :bluetape4k-pulsar:test` 결과 (passing count + duration) PR description 포함
 
 ---
@@ -880,7 +925,10 @@ T1 → T2 → T3 → T4 → T5 → T6 (구현 6 Task 완료) → T7 → T8 → T
 1. **`Libs.pulsar_client` 존재 확인**: `buildSrc/Libs.kt` 에 Pulsar 클라이언트 dependency 가 없으면 T1 에서 추가 필요. 버전 `3.3.9` (스펙 §5).
 2. **`Libs.testcontainers_pulsar` 존재 확인**: 동일.
 3. **`Libs.jackson3_databind` 존재 확인**: jackson3 모듈은 비교적 신규이므로 buildSrc 에 dependency 등록 필요할 수 있음.
-4. **`io.bluetape4k.coroutines.support.awaitSuspending`**: 시그니처가 `CompletableFuture<T>.awaitSuspending(): T` 인지 확인. 다를 경우 `kotlinx.coroutines.future.await()` 로 대체.
+4.
+
+**`io.bluetape4k.coroutines.support.awaitSuspending`**: 시그니처가 `CompletableFuture<T>.awaitSuspending(): T` 인지 확인. 다를 경우 `kotlinx.coroutines.future.await()` 로 대체.
 5. **Pulsar 컨테이너 첫 부팅**: Docker pull + 시작에 30초+ 소요 가능 → 모든 테스트 `runTest(timeout = 60.seconds)` 권장.
 6. **테스트 격리**: 동일 broker 를 공유하므로 토픽/구독 이름은 반드시 UUID 로 고유화 (`AbstractPulsarTest.newTopic()` / `newSubscription()`).
-7. **Jackson3 default mapper**: `bluetape4k-jackson3` 의 default mapper helper 명이 확정되지 않았으면 default 파라미터 생략하고 호출자가 항상 mapper 를 전달하도록 한다.
+7. **Jackson3 default
+   mapper**: `bluetape4k-jackson3` 의 default mapper helper 명이 확정되지 않았으면 default 파라미터 생략하고 호출자가 항상 mapper 를 전달하도록 한다.

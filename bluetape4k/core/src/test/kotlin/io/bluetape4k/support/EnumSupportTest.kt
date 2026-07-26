@@ -1,11 +1,11 @@
 package io.bluetape4k.support
 
 import io.bluetape4k.AbstractCoreTest
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.enums.enumEntries

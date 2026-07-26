@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.primitives.doubleArrayListOf
 import io.bluetape4k.collections.eclipse.primitives.floatArrayListOf
@@ -8,7 +9,6 @@ import io.bluetape4k.collections.eclipse.primitives.longArrayListOf
 import io.bluetape4k.collections.eclipse.unifiedSetOf
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class EclipseCollectionsFlowTest {

@@ -1,12 +1,12 @@
 package io.bluetape4k.idgenerators.ulid
 
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.utils.Runtimex
-import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE

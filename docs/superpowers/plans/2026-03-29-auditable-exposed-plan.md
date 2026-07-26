@@ -10,13 +10,13 @@
 
 ### 기존 패턴 분석
 
-| 참조 대상                                 | 핵심 패턴                                                                                               | 위치                           |
+| 참조 대상                             | 핵심 패턴                                                                                           | 위치                         |
 |---------------------------------------|-----------------------------------------------------------------------------------------------------|------------------------------|
-| `SoftDeletedIdTable<T>`               | `IdTable<T>` 상속, 단일 컬럼(`isDeleted`) 추가                                                              | `exposed-core/…/dao/id/`     |
-| `KsuidEntity` / `KsuidEntityClass`    | `StringEntity` 상속, 1:1 EntityClass 매핑                                                               | `exposed-dao/…/id/`          |
-| `JdbcRepository<ID, E>`               | interface, `table` + `extractId` + `toEntity` 구현 필수                                                 | `exposed-jdbc/…/repository/` |
-| `SoftDeletedJdbcRepository<ID, E, T>` | `JdbcRepository` 확장, 테이블 타입 제네릭 `T` 추가                                                              | `exposed-jdbc/…/repository/` |
-| 테스트 패턴                                | `AbstractExposedTest`, `@ParameterizedTest` + `@MethodSource(ENABLE_DIALECTS_METHOD)`, `withTables` | `exposed-jdbc/src/test/…`    |
+| `SoftDeletedIdTable<T>`               | `IdTable<T>` 상속, 단일 컬럼(`isDeleted`) 추가                                                      | `exposed-core/…/dao/id/`     |
+| `KsuidEntity` / `KsuidEntityClass`    | `StringEntity` 상속, 1:1 EntityClass 매핑                                                           | `exposed-dao/…/id/`          |
+| `JdbcRepository<ID, E>`               | interface, `table` + `extractId` + `toEntity` 구현 필수                                             | `exposed-jdbc/…/repository/` |
+| `SoftDeletedJdbcRepository<ID, E, T>` | `JdbcRepository` 확장, 테이블 타입 제네릭 `T` 추가                                                  | `exposed-jdbc/…/repository/` |
+| 테스트 패턴                           | `AbstractExposedTest`, `@ParameterizedTest` + `@MethodSource(ENABLE_DIALECTS_METHOD)`, `withTables` | `exposed-jdbc/src/test/…`    |
 
 ### 의존성 확인
 
@@ -261,35 +261,35 @@
 
 ### High (핵심 로직, 아키텍처 결정)
 
-| Task | 설명                                                |
-|------|---------------------------------------------------|
-| 1.2  | `UserContext` — ScopedValue + ThreadLocal 듀얼 전략   |
+| Task | 설명                                                         |
+|------|--------------------------------------------------------------|
+| 1.2  | `UserContext` — ScopedValue + ThreadLocal 듀얼 전략          |
 | 2.1  | `AuditableEntity<ID>` — `flush()` 오버라이드, 생성/수정 분기 |
-| 4.2  | DSL + Repository 통합 테스트 (6개 케이스)                  |
-| 4.3  | DAO Entity 통합 테스트 (5개 케이스)                        |
+| 4.2  | DSL + Repository 통합 테스트 (6개 케이스)                    |
+| 4.3  | DAO Entity 통합 테스트 (5개 케이스)                          |
 
 ### Medium (표준 구현)
 
-| Task | 설명                                                                 |
+| Task | 설명                                                               |
 |------|--------------------------------------------------------------------|
-| 1.3  | `AuditableIdTable<ID>` — 4개 감사 컬럼 정의                               |
+| 1.3  | `AuditableIdTable<ID>` — 4개 감사 컬럼 정의                        |
 | 3.1  | `AuditableJdbcRepository` — `auditedUpdateById`/`auditedUpdateAll` |
-| 4.1  | `UserContextTest` — 6개 단위 테스트                                      |
+| 4.1  | `UserContextTest` — 6개 단위 테스트                                |
 
 ### Low (보일러플레이트, KDoc, 설정)
 
-| Task | 설명                                                                                                      |
-|------|---------------------------------------------------------------------------------------------------------|
+| Task | 설명                                                                                                         |
+|------|--------------------------------------------------------------------------------------------------------------|
 | 1.1  | `Auditable` 인터페이스                                                                                       |
-| 1.4  | Concrete Table 3종 (`Int`/`Long`/`UUID`)                                                                 |
+| 1.4  | Concrete Table 3종 (`Int`/`Long`/`UUID`)                                                                     |
 | 2.2  | Concrete Entity 3종 (별도 파일: `AuditableIntEntity.kt`, `AuditableLongEntity.kt`, `AuditableUUIDEntity.kt`) |
-| 2.3  | `AuditableEntityClass` 3종                                                                               |
-| 5.1  | exposed-core README                                                                                     |
-| 5.2  | exposed-dao README                                                                                      |
-| 5.3  | exposed-jdbc README                                                                                     |
-| 5.4  | CLAUDE.md 업데이트                                                                                          |
-| 5.5  | exposed-java-time 의존성 문서화                                                                               |
-| 5.6  | bluetape4k-patterns 체크리스트 적용 확인                                                                         |
+| 2.3  | `AuditableEntityClass` 3종                                                                                   |
+| 5.1  | exposed-core README                                                                                          |
+| 5.2  | exposed-dao README                                                                                           |
+| 5.3  | exposed-jdbc README                                                                                          |
+| 5.4  | CLAUDE.md 업데이트                                                                                           |
+| 5.5  | exposed-java-time 의존성 문서화                                                                              |
+| 5.6  | bluetape4k-patterns 체크리스트 적용 확인                                                                     |
 
 ---
 
@@ -327,11 +327,11 @@ Phase 5 (문서화) ── Phase 1~4 완료 후
 
 ## 빌드 의존성 변경 필요 여부
 
-| 모듈             | 변경 필요  | 이유                                                               |
-|----------------|--------|------------------------------------------------------------------|
-| `exposed-core` | **없음** | `exposed_java_time` 이미 `compileOnly` 포함                          |
-| `exposed-dao`  | **없음** | `exposed-core`에 `api` 의존, `exposed_dao`에 `api` 의존                |
-| `exposed-jdbc` | **없음** | `exposed-dao`에 `api` 의존, `exposed_java_time` 이미 `compileOnly` 포함 |
+| 모듈           | 변경 필요 | 이유                                                                    |
+|----------------|-----------|-------------------------------------------------------------------------|
+| `exposed-core` | **없음**  | `exposed_java_time` 이미 `compileOnly` 포함                             |
+| `exposed-dao`  | **없음**  | `exposed-core`에 `api` 의존, `exposed_dao`에 `api` 의존                 |
+| `exposed-jdbc` | **없음**  | `exposed-dao`에 `api` 의존, `exposed_java_time` 이미 `compileOnly` 포함 |
 
 ---
 

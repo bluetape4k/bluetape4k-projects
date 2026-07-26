@@ -1,9 +1,9 @@
 package io.bluetape4k.hibernate.cache.lettuce
 
-import io.bluetape4k.hibernate.cache.lettuce.model.Article
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.hibernate.cache.lettuce.model.Article
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

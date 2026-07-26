@@ -152,8 +152,7 @@ val uni = scope.fetchData()
 val result = uni.await().indefinitely()
 ```
 
-`asUni`는 cold입니다. 반환된 `Uni`를 구독할 때만 코루틴을 시작하며, 구독을 취소하면 실행 중인
-코루틴도 취소됩니다.
+`asUni`는 cold입니다. 반환된 `Uni`를 구독할 때만 코루틴을 시작하며, 구독을 취소하면 실행 중인 코루틴도 취소됩니다.
 
 ### Uni와 Multi 변환
 
@@ -218,20 +217,20 @@ val result = totalAmount.await().indefinitely()
 
 ## Uni vs Multi
 
-| 특징         | Uni              | Multi          |
-|------------|------------------|----------------|
-| 아이템 수      | 0 또는 1           | 0개 이상          |
-| 사용 예시      | 단일 결과 조회, RPC 호출 | 스트림 처리, 이벤트 소스 |
-| 완료         | 아이템 방출 후 즉시 완료   | 모든 아이템 방출 후 완료 |
-| Reactor 대응 | Mono             | Flux           |
+| 특징         | Uni                      | Multi                    |
+|--------------|--------------------------|--------------------------|
+| 아이템 수    | 0 또는 1                 | 0개 이상                 |
+| 사용 예시    | 단일 결과 조회, RPC 호출 | 스트림 처리, 이벤트 소스 |
+| 완료         | 아이템 방출 후 즉시 완료 | 모든 아이템 방출 후 완료 |
+| Reactor 대응 | Mono                     | Flux                     |
 
 ## 주요 기능 상세
 
-| 파일                    | 설명                   |
-|-----------------------|----------------------|
-| `UniSupport.kt`       | Uni 생성 및 변환 확장 함수    |
-| `MultiSupport.kt`     | Multi 생성 및 변환 확장 함수  |
-| `CoroutineSupport.kt` | Coroutine과 Mutiny 연동 |
+| 파일                  | 설명                         |
+|-----------------------|------------------------------|
+| `UniSupport.kt`       | Uni 생성 및 변환 확장 함수   |
+| `MultiSupport.kt`     | Multi 생성 및 변환 확장 함수 |
+| `CoroutineSupport.kt` | Coroutine과 Mutiny 연동      |
 
 ## Mutiny 처리 흐름
 
@@ -243,11 +242,11 @@ val result = totalAmount.await().indefinitely()
 
 ## Mutiny vs 다른 반응형 라이브러리
 
-| 라이브러리           | 특징                           |
-|-----------------|------------------------------|
+| 라이브러리      | 특징                                       |
+|-----------------|--------------------------------------------|
 | **Mutiny**      | 이벤트 기반, 명시적 비동기, Quarkus 친화적 |
-| **Reactor**     | Netty 기반, Spring WebFlux 기본  |
-| **RxJava**      | Observable 패턴, 안드로이드 친화적     |
-| **Kotlin Flow** | Coroutine 기반, Kotlin 네이티브    |
+| **Reactor**     | Netty 기반, Spring WebFlux 기본            |
+| **RxJava**      | Observable 패턴, 안드로이드 친화적         |
+| **Kotlin Flow** | Coroutine 기반, Kotlin 네이티브            |
 
 Mutiny는 이벤트 구동 방식으로, 명시적인 비동기 처리를 선호하고 Quarkus 생태계와 함께 사용할 때 적합합니다.

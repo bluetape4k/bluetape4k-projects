@@ -1,5 +1,10 @@
 package io.bluetape4k.elasticsearch.coroutines
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.elasticsearch.AbstractElasticsearchTest
 import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures
 import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.createTestIndex
@@ -7,12 +12,6 @@ import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.deleteTestIndex
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBe
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,9 +23,9 @@ import kotlin.time.Duration.Companion.seconds
  * Testcontainers 를 통해 실제 Elasticsearch 클러스터와 통신하며
  * 인덱스 생성/존재 확인/삭제, 문서 CRUD, 문서 존재 확인, 검색 시나리오를 검증합니다.
  */
-class ElasticsearchCoroutinesTest : AbstractElasticsearchTest() {
+class ElasticsearchCoroutinesTest: AbstractElasticsearchTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 테스트에서 사용하는 문서 타입.

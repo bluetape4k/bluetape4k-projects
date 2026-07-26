@@ -2,8 +2,7 @@
 
 ## Summary
 
-Promote the deprecated `x-obsoleted/lingua` module into `utils/lingua` as `bluetape4k-lingua`.
-This work will restore the previous Kotlin DSL wrapper around `com.github.pemistahl:lingua` and add a new mixed-language convenience API that returns all detected languages as a `Set`.
+Promote the deprecated `x-obsoleted/lingua` module into `utils/lingua` as `bluetape4k-lingua`. This work will restore the previous Kotlin DSL wrapper around `com.github.pemistahl:lingua` and add a new mixed-language convenience API that returns all detected languages as a `Set`.
 
 The implementation intentionally uses the upstream `lingua` dependency again instead of a clean-room rewrite. This decision keeps scope small, preserves upstream detection quality, and avoids building a new language-detection engine and model pipeline.
 
@@ -29,9 +28,9 @@ The implementation intentionally uses the upstream `lingua` dependency again ins
 
 - `TODO.md:81` explicitly tracks `lingua -> utils/lingua` promotion.
 - `x-obsoleted/lingua` contains three main Kotlin source files and tests:
-  - `LanguageDetector.kt` — Kotlin DSL wrapper around upstream `lingua`
-  - `UnicodeDetector.kt` — script filtering helper with `KLogging`
-  - `UnicodeSupport.kt` — character classification extensions
+    - `LanguageDetector.kt` — Kotlin DSL wrapper around upstream `lingua`
+    - `UnicodeDetector.kt` — script filtering helper with `KLogging`
+    - `UnicodeSupport.kt` — character classification extensions
 - `x-obsoleted/lingua/build.gradle.kts` previously depended on `com.github.pemistahl:lingua:1.2.2`.
 - `README.md:372` and `README.ko.md:369` still list `lingua` as dropped.
 - `settings.gradle.kts` auto-registers subdirectories under `utils/`, so `utils/lingua` will become `bluetape4k-lingua` automatically.
@@ -49,12 +48,12 @@ Repository/source verification against upstream `pemistahl/lingua` `v1.2.2` and 
 - `withLowAccuracyMode()` for lower memory usage on long texts.
 - `withMinimumRelativeDistance(...)` to tune conservative detection behavior.
 
-The same source verification also confirmed that upstream does **not** expose a public `detectMultipleLanguagesOf(text)` mixed-language segmentation API in the released version used by this module.
+The same source verification also confirmed that upstream does
+**not** expose a public `detectMultipleLanguagesOf(text)` mixed-language segmentation API in the released version used by this module.
 
 ### Baseline Verification
 
-Worktree baseline was created at `.worktrees/feat-utils-lingua`.
-A baseline validation command succeeded from the worktree context:
+Worktree baseline was created at `.worktrees/feat-utils-lingua`. A baseline validation command succeeded from the worktree context:
 
 ```bash
 ./bin/repo-test-summary -- ./gradlew :bluetape4k-core:test
@@ -75,12 +74,14 @@ A baseline validation command succeeded from the worktree context:
 Restore the old module structure, keep upstream public types such as `Language`, and add one new extension API for mixed-language `Set` results.
 
 **Pros**
+
 - Smallest scope.
 - Highest confidence in detection quality.
 - Minimal migration risk.
 - Keeps existing examples and DSL largely intact.
 
 **Cons**
+
 - Public API remains tied to upstream `Language` types.
 
 ### Option B — Facade wrapper over upstream Lingua
@@ -88,9 +89,11 @@ Restore the old module structure, keep upstream public types such as `Language`,
 Wrap upstream internally but expose Bluetape4k-owned language types.
 
 **Pros**
+
 - Future engine replacement becomes easier.
 
 **Cons**
+
 - Larger scope.
 - Adds conversion code, extra tests, and more API design work.
 - Not necessary for the current promotion goal.
@@ -100,18 +103,20 @@ Wrap upstream internally but expose Bluetape4k-owned language types.
 Restore only the module dependency and expose a small helper that tokenizes text and runs upstream `detectLanguageOf(text)` repeatedly for each token.
 
 **Pros**
+
 - Uses only public upstream APIs that actually exist in `v1.2.2`.
 - Keeps implementation scope relatively small.
 
 **Cons**
+
 - Heuristic behavior on short tokens must be pinned by wrapper tests.
 - Does not provide segment/span details.
 - Less direct than an upstream segmentation API would have been.
 
 ## Decision
 
-Choose **Option A**.
-The module will be restored as a thin Kotlin DSL wrapper over upstream `lingua`, with one new mixed-language convenience API.
+Choose **Option
+A**. The module will be restored as a thin Kotlin DSL wrapper over upstream `lingua`, with one new mixed-language convenience API.
 
 ## Module Structure
 
@@ -142,9 +147,12 @@ Additional test/resource setup should follow existing Bluetape4k module conventi
 
 ## Scope of Restored Source Files
 
-- `LanguageDetector.kt` — **Restore and extend**. This file is the core wrapper DSL and will host the new mixed-language extension or delegate to a focused extension file.
-- `UnicodeDetector.kt` — **Restore unchanged or near-unchanged**. It is independently useful, already follows Bluetape4k logging style, and should not be silently dropped during promotion.
-- `UnicodeSupport.kt` — **Restore unchanged or near-unchanged**. It is a small reusable helper with no dependency on upstream detector internals.
+- `LanguageDetector.kt` — **Restore and
+  extend**. This file is the core wrapper DSL and will host the new mixed-language extension or delegate to a focused extension file.
+- `UnicodeDetector.kt` — **Restore unchanged or
+  near-unchanged**. It is independently useful, already follows Bluetape4k logging style, and should not be silently dropped during promotion.
+- `UnicodeSupport.kt` — **Restore unchanged or
+  near-unchanged**. It is a small reusable helper with no dependency on upstream detector internals.
 
 These files are part of the promotion scope because the TODO item refers to the existing deprecated module as a whole, not only the detector factory DSL.
 
@@ -187,9 +195,9 @@ fun LanguageDetector.detectAllLanguagesOf(text: String): Set<Language>
 - For short Latin tokens only, allow a narrow ambiguity correction when Lingua's top confidence candidates are close (for example, observed `"Hello" -> SOTHO` false positive). This correction remains internal to the wrapper and does not expose confidence values.
 - If at least one non-`UNKNOWN` language remains, return unique values as `Set<Language>`.
 - If no usable token result remains:
-  - call `detectLanguageOf(text)` as fallback
-  - if result is not `UNKNOWN`, return a singleton set
-  - otherwise return `emptySet()`.
+    - call `detectLanguageOf(text)` as fallback
+    - if result is not `UNKNOWN`, return a singleton set
+    - otherwise return `emptySet()`.
 - The wrapper does **not** expose segment/span data or confidence values in this PR.
 
 ### Rejected Output Shapes

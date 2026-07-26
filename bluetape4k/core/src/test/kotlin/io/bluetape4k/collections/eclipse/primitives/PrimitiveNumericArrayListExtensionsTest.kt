@@ -1,5 +1,6 @@
 package io.bluetape4k.collections.eclipse.primitives
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.collections.AbstractCollectionTest
 import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.stream.toDoubleArrayList
@@ -8,7 +9,6 @@ import io.bluetape4k.collections.eclipse.stream.toLongArrayList
 import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.collections.toList
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.TestFactory

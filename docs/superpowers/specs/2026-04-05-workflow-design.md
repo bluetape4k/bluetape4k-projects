@@ -9,36 +9,34 @@
 
 ## 1. 개요
 
-easy-flows의 Work/WorkFlow 패턴을 Kotlin 이디엄으로 재설계하여 `bluetape4k-workflow` 모듈을 신규 생성한다.
-동기(Virtual Threads 포함) 및 비동기(Coroutines suspend/Flow) 두 가지 실행 모델을 제공하며,
-Kotlin DSL 빌더를 통해 워크플로를 선언적으로 구성할 수 있도록 한다.
+easy-flows의 Work/WorkFlow 패턴을 Kotlin 이디엄으로 재설계하여 `bluetape4k-workflow` 모듈을 신규 생성한다. 동기 (Virtual Threads 포함) 및 비동기 (Coroutines suspend/Flow) 두 가지 실행 모델을 제공하며, Kotlin DSL 빌더를 통해 워크플로를 선언적으로 구성할 수 있도록 한다.
 
 ### 레퍼런스 분석 (easy-flows 핵심 개념)
 
-| easy-flows 개념 | 설명 |
-|-----------------|------|
-| `Work` | 작업 단위 인터페이스 — `execute(WorkContext): WorkReport` |
-| `WorkReport` | 실행 결과 (status + context + error) |
-| `WorkStatus` | `COMPLETED`, `FAILED` |
-| `WorkContext` | `ConcurrentHashMap` 기반 키-값 저장소 |
-| `SequentialFlow` | 작업 순차 실행, 하나라도 FAILED면 중단 |
-| `ParallelFlow` | ExecutorService로 병렬 실행, 전체 완료 대기 |
-| `ConditionalFlow` | Predicate 평가 후 then/otherwise 분기 |
-| `RepeatFlow` | Predicate가 true인 동안 반복 실행 |
+| easy-flows 개념   | 설명                                                      |
+|-------------------|-----------------------------------------------------------|
+| `Work`            | 작업 단위 인터페이스 — `execute(WorkContext): WorkReport` |
+| `WorkReport`      | 실행 결과 (status + context + error)                      |
+| `WorkStatus`      | `COMPLETED`, `FAILED`                                     |
+| `WorkContext`     | `ConcurrentHashMap` 기반 키-값 저장소                     |
+| `SequentialFlow`  | 작업 순차 실행, 하나라도 FAILED면 중단                    |
+| `ParallelFlow`    | ExecutorService로 병렬 실행, 전체 완료 대기               |
+| `ConditionalFlow` | Predicate 평가 후 then/otherwise 분기                     |
+| `RepeatFlow`      | Predicate가 true인 동안 반복 실행                         |
 
 ### 범위
 
-| 범위 | 동기 | 코루틴 |
-|------|:----:|:------:|
-| 핵심 Work/WorkReport 추상화 | O | O |
-| SequentialFlow | O | O |
-| ParallelFlow (Virtual Threads / async) | O | O |
-| ConditionalFlow | O | O |
-| RepeatFlow | O | O |
-| DSL 빌더 | O | O |
-| WorkContext 스레드/코루틴 안전성 | O | O |
-| Flow\<WorkReport\> 스트리밍 | - | O |
-| 에러 처리 전략 (stop/continue/retry) | O | O |
+| 범위                                   | 동기 | 코루틴 |
+|----------------------------------------|:----:|:------:|
+| 핵심 Work/WorkReport 추상화            |  O   |   O    |
+| SequentialFlow                         |  O   |   O    |
+| ParallelFlow (Virtual Threads / async) |  O   |   O    |
+| ConditionalFlow                        |  O   |   O    |
+| RepeatFlow                             |  O   |   O    |
+| DSL 빌더                               |  O   |   O    |
+| WorkContext 스레드/코루틴 안전성       |  O   |   O    |
+| Flow\<WorkReport\> 스트리밍            |  -   |   O    |
+| 에러 처리 전략 (stop/continue/retry)   |  O   |   O    |
 
 ---
 
@@ -98,14 +96,9 @@ package io.bluetape4k.workflow.api
  *     is WorkReport.PartialSuccess -> println("부분 성공: ${report.failedReports.size}개 실패")
  * }
  * ```
- */
-sealed interface WorkReport {
-    /** 실행 상태 */
-    val status: WorkStatus
-    /** 실행 컨텍스트 */
-    val context: WorkContext
-    /** 실행 중 발생한 에러 (없으면 null) */
-    val error: Throwable?
+
+*/ sealed interface WorkReport { /** 실행 상태 */ val status: WorkStatus /** 실행 컨텍스트 */ val context:
+WorkContext /** 실행 중 발생한 에러 (없으면 null) */ val error: Throwable?
 
     /**
      * 성공 결과입니다.
@@ -147,7 +140,9 @@ sealed interface WorkReport {
         override val status: WorkStatus = WorkStatus.PARTIAL
         override val error: Throwable? = failedReports.firstOrNull()?.error
     }
+
 }
+
 ```
 
 ### 3.3 WorkContext — 스레드 안전 키-값 저장소
@@ -178,13 +173,10 @@ import java.util.function.BiFunction
  * // read-modify-write 안전 패턴
  * ctx.compute("counter") { _, old -> ((old as? Int) ?: 0) + 1 }
  * ```
- */
-class WorkContext(
-    private val store: ConcurrentHashMap<String, Any> = ConcurrentHashMap(),
-) {
-    /** 키로 값을 조회합니다. */
-    @Suppress("UNCHECKED_CAST")
-    operator fun <T : Any> get(key: String): T? = store[key] as? T
+
+*/ class WorkContext (private val store: ConcurrentHashMap<String, Any> = ConcurrentHashMap (),
+) { /** 키로 값을 조회합니다. */ @Suppress ("UNCHECKED_CAST")
+operator fun <T : Any> get (key: String): T? = store[key] as? T
 
     /** 키-값을 저장합니다. */
     operator fun set(key: String, value: Any) {
@@ -221,11 +213,11 @@ class WorkContext(
     }
 
     override fun toString(): String = "WorkContext(${store.keys})"
+
 }
 
-/** 빈 [WorkContext]를 생성합니다. */
-fun workContext(vararg pairs: Pair<String, Any>): WorkContext =
-    WorkContext(ConcurrentHashMap(pairs.toMap()))
+/** 빈 [WorkContext]를 생성합니다. */ fun workContext (vararg pairs: Pair<String, Any>): WorkContext = WorkContext (ConcurrentHashMap (pairs.toMap ()))
+
 ```
 
 ### 3.4 Work — fun interface (동기)
@@ -252,48 +244,43 @@ package io.bluetape4k.workflow.api
  *     WorkReport.Success(ctx)
  * }
  * ```
- */
-fun interface Work {
-    /**
-     * 작업을 실행합니다.
-     *
-     * @param context 실행 컨텍스트
-     * @return 실행 결과
-     */
-    fun execute(context: WorkContext): WorkReport
+
+*/ fun interface Work { /**
+
+* 작업을 실행합니다.
+*
+* @param context 실행 컨텍스트 * @return 실행 결과
+  */ fun execute (context: WorkContext): WorkReport }
+
+/**
+
+* 이름을 가진 [Work] 래퍼입니다.
+*
+* [Work]가 `fun interface`이므로 default property를 가질 수 없습니다.
+* 작업 이름이 필요한 경우 (로깅, 디버깅 등) 이 클래스를 사용하세요.
+*
+* ```kotlin
+* val work = NamedWork ("validate") { ctx ->
+*     ctx["valid"] = true
+*     WorkReport.Success(ctx)
+* }
+* println (work.name) // "validate"
+* ```
+
+*/ class NamedWork (val name: String, private val delegate: Work,
+) : Work { override fun execute (context: WorkContext): WorkReport = delegate.execute (context)
+override fun toString (): String = "NamedWork ($name)"
 }
 
 /**
- * 이름을 가진 [Work] 래퍼입니다.
- *
- * [Work]가 `fun interface`이므로 default property를 가질 수 없습니다.
- * 작업 이름이 필요한 경우(로깅, 디버깅 등) 이 클래스를 사용하세요.
- *
- * ```kotlin
- * val work = NamedWork("validate") { ctx ->
- *     ctx["valid"] = true
- *     WorkReport.Success(ctx)
- * }
- * println(work.name) // "validate"
- * ```
- */
-class NamedWork(
-    val name: String,
-    private val delegate: Work,
-) : Work {
-    override fun execute(context: WorkContext): WorkReport = delegate.execute(context)
-    override fun toString(): String = "NamedWork($name)"
-}
 
-/**
- * 이름 지정 [Work] 팩토리 함수입니다.
- *
- * @param name 작업 이름
- * @param block 작업 실행 로직
- * @return 이름이 부여된 [NamedWork]
- */
-fun Work(name: String, block: (WorkContext) -> WorkReport): NamedWork =
-    NamedWork(name, block)
+* 이름 지정 [Work] 팩토리 함수입니다.
+*
+* @param name 작업 이름
+* @param block 작업 실행 로직
+* @return 이름이 부여된 [NamedWork]
+  */ fun Work (name: String, block: (WorkContext) -> WorkReport): NamedWork = NamedWork (name, block)
+
 ```
 
 ### 3.5 SuspendWork — fun interface (코루틴)
@@ -326,74 +313,69 @@ import kotlinx.coroutines.withContext
  *     WorkReport.Success(ctx)
  * }
  * ```
- */
-fun interface SuspendWork {
-    /**
-     * 작업을 비동기로 실행합니다.
-     *
-     * @param context 실행 컨텍스트
-     * @return 실행 결과
-     */
-    suspend fun execute(context: WorkContext): WorkReport
+
+*/ fun interface SuspendWork { /**
+
+* 작업을 비동기로 실행합니다.
+*
+* @param context 실행 컨텍스트 * @return 실행 결과
+  */ suspend fun execute (context: WorkContext): WorkReport }
+
+/**
+
+* 이름을 가진 [SuspendWork] 래퍼입니다.
+*
+* [SuspendWork]가 `fun interface`이므로 default property를 가질 수 없습니다.
+* 작업 이름이 필요한 경우 (로깅, 디버깅 등) 이 클래스를 사용하세요.
+*
+* ```kotlin
+* val work = NamedSuspendWork ("fetch-data") { ctx ->
+*     val data = httpClient.fetchAsync(ctx.get<String>("url")!!)
+*     ctx["data"] = data
+*     WorkReport.Success(ctx)
+* }
+* ```
+
+*/ class NamedSuspendWork (val name: String, private val delegate: SuspendWork,
+) : SuspendWork { override suspend fun execute (context: WorkContext): WorkReport = delegate.execute (context)
+override fun toString (): String = "NamedSuspendWork ($name)"
 }
 
 /**
- * 이름을 가진 [SuspendWork] 래퍼입니다.
- *
- * [SuspendWork]가 `fun interface`이므로 default property를 가질 수 없습니다.
- * 작업 이름이 필요한 경우(로깅, 디버깅 등) 이 클래스를 사용하세요.
- *
- * ```kotlin
- * val work = NamedSuspendWork("fetch-data") { ctx ->
- *     val data = httpClient.fetchAsync(ctx.get<String>("url")!!)
- *     ctx["data"] = data
- *     WorkReport.Success(ctx)
- * }
- * ```
- */
-class NamedSuspendWork(
-    val name: String,
-    private val delegate: SuspendWork,
-) : SuspendWork {
-    override suspend fun execute(context: WorkContext): WorkReport = delegate.execute(context)
-    override fun toString(): String = "NamedSuspendWork($name)"
-}
+
+* 이름 지정 [SuspendWork] 팩토리 함수입니다.
+*
+* @param name 작업 이름
+* @param block 작업 실행 로직
+* @return 이름이 부여된 [NamedSuspendWork]
+  */ fun SuspendWork (name: String, block: suspend (WorkContext) -> WorkReport): NamedSuspendWork = NamedSuspendWork (name, block)
 
 /**
- * 이름 지정 [SuspendWork] 팩토리 함수입니다.
- *
- * @param name 작업 이름
- * @param block 작업 실행 로직
- * @return 이름이 부여된 [NamedSuspendWork]
- */
-fun SuspendWork(name: String, block: suspend (WorkContext) -> WorkReport): NamedSuspendWork =
-    NamedSuspendWork(name, block)
+
+* 동기 [Work]를 코루틴 [SuspendWork]로 변환합니다.
+*
+* [Dispatchers.IO]에서 블로킹 실행을 래핑합니다.
+*
+* ```kotlin
+* val suspendWork = blockingWork.asSuspend ()
+* ```
+
+*/ fun Work.asSuspend (): SuspendWork = SuspendWork { ctx ->
+withContext (Dispatchers.IO) { execute (ctx) } }
 
 /**
- * 동기 [Work]를 코루틴 [SuspendWork]로 변환합니다.
- *
- * [Dispatchers.IO]에서 블로킹 실행을 래핑합니다.
- *
- * ```kotlin
- * val suspendWork = blockingWork.asSuspend()
- * ```
- */
-fun Work.asSuspend(): SuspendWork = SuspendWork { ctx ->
-    withContext(Dispatchers.IO) { execute(ctx) }
-}
 
-/**
- * 코루틴 [SuspendWork]를 동기 [Work]로 변환합니다.
- *
- * 내부에서 [runBlocking]을 사용하므로 코루틴 컨텍스트 내에서는 사용하지 마세요.
- *
- * ```kotlin
- * val blockingWork = suspendWork.asBlocking()
- * ```
- */
-fun SuspendWork.asBlocking(): Work = Work { ctx ->
-    runBlocking { execute(ctx) }
-}
+* 코루틴 [SuspendWork]를 동기 [Work]로 변환합니다.
+*
+* 내부에서 [runBlocking]을 사용하므로 코루틴 컨텍스트 내에서는 사용하지 마세요.
+*
+* ```kotlin
+* val blockingWork = suspendWork.asBlocking ()
+* ```
+
+*/ fun SuspendWork.asBlocking (): Work = Work { ctx ->
+runBlocking { execute (ctx) } }
+
 ```
 
 ### 3.6 WorkFlow — 마커 인터페이스
@@ -434,51 +416,38 @@ import kotlin.time.Duration.Companion.minutes
  *     execute(work2)
  * }
  * ```
- */
-enum class ErrorStrategy {
-    /** 에러 발생 시 즉시 중단하고 Failure를 반환 (기본값) */
-    STOP,
-    /** 에러를 누적하고 다음 작업을 계속 실행. 실패가 있으면 PartialSuccess 반환 */
-    CONTINUE,
-}
+
+*/ enum class ErrorStrategy { /** 에러 발생 시 즉시 중단하고 Failure를 반환 (기본값) */
+STOP, /** 에러를 누적하고 다음 작업을 계속 실행. 실패가 있으면 PartialSuccess 반환 */ CONTINUE, }
 
 /**
- * 재시도 정책입니다.
- *
- * [Duration] 기반의 타입 안전한 지연 시간을 사용합니다.
- *
- * @property maxAttempts 최대 총 시도 횟수. 최초 실행 1회 + 재시도 횟수.
- *   예: maxAttempts = 3 이면 최초 실행 1회 + 재시도 2회 = 총 3회 시도.
- *   (1 = 재시도 없음, 최초 실행만)
- * @property delay 재시도 간 대기 시간
- * @property backoffMultiplier 지수 백오프 배율 (1.0 = 고정 지연)
- * @property maxDelay 백오프 적용 시 최대 지연 시간 상한
- */
-data class RetryPolicy(
-    val maxAttempts: Int = 1,
-    val delay: Duration = Duration.ZERO,
-    val backoffMultiplier: Double = 1.0,
-    val maxDelay: Duration = 1.minutes,
-) {
-    /** 편의 프로퍼티: 재시도 횟수 (= maxAttempts - 1) */
-    val maxRetries: Int get() = maxAttempts - 1
 
-    companion object {
-        /** 재시도 없음 (최초 실행 1회만) */
-        val NONE = RetryPolicy()
+* 재시도 정책입니다.
+*
+* [Duration] 기반의 타입 안전한 지연 시간을 사용합니다.
+*
+* @property maxAttempts 최대 총 시도 횟수. 최초 실행 1회 + 재시도 횟수.
+* 예: maxAttempts = 3 이면 최초 실행 1회 + 재시도 2회 = 총 3회 시도.
+* (1 = 재시도 없음, 최초 실행만)
+* @property delay 재시도 간 대기 시간
+* @property backoffMultiplier 지수 백오프 배율 (1.0 = 고정 지연)
+* @property maxDelay 백오프 적용 시 최대 지연 시간 상한 */ data class RetryPolicy (val maxAttempts: Int = 1, val delay: Duration =
+  Duration.ZERO, val backoffMultiplier: Double = 1.0, val maxDelay: Duration = 1.minutes,
+  ) { /** 편의 프로퍼티: 재시도 횟수 (= maxAttempts - 1) */ val maxRetries: Int get () = maxAttempts - 1
 
-        /** 기본값: 총 3회 시도 (최초 1회 + 재시도 2회), 100ms 간격, 지수 백오프 x2, 최대 1분 */
-        val DEFAULT = RetryPolicy(
-            maxAttempts = 3,
-            delay = Duration.parse("100ms"),
-            backoffMultiplier = 2.0,
-            maxDelay = 1.minutes,
-        )
-    }
-}
+  companion object { /** 재시도 없음 (최초 실행 1회만) */ val NONE = RetryPolicy ()
 
-// NOTE: CONTINUE 전략에서의 실패 누적은 WorkReport.PartialSuccess.failedReports로
-// 반환하므로, WorkContext에 별도 well-known 키를 사용하지 않습니다.
+       /** 기본값: 총 3회 시도 (최초 1회 + 재시도 2회), 100ms 간격, 지수 백오프 x2, 최대 1분 */
+       val DEFAULT = RetryPolicy(
+           maxAttempts = 3,
+           delay = Duration.parse("100ms"),
+           backoffMultiplier = 2.0,
+           maxDelay = 1.minutes,
+       )
+  } }
+
+// NOTE: CONTINUE 전략에서의 실패 누적은 WorkReport.PartialSuccess.failedReports로 // 반환하므로, WorkContext에 별도 well-known 키를 사용하지 않습니다.
+
 ```
 
 ---
@@ -508,11 +477,8 @@ import io.bluetape4k.workflow.api.*
  * )
  * val report = flow.execute(WorkContext())
  * ```
- */
-class SequentialWorkFlow(
-    private val works: List<Work>,
-    private val errorStrategy: ErrorStrategy = ErrorStrategy.STOP,
-    private val flowName: String = "sequential",
+
+*/ class SequentialWorkFlow (private val works: List<Work>, private val errorStrategy: ErrorStrategy = ErrorStrategy.STOP, private val flowName: String = "sequential",
 ) : WorkFlow {
 
     companion object : KLogging()
@@ -543,7 +509,9 @@ class SequentialWorkFlow(
             lastReport
         }
     }
+
 }
+
 ```
 
 ### 4.2 ParallelWorkFlow (Virtual Threads)
@@ -579,12 +547,8 @@ import kotlin.time.Duration.Companion.minutes
  * )
  * val report = flow.execute(WorkContext())
  * ```
- */
-class ParallelWorkFlow(
-    private val works: List<Work>,
-    private val executorService: ExecutorService? = null,
-    private val timeout: Duration = 5.minutes,
-    private val flowName: String = "parallel",
+
+*/ class ParallelWorkFlow (private val works: List<Work>, private val executorService: ExecutorService? = null, private val timeout: Duration = 5.minutes, private val flowName: String = "parallel",
 ) : WorkFlow {
 
     companion object : KLogging()
@@ -638,7 +602,9 @@ class ParallelWorkFlow(
             }
         }
     }
+
 }
+
 ```
 
 ### 4.3 ConditionalWorkFlow
@@ -663,12 +629,8 @@ import io.bluetape4k.workflow.api.*
  *     otherwiseWork = normalWork,
  * )
  * ```
- */
-class ConditionalWorkFlow(
-    private val predicate: (WorkContext) -> Boolean,
-    private val thenWork: Work,
-    private val otherwiseWork: Work? = null,
-    private val flowName: String = "conditional",
+
+*/ class ConditionalWorkFlow (private val predicate: (WorkContext) -> Boolean, private val thenWork: Work, private val otherwiseWork: Work? = null, private val flowName: String = "conditional",
 ) : WorkFlow {
 
     companion object : KLogging()
@@ -682,7 +644,9 @@ class ConditionalWorkFlow(
             otherwiseWork?.execute(context) ?: WorkReport.Success(context)
         }
     }
+
 }
+
 ```
 
 ### 4.4 RepeatWorkFlow
@@ -707,12 +671,8 @@ import io.bluetape4k.workflow.api.*
  *     maxIterations = 10,
  * )
  * ```
- */
-class RepeatWorkFlow(
-    private val work: Work,
-    private val repeatPredicate: (WorkReport) -> Boolean,
-    private val maxIterations: Int = Int.MAX_VALUE,
-    private val flowName: String = "repeat",
+
+*/ class RepeatWorkFlow (private val work: Work, private val repeatPredicate: (WorkReport) -> Boolean, private val maxIterations: Int = Int.MAX_VALUE, private val flowName: String = "repeat",
 ) : WorkFlow {
 
     companion object : KLogging()
@@ -729,7 +689,9 @@ class RepeatWorkFlow(
         }
         return report
     }
+
 }
+
 ```
 
 ### 4.5 RetryWorkFlow
@@ -751,11 +713,8 @@ import kotlin.time.Duration
  *     retryPolicy = RetryPolicy(maxAttempts = 3, delay = Duration.parse("100ms"), backoffMultiplier = 2.0),
  * )
  * ```
- */
-class RetryWorkFlow(
-    private val work: Work,
-    private val retryPolicy: RetryPolicy,
-    private val flowName: String = "retry",
+
+*/ class RetryWorkFlow (private val work: Work, private val retryPolicy: RetryPolicy, private val flowName: String = "retry",
 ) : WorkFlow {
 
     companion object : KLogging()
@@ -777,13 +736,14 @@ class RetryWorkFlow(
         }
         return lastReport
     }
+
 }
 
 /**
- * [Duration]에 [Double]을 곱하는 확장 연산자입니다.
- */
-private operator fun Duration.times(factor: Double): Duration =
-    (this.inWholeMilliseconds * factor).toLong().let { Duration.parse("${it}ms") }
+
+* [Duration]에 [Double]을 곱하는 확장 연산자입니다.
+  */ private operator fun Duration.times (factor: Double): Duration = (this.inWholeMilliseconds * factor).toLong ().let { Duration.parse ("${it}ms") }
+
 ```
 
 ---
@@ -814,11 +774,8 @@ import kotlin.coroutines.coroutineContext
  * )
  * val report = flow.execute(WorkContext())
  * ```
- */
-class SuspendSequentialFlow(
-    private val works: List<SuspendWork>,
-    private val errorStrategy: ErrorStrategy = ErrorStrategy.STOP,
-    private val flowName: String = "suspend-sequential",
+
+*/ class SuspendSequentialFlow (private val works: List<SuspendWork>, private val errorStrategy: ErrorStrategy = ErrorStrategy.STOP, private val flowName: String = "suspend-sequential",
 ) : SuspendWorkFlow {
 
     companion object : KLogging()
@@ -850,7 +807,9 @@ class SuspendSequentialFlow(
             lastReport
         }
     }
+
 }
+
 ```
 
 ### 5.2 SuspendParallelFlow
@@ -876,10 +835,8 @@ import kotlinx.coroutines.coroutineScope
  * )
  * val report = flow.execute(WorkContext())
  * ```
- */
-class SuspendParallelFlow(
-    private val works: List<SuspendWork>,
-    private val flowName: String = "suspend-parallel",
+
+*/ class SuspendParallelFlow (private val works: List<SuspendWork>, private val flowName: String = "suspend-parallel",
 ) : SuspendWorkFlow {
 
     companion object : KLogging()
@@ -899,7 +856,9 @@ class SuspendParallelFlow(
             WorkReport.Failure(context, failures.first().error)
         }
     }
+
 }
+
 ```
 
 ### 5.3 SuspendConditionalFlow
@@ -923,12 +882,8 @@ import io.bluetape4k.workflow.api.*
  *     otherwiseWork = rejectWork,
  * )
  * ```
- */
-class SuspendConditionalFlow(
-    private val predicate: suspend (WorkContext) -> Boolean,
-    private val thenWork: SuspendWork,
-    private val otherwiseWork: SuspendWork? = null,
-    private val flowName: String = "suspend-conditional",
+
+*/ class SuspendConditionalFlow (private val predicate: suspend (WorkContext) -> Boolean, private val thenWork: SuspendWork, private val otherwiseWork: SuspendWork? = null, private val flowName: String = "suspend-conditional",
 ) : SuspendWorkFlow {
 
     companion object : KLogging()
@@ -942,7 +897,9 @@ class SuspendConditionalFlow(
             otherwiseWork?.execute(context) ?: WorkReport.Success(context)
         }
     }
+
 }
+
 ```
 
 ### 5.4 SuspendRepeatFlow
@@ -971,13 +928,8 @@ import kotlin.time.Duration
  *     repeatDelay = Duration.parse("500ms"),
  * )
  * ```
- */
-class SuspendRepeatFlow(
-    private val work: SuspendWork,
-    private val repeatPredicate: suspend (WorkReport) -> Boolean,
-    private val maxIterations: Int = Int.MAX_VALUE,
-    private val repeatDelay: Duration = Duration.ZERO,
-    private val flowName: String = "suspend-repeat",
+
+*/ class SuspendRepeatFlow (private val work: SuspendWork, private val repeatPredicate: suspend (WorkReport) -> Boolean, private val maxIterations: Int = Int.MAX_VALUE, private val repeatDelay: Duration = Duration.ZERO, private val flowName: String = "suspend-repeat",
 ) : SuspendWorkFlow {
 
     companion object : KLogging()
@@ -996,7 +948,9 @@ class SuspendRepeatFlow(
         }
         return report
     }
+
 }
+
 ```
 
 ### 5.5 SuspendRetryFlow
@@ -1019,11 +973,8 @@ import kotlin.time.Duration
  *     retryPolicy = RetryPolicy.DEFAULT,
  * )
  * ```
- */
-class SuspendRetryFlow(
-    private val work: SuspendWork,
-    private val retryPolicy: RetryPolicy,
-    private val flowName: String = "suspend-retry",
+
+*/ class SuspendRetryFlow (private val work: SuspendWork, private val retryPolicy: RetryPolicy, private val flowName: String = "suspend-retry",
 ) : SuspendWorkFlow {
 
     companion object : KLogging()
@@ -1045,13 +996,14 @@ class SuspendRetryFlow(
         }
         return lastReport
     }
+
 }
 
 /**
- * [Duration]에 [Double]을 곱하는 확장 연산자입니다.
- */
-private operator fun Duration.times(factor: Double): Duration =
-    (this.inWholeMilliseconds * factor).toLong().let { Duration.parse("${it}ms") }
+
+* [Duration]에 [Double]을 곱하는 확장 연산자입니다.
+  */ private operator fun Duration.times (factor: Double): Duration = (this.inWholeMilliseconds * factor).toLong ().let { Duration.parse ("${it}ms") }
+
 ```
 
 ### 5.6 Flow\<WorkReport\> 스트리밍 지원
@@ -1070,29 +1022,25 @@ import kotlinx.coroutines.flow.flow
  * val reports: Flow<WorkReport> = workReportFlow(listOf(work1, work2, work3), context)
  * reports.collect { report -> println(report.status) }
  * ```
- */
-fun workReportFlow(
-    works: List<SuspendWork>,
-    context: WorkContext,
-): Flow<WorkReport> = flow {
-    for (work in works) {
-        emit(work.execute(context))
-    }
-}
+
+*/ fun workReportFlow (works: List<SuspendWork>, context: WorkContext,
+): Flow<WorkReport> = flow { for (work in works) { emit (work.execute (context))
+} }
 
 /**
- * [SuspendWork] 목록을 순차 실행하면서 성공 결과만 [Flow]로 방출합니다.
- * 실패 시 [ErrorStrategy]에 따라 동작합니다.
- *
- * ```kotlin
- * val reports = workReportFlow(works, context)
- *     .onEach { if (it is WorkReport.Failure) log.warn { "실패: ${it.error}" } }
- *     .filter { it is WorkReport.Success }
- * ```
- */
-fun SuspendWork.asFlow(context: WorkContext): Flow<WorkReport> = flow {
-    emit(execute(context))
+
+* [SuspendWork] 목록을 순차 실행하면서 성공 결과만 [Flow]로 방출합니다.
+* 실패 시 [ErrorStrategy]에 따라 동작합니다.
+*
+* ```kotlin
+* val reports = workReportFlow (works, context)
+*     .onEach { if (it is WorkReport.Failure) log.warn { "실패: ${it.error}" } }
+*     .filter { it is WorkReport.Success }
+* ```
+
+*/ fun SuspendWork.asFlow (context: WorkContext): Flow<WorkReport> = flow { emit (execute (context))
 }
+
 ```
 
 ---
@@ -1131,11 +1079,8 @@ import io.bluetape4k.workflow.api.*
  *     execute(notifyWork)
  * }
  * ```
- */
-@WorkflowDsl
-class SequentialFlowBuilder(private val name: String = "sequential") {
-    var errorStrategy: ErrorStrategy = ErrorStrategy.STOP
-    private val works = mutableListOf<Work>()
+
+*/ @WorkflowDsl class SequentialFlowBuilder (private val name: String = "sequential") { var errorStrategy: ErrorStrategy = ErrorStrategy.STOP private val works = mutableListOf<Work>()
 
     /** [Work]를 추가합니다. */
     fun execute(work: Work) {
@@ -1168,28 +1113,26 @@ class SequentialFlowBuilder(private val name: String = "sequential") {
     }
 
     internal fun build(): SequentialWorkFlow = SequentialWorkFlow(works.toList(), errorStrategy, name)
+
 }
 
-fun sequentialFlow(
-    name: String = "sequential",
-    block: SequentialFlowBuilder.() -> Unit,
-): SequentialWorkFlow = SequentialFlowBuilder(name).apply(block).build()
+fun sequentialFlow (name: String = "sequential", block: SequentialFlowBuilder. () -> Unit,
+): SequentialWorkFlow = SequentialFlowBuilder (name).apply (block).build ()
 
 /**
- * 동기 병렬 워크플로 DSL 빌더입니다.
- *
- * ```kotlin
- * val flow = parallelFlow("fetch-all") {
- *     execute(fetchUserWork)
- *     execute(fetchOrderWork)
- *     execute(fetchInventoryWork)
- * }
- * ```
- */
-@WorkflowDsl
-class ParallelFlowBuilder(private val name: String = "parallel") {
-    private val works = mutableListOf<Work>()
-    var executorService: java.util.concurrent.ExecutorService? = null
+
+* 동기 병렬 워크플로 DSL 빌더입니다.
+*
+* ```kotlin
+* val flow = parallelFlow ("fetch-all") {
+*     execute(fetchUserWork)
+*     execute(fetchOrderWork)
+*     execute(fetchInventoryWork)
+* }
+* ```
+
+*/ @WorkflowDsl class ParallelFlowBuilder (private val name: String = "parallel") { private val works = mutableListOf<Work>()
+var executorService: java.util.concurrent.ExecutorService? = null
 
     fun execute(work: Work) {
         works.add(work)
@@ -1200,31 +1143,27 @@ class ParallelFlowBuilder(private val name: String = "parallel") {
     }
 
     internal fun build(): ParallelWorkFlow = ParallelWorkFlow(works.toList(), executorService, flowName = name)
+
 }
 
-fun parallelFlow(
-    name: String = "parallel",
-    block: ParallelFlowBuilder.() -> Unit,
-): ParallelWorkFlow = ParallelFlowBuilder(name).apply(block).build()
+fun parallelFlow (name: String = "parallel", block: ParallelFlowBuilder. () -> Unit,
+): ParallelWorkFlow = ParallelFlowBuilder (name).apply (block).build ()
 
 /**
- * 동기 조건 분기 워크플로 DSL 빌더입니다.
- *
- * [otherwise]는 선택적이며, 생략 시 no-op(Success)를 반환합니다.
- *
- * ```kotlin
- * val flow = conditionalFlow("check-vip") {
- *     condition { ctx -> ctx.get<Boolean>("isVip") == true }
- *     then(vipProcessWork)
- *     otherwise(normalProcessWork)  // 선택적
- * }
- * ```
- */
-@WorkflowDsl
-class ConditionalFlowBuilder(private val name: String = "conditional") {
-    private var predicate: ((WorkContext) -> Boolean)? = null
-    private var thenWork: Work? = null
-    private var otherwiseWork: Work? = null
+
+* 동기 조건 분기 워크플로 DSL 빌더입니다.
+*
+* [otherwise]는 선택적이며, 생략 시 no-op (Success)를 반환합니다.
+*
+* ```kotlin
+* val flow = conditionalFlow ("check-vip") {
+*     condition { ctx -> ctx.get<Boolean>("isVip") == true }
+*     then(vipProcessWork)
+*     otherwise(normalProcessWork)  // 선택적
+* }
+* ```
+
+*/ @WorkflowDsl class ConditionalFlowBuilder (private val name: String = "conditional") { private var predicate: ((WorkContext) -> Boolean)? = null private var thenWork: Work? = null private var otherwiseWork: Work? = null
 
     fun condition(predicate: (WorkContext) -> Boolean) {
         this.predicate = predicate
@@ -1244,29 +1183,25 @@ class ConditionalFlowBuilder(private val name: String = "conditional") {
         requireNotNull(thenWork) { "then work는 필수입니다" }
         return ConditionalWorkFlow(predicate!!, thenWork!!, otherwiseWork, name)
     }
+
 }
 
-fun conditionalFlow(
-    name: String = "conditional",
-    block: ConditionalFlowBuilder.() -> Unit,
-): ConditionalWorkFlow = ConditionalFlowBuilder(name).apply(block).build()
+fun conditionalFlow (name: String = "conditional", block: ConditionalFlowBuilder. () -> Unit,
+): ConditionalWorkFlow = ConditionalFlowBuilder (name).apply (block).build ()
 
 /**
- * 동기 반복 워크플로 DSL 빌더입니다.
- *
- * ```kotlin
- * val flow = repeatFlow("poll-status") {
- *     execute(pollWork)
- *     until { report -> report is WorkReport.Success }
- *     maxIterations = 10
- * }
- * ```
- */
-@WorkflowDsl
-class RepeatFlowBuilder(private val name: String = "repeat") {
-    private var work: Work? = null
-    private var repeatPredicate: ((WorkReport) -> Boolean)? = null
-    var maxIterations: Int = Int.MAX_VALUE
+
+* 동기 반복 워크플로 DSL 빌더입니다.
+*
+* ```kotlin
+* val flow = repeatFlow ("poll-status") {
+*     execute(pollWork)
+*     until { report -> report is WorkReport.Success }
+*     maxIterations = 10
+* }
+* ```
+
+*/ @WorkflowDsl class RepeatFlowBuilder (private val name: String = "repeat") { private var work: Work? = null private var repeatPredicate: ((WorkReport) -> Boolean)? = null var maxIterations: Int = Int.MAX_VALUE
 
     fun execute(work: Work) {
         this.work = work
@@ -1287,27 +1222,24 @@ class RepeatFlowBuilder(private val name: String = "repeat") {
         requireNotNull(repeatPredicate) { "repeatWhile 또는 until 조건은 필수입니다" }
         return RepeatWorkFlow(work!!, repeatPredicate!!, maxIterations, name)
     }
+
 }
 
-fun repeatFlow(
-    name: String = "repeat",
-    block: RepeatFlowBuilder.() -> Unit,
-): RepeatWorkFlow = RepeatFlowBuilder(name).apply(block).build()
+fun repeatFlow (name: String = "repeat", block: RepeatFlowBuilder. () -> Unit,
+): RepeatWorkFlow = RepeatFlowBuilder (name).apply (block).build ()
 
 /**
- * 동기 재시도 워크플로 DSL 빌더입니다.
- *
- * ```kotlin
- * val flow = retryFlow("retry-unstable") {
- *     execute(unstableWork)
- *     policy(RetryPolicy.DEFAULT)
- * }
- * ```
- */
-@WorkflowDsl
-class RetryFlowBuilder(private val name: String = "retry") {
-    private var work: Work? = null
-    private var retryPolicy: RetryPolicy = RetryPolicy.DEFAULT
+
+* 동기 재시도 워크플로 DSL 빌더입니다.
+*
+* ```kotlin
+* val flow = retryFlow ("retry-unstable") {
+*     execute(unstableWork)
+*     policy(RetryPolicy.DEFAULT)
+* }
+* ```
+
+*/ @WorkflowDsl class RetryFlowBuilder (private val name: String = "retry") { private var work: Work? = null private var retryPolicy: RetryPolicy = RetryPolicy.DEFAULT
 
     fun execute(work: Work) {
         this.work = work
@@ -1321,41 +1253,39 @@ class RetryFlowBuilder(private val name: String = "retry") {
         requireNotNull(work) { "execute work는 필수입니다" }
         return RetryWorkFlow(work!!, retryPolicy, name)
     }
+
 }
 
-fun retryFlow(
-    name: String = "retry",
-    block: RetryFlowBuilder.() -> Unit,
-): RetryWorkFlow = RetryFlowBuilder(name).apply(block).build()
+fun retryFlow (name: String = "retry", block: RetryFlowBuilder. () -> Unit,
+): RetryWorkFlow = RetryFlowBuilder (name).apply (block).build ()
 
 /**
- * 복합 워크플로 DSL입니다. 순차/병렬/조건/반복/재시도를 중첩하여 구성합니다.
- *
- * ```kotlin
- * val pipeline = workflow("order-pipeline") {
- *     sequential {
- *         execute(validateWork)
- *         parallel {
- *             execute(fetchInventoryWork)
- *             execute(calculatePriceWork)
- *         }
- *         conditional {
- *             condition { ctx -> ctx.get<Boolean>("inStock") == true }
- *             then(shipWork)
- *             otherwise(backorderWork)
- *         }
- *         repeat {
- *             execute(pollWork)
- *             until { report -> report is WorkReport.Success }
- *             maxIterations = 5
- *         }
- *     }
- * }
- * ```
- */
-@WorkflowDsl
-class WorkflowBuilder(private val name: String = "workflow") {
-    private var rootWork: Work? = null
+
+* 복합 워크플로 DSL입니다. 순차/병렬/조건/반복/재시도를 중첩하여 구성합니다.
+*
+* ```kotlin
+* val pipeline = workflow ("order-pipeline") {
+*     sequential {
+*         execute(validateWork)
+*         parallel {
+*             execute(fetchInventoryWork)
+*             execute(calculatePriceWork)
+*         }
+*         conditional {
+*             condition { ctx -> ctx.get<Boolean>("inStock") == true }
+*             then(shipWork)
+*             otherwise(backorderWork)
+*         }
+*         repeat {
+*             execute(pollWork)
+*             until { report -> report is WorkReport.Success }
+*             maxIterations = 5
+*         }
+*     }
+* }
+* ```
+
+*/ @WorkflowDsl class WorkflowBuilder (private val name: String = "workflow") { private var rootWork: Work? = null
 
     private fun setRoot(work: Work) {
         require(rootWork == null) { "루트 워크플로가 이미 선언되었습니다. 루트는 하나만 지정할 수 있습니다." }
@@ -1382,12 +1312,12 @@ class WorkflowBuilder(private val name: String = "workflow") {
         requireNotNull(rootWork) { "workflow에는 최소 하나의 플로우가 필요합니다" }
         return rootWork as WorkFlow
     }
+
 }
 
-fun workflow(
-    name: String = "workflow",
-    block: WorkflowBuilder.() -> Unit,
-): WorkFlow = WorkflowBuilder(name).apply(block).build()
+fun workflow (name: String = "workflow", block: WorkflowBuilder. () -> Unit,
+): WorkFlow = WorkflowBuilder (name).apply (block).build ()
+
 ```
 
 ### 6.3 코루틴 DSL
@@ -1408,11 +1338,8 @@ import kotlin.time.Duration
  *     execute(suspendWork2)
  * }
  * ```
- */
-@WorkflowDsl
-class SuspendSequentialFlowBuilder(private val name: String = "suspend-sequential") {
-    var errorStrategy: ErrorStrategy = ErrorStrategy.STOP
-    private val works = mutableListOf<SuspendWork>()
+
+*/ @WorkflowDsl class SuspendSequentialFlowBuilder (private val name: String = "suspend-sequential") { var errorStrategy: ErrorStrategy = ErrorStrategy.STOP private val works = mutableListOf<SuspendWork>()
 
     fun execute(work: SuspendWork) {
         works.add(work)
@@ -1444,26 +1371,24 @@ class SuspendSequentialFlowBuilder(private val name: String = "suspend-sequentia
 
     internal fun build(): SuspendSequentialFlow =
         SuspendSequentialFlow(works.toList(), errorStrategy, name)
+
 }
 
-fun suspendSequentialFlow(
-    name: String = "suspend-sequential",
-    block: SuspendSequentialFlowBuilder.() -> Unit,
-): SuspendSequentialFlow = SuspendSequentialFlowBuilder(name).apply(block).build()
+fun suspendSequentialFlow (name: String = "suspend-sequential", block: SuspendSequentialFlowBuilder. () -> Unit,
+): SuspendSequentialFlow = SuspendSequentialFlowBuilder (name).apply (block).build ()
 
 /**
- * 코루틴 병렬 워크플로 DSL 빌더입니다.
- *
- * ```kotlin
- * val flow = suspendParallelFlow("async-fetch") {
- *     execute(fetchWork1)
- *     execute(fetchWork2)
- * }
- * ```
- */
-@WorkflowDsl
-class SuspendParallelFlowBuilder(private val name: String = "suspend-parallel") {
-    private val works = mutableListOf<SuspendWork>()
+
+* 코루틴 병렬 워크플로 DSL 빌더입니다.
+*
+* ```kotlin
+* val flow = suspendParallelFlow ("async-fetch") {
+*     execute(fetchWork1)
+*     execute(fetchWork2)
+* }
+* ```
+
+*/ @WorkflowDsl class SuspendParallelFlowBuilder (private val name: String = "suspend-parallel") { private val works = mutableListOf<SuspendWork>()
 
     fun execute(work: SuspendWork) {
         works.add(work)
@@ -1474,31 +1399,27 @@ class SuspendParallelFlowBuilder(private val name: String = "suspend-parallel") 
     }
 
     internal fun build(): SuspendParallelFlow = SuspendParallelFlow(works.toList(), name)
+
 }
 
-fun suspendParallelFlow(
-    name: String = "suspend-parallel",
-    block: SuspendParallelFlowBuilder.() -> Unit,
-): SuspendParallelFlow = SuspendParallelFlowBuilder(name).apply(block).build()
+fun suspendParallelFlow (name: String = "suspend-parallel", block: SuspendParallelFlowBuilder. () -> Unit,
+): SuspendParallelFlow = SuspendParallelFlowBuilder (name).apply (block).build ()
 
 /**
- * 코루틴 조건 분기 워크플로 DSL 빌더입니다.
- *
- * [otherwise]는 선택적이며, 생략 시 no-op(Success)를 반환합니다.
- *
- * ```kotlin
- * val flow = suspendConditionalFlow("check-auth") {
- *     condition { ctx -> authService.verify(ctx.get<String>("token")!!) }
- *     then(processWork)
- *     otherwise(rejectWork)  // 선택적
- * }
- * ```
- */
-@WorkflowDsl
-class SuspendConditionalFlowBuilder(private val name: String = "suspend-conditional") {
-    private var predicate: (suspend (WorkContext) -> Boolean)? = null
-    private var thenWork: SuspendWork? = null
-    private var otherwiseWork: SuspendWork? = null
+
+* 코루틴 조건 분기 워크플로 DSL 빌더입니다.
+*
+* [otherwise]는 선택적이며, 생략 시 no-op (Success)를 반환합니다.
+*
+* ```kotlin
+* val flow = suspendConditionalFlow ("check-auth") {
+*     condition { ctx -> authService.verify(ctx.get<String>("token")!!) }
+*     then(processWork)
+*     otherwise(rejectWork)  // 선택적
+* }
+* ```
+
+*/ @WorkflowDsl class SuspendConditionalFlowBuilder (private val name: String = "suspend-conditional") { private var predicate: (suspend (WorkContext) -> Boolean)? = null private var thenWork: SuspendWork? = null private var otherwiseWork: SuspendWork? = null
 
     fun condition(predicate: suspend (WorkContext) -> Boolean) {
         this.predicate = predicate
@@ -1518,31 +1439,26 @@ class SuspendConditionalFlowBuilder(private val name: String = "suspend-conditio
         requireNotNull(thenWork) { "then work는 필수입니다" }
         return SuspendConditionalFlow(predicate!!, thenWork!!, otherwiseWork, name)
     }
+
 }
 
-fun suspendConditionalFlow(
-    name: String = "suspend-conditional",
-    block: SuspendConditionalFlowBuilder.() -> Unit,
-): SuspendConditionalFlow = SuspendConditionalFlowBuilder(name).apply(block).build()
+fun suspendConditionalFlow (name: String = "suspend-conditional", block: SuspendConditionalFlowBuilder. () -> Unit,
+): SuspendConditionalFlow = SuspendConditionalFlowBuilder (name).apply (block).build ()
 
 /**
- * 코루틴 반복 워크플로 DSL 빌더입니다.
- *
- * ```kotlin
- * val flow = suspendRepeatFlow("poll-status") {
- *     execute(pollWork)
- *     until { report -> report is WorkReport.Success }
- *     maxIterations = 10
- *     repeatDelay = Duration.parse("500ms")
- * }
- * ```
- */
-@WorkflowDsl
-class SuspendRepeatFlowBuilder(private val name: String = "suspend-repeat") {
-    private var work: SuspendWork? = null
-    private var repeatPredicate: (suspend (WorkReport) -> Boolean)? = null
-    var maxIterations: Int = Int.MAX_VALUE
-    var repeatDelay: Duration = Duration.ZERO
+
+* 코루틴 반복 워크플로 DSL 빌더입니다.
+*
+* ```kotlin
+* val flow = suspendRepeatFlow ("poll-status") {
+*     execute(pollWork)
+*     until { report -> report is WorkReport.Success }
+*     maxIterations = 10
+*     repeatDelay = Duration.parse("500ms")
+* }
+* ```
+
+*/ @WorkflowDsl class SuspendRepeatFlowBuilder (private val name: String = "suspend-repeat") { private var work: SuspendWork? = null private var repeatPredicate: (suspend (WorkReport) -> Boolean)? = null var maxIterations: Int = Int.MAX_VALUE var repeatDelay: Duration = Duration.ZERO
 
     fun execute(work: SuspendWork) {
         this.work = work
@@ -1561,27 +1477,24 @@ class SuspendRepeatFlowBuilder(private val name: String = "suspend-repeat") {
         requireNotNull(repeatPredicate) { "repeatWhile 또는 until 조건은 필수입니다" }
         return SuspendRepeatFlow(work!!, repeatPredicate!!, maxIterations, repeatDelay, name)
     }
+
 }
 
-fun suspendRepeatFlow(
-    name: String = "suspend-repeat",
-    block: SuspendRepeatFlowBuilder.() -> Unit,
-): SuspendRepeatFlow = SuspendRepeatFlowBuilder(name).apply(block).build()
+fun suspendRepeatFlow (name: String = "suspend-repeat", block: SuspendRepeatFlowBuilder. () -> Unit,
+): SuspendRepeatFlow = SuspendRepeatFlowBuilder (name).apply (block).build ()
 
 /**
- * 코루틴 재시도 워크플로 DSL 빌더입니다.
- *
- * ```kotlin
- * val flow = suspendRetryFlow("retry-unstable") {
- *     execute(unstableWork)
- *     policy(RetryPolicy.DEFAULT)
- * }
- * ```
- */
-@WorkflowDsl
-class SuspendRetryFlowBuilder(private val name: String = "suspend-retry") {
-    private var work: SuspendWork? = null
-    private var retryPolicy: RetryPolicy = RetryPolicy.DEFAULT
+
+* 코루틴 재시도 워크플로 DSL 빌더입니다.
+*
+* ```kotlin
+* val flow = suspendRetryFlow ("retry-unstable") {
+*     execute(unstableWork)
+*     policy(RetryPolicy.DEFAULT)
+* }
+* ```
+
+*/ @WorkflowDsl class SuspendRetryFlowBuilder (private val name: String = "suspend-retry") { private var work: SuspendWork? = null private var retryPolicy: RetryPolicy = RetryPolicy.DEFAULT
 
     fun execute(work: SuspendWork) {
         this.work = work
@@ -1595,41 +1508,39 @@ class SuspendRetryFlowBuilder(private val name: String = "suspend-retry") {
         requireNotNull(work) { "execute work는 필수입니다" }
         return SuspendRetryFlow(work!!, retryPolicy, name)
     }
+
 }
 
-fun suspendRetryFlow(
-    name: String = "suspend-retry",
-    block: SuspendRetryFlowBuilder.() -> Unit,
-): SuspendRetryFlow = SuspendRetryFlowBuilder(name).apply(block).build()
+fun suspendRetryFlow (name: String = "suspend-retry", block: SuspendRetryFlowBuilder. () -> Unit,
+): SuspendRetryFlow = SuspendRetryFlowBuilder (name).apply (block).build ()
 
 /**
- * 복합 코루틴 워크플로 DSL입니다.
- *
- * ```kotlin
- * val pipeline = suspendWorkflow("async-pipeline") {
- *     sequential {
- *         execute(validateWork)
- *         parallel {
- *             execute(fetchWork1)
- *             execute(fetchWork2)
- *         }
- *         conditional {
- *             condition { ctx -> ctx.get<Boolean>("approved") == true }
- *             then(processWork)
- *         }
- *         repeat {
- *             execute(pollWork)
- *             until { report -> report is WorkReport.Success }
- *             maxIterations = 5
- *         }
- *         execute(aggregateWork)
- *     }
- * }
- * ```
- */
-@WorkflowDsl
-class SuspendWorkflowBuilder(private val name: String = "suspend-workflow") {
-    private var rootWork: SuspendWork? = null
+
+* 복합 코루틴 워크플로 DSL입니다.
+*
+* ```kotlin
+* val pipeline = suspendWorkflow ("async-pipeline") {
+*     sequential {
+*         execute(validateWork)
+*         parallel {
+*             execute(fetchWork1)
+*             execute(fetchWork2)
+*         }
+*         conditional {
+*             condition { ctx -> ctx.get<Boolean>("approved") == true }
+*             then(processWork)
+*         }
+*         repeat {
+*             execute(pollWork)
+*             until { report -> report is WorkReport.Success }
+*             maxIterations = 5
+*         }
+*         execute(aggregateWork)
+*     }
+* }
+* ```
+
+*/ @WorkflowDsl class SuspendWorkflowBuilder (private val name: String = "suspend-workflow") { private var rootWork: SuspendWork? = null
 
     private fun setRoot(work: SuspendWork) {
         require(rootWork == null) { "루트 워크플로가 이미 선언되었습니다. 루트는 하나만 지정할 수 있습니다." }
@@ -1656,12 +1567,12 @@ class SuspendWorkflowBuilder(private val name: String = "suspend-workflow") {
         requireNotNull(rootWork) { "workflow에는 최소 하나의 플로우가 필요합니다" }
         return rootWork as SuspendWorkFlow
     }
+
 }
 
-fun suspendWorkflow(
-    name: String = "suspend-workflow",
-    block: SuspendWorkflowBuilder.() -> Unit,
-): SuspendWorkFlow = SuspendWorkflowBuilder(name).apply(block).build()
+fun suspendWorkflow (name: String = "suspend-workflow", block: SuspendWorkflowBuilder. () -> Unit,
+): SuspendWorkFlow = SuspendWorkflowBuilder (name).apply (block).build ()
+
 ```
 
 ---
@@ -1689,10 +1600,10 @@ dependencies {
 
 ### 8.1 SequentialFlow 에러 처리
 
-| ErrorStrategy | 동작 |
-|---------------|------|
-| `STOP` | 첫 번째 `Failure` 발생 시 즉시 중단, 해당 `Failure`를 반환 |
-| `CONTINUE` | `Failure`를 누적하고 다음 Work 실행. 실패가 하나라도 있으면 `PartialSuccess` 반환, 모두 성공이면 `Success` 반환 |
+| ErrorStrategy | 동작                                                                                                            |
+|---------------|-----------------------------------------------------------------------------------------------------------------|
+| `STOP`        | 첫 번째 `Failure` 발생 시 즉시 중단, 해당 `Failure`를 반환                                                      |
+| `CONTINUE`    | `Failure`를 누적하고 다음 Work 실행. 실패가 하나라도 있으면 `PartialSuccess` 반환, 모두 성공이면 `Success` 반환 |
 
 > **`WorkReport.PartialSuccess`**: `CONTINUE` 전략 사용 시, 중간에 실패한 Work가 있으면
 > 마지막 Work 결과와 무관하게 `PartialSuccess`를 반환합니다. `failedReports` 프로퍼티로
@@ -1707,13 +1618,13 @@ dependencies {
 
 ### 8.3 RetryPolicy
 
-| 필드 | 설명 | 기본값 |
-|------|------|--------|
-| `maxAttempts` | 최대 총 시도 횟수 (최초 1회 + 재시도 횟수. 1 = 재시도 없음) | 1 |
-| `maxRetries` | 재시도 횟수 (= `maxAttempts - 1`, 읽기 전용 편의 프로퍼티) | 0 |
-| `delay` | 재시도 간 대기 시간 (`Duration`) | `Duration.ZERO` |
-| `backoffMultiplier` | 지수 백오프 배율 | 1.0 |
-| `maxDelay` | 백오프 적용 시 최대 지연 상한 (`Duration`) | `1.minutes` |
+| 필드                | 설명                                                        | 기본값          |
+|---------------------|-------------------------------------------------------------|-----------------|
+| `maxAttempts`       | 최대 총 시도 횟수 (최초 1회 + 재시도 횟수. 1 = 재시도 없음) | 1               |
+| `maxRetries`        | 재시도 횟수 (= `maxAttempts - 1`, 읽기 전용 편의 프로퍼티)  | 0               |
+| `delay`             | 재시도 간 대기 시간 (`Duration`)                            | `Duration.ZERO` |
+| `backoffMultiplier` | 지수 백오프 배율                                            | 1.0             |
+| `maxDelay`          | 백오프 적용 시 최대 지연 상한 (`Duration`)                  | `1.minutes`     |
 
 ---
 
@@ -1726,24 +1637,24 @@ dependencies {
 
 ### 9.2 테스트 시나리오
 
-| 플로우 타입 | 테스트 시나리오 |
-|------------|----------------|
-| SequentialWorkFlow | 전체 성공 / 중간 실패 STOP / 중간 실패 CONTINUE → PartialSuccess 반환 + failedReports 검증 / 전체 실패 CONTINUE → PartialSuccess |
-| ParallelWorkFlow | 전체 성공 / 일부 실패 / Virtual Threads 실행 확인 / invokeAll timeout 시 미완료 태스크 Failure 처리 / timeout 내 정상 완료 |
-| ConditionalWorkFlow | true 분기 / false 분기 / otherwise 생략 시 no-op / 중첩 조건 |
-| RepeatWorkFlow | 조건 충족 시 반복 / maxIterations 제한 / until 조건 |
-| RetryWorkFlow | 성공까지 재시도 / maxAttempts 소진 (총 시도 횟수 = maxAttempts 확인) / 지수 백오프 / maxDelay 상한 / maxRetries 편의 프로퍼티 |
-| WorkContext | 스레드 안전 동시 쓰기/읽기 / compute() 원자적 갱신 / merge / snapshot |
-| NamedWork / NamedSuspendWork | 이름 전달 / SAM 변환 / Work 팩토리 함수 |
-| Work/SuspendWork 어댑터 | asSuspend() / asBlocking() 변환 동작 |
-| DSL 빌더 | 중첩 sequential -> parallel -> conditional -> repeat -> retry 구성 / 루트 중복 선언 시 IllegalArgumentException |
-| SuspendSequentialFlow | suspend 순차 전체 성공/실패 / CONTINUE → PartialSuccess 반환 / ensureActive 취소 전파 |
-| SuspendParallelFlow | coroutineScope + async 병렬 실행 / 실패 전파 |
-| SuspendConditionalFlow | suspend predicate true/false / otherwise 생략 |
-| SuspendRepeatFlow | delay 반복 / 코루틴 취소 전파 / ensureActive |
-| SuspendRetryFlow | suspend 재시도 / delay 백오프 / maxDelay 상한 |
-| Flow\<WorkReport\> | workReportFlow 수집 / 필터링 |
-| WorkReport.PartialSuccess | status == PARTIAL / failedReports 비어있지 않음 / error가 첫 번째 실패의 error와 동일 |
+| 플로우 타입                  | 테스트 시나리오                                                                                                                  |
+|------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| SequentialWorkFlow           | 전체 성공 / 중간 실패 STOP / 중간 실패 CONTINUE → PartialSuccess 반환 + failedReports 검증 / 전체 실패 CONTINUE → PartialSuccess |
+| ParallelWorkFlow             | 전체 성공 / 일부 실패 / Virtual Threads 실행 확인 / invokeAll timeout 시 미완료 태스크 Failure 처리 / timeout 내 정상 완료       |
+| ConditionalWorkFlow          | true 분기 / false 분기 / otherwise 생략 시 no-op / 중첩 조건                                                                     |
+| RepeatWorkFlow               | 조건 충족 시 반복 / maxIterations 제한 / until 조건                                                                              |
+| RetryWorkFlow                | 성공까지 재시도 / maxAttempts 소진 (총 시도 횟수 = maxAttempts 확인) / 지수 백오프 / maxDelay 상한 / maxRetries 편의 프로퍼티    |
+| WorkContext                  | 스레드 안전 동시 쓰기/읽기 / compute() 원자적 갱신 / merge / snapshot                                                            |
+| NamedWork / NamedSuspendWork | 이름 전달 / SAM 변환 / Work 팩토리 함수                                                                                          |
+| Work/SuspendWork 어댑터      | asSuspend() / asBlocking() 변환 동작                                                                                             |
+| DSL 빌더                     | 중첩 sequential -> parallel -> conditional -> repeat -> retry 구성 / 루트 중복 선언 시 IllegalArgumentException                  |
+| SuspendSequentialFlow        | suspend 순차 전체 성공/실패 / CONTINUE → PartialSuccess 반환 / ensureActive 취소 전파                                            |
+| SuspendParallelFlow          | coroutineScope + async 병렬 실행 / 실패 전파                                                                                     |
+| SuspendConditionalFlow       | suspend predicate true/false / otherwise 생략                                                                                    |
+| SuspendRepeatFlow            | delay 반복 / 코루틴 취소 전파 / ensureActive                                                                                     |
+| SuspendRetryFlow             | suspend 재시도 / delay 백오프 / maxDelay 상한                                                                                    |
+| Flow\<WorkReport\>           | workReportFlow 수집 / 필터링                                                                                                     |
+| WorkReport.PartialSuccess    | status == PARTIAL / failedReports 비어있지 않음 / error가 첫 번째 실패의 error와 동일                                            |
 
 ### 9.3 테스트 파일 구조
 
@@ -1779,12 +1690,14 @@ src/test/kotlin/io/bluetape4k/workflow/
 **v1 결정**: 공유 WorkContext 유지 (브랜치 격리 없음)
 
 **근거**:
+
 - 구현 복잡도 최소화 (merge 정책 설계가 복잡하고 충돌 해결 전략이 다양함)
 - 각 Work가 서로 다른 키를 사용하는 책임은 호출자에게 위임
 - `compute()` API로 atomic read-modify-write 지원하므로 동일 키 갱신도 안전
 
 **향후 확장 (v2 검토)**:
-- `IsolatedParallelWorkFlow`: 각 Work에 context 사본(snapshot) 전달 후 merge 함수 제공
+
+- `IsolatedParallelWorkFlow`: 각 Work에 context 사본 (snapshot) 전달 후 merge 함수 제공
 - merge 정책: last-write-wins, custom merger `(key: String, left: Any, right: Any) -> Any`
 - `SuspendIsolatedParallelFlow`에도 동일 패턴 적용
 
@@ -1792,18 +1705,18 @@ src/test/kotlin/io/bluetape4k/workflow/
 
 ## 11. 향후 확장 고려사항
 
-| 항목 | 설명 | 우선순위 |
-|------|------|----------|
-| `TimeoutWorkFlow` | 시간 제한 워크플로 (Virtual Threads: `Future.get(timeout)`, Coroutines: `withTimeout`) | Medium |
-| `ParallelErrorStrategy.FAIL_FAST` | 첫 실패 시 나머지 작업 취소 | Medium |
-| `ParallelPolicy.AtLeast(n)` — Quorum 패턴 | 현재 `ParallelPolicy`는 `ALL`/`ANY` enum이지만, 향후 sealed class로 교체하여 quorum 패턴 지원. 예: `AtLeast(2)` = 3개 중 2개 이상 성공하면 전체 성공 | Medium |
-| `WorkFlowListener` | 실행 전/후 이벤트 콜백 (로깅, 메트릭) | Low |
-| `WorkReport.Skipped` | 조건 미충족으로 건너뛴 작업 표현 | Low |
-| Resilience4j 통합 | CircuitBreaker/RateLimiter와 Work 데코레이터 | Low |
-| Spring Integration | `@WorkFlow` 어노테이션 + Bean 자동 감지 | Low |
-| 취소/타임아웃 강화 | `SuspendRepeatFlow`/`RepeatWorkFlow`에 선택적 타임아웃 파라미터 | Low |
+| 항목                                      | 설명                                                                                                                                                 | 우선순위 |
+|-------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
+| `TimeoutWorkFlow`                         | 시간 제한 워크플로 (Virtual Threads: `Future.get(timeout)`, Coroutines: `withTimeout`)                                                               | Medium   |
+| `ParallelErrorStrategy.FAIL_FAST`         | 첫 실패 시 나머지 작업 취소                                                                                                                          | Medium   |
+| `ParallelPolicy.AtLeast(n)` — Quorum 패턴 | 현재 `ParallelPolicy`는 `ALL`/`ANY` enum이지만, 향후 sealed class로 교체하여 quorum 패턴 지원. 예: `AtLeast(2)` = 3개 중 2개 이상 성공하면 전체 성공 | Medium   |
+| `WorkFlowListener`                        | 실행 전/후 이벤트 콜백 (로깅, 메트릭)                                                                                                                | Low      |
+| `WorkReport.Skipped`                      | 조건 미충족으로 건너뛴 작업 표현                                                                                                                     | Low      |
+| Resilience4j 통합                         | CircuitBreaker/RateLimiter와 Work 데코레이터                                                                                                         | Low      |
+| Spring Integration                        | `@WorkFlow` 어노테이션 + Bean 자동 감지                                                                                                              | Low      |
+| 취소/타임아웃 강화                        | `SuspendRepeatFlow`/`RepeatWorkFlow`에 선택적 타임아웃 파라미터                                                                                      | Low      |
 
-### 11.1 ParallelPolicy.AtLeast(n) — Quorum 패턴 (v2 검토)
+### 11.1 ParallelPolicy.AtLeast (n) — Quorum 패턴 (v2 검토)
 
 현재 `ParallelPolicy`는 `ALL`/`ANY` enum이지만, 향후 sealed class로 교체하여 quorum 패턴 지원:
 
@@ -1816,6 +1729,7 @@ sealed class ParallelPolicy {
 ```
 
 DSL:
+
 ```kotlin
 parallelAtLeast(2) {   // 3개 중 2개 이상 성공하면 PartialSuccess 아닌 Success
     execute(server1)
@@ -1824,21 +1738,20 @@ parallelAtLeast(2) {   // 3개 중 2개 이상 성공하면 PartialSuccess 아�
 }
 ```
 
-구현: 커스텀 `StructuredTaskScope` 서브클래스 — 성공 카운터가 N에 도달하면 `shutdown()`.
-참고: `ANY` = `AtLeast(1)` 로 통합 가능.
+구현: 커스텀 `StructuredTaskScope` 서브클래스 — 성공 카운터가 N에 도달하면 `shutdown()`. 참고: `ANY` = `AtLeast(1)` 로 통합 가능.
 
 ---
 
 ## 12. 기존 모듈과의 관계
 
-| 모듈 | 관계 |
-|------|------|
-| `bluetape4k-core` | `KLogging`, 유틸리티 의존 |
-| `bluetape4k-coroutines` | `SuspendWork`, `SuspendWorkFlow` 구현에 활용 |
-| `bluetape4k-virtualthread-api` | `ParallelWorkFlow`에서 Virtual Threads 활용 |
-| `bluetape4k-states` | 상호 보완 -- states는 FSM(상태 전이), workflow는 작업 흐름(파이프라인) |
-| `bluetape4k-rule-engine` | 상호 보완 -- rule-engine은 조건-행동, workflow는 흐름 구성 |
-| `bluetape4k-resilience4j` | 향후 RetryWorkFlow -> Resilience4j Retry 어댑터 가능 |
+| 모듈                           | 관계                                                                   |
+|--------------------------------|------------------------------------------------------------------------|
+| `bluetape4k-core`              | `KLogging`, 유틸리티 의존                                              |
+| `bluetape4k-coroutines`        | `SuspendWork`, `SuspendWorkFlow` 구현에 활용                           |
+| `bluetape4k-virtualthread-api` | `ParallelWorkFlow`에서 Virtual Threads 활용                            |
+| `bluetape4k-states`            | 상호 보완 -- states는 FSM(상태 전이), workflow는 작업 흐름(파이프라인) |
+| `bluetape4k-rule-engine`       | 상호 보완 -- rule-engine은 조건-행동, workflow는 흐름 구성             |
+| `bluetape4k-resilience4j`      | 향후 RetryWorkFlow -> Resilience4j Retry 어댑터 가능                   |
 
 ---
 

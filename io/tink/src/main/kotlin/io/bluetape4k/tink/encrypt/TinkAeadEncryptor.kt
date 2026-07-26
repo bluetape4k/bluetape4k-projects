@@ -20,7 +20,7 @@ import io.bluetape4k.tink.aead.TinkAead
  */
 class TinkAeadEncryptor(private val aead: TinkAead): TinkEncryptor {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     override fun encrypt(plaintext: ByteArray): ByteArray = aead.encrypt(plaintext)
 

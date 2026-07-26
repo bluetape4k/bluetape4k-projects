@@ -1,6 +1,7 @@
 package io.bluetape4k.codec
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.EMPTY_STRING
 import io.bluetape4k.support.isNullOrEmpty
 import io.bluetape4k.support.requireGt
 import io.bluetape4k.support.toUtf8Bytes
@@ -61,7 +62,7 @@ object Base58: KLogging() {
      */
     fun encode(source: ByteArray): String {
         if (source.isNullOrEmpty()) {
-            return ""
+            return EMPTY_STRING
         }
 
         val zeros = source.indexOfFirst { it.toInt() != 0 }.let { if (it < 0) source.size else it }

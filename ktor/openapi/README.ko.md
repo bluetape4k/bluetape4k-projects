@@ -2,8 +2,7 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
-Route 동작을 바꾸지 않고 명시적인 문서 route만 추가하려는 애플리케이션을 위한
-선택적 Ktor OpenAPI helper입니다.
+Route 동작을 바꾸지 않고 명시적인 문서 route만 추가하려는 애플리케이션을 위한 선택적 Ktor OpenAPI helper입니다.
 
 ## Route 다이어그램
 
@@ -15,8 +14,7 @@ Route 동작을 바꾸지 않고 명시적인 문서 route만 추가하려는 �
 - `bluetape4kSwaggerUi()`는 Ktor 공식 `swaggerUI()` route를 감쌉니다.
 - 기본 endpoint와 specification 경로는 bluetape4k Ktor 예제와 맞춥니다:
   `openapi`, `swagger`, `openapi/documentation.yaml`.
-- OpenAPI 문서는 애플리케이션이 소유합니다. 정적 YAML, Ktor compiler가 생성한
-  metadata, runtime `.describe {}` metadata, 또는 이들의 조합을 사용할 수 있습니다.
+- OpenAPI 문서는 애플리케이션이 소유합니다. 정적 YAML, Ktor compiler가 생성한 metadata, runtime `.describe {}` metadata, 또는 이들의 조합을 사용할 수 있습니다.
 
 ## 의존성
 
@@ -28,8 +26,7 @@ dependencies {
 
 ## 정적 Specification
 
-`src/main/resources/openapi/documentation.yaml` 같은 문서를 둔 뒤 문서 route를
-명시적으로 연결합니다.
+`src/main/resources/openapi/documentation.yaml` 같은 문서를 둔 뒤 문서 route를 명시적으로 연결합니다.
 
 ```yaml
 openapi: 3.1.0
@@ -58,8 +55,7 @@ fun Application.module() {
 }
 ```
 
-Ktor OpenAPI HTML renderer가 내부적으로 Swagger Codegen에 위임하고 schema map을
-기대하므로 `components.schemas`는 명시해 둡니다.
+Ktor OpenAPI HTML renderer가 내부적으로 Swagger Codegen에 위임하고 schema map을 기대하므로 `components.schemas`는 명시해 둡니다.
 
 ## Runtime Metadata
 

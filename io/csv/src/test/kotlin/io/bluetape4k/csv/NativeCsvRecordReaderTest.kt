@@ -1,12 +1,12 @@
 package io.bluetape4k.csv
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.utils.Resourcex
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.utils.Resourcex
 import org.junit.jupiter.api.Test
 import kotlin.text.Charsets.UTF_8
 
@@ -17,7 +17,7 @@ import kotlin.text.Charsets.UTF_8
  */
 class NativeCsvRecordReaderTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val reader = CsvRecordReader()
 

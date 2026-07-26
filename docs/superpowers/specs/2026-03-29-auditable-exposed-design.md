@@ -9,7 +9,7 @@
 ## 1. 배경 및 목표
 
 JPA `@CreatedBy`, `@CreatedDate`, `@LastModifiedBy`,
-`@LastModifiedDate` 어노테이션이 제공하는 감사(Auditing) 패턴을 Exposed DSL/DAO 기반으로 제공한다. 워크숍 코드를 라이브러리 품질로 승격하면서 다음 목표를 달성한다:
+`@LastModifiedDate` 어노테이션이 제공하는 감사 (Auditing) 패턴을 Exposed DSL/DAO 기반으로 제공한다. 워크숍 코드를 라이브러리 품질로 승격하면서 다음 목표를 달성한다:
 
 1. **DSL 테이블 계층** (`AuditableIdTable` 등) -- `exposed-core`
 2. **DAO 엔티티 계층** (`AuditableEntity` 등) -- `exposed-dao` (기존 `KsuidEntity`, `SnowflakeIdEntity` 등과 동일 모듈)
@@ -63,27 +63,27 @@ io.bluetape4k.exposed.jdbc.repository/
 
 ### 3.1 exposed-core 기존 구조
 
-| 패키지      | 기존 클래스                                                                       | 충돌 여부                                                         |
-|----------|------------------------------------------------------------------------------|---------------------------------------------------------------|
-| `dao.id` | `KsuidTable`, `SnowflakeIdTable`, `SoftDeletedIdTable`, `TimebasedUUIDTable` | **없음** -- 모두 `IdTable<T>`를 직접 상속. Auditable은 별도 패키지           |
+| 패키지   | 기존 클래스                                                                  | 충돌 여부                                                                     |
+|----------|------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| `dao.id` | `KsuidTable`, `SnowflakeIdTable`, `SoftDeletedIdTable`, `TimebasedUUIDTable` | **없음** -- 모두 `IdTable<T>`를 직접 상속. Auditable은 별도 패키지            |
 | `core`   | `HasIdentifier`, `ExposedPage`, `ColumnExtensions`                           | **없음** -- `Auditable`은 `HasIdentifier`와 목적이 다름 (감사 필드 vs 식별자) |
 
 ### 3.2 exposed-jdbc 기존 구조
 
-| 패키지          | 기존 클래스                                        | 충돌 여부                                                                                |
-|--------------|-----------------------------------------------|--------------------------------------------------------------------------------------|
+| 패키지       | 기존 클래스                                   | 충돌 여부                                                                                              |
+|--------------|-----------------------------------------------|--------------------------------------------------------------------------------------------------------|
 | `repository` | `JdbcRepository`, `SoftDeletedJdbcRepository` | **없음** -- `AuditableJdbcRepository`는 `SoftDeletedJdbcRepository` 패턴을 참조하여 동일 방식으로 추가 |
-| (없음)         | --                                            | `auditable` 패키지를 새로 추가하여 `AuditableEntity` 배치                                        |
+| (없음)       | --                                            | `auditable` 패키지를 새로 추가하여 `AuditableEntity` 배치                                              |
 
 > **Note**: `AuditableEntity`는 기존 `KsuidEntity`, `SnowflakeIdEntity` 등과 동일하게 **`exposed-dao`
-** 에 배치한다. DAO 엔티티 계층의 일관성을 유지하며, `exposed-jdbc`는 `exposed-dao`에 `api` 의존하므로 Repository에서도 접근 가능하다.
+> ** 에 배치한다. DAO 엔티티 계층의 일관성을 유지하며, `exposed-jdbc`는 `exposed-dao`에 `api` 의존하므로 Repository에서도 접근 가능하다.
 
 ### 3.3 exposed-dao 기존 구조 (참조)
 
-| 패키지      | 기존 클래스                                                                 | 비고                         |
-|----------|------------------------------------------------------------------------|----------------------------|
+| 패키지   | 기존 클래스                                                            | 비고                              |
+|----------|------------------------------------------------------------------------|-----------------------------------|
 | `dao`    | `EntityExtensions` (`idEquals`, `idHashCode`, `entityToStringBuilder`) | `AuditableEntity`에서 그대로 활용 |
-| `dao.id` | `KsuidEntity`, `SnowflakeIdEntity` 등                                   | 별도 ID 전략, Auditable과 직교    |
+| `dao.id` | `KsuidEntity`, `SnowflakeIdEntity` 등                                  | 별도 ID 전략, Auditable과 직교    |
 
 ### 3.4 의존성 흐름
 
@@ -98,7 +98,7 @@ exposed-jdbc (AuditableJdbcRepository -- exposed-dao에 api 의존)
 기존 `build.gradle.kts` 의존성 구조와 일치하므로 **추가 의존성 변경 불필요**.
 
 > **Note**: `AuditableIdTable`이 `org.jetbrains.exposed.v1.javatime.timestamp`/`CurrentTimestamp`를 사용하므로, `exposed-core`의
-`build.gradle.kts`에 `exposed-java-time` 의존성이 필요하다 (이미 포함된 경우 확인 필요).
+> `build.gradle.kts`에 `exposed-java-time` 의존성이 필요하다 (이미 포함된 경우 확인 필요).
 
 ---
 
@@ -221,7 +221,7 @@ override fun flush(batch: EntityBatchUpdate?): Boolean {
 1. **`writeValues` 의존** -- Exposed 내부 API에 결합. 버전 업에 취약
 2. **생성 판별 로직** -- `createdAt == null`로 신규/수정 구분하는데, DB에서 읽어온 직후 `createdAt != null`이므로 동작은 맞지만 직관적이지 않음
 3. **배치 처리** -- `EntityBatchUpdate` 시 `flush()` 호출 타이밍이 다를 수 있음
-4. **DSL(non-DAO) 사용 불가** -- `Entity.flush()`는 DAO 전용
+4. **DSL (non-DAO) 사용 불가** -- `Entity.flush()`는 DAO 전용
 
 ### 5.2 개선: 계층별 Auditing 전략
 
@@ -251,12 +251,12 @@ abstract class AuditableIdTable<ID : Any>(name: String = "") : IdTable<ID>(name)
 > - DSL 레이어: `defaultExpression(CurrentTimestamp)` = **DB 서버 시간**
 > - DAO 레이어: `flush()`에서 타임스탬프 직접 설정하지 않음 — `createdAt`/`updatedAt` 모두 **DB `CURRENT_TIMESTAMP`** 위임
 >
-> DAO `flush()`는 `createdBy`/`updatedBy`(사용자 정보)만 설정하고, 타임스탬프(`createdAt`/
-`updatedAt`)는 DB 서버 시간에 위임한다. JVM/DB 클럭 불일치 문제가 없으며 전 레이어에서 UTC DB 시간으로 일관성을 유지한다.
+> DAO `flush()`는 `createdBy`/`updatedBy`(사용자 정보)만 설정하고, 타임스탬프 (`createdAt`/
+> `updatedAt`)는 DB 서버 시간에 위임한다. JVM/DB 클럭 불일치 문제가 없으며 전 레이어에서 UTC DB 시간으로 일관성을 유지한다.
 
 #### B. DAO 레이어 (exposed-dao) -- `flush()` 오버라이드 (개선)
 
-타임스탬프(`createdAt`/`updatedAt`)는 DB `CURRENT_TIMESTAMP`로 관리한다. `flush()` 에서는 사용자 정보(`createdBy`/
+타임스탬프 (`createdAt`/`updatedAt`)는 DB `CURRENT_TIMESTAMP`로 관리한다. `flush()` 에서는 사용자 정보 (`createdBy`/
 `updatedBy`)만 설정하고, 타임스탬프는 DB/Repository 레이어에 위임한다.
 
 ```kotlin
@@ -295,13 +295,13 @@ abstract class AuditableEntity<ID : Any>(id: EntityID<ID>) : Entity<ID>(id), Aud
 > - `createdAt`: `AuditableIdTable`의 `defaultExpression(CurrentTimestamp)` — DB가 INSERT 시 UTC 시간 자동 설정
 > - `updatedAt`: `AuditableJdbcRepository.auditedUpdateById()` 내에서
     `it[table.updatedAt] = CurrentTimestamp` 사용 — DB UTC 보장
-> - DAO flush()에서 직접 `Instant.now()`를 사용하지 않으므로 JVM/DB 클럭 불일치 문제 없음
+> - DAO flush ()에서 직접 `Instant.now()`를 사용하지 않으므로 JVM/DB 클럭 불일치 문제 없음
 
 > **`writeValues` 사용 허용 근거**: Exposed DAO 라이브러리의 `Entity` 클래스가 `writeValues`를
-`protected`로 노출하며, DAO 확장 패턴에서 표준적으로 사용됨. Exposed 1.0+ 에서 안정화된 API.
+> `protected`로 노출하며, DAO 확장 패턴에서 표준적으로 사용됨. Exposed 1.0+ 에서 안정화된 API.
 >
 > **버전 종속성 주의**: `writeValues`는 Exposed `Entity` 클래스의
-`protected` 필드로, Exposed 내부 구현에 결합된다. Exposed 메이저 버전 업그레이드 시 API 변경 가능성이 있으므로, 업그레이드 시 이 부분을 우선 검증해야 한다.
+> `protected` 필드로, Exposed 내부 구현에 결합된다. Exposed 메이저 버전 업그레이드 시 API 변경 가능성이 있으므로, 업그레이드 시 이 부분을 우선 검증해야 한다.
 
 #### C. Repository 레이어 (exposed-jdbc) -- UPDATE 시 자동 감사 필드 설정
 
@@ -706,53 +706,53 @@ class AuditableEntityTest : AbstractExposedTest() {
 
 ### Phase 1: Core (exposed-core)
 
-| #   | 태스크                                                                 | 파일                                               |
+| #   | 태스크                                                              | 파일                                             |
 |-----|---------------------------------------------------------------------|--------------------------------------------------|
-| 1.1 | `Auditable` 인터페이스 생성                                                | `exposed-core/.../auditable/Auditable.kt`        |
-| 1.2 | `UserContext` 싱글톤 생성 (ScopedValue + ThreadLocal)                    | `exposed-core/.../auditable/UserContext.kt`      |
-| 1.3 | `AuditableIdTable<ID>` 추상 클래스 생성                                    | `exposed-core/.../auditable/AuditableIdTable.kt` |
+| 1.1 | `Auditable` 인터페이스 생성                                         | `exposed-core/.../auditable/Auditable.kt`        |
+| 1.2 | `UserContext` 싱글톤 생성 (ScopedValue + ThreadLocal)               | `exposed-core/.../auditable/UserContext.kt`      |
+| 1.3 | `AuditableIdTable<ID>` 추상 클래스 생성                             | `exposed-core/.../auditable/AuditableIdTable.kt` |
 | 1.4 | `AuditableIntIdTable`, `AuditableLongIdTable`, `AuditableUUIDTable` | `exposed-core/.../auditable/`                    |
 
 ### Phase 2: DAO Entity (exposed-dao) + Repository (exposed-jdbc)
 
-| #   | 태스크                                                                               | 파일                                                                                                            |
-|-----|-----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
-| 2.1 | `AuditableEntity<ID>` 추상 클래스 생성                                                   | `exposed-dao/.../auditable/AuditableEntity.kt`                                                                |
+| #   | 태스크                                                                            | 파일                                                                                                              |
+|-----|-----------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| 2.1 | `AuditableEntity<ID>` 추상 클래스 생성                                            | `exposed-dao/.../auditable/AuditableEntity.kt`                                                                    |
 | 2.2 | `AuditableIntEntity`, `AuditableLongEntity`, `AuditableUUIDEntity`                | `exposed-dao/.../auditable/AuditableIntEntity.kt`, `AuditableLongEntity.kt`, `AuditableUUIDEntity.kt` (별도 파일) |
-| 2.3 | `AuditableIntEntityClass`, `AuditableLongEntityClass`, `AuditableUUIDEntityClass` | `exposed-dao/.../auditable/AuditableEntityClass.kt`                                                           |
-| 2.4 | `AuditableJdbcRepository` 인터페이스 + 편의 타입 별칭                                        | `exposed-jdbc/.../repository/AuditableJdbcRepository.kt`                                                      |
+| 2.3 | `AuditableIntEntityClass`, `AuditableLongEntityClass`, `AuditableUUIDEntityClass` | `exposed-dao/.../auditable/AuditableEntityClass.kt`                                                               |
+| 2.4 | `AuditableJdbcRepository` 인터페이스 + 편의 타입 별칭                             | `exposed-jdbc/.../repository/AuditableJdbcRepository.kt`                                                          |
 
 ### Phase 3: 테스트
 
-| #   | 태스크                  | 파일                                                         |
-|-----|----------------------|------------------------------------------------------------|
+| #   | 태스크                  | 파일                                                       |
+|-----|-------------------------|------------------------------------------------------------|
 | 3.1 | DSL + Repository 테스트 | `exposed-jdbc/src/test/.../AuditableJdbcRepositoryTest.kt` |
 | 3.2 | DAO Entity 테스트       | `exposed-jdbc/src/test/.../AuditableEntityTest.kt`         |
-| 3.3 | UserContext 단위 테스트   | `exposed-core/src/test/.../UserContextTest.kt`             |
+| 3.3 | UserContext 단위 테스트 | `exposed-core/src/test/.../UserContextTest.kt`             |
 
 ### Phase 4: 문서화
 
-| #   | 태스크                                                                                    |
-|-----|----------------------------------------------------------------------------------------|
-| 4.1 | exposed-core README 업데이트 (Auditable 섹션 추가)                                             |
-| 4.2 | exposed-jdbc README 업데이트 (AuditableEntity, AuditableJdbcRepository 섹션 추가)              |
-| 4.3 | 루트 CLAUDE.md Architecture 섹션 업데이트                                                      |
+| #   | 태스크                                                                                                   |
+|-----|----------------------------------------------------------------------------------------------------------|
+| 4.1 | exposed-core README 업데이트 (Auditable 섹션 추가)                                                       |
+| 4.2 | exposed-jdbc README 업데이트 (AuditableEntity, AuditableJdbcRepository 섹션 추가)                        |
+| 4.3 | 루트 CLAUDE.md Architecture 섹션 업데이트                                                                |
 | 4.4 | `exposed-java-time` 의존성 요구사항 명시 (README에 `exposed-jdbc`가 `exposed-java-time`에 의존함을 기재) |
 
 ---
 
 ## 10. 결정 사항 요약
 
-| 항목                      | 결정                                      | 근거                                                                                                 |
-|-------------------------|-----------------------------------------|----------------------------------------------------------------------------------------------------|
-| UserContext 전략          | ScopedValue 우선 + ThreadLocal fallback   | Java 21 프로젝트이지만 Coroutines 호환 필요                                                                   |
-| `flush()` 유지 여부         | 유지 (DAO 레이어)                            | Exposed DAO 표준 확장 패턴, `writeValues`는 protected API                                                 |
-| `flush()` 생성/수정 분리      | `isNew` 플래그 선캡처 후 `if/else if` 분기       | 생성 시 `updatedAt`/`updatedBy` 미설정 보장                                                                |
-| `createdBy` nullable 여부 | non-nullable (`clientDefault`가 항상 값 제공) | `.clientDefault { }.nullable()` 체인 순서 문제 회피                                                        |
-| 서버/클라이언트 시간             | DB `CURRENT_TIMESTAMP` 통일               | `flush()`에서 `Instant.now()` 사용하지 않음 — JVM/DB 클럭 불일치 방지                                             |
-| 특수 IdTable 조합           | 1차 미제공, 예시 제공                           | 조합 폭발 방지, 사용자 직접 조합 권장                                                                             |
-| Auditable + SoftDeleted | 1차 미제공, 예시 제공                           | 다중 상속 불가, composition 패턴 문서화                                                                       |
-| `createdBy` 컬럼 길이       | 128 (워크숍 50 → 확장)                       | 이메일/OIDC subject 등 긴 식별자 대응                                                                        |
-| Coroutines 확장           | 2차                                      | 1차 스코프 집중, 추후 exposed-jdbc에 추가                                                                     |
-| `AuditableEntity` 배치 위치 | **exposed-dao** (사용자 최종 확인)             | `KsuidEntity`, `SnowflakeIdEntity` 등 DAO 엔티티 계층 선례 준수. exposed-jdbc는 `AuditableJdbcRepository`만 담당 |
-| `writeValues` 안정성       | 사용 허용 + 버전 종속성 주석                       | Exposed 1.0+ protected API, 메이저 업그레이드 시 검증 필요                                                      |
+| 항목                        | 결정                                          | 근거                                                                                                             |
+|-----------------------------|-----------------------------------------------|------------------------------------------------------------------------------------------------------------------|
+| UserContext 전략            | ScopedValue 우선 + ThreadLocal fallback       | Java 21 프로젝트이지만 Coroutines 호환 필요                                                                      |
+| `flush()` 유지 여부         | 유지 (DAO 레이어)                             | Exposed DAO 표준 확장 패턴, `writeValues`는 protected API                                                        |
+| `flush()` 생성/수정 분리    | `isNew` 플래그 선캡처 후 `if/else if` 분기    | 생성 시 `updatedAt`/`updatedBy` 미설정 보장                                                                      |
+| `createdBy` nullable 여부   | non-nullable (`clientDefault`가 항상 값 제공) | `.clientDefault { }.nullable()` 체인 순서 문제 회피                                                              |
+| 서버/클라이언트 시간        | DB `CURRENT_TIMESTAMP` 통일                   | `flush()`에서 `Instant.now()` 사용하지 않음 — JVM/DB 클럭 불일치 방지                                            |
+| 특수 IdTable 조합           | 1차 미제공, 예시 제공                         | 조합 폭발 방지, 사용자 직접 조합 권장                                                                            |
+| Auditable + SoftDeleted     | 1차 미제공, 예시 제공                         | 다중 상속 불가, composition 패턴 문서화                                                                          |
+| `createdBy` 컬럼 길이       | 128 (워크숍 50 → 확장)                        | 이메일/OIDC subject 등 긴 식별자 대응                                                                            |
+| Coroutines 확장             | 2차                                           | 1차 스코프 집중, 추후 exposed-jdbc에 추가                                                                        |
+| `AuditableEntity` 배치 위치 | **exposed-dao** (사용자 최종 확인)            | `KsuidEntity`, `SnowflakeIdEntity` 등 DAO 엔티티 계층 선례 준수. exposed-jdbc는 `AuditableJdbcRepository`만 담당 |
+| `writeValues` 안정성        | 사용 허용 + 버전 종속성 주석                  | Exposed 1.0+ protected API, 메이저 업그레이드 시 검증 필요                                                       |

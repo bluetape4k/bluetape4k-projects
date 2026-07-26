@@ -1,6 +1,7 @@
 # Cassandra Learning Path Introduction Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Cassandra 모듈 landing에서 제공 기능과 다섯 개 상세 학습 장의 가치, 예제, 학습 결과를 바로 이해하고 각 장으로 이동하게 만든다.
 
@@ -20,6 +21,7 @@
 ### Task 1: 한국어 landing을 설명형 학습 경로로 바꾼다
 
 **Files:**
+
 - Modify: `docs/manual/ko/modules/bluetape4k-cassandra.md`
 - Test: `scripts/manual/validate_manuals_test.rb`
 
@@ -81,6 +83,7 @@ Expected: heading과 소개·첫 장·마지막 장 문구가 검색되고 `14 r
 ### Task 2: 영문 landing을 같은 정보 구조로 맞춘다
 
 **Files:**
+
 - Modify: `docs/manual/en/modules/bluetape4k-cassandra.md`
 - Test: `scripts/manual/validate_manuals_test.rb`
 
@@ -160,6 +163,7 @@ Not-tested: Site snapshot and rendered routes"
 ### Task 3: Site 1.11 snapshot을 canonical source로 갱신한다
 
 **Files:**
+
 - Modify: `.manual-sync-generation.json`
 - Modify: `src/content/docs/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra.md`
 - Modify: `src/content/docs/ko/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra.md`

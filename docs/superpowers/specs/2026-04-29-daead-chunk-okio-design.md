@@ -11,7 +11,7 @@ Issue: #240
 - 대용량 입력에서 복호화가 전체 암호문을 메모리에 올리므로 OOM 위험이 있다.
 - 여러 번의 `write()` 호출로 생성된 암호문은 여러 ciphertext가 이어진 형태인데, 기존 `TinkDecryptSource`는 이를 하나의 ciphertext로 복호화하려 하므로 구조적으로 호환되지 않는다.
 
-Issue #240은 기존 API 호환성을 유지하면서 DAEAD(AES-SIV) 기반 청크형 wire format을 새로 제공해 실제 스트리밍 복호화를 가능하게 하는 작업이다.
+Issue #240은 기존 API 호환성을 유지하면서 DAEAD (AES-SIV) 기반 청크형 wire format을 새로 제공해 실제 스트리밍 복호화를 가능하게 하는 작업이다.
 
 ## 요구사항
 
@@ -42,11 +42,13 @@ Issue #240은 기존 API 호환성을 유지하면서 DAEAD(AES-SIV) 기반 청�
 `DaeadChunkEncryptSink`와 `DaeadChunkDecryptSource`를 새로 추가하고 기존 AEAD 기반 `Tink*` 클래스는 그대로 둔다.
 
 장점:
+
 - 기존 API와 wire format을 깨지 않는다.
 - 청크 길이 prefix로 복호화 경계를 명확히 복원한다.
 - DAEAD 전용 보안/결정성 제약을 KDoc과 README에 별도로 설명할 수 있다.
 
 단점:
+
 - 사용자는 기존 `asTink*`와 새 `asDaeadChunk*`의 차이를 이해해야 한다.
 - 기존 `TinkDecryptSource`의 전체로드 동작은 호환성 때문에 남는다.
 
@@ -55,10 +57,12 @@ Issue #240은 기존 API 호환성을 유지하면서 DAEAD(AES-SIV) 기반 청�
 기존 클래스의 write format을 `[len][ciphertext]` 반복으로 바꾸고 복호화도 해당 포맷을 읽게 한다.
 
 장점:
+
 - API 이름은 그대로 유지된다.
 - 기존 사용자 코드 변경량이 적다.
 
 단점:
+
 - 기존 단일 ciphertext 데이터와 호환되지 않는 breaking change다.
 - `TinkEncryptor`는 일반 AEAD와 DAEAD를 모두 감싸므로 결정적 청크 포맷의 보안 특성을 명확히 분리하기 어렵다.
 
@@ -67,11 +71,13 @@ Issue #240은 기존 API 호환성을 유지하면서 DAEAD(AES-SIV) 기반 청�
 Tink의 Streaming AEAD primitive를 노출하거나 내부에서 사용한다.
 
 장점:
+
 - 스트리밍 암호화를 위해 설계된 primitive를 사용한다.
 - 결정성 패턴 노출 문제가 없다.
 
 단점:
-- Issue #240은 DAEAD(AES-SIV) 기반 deterministic chunk format을 명시한다.
+
+- Issue #240은 DAEAD (AES-SIV) 기반 deterministic chunk format을 명시한다.
 - `bluetape4k-tink`에는 현재 Streaming AEAD wrapper가 없다.
 - 새 primitive 도입은 dependency/API 설계 범위가 넓어지고 이번 결함 수정 범위를 넘는다.
 
@@ -80,6 +86,7 @@ Tink의 Streaming AEAD primitive를 노출하거나 내부에서 사용한다.
 옵션 A를 채택한다. 기존 `Tink*` API는 유지하고 `DaeadChunk*` API를 추가한다.
 
 Rejected:
+
 - 옵션 B: 기존 wire format을 깨고 기존 데이터를 읽을 수 없게 만든다.
 - 옵션 C: Issue 요구인 DAEAD deterministic chunk format과 다르며 `bluetape4k-tink` 신규 primitive 설계가 필요하다.
 
@@ -141,15 +148,15 @@ Issue에 제시된 확장 함수는 `associatedData` 기본값으로 그대로 �
 
 ## 리스크와 대응
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| 기존 Tink API와 새 DAEAD API 혼동 | 잘못된 Source/Sink 조합으로 복호화 실패 | 클래스/KDoc/README에 wire format 비호환 명시 |
-| partial chunk가 `close()` 전에 기록되지 않음 | 사용자가 close 누락 시 데이터 손실 | KDoc/README에 `use {}` 권장, 테스트로 close finalize 검증 |
-| 손상된 length header | 과도한 메모리 할당 또는 무한 대기 | 길이 범위 검증, truncated header/body EOF 테스트 |
-| 결정적 암호화 패턴 노출 | 동일 청크 plaintext가 동일 ciphertext로 관찰 가능 | KDoc/README에 DAEAD 결정성 경고와 일반 암호화 필요 시 기존 AEAD API 안내 |
-| associated data 불일치 | 정상 데이터 복호화 실패 | associatedData round-trip과 mismatch 실패 테스트 |
-| mutable associatedData 배열 변경 | 같은 Source/Sink 인스턴스의 인증 컨텍스트 변조 | 생성 시 `copyOf()`로 방어적 복사 |
-| 청크 경계 결정성 | 같은 chunkSize/input/key/AD는 같은 wire bytes 생성 | 테스트로 결정성 확인, 문서에 장단점 기록 |
+| Risk                                         | Impact                                             | Mitigation                                                               |
+|----------------------------------------------|----------------------------------------------------|--------------------------------------------------------------------------|
+| 기존 Tink API와 새 DAEAD API 혼동            | 잘못된 Source/Sink 조합으로 복호화 실패            | 클래스/KDoc/README에 wire format 비호환 명시                             |
+| partial chunk가 `close()` 전에 기록되지 않음 | 사용자가 close 누락 시 데이터 손실                 | KDoc/README에 `use {}` 권장, 테스트로 close finalize 검증                |
+| 손상된 length header                         | 과도한 메모리 할당 또는 무한 대기                  | 길이 범위 검증, truncated header/body EOF 테스트                         |
+| 결정적 암호화 패턴 노출                      | 동일 청크 plaintext가 동일 ciphertext로 관찰 가능  | KDoc/README에 DAEAD 결정성 경고와 일반 암호화 필요 시 기존 AEAD API 안내 |
+| associated data 불일치                       | 정상 데이터 복호화 실패                            | associatedData round-trip과 mismatch 실패 테스트                         |
+| mutable associatedData 배열 변경             | 같은 Source/Sink 인스턴스의 인증 컨텍스트 변조     | 생성 시 `copyOf()`로 방어적 복사                                         |
+| 청크 경계 결정성                             | 같은 chunkSize/input/key/AD는 같은 wire bytes 생성 | 테스트로 결정성 확인, 문서에 장단점 기록                                 |
 
 ## Acceptance Criteria
 

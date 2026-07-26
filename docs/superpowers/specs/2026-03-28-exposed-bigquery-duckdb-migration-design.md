@@ -9,11 +9,10 @@
 
 ## 1. 개요
 
-bluetape4k-experimental 저장소의 `exposed-bigquery`와 `exposed-duckdb` 모듈을 bluetape4k-projects로 이관한다.
-두 모듈 모두 Exposed DSL을 활용하되, 각각 고유한 접근 방식을 취한다:
+bluetape4k-experimental 저장소의 `exposed-bigquery`와 `exposed-duckdb` 모듈을 bluetape4k-projects로 이관한다. 두 모듈 모두 Exposed DSL을 활용하되, 각각 고유한 접근 방식을 취한다:
 
-- **exposed-bigquery**: JDBC 없이 BigQuery REST API로 실행. H2(PostgreSQL 모드)로 SQL 문자열만 생성
-- **exposed-duckdb**: 표준 JDBC 방식이지만, DuckDB JDBC 드라이버의 제약(FK 캐싱 미지원 등)을 래퍼로 해결
+- **exposed-bigquery**: JDBC 없이 BigQuery REST API로 실행. H2 (PostgreSQL 모드)로 SQL 문자열만 생성
+- **exposed-duckdb**: 표준 JDBC 방식이지만, DuckDB JDBC 드라이버의 제약 (FK 캐싱 미지원 등)을 래퍼로 해결
 
 ---
 
@@ -21,42 +20,42 @@ bluetape4k-experimental 저장소의 `exposed-bigquery`와 `exposed-duckdb` 모�
 
 ### 2.1 exposed-bigquery (main: 3파일 498줄, test: 6파일 ~622줄)
 
-| 파일 | 역할 | LOC |
-|------|------|-----|
-| `BigQueryContext.kt` | H2 SQL 생성 + BigQuery REST 실행기, suspend/Flow API, 페이지네이션 자동 처리 | 364 |
-| `BigQueryQueryExecutor.kt` | Query 결과 타입 변환기 + `BigQueryResultRow` 클래스 (타입 안전 컬럼 접근) | 97 |
-| `dialect/BigQueryDialect.kt` | PostgreSQLDialect 상속 | 37 |
+| 파일                         | 역할                                                                         | LOC |
+|------------------------------|------------------------------------------------------------------------------|-----|
+| `BigQueryContext.kt`         | H2 SQL 생성 + BigQuery REST 실행기, suspend/Flow API, 페이지네이션 자동 처리 | 364 |
+| `BigQueryQueryExecutor.kt`   | Query 결과 타입 변환기 + `BigQueryResultRow` 클래스 (타입 안전 컬럼 접근)    | 97  |
+| `dialect/BigQueryDialect.kt` | PostgreSQLDialect 상속                                                       | 37  |
 
 테스트:
 
-| 파일 | 역할 |
-|------|------|
-| `AbstractBigQueryTest.kt` | BigQuery Emulator Testcontainer + 공통 설정 |
-| `BigQueryEmulator.kt` | BigQuery Emulator Testcontainer 정의 |
-| `domain/Events.kt` | 테스트용 테이블 정의 |
-| `query/SelectQueryTest.kt` | BigQueryQueryExecutor 기반 SELECT 테스트 |
-| `query/SelectTest.kt` | BigQueryContext 기반 SELECT 테스트 |
-| `insert/InsertTest.kt` | INSERT 테스트 |
+| 파일                       | 역할                                        |
+|----------------------------|---------------------------------------------|
+| `AbstractBigQueryTest.kt`  | BigQuery Emulator Testcontainer + 공통 설정 |
+| `BigQueryEmulator.kt`      | BigQuery Emulator Testcontainer 정의        |
+| `domain/Events.kt`         | 테스트용 테이블 정의                        |
+| `query/SelectQueryTest.kt` | BigQueryQueryExecutor 기반 SELECT 테스트    |
+| `query/SelectTest.kt`      | BigQueryContext 기반 SELECT 테스트          |
+| `insert/InsertTest.kt`     | INSERT 테스트                               |
 
 ### 2.2 exposed-duckdb (main: 5파일 223줄, test: 5파일 ~390줄)
 
-| 파일 | 역할 | LOC |
-|------|------|-----|
-| `DuckDBDatabase.kt` | 연결 팩토리 (`inMemory()`, `file()`) + 다이얼렉트 등록 | 91 |
-| `DuckDBConnectionWrapper.kt` | JDBC 1.1.3 호환성 래퍼 | 27 |
-| `DuckDBExtensions.kt` | `suspendTransaction`, `queryFlow` 확장 | 69 |
-| `dialect/DuckDBDialect.kt` | PostgreSQLDialect 상속 | 16 |
-| `dialect/DuckDBDialectMetadata.kt` | FK 캐싱 건너뜀 (getImportedKeys 미지원) | 20 |
+| 파일                               | 역할                                                   | LOC |
+|------------------------------------|--------------------------------------------------------|-----|
+| `DuckDBDatabase.kt`                | 연결 팩토리 (`inMemory()`, `file()`) + 다이얼렉트 등록 | 91  |
+| `DuckDBConnectionWrapper.kt`       | JDBC 1.1.3 호환성 래퍼                                 | 27  |
+| `DuckDBExtensions.kt`              | `suspendTransaction`, `queryFlow` 확장                 | 69  |
+| `dialect/DuckDBDialect.kt`         | PostgreSQLDialect 상속                                 | 16  |
+| `dialect/DuckDBDialectMetadata.kt` | FK 캐싱 건너뜀 (getImportedKeys 미지원)                | 20  |
 
 테스트:
 
-| 파일 | 역할 |
-|------|------|
-| `AbstractDuckDBTest.kt` | DuckDB 인메모리 공통 설정 |
+| 파일                      | 역할                                |
+|---------------------------|-------------------------------------|
+| `AbstractDuckDBTest.kt`   | DuckDB 인메모리 공통 설정           |
 | `DuckDBExtensionsTest.kt` | suspendTransaction/queryFlow 테스트 |
-| `domain/Events.kt` | 테스트용 테이블 정의 |
-| `insert/InsertTest.kt` | INSERT 테스트 |
-| `query/SelectTest.kt` | SELECT 테스트 |
+| `domain/Events.kt`        | 테스트용 테이블 정의                |
+| `insert/InsertTest.kt`    | INSERT 테스트                       |
+| `query/SelectTest.kt`     | SELECT 테스트                       |
 
 ---
 
@@ -70,34 +69,35 @@ bluetape4k-experimental 저장소의 `exposed-bigquery`와 `exposed-duckdb` 모�
 - `io.bluetape4k.exposed.duckdb.*` — 그대로 유지
 
 근거:
-- exposed-postgresql(`io.bluetape4k.exposed.postgresql`), exposed-mysql8(`io.bluetape4k.exposed.mysql8`) 패턴과 동일
+
+- exposed-postgresql (`io.bluetape4k.exposed.postgresql`), exposed-mysql8 (`io.bluetape4k.exposed.mysql8`) 패턴과 동일
 - 기존 코드의 import 변경 불필요 → 마이그레이션 비용 최소화
 
 ### 3.2 외부 의존성
 
 #### exposed-bigquery
 
-| 의존성 | Libs.kt (projects) 존재 여부 | 조치 |
-|--------|--------------------------|------|
-| `exposed_core` | O | `exposed_bom` platform 사용 |
-| `exposed_dao` | O | `exposed_bom` platform 사용 |
-| `exposed_jdbc` | O | `compileOnly`로 전환 (SQL 생성용 H2에만 필요) |
-| `exposed_java_time` | O | `compileOnly`로 전환 |
-| `google_api_services_bigquery` | **X — 추가 필요** | `com.google.apis:google-api-services-bigquery:v2-rev20240919-2.0.0` |
-| `h2_v2` | O | `implementation` (내부 SQL 생성용) |
-| `kotlinx_coroutines_core` | O | `api` |
-| `testcontainers_gcloud` | O | `testImplementation` |
+| 의존성                         | Libs.kt (projects) 존재 여부 | 조치                                                                |
+|--------------------------------|------------------------------|---------------------------------------------------------------------|
+| `exposed_core`                 | O                            | `exposed_bom` platform 사용                                         |
+| `exposed_dao`                  | O                            | `exposed_bom` platform 사용                                         |
+| `exposed_jdbc`                 | O                            | `compileOnly`로 전환 (SQL 생성용 H2에만 필요)                       |
+| `exposed_java_time`            | O                            | `compileOnly`로 전환                                                |
+| `google_api_services_bigquery` | **X — 추가 필요**            | `com.google.apis:google-api-services-bigquery:v2-rev20240919-2.0.0` |
+| `h2_v2`                        | O                            | `implementation` (내부 SQL 생성용)                                  |
+| `kotlinx_coroutines_core`      | O                            | `api`                                                               |
+| `testcontainers_gcloud`        | O                            | `testImplementation`                                                |
 
 #### exposed-duckdb
 
-| 의존성 | Libs.kt (projects) 존재 여부 | 조치 |
-|--------|--------------------------|------|
-| `exposed_core` | O | `exposed_bom` platform 사용 |
-| `exposed_dao` | O | `exposed_bom` platform 사용 |
-| `exposed_jdbc` | O | `compileOnly`로 전환 |
-| `exposed_java_time` | O | `compileOnly`로 전환 |
-| `duckdb_jdbc` | **X — 추가 필요** | `org.duckdb:duckdb_jdbc:1.1.3` |
-| `kotlinx_coroutines_core` | O | `api` |
+| 의존성                    | Libs.kt (projects) 존재 여부 | 조치                           |
+|---------------------------|------------------------------|--------------------------------|
+| `exposed_core`            | O                            | `exposed_bom` platform 사용    |
+| `exposed_dao`             | O                            | `exposed_bom` platform 사용    |
+| `exposed_jdbc`            | O                            | `compileOnly`로 전환           |
+| `exposed_java_time`       | O                            | `compileOnly`로 전환           |
+| `duckdb_jdbc`             | **X — 추가 필요**            | `org.duckdb:duckdb_jdbc:1.1.3` |
+| `kotlinx_coroutines_core` | O                            | `api`                          |
 
 ### 3.3 Libs.kt 추가 항목
 
@@ -202,6 +202,7 @@ dependencies {
 ### 3.6 experimental 저장소 처리
 
 이관 완료 후:
+
 - experimental의 `data/exposed-bigquery/`, `data/exposed-duckdb/` 디렉토리 삭제
 - experimental의 `settings.gradle.kts`에서 해당 모듈 include 제거
 
@@ -211,27 +212,27 @@ dependencies {
 
 ### 4.1 exposed-bigquery
 
-| 소스 (experimental) | 대상 (projects) |
-|---------------------|-----------------|
-| `data/exposed-bigquery/src/main/kotlin/io/bluetape4k/exposed/bigquery/BigQueryContext.kt` | 동일 경로 |
-| `data/exposed-bigquery/src/main/kotlin/io/bluetape4k/exposed/bigquery/BigQueryQueryExecutor.kt` | 동일 경로 |
-| `data/exposed-bigquery/src/main/kotlin/io/bluetape4k/exposed/bigquery/dialect/BigQueryDialect.kt` | 동일 경로 |
-| `data/exposed-bigquery/src/test/kotlin/...` (6파일) | 동일 경로 |
-| `data/exposed-bigquery/README.md` | 동일 경로 |
-| `data/exposed-bigquery/build.gradle.kts` | **재작성** (projects 패턴) |
+| 소스 (experimental)                                                                               | 대상 (projects)            |
+|---------------------------------------------------------------------------------------------------|----------------------------|
+| `data/exposed-bigquery/src/main/kotlin/io/bluetape4k/exposed/bigquery/BigQueryContext.kt`         | 동일 경로                  |
+| `data/exposed-bigquery/src/main/kotlin/io/bluetape4k/exposed/bigquery/BigQueryQueryExecutor.kt`   | 동일 경로                  |
+| `data/exposed-bigquery/src/main/kotlin/io/bluetape4k/exposed/bigquery/dialect/BigQueryDialect.kt` | 동일 경로                  |
+| `data/exposed-bigquery/src/test/kotlin/...` (6파일)                                               | 동일 경로                  |
+| `data/exposed-bigquery/README.md`                                                                 | 동일 경로                  |
+| `data/exposed-bigquery/build.gradle.kts`                                                          | **재작성** (projects 패턴) |
 
 ### 4.2 exposed-duckdb
 
-| 소스 (experimental) | 대상 (projects) |
-|---------------------|-----------------|
-| `data/exposed-duckdb/src/main/kotlin/io/bluetape4k/exposed/duckdb/DuckDBDatabase.kt` | 동일 경로 |
-| `data/exposed-duckdb/src/main/kotlin/io/bluetape4k/exposed/duckdb/DuckDBConnectionWrapper.kt` | 동일 경로 |
-| `data/exposed-duckdb/src/main/kotlin/io/bluetape4k/exposed/duckdb/DuckDBExtensions.kt` | 동일 경로 |
-| `data/exposed-duckdb/src/main/kotlin/io/bluetape4k/exposed/duckdb/dialect/DuckDBDialect.kt` | 동일 경로 |
-| `data/exposed-duckdb/src/main/kotlin/io/bluetape4k/exposed/duckdb/dialect/DuckDBDialectMetadata.kt` | 동일 경로 |
-| `data/exposed-duckdb/src/test/kotlin/...` (5파일) | 동일 경로 |
-| `data/exposed-duckdb/README.md` | 동일 경로 |
-| `data/exposed-duckdb/build.gradle.kts` | **재작성** (projects 패턴) |
+| 소스 (experimental)                                                                                 | 대상 (projects)            |
+|-----------------------------------------------------------------------------------------------------|----------------------------|
+| `data/exposed-duckdb/src/main/kotlin/io/bluetape4k/exposed/duckdb/DuckDBDatabase.kt`                | 동일 경로                  |
+| `data/exposed-duckdb/src/main/kotlin/io/bluetape4k/exposed/duckdb/DuckDBConnectionWrapper.kt`       | 동일 경로                  |
+| `data/exposed-duckdb/src/main/kotlin/io/bluetape4k/exposed/duckdb/DuckDBExtensions.kt`              | 동일 경로                  |
+| `data/exposed-duckdb/src/main/kotlin/io/bluetape4k/exposed/duckdb/dialect/DuckDBDialect.kt`         | 동일 경로                  |
+| `data/exposed-duckdb/src/main/kotlin/io/bluetape4k/exposed/duckdb/dialect/DuckDBDialectMetadata.kt` | 동일 경로                  |
+| `data/exposed-duckdb/src/test/kotlin/...` (5파일)                                                   | 동일 경로                  |
+| `data/exposed-duckdb/README.md`                                                                     | 동일 경로                  |
+| `data/exposed-duckdb/build.gradle.kts`                                                              | **재작성** (projects 패턴) |
 
 ---
 
@@ -291,9 +292,11 @@ Architecture > Module Structure > Data Modules 섹션에 추가:
 ## 7. 태스크 목록
 
 ### Phase 1: Libs.kt 의존성 추가
+
 - [ ] `Libs.kt`에 `duckdb_jdbc`, `google_api_services_bigquery` 상수 추가
 
 ### Phase 2: exposed-duckdb 이관 (외부 의존성 없음 → 먼저)
+
 - [ ] `data/exposed-duckdb/` 디렉토리 생성
 - [ ] main 소스 5파일 복사 (패키지 변경 없음)
 - [ ] test 소스 5파일 복사
@@ -303,6 +306,7 @@ Architecture > Module Structure > Data Modules 섹션에 추가:
 - [ ] 테스트 확인: `./gradlew :bluetape4k-exposed-duckdb:test`
 
 ### Phase 3: exposed-bigquery 이관
+
 - [ ] `data/exposed-bigquery/` 디렉토리 생성
 - [ ] main 소스 3파일 복사 (패키지 변경 없음)
 - [ ] test 소스 6파일 복사
@@ -312,8 +316,10 @@ Architecture > Module Structure > Data Modules 섹션에 추가:
 - [ ] 테스트 확인: `./gradlew :bluetape4k-exposed-bigquery:test`
 
 ### Phase 4: 프로젝트 문서 업데이트
+
 - [ ] `CLAUDE.md` Architecture > Data Modules 섹션에 두 모듈 추가
 - [ ] experimental 저장소에서 해당 모듈 삭제 (별도 커밋)
 
 ### Phase 5: 커밋
+
 - [ ] `feat(data): bluetape4k-exposed-bigquery, bluetape4k-exposed-duckdb 모듈 추가 (experimental에서 이관)`

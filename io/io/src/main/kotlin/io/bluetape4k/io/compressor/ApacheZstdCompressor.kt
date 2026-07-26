@@ -2,7 +2,6 @@ package io.bluetape4k.io.compressor
 
 import com.github.luben.zstd.Zstd
 import com.github.luben.zstd.ZstdException
-import io.bluetape4k.io.compressor.ApacheZstdCompressor.Companion.DEFAULT_LEVEL
 import io.bluetape4k.logging.KLogging
 import org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream
 import org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream

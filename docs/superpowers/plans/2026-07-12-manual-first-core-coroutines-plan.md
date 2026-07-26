@@ -1,12 +1,14 @@
 # Core·Coroutines Manual First Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** `bluetape4k-core`와 `bluetape4k-coroutines`를 repository-owned chapter와 diagram을 갖춘 교과서형 매뉴얼로 만들고, site가 이를 검증 가능한 deterministic snapshot으로 게시하게 한다.
 
 **Architecture:** `bluetape4k-projects/docs/manual`이 문서와 diagram의 유일한 기술 원본이다. Manifest schema v2가 module landing, bilingual chapter, paired asset inventory를 선언하고 Ruby validator가 source tree를 검증하며, `bluetape4k.github.io`의 Node sync가 chapter와 asset을 함께 변환·복사·digest한다. 콘텐츠는 현재 Kotlin source와 representative test를 먼저 확인한 뒤 Coroutines, Core 순서로 작성하고 blog는 마지막에 manual route와 canonical asset을 참조하도록 정렬한다.
 
-**Tech Stack:** Ruby 3 + Minitest + YAML, Node.js ESM + `node:test`, Astro/Starlight MDX, Markdown, Kotlin source/tests, SVG 1.1, CairoSVG, `xmllint`, Playwright/browser smoke verification
+**Tech
+Stack:** Ruby 3 + Minitest + YAML, Node.js ESM + `node:test`, Astro/Starlight MDX, Markdown, Kotlin source/tests, SVG 1.1, CairoSVG, `xmllint`, Playwright/browser smoke verification
 
 ---
 
@@ -79,6 +81,7 @@ chapterId: lifecycle
 ### Task 1: Manifest schema v2 validator를 TDD로 확장
 
 **Files:**
+
 - Modify: `scripts/manual/manual_contract.rb`
 - Modify: `scripts/manual/validate_manuals_test.rb`
 - Modify: `scripts/manual/export_manifest_test.rb`
@@ -247,6 +250,7 @@ git commit -m "Validate chaptered manuals as one repository contract" \
 ### Task 2: Core·Coroutines inventory와 chapter skeleton을 등록
 
 **Files:**
+
 - Modify: `docs/manual/manifest.yaml`
 - Modify: `docs/manual/generated/manifest.json`
 - Create: `docs/manual/{ko,en}/modules/bluetape4k-coroutines/{lifecycle,deferred,flow,subjects,structured-concurrency,operations,recipes}.md`
@@ -288,6 +292,7 @@ git commit -m "Give Core and Coroutines stable manual chapter routes" \
 **Repository:** `/Users/debop/work/bluetape4k/bluetape4k.github.io/.worktrees/feature-ecosystem-atlas-manual`
 
 **Files:**
+
 - Modify: `scripts/manual/lib/paths.mjs`
 - Modify: `scripts/manual/lib/frontmatter.mjs`
 - Modify: `scripts/manual/sync-manual.mjs`
@@ -327,7 +332,7 @@ test('publishes repository-owned manual assets under one stable namespace', () =
 
 - [ ] **Step 3: snapshot count와 stale asset cleanup test를 작성한다**
 
-`tests/manual/sync.test.mjs`에 temporary Git repository와 temporary site root를 만드는 helper를 추가한다. Fixture는 landing 2개(en/ko), chapter 2개(en/ko), SVG/PNG 1쌍을 manifest schema v2에 등록하고 initial commit을 만든다. 첫 sync 후 다음을 assertion한다.
+`tests/manual/sync.test.mjs`에 temporary Git repository와 temporary site root를 만드는 helper를 추가한다. Fixture는 landing 2개 (en/ko), chapter 2개 (en/ko), SVG/PNG 1쌍을 manifest schema v2에 등록하고 initial commit을 만든다. 첫 sync 후 다음을 assertion한다.
 
 ```js
 const first = await buildSnapshot({ source });
@@ -414,6 +419,7 @@ git commit -m "Publish manual chapters and assets as one snapshot" \
 **Repository:** Projects worktree
 
 **Files:**
+
 - Modify: `docs/manual/manifest.yaml`
 - Create: `docs/manual/assets/coroutines/{module-foundation,scope-lifecycle,deferred-race-policy,ordered-parallel-flow,subject-contracts,structured-policies,observability-boundaries}.{svg,png}`
 
@@ -485,6 +491,7 @@ git commit -m "Make Coroutines diagrams part of the manual source" \
 ### Task 5: Coroutines lifecycle·deferred chapter를 교과서 수준으로 완성
 
 **Files:**
+
 - Modify: `docs/manual/{ko,en}/modules/bluetape4k-coroutines.md`
 - Modify: `docs/manual/{ko,en}/modules/bluetape4k-coroutines/{lifecycle,deferred}.md`
 
@@ -527,6 +534,7 @@ git commit -m "Teach Coroutines ownership and race semantics from source" \
 ### Task 6: Coroutines Flow·Subject chapter를 완성
 
 **Files:**
+
 - Modify: `docs/manual/{ko,en}/modules/bluetape4k-coroutines/{flow,subjects}.md`
 
 - [ ] **Step 1: ordering, capacity, terminal contract를 source/test에서 확인한다**
@@ -575,6 +583,7 @@ git commit -m "Document Coroutines stream contracts by ordering and delivery" \
 ### Task 7: Coroutines structured·operations·recipes와 landing을 완성
 
 **Files:**
+
 - Modify: `docs/manual/{ko,en}/modules/bluetape4k-coroutines.md`
 - Modify: `docs/manual/{ko,en}/modules/bluetape4k-coroutines/{structured-concurrency,operations,recipes}.md`
 
@@ -622,6 +631,7 @@ git commit -m "Complete the Coroutines manual as an operational guide" \
 **Repository:** Site worktree
 
 **Files:**
+
 - Generated: `src/content/docs/manual/bluetape4k-projects/modules/bluetape4k-coroutines/**`
 - Generated: `src/content/docs/ko/manual/bluetape4k-projects/modules/bluetape4k-coroutines/**`
 - Generated: `public/manual-assets/bluetape4k-projects/coroutines/**`
@@ -678,6 +688,7 @@ git commit -m "Publish the chaptered Coroutines manual snapshot" \
 **Repository:** Projects worktree
 
 **Files:**
+
 - Modify: `docs/manual/manifest.yaml`
 - Create: `docs/manual/assets/core/{validation-boundary,bounded-collection-ordering,concurrent-reducer-capacity,shutdown-order}.{svg,png}`
 - Modify: `docs/manual/{ko,en}/modules/bluetape4k-core/{validation,bounded-collections}.md`
@@ -736,6 +747,7 @@ git commit -m "Explain Core boundaries and bounded state with verified diagrams"
 ### Task 10: Core encoding·time·concurrency·recipes와 landing을 완성
 
 **Files:**
+
 - Modify: `docs/manual/{ko,en}/modules/bluetape4k-core.md`
 - Modify: `docs/manual/{ko,en}/modules/bluetape4k-core/{encoding-data,time-ranges,concurrency-lifecycle,recipes}.md`
 
@@ -792,6 +804,7 @@ git commit -m "Complete the Core manual around invariants and lifecycle" \
 **Repository:** Site worktree
 
 **Files:**
+
 - Generated: `src/content/docs/{ko/,}manual/bluetape4k-projects/modules/bluetape4k-core/**`
 - Generated: `public/manual-assets/bluetape4k-projects/core/**`
 - Generated: `src/data/manual/bluetape4k-projects.{manifest,snapshot}.json`
@@ -833,6 +846,7 @@ git commit -m "Publish the chaptered Core manual snapshot" \
 **Repository:** Site worktree
 
 **Files:**
+
 - Modify: `src/content/docs/{ko/,}blog/bluetape4k-projects-part1-shared-foundation.mdx`
 - Modify: `src/content/docs/{ko/,}blog/bluetape4k-projects-part2-core-coroutines-tests.mdx`
 - Modify: `src/content/docs/{ko/,}blog/bluetape4k-flow-extensions-workshop.mdx`

@@ -1,11 +1,11 @@
 package io.bluetape4k.jackson3
 
-import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.faker.Fakers
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import tools.jackson.databind.json.JsonMapper
 import java.io.Serializable

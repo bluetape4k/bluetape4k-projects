@@ -1,15 +1,15 @@
 package io.bluetape4k.coroutines.flow.extensions.parallel
 
+import io.bluetape4k.assertions.coroutines.assertResult
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.coroutines.flow.extensions.flowRangeOf
 import io.bluetape4k.coroutines.flow.extensions.log
-import io.bluetape4k.assertions.coroutines.assertResult
-import io.bluetape4k.junit5.coroutines.withParallels
 import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.withParallels
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
 
 class ParallelFlowReduceTest {

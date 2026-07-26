@@ -2,7 +2,8 @@
 
 > **작성일**: 2026-04-07  
 > **상태**: Draft  
-> **대상 모듈**: `data/exposed-redis-api` (신규), `data/exposed-jdbc-lettuce`, `data/exposed-jdbc-redisson`, `data/exposed-r2dbc-lettuce`, `data/exposed-r2dbc-redisson`
+> **대상
+모듈**: `data/exposed-redis-api` (신규), `data/exposed-jdbc-lettuce`, `data/exposed-jdbc-redisson`, `data/exposed-r2dbc-lettuce`, `data/exposed-r2dbc-redisson`
 
 ---
 
@@ -10,29 +11,29 @@
 
 ### 1.1 배경
 
-현재 4개 Cache Repository 모듈은 동일한 기능(Exposed + Redis 캐시)을 제공하면서도 인터페이스가 불일치합니다:
+현재 4개 Cache Repository 모듈은 동일한 기능 (Exposed + Redis 캐시)을 제공하면서도 인터페이스가 불일치합니다:
 
-| 차이점 | Lettuce 모듈 | Redisson 모듈 |
-|--------|-------------|---------------|
-| 캐시 조회 | `findById(id)` | `get(id)` |
-| 캐시 저장 | `save(id, entity)` | `put(entity)` |
-| 캐시 삭제 | `delete(id)` / `deleteAll(ids)` | `invalidate(*ids)` / `invalidateAll()` |
-| 캐시 초기화 | `clearCache()` | `invalidateAll()` |
-| 존재 확인 | 없음 | `exists(id)` |
-| DB 건수 조회 | `countFromDb()` | 없음 |
-| 패턴 삭제 | 없음 | `invalidateByPattern(pattern, count)` |
-| Config 타입 | `LettuceCacheConfig` | `RedissonCacheConfig` |
-| Closeable | 구현 | 미구현 |
-| extractId | protected (Abstract에서) | interface 메서드 |
-| toEntity | Abstract에서 정의 | interface 메서드 |
-| batchSize 파라미터 | `saveAll(Map)` 형태 | `putAll(Collection, batchSize)` 형태 |
+| 차이점             | Lettuce 모듈                    | Redisson 모듈                          |
+|--------------------|---------------------------------|----------------------------------------|
+| 캐시 조회          | `findById(id)`                  | `get(id)`                              |
+| 캐시 저장          | `save(id, entity)`              | `put(entity)`                          |
+| 캐시 삭제          | `delete(id)` / `deleteAll(ids)` | `invalidate(*ids)` / `invalidateAll()` |
+| 캐시 초기화        | `clearCache()`                  | `invalidateAll()`                      |
+| 존재 확인          | 없음                            | `exists(id)`                           |
+| DB 건수 조회       | `countFromDb()`                 | 없음                                   |
+| 패턴 삭제          | 없음                            | `invalidateByPattern(pattern, count)`  |
+| Config 타입        | `LettuceCacheConfig`            | `RedissonCacheConfig`                  |
+| Closeable          | 구현                            | 미구현                                 |
+| extractId          | protected (Abstract에서)        | interface 메서드                       |
+| toEntity           | Abstract에서 정의               | interface 메서드                       |
+| batchSize 파라미터 | `saveAll(Map)` 형태             | `putAll(Collection, batchSize)` 형태   |
 
 ### 1.2 목표
 
 1. **인터페이스 통일**: `data/exposed-redis-api` 신규 모듈에 `JdbcCacheRepository` / `R2dbcCacheRepository` 공통 인터페이스 정의
 2. **메서드 합집합**: 양쪽 모듈의 모든 기능을 포함하는 상위 집합 인터페이스 설계
 3. **일관된 명명 규칙**: `javax.cache.Cache` API 관례 기반으로 JDBC/R2DBC 간 동일한 메서드 이름, 인자 구조, Config 패턴 유지
-4. **테스트 표준화**: Redisson 테스트 구조(테이블 2종 x 캐시 2종 x 기법 3종 = 12가지 조합)를 4개 모듈 모두에 적용
+4. **테스트 표준화**: Redisson 테스트 구조 (테이블 2종 x 캐시 2종 x 기법 3종 = 12가지 조합)를 4개 모듈 모두에 적용
 5. **즉시 일괄 마이그레이션**: 기존 인터페이스를 새 인터페이스로 즉시 완전 교체 (1.5.x 최신 버전이므로 하위 호환성 불필요)
 
 ---
@@ -127,7 +128,8 @@ enum class CacheWriteMode {
 }
 ```
 
-> **설계 결정**: 공통 열거형은 인터페이스 수준에서만 사용합니다. 실제 Lettuce/Redisson 구현체에서는 각자의 native Config(`LettuceCacheConfig`, `RedissonCacheConfig`)를 그대로 사용하며, 공통 인터페이스의 `cacheMode`/`cacheWriteMode` 프로퍼티에서 변환합니다.
+> **설계
+결정**: 공통 열거형은 인터페이스 수준에서만 사용합니다. 실제 Lettuce/Redisson 구현체에서는 각자의 native Config (`LettuceCacheConfig`, `RedissonCacheConfig`)를 그대로 사용하며, 공통 인터페이스의 `cacheMode`/`cacheWriteMode` 프로퍼티에서 변환합니다.
 
 ---
 
@@ -135,26 +137,28 @@ enum class CacheWriteMode {
 
 ### 4.1 메서드 명명 규칙 결정
 
-> **근거**: 이 모듈은 Cache 전략(Read-Through, Write-Through, Write-Behind) 용도이므로, Spring Data 관례가 아닌 **`javax.cache.Cache`** API 관례를 따릅니다.
+> **근거**: 이 모듈은 Cache 전략 (Read-Through, Write-Through, Write-Behind) 용도이므로, Spring Data 관례가 아닌
+> **`javax.cache.Cache`** API 관례를 따릅니다.
 
-| 기능 | Lettuce 현재 | Redisson 현재 | **통일 이름** | 근거 |
-|------|-------------|---------------|--------------|------|
-| 캐시 조회 (단건) | `findById` | `get` | **`get(id): E?`** | `javax.cache.Cache.get(K)` 관례 — 캐시 미스 시 DB Read-Through |
-| 캐시 조회 (다건 by ID) | `findAll(ids): Map` | `getAll(ids, batch): List` | **`getAll(ids): Map<ID, E>`** | `javax.cache.Cache.getAll(Set)` 관례 — Map 반환 |
-| 조건부 조회 (DB 쿼리) | `findAll(limit,offset,...)` | `findAll(limit,offset,...)` | **`findAll(limit,offset,...)`** | DB 페이징 쿼리 — 캐시 관련 없으므로 그대로 유지 |
-| 캐시 저장 (단건) | `save(id, entity)` | `put(entity)` | **`put(id, entity)`** | `javax.cache.Cache.put(K, V)` 관례 — Write-Through/Behind 포함 |
-| 캐시 저장 (다건) | `saveAll(Map)` | `putAll(Collection, batch)` | **`putAll(entities: Map<ID, E>, batchSize)`** | `javax.cache.Cache.putAll(Map)` 관례 + batchSize 지원 |
-| 캐시 무효화 (단건) | `delete(id)` | `invalidate(*ids)` | **`invalidate(id)`** | 캐시에서만 제거 (DB 삭제 아님!), "delete"는 DB 삭제를 암시하므로 부적합 |
-| 캐시 무효화 (다건) | `deleteAll(ids)` | `invalidate(*ids)` | **`invalidateAll(ids)`** | 캐시에서만 일괄 제거 (DB 삭제 아님!) |
-| 캐시 전체 삭제 | `clearCache()` | `invalidateAll()` | **`clear()`** | `javax.cache.Cache.clear()` 관례 — 캐시 전체 비우기 |
-| 존재 확인 | 없음 | `exists(id)` | **`containsKey(id)`** | `javax.cache.Cache.containsKey(K)` 관례 |
-| DB 직접 조회 (단건) | 없음 (protected) | 없음 (protected) | **`findByIdFromDb(id): E?`** | 캐시를 거치지 않고 DB에서 직접 조회한다 |
-| DB 직접 조회 (다건) | 없음 (protected) | 없음 (protected) | **`findAllFromDb(ids): List<E>`** | 캐시를 거치지 않고 DB에서 직접 조회한다 |
-| DB 건수 조회 | `countFromDb()` | 없음 | **`countFromDb()`** | DB 전용 메서드, 합집합으로 추가 |
-| 패턴 삭제 | 없음 | `invalidateByPattern` | **`invalidateByPattern(pattern, count)`** | Redisson 전용 확장 인터페이스(`JdbcRedissonCacheRepository`)에만 정의 (LSP 준수) |
-| ID 추출 | protected | interface | **`extractId(entity): ID`** | interface 메서드로 승격 (findAll(where) 결과 캐싱에 필요) |
+| 기능                   | Lettuce 현재                | Redisson 현재               | **통일 이름**                                 | 근거                                                                             |
+|------------------------|-----------------------------|-----------------------------|-----------------------------------------------|----------------------------------------------------------------------------------|
+| 캐시 조회 (단건)       | `findById`                  | `get`                       | **`get(id): E?`**                             | `javax.cache.Cache.get(K)` 관례 — 캐시 미스 시 DB Read-Through                   |
+| 캐시 조회 (다건 by ID) | `findAll(ids): Map`         | `getAll(ids, batch): List`  | **`getAll(ids): Map<ID, E>`**                 | `javax.cache.Cache.getAll(Set)` 관례 — Map 반환                                  |
+| 조건부 조회 (DB 쿼리)  | `findAll(limit,offset,...)` | `findAll(limit,offset,...)` | **`findAll(limit,offset,...)`**               | DB 페이징 쿼리 — 캐시 관련 없으므로 그대로 유지                                  |
+| 캐시 저장 (단건)       | `save(id, entity)`          | `put(entity)`               | **`put(id, entity)`**                         | `javax.cache.Cache.put(K, V)` 관례 — Write-Through/Behind 포함                   |
+| 캐시 저장 (다건)       | `saveAll(Map)`              | `putAll(Collection, batch)` | **`putAll(entities: Map<ID, E>, batchSize)`** | `javax.cache.Cache.putAll(Map)` 관례 + batchSize 지원                            |
+| 캐시 무효화 (단건)     | `delete(id)`                | `invalidate(*ids)`          | **`invalidate(id)`**                          | 캐시에서만 제거 (DB 삭제 아님!), "delete"는 DB 삭제를 암시하므로 부적합          |
+| 캐시 무효화 (다건)     | `deleteAll(ids)`            | `invalidate(*ids)`          | **`invalidateAll(ids)`**                      | 캐시에서만 일괄 제거 (DB 삭제 아님!)                                             |
+| 캐시 전체 삭제         | `clearCache()`              | `invalidateAll()`           | **`clear()`**                                 | `javax.cache.Cache.clear()` 관례 — 캐시 전체 비우기                              |
+| 존재 확인              | 없음                        | `exists(id)`                | **`containsKey(id)`**                         | `javax.cache.Cache.containsKey(K)` 관례                                          |
+| DB 직접 조회 (단건)    | 없음 (protected)            | 없음 (protected)            | **`findByIdFromDb(id): E?`**                  | 캐시를 거치지 않고 DB에서 직접 조회한다                                          |
+| DB 직접 조회 (다건)    | 없음 (protected)            | 없음 (protected)            | **`findAllFromDb(ids): List<E>`**             | 캐시를 거치지 않고 DB에서 직접 조회한다                                          |
+| DB 건수 조회           | `countFromDb()`             | 없음                        | **`countFromDb()`**                           | DB 전용 메서드, 합집합으로 추가                                                  |
+| 패턴 삭제              | 없음                        | `invalidateByPattern`       | **`invalidateByPattern(pattern, count)`**     | Redisson 전용 확장 인터페이스(`JdbcRedissonCacheRepository`)에만 정의 (LSP 준수) |
+| ID 추출                | protected                   | interface                   | **`extractId(entity): ID`**                   | interface 메서드로 승격 (findAll(where) 결과 캐싱에 필요)                        |
 
-> **핵심**: `invalidate`/`invalidateAll`은 **캐시에서만 제거**하는 연산입니다. DB 레코드를 삭제하지 않습니다. Write-Through/Behind 모드에서도 캐시 무효화만 수행합니다.
+> **핵심**: `invalidate`/`invalidateAll`은 **캐시에서만
+제거**하는 연산입니다. DB 레코드를 삭제하지 않습니다. Write-Through/Behind 모드에서도 캐시 무효화만 수행합니다.
 
 ### 4.2 JdbcCacheRepository 인터페이스
 
@@ -358,16 +362,16 @@ interface SuspendedJdbcCacheRepository<ID: Any, E: Serializable> : Closeable {
 
 ### 4.4 Abstract 클래스 계약 (updateEntity / insertEntity)
 
-`JdbcCacheRepository` 인터페이스에는 `UpdateStatement.updateEntity()`와 `BatchInsertStatement.insertEntity()` 메서드가 포함되지 않습니다.
-이 두 메서드는 **Abstract 클래스 레벨**(`AbstractJdbcLettuceRepository`, `AbstractJdbcRedissonRepository`)에 `abstract`로 정의됩니다.
+`JdbcCacheRepository` 인터페이스에는 `UpdateStatement.updateEntity()`와 `BatchInsertStatement.insertEntity()` 메서드가 포함되지 않습니다. 이 두 메서드는
+**Abstract 클래스 레벨**(`AbstractJdbcLettuceRepository`, `AbstractJdbcRedissonRepository`)에 `abstract`로 정의됩니다.
 
 #### 이유
 
 Write-Through/Write-Behind 구현에서 DB에 엔티티를 반영할 때 이 메서드들이 필수적이지만, **인터페이스 수준 통일이 불가능**합니다:
 
-| 구현체 | Write-Through/Behind 메커니즘 |
-|--------|-------------------------------|
-| **Lettuce** | `AbstractJdbcLettuceRepository`가 직접 `updateEntity()` / `insertEntity()`를 호출하여 DB INSERT/UPDATE 수행 |
+| 구현체       | Write-Through/Behind 메커니즘                                                                                                                                |
+|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Lettuce**  | `AbstractJdbcLettuceRepository`가 직접 `updateEntity()` / `insertEntity()`를 호출하여 DB INSERT/UPDATE 수행                                                  |
 | **Redisson** | `MapLoader` / `MapWriter`를 Redisson Config에 외부 설정으로 주입. Redisson이 내부적으로 write-through/behind를 처리하므로, Repository에서 직접 호출하지 않음 |
 
 ```kotlin
@@ -388,7 +392,8 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, E: Serializable>(...) : J
 }
 ```
 
-> **설계 결정**: 공통 인터페이스가 아닌 Abstract 클래스에 유지함으로써, Lettuce/Redisson 구현체가 각자의 write 메커니즘을 자유롭게 선택할 수 있습니다. 하위 클래스 작성자는 자신이 상속하는 Abstract 클래스의 계약만 따르면 됩니다.
+> **설계
+결정**: 공통 인터페이스가 아닌 Abstract 클래스에 유지함으로써, Lettuce/Redisson 구현체가 각자의 write 메커니즘을 자유롭게 선택할 수 있습니다. 하위 클래스 작성자는 자신이 상속하는 Abstract 클래스의 계약만 따르면 됩니다.
 
 ---
 
@@ -398,12 +403,12 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, E: Serializable>(...) : J
 
 R2DBC 버전은 `SuspendedJdbcCacheRepository`와 **동일한 메서드 시그니처**를 사용합니다. 차이점:
 
-| 항목 | SuspendedJdbcCacheRepository | R2dbcCacheRepository |
-|------|------------------------------|----------------------|
-| DB 접근 | `suspendedTransactionAsync(IO)` | `suspendTransaction` (R2DBC) |
-| 패키지 | `io.bluetape4k.exposed.redis.repository` | `io.bluetape4k.exposed.redis.repository` (동일) |
-| Exposed import | `exposed.v1.jdbc.*` | `exposed.v1.r2dbc.*` |
-| toEntity | `fun ResultRow.toEntity(): E` | `suspend fun ResultRow.toEntity(): E` |
+| 항목           | SuspendedJdbcCacheRepository             | R2dbcCacheRepository                            |
+|----------------|------------------------------------------|-------------------------------------------------|
+| DB 접근        | `suspendedTransactionAsync(IO)`          | `suspendTransaction` (R2DBC)                    |
+| 패키지         | `io.bluetape4k.exposed.redis.repository` | `io.bluetape4k.exposed.redis.repository` (동일) |
+| Exposed import | `exposed.v1.jdbc.*`                      | `exposed.v1.r2dbc.*`                            |
+| toEntity       | `fun ResultRow.toEntity(): E`            | `suspend fun ResultRow.toEntity(): E`           |
 
 ```kotlin
 package io.bluetape4k.exposed.redis.repository
@@ -472,8 +477,8 @@ interface R2dbcCacheRepository<ID: Any, E: Serializable> : Closeable {
 
 ### 5.2 Redisson 전용 확장 인터페이스 (invalidateByPattern LSP 해결)
 
-`invalidateByPattern`은 Redisson의 `RMap.keySet(pattern, count)` 기능에 의존하는 Redisson 전용 메서드입니다.
-Lettuce의 `LettuceLoadedMap`은 keySet pattern을 지원하지 않으므로, 공통 인터페이스에 포함하면 **LSP(리스코프 치환 원칙)를 위반**합니다.
+`invalidateByPattern`은 Redisson의 `RMap.keySet(pattern, count)` 기능에 의존하는 Redisson 전용 메서드입니다. Lettuce의 `LettuceLoadedMap`은 keySet pattern을 지원하지 않으므로, 공통 인터페이스에 포함하면
+**LSP (리스코프 치환 원칙)를 위반**합니다.
 
 이를 해결하기 위해, `invalidateByPattern`은 Redisson 전용 확장 인터페이스에만 정의합니다:
 
@@ -593,7 +598,7 @@ dependencies {
 
 기존 `JdbcRedissonRepository` 인터페이스를 제거하고, `AbstractJdbcRedissonRepository`가 `JdbcRedissonCacheRepository`를 직접 구현합니다. `@Deprecated` 브릿지 메서드는 불필요합니다.
 
-기존 메서드명(`findById`, `save`, `delete`, `clearCache` 등)은 새 메서드명(`get`, `put`, `invalidate`, `clear`)으로 즉시 교체됩니다.
+기존 메서드명 (`findById`, `save`, `delete`, `clearCache` 등)은 새 메서드명 (`get`, `put`, `invalidate`, `clear`)으로 즉시 교체됩니다.
 
 #### AbstractJdbcRedissonRepository 변경
 
@@ -663,13 +668,11 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, E: Serializable>(
 
 ### 6.3 Lettuce R2DBC (`exposed-r2dbc-lettuce`)
 
-`R2dbcLettuceRepository` -> `R2dbcCacheRepository` 구현으로 전환.
-패턴은 6.1과 동일하되, 모든 메서드가 `suspend`.
+`R2dbcLettuceRepository` -> `R2dbcCacheRepository` 구현으로 전환. 패턴은 6.1과 동일하되, 모든 메서드가 `suspend`.
 
 ### 6.4 Redisson R2DBC (`exposed-r2dbc-redisson`)
 
-`R2dbcRedissonRepository` -> `R2dbcCacheRepository` 구현으로 전환.
-패턴은 6.2와 동일하되, 모든 메서드가 `suspend`, DB 접근은 `suspendTransaction`.
+`R2dbcRedissonRepository` -> `R2dbcCacheRepository` 구현으로 전환. 패턴은 6.2와 동일하되, 모든 메서드가 `suspend`, DB 접근은 `suspendTransaction`.
 
 ---
 
@@ -679,30 +682,31 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, E: Serializable>(
 
 모든 4개 모듈에서 아래 12가지 조합을 테스트합니다:
 
-| 테이블 종류 | 캐시 저장 방식 | 캐시 기법 | 동기 테스트 | Suspend 테스트 |
-|------------|--------------|----------|:----------:|:-------------:|
-| AutoInc ID | Remote Only | Read-Through | O | O |
-| AutoInc ID | Remote Only | Read & Write-Through | O | O |
-| AutoInc ID | Remote Only | Write-Behind | O | O |
-| AutoInc ID | NearCache | Read-Through | O | O |
-| AutoInc ID | NearCache | Read & Write-Through | O | O |
-| AutoInc ID | NearCache | Write-Behind | O | O |
-| ClientGenerated ID | Remote Only | Read-Through | O | O |
-| ClientGenerated ID | Remote Only | Read & Write-Through | O | O |
-| ClientGenerated ID | Remote Only | Write-Behind | O | O |
-| ClientGenerated ID | NearCache | Read-Through | O | O |
-| ClientGenerated ID | NearCache | Read & Write-Through | O | O |
-| ClientGenerated ID | NearCache | Write-Behind | O | O |
+| 테이블 종류        | 캐시 저장 방식 | 캐시 기법            | 동기 테스트 | Suspend 테스트 |
+|--------------------|----------------|----------------------|:-----------:|:--------------:|
+| AutoInc ID         | Remote Only    | Read-Through         |      O      |       O        |
+| AutoInc ID         | Remote Only    | Read & Write-Through |      O      |       O        |
+| AutoInc ID         | Remote Only    | Write-Behind         |      O      |       O        |
+| AutoInc ID         | NearCache      | Read-Through         |      O      |       O        |
+| AutoInc ID         | NearCache      | Read & Write-Through |      O      |       O        |
+| AutoInc ID         | NearCache      | Write-Behind         |      O      |       O        |
+| ClientGenerated ID | Remote Only    | Read-Through         |      O      |       O        |
+| ClientGenerated ID | Remote Only    | Read & Write-Through |      O      |       O        |
+| ClientGenerated ID | Remote Only    | Write-Behind         |      O      |       O        |
+| ClientGenerated ID | NearCache      | Read-Through         |      O      |       O        |
+| ClientGenerated ID | NearCache      | Read & Write-Through |      O      |       O        |
+| ClientGenerated ID | NearCache      | Write-Behind         |      O      |       O        |
 
 #### 테스트 클래스 수 산정
 
-| 모듈 유형 | 조합 수 | 실행 방식 | 테스트 클래스 수 |
-|-----------|:------:|----------|:-------------:|
-| JDBC 모듈 (jdbc-lettuce, jdbc-redisson) | 12 | 동기 + suspend = 2 | **24개** (모듈당) |
-| R2DBC 모듈 (r2dbc-lettuce, r2dbc-redisson) | 12 | suspend only = 1 | **12개** (모듈당) |
-| **합계 (4개 모듈)** | | | **총 36개 x 2 = 72개** |
+| 모듈 유형                                  | 조합 수 | 실행 방식          |    테스트 클래스 수    |
+|--------------------------------------------|:-------:|--------------------|:----------------------:|
+| JDBC 모듈 (jdbc-lettuce, jdbc-redisson)    |   12    | 동기 + suspend = 2 |   **24개** (모듈당)    |
+| R2DBC 모듈 (r2dbc-lettuce, r2dbc-redisson) |   12    | suspend only = 1   |   **12개** (모듈당)    |
+| **합계 (4개 모듈)**                        |         |                    | **총 36개 x 2 = 72개** |
 
-> **참고**: JDBC 모듈은 동기(`JdbcCacheRepository`)와 suspend(`SuspendedJdbcCacheRepository`) 두 인터페이스를 모두 테스트하므로 2배입니다. R2DBC 모듈은 suspend(`R2dbcCacheRepository`)만 테스트합니다.
+>
+**참고**: JDBC 모듈은 동기 (`JdbcCacheRepository`)와 suspend (`SuspendedJdbcCacheRepository`) 두 인터페이스를 모두 테스트하므로 2배입니다. R2DBC 모듈은 suspend (`R2dbcCacheRepository`)만 테스트합니다.
 
 ### 7.2 공통 테스트 인프라 (testFixtures)
 
@@ -1075,26 +1079,26 @@ class ReadThroughCacheTest {
 
 ### 7.6 현재 각 모듈 테스트 누락 분석
 
-| 테스트 시나리오 | jdbc-lettuce | jdbc-redisson | r2dbc-lettuce | r2dbc-redisson |
-|---------------|:-----------:|:------------:|:------------:|:-------------:|
-| AutoInc + Remote + RT | O | O | O | O |
-| AutoInc + Near + RT | X | O | X | X |
-| AutoInc + Remote + RWT | O | O | O | O |
-| AutoInc + Near + RWT | X | X | X | X |
-| AutoInc + Remote + WB | O | O | O | O |
-| AutoInc + Near + WB | X | X | X | X |
-| ClientGen + Remote + RT | X | O | X | X |
-| ClientGen + Near + RT | X | O | X | X |
-| ClientGen + Remote + RWT | X | O | X | X |
-| ClientGen + Near + RWT | X | X | X | X |
-| ClientGen + Remote + WB | X | O | X | X |
-| ClientGen + Near + WB | X | X | X | X |
-| Suspended + RT | O | O | X | N/A |
-| Suspended + RWT | O | O | X | N/A |
-| Suspended + WB | O | O | X | N/A |
-| containsKey() 테스트 | X | O | X | O |
-| countFromDb() 테스트 | X | X | X | X |
-| invalidateByPattern() 테스트 | X | O | X | O |
+| 테스트 시나리오              | jdbc-lettuce | jdbc-redisson | r2dbc-lettuce | r2dbc-redisson |
+|------------------------------|:------------:|:-------------:|:-------------:|:--------------:|
+| AutoInc + Remote + RT        |      O       |       O       |       O       |       O        |
+| AutoInc + Near + RT          |      X       |       O       |       X       |       X        |
+| AutoInc + Remote + RWT       |      O       |       O       |       O       |       O        |
+| AutoInc + Near + RWT         |      X       |       X       |       X       |       X        |
+| AutoInc + Remote + WB        |      O       |       O       |       O       |       O        |
+| AutoInc + Near + WB          |      X       |       X       |       X       |       X        |
+| ClientGen + Remote + RT      |      X       |       O       |       X       |       X        |
+| ClientGen + Near + RT        |      X       |       O       |       X       |       X        |
+| ClientGen + Remote + RWT     |      X       |       O       |       X       |       X        |
+| ClientGen + Near + RWT       |      X       |       X       |       X       |       X        |
+| ClientGen + Remote + WB      |      X       |       O       |       X       |       X        |
+| ClientGen + Near + WB        |      X       |       X       |       X       |       X        |
+| Suspended + RT               |      O       |       O       |       X       |      N/A       |
+| Suspended + RWT              |      O       |       O       |       X       |      N/A       |
+| Suspended + WB               |      O       |       O       |       X       |      N/A       |
+| containsKey() 테스트         |      X       |       O       |       X       |       O        |
+| countFromDb() 테스트         |      X       |       X       |       X       |       X        |
+| invalidateByPattern() 테스트 |      X       |       O       |       X       |       O        |
 
 > **RT** = Read-Through, **RWT** = Read & Write-Through, **WB** = Write-Behind
 
@@ -1111,14 +1115,14 @@ class ReadThroughCacheTest {
 
 ### 8.2 교체 대상
 
-| 기존 인터페이스 | 교체 후 | 비고 |
-|---------------|--------|------|
-| `JdbcLettuceRepository<ID, E>` | `JdbcCacheRepository<ID, E>` | 파일 제거 |
-| `JdbcRedissonRepository<ID, E>` | `JdbcRedissonCacheRepository<ID, E>` | 파일 제거 |
-| `SuspendedJdbcLettuceRepository<ID, E>` | `SuspendedJdbcCacheRepository<ID, E>` | 파일 제거 |
+| 기존 인터페이스                          | 교체 후                               | 비고      |
+|------------------------------------------|---------------------------------------|-----------|
+| `JdbcLettuceRepository<ID, E>`           | `JdbcCacheRepository<ID, E>`          | 파일 제거 |
+| `JdbcRedissonRepository<ID, E>`          | `JdbcRedissonCacheRepository<ID, E>`  | 파일 제거 |
+| `SuspendedJdbcLettuceRepository<ID, E>`  | `SuspendedJdbcCacheRepository<ID, E>` | 파일 제거 |
 | `SuspendedJdbcRedissonRepository<ID, E>` | `SuspendedJdbcCacheRepository<ID, E>` | 파일 제거 |
-| `R2dbcLettuceRepository<ID, E>` | `R2dbcCacheRepository<ID, E>` | 파일 제거 |
-| `R2dbcRedissonRepository<ID, E>` | `R2dbcRedissonCacheRepository<ID, E>` | 파일 제거 |
+| `R2dbcLettuceRepository<ID, E>`          | `R2dbcCacheRepository<ID, E>`         | 파일 제거 |
+| `R2dbcRedissonRepository<ID, E>`         | `R2dbcRedissonCacheRepository<ID, E>` | 파일 제거 |
 
 ### 8.3 교체 절차
 
@@ -1128,7 +1132,7 @@ class ReadThroughCacheTest {
 4. 기존 인터페이스 파일 **삭제** (`JdbcLettuceRepository`, `JdbcRedissonRepository` 등)
 5. 기존 인터페이스를 참조하던 사용자 코드를 새 인터페이스로 일괄 변경
 6. `@Deprecated` 브릿지 메서드 **불필요** — 생성하지 않음
-7. 기존 메서드명(`findById`, `save`, `delete`, `clearCache` 등)은 새 메서드명(`get`, `put`, `invalidate`, `clear`)으로 즉시 교체
+7. 기존 메서드명 (`findById`, `save`, `delete`, `clearCache` 등)은 새 메서드명 (`get`, `put`, `invalidate`, `clear`)으로 즉시 교체
 8. testFixtures 공통 시나리오 작성 + 누락 테스트 추가를 같은 작업에서 수행
 
 ### 8.4 마이그레이션 주의사항
@@ -1138,14 +1142,14 @@ class ReadThroughCacheTest {
 `AbstractJdbcLettuceRepository`에서 `extractId`가 기존 `protected open`에서 `public override`(인터페이스 메서드)로 변경됩니다.
 
 - **영향 없는 경우**: 기존 하위 클래스에서 `override fun extractId(entity: E): ID`로 구현한 경우, `public override`가 되어도 시그니처 호환됩니다.
-- **주의가 필요한 경우**: `protected` 가시성에 의존하여 외부 호출을 차단하던 코드가 있다면, `extractId`가 public으로 노출됩니다. 다만, 이 메서드는 순수 변환 함수이므로 public 노출의 부작용은 없습니다.
+- **주의가 필요한
+  경우**: `protected` 가시성에 의존하여 외부 호출을 차단하던 코드가 있다면, `extractId`가 public으로 노출됩니다. 다만, 이 메서드는 순수 변환 함수이므로 public 노출의 부작용은 없습니다.
 
 `toEntity()`도 동일하게 인터페이스 메서드로 승격되므로 같은 원칙이 적용됩니다.
 
 #### config 프로퍼티 (Lettuce)
 
-`AbstractJdbcLettuceRepository`의 `config: LettuceCacheConfig` 프로퍼티는 `protected`로 유지합니다.
-공통 인터페이스의 `cacheMode`/`cacheWriteMode`는 `config`에서 변환하여 제공하며, 사용자 코드에서는 공통 인터페이스 프로퍼티를 사용합니다.
+`AbstractJdbcLettuceRepository`의 `config: LettuceCacheConfig` 프로퍼티는 `protected`로 유지합니다. 공통 인터페이스의 `cacheMode`/`cacheWriteMode`는 `config`에서 변환하여 제공하며, 사용자 코드에서는 공통 인터페이스 프로퍼티를 사용합니다.
 
 ```kotlin
 abstract class AbstractJdbcLettuceRepository<ID: Any, E: Serializable>(...) : JdbcCacheRepository<ID, E> {
@@ -1332,19 +1336,19 @@ classDiagram
 
 ## 11. 작업 순서 및 예상 규모
 
-| Task | 내용 | 예상 파일 수 | 우선순위 |
-|------|------|:----------:|:--------:|
-| T1 | `exposed-redis-api` 모듈 생성 + 인터페이스 3개 + Redisson 확장 2개 | ~8 | P0 |
-| T2 | `exposed-redis-api` testFixtures (시나리오 12개) | ~12 | P0 |
-| T3 | `exposed-jdbc-redisson` → 기존 인터페이스 제거 + `JdbcRedissonCacheRepository` 직접 구현 | ~6 | P1 |
-| T4 | `exposed-jdbc-lettuce` → 기존 인터페이스 제거 + `JdbcCacheRepository` 직접 구현 | ~6 | P1 |
-| T5 | `exposed-r2dbc-redisson` → 기존 인터페이스 제거 + `R2dbcRedissonCacheRepository` 직접 구현 | ~6 | P1 |
-| T6 | `exposed-r2dbc-lettuce` → 기존 인터페이스 제거 + `R2dbcCacheRepository` 직접 구현 | ~6 | P1 |
-| T7 | `exposed-jdbc-redisson` 테스트 표준화 (누락 조합 추가) | ~4 | P2 |
-| T8 | `exposed-jdbc-lettuce` 테스트 표준화 (누락 조합 추가) | ~8 | P2 |
-| T9 | `exposed-r2dbc-redisson` 테스트 표준화 | ~8 | P2 |
-| T10 | `exposed-r2dbc-lettuce` 테스트 표준화 | ~8 | P2 |
-| T11 | README.md / README.ko.md 작성 | ~2 | P2 |
+| Task | 내용                                                                                       | 예상 파일 수 | 우선순위 |
+|------|--------------------------------------------------------------------------------------------|:------------:|:--------:|
+| T1   | `exposed-redis-api` 모듈 생성 + 인터페이스 3개 + Redisson 확장 2개                         |      ~8      |    P0    |
+| T2   | `exposed-redis-api` testFixtures (시나리오 12개)                                           |     ~12      |    P0    |
+| T3   | `exposed-jdbc-redisson` → 기존 인터페이스 제거 + `JdbcRedissonCacheRepository` 직접 구현   |      ~6      |    P1    |
+| T4   | `exposed-jdbc-lettuce` → 기존 인터페이스 제거 + `JdbcCacheRepository` 직접 구현            |      ~6      |    P1    |
+| T5   | `exposed-r2dbc-redisson` → 기존 인터페이스 제거 + `R2dbcRedissonCacheRepository` 직접 구현 |      ~6      |    P1    |
+| T6   | `exposed-r2dbc-lettuce` → 기존 인터페이스 제거 + `R2dbcCacheRepository` 직접 구현          |      ~6      |    P1    |
+| T7   | `exposed-jdbc-redisson` 테스트 표준화 (누락 조합 추가)                                     |      ~4      |    P2    |
+| T8   | `exposed-jdbc-lettuce` 테스트 표준화 (누락 조합 추가)                                      |      ~8      |    P2    |
+| T9   | `exposed-r2dbc-redisson` 테스트 표준화                                                     |      ~8      |    P2    |
+| T10  | `exposed-r2dbc-lettuce` 테스트 표준화                                                      |      ~8      |    P2    |
+| T11  | README.md / README.ko.md 작성                                                              |      ~2      |    P2    |
 
 총 예상: **~74 파일** (신규 + 수정)
 
@@ -1354,19 +1358,19 @@ classDiagram
 
 ## 12. 주요 설계 결정 요약
 
-| 결정 | 근거 |
-|---|---|
-| `get`/`getAll` (javax.cache 관례) | `javax.cache.Cache.get(K)` / `getAll(Set)` 관례. Cache 전략 모듈이므로 Spring Data보다 캐시 API 관례가 적합 |
-| `put(id, entity)` / `putAll(map)` | `javax.cache.Cache.put(K, V)` / `putAll(Map)` 관례 + ID 명시로 extractId 의존 제거 |
-| `invalidate`/`invalidateAll` (캐시만 제거) | 캐시에서만 제거하는 연산임을 명확히 표현. `delete`는 DB 삭제를 암시하여 부적합 |
-| `clear()` (javax.cache 관례) | `javax.cache.Cache.clear()` 관례. 캐시 전체 비우기 (DB 영향 없음) |
-| `containsKey` (javax.cache 관례) | `javax.cache.Cache.containsKey(K)` 관례 |
-| `invalidateByPattern`을 Redisson 전용 확장 인터페이스로 분리 | LSP 준수: Lettuce 구현체 치환 시 UnsupportedOperationException 방지 |
-| `UpdateStatement.updateEntity` / `BatchInsertStatement.insertEntity`를 Abstract 클래스에 유지 | Redisson은 MapLoader/MapWriter로 외부 처리하므로 인터페이스 통일 불가 |
-| 엔티티 타입 `E: Serializable` 바운드 추가 | Lettuce/Redisson 분산 캐시 직렬화 요건 명시 |
-| `extractId`를 interface 메서드로 승격 | findAll(where) 결과 캐싱에 필수, protected가 아닌 public 접근 필요 |
-| `countFromDb()` 합집합 포함 | 테스트 검증에 필수적인 유틸리티 메서드 |
-| `putAll(Map, batchSize)` 형태 통일 | Map으로 ID 명시 + batchSize로 대량 처리 제어 |
-| `CacheMode`/`CacheWriteMode` 공통 열거형 | 인터페이스 수준 캐시 전략 조회용, 실제 Config는 각 구현체 native 사용 |
-| testFixtures로 공통 테스트 제공 | 각 모듈이 동일한 시나리오 인터페이스를 implement하여 테스트 일관성 보장 |
-| `Closeable` 모든 인터페이스에 포함 | Lettuce는 RedisClient 연결 해제 필요, Redisson은 기본 no-op |
+| 결정                                                                                          | 근거                                                                                                        |
+|-----------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| `get`/`getAll` (javax.cache 관례)                                                             | `javax.cache.Cache.get(K)` / `getAll(Set)` 관례. Cache 전략 모듈이므로 Spring Data보다 캐시 API 관례가 적합 |
+| `put(id, entity)` / `putAll(map)`                                                             | `javax.cache.Cache.put(K, V)` / `putAll(Map)` 관례 + ID 명시로 extractId 의존 제거                          |
+| `invalidate`/`invalidateAll` (캐시만 제거)                                                    | 캐시에서만 제거하는 연산임을 명확히 표현. `delete`는 DB 삭제를 암시하여 부적합                              |
+| `clear()` (javax.cache 관례)                                                                  | `javax.cache.Cache.clear()` 관례. 캐시 전체 비우기 (DB 영향 없음)                                           |
+| `containsKey` (javax.cache 관례)                                                              | `javax.cache.Cache.containsKey(K)` 관례                                                                     |
+| `invalidateByPattern`을 Redisson 전용 확장 인터페이스로 분리                                  | LSP 준수: Lettuce 구현체 치환 시 UnsupportedOperationException 방지                                         |
+| `UpdateStatement.updateEntity` / `BatchInsertStatement.insertEntity`를 Abstract 클래스에 유지 | Redisson은 MapLoader/MapWriter로 외부 처리하므로 인터페이스 통일 불가                                       |
+| 엔티티 타입 `E: Serializable` 바운드 추가                                                     | Lettuce/Redisson 분산 캐시 직렬화 요건 명시                                                                 |
+| `extractId`를 interface 메서드로 승격                                                         | findAll(where) 결과 캐싱에 필수, protected가 아닌 public 접근 필요                                          |
+| `countFromDb()` 합집합 포함                                                                   | 테스트 검증에 필수적인 유틸리티 메서드                                                                      |
+| `putAll(Map, batchSize)` 형태 통일                                                            | Map으로 ID 명시 + batchSize로 대량 처리 제어                                                                |
+| `CacheMode`/`CacheWriteMode` 공통 열거형                                                      | 인터페이스 수준 캐시 전략 조회용, 실제 Config는 각 구현체 native 사용                                       |
+| testFixtures로 공통 테스트 제공                                                               | 각 모듈이 동일한 시나리오 인터페이스를 implement하여 테스트 일관성 보장                                     |
+| `Closeable` 모든 인터페이스에 포함                                                            | Lettuce는 RedisClient 연결 해제 필요, Redisson은 기본 no-op                                                 |

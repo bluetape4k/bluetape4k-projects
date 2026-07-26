@@ -1,8 +1,8 @@
 # TODO Issue Registration Implementation Plan
 
 > **For agentic workers:
-** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (
-`- [ ]`) syntax for tracking.
+> ** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (
+> `- [ ]`) syntax for tracking.
 
 **Goal:** `TODO.md`에서 바로 실행 가능한 항목 7개를 small issue로, 대형 항목 2개를 Epic issue로 GitHub에 한국어 제목/본문으로 등록한다.
 

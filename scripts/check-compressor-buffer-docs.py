@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 README_PATHS = {
     "en": ROOT / "io/io/README.md",
@@ -88,8 +87,8 @@ def validate_readmes() -> None:
     if en_matrix != ko_matrix:
         fail("README storage matrix row/status parity drift")
     for marker, language in (
-        ("issue-755-kotlin-example", "kotlin"),
-        ("issue-755-java-example", "java"),
+            ("issue-755-kotlin-example", "kotlin"),
+            ("issue-755-java-example", "java"),
     ):
         en_code = extract_code_block(sections["en"][marker], language, f"English {marker}")
         ko_code = extract_code_block(sections["ko"][marker], language, f"Korean {marker}")
@@ -97,9 +96,12 @@ def validate_readmes() -> None:
             fail(f"README {language} example locale parity drift")
     expected_matrix = {
         "LZ4": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "none in the core slice"),
-        "Deflate": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "none in the core slice"),
-        "Snappy": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "none in the core slice"),
-        "Zstd": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "none in the core slice"),
+        "Deflate": ("compatibility fallback", "compatibility fallback", "compatibility fallback",
+                    "none in the core slice"),
+        "Snappy": ("compatibility fallback", "compatibility fallback", "compatibility fallback",
+                   "none in the core slice"),
+        "Zstd": ("compatibility fallback", "compatibility fallback", "compatibility fallback",
+                 "none in the core slice"),
         "Other codecs": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "ineligible"),
     }
     if en_matrix != expected_matrix:

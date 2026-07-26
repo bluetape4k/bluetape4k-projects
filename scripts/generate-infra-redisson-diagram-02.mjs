@@ -1,54 +1,54 @@
 #!/usr/bin/env node
 
-import { writeFileSync } from "node:fs";
+import {writeFileSync} from "node:fs";
 
 const out = "docs/images/readme-diagrams/infra-redisson-diagram-02.svg";
 const W = 1700;
 const H = 1260;
 
 const esc = (s) =>
-  String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
 const lines = [];
 const add = (s) => lines.push(s);
 
 function textLines(items, x, y, cls = "body", gap = 25, anchor = "middle") {
-  items.forEach((line, i) => {
-    add(`<text class="${cls}" x="${x}" y="${y + i * gap}" text-anchor="${anchor}">${esc(line)}</text>`);
-  });
+    items.forEach((line, i) => {
+        add(`<text class="${cls}" x="${x}" y="${y + i * gap}" text-anchor="${anchor}">${esc(line)}</text>`);
+    });
 }
 
 function card(id, x, y, w, h, tone, title, body = []) {
-  add(`<g id="${id}" class="card ${tone}">`);
-  add(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="18"/>`);
-  add(`<text class="cardTitle" x="${x + w / 2}" y="${y + 39}" text-anchor="middle">${esc(title)}</text>`);
-  textLines(body, x + w / 2, y + 74, "cardBody", 25);
-  add(`</g>`);
+    add(`<g id="${id}" class="card ${tone}">`);
+    add(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="18"/>`);
+    add(`<text class="cardTitle" x="${x + w / 2}" y="${y + 39}" text-anchor="middle">${esc(title)}</text>`);
+    textLines(body, x + w / 2, y + 74, "cardBody", 25);
+    add(`</g>`);
 }
 
 function section(x, y, w, h, title, subtitle) {
-  add(`<g class="section">`);
-  add(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="22"/>`);
-  add(`<text class="sectionTitle" x="${x + 34}" y="${y + 48}">${esc(title)}</text>`);
-  add(`<text class="sectionSub" x="${x + 34}" y="${y + 80}">${esc(subtitle)}</text>`);
-  add(`</g>`);
+    add(`<g class="section">`);
+    add(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="22"/>`);
+    add(`<text class="sectionTitle" x="${x + 34}" y="${y + 48}">${esc(title)}</text>`);
+    add(`<text class="sectionSub" x="${x + 34}" y="${y + 80}">${esc(subtitle)}</text>`);
+    add(`</g>`);
 }
 
 function edge(d, cls = "edge", marker = "arrow", label = "", lx = 0, ly = 0) {
-  add(`<path class="${cls}" d="${d}" marker-end="url(#${marker})"/>`);
-  if (label) {
-    add(`<rect class="labelBg" x="${lx - 38}" y="${ly - 18}" width="76" height="27" rx="8"/>`);
-    add(`<text class="edgeLabel" x="${lx}" y="${ly}" text-anchor="middle">${esc(label)}</text>`);
-  }
+    add(`<path class="${cls}" d="${d}" marker-end="url(#${marker})"/>`);
+    if (label) {
+        add(`<rect class="labelBg" x="${lx - 38}" y="${ly - 18}" width="76" height="27" rx="8"/>`);
+        add(`<text class="edgeLabel" x="${lx}" y="${ly}" text-anchor="middle">${esc(label)}</text>`);
+    }
 }
 
 function decision(id, cx, cy, w, h, title, body = []) {
-  const pts = `${cx},${cy - h / 2} ${cx + w / 2},${cy} ${cx},${cy + h / 2} ${cx - w / 2},${cy}`;
-  add(`<g id="${id}" class="decision">`);
-  add(`<polygon points="${pts}"/>`);
-  add(`<text class="cardTitle" x="${cx}" y="${cy - 6}" text-anchor="middle">${esc(title)}</text>`);
-  textLines(body, cx, cy + 20, "cardBody", 22);
-  add(`</g>`);
+    const pts = `${cx},${cy - h / 2} ${cx + w / 2},${cy} ${cx},${cy + h / 2} ${cx - w / 2},${cy}`;
+    add(`<g id="${id}" class="decision">`);
+    add(`<polygon points="${pts}"/>`);
+    add(`<text class="cardTitle" x="${cx}" y="${cy - 6}" text-anchor="middle">${esc(title)}</text>`);
+    textLines(body, cx, cy + 20, "cardBody", 22);
+    add(`</g>`);
 }
 
 add(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}">`);

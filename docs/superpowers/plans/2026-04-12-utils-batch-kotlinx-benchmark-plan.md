@@ -1,12 +1,14 @@
 # bluetape4k-batch benchmark 재구성 Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** `utils/batch`의 legacy JUnit benchmark를 `kotlinx-benchmark` 기반 benchmark source set으로 교체하고, DB별 JDBC/R2DBC 비교 문서를 자동 생성한다.
 
-**Architecture:** `src/benchmark/kotlin` 아래에 DB/driver별 benchmark 클래스를 6개 두고, 공통 시나리오/환경/문서 생성 로직은 `benchmark.support` 패키지로 모은다. benchmark 실행은 `kotlinx-benchmark` custom configuration 6개(`h2Jdbc`, `h2R2dbc`, `postgresJdbc`, `postgresR2dbc`, `mysqlJdbc`, `mysqlR2dbc`)로 분리하고, JSON 결과를 `generateBenchmarkDocs` task가 읽어 `utils/batch/docs/benchmark/*.md` 와 `README.md`/`README.ko.md` 요약 링크를 갱신한다.
+**Architecture:** `src/benchmark/kotlin` 아래에 DB/driver별 benchmark 클래스를 6개 두고, 공통 시나리오/환경/문서 생성 로직은 `benchmark.support` 패키지로 모은다. benchmark 실행은 `kotlinx-benchmark` custom configuration 6개 (`h2Jdbc`, `h2R2dbc`, `postgresJdbc`, `postgresR2dbc`, `mysqlJdbc`, `mysqlR2dbc`)로 분리하고, JSON 결과를 `generateBenchmarkDocs` task가 읽어 `utils/batch/docs/benchmark/*.md` 와 `README.md`/`README.ko.md` 요약 링크를 갱신한다.
 
-**Tech Stack:** Kotlin 2.3, kotlinx-benchmark(JMH), Exposed JDBC/R2DBC, HikariCP, r2dbc-pool, Testcontainers(PostgreSQL/MySQL), Mermaid, Gradle Kotlin DSL
+**Tech
+Stack:** Kotlin 2.3, kotlinx-benchmark (JMH), Exposed JDBC/R2DBC, HikariCP, r2dbc-pool, Testcontainers (PostgreSQL/MySQL), Mermaid, Gradle Kotlin DSL
 
 > **Commit policy:** 이 저장소는 사용자가 명시적으로 요청할 때만 git commit 한다. 아래 계획에는 commit step을 넣지 않는다.
 
@@ -58,6 +60,7 @@ utils/batch/
 ### Task 1: Gradle benchmark wiring 추가
 
 **Files:**
+
 - Modify: `utils/batch/build.gradle.kts`
 
 - [ ] **Step 1: benchmark plugin, source set, allOpen 설정 추가**
@@ -213,6 +216,7 @@ Expected: BUILD SUCCESSFUL
 ### Task 2: benchmark 공통 support 계층 추가
 
 **Files:**
+
 - Create: `utils/batch/src/benchmark/kotlin/io/bluetape4k/batch/benchmark/support/BenchmarkDatabase.kt`
 - Create: `utils/batch/src/benchmark/kotlin/io/bluetape4k/batch/benchmark/support/BenchmarkScenarioParams.kt`
 - Create: `utils/batch/src/benchmark/kotlin/io/bluetape4k/batch/benchmark/support/BenchmarkSchema.kt`
@@ -378,6 +382,7 @@ Expected: BUILD SUCCESSFUL
 ### Task 3: JDBC benchmark 3종 구현
 
 **Files:**
+
 - Create: `utils/batch/src/benchmark/kotlin/io/bluetape4k/batch/benchmark/jdbc/AbstractJdbcBatchBenchmark.kt`
 - Create: `utils/batch/src/benchmark/kotlin/io/bluetape4k/batch/benchmark/jdbc/H2JdbcBatchBenchmark.kt`
 - Create: `utils/batch/src/benchmark/kotlin/io/bluetape4k/batch/benchmark/jdbc/PostgreSqlJdbcBatchBenchmark.kt`
@@ -494,6 +499,7 @@ Expected: BUILD SUCCESSFUL, PostgreSQL Testcontainers가 benchmark 측정 전 �
 ### Task 4: R2DBC benchmark 3종 구현
 
 **Files:**
+
 - Create: `utils/batch/src/benchmark/kotlin/io/bluetape4k/batch/benchmark/r2dbc/AbstractR2dbcBatchBenchmark.kt`
 - Create: `utils/batch/src/benchmark/kotlin/io/bluetape4k/batch/benchmark/r2dbc/H2R2dbcBatchBenchmark.kt`
 - Create: `utils/batch/src/benchmark/kotlin/io/bluetape4k/batch/benchmark/r2dbc/PostgreSqlR2dbcBatchBenchmark.kt`
@@ -603,6 +609,7 @@ Expected: BUILD SUCCESSFUL, PostgreSQL Testcontainers가 benchmark 측정 전 �
 ### Task 5: Markdown exporter와 README 링크를 구현한다
 
 **Files:**
+
 - Create: `utils/batch/src/benchmark/kotlin/io/bluetape4k/batch/benchmark/support/BenchmarkMarkdownExporter.kt`
 - Create: `utils/batch/src/benchmark/kotlin/io/bluetape4k/batch/benchmark/support/BenchmarkDocsGenerator.kt`
 - Create: `utils/batch/docs/benchmark/README.md`
@@ -707,6 +714,7 @@ Expected: `utils/batch/docs/benchmark/README.md`, `README.ko.md`, `h2.md`, `post
 ### Task 6: legacy benchmark를 reference로 남기고 최종 검증/로그를 마무리한다
 
 **Files:**
+
 - Modify: `utils/batch/src/test/kotlin/io/bluetape4k/batch/jdbc/BatchJdbcBenchmarkTest.kt`
 - Modify: `utils/batch/src/test/kotlin/io/bluetape4k/batch/r2dbc/BatchR2dbcBenchmarkTest.kt`
 - Modify: `docs/testlogs/2026-04.md`
@@ -767,6 +775,8 @@ Expected: `docs/benchmark/*.md` 와 `README.md`/`README.ko.md` 링크가 최신 
 
 ## Self-Review
 
-- **Spec coverage:** benchmark source set, 6개 profile, Testcontainers, seed/end-to-end 분리, DB별 문서, Mermaid graph, README 링크, legacy benchmark 유지, testlog/index 갱신까지 모두 작업으로 매핑했다.
+- **Spec
+  coverage:** benchmark source set, 6개 profile, Testcontainers, seed/end-to-end 분리, DB별 문서, Mermaid graph, README 링크, legacy benchmark 유지, testlog/index 갱신까지 모두 작업으로 매핑했다.
 - **Placeholder scan:** `TBD`, `TODO`, `implement later`, 미정 파일명, 미정 task 이름을 쓰지 않았다. build task와 파일 경로는 모두 구체적으로 적었다.
-- **Type consistency:** `BenchmarkDatabase`, `SeedScenarioParams`, `JobScenarioParams`, `JdbcBenchmarkEnvironment`, `R2dbcBenchmarkEnvironment`, `BenchmarkMarkdownExporter`, `BenchmarkDocsGeneratorKt` 이름을 전 구간에서 일관되게 사용했다.
+- **Type
+  consistency:** `BenchmarkDatabase`, `SeedScenarioParams`, `JobScenarioParams`, `JdbcBenchmarkEnvironment`, `R2dbcBenchmarkEnvironment`, `BenchmarkMarkdownExporter`, `BenchmarkDocsGeneratorKt` 이름을 전 구간에서 일관되게 사용했다.

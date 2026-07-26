@@ -1,11 +1,33 @@
 #!/usr/bin/env node
-import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
-const out="docs/images/readme-diagrams/data-hibernate-reactive-diagram-03", W=1580, H=890;
-const c={ink:"#0F172A",muted:"#475569",canvas:"#F8FAFC",frame:"#FFFFFF",line:"#CBD5E1",blue:"#2563EB",teal:"#0D9488",orange:"#EA580C",purple:"#7C3AED"};
-const sources=["data/hibernate-reactive/README.md","data/hibernate-reactive/README.ko.md","data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionFactorySupport.kt","data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionFactorySupport.kt"]; for(const s of sources) if(!existsSync(s)) throw new Error(`Missing source evidence: ${s}`);
-if(!/Session Type Comparison[\s\S]*data-hibernate-reactive-diagram-03\.png/.test(readFileSync(sources[0],"utf8"))) throw new Error("README diagram slot not found");
-const rows=[["Factory unwrap","asMutinySessionFactory()","asStageSessionFactory()"],["Async type","Uni<T>","CompletionStage<T>"],["Coroutine await","awaitSuspending()","await()"],["Callback bridge","async(...).asUni()","async(...).asCompletableFuture()"],["Session scope","withSessionSuspending","withSessionSuspending"],["Transaction scope","withTransactionSuspending","withTransactionSuspending"],["Stateless scope","withStateless*Suspending","withStateless*Suspending"],["Cancellation rule","rethrow CancellationException","rethrow CancellationException"]];
-function esc(v){return String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");}
-const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Reactive session type comparison"><defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity=".10"/></filter><style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${c.canvas}}.frame{fill:${c.frame};stroke:${c.line};stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:42px;fill:${c.ink}}.subtitle,.sectionTitle{font-family:"Comic Mono";font-size:15px;fill:${c.muted}}.table{filter:url(#softShadow)}.head{font-family:"Architects Daughter";font-size:24px;fill:${c.ink}}.cell{font-family:"Comic Mono";font-size:16px;fill:${c.muted}}.rowLabel{font-family:"Comic Mono";font-size:16px;fill:${c.ink}}</style></defs><rect class="canvas" width="${W}" height="${H}"/><rect class="frame" x="34" y="30" width="${W-68}" height="${H-66}" rx="8"/><text class="title" x="76" y="86">Reactive Session API Comparison</text><text class="subtitle" x="78" y="118">Mutiny and Stage expose the same Kotlin naming surface, but keep their native async types and await mechanisms.</text><g class="table" transform="translate(80 165)"><rect x="0" y="0" width="1420" height="660" rx="8" fill="#fff" stroke="${c.line}" stroke-width="1.6"/><rect x="0" y="0" width="1420" height="68" rx="8" fill="#F3F8FF" stroke="${c.line}"/><text class="head" x="230" y="43" text-anchor="middle">Capability</text><text class="head" x="730" y="43" text-anchor="middle" fill="${c.teal}">Mutiny</text><text class="head" x="1190" y="43" text-anchor="middle" fill="${c.blue}">Stage</text><line x1="470" y1="0" x2="470" y2="660" stroke="${c.line}"/><line x1="960" y1="0" x2="960" y2="660" stroke="${c.line}"/>${rows.map((r,i)=>{const y=68+i*74;return `<rect x="0" y="${y}" width="1420" height="74" fill="${i%2?"#FFFFFF":"#F8FAFC"}"/><line x1="0" y1="${y}" x2="1420" y2="${y}" stroke="${c.line}"/><text class="rowLabel" x="30" y="${y+46}">${esc(r[0])}</text><text class="cell" x="500" y="${y+46}">${esc(r[1])}</text><text class="cell" x="990" y="${y+46}">${esc(r[2])}</text>`}).join("")}</g></svg>`;
-writeFileSync(`${out}.svg`, svg.replace(/[ \t]+$/gm,"")); execFileSync(`${process.env.HOME}/.local/bin/cairosvg`, [`${out}.svg`,"-o",`${out}.png`,"-s","2"], {stdio:"inherit"}); console.log(`Generated ${out}.svg`); console.log(`Generated ${out}.png`);
+import {execFileSync} from "node:child_process";
+import {existsSync, readFileSync, writeFileSync} from "node:fs";
+
+const out = "docs/images/readme-diagrams/data-hibernate-reactive-diagram-03", W = 1580, H = 890;
+const c = {
+    ink: "#0F172A",
+    muted: "#475569",
+    canvas: "#F8FAFC",
+    frame: "#FFFFFF",
+    line: "#CBD5E1",
+    blue: "#2563EB",
+    teal: "#0D9488",
+    orange: "#EA580C",
+    purple: "#7C3AED"
+};
+const sources = ["data/hibernate-reactive/README.md", "data/hibernate-reactive/README.ko.md", "data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/mutiny/SessionFactorySupport.kt", "data/hibernate-reactive/src/main/kotlin/io/bluetape4k/hibernate/reactive/stage/SessionFactorySupport.kt"];
+for (const s of sources) if (!existsSync(s)) throw new Error(`Missing source evidence: ${s}`);
+if (!/Session Type Comparison[\s\S]*data-hibernate-reactive-diagram-03\.png/.test(readFileSync(sources[0], "utf8"))) throw new Error("README diagram slot not found");
+const rows = [["Factory unwrap", "asMutinySessionFactory()", "asStageSessionFactory()"], ["Async type", "Uni<T>", "CompletionStage<T>"], ["Coroutine await", "awaitSuspending()", "await()"], ["Callback bridge", "async(...).asUni()", "async(...).asCompletableFuture()"], ["Session scope", "withSessionSuspending", "withSessionSuspending"], ["Transaction scope", "withTransactionSuspending", "withTransactionSuspending"], ["Stateless scope", "withStateless*Suspending", "withStateless*Suspending"], ["Cancellation rule", "rethrow CancellationException", "rethrow CancellationException"]];
+
+function esc(v) {
+    return String(v).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+}
+
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Reactive session type comparison"><defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity=".10"/></filter><style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${c.canvas}}.frame{fill:${c.frame};stroke:${c.line};stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:42px;fill:${c.ink}}.subtitle,.sectionTitle{font-family:"Comic Mono";font-size:15px;fill:${c.muted}}.table{filter:url(#softShadow)}.head{font-family:"Architects Daughter";font-size:24px;fill:${c.ink}}.cell{font-family:"Comic Mono";font-size:16px;fill:${c.muted}}.rowLabel{font-family:"Comic Mono";font-size:16px;fill:${c.ink}}</style></defs><rect class="canvas" width="${W}" height="${H}"/><rect class="frame" x="34" y="30" width="${W - 68}" height="${H - 66}" rx="8"/><text class="title" x="76" y="86">Reactive Session API Comparison</text><text class="subtitle" x="78" y="118">Mutiny and Stage expose the same Kotlin naming surface, but keep their native async types and await mechanisms.</text><g class="table" transform="translate(80 165)"><rect x="0" y="0" width="1420" height="660" rx="8" fill="#fff" stroke="${c.line}" stroke-width="1.6"/><rect x="0" y="0" width="1420" height="68" rx="8" fill="#F3F8FF" stroke="${c.line}"/><text class="head" x="230" y="43" text-anchor="middle">Capability</text><text class="head" x="730" y="43" text-anchor="middle" fill="${c.teal}">Mutiny</text><text class="head" x="1190" y="43" text-anchor="middle" fill="${c.blue}">Stage</text><line x1="470" y1="0" x2="470" y2="660" stroke="${c.line}"/><line x1="960" y1="0" x2="960" y2="660" stroke="${c.line}"/>${rows.map((r, i) => {
+    const y = 68 + i * 74;
+    return `<rect x="0" y="${y}" width="1420" height="74" fill="${i % 2 ? "#FFFFFF" : "#F8FAFC"}"/><line x1="0" y1="${y}" x2="1420" y2="${y}" stroke="${c.line}"/><text class="rowLabel" x="30" y="${y + 46}">${esc(r[0])}</text><text class="cell" x="500" y="${y + 46}">${esc(r[1])}</text><text class="cell" x="990" y="${y + 46}">${esc(r[2])}</text>`
+}).join("")}</g></svg>`;
+writeFileSync(`${out}.svg`, svg.replace(/[ \t]+$/gm, ""));
+execFileSync(`${process.env.HOME}/.local/bin/cairosvg`, [`${out}.svg`, "-o", `${out}.png`, "-s", "2"], {stdio: "inherit"});
+console.log(`Generated ${out}.svg`);
+console.log(`Generated ${out}.png`);

@@ -1,7 +1,7 @@
 package io.bluetape4k.math.linear
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.logging.KLogging
 import org.apache.commons.math3.linear.Array2DRowRealMatrix
 import org.apache.commons.math3.linear.RealMatrix
 import org.junit.jupiter.api.Test

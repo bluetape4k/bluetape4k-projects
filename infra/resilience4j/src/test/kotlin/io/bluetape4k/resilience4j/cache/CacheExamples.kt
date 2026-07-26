@@ -1,5 +1,6 @@
 package io.bluetape4k.resilience4j.cache
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.logging.KLogging
@@ -7,7 +8,6 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.github.resilience4j.cache.Cache
 import io.github.resilience4j.decorators.Decorators
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*

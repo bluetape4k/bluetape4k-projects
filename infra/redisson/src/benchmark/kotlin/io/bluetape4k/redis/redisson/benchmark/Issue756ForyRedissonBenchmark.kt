@@ -100,7 +100,7 @@ abstract class Issue756RedissonDecodeState(
 
         fun sourceBuffer(kind: Issue756RedissonSourceKind, wire: ByteArray): ByteBuf =
             when (kind) {
-                Issue756RedissonSourceKind.HEAP -> PooledByteBufAllocator.DEFAULT.heapBuffer(PREFIX_SIZE + wire.size)
+                Issue756RedissonSourceKind.HEAP   -> PooledByteBufAllocator.DEFAULT.heapBuffer(PREFIX_SIZE + wire.size)
                     .writeZero(PREFIX_SIZE)
                     .setByte(0, PREFIX.toInt())
                     .writeBytes(wire)
@@ -184,28 +184,51 @@ class FastForyCompositeDecodeState: Issue756RedissonDecodeState(
 @Threads(1)
 open class Issue756ForyRedissonBenchmark {
 
-    @Benchmark fun foryHeapDecodeCopiedBaseline(state: ForyHeapDecodeState, blackhole: Blackhole) =
+    @Benchmark
+    fun foryHeapDecodeCopiedBaseline(state: ForyHeapDecodeState, blackhole: Blackhole) =
         state.copiedBaseline(blackhole)
-    @Benchmark fun foryHeapDecodeCandidate(state: ForyHeapDecodeState, blackhole: Blackhole) =
+
+    @Benchmark
+    fun foryHeapDecodeCandidate(state: ForyHeapDecodeState, blackhole: Blackhole) =
         state.candidate(blackhole)
-    @Benchmark fun foryDirectDecodeCopiedBaseline(state: ForyDirectDecodeState, blackhole: Blackhole) =
+
+    @Benchmark
+    fun foryDirectDecodeCopiedBaseline(state: ForyDirectDecodeState, blackhole: Blackhole) =
         state.copiedBaseline(blackhole)
-    @Benchmark fun foryDirectDecodeCandidate(state: ForyDirectDecodeState, blackhole: Blackhole) =
+
+    @Benchmark
+    fun foryDirectDecodeCandidate(state: ForyDirectDecodeState, blackhole: Blackhole) =
         state.candidate(blackhole)
-    @Benchmark fun foryCompositeDecodeCopiedBaseline(state: ForyCompositeDecodeState, blackhole: Blackhole) =
+
+    @Benchmark
+    fun foryCompositeDecodeCopiedBaseline(state: ForyCompositeDecodeState, blackhole: Blackhole) =
         state.copiedBaseline(blackhole)
-    @Benchmark fun foryCompositeDecodeCandidate(state: ForyCompositeDecodeState, blackhole: Blackhole) =
+
+    @Benchmark
+    fun foryCompositeDecodeCandidate(state: ForyCompositeDecodeState, blackhole: Blackhole) =
         state.candidate(blackhole)
-    @Benchmark fun fastForyHeapDecodeCopiedBaseline(state: FastForyHeapDecodeState, blackhole: Blackhole) =
+
+    @Benchmark
+    fun fastForyHeapDecodeCopiedBaseline(state: FastForyHeapDecodeState, blackhole: Blackhole) =
         state.copiedBaseline(blackhole)
-    @Benchmark fun fastForyHeapDecodeCandidate(state: FastForyHeapDecodeState, blackhole: Blackhole) =
+
+    @Benchmark
+    fun fastForyHeapDecodeCandidate(state: FastForyHeapDecodeState, blackhole: Blackhole) =
         state.candidate(blackhole)
-    @Benchmark fun fastForyDirectDecodeCopiedBaseline(state: FastForyDirectDecodeState, blackhole: Blackhole) =
+
+    @Benchmark
+    fun fastForyDirectDecodeCopiedBaseline(state: FastForyDirectDecodeState, blackhole: Blackhole) =
         state.copiedBaseline(blackhole)
-    @Benchmark fun fastForyDirectDecodeCandidate(state: FastForyDirectDecodeState, blackhole: Blackhole) =
+
+    @Benchmark
+    fun fastForyDirectDecodeCandidate(state: FastForyDirectDecodeState, blackhole: Blackhole) =
         state.candidate(blackhole)
-    @Benchmark fun fastForyCompositeDecodeCopiedBaseline(state: FastForyCompositeDecodeState, blackhole: Blackhole) =
+
+    @Benchmark
+    fun fastForyCompositeDecodeCopiedBaseline(state: FastForyCompositeDecodeState, blackhole: Blackhole) =
         state.copiedBaseline(blackhole)
-    @Benchmark fun fastForyCompositeDecodeCandidate(state: FastForyCompositeDecodeState, blackhole: Blackhole) =
+
+    @Benchmark
+    fun fastForyCompositeDecodeCandidate(state: FastForyCompositeDecodeState, blackhole: Blackhole) =
         state.candidate(blackhole)
 }

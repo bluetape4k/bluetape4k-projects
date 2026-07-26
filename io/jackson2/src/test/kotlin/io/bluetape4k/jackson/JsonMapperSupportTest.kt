@@ -1,12 +1,12 @@
 package io.bluetape4k.jackson
 
 import com.fasterxml.jackson.databind.json.JsonMapper
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.Serializable
@@ -233,6 +233,7 @@ class JsonMapperSupportTest {
     @Test
     fun `null 필드를 포함한 data class 직렬화-역직렬화 왕복`() {
         data class NullableData(val name: String?, val value: Int?)
+
         val original = NullableData(null, null)
         val json = mapper.writeValueAsString(original)
         val result = mapper.readValue(json, NullableData::class.java)

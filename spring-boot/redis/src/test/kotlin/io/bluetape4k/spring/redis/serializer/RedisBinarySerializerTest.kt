@@ -27,8 +27,8 @@ class RedisBinarySerializerTest: AbstractRedisSerializerTest() {
             .filter { (propertyName, replacement) ->
                 val deprecation = properties[propertyName]?.findAnnotation<Deprecated>()
                 deprecation == null ||
-                    !deprecation.message.contains("JDK deserialization can expose Redis values to RCE gadget-chain risk") ||
-                    deprecation.replaceWith.expression != replacement
+                        !deprecation.message.contains("JDK deserialization can expose Redis values to RCE gadget-chain risk") ||
+                        deprecation.replaceWith.expression != replacement
             }
             .keys
 

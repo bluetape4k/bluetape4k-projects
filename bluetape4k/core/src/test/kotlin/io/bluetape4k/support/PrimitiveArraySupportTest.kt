@@ -1,8 +1,8 @@
 package io.bluetape4k.support
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
@@ -95,7 +95,7 @@ class PrimitiveArraySupportTest {
 /**
  * 각 primitive 배열 타입의 공통 테스트 시나리오를 표현합니다.
  */
-sealed class ArrayCase<A : Any>(private val name: String) {
+sealed class ArrayCase<A: Any>(private val name: String) {
 
     override fun toString(): String = name
 
@@ -234,7 +234,7 @@ sealed class ArrayCase<A : Any>(private val name: String) {
 
 // ----------------------- Concrete Cases -----------------------
 
-private object ByteCase : ArrayCase<ByteArray>("ByteArray") {
+private object ByteCase: ArrayCase<ByteArray>("ByteArray") {
     override fun sample() = byteArrayOf(1, 2, 3, 4, 5)
     override fun empty() = emptyByteArray
     override fun singleRepeat() = byteArrayOf(1, 2, 3, 4, 3)
@@ -275,13 +275,16 @@ private object ByteCase : ArrayCase<ByteArray>("ByteArray") {
     override fun reverseThis(a: ByteArray, start: Int, end: Int) = a.reverseThis(start, end)
     override fun rotateTo(a: ByteArray, positions: Int) = a.rotateTo(positions)
     override fun rotateThis(a: ByteArray, positions: Int) = a.rotateThis(positions)
-    override fun eq(actual: ByteArray, expected: ByteArray) { actual shouldBeEqualTo expected }
+    override fun eq(actual: ByteArray, expected: ByteArray) {
+        actual shouldBeEqualTo expected
+    }
+
     override fun sizeOf(a: ByteArray) = a.size
     override fun sliceFirst3(a: ByteArray) = a.copyOfRange(0, 3)
     override fun sliceLast2(a: ByteArray) = a.copyOfRange(3, 5)
 }
 
-private object IntCase : ArrayCase<IntArray>("IntArray") {
+private object IntCase: ArrayCase<IntArray>("IntArray") {
     override fun sample() = intArrayOf(1, 2, 3, 4, 5)
     override fun empty() = emptyIntArray
     override fun singleRepeat() = intArrayOf(1, 2, 3, 4, 3)
@@ -322,13 +325,16 @@ private object IntCase : ArrayCase<IntArray>("IntArray") {
     override fun reverseThis(a: IntArray, start: Int, end: Int) = a.reverseThis(start, end)
     override fun rotateTo(a: IntArray, positions: Int) = a.rotateTo(positions)
     override fun rotateThis(a: IntArray, positions: Int) = a.rotateThis(positions)
-    override fun eq(actual: IntArray, expected: IntArray) { actual shouldBeEqualTo expected }
+    override fun eq(actual: IntArray, expected: IntArray) {
+        actual shouldBeEqualTo expected
+    }
+
     override fun sizeOf(a: IntArray) = a.size
     override fun sliceFirst3(a: IntArray) = a.copyOfRange(0, 3)
     override fun sliceLast2(a: IntArray) = a.copyOfRange(3, 5)
 }
 
-private object LongCase : ArrayCase<LongArray>("LongArray") {
+private object LongCase: ArrayCase<LongArray>("LongArray") {
     override fun sample() = longArrayOf(1, 2, 3, 4, 5)
     override fun empty() = emptyLongArray
     override fun singleRepeat() = longArrayOf(1, 2, 3, 4, 3)
@@ -369,13 +375,16 @@ private object LongCase : ArrayCase<LongArray>("LongArray") {
     override fun reverseThis(a: LongArray, start: Int, end: Int) = a.reverseThis(start, end)
     override fun rotateTo(a: LongArray, positions: Int) = a.rotateTo(positions)
     override fun rotateThis(a: LongArray, positions: Int) = a.rotateThis(positions)
-    override fun eq(actual: LongArray, expected: LongArray) { actual shouldBeEqualTo expected }
+    override fun eq(actual: LongArray, expected: LongArray) {
+        actual shouldBeEqualTo expected
+    }
+
     override fun sizeOf(a: LongArray) = a.size
     override fun sliceFirst3(a: LongArray) = a.copyOfRange(0, 3)
     override fun sliceLast2(a: LongArray) = a.copyOfRange(3, 5)
 }
 
-private object FloatCase : ArrayCase<FloatArray>("FloatArray") {
+private object FloatCase: ArrayCase<FloatArray>("FloatArray") {
     override fun sample() = floatArrayOf(1, 2, 3, 4, 5)
     override fun empty() = emptyFloatArray
     override fun singleRepeat() = floatArrayOf(1, 2, 3, 4, 3)
@@ -416,13 +425,16 @@ private object FloatCase : ArrayCase<FloatArray>("FloatArray") {
     override fun reverseThis(a: FloatArray, start: Int, end: Int) = a.reverseThis(start, end)
     override fun rotateTo(a: FloatArray, positions: Int) = a.rotateTo(positions)
     override fun rotateThis(a: FloatArray, positions: Int) = a.rotateThis(positions)
-    override fun eq(actual: FloatArray, expected: FloatArray) { actual shouldBeEqualTo expected }
+    override fun eq(actual: FloatArray, expected: FloatArray) {
+        actual shouldBeEqualTo expected
+    }
+
     override fun sizeOf(a: FloatArray) = a.size
     override fun sliceFirst3(a: FloatArray) = a.copyOfRange(0, 3)
     override fun sliceLast2(a: FloatArray) = a.copyOfRange(3, 5)
 }
 
-private object DoubleCase : ArrayCase<DoubleArray>("DoubleArray") {
+private object DoubleCase: ArrayCase<DoubleArray>("DoubleArray") {
     override fun sample() = doubleArrayOf(1, 2, 3, 4, 5)
     override fun empty() = emptyDoubleArray
     override fun singleRepeat() = doubleArrayOf(1, 2, 3, 4, 3)
@@ -463,7 +475,10 @@ private object DoubleCase : ArrayCase<DoubleArray>("DoubleArray") {
     override fun reverseThis(a: DoubleArray, start: Int, end: Int) = a.reverseThis(start, end)
     override fun rotateTo(a: DoubleArray, positions: Int) = a.rotateTo(positions)
     override fun rotateThis(a: DoubleArray, positions: Int) = a.rotateThis(positions)
-    override fun eq(actual: DoubleArray, expected: DoubleArray) { actual shouldBeEqualTo expected }
+    override fun eq(actual: DoubleArray, expected: DoubleArray) {
+        actual shouldBeEqualTo expected
+    }
+
     override fun sizeOf(a: DoubleArray) = a.size
     override fun sliceFirst3(a: DoubleArray) = a.copyOfRange(0, 3)
     override fun sliceLast2(a: DoubleArray) = a.copyOfRange(3, 5)

@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines
 
-import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
+import org.junit.jupiter.api.Test
 
 class ThreadPoolCoroutineScopeTest: AbstractCoroutineScopeTest() {
 

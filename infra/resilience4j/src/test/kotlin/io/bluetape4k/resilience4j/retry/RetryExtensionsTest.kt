@@ -1,16 +1,16 @@
 package io.bluetape4k.resilience4j.retry
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
-import io.bluetape4k.assertions.assertFailsWith
 
 class RetryExtensionsTest {
 

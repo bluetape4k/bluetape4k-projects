@@ -1,5 +1,7 @@
 package io.bluetape4k.retrofit2
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.http.okhttp3.mock.baseUrl
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.retrofit2.services.TestService
@@ -8,8 +10,6 @@ import io.github.resilience4j.retry.RetryConfig
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

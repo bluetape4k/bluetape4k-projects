@@ -1,19 +1,19 @@
 package io.bluetape4k.spring.tests
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import kotlinx.coroutines.flow.flowOf
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.Nested
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
 import org.springframework.web.client.toEntity
 import kotlin.test.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class RestClientExtensionsTest: AbstractSpringTest() {
     companion object: KLogging()

@@ -11,14 +11,14 @@ import java.time.Instant
 
 class AbstractCassandraModelTest {
 
-    private class StringEntity(private var pk: String? = null) : AbstractCassandraPersistable<String>() {
+    private class StringEntity(private var pk: String? = null): AbstractCassandraPersistable<String>() {
         override fun getId(): String? = pk
         override fun setId(id: String) {
             pk = id
         }
     }
 
-    private class AuditableEntity(private var pk: String? = null) : AbstractCassandraAuditable<String, String>() {
+    private class AuditableEntity(private var pk: String? = null): AbstractCassandraAuditable<String, String>() {
         override fun getId(): String? = pk
         override fun setId(id: String) {
             pk = id

@@ -1,18 +1,18 @@
 package io.bluetape4k.math.ml
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.math.ml.clustering.doublePointOf
-import io.bluetape4k.math.ml.distance.DistanceMeasureMethod
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeNear
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.math.ml.clustering.doublePointOf
+import io.bluetape4k.math.ml.distance.DistanceMeasureMethod
 import org.junit.jupiter.api.Test
 
 class DistanceMeasureMethodTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `Euclidean 거리를 계산할 수 있다`() {

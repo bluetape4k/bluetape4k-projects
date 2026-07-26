@@ -16,8 +16,8 @@ class ParseException(
     val rowNumber: Long,
     val columnNumber: Int,
     val fieldIndex: Int = -1,
-) : RuntimeException("$message (row=$rowNumber, col=$columnNumber, field=$fieldIndex)"), Serializable {
-    companion object : KLogging() {
+): RuntimeException("$message (row=$rowNumber, col=$columnNumber, field=$fieldIndex)"), Serializable {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
     }
 }

@@ -1,48 +1,48 @@
 #!/usr/bin/env node
 
-import { writeFileSync } from "node:fs";
+import {writeFileSync} from "node:fs";
 
 const out = "docs/images/readme-diagrams/infra-redisson-diagram-01.svg";
 const W = 1900;
 const H = 1320;
 
 const esc = (s) =>
-  String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
 const lines = [];
 const add = (s) => lines.push(s);
 
 function textLines(items, x, y, cls = "small", gap = 28, anchor = "middle") {
-  items.forEach((line, i) => {
-    add(`<text class="${cls}" x="${x}" y="${y + i * gap}" text-anchor="${anchor}">${esc(line)}</text>`);
-  });
+    items.forEach((line, i) => {
+        add(`<text class="${cls}" x="${x}" y="${y + i * gap}" text-anchor="${anchor}">${esc(line)}</text>`);
+    });
 }
 
 function card(id, x, y, w, h, tone, title, body = [], opts = {}) {
-  const rx = opts.rx ?? 18;
-  add(`<g id="${id}" class="card ${tone}">`);
-  add(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}"/>`);
-  add(`<text class="cardTitle" x="${x + w / 2}" y="${y + 38}" text-anchor="middle">${esc(title)}</text>`);
-  if (body.length) {
-    textLines(body, x + w / 2, y + 72, "cardBody", 25);
-  }
-  add(`</g>`);
+    const rx = opts.rx ?? 18;
+    add(`<g id="${id}" class="card ${tone}">`);
+    add(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}"/>`);
+    add(`<text class="cardTitle" x="${x + w / 2}" y="${y + 38}" text-anchor="middle">${esc(title)}</text>`);
+    if (body.length) {
+        textLines(body, x + w / 2, y + 72, "cardBody", 25);
+    }
+    add(`</g>`);
 }
 
 function section(x, y, w, h, title, subtitle = "") {
-  add(`<g class="section">`);
-  add(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="20"/>`);
-  add(`<text class="sectionTitle" x="${x + 34}" y="${y + 48}">${esc(title)}</text>`);
-  if (subtitle) add(`<text class="sectionSub" x="${x + 34}" y="${y + 80}">${esc(subtitle)}</text>`);
-  add(`</g>`);
+    add(`<g class="section">`);
+    add(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="20"/>`);
+    add(`<text class="sectionTitle" x="${x + 34}" y="${y + 48}">${esc(title)}</text>`);
+    if (subtitle) add(`<text class="sectionSub" x="${x + 34}" y="${y + 80}">${esc(subtitle)}</text>`);
+    add(`</g>`);
 }
 
 function path(id, d, cls = "edge", marker = "arrow", label = "", lx = 0, ly = 0) {
-  add(`<path id="${id}" class="${cls}" d="${d}" marker-end="url(#${marker})"/>`);
-  if (label) {
-    add(`<rect class="labelBg" x="${lx - 96}" y="${ly - 19}" width="192" height="28" rx="8"/>`);
-    add(`<text class="edgeLabel" x="${lx}" y="${ly}" text-anchor="middle">${esc(label)}</text>`);
-  }
+    add(`<path id="${id}" class="${cls}" d="${d}" marker-end="url(#${marker})"/>`);
+    if (label) {
+        add(`<rect class="labelBg" x="${lx - 96}" y="${ly - 19}" width="192" height="28" rx="8"/>`);
+        add(`<text class="edgeLabel" x="${lx}" y="${ly}" text-anchor="middle">${esc(label)}</text>`);
+    }
 }
 
 add(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}">`);

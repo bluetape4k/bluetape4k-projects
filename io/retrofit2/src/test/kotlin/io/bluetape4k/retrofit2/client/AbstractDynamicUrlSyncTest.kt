@@ -1,5 +1,6 @@
 package io.bluetape4k.retrofit2.client
 
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.retrofit2.AbstractRetrofitTest
@@ -7,7 +8,6 @@ import io.bluetape4k.retrofit2.defaultJsonConverterFactory
 import io.bluetape4k.retrofit2.retrofitOf
 import io.bluetape4k.retrofit2.service
 import io.bluetape4k.retrofit2.services.DynamicUrlService
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 abstract class AbstractDynamicUrlSyncTest: AbstractRetrofitTest() {

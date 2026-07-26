@@ -69,19 +69,21 @@
 **Complexity**: medium
 
 작업:
+
 - `ImageBatchDefaults.kt`에 다음을 정의한다.
-  - `const val DEFAULT_MAX_PIXELS = 16_777_216L`
-  - `const val DEFAULT_MAX_IN_FLIGHT_PIXELS = DEFAULT_MAX_PIXELS * 2`
-  - `const val DEFAULT_MAX_TILE_COUNT = 65_536`
-  - `const val JPEG_QUALITY_MIN = 0`
-  - `const val JPEG_QUALITY_MAX = 100`
-  - `const val PERFORMANCE_SAMPLE_IMAGE_COUNT = 100`
-  - tile 테스트용 상수는 test source set에 정의한다.
-  - `fun defaultImageBatchParallelism(): Int`
+    - `const val DEFAULT_MAX_PIXELS = 16_777_216L`
+    - `const val DEFAULT_MAX_IN_FLIGHT_PIXELS = DEFAULT_MAX_PIXELS * 2`
+    - `const val DEFAULT_MAX_TILE_COUNT = 65_536`
+    - `const val JPEG_QUALITY_MIN = 0`
+    - `const val JPEG_QUALITY_MAX = 100`
+    - `const val PERFORMANCE_SAMPLE_IMAGE_COUNT = 100`
+    - tile 테스트용 상수는 test source set에 정의한다.
+    - `fun defaultImageBatchParallelism(): Int`
 - `ImageBatchFailureStage`, `ImageBatchException`, `ImageBatchResult`, `ImageProcessingOptions`를 추가한다.
 - validation은 기존 `requirePositiveNumber`, `requireInRange` 계열을 우선 재사용한다.
 
 검증:
+
 - `:bluetape4k-images:compileKotlin`
 
 ### T02 — Batch Flow DSL 구현
@@ -89,19 +91,21 @@
 **Complexity**: high
 
 작업:
+
 - `Flow<Path>.processImages(options, block)`와 `Flow<File>.processImages(...)`를 구현한다.
 - per-image 처리 순서:
-  1. decode 전 dimension probe
-  2. pixel permit 획득
-  3. `ioDispatcher`에서 load
-  4. `transformDispatcher`에서 DSL transform 실행
-  5. `Image` 또는 `WritableImage` result 방출
-  6. `finally`에서 permit 해제
+    1. decode 전 dimension probe
+    2. pixel permit 획득
+    3. `ioDispatcher`에서 load
+    4. `transformDispatcher`에서 DSL transform 실행
+    5. `Image` 또는 `WritableImage` result 방출
+    6. `finally`에서 permit 해제
 - `skipFailures = true`는 `Failure` result + warn log + `onFailure` callback을 수행한다.
 - `skipFailures = false`는 `ImageBatchException`을 전파한다.
 - `CancellationException`은 항상 전파한다.
 
 검증:
+
 - 정상 이미지 N개 처리 success count
 - 깨진 이미지 skip
 - `skipFailures = false` 예외 전파
@@ -113,6 +117,7 @@
 **Complexity**: high
 
 작업:
+
 - `resize`, `fit`, `gaussianBlur`, `smartCrop`, `filters` bridge를 제공한다.
 - `watermark(text, ...)`는 기존 text watermark DSL을 위임한다.
 - `watermark(logo, position, alpha)`는 logo image overlay를 구현한다.
@@ -121,6 +126,7 @@
 - `quality`는 `JPEG_QUALITY_MIN..JPEG_QUALITY_MAX`로 검증한다.
 
 검증:
+
 - DSL 선언 순서 유지
 - logo watermark output dimension 유지 및 픽셀 변화 확인
 - writer 중복 지정 실패
@@ -131,11 +137,13 @@
 **Complexity**: medium
 
 작업:
+
 - `WritableImage.writeTo(path, ioDispatcher)` 구현
 - `Image.writeTo(path, writer, ioDispatcher)` 구현
 - 기존 `SuspendImageWriter.suspendWrite`의 고정 dispatcher를 우회하고 지정 dispatcher에서 `writer.write(...)`를 직접 호출한다.
 
 검증:
+
 - JPEG/PNG 쓰기 결과 파일 존재 및 bytes > 0
 - dispatcher 주입 테스트
 
@@ -144,6 +152,7 @@
 **Complexity**: high
 
 작업:
+
 - `ThumbnailSize`, `ThumbnailCrop`, `ThumbnailFormat`, `ThumbnailOutputName`, `ThumbnailStatus`, `ThumbnailResult`를 추가한다.
 - builder에 `sizes`, `format`, `outputDir`, `outputName`, `parallelism`, `ioDispatcher`, `transformDispatcher`, `maxPixels`, `maxInFlightPixels`, `skipFailures`, `onFailure`를 제공한다.
 - output path containment와 duplicate output path를 검증한다.
@@ -151,6 +160,7 @@
 - batch DSL과 동일한 pixel permit 계약을 사용한다.
 
 검증:
+
 - 3개 size 생성
 - SmartCrop size 검증
 - path traversal 거부
@@ -162,6 +172,7 @@
 **Complexity**: high
 
 작업:
+
 - `TileSize`, `ImageTile`, `TileProcessor`를 추가한다.
 - split은 마지막 row/column 크기를 원본 경계에 맞춘다.
 - process는 `Semaphore(parallelism)`으로 동시 실행 tile 수를 제한한다.
@@ -169,6 +180,7 @@
 - `maxPixels`, `maxTileCount`를 상수 기본값으로 사용한다.
 
 검증:
+
 - split geometry
 - 무변환 merge pixel identity
 - tile transform 반영
@@ -180,11 +192,13 @@
 **Complexity**: low
 
 작업:
+
 - `utils/images/README.md`, `README.ko.md`에 batch, thumbnail, tile 섹션을 추가한다.
 - error handling, ordering, dispatcher, memory guard, timeout/cancellation, output path containment를 명시한다.
 - 예제는 writer 지정 후 `writeTo(...)`까지 보여준다.
 
 검증:
+
 - README 링크와 코드 조각 명칭이 실제 API와 일치하는지 `rg`로 확인한다.
 
 ### T08 — 100-image non-gating 성능 로그
@@ -192,11 +206,13 @@
 **Complexity**: low
 
 작업:
+
 - test fixture 복제 또는 synthetic 이미지로 `PERFORMANCE_SAMPLE_IMAGE_COUNT` 입력을 구성한다.
 - `parallelism = 1`과 `parallelism = min(4, availableProcessors)`의 처리 시간을 기록한다.
 - 결과는 assertion이 아니라 `docs/testlogs/2026-04.md`에 환경/입력/시간으로 남긴다.
 
 검증:
+
 - 로그에 입력 수, 이미지 크기, dispatcher, parallelism, 처리 시간이 포함된다.
 
 ### T09 — Superpowers index 갱신
@@ -204,10 +220,12 @@
 **Complexity**: low
 
 작업:
+
 - `docs/superpowers/INDEX.md`
 - `docs/superpowers/index/2026-04.md`
 
 검증:
+
 - spec, plan, research 링크가 모두 상대 경로로 연결된다.
 
 ### T10 — 최종 검증
@@ -222,6 +240,7 @@
 ```
 
 검증 기준:
+
 - compile/test 통과
 - public API KDoc 누락 없음
 - spec DoD 항목과 plan task가 모두 충족됨
@@ -243,10 +262,10 @@
 
 ## 5. 리스크와 대응
 
-| Risk | 대응 |
-|------|------|
+| Risk                                      | 대응                                                                    |
+|-------------------------------------------|-------------------------------------------------------------------------|
 | Dispatcher 옵션이 실제 실행 경로와 어긋남 | `suspendApplyFilters`/`suspendWrite` 대신 지정 dispatcher에서 직접 실행 |
-| image watermark가 과도한 API가 됨 | 위치/alpha만 1차 지원, resize는 caller 책임 |
-| pixel permit 누수 | permit 획득/해제 테스트와 cancellation 테스트 추가 |
-| thumbnail path traversal | 파일명 전략 결과를 normalize 후 outputDir containment 검증 |
-| 성능 테스트 flaky | CI pass/fail 기준이 아닌 testlog 기록으로 제한 |
+| image watermark가 과도한 API가 됨         | 위치/alpha만 1차 지원, resize는 caller 책임                             |
+| pixel permit 누수                         | permit 획득/해제 테스트와 cancellation 테스트 추가                      |
+| thumbnail path traversal                  | 파일명 전략 결과를 normalize 후 outputDir containment 검증              |
+| 성능 테스트 flaky                         | CI pass/fail 기준이 아닌 testlog 기록으로 제한                          |

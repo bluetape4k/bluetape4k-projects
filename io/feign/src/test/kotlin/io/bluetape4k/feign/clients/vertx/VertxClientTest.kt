@@ -6,10 +6,10 @@ import feign.slf4j.Slf4jLogger
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.feign.defaultRequestOptions
-import io.bluetape4k.feign.feignRequestOf
 import io.bluetape4k.feign.clients.AbstractClientTest
+import io.bluetape4k.feign.defaultRequestOptions
 import io.bluetape4k.feign.feignBuilder
+import io.bluetape4k.feign.feignRequestOf
 import io.bluetape4k.logging.KLogging
 import io.vertx.core.Vertx
 import org.junit.jupiter.api.Assumptions

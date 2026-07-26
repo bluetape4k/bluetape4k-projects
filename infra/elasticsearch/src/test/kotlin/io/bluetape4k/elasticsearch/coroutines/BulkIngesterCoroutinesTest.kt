@@ -32,9 +32,9 @@ import kotlin.time.Duration.Companion.seconds
  * - [BulkIngester.addSuspend] 를 사용한 1000건 인덱싱 검증
  * - [bulkProgressListener] Flow 이벤트 수신 검증
  */
-class BulkIngesterCoroutinesTest : AbstractElasticsearchTest() {
+class BulkIngesterCoroutinesTest: AbstractElasticsearchTest() {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     /** 각 테스트에서 사용할 임시 인덱스 이름 */
     private lateinit var indexName: String

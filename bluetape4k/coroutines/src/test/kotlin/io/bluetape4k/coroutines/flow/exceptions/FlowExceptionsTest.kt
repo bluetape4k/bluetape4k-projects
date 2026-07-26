@@ -1,17 +1,16 @@
 package io.bluetape4k.coroutines.flow.exceptions
 
-import kotlinx.coroutines.CancellationException
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import kotlinx.coroutines.CancellationException
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import io.bluetape4k.assertions.assertFailsWith
 
 class FlowExceptionsTest {
     @Test

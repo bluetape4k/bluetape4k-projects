@@ -23,9 +23,9 @@ import java.io.Writer
 class CsvRecordWriter(
     writer: Writer,
     settings: CsvSettings = CsvSettings.DEFAULT,
-) : RecordWriter {
+): RecordWriter {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val lineWriter = CsvLineWriter(writer, settings)
 

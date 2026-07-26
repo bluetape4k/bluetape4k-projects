@@ -1,12 +1,14 @@
 # Redis Fencing Lease Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** `bluetape4k-lettuce`에 `(epoch, sequence)`로 정렬 가능한 fencing lease를 추가하고, Redis history loss·모호한 완료·취소·Cluster routing·외부 resilience 조합의 경계를 실행 가능한 test와 영문/한글 문서로 고정한다.
 
 **Architecture:** 한 instance가 `LettuceFencingLeaseConfig(namespace, resourceName, epoch)` 하나를 소유하고, 파생된 lease/counter 두 key만 동일 slot에서 Lua로 다룬다. public model과 result는 Java serialization invariant를 지키며, sync/`CompletableFuture`/suspend facade는 같은 validation·script·wire decoder·backend classifier를 공유한다. primitive 내부에는 retry/CB/bulkhead를 넣지 않고, 테스트와 README에서 `bluetape4k-resilience4j` decorator 및 downstream tuple CAS를 보여준다.
 
-**Tech Stack:** Kotlin 2.3, Java 21, Lettuce, Redis Lua/EVALSHA/EVAL/EVAL_RO, Kotlin Coroutines, JUnit 5, bluetape4k-assertions, bluetape4k-junit5, bluetape4k-testcontainers, bluetape4k-resilience4j, Resilience4j 2.4.0.
+**Tech
+Stack:** Kotlin 2.3, Java 21, Lettuce, Redis Lua/EVALSHA/EVAL/EVAL_RO, Kotlin Coroutines, JUnit 5, bluetape4k-assertions, bluetape4k-junit5, bluetape4k-testcontainers, bluetape4k-resilience4j, Resilience4j 2.4.0.
 
 ---
 
@@ -23,32 +25,32 @@
 
 ### 1.2 구현 그래프와 write scope
 
-| Task | 복잡도 | 선행 작업 | 주 write scope | 병렬 가능성 |
-|---|---:|---|---|---|
-| 1. Public value/result contract | M | 없음 | `FencingLeaseValue.kt`, `FencingLeaseResult.kt`, 대응 unit test | Task 2와 파일 비중첩 |
-| 2. Async script cancellation | M | 없음 | `RedisScript.kt`, `RedisScriptTest.kt` | Task 1과 병렬 가능 |
-| 3. Internal protocol/validation | H | 1, 2 | `LettuceFencingLeaseSupport.kt`, support test | 이후 모든 task의 직렬 선행 |
-| 4. Lua state machine/standalone hostile state | H | 3 | support와 script integration test | 단일 owner로 직렬 수행 |
-| 5. Sync/future/suspend facade parity | H | 4 | facade 2개, contract와 facade test | 단일 owner로 직렬 수행 |
-| 6. Cancellation/ambiguous completion | H | 5 | cancellation/fault-injection test | Task 7과 test file 비중첩이나 Redis 실행은 직렬 |
-| 7. Concurrency/Cluster | H | 5 | concurrency/Cluster test | Task 6과 작성 병렬 가능, 실행 직렬 |
-| 8. Resilience/downstream/recovery examples | H | 5 | resilience/recovery test | Task 6·7과 작성 병렬 가능, 실행 직렬 |
-| 9. KDoc/README parity | M | 1–8 public contract 확정 | production KDoc, README locale, docs test | 코드 계약 확정 후 수행 |
-| 10. Full regression/DoD | M | 1–9 | 변경 없음 | 반드시 마지막 |
+| Task                                          | 복잡도 | 선행 작업                | 주 write scope                                                  | 병렬 가능성                                     |
+|-----------------------------------------------|-------:|--------------------------|-----------------------------------------------------------------|-------------------------------------------------|
+| 1. Public value/result contract               |      M | 없음                     | `FencingLeaseValue.kt`, `FencingLeaseResult.kt`, 대응 unit test | Task 2와 파일 비중첩                            |
+| 2. Async script cancellation                  |      M | 없음                     | `RedisScript.kt`, `RedisScriptTest.kt`                          | Task 1과 병렬 가능                              |
+| 3. Internal protocol/validation               |      H | 1, 2                     | `LettuceFencingLeaseSupport.kt`, support test                   | 이후 모든 task의 직렬 선행                      |
+| 4. Lua state machine/standalone hostile state |      H | 3                        | support와 script integration test                               | 단일 owner로 직렬 수행                          |
+| 5. Sync/future/suspend facade parity          |      H | 4                        | facade 2개, contract와 facade test                              | 단일 owner로 직렬 수행                          |
+| 6. Cancellation/ambiguous completion          |      H | 5                        | cancellation/fault-injection test                               | Task 7과 test file 비중첩이나 Redis 실행은 직렬 |
+| 7. Concurrency/Cluster                        |      H | 5                        | concurrency/Cluster test                                        | Task 6과 작성 병렬 가능, 실행 직렬              |
+| 8. Resilience/downstream/recovery examples    |      H | 5                        | resilience/recovery test                                        | Task 6·7과 작성 병렬 가능, 실행 직렬            |
+| 9. KDoc/README parity                         |      M | 1–8 public contract 확정 | production KDoc, README locale, docs test                       | 코드 계약 확정 후 수행                          |
+| 10. Full regression/DoD                       |      M | 1–9                      | 변경 없음                                                       | 반드시 마지막                                   |
 
 ### 1.3 위험 예측과 중단 조건
 
-| 위험 | 사전 방어 | 실패 시 중단/복구 |
-|---|---|---|
-| Lua가 큰 sequence를 `number`로 바꿔 정밀도를 잃음 | canonical decimal string 길이/사전식 비교, mutation 뒤 `GET` 반환 | numeric conversion이 hot path에 보이면 Task 4를 중단하고 script unit test부터 수정 |
-| `INCR` 이후 runtime error를 rollback으로 오해 | 모든 expected error를 write 전 preflight, gap 허용, TTL 없는 partial lease fail-closed | partial mutation test가 분류표와 다르면 facade 작업 중단 |
-| chained future 취소가 현재 upstream으로 전파되지 않음 | EVALSHA→EVAL target 교체를 `AtomicReference`로 보존, 전환 race test | Task 2가 통과하기 전 future facade 구현 금지 |
-| broad catch가 cancellation/decoder bug를 `BackendFailure`로 평탄화 | bounded cause normalizer + cancellation 우선 rethrow + allowlist classifier | unknown exception이 result가 되면 Task 3부터 수정 |
-| Serializable 누락 또는 singleton identity 손실 | reflection + `ObjectStreamClass` + canonical reference identity round-trip | public variant 하나라도 누락되면 Task 1 완료 금지 |
-| assertion style 퇴행 | `bluetape4k.assertions.assertFailsWith`, intent matcher, `shouldNotBeEqualTo` 사용 | boolean assertion이나 JUnit/kotlin raw assertion 발견 시 해당 test 수정 |
-| 동일 resource의 mixed epoch activation | deterministic control-plane harness와 lower-epoch rollback 거절 | harness가 mixed epoch를 허용하면 문서 작업 중단 |
-| Cluster codec routing을 String으로 추정 | `codec.encodeKey(key)` wire bytes로 `SlotHash.getSlot` 검증 | custom codec fixture dispatch가 관찰되면 constructor validation 수정 |
-| README 예제와 실제 decorator 동작 불일치 | 동일 helper를 실제 Redis test와 documentation test에서 실행 | docs test 실패 시 README를 구현에 맞춰 수정, test 완화 금지 |
+| 위험                                                               | 사전 방어                                                                              | 실패 시 중단/복구                                                                  |
+|--------------------------------------------------------------------|----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
+| Lua가 큰 sequence를 `number`로 바꿔 정밀도를 잃음                  | canonical decimal string 길이/사전식 비교, mutation 뒤 `GET` 반환                      | numeric conversion이 hot path에 보이면 Task 4를 중단하고 script unit test부터 수정 |
+| `INCR` 이후 runtime error를 rollback으로 오해                      | 모든 expected error를 write 전 preflight, gap 허용, TTL 없는 partial lease fail-closed | partial mutation test가 분류표와 다르면 facade 작업 중단                           |
+| chained future 취소가 현재 upstream으로 전파되지 않음              | EVALSHA→EVAL target 교체를 `AtomicReference`로 보존, 전환 race test                    | Task 2가 통과하기 전 future facade 구현 금지                                       |
+| broad catch가 cancellation/decoder bug를 `BackendFailure`로 평탄화 | bounded cause normalizer + cancellation 우선 rethrow + allowlist classifier            | unknown exception이 result가 되면 Task 3부터 수정                                  |
+| Serializable 누락 또는 singleton identity 손실                     | reflection + `ObjectStreamClass` + canonical reference identity round-trip             | public variant 하나라도 누락되면 Task 1 완료 금지                                  |
+| assertion style 퇴행                                               | `bluetape4k.assertions.assertFailsWith`, intent matcher, `shouldNotBeEqualTo` 사용     | boolean assertion이나 JUnit/kotlin raw assertion 발견 시 해당 test 수정            |
+| 동일 resource의 mixed epoch activation                             | deterministic control-plane harness와 lower-epoch rollback 거절                        | harness가 mixed epoch를 허용하면 문서 작업 중단                                    |
+| Cluster codec routing을 String으로 추정                            | `codec.encodeKey(key)` wire bytes로 `SlotHash.getSlot` 검증                            | custom codec fixture dispatch가 관찰되면 constructor validation 수정               |
+| README 예제와 실제 decorator 동작 불일치                           | 동일 helper를 실제 Redis test와 documentation test에서 실행                            | docs test 실패 시 README를 구현에 맞춰 수정, test 완화 금지                        |
 
 ### 1.4 공통 TDD/검증 규칙
 
@@ -83,20 +85,20 @@ Not-tested: <known gap>
 ### 2.1 RED — invariant, ordering, serialization test
 
 - [ ] `FencingLeaseValueTest`에 다음 실패 contract를 작성한다.
-  - config의 name은 1..128자 `[A-Za-z0-9._-]+`, epoch는 positive.
-  - `FencingOwnerId.from`은 UTF-8 1..256 bytes, `random()`은 `Base58.randomString(22)` alphabet/length.
-  - owner ID equality/hashCode는 raw value 기준이지만 `toString()`은 항상 `FencingOwnerId(<redacted>)`.
-  - `FencingToken`은 epoch 우선, sequence 차순, equality와 natural ordering 일치, redacted `toString()`.
-  - config/owner/token Java round-trip, `serialVersionUID == 1L`, crafted invalid payload의 `InvalidObjectException`.
-  - config의 `namespace`/`resourceName`과 owner의 raw value를 crafted `null`로 만든 payload도 cause 없는 stable `InvalidObjectException`.
+    - config의 name은 1..128자 `[A-Za-z0-9._-]+`, epoch는 positive.
+    - `FencingOwnerId.from`은 UTF-8 1..256 bytes, `random()`은 `Base58.randomString(22)` alphabet/length.
+    - owner ID equality/hashCode는 raw value 기준이지만 `toString()`은 항상 `FencingOwnerId(<redacted>)`.
+    - `FencingToken`은 epoch 우선, sequence 차순, equality와 natural ordering 일치, redacted `toString()`.
+    - config/owner/token Java round-trip, `serialVersionUID == 1L`, crafted invalid payload의 `InvalidObjectException`.
+    - config의 `namespace`/`resourceName`과 owner의 raw value를 crafted `null`로 만든 payload도 cause 없는 stable `InvalidObjectException`.
 - [ ] `FencingLeaseResultTest`에 모든 enum, sealed interface, nested data class/data object sample table을 만든다.
-  - 모든 non-enum public sample은 `Serializable`, `ObjectStreamClass.lookup(...).serialVersionUID == 1L`.
-  - sealed interface 자체도 declared `serialVersionUID == 1L`을 가지는지 reflection으로 검증.
-  - 모든 `data object` round-trip은 `restored shouldBeSameInstanceAs original`.
-  - TTL variant는 negative value와 crafted serialized negative payload를 거절.
-  - nested failure property를 `null`로 조작한 crafted payload도 canonical constructor 재검증에서 `InvalidObjectException`으로 거절.
-  - invalid payload exception은 stable message, `cause == null`, sentinel value 비노출을 검증.
-  - public property에 key/owner/raw reply/`Throwable`/message가 없음을 reflection으로 검증.
+    - 모든 non-enum public sample은 `Serializable`, `ObjectStreamClass.lookup(...).serialVersionUID == 1L`.
+    - sealed interface 자체도 declared `serialVersionUID == 1L`을 가지는지 reflection으로 검증.
+    - 모든 `data object` round-trip은 `restored shouldBeSameInstanceAs original`.
+    - TTL variant는 negative value와 crafted serialized negative payload를 거절.
+    - nested failure property를 `null`로 조작한 crafted payload도 canonical constructor 재검증에서 `InvalidObjectException`으로 거절.
+    - invalid payload exception은 stable message, `cause == null`, sentinel value 비노출을 검증.
+    - public property에 key/owner/raw reply/`Throwable`/message가 없음을 reflection으로 검증.
 - [ ] RED 명령을 실행하고 unresolved type 때문에 실패하는지 확인한다.
 
 ```bash
@@ -195,18 +197,18 @@ data class FencingToken(
 ```
 
 - [ ] `FencingLeaseResult.kt`에 설계의 enum과 다섯 sealed result를 이름 그대로 구현한다.
-  - `FencingBackendFailureKind`는 `CONNECTION`, `TIMEOUT`, `COMMAND`; `FencingIntegrityFailureKind`는 `MALFORMED_LEASE`, `INVALID_COUNTER`, `COUNTER_BEHIND_LEASE`다. enum serialization은 Java 기본 계약을 그대로 사용한다.
-  - `FencingLeaseBackendFailure`, `FencingLeaseIntegrityFailure`, token/TTL/failure property를 가진 모든 variant는 `readResolve()`에서 canonical constructor를 다시 호출한다. `IllegalArgumentException`, `NullPointerException` 등 invariant failure는 raw cause 없이 stable `InvalidObjectException`으로 바꾼다.
-  - 모든 nested `data class`는 `Serializable` 상속과 private companion `serialVersionUID = 1L`을 가진다.
-  - 모든 nested `data object`는 아래 canonical singleton 패턴을 빠짐없이 사용한다.
+    - `FencingBackendFailureKind`는 `CONNECTION`, `TIMEOUT`, `COMMAND`; `FencingIntegrityFailureKind`는 `MALFORMED_LEASE`, `INVALID_COUNTER`, `COUNTER_BEHIND_LEASE`다. enum serialization은 Java 기본 계약을 그대로 사용한다.
+    - `FencingLeaseBackendFailure`, `FencingLeaseIntegrityFailure`, token/TTL/failure property를 가진 모든 variant는 `readResolve()`에서 canonical constructor를 다시 호출한다. `IllegalArgumentException`, `NullPointerException` 등 invariant failure는 raw cause 없이 stable `InvalidObjectException`으로 바꾼다.
+    - 모든 nested `data class`는 `Serializable` 상속과 private companion `serialVersionUID = 1L`을 가진다.
+    - 모든 nested `data object`는 아래 canonical singleton 패턴을 빠짐없이 사용한다.
 
-| Result | Exact variants |
-|---|---|
-| `FencingBootstrapResult` | `Initialized`, `AlreadyInitialized`, `IntegrityFailure`, `BackendFailure` |
-| `FencingAcquireResult` | `Acquired`, `AlreadyOwned`, `Contended`, `CounterUnavailable`, `SequenceExhausted`, `IntegrityFailure`, `BackendFailure` |
-| `FencingInspectResult` | `Owned`, `Lost`, `Contended`, `IntegrityFailure`, `BackendFailure` |
-| `FencingRenewResult` | `Renewed`, `Lost`, `OwnershipMismatch`, `IntegrityFailure`, `BackendFailure` |
-| `FencingReleaseResult` | `Released`, `Lost`, `OwnershipMismatch`, `IntegrityFailure`, `BackendFailure` |
+| Result                   | Exact variants                                                                                                           |
+|--------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| `FencingBootstrapResult` | `Initialized`, `AlreadyInitialized`, `IntegrityFailure`, `BackendFailure`                                                |
+| `FencingAcquireResult`   | `Acquired`, `AlreadyOwned`, `Contended`, `CounterUnavailable`, `SequenceExhausted`, `IntegrityFailure`, `BackendFailure` |
+| `FencingInspectResult`   | `Owned`, `Lost`, `Contended`, `IntegrityFailure`, `BackendFailure`                                                       |
+| `FencingRenewResult`     | `Renewed`, `Lost`, `OwnershipMismatch`, `IntegrityFailure`, `BackendFailure`                                             |
+| `FencingReleaseResult`   | `Released`, `Lost`, `OwnershipMismatch`, `IntegrityFailure`, `BackendFailure`                                            |
 
 ```kotlin
 sealed interface FencingBootstrapResult : Serializable {
@@ -296,13 +298,13 @@ Not-tested: Redis execution is introduced in later tasks
 ### 3.1 RED — EVALSHA/NOSCRIPT race contract
 
 - [ ] controllable `TestRedisFuture`와 mocked `RedisScriptingAsyncCommands`로 다음 test를 먼저 추가한다.
-  - EVALSHA pending 중 returned future cancel → EVALSHA future cancelled.
-  - EVALSHA가 `RedisNoScriptException`으로 끝난 뒤 EVAL pending 중 cancel → EVAL future cancelled.
-  - EVALSHA failure와 returned cancel이 경쟁해도 fallback이 시작됐다면 그 current future가 cancelled.
-  - caller cancellation은 `CompletionException`이나 failed future로 바뀌지 않고 returned future의 `isCancelled`를 유지.
-  - 초기 `evalsha(...)`가 동기 throw해도 returned future가 terminal exceptional 상태가 되고 pending으로 남지 않음.
-  - NOSCRIPT fallback의 `eval(...)`가 동기 throw해도 같은 terminal exceptional 상태가 되고 pending으로 남지 않음.
-  - 정상 result와 non-NOSCRIPT failure의 기존 동작 유지.
+    - EVALSHA pending 중 returned future cancel → EVALSHA future cancelled.
+    - EVALSHA가 `RedisNoScriptException`으로 끝난 뒤 EVAL pending 중 cancel → EVAL future cancelled.
+    - EVALSHA failure와 returned cancel이 경쟁해도 fallback이 시작됐다면 그 current future가 cancelled.
+    - caller cancellation은 `CompletionException`이나 failed future로 바뀌지 않고 returned future의 `isCancelled`를 유지.
+    - 초기 `evalsha(...)`가 동기 throw해도 returned future가 terminal exceptional 상태가 되고 pending으로 남지 않음.
+    - NOSCRIPT fallback의 `eval(...)`가 동기 throw해도 같은 terminal exceptional 상태가 되고 pending으로 남지 않음.
+    - 정상 result와 non-NOSCRIPT failure의 기존 동작 유지.
 - [ ] RED 명령으로 현재 `exceptionallyCompose` chain이 upstream cancellation contract를 만족하지 못함을 확인한다.
 
 ```bash
@@ -406,15 +408,15 @@ Not-tested: fencing lease integration is introduced later
 ### 4.1 RED — pure support contract
 
 - [ ] 다음 pure unit test를 작성한다.
-  - derived key가 정확히 `fence:{namespace:resourceName}:<epoch>:lease|counter`.
-  - default/custom codec 모두 `SlotHash.getSlot(codec.encodeKey(key))`를 사용하고, wire bytes가 다른 slot이면 stable `IllegalArgumentException`이며 command mock interaction은 0.
-  - decimal parser는 `0`, positive canonical decimal, `Long.MAX_VALUE`를 허용하고 sign, leading zero, whitespace, empty, non-digit, 20+ byte를 거절.
-  - TTL은 positive whole millisecond로 변환하고 nanos-only, zero, negative, `toMillis()` overflow를 모두 `IllegalArgumentException`으로 정규화. operation wrapper는 exact Lua integer/TTL reply를 위해 `2^53 - 1` milliseconds 상한도 dispatch 전에 검증.
-  - token epoch mismatch는 renew/release dispatch 전에 거절.
-  - `CompletionException`/`ExecutionException` 최대 8단계 unwrap, identity cycle 방지, chain 어디의 `CancellationException`도 rethrow.
-  - `RedisConnectionException`→`CONNECTION`, `RedisCommandTimeoutException`/`TimeoutException`→`TIMEOUT`, 다른 `RedisException`→`COMMAND`.
-  - validation, internal wire exception, unknown non-Lettuce exception은 classifier가 다시 던지고 result로 만들지 않음.
-  - log capture에 sentinel namespace/resource/key/owner/token/raw reply/exception message가 없고 allowlisted operation/kind/class name만 존재.
+    - derived key가 정확히 `fence:{namespace:resourceName}:<epoch>:lease|counter`.
+    - default/custom codec 모두 `SlotHash.getSlot(codec.encodeKey(key))`를 사용하고, wire bytes가 다른 slot이면 stable `IllegalArgumentException`이며 command mock interaction은 0.
+    - decimal parser는 `0`, positive canonical decimal, `Long.MAX_VALUE`를 허용하고 sign, leading zero, whitespace, empty, non-digit, 20+ byte를 거절.
+    - TTL은 positive whole millisecond로 변환하고 nanos-only, zero, negative, `toMillis()` overflow를 모두 `IllegalArgumentException`으로 정규화. operation wrapper는 exact Lua integer/TTL reply를 위해 `2^53 - 1` milliseconds 상한도 dispatch 전에 검증.
+    - token epoch mismatch는 renew/release dispatch 전에 거절.
+    - `CompletionException`/`ExecutionException` 최대 8단계 unwrap, identity cycle 방지, chain 어디의 `CancellationException`도 rethrow.
+    - `RedisConnectionException`→`CONNECTION`, `RedisCommandTimeoutException`/`TimeoutException`→`TIMEOUT`, 다른 `RedisException`→`COMMAND`.
+    - validation, internal wire exception, unknown non-Lettuce exception은 classifier가 다시 던지고 result로 만들지 않음.
+    - log capture에 sentinel namespace/resource/key/owner/token/raw reply/exception message가 없고 allowlisted operation/kind/class name만 존재.
 - [ ] RED 명령을 실행한다.
 
 ```bash
@@ -542,15 +544,15 @@ Not-tested: real Redis state transitions are introduced next
 
 - [ ] 실제 singleton Redis fixture로 bootstrap/acquire/inspect/renew/release의 정상·경합·lost·mismatch contract를 먼저 작성한다.
 - [ ] 다음 hostile state를 raw Redis command로 만든 뒤 expected public integrity category와 no-mutation을 검증한다.
-  - lease/counter wrong type, missing/extra hash field, oversized owner/epoch/sequence/counter.
-  - signed/leading-zero/whitespace/non-digit/out-of-range decimal.
-  - counter TTL, lease no TTL, counter missing while lease active, counter behind lease.
-  - lease absent + counter absent는 acquire `CounterUnavailable`; inspect/renew/release `Lost`.
-  - counter `Long.MAX_VALUE`는 `SequenceExhausted`이고 lease를 만들지 않음.
+    - lease/counter wrong type, missing/extra hash field, oversized owner/epoch/sequence/counter.
+    - signed/leading-zero/whitespace/non-digit/out-of-range decimal.
+    - counter TTL, lease no TTL, counter missing while lease active, counter behind lease.
+    - lease absent + counter absent는 acquire `CounterUnavailable`; inspect/renew/release `Lost`.
+    - counter `Long.MAX_VALUE`는 `SequenceExhausted`이고 lease를 만들지 않음.
 - [ ] `SCRIPT FLUSH` 뒤 EVALSHA→EVAL fallback 결과가 동일함을 검증한다.
 - [ ] test-only Lua 두 개를 exact fixture key로 실행해 Redis runtime error의 non-rollback을 실제로 증명한다.
-  - `INCR` 직후 deliberate wrong-type command로 실패시켜 counter 증가가 남고 다음 acquire가 그 sequence를 재사용하지 않음을 검증.
-  - `HSET` 직후 `PEXPIRE` 전에 deliberate wrong-type command로 실패시켜 TTL 없는 partial lease가 남고 다음 production operation이 `MALFORMED_LEASE`를 반환함을 검증.
+    - `INCR` 직후 deliberate wrong-type command로 실패시켜 counter 증가가 남고 다음 acquire가 그 sequence를 재사용하지 않음을 검증.
+    - `HSET` 직후 `PEXPIRE` 전에 deliberate wrong-type command로 실패시켜 TTL 없는 partial lease가 남고 다음 production operation이 `MALFORMED_LEASE`를 반환함을 검증.
 - [ ] structural assertion으로 script source에 `KEYS`, `SCAN`, `HGETALL`, stored cardinality loop가 없고, `HLEN == 3`, fixed `HSTRLEN`/`HMGET`, write 전 preflight, `INCR`→`GET`→`HSET`→`PEXPIRE` 순서가 있음을 검증한다. test-only non-rollback script는 production script inventory에서 제외한다.
 - [ ] command spy로 정상 경로는 `EVALSHA=1, EVAL=0`, `NOSCRIPT` 경로만 `EVALSHA=1, EVAL=1`, validation/constructor rejection은 Redis dispatch 0임을 검증한다. facade가 script 앞에 `GET`/`TYPE` 같은 client-side preflight를 보내면 실패한다.
 - [ ] RED 명령을 실행한다.
@@ -561,13 +563,13 @@ Not-tested: real Redis state transitions are introduced next
 
 Expected: script runner/decoder operation이 없어 test compilation 또는 assertion이 실패한다.
 
-### 5.2 GREEN — fixed O(1) Lua protocol
+### 5.2 GREEN — fixed O (1) Lua protocol
 
 - [ ] script 공통 preflight는 두 exact key만 사용하고 mutation 전에 다음을 모두 판정한다.
-  - acquire/renew TTL argument의 canonical positive decimal과 `2^53 - 1` 상한.
-  - counter `TYPE`, `PTTL`, `STRLEN`, canonical decimal과 범위.
-  - lease `TYPE`, `PTTL`, `HLEN`, fixed field `HSTRLEN`, fixed `HMGET`, stored epoch와 counter relation.
-  - lease `PTTL == -2`는 absent로 재분류하고 `-1`은 `MALFORMED_LEASE`.
+    - acquire/renew TTL argument의 canonical positive decimal과 `2^53 - 1` 상한.
+    - counter `TYPE`, `PTTL`, `STRLEN`, canonical decimal과 범위.
+    - lease `TYPE`, `PTTL`, `HLEN`, fixed field `HSTRLEN`, fixed `HMGET`, stored epoch와 counter relation.
+    - lease `PTTL == -2`는 absent로 재분류하고 `-1`은 `MALFORMED_LEASE`.
 - [ ] bootstrap은 lease가 없고 counter도 없을 때만 counter `0`을 생성한다. active lease + missing counter와 existing malformed counter는 initialize하지 않는다.
 - [ ] acquire는 같은 owner에게 stored token을 그대로 반환하고, 다른 owner에게 TTL만 반환한다. absent lease에서는 missing counter/overflow를 write 없이 반환하고, 정상일 때만 아래 mutation order를 사용한다.
 
@@ -586,13 +588,13 @@ return {'ACQUIRED', ARGV[2], nextSequenceText, '-1'}
 - [ ] 모든 정상/분류 reply는 fixed field count의 string vector다. expected validation branch 이후 write가 없어야 하며 script source에 raw secret을 포함한 `error(...)`를 만들지 않는다.
 - [ ] 모든 operation은 exact 4-field reply `[status, value1, value2, ttl]`을 사용한다. unused token field는 `0`, unused TTL은 `-1` sentinel로 고정한다.
 
-| Status family | `value1` | `value2` | `ttl` | Arity |
-|---|---|---|---:|---:|
-| `INITIALIZED`, `ALREADY_INITIALIZED`, `COUNTER_UNAVAILABLE`, `SEQUENCE_EXHAUSTED`, `RENEWED`, `RELEASED`, `LOST`, `OWNERSHIP_MISMATCH` | `0` | `0` | `-1` | 4 |
-| `ACQUIRED` | epoch decimal | sequence decimal | `-1` | 4 |
-| `ALREADY_OWNED`, `OWNED` | epoch decimal | sequence decimal | non-negative PTTL | 4 |
-| `CONTENDED` | `0` | `0` | non-negative PTTL | 4 |
-| `INTEGRITY_FAILURE` | enum wire code | `0` | `-1` | 4 |
+| Status family                                                                                                                          | `value1`       | `value2`         |             `ttl` | Arity |
+|----------------------------------------------------------------------------------------------------------------------------------------|----------------|------------------|------------------:|------:|
+| `INITIALIZED`, `ALREADY_INITIALIZED`, `COUNTER_UNAVAILABLE`, `SEQUENCE_EXHAUSTED`, `RENEWED`, `RELEASED`, `LOST`, `OWNERSHIP_MISMATCH` | `0`            | `0`              |              `-1` |     4 |
+| `ACQUIRED`                                                                                                                             | epoch decimal  | sequence decimal |              `-1` |     4 |
+| `ALREADY_OWNED`, `OWNED`                                                                                                               | epoch decimal  | sequence decimal | non-negative PTTL |     4 |
+| `CONTENDED`                                                                                                                            | `0`            | `0`              | non-negative PTTL |     4 |
+| `INTEGRITY_FAILURE`                                                                                                                    | enum wire code | `0`              |              `-1` |     4 |
 
 - [ ] production script의 최대 Redis command inventory를 source-level structural test로 고정한다. common lease preflight는 `TYPE`, `PTTL`, `HLEN`, `HSTRLEN` ×3, fixed `HMGET` 최대 7회; counter preflight는 `TYPE`, `PTTL`, `STRLEN`, `GET` 최대 4회다. mutation 상한은 bootstrap `SET` 1회, acquire `INCR`/`GET`/`HSET`/`PEXPIRE` 4회, renew `PEXPIRE` 1회, release `DEL` 1회, inspect 0회다. 따라서 operation당 최대 internal command는 acquire 15, bootstrap/renew/release 12, inspect 11이며 stored cardinality에 따라 증가하지 않는다.
 - [ ] standalone test를 실행한다.
@@ -601,7 +603,7 @@ return {'ACQUIRED', ARGV[2], nextSequenceText, '-1'}
 ./gradlew :bluetape4k-lettuce:test --tests '*LettuceFencingLeaseScriptTest'
 ```
 
-Expected: 정상 state machine, hostile state fail-closed, overflow, NOSCRIPT, structural O(1) test가 통과한다.
+Expected: 정상 state machine, hostile state fail-closed, overflow, NOSCRIPT, structural O (1) test가 통과한다.
 
 ### 5.3 Commit
 
@@ -645,16 +647,16 @@ internal interface FencingLeaseAdapter {
 ```
 
 - [ ] scenario table에 다음을 넣는다.
-  - bootstrap initialized/replay.
-  - strictly increasing acquire→release generations.
-  - same-owner acquire replay가 같은 token이며 TTL을 연장하지 않음.
-  - inspect owned/contended/lost, renew token 유지, release counter 보존.
-  - wrong owner와 stale token renew/release가 newer lease를 변경하지 않음.
-  - expiry 뒤 takeover가 더 큰 token.
-  - 다른 epoch token renew/release가 dispatch 전에 `IllegalArgumentException`.
-  - invalid TTL/config/owner가 세 API에서 dispatch 전에 동일 exception type.
-  - connection/timeout/command failure가 세 API에서 같은 backend kind.
-  - cancellation/decoder/unknown exception은 backend result가 아님.
+    - bootstrap initialized/replay.
+    - strictly increasing acquire→release generations.
+    - same-owner acquire replay가 같은 token이며 TTL을 연장하지 않음.
+    - inspect owned/contended/lost, renew token 유지, release counter 보존.
+    - wrong owner와 stale token renew/release가 newer lease를 변경하지 않음.
+    - expiry 뒤 takeover가 더 큰 token.
+    - 다른 epoch token renew/release가 dispatch 전에 `IllegalArgumentException`.
+    - invalid TTL/config/owner가 세 API에서 dispatch 전에 동일 exception type.
+    - connection/timeout/command failure가 세 API에서 같은 backend kind.
+    - cancellation/decoder/unknown exception은 backend result가 아님.
 - [ ] public facade shape가 설계 9절과 정확히 일치하는 compile-time usage test를 작성한다. public constructor, bootstrap, 모든 sync/future/suspend operation을 빠짐없이 호출한다.
 - [ ] RED 명령을 실행한다.
 
@@ -833,24 +835,25 @@ internal interface FencingScriptExecutor {
 ```
 
 - [ ] bootstrap/acquire/renew/release 각각에 apply 전 failure와 apply 후 reply loss를 inject하고 operation-specific reconciliation을 검증한다.
-  - bootstrap: 승인된 fresh epoch에서 replay는 initialized/already initialized.
-  - acquire: 같은 owner replay가 같은 token.
-  - renew: inspect same token 후 재시도 가능.
-  - release: `Lost`를 ownership 폐기로만 해석.
+    - bootstrap: 승인된 fresh epoch에서 replay는 initialized/already initialized.
+    - acquire: 같은 owner replay가 같은 token.
+    - renew: inspect same token 후 재시도 가능.
+    - release: `Lost`를 ownership 폐기로만 해석.
 - [ ] release ambiguity는 두 branch를 모두 검증한다.
-  - BEFORE_APPLY 뒤 `inspect(ownerId)`가 exact same token의 `Owned`면 같은 owner/token으로 release를 한 번 다시 시도할 수 있다.
-  - AFTER_APPLY 뒤 `Lost`면 local ownership을 폐기하고 성공/expiry를 구분하지 않는다.
-  - inspect가 `Contended`, 다른/newer token, integrity/backend failure를 보이면 release retry와 local success 처리를 모두 금지한다.
+    - BEFORE_APPLY 뒤 `inspect(ownerId)`가 exact same token의 `Owned`면 같은 owner/token으로 release를 한 번 다시 시도할 수 있다.
+    - AFTER_APPLY 뒤 `Lost`면 local ownership을 폐기하고 성공/expiry를 구분하지 않는다.
+    - inspect가 `Contended`, 다른/newer token, integrity/backend failure를 보이면 release retry와 local success 처리를 모두 금지한다.
 - [ ] returned `CompletableFuture.cancel(true)`의 cancelled 상태, EVALSHA/fallback current upstream cancellation, server apply 전/후 state를 검증한다.
 - [ ] 실제 coroutine job cancel이 `CancellationException`으로 끝나고 backend result/retry로 변하지 않음을 `runSuspendIO`로 검증한다.
 - [ ] sleep/network timing 없이 latch/fake로 아래 operation × phase × signal matrix를 모두 실행한다. 모든 BEFORE cell은 Redis mutation 0, 모든 AFTER cell은 적용된 ambiguous state와 operation-specific reconcile을 확인한다.
 
-| Operation | BEFORE_APPLY backend failure | AFTER_APPLY reply loss | Future cancel | Coroutine cancel | Reconcile |
-|---|---:|---:|---:|---:|---|
-| bootstrap | required | required | required | required | fresh higher epoch replay |
-| acquire | required | required | required | required | same owner replay, same token |
-| renew | required | required | required | required | inspect same token, optional renew retry |
-| release | required | required | required | required | `Lost` means local ownership discarded |
+| Operation | BEFORE_APPLY backend failure | AFTER_APPLY reply loss | Future cancel | Coroutine cancel | Reconcile                                |
+|-----------|-----------------------------:|-----------------------:|--------------:|-----------------:|------------------------------------------|
+| bootstrap |                     required |               required |      required |         required | fresh higher epoch replay                |
+| acquire   |                     required |               required |      required |         required | same owner replay, same token            |
+| renew     |                     required |               required |      required |         required | inspect same token, optional renew retry |
+| release   |                     required |               required |      required |         required | `Lost` means local ownership discarded   |
+
 - [ ] RED 명령을 실행한다.
 
 ```bash
@@ -910,10 +913,10 @@ Not-tested: external topology promotion remains opt-in
 ### 8.1 RED — duplicate generation과 wrong-slot 방어
 
 - [ ] `@Timeout(30)`을 붙인 standalone `MultithreadingTester`/`SuspendedJobTester` fixture로 16 caller × 25 generation을 수행한다.
-  - 각 round마다 16개의 distinct owner를 barrier에서 동시에 시작한다.
-  - 정확히 1 `Acquired`, 나머지 15 `Contended` → winner same-owner replay가 동일 token → winner release → 다음 round 순서를 강제한다.
-  - 발급 token 중복 0, natural ordering regression 0, unexpected failure 0.
-  - 같은-owner retry는 generation을 증가시키지 않음.
+    - 각 round마다 16개의 distinct owner를 barrier에서 동시에 시작한다.
+    - 정확히 1 `Acquired`, 나머지 15 `Contended` → winner same-owner replay가 동일 token → winner release → 다음 round 순서를 강제한다.
+    - 발급 token 중복 0, natural ordering regression 0, unexpected failure 0.
+    - 같은-owner retry는 generation을 증가시키지 않음.
 - [ ] `@Timeout(30)` Cluster fixture도 round마다 8 distinct owner를 barrier에서 동시에 시작해 정확히 1 `Acquired`, 7 `Contended`, same-owner replay, release 후 다음 round로 진행한다. standalone은 25개, Cluster는 10개의 중복 없는 strictly increasing winner token을 검증하고 sync/future/suspend result parity와 script routing을 함께 고정한다.
 - [ ] custom codec이 두 logical key를 다른 wire slot으로 encode하는 fixture에서 constructor가 node dispatch 전에 stable `IllegalArgumentException`을 던짐을 command spy로 검증한다.
 - [ ] RED 명령을 Testcontainers 순차로 실행한다.
@@ -1001,6 +1004,7 @@ val circuitBreaker = CircuitBreaker.of(
         .build(),
 )
 ```
+
 - [ ] 한 bulkhead permit이 전체 retry를 감싸고 circuit breaker가 retry 종료 후 final result 하나만 관찰함을 metrics와 controlled attempts로 검증한다.
 - [ ] `IntegrityFailure`, `CounterUnavailable`, `SequenceExhausted`, `OwnershipMismatch`, validation은 retry하지 않는다.
 - [ ] `CallNotPermittedException`, `BulkheadFullException`, `CancellationException`은 primitive result로 변환하지 않는다.
@@ -1020,17 +1024,17 @@ bootstrap -> verify readiness and tuple guard -> rollout -> confirm old absence 
 - [ ] bootstrap 후 readiness PASS는 exact counter `TYPE=string`, `PTTL=-1`, canonical non-negative decimal, downstream strict tuple guard enabled를 모두 만족할 때만 발생한다.
 - [ ] event trace로 mixed epoch 발견 뒤 `ROLLOUT`과 `RESUME` event가 0임을 검증한다. lower-epoch binary rollback 요청은 rejected event를 남기고 current higher epoch를 유지한다.
 - [ ] README의 marker-delimited diagnostic Lua를 실제 standalone Redis에서 `evalReadOnly`/`EVAL_RO`로 실행한다.
-  - input은 derived lease/counter exact 2 keys만 허용하고 output은 bounded stable classification code와 boolean뿐이다.
-  - clean, missing counter, malformed lease, TTL 없는 partial lease를 각각 분류한다.
-  - lease-only delete eligibility 4조건을 각 하나씩 false로 만드는 table과 all-true case를 검증한다. 하나라도 false면 delete 금지다.
-  - repair 전후 counter value와 `PTTL=-1`은 같아야 하며 counter delete/decrement/TTL 설정/same-epoch bootstrap command가 없어야 한다.
+    - input은 derived lease/counter exact 2 keys만 허용하고 output은 bounded stable classification code와 boolean뿐이다.
+    - clean, missing counter, malformed lease, TTL 없는 partial lease를 각각 분류한다.
+    - lease-only delete eligibility 4조건을 각 하나씩 false로 만드는 table과 all-true case를 검증한다. 하나라도 false면 delete 금지다.
+    - repair 전후 counter value와 `PTTL=-1`은 같아야 하며 counter delete/decrement/TTL 설정/same-epoch bootstrap command가 없어야 한다.
 - [ ] `LettuceFencingLeaseTopologyRecoveryTest`는 `@Tag("fencing-topology")`를 사용하고 기본 `test` task에서는 제외한다. 전용 `fencingLeaseTopologyRecoveryTest` task만 해당 tag를 include하며 Testcontainers primary/replica와 Toxiproxy를 순차 실행한다.
-  - primary/replica가 같은 baseline offset에 도달한 뒤 Toxiproxy로 replication path를 차단하고 old epoch write를 primary에만 acknowledge시킨다.
-  - primary를 중지하고 stale replica를 실제 `REPLICAOF NO ONE`으로 승격한 뒤 external incident signal을 발생시킨다.
-  - signal 이전 old acquire 1회가 존재하고, signal 뒤 traffic gate가 닫혀 old acquire/downstream write가 0인지 event trace와 barrier로 검증한다.
-  - durable CAS allocator가 higher epoch를 정확히 한 번 발급하고, promoted Redis에 bootstrap/readiness를 통과한 뒤 새 token의 epoch가 높으며 downstream strict tuple guard가 old token을 거절하는지 검증한다.
-  - restore branch는 known-old RDB fixture로 Redis를 재기동한 뒤 동일 pause→CAS bump→bootstrap→readiness→resume contract를 반복하고 same/lower epoch bootstrap이 없음을 검증한다.
-  - `finally`에서 traffic gate, Toxiproxy toxic/proxy, Lettuce connection/client, primary/replica/restore container, network를 역순으로 정리하고 thread/future가 남지 않는지 검증한다.
+    - primary/replica가 같은 baseline offset에 도달한 뒤 Toxiproxy로 replication path를 차단하고 old epoch write를 primary에만 acknowledge시킨다.
+    - primary를 중지하고 stale replica를 실제 `REPLICAOF NO ONE`으로 승격한 뒤 external incident signal을 발생시킨다.
+    - signal 이전 old acquire 1회가 존재하고, signal 뒤 traffic gate가 닫혀 old acquire/downstream write가 0인지 event trace와 barrier로 검증한다.
+    - durable CAS allocator가 higher epoch를 정확히 한 번 발급하고, promoted Redis에 bootstrap/readiness를 통과한 뒤 새 token의 epoch가 높으며 downstream strict tuple guard가 old token을 거절하는지 검증한다.
+    - restore branch는 known-old RDB fixture로 Redis를 재기동한 뒤 동일 pause→CAS bump→bootstrap→readiness→resume contract를 반복하고 same/lower epoch bootstrap이 없음을 검증한다.
+    - `finally`에서 traffic gate, Toxiproxy toxic/proxy, Lettuce connection/client, primary/replica/restore container, network를 역순으로 정리하고 thread/future가 남지 않는지 검증한다.
 - [ ] RED 명령을 순차 실행한다.
 
 ```bash
@@ -1095,32 +1099,33 @@ Not-tested: production-managed Redis topology remains outside the Testcontainers
 
 - [ ] public class/interface/object/function/property에 English KDoc이 있는지 source/reflection contract로 검증한다.
 - [ ] README locale 양쪽에 같은 marker 순서와 다음 decision fragment를 요구한다.
-  - opaque lease와 fencing lease 선택 기준.
-  - config instance가 namespace/resource/epoch를 고정.
-  - explicit bootstrap, counter loss 시 same-epoch bootstrap 금지.
-  - `(epoch, sequence)` ordering과 resource-bound storage.
-  - PostgreSQL `NOT NULL DEFAULT 0` tuple 및 `affectedRows == 1` strict acceptance.
-  - retry/CB/bulkhead exact chain, BackendFailure-only result predicate, caller-layer exceptions.
-  - pause/drain/CAS bump/bootstrap/readiness/rollout/resume, lower epoch rollback 금지.
-  - O(1) `EVAL_RO` fixed-key diagnostic과 lease-only manual repair 4조건.
-  - metric 허용 dimension은 operation/result/backend-or-integrity kind뿐이고 namespace/resource/owner/token/fingerprint는 label 금지.
-  - `CounterUnavailable`/integrity/overflow/backend/external restore signal별 pause→diagnose→cutover action mapping.
-  - exactly-once/business idempotency/durable correctness 비보장.
+    - opaque lease와 fencing lease 선택 기준.
+    - config instance가 namespace/resource/epoch를 고정.
+    - explicit bootstrap, counter loss 시 same-epoch bootstrap 금지.
+    - `(epoch, sequence)` ordering과 resource-bound storage.
+    - PostgreSQL `NOT NULL DEFAULT 0` tuple 및 `affectedRows == 1` strict acceptance.
+    - retry/CB/bulkhead exact chain, BackendFailure-only result predicate, caller-layer exceptions.
+    - pause/drain/CAS bump/bootstrap/readiness/rollout/resume, lower epoch rollback 금지.
+    - O (1) `EVAL_RO` fixed-key diagnostic과 lease-only manual repair 4조건.
+    - metric 허용 dimension은 operation/result/backend-or-integrity kind뿐이고 namespace/resource/owner/token/fingerprint는 label 금지.
+    - `CounterUnavailable`/integrity/overflow/backend/external restore signal별 pause→diagnose→cutover action mapping.
+    - exactly-once/business idempotency/durable correctness 비보장.
 - [ ] documentation test에서 README 양 locale의 marker-delimited Kotlin/SQL/Lua snippet을 추출·정규화해 같은 helper/config/source와 비교하고 Kotlin resilience 예제, downstream CAS helper, diagnostic Lua를 실제 호출한다. SQL contract는 `affectedRows == 1` acceptance, `0` stale/same-token rejection, 별도 business idempotency key를 함께 검증한다.
 - [ ] 양 README와 table-driven docs test에 아래 exhaustive caller action 표를 동일하게 넣는다. token을 저장하는 정상 경로는 stable resource/domain identity와 tuple을 함께 저장해야 한다.
 
-| Result | Required caller action |
-|---|---|
-| `Initialized`, `AlreadyInitialized` | readiness 확인 후 승인된 epoch rollout 계속 |
-| `Acquired`, `AlreadyOwned`, `Owned`, `Renewed` | ownership 정상 경로 계속; token을 resource/domain identity와 함께 저장 |
-| `Released` | local ownership 폐기, downstream write 금지 |
-| acquire `Contended` | TTL 이후 새 owner attempt 또는 bounded backoff; backend retry로 취급 금지 |
-| inspect `Contended` | local ownership 폐기, downstream write 금지 |
-| `Lost`, `OwnershipMismatch` | local ownership 폐기, downstream write 금지 |
-| `CounterUnavailable` | acquire 중지, 최초 배포/history-loss 운영 판정; 결과만 보고 bootstrap 금지 |
-| `SequenceExhausted` | retry 금지, higher-epoch cutover alert; max epoch면 domain freeze/migration |
-| `IntegrityFailure` | retry/mutation 중지, read-only diagnosis와 runbook 실행 |
-| `BackendFailure` | ambiguous completion으로 operation-specific reconcile; 정책 retry면 same owner/token |
+| Result                                         | Required caller action                                                               |
+|------------------------------------------------|--------------------------------------------------------------------------------------|
+| `Initialized`, `AlreadyInitialized`            | readiness 확인 후 승인된 epoch rollout 계속                                          |
+| `Acquired`, `AlreadyOwned`, `Owned`, `Renewed` | ownership 정상 경로 계속; token을 resource/domain identity와 함께 저장               |
+| `Released`                                     | local ownership 폐기, downstream write 금지                                          |
+| acquire `Contended`                            | TTL 이후 새 owner attempt 또는 bounded backoff; backend retry로 취급 금지            |
+| inspect `Contended`                            | local ownership 폐기, downstream write 금지                                          |
+| `Lost`, `OwnershipMismatch`                    | local ownership 폐기, downstream write 금지                                          |
+| `CounterUnavailable`                           | acquire 중지, 최초 배포/history-loss 운영 판정; 결과만 보고 bootstrap 금지           |
+| `SequenceExhausted`                            | retry 금지, higher-epoch cutover alert; max epoch면 domain freeze/migration          |
+| `IntegrityFailure`                             | retry/mutation 중지, read-only diagnosis와 runbook 실행                              |
+| `BackendFailure`                               | ambiguous completion으로 operation-specific reconcile; 정책 retry면 same owner/token |
+
 - [ ] RED 명령을 실행한다.
 
 ```bash
@@ -1247,23 +1252,23 @@ Expected: 허용되지 않은 assertion/작업 marker 0. 의도적 `shouldBeFals
 
 - [ ] 아래 matrix의 각 행을 fresh test 이름/파일/명령 결과에 연결한다.
 
-| 설계/issue acceptance | 구현 evidence | Test evidence |
-|---|---|---|
-| config-bound domain, wire-byte same slot | `FencingLeaseValue.kt`, support key derivation | value/support/Cluster test |
-| orderable token, serialization, redaction | `FencingToken`, owner/result model | value/result round-trip, identity, crafted payload test |
-| explicit bootstrap, missing counter fail-closed | bootstrap/acquire Lua | script hostile-state test |
-| atomic generation and same-owner replay | acquire Lua | contract/concurrency/ambiguous completion test |
-| owner+token renew/release | renew/release Lua | shared contract stale holder test |
-| backend/integrity/protocol boundary | shared decoder/classifier | support + three-adapter parity test |
-| future/coroutine cancellation | runner bridge + suspend wrapper | RedisScript/cancellation test |
-| fixed O(1) preflight/reply | Lua source and decoder | script structural/hostile test |
-| standalone/Cluster parity | two facades + shared support | standalone/Cluster test |
-| external Retry/CB/Bulkhead only | test/example code | resilience + docs test |
-| downstream strict tuple guard | no production adapter | recovery/docs CAS fixture |
-| epoch recovery/lower rollback prohibition | docs + test harness | recovery/docs test |
-| tagged topology promotion/restore recovery | opt-in Testcontainers task | `fencingLeaseTopologyRecoveryTest` |
-| bilingual docs/KDoc | README locale + public source | documentation test |
-| existing API unchanged | no old API edits except shared runner behavior fix | RedisScript + MultiKeyLease regression |
+| 설계/issue acceptance                           | 구현 evidence                                      | Test evidence                                           |
+|-------------------------------------------------|----------------------------------------------------|---------------------------------------------------------|
+| config-bound domain, wire-byte same slot        | `FencingLeaseValue.kt`, support key derivation     | value/support/Cluster test                              |
+| orderable token, serialization, redaction       | `FencingToken`, owner/result model                 | value/result round-trip, identity, crafted payload test |
+| explicit bootstrap, missing counter fail-closed | bootstrap/acquire Lua                              | script hostile-state test                               |
+| atomic generation and same-owner replay         | acquire Lua                                        | contract/concurrency/ambiguous completion test          |
+| owner+token renew/release                       | renew/release Lua                                  | shared contract stale holder test                       |
+| backend/integrity/protocol boundary             | shared decoder/classifier                          | support + three-adapter parity test                     |
+| future/coroutine cancellation                   | runner bridge + suspend wrapper                    | RedisScript/cancellation test                           |
+| fixed O(1) preflight/reply                      | Lua source and decoder                             | script structural/hostile test                          |
+| standalone/Cluster parity                       | two facades + shared support                       | standalone/Cluster test                                 |
+| external Retry/CB/Bulkhead only                 | test/example code                                  | resilience + docs test                                  |
+| downstream strict tuple guard                   | no production adapter                              | recovery/docs CAS fixture                               |
+| epoch recovery/lower rollback prohibition       | docs + test harness                                | recovery/docs test                                      |
+| tagged topology promotion/restore recovery      | opt-in Testcontainers task                         | `fencingLeaseTopologyRecoveryTest`                      |
+| bilingual docs/KDoc                             | README locale + public source                      | documentation test                                      |
+| existing API unchanged                          | no old API edits except shared runner behavior fix | RedisScript + MultiKeyLease regression                  |
 
 - [ ] review 결과 P0=0/P1=0인지 확인하고 P2/P3는 수정하거나 근거와 함께 PR review note에 남긴다.
 

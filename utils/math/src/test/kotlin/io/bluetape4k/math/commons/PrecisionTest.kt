@@ -1,9 +1,9 @@
 package io.bluetape4k.math.commons
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.trace
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 

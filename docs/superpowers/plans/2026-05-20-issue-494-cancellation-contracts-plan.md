@@ -1,8 +1,6 @@
 # Issue 494 Cancellation Contracts Plan
 
-Date: 2026-05-20
-Issue: #494
-Spec: `docs/superpowers/specs/2026-05-20-issue-494-cancellation-contracts-design.md`
+Date: 2026-05-20 Issue: #494 Spec: `docs/superpowers/specs/2026-05-20-issue-494-cancellation-contracts-design.md`
 
 ## Execution Plan
 
@@ -44,8 +42,7 @@ Tasks:
 
 - Replace local cancelled-waiter scaffolding with
   `assertCancellationClearsWaiter`.
-- Keep the READY fast-path regression test because it verifies a separate state
-  transition.
+- Keep the READY fast-path regression test because it verifies a separate state transition.
 
 ### 4. Adopt in `:bluetape4k-micrometer`
 
@@ -67,8 +64,7 @@ File:
 
 Tasks:
 
-- Add a local MockWebServer delayed-response test that starts a real Retrofit
-  call, cancels the coroutine, and verifies `Call.isCanceled`.
+- Add a local MockWebServer delayed-response test that starts a real Retrofit call, cancels the coroutine, and verifies `Call.isCanceled`.
 - Use `assertResourceCancelledOnCoroutineCancellation` with a `beforeCancel`
   hook that waits until the server receives the request.
 
@@ -84,11 +80,10 @@ Tasks:
 - Add the cancellation helpers to key features.
 - Add usage examples.
 - Add checklist:
-  - rethrow `CancellationException`,
-  - clear waiters/continuations,
-  - cancel underlying futures/HTTP calls,
-  - never wrap suspend code in plain `runCatching` unless cancellation is
-    rethrown first.
+    - rethrow `CancellationException`,
+    - clear waiters/continuations,
+    - cancel underlying futures/HTTP calls,
+    - never wrap suspend code in plain `runCatching` unless cancellation is rethrown first.
 
 ### 7. Validation
 
@@ -119,23 +114,20 @@ If the shared helper API proves unstable during implementation:
 
 - Keep `runCatchingNonCancellation` and the narrow propagation helper.
 - Defer waiter/resource helper broadening to a follow-up issue.
-- Preserve representative tests locally without weakening existing runtime
-  coverage.
+- Preserve representative tests locally without weakening existing runtime coverage.
 
 ## Step 3-R Current-Session Review
 
-Claude Code CLI advisor was intentionally skipped because the user explicitly
-disabled Claude usage for this session. Codex current-session review covered the
-implementer, test engineer, architect, and delivery perspectives.
+Claude Code CLI advisor was intentionally skipped because the user explicitly disabled Claude usage for this session. Codex current-session review covered the implementer, test engineer, architect, and delivery perspectives.
 
 ### Findings
 
-| Priority | Perspective | Finding | Decision |
-|---|---|---|---|
-| P2 | Test engineer | Helper self-tests must include a negative case so `assertCancellationPropagates` cannot pass when cancellation is swallowed. | Accepted: Step 2 explicitly includes swallowed-cancellation proof. |
-| P2 | Architect | New helper APIs expose coroutine-test contracts from `:bluetape4k-junit5`; avoid tying signatures to `kotlinx.coroutines.test` types. | Accepted: helper APIs use `CoroutineScope`, `Duration`, and core coroutine types only. |
-| P2 | Delivery | README docs should live in `testing/junit5` rather than each adopted module to avoid repeated checklist drift. | Accepted: documentation task is centralized in the helper module README pair. |
-| P3 | Ops/SRE | MockWebServer request wait must be bounded so cancellation tests cannot hang. | Accepted: Retrofit task uses a bounded `takeRequest` hook. |
+| Priority | Perspective   | Finding                                                                                                                               | Decision                                                                               |
+|----------|---------------|---------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| P2       | Test engineer | Helper self-tests must include a negative case so `assertCancellationPropagates` cannot pass when cancellation is swallowed.          | Accepted: Step 2 explicitly includes swallowed-cancellation proof.                     |
+| P2       | Architect     | New helper APIs expose coroutine-test contracts from `:bluetape4k-junit5`; avoid tying signatures to `kotlinx.coroutines.test` types. | Accepted: helper APIs use `CoroutineScope`, `Duration`, and core coroutine types only. |
+| P2       | Delivery      | README docs should live in `testing/junit5` rather than each adopted module to avoid repeated checklist drift.                        | Accepted: documentation task is centralized in the helper module README pair.          |
+| P3       | Ops/SRE       | MockWebServer request wait must be bounded so cancellation tests cannot hang.                                                         | Accepted: Retrofit task uses a bounded `takeRequest` hook.                             |
 
 ### Convergence
 
@@ -145,22 +137,18 @@ implementer, test engineer, architect, and delivery perspectives.
 
 ## Step 6-R Current-Session Review
 
-Claude Code CLI advisor was intentionally skipped because the user explicitly
-disabled Claude usage for this session. A native `code-reviewer` subagent was
-started for an additional cross-check, but it did not return within the bounded
-review window and was shut down. The final gate is based on current-session
-six-tier review plus targeted validation.
+Claude Code CLI advisor was intentionally skipped because the user explicitly disabled Claude usage for this session. A native `code-reviewer` subagent was started for an additional cross-check, but it did not return within the bounded review window and was shut down. The final gate is based on current-session six-tier review plus targeted validation.
 
 ### Findings
 
-| Tier | Scope | P0 | P1 | P2/P3 | Result |
-|---|---|---:|---:|---|---|
-| 1 Security | Test helpers, tests, README docs | 0 | 0 | None | No secrets, auth, input, or deserialization surface introduced. |
-| 2 Ops/SRE | Cancellation cleanup and bounded waits | 0 | 0 | None | Helper waits are timeout-bounded; Retrofit request wait is bounded. |
-| 3 Structural | `bluetape4k-junit5` public helper API | 0 | 0 | None | API stays in testing module and depends only on core coroutine/Duration types. |
-| 4 Kotlin/Quality | Changed Kotlin files | 0 | 0 | P2 fixed | Converted helper failure path so cancellation-to-non-cancellation conversion fails as an assertion instead of escaping as an arbitrary exception. |
-| 5 Tests/Types | Self-tests and representative module adoption | 0 | 0 | None | Added positive and negative propagation tests, waiter cleanup, and resource cancellation coverage. |
-| 6 Perf/Stability | Final diff | 0 | 0 | None | No unbounded polling or sleeps; hardcoded waits are bounded test-only probes. |
+| Tier             | Scope                                         | P0 | P1 | P2/P3    | Result                                                                                                                                            |
+|------------------|-----------------------------------------------|---:|---:|----------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1 Security       | Test helpers, tests, README docs              |  0 |  0 | None     | No secrets, auth, input, or deserialization surface introduced.                                                                                   |
+| 2 Ops/SRE        | Cancellation cleanup and bounded waits        |  0 |  0 | None     | Helper waits are timeout-bounded; Retrofit request wait is bounded.                                                                               |
+| 3 Structural     | `bluetape4k-junit5` public helper API         |  0 |  0 | None     | API stays in testing module and depends only on core coroutine/Duration types.                                                                    |
+| 4 Kotlin/Quality | Changed Kotlin files                          |  0 |  0 | P2 fixed | Converted helper failure path so cancellation-to-non-cancellation conversion fails as an assertion instead of escaping as an arbitrary exception. |
+| 5 Tests/Types    | Self-tests and representative module adoption |  0 |  0 | None     | Added positive and negative propagation tests, waiter cleanup, and resource cancellation coverage.                                                |
+| 6 Perf/Stability | Final diff                                    |  0 |  0 | None     | No unbounded polling or sleeps; hardcoded waits are bounded test-only probes.                                                                     |
 
 ### Validation Evidence
 
@@ -182,5 +170,4 @@ git diff --check
 
 - P0: 0
 - P1: 0
-- Remaining risk: Gradle emits existing deprecation warnings in unrelated
-  dependency/test modules; no warning was introduced in the new helper contract.
+- Remaining risk: Gradle emits existing deprecation warnings in unrelated dependency/test modules; no warning was introduced in the new helper contract.

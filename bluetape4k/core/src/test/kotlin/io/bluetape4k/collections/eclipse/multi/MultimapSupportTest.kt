@@ -1,10 +1,10 @@
 package io.bluetape4k.collections.eclipse.multi
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.collections.AbstractCollectionTest
 import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContainSame
 import org.eclipse.collections.api.multimap.Multimap
 import org.junit.jupiter.api.Test
 import java.io.Serializable

@@ -3,8 +3,8 @@ package io.bluetape4k.cassandra.querybuilder.schema
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.alterKeyspace
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createKeyspace
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropKeyspace
-import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 
 class KeyspaceStatementExamples {

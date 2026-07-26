@@ -1,12 +1,14 @@
 # hibernate-cache-lettuce 이관 구현 계획
 
-> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Hibernate 2nd Level Cache + Lettuce NearCache 모듈을 experimental에서 projects로 이관
 
 **Architecture:** `bluetape4k-cache-lettuce`의 `LettuceNearCache`(Caffeine L1 + Redis L2)를 Hibernate `RegionFactoryTemplate`에 브릿지. 소스 코드 및 패키지명 변경 없이 그대로 이관. `build.gradle.kts`만 의존성을 `Libs.bluetape4k_xxx` -> `project(":bluetape4k-xxx")`로 변환.
 
-**Tech Stack:** Kotlin 2.3, Hibernate 6.6.x, Lettuce 6.8.2, Caffeine, Testcontainers Redis, H2, JUnit 5, bluetape4k-assertions
+**Tech
+Stack:** Kotlin 2.3, Hibernate 6.6.x, Lettuce 6.8.2, Caffeine, Testcontainers Redis, H2, JUnit 5, bluetape4k-assertions
 
 **Spec:** `docs/superpowers/specs/2026-03-28-hibernate-cache-lettuce-migration-design.md`
 
@@ -17,7 +19,8 @@
 1. **패키지명 변경 없음**: `io.bluetape4k.hibernate.cache.lettuce` 그대로 유지. import 경로 수정 불필요.
 2. **소스 코드 수정 없음**: main/test 소스 파일은 1바이트도 수정하지 않고 그대로 복사.
 3. **lz4_java 중복 제거**: experimental build.gradle.kts에서 `Libs.lz4_java`가 2번 선언됨. 이관 시 1번으로 정리.
-4. **settings.gradle.kts 수정 불필요**: `data/` 하위 모듈은 `includeModules("data")`로 자동 등록. 디렉토리명 `hibernate-cache-lettuce` -> 모듈명 `bluetape4k-hibernate-cache-lettuce` 자동 매핑.
+4. **settings.gradle.kts 수정
+   불필요**: `data/` 하위 모듈은 `includeModules("data")`로 자동 등록. 디렉토리명 `hibernate-cache-lettuce` -> 모듈명 `bluetape4k-hibernate-cache-lettuce` 자동 매핑.
 5. **Libs.kt 추가 불필요**: 모든 외부 의존성 상수가 projects Libs.kt에 이미 존재.
 6. **Docker 필요**: 테스트 실행 시 Testcontainers Redis 사용. Docker Desktop 기동 필수.
 7. **CODE_REVEW.md 이관 제외**: 오타 파일명이므로 이관하지 않음.
@@ -28,20 +31,20 @@
 
 ### 신규 생성 (build.gradle.kts)
 
-| 파일 | 역할 |
-|------|------|
+| 파일                                            | 역할                                                               |
+|-------------------------------------------------|--------------------------------------------------------------------|
 | `data/hibernate-cache-lettuce/build.gradle.kts` | 의존성 project 참조 변환, lz4_java 중복 제거, allOpen/jpa 플러그인 |
 
 ### 소스 복사 (수정 없음)
 
-| 소스 | 파일 수 | 비고 |
-|------|---------|------|
-| main 소스 | 3 | Properties, RegionFactory, StorageAccess |
-| test 클래스 | 14 | 엔티티/쿼리/관계/동시성/통계 테스트 |
-| test 인프라 | 1 | RedisServers.kt |
-| test 모델 | 5 | Person, Advanced, Relation, ElementCollection, Versioned |
-| test 리소스 | 2 | junit-platform.properties, logback-test.xml |
-| README.md | 1 | 200줄 상세 문서 |
+| 소스        | 파일 수 | 비고                                                     |
+|-------------|---------|----------------------------------------------------------|
+| main 소스   | 3       | Properties, RegionFactory, StorageAccess                 |
+| test 클래스 | 14      | 엔티티/쿼리/관계/동시성/통계 테스트                      |
+| test 인프라 | 1       | RedisServers.kt                                          |
+| test 모델   | 5       | Person, Advanced, Relation, ElementCollection, Versioned |
+| test 리소스 | 2       | junit-platform.properties, logback-test.xml              |
+| README.md   | 1       | 200줄 상세 문서                                          |
 
 ---
 
@@ -72,21 +75,21 @@
 
 **의존성 변환 전체 목록**:
 
-| experimental | projects | scope |
-|-------------|----------|-------|
-| `Libs.bluetape4k_cache_lettuce` | `project(":bluetape4k-cache-lettuce")` | api |
-| `Libs.bluetape4k_io` | `project(":bluetape4k-io")` | api |
-| `Libs.bluetape4k_lettuce` | `project(":bluetape4k-lettuce")` | api |
-| `Libs.fory_kotlin` | `Libs.fory_kotlin` | implementation |
-| `Libs.lz4_java` | `Libs.lz4_java` | implementation (1회만) |
-| `Libs.snappy_java` | `Libs.snappy_java` | implementation |
-| `Libs.zstd_jni` | `Libs.zstd_jni` | implementation |
-| `Libs.hibernate_core` | `Libs.hibernate_core` | api |
-| `Libs.bluetape4k_junit5` | `project(":bluetape4k-junit5")` | testImplementation |
-| `Libs.bluetape4k_testcontainers` | `project(":bluetape4k-testcontainers")` | testImplementation |
-| `Libs.testcontainers` | `Libs.testcontainers` | testImplementation |
-| `Libs.h2_v2` | `Libs.h2_v2` | testImplementation |
-| `Libs.hikaricp` | `Libs.hikaricp` | testImplementation |
+| experimental                     | projects                                | scope                  |
+|----------------------------------|-----------------------------------------|------------------------|
+| `Libs.bluetape4k_cache_lettuce`  | `project(":bluetape4k-cache-lettuce")`  | api                    |
+| `Libs.bluetape4k_io`             | `project(":bluetape4k-io")`             | api                    |
+| `Libs.bluetape4k_lettuce`        | `project(":bluetape4k-lettuce")`        | api                    |
+| `Libs.fory_kotlin`               | `Libs.fory_kotlin`                      | implementation         |
+| `Libs.lz4_java`                  | `Libs.lz4_java`                         | implementation (1회만) |
+| `Libs.snappy_java`               | `Libs.snappy_java`                      | implementation         |
+| `Libs.zstd_jni`                  | `Libs.zstd_jni`                         | implementation         |
+| `Libs.hibernate_core`            | `Libs.hibernate_core`                   | api                    |
+| `Libs.bluetape4k_junit5`         | `project(":bluetape4k-junit5")`         | testImplementation     |
+| `Libs.bluetape4k_testcontainers` | `project(":bluetape4k-testcontainers")` | testImplementation     |
+| `Libs.testcontainers`            | `Libs.testcontainers`                   | testImplementation     |
+| `Libs.h2_v2`                     | `Libs.h2_v2`                            | testImplementation     |
+| `Libs.hikaricp`                  | `Libs.hikaricp`                         | testImplementation     |
 
 **검증**: Gradle sync 성공 확인
 
@@ -98,7 +101,8 @@
 - [ ] `LettuceNearCacheRegionFactory.kt` 복사 (103 LOC)
 - [ ] `LettuceNearCacheStorageAccess.kt` 복사 (98 LOC)
 
-**소스 경로**: `bluetape4k-experimental/infra/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/`
+**소스
+경로**: `bluetape4k-experimental/infra/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/`
 **대상 경로**: `data/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/`
 **검증**: 파일 3개 존재 확인
 
@@ -142,7 +146,7 @@
 
 **소스 경로**: `bluetape4k-experimental/infra/hibernate-cache-lettuce/src/test/`
 **대상 경로**: `data/hibernate-cache-lettuce/src/test/`
-**검증**: 파일 22개(14+1+5+2) 존재 확인
+**검증**: 파일 22개 (14+1+5+2) 존재 확인
 
 ---
 
@@ -163,11 +167,13 @@
 - [ ] 컴파일 오류 발생 시 build.gradle.kts 의존성 수정
 
 **명령어**:
+
 ```bash
 ./gradlew :bluetape4k-hibernate-cache-lettuce:compileKotlin :bluetape4k-hibernate-cache-lettuce:compileTestKotlin
 ```
 
 **실패 시 대응**:
+
 - import 미해결 -> 누락된 의존성 추가
 - Hibernate API 호환 -> 버전 차이 확인 (6.6.x 기준)
 
@@ -180,11 +186,13 @@
 - [ ] 14개 테스트 클래스 전체 통과 확인
 
 **명령어**:
+
 ```bash
 ./gradlew :bluetape4k-hibernate-cache-lettuce:test
 ```
 
 **실패 시 대응**:
+
 - Testcontainers Redis 미기동 -> Docker 환경 확인
 - 캐시 타이밍 이슈 -> TTL 관련 테스트 격리 확인
 - Hibernate SessionFactory 구성 오류 -> AbstractHibernateNearCacheTest properties 확인
@@ -197,11 +205,13 @@
 - [ ] detekt 위반 없음 확인 (소스 복사이므로 통과 기대)
 
 **명령어**:
+
 ```bash
 ./gradlew :bluetape4k-hibernate-cache-lettuce:detekt
 ```
 
 **실패 시 대응**:
+
 - projects와 experimental의 detekt 규칙 차이로 위반 발생 시 -> `@Suppress` 어노테이션 최소 적용
 
 ---
@@ -212,6 +222,7 @@
 - [ ] `hibernate-reactive` 항목 바로 아래에 배치
 
 **추가 내용**:
+
 ```
 - **hibernate-cache-lettuce**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, region별 TTL 오버라이드, 15가지 코덱 지원
 ```

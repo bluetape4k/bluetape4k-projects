@@ -121,7 +121,7 @@ class DaeadChunkDecryptSource(
         val finalChunk = when (flags) {
             DAEAD_CHUNK_NON_FINAL_FLAG -> false
             DAEAD_CHUNK_FINAL_FLAG -> true
-            else -> throw IOException("Invalid DAEAD chunk flags: $flags")
+            else                   -> throw IOException("Invalid DAEAD chunk flags: $flags")
         }
 
         if (ciphertextLength <= 0L || ciphertextLength > Int.MAX_VALUE) {
@@ -164,7 +164,7 @@ class DaeadChunkDecryptSource(
                     }
                 }
 
-                else -> {
+                else           -> {
                     // Final frame authentication is only complete when no trailing frame bytes remain.
                     throw IOException("Trailing DAEAD chunk data after final frame.")
                 }
@@ -190,7 +190,7 @@ class DaeadChunkDecryptSource(
                     }
                 }
 
-                else -> noProgressCount = 0
+                else           -> noProgressCount = 0
             }
         }
 

@@ -1,12 +1,14 @@
 # bluetape4k-spring-boot3-batch-exposed Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Spring Batch 5.x + Exposed JDBC 기반 Partitioned Step + VirtualThread Parallel Query 배치 모듈 구현
 
 **Architecture:** `ExposedRangePartitioner`가 auto-increment PK를 N개 ID 범위로 분할하고, 각 파티션을 VirtualThread `TaskExecutor`에서 병렬 실행한다. `ExposedKeysetItemReader`가 keyset 페이징으로 읽고, `ExposedItemWriter` / `ExposedUpsertItemWriter` / `ExposedUpdateItemWriter`가 Spring 청크 트랜잭션에 참여하여 쓴다.
 
-**Tech Stack:** Kotlin 2.3, Spring Batch 5.x (Spring Boot 3 BOM), Exposed JDBC, Virtual Threads (JDK 21), H2 (unit test), Testcontainers PostgreSQL (integration test)
+**Tech
+Stack:** Kotlin 2.3, Spring Batch 5.x (Spring Boot 3 BOM), Exposed JDBC, Virtual Threads (JDK 21), H2 (unit test), Testcontainers PostgreSQL (integration test)
 
 - **작성일**: 2026-04-09
 - **스펙**: `docs/superpowers/specs/2026-04-09-spring-boot3-batch-exposed-design.md`
@@ -70,7 +72,7 @@ spring-boot3/batch-exposed/
 - **complexity**: low
 - **depends_on**: -
 - **Files**:
-  - Modify: `buildSrc/src/main/kotlin/Libs.kt`
+    - Modify: `buildSrc/src/main/kotlin/Libs.kt`
 
 - [ ] **Step 1: Libs.kt에 spring_batch_test 상수 추가**
 
@@ -94,7 +96,7 @@ Expected: BUILD SUCCESSFUL
 - **complexity**: low
 - **depends_on**: T1.1
 - **Files**:
-  - Create: `spring-boot3/batch-exposed/build.gradle.kts`
+    - Create: `spring-boot3/batch-exposed/build.gradle.kts`
 
 - [ ] **Step 1: 디렉토리 생성**
 
@@ -165,7 +167,8 @@ EOF
 )"
 ```
 
-**Done when**: `./gradlew :bluetape4k-spring-boot3-batch-exposed:dependencies` 성공, settings.gradle.kts 자동 등록 확인 (`includeModules("spring-boot3", ...)`)
+**Done
+when**: `./gradlew :bluetape4k-spring-boot3-batch-exposed:dependencies` 성공, settings.gradle.kts 자동 등록 확인 (`includeModules("spring-boot3", ...)`)
 
 ---
 
@@ -179,13 +182,14 @@ EOF
 - **complexity**: high
 - **depends_on**: T1.2
 - **Files**:
-  - Create: `spring-boot3/batch-exposed/src/main/kotlin/io/bluetape4k/spring/batch/exposed/partition/ExposedRangePartitioner.kt`
+    - Create: `spring-boot3/batch-exposed/src/main/kotlin/io/bluetape4k/spring/batch/exposed/partition/ExposedRangePartitioner.kt`
 
 - [ ] **Step 1: ExposedRangePartitioner 구현**
 
 `ExposedRangePartitioner` 클래스를 스펙 섹션 4.2에 따라 구현한다.
 
 핵심 구현 포인트:
+
 - `Partitioner` 인터페이스 구현, `Column<Long>` 기반 min/max 조회 후 균등 분할
 - `companion object`에 `forEntityId()` 팩토리: `IdTable<Long>.id`(`Column<EntityID<Long>>`)를 `castTo<Long>(LongColumnType())`로 변환하고, `selectMinMax` 람다에서 `table.id.min()/max()`의 `.value` 추출
 - 빈 테이블 시 `minId=0, maxId=-1` 단일 파티션 반환, Long overflow 방지를 위한 `safeGridSize` 계산
@@ -230,89 +234,78 @@ import org.springframework.batch.item.ExecutionContext
  *     gridSize = 16,
  * )
  * ```
- *
- * @param database Exposed [Database] (null이면 SpringTransactionManager 활용)
- * @param table 파티션 대상 Exposed [Table]
- * @param column 분할 기준 `Column<Long>` 컬럼 (PK, auto-increment)
- * @param gridSize 파티션 수 (기본값: 8)
- */
-class ExposedRangePartitioner(
-    private val database: Database? = null,
-    private val table: Table,
-    private val column: Column<Long>,
-    private val gridSize: Int = 8,
-    private val selectMinMax: Transaction.() -> Pair<Long?, Long?> = {
-        table.select(column.min(), column.max()).single()
-            .let { it[column.min()] to it[column.max()] }
-    },
-) : Partitioner {
 
-    companion object : KLogging() {
-        /** ExecutionContext에 저장되는 파티션 시작 ID 키 */
-        const val PARTITION_MIN_ID = "minId"
-        /** ExecutionContext에 저장되는 파티션 종료 ID 키 */
-        const val PARTITION_MAX_ID = "maxId"
+*
+* @param database Exposed [Database] (null이면 SpringTransactionManager 활용)
+* @param table 파티션 대상 Exposed [Table]
+* @param column 분할 기준 `Column<Long>` 컬럼 (PK, auto-increment)
+* @param gridSize 파티션 수 (기본값: 8)
+  */ class ExposedRangePartitioner (private val database: Database? = null, private val table: Table, private val column: Column<Long>, private val gridSize: Int = 8, private val selectMinMax: Transaction. () -> Pair<Long?, Long?> = { table.select (column.min (), column.max ()).single ()
+  .let { it[column.min ()] to it[column.max ()] } },
+  ) : Partitioner {
 
-        /**
-         * `LongIdTable.id` (`Column<EntityID<Long>>`) 기반 파티셔너 팩토리.
-         *
-         * - `selectMinMax`: `table.id.min()` / `table.id.max()` EntityID-aware 쿼리로 min/max 조회
-         * - `column`: `table.id.castTo<Long>(LongColumnType())`으로 Long 변환 — WHERE 절에서 Long 비교 사용
-         *   (DB에 따라 `CAST(id AS BIGINT) > lastKey` 형태로 실행될 수 있음)
-         *
-         * ```kotlin
-         * val partitioner = ExposedRangePartitioner.forEntityId(
-         *     table = SourceTable,
-         *     gridSize = 16,
-         * )
-         * ```
-         */
-        fun forEntityId(
-            table: IdTable<Long>,
-            gridSize: Int = 8,
-            database: Database? = null,
-        ): ExposedRangePartitioner = ExposedRangePartitioner(
-            database = database,
-            table = table,
-            // EntityID → Long castTo: 팩토리 생성 시 1회 수행, 이후 column 프로퍼티로 재사용
-            column = table.id.castTo<Long>(LongColumnType()),
-            gridSize = gridSize,
-            selectMinMax = {
-                // min/max 조회는 EntityID-aware 쿼리로 처리 (castTo 불필요)
-                table.select(table.id.min(), table.id.max()).single().let { row ->
-                    row[table.id.min()]?.value to row[table.id.max()]?.value
-                }
-            },
-        )
-    }
+  companion object : KLogging () { /** ExecutionContext에 저장되는 파티션 시작 ID 키 */ const val PARTITION_MIN_ID = "minId"
+  /** ExecutionContext에 저장되는 파티션 종료 ID 키 */ const val PARTITION_MAX_ID = "maxId"
 
-    override fun partition(gridSize: Int): Map<String, ExecutionContext> {
-        val effectiveGridSize = if (gridSize > 0) gridSize else this.gridSize
+       /**
+        * `LongIdTable.id` (`Column<EntityID<Long>>`) 기반 파티셔너 팩토리.
+        *
+        * - `selectMinMax`: `table.id.min()` / `table.id.max()` EntityID-aware 쿼리로 min/max 조회
+        * - `column`: `table.id.castTo<Long>(LongColumnType())`으로 Long 변환 — WHERE 절에서 Long 비교 사용
+        *   (DB에 따라 `CAST(id AS BIGINT) > lastKey` 형태로 실행될 수 있음)
+        *
+        * ```kotlin
+        * val partitioner = ExposedRangePartitioner.forEntityId(
+        *     table = SourceTable,
+        *     gridSize = 16,
+        * )
+        * ```
+        */
+       fun forEntityId(
+           table: IdTable<Long>,
+           gridSize: Int = 8,
+           database: Database? = null,
+       ): ExposedRangePartitioner = ExposedRangePartitioner(
+           database = database,
+           table = table,
+           // EntityID → Long castTo: 팩토리 생성 시 1회 수행, 이후 column 프로퍼티로 재사용
+           column = table.id.castTo<Long>(LongColumnType()),
+           gridSize = gridSize,
+           selectMinMax = {
+               // min/max 조회는 EntityID-aware 쿼리로 처리 (castTo 불필요)
+               table.select(table.id.min(), table.id.max()).single().let { row ->
+                   row[table.id.min()]?.value to row[table.id.max()]?.value
+               }
+           },
+       )
+  }
 
-        val (min, max) = transaction(database) { selectMinMax() }
+  override fun partition (gridSize: Int): Map<String, ExecutionContext> { val effectiveGridSize = if (gridSize > 0) gridSize else this.gridSize
 
-        if (min == null || max == null) {
-            return mapOf("partition-0" to ExecutionContext().apply {
-                putLong(PARTITION_MIN_ID, 0L)
-                putLong(PARTITION_MAX_ID, -1L)
-            })
-        }
+       val (min, max) = transaction(database) { selectMinMax() }
 
-        val totalRange = max - min + 1
-        val safeGridSize = minOf(effectiveGridSize.toLong(), totalRange.coerceAtLeast(1L)).toInt()
-        val rangeSize = totalRange / safeGridSize
+       if (min == null || max == null) {
+           return mapOf("partition-0" to ExecutionContext().apply {
+               putLong(PARTITION_MIN_ID, 0L)
+               putLong(PARTITION_MAX_ID, -1L)
+           })
+       }
 
-        return (0 until safeGridSize).associate { i ->
-            val partMinId = min + i * rangeSize
-            val partMaxId = if (i == safeGridSize - 1) max else min + (i + 1) * rangeSize - 1
+       val totalRange = max - min + 1
+       val safeGridSize = minOf(effectiveGridSize.toLong(), totalRange.coerceAtLeast(1L)).toInt()
+       val rangeSize = totalRange / safeGridSize
 
-            "partition-$i" to ExecutionContext().apply {
-                putLong(PARTITION_MIN_ID, partMinId)
-                putLong(PARTITION_MAX_ID, partMaxId)
-            }
-        }
-    }
-}
+       return (0 until safeGridSize).associate { i ->
+           val partMinId = min + i * rangeSize
+           val partMaxId = if (i == safeGridSize - 1) max else min + (i + 1) * rangeSize - 1
+
+           "partition-$i" to ExecutionContext().apply {
+               putLong(PARTITION_MIN_ID, partMinId)
+               putLong(PARTITION_MAX_ID, partMaxId)
+           }
+       }
+  } }
+
 ```
 
 - [ ] **Step 2: 컴파일 확인**
@@ -510,13 +503,14 @@ Expected: BUILD SUCCESSFUL
 - **complexity**: medium
 - **depends_on**: T1.2
 - **Files**:
-  - Create: `spring-boot3/batch-exposed/src/main/kotlin/io/bluetape4k/spring/batch/exposed/support/VirtualThreadPartitionSupport.kt`
+    - Create: `spring-boot3/batch-exposed/src/main/kotlin/io/bluetape4k/spring/batch/exposed/support/VirtualThreadPartitionSupport.kt`
 
 - [ ] **Step 1: virtualThreadPartitionTaskExecutor 팩토리 함수 구현**
 
 `SimpleAsyncTaskExecutor` 기반 VirtualThread `TaskExecutor` 생성 팩토리 함수를 구현한다.
 
 핵심 구현 포인트:
+
 - `SimpleAsyncTaskExecutor`에 `setVirtualThreads(true)` + `setConcurrencyLimit()` 설정
 - 기본 `concurrencyLimit`은 `availableProcessors * 2`
 
@@ -540,17 +534,15 @@ import org.springframework.core.task.TaskExecutor
  *     gridSize = 16
  * }
  * ```
- *
- * @param threadNamePrefix VirtualThread 이름 접두사
- * @param concurrencyLimit 동시 실행 파티션 수 (기본값: availableProcessors * 2)
- */
-fun virtualThreadPartitionTaskExecutor(
-    threadNamePrefix: String = "batch-partition-",
-    concurrencyLimit: Int = Runtime.getRuntime().availableProcessors() * 2,
-): TaskExecutor = SimpleAsyncTaskExecutor(threadNamePrefix).apply {
-    setVirtualThreads(true)
-    setConcurrencyLimit(concurrencyLimit)
-}
+
+*
+* @param threadNamePrefix VirtualThread 이름 접두사
+* @param concurrencyLimit 동시 실행 파티션 수 (기본값: availableProcessors * 2)
+  */ fun virtualThreadPartitionTaskExecutor (threadNamePrefix: String = "batch-partition-", concurrencyLimit: Int = Runtime.getRuntime ().availableProcessors () * 2,
+  ): TaskExecutor = SimpleAsyncTaskExecutor (threadNamePrefix).apply { setVirtualThreads (true)
+  setConcurrencyLimit (concurrencyLimit)
+  }
+
 ```
 
 - [ ] **Step 2: 컴파일 확인**
@@ -601,28 +593,25 @@ import org.springframework.batch.item.ItemWriter
  *     this[TargetTable.value] = it.value
  * }
  * ```
- *
- * @param T 입력 타입
- * @param table 대상 Exposed [Table]
- * @param insertBody `batchInsert` 람다
- */
-class ExposedItemWriter<T>(
-    private val table: Table,
-    private val insertBody: BatchInsertStatement.(T) -> Unit,
-) : ItemWriter<T> {
 
-    companion object : KLogging()
+*
+* @param T 입력 타입
+* @param table 대상 Exposed [Table]
+* @param insertBody `batchInsert` 람다
+  */ class ExposedItemWriter<T>(private val table: Table, private val insertBody: BatchInsertStatement. (T) -> Unit,
+  ) : ItemWriter<T> {
 
-    override fun write(chunk: Chunk<out T>) {
-        if (chunk.isEmpty) return
+  companion object : KLogging ()
 
-        table.batchInsert(chunk.items, shouldReturnGeneratedValues = false) { item ->
-            insertBody(item)
-        }
+  override fun write (chunk: Chunk<out T>) { if (chunk.isEmpty) return
 
-        log.debug { "${chunk.items.size}건 batchInsert 완료 (table=${table.tableName})" }
-    }
-}
+       table.batchInsert(chunk.items, shouldReturnGeneratedValues = false) { item ->
+           insertBody(item)
+       }
+
+       log.debug { "${chunk.items.size}건 batchInsert 완료 (table=${table.tableName})" }
+  } }
+
 ```
 
 - [ ] **Step 2: 컴파일 확인**
@@ -702,13 +691,14 @@ Expected: BUILD SUCCESSFUL
 - **complexity**: medium
 - **depends_on**: T1.2
 - **Files**:
-  - Create: `spring-boot3/batch-exposed/src/main/kotlin/io/bluetape4k/spring/batch/exposed/writer/ExposedUpdateItemWriter.kt`
+    - Create: `spring-boot3/batch-exposed/src/main/kotlin/io/bluetape4k/spring/batch/exposed/writer/ExposedUpdateItemWriter.kt`
 
 - [ ] **Step 1: ExposedUpdateItemWriter 구현**
 
 개별 `update` 기반 `ItemWriter`를 스펙 섹션 4.6에 따라 구현한다.
 
 핵심 구현 포인트:
+
 - `ItemWriter<T>` 구현, `keyColumn` + `keyExtractor`로 WHERE 조건 생성
 - 각 아이템에 대해 개별 UPDATE 실행 (batch update 아님)
 
@@ -772,14 +762,15 @@ Expected: BUILD SUCCESSFUL
 - **complexity**: medium
 - **depends_on**: T2.3
 - **Files**:
-  - Create: `spring-boot3/batch-exposed/src/main/kotlin/io/bluetape4k/spring/batch/exposed/config/ExposedBatchAutoConfiguration.kt`
-  - Create: `spring-boot3/batch-exposed/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+    - Create: `spring-boot3/batch-exposed/src/main/kotlin/io/bluetape4k/spring/batch/exposed/config/ExposedBatchAutoConfiguration.kt`
+    - Create: `spring-boot3/batch-exposed/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
 
 - [ ] **Step 1: ExposedBatchAutoConfiguration 구현**
 
 Spring Boot AutoConfiguration 클래스를 스펙 섹션 4.8에 따라 구현한다.
 
 핵심 구현 포인트:
+
 - `@AutoConfiguration(after = [BatchAutoConfiguration::class])` 순서 지정
 - `@ConditionalOnClass(Job::class)`, `@ConditionalOnBean(DataSource::class, PlatformTransactionManager::class)`
 - `@EnableBatchProcessing` 절대 사용 금지 (Spring Boot 3.x auto-config 무력화 방지)
@@ -813,10 +804,10 @@ import org.springframework.transaction.PlatformTransactionManager
  *     job:
  *       enabled: false  # 자동 실행 비활성화, 명시적 JobLauncher 사용 권장
  * ```
- */
-@AutoConfiguration(after = [BatchAutoConfiguration::class])
-@ConditionalOnClass(Job::class)
-@ConditionalOnBean(DataSource::class, PlatformTransactionManager::class)
+
+*/ @AutoConfiguration (after = [BatchAutoConfiguration::class])
+@ConditionalOnClass (Job::class)
+@ConditionalOnBean (DataSource::class, PlatformTransactionManager::class)
 class ExposedBatchAutoConfiguration {
 
     companion object : KLogging()
@@ -832,7 +823,9 @@ class ExposedBatchAutoConfiguration {
             setVirtualThreads(true)
             setConcurrencyLimit(Runtime.getRuntime().availableProcessors() * 2)
         }
+
 }
+
 ```
 
 - [ ] **Step 2: META-INF AutoConfiguration.imports 파일 생성**
@@ -840,7 +833,9 @@ class ExposedBatchAutoConfiguration {
 Create: `spring-boot3/batch-exposed/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
 
 ```
+
 io.bluetape4k.spring.batch.exposed.config.ExposedBatchAutoConfiguration
+
 ```
 
 - [ ] **Step 3: 컴파일 확인**
@@ -884,22 +879,18 @@ import org.springframework.batch.core.step.builder.StepBuilder
  *     start(partitionedStep)
  * }
  * ```
- */
-fun partitionedBatchJob(
-    name: String,
-    jobRepository: JobRepository,
-    block: JobBuilder.() -> SimpleJobBuilder,
-): Job = JobBuilder(name, jobRepository).block().build()
+
+*/ fun partitionedBatchJob (name: String, jobRepository: JobRepository, block: JobBuilder. () -> SimpleJobBuilder,
+): Job = JobBuilder (name, jobRepository).block ().build ()
 
 /**
- * Exposed Partitioned Step을 생성하는 DSL 확장.
- */
-fun StepBuilder.exposedPartitionedStep(
-    partitioner: ExposedRangePartitioner,
-    handler: PartitionHandler,
-): Step = this.partitioner("worker", partitioner)
-    .partitionHandler(handler)
-    .build()
+
+* Exposed Partitioned Step을 생성하는 DSL 확장.
+  */ fun StepBuilder.exposedPartitionedStep (partitioner: ExposedRangePartitioner, handler: PartitionHandler,
+  ): Step = this.partitioner ("worker", partitioner)
+  .partitionHandler (handler)
+  .build ()
+
 ```
 
 - [ ] **Step 2: 컴파일 확인**
@@ -935,8 +926,8 @@ EOF
 - **complexity**: low
 - **depends_on**: T2.8
 - **Files**:
-  - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/TestTables.kt`
-  - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/AbstractExposedBatchTest.kt`
+    - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/TestTables.kt`
+    - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/AbstractExposedBatchTest.kt`
 
 - [ ] **Step 1: TestTables.kt 작성**
 
@@ -1094,7 +1085,7 @@ Expected: BUILD SUCCESSFUL
 - **complexity**: medium
 - **depends_on**: T3.1
 - **Files**:
-  - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/partition/ExposedRangePartitionerTest.kt`
+    - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/partition/ExposedRangePartitionerTest.kt`
 
 - [ ] **Step 1: 단위 테스트 작성**
 
@@ -1207,7 +1198,7 @@ Expected: 4 tests passed
 - **complexity**: medium
 - **depends_on**: T3.1
 - **Files**:
-  - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/reader/ExposedKeysetItemReaderTest.kt`
+    - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/reader/ExposedKeysetItemReaderTest.kt`
 
 - [ ] **Step 1: 단위 테스트 작성**
 
@@ -1360,9 +1351,9 @@ Expected: 4 tests passed
 - **complexity**: medium
 - **depends_on**: T3.1
 - **Files**:
-  - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/writer/ExposedItemWriterTest.kt`
-  - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/writer/ExposedUpsertItemWriterTest.kt`
-  - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/writer/ExposedUpdateItemWriterTest.kt`
+    - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/writer/ExposedItemWriterTest.kt`
+    - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/writer/ExposedUpsertItemWriterTest.kt`
+    - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/writer/ExposedUpdateItemWriterTest.kt`
 
 - [ ] **Step 1: ExposedItemWriterTest 작성**
 
@@ -1561,13 +1552,14 @@ Expected: 6 tests passed (ExposedItemWriterTest 2 + ExposedUpsertItemWriterTest 
 - **complexity**: high
 - **depends_on**: T3.1, T3.2, T3.3, T3.4
 - **Files**:
-  - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/integration/ParallelQueryIntegrationTest.kt`
+    - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/integration/ParallelQueryIntegrationTest.kt`
 
 - [ ] **Step 1: E2E 통합 테스트 작성**
 
 H2 환경에서 전체 파이프라인 (Partitioner + Reader + Processor + Writer + VirtualThread) E2E 동작을 검증한다. Testcontainers PostgreSQL은 CI 환경에서만 실행하도록 `@Tag("integration")` 분리 가능하지만, 기본 테스트는 H2로 작성한다.
 
 핵심 검증:
+
 - 10,000건 Source -> Target, 4 파티션 VirtualThread 병렬 실행
 - 데이터 정합성: Target 행 수 == Source 행 수, 중복 없음
 - Spring Batch Job 상태 == COMPLETED
@@ -1733,7 +1725,7 @@ EOF
 - **complexity**: medium
 - **depends_on**: T3.5
 - **Files**:
-  - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/integration/RestartIntegrationTest.kt`
+    - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/integration/RestartIntegrationTest.kt`
 
 - [ ] **Step 1: 재시작 시나리오 테스트 작성**
 
@@ -1898,7 +1890,7 @@ class RestartIntegrationTest : AbstractExposedBatchTest() {
 - **complexity**: medium
 - **depends_on**: T3.5
 - **Files**:
-  - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/integration/EndToEndJobTest.kt`
+    - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/integration/EndToEndJobTest.kt`
 
 - [ ] **Step 1: AutoConfiguration 통합 테스트 작성**
 
@@ -2063,7 +2055,7 @@ class EndToEndJobTest : AbstractExposedBatchTest() {
 - **complexity**: low
 - **depends_on**: T3.5
 - **Files**:
-  - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/integration/ParallelQueryBenchmarkTest.kt`
+    - Create: `spring-boot3/batch-exposed/src/test/kotlin/io/bluetape4k/spring/batch/exposed/integration/ParallelQueryBenchmarkTest.kt`
 
 - [ ] **Step 1: 벤치마크 테스트 작성 (`@Tag("benchmark")`)**
 
@@ -2234,6 +2226,7 @@ EOF
 - [ ] **Step 1: `bluetape4k-patterns` 스킬 기준 전체 점검**
 
 아래 항목을 하나씩 확인한다:
+
 - 모든 data class (`SourceRecord`, `TargetRecord`)에 `Serializable` + `serialVersionUID = 1L` 존재 여부
 - 모든 companion object가 `KLogging()` 또는 `KLoggingChannel()` 상속 여부
 - `requireNotBlank()` 확장 함수 (bluetape4k-core) 사용 여부 (`require(str.isNotBlank())` 대신)
@@ -2251,13 +2244,14 @@ EOF
 - **complexity**: low
 - **depends_on**: T4.0
 - **Files**:
-  - Modify: `spring-boot3/batch-exposed/src/main/kotlin/io/bluetape4k/spring/batch/exposed/` 하위 모든 `.kt` 파일
+    - Modify: `spring-boot3/batch-exposed/src/main/kotlin/io/bluetape4k/spring/batch/exposed/` 하위 모든 `.kt` 파일
 
 - [ ] **Step 1: 모든 public 클래스/함수에 한국어 KDoc 확인 및 보완**
 
 Phase 2에서 작성한 코드의 KDoc을 검토한다. 이미 스펙 기반으로 작성되어 있으므로 누락된 KDoc만 보완한다.
 
 검토 대상:
+
 - `ExposedRangePartitioner` + `forEntityId()`: 한국어 KDoc 확인
 - `ExposedKeysetItemReader` + `forEntityId()`: 한국어 KDoc 확인
 - `ExposedItemWriter`, `ExposedUpsertItemWriter`, `ExposedUpdateItemWriter`: 한국어 KDoc 확인
@@ -2279,14 +2273,15 @@ Expected: 오류 없음
 - **complexity**: low
 - **depends_on**: T4.1
 - **Files**:
-  - Create: `spring-boot3/batch-exposed/README.md`
-  - Create: `spring-boot3/batch-exposed/README.ko.md`
+    - Create: `spring-boot3/batch-exposed/README.md`
+    - Create: `spring-boot3/batch-exposed/README.ko.md`
 
 - [ ] **Step 1: README.md (영어) 작성**
 
-Architecture -> UML (Mermaid) -> Features -> Examples 순서로 작성한다. 스펙의 Mermaid 다이어그램(flowchart TD, sequence diagram, class diagram)을 포함한다.
+Architecture -> UML (Mermaid) -> Features -> Examples 순서로 작성한다. 스펙의 Mermaid 다이어그램 (flowchart TD, sequence diagram, class diagram)을 포함한다.
 
 핵심 섹션:
+
 - Architecture Overview (실행 흐름 Mermaid flowchart)
 - Class Diagram (Mermaid)
 - Quick Start (Job 설정 코드 예시)
@@ -2310,7 +2305,7 @@ README.md와 동일 구조, 한국어 번역.
 - **complexity**: low
 - **depends_on**: T4.2
 - **Files**:
-  - Modify: `CLAUDE.md`
+    - Modify: `CLAUDE.md`
 
 - [ ] **Step 1: CLAUDE.md의 Spring Boot 3 섹션에 batch-exposed 모듈 추가**
 
@@ -2329,8 +2324,8 @@ README.md와 동일 구조, 한국어 번역.
 - **complexity**: low
 - **depends_on**: T4.3
 - **Files**:
-  - Modify: `docs/superpowers/index/2026-04.md`
-  - Modify: `docs/superpowers/INDEX.md`
+    - Modify: `docs/superpowers/index/2026-04.md`
+    - Modify: `docs/superpowers/INDEX.md`
 
 - [ ] **Step 1: 월별 인덱스에 항목 추가**
 
@@ -2353,7 +2348,7 @@ README.md와 동일 구조, 한국어 번역.
 - **complexity**: low
 - **depends_on**: T4.4
 - **Files**:
-  - Modify: `docs/testlogs/2026-04.md`
+    - Modify: `docs/testlogs/2026-04.md`
 
 - [ ] **Step 1: testlog 기록**
 
@@ -2382,11 +2377,11 @@ EOF
 
 ## Summary
 
-| Phase | Tasks | 핵심 내용 |
-|-------|-------|----------|
-| Phase 1 | T1.1~T1.2 | Libs.kt 상수, 폴더/빌드 설정 |
-| Phase 2 | T2.1~T2.8 | Partitioner, Reader, 3x Writer, VirtualThread, AutoConfig, DSL |
+| Phase   | Tasks     | 핵심 내용                                                                         |
+|---------|-----------|-----------------------------------------------------------------------------------|
+| Phase 1 | T1.1~T1.2 | Libs.kt 상수, 폴더/빌드 설정                                                      |
+| Phase 2 | T2.1~T2.8 | Partitioner, Reader, 3x Writer, VirtualThread, AutoConfig, DSL                    |
 | Phase 3 | T3.1~T3.8 | 테스트 인프라, 단위 테스트 4개 클래스, E2E + Restart + AutoConfig E2E + Benchmark |
-| Phase 4 | T4.0~T4.5 | patterns 체크리스트, KDoc, README x2, CLAUDE.md, superpowers index, testlog |
+| Phase 4 | T4.0~T4.5 | patterns 체크리스트, KDoc, README x2, CLAUDE.md, superpowers index, testlog       |
 
 **총 태스크**: 24개 (Phase 1: 2, Phase 2: 8, Phase 3: 8, Phase 4: 6 — T4.0 포함)

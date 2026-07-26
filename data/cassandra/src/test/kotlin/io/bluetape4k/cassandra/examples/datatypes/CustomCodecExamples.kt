@@ -7,6 +7,11 @@ import com.datastax.oss.driver.api.core.type.codec.ExtraTypeCodecs
 import com.datastax.oss.driver.api.core.type.codec.MappingCodec
 import com.datastax.oss.driver.api.core.type.codec.TypeCodecs
 import com.datastax.oss.driver.api.core.type.reflect.GenericType
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.CqlSessionProvider
 import io.bluetape4k.cassandra.data.getList
@@ -14,11 +19,6 @@ import io.bluetape4k.cassandra.data.getValue
 import io.bluetape4k.cassandra.data.setValue
 import io.bluetape4k.io.getBytes
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.net.InetAddress
 import java.time.ZonedDateTime

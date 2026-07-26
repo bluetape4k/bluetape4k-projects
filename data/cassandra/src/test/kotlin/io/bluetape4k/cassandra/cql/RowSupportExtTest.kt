@@ -1,12 +1,12 @@
 package io.bluetape4k.cassandra.cql
 
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.toCqlIdentifier
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
@@ -14,9 +14,9 @@ import org.junit.jupiter.api.Test
  * [io.bluetape4k.cassandra.cql.RowSupport]의 getStringOrEmpty, map, mapWithName,
  * toCqlIdentifierMap, mapWithCqlIdentifier 확장 함수를 검증합니다.
  */
-class RowSupportExtTest : AbstractCassandraTest() {
+class RowSupportExtTest: AbstractCassandraTest() {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     @BeforeAll
     fun setup() {

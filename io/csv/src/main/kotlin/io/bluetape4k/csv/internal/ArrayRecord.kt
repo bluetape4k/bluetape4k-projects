@@ -17,9 +17,9 @@ internal class ArrayRecord(
     _headers: Array<String>?,
     val headerIndex: HeaderIndex?,
     override val rowNumber: Long,
-) : Record {
+): Record {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
     }
 
@@ -45,27 +45,27 @@ internal class ArrayRecord(
     /**
      * 타입 변환 내부 헬퍼. T : Any 제약으로 null defaultValue를 컴파일 타임에 차단.
      */
-    private fun <T : Any> convert(raw: String?, defaultValue: T, converter: (String) -> T?): T {
+    private fun <T: Any> convert(raw: String?, defaultValue: T, converter: (String) -> T?): T {
         if (raw == null) return defaultValue
         return runCatching { converter(raw) }.getOrNull() ?: defaultValue
     }
 
-    override fun <T : Any> getValue(index: Int, defaultValue: T): T =
+    override fun <T: Any> getValue(index: Int, defaultValue: T): T =
         convert(getString(index), defaultValue) { raw ->
             @Suppress("UNCHECKED_CAST")
             when (defaultValue) {
-                is String -> raw as T
-                is Int -> raw.trim().toInt() as T
-                is Long -> raw.trim().toLong() as T
-                is Double -> raw.trim().toDouble() as T
-                is Float -> raw.trim().toFloat() as T
+                is String  -> raw as T
+                is Int     -> raw.trim().toInt() as T
+                is Long    -> raw.trim().toLong() as T
+                is Double  -> raw.trim().toDouble() as T
+                is Float   -> raw.trim().toFloat() as T
                 is Boolean -> raw.trim().toBoolean() as T
                 is BigDecimal -> raw.trim().toBigDecimal() as T
-                else -> throw IllegalArgumentException("지원하지 않는 타입: ${defaultValue::class}")
+                else       -> throw IllegalArgumentException("지원하지 않는 타입: ${defaultValue::class}")
             }
         }
 
-    override fun <T : Any> getValue(name: String, defaultValue: T): T {
+    override fun <T: Any> getValue(name: String, defaultValue: T): T {
         val idx = headerIndex?.indexOf(name) ?: return defaultValue
         return getValue(idx, defaultValue)
     }

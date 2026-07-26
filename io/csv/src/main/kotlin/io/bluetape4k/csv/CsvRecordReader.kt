@@ -26,9 +26,9 @@ import kotlin.text.Charsets.UTF_8
  */
 class CsvRecordReader(
     private val settings: CsvSettings = CsvSettings.DEFAULT,
-) : RecordReader {
+): RecordReader {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * CSV 입력 스트림을 읽어 변환 결과 시퀀스를 반환합니다.

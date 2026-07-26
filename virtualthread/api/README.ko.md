@@ -108,7 +108,7 @@ val (successes, errors) = StructuredTaskScopes.supervised<String, Pair<List<Stri
 println("결과 ${successes.size}개 수집, 실패 ${errors.size}건")
 ```
 
-`joinUntil` 데드라인 지정 — 모든 scope 타입(`All`, `Any`, `Supervised`) 지원:
+`joinUntil` 데드라인 지정 — 모든 scope 타입 (`All`, `Any`, `Supervised`) 지원:
 
 ```kotlin
 // Supervised scope — joinUntil로 데드라인 지정
@@ -153,9 +153,9 @@ StructuredTaskScopes.failFast { scope ->
 
 `all()`과 `any()`는 deprecated되었습니다. 다음과 같이 마이그레이션하세요:
 
-| 기존 | 신규 |
-|------|------|
-| `StructuredTaskScopes.all(...) { }` | `StructuredTaskScopes.failFast { }` |
+| 기존                                | 신규                                    |
+|-------------------------------------|-----------------------------------------|
+| `StructuredTaskScopes.all(...) { }` | `StructuredTaskScopes.failFast { }`     |
 | `StructuredTaskScopes.any(...) { }` | `StructuredTaskScopes.firstSuccess { }` |
 
 ## ServiceLoader 메커니즘
@@ -164,7 +164,7 @@ StructuredTaskScopes.failFast { scope ->
 
 ### 구현체 등록
 
-각 JDK 구현 모듈(`jdk21`, `jdk25`)은 다음 파일들을 제공해야 합니다:
+각 JDK 구현 모듈 (`jdk21`, `jdk25`)은 다음 파일들을 제공해야 합니다:
 
 *META-INF/services/io.bluetape4k.concurrent.virtualthread.VirtualThreadRuntime*
 
@@ -201,7 +201,7 @@ dependencies {
 
 ## Fallback 메커니즘
 
-적합한 Virtual Thread 구현체가 없는 경우(예: JDK 17), 자동으로 Platform Thread 기반의 Fallback 구현체가 사용됩니다.
+적합한 Virtual Thread 구현체가 없는 경우 (예: JDK 17), 자동으로 Platform Thread 기반의 Fallback 구현체가 사용됩니다.
 
 ```kotlin
 // JDK 17 환경에서 실행 시

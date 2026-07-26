@@ -1,8 +1,6 @@
 # Cassandra 상세 매뉴얼 설계
 
-**날짜:** 2026-07-13
-**상태:** 기본 구조 구현 완료, 학습 경로 소개 확장안 승인됨
-**대상 저장소:** `bluetape4k-projects`, `bluetape4k.github.io`
+**날짜:** 2026-07-13 **상태:** 기본 구조 구현 완료, 학습 경로 소개 확장안 승인됨 **대상 저장소:** `bluetape4k-projects`, `bluetape4k.github.io`
 **기준 버전:** `bluetape4k-projects` `1.11.0`
 **기준 commit:** `6187173b58e8b4c5c435c145e00e94708f31ef75`
 
@@ -162,13 +160,13 @@ Landing의 첫 기능 소개 heading은 역할의 소유권을 묻는 `이 라�
 
 Troubleshooting 표는 최소한 다음 증상을 다룬다.
 
-| 증상 | 먼저 확인할 경계 |
-| --- | --- |
-| bootstrap에서 인증 또는 연결 실패 | 1.11.0 admin session에 builder block이 적용되지 않는 제한 |
+| 증상                                    | 먼저 확인할 경계                                                      |
+|-----------------------------------------|-----------------------------------------------------------------------|
+| bootstrap에서 인증 또는 연결 실패       | 1.11.0 admin session에 builder block이 적용되지 않는 제한             |
 | 같은 keyspace에서 잘못된 session 재사용 | `CqlSessionIdentity.context`에 connection/tenant 경계가 빠졌는지 확인 |
-| Flow가 일부 row만 반환 | page fetch, collection cancellation, mapper exception 확인 |
-| 종료 후 connection이 남음 | 직접 생성한 session과 provider-owned session의 소유권 구분 |
-| batch 처리 지연 또는 timeout | Cassandra batch semantics와 statement 수, consistency, timeout 확인 |
+| Flow가 일부 row만 반환                  | page fetch, collection cancellation, mapper exception 확인            |
+| 종료 후 connection이 남음               | 직접 생성한 session과 provider-owned session의 소유권 구분            |
+| batch 처리 지연 또는 timeout            | Cassandra batch semantics와 statement 수, consistency, timeout 확인   |
 
 ## Chapter 작성 계약
 

@@ -1,6 +1,8 @@
 package io.bluetape4k.jwt.reader
 
 import io.bluetape4k.LibraryName
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.RedissonJCaching
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
@@ -10,8 +12,6 @@ import io.bluetape4k.jwt.codec.JwtCodecs
 import io.bluetape4k.jwt.provider.JwtProviderFactory
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.RedisServer
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until

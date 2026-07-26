@@ -29,14 +29,14 @@ inline fun <reified T: Any> typedNullParameter(): Parameter = typedNullParameter
 internal fun rawNullBindingException(name: String): IllegalArgumentException =
     IllegalArgumentException(
         "Raw null value for [$name] does not preserve R2DBC type information. " +
-            "Use typedNullParameter<T>() or io.r2dbc.spi.Parameters.in(type).",
+                "Use typedNullParameter<T>() or io.r2dbc.spi.Parameters.in(type).",
     )
 
 /**
  * Converts the receiver to an R2DBC [Parameter].
  *
  * Existing [Parameter] instances are returned as-is; other values are wrapped
- * with [Parameters.in].
+ * with [Parameters. in].
  */
 @PublishedApi
 internal fun Any.toParameter(): Parameter =
@@ -50,7 +50,7 @@ internal fun Any.toParameter(): Parameter =
  *
  * - Null values become typed NULL [Parameter] instances.
  * - Existing [Parameter] instances are returned as-is.
- * - Other values are wrapped with [Parameters.in].
+ * - Other values are wrapped with [Parameters. in].
  *
  * @param type Java type for the parameter value.
  */

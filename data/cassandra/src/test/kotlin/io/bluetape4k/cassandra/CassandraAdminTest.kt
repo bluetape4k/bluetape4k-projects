@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test
 /**
  * [CassandraAdmin]의 keyspace 생성/삭제 및 버전 조회 기능을 검증합니다.
  */
-class CassandraAdminTest : AbstractCassandraTest() {
+class CassandraAdminTest: AbstractCassandraTest() {
 
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         private const val TEST_KEYSPACE = "admin_test_ks"
     }
 

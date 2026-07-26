@@ -1,15 +1,15 @@
 package io.bluetape4k.csv.v2
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
 class CsvRowTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private fun row(
         vararg values: String?,

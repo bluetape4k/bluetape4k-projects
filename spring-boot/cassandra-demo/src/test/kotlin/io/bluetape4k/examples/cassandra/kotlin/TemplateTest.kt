@@ -1,13 +1,13 @@
 package io.bluetape4k.examples.cassandra.kotlin
 
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.insertInto
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.cassandra.querybuilder.literal
 import io.bluetape4k.cassandra.quote
 import io.bluetape4k.cassandra.toCqlIdentifier
 import io.bluetape4k.examples.cassandra.AbstractCassandraTest
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

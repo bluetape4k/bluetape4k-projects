@@ -214,9 +214,9 @@ class Jdk21VirtualThreadRuntimeTest {
 
 | JDK Version     | Supported | Activation Condition                                           |
 |-----------------|-----------|----------------------------------------------------------------|
-| JDK 17 or lower | ❌         | `isSupported()` returns `false`                                |
-| JDK 21          | ✅         | activated automatically if the JDK 25 implementation is absent |
-| JDK 25          | ✅         | the JDK 25 implementation is selected first                    |
+| JDK 17 or lower | ❌        | `isSupported()` returns `false`                                |
+| JDK 21          | ✅        | activated automatically if the JDK 25 implementation is absent |
+| JDK 25          | ✅        | the JDK 25 implementation is selected first                    |
 
 ## Caution
 

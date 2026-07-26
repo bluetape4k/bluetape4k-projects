@@ -2,7 +2,7 @@
 
 [English](./README.md) | 한국어
 
-Hibernate Reactive(Mutiny/Stage) 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브러리입니다.
+Hibernate Reactive (Mutiny/Stage) 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브러리입니다.
 
 ## 주요 기능
 
@@ -79,10 +79,10 @@ sf.withSessionSuspending { session ->
 
 확장 함수 커버리지 향상을 위한 주요 테스트 클래스:
 
-| 테스트 클래스 | API | 검증 함수 |
-|---|---|---|
+| 테스트 클래스              | API    | 검증 함수                                                                                                                          |
+|----------------------------|--------|------------------------------------------------------------------------------------------------------------------------------------|
 | `MutinySessionSupportTest` | Mutiny | `findAs(LockMode)`, `getReferenceAs`, `createQueryAs`(Session), `createNativeQueryAs`(Session/StatelessSession), `getAs(LockMode)` |
-| `StageSessionSupportTest` | Stage | `findAs(LockMode)`, `getReferenceAs`, `createQueryAs`(Session), `createNativeQueryAs`(Session/StatelessSession), `getAs(LockMode)` |
+| `StageSessionSupportTest`  | Stage  | `findAs(LockMode)`, `getReferenceAs`, `createQueryAs`(Session), `createNativeQueryAs`(Session/StatelessSession), `getAs(LockMode)` |
 
 ```kotlin
 // Hibernate LockMode 오버로드 (JPA LockModeType과 구분)
@@ -120,6 +120,7 @@ sf.withSessionSuspending { session ->
 ## 버전 요구사항
 
 **Hibernate Reactive 4.3.3.Final** 필수 환경:
+
 - Hibernate ORM 7.3.2.Final (ORM 7.2.x에서 업데이트됨)
 - `persistence.xml`의 Jakarta Persistence 3.0 namespace
 - Java 11+ / Kotlin 1.5+
@@ -147,7 +148,7 @@ Hibernate Reactive 2.x에서 3.x로 업그레이드 시:
    <class>io.bluetape4k.example.Book</class>
    ```
 
-3. **Validator 설정**에는 Jakarta EL 구현체(GlassFish Expressly 6.0.0)가 필요합니다.
+3. **Validator 설정**에는 Jakarta EL 구현체 (GlassFish Expressly 6.0.0)가 필요합니다.
 
 ## 참고
 

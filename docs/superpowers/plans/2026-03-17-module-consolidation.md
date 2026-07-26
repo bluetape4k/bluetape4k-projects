@@ -1,10 +1,11 @@
 # Module Consolidation Implementation Plan
 
-> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** bluetape4k 프로젝트의 모듈 수를 ~117개에서 ~82개로 줄여 사용자의 의존성 선언 부담과 유지보수 비용을 낮춘다.
 
-**Architecture:** 각 통합 대상 영역의 서브 모듈 소스를 상위(또는 신규) 모듈로 이동하고, 선택적 의존성은 `compileOnly`로 전환한다. 패키지 계층은 변경하지 않는다.
+**Architecture:** 각 통합 대상 영역의 서브 모듈 소스를 상위 (또는 신규) 모듈로 이동하고, 선택적 의존성은 `compileOnly`로 전환한다. 패키지 계층은 변경하지 않는다.
 
 **Tech Stack:** Kotlin 2.3, Gradle (Kotlin DSL), `includeModules()` 자동 감지 구조
 
@@ -20,6 +21,7 @@
 - 서브 디렉토리를 삭제하면 **자동으로** 모듈 등록이 사라진다 (settings.gradle.kts 수정 불필요)
 
 단, `aws/`, `aws-kotlin/`, `vertx/`처럼 **디렉토리 자체**를 단일 모듈로 만들 때는 settings.gradle.kts 수정이 필요하다:
+
 ```kotlin
 // 기존
 includeModules("aws", withBaseDir = true)
@@ -48,6 +50,7 @@ project(":bluetape4k-aws").projectDir = file("aws")
 ### Task 1-1: jackson-binary → jackson 통합
 
 **Files:**
+
 - Modify: `io/jackson/build.gradle.kts`
 - Move: `io/jackson-binary/src/main/kotlin/` → `io/jackson/src/main/kotlin/`
 - Move: `io/jackson-binary/src/test/kotlin/` → `io/jackson/src/test/kotlin/`
@@ -56,6 +59,7 @@ project(":bluetape4k-aws").projectDir = file("aws")
 - [ ] **Step 1: build.gradle.kts에 binary 의존성 추가**
 
 `io/jackson/build.gradle.kts`의 `dependencies { }` 블록에 추가:
+
 ```kotlin
 // Jackson Dataformats Binary
 compileOnly(Libs.jackson_dataformat_avro)
@@ -85,6 +89,7 @@ rm -rf io/jackson-binary
 ```bash
 ./gradlew :bluetape4k-jackson:test
 ```
+
 Expected: BUILD SUCCESSFUL
 
 - [ ] **Step 5: Commit**
@@ -98,6 +103,7 @@ git add -A && git commit -m "refactor: jackson-binary → bluetape4k-jackson 통
 ### Task 1-2: jackson-text → jackson 통합
 
 **Files:**
+
 - Modify: `io/jackson/build.gradle.kts`
 - Move: `io/jackson-text/src/` → `io/jackson/src/`
 - Delete: `io/jackson-text/`
@@ -105,6 +111,7 @@ git add -A && git commit -m "refactor: jackson-binary → bluetape4k-jackson 통
 - [ ] **Step 1: build.gradle.kts에 text 의존성 추가**
 
 (yaml/properties는 이미 있으므로 추가 항목만):
+
 ```kotlin
 // Jackson Dataformats Text
 compileOnly(Libs.jackson_dataformat_csv)
@@ -131,6 +138,7 @@ rm -rf io/jackson-text
 ```bash
 ./gradlew :bluetape4k-jackson:test
 ```
+
 Expected: BUILD SUCCESSFUL
 
 - [ ] **Step 5: Commit**
@@ -148,6 +156,7 @@ Task 1-1, 1-2와 동일한 패턴. `jackson` → `jackson3`, `jackson/binary` �
 - [ ] **Step 1: jackson3 build.gradle.kts에 binary + text 의존성 추가**
 
 `io/jackson3/build.gradle.kts`에 추가:
+
 ```kotlin
 // Jackson3 Dataformats Binary
 compileOnly(Libs.jackson3_dataformat_avro)
@@ -186,6 +195,7 @@ rm -rf io/jackson3-binary io/jackson3-text
 ```bash
 ./gradlew :bluetape4k-jackson3:test
 ```
+
 Expected: BUILD SUCCESSFUL
 
 - [ ] **Step 5: Commit**
@@ -204,6 +214,7 @@ git add -A && git commit -m "refactor: jackson3-binary/text → bluetape4k-jacks
 ### Task 2-1: utils/geo 신규 모듈 생성 및 소스 이동
 
 **Files:**
+
 - Create: `utils/geo/build.gradle.kts`
 - Create: `utils/geo/src/main/kotlin/io/bluetape4k/geo/geocode/` (from geocode)
 - Create: `utils/geo/src/main/kotlin/io/bluetape4k/geo/geohash/` (from geohash)
@@ -219,6 +230,7 @@ mkdir -p utils/geo/src/test/resources
 ```
 
 `utils/geo/build.gradle.kts` 내용:
+
 ```kotlin
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
@@ -312,6 +324,7 @@ rm -rf utils/geocode utils/geohash utils/geoip2
 ```bash
 ./gradlew :bluetape4k-geo:test
 ```
+
 Expected: BUILD SUCCESSFUL (외부 API 호출 테스트는 스킵될 수 있음)
 
 - [ ] **Step 6: Commit**
@@ -324,13 +337,13 @@ git add -A && git commit -m "refactor: geocode/geohash/geoip2 → bluetape4k-geo
 
 ## Chunk 3: vertx/ 통합
 
-**목표:** `vertx/core` + `vertx/resilience4j` + `vertx/sqlclient` → `vertx/` 단일 모듈
-**위험도:** 낮음 — 외부 참조 없음
+**목표:** `vertx/core` + `vertx/resilience4j` + `vertx/sqlclient` → `vertx/` 단일 모듈 **위험도:** 낮음 — 외부 참조 없음
 **settings.gradle.kts 수정 필요**
 
 ### Task 3-1: vertx 단일 모듈로 통합
 
 **Files:**
+
 - Create: `vertx/build.gradle.kts`
 - Move: `vertx/core/src/` → `vertx/src/`
 - Move: `vertx/resilience4j/src/` → `vertx/src/`
@@ -432,6 +445,7 @@ project(":bluetape4k-vertx").projectDir = file("vertx")
 ```bash
 ./gradlew :bluetape4k-vertx:test
 ```
+
 Expected: BUILD SUCCESSFUL
 
 - [ ] **Step 6: Commit**
@@ -450,6 +464,7 @@ git add -A && git commit -m "refactor: vertx/core+resilience4j+sqlclient → blu
 ### Task 4-1: spring-boot3 신규 모듈 생성
 
 **Files:**
+
 - Create: `spring/boot3/build.gradle.kts`
 - Move: `spring/core/src/` → `spring/boot3/src/`
 - Move: `spring/webflux/src/` → `spring/boot3/src/`
@@ -473,6 +488,7 @@ cat spring/core/build.gradle.kts spring/webflux/build.gradle.kts \
 각 모듈의 의존성을 `spring/boot3/build.gradle.kts`로 통합 (중복 제거, compileOnly 패턴 적용)
 
 내부 패키지:
+
 - `io.bluetape4k.spring.core`
 - `io.bluetape4k.spring.webflux`
 - `io.bluetape4k.spring.tests`
@@ -509,6 +525,7 @@ rg "bluetape4k-spring-core|bluetape4k-spring-webflux|bluetape4k-spring-tests|blu
 ```bash
 ./gradlew :bluetape4k-spring-boot3:test
 ```
+
 Expected: BUILD SUCCESSFUL
 
 - [ ] **Step 7: Commit**
@@ -522,6 +539,7 @@ git add -A && git commit -m "refactor: spring/core+webflux+tests+retrofit2 → b
 ### Task 4-2: spring/jpa → data/hibernate 이동
 
 **Files:**
+
 - Modify: `data/hibernate/build.gradle.kts`
 - Move: `spring/jpa/src/` → `data/hibernate/src/` (패키지: `io.bluetape4k.hibernate.spring`)
 - Delete: `spring/jpa/`
@@ -533,6 +551,7 @@ cat spring/jpa/build.gradle.kts
 ```
 
 `data/hibernate/build.gradle.kts`에 spring-jpa 의존성 추가 (compileOnly):
+
 ```kotlin
 compileOnly(Libs.spring_data_jpa)
 compileOnly(Libs.spring_tx)
@@ -546,6 +565,7 @@ cp -r spring/jpa/src/test/kotlin/. data/hibernate/src/test/kotlin/
 ```
 
 이동된 파일의 패키지 변경:
+
 ```bash
 find data/hibernate/src -name "*.kt" -newer spring/jpa/build.gradle.kts \
   -exec grep -l "package io.bluetape4k.spring.jpa" {} \; \
@@ -571,6 +591,7 @@ rg "bluetape4k-spring-jpa" -l --glob "*.kts"
 ```bash
 ./gradlew :bluetape4k-hibernate:test
 ```
+
 Expected: BUILD SUCCESSFUL
 
 - [ ] **Step 6: Commit**
@@ -589,6 +610,7 @@ git add -A && git commit -m "refactor: spring/jpa → data/hibernate 이동 (io.
 ### Task 5-1: cache umbrella → 실 구현 모듈 전환
 
 **Files:**
+
 - Modify: `infra/cache/build.gradle.kts`
 - Move: `infra/cache-core/src/` → `infra/cache/src/`
 - Move: `infra/cache-hazelcast/src/` → `infra/cache/src/`
@@ -608,6 +630,7 @@ cat infra/cache-redisson/build.gradle.kts
 - [ ] **Step 2: infra/cache/build.gradle.kts 재작성**
 
 기존 umbrella 내용을 제거하고 아래와 같이 작성:
+
 ```kotlin
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
@@ -640,6 +663,7 @@ dependencies {
 - [ ] **Step 3: src/main/resources (SPI 파일) 병합**
 
 각 서브모듈에 `META-INF/services/` 파일이 있을 수 있음:
+
 ```bash
 find infra/cache-core infra/cache-hazelcast infra/cache-lettuce infra/cache-redisson \
      -path "*/META-INF/services/*" -type f
@@ -670,6 +694,7 @@ rm -rf infra/cache-core infra/cache-hazelcast infra/cache-lettuce infra/cache-re
 - [ ] **Step 6: 외부 참조 업데이트**
 
 참조 모듈 목록 (Task 5-0에서 확인한 것):
+
 - `spring/jpa/build.gradle.kts` → `bluetape4k-cache`
 - `data/hibernate/build.gradle.kts` → `bluetape4k-cache`
 - `io/http/build.gradle.kts` → `bluetape4k-cache`
@@ -691,6 +716,7 @@ rm -rf infra/cache-core infra/cache-hazelcast infra/cache-lettuce infra/cache-re
 ```bash
 ./gradlew :bluetape4k-cache:test
 ```
+
 Expected: BUILD SUCCESSFUL
 
 - [ ] **Step 8: Commit**
@@ -709,6 +735,7 @@ git add -A && git commit -m "refactor: cache-core/hazelcast/lettuce/redisson →
 ### Task 6-1: aws 단일 모듈로 통합
 
 **Files:**
+
 - Create: `aws/build.gradle.kts`
 - Move: `aws/core/src/`, `aws/dynamodb/src/`, … → `aws/src/`
 - Delete: `aws/core/`, `aws/dynamodb/`, `aws/s3/`, `aws/ses/`, `aws/sns/`, `aws/sqs/`, `aws/kms/`, `aws/cloudwatch/`, `aws/kinesis/`, `aws/sts/`
@@ -798,6 +825,7 @@ project(":bluetape4k-aws").projectDir = file("aws")
 ./gradlew :bluetape4k-aws:build -x test
 ./gradlew :bluetape4k-aws:test
 ```
+
 Expected: BUILD SUCCESSFUL (LocalStack 테스트는 Docker 필요)
 
 - [ ] **Step 7: Commit**
@@ -912,6 +940,7 @@ project(":bluetape4k-aws-kotlin").projectDir = file("aws-kotlin")
 ./gradlew :bluetape4k-aws-kotlin:build -x test
 ./gradlew :bluetape4k-aws-kotlin:test
 ```
+
 Expected: BUILD SUCCESSFUL
 
 - [ ] **Step 7: Commit**
@@ -929,6 +958,7 @@ git add -A && git commit -m "refactor: aws-kotlin/* 12개 서브모듈 → bluet
 ```bash
 ./gradlew build -x test 2>&1 | tail -20
 ```
+
 Expected: BUILD SUCCESSFUL
 
 - [ ] **모듈 수 확인**
@@ -936,6 +966,7 @@ Expected: BUILD SUCCESSFUL
 ```bash
 ./gradlew projects 2>&1 | grep "Project '" | wc -l
 ```
+
 Expected: ~82개 (기존 ~117개)
 
 - [ ] **CLAUDE.md Architecture 섹션 업데이트**
@@ -952,13 +983,13 @@ git add CLAUDE.md && git commit -m "docs: CLAUDE.md 모듈 통합 반영"
 
 ## 통합 결과 요약
 
-| 청크 | 통합 전 | 통합 후 | 절감 |
-|------|---------|---------|------|
-| 1. jackson/jackson3 | 6 | 2 | -4 |
-| 2. utils/geo | 3 | 1 | -2 |
-| 3. vertx | 3 | 1 | -2 |
-| 4. spring 재편 | 9 | 5 | -4 |
-| 5. infra/cache | 5 | 1 | -4 |
-| 6. aws | 10 | 1 | -9 |
-| 7. aws-kotlin | 12 | 1 | -11 |
-| **합계** | **~117** | **~82** | **-35** |
+| 청크                | 통합 전  | 통합 후 | 절감    |
+|---------------------|----------|---------|---------|
+| 1. jackson/jackson3 | 6        | 2       | -4      |
+| 2. utils/geo        | 3        | 1       | -2      |
+| 3. vertx            | 3        | 1       | -2      |
+| 4. spring 재편      | 9        | 5       | -4      |
+| 5. infra/cache      | 5        | 1       | -4      |
+| 6. aws              | 10       | 1       | -9      |
+| 7. aws-kotlin       | 12       | 1       | -11     |
+| **합계**            | **~117** | **~82** | **-35** |

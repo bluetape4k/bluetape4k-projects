@@ -1,9 +1,10 @@
 package io.bluetape4k.money
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.javamoney.moneta.Money
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
@@ -12,7 +13,6 @@ import javax.money.CurrencyUnit
 import javax.money.Monetary
 import javax.money.UnknownCurrencyException
 import javax.money.format.MonetaryFormats
-import io.bluetape4k.assertions.assertFailsWith
 
 class MoneySupportTest {
 

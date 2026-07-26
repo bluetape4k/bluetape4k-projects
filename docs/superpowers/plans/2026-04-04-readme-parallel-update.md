@@ -1,13 +1,13 @@
 # README 병렬 최신화 구현 계획
 
 > **For agentic workers:
-** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (
-`- [ ]`) syntax for tracking.
+> ** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (
+> `- [ ]`) syntax for tracking.
 
 **Goal:** 12개 claude-session-driver 워커를 병렬 실행하여 bluetape4k-projects의 모든 모듈 README.md를 git 이력 기반으로 최신화한다.
 
 **Architecture:
-** 컨트롤러(Claude)가 SCRIPTS 경로의 launch-worker.sh / send-prompt.sh / wait-for-event.sh 를 순서대로 호출해 12개 워커를 동시에 띄운 뒤 stop 이벤트를 기다린다. 각 워커는 담당 모듈의 git log를 분석해 README 이후 변경사항만 반영한다.
+** 컨트롤러 (Claude)가 SCRIPTS 경로의 launch-worker.sh / send-prompt.sh / wait-for-event.sh 를 순서대로 호출해 12개 워커를 동시에 띄운 뒤 stop 이벤트를 기다린다. 각 워커는 담당 모듈의 git log를 분석해 README 이후 변경사항만 반영한다.
 
 **Tech Stack:** claude-session-driver 1.0.1 scripts, tmux, jq, git, Kotlin/Gradle (bluetape4k-projects)
 
@@ -481,6 +481,6 @@ git -C "$PROJECT" commit -m "docs: 모든 모듈 README.md 최신화 (git 이력
 
 `docs/testlog.md` 마지막 5행 읽은 후 아래 행 추가:
 
-| 날짜         | 작업         | 대상           | 테스트 항목           | 결과   | 소요 | 비고          |
-|------------|------------|--------------|------------------|------|----|-------------|
-| 2026-04-04 | README 최신화 | 전체 모듈 (~70개) | README git 이력 반영 | ✅ 성공 | -  | 12 워커 병렬 실행 |
+| 날짜       | 작업          | 대상              | 테스트 항목          | 결과    | 소요 | 비고              |
+|------------|---------------|-------------------|----------------------|---------|------|-------------------|
+| 2026-04-04 | README 최신화 | 전체 모듈 (~70개) | README git 이력 반영 | ✅ 성공 | -    | 12 워커 병렬 실행 |

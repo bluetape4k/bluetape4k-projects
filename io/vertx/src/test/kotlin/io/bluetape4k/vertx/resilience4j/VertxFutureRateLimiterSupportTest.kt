@@ -1,5 +1,6 @@
 package io.bluetape4k.vertx.resilience4j
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.asCompletableFuture
@@ -8,7 +9,6 @@ import io.github.resilience4j.kotlin.ratelimiter.RateLimiterConfig
 import io.github.resilience4j.ratelimiter.RateLimiter
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.time.Duration

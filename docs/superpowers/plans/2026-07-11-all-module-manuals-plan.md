@@ -1,6 +1,7 @@
 # All-Module Manuals Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** `bluetape4k-projects`의 90개 등록 subproject 모두에 README보다 상세한 영문·한글 사용자 문서를 제공하고 자동 검증한다.
 
@@ -40,6 +41,7 @@ bluetape4k-projects/
 ### Task 1: Gradle module inventory export
 
 **Files:**
+
 - Modify: `build.gradle.kts`
 - Test: `build/manual/module-inventory.json`
 
@@ -107,6 +109,7 @@ git commit -m "docs: derive manual inventory from the Gradle model" \
 ### Task 2: Manual contract validator
 
 **Files:**
+
 - Create: `scripts/manual/manual_contract.rb`
 - Create: `scripts/manual/validate_manuals.rb`
 - Create: `scripts/manual/validate_manuals_test.rb`
@@ -213,6 +216,7 @@ git commit -m "test: define the all-module manual contract" \
 ### Task 3: Manifest, templates, and manual landing pages
 
 **Files:**
+
 - Create: `docs/manual/manifest.yaml`
 - Create: `docs/manual/templates/module.md`
 - Create: `docs/manual/templates/example.md`
@@ -295,39 +299,49 @@ Tasks 4-15는 아래 순서를 각 module마다 반복한다.
 
 ### Task 4: Foundation manuals
 
-**Source modules:** `bluetape4k/annotations`, `bluetape4k/bom`, `bluetape4k/core`, `bluetape4k/coroutines`, `bluetape4k/logging`
+**Source
+modules:** `bluetape4k/annotations`, `bluetape4k/bom`, `bluetape4k/core`, `bluetape4k/coroutines`, `bluetape4k/logging`
 
 **Files:**
+
 - Create: `docs/manual/{en,ko}/modules/bluetape4k-{annotations,bom,core,coroutines,logging}.md`
 
 검증: `./gradlew :bluetape4k-core:test :bluetape4k-coroutines:test --no-configuration-cache`와 manual validator.
 
 ### Task 5: Cache manuals
 
-**Source modules:** `cache/cache-core`, `cache/cache-hazelcast`, `cache/cache-lettuce`, `cache/cache-redisson`, `cache/hibernate-cache-lettuce`
+**Source
+modules:** `cache/cache-core`, `cache/cache-hazelcast`, `cache/cache-lettuce`, `cache/cache-redisson`, `cache/hibernate-cache-lettuce`
 
 **Files:**
+
 - Create: `docs/manual/{en,ko}/modules/bluetape4k-{cache-core,cache-hazelcast,cache-lettuce,cache-redisson,hibernate-cache-lettuce}.md`
 
 ### Task 6: Data manuals
 
-**Source modules:** `data/cassandra`, `data/hibernate-reactive`, `data/hibernate`, `data/jdbc`, `data/mongodb`, `data/r2dbc`
+**Source
+modules:** `data/cassandra`, `data/hibernate-reactive`, `data/hibernate`, `data/jdbc`, `data/mongodb`, `data/r2dbc`
 
 **Files:**
+
 - Create: `docs/manual/{en,ko}/modules/bluetape4k-{cassandra,hibernate-reactive,hibernate,jdbc,mongodb,r2dbc}.md`
 
 ### Task 7: Infrastructure manuals
 
-**Source modules:** `infra/bucket4j`, `infra/elasticsearch`, `infra/kafka-logback`, `infra/kafka`, `infra/kafka4`, `infra/lettuce`, `infra/micrometer`, `infra/nats`, `infra/opentelemetry`, `infra/pulsar`, `infra/redis`, `infra/redisson`, `infra/resilience4j`
+**Source
+modules:** `infra/bucket4j`, `infra/elasticsearch`, `infra/kafka-logback`, `infra/kafka`, `infra/kafka4`, `infra/lettuce`, `infra/micrometer`, `infra/nats`, `infra/opentelemetry`, `infra/pulsar`, `infra/redis`, `infra/redisson`, `infra/resilience4j`
 
 **Files:**
+
 - Create: `docs/manual/{en,ko}/modules/bluetape4k-{bucket4j,elasticsearch,kafka-logback,kafka,kafka4,lettuce,micrometer,nats,opentelemetry,pulsar,redis,redisson,resilience4j}.md`
 
 ### Task 8: I/O manuals, serialization slice
 
-**Source modules:** `io/avro`, `io/csv`, `io/fastjson2`, `io/io`, `io/jackson2`, `io/jackson3`, `io/json`, `io/okio`, `io/protobuf`, `io/tink`
+**Source
+modules:** `io/avro`, `io/csv`, `io/fastjson2`, `io/io`, `io/jackson2`, `io/jackson3`, `io/json`, `io/okio`, `io/protobuf`, `io/tink`
 
 **Files:**
+
 - Create: `docs/manual/{en,ko}/modules/bluetape4k-{avro,csv,fastjson2,io,jackson2,jackson3,json,okio,protobuf,tink}.md`
 
 ### Task 9: I/O manuals, transport slice
@@ -335,6 +349,7 @@ Tasks 4-15는 아래 순서를 각 module마다 반복한다.
 **Source modules:** `io/feign`, `io/grpc`, `io/http`, `io/netty`, `io/retrofit2`, `io/vertx`
 
 **Files:**
+
 - Create: `docs/manual/{en,ko}/modules/bluetape4k-{feign,grpc,http,netty,retrofit2,vertx}.md`
 
 ### Task 10: Ktor manuals
@@ -342,27 +357,34 @@ Tasks 4-15는 아래 순서를 각 module마다 반복한다.
 **Source modules:** `ktor/core`, `ktor/observability`, `ktor/openapi`, `ktor/resilience4j`, `ktor/testing`
 
 **Files:**
+
 - Create: `docs/manual/{en,ko}/modules/bluetape4k-ktor-{core,observability,openapi,resilience4j,testing}.md`
 
 ### Task 11: Spring Boot manuals
 
-**Source modules:** `spring-boot/cassandra-demo`, `spring-boot/cassandra`, `spring-boot/core`, `spring-boot/hibernate-lettuce-demo`, `spring-boot/hibernate-lettuce`, `spring-boot/mongodb`, `spring-boot/r2dbc`, `spring-boot/redis`
+**Source
+modules:** `spring-boot/cassandra-demo`, `spring-boot/cassandra`, `spring-boot/core`, `spring-boot/hibernate-lettuce-demo`, `spring-boot/hibernate-lettuce`, `spring-boot/mongodb`, `spring-boot/r2dbc`, `spring-boot/redis`
 
 **Files:**
+
 - Create: `docs/manual/{en,ko}/modules/bluetape4k-spring-boot-{cassandra-demo,cassandra,core,hibernate-lettuce-demo,hibernate-lettuce,mongodb,r2dbc,redis}.md`
 
 ### Task 12: Testing manuals
 
-**Source modules:** `testing/assertions`, `testing/junit5`, `testing/mock-web-server`, `testing/mock-webflux-server`, `testing/testcontainers`
+**Source
+modules:** `testing/assertions`, `testing/junit5`, `testing/mock-web-server`, `testing/mock-webflux-server`, `testing/testcontainers`
 
 **Files:**
+
 - Create: `docs/manual/{en,ko}/modules/bluetape4k-{assertions,junit5,mock-web-server,mock-webflux-server,testcontainers}.md`
 
 ### Task 13: Utility manuals
 
-**Source modules:** `utils/geo`, `utils/idgenerators`, `utils/javatimes`, `utils/jwt`, `utils/math`, `utils/measured`, `utils/money`, `utils/mutiny`, `utils/probabilistic`, `utils/rule-engine`, `utils/science`, `utils/states`, `utils/workflow`
+**Source
+modules:** `utils/geo`, `utils/idgenerators`, `utils/javatimes`, `utils/jwt`, `utils/math`, `utils/measured`, `utils/money`, `utils/mutiny`, `utils/probabilistic`, `utils/rule-engine`, `utils/science`, `utils/states`, `utils/workflow`
 
 **Files:**
+
 - Create: `docs/manual/{en,ko}/modules/bluetape4k-{geo,idgenerators,javatimes,jwt,math,measured,money,mutiny,probabilistic,rule-engine,science,states,workflow}.md`
 
 ### Task 14: Virtual-thread manuals
@@ -370,13 +392,16 @@ Tasks 4-15는 아래 순서를 각 module마다 반복한다.
 **Source modules:** `virtualthread/api`, `virtualthread/jdk21`, `virtualthread/jdk25`
 
 **Files:**
+
 - Create: `docs/manual/{en,ko}/modules/bluetape4k-virtualthread-{api,jdk21,jdk25}.md`
 
 ### Task 15: Example and benchmark manuals
 
-**Source modules:** `examples/coroutines-demo`, `examples/jpa-blazepersistence-demo`, `examples/jpa-querydsl-demo`, `examples/redisson-demo`, `examples/virtualthreads-demo`, `examples/spring-boot/idgenerator-spring-boot-demo`, `examples/spring-boot/observability-spring-boot-demo`, `examples/ktor/idgenerator-ktor-demo`, `examples/ktor/observability-ktor-demo`, `benchmark/protobuf-codec-benchmark`, `benchmark/web-framework-benchmark`
+**Source
+modules:** `examples/coroutines-demo`, `examples/jpa-blazepersistence-demo`, `examples/jpa-querydsl-demo`, `examples/redisson-demo`, `examples/virtualthreads-demo`, `examples/spring-boot/idgenerator-spring-boot-demo`, `examples/spring-boot/observability-spring-boot-demo`, `examples/ktor/idgenerator-ktor-demo`, `examples/ktor/observability-ktor-demo`, `benchmark/protobuf-codec-benchmark`, `benchmark/web-framework-benchmark`
 
 **Files:**
+
 - Create: matching `docs/manual/{en,ko}/modules/*.md` paths from the committed manifest
 
 각 문서는 설치 좌표 대신 실행 방법, 학습 목표, 사용 library, 예상 결과, benchmark 환경과 해석 한계를 기록한다.
@@ -384,6 +409,7 @@ Tasks 4-15는 아래 순서를 각 module마다 반복한다.
 ### Task 16: Problem-oriented guides and workshop links
 
 **Files:**
+
 - Create: `docs/manual/{en,ko}/guides/http-clients.md`
 - Create: `docs/manual/{en,ko}/guides/serialization.md`
 - Create: `docs/manual/{en,ko}/guides/caching.md`
@@ -396,7 +422,8 @@ Tasks 4-15는 아래 순서를 각 module마다 반복한다.
 - Modify: `docs/manual/generated/manifest.json`
 
 - [ ] **Step 1: 각 guide의 선택 표를 작성한다** — 요구사항, 권장 module, 대안, 피해야 할 경우, 관련 manual을 포함한다.
-- [ ] **Step 2: workspace의 실제 workshop chapter 경로만 연결한다** — `bluetape4k-workshop`, `exposed-workshop`, `exposed-r2dbc-workshop`, `timefold-workshop`을 우선한다.
+- [ ] **Step 2: workspace의 실제 workshop chapter 경로만
+  연결한다** — `bluetape4k-workshop`, `exposed-workshop`, `exposed-r2dbc-workshop`, `timefold-workshop`을 우선한다.
 - [ ] **Step 3: 역방향 링크를 manifest에 추가한다** — module → guide/workshop 연결이 검색 소비자에게 노출돼야 한다.
 - [ ] **Step 4: validator와 링크 검사를 실행한다**.
 - [ ] **Step 5: 커밋한다**.
@@ -404,6 +431,7 @@ Tasks 4-15는 아래 순서를 각 module마다 반복한다.
 ### Task 17: Manual-only CI gate
 
 **Files:**
+
 - Create: `.github/workflows/manual-docs.yml`
 - Modify: `docs/process/module-documentation-checklist.md`
 
@@ -450,6 +478,7 @@ jobs:
 ### Task 18: Repository-wide completion proof
 
 **Files:**
+
 - Modify: `docs/manual/generated/manifest.json` only when normalization changes
 
 - [ ] **Step 1: 전체 inventory와 문서 계약을 검증한다**.

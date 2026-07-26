@@ -1,7 +1,7 @@
 package io.bluetape4k.vertx
 
-import io.vertx.core.Vertx
 import io.vertx.core.Future
+import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.withContext
@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 private val defaultVertxLock = ReentrantLock()
+
 @Volatile
 private var defaultVertxRef: Vertx? = null
 

@@ -10,7 +10,7 @@
 
 > **선행 조건**: 없음
 > **Gradle 빌드 검증**: Phase 1 완료 후
-`./gradlew :bluetape4k-exposed-cache:build :bluetape4k-exposed-jdbc-lettuce:build :bluetape4k-exposed-jdbc-redisson:build :bluetape4k-exposed-r2dbc-lettuce:build :bluetape4k-exposed-r2dbc-redisson:build`
+> `./gradlew :bluetape4k-exposed-cache:build :bluetape4k-exposed-jdbc-lettuce:build :bluetape4k-exposed-jdbc-redisson:build :bluetape4k-exposed-r2dbc-lettuce:build :bluetape4k-exposed-r2dbc-redisson:build`
 
 ### Task 1.1: 디렉토리 리네이밍 + Gradle 의존성 업데이트
 
@@ -77,8 +77,8 @@
         - 부모 인터페이스: `JdbcCacheRepository` → `JdbcRedisRepository`
         - import 추가: `io.bluetape4k.exposed.cache.redis.JdbcRedisRepository`
     -
-    `data/exposed-jdbc-lettuce/src/main/kotlin/io/bluetape4k/exposed/lettuce/repository/SuspendedJdbcLettuceRepository.kt`
-        - 부모 인터페이스: `SuspendedJdbcCacheRepository` → `SuspendJdbcRedisRepository`
+  `data/exposed-jdbc-lettuce/src/main/kotlin/io/bluetape4k/exposed/lettuce/repository/SuspendedJdbcLettuceRepository.kt`
+    - 부모 인터페이스: `SuspendedJdbcCacheRepository` → `SuspendJdbcRedisRepository`
     - `data/exposed-jdbc-redisson/` 내 동일 패턴 적용 (JdbcRedissonRepository, SuspendedJdbcRedissonRepository)
     - `data/exposed-r2dbc-lettuce/` 내 R2dbcLettuceRepository → `R2dbcRedisRepository`
     - `data/exposed-r2dbc-redisson/` 내 R2dbcRedissonRepository → `R2dbcRedisRepository`
@@ -198,34 +198,33 @@
         - `JdbcCacheRepository<ID, E>` 확장
         - `val config: LocalCacheConfig`, `val cache: Cache<String, E>` 프로퍼티
     -
-    `data/exposed-jdbc-caffeine/src/main/kotlin/io/bluetape4k/exposed/caffeine/repository/AbstractJdbcCaffeineRepository.kt`
-        - 추상 멤버: `table`, `ResultRow.toEntity()`, `UpdateStatement.updateEntity()`,
-          `BatchInsertStatement.insertEntity()`
-        - `cacheMode = CacheMode.LOCAL` 고정
-        - **Caffeine Cache 빌더**: `LocalCacheConfig` → `Caffeine.newBuilder()` 변환
-          ```kotlin
-          override val cache: Cache<String, E> by lazy {
-              Caffeine.newBuilder()
-                  .maximumSize(config.maximumSize)
-                  .expireAfterWrite(config.expireAfterWrite)
-                  .apply {
-                      config.expireAfterAccess?.let { expireAfterAccess(it) }
-                      if (config is CaffeineCacheConfig && config.recordStats) recordStats()
-                  }
-                  .build()
+  `data/exposed-jdbc-caffeine/src/main/kotlin/io/bluetape4k/exposed/caffeine/repository/AbstractJdbcCaffeineRepository.kt`
+    - 추상 멤버: `table`, `ResultRow.toEntity()`, `UpdateStatement.updateEntity()`,
+      `BatchInsertStatement.insertEntity()`
+    - `cacheMode = CacheMode.LOCAL` 고정 - **Caffeine Cache 빌더**: `LocalCacheConfig` → `Caffeine.newBuilder()` 변환
+  ```kotlin
+  override val cache: Cache<String, E> by lazy {
+      Caffeine.newBuilder()
+          .maximumSize(config.maximumSize)
+          .expireAfterWrite(config.expireAfterWrite)
+          .apply {
+              config.expireAfterAccess?.let { expireAfterAccess(it) }
+              if (config is CaffeineCacheConfig && config.recordStats) recordStats()
           }
-          ```
-        - **Read-Through**: `get(id)` → `cache.getIfPresent(key) ?: findByIdFromDb(id)?.also { cache.put(key, it) }`
-        - **`getAll(ids)`**: 캐시 히트 분리 → 미스만 DB 조회 → 결과 캐시 저장 후 병합 반환
-        - **Write-Through**: `put(id, entity)` → `cache.put(key, entity)` + `transaction { updateEntity/insertEntity }`
-        - **`putAll(entities, batchSize)`**: entries 순회 → 각 put dispatch (write mode 따라)
-        - **`containsKey(id)`**: `get(id) != null`
-        - **DB 직접 조회**: `findByIdFromDb`, `findAllFromDb`, `countFromDb`, `findAll` —
-          `transaction { ... }` 패턴 (Lettuce 구현체 참조)
-        - `serializeKey(id: ID): String = id.toString()` (open, 오버라이드 가능)
-        - `extractId(entity)` — 기본 error() + 오버라이드 권장 (Lettuce 패턴 동일)
-        - `invalidate(id)` → `cache.invalidate(key)`, `invalidateAll(ids)` → ids.forEach, `clear()` →
-          `cache.invalidateAll()`
+          .build()
+  }
+  ```
+    - **Read-Through**: `get(id)` → `cache.getIfPresent(key) ?: findByIdFromDb(id)?.also { cache.put(key, it) }`
+    - **`getAll(ids)`**: 캐시 히트 분리 → 미스만 DB 조회 → 결과 캐시 저장 후 병합 반환 -
+      **Write-Through**: `put(id, entity)` → `cache.put(key, entity)` + `transaction { updateEntity/insertEntity }`
+    - **`putAll(entities, batchSize)`**: entries 순회 → 각 put dispatch (write mode 따라)
+    - **`containsKey(id)`**: `get(id) != null`
+    - **DB 직접 조회**: `findByIdFromDb`, `findAllFromDb`, `countFromDb`, `findAll` —
+      `transaction { ... }` 패턴 (Lettuce 구현체 참조)
+    - `serializeKey(id: ID): String = id.toString()` (open, 오버라이드 가능)
+    - `extractId(entity)` — 기본 error () + 오버라이드 권장 (Lettuce 패턴 동일)
+    - `invalidate(id)` → `cache.invalidate(key)`, `invalidateAll(ids)` → ids.forEach, `clear()` →
+      `cache.invalidateAll()`
 - **검증 기준**: Read-Through + Write-Through 구현 완료, 컴파일 성공
 
 ### Task 2.4: Write-Behind 구현 (Channel 기반 배치 큐)
@@ -262,7 +261,7 @@
           .onFailure { log.warn { "Write-Behind 큐 포화: 항목 드랍" } }
   }
   ```
-- **close() drain 로직**:
+- **close () drain 로직**:
   ```kotlin
   override fun close() {
       if (config.writeMode == CacheWriteMode.WRITE_BEHIND) {
@@ -274,22 +273,21 @@
   }
   ```
 - **에러 처리**: `runCatching` + 로그 기록, 재시도 없음 (설계 원칙: 로컬 캐시는 최종 일관성 허용)
-- **검증 기준**: Write-Behind 시나리오 테스트에서 close() 후 데이터 유실 없음 확인
+- **검증 기준**: Write-Behind 시나리오 테스트에서 close () 후 데이터 유실 없음 확인
 
 ### Task 2.5: SuspendedJdbcCaffeineRepository 인터페이스 + AbstractSuspendedJdbcCaffeineRepository 구현
 
 - **complexity**: high
 - **depends_on**: 2.4
 - **신규 파일**:
+  -
+  `data/exposed-jdbc-caffeine/src/main/kotlin/io/bluetape4k/exposed/caffeine/repository/SuspendedJdbcCaffeineRepository.kt`
+    - `SuspendedJdbcCacheRepository<ID, E>` 확장
     -
-    `data/exposed-jdbc-caffeine/src/main/kotlin/io/bluetape4k/exposed/caffeine/repository/SuspendedJdbcCaffeineRepository.kt`
-        - `SuspendedJdbcCacheRepository<ID, E>` 확장
-    -
-    `data/exposed-jdbc-caffeine/src/main/kotlin/io/bluetape4k/exposed/caffeine/repository/AbstractSuspendedJdbcCaffeineRepository.kt`
-        - DB I/O: `suspendedTransactionAsync(Dispatchers.IO) { ... }.await()` 패턴 (Lettuce suspended 구현체 참조)
-        - Caffeine `Cache<String, E>` 사용 (동기 Cache — JDBC 기반이므로 `AsyncCache` 불필요)
-        - Write-Behind: 동일 Channel 패턴이지만 `send()` (suspend) 사용
-        - `close()`: `writeBehindQueue.close()` + `writeBehindJob.join()` (suspend 컨텍스트 아니므로 `runBlocking`)
+  `data/exposed-jdbc-caffeine/src/main/kotlin/io/bluetape4k/exposed/caffeine/repository/AbstractSuspendedJdbcCaffeineRepository.kt`
+    - DB I/O: `suspendedTransactionAsync(Dispatchers.IO) { ... }.await()` 패턴 (Lettuce suspended 구현체 참조)
+    - Caffeine `Cache<String, E>` 사용 (동기 Cache — JDBC 기반이므로 `AsyncCache` 불필요)
+    - Write-Behind: 동일 Channel 패턴이지만 `send()` (suspend) 사용 - `close()`: `writeBehindQueue.close()` + `writeBehindJob.join()` (suspend 컨텍스트 아니므로 `runBlocking`)
 - **검증 기준**: 컴파일 성공, suspend 시그니처 일치
 
 ### Task 2.6: 테스트 도메인 + H2 설정
@@ -304,8 +302,8 @@
         - `AbstractJdbcCaffeineRepository<Long, ActorRecord>` 구현
         - `table`, `toEntity()`, `updateEntity()`, `insertEntity()`, `extractId()` 구현
     -
-    `data/exposed-jdbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/caffeine/domain/SuspendedActorCaffeineRepository.kt`
-        - `AbstractSuspendedJdbcCaffeineRepository<Long, ActorRecord>` 구현
+  `data/exposed-jdbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/caffeine/domain/SuspendedActorCaffeineRepository.kt`
+    - `AbstractSuspendedJdbcCaffeineRepository<Long, ActorRecord>` 구현
     - `data/exposed-jdbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/caffeine/AbstractJdbcCaffeineTest.kt`
         - `getEnabledDialects()` → `listOf(TestDB.H2_V2)`
         - Caffeine 기반이므로 Redis Testcontainers 불필요
@@ -325,12 +323,12 @@
         - testFixtures의 `JdbcWriteBehindScenario<Long, ActorRecord>` 구현
         - **추가 검증**: `close()` 호출 후 DB 반영 확인, 큐 drain 테스트
     -
-    `data/exposed-jdbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/caffeine/repository/SuspendedReadThroughCacheTest.kt`
-        - testFixtures의 `SuspendedJdbcReadThroughScenario` 구현
+  `data/exposed-jdbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/caffeine/repository/SuspendedReadThroughCacheTest.kt`
+    - testFixtures의 `SuspendedJdbcReadThroughScenario` 구현
     -
-    `data/exposed-jdbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/caffeine/repository/SuspendedWriteThroughCacheTest.kt`
-    -
-    `data/exposed-jdbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/caffeine/repository/SuspendedWriteBehindCacheTest.kt`
+  `data/exposed-jdbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/caffeine/repository/SuspendedWriteThroughCacheTest.kt`
+  -
+  `data/exposed-jdbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/caffeine/repository/SuspendedWriteBehindCacheTest.kt`
 - **검증 기준**: `./gradlew :bluetape4k-exposed-jdbc-caffeine:test` 전체 통과 (H2만)
 
 ### Task 2.8: README 작성
@@ -393,35 +391,33 @@
 - **complexity**: high
 - **depends_on**: 3.1
 - **신규 파일**:
+  -
+  `data/exposed-r2dbc-caffeine/src/main/kotlin/io/bluetape4k/exposed/r2dbc/caffeine/repository/R2dbcCaffeineRepository.kt`
+    - `R2dbcCacheRepository<ID, E>` 확장 - `val config: LocalCacheConfig`, `val cache: AsyncCache<String, E>` 프로퍼티
     -
-    `data/exposed-r2dbc-caffeine/src/main/kotlin/io/bluetape4k/exposed/r2dbc/caffeine/repository/R2dbcCaffeineRepository.kt`
-        - `R2dbcCacheRepository<ID, E>` 확장
-        - `val config: LocalCacheConfig`, `val cache: AsyncCache<String, E>` 프로퍼티
-    -
-    `data/exposed-r2dbc-caffeine/src/main/kotlin/io/bluetape4k/exposed/r2dbc/caffeine/repository/AbstractR2dbcCaffeineRepository.kt`
-        - **AsyncCache 사용** (non-blocking):
-          ```kotlin
-          override val cache: AsyncCache<String, E> by lazy {
-              Caffeine.newBuilder()
-                  .maximumSize(config.maximumSize)
-                  .expireAfterWrite(config.expireAfterWrite)
-                  .apply { config.expireAfterAccess?.let { expireAfterAccess(it) } }
-                  .buildAsync()
-          }
-          ```
-        - `cacheMode = CacheMode.LOCAL` 고정
-        - `get(id)`:
-          `cache.getIfPresent(key)?.await() ?: findByIdFromDb(id)?.also { cache.put(key, completedFuture(it)) }`
-        - DB I/O: R2DBC 네이티브 suspend API 사용 (`newSuspendedTransaction` 등)
-        - **`getAll(ids)`**, **`putAll(entities)`**, **`containsKey(id)`** 구현 포함 (JDBC Caffeine 구현과 동일 로직, suspend 버전)
-        - Write-Behind: Channel 패턴 (suspend `send()`)
-        - `close()`:
-          ```kotlin
-          writeBehindQueue.close()
-          runBlocking { writeBehindJob.join() }
-          cache.synchronous().invalidateAll()
-          scope.cancel()  // CoroutineScope 정리 (JDBC 구현체와 동일)
-          ```
+  `data/exposed-r2dbc-caffeine/src/main/kotlin/io/bluetape4k/exposed/r2dbc/caffeine/repository/AbstractR2dbcCaffeineRepository.kt`
+    - **AsyncCache 사용** (non-blocking):
+  ```kotlin
+  override val cache: AsyncCache<String, E> by lazy {
+      Caffeine.newBuilder()
+          .maximumSize(config.maximumSize)
+          .expireAfterWrite(config.expireAfterWrite)
+          .apply { config.expireAfterAccess?.let { expireAfterAccess(it) } }
+          .buildAsync()
+  }
+  ```
+    - `cacheMode = CacheMode.LOCAL` 고정 - `get(id)`:
+      `cache.getIfPresent(key)?.await() ?: findByIdFromDb(id)?.also { cache.put(key, completedFuture(it)) }`
+    - DB I/O: R2DBC 네이티브 suspend API 사용 (`newSuspendedTransaction` 등)
+    - **`getAll(ids)`**, **`putAll(entities)`**, **`containsKey(id)`** 구현 포함 (JDBC Caffeine 구현과 동일 로직, suspend 버전)
+    - Write-Behind: Channel 패턴 (suspend `send()`)
+    - `close()`:
+  ```kotlin
+  writeBehindQueue.close()
+  runBlocking { writeBehindJob.join() }
+  cache.synchronous().invalidateAll()
+  scope.cancel()  // CoroutineScope 정리 (JDBC 구현체와 동일)
+  ```
 - **검증 기준**: 컴파일 성공, JDBC 의존 없음 (`ide_diagnostics` 확인)
 
 ### Task 3.3: 테스트 도메인 + H2 R2DBC 설정
@@ -430,10 +426,10 @@
 - **depends_on**: 3.2
 - **신규 파일**:
     - `data/exposed-r2dbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/r2dbc/caffeine/domain/ActorSchema.kt`
-        - R2DBC 용 UserTable + ActorRecord + withUserTable(suspend)
+        - R2DBC 용 UserTable + ActorRecord + withUserTable (suspend)
     -
-    `data/exposed-r2dbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/r2dbc/caffeine/domain/ActorR2dbcCaffeineRepository.kt`
-        - `AbstractR2dbcCaffeineRepository<Long, ActorRecord>` 구현
+  `data/exposed-r2dbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/r2dbc/caffeine/domain/ActorR2dbcCaffeineRepository.kt`
+    - `AbstractR2dbcCaffeineRepository<Long, ActorRecord>` 구현
     - `data/exposed-r2dbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/r2dbc/caffeine/AbstractR2dbcCaffeineTest.kt`
 - **검증 기준**: 테스트 도메인 컴파일 성공
 
@@ -442,13 +438,13 @@
 - **complexity**: medium
 - **depends_on**: 3.3
 - **신규 파일**:
+  -
+  `data/exposed-r2dbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/r2dbc/caffeine/repository/ReadThroughCacheTest.kt`
+    - testFixtures의 `R2dbcReadThroughScenario<Long, ActorRecord>` 구현
     -
-    `data/exposed-r2dbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/r2dbc/caffeine/repository/ReadThroughCacheTest.kt`
-        - testFixtures의 `R2dbcReadThroughScenario<Long, ActorRecord>` 구현
-    -
-    `data/exposed-r2dbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/r2dbc/caffeine/repository/WriteThroughCacheTest.kt`
-    -
-    `data/exposed-r2dbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/r2dbc/caffeine/repository/WriteBehindCacheTest.kt`
+  `data/exposed-r2dbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/r2dbc/caffeine/repository/WriteThroughCacheTest.kt`
+  -
+  `data/exposed-r2dbc-caffeine/src/test/kotlin/io/bluetape4k/exposed/r2dbc/caffeine/repository/WriteBehindCacheTest.kt`
 - **검증 기준**: `./gradlew :bluetape4k-exposed-r2dbc-caffeine:test` 전체 통과 (H2만)
 
 ### Task 3.5: README 작성
@@ -504,48 +500,48 @@
 
 ## Phase별 병렬 실행 가능 태스크 그룹
 
-| 실행 순서   | 태스크              | 비고                                       |
-|---------|------------------|------------------------------------------|
-| Step 1  | 1.1              | 디렉토리 리네이밍 (단독)                           |
-| Step 2  | 1.2, 1.3, 1.5    | CacheMode LOCAL + 인터페이스 분리 + Config (병렬) |
-| Step 3  | 1.4              | 구현체 부모 변경 (1.3 의존)                       |
-| Step 4  | 1.6              | 테스트 코드 타입 업데이트                           |
-| Step 5  | 1.7              | exposed-cache README (1.6 완료 후)          |
-| Step 6  | 2.1, 3.1         | 두 신규 모듈 디렉토리 생성 (병렬)                     |
-| Step 7  | 2.2~2.5, 3.2     | JDBC 구현 + R2DBC 구현 (병렬)                  |
-| Step 8  | 2.6~2.7, 3.3~3.4 | 테스트 작성 (병렬)                              |
-| Step 9  | 2.8, 3.5         | README (병렬)                              |
-| Step 10 | 4.1              | CLAUDE.md 업데이트                           |
-| Step 11 | 4.2              | docs 업데이트 (4.1 완료 후)                     |
+| 실행 순서 | 태스크           | 비고                                              |
+|-----------|------------------|---------------------------------------------------|
+| Step 1    | 1.1              | 디렉토리 리네이밍 (단독)                          |
+| Step 2    | 1.2, 1.3, 1.5    | CacheMode LOCAL + 인터페이스 분리 + Config (병렬) |
+| Step 3    | 1.4              | 구현체 부모 변경 (1.3 의존)                       |
+| Step 4    | 1.6              | 테스트 코드 타입 업데이트                         |
+| Step 5    | 1.7              | exposed-cache README (1.6 완료 후)                |
+| Step 6    | 2.1, 3.1         | 두 신규 모듈 디렉토리 생성 (병렬)                 |
+| Step 7    | 2.2~2.5, 3.2     | JDBC 구현 + R2DBC 구현 (병렬)                     |
+| Step 8    | 2.6~2.7, 3.3~3.4 | 테스트 작성 (병렬)                                |
+| Step 9    | 2.8, 3.5         | README (병렬)                                     |
+| Step 10   | 4.1              | CLAUDE.md 업데이트                                |
+| Step 11   | 4.2              | docs 업데이트 (4.1 완료 후)                       |
 
 ---
 
 ## 태스크 요약
 
-| #   | 태스크                                                          | Complexity | Depends On |
-|-----|--------------------------------------------------------------|------------|------------|
-| 1.1 | 디렉토리 리네이밍 + Gradle 의존성 업데이트                                  | low        | -          |
-| 1.2 | CacheMode에 LOCAL 값 추가                                        | low        | 1.1        |
-| 1.3 | invalidateByPattern 분리 + Redis 전용 인터페이스 생성                   | medium     | 1.1        |
-| 1.4 | Lettuce/Redisson 구현체 부모 인터페이스 변경                             | medium     | 1.3        |
+| #   | 태스크                                                         | Complexity | Depends On |
+|-----|----------------------------------------------------------------|------------|------------|
+| 1.1 | 디렉토리 리네이밍 + Gradle 의존성 업데이트                     | low        | -          |
+| 1.2 | CacheMode에 LOCAL 값 추가                                      | low        | 1.1        |
+| 1.3 | invalidateByPattern 분리 + Redis 전용 인터페이스 생성          | medium     | 1.1        |
+| 1.4 | Lettuce/Redisson 구현체 부모 인터페이스 변경                   | medium     | 1.3        |
 | 1.5 | LocalCacheConfig + RedisRepositoryResilienceConfig 작성        | low        | 1.1        |
-| 1.6 | 테스트 코드 타입 업데이트 + when 표현식 수정                                 | medium     | 1.4        |
-| 1.7 | exposed-cache README 업데이트                                    | low        | 1.6        |
-| 2.1 | exposed-jdbc-caffeine 모듈 생성                                  | low        | 1.6        |
+| 1.6 | 테스트 코드 타입 업데이트 + when 표현식 수정                   | medium     | 1.4        |
+| 1.7 | exposed-cache README 업데이트                                  | low        | 1.6        |
+| 2.1 | exposed-jdbc-caffeine 모듈 생성                                | low        | 1.6        |
 | 2.2 | CaffeineCacheConfig 작성                                       | low        | 2.1        |
 | 2.3 | AbstractJdbcCaffeineRepository Read-Through/Write-Through 구현 | high       | 2.2        |
 | 2.4 | Write-Behind 구현 (Channel + close drain)                      | high       | 2.3        |
 | 2.5 | AbstractSuspendedJdbcCaffeineRepository 구현                   | high       | 2.4        |
-| 2.6 | 테스트 도메인 + H2 설정                                              | medium     | 2.5        |
-| 2.7 | 테스트 시나리오 6종 (JDBC sync + suspend)                            | medium     | 2.6        |
+| 2.6 | 테스트 도메인 + H2 설정                                        | medium     | 2.5        |
+| 2.7 | 테스트 시나리오 6종 (JDBC sync + suspend)                      | medium     | 2.6        |
 | 2.8 | exposed-jdbc-caffeine README 작성                              | low        | 2.7        |
-| 3.1 | exposed-r2dbc-caffeine 모듈 생성                                 | low        | 1.6        |
+| 3.1 | exposed-r2dbc-caffeine 모듈 생성                               | low        | 1.6        |
 | 3.2 | AbstractR2dbcCaffeineRepository AsyncCache 구현                | high       | 3.1        |
-| 3.3 | 테스트 도메인 + H2 R2DBC 설정                                        | medium     | 3.2        |
-| 3.4 | 테스트 시나리오 3종 (R2DBC)                                          | medium     | 3.3        |
+| 3.3 | 테스트 도메인 + H2 R2DBC 설정                                  | medium     | 3.2        |
+| 3.4 | 테스트 시나리오 3종 (R2DBC)                                    | medium     | 3.3        |
 | 3.5 | exposed-r2dbc-caffeine README 작성                             | low        | 3.4        |
-| 4.1 | CLAUDE.md 업데이트                                               | low        | 2.7, 3.4   |
-| 4.2 | bluetape4k-patterns 체크리스트 검증                                 | low        | 4.1        |
-| 4.3 | docs 업데이트 (testlogs, superpowers)                            | low        | 4.2        |
+| 4.1 | CLAUDE.md 업데이트                                             | low        | 2.7, 3.4   |
+| 4.2 | bluetape4k-patterns 체크리스트 검증                            | low        | 4.1        |
+| 4.3 | docs 업데이트 (testlogs, superpowers)                          | low        | 4.2        |
 
 **총 23개 태스크**: high 4 / medium 8 / low 11

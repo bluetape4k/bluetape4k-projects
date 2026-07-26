@@ -1,40 +1,44 @@
 # #756 Fory/FastFory Raw Codec Allocation Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Remove only the warmed steady-state caller-return/handoff `ByteArray` from raw Fory/FastFory codec paths while preserving Fory's internal reusable `MemoryBuffer`, all serializer and codec fallback contracts, and caller-owned `ByteBuf` state.
 
 **Architecture:** `ForyBinarySerializer` gains the existing caller-owned `OutputStream` fast-path seam. Lettuce continues to own bounded absolute-index writing through `BoundedByteBufOutputStream`. Redisson decode receives a narrowly scoped read-only NIO view with exactly-one copied-primary fallback; Redisson encode is guarded by a benchmark-only feasibility probe and is implemented only when that probe accepts it. Evidence promotion, charts, and README claims are disposition-gated.
 
-**Tech Stack:** Kotlin 2.3, Java 21, Apache Fory/FastFory, Netty `ByteBuf`, Lettuce, Redisson, JUnit 5, `bluetape4k-assertions`, JMH, Python evidence validators.
+**Tech
+Stack:** Kotlin 2.3, Java 21, Apache Fory/FastFory, Netty `ByteBuf`, Lettuce, Redisson, JUnit 5, `bluetape4k-assertions`, JMH, Python evidence validators.
 
-**Required pattern:** Follow `bluetape4k-kotlin-patterns`: immutable local state, JUnit 5 plus `bluetape4k-assertions` (`assertFailsWith` for failure contracts), explicit `finally` cleanup, no broad exception swallowing, KDoc at public behavior boundaries, and repository formatter/import conventions.
+**Required
+pattern:** Follow `bluetape4k-kotlin-patterns`: immutable local state, JUnit 5 plus `bluetape4k-assertions` (`assertFailsWith` for failure contracts), explicit `finally` cleanup, no broad exception swallowing, KDoc at public behavior boundaries, and repository formatter/import conventions.
 
 ---
 
 ## Traceability and fixed decisions
 
-| Requirement | Planned proof |
-|---|---|
-| No claim of Fory zero-copy/internal-buffer removal | Stream tests and KDoc state only the handoff array is removed. |
-| Lettuce raw Fory/FastFory only | Target-buffer tests for `fory()`/`fastFory()`; compressed codecs remain byte-array paths. |
-| Redisson decode preserves fallback semantics | Contract tests cover direct success, precondition/view fallback, direct failure, normalized control/fatal failures, caller indices/marks/refcount, and FastFory asymmetry. |
-| Redisson encode remains conditional | Feasibility writes `probeDisposition`; only a green production Task 7 may write `encodeDisposition=implemented`. |
-| Benchmark integrity | Two independent fork outputs, manifest, preflight, allocation and throughput/error-bar gate. |
-| Documentation is evidence-backed | Only accepted canonical cells become README/chart claims; Korean/English report parity is checked. |
+| Requirement                                        | Planned proof                                                                                                                                                              |
+|----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| No claim of Fory zero-copy/internal-buffer removal | Stream tests and KDoc state only the handoff array is removed.                                                                                                             |
+| Lettuce raw Fory/FastFory only                     | Target-buffer tests for `fory()`/`fastFory()`; compressed codecs remain byte-array paths.                                                                                  |
+| Redisson decode preserves fallback semantics       | Contract tests cover direct success, precondition/view fallback, direct failure, normalized control/fatal failures, caller indices/marks/refcount, and FastFory asymmetry. |
+| Redisson encode remains conditional                | Feasibility writes `probeDisposition`; only a green production Task 7 may write `encodeDisposition=implemented`.                                                           |
+| Benchmark integrity                                | Two independent fork outputs, manifest, preflight, allocation and throughput/error-bar gate.                                                                               |
+| Documentation is evidence-backed                   | Only accepted canonical cells become README/chart claims; Korean/English report parity is checked.                                                                         |
 
 ## File map
 
-| Area | Files |
-|---|---|
-| Fory stream seam | `io/io/src/main/kotlin/io/bluetape4k/io/serializer/ForyBinarySerializer.kt`, `CoreBinarySerializerByteBufferTest.kt`, `ForyBinarySerializerTest.kt`, `SecureForyBinarySerializerTest.kt` |
-| Lettuce target path | `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodec.kt`, `LettuceBinaryCodecs.kt`, `LettuceBinaryCodecBufferContractTest.kt`, issue-756 JMH/preflight/runner files |
-| Redisson decode/conditional encode | `infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/codec/ForyCodec.kt`, `FastForyCodec.kt`, codec contract tests, benchmark source/scripts |
-| Evidence and publication | `docs/benchmarks/raw/issue-756-fory-followup/`, `io/io/README{,.ko}.md`, `infra/lettuce/README{,.ko}.md`, `infra/redisson/README{,.ko}.md`, report/assets, aggregate validator, release checklist |
+| Area                               | Files                                                                                                                                                                                              |
+|------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Fory stream seam                   | `io/io/src/main/kotlin/io/bluetape4k/io/serializer/ForyBinarySerializer.kt`, `CoreBinarySerializerByteBufferTest.kt`, `ForyBinarySerializerTest.kt`, `SecureForyBinarySerializerTest.kt`           |
+| Lettuce target path                | `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodec.kt`, `LettuceBinaryCodecs.kt`, `LettuceBinaryCodecBufferContractTest.kt`, issue-756 JMH/preflight/runner files |
+| Redisson decode/conditional encode | `infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/codec/ForyCodec.kt`, `FastForyCodec.kt`, codec contract tests, benchmark source/scripts                                               |
+| Evidence and publication           | `docs/benchmarks/raw/issue-756-fory-followup/`, `io/io/README{,.ko}.md`, `infra/lettuce/README{,.ko}.md`, `infra/redisson/README{,.ko}.md`, report/assets, aggregate validator, release checklist  |
 
 ## Task 1: Lock Fory caller-owned stream behavior with failing tests
 
 **Files:**
+
 - Modify: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/CoreBinarySerializerByteBufferTest.kt`
 - Modify: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/ForyBinarySerializerTest.kt`
 - Modify: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/SecureForyBinarySerializerTest.kt`
@@ -54,6 +58,7 @@ Expected: the stream-overload contract test fails before Task 2 because Fory use
 ## Task 2: Implement the Fory stream seam without changing policy
 
 **Files:**
+
 - Modify: `io/io/src/main/kotlin/io/bluetape4k/io/serializer/ForyBinarySerializer.kt`
 - Modify: Task 1 tests as needed for exact exception assertions
 
@@ -91,6 +96,7 @@ Not-tested: codec integration and JMH evidence
 ## Task 3: Prove Lettuce raw codec dispatch and preserve compressed behavior
 
 **Files:**
+
 - Modify: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodecTest.kt` (or the existing focused codec test)
 - Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodec.kt` only if a failing contract proves a minimal adjustment is needed
 - Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodecs.kt` only for KDoc/factory documentation
@@ -114,6 +120,7 @@ Expected: raw codecs use the already-established bounded stream dispatch; compre
 ## Task 4: Add Redisson decode contract tests before implementation
 
 **Files:**
+
 - Modify: `infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/codec/ForyCodecTest.kt`
 - Modify: `infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/codec/FastForyCompatibilityTest.kt`
 - Modify: package-local internal constructor/factory seams for Fory serializer, fallback codec, readable-view creation, and owned output buffer allocation; all public constructors keep their current ABI/default behavior
@@ -136,6 +143,7 @@ Expected: new direct-path cases fail before Task 5; old byte-array fallback beha
 ## Task 5: Implement Redisson decode with exactly-one-copy fallback
 
 **Files:**
+
 - Modify: `infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/codec/ForyCodec.kt`
 - Modify: `infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/codec/FastForyCodec.kt`
 - Modify: Task 4 tests
@@ -144,7 +152,8 @@ Expected: new direct-path cases fail before Task 5; old byte-array fallback beha
 - [ ] Decode direct NIO only when the readable range can be represented safely. If view construction/preconditions fail, materialize copied bytes and perform the original primary decode exactly once.
 - [ ] If direct primary decode throws, do not rerun direct primary. Materialize bytes once and use them only for the existing codec fallback path.
 - [ ] Introduce only internal defaulted factory seams; retain public constructor signatures, lazy Fory injection, registration settings, `Exception` vs `RuntimeException` catch boundaries, logging, fallback codec selection, and copy-constructor behavior.
-- [ ] Do not use public `ForyBinarySerializer.deserializeFrom` as a codec primary without an internal codec-only legacy normalizer. Immediately normalize every direct-primary `Throwable` to the exact `AbstractBinarySerializer.deserialize(ByteArray)` `BinarySerializationException` outcome **before** the existing codec catch boundary, so Fory's `Exception` and FastFory's `RuntimeException` paths retain old fallback reachability. View/precondition failures are not direct-primary failures: they take only the copied-primary route.
+- [ ] Do not use public `ForyBinarySerializer.deserializeFrom` as a codec primary without an internal codec-only legacy normalizer. Immediately normalize every direct-primary `Throwable` to the exact `AbstractBinarySerializer.deserialize(ByteArray)` `BinarySerializationException` outcome
+  **before** the existing codec catch boundary, so Fory's `Exception` and FastFory's `RuntimeException` paths retain old fallback reachability. View/precondition failures are not direct-primary failures: they take only the copied-primary route.
 - [ ] The Task 4 matrix must prove the normalizer preserves byte-array oracle behavior for semantic, raw/nested cancellation, raw/nested `Error`, destination, fallback-terminal, and cleanup behavior; it must not duplicate direct primary attempts.
 - [ ] Add KDoc that default registration-off decoding is for trusted Redis payloads only; do not claim it is a security hardening change.
 
@@ -175,6 +184,7 @@ Not-tested: conditional encode path and JMH evidence
 ## Task 6: Run the Redisson encode feasibility probe before production encode work
 
 **Files:**
+
 - Add: `infra/redisson/src/benchmark/.../Issue756ForyEncodeFeasibilityBenchmark.kt`
 - Add: `infra/redisson/scripts/run-issue756-fory-feasibility.py`
 - Add: `infra/redisson/scripts/validate-issue756-fory-feasibility.py`
@@ -185,7 +195,8 @@ Not-tested: conditional encode path and JMH evidence
 - [ ] Record `probe-a` and `probe-b` independently using `threads=1`, `forks=2`, `warmup=3x1s`, `measurement=5x1s`, `-prof gc`, throughput `ops/ms`, and `-Xms1g -Xmx1g -XX:+UseG1GC`.
 - [ ] Make the runner own one clean `:bluetape4k-redisson:benchmarkBenchmarkJar` build. Both probe leaves must consume that exact JAR/classpath and record dependency/JVM/commit/command hashes; any rebuild or input drift rejects the probe.
 - [ ] Use the fixed `Issue756BenchmarkData(756L, "lettuce-buffer-codec", "A".repeat(96))` payload. Each raw leaf contains `jmh.json`, sanitized `argv.json`, allowlisted `environment.json`, `metadata.json`, `summary.csv`, `comparison.json`, `validation.json`, and SHA-256 hashes. `environment.json` contains only OS/JVM/CPU/Gradle/JAR-hash/commit fields; it never serializes process environment.
-- [ ] Fix allocation proof to JMH GC profiler `gc.alloc.rate.norm` in `B/op`. In both probes the candidate must be at most 95% of baseline **and** `candidate.score + candidate.scoreError < baseline.score - baseline.scoreError`; reject missing, non-finite, non-positive baseline, mismatched unit, NaN, error-bar overlap, preflight drift, or one-run failure. Throughput is a separate finite-positive `ops/ms` guard: each run's delta must be greater than -20%, with no throughput error-interval comparison.
+- [ ] Fix allocation proof to JMH GC profiler `gc.alloc.rate.norm` in `B/op`. In both probes the candidate must be at most 95% of baseline
+  **and** `candidate.score + candidate.scoreError < baseline.score - baseline.scoreError`; reject missing, non-finite, non-positive baseline, mismatched unit, NaN, error-bar overlap, preflight drift, or one-run failure. Throughput is a separate finite-positive `ops/ms` guard: each run's delta must be greater than -20%, with no throughput error-interval comparison.
 - [ ] Add negative validator fixtures for missing/duplicate/unexpected methods, invalid allocation metric/unit, NaN, error-bar overlap, dirty tree/hash drift, malformed provenance, process-environment capture, and sensitive argv tokens/passwords/proxy URLs. The runner redacts or rejects sensitive argv; a repository scan gate runs before artifact or documentation promotion.
 - [ ] Write only `probeDisposition=accepted|rejected` and its reason. A rejected probe is terminal for encode: record final `encodeDisposition=rejected` with reason, commit evidence, and skip Task 7 production edits.
 
@@ -204,6 +215,7 @@ Expected: a reproducible disposition artifact, not a presumed optimization resul
 **Precondition:** Task 6 manifest says `probeDisposition=accepted`. If it says `rejected`, record the terminal `encodeDisposition=rejected` evidence and skip this task.
 
 **Files when accepted:**
+
 - Modify: `infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/codec/ForyCodec.kt`
 - Modify: `infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/codec/FastForyCodec.kt`
 - Modify: focused codec tests
@@ -219,13 +231,15 @@ Commit accepted implementation or rejected feasibility evidence separately using
 ## Task 8: Generate canonical benchmark evidence and validate all disposition cells
 
 **Files:**
+
 - Modify/add: `infra/lettuce/src/benchmark/kotlin/io/bluetape4k/redis/lettuce/benchmark/LettuceCodecBenchmark.kt`, `LettuceCodecBenchmarkPreflight.kt`, `infra/lettuce/scripts/run-issue756-evidence.py`, `validate-issue756-jmh.py`, and their Python tests
 - Add: Redisson issue-756 benchmark/preflight/runner/validator scripts and their Python tests
 - Add: `docs/benchmarks/raw/issue-756-fory-followup/manifest.json`
 - Add: `docs/benchmarks/raw/issue-756-fory-followup/validate-issue756-fory-followup.py`
 - Add: `docs/benchmarks/raw/issue-756-fory-followup/test_validate_issue756_fory_followup.py`
 
-- [ ] Define a checked method-to-cell matrix: Lettuce target **serialize** Fory/FastFory × heap/direct (4 pairs, 8 methods); Redisson decode Fory/FastFory × `{single-NIO heap ByteBuf, single-NIO direct ByteBuf, composite copied fallback}` (6 pairs, 12 methods); and, only when `encodeDisposition=implemented`, Redisson encode Fory/FastFory × baseline/candidate (2 pairs, 4 methods). Do not add a primary-exception fallback promotion pair. For every cell, pin the same logical payload, buffer state, equality/state preflight, baseline (`ByteBufUtil.getBytes` plus current byte-array decode/encode), candidate (streamed Lettuce target, direct NIO decode, copied-primary fallback, or owned-output encode), and `gc.alloc.rate.norm` unit.
+- [ ] Define a checked method-to-cell matrix: Lettuce target
+  **serialize** Fory/FastFory × heap/direct (4 pairs, 8 methods); Redisson decode Fory/FastFory × `{single-NIO heap ByteBuf, single-NIO direct ByteBuf, composite copied fallback}` (6 pairs, 12 methods); and, only when `encodeDisposition=implemented`, Redisson encode Fory/FastFory × baseline/candidate (2 pairs, 4 methods). Do not add a primary-exception fallback promotion pair. For every cell, pin the same logical payload, buffer state, equality/state preflight, baseline (`ByteBufUtil.getBytes` plus current byte-array decode/encode), candidate (streamed Lettuce target, direct NIO decode, copied-primary fallback, or owned-output encode), and `gc.alloc.rate.norm` unit.
 - [ ] Apply the exact Task 6 settings and gate independently for each benchmark cell and each A/B run.
 - [ ] Make `infra/lettuce/scripts/run-issue756-evidence.py` build one clean `:bluetape4k-lettuce:benchmarkBenchmarkJar`, run Lettuce canonical A/B, and validate its preflight; make the new Redisson runner do the equivalent. Run Lettuce first, Redisson second, with no Testcontainers overlap.
 - [ ] Require every canonical leaf to contain the Task 6 raw files and hashes; the aggregate manifest records the one pinned JAR/classpath per module and rejects a rebuilt, divergent, or unlisted leaf.
@@ -251,6 +265,7 @@ Expected: aggregate validation rejects absent forks, inconsistent manifests, und
 ## Task 9: Publish evidence-backed documentation, charts, and release handoff
 
 **Files:**
+
 - Modify: `io/io/README.md`, `io/io/README.ko.md`, `infra/lettuce/README.md`, `infra/lettuce/README.ko.md`, `infra/redisson/README.md`, and `infra/redisson/README.ko.md`
 - Add: `docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md`; preserve `2026-07-22-issue-756-lettuce-buffer-codec-allocation.md` and its raw authority unchanged
 - Modify: public KDoc for `ForyBinarySerializer`, `LettuceBinaryCodec`, `LettuceBinaryCodecs`, `ForyCodec`, and `FastForyCodec`
@@ -305,4 +320,5 @@ git diff --check
 repo-status
 ```
 
-**Stop condition:** The plan is ready for implementation only after this plan itself is committed and six-lens plan review has zero unresolved P0/P1 findings. Production implementation begins only after the user approves the reviewed plan.
+**Stop
+condition:** The plan is ready for implementation only after this plan itself is committed and six-lens plan review has zero unresolved P0/P1 findings. Production implementation begins only after the user approves the reviewed plan.

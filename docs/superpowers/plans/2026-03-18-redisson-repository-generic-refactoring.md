@@ -1,13 +1,13 @@
 # Redisson/JDBC/R2DBC Repository Generic 리팩토링 구현 계획
 
 > **For agentic workers:
-** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (
-`- [ ]`) syntax for tracking.
+> ** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (
+> `- [ ]`) syntax for tracking.
 
 **Goal:
 ** Redisson Repository의 Generic 파라미터를 Lettuce Repository와 일치시키고, exposed-jdbc/exposed-r2dbc 기본 Repository도 동일한 패턴으로 통일한다.
 
-**Architecture:** `<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>` → `<ID: Any, E: Any>`로 변경. Table(T) 제네릭 제거,
+**Architecture:** `<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>` → `<ID: Any, E: Any>`로 변경. Table (T) 제네릭 제거,
 `HasIdentifier` 의존 제거, `entity.id` 접근을 `extractId(entity)` 추상 메서드로 대체. MapLoader/MapWriter 내부에서는
 `Map<ID, E>`의 key로 ID 접근.
 
@@ -19,7 +19,7 @@
 
 ### 참조 모델 (Lettuce — 변경 없음)
 
-| 파일                               | Generic                                       |
+| 파일                             | Generic                                       |
 |----------------------------------|-----------------------------------------------|
 | `JdbcLettuceRepository`          | `<ID: Any, E: Any>`                           |
 | `SuspendedJdbcLettuceRepository` | `<ID: Any, E: Any>`                           |
@@ -28,19 +28,19 @@
 
 ### 변경 대상
 
-| 모듈                                                                  | 현재 Generic                                        | 목표 Generic                 |
-|---------------------------------------------------------------------|---------------------------------------------------|----------------------------|
-| **exposed-jdbc-redisson** map (8파일)                                 | `<ID: Any, E: HasIdentifier<ID>>`                 | `<ID: Any, E: Any>`        |
-| **exposed-jdbc-redisson** repository (4파일)                          | `<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>` | `<ID: Any, E: Any>`        |
-| **exposed-r2dbc-redisson** map (4파일)                                | `<ID: Any, E: HasIdentifier<ID>>`                 | `<ID: Any, E: Any>`        |
-| **exposed-r2dbc-redisson** repository (2파일)                         | `<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>` | `<ID: Any, E: Any>`        |
-| **exposed-jdbc** repository (2파일)                                   | `<ID: Any, T: IdTable<ID>, E: Any>`               | `<ID: Any, E: Any>` (T 제거) |
-| **exposed-r2dbc** repository (3파일)                                  | `<ID: Any, T: IdTable<ID>, E: Any>` 등             | `<ID: Any, E: Any>` (T 제거) |
-| **테스트** (exposed-jdbc-redisson ~20파일, exposed-r2dbc-redisson ~13파일) | T 포함, HasIdentifier                               | T 제거, extractId 오버라이드      |
+| 모듈                                                                       | 현재 Generic                                      | 목표 Generic                 |
+|----------------------------------------------------------------------------|---------------------------------------------------|------------------------------|
+| **exposed-jdbc-redisson** map (8파일)                                      | `<ID: Any, E: HasIdentifier<ID>>`                 | `<ID: Any, E: Any>`          |
+| **exposed-jdbc-redisson** repository (4파일)                               | `<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>` | `<ID: Any, E: Any>`          |
+| **exposed-r2dbc-redisson** map (4파일)                                     | `<ID: Any, E: HasIdentifier<ID>>`                 | `<ID: Any, E: Any>`          |
+| **exposed-r2dbc-redisson** repository (2파일)                              | `<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>` | `<ID: Any, E: Any>`          |
+| **exposed-jdbc** repository (2파일)                                        | `<ID: Any, T: IdTable<ID>, E: Any>`               | `<ID: Any, E: Any>` (T 제거) |
+| **exposed-r2dbc** repository (3파일)                                       | `<ID: Any, T: IdTable<ID>, E: Any>` 등            | `<ID: Any, E: Any>` (T 제거) |
+| **테스트** (exposed-jdbc-redisson ~20파일, exposed-r2dbc-redisson ~13파일) | T 포함, HasIdentifier                             | T 제거, extractId 오버라이드 |
 
 ### 핵심 패턴 변환
 
-**1. entity.id → extractId(entity)**
+**1. entity.id → extractId (entity)**
 
 ```kotlin
 // Before (HasIdentifier 의존)
@@ -211,7 +211,7 @@ open class ExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
 
 **ExposedEntityMapWriter.kt** — 제네릭 + writeThrough/writeBehind 내부 로직 변경:
 
-클래스 선언(44행):
+클래스 선언 (44행):
 
 ```kotlin
 // Before
@@ -220,7 +220,7 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     open class ExposedEntityMapWriter<ID: Any, E: Any>(
 ```
 
-`writeThrough` companion 함수(75행) — **map entry 기반으로 변환**:
+`writeThrough` companion 함수 (75행) — **map entry 기반으로 변환**:
 
 ```kotlin
 // Before
@@ -282,7 +282,7 @@ private fun <K: Comparable<K>, V: Any> writeThrough(
 }
 ```
 
-`writeBehind` companion 함수(107행):
+`writeBehind` companion 함수 (107행):
 
 ```kotlin
 // Before

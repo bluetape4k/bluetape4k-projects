@@ -1,15 +1,15 @@
 package io.bluetape4k.okio.tink
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.tink.daead.TinkDaeads
 import okio.Buffer
 import okio.Sink
 import okio.Timeout
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 import java.io.IOException
-import io.bluetape4k.assertions.assertFailsWith
 
 class DaeadChunkEncryptSinkTest: AbstractTinkEncryptTest() {
 
@@ -185,7 +185,14 @@ class DaeadChunkEncryptSinkTest: AbstractTinkEncryptTest() {
     @Test
     fun `round-trip with payload sizes around chunk boundaries`() {
         val chunkSize = 16
-        listOf(chunkSize - 1, chunkSize, chunkSize + 1, 2 * chunkSize - 1, 2 * chunkSize, 2 * chunkSize + 1).forEach { size ->
+        listOf(
+            chunkSize - 1,
+            chunkSize,
+            chunkSize + 1,
+            2 * chunkSize - 1,
+            2 * chunkSize,
+            2 * chunkSize + 1
+        ).forEach { size ->
             val plaintext = ByteArray(size) { (it % 251).toByte() }
             val encrypted = Buffer()
 
@@ -235,6 +242,7 @@ class DaeadChunkEncryptSinkTest: AbstractTinkEncryptTest() {
         override fun write(source: Buffer, byteCount: Long) {
             if (throwOnWrite) throw IOException("delegate write failed")
         }
+
         override fun flush() {}
         override fun timeout(): Timeout = Timeout.NONE
         override fun close() {

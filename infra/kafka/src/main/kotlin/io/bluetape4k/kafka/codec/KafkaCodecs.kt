@@ -33,18 +33,22 @@ object KafkaCodecs {
     val Jackson by lazy { JacksonKafkaCodec() }
 
     val Kryo by lazy { KryoKafkaCodec() }
+
     @BluetapeDelicateApi
     val Fory by lazy { ForyKafkaCodec() }
 
     val Lz4Kryo by lazy { LZ4KryoKafkaCodec() }
+
     @BluetapeDelicateApi
     val Lz4Fory by lazy { LZ4ForyKafkaCodec() }
 
     val SnappyKryo by lazy { SnappyKryoKafkaCodec() }
+
     @BluetapeDelicateApi
     val SnappyFory by lazy { SnappyForyKafkaCodec() }
 
     val ZstdKryo by lazy { ZstdKryoKafkaCodec() }
+
     @BluetapeDelicateApi
     val ZstdFory by lazy { ZstdForyKafkaCodec() }
 }

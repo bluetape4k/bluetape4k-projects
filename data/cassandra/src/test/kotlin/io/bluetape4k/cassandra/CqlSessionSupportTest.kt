@@ -1,18 +1,18 @@
 package io.bluetape4k.cassandra
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.support.closeSafe
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.support.closeSafe
 import org.junit.jupiter.api.Test
 import java.net.InetSocketAddress
 
 /**
  * [cqlSession] 및 [cqlSessionOf] DSL 팩토리 함수를 검증합니다.
  */
-class CqlSessionSupportTest : AbstractCassandraTest() {
+class CqlSessionSupportTest: AbstractCassandraTest() {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     @Test
     fun `cqlSession DSL 로 세션을 생성한다`() {

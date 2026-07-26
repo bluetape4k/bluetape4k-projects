@@ -1,5 +1,6 @@
 package io.bluetape4k.http.hc5.examples
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.classic.httpClientOf
 import io.bluetape4k.http.hc5.entity.consume
@@ -7,7 +8,6 @@ import io.bluetape4k.http.hc5.http.httpClientContext
 import io.bluetape4k.http.hc5.http.httpHostOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials
 import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.core5.http.message.StatusLine

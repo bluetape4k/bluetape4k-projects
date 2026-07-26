@@ -63,13 +63,13 @@ if (!benchmarkProfiler.isNullOrBlank()) {
             val profilingDir = layout.buildDirectory.dir("benchmark-profiling").get().asFile
             doFirst { profilingDir.mkdirs() }
             when (benchmarkProfiler.lowercase()) {
-                "gc" -> jvmArgs(
+                "gc"    -> jvmArgs(
                     "-Xlog:gc*,safepoint:file=${profilingDir}/gc.log:time,uptime,level,tags"
                 )
-                "jfr" -> jvmArgs(
+                "jfr"   -> jvmArgs(
                     "-XX:StartFlightRecording=" +
-                    "filename=${profilingDir}/benchmark.jfr," +
-                    "dumponexit=true,settings=profile,duration=600s"
+                            "filename=${profilingDir}/benchmark.jfr," +
+                            "dumponexit=true,settings=profile,duration=600s"
                 )
                 "async" -> {
                     val profilerLib = (project.findProperty("asyncProfilerLib") as String?)
@@ -78,12 +78,12 @@ if (!benchmarkProfiler.isNullOrBlank()) {
                         )
                     jvmArgs(
                         "-agentpath:$profilerLib=start,event=cpu," +
-                        "file=${profilingDir}/async-cpu.html,flamegraph,interval=1ms"
+                                "file=${profilingDir}/async-cpu.html,flamegraph,interval=1ms"
                     )
                 }
-                else -> logger.warn(
+                else    -> logger.warn(
                     "[bluetape4k-http] Unknown benchmarkProfile='$benchmarkProfiler'. " +
-                    "Valid values: gc, jfr, async"
+                            "Valid values: gc, jfr, async"
                 )
             }
         }

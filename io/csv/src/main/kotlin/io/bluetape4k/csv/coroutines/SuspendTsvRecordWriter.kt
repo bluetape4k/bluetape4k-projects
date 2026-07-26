@@ -30,9 +30,9 @@ import java.io.Writer
 class SuspendTsvRecordWriter(
     writer: Writer,
     settings: TsvSettings = TsvSettings.DEFAULT,
-) : SuspendRecordWriter {
+): SuspendRecordWriter {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     private val lineWriter = TsvLineWriter(writer, settings)
     private val mutex = Mutex()

@@ -1,9 +1,12 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
-import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.assertions.coroutines.assertResult
 import io.bluetape4k.assertions.coroutines.assertResultSet
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -12,9 +15,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldHaveSize
 import org.eclipse.collections.api.multimap.list.ListMultimap
 import org.junit.jupiter.api.Test
 

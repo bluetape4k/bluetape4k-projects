@@ -5,9 +5,9 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.jackson3.JacksonSerializer
 import io.bluetape4k.jackson3.deserialize
 import io.bluetape4k.json.JsonSerializer
-import io.bluetape4k.json.deserialize as deserializeRaw
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
+import io.bluetape4k.json.deserialize as deserializeRaw
 
 class JacksonSerializerExtensionImportTest {
 

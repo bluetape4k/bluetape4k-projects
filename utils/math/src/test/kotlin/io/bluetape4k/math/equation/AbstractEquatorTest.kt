@@ -1,15 +1,15 @@
 package io.bluetape4k.math.equation
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.collections.doubleSequenceOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.math.commons.approximateEqual
-import io.bluetape4k.assertions.shouldBeTrue
 import org.apache.commons.math3.exception.NoBracketingException
 import org.junit.jupiter.api.Test
 import kotlin.math.PI
 import kotlin.math.sin
-import io.bluetape4k.assertions.assertFailsWith
 
 abstract class AbstractEquatorTest {
 

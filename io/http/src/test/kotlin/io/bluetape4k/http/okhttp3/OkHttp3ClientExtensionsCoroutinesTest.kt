@@ -1,5 +1,7 @@
 package io.bluetape4k.http.okhttp3
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.http.okhttp3.mock.baseUrl
 import io.bluetape4k.http.okhttp3.mock.enqueueBody
 import io.bluetape4k.http.okhttp3.mock.enqueueBodyWithHeadersDelay
@@ -9,8 +11,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockWebServer
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterEach

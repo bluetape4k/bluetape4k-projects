@@ -1,11 +1,11 @@
 package io.bluetape4k.support
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import kotlin.minus
 import kotlin.plus
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.toBigDecimal

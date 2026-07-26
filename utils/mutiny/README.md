@@ -153,8 +153,7 @@ val uni = scope.fetchData()
 val result = uni.await().indefinitely()
 ```
 
-`asUni` is cold: it starts the coroutine only when the returned `Uni` is subscribed, and cancelling
-the subscription cancels the running coroutine.
+`asUni` is cold: it starts the coroutine only when the returned `Uni` is subscribed, and cancelling the subscription cancels the running coroutine.
 
 ### Convert Between `Uni` and `Multi`
 

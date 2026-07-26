@@ -6,6 +6,7 @@ import io.bluetape4k.protobuf.messages.testMessage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.Test
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -14,7 +15,6 @@ import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
-import org.junit.jupiter.api.Test
 
 class MessageSupportByteBufferTest {
     @Test

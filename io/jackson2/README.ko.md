@@ -69,8 +69,7 @@ val prettyJson = Jackson.prettyJsonWriter.writeValueAsString(data)
 
 ### 안전한 다형성 Mapper
 
-Jackson default type information이 필요한 JSON에는 `Jackson.createTypedJsonMapper(...)`를 사용하세요.
-allowlist는 다형 subtype class name에 적용되며, type id는 `@class` property로 기록됩니다.
+Jackson default type information이 필요한 JSON에는 `Jackson.createTypedJsonMapper(...)`를 사용하세요. allowlist는 다형 subtype class name에 적용되며, type id는 `@class` property로 기록됩니다.
 
 ```kotlin
 val mapper = Jackson.createTypedJsonMapper("com.example.model.")
@@ -78,8 +77,7 @@ val json = mapper.writeValueAsString(value)
 val restored = mapper.readValue(json, ModelEnvelope::class.java)
 ```
 
-신뢰할 수 없는 JSON에는 deprecated된 `Jackson.typedJsonMapper`를 사용하지 마세요. 이 mapper는
-호환성을 위해 기존 `Any` base default typing 동작을 유지하므로 외부 payload에 안전하지 않습니다.
+신뢰할 수 없는 JSON에는 deprecated된 `Jackson.typedJsonMapper`를 사용하지 마세요. 이 mapper는 호환성을 위해 기존 `Any` base default typing 동작을 유지하므로 외부 payload에 안전하지 않습니다.
 
 ### 2. JacksonSerializer
 
@@ -114,15 +112,9 @@ try {
 
 #### ByteBuffer 계약
 
-`serializeTo`는 설정된 mapper의 stream API로 caller-owned buffer에 직접 쓰고, `deserializeFrom`은
-duplicate view를 읽습니다. 이 Jackson 전용 override는 호환 `serialize(): ByteArray`와
-`deserialize(ByteArray)` 메서드를 우회합니다. optimized dispatch cell이라는 의미만 가지며, 측정 전에는
-할당 개선을 주장하지 않습니다. heap, direct, slice, read-only 입력을 지원하며 입력 상태를 보존합니다. 출력 position은 성공
-시에만 이동하고, read-only target과 용량 부족은 각각 raw `ReadOnlyBufferException`,
-`BufferOverflowException`을 노출합니다. 실패한 출력 호출은 원래 position으로 rollback하지만 이미 기록된
-바이트는 불특정 상태이므로 주변 프로토콜이 요구하면 재시도 전에 지우거나 덮어써야 합니다.
-치명적인 `Error` 인스턴스는 wrapping하지 않고 동일 identity를 유지합니다.
-신뢰할 수 없는 입력은 호출 전에 limit를 설정해 범위를 제한해야 하며 serializer는 remaining 범위 밖을 읽지 않습니다.
+`serializeTo`는 설정된 mapper의 stream API로 caller-owned buffer에 직접 쓰고, `deserializeFrom`은 duplicate view를 읽습니다. 이 Jackson 전용 override는 호환 `serialize(): ByteArray`와
+`deserialize(ByteArray)` 메서드를 우회합니다. optimized dispatch cell이라는 의미만 가지며, 측정 전에는 할당 개선을 주장하지 않습니다. heap, direct, slice, read-only 입력을 지원하며 입력 상태를 보존합니다. 출력 position은 성공 시에만 이동하고, read-only target과 용량 부족은 각각 raw `ReadOnlyBufferException`,
+`BufferOverflowException`을 노출합니다. 실패한 출력 호출은 원래 position으로 rollback하지만 이미 기록된 바이트는 불특정 상태이므로 주변 프로토콜이 요구하면 재시도 전에 지우거나 덮어써야 합니다. 치명적인 `Error` 인스턴스는 wrapping하지 않고 동일 identity를 유지합니다. 신뢰할 수 없는 입력은 호출 전에 limit를 설정해 범위를 제한해야 하며 serializer는 remaining 범위 밖을 읽지 않습니다.
 
 ```kotlin
 import io.bluetape4k.jackson.*
@@ -147,9 +139,7 @@ val rawUsers: List<*>? = contract.deserializeRaw<List<User>>(buffer)
 ```
 
 concrete `JacksonSerializer` extension은 generic `TypeReference` 정보를 유지합니다. 정적 타입이
-`JsonSerializer`인 receiver는 기존 class-token 호환 fallback 계약을 사용하므로 collection element가
-raw map으로 남습니다. YAML, Properties, CSV, TOML, CBOR, Ion, Smile도 같은 buffer override를 상속합니다.
-Jackson 내부 전체에 대한 zero-allocation 주장은 하지 않습니다.
+`JsonSerializer`인 receiver는 기존 class-token 호환 fallback 계약을 사용하므로 collection element가 raw map으로 남습니다. YAML, Properties, CSV, TOML, CBOR, Ion, Smile도 같은 buffer override를 상속합니다. Jackson 내부 전체에 대한 zero-allocation 주장은 하지 않습니다.
 
 ```java
 ByteBuffer buffer = ByteBuffer.wrap(bytes);
@@ -206,7 +196,7 @@ suspendParser.consumeComplete(byteArrayFlow)
 
 - `AsyncJsonParser`: Netty, WebSocket, TCP, 메시지 리스너처럼 `ByteArray` 청크를 콜백으로 받는 push 스타일 코드
 - `SuspendJsonParser`: `Flow<ByteArray>` 기반 파이프라인, `WebClient`/파일/브로커 스트림처럼 suspend 후처리가 필요한 코드
-- 두 파서 모두 연속된 여러 JSON 루트와 루트 스칼라 JSON(`"text"`, `123`, `true`, `null`)를 처리할 수 있습니다.
+- 두 파서 모두 연속된 여러 JSON 루트와 루트 스칼라 JSON (`"text"`, `123`, `true`, `null`)를 처리할 수 있습니다.
 - 콜백 스트림은 더 이상 바이트가 없을 때 `endOfInput()`을 호출하고, 완료되는 `Flow` 스트림은 `consumeComplete(flow)`를 사용합니다.
 
 ### 4-1. WebClient 스트리밍 예제
@@ -291,19 +281,17 @@ data class User(
 // 역직렬화 시 자동 복호화
 ```
 
-`@JsonTinkEncrypt`는 현재 JVM process에서 메모리로 생성되는 `TinkEncryptors` singleton keyset을 사용합니다.
-재시작, rollout, multi-instance 접근 이후에도 유지되어야 하는 DB 컬럼 암호화나 검색 index에는 이 annotation을
-사용하지 마세요. durable searchable storage가 필요하다면 보호된 `VersionedKeysetStore`와
+`@JsonTinkEncrypt`는 현재 JVM process에서 메모리로 생성되는 `TinkEncryptors` singleton keyset을 사용합니다. 재시작, rollout, multi-instance 접근 이후에도 유지되어야 하는 DB 컬럼 암호화나 검색 index에는 이 annotation을 사용하지 마세요. durable searchable storage가 필요하다면 보호된 `VersionedKeysetStore`와
 `TinkDaeads.versioned(store)` 같은 `bluetape4k-tink` versioned keyset API를 사용하세요.
 
 지원 알고리즘:
 
-| `TinkEncryptAlgorithm`     | 설명                                   |
-|----------------------------|--------------------------------------|
-| `AES256_GCM`               | AES256-GCM 비결정적 암호화 — 범용, 기본값        |
-| `AES128_GCM`               | AES128-GCM 비결정적 암호화 — 성능 우선          |
-| `CHACHA20_POLY1305`        | ChaCha20-Poly1305 — HW AES 가속 없는 환경  |
-| `XCHACHA20_POLY1305`       | XChaCha20-Poly1305 — 큰 nonce(192bit) |
+| `TinkEncryptAlgorithm`     | 설명                                                         |
+|----------------------------|--------------------------------------------------------------|
+| `AES256_GCM`               | AES256-GCM 비결정적 암호화 — 범용, 기본값                    |
+| `AES128_GCM`               | AES128-GCM 비결정적 암호화 — 성능 우선                       |
+| `CHACHA20_POLY1305`        | ChaCha20-Poly1305 — HW AES 가속 없는 환경                    |
+| `XCHACHA20_POLY1305`       | XChaCha20-Poly1305 — 큰 nonce(192bit)                        |
 | `DETERMINISTIC_AES256_SIV` | AES256-SIV 결정적 암호화 — 현재 process 안의 equality 확인용 |
 
 ### 7. 필드 마스킹 (@JsonMasker)
@@ -342,17 +330,17 @@ objectNode.addNull("description")
 
 바이너리 및 텍스트 포맷은 `compileOnly`로 선언되어 있으므로 사용할 포맷의 의존성을 런타임에 추가해야 합니다.
 
-| 포맷         | 종류   | 런타임 의존성                         |
-|------------|------|---------------------------------|
+| 포맷       | 종류     | 런타임 의존성                   |
+|------------|----------|---------------------------------|
 | CBOR       | 바이너리 | `jackson-dataformat-cbor`       |
 | Ion        | 바이너리 | `jackson-dataformat-ion`        |
 | Smile      | 바이너리 | `jackson-dataformat-smile`      |
 | Avro       | 바이너리 | `jackson-dataformat-avro`       |
 | Protobuf   | 바이너리 | `jackson-dataformat-protobuf`   |
-| YAML       | 텍스트  | `jackson-dataformat-yaml`       |
-| CSV        | 텍스트  | `jackson-dataformat-csv`        |
-| TOML       | 텍스트  | `jackson-dataformat-toml`       |
-| Properties | 텍스트  | `jackson-dataformat-properties` |
+| YAML       | 텍스트   | `jackson-dataformat-yaml`       |
+| CSV        | 텍스트   | `jackson-dataformat-csv`        |
+| TOML       | 텍스트   | `jackson-dataformat-toml`       |
+| Properties | 텍스트   | `jackson-dataformat-properties` |
 
 ### CBOR 직렬화 예시
 
@@ -437,20 +425,17 @@ io.bluetape4k.jackson
 
 [이슈 #1039 보고서](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)는 Jackson 2 `serializeTo`의 낮은 할당을 accepted로 판정했고 `deserializeFrom`은 inconclusive였습니다. interface 기본 구현의 호환 셀은 사용 편의성 전용입니다.
 
-| 경로 | 상태 | 한계 |
-|---|---|---|
-| concrete `serializeTo` | 최적화, accepted | 측정 payload/기본 mapper에 한정 |
-| concrete `deserializeFrom` | 최적화, inconclusive | 할당 감소 주장 없음 |
-| interface 기본 구현 | 호환 fallback | 사용 편의성 전용 |
+| 경로                       | 상태                 | 한계                            |
+|----------------------------|----------------------|---------------------------------|
+| concrete `serializeTo`     | 최적화, accepted     | 측정 payload/기본 mapper에 한정 |
+| concrete `deserializeFrom` | 최적화, inconclusive | 할당 감소 주장 없음             |
+| interface 기본 구현        | 호환 fallback        | 사용 편의성 전용                |
 
 Kotlin은 `serializer.serializeTo(value, target)`과 `serializer.deserializeFrom<Value>(source)`를 사용하고 Java는 같은 메서드에 target class를 전달합니다. 호출자는 남은 용량이 충분한 writable buffer를 제공합니다. 출력 성공은 `limit`을 넓히지 않고 `position`만 이동하며 overflow/read-only 실패는 rollback합니다. 입력은 duplicate view로 source `position`과 `limit`을 보존합니다.
 
 ### 호출자 소유 `OutputStream` API
 
-`JacksonSerializer.serializeJsonToStream`은 JSON을 먼저 `ByteArray`로 만들지 않고 설정된 mapper를 통해
-stream에 기록합니다. Interface 기본 구현은 allocating 호환 fallback으로 남습니다. Serializer는 동기 호출
-동안만 stream을 borrow하며 보관, close, flush하지 않습니다. 호출과 destination을 한 thread에 가두고,
-예외가 발생하면 partial JSON이 남을 수 있으므로 staging output을 사용하세요.
+`JacksonSerializer.serializeJsonToStream`은 JSON을 먼저 `ByteArray`로 만들지 않고 설정된 mapper를 통해 stream에 기록합니다. Interface 기본 구현은 allocating 호환 fallback으로 남습니다. Serializer는 동기 호출 동안만 stream을 borrow하며 보관, close, flush하지 않습니다. 호출과 destination을 한 thread에 가두고, 예외가 발생하면 partial JSON이 남을 수 있으므로 staging output을 사용하세요.
 
 ```kotlin
 val serializer = JacksonSerializer()
@@ -479,10 +464,7 @@ static byte[] encode(JacksonSerializer serializer, Object value) throws IOExcept
 }
 ```
 
-`deserializeFrom`은 Lettuce가 전달하는 read-only, non-array-backed bounded view를 지원하고 caller state를
-보존합니다. [이슈 #756 보고서](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md)는
-측정 payload/기본 mapper, pooled 512-byte pre-sized reusable target, no-growth 조건의 Jackson 2 heap/direct
-Lettuce cell만 낮은 allocation으로 accepted했습니다. Zero-copy, decode allocation, 일반 처리량 주장이 아닙니다.
+`deserializeFrom`은 Lettuce가 전달하는 read-only, non-array-backed bounded view를 지원하고 caller state를 보존합니다. [이슈 #756 보고서](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md)는 측정 payload/기본 mapper, pooled 512-byte pre-sized reusable target, no-growth 조건의 Jackson 2 heap/direct Lettuce cell만 낮은 allocation으로 accepted했습니다. Zero-copy, decode allocation, 일반 처리량 주장이 아닙니다.
 
 - [Jackson](https://github.com/FasterXML/jackson)
 - [Jackson Kotlin Module](https://github.com/FasterXML/jackson-module-kotlin)

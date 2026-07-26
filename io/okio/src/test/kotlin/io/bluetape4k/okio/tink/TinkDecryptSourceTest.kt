@@ -1,5 +1,7 @@
 package io.bluetape4k.okio.tink
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.okio.bufferOf
 import io.bluetape4k.okio.compress.asCompressSink
@@ -9,12 +11,10 @@ import io.bluetape4k.tink.encrypt.TinkEncryptor
 import io.bluetape4k.tink.encrypt.TinkEncryptors
 import okio.Buffer
 import okio.Source
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.junit.jupiter.params.provider.ValueSource
-import io.bluetape4k.assertions.assertFailsWith
 
 class TinkDecryptSourceTest: AbstractTinkEncryptTest() {
 

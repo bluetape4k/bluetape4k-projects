@@ -5,8 +5,8 @@ import com.datastax.oss.driver.api.querybuilder.SchemaBuilder
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.alterType
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createType
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropType
-import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 
 class TypeStatementExamples {

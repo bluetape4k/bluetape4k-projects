@@ -1,8 +1,8 @@
 # Mock Server Expansion Implementation Plan
 
 > **For agentic workers:
-** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (
-`- [ ]`) syntax for tracking.
+> ** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (
+> `- [ ]`) syntax for tracking.
 
 **Goal:** Rename `testing/mock-server` to `testing/mock-web-server` and add a sibling
 `testing/mock-webflux-server` module that serves the same HTTP contract via Spring WebFlux + Coroutines, wired into testcontainers as
@@ -145,10 +145,8 @@ T09, T15, T18, T19 can run in parallel with T06/T11/T12 once T02 lands.
 
 ## Task 1: Worktree verification (T01)
 
-**Complexity:** low
-**Files:** none (already created)
-**Depends on:** nothing
-**Acceptance criteria:** git shows worktree on branch `feat/mock-server-expansion`.
+**Complexity:** low **Files:** none (already created)
+**Depends on:** nothing **Acceptance criteria:** git shows worktree on branch `feat/mock-server-expansion`.
 
 - [ ] **Step 1: Verify worktree**
 
@@ -163,13 +161,11 @@ Run: `cd .worktrees/feat/mock-server-expansion`
 
 ## Task 2: Rename `testing/mock-server` to `testing/mock-web-server` (T02)
 
-**Complexity:** medium
-**Files:**
+**Complexity:** medium **Files:**
 
 - Move: `testing/mock-server/` to `testing/mock-web-server/` (git mv preserves history)
 
-**Depends on:** T01
-**Acceptance criteria:**
+**Depends on:** T01 **Acceptance criteria:**
 
 - `./gradlew projects` prints `:bluetape4k-mock-web-server` and not `:bluetape4k-mock-server`
 - `git log --follow testing/mock-web-server/build.gradle.kts` shows pre-rename history
@@ -205,14 +201,12 @@ git commit -m "refactor: testing/mock-server 를 testing/mock-web-server 로 이
 
 ## Task 3: Update `mock-web-server` Jib image name (T03)
 
-**Complexity:** low
-**Files:**
+**Complexity:** low **Files:**
 
 - Modify: `testing/mock-web-server/build.gradle.kts` line 76 — `image = "bluetape4k/mock-server"` changes to
   `"bluetape4k/mock-web-server"`
 
-**Depends on:** T02
-**Acceptance criteria:**
+**Depends on:** T02 **Acceptance criteria:**
 
 - `./gradlew :bluetape4k-mock-web-server:build -x test` passes
 - Grep for `bluetape4k/mock-server` under the module returns nothing
@@ -247,8 +241,7 @@ git commit -m "chore: mock-web-server Jib 이미지명 bluetape4k/mock-web-serve
 
 ## Task 4: Repo-wide rename sweep (T04)
 
-**Complexity:** medium
-**Files (representative list; exact set discovered via Grep tool):**
+**Complexity:** medium **Files (representative list; exact set discovered via Grep tool):**
 
 - Modify: `testing/testcontainers/build.gradle.kts` — `":bluetape4k-mock-server:..."` to
   `":bluetape4k-mock-web-server:..."`
@@ -257,8 +250,7 @@ git commit -m "chore: mock-web-server Jib 이미지명 bluetape4k/mock-web-serve
 - Modify: `CLAUDE.md` Module Groups `testing/` row
 - Modify: `testing/testcontainers/README.md` and `README.ko.md`
 
-**Depends on:** T02, T03
-**Acceptance criteria:**
+**Depends on:** T02, T03 **Acceptance criteria:**
 
 - Grep for `bluetape4k-mock-server` (module) returns 0 hits — excluding `docs/superpowers/`, `docs/testlogs/`, `.git/`
 - Grep for `bluetape4k/mock-server` (image) returns 0 hits — excluding same directories
@@ -304,14 +296,12 @@ git commit -m "refactor: 다운스트림에서 mock-server 참조를 mock-web-se
 
 ## Task 5: Update `mock-web-server` README ko/en (T05)
 
-**Complexity:** low
-**Files:**
+**Complexity:** low **Files:**
 
 - Modify: `testing/mock-web-server/README.md`
 - Modify: `testing/mock-web-server/README.ko.md`
 
-**Depends on:** T02
-**Acceptance criteria:**
+**Depends on:** T02 **Acceptance criteria:**
 
 - Sections in order: `## Architecture`, `## UML`, `## Features`, `## Examples`
 - At least one Mermaid diagram in each README
@@ -352,8 +342,7 @@ git commit -m "docs: mock-web-server README 이중 언어 및 UML 다이어그�
 
 ## Task 6: 100% endpoint coverage — mock-web-server integration tests (T06)
 
-**Complexity:** high
-**Files:**
+**Complexity:** high **Files:**
 
 - Keep: `HttpbinContractTest.kt`, `HttpbinAdvancedContractTest.kt`, `JsonplaceholderContractTest.kt`,
   `InMemoryRepositoryTest.kt`
@@ -366,8 +355,7 @@ git commit -m "docs: mock-web-server README 이중 언어 및 UML 다이어그�
 
 **Test stack:** `@SpringBootTest(webEnvironment = RANDOM_PORT)` + OkHttp + bluetape4k-assertions.
 
-**Depends on:** T02, T04
-**Acceptance criteria:**
+**Depends on:** T02, T04 **Acceptance criteria:**
 
 - `./gradlew :bluetape4k-mock-web-server:test` passes
 - Exactly one test method per endpoint E01–E36
@@ -413,7 +401,7 @@ git commit -m "docs: mock-web-server README 이중 언어 및 UML 다이어그�
 
 > **M3 참고**: E29–E34는 각각 "리소스당 1개 테스트" 방식. 각 roundtrip 메서드에서 POST→GET→PATCH→DELETE를 검증한다.
 > 메서드별로 분리할 경우 테스트 수가 크게 늘어나므로 roundtrip 단일 검증을 채택한다. | E35 | WebContentContractTest |
-`web_random_returns_html` | | E36 | WebContentContractTest | `web_named_returns_html_for_each_name` |
+> `web_random_returns_html` | | E36 | WebContentContractTest | `web_named_returns_html_for_each_name` |
 
 - [ ] **Step 0: Create `MockServerTestBase.kt`**
 
@@ -573,15 +561,13 @@ git commit -m "test: mock-web-server 전체 endpoint 100% 커버 통합 테스�
 
 ## Task 7: Gatling plugin + source set for mock-web-server (T07)
 
-**Complexity:** medium
-**Files:**
+**Complexity:** medium **Files:**
 
 - Modify: `testing/mock-web-server/build.gradle.kts`
 - Create: `testing/mock-web-server/src/gatling/kotlin/.gitkeep`
 - Create: `testing/mock-web-server/src/gatling/resources/logback.xml`
 
-**Depends on:** T03
-**Acceptance criteria:**
+**Depends on:** T03 **Acceptance criteria:**
 
 - `./gradlew :bluetape4k-mock-web-server:tasks --all` lists at least one task starting with `gatlingRun`
 - `./gradlew :bluetape4k-mock-web-server:check` does not invoke Gatling
@@ -634,13 +620,11 @@ git commit -m "chore: mock-web-server 에 Gatling 3.15 플러그인 및 source s
 
 ## Task 8: Gatling simulation for mock-web-server (T08)
 
-**Complexity:** medium
-**Files:**
+**Complexity:** medium **Files:**
 
 - Create: `testing/mock-web-server/src/gatling/kotlin/io/bluetape4k/mockserver/gatling/MockWebServerSimulation.kt`
 
-**Depends on:** T07
-**Acceptance criteria:**
+**Depends on:** T07 **Acceptance criteria:**
 
 - `./gradlew :bluetape4k-mock-web-server:compileGatlingKotlin` passes
 - Simulation contains 5 scenarios: Health, Httpbin echo, Streaming, Delay, CRUD
@@ -729,8 +713,7 @@ git commit -m "test: mock-web-server Gatling 5가지 시나리오 Simulation 추
 
 ## Task 9: Scaffold `mock-webflux-server` module (T09)
 
-**Complexity:** medium
-**Files:**
+**Complexity:** medium **Files:**
 
 - Create: `testing/mock-webflux-server/build.gradle.kts`
 - Create: `testing/mock-webflux-server/src/main/resources/application.yml`
@@ -739,8 +722,7 @@ git commit -m "test: mock-web-server Gatling 5가지 시나리오 Simulation 추
 - Create: `testing/mock-webflux-server/src/test/resources/junit-platform.properties`
 - Create: `testing/mock-webflux-server/src/test/resources/logback-test.xml`
 
-**Depends on:** T02
-**Acceptance criteria:**
+**Depends on:** T02 **Acceptance criteria:**
 
 - `./gradlew :bluetape4k-mock-webflux-server:build -x test` passes
 - `./gradlew projects --quiet` lists `:bluetape4k-mock-webflux-server`
@@ -920,8 +902,7 @@ git commit -m "feat: mock-webflux-server 모듈 스캐폴드 (build.gradle.kts, 
 
 ## Task 10: Port fixtures, repository, service, bootstrap, exception handler (T10)
 
-**Complexity:** medium
-**Files:**
+**Complexity:** medium **Files:**
 
 - Copy: `testing/mock-web-server/src/main/resources/jsonplaceholder/*.json` ->
   `testing/mock-webflux-server/src/main/resources/jsonplaceholder/*.json`
@@ -937,8 +918,7 @@ git commit -m "feat: mock-webflux-server 모듈 스캐폴드 (build.gradle.kts, 
 - Create: `io/bluetape4k/mockwebflux/config/GlobalExceptionHandler.kt` —
   `@RestControllerAdvice` with no base class (the MVC `ResponseEntityExceptionHandler` base is unavailable in WebFlux)
 
-**Depends on:** T09
-**Acceptance criteria:**
+**Depends on:** T09 **Acceptance criteria:**
 
 - `./gradlew :bluetape4k-mock-webflux-server:compileKotlin` passes
 - `JsonplaceholderService` populates all 6 in-memory repositories on startup
@@ -1020,8 +1000,7 @@ git commit -m "feat: mock-webflux-server 에 fixture, repository, service, boots
 
 ## Task 11: Port httpbin controllers to WebFlux + suspend + Flow (T11)
 
-**Complexity:** high
-**Files:**
+**Complexity:** high **Files:**
 
 - Create (copy + repackage): `io/bluetape4k/mockwebflux/httpbin/HttpbinSupport.kt`, `ImageLoaderService.kt`,
   `model/HttpbinResponse.kt`
@@ -1030,8 +1009,7 @@ git commit -m "feat: mock-webflux-server 에 fixture, repository, service, boots
 - Create: `io/bluetape4k/mockwebflux/httpbin/HttpbinStreamController.kt` — `Flow<String>` NDJSON
 - Create: `io/bluetape4k/mockwebflux/config/WebFluxJacksonConfig.kt` — register Jackson 3 encoder/decoder
 
-**Depends on:** T10
-**Acceptance criteria:**
+**Depends on:** T10 **Acceptance criteria:**
 
 - `./gradlew :bluetape4k-mock-webflux-server:compileKotlin` passes
 - Grep confirms every `HttpbinController` method is `suspend fun`
@@ -1141,7 +1119,7 @@ class WebFluxJacksonConfig: WebFluxConfigurer {
 ```
 
 > **Fallback (Risk #6):** if `Flow<T>` NDJSON encoding fails due to codec mismatch, switch
-`HttpbinStreamController.stream` to `Flux<String>` (from `reactor.core.publisher.Flux`) to keep the contract identical.
+> `HttpbinStreamController.stream` to `Flux<String>` (from `reactor.core.publisher.Flux`) to keep the contract identical.
 
 - [ ] **Step 1: Port `HttpbinSupport` with `ServerHttpRequest` overload**
 
@@ -1178,8 +1156,7 @@ git commit -m "feat: mock-webflux-server httpbin 컨트롤러 suspend/Flow 포�
 
 ## Task 12: Port jsonplaceholder + web + admin controllers (T12)
 
-**Complexity:** high
-**Files:**
+**Complexity:** high **Files:**
 
 - Create: `io/bluetape4k/mockwebflux/jsonplaceholder/PostsController.kt` — suspend CRUD
 - Create: `io/bluetape4k/mockwebflux/jsonplaceholder/CommentsController.kt` — suspend CRUD
@@ -1193,8 +1170,7 @@ git commit -m "feat: mock-webflux-server httpbin 컨트롤러 suspend/Flow 포�
 - Create: `io/bluetape4k/mockwebflux/web/WebContentController.kt` — calls
   `withContext(Dispatchers.IO) { loader.load(name) }`
 
-**Depends on:** T10
-**Acceptance criteria:**
+**Depends on:** T10 **Acceptance criteria:**
 
 - `./gradlew :bluetape4k-mock-webflux-server:compileKotlin` passes
 - Grep confirms every CRUD method is `suspend fun`
@@ -1343,11 +1319,9 @@ git commit -m "feat: mock-webflux-server jsonplaceholder/web/admin 컨트롤러 
 
 ## Task 12.5: bluetape4k-patterns compliance sweep — mock-webflux-server (T12.5)
 
-**Complexity:** medium
-**Files:** (검증 전용 — 파일 생성 없음, 위반 발견 시 수정)
+**Complexity:** medium **Files:** (검증 전용 — 파일 생성 없음, 위반 발견 시 수정)
 
-**Depends on:** T12
-**Acceptance criteria:**
+**Depends on:** T12 **Acceptance criteria:**
 
 - 모든 신규 `*.kt` 클래스에 `companion object : KLogging()` 존재
 - public String 파라미터에 `requireNotBlank` 적용
@@ -1401,8 +1375,7 @@ git commit -m "chore: mock-webflux-server bluetape4k-patterns 준수 (KLogging, 
 
 ## Task 13: 100% endpoint coverage — mock-webflux-server integration tests (T13)
 
-**Complexity:** high
-**Files:**
+**Complexity:** high **Files:**
 
 - Create: `testing/mock-webflux-server/src/test/kotlin/io/bluetape4k/mockwebflux/AbstractMockWebfluxServerTest.kt`
 - Create: `admin/PingContractTest.kt`, `admin/AdminResetContractTest.kt`
@@ -1411,8 +1384,7 @@ git commit -m "chore: mock-webflux-server bluetape4k-patterns 준수 (KLogging, 
 - Create: `jsonplaceholder/JsonplaceholderContractTest.kt`, `jsonplaceholder/InMemoryRepositoryTest.kt`
 - Create: `web/WebContentContractTest.kt`
 
-**Depends on:** T11, T12
-**Acceptance criteria:**
+**Depends on:** T11, T12 **Acceptance criteria:**
 
 - `./gradlew :bluetape4k-mock-webflux-server:test` passes
 - One test method per endpoint E01–E36 (identical names to T06)
@@ -1516,16 +1488,14 @@ git commit -m "test: mock-webflux-server 전체 endpoint 100% 커버 WebTestClie
 
 ## Task 14: Gatling for mock-webflux-server (T14)
 
-**Complexity:** medium
-**Files:**
+**Complexity:** medium **Files:**
 
 - Modify: `testing/mock-webflux-server/build.gradle.kts` (mirror T07 shape)
 - Create:
   `testing/mock-webflux-server/src/gatling/kotlin/io/bluetape4k/mockwebflux/gatling/MockWebfluxServerSimulation.kt`
 - Create: `testing/mock-webflux-server/src/gatling/resources/logback.xml`
 
-**Depends on:** T13
-**Acceptance criteria:**
+**Depends on:** T13 **Acceptance criteria:**
 
 - `./gradlew :bluetape4k-mock-webflux-server:compileGatlingKotlin` passes
 - Simulation targets port 9999 and contains the same 5 scenarios as T08
@@ -1563,23 +1533,23 @@ git commit -m "test: mock-webflux-server Gatling 5가지 시나리오 Simulation
 
 ## Task 15: `BluetapeWebfluxServer` testcontainer class (T15)
 
-**Complexity:** medium
-**Files:**
+**Complexity:** medium **Files:**
 
 - Create: `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/http/BluetapeWebfluxServer.kt`
 - Modify:
   `testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/PropertyExportingServerContractTest.kt` — add
   `BluetapeWebfluxServer::class` to `expectedImplementors`
 
-**Depends on:** T02
-**Acceptance criteria:**
+**Depends on:** T02 **Acceptance criteria:**
 
 - `./gradlew :bluetape4k-testcontainers:compileKotlin :bluetape4k-testcontainers:compileTestKotlin` passes
 - Class implements `PropertyExportingServer` with **exactly** 3 members: `propertyNamespace`, `propertyKeys()`,
   `properties()`
 - Class does **not** override `writeToSystemProperties()`
 -
+
 `init { withExposedPorts(PORT); withReuse(reuse); waitingFor(Wait.forHttp("/ping").forPort(PORT).forStatusCode(200).withStartupTimeout(Duration.ofSeconds(60))) }` pattern present
+
 - Constants: `NAME = "bluetape-webflux"`, `PORT = 9999`, `IMAGE = "bluetape4k/mock-webflux-server"`
 
 - [ ] **Step 1: Create `BluetapeWebfluxServer.kt`**
@@ -1634,15 +1604,13 @@ git commit -m "feat: BluetapeWebfluxServer testcontainer 및 PropertyExportingSe
 
 ## Task 16: `BluetapeWebfluxServerTest` + testcontainers wiring (T16)
 
-**Complexity:** medium
-**Files:**
+**Complexity:** medium **Files:**
 
 - Create: `testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/http/BluetapeWebfluxServerTest.kt`
 - Modify: `testing/testcontainers/build.gradle.kts` — add
   `dependsOn(":bluetape4k-mock-webflux-server:jibDockerBuild")` on the test task alongside the existing mock-web-server dependsOn
 
-**Depends on:** T15, T17
-**Acceptance criteria:**
+**Depends on:** T15, T17 **Acceptance criteria:**
 
 - `./gradlew :bluetape4k-testcontainers:test --tests "*BluetapeWebfluxServerTest*"` passes
 - Test starts the container, hits `/ping`, then asserts
@@ -1709,10 +1677,8 @@ git commit -m "test: BluetapeWebfluxServer 컨테이너 smoke 테스트 및 jibD
 
 ## Task 17: Build Jib image for mock-webflux-server (T17)
 
-**Complexity:** medium
-**Files:** none (runtime-only)
-**Depends on:** T09, T10, T11, T12
-**Acceptance criteria:**
+**Complexity:** medium **Files:** none (runtime-only)
+**Depends on:** T09, T10, T11, T12 **Acceptance criteria:**
 
 - `./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache` produces local image
   `bluetape4k/mock-webflux-server:latest`
@@ -1734,14 +1700,12 @@ Expected: a line with `bluetape4k/mock-webflux-server:latest`.
 
 ## Task 18: `mock-webflux-server` README ko/en (T18)
 
-**Complexity:** medium
-**Files:**
+**Complexity:** medium **Files:**
 
 - Create: `testing/mock-webflux-server/README.md`
 - Create: `testing/mock-webflux-server/README.ko.md`
 
-**Depends on:** T09
-**Acceptance criteria:**
+**Depends on:** T09 **Acceptance criteria:**
 
 - Both files exist
 - Sections in order: `## Architecture`, `## UML` (Mermaid), `## Features`, `## Examples`
@@ -1778,14 +1742,12 @@ git commit -m "docs: mock-webflux-server README 이중 언어 및 UML 다이어�
 
 ## Task 19: Root-level doc touch-ups (T19)
 
-**Complexity:** low
-**Files:**
+**Complexity:** low **Files:**
 
 - Modify: `CLAUDE.md` — `testing/` row in Module Groups table lists both `mock-web-server` and `mock-webflux-server`
 - Modify: `testing/testcontainers/README.md` and `README.ko.md` — add a bullet for `BluetapeWebfluxServer`
 
-**Depends on:** T15, T18
-**Acceptance criteria:**
+**Depends on:** T15, T18 **Acceptance criteria:**
 
 - Grep finds `mock-webflux-server` in `CLAUDE.md`
 - Grep finds `BluetapeWebfluxServer` in both `testing/testcontainers/README*.md` files
@@ -1812,13 +1774,11 @@ git commit -m "docs: CLAUDE.md 및 testcontainers README 에 mock-webflux-server
 
 ## Task 20: Full test run + testlog entry (T20)
 
-**Complexity:** medium
-**Files:**
+**Complexity:** medium **Files:**
 
 - Modify: `docs/testlogs/2026-04.md` — prepend new row at top
 
-**Depends on:** T06, T13, T16, T19
-**Acceptance criteria:**
+**Depends on:** T06, T13, T16, T19 **Acceptance criteria:**
 
 - All three module suites pass
 - `docs/testlogs/2026-04.md` has a new row dated `2026-04-21`, listing the three modules, PASS status
@@ -1850,13 +1810,11 @@ git commit -m "docs(testlogs): 2026-04-21 mock-server 확장 테스트 기록"
 
 ## Task 21: Run Gatling simulations + record metrics (T21)
 
-**Complexity:** medium
-**Files:**
+**Complexity:** medium **Files:**
 
 - Create: `docs/superpowers/artifacts/2026-04-21-mock-server-gatling.md` — results table
 
-**Depends on:** T08, T14
-**Acceptance criteria:**
+**Depends on:** T08, T14 **Acceptance criteria:**
 
 - Both Gatling runs complete without error
 - Recorded metrics per scenario: mean, p95, p99, throughput for both servers
@@ -1902,14 +1860,12 @@ git commit -m "docs: 2026-04-21 mock-server Gatling p95/p99 측정 결과 첨부
 
 ## Task 22: superpowers INDEX update (T22)
 
-**Complexity:** low
-**Files:**
+**Complexity:** low **Files:**
 
 - Modify: `docs/superpowers/index/2026-04.md` — prepend entry
 - Modify: `docs/superpowers/INDEX.md` — increment count
 
-**Depends on:** T20
-**Acceptance criteria:**
+**Depends on:** T20 **Acceptance criteria:**
 
 - New entry links to both the spec and the plan file
 - Monthly count in `INDEX.md` is incremented
@@ -1931,10 +1887,8 @@ git commit -m "docs(superpowers): 2026-04 인덱스에 mock-server 확장 프로
 
 ## Task 23: Open PR + OMC Code Review (T23)
 
-**Complexity:** medium
-**Files:** only follow-up edits triggered by review
-**Depends on:** T18, T22
-**Acceptance criteria:**
+**Complexity:** medium **Files:** only follow-up edits triggered by review **Depends on:** T18, T22 **Acceptance
+criteria:**
 
 - `gh pr view --json state` returns `"OPEN"`
 - OMC Code Review completes; all CRITICAL and HIGH comments addressed

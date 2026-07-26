@@ -1,9 +1,7 @@
 # bluetape4k-io 6-Tier Review Gate
 
-**날짜**: 2026-05-11
-**모듈**: `bluetape4k-io`
-**결론**: PASS
-**P0/P1**: 0
+**날짜**: 2026-05-11 **모듈**: `bluetape4k-io`
+**결론**: PASS **P0/P1**: 0
 
 ## Tier 1. Public API / Contract
 
@@ -27,13 +25,13 @@
 ## Tier 4. Tests / Edge Cases
 
 - 추가 edge tests:
-  - `Path.combineSafe(String)`의 parent traversal 거부
-  - `Path.combineSafe(Path)`의 absolute path 거부
-  - `File.combineSafe(Path)`의 absolute path 거부
+    - `Path.combineSafe(String)`의 parent traversal 거부
+    - `Path.combineSafe(Path)`의 absolute path 거부
+    - `File.combineSafe(Path)`의 absolute path 거부
 - Verification:
-  - `./gradlew :bluetape4k-io:test --tests "io.bluetape4k.io.PathSupportTest"`: PASS, 8 tests
-  - `./gradlew :bluetape4k-io:test --tests "io.bluetape4k.io.PathSupportTest" --tests "io.bluetape4k.io.compressor.ZipFileSupportTest" --tests "io.bluetape4k.io.compressor.ZipBombProtectionTest"`: PASS, 24 tests
-  - `./gradlew :bluetape4k-io:test`: PASS, 913 tests
+    - `./gradlew :bluetape4k-io:test --tests "io.bluetape4k.io.PathSupportTest"`: PASS, 8 tests
+    - `./gradlew :bluetape4k-io:test --tests "io.bluetape4k.io.PathSupportTest" --tests "io.bluetape4k.io.compressor.ZipFileSupportTest" --tests "io.bluetape4k.io.compressor.ZipBombProtectionTest"`: PASS, 24 tests
+    - `./gradlew :bluetape4k-io:test`: PASS, 913 tests
 - P0/P1: 없음
 
 ## Tier 5. Documentation / KDoc

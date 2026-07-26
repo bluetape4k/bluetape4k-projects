@@ -34,12 +34,12 @@ private inline fun writeToCallerBufferState(
         )
         check(written in 0..(targetLimit - targetPosition)) {
             "Compressor buffer operation returned invalid written=$written, " +
-                "targetRemaining=${targetLimit - targetPosition}"
+                    "targetRemaining=${targetLimit - targetPosition}"
         }
         check(
             source.position() == sourcePosition &&
-                source.limit() == sourceLimit &&
-                source.order() == sourceOrder
+                    source.limit() == sourceLimit &&
+                    source.order() == sourceOrder
         ) {
             "Compressor buffer operation modified caller source state"
         }
@@ -133,6 +133,6 @@ internal fun putIntBigEndian(target: ByteBuffer, index: Int, value: Int) {
 
 internal fun getIntBigEndian(source: ByteBuffer, index: Int): Int =
     ((source.get(index).toInt() and 0xFF) shl 24) or
-        ((source.get(index + 1).toInt() and 0xFF) shl 16) or
-        ((source.get(index + 2).toInt() and 0xFF) shl 8) or
-        (source.get(index + 3).toInt() and 0xFF)
+            ((source.get(index + 1).toInt() and 0xFF) shl 16) or
+            ((source.get(index + 2).toInt() and 0xFF) shl 8) or
+            (source.get(index + 3).toInt() and 0xFF)

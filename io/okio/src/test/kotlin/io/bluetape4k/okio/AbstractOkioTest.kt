@@ -1,8 +1,8 @@
 package io.bluetape4k.okio
 
+import io.bluetape4k.assertions.shouldBeNear
 import io.bluetape4k.logging.KLogging
 import net.datafaker.Faker
-import io.bluetape4k.assertions.shouldBeNear
 import java.util.*
 
 abstract class AbstractOkioTest {

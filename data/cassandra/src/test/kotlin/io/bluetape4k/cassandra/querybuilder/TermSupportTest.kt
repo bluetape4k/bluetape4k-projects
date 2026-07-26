@@ -1,12 +1,12 @@
 package io.bluetape4k.cassandra.querybuilder
 
 import com.datastax.oss.driver.api.core.type.DataTypes
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cassandra.cql.userDefinedTypeOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.*
-import io.bluetape4k.assertions.assertFailsWith
 
 class TermSupportTest {
 

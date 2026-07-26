@@ -1,15 +1,15 @@
 package io.bluetape4k.workflow.examples
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
 import io.bluetape4k.workflow.api.workContext
-import io.bluetape4k.workflow.coroutines.suspendSequentialFlow
 import io.bluetape4k.workflow.core.sequentialFlow
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.workflow.coroutines.suspendSequentialFlow
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -149,7 +149,13 @@ class OrderProcessingExecutionModelBenchmarkTest {
 
         log.info {
             "workflow benchmark(normal): sync=${sync.elapsed}, suspend=${suspend.elapsed}, " +
-                "ratio=${"%.2f".format(suspend.elapsed.inWholeMilliseconds.toDouble() / sync.elapsed.inWholeMilliseconds.coerceAtLeast(1))}"
+                    "ratio=${
+                        "%.2f".format(
+                            suspend.elapsed.inWholeMilliseconds.toDouble() / sync.elapsed.inWholeMilliseconds.coerceAtLeast(
+                                1
+                            )
+                        )
+                    }"
         }
     }
 
@@ -171,7 +177,13 @@ class OrderProcessingExecutionModelBenchmarkTest {
 
         log.info {
             "workflow benchmark(retry+poll): sync=${sync.elapsed}, suspend=${suspend.elapsed}, " +
-                "ratio=${"%.2f".format(suspend.elapsed.inWholeMilliseconds.toDouble() / sync.elapsed.inWholeMilliseconds.coerceAtLeast(1))}"
+                    "ratio=${
+                        "%.2f".format(
+                            suspend.elapsed.inWholeMilliseconds.toDouble() / sync.elapsed.inWholeMilliseconds.coerceAtLeast(
+                                1
+                            )
+                        )
+                    }"
         }
     }
 }

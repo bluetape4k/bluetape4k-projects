@@ -35,9 +35,9 @@ internal class TsvLexer(
     reader: Reader,
     private val settings: TsvSettings,
     private val skipHeaders: Boolean = false,
-) : Iterator<ArrayRecord>, Closeable {
+): Iterator<ArrayRecord>, Closeable {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     /** 파서 내부 상태. */
     private enum class State {
@@ -128,7 +128,7 @@ internal class TsvLexer(
 
             when {
                 // EOF 처리
-                ch == -1 -> {
+                ch == -1              -> {
                     return if (fields.isEmpty() && fieldBuffer.isEmpty()) null
                     else {
                         fields.add(finishField())

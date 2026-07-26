@@ -257,5 +257,5 @@ internal inline fun <reified T: Any> requireRestClientBody(
 ): T =
     body ?: throw IllegalStateException(
         "RestClient $method $uri returned an empty response body for ${T::class.java.name}. " +
-            "Use the corresponding OrNull coroutine helper when an empty body is valid."
+                "Use the corresponding OrNull coroutine helper when an empty body is valid."
     )

@@ -7,15 +7,15 @@ import io.netty.channel.ChannelOption
 import io.netty.handler.ssl.SslContext
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
-import javax.net.ssl.TrustManagerFactory
-import java.security.KeyStore
 import org.springframework.context.annotation.Bean
 import org.springframework.http.client.ReactorResourceFactory
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.resources.LoopResources
+import java.security.KeyStore
 import java.time.Duration
+import javax.net.ssl.TrustManagerFactory
 
 /**
  * WebFlux 서버 기본 리소스와 분리된 Netty 루프/커넥터로 [WebClient]를 구성하는 추상 설정입니다.

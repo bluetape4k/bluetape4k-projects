@@ -5,15 +5,15 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.toList
-import io.bluetape4k.junit5.coroutines.runSuspendIO
 import org.junit.jupiter.api.Test
 import org.springframework.data.cassandra.ReactiveResultSet
-import org.springframework.data.cassandra.core.EntityWriteResult
 import org.springframework.data.cassandra.core.DeleteOptions
+import org.springframework.data.cassandra.core.EntityWriteResult
 import org.springframework.data.cassandra.core.InsertOptions
 import org.springframework.data.cassandra.core.ReactiveCassandraOperations
 import org.springframework.data.cassandra.core.UpdateOptions
@@ -29,9 +29,9 @@ import java.io.Serializable
 
 class ReactiveCassandraOperationsCoroutinesUnitTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
-    data class TestEntity(val id: String = "id-1", val name: String = "Test") : Serializable
+    data class TestEntity(val id: String = "id-1", val name: String = "Test"): Serializable
 
     private val testEntity = TestEntity()
     private val testSlice: Slice<TestEntity> = SliceImpl(listOf(testEntity))
@@ -116,7 +116,7 @@ class ReactiveCassandraOperationsCoroutinesUnitTest {
     fun `selectOneOrNullSuspending returns null for empty Mono`() = runSuspendIO {
         val emptyOps = mockk<ReactiveCassandraOperations>()
         every { emptyOps.selectOne(any<com.datastax.oss.driver.api.core.cql.Statement<*>>(), any<Class<*>>()) } returns
-            Mono.empty<Any>()
+                Mono.empty<Any>()
         val result = emptyOps.selectOneOrNullSuspending<TestEntity>(testStatement)
         result.shouldBeNull()
     }

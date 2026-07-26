@@ -1,16 +1,21 @@
 package io.bluetape4k.states.core
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.states.testing.assertRejects
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.states.testing.assertRejects
 import org.junit.jupiter.api.Test
 
 class GuardedTransitionTest {
     companion object: KLogging()
 
-    enum class S { PENDING, APPROVED, REJECTED }
+    enum class S {
+        PENDING,
+        APPROVED,
+        REJECTED
+    }
+
     sealed class E {
         data class Approve(val approvedBy: String?): E()
         data object Reject: E()
@@ -25,21 +30,25 @@ class GuardedTransitionTest {
         transition(S.PENDING, on<E.Reject>(), to = S.REJECTED)
     }
 
-    @Test fun `guard 조건이 true이면 전이가 성공한다`() {
+    @Test
+    fun `guard 조건이 true이면 전이가 성공한다`() {
         guarded().transition(E.Approve("admin")).currentState shouldBeEqualTo S.APPROVED
     }
 
-    @Test fun `guard 조건이 false이면 예외가 발생한다`() {
+    @Test
+    fun `guard 조건이 false이면 예외가 발생한다`() {
         guarded().assertRejects(E.Approve(null))
     }
 
-    @Test fun `canTransition이 guard 조건을 반영한다`() {
+    @Test
+    fun `canTransition이 guard 조건을 반영한다`() {
         val m = guarded()
         m.canTransition(E.Approve("admin")).shouldBeTrue()
         m.canTransition(E.Approve(null)).shouldBeFalse()
     }
 
-    @Test fun `guard 없는 전이는 항상 통과한다`() {
+    @Test
+    fun `guard 없는 전이는 항상 통과한다`() {
         val m = stateMachine<S, E> {
             initialState = S.PENDING
             finalStates = setOf(S.REJECTED)

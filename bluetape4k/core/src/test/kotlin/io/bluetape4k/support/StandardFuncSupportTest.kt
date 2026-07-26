@@ -1,12 +1,12 @@
 package io.bluetape4k.support
 
-import io.bluetape4k.codec.Base58
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class StandardFuncSupportTest {

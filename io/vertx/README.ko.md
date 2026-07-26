@@ -70,24 +70,23 @@ dependencies {
 
 ## 주요 의존성 구조
 
-| 범주                             | 의존 방식            | 설명              |
-|--------------------------------|------------------|-----------------|
-| `vertx-core`                   | `api`            | Vert.x 핵심       |
-| `vertx-lang-kotlin`            | `api`            | Kotlin 언어 지원    |
-| `vertx-lang-kotlin-coroutines` | `api`            | Coroutines 지원   |
-| `vertx-sql-client`             | `api`            | SQL 클라이언트 추상화   |
-| `bluetape4k-resilience4j`      | `api`            | Resilience4j 통합 |
-| `vertx-mysql-client`           | `implementation` | MySQL 드라이버      |
-| `vertx-pg-client`              | `implementation` | PostgreSQL 드라이버 |
-| `vertx-web`                    | `compileOnly`    | 선택적 Web 지원      |
-| `vertx-jdbc-client`            | `compileOnly`    | 선택적 JDBC        |
+| 범주                           | 의존 방식        | 설명                  |
+|--------------------------------|------------------|-----------------------|
+| `vertx-core`                   | `api`            | Vert.x 핵심           |
+| `vertx-lang-kotlin`            | `api`            | Kotlin 언어 지원      |
+| `vertx-lang-kotlin-coroutines` | `api`            | Coroutines 지원       |
+| `vertx-sql-client`             | `api`            | SQL 클라이언트 추상화 |
+| `bluetape4k-resilience4j`      | `api`            | Resilience4j 통합     |
+| `vertx-mysql-client`           | `implementation` | MySQL 드라이버        |
+| `vertx-pg-client`              | `implementation` | PostgreSQL 드라이버   |
+| `vertx-web`                    | `compileOnly`    | 선택적 Web 지원       |
+| `vertx-jdbc-client`            | `compileOnly`    | 선택적 JDBC           |
 
 ## 사용 예시
 
 ### 현재 및 기본 Vert.x 생명주기
 
-`currentVertx()`는 현재 Vert.x 컨텍스트가 있으면 그 owner를 반환합니다. 컨텍스트 밖에서는 호출할 때마다 숨은
-미소유 인스턴스를 만들지 않고, 관리되는 기본 Vert.x 인스턴스를 재사용합니다.
+`currentVertx()`는 현재 Vert.x 컨텍스트가 있으면 그 owner를 반환합니다. 컨텍스트 밖에서는 호출할 때마다 숨은 미소유 인스턴스를 만들지 않고, 관리되는 기본 Vert.x 인스턴스를 재사용합니다.
 
 ```kotlin
 import io.bluetape4k.vertx.closeDefaultVertx

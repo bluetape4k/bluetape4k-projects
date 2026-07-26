@@ -60,7 +60,7 @@ fun DeleteModel.renderForVertx(): DeleteStatementProvider = render(VERTX_SQL_CLI
  * // provider.insertStatement == "INSERT INTO Person (id, first_name) VALUES (#{id}, #{firstName})"
  * ```
  */
-fun <T : Any> InsertModel<T>.renderForVertx(): InsertStatementProvider<T> = render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
+fun <T: Any> InsertModel<T>.renderForVertx(): InsertStatementProvider<T> = render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
 
 /**
  * [VERTX_SQL_CLIENT_RENDERING_STRATEGY]를 사용하여 General Insert 구문을 렌더링합니다.
@@ -88,7 +88,7 @@ fun GeneralInsertModel.renderForVertx(): GeneralInsertStatementProvider = render
  * // batchInsert.insertStatementSQL == "INSERT INTO Person (id, first_name) VALUES (#{id}, #{firstName})"
  * ```
  */
-fun <T : Any> BatchInsertModel<T>.renderForVertx(): BatchInsert<T> = render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
+fun <T: Any> BatchInsertModel<T>.renderForVertx(): BatchInsert<T> = render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
 
 /**
  * [VERTX_SQL_CLIENT_RENDERING_STRATEGY]를 사용하여 Insert Select 구문을 렌더링합니다.
@@ -119,7 +119,7 @@ fun InsertSelectModel.renderForVertx(): InsertSelectStatementProvider = render(V
  * // provider.insertStatement == "INSERT INTO Person (id, first_name) VALUES (#{id0}, #{firstName0}), (#{id1}, #{firstName1})"
  * ```
  */
-fun <T : Any> MultiRowInsertModel<T>.renderForVertx(): MultiRowInsertStatementProvider<T> =
+fun <T: Any> MultiRowInsertModel<T>.renderForVertx(): MultiRowInsertStatementProvider<T> =
     render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
 
 /**

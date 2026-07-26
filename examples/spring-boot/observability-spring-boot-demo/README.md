@@ -2,8 +2,7 @@
 
 English | [한국어](./README.ko.md)
 
-Runnable Spring Boot 4 application that shows how to use bluetape4k observation helpers with
-Spring Boot Actuator Prometheus metrics and application-owned OTLP tracing configuration.
+Runnable Spring Boot 4 application that shows how to use bluetape4k observation helpers with Spring Boot Actuator Prometheus metrics and application-owned OTLP tracing configuration.
 
 ## Example Scenario
 
@@ -16,15 +15,13 @@ The demo models a small order-event workflow:
 5. Spring Boot Actuator exposes HTTP and event observation metrics at `/actuator/prometheus`.
 6. OTLP tracing can be enabled by pointing Spring Boot's Micrometer tracing exporter at a local collector.
 
-This keeps the example local-testable: Prometheus scraping works without a Prometheus server, and tests do
-not require an OTLP collector.
+This keeps the example local-testable: Prometheus scraping works without a Prometheus server, and tests do not require an OTLP collector.
 
 ## Architecture
 
 ![Spring Boot observability demo architecture](../../../docs/images/readme-diagrams/examples-spring-boot-observability-spring-boot-demo-architecture-01.png)
 
-Spring Boot owns metrics endpoint registration. The application contributes observed work; Actuator
-turns Micrometer observations into Prometheus scrape output.
+Spring Boot owns metrics endpoint registration. The application contributes observed work; Actuator turns Micrometer observations into Prometheus scrape output.
 
 ## Sequence Diagram
 
@@ -41,8 +38,7 @@ The demo uses the Spring Boot BOM and the existing bluetape4k helper modules:
 
 ## Configuration
 
-Spring Boot owns Prometheus and OTLP configuration. The application does not register a custom
-Prometheus endpoint.
+Spring Boot owns Prometheus and OTLP configuration. The application does not register a custom Prometheus endpoint.
 
 ```yaml
 management:
@@ -69,9 +65,7 @@ management:
       endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:http://localhost:4318/v1/traces}
 ```
 
-`management.defaults.metrics.export.enabled=false` keeps registry implementations that may be present
-on the demo classpath, such as Datadog, from starting without credentials. Prometheus is enabled
-explicitly.
+`management.defaults.metrics.export.enabled=false` keeps registry implementations that may be present on the demo classpath, such as Datadog, from starting without credentials. Prometheus is enabled explicitly.
 
 ## Run
 
@@ -108,8 +102,7 @@ To export traces, run an OTLP collector locally or set:
 export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://localhost:4318/v1/traces
 ```
 
-The tests disable external trace export and prove the application starts, event telemetry runs, and
-Prometheus output includes HTTP and event observation metrics.
+The tests disable external trace export and prove the application starts, event telemetry runs, and Prometheus output includes HTTP and event observation metrics.
 
 ## Test
 

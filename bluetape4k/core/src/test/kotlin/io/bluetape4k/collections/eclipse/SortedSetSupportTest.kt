@@ -1,9 +1,9 @@
 package io.bluetape4k.collections.eclipse
 
-import io.bluetape4k.collections.AbstractCollectionTest
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.collections.AbstractCollectionTest
+import io.bluetape4k.logging.KLogging
 import org.eclipse.collections.api.set.sorted.MutableSortedSet
 import org.junit.jupiter.api.Test
 

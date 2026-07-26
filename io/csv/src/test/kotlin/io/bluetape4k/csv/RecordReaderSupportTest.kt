@@ -1,19 +1,19 @@
 package io.bluetape4k.csv
 
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldNotBeBlank
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.csv.model.ProductType
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Resourcex
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldNotBeBlank
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 class RecordReaderSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @TempDir
     lateinit var tempDir: File

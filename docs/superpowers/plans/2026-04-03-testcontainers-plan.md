@@ -15,25 +15,25 @@
 - **의존성**: 없음
 - **설명**: `GenericServer`를 확장하는 `PropertyExportingServer` 인터페이스를 별도 파일로 정의한다. `propertyNamespace: String`,
   `propertyKeys(): Set<String>`, `properties(): Map<String, String>` 3개 멤버를 포함하며, `propertyKeys()`와 `properties()`는
-  `emptySet()`/`emptyMap()` 기본 구현을 제공한다. `propertyKeys()`는 컨테이너 start() 전에도 호출 가능해야 하며,
-  `properties()`는 start() 후에만 유효하다 (KDoc에 명시).
+  `emptySet()`/`emptyMap()` 기본 구현을 제공한다. `propertyKeys()`는 컨테이너 start () 전에도 호출 가능해야 하며,
+  `properties()`는 start () 후에만 유효하다 (KDoc에 명시).
 - **파일**: `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/PropertyExportingServer.kt`
 - **완료 기준**: 컴파일 통과, 기존 `GenericServer` 코드 변경 없이 새 인터페이스 추가. KDoc 한국어 작성 완료.
 
-### T0-2: registerSystemProperties(): AutoCloseable 구현
+### T0-2: registerSystemProperties (): AutoCloseable 구현
 
 - **complexity: high**
 - **의존성**: T0-1
 - **설명**: `PropertyExportingServer`의 확장 함수 `registerSystemProperties(): AutoCloseable`을 구현한다. 기존
   `writeToSystemProperties(name, extraProps)` 확장 함수는 그대로 유지하고, 새로운 `writeToSystemProperties()` (인자 없는 버전)도
   `PropertyExportingServer` 전용으로 추가한다. `registerSystemProperties()`는 등록 전 시스템 프로퍼티 스냅샷을 저장하고,
-  `close()` 호출 시 이전 값(또는 null이면 `clearProperty`)으로 복원한다. 구현은 `GenericServer.kt` 파일 하단 또는
+  `close()` 호출 시 이전 값 (또는 null이면 `clearProperty`)으로 복원한다. 구현은 `GenericServer.kt` 파일 하단 또는
   `PropertyExportingServer.kt` 하단에 확장 함수로 배치한다.
 - **파일**:
   `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/PropertyExportingServer.kt` (인터페이스와 동일 파일)
 - **완료 기준**: 단위 테스트로 프로퍼티 등록/복원 검증 가능. 기존 `writeToSystemProperties(name, extraProps)` 시그니처 유지.
 
-### T0-2-test: registerSystemProperties() 단위 테스트
+### T0-2-test: registerSystemProperties () 단위 테스트
 
 - **complexity: medium**
 - **의존성**: T0-2
@@ -46,7 +46,7 @@
 - **파일**: `testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/RegisterSystemPropertiesTest.kt`
 - **완료 기준**: 모든 5개 케이스 통과, Docker 없이 실행 가능.
 
-### T0-3: buildDotSeparatedJdbcProperties() + buildJdbcPropertiesCompat() 유틸리티
+### T0-3: buildDotSeparatedJdbcProperties () + buildJdbcPropertiesCompat () 유틸리티
 
 - **complexity: high**
 - **의존성**: T0-1
@@ -65,7 +65,7 @@
 - **파일**: `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/database/JdbcServer.kt`
 - **완료 기준**: 컴파일 통과, 기존 `buildJdbcProperties()` 호출부 영향 없음. `@Deprecated` IDE 경고 확인. 타입 변경 KDoc 문서화.
 
-### T0-4: withCompatKeys() 비-JDBC 범용 호환 유틸리티
+### T0-4: withCompatKeys () 비-JDBC 범용 호환 유틸리티
 
 - **complexity: medium**
 - **의존성**: T0-1
@@ -191,7 +191,7 @@
 - **complexity: medium**
 - **의존성**: T0-1, T0-2, T0-4
 - **설명**: `PropertyExportingServer` 구현. `propertyNamespace = "kafka"`. `propertyKeys()`: `bootstrap.servers`,
-  `bound.port.numbers`. `properties()`에서 `withCompatKeys()` 사용하여 기존 camelCase 키(`bootstrapServers`,
+  `bound.port.numbers`. `properties()`에서 `withCompatKeys()` 사용하여 기존 camelCase 키 (`bootstrapServers`,
   `boundPortNumbers`)도 동시 등록 (compat 키는 `properties()` 반환값에서 `withCompatKeys()`로 포함하며, `start()` 내부가 아님). `start()`에서
   `writeToSystemProperties(NAME, properties())` 대신 `writeToSystemProperties()` (인자 없는 버전) 사용. `Launcher.shared` 추가,
   `Launcher.kafka` `@Deprecated`.
@@ -483,14 +483,14 @@
 
 > Phase 1, 2의 각 서버 마이그레이션 태스크에 `Launcher.shared` 추가가 포함되어 있으므로, Phase 3는 전체 서버에 걸친 **일괄 검증 및 누락 보완** 태스크이다.
 
-### T3-1: Launcher.shared + create() 일괄 검증 및 보완
+### T3-1: Launcher.shared + create () 일괄 검증 및 보완
 
 - **complexity: high**
-- **의존성**: T1-*, T2-* 전체
+- **의존성**: T1- *, T2-* 전체
 - **설명**: 모든 서버의 `Launcher` 객체를 검수한다.
     - `shared` lazy 프로퍼티 존재 여부 확인
-    - 기존 이름(e.g. `postgres`, `kafka`, `redis`)에 `@Deprecated` + `get() = shared` 위임 확인
-    - 팩토리 메서드가 필요한 서버(LocalStack, PostgreSQL withExtensions)에 `create()` 또는 기존 팩토리 패턴 유지 확인
+  - 기존 이름 (e.g. `postgres`, `kafka`, `redis`)에 `@Deprecated` + `get() = shared` 위임 확인
+  - 팩토리 메서드가 필요한 서버 (LocalStack, PostgreSQL withExtensions)에 `create()` 또는 기존 팩토리 패턴 유지 확인
     - `ShutdownQueue.register(this)` 호출 확인
     - 누락된 서버 보완
 - **파일**: 모든 서버 파일 (46개)
@@ -535,8 +535,8 @@
   `ElasticsearchServerSpringSupport.kt`로 이동한다. `spring-data-elasticsearch`의 `ClientConfiguration` import을
   `ElasticsearchServer.kt`에서 제거한다.
 - **파일**:
-    -
-    `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/ElasticsearchServerSpringSupport.kt` (신규)
+  -
+  `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/ElasticsearchServerSpringSupport.kt` (신규)
     - `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/ElasticsearchServer.kt` (수정)
 - **완료 기준**: `ElasticsearchServer.kt`에서 Spring import 제거, 컴파일 통과.
 
@@ -546,8 +546,8 @@
 - **의존성**: T2-16
 - **설명**: `OpenSearchServer.kt`의 Spring `ClientConfiguration` 관련 코드를 `OpenSearchServerSpringSupport.kt`로 이동한다.
 - **파일**:
-    -
-    `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/OpenSearchServerSpringSupport.kt` (신규)
+  -
+  `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/OpenSearchServerSpringSupport.kt` (신규)
     - `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/OpenSearchServer.kt` (수정)
 - **완료 기준**: `OpenSearchServer.kt`에서 Spring import 제거, 컴파일 통과.
 
@@ -557,8 +557,8 @@
 - **의존성**: T2-15
 - **설명**: `ElasticsearchOssServer.kt`의 Spring 관련 코드를 `ElasticsearchOssServerSpringSupport.kt`로 이동한다.
 - **파일**:
-    -
-    `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/ElasticsearchOssServerSpringSupport.kt` (신규)
+  -
+  `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/ElasticsearchOssServerSpringSupport.kt` (신규)
     - `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/ElasticsearchOssServer.kt` (수정)
 - **완료 기준**: Spring import 제거, 컴파일 통과.
 
@@ -585,7 +585,7 @@
 - **설명**: 모든 `PropertyExportingServer` 구현체의 계약을 검증하는 테스트 클래스를 작성한다.
     1. **NAME uniqueness**: 모든 서버의 `propertyNamespace`가 고유한지 검증
     2. **propertyNamespace 규칙**: `^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)*$` 패턴 준수
-    3. **propertyKeys() 규칙**: 모든 키가 동일한 dot-separated lowercase 패턴 준수
+  3. **propertyKeys () 규칙**: 모든 키가 동일한 dot-separated lowercase 패턴 준수
     4. **Launcher shared semantics**: 같은 인스턴스 반환 검증 (Docker 필요 — `@EnabledIfDockerAvailable` 또는 조건부 실행)
     5. **registerSystemProperties 복원**: 프로퍼티 등록/복원 라운드트립 검증 (Docker 필요)
 
@@ -634,7 +634,7 @@
 2. 외부 모듈 grep 확인: `rg "jdbc-url|driver-class-name|bootstrapServers|boundPortNumbers" --type kt --type yaml` 결과 0건
 3. CI/CD 전체 테스트 통과 확인
 
-### T7-1: buildJdbcProperties() 제거 (JdbcServer.kt)
+### T7-1: buildJdbcProperties () 제거 (JdbcServer.kt)
 
 - **complexity: low**
 - **의존성**: Gate 조건 충족
@@ -644,9 +644,9 @@
 
 - **complexity: low**
 - **의존성**: Gate 조건 충족
-- **설명**: 전체 서버 파일에서 `@Deprecated` 처리된 `Launcher` 별칭 프로퍼티(예: `postgres`, `kafka`, `redis` 등)를 제거한다.
+- **설명**: 전체 서버 파일에서 `@Deprecated` 처리된 `Launcher` 별칭 프로퍼티 (예: `postgres`, `kafka`, `redis` 등)를 제거한다.
 
-### T7-3: buildJdbcPropertiesCompat() 및 withCompatKeys() compat 분기 제거
+### T7-3: buildJdbcPropertiesCompat () 및 withCompatKeys () compat 분기 제거
 
 - **complexity: low**
 - **의존성**: Gate 조건 충족
@@ -671,17 +671,17 @@
 
 ## 태스크 요약
 
-| Phase   | 태스크                    | Complexity                  | 총 태스크 수 |
-|---------|------------------------|-----------------------------|---------|
-| Phase 0 | T0-1 ~ T0-4, T0-2-test | high(3) + medium(2)         | 5       |
-| Phase 1 | T1-1 ~ T1-9            | medium(9)                   | 9       |
-| Phase 2 | T2-1 ~ T2-35           | medium(35)                  | 35      |
-| Phase 3 | T3-1 ~ T3-2            | high(1) + medium(1)         | 2       |
-| Phase 4 | T4-1 ~ T4-4            | medium(4)                   | 4       |
-| Phase 5 | T5-0 ~ T5-1            | low(1) + medium(1)          | 2       |
-| Phase 6 | T6-1 ~ T6-2            | low(2)                      | 2       |
-| Phase 7 | T7-1 ~ T7-5 (지연 실행)    | low(5)                      | 5       |
-| **합계**  |                        | high(4), medium(52), low(8) | **64**  |
+| Phase    | 태스크                  | Complexity                  | 총 태스크 수 |
+|----------|-------------------------|-----------------------------|--------------|
+| Phase 0  | T0-1 ~ T0-4, T0-2-test  | high(3) + medium(2)         | 5            |
+| Phase 1  | T1-1 ~ T1-9             | medium(9)                   | 9            |
+| Phase 2  | T2-1 ~ T2-35            | medium(35)                  | 35           |
+| Phase 3  | T3-1 ~ T3-2             | high(1) + medium(1)         | 2            |
+| Phase 4  | T4-1 ~ T4-4             | medium(4)                   | 4            |
+| Phase 5  | T5-0 ~ T5-1             | low(1) + medium(1)          | 2            |
+| Phase 6  | T6-1 ~ T6-2             | low(2)                      | 2            |
+| Phase 7  | T7-1 ~ T7-5 (지연 실행) | low(5)                      | 5            |
+| **합계** |                         | high(4), medium(52), low(8) | **64**       |
 
 ## 병렬 실행 가능 그래프
 
@@ -704,10 +704,10 @@ T0-1 ─┬─► T0-2 ─┬─► T0-2-test
 
 ## 리스크 요약
 
-| 리스크                            | 영향 | 완화                                                             |
-|--------------------------------|----|----------------------------------------------------------------|
-| 프로퍼티 키 변경으로 기존 테스트 실패          | 중  | `buildJdbcPropertiesCompat()` / `withCompatKeys()`로 양쪽 키 동시 등록 |
-| 46개 서버 수정 중 누락                 | 중  | T5-1 Contract test로 자동 탐지                                      |
-| Launcher.shared 도입 시 컴파일 경고 폭증 | 낮  | `@Deprecated` + `ReplaceWith`로 IDE 자동 수정                       |
-| 병렬 테스트에서 시스템 프로퍼티 경합           | 중  | KDoc + README에 `@Execution(ExecutionMode.SAME_THREAD)` 권장 문서화  |
-| Contract test 서버 목록 드리프트       | 낮  | 향후 ServiceLoader/classpath scanning 도입 고려                      |
+| 리스크                                   | 영향 | 완화                                                                   |
+|------------------------------------------|------|------------------------------------------------------------------------|
+| 프로퍼티 키 변경으로 기존 테스트 실패    | 중   | `buildJdbcPropertiesCompat()` / `withCompatKeys()`로 양쪽 키 동시 등록 |
+| 46개 서버 수정 중 누락                   | 중   | T5-1 Contract test로 자동 탐지                                         |
+| Launcher.shared 도입 시 컴파일 경고 폭증 | 낮   | `@Deprecated` + `ReplaceWith`로 IDE 자동 수정                          |
+| 병렬 테스트에서 시스템 프로퍼티 경합     | 중   | KDoc + README에 `@Execution(ExecutionMode.SAME_THREAD)` 권장 문서화    |
+| Contract test 서버 목록 드리프트         | 낮   | 향후 ServiceLoader/classpath scanning 도입 고려                        |

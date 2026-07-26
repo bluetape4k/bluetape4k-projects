@@ -8,8 +8,8 @@ import java.io.Serializable
  */
 class HeaderIndex private constructor(
     private val index: LinkedHashMap<String, Int>,
-) : Serializable {
-    companion object : KLogging() {
+): Serializable {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
 
         /**

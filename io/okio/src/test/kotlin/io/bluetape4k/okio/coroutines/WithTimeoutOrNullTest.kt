@@ -1,11 +1,11 @@
 package io.bluetape4k.okio.coroutines
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.okio.AbstractOkioTest
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import okio.Timeout
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.milliseconds

@@ -1,9 +1,9 @@
 # assertions/junit5 리뷰·테스트·문서 보강 스펙
 
-**날짜**: 2026-05-11
-**브랜치**: `codex/assertions-junit5-review-tests-docs`
+**날짜**: 2026-05-11 **브랜치**: `codex/assertions-junit5-review-tests-docs`
 **Worktree**: `.worktrees/assertions-junit5-review-tests-docs/`
 **대상 모듈**:
+
 - `testing/assertions` -> `:bluetape4k-assertions`
 - `testing/junit5` -> `:bluetape4k-junit5`
 

@@ -1,8 +1,8 @@
 package io.bluetape4k.math.interpolation
 
+import io.bluetape4k.assertions.assertFailsWith
 import org.apache.commons.math3.exception.NumberIsTooSmallException
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class AkimaSplineInterpolationTest: AbstractInterpolationTest() {
 

@@ -13,15 +13,15 @@
 
 1. `data/exposed-jdbc` 모듈 커버리지 ≥ 70%
 2. `data/exposed-r2dbc` 모듈 커버리지 ≥ 70%
-3. 현재 완전 누락(테스트 파일 자체 없음)된 확장 함수·스키마 유틸리티를 전수 커버
-4. 부분 누락(테스트 파일은 있으나 특정 메서드 누락)된 Repository 메서드를 모두 커버
+3. 현재 완전 누락 (테스트 파일 자체 없음)된 확장 함수·스키마 유틸리티를 전수 커버
+4. 부분 누락 (테스트 파일은 있으나 특정 메서드 누락)된 Repository 메서드를 모두 커버
 5. 회귀 방지: 동일한 `withTables` / `runTest` 패턴과 파라미터화된 dialect 매트릭스로 안전망 확보
 
 ### 1.2 범위 (IN)
 
 - 신규 테스트 파일 2개 생성
 - 기존 테스트 파일 4개 확장
-- JUnit5 + bluetape4k-assertions + Testcontainers(H2/MariaDB/MySQL/PostgreSQL) 사용
+- JUnit5 + bluetape4k-assertions + Testcontainers (H2/MariaDB/MySQL/PostgreSQL) 사용
 - `@ParameterizedTest @MethodSource(ENABLE_DIALECTS_METHOD)` dialect 매트릭스
 
 ### 1.3 범위 (OUT)
@@ -37,30 +37,30 @@
 
 ### 2.1 exposed-jdbc 갭
 
-| 대상                                                                                     | 유형             | 상태                |
-|----------------------------------------------------------------------------------------|----------------|-------------------|
-| `SchemaUtilsExtensions.execCreateMissingTablesAndColumns`                              | 확장 함수          | 테스트 파일 없음 (완전 누락) |
-| `SoftDeletedJdbcRepository.findActivePage(pageNumber, pageSize, sortOrder, predicate)` | Repository 메서드 | 부분 누락             |
-| `SoftDeletedJdbcRepository.softDeleteAll(predicate)`                                   | Repository 메서드 | 부분 누락             |
-| `SoftDeletedJdbcRepository.restoreAll(predicate)`                                      | Repository 메서드 | 부분 누락             |
-| `SoftDeletedJdbcRepository.countActive(predicate)`                                     | Repository 메서드 | 부분 누락             |
-| `SoftDeletedJdbcRepository.countDeleted(predicate)`                                    | Repository 메서드 | 부분 누락             |
+| 대상                                                                                   | 유형              | 상태                         |
+|----------------------------------------------------------------------------------------|-------------------|------------------------------|
+| `SchemaUtilsExtensions.execCreateMissingTablesAndColumns`                              | 확장 함수         | 테스트 파일 없음 (완전 누락) |
+| `SoftDeletedJdbcRepository.findActivePage(pageNumber, pageSize, sortOrder, predicate)` | Repository 메서드 | 부분 누락                    |
+| `SoftDeletedJdbcRepository.softDeleteAll(predicate)`                                   | Repository 메서드 | 부분 누락                    |
+| `SoftDeletedJdbcRepository.restoreAll(predicate)`                                      | Repository 메서드 | 부분 누락                    |
+| `SoftDeletedJdbcRepository.countActive(predicate)`                                     | Repository 메서드 | 부분 누락                    |
+| `SoftDeletedJdbcRepository.countDeleted(predicate)`                                    | Repository 메서드 | 부분 누락                    |
 
 ### 2.2 exposed-r2dbc 갭
 
-| 대상                                                                | 유형             | 상태                |
-|-------------------------------------------------------------------|----------------|-------------------|
-| `TableExtensions.suspendColumnMetadata`                           | suspend 확장     | 테스트 파일 없음 (완전 누락) |
-| `TableExtensions.suspendIndexes`                                  | suspend 확장     | 테스트 파일 없음 (완전 누락) |
-| `TableExtensions.suspendPrimaryKeyMetadata`                       | suspend 확장     | 테스트 파일 없음 (완전 누락) |
-| `TableExtensions.suspendSequences`                                | suspend 확장     | 테스트 파일 없음 (완전 누락) |
-| `SoftDeletedR2dbcRepository.findActivePage(…, predicate)`         | Repository 메서드 | 부분 누락             |
-| `SoftDeletedR2dbcRepository.softDeleteAll(predicate)`             | Repository 메서드 | 부분 누락             |
-| `SoftDeletedR2dbcRepository.restoreAll(predicate)`                | Repository 메서드 | 부분 누락             |
-| `ReadableExtensions.getUuidOrNull(index / label)`                 | 확장 함수          | 부분 누락             |
-| `ReadableExtensions.getExposedBlob / getExposedBlobOrNull(index)` | 확장 함수          | 부분 누락             |
-| `QueryExtensions.Query.forEach(block)` (suspend)                  | 확장 함수          | 부분 누락 (DB 필요)     |
-| `QueryExtensions.Query.forEachIndexed(block)` (suspend)           | 확장 함수          | 부분 누락 (DB 필요)     |
+| 대상                                                              | 유형              | 상태                         |
+|-------------------------------------------------------------------|-------------------|------------------------------|
+| `TableExtensions.suspendColumnMetadata`                           | suspend 확장      | 테스트 파일 없음 (완전 누락) |
+| `TableExtensions.suspendIndexes`                                  | suspend 확장      | 테스트 파일 없음 (완전 누락) |
+| `TableExtensions.suspendPrimaryKeyMetadata`                       | suspend 확장      | 테스트 파일 없음 (완전 누락) |
+| `TableExtensions.suspendSequences`                                | suspend 확장      | 테스트 파일 없음 (완전 누락) |
+| `SoftDeletedR2dbcRepository.findActivePage(…, predicate)`         | Repository 메서드 | 부분 누락                    |
+| `SoftDeletedR2dbcRepository.softDeleteAll(predicate)`             | Repository 메서드 | 부분 누락                    |
+| `SoftDeletedR2dbcRepository.restoreAll(predicate)`                | Repository 메서드 | 부분 누락                    |
+| `ReadableExtensions.getUuidOrNull(index / label)`                 | 확장 함수         | 부분 누락                    |
+| `ReadableExtensions.getExposedBlob / getExposedBlobOrNull(index)` | 확장 함수         | 부분 누락                    |
+| `QueryExtensions.Query.forEach(block)` (suspend)                  | 확장 함수         | 부분 누락 (DB 필요)          |
+| `QueryExtensions.Query.forEachIndexed(block)` (suspend)           | 확장 함수         | 부분 누락 (DB 필요)          |
 
 ---
 
@@ -121,7 +121,7 @@
 5. `suspendSequences returns sequences declared in schema` — `Sequence("seq_test")` 선언 후 목록에 포함 (PostgreSQL 우선).
 6. `cancellation propagates to underlying suspend calls` — `withTimeout` 하에 취소가 정상 전파.
 
-**Dialect**: 기본 H2 + PostgreSQL(시퀀스 테스트 필수).
+**Dialect**: 기본 H2 + PostgreSQL (시퀀스 테스트 필수).
 
 ---
 
@@ -132,7 +132,9 @@
 추가할 테스트:
 
 1.
+
 `findActivePage returns paginated active rows respecting predicate` — 활성 엔티티 30건, 삭제 5건 삽입 후 페이지 크기 10 으로 3페이지 조회 · predicate 조건 검증.
+
 2. `findActivePage honors sortOrder ASC vs DESC` — 동일 조건에서 sortOrder 변경 시 결과 순서 역순.
 3. `softDeleteAll marks matching rows as deleted` — predicate 매칭 행만 `isDeleted=true` · 비매칭 행은 그대로.
 4. `softDeleteAll returns updated count` — 반환값이 실제 영향 행 수와 일치.
@@ -228,20 +230,20 @@ class XxxTest : AbstractExposedR2dbcTest() {
 
 ## 7. 태스크 목록 초안 (작업 단위)
 
-| #   | 작업                                                       | 산출물      | 의존성    |
-|-----|----------------------------------------------------------|----------|--------|
-| T1  | jdbc `SchemaUtilsExtensionsTest.kt` 신규 작성 (5 케이스)        | 신규 파일    | -      |
-| T2  | jdbc `SoftDeletedJdbcRepositoryTest.kt` 확장 (9 케이스 추가)    | 기존 파일 편집 | -      |
-| T3  | r2dbc `TableExtensionsTest.kt` 신규 작성 (6 케이스)             | 신규 파일    | -      |
-| T4  | r2dbc `SoftDeletedR2dbcRepositoryTest.kt` 확장 (6 케이스)     | 기존 파일 편집 | -      |
-| T5  | r2dbc `ReadableExtensionsTest.kt` 확장 (7 케이스)             | 기존 파일 편집 | -      |
-| T6  | r2dbc `QueryExtensionsTest.kt` 확장 (5 케이스)                | 기존 파일 편집 | -      |
-| T7  | `./gradlew :bluetape4k-exposed-jdbc:test` 전체 실행 및 결과 확인  | 로그       | T1, T2 |
-| T8  | `./gradlew :bluetape4k-exposed-r2dbc:test` 전체 실행 및 결과 확인 | 로그       | T3-T6  |
-| T9  | 두 모듈 커버리지 측정 및 70% 달성 여부 검증                              | 커버리지 리포트 | T7, T8 |
-| T10 | README.md + README.ko.md 갱신 (테스트 매트릭스 추가 시)              | 문서       | T9     |
-| T11 | testlog 기록 (`docs/testlogs/2026-04.md` 맨 위 행)            | 문서       | T7, T8 |
-| T12 | 커밋 + PR (worktree `.worktrees/exposed-test-coverage`)    | PR       | T1-T11 |
+| #   | 작업                                                              | 산출물          | 의존성 |
+|-----|-------------------------------------------------------------------|-----------------|--------|
+| T1  | jdbc `SchemaUtilsExtensionsTest.kt` 신규 작성 (5 케이스)          | 신규 파일       | -      |
+| T2  | jdbc `SoftDeletedJdbcRepositoryTest.kt` 확장 (9 케이스 추가)      | 기존 파일 편집  | -      |
+| T3  | r2dbc `TableExtensionsTest.kt` 신규 작성 (6 케이스)               | 신규 파일       | -      |
+| T4  | r2dbc `SoftDeletedR2dbcRepositoryTest.kt` 확장 (6 케이스)         | 기존 파일 편집  | -      |
+| T5  | r2dbc `ReadableExtensionsTest.kt` 확장 (7 케이스)                 | 기존 파일 편집  | -      |
+| T6  | r2dbc `QueryExtensionsTest.kt` 확장 (5 케이스)                    | 기존 파일 편집  | -      |
+| T7  | `./gradlew :bluetape4k-exposed-jdbc:test` 전체 실행 및 결과 확인  | 로그            | T1, T2 |
+| T8  | `./gradlew :bluetape4k-exposed-r2dbc:test` 전체 실행 및 결과 확인 | 로그            | T3-T6  |
+| T9  | 두 모듈 커버리지 측정 및 70% 달성 여부 검증                       | 커버리지 리포트 | T7, T8 |
+| T10 | README.md + README.ko.md 갱신 (테스트 매트릭스 추가 시)           | 문서            | T9     |
+| T11 | testlog 기록 (`docs/testlogs/2026-04.md` 맨 위 행)                | 문서            | T7, T8 |
+| T12 | 커밋 + PR (worktree `.worktrees/exposed-test-coverage`)           | PR              | T1-T11 |
 
 총 신규/수정 케이스: **38개** (5 + 9 + 6 + 6 + 7 + 5)
 
@@ -259,12 +261,12 @@ class XxxTest : AbstractExposedR2dbcTest() {
 
 ## 9. 리스크 및 완화
 
-| 리스크                             | 완화                                           |
-|---------------------------------|----------------------------------------------|
-| 일부 dialect 에서 Sequence/Blob 미지원 | `TestDB` 화이트리스트로 스킵 처리                       |
-| Testcontainers 기동 지연            | 기존 컨테이너 재사용 (`@Container` companion static)  |
-| R2DBC suspend 컨텍스트에서 트랜잭션 전파 이슈 | `runSuspendIO` 또는 `suspendTransaction` 일관 사용 |
-| 커버리지 70% 미달                     | 태스크 T9 단계에서 누락 라인 추가 테스트 작성 (iteration)      |
+| 리스크                                        | 완화                                                      |
+|-----------------------------------------------|-----------------------------------------------------------|
+| 일부 dialect 에서 Sequence/Blob 미지원        | `TestDB` 화이트리스트로 스킵 처리                         |
+| Testcontainers 기동 지연                      | 기존 컨테이너 재사용 (`@Container` companion static)      |
+| R2DBC suspend 컨텍스트에서 트랜잭션 전파 이슈 | `runSuspendIO` 또는 `suspendTransaction` 일관 사용        |
+| 커버리지 70% 미달                             | 태스크 T9 단계에서 누락 라인 추가 테스트 작성 (iteration) |
 
 ---
 

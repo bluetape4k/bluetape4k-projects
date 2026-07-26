@@ -31,9 +31,9 @@ header.            payload.                 signature
 
 - **JWT 생성**: Builder 패턴 및 Kotlin DSL 지원
 - **JWT 파싱**: 검증된 토큰에서 클레임 추출
-- **KeyChain 관리**: RSA 키 페어 자동 생성 및 회전(Rotation)
+- **KeyChain 관리**: RSA 키 페어 자동 생성 및 회전 (Rotation)
 - **분산 환경 지원**: Redis/MongoDB를 통한 KeyChain 공유
-- **압축 지원**: jjwt 내장 DEF(Deflate), GZIP 압축 알고리즘
+- **압축 지원**: jjwt 내장 DEF (Deflate), GZIP 압축 알고리즘
 
 ## 사용 예시
 
@@ -258,19 +258,19 @@ val jwtProvider = JwtProviderFactory.default(
 
 ### 지원 서명 알고리즘
 
-| 알고리즘  | 설명                      |
-|-------|-------------------------|
-| RS256 | RSA with SHA-256 (권장)   |
-| RS384 | RSA with SHA-384        |
-| RS512 | RSA with SHA-512        |
-| PS256 | RSASSA-PSS with SHA-256 |
-| PS384 | RSASSA-PSS with SHA-384 |
-| PS512 | RSASSA-PSS with SHA-512 |
+| 알고리즘 | 설명                    |
+|----------|-------------------------|
+| RS256    | RSA with SHA-256 (권장) |
+| RS384    | RSA with SHA-384        |
+| RS512    | RSA with SHA-512        |
+| PS256    | RSASSA-PSS with SHA-256 |
+| PS384    | RSASSA-PSS with SHA-384 |
+| PS512    | RSASSA-PSS with SHA-512 |
 
 ### 지원 압축 알고리즘
 
-| 알고리즘                | 설명                          |
-|---------------------|-----------------------------|
+| 알고리즘            | 설명                          |
+|---------------------|-------------------------------|
 | `JwtCodecs.Deflate` | Deflate 압축 (`Jwts.ZIP.DEF`) |
 | `JwtCodecs.Gzip`    | GZIP 압축 (`Jwts.ZIP.GZIP`)   |
 
@@ -292,7 +292,7 @@ class KeyChain(
 ## 보안 권장사항
 
 1. **주기적 키 회전**: 최소 30분~1시간마다 KeyChain 회전
-2. **짧은 만료 시간**: Access Token은 15~60분, Refresh Token은 7~30일
+2. **짧은 만료 시간**: Access Token은 15 ~60분, Refresh Token은 7~30일
 3. **HTTPS 필수**: JWT는 네트워크에서 암호화되어야 함
 4. **민감 정보 제외**: JWT에 비밀번호, 신용카드 등 민감 정보 포함 금지
 5. **분산 환경**: Redis/MongoDB로 KeyChain 공유

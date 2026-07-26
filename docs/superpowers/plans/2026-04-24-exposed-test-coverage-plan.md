@@ -48,10 +48,10 @@
 - Create `data/exposed-jdbc/src/test/kotlin/io/bluetape4k/exposed/jdbc/SchemaUtilsExtensionsTest.kt`.
 - Test cases:
     1.
-    `execCreateMissingTablesAndColumns creates missing table` — start with empty schema, call, verify table exists (insert + select a row).
+  `execCreateMissingTablesAndColumns creates missing table` — start with empty schema, call, verify table exists (insert + select a row).
     2. `execCreateMissingTablesAndColumns is idempotent` — call twice, no exception, row still insertable.
     3.
-    `execCreateMissingTablesAndColumns adds missing column` — create table with subset of columns (v1 table), then call with extended table (v2), verify new column usable.
+  `execCreateMissingTablesAndColumns adds missing column` — create table with subset of columns (v1 table), then call with extended table (v2), verify new column usable.
     4. `execCreateMissingTablesAndColumns with multiple tables` — vararg form covers >1 table in a single call.
 - Patterns: `AbstractExposedTest` + `@ParameterizedTest @MethodSource(ENABLE_DIALECTS_METHOD)` +
   `withTables(testDB) { }` + `companion object: KLogging()`.
@@ -73,7 +73,7 @@
 - Create `data/exposed-r2dbc/src/test/kotlin/io/bluetape4k/exposed/r2dbc/TableExtensionsTest.kt`.
 - Test cases:
     1.
-    `suspendColumnMetadata returns all columns of created table` — columns count + column names match table definition.
+  `suspendColumnMetadata returns all columns of created table` — columns count + column names match table definition.
     2. `suspendIndexes returns declared indexes` — define unique + non-unique index, assert presence.
     3. `suspendPrimaryKeyMetadata returns PK metadata for PK table` — verify PK column set.
     4. `suspendPrimaryKeyMetadata returns null for table without PK` — table without primary key.
@@ -95,7 +95,7 @@
        `forEach`, assert accumulated list equals inserted rows.
     2. `Query_forEach with empty result does not invoke block` — empty table, counter stays 0.
     3.
-    `Query_forEachIndexed provides sequential indexes starting at 0` — insert N rows, collect (index, row) pairs, verify indexes [0..N-1].
+  `Query_forEachIndexed provides sequential indexes starting at 0` — insert N rows, collect (index, row) pairs, verify indexes [0..N-1].
     4. `Query_forEachIndexed with empty result does not invoke block`.
 - Use a minimal local test table (Int id + String value); keep inside the nested class.
 - Exit: 4 new tests green on all enabled dialects; existing Flow-only tests still pass.

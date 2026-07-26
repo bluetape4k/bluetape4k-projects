@@ -1,11 +1,11 @@
 package io.bluetape4k.collections.eclipse.ranges
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.primitives.intArrayListOf
 import io.bluetape4k.collections.eclipse.primitives.longArrayListOf
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList
 import org.eclipse.collections.impl.list.mutable.primitive.LongArrayList
 import org.junit.jupiter.api.Test

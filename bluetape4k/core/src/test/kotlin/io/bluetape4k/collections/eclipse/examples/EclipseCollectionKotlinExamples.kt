@@ -1,5 +1,8 @@
 package io.bluetape4k.collections.eclipse.examples
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.primitives.asList
 import io.bluetape4k.collections.eclipse.primitives.doubleArrayListOf
@@ -9,9 +12,6 @@ import io.bluetape4k.collections.eclipse.primitives.longArrayListOf
 import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.collections.eclipse.unifiedSetOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class EclipseCollectionKotlinExamples {

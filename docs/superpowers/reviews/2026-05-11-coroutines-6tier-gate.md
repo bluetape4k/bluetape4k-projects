@@ -1,14 +1,12 @@
 # bluetape4k-coroutines 6-Tier Review Gate
 
-**날짜**: 2026-05-11
-**모듈**: `bluetape4k-coroutines`
-**결론**: PASS
-**P0/P1**: 0
+**날짜**: 2026-05-11 **모듈**: `bluetape4k-coroutines`
+**결론**: PASS **P0/P1**: 0
 
 ## Tier 1. Public API / Contract
 
 - `DeferredSupport.awaitAnyAndCancelOthers`는 child `Deferred` 취소와 caller coroutine 취소를 분리한다.
-- Subject public 종료 API(`emitError`, `complete`)는 caller cancellation을 보존한다.
+- Subject public 종료 API (`emitError`, `complete`)는 caller cancellation을 보존한다.
 - P0/P1: 없음
 
 ## Tier 2. Coroutine / Concurrency
@@ -27,12 +25,12 @@
 ## Tier 4. Tests / Edge Cases
 
 - 추가 edge tests:
-  - busy collector 상태에서 `BehaviorSubject.complete` timeout cancellation 전파
-  - busy collector 상태에서 `PublishSubject.complete` timeout cancellation 전파
-  - busy collector 상태에서 `PublishSubject.emitError` timeout cancellation 전파
+    - busy collector 상태에서 `BehaviorSubject.complete` timeout cancellation 전파
+    - busy collector 상태에서 `PublishSubject.complete` timeout cancellation 전파
+    - busy collector 상태에서 `PublishSubject.emitError` timeout cancellation 전파
 - Verification:
-  - `./gradlew :bluetape4k-coroutines:test --tests "io.bluetape4k.coroutines.flow.extensions.subject.SubjectCancellationTest"`: PASS, 9 tests
-  - `./gradlew :bluetape4k-coroutines:test`: PASS, 559 tests
+    - `./gradlew :bluetape4k-coroutines:test --tests "io.bluetape4k.coroutines.flow.extensions.subject.SubjectCancellationTest"`: PASS, 9 tests
+    - `./gradlew :bluetape4k-coroutines:test`: PASS, 559 tests
 - P0/P1: 없음
 
 ## Tier 5. Documentation / KDoc

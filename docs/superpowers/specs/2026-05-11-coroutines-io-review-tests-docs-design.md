@@ -1,8 +1,6 @@
 # bluetape4k-coroutines / bluetape4k-io 리뷰·테스트·문서 보강 설계
 
-**날짜**: 2026-05-11
-**상태**: DRAFT
-**대상 모듈**: `bluetape4k-coroutines`, `bluetape4k-io`
+**날짜**: 2026-05-11 **상태**: DRAFT **대상 모듈**: `bluetape4k-coroutines`, `bluetape4k-io`
 
 ## 목적
 

@@ -2,9 +2,6 @@ package io.bluetape4k.http.benchmark
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import io.bluetape4k.http.hc5.cache.memoryCachingHttpClientOf
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
 import io.bluetape4k.testcontainers.http.WireMockServer
 import kotlinx.benchmark.Benchmark
@@ -21,7 +18,6 @@ import okhttp3.ConnectionPool
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okio.Buffer
 import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient
 import org.apache.hc.client5.http.impl.classic.HttpClients
@@ -31,6 +27,9 @@ import org.openjdk.jmh.annotations.Threads
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.Duration
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import java.util.zip.GZIPOutputStream
 

@@ -1,20 +1,20 @@
 package io.bluetape4k.jackson3
 
 import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.json.JsonSerializationException
 import io.bluetape4k.json.JsonSerializer
-import io.bluetape4k.json.deserialize as deserializeRaw
 import org.junit.jupiter.api.Test
 import tools.jackson.databind.SerializationFeature
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.ReadOnlyBufferException
+import io.bluetape4k.json.deserialize as deserializeRaw
 
 class JacksonSerializerByteBufferTest {
 
@@ -159,7 +159,10 @@ class JacksonSerializerByteBufferTest {
         }
 
         val expected = CollectionItem(13, "reused")
-        serializer.deserializeFrom(ByteBuffer.wrap(serializer.serialize(expected)), CollectionItem::class.java) shouldBeEqualTo expected
+        serializer.deserializeFrom(
+            ByteBuffer.wrap(serializer.serialize(expected)),
+            CollectionItem::class.java
+        ) shouldBeEqualTo expected
     }
 
     @Test
@@ -261,7 +264,8 @@ class JacksonSerializerByteBufferTest {
         val serializer: JsonSerializer = concrete
         val values = listOf(CollectionItem(1, "raw"))
 
-        val restored: Any? = serializer.deserializeRaw<List<CollectionItem>>(ByteBuffer.wrap(concrete.serialize(values)))
+        val restored: Any? =
+            serializer.deserializeRaw<List<CollectionItem>>(ByteBuffer.wrap(concrete.serialize(values)))
         (restored as List<*>).first().shouldBeInstanceOf<Map<*, *>>()
 
         assertFailsWith<JsonSerializationException> {

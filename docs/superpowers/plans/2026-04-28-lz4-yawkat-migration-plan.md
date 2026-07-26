@@ -1,9 +1,7 @@
 # LZ4 yawkat 마이그레이션 — Implementation Plan
 
-**Date**: 2026-04-28
-**Spec**: `docs/superpowers/specs/2026-04-28-lz4-yawkat-migration-design.md`
-**Issue**: #203
-**Branch**: `feat/lz4-yawkat-migration`
+**Date**: 2026-04-28 **Spec**: `docs/superpowers/specs/2026-04-28-lz4-yawkat-migration-design.md`
+**Issue**: #203 **Branch**: `feat/lz4-yawkat-migration`
 **Worktree**: `.worktrees/feat-lz4-yawkat-migration`
 **Rev**: v2 (Plan Review 반영)
 
@@ -16,23 +14,28 @@ Replace `org.lz4:lz4-java:1.8.0` with `at.yawk.lz4:lz4-java:1.11.0` to fix:
 - **CVE-2025-12183** (CVSS 8.8)
 - **CVE-2025-66566** (CVSS 8.2)
 
-The yawkat fork keeps the `net.jpountz.lz4.*` package namespace — **binary-compatible**, no Kotlin source changes required. Migration is **build-config-only**.
+The yawkat fork keeps the `net.jpountz.lz4.*` package namespace —
+**binary-compatible**, no Kotlin source changes required. Migration is **build-config-only**.
 
 ---
 
 ## Pre-flight Constraints (Read Before Starting)
 
-1. `org.lz4:lz4-java` upstream repo was archived 2025-12. `org.lz4:lz4-java:1.8.1` is a Sonatype relocation POM (no real JAR) — do **not** bump to `1.8.1`.
-2. BOM `dependencyManagement` swap **does NOT evict different `groupId`**. Eviction must be done via `configurations.all { exclude(group = "org.lz4", module = "lz4-java") }` in each affected module's `build.gradle.kts`.
+1. `org.lz4:lz4-java` upstream repo was archived 2025-12. `org.lz4:lz4-java:1.8.1` is a Sonatype relocation POM (no real JAR) — do
+   **not** bump to `1.8.1`.
+2. BOM `dependencyManagement` swap **does NOT evict
+   different `groupId`**. Eviction must be done via `configurations.all { exclude(group = "org.lz4", module = "lz4-java") }` in each affected module's `build.gradle.kts`.
 3. Transitive sources of `org.lz4:lz4-java`: `kafka-clients`, `spring-kafka`, `reactor-kafka`, `kafka-streams`, possibly `pulsar-client`, `avro`, `redisson`. Run dep-tree scans (T3) before assuming exclusion targets.
-4. 31 build files reference `Libs.lz4_java`. Most are **direct** consumers (no exclude needed); only modules that pull `org.lz4` **transitively** via Kafka/Pulsar/Avro/Redisson need `configurations.all { exclude }`.
+4. 31 build files reference `Libs.lz4_java`. Most are
+   **direct** consumers (no exclude needed); only modules that pull `org.lz4`
+   **transitively** via Kafka/Pulsar/Avro/Redisson need `configurations.all { exclude }`.
 5. Root `build.gradle.kts:376` uses `dependency(Libs.lz4_java)` — a constant reference, NOT a literal GAV string. After T1 changes the constant, T2 is a verification step only (no edit required in root build file).
 6. **Required native binary platforms** (must all be present in the resolved JAR):
-   - `linux/amd64` (linux-x86_64)
-   - `linux/aarch64`
-   - `darwin/aarch64` (Apple Silicon)
-   - `darwin/x86_64` (Intel Mac)
-   - `win32/amd64` (windows-x86_64)
+    - `linux/amd64` (linux-x86_64)
+    - `linux/aarch64`
+    - `darwin/aarch64` (Apple Silicon)
+    - `darwin/x86_64` (Intel Mac)
+    - `win32/amd64` (windows-x86_64)
 
 ---
 
@@ -48,6 +51,7 @@ git revert HEAD
 No Kotlin source files are changed. LZ4 compression format is standard — persisted data requires no reprocessing.
 
 **Abort criteria** (escalate to spec author, do not proceed):
+
 - T7 native-binary check: any required platform binary is missing
 - T8/T9/T10: test failures directly attributable to `net.jpountz.lz4` API changes (not infra/CI flakiness)
 - Any module classloader error at runtime linking to `net.jpountz.lz4`
@@ -61,6 +65,7 @@ No Kotlin source files are changed. LZ4 compression format is standard — persi
 **File**: `buildSrc/src/main/kotlin/Libs.kt`
 
 **Change**:
+
 ```kotlin
 // before
 const val lz4_java = "org.lz4:lz4-java:1.8.0"
@@ -72,6 +77,7 @@ const val lz4_java = "at.yawk.lz4:lz4-java:1.11.0"
 ```
 
 **DoD**:
+
 - [ ] `lz4_java` 상수가 `at.yawk.lz4:lz4-java:1.11.0` 으로 변경됨
 - [ ] CVE 두 번호 코멘트가 상수 바로 위에 있음
 - [ ] `./gradlew help` 오류 없이 실행됨
@@ -90,12 +96,14 @@ const val lz4_java = "at.yawk.lz4:lz4-java:1.11.0"
 > 이 task 는 그 결과를 검증하는 단계다 — 파일 편집 없음.
 
 **Verification command**:
+
 ```bash
 rg "lz4" build.gradle.kts
 # Expected: dependency(Libs.lz4_java) — constant reference only, no org.lz4 literal
 ```
 
 **DoD**:
+
 - [ ] 루트 `build.gradle.kts` 에 `"org.lz4:lz4-java"` 리터럴이 없음
 - [ ] `dependency(Libs.lz4_java)` 줄이 그대로 존재함 (상수 참조 유지)
 - [ ] `./gradlew help` 성공
@@ -106,11 +114,11 @@ rg "lz4" build.gradle.kts
 
 ### T3 — Transitive dep-tree 전체 스캔 (complexity: medium)
 
-**Goal**: `org.lz4:lz4-java` 가 어떤 모듈의 `runtimeClasspath` 에 아직 남아 있는지 파악.
-직접 `Libs.lz4_java` 를 참조하는 31개 모듈은 T1 이후 자동으로 `at.yawk.lz4` 를 사용하므로 exclude 불필요.
+**Goal**: `org.lz4:lz4-java` 가 어떤 모듈의 `runtimeClasspath` 에 아직 남아 있는지 파악. 직접 `Libs.lz4_java` 를 참조하는 31개 모듈은 T1 이후 자동으로 `at.yawk.lz4` 를 사용하므로 exclude 불필요.
 **Kafka/Pulsar/Avro/Redisson 경로로 org.lz4 를 transitive 하게 받는 모듈만 T6 exclude 대상이다.**
 
 **Commands**:
+
 ```bash
 # Primary transitive sources
 ./gradlew :bluetape4k-kafka:dependencies --configuration runtimeClasspath | rg "lz4"
@@ -126,13 +134,14 @@ rg "lz4" build.gradle.kts
 
 **Decision log** (T3-decision-log): 스캔 후 각 모듈에 대해 다음 표를 작성한다:
 
-| 모듈 | org.lz4 transitive 유입 여부 | T6 exclude 필요 |
-|------|--------------------------|----------------|
-| bluetape4k-kafka | (scan result) | (yes/no) |
-| bluetape4k-testcontainers | (scan result) | (yes/no) |
-| ... | ... | ... |
+| 모듈                      | org.lz4 transitive 유입 여부 | T6 exclude 필요 |
+|---------------------------|------------------------------|-----------------|
+| bluetape4k-kafka          | (scan result)                | (yes/no)        |
+| bluetape4k-testcontainers | (scan result)                | (yes/no)        |
+| ...                       | ...                          | ...             |
 
 **DoD**:
+
 - [ ] kafka, testcontainers, pulsar, avro, redisson, spring-boot3-kafka, spring-boot4-kafka 스캔 완료
 - [ ] T3-decision-log 표 작성 완료
 - [ ] T6 exclude 대상 목록 확정
@@ -146,6 +155,7 @@ rg "lz4" build.gradle.kts
 **File**: `infra/kafka/build.gradle.kts`
 
 **Change** (top-level, `dependencies {}` 블록 외부):
+
 ```kotlin
 configurations.all {
     // CVE-2025-12183 / CVE-2025-66566: evict abandoned org.lz4:lz4-java transitively
@@ -155,6 +165,7 @@ configurations.all {
 ```
 
 **DoD**:
+
 - [ ] 블록이 top-level 에 위치 (dependencies {} 내부 아님)
 - [ ] CVE 두 번호 코멘트 포함
 - [ ] `./gradlew :bluetape4k-kafka:dependencies --configuration runtimeClasspath | rg "org.lz4"` 결과 없음
@@ -171,6 +182,7 @@ configurations.all {
 T4 와 동일한 `configurations.all { exclude(group = "org.lz4", module = "lz4-java") }` 패턴.
 
 **DoD**:
+
 - [ ] 블록이 top-level 에 위치
 - [ ] CVE 코멘트 포함
 - [ ] `./gradlew :bluetape4k-testcontainers:dependencies --configuration runtimeClasspath | rg "org.lz4"` 결과 없음
@@ -181,17 +193,18 @@ T4 와 동일한 `configurations.all { exclude(group = "org.lz4", module = "lz4-
 
 ### T6 — T3 결과 기반 추가 exclude 적용 (complexity: medium)
 
-**Files**: T3-decision-log 에서 `T6 exclude 필요: yes` 로 표시된 모든 모듈.
-후보: `infra/pulsar`, `io/avro`, `infra/redisson`, spring-boot kafka facades 등.
+**Files**: T3-decision-log 에서 `T6 exclude 필요: yes` 로 표시된 모든 모듈. 후보: `infra/pulsar`, `io/avro`, `infra/redisson`, spring-boot kafka facades 등.
 
 **Change**: T4/T5 와 동일한 `configurations.all { exclude }` 패턴.
 
 **Decision rule**:
+
 - T3 dep-tree 에서 `org.lz4:lz4-java` 가 `runtimeClasspath` 또는 `testRuntimeClasspath` 에 보이면 → exclude 추가
 - `at.yawk.lz4:lz4-java:1.11.0` 만 보이거나 lz4 가 없으면 → exclude 불필요 (T3-decision-log 에 `no` 기록)
 - skip 한 모듈도 T3-decision-log 에 명시 (audit trail)
 
 **DoD**:
+
 - [ ] T3-decision-log 의 모든 `yes` 모듈에 exclude 블록 추가
 - [ ] 각 모듈 `rg "org.lz4"` dep-tree 결과 없음
 - [ ] T3-decision-log skip 항목에 사유 기록
@@ -235,6 +248,7 @@ unzip -l "$LZ4_JAR" | rg "(linux|darwin|windows|aix|freebsd).*(\.so|\.dylib|\.dl
 ```
 
 **필수 플랫폼** (모두 존재해야 함):
+
 - `linux/amd64` (= linux-x86_64)
 - `linux/aarch64`
 - `darwin/aarch64` (Apple Silicon)
@@ -244,6 +258,7 @@ unzip -l "$LZ4_JAR" | rg "(linux|darwin|windows|aix|freebsd).*(\.so|\.dylib|\.dl
 플랫폼 누락 시 → **즉시 중단, spec author 에게 에스컬레이션. T8 진행 금지.**
 
 **DoD**:
+
 - [ ] 7-A exit code 0 (모든 모듈에서 org.lz4 없음)
 - [ ] 7-B 5개 플랫폼 binary 모두 확인
 
@@ -259,6 +274,7 @@ unzip -l "$LZ4_JAR" | rg "(linux|darwin|windows|aix|freebsd).*(\.so|\.dylib|\.dl
 ```
 
 **DoD**:
+
 - [ ] `:bluetape4k-core:test` BUILD SUCCESSFUL
 - [ ] `:bluetape4k-io:test` BUILD SUCCESSFUL
 
@@ -274,6 +290,7 @@ unzip -l "$LZ4_JAR" | rg "(linux|darwin|windows|aix|freebsd).*(\.so|\.dylib|\.dl
 ```
 
 **DoD**:
+
 - [ ] `:bluetape4k-kafka:test` BUILD SUCCESSFUL
 - [ ] `:bluetape4k-lettuce:test` BUILD SUCCESSFUL
 
@@ -296,6 +313,7 @@ fd -t d "^redisson$" infra/ && ./bin/repo-test-summary -- ./gradlew :bluetape4k-
 T6 에서 exclude 추가된 모듈도 포함하여 실행.
 
 **DoD**:
+
 - [ ] 적용 가능한 모든 모듈 BUILD SUCCESSFUL
 - [ ] LZ4 관련 테스트 실패 없음
 
@@ -311,12 +329,14 @@ git diff develop...HEAD -- '*.kt' | rg -v '^(\+\+\+|---|\-\-\-)' | rg "^[+-]"
 ```
 
 또는:
+
 ```bash
 git diff develop...HEAD --name-only -- '*.kt'
 # Expected: 빈 출력
 ```
 
 **DoD**:
+
 - [ ] `.kt` 파일 변경 없음 (build.gradle.kts 는 OK)
 - [ ] 변경된 파일이 있다면 즉시 원인 파악 + 스펙 위반 여부 확인
 
@@ -356,9 +376,9 @@ configurations.all {
 
 ### Downstream consumers
 
-If your application directly depends on `kafka-clients` (or any of its siblings) **without** going
-through `bluetape4k-kafka`, add the same `configurations.all { exclude(...) }` block to your build
-to prevent the vulnerable JAR from appearing on your classpath.
+If your application directly depends on `kafka-clients` (or any of its siblings)
+**without** going through `bluetape4k-kafka`, add the same `configurations.all { exclude(...) }` block to your build to prevent the vulnerable JAR from appearing on your classpath.
+
 ```
 
 #### T12-B. `infra/kafka/README.ko.md` (Korean)
@@ -385,9 +405,8 @@ configurations.all {
 
 ### 다운스트림 사용자
 
-`bluetape4k-kafka` 를 거치지 않고 `kafka-clients` 등을 직접 의존하는 경우,
-취약 JAR 가 classpath 에 포함되지 않도록 동일한 `configurations.all { exclude(...) }` 블록을
-빌드 스크립트에 추가하시기 바랍니다.
+`bluetape4k-kafka` 를 거치지 않고 `kafka-clients` 등을 직접 의존하는 경우, 취약 JAR 가 classpath 에 포함되지 않도록 동일한 `configurations.all { exclude(...) }` 블록을 빌드 스크립트에 추가하시기 바랍니다.
+
 ```
 
 #### T12-C. T6 에서 exclude 추가된 기타 모듈
@@ -403,6 +422,7 @@ T6 에서 수정된 각 모듈의 README.md + README.ko.md 에 다음 간략한 
 ```
 
 **DoD**:
+
 - [ ] T4/T5/T6 에서 수정된 모든 모듈의 README.md + README.ko.md 업데이트
 - [ ] `infra/kafka` README 에 CVE 번호, exclude 코드 블록, downstream 안내 포함
 - [ ] 마크다운 코드 펜스 렌더링 오류 없음
@@ -432,6 +452,7 @@ git push -u origin feat/lz4-yawkat-migration
 ```
 
 **DoD**:
+
 - [ ] 커밋 메시지 한국어 + `fix:` prefix
 - [ ] `#203` 이슈 참조 포함
 - [ ] `git push` 성공
@@ -451,6 +472,7 @@ T1 ──► T2 ──► T3 ──┬─► T4 ──┐
 ```
 
 **병렬 실행 가능**:
+
 - T4, T5, T6 — T3 완료 후 병렬
 - T8, T9, T10 — T7 완료 후 병렬
 

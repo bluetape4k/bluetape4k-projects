@@ -23,7 +23,7 @@ import io.bluetape4k.tink.daead.TinkDeterministicAead
  */
 class TinkDaeadEncryptor(private val daead: TinkDeterministicAead): TinkEncryptor {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     override fun encrypt(plaintext: ByteArray): ByteArray = daead.encryptDeterministically(plaintext)
 

@@ -31,12 +31,12 @@
 
 **갭**
 
-| 영역                         | 미커버 로직                                                                                                                                                                               |
-|----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 영역                       | 미커버 로직                                                                                                                                                                                               |
+|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ActuatorEndpoint           | `getAllRegionStats()` / `getRegionStats(name)` 실제 호출, 존재하지 않는 region → `null`, 잘못된 `RegionFactory`(LettuceNearCacheRegionFactory 아님) → 빈 map/null, statistics 비활성 → nullable 필드 null |
 | MetricsBinder              | `afterSingletonsInstantiated()` 직접 호출, Gauge 값 (`active.regions`, `total.local.size`) 실제 값 검증, 잘못된 RegionFactory 조기 return, `runCatching` 실패 경로 로깅                                   |
-| HibernateAutoConfiguration | `codec=zstdfory`/`useResp3=false` 변형, `local.maxSize` 커스텀, `redisTtl.regions` 다건 매핑, `metrics.enabled=false` 시 statistics 미설정, `Duration`의 ms 잔여 (1500ms) → "1500ms" 포맷 분기           |
-| Integration                | Hibernate `Statistics` 기반 hit/miss 카운트 검증, update/delete 후 eviction, Actuator endpoint가 실제 stats 반환, MeterRegistry에서 Gauge 실제 값 조회                                                   |
+| HibernateAutoConfiguration | `codec=zstdfory`/`useResp3=false` 변형, `local.maxSize` 커스텀, `redisTtl.regions` 다건 매핑, `metrics.enabled=false` 시 statistics 미설정, `Duration`의 ms 잔여 (1500ms) → "1500ms" 포맷 분기            |
+| Integration                | Hibernate `Statistics` 기반 hit/miss 카운트 검증, update/delete 후 eviction, Actuator endpoint가 실제 stats 반환, MeterRegistry에서 Gauge 실제 값 조회                                                    |
 
 ### 1.3 목표 지표
 
@@ -58,7 +58,7 @@
 ### R2. `RedisServer.Launcher.redis` 싱글턴 상태 누수 — 테스트 간 region 공유
 
 - **원인**: Redis는 JVM 단위 공유. 이전 테스트의 key가 남아 hit/miss 카운트를 오염.
-- **완화**: 각 테스트에서 고유 entity 이름(`@Entity(name=...)`) 또는 각 테스트 클래스마다 다른 DB URL + DDL `create-drop`. Redis는 `FLUSHALL`을
+- **완화**: 각 테스트에서 고유 entity 이름 (`@Entity(name=...)`) 또는 각 테스트 클래스마다 다른 DB URL + DDL `create-drop`. Redis는 `FLUSHALL`을
   `@BeforeEach`에서 호출 (LettuceNearCacheRegionFactory 내부 Lettuce client 공유시) — 간단히는 다른 테스트 클래스 이름마다 고유 region 이름을 entity @Cache region으로 격리.
 
 ### R3. `LettuceNearCacheRegionFactory#getCaches()` 접근 시점 — Hibernate 부트스트랩 완료 전 호출 시 빈 map
@@ -71,7 +71,7 @@
 
 - **원인**: `@Endpoint`는 `ManagementContextAutoConfiguration` 등 추가 auto-config가 없으면 bean 등록만 되고 HTTP 경로는 없음.
 - **완화**: HTTP 요청이 아니라 `context.getBean(LettuceNearCacheActuatorEndpoint::class.java)`를 직접 호출해
-  `@ReadOperation` 메서드를 invoke. HTTP 계층 테스트는 scope 밖(통합 테스트에서만 선택적).
+  `@ReadOperation` 메서드를 invoke. HTTP 계층 테스트는 scope 밖 (통합 테스트에서만 선택적).
 
 ### R5. Spring Boot 3 vs 4 간 `HibernatePropertiesCustomizer` 패키지 차이
 
@@ -135,57 +135,57 @@ src/test/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/
 
 `EntityManagerFactory`, `SessionFactoryImplementor`, `LettuceNearCacheRegionFactory`, `Statistics`를 MockK로 구성.
 
-| # | 테스트 메서드                                                             | 검증 포인트                                                                                                 |
-|---|---------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
-| 1 | `getAllRegionStats는 region 이름을 key로 하는 map을 반환한다`                   | mock factory에 2개 region → 반환 map size=2, key 정확                                                        |
-| 2 | `getAllRegionStats는 LettuceNearCacheRegionFactory가 아니면 빈 map을 반환한다` | `RegionFactory`가 다른 구현 → `emptyMap()`                                                                  |
-| 3 | `getAllRegionStats는 RegionFactory가 null이면 빈 map을 반환한다`              | `serviceRegistry.getService(RegionFactory)` returns null                                               |
-| 4 | `getAllRegionStats는 unwrap이 예외를 던지면 빈 map을 반환한다`                    | `entityManagerFactory.unwrap` throws → runCatching 경로                                                  |
-| 5 | `getRegionStats는 존재하는 region에 대해 RegionStats를 반환한다`                 | 특정 name → `RegionStats.regionName` 일치 + `localSize` 전달                                                 |
-| 6 | `getRegionStats는 존재하지 않는 region에 대해 null을 반환한다`                     | factory.getCaches()에 없음 → null                                                                         |
-| 7 | `getRegionStats는 statistics가 비활성이면 l2 필드가 null이다`                   | `isStatisticsEnabled=false` → `l2HitCount`/`l2MissCount`/`l2PutCount` null                             |
-| 8 | `getRegionStats는 localStats가 null이면 local 카운트 필드가 null이다`           | `cache.localStats()=null` → `localHitRate`/`localHitCount`/... null, `localSize`는 `localCacheSize()` 값 |
-| 9 | `getRegionStats는 getDomainDataRegionStatistics 예외를 흡수한다`            | `statistics.getDomainDataRegionStatistics` throws → l2 필드 null, local 필드는 정상                           |
+| # | 테스트 메서드                                                                  | 검증 포인트                                                                                              |
+|---|--------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
+| 1 | `getAllRegionStats는 region 이름을 key로 하는 map을 반환한다`                  | mock factory에 2개 region → 반환 map size=2, key 정확                                                    |
+| 2 | `getAllRegionStats는 LettuceNearCacheRegionFactory가 아니면 빈 map을 반환한다` | `RegionFactory`가 다른 구현 → `emptyMap()`                                                               |
+| 3 | `getAllRegionStats는 RegionFactory가 null이면 빈 map을 반환한다`               | `serviceRegistry.getService(RegionFactory)` returns null                                                 |
+| 4 | `getAllRegionStats는 unwrap이 예외를 던지면 빈 map을 반환한다`                 | `entityManagerFactory.unwrap` throws → runCatching 경로                                                  |
+| 5 | `getRegionStats는 존재하는 region에 대해 RegionStats를 반환한다`               | 특정 name → `RegionStats.regionName` 일치 + `localSize` 전달                                             |
+| 6 | `getRegionStats는 존재하지 않는 region에 대해 null을 반환한다`                 | factory.getCaches()에 없음 → null                                                                        |
+| 7 | `getRegionStats는 statistics가 비활성이면 l2 필드가 null이다`                  | `isStatisticsEnabled=false` → `l2HitCount`/`l2MissCount`/`l2PutCount` null                               |
+| 8 | `getRegionStats는 localStats가 null이면 local 카운트 필드가 null이다`          | `cache.localStats()=null` → `localHitRate`/`localHitCount`/... null, `localSize`는 `localCacheSize()` 값 |
+| 9 | `getRegionStats는 getDomainDataRegionStatistics 예외를 흡수한다`               | `statistics.getDomainDataRegionStatistics` throws → l2 필드 null, local 필드는 정상                      |
 
 ### 4.2 `LettuceNearCacheMetricsBinderTest.kt` (신규, 순수 단위)
 
 MockK + `io.micrometer.core.instrument.simple.SimpleMeterRegistry`.
 
-| # | 테스트 메서드                                                                     | 검증 포인트                                                                                                |
-|---|-----------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
+| # | 테스트 메서드                                                                      | 검증 포인트                                                                                               |
+|---|------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
 | 1 | `afterSingletonsInstantiated는 active_regions와 total_local_size Gauge를 등록한다` | 호출 후 `registry.find("lettuce.nearcache.active.regions").gauge()` != null, `total.local.size`도 != null |
-| 2 | `active_regions Gauge는 현재 region 수를 반영한다`                                   | caches map size=3 → `gauge.value() == 3.0`                                                            |
-| 3 | `total_local_size Gauge는 모든 region의 localCacheSize 합이다`                     | 두 region이 localCacheSize 100, 250 → `gauge.value() == 350.0`                                          |
-| 4 | `RegionFactory가 LettuceNearCacheRegionFactory 아니면 등록을 스킵한다`                 | 다른 타입 → registry의 gauge 수 증가 없음                                                                       |
-| 5 | `RegionFactory가 null이면 등록을 스킵한다`                                            | getService returns null → gauge 미등록                                                                   |
-| 6 | `unwrap 예외는 runCatching으로 흡수되고 로깅만 한다`                                      | unwrap throws → 예외 전파 없음, gauge 미등록                                                                   |
-| 7 | `Gauge는 런타임에 region이 추가되면 새로운 값을 반영한다`                                      | 첫 호출 1, 추가 후 `gauge.value()==2.0` (dynamic supplier 검증)                                               |
+| 2 | `active_regions Gauge는 현재 region 수를 반영한다`                                 | caches map size=3 → `gauge.value() == 3.0`                                                                |
+| 3 | `total_local_size Gauge는 모든 region의 localCacheSize 합이다`                     | 두 region이 localCacheSize 100, 250 → `gauge.value() == 350.0`                                            |
+| 4 | `RegionFactory가 LettuceNearCacheRegionFactory 아니면 등록을 스킵한다`             | 다른 타입 → registry의 gauge 수 증가 없음                                                                 |
+| 5 | `RegionFactory가 null이면 등록을 스킵한다`                                         | getService returns null → gauge 미등록                                                                    |
+| 6 | `unwrap 예외는 runCatching으로 흡수되고 로깅만 한다`                               | unwrap throws → 예외 전파 없음, gauge 미등록                                                              |
+| 7 | `Gauge는 런타임에 region이 추가되면 새로운 값을 반영한다`                          | 첫 호출 1, 추가 후 `gauge.value()==2.0` (dynamic supplier 검증)                                           |
 
 ### 4.3 `LettuceNearCachePropertiesCustomizerTest.kt` (신규, 순수 단위 — 갭 집중)
 
-> 기존 `LettuceNearCacheAutoConfigurationTest`가 이미 대부분의 변형(codec, useResp3, maxSize, TTL, ms Duration)을 커버.
+> 기존 `LettuceNearCacheAutoConfigurationTest`가 이미 대부분의 변형 (codec, useResp3, maxSize, TTL, ms Duration)을 커버.
 > 이 파일은 기존 테스트가 확인하지 않는 **갭 케이스**만 다룬다.
 
 Spring 컨텍스트 없이 `LettuceNearCacheHibernateAutoConfiguration` 내 람다를 직접 구성·호출.
 
-| # | 테스트 메서드                                                          | 검증 포인트                                                                                                                         |
-|---|------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| 1 | `redisTtl.regions 다건 매핑이 전부 properties에 추가된다`                    | regions=mapOf("A" to 60s, "B" to 300s, "C" to 900s) → `redis_ttl.A == "60s"`, `redis_ttl.B == "300s"`, `redis_ttl.C == "900s"` |
-| 2 | `metrics.enabled=false면 generate_statistics 키가 없다`               | enabled=false → `hibernate.generate_statistics` key 부재                                                                         |
+| # | 테스트 메서드                                                        | 검증 포인트                                                                                                                    |
+|---|----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| 1 | `redisTtl.regions 다건 매핑이 전부 properties에 추가된다`            | regions=mapOf("A" to 60s, "B" to 300s, "C" to 900s) → `redis_ttl.A == "60s"`, `redis_ttl.B == "300s"`, `redis_ttl.C == "900s"` |
+| 2 | `metrics.enabled=false면 generate_statistics 키가 없다`              | enabled=false → `hibernate.generate_statistics` key 부재                                                                       |
 | 3 | `metrics.enableCaffeineStats=false면 local.record_stats가 false이다` | flag=false → `hibernate.cache.lettuce.local.record_stats == "false"`                                                           |
 
 ### 4.4 `LettuceNearCacheAutoConfigurationTest.kt` (기존, 소폭 보강 1 메서드)
 
-| # | 테스트 메서드                                          | 검증 포인트                                                                                     |
-|---|--------------------------------------------------|--------------------------------------------------------------------------------------------|
+| # | 테스트 메서드                                           | 검증 포인트                                                                                             |
+|---|---------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
 | + | `ActuatorEndpoint는 metrics.enabled=false여도 등록된다` | `@ConditionalOnProperty`가 Actuator 설정에 없음을 확인 — `metrics.enabled=false`여도 endpoint bean 존재 |
 
 ### 4.5 `LettuceNearCacheIntegrationTest.kt` (기존 확장, 신규 3 메서드)
 
-| # | 테스트 메서드                                                       | 검증 포인트                                                                                                                                   |
-|---|---------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
-| + | `엔티티 재조회 시 Hibernate L2 cache hitCount가 증가한다`                 | `SessionFactoryImplementor.statistics.clear()` → save → flush/clear → findById 2회 → `getDomainDataRegionStatistics(region).hitCount ≥ 1` |
-| + | `Actuator endpoint가 저장된 엔티티 region의 RegionStats를 반환한다`        | save 후 `endpoint.getAllRegionStats()`에 entity FQN key 존재 + `localSize ≥ 0`                                                               |
+| # | 테스트 메서드                                                            | 검증 포인트                                                                                                                               |
+|---|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| + | `엔티티 재조회 시 Hibernate L2 cache hitCount가 증가한다`                | `SessionFactoryImplementor.statistics.clear()` → save → flush/clear → findById 2회 → `getDomainDataRegionStatistics(region).hitCount ≥ 1` |
+| + | `Actuator endpoint가 저장된 엔티티 region의 RegionStats를 반환한다`      | save 후 `endpoint.getAllRegionStats()`에 entity FQN key 존재 + `localSize ≥ 0`                                                            |
 | + | `Metrics Gauge가 active_regions와 total_local_size의 실제 값을 보고한다` | save 후 `meterRegistry.find("lettuce.nearcache.active.regions").gauge()!!.value() ≥ 1.0`                                                  |
 
 (선택적) update/delete 후 eviction 검증은 Hibernate eviction 정책 의존 → 안정성 이유로 기본 목록에서 제외, 남는 시간이 있으면 추가.
@@ -198,9 +198,10 @@ Spring 컨텍스트 없이 `LettuceNearCacheHibernateAutoConfiguration` 내 람�
   `withRegion(name, localSize, localStats)` 체이닝으로 mock factory 생성. 양 모듈에 동일 코드 복제 (공통 testFixtures로 끌어올리는 비용 > 이득).
 - **`SimpleMeterRegistry`**: `io.micrometer.core.instrument.simple.SimpleMeterRegistry` 직접 인스턴스화. 외부 의존 없음.
 - **통합 테스트 Redis 싱글턴**: 기존 `RedisServer.Launcher.redis` 그대로 사용.
-- **MockK/bluetape4k-assertions 가용성**: `bluetape4k-junit5`가 `api(Libs.mockk)` + `api(Libs.bluetape4kAssertions)`로 transitive export. 양 모듈 모두
+- **MockK/bluetape4k-assertions
+  가용성**: `bluetape4k-junit5`가 `api(Libs.mockk)` + `api(Libs.bluetape4kAssertions)`로 transitive export. 양 모듈 모두
   `testImplementation(project(":bluetape4k-junit5"))` 있으므로 Gradle 수정 불필요.
-- **스타일 통일**: 신규 테스트 파일은 MockK + bluetape4k-assertions로 작성. 기존 파일(`LettuceNearCacheAutoConfigurationTest.kt`,
+- **스타일 통일**: 신규 테스트 파일은 MockK + bluetape4k-assertions로 작성. 기존 파일 (`LettuceNearCacheAutoConfigurationTest.kt`,
   `LettuceNearCacheIntegrationTest.kt`)은 기존 스타일 유지.
 
 ---
@@ -236,6 +237,6 @@ Spring 컨텍스트 없이 `LettuceNearCacheHibernateAutoConfiguration` 내 람�
 - [ ] 두 모듈 모두 `./gradlew test` 녹색
 - [ ] JaCoCo LINE coverage 두 모듈 모두 ≥ 70%
 - [ ] 신규 테스트 모두 JUnit 5 + MockK + bluetape4k-assertions 사용
-- [ ] Hibernate `Statistics` 검증 테스트가 최소 3회 연속 재실행(pass) 안정
+- [ ] Hibernate `Statistics` 검증 테스트가 최소 3회 연속 재실행 (pass) 안정
 - [ ] 회귀: 기존 테스트 전부 통과 유지
 - [ ] README 동기화 + testlog 기록

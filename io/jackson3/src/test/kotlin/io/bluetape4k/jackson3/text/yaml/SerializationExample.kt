@@ -1,5 +1,6 @@
 package io.bluetape4k.jackson3.text.yaml
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.jackson3.text.DataSource
 import io.bluetape4k.jackson3.text.Database
 import io.bluetape4k.jackson3.text.FiveMinuteUser
@@ -9,7 +10,6 @@ import io.bluetape4k.jackson3.text.Outer
 import io.bluetape4k.jackson3.text.trimYamlDocMarker
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import tools.jackson.module.kotlin.readValue
 

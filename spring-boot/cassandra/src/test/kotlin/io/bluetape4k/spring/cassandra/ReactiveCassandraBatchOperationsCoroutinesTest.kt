@@ -10,7 +10,7 @@ import org.springframework.data.cassandra.core.ReactiveCassandraBatchOperations
 
 class ReactiveCassandraBatchOperationsCoroutinesTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     private val mockBatchOps = mockk<ReactiveCassandraBatchOperations>(relaxed = true)
 

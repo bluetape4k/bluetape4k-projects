@@ -1,19 +1,18 @@
 package io.bluetape4k.csv.internal
 
-import io.bluetape4k.csv.CsvSettings
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.csv.CsvSettings
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class CsvLexerTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private fun lexerOf(
         csv: String,

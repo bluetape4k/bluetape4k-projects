@@ -1,13 +1,13 @@
 package io.bluetape4k.workflow.examples
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.workflow.api.WorkReport
-import io.bluetape4k.workflow.api.workContext
-import io.bluetape4k.workflow.core.sequentialFlow
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.workflow.api.WorkReport
+import io.bluetape4k.workflow.api.workContext
+import io.bluetape4k.workflow.core.sequentialFlow
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 

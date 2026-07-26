@@ -1,5 +1,6 @@
 package io.bluetape4k.math
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.math.model.Gender.FEMALE
@@ -7,7 +8,6 @@ import io.bluetape4k.math.model.Gender.MALE
 import io.bluetape4k.math.model.Item
 import io.bluetape4k.math.model.Patient
 import io.bluetape4k.math.model.SaleDate
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import kotlin.test.assertTrue

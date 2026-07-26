@@ -3,13 +3,13 @@ package io.bluetape4k.feign.codec
 import feign.Request
 import feign.Request.HttpMethod
 import feign.Util
-import io.bluetape4k.feign.AbstractFeignTest
-import io.bluetape4k.feign.feignResponse
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.feign.AbstractFeignTest
+import io.bluetape4k.feign.feignResponse
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 /**

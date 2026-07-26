@@ -53,9 +53,9 @@ data class TsvSettings(
     val maxColumns: Int = 512,
     /** 내부 읽기 버퍼 크기(바이트). 기본값: 8192. */
     val bufferSize: Int = 8192,
-) : Serializable {
+): Serializable {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
 
         /** 기본 TSV 설정 (lineSeparator=`"\n"`, emptyValueAsNull=`true`). */

@@ -8,7 +8,7 @@ import java.io.IOException
 
 class SupplierSupportTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     @Test
     fun `andThen - 결과를 변환한다`() {

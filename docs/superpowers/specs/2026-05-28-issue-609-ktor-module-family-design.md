@@ -1,53 +1,34 @@
 # Issue #609 Ktor Module Family Design
 
-Date: 2026-05-28
-Repo: `bluetape4k-projects`
+Date: 2026-05-28 Repo: `bluetape4k-projects`
 Issues: #609, #610
 
 ## Context
 
-`bluetape4k-projects` already contains Ktor dependencies and one Ktor example
-group, but reusable Ktor server behavior is still copied across examples and
-sibling bluetape4k repositories. The first 1.10.0 slice should provide a
-server-side Ktor foundation inside this repository before any client,
-resilience, OpenAPI, or auth/security modules are promoted from backlog.
+`bluetape4k-projects` already contains Ktor dependencies and one Ktor example group, but reusable Ktor server behavior is still copied across examples and sibling bluetape4k repositories. The first 1.10.0 slice should provide a server-side Ktor foundation inside this repository before any client, resilience, OpenAPI, or auth/security modules are promoted from backlog.
 
-The module family stays in `bluetape4k-projects` for the first iteration
-because the intended API is framework glue over existing core, logging,
-assertion, testing, and HTTP utilities. Keeping it here lets the first modules
-reuse current build conventions, version catalog aliases, CI, README locale
-rules, and release metadata without creating a new repository boundary before
-the API shape is proven.
+The module family stays in `bluetape4k-projects` for the first iteration because the intended API is framework glue over existing core, logging, assertion, testing, and HTTP utilities. Keeping it here lets the first modules reuse current build conventions, version catalog aliases, CI, README locale rules, and release metadata without creating a new repository boundary before the API shape is proven.
 
 ## Current Evidence
 
-- `settings.gradle.kts` registers module families through `includeModules`.
-  Adding `includeModules("ktor", withBaseDir = true)` will produce published
-  names such as `bluetape4k-ktor-core`, matching `spring-boot/*` naming.
-- The repository version catalog currently pins Ktor to `3.5.0` and already has
-  aliases for client core/CIO/mock, server core/CIO, server content negotiation,
-  server status pages, serialization with kotlinx JSON, and server test host.
-- Existing examples repeatedly install Ktor plugins and hand-code validation,
-  status responses, JSON test clients, and health/management style routes.
+- `settings.gradle.kts` registers module families through `includeModules`. Adding `includeModules("ktor", withBaseDir = true)` will produce published names such as `bluetape4k-ktor-core`, matching `spring-boot/*` naming.
+- The repository version catalog currently pins Ktor to `3.5.0` and already has aliases for client core/CIO/mock, server core/CIO, server content negotiation, server status pages, serialization with kotlinx JSON, and server test host.
+- Existing examples repeatedly install Ktor plugins and hand-code validation, status responses, JSON test clients, and health/management style routes.
 - Sibling repositories already show useful patterns:
   `bluetape4k-aws` has Ktor plugin implementations and AWS examples,
-  `bluetape4k-graph` has graph plugin runtime tests, `bluetape4k-leader` has a
-  leader-management plugin, and workshop repos have DB-backed Ktor examples.
+  `bluetape4k-graph` has graph plugin runtime tests, `bluetape4k-leader` has a leader-management plugin, and workshop repos have DB-backed Ktor examples.
 - Official Ktor documentation for 3.5.x keeps plugin installation explicit with
   `install(...)`, allows global or route-scoped plugin installation, documents
   `StatusPages` exception/status handlers, `ContentNegotiation` JSON setup,
-  `CallLogging` MDC support, `MicrometerMetrics` registry and Prometheus scrape
-  routes, and `testApplication` plus `createClient` for server tests.
+  `CallLogging` MDC support, `MicrometerMetrics` registry and Prometheus scrape routes, and `testApplication` plus `createClient` for server tests.
 
 ## Goals
 
 1. Add a small, reviewable server-side Ktor module family under `ktor/`.
 2. Keep route behavior explicit while removing repeated framework setup.
-3. Standardize JSON, error responses, health/readiness, observability, and test
-   client helpers across Ktor examples.
+3. Standardize JSON, error responses, health/readiness, observability, and test client helpers across Ktor examples.
 4. Preserve coroutine cancellation and avoid hiding Ktor plugin installation.
-5. Leave client, resilience, OpenAPI, and auth/security work as backlog modules
-   until the server foundation proves stable extension points.
+5. Leave client, resilience, OpenAPI, and auth/security work as backlog modules until the server foundation proves stable extension points.
 
 ## Initial Module Set
 
@@ -57,15 +38,13 @@ First implementation target for #612.
 
 Responsibilities:
 
-- Provide a shared kotlinx `Json` configuration for Ktor server/client testing
-  integration.
+- Provide a shared kotlinx `Json` configuration for Ktor server/client testing integration.
 - Provide an explicit baseline installer such as
   `Application.installBluetape4kKtorCore(...)`.
 - Install and configure `ContentNegotiation` only when the caller opts in.
 - Provide an API error response model and `StatusPages` mapping helpers.
 - Provide small route helpers for `/healthz` and `/readyz`.
-- Provide request/query/path validation helpers only where they remove repeated
-  boilerplate without hiding route-specific rules.
+- Provide request/query/path validation helpers only where they remove repeated boilerplate without hiding route-specific rules.
 
 Dependencies:
 
@@ -89,21 +68,16 @@ Second implementation target for #613.
 Responsibilities:
 
 - Provide explicit CallId and CallLogging installation helpers.
-- Define correlation-id extraction, validation, sanitization, length limit, MDC
-  key, and response propagation rules.
-- Provide a MicrometerMetrics installer that accepts the application-owned
-  registry.
-- Provide an optional Prometheus scrape route helper when Prometheus registry is
-  on the application classpath.
-- Integrate status/error logging with the `ktor/core` error model without
-  leaking caller-controlled header values.
+- Define correlation-id extraction, validation, sanitization, length limit, MDC key, and response propagation rules.
+- Provide a MicrometerMetrics installer that accepts the application-owned registry.
+- Provide an optional Prometheus scrape route helper when Prometheus registry is on the application classpath.
+- Integrate status/error logging with the `ktor/core` error model without leaking caller-controlled header values.
 
 Dependencies:
 
 - `bluetape4k-ktor-core`.
 - Ktor CallId/CallLogging/Micrometer dependencies when catalog aliases exist.
-- Micrometer core as needed; registry/exporter dependencies should stay
-  application-owned or optional.
+- Micrometer core as needed; registry/exporter dependencies should stay application-owned or optional.
 
 Non-responsibilities:
 
@@ -122,8 +96,7 @@ Responsibilities:
   `ktor/core`.
 - Provide response decode helpers for kotlinx serialization.
 - Provide assertions for status, JSON body, and API error response payloads.
-- Provide optional `MockEngine` helpers only if the design keeps client testing
-  in this module.
+- Provide optional `MockEngine` helpers only if the design keeps client testing in this module.
 
 Dependencies:
 
@@ -140,8 +113,7 @@ Non-responsibilities:
 
 ## Backlog Modules
 
-These issues remain outside the first 1.10.0 server foundation unless #610 is
-reopened with new evidence:
+These issues remain outside the first 1.10.0 server foundation unless #610 is reopened with new evidence:
 
 - #643 `feat(ktor): implement bluetape4k-ktor-client`
 - #644 `feat(ktor): implement bluetape4k-ktor-resilience4j`
@@ -150,10 +122,7 @@ reopened with new evidence:
 
 ## Public API Shape
 
-Prefer explicit extension functions and small immutable configuration values.
-Do not require every configuration holder to be a `data class` when it must
-carry non-serializable framework objects such as `Json`; keep serializable
-public value objects separate from runtime strategy objects.
+Prefer explicit extension functions and small immutable configuration values. Do not require every configuration holder to be a `data class` when it must carry non-serializable framework objects such as `Json`; keep serializable public value objects separate from runtime strategy objects.
 
 ```kotlin
 class Bluetape4kKtorCoreConfig(
@@ -170,9 +139,7 @@ fun Application.installBluetape4kKtorCore(
 ```
 
 The concrete names can change during #612, but the contract should stay:
-explicit installation, immutable options, public KDoc, no framework-global
-mutable state, and route-specific behavior left in the application route. Any
-public `data class` introduced by implementation must implement `Serializable`
+explicit installation, immutable options, public KDoc, no framework-global mutable state, and route-specific behavior left in the application route. Any public `data class` introduced by implementation must implement `Serializable`
 and carry only fields that make that contract honest.
 
 ## Error Model
@@ -191,10 +158,8 @@ data class ApiErrorResponse(
 Mapping rules:
 
 - Caller validation failures map to `400 Bad Request`.
-- Missing resources map to `404 Not Found` only when the route chooses that
-  semantic.
-- Unexpected exceptions map to `500 Internal Server Error` without exposing the
-  raw exception message by default.
+- Missing resources map to `404 Not Found` only when the route chooses that semantic.
+- Unexpected exceptions map to `500 Internal Server Error` without exposing the raw exception message by default.
 - `CancellationException` must be rethrown before broad exception handling.
 
 ## Observability Contract
@@ -202,30 +167,25 @@ Mapping rules:
 Correlation-id handling must be conservative:
 
 - Accept configured request headers such as `X-Request-ID` or `X-Correlation-ID`.
-- Trim, validate against a safe character set, and cap length before MDC or
-  response propagation.
+- Trim, validate against a safe character set, and cap length before MDC or response propagation.
 - Generate a server-side id when no valid inbound id exists.
 - Never log or echo unsanitized inbound values.
 
 Metrics:
 
 - The application owns the `MeterRegistry`.
-- Helpers may install `MicrometerMetrics` with a provided registry and optional
-  timers/tags.
+- Helpers may install `MicrometerMetrics` with a provided registry and optional timers/tags.
 - Prometheus support should be a route helper over an application-provided
   `PrometheusMeterRegistry`, not a global registry factory.
 
 ## Testing Contract
 
-Ktor `testApplication` runs requests internally without binding a real socket.
-The testing module should standardize setup and assertions while preserving
-ordinary Ktor test readability:
+Ktor `testApplication` runs requests internally without binding a real socket. The testing module should standardize setup and assertions while preserving ordinary Ktor test readability:
 
 - Use `createClient` for JSON-capable clients.
 - Reuse `ktor/core` JSON defaults.
 - Use bluetape4k assertion APIs in tests.
-- Keep real IO/Testcontainers tests outside this module unless a later issue
-  proves a reusable fixture belongs here.
+- Keep real IO/Testcontainers tests outside this module unless a later issue proves a reusable fixture belongs here.
 
 ## Module Registration And Release Rules
 
@@ -244,21 +204,17 @@ New modules must update the full registration chain:
 - No separate repository in the first slice.
 - No replacement of Ktor's plugin system.
 - No hidden framework auto-install through global mutable state.
-- No broad authentication/security framework before repeated requirements are
-  captured.
+- No broad authentication/security framework before repeated requirements are captured.
 - No KMP/Kotlin Native target in the initial server-focused modules.
 - No Ktor client production abstraction in the server foundation.
 
 ## Acceptance Criteria Mapping
 
 - Initial module set is `ktor/core`, `ktor/observability`, and `ktor/testing`.
-- The first implementation slice is #611 scaffold plus #612 core, with
-  observability/testing split into later PRs.
-- Coroutine cancellation and explicit plugin installation contracts are part of
-  the spec.
+- The first implementation slice is #611 scaffold plus #612 core, with observability/testing split into later PRs.
+- Coroutine cancellation and explicit plugin installation contracts are part of the spec.
 - Backlog split criteria are captured for client, resilience, OpenAPI, and auth.
-- Official Ktor 3.5.x documentation has been checked for the plugin APIs used by
-  the design.
+- Official Ktor 3.5.x documentation has been checked for the plugin APIs used by the design.
 
 ## References
 

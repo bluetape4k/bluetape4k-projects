@@ -1,5 +1,9 @@
 package io.bluetape4k.hibernate.reactive.examples.stage
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.criteria.createQueryAs
 import io.bluetape4k.hibernate.criteria.from
 import io.bluetape4k.hibernate.reactive.examples.model.Author
@@ -16,9 +20,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import jakarta.persistence.criteria.CriteriaQuery
 import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.hibernate.LazyInitializationException
 import org.hibernate.graph.RootGraph
 import org.junit.jupiter.api.BeforeAll
@@ -27,7 +28,6 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.time.LocalDate
 import java.time.Month
-import io.bluetape4k.assertions.assertFailsWith
 
 @Execution(ExecutionMode.SAME_THREAD)
 class StageSessionFactoryExamples: AbstractStageTest() {

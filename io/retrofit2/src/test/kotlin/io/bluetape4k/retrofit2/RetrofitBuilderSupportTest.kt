@@ -1,12 +1,12 @@
 package io.bluetape4k.retrofit2
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.retrofit2.clients.hc5.hc5CallFactoryOf
 import io.bluetape4k.retrofit2.result.ResultCallAdapterFactory
 import okhttp3.OkHttpClient
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET

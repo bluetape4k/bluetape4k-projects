@@ -20,8 +20,8 @@ REPORT_DIR="io/http/build/reports/benchmarks"
 echo "[http-benchmark] running ${TASK} ..." >&2
 
 ./gradlew "${TASK}" --rerun-tasks -q 2>&1 | tail -200 >&2 || {
-    echo "[http-benchmark] gradle task failed" >&2
-    exit 1
+  echo "[http-benchmark] gradle task failed" >&2
+  exit 1
 }
 
 # kotlinx-benchmark 는 build/reports/benchmarks/<target>/<timestamp>/<target>.json 에
@@ -29,8 +29,8 @@ echo "[http-benchmark] running ${TASK} ..." >&2
 LATEST_JSON="$(ls -1t "${REPORT_DIR}"/*/*/*.json 2>/dev/null | head -n 1 || true)"
 
 if [[ -z "${LATEST_JSON}" ]]; then
-    echo "[http-benchmark] no benchmark json result found under ${REPORT_DIR}" >&2
-    exit 2
+  echo "[http-benchmark] no benchmark json result found under ${REPORT_DIR}" >&2
+  exit 2
 fi
 
 echo "[http-benchmark] result json: ${LATEST_JSON}" >&2

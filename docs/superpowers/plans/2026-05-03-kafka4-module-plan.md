@@ -8,16 +8,16 @@
 
 ## 0. 결정사항
 
-| 항목 | 결정 |
-|---|---|
-| 모듈 전략 | `infra/kafka` 유지, `infra/kafka4` 병렬 신규 생성 |
-| Spring BOM | `implementation(platform(libs.spring.boot4.dependencies))` |
-| Spring Kafka alias | `spring-kafka4 = 4.0.5`, `spring-kafka4-test = 4.0.5` 별도 추가 |
-| Reactor Kafka alias | `reactor-kafka4` 별도 추가로 Kafka 4 classpath 경계 유지 |
-| Kafka artifact 정렬 | `infra/kafka4` 내부에서 `org.apache.kafka` group을 `kafka4` version ref로 강제 |
-| Jackson | Jackson 3 (`bluetape4k-jackson3`, `tools.jackson.*`, Spring Kafka 4 Jackson classes) |
-| Embedded Kafka | KRaft 전용, `kraft = true` 제거 |
-| Streams branch DSL | `KafkaStreamBrancher` 대신 Kafka Streams native `split/branch/defaultBranch` |
+| 항목                | 결정                                                                                 |
+|---------------------|--------------------------------------------------------------------------------------|
+| 모듈 전략           | `infra/kafka` 유지, `infra/kafka4` 병렬 신규 생성                                    |
+| Spring BOM          | `implementation(platform(libs.spring.boot4.dependencies))`                           |
+| Spring Kafka alias  | `spring-kafka4 = 4.0.5`, `spring-kafka4-test = 4.0.5` 별도 추가                      |
+| Reactor Kafka alias | `reactor-kafka4` 별도 추가로 Kafka 4 classpath 경계 유지                             |
+| Kafka artifact 정렬 | `infra/kafka4` 내부에서 `org.apache.kafka` group을 `kafka4` version ref로 강제       |
+| Jackson             | Jackson 3 (`bluetape4k-jackson3`, `tools.jackson.*`, Spring Kafka 4 Jackson classes) |
+| Embedded Kafka      | KRaft 전용, `kraft = true` 제거                                                      |
+| Streams branch DSL  | `KafkaStreamBrancher` 대신 Kafka Streams native `split/branch/defaultBranch`         |
 
 ## 1. 작업 순서
 

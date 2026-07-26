@@ -95,7 +95,7 @@ data class R2dbcPoolConfig(
         }
     }
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         /** 커넥션이 풀에서 유휴 상태를 유지할 최대 시간 기본값 */
         val DEFAULT_MAX_IDLE_TIME: Duration = Duration.ofMinutes(10)
 

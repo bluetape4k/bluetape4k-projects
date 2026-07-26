@@ -1,5 +1,7 @@
 package io.bluetape4k.vertx.examples
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -14,8 +16,6 @@ import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.coroutines.coAwait
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.fail
@@ -80,9 +80,9 @@ class SampleVerticleTest: AbstractVertxTest() {
 
     @Test
     fun `use SampleVerticle in coroutines`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.withSuspendTestContext(testContext) {
-                val deploymentCheckpoint = testContext.checkpoint()
-                val requestCheckpoint = testContext.checkpoint().asLatch(REPEAT_SIZE)
+        vertx.withSuspendTestContext(testContext) {
+            val deploymentCheckpoint = testContext.checkpoint()
+            val requestCheckpoint = testContext.checkpoint().asLatch(REPEAT_SIZE)
 
             val verticle = SampleVerticle()
             log.debug { "Deploy SampleVerticle" }

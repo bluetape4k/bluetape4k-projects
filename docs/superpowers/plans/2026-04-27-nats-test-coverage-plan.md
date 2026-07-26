@@ -64,7 +64,7 @@
 **파일**: `infra/nats/src/test/kotlin/io/bluetape4k/nats/client/PullSubscriptionOptionsTest.kt`
 
 - `pullSubscriptionOptions { stream("orders") }` → 빌더 경로
-- `pullSubscriptionOptionsOf("orders", "consumer-a")` → bind() 경로
+- `pullSubscriptionOptionsOf("orders", "consumer-a")` → bind () 경로
 - `pullSubscriptionOptionsOf("", "consumer-a")` → IllegalArgumentException
 - `pullSubscriptionOptionsOf("orders", "")` → IllegalArgumentException
 
@@ -77,9 +77,9 @@
 **파일**: `infra/nats/src/test/kotlin/io/bluetape4k/nats/client/PushSubscriptionOptionsTest.kt`
 
 - `pushSubscriptionOptions { stream("orders") }` → 빌더 경로
-- `pushSubscriptionOf("orders")` → stream() 경로
+- `pushSubscriptionOf("orders")` → stream () 경로
 - `pushSubscriptionOf("")` → IllegalArgumentException
-- `pushSubscriptionOf("orders", "consumer-a")` → bind() 경로
+- `pushSubscriptionOf("orders", "consumer-a")` → bind () 경로
 - `pushSubscriptionOf("orders", "")` → IllegalArgumentException
 
 **기대 커버**: PushSubscriptionOptions.kt +6라인
@@ -91,6 +91,7 @@
 **파일**: `infra/nats/src/test/kotlin/io/bluetape4k/nats/client/NatsMessageTest.kt`
 
 현재 10/20 커버. 추가 케이스:
+
 - `natsMessage { subject("foo"); data("hello") }` → 빌더 경로
 - `natsMessageOf(message: Message)` → MockK Message 래핑
 - `natsMessageOf("foo", "hello".toByteArray())` → ByteArray 경로
@@ -109,20 +110,22 @@
 MockK `Connection` 사용. 현재 23/50, 미커버 경로 집중:
 
 **동기 메서드**:
-- `publish(subject, body)` → Connection.publish(subject, null, bytes) 호출 verify
+
+- `publish(subject, body)` → Connection.publish (subject, null, bytes) 호출 verify
 - `publish(subject, replyTo, body)` → 3-arg publish 호출 verify
 - `request(subject, body)` → 응답 Message 반환
-- `requestAsync(subject, body, timeout = null)` → request() 경로
-- `requestAsync(subject, body, timeout = 1.seconds)` → requestWithTimeout() 경로
-- `flush(1.seconds)` → flush(java.time.Duration) 호출 verify
+- `requestAsync(subject, body, timeout = null)` → request () 경로
+- `requestAsync(subject, body, timeout = 1.seconds)` → requestWithTimeout () 경로
+- `flush(1.seconds)` → flush (java.time.Duration) 호출 verify
 
 **suspend 메서드** (`runTest`):
-- `requestSuspending(message, null)` → request(message).await()
-- `requestSuspending(message, 1.seconds)` → requestWithTimeout(message, ...).await()
-- `requestSuspending(subject, bytes)` → request(subject, null, bytes).await()
+
+- `requestSuspending(message, null)` → request (message).await ()
+- `requestSuspending(message, 1.seconds)` → requestWithTimeout (message, ...).await ()
+- `requestSuspending(subject, bytes)` → request (subject, null, bytes).await ()
 - `requestWithTimeoutSuspending(subject, bytes, timeout = null)` → null timeout 경로
 - `requestWithTimeoutSuspending(subject, bytes, timeout = 1.seconds)` → timeout 경로
-- `drainSuspending(1.seconds)` → drain(Duration) future await
+- `drainSuspending(1.seconds)` → drain (Duration) future await
 
 **기대 커버**: ConnectionExtensions.kt +12라인 (23/50 → 35/50+)
 
@@ -149,11 +152,11 @@ MockK `Connection` 사용. `ServiceBuilder`는 실제 객체 사용:
 
 MockK `Consumer` 사용:
 
-- `consumer.drain(100L)` → drain(Duration.ofMillis(100)) 호출 verify
+- `consumer.drain(100L)` → drain (Duration.ofMillis (100)) 호출 verify
 - `consumer.drain(0L)` → 경계값 0 허용
 - `consumer.drain(-1L)` → IllegalArgumentException (requireZeroOrPositiveNumber)
 - `consumer.drain(kotlin.time.Duration.ZERO)` → 경계값 0 허용
-- `consumer.drainSuspending(100L)` → runTest, await() 결과 true
+- `consumer.drainSuspending(100L)` → runTest, await () 결과 true
 - `consumer.drainSuspending(kotlin.time.Duration.ZERO)` → runTest, 경계값 허용
 
 **기대 커버**: Consumer.kt +7라인 (0/8 → 7/8+)
@@ -176,6 +179,7 @@ cd .worktrees/test-nats-coverage
 ### T12 — README.md + README.ko.md 업데이트 (complexity: low)
 
 **파일**:
+
 - `infra/nats/README.md`
 - `infra/nats/README.ko.md`
 
@@ -185,18 +189,18 @@ cd .worktrees/test-nats-coverage
 
 ## 예상 커버리지 개선 요약
 
-| Task | 파일 | 기대 추가 라인 |
-|------|------|-------------|
-| T1 | Options.kt | +12 |
-| T2 | JetStreamOptions.kt | +15 |
-| T3 | PublishOptions.kt | +5 |
-| T4 | KeyValueOptions.kt | +6 |
-| T5 | PullSubscriptionOptions.kt | +3 |
-| T6 | PushSubscriptionOptions.kt | +6 |
-| T7 | NatsMessage.kt | +10 |
-| T8 | ConnectionExtensions.kt | +12 |
-| T9 | Service.kt | +10 |
-| T10 | Consumer.kt | +7 |
-| **합계** | | **+86라인** (목표 +68라인 초과) |
+| Task     | 파일                       | 기대 추가 라인                  |
+|----------|----------------------------|---------------------------------|
+| T1       | Options.kt                 | +12                             |
+| T2       | JetStreamOptions.kt        | +15                             |
+| T3       | PublishOptions.kt          | +5                              |
+| T4       | KeyValueOptions.kt         | +6                              |
+| T5       | PullSubscriptionOptions.kt | +3                              |
+| T6       | PushSubscriptionOptions.kt | +6                              |
+| T7       | NatsMessage.kt             | +10                             |
+| T8       | ConnectionExtensions.kt    | +12                             |
+| T9       | Service.kt                 | +10                             |
+| T10      | Consumer.kt                | +7                              |
+| **합계** |                            | **+86라인** (목표 +68라인 초과) |
 
 현재 160 + 86 = 246/326 = **75.5%** (예상)

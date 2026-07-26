@@ -1,5 +1,7 @@
 package io.bluetape4k.coroutines.reactor
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.awaitFirst
@@ -7,8 +9,6 @@ import kotlinx.coroutines.reactor.asCoroutineContext
 import kotlinx.coroutines.reactor.asFlux
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
 import reactor.util.context.Context

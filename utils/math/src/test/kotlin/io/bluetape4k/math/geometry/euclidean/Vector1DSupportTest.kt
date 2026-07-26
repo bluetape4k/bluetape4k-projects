@@ -1,13 +1,13 @@
 package io.bluetape4k.math.geometry.euclidean
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.logging.KLogging
 import org.apache.commons.math3.geometry.euclidean.oned.Vector1D
 import org.junit.jupiter.api.Test
 
 class Vector1DSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `두 1차원 벡터를 더할 수 있다`() {

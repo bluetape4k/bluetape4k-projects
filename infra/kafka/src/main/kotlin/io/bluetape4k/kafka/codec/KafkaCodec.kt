@@ -208,12 +208,12 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
             ) {
                 log.warn {
                     "[SECURITY] Rejected class '$clazzName' from Kafka header — not in allowedTypePackages=$allowedTypePackages. " +
-                    "If intentional, add the package to allowedTypePackages or use ALLOW_ALL_TYPES_UNSAFE (unsafe)."
+                            "If intentional, add the package to allowedTypePackages or use ALLOW_ALL_TYPES_UNSAFE (unsafe)."
                 }
                 throw IllegalArgumentException(
                     "Class '$clazzName' is not in allowedTypePackages=$allowedTypePackages. " +
-                    "Add the package to allowedTypePackages, or set allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE " +
-                    "to allow all types (unsafe)."
+                            "Add the package to allowedTypePackages, or set allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE " +
+                            "to allow all types (unsafe)."
                 )
             }
         }

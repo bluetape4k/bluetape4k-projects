@@ -1,8 +1,8 @@
 package io.bluetape4k.math.commons
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class MomentTest {

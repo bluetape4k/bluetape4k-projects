@@ -168,17 +168,17 @@ class LettuceVersionedKeysetStore(
 
         private const val RELEASE_LOCK_SCRIPT: String =
             "if redis.call('get', KEYS[1]) == ARGV[1] then " +
-                "return redis.call('del', KEYS[1]) " +
-                "else return 0 end"
+                    "return redis.call('del', KEYS[1]) " +
+                    "else return 0 end"
 
         private const val PERSIST_ACTIVATED_IF_OWNED_SCRIPT: String =
             "if redis.call('get', KEYS[1]) == ARGV[1] then " +
-                "redis.call('pexpire', KEYS[1], ARGV[2]) " +
-                "redis.call('hset', KEYS[2], ARGV[3], ARGV[4]) " +
-                "redis.call('hset', KEYS[3], ARGV[3], ARGV[5]) " +
-                "redis.call('set', KEYS[4], ARGV[3]) " +
-                "return 1 " +
-                "else return 0 end"
+                    "redis.call('pexpire', KEYS[1], ARGV[2]) " +
+                    "redis.call('hset', KEYS[2], ARGV[3], ARGV[4]) " +
+                    "redis.call('hset', KEYS[3], ARGV[3], ARGV[5]) " +
+                    "redis.call('set', KEYS[4], ARGV[3]) " +
+                    "return 1 " +
+                    "else return 0 end"
 
         internal fun releaseLockIfOwned(
             commands: io.lettuce.core.api.sync.RedisCommands<String, String>,

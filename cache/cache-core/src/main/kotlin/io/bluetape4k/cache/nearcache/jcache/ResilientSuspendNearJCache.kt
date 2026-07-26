@@ -265,7 +265,10 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      */
     suspend fun putAll(entries: Map<K, V>) {
         val entriesSnapshot = entries.toMap()
-        enqueueWrite(BackJCacheCommand.PutAll(entriesSnapshot), "Write channel full for PutAll entries=${entries.size}") {
+        enqueueWrite(
+            BackJCacheCommand.PutAll(entriesSnapshot),
+            "Write channel full for PutAll entries=${entries.size}"
+        ) {
             tombstones.removeAll(entriesSnapshot.keys)
             frontCache.putAll(entriesSnapshot)
         }

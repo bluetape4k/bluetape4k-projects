@@ -63,7 +63,7 @@ import java.time.Duration
  */
 class R2dbcConnectionConfig {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     /** R2DBC 드라이버 이름 (예: "h2", "mysql", "postgresql") — 필수 */
     var driver: String = ""
@@ -119,7 +119,7 @@ class R2dbcConnectionConfig {
      * @param key r2dbc-spi [Option] 키
      * @param value 옵션 값
      */
-    fun <T : Any> option(key: Option<T>, value: T) {
+    fun <T: Any> option(key: Option<T>, value: T) {
         extraOptions += key to value
     }
 

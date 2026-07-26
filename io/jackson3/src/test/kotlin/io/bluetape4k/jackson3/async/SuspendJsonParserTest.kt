@@ -1,6 +1,11 @@
 package io.bluetape4k.jackson3.async
 
 import com.fasterxml.jackson.core.JsonProcessingException
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.jackson3.treeToValueOrNull
 import io.bluetape4k.jackson3.writeAsBytes
@@ -13,16 +18,11 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import tools.jackson.module.kotlin.treeToValue
 import java.io.Serializable
 import java.util.concurrent.atomic.AtomicInteger
-import io.bluetape4k.assertions.assertFailsWith
 
 class SuspendJsonParserTest {
     companion object: KLoggingChannel()

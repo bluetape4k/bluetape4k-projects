@@ -1,12 +1,12 @@
 package io.bluetape4k.hibernate.cache.lettuce
 
-import io.bluetape4k.hibernate.cache.lettuce.model.Person
-import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.hibernate.cache.lettuce.model.Person
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import org.hibernate.cache.spi.RegionFactory
 import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.junit.jupiter.api.Assumptions.assumeTrue

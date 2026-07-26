@@ -1,9 +1,9 @@
 package io.bluetape4k.csv
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 /**
@@ -13,9 +13,13 @@ import org.junit.jupiter.api.Test
  */
 class RFC4180ComplianceTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
-    private fun read(csv: String, settings: CsvSettings = CsvSettings.DEFAULT, skipHeaders: Boolean = false): List<Record> =
+    private fun read(
+        csv: String,
+        settings: CsvSettings = CsvSettings.DEFAULT,
+        skipHeaders: Boolean = false
+    ): List<Record> =
         CsvRecordReader(settings).read(csv.byteInputStream(), skipHeaders = skipHeaders).toList()
 
     // ── 섹션 2: 레코드 구분 ──────────────────────────────

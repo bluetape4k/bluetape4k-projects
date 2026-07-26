@@ -1,12 +1,14 @@
 # Cassandra Detailed Manual Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** `bluetape4k-cassandra`를 1.11.0 source/test에 고정된 한국어·영문 landing과 5개 상세 chapter를 갖춘 versioned manual로 게시한다.
 
 **Architecture:** `bluetape4k-projects/docs/manual`이 기술 설명의 source of truth이며 landing은 선택 지도, 하위 chapter는 session, coroutine query, data mapping, statement 작성, 운영·테스트 책임을 각각 소유한다. Manifest가 bilingual inventory를 선언하고 Projects validator가 1.11.0 release path를 검증한 뒤, `bluetape4k.github.io`가 같은 release commit을 유지한 채 1.11 snapshot을 editorial refresh한다.
 
-**Tech Stack:** Markdown, YAML, Kotlin/Apache Cassandra Java Driver API examples, Ruby/Minitest manual validators, Gradle/JUnit 5/Testcontainers, Node.js manual snapshot tests, Astro/Starlight, browser visual QA
+**Tech
+Stack:** Markdown, YAML, Kotlin/Apache Cassandra Java Driver API examples, Ruby/Minitest manual validators, Gradle/JUnit 5/Testcontainers, Node.js manual snapshot tests, Astro/Starlight, browser visual QA
 
 ---
 
@@ -53,21 +55,22 @@ Site의 generated manual 파일과 data JSON은 직접 편집하지 않고 `npm 
 
 ## Release evidence ledger
 
-| 계약 | 1.11.0 근거 | 매뉴얼 결론 |
-| --- | --- | --- |
-| Session cache identity | `CqlSessionProvider.kt`, `CqlSessionProviderTest.kt`, PR #919 | keyspace만으로 cache하지 않고 connection/tenant context를 명시한다. |
-| Bootstrap builder | 1.11.0 `CqlSessionProvider.kt`; post-release PR #986 | admin session은 builder block을 받지 않는다. bootstrap 설정은 `builderSupplier`에 넣거나 keyspace를 별도 관리한다. |
-| Direct session ownership | `CqlSessionSupport.kt`, `CqlSessionSupportTest.kt` | `cqlSession`/`cqlSessionOf`로 만든 session은 caller가 닫는다. |
-| Provider shutdown | `CqlSessionProvider.kt`, `ShutdownQueue` registration | provider가 만든 final session은 process shutdown queue에 등록된다. |
-| Suspend query | `AsyncCqlSessionSupport.kt`와 test | `executeSuspending`/`prepareSuspending`을 사용하고 deprecated alias는 migration note로만 둔다. |
-| Multi-page Flow | `AsyncResultSetSupport.kt`와 unit/integration test | 현재 page를 방출한 뒤 next page를 순차 fetch하며 cancellation을 재전파한다. |
-| Row/value mapping | `RowSupport.kt`, `GettableSupport.kt`, `SettableSupport.kt`와 tests/examples | dynamic map과 typed domain mapping의 용도를 구분한다. |
-| Statements/QueryBuilder | `StatementSupport.kt`, `querybuilder/*.kt`와 examples | raw, prepared/bound, builder 방식을 task와 safety 기준으로 비교한다. |
-| Admin/testing | `CassandraAdmin.kt`, `AbstractCassandraTest.kt`, admin/provider/async tests | bootstrap side effect와 Testcontainers 검증 경계를 문서화한다. |
+| 계약                     | 1.11.0 근거                                                                  | 매뉴얼 결론                                                                                                        |
+|--------------------------|------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| Session cache identity   | `CqlSessionProvider.kt`, `CqlSessionProviderTest.kt`, PR #919                | keyspace만으로 cache하지 않고 connection/tenant context를 명시한다.                                                |
+| Bootstrap builder        | 1.11.0 `CqlSessionProvider.kt`; post-release PR #986                         | admin session은 builder block을 받지 않는다. bootstrap 설정은 `builderSupplier`에 넣거나 keyspace를 별도 관리한다. |
+| Direct session ownership | `CqlSessionSupport.kt`, `CqlSessionSupportTest.kt`                           | `cqlSession`/`cqlSessionOf`로 만든 session은 caller가 닫는다.                                                      |
+| Provider shutdown        | `CqlSessionProvider.kt`, `ShutdownQueue` registration                        | provider가 만든 final session은 process shutdown queue에 등록된다.                                                 |
+| Suspend query            | `AsyncCqlSessionSupport.kt`와 test                                           | `executeSuspending`/`prepareSuspending`을 사용하고 deprecated alias는 migration note로만 둔다.                     |
+| Multi-page Flow          | `AsyncResultSetSupport.kt`와 unit/integration test                           | 현재 page를 방출한 뒤 next page를 순차 fetch하며 cancellation을 재전파한다.                                        |
+| Row/value mapping        | `RowSupport.kt`, `GettableSupport.kt`, `SettableSupport.kt`와 tests/examples | dynamic map과 typed domain mapping의 용도를 구분한다.                                                              |
+| Statements/QueryBuilder  | `StatementSupport.kt`, `querybuilder/*.kt`와 examples                        | raw, prepared/bound, builder 방식을 task와 safety 기준으로 비교한다.                                               |
+| Admin/testing            | `CassandraAdmin.kt`, `AbstractCassandraTest.kt`, admin/provider/async tests  | bootstrap side effect와 Testcontainers 검증 경계를 문서화한다.                                                     |
 
 ### Task 1: Landing과 session lifecycle을 작성한다
 
 **Files:**
+
 - Modify: `docs/manual/ko/modules/bluetape4k-cassandra.md`
 - Modify: `docs/manual/en/modules/bluetape4k-cassandra.md`
 - Create: `docs/manual/ko/modules/bluetape4k-cassandra/session-lifecycle.md`
@@ -233,6 +236,7 @@ git commit -m "Teach Cassandra session ownership before query helpers" \
 ### Task 2: Coroutine query와 multi-page Flow chapter를 작성한다
 
 **Files:**
+
 - Create: `docs/manual/ko/modules/bluetape4k-cassandra/coroutine-queries.md`
 - Create: `docs/manual/en/modules/bluetape4k-cassandra/coroutine-queries.md`
 
@@ -326,6 +330,7 @@ git commit -m "Explain Cassandra paging as a coroutine contract" \
 ### Task 3: Row와 data mapping chapter를 작성한다
 
 **Files:**
+
 - Create: `docs/manual/ko/modules/bluetape4k-cassandra/rows-data-mapping.md`
 - Create: `docs/manual/en/modules/bluetape4k-cassandra/rows-data-mapping.md`
 
@@ -400,6 +405,7 @@ git commit -m "Separate Cassandra typed mapping from dynamic row views" \
 ### Task 4: Statement와 QueryBuilder chapter를 작성한다
 
 **Files:**
+
 - Create: `docs/manual/ko/modules/bluetape4k-cassandra/statements-query-builder.md`
 - Create: `docs/manual/en/modules/bluetape4k-cassandra/statements-query-builder.md`
 
@@ -435,13 +441,13 @@ chapterId: statements-query-builder
 
 선택 표는 다음 결론을 사용한다.
 
-| 상황 | 선택 |
-| --- | --- |
-| 고정 CQL을 한 번 실행 | `statementOf` |
-| 같은 CQL을 다른 값으로 반복 | prepared + bound statement |
-| 조건부 CRUD를 조립 | QueryBuilder |
+| 상황                         | 선택                                          |
+|------------------------------|-----------------------------------------------|
+| 고정 CQL을 한 번 실행        | `statementOf`                                 |
+| 같은 CQL을 다른 값으로 반복  | prepared + bound statement                    |
+| 조건부 CRUD를 조립           | QueryBuilder                                  |
 | 같은 partition의 원자적 묶음 | Cassandra semantics를 확인한 `BatchStatement` |
-| 값이 섞인 문자열 조합 | 사용하지 않고 bind marker 사용 |
+| 값이 섞인 문자열 조합        | 사용하지 않고 bind marker 사용                |
 
 - [ ] **Step 3: prepared와 QueryBuilder 비교 예제를 작성한다**
 
@@ -492,6 +498,7 @@ git commit -m "Choose Cassandra statement APIs by binding boundary" \
 ### Task 5: 운영·테스트 chapter를 작성한다
 
 **Files:**
+
 - Create: `docs/manual/ko/modules/bluetape4k-cassandra/operations-testing.md`
 - Create: `docs/manual/en/modules/bluetape4k-cassandra/operations-testing.md`
 
@@ -576,6 +583,7 @@ git commit -m "Make Cassandra operations and test boundaries explicit" \
 ### Task 6: Manifest 등록과 Projects 전체 검증을 완료한다
 
 **Files:**
+
 - Modify: `docs/manual/manifest.yaml`
 - Modify: `docs/manual/generated/manifest.json`
 - Modify: `docs/superpowers/checklists/2026-07-13-cassandra-manual-checklist.md`
@@ -686,6 +694,7 @@ Expected: scoped status is empty and a 40-character Projects source commit is pr
 **Repository:** `/Users/debop/work/bluetape4k/bluetape4k.github.io/.worktrees/feature-ecosystem-atlas-manual`
 
 **Files:**
+
 - Generated: `src/content/docs/ko/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra.md`
 - Generated: `src/content/docs/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra.md`
 - Generated: `src/content/docs/{ko/,}manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra/{session-lifecycle,coroutine-queries,rows-data-mapping,statements-query-builder,operations-testing}.md`

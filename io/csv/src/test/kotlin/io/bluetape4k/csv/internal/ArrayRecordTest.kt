@@ -1,14 +1,14 @@
 package io.bluetape4k.csv.internal
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class ArrayRecordTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private fun makeRecord(
         values: Array<String?> = arrayOf("a", "b", "c"),

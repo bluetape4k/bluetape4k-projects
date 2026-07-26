@@ -4,7 +4,7 @@
 - **브랜치**: `issue-130-image-similarity` (`.worktrees/issue-130-image-similarity`)
 - **작성일**: 2026-04-26
 - **모듈**: `bluetape4k-images` (`utils/images`)
-- **의존성 가정**: scrimage `4.3.10`, Kotlin `2.3`, JDK `21`, BoofCV 미도입(1차)
+- **의존성 가정**: scrimage `4.3.10`, Kotlin `2.3`, JDK `21`, BoofCV 미도입 (1차)
 
 ---
 
@@ -14,14 +14,14 @@
 
 기존 코드는 단일 파일에 다음 6개 지표를 top-level 확장 함수로 제공한다.
 
-| 함수 | 동작 | 한계 |
-|---|---|---|
-| `pixelAvgDeltaTo` / `pixelMaxDeltaTo` | 채널별 절대 차이 평균/최대 | 픽셀 레벨, 시각적 유사도와 괴리 |
-| `mseTo` / `psnrTo` | RGB MSE 및 PSNR | 인지적 거리 측정 부족 |
-| `ssimTo` | **글로벌 SSIM** (전체 이미지를 단일 윈도우로 처리) | 사실상 정규화된 cross-correlation. 국소 구조 무시. 표준 SSIM과 결과 다름 |
-| `phash()` | 32×32 → DCT-II → 8×8 저주파 → 64bit 해시 | **64bit 고정**, 비트 수 옵션 없음. 작은 변형에는 유용하지만 대규모 코퍼스에서 충돌률↑ |
-| `phashDistanceTo` | pHash Hamming distance | 단일 알고리즘 — aHash/dHash/wHash 없음 |
-| `hammingDistance(Long, Long)` | 64bit 비트 차이 | LongArray (256bit/1024bit) 미지원 |
+| 함수                                  | 동작                                               | 한계                                                                                  |
+|---------------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------------|
+| `pixelAvgDeltaTo` / `pixelMaxDeltaTo` | 채널별 절대 차이 평균/최대                         | 픽셀 레벨, 시각적 유사도와 괴리                                                       |
+| `mseTo` / `psnrTo`                    | RGB MSE 및 PSNR                                    | 인지적 거리 측정 부족                                                                 |
+| `ssimTo`                              | **글로벌 SSIM** (전체 이미지를 단일 윈도우로 처리) | 사실상 정규화된 cross-correlation. 국소 구조 무시. 표준 SSIM과 결과 다름              |
+| `phash()`                             | 32×32 → DCT-II → 8×8 저주파 → 64bit 해시           | **64bit 고정**, 비트 수 옵션 없음. 작은 변형에는 유용하지만 대규모 코퍼스에서 충돌률↑ |
+| `phashDistanceTo`                     | pHash Hamming distance                             | 단일 알고리즘 — aHash/dHash/wHash 없음                                                |
+| `hammingDistance(Long, Long)`         | 64bit 비트 차이                                    | LongArray (256bit/1024bit) 미지원                                                     |
 
 내부 헬퍼: `luminance(Pixel)`, `requireSameSize`, `dct2d(input, n)`, 상수 `PIXEL_MAX`, `SSIM_C1/C2`, `PHASH_SIZE/LOW_SIZE/BITS`.
 
@@ -36,25 +36,20 @@
 ### 1.3 실무 시나리오
 
 - **eCommerce 중복 상품 이미지 제거**: 서로 다른 사이즈/JPEG 품질로 업로드된 동일 이미지 식별 → pHash + MSSIM 조합.
-- **콘텐츠 추천 (유사 이미지 검색)**: 색감 유사도(히스토그램) + 구조 유사도(MSSIM/pHash) 가중 스코어.
+- **콘텐츠 추천 (유사 이미지 검색)**: 색감 유사도 (히스토그램) + 구조 유사도 (MSSIM/pHash) 가중 스코어.
 - **저작권/표절 검사**: 잘라내기·회전된 변형 탐지 → 키포인트 + 다중 해시 비교.
-- **이미지 회귀 테스트**: 픽셀 레벨(`pixelMaxDelta`) + 인지 레벨(`mssim`) 동시 검증.
+- **이미지 회귀 테스트**: 픽셀 레벨 (`pixelMaxDelta`) + 인지 레벨 (`mssim`) 동시 검증.
 
 ### 1.4 제약
 
 - **scrimage 4.3.10 + JDK 표준 라이브러리 only** — 이슈 #130 1차 PR에서는 BoofCV/OpenCV 도입 회피.
 - **파일당 최대 ~800라인** — 현 파일에 5개 기능 추가 시 1500라인 초과 → 분할 필수.
 - **공개 API 안정성** — 기존 함수 시그니처 변경 금지, deprecated 처리 없이 그대로 유지.
-- **bluetape4k 컨벤션** — top-level 확장 함수 + `companion object : KLoggingChannel()` + KDoc(한국어 허용).
+- **bluetape4k 컨벤션** — top-level 확장 함수 + `companion object : KLoggingChannel()` + KDoc (한국어 허용).
 - **JUnit 5 + MockK + bluetape4k-assertions** — 테스트 프레임워크 고정. `shouldBeInRange` 등 비교 matcher 사용.
-- **재현성** — 동일 입력 동일 결과(난수 사용 금지). 해시 알고리즘에서 `ScaleMethod.Bicubic` 고정 (scrimage 기본값, `HASH_SCALE_METHOD` 상수화).
+- **재현성** — 동일 입력 동일 결과 (난수 사용 금지). 해시 알고리즘에서 `ScaleMethod.Bicubic` 고정 (scrimage 기본값, `HASH_SCALE_METHOD` 상수화).
 - **이미지 크기 정책 (통일 기준)**:
-  | 측정 종류 | 크기 다른 이미지 처리 |
-  |---|---|
-  | `pixelAvgDeltaTo`, `mseTo`, `psnrTo`, `ssimTo`, `mssimTo` | `requireSameSize` — IllegalArgumentException |
-  | `ahash`, `dhash`, `whash`, `phash`, `phashOf` | 내부 `scaleTo` 리사이즈 (크기 무관) |
-  | `HistogramSimilarity.measure` | 허용 — 정규화된 히스토그램(sum=1.0) 비교 |
-  | `blockMeanSimilarityTo`, `bestRotationSimilarityTo` | 내부 그리드 정규화 (크기 무관) |
+  | 측정 종류 | 크기 다른 이미지 처리 | |---|---| | `pixelAvgDeltaTo`, `mseTo`, `psnrTo`, `ssimTo`, `mssimTo` | `requireSameSize` — IllegalArgumentException | | `ahash`, `dhash`, `whash`, `phash`, `phashOf` | 내부 `scaleTo` 리사이즈 (크기 무관) | | `HistogramSimilarity.measure` | 허용 — 정규화된 히스토그램 (sum=1.0) 비교 | | `blockMeanSimilarityTo`, `bestRotationSimilarityTo` | 내부 그리드 정규화 (크기 무관) |
 
 ---
 
@@ -62,57 +57,57 @@
 
 ### 2.1 Risk: MSSIM sliding window — 작은 이미지
 
-- **상황**: 이미지의 너비 또는 높이가 windowSize(11) 미만일 때 윈도우를 만들 수 없음.
+- **상황**: 이미지의 너비 또는 높이가 windowSize (11) 미만일 때 윈도우를 만들 수 없음.
 - **영향**: ArrayIndexOutOfBoundsException 또는 NaN.
 - **완화**:
-  1. `min(width, height) < windowSize` → `IllegalArgumentException` with 명확한 메시지.
-  2. (옵션) `windowSize` 자동 축소 모드는 도입하지 않음(예측 가능성 우선).
-  3. 테스트에서 7×7, 11×11, 12×12 경계 케이스 명시적으로 검증.
+    1. `min(width, height) < windowSize` → `IllegalArgumentException` with 명확한 메시지.
+    2. (옵션) `windowSize` 자동 축소 모드는 도입하지 않음 (예측 가능성 우선).
+    3. 테스트에서 7×7, 11×11, 12×12 경계 케이스 명시적으로 검증.
 
 ### 2.2 Risk: wHash Haar wavelet — 2의 거듭제곱이 아닌 크기
 
-- **상황**: Haar DWT는 입력 크기가 2^n 이어야 한다(level별 1/2 다운샘플).
+- **상황**: Haar DWT는 입력 크기가 2^n 이어야 한다 (level별 1/2 다운샘플).
 - **영향**: 임의 입력 이미지를 그대로 변환 시 엣지 픽셀 손실 / 비대칭 변환.
 - **완화**:
-  1. wHash 입력을 항상 `WHASH_SIZE = 64` (2^6) 또는 `32`로 강제 리사이즈 후 변환.
-  2. 8×8 저주파 블록 추출 → 64bit 해시.
-  3. 사용자가 크기를 변경할 수 있더라도 `require(size and (size - 1) == 0)` 검증.
+    1. wHash 입력을 항상 `WHASH_SIZE = 64` (2^6) 또는 `32`로 강제 리사이즈 후 변환.
+    2. 8×8 저주파 블록 추출 → 64bit 해시.
+    3. 사용자가 크기를 변경할 수 있더라도 `require(size and (size - 1) == 0)` 검증.
 
 ### 2.3 Risk: 히스토그램 유사도 — 크기 다른 이미지
 
 - **상황**: pixelDelta/MSE/SSIM은 동일 크기 강제이나, 히스토그램은 크기·종횡비 무관 비교가 가능.
 - **영향**: 정책 일관성 결여 시 사용자 혼란.
 - **완화 (의도된 정책)**:
-  1. 히스토그램 기반 측정은 **크기 다른 이미지 허용** — 정규화된 히스토그램(`sum=1.0`) 비교.
-  2. KDoc + 함수명에 명시("크기 무관, 색감 분포만 비교").
-  3. EMD 계산 시 1D 누적분포(CDF) 차이로 단순화 → O(N) 비용.
+    1. 히스토그램 기반 측정은 **크기 다른 이미지 허용** — 정규화된 히스토그램 (`sum=1.0`) 비교.
+    2. KDoc + 함수명에 명시 ("크기 무관, 색감 분포만 비교").
+    3. EMD 계산 시 1D 누적분포 (CDF) 차이로 단순화 → O (N) 비용.
 
 ### 2.4 Risk: 1024bit 해시 LongArray 비교 비용
 
 - **상황**: `PHashSize.BITS_1024` → 16개 Long. Hamming distance를 N×M 코퍼스에서 호출.
-- **영향**: 충분히 빠르지만 잘못된 구현(예: BitSet 변환) 시 GC 압박.
+- **영향**: 충분히 빠르지만 잘못된 구현 (예: BitSet 변환) 시 GC 압박.
 - **완화**:
-  1. `LongArray` 직접 비교 — `Long.countOneBits(a[i] xor b[i])` 누적.
-  2. 길이 불일치 시 `IllegalArgumentException`.
-  3. 마이크로벤치마크 필수는 아니나, 1024bit 1만쌍 비교 < 50ms 정도면 OK (체크리스트).
+    1. `LongArray` 직접 비교 — `Long.countOneBits(a[i] xor b[i])` 누적.
+    2. 길이 불일치 시 `IllegalArgumentException`.
+    3. 마이크로벤치마크 필수는 아니나, 1024bit 1만쌍 비교 < 50ms 정도면 OK (체크리스트).
 
 ### 2.5 Risk: Block-Mean descriptor — 회전/스케일 미대응
 
 - **상황**: keypoint 매칭으로 SIFT/ORB 수준의 robust 매칭을 기대할 수 있음.
 - **영향**: 스케일·회전 변형에 약함 → 사용자 기대치와 결과 괴리.
 - **완화**:
-  1. KDoc에 명시: "이동/JPEG 압축에 견고. 회전·스케일에는 제한적. SIFT/ORB가 필요하면 BoofCV 통합을 별도 이슈에서 추진".
-  2. 90° 회전 케이스만 옵션 매칭(`bestRotationSimilarityTo` — 0/90/180/270 회전 4개 비교 후 최댓값) 제공.
-  3. Block-Mean descriptor는 8×8 그리드 평균 휘도 → L2 거리 → `1/(1+L2)` 정규화 점수.
+    1. KDoc에 명시: "이동/JPEG 압축에 견고. 회전·스케일에는 제한적. SIFT/ORB가 필요하면 BoofCV 통합을 별도 이슈에서 추진".
+    2. 90° 회전 케이스만 옵션 매칭 (`bestRotationSimilarityTo` — 0/90/180/270 회전 4개 비교 후 최댓값) 제공.
+    3. Block-Mean descriptor는 8×8 그리드 평균 휘도 → L2 거리 → `1/(1+L2)` 정규화 점수.
 
 ### 2.6 Risk: HSV 변환 정확도
 
 - **상황**: `Color.RGBtoHSB(r, g, b, null)` → FloatArray (H, S, V) ∈ [0,1]. H는 wrap-around (0과 1이 같은 빨강).
 - **영향**: H bin을 단순 [0..255] 정수화하면 H=0과 H=255가 멀게 계산됨.
 - **완화**:
-  1. HSV 히스토그램은 H 채널을 circular bin으로 처리 — Bhattacharyya/Chi-Square는 영향 없음(쌍별 bin 비교).
-  2. EMD에는 H 채널 wrap 보정 필요 → 1차 PR에서는 V/S 채널 사용 권장 또는 H 채널 EMD 미지원으로 제한.
-  3. KDoc로 한계 명시.
+    1. HSV 히스토그램은 H 채널을 circular bin으로 처리 — Bhattacharyya/Chi-Square는 영향 없음 (쌍별 bin 비교).
+    2. EMD에는 H 채널 wrap 보정 필요 → 1차 PR에서는 V/S 채널 사용 권장 또는 H 채널 EMD 미지원으로 제한.
+    3. KDoc로 한계 명시.
 
 ---
 
@@ -132,13 +127,13 @@ data class HistogramChiSquare(val space: ColorSpace) : SimilarityMeasure<Double>
 ```
 
 - **장점**:
-  - 측정 로직을 객체로 모델링 → 컴포지션·체인 적용 쉬움 (`measures.map { it.measure(a, b) }`).
-  - `sealed`로 새 측정자 도입 시 컴파일러가 안내.
-  - DI/테스트에서 fake 주입 용이.
+    - 측정 로직을 객체로 모델링 → 컴포지션·체인 적용 쉬움 (`measures.map { it.measure(a, b) }`).
+    - `sealed`로 새 측정자 도입 시 컴파일러가 안내.
+    - DI/테스트에서 fake 주입 용이.
 - **단점**:
-  - bluetape4k 컨벤션과 어긋남 — 기존 모든 지표가 top-level 확장 함수.
-  - 매번 `Mssim.measure(a, b)` vs `a.mssimTo(b)` — 호출 사이트가 길어짐.
-  - 기존 `ssimTo`/`phash` 와의 일관성 깨짐 (마이그레이션 부담).
+    - bluetape4k 컨벤션과 어긋남 — 기존 모든 지표가 top-level 확장 함수.
+    - 매번 `Mssim.measure(a, b)` vs `a.mssimTo(b)` — 호출 사이트가 길어짐.
+    - 기존 `ssimTo`/`phash` 와의 일관성 깨짐 (마이그레이션 부담).
 
 ### 3.2 접근 B — Top-level 확장 함수 + 파일 분할 (현 스타일 유지)
 
@@ -154,33 +149,33 @@ fun ImmutableImage.phash(size: PHashSize = PHashSize.BITS_64): LongArray  // ←
 ```
 
 - **장점**:
-  - 기존 `pixelAvgDeltaTo` / `phashDistanceTo` / `ssimTo` 와 일관.
-  - import 만 하면 IDE 자동완성으로 발견.
-  - Kotlin idiomatic — DSL 빌더 없이 자연스러움.
+    - 기존 `pixelAvgDeltaTo` / `phashDistanceTo` / `ssimTo` 와 일관.
+    - import 만 하면 IDE 자동완성으로 발견.
+    - Kotlin idiomatic — DSL 빌더 없이 자연스러움.
 - **단점**:
-  - 히스토그램처럼 "옵션 객체"가 필요한 경우(색공간, bin count) 인자가 늘어나기 쉬움.
-  - 다형성 측정자 패턴 사용처(예: 일괄 비교)에서 어색함.
+    - 히스토그램처럼 "옵션 객체"가 필요한 경우 (색공간, bin count) 인자가 늘어나기 쉬움.
+    - 다형성 측정자 패턴 사용처 (예: 일괄 비교)에서 어색함.
 
 ### 3.3 접근 C — 하이브리드 (top-level + 옵션 객체 sealed interface)
 
 - 단순 측정 (`mssim`, `ahash` 등): top-level 확장 함수.
 - 다형성 옵션이 있는 측정 (히스토그램의 색공간/거리 함수): sealed interface `HistogramSimilarity` + `companion` 팩토리.
 - **장점**:
-  - 단순 케이스는 짧게, 옵션 많은 케이스는 명시적으로.
-  - 기존 컨벤션 보존 + 신규 기능에 표현력 부여.
-  - sealed when 으로 거리 함수 추가 시 컴파일러가 안내.
+    - 단순 케이스는 짧게, 옵션 많은 케이스는 명시적으로.
+    - 기존 컨벤션 보존 + 신규 기능에 표현력 부여.
+    - sealed when 으로 거리 함수 추가 시 컴파일러가 안내.
 - **단점**:
-  - 두 스타일 혼재 — 학습 비용 약간 증가. KDoc/README에서 선택 기준 명확화 필요.
+    - 두 스타일 혼재 — 학습 비용 약간 증가. KDoc/README에서 선택 기준 명확화 필요.
 
 ### 3.4 비교 표
 
-| 축 | A (sealed only) | B (top-level only) | C (hybrid) |
-|---|---|---|---|
-| 기존 컨벤션 일관성 | 낮음 | 높음 | 높음 |
-| 다형성/체인 사용성 | 높음 | 낮음 | 중간(필요한 곳만) |
-| 학습 비용 | 중 | 낮음 | 낮음~중 |
-| 옵션 많은 측정 표현 | 우수 | 인자 폭발 위험 | 우수 |
-| 마이그레이션 비용 | 큼 | 없음 | 거의 없음 |
+| 축                  | A (sealed only) | B (top-level only) | C (hybrid)        |
+|---------------------|-----------------|--------------------|-------------------|
+| 기존 컨벤션 일관성  | 낮음            | 높음               | 높음              |
+| 다형성/체인 사용성  | 높음            | 낮음               | 중간(필요한 곳만) |
+| 학습 비용           | 중              | 낮음               | 낮음~중           |
+| 옵션 많은 측정 표현 | 우수            | 인자 폭발 위험     | 우수              |
+| 마이그레이션 비용   | 큼              | 없음               | 거의 없음         |
 
 ---
 
@@ -190,18 +185,22 @@ fun ImmutableImage.phash(size: PHashSize = PHashSize.BITS_64): LongArray  // ←
 
 - **단순 측정 (MSSIM, aHash/dHash/wHash, Block-Mean descriptor)** → top-level 확장 함수 (접근 B 스타일 유지).
 - **히스토그램 유사도** → `sealed interface HistogramSimilarity` + companion 팩토리 + top-level 편의 함수.
-- pHash는 **비트 폭 옵션화**를 위해 반환 타입을 `LongArray`로 변경하면 호환성 깨짐 → 기존 `phash(): Long` 유지하고 신규 `phashOf(size: PHashSize): LongArray` 를 추가하는 비파괴적 변경.
+- pHash는 **비트 폭
+  옵션화**를 위해 반환 타입을 `LongArray`로 변경하면 호환성 깨짐 → 기존 `phash(): Long` 유지하고 신규 `phashOf(size: PHashSize): LongArray` 를 추가하는 비파괴적 변경.
 
 ### 4.2 근거
 
-1. **bluetape4k 일관성**: `pixelAvgDeltaTo`, `mseTo`, `ssimTo`, `phashDistanceTo` 등 모든 기존 API가 receiver 확장 함수. 신규 단순 측정도 같은 패턴이 자연스럽다.
-2. **히스토그램은 옵션 차원이 많다**: 색공간(RGB/HSV) × 거리함수(ChiSquare/Bhattacharyya/EMD) × bin 수. 인자 5개를 받는 함수보다 `HistogramSimilarity.chiSquare(ColorSpace.HSV, bins = 64).measure(a, b)` 가 가독성·확장성 모두 우수.
+1. **bluetape4k
+   일관성**: `pixelAvgDeltaTo`, `mseTo`, `ssimTo`, `phashDistanceTo` 등 모든 기존 API가 receiver 확장 함수. 신규 단순 측정도 같은 패턴이 자연스럽다.
+2. **히스토그램은 옵션 차원이
+   많다**: 색공간 (RGB/HSV) × 거리함수 (ChiSquare/Bhattacharyya/EMD) × bin 수. 인자 5개를 받는 함수보다 `HistogramSimilarity.chiSquare(ColorSpace.HSV, bins = 64).measure(a, b)` 가 가독성·확장성 모두 우수.
 3. **하위 호환**: 기존 `phash()`, `phashDistanceTo()`, `hammingDistance(Long, Long)` 모두 그대로 동작. 신규 비트폭 변종은 추가 함수.
 
 ### 4.3 채택하지 않은 안
 
-- **접근 A** — 모든 측정을 sealed로 통일하면 기존 호출처(예상 50+ 콜사이트)를 모두 수정해야 함. ROI 낮음.
-- **접근 B 만으로** 히스토그램 처리 시 `histogramChiSquareTo(other, colorSpace = HSV, bins = 64, normalize = true)` 식의 long-arg 함수가 됨 → DX 저하.
+- **접근 A** — 모든 측정을 sealed로 통일하면 기존 호출처 (예상 50+ 콜사이트)를 모두 수정해야 함. ROI 낮음.
+- **접근 B
+  만으로** 히스토그램 처리 시 `histogramChiSquareTo(other, colorSpace = HSV, bins = 64, normalize = true)` 식의 long-arg 함수가 됨 → DX 저하.
 
 ---
 
@@ -232,14 +231,14 @@ utils/images/src/test/kotlin/io/bluetape4k/images/similarity/
 
 ### 5.1 라인 수 추정
 
-| 파일 | 추정 라인 (구현+KDoc) |
-|---|---|
-| ImageSimilarity.kt (slim 후) | ~250 |
-| SimilarityInternals.kt | ~180 |
-| MssimSimilarity.kt | ~220 |
-| HashSimilarity.kt | ~280 |
-| HistogramSimilarity.kt | ~320 |
-| KeypointSimilarity.kt | ~200 |
+| 파일                         | 추정 라인 (구현+KDoc) |
+|------------------------------|-----------------------|
+| ImageSimilarity.kt (slim 후) | ~250                  |
+| SimilarityInternals.kt       | ~180                  |
+| MssimSimilarity.kt           | ~220                  |
+| HashSimilarity.kt            | ~280                  |
+| HistogramSimilarity.kt       | ~320                  |
+| KeypointSimilarity.kt        | ~200                  |
 
 모든 파일 800라인 이하, 모듈 전체 ≤ 1500라인.
 
@@ -455,15 +454,15 @@ fun ImmutableImage.bestRotationSimilarityTo(
 
 #### 성능 특성
 
-| 알고리즘 | 1024×768 기준 | 병목 원인 |
-|---|---|---|
-| aHash / dHash / whash | < 1ms | 내부 리사이즈 후 소규모 연산 |
-| phash BITS_64 | ~1ms | O(N³) DCT, N=32 |
-| phash BITS_1024 | ~80ms | O(N³) DCT, N=128 — **배치 전용** |
-| mssimTo | ~2–5초 | O(W×H×K²) K=11 — **⚠️ 실시간 불가** |
-| Histogram | ~5ms | O(W×H) 1회 스캔 |
-| blockMeanSimilarityTo | ~5ms | O(W×H) 1회 스캔 |
-| bestRotationSimilarityTo | ~20ms | 4× blockMean + 3× 픽셀 복사 |
+| 알고리즘                 | 1024×768 기준 | 병목 원인                           |
+|--------------------------|---------------|-------------------------------------|
+| aHash / dHash / whash    | < 1ms         | 내부 리사이즈 후 소규모 연산        |
+| phash BITS_64            | ~1ms          | O(N³) DCT, N=32                     |
+| phash BITS_1024          | ~80ms         | O(N³) DCT, N=128 — **배치 전용**    |
+| mssimTo                  | ~2–5초        | O(W×H×K²) K=11 — **⚠️ 실시간 불가** |
+| Histogram                | ~5ms          | O(W×H) 1회 스캔                     |
+| blockMeanSimilarityTo    | ~5ms          | O(W×H) 1회 스캔                     |
+| bestRotationSimilarityTo | ~20ms         | 4× blockMean + 3× 픽셀 복사         |
 
 `mssimTo`는 4K 이미지에서 30–60초 소요. 대형 이미지는 **호출 전 다운스케일 필수**.
 
@@ -485,24 +484,22 @@ fun ImmutableImage.bestRotationSimilarityTo(
  * // 히스토그램은 크기 무관이지만 속도 향상을 원할 때
  * val sim = img.prepareForSimilarity(512).histogramSimilarityTo(other.prepareForSimilarity(512))
  * ```
- *
- * 이미 [maxSide] 이하이면 원본 이미지를 그대로 반환합니다(복사 없음).
- *
- * @param maxSide 긴 변 최대 픽셀 수. 기본 512.
- * @return 축소된 이미지 또는 원본(크기가 이미 충분히 작은 경우)
- */
-fun ImmutableImage.prepareForSimilarity(maxSide: Int = 512): ImmutableImage
+
+*
+* 이미 [maxSide] 이하이면 원본 이미지를 그대로 반환합니다 (복사 없음).
+*
+* @param maxSide 긴 변 최대 픽셀 수. 기본 512.
+* @return 축소된 이미지 또는 원본 (크기가 이미 충분히 작은 경우)
+  */ fun ImmutableImage.prepareForSimilarity (maxSide: Int = 512): ImmutableImage
+
 ```
 
 #### 선택 가이드 (KDoc + README에 포함)
 
 ```
-이미지 크기 → 알고리즘 선택
-────────────────────────────
-작은 이미지 (≤ 256px):  mssimTo 직접 호출 가능
-중간 이미지 (≤ 800px):  prepareForSimilarity(800) 후 mssimTo
-대형 이미지 (> 800px):  prepareForSimilarity(512) 후 hash 또는 histogram 권장
-4K+ 이미지:             hash 계열만 (내부 32px/128px 리사이즈로 빠름)
+
+이미지 크기 → 알고리즘 선택 ──────────────────────────── 작은 이미지 (≤ 256px):  mssimTo 직접 호출 가능 중간 이미지 (≤ 800px):  prepareForSimilarity (800) 후 mssimTo 대형 이미지 (> 800px):  prepareForSimilarity (512) 후 hash 또는 histogram 권장 4K+ 이미지:             hash 계열만 (내부 32px/128px 리사이즈로 빠름)
+
 ```
 
 ### 6.6 Internals (`SimilarityInternals.kt`)
@@ -540,19 +537,19 @@ internal fun ImmutableImage.scaleToMaxSide(maxSide: Int): ImmutableImage
 - `AbstractImageTest.kt` 베이스 (기존).
 - `Resourcex.getInputStream("images/<file>.jpg")` 로 골든 이미지 로드.
 - 기존 자산: `homer.jpg`, `labor.jpg`, `cafe.jpg`, `landscape.jpg`.
-- 신규 가공 — JPEG 90% 재저장본, 좌우 5px 시프트, 90° 회전, 밝기 ±10 — 은 테스트 setup 단계에서 scrimage 변환으로 즉석 생성(테스트 리소스 추가 없음).
+- 신규 가공 — JPEG 90% 재저장본, 좌우 5px 시프트, 90° 회전, 밝기 ±10 — 은 테스트 setup 단계에서 scrimage 변환으로 즉석 생성 (테스트 리소스 추가 없음).
 
 ### 7.2 시나리오 매트릭스
 
-| 시나리오 | MSSIM | aHash | dHash | wHash | pHash(64) | pHash(256/1024) | Histogram | BlockMean |
-|---|---|---|---|---|---|---|---|---|
-| 동일 이미지 | ≈ 1.0 | dist=0 | dist=0 | dist=0 | dist=0 | dist=0 | ≈ 1.0 | ≈ 1.0 |
-| JPEG 90% 재저장 | > 0.7* | dist≤4 | dist≤4 | dist≤6 | dist≤4 | dist≤scaled | > 0.95 | > 0.9 |
-| 좌우 5px 시프트 | > 0.7 | dist≤10 | dist≤10 | — | dist≤10 | — | ≈ 1.0 | > 0.7 |
-| 90° 회전 | < 0.5 | — | — | — | dist 다양 | — | ≈ 1.0 | bestRotation > 0.95 |
-| 밝기 +10 | > 0.7* | dist 다양 | dist≤6 | dist≤6 | dist≤6 | — | ChiSquare 변화 | > 0.8 |
-| 다른 이미지 (homer vs landscape) | < 0.5 | dist > 20 | dist > 20 | dist > 15 | dist > 20 | dist 비례 | < 0.5 | < 0.5 |
-| 크기 다른 이미지 | throws | OK(내부 리사이즈) | OK | OK | OK | OK | OK (정책: 허용) | OK |
+| 시나리오                         | MSSIM  | aHash             | dHash     | wHash     | pHash(64) | pHash(256/1024) | Histogram       | BlockMean           |
+|----------------------------------|--------|-------------------|-----------|-----------|-----------|-----------------|-----------------|---------------------|
+| 동일 이미지                      | ≈ 1.0  | dist=0            | dist=0    | dist=0    | dist=0    | dist=0          | ≈ 1.0           | ≈ 1.0               |
+| JPEG 90% 재저장                  | > 0.7* | dist≤4            | dist≤4    | dist≤6    | dist≤4    | dist≤scaled     | > 0.95          | > 0.9               |
+| 좌우 5px 시프트                  | > 0.7  | dist≤10           | dist≤10   | —         | dist≤10   | —               | ≈ 1.0           | > 0.7               |
+| 90° 회전                         | < 0.5  | —                 | —         | —         | dist 다양 | —               | ≈ 1.0           | bestRotation > 0.95 |
+| 밝기 +10                         | > 0.7* | dist 다양         | dist≤6    | dist≤6    | dist≤6    | —               | ChiSquare 변화  | > 0.8               |
+| 다른 이미지 (homer vs landscape) | < 0.5  | dist > 20         | dist > 20 | dist > 15 | dist > 20 | dist 비례       | < 0.5           | < 0.5               |
+| 크기 다른 이미지                 | throws | OK(내부 리사이즈) | OK        | OK        | OK        | OK              | OK (정책: 허용) | OK                  |
 
 ### 7.3 bluetape4k-assertions matcher 사용 규칙
 
@@ -570,7 +567,7 @@ hash.size shouldBeEqualTo 16  // BITS_1024 / 64
 
 - MSSIM: 5×5 이미지 + windowSize=11 → `IllegalArgumentException` 메시지 검증.
 - pHash: `BITS_64` 결과 LongArray.size == 1 이고 `phashOf(BITS_64)[0] == phash()` 일치.
-- HashDistance.hamming(LongArray, LongArray): 길이 다르면 throw.
+- HashDistance.hamming (LongArray, LongArray): 길이 다르면 throw.
 - wHash: 입력이 16×16, 32×32, 64×64 모두 동작 + 비-2^n 입력은 강제 리사이즈 후 정상.
 - Histogram: 종횡비/크기 다른 두 이미지 동일 색감일 때 측정값 ≈ 1.0.
 
@@ -656,7 +653,7 @@ class MssimSimilarityTest : AbstractImageTest() {
 
 - **BoofCV 통합** — SIFT/ORB/SURF descriptor, FLANN 매칭. 의존성 평가 + 라이선스 검토 필요.
 - **GPU 가속** — 대규모 코퍼스 비교 시 병렬화. JOML/JCuda 의존 검토 필요.
-- **딥러닝 임베딩 기반 유사도** — CLIP, DINOv2 등. 별도 모듈(`utils/images-embedding`)로 분리 권장.
+- **딥러닝 임베딩 기반 유사도** — CLIP, DINOv2 등. 별도 모듈 (`utils/images-embedding`)로 분리 권장.
 - **2D EMD with Hungarian solver** — H 채널 wrap 보정 포함. 1차 PR은 1D CDF 차이로 한정.
 - **MSSIM 다중 스케일 (MS-SSIM)** — 5단계 다운샘플 평균. 1차에서는 단일 스케일.
 
@@ -664,12 +661,12 @@ class MssimSimilarityTest : AbstractImageTest() {
 
 ## 10. BoofCV Decision Summary
 
-| 항목 | 결정 |
-|---|---|
-| 1차 PR 도입 | **NO** |
-| 사유 | (1) `Libs.kt` 미등록 — 사용자 승인 필요 (2) 라이선스 Apache-2.0 OK 이지만 의존 그래프 영향 평가 미실시 (3) Block-Mean 으로 일반 사용 케이스 충분 |
-| 추후 도입 시 | 별도 이슈에서 SIFT/ORB feature + RANSAC 매칭 모듈로 분리. 모듈명 후보: `utils/images-cv` |
-| 임시 대안 | `bestRotationSimilarityTo` 로 90° 회전만 부분 대응 |
+| 항목         | 결정                                                                                                                                             |
+|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1차 PR 도입  | **NO**                                                                                                                                           |
+| 사유         | (1) `Libs.kt` 미등록 — 사용자 승인 필요 (2) 라이선스 Apache-2.0 OK 이지만 의존 그래프 영향 평가 미실시 (3) Block-Mean 으로 일반 사용 케이스 충분 |
+| 추후 도입 시 | 별도 이슈에서 SIFT/ORB feature + RANSAC 매칭 모듈로 분리. 모듈명 후보: `utils/images-cv`                                                         |
+| 임시 대안    | `bestRotationSimilarityTo` 로 90° 회전만 부분 대응                                                                                               |
 
 ---
 
@@ -690,7 +687,7 @@ class MssimSimilarityTest : AbstractImageTest() {
 
 ## 12. Open Questions (구현 전 확인)
 
-1. wHash 내부 리사이즈 크기 — 32×32(64bit hash)가 적절한가, 64×64로 갈 것인가? → 1차안: **32×32**, 8×8 저주파 = 64bit (다른 해시들과 폭 통일).
+1. wHash 내부 리사이즈 크기 — 32×32 (64bit hash)가 적절한가, 64×64로 갈 것인가? → 1차안: **32×32**, 8×8 저주파 = 64bit (다른 해시들과 폭 통일).
 2. Histogram bins 기본값 — 32 vs 64? → 1차안: **32** (히스토그램 X 채널 수: RGB=3, HSV=3 → 96bin total). 옵션으로 변경 가능.
 3. Block-Mean grid 기본 — 8×8 vs 16×16? → 1차안: **8×8** (descriptor=64), pHash와 정합.
 4. `bestRotationSimilarityTo` 회전 단계 — 0/90/180/270 만 vs 임의 각도? → 1차안: **0/90/180/270만** (scrimage 직각 회전 무손실).

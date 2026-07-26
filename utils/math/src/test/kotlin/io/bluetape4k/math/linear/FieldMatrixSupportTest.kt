@@ -1,7 +1,7 @@
 package io.bluetape4k.math.linear
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.apache.commons.math3.fraction.Fraction
 import org.apache.commons.math3.fraction.FractionField
 import org.apache.commons.math3.linear.Array2DRowFieldMatrix
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 
 class FieldMatrixSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private fun fractionMatrix(vararg rows: Array<Fraction>) =
         Array2DRowFieldMatrix(rows)

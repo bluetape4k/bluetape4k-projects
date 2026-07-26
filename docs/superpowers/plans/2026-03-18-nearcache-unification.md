@@ -1,8 +1,9 @@
 # NearCache 통일 구현 계획
 
-> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 4개 백엔드(Lettuce, Hazelcast, Redisson, JCache)의 NearCache를 `NearCacheOperations`/`SuspendNearCacheOperations` 공통 인터페이스로 통일
+**Goal:** 4개 백엔드 (Lettuce, Hazelcast, Redisson, JCache)의 NearCache를 `NearCacheOperations`/`SuspendNearCacheOperations` 공통 인터페이스로 통일
 
 **Architecture:** cache-core에 인터페이스 + Decorator 정의, 각 cache-* 모듈이 구현. Resilient 변형 삭제 → `.withResilience {}` Decorator로 대체. 공통 abstract 테스트로 일관된 검증.
 
@@ -14,11 +15,16 @@
 
 ## 주요 구현 주의사항
 
-1. **JCache `putIfAbsent()` 반환 타입 변환**: 기존 JCache는 `Boolean` 반환, 새 인터페이스는 `V?` 반환. `JCacheNearCache`에서 `by backCache` 위임을 제거하고 수동 위임으로 변환 필요: `backCache.getAndPut()` 또는 `get() + put()` 조합.
-2. **`SuspendNearCacheOperations.close()`는 suspend**: 기존 구현체(`LettuceSuspendNearCache`, `HazelcastSuspendNearCache`)가 `AutoCloseable`을 구현하는 경우 `: AutoCloseable` 제거하고 `override suspend fun close()`로 변경 필요.
-3. **Redisson invalidation 전략**: `LocalCachedMapOptions` 사용 (Redisson 내장 client-side caching). Topic 기반 수동 pub/sub보다 안정적이고 Redisson이 자동 관리.
-4. **`build.gradle.kts` 업데이트**: test fixture에 awaitility, coroutines-test 의존성 추가. cache-redisson에서 RESP3 삭제 후 불필요한 lettuce 의존성 정리.
-5. **기존 유지 파일**: `GetFailureStrategy.kt`, `CacheEntryEventListener.kt`, `SuspendCacheEntryEventListener.kt`, `NearCacheConfig.kt` (JCache용), 각 모듈의 LocalCache 헬퍼 클래스들은 유지.
+1. **JCache `putIfAbsent()` 반환 타입
+   변환**: 기존 JCache는 `Boolean` 반환, 새 인터페이스는 `V?` 반환. `JCacheNearCache`에서 `by backCache` 위임을 제거하고 수동 위임으로 변환 필요: `backCache.getAndPut()` 또는 `get() + put()` 조합.
+2. **`SuspendNearCacheOperations.close()`는
+   suspend**: 기존 구현체 (`LettuceSuspendNearCache`, `HazelcastSuspendNearCache`)가 `AutoCloseable`을 구현하는 경우 `: AutoCloseable` 제거하고 `override suspend fun close()`로 변경 필요.
+3. **Redisson invalidation
+   전략**: `LocalCachedMapOptions` 사용 (Redisson 내장 client-side caching). Topic 기반 수동 pub/sub보다 안정적이고 Redisson이 자동 관리.
+4. **`build.gradle.kts`
+   업데이트**: test fixture에 awaitility, coroutines-test 의존성 추가. cache-redisson에서 RESP3 삭제 후 불필요한 lettuce 의존성 정리.
+5. **기존 유지
+   파일**: `GetFailureStrategy.kt`, `CacheEntryEventListener.kt`, `SuspendCacheEntryEventListener.kt`, `NearCacheConfig.kt` (JCache용), 각 모듈의 LocalCache 헬퍼 클래스들은 유지.
 6. **`NearCacheStatistics.hitRate` KDoc 정정**: `(localHits + backHits) / (localHits + backHits + backMisses)`
 
 ---
@@ -27,52 +33,56 @@
 
 ### 신규 파일 (cache-core)
 
-| 파일 | 역할 |
-|------|------|
-| `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheOperations.kt` | 공통 blocking 인터페이스 |
-| `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/SuspendNearCacheOperations.kt` | 공통 suspend 인터페이스 |
-| `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheStatistics.kt` | 통계 인터페이스 + DefaultNearCacheStatistics |
-| `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheResilienceConfig.kt` | Resilience 설정 + DSL Builder |
-| `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientNearCacheDecorator.kt` | Retry Decorator (blocking) |
-| `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientSuspendNearCacheDecorator.kt` | Retry Decorator (suspend) |
-| `infra/cache-core/src/testFixtures/kotlin/io/bluetape4k/cache/nearcache/AbstractNearCacheOperationsTest.kt` | 공통 blocking 테스트 |
-| `infra/cache-core/src/testFixtures/kotlin/io/bluetape4k/cache/nearcache/AbstractSuspendNearCacheOperationsTest.kt` | 공통 suspend 테스트 |
+| 파일                                                                                                               | 역할                                         |
+|--------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
+| `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheOperations.kt`                            | 공통 blocking 인터페이스                     |
+| `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/SuspendNearCacheOperations.kt`                     | 공통 suspend 인터페이스                      |
+| `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheStatistics.kt`                            | 통계 인터페이스 + DefaultNearCacheStatistics |
+| `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheResilienceConfig.kt`                      | Resilience 설정 + DSL Builder                |
+| `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientNearCacheDecorator.kt`                    | Retry Decorator (blocking)                   |
+| `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientSuspendNearCacheDecorator.kt`             | Retry Decorator (suspend)                    |
+| `infra/cache-core/src/testFixtures/kotlin/io/bluetape4k/cache/nearcache/AbstractNearCacheOperationsTest.kt`        | 공통 blocking 테스트                         |
+| `infra/cache-core/src/testFixtures/kotlin/io/bluetape4k/cache/nearcache/AbstractSuspendNearCacheOperationsTest.kt` | 공통 suspend 테스트                          |
 
 ### 리팩토링 파일
 
-| 파일 | 변경 |
-|------|------|
-| `infra/cache-core/.../NearCache.kt` → `JCacheNearCache.kt` | `NearCacheOperations<V>` 구현, K→String |
-| `infra/cache-core/.../SuspendNearCache.kt` → `JCacheSuspendNearCache.kt` | `SuspendNearCacheOperations<V>` 구현 |
-| `infra/cache-lettuce/.../LettuceNearCache.kt` | `NearCacheOperations<V>` 구현 + stats 카운터 |
-| `infra/cache-lettuce/.../LettuceSuspendNearCache.kt` | `SuspendNearCacheOperations<V>` 구현 + stats 카운터 |
-| `infra/cache-lettuce/.../LettuceNearCacheFactory.kt` | `*Of` 팩토리 패턴 |
-| `infra/cache-hazelcast/.../HazelcastNearCache.kt` | `NearCacheOperations<V>` 구현 + 누락 메서드 + stats |
-| `infra/cache-hazelcast/.../HazelcastSuspendNearCache.kt` | `SuspendNearCacheOperations<V>` 구현 + stats |
+| 파일                                                                     | 변경                                                |
+|--------------------------------------------------------------------------|-----------------------------------------------------|
+| `infra/cache-core/.../NearCache.kt` → `JCacheNearCache.kt`               | `NearCacheOperations<V>` 구현, K→String             |
+| `infra/cache-core/.../SuspendNearCache.kt` → `JCacheSuspendNearCache.kt` | `SuspendNearCacheOperations<V>` 구현                |
+| `infra/cache-lettuce/.../LettuceNearCache.kt`                            | `NearCacheOperations<V>` 구현 + stats 카운터        |
+| `infra/cache-lettuce/.../LettuceSuspendNearCache.kt`                     | `SuspendNearCacheOperations<V>` 구현 + stats 카운터 |
+| `infra/cache-lettuce/.../LettuceNearCacheFactory.kt`                     | `*Of` 팩토리 패턴                                   |
+| `infra/cache-hazelcast/.../HazelcastNearCache.kt`                        | `NearCacheOperations<V>` 구현 + 누락 메서드 + stats |
+| `infra/cache-hazelcast/.../HazelcastSuspendNearCache.kt`                 | `SuspendNearCacheOperations<V>` 구현 + stats        |
 
 ### 신규 파일 (cache-redisson)
 
-| 파일 | 역할 |
-|------|------|
-| `infra/cache-redisson/.../RedissonNearCache.kt` | 새 `NearCacheOperations<V>` 직접 구현 (기존 JCache 팩토리 대체) |
-| `infra/cache-redisson/.../RedissonSuspendNearCache.kt` | 새 `SuspendNearCacheOperations<V>` 구현 |
+| 파일                                                   | 역할                                                            |
+|--------------------------------------------------------|-----------------------------------------------------------------|
+| `infra/cache-redisson/.../RedissonNearCache.kt`        | 새 `NearCacheOperations<V>` 직접 구현 (기존 JCache 팩토리 대체) |
+| `infra/cache-redisson/.../RedissonSuspendNearCache.kt` | 새 `SuspendNearCacheOperations<V>` 구현                         |
 
 ### 삭제 파일
 
 **cache-core:**
+
 - `ResilientNearCache.kt`, `ResilientSuspendNearCache.kt`
 - `ResilientNearCacheConfig.kt`, `ResilientNearCacheLocalCache.kt`, `BackCacheCommand.kt`
 
 **cache-lettuce:**
+
 - `ResilientLettuceNearCache.kt`, `ResilientLettuceSuspendNearCache.kt`
 - `ResilientLettuceNearCacheConfig.kt`
 - `LettuceNearCacheOperations.kt`, `LettuceSuspendNearCacheOperations.kt`
 
 **cache-hazelcast:**
+
 - `ResilientHazelcastNearCache.kt`, `ResilientHazelcastSuspendNearCache.kt`
 - `ResilientHazelcastNearCacheConfig.kt`
 
 **cache-redisson:**
+
 - `RedissonResp3NearCache.kt`, `RedissonResp3SuspendNearCache.kt`
 - `ResilientRedissonResp3NearCache.kt`, `ResilientRedissonResp3SuspendNearCache.kt`
 - `ResilientRedissonResp3NearCacheConfig.kt`
@@ -83,6 +93,7 @@
 ## Task 1: 공통 인터페이스 생성 (cache-core)
 
 **Files:**
+
 - Create: `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheOperations.kt`
 - Create: `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/SuspendNearCacheOperations.kt`
 - Create: `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheStatistics.kt`
@@ -284,32 +295,35 @@ git commit -m "feat: NearCacheOperations/SuspendNearCacheOperations 공통 인�
 ## Task 2: NearCacheResilienceConfig + Decorator 생성 (cache-core)
 
 **Files:**
+
 - Create: `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheResilienceConfig.kt`
 - Create: `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientNearCacheDecorator.kt`
 - Create: `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientSuspendNearCacheDecorator.kt`
 
 - [ ] **Step 1: `NearCacheResilienceConfig.kt` 생성**
 
-`NearCacheResilienceConfig` data class + `NearCacheResilienceConfigBuilder` + `nearCacheResilienceConfig {}` DSL 팩토리.
-필드: `retryMaxAttempts` (3), `retryWaitDuration` (500ms), `retryExponentialBackoff` (true), `getFailureStrategy` (RETURN_FRONT_OR_NULL).
+`NearCacheResilienceConfig` data class + `NearCacheResilienceConfigBuilder` + `nearCacheResilienceConfig {}` DSL 팩토리. 필드: `retryMaxAttempts` (3), `retryWaitDuration` (500ms), `retryExponentialBackoff` (true), `getFailureStrategy` (RETURN_FRONT_OR_NULL).
 
 - [ ] **Step 2: `ResilientNearCacheDecorator.kt` 생성**
 
 `NearCacheOperations<V>`를 감싸는 Decorator.
+
 - Read 메서드: `retry.executeCallable { delegate.get(key) }` + catch에서 `GetFailureStrategy` 적용
 - Write 메서드: `retry.executeRunnable { delegate.put(key, value) }`
 - Management 메서드: delegate에 직접 위임
-- `close()`: delegate.close()
+- `close()`: delegate.close ()
 
 - [ ] **Step 3: `ResilientSuspendNearCacheDecorator.kt` 생성**
 
 `SuspendNearCacheOperations<V>`를 감싸는 Decorator.
+
 - Read/Write: `retry.executeSuspendFunction { delegate.get(key) }` (resilience4j kotlin extension 활용)
-- `close()`: delegate.close()
+- `close()`: delegate.close ()
 
 - [ ] **Step 4: `.withResilience {}` 확장 함수 추가**
 
 `NearCacheResilienceConfig.kt` 하단 또는 별도 파일에:
+
 ```kotlin
 fun <V: Any> NearCacheOperations<V>.withResilience(config: NearCacheResilienceConfig): NearCacheOperations<V>
 fun <V: Any> NearCacheOperations<V>.withResilience(init: NearCacheResilienceConfigBuilder.() -> Unit): NearCacheOperations<V>
@@ -336,28 +350,30 @@ git commit -m "feat: ResilientNearCacheDecorator + NearCacheResilienceConfig 추
 ## Task 3: cache-core test fixtures 작성
 
 **Files:**
+
 - Create: `infra/cache-core/src/testFixtures/kotlin/io/bluetape4k/cache/nearcache/AbstractNearCacheOperationsTest.kt`
 - Create: `infra/cache-core/src/testFixtures/kotlin/io/bluetape4k/cache/nearcache/AbstractSuspendNearCacheOperationsTest.kt`
 
 - [ ] **Step 1: `AbstractNearCacheOperationsTest.kt` 작성**
 
 기존 `AbstractNearCacheTest.kt` 패턴 참조. 핵심 차이점:
+
 - `abstract fun createCache(): NearCacheOperations<V>` (단일 캐시, 2-tier 내부)
 - `abstract fun sampleValue(): V` / `abstract fun anotherValue(): V`
-- 테스트 시나리오: get miss→null, put+get round trip, getAll batch, putIfAbsent→V? 반환,
-  replace existing, replace with oldValue, remove, getAndRemove, getAndReplace,
-  clearLocal (front only), clearAll (both), containsKey, stats tracking
+- 테스트 시나리오: get miss→null, put+get round trip, getAll batch, putIfAbsent→V? 반환, replace existing, replace with oldValue, remove, getAndRemove, getAndReplace, clearLocal (front only), clearAll (both), containsKey, stats tracking
 - bluetape4k-assertions assertions, `@Execution(ExecutionMode.SAME_THREAD)`
 
 - [ ] **Step 2: `AbstractSuspendNearCacheOperationsTest.kt` 작성**
 
 동일 시나리오를 `runTest {}` / `runSuspendIO {}` 로 작성.
+
 - `abstract fun createCache(): SuspendNearCacheOperations<V>`
 - `awaitility` + `untilSuspending` 패턴 사용
 
 - [ ] **Step 3: `build.gradle.kts` testFixtures 의존성 확인/추가**
 
 `infra/cache-core/build.gradle.kts`의 testFixtures 블록에 다음 의존성이 있는지 확인하고 없으면 추가:
+
 ```kotlin
 testFixturesApi(Libs.awaitility_kotlin)
 testFixturesApi(Libs.kotlinx_coroutines_test)
@@ -384,6 +400,7 @@ git commit -m "test: NearCacheOperations 공통 abstract 테스트 클래스 추
 ## Task 4: cache-lettuce 리팩토링
 
 **Files:**
+
 - Modify: `infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCache.kt`
 - Modify: `infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCache.kt`
 - Modify: `infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheFactory.kt`
@@ -457,6 +474,7 @@ git commit -m "refactor: cache-lettuce NearCacheOperations 통일 + Resilient �
 ## Task 5: cache-hazelcast 리팩토링
 
 **Files:**
+
 - Modify: `infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastNearCache.kt`
 - Modify: `infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastSuspendNearCache.kt`
 - Delete: `ResilientHazelcastNearCache.kt`, `ResilientHazelcastSuspendNearCache.kt`, `ResilientHazelcastNearCacheConfig.kt`
@@ -466,26 +484,28 @@ git commit -m "refactor: cache-lettuce NearCacheOperations 통일 + Resilient �
 
 - `: NearCacheOperations<V>` 추가
 - **메서드 이름/타입 변경:**
-  - `localSize()` → `localCacheSize()` (인터페이스 이름 일치)
-  - `backCacheSize()` 반환 타입: `Int` → `Long` (`imap.size.toLong()`)
+    - `localSize()` → `localCacheSize()` (인터페이스 이름 일치)
+    - `backCacheSize()` 반환 타입: `Int` → `Long` (`imap.size.toLong()`)
 - **누락 메서드 구현:**
-  - `putIfAbsent()`: `imap.putIfAbsent(key, value)` → 기존 값 V? 반환
-  - `replace(key, value)`: `imap.replace(key, value) != null`
-  - `replace(key, old, new)`: `imap.replace(key, old, new)`
-  - `getAndRemove()`: `imap.remove(key)` (Hazelcast remove는 이전 값 반환)
-  - `getAndReplace()`: `imap.replace(key, value)` (이전 값 반환)
+    - `putIfAbsent()`: `imap.putIfAbsent(key, value)` → 기존 값 V? 반환
+    - `replace(key, value)`: `imap.replace(key, value) != null`
+    - `replace(key, old, new)`: `imap.replace(key, old, new)`
+    - `getAndRemove()`: `imap.remove(key)` (Hazelcast remove는 이전 값 반환)
+    - `getAndReplace()`: `imap.replace(key, value)` (이전 값 반환)
 - `stats()` 추가: AtomicLong 카운터
 
 - [ ] **Step 2: `HazelcastSuspendNearCache.kt` — `SuspendNearCacheOperations<V>` 구현**
 
 동일 패턴. `imap.putIfAbsentAsync()`, `imap.replaceAsync()` 등 사용.
 `putIfAbsent`가 async 미지원 시 `withContext(Dispatchers.IO)` 래핑.
+
 - **`: AutoCloseable` 제거** → `override suspend fun close()` 로 변경
 - `localSize()` → `localCacheSize()`, `backCacheSize()` 반환 `Long`
 
 - [ ] **Step 3: 팩토리 함수 추가**
 
 `HazelcastNearCacheFactory.kt` 또는 기존 파일에:
+
 ```kotlin
 fun <V: Any> hazelcastNearCacheOf(imap: IMap<String, V>, config: HazelcastNearCacheConfig = ...): NearCacheOperations<V>
 fun <V: Any> hazelcastSuspendNearCacheOf(imap: IMap<String, V>, config: HazelcastNearCacheConfig = ...): SuspendNearCacheOperations<V>
@@ -524,6 +544,7 @@ git commit -m "refactor: cache-hazelcast NearCacheOperations 통일 + Resilient 
 ## Task 6: cache-redisson 리팩토링
 
 **Files:**
+
 - Create: `infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonNearCache.kt` (새 구현체)
 - Create: `infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonSuspendNearCache.kt` (새 구현체)
 - Delete: 기존 JCache 팩토리, RESP3 하이브리드, Resilient 변형
@@ -532,8 +553,7 @@ git commit -m "refactor: cache-hazelcast NearCacheOperations 통일 + Resilient 
 
 - [ ] **Step 0: 기존 파일 삭제 먼저 (이름 충돌 방지)**
 
-기존 `RedissonNearCache.kt`는 `object` (팩토리)이므로, 새 `class RedissonNearCache<V>`와 이름 충돌.
-**반드시 삭제 후 새 파일 생성.**
+기존 `RedissonNearCache.kt`는 `object` (팩토리)이므로, 새 `class RedissonNearCache<V>`와 이름 충돌. **반드시 삭제 후 새 파일 생성.**
 
 ```bash
 git rm infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonNearCache.kt
@@ -543,11 +563,12 @@ git rm infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/Rediss
 - [ ] **Step 1: 새 `RedissonNearCache.kt` 작성**
 
 `NearCacheOperations<V>` 직접 구현.
+
 - front: Caffeine 캐시
 - back: Redisson `RLocalCachedMap` 기반 (`LocalCachedMapOptions` 사용)
 - **invalidation: `LocalCachedMapOptions`** — Redisson 내장 client-side caching 활용
-  - `LocalCachedMapOptions.create().cacheSize(maxLocalSize).evictionPolicy(LRU).syncStrategy(INVALIDATE)`
-  - Redisson이 자동으로 invalidation 관리 (topic 기반 수동 구현 불필요)
+    - `LocalCachedMapOptions.create().cacheSize(maxLocalSize).evictionPolicy(LRU).syncStrategy(INVALIDATE)`
+    - Redisson이 자동으로 invalidation 관리 (topic 기반 수동 구현 불필요)
 - 키 패턴: `cacheName:key` (Lettuce와 동일)
 - `put()`: front + `map.put(redisKey, value)`
 - `get()`: front miss → `map.get(redisKey)` → front populate
@@ -590,6 +611,7 @@ git rm infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/Resili
 - [ ] **Step 4a: `build.gradle.kts` 의존성 정리**
 
 RESP3 하이브리드 삭제 후 불필요한 의존성 제거 검토:
+
 - `implementation(Libs.lettuce_core)` — Lettuce tracking 삭제로 불필요하면 제거
 - `implementation(Libs.kotlinx_coroutines_reactive)` — Lettuce coroutines API 삭제로 불필요하면 제거
 
@@ -605,7 +627,9 @@ RESP3 하이브리드 삭제 후 불필요한 의존성 제거 검토:
 - 기존 테스트 삭제: `RedissonResp3NearCacheTest.kt`, `RedissonResp3SuspendNearCacheTest.kt`, `ResilientRedissonResp3*Test.kt`, `RedissonNearCachingProviderTest.kt`, `RedissonNearCacheManagerTest.kt`
 - `AbstractRedissonResp3NearCacheTest.kt`: 삭제
 - `RedissonResp3NearCacheTrackingTest.kt`: 삭제 (LocalCachedMapOptions가 tracking 대체)
-- **`spring/SpringCacheUsingNearCacheTest.kt`**: `RedissonNearCacheConfig`, `RedissonNearCachingProvider` 임포트 → 새 구현체 기반으로 리팩토링 또는 삭제
+-
+
+**`spring/SpringCacheUsingNearCacheTest.kt`**: `RedissonNearCacheConfig`, `RedissonNearCachingProvider` 임포트 → 새 구현체 기반으로 리팩토링 또는 삭제
 
 - [ ] **Step 7: 컴파일 + 테스트 확인**
 
@@ -627,6 +651,7 @@ git commit -m "refactor: cache-redisson NearCacheOperations 직접 구현 + RESP
 ## Task 7: cache-core JCache NearCache 리팩토링
 
 **Files:**
+
 - Rename+Modify: `NearCache.kt` → `JCacheNearCache.kt`
 - Rename+Modify: `SuspendNearCache.kt` → `JCacheSuspendNearCache.kt`
 - Delete: `ResilientNearCache.kt`, `ResilientSuspendNearCache.kt`, `ResilientNearCacheConfig.kt`, `ResilientNearCacheLocalCache.kt`, `BackCacheCommand.kt`
@@ -638,8 +663,8 @@ git commit -m "refactor: cache-redisson NearCacheOperations 직접 구현 + RESP
 - K 파라미터 제거, String으로 고정
 - `: NearCacheOperations<V>` 구현
 - **`by backCache` 위임 제거** — JCache `putIfAbsent()` → `Boolean`, 새 인터페이스 → `V?`. 수동 위임으로 변환:
-  - `putIfAbsent()`: `val existing = backCache.get(key); if (existing != null) return existing; backCache.put(key, value); return null`
-  - `remove()`: `backCache.remove(key)` (Boolean 반환값 무시)
+    - `putIfAbsent()`: `val existing = backCache.get(key); if (existing != null) return existing; backCache.put(key, value); return null`
+    - `remove()`: `backCache.remove(key)` (Boolean 반환값 무시)
 - `stats()` 추가: Caffeine stats + AtomicLong 카운터
 - 팩토리 함수:
   ```kotlin
@@ -662,10 +687,10 @@ git rm infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/BackCacheC
 
 - [ ] **Step 4: 기존 test fixture 및 테스트 처리**
 
-- `AbstractNearCacheTest.kt`, `AbstractSuspendNearCacheTest.kt`: **삭제하지 않고** `JCacheNearCache` 사용으로 업데이트.
-  이들은 JCache 2-NearCache-shared-back-cache 패턴을 테스트하는 것으로, 새 `AbstractNearCacheOperationsTest`와는 별개.
+- `AbstractNearCacheTest.kt`, `AbstractSuspendNearCacheTest.kt`: **삭제하지
+  않고** `JCacheNearCache` 사용으로 업데이트. 이들은 JCache 2-NearCache-shared-back-cache 패턴을 테스트하는 것으로, 새 `AbstractNearCacheOperationsTest`와는 별개.
   `putIfAbsent()` 관련 assertion (`shouldBeTrue/shouldBeFalse`) → V? 반환 기반으로 변경 (`shouldBeNull`/`shouldNotBeNull`).
-- 기존 JCache 테스트(`Cache2kNearCacheTest.kt`, `EhcacheNearCacheTest.kt`): `NearCache` → `JCacheNearCache` 클래스명 변경 반영.
+- 기존 JCache 테스트 (`Cache2kNearCacheTest.kt`, `EhcacheNearCacheTest.kt`): `NearCache` → `JCacheNearCache` 클래스명 변경 반영.
 - `ResilientNearCacheTest.kt`, `ResilientSuspendNearCacheTest.kt`: 삭제 (Decorator 전용 테스트가 Task 8에서 대체).
 
 - [ ] **Step 5: 컴파일 + 테스트 확인**
@@ -685,12 +710,14 @@ git commit -m "refactor: cache-core NearCache → JCacheNearCache + Resilient de
 ## Task 8: Resilient Decorator 테스트 (cache-core)
 
 **Files:**
+
 - Create: `infra/cache-core/src/test/kotlin/io/bluetape4k/cache/nearcache/ResilientNearCacheDecoratorTest.kt`
 - Create: `infra/cache-core/src/test/kotlin/io/bluetape4k/cache/nearcache/ResilientSuspendNearCacheDecoratorTest.kt`
 
 - [ ] **Step 1: `ResilientNearCacheDecoratorTest.kt` 작성**
 
 MockK로 `NearCacheOperations<String>` mock 생성.
+
 - `get()` 실패 시 retry 동작 검증 (N회 실패 후 성공)
 - `get()` 실패 시 `RETURN_FRONT_OR_NULL` 전략 검증
 - `get()` 실패 시 `PROPAGATE_EXCEPTION` 전략 검증
@@ -731,8 +758,7 @@ Expected: 모든 테스트 통과
 
 - [ ] **Step 3: CLAUDE.md 업데이트**
 
-`cache-*` 모듈 설명에 `NearCacheOperations`/`SuspendNearCacheOperations` 통일 인터페이스 반영.
-Resilient Decorator 패턴 설명 추가. `*Of` 팩토리 패턴 설명.
+`cache-*` 모듈 설명에 `NearCacheOperations`/`SuspendNearCacheOperations` 통일 인터페이스 반영. Resilient Decorator 패턴 설명 추가. `*Of` 팩토리 패턴 설명.
 
 - [ ] **Step 4: 최종 커밋**
 

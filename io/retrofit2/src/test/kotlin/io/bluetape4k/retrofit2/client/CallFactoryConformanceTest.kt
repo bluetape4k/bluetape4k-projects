@@ -113,7 +113,7 @@ abstract class CallFactoryConformanceTest: AbstractClientTest() {
 
         val errorMessage = error.message.shouldNotBeNull()
         (errorMessage.contains("timeout", ignoreCase = true) ||
-            errorMessage.contains("timed out", ignoreCase = true)).shouldBeTrue()
+                errorMessage.contains("timed out", ignoreCase = true)).shouldBeTrue()
         call.isCanceled().shouldBeTrue()
     }
 

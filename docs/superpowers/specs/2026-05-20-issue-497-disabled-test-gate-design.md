@@ -2,17 +2,12 @@
 
 ## Context
 
-`@Disabled` tests can hide release-relevant failures when the reason is only
-stored in a test annotation. Issue #497 asks for a lightweight registry and
-release gate that reports disabled tests, categorizes them, and fails when a
-known bug has no GitHub issue reference.
+`@Disabled` tests can hide release-relevant failures when the reason is only stored in a test annotation. Issue #497 asks for a lightweight registry and release gate that reports disabled tests, categorizes them, and fails when a known bug has no GitHub issue reference.
 
 ## Decision
 
 Add a root Gradle verification task, `checkDisabledTests`, backed by a
-`buildSrc` scanner. The task scans Kotlin/Java test sources, writes a markdown
-report to `build/reports/disabled-tests/disabled-tests.md`, and fails only when
-a disabled test classified as `known-bug` has no `#NNN` issue reference.
+`buildSrc` scanner. The task scans Kotlin/Java test sources, writes a markdown report to `build/reports/disabled-tests/disabled-tests.md`, and fails only when a disabled test classified as `known-bug` has no `#NNN` issue reference.
 
 Categories:
 
@@ -27,8 +22,7 @@ Categories:
 ## Constraints
 
 - Runtime test behavior must not change.
-- Existing disabled tests should be visible without forcing a full annotation
-  rewrite in this issue.
+- Existing disabled tests should be visible without forcing a full annotation rewrite in this issue.
 - The release gate must be cheap enough to run as part of root `check`.
 - Generated reports stay under `build/`; durable release instructions live in
   `docs/release/disabled-test-gate.md`.

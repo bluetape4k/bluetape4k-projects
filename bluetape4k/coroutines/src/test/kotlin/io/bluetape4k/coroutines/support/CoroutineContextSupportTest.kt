@@ -1,9 +1,9 @@
 package io.bluetape4k.coroutines.support
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -21,4 +21,3 @@ class CoroutineContextSupportTest {
         context.getOrCurrent() shouldBeEqualTo context
     }
 }
-

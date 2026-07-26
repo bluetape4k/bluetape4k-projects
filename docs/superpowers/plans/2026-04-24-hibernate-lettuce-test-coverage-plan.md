@@ -136,7 +136,7 @@
     - `./gradlew :bluetape4k-spring-boot3-hibernate-lettuce:jacocoTestReport`
     - `build/reports/jacoco/test/html/index.html`에서 LINE ≥ 70% 확인
 - **검증**: LINE coverage 70% 이상 수치 기록
-- **Gate**: T6 두 조건 모두 PASS(녹색 + ≥70%) 확인 후에만 T7 진행
+- **Gate**: T6 두 조건 모두 PASS (녹색 + ≥70%) 확인 후에만 T7 진행
 
 ---
 

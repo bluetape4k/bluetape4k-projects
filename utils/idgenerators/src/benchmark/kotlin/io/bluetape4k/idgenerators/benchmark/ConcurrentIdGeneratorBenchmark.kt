@@ -4,8 +4,8 @@ import io.bluetape4k.idgenerators.flake.Flake
 import io.bluetape4k.idgenerators.ksuid.KsuidGenerator
 import io.bluetape4k.idgenerators.snowflake.SnowflakeGenerator
 import io.bluetape4k.idgenerators.ulid.UlidGenerator
-import io.bluetape4k.idgenerators.uuid.UuidGenerator
 import io.bluetape4k.idgenerators.uuid.Uuid
+import io.bluetape4k.idgenerators.uuid.UuidGenerator
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
 import org.openjdk.jmh.annotations.Fork
@@ -21,7 +21,6 @@ import org.openjdk.jmh.annotations.TearDown
 import org.openjdk.jmh.annotations.Threads
 import org.openjdk.jmh.annotations.Warmup
 import org.openjdk.jmh.infra.Blackhole
-import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 

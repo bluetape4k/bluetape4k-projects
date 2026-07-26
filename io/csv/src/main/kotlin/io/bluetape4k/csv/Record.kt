@@ -18,7 +18,7 @@ import java.math.BigDecimal
  * }.toList()
  * ```
  */
-interface Record : Serializable {
+interface Record: Serializable {
 
     /** 1-based 행 번호 (skipHeaders=true 시 헤더 행 제외 기준). */
     val rowNumber: Long
@@ -52,13 +52,13 @@ interface Record : Serializable {
      *
      * 지원 타입: [String], [Int], [Long], [Double], [Float], [Boolean], [BigDecimal].
      */
-    fun <T : Any> getValue(index: Int, defaultValue: T): T
+    fun <T: Any> getValue(index: Int, defaultValue: T): T
 
     /**
      * 헤더명으로 값을 찾아 [defaultValue]의 타입으로 변환하여 반환한다.
      * 헤더가 없거나 변환 실패 시 [defaultValue]를 반환한다.
      */
-    fun <T : Any> getValue(name: String, defaultValue: T): T
+    fun <T: Any> getValue(name: String, defaultValue: T): T
 
     // ── nullable 타입 변환 ───────────────────────────────
 

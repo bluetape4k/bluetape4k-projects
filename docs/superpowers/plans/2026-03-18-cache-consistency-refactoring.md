@@ -1,10 +1,10 @@
 # Cache 모듈 일관성 리팩토링 구현 계획
 
 > **For agentic workers:
-** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (
-`- [ ]`) syntax for tracking.
+> ** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (
+> `- [ ]`) syntax for tracking.
 
-**Goal:** Cache 모듈(cache-core, cache-lettuce, cache-hazelcast, cache-redisson) 간 팩토리 API 일관성 개선 및 LettuceBinaryCodec 통일
+**Goal:** Cache 모듈 (cache-core, cache-lettuce, cache-hazelcast, cache-redisson) 간 팩토리 API 일관성 개선 및 LettuceBinaryCodec 통일
 
 **Architecture:
 ** NearJCacheConfig Builder DSL을 cache-core에 추가하고, 각 모듈의 팩토리 함수를 통일된 네이밍/파라미터로 리팩토링. Lettuce 계열은 BinarySerializer → LettuceBinaryCodec으로 통일.
@@ -87,9 +87,8 @@ import javax.cache.configuration.MutableConfiguration
 * }
 * ```
 
-*/ inline fun <K: Any, V: Any> nearJCacheConfig(
-block: NearJCacheConfigBuilder<K, V>.() -> Unit,
-): NearJCacheConfig<K, V> = NearJCacheConfigBuilder<K, V>().apply(block).build()
+*/ inline fun <K: Any, V: Any> nearJCacheConfig (block: NearJCacheConfigBuilder<K, V>. () -> Unit,
+): NearJCacheConfig<K, V> = NearJCacheConfigBuilder<K, V>().apply (block).build ()
 
 ```
 
@@ -175,21 +174,18 @@ git commit -m "feat(cache-core): NearJCacheConfig Builder DSL 추가"
  * }
  * ```
 
-*/ inline fun <reified K: Any, reified V: Any> nearJCache(
-hazelcastInstance: HazelcastInstance, block: NearJCacheConfigBuilder<K, V>.() -> Unit,
-): NearJCache<K, V> { val config = nearJCacheConfig(block)
-return nearJCache(hazelcastInstance, config)
+*/ inline fun <reified K: Any, reified V: Any> nearJCache (hazelcastInstance: HazelcastInstance, block: NearJCacheConfigBuilder<K, V>. () -> Unit,
+): NearJCache<K, V> { val config = nearJCacheConfig (block)
+return nearJCache (hazelcastInstance, config)
 }
 
 /**
 
 * Hazelcast 기반 [NearJCache]를 [NearJCacheConfig]로 생성합니다.
-  */ inline fun <reified K: Any, reified V: Any> nearJCache(
-  hazelcastInstance: HazelcastInstance, config: NearJCacheConfig<K, V>,
-  ): NearJCache<K, V> { val backCache: JCache<K, V> = HazelcastJCaching.getOrCreate(
-  hazelcastInstance, config.cacheName, getDefaultJCacheConfiguration(),
+  */ inline fun <reified K: Any, reified V: Any> nearJCache (hazelcastInstance: HazelcastInstance, config: NearJCacheConfig<K, V>,
+  ): NearJCache<K, V> { val backCache: JCache<K, V> = HazelcastJCaching.getOrCreate (hazelcastInstance, config.cacheName, getDefaultJCacheConfiguration (),
   )
-  return NearJCache(config, backCache)
+  return NearJCache (config, backCache)
   }
 
 ```
@@ -263,7 +259,7 @@ fun `suspendNearJCache DSL로 생성`() = runTest {
 }
 ```
 
-기존 nearJCache 호출하는 테스트 파일(nearcache/jcache/ 하위)도 새 시그니처에 맞게 수정합니다.
+기존 nearJCache 호출하는 테스트 파일 (nearcache/jcache/ 하위)도 새 시그니처에 맞게 수정합니다.
 
 - [ ] **Step 4: 테스트 실행**
 
@@ -505,7 +501,7 @@ git commit -m "refactor(cache-lettuce): LettuceSuspendCacheManager 미사용 파
 
 **의존성:** Task 3, 4 완료 필요
 
-- [ ] **Step 1: 기존 jcache() 시그니처 변경**
+- [ ] **Step 1: 기존 jcache () 시그니처 변경**
 
 ```kotlin
 // 변경 전
@@ -527,7 +523,7 @@ inline fun <reified K : Any, reified V : Any> jcache(
 
 내부 구현에서 `lettuceCacheConfigOf(serializer = ...)` → `lettuceCacheConfigOf(codec = ...)` 변경.
 
-- [ ] **Step 2: suspendJCache() 추가**
+- [ ] **Step 2: suspendJCache () 추가**
 
 ```kotlin
 /**
@@ -544,7 +540,7 @@ inline fun <reified V : Any> suspendJCache(
 }
 ```
 
-- [ ] **Step 3: nearJCache() 추가**
+- [ ] **Step 3: nearJCache () 추가**
 
 ```kotlin
 /**
@@ -572,7 +568,7 @@ inline fun <reified K : Any, reified V : Any> nearJCache(
 }
 ```
 
-- [ ] **Step 4: suspendNearJCache() 추가**
+- [ ] **Step 4: suspendNearJCache () 추가**
 
 ```kotlin
 /**
@@ -664,7 +660,7 @@ git commit -m "feat(cache-lettuce): LettuceCaches에 suspendJCache/nearJCache/su
 - Modify: `infra/cache-redisson/src/test/kotlin/io/bluetape4k/cache/RedissonCachesTest.kt`
 - Modify: 기타 `nearCacheOps`/`suspendNearCacheOps` 호출하는 파일
 
-- [ ] **Step 1: JCache 기반 nearCache() → nearJCache() 이름 변경**
+- [ ] **Step 1: JCache 기반 nearCache () → nearJCache () 이름 변경**
 
 `infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/RedissonCaches.kt`:
 
@@ -694,7 +690,7 @@ inline fun <reified K: Any, reified V: Any> nearJCache(
 ): NearJCache<K, V>
 ```
 
-- [ ] **Step 2: JCache 기반 suspendNearCache() → suspendNearJCache() 이름 변경**
+- [ ] **Step 2: JCache 기반 suspendNearCache () → suspendNearJCache () 이름 변경**
 
 ```kotlin
 // 변경 전
@@ -706,7 +702,7 @@ fun <K: Any, V: Any> suspendNearJCache(...)
 inline fun <reified K: Any, reified V: Any> suspendNearJCache(...)
 ```
 
-- [ ] **Step 3: nearCacheOps() → nearCache() 이름 변경**
+- [ ] **Step 3: nearCacheOps () → nearCache () 이름 변경**
 
 ```kotlin
 // 변경 전
@@ -724,7 +720,7 @@ fun <V: Any> nearCache(
 ): NearCacheOperations<V>
 ```
 
-- [ ] **Step 4: suspendNearCacheOps() → suspendNearCache() 이름 변경**
+- [ ] **Step 4: suspendNearCacheOps () → suspendNearCache () 이름 변경**
 
 ```kotlin
 // 변경 전

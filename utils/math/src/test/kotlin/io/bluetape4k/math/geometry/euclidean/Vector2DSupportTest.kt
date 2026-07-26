@@ -1,14 +1,13 @@
 package io.bluetape4k.math.geometry.euclidean
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeNear
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import kotlin.math.PI
 
 class Vector2DSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `DoubleArray를 2차원 벡터로 변환할 수 있다`() {

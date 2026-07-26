@@ -107,13 +107,13 @@ batch/
 
 **5개 모듈**, easy-batch-jdbc-tests는 제거 (batch-core에 testFixtures로 통합)
 
-| 모듈                    | 설명                                                                      | 핵심 의존                                                                                         |
-|-----------------------|-------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `batch-core`          | Record 추상화, 파이프라인 인터페이스, BatchJob DSL, JobReport, 상태 머신                 | `bluetape4k-workflow`, `bluetape4k-states`, `bluetape4k-rule-engine`, `bluetape4k-coroutines` |
+| 모듈                  | 설명                                                                          | 핵심 의존                                                                                     |
+|-----------------------|-------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| `batch-core`          | Record 추상화, 파이프라인 인터페이스, BatchJob DSL, JobReport, 상태 머신      | `bluetape4k-workflow`, `bluetape4k-states`, `bluetape4k-rule-engine`, `bluetape4k-coroutines` |
 | `batch-flatfile`      | CSV/TSV FlatFile Reader/Writer (순수 Kotlin OpenCSV 또는 표준 BufferedReader) | `batch-core`                                                                                  |
-| `batch-json`          | JSON RecordReader/Writer (Jackson streaming API)                        | `batch-core`, `jackson-databind`                                                              |
-| `batch-exposed-jdbc`  | Exposed JDBC RecordReader/Writer                                        | `batch-core`, `bluetape4k-exposed-jdbc`                                                       |
-| `batch-exposed-r2dbc` | Exposed R2DBC SuspendRecordReader/Writer (Flow 기반)                      | `batch-core`, `bluetape4k-exposed-r2dbc`                                                      |
+| `batch-json`          | JSON RecordReader/Writer (Jackson streaming API)                              | `batch-core`, `jackson-databind`                                                              |
+| `batch-exposed-jdbc`  | Exposed JDBC RecordReader/Writer                                              | `batch-core`, `bluetape4k-exposed-jdbc`                                                       |
+| `batch-exposed-r2dbc` | Exposed R2DBC SuspendRecordReader/Writer (Flow 기반)                          | `batch-core`, `bluetape4k-exposed-r2dbc`                                                      |
 
 ### 2.2 settings.gradle.kts 추가
 
@@ -629,77 +629,77 @@ io.bluetape4k.batch.exposed.r2dbc/
 
 ### Phase 1: batch-core (모듈 기반 설정 + 핵심 타입) — 12건
 
-| ID    | Complexity | 태스크                                                                                                                        |
-|-------|------------|----------------------------------------------------------------------------------------------------------------------------|
-| T1.1  | low        | settings.gradle.kts에 `includeModules("batch", withBaseDir = false)` 추가, batch 폴더 생성                                        |
-| T1.2  | low        | batch-core build.gradle.kts 작성 (workflow/states/rule-engine 의존성)                                                           |
-| T1.3  | medium     | `Record`, `RecordHeader`, `Batch`, `BatchJobReport`, `BatchJobError`, `BatchStage` 데이터 클래스 작성                              |
+| ID    | Complexity | 태스크                                                                                                                         |
+|-------|------------|--------------------------------------------------------------------------------------------------------------------------------|
+| T1.1  | low        | settings.gradle.kts에 `includeModules("batch", withBaseDir = false)` 추가, batch 폴더 생성                                     |
+| T1.2  | low        | batch-core build.gradle.kts 작성 (workflow/states/rule-engine 의존성)                                                          |
+| T1.3  | medium     | `Record`, `RecordHeader`, `Batch`, `BatchJobReport`, `BatchJobError`, `BatchStage` 데이터 클래스 작성                          |
 | T1.4  | medium     | `RecordReader`, `RecordWriter`, `RecordFilter`, `RecordMapper`, `RecordValidator`, `RecordProcessor` fun interface 작성 (동기) |
-| T1.5  | medium     | `SuspendRecordReader`, `SuspendRecordWriter`, `FlowRecordReader` fun interface 작성                                          |
-| T1.6  | high       | `BatchJobState` enum + `BatchJobStateMachine` (states 모듈 활용) 구현                                                            |
-| T1.7  | high       | `BatchJob<I,O>` 동기 구현 (workflow SequentialWorkFlow 활용, chunk 처리)                                                           |
-| T1.8  | high       | `SuspendBatchJob<I,O>` 코루틴 구현 (suspendSequentialFlow + Flow)                                                               |
-| T1.9  | medium     | `batchJob { }` / `suspendBatchJob { }` DSL 빌더                                                                              |
-| T1.10 | medium     | `RuleBasedRecordFilter` (rule-engine Condition 활용)                                                                         |
-| T1.11 | medium     | batch-core 테스트 작성 (in-memory reader/writer 사용)                                                                             |
-| T1.12 | low        | batch-core KDoc 작성                                                                                                         |
+| T1.5  | medium     | `SuspendRecordReader`, `SuspendRecordWriter`, `FlowRecordReader` fun interface 작성                                            |
+| T1.6  | high       | `BatchJobState` enum + `BatchJobStateMachine` (states 모듈 활용) 구현                                                          |
+| T1.7  | high       | `BatchJob<I,O>` 동기 구현 (workflow SequentialWorkFlow 활용, chunk 처리)                                                       |
+| T1.8  | high       | `SuspendBatchJob<I,O>` 코루틴 구현 (suspendSequentialFlow + Flow)                                                              |
+| T1.9  | medium     | `batchJob { }` / `suspendBatchJob { }` DSL 빌더                                                                                |
+| T1.10 | medium     | `RuleBasedRecordFilter` (rule-engine Condition 활용)                                                                           |
+| T1.11 | medium     | batch-core 테스트 작성 (in-memory reader/writer 사용)                                                                          |
+| T1.12 | low        | batch-core KDoc 작성                                                                                                           |
 
 ### Phase 2: batch-flatfile + batch-json — 8건
 
-| ID   | Complexity | 태스크                                                                    |
-|------|------------|------------------------------------------------------------------------|
+| ID   | Complexity | 태스크                                                                   |
+|------|------------|--------------------------------------------------------------------------|
 | T2.1 | low        | batch-flatfile build.gradle.kts (batch-core 의존)                        |
 | T2.2 | medium     | `CsvRecordReader`, `CsvRecordWriter` (순수 Kotlin BufferedReader/Writer) |
-| T2.3 | medium     | `DelimitedRecordReader`, `DelimitedRecordWriter` (TSV 등 구분자 설정)        |
-| T2.4 | medium     | batch-flatfile 테스트 (임시 파일 기반)                                          |
-| T2.5 | low        | batch-json build.gradle.kts (jackson-databind compileOnly)             |
-| T2.6 | medium     | `JsonRecordReader<T>`, `JsonRecordWriter<T>` (Jackson streaming)       |
-| T2.7 | medium     | batch-json 테스트 (임시 파일 기반)                                              |
+| T2.3 | medium     | `DelimitedRecordReader`, `DelimitedRecordWriter` (TSV 등 구분자 설정)    |
+| T2.4 | medium     | batch-flatfile 테스트 (임시 파일 기반)                                   |
+| T2.5 | low        | batch-json build.gradle.kts (jackson-databind compileOnly)               |
+| T2.6 | medium     | `JsonRecordReader<T>`, `JsonRecordWriter<T>` (Jackson streaming)         |
+| T2.7 | medium     | batch-json 테스트 (임시 파일 기반)                                       |
 | T2.8 | low        | flatfile/json KDoc 작성                                                  |
 
 ### Phase 3: batch-exposed-jdbc — 8건
 
 | ID   | Complexity | 태스크                                                     |
-|------|------------|---------------------------------------------------------|
-| T3.1 | low        | batch-exposed-jdbc build.gradle.kts                     |
-| T3.2 | medium     | `ExposedJdbcRecordReader<T>` (Query 기반, 페이지 처리)         |
-| T3.3 | medium     | `ExposedJdbcRecordWriter<T>` (BatchInsertStatement 활용)  |
-| T3.4 | medium     | `ExposedJdbcUpsertWriter<T>` (Exposed upsert 지원)        |
-| T3.5 | medium     | `exposedJdbcBatchJob { }` 편의 DSL                        |
+|------|------------|------------------------------------------------------------|
+| T3.1 | low        | batch-exposed-jdbc build.gradle.kts                        |
+| T3.2 | medium     | `ExposedJdbcRecordReader<T>` (Query 기반, 페이지 처리)     |
+| T3.3 | medium     | `ExposedJdbcRecordWriter<T>` (BatchInsertStatement 활용)   |
+| T3.4 | medium     | `ExposedJdbcUpsertWriter<T>` (Exposed upsert 지원)         |
+| T3.5 | medium     | `exposedJdbcBatchJob { }` 편의 DSL                         |
 | T3.6 | medium     | batch-exposed-jdbc 테스트 (H2 + Testcontainers PostgreSQL) |
-| T3.7 | medium     | Integration test: CSV → PostgreSQL                      |
-| T3.8 | low        | KDoc 작성                                                 |
+| T3.7 | medium     | Integration test: CSV → PostgreSQL                         |
+| T3.8 | low        | KDoc 작성                                                  |
 
 ### Phase 4: batch-exposed-r2dbc — 7건
 
-| ID   | Complexity | 태스크                                                                             |
-|------|------------|---------------------------------------------------------------------------------|
-| T4.1 | low        | batch-exposed-r2dbc build.gradle.kts                                            |
+| ID   | Complexity | 태스크                                                                               |
+|------|------------|--------------------------------------------------------------------------------------|
+| T4.1 | low        | batch-exposed-r2dbc build.gradle.kts                                                 |
 | T4.2 | high       | `ExposedR2dbcRecordReader<T>` (Flow<Record<T>> 반환, newSuspendedTransaction 내에서) |
-| T4.3 | medium     | `ExposedR2dbcRecordWriter<T>` (suspend, BatchInsertStatement)                   |
-| T4.4 | medium     | `suspendExposedBatchJob { }` 편의 DSL                                             |
-| T4.5 | medium     | batch-exposed-r2dbc 테스트 (R2DBC H2 + Testcontainers PostgreSQL)                  |
-| T4.6 | medium     | Integration test: PostgreSQL → PostgreSQL R2DBC migration                       |
-| T4.7 | low        | KDoc 작성                                                                         |
+| T4.3 | medium     | `ExposedR2dbcRecordWriter<T>` (suspend, BatchInsertStatement)                        |
+| T4.4 | medium     | `suspendExposedBatchJob { }` 편의 DSL                                                |
+| T4.5 | medium     | batch-exposed-r2dbc 테스트 (R2DBC H2 + Testcontainers PostgreSQL)                    |
+| T4.6 | medium     | Integration test: PostgreSQL → PostgreSQL R2DBC migration                            |
+| T4.7 | low        | KDoc 작성                                                                            |
 
 ### Phase 5: 마무리 — 5건
 
-| ID   | Complexity | 태스크                                     |
-|------|------------|-----------------------------------------|
-| T5.1 | low        | README.md + README.ko.md 작성 (5개 모듈 각각)  |
-| T5.2 | medium     | CLAUDE.md 업데이트 (batch 모듈 테이블 추가)        |
-| T5.3 | low        | docs/superpowers/index/2026-04.md 항목 추가 |
-| T5.4 | medium     | 전체 테스트 실행 + testlog 기록                  |
-| T5.5 | low        | 커밋                                      |
+| ID   | Complexity | 태스크                                        |
+|------|------------|-----------------------------------------------|
+| T5.1 | low        | README.md + README.ko.md 작성 (5개 모듈 각각) |
+| T5.2 | medium     | CLAUDE.md 업데이트 (batch 모듈 테이블 추가)   |
+| T5.3 | low        | docs/superpowers/index/2026-04.md 항목 추가   |
+| T5.4 | medium     | 전체 테스트 실행 + testlog 기록               |
+| T5.5 | low        | 커밋                                          |
 
 ---
 
 ## 7. 요약
 
-| 항목       | 값                                                                            |
-|----------|------------------------------------------------------------------------------|
-| 전체 모듈 수  | 5 (core, flatfile, json, exposed-jdbc, exposed-r2dbc)                        |
-| 전체 태스크 수 | 40건 (Phase 1: 12, Phase 2: 8, Phase 3: 8, Phase 4: 7, Phase 5: 5)            |
-| 외부 의존성   | 없음 (easy-batch JAR 불사용)                                                      |
-| 내부 모듈 활용 | `bluetape4k-workflow`, `bluetape4k-states`, `bluetape4k-rule-engine`         |
-| 실행 모델    | 동기(Virtual Threads + SequentialWorkFlow) + 코루틴(suspendSequentialFlow + Flow) |
+| 항목           | 값                                                                                |
+|----------------|-----------------------------------------------------------------------------------|
+| 전체 모듈 수   | 5 (core, flatfile, json, exposed-jdbc, exposed-r2dbc)                             |
+| 전체 태스크 수 | 40건 (Phase 1: 12, Phase 2: 8, Phase 3: 8, Phase 4: 7, Phase 5: 5)                |
+| 외부 의존성    | 없음 (easy-batch JAR 불사용)                                                      |
+| 내부 모듈 활용 | `bluetape4k-workflow`, `bluetape4k-states`, `bluetape4k-rule-engine`              |
+| 실행 모델      | 동기(Virtual Threads + SequentialWorkFlow) + 코루틴(suspendSequentialFlow + Flow) |

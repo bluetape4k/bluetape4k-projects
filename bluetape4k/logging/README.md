@@ -409,8 +409,7 @@ suspend fun runProcessor() {
 }
 ```
 
-For ordinary companion-object loggers, prefer `KLogging()` unless coroutine-heavy or
-high-volume async logging justifies the lifecycle cost.
+For ordinary companion-object loggers, prefer `KLogging()` unless coroutine-heavy or high-volume async logging justifies the lifecycle cost.
 
 ### 7. Logback Configuration
 
