@@ -8,6 +8,7 @@ import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationScheduledHa
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationScheduler
 import io.bluetape4k.redis.lettuce.lock.LockAcquireResult
 import io.bluetape4k.redis.lettuce.lock.LockHandle
+import io.bluetape4k.redis.lettuce.lock.LockOutcome
 import io.bluetape4k.redis.lettuce.lock.SpinLockConfig
 import io.bluetape4k.redis.lettuce.lock.toRedisMillisCeil
 import kotlinx.coroutines.currentCoroutineContext
@@ -86,6 +87,8 @@ internal class LockWaitSupport(
     private val isClosed: () -> Boolean,
     private val retryPolicy: LockRetryPolicy = DistributedLockRetryPolicy,
     private val ticker: MonotonicTicker = MonotonicTicker.SYSTEM,
+    private val releaseAbandoned: (LockHandle) -> Unit = {},
+    private val waitObservation: LockWaitObservation? = null,
 ) {
     private val closing = AtomicBoolean()
     private val pendingAsync =
@@ -101,32 +104,47 @@ internal class LockWaitSupport(
         attempt: () -> LockAcquireResult<LockHandle>,
     ): LockAcquireResult<LockHandle> {
         val deadline = deadline(waitTime)
+        val observation = waitObservation?.begin()
         var retryAttempt = 0
-        while (true) {
-            when (val result = attempt()) {
-                is LockAcquireResult.Contended -> {
-                    val remaining = deadline.remainingNanos()
-                    if (remaining == 0L) return LockAcquireResult.TimedOut
-                    LockSupport.parkNanos(retryPolicy.delay(++retryAttempt, remaining).toNanos())
+        var outcome = LockOutcome.CANCELLED
+        try {
+            while (true) {
+                when (val result = attempt()) {
+                    is LockAcquireResult.Contended -> {
+                        observation?.onContended()
+                        val remaining = deadline.remainingNanos()
+                        if (remaining == 0L) {
+                            outcome = LockOutcome.TIMED_OUT
+                            return LockAcquireResult.TimedOut
+                        }
+                        LockSupport.parkNanos(retryPolicy.delay(++retryAttempt, remaining).toNanos())
+                    }
+                    else -> {
+                        outcome = result.observationOutcome()
+                        return result
+                    }
                 }
-                else -> return result
             }
+        } finally {
+            observation?.complete(outcome)
         }
     }
 
     fun acquireAsync(
         waitTime: Duration,
+        abandonedRelease: (LockHandle) -> Unit = releaseAbandoned,
         attempt: () -> CompletableFuture<LockAcquireResult<LockHandle>>,
     ): CompletableFuture<LockAcquireResult<LockHandle>> {
         val deadline = deadline(waitTime)
         if (isLifecycleClosed()) return CompletableFuture.completedFuture(LockAcquireResult.Closed)
+        val observation = waitObservation?.begin()
         val result = CompletableFuture<LockAcquireResult<LockHandle>>()
         val scheduled = AtomicReference<CoordinationRuntime.CoordinationTaskRegistration?>()
         val inFlight = AtomicReference<CompletableFuture<LockAcquireResult<LockHandle>>?>()
         val attempts = AtomicInteger()
         pendingAsync += result
 
-        result.whenComplete { _, _ ->
+        result.whenComplete { value, error ->
             pendingAsync -= result
             scheduled.getAndSet(null)?.close()
             inFlight.getAndSet(null)?.let { pending ->
@@ -134,6 +152,13 @@ internal class LockWaitSupport(
                     pending.cancel(false)
                 }
             }
+            observation?.complete(
+                when {
+                    result.isCancelled -> LockOutcome.CANCELLED
+                    error != null -> LockOutcome.BACKEND_FAILED
+                    else -> value.observationOutcome()
+                },
+            )
         }
 
         lateinit var retry: () -> Unit
@@ -170,11 +195,13 @@ internal class LockWaitSupport(
                     pending.whenComplete { acquired, error ->
                         inFlight.compareAndSet(pending, null)
                         if (result.isDone) {
+                            acquired.acquiredHandleOrNull()?.let(abandonedRelease)
                             return@whenComplete
                         }
                         if (error != null) {
                             result.completeExceptionally(error)
                         } else if (acquired is LockAcquireResult.Contended) {
+                            observation?.onContended()
                             val remaining = deadline.remainingNanos()
                             if (remaining == 0L) {
                                 result.complete(LockAcquireResult.TimedOut)
@@ -182,7 +209,9 @@ internal class LockWaitSupport(
                                 scheduleRetry(retryPolicy.delay(attempts.incrementAndGet(), remaining))
                             }
                         } else {
-                            result.complete(acquired)
+                            if (!result.complete(acquired)) {
+                                acquired.acquiredHandleOrNull()?.let(abandonedRelease)
+                            }
                         }
                     }
                 }
@@ -197,23 +226,45 @@ internal class LockWaitSupport(
         attempt: suspend () -> LockAcquireResult<LockHandle>,
     ): LockAcquireResult<LockHandle> {
         val deadline = deadline(waitTime)
+        val observation = waitObservation?.begin()
         var retryAttempt = 0
-        while (true) {
-            currentCoroutineContext().ensureActive()
-            if (isLifecycleClosed()) return LockAcquireResult.Closed
-            when (val result = attempt()) {
-                is LockAcquireResult.Contended -> {
-                    val remaining = deadline.remainingNanos()
-                    if (remaining == 0L) return LockAcquireResult.TimedOut
-                    val retryDelay = retryPolicy.delay(++retryAttempt, remaining)
-                    when (awaitRetry(retryDelay)) {
-                        RetrySignal.RETRY -> Unit
-                        RetrySignal.CLOSED -> return LockAcquireResult.Closed
-                        RetrySignal.CAPACITY_EXCEEDED -> return LockAcquireResult.CapacityExceeded
+        var outcome = LockOutcome.CANCELLED
+        try {
+            while (true) {
+                currentCoroutineContext().ensureActive()
+                if (isLifecycleClosed()) {
+                    outcome = LockOutcome.CLOSED
+                    return LockAcquireResult.Closed
+                }
+                when (val result = attempt()) {
+                    is LockAcquireResult.Contended -> {
+                        observation?.onContended()
+                        val remaining = deadline.remainingNanos()
+                        if (remaining == 0L) {
+                            outcome = LockOutcome.TIMED_OUT
+                            return LockAcquireResult.TimedOut
+                        }
+                        val retryDelay = retryPolicy.delay(++retryAttempt, remaining)
+                        when (awaitRetry(retryDelay)) {
+                            RetrySignal.RETRY -> Unit
+                            RetrySignal.CLOSED -> {
+                                outcome = LockOutcome.CLOSED
+                                return LockAcquireResult.Closed
+                            }
+                            RetrySignal.CAPACITY_EXCEEDED -> {
+                                outcome = LockOutcome.CAPACITY_REJECTED
+                                return LockAcquireResult.CapacityExceeded
+                            }
+                        }
+                    }
+                    else -> {
+                        outcome = result.observationOutcome()
+                        return result
                     }
                 }
-                else -> return result
             }
+        } finally {
+            observation?.complete(outcome)
         }
     }
 
@@ -274,6 +325,21 @@ internal class LockWaitSupport(
     }
 }
 
+internal fun LockAcquireResult<*>?.observationOutcome(): LockOutcome =
+    when (this) {
+        is LockAcquireResult.Acquired,
+        is LockAcquireResult.Reentered,
+        -> LockOutcome.SUCCEEDED
+        is LockAcquireResult.Contended -> LockOutcome.CONTENDED
+        LockAcquireResult.TimedOut -> LockOutcome.TIMED_OUT
+        LockAcquireResult.CleanupPending -> LockOutcome.CONTENDED
+        LockAcquireResult.CapacityExceeded -> LockOutcome.CAPACITY_REJECTED
+        LockAcquireResult.Closed, null -> LockOutcome.CLOSED
+        is LockAcquireResult.BackendFailure -> LockOutcome.BACKEND_FAILED
+        is LockAcquireResult.IntegrityFailure -> LockOutcome.INTEGRITY_FAILED
+        is LockAcquireResult.Ambiguous -> LockOutcome.AMBIGUOUS
+    }
+
 internal class ScheduledExecutorCoordinationScheduler(
     private val executor: ScheduledExecutorService,
 ): CoordinationScheduler {
@@ -301,4 +367,11 @@ private fun Duration.saturatedNanos(): Long =
         toNanos()
     } catch (_: ArithmeticException) {
         Long.MAX_VALUE
+    }
+
+private fun LockAcquireResult<LockHandle>?.acquiredHandleOrNull(): LockHandle? =
+    when (this) {
+        is LockAcquireResult.Acquired -> handle
+        is LockAcquireResult.Reentered -> handle
+        else -> null
     }

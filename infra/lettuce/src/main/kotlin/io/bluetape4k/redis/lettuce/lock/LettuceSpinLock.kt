@@ -2,11 +2,12 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.lock.internal.DistributedLockClient
-import io.bluetape4k.redis.lettuce.lock.internal.LockWaitSupport
+import io.bluetape4k.redis.lettuce.lock.internal.LockObservationRecorder
 import io.bluetape4k.redis.lettuce.lock.internal.LockRetryPolicy
-import io.bluetape4k.redis.lettuce.lock.internal.ScheduledExecutorCoordinationScheduler
+import io.bluetape4k.redis.lettuce.lock.internal.LockWaitObservation
+import io.bluetape4k.redis.lettuce.lock.internal.LockWaitSupport
 import io.bluetape4k.redis.lettuce.lock.internal.SpinLockRetryPolicy
-import io.bluetape4k.redis.lettuce.lock.internal.deriveDistributedLockKeys
+import io.bluetape4k.redis.lettuce.lock.internal.withObjectKind
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
 import java.time.Duration
@@ -151,12 +152,14 @@ internal class SpinLockClient private constructor(
     private val distributed: DistributedLockClient,
     private val registration: CoordinationRuntime.CoordinationObjectRegistration,
     retryPolicy: LockRetryPolicy,
+    waitObservation: LockWaitObservation,
 ) {
     private val closed = AtomicBoolean()
     private val waitSupport = LockWaitSupport(
         registration = registration,
         isClosed = closed::get,
         retryPolicy = retryPolicy,
+        waitObservation = waitObservation,
     )
 
     fun tryAcquire(
@@ -266,7 +269,6 @@ internal class SpinLockClient private constructor(
 
     fun close() {
         if (closed.compareAndSet(false, true)) {
-            registration.close()
             distributed.close()
         }
     }
@@ -280,22 +282,14 @@ internal class SpinLockClient private constructor(
             observationSink: LockObservationSink = LockObservationSink.NOOP,
         ): SpinLockClient {
             val retryPolicy = SpinLockRetryPolicy(config)
-            val keys = deriveDistributedLockKeys(name, config.lock, connection.codec)
-            val runtime = CoordinationRuntime.forConnection(
-                connection,
-                scheduler = scheduler?.let(::ScheduledExecutorCoordinationScheduler),
-            )
-            val distributed = DistributedLockClient.create(connection, name, config.lock, scheduler, observationSink)
-            val registration = try {
-                runtime.registerObject(keys.fingerprint)
-            } catch (error: Exception) {
-                distributed.close()
-                throw error
-            }
+            val spinSink = observationSink.withObjectKind(LockKind.SPIN)
+            val waitObservation = LockWaitObservation(LockObservationRecorder(LockKind.SPIN, spinSink))
+            val distributed = DistributedLockClient.create(connection, name, config.lock, scheduler, spinSink)
             return SpinLockClient(
                 distributed,
-                registration,
+                distributed.registration,
                 retryPolicy,
+                waitObservation,
             )
         }
 
@@ -307,22 +301,14 @@ internal class SpinLockClient private constructor(
             observationSink: LockObservationSink = LockObservationSink.NOOP,
         ): SpinLockClient {
             val retryPolicy = SpinLockRetryPolicy(config)
-            val keys = deriveDistributedLockKeys(name, config.lock, connection.codec)
-            val runtime = CoordinationRuntime.forConnection(
-                connection,
-                scheduler = scheduler?.let(::ScheduledExecutorCoordinationScheduler),
-            )
-            val distributed = DistributedLockClient.create(connection, name, config.lock, scheduler, observationSink)
-            val registration = try {
-                runtime.registerObject(keys.fingerprint)
-            } catch (error: Exception) {
-                distributed.close()
-                throw error
-            }
+            val spinSink = observationSink.withObjectKind(LockKind.SPIN)
+            val waitObservation = LockWaitObservation(LockObservationRecorder(LockKind.SPIN, spinSink))
+            val distributed = DistributedLockClient.create(connection, name, config.lock, scheduler, spinSink)
             return SpinLockClient(
                 distributed,
-                registration,
+                distributed.registration,
                 retryPolicy,
+                waitObservation,
             )
         }
     }

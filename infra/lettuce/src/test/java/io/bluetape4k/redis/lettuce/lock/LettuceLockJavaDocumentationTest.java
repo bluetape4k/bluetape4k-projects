@@ -92,6 +92,15 @@ class LettuceLockJavaDocumentationTest {
         if (result instanceof LockAcquireResult.Acquired<?> acquired) {
             LockHandle handle = (LockHandle) acquired.getHandle();
             distributed.release(handle);
+        } else if (result instanceof LockAcquireResult.Reentered<?> reentered) {
+            LockHandle handle = (LockHandle) reentered.getHandle();
+            distributed.release(handle);
+        } else if (result instanceof LockAcquireResult.Ambiguous ambiguous) {
+            LockReconcileResult<LockHandle> reconciled =
+                distributed.reconcile(ambiguous.getOwnerId(), ambiguous.getRequestId());
+            if (reconciled instanceof LockReconcileResult.Owned<?> owned) {
+                distributed.release((LockHandle) owned.getHandle());
+            }
         } else if (result instanceof LockAcquireResult.Contended contended) {
             long remainingTtlMillis = contended.getRemainingTtlMillis();
         } else if (result == LockAcquireResult.Closed.INSTANCE) {
@@ -100,10 +109,24 @@ class LettuceLockJavaDocumentationTest {
 
         CompletableFuture<LockAcquireResult<LockHandle>> async =
             distributed.acquireAsync(ownerId, requestId, Duration.ofSeconds(2), lease);
-        async.thenAccept(acquired -> {
+        async.thenCompose(acquired -> {
+            CompletableFuture<?> completion;
             if (acquired instanceof LockAcquireResult.Acquired<?> success) {
-                distributed.release((LockHandle) success.getHandle());
+                completion = distributed.releaseAsync((LockHandle) success.getHandle());
+            } else if (acquired instanceof LockAcquireResult.Reentered<?> reentered) {
+                completion = distributed.releaseAsync((LockHandle) reentered.getHandle());
+            } else if (acquired instanceof LockAcquireResult.Ambiguous ambiguous) {
+                completion = distributed.reconcileAsync(ambiguous.getOwnerId(), ambiguous.getRequestId())
+                    .thenCompose(reconciled -> {
+                        if (reconciled instanceof LockReconcileResult.Owned<?> owned) {
+                            return distributed.releaseAsync((LockHandle) owned.getHandle());
+                        }
+                        return CompletableFuture.completedFuture(null);
+                    });
+            } else {
+                completion = CompletableFuture.completedFuture(null);
             }
+            return completion.thenAccept(ignored -> {});
         });
 
         LockAcquireResult<FencedLockHandle> fencedResult = fenced.tryAcquire(ownerId, requestId, lease);

@@ -282,8 +282,10 @@ private const val RANDOM_BASE58_LENGTH = 22
 
 private fun validateOpaqueIdentity(value: String, label: String) {
     val byteCount = value.toByteArray(StandardCharsets.UTF_8).size
-    require(value.isNotBlank() && byteCount in 1..MAX_IDENTITY_UTF8_BYTES) {
-        "$label must be non-blank and contain 1..$MAX_IDENTITY_UTF8_BYTES UTF-8 bytes."
+    val hasSafeProtocolCharacters = value.none { it == '|' || it.isISOControl() }
+    require(value.isNotBlank() && byteCount in 1..MAX_IDENTITY_UTF8_BYTES && hasSafeProtocolCharacters) {
+        "$label must be non-blank, contain 1..$MAX_IDENTITY_UTF8_BYTES UTF-8 bytes, " +
+                "and exclude protocol delimiters and control characters."
     }
 }
 

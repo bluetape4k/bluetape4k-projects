@@ -36,6 +36,22 @@ class LockIdentityTest {
     }
 
     @Test
+    fun `owner and request ids reject protocol delimiters and control characters`() {
+        listOf(
+            "owner|request",
+            "owner\u0000request",
+            "owner\nrequest",
+            "owner\trequest",
+        ).forEach { invalid ->
+            assertFailsWith<IllegalArgumentException> { LockOwnerId.from(invalid) }
+            assertFailsWith<IllegalArgumentException> { LockRequestId.from(invalid) }
+        }
+
+        LockOwnerId.from("소유자-α").toString() shouldBeEqualTo "LockOwnerId(<redacted>)"
+        LockRequestId.from("요청-β").toString() shouldBeEqualTo "LockRequestId(<redacted>)"
+    }
+
+    @Test
     fun `generated ids contain at least 128 decoded CSPRNG bits and do not collide in a bounded sample`() {
         val owners = List(256) { LockOwnerId.random() }
         val requests = List(256) { LockRequestId.random() }
@@ -122,6 +138,13 @@ class LockIdentityTest {
         val error = assertFailsWith<InvalidObjectException> { javaRoundTrip(invalid) }
         error.message shouldBeEqualTo "Invalid serialized LockHandle."
         error.message shouldNotContain "owner"
+
+        val invalidOwner = LockOwnerId.from("owner").withField("value", "owner|request")
+        assertFailsWith<InvalidObjectException> { javaRoundTrip(invalidOwner) }
+            .message shouldBeEqualTo "Invalid serialized LockOwnerId."
+        val invalidRequest = LockRequestId.from("request").withField("value", "request\u0000owner")
+        assertFailsWith<InvalidObjectException> { javaRoundTrip(invalidRequest) }
+            .message shouldBeEqualTo "Invalid serialized LockRequestId."
     }
 
     private fun <T: Serializable> T.withField(name: String, value: Any?): T = apply {
