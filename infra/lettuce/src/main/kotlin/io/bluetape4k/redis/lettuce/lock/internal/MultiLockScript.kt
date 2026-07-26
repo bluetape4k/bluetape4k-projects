@@ -137,7 +137,7 @@ internal class MultiLockClient private constructor(
         leasePolicy: LeasePolicy,
     ): LockAcquireResult<MultiLockHandle> =
         if (closed.get()) LockAcquireResult.Closed else multiClassified(
-            { LockAcquireResult.BackendFailure(it) },
+            { acquireBackendResult(ownerId, requestId, it) },
             { LockAcquireResult.IntegrityFailure(it) },
             LockRecoveryAction.RECONCILE_REQUEST,
         ) {
@@ -178,7 +178,7 @@ internal class MultiLockClient private constructor(
         leasePolicy: LeasePolicy,
     ): LockAcquireResult<MultiLockHandle> =
         if (closed.get()) LockAcquireResult.Closed else multiClassifiedSuspending(
-            { LockAcquireResult.BackendFailure(it) },
+            { acquireBackendResult(ownerId, requestId, it) },
             { LockAcquireResult.IntegrityFailure(it) },
             LockRecoveryAction.RECONCILE_REQUEST,
         ) {
@@ -523,7 +523,7 @@ internal class MultiLockClient private constructor(
         } else {
             runAsync(MultiLockOperation.ACQUIRE, acquireArguments(ownerId, requestId, leasePolicy)).multiMap(
                 { decodeMultiAcquire(it, ownerId, requestId) },
-                { LockAcquireResult.BackendFailure(it) },
+                { acquireBackendResult(ownerId, requestId, it) },
                 { LockAcquireResult.IntegrityFailure(it) },
                 LockRecoveryAction.RECONCILE_REQUEST,
             )
