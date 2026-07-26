@@ -1,8 +1,8 @@
 package io.bluetape4k.csv
 
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 import java.io.StringWriter
 

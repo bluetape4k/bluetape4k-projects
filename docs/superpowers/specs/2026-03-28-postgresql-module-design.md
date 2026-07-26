@@ -2,16 +2,16 @@
 
 ## 1. 개요
 
-`bluetape4k-experimental` 저장소의 PostgreSQL 전용 Exposed 확장 모듈 3개(exposed-postgis, exposed-pgvector, exposed-tsrange)를 `bluetape4k-projects`의 단일 모듈 `bluetape4k-postgresql`로 통합한다.
+`bluetape4k-experimental` 저장소의 PostgreSQL 전용 Exposed 확장 모듈 3개 (exposed-postgis, exposed-pgvector, exposed-tsrange)를 `bluetape4k-projects`의 단일 모듈 `bluetape4k-postgresql`로 통합한다.
 
 ### 1.1 통합 근거
 
-| 기준 | 판단 |
-|------|------|
-| 도메인 응집성 | 3개 모두 PostgreSQL 전용 Exposed 확장 |
-| 선택적 의존성 | postgis-jdbc, pgvector는 `compileOnly`로 사용자가 필요한 것만 추가 |
-| 모듈 최소화 정책 | bluetape4k-projects 기존 정책과 일치 |
-| 독립 배포 필요성 | 없음 (항상 PostgreSQL + Exposed 조합으로 사용) |
+| 기준             | 판단                                                               |
+|------------------|--------------------------------------------------------------------|
+| 도메인 응집성    | 3개 모두 PostgreSQL 전용 Exposed 확장                              |
+| 선택적 의존성    | postgis-jdbc, pgvector는 `compileOnly`로 사용자가 필요한 것만 추가 |
+| 모듈 최소화 정책 | bluetape4k-projects 기존 정책과 일치                               |
+| 독립 배포 필요성 | 없음 (항상 PostgreSQL + Exposed 조합으로 사용)                     |
 
 ### 1.2 모듈 위치
 
@@ -46,11 +46,11 @@ io.bluetape4k.exposed.postgresql/
 
 ### 2.1 패키지 변경 매핑
 
-| experimental 패키지 | bluetape4k-postgresql 패키지 |
-|---------------------|------------------------------|
-| `io.bluetape4k.exposed.postgis.*` | `io.bluetape4k.exposed.postgresql.postgis.*` |
+| experimental 패키지                | bluetape4k-postgresql 패키지                  |
+|------------------------------------|-----------------------------------------------|
+| `io.bluetape4k.exposed.postgis.*`  | `io.bluetape4k.exposed.postgresql.postgis.*`  |
 | `io.bluetape4k.exposed.pgvector.*` | `io.bluetape4k.exposed.postgresql.pgvector.*` |
-| `io.bluetape4k.exposed.tsrange.*` | `io.bluetape4k.exposed.postgresql.tsrange.*` |
+| `io.bluetape4k.exposed.tsrange.*`  | `io.bluetape4k.exposed.postgresql.tsrange.*`  |
 
 공통 상위 패키지 `io.bluetape4k.exposed.postgresql`을 추가하여 모듈 소속을 명확히 한다.
 
@@ -144,6 +144,7 @@ fun Column<FloatArray>.innerProduct(other: Expression<FloatArray>): Function<Dou
 ```
 
 **변경사항**:
+
 - 패키지 이동
 - `registerVectorType()`은 기존 그대로 유지 (pgvector JDBC 드라이버의 `PGvector.addVectorType()` 위임)
 
@@ -247,13 +248,13 @@ dependencies {
 
 ### 4.1 의존성 분류 근거
 
-| 의존성 | 분류 | 근거 |
-|--------|------|------|
-| `bluetape4k-exposed-core` | `api` | 컬럼 타입의 기반 클래스 제공 |
-| `exposed-jdbc` | `compileOnly` | JDBC 연산에만 필요, 사용자가 직접 추가 |
-| `postgis-jdbc` | `compileOnly` | PostGIS 기능 사용 시에만 필요 |
-| `pgvector` | `compileOnly` | pgvector 기능 사용 시에만 필요 |
-| `postgresql_driver` | `compileOnly` | 런타임에 사용자가 추가 |
+| 의존성                    | 분류          | 근거                                   |
+|---------------------------|---------------|----------------------------------------|
+| `bluetape4k-exposed-core` | `api`         | 컬럼 타입의 기반 클래스 제공           |
+| `exposed-jdbc`            | `compileOnly` | JDBC 연산에만 필요, 사용자가 직접 추가 |
+| `postgis-jdbc`            | `compileOnly` | PostGIS 기능 사용 시에만 필요          |
+| `pgvector`                | `compileOnly` | pgvector 기능 사용 시에만 필요         |
+| `postgresql_driver`       | `compileOnly` | 런타임에 사용자가 추가                 |
 
 ---
 
@@ -271,10 +272,10 @@ const val pgvector = "com.pgvector:pgvector:0.1.6"
 
 ### 5.1 버전 선택 근거
 
-| 라이브러리 | 버전 | 비고 |
-|-----------|------|------|
+| 라이브러리   | 버전     | 비고                                         |
+|--------------|----------|----------------------------------------------|
 | postgis-jdbc | 2024.1.0 | Maven Central 최신 안정 버전 (2024년 릴리즈) |
-| pgvector | 0.1.6 | experimental과 동일, Maven Central 최신 |
+| pgvector     | 0.1.6    | experimental과 동일, Maven Central 최신      |
 
 ---
 
@@ -284,11 +285,11 @@ const val pgvector = "com.pgvector:pgvector:0.1.6"
 
 기능별로 필요한 Docker 이미지가 다르므로 **별도 컨테이너** 전략을 사용한다. 각 테스트 클래스에서 해당 기능에 적합한 이미지를 사용:
 
-| 기능 | Docker 이미지 | 필요 Extension |
-|------|--------------|----------------|
-| PostGIS | `postgis/postgis:16-3.4` | 자동 설치됨 |
+| 기능     | Docker 이미지            | 필요 Extension                                        |
+|----------|--------------------------|-------------------------------------------------------|
+| PostGIS  | `postgis/postgis:16-3.4` | 자동 설치됨                                           |
 | pgvector | `pgvector/pgvector:pg16` | `CREATE EXTENSION IF NOT EXISTS vector;` (initScript) |
-| tsrange | `postgres:16` | 없음 (내장 타입) |
+| tsrange  | `postgres:16`            | 없음 (내장 타입)                                      |
 
 ### 6.2 테스트 분류
 
@@ -309,11 +310,11 @@ src/test/kotlin/io/bluetape4k/exposed/postgresql/
 
 ### 6.3 테스트 컨테이너 전략
 
-| 기능 | 필요 컨테이너 | 이미지 |
-|------|-------------|--------|
-| PostGIS | PostgreSQL + PostGIS | `postgis/postgis:16-3.4` |
-| pgvector | PostgreSQL + pgvector | `pgvector/pgvector:pg16` |
-| tsrange | PostgreSQL (기본) + H2 | `postgres:16` + H2 in-memory |
+| 기능     | 필요 컨테이너          | 이미지                       |
+|----------|------------------------|------------------------------|
+| PostGIS  | PostgreSQL + PostGIS   | `postgis/postgis:16-3.4`     |
+| pgvector | PostgreSQL + pgvector  | `pgvector/pgvector:pg16`     |
+| tsrange  | PostgreSQL (기본) + H2 | `postgres:16` + H2 in-memory |
 
 PostGIS와 pgvector 테스트는 서로 다른 Docker 이미지를 사용하므로 테스트 클래스에서 별도의 컨테이너를 정의한다.
 
@@ -419,8 +420,8 @@ dependencies {
 
 ## 10. 향후 확장 고려사항
 
-- **PostgreSQL JSONB 연산**: Exposed의 기본 JSON 지원과 별도로 PostgreSQL 전용 JSONB 연산자(`@>`, `?`, `?|`, `?&`) 추가 가능
+- **PostgreSQL JSONB 연산**: Exposed의 기본 JSON 지원과 별도로 PostgreSQL 전용 JSONB 연산자 (`@>`, `?`, `?|`, `?&`) 추가 가능
 - **PostgreSQL ARRAY 타입**: `text[]`, `int[]` 등 PostgreSQL 배열 컬럼 타입
 - **Full Text Search**: `tsvector`, `tsquery` 기반 전문 검색 컬럼 타입
 - **LTREE**: 계층 구조 경로 컬럼 타입
-- 위 기능들은 동일 모듈(`bluetape4k-postgresql`)에 패키지를 추가하는 방식으로 확장한다
+- 위 기능들은 동일 모듈 (`bluetape4k-postgresql`)에 패키지를 추가하는 방식으로 확장한다

@@ -1,14 +1,14 @@
 package io.bluetape4k.elasticsearch
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.ElasticsearchServer
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [ElasticsearchClients] 및 [ElasticsearchClientDsl] 에 대한 통합 테스트.
@@ -16,9 +16,9 @@ import io.bluetape4k.assertions.assertFailsWith
  * SSL + Basic Auth 연결, DSL 빌더 연결, 인증 실패 시나리오를 검증합니다.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ElasticsearchClientsTest : AbstractElasticsearchTest() {
+class ElasticsearchClientsTest: AbstractElasticsearchTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     // --------------------------------------------------------------------------
     // asyncClientOf — SSL + Basic Auth

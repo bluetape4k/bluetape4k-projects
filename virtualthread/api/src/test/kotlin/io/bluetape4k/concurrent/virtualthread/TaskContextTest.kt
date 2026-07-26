@@ -1,7 +1,5 @@
 package io.bluetape4k.concurrent.virtualthread
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
@@ -9,10 +7,11 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
-import java.lang.ScopedValue
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -21,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class TaskContextTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     // ── 키 생성 ───────────────────────────────────────────────────────────────
 
@@ -355,7 +354,8 @@ class TaskContextTest {
             .and(b, 2)
             .and(c, 3)
             .run {
-                sumInside = TaskContext.getOrDefault(a, 0) + TaskContext.getOrDefault(b, 0) + TaskContext.getOrDefault(c, 0)
+                sumInside =
+                    TaskContext.getOrDefault(a, 0) + TaskContext.getOrDefault(b, 0) + TaskContext.getOrDefault(c, 0)
             }
 
         sumInside shouldBeEqualTo 6

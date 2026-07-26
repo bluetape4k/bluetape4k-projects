@@ -1,5 +1,6 @@
 package io.bluetape4k.spring.webflux.config
 
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -10,7 +11,6 @@ import io.bluetape4k.testcontainers.http.BluetapeHttpServer
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

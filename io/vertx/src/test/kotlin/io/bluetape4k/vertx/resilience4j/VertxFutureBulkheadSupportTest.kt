@@ -1,5 +1,8 @@
 package io.bluetape4k.vertx.resilience4j
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.asCompletableFuture
@@ -8,14 +11,11 @@ import io.github.resilience4j.bulkhead.Bulkhead
 import io.github.resilience4j.kotlin.bulkhead.BulkheadConfig
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import io.bluetape4k.assertions.assertFailsWith
 
 @Suppress("UNUSED_PARAMETER")
 class VertxFutureBulkheadSupportTest: AbstractVertxFutureTest() {

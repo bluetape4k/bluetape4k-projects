@@ -24,7 +24,7 @@ import io.bluetape4k.tink.macKeysetHandle
  */
 class TinkMac(keysetHandle: KeysetHandle = macKeysetHandle()) {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val mac: Mac by lazy {
         keysetHandle.getPrimitive(RegistryConfiguration.get(), Mac::class.java)

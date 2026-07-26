@@ -1,5 +1,7 @@
 package io.bluetape4k.states.examples
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.states.core.on
@@ -9,8 +11,6 @@ import io.bluetape4k.states.testing.assertRejects
 import io.bluetape4k.states.testing.verifyPath
 import io.bluetape4k.states.testing.via
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class AppointmentExampleTest {
@@ -25,6 +25,7 @@ class AppointmentExampleTest {
         data object COMPLETED: S("COMPLETED")
         data object CANCELLED: S("CANCELLED")
         data object NO_SHOW: S("NO_SHOW")
+
         override fun toString() = n
     }
 
@@ -36,6 +37,7 @@ class AppointmentExampleTest {
         data object Complete: E()
         data class Cancel(val reason: String = ""): E()
         data object MarkNoShow: E()
+
         override fun toString() = this::class.simpleName ?: "Unknown"
     }
 
@@ -55,7 +57,8 @@ class AppointmentExampleTest {
         onTransition { p, ev, n -> log.debug { "예약: $p --[$ev]--> $n" } }
     }
 
-    @Test fun `예약 정상 흐름 - PENDING에서 COMPLETED까지`() = runTest {
+    @Test
+    fun `예약 정상 흐름 - PENDING에서 COMPLETED까지`() = runTest {
         val m = fsm()
         m.verifyPath(
             S.PENDING via E.Request arrives S.REQUESTED,
@@ -67,7 +70,8 @@ class AppointmentExampleTest {
         m.isInFinalState().shouldBeTrue()
     }
 
-    @Test fun `예약 취소 - REQUESTED 상태에서`() = runTest {
+    @Test
+    fun `예약 취소 - REQUESTED 상태에서`() = runTest {
         val m = fsm()
         m.verifyPath(
             S.PENDING via E.Request arrives S.REQUESTED,
@@ -76,7 +80,8 @@ class AppointmentExampleTest {
         m.isInFinalState().shouldBeTrue()
     }
 
-    @Test fun `미내원 처리`() = runTest {
+    @Test
+    fun `미내원 처리`() = runTest {
         val m = fsm()
         m.verifyPath(
             S.PENDING via E.Request arrives S.REQUESTED,
@@ -86,14 +91,16 @@ class AppointmentExampleTest {
         m.isInFinalState().shouldBeTrue()
     }
 
-    @Test fun `StateFlow로 상태 변경을 관찰할 수 있다`() = runTest {
+    @Test
+    fun `StateFlow로 상태 변경을 관찰할 수 있다`() = runTest {
         val m = fsm()
         m.stateFlow.value shouldBeEqualTo S.PENDING
         m.transition(E.Request); m.stateFlow.value shouldBeEqualTo S.REQUESTED
         m.transition(E.Confirm); m.stateFlow.value shouldBeEqualTo S.CONFIRMED
     }
 
-    @Test fun `IN_PROGRESS에서 취소 불가`() = runTest {
+    @Test
+    fun `IN_PROGRESS에서 취소 불가`() = runTest {
         val m = fsm()
         m.verifyPath(
             S.PENDING via E.Request arrives S.REQUESTED,

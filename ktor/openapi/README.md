@@ -2,8 +2,7 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
-Optional Ktor OpenAPI helpers for applications that want explicit documentation
-routes without changing route behavior.
+Optional Ktor OpenAPI helpers for applications that want explicit documentation routes without changing route behavior.
 
 ## Route Diagram
 
@@ -15,8 +14,7 @@ routes without changing route behavior.
 - `bluetape4kSwaggerUi()` wraps Ktor's official `swaggerUI()` route.
 - Default endpoint names and specification path match bluetape4k Ktor examples:
   `openapi`, `swagger`, and `openapi/documentation.yaml`.
-- The OpenAPI document remains application-owned, so teams can use static YAML,
-  Ktor compiler-generated metadata, runtime `.describe {}` metadata, or a mix.
+- The OpenAPI document remains application-owned, so teams can use static YAML, Ktor compiler-generated metadata, runtime `.describe {}` metadata, or a mix.
 
 ## Dependency
 
@@ -28,8 +26,7 @@ dependencies {
 
 ## Static Specification
 
-Place a document such as `src/main/resources/openapi/documentation.yaml`, then
-wire explicit documentation routes:
+Place a document such as `src/main/resources/openapi/documentation.yaml`, then wire explicit documentation routes:
 
 ```yaml
 openapi: 3.1.0
@@ -58,16 +55,12 @@ fun Application.module() {
 }
 ```
 
-Keep `components.schemas` explicit because Ktor's OpenAPI HTML renderer
-delegates to Swagger Codegen internals that expect the schema map.
+Keep `components.schemas` explicit because Ktor's OpenAPI HTML renderer delegates to Swagger Codegen internals that expect the schema map.
 
 ## Runtime Metadata
 
-Ktor 3.5 can assemble OpenAPI metadata from the routing tree when applications
-enable the Ktor compiler OpenAPI extension, add route comments, or attach
-runtime `.describe {}` metadata. Configure the bluetape4k helpers with
-`OpenApiDocSource.Routing` when the document should come from route metadata
-instead of the static `swaggerFile` path:
+Ktor 3.5 can assemble OpenAPI metadata from the routing tree when applications enable the Ktor compiler OpenAPI extension, add route comments, or attach runtime `.describe {}` metadata. Configure the bluetape4k helpers with
+`OpenApiDocSource.Routing` when the document should come from route metadata instead of the static `swaggerFile` path:
 
 ```kotlin
 fun Application.module() {

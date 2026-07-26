@@ -21,8 +21,7 @@
 ![compress/decompress 흐름 시퀀스 다이어그램](../../docs/images/readme-diagrams/io-io-sequence-01.png)
 
 `compress()`와 `decompress()`는 예외 전파 API입니다. null 또는 empty 입력은
-`emptyByteArray`를 반환하지만, 구현체 압축/복원 실패는 호출자에게 그대로 전파됩니다.
-손상 입력이나 압축 실패를 예외 대신 `null`로 표현하려면
+`emptyByteArray`를 반환하지만, 구현체 압축/복원 실패는 호출자에게 그대로 전파됩니다. 손상 입력이나 압축 실패를 예외 대신 `null`로 표현하려면
 `compressOrNull()` / `decompressOrNull()`을 사용하세요.
 
 ### serialize/deserialize 흐름
@@ -52,9 +51,7 @@
 - **저장 공간 최적화**: BZip2, Zstd (압축률 > 속도)
 - **파일 아카이브**: Zip (디렉토리 구조 보존)
 
-`Compressors.GZip`은 gzip 확장으로 인한 메모리 과다 사용을 막기 위해
-기본적으로 256 MiB를 초과하는 압축 해제 출력을 거부합니다. 신뢰 경계에 맞는
-다른 한도가 필요하면 `GZipCompressor(maxDecompressedSize = bytes)`를 직접 생성하세요.
+`Compressors.GZip`은 gzip 확장으로 인한 메모리 과다 사용을 막기 위해 기본적으로 256 MiB를 초과하는 압축 해제 출력을 거부합니다. 신뢰 경계에 맞는 다른 한도가 필요하면 `GZipCompressor(maxDecompressedSize = bytes)`를 직접 생성하세요.
 
 ### 2. 직렬화 (BinarySerializer)
 
@@ -80,35 +77,37 @@
 - **범용 성능**: `BinarySerializers.Kryo`, `BinarySerializers.Fory`
 - **저장 공간 절약**: LZ4Kryo, ZstdFory (압축 포함)
 
-**fast() API — 고성능 모드:**
+**fast () API — 고성능 모드:**
 
 `ForyBinarySerializer`와 `KryoBinarySerializer` 모두 `fast()` 팩토리를 제공하여 적합한 환경에서 고처리량 직렬화를 지원합니다.
 
-| 직렬화기 | 모드 | 처리량 | Nullable 지원 | 사용 환경 |
-|---|---|---|---|---|
-| `ForyBinarySerializer.fast()` | SCHEMA_CONSISTENT, refTracking 비활성 | ~116K ops/s (+71%) | ✅ 지원 | 휘발성 캐시, 고정 스키마 DTO, DAG 그래프 |
-| `KryoBinarySerializer.fast()` | FieldSerializer, 청크 헤더 없음 | ~68K ops/s (+97%) | ❌ 미지원 | non-null 고정 스키마 DTO 전용 |
-| `BinarySerializers.Fory` | COMPATIBLE, refTracking | ~68K ops/s | ✅ 지원 | 스키마 진화, 영속 저장소 |
-| `BinarySerializers.Kryo` | CompatibleFieldSerializer | ~34K ops/s | ✅ 지원 | 범용, nullable 필드 포함 |
+| 직렬화기                      | 모드                                  | 처리량             | Nullable 지원 | 사용 환경                                |
+|-------------------------------|---------------------------------------|--------------------|---------------|------------------------------------------|
+| `ForyBinarySerializer.fast()` | SCHEMA_CONSISTENT, refTracking 비활성 | ~116K ops/s (+71%) | ✅ 지원       | 휘발성 캐시, 고정 스키마 DTO, DAG 그래프 |
+| `KryoBinarySerializer.fast()` | FieldSerializer, 청크 헤더 없음       | ~68K ops/s (+97%)  | ❌ 미지원     | non-null 고정 스키마 DTO 전용            |
+| `BinarySerializers.Fory`      | COMPATIBLE, refTracking               | ~68K ops/s         | ✅ 지원       | 스키마 진화, 영속 저장소                 |
+| `BinarySerializers.Kryo`      | CompatibleFieldSerializer             | ~34K ops/s         | ✅ 지원       | 범용, nullable 필드 포함                 |
 
-> ⚠️ **와이어 포맷 경고**: FastFory는 `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **호환되지 않습니다**. 휘발성 캐시(Redis, 메모리) 전용. 스키마 진화 불가.
+> ⚠️ **와이어 포맷 경고**: FastFory는 `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **호환되지
+않습니다**. 휘발성 캐시 (Redis, 메모리) 전용. 스키마 진화 불가.
 
 **FastFory 직렬화기 (압축 조합):**
 
 FastFory 성능에 압축을 결합하여 휘발성 캐시에서 최대 저장 공간 절약.
 
-| 직렬화기 | 압축 | 처리량 | 크기 감소 | 사용 환경 |
-|---|---|---|---|---|
-| `BinarySerializers.FastFory` | 없음 | ~116K ops/s | — | 빠른 휘발성 캐시, 압축 미적용 |
-| `BinarySerializers.LZ4FastFory` | LZ4 | ~25K ops/s | 40-60% | 속도와 크기 균형 |
-| `BinarySerializers.ZstdFastFory` | Zstd | ~18K ops/s | 50-70% | 최고 압축률 (추천) |
-| `BinarySerializers.SnappyFastFory` | Snappy | ~30K ops/s | 30-50% | 빠른 압축, 중간 크기 |
-| `BinarySerializers.GZipFastFory` | GZip | ~12K ops/s | 60-80% | 최고 압축률 (가장 느림) |
+| 직렬화기                           | 압축   | 처리량      | 크기 감소 | 사용 환경                     |
+|------------------------------------|--------|-------------|-----------|-------------------------------|
+| `BinarySerializers.FastFory`       | 없음   | ~116K ops/s | —         | 빠른 휘발성 캐시, 압축 미적용 |
+| `BinarySerializers.LZ4FastFory`    | LZ4    | ~25K ops/s  | 40-60%    | 속도와 크기 균형              |
+| `BinarySerializers.ZstdFastFory`   | Zstd   | ~18K ops/s  | 50-70%    | 최고 압축률 (추천)            |
+| `BinarySerializers.SnappyFastFory` | Snappy | ~30K ops/s  | 30-50%    | 빠른 압축, 중간 크기          |
+| `BinarySerializers.GZipFastFory`   | GZip   | ~12K ops/s  | 60-80%    | 최고 압축률 (가장 느림)       |
 
 > 벤치마크: 4096바이트 `ByteArray` 필드를 포함한 `SimpleData` 객체 20개. JMH 처리량 모드, 3초 측정, 4회 워밍업.
 
 **`ForyBinarySerializer.fast()`가 최선의 선택인 이유:**
-- nullable 타입(`ByteArray?`, `String?`)을 올바르게 처리합니다.
+
+- nullable 타입 (`ByteArray?`, `String?`)을 올바르게 처리합니다.
 - 기본 Fory 대비 +71% 처리량 향상.
 - 주의: 기존 `BinarySerializers.Fory`(COMPATIBLE 모드)로 직렬화한 데이터와 포맷이 달라 함께 사용할 수 없습니다.
 
@@ -130,20 +129,18 @@ Virtual Threads를 활용한 경량 스레드 기반 비동기 처리를 지원�
 
 Codec 문서는 `SerializationTrustProfile` 이름으로 역직렬화 신뢰 경계를 설명합니다:
 
-| 프로필 | 의미 |
-|---|---|
-| `TrustedInternal` | 완전히 신뢰하는 내부 경계에서 쓴 데이터만 읽습니다. |
-| `AllowListedTypes` | 동적 클래스/타입 로딩을 패키지 접두사, 클래스명, object input filter로 제한합니다. |
-| `NoDynamicTypeLoading` | 호출자가 대상 타입을 정적으로 제공하며, 직렬화 데이터가 클래스를 선택하지 않습니다. |
-| `UnsafeLegacyCompatibility` | 명시적인 unsafe 이름으로만 레거시 허용-전체 동작을 켭니다. |
+| 프로필                      | 의미                                                                                |
+|-----------------------------|-------------------------------------------------------------------------------------|
+| `TrustedInternal`           | 완전히 신뢰하는 내부 경계에서 쓴 데이터만 읽습니다.                                 |
+| `AllowListedTypes`          | 동적 클래스/타입 로딩을 패키지 접두사, 클래스명, object input filter로 제한합니다.  |
+| `NoDynamicTypeLoading`      | 호출자가 대상 타입을 정적으로 제공하며, 직렬화 데이터가 클래스를 선택하지 않습니다. |
+| `UnsafeLegacyCompatibility` | 명시적인 unsafe 이름으로만 레거시 허용-전체 동작을 켭니다.                          |
 
-Codec 기본값과 마이그레이션 지침은 [Serialization Trust Profiles](../../docs/security/serialization-trust-profiles.md)를
-참고하세요.
+Codec 기본값과 마이그레이션 지침은 [Serialization Trust Profiles](../../docs/security/serialization-trust-profiles.md)를 참고하세요.
 
 #### JDK 직렬화 필터 (JEP 290)
 
-`JdkBinarySerializer`는 이제 기본적으로 `JDK_DEFAULT_OBJECT_INPUT_FILTER`를 적용합니다.
-다음 패키지만 역직렬화를 허용하며, 그 외는 모두 차단합니다:
+`JdkBinarySerializer`는 이제 기본적으로 `JDK_DEFAULT_OBJECT_INPUT_FILTER`를 적용합니다. 다음 패키지만 역직렬화를 허용하며, 그 외는 모두 차단합니다:
 
 - `io.bluetape4k.**`
 - `java.lang.*`, `java.util.**`, `java.io.*`, `java.math.**`, `java.time.**`, `java.net.*`, `java.sql.*`
@@ -163,13 +160,12 @@ val serializer = JdkBinarySerializer(objectInputFilter = customFilter)
 
 `unzip()`은 이제 두 가지 하드 한도를 적용합니다:
 
-| 상수 | 값 | 설명 |
-|---|---|---|
-| `ZIP_MAX_ENTRIES` | 10,000 | 최대 ZIP 엔트리 수 |
-| `ZIP_MAX_UNCOMPRESSED_SIZE` | 1 GB | 최대 비압축 총 바이트 |
+| 상수                        | 값     | 설명                  |
+|-----------------------------|--------|-----------------------|
+| `ZIP_MAX_ENTRIES`           | 10,000 | 최대 ZIP 엔트리 수    |
+| `ZIP_MAX_UNCOMPRESSED_SIZE` | 1 GB   | 최대 비압축 총 바이트 |
 
-어느 한도라도 초과하면 `IllegalArgumentException`이 발생합니다. 한도는 ZIP 메타데이터 기준으로
-먼저 확인하고, 실제 추출 중 읽힌 바이트 수로 다시 확인합니다.
+어느 한도라도 초과하면 `IllegalArgumentException`이 발생합니다. 한도는 ZIP 메타데이터 기준으로 먼저 확인하고, 실제 추출 중 읽힌 바이트 수로 다시 확인합니다.
 
 #### 안전한 경로 결합
 
@@ -197,8 +193,7 @@ val compressed = compressor.compressOrNull(input)      // null 입력/empty 시 
 val restored = compressor.decompressOrNull(compressed) // 손상/null/empty 시 null 반환
 ```
 
-이를 통해 "손상된 입력"(`null` 반환)과 "빈 입력"(`compress()`가 `emptyByteArray` 반환)을
-호출자가 구별할 수 있습니다.
+이를 통해 "손상된 입력"(`null` 반환)과 "빈 입력"(`compress()`가 `emptyByteArray` 반환)을 호출자가 구별할 수 있습니다.
 
 ## 사용 예제
 
@@ -233,32 +228,25 @@ val restored = boundedGzip.decompress(compressed)
 #### 호출자 소유 Compressor ByteBuffer API
 
 <!-- issue-755-contract:start -->
-`compress(source, target)`와 `decompress(source, target)`는 기존 구현체도 사용할 수 있는 JVM default
-메서드입니다. 호출 전후에 source의 `position`, `limit`, mark, byte order를 보존하고, target의
+`compress(source, target)`와 `decompress(source, target)`는 기존 구현체도 사용할 수 있는 JVM default 메서드입니다. 호출 전후에 source의 `position`, `limit`, mark, byte order를 보존하고, target의
 `limit`, `capacity`, mark, byte order도 바꾸지 않습니다. 성공하면 반환한 기록량만큼 target
-`position`만 이동하며, 실패하면 target `position`을 원래 값으로 되돌립니다. 실패 전에 이미
-덮어쓴 byte의 내용은 보장하지 않습니다.
+`position`만 이동하며, 실패하면 target `position`을 원래 값으로 되돌립니다. 실패 전에 이미 덮어쓴 byte의 내용은 보장하지 않습니다.
 
-Read-only target은 `ReadOnlyBufferException`으로 거부하고, 동일한 buffer 객체나 확인 가능한 heap
-backing-array overlap은 `IllegalArgumentException`으로 거부합니다. direct 또는 read-only view의
-alias는 안전하게 판별할 수 없으므로 source와 target이 겹치지 않게 만드는 것은 호출자 책임입니다.
-각 mutable buffer는 호출이 끝날 때까지 한 thread 안에서만 사용해야 합니다.
+Read-only target은 `ReadOnlyBufferException`으로 거부하고, 동일한 buffer 객체나 확인 가능한 heap backing-array overlap은 `IllegalArgumentException`으로 거부합니다. direct 또는 read-only view의 alias는 안전하게 판별할 수 없으므로 source와 target이 겹치지 않게 만드는 것은 호출자 책임입니다. 각 mutable buffer는 호출이 끝날 때까지 한 thread 안에서만 사용해야 합니다.
 
-기존 one-argument `ByteBuffer` API는 source `position`을 소비할 수 있지만, 신규 two-argument API는
-source 상태를 보존합니다. 다른 interface에서 erased signature가 같은 default를 함께 상속하는 외부
-구현체는 Java interface evolution 규칙에 따라 명시적 override가 필요할 수 있습니다. 기존 호출자는
-마이그레이션할 필요가 없습니다. 재사용 가능한 target과 검증된 optimized storage 조합을 모두 가진
-호출자만 opt-in하고, fallback 조합은 correctness-only 경로로 취급하세요.
+기존 one-argument `ByteBuffer` API는 source `position`을 소비할 수 있지만, 신규 two-argument API는 source 상태를 보존합니다. 다른 interface에서 erased signature가 같은 default를 함께 상속하는 외부 구현체는 Java interface evolution 규칙에 따라 명시적 override가 필요할 수 있습니다. 기존 호출자는 마이그레이션할 필요가 없습니다. 재사용 가능한 target과 검증된 optimized storage 조합을 모두 가진 호출자만 opt-in하고, fallback 조합은 correctness-only 경로로 취급하세요.
 <!-- issue-755-contract:end -->
 
 <!-- issue-755-storage-matrix:start -->
-| Codec | heap -> heap | direct -> direct | mixed storage | Allocation claim |
-|---|---|---|---|---|
-| LZ4 | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
-| Deflate | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
-| Snappy | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
-| Zstd | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
-| Other codecs | compatibility fallback | compatibility fallback | compatibility fallback | ineligible |
+
+| Codec        | heap -> heap           | direct -> direct       | mixed storage          | Allocation claim       |
+|--------------|------------------------|------------------------|------------------------|------------------------|
+| LZ4          | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Deflate      | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Snappy       | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Zstd         | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Other codecs | compatibility fallback | compatibility fallback | compatibility fallback | ineligible             |
+
 <!-- issue-755-storage-matrix:end -->
 
 <!-- issue-755-kotlin-example:start -->
@@ -274,6 +262,7 @@ val compressed = target.duplicate().apply {
     limit(start + written)
 }.slice()
 ```
+
 <!-- issue-755-kotlin-example:end -->
 
 <!-- issue-755-java-example:start -->
@@ -290,27 +279,19 @@ ByteBuffer compressed = target.duplicate();
 compressed.position(start).limit(start + written);
 compressed = compressed.slice();
 ```
+
 <!-- issue-755-java-example:end -->
 
 <!-- issue-755-sizing-retry:start -->
-target에 남은 공간이 부족하면 raw `BufferOverflowException`이 발생하며 예외에는 required size가
-포함되지 않습니다. source 상태와 target `position`은 보존되므로 호출자는 애플리케이션 상한 안에서
-더 큰 target을 준비해 전체 작업을 재시도할 수 있습니다. 성공 전 target byte는 재사용하지 마세요.
+target에 남은 공간이 부족하면 raw `BufferOverflowException`이 발생하며 예외에는 required size가 포함되지 않습니다. source 상태와 target `position`은 보존되므로 호출자는 애플리케이션 상한 안에서 더 큰 target을 준비해 전체 작업을 재시도할 수 있습니다. 성공 전 target byte는 재사용하지 마세요.
 <!-- issue-755-sizing-retry:end -->
 
 <!-- issue-755-resource-bound:start -->
-현재 compatibility fallback은 입력과 변환 결과를 payload-sized `ByteArray`로 staging할 수 있습니다.
-특히 fallback decompression의 target은 결과를 쓰는 final-write bound일 뿐, 신뢰할 수 없는 압축
-입력의 메모리 사용을 제한하는 resource bound가 아닙니다. 신뢰 경계에서는 codec별 decompressed-size
-한도나 streaming API를 별도로 적용해야 합니다.
+현재 compatibility fallback은 입력과 변환 결과를 payload-sized `ByteArray`로 staging할 수 있습니다. 특히 fallback decompression의 target은 결과를 쓰는 final-write bound일 뿐, 신뢰할 수 없는 압축 입력의 메모리 사용을 제한하는 resource bound가 아닙니다. 신뢰 경계에서는 codec별 decompressed-size 한도나 streaming API를 별도로 적용해야 합니다.
 <!-- issue-755-resource-bound:end -->
 
 <!-- issue-755-telemetry:start -->
-이 API는 runtime dispatch telemetry, logging, feature flag를 제공하지 않습니다. 필요한 경우 payload
-내용을 남기지 말고 codec, storage 조합, 입력/출력 size, overflow 횟수 같은 privacy-safe diagnostics를
-호출자 측에서 기록하세요. native override에 결함이 발견되면 patch에서는 public default와 wire
-contract를 유지하고 해당 override만 compatibility fallback으로 되돌립니다. patch 적용 전에는 기존
-allocating API 또는 문서에 표시된 fallback storage 조합으로 우회하세요.
+이 API는 runtime dispatch telemetry, logging, feature flag를 제공하지 않습니다. 필요한 경우 payload 내용을 남기지 말고 codec, storage 조합, 입력/출력 size, overflow 횟수 같은 privacy-safe diagnostics를 호출자 측에서 기록하세요. native override에 결함이 발견되면 patch에서는 public default와 wire contract를 유지하고 해당 override만 compatibility fallback으로 되돌립니다. patch 적용 전에는 기존 allocating API 또는 문서에 표시된 fallback storage 조합으로 우회하세요.
 <!-- issue-755-telemetry:end -->
 
 **StreamingCompressor (대용량 스트리밍 처리):**
@@ -400,7 +381,7 @@ val forySerializer = BinarySerializers.Fory
 val foryBytes = forySerializer.serialize(user)
 ```
 
-**fast() API — 고성능 직렬화:**
+**fast () API — 고성능 직렬화:**
 
 ```kotlin
 import io.bluetape4k.io.serializer.ForyBinarySerializer
@@ -487,66 +468,65 @@ path.tryReadAllBytes().onSuccess { bytes ->
 
 **Result 패턴 API 목록:**
 
-| 함수                            | 반환 타입                                  | 설명      |
-|-------------------------------|----------------------------------------|---------|
+| 함수                          | 반환 타입                              | 설명          |
+|-------------------------------|----------------------------------------|---------------|
 | `tryCreateDirectory(path)`    | `Result<File>`                         | 디렉토리 생성 |
-| `tryCreateFile(path)`         | `Result<File>`                         | 파일 생성   |
-| `File.tryDeleteRecursively()` | `Result<Boolean>`                      | 재귀 삭제   |
-| `File.tryDeleteIfExists()`    | `Result<Boolean>`                      | 파일 삭제   |
-| `Path.tryReadAllBytes()`      | `Result<ByteArray>`                    | 바이트 읽기  |
-| `Path.tryWriteBytes(bytes)`   | `Result<Long>`                         | 바이트 쓰기  |
-| `Path.tryReadAllLines()`      | `Result<List<String>>`                 | 라인 읽기   |
-| `Path.tryWriteLines(lines)`   | `Result<Long>`                         | 라인 쓰기   |
-| `File.tryCopyToAsync(target)` | `CompletableFuture<Result<File>>`      | 비동기 복사  |
-| `File.tryMoveAsync(target)`   | `CompletableFuture<Result<File>>`      | 비동기 이동  |
-| `Path.tryReadAllBytesAsync()` | `CompletableFuture<Result<ByteArray>>` | 비동기 읽기  |
-| `Path.tryWriteAsync(bytes)`   | `CompletableFuture<Result<Long>>`      | 비동기 쓰기  |
+| `tryCreateFile(path)`         | `Result<File>`                         | 파일 생성     |
+| `File.tryDeleteRecursively()` | `Result<Boolean>`                      | 재귀 삭제     |
+| `File.tryDeleteIfExists()`    | `Result<Boolean>`                      | 파일 삭제     |
+| `Path.tryReadAllBytes()`      | `Result<ByteArray>`                    | 바이트 읽기   |
+| `Path.tryWriteBytes(bytes)`   | `Result<Long>`                         | 바이트 쓰기   |
+| `Path.tryReadAllLines()`      | `Result<List<String>>`                 | 라인 읽기     |
+| `Path.tryWriteLines(lines)`   | `Result<Long>`                         | 라인 쓰기     |
+| `File.tryCopyToAsync(target)` | `CompletableFuture<Result<File>>`      | 비동기 복사   |
+| `File.tryMoveAsync(target)`   | `CompletableFuture<Result<File>>`      | 비동기 이동   |
+| `Path.tryReadAllBytesAsync()` | `CompletableFuture<Result<ByteArray>>` | 비동기 읽기   |
+| `Path.tryWriteAsync(bytes)`   | `CompletableFuture<Result<Long>>`      | 비동기 쓰기   |
 
 ## 벤치마크 결과
 
 ### 직렬화 성능 비교
 
-`SimpleData` 객체 20개 컬렉션의 직렬화/역직렬화 처리량입니다.
-JMH 처리량 모드, 3초 측정 구간, 4회 워밍업.
+`SimpleData` 객체 20개 컬렉션의 직렬화/역직렬화 처리량입니다. JMH 처리량 모드, 3초 측정 구간, 4회 워밍업.
 
-**Byte Array (4096 bytes) 포함 시 — 표준 vs fast() 비교:**
+**Byte Array (4096 bytes) 포함 시 — 표준 vs fast () 비교:**
 
-| 직렬화기 | ops/s | 기준 대비 | Nullable | 비고 |
-|---|---|---|---|---|
-| `ForyBinarySerializer.fast()` | ~116,000 | +71% | ✅ | SCHEMA_CONSISTENT, refTracking 비활성 |
-| `KryoBinarySerializer.fast()` | ~68,000 | +97% | ❌ | FieldSerializer, outputPool 재사용 |
-| `BinarySerializers.Fory` | ~68,000 | 기준 | ✅ | COMPATIBLE 모드, 영속 저장 적합 |
-| `BinarySerializers.Kryo` | ~34,000 | 기준 | ✅ | CompatibleFieldSerializer, 범용 |
-| Jdk | ~8,431 | — | ✅ | Java 표준 |
-| Jackson | ~4,323 | — | ✅ | 바이너리 데이터에 불리 |
+| 직렬화기                      | ops/s    | 기준 대비 | Nullable | 비고                                  |
+|-------------------------------|----------|-----------|----------|---------------------------------------|
+| `ForyBinarySerializer.fast()` | ~116,000 | +71%      | ✅       | SCHEMA_CONSISTENT, refTracking 비활성 |
+| `KryoBinarySerializer.fast()` | ~68,000  | +97%      | ❌       | FieldSerializer, outputPool 재사용    |
+| `BinarySerializers.Fory`      | ~68,000  | 기준      | ✅       | COMPATIBLE 모드, 영속 저장 적합       |
+| `BinarySerializers.Kryo`      | ~34,000  | 기준      | ✅       | CompatibleFieldSerializer, 범용       |
+| Jdk                           | ~8,431   | —         | ✅       | Java 표준                             |
+| Jackson                       | ~4,323   | —         | ✅       | 바이너리 데이터에 불리                |
 
 ![Serializer Fast Mode Throughput chart](../../docs/images/readme-charts/io-fast-serializer-throughput-chart-01.png)
 
 > `ForyBinarySerializer.fast()`는 nullable 타입을 지원하며 기본 Fory 대비 +71% 빠릅니다.
-> `KryoBinarySerializer.fast()`는 +97% 빠르지만 Kotlin nullable 필드(`Type?`)를 **지원하지 않습니다**.
+> `KryoBinarySerializer.fast()`는 +97% 빠르지만 Kotlin nullable 필드 (`Type?`)를 **지원하지 않습니다**.
 
 **Byte Array 속성이 없는 경우:**
 
-| 라이브러리   | ops/s   | 비고      |
-|---------|---------|---------|
-| Fory    | 305,821 | 최고 성능   |
-| Kryo    | 81,823  | 범용 추천   |
-| Jackson | 39,510  | JSON 기반 |
-| Jdk     | 22,249  | Java 표준 |
+| 라이브러리 | ops/s   | 비고      |
+|------------|---------|-----------|
+| Fory       | 305,821 | 최고 성능 |
+| Kryo       | 81,823  | 범용 추천 |
+| Jackson    | 39,510  | JSON 기반 |
+| Jdk        | 22,249  | Java 표준 |
 
 ![Binary Serializer Throughput chart](../../docs/images/readme-charts/io-serializer-throughput-chart-01.png)
 
 ### 압축 성능 비교
 
-40KB UTF-8 텍스트 파일(`Utf8Samples.txt`) 기준 압축/복원 처리량입니다.
+40KB UTF-8 텍스트 파일 (`Utf8Samples.txt`) 기준 압축/복원 처리량입니다.
 
-| 알고리즘    | ops/s | 특성               |
-|---------|-------|------------------|
-| Snappy  | 8,073 | 최고 속도            |
-| LZ4     | 6,769 | 실시간 처리 적합        |
-| Zstd    | 5,103 | 속도 + 압축률 균형 (추천) |
-| GZip    | 1,195 | 호환성 우수           |
-| Deflate | 1,084 | GZip 기반          |
+| 알고리즘 | ops/s | 특성                      |
+|----------|-------|---------------------------|
+| Snappy   | 8,073 | 최고 속도                 |
+| LZ4      | 6,769 | 실시간 처리 적합          |
+| Zstd     | 5,103 | 속도 + 압축률 균형 (추천) |
+| GZip     | 1,195 | 호환성 우수               |
+| Deflate  | 1,084 | GZip 기반                 |
 
 ![Compressor Throughput chart](../../docs/images/readme-charts/io-compressor-throughput-chart-01.png)
 
@@ -623,39 +603,25 @@ MIT License
 
 [이슈 #1039 할당 보고서](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)는 JDK 직렬화와 Kryo 직렬화/역직렬화에서 낮은 할당 결과를 accepted로 판정했습니다. JDK 역직렬화와 Fory 역직렬화는 inconclusive이며 Fory 출력은 사용 편의성용 fallback입니다.
 
-| Serializer | `serializeTo` | `deserializeFrom` |
-|---|---|---|
-| JDK | 최적화, accepted | 최적화, inconclusive |
-| Kryo | 최적화, accepted | 최적화, accepted |
-| Fory | 호환 fallback | 최적화, inconclusive |
+| Serializer | `serializeTo`    | `deserializeFrom`    |
+|------------|------------------|----------------------|
+| JDK        | 최적화, accepted | 최적화, inconclusive |
+| Kryo       | 최적화, accepted | 최적화, accepted     |
+| Fory       | 호환 fallback    | 최적화, inconclusive |
 
 Kotlin: `serializer.serializeTo(value, target)` / `serializer.deserializeFrom<Value>(source)`. Java: `serializer.serializeTo(value, target)` / `serializer.deserializeFrom(source)`. 호출자는 남은 용량이 충분한 writable target을 소유합니다. 성공하면 출력 `position`만 이동하고 `limit`은 넓어지지 않으며 overflow/read-only 실패는 상태를 rollback합니다. 입력은 duplicate로 읽어 source `position`/`limit`을 보존합니다. 근거는 측정 payload와 기본 설정에만 적용됩니다.
 
 ### 호출자 소유 `OutputStream` API
 
 `serializeBinaryToStream(graph, target)`은 호출자가 명시적으로 선택하는 caller-owned destination API입니다.
-`BinarySerializer` interface 기본 구현은 `serialize`로 `ByteArray`를 만든 뒤 `write`하는 allocating 호환
-fallback이며, JDK와 Kryo 구현체는 stream에 직접 기록합니다. Serializer는 stream을 동기 borrow할 뿐 보관,
-close, flush하지 않습니다. Serializer 호출과 mutable destination은 한 thread에 가둬야 합니다. Destination
-실패 시 partial bytes가 남을 수 있으므로 실패한 range를 재사용하지 말고 staging destination을 폐기한 뒤
-성공 결과만 게시하세요.
+`BinarySerializer` interface 기본 구현은 `serialize`로 `ByteArray`를 만든 뒤 `write`하는 allocating 호환 fallback이며, JDK와 Kryo 구현체는 stream에 직접 기록합니다. Serializer는 stream을 동기 borrow할 뿐 보관, close, flush하지 않습니다. Serializer 호출과 mutable destination은 한 thread에 가둬야 합니다. Destination 실패 시 partial bytes가 남을 수 있으므로 실패한 range를 재사용하지 말고 staging destination을 폐기한 뒤 성공 결과만 게시하세요.
 
 #### Raw Fory/FastFory stream 경계
 
-`ForyBinarySerializer`와 `FastForyBinarySerializer`는 압축하지 않는 출력에서 caller-owned stream 경로를
-명시적으로 제공합니다. 이 경로는 codec 수준의 반환용 `ByteArray`와 후속 copy를 제거하지만 Apache Fory는
-여전히 재사용 `MemoryBuffer`에 직렬화한 뒤 destination으로 기록합니다. 따라서 이는 handoff copy를 줄이는
-경로이지 zero-copy가 아닙니다. 단일 인자 `serialize`, `serializeTo(ByteBuffer)`, 압축 serializer 경로는
-allocating 호환 동작을 유지합니다.
+`ForyBinarySerializer`와 `FastForyBinarySerializer`는 압축하지 않는 출력에서 caller-owned stream 경로를 명시적으로 제공합니다. 이 경로는 codec 수준의 반환용 `ByteArray`와 후속 copy를 제거하지만 Apache Fory는 여전히 재사용 `MemoryBuffer`에 직렬화한 뒤 destination으로 기록합니다. 따라서 이는 handoff copy를 줄이는 경로이지 zero-copy가 아닙니다. 단일 인자 `serialize`, `serializeTo(ByteBuffer)`, 압축 serializer 경로는 allocating 호환 동작을 유지합니다.
 
-같은 serializer mode를 유지하는 기존 caller는 API나 payload migration이 필요하지 않습니다. Fory와
-FastFory는 계속 wire-incompatible mode이므로 mode 전환에는 명시적인 cache migration 또는 eviction이
-필요합니다. Allocation 주장은 committed
-[issue #756 후속 근거](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md)에서 accepted로 판정된
-raw Lettuce Fory/FastFory heap/direct encode 4개 cell과 raw Redisson direct decode 2개 cell에만 적용합니다.
-Redisson heap decode는 rejected, composite decode는 non-promotable copied fallback이며 Redisson encode는
-feasibility probe에서 rejected입니다. 압축 경로는 포함하지 않으며 registration-off decode에는 신뢰된
-payload만 사용해야 합니다.
+같은 serializer mode를 유지하는 기존 caller는 API나 payload migration이 필요하지 않습니다. Fory와 FastFory는 계속 wire-incompatible mode이므로 mode 전환에는 명시적인 cache migration 또는 eviction이 필요합니다. Allocation 주장은 committed
+[issue #756 후속 근거](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md)에서 accepted로 판정된 raw Lettuce Fory/FastFory heap/direct encode 4개 cell과 raw Redisson direct decode 2개 cell에만 적용합니다. Redisson heap decode는 rejected, composite decode는 non-promotable copied fallback이며 Redisson encode는 feasibility probe에서 rejected입니다. 압축 경로는 포함하지 않으며 registration-off decode에는 신뢰된 payload만 사용해야 합니다.
 
 ![이슈 #756 accepted Fory allocation 감소](../../docs/images/readme-charts/issue756-fory-followup-allocation-chart-01.png)
 
@@ -685,12 +651,8 @@ static byte[] encode(BinarySerializer serializer, Object value) throws IOExcepti
 }
 ```
 
-외부 `deserializeFrom` override는 Lettuce가 전달하는 read-only, non-array-backed bounded view를 지원하고 동기
-호출 동안만 borrow해야 합니다. 이 계약을 지킬 수 없다면 interface의 allocating 기본 구현을 상속하세요.
-[이슈 #756 Lettuce 근거](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md)는
-측정 payload/기본 config, pooled 512-byte pre-sized reusable target, no-growth 조건에서 JDK와 Kryo의
-heap/direct codec cell만 allocation 감소로 accepted했습니다. Fory, 압축 serializer, 단일 인자 encode, decode,
-다른 payload/capacity/pooling에는 일반화할 수 없습니다.
+외부 `deserializeFrom` override는 Lettuce가 전달하는 read-only, non-array-backed bounded view를 지원하고 동기 호출 동안만 borrow해야 합니다. 이 계약을 지킬 수 없다면 interface의 allocating 기본 구현을 상속하세요.
+[이슈 #756 Lettuce 근거](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md)는 측정 payload/기본 config, pooled 512-byte pre-sized reusable target, no-growth 조건에서 JDK와 Kryo의 heap/direct codec cell만 allocation 감소로 accepted했습니다. Fory, 압축 serializer, 단일 인자 encode, decode, 다른 payload/capacity/pooling에는 일반화할 수 없습니다.
 
 - [bluetape4k-okio](../okio/README.ko.md) (Okio 기반 I/O 모듈)
 - [Kryo Documentation](https://github.com/EsotericSoftware/kryo)

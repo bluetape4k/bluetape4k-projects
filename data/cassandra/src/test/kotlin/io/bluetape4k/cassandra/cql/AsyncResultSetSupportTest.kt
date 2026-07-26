@@ -1,5 +1,7 @@
 package io.bluetape4k.cassandra.cql
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.concurrent.sequence
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -9,8 +11,6 @@ import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.io.Serializable

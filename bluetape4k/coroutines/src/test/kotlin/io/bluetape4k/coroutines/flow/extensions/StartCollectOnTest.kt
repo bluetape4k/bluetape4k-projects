@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.assertions.coroutines.assertResult
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.buffer
@@ -10,7 +11,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 

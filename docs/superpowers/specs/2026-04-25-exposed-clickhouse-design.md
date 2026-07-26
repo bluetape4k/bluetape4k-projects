@@ -12,17 +12,16 @@
 
 ### 1.1 핵심 목표
 
-Exposed ORM 1.2.0에서 ClickHouse를 1급(first-class) 백엔드로 사용할 수 있도록,
-`data/exposed-trino` / `data/exposed-duckdb`의 패턴을 답습한 **읽기/쓰기 가능한 dialect 모듈**을 신규로
-추가한다. 부수적으로:
+Exposed ORM 1.2.0에서 ClickHouse를 1급 (first-class) 백엔드로 사용할 수 있도록,
+`data/exposed-trino` / `data/exposed-duckdb`의 패턴을 답습한 **읽기/쓰기 가능한 dialect 모듈**을 신규로 추가한다. 부수적으로:
 
-- ClickHouse JDBC 0.9.5 기반 동기 + suspend(코루틴) API 양쪽 지원
-- ClickHouse 특화 컬럼 타입(UInt*, DateTime64, LowCardinality, Array)을 Exposed `ColumnType`으로 매핑
+- ClickHouse JDBC 0.9.5 기반 동기 + suspend (코루틴) API 양쪽 지원
+- ClickHouse 특화 컬럼 타입 (UInt*, DateTime64, LowCardinality, Array)을 Exposed `ColumnType`으로 매핑
 - MergeTree 계열 ENGINE을 DDL에 정확히 발급할 수 있는 `ClickHouseTable` 베이스 제공
-- ClickHouse 분석 함수(toYYYYMM, dateDiff, argMax, argMin, quantile, uniq) Exposed DSL 노출
-- PostgreSQL(OLTP) + ClickHouse(OLAP) 동시 사용 예제 1종 (`examples/exposed-clickhouse-oltp-olap`)
+- ClickHouse 분석 함수 (toYYYYMM, dateDiff, argMax, argMin, quantile, uniq) Exposed DSL 노출
+- PostgreSQL (OLTP) + ClickHouse (OLAP) 동시 사용 예제 1종 (`examples/exposed-clickhouse-oltp-olap`)
 
-비목표(out-of-scope, 본 스펙 한정):
+비목표 (out-of-scope, 본 스펙 한정):
 
 - R2DBC 지원 (ClickHouse 공식 R2DBC 드라이버 부재 — JDBC + `Dispatchers.IO`만 사용)
 - ReplicatedMergeTree, Distributed 테이블 자동화 — 향후 별도 스펙
@@ -31,17 +30,17 @@ Exposed ORM 1.2.0에서 ClickHouse를 1급(first-class) 백엔드로 사용할 �
 
 ### 1.2 제약 / 미지수 (Step 3 plan 진입 전 결정 필요)
 
-| # | 항목 | 옵션 | 본 스펙의 잠정 결정 |
-|---|------|------|---------------------|
-| C1 | ClickHouse JDBC 0.9.5의 `Connection.commit()/rollback()` 동작 | (a) MergeTree에서 no-op (b) 일부 엔진에서 실제 트랜잭션 | **항상 no-op으로 고정 (Trino 패턴 답습). driver 위임 안 함 — ClickHouse는 MergeTree 기본 엔진에서 트랜잭션 없음. T12 PoC로 driver throw 여부 검증; throw 시에도 wrapper가 이미 no-op이므로 문제 없음.** |
-| C2 | `Dialect` 부모 클래스 | (a) `PostgreSQLDialect` 상속 (b) 커스텀 `VendorDialect` 직접 작성 | **(a) PostgreSQLDialect 상속** — Trino/DuckDB와 동일 패턴, 호환성 우선. ClickHouse 특이사항만 override |
-| C3 | UInt8/16/32/64 매핑 | (a) Kotlin `UByte`/`UShort`/`UInt`/`ULong` (b) `Short`/`Int`/`Long`/`BigInteger` | **(a) Unsigned Kotlin 타입** — 의미 보존. ULong은 `BigInteger` fallback도 함께 제공 |
-| C4 | LowCardinality(T) 매핑 | (a) `LowCardinality<T>` 래퍼 컬럼 함수 (b) Annotation/플래그 | **(a) `lowCardinality(inner: ColumnType<T>)`** — DSL에서 명시적으로 wrap |
-| C5 | Array(T) 매핑 | (a) `array<T>()` 컬럼 빌더 + Kotlin `List<T>` (b) PostgreSQL의 array 컬럼 재사용 | **(a) ClickHouse 전용 `array(inner)`** — PostgreSQL array와 SQL 문법 차이로 전용 구현 |
-| C6 | DateTime64 정밀도 | (a) `dateTime64(precision: Int)` (b) 기본 3 (밀리초) | **(a) 명시 + 기본 3** — `Instant` ↔ `DateTime64(3)` 매핑 |
-| C7 | INSERT batch 최적화 | (a) Exposed 기본 batchInsert (b) `INSERT INTO ... FORMAT Values` 직발급 | **(a) 기본 batchInsert 우선**, 최적화는 후속 issue |
-| C8 | DROP/CREATE retry | (a) Trino 스타일 retry 필요 (b) ClickHouse는 안정적 | **(b) 기본 retry 없이 시작**, 테스트에서 flake 발생 시 추가 |
-| C9 | Dialect 이름 | `clickhouse` 단일 사용 | **`ClickHouseDialect.dialectName = "clickhouse"`** |
+| #  | 항목                                                          | 옵션                                                                             | 본 스펙의 잠정 결정                                                                                                                                                                                     |
+|----|---------------------------------------------------------------|----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| C1 | ClickHouse JDBC 0.9.5의 `Connection.commit()/rollback()` 동작 | (a) MergeTree에서 no-op (b) 일부 엔진에서 실제 트랜잭션                          | **항상 no-op으로 고정 (Trino 패턴 답습). driver 위임 안 함 — ClickHouse는 MergeTree 기본 엔진에서 트랜잭션 없음. T12 PoC로 driver throw 여부 검증; throw 시에도 wrapper가 이미 no-op이므로 문제 없음.** |
+| C2 | `Dialect` 부모 클래스                                         | (a) `PostgreSQLDialect` 상속 (b) 커스텀 `VendorDialect` 직접 작성                | **(a) PostgreSQLDialect 상속** — Trino/DuckDB와 동일 패턴, 호환성 우선. ClickHouse 특이사항만 override                                                                                                  |
+| C3 | UInt8/16/32/64 매핑                                           | (a) Kotlin `UByte`/`UShort`/`UInt`/`ULong` (b) `Short`/`Int`/`Long`/`BigInteger` | **(a) Unsigned Kotlin 타입** — 의미 보존. ULong은 `BigInteger` fallback도 함께 제공                                                                                                                     |
+| C4 | LowCardinality(T) 매핑                                        | (a) `LowCardinality<T>` 래퍼 컬럼 함수 (b) Annotation/플래그                     | **(a) `lowCardinality(inner: ColumnType<T>)`** — DSL에서 명시적으로 wrap                                                                                                                                |
+| C5 | Array(T) 매핑                                                 | (a) `array<T>()` 컬럼 빌더 + Kotlin `List<T>` (b) PostgreSQL의 array 컬럼 재사용 | **(a) ClickHouse 전용 `array(inner)`** — PostgreSQL array와 SQL 문법 차이로 전용 구현                                                                                                                   |
+| C6 | DateTime64 정밀도                                             | (a) `dateTime64(precision: Int)` (b) 기본 3 (밀리초)                             | **(a) 명시 + 기본 3** — `Instant` ↔ `DateTime64(3)` 매핑                                                                                                                                                |
+| C7 | INSERT batch 최적화                                           | (a) Exposed 기본 batchInsert (b) `INSERT INTO ... FORMAT Values` 직발급          | **(a) 기본 batchInsert 우선**, 최적화는 후속 issue                                                                                                                                                      |
+| C8 | DROP/CREATE retry                                             | (a) Trino 스타일 retry 필요 (b) ClickHouse는 안정적                              | **(b) 기본 retry 없이 시작**, 테스트에서 flake 발생 시 추가                                                                                                                                             |
+| C9 | Dialect 이름                                                  | `clickhouse` 단일 사용                                                           | **`ClickHouseDialect.dialectName = "clickhouse"`**                                                                                                                                                      |
 
 > 미지수 표시 항목은 Step 3 plan 작성 시 PoC로 검증해 결정한다 (C1, C7).
 
@@ -54,42 +53,46 @@ Exposed ORM 1.2.0에서 ClickHouse를 1급(first-class) 백엔드로 사용할 �
 - **사례**: PostgreSQL의 `LIMIT … OFFSET …` 은 ClickHouse도 지원하나, `RETURNING`, `ON CONFLICT`,
   `INSERT ... SELECT FROM (VALUES ...)`, `JSONB`, `tsvector` 등은 미지원.
 - **대응**:
-  1. `ClickHouseDialect`에서 Exposed 1.2에 실제 존재하는 capability flag만 override:
-     `supportsCreateSequence = false`, `supportsMultipleGeneratedKeys = false`,
-     `supportsRestrictReferenceOption = false`, `supportsSetDefaultReferenceOption = false`,
-     `supportsTernaryAffectedRowValues = false`, `supportsColumnTypeChange = false`
-  2. `modifyColumn(..) = emptyList()` (ALTER TYPE 미지원)으로 안전하게 fail-soft.
-  3. `RETURNING`/`ON CONFLICT`는 Exposed DSL에서 직접 차단 불가 → README "미지원 기능" 섹션에 명시.
-  4. 사용자가 `insertIgnore`/`upsert` 시도 시 런타임에서 ClickHouse JDBC 예외가 발생 → 문서화로 대응.
+    1. `ClickHouseDialect`에서 Exposed 1.2에 실제 존재하는 capability flag만 override:
+       `supportsCreateSequence = false`, `supportsMultipleGeneratedKeys = false`,
+       `supportsRestrictReferenceOption = false`, `supportsSetDefaultReferenceOption = false`,
+       `supportsTernaryAffectedRowValues = false`, `supportsColumnTypeChange = false`
+    2. `modifyColumn(..) = emptyList()` (ALTER TYPE 미지원)으로 안전하게 fail-soft.
+    3. `RETURNING`/`ON CONFLICT`는 Exposed DSL에서 직접 차단 불가 → README "미지원 기능" 섹션에 명시.
+    4. 사용자가 `insertIgnore`/`upsert` 시도 시 런타임에서 ClickHouse JDBC 예외가 발생 → 문서화로 대응.
 
 ### R2. JDBC 드라이버의 `prepareStatement(sql, autoGeneratedKeys)` 미지원
 
-- **사례**: Trino/DuckDB와 동일하게 ClickHouse JDBC도 generated keys overload를 던지거나 무시할 수
-  있음. Exposed의 `BatchInsertStatement`가 generated key를 요청하면 NPE / SQLFeatureNotSupportedException.
-- **대응**: `ClickHouseConnectionWrapper`에서 3종 overload(`prepareStatement(sql, int)`,
+-
+
+**사례**: Trino/DuckDB와 동일하게 ClickHouse JDBC도 generated keys overload를 던지거나 무시할 수 있음. Exposed의 `BatchInsertStatement`가 generated key를 요청하면 NPE / SQLFeatureNotSupportedException.
+
+- **대응**: `ClickHouseConnectionWrapper`에서 3종 overload (`prepareStatement(sql, int)`,
   `(sql, IntArray)`, `(sql, Array<String>)`)를 단일 인자 버전으로 위임. Trino 패턴 그대로 답습.
 
 ### R3. ClickHouse는 트랜잭션이 사실상 없음 → 부분 반영 위험
 
 - **사례**: `transaction { insert; insert; throw }` 시 ClickHouse는 앞선 INSERT를 롤백하지 않음.
 - **대응**:
-  1. `ClickHouseConnectionWrapper`에서 `autoCommit=true` 고정, commit/rollback no-op로 구현하고 KDoc에서 명시 경고.
-  2. `suspendTransaction` / `queryFlow` 함수의 KDoc에 "원자성 없음" 주의문구 포함 (Trino 패턴).
-  3. 멱등성(idempotent) 패턴(예: `INSERT ... DEDUPLICATE BY`, ReplacingMergeTree) 사용을 README에서 권장.
+    1. `ClickHouseConnectionWrapper`에서 `autoCommit=true` 고정, commit/rollback no-op로 구현하고 KDoc에서 명시 경고.
+    2. `suspendTransaction` / `queryFlow` 함수의 KDoc에 "원자성 없음" 주의문구 포함 (Trino 패턴).
+    3. 멱등성 (idempotent) 패턴 (예: `INSERT ... DEDUPLICATE BY`, ReplacingMergeTree) 사용을 README에서 권장.
 
 ### R4. UInt8/UInt16/...의 JDBC 매핑 충돌
 
-- **사례**: ClickHouse JDBC 0.9.5는 UInt8를 `Short` 또는 `Int`로 반환할 수 있음(드라이버 버전에 따라 다름).
-  Kotlin `UByte`로 강제 변환 시 ClassCastException.
+-
+
+**사례**: ClickHouse JDBC 0.9.5는 UInt8를 `Short` 또는 `Int`로 반환할 수 있음 (드라이버 버전에 따라 다름). Kotlin `UByte`로 강제 변환 시 ClassCastException.
 - **대응**:
-  1. 컬럼 타입 내부에서 `valueFromDB(value: Any)` override — `Number` 타입 폭넓게 수용 후 `toUByte()` 등으로 변환.
-  2. 양방향 테스트(`UByteRoundTripTest`)로 보장.
-  3. ULong overflow는 `BigInteger` fallback 컬럼 타입을 별도 제공 (`uint64BigInt`).
+    1. 컬럼 타입 내부에서 `valueFromDB(value: Any)` override — `Number` 타입 폭넓게 수용 후 `toUByte()` 등으로 변환.
+    2. 양방향 테스트 (`UByteRoundTripTest`)로 보장.
+    3. ULong overflow는 `BigInteger` fallback 컬럼 타입을 별도 제공 (`uint64BigInt`).
 
 ### R5. MergeTree DDL 누락 시 테이블 생성 실패
 
-- **사례**: ClickHouse는 `CREATE TABLE foo (...)` 만으로는 ENGINE 미지정 오류 발생.
-  Exposed 기본 `Table.createStatement()`는 ENGINE을 알지 못함.
+-
+
+**사례**: ClickHouse는 `CREATE TABLE foo (...)` 만으로는 ENGINE 미지정 오류 발생. Exposed 기본 `Table.createStatement()`는 ENGINE을 알지 못함.
 - **대응**: `ClickHouseTable`에서 `engine`, `orderBy`, `partitionBy`, `primaryKey`, `sampleBy`, `settings`
   DSL을 제공하고, `createStatement()` override로 `ENGINE = MergeTree() ORDER BY (...) PARTITION BY ...`
   절을 SQL 끝에 부착.
@@ -97,7 +100,7 @@ Exposed ORM 1.2.0에서 ClickHouse를 1급(first-class) 백엔드로 사용할 �
 ### R6. Testcontainers 컨테이너 첫 부팅 지연
 
 - **사례**: ClickHouse 25.4 이미지 cold start 시 health check 통과 전 connect 실패.
-- **대응**: `AbstractClickHouseTest`의 `@BeforeAll`에서 `SELECT 1` 폴링(최대 N회) — Trino 패턴 답습. 단,
+- **대응**: `AbstractClickHouseTest`의 `@BeforeAll`에서 `SELECT 1` 폴링 (최대 N회) — Trino 패턴 답습. 단,
   `No nodes available` 같은 분산 에러는 없으므로 단순 timeout/retry로 충분.
 
 ---
@@ -106,11 +109,11 @@ Exposed ORM 1.2.0에서 ClickHouse를 1급(first-class) 백엔드로 사용할 �
 
 ### A. Dialect 부모 클래스 선택
 
-| 옵션 | 장점 | 단점 | 채택 |
-|------|------|------|------|
-| **A1. `PostgreSQLDialect` 상속** | Trino/DuckDB와 일관됨; SELECT/JOIN/CTE/Window 대부분 호환; 최소 override로 빠른 시작 | RETURNING, ON CONFLICT, JSONB 등 PostgreSQL 고유 SQL이 누수될 위험 → flag로 차단 | **채택** |
-| A2. `VendorDialect` 직접 상속 | ClickHouse SQL 방언 100% 정확 표현 가능 | 구현/유지보수 비용 ↑; Exposed 1.2 내부 API 변경 시 추적 부담; YAGNI | 미채택 |
-| A3. `H2Dialect`/`MysqlDialect` 상속 | 일부 SQL 표현 단순 | ClickHouse는 PostgreSQL 호환 모드 제공 → 가장 가까운 출발점은 PostgreSQL | 미채택 |
+| 옵션                                | 장점                                                                                 | 단점                                                                             | 채택     |
+|-------------------------------------|--------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|----------|
+| **A1. `PostgreSQLDialect` 상속**    | Trino/DuckDB와 일관됨; SELECT/JOIN/CTE/Window 대부분 호환; 최소 override로 빠른 시작 | RETURNING, ON CONFLICT, JSONB 등 PostgreSQL 고유 SQL이 누수될 위험 → flag로 차단 | **채택** |
+| A2. `VendorDialect` 직접 상속       | ClickHouse SQL 방언 100% 정확 표현 가능                                              | 구현/유지보수 비용 ↑; Exposed 1.2 내부 API 변경 시 추적 부담; YAGNI              | 미채택   |
+| A3. `H2Dialect`/`MysqlDialect` 상속 | 일부 SQL 표현 단순                                                                   | ClickHouse는 PostgreSQL 호환 모드 제공 → 가장 가까운 출발점은 PostgreSQL         | 미채택   |
 
 → **A1 채택**. PostgreSQL 고유 기능은 Exposed 1.2에 실존하는 capability flag로만 차단:
 `supportsColumnTypeChange = false`, `supportsMultipleGeneratedKeys = false`,
@@ -123,21 +126,21 @@ Exposed ORM 1.2.0에서 ClickHouse를 1급(first-class) 백엔드로 사용할 �
 
 ### B. ClickHouse 특화 Column Type 구현 방식
 
-| 옵션 | 장점 | 단점 | 채택 |
-|------|------|------|------|
-| **B1. Exposed `ColumnType<T>` 직접 상속** | 컴파일 타임 타입 안전; valueFromDB/notNullValueToDB 정확 제어 | 보일러플레이트 다소 많음 | **채택** |
-| B2. `Table.registerColumn(name, ColumnType)` 헬퍼만 제공 | 빠른 구현 | 사용자가 매번 ColumnType을 만들어야 함 → DRY 위반 | 미채택 |
-| B3. PostgreSQL 컬럼 타입 재사용 + DDL 텍스트 치환 | 코드량 최소 | 의미 손실 (UInt vs Int), JDBC 매핑 어긋남, R4 사고 위험 ↑ | 미채택 |
+| 옵션                                                     | 장점                                                          | 단점                                                      | 채택     |
+|----------------------------------------------------------|---------------------------------------------------------------|-----------------------------------------------------------|----------|
+| **B1. Exposed `ColumnType<T>` 직접 상속**                | 컴파일 타임 타입 안전; valueFromDB/notNullValueToDB 정확 제어 | 보일러플레이트 다소 많음                                  | **채택** |
+| B2. `Table.registerColumn(name, ColumnType)` 헬퍼만 제공 | 빠른 구현                                                     | 사용자가 매번 ColumnType을 만들어야 함 → DRY 위반         | 미채택   |
+| B3. PostgreSQL 컬럼 타입 재사용 + DDL 텍스트 치환        | 코드량 최소                                                   | 의미 손실 (UInt vs Int), JDBC 매핑 어긋남, R4 사고 위험 ↑ | 미채택   |
 
-→ **B1 채택**. `IColumnType` 구현체 family를 별도 패키지(`io.bluetape4k.exposed.clickhouse.types`)에 둠.
+→ **B1 채택**. `IColumnType` 구현체 family를 별도 패키지 (`io.bluetape4k.exposed.clickhouse.types`)에 둠.
 
 ### C. MergeTree DSL 표현 방식
 
-| 옵션 | 장점 | 단점 | 채택 |
-|------|------|------|------|
-| **C1. `ClickHouseTable(engine = MergeTree { orderBy(...); partitionBy(...) })` DSL 빌더** | 가독성, 컴파일 타임 안전 | 빌더 클래스 추가 작업 | **채택** |
-| C2. 원시 문자열 `engineClause: String` 노출 | 유연 | 오타 위험, IDE 도움 ↓ | 미채택 (완전히 제외) |
-| C3. `Table.mergeTree {}` post-construction extension | 기존 Table 재사용 가능 | sealed companion없이 IDE 자동완성 어려움, companion override 불가 | 미채택 — ClickHouseTable 생성자 패턴이 명시적 |
+| 옵션                                                                                      | 장점                     | 단점                                                              | 채택                                          |
+|-------------------------------------------------------------------------------------------|--------------------------|-------------------------------------------------------------------|-----------------------------------------------|
+| **C1. `ClickHouseTable(engine = MergeTree { orderBy(...); partitionBy(...) })` DSL 빌더** | 가독성, 컴파일 타임 안전 | 빌더 클래스 추가 작업                                             | **채택**                                      |
+| C2. 원시 문자열 `engineClause: String` 노출                                               | 유연                     | 오타 위험, IDE 도움 ↓                                             | 미채택 (완전히 제외)                          |
+| C3. `Table.mergeTree {}` post-construction extension                                      | 기존 Table 재사용 가능   | sealed companion없이 IDE 자동완성 어려움, companion override 불가 | 미채택 — ClickHouseTable 생성자 패턴이 명시적 |
 
 ---
 
@@ -285,28 +288,28 @@ fun <T> queryFlow(
 
 ### 4.3 ClickHouse 특화 Column Type 매핑
 
-| ClickHouse 타입 | Kotlin 타입 | Exposed DSL | 비고 |
-|-----------------|-------------|-------------|------|
-| `UInt8` | `UByte` | `chUByte("col")` | Exposed 내장 `ubyte()`와 충돌 방지 위해 `ch` 접두사 사용 |
-| `UInt16` | `UShort` | `chUShort("col")` | |
-| `UInt32` | `UInt` | `chUInt("col")` | |
-| `UInt64` | `ULong` | `chULong("col")` | overflow 시 `chUInt64BigInt` 권장 |
-| `UInt64` (대체) | `BigInteger` | `chUInt64BigInt("col")` | 안전한 fallback |
-| `Int8/16/32/64` | `Byte/Short/Int/Long` | `chInt8`/`chInt16`/`chInt32`/`chInt64` | Exposed 기본 타입 DDL은 `smallint`/`integer`/`bigint` 발급 → ClickHouse 정식 타입 보장 위해 전용 ColumnType 구현 (UnsignedColumnTypes.kt 동일 파일에 추가) |
-| `Float32/64` | `Float/Double` | `chFloat32`/`chFloat64` | Exposed 기본 `float()`는 precision DDL 발급; ClickHouse `Float32`/`Float64` 명시 필요 |
-| `Decimal(p,s)` | `BigDecimal` | `decimal(p,s)` | |
-| `String` | `String` | `text`/`varchar` | ClickHouse는 길이 제약 없으나 DDL은 PostgreSQL 호환 |
-| `FixedString(n)` | `String` | `fixedString(n)` (신규) | |
-| `Date` | `LocalDate` | `date` | |
-| `Date32` | `LocalDate` | `date32` (신규) | |
-| `DateTime` | `Instant` | `dateTime` | UTC 정렬 |
-| `DateTime64(p)` | `Instant` | `dateTime64(precision: Int = 3)` | 기본 ms 정밀도 |
-| `LowCardinality(String)` | `String` | `lowCardinalityString(name)` | **권장 API** — inner = `ClickHouseStringColumnType()`, sqlType = `"LowCardinality(String)"` |
-| `LowCardinality(T)` | `T` | `lowCardinality(name, innerType)` | 직접 inner 지정 시 inner.sqlType()이 ClickHouse 정식 타입명 반환 책임은 caller |
-| `Array(T)` | `List<T>` | `chArray(name, innerType)` | Table 확장 함수, PostgreSQL array와 구분 |
-| `Nullable(T)` | `T?` | `chNullable(name, innerType)` | Exposed `Column.nullable()`는 DDL에 `NULL` suffix만 붙임 → ClickHouse `Nullable(T)` DDL 미보장. 전용 `ClickHouseNullableColumnType(inner)` 구현 필요 — `sqlType() = "Nullable(${inner.sqlType()})"` |
-| `UUID` | `UUID` | `uuid` | |
-| `Enum8/Enum16` | enum class | (선택, Phase 2) | 본 스펙 미포함 |
+| ClickHouse 타입          | Kotlin 타입           | Exposed DSL                            | 비고                                                                                                                                                                                                |
+|--------------------------|-----------------------|----------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `UInt8`                  | `UByte`               | `chUByte("col")`                       | Exposed 내장 `ubyte()`와 충돌 방지 위해 `ch` 접두사 사용                                                                                                                                            |
+| `UInt16`                 | `UShort`              | `chUShort("col")`                      |                                                                                                                                                                                                     |
+| `UInt32`                 | `UInt`                | `chUInt("col")`                        |                                                                                                                                                                                                     |
+| `UInt64`                 | `ULong`               | `chULong("col")`                       | overflow 시 `chUInt64BigInt` 권장                                                                                                                                                                   |
+| `UInt64` (대체)          | `BigInteger`          | `chUInt64BigInt("col")`                | 안전한 fallback                                                                                                                                                                                     |
+| `Int8/16/32/64`          | `Byte/Short/Int/Long` | `chInt8`/`chInt16`/`chInt32`/`chInt64` | Exposed 기본 타입 DDL은 `smallint`/`integer`/`bigint` 발급 → ClickHouse 정식 타입 보장 위해 전용 ColumnType 구현 (UnsignedColumnTypes.kt 동일 파일에 추가)                                          |
+| `Float32/64`             | `Float/Double`        | `chFloat32`/`chFloat64`                | Exposed 기본 `float()`는 precision DDL 발급; ClickHouse `Float32`/`Float64` 명시 필요                                                                                                               |
+| `Decimal(p,s)`           | `BigDecimal`          | `decimal(p,s)`                         |                                                                                                                                                                                                     |
+| `String`                 | `String`              | `text`/`varchar`                       | ClickHouse는 길이 제약 없으나 DDL은 PostgreSQL 호환                                                                                                                                                 |
+| `FixedString(n)`         | `String`              | `fixedString(n)` (신규)                |                                                                                                                                                                                                     |
+| `Date`                   | `LocalDate`           | `date`                                 |                                                                                                                                                                                                     |
+| `Date32`                 | `LocalDate`           | `date32` (신규)                        |                                                                                                                                                                                                     |
+| `DateTime`               | `Instant`             | `dateTime`                             | UTC 정렬                                                                                                                                                                                            |
+| `DateTime64(p)`          | `Instant`             | `dateTime64(precision: Int = 3)`       | 기본 ms 정밀도                                                                                                                                                                                      |
+| `LowCardinality(String)` | `String`              | `lowCardinalityString(name)`           | **권장 API** — inner = `ClickHouseStringColumnType()`, sqlType = `"LowCardinality(String)"`                                                                                                         |
+| `LowCardinality(T)`      | `T`                   | `lowCardinality(name, innerType)`      | 직접 inner 지정 시 inner.sqlType()이 ClickHouse 정식 타입명 반환 책임은 caller                                                                                                                      |
+| `Array(T)`               | `List<T>`             | `chArray(name, innerType)`             | Table 확장 함수, PostgreSQL array와 구분                                                                                                                                                            |
+| `Nullable(T)`            | `T?`                  | `chNullable(name, innerType)`          | Exposed `Column.nullable()`는 DDL에 `NULL` suffix만 붙임 → ClickHouse `Nullable(T)` DDL 미보장. 전용 `ClickHouseNullableColumnType(inner)` 구현 필요 — `sqlType() = "Nullable(${inner.sqlType()})"` |
+| `UUID`                   | `UUID`                | `uuid`                                 |                                                                                                                                                                                                     |
+| `Enum8/Enum16`           | enum class            | (선택, Phase 2)                        | 본 스펙 미포함                                                                                                                                                                                      |
 
 ### 4.4 ClickHouse 특화 함수 DSL (최소 셋)
 
@@ -337,10 +340,12 @@ fun uniqExact(vararg exprs: Expression<*>): Function<Long>
 
 **LowCardinality inner type DDL 정규화 계약:**
 
-`LowCardinalityColumnType<T>(inner: IColumnType<T>)`는 `sqlType()`에서 `"LowCardinality(${inner.sqlType()})"` 를 반환한다.
-inner type의 `sqlType()`이 ClickHouse 정식 타입명을 반환해야 한다. 예:
+`LowCardinalityColumnType<T>(inner: IColumnType<T>)`는 `sqlType()`에서 `"LowCardinality(${inner.sqlType()})"` 를 반환한다. inner type의 `sqlType()`이 ClickHouse 정식 타입명을 반환해야 한다. 예:
+
 - `VarCharColumnType(16).sqlType()` → PostgreSQL 계열 `VARCHAR(16)` 반환 가능 → 별도 `ClickHouseVarcharColumnType` 또는 inner sqlType override 필요
-- **결정**: `LowCardinalityColumnType`은 inner에 `ClickHouseStringColumnType` (SQL type = `"String"`)을 기본으로 사용. 사용자가 다른 inner를 주입할 경우 sqlType 계약은 caller 책임. README에서 안전한 inner 타입 목록 명시.
+-
+
+**결정**: `LowCardinalityColumnType`은 inner에 `ClickHouseStringColumnType` (SQL type = `"String"`)을 기본으로 사용. 사용자가 다른 inner를 주입할 경우 sqlType 계약은 caller 책임. README에서 안전한 inner 타입 목록 명시.
 
 ### 4.5 MergeTree 테이블 DSL
 
@@ -419,35 +424,33 @@ object Events : ClickHouseTable(
 - `companion object`에 `clickhouse: ClickHouseServer by lazy { ClickHouseServer.Launcher.clickhouse }`
 - `db: Database by lazy { ClickHouseDatabase.connect(jdbcUrl = clickhouse.jdbcUrl, user = ..., password = ...) }`
 - `@BeforeAll fun waitForClickHouseReady()`: `SELECT 1` 폴링 (최대 10회 × 500ms)
-- `withEventsTable(block)`: `SchemaUtils.create(Events)` → block → `SchemaUtils.drop(Events)` (Trino와 달리
-  ClickHouse는 `TRUNCATE` 가능하므로 매 테스트마다 `Events.deleteAll()` 대신 `TRUNCATE TABLE`도 사용 가능 — 결정은 plan에서)
+- `withEventsTable(block)`: `SchemaUtils.create(Events)` → block → `SchemaUtils.drop(Events)` (Trino와 달리 ClickHouse는 `TRUNCATE` 가능하므로 매 테스트마다 `Events.deleteAll()` 대신 `TRUNCATE TABLE`도 사용 가능 — 결정은 plan에서)
 - `@Execution(ExecutionMode.SAME_THREAD)` — Testcontainers 단일 컨테이너 공유 안정성 우선
 
 #### 4.6.2 테스트 파일 목록 (총 14개)
 
-| 파일 | 검증 항목 |
-|------|-----------|
-| `ClickHouseDatabaseTest` | `connect(host, port, ...)`, `connect(jdbcUrl)` 두 오버로드 모두 정상 연결 |
-| `ClickHouseDatabaseValidationTest` | host blank, port out-of-range, jdbcUrl prefix 누락 시 `IllegalArgumentException` |
-| `ClickHouseConnectionWrapperTest` | autoCommit 강제, commit/rollback no-op, prepareStatement 3종 overload 위임 |
-| `ClickHouseDialectTest` | `dialectName == "clickhouse"`, capability flag 값, `modifyColumn` 빈 리스트 |
-| `ClickHouseExtensionsTest` | `suspendTransaction` 결과/예외, `queryFlow` materialize 후 emit, CancellationException 전파 |
-| `SchemaUtilsTest` | MergeTree 테이블 create/drop, ENGINE 절 포함 검증 |
-| `types/UnsignedTypesTest` | UInt8/16/32/64 round-trip, ULong overflow 시 BigInt fallback |
-| `types/DateTime64Test` | precision 0/3/6/9 round-trip, Instant 정확도 |
-| `types/LowCardinalityTest` | DDL `LowCardinality(String)` 검증, 값 round-trip |
-| `types/ArrayTypeTest` | `Array(Int32)` round-trip, 빈 리스트, null 처리 |
-| `engine/MergeTreeDslTest` | ENGINE 절 SQL 직렬화, partitionBy/orderBy/settings 조합 |
-| `functions/DateFunctionsTest` | `toYYYYMM`, `dateDiff` 결과 검증 |
-| `functions/AggregateFunctionsTest` | `argMax`, `quantile(0.95)`, `uniq` SQL 및 결과 |
-| `insert/BatchInsertTest` | 1만 건 batchInsert, 트랜잭션 원자성 없음 명시 테스트 |
+| 파일                               | 검증 항목                                                                                   |
+|------------------------------------|---------------------------------------------------------------------------------------------|
+| `ClickHouseDatabaseTest`           | `connect(host, port, ...)`, `connect(jdbcUrl)` 두 오버로드 모두 정상 연결                   |
+| `ClickHouseDatabaseValidationTest` | host blank, port out-of-range, jdbcUrl prefix 누락 시 `IllegalArgumentException`            |
+| `ClickHouseConnectionWrapperTest`  | autoCommit 강제, commit/rollback no-op, prepareStatement 3종 overload 위임                  |
+| `ClickHouseDialectTest`            | `dialectName == "clickhouse"`, capability flag 값, `modifyColumn` 빈 리스트                 |
+| `ClickHouseExtensionsTest`         | `suspendTransaction` 결과/예외, `queryFlow` materialize 후 emit, CancellationException 전파 |
+| `SchemaUtilsTest`                  | MergeTree 테이블 create/drop, ENGINE 절 포함 검증                                           |
+| `types/UnsignedTypesTest`          | UInt8/16/32/64 round-trip, ULong overflow 시 BigInt fallback                                |
+| `types/DateTime64Test`             | precision 0/3/6/9 round-trip, Instant 정확도                                                |
+| `types/LowCardinalityTest`         | DDL `LowCardinality(String)` 검증, 값 round-trip                                            |
+| `types/ArrayTypeTest`              | `Array(Int32)` round-trip, 빈 리스트, null 처리                                             |
+| `engine/MergeTreeDslTest`          | ENGINE 절 SQL 직렬화, partitionBy/orderBy/settings 조합                                     |
+| `functions/DateFunctionsTest`      | `toYYYYMM`, `dateDiff` 결과 검증                                                            |
+| `functions/AggregateFunctionsTest` | `argMax`, `quantile(0.95)`, `uniq` SQL 및 결과                                              |
+| `insert/BatchInsertTest`           | 1만 건 batchInsert, 트랜잭션 원자성 없음 명시 테스트                                        |
 
 테스트 리소스: `src/test/resources/junit-platform.properties`, `logback-test.xml` 필수.
 
 ### 4.7 PostgreSQL + ClickHouse 동시 사용 예제 구조
 
-위치: `examples/exposed-clickhouse-oltp-olap/` (settings.gradle.kts는 `examples/` 를 자동 등록 — `workshop/`은 등록 범위 외),
-구현은 plan Step 3 후반에서 진행.
+위치: `examples/exposed-clickhouse-oltp-olap/` (settings.gradle.kts는 `examples/` 를 자동 등록 — `workshop/`은 등록 범위 외), 구현은 plan Step 3 후반에서 진행.
 
 ```
 examples/exposed-clickhouse-oltp-olap/
@@ -470,6 +473,7 @@ examples/exposed-clickhouse-oltp-olap/
 ```
 
 핵심 패턴:
+
 1. **PostgreSQL = source of truth**: orders 테이블에 트랜잭션 INSERT/UPDATE
 2. **ClickHouse = derived view**: order_events MergeTree에 batchInsert (멱등성 키 활용)
 3. **at-least-once 파이프라인**: PostgreSQL outbox → 코루틴 worker → ClickHouse `INSERT ... DEDUPLICATE`
@@ -500,6 +504,7 @@ dependencies {
 ### 4.9 README 구조 (`README.md` + `README.ko.md`)
 
 표준 5섹션:
+
 1. Overview
 2. Architecture (Mermaid: 모듈 의존성, MergeTree DDL flow)
 3. Features
@@ -511,32 +516,32 @@ dependencies {
 ### 4.10 Korean KDoc + Serializable 요구사항
 
 - 모든 public 클래스, 인터페이스, extension function에 **한국어 KDoc** 필수
-- `companion object : KLogging()` — public service/factory class에만 적용. sealed object(`ClickHouseEngine.Memory` 등)에는 적용 불가 — Kotlin object에 companion object 불가.
+- `companion object : KLogging()` — public service/factory class에만 적용. sealed object (`ClickHouseEngine.Memory` 등)에는 적용 불가 — Kotlin object에 companion object 불가.
 - `ClickHouseEngine` sealed interface 및 data class 구현체에 `Serializable` + `serialVersionUID = 1L` 적용
-- 예외: 순수 마커 타입(ColumnType 구현체 등) — Serializable 불필요
+- 예외: 순수 마커 타입 (ColumnType 구현체 등) — Serializable 불필요
 - `ClickHouseTable` 하위 도메인 object는 Exposed `Table` 기본 규칙 따름 (직렬화 불필요)
 
 ---
 
 ## 5. 드래프트 태스크 목록 (Step 3 plan 진입 전)
 
-| # | 태스크 | 의존성 | 예상 산출물 |
-|---|--------|--------|-------------|
-| T1 | 워크트리 생성 `feat/exposed-clickhouse` | — | `.worktrees/exposed-clickhouse` |
-| T2 | 모듈 골격 생성 (build.gradle.kts, src 디렉토리, README placeholder) | T1 | 컴파일만 통과 |
-| T3 | `ClickHouseDatabase`/`ConnectionWrapper`/`Dialect`/`DialectMetadata` 구현 + 단위 테스트 | T2 | DB connect 성공 |
-| T4 | `ClickHouseExtensions` (suspendTransaction, queryFlow) + 테스트 | T3 | 코루틴 경로 통과 |
-| T5 | Unsigned column types (UByte/UShort/UInt/ULong + uint64BigInt) + 테스트 | T3 | round-trip 통과 |
-| T6 | DateTime64, LowCardinality, Array column types + 테스트 | T5 | round-trip 통과 |
-| T7 | `ClickHouseEngine` sealed + `mergeTree {}` DSL + `ClickHouseTable` + 테스트 | T3 | DDL 검증 통과 |
-| T8 | Date functions (toYYYYMM, dateDiff, toStartOfInterval) + 테스트 | T6 | SQL/결과 검증 |
-| T9 | Aggregate functions (argMax/argMin/quantile/uniq/uniqExact) + 테스트 | T8 | 집계 검증 |
-| T10 | BatchInsert + 트랜잭션 원자성 없음 명시 테스트 | T7 | 부분 반영 동작 문서화 |
-| T11 | README.md + README.ko.md (Mermaid 포함) | T10 | 사용자 문서 |
-| T12 | C1 (commit/rollback 동작) PoC 검증 | T3 | 결정 확정 + KDoc 반영 |
-| T13 | C7 (batch 최적화 필요 여부) 측정 | T10 | 후속 issue 여부 결정 |
-| T14 | examples 예제 (`examples/exposed-clickhouse-oltp-olap`) 골격 + 최소 동작 | T9, T10 | OLTP→OLAP 데모 |
-| T15 | code-reviewer 통과 → PR 생성 (Issue #145 link) | T11, T13, T14 | merged PR |
+| #   | 태스크                                                                                  | 의존성        | 예상 산출물                     |
+|-----|-----------------------------------------------------------------------------------------|---------------|---------------------------------|
+| T1  | 워크트리 생성 `feat/exposed-clickhouse`                                                 | —             | `.worktrees/exposed-clickhouse` |
+| T2  | 모듈 골격 생성 (build.gradle.kts, src 디렉토리, README placeholder)                     | T1            | 컴파일만 통과                   |
+| T3  | `ClickHouseDatabase`/`ConnectionWrapper`/`Dialect`/`DialectMetadata` 구현 + 단위 테스트 | T2            | DB connect 성공                 |
+| T4  | `ClickHouseExtensions` (suspendTransaction, queryFlow) + 테스트                         | T3            | 코루틴 경로 통과                |
+| T5  | Unsigned column types (UByte/UShort/UInt/ULong + uint64BigInt) + 테스트                 | T3            | round-trip 통과                 |
+| T6  | DateTime64, LowCardinality, Array column types + 테스트                                 | T5            | round-trip 통과                 |
+| T7  | `ClickHouseEngine` sealed + `mergeTree {}` DSL + `ClickHouseTable` + 테스트             | T3            | DDL 검증 통과                   |
+| T8  | Date functions (toYYYYMM, dateDiff, toStartOfInterval) + 테스트                         | T6            | SQL/결과 검증                   |
+| T9  | Aggregate functions (argMax/argMin/quantile/uniq/uniqExact) + 테스트                    | T8            | 집계 검증                       |
+| T10 | BatchInsert + 트랜잭션 원자성 없음 명시 테스트                                          | T7            | 부분 반영 동작 문서화           |
+| T11 | README.md + README.ko.md (Mermaid 포함)                                                 | T10           | 사용자 문서                     |
+| T12 | C1 (commit/rollback 동작) PoC 검증                                                      | T3            | 결정 확정 + KDoc 반영           |
+| T13 | C7 (batch 최적화 필요 여부) 측정                                                        | T10           | 후속 issue 여부 결정            |
+| T14 | examples 예제 (`examples/exposed-clickhouse-oltp-olap`) 골격 + 최소 동작                | T9, T10       | OLTP→OLAP 데모                  |
+| T15 | code-reviewer 통과 → PR 생성 (Issue #145 link)                                          | T11, T13, T14 | merged PR                       |
 
 > 모든 태스크는 본 프로젝트 규칙에 따라 worktree 안에서 수행. 각 `.kt` edit 후 `lsp_diagnostics` 점검,
 > 모듈별 `./gradlew :bluetape4k-exposed-clickhouse:test` 통과 확인 후 다음 태스크 진행.

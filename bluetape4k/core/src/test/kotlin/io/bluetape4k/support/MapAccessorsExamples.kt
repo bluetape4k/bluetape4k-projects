@@ -1,11 +1,11 @@
 package io.bluetape4k.support
 
-import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.faker.Fakers
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class MapAccessorsExamples {
 

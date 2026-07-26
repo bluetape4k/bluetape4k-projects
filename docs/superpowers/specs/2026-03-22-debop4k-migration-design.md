@@ -11,16 +11,16 @@ debop4k-core에서 bluetape4k-core로 유용한 컬렉션, 압축, 유틸리티 
 **원본 패키지**: `debop4k.core.collections.permutations`
 **대상 패키지**: `io.bluetape4k.collections.permutations`
 
-| 파일                       | 역할                                                                                          | LOC  | 핵심 관심사                                                                      |
-|--------------------------|---------------------------------------------------------------------------------------------|------|-----------------------------------------------------------------------------|
-| `Permutation.kt`         | 추상 기반 클래스, `AbstractList<E>` + `Sequence<E>`                                                | ~320 | map/filter/flatMap/take/drop/zip/sliding/grouped/scan/distinct/sorted 지연 연산 |
-| `Nil.kt`                 | 빈 순열 (종료 노드), 싱글턴                                                                           | ~85  | 모든 연산 NoSuchElement/빈 결과 반환                                                 |
-| `Cons.kt`                | 지연 평가 노드 — head + tailFunc 람다                                                               | ~73  | **ReentrantLock + @Volatile + DCL로 thread-safe tail 평가**                    |
-| `FixedCons.kt`           | 이미 평가된 tail 노드                                                                              | ~57  | tail이 즉시값이므로 동기화 불필요                                                        |
-| `PermutationIterator.kt` | MutableIterator 구현                                                                          | ~44  | 단순 위임                                                                       |
-| `Permutationx.kt`        | 팩토리 함수 (`permutationOf`, `cons`, `concat`, `iterate`, `tabulate`, `continually`, `numbers`) | ~145 | 확장 함수 + 톱레벨 함수                                                              |
-| `PermutationStream.kt`   | Java Stream 래퍼                                                                              | ~204 | `java.util.stream.Stream<T>` 구현                                             |
-| `PermutationStreamx.kt`  | Stream 변환 확장 함수                                                                             | ~53  | `toStream()`, `toPermutation()`                                             |
+| 파일                     | 역할                                                                                             | LOC  | 핵심 관심사                                                                     |
+|--------------------------|--------------------------------------------------------------------------------------------------|------|---------------------------------------------------------------------------------|
+| `Permutation.kt`         | 추상 기반 클래스, `AbstractList<E>` + `Sequence<E>`                                              | ~320 | map/filter/flatMap/take/drop/zip/sliding/grouped/scan/distinct/sorted 지연 연산 |
+| `Nil.kt`                 | 빈 순열 (종료 노드), 싱글턴                                                                      | ~85  | 모든 연산 NoSuchElement/빈 결과 반환                                            |
+| `Cons.kt`                | 지연 평가 노드 — head + tailFunc 람다                                                            | ~73  | **ReentrantLock + @Volatile + DCL로 thread-safe tail 평가**                     |
+| `FixedCons.kt`           | 이미 평가된 tail 노드                                                                            | ~57  | tail이 즉시값이므로 동기화 불필요                                               |
+| `PermutationIterator.kt` | MutableIterator 구현                                                                             | ~44  | 단순 위임                                                                       |
+| `Permutationx.kt`        | 팩토리 함수 (`permutationOf`, `cons`, `concat`, `iterate`, `tabulate`, `continually`, `numbers`) | ~145 | 확장 함수 + 톱레벨 함수                                                         |
+| `PermutationStream.kt`   | Java Stream 래퍼                                                                                 | ~204 | `java.util.stream.Stream<T>` 구현                                               |
+| `PermutationStreamx.kt`  | Stream 변환 확장 함수                                                                            | ~53  | `toStream()`, `toPermutation()`                                                 |
 
 **외부 의존성 분석**:
 
@@ -200,16 +200,16 @@ bluetape4k-core는 io/io 모듈에 의존하지 않으므로, ZipCompressor는 �
 
 ### 4.3 PermutationStream 유지 여부
 
-Java Stream API 래퍼(`PermutationStream`)는 Java interop에 유용하므로 유지합니다. Kotlin에서는 `Sequence`와
+Java Stream API 래퍼 (`PermutationStream`)는 Java interop에 유용하므로 유지합니다. Kotlin에서는 `Sequence`와
 `asSequence()`를 권장하되, Stream 변환도 제공합니다.
 
 ### 4.4 thread-safety 전략
 
-| 클래스          | 현재                                      | 변환 후                                                |
-|--------------|-----------------------------------------|-----------------------------------------------------|
-| Cons         | `synchronized(lock)` + `@Volatile`      | `ReentrantLock.withLock {}` + `@Volatile`           |
-| BoundedStack | `@Synchronized` (15개 메서드)               | `ReentrantLock.withLock {}`                         |
-| RingBuffer   | thread-safe 아님                          | `ReentrantLock.withLock {}` 추가                      |
+| 클래스       | 현재                                          | 변환 후                                               |
+|--------------|-----------------------------------------------|-------------------------------------------------------|
+| Cons         | `synchronized(lock)` + `@Volatile`            | `ReentrantLock.withLock {}` + `@Volatile`             |
+| BoundedStack | `@Synchronized` (15개 메서드)                 | `ReentrantLock.withLock {}`                           |
+| RingBuffer   | thread-safe 아님                              | `ReentrantLock.withLock {}` 추가                      |
 | XXHasher     | thread-safe 아님 (`hash32.reset()` 공유 상태) | `ThreadLocal<StreamingXXHash32>` 또는 `ReentrantLock` |
 
 ### 4.5 파일 이름 규칙

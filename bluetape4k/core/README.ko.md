@@ -115,8 +115,7 @@ fun validateScore(score: Double) {
 
 #### 상태 불변식 검증
 
-`CheckSupport`는 객체와 컴포넌트의 상태를 검증할 수 있도록 `RequireSupport`와 대칭인 API를 제공합니다.
-검증에 실패하면 `IllegalArgumentException` 대신 `IllegalStateException`이 발생합니다.
+`CheckSupport`는 객체와 컴포넌트의 상태를 검증할 수 있도록 `RequireSupport`와 대칭인 API를 제공합니다. 검증에 실패하면 `IllegalArgumentException` 대신 `IllegalStateException`이 발생합니다.
 
 ```kotlin
 import io.bluetape4k.support.checkNotNull
@@ -640,12 +639,12 @@ val valid = data.validate {
 
 ### 9. Java Time DSL (javatimes)
 
-`java.time` API를 Kotlin 스타일로 사용하기 위한 기초 확장 함수들을 제공합니다. 고급 기능(Interval, Period Framework, Temporal Range)은
+`java.time` API를 Kotlin 스타일로 사용하기 위한 기초 확장 함수들을 제공합니다. 고급 기능 (Interval, Period Framework, Temporal Range)은
 `bluetape4k-javatimes` 모듈을 참조하세요.
 
 #### Duration/Period DSL
 
-숫자 타입(Int, Long)에 대한 확장 함수로 직관적인 Duration/Period 생성을 지원합니다.
+숫자 타입 (Int, Long)에 대한 확장 함수로 직관적인 Duration/Period 생성을 지원합니다.
 
 ```kotlin
 import io.bluetape4k.javatimes.*
@@ -687,7 +686,7 @@ duration.inNanos()      // 나노초로 변환
 
 #### Temporal 확장
 
-모든 `Temporal` 타입(Instant, LocalDate, LocalDateTime, ZonedDateTime 등)에 대한 확장 함수를 제공합니다.
+모든 `Temporal` 타입 (Instant, LocalDate, LocalDateTime, ZonedDateTime 등)에 대한 확장 함수를 제공합니다.
 
 ```kotlin
 val now = nowZonedDateTime()
@@ -863,8 +862,8 @@ XXHasher.hash("test") == XXHasher.hash("test")  // true
 
 > 기준일: 2026-04-04
 
-| 상태    | 파일 수            |
-|-------|-----------------|
+| 상태      | 파일 수         |
+|-----------|-----------------|
 | 예제 있음 | 119 / 157 (76%) |
 | 예제 없음 | 38              |
 

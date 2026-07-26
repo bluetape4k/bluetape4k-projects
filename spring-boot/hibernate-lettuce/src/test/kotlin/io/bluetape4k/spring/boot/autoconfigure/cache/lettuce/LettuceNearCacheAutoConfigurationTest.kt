@@ -156,7 +156,7 @@ class LettuceNearCacheAutoConfigurationTest {
     fun `actuator auto configuration registers endpoint when entity manager exists`() {
         metricsContextRunner.run { context ->
             context.getBeansOfType<LettuceNearCacheActuatorEndpoint>().shouldHaveSize(1)
-            }
+        }
     }
 
     @Test

@@ -14,8 +14,8 @@ import io.vertx.junit5.VertxTestContext
 import io.vertx.sqlclient.Pool
 import io.vertx.sqlclient.SqlConnection
 import io.vertx.sqlclient.Transaction
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async

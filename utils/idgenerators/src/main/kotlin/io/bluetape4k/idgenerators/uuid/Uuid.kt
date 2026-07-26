@@ -3,7 +3,6 @@ package io.bluetape4k.idgenerators.uuid
 import com.fasterxml.uuid.Generators
 import io.bluetape4k.codec.Url62
 import io.bluetape4k.idgenerators.IdGenerator
-import io.bluetape4k.idgenerators.uuid.Uuid.namebased
 import io.bluetape4k.support.requirePositiveNumber
 import java.util.*
 

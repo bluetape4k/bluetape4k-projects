@@ -17,12 +17,12 @@ import io.bluetape4k.junit5.http.idempotency.HttpIdempotencyResponse
 import io.bluetape4k.junit5.http.idempotency.assertBoundedWaitHttpIdempotencyConformance
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ReadListener
+import jakarta.servlet.ServletException
 import jakarta.servlet.ServletInputStream
 import jakarta.servlet.http.HttpServlet
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletRequestWrapper
 import jakarta.servlet.http.HttpServletResponse
-import jakarta.servlet.ServletException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.TimeoutCancellationException
@@ -52,11 +52,10 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.math.BigDecimal
 import java.nio.ByteBuffer
-import java.nio.charset.CharacterCodingException
 import java.nio.charset.CodingErrorAction
 import java.security.MessageDigest
 import java.time.Duration
-import java.util.HexFormat
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
@@ -312,7 +311,7 @@ private class SpringFakeIdempotencyApplication(
         val action = lock.withLock { decideExchange(scope, fingerprint) }
         return try {
             when (action) {
-                is Action.Owner -> awaitOwner(action)
+                is Action.Owner  -> awaitOwner(action)
                 is Action.Waiter -> awaitWaiter(action)
                 is Action.Immediate -> action.response
             }
@@ -581,7 +580,12 @@ private class SpringFakeIdempotencyApplication(
     )
 
     private fun scope(tenant: String, request: HttpIdempotencyRequest): String =
-        listOf(tenant, digest(request.operation), digest(request.resourceIdentity), digest(request.idempotencyKeys.single()))
+        listOf(
+            tenant,
+            digest(request.operation),
+            digest(request.resourceIdentity),
+            digest(request.idempotencyKeys.single())
+        )
             .joinToString("|")
 
     private fun removeAllWaiters(record: Record) {
@@ -620,7 +624,11 @@ private class SpringFakeIdempotencyApplication(
         val completion: CompletableFuture<HttpIdempotencyResponse> = CompletableFuture(),
     )
 
-    private enum class RecordState { InFlight, Terminal, Abandoned }
+    private enum class RecordState {
+        InFlight,
+        Terminal,
+        Abandoned
+    }
 
     private sealed interface Action {
         class Owner(val scope: String, val record: Record): Action
@@ -637,7 +645,9 @@ private class SpringFakeIdempotencyApplication(
         val owner: Pair<CompletableFuture<HttpIdempotencyResponse>, HttpIdempotencyResponse>?,
         val waiters: List<Pair<Waiter, HttpIdempotencyResponse>>,
     ) {
-        companion object { val EMPTY = Abandoned(null, emptyList()) }
+        companion object {
+            val EMPTY = Abandoned(null, emptyList())
+        }
     }
 
     private class Reset(
@@ -719,6 +729,7 @@ private class CountingMockRequest(
         override fun read(): Int = delegate.read().also { value -> if (value >= 0) readCount.incrementAndGet() }
         override fun read(target: ByteArray, offset: Int, length: Int): Int =
             delegate.read(target, offset, length).also { count -> if (count > 0) readCount.addAndGet(count) }
+
         override fun isFinished(): Boolean = delegate.available() == 0
         override fun isReady(): Boolean = true
         override fun setReadListener(readListener: ReadListener?) = Unit
@@ -786,12 +797,12 @@ private fun canonicalJson(node: JsonNode): String = when {
         .joinToString(prefix = "{", postfix = "}") { (name, value) ->
             "${JSON_MAPPER.writeValueAsString(name)}:$value"
         }
-    node.isArray -> node.elements().asSequence().map(::canonicalJson).joinToString(prefix = "[", postfix = "]")
+    node.isArray  -> node.elements().asSequence().map(::canonicalJson).joinToString(prefix = "[", postfix = "]")
     node.isTextual -> JSON_MAPPER.writeValueAsString(requireValidUtf8(node.textValue()))
     node.isNumber -> node.decimalValue().stripTrailingZeros().toCanonicalNumber()
     node.isBoolean -> node.booleanValue().toString()
-    node.isNull -> "null"
-    else -> error("Unsupported JSON node.")
+    node.isNull   -> "null"
+    else          -> error("Unsupported JSON node.")
 }
 
 private fun requireValidUtf8(value: String): String = value.also {

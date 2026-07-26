@@ -7,7 +7,7 @@
 - **Compatibility**: ⚠️ **Source-level 마이그레이션** — univocity 타입 import를
   `io.bluetape4k.csv.*`로 변경. 동작·메서드명은 동일하므로 import 교체 수준.
 
-> **[확정 전략]**: univocity-parsers 완전 제거. 자체 `Record` 인터페이스 + `CsvSettings`/`TsvSettings` 정의. V2(`FlowCsvReader`) 동시 제공.
+> **[확정 전략]**: univocity-parsers 완전 제거. 자체 `Record` 인터페이스 + `CsvSettings`/`TsvSettings` 정의. V2 (`FlowCsvReader`) 동시 제공.
 
 ---
 
@@ -15,18 +15,18 @@
 
 ### 핵심 결정 — 무엇을 교체하는가
 
-| 항목                                           | 현재 (univocity)  | 변경 후 (자체 구현)                                                                 | 마이그레이션                           |
-|----------------------------------------------|-----------------|------------------------------------------------------------------------------|----------------------------------|
-| `com.univocity.parsers.common.record.Record` | univocity 인터페이스 | **`io.bluetape4k.csv.Record`** 자체 인터페이스                                      | import 교체                        |
-| `CsvParserSettings`, `TsvParserSettings`     | univocity 클래스   | **`CsvSettings`, `TsvSettings`** data class                                  | 클래스명 + import 교체                 |
-| `CsvWriterSettings`, `TsvWriterSettings`     | univocity 클래스   | **`CsvSettings`·`TsvSettings`** 공용 (별도 Writer 클래스 없음, `trimValues=false` 명시) | 클래스명 교체                          |
-| `DefaultCsvParserSettings` 등 4개 `@JvmField`  | univocity 인스턴스  | **`DefaultCsvSettings` 등** 자체 상수                                             | 상수명 교체                           |
-| `CsvParser`, `TsvParser` (내부)                | univocity 엔진    | **자체 `CsvLexer`, `TsvLexer`**                                                | 내부만 영향                           |
-| `CsvWriter`, `TsvWriter` (내부)                | univocity 엔진    | **자체 `CsvLineWriter`, `TsvLineWriter`**                                      | 내부만 영향                           |
-| `api(Libs.univocity_parsers)`                | 전체 의존성          | **완전 삭제**                                                                    | 사용자: univocity 직접 참조 시 의존성 직접 추가 |
+| 항목                                          | 현재 (univocity)     | 변경 후 (자체 구현)                                                                     | 마이그레이션                                    |
+|-----------------------------------------------|----------------------|-----------------------------------------------------------------------------------------|-------------------------------------------------|
+| `com.univocity.parsers.common.record.Record`  | univocity 인터페이스 | **`io.bluetape4k.csv.Record`** 자체 인터페이스                                          | import 교체                                     |
+| `CsvParserSettings`, `TsvParserSettings`      | univocity 클래스     | **`CsvSettings`, `TsvSettings`** data class                                             | 클래스명 + import 교체                          |
+| `CsvWriterSettings`, `TsvWriterSettings`      | univocity 클래스     | **`CsvSettings`·`TsvSettings`** 공용 (별도 Writer 클래스 없음, `trimValues=false` 명시) | 클래스명 교체                                   |
+| `DefaultCsvParserSettings` 등 4개 `@JvmField` | univocity 인스턴스   | **`DefaultCsvSettings` 등** 자체 상수                                                   | 상수명 교체                                     |
+| `CsvParser`, `TsvParser` (내부)               | univocity 엔진       | **자체 `CsvLexer`, `TsvLexer`**                                                         | 내부만 영향                                     |
+| `CsvWriter`, `TsvWriter` (내부)               | univocity 엔진       | **자체 `CsvLineWriter`, `TsvLineWriter`**                                               | 내부만 영향                                     |
+| `api(Libs.univocity_parsers)`                 | 전체 의존성          | **완전 삭제**                                                                           | 사용자: univocity 직접 참조 시 의존성 직접 추가 |
 
 > **[Codex Critical 1 해결]**: univocity 타입을 public API에서 유지한 채 `compileOnly`로 전환하면 runtime에
-`ClassNotFoundException` 발생. 완전한 해결책은 자체 타입 도입뿐.
+> `ClassNotFoundException` 발생. 완전한 해결책은 자체 타입 도입뿐.
 
 ### 마이그레이션 범위 (사용자 관점)
 
@@ -130,8 +130,8 @@ io.bluetape4k.csv                           ← public API (변경 없음)
 ### 2.1 자체 `Record` 인터페이스 설계
 
 > **[Codex Critical 1 + High 2 해결]**: univocity
-`Record`를 구현하면 runtime에 univocity 클래스가 필요하고, 메서드 표면(RecordMetaData, Class<T> 오버로드, typed getter 20+개)이 매우 크다. 자체 인터페이스를 정의해
-**실제 사용되는 메서드만** 포함.
+> `Record`를 구현하면 runtime에 univocity 클래스가 필요하고, 메서드 표면 (RecordMetaData, Class<T> 오버로드, typed getter 20+개)이 매우 크다. 자체 인터페이스를 정의해
+> **실제 사용되는 메서드만** 포함.
 
 ```kotlin
 package io.bluetape4k.csv
@@ -225,19 +225,20 @@ internal class ArrayRecord(
 
 > **[Codex High 해결]**: `getValue<T>(index, null)` 호출 시 `null is String?`이 true → String 분기로 매칭되는 타입 소거 문제.
 > **해결책**: nullable 반환이 필요한 경우 `getValue(index, null)` 대신
-`getString(index)?.toXxxOrNull()` 패턴 전용 getter 사용 (Section 2.1 참조). `getValue`는 **non-null defaultValue만 지원**한다고 계약 명시.
+> `getString(index)?.toXxxOrNull()` 패턴 전용 getter 사용 (Section 2.1 참조). `getValue`는 **non-null defaultValue만
+지원**한다고 계약 명시.
 
 `convert(raw: String?, defaultValue: T): T` 변환 규칙:
 
-| 필드 상태         | defaultValue 타입 | 반환값                                                      |
-|---------------|-----------------|----------------------------------------------------------|
-| null 또는 blank | any non-null    | `defaultValue`                                           |
-| 파싱 성공         | `String`        | 원본 문자열                                                   |
-| 파싱 성공         | `Int`           | `toIntOrNull()` 성공 시 그 값, 실패 시 `defaultValue`            |
-| 파싱 성공         | `Long`          | `toLongOrNull()` 성공 시 그 값, 실패 시 `defaultValue`           |
-| 파싱 성공         | `Double`        | `toDoubleOrNull()` 성공 시 그 값, 실패 시 `defaultValue`         |
-| 파싱 성공         | `Boolean`       | `"true"/"false"` (case-insensitive), 실패 시 `defaultValue` |
-| 파싱 성공         | 기타 타입           | `defaultValue` (unsupported, log warning)                |
+| 필드 상태       | defaultValue 타입 | 반환값                                                      |
+|-----------------|-------------------|-------------------------------------------------------------|
+| null 또는 blank | any non-null      | `defaultValue`                                              |
+| 파싱 성공       | `String`          | 원본 문자열                                                 |
+| 파싱 성공       | `Int`             | `toIntOrNull()` 성공 시 그 값, 실패 시 `defaultValue`       |
+| 파싱 성공       | `Long`            | `toLongOrNull()` 성공 시 그 값, 실패 시 `defaultValue`      |
+| 파싱 성공       | `Double`          | `toDoubleOrNull()` 성공 시 그 값, 실패 시 `defaultValue`    |
+| 파싱 성공       | `Boolean`         | `"true"/"false"` (case-insensitive), 실패 시 `defaultValue` |
+| 파싱 성공       | 기타 타입         | `defaultValue` (unsupported, log warning)                   |
 
 ```kotlin
 // ArrayRecord companion object에 private fun으로 정의
@@ -262,8 +263,8 @@ private fun <T : Any> convert(raw: String?, defaultValue: T): T {
 ```
 
 > **`T : Any` 제약 효과**: `getValue<Int?>(4, null)` 은 컴파일 에러 — `null`이 `T : Any`에 맞지 않음. nullable getter가 필요한 경우
-`getIntOrNull(4)` 사용. `is String?` 타입 소거 문제도 함께 해결: non-nullable `is String`,
-`is Int` 매칭이므로 null이 String 분기에 잘못 들어갈 수 없음.
+> `getIntOrNull(4)` 사용. `is String?` 타입 소거 문제도 함께 해결: non-nullable `is String`,
+> `is Int` 매칭이므로 null이 String 분기에 잘못 들어갈 수 없음.
 
 ### 2.3 자체 Settings 데이터 클래스 (univocity Settings 완전 교체)
 
@@ -502,16 +503,16 @@ internal class DelimitedWriter(
 
 ### 3.1 트레이드오프: Channel vs Flow
 
-| 접근                                                | 장점                                                                                        | 단점                                                                   | 결정                 |
-|---------------------------------------------------|-------------------------------------------------------------------------------------------|----------------------------------------------------------------------|--------------------|
-| **A. `flow { }` + 동기 lexer 직접 호출**                | 가장 단순. cold stream. backpressure 자동.                                                      | I/O가 collect 코루틴에서 동기 실행 → blocking 가능. `flowOn(Dispatchers.IO)` 필요. | **선택** (기본값)       |
-| **B. `channelFlow { }.buffer(0)` + producer 코루틴** | 별도 producer 코루틴이 lexer 실행. `.buffer(0)` = RENDEZVOUS 경계 명시 → 엄격한 pull-style backpressure. | 약간 더 무거움. cold이지만 launch 오버헤드 있음.                                    | **선택** (대용량 입력 옵션) |
-| **C. `Channel` 직접 + `produce { }`**               | 가장 세밀한 backpressure 제어 (BUFFERED/CONFLATED 선택).                                           | API 복잡, Flow 외부 노출 인터페이스 호환성 깨짐.                                     | 거부                 |
+| 접근                                                 | 장점                                                                                                     | 단점                                                                               | 결정                        |
+|------------------------------------------------------|----------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|-----------------------------|
+| **A. `flow { }` + 동기 lexer 직접 호출**             | 가장 단순. cold stream. backpressure 자동.                                                               | I/O가 collect 코루틴에서 동기 실행 → blocking 가능. `flowOn(Dispatchers.IO)` 필요. | **선택** (기본값)           |
+| **B. `channelFlow { }.buffer(0)` + producer 코루틴** | 별도 producer 코루틴이 lexer 실행. `.buffer(0)` = RENDEZVOUS 경계 명시 → 엄격한 pull-style backpressure. | 약간 더 무거움. cold이지만 launch 오버헤드 있음.                                   | **선택** (대용량 입력 옵션) |
+| **C. `Channel` 직접 + `produce { }`**                | 가장 세밀한 backpressure 제어 (BUFFERED/CONFLATED 선택).                                                 | API 복잡, Flow 외부 노출 인터페이스 호환성 깨짐.                                   | 거부                        |
 
-**결정 근거**: 인터페이스가 `Flow`를 반환하므로 A/B 모두 호환. 기본은 단순한 A, 엄격한 backpressure가 필요한 대용량 입력은 B(`.buffer(0)` 명시).
+**결정 근거**: 인터페이스가 `Flow`를 반환하므로 A/B 모두 호환. 기본은 단순한 A, 엄격한 backpressure가 필요한 대용량 입력은 B (`.buffer(0)` 명시).
 
 > **[Codex 수정]**: `channelFlow { }` 기본값은 **버퍼 64개** (RENDEZVOUS가 아님). 진정한 pull-style backpressure를 위해
-`.buffer(Channel.RENDEZVOUS)` 또는 `.buffer(0)` 명시 필요.
+> `.buffer(Channel.RENDEZVOUS)` 또는 `.buffer(0)` 명시 필요.
 
 ### 3.2 `SuspendCsvRecordReader` 리팩토링
 
@@ -598,23 +599,23 @@ class SuspendCsvRecordWriter private constructor(
 
 ### 3.4 Backpressure 전략
 
-| 시나리오             | 채널 타입                                         | 비고                                            |
-|------------------|-----------------------------------------------|-----------------------------------------------|
-| 기본 (Read)        | **64 (BUFFERED)** — `channelFlow { }` 기본      | `.buffer(Channel.RENDEZVOUS)` 명시해야 pull-style |
-| 엄격한 backpressure | `.buffer(Channel.RENDEZVOUS)` 또는 `.buffer(0)` | consumer 속도에 producer가 맞춤                     |
-| 명시적 버퍼 옵션        | `.buffer(capacity = 256)` extension           | 호출자가 선택                                       |
-| 대용량 dump (Write) | Flow 기반 collect, 별도 채널 없음                     | Writer 한 곳에서 직렬화                              |
+| 시나리오            | 채널 타입                                       | 비고                                              |
+|---------------------|-------------------------------------------------|---------------------------------------------------|
+| 기본 (Read)         | **64 (BUFFERED)** — `channelFlow { }` 기본      | `.buffer(Channel.RENDEZVOUS)` 명시해야 pull-style |
+| 엄격한 backpressure | `.buffer(Channel.RENDEZVOUS)` 또는 `.buffer(0)` | consumer 속도에 producer가 맞춤                   |
+| 명시적 버퍼 옵션    | `.buffer(capacity = 256)` extension             | 호출자가 선택                                     |
+| 대용량 dump (Write) | Flow 기반 collect, 별도 채널 없음               | Writer 한 곳에서 직렬화                           |
 
 > **[Codex Medium 1 해결]**:
-`channelFlow { }` 기본 버퍼는 64개 (BUFFERED). RENDEZVOUS(=0)가 아님. 진정한 pull-style backpressure 원하면 반드시
-`.buffer(Channel.RENDEZVOUS)` 명시.
+> `channelFlow { }` 기본 버퍼는 64개 (BUFFERED). RENDEZVOUS (=0)가 아님. 진정한 pull-style backpressure 원하면 반드시
+> `.buffer(Channel.RENDEZVOUS)` 명시.
 
 ---
 
 ### 3.5 파일 기반 I/O — `bluetape4k-io` AsynchronousFileChannel 활용
 
-> 파일 읽기/쓰기 확장 함수(`SuspendRecordReaderSupport`, `SuspendRecordWriterSupport`)에서 JVM 블로킹 `FileInputStream`/
-`FileOutputStream` 대신 `bluetape4k-io`의 `AsynchronousFileChannel` 기반 API를 사용한다.
+> 파일 읽기/쓰기 확장 함수 (`SuspendRecordReaderSupport`, `SuspendRecordWriterSupport`)에서 JVM 블로킹 `FileInputStream`/
+> `FileOutputStream` 대신 `bluetape4k-io`의 `AsynchronousFileChannel` 기반 API를 사용한다.
 
 #### 3.5.1 배경 — 왜 AsynchronousFileChannel인가
 
@@ -624,10 +625,10 @@ class SuspendCsvRecordWriter private constructor(
 
 #### 3.5.2 파일 읽기 전략
 
-| 파일 크기              | 접근                            | 사용 API                                                        |
-|--------------------|-------------------------------|---------------------------------------------------------------|
-| 소~중 파일 (< ~256 MB) | 전체 읽기 후 in-memory 파싱          | `path.readAllBytesSuspending()` → `ByteArrayInputStream`      |
-| 대용량 파일 (≥ 256 MB)  | channelFlow + flowOn(IO) 스트리밍 | `FileInputStream → BufferedReader → CsvLexer` (VirtualThread) |
+| 파일 크기              | 접근                              | 사용 API                                                      |
+|------------------------|-----------------------------------|---------------------------------------------------------------|
+| 소~중 파일 (< ~256 MB) | 전체 읽기 후 in-memory 파싱       | `path.readAllBytesSuspending()` → `ByteArrayInputStream`      |
+| 대용량 파일 (≥ 256 MB) | channelFlow + flowOn(IO) 스트리밍 | `FileInputStream → BufferedReader → CsvLexer` (VirtualThread) |
 
 **소~중 파일 구현 예시** (`SuspendRecordReaderSupport.kt` 확장):
 
@@ -653,9 +654,9 @@ fun <T> SuspendCsvRecordReader.readFile(
 
 **대용량 파일** — `channelFlow + flowOn(Dispatchers.IO)` + 표준 `FileInputStream` → `CsvLexer`:
 
-> **[Codex Critical 2 + High 3 해결]**: `readUtf8LinesAsFlow()`는 물리적 라인 단위로 분리하므로 RFC 4180의 인용 필드 내 개행(
-`"line1\nline2"`)이 깨짐. CsvLexer는 반드시 문자 스트림(Reader)을 순서대로 받아야 함. okio `SuspendedFileChannelSource` API도 실제 시그니처 불일치(
-`AsynchronousFileChannel` 필요, Path 직접 불가). **대용량 파일은 `channelFlow + flowOn(IO)` 방식이 유일하게 RFC-correct한 선택.**
+> **[Codex Critical 2 + High 3 해결]**: `readUtf8LinesAsFlow()`는 물리적 라인 단위로 분리하므로 RFC 4180의 인용 필드 내 개행 (
+> `"line1\nline2"`)이 깨짐. CsvLexer는 반드시 문자 스트림 (Reader)을 순서대로 받아야 함. okio `SuspendedFileChannelSource` API도 실제 시그니처 불일치 (
+> `AsynchronousFileChannel` 필요, Path 직접 불가). **대용량 파일은 `channelFlow + flowOn(IO)` 방식이 유일하게 RFC-correct한 선택.**
 
 ```kotlin
 fun <T> SuspendCsvRecordReader.readLargeFile(
@@ -690,7 +691,7 @@ fun <T> SuspendCsvRecordReader.readLargeFile(
 
 > **`bluetape4k-io` vs `bluetape4k-okio` 역할**:
 > - `bluetape4k-io`: 소·중간 파일 (`readAllBytesSuspending()`) — OS AIO, 전체 메모리 로드
-> - 대용량 파일: `channelFlow + flowOn(IO) + FileInputStream` — VirtualThread 블로킹, 메모리 O(행)
+> - 대용량 파일: `channelFlow + flowOn(IO) + FileInputStream` — VirtualThread 블로킹, 메모리 O (행)
 > - `bluetape4k-okio`: V2 FlowCsvReader에서 코루틴 네이티브 lexer 설계 시 재검토 (V1 범위 외)
 
 #### 3.5.3 파일 쓰기 전략
@@ -730,12 +731,12 @@ class SuspendCsvRecordWriter(
 
 #### 3.5.4 트레이드오프 비교
 
-| 접근                                                 | 장점                                             | 단점                                   | 결정                       |
-|----------------------------------------------------|------------------------------------------------|--------------------------------------|--------------------------|
-| **AIO 전체 읽기 (`bluetape4k-io`)**                    | OS AIO, IO 스레드 비점유, 기존 의존성 재사용                 | 파일 크기만큼 메모리 필요                       | **기본 (< 256 MB)**        |
-| **`channelFlow + flowOn(IO)` + `FileInputStream`** | RFC 4180 정확 (상태 기계 lexer), 추가 의존성 없음, 메모리 O(행) | VirtualThread 점유 (허용 가능)             | **대용량 파일 기본 (≥ 256 MB)** |
-| okio `SuspendedFileChannelSource` + 라인 기반          | —                                              | RFC 4180 위반 (인용 필드 내 개행 파괴), API 불일치 | **거부 (V1)**              |
-| `AsynchronousFileChannel` 직접 청크 스트리밍               | OS AIO + 메모리 효율 최대                             | 구현 복잡 (청크 경계 파서 상태 유지)               | 향후 V2 옵션                 |
+| 접근                                               | 장점                                                            | 단점                                               | 결정                            |
+|----------------------------------------------------|-----------------------------------------------------------------|----------------------------------------------------|---------------------------------|
+| **AIO 전체 읽기 (`bluetape4k-io`)**                | OS AIO, IO 스레드 비점유, 기존 의존성 재사용                    | 파일 크기만큼 메모리 필요                          | **기본 (< 256 MB)**             |
+| **`channelFlow + flowOn(IO)` + `FileInputStream`** | RFC 4180 정확 (상태 기계 lexer), 추가 의존성 없음, 메모리 O(행) | VirtualThread 점유 (허용 가능)                     | **대용량 파일 기본 (≥ 256 MB)** |
+| okio `SuspendedFileChannelSource` + 라인 기반      | —                                                               | RFC 4180 위반 (인용 필드 내 개행 파괴), API 불일치 | **거부 (V1)**                   |
+| `AsynchronousFileChannel` 직접 청크 스트리밍       | OS AIO + 메모리 효율 최대                                       | 구현 복잡 (청크 경계 파서 상태 유지)               | 향후 V2 옵션                    |
 
 #### 3.5.5 의존성 추가
 
@@ -753,19 +754,19 @@ api(project(":bluetape4k-io"))     // 기존 의존성 — 소·중간 파일 AI
 
 #### 3.6.1 사용 가능 API 매핑표
 
-| 기존 JDK 패턴                                     | bluetape4k-io 대체                               | 적용 위치                                      |
+| 기존 JDK 패턴                                 | bluetape4k-io 대체                             | 적용 위치                                  |
 |-----------------------------------------------|------------------------------------------------|--------------------------------------------|
-| `ByteArrayInputStream(bytes).buffered()`      | `bytes.toInputStream()`                        | `RecordReaderSupport`, 내부 lexer 생성         |
+| `ByteArrayInputStream(bytes).buffered()`      | `bytes.toInputStream()`                        | `RecordReaderSupport`, 내부 lexer 생성     |
 | `inputStream.readAllBytes()`                  | `inputStream.toByteArray()`                    | `RecordReaderSupport.readAll(InputStream)` |
-| `inputStream.bufferedReader().lineSequence()` | `inputStream.toLineSequence(cs)`               | 헤더/라인 기반 유틸리티                              |
-| `inputStream.bufferedReader().readText()`     | `inputStream.toString(cs)`                     | 소용량 in-memory 처리                           |
-| `Files.readAllBytes(path)`                    | `path.readAllBytesSuspending()`                | suspend 확장 함수                              |
-| `Files.write(path, bytes)`                    | `path.writeSuspending(bytes)`                  | suspend 확장 함수                              |
-| `Files.write(path, lines)`                    | `path.writeLinesSuspending(lines)`             | suspend 확장 함수                              |
-| `Files.readAllLines(path)`                    | `path.readAllLinesSuspending(cs)`              | suspend 확장 함수                              |
-| `outputStream.write(str.toByteArray(cs))`     | `outputStream.write(str, cs)`                  | `RecordWriterSupport` 내부                   |
-| `inputStream.copyTo(outputStream)`            | `inputStream.copyTo(outputStream, bufferSize)` | 스트림 복사 유틸리티                                |
-| `inputStream.copyTo(writer)`                  | `inputStream.copyTo(out, cs, bufferSize)`      | 인코딩 포함 복사                                  |
+| `inputStream.bufferedReader().lineSequence()` | `inputStream.toLineSequence(cs)`               | 헤더/라인 기반 유틸리티                    |
+| `inputStream.bufferedReader().readText()`     | `inputStream.toString(cs)`                     | 소용량 in-memory 처리                      |
+| `Files.readAllBytes(path)`                    | `path.readAllBytesSuspending()`                | suspend 확장 함수                          |
+| `Files.write(path, bytes)`                    | `path.writeSuspending(bytes)`                  | suspend 확장 함수                          |
+| `Files.write(path, lines)`                    | `path.writeLinesSuspending(lines)`             | suspend 확장 함수                          |
+| `Files.readAllLines(path)`                    | `path.readAllLinesSuspending(cs)`              | suspend 확장 함수                          |
+| `outputStream.write(str.toByteArray(cs))`     | `outputStream.write(str, cs)`                  | `RecordWriterSupport` 내부                 |
+| `inputStream.copyTo(outputStream)`            | `inputStream.copyTo(outputStream, bufferSize)` | 스트림 복사 유틸리티                       |
+| `inputStream.copyTo(writer)`                  | `inputStream.copyTo(out, cs, bufferSize)`      | 인코딩 포함 복사                           |
 
 #### 3.6.2 동기 구현 (`RecordReaderSupport`, `RecordWriterSupport`)
 
@@ -854,17 +855,17 @@ val inputStream = ByteBufferInputStream(buf)   // bluetape4k-io
 
 ### 4.1 단계별 PR 분할 (수정된 전략)
 
-| PR       | 내용                                                                                                                                                                                                                     | 공개 API 변경                                 | univocity 상태              |
-|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|---------------------------|
-| **PR 1** | `CsvSettings`/`TsvSettings` data class + `internal/` 엔진 (`CsvLexer`, `TsvLexer`, `CsvLineWriter`, `TsvLineWriter`, `ArrayRecord`, `HeaderIndex`) + kotlinx-benchmark 설정                                                | **추가** (Settings 신규 — `Record` 아직 미포함)    | `api()` 유지                |
+| PR       | 내용                                                                                                                                                                                                                                                 | 공개 API 변경                                     | univocity 상태                |
+|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|-------------------------------|
+| **PR 1** | `CsvSettings`/`TsvSettings` data class + `internal/` 엔진 (`CsvLexer`, `TsvLexer`, `CsvLineWriter`, `TsvLineWriter`, `ArrayRecord`, `HeaderIndex`) + kotlinx-benchmark 설정                                                                          | **추가** (Settings 신규 — `Record` 아직 미포함)   | `api()` 유지                  |
 | **PR 2** | **`io.bluetape4k.csv.Record` 공개 인터페이스 추가** + 기존 파일의 `com.univocity...Record` import → `io.bluetape4k.csv.Record` 동시 교체 + `CsvRecordReader`/`TsvRecordReader` 내부 엔진 교체 + `getValue<T?>(null)` 콜사이트 → nullable getter 교체 | **추가** (Record) + **변경** (Settings 타입 교체) | `api()` 유지 (diff test 필요) |
-| **PR 3** | `CsvRecordWriter`, `TsvRecordWriter` 내부 엔진 교체 (`CsvWriter` → `CsvLineWriter`)                                                                                                                                          | **변경** (Settings 타입 교체)                   | `api()` 유지                |
-| **PR 4** | 코루틴 네이티브 교체 + `readLargeFile()` (channelFlow+IO) + bluetape4k-io 파일 I/O 적용                                                                                                                                             | **없음**                                    | `api()` 유지                |
-| **PR 5** | univocity 완전 삭제, `DefaultCsvParserSettings` 등 제거, `MIGRATION.md`, 통합 테스트                                                                                                                                               | **삭제** (univocity 상수 제거)                  | **완전 삭제**                 |
-| **PR 6** | V2 인터페이스 추가 (Section 5 참조)                                                                                                                                                                                             | 신규 추가                                     | 없음                        |
+| **PR 3** | `CsvRecordWriter`, `TsvRecordWriter` 내부 엔진 교체 (`CsvWriter` → `CsvLineWriter`)                                                                                                                                                                  | **변경** (Settings 타입 교체)                     | `api()` 유지                  |
+| **PR 4** | 코루틴 네이티브 교체 + `readLargeFile()` (channelFlow+IO) + bluetape4k-io 파일 I/O 적용                                                                                                                                                              | **없음**                                          | `api()` 유지                  |
+| **PR 5** | univocity 완전 삭제, `DefaultCsvParserSettings` 등 제거, `MIGRATION.md`, 통합 테스트                                                                                                                                                                 | **삭제** (univocity 상수 제거)                    | **완전 삭제**                 |
+| **PR 6** | V2 인터페이스 추가 (Section 5 참조)                                                                                                                                                                                                                  | 신규 추가                                         | 없음                          |
 
 > **[High 1 해결]**: PR1에서 `io.bluetape4k.csv.Record`를 추가하면 기존 파일이 `com.univocity...Record`를 `Record` 단순명으로 import하고 있어 *
-*동일 패키지 내 단순명 충돌** 발생. 해결: PR2에서 `Record.kt` 추가와 모든 import 교체를 **동일 PR에서 원자적으로 처리**.
+> *동일 패키지 내 단순명 충돌** 발생. 해결: PR2에서 `Record.kt` 추가와 모든 import 교체를 **동일 PR에서 원자적으로 처리**.
 
 ### 4.2 마이그레이션 범위 (사용자 관점)
 
@@ -913,11 +914,11 @@ PR 6: V2 인터페이스 (univocity 없음)
 ```
 
 > **PR 1~4 기간 `api(Libs.univocity_parsers)` 유지 이유**:
-`UnivocityVsNativeDiffTest`가 univocity에 의존 (동작 비교). PR 5에서 diff test + 의존성 동시 삭제.
+> `UnivocityVsNativeDiffTest`가 univocity에 의존 (동작 비교). PR 5에서 diff test + 의존성 동시 삭제.
 
 ### 4.4 BOM (Byte Order Mark) 처리 (Codex [medium] 수정)
 
-UTF-8 BOM(`\uFEFF`) 미처리 시 첫 헤더 컬럼에 `\uFEFF` 포함 → 헤더명 불일치 버그.
+UTF-8 BOM (`\uFEFF`) 미처리 시 첫 헤더 컬럼에 `\uFEFF` 포함 → 헤더명 불일치 버그.
 
 **처리 전략**:
 
@@ -936,7 +937,7 @@ private const val BOM_CHAR = '\uFEFF'.code
 **테스트**: `RFC4180ComplianceTest`에 BOM 케이스 추가:
 
 > **[Medium 4 해결]**: `skipHeaders=true`(기본값) 시, 리더는 첫 행을 **헤더 메타데이터**로 저장하여 이후 Record에서
-`getString("name")` 으로 접근 가능. 이 동작을 명시하지 않으면 테스트 의도가 불분명. 두 가지 시나리오로 분리.
+> `getString("name")` 으로 접근 가능. 이 동작을 명시하지 않으면 테스트 의도가 불분명. 두 가지 시나리오로 분리.
 
 ```kotlin
 @Test
@@ -963,19 +964,19 @@ fun `UTF-8 BOM이 있는 CSV - skipHeaders=false 시 첫 값에 BOM 없음을 �
 
 ## 5. V2 인터페이스 설계 (PR 6)
 
-> **목적**: V1(`io.bluetape4k.csv.Record` + `CsvSettings`) 위에 **Flow-native 편의 API
-** 추가. V1과 다른 타입 계층이 아니라, V1 엔진을 재사용하는 더 편한 진입점.
+> **목적**: V1 (`io.bluetape4k.csv.Record` + `CsvSettings`) 위에 **Flow-native 편의 API
+> ** 추가. V1과 다른 타입 계층이 아니라, V1 엔진을 재사용하는 더 편한 진입점.
 
 ### 5.1 설계 원칙
 
-| V1 (PR 1~5)                | V2 (PR 6)                                   |
-|----------------------------|---------------------------------------------|
-| `io.bluetape4k.csv.Record` | 자체 `CsvRow` (List 기반, 불변)                   |
-| `CsvSettings` data class   | `CsvReaderConfig` (var 기반 mutable builder)  |
-| `Sequence<Record>`         | `Flow<CsvRow>` (네이티브)                       |
-| `InputStream` 기반           | `Path`/`File`/`InputStream` + bluetape4k-io |
-| BOM: `detectBom` 옵션        | BOM: 기본 `true`                              |
-| `getValue<T>`: 런타임 캐스팅     | `CsvRow.getString()`, `getInt()` 타입 안전      |
+| V1 (PR 1~5)                  | V2 (PR 6)                                    |
+|------------------------------|----------------------------------------------|
+| `io.bluetape4k.csv.Record`   | 자체 `CsvRow` (List 기반, 불변)              |
+| `CsvSettings` data class     | `CsvReaderConfig` (var 기반 mutable builder) |
+| `Sequence<Record>`           | `Flow<CsvRow>` (네이티브)                    |
+| `InputStream` 기반           | `Path`/`File`/`InputStream` + bluetape4k-io  |
+| BOM: `detectBom` 옵션        | BOM: 기본 `true`                             |
+| `getValue<T>`: 런타임 캐스팅 | `CsvRow.getString()`, `getInt()` 타입 안전   |
 
 ### 5.2 `CsvRow` — V2 레코드 타입
 
@@ -1127,8 +1128,8 @@ io.bluetape4k.csv.v2/                 ← NEW (PR 6)
 ### 5.7 V1 ↔ V2 상호 변환
 
 > **[Medium 3 해결]**: `CsvRow.toRecord()`가 `ArrayRecord`·
-`HeaderIndex`(internal 타입)를 직접 호출하면 public extension에서 internal 타입을 노출하는 계약 위반. 해결: `io.bluetape4k.csv` 패키지 레벨의
-`internal` 팩토리 함수로 감싸고, v2 패키지에서 이 팩토리만 호출.
+> `HeaderIndex`(internal 타입)를 직접 호출하면 public extension에서 internal 타입을 노출하는 계약 위반. 해결: `io.bluetape4k.csv` 패키지 레벨의
+> `internal` 팩토리 함수로 감싸고, v2 패키지에서 이 팩토리만 호출.
 
 ```kotlin
 // io/csv/src/main/kotlin/io/bluetape4k/csv/RecordFactory.kt
@@ -1164,17 +1165,17 @@ fun io.bluetape4k.csv.Record.toCsvRow(): CsvRow =
 
 ### 6.1 기존 18개 테스트 파일 재활용 계획
 
-| 테스트 파일                        | 재활용 가능성                | 수정 사항      |
-|-------------------------------|------------------------|------------|
-| `AbstractRecordReaderTest.kt` | 100%                   | import 변경만 |
-| `CsvRecordReaderTest.kt`      | 100%                   | import 변경만 |
-| `CsvRecordWriterTest.kt`      | 100%                   | import 변경만 |
-| `TsvRecordReaderTest.kt`      | 100%                   | import 변경만 |
-| `TsvRecordWriterTest.kt`      | 100%                   | import 변경만 |
+| 테스트 파일                   | 재활용 가능성               | 수정 사항     |
+|-------------------------------|-----------------------------|---------------|
+| `AbstractRecordReaderTest.kt` | 100%                        | import 변경만 |
+| `CsvRecordReaderTest.kt`      | 100%                        | import 변경만 |
+| `CsvRecordWriterTest.kt`      | 100%                        | import 변경만 |
+| `TsvRecordReaderTest.kt`      | 100%                        | import 변경만 |
+| `TsvRecordWriterTest.kt`      | 100%                        | import 변경만 |
 | `CsvEdgeCaseTest.kt`          | 100% (RFC 4180 검증의 핵심) | import 변경만 |
-| `RecordReaderSupportTest.kt`  | 100%                   | import 변경만 |
-| `RecordWriterSupportTest.kt`  | 100%                   | import 변경만 |
-| `coroutines/*Test.kt` (10개)   | 100%                   | import 변경만 |
+| `RecordReaderSupportTest.kt`  | 100%                        | import 변경만 |
+| `RecordWriterSupportTest.kt`  | 100%                        | import 변경만 |
+| `coroutines/*Test.kt` (10개)  | 100%                        | import 변경만 |
 
 **유지 정책**: 기존 18개 파일은 **회귀 테스트 베이스라인**으로 사용. 자체 구현이 univocity와 동일한 동작을 내야 통과.
 
@@ -1182,7 +1183,7 @@ fun io.bluetape4k.csv.Record.toCsvRow(): CsvRow =
 
 - `빈 비-인용 필드 → null`: 기존 univocity는 항상 null. 자체 구현은 `emptyValueAsNull` 옵션으로 동일 동작 보장
 - `trimValues=true`: 양쪽 공백 제거. 자체 구현은 `String.trim()` 사용 (Unicode whitespace 동일)
-- `skipEmptyLines`: 빈 줄(컬럼 전부 null) 스킵 — 기존과 동일
+- `skipEmptyLines`: 빈 줄 (컬럼 전부 null) 스킵 — 기존과 동일
 
 ### 6.2 추가 신규 테스트
 
@@ -1244,7 +1245,7 @@ fun `backpressure throttles producer when consumer is slow`() = runTest {
 
 `UnivocityVsNativeDiffTest.kt` — **PR 1~4** 진행 중 임시 운영 (univocity 의존성은 PR 5까지 유지됨):
 
-- PR 1(internal 엔진) 작성 시 추가 → PR 4 코루틴 교체 완료 후 PR 5에서 삭제
+- PR 1 (internal 엔진) 작성 시 추가 → PR 4 코루틴 교체 완료 후 PR 5에서 삭제
 - 무작위 CSV 1000개 생성 (Hypothesis 스타일) → univocity와 자체 파서 결과 비교
 - **주의**: PR 2에서 `api(Libs.univocity_parsers)` 제거 불가 — diff test가 univocity에 의존. PR 5에서만 제거
 
@@ -1352,11 +1353,11 @@ class CsvFileBenchmark {
 
 #### 5.3.5 성능 목표
 
-| 지표         | 목표                                         |
-|------------|--------------------------------------------|
-| 자체 구현 처리량  | univocity 대비 ±20% 이내                       |
-| 대용량 파일 메모리 | `channelFlow+IO` 경로 = 일정 (행 수 무관, O(행))    |
-| 소파일 지연     | bluetape4k-io AIO 경로 ≤ 블로킹 FileInputStream |
+| 지표               | 목표                                             |
+|--------------------|--------------------------------------------------|
+| 자체 구현 처리량   | univocity 대비 ±20% 이내                         |
+| 대용량 파일 메모리 | `channelFlow+IO` 경로 = 일정 (행 수 무관, O(행)) |
+| 소파일 지연        | bluetape4k-io AIO 경로 ≤ 블로킹 FileInputStream  |
 
 > 벤치마크 실행: `./gradlew :bluetape4k-csv:benchmark`
 > 결과는 `build/reports/benchmarks/` 에 JSON으로 저장됨.
@@ -1367,29 +1368,29 @@ class CsvFileBenchmark {
 
 ### 자체 구현 vs 대안 라이브러리
 
-| 옵션                      | 장점                                 | 단점                                    |
-|-------------------------|------------------------------------|---------------------------------------|
-| **자체 구현** (선택)          | 의존성 0, RFC 4180 정확 제어, 코루틴 네이티브 통합 | 구현/테스트 비용, univocity 만큼 빠르진 않음        |
-| **Apache Commons CSV**  | 검증된 라이브러리                          | 새 의존 추가 (univocity 교체일 뿐 의존성 0 목표 미달) |
-| **FastCSV**             | 매우 빠름, 작은 의존성                      | 새 의존 추가, RFC 4180만 지원 (TSV 별도)        |
-| **kotlinx-io 기반 자체 구현** | 코루틴 친화적                            | kotlinx-io는 stable 직전 — 위험            |
+| 옵션                          | 장점                                               | 단점                                                  |
+|-------------------------------|----------------------------------------------------|-------------------------------------------------------|
+| **자체 구현** (선택)          | 의존성 0, RFC 4180 정확 제어, 코루틴 네이티브 통합 | 구현/테스트 비용, univocity 만큼 빠르진 않음          |
+| **Apache Commons CSV**        | 검증된 라이브러리                                  | 새 의존 추가 (univocity 교체일 뿐 의존성 0 목표 미달) |
+| **FastCSV**                   | 매우 빠름, 작은 의존성                             | 새 의존 추가, RFC 4180만 지원 (TSV 별도)              |
+| **kotlinx-io 기반 자체 구현** | 코루틴 친화적                                      | kotlinx-io는 stable 직전 — 위험                       |
 
 **결정**: 의존성 제거가 1순위 목표 → 자체 구현. 성능보다 정확성·유지보수성 우선.
 
 ### Lexer: 상태 기계 vs 정규표현식 vs 토큰 스플리터
 
-| 접근                  | 장점                        | 단점                             | 결정 |
-|---------------------|---------------------------|--------------------------------|----|
-| **상태 기계 (선택)**      | RFC 4180 모든 케이스 정확. 스트리밍. | 코드 길이.                         | 채택 |
-| 정규표현식               | 짧은 코드                     | 인용 안의 개행 처리 시 정규식 폭발. 메모리 비효율. | 거부 |
-| `String.split()` 기반 | 매우 단순                     | 인용/이스케이프 처리 불가                 | 거부 |
+| 접근                  | 장점                                 | 단점                                               | 결정 |
+|-----------------------|--------------------------------------|----------------------------------------------------|------|
+| **상태 기계 (선택)**  | RFC 4180 모든 케이스 정확. 스트리밍. | 코드 길이.                                         | 채택 |
+| 정규표현식            | 짧은 코드                            | 인용 안의 개행 처리 시 정규식 폭발. 메모리 비효율. | 거부 |
+| `String.split()` 기반 | 매우 단순                            | 인용/이스케이프 처리 불가                          | 거부 |
 
 ### Record: 배열 기반 vs Map 기반
 
-| 접근                      | 장점                                            | 단점                                                    | 결정 |
-|-------------------------|-----------------------------------------------|-------------------------------------------------------|----|
-| **배열 기반 (선택)**          | 메모리 효율 (column 수 × String ref). 헤더 인덱스 공유 가능. | 헤더명 lookup이 한 단계 추가                                   | 채택 |
-| Map<String, String?> 기반 | name lookup 직접                                | 행마다 HashMap = 메모리 5~10배. 컬럼 순서 추적 위해 LinkedHashMap 필요 | 거부 |
+| 접근                      | 장점                                                         | 단점                                                                   | 결정 |
+|---------------------------|--------------------------------------------------------------|------------------------------------------------------------------------|------|
+| **배열 기반 (선택)**      | 메모리 효율 (column 수 × String ref). 헤더 인덱스 공유 가능. | 헤더명 lookup이 한 단계 추가                                           | 채택 |
+| Map<String, String?> 기반 | name lookup 직접                                             | 행마다 HashMap = 메모리 5~10배. 컬럼 순서 추적 위해 LinkedHashMap 필요 | 거부 |
 
 ---
 
@@ -1474,15 +1475,15 @@ git worktree add .worktrees/csv-custom-parser -b feat/csv-custom-parser develop
 
 ## 9. 위험과 대응
 
-| 위험                                          | 대응                                                                                     |
-|---------------------------------------------|----------------------------------------------------------------------------------------|
-| univocity의 미세한 동작 차이 (BOM, 빈 행, 인용 필드 내 개행) | PR 2~4 `UnivocityVsNativeDiffTest`로 차이 식별 후 `CsvSettings` 옵션화                          |
-| 성능 회귀                                       | PR 5 삭제 전 baseline 기록 → 삭제 후 ±20% 재확인. `./gradlew :bluetape4k-csv:benchmark`           |
-| 다른 모듈이 univocity를 transitive로 사용            | `./gradlew :bluetape4k-csv:dependencies`로 확인. csv 모듈만 의존하므로 영향 없음                      |
-| 자체 `Record` 메서드 누락                          | 기존 18개 테스트 + 내부 사용 케이스 전수 조사. `RecordReader.read { record -> record.X() }` 패턴 전체 grep  |
-| 코루틴 cancellation 미협력                        | `ensureActive()` 행 단위 + `take(N).collect` 테스트로 검증                                      |
-| 대용량 파일 RFC 4180 준수                          | `channelFlow + flowOn(IO) + FileInputStream → CsvLexer` 패턴 — 라인 기반 파싱 절대 금지            |
-| 벤치마크 환경 편차                                  | `@Warmup(2)`, `@Measurement(5, 1s)` 고정. baseline JSON은 `build/reports/benchmarks/`에 보존 |
+| 위험                                                         | 대응                                                                                                       |
+|--------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| univocity의 미세한 동작 차이 (BOM, 빈 행, 인용 필드 내 개행) | PR 2~4 `UnivocityVsNativeDiffTest`로 차이 식별 후 `CsvSettings` 옵션화                                     |
+| 성능 회귀                                                    | PR 5 삭제 전 baseline 기록 → 삭제 후 ±20% 재확인. `./gradlew :bluetape4k-csv:benchmark`                    |
+| 다른 모듈이 univocity를 transitive로 사용                    | `./gradlew :bluetape4k-csv:dependencies`로 확인. csv 모듈만 의존하므로 영향 없음                           |
+| 자체 `Record` 메서드 누락                                    | 기존 18개 테스트 + 내부 사용 케이스 전수 조사. `RecordReader.read { record -> record.X() }` 패턴 전체 grep |
+| 코루틴 cancellation 미협력                                   | `ensureActive()` 행 단위 + `take(N).collect` 테스트로 검증                                                 |
+| 대용량 파일 RFC 4180 준수                                    | `channelFlow + flowOn(IO) + FileInputStream → CsvLexer` 패턴 — 라인 기반 파싱 절대 금지                    |
+| 벤치마크 환경 편차                                           | `@Warmup(2)`, `@Measurement(5, 1s)` 고정. baseline JSON은 `build/reports/benchmarks/`에 보존               |
 
 ---
 
@@ -1494,9 +1495,11 @@ git worktree add .worktrees/csv-custom-parser -b feat/csv-custom-parser develop
 - `io/csv/src/main/kotlin/io/bluetape4k/csv/CsvSettings.kt`
 - `io/csv/src/main/kotlin/io/bluetape4k/csv/TsvSettings.kt`
 -
+
 `io/csv/src/main/kotlin/io/bluetape4k/csv/internal/{ArrayRecord,HeaderIndex,CsvLexer,TsvLexer,DelimitedWriter,CsvLineWriter,TsvLineWriter,ParseException}.kt`
 -
 `io/csv/src/test/kotlin/io/bluetape4k/csv/internal/{CsvLexerTest,TsvLexerTest,DelimitedWriterTest,ArrayRecordTest,HeaderIndexTest}.kt`
+
 - `io/csv/src/test/kotlin/io/bluetape4k/csv/RFC4180ComplianceTest.kt`
 - `io/csv/src/test/kotlin/io/bluetape4k/csv/coroutines/SuspendCsvNativeTest.kt`
 - `io/csv/src/test/kotlin/io/bluetape4k/csv/benchmark/{CsvParserBenchmark,CsvFileBenchmark,CsvWriterBenchmark}.kt`
@@ -1505,7 +1508,9 @@ git worktree add .worktrees/csv-custom-parser -b feat/csv-custom-parser develop
 **수정**:
 
 -
+
 `io/csv/src/main/kotlin/io/bluetape4k/csv/{CsvRecordReader,CsvRecordWriter,TsvRecordReader,TsvRecordWriter,RecordReader,RecordWriter,CvsParserDefaults}.kt`
+
 - `io/csv/src/main/kotlin/io/bluetape4k/csv/coroutines/Suspend*.kt` (6개)
 - `io/csv/build.gradle.kts`
 - `io/csv/README.md`, `io/csv/README.ko.md`

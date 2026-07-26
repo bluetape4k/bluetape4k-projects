@@ -8,14 +8,15 @@ import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.protobuf.messages.TestMessage
 import io.bluetape4k.protobuf.messages.testMessage
 import org.junit.jupiter.api.Test
+import java.io.Serializable
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.nio.ReadOnlyBufferException
-import java.io.Serializable
 
 class ProtobufSerializerByteBufferTest {
     private val serializer = ProtobufSerializer()
     private val message = testMessage { id = 757L; name = "caller-buffer" }
+
     private data class FallbackValue(val id: Int): Serializable
     private class RecordingFallback: BinarySerializer {
         var serializeCalls = 0
@@ -47,10 +48,13 @@ class ProtobufSerializerByteBufferTest {
         val wire = serializer.serialize(message)
         val heap = ByteBuffer.allocate(wire.size + 4).apply { position(2); put(wire); flip(); position(2) }
         val direct = ByteBuffer.allocateDirect(wire.size + 4).apply { position(2); put(wire); flip(); position(2) }
-        val sliced = ByteBuffer.wrap(ByteArray(2) + wire + ByteArray(2)).apply { position(2); limit(2 + wire.size) }.slice()
+        val sliced =
+            ByteBuffer.wrap(ByteArray(2) + wire + ByteArray(2)).apply { position(2); limit(2 + wire.size) }.slice()
         listOf(heap, direct, sliced, heap.asReadOnlyBuffer()).forEach { source ->
             source.order(java.nio.ByteOrder.LITTLE_ENDIAN)
-            val position = source.position(); val limit = source.limit(); val order = source.order()
+            val position = source.position();
+            val limit = source.limit();
+            val order = source.order()
             source.mark()
             serializer.deserializeFrom<TestMessage>(source) shouldBeEqualTo message
             source.position() shouldBeEqualTo position

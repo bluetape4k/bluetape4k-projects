@@ -97,9 +97,7 @@ val hasMapping = method.hasMergedAnnotation<RequestMapping>()
 
 ### RestClient Coroutines DSL
 
-The DSL runs blocking `RestClient` calls with `runInterruptible(Dispatchers.IO)`,
-so coroutine cancellation can interrupt the waiting client thread when the
-underlying request factory honors interruption.
+The DSL runs blocking `RestClient` calls with `runInterruptible(Dispatchers.IO)`, so coroutine cancellation can interrupt the waiting client thread when the underlying request factory honors interruption.
 
 ```kotlin
 import io.bluetape4k.spring.http.*
@@ -149,8 +147,7 @@ class UserController(private val service: UserService) {
 
 ### Observing Service, HTTP Handler, and Event Code
 
-Use the `ObservationRegistry` that Spring Boot wires for the application. The helpers only manage Micrometer
-Observation lifecycle and coroutine scope cleanup; they do not install exporters or mutate global OpenTelemetry SDK state.
+Use the `ObservationRegistry` that Spring Boot wires for the application. The helpers only manage Micrometer Observation lifecycle and coroutine scope cleanup; they do not install exporters or mutate global OpenTelemetry SDK state.
 
 ```kotlin
 import io.bluetape4k.spring.observability.SpringObservationKeyValues

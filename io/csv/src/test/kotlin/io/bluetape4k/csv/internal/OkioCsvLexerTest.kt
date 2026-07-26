@@ -55,7 +55,11 @@ class OkioCsvLexerTest {
         val settings = CsvSettings.DEFAULT.copy(maxCharsPerColumn = 5)
 
         assertFailsWith<ParseException> {
-            OkioCsvLexer("name\nabcdef\n".byteInputStream().source().buffer(), settings, skipHeaders = true).use { lexer ->
+            OkioCsvLexer(
+                "name\nabcdef\n".byteInputStream().source().buffer(),
+                settings,
+                skipHeaders = true
+            ).use { lexer ->
                 lexer.next()
             }
         }

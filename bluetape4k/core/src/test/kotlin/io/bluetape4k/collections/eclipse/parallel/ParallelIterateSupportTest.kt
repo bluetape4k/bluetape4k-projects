@@ -1,5 +1,7 @@
 package io.bluetape4k.collections.eclipse.parallel
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.collections.AbstractCollectionTest
 import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.stream.toFastList
@@ -8,8 +10,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.utils.Runtimex
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeLessThan
 import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.system.measureTimeMillis

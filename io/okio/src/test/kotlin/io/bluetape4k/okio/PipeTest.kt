@@ -1,5 +1,9 @@
 package io.bluetape4k.okio
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.fail
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.concurrency.TestingExecutors
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.system.assumeNotWindows
@@ -15,10 +19,6 @@ import okio.ByteString
 import okio.ByteString.Companion.decodeHex
 import okio.HashingSink
 import okio.Pipe
-import io.bluetape4k.assertions.fail
-import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

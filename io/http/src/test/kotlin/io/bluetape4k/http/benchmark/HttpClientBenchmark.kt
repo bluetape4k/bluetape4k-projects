@@ -6,7 +6,6 @@ import io.bluetape4k.http.jdk.sendAwait
 import io.bluetape4k.http.ktor.ktorCioHttpClientOf
 import io.bluetape4k.http.okhttp3.okhttp3DispatcherWithVirtualThread
 import io.bluetape4k.testcontainers.http.BluetapeWebfluxServer
-import io.ktor.client.HttpClient as KtorHttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsBytes
 import io.vertx.core.Vertx
@@ -27,7 +26,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import okhttp3.ConnectionPool
-import okhttp3.Dispatcher as OkHttpDispatcher
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.coroutines.executeAsync
@@ -45,6 +43,8 @@ import java.net.http.HttpResponse
 import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import io.ktor.client.HttpClient as KtorHttpClient
+import okhttp3.Dispatcher as OkHttpDispatcher
 
 /**
  * 다양한 HTTP Client 의 throughput 을 비교하는 JMH 벤치마크.

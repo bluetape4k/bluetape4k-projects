@@ -1,11 +1,11 @@
 package io.bluetape4k.jackson.text.yaml
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.jackson.text.trimYamlDocMarker
 import io.bluetape4k.jackson.writeValue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.StringWriter
 

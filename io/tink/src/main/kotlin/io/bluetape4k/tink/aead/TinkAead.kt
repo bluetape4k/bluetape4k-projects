@@ -24,7 +24,7 @@ import java.util.*
  */
 class TinkAead(keysetHandle: KeysetHandle = aeadKeysetHandle()) {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val aead: Aead by lazy {
         keysetHandle.getPrimitive(RegistryConfiguration.get(), Aead::class.java)

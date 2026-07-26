@@ -1,7 +1,6 @@
 # exposed-mysql8-gis -> exposed-mysql8 이관 설계 Spec
 
-**날짜**: 2026-03-28
-**소스**: `bluetape4k-experimental/data/exposed-mysql8-gis/`
+**날짜**: 2026-03-28 **소스**: `bluetape4k-experimental/data/exposed-mysql8-gis/`
 **대상**: `bluetape4k-projects/data/exposed-mysql8/`
 **참고 패턴**: `bluetape4k-projects/data/exposed-postgresql/`
 
@@ -13,26 +12,26 @@
 
 **main** (`src/main/kotlin/io/bluetape4k/exposed/mysql8/gis/`):
 
-| 파일                      | 역할                                                         | LOC (약) |
-|-------------------------|------------------------------------------------------------|---------|
-| `MySqlWkbUtils.kt`      | MySQL Internal Geometry Format <-> JTS 변환, `SRID_WGS84` 상수 | 52      |
-| `GeoColumnTypes.kt`     | `GeometryColumnType<T>` + 8개 팩토리 함수                        | 120     |
-| `GeoExtensions.kt`      | `Table.geoPoint()` 등 8개 테이블 확장 함수                          | 119     |
-| `JtsHelpers.kt`         | `wgs84Point()`, `wgs84Polygon()` 등 JTS 헬퍼                  | 87      |
-| `SpatialExpressions.kt` | `StContainsOp`, `StDistanceExpr` 등 17개 SQL Expression 클래스  | 417     |
-| `SpatialFunctions.kt`   | `Column.stContains()` 등 18개 확장 함수                          | 381     |
+| 파일                    | 역할                                                           | LOC (약) |
+|-------------------------|----------------------------------------------------------------|----------|
+| `MySqlWkbUtils.kt`      | MySQL Internal Geometry Format <-> JTS 변환, `SRID_WGS84` 상수 | 52       |
+| `GeoColumnTypes.kt`     | `GeometryColumnType<T>` + 8개 팩토리 함수                      | 120      |
+| `GeoExtensions.kt`      | `Table.geoPoint()` 등 8개 테이블 확장 함수                     | 119      |
+| `JtsHelpers.kt`         | `wgs84Point()`, `wgs84Polygon()` 등 JTS 헬퍼                   | 87       |
+| `SpatialExpressions.kt` | `StContainsOp`, `StDistanceExpr` 등 17개 SQL Expression 클래스 | 417      |
+| `SpatialFunctions.kt`   | `Column.stContains()` 등 18개 확장 함수                        | 381      |
 
 **test** (`src/test/kotlin/io/bluetape4k/exposed/mysql8/gis/`):
 
-| 파일                          | 역할                                             |
-|-----------------------------|------------------------------------------------|
+| 파일                        | 역할                                               |
+|-----------------------------|----------------------------------------------------|
 | `AbstractMySqlGisTest.kt`   | Testcontainers MySQL 8 + 공통 `withGeoTables` 헬퍼 |
-| `GeometryColumnTypeTest.kt` | 8가지 geometry 타입 CRUD 테스트                       |
-| `MySqlWkbUtilsTest.kt`      | WKB 변환 유틸 단위 테스트                               |
-| `SpatialFunctionTest.kt`    | 공간 속성/변환 함수 테스트                                |
-| `SpatialMeasurementTest.kt` | 거리/길이/넓이 측정 함수 테스트                             |
-| `SpatialRelationTest.kt`    | 9개 관계 함수 테스트                                   |
-| `SpikeWritePathTest.kt`     | 쓰기 경로 spike 테스트                                |
+| `GeometryColumnTypeTest.kt` | 8가지 geometry 타입 CRUD 테스트                    |
+| `MySqlWkbUtilsTest.kt`      | WKB 변환 유틸 단위 테스트                          |
+| `SpatialFunctionTest.kt`    | 공간 속성/변환 함수 테스트                         |
+| `SpatialMeasurementTest.kt` | 거리/길이/넓이 측정 함수 테스트                    |
+| `SpatialRelationTest.kt`    | 9개 관계 함수 테스트                               |
+| `SpikeWritePathTest.kt`     | 쓰기 경로 spike 테스트                             |
 
 **기타**:
 
@@ -41,18 +40,18 @@
 
 ### 1.2 외부 의존성
 
-| 의존성                             | Libs.kt (projects) 존재 여부 | 비고                                     |
-|---------------------------------|--------------------------|----------------------------------------|
-| `exposed_core`                  | O                        | `exposed_bom` 사용으로 전환                  |
-| `exposed_dao`                   | O                        | 사용하지 않음 — 제거 가능                        |
-| `exposed_jdbc`                  | O                        | `compileOnly`로 전환                      |
+| 의존성                          | Libs.kt (projects) 존재 여부 | 비고                                   |
+|---------------------------------|------------------------------|----------------------------------------|
+| `exposed_core`                  | O                            | `exposed_bom` 사용으로 전환            |
+| `exposed_dao`                   | O                            | 사용하지 않음 — 제거 가능              |
+| `exposed_jdbc`                  | O                            | `compileOnly`로 전환                   |
 | `jts_core`                      | **X — 추가 필요**            | `org.locationtech.jts:jts-core:1.20.0` |
-| `mysql_connector_j`             | O                        |                                        |
-| `testcontainers_mysql`          | O                        |                                        |
-| `bluetape4k_exposed_core`       | O (project 참조로 전환)       |                                        |
-| `bluetape4k_junit5`             | O (project 참조로 전환)       |                                        |
-| `bluetape4k_exposed_jdbc_tests` | O (project 참조로 전환)       |                                        |
-| `bluetape4k_testcontainers`     | O (project 참조로 전환)       |                                        |
+| `mysql_connector_j`             | O                            |                                        |
+| `testcontainers_mysql`          | O                            |                                        |
+| `bluetape4k_exposed_core`       | O (project 참조로 전환)      |                                        |
+| `bluetape4k_junit5`             | O (project 참조로 전환)      |                                        |
+| `bluetape4k_exposed_jdbc_tests` | O (project 참조로 전환)      |                                        |
+| `bluetape4k_testcontainers`     | O (project 참조로 전환)      |                                        |
 
 ### 1.3 이관하지 않는 것
 
@@ -156,17 +155,17 @@ dependencies {
 
 ### 3.3 주요 변경 포인트
 
-| 항목                               | experimental             | projects                                     |
-|----------------------------------|--------------------------|----------------------------------------------|
-| Exposed 의존성                      | 개별 `api(Libs.exposed_*)` | `platform(Libs.exposed_bom)` + `compileOnly` |
-| `exposed_dao`                    | `api`                    | **제거** (소스코드에서 미사용)                          |
-| `exposed_jdbc`                   | `api`                    | `compileOnly` (사용자가 런타임에 추가)                 |
-| bluetape4k 모듈                    | `Libs.*` (artifact 참조)   | `project(":...")` (프로젝트 참조)                  |
-| mysql_connector_j                | `testImplementation`     | `compileOnly` + `testRuntimeOnly`            |
-| `bluetape4k-logging`             | 없음                       | `implementation` 추가                          |
-| `testImplementation extendsFrom` | 없음                       | `compileOnly`, `runtimeOnly` 확장              |
-| `hikaricp`                       | 없음                       | `testRuntimeOnly` 추가                         |
-| `testcontainers_junit_jupiter`   | 없음 (`testcontainers` 사용) | 추가                                           |
+| 항목                             | experimental                 | projects                                     |
+|----------------------------------|------------------------------|----------------------------------------------|
+| Exposed 의존성                   | 개별 `api(Libs.exposed_*)`   | `platform(Libs.exposed_bom)` + `compileOnly` |
+| `exposed_dao`                    | `api`                        | **제거** (소스코드에서 미사용)               |
+| `exposed_jdbc`                   | `api`                        | `compileOnly` (사용자가 런타임에 추가)       |
+| bluetape4k 모듈                  | `Libs.*` (artifact 참조)     | `project(":...")` (프로젝트 참조)            |
+| mysql_connector_j                | `testImplementation`         | `compileOnly` + `testRuntimeOnly`            |
+| `bluetape4k-logging`             | 없음                         | `implementation` 추가                        |
+| `testImplementation extendsFrom` | 없음                         | `compileOnly`, `runtimeOnly` 확장            |
+| `hikaricp`                       | 없음                         | `testRuntimeOnly` 추가                       |
+| `testcontainers_junit_jupiter`   | 없음 (`testcontainers` 사용) | 추가                                         |
 
 ---
 
@@ -257,18 +256,18 @@ dependencies {
 
 ## 10. 태스크 목록
 
-| #  | 태스크                            | Complexity | 설명                                                      |
-|----|--------------------------------|------------|---------------------------------------------------------|
-| 1  | Libs.kt에 `jts_core` 상수 추가      | **S**      | 1줄 추가                                                   |
-| 2  | `data/exposed-mysql8/` 디렉토리 생성 | **S**      | mkdir                                                   |
-| 3  | `build.gradle.kts` 작성          | **M**      | exposed-postgresql 패턴 적용, 의존성 재구성                       |
-| 4  | main 소스 6개 파일 복사               | **S**      | 변경 없이 그대로 복사                                            |
-| 5  | test 소스 7개 파일 복사               | **S**      | 변경 없이 그대로 복사                                            |
-| 6  | README.md 복사 + 의존성 섹션 수정       | **S**      | 모듈명/의존성 경로만 변경                                          |
-| 7  | Gradle sync + 빌드 확인            | **M**      | `./gradlew :bluetape4k-exposed-mysql8:build`            |
-| 8  | 테스트 실행 확인                      | **M**      | `./gradlew :bluetape4k-exposed-mysql8:test` (Docker 필요) |
-| 9  | CLAUDE.md 업데이트                 | **S**      | Data Modules 섹션에 1줄 추가                                  |
-| 10 | experimental 모듈 삭제             | **S**      | 디렉토리 삭제 + 커밋                                            |
+| #  | 태스크                               | Complexity | 설명                                                      |
+|----|--------------------------------------|------------|-----------------------------------------------------------|
+| 1  | Libs.kt에 `jts_core` 상수 추가       | **S**      | 1줄 추가                                                  |
+| 2  | `data/exposed-mysql8/` 디렉토리 생성 | **S**      | mkdir                                                     |
+| 3  | `build.gradle.kts` 작성              | **M**      | exposed-postgresql 패턴 적용, 의존성 재구성               |
+| 4  | main 소스 6개 파일 복사              | **S**      | 변경 없이 그대로 복사                                     |
+| 5  | test 소스 7개 파일 복사              | **S**      | 변경 없이 그대로 복사                                     |
+| 6  | README.md 복사 + 의존성 섹션 수정    | **S**      | 모듈명/의존성 경로만 변경                                 |
+| 7  | Gradle sync + 빌드 확인              | **M**      | `./gradlew :bluetape4k-exposed-mysql8:build`              |
+| 8  | 테스트 실행 확인                     | **M**      | `./gradlew :bluetape4k-exposed-mysql8:test` (Docker 필요) |
+| 9  | CLAUDE.md 업데이트                   | **S**      | Data Modules 섹션에 1줄 추가                              |
+| 10 | experimental 모듈 삭제               | **S**      | 디렉토리 삭제 + 커밋                                      |
 
 **총 예상 시간**: 30분 ~ 1시간 (테스트 실행 포함)
 **위험도**: Low (패키지 변경 없음, 의존성만 재구성)

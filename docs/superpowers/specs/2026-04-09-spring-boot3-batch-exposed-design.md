@@ -24,18 +24,18 @@ Parallel Query 방식:
   N개 파티션 → 각각 VirtualThread → N개 동시 DB 쿼리 → 진정한 병렬 읽기
 ```
 
-- auto-increment ID(또는 monotonic sequence)를 가진 테이블을 N개 ID 범위로 분할
+- auto-increment ID (또는 monotonic sequence)를 가진 테이블을 N개 ID 범위로 분할
 - 각 파티션이 독립적인 VirtualThread에서 DB 쿼리를 실행
 - 파티션별 독립 Reader/Writer 인스턴스 → thread-safety 문제 없음
 - 플랫폼 스레드를 낭비하지 않으면서 높은 동시성 달성
 
 ### 1.2 전제 조건
 
-| 조건 | 설명 |
-|------|------|
-| **unique key + auto increment** | 분할 기준 컬럼이 monotonic하게 증가해야 균등 분할 가능 |
-| **HikariCP pool size** | 동시 파티션 수 이상의 커넥션 필요 (`maximumPoolSize >= gridSize`) |
-| **읽기 시점 스냅샷** | 파티션 시작 전 min/max 결정 → 실행 중 대규모 insert/delete는 커버하지 않음 |
+| 조건                            | 설명                                                                       |
+|---------------------------------|----------------------------------------------------------------------------|
+| **unique key + auto increment** | 분할 기준 컬럼이 monotonic하게 증가해야 균등 분할 가능                     |
+| **HikariCP pool size**          | 동시 파티션 수 이상의 커넥션 필요 (`maximumPoolSize >= gridSize`)          |
+| **읽기 시점 스냅샷**            | 파티션 시작 전 min/max 결정 → 실행 중 대규모 insert/delete는 커버하지 않음 |
 
 ### 1.3 v1 스코프에서 의도적으로 제외한 것
 
@@ -43,24 +43,24 @@ Parallel Query 방식:
 
 #### 제외 항목 상세
 
-| # | 제외 항목 | 제외 이유 | v2 이후 계획 |
-|---|-----------|-----------|-------------|
-| 1 | **`ExposedCursorItemReader`** | Spring Batch 청크 트랜잭션과 DB 커넥션 생명주기 충돌 — Step 전체 동안 커넥션을 점유하는 구조는 청크 단위 커밋과 양립 불가 | 트랜잭션 경계 설계 확정 후 v2 재검토 |
-| 2 | **Multi-threaded Step** (단일 Reader 공유) | thread-safety 달성을 위해 `synchronized read()` 외 별도 동기화 계층 필요 → Partitioned Step으로 완전 대체 | 불필요 (Partitioned Step이 상위 호환) |
-| 3 | **R2DBC 지원** (`batch-exposed-r2dbc`) | Spring Batch 5.x는 R2DBC 청크 트랜잭션을 공식 지원하지 않음; `@EnableBatchProcessing` + R2DBC 조합은 미검증 | Spring Batch R2DBC 지원 성숙 후 별도 모듈 |
-| 4 | **멀티-DB Writer** (Writer의 `database` 파라미터) | `SpringTransactionManager` 단일 DataSource 모델과 충돌 — Writer가 별도 DB에 직접 쓰면 청크 트랜잭션 롤백 범위 외부로 이탈 | v2에서 `ChainedTransactionManager` 또는 XA 트랜잭션 설계 후 검토 |
-| 5 | **복합 키 / non-auto-increment 테이블** (`ExposedCompositeKeyPartitioner`) | 단조 증가 Long PK 없이는 균등 범위 분할 불가 | v2: 복합 키 해시 버킷 방식 또는 사용자 정의 분할 전략 |
-| 6 | **Time-based UUID PK** (`Column<UUID>`, UUIDv7 등) | 단조 증가 UUID는 가능하나 범위 산술에 BigInteger(128비트) 필요 — v1 Long 기반 구조와 이질적 | v2: `forUuidColumn()` 팩토리, `ExecutionContext`에 UUID 문자열 저장 |
-| 7 | **FlatFile / JSON 소스 Reader** | Spring Batch 내장 `FlatFileItemReader` + `ExposedItemWriter` 조합으로 충분 | 별도 모듈 불필요 |
+| # | 제외 항목                                                                  | 제외 이유                                                                                                                 | v2 이후 계획                                                        |
+|---|----------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| 1 | **`ExposedCursorItemReader`**                                              | Spring Batch 청크 트랜잭션과 DB 커넥션 생명주기 충돌 — Step 전체 동안 커넥션을 점유하는 구조는 청크 단위 커밋과 양립 불가 | 트랜잭션 경계 설계 확정 후 v2 재검토                                |
+| 2 | **Multi-threaded Step** (단일 Reader 공유)                                 | thread-safety 달성을 위해 `synchronized read()` 외 별도 동기화 계층 필요 → Partitioned Step으로 완전 대체                 | 불필요 (Partitioned Step이 상위 호환)                               |
+| 3 | **R2DBC 지원** (`batch-exposed-r2dbc`)                                     | Spring Batch 5.x는 R2DBC 청크 트랜잭션을 공식 지원하지 않음; `@EnableBatchProcessing` + R2DBC 조합은 미검증               | Spring Batch R2DBC 지원 성숙 후 별도 모듈                           |
+| 4 | **멀티-DB Writer** (Writer의 `database` 파라미터)                          | `SpringTransactionManager` 단일 DataSource 모델과 충돌 — Writer가 별도 DB에 직접 쓰면 청크 트랜잭션 롤백 범위 외부로 이탈 | v2에서 `ChainedTransactionManager` 또는 XA 트랜잭션 설계 후 검토    |
+| 5 | **복합 키 / non-auto-increment 테이블** (`ExposedCompositeKeyPartitioner`) | 단조 증가 Long PK 없이는 균등 범위 분할 불가                                                                              | v2: 복합 키 해시 버킷 방식 또는 사용자 정의 분할 전략               |
+| 6 | **Time-based UUID PK** (`Column<UUID>`, UUIDv7 등)                         | 단조 증가 UUID는 가능하나 범위 산술에 BigInteger(128비트) 필요 — v1 Long 기반 구조와 이질적                               | v2: `forUuidColumn()` 팩토리, `ExecutionContext`에 UUID 문자열 저장 |
+| 7 | **FlatFile / JSON 소스 Reader**                                            | Spring Batch 내장 `FlatFileItemReader` + `ExposedItemWriter` 조합으로 충분                                                | 별도 모듈 불필요                                                    |
 
 ### 1.4 Spring Batch를 선택한 이유
 
-| 기준 | Spring Batch 5.x | 자체 구현 |
-|------|------------------|-----------|
-| API 친숙도 | Reader/Processor/Writer 패턴 | 학습 비용 발생 |
-| 엔터프라이즈 기능 | Chunk 트랜잭션, Restart, Skip/Retry | 직접 구현 필요 |
-| Partitioned Step | 내장 지원 (`PartitionHandler` + `Partitioner`) | 직접 구현 필요 |
-| 테스트 인프라 | `@SpringBatchTest`, `JobLauncherTestUtils` | 직접 구축 |
+| 기준              | Spring Batch 5.x                               | 자체 구현      |
+|-------------------|------------------------------------------------|----------------|
+| API 친숙도        | Reader/Processor/Writer 패턴                   | 학습 비용 발생 |
+| 엔터프라이즈 기능 | Chunk 트랜잭션, Restart, Skip/Retry            | 직접 구현 필요 |
+| Partitioned Step  | 내장 지원 (`PartitionHandler` + `Partitioner`) | 직접 구현 필요 |
+| 테스트 인프라     | `@SpringBatchTest`, `JobLauncherTestUtils`     | 직접 구축      |
 
 ---
 
@@ -300,88 +300,77 @@ auto-increment PK/sequence 컬럼 기반으로 ID 범위를 N개 파티션으로
  * val partitions = partitioner.partition(16)
  * // {partition-0: {minId=1, maxId=6250}, partition-1: {minId=6251, maxId=12500}, ...}
  * ```
- *
- * @param database Exposed [Database] (null이면 SpringTransactionManager 활용)
- * @param table 파티션 대상 Exposed [Table]
- * @param column 분할 기준 `Column<Long>` 컬럼 (PK, auto-increment)
- * @param gridSize 파티션 수 (기본값: 8)
- */
-class ExposedRangePartitioner(
-    private val database: Database? = null,
-    private val table: Table,
-    private val column: Column<Long>,
-    private val gridSize: Int = 8,
-    // internal: min/max 조회 함수 (팩토리별 오버라이드 가능)
-    private val selectMinMax: Transaction.() -> Pair<Long?, Long?> = {
-        table.select(column.min(), column.max()).single()
-            .let { it[column.min()] to it[column.max()] }
-    },
-) : Partitioner {
 
-    companion object : KLogging() {
-        /** ExecutionContext에 저장되는 파티션 시작 ID 키 */
-        const val PARTITION_MIN_ID = "minId"
-        /** ExecutionContext에 저장되는 파티션 종료 ID 키 */
-        const val PARTITION_MAX_ID = "maxId"
+*
+* @param database Exposed [Database] (null이면 SpringTransactionManager 활용)
+* @param table 파티션 대상 Exposed [Table]
+* @param column 분할 기준 `Column<Long>` 컬럼 (PK, auto-increment)
+* @param gridSize 파티션 수 (기본값: 8)
+  */ class ExposedRangePartitioner (private val database: Database? = null, private val table: Table, private val column: Column<Long>, private val gridSize: Int = 8, // internal: min/max 조회 함수 (팩토리별 오버라이드 가능)
+  private val selectMinMax: Transaction. () -> Pair<Long?, Long?> = { table.select (column.min (), column.max ()).single ()
+  .let { it[column.min ()] to it[column.max ()] } },
+  ) : Partitioner {
 
-        /**
-         * `LongIdTable.id` (`Column<EntityID<Long>>`) 기반 파티셔너 팩토리.
-         * EntityID-aware 비교로 인덱스 활용 (CAST 없음).
-         *
-         * ```kotlin
-         * val partitioner = ExposedRangePartitioner.forEntityId(
-         *     table = SourceTable,  // IdTable<Long>
-         *     gridSize = 16,
-         * )
-         * ```
-         */
-        fun forEntityId(
-            table: IdTable<Long>,
-            gridSize: Int = 8,
-            database: Database? = null,
-        ): ExposedRangePartitioner = ExposedRangePartitioner(
-            database = database,
-            table = table,
-            // Column<Long> 대리자: EntityID min/max를 Long으로 읽기 위한 내부 처리
-            column = table.id.castTo<Long>(LongColumnType()),
-            gridSize = gridSize,
-            selectMinMax = {
-                table.select(table.id.min(), table.id.max()).single().let { row ->
-                    row[table.id.min()]?.value to row[table.id.max()]?.value
-                }
-            },
-        )
-    }
+  companion object : KLogging () { /** ExecutionContext에 저장되는 파티션 시작 ID 키 */ const val PARTITION_MIN_ID = "minId"
+  /** ExecutionContext에 저장되는 파티션 종료 ID 키 */ const val PARTITION_MAX_ID = "maxId"
 
-    override fun partition(gridSize: Int): Map<String, ExecutionContext> {
-        val effectiveGridSize = if (gridSize > 0) gridSize else this.gridSize
+       /**
+        * `LongIdTable.id` (`Column<EntityID<Long>>`) 기반 파티셔너 팩토리.
+        * EntityID-aware 비교로 인덱스 활용 (CAST 없음).
+        *
+        * ```kotlin
+        * val partitioner = ExposedRangePartitioner.forEntityId(
+        *     table = SourceTable,  // IdTable<Long>
+        *     gridSize = 16,
+        * )
+        * ```
+        */
+       fun forEntityId(
+           table: IdTable<Long>,
+           gridSize: Int = 8,
+           database: Database? = null,
+       ): ExposedRangePartitioner = ExposedRangePartitioner(
+           database = database,
+           table = table,
+           // Column<Long> 대리자: EntityID min/max를 Long으로 읽기 위한 내부 처리
+           column = table.id.castTo<Long>(LongColumnType()),
+           gridSize = gridSize,
+           selectMinMax = {
+               table.select(table.id.min(), table.id.max()).single().let { row ->
+                   row[table.id.min()]?.value to row[table.id.max()]?.value
+               }
+           },
+       )
+  }
 
-        val (min, max) = transaction(database) { selectMinMax() }
+  override fun partition (gridSize: Int): Map<String, ExecutionContext> { val effectiveGridSize = if (gridSize > 0) gridSize else this.gridSize
 
-        // 빈 테이블: 단일 빈 파티션 반환
-        if (min == null || max == null) {
-            return mapOf("partition-0" to ExecutionContext().apply {
-                putLong(PARTITION_MIN_ID, 0L)
-                putLong(PARTITION_MAX_ID, -1L)
-            })
-        }
+       val (min, max) = transaction(database) { selectMinMax() }
 
-        val totalRange = max - min + 1
-        // Long 기준 계산으로 Int overflow 방지 (totalRange가 Int.MAX_VALUE를 초과할 수 있음)
-        val safeGridSize = minOf(effectiveGridSize.toLong(), totalRange.coerceAtLeast(1L)).toInt()
-        val rangeSize = totalRange / safeGridSize
+       // 빈 테이블: 단일 빈 파티션 반환
+       if (min == null || max == null) {
+           return mapOf("partition-0" to ExecutionContext().apply {
+               putLong(PARTITION_MIN_ID, 0L)
+               putLong(PARTITION_MAX_ID, -1L)
+           })
+       }
 
-        return (0 until safeGridSize).associate { i ->
-            val partMinId = min + i * rangeSize
-            val partMaxId = if (i == safeGridSize - 1) max else min + (i + 1) * rangeSize - 1
+       val totalRange = max - min + 1
+       // Long 기준 계산으로 Int overflow 방지 (totalRange가 Int.MAX_VALUE를 초과할 수 있음)
+       val safeGridSize = minOf(effectiveGridSize.toLong(), totalRange.coerceAtLeast(1L)).toInt()
+       val rangeSize = totalRange / safeGridSize
 
-            "partition-$i" to ExecutionContext().apply {
-                putLong(PARTITION_MIN_ID, partMinId)
-                putLong(PARTITION_MAX_ID, partMaxId)
-            }
-        }
-    }
-}
+       return (0 until safeGridSize).associate { i ->
+           val partMinId = min + i * rangeSize
+           val partMaxId = if (i == safeGridSize - 1) max else min + (i + 1) * rangeSize - 1
+
+           "partition-$i" to ExecutionContext().apply {
+               putLong(PARTITION_MIN_ID, partMinId)
+               putLong(PARTITION_MAX_ID, partMaxId)
+           }
+       }
+  } }
+
 ```
 
 **동작 원리**:
@@ -413,159 +402,135 @@ Keyset 기반 페이지 읽기 Reader. OFFSET 없이 `WHERE id > lastKey` 방식
  * @Bean @StepScope
  * fun reader(...) = ExposedKeysetItemReader(...)
  * ```
- *
- * 사용 예시:
- * ```kotlin
- * // Column<Long> 직접 사용
- * val reader = ExposedKeysetItemReader(
- *     column = SourceTable.longId,  // Column<Long>
- *     table = SourceTable,
- *     pageSize = 500,
- *     rowMapper = { row -> SourceRow(row[SourceTable.longId], row[SourceTable.name]) },
- * )
- *
- * // LongIdTable.id (Column<EntityID<Long>>) 사용 시: forEntityId() 팩토리
- * val reader = ExposedKeysetItemReader.forEntityId(
- *     table = SourceTable,  // IdTable<Long>
- *     pageSize = 500,
- *     rowMapper = { row -> SourceRow(row[SourceTable.id].value, row[SourceTable.name]) },
- * )
- * ```
- *
- * @param T 반환 타입
- * @param database Exposed [Database] (null이면 SpringTransactionManager 현재 트랜잭션 참여)
- * @param pageSize 한 번에 읽을 레코드 수 (기본값: 500)
- * @param column keyset 기준 `Column<Long>` 컬럼 (auto-increment PK)
- * @param table Exposed [Table]
- * @param rowMapper [ResultRow] → T 변환 함수
- * @param keyExtractor [ResultRow]에서 keyset 컬럼 Long 값 추출. lastKey 추적에 사용
- * @param additionalCondition 추가 WHERE 조건 람다 (null이면 조건 없음)
- */
-class ExposedKeysetItemReader<T>(
-    private val database: Database? = null,
-    private val pageSize: Int = 500,
-    private val column: Column<Long>,
-    private val table: Table,
-    private val rowMapper: (ResultRow) -> T,
-    // keyExtractor: ResultRow에서 keyset 컬럼 값(Long)을 추출. lastKey 추적에 사용.
-    // rowMapper와 별도로 분리하여 T가 ID를 포함하지 않아도 동작.
-    private val keyExtractor: (ResultRow) -> Long = { it[column] },
-    // additionalCondition: 람다 DSL로 추가 WHERE 조건 지정 (null이면 적용 안 함)
-    private val additionalCondition: (SqlExpressionBuilder.() -> Op<Boolean>)? = null,
-) : ItemStreamReader<T>, InitializingBean {
 
-    companion object : KLogging() {
-        private const val LAST_KEY = "lastKey"
+*
+* 사용 예시:
+* ```kotlin
+* // Column<Long> 직접 사용
+* val reader = ExposedKeysetItemReader (
+*     column = SourceTable.longId,  // Column<Long>
+*     table = SourceTable,
+*     pageSize = 500,
+*     rowMapper = { row -> SourceRow(row[SourceTable.longId], row[SourceTable.name]) },
+* )
+*
+* // LongIdTable.id (Column<EntityID<Long>>) 사용 시: forEntityId () 팩토리
+* val reader = ExposedKeysetItemReader.forEntityId (
+*     table = SourceTable,  // IdTable<Long>
+*     pageSize = 500,
+*     rowMapper = { row -> SourceRow(row[SourceTable.id].value, row[SourceTable.name]) },
+* )
+* ```
+*
+* @param T 반환 타입
+* @param database Exposed [Database] (null이면 SpringTransactionManager 현재 트랜잭션 참여)
+* @param pageSize 한 번에 읽을 레코드 수 (기본값: 500)
+* @param column keyset 기준 `Column<Long>` 컬럼 (auto-increment PK)
+* @param table Exposed [Table]
+* @param rowMapper [ResultRow] → T 변환 함수
+* @param keyExtractor [ResultRow]에서 keyset 컬럼 Long 값 추출. lastKey 추적에 사용
+* @param additionalCondition 추가 WHERE 조건 람다 (null이면 조건 없음)
+  */ class ExposedKeysetItemReader<T>(private val database: Database? = null, private val pageSize: Int = 500, private val column: Column<Long>, private val table: Table, private val rowMapper: (ResultRow) -> T, // keyExtractor: ResultRow에서 keyset 컬럼 값 (Long)을 추출. lastKey 추적에 사용. // rowMapper와 별도로 분리하여 T가 ID를 포함하지 않아도 동작. private val keyExtractor: (ResultRow) -> Long = { it[column] }, // additionalCondition: 람다 DSL로 추가 WHERE 조건 지정 (null이면 적용 안 함)
+  private val additionalCondition: (SqlExpressionBuilder. () -> Op<Boolean>)? = null,
+  ) : ItemStreamReader<T>, InitializingBean {
 
-        /**
-         * `LongIdTable.id` (`Column<EntityID<Long>>`) 기반 Reader 팩토리.
-         * EntityID-aware WHERE 조건으로 인덱스 활용 (CAST 없음).
-         *
-         * ```kotlin
-         * val reader = ExposedKeysetItemReader.forEntityId(
-         *     table = SourceTable,  // IdTable<Long>
-         *     pageSize = 500,
-         *     rowMapper = { row -> SourceRow(row[SourceTable.id].value, row[SourceTable.name]) },
-         * )
-         * ```
-         */
-        fun <T> forEntityId(
-            table: IdTable<Long>,
-            pageSize: Int = 500,
-            rowMapper: (ResultRow) -> T,
-            keyExtractor: (ResultRow) -> Long = { it[table.id].value },
-            additionalCondition: (SqlExpressionBuilder.() -> Op<Boolean>)? = null,
-            database: Database? = null,
-        ): ExposedKeysetItemReader<T> = ExposedKeysetItemReader(
-            database = database,
-            pageSize = pageSize,
-            // EntityID → Long 캐스트는 팩토리 생성 시 1회만 수행; 쿼리 실행마다 castTo 불필요
-            column = table.id.castTo<Long>(LongColumnType()),
-            table = table,
-            rowMapper = rowMapper,
-            keyExtractor = keyExtractor,
-            additionalCondition = additionalCondition,
-        )
-    }
+  companion object : KLogging () { private const val LAST_KEY = "lastKey"
 
-    private var minId: Long = 0L
-    private var maxId: Long = Long.MAX_VALUE
-    private var lastKey: Long = 0L
-    private val buffer: MutableList<T> = mutableListOf()
-    private var bufferIndex: Int = 0
-    private var exhausted: Boolean = false
+       /**
+        * `LongIdTable.id` (`Column<EntityID<Long>>`) 기반 Reader 팩토리.
+        * EntityID-aware WHERE 조건으로 인덱스 활용 (CAST 없음).
+        *
+        * ```kotlin
+        * val reader = ExposedKeysetItemReader.forEntityId(
+        *     table = SourceTable,  // IdTable<Long>
+        *     pageSize = 500,
+        *     rowMapper = { row -> SourceRow(row[SourceTable.id].value, row[SourceTable.name]) },
+        * )
+        * ```
+        */
+       fun <T> forEntityId(
+           table: IdTable<Long>,
+           pageSize: Int = 500,
+           rowMapper: (ResultRow) -> T,
+           keyExtractor: (ResultRow) -> Long = { it[table.id].value },
+           additionalCondition: (SqlExpressionBuilder.() -> Op<Boolean>)? = null,
+           database: Database? = null,
+       ): ExposedKeysetItemReader<T> = ExposedKeysetItemReader(
+           database = database,
+           pageSize = pageSize,
+           // EntityID → Long 캐스트는 팩토리 생성 시 1회만 수행; 쿼리 실행마다 castTo 불필요
+           column = table.id.castTo<Long>(LongColumnType()),
+           table = table,
+           rowMapper = rowMapper,
+           keyExtractor = keyExtractor,
+           additionalCondition = additionalCondition,
+       )
+  }
 
-    override fun afterPropertiesSet() {
-        column.name.requireNotBlank("column")
-        require(pageSize > 0) { "pageSize must be positive" }
-    }
+  private var minId: Long = 0L private var maxId: Long = Long.MAX_VALUE private var lastKey: Long = 0L private val buffer: MutableList<T> = mutableListOf ()
+  private var bufferIndex: Int = 0 private var exhausted: Boolean = false
 
-    override fun open(executionContext: ExecutionContext) {
-        minId = executionContext.getLong(ExposedRangePartitioner.PARTITION_MIN_ID)
-        maxId = executionContext.getLong(ExposedRangePartitioner.PARTITION_MAX_ID)
+  override fun afterPropertiesSet () { column.name.requireNotBlank ("column")
+  require (pageSize > 0) { "pageSize must be positive" } }
 
-        // restart 시 마지막 위치 복원
-        if (executionContext.containsKey(LAST_KEY)) {
-            lastKey = executionContext.getLong(LAST_KEY)
-        } else {
-            lastKey = minId - 1  // 첫 읽기: minId부터 시작
-        }
-    }
+  override fun open (executionContext: ExecutionContext) { minId = executionContext.getLong (ExposedRangePartitioner.PARTITION_MIN_ID)
+  maxId = executionContext.getLong (ExposedRangePartitioner.PARTITION_MAX_ID)
 
-    @Synchronized
-    override fun read(): T? {
-        if (exhausted) return null
+       // restart 시 마지막 위치 복원
+       if (executionContext.containsKey(LAST_KEY)) {
+           lastKey = executionContext.getLong(LAST_KEY)
+       } else {
+           lastKey = minId - 1  // 첫 읽기: minId부터 시작
+       }
+  }
 
-        if (bufferIndex >= buffer.size) {
-            fetchNextPage()
-            if (buffer.isEmpty()) {
-                exhausted = true
-                return null
-            }
-        }
+  @Synchronized override fun read (): T? { if (exhausted) return null
 
-        return buffer[bufferIndex++]
-    }
+       if (bufferIndex >= buffer.size) {
+           fetchNextPage()
+           if (buffer.isEmpty()) {
+               exhausted = true
+               return null
+           }
+       }
 
-    override fun update(executionContext: ExecutionContext) {
-        executionContext.putLong(LAST_KEY, lastKey)
-    }
+       return buffer[bufferIndex++]
+  }
 
-    override fun close() {
-        buffer.clear()
-        bufferIndex = 0
-        exhausted = false
-    }
+  override fun update (executionContext: ExecutionContext) { executionContext.putLong (LAST_KEY, lastKey)
+  }
 
-    private fun fetchNextPage() {
-        buffer.clear()
-        bufferIndex = 0
+  override fun close () { buffer.clear ()
+  bufferIndex = 0 exhausted = false }
 
-        // Reader는 항상 독립 짧은 트랜잭션 — Spring Batch 청크 트랜잭션과 무관
-        // column은 Column<Long>이므로 castTo 없이 직접 Long 비교 가능 → 인덱스 활용
-        transaction(database) {
-            var condition: Op<Boolean> = (column greater lastKey) and (column lessEq maxId)
-            additionalCondition?.let { addCond -> condition = condition and SqlExpressionBuilder.addCond() }
+  private fun fetchNextPage () { buffer.clear ()
+  bufferIndex = 0
 
-            val resultRows = table.selectAll()
-                .where { condition }
-                .orderBy(column, SortOrder.ASC)
-                .limit(pageSize)
-                .toList()
+       // Reader는 항상 독립 짧은 트랜잭션 — Spring Batch 청크 트랜잭션과 무관
+       // column은 Column<Long>이므로 castTo 없이 직접 Long 비교 가능 → 인덱스 활용
+       transaction(database) {
+           var condition: Op<Boolean> = (column greater lastKey) and (column lessEq maxId)
+           additionalCondition?.let { addCond -> condition = condition and SqlExpressionBuilder.addCond() }
 
-            buffer.addAll(resultRows.map(rowMapper))
+           val resultRows = table.selectAll()
+               .where { condition }
+               .orderBy(column, SortOrder.ASC)
+               .limit(pageSize)
+               .toList()
 
-            if (resultRows.isNotEmpty()) {
-                // keyExtractor로 마지막 행의 실제 ID 값을 추출 → ID gap 있어도 정확
-                lastKey = keyExtractor(resultRows.last())
-            }
+           buffer.addAll(resultRows.map(rowMapper))
 
-            if (resultRows.size < pageSize) {
-                exhausted = true  // 마지막 페이지
-            }
-        }
-    }
-}
+           if (resultRows.isNotEmpty()) {
+               // keyExtractor로 마지막 행의 실제 ID 값을 추출 → ID gap 있어도 정확
+               lastKey = keyExtractor(resultRows.last())
+           }
+
+           if (resultRows.size < pageSize) {
+               exhausted = true  // 마지막 페이지
+           }
+       }
+  } }
+
 ```
 
 **Restart 동작**:
@@ -590,31 +555,28 @@ class ExposedKeysetItemReader<T>(
  *     this[TargetTable.value] = it.value
  * }
  * ```
- *
- * v1 스코프: Spring-managed 청크 트랜잭션만 지원. 멀티-DB는 v2에서 검토.
- *
- * @param T 입력 타입
- * @param table 대상 Exposed [Table]
- * @param insertBody `batchInsert` 람다
- */
-class ExposedItemWriter<T>(
-    private val table: Table,
-    private val insertBody: BatchInsertStatement.(T) -> Unit,
-) : ItemWriter<T> {
 
-    companion object : KLogging()
+*
+* v1 스코프: Spring-managed 청크 트랜잭션만 지원. 멀티-DB는 v2에서 검토.
+*
+* @param T 입력 타입
+* @param table 대상 Exposed [Table]
+* @param insertBody `batchInsert` 람다
+  */ class ExposedItemWriter<T>(private val table: Table, private val insertBody: BatchInsertStatement. (T) -> Unit,
+  ) : ItemWriter<T> {
 
-    override fun write(chunk: Chunk<out T>) {
-        if (chunk.isEmpty) return
+  companion object : KLogging ()
 
-        // SpringTransactionManager 환경에서는 현재 Spring 트랜잭션에 자동 참여
-        table.batchInsert(chunk.items, shouldReturnGeneratedValues = false) { item ->
-            insertBody(item)
-        }
+  override fun write (chunk: Chunk<out T>) { if (chunk.isEmpty) return
 
-        log.debug { "${chunk.items.size}건 batchInsert 완료 (table=${table.tableName})" }
-    }
-}
+       // SpringTransactionManager 환경에서는 현재 Spring 트랜잭션에 자동 참여
+       table.batchInsert(chunk.items, shouldReturnGeneratedValues = false) { item ->
+           insertBody(item)
+       }
+
+       log.debug { "${chunk.items.size}건 batchInsert 완료 (table=${table.tableName})" }
+  } }
+
 ```
 
 ### 4.5 ExposedUpsertItemWriter
@@ -739,10 +701,10 @@ val partitionHandler = TaskExecutorPartitionHandler().apply {
  *     job:
  *       enabled: false  # 자동 실행 비활성화 — 명시적 JobLauncher 사용 권장
  * ```
- */
-@AutoConfiguration(after = [BatchAutoConfiguration::class])
-@ConditionalOnClass(Job::class)
-@ConditionalOnBean(DataSource::class, PlatformTransactionManager::class)
+
+*/ @AutoConfiguration (after = [BatchAutoConfiguration::class])
+@ConditionalOnClass (Job::class)
+@ConditionalOnBean (DataSource::class, PlatformTransactionManager::class)
 class ExposedBatchAutoConfiguration {
 
     companion object : KLogging()
@@ -758,7 +720,9 @@ class ExposedBatchAutoConfiguration {
             setVirtualThreads(true)
             setConcurrencyLimit(Runtime.getRuntime().availableProcessors() * 2)
         }
+
 }
+
 ```
 
 ### 4.9 Kotlin DSL 확장
@@ -773,22 +737,18 @@ class ExposedBatchAutoConfiguration {
  *     start(partitionedStep)
  * }
  * ```
- */
-fun partitionedBatchJob(
-    name: String,
-    jobRepository: JobRepository,
-    block: JobBuilder.() -> SimpleJobBuilder,
-): Job = JobBuilder(name, jobRepository).block().build()
+
+*/ fun partitionedBatchJob (name: String, jobRepository: JobRepository, block: JobBuilder. () -> SimpleJobBuilder,
+): Job = JobBuilder (name, jobRepository).block ().build ()
 
 /**
- * Exposed Partitioned Step을 생성하는 DSL 확장.
- */
-fun StepBuilder.exposedPartitionedStep(
-    partitioner: ExposedRangePartitioner,
-    handler: PartitionHandler,
-): Step = this.partitioner("worker", partitioner)
-    .partitionHandler(handler)
-    .build()
+
+* Exposed Partitioned Step을 생성하는 DSL 확장.
+  */ fun StepBuilder.exposedPartitionedStep (partitioner: ExposedRangePartitioner, handler: PartitionHandler,
+  ): Step = this.partitioner ("worker", partitioner)
+  .partitionHandler (handler)
+  .build ()
+
 ```
 
 ---
@@ -796,23 +756,9 @@ fun StepBuilder.exposedPartitionedStep(
 ## 5. 패키지 구조
 
 ```
-io.bluetape4k.spring.batch.exposed/
-├── partition/
-│   └── ExposedRangePartitioner.kt        // ID 범위 기반 파티셔너
-├── reader/
-│   └── ExposedKeysetItemReader.kt        // Keyset 페이징 Reader
-├── writer/
-│   ├── ExposedItemWriter.kt              // batchInsert Writer
-│   ├── ExposedUpsertItemWriter.kt        // batchUpsert Writer
-│   └── ExposedUpdateItemWriter.kt        // 개별 update Writer
-├── support/
-│   └── VirtualThreadPartitionSupport.kt  // virtualThreadPartitionTaskExecutor() 팩토리 함수
-├── config/
-│   └── ExposedBatchAutoConfiguration.kt  // Spring Boot AutoConfiguration
-├── dsl/
-│   └── BatchJobExtensions.kt             // Kotlin DSL 확장 함수
-└── resources/
-    └── META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+
+io.bluetape4k.spring.batch.exposed/ ├── partition/ │ └── ExposedRangePartitioner.kt // ID 범위 기반 파티셔너 ├── reader/ │ └── ExposedKeysetItemReader.kt // Keyset 페이징 Reader ├── writer/ │ ├── ExposedItemWriter.kt // batchInsert Writer │ ├── ExposedUpsertItemWriter.kt // batchUpsert Writer │ └── ExposedUpdateItemWriter.kt // 개별 update Writer ├── support/ │ └── VirtualThreadPartitionSupport.kt // virtualThreadPartitionTaskExecutor () 팩토리 함수 ├── config/ │ └── ExposedBatchAutoConfiguration.kt // Spring Boot AutoConfiguration ├── dsl/ │ └── BatchJobExtensions.kt // Kotlin DSL 확장 함수 └── resources/ └── META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+
 ```
 
 ---
@@ -822,43 +768,29 @@ io.bluetape4k.spring.batch.exposed/
 ### 6.1 Reader 트랜잭션
 
 ```
-ExposedKeysetItemReader.fetchNextPage():
-  ┌─ transaction(database) { ... } ─┐
-  │  SELECT * FROM source             │
-  │  WHERE id > :lastKey              │
-  │  AND id <= :maxId                 │
-  │  ORDER BY id ASC LIMIT :pageSize  │
-  └────────────────────────────────────┘
-  → 각 page read는 단독 짧은 트랜잭션
-  → Spring Batch 청크 트랜잭션과 독립
-  → 커넥션 즉시 반환 → pool 압박 최소화
+
+ExposedKeysetItemReader.fetchNextPage ():
+┌─ transaction (database) { ... } ─┐ │ SELECT * FROM source │ │ WHERE id > :lastKey │ │ AND id <= :maxId │ │ ORDER BY id ASC LIMIT :pageSize │ └────────────────────────────────────┘ → 각 page read는 단독 짧은 트랜잭션 → Spring Batch 청크 트랜잭션과 독립 → 커넥션 즉시 반환 → pool 압박 최소화
+
 ```
 
 ### 6.2 Writer 트랜잭션
 
 ```
-ExposedItemWriter.write():
-  ┌─ Spring Batch 청크 트랜잭션 ─────────────────┐
-  │  // SpringTransactionManager 환경에서          │
-  │  // 현재 Spring 트랜잭션에 자동 참여           │
-  │  table.batchInsert(chunk.items) { ... }       │
-  │                                                │
-  │  // 청크 실패 시 Spring이 자동 rollback        │
-  └────────────────────────────────────────────────┘
+
+ExposedItemWriter.write ():
+┌─ Spring Batch 청크 트랜잭션 ─────────────────┐ │ // SpringTransactionManager 환경에서 │ │ // 현재 Spring 트랜잭션에 자동 참여 │ │ table.batchInsert (chunk.items) { ... } │ │ │ │ // 청크 실패 시 Spring이 자동 rollback │ └────────────────────────────────────────────────┘
+
 ```
 
 ### 6.3 파티션 격리
 
 ```
-Partition #0 ─── VirtualThread #0 ─── HikariCP Connection #A
-Partition #1 ─── VirtualThread #1 ─── HikariCP Connection #B
-Partition #2 ─── VirtualThread #2 ─── HikariCP Connection #C
-...
-Partition #N ─── VirtualThread #N ─── HikariCP Connection #N
 
-→ 각 파티션이 독립적인 커넥션/트랜잭션 사용
-→ HikariCP pool size ≥ 동시 파티션 수 권장
-→ pool size 부족 시 파티션이 커넥션 대기 (deadlock 아님, 단순 지연)
+Partition #0 ─── VirtualThread #0 ─── HikariCP Connection #A Partition #1 ─── VirtualThread #1 ─── HikariCP Connection #B Partition #2 ─── VirtualThread #2 ─── HikariCP Connection #C ... Partition #N ─── VirtualThread #N ─── HikariCP Connection #N
+
+→ 각 파티션이 독립적인 커넥션/트랜잭션 사용 → HikariCP pool size ≥ 동시 파티션 수 권장 → pool size 부족 시 파티션이 커넥션 대기 (deadlock 아님, 단순 지연)
+
 ```
 
 ### 6.4 database 파라미터 전략 (v1)
@@ -932,21 +864,21 @@ val spring_batch_test = "org.springframework.batch:spring-batch-test"  // Spring
 
 ### 8.1 단위 테스트 (H2)
 
-| 테스트 클래스 | 검증 내용 |
-|--------------|----------|
-| `ExposedRangePartitionerTest` | min/max 조회, N개 파티션 균등 분할, 빈 테이블 처리, 단일 행 테이블 |
-| `ExposedKeysetItemReaderTest` | keyset 읽기 정상 동작, 빈 파티션 → null 반환, restart 재개 검증 |
-| `ExposedItemWriterTest` | batchInsert 정상 동작, 빈 chunk 무시, Spring 트랜잭션 rollback 검증 |
-| `ExposedUpsertItemWriterTest` | 신규 insert + 기존 update 동작 검증 |
-| `ExposedUpdateItemWriterTest` | UPDATE 정확성, Spring 트랜잭션 rollback 검증 |
+| 테스트 클래스                 | 검증 내용                                                           |
+|-------------------------------|---------------------------------------------------------------------|
+| `ExposedRangePartitionerTest` | min/max 조회, N개 파티션 균등 분할, 빈 테이블 처리, 단일 행 테이블  |
+| `ExposedKeysetItemReaderTest` | keyset 읽기 정상 동작, 빈 파티션 → null 반환, restart 재개 검증     |
+| `ExposedItemWriterTest`       | batchInsert 정상 동작, 빈 chunk 무시, Spring 트랜잭션 rollback 검증 |
+| `ExposedUpsertItemWriterTest` | 신규 insert + 기존 update 동작 검증                                 |
+| `ExposedUpdateItemWriterTest` | UPDATE 정확성, Spring 트랜잭션 rollback 검증                        |
 
 ### 8.2 통합 테스트 (Testcontainers PostgreSQL)
 
-| 테스트 클래스 | 검증 내용 |
-|--------------|----------|
+| 테스트 클래스                  | 검증 내용                                                              |
+|--------------------------------|------------------------------------------------------------------------|
 | `ParallelQueryIntegrationTest` | 100,000건 Source → Target, 16 파티션 VirtualThread 병렬, 데이터 정합성 |
-| `RestartIntegrationTest` | 중간 실패 후 Job 재시작, lastKey 기반 정확한 재개 |
-| `EndToEndJobTest` | Spring Boot 통합: AutoConfiguration, Job 실행, 결과 검증 |
+| `RestartIntegrationTest`       | 중간 실패 후 Job 재시작, lastKey 기반 정확한 재개                      |
+| `EndToEndJobTest`              | Spring Boot 통합: AutoConfiguration, Job 실행, 결과 검증               |
 
 ### 8.3 Benchmark (CI 분리)
 
@@ -989,14 +921,14 @@ fun insertTestData(count: Int) {
 
 ## 9. 향후 계획
 
-| 항목 | 시기 | 설명 |
-|------|------|------|
-| `spring-boot4/batch-exposed` | v2 | 동일 패키지/API, Spring Boot 4 BOM 사용 |
-| `ExposedCursorItemReader` | v2 | 트랜잭션 경계 설계 확정 후 재검토 |
-| S3 output | 필요 시 | Spring Cloud AWS `S3ItemWriter` 활용 (별도 모듈) |
-| `ExposedCompositeKeyPartitioner` | v2 | 복합 키 테이블 지원 (non-auto-increment) |
-| 모니터링 통합 | v2 | Micrometer 메트릭 (파티션별 처리 시간, 행 수) |
-| Time-based UUID PK 지원 | v2 | UUIDv7 등 단조 증가 UUID — `forUuidColumn()` 팩토리 추가, BigInteger 범위 산술, `ExecutionContext`에 UUID 문자열 저장 |
+| 항목                             | 시기    | 설명                                                                                                                  |
+|----------------------------------|---------|-----------------------------------------------------------------------------------------------------------------------|
+| `spring-boot4/batch-exposed`     | v2      | 동일 패키지/API, Spring Boot 4 BOM 사용                                                                               |
+| `ExposedCursorItemReader`        | v2      | 트랜잭션 경계 설계 확정 후 재검토                                                                                     |
+| S3 output                        | 필요 시 | Spring Cloud AWS `S3ItemWriter` 활용 (별도 모듈)                                                                      |
+| `ExposedCompositeKeyPartitioner` | v2      | 복합 키 테이블 지원 (non-auto-increment)                                                                              |
+| 모니터링 통합                    | v2      | Micrometer 메트릭 (파티션별 처리 시간, 행 수)                                                                         |
+| Time-based UUID PK 지원          | v2      | UUIDv7 등 단조 증가 UUID — `forUuidColumn()` 팩토리 추가, BigInteger 범위 산술, `ExecutionContext`에 UUID 문자열 저장 |
 
 ---
 
@@ -1004,44 +936,44 @@ fun insertTestData(count: Int) {
 
 ### Phase 1: 프로젝트 설정 (2건)
 
-| ID | 우선순위 | 태스크 | 상세 |
-|----|---------|--------|------|
-| T1.1 | low | 폴더 생성 + build.gradle.kts | `spring-boot3/batch-exposed/` 생성, 의존성 설정 |
-| T1.2 | low | Libs.kt 상수 추가 | `spring_batch_test` 추가 |
+| ID   | 우선순위 | 태스크                       | 상세                                            |
+|------|----------|------------------------------|-------------------------------------------------|
+| T1.1 | low      | 폴더 생성 + build.gradle.kts | `spring-boot3/batch-exposed/` 생성, 의존성 설정 |
+| T1.2 | low      | Libs.kt 상수 추가            | `spring_batch_test` 추가                        |
 
 ### Phase 2: 핵심 구현 (9건)
 
-| ID | 우선순위 | 태스크 | 상세 |
-|----|---------|--------|------|
-| T2.1 | high | ExposedRangePartitioner | min/max 쿼리, 균등 분할, 빈 테이블 처리 |
-| T2.2 | high | ExposedKeysetItemReader | keyset 읽기, ExecutionContext restart, synchronized read() |
-| T2.3 | high | `virtualThreadPartitionTaskExecutor()` 팩토리 함수 | SimpleAsyncTaskExecutor VirtualThread TaskExecutor 생성 |
-| T2.4 | medium | ExposedItemWriter | batchInsert, Spring 트랜잭션 자동 참여 |
-| T2.5 | medium | ExposedUpsertItemWriter | batchUpsert, 동일 키 update/insert |
-| T2.5b | medium | ExposedUpdateItemWriter | Table.update, Spring 청크 트랜잭션 참여 |
-| T2.6 | medium | ExposedBatchAutoConfiguration | Spring Boot auto-config, TaskExecutor 빈 |
-| T2.6b | low | META-INF AutoConfiguration 등록 | `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 파일 등록 |
-| T2.7 | medium | Kotlin DSL 확장 | `partitionedBatchJob`, `exposedPartitionedStep` |
+| ID    | 우선순위 | 태스크                                             | 상세                                                                                         |
+|-------|----------|----------------------------------------------------|----------------------------------------------------------------------------------------------|
+| T2.1  | high     | ExposedRangePartitioner                            | min/max 쿼리, 균등 분할, 빈 테이블 처리                                                      |
+| T2.2  | high     | ExposedKeysetItemReader                            | keyset 읽기, ExecutionContext restart, synchronized read()                                   |
+| T2.3  | high     | `virtualThreadPartitionTaskExecutor()` 팩토리 함수 | SimpleAsyncTaskExecutor VirtualThread TaskExecutor 생성                                      |
+| T2.4  | medium   | ExposedItemWriter                                  | batchInsert, Spring 트랜잭션 자동 참여                                                       |
+| T2.5  | medium   | ExposedUpsertItemWriter                            | batchUpsert, 동일 키 update/insert                                                           |
+| T2.5b | medium   | ExposedUpdateItemWriter                            | Table.update, Spring 청크 트랜잭션 참여                                                      |
+| T2.6  | medium   | ExposedBatchAutoConfiguration                      | Spring Boot auto-config, TaskExecutor 빈                                                     |
+| T2.6b | low      | META-INF AutoConfiguration 등록                    | `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 파일 등록 |
+| T2.7  | medium   | Kotlin DSL 확장                                    | `partitionedBatchJob`, `exposedPartitionedStep`                                              |
 
 ### Phase 3: 테스트 (5건)
 
-| ID | 우선순위 | 태스크 | 상세 |
-|----|---------|--------|------|
-| T3.1 | medium | ExposedRangePartitionerTest | H2, 균등 분할, 빈 테이블, 단일 행 |
-| T3.2 | medium | ExposedKeysetItemReaderTest | H2, keyset 읽기, restart 시나리오 |
-| T3.3 | medium | ExposedItemWriterTest | Spring 트랜잭션 rollback, 빈 chunk |
-| T3.3b | medium | ExposedUpdateItemWriterTest | UPDATE 정확성, Spring 트랜잭션 rollback 검증 |
-| T3.4 | high | ParallelQueryIntegrationTest | Testcontainers PostgreSQL, 16 파티션, 데이터 정합성 |
+| ID    | 우선순위 | 태스크                       | 상세                                                |
+|-------|----------|------------------------------|-----------------------------------------------------|
+| T3.1  | medium   | ExposedRangePartitionerTest  | H2, 균등 분할, 빈 테이블, 단일 행                   |
+| T3.2  | medium   | ExposedKeysetItemReaderTest  | H2, keyset 읽기, restart 시나리오                   |
+| T3.3  | medium   | ExposedItemWriterTest        | Spring 트랜잭션 rollback, 빈 chunk                  |
+| T3.3b | medium   | ExposedUpdateItemWriterTest  | UPDATE 정확성, Spring 트랜잭션 rollback 검증        |
+| T3.4  | high     | ParallelQueryIntegrationTest | Testcontainers PostgreSQL, 16 파티션, 데이터 정합성 |
 
 ### Phase 4: 마무리 (5건)
 
-| ID | 우선순위 | 태스크 | 상세 |
-|----|---------|--------|------|
-| T4.1 | low | 한국어 KDoc 전체 | 모든 public 클래스/함수에 한국어 KDoc |
-| T4.2 | low | README.md + README.ko.md | 모듈 문서 (Architecture→UML→Features→Examples) |
-| T4.3 | low | CLAUDE.md 업데이트 | 신규 모듈 정보 추가 |
-| T4.4 | low | superpowers index 항목 추가 | `docs/superpowers/index/2026-04.md` |
-| T4.5 | low | 커밋 | `feat: bluetape4k-spring-boot3-batch-exposed 모듈 추가` |
+| ID   | 우선순위 | 태스크                      | 상세                                                    |
+|------|----------|-----------------------------|---------------------------------------------------------|
+| T4.1 | low      | 한국어 KDoc 전체            | 모든 public 클래스/함수에 한국어 KDoc                   |
+| T4.2 | low      | README.md + README.ko.md    | 모듈 문서 (Architecture→UML→Features→Examples)          |
+| T4.3 | low      | CLAUDE.md 업데이트          | 신규 모듈 정보 추가                                     |
+| T4.4 | low      | superpowers index 항목 추가 | `docs/superpowers/index/2026-04.md`                     |
+| T4.5 | low      | 커밋                        | `feat: bluetape4k-spring-boot3-batch-exposed 모듈 추가` |
 
 ---
 
@@ -1196,12 +1128,12 @@ fun `중간 실패 후 재시작 시 마지막 위치부터 재개`() {
 
 ### B.1 파티션 수 결정
 
-| 데이터 규모 | 권장 파티션 수 | HikariCP pool size |
-|-------------|---------------|---------------------|
-| < 10,000 | 1~2 (오버헤드가 이점보다 큼) | 5 |
-| 10,000~100,000 | 4~8 | 10~15 |
-| 100,000~1,000,000 | 8~16 | 20~25 |
-| > 1,000,000 | 16~32 | 35~40 |
+| 데이터 규모       | 권장 파티션 수               | HikariCP pool size |
+|-------------------|------------------------------|--------------------|
+| < 10,000          | 1~2 (오버헤드가 이점보다 큼) | 5                  |
+| 10,000~100,000    | 4~8                          | 10~15              |
+| 100,000~1,000,000 | 8~16                         | 20~25              |
+| > 1,000,000       | 16~32                        | 35~40              |
 
 ### B.2 pageSize 결정
 
@@ -1212,6 +1144,7 @@ fun `중간 실패 후 재시작 시 마지막 위치부터 재개`() {
 
 ### B.3 주의사항
 
-- **synchronized pinning**: JDK 21에서 `synchronized` 블록 내 blocking 호출은 carrier thread를 고정(pin)할 수 있음. JDK 25에서는 해결됨. JDK 21 환경에서는 파티션 수를 플랫폼 스레드 수 이하로 제한 권장
+- **synchronized
+  pinning**: JDK 21에서 `synchronized` 블록 내 blocking 호출은 carrier thread를 고정 (pin)할 수 있음. JDK 25에서는 해결됨. JDK 21 환경에서는 파티션 수를 플랫폼 스레드 수 이하로 제한 권장
 - **HikariCP pool exhaustion**: `concurrencyLimit > maximumPoolSize`이면 파티션이 커넥션 대기. deadlock은 아니지만 성능 저하 발생
 - **ID 분포 불균형**: auto-increment이더라도 대량 DELETE 후에는 파티션 간 행 수 편차 발생 가능. 이 경우 `ExposedCountBasedPartitioner` (향후 구현) 고려

@@ -1,5 +1,8 @@
 package io.bluetape4k.http.okhttp3
 
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeBlank
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.concurrent.allAsList
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
@@ -13,9 +16,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeBlank
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.commons.lang3.time.StopWatch
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Nested

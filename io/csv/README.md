@@ -35,14 +35,14 @@ Since v1.5.0 the internal engine has been replaced from univocity-parsers to a s
 
 ### Settings
 
-| Setting           | CSV default | TSV default | Description                              |
-|-------------------|-------------|-------------|------------------------------------------|
-| `delimiter`       | `,`         | `\t` (fixed)| Field separator                          |
-| `quote`           | `"`         | N/A         | Quote character (CSV only)               |
-| `lineSeparator`   | `\r\n`      | `\n`        | Record separator                         |
-| `trimValues`      | `false`     | `false`     | Trim leading/trailing whitespace (reader)|
-| `emptyValueAsNull`| `true`      | `true`      | Empty unquoted field → `null`            |
-| `maxCharsPerColumn`| 100,000    | 100,000     | Per-column character limit               |
+| Setting             | CSV default | TSV default  | Description                               |
+|---------------------|-------------|--------------|-------------------------------------------|
+| `delimiter`         | `,`         | `\t` (fixed) | Field separator                           |
+| `quote`             | `"`         | N/A          | Quote character (CSV only)                |
+| `lineSeparator`     | `\r\n`      | `\n`         | Record separator                          |
+| `trimValues`        | `false`     | `false`      | Trim leading/trailing whitespace (reader) |
+| `emptyValueAsNull`  | `true`      | `true`       | Empty unquoted field → `null`             |
+| `maxCharsPerColumn` | 100,000     | 100,000      | Per-column character limit                |
 
 ### null vs Empty String
 
@@ -63,11 +63,11 @@ Benchmark command:
 
 Throughput is measured in `ops/s`; higher is better.
 
-| Workload | Writer baseline | Okio writer | Speedup |
-|---|---:|---:|---:|
-| small | 11,741.418 ops/s | 16,355.656 ops/s | 1.39x |
-| medium | 676.110 ops/s | 2,068.696 ops/s | 3.06x |
-| large | 83.802 ops/s | 272.157 ops/s | 3.25x |
+| Workload |  Writer baseline |      Okio writer | Speedup |
+|----------|-----------------:|-----------------:|--------:|
+| small    | 11,741.418 ops/s | 16,355.656 ops/s |   1.39x |
+| medium   |    676.110 ops/s |  2,068.696 ops/s |   3.06x |
+| large    |     83.802 ops/s |    272.157 ops/s |   3.25x |
 
 ## Usage Examples
 
@@ -190,14 +190,14 @@ Since v1.5.0, a higher-level V2 API is available under the `io.bluetape4k.csv.v2
 
 ### V1 vs V2 Comparison
 
-| Feature             | V1 (Sequence/suspend)          | V2 (Flow DSL)                    |
-|---------------------|-------------------------------|----------------------------------|
-| Reader type         | `CsvRecordReader`             | `FlowCsvReader` (DSL)            |
-| Writer type         | `CsvRecordWriter`             | `FlowCsvWriter` (DSL)            |
-| Record type         | `Record` (interface)          | `CsvRow` (data class)            |
-| Settings            | `CsvSettings` (data class)    | `CsvReaderConfig` / `CsvWriterConfig` (mutable builder) |
-| Cancellation        | `ensureActive()` plus interruptible row writes | `channelFlow + ensureActive()`   |
-| quoteAll support    | No                            | `CsvWriterConfig.quoteAll = true` |
+| Feature          | V1 (Sequence/suspend)                          | V2 (Flow DSL)                                           |
+|------------------|------------------------------------------------|---------------------------------------------------------|
+| Reader type      | `CsvRecordReader`                              | `FlowCsvReader` (DSL)                                   |
+| Writer type      | `CsvRecordWriter`                              | `FlowCsvWriter` (DSL)                                   |
+| Record type      | `Record` (interface)                           | `CsvRow` (data class)                                   |
+| Settings         | `CsvSettings` (data class)                     | `CsvReaderConfig` / `CsvWriterConfig` (mutable builder) |
+| Cancellation     | `ensureActive()` plus interruptible row writes | `channelFlow + ensureActive()`                          |
+| quoteAll support | No                                             | `CsvWriterConfig.quoteAll = true`                       |
 
 ### Reading with V2
 

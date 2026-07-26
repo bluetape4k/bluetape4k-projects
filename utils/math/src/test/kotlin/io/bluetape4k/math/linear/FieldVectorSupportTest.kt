@@ -1,14 +1,14 @@
 package io.bluetape4k.math.linear
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.apache.commons.math3.fraction.Fraction
 import org.apache.commons.math3.linear.ArrayFieldVector
 import org.junit.jupiter.api.Test
 
 class FieldVectorSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private fun fractionVector(vararg values: Fraction) = ArrayFieldVector(values)
     private fun f(n: Int, d: Int = 1) = Fraction(n, d)

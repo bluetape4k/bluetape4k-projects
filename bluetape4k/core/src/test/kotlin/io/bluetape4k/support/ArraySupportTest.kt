@@ -1,15 +1,15 @@
 package io.bluetape4k.support
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import kotlin.byteArrayOf
 import kotlin.longArrayOf
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.test.assertTrue
 
 class ArraySupportTest {
@@ -34,8 +34,17 @@ class ArraySupportTest {
         LongArray(3).also { it.setAll { idx -> idx.toLong() + 10L } } shouldBeEqualTo longArrayOf(10L, 11L, 12L)
         FloatArray(3).also { it.setAll { idx -> idx.toFloat() / 2f } } shouldBeEqualTo floatArrayOf(0f, 0.5f, 1.0f)
         DoubleArray(3).also { it.setAll { idx -> idx.toDouble() * 1.5 } } shouldBeEqualTo doubleArrayOf(0.0, 1.5, 3.0)
-        charArrayOf('a', 'a', 'a').also { it.setAll { idx -> ('a'.code + idx).toChar() } } shouldBeEqualTo charArrayOf('a', 'b', 'c')
-        booleanArrayOf(false, false, false, false).also { it.setAll { idx -> idx % 2 == 0 } } shouldBeEqualTo booleanArrayOf(true, false, true, false)
+        charArrayOf('a', 'a', 'a').also { it.setAll { idx -> ('a'.code + idx).toChar() } } shouldBeEqualTo charArrayOf(
+            'a',
+            'b',
+            'c'
+        )
+        booleanArrayOf(
+            false,
+            false,
+            false,
+            false
+        ).also { it.setAll { idx -> idx % 2 == 0 } } shouldBeEqualTo booleanArrayOf(true, false, true, false)
         intArrayOf().also { it.setAll { it + 1 } }.size shouldBeEqualTo 0
     }
 

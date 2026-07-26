@@ -15,7 +15,6 @@ import kotlinx.benchmark.OutputTimeUnit
 import kotlinx.benchmark.Scope
 import kotlinx.benchmark.State
 import kotlinx.benchmark.Warmup
-import org.openjdk.jmh.annotations.Fork
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flatMapMerge
@@ -24,6 +23,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import org.openjdk.jmh.annotations.Fork
 import java.util.concurrent.TimeUnit
 
 /**

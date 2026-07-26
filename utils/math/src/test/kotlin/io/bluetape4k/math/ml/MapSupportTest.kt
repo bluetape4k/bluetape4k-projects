@@ -1,5 +1,9 @@
 package io.bluetape4k.math.ml
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeInRange
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.math.ml.distance.DistanceMeasureMethod
 import io.bluetape4k.math.ml.neuralnet.computeHitHistogram
@@ -9,10 +13,6 @@ import io.bluetape4k.math.ml.neuralnet.computeU
 import io.bluetape4k.math.ml.neuralnet.findBest
 import io.bluetape4k.math.ml.neuralnet.findBestAndSecondBest
 import io.bluetape4k.math.ml.neuralnet.sort
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeInRange
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.commons.math3.ml.neuralnet.FeatureInitializerFactory
 import org.apache.commons.math3.ml.neuralnet.SquareNeighbourhood
 import org.apache.commons.math3.ml.neuralnet.twod.NeuronSquareMesh2D
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
 
 class MapSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private lateinit var mesh: NeuronSquareMesh2D
     private val distance: (DoubleArray, DoubleArray) -> Double =

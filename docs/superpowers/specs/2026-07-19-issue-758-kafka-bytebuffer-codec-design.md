@@ -10,21 +10,15 @@
 
 ## 1. 목표
 
-표준 Kafka `Serializer`와 `Deserializer`의 `ByteArray` 경계는 그대로
-유지한다. 그 위에 caller-owned `ByteBuffer`를 명시적으로 사용하는
+표준 Kafka `Serializer`와 `Deserializer`의 `ByteArray` 경계는 그대로 유지한다. 그 위에 caller-owned `ByteBuffer`를 명시적으로 사용하는
 `BufferAwareKafkaCodec<T>` 계약을 추가하고, `BinaryKafkaCodec`이 기존
 `BinarySerializer.serializeTo`/`deserializeFrom` API로 이를 구현한다.
 
-이 변경의 목표는 Kafka 경계를 zero-copy라고 표현하는 것이 아니다.
-호출자가 이미 재사용 버퍼를 소유한 경우 codec 내부의 피할 수 있는
-중간 `ByteArray`를 줄일 수 있는 경로를 제공하고, 실제 allocation 감소는
-측정된 backend와 방향에 대해서만 문서화하는 것이다.
+이 변경의 목표는 Kafka 경계를 zero-copy라고 표현하는 것이 아니다. 호출자가 이미 재사용 버퍼를 소유한 경우 codec 내부의 피할 수 있는 중간 `ByteArray`를 줄일 수 있는 경로를 제공하고, 실제 allocation 감소는 측정된 backend와 방향에 대해서만 문서화하는 것이다.
 
 ## 2. 권한과 범위
 
-live issue 본문과 현재 `develop`의 `BinarySerializer` 버퍼 계약이 이 설계의
-권한이다. 이 설계는 release, tag, publication, repository setting, credential
-변경을 승인하지 않는다.
+live issue 본문과 현재 `develop`의 `BinarySerializer` 버퍼 계약이 이 설계의 권한이다. 이 설계는 release, tag, publication, repository setting, credential 변경을 승인하지 않는다.
 
 ### 포함
 
@@ -53,15 +47,9 @@ live issue 본문과 현재 `develop`의 `BinarySerializer` 버퍼 계약이 이
 - wire format, serializer registration, type allowlist, security 기본값 변경
 - 새 외부 dependency, 새 Gradle module, Testcontainers 기반 검증
 
-`Bytes`는 내부적으로 `ByteArray`를 보유하므로 현재 표준 Kafka 경계보다
-낮은 allocation 경로를 추가로 만들지 않는다. `Bytes.get()`을 직접 표준
-codec에 넘길 수 있어 전용 overload의 이점도 작다. 측정 가능한 이점이나
-반복되는 caller ergonomics 문제가 확인되기 전에는 추가하지 않는다.
+`Bytes`는 내부적으로 `ByteArray`를 보유하므로 현재 표준 Kafka 경계보다 낮은 allocation 경로를 추가로 만들지 않는다. `Bytes.get()`을 직접 표준 codec에 넘길 수 있어 전용 overload의 이점도 작다. 측정 가능한 이점이나 반복되는 caller ergonomics 문제가 확인되기 전에는 추가하지 않는다.
 
-`ByteArrayKafkaCodec`의 ByteBuffer decode는 결과 `ByteArray` 생성을 피할 수
-없고, encode는 단순 복사 편의만 제공한다. 이를 같은 contract로 노출하면
-allocation-aware라는 의미를 흐리므로 기존 raw passthrough API와 회귀 테스트만
-유지한다.
+`ByteArrayKafkaCodec`의 ByteBuffer decode는 결과 `ByteArray` 생성을 피할 수 없고, encode는 단순 복사 편의만 제공한다. 이를 같은 contract로 노출하면 allocation-aware라는 의미를 흐리므로 기존 raw passthrough API와 회귀 테스트만 유지한다.
 
 ## 3. 선택한 public contract
 
@@ -97,19 +85,13 @@ interface BufferAwareKafkaCodec<T>: KafkaCodec<T> {
 ```
 
 `serialize`/`deserialize` 이름을 overload하지 않고 `serializeTo`와
-`deserializeFrom`을 사용한다. 이는 Kafka의 nullable `ByteArray` API와의
-호출 모호성을 피하고 `BinarySerializer`의 기존 용어와 일치한다.
+`deserializeFrom`을 사용한다. 이는 Kafka의 nullable `ByteArray` API와의 호출 모호성을 피하고 `BinarySerializer`의 기존 용어와 일치한다.
 
 buffer output은 실제 payload가 존재할 때만 의미가 있으므로 `data`는
 `T & Any`로 non-null을 명시한다. Kafka tombstone/null value는 기존
-`KafkaCodec.serialize(..., data = null)`을 사용하며 결과 `null`과 header
-미변경이라는 기존 의미를 유지한다. 새 API에서 `0`으로 null과 빈 payload를
-혼동시키지 않는다.
+`KafkaCodec.serialize(..., data = null)`을 사용하며 결과 `null`과 header 미변경이라는 기존 의미를 유지한다. 새 API에서 `0`으로 null과 빈 payload를 혼동시키지 않는다.
 
-새 interface는 opt-in 계약이며 기존 `KafkaCodec` 구현체에는 member를
-추가하지 않는다. 따라서 기존 third-party `KafkaCodec` 구현체는 새 method를
-구현할 필요가 없다. `BinaryKafkaCodec`이 모든 새 method를 concrete하게
-구현하므로 기존 binary codec subclass도 source/binary 사용 형태를 유지한다.
+새 interface는 opt-in 계약이며 기존 `KafkaCodec` 구현체에는 member를 추가하지 않는다. 따라서 기존 third-party `KafkaCodec` 구현체는 새 method를 구현할 필요가 없다. `BinaryKafkaCodec`이 모든 새 method를 concrete하게 구현하므로 기존 binary codec subclass도 source/binary 사용 형태를 유지한다.
 
 ## 4. Buffer 계약
 
@@ -128,10 +110,8 @@ buffer output은 실제 payload가 존재할 때만 의미가 있으므로 `data
 - 성공 시 JVM의 일반적인 mark invalidation 규칙을 따른다.
 - 호출 동안 버퍼는 caller가 thread-confined 상태로 유지해야 한다.
 
-이 계약은 `BinarySerializer.serializeTo`를 그대로 상속한다. 구현에서
-추가 staging buffer나 `ByteArray` 변환을 삽입하지 않는다. 다만 실제
-`BinarySerializer` 구현이 interface default fallback을 사용하는 경우에는
-내부 `ByteArray` allocation이 남을 수 있으며, KDoc와 문서에서 이를 명시한다.
+이 계약은 `BinarySerializer.serializeTo`를 그대로 상속한다. 구현에서 추가 staging buffer나 `ByteArray` 변환을 삽입하지 않는다. 다만 실제
+`BinarySerializer` 구현이 interface default fallback을 사용하는 경우에는 내부 `ByteArray` allocation이 남을 수 있으며, KDoc와 문서에서 이를 명시한다.
 
 ### 4.2 Input
 
@@ -145,9 +125,7 @@ buffer output은 실제 payload가 존재할 때만 의미가 있으므로 `data
 - 호출 동안 버퍼를 동시에 변경하거나 다른 thread와 공유하지 않는다.
 
 구현은 `BinarySerializer.deserializeFrom`에 직접 위임한다. source를
-`ByteArray`로 먼저 복사하는 Kafka-layer fallback을 새로 만들지 않는다.
-underlying serializer의 compatibility default가 복사하는 경우에는 그 경로를
-optimized라고 문서화하지 않는다.
+`ByteArray`로 먼저 복사하는 Kafka-layer fallback을 새로 만들지 않는다. underlying serializer의 compatibility default가 복사하는 경우에는 그 경로를 optimized라고 문서화하지 않는다.
 
 ## 5. Header, 예외, logging 계약
 
@@ -156,15 +134,12 @@ optimized라고 문서화하지 않는다.
 - `writeValueTypeHeader == true`이면 표준 `serialize`와 같은
   `bluetape4k.kafka.codec.value.type` header를 serialization 전에 추가한다.
 - `false`이면 새 header를 추가하지 않는다.
-- 기존 구현과 마찬가지로 serialization이 이후 실패해도 이미 추가된 header는
-  제거하지 않는다. target position rollback과 header side effect는 별도 계약이다.
-- buffer deserialization은 기존 binary codec처럼 type header를 역직렬화 입력으로
-  사용하지 않으며 allowlist나 class loading 범위를 넓히지 않는다.
+- 기존 구현과 마찬가지로 serialization이 이후 실패해도 이미 추가된 header는 제거하지 않는다. target position rollback과 header side effect는 별도 계약이다.
+- buffer deserialization은 기존 binary codec처럼 type header를 역직렬화 입력으로 사용하지 않으며 allowlist나 class loading 범위를 넓히지 않는다.
 
 ### 5.2 Poison-pill과 fatal signal
 
-buffer deserialization은 기존 `AbstractKafkaCodec.deserialize(ByteArray?)`와
-동일한 정책을 사용한다.
+buffer deserialization은 기존 `AbstractKafkaCodec.deserialize(ByteArray?)`와 동일한 정책을 사용한다.
 
 - `CancellationException`은 동일 instance를 재전파한다.
 - `Error`는 catch하지 않고 동일 instance를 전파한다.
@@ -173,23 +148,16 @@ buffer deserialization은 기존 `AbstractKafkaCodec.deserialize(ByteArray?)`와
 - payload 내용, 전체 header value, serializer 객체는 기록하지 않는다.
 - hot-path 성공 로그는 추가하지 않는다.
 
-`AbstractKafkaCodec`의 기존 `KLogging`을 재사용해 ByteArray와 ByteBuffer 경로의
-경고 메시지 및 예외 분류가 drift하지 않게 한다. 구현은 명확한 공통 helper나
-동등한 allocation-free control flow를 사용하되, deserialization hot path에
-불필요한 capturing lambda allocation을 추가하지 않는다. 공개 API에는 English
-KDoc를 작성하고, header failure side effect와 fatal-signal 보존처럼 코드만으로
-드러나지 않는 이유에만 English comment를 둔다.
+`AbstractKafkaCodec`의 기존 `KLogging`을 재사용해 ByteArray와 ByteBuffer 경로의 경고 메시지 및 예외 분류가 drift하지 않게 한다. 구현은 명확한 공통 helper나 동등한 allocation-free control flow를 사용하되, deserialization hot path에 불필요한 capturing lambda allocation을 추가하지 않는다. 공개 API에는 English KDoc를 작성하고, header failure side effect와 fatal-signal 보존처럼 코드만으로 드러나지 않는 이유에만 English comment를 둔다.
 
-serialization 예외는 기존 표준 경로처럼 로그로 흡수하지 않고 그대로
-전파한다. 새 성공 로그나 serialization 실패 중복 로그를 추가하지 않는다.
+serialization 예외는 기존 표준 경로처럼 로그로 흡수하지 않고 그대로 전파한다. 새 성공 로그나 serialization 실패 중복 로그를 추가하지 않는다.
 
 ## 6. 구현 구조
 
 ### 6.1 `KafkaCodec.kt`
 
 - `BufferAwareKafkaCodec<T>`와 English KDoc를 추가한다.
-- `AbstractKafkaCodec`의 ByteArray/ByteBuffer poison-pill 처리가 같은
-  KLogging 정책을 사용하도록 최소한의 reusable boundary를 둔다.
+- `AbstractKafkaCodec`의 ByteArray/ByteBuffer poison-pill 처리가 같은 KLogging 정책을 사용하도록 최소한의 reusable boundary를 둔다.
 - 기존 `KafkaCodec` default method, null policy, close/configure 동작은 변경하지 않는다.
 
 ### 6.2 `BinaryKafkaCodecs.kt`
@@ -198,26 +166,18 @@ serialization 예외는 기존 표준 경로처럼 로그로 흡수하지 않고
 - output은 `serializer.serializeTo(data, target)`에 직접 위임한다.
 - input은 `serializer.deserializeFrom<Any>(source)`에 직접 위임한다.
 - `KryoKafkaCodec` 등 concrete codec과 wire format은 변경하지 않는다.
-- serializer별 optimized/fallback 차이를 숨기지 않도록 class KDoc에 일반 계약과
-  제한을 설명한다.
+- serializer별 optimized/fallback 차이를 숨기지 않도록 class KDoc에 일반 계약과 제한을 설명한다.
 
 ### 6.3 압축 decorator compatibility
 
 `CompressableBinarySerializer`의 interface delegation은 wrapper가 재정의한
-`serialize`/`deserialize`를 거치지 않으므로 buffer method에서 압축을 우회한다.
-최종 리뷰에서 확인한 이 문제는 decorator가 buffer fallback을 명시적으로
-override해 compressed wire를 생성하고 읽도록 고정한다. 이 경로의 allocation은
-wrapper 의미와 표준/buffer wire 호환성을 지키기 위한 의도적인 비용이다.
-표준 array serializer가 모든 `Throwable`을 감싸더라도 compatibility fallback은
+`serialize`/`deserialize`를 거치지 않으므로 buffer method에서 압축을 우회한다. 최종 리뷰에서 확인한 이 문제는 decorator가 buffer fallback을 명시적으로 override해 compressed wire를 생성하고 읽도록 고정한다. 이 경로의 allocation은 wrapper 의미와 표준/buffer wire 호환성을 지키기 위한 의도적인 비용이다. 표준 array serializer가 모든 `Throwable`을 감싸더라도 compatibility fallback은
 `BufferFailurePolicy`로 wrapper graph를 분류해 nested `CancellationException`과
 `Error`의 동일 instance를 복원한다. 일반 wrapper와 raw buffer failure는 유지한다.
 
 ### 6.4 Cancellation failure classification
 
-native serializer가 감싼 `CancellationException`은 serialization failure로 변환하지
-않는다. `BufferFailurePolicy`는 `Error`를 먼저 선택한 뒤 operation/cleanup graph의
-cancellation을 찾아 동일 instance를 반환하며, buffer failure helper도 이를 다시
-감싸지 않고 전파한다. overflow와 일반 failure 우선순위는 유지한다.
+native serializer가 감싼 `CancellationException`은 serialization failure로 변환하지 않는다. `BufferFailurePolicy`는 `Error`를 먼저 선택한 뒤 operation/cleanup graph의 cancellation을 찾아 동일 instance를 반환하며, buffer failure helper도 이를 다시 감싸지 않고 전파한다. overflow와 일반 failure 우선순위는 유지한다.
 
 ## 7. 테스트 설계
 
@@ -250,14 +210,10 @@ cancellation을 찾아 동일 instance를 반환하며, buffer failure helper도
 - 빈 remaining 범위의 `null`
 - ordinary `Exception`은 WARN 후 `null`
 - `CancellationException`과 `Error` identity 재전파
-- 로그에 topic/header keys/data size/failure type이 있고 throwable/message/stack,
-  payload/header value가 없는지 검증
-- poison WARN의 topic 128자, header key 16개·각 64자, failure type 256자 상한과
-  CR/LF/tab/control-character 중화를 표준/buffer 양쪽에서 검증
-- 압축 codec은 표준 serialize → buffer deserialize와 buffer serialize → 표준
-  deserialize 양쪽 wire 호환성을 검증
-- 압축 compatibility fallback이 array serializer가 감싼 nested cancellation/Error를
-  output/input 양쪽에서 동일 instance로 복원하고 ordinary/raw failure는 유지하는지 검증
+- 로그에 topic/header keys/data size/failure type이 있고 throwable/message/stack, payload/header value가 없는지 검증
+- poison WARN의 topic 128자, header key 16개·각 64자, failure type 256자 상한과 CR/LF/tab/control-character 중화를 표준/buffer 양쪽에서 검증
+- 압축 codec은 표준 serialize → buffer deserialize와 buffer serialize → 표준 deserialize 양쪽 wire 호환성을 검증
+- 압축 compatibility fallback이 array serializer가 감싼 nested cancellation/Error를 output/input 양쪽에서 동일 instance로 복원하고 ordinary/raw failure는 유지하는지 검증
 - object input filter가 감싼 cancellation도 동일 instance로 buffer 경계를 빠져나오는지 검증
 
 ### 7.4 기존 동작 회귀
@@ -267,15 +223,12 @@ cancellation을 찾아 동일 instance를 반환하며, buffer failure helper도
 - 기존 `AbstractKafkaCodecPoisonPillTest`는 그대로 통과한다.
 - broker나 Testcontainers 없이 codec 단위 테스트로 실행한다.
 
-mock serializer는 invocation count와 전달받은 동일 `ByteBuffer` instance를
-기록해 Kafka layer가 `ByteArray` API로 우회하지 않았음을 증명한다. 실제
+mock serializer는 invocation count와 전달받은 동일 `ByteBuffer` instance를 기록해 Kafka layer가 `ByteArray` API로 우회하지 않았음을 증명한다. 실제
 `KryoKafkaCodec` round-trip test는 public integration proof로 추가한다.
 
 ## 8. Benchmark와 allocation 판단
 
-기존 `benchmark/serializer-benchmark`에 `:bluetape4k-kafka4`의 internal
-benchmark dependency를 추가하고 Kafka codec 전용 benchmark class를 둔다.
-새 module이나 broker dependency는 만들지 않는다.
+기존 `benchmark/serializer-benchmark`에 `:bluetape4k-kafka4`의 internal benchmark dependency를 추가하고 Kafka codec 전용 benchmark class를 둔다. 새 module이나 broker dependency는 만들지 않는다.
 
 ### 8.1 비교 cell
 
@@ -284,16 +237,10 @@ benchmark dependency를 추가하고 Kafka codec 전용 benchmark class를 둔�
 
 - serialization: 표준 `codec.serialize(...): ByteArray` 대 재사용 heap target의
   `codec.serializeTo(...)`
-- deserialization: 사전 생성한 `ByteArray` 입력 대 동일 bytes를 담은 bounded
-  caller-owned `ByteBuffer`의 `codec.deserializeFrom(...)`
-- header 비용을 비교하려는 benchmark가 아니므로 양쪽 모두 headers가 `null`인
-  overload를 사용한다. 이를 통해 timed method에서 `RecordHeader` 생성이나 header
-  reset이 allocation 수치에 섞이지 않게 한다.
+- deserialization: 사전 생성한 `ByteArray` 입력 대 동일 bytes를 담은 bounded caller-owned `ByteBuffer`의 `codec.deserializeFrom(...)`
+- header 비용을 비교하려는 benchmark가 아니므로 양쪽 모두 headers가 `null`인 overload를 사용한다. 이를 통해 timed method에서 `RecordHeader` 생성이나 header reset이 allocation 수치에 섞이지 않게 한다.
 
-payload, codec, serialized input, output buffer는 timed method 밖에서 준비한다.
-invocation setup은 position/limit과 필요한 header 상태만 allocation 없이
-복원한다. timed method 안에서 buffer 생성, resize, 복사 준비, correctness assertion을
-하지 않는다. JMH `Blackhole` 또는 반환값으로 결과를 관측한다.
+payload, codec, serialized input, output buffer는 timed method 밖에서 준비한다. invocation setup은 position/limit과 필요한 header 상태만 allocation 없이 복원한다. timed method 안에서 buffer 생성, resize, 복사 준비, correctness assertion을 하지 않는다. JMH `Blackhole` 또는 반환값으로 결과를 관측한다.
 
 ### 8.2 실행과 증거
 
@@ -308,15 +255,9 @@ invocation setup은 position/limit과 필요한 header 상태만 allocation 없�
 - 결과 표와 literal command, 환경, 한계는
   `docs/benchmarks/2026-07-19-kafka-bytebuffer-codec-allocation.md`에 기록한다.
 
-같은 direction과 payload의 buffer path가 두 fresh run에서 모두 ByteArray
-baseline보다 최소 5% 낮은 B/op를 보일 때만 해당 cell에 대해 allocation을
-줄였다고 표현한다. 방향 불일치, 5% 미만, profiler 누락은 `inconclusive`로
-기록한다. 숫자가 낮더라도 underlying serializer가 compatibility fallback을
-사용하는 cell에는 allocation 감소 주장을 하지 않는다.
+같은 direction과 payload의 buffer path가 두 fresh run에서 모두 ByteArray baseline보다 최소 5% 낮은 B/op를 보일 때만 해당 cell에 대해 allocation을 줄였다고 표현한다. 방향 불일치, 5% 미만, profiler 누락은 `inconclusive`로 기록한다. 숫자가 낮더라도 underlying serializer가 compatibility fallback을 사용하는 cell에는 allocation 감소 주장을 하지 않는다.
 
-broker 비용은 측정하지 않으며 이 결과로 producer/consumer throughput 또는
-end-to-end latency를 추론하지 않는다. chart는 필수가 아니며 raw JSON과 표를
-수치 source of truth로 사용한다.
+broker 비용은 측정하지 않으며 이 결과로 producer/consumer throughput 또는 end-to-end latency를 추론하지 않는다. chart는 필수가 아니며 raw JSON과 표를 수치 source of truth로 사용한다.
 
 ## 9. 문서 계약
 
@@ -332,19 +273,14 @@ end-to-end latency를 추론하지 않는다. chart는 필수가 아니며 raw J
 - benchmark report 링크와 측정 환경 한계
 - zero-copy 및 throughput 개선을 주장하지 않는다는 명시
 
-수치의 source of truth는 benchmark report 한 곳으로 유지한다. locale README에는
-결론을 요약하고 같은 report를 링크해 숫자 drift를 방지한다.
+수치의 source of truth는 benchmark report 한 곳으로 유지한다. locale README에는 결론을 요약하고 같은 report를 링크해 숫자 drift를 방지한다.
 
-`benchmark/serializer-benchmark/README.md`와 `README.ko.md`도 함께 갱신한다.
-현재 serializer-only 40-cell matrix와 “#758은 범위 밖”이라는 문구를 그대로
-두지 않고, 새 Kafka codec cell 수와 literal task/JMH 명령, codec-only 경계,
-issue #758 report 링크를 양쪽 문서에 동일하게 반영한다.
+`benchmark/serializer-benchmark/README.md`와 `README.ko.md`도 함께 갱신한다. 현재 serializer-only 40-cell matrix와 “#758은 범위 밖”이라는 문구를 그대로 두지 않고, 새 Kafka codec cell 수와 literal task/JMH 명령, codec-only 경계, issue #758 report 링크를 양쪽 문서에 동일하게 반영한다.
 
 ## 10. 호환성과 보안
 
 - 변경은 새 interface와 `BinaryKafkaCodec`의 additive 구현이다.
-- 기존 `KafkaCodec`, Kafka `Serializer`/`Deserializer`, `ByteArray` 호출자는
-  migration 없이 동작한다.
+- 기존 `KafkaCodec`, Kafka `Serializer`/`Deserializer`, `ByteArray` 호출자는 migration 없이 동작한다.
 - wire bytes와 serializer configuration/registration은 underlying
   `BinarySerializer`가 계속 결정한다.
 - type header key/value와 `allowedTypePackages` 기본값은 변경하지 않는다.
@@ -354,14 +290,9 @@ issue #758 report 링크를 양쪽 문서에 동일하게 반영한다.
 
 ## 11. 예상 변경 범위와 승격 조건
 
-예상 production 변경은 `KafkaCodec.kt`와 `BinaryKafkaCodecs.kt`에 더해 최종 리뷰에서
-발견한 압축 decorator compatibility의 `CompressableBinarySerializer.kt`, cancellation
-분류/전파의 `BufferFailurePolicy.kt`와 `BufferSerializationDefaults.kt`를 포함한다.
-나머지는 focused contract test, 기존 benchmark module, EN/KO README, benchmark
-evidence, 설계/계획 문서다.
+예상 production 변경은 `KafkaCodec.kt`와 `BinaryKafkaCodecs.kt`에 더해 최종 리뷰에서 발견한 압축 decorator compatibility의 `CompressableBinarySerializer.kt`, cancellation 분류/전파의 `BufferFailurePolicy.kt`와 `BufferSerializationDefaults.kt`를 포함한다. 나머지는 focused contract test, 기존 benchmark module, EN/KO README, benchmark evidence, 설계/계획 문서다.
 
-다음 중 하나가 필요해지면 구현 전에 Type A Full Feature로 재분류하고 계획을
-다시 검토한다.
+다음 중 하나가 필요해지면 구현 전에 Type A Full Feature로 재분류하고 계획을 다시 검토한다.
 
 - `KafkaCodec` 자체의 기존 public method 변경
 - 세 개 이상의 codec family에 서로 다른 public buffer 계약 추가
@@ -383,6 +314,4 @@ evidence, 설계/계획 문서다.
 9. review: written artifact와 code의 material 7-Tier review에서 P0/P1 0건
 10. delivery: PR head/local head/remote head 일치, CI와 review/thread 상태 통과
 
-완료 시에도 병합은 자동으로 수행하지 않는다. exact PR/head, CI, review evidence를
-보고한 뒤 새 승인을 받고, history를 선형으로 유지하는 것이 적합하면 rebase merge를
-사용한다.
+완료 시에도 병합은 자동으로 수행하지 않는다. exact PR/head, CI, review evidence를 보고한 뒤 새 승인을 받고, history를 선형으로 유지하는 것이 적합하면 rebase merge를 사용한다.

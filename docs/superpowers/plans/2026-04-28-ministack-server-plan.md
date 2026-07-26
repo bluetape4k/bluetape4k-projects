@@ -39,10 +39,10 @@ FlociServer.kt 패턴 그대로 따르되 MiniStack 특화 부분 적용:
 - companion object: IMAGE/TAG/NAME/PORT/DEFAULT_ACCESS_KEY/DEFAULT_SECRET_KEY/DEFAULT_REGION 상수
 - `invoke(image, tag, useDefaultPort, reuse)` + `invoke(imageName, useDefaultPort, reuse)` factory
 - `init` 블록:
-  - `addExposedPorts(PORT)`
-  - `withReuse(reuse)`
-  - `Wait.forHttp("/_ministack/health").forStatusCode(200).withStartupTimeout(Duration.ofSeconds(60))`
-  - `if (useDefaultPort) exposeCustomPorts(PORT)`
+    - `addExposedPorts(PORT)`
+    - `withReuse(reuse)`
+    - `Wait.forHttp("/_ministack/health").forStatusCode(200).withStartupTimeout(Duration.ofSeconds(60))`
+    - `if (useDefaultPort) exposeCustomPorts(PORT)`
 - `override val port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName`, `propertyNamespace`
 - `propertyKeys()`, `properties()` 구현
 - `withServices()`: no-op (FlociServer 패턴 동일)
@@ -70,7 +70,7 @@ FlociServerTest.kt 패턴 따르되 MiniStack 적용:
 - blank image/tag 검증 (`assertFailsWith<IllegalArgumentException>`)
 - 서버 시작 후 `isRunning.shouldBeTrue()`
 - S3 client 연결 테스트 (path-style access enabled)
-  - bucket 생성 → object put → object get 검증
+    - bucket 생성 → object put → object get 검증
 - `withServices()` no-op 검증
 
 ---
@@ -80,18 +80,22 @@ FlociServerTest.kt 패턴 따르되 MiniStack 적용:
 **경로**: `testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/aws/ministack/services/`
 
 공통 패턴:
+
 - `MiniStackServer.Launcher.miniStack` (no `.withServices()`)
 - `server.awsEndpoint` (LocalStack의 `.endpoint`가 아닌 `AwsEmulatorServer` 인터페이스 속성)
 - `Region.of(server.regionName)` (LocalStack의 `.region`이 아님)
 - `server.getCredentialProvider()`
 
 **MiniStackCloudWatchTest.kt**: CloudWatchTest.kt 1:1 대응
+
 - `put metric data`, `list metrics`, `create/describe log groups/streams`, `put log events`
 
-**MiniStackDynamoDBTest.kt**: DynamoDBTest.kt 1:1 대응  
+**MiniStackDynamoDBTest.kt**: DynamoDBTest.kt 1:1 대응
+
 - `insert/get/update/delete item`, `list tables`
 
 **MiniStackKMSTest.kt**: KMSTest.kt 1:1 대응
+
 - `create key`, `encrypt`, `decrypt`, `disable/enable key`, `create/list/revoke grant`
 - `create/list/delete alias`, `list keys`, `put key policy`
 - ⚠️ `@Disabled` 없이 전체 테스트 실행 (MiniStack KMS 전 기능 지원)
@@ -101,13 +105,16 @@ FlociServerTest.kt 패턴 따르되 MiniStack 적용:
 ### T6. MiniStack Kinesis/S3/SNS 서비스 테스트 (complexity: medium)
 
 **MiniStackKinesisTest.kt**: KinesisTest.kt 1:1 대응
+
 - `create stream`, `put records`, `get records`
 
 **MiniStackS3Test.kt**: S3Test.kt 1:1 대응
+
 - S3Client에 `.serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())` 추가
 - `create bucket`, `put object`, `get object`
 
 **MiniStackSNSTest.kt**: SNSTest.kt 1:1 대응
+
 - `create topic`, `publish`, `subscribe`, `list topics/subscriptions`
 
 ---
@@ -115,9 +122,11 @@ FlociServerTest.kt 패턴 따르되 MiniStack 적용:
 ### T7. MiniStack SQS/STS 서비스 테스트 (complexity: medium)
 
 **MiniStackSQSTest.kt**: SQSTest.kt 1:1 대응
+
 - `create queue`, `send message batch`, `receive message`, `delete message`
 
 **MiniStackSTSTest.kt**: STSTest.kt 1:1 대응
+
 - `get caller identity`, `get session token`
 
 ---
@@ -125,10 +134,12 @@ FlociServerTest.kt 패턴 따르되 MiniStack 적용:
 ### T8. README 업데이트 (complexity: low)
 
 **파일**: `testing/testcontainers/README.md`
+
 - MiniStack 섹션 추가 (LocalStack/Floci 섹션 다음)
 - Docker image, port, health endpoint, 의존성, 예시 코드 포함
 
 **파일**: `testing/testcontainers/README.ko.md`
+
 - 동일 내용 한국어로 작성
 
 ---

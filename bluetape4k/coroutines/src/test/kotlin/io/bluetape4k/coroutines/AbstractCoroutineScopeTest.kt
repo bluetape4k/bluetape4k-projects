@@ -1,5 +1,7 @@
 package io.bluetape4k.coroutines
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
@@ -10,8 +12,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.MethodOrderer

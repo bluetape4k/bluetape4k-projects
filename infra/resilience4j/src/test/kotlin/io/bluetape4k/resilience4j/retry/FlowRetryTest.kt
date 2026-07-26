@@ -1,5 +1,8 @@
 package io.bluetape4k.resilience4j.retry
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.SuspendHelloWorldService
@@ -8,11 +11,8 @@ import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
 
 class FlowRetryTest {
 

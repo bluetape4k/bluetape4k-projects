@@ -1,12 +1,6 @@
 package io.bluetape4k.idgenerators.uuid
 
-import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
-import io.bluetape4k.junit5.coroutines.SuspendedJobTester
-import io.bluetape4k.junit5.coroutines.runSuspendDefault
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.debug
-import io.bluetape4k.utils.Runtimex
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
@@ -14,6 +8,13 @@ import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
+import io.bluetape4k.utils.Runtimex
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
@@ -21,7 +22,6 @@ import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.security.SecureRandom
 import java.util.concurrent.ConcurrentHashMap
-import io.bluetape4k.assertions.assertFailsWith
 
 class UuidTest {
     companion object: KLoggingChannel() {

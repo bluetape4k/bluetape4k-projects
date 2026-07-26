@@ -1,29 +1,29 @@
 #!/usr/bin/env node
 
-import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import {execFileSync} from "node:child_process";
+import {existsSync, readFileSync, writeFileSync} from "node:fs";
+import {join} from "node:path";
 
 const ROOT = process.cwd();
 const OUT = join(ROOT, "docs/images/readme-diagrams");
 const CAIROSVG = process.env.CAIROSVG ?? "cairosvg";
 
 const sources = [
-  "utils/idgenerators/README.md",
-  "utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/ULID.kt",
-  "utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/UlidGenerator.kt",
-  "utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDFactory.kt",
-  "utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDMonotonic.kt",
-  "utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDStatefulMonotonic.kt",
+    "utils/idgenerators/README.md",
+    "utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/ULID.kt",
+    "utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/UlidGenerator.kt",
+    "utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDFactory.kt",
+    "utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDMonotonic.kt",
+    "utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDStatefulMonotonic.kt",
 ];
 
 for (const source of sources) {
-  if (!existsSync(join(ROOT, source))) throw new Error(`Missing evidence source: ${source}`);
+    if (!existsSync(join(ROOT, source))) throw new Error(`Missing evidence source: ${source}`);
 }
 
 function assertContains(source, pattern, label) {
-  const text = readFileSync(join(ROOT, source), "utf8");
-  if (!pattern.test(text)) throw new Error(`Expected ${label} in ${source}`);
+    const text = readFileSync(join(ROOT, source), "utf8");
+    if (!pattern.test(text)) throw new Error(`Expected ${label} in ${source}`);
 }
 
 assertContains(sources[0], /Generator selection:[\s\S]*utils-idgenerators-diagram-05\.png/, "README ULID generator selection slot");
@@ -40,34 +40,34 @@ const width = 3400;
 const height = 1720;
 
 const palette = {
-  slate: ["#F8FAFC", "#64748B", "#475569"],
-  blue: ["#EFF6FF", "#2563EB", "#1D4ED8"],
-  teal: ["#F0FDFA", "#0D9488", "#0F766E"],
-  green: ["#F0FDF4", "#16A34A", "#15803D"],
-  amber: ["#FFF7ED", "#EA580C", "#C2410C"],
-  pink: ["#FDF2F8", "#DB2777", "#BE185D"],
-  violet: ["#F5F3FF", "#7C3AED", "#6D28D9"],
+    slate: ["#F8FAFC", "#64748B", "#475569"],
+    blue: ["#EFF6FF", "#2563EB", "#1D4ED8"],
+    teal: ["#F0FDFA", "#0D9488", "#0F766E"],
+    green: ["#F0FDF4", "#16A34A", "#15803D"],
+    amber: ["#FFF7ED", "#EA580C", "#C2410C"],
+    pink: ["#FDF2F8", "#DB2777", "#BE185D"],
+    violet: ["#F5F3FF", "#7C3AED", "#6D28D9"],
 };
 
 function esc(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
 }
 
 function markerDefs() {
-  return Object.entries(palette).map(([name, [, stroke, dark]]) => `
+    return Object.entries(palette).map(([name, [, stroke, dark]]) => `
   <marker id="arrow-${name}" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="${dark}"/></marker>
   <marker id="inherit-${name}" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="${stroke}" stroke-width="2.2"/></marker>`).join("\n");
 }
 
-function classBox({ id, x, y, w, h, color, kind, title, attrs = [], ops = [] }) {
-  const [fill, stroke, dark] = palette[color];
-  const attrY = y + 116;
-  const opY = attrs.length ? attrY + attrs.length * 25 + 28 : y + 118;
-  return `<g id="${esc(id)}">
+function classBox({id, x, y, w, h, color, kind, title, attrs = [], ops = []}) {
+    const [fill, stroke, dark] = palette[color];
+    const attrY = y + 116;
+    const opY = attrs.length ? attrY + attrs.length * 25 + 28 : y + 118;
+    return `<g id="${esc(id)}">
   <rect class="classBox" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
   <text class="kind" x="${x + w / 2}" y="${y + 30}" text-anchor="middle">${esc(kind)}</text>
   <text class="classTitle" x="${x + w / 2}" y="${y + 66}" text-anchor="middle">${esc(title)}</text>
@@ -78,164 +78,202 @@ function classBox({ id, x, y, w, h, color, kind, title, attrs = [], ops = [] }) 
 </g>`;
 }
 
-function lane({ x, y, w, h, title }) {
-  return `<g>
+function lane({x, y, w, h, title}) {
+    return `<g>
   <rect class="lane" x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/>
   <text class="laneTitle" x="${x + 26}" y="${y + 42}">${esc(title)}</text>
 </g>`;
 }
 
-function edge({ from, to, points, color, type = "uses" }) {
-  const [, , dark] = palette[color];
-  const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
-  const marker = type === "inherit" || type === "implements" ? `inherit-${color}` : `arrow-${color}`;
-  const klass = type === "implements" ? "edge dashed" : "edge";
-  return `<path class="${klass}" data-from="${esc(from)}" data-to="${esc(to)}" d="${d}" stroke="${dark}" marker-end="url(#${marker})"/>`;
+function edge({from, to, points, color, type = "uses"}) {
+    const [, , dark] = palette[color];
+    const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
+    const marker = type === "inherit" || type === "implements" ? `inherit-${color}` : `arrow-${color}`;
+    const klass = type === "implements" ? "edge dashed" : "edge";
+    return `<path class="${klass}" data-from="${esc(from)}" data-to="${esc(to)}" d="${d}" stroke="${dark}" marker-end="url(#${marker})"/>`;
 }
 
 const lanes = [
-  lane({ x: 70, y: 250, w: 760, h: 1310, title: "Factory path" }),
-  lane({ x: 890, y: 250, w: 760, h: 1310, title: "Monotonic path" }),
-  lane({ x: 1710, y: 250, w: 760, h: 1310, title: "Stateful path" }),
-  lane({ x: 2530, y: 250, w: 800, h: 1310, title: "Adapter and selection" }),
+    lane({x: 70, y: 250, w: 760, h: 1310, title: "Factory path"}),
+    lane({x: 890, y: 250, w: 760, h: 1310, title: "Monotonic path"}),
+    lane({x: 1710, y: 250, w: 760, h: 1310, title: "Stateful path"}),
+    lane({x: 2530, y: 250, w: 800, h: 1310, title: "Adapter and selection"}),
 ];
 
 const boxes = [
-  classBox({
-    id: "ULID",
-    x: 1220,
-    y: 170,
-    w: 960,
-    h: 245,
-    color: "blue",
-    kind: "<<interface>>",
-    title: "ULID",
-    attrs: ["mostSignificantBits, leastSignificantBits", "timestamp: Long"],
-    ops: ["toByteArray(), increment()", "Comparable<ULID>"],
-  }),
-  classBox({
-    id: "ULIDCompanion",
-    x: 1220,
-    y: 480,
-    w: 960,
-    h: 260,
-    color: "amber",
-    kind: "companion object",
-    title: "ULID",
-    attrs: ["Factory by ULIDFactory.Default"],
-    ops: ["factory(random): Factory", "monotonic(factory): Monotonic", "statefulMonotonic(factory): StatefulMonotonic"],
-  }),
+    classBox({
+        id: "ULID",
+        x: 1220,
+        y: 170,
+        w: 960,
+        h: 245,
+        color: "blue",
+        kind: "<<interface>>",
+        title: "ULID",
+        attrs: ["mostSignificantBits, leastSignificantBits", "timestamp: Long"],
+        ops: ["toByteArray(), increment()", "Comparable<ULID>"],
+    }),
+    classBox({
+        id: "ULIDCompanion",
+        x: 1220,
+        y: 480,
+        w: 960,
+        h: 260,
+        color: "amber",
+        kind: "companion object",
+        title: "ULID",
+        attrs: ["Factory by ULIDFactory.Default"],
+        ops: ["factory(random): Factory", "monotonic(factory): Monotonic", "statefulMonotonic(factory): StatefulMonotonic"],
+    }),
 
-  classBox({
-    id: "FactoryContract",
-    x: 145,
-    y: 860,
-    w: 610,
-    h: 245,
-    color: "green",
-    kind: "<<interface>>",
-    title: "ULID.Factory",
-    ops: ["randomULID(timestamp): String", "nextULID(timestamp): ULID", "parseULID(text): ULID", "fromByteArray(data): ULID"],
-  }),
-  classBox({
-    id: "ULIDFactory",
-    x: 145,
-    y: 1280,
-    w: 610,
-    h: 245,
-    color: "green",
-    kind: "class",
-    title: "ULIDFactory",
-    attrs: ["random: Random = SecureRandom"],
-    ops: ["creates random high/low bits", "renders 26-char Crockford text"],
-  }),
+    classBox({
+        id: "FactoryContract",
+        x: 145,
+        y: 860,
+        w: 610,
+        h: 245,
+        color: "green",
+        kind: "<<interface>>",
+        title: "ULID.Factory",
+        ops: ["randomULID(timestamp): String", "nextULID(timestamp): ULID", "parseULID(text): ULID", "fromByteArray(data): ULID"],
+    }),
+    classBox({
+        id: "ULIDFactory",
+        x: 145,
+        y: 1280,
+        w: 610,
+        h: 245,
+        color: "green",
+        kind: "class",
+        title: "ULIDFactory",
+        attrs: ["random: Random = SecureRandom"],
+        ops: ["creates random high/low bits", "renders 26-char Crockford text"],
+    }),
 
-  classBox({
-    id: "MonotonicContract",
-    x: 965,
-    y: 860,
-    w: 610,
-    h: 220,
-    color: "teal",
-    kind: "<<interface>>",
-    title: "ULID.Monotonic",
-    ops: ["nextULID(previous, timestamp): ULID", "nextULIDStrict(...): ULID?"],
-  }),
-  classBox({
-    id: "ULIDMonotonic",
-    x: 965,
-    y: 1280,
-    w: 610,
-    h: 245,
-    color: "teal",
-    kind: "class",
-    title: "ULIDMonotonic",
-    attrs: ["factory: ULID.Factory"],
-    ops: ["same timestamp -> previous.increment()", "new timestamp -> factory.nextULID()"],
-  }),
+    classBox({
+        id: "MonotonicContract",
+        x: 965,
+        y: 860,
+        w: 610,
+        h: 220,
+        color: "teal",
+        kind: "<<interface>>",
+        title: "ULID.Monotonic",
+        ops: ["nextULID(previous, timestamp): ULID", "nextULIDStrict(...): ULID?"],
+    }),
+    classBox({
+        id: "ULIDMonotonic",
+        x: 965,
+        y: 1280,
+        w: 610,
+        h: 245,
+        color: "teal",
+        kind: "class",
+        title: "ULIDMonotonic",
+        attrs: ["factory: ULID.Factory"],
+        ops: ["same timestamp -> previous.increment()", "new timestamp -> factory.nextULID()"],
+    }),
 
-  classBox({
-    id: "StatefulContract",
-    x: 1785,
-    y: 860,
-    w: 610,
-    h: 245,
-    color: "violet",
-    kind: "<<interface>>",
-    title: "ULID.StatefulMonotonic",
-    attrs: ["extends ULID.Factory"],
-    ops: ["nextULID(timestamp): ULID", "nextULIDStrict(timestamp): ULID?"],
-  }),
-  classBox({
-    id: "ULIDStatefulMonotonic",
-    x: 1785,
-    y: 1280,
-    w: 610,
-    h: 270,
-    color: "violet",
-    kind: "class",
-    title: "ULIDStatefulMonotonic",
-    attrs: ["factory: ULID.Factory", "monotonic: ULID.Monotonic", "previousRef: atomic<ULID?>"],
-    ops: ["CAS loop updates previous ULID"],
-  }),
+    classBox({
+        id: "StatefulContract",
+        x: 1785,
+        y: 860,
+        w: 610,
+        h: 245,
+        color: "violet",
+        kind: "<<interface>>",
+        title: "ULID.StatefulMonotonic",
+        attrs: ["extends ULID.Factory"],
+        ops: ["nextULID(timestamp): ULID", "nextULIDStrict(timestamp): ULID?"],
+    }),
+    classBox({
+        id: "ULIDStatefulMonotonic",
+        x: 1785,
+        y: 1280,
+        w: 610,
+        h: 270,
+        color: "violet",
+        kind: "class",
+        title: "ULIDStatefulMonotonic",
+        attrs: ["factory: ULID.Factory", "monotonic: ULID.Monotonic", "previousRef: atomic<ULID?>"],
+        ops: ["CAS loop updates previous ULID"],
+    }),
 
-  classBox({
-    id: "UlidGenerator",
-    x: 2625,
-    y: 860,
-    w: 610,
-    h: 270,
-    color: "pink",
-    kind: "class",
-    title: "UlidGenerator",
-    attrs: ["factory: ULID.Factory = ULID", "statefulMonotonic: StatefulMonotonic"],
-    ops: ["IdGenerator<String>", "nextULID(): ULID", "nextId(): 26-char String"],
-  }),
-  classBox({
-    id: "Selection",
-    x: 2625,
-    y: 1190,
-    w: 610,
-    h: 315,
-    color: "slate",
-    kind: "selection guide",
-    title: "Choose a generator",
-    attrs: ["ULID.randomULID(): direct string", "ULID.nextULID(): direct value object", "ULID.monotonic(): caller tracks previous", "ULID.statefulMonotonic(): internal previous", "UlidGenerator(): IdGenerator<String> adapter"],
-    ops: ["default adapter path is stateful monotonic"],
-  }),
+    classBox({
+        id: "UlidGenerator",
+        x: 2625,
+        y: 860,
+        w: 610,
+        h: 270,
+        color: "pink",
+        kind: "class",
+        title: "UlidGenerator",
+        attrs: ["factory: ULID.Factory = ULID", "statefulMonotonic: StatefulMonotonic"],
+        ops: ["IdGenerator<String>", "nextULID(): ULID", "nextId(): 26-char String"],
+    }),
+    classBox({
+        id: "Selection",
+        x: 2625,
+        y: 1190,
+        w: 610,
+        h: 315,
+        color: "slate",
+        kind: "selection guide",
+        title: "Choose a generator",
+        attrs: ["ULID.randomULID(): direct string", "ULID.nextULID(): direct value object", "ULID.monotonic(): caller tracks previous", "ULID.statefulMonotonic(): internal previous", "UlidGenerator(): IdGenerator<String> adapter"],
+        ops: ["default adapter path is stateful monotonic"],
+    }),
 ];
 
 const edges = [
-  edge({ from: "ULIDFactory", to: "ULID.Factory", points: [[450, 1280], [450, 1105]], color: "green", type: "implements" }),
-  edge({ from: "ULIDMonotonic", to: "ULID.Monotonic", points: [[1270, 1280], [1270, 1080]], color: "teal", type: "implements" }),
-  edge({ from: "ULIDStatefulMonotonic", to: "ULID.StatefulMonotonic", points: [[2090, 1280], [2090, 1105]], color: "violet", type: "implements" }),
+    edge({
+        from: "ULIDFactory",
+        to: "ULID.Factory",
+        points: [[450, 1280], [450, 1105]],
+        color: "green",
+        type: "implements"
+    }),
+    edge({
+        from: "ULIDMonotonic",
+        to: "ULID.Monotonic",
+        points: [[1270, 1280], [1270, 1080]],
+        color: "teal",
+        type: "implements"
+    }),
+    edge({
+        from: "ULIDStatefulMonotonic",
+        to: "ULID.StatefulMonotonic",
+        points: [[2090, 1280], [2090, 1105]],
+        color: "violet",
+        type: "implements"
+    }),
 
-  edge({ from: "ULID companion", to: "ULID.Factory", points: [[1460, 740], [1460, 805], [450, 805], [450, 860]], color: "green" }),
-  edge({ from: "ULID companion", to: "ULID.Monotonic", points: [[1700, 740], [1700, 805], [1270, 805], [1270, 860]], color: "teal" }),
-  edge({ from: "ULID companion", to: "ULID.StatefulMonotonic", points: [[1940, 740], [1940, 805], [2090, 805], [2090, 860]], color: "violet" }),
+    edge({
+        from: "ULID companion",
+        to: "ULID.Factory",
+        points: [[1460, 740], [1460, 805], [450, 805], [450, 860]],
+        color: "green"
+    }),
+    edge({
+        from: "ULID companion",
+        to: "ULID.Monotonic",
+        points: [[1700, 740], [1700, 805], [1270, 805], [1270, 860]],
+        color: "teal"
+    }),
+    edge({
+        from: "ULID companion",
+        to: "ULID.StatefulMonotonic",
+        points: [[1940, 740], [1940, 805], [2090, 805], [2090, 860]],
+        color: "violet"
+    }),
 
-  edge({ from: "UlidGenerator", to: "ULID.StatefulMonotonic", points: [[2930, 860], [2930, 805], [2090, 805], [2090, 860]], color: "pink" }),
-  edge({ from: "Selection", to: "UlidGenerator", points: [[2930, 1190], [2930, 1130]], color: "slate" }),
+    edge({
+        from: "UlidGenerator",
+        to: "ULID.StatefulMonotonic",
+        points: [[2930, 860], [2930, 805], [2090, 805], [2090, 860]],
+        color: "pink"
+    }),
+    edge({from: "Selection", to: "UlidGenerator", points: [[2930, 1190], [2930, 1130]], color: "slate"}),
 ];
 
 const svg = `<svg data-intent="Explain ULID generator selection and class relationships from current source." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="ULID Generator Selection">
@@ -271,5 +309,5 @@ ${boxes.join("\n")}
 const svgPath = join(OUT, "utils-idgenerators-diagram-05.svg");
 const pngPath = join(OUT, "utils-idgenerators-diagram-05.png");
 writeFileSync(svgPath, svg.replace(/[ \t]+$/gm, ""));
-execFileSync(CAIROSVG, [svgPath, "-o", pngPath, "--output-width", String(width * 2), "--output-height", String(height * 2)], { stdio: "inherit" });
+execFileSync(CAIROSVG, [svgPath, "-o", pngPath, "--output-width", String(width * 2), "--output-height", String(height * 2)], {stdio: "inherit"});
 console.log("Generated utils-idgenerators-diagram-05.svg/png");

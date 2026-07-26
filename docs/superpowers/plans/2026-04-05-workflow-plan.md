@@ -1,7 +1,6 @@
 # bluetape4k-workflow 구현 플랜
 
-**작성일**: 2026-04-05
-**스펙**: `docs/superpowers/specs/2026-04-05-workflow-design.md`
+**작성일**: 2026-04-05 **스펙**: `docs/superpowers/specs/2026-04-05-workflow-design.md`
 **레퍼런스**: [j-easy/easy-flows](https://github.com/j-easy/easy-flows)
 
 ---
@@ -16,12 +15,12 @@
 
 ## 태스크 요약
 
-| Complexity | 태스크 수 | 설명 |
-|:----------:|:---------:|------|
-| **high** | 4 | 핵심 API, 동기 Workflow 구현, 코루틴 Workflow 구현, Flow 스트리밍 |
-| **medium** | 5 | 동기 DSL, 코루틴 DSL, 동기 테스트, 코루틴 테스트, WorkContext/어댑터 테스트 |
-| **low** | 3 | 모듈 초기화, README 작성, CLAUDE.md 업데이트 |
-| **합계** | **12** | |
+| Complexity | 태스크 수 | 설명                                                                        |
+|:----------:|:---------:|-----------------------------------------------------------------------------|
+|  **high**  |     4     | 핵심 API, 동기 Workflow 구현, 코루틴 Workflow 구현, Flow 스트리밍           |
+| **medium** |     5     | 동기 DSL, 코루틴 DSL, 동기 테스트, 코루틴 테스트, WorkContext/어댑터 테스트 |
+|  **low**   |     3     | 모듈 초기화, README 작성, CLAUDE.md 업데이트                                |
+|  **합계**  |  **12**   |                                                                             |
 
 ## 병렬 실행 그룹
 
@@ -63,12 +62,12 @@ Group G: Task 12 (최종 빌드 검증)
   ```
 - `settings.gradle.kts` — `utils/workflow` 자동 등록 확인 (`includeModules` 방식)
 - 디렉토리 구조 생성:
-  - `src/main/kotlin/io/bluetape4k/workflow/api/`
-  - `src/main/kotlin/io/bluetape4k/workflow/core/`
-  - `src/main/kotlin/io/bluetape4k/workflow/coroutines/`
-  - `src/test/kotlin/io/bluetape4k/workflow/api/`
-  - `src/test/kotlin/io/bluetape4k/workflow/core/`
-  - `src/test/kotlin/io/bluetape4k/workflow/coroutines/`
+    - `src/main/kotlin/io/bluetape4k/workflow/api/`
+    - `src/main/kotlin/io/bluetape4k/workflow/core/`
+    - `src/main/kotlin/io/bluetape4k/workflow/coroutines/`
+    - `src/test/kotlin/io/bluetape4k/workflow/api/`
+    - `src/test/kotlin/io/bluetape4k/workflow/core/`
+    - `src/test/kotlin/io/bluetape4k/workflow/coroutines/`
 - **AC**: `./gradlew :bluetape4k-workflow:dependencies` 성공
 
 ---
@@ -77,40 +76,42 @@ Group G: Task 12 (최종 빌드 검증)
 
 ### 2-1. 기본 타입
 
-| 파일 | 내용 |
-|------|------|
-| `WorkStatus.kt` | `enum class WorkStatus { COMPLETED, FAILED, PARTIAL }` |
-| `WorkReport.kt` | `sealed interface WorkReport { Success, Failure, PartialSuccess }` — `status`, `context`, `error` 프로퍼티. `PartialSuccess`는 `failedReports: List<WorkReport>` 보유, `status = PARTIAL` |
-| `WorkContext.kt` | `ConcurrentHashMap` 기반, `get<T>()`, `set()`, `remove()`, `contains()`, `compute()`, `snapshot()`, `merge()` |
-| `ErrorStrategy.kt` | `enum class ErrorStrategy { STOP, CONTINUE }` (CONTINUE 전략은 `PartialSuccess`로 실패 반환, well-known 키 불필요) |
-| `RetryPolicy.kt` | `data class RetryPolicy(maxAttempts, delay, backoffMultiplier, maxDelay)` + `NONE`/`DEFAULT` companion. `maxAttempts` = 총 시도 횟수(최초 1회 + 재시도), `maxRetries` 편의 프로퍼티 (`= maxAttempts - 1`) |
-| `WorkflowDsl.kt` | `@DslMarker annotation class WorkflowDsl` |
+| 파일               | 내용                                                                                                                                                                                                      |
+|--------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `WorkStatus.kt`    | `enum class WorkStatus { COMPLETED, FAILED, PARTIAL }`                                                                                                                                                    |
+| `WorkReport.kt`    | `sealed interface WorkReport { Success, Failure, PartialSuccess }` — `status`, `context`, `error` 프로퍼티. `PartialSuccess`는 `failedReports: List<WorkReport>` 보유, `status = PARTIAL`                 |
+| `WorkContext.kt`   | `ConcurrentHashMap` 기반, `get<T>()`, `set()`, `remove()`, `contains()`, `compute()`, `snapshot()`, `merge()`                                                                                             |
+| `ErrorStrategy.kt` | `enum class ErrorStrategy { STOP, CONTINUE }` (CONTINUE 전략은 `PartialSuccess`로 실패 반환, well-known 키 불필요)                                                                                        |
+| `RetryPolicy.kt`   | `data class RetryPolicy(maxAttempts, delay, backoffMultiplier, maxDelay)` + `NONE`/`DEFAULT` companion. `maxAttempts` = 총 시도 횟수(최초 1회 + 재시도), `maxRetries` 편의 프로퍼티 (`= maxAttempts - 1`) |
+| `WorkflowDsl.kt`   | `@DslMarker annotation class WorkflowDsl`                                                                                                                                                                 |
 
 ### 2-2. Work 인터페이스
 
-| 파일 | 내용 |
-|------|------|
-| `Work.kt` | `fun interface Work { fun execute(context: WorkContext): WorkReport }` |
-| `NamedWork.kt` | `class NamedWork(name, delegate: Work) : Work` + 팩토리 `fun Work(name, block)` |
-| `SuspendWork.kt` | `fun interface SuspendWork { suspend fun execute(context: WorkContext): WorkReport }` |
+| 파일                  | 내용                                                                                                        |
+|-----------------------|-------------------------------------------------------------------------------------------------------------|
+| `Work.kt`             | `fun interface Work { fun execute(context: WorkContext): WorkReport }`                                      |
+| `NamedWork.kt`        | `class NamedWork(name, delegate: Work) : Work` + 팩토리 `fun Work(name, block)`                             |
+| `SuspendWork.kt`      | `fun interface SuspendWork { suspend fun execute(context: WorkContext): WorkReport }`                       |
 | `NamedSuspendWork.kt` | `class NamedSuspendWork(name, delegate: SuspendWork) : SuspendWork` + 팩토리 `fun SuspendWork(name, block)` |
-| `WorkAdapters.kt` | `Work.asSuspend()` (Dispatchers.IO 래핑), `SuspendWork.asBlocking()` (runBlocking 래핑) |
+| `WorkAdapters.kt`     | `Work.asSuspend()` (Dispatchers.IO 래핑), `SuspendWork.asBlocking()` (runBlocking 래핑)                     |
 
 ### 2-3. 마커 인터페이스
 
-| 파일 | 내용 |
-|------|------|
-| `WorkFlow.kt` | `interface WorkFlow : Work` |
+| 파일                 | 내용                                      |
+|----------------------|-------------------------------------------|
+| `WorkFlow.kt`        | `interface WorkFlow : Work`               |
 | `SuspendWorkFlow.kt` | `interface SuspendWorkFlow : SuspendWork` |
 
 ### 2-4. 기본 상수
 
-| 파일 | 내용 |
-|------|------|
+| 파일                  | 내용                                                  |
+|-----------------------|-------------------------------------------------------|
 | `WorkflowDefaults.kt` | `io.bluetape4k.workflow` 패키지 — 기본 상수 (필요 시) |
 
 - 모든 public 클래스/함수에 Korean KDoc 필수 (스펙의 코드 블록에 이미 작성되어 있으므로 그대로 사용)
-- **AC**: 모든 파일 컴파일 성공, `WorkReport.Success`/`WorkReport.Failure`/`WorkReport.PartialSuccess` 생성 확인, `RetryPolicy.maxRetries` == `maxAttempts - 1` 확인
+-
+
+**AC**: 모든 파일 컴파일 성공, `WorkReport.Success`/`WorkReport.Failure`/`WorkReport.PartialSuccess` 생성 확인, `RetryPolicy.maxRetries` == `maxAttempts - 1` 확인
 
 ---
 
@@ -160,19 +161,20 @@ Group G: Task 12 (최종 빌드 검증)
 
 ### 빌더 클래스
 
-| 빌더 | Top-level 함수 | 중첩 지원 |
-|------|----------------|-----------|
-| `SequentialFlowBuilder` | `sequentialFlow(name) {}` | `parallel {}`, `conditional {}`, `repeat {}`, `retry {}` |
-| `ParallelFlowBuilder` | `parallelFlow(name) {}` | - |
-| `ConditionalFlowBuilder` | `conditionalFlow(name) {}` | `condition {}`, `then()`, `otherwise()` (선택적) |
-| `RepeatFlowBuilder` | `repeatFlow(name) {}` | `execute()`, `repeatWhile {}` / `until {}`, `maxIterations` |
-| `RetryFlowBuilder` | `retryFlow(name) {}` | `execute()`, `policy()` |
-| `WorkflowBuilder` | `workflow(name) {}` | `sequential {}`, `parallel {}`, `conditional {}`, `repeat {}` |
+| 빌더                     | Top-level 함수             | 중첩 지원                                                     |
+|--------------------------|----------------------------|---------------------------------------------------------------|
+| `SequentialFlowBuilder`  | `sequentialFlow(name) {}`  | `parallel {}`, `conditional {}`, `repeat {}`, `retry {}`      |
+| `ParallelFlowBuilder`    | `parallelFlow(name) {}`    | -                                                             |
+| `ConditionalFlowBuilder` | `conditionalFlow(name) {}` | `condition {}`, `then()`, `otherwise()` (선택적)              |
+| `RepeatFlowBuilder`      | `repeatFlow(name) {}`      | `execute()`, `repeatWhile {}` / `until {}`, `maxIterations`   |
+| `RetryFlowBuilder`       | `retryFlow(name) {}`       | `execute()`, `policy()`                                       |
+| `WorkflowBuilder`        | `workflow(name) {}`        | `sequential {}`, `parallel {}`, `conditional {}`, `repeat {}` |
 
 - 모든 빌더에 `@WorkflowDsl` 어노테이션
 - `build()` 메서드는 `internal`
 - `requireNotNull` 검증 (condition, thenWork, work 등 필수 항목)
-- **`WorkflowBuilder`에 루트 중복 선언 가드 추가**: `setRoot()` 메서드에서 `require(rootWork == null)` 체크 → 두 번째 루트 선언 시 `IllegalArgumentException`
+- **`WorkflowBuilder`에 루트 중복 선언 가드
+  추가**: `setRoot()` 메서드에서 `require(rootWork == null)` 체크 → 두 번째 루트 선언 시 `IllegalArgumentException`
 - **AC**: DSL 문법으로 중첩 워크플로 구성 가능, 컴파일 성공, 루트 중복 선언 시 예외 확인
 
 ---
@@ -221,18 +223,19 @@ Group G: Task 12 (최종 빌드 검증)
 
 ### 빌더 클래스
 
-| 빌더 | Top-level 함수 | 중첩 지원 |
-|------|----------------|-----------|
-| `SuspendSequentialFlowBuilder` | `suspendSequentialFlow(name) {}` | `parallel {}`, `conditional {}`, `repeat {}`, `retry {}` |
-| `SuspendParallelFlowBuilder` | `suspendParallelFlow(name) {}` | - |
-| `SuspendConditionalFlowBuilder` | `suspendConditionalFlow(name) {}` | `condition {}`, `then()`, `otherwise()` (선택적) |
-| `SuspendRepeatFlowBuilder` | `suspendRepeatFlow(name) {}` | `execute()`, `repeatWhile {}` / `until {}`, `maxIterations`, `repeatDelay` |
-| `SuspendRetryFlowBuilder` | `suspendRetryFlow(name) {}` | `execute()`, `policy()` |
-| `SuspendWorkflowBuilder` | `suspendWorkflow(name) {}` | `sequential {}`, `parallel {}`, `conditional {}`, `repeat {}` |
+| 빌더                            | Top-level 함수                    | 중첩 지원                                                                  |
+|---------------------------------|-----------------------------------|----------------------------------------------------------------------------|
+| `SuspendSequentialFlowBuilder`  | `suspendSequentialFlow(name) {}`  | `parallel {}`, `conditional {}`, `repeat {}`, `retry {}`                   |
+| `SuspendParallelFlowBuilder`    | `suspendParallelFlow(name) {}`    | -                                                                          |
+| `SuspendConditionalFlowBuilder` | `suspendConditionalFlow(name) {}` | `condition {}`, `then()`, `otherwise()` (선택적)                           |
+| `SuspendRepeatFlowBuilder`      | `suspendRepeatFlow(name) {}`      | `execute()`, `repeatWhile {}` / `until {}`, `maxIterations`, `repeatDelay` |
+| `SuspendRetryFlowBuilder`       | `suspendRetryFlow(name) {}`       | `execute()`, `policy()`                                                    |
+| `SuspendWorkflowBuilder`        | `suspendWorkflow(name) {}`        | `sequential {}`, `parallel {}`, `conditional {}`, `repeat {}`              |
 
 - 모든 빌더에 `@WorkflowDsl` 어노테이션
 - suspend 람다 파라미터 (`condition`, `repeatWhile`, `until`)
-- **`SuspendWorkflowBuilder`에 루트 중복 선언 가드 추가**: `setRoot()` 메서드에서 `require(rootWork == null)` 체크 → 두 번째 루트 선언 시 `IllegalArgumentException`
+- **`SuspendWorkflowBuilder`에 루트 중복 선언 가드
+  추가**: `setRoot()` 메서드에서 `require(rootWork == null)` 체크 → 두 번째 루트 선언 시 `IllegalArgumentException`
 - **AC**: DSL 문법으로 코루틴 중첩 워크플로 구성 가능, 컴파일 성공, 루트 중복 선언 시 예외 확인
 
 ---
@@ -241,11 +244,11 @@ Group G: Task 12 (최종 빌드 검증)
 
 ### 테스트 파일
 
-| 파일 | 시나리오 |
-|------|----------|
+| 파일                     | 시나리오                                                                                        |
+|--------------------------|-------------------------------------------------------------------------------------------------|
 | `api/WorkContextTest.kt` | get/set, remove, contains, compute() 원자적 갱신, merge, snapshot, 병렬 compute() 스레드 안전성 |
-| `api/NamedWorkTest.kt` | NamedWork 이름 전달, Work(name) 팩토리, NamedSuspendWork, SuspendWork(name) 팩토리, SAM 변환 |
-| `api/WorkAdapterTest.kt` | `Work.asSuspend()` 변환 동작, `SuspendWork.asBlocking()` 변환 동작 |
+| `api/NamedWorkTest.kt`   | NamedWork 이름 전달, Work(name) 팩토리, NamedSuspendWork, SuspendWork(name) 팩토리, SAM 변환    |
+| `api/WorkAdapterTest.kt` | `Work.asSuspend()` 변환 동작, `SuspendWork.asBlocking()` 변환 동작                              |
 
 - **AC**: 모든 테스트 통과
 
@@ -255,14 +258,14 @@ Group G: Task 12 (최종 빌드 검증)
 
 ### 테스트 파일
 
-| 파일 | 시나리오 |
-|------|----------|
-| `core/SequentialWorkFlowTest.kt` | 전체 성공, 중간 실패 STOP, 중간 실패 CONTINUE → `PartialSuccess` 반환 + `failedReports` 검증, 전체 실패 CONTINUE → `PartialSuccess`, 빈 works |
-| `core/ParallelWorkFlowTest.kt` | 전체 성공, 일부 실패, Virtual Threads 실행 확인, 커스텀 executor, **invokeAll timeout 시 미완료 태스크 Failure 처리**, timeout 내 정상 완료 |
-| `core/ConditionalWorkFlowTest.kt` | true 분기, false 분기, otherwise 생략 시 no-op, 중첩 조건 |
-| `core/RepeatWorkFlowTest.kt` | 조건 충족 반복, maxIterations 제한, until 조건 |
-| `core/RetryWorkFlowTest.kt` | 성공까지 재시도, maxAttempts 소진 (총 시도 횟수 = maxAttempts 확인), 지수 백오프 간격 확인, maxDelay 상한, **`maxRetries` 편의 프로퍼티 검증** |
-| `core/WorkflowDslTest.kt` | sequentialFlow DSL, parallelFlow DSL, conditionalFlow DSL, repeatFlow DSL, retryFlow DSL, 중첩 workflow DSL, **루트 중복 선언 시 `IllegalArgumentException` 검증** |
+| 파일                              | 시나리오                                                                                                                                                           |
+|-----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `core/SequentialWorkFlowTest.kt`  | 전체 성공, 중간 실패 STOP, 중간 실패 CONTINUE → `PartialSuccess` 반환 + `failedReports` 검증, 전체 실패 CONTINUE → `PartialSuccess`, 빈 works                      |
+| `core/ParallelWorkFlowTest.kt`    | 전체 성공, 일부 실패, Virtual Threads 실행 확인, 커스텀 executor, **invokeAll timeout 시 미완료 태스크 Failure 처리**, timeout 내 정상 완료                        |
+| `core/ConditionalWorkFlowTest.kt` | true 분기, false 분기, otherwise 생략 시 no-op, 중첩 조건                                                                                                          |
+| `core/RepeatWorkFlowTest.kt`      | 조건 충족 반복, maxIterations 제한, until 조건                                                                                                                     |
+| `core/RetryWorkFlowTest.kt`       | 성공까지 재시도, maxAttempts 소진 (총 시도 횟수 = maxAttempts 확인), 지수 백오프 간격 확인, maxDelay 상한, **`maxRetries` 편의 프로퍼티 검증**                     |
+| `core/WorkflowDslTest.kt`         | sequentialFlow DSL, parallelFlow DSL, conditionalFlow DSL, repeatFlow DSL, retryFlow DSL, 중첩 workflow DSL, **루트 중복 선언 시 `IllegalArgumentException` 검증** |
 
 - **AC**: 모든 테스트 통과, `PartialSuccess` 반환 + `failedReports` 검증 포함
 
@@ -272,15 +275,15 @@ Group G: Task 12 (최종 빌드 검증)
 
 ### 테스트 파일
 
-| 파일 | 시나리오 |
-|------|----------|
-| `coroutines/SuspendSequentialFlowTest.kt` | 전체 성공, 중간 실패 STOP, **중간 실패 CONTINUE → `PartialSuccess` 반환 + `failedReports` 검증**, ensureActive 취소 전파 |
-| `coroutines/SuspendParallelFlowTest.kt` | 병렬 실행 성공, 실패 전파, coroutineScope 취소 |
-| `coroutines/SuspendConditionalFlowTest.kt` | suspend predicate true/false, otherwise 생략 |
-| `coroutines/SuspendRepeatFlowTest.kt` | delay 반복, 코루틴 취소 전파, ensureActive, maxIterations |
-| `coroutines/SuspendRetryFlowTest.kt` | suspend 재시도, delay 백오프, maxDelay 상한 |
-| `coroutines/WorkReportFlowTest.kt` | workReportFlow 수집, asFlow 단일 실행, 필터링 |
-| `coroutines/SuspendWorkflowDslTest.kt` | 코루틴 DSL 중첩 구성 (sequential > parallel > conditional > repeat > retry), **루트 중복 선언 시 `IllegalArgumentException` 검증** |
+| 파일                                       | 시나리오                                                                                                                           |
+|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| `coroutines/SuspendSequentialFlowTest.kt`  | 전체 성공, 중간 실패 STOP, **중간 실패 CONTINUE → `PartialSuccess` 반환 + `failedReports` 검증**, ensureActive 취소 전파           |
+| `coroutines/SuspendParallelFlowTest.kt`    | 병렬 실행 성공, 실패 전파, coroutineScope 취소                                                                                     |
+| `coroutines/SuspendConditionalFlowTest.kt` | suspend predicate true/false, otherwise 생략                                                                                       |
+| `coroutines/SuspendRepeatFlowTest.kt`      | delay 반복, 코루틴 취소 전파, ensureActive, maxIterations                                                                          |
+| `coroutines/SuspendRetryFlowTest.kt`       | suspend 재시도, delay 백오프, maxDelay 상한                                                                                        |
+| `coroutines/WorkReportFlowTest.kt`         | workReportFlow 수집, asFlow 단일 실행, 필터링                                                                                      |
+| `coroutines/SuspendWorkflowDslTest.kt`     | 코루틴 DSL 중첩 구성 (sequential > parallel > conditional > repeat > retry), **루트 중복 선언 시 `IllegalArgumentException` 검증** |
 
 - 모든 코루틴 테스트는 `runTest` 사용
 - **AC**: 모든 테스트 통과
@@ -292,13 +295,13 @@ Group G: Task 12 (최종 빌드 검증)
 - `utils/workflow/README.md` (영어)
 - `utils/workflow/README.ko.md` (한국어)
 - 내용:
-  - 모듈 소개 + easy-flows 레퍼런스
-  - 핵심 API 설명 (Work, SuspendWork, WorkReport, WorkContext)
-  - 동기 Workflow 예제 (Sequential, Parallel, Conditional, Repeat, Retry)
-  - 코루틴 Workflow 예제
-  - DSL 사용법 (동기 + 코루틴)
-  - 중첩 워크플로 예제 (`workflow {}` / `suspendWorkflow {}`)
-  - 에러 처리 전략 (ErrorStrategy, RetryPolicy, PartialSuccess)
+    - 모듈 소개 + easy-flows 레퍼런스
+    - 핵심 API 설명 (Work, SuspendWork, WorkReport, WorkContext)
+    - 동기 Workflow 예제 (Sequential, Parallel, Conditional, Repeat, Retry)
+    - 코루틴 Workflow 예제
+    - DSL 사용법 (동기 + 코루틴)
+    - 중첩 워크플로 예제 (`workflow {}` / `suspendWorkflow {}`)
+    - 에러 처리 전략 (ErrorStrategy, RetryPolicy, PartialSuccess)
 
 - **AC**: README.md ↔ README.ko.md 상호 링크, 모든 플로우 타입 예제 포함
 
@@ -345,14 +348,14 @@ Task 1 (모듈 초기화)
 
 ## 총 파일 수 (예상)
 
-| 카테고리 | 파일 수 |
-|----------|:-------:|
-| api/ (main) | 12 |
-| core/ (main) | 6 |
-| coroutines/ (main) | 7 |
-| api/ (test) | 3 |
-| core/ (test) | 6 |
-| coroutines/ (test) | 7 |
-| build.gradle.kts | 1 |
-| README | 2 |
-| **합계** | **44** |
+| 카테고리           | 파일 수 |
+|--------------------|:-------:|
+| api/ (main)        |   12    |
+| core/ (main)       |    6    |
+| coroutines/ (main) |    7    |
+| api/ (test)        |    3    |
+| core/ (test)       |    6    |
+| coroutines/ (test) |    7    |
+| build.gradle.kts   |    1    |
+| README             |    2    |
+| **합계**           | **44**  |

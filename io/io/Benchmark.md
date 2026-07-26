@@ -64,8 +64,7 @@ resources/files/Utf8Samples.txt (40kb) 파일을 압축/복원 성능 테스트
 
 ## Same-Condition Compressor Matrix
 
-Issue #746 adds a deterministic compressor-only matrix for cross-ecosystem
-comparison with `bluetape-go` and `bluetape-rs`.
+Issue #746 adds a deterministic compressor-only matrix for cross-ecosystem comparison with `bluetape-go` and `bluetape-rs`.
 
 - Payloads: JSON/Text/Binary/Random x small 1 KiB, medium 64 KiB, large 512 KiB.
 - Normalized compressors: GZip, Deflate, Zstd, LZ4, Snappy.

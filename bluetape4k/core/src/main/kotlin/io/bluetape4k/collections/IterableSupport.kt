@@ -149,7 +149,8 @@ infix fun <T> Iterable<T>.isSameElements(that: Iterable<T>): Boolean {
  */
 fun Iterable<*>.asCharArray(fallback: Char = '\u0000'): CharArray {
     if (this is Collection<*>) {
-        val out = CharArray(size); var i = 0
+        val out = CharArray(size)
+        var i = 0
         for (e in this) out[i++] = e.asChar(fallback)
         return out
     }
@@ -172,7 +173,8 @@ fun Iterable<*>.asCharArray(fallback: Char = '\u0000'): CharArray {
  */
 fun Iterable<*>.asByteArray(fallback: Byte = 0): ByteArray {
     if (this is Collection<*>) {
-        val out = ByteArray(size); var i = 0
+        val out = ByteArray(size)
+        var i = 0
         for (e in this) out[i++] = e.asByte(fallback)
         return out
     }
@@ -195,7 +197,8 @@ fun Iterable<*>.asByteArray(fallback: Byte = 0): ByteArray {
  */
 fun Iterable<*>.asIntArray(fallback: Int = 0): IntArray {
     if (this is Collection<*>) {
-        val out = IntArray(size); var i = 0
+        val out = IntArray(size)
+        var i = 0
         for (e in this) out[i++] = e.asInt(fallback)
         return out
     }
@@ -218,7 +221,8 @@ fun Iterable<*>.asIntArray(fallback: Int = 0): IntArray {
  */
 fun Iterable<*>.asLongArray(fallback: Long = 0): LongArray {
     if (this is Collection<*>) {
-        val out = LongArray(size); var i = 0
+        val out = LongArray(size)
+        var i = 0
         for (e in this) out[i++] = e.asLong(fallback)
         return out
     }
@@ -241,7 +245,8 @@ fun Iterable<*>.asLongArray(fallback: Long = 0): LongArray {
  */
 fun Iterable<*>.asFloatArray(fallback: Float = 0.0F): FloatArray {
     if (this is Collection<*>) {
-        val out = FloatArray(size); var i = 0
+        val out = FloatArray(size)
+        var i = 0
         for (e in this) out[i++] = e.asFloat(fallback)
         return out
     }
@@ -264,7 +269,8 @@ fun Iterable<*>.asFloatArray(fallback: Float = 0.0F): FloatArray {
  */
 fun Iterable<*>.asDoubleArray(fallback: Double = 0.0): DoubleArray {
     if (this is Collection<*>) {
-        val out = DoubleArray(size); var i = 0
+        val out = DoubleArray(size)
+        var i = 0
         for (e in this) out[i++] = e.asDouble(fallback)
         return out
     }
@@ -287,7 +293,8 @@ fun Iterable<*>.asDoubleArray(fallback: Double = 0.0): DoubleArray {
  */
 fun Iterable<*>.asStringArray(fallback: String = EMPTY_STRING): Array<String> {
     if (this is Collection<*>) {
-        val out = arrayOfNulls<String>(size); var i = 0
+        val out = arrayOfNulls<String>(size)
+        var i = 0
         for (e in this) out[i++] = e.asString(fallback)
         @Suppress("UNCHECKED_CAST")
         return out as Array<String>
@@ -316,6 +323,26 @@ inline fun <reified T: Any> Iterable<*>.asArray(): Array<T?> =
  *
  * ```
  * val list = listOf(1, 2, 3)
+ * val results = list.tryMap { it / 0 }
+ * results.forEach { result ->
+ *   result.onSuccess { println("Success: $it") }
+ *   result.onFailure { println("Failure: $it") }
+ *   result.getOrNull() // null
+ * }
+ * ```
+ *
+ * @param mapper 변환 작업
+ * @return [Result] 리스트
+ */
+inline fun <T, R> Iterable<T>.tryMap(mapper: (T) -> R): List<Result<R>> =
+    map { runCatching { mapper(it) }.onFailure { e -> if (e is CancellationException) throw e } }
+
+
+/**
+ * [mapper] 실행의 [Result] 를 반환합니다.
+ *
+ * ```
+ * val list = listOf(1, 2, 3)
  * val results = list.mapCatching { it / 0 }
  * results.forEach { result ->
  *   result.onSuccess { println("Success: $it") }
@@ -326,7 +353,6 @@ inline fun <reified T: Any> Iterable<*>.asArray(): Array<T?> =
  *
  * @param mapper 변환 작업
  * @return [Result] 리스트
- * @see tryMap
  */
 inline fun <T, R> Iterable<T>.mapCatching(mapper: (T) -> R): List<Result<R>> =
     map { runCatching { mapper(it) }.onFailure { e -> if (e is CancellationException) throw e } }

@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 import io.bluetape4k.LibraryName
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.io.toInputStream
 import io.bluetape4k.jackson3.text.AbstractJacksonTextTest
 import io.bluetape4k.jackson3.text.JacksonText
 import io.bluetape4k.jackson3.writeAsString
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tools.jackson.databind.json.JsonMapper

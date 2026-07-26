@@ -1,8 +1,5 @@
 package io.bluetape4k.collections.permutations
 
-import java.util.Objects
-import kotlin.collections.AbstractList
-
 /**
  * 지연 평가(lazy evaluation) 기반의 순열(Permutation) 추상 클래스입니다.
  *
@@ -585,7 +582,8 @@ abstract class Permutation<E>: AbstractList<E>(), Sequence<E> {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Permutation<*>) return false
-        val a = iterator(); val b = other.iterator()
+        val a = iterator();
+        val b = other.iterator()
         while (a.hasNext() && b.hasNext()) {
             if (a.next() != b.next()) return false
         }

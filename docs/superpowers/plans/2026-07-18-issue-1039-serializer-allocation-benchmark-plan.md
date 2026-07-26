@@ -1,12 +1,14 @@
 # Issue #1039 Serializer Allocation Benchmark Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add a standalone, reproducible serializer allocation benchmark that permits only two-run, allocation-backed ByteBuffer claims and documents every optimized and fallback boundary.
 
 **Architecture:** Create `benchmark/serializer-benchmark` using the repository `kotlinx-benchmark` JMH pattern. Keep payload, comparison adapters, and validation support inside the benchmark-only module; measure binary, JSON, and Avro serialization/deserialization separately; derive claim decisions from two raw JMH GC-profiler runs with a tested Python summarizer. Publish measured numbers only in the central benchmark report and link representative English/Korean module documentation to it.
 
-**Tech Stack:** Kotlin 2.3, Java 21, Gradle 9.6, `kotlinx-benchmark`, JMH GC profiler, JUnit 5/Kluent, Python 3 standard library, existing bluetape4k serializer modules.
+**Tech
+Stack:** Kotlin 2.3, Java 21, Gradle 9.6, `kotlinx-benchmark`, JMH GC profiler, JUnit 5/Kluent, Python 3 standard library, existing bluetape4k serializer modules.
 
 ---
 
@@ -66,55 +68,41 @@
 
 ## Traceability Map
 
-| Spec requirement | Plan tasks |
-|---|---|
-| Standalone `kotlinx-benchmark` module and registration | 1, 7, 10 |
-| Deterministic equivalent payload and untimed setup | 2, 3, 4, 5 |
-| ByteArray/default/optimized matrix | 2, 3, 4, 5 |
-| Separate serialization/deserialization | 3, 4, 5 |
-| Two fresh GC-profiler runs and raw artifacts | 6, 7, 8 |
-| 5% same-direction claim rule | 6, 8 |
-| Fallback ergonomic-only exclusion | 2, 4, 6, 9 |
-| Position/limit/overflow/rollback and semantic proof | 2, 7, 9, 10 |
-| Public KDoc, EN/KO README parity, changelog | 9, 10 |
-| ABI, affected tests, Detekt, proportional build | 10 |
-| #755-#758 and release exclusions | 9, 10, 12 |
-| P0/P1 convergence, lesson, exact-head PR | 10, 11, 12 |
+| Spec requirement                                       | Plan tasks  |
+|--------------------------------------------------------|-------------|
+| Standalone `kotlinx-benchmark` module and registration | 1, 7, 10    |
+| Deterministic equivalent payload and untimed setup     | 2, 3, 4, 5  |
+| ByteArray/default/optimized matrix                     | 2, 3, 4, 5  |
+| Separate serialization/deserialization                 | 3, 4, 5     |
+| Two fresh GC-profiler runs and raw artifacts           | 6, 7, 8     |
+| 5% same-direction claim rule                           | 6, 8        |
+| Fallback ergonomic-only exclusion                      | 2, 4, 6, 9  |
+| Position/limit/overflow/rollback and semantic proof    | 2, 7, 9, 10 |
+| Public KDoc, EN/KO README parity, changelog            | 9, 10       |
+| ABI, affected tests, Detekt, proportional build        | 10          |
+| #755-#758 and release exclusions                       | 9, 10, 12   |
+| P0/P1 convergence, lesson, exact-head PR               | 10, 11, 12  |
 
 ## Type A Step 3-R Plan Review Record
 
-The detailed plan was reviewed in the main session because the available native
-subagent surface cannot carry the required installed role identifier. The six
-independent lenses converge as follows:
+The detailed plan was reviewed in the main session because the available native subagent surface cannot carry the required installed role identifier. The six independent lenses converge as follows:
 
-- Performance: primary evidence is normalized allocation (`gc.alloc.rate.norm`),
-  with throughput explicitly diagnostic; two fresh runs and the same-direction
-  5% threshold prevent single-run claims.
-- Stability: setup validates semantic round trips, bounded position/limit
-  behavior, overflow, source-state preservation, and exact 40-cell smoke
-  coverage before evidence is accepted.
-- Security: benchmark configuration and documentation do not change production
-  serializer registration, wire formats, security defaults, or ownership rules.
-- Operations: raw JSON, compact CSV, environment metadata, exact commands, and
-  immutable run IDs make failures diagnosable and reruns distinguishable.
-- Developer/API: the benchmark-only module avoids production dependency and ABI
-  expansion; compatibility defaults and optimized paths remain visibly separate.
-- User/caller: English/Korean documentation states caller-owned buffer guidance,
-  fallback limits, inconclusive results, and deferred #755-#758 scope.
+- Performance: primary evidence is normalized allocation (`gc.alloc.rate.norm`), with throughput explicitly diagnostic; two fresh runs and the same-direction 5% threshold prevent single-run claims.
+- Stability: setup validates semantic round trips, bounded position/limit behavior, overflow, source-state preservation, and exact 40-cell smoke coverage before evidence is accepted.
+- Security: benchmark configuration and documentation do not change production serializer registration, wire formats, security defaults, or ownership rules.
+- Operations: raw JSON, compact CSV, environment metadata, exact commands, and immutable run IDs make failures diagnosable and reruns distinguishable.
+- Developer/API: the benchmark-only module avoids production dependency and ABI expansion; compatibility defaults and optimized paths remain visibly separate.
+- User/caller: English/Korean documentation states caller-owned buffer guidance, fallback limits, inconclusive results, and deferred #755-#758 scope.
 
-Result: P0=0, P1=0. Runtime-generated run IDs and measured verdicts are
-intentionally unresolved until Tasks 8-9; their commands and fail-closed gates
-are fixed here.
+Result: P0=0, P1=0. Runtime-generated run IDs and measured verdicts are intentionally unresolved until Tasks 8-9; their commands and fail-closed gates are fixed here.
 
 ### Task 1: Register The Standalone Benchmark Module
 
-**Complexity:** Medium
-**Depends on:** Approved spec
-**Write scope:** `benchmark/serializer-benchmark/build.gradle.kts`
-**Rollback/Rerun:** Remove only the benchmark module shell if registration or
-non-publication guards fail, then rerun Steps 1-4 before committing.
+**Complexity:** Medium **Depends on:** Approved spec **Write scope:** `benchmark/serializer-benchmark/build.gradle.kts`
+**Rollback/Rerun:** Remove only the benchmark module shell if registration or non-publication guards fail, then rerun Steps 1-4 before committing.
 
 **Files:**
+
 - Create: `benchmark/serializer-benchmark/build.gradle.kts`
 
 - [ ] **Step 1: Prove the module is absent**
@@ -233,14 +221,12 @@ git commit -m "Isolate serializer allocation evidence from production modules" \
 
 ### Task 2: Lock Payload, Fallback, And Buffer Contracts
 
-**Complexity:** High
-**Depends on:** Task 1
-**Write scope:** benchmark module main/test Kotlin sources
-**Required skills:** `test-driven-development`, `bluetape-kotlin-patterns`
-**Rollback/Rerun:** Revert only fixture/payload changes that violate a contract;
-rerun the full support test and every affected serializer contract test.
+**Complexity:** High **Depends on:** Task 1 **Write scope:** benchmark module main/test Kotlin sources **Required
+skills:** `test-driven-development`, `bluetape-kotlin-patterns`
+**Rollback/Rerun:** Revert only fixture/payload changes that violate a contract; rerun the full support test and every affected serializer contract test.
 
 **Files:**
+
 - Create: `benchmark/serializer-benchmark/src/main/kotlin/io/bluetape4k/benchmark/serializer/SerializerBenchmarkPayload.kt`
 - Create: `benchmark/serializer-benchmark/src/main/kotlin/io/bluetape4k/benchmark/serializer/SerializerBenchmarkSupport.kt`
 - Create: `benchmark/serializer-benchmark/src/test/kotlin/io/bluetape4k/benchmark/serializer/SerializerBenchmarkSupportTest.kt`
@@ -337,8 +323,7 @@ Keep test assertions in test sources if production assertion imports would leak 
 - [ ] **Step 4: Implement compatibility adapters and fixtures**
 
 `CompatibilityBinarySerializer`, `CompatibilityJsonSerializer`, and
-`CompatibilityAvroReflectSerializer` implement only existing ByteArray methods
-and deliberately inherit public interface buffer defaults. `SerializerBenchmarkFixture`
+`CompatibilityAvroReflectSerializer` implement only existing ByteArray methods and deliberately inherit public interface buffer defaults. `SerializerBenchmarkFixture`
 must:
 
 ```kotlin
@@ -360,12 +345,8 @@ interface SerializerBenchmarkFixture {
 ```
 
 All target buffers are allocated once with direct capacity `max(wireSize * 2, 4096)`.
-`precomputedOptimizedSource()` returns a direct source for JDK, Kryo, Fory,
-Jackson 2, Jackson 3, and Avro, but a writable array-backed heap source for
-Fastjson2. Fastjson direct and read-only sources are exposed only as explicitly
-labeled fallback controls.
-`validate()` checks semantic equality, exact written length, source state preservation,
-successful non-zero-position writes, and overflow failure before benchmarks compile.
+`precomputedOptimizedSource()` returns a direct source for JDK, Kryo, Fory, Jackson 2, Jackson 3, and Avro, but a writable array-backed heap source for Fastjson2. Fastjson direct and read-only sources are exposed only as explicitly labeled fallback controls.
+`validate()` checks semantic equality, exact written length, source state preservation, successful non-zero-position writes, and overflow failure before benchmarks compile.
 
 - [ ] **Step 5: Run GREEN and affected serializer contract tests**
 
@@ -380,10 +361,7 @@ Run sequentially:
 ./gradlew :bluetape4k-avro:test --tests '*AvroSerializerByteBufferContractTest' --no-configuration-cache
 ```
 
-Expected: all commands PASS. The existing Avro reflect tests already establish
-support for mutable Kotlin data classes with defaults and nested/list fields, so
-failure here is an implementation defect to diagnose rather than a payload-type
-branch in this plan.
+Expected: all commands PASS. The existing Avro reflect tests already establish support for mutable Kotlin data classes with defaults and nested/list fields, so failure here is an implementation defect to diagnose rather than a payload-type branch in this plan.
 
 - [ ] **Step 6: Commit the locked contract**
 
@@ -401,19 +379,16 @@ git commit -m "Make serializer allocation cells comparable before timing them" \
 
 ### Task 3: Add Core Binary Allocation Cells
 
-**Complexity:** High
-**Depends on:** Task 2
-**Write scope:** binary benchmark source only
-**Rollback/Rerun:** Revert only the binary benchmark source if the matrix or
-capability labels are wrong, then rerun benchmark compile and affected contracts.
+**Complexity:** High **Depends on:** Task 2 **Write scope:** binary benchmark source only
+**Rollback/Rerun:** Revert only the binary benchmark source if the matrix or capability labels are wrong, then rerun benchmark compile and affected contracts.
 
 **Files:**
+
 - Create: `benchmark/serializer-benchmark/src/benchmark/kotlin/io/bluetape4k/benchmark/serializer/BinarySerializerAllocationBenchmark.kt`
 
 - [ ] **Step 1: Add a compile-failing benchmark declaration**
 
-Create the class with imports and one call to the not-yet-declared fixture state,
-then run compile to observe RED:
+Create the class with imports and one call to the not-yet-declared fixture state, then run compile to observe RED:
 
 ```kotlin
 @State(Scope.Thread)
@@ -457,9 +432,7 @@ kryoDeserializeCompatibility
 kryoDeserializeOptimized
 ```
 
-Every serialization buffer method resets the preallocated direct target before
-the timed call. Every deserialization method uses a precomputed input. A complete
-method follows this shape:
+Every serialization buffer method resets the preallocated direct target before the timed call. Every deserialization method uses a precomputed input. A complete method follows this shape:
 
 ```kotlin
 @Benchmark
@@ -485,9 +458,7 @@ foryDeserializeByteArray
 foryDeserializeOptimized
 ```
 
-Fory output calls the production `serializeTo` fallback and remains claim-ineligible.
-Fory optimized input uses a precomputed direct bounded source. Do not add an
-optimized-output label.
+Fory output calls the production `serializeTo` fallback and remains claim-ineligible. Fory optimized input uses a precomputed direct bounded source. Do not add an optimized-output label.
 
 - [ ] **Step 4: Compile and inspect generated JMH methods**
 
@@ -516,20 +487,17 @@ git commit -m "Separate core serializer allocation paths by capability" \
 
 ### Task 4: Add JSON Allocation Cells
 
-**Complexity:** High
-**Depends on:** Task 2
-**Write scope:** JSON benchmark source only
-**Rollback/Rerun:** Revert only the JSON benchmark source if dispatch or labels
-are wrong, then rerun benchmark compile and Jackson/Fastjson contracts.
+**Complexity:** High **Depends on:** Task 2 **Write scope:** JSON benchmark source only
+**Rollback/Rerun:** Revert only the JSON benchmark source if dispatch or labels are wrong, then rerun benchmark compile and Jackson/Fastjson contracts.
 
 **Files:**
+
 - Create: `benchmark/serializer-benchmark/src/benchmark/kotlin/io/bluetape4k/benchmark/serializer/JsonSerializerAllocationBenchmark.kt`
 
 - [ ] **Step 1: Write a compile-failing Jackson state**
 
 Declare `JsonSerializerAllocationBenchmark` with `@State(Scope.Thread)`,
-`Mode.Throughput`, and a missing `Jackson2BenchmarkState`; compile and observe
-the undefined-state failure.
+`Mode.Throughput`, and a missing `Jackson2BenchmarkState`; compile and observe the undefined-state failure.
 
 Run:
 
@@ -581,9 +549,7 @@ fastjsonDeserializeFallbackDirect
 fastjsonDeserializeFallbackReadOnly
 ```
 
-The optimized input is a writable array-backed buffer. The direct and read-only
-inputs are separate compatibility controls. All Fastjson output buffer cells
-are claim-ineligible because production calls `JSONB.toBytes` first.
+The optimized input is a writable array-backed buffer. The direct and read-only inputs are separate compatibility controls. All Fastjson output buffer cells are claim-ineligible because production calls `JSONB.toBytes` first.
 
 - [ ] **Step 4: Compile and verify the JSON method matrix**
 
@@ -612,13 +578,11 @@ git commit -m "Keep JSON allocation claims aligned with real buffer dispatch" \
 
 ### Task 5: Add Avro Reflect Allocation Cells
 
-**Complexity:** Medium
-**Depends on:** Task 2
-**Write scope:** Avro benchmark source only
-**Rollback/Rerun:** Revert only the Avro benchmark source if reflect scope or
-cell labels are wrong, then rerun benchmark compile and the Avro contract test.
+**Complexity:** Medium **Depends on:** Task 2 **Write scope:** Avro benchmark source only
+**Rollback/Rerun:** Revert only the Avro benchmark source if reflect scope or cell labels are wrong, then rerun benchmark compile and the Avro contract test.
 
 **Files:**
+
 - Create: `benchmark/serializer-benchmark/src/benchmark/kotlin/io/bluetape4k/benchmark/serializer/AvroSerializerAllocationBenchmark.kt`
 
 - [ ] **Step 1: Write the compile-failing Avro benchmark state**
@@ -646,9 +610,7 @@ avroReflectDeserializeCompatibility
 avroReflectDeserializeOptimized
 ```
 
-The setup serializes and decodes once, checks semantics, and validates that the
-optimized direct target capacity is sufficient. Generic, specific, and list APIs
-must not appear in this benchmark class or receive allocation claims.
+The setup serializes and decodes once, checks semantics, and validates that the optimized direct target capacity is sufficient. Generic, specific, and list APIs must not appear in this benchmark class or receive allocation claims.
 
 - [ ] **Step 3: Compile and run the Avro contract test**
 
@@ -677,13 +639,11 @@ git commit -m "Measure Avro allocation only where reflect paths were exercised" 
 
 ### Task 6: Test And Implement Evidence Summarization
 
-**Complexity:** High
-**Depends on:** Tasks 3-5
-**Write scope:** benchmark Python scripts only
-**Rollback/Rerun:** Any parser or verdict failure invalidates derived evidence;
-fix the bounded scripts, rerun all unit tests, and regenerate every CSV.
+**Complexity:** High **Depends on:** Tasks 3-5 **Write scope:** benchmark Python scripts only
+**Rollback/Rerun:** Any parser or verdict failure invalidates derived evidence; fix the bounded scripts, rerun all unit tests, and regenerate every CSV.
 
 **Files:**
+
 - Create: `benchmark/serializer-benchmark/scripts/summarize-jmh.py`
 - Create: `benchmark/serializer-benchmark/scripts/test_summarize_jmh.py`
 
@@ -705,8 +665,7 @@ For the acceptance test, construct two ByteArray baselines at `1000.0 B/op`
 and two optimized candidates at `940.0 B/op` and `930.0 B/op`; assert verdict
 `accepted` and deltas `-6.0` and `-7.0`. For the sub-threshold test use
 `960.0 B/op` in both runs and assert `inconclusive`. For mixed direction use
-`940.0` then `1010.0` and assert `inconclusive`. Compatibility and fallback
-names must assert `eligible=false` regardless of their scores.
+`940.0` then `1010.0` and assert `inconclusive`. Compatibility and fallback names must assert `eligible=false` regardless of their scores.
 
 The synthetic JMH entries must use real result keys:
 `primaryMetric`, `secondaryMetrics.gc.alloc.rate.norm`,
@@ -738,22 +697,14 @@ python3 benchmark/serializer-benchmark/scripts/summarize-jmh.py compare \
 ```
 
 Implement constants `CLAIM_THRESHOLD_PERCENT = 5.0` and
-`INELIGIBLE_TOKENS = ("Compatibility", "Fallback")`. Define bounded functions
-named `load_jmh`, `extract_rows`, `baseline_name`, `claim_eligible`,
+`INELIGIBLE_TOKENS = ("Compatibility", "Fallback")`. Define bounded functions named `load_jmh`, `extract_rows`, `baseline_name`, `claim_eligible`,
 `compare_runs`, and `write_csv`. `load_jmh` accepts only a JSON top-level list;
-`extract_rows` reads the primary throughput metric plus the three named GC
-secondary metrics; `baseline_name` maps `Optimized`, `OptimizedHeap`,
-`Compatibility`, `Fallback`, `FallbackDirect`, and `FallbackReadOnly` suffixes
-to the same backend/direction `ByteArray` method; `claim_eligible` requires
-`Optimized` and rejects both ineligible
-tokens; `compare_runs` requires exactly two unique run files and matching
-baselines; `write_csv` uses a fixed column order and UTF-8 with newline control.
+`extract_rows` reads the primary throughput metric plus the three named GC secondary metrics; `baseline_name` maps `Optimized`, `OptimizedHeap`,
+`Compatibility`, `Fallback`, `FallbackDirect`, and `FallbackReadOnly` suffixes to the same backend/direction `ByteArray` method; `claim_eligible` requires
+`Optimized` and rejects both ineligible tokens; `compare_runs` requires exactly two unique run files and matching baselines; `write_csv` uses a fixed column order and UTF-8 with newline control.
 
-The parser exits non-zero when raw JSON is malformed, the normalized allocation
-metric is missing, run count is not exactly two for comparison, or a candidate
-lacks a matching ByteArray baseline. It writes `eligible`, `run_1_delta_pct`,
-`run_2_delta_pct`, and `verdict` columns; accepted verdict requires both deltas
-to be `<= -5.0`.
+The parser exits non-zero when raw JSON is malformed, the normalized allocation metric is missing, run count is not exactly two for comparison, or a candidate lacks a matching ByteArray baseline. It writes `eligible`, `run_1_delta_pct`,
+`run_2_delta_pct`, and `verdict` columns; accepted verdict requires both deltas to be `<= -5.0`.
 
 - [ ] **Step 4: Run GREEN and syntax checks**
 
@@ -784,12 +735,9 @@ git commit -m "Make allocation claims fail closed across two fresh runs" \
 
 ### Task 7: Compile And Smoke The Exact Benchmark Matrix
 
-**Complexity:** Medium
-**Depends on:** Tasks 3-6
-**Write scope:** no production writes; temporary build output only
+**Complexity:** Medium **Depends on:** Tasks 3-6 **Write scope:** no production writes; temporary build output only
 **Heavy-command limit:** one benchmark process at a time
-**Rollback/Rerun:** A compile, cell-count, semantic, profiler, or parser failure
-blocks evidence generation; return to the owning task and rerun the full smoke.
+**Rollback/Rerun:** A compile, cell-count, semantic, profiler, or parser failure blocks evidence generation; return to the owning task and rerun the full smoke.
 
 - [ ] **Step 1: Run module tests and benchmark compilation**
 
@@ -830,8 +778,7 @@ python3 benchmark/serializer-benchmark/scripts/summarize-jmh.py run \
 ```
 
 Expected: every declared cell completes, JSON parses, and every row contains
-`gc.alloc.rate.norm`. Any overflow, decode mismatch, missing cell, or profiler
-failure blocks evidence runs.
+`gc.alloc.rate.norm`. Any overflow, decode mismatch, missing cell, or profiler failure blocks evidence runs.
 
 - [ ] **Step 4: Confirm the smoke artifact contains the exact method counts**
 
@@ -853,13 +800,9 @@ Expected: `benchmark_cells=40`.
 
 ### Task 8: Produce Two Fresh Allocation Evidence Runs
 
-**Complexity:** High
-**Depends on:** Task 7
-**Write scope:** `docs/benchmarks/raw/issue-1039/`
+**Complexity:** High **Depends on:** Task 7 **Write scope:** `docs/benchmarks/raw/issue-1039/`
 **Heavy-command limit:** exactly one JMH process at a time; no concurrent Gradle or benchmark execution
-**Rollback/Rerun:** Preserve an invalid run directory for diagnosis, mark it
-invalid in its environment metadata, and create a new run ID; never overwrite
-or count an invalid run among the two accepted fresh runs.
+**Rollback/Rerun:** Preserve an invalid run directory for diagnosis, mark it invalid in its environment metadata, and create a new run ID; never overwrite or count an invalid run among the two accepted fresh runs.
 
 - [ ] **Step 1: Build the evidence jar from a clean benchmark output**
 
@@ -872,8 +815,7 @@ test -f "$JMH_JAR"
 git status --short
 ```
 
-Expected: build PASS; status contains only planned source/doc changes and no
-unexpected generated file.
+Expected: build PASS; status contains only planned source/doc changes and no unexpected generated file.
 
 - [ ] **Step 2: Capture run 1 environment and raw JSON**
 
@@ -962,20 +904,17 @@ find docs/benchmarks/raw/issue-1039 -type f -print -exec wc -c {} \;
 test -z "$(find docs/benchmarks/raw/issue-1039 -type f -size +2M -print)"
 ```
 
-Expected: every artifact is at most 2 MiB. If raw JSON exceeds the limit, retain
-compact JSON/CSV plus a documented external artifact link; do not commit noisy
-profiler dumps.
+Expected: every artifact is at most 2 MiB. If raw JSON exceeds the limit, retain compact JSON/CSV plus a documented external artifact link; do not commit noisy profiler dumps.
 
 ### Task 9: Publish Evidence Without Broadening Claims
 
-**Complexity:** High
-**Depends on:** Task 8
-**Write scope:** benchmark READMEs, benchmark docs/raw, KDoc, module README pairs, changelog
-**Required skill:** `bluetape-writer`
-**Rollback/Rerun:** If prose exceeds comparison evidence, downgrade it to
-inconclusive or ergonomic-only wording and rerun locale and claim-parity checks.
+**Complexity:** High **Depends on:** Task 8 **Write
+scope:** benchmark READMEs, benchmark docs/raw, KDoc, module README pairs, changelog **Required
+skill:** `bluetape-writer`
+**Rollback/Rerun:** If prose exceeds comparison evidence, downgrade it to inconclusive or ergonomic-only wording and rerun locale and claim-parity checks.
 
 **Files:**
+
 - Create: `benchmark/serializer-benchmark/README.md`
 - Create: `benchmark/serializer-benchmark/README.ko.md`
 - Create: `docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md`
@@ -1016,9 +955,7 @@ The report must contain these exact headings:
 
 Copy no number by hand from console output. Derive tables from committed
 `summary.csv` and `comparison.csv`. Name both run IDs and state that only
-`accepted` rows support reduction wording. Record allocations/op as `N/A` when
-the profiler does not expose a stable count. Mark charts `Not produced` because
-tables and raw JSON are the numeric source of truth.
+`accepted` rows support reduction wording. Record allocations/op as `N/A` when the profiler does not expose a stable count. Mark charts `Not produced` because tables and raw JSON are the numeric source of truth.
 
 - [ ] **Step 3: Write benchmark module README parity**
 
@@ -1038,10 +975,7 @@ Do not duplicate result tables in both locales.
 
 - [ ] **Step 4: Update representative module README pairs and public KDoc**
 
-For every file listed in the file map, document the actual comparison verdict.
-Each README pair must include position, limit, overflow, rollback, Java/Kotlin
-usage, optimized/fallback table, evidence link, and limitations. KDoc links to
-the report but keeps API behavior authoritative.
+For every file listed in the file map, document the actual comparison verdict. Each README pair must include position, limit, overflow, rollback, Java/Kotlin usage, optimized/fallback table, evidence link, and limitations. KDoc links to the report but keeps API behavior authoritative.
 
 Rules:
 
@@ -1054,10 +988,7 @@ unmeasured backend variant -> no allocation claim
 
 - [ ] **Step 5: Update benchmark index and changelog**
 
-Add the report to `docs/benchmarks/README.md`. Add a `1.12.0` unreleased section
-to `CHANGELOG.md` only if one does not already exist; otherwise append to its
-performance/documentation section. Mention issue #1039 and the evidence link,
-not a copied numeric table.
+Add the report to `docs/benchmarks/README.md`. Add a `1.12.0` unreleased section to `CHANGELOG.md` only if one does not already exist; otherwise append to its performance/documentation section. Mention issue #1039 and the evidence link, not a copied numeric table.
 
 - [ ] **Step 6: Validate locale and claim parity**
 
@@ -1116,12 +1047,9 @@ git commit -m "Document only serializer allocation reductions the evidence suppo
 
 ### Task 10: Run Proportional Verification And Repository Hazards
 
-**Complexity:** High
-**Depends on:** Task 9
-**Write scope:** no intended writes
-**Heavy-command limit:** sequential Gradle invocations; no parallel benchmark or Testcontainers process
-**Rollback/Rerun:** A failed gate returns to the task that owns the failing file
-or evidence; rerun that targeted gate, then repeat all Task 10 checks.
+**Complexity:** High **Depends on:** Task 9 **Write scope:** no intended writes **Heavy-command
+limit:** sequential Gradle invocations; no parallel benchmark or Testcontainers process
+**Rollback/Rerun:** A failed gate returns to the task that owns the failing file or evidence; rerun that targeted gate, then repeat all Task 10 checks.
 
 - [ ] **Step 1: Run benchmark and parser tests**
 
@@ -1143,8 +1071,7 @@ Expected: PASS.
 ./gradlew :bluetape4k-avro:test --no-configuration-cache
 ```
 
-Expected: every command PASS. Investigate any retry-only pass as a lifecycle or
-environment signal rather than erasing the first failure.
+Expected: every command PASS. Investigate any retry-only pass as a lifecycle or environment signal rather than erasing the first failure.
 
 - [ ] **Step 3: Run serializer ABI proof**
 
@@ -1163,9 +1090,7 @@ Expected: PASS with current head recorded.
 rg -n 'serializer-benchmark' README.md README.ko.md settings.gradle.kts build.gradle.kts .github/workflows || true
 ```
 
-Inspect the result. Add root module-map or workflow path updates only when the
-existing generated/explicit registration chain requires them. Do not add a BOM
-constraint or publication job for the non-published benchmark.
+Inspect the result. Add root module-map or workflow path updates only when the existing generated/explicit registration chain requires them. Do not add a BOM constraint or publication job for the non-published benchmark.
 
 - [ ] **Step 5: Run static and proportional build checks**
 
@@ -1187,8 +1112,7 @@ Expected: PASS with no new warnings attributable to changed files.
 
 - [ ] **Step 6: Verify spec and claim traceability**
 
-Check every `accepted` comparison row against every occurrence of allocation
-claim language:
+Check every `accepted` comparison row against every occurrence of allocation claim language:
 
 ```bash
 rg -n -i 'lower allocation|reduced allocation|allocation reduction|할당.*감소|할당.*절감' \
@@ -1202,27 +1126,21 @@ python3 benchmark/serializer-benchmark/scripts/summarize-jmh.py compare \
 cmp docs/benchmarks/raw/issue-1039/comparison.csv /tmp/issue-1039-comparison-recheck.csv
 ```
 
-Expected: every positive phrase maps to an `accepted` row and regenerated CSV
-is byte-identical.
+Expected: every positive phrase maps to an `accepted` row and regenerated CSV is byte-identical.
 
 ### Task 11: Converge Review And Commit The Durable Lesson
 
-**Complexity:** Medium
-**Depends on:** Task 10
-**Write scope:** `docs/lessons/2026-07-18-issue-1039-serializer-allocation-proof.md` and in-scope blocker fixes only
-**Rollback/Rerun:** Any P0/P1 finding returns to the owning implementation task;
-after the fix, rerun affected verification and all six review lenses.
+**Complexity:** Medium **Depends on:** Task 10 **Write
+scope:** `docs/lessons/2026-07-18-issue-1039-serializer-allocation-proof.md` and in-scope blocker fixes only
+**Rollback/Rerun:** Any P0/P1 finding returns to the owning implementation task; after the fix, rerun affected verification and all six review lenses.
 
 **Files:**
+
 - Create: `docs/lessons/2026-07-18-issue-1039-serializer-allocation-proof.md`
 
 - [ ] **Step 1: Run the Type A performance/stability scan and six review lenses**
 
-Review the exact `origin/develop...HEAD` diff from performance, stability,
-security, Ops, developer/API, and user/caller perspectives. Normalize findings
-to P0/P1/P2/P3. P0/P1 blocks progression; fix and rerun affected commands and
-lenses. P2/P3 is fixed when cheap and in scope or recorded with a durable
-follow-up rationale.
+Review the exact `origin/develop...HEAD` diff from performance, stability, security, Ops, developer/API, and user/caller perspectives. Normalize findings to P0/P1/P2/P3. P0/P1 blocks progression; fix and rerun affected commands and lenses. P2/P3 is fixed when cheap and in scope or recorded with a durable follow-up rationale.
 
 - [ ] **Step 2: Write the lesson**
 
@@ -1241,8 +1159,7 @@ The lesson contains:
 ## Future Guard
 ```
 
-Record the exact two run IDs, accepted/inconclusive count, any profiler
-limitation, and the rule future changes must preserve.
+Record the exact two run IDs, accepted/inconclusive count, any profiler limitation, and the rule future changes must preserve.
 
 - [ ] **Step 3: Commit the lesson and any converged fixes**
 
@@ -1274,11 +1191,9 @@ Expected: clean branch, Lore-compliant head, intended files only, P0=0, P1=0.
 
 ### Task 12: Deliver The Exact-Head Pull Request And Stop Before Merge
 
-**Complexity:** Medium
-**Depends on:** Task 11 and common gates CG-01 through CG-10
-**External side effects:** push branch and create/update PR are authorized by the approved design; merge is not
-**Rollback/Rerun:** A push, CI, metadata, or review failure returns to the owning
-task and exact-head verification; never merge, auto-merge, or delete the branch.
+**Complexity:** Medium **Depends on:** Task 11 and common gates CG-01 through CG-10 **External side
+effects:** push branch and create/update PR are authorized by the approved design; merge is not
+**Rollback/Rerun:** A push, CI, metadata, or review failure returns to the owning task and exact-head verification; never merge, auto-merge, or delete the branch.
 
 - [ ] **Step 1: Refresh issue metadata and PR authority**
 
@@ -1305,10 +1220,7 @@ Expected: local and remote SHAs match exactly.
 
 - [ ] **Step 3: Render the issue-linked PR body from current evidence**
 
-Read the exact run IDs, local head, comparison verdict counts, and verification
-results. Create `/tmp/issue-1039-pr-body.md` with `apply_patch`; do not use shell
-redirection. The English body must contain these sections and no unresolved
-placeholder:
+Read the exact run IDs, local head, comparison verdict counts, and verification results. Create `/tmp/issue-1039-pr-body.md` with `apply_patch`; do not use shell redirection. The English body must contain these sections and no unresolved placeholder:
 
 ```markdown
 ## Why
@@ -1320,8 +1232,7 @@ Closes #1039
 ## DoD Status
 ```
 
-The final Markdown heading must be `## DoD Status`. Include both fresh run IDs,
-accepted/inconclusive counts, exact head SHA, and the actual commands that passed.
+The final Markdown heading must be `## DoD Status`. Include both fresh run IDs, accepted/inconclusive counts, exact head SHA, and the actual commands that passed.
 
 Validate before PR creation:
 
@@ -1341,10 +1252,7 @@ rg -q "$HEAD_SHA" /tmp/issue-1039-pr-body.md
 - [ ] **Step 4: Create the issue-linked PR**
 
 Create an English PR with base `develop`, head
-`feat/issue-754-allocation-proof`, assignee `debop`, milestone `1.12.0`, and
-labels `enhancement`, `performance`, `infra/io`. The body explains why/what,
-lists both fresh run IDs and verification commands, closes #1039, and ends with
-the final heading `## DoD Status`.
+`feat/issue-754-allocation-proof`, assignee `debop`, milestone `1.12.0`, and labels `enhancement`, `performance`, `infra/io`. The body explains why/what, lists both fresh run IDs and verification commands, closes #1039, and ends with the final heading `## DoD Status`.
 
 ```bash
 gh pr create \
@@ -1382,16 +1290,11 @@ gh pr view "$PR" --repo bluetape4k/bluetape4k-projects \
 gh api "repos/bluetape4k/bluetape4k-projects/pulls/$PR/comments"
 ```
 
-Expected: required checks succeed on the exact remote head and no unresolved
-P0/P1 review blocker remains. A failure returns to the owning implementation
-task and reruns affected verification.
+Expected: required checks succeed on the exact remote head and no unresolved P0/P1 review blocker remains. A failure returns to the owning implementation task and reruns affected verification.
 
 - [ ] **Step 7: Report merge readiness and stop**
 
-Render the Type A and common-gate DoD with exact PR URL, head SHA, two run IDs,
-accepted/inconclusive claim counts, tests, ABI, Detekt, build, lesson, CI, and
-review evidence. Leave CG-16 through CG-18 pending and request a fresh merge
-decision. Do not enable auto-merge or run `gh pr merge`.
+Render the Type A and common-gate DoD with exact PR URL, head SHA, two run IDs, accepted/inconclusive claim counts, tests, ABI, Detekt, build, lesson, CI, and review evidence. Leave CG-16 through CG-18 pending and request a fresh merge decision. Do not enable auto-merge or run `gh pr merge`.
 
 ## Plan Completion Criteria
 
@@ -1401,6 +1304,5 @@ decision. Do not enable auto-merge or run `gh pr merge`.
 - All 40 cells smoke successfully and both evidence runs complete sequentially.
 - Positive claims are reproduced by the tested two-run, 5% B/op comparator.
 - Fallback, unmeasured, and inconclusive cells contain no reduction wording.
-- Affected tests, ABI, locale parity, Detekt, proportional build, P0/P1 review,
-  lesson, exact-head PR, CI, and live review gates pass.
+- Affected tests, ABI, locale parity, Detekt, proportional build, P0/P1 review, lesson, exact-head PR, CI, and live review gates pass.
 - The workflow stops at merge-ready state until fresh explicit approval.

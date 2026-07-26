@@ -41,10 +41,10 @@
 - `gradle/libs.versions.toml`에 `spring-kafka4` version ref와 `spring-kafka4`, `spring-kafka4-test` aliases 추가
 - `infra/kafka` 소스와 테스트를 `infra/kafka4`로 포팅
 - Spring Kafka 4 / Boot 4 차이 반영
-  - `@EmbeddedKafka(kraft = true)` 제거
-  - Kafka Streams branch 테스트는 `KafkaStreamBrancher` 제거 후 Kafka Streams `split().branch().defaultBranch()` API 사용
-  - Jackson 3 serializer/deserializer/serde 사용
-  - Spring Boot 4 BOM 적용
+    - `@EmbeddedKafka(kraft = true)` 제거
+    - Kafka Streams branch 테스트는 `KafkaStreamBrancher` 제거 후 Kafka Streams `split().branch().defaultBranch()` API 사용
+    - Jackson 3 serializer/deserializer/serde 사용
+    - Spring Boot 4 BOM 적용
 - 영어/한국어 README 작성
 - targeted compile/test 검증
 - GitHub Nightly workflow의 infra matrix에 `:bluetape4k-kafka4:test`와 kover report task 추가
@@ -58,11 +58,11 @@
 
 ## 4. 설계 선택지
 
-| 선택지 | 내용 | 장점 | 단점 | 결정 |
-|---|---|---|---|---|
-| A | `infra/kafka`를 Kafka 4로 직접 업그레이드 | 중복 없음 | Kafka 3/Spring Kafka 3 사용자 깨짐 | 거절 |
-| B | `infra/kafka4` 신규 모듈에 기존 API를 포팅 | 호환성 경계 명확, issue 목적 부합 | 일부 코드 중복 | 채택 |
-| C | core와 spring 통합을 `infra/kafka4` / `spring-boot4/kafka`로 분리 | 의존성 그래프 가장 엄격 | 이번 issue 범위보다 큼 | 후속 후보 |
+| 선택지 | 내용                                                              | 장점                              | 단점                               | 결정      |
+|--------|-------------------------------------------------------------------|-----------------------------------|------------------------------------|-----------|
+| A      | `infra/kafka`를 Kafka 4로 직접 업그레이드                         | 중복 없음                         | Kafka 3/Spring Kafka 3 사용자 깨짐 | 거절      |
+| B      | `infra/kafka4` 신규 모듈에 기존 API를 포팅                        | 호환성 경계 명확, issue 목적 부합 | 일부 코드 중복                     | 채택      |
+| C      | core와 spring 통합을 `infra/kafka4` / `spring-boot4/kafka`로 분리 | 의존성 그래프 가장 엄격           | 이번 issue 범위보다 큼             | 후속 후보 |
 
 ## 5. 주요 리스크 / 완화
 
@@ -94,11 +94,11 @@
 
 ## 7. Spec Review
 
-| 관점 | 검토 결과 | 반영 |
-|---|---|---|
-| Developer | 전체 포팅은 크지만 기존 API 경계를 유지하면 사용자가 Kafka 3/4를 선택 가능하다. | `infra/kafka` 불변, 신규 모듈 병렬 추가 |
-| Security | Kafka LZ4 transitive CVE 대응은 기존 `infra/kafka`의 exclude + `at.yawk.lz4` 유지가 필요하다. | build.gradle에 동일 exclude 유지 |
-| Ops/SRE | Embedded Kafka KRaft 전용 변화와 test runtime 안정성이 가장 큰 위험이다. | `kraft` 제거와 targeted test를 acceptance에 포함 |
-| User/Caller | Kafka 3 모듈과 Kafka 4 모듈의 선택 기준이 문서에 보여야 한다. | README 양쪽에 compatibility 표 포함 |
-| Critic | Spring Kafka 4 alias 분리가 없으면 기존 Kafka 3 모듈까지 같이 흔들린다. | `spring-kafka4` alias 신규 추가 |
+| 관점           | 검토 결과                                                                                                                                                       | 반영                                                          |
+|----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+| Developer      | 전체 포팅은 크지만 기존 API 경계를 유지하면 사용자가 Kafka 3/4를 선택 가능하다.                                                                                 | `infra/kafka` 불변, 신규 모듈 병렬 추가                       |
+| Security       | Kafka LZ4 transitive CVE 대응은 기존 `infra/kafka`의 exclude + `at.yawk.lz4` 유지가 필요하다.                                                                   | build.gradle에 동일 exclude 유지                              |
+| Ops/SRE        | Embedded Kafka KRaft 전용 변화와 test runtime 안정성이 가장 큰 위험이다.                                                                                        | `kraft` 제거와 targeted test를 acceptance에 포함              |
+| User/Caller    | Kafka 3 모듈과 Kafka 4 모듈의 선택 기준이 문서에 보여야 한다.                                                                                                   | README 양쪽에 compatibility 표 포함                           |
+| Critic         | Spring Kafka 4 alias 분리가 없으면 기존 Kafka 3 모듈까지 같이 흔들린다.                                                                                         | `spring-kafka4` alias 신규 추가                               |
 | Implementation | Spring Kafka 4 test runtime에서 일부 Kafka artifact가 root BOM에 의해 Kafka 3.x로 내려가면 embedded broker가 `MetadataVersion`/`Feature` class 오류로 실패한다. | `reactor-kafka4` alias와 Kafka group resolution strategy 추가 |

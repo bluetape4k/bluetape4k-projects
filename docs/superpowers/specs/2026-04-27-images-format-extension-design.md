@@ -14,13 +14,13 @@
 
 현재 `utils/images` (`bluetape4k-images`) 모듈은 다음 포맷만 지원합니다.
 
-| 포맷 | Reader | Writer | 비고 |
-|------|--------|--------|------|
-| JPEG | JDK ImageIO | `SuspendJpegWriter` | scrimage 기본 |
-| PNG  | JDK ImageIO | `SuspendPngWriter` | scrimage 기본 |
-| GIF  | JDK ImageIO | `SuspendGifWriter` | scrimage 기본 |
-| WebP | scrimage-webp | `SuspendWebpWriter` | libwebp JNI |
-| Animated GIF/WebP | — | `SuspendAnimatedImageWriter` | 자체 인터페이스 |
+| 포맷              | Reader        | Writer                       | 비고            |
+|-------------------|---------------|------------------------------|-----------------|
+| JPEG              | JDK ImageIO   | `SuspendJpegWriter`          | scrimage 기본   |
+| PNG               | JDK ImageIO   | `SuspendPngWriter`           | scrimage 기본   |
+| GIF               | JDK ImageIO   | `SuspendGifWriter`           | scrimage 기본   |
+| WebP              | scrimage-webp | `SuspendWebpWriter`          | libwebp JNI     |
+| Animated GIF/WebP | —             | `SuspendAnimatedImageWriter` | 자체 인터페이스 |
 
 핵심 추상은 `SuspendImageWriter` 인터페이스로, scrimage `ImageWriter`를 상속하면서
 `suspend fun suspendWrite(image, out)` 한 메서드를 `withContext(Dispatchers.IO)`로 감싸는 형태입니다.
@@ -51,14 +51,16 @@ classDiagram
 
 1. **TIFF 단일 페이지 지원** — `ImageFormat.TIFF` 추가, `SuspendTiffWriter` 구현체 추가.
 2. **TIFF 다중 페이지 지원** — `List<ImmutableImage>` 를 한 파일로 직렬화하는 새 인터페이스 + 구현체.
-3. **SVG 래스터화 지원** — SVG 입력(스트림)을 `ImmutableImage`로 변환하는 Rasterizer 추상화 + Apache Batik 구현체.
-4. **AVIF / HEIC 인터페이스 정의** — 추후 `utils/images-vips` 모듈(#136)에서 구현하기 위한 SPI(Service Provider Interface)만 정의. 본 모듈에서는 동작 구현 없음.
+3. **SVG 래스터화 지원** — SVG 입력 (스트림)을 `ImmutableImage`로 변환하는 Rasterizer 추상화 + Apache Batik 구현체.
+4. **AVIF / HEIC 인터페이스
+   정의** — 추후 `utils/images-vips` 모듈 (#136)에서 구현하기 위한 SPI (Service Provider Interface)만 정의. 본 모듈에서는 동작 구현 없음.
 5. **RAW 포맷 (CR2/NEF/ARW 등)** — 본 스코프 제외. 추후 별도 이슈에서 검토.
 
 ### 1.3 목적
 
-- **포맷 커버리지 확대**: 사진/문서 워크플로우에서 자주 마주치는 포맷(TIFF 다중 페이지 = 스캔 문서 / SVG = 벡터 자산)을 1차 지원.
-- **AVIF/HEiC를 위한 분리 가능한 SPI**: 모바일 사진(HEIC) / 차세대 정적 이미지(AVIF) 는 JNI(libvips/libheif) 의존성이 무겁기 때문에, 인터페이스만 코어에 두고 구현은 별도 모듈로 격리.
+- **포맷 커버리지 확대**: 사진/문서 워크플로우에서 자주 마주치는 포맷 (TIFF 다중 페이지 = 스캔 문서 / SVG = 벡터 자산)을 1차 지원.
+- **AVIF/HEiC를 위한 분리 가능한
+  SPI**: 모바일 사진 (HEIC) / 차세대 정적 이미지 (AVIF) 는 JNI (libvips/libheif) 의존성이 무겁기 때문에, 인터페이스만 코어에 두고 구현은 별도 모듈로 격리.
 - **기존 `SuspendImageWriter` 패턴 일관 유지**: 새 포맷도 동일한 suspend 패턴 + `KLoggingChannel` + `companion object` 프리셋 형태로 등록.
 
 ---
@@ -69,8 +71,7 @@ classDiagram
 
 **문제**
 
-scrimage의 `ImageWriter`는 단일 `AwtImage` → `OutputStream` 변환 시그니처에 고정되어 있습니다.
-TIFF 다중 페이지는 `List<ImmutableImage>` → 단일 OutputStream 으로 직렬화해야 하므로
+scrimage의 `ImageWriter`는 단일 `AwtImage` → `OutputStream` 변환 시그니처에 고정되어 있습니다. TIFF 다중 페이지는 `List<ImmutableImage>` → 단일 OutputStream 으로 직렬화해야 하므로
 `SuspendImageWriter` 시그니처와 호환되지 않습니다.
 
 **영향**
@@ -81,7 +82,7 @@ TIFF 다중 페이지는 `List<ImmutableImage>` → 단일 OutputStream 으로 �
 **완화**
 
 - `SuspendMultiPageImageWriter`를 **별도 인터페이스**로 정의하고 `SuspendImageWriter`를 상속하지 않는다.
-- 다중 페이지 writer의 단일 페이지 호환 메서드(`suspendWrite(image, out)`)는 `listOf(image)`로 위임해 명시적 동작 보장.
+- 다중 페이지 writer의 단일 페이지 호환 메서드 (`suspendWrite(image, out)`)는 `listOf(image)`로 위임해 명시적 동작 보장.
 - 클래스 KDoc 상단에 "단일 OutputStream에 다중 IFD를 작성한다"는 계약을 한국어 + `## 동작/계약` 섹션으로 명시.
 
 ### 2.2 리스크 2 — Apache Batik의 보안 / 무거운 의존성
@@ -90,7 +91,7 @@ TIFF 다중 페이지는 `List<ImmutableImage>` → 단일 OutputStream 으로 �
 
 Apache Batik은 SVG → 래스터 변환의 사실상 표준이지만 다음 단점이 있다.
 
-- **보안**: Batik 1.x는 과거 XXE/XSLT 취약점(CVE-2022-44729 외) 이력이 있다. 외부 SVG를 그대로 파싱하면 SSRF, 파일 노출 위험.
+- **보안**: Batik 1.x는 과거 XXE/XSLT 취약점 (CVE-2022-44729 외) 이력이 있다. 외부 SVG를 그대로 파싱하면 SSRF, 파일 노출 위험.
 - **사이즈**: `batik-transcoder` 1종에 약 30+ 개의 transitive jar (xml-apis, fop 등)가 끌려옴. `bluetape4k-images` core jar 비대화.
 - **JDK 호환**: Batik은 JAXP/SAX 구현체에 민감. JDK 21에서는 정상이나, 모듈식 JLink 빌드 시 깨질 수 있음.
 
@@ -101,42 +102,44 @@ Apache Batik은 SVG → 래스터 변환의 사실상 표준이지만 다음 단
 
 **완화**
 
-1. **의존성 격리**: `org.apache.xmlgraphics:batik-transcoder`를 `compileOnly` + `testImplementation`으로 두고 `SuspendSvgRasterizer` 인터페이스만 노출. 사용자가 명시적으로 batik을 추가해야 `BatikSvgRasterizer` 가 동작.
+1. **의존성
+   격리**: `org.apache.xmlgraphics:batik-transcoder`를 `compileOnly` + `testImplementation`으로 두고 `SuspendSvgRasterizer` 인터페이스만 노출. 사용자가 명시적으로 batik을 추가해야 `BatikSvgRasterizer` 가 동작.
 2. **Secure default**: `BatikSvgRasterizer`는 생성 시 `TranscoderInput`/`SAXSVGDocumentFactory`에 다음 보안 옵션을 강제 적용.
 
    TranscodingHints 레벨 (PNGTranscoder hints에 설정):
-   - `SVGAbstractTranscoder.KEY_ALLOW_EXTERNAL_RESOURCES = false`
-   - `XMLAbstractTranscoder.KEY_XML_PARSER_VALIDATING = false`
+    - `SVGAbstractTranscoder.KEY_ALLOW_EXTERNAL_RESOURCES = false`
+    - `XMLAbstractTranscoder.KEY_XML_PARSER_VALIDATING = false`
 
    SAX 파서 레벨 (SAXSVGDocumentFactory 또는 SecurityManagerUserAgent를 통해 설정):
-   - `http://apache.org/xml/features/disallow-doctype-decl = true` (단, SVG 내부 DTD 미사용 가정)
-   - `http://xml.org/sax/features/external-general-entities = false`
-   - `http://xml.org/sax/features/external-parameter-entities = false`
-   - `http://apache.org/xml/features/nonvalidating/load-external-dtd = false`
+    - `http://apache.org/xml/features/disallow-doctype-decl = true` (단, SVG 내부 DTD 미사용 가정)
+    - `http://xml.org/sax/features/external-general-entities = false`
+    - `http://xml.org/sax/features/external-parameter-entities = false`
+    - `http://apache.org/xml/features/nonvalidating/load-external-dtd = false`
 
    UserAgent override (allowExternalResources=false 시):
-   - `SecurityManagerUserAgent : UserAgentAdapter` 구현 → `loadExternalDocument()` 에서 `SecurityException` 발생
-   - data: URI는 허용 (SVG 임베디드 이미지)
+    - `SecurityManagerUserAgent : UserAgentAdapter` 구현 → `loadExternalDocument()` 에서 `SecurityException` 발생
+    - data: URI는 허용 (SVG 임베디드 이미지)
 3. **버전 고정**: Batik `1.18` (2024년 보안 패치 반영) 이상으로 `Libs.kt`에 등록.
 
 ### 2.3 리스크 3 — AVIF/HEIC 인터페이스의 조숙한 추상화 (premature abstraction)
 
 **문제**
 
-본 스코프에서는 AVIF/HEIC를 인터페이스만 정의하고 구현은 `utils/images-vips`에서 진행한다.
-인터페이스를 너무 일찍 고정하면 libvips 실제 구현 시 시그니처 변경이 발생해 호환성을 깨뜨릴 위험.
+본 스코프에서는 AVIF/HEIC를 인터페이스만 정의하고 구현은 `utils/images-vips`에서 진행한다. 인터페이스를 너무 일찍 고정하면 libvips 실제 구현 시 시그니처 변경이 발생해 호환성을 깨뜨릴 위험.
 
 **완화**
 
 - 인터페이스 시그니처는 **기존 `SuspendImageWriter` / Rasterizer 와 동일한 형태**로 단순하게 유지 (옵션은 data class로 묶어 확장 여지 확보).
 - `@MustBeDocumented annotation class IncubatingImageApi` 마커를 추가하고 인터페이스에 부여. 1.7.x 시리즈 동안은 시그니처 변경을 허용한다는 정책을 KDoc에 명시.
-- 기본 구현체(`NoopAvifWriter` / `NoopHeicReader` 같은 stub) 는 만들지 **않는다**. 사용자가 vips 모듈을 추가하지 않으면 컴파일 시점에 사용 불가하도록 둠 → fail-fast.
+- 기본 구현체 (`NoopAvifWriter` / `NoopHeicReader` 같은 stub) 는 만들지
+  **않는다**. 사용자가 vips 모듈을 추가하지 않으면 컴파일 시점에 사용 불가하도록 둠 → fail-fast.
 
 ### 2.4 리스크 4 (보너스) — TwelveMonkeys ImageIO SPI 등록 시점
 
 **문제**
 
-TwelveMonkeys (`com.twelvemonkeys.imageio:imageio-tiff`)는 SPI(`META-INF/services/javax.imageio.spi.ImageReaderSpi`) 자동 등록 방식이다.
+TwelveMonkeys (`com.twelvemonkeys.imageio:imageio-tiff`)는 SPI (`META-INF/services/javax.imageio.spi.ImageReaderSpi`) 자동 등록 방식이다.
+
 - 다른 모듈에서 ImageIO를 먼저 초기화한 뒤 TwelveMonkeys jar가 lazy-load 되면 SPI가 등록되지 않을 수 있다.
 - `IIORegistry.getDefaultInstance()`는 호출 시점에 ClassLoader가 보이는 SPI 만 발견.
 
@@ -157,11 +160,11 @@ TwelveMonkeys (`com.twelvemonkeys.imageio:imageio-tiff`)는 SPI(`META-INF/servic
 - SVG: `batik-transcoder` 단일 jar. `PNGTranscoder` 사용.
 - 모두 `utils/images`에 직접 의존성으로 추가.
 
-| 장점 | 단점 |
-|------|------|
-| 모듈 신설 없이 한 번에 끝남 | jar 크기 증가 (~5MB +) |
+| 장점                                 | 단점                                  |
+|--------------------------------------|---------------------------------------|
+| 모듈 신설 없이 한 번에 끝남          | jar 크기 증가 (~5MB +)                |
 | TwelveMonkeys는 SPI라 코드 변경 최소 | Batik 의존성이 모든 사용자에게 강제됨 |
-| 검증된 라이브러리 조합 | 보안 취약점 발생 시 전체 영향권 |
+| 검증된 라이브러리 조합               | 보안 취약점 발생 시 전체 영향권       |
 
 ### 3.2 옵션 B — TwelveMonkeys 직접 의존 + Batik 옵셔널 (compileOnly)
 
@@ -171,11 +174,11 @@ TwelveMonkeys (`com.twelvemonkeys.imageio:imageio-tiff`)는 SPI(`META-INF/servic
 - SVG는 `SuspendSvgRasterizer` **인터페이스만** core에 두고, `BatikSvgRasterizer` 구현은 `compileOnly` + 테스트에서만 활성화.
 - 사용자가 SVG를 쓰려면 자기 build.gradle에 `org.apache.xmlgraphics:batik-transcoder`를 추가해야 함.
 
-| 장점 | 단점 |
-|------|------|
-| Batik 비사용자는 의존성 미부담 | SVG 사용자는 의존성 한 줄 추가 필요 |
-| 보안 책임을 구현체에 격리 | 모듈 README에 사용 안내 필수 |
-| jar 크기 영향 최소 | 통합 테스트는 testImplementation 필요 |
+| 장점                           | 단점                                  |
+|--------------------------------|---------------------------------------|
+| Batik 비사용자는 의존성 미부담 | SVG 사용자는 의존성 한 줄 추가 필요   |
+| 보안 책임을 구현체에 격리      | 모듈 README에 사용 안내 필수          |
+| jar 크기 영향 최소             | 통합 테스트는 testImplementation 필요 |
 
 ### 3.3 옵션 C — 별도 모듈 분리 (`utils/images-tiff`, `utils/images-svg`)
 
@@ -183,27 +186,27 @@ TwelveMonkeys (`com.twelvemonkeys.imageio:imageio-tiff`)는 SPI(`META-INF/servic
 
 - 포맷별로 sub-module 신설. core는 인터페이스만 노출.
 
-| 장점 | 단점 |
-|------|------|
-| 의존성 완전 격리 | 모듈 수 증가 (모듈 인플레이션) |
+| 장점                    | 단점                                                       |
+|-------------------------|------------------------------------------------------------|
+| 의존성 완전 격리        | 모듈 수 증가 (모듈 인플레이션)                             |
 | AVIF/HEIC와 일관된 패턴 | 실제 사용 시 `images + images-tiff + images-svg` 다중 의존 |
-| 각 포맷별 README 분리 | TIFF는 SPI 자동 등록이라 모듈 분리 이득 작음 |
+| 각 포맷별 README 분리   | TIFF는 SPI 자동 등록이라 모듈 분리 이득 작음               |
 
 ### 3.4 채택 — **옵션 B (하이브리드)**
 
 **판단 근거**
 
-| 기준 | A | B | C |
-|------|---|---|---|
-| jar 비대화 방지 | x | o | o |
+| 기준             | A    | B           | C           |
+|------------------|------|-------------|-------------|
+| jar 비대화 방지  | x    | o           | o           |
 | 사용자 추가 작업 | 없음 | 1줄 (SVG만) | 모듈 의존성 |
-| 모듈 인플레이션 | 없음 | 없음 | 발생 |
-| 보안 격리 | 약 | 강 | 강 |
-| AVIF/HEIC 일관성 | 낮음 | 중 | 높음 |
+| 모듈 인플레이션  | 없음 | 없음        | 발생        |
+| 보안 격리        | 약   | 강          | 강          |
+| AVIF/HEIC 일관성 | 낮음 | 중          | 높음        |
 
 - TIFF는 TwelveMonkeys SPI 특성상 `api`로 두는 편이 `ImageIO.read/write` 사용 측면에서 자연스럽다.
 - SVG는 Batik의 보안/사이즈 부담이 커서 `compileOnly` 격리가 적절하다.
-- AVIF/HEIC는 별도 모듈(#136)에서 구현하는 옵션 C 패턴이 이미 결정되어 있으므로, SVG도 동일한 SPI 패턴을 따르는 옵션 B가 일관성을 확보한다.
+- AVIF/HEIC는 별도 모듈 (#136)에서 구현하는 옵션 C 패턴이 이미 결정되어 있으므로, SVG도 동일한 SPI 패턴을 따르는 옵션 B가 일관성을 확보한다.
 
 ---
 
@@ -381,14 +384,14 @@ class SuspendTiffMultiPageWriter(
 }
 ```
 
-> **원자성/취소 계약**: 
-> - `withContext(Dispatchers.IO)` 대신 `runInterruptible(Dispatchers.IO)` 를 사용해 코루틴 취소 시 Thread.interrupt() 가 전파되어 ImageIO 블로킹 호출이 인터럽트됨.
+> **원자성/취소 계약**:
+> - `withContext(Dispatchers.IO)` 대신 `runInterruptible(Dispatchers.IO)` 를 사용해 코루틴 취소 시 Thread.interrupt () 가 전파되어 ImageIO 블로킹 호출이 인터럽트됨.
 > - `OutputStream`은 사용자가 제공하므로 중간 실패 시 부분 쓰기 책임은 사용자에게 있음 (KDoc 경고).
 > - 파일 경로 기반 헬퍼를 사용할 경우 tmp 파일 → atomic move 패턴으로 부분 파일 방지.
 > - `ImageWriter.dispose()` 호출은 try/finally로 보장.
 
 > **채택 설계**: `SuspendTiffWriter`는 scrimage `ImageWriter` 인터페이스를 직접 구현하고 `SuspendImageWriter`도 구현한다.
-> `SuspendWebpWriter`와 동일 패턴(부모 scrimage 구현체 상속 대신 두 인터페이스 직접 구현). 내부에서 TwelveMonkeys TIFF SPI를 직접 호출하므로
+> `SuspendWebpWriter`와 동일 패턴 (부모 scrimage 구현체 상속 대신 두 인터페이스 직접 구현). 내부에서 TwelveMonkeys TIFF SPI를 직접 호출하므로
 > scrimage `TiffWriter` 클래스가 존재하지 않는 제약을 우회한다. companion object init 블록에서 `IIORegistryUtils.registerApplicationClasspathSpis()` 호출.
 
 #### 4.3.4 `SuspendSvgRasterizer` + `BatikSvgRasterizer`
@@ -469,7 +472,7 @@ interface HeicReader {
 > **채택 패턴**: `bluetape4k-images-vips` 모듈에서 `VipsAvifWriter` / `VipsHeicReader`를 **직접 인스턴스화** 방식으로 구현.
 > ServiceLoader 패턴은 no-arg 생성자 강제 + SPI 등록 오버헤드가 있어 채택하지 않음.
 > 사용자가 vips 모듈 없이 `AvifWriter`/`HeicReader` 구현체를 직접 인스턴스화하면 `NoClassDefFoundError`로 fail-fast.
-> `bluetape4k-images` 코어 모듈에는 구현체가 없으며 스텁(stub)도 제공하지 않음.
+> `bluetape4k-images` 코어 모듈에는 구현체가 없으며 스텁 (stub)도 제공하지 않음.
 
 ### 4.4 의존성 변경
 
@@ -563,10 +566,10 @@ object IIORegistryUtils {
 ### 5.3 문서
 
 - [ ] `utils/images/README.md` (영문) + `README.ko.md` (한국어) 동기 업데이트:
-  - 지원 포맷 표에 TIFF / SVG / (incubating) AVIF, HEIC 행 추가.
-  - SVG 사용 시 Batik 의존성 추가 안내.
-  - AVIF/HEIC는 `bluetape4k-images-vips` 모듈 (#136) 미리 안내.
-  - Mermaid 클래스 다이어그램에 신규 인터페이스 반영.
+    - 지원 포맷 표에 TIFF / SVG / (incubating) AVIF, HEIC 행 추가.
+    - SVG 사용 시 Batik 의존성 추가 안내.
+    - AVIF/HEIC는 `bluetape4k-images-vips` 모듈 (#136) 미리 안내.
+    - Mermaid 클래스 다이어그램에 신규 인터페이스 반영.
 - [ ] 모든 신규 public API에 한국어 KDoc + `## 동작/계약` + `## 예시` 섹션.
 - [ ] `/wiki-update` 스킬로 Obsidian wiki 인덱스 갱신.
 
@@ -581,12 +584,12 @@ object IIORegistryUtils {
 
 ## 6. 의존성 변경 계획 (요약)
 
-| 라이브러리 | 좌표 | 버전 | scope |
-|------------|------|------|-------|
-| TwelveMonkeys ImageIO TIFF | `com.twelvemonkeys.imageio:imageio-tiff` | 3.12.0 | `api` |
-| TwelveMonkeys ImageIO Metadata | `com.twelvemonkeys.imageio:imageio-metadata` | 3.12.0 | `api` |
-| Apache Batik Transcoder | `org.apache.xmlgraphics:batik-transcoder` | 1.18 | `compileOnly` + `testImplementation` |
-| Apache Batik Codec | `org.apache.xmlgraphics:batik-codec` | 1.18 | `compileOnly` + `testImplementation` |
+| 라이브러리                     | 좌표                                         | 버전   | scope                                |
+|--------------------------------|----------------------------------------------|--------|--------------------------------------|
+| TwelveMonkeys ImageIO TIFF     | `com.twelvemonkeys.imageio:imageio-tiff`     | 3.12.0 | `api`                                |
+| TwelveMonkeys ImageIO Metadata | `com.twelvemonkeys.imageio:imageio-metadata` | 3.12.0 | `api`                                |
+| Apache Batik Transcoder        | `org.apache.xmlgraphics:batik-transcoder`    | 1.18   | `compileOnly` + `testImplementation` |
+| Apache Batik Codec             | `org.apache.xmlgraphics:batik-codec`         | 1.18   | `compileOnly` + `testImplementation` |
 
 > 사용자 부담:
 > - TIFF는 자동 동작 (api).
@@ -606,6 +609,6 @@ object IIORegistryUtils {
 
 ## 8. 변경 이력
 
-| 일자 | 내용 |
-|------|------|
+| 일자       | 내용                                    |
+|------------|-----------------------------------------|
 | 2026-04-27 | v1.0 초안 작성 (Issue #134 스코프 확정) |

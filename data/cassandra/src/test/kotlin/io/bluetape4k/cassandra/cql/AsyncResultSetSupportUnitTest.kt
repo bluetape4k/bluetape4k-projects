@@ -2,6 +2,8 @@ package io.bluetape4k.cassandra.cql
 
 import com.datastax.oss.driver.api.core.cql.AsyncResultSet
 import com.datastax.oss.driver.api.core.cql.Row
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.concurrent.failedCompletableFutureOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -10,11 +12,9 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
-import io.bluetape4k.assertions.assertFailsWith
 
 class AsyncResultSetSupportUnitTest: AbstractCassandraTest() {
 

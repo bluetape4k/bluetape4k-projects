@@ -1,6 +1,8 @@
 package io.bluetape4k.http.okhttp3
 
 import com.github.tomakehurst.wiremock.client.WireMock
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.testcontainers.http.WireMockServer
@@ -9,8 +11,6 @@ import okhttp3.ConnectionPool
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,7 +33,7 @@ import java.util.zip.GZIPOutputStream
  */
 class OkHttpDiskCacheVerificationTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private lateinit var wireMock: WireMockServer
     private lateinit var cacheDir: File

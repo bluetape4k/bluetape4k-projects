@@ -4,6 +4,11 @@ import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.metadata.schema.ClusteringOrder
 import com.datastax.oss.driver.api.core.uuid.Uuids
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.cassandra.querybuilder.eq
 import io.bluetape4k.cassandra.querybuilder.literal
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -20,11 +25,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

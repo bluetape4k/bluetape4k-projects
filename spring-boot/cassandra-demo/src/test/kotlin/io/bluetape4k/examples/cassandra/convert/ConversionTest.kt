@@ -2,6 +2,9 @@ package io.bluetape4k.examples.cassandra.convert
 
 import com.datastax.oss.driver.api.core.cql.Row
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.selectFrom
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cassandra.data.getList
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -11,9 +14,6 @@ import io.bluetape4k.spring.cassandra.insertSuspending
 import io.bluetape4k.spring.cassandra.selectOneSuspending
 import io.bluetape4k.spring.cassandra.truncateSuspending
 import kotlinx.coroutines.reactor.awaitSingle
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

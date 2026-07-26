@@ -6,7 +6,6 @@ import io.bluetape4k.http.jdk.sendAwait
 import io.bluetape4k.http.ktor.ktorCioHttpClientOf
 import io.bluetape4k.http.okhttp3.okhttp3DispatcherWithVirtualThread
 import io.bluetape4k.testcontainers.http.BluetapeWebfluxServer
-import io.ktor.client.HttpClient as KtorHttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsBytes
 import io.vertx.core.Vertx
@@ -44,6 +43,7 @@ import java.net.http.HttpResponse
 import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import io.ktor.client.HttpClient as KtorHttpClient
 import okhttp3.Dispatcher as OkHttpDispatcher
 
 /**

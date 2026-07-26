@@ -2,12 +2,12 @@ package io.bluetape4k.cassandra.data
 
 import com.datastax.oss.driver.api.core.data.CqlDuration
 import com.datastax.oss.driver.api.core.data.GettableByIndex
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.net.InetAddress

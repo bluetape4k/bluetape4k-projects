@@ -9,7 +9,6 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlin.coroutines.coroutineContext
 
 /**
  * 소비자가 준비되지 않은 동안 들어온 값을 드롭하는 backpressure 전략을 적용합니다.

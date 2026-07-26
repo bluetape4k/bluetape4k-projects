@@ -1,7 +1,6 @@
 package io.bluetape4k.redis.redisson.benchmark
 
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
-import io.netty.buffer.ByteBufUtil
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
 import org.openjdk.jmh.annotations.Fork

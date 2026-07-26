@@ -7,10 +7,10 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.every
 import io.mockk.mockk
-import io.bluetape4k.junit5.coroutines.runSuspendIO
 import org.junit.jupiter.api.Test
 import org.springframework.data.cassandra.core.AsyncCassandraOperations
 import org.springframework.data.cassandra.core.DeleteOptions
@@ -27,9 +27,9 @@ import java.util.concurrent.CompletableFuture
 
 class AsyncCassandraOperationsCoroutinesUnitTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
-    data class TestEntity(val id: String = "id-1", val name: String = "Test") : Serializable
+    data class TestEntity(val id: String = "id-1", val name: String = "Test"): Serializable
 
     private val testEntity = TestEntity()
     private val testSlice: Slice<TestEntity> = SliceImpl(listOf(testEntity))
@@ -42,22 +42,27 @@ class AsyncCassandraOperationsCoroutinesUnitTest {
     private val mockOps = mockk<AsyncCassandraOperations>().also { ops ->
         // execute
         every { ops.execute(any<com.datastax.oss.driver.api.core.cql.Statement<*>>()) } returns
-            CompletableFuture.completedFuture(mockAsyncResultSet)
+                CompletableFuture.completedFuture(mockAsyncResultSet)
         // select by Statement and Query (split to avoid overload ambiguity)
         every { ops.select(any<com.datastax.oss.driver.api.core.cql.Statement<*>>(), any<Class<TestEntity>>()) } returns
-            CompletableFuture.completedFuture(mutableListOf(testEntity))
+                CompletableFuture.completedFuture(mutableListOf(testEntity))
         every { ops.select(any<Query>(), any<Class<TestEntity>>()) } returns
-            CompletableFuture.completedFuture(mutableListOf(testEntity))
+                CompletableFuture.completedFuture(mutableListOf(testEntity))
         // selectOne by Statement and Query
-        every { ops.selectOne(any<com.datastax.oss.driver.api.core.cql.Statement<*>>(), any<Class<TestEntity>>()) } returns
-            CompletableFuture.completedFuture(testEntity)
+        every {
+            ops.selectOne(
+                any<com.datastax.oss.driver.api.core.cql.Statement<*>>(),
+                any<Class<TestEntity>>()
+            )
+        } returns
+                CompletableFuture.completedFuture(testEntity)
         every { ops.selectOne(any<Query>(), any<Class<TestEntity>>()) } returns
-            CompletableFuture.completedFuture(testEntity)
+                CompletableFuture.completedFuture(testEntity)
         // slice by Statement and Query
         every { ops.slice(any<com.datastax.oss.driver.api.core.cql.Statement<*>>(), any<Class<TestEntity>>()) } returns
-            CompletableFuture.completedFuture(testSlice)
+                CompletableFuture.completedFuture(testSlice)
         every { ops.slice(any<Query>(), any<Class<TestEntity>>()) } returns
-            CompletableFuture.completedFuture(testSlice)
+                CompletableFuture.completedFuture(testSlice)
         // count
         every { ops.count(any<Class<*>>()) } returns CompletableFuture.completedFuture(3L)
         every { ops.count(any<Query>(), any<Class<*>>()) } returns CompletableFuture.completedFuture(3L)
@@ -66,25 +71,25 @@ class AsyncCassandraOperationsCoroutinesUnitTest {
         every { ops.exists(any<String>(), any<Class<*>>()) } returns CompletableFuture.completedFuture(true)
         // selectOneById — use Class<TestEntity> to pick the right overload
         every { ops.selectOneById(any(), any<Class<TestEntity>>()) } returns
-            CompletableFuture.completedFuture(testEntity)
+                CompletableFuture.completedFuture(testEntity)
         // insert — use TestEntity to avoid matching fluent-API Class<T> overload
         every { ops.insert(any<TestEntity>()) } returns CompletableFuture.completedFuture(testEntity)
         every { ops.insert(any<TestEntity>(), any<InsertOptions>()) } returns
-            CompletableFuture.completedFuture(mockEntityWriteResult)
+                CompletableFuture.completedFuture(mockEntityWriteResult)
         // update entity — use TestEntity to avoid matching fluent-API Class<T> overload
         every { ops.update(any<TestEntity>()) } returns CompletableFuture.completedFuture(testEntity)
         every { ops.update(any<TestEntity>(), any<UpdateOptions>()) } returns
-            CompletableFuture.completedFuture(mockEntityWriteResult)
+                CompletableFuture.completedFuture(mockEntityWriteResult)
         // update by Query
         every { ops.update(any<Query>(), any<Update>(), any<Class<*>>()) } returns
-            CompletableFuture.completedFuture(true)
+                CompletableFuture.completedFuture(true)
         // delete entity — use TestEntity to avoid matching fluent-API Class<T> overload
         every { ops.delete(any<TestEntity>()) } returns CompletableFuture.completedFuture(testEntity)
         // delete by Query
         every { ops.delete(any<Query>(), any<Class<*>>()) } returns CompletableFuture.completedFuture(true)
         // delete with options
         every { ops.delete(any<TestEntity>(), any<DeleteOptions>()) } returns
-            CompletableFuture.completedFuture(mockWriteResult)
+                CompletableFuture.completedFuture(mockWriteResult)
         // deleteById
         every { ops.deleteById(any(), any<Class<*>>()) } returns CompletableFuture.completedFuture(true)
         // truncate
@@ -93,7 +98,12 @@ class AsyncCassandraOperationsCoroutinesUnitTest {
 
     @Suppress("UNCHECKED_CAST")
     private val emptyOps = mockk<AsyncCassandraOperations>().also { ops ->
-        every { ops.selectOne(any<com.datastax.oss.driver.api.core.cql.Statement<*>>(), any<Class<TestEntity>>()) } answers {
+        every {
+            ops.selectOne(
+                any<com.datastax.oss.driver.api.core.cql.Statement<*>>(),
+                any<Class<TestEntity>>()
+            )
+        } answers {
             CompletableFuture.completedFuture(null) as CompletableFuture<TestEntity?>
         }
         every { ops.selectOne(any<Query>(), any<Class<TestEntity>>()) } answers {
@@ -102,7 +112,12 @@ class AsyncCassandraOperationsCoroutinesUnitTest {
         every { ops.select(any<Query>(), any<Class<TestEntity>>()) } answers {
             CompletableFuture.completedFuture(null) as CompletableFuture<MutableList<TestEntity>>
         }
-        every { ops.slice(any<com.datastax.oss.driver.api.core.cql.Statement<*>>(), any<Class<TestEntity>>()) } answers {
+        every {
+            ops.slice(
+                any<com.datastax.oss.driver.api.core.cql.Statement<*>>(),
+                any<Class<TestEntity>>()
+            )
+        } answers {
             CompletableFuture.completedFuture(null) as CompletableFuture<Slice<TestEntity>>
         }
         every { ops.slice(any<Query>(), any<Class<TestEntity>>()) } answers {

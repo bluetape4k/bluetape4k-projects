@@ -1,5 +1,7 @@
 package io.bluetape4k.okio.compress
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.io.compressor.StreamingCompressor
@@ -8,12 +10,10 @@ import io.bluetape4k.okio.AbstractOkioTest
 import io.bluetape4k.okio.bufferOf
 import io.bluetape4k.okio.byteStringOf
 import okio.Buffer
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.IOException
 import kotlin.random.Random
-import io.bluetape4k.assertions.assertFailsWith
 
 class CompressableSinkAndSourceTest: AbstractOkioTest() {
     companion object: KLogging()

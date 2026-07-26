@@ -1,13 +1,13 @@
 package io.bluetape4k.cassandra.examples
 
 import com.datastax.oss.driver.api.core.CqlSession
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.CassandraAdmin
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class BasicExamples: AbstractCassandraTest() {

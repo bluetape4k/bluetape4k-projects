@@ -19,7 +19,7 @@ import java.nio.charset.Charset
  * // names == listOf("Alice", "Bob")
  * ```
  */
-interface RecordReader : Closeable {
+interface RecordReader: Closeable {
 
     /**
      * 입력 스트림을 읽어 [Record]를 원하는 타입으로 변환합니다.

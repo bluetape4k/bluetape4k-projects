@@ -1,5 +1,9 @@
 package io.bluetape4k.resilience4j.cache
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.every
@@ -10,15 +14,11 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeLessThan
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.coroutines.cancellation.CancellationException as KotlinCancellationException
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.coroutines.cancellation.CancellationException as KotlinCancellationException
 
 /**
  * [SuspendCacheImpl] 안정성(안전성/메모리) 테스트.

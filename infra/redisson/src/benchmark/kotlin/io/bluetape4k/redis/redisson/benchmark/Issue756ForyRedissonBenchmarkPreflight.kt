@@ -91,7 +91,7 @@ private fun verifyBackend(
 
 private fun preflightSource(kind: Issue756RedissonSourceKind, wire: ByteArray): ByteBuf =
     when (kind) {
-        Issue756RedissonSourceKind.HEAP -> PooledByteBufAllocator.DEFAULT.heapBuffer(PREFLIGHT_PREFIX_SIZE + wire.size)
+        Issue756RedissonSourceKind.HEAP   -> PooledByteBufAllocator.DEFAULT.heapBuffer(PREFLIGHT_PREFIX_SIZE + wire.size)
             .writeZero(PREFLIGHT_PREFIX_SIZE)
             .writeBytes(wire)
             .readerIndex(PREFLIGHT_PREFIX_SIZE)

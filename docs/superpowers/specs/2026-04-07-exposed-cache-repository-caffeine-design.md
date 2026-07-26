@@ -12,15 +12,15 @@
 
 현재 Exposed 캐시 모듈 구조:
 
-| 모듈                       | 역할                              |
-|--------------------------|---------------------------------|
+| 모듈                     | 역할                                         |
+|--------------------------|----------------------------------------------|
 | `exposed-redis-api`      | 공통 캐시 인터페이스 + testFixtures 시나리오 |
-| `exposed-jdbc-lettuce`   | JDBC + Lettuce Redis 캐시 구현      |
-| `exposed-jdbc-redisson`  | JDBC + Redisson Redis 캐시 구현     |
-| `exposed-r2dbc-lettuce`  | R2DBC + Lettuce Redis 캐시 구현     |
-| `exposed-r2dbc-redisson` | R2DBC + Redisson Redis 캐시 구현    |
+| `exposed-jdbc-lettuce`   | JDBC + Lettuce Redis 캐시 구현               |
+| `exposed-jdbc-redisson`  | JDBC + Redisson Redis 캐시 구현              |
+| `exposed-r2dbc-lettuce`  | R2DBC + Lettuce Redis 캐시 구현              |
+| `exposed-r2dbc-redisson` | R2DBC + Redisson Redis 캐시 구현             |
 
-**문제점**: 로컬 캐시(Caffeine 등) 전략 구현체가 없고, `exposed-redis-api`라는 모듈명이 Redis 종속적으로 오해를 유발함.
+**문제점**: 로컬 캐시 (Caffeine 등) 전략 구현체가 없고, `exposed-redis-api`라는 모듈명이 Redis 종속적으로 오해를 유발함.
 
 ### 요구사항
 
@@ -128,13 +128,13 @@ enum class CacheMode {
 
 ### 의존성 업데이트 필요 파일
 
-| 파일                                             | 변경 내용                                                                                                           |
+| 파일                                           | 변경 내용                                                                                                       |
 |------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
 | `data/exposed-jdbc-lettuce/build.gradle.kts`   | `project(":bluetape4k-exposed-redis-api")` → `project(":bluetape4k-exposed-cache")`                             |
-| `data/exposed-jdbc-redisson/build.gradle.kts`  | 동일                                                                                                              |
-| `data/exposed-r2dbc-lettuce/build.gradle.kts`  | 동일                                                                                                              |
-| `data/exposed-r2dbc-redisson/build.gradle.kts` | 동일                                                                                                              |
-| `testFixtures` 의존성 참조 (lettuce/redisson)       | `testFixtures(project(":bluetape4k-exposed-redis-api"))` → `testFixtures(project(":bluetape4k-exposed-cache"))` |
+| `data/exposed-jdbc-redisson/build.gradle.kts`  | 동일                                                                                                            |
+| `data/exposed-r2dbc-lettuce/build.gradle.kts`  | 동일                                                                                                            |
+| `data/exposed-r2dbc-redisson/build.gradle.kts` | 동일                                                                                                            |
+| `testFixtures` 의존성 참조 (lettuce/redisson)  | `testFixtures(project(":bluetape4k-exposed-redis-api"))` → `testFixtures(project(":bluetape4k-exposed-cache"))` |
 
 ### 패키지명 유지
 
@@ -245,8 +245,7 @@ dependencies {
 
 ### Config
 
-`LocalCacheConfig` (from `exposed-cache`)를 직접 사용하거나, Caffeine 특화 옵션 필요 시 `CaffeineCacheConfig`로 확장.
-(Section 3 참조)
+`LocalCacheConfig` (from `exposed-cache`)를 직접 사용하거나, Caffeine 특화 옵션 필요 시 `CaffeineCacheConfig`로 확장. (Section 3 참조)
 
 ### JdbcCaffeineRepository 인터페이스
 
@@ -409,15 +408,15 @@ abstract class AbstractR2dbcCaffeineRepository<ID: Any, E: Serializable>(
 
 ### 재사용 가능성
 
-기존 `exposed-cache`의 testFixtures 시나리오는 base 인터페이스(`JdbcCacheRepository`, `SuspendedJdbcCacheRepository`,
+기존 `exposed-cache`의 testFixtures 시나리오는 base 인터페이스 (`JdbcCacheRepository`, `SuspendedJdbcCacheRepository`,
 `R2dbcCacheRepository`)만 참조하며, `invalidateByPattern`을 호출하지 않음 → **Caffeine 구현에 그대로 재사용 가능**.
 
 ### DB 테스트 범위
 
-| 모듈                       | 테스트 DB                           |
-|--------------------------|----------------------------------|
-| `exposed-jdbc-caffeine`  | **H2만** (Redis 불필요, 로컬 캐시)       |
-| `exposed-r2dbc-caffeine` | **H2만** (Redis 불필요, 로컬 캐시)       |
+| 모듈                     | 테스트 DB                            |
+|--------------------------|--------------------------------------|
+| `exposed-jdbc-caffeine`  | **H2만** (Redis 불필요, 로컬 캐시)   |
+| `exposed-r2dbc-caffeine` | **H2만** (Redis 불필요, 로컬 캐시)   |
 | `exposed-jdbc-lettuce`   | H2 + Postgres + MySQL_V8 (기존 유지) |
 | `exposed-jdbc-redisson`  | H2 + Postgres + MySQL_V8 (기존 유지) |
 | `exposed-r2dbc-lettuce`  | H2 + Postgres + MySQL_V8 (기존 유지) |
@@ -440,54 +439,54 @@ class ActorWriteBehindCaffeineTest: JdbcWriteBehindScenario<Long, ActorRecord> {
 
 ### Phase 1: 리네이밍 + 인터페이스 정리 (exposed-cache)
 
-| #    | 태스크                                                                                                                                                      | complexity |
-|------|----------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| 1.1  | `data/exposed-redis-api/` → `data/exposed-cache/` 디렉토리 이름 변경                                                                                             | low        |
-| 1.2  | `CacheMode`에 `LOCAL` 값 추가 + KDoc (NEAR_CACHE 유지)                                                                                                         | low        |
-| 1.3  | `JdbcCacheRepository`에서 `invalidateByPattern` 제거                                                                                                         | medium     |
-| 1.4  | `SuspendedJdbcCacheRepository`에서 `invalidateByPattern` 제거                                                                                                | medium     |
-| 1.5  | `R2dbcCacheRepository`에서 `invalidateByPattern` 제거                                                                                                        | medium     |
-| 1.6  | `JdbcRedisRepository`, `SuspendJdbcRedisRepository`, `R2dbcRedisRepository` 신규 인터페이스 작성                                                                  | medium     |
-| 1.7  | `LocalCacheConfig` 작성 (open class, Serializable, KLogging)                                                                                               | low        |
-| 1.8  | `RedisRepositoryResilienceConfig` 작성 (data class, optional)                                                                                              | low        |
-| 1.9  | `exposed-jdbc-lettuce/redisson`, `exposed-r2dbc-lettuce/redisson` build.gradle.kts 의존성 업데이트 (`exposed-redis-api` → `exposed-cache`)                      | low        |
+| #    | 태스크                                                                                                                                                               | complexity |
+|------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| 1.1  | `data/exposed-redis-api/` → `data/exposed-cache/` 디렉토리 이름 변경                                                                                                 | low        |
+| 1.2  | `CacheMode`에 `LOCAL` 값 추가 + KDoc (NEAR_CACHE 유지)                                                                                                               | low        |
+| 1.3  | `JdbcCacheRepository`에서 `invalidateByPattern` 제거                                                                                                                 | medium     |
+| 1.4  | `SuspendedJdbcCacheRepository`에서 `invalidateByPattern` 제거                                                                                                        | medium     |
+| 1.5  | `R2dbcCacheRepository`에서 `invalidateByPattern` 제거                                                                                                                | medium     |
+| 1.6  | `JdbcRedisRepository`, `SuspendJdbcRedisRepository`, `R2dbcRedisRepository` 신규 인터페이스 작성                                                                     | medium     |
+| 1.7  | `LocalCacheConfig` 작성 (open class, Serializable, KLogging)                                                                                                         | low        |
+| 1.8  | `RedisRepositoryResilienceConfig` 작성 (data class, optional)                                                                                                        | low        |
+| 1.9  | `exposed-jdbc-lettuce/redisson`, `exposed-r2dbc-lettuce/redisson` build.gradle.kts 의존성 업데이트 (`exposed-redis-api` → `exposed-cache`)                           | low        |
 | 1.10 | `exposed-jdbc-lettuce/redisson`, `exposed-r2dbc-lettuce/redisson` 구현체 부모 인터페이스 변경 (`Jdbc/R2dbc/SuspendJdbc*` → `JdbcRedis/R2dbcRedis/SuspendJdbcRedis*`) | medium     |
-| 1.11 | 모듈 로컬 테스트에서 `invalidateByPattern` 호출부 타입 업데이트 (`Redis*Repository`로 변경)                                                                                   | medium     |
-| 1.12 | `CacheMode.LOCAL` 추가로 인한 기존 `when` 표현식 검토 및 수정                                                                                                           | low        |
-| 1.13 | `exposed-cache` `README.md` + `README.ko.md` 업데이트                                                                                                        | low        |
+| 1.11 | 모듈 로컬 테스트에서 `invalidateByPattern` 호출부 타입 업데이트 (`Redis*Repository`로 변경)                                                                          | medium     |
+| 1.12 | `CacheMode.LOCAL` 추가로 인한 기존 `when` 표현식 검토 및 수정                                                                                                        | low        |
+| 1.13 | `exposed-cache` `README.md` + `README.ko.md` 업데이트                                                                                                                | low        |
 
 ### Phase 2: exposed-jdbc-caffeine 신규 모듈
 
-| #    | 태스크                                                                                  | complexity |
-|------|--------------------------------------------------------------------------------------|------------|
-| 2.1  | 모듈 디렉토리 + `build.gradle.kts` 생성                                                      | low        |
+| #    | 태스크                                                                                      | complexity |
+|------|---------------------------------------------------------------------------------------------|------------|
+| 2.1  | 모듈 디렉토리 + `build.gradle.kts` 생성                                                     | low        |
 | 2.2  | `CaffeineCacheConfig` 작성 (`LocalCacheConfig` 상속, `recordStats` 등 추가)                 | low        |
 | 2.3  | `JdbcCaffeineRepository` 인터페이스 작성                                                    | medium     |
-| 2.4  | `AbstractJdbcCaffeineRepository` Read-Through / Write-Through 구현                     | high       |
+| 2.4  | `AbstractJdbcCaffeineRepository` Read-Through / Write-Through 구현                          | high       |
 | 2.5  | `AbstractJdbcCaffeineRepository` Write-Behind 구현 (Channel 기반 배치 큐 + `close()` drain) | high       |
 | 2.6  | `SuspendedJdbcCaffeineRepository` 인터페이스 작성                                           | medium     |
-| 2.7  | `AbstractSuspendedJdbcCaffeineRepository` 구현 (`suspendedTransactionAsync` 패턴)        | high       |
-| 2.8  | 테스트: 도메인 (`ActorTable`, `ActorRecord`, `ActorRepository`) + H2 설정                    | medium     |
-| 2.9  | 테스트: ReadThrough / WriteThrough / WriteBehind 시나리오 (H2만)                             | medium     |
+| 2.7  | `AbstractSuspendedJdbcCaffeineRepository` 구현 (`suspendedTransactionAsync` 패턴)           | high       |
+| 2.8  | 테스트: 도메인 (`ActorTable`, `ActorRecord`, `ActorRepository`) + H2 설정                   | medium     |
+| 2.9  | 테스트: ReadThrough / WriteThrough / WriteBehind 시나리오 (H2만)                            | medium     |
 | 2.10 | 테스트: Suspended ReadThrough / WriteThrough / WriteBehind 시나리오                         | medium     |
-| 2.11 | `README.md` + `README.ko.md` 작성                                                      | low        |
+| 2.11 | `README.md` + `README.ko.md` 작성                                                           | low        |
 
 ### Phase 3: exposed-r2dbc-caffeine 신규 모듈
 
-| #   | 태스크                                                                           | complexity |
-|-----|-------------------------------------------------------------------------------|------------|
-| 3.1 | 모듈 디렉토리 + `build.gradle.kts` 생성                                               | low        |
-| 3.2 | `R2dbcCaffeineRepository` 인터페이스 작성                                            | medium     |
+| #   | 태스크                                                                              | complexity |
+|-----|-------------------------------------------------------------------------------------|------------|
+| 3.1 | 모듈 디렉토리 + `build.gradle.kts` 생성                                             | low        |
+| 3.2 | `R2dbcCaffeineRepository` 인터페이스 작성                                           | medium     |
 | 3.3 | `AbstractR2dbcCaffeineRepository` `AsyncCache` 기반 구현 (`cacheMode = LOCAL` 고정) | high       |
-| 3.4 | 테스트: 도메인 + H2 설정 (R2DBC)                                                      | medium     |
-| 3.5 | 테스트: R2DBC ReadThrough / WriteThrough / WriteBehind 시나리오                      | medium     |
-| 3.6 | `README.md` + `README.ko.md` 작성                                               | low        |
+| 3.4 | 테스트: 도메인 + H2 설정 (R2DBC)                                                    | medium     |
+| 3.5 | 테스트: R2DBC ReadThrough / WriteThrough / WriteBehind 시나리오                     | medium     |
+| 3.6 | `README.md` + `README.ko.md` 작성                                                   | low        |
 
 ### Phase 4: 후처리
 
-| #   | 태스크                                       | complexity |
-|-----|-------------------------------------------|------------|
-| 4.1 | `CLAUDE.md` Exposed 모듈 테이블 업데이트           | low        |
-| 4.2 | `docs/testlogs/2026-04.md` 테스트 결과 기록      | low        |
+| #   | 태스크                                        | complexity |
+|-----|-----------------------------------------------|------------|
+| 4.1 | `CLAUDE.md` Exposed 모듈 테이블 업데이트      | low        |
+| 4.2 | `docs/testlogs/2026-04.md` 테스트 결과 기록   | low        |
 | 4.3 | `docs/superpowers/index/2026-04.md` 항목 추가 | low        |
 | 4.4 | `docs/superpowers/INDEX.md` 건수 갱신         | low        |

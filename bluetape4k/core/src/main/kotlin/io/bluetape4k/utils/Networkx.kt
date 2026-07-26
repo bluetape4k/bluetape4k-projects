@@ -207,8 +207,8 @@ object Networkx: KLogging() {
 
         val pLen = when {
             prefixLen != null -> prefixLen
-            arr.size == 4    -> 32
-            else             -> arr.size * 8
+            arr.size == 4 -> 32
+            else          -> arr.size * 8
         }
         pLen.requireInRange(0, 32, "prefixLen")
 

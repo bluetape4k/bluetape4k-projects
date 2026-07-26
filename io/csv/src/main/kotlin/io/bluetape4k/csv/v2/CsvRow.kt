@@ -31,9 +31,9 @@ data class CsvRow(
     val values: List<String?>,
     val headers: List<String>?,
     val rowNumber: Long,
-) : Serializable {
+): Serializable {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
     }
 

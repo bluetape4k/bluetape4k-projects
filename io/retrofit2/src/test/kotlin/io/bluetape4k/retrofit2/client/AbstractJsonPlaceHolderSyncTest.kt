@@ -1,5 +1,6 @@
 package io.bluetape4k.retrofit2.client
 
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
@@ -9,7 +10,6 @@ import io.bluetape4k.retrofit2.retrofitOf
 import io.bluetape4k.retrofit2.service
 import io.bluetape4k.retrofit2.services.Httpbin
 import io.bluetape4k.retrofit2.services.Post
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import kotlin.math.absoluteValue

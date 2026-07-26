@@ -49,7 +49,8 @@ private class DeleteTableSpecImpl(
 ): DeleteTableSpec {
     override fun from(table: String): DeleteValueSpec = DeleteValueSpecImpl(client, table)
 
-    override fun <T: Any> from(type: Class<T>): ReactiveDeleteOperation.ReactiveDelete = client.entityTemplate.delete(type)
+    override fun <T: Any> from(type: Class<T>): ReactiveDeleteOperation.ReactiveDelete =
+        client.entityTemplate.delete(type)
 }
 
 /**

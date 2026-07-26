@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
-class OkHttp3CacheSupportTest : AbstractHttpTest() {
+class OkHttp3CacheSupportTest: AbstractHttpTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `okhttp3ClientWithCache 생성`(@TempDir tempDir: File) {

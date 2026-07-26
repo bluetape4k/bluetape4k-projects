@@ -26,7 +26,7 @@ import java.nio.file.Path
  * @see csvWriter
  * @see tsvWriter
  */
-interface FlowCsvWriter : Closeable {
+interface FlowCsvWriter: Closeable {
 
     /** 이 라이터의 설정. */
     val config: CsvWriterConfig

@@ -1,6 +1,9 @@
 package io.bluetape4k.jwt.composer
 
 import io.bluetape4k.LibraryName
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.jwt.AbstractJwtTest
 import io.bluetape4k.jwt.codec.JwtCodecs
@@ -10,9 +13,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.replicate
 import io.jsonwebtoken.io.CompressionAlgorithm
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource

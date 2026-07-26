@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines.support
 
-import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault

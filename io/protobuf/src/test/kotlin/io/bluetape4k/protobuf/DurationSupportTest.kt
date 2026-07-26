@@ -1,14 +1,14 @@
 package io.bluetape4k.protobuf
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class DurationSupportTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `PROTO_DURATION_MIN 상수는 최소값을 가진다`() {

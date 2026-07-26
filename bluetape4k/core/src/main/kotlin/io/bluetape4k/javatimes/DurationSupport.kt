@@ -180,10 +180,10 @@ fun durationOfDay(
     nanos: Int = 0,
 ): Duration =
     days.days() +
-        hours.hours() +
-        minutes.minutes() +
-        seconds.seconds() +
-        nanos.nanos()
+            hours.hours() +
+            minutes.minutes() +
+            seconds.seconds() +
+            nanos.nanos()
 
 /**
  * 시/분/초/나노초 단위를 조합해 [Duration]을 생성합니다.
@@ -204,9 +204,9 @@ fun durationOfHour(
     nanos: Int = 0,
 ): Duration =
     hours.hours() +
-        minutes.minutes() +
-        seconds.seconds() +
-        nanos.nanos()
+            minutes.minutes() +
+            seconds.seconds() +
+            nanos.nanos()
 
 /**
  * 분/초/나노초 단위를 조합해 [Duration]을 생성합니다.
@@ -226,8 +226,8 @@ fun durationOfMinute(
     nanos: Int = 0,
 ): Duration =
     minutes.minutes() +
-        seconds.seconds() +
-        nanos.nanos()
+            seconds.seconds() +
+            nanos.nanos()
 
 /**
  * 초/나노초 단위를 조합해 [Duration]을 생성합니다.
@@ -246,7 +246,7 @@ fun durationOfSecond(
     nanos: Int = 0,
 ): Duration =
     seconds.seconds() +
-        nanos.nanos()
+            nanos.nanos()
 
 /**
  * [nanos] 나노초에 해당하는 [Duration]을 반환합니다.

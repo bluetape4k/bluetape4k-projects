@@ -16,7 +16,7 @@ class VersionedTinkAead(
     private val keysetStore: VersionedKeysetStore,
 ) {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     fun currentVersion(): Long = keysetStore.current().version
 

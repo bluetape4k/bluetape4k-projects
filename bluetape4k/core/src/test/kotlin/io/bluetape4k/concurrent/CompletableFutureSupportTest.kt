@@ -97,31 +97,44 @@ class CompletableFutureSupportTest {
         success.onSuccess(DirectExecutor) { capturedResult.set(it) }.get()
         capturedResult.get() shouldBeEqualTo 1
 
-        failed.onSuccess { error("onSuccess must not be called on a failed future") }.recover { 1 }.get() shouldBeEqualTo 1
+        failed.onSuccess { error("onSuccess must not be called on a failed future") }.recover { 1 }
+            .get() shouldBeEqualTo 1
     }
 
     @Test
     fun `onComplete with handlers fires appropriate callback`() {
-        var onSuccessCalled = false; var onFailureCalled = false
-        success.onComplete(DirectExecutor, successHandler = { onSuccessCalled = true }, failureHandler = { onFailureCalled = true })
+        var onSuccessCalled = false;
+        var onFailureCalled = false
+        success.onComplete(
+            DirectExecutor,
+            successHandler = { onSuccessCalled = true },
+            failureHandler = { onFailureCalled = true })
             .get() shouldBeEqualTo 1
         onSuccessCalled.shouldBeTrue(); onFailureCalled.shouldBeFalse()
 
         onSuccessCalled = false; onFailureCalled = false
-        failed.onComplete(DirectExecutor, successHandler = { onSuccessCalled = true }, failureHandler = { onFailureCalled = true })
+        failed.onComplete(
+            DirectExecutor,
+            successHandler = { onSuccessCalled = true },
+            failureHandler = { onFailureCalled = true })
             .recover { 1 }.get() shouldBeEqualTo 1
         onSuccessCalled.shouldBeFalse(); onFailureCalled.shouldBeTrue()
     }
 
     @Test
     fun `onComplete with completion callback fires appropriately`() {
-        var onSuccessCalled = false; var onFailureCalled = false
-        success.onComplete(DirectExecutor) { _, error -> if (error == null) onSuccessCalled = true else onFailureCalled = true }
+        var onSuccessCalled = false;
+        var onFailureCalled = false
+        success.onComplete(DirectExecutor) { _, error ->
+            if (error == null) onSuccessCalled = true else onFailureCalled = true
+        }
             .get() shouldBeEqualTo 1
         onSuccessCalled.shouldBeTrue(); onFailureCalled.shouldBeFalse()
 
         onSuccessCalled = false; onFailureCalled = false
-        failed.onComplete(DirectExecutor) { _, error -> if (error == null) onSuccessCalled = true else onFailureCalled = true }
+        failed.onComplete(DirectExecutor) { _, error ->
+            if (error == null) onSuccessCalled = true else onFailureCalled = true
+        }
             .recover { 1 }.get() shouldBeEqualTo 1
         onSuccessCalled.shouldBeFalse(); onFailureCalled.shouldBeTrue()
     }
@@ -155,7 +168,8 @@ class CompletableFutureSupportTest {
     @Test
     fun `dereference unwraps nested completable future`() {
         futureOf { completableFutureOf(42) }.dereference().get() shouldBeEqualTo 42
-        futureOf { failedCompletableFutureOf<Int>(RuntimeException("boom")) }.dereference().shouldCauseBe<RuntimeException>()
+        futureOf { failedCompletableFutureOf<Int>(RuntimeException("boom")) }.dereference()
+            .shouldCauseBe<RuntimeException>()
     }
 
     @Test

@@ -29,7 +29,7 @@ import java.util.*
  */
 class TinkDeterministicAead(keysetHandle: KeysetHandle = daeadKeysetHandle()) {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val daead: DeterministicAead by lazy {
         keysetHandle.getPrimitive(RegistryConfiguration.get(), DeterministicAead::class.java)

@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
@@ -9,7 +10,6 @@ import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.seconds
@@ -115,68 +115,70 @@ class BufferedResumableCollectorTest {
     }
 
     @Test
-    fun `suspended concurrent producers drain all values with small capacity`() = runSuspendDefault(timeout = 10.seconds) {
-        val bc = BufferedResumableCollector<Int>(1)
-        val producerWorkers = 8
-        val rounds = 512
-        val expectedValues = (1..rounds).toList()
-        val expectedCount = expectedValues.size
-        val produced = AtomicInteger(0)
-        val received = mutableListOf<Int>()
+    fun `suspended concurrent producers drain all values with small capacity`() =
+        runSuspendDefault(timeout = 10.seconds) {
+            val bc = BufferedResumableCollector<Int>(1)
+            val producerWorkers = 8
+            val rounds = 512
+            val expectedValues = (1..rounds).toList()
+            val expectedCount = expectedValues.size
+            val produced = AtomicInteger(0)
+            val received = mutableListOf<Int>()
 
-        val producerJob = launch {
-            SuspendedJobTester()
-                .workers(producerWorkers)
-                .rounds(rounds)
-                .add {
-                    bc.next(produced.incrementAndGet())
-                }
-                .run()
-            bc.complete()
-        }.log("producerJob")
+            val producerJob = launch {
+                SuspendedJobTester()
+                    .workers(producerWorkers)
+                    .rounds(rounds)
+                    .add {
+                        bc.next(produced.incrementAndGet())
+                    }
+                    .run()
+                bc.complete()
+            }.log("producerJob")
 
-        yield()
+            yield()
 
-        val collector = FlowCollector<Int> {
-            received += it
+            val collector = FlowCollector<Int> {
+                received += it
+            }
+            bc.drain(collector)
+            producerJob.join()
+
+            produced.get() shouldBeEqualTo expectedCount
+            received.sorted() shouldBeEqualTo expectedValues
         }
-        bc.drain(collector)
-        producerJob.join()
-
-        produced.get() shouldBeEqualTo expectedCount
-        received.sorted() shouldBeEqualTo expectedValues
-    }
 
     @Test
-    fun `suspended concurrent producers drain all values with buffered capacity`() = runSuspendDefault(timeout = 10.seconds) {
-        val bc = BufferedResumableCollector<Int>(64)
-        val producerWorkers = 8
-        val rounds = 1024
-        val expectedValues = (1..rounds).toList()
-        val expectedCount = expectedValues.size
-        val produced = AtomicInteger(0)
-        val received = mutableListOf<Int>()
+    fun `suspended concurrent producers drain all values with buffered capacity`() =
+        runSuspendDefault(timeout = 10.seconds) {
+            val bc = BufferedResumableCollector<Int>(64)
+            val producerWorkers = 8
+            val rounds = 1024
+            val expectedValues = (1..rounds).toList()
+            val expectedCount = expectedValues.size
+            val produced = AtomicInteger(0)
+            val received = mutableListOf<Int>()
 
-        val producerJob = launch {
-            SuspendedJobTester()
-                .workers(producerWorkers)
-                .rounds(rounds)
-                .add {
-                    bc.next(produced.incrementAndGet())
-                }
-                .run()
-            bc.complete()
-        }.log("producerJob")
+            val producerJob = launch {
+                SuspendedJobTester()
+                    .workers(producerWorkers)
+                    .rounds(rounds)
+                    .add {
+                        bc.next(produced.incrementAndGet())
+                    }
+                    .run()
+                bc.complete()
+            }.log("producerJob")
 
-        yield()
+            yield()
 
-        val collector = FlowCollector<Int> {
-            received += it
+            val collector = FlowCollector<Int> {
+                received += it
+            }
+            bc.drain(collector)
+            producerJob.join()
+
+            produced.get() shouldBeEqualTo expectedCount
+            received.sorted() shouldBeEqualTo expectedValues
         }
-        bc.drain(collector)
-        producerJob.join()
-
-        produced.get() shouldBeEqualTo expectedCount
-        received.sorted() shouldBeEqualTo expectedValues
-    }
 }

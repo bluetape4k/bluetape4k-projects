@@ -6,13 +6,13 @@ import com.datastax.oss.driver.api.core.cql.Statement
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
-import io.bluetape4k.junit5.coroutines.runSuspendIO
 import org.junit.jupiter.api.Test
 import org.springframework.data.cassandra.ReactiveResultSet
 import org.springframework.data.cassandra.ReactiveSession
@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono
 
 class ReactiveCqlOperationsSupportUnitTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     private val mockResultSet = mockk<ReactiveResultSet>()
     private val mockRow = mockk<Row>()
@@ -211,8 +211,11 @@ class ReactiveCqlOperationsSupportUnitTest {
 
     @Test
     fun `queryForFlow with CQL PSB null and ReactiveResultSetExtractor`() = runSuspendIO {
-        val flow = mockOps.queryForFlow<String>("SELECT * FROM users", null as PreparedStatementBinder?) {
-            _: ReactiveResultSet -> flowOf("extracted")
+        val flow = mockOps.queryForFlow<String>(
+            "SELECT * FROM users",
+            null as PreparedStatementBinder?
+        ) { _: ReactiveResultSet ->
+            flowOf("extracted")
         }
         flow.shouldNotBeNull()
     }

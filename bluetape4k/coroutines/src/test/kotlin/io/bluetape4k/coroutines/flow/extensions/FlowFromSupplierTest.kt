@@ -1,9 +1,9 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
 class FlowFromSupplierTest {

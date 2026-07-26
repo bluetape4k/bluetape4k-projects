@@ -1,10 +1,10 @@
 package io.bluetape4k.spring.data
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.spring.AbstractSpringTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.spring.AbstractSpringTest
 import org.junit.jupiter.api.Test
 
 class ExampleMatcherSupportTest: AbstractSpringTest() {

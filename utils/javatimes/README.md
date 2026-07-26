@@ -5,7 +5,7 @@ English | [한국어](./README.ko.md)
 An advanced time-operations library for the Java Time API (java.time). Supports Joda-Time-style Temporal Intervals, a Period Framework (TimeBlock/TimeRange/DateAdd/DateDiff), Calendar Ranges, and Kotlin-range-style Temporal Ranges.
 
 > **Note**: Basic DSL (`5.days()`, `3.hours()`, etc.) and Temporal extension functions are in `bluetape4k-core` (
-`io.bluetape4k.javatimes`). This module builds on top of core.
+> `io.bluetape4k.javatimes`). This module builds on top of core.
 
 ## Architecture
 

@@ -11,13 +11,13 @@
 
 ## 결과 요약
 
-| 지표 | 기준선 | 최종 | 변화율 |
-|------|--------|------|--------|
-| geomean (7 benchmarks) | 5977.562 | **7930.803** | **+32.7%** |
-| parallelFlowMapThroughput | 16.7 | **101.2** | **+506%** |
-| asyncFlowMapThroughput | 1368.6 | 1422.6 | +3.9% |
-| mapParallelThroughput | 12974.9 | 12988.1 | +0.1% |
-| concatMapEagerThroughput | 85190.6 | 88256.8 | +3.6% |
+| 지표                      | 기준선   | 최종         | 변화율     |
+|---------------------------|----------|--------------|------------|
+| geomean (7 benchmarks)    | 5977.562 | **7930.803** | **+32.7%** |
+| parallelFlowMapThroughput | 16.7     | **101.2**    | **+506%**  |
+| asyncFlowMapThroughput    | 1368.6   | 1422.6       | +3.9%      |
+| mapParallelThroughput     | 12974.9  | 12988.1      | +0.1%      |
+| concatMapEagerThroughput  | 85190.6  | 88256.8      | +3.6%      |
 
 **목표 달성: ✅** (7930.803 ≥ 7770.83, 3 라운드 완료)
 
@@ -45,6 +45,7 @@
 **변경**: `FlowSequential` — 공유 `out Channel` 병목 제거
 
 **이전**:
+
 ```kotlin
 val out = Channel<T>(capacity = 256)
 val writers = Array<FlowCollector<T>>(n) { ChannelWriter(out) }  // 모두 같은 out → CAS 경쟁
@@ -53,6 +54,7 @@ for (v in out) { collector.emit(v) }
 ```
 
 **이후**:
+
 ```kotlin
 // rail별 독립 채널 → 경쟁 없음
 val perRailChannels = Array(n) { Channel<T>(capacity = 64) }

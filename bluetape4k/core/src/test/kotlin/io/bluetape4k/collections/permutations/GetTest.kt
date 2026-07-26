@@ -1,8 +1,8 @@
 package io.bluetape4k.collections.permutations
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * 인덱스 접근 테스트

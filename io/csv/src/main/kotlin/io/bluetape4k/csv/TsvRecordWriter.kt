@@ -23,9 +23,9 @@ import java.io.Writer
 class TsvRecordWriter(
     writer: Writer,
     settings: TsvSettings = TsvSettings.DEFAULT,
-) : RecordWriter {
+): RecordWriter {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val lineWriter = TsvLineWriter(writer, settings)
 

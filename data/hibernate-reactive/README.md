@@ -79,10 +79,10 @@ sf.withSessionSuspending { session ->
 
 Key test classes covering uncovered extension functions:
 
-| Test Class | API | Covered Functions |
-|---|---|---|
+| Test Class                 | API    | Covered Functions                                                                                                                    |
+|----------------------------|--------|--------------------------------------------------------------------------------------------------------------------------------------|
 | `MutinySessionSupportTest` | Mutiny | `findAs(LockMode)`, `getReferenceAs`, `createQueryAs` (Session), `createNativeQueryAs` (Session/StatelessSession), `getAs(LockMode)` |
-| `StageSessionSupportTest` | Stage | `findAs(LockMode)`, `getReferenceAs`, `createQueryAs` (Session), `createNativeQueryAs` (Session/StatelessSession), `getAs(LockMode)` |
+| `StageSessionSupportTest`  | Stage  | `findAs(LockMode)`, `getReferenceAs`, `createQueryAs` (Session), `createNativeQueryAs` (Session/StatelessSession), `getAs(LockMode)` |
 
 ```kotlin
 // findAs with Hibernate LockMode (not JPA LockModeType)
@@ -120,6 +120,7 @@ sf.withSessionSuspending { session ->
 ## Version Requirements
 
 **Hibernate Reactive 4.3.3.Final** requires:
+
 - Hibernate ORM 7.3.2.Final (updated from 7.2.x)
 - Jakarta Persistence 3.0 namespace in `persistence.xml`
 - Java 11+ / Kotlin 1.5+

@@ -1,45 +1,45 @@
 #!/usr/bin/env node
 
-import { writeFileSync } from "node:fs";
+import {writeFileSync} from "node:fs";
 
 const out = "docs/images/readme-diagrams/io-csv-diagram-02.svg";
 const W = 2240;
 const H = 1500;
 
 const esc = (s) =>
-  String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
 const lines = [];
 const add = (s) => lines.push(s);
 
 function textLines(items, x, y, cls = "body", gap = 27, anchor = "middle") {
-  items.forEach((line, i) => {
-    add(`<text class="${cls}" x="${x}" y="${y + i * gap}" text-anchor="${anchor}">${esc(line)}</text>`);
-  });
+    items.forEach((line, i) => {
+        add(`<text class="${cls}" x="${x}" y="${y + i * gap}" text-anchor="${anchor}">${esc(line)}</text>`);
+    });
 }
 
 function card(id, x, y, w, h, tone, title, body = []) {
-  add(`<g id="${id}" class="card ${tone}">`);
-  add(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14"/>`);
-  add(`<text class="cardTitle" x="${x + w / 2}" y="${y + 46}" text-anchor="middle">${esc(title)}</text>`);
-  add(`<line class="divider" x1="${x + 34}" y1="${y + 68}" x2="${x + w - 34}" y2="${y + 68}"/>`);
-  textLines(body, x + w / 2, y + 96, "body", 25);
-  add(`</g>`);
+    add(`<g id="${id}" class="card ${tone}">`);
+    add(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14"/>`);
+    add(`<text class="cardTitle" x="${x + w / 2}" y="${y + 46}" text-anchor="middle">${esc(title)}</text>`);
+    add(`<line class="divider" x1="${x + 34}" y1="${y + 68}" x2="${x + w - 34}" y2="${y + 68}"/>`);
+    textLines(body, x + w / 2, y + 96, "body", 25);
+    add(`</g>`);
 }
 
 function lane(id, x, y, w, h, title) {
-  add(`<g id="${id}" class="lane">`);
-  add(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="16"/>`);
-  add(`<text class="laneTitle" x="${x + 42}" y="${y + 68}">${esc(title)}</text>`);
-  add(`</g>`);
+    add(`<g id="${id}" class="lane">`);
+    add(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="16"/>`);
+    add(`<text class="laneTitle" x="${x + 42}" y="${y + 68}">${esc(title)}</text>`);
+    add(`</g>`);
 }
 
 function arrow(id, x1, y1, x2, y2, cls, marker, label = "", lx = 0, ly = 0) {
-  add(`<path id="${id}" class="arrow ${cls}" d="M ${x1} ${y1} L ${x2} ${y2}" marker-end="url(#${marker})"/>`);
-  if (label) {
-    add(`<rect class="labelBg" x="${lx - 128}" y="${ly - 20}" width="256" height="31" rx="9"/>`);
-    add(`<text class="edgeLabel" x="${lx}" y="${ly}" text-anchor="middle">${esc(label)}</text>`);
-  }
+    add(`<path id="${id}" class="arrow ${cls}" d="M ${x1} ${y1} L ${x2} ${y2}" marker-end="url(#${marker})"/>`);
+    if (label) {
+        add(`<rect class="labelBg" x="${lx - 128}" y="${ly - 20}" width="256" height="31" rx="9"/>`);
+        add(`<text class="edgeLabel" x="${lx}" y="${ly}" text-anchor="middle">${esc(label)}</text>`);
+    }
 }
 
 add(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="CSV TSV processing flow">`);
@@ -98,42 +98,42 @@ lane("lane-flow", 810, 408, 620, 820, "Flow read paths");
 lane("lane-writer", 1500, 408, 620, 820, "Writer output");
 
 card("v1-input", 184, 530, 492, 132, "teal", "File / InputStream", [
-  "caller charset; UTF-8 can use Okio",
+    "caller charset; UTF-8 can use Okio",
 ]);
 card("v1-reader", 184, 710, 492, 154, "teal", "Csv/TsvRecordReader", [
-  "returns lazy Sequence<T>",
-  "skipHeaders stores HeaderIndex",
+    "returns lazy Sequence<T>",
+    "skipHeaders stores HeaderIndex",
 ]);
 card("v1-lexer", 184, 920, 492, 172, "teal", "CsvLexer / TsvLexer", [
-  "RFC 4180 state machine",
-  "ArrayRecord per parsed row",
-  "field and column limits",
+    "RFC 4180 state machine",
+    "ArrayRecord per parsed row",
+    "field and column limits",
 ]);
 
 card("flow-input", 874, 530, 492, 132, "blue", "InputStream / Path", [
-  "Suspend reader or FlowCsvReader",
+    "Suspend reader or FlowCsvReader",
 ]);
 card("flow-channel", 874, 710, 492, 154, "blue", "channelFlow on Dispatchers.IO", [
-  "ensureActive before each row",
-  "collector sees parser exceptions",
+    "ensureActive before each row",
+    "collector sees parser exceptions",
 ]);
 card("flow-output", 874, 920, 492, 172, "blue", "Flow<T> / Flow<CsvRow>", [
-  "records emitted in order",
-  "V2 converts Record to CsvRow",
-  "cold stream starts on collect",
+    "records emitted in order",
+    "V2 converts Record to CsvRow",
+    "cold stream starts on collect",
 ]);
 
 card("writer-input", 1564, 530, 492, 132, "orange", "Rows or Flow<Iterable<*>>", [
-  "headers plus transformed row values",
+    "headers plus transformed row values",
 ]);
 card("writer-family", 1564, 710, 492, 154, "orange", "RecordWriter family", [
-  "Csv/TsvRecordWriter",
-  "Suspend writer and FlowCsvWriter",
+    "Csv/TsvRecordWriter",
+    "Suspend writer and FlowCsvWriter",
 ]);
 card("writer-engine", 1564, 920, 492, 172, "orange", "DelimitedWriter engine", [
-  "quote, escape, line separator rules",
-  "null is an unquoted empty field",
-  "UTF-8 file path uses OkioDelimitedWriter",
+    "quote, escape, line separator rules",
+    "null is an unquoted empty field",
+    "UTF-8 file path uses OkioDelimitedWriter",
 ]);
 
 arrow("v1-a", 430, 662, 430, 710, "tealLine", "flowArrowTeal");

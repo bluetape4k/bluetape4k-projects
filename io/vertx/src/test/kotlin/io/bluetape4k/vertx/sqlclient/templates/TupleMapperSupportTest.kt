@@ -1,11 +1,11 @@
 package io.bluetape4k.vertx.sqlclient.templates
 
-import io.bluetape4k.support.asBoolean
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.support.asBoolean
 import org.junit.jupiter.api.Test
 
 class TupleMapperSupportTest {

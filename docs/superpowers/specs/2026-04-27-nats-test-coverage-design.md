@@ -10,22 +10,22 @@
 
 ### 베이스라인 (koverXmlReport 실측)
 
-| 파일 | 커버 | 전체 | 비율 | 우선순위 |
-|------|------|------|------|--------|
-| `Options.kt` | 1 | 13 | 7.7% | HIGH |
-| `Service.kt` | 1 | 13 | 7.7% | HIGH |
-| `JetStream.kt` | 4 | 15 | 26.7% | HIGH |
-| `KeyValueConfiguration.kt` | 5 | 18 | 27.8% | HIGH |
-| `ConnectionExtensions.kt` | 23 | 50 | 46.0% | HIGH |
-| `NatsMessage.kt` | 10 | 20 | 50.0% | MEDIUM |
-| `PullSubscriptionOptions.kt` | 3 | 6 | 50.0% | MEDIUM |
-| `JetStreamOptions.kt` | 0 | 16 | 0% | HIGH |
-| `KeyValueOptions.kt` | 0 | 6 | 0% | HIGH |
-| `PublishOptions.kt` | 0 | 5 | 0% | MEDIUM |
-| `PushSubscriptionOptions.kt` | 0 | 6 | 0% | MEDIUM |
-| `Consumer.kt` | 0 | 8 | 0% | MEDIUM |
-| `StreamInfoOptions.kt` | 0 | 4 | 0% | LOW |
-| `ObjectLink.kt` | 0 | 5 | 0% | LOW |
+| 파일                         | 커버 | 전체 | 비율  | 우선순위 |
+|------------------------------|------|------|-------|----------|
+| `Options.kt`                 | 1    | 13   | 7.7%  | HIGH     |
+| `Service.kt`                 | 1    | 13   | 7.7%  | HIGH     |
+| `JetStream.kt`               | 4    | 15   | 26.7% | HIGH     |
+| `KeyValueConfiguration.kt`   | 5    | 18   | 27.8% | HIGH     |
+| `ConnectionExtensions.kt`    | 23   | 50   | 46.0% | HIGH     |
+| `NatsMessage.kt`             | 10   | 20   | 50.0% | MEDIUM   |
+| `PullSubscriptionOptions.kt` | 3    | 6    | 50.0% | MEDIUM   |
+| `JetStreamOptions.kt`        | 0    | 16   | 0%    | HIGH     |
+| `KeyValueOptions.kt`         | 0    | 6    | 0%    | HIGH     |
+| `PublishOptions.kt`          | 0    | 5    | 0%    | MEDIUM   |
+| `PushSubscriptionOptions.kt` | 0    | 6    | 0%    | MEDIUM   |
+| `Consumer.kt`                | 0    | 8    | 0%    | MEDIUM   |
+| `StreamInfoOptions.kt`       | 0    | 4    | 0%    | LOW      |
+| `ObjectLink.kt`              | 0    | 5    | 0%    | LOW      |
 
 **전체**: 160/326 = 49.08%  
 **목표**: 228/326 = 70.0%  
@@ -108,7 +108,7 @@ io.bluetape4k.nats.client.KeyValueOptionsTest
 io.bluetape4k.nats.client.PullSubscriptionOptionsTest
 ```
 
-- `pullSubscriptionOptionsOf(stream, bind)` → PullSubscribeOptions.bind() 호출 확인
+- `pullSubscriptionOptionsOf(stream, bind)` → PullSubscribeOptions.bind () 호출 확인
 - `pullSubscriptionOptionsOf("", bind)` → IllegalArgumentException
 - `pullSubscriptionOptionsOf(stream, "")` → IllegalArgumentException
 
@@ -118,9 +118,9 @@ io.bluetape4k.nats.client.PullSubscriptionOptionsTest
 io.bluetape4k.nats.client.PushSubscriptionOptionsTest
 ```
 
-- `pushSubscriptionOf(stream)` → PushSubscribeOptions.stream() 결과
+- `pushSubscriptionOf(stream)` → PushSubscribeOptions.stream () 결과
 - `pushSubscriptionOf("") ` → IllegalArgumentException
-- `pushSubscriptionOf(stream, durable)` → bind() 호출
+- `pushSubscriptionOf(stream, durable)` → bind () 호출
 - `pushSubscriptionOf(stream, "")` → IllegalArgumentException
 
 ### 3-7. `NatsMessageTest.kt` (기대 커버: +10라인)
@@ -180,9 +180,11 @@ MockK `Consumer` 사용:
 
 ## 4. 리스크
 
-1. **`ConnectionExtensions` suspend 테스트**: `requestSuspending`은 `request(message).await()`를 호출하므로 MockK에서 `every { request(message) } returns CompletableFuture.completedFuture(response)` 형태로 모킹해야 한다. `Connection.request()` 반환 타입이 `CompletableFuture<Message>`인지 확인 필요.
+1. **`ConnectionExtensions` suspend
+   테스트**: `requestSuspending`은 `request(message).await()`를 호출하므로 MockK에서 `every { request(message) } returns CompletableFuture.completedFuture(response)` 형태로 모킹해야 한다. `Connection.request()` 반환 타입이 `CompletableFuture<Message>`인지 확인 필요.
 
-2. **`Service` 빌더 검증**: `natsService { }` 빌더에 필수 필드(`connection`, `name`, `version`) 없이 build 시 예외 발생 여부 — 빈 빌더 케이스는 건너뛰고 최소 유효 파라미터만 사용한다.
+2. **`Service` 빌더
+   검증**: `natsService { }` 빌더에 필수 필드 (`connection`, `name`, `version`) 없이 build 시 예외 발생 여부 — 빈 빌더 케이스는 건너뛰고 최소 유효 파라미터만 사용한다.
 
 3. **`Consumer` 인터페이스**: `Consumer.drain(java.time.Duration)` 반환 타입이 `CompletableFuture<Boolean>`인지 확인 후 MockK 설정.
 
@@ -192,5 +194,5 @@ MockK `Consumer` 사용:
 
 - [ ] `./gradlew :bluetape4k-nats:koverXmlReport` 결과 라인 커버리지 ≥ 70%
 - [ ] 신규 테스트 파일 10개 모두 컴파일 + 통과
-- [ ] 모든 신규 테스트는 Testcontainers(NATS 서버) 없이 실행 가능
+- [ ] 모든 신규 테스트는 Testcontainers (NATS 서버) 없이 실행 가능
 - [ ] `README.md` + `README.ko.md` 테스트 섹션 업데이트

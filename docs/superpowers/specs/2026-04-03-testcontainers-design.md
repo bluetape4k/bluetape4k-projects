@@ -20,15 +20,15 @@
 
 현재 40+ 서버에서 사용하는 키 패턴이 3가지 이상 혼재:
 
-| 서버         | 현재 키                                   | 문제                      |
-|------------|----------------------------------------|-------------------------|
-| JDBC 서버들   | `driver-class-name`, `jdbc-url`        | kebab-case              |
-| Kafka      | `bootstrapServers`                     | camelCase               |
-| Prometheus | `server.port`, `graphiteExporter.port` | dot-case + camelCase 혼재 |
-| RabbitMQ   | `amqp.port`, `rabbitmq.http.port`      | dot-case (일관됨)          |
-| Cassandra  | `cql.port`                             | dot-case                |
-| Vault      | `token`                                | 단일 단어                   |
-| Ignite3    | `rest.port`                            | dot-case                |
+| 서버        | 현재 키                                | 문제                      |
+|-------------|----------------------------------------|---------------------------|
+| JDBC 서버들 | `driver-class-name`, `jdbc-url`        | kebab-case                |
+| Kafka       | `bootstrapServers`                     | camelCase                 |
+| Prometheus  | `server.port`, `graphiteExporter.port` | dot-case + camelCase 혼재 |
+| RabbitMQ    | `amqp.port`, `rabbitmq.http.port`      | dot-case (일관됨)         |
+| Cassandra   | `cql.port`                             | dot-case                  |
+| Vault       | `token`                                | 단일 단어                 |
+| Ignite3     | `rest.port`                            | dot-case                  |
 
 **기본 3개 키** (`host`, `port`, `url`)는 `writeToSystemProperties`에서 일관 처리되지만, extra props가 제각각이다.
 
@@ -189,7 +189,7 @@ fun <T: PropertyExportingServer> T.registerSystemProperties(): AutoCloseable {
 
 #### JDBC 서버 (JdbcServer 구현체)
 
-| 현재 키                | 신규 키                |
+| 현재 키             | 신규 키             |
 |---------------------|---------------------|
 | `driver-class-name` | `driver.class.name` |
 | `jdbc-url`          | `jdbc.url`          |
@@ -212,39 +212,39 @@ fun <T: JdbcServer> T.buildDotSeparatedJdbcProperties(): Map<String, String> {
 
 #### 전체 서버 키 목록
 
-| 서버                 | namespace       | 추가 키                                                                |
+| 서버               | namespace       | 추가 키                                                             |
 |--------------------|-----------------|---------------------------------------------------------------------|
 | PostgreSQLServer   | `postgresql`    | `driver.class.name`, `jdbc.url`, `username`, `password`, `database` |
-| PostgisServer      | `postgis`       | (동일)                                                                |
-| PgvectorServer     | `pgvector`      | (동일)                                                                |
-| MySQL8Server       | `mysql8`        | (동일)                                                                |
-| MySQL5Server       | `mysql5`        | (동일)                                                                |
-| MariaDBServer      | `mariadb`       | (동일)                                                                |
-| CockroachServer    | `cockroach`     | (동일)                                                                |
-| ClickHouseServer   | `clickhouse`    | (동일)                                                                |
+| PostgisServer      | `postgis`       | (동일)                                                              |
+| PgvectorServer     | `pgvector`      | (동일)                                                              |
+| MySQL8Server       | `mysql8`        | (동일)                                                              |
+| MySQL5Server       | `mysql5`        | (동일)                                                              |
+| MariaDBServer      | `mariadb`       | (동일)                                                              |
+| CockroachServer    | `cockroach`     | (동일)                                                              |
+| ClickHouseServer   | `clickhouse`    | (동일)                                                              |
 | TrinoServer        | `trino`         | `driver.class.name`, `jdbc.url`, `username`, `password`             |
-| RedisServer        | `redis`         | (기본 host/port/url만)                                                 |
-| RedisClusterServer | `redis.cluster` | `nodes`, `urls`, `nodes.0`..`nodes.5` (인덱스별 노드)                     |
+| RedisServer        | `redis`         | (기본 host/port/url만)                                              |
+| RedisClusterServer | `redis.cluster` | `nodes`, `urls`, `nodes.0`..`nodes.5` (인덱스별 노드)               |
 
-> **참고**: `redis.cluster` 네임스페이스는 점(
-`.`)을 포함하므로 네임스페이스 구분자와 충돌 가능성이 있음. 파싱 시 첫 번째 점 이후 전체를 키로 취급하는 규칙 필요. | MongoDBServer |
-`mongodb` | (기본만) | | CassandraServer | `cassandra` | `cql.port` | | HazelcastServer |
-`hazelcast` | (기본만) | | Ignite2Server | `ignite2` | (기본만) | | Ignite3Server | `ignite3` |
-`rest.port` | | ElasticsearchServer | `elasticsearch` | (기본만) | | ElasticsearchOssServer |
-`elasticsearch.oss` | (기본만) | | OpenSearchServer | `opensearch` | (기본만) | | KafkaServer | `kafka` | `bootstrap.servers`,
-`bound.port.numbers` | | RedpandaServer | `redpanda` | `bootstrap.servers`, `schema.registry.url` | | PulsarServer |
-`pulsar` | `service.url`, `admin.url` | | RabbitMQServer | `rabbitmq` | `amqp.port`, `amqps.port`, `http.port`,
-`https.port` | | NatsServer | `nats` | `nats.url` | | LocalStackServer | `localstack` | (기본만) | | MinIOServer |
-`minio` | `access.key`, `secret.key`, `endpoint` | | PrometheusServer | `prometheus` | `server.port`,
-`pushgateway.port`, `graphite.exporter.port` | | JaegerServer | `jaeger` | `thrift.port`,
-`query.port` | | ZipkinServer | `zipkin` | (기본만) | | ZooKeeperServer | `zookeeper` | (기본만) | | VaultServer | `vault` |
-`token` | | ConsulServer | `consul` | `http.port`, `dns.port` | | Neo4jServer | `neo4j` | `bolt.port`,
-`http.port` | | MemgraphServer | `memgraph` | `bolt.port` | | PostgreSQLAgeServer | `postgresql.age` | JDBC 키 +
-`age.graph.name` | | OllamaServer | `ollama` | (기본만) | | ChromaDBServer | `chromadb` | (기본만) | | InfluxDBServer |
-`influxdb` | `organization`, `bucket`, `admin.token`, `username` | | HttpbinServer |
-`httpbin` | (기본만) | | HttpbinHttp2Server | `httpbin.http2` | (기본만) | | NginxServer |
-`nginx` | (기본만) | | WireMockServer | `wiremock` | `http.port`, `https.port` | | ToxiproxyServer | `toxiproxy` |
-`control.port` | | KeycloakServer | `keycloak` | `auth.url`, `realm`, `admin.username`, `admin.password` |
+> **참고**: `redis.cluster` 네임스페이스는 점 (
+> `.`)을 포함하므로 네임스페이스 구분자와 충돌 가능성이 있음. 파싱 시 첫 번째 점 이후 전체를 키로 취급하는 규칙 필요. | MongoDBServer |
+> `mongodb` | (기본만) | | CassandraServer | `cassandra` | `cql.port` | | HazelcastServer |
+> `hazelcast` | (기본만) | | Ignite2Server | `ignite2` | (기본만) | | Ignite3Server | `ignite3` |
+> `rest.port` | | ElasticsearchServer | `elasticsearch` | (기본만) | | ElasticsearchOssServer |
+> `elasticsearch.oss` | (기본만) | | OpenSearchServer | `opensearch` | (기본만) | | KafkaServer | `kafka` | `bootstrap.servers`,
+> `bound.port.numbers` | | RedpandaServer | `redpanda` | `bootstrap.servers`, `schema.registry.url` | | PulsarServer |
+> `pulsar` | `service.url`, `admin.url` | | RabbitMQServer | `rabbitmq` | `amqp.port`, `amqps.port`, `http.port`,
+> `https.port` | | NatsServer | `nats` | `nats.url` | | LocalStackServer | `localstack` | (기본만) | | MinIOServer |
+> `minio` | `access.key`, `secret.key`, `endpoint` | | PrometheusServer | `prometheus` | `server.port`,
+> `pushgateway.port`, `graphite.exporter.port` | | JaegerServer | `jaeger` | `thrift.port`,
+> `query.port` | | ZipkinServer | `zipkin` | (기본만) | | ZooKeeperServer | `zookeeper` | (기본만) | | VaultServer | `vault` |
+> `token` | | ConsulServer | `consul` | `http.port`, `dns.port` | | Neo4jServer | `neo4j` | `bolt.port`,
+> `http.port` | | MemgraphServer | `memgraph` | `bolt.port` | | PostgreSQLAgeServer | `postgresql.age` | JDBC 키 +
+> `age.graph.name` | | OllamaServer | `ollama` | (기본만) | | ChromaDBServer | `chromadb` | (기본만) | | InfluxDBServer |
+> `influxdb` | `organization`, `bucket`, `admin.token`, `username` | | HttpbinServer |
+> `httpbin` | (기본만) | | HttpbinHttp2Server | `httpbin.http2` | (기본만) | | NginxServer |
+> `nginx` | (기본만) | | WireMockServer | `wiremock` | `http.port`, `https.port` | | ToxiproxyServer | `toxiproxy` |
+> `control.port` | | KeycloakServer | `keycloak` | `auth.url`, `realm`, `admin.username`, `admin.password` |
 
 ### 3.4 singleton/fresh instance API 분리
 
@@ -318,11 +318,11 @@ companion object: KLogging() {
 
 **규칙 정리**:
 
-| API                         | 용도                          | 생명주기                |
-|-----------------------------|-----------------------------|---------------------|
-| `XxxServer(...)` (invoke)   | fresh instance 생성           | 호출자 관리              |
-| `XxxServer.Launcher.shared` | JVM 전역 공유 싱글턴               | ShutdownQueue 자동 관리 |
-| (기존 이름 e.g. `postgres`)     | `@Deprecated`, `shared`로 위임 | 동일                  |
+| API                         | 용도                           | 생명주기                |
+|-----------------------------|--------------------------------|-------------------------|
+| `XxxServer(...)` (invoke)   | fresh instance 생성            | 호출자 관리             |
+| `XxxServer.Launcher.shared` | JVM 전역 공유 싱글턴           | ShutdownQueue 자동 관리 |
+| (기존 이름 e.g. `postgres`) | `@Deprecated`, `shared`로 위임 | 동일                    |
 
 **LocalStackServer 개선**:
 
@@ -382,9 +382,9 @@ server.registerSystemProperties().use {
 
 #### 범위 분석
 
-| 파일                          | Spring 의존성                  | 분리 대상                               |
+| 파일                        | Spring 의존성               | 분리 대상                           |
 |-----------------------------|-----------------------------|-------------------------------------|
-| `KafkaServer.kt`            | `spring-kafka`              | `Launcher.Spring` 내부 객체 전체          |
+| `KafkaServer.kt`            | `spring-kafka`              | `Launcher.Spring` 내부 객체 전체    |
 | `ElasticsearchServer.kt`    | `spring-data-elasticsearch` | `Launcher.getClientConfiguration()` |
 | `OpenSearchServer.kt`       | `spring-data-elasticsearch` | `Launcher.getClientConfiguration()` |
 | `ElasticsearchOssServer.kt` | `spring-data-elasticsearch` | `Launcher.getClientConfiguration()` |
@@ -563,7 +563,7 @@ fun <T: JdbcServer> T.buildJdbcPropertiesCompat(): Map<String, String> {
 ### 4.3 비-JDBC 서버 호환 전략
 
 JDBC 서버의
-`buildJdbcPropertiesCompat()`과 마찬가지로, 비-JDBC 서버(Kafka, Pulsar 등)에서도 기존 camelCase 키와 신규 dot-separated 키를 동시 등록할 수 있는 범용 유틸리티를 제공한다.
+`buildJdbcPropertiesCompat()`과 마찬가지로, 비-JDBC 서버 (Kafka, Pulsar 등)에서도 기존 camelCase 키와 신규 dot-separated 키를 동시 등록할 수 있는 범용 유틸리티를 제공한다.
 
 ```kotlin
 /**
@@ -597,11 +597,11 @@ mapOf(
 
 ### 4.4 Phase 계획
 
-| Phase   | 내용                                                                     | 시기           |
-|---------|------------------------------------------------------------------------|--------------|
-| Phase 1 | `PropertyExportingServer` 인터페이스 추가, 양쪽 키 등록, `Launcher.shared` 추가      | 즉시           |
+| Phase   | 내용                                                                             | 시기          |
+|---------|----------------------------------------------------------------------------------|---------------|
+| Phase 1 | `PropertyExportingServer` 인터페이스 추가, 양쪽 키 등록, `Launcher.shared` 추가  | 즉시          |
 | Phase 2 | 모든 서버 `PropertyExportingServer` 구현 완료, `registerSystemProperties()` 추가 | Phase 1 + 1주 |
-| Phase 3 | 구 키 제거, 구 Launcher 프로퍼티명 제거, Spring 헬퍼 분리                              | Phase 2 + 2주 |
+| Phase 3 | 구 키 제거, 구 Launcher 프로퍼티명 제거, Spring 헬퍼 분리                        | Phase 2 + 2주 |
 
 ---
 
@@ -665,11 +665,11 @@ Phase 1에서 양쪽 키 동시 등록으로 하위 호환 보장.
 
 ## 7. 리스크 및 완화 전략
 
-| 리스크                                 | 영향 | 완화                                                                                                                                                                                      |
-|-------------------------------------|----|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 프로퍼티 키 변경으로 기존 테스트 실패               | 중  | Phase 1에서 양쪽 키 동시 등록                                                                                                                                                                    |
-| 46개 서버 일괄 수정 중 누락                   | 중  | Contract test로 누락 서버 자동 탐지                                                                                                                                                              |
-| Launcher.shared 도입으로 기존 코드 컴파일 경고   | 낮  | @Deprecated + ReplaceWith로 IDE 자동 수정                                                                                                                                                    |
-| registerSystemProperties() 멀티스레드 경합 | 낮  | 테스트는 보통 단일 스레드; 문서로 주의사항 명시                                                                                                                                                             |
-| 병렬 테스트 스레드 안전성                      | 중  | `registerSystemProperties()`는 JVM-global `System.setProperty`를 수정하므로 병렬 실행 클래스에서 `previousValues` snapshot이 충돌할 수 있음. `@Execution(ExecutionMode.SAME_THREAD)` 사용 권장을 KDoc 및 README에 문서화 |
-| contract test 서버 목록 드리프트            | 낮  | contract test의 `serverFactories` 목록이 하드코딩되어 새 서버 추가 시 수동 업데이트 필요. 향후 `ServiceLoader` 또는 classpath scanning 기반 자동 검색 도입 고려                                                               |
+| 리스크                                         | 영향 | 완화                                                                                                                                                                                                                     |
+|------------------------------------------------|------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 프로퍼티 키 변경으로 기존 테스트 실패          | 중   | Phase 1에서 양쪽 키 동시 등록                                                                                                                                                                                            |
+| 46개 서버 일괄 수정 중 누락                    | 중   | Contract test로 누락 서버 자동 탐지                                                                                                                                                                                      |
+| Launcher.shared 도입으로 기존 코드 컴파일 경고 | 낮   | @Deprecated + ReplaceWith로 IDE 자동 수정                                                                                                                                                                                |
+| registerSystemProperties() 멀티스레드 경합     | 낮   | 테스트는 보통 단일 스레드; 문서로 주의사항 명시                                                                                                                                                                          |
+| 병렬 테스트 스레드 안전성                      | 중   | `registerSystemProperties()`는 JVM-global `System.setProperty`를 수정하므로 병렬 실행 클래스에서 `previousValues` snapshot이 충돌할 수 있음. `@Execution(ExecutionMode.SAME_THREAD)` 사용 권장을 KDoc 및 README에 문서화 |
+| contract test 서버 목록 드리프트               | 낮   | contract test의 `serverFactories` 목록이 하드코딩되어 새 서버 추가 시 수동 업데이트 필요. 향후 `ServiceLoader` 또는 classpath scanning 기반 자동 검색 도입 고려                                                          |

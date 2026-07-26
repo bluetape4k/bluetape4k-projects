@@ -1,12 +1,12 @@
 package io.bluetape4k.math.special
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import kotlin.math.ln
-import io.bluetape4k.assertions.assertFailsWith
 
 class FactorialsTest {
 

@@ -1,5 +1,8 @@
 package io.bluetape4k.okio.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.okio.AbstractOkioTest
@@ -7,11 +10,8 @@ import io.bluetape4k.okio.SEGMENT_SIZE
 import kotlinx.coroutines.test.runTest
 import okio.Buffer
 import okio.Timeout
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.io.IOException
-import io.bluetape4k.assertions.assertFailsWith
 
 class BufferedSuspendedSinkTest: AbstractOkioTest() {
 

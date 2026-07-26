@@ -1,7 +1,6 @@
 # bluetape4k-rule-engine / bluetape4k-states 구현 플랜
 
-**작성일**: 2026-04-04
-**스펙**: `docs/superpowers/specs/2026-04-04-rule-engine-states-design.md`
+**작성일**: 2026-04-04 **스펙**: `docs/superpowers/specs/2026-04-04-rule-engine-states-design.md`
 
 ---
 
@@ -26,7 +25,7 @@
 ### Task 2: 핵심 인터페이스 + Data Class [complexity: high]
 
 - `api/BaseStateMachine.kt` — 읽기 전용 공통 인터페이스 `<S: Any, E: Any>`
-  - `currentState`, `initialState`, `finalStates`, `canTransition()`, `allowedEvents()`, `isInFinalState()`
+    - `currentState`, `initialState`, `finalStates`, `canTransition()`, `allowedEvents()`, `isInFinalState()`
 - `api/StateMachine.kt` — `BaseStateMachine` 확장, `fun transition(event): TransitionResult`
 - `api/SuspendStateMachineInterface.kt` — `BaseStateMachine` 확장, `suspend fun transition()`, `stateFlow: StateFlow<S>`
 - `api/TransitionResult.kt` — `data class <S, E>(previousState, event, currentState) : Serializable`, serialVersionUID = 1L
@@ -55,13 +54,13 @@
 ### Task 5: DSL 빌더 [complexity: medium]
 
 - `core/StateMachineDsl.kt`:
-  - `@StateMachineDsl` DslMarker
-  - `StateMachineBuilder<S, E>` (initialState, finalStates, transitions, onTransition)
-  - `SuspendStateMachineBuilder<S, E>` (suspend onTransition)
-  - `TransitionBuilder<S, E>` (guard 설정)
-  - `inline fun <reified S, E> stateMachine {}` 진입점
-  - `inline fun <reified S, E> suspendStateMachine {}` 진입점
-  - `inline fun <reified E> on(): Class<E>` 헬퍼
+    - `@StateMachineDsl` DslMarker
+    - `StateMachineBuilder<S, E>` (initialState, finalStates, transitions, onTransition)
+    - `SuspendStateMachineBuilder<S, E>` (suspend onTransition)
+    - `TransitionBuilder<S, E>` (guard 설정)
+    - `inline fun <reified S, E> stateMachine {}` 진입점
+    - `inline fun <reified S, E> suspendStateMachine {}` 진입점
+    - `inline fun <reified E> on(): Class<E>` 헬퍼
 - **AC**: DSL 테스트 5케이스 + Guard 테스트 4케이스 통과
 
 ### Task 6: 예제 테스트 + README [complexity: low]
@@ -79,13 +78,13 @@
 ### Task 7: 모듈 초기화 + Libs.kt 추가 [complexity: low]
 
 - `buildSrc/src/main/kotlin/Libs.kt`에 추가:
-  - `const val typesafe_config = "com.typesafe:config:1.4.3"`
-  - `val kotlin_scripting_jvm_host = kotlin("scripting-jvm-host")`
+    - `const val typesafe_config = "com.typesafe:config:1.4.3"`
+    - `val kotlin_scripting_jvm_host = kotlin("scripting-jvm-host")`
 - `utils/rule-engine/build.gradle.kts` 생성:
-  - `configurations { testImplementation.get().extendsFrom(compileOnly.get()) }` (runtimeOnly 불필요)
-  - Spring BOM: `implementation(platform(Libs.spring_boot3_dependencies))`
-  - `compileOnly`: mvel2, kotlin_scripting_common/jvm/jvm_host, spring-expression, jackson_dataformat_yaml, typesafe_config
-  - `testImplementation`: mvel2, kotlin_scripting_jvm_host, spring-context
+    - `configurations { testImplementation.get().extendsFrom(compileOnly.get()) }` (runtimeOnly 불필요)
+    - Spring BOM: `implementation(platform(Libs.spring_boot3_dependencies))`
+    - `compileOnly`: mvel2, kotlin_scripting_common/jvm/jvm_host, spring-expression, jackson_dataformat_yaml, typesafe_config
+    - `testImplementation`: mvel2, kotlin_scripting_jvm_host, spring-context
 - 디렉토리 구조: `src/main/kotlin/io/bluetape4k/rule/{api,annotation,core,support,engines/{mvel2,spel,kotlinscript},readers,exception}/`
 - **AC**: `./gradlew :bluetape4k-rule-engine:dependencies` 성공
 
@@ -111,15 +110,15 @@
 - `core/DefaultRule.kt` — condition + actions 기반 Rule 구현
 - `core/DefaultSuspendRule.kt` — SuspendCondition + SuspendAction 기반
 - `core/RuleDsl.kt`:
-  - `@RuleDsl` DslMarker
-  - `RuleBuilder`, `SuspendRuleBuilder`
-  - `fun rule {}`, `fun suspendRule {}`, `fun ruleEngine {}`
+    - `@RuleDsl` DslMarker
+    - `RuleBuilder`, `SuspendRuleBuilder`
+    - `fun rule {}`, `fun suspendRule {}`, `fun ruleEngine {}`
 - **AC**: Facts + Rule DSL 테스트 12케이스 통과
 
 ### Task 10: DefaultRuleEngine + DefaultSuspendRuleEngine [complexity: high]
 
 - `core/DefaultRuleEngine.kt` — `CopyOnWriteArrayList` 리스너, priority threshold, skipOnFirst* 3종
-  - `beforeEvaluate`, `afterEvaluate`, `beforeExecute`, `afterExecute` 리스너 훅
+    - `beforeEvaluate`, `afterEvaluate`, `beforeExecute`, `afterExecute` 리스너 훅
 - `core/DefaultSuspendRuleEngine.kt` — `SuspendRule`은 직접 호출, 일반 `Rule`은 `withContext(Dispatchers.IO)`
 - `core/DefaultRuleListener.kt`, `core/DefaultRuleEngineListener.kt` — 기본 로깅 구현
 - **AC**: DefaultRuleEngine 10케이스 + SuspendRuleEngine 6케이스 통과
@@ -164,8 +163,8 @@
 ### Task 16: Kotlin Script Expression Engine [complexity: medium]
 
 - `engines/kotlinscript/KotlinScriptEngine.kt` — `BasicJvmScriptingHost` 기반
-  - `ScriptCompilationConfiguration`: `dependenciesFromCurrentContext(wholeClasspath = true)`, `providedProperties("facts" to Facts::class)`
-  - 컴파일 결과 `ConcurrentHashMap` 캐싱
+    - `ScriptCompilationConfiguration`: `dependenciesFromCurrentContext(wholeClasspath = true)`, `providedProperties("facts" to Facts::class)`
+    - 컴파일 결과 `ConcurrentHashMap` 캐싱
 - `engines/kotlinscript/KotlinScriptCondition.kt`, `KotlinScriptAction.kt`, `KotlinScriptRule.kt`, `KotlinScriptSupport.kt`
 - **AC**: KotlinScript 테스트 5케이스 통과
 

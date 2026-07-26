@@ -1,11 +1,10 @@
 # NearCache 통일 설계
 
-**날짜:** 2026-03-18
-**상태:** 승인됨 (리뷰 반영 v2)
+**날짜:** 2026-03-18 **상태:** 승인됨 (리뷰 반영 v2)
 
 ## 목표
 
-Redisson, Lettuce, Hazelcast, JCache 4가지 백엔드의 NearCache 구현을 공통 인터페이스(`NearCacheOperations`, `SuspendNearCacheOperations`)로 통일하여:
+Redisson, Lettuce, Hazelcast, JCache 4가지 백엔드의 NearCache 구현을 공통 인터페이스 (`NearCacheOperations`, `SuspendNearCacheOperations`)로 통일하여:
 
 1. 동일한 API로 백엔드 교체 가능
 2. Resilience를 Decorator 패턴으로 일원화
@@ -13,16 +12,16 @@ Redisson, Lettuce, Hazelcast, JCache 4가지 백엔드의 NearCache 구현을 �
 
 ## 설계 결정 요약
 
-| 결정 항목 | 선택 |
-|-----------|------|
-| 인터페이스 위치 | `cache-core` |
-| Resilience 전략 | 공통 `ResilientNearCacheDecorator` (cache-core) |
-| 기존 JCache NearCache | `JCacheNearCache`로 리팩토링 (NearCacheOperations 구현) |
-| 키 타입 | `String` 고정 (`NearCacheOperations<V>`) |
-| Hazelcast resilience | Decorator 사용 가능 (사용자 선택) |
-| Decorator 전략 | **retry + failure strategy only** (write-behind 없음, delegate의 write-through 원자성 유지) |
-| `remove()` 반환 타입 | `Unit` (기존 구현체와 일치) |
-| `putIfAbsent()` 반환 타입 | `V?` (기존 구현체 및 JCache/ConcurrentMap 관례와 일치) |
+| 결정 항목                 | 선택                                                                                        |
+|---------------------------|---------------------------------------------------------------------------------------------|
+| 인터페이스 위치           | `cache-core`                                                                                |
+| Resilience 전략           | 공통 `ResilientNearCacheDecorator` (cache-core)                                             |
+| 기존 JCache NearCache     | `JCacheNearCache`로 리팩토링 (NearCacheOperations 구현)                                     |
+| 키 타입                   | `String` 고정 (`NearCacheOperations<V>`)                                                    |
+| Hazelcast resilience      | Decorator 사용 가능 (사용자 선택)                                                           |
+| Decorator 전략            | **retry + failure strategy only** (write-behind 없음, delegate의 write-through 원자성 유지) |
+| `remove()` 반환 타입      | `Unit` (기존 구현체와 일치)                                                                 |
+| `putIfAbsent()` 반환 타입 | `V?` (기존 구현체 및 JCache/ConcurrentMap 관례와 일치)                                      |
 
 ## 구현 순서
 
@@ -115,8 +114,7 @@ interface SuspendNearCacheOperations<V: Any> {
 ```
 
 **참고:** `SuspendNearCacheOperations`는 `AutoCloseable`을 구현하지 않음.
-`AutoCloseable.close()`는 non-suspend이므로 suspend `close()`와 충돌.
-대신 `suspend fun close()`를 직접 선언.
+`AutoCloseable.close()`는 non-suspend이므로 suspend `close()`와 충돌. 대신 `suspend fun close()`를 직접 선언.
 
 ### NearCacheStatistics
 
@@ -148,6 +146,7 @@ data class DefaultNearCacheStatistics(
 ```
 
 **구현 참고:**
+
 - `localHits`/`localMisses`/`localEvictions`: Caffeine `CacheStats`에서 직접 매핑 (`stats.hitCount()` 등)
 - `backHits`/`backMisses`: 각 구현체에서 `AtomicLong` 카운터로 추적 (get 시 front miss → back hit/miss 카운트)
 - 구현체가 Caffeine `CacheStats`의 더 상세한 정보가 필요하면 구현 클래스에서 직접 `localStats(): CacheStats?` 제공 가능 (인터페이스 외)
@@ -157,6 +156,7 @@ data class DefaultNearCacheStatistics(
 ### 설계 원칙: Retry + Failure Strategy Only
 
 Decorator는 **write-behind를 하지 않음**. delegate의 write-through 원자성을 유지하기 위해:
+
 - Read: delegate에 resilience4j `Retry` 적용 + `GetFailureStrategy`
 - Write: delegate에 resilience4j `Retry` 적용 (delegate가 front+back을 원자적으로 처리)
 - write-behind가 필요한 경우 별도 설계로 추후 대응
@@ -186,7 +186,7 @@ fun nearCacheResilienceConfig(
 - Read: delegate에 resilience4j `Retry` 적용 + `GetFailureStrategy`
 - Write: delegate에 resilience4j `Retry` 적용 (원자적 write-through 유지)
 - `stats()`, `localCacheSize()` 등 관리 메서드: delegate에 직접 위임
-- `close()`: delegate.close() 위임
+- `close()`: delegate.close () 위임
 
 ### ResilientSuspendNearCacheDecorator
 
@@ -221,53 +221,51 @@ fun <V: Any> SuspendNearCacheOperations<V>.withResilience(
 
 ### cache-lettuce
 
-| 파일 | 역할 |
-|------|------|
-| `LettuceNearCache<V>` | `NearCacheOperations<V>` 구현, RedisCommands (sync) |
+| 파일                         | 역할                                                          |
+|------------------------------|---------------------------------------------------------------|
+| `LettuceNearCache<V>`        | `NearCacheOperations<V>` 구현, RedisCommands (sync)           |
 | `LettuceSuspendNearCache<V>` | `SuspendNearCacheOperations<V>` 구현, RedisCoroutinesCommands |
-| `LettuceNearCacheConfig` | 기존 유지 |
-| `LettuceNearCacheFactory` | `lettuceNearCacheOf()`, `lettuceSuspendNearCacheOf()` 팩토리 |
+| `LettuceNearCacheConfig`     | 기존 유지                                                     |
+| `LettuceNearCacheFactory`    | `lettuceNearCacheOf()`, `lettuceSuspendNearCacheOf()` 팩토리  |
 
 **유지되는 헬퍼 클래스:**
+
 - `LettuceLocalCache.kt` — front cache 인터페이스
 - `LettuceCaffeineLocalCache.kt` — Caffeine 기반 front cache + RESP3 invalidation
 - `TrackingInvalidationListener.kt` — CLIENT TRACKING push 처리
 
 ### cache-hazelcast
 
-| 파일 | 역할 |
-|------|------|
-| `HazelcastNearCache<V>` | `NearCacheOperations<V>` 구현, IMap (sync) |
-| `HazelcastSuspendNearCache<V>` | `SuspendNearCacheOperations<V>` 구현, IMap async + await |
-| 누락 메서드 추가 | `putIfAbsent`, `replace`, `getAndRemove`, `getAndReplace` |
+| 파일                           | 역할                                                      |
+|--------------------------------|-----------------------------------------------------------|
+| `HazelcastNearCache<V>`        | `NearCacheOperations<V>` 구현, IMap (sync)                |
+| `HazelcastSuspendNearCache<V>` | `SuspendNearCacheOperations<V>` 구현, IMap async + await  |
+| 누락 메서드 추가               | `putIfAbsent`, `replace`, `getAndRemove`, `getAndReplace` |
 
 **유지되는 헬퍼 클래스:**
+
 - `HazelcastLocalCache.kt` — front cache 인터페이스
 - `CaffeineHazelcastLocalCache.kt` — Caffeine + IMap EntryListener
 - `HazelcastEntryEventListener.kt` — invalidation 이벤트 처리
 
 ### cache-redisson
 
-| 파일 | 역할 |
-|------|------|
-| `RedissonNearCache<V>` (신규) | `NearCacheOperations<V>` 직접 구현, RBucket (내장 retry) |
+| 파일                                 | 역할                                                      |
+|--------------------------------------|-----------------------------------------------------------|
+| `RedissonNearCache<V>` (신규)        | `NearCacheOperations<V>` 직접 구현, RBucket (내장 retry)  |
 | `RedissonSuspendNearCache<V>` (신규) | `SuspendNearCacheOperations<V>`, RBucket.*Async().await() |
 
 **Redisson invalidation 전략:**
-기존 RESP3 하이브리드(Redisson 데이터 + Lettuce tracking)를 Redisson 네이티브로 단순화.
-Redisson의 `LocalCachedMapOptions`나 topic 기반 invalidation 활용.
+기존 RESP3 하이브리드 (Redisson 데이터 + Lettuce tracking)를 Redisson 네이티브로 단순화. Redisson의 `LocalCachedMapOptions`나 topic 기반 invalidation 활용.
 
 ### cache-core (JCache)
 
-| 파일 | 역할 |
-|------|------|
-| `JCacheNearCache<V>` | `NearCacheOperations<V>`, javax.cache.Cache<String, V> back |
-| `JCacheSuspendNearCache<V>` | `SuspendNearCacheOperations<V>`, withContext(IO) 래핑 |
+| 파일                        | 역할                                                        |
+|-----------------------------|-------------------------------------------------------------|
+| `JCacheNearCache<V>`        | `NearCacheOperations<V>`, javax.cache.Cache<String, V> back |
+| `JCacheSuspendNearCache<V>` | `SuspendNearCacheOperations<V>`, withContext(IO) 래핑       |
 
-**참고:** 기존 `NearCache<K, V>`의 제네릭 K를 String으로 고정.
-현재 코드베이스에서 `NearCache<K, V>`를 non-String 키로 사용하는 곳이 없음을 확인 완료.
-기존 `RedissonNearCache` 팩토리가 JCache 기반 `NearCache<K, V>`를 생성하지만,
-이 팩토리 자체가 새 직접 구현체로 대체되므로 호환성 문제 없음.
+**참고:** 기존 `NearCache<K, V>`의 제네릭 K를 String으로 고정. 현재 코드베이스에서 `NearCache<K, V>`를 non-String 키로 사용하는 곳이 없음을 확인 완료. 기존 `RedissonNearCache` 팩토리가 JCache 기반 `NearCache<K, V>`를 생성하지만, 이 팩토리 자체가 새 직접 구현체로 대체되므로 호환성 문제 없음.
 
 ### 팩토리 함수 패턴 (`*Of`)
 
@@ -343,69 +341,69 @@ class ResilientLettuceNearCacheTest : AbstractNearCacheOperationsTest<String>() 
 
 ### 삭제 파일
 
-| 모듈 | 파일 | 대체 |
-|------|------|------|
-| **cache-lettuce** | `ResilientLettuceNearCache.kt` | `.withResilience {}` |
-| cache-lettuce | `ResilientLettuceSuspendNearCache.kt` | `.withResilience {}` |
-| cache-lettuce | `ResilientLettuceNearCacheConfig.kt` | `NearCacheResilienceConfig` |
-| cache-lettuce | `LettuceNearCacheOperations.kt` | `NearCacheOperations` (cache-core) |
-| cache-lettuce | `LettuceSuspendNearCacheOperations.kt` | `SuspendNearCacheOperations` (cache-core) |
-| cache-lettuce | `ResilientLettuceNearCacheTest.kt` | abstract 테스트 상속 |
-| cache-lettuce | `ResilientLettuceSuspendNearCacheTest.kt` | abstract 테스트 상속 |
-| **cache-hazelcast** | `ResilientHazelcastNearCache.kt` | `.withResilience {}` |
-| cache-hazelcast | `ResilientHazelcastSuspendNearCache.kt` | `.withResilience {}` |
-| cache-hazelcast | `ResilientHazelcastNearCacheConfig.kt` | `NearCacheResilienceConfig` |
-| cache-hazelcast | `ResilientHazelcastNearCacheTest.kt` | abstract 테스트 상속 |
-| cache-hazelcast | `ResilientHazelcastSuspendNearCacheTest.kt` | abstract 테스트 상속 |
-| **cache-redisson** | `RedissonNearCache.kt` (JCache 팩토리) | 새 직접 구현체 |
-| cache-redisson | `RedissonResp3NearCache.kt` | `RedissonNearCache`로 통합 |
-| cache-redisson | `RedissonResp3SuspendNearCache.kt` | `RedissonSuspendNearCache`로 통합 |
-| cache-redisson | `ResilientRedissonResp3NearCache.kt` | `.withResilience {}` |
-| cache-redisson | `ResilientRedissonResp3SuspendNearCache.kt` | `.withResilience {}` |
-| cache-redisson | `ResilientRedissonResp3NearCacheConfig.kt` | `NearCacheResilienceConfig` |
-| cache-redisson | `ResilientRedissonResp3NearCacheTest.kt` | abstract 테스트 상속 |
-| cache-redisson | `ResilientRedissonResp3SuspendNearCacheTest.kt` | abstract 테스트 상속 |
-| **cache-core** | `ResilientNearCacheLocalCache.kt` | Decorator가 front 직접 관리 안 함 |
-| cache-core | `CaffeineResilientLocalCache.kt` | 동일 |
-| cache-core | `ResilientLocalCache.kt` (인터페이스) | 동일 |
+| 모듈                | 파일                                            | 대체                                      |
+|---------------------|-------------------------------------------------|-------------------------------------------|
+| **cache-lettuce**   | `ResilientLettuceNearCache.kt`                  | `.withResilience {}`                      |
+| cache-lettuce       | `ResilientLettuceSuspendNearCache.kt`           | `.withResilience {}`                      |
+| cache-lettuce       | `ResilientLettuceNearCacheConfig.kt`            | `NearCacheResilienceConfig`               |
+| cache-lettuce       | `LettuceNearCacheOperations.kt`                 | `NearCacheOperations` (cache-core)        |
+| cache-lettuce       | `LettuceSuspendNearCacheOperations.kt`          | `SuspendNearCacheOperations` (cache-core) |
+| cache-lettuce       | `ResilientLettuceNearCacheTest.kt`              | abstract 테스트 상속                      |
+| cache-lettuce       | `ResilientLettuceSuspendNearCacheTest.kt`       | abstract 테스트 상속                      |
+| **cache-hazelcast** | `ResilientHazelcastNearCache.kt`                | `.withResilience {}`                      |
+| cache-hazelcast     | `ResilientHazelcastSuspendNearCache.kt`         | `.withResilience {}`                      |
+| cache-hazelcast     | `ResilientHazelcastNearCacheConfig.kt`          | `NearCacheResilienceConfig`               |
+| cache-hazelcast     | `ResilientHazelcastNearCacheTest.kt`            | abstract 테스트 상속                      |
+| cache-hazelcast     | `ResilientHazelcastSuspendNearCacheTest.kt`     | abstract 테스트 상속                      |
+| **cache-redisson**  | `RedissonNearCache.kt` (JCache 팩토리)          | 새 직접 구현체                            |
+| cache-redisson      | `RedissonResp3NearCache.kt`                     | `RedissonNearCache`로 통합                |
+| cache-redisson      | `RedissonResp3SuspendNearCache.kt`              | `RedissonSuspendNearCache`로 통합         |
+| cache-redisson      | `ResilientRedissonResp3NearCache.kt`            | `.withResilience {}`                      |
+| cache-redisson      | `ResilientRedissonResp3SuspendNearCache.kt`     | `.withResilience {}`                      |
+| cache-redisson      | `ResilientRedissonResp3NearCacheConfig.kt`      | `NearCacheResilienceConfig`               |
+| cache-redisson      | `ResilientRedissonResp3NearCacheTest.kt`        | abstract 테스트 상속                      |
+| cache-redisson      | `ResilientRedissonResp3SuspendNearCacheTest.kt` | abstract 테스트 상속                      |
+| **cache-core**      | `ResilientNearCacheLocalCache.kt`               | Decorator가 front 직접 관리 안 함         |
+| cache-core          | `CaffeineResilientLocalCache.kt`                | 동일                                      |
+| cache-core          | `ResilientLocalCache.kt` (인터페이스)           | 동일                                      |
 
 ### 리팩토링 파일
 
-| 모듈 | 변경 |
-|------|------|
-| cache-core `NearCache.kt` → `JCacheNearCache.kt` | `NearCacheOperations<V>` 구현, K→String 고정 |
-| cache-core `SuspendNearCache.kt` → `JCacheSuspendNearCache.kt` | `SuspendNearCacheOperations<V>` 구현 |
-| cache-core `ResilientNearCache.kt` → `ResilientNearCacheDecorator.kt` | retry+failure strategy Decorator |
-| cache-core `ResilientSuspendNearCache.kt` → `ResilientSuspendNearCacheDecorator.kt` | 동일 |
-| cache-core `ResilientNearCacheConfig.kt` → `NearCacheResilienceConfig.kt` | 네이밍 + Builder, writeQueueCapacity 제거 |
-| cache-core `BackCacheCommand.kt` | 삭제 (write-behind 제거로 불필요) |
-| cache-lettuce `LettuceNearCache.kt` | `NearCacheOperations<V>` 구현 + stats 카운터 추가 |
-| cache-lettuce `LettuceSuspendNearCache.kt` | `SuspendNearCacheOperations<V>` 구현 + stats 카운터 추가 |
-| cache-lettuce `LettuceNearCacheFactory.kt` | `*Of` 패턴으로 변경 |
-| cache-hazelcast `HazelcastNearCache.kt` | `NearCacheOperations<V>` + 누락 메서드 + stats 카운터 |
-| cache-hazelcast `HazelcastSuspendNearCache.kt` | `SuspendNearCacheOperations<V>` + stats 카운터 |
+| 모듈                                                                                | 변경                                                     |
+|-------------------------------------------------------------------------------------|----------------------------------------------------------|
+| cache-core `NearCache.kt` → `JCacheNearCache.kt`                                    | `NearCacheOperations<V>` 구현, K→String 고정             |
+| cache-core `SuspendNearCache.kt` → `JCacheSuspendNearCache.kt`                      | `SuspendNearCacheOperations<V>` 구현                     |
+| cache-core `ResilientNearCache.kt` → `ResilientNearCacheDecorator.kt`               | retry+failure strategy Decorator                         |
+| cache-core `ResilientSuspendNearCache.kt` → `ResilientSuspendNearCacheDecorator.kt` | 동일                                                     |
+| cache-core `ResilientNearCacheConfig.kt` → `NearCacheResilienceConfig.kt`           | 네이밍 + Builder, writeQueueCapacity 제거                |
+| cache-core `BackCacheCommand.kt`                                                    | 삭제 (write-behind 제거로 불필요)                        |
+| cache-lettuce `LettuceNearCache.kt`                                                 | `NearCacheOperations<V>` 구현 + stats 카운터 추가        |
+| cache-lettuce `LettuceSuspendNearCache.kt`                                          | `SuspendNearCacheOperations<V>` 구현 + stats 카운터 추가 |
+| cache-lettuce `LettuceNearCacheFactory.kt`                                          | `*Of` 패턴으로 변경                                      |
+| cache-hazelcast `HazelcastNearCache.kt`                                             | `NearCacheOperations<V>` + 누락 메서드 + stats 카운터    |
+| cache-hazelcast `HazelcastSuspendNearCache.kt`                                      | `SuspendNearCacheOperations<V>` + stats 카운터           |
 
 ### 신규 파일
 
-| 모듈 | 파일 |
-|------|------|
-| cache-core | `NearCacheOperations.kt` |
-| cache-core | `SuspendNearCacheOperations.kt` |
-| cache-core | `NearCacheStatistics.kt` (interface + DefaultNearCacheStatistics) |
-| cache-core | `NearCacheResilienceConfig.kt` + `NearCacheResilienceConfigBuilder` |
-| cache-core test fixture | `AbstractNearCacheOperationsTest.kt` |
-| cache-core test fixture | `AbstractSuspendNearCacheOperationsTest.kt` |
-| cache-redisson | `RedissonNearCache.kt` (직접 구현체) |
-| cache-redisson | `RedissonSuspendNearCache.kt` |
+| 모듈                    | 파일                                                                |
+|-------------------------|---------------------------------------------------------------------|
+| cache-core              | `NearCacheOperations.kt`                                            |
+| cache-core              | `SuspendNearCacheOperations.kt`                                     |
+| cache-core              | `NearCacheStatistics.kt` (interface + DefaultNearCacheStatistics)   |
+| cache-core              | `NearCacheResilienceConfig.kt` + `NearCacheResilienceConfigBuilder` |
+| cache-core test fixture | `AbstractNearCacheOperationsTest.kt`                                |
+| cache-core test fixture | `AbstractSuspendNearCacheOperationsTest.kt`                         |
+| cache-redisson          | `RedissonNearCache.kt` (직접 구현체)                                |
+| cache-redisson          | `RedissonSuspendNearCache.kt`                                       |
 
 ### JCache SPI 파일 처리
 
-| 모듈 | 파일 | 처리 |
-|------|------|------|
-| cache-redisson | `RedissonNearCacheManager.kt` | JCache 팩토리 삭제 시 함께 삭제 |
-| cache-redisson | `RedissonNearCachingProvider.kt` | 동일 |
-| cache-redisson | `RedissonNearCacheConfig.kt` | 동일 |
-| cache-redisson | `META-INF/services/javax.cache.spi.CachingProvider` | NearCachingProvider 항목 제거 |
+| 모듈           | 파일                                                | 처리                            |
+|----------------|-----------------------------------------------------|---------------------------------|
+| cache-redisson | `RedissonNearCacheManager.kt`                       | JCache 팩토리 삭제 시 함께 삭제 |
+| cache-redisson | `RedissonNearCachingProvider.kt`                    | 동일                            |
+| cache-redisson | `RedissonNearCacheConfig.kt`                        | 동일                            |
+| cache-redisson | `META-INF/services/javax.cache.spi.CachingProvider` | NearCachingProvider 항목 제거   |
 
 ## 사용 예시
 

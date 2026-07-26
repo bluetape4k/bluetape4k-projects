@@ -1,12 +1,12 @@
 package io.bluetape4k.http.hc5.examples
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.entity.consume
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Resourcex
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.apache.hc.client5.http.classic.methods.HttpPost
 import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.core5.http.ContentType

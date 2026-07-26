@@ -4,6 +4,8 @@ import com.mongodb.client.model.Accumulators
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Projections
 import com.mongodb.client.model.Sorts
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.mongodb.AbstractMongoTest
 import io.bluetape4k.mongodb.aggregation.groupStage
@@ -18,8 +20,6 @@ import io.bluetape4k.mongodb.bson.documentOf
 import io.bluetape4k.mongodb.getCollectionOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
 import org.bson.Document
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

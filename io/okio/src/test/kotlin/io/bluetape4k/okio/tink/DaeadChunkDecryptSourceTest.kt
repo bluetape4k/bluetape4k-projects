@@ -271,7 +271,14 @@ class DaeadChunkDecryptSourceTest: AbstractTinkEncryptTest() {
     @Test
     fun `round-trip with payload sizes around chunk boundaries`() {
         val chunkSize = 16
-        listOf(chunkSize - 1, chunkSize, chunkSize + 1, 2 * chunkSize - 1, 2 * chunkSize, 2 * chunkSize + 1).forEach { size ->
+        listOf(
+            chunkSize - 1,
+            chunkSize,
+            chunkSize + 1,
+            2 * chunkSize - 1,
+            2 * chunkSize,
+            2 * chunkSize + 1
+        ).forEach { size ->
             val plaintext = ByteArray(size) { (it % 251).toByte() }
             val encrypted = encrypt(plaintext, chunkSize = chunkSize)
 

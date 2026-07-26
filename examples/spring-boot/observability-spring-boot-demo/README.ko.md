@@ -2,8 +2,7 @@
 
 [English](./README.md) | 한국어
 
-Spring Boot 4에서 bluetape4k observation helper를 Spring Boot Actuator Prometheus metrics와
-애플리케이션 소유 OTLP tracing 설정으로 사용하는 실행 가능한 예제입니다.
+Spring Boot 4에서 bluetape4k observation helper를 Spring Boot Actuator Prometheus metrics와 애플리케이션 소유 OTLP tracing 설정으로 사용하는 실행 가능한 예제입니다.
 
 ## 예제 시나리오
 
@@ -22,8 +21,7 @@ Prometheus server 없이 scrape 결과를 확인할 수 있고, 테스트는 OTL
 
 ![Spring Boot observability demo architecture](../../../docs/images/readme-diagrams/examples-spring-boot-observability-spring-boot-demo-architecture-01.png)
 
-Spring Boot가 metrics endpoint 등록을 소유합니다. 애플리케이션은 관측 대상 작업을 제공하고,
-Actuator가 Micrometer observation을 Prometheus scrape output으로 변환합니다.
+Spring Boot가 metrics endpoint 등록을 소유합니다. 애플리케이션은 관측 대상 작업을 제공하고, Actuator가 Micrometer observation을 Prometheus scrape output으로 변환합니다.
 
 ## Sequence Diagram
 
@@ -67,8 +65,7 @@ management:
       endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:http://localhost:4318/v1/traces}
 ```
 
-`management.defaults.metrics.export.enabled=false`는 예제 classpath에 Datadog 같은 registry 구현이
-있더라도 credential 없이 시작되지 않게 막습니다. Prometheus만 명시적으로 활성화합니다.
+`management.defaults.metrics.export.enabled=false`는 예제 classpath에 Datadog 같은 registry 구현이 있더라도 credential 없이 시작되지 않게 막습니다. Prometheus만 명시적으로 활성화합니다.
 
 ## 실행
 

@@ -21,9 +21,9 @@ import java.io.Writer
 internal class CsvLineWriter(
     writer: Writer,
     settings: CsvSettings = CsvSettings.DEFAULT,
-) : Closeable {
+): Closeable {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val delegate = DelimitedWriter(
         writer = writer,

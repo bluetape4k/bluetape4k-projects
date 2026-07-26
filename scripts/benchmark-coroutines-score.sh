@@ -8,7 +8,7 @@ LOG=$(mktemp /tmp/coroutines-bench-XXXXXX.log)
 cd "$REPO"
 ./gradlew :bluetape4k-coroutines:coroutinesFlowBenchmark --rerun-tasks >"$LOG" 2>&1
 
-python3 - "$LOG" << 'PYEOF'
+python3 - "$LOG" <<'PYEOF'
 import sys, re, json, math
 
 log = open(sys.argv[1]).read()

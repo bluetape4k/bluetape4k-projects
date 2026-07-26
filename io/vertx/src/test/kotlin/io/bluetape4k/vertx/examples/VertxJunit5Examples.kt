@@ -1,5 +1,9 @@
 package io.bluetape4k.vertx.examples
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -11,10 +15,6 @@ import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.runBlocking
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
@@ -71,10 +71,10 @@ class VertxJunit5Examples: AbstractVertxTest() {
      * [Chekpoint when there are multiple success conditions](https://vertx.io/docs/vertx-junit5/java/#_checkpoint_when_there_are_multiple_success_conditions)
      */
     @Test
-        fun `chekpoint when there are multiple success conditions`(vertx: Vertx, testContext: VertxTestContext) {
-            val serverStarted = testContext.checkpoint()
-            val requestesServed = testContext.checkpoint().asLatch(10)
-            val responsesReceived = testContext.checkpoint().asLatch(10)
+    fun `chekpoint when there are multiple success conditions`(vertx: Vertx, testContext: VertxTestContext) {
+        val serverStarted = testContext.checkpoint()
+        val requestesServed = testContext.checkpoint().asLatch(10)
+        val responsesReceived = testContext.checkpoint().asLatch(10)
 
         vertx.createHttpServer()
             .requestHandler { req ->

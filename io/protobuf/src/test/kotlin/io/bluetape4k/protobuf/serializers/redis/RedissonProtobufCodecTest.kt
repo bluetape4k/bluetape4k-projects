@@ -9,7 +9,6 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.protobuf.redis.messages.RedisSimpleMessage
-import io.bluetape4k.protobuf.redis.messages.copy
 import io.bluetape4k.protobuf.redis.messages.redisNestedMessage
 import io.bluetape4k.protobuf.redis.messages.redisSimpleMessage
 import io.netty.buffer.ByteBuf
@@ -138,12 +137,12 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
             calls++
             seen = input
             when (behavior) {
-                HostileBehavior.RETAIN_AND_RETURN -> input.retain().let { "retained" }
+                HostileBehavior.RETAIN_AND_RETURN      -> input.retain().let { "retained" }
                 HostileBehavior.EARLY_RELEASE_AND_RETURN -> input.release().let { "released" }
-                HostileBehavior.RETURN_SLICE -> input.slice()
+                HostileBehavior.RETURN_SLICE           -> input.slice()
                 HostileBehavior.RETURN_COMPOSITE_SLICE ->
                     Unpooled.compositeBuffer().addComponent(true, input.slice())
-                HostileBehavior.THROW_AFTER_RETAIN -> {
+                HostileBehavior.THROW_AFTER_RETAIN     -> {
                     input.retain()
                     throw sentinel
                 }

@@ -1,20 +1,20 @@
 package io.bluetape4k.csv.internal
 
-import io.bluetape4k.csv.TsvSettings
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.utils.Resourcex
-import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.csv.TsvSettings
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.utils.Resourcex
 import org.junit.jupiter.api.Test
 
 class TsvLexerTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private fun lexerOf(
         tsv: String,

@@ -1,7 +1,7 @@
 package io.bluetape4k.jackson3.text.yaml
 
-import io.bluetape4k.jackson3.jacksonTypeRef
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.jackson3.jacksonTypeRef
 import org.junit.jupiter.api.Test
 
 class MultipleRootExample: AbstractYamlExample() {

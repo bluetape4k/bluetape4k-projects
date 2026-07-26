@@ -1,5 +1,6 @@
 package io.bluetape4k.http.hc5.examples
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.asyncClientConnectionManager
 import io.bluetape4k.http.hc5.async.executeSuspending
@@ -10,7 +11,6 @@ import io.bluetape4k.http.hc5.ssl.tlsStrategyOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.apache.hc.client5.http.protocol.HttpClientContext
 import org.apache.hc.core5.http.HttpHost
 import org.apache.hc.core5.http.Method

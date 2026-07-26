@@ -26,9 +26,9 @@ import java.io.Writer
 internal class TsvLineWriter(
     private val writer: Writer,
     private val settings: TsvSettings = TsvSettings.DEFAULT,
-) : Closeable {
+): Closeable {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 한 행을 TSV 형식으로 출력합니다.
@@ -43,7 +43,8 @@ internal class TsvLineWriter(
             if (!first) writer.write('\t'.code)
             first = false
             when (field) {
-                null -> { /* 빈 필드 */ }
+                null -> { /* 빈 필드 */
+                }
                 else -> writer.write(escape(field.toString()))
             }
         }

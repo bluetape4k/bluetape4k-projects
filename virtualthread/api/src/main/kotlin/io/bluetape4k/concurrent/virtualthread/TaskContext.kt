@@ -1,7 +1,5 @@
 package io.bluetape4k.concurrent.virtualthread
 
-import java.lang.ScopedValue
-
 /**
  * ScopedValue 기반 컨텍스트 전파 유틸리티입니다.
  *

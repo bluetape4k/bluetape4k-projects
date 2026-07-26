@@ -1,11 +1,11 @@
 package io.bluetape4k.cassandra.querybuilder
 
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.truncate
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cassandra.toCqlIdentifier
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class TruncateStatementExamples {
 

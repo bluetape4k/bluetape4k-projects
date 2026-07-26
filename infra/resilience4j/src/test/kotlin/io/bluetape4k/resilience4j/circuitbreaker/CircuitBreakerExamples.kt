@@ -1,5 +1,7 @@
 package io.bluetape4k.resilience4j.circuitbreaker
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
@@ -7,8 +9,6 @@ import io.bluetape4k.resilience4j.SuspendHelloWorldService
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry
 import io.github.resilience4j.kotlin.circuitbreaker.executeSuspendFunction
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class CircuitBreakerExamples {

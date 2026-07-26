@@ -43,9 +43,9 @@
 
 ## 파일 변경 목록
 
-| 파일 | 변경 유형 |
-|------|---------|
-| `src/test/kotlin/.../ReadableExtensionsTest.kt` | 수정 (T1, T2, T3) |
-| `src/test/kotlin/.../VirtualThreadTransactionTest.kt` | 수정 (T4) |
-| `src/test/kotlin/.../QueryExtensionsTest.kt` | 수정 (T5) |
+| 파일                                                                   | 변경 유형              |
+|------------------------------------------------------------------------|------------------------|
+| `src/test/kotlin/.../ReadableExtensionsTest.kt`                        | 수정 (T1, T2, T3)      |
+| `src/test/kotlin/.../VirtualThreadTransactionTest.kt`                  | 수정 (T4)              |
+| `src/test/kotlin/.../QueryExtensionsTest.kt`                           | 수정 (T5)              |
 | `src/test/kotlin/.../statements/BatchInsertOnConflictDoNothingTest.kt` | 수정 또는 새 파일 (T6) |

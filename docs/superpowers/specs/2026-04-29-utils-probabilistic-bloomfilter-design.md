@@ -32,11 +32,13 @@ Issue #142는 `x-obsoleted/bloomfilter`에 남아 있는 JVM 인메모리 Bloom 
 `LongArray` bitset, SHA-256 기반 double hashing, Bloom Filter 수식으로 `m`/`k`를 계산하는 구현을 신규 모듈에 작성한다.
 
 장점:
+
 - 신규 외부 의존성이 없다.
 - 공개 API가 Guava/Eclipse Collections 타입에 묶이지 않는다.
 - 기존 `x-obsoleted`의 직접 구현 의도를 유지하면서 serializer/hash 라이브러리 의존을 제거한다.
 
 단점:
+
 - Guava처럼 battle-tested 구현을 위임하지 않으므로 수식/bitset/hash 테스트가 중요하다.
 - SHA-256은 Murmur3보다 느릴 수 있다.
 
@@ -45,9 +47,11 @@ Issue #142는 `x-obsoleted/bloomfilter`에 남아 있는 JVM 인메모리 Bloom 
 기존 `Hasher`, `BitSet`, `LongArray` 기반 구현을 새 패키지로 옮긴다.
 
 장점:
+
 - 기존 코드와 테스트 일부를 거의 그대로 이전할 수 있다.
 
 단점:
+
 - `zero-allocation-hashing`과 serialization 의존이 남는다.
 - 기존 mutable 구현은 `String` 전용이고 bucket/lock 로직 검증 비용이 크다.
 - 기존 해시 offset 수식은 double hashing 표준 형태보다 검토하기 어렵다.
@@ -57,9 +61,11 @@ Issue #142는 `x-obsoleted/bloomfilter`에 남아 있는 JVM 인메모리 Bloom 
 Eclipse Collections primitive collections를 내부 bit/index 저장소로 사용한다.
 
 장점:
+
 - 이미 repo dependency catalog에 존재한다.
 
 단점:
+
 - Bloom Filter에 필요한 compact bitset에는 `LongArray`가 더 직접적이고 메모리 효율적이다.
 - 신규 모듈 공개/내부 의존성을 늘리는 이점이 없다.
 
@@ -68,6 +74,7 @@ Eclipse Collections primitive collections를 내부 bit/index 저장소로 사�
 옵션 A를 채택한다. `utils/probabilistic`는 Guava/Eclipse Collections 없이 직접 구현한다. 기존 `x-obsoleted` 구현에서는 API 의도, 테스트 관점, Bloom Filter 수식만 차용하고 의존성/해시 구현은 새로 단순화한다.
 
 Rejected:
+
 - 옵션 B: 기존 구현 전체 승격은 불필요한 외부 의존과 String 전용 mutable 구현을 함께 승격한다.
 - 옵션 C: Eclipse Collections는 이 작업의 핵심인 bit-level Bloom Filter 저장소 문제를 더 단순하게 만들지 않는다.
 
@@ -142,14 +149,14 @@ val filter = bloomFilter<String>(
 
 ## 리스크와 대응
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| 직접 구현 수식 오류 | FPP/메모리 사용량 오류 | `BloomFilterConfig` 단위 테스트로 bit size/hash count 범위 검증 |
-| hash offset 편향 | FPP 악화 | SHA-256 double hashing과 deterministic FPP 회귀 테스트 사용 |
-| `put` 반환값 오해 | 호출자가 중복 검출을 과신 | KDoc/README에 bit 변경 여부라고 명시 |
-| 예상 삽입 수 초과로 FPP 악화 | 운영 오탐률 상승 | `expectedFpp()`와 README 제약 문서화 |
-| suspend API가 I/O 비동기 처리로 오해됨 | 불필요한 dispatcher 전환 기대 | 현재 구현은 비블로킹 메모리 연산이라고 명시 |
-| 동시 접근 오해 | 데이터 경합 | thread-safe 비보장과 외부 동기화 필요성을 KDoc/README에 기록 |
+| Risk                                   | Impact                        | Mitigation                                                      |
+|----------------------------------------|-------------------------------|-----------------------------------------------------------------|
+| 직접 구현 수식 오류                    | FPP/메모리 사용량 오류        | `BloomFilterConfig` 단위 테스트로 bit size/hash count 범위 검증 |
+| hash offset 편향                       | FPP 악화                      | SHA-256 double hashing과 deterministic FPP 회귀 테스트 사용     |
+| `put` 반환값 오해                      | 호출자가 중복 검출을 과신     | KDoc/README에 bit 변경 여부라고 명시                            |
+| 예상 삽입 수 초과로 FPP 악화           | 운영 오탐률 상승              | `expectedFpp()`와 README 제약 문서화                            |
+| suspend API가 I/O 비동기 처리로 오해됨 | 불필요한 dispatcher 전환 기대 | 현재 구현은 비블로킹 메모리 연산이라고 명시                     |
+| 동시 접근 오해                         | 데이터 경합                   | thread-safe 비보장과 외부 동기화 필요성을 KDoc/README에 기록    |
 
 ## Acceptance Criteria
 

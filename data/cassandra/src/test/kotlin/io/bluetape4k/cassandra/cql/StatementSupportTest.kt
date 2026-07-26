@@ -1,10 +1,10 @@
 package io.bluetape4k.cassandra.cql
 
 import com.datastax.oss.driver.api.core.cql.BatchType
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class StatementSupportTest {
 

@@ -18,21 +18,21 @@
 
 ### 1.2 대상 모듈 (4개 생성)
 
-| # | 소스 (experimental) | 대상 디렉토리 | Gradle 프로젝트명 |
-|---|---------------------|--------------|-------------------|
-| 1 | `exposed-jdbc-spring-data-mvc-demo` | `spring-boot3/exposed-jdbc-demo` | `bluetape4k-spring-boot3-exposed-jdbc-demo` |
+| # | 소스 (experimental)                      | 대상 디렉토리                     | Gradle 프로젝트명                            |
+|---|------------------------------------------|-----------------------------------|----------------------------------------------|
+| 1 | `exposed-jdbc-spring-data-mvc-demo`      | `spring-boot3/exposed-jdbc-demo`  | `bluetape4k-spring-boot3-exposed-jdbc-demo`  |
 | 2 | `exposed-r2dbc-spring-data-webflux-demo` | `spring-boot3/exposed-r2dbc-demo` | `bluetape4k-spring-boot3-exposed-r2dbc-demo` |
-| 3 | (JDBC 소스 기반) | `spring-boot4/exposed-jdbc-demo` | `bluetape4k-spring-boot4-exposed-jdbc-demo` |
-| 4 | (R2DBC 소스 기반) | `spring-boot4/exposed-r2dbc-demo` | `bluetape4k-spring-boot4-exposed-r2dbc-demo` |
+| 3 | (JDBC 소스 기반)                         | `spring-boot4/exposed-jdbc-demo`  | `bluetape4k-spring-boot4-exposed-jdbc-demo`  |
+| 4 | (R2DBC 소스 기반)                        | `spring-boot4/exposed-r2dbc-demo` | `bluetape4k-spring-boot4-exposed-r2dbc-demo` |
 
 ### 1.3 전제 조건 (이미 존재하는 라이브러리 모듈)
 
-| 모듈 | 설명 |
-|------|------|
-| `bluetape4k-spring-boot3-exposed-jdbc` | JDBC Repository, `@EnableExposedJdbcRepositories`, Spring 6 transaction |
-| `bluetape4k-spring-boot3-exposed-r2dbc` | R2DBC Repository, `@EnableExposedR2dbcRepositories`, suspend/Flow |
-| `bluetape4k-spring-boot4-exposed-jdbc` | Boot 4 JDBC, `exposed_spring7_transaction` |
-| `bluetape4k-spring-boot4-exposed-r2dbc` | Boot 4 R2DBC, `exposed_spring7_transaction` 기반 |
+| 모듈                                    | 설명                                                                    |
+|-----------------------------------------|-------------------------------------------------------------------------|
+| `bluetape4k-spring-boot3-exposed-jdbc`  | JDBC Repository, `@EnableExposedJdbcRepositories`, Spring 6 transaction |
+| `bluetape4k-spring-boot3-exposed-r2dbc` | R2DBC Repository, `@EnableExposedR2dbcRepositories`, suspend/Flow       |
+| `bluetape4k-spring-boot4-exposed-jdbc`  | Boot 4 JDBC, `exposed_spring7_transaction`                              |
+| `bluetape4k-spring-boot4-exposed-r2dbc` | Boot 4 R2DBC, `exposed_spring7_transaction` 기반                        |
 
 ---
 
@@ -65,6 +65,7 @@ src/test/resources/
 ```
 
 **핵심 특징:**
+
 - Spring MVC (`spring-boot-starter-web`) 기반 동기 REST API
 - Exposed DAO 패턴 (`LongEntity` + `LongEntityClass`)
 - `transaction {}` 블록으로 트랜잭션 관리
@@ -99,6 +100,7 @@ src/test/resources/
 ```
 
 **핵심 특징:**
+
 - Spring WebFlux (`spring-boot-starter-webflux`) 기반 비동기 suspend REST API
 - Exposed DSL 패턴 (DAO 미사용, Table + data class DTO)
 - `suspendTransaction {}` 블록으로 코루틴 트랜잭션 관리
@@ -135,16 +137,16 @@ src/test/resources/
 
 ### 3.4 JDBC Demo vs R2DBC Demo 차이
 
-| 항목 | JDBC Demo (MVC) | R2DBC Demo (WebFlux) |
-|------|----------------|---------------------|
-| Web 스택 | `spring-boot-starter-web` | `spring-boot-starter-webflux` |
-| 트랜잭션 | `transaction {}` (동기) | `suspendTransaction {}` (코루틴) |
-| Entity 패턴 | DAO (`LongEntity`) | DSL + DTO (`data class`) |
-| Repository | `ExposedJdbcRepository` | `ExposedR2dbcRepository` |
-| DB 설정 | DataSource (JDBC) only | DataSource (JDBC) + R2DBC 이중 설정 |
-| DDL 생성 | `MigrationUtils` (JDBC) | `SchemaUtils.create()` (R2DBC) |
-| 테스트 클라이언트 | `RestClient` | `WebTestClient` |
-| Coroutines | 불필요 | 필수 (`kotlinx-coroutines-core/reactor/test`) |
+| 항목              | JDBC Demo (MVC)           | R2DBC Demo (WebFlux)                          |
+|-------------------|---------------------------|-----------------------------------------------|
+| Web 스택          | `spring-boot-starter-web` | `spring-boot-starter-webflux`                 |
+| 트랜잭션          | `transaction {}` (동기)   | `suspendTransaction {}` (코루틴)              |
+| Entity 패턴       | DAO (`LongEntity`)        | DSL + DTO (`data class`)                      |
+| Repository        | `ExposedJdbcRepository`   | `ExposedR2dbcRepository`                      |
+| DB 설정           | DataSource (JDBC) only    | DataSource (JDBC) + R2DBC 이중 설정           |
+| DDL 생성          | `MigrationUtils` (JDBC)   | `SchemaUtils.create()` (R2DBC)                |
+| 테스트 클라이언트 | `RestClient`              | `WebTestClient`                               |
+| Coroutines        | 불필요                    | 필수 (`kotlinx-coroutines-core/reactor/test`) |
 
 ---
 
@@ -276,17 +278,17 @@ configurations {
 
 ### 5.2 JDBC Demo 테스트
 
-| 테스트 클래스 | 테스트 수 | 방식 |
-|-------------|---------|------|
-| `ProductJdbcRepositoryTest` | 21 | `@SpringBootTest` + `@Transactional`, `transaction {}` 내 CRUD/Page/Sort/DSL |
-| `ProductControllerTest` | 7 | `RANDOM_PORT` + `RestClient`, E2E HTTP 호출 |
+| 테스트 클래스               | 테스트 수 | 방식                                                                         |
+|-----------------------------|-----------|------------------------------------------------------------------------------|
+| `ProductJdbcRepositoryTest` | 21        | `@SpringBootTest` + `@Transactional`, `transaction {}` 내 CRUD/Page/Sort/DSL |
+| `ProductControllerTest`     | 7         | `RANDOM_PORT` + `RestClient`, E2E HTTP 호출                                  |
 
 ### 5.3 R2DBC Demo 테스트
 
-| 테스트 클래스 | 테스트 수 | 방식 |
-|-------------|---------|------|
-| `ProductR2dbcRepositoryTest` | 16 | `@SpringBootTest(NONE)` + `runTest`/`runSuspendIO`, suspend CRUD/Flow |
-| `ProductControllerTest` | 7 | `RANDOM_PORT` + `WebTestClient`, E2E HTTP 호출 |
+| 테스트 클래스                | 테스트 수 | 방식                                                                  |
+|------------------------------|-----------|-----------------------------------------------------------------------|
+| `ProductR2dbcRepositoryTest` | 16        | `@SpringBootTest(NONE)` + `runTest`/`runSuspendIO`, suspend CRUD/Flow |
+| `ProductControllerTest`      | 7         | `RANDOM_PORT` + `WebTestClient`, E2E HTTP 호출                        |
 
 ### 5.4 검증 방법
 
@@ -305,36 +307,36 @@ configurations {
 
 ### 6.1 `spring-boot3/exposed-jdbc-demo` (JDBC MVC, Boot 3)
 
-| 파일 | 작업 |
-|------|------|
-| `build.gradle.kts` | **신규 작성** (섹션 4.1) |
-| `src/main/kotlin/.../mvc/DemoApplication.kt` | 복사 (그대로) |
-| `src/main/kotlin/.../mvc/config/DataInitializer.kt` | 복사 (그대로) |
-| `src/main/kotlin/.../mvc/controller/ProductController.kt` | 복사 (그대로) |
-| `src/main/kotlin/.../mvc/domain/ProductEntity.kt` | 복사 (그대로) |
-| `src/main/kotlin/.../mvc/repository/ProductJdbcRepository.kt` | 복사 (그대로) |
-| `src/main/resources/application.yml` | 복사 (그대로) |
-| `src/test/kotlin/.../mvc/ProductJdbcRepositoryTest.kt` | 복사 (그대로) |
-| `src/test/kotlin/.../mvc/ProductControllerTest.kt` | 복사 (그대로) |
-| `src/test/resources/junit-platform.properties` | 복사 (그대로) |
-| `src/test/resources/logback-test.xml` | 복사 (그대로) |
+| 파일                                                          | 작업                     |
+|---------------------------------------------------------------|--------------------------|
+| `build.gradle.kts`                                            | **신규 작성** (섹션 4.1) |
+| `src/main/kotlin/.../mvc/DemoApplication.kt`                  | 복사 (그대로)            |
+| `src/main/kotlin/.../mvc/config/DataInitializer.kt`           | 복사 (그대로)            |
+| `src/main/kotlin/.../mvc/controller/ProductController.kt`     | 복사 (그대로)            |
+| `src/main/kotlin/.../mvc/domain/ProductEntity.kt`             | 복사 (그대로)            |
+| `src/main/kotlin/.../mvc/repository/ProductJdbcRepository.kt` | 복사 (그대로)            |
+| `src/main/resources/application.yml`                          | 복사 (그대로)            |
+| `src/test/kotlin/.../mvc/ProductJdbcRepositoryTest.kt`        | 복사 (그대로)            |
+| `src/test/kotlin/.../mvc/ProductControllerTest.kt`            | 복사 (그대로)            |
+| `src/test/resources/junit-platform.properties`                | 복사 (그대로)            |
+| `src/test/resources/logback-test.xml`                         | 복사 (그대로)            |
 
 ### 6.2 `spring-boot3/exposed-r2dbc-demo` (R2DBC WebFlux, Boot 3)
 
-| 파일 | 작업 |
-|------|------|
-| `build.gradle.kts` | **신규 작성** (섹션 4.2) |
-| `src/main/kotlin/.../webflux/WebfluxDemoApplication.kt` | 복사 (그대로) |
-| `src/main/kotlin/.../webflux/config/DataInitializer.kt` | 복사 (그대로) |
-| `src/main/kotlin/.../webflux/config/ExposedR2dbcConfig.kt` | 복사 (그대로) |
-| `src/main/kotlin/.../webflux/controller/ProductController.kt` | 복사 (그대로) |
-| `src/main/kotlin/.../webflux/domain/ProductEntity.kt` | 복사 (그대로) |
-| `src/main/kotlin/.../webflux/repository/ProductR2dbcRepository.kt` | 복사 (그대로) |
-| `src/main/resources/application.yml` | 복사 (그대로) |
-| `src/test/kotlin/.../webflux/ProductR2dbcRepositoryTest.kt` | 복사 (그대로) |
-| `src/test/kotlin/.../webflux/ProductControllerTest.kt` | 복사 (그대로) |
-| `src/test/resources/junit-platform.properties` | 복사 (그대로) |
-| `src/test/resources/logback-test.xml` | 복사 (그대로) |
+| 파일                                                               | 작업                     |
+|--------------------------------------------------------------------|--------------------------|
+| `build.gradle.kts`                                                 | **신규 작성** (섹션 4.2) |
+| `src/main/kotlin/.../webflux/WebfluxDemoApplication.kt`            | 복사 (그대로)            |
+| `src/main/kotlin/.../webflux/config/DataInitializer.kt`            | 복사 (그대로)            |
+| `src/main/kotlin/.../webflux/config/ExposedR2dbcConfig.kt`         | 복사 (그대로)            |
+| `src/main/kotlin/.../webflux/controller/ProductController.kt`      | 복사 (그대로)            |
+| `src/main/kotlin/.../webflux/domain/ProductEntity.kt`              | 복사 (그대로)            |
+| `src/main/kotlin/.../webflux/repository/ProductR2dbcRepository.kt` | 복사 (그대로)            |
+| `src/main/resources/application.yml`                               | 복사 (그대로)            |
+| `src/test/kotlin/.../webflux/ProductR2dbcRepositoryTest.kt`        | 복사 (그대로)            |
+| `src/test/kotlin/.../webflux/ProductControllerTest.kt`             | 복사 (그대로)            |
+| `src/test/resources/junit-platform.properties`                     | 복사 (그대로)            |
+| `src/test/resources/logback-test.xml`                              | 복사 (그대로)            |
 
 ### 6.3 `spring-boot4/exposed-jdbc-demo` (JDBC MVC, Boot 4)
 
@@ -363,21 +365,23 @@ implementation(platform(Libs.spring_boot4_dependencies))
 ### 7.2 모듈명 자동 등록
 
 `settings.gradle.kts`의 `includeModules("spring-boot3", withProjectName=true, withBaseDir=true)` 로직에 의해:
+
 - 디렉토리 `spring-boot3/exposed-jdbc-demo/` -> 프로젝트명 `bluetape4k-spring-boot3-exposed-jdbc-demo`
 - **별도 settings 수정 불필요**
 
 ### 7.3 experimental 소스의 의존성 차이
 
 experimental 소스에서 사용하는 의존성명이 다를 수 있음:
+
 - `project(":exposed-jdbc-spring-data")` -> `project(":bluetape4k-spring-boot3-exposed-jdbc")` 로 변경
 - `project(":exposed-r2dbc-spring-data")` -> `project(":bluetape4k-spring-boot3-exposed-r2dbc")` 로 변경
 - `Libs.bluetape4k_r2dbc` (experimental) -> `project(":bluetape4k-r2dbc")` 또는 transitive로 해결
 
 ### 7.4 Exposed Spring Boot Starter 구분
 
-| Boot 버전 | Starter | Transaction |
-|----------|---------|------------|
-| Boot 3 (Spring 6) | `Libs.exposed_spring_boot_starter` | `Libs.exposed_spring_transaction` |
+| Boot 버전         | Starter                             | Transaction                        |
+|-------------------|-------------------------------------|------------------------------------|
+| Boot 3 (Spring 6) | `Libs.exposed_spring_boot_starter`  | `Libs.exposed_spring_transaction`  |
 | Boot 4 (Spring 7) | `Libs.exposed_spring_boot4_starter` | `Libs.exposed_spring7_transaction` |
 
 ### 7.5 R2DBC Demo의 `bluetape4k_r2dbc` 참조
@@ -387,6 +391,7 @@ experimental에서는 `Libs.bluetape4k_r2dbc`를 사용하나, 이 의존성은 
 ### 7.6 테스트 리소스 logback-test.xml 패키지명 조정
 
 logback-test.xml 내 logger 패키지명이 소스 패키지와 일치하는지 확인:
+
 - JDBC: `io.bluetape4k.examples.exposed.mvc`
 - R2DBC: `io.bluetape4k.examples.exposed.webflux`
 
@@ -422,9 +427,9 @@ logback-test.xml 내 logger 패키지명이 소스 패키지와 일치하는지 
 
 ## 변경 영향 범위
 
-| 항목 | 영향 |
-|------|------|
-| `settings.gradle.kts` | 변경 없음 (자동 등록) |
-| 기존 모듈 | 변경 없음 |
-| 신규 디렉토리 | 4개 (`spring-boot3/exposed-jdbc-demo`, `spring-boot3/exposed-r2dbc-demo`, `spring-boot4/exposed-jdbc-demo`, `spring-boot4/exposed-r2dbc-demo`) |
-| 신규 파일 | ~44개 (4 build.gradle.kts + 40 소스/테스트/리소스) |
+| 항목                  | 영향                                                                                                                                           |
+|-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `settings.gradle.kts` | 변경 없음 (자동 등록)                                                                                                                          |
+| 기존 모듈             | 변경 없음                                                                                                                                      |
+| 신규 디렉토리         | 4개 (`spring-boot3/exposed-jdbc-demo`, `spring-boot3/exposed-r2dbc-demo`, `spring-boot4/exposed-jdbc-demo`, `spring-boot4/exposed-r2dbc-demo`) |
+| 신규 파일             | ~44개 (4 build.gradle.kts + 40 소스/테스트/리소스)                                                                                             |

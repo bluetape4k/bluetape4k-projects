@@ -97,9 +97,7 @@ val hasMapping = method.hasMergedAnnotation<RequestMapping>()
 
 ### RestClient Coroutines DSL
 
-이 DSL은 blocking `RestClient` 호출을 `runInterruptible(Dispatchers.IO)` 로 실행한다.
-따라서 요청 factory가 thread interrupt를 존중하면 coroutine cancellation 이 대기 중인
-client thread 를 interrupt 할 수 있다.
+이 DSL은 blocking `RestClient` 호출을 `runInterruptible(Dispatchers.IO)` 로 실행한다. 따라서 요청 factory가 thread interrupt를 존중하면 coroutine cancellation 이 대기 중인 client thread 를 interrupt 할 수 있다.
 
 ```kotlin
 import io.bluetape4k.spring.http.*
@@ -149,8 +147,7 @@ class UserController(private val service: UserService) {
 
 ### 서비스, HTTP 핸들러, 이벤트 코드 관측
 
-Spring Boot가 애플리케이션에 주입한 `ObservationRegistry`를 사용합니다. 이 헬퍼는 Micrometer Observation
-라이프사이클과 코루틴 scope 정리만 담당하며 exporter를 설치하거나 전역 OpenTelemetry SDK 상태를 바꾸지 않습니다.
+Spring Boot가 애플리케이션에 주입한 `ObservationRegistry`를 사용합니다. 이 헬퍼는 Micrometer Observation 라이프사이클과 코루틴 scope 정리만 담당하며 exporter를 설치하거나 전역 OpenTelemetry SDK 상태를 바꾸지 않습니다.
 
 ```kotlin
 import io.bluetape4k.spring.observability.SpringObservationKeyValues
@@ -240,13 +237,13 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 
 ## 주요 의존성 구조
 
-| 범주                            | 의존 방식         | 설명                      |
-|-------------------------------|---------------|-------------------------|
+| 범주                          | 의존 방식     | 설명                      |
+|-------------------------------|---------------|---------------------------|
 | `spring-boot-starter-webflux` | `compileOnly` | WebFlux + Coroutines 필수 |
 | `bluetape4k-coroutines`       | `compileOnly` | Coroutines 지원           |
-| `micrometer-observation`      | `compileOnly` | Observation 헬퍼 지원      |
-| `spring-boot-starter-web`     | `compileOnly` | 선택적 서블릿 지원              |
-| `resilience4j-*`              | `compileOnly` | 선택적 Resilience4j        |
+| `micrometer-observation`      | `compileOnly` | Observation 헬퍼 지원     |
+| `spring-boot-starter-web`     | `compileOnly` | 선택적 서블릿 지원        |
+| `resilience4j-*`              | `compileOnly` | 선택적 Resilience4j       |
 
 ## 빌드 및 테스트
 

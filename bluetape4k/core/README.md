@@ -30,7 +30,9 @@ A foundational utility library for Kotlin backend development. It provides the c
 - **Type Extensions**: Kotlin-style extension functions for all primitive types
 - **Ranges**: Various range types (OpenOpen, ClosedOpen, OpenClosed, ClosedClosed)
 - **Collections**: Collection utilities — BoundedStack, RingBuffer, PaginatedList, lazy Permutation sequences
-- **Concurrent**: Concurrency utilities. `ConcurrentReducer.close()` cancels queued tasks and rejects new tasks after closure.
+-
+
+**Concurrent**: Concurrency utilities. `ConcurrentReducer.close()` cancels queued tasks and rejects new tasks after closure.
 - **Utils**: Wildcard pattern matching, XXHasher high-speed hashing
 - **Functional**: Functional programming support
 - **Java Time DSL**: Extension functions for `java.time` (Duration/Period DSL, Temporal utilities, Quarter support)
@@ -115,8 +117,7 @@ fun validateScore(score: Double) {
 
 #### State Invariant Checks
 
-`CheckSupport` mirrors the `RequireSupport` API for object and component state.
-Failed checks throw `IllegalStateException` instead of `IllegalArgumentException`.
+`CheckSupport` mirrors the `RequireSupport` API for object and component state. Failed checks throw `IllegalStateException` instead of `IllegalArgumentException`.
 
 ```kotlin
 import io.bluetape4k.support.checkNotNull

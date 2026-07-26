@@ -1,5 +1,6 @@
 package io.bluetape4k.resilience4j
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.concurrent.futureOf
 import io.bluetape4k.logging.KLogging
 import io.github.resilience4j.bulkhead.Bulkhead
@@ -11,7 +12,6 @@ import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors

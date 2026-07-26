@@ -1,5 +1,9 @@
 package io.bluetape4k.csv.coroutines
 
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldNotBeBlank
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.csv.Record
 import io.bluetape4k.csv.model.ProductType
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -7,16 +11,12 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Resourcex
 import kotlinx.coroutines.flow.buffer
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldNotBeBlank
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.text.Charsets.UTF_8
 
 abstract class AbstractSuspendRecordReaderTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     protected abstract val reader: SuspendRecordReader
 

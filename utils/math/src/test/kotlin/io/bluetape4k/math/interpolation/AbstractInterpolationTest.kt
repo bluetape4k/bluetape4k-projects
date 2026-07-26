@@ -1,10 +1,11 @@
 package io.bluetape4k.math.interpolation
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.math.commons.approximateEqual
 import io.bluetape4k.support.emptyDoubleArray
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.apache.commons.math3.exception.DimensionMismatchException
 import org.apache.commons.math3.exception.NonMonotonicSequenceException
 import org.apache.commons.math3.exception.NumberIsTooSmallException
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
 import kotlin.math.PI
 import kotlin.math.sin
-import io.bluetape4k.assertions.assertFailsWith
 
 abstract class AbstractInterpolationTest {
 

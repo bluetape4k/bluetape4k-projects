@@ -1,11 +1,11 @@
 package io.bluetape4k.opentelemetry.webflux
 
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.opentelemetry.AbstractOtelTest
 import io.bluetape4k.opentelemetry.trace.sdkTracerProvider
 import io.bluetape4k.opentelemetry.trace.simpleSpanProcessorOf
 import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Hooks
@@ -24,7 +24,8 @@ import reactor.core.publisher.Hooks
 class WebfluxTracingSupportTest: AbstractOtelTest() {
 
     companion object: KLoggingChannel() {
-        private const val REACTOR_HOOK_KEY = "io.opentelemetry.javaagent.shaded.io.opentelemetry.instrumentation.reactornetty.v1_0"
+        private const val REACTOR_HOOK_KEY =
+            "io.opentelemetry.javaagent.shaded.io.opentelemetry.instrumentation.reactornetty.v1_0"
 
         @JvmStatic
         @AfterAll

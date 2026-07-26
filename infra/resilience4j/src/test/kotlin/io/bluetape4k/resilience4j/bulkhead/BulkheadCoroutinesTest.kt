@@ -1,5 +1,8 @@
 package io.bluetape4k.resilience4j.bulkhead
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.SuspendHelloWorldService
@@ -13,12 +16,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
 
 class BulkheadCoroutinesTest {
 

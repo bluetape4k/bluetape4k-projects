@@ -5,7 +5,8 @@ English | [한국어](./README.ko.md)
 An extension library that makes the [MongoDB Kotlin Coroutine Driver](https://www.mongodb.com/docs/drivers/kotlin/coroutine/current/) more convenient to use.
 
 Since the MongoDB Kotlin Coroutine Driver (v5.x) already provides native `suspend` functions and
-`Flow`, this module focuses exclusively on **genuinely missing convenience features** without adding unnecessary wrappers.
+`Flow`, this module focuses exclusively on **genuinely missing convenience
+features** without adding unnecessary wrappers.
 
 ## Features
 
@@ -70,9 +71,7 @@ MongoClientProvider.close("mongodb://localhost:27017") {
 MongoClientProvider.closeAll()
 ```
 
-`MongoClientProvider` returns provider-managed shared clients. Callers should not
-call `close()` on the returned client because another caller may be using the
-same cached instance. Use `MongoClientProvider.close(...)` for one cache entry or
+`MongoClientProvider` returns provider-managed shared clients. Callers should not call `close()` on the returned client because another caller may be using the same cached instance. Use `MongoClientProvider.close(...)` for one cache entry or
 `MongoClientProvider.closeAll()` for test/application shutdown boundaries.
 
 ### 2. Database & Collection Extensions

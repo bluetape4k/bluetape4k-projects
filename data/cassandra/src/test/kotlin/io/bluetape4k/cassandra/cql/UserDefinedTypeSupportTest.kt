@@ -1,9 +1,9 @@
 package io.bluetape4k.cassandra.cql
 
 import com.datastax.oss.driver.api.core.type.DataTypes
-import io.bluetape4k.cassandra.toCqlIdentifier
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.cassandra.toCqlIdentifier
 import org.junit.jupiter.api.Test
 
 class UserDefinedTypeSupportTest {

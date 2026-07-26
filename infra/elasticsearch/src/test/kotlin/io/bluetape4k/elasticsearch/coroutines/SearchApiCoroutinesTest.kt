@@ -2,26 +2,24 @@ package io.bluetape4k.elasticsearch.coroutines
 
 import co.elastic.clients.elasticsearch._types.SortOrder
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation
-import io.bluetape4k.elasticsearch.AbstractElasticsearchTest
-import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures
-import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.createTestIndex
-import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.deleteTestIndex
-import io.bluetape4k.logging.KLogging
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.elasticsearch.AbstractElasticsearchTest
+import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures
+import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.createTestIndex
+import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.deleteTestIndex
+import io.bluetape4k.logging.KLogging
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -37,9 +35,9 @@ import kotlin.time.Duration.Companion.seconds
  * 테스트 인덱스는 `@BeforeAll` 에서 한 번만 생성되며, 모든 테스트가 끝난 후 `@AfterAll` 에서 삭제됩니다.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class SearchApiCoroutinesTest : AbstractElasticsearchTest() {
+class SearchApiCoroutinesTest: AbstractElasticsearchTest() {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val TOTAL_DOCS: Int = 10_000
         private val CATEGORIES: List<String> = listOf("A", "B", "C", "D", "E")
     }

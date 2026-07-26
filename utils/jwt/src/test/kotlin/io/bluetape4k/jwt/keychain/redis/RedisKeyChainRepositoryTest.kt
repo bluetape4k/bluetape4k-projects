@@ -1,15 +1,15 @@
 package io.bluetape4k.jwt.keychain.redis
 
-import io.bluetape4k.jwt.keychain.KeyChain
-import io.bluetape4k.jwt.keychain.AbstractKeyChainRepositoryTest
-import io.bluetape4k.jwt.keychain.repository.KeyChainRepository
-import io.bluetape4k.jwt.keychain.repository.redis.RedisKeyChainRepository
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.jwt.keychain.AbstractKeyChainRepositoryTest
+import io.bluetape4k.jwt.keychain.KeyChain
+import io.bluetape4k.jwt.keychain.repository.KeyChainRepository
+import io.bluetape4k.jwt.keychain.repository.redis.RedisKeyChainRepository
 import io.bluetape4k.testcontainers.storage.RedisServer
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import java.util.UUID
+import java.util.*
 import kotlin.test.assertNull
 
 class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {

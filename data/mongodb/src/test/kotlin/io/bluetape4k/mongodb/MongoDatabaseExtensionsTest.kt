@@ -1,9 +1,9 @@
 package io.bluetape4k.mongodb
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.test.runTest
 import org.bson.Document
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.seconds

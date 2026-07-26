@@ -23,9 +23,9 @@ import kotlin.text.Charsets.UTF_8
 internal class FlowCsvWriterImpl(
     private val writer: Writer,
     override val config: CsvWriterConfig,
-) : FlowCsvWriter {
+): FlowCsvWriter {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val settings = config.toCsvSettings()
     private val delimiter = settings.delimiter
@@ -157,7 +157,8 @@ internal class FlowCsvWriterImpl(
             if (!first) w.write(delimiter.code)
             first = false
             when (field) {
-                null -> { /* 인용 없는 빈 필드 */ }
+                null -> { /* 인용 없는 빈 필드 */
+                }
                 else -> {
                     val s = if (field is String) field else field.toString()
                     w.write(quote.code)

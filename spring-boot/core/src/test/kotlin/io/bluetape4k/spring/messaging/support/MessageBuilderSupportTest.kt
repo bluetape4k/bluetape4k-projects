@@ -1,9 +1,9 @@
 package io.bluetape4k.spring.messaging.support
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.spring.AbstractSpringTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.spring.AbstractSpringTest
 import org.junit.jupiter.api.Test
 
 class MessageBuilderSupportTest: AbstractSpringTest() {
@@ -76,6 +76,7 @@ class MessageBuilderSupportTest: AbstractSpringTest() {
         listMsg.payload shouldBeEqualTo listOf(1, 2, 3)
 
         data class Dto(val id: Long, val name: String)
+
         val dtoMsg = message(Dto(1L, "test"))
         dtoMsg.payload shouldBeEqualTo Dto(1L, "test")
     }

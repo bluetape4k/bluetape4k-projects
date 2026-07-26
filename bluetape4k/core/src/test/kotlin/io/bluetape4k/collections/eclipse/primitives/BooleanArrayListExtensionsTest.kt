@@ -1,10 +1,10 @@
 package io.bluetape4k.collections.eclipse.primitives
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.collections.AbstractCollectionTest
 import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.unifiedSetOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 /**

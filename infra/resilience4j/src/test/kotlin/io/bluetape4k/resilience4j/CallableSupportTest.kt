@@ -9,7 +9,7 @@ import java.util.concurrent.Callable
 
 class CallableSupportTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     @Test
     fun `andThen - 결과를 변환한다`() {

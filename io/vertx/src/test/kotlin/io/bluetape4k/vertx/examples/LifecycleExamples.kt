@@ -1,5 +1,7 @@
 package io.bluetape4k.vertx.examples
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.vertx.AbstractVertxTest
@@ -14,8 +16,6 @@ import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.core.file.fileSystemOptionsOf
 import io.vertx.kotlin.core.vertxOptionsOf
 import io.vertx.kotlin.coroutines.coAwait
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

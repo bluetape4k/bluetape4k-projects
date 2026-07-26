@@ -86,8 +86,7 @@ dependencies {
 
 ### Current and Default Vert.x Lifecycle
 
-`currentVertx()` returns the current Vert.x context owner when one exists. Outside a Vert.x context it reuses a managed
-default Vert.x instance instead of creating a hidden unowned instance per call.
+`currentVertx()` returns the current Vert.x context owner when one exists. Outside a Vert.x context it reuses a managed default Vert.x instance instead of creating a hidden unowned instance per call.
 
 ```kotlin
 import io.bluetape4k.vertx.closeDefaultVertx

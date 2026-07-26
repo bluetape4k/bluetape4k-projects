@@ -1,8 +1,8 @@
 package io.bluetape4k.okio
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.KLogging
 import okio.Buffer
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 /**

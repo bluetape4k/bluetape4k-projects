@@ -1,6 +1,8 @@
 package io.bluetape4k.jackson.mask
 
 import com.fasterxml.jackson.databind.json.JsonMapper
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.jackson.prettyWriteAsString
 import io.bluetape4k.jackson.writeAsString
@@ -14,8 +16,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange

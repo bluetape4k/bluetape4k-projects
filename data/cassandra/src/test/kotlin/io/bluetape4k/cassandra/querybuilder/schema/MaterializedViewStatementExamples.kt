@@ -4,10 +4,10 @@ import com.datastax.oss.driver.api.querybuilder.SchemaBuilder
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.alterMaterializedView
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createMaterializedView
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropMaterializedView
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cassandra.querybuilder.literal
 import io.bluetape4k.cassandra.querybuilder.lt
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class MaterializedViewStatementExamples {

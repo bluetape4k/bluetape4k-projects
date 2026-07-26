@@ -1,15 +1,15 @@
 package io.bluetape4k.protobuf
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
 class DateTimeSupportTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     // ── LocalDate <-> ProtoDate ────────────────────────────────────────────
 

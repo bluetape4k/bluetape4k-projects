@@ -1,10 +1,11 @@
 # Hibernate Lettuce Spring Boot Auto-Configuration 이관 구현 계획
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** `bluetape4k-experimental`의 Hibernate 2nd Level Cache Lettuce NearCache Spring Boot Auto-Configuration 라이브러리와 데모 앱을 `bluetape4k-projects`의 `spring-boot3/` 및 `spring-boot4/` 하위로 이관한다.
 
-**Architecture:** experimental 소스(Spring Boot 4 기준)를 4개 신규 모듈로 복사한다. Spring Boot 3 모듈에서는 `HibernatePropertiesCustomizer` import 경로를 `org.springframework.boot.autoconfigure.orm.jpa`로 변경한다. Spring Boot 4 모듈에서는 `platform(Libs.spring_boot4_dependencies)` BOM과 `compileOnly(Libs.springBoot("hibernate"))` 의존성을 추가한다. 데모 앱은 `bootJar` 없는 라이브러리 스타일로 작성한다.
+**Architecture:** experimental 소스 (Spring Boot 4 기준)를 4개 신규 모듈로 복사한다. Spring Boot 3 모듈에서는 `HibernatePropertiesCustomizer` import 경로를 `org.springframework.boot.autoconfigure.orm.jpa`로 변경한다. Spring Boot 4 모듈에서는 `platform(Libs.spring_boot4_dependencies)` BOM과 `compileOnly(Libs.springBoot("hibernate"))` 의존성을 추가한다. 데모 앱은 `bootJar` 없는 라이브러리 스타일로 작성한다.
 
 **Tech Stack:** Kotlin 2.3, Spring Boot 3.5.x / 4.0.x, Hibernate 6, Lettuce 6.8.2, Micrometer, JUnit 5, Testcontainers
 
@@ -104,15 +105,15 @@ spring-boot4/hibernate-lettuce-demo/
 
 ## 소스 참조 경로
 
-| 약칭 | 절대 경로 |
-|------|----------|
-| `EXP_LIB` | `/Users/debop/work/bluetape4k/bluetape4k-experimental/spring-boot/hibernate-lettuce/` |
-| `EXP_DEMO` | `/Users/debop/work/bluetape4k/bluetape4k-experimental/examples/spring-boot-hibernate-lettuce-demo/` |
-| `PROJ` | `/Users/debop/work/bluetape4k/bluetape4k-projects/` |
-| `REF_BOOT3` | `/Users/debop/work/bluetape4k/bluetape4k-projects/spring-boot3/exposed-jdbc/build.gradle.kts` |
-| `REF_BOOT4` | `/Users/debop/work/bluetape4k/bluetape4k-projects/spring-boot4/exposed-jdbc/build.gradle.kts` |
-| `REF_DEMO3` | `/Users/debop/work/bluetape4k/bluetape4k-projects/spring-boot3/exposed-jdbc-demo/build.gradle.kts` |
-| `REF_DEMO4` | `/Users/debop/work/bluetape4k/bluetape4k-projects/spring-boot4/exposed-jdbc-demo/build.gradle.kts` |
+| 약칭        | 절대 경로                                                                                           |
+|-------------|-----------------------------------------------------------------------------------------------------|
+| `EXP_LIB`   | `/Users/debop/work/bluetape4k/bluetape4k-experimental/spring-boot/hibernate-lettuce/`               |
+| `EXP_DEMO`  | `/Users/debop/work/bluetape4k/bluetape4k-experimental/examples/spring-boot-hibernate-lettuce-demo/` |
+| `PROJ`      | `/Users/debop/work/bluetape4k/bluetape4k-projects/`                                                 |
+| `REF_BOOT3` | `/Users/debop/work/bluetape4k/bluetape4k-projects/spring-boot3/exposed-jdbc/build.gradle.kts`       |
+| `REF_BOOT4` | `/Users/debop/work/bluetape4k/bluetape4k-projects/spring-boot4/exposed-jdbc/build.gradle.kts`       |
+| `REF_DEMO3` | `/Users/debop/work/bluetape4k/bluetape4k-projects/spring-boot3/exposed-jdbc-demo/build.gradle.kts`  |
+| `REF_DEMO4` | `/Users/debop/work/bluetape4k/bluetape4k-projects/spring-boot4/exposed-jdbc-demo/build.gradle.kts`  |
 
 ---
 
@@ -121,6 +122,7 @@ spring-boot4/hibernate-lettuce-demo/
 **complexity: high** (핵심 의존성 설계, Spring Boot 3 전용 compileOnly scope 설정)
 
 **Files:**
+
 - Create: `spring-boot3/hibernate-lettuce/build.gradle.kts`
 
 **선행 태스크:** 없음
@@ -178,6 +180,7 @@ dependencies {
 ```
 
 주의:
+
 - `api(project(":hibernate-cache-lettuce"))` (experimental) 대신 `api(project(":bluetape4k-hibernate-cache-lettuce"))` 사용
 - `api(Libs.bluetape4k_cache_lettuce)`, `api(Libs.bluetape4k_io)`, `api(Libs.bluetape4k_redis)` 제거 -- `bluetape4k-hibernate-cache-lettuce`가 transitively 포함
 - `configurations { testImplementation.get().extendsFrom(...) }` 패턴 필수 (REF_BOOT3 참고)
@@ -197,6 +200,7 @@ git commit -m "feat(spring-boot3): hibernate-lettuce 모듈 build.gradle.kts 추
 **complexity: high** (HibernatePropertiesCustomizer import 경로 변경이 핵심)
 
 **Files:**
+
 - Create: `spring-boot3/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheSpringProperties.kt`
 - Create: `spring-boot3/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheHibernateAutoConfiguration.kt`
 - Create: `spring-boot3/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheMetricsAutoConfiguration.kt`
@@ -276,6 +280,7 @@ git commit -m "feat(spring-boot3): hibernate-lettuce main 소스 복사 (Hiberna
 **complexity: medium** (테스트 import 변경 + 테스트 리소스 복사)
 
 **Files:**
+
 - Create: `spring-boot3/hibernate-lettuce/src/test/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheAutoConfigurationTest.kt`
 - Create: `spring-boot3/hibernate-lettuce/src/test/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheIntegrationTest.kt`
 - Create: `spring-boot3/hibernate-lettuce/src/test/resources/junit-platform.properties`

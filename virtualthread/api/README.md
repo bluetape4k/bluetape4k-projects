@@ -154,9 +154,9 @@ StructuredTaskScopes.failFast { scope ->
 
 `all()` and `any()` are deprecated. Migrate as follows:
 
-| Before | After |
-|--------|-------|
-| `StructuredTaskScopes.all(...) { }` | `StructuredTaskScopes.failFast { }` |
+| Before                              | After                                   |
+|-------------------------------------|-----------------------------------------|
+| `StructuredTaskScopes.all(...) { }` | `StructuredTaskScopes.failFast { }`     |
 | `StructuredTaskScopes.any(...) { }` | `StructuredTaskScopes.firstSuccess { }` |
 
 ## `ServiceLoader` Mechanism

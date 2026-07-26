@@ -16,7 +16,6 @@ import org.mybatis.dynamic.sql.SqlBuilder
 import org.mybatis.dynamic.sql.SqlTable
 import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider
 import org.mybatis.dynamic.sql.dsl.CountDSL
-import org.mybatis.dynamic.sql.dsl.DeleteDSL as ModelDeleteDSL
 import org.mybatis.dynamic.sql.insert.render.BatchInsert
 import org.mybatis.dynamic.sql.insert.render.GeneralInsertStatementProvider
 import org.mybatis.dynamic.sql.insert.render.InsertSelectStatementProvider
@@ -36,6 +35,7 @@ import org.mybatis.dynamic.sql.util.kotlin.KotlinInsertCompleter
 import org.mybatis.dynamic.sql.util.kotlin.KotlinMultiRowInsertCompleter
 import org.mybatis.dynamic.sql.util.kotlin.SelectCompleter
 import org.mybatis.dynamic.sql.util.kotlin.UpdateCompleter
+import org.mybatis.dynamic.sql.dsl.DeleteDSL as ModelDeleteDSL
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Count를 구하는 확장 함수입니다.

@@ -1,5 +1,6 @@
 package io.bluetape4k.vertx.sqlclient.mybatis.examples
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -12,7 +13,6 @@ import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.sqlclient.templates.SqlTemplate
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.mybatis.dynamic.sql.util.kotlin.model.select
 

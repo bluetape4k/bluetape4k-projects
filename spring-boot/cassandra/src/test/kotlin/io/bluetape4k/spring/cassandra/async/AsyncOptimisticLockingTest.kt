@@ -1,6 +1,10 @@
 package io.bluetape4k.spring.cassandra.async
 
 import com.datastax.oss.driver.api.core.CqlSession
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
@@ -8,9 +12,6 @@ import io.bluetape4k.spring.cassandra.domain.DomainTestConfiguration
 import io.bluetape4k.spring.cassandra.domain.model.VersionedEntity
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,7 +22,6 @@ import org.springframework.data.cassandra.core.AsyncCassandraTemplate
 import org.springframework.data.cassandra.core.query.Query
 import org.springframework.data.cassandra.core.selectOne
 import org.springframework.data.cassandra.core.truncate
-import io.bluetape4k.assertions.assertFailsWith
 
 @SpringBootTest(classes = [DomainTestConfiguration::class])
 class AsyncOptimisticLockingTest(

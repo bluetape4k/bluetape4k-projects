@@ -9,7 +9,7 @@
 
 ## Overview & Goals
 
-`testing/mock-server`를 두 개의 HTTP 모의 서버(Spring MVC + Spring WebFlux)로 확장한다. 두 서버는 동일한 endpoint 계약을 제공하므로 테스트 스위트가 base URL만 교체해 두 스택을 검증할 수 있다.
+`testing/mock-server`를 두 개의 HTTP 모의 서버 (Spring MVC + Spring WebFlux)로 확장한다. 두 서버는 동일한 endpoint 계약을 제공하므로 테스트 스위트가 base URL만 교체해 두 스택을 검증할 수 있다.
 
 1. `testing/mock-server` → `testing/mock-web-server` 모듈명 변경 (이미지: `bluetape4k/mock-web-server`, 포트 8888)
 2. `testing/mock-webflux-server` 신규 생성 (Spring WebFlux + Coroutines + Jackson 3, 이미지:
@@ -24,12 +24,12 @@ Non-goals: 실제 네트워크 에뮬레이션, WireMock 대체, mutual TLS, HTT
 
 ## 현행 테스트 커버리지 (mock-server)
 
-| 파일                               | 커버 범위                                                                                            |
+| 파일                             | 커버 범위                                                                                        |
 |----------------------------------|--------------------------------------------------------------------------------------------------|
 | `HttpbinContractTest.kt`         | `/httpbin/get\|post\|put\|patch\|delete\|headers\|ip\|user-agent\|uuid\|anything\|status\|bytes` |
-| `HttpbinAdvancedContractTest.kt` | `/httpbin/delay\|redirect\|cookies\|basic-auth\|bearer\|cache\|etag` 일부                          |
+| `HttpbinAdvancedContractTest.kt` | `/httpbin/delay\|redirect\|cookies\|basic-auth\|bearer\|cache\|etag` 일부                        |
 | `JsonplaceholderContractTest.kt` | `/jsonplaceholder/*` CRUD                                                                        |
-| `InMemoryRepositoryTest.kt`      | 단위 테스트                                                                                           |
+| `InMemoryRepositoryTest.kt`      | 단위 테스트                                                                                      |
 
 **미커버 (T06에서 추가)**:
 `GET /ping`, `POST /admin/reset`,
@@ -117,40 +117,40 @@ testing/
 | Group           | Method                    | Path                                                                      | Notes                                   |
 |-----------------|---------------------------|---------------------------------------------------------------------------|-----------------------------------------|
 | Health          | GET                       | `/ping`                                                                   | `"pong"`                                |
-| Admin           | POST                      | `/admin/reset`                                                            | fixture 재적재                             |
-| Httpbin         | GET/POST/PUT/PATCH/DELETE | `/httpbin/get\|post\|put\|patch\|delete`                                  | 요청 에코                                   |
+| Admin           | POST                      | `/admin/reset`                                                            | fixture 재적재                          |
+| Httpbin         | GET/POST/PUT/PATCH/DELETE | `/httpbin/get\|post\|put\|patch\|delete`                                  | 요청 에코                               |
 | Httpbin         | GET                       | `/httpbin/headers\|ip\|user-agent\|uuid`                                  |                                         |
-| Httpbin         | ANY                       | `/httpbin/anything/**`                                                    | 메서드 에코                                  |
-| Httpbin         | GET                       | `/httpbin/status/{code}`                                                  | 지정 HTTP 상태 반환                           |
-| Httpbin         | GET                       | `/httpbin/bytes/{n}`                                                      | 랜덤 바이트                                  |
-| Httpbin stream  | GET                       | `/httpbin/gzip\|deflate`                                                  | 압축 응답                                   |
+| Httpbin         | ANY                       | `/httpbin/anything/**`                                                    | 메서드 에코                             |
+| Httpbin         | GET                       | `/httpbin/status/{code}`                                                  | 지정 HTTP 상태 반환                     |
+| Httpbin         | GET                       | `/httpbin/bytes/{n}`                                                      | 랜덤 바이트                             |
+| Httpbin stream  | GET                       | `/httpbin/gzip\|deflate`                                                  | 압축 응답                               |
 | Httpbin stream  | GET                       | `/httpbin/stream/{n}`                                                     | NDJSON                                  |
 | Httpbin stream  | GET                       | `/httpbin/image/{fmt}`                                                    | png/jpeg/webp                           |
 | Advanced        | GET                       | `/httpbin/delay/{seconds}`                                                | MVC: `Thread.sleep`; WebFlux: `delay()` |
-| Advanced        | GET                       | `/httpbin/redirect/{n}`                                                   | 302 체인                                  |
+| Advanced        | GET                       | `/httpbin/redirect/{n}`                                                   | 302 체인                                |
 | Advanced        | GET                       | `/httpbin/cookies\|cookies/set\|cookies/delete`                           |                                         |
 | Advanced        | GET                       | `/httpbin/basic-auth/{user}/{passwd}`                                     | 401/200                                 |
-| Advanced        | GET                       | `/httpbin/bearer`                                                         | Bearer 검증                               |
+| Advanced        | GET                       | `/httpbin/bearer`                                                         | Bearer 검증                             |
 | Advanced        | GET                       | `/httpbin/cache\|cache/{value}`                                           | 304                                     |
 | Advanced        | GET                       | `/httpbin/etag/{etag}`                                                    | If-None-Match                           |
 | Jsonplaceholder | GET/POST/PUT/PATCH/DELETE | `/jsonplaceholder/{posts\|comments\|albums\|photos\|todos\|users}[/{id}]` | full CRUD                               |
-| Web             | GET                       | `/web/random`                                                             | 무작위 HTML                                |
+| Web             | GET                       | `/web/random`                                                             | 무작위 HTML                             |
 | Web             | GET                       | `/web/{name}`                                                             | home/naver/google/login/article         |
 
 ---
 
 ## API Contract
 
-| Aspect                 | `mock-web-server`                                                      | `mock-webflux-server`                       |
-|------------------------|------------------------------------------------------------------------|---------------------------------------------|
-| 스택                     | Spring MVC + Virtual Threads                                           | Spring WebFlux + Coroutines                 |
-| Controller style       | `@RestController` + `HttpServletRequest`                               | `@RestController` + `suspend fun` / `Flow`  |
-| Delay                  | `Thread.sleep(ms)`                                                     | `kotlinx.coroutines.delay(ms)`              |
-| Streaming              | `StreamingResponseBody` (NDJSON)                                       | `Flow<String>` + `APPLICATION_NDJSON_VALUE` |
-| Serialization          | Jackson 3 **명시적**: `platform(jackson3_bom)` + `jackson3_module_kotlin` | 동일                                          |
-| Port                   | 8888                                                                   | 9999                                        |
-| Docker image           | `bluetape4k/mock-web-server`                                           | `bluetape4k/mock-webflux-server`            |
-| System props namespace | `testcontainers.bluetape-http.*`                                       | `testcontainers.bluetape-webflux.*`         |
+| Aspect                 | `mock-web-server`                                                         | `mock-webflux-server`                       |
+|------------------------|---------------------------------------------------------------------------|---------------------------------------------|
+| 스택                   | Spring MVC + Virtual Threads                                              | Spring WebFlux + Coroutines                 |
+| Controller style       | `@RestController` + `HttpServletRequest`                                  | `@RestController` + `suspend fun` / `Flow`  |
+| Delay                  | `Thread.sleep(ms)`                                                        | `kotlinx.coroutines.delay(ms)`              |
+| Streaming              | `StreamingResponseBody` (NDJSON)                                          | `Flow<String>` + `APPLICATION_NDJSON_VALUE` |
+| Serialization          | Jackson 3 **명시적**: `platform(jackson3_bom)` + `jackson3_module_kotlin` | 동일                                        |
+| Port                   | 8888                                                                      | 9999                                        |
+| Docker image           | `bluetape4k/mock-web-server`                                              | `bluetape4k/mock-webflux-server`            |
+| System props namespace | `testcontainers.bluetape-http.*`                                          | `testcontainers.bluetape-webflux.*`         |
 
 > Spring Boot 4는 Jackson 3을 기본으로 사용하지 않는다. **명시적 opt-in** 필수.
 
@@ -176,13 +176,13 @@ testing/
 Gatling 3.15 **Java API** (`io.gatling.javaapi.core.*`,
 `io.gatling.javaapi.http.*`)를 Kotlin에서 호출. 공식 Kotlin DSL은 없으며, Java API를 Kotlin에서 직접 사용한다.
 
-| # | 시나리오         | 설정                                          | 목표                          |
-|---|--------------|---------------------------------------------|-----------------------------|
-| 1 | Health       | `GET /ping` 200 rps × 30s                   | p95 < 50ms                  |
-| 2 | Httpbin echo | ramp 1→100 user × 60s                       | failed < 1%                 |
+| # | 시나리오     | 설정                                        | 목표                          |
+|---|--------------|---------------------------------------------|-------------------------------|
+| 1 | Health       | `GET /ping` 200 rps × 30s                   | p95 < 50ms                    |
+| 2 | Httpbin echo | ramp 1→100 user × 60s                       | failed < 1%                   |
 | 3 | Streaming    | `GET /httpbin/stream/100` × 20 user × 30s   | timeout 없음                  |
 | 4 | Delay        | `GET /httpbin/delay/1` × 50 user × 30s      | VT vs WebFlux throughput 비교 |
-| 5 | CRUD         | posts POST→GET→PATCH→DELETE × 50 user × 60s | failed < 1%                 |
+| 5 | CRUD         | posts POST→GET→PATCH→DELETE × 50 user × 60s | failed < 1%                   |
 
 ---
 
@@ -289,7 +289,7 @@ class BluetapeWebfluxServer private constructor(
 - `BluetapeHttpServer.NAME = "bluetape-http"` 유지; IMAGE만 변경
 - `@Cacheable` + `suspend` (`WebContentLoader`): **Method A 채택** — `WebContentLoader.load()`를 non-suspend로 유지하고
   `@Cacheable` 적용, 컨트롤러에서
-  `withContext(Dispatchers.IO) { loader.load(name) }` 호출. exposed-workshop의 LettuceSuspendedCacheManager(수동 구현)는 이 단순 파일 I/O 캐시에 불필요하다.
+  `withContext(Dispatchers.IO) { loader.load(name) }` 호출. exposed-workshop의 LettuceSuspendedCacheManager (수동 구현)는 이 단순 파일 I/O 캐시에 불필요하다.
 - `GlobalExceptionHandler` WebFlux 버전: `@RestControllerAdvice` + `@ExceptionHandler` (MVC
   `ResponseEntityExceptionHandler`와 base class 다름)
 - Jib `container { ports = listOf("9999") }` 명시 필수 (mock-webflux-server)
@@ -299,39 +299,39 @@ class BluetapeWebfluxServer private constructor(
 
 ## Risks & Mitigations
 
-| # | 리스크                       | 대응                                                                                                             |
-|---|---------------------------|----------------------------------------------------------------------------------------------------------------|
-| 1 | Rename 다운스트림 참조 오류        | ripgrep 전체 탐색 → 일괄 업데이트 (T04). 롤백: `git revert T02~T04` 범위로 되돌리면 `:bluetape4k-mock-server` 모듈명·이미지명이 복원됨       |
-| 2 | CI 포트 충돌                  | Testcontainers 동적 포트 매핑                                                                                        |
-| 3 | WebFlux 의미론적 차이           | 각 모듈 독립 assertion 구조로 동일 패턴 유지                                                                                 |
-| 4 | Gatling 빌드 비용             | `gatlingTest` source set 격리, `check` 제외                                                                        |
-| 5 | Docker 이미지 이중화            | Jib 공유 base layer `eclipse-temurin:25-jre-alpine`                                                              |
-| 6 | Jackson 3 + WebFlux codec | `WebFluxConfigurer.configureHttpMessageCodecs()`에 Jackson 3 codec 명시 등록 필요; `Flow<T>` NDJSON 불가 시 `Flux<T>` 폴백 |
-| 7 | VT vs WebFlux throughput  | 두 서버 모두 non-blocking → 차이 미미 가능, 결과 수치 첨부                                                                      |
+| # | 리스크                      | 대응                                                                                                                                   |
+|---|-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| 1 | Rename 다운스트림 참조 오류 | ripgrep 전체 탐색 → 일괄 업데이트 (T04). 롤백: `git revert T02~T04` 범위로 되돌리면 `:bluetape4k-mock-server` 모듈명·이미지명이 복원됨 |
+| 2 | CI 포트 충돌                | Testcontainers 동적 포트 매핑                                                                                                          |
+| 3 | WebFlux 의미론적 차이       | 각 모듈 독립 assertion 구조로 동일 패턴 유지                                                                                           |
+| 4 | Gatling 빌드 비용           | `gatlingTest` source set 격리, `check` 제외                                                                                            |
+| 5 | Docker 이미지 이중화        | Jib 공유 base layer `eclipse-temurin:25-jre-alpine`                                                                                    |
+| 6 | Jackson 3 + WebFlux codec   | `WebFluxConfigurer.configureHttpMessageCodecs()`에 Jackson 3 codec 명시 등록 필요; `Flow<T>` NDJSON 불가 시 `Flux<T>` 폴백             |
+| 7 | VT vs WebFlux throughput    | 두 서버 모두 non-blocking → 차이 미미 가능, 결과 수치 첨부                                                                             |
 
 ---
 
 ## Approach Decisions
 
-| 항목                                     | 채택 | 기각 이유                 |
-|----------------------------------------|----|-----------------------|
-| WebFlux: `@RestController` + `suspend` | ✅  | MVC 1:1 대응, URL 일치 용이 |
-| WebFlux: `RouterFunction` DSL          | ❌  | parity 검증 어려움         |
-| Gatling: 각 모듈 `gatlingTest` source set | ✅  | co-located, 추가 모듈 불필요 |
-| Parity: 각 모듈 독립 테스트                    | ✅  | 교차 모듈 의존 없음, CI 부담 없음 |
-| Parity: testFixtures 공유                | ❌  | 교차 모듈 결합 생성           |
+| 항목                                      | 채택 | 기각 이유                         |
+|-------------------------------------------|------|-----------------------------------|
+| WebFlux: `@RestController` + `suspend`    | ✅   | MVC 1:1 대응, URL 일치 용이       |
+| WebFlux: `RouterFunction` DSL             | ❌   | parity 검증 어려움                |
+| Gatling: 각 모듈 `gatlingTest` source set | ✅   | co-located, 추가 모듈 불필요      |
+| Parity: 각 모듈 독립 테스트               | ✅   | 교차 모듈 의존 없음, CI 부담 없음 |
+| Parity: testFixtures 공유                 | ❌   | 교차 모듈 결합 생성               |
 
 ---
 
 ## Known Downstream Consumers
 
-| 파일                                        | 변경 내용                                                                                  |
+| 파일                                      | 변경 내용                                                                              |
 |-------------------------------------------|----------------------------------------------------------------------------------------|
 | `testing/testcontainers/build.gradle.kts` | `dependsOn(":bluetape4k-mock-server:jibDockerBuild")` → `:bluetape4k-mock-web-server:` |
 | `BluetapeHttpServer.kt`                   | `IMAGE = "bluetape4k/mock-server"` → `"bluetape4k/mock-web-server"`                    |
 | `mock-web-server/build.gradle.kts`        | Jib `to.image = "bluetape4k/mock-web-server"`                                          |
-| Gradle 모듈명                                | `:bluetape4k-mock-server` → `:bluetape4k-mock-web-server`                              |
-| `PropertyExportingServerContractTest`     | `expectedImplementors` 목록에 `BluetapeWebfluxServer` 추가                                  |
+| Gradle 모듈명                             | `:bluetape4k-mock-server` → `:bluetape4k-mock-web-server`                              |
+| `PropertyExportingServerContractTest`     | `expectedImplementors` 목록에 `BluetapeWebfluxServer` 추가                             |
 
 ---
 
@@ -348,29 +348,29 @@ class BluetapeWebfluxServer private constructor(
 
 | #   | Task                                                                                                                                                                                                      | Complexity |
 |-----|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| T01 | ~~worktree 생성~~ 완료                                                                                                                                                                                        | low        |
-| T02 | `testing/mock-server` → `testing/mock-web-server` 디렉토리 이동                                                                                                                                                 | medium     |
+| T01 | ~~worktree 생성~~ 완료                                                                                                                                                                                    | low        |
+| T02 | `testing/mock-server` → `testing/mock-web-server` 디렉토리 이동                                                                                                                                           | medium     |
 | T03 | `build.gradle.kts` Jib image → `bluetape4k/mock-web-server`                                                                                                                                               | low        |
-| T04 | 전체 repo ripgrep: `bluetape4k-mock-server`, `bluetape4k/mock-server` 참조 일괄 업데이트                                                                                                                            | medium     |
-| T05 | `README.md` + `README.ko.md` 갱신 (Mermaid 아키텍처 포함, Architecture→UML→Features→Examples)                                                                                                                     | low        |
-| T06 | mock-web-server **전체 endpoint 100% 커버** 통합 테스트: 기존 보완 + Ping/Admin/Stream/Web 신규 추가 (OkHttp + bluetape4k-assertions)                                                                                                     | high       |
-| T07 | `build.gradle.kts` `io.gatling.gradle` 플러그인 + `gatlingTest` source set 추가                                                                                                                                 | medium     |
-| T08 | `MockWebServerSimulation.kt`: 5개 시나리오 (Gatling Java API)                                                                                                                                                  | medium     |
+| T04 | 전체 repo ripgrep: `bluetape4k-mock-server`, `bluetape4k/mock-server` 참조 일괄 업데이트                                                                                                                  | medium     |
+| T05 | `README.md` + `README.ko.md` 갱신 (Mermaid 아키텍처 포함, Architecture→UML→Features→Examples)                                                                                                             | low        |
+| T06 | mock-web-server **전체 endpoint 100% 커버** 통합 테스트: 기존 보완 + Ping/Admin/Stream/Web 신규 추가 (OkHttp + bluetape4k-assertions)                                                                     | high       |
+| T07 | `build.gradle.kts` `io.gatling.gradle` 플러그인 + `gatlingTest` source set 추가                                                                                                                           | medium     |
+| T08 | `MockWebServerSimulation.kt`: 5개 시나리오 (Gatling Java API)                                                                                                                                             | medium     |
 | T09 | `testing/mock-webflux-server` scaffold: `build.gradle.kts` (webflux + jackson3 + jib, `container { ports = ["9999"] }`), `application.yml` (port 9999), `MockWebfluxServerApplication.kt`, test resources | medium     |
-| T10 | fixtures + `FixtureLoader` + `InMemoryRepository` + DTOs + HTML 복사; `ApplicationBootstrapConfig.kt`, `JsonplaceholderService.kt`, `GlobalExceptionHandler` (`@RestControllerAdvice`) 작성                   | medium     |
-| T11 | httpbin 컨트롤러 3개 `suspend`/`Flow` 포팅; `Thread.sleep` → `delay()`; Jackson 3 WebFlux codec 등록                                                                                                               | high       |
-| T12 | jsonplaceholder 컨트롤러 6개 `suspend` 포팅; `web/` 컨트롤러: `WebContentLoader`는 non-suspend + `@Cacheable` 유지, 컨트롤러에서 `withContext(Dispatchers.IO)` 호출                                                             | high       |
-| T13 | mock-webflux-server **전체 endpoint 100% 커버** 통합 테스트 (`WebTestClient` + bluetape4k-assertions)                                                                                                                             | high       |
+| T10 | fixtures + `FixtureLoader` + `InMemoryRepository` + DTOs + HTML 복사; `ApplicationBootstrapConfig.kt`, `JsonplaceholderService.kt`, `GlobalExceptionHandler` (`@RestControllerAdvice`) 작성               | medium     |
+| T11 | httpbin 컨트롤러 3개 `suspend`/`Flow` 포팅; `Thread.sleep` → `delay()`; Jackson 3 WebFlux codec 등록                                                                                                      | high       |
+| T12 | jsonplaceholder 컨트롤러 6개 `suspend` 포팅; `web/` 컨트롤러: `WebContentLoader`는 non-suspend + `@Cacheable` 유지, 컨트롤러에서 `withContext(Dispatchers.IO)` 호출                                       | high       |
+| T13 | mock-webflux-server **전체 endpoint 100% 커버** 통합 테스트 (`WebTestClient` + bluetape4k-assertions)                                                                                                     | high       |
 | T14 | `mock-webflux-server` Gatling: `io.gatling.gradle` + `MockWebfluxServerSimulation.kt`                                                                                                                     | medium     |
-| T15 | `BluetapeWebfluxServer.kt`: `init { withExposedPorts(PORT); waitingFor(...) }`, 3-멤버 계약 구현; `PropertyExportingServerContractTest.expectedImplementors` 목록 업데이트                                            | medium     |
-| T16 | `BluetapeWebfluxServerTest.kt`; testcontainers `build.gradle.kts`에 `dependsOn(":bluetape4k-mock-webflux-server:jibDockerBuild")`                                                                          | medium     |
-| T17 | mock-webflux-server Jib `jibDockerBuild` 검증 → `bluetape4k/mock-webflux-server:latest`                                                                                                                     | medium     |
-| T18 | `mock-webflux-server/README.md` + `README.ko.md` (Mermaid 다이어그램)                                                                                                                                          | medium     |
-| T19 | `CLAUDE.md` Module Groups + `testcontainers/README*.md` 업데이트                                                                                                                                              | low        |
-| T20 | `./bin/repo-test-summary -- ./gradlew :bluetape4k-mock-web-server:test :bluetape4k-mock-webflux-server:test :bluetape4k-testcontainers:test`; `docs/testlogs/2026-04.md` 기록                               | medium     |
-| T21 | Gatling 수동 실행; p95/p99 PR 첨부                                                                                                                                                                              | medium     |
-| T22 | `docs/superpowers/index/2026-04.md` 항목 추가; `INDEX.md` 건수 갱신                                                                                                                                               | low        |
-| T23 | PR 생성; `/oh-my-claudecode:code-reviewer`; 피드백 반영                                                                                                                                                          | medium     |
+| T15 | `BluetapeWebfluxServer.kt`: `init { withExposedPorts(PORT); waitingFor(...) }`, 3-멤버 계약 구현; `PropertyExportingServerContractTest.expectedImplementors` 목록 업데이트                                | medium     |
+| T16 | `BluetapeWebfluxServerTest.kt`; testcontainers `build.gradle.kts`에 `dependsOn(":bluetape4k-mock-webflux-server:jibDockerBuild")`                                                                         | medium     |
+| T17 | mock-webflux-server Jib `jibDockerBuild` 검증 → `bluetape4k/mock-webflux-server:latest`                                                                                                                   | medium     |
+| T18 | `mock-webflux-server/README.md` + `README.ko.md` (Mermaid 다이어그램)                                                                                                                                     | medium     |
+| T19 | `CLAUDE.md` Module Groups + `testcontainers/README*.md` 업데이트                                                                                                                                          | low        |
+| T20 | `./bin/repo-test-summary -- ./gradlew :bluetape4k-mock-web-server:test :bluetape4k-mock-webflux-server:test :bluetape4k-testcontainers:test`; `docs/testlogs/2026-04.md` 기록                             | medium     |
+| T21 | Gatling 수동 실행; p95/p99 PR 첨부                                                                                                                                                                        | medium     |
+| T22 | `docs/superpowers/index/2026-04.md` 항목 추가; `INDEX.md` 건수 갱신                                                                                                                                       | low        |
+| T23 | PR 생성; `/oh-my-claudecode:code-reviewer`; 피드백 반영                                                                                                                                                   | medium     |
 
 **Total: 23 tasks — 4 high, 14 medium, 5 low**
 

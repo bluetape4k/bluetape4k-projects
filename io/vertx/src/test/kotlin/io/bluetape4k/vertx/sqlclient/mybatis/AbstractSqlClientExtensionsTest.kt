@@ -1,5 +1,11 @@
 package io.bluetape4k.vertx.sqlclient.mybatis
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -18,11 +24,6 @@ import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import io.vertx.sqlclient.SqlConnection
 import io.vertx.sqlclient.SqlResult
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mybatis.dynamic.sql.insert.render.GeneralInsertStatementProvider
@@ -45,7 +46,6 @@ import org.mybatis.dynamic.sql.util.kotlin.model.selectDistinct
 import org.mybatis.dynamic.sql.util.kotlin.model.update
 import java.io.Serializable
 import java.time.LocalDate
-import io.bluetape4k.assertions.assertFailsWith
 
 abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 

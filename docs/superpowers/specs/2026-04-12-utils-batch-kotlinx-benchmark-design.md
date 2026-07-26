@@ -28,7 +28,7 @@
 - Data Size: 1,000 / 10,000 / 100,000
 - Driver: JDBC with Virtual Threads / R2DBC
 - Pool Size: 10 / 30 / 60
-- Parallel Query(= partition 수): 1 / 4 / 8
+- Parallel Query (= partition 수): 1 / 4 / 8
 
 조합 수는 측정 대상에 따라 다르다.
 
@@ -69,7 +69,7 @@
 - `build.gradle.kts:27`
 - `buildSrc/src/main/kotlin/Libs.kt:18`
 
-`kotlinx-benchmark` 문서 기준으로 Kotlin/JVM 프로젝트에 별도 benchmark source set(`benchmark`)을 만들고, custom configuration profile 별로 `<target><Config>Benchmark` task 를 사용한다.
+`kotlinx-benchmark` 문서 기준으로 Kotlin/JVM 프로젝트에 별도 benchmark source set (`benchmark`)을 만들고, custom configuration profile 별로 `<target><Config>Benchmark` task 를 사용한다.
 
 예상 task 이름 예:
 
@@ -118,11 +118,13 @@ utils/batch/
 하나의 benchmark 클래스가 DB/driver까지 모두 바꾸는 구조 대신, DB/driver를 클래스 단위로 고정한다.
 
 #### JDBC
+
 - `H2JdbcBatchBenchmark`
 - `PostgreSqlJdbcBatchBenchmark`
 - `MySqlJdbcBatchBenchmark`
 
 #### R2DBC
+
 - `H2R2dbcBatchBenchmark`
 - `PostgreSqlR2dbcBatchBenchmark`
 - `MySqlR2dbcBatchBenchmark`
@@ -139,10 +141,12 @@ utils/batch/
 DB 와 driver 는 클래스/프로파일이 고정하고, 측정 대상별로 별도 scenario state 를 둔다.
 
 #### Seed benchmark state
+
 - `dataSize = 1000, 10000, 100000`
 - `poolSize = 10, 30, 60`
 
 #### End-to-end batch job state
+
 - `dataSize = 1000, 10000, 100000`
 - `poolSize = 10, 30, 60`
 - `parallelism = 1, 4, 8`
@@ -169,39 +173,44 @@ DB 와 driver 는 클래스/프로파일이 고정하고, 측정 대상별로 �
 
 두 값을 섞지 않는 이유는 다음과 같다.
 
-- source 적재(batchInsert) 성능과 실제 배치 처리 성능은 병목이 다르다.
-- seed 비용이 큰 DB(MySQL, PostgreSQL)와 job 비용이 큰 드라이버(R2DBC)에서 해석 포인트가 다르다.
+- source 적재 (batchInsert) 성능과 실제 배치 처리 성능은 병목이 다르다.
+- seed 비용이 큰 DB (MySQL, PostgreSQL)와 job 비용이 큰 드라이버 (R2DBC)에서 해석 포인트가 다르다.
 - README 요약은 end-to-end 중심으로 쓰되, 상세 문서는 seed도 함께 보여줘야 전체 추세를 설명할 수 있다.
 
 ### 4.2 측정 경계
 
 #### 측정 밖
+
 - PostgreSQL/MySQL Testcontainers 기동
 - connection pool 생성 (`HikariCP`, `r2dbc-pool`)
 - schema 생성 및 dialect 초기화
 - benchmark helper 객체 생성
 
 #### seed benchmark 측정 안
+
 - source/target/job tables truncate 완료 상태
 - pool/factory 준비 완료 상태
 
 #### seed benchmark 측정 본문
+
 - source table 에 `dataSize` 만큼 적재
 
 #### end-to-end benchmark 측정 안
+
 - source table 에 seed 적재 완료
 - target/job execution tables 초기화 완료
 - batch job DSL 구성 완료
 
 #### end-to-end benchmark 측정 본문
+
 - 실제 batch job 1회 실행
 
 즉, benchmark 는 “환경 준비 비용”이 아니라 “실제 작업 비용”만 측정한다.
 
 ### 4.3 `parallelism` 의 의미
 
-사용자 합의에 따라 `parallelism = 1 / 4 / 8` 은 **동시 job 수**가 아니라 **배치 partition 수**이다.
-이 파라미터는 **end-to-end batch job benchmark 에만 적용**된다.
+사용자 합의에 따라 `parallelism = 1 / 4 / 8` 은 **동시 job 수**가 아니라 **배치 partition 수**이다. 이 파라미터는 **end-to-end batch job benchmark
+에만 적용**된다.
 
 - `1` → sequential batch
 - `4`, `8` → key-range 기반 partitioned batch
@@ -217,15 +226,15 @@ JDBC/R2DBC 모두 동일한 partition 전략을 쓴다.
 
 ### 4.4 JDBC vs R2DBC 공정 비교 기준
 
-| 항목 | JDBC | R2DBC |
-|------|------|-------|
-| Driver | Exposed JDBC | Exposed R2DBC |
-| 동시성 모델 | Virtual Threads | Coroutine + reactive driver |
-| Pool | HikariCP | r2dbc-pool |
-| Pool size | 10 / 30 / 60 | 10 / 30 / 60 |
-| Partition 전략 | 동일 | 동일 |
-| Data set | 동일 | 동일 |
-| Chunk/Page 설정 | 동일 | 동일 |
+| 항목            | JDBC            | R2DBC                       |
+|-----------------|-----------------|-----------------------------|
+| Driver          | Exposed JDBC    | Exposed R2DBC               |
+| 동시성 모델     | Virtual Threads | Coroutine + reactive driver |
+| Pool            | HikariCP        | r2dbc-pool                  |
+| Pool size       | 10 / 30 / 60    | 10 / 30 / 60                |
+| Partition 전략  | 동일            | 동일                        |
+| Data set        | 동일            | 동일                        |
+| Chunk/Page 설정 | 동일            | 동일                        |
 
 ---
 
@@ -236,16 +245,19 @@ JDBC/R2DBC 모두 동일한 partition 전략을 쓴다.
 `io.bluetape4k.batch.benchmark.support` 에 공통 보조 코드를 둔다.
 
 #### `SeedScenarioParams`
+
 - `@Param` 선언 보유
 - `dataSize`, `poolSize`
 - 사람이 읽기 쉬운 label/slug 제공
 
 #### `JobScenarioParams`
+
 - `@Param` 선언 보유
 - `dataSize`, `poolSize`, `parallelism`
 - 사람이 읽기 쉬운 label/slug 제공
 
 #### `BenchmarkEnvironment`
+
 - DB 준비
 - schema reset
 - table truncate
@@ -253,16 +265,19 @@ JDBC/R2DBC 모두 동일한 partition 전략을 쓴다.
 - resource close
 
 #### `SeedBenchmarkSupport`
+
 - source row 생성
 - seed insert 실행
 - throughput 계산
 
 #### `BatchJobBenchmarkSupport`
+
 - benchmark job DSL 생성
 - sequential/partitioned job 생성
 - result 검증
 
 #### `BenchmarkMarkdownExporter`
+
 - raw result 를 읽어 markdown 문서 생성
 - 표와 Mermaid graph 를 함께 출력
 - README 요약 테이블용 summary 모델도 생성
@@ -304,7 +319,7 @@ JDBC/R2DBC 모두 동일한 partition 전략을 쓴다.
 - benchmark 문서 인덱스
 - DB별 상세 결과 링크
 - 실행 환경 설명
-- 측정 기준(seed / end-to-end / graph 해석법) 설명
+- 측정 기준 (seed / end-to-end / graph 해석법) 설명
 
 ### 6.2 상세 문서
 
@@ -317,25 +332,25 @@ JDBC/R2DBC 모두 동일한 partition 전략을 쓴다.
 각 문서는 다음 섹션을 가진다.
 
 1. 개요
-   - DB
-   - 실행 일시
-   - JDBC benchmark task 이름
-   - R2DBC benchmark task 이름
-   - 환경 (Apple M4 Pro, Testcontainers 여부 등)
+    - DB
+    - 실행 일시
+    - JDBC benchmark task 이름
+    - R2DBC benchmark task 이름
+    - 환경 (Apple M4 Pro, Testcontainers 여부 등)
 2. 실행 조건
-   - chunkSize
-   - pageSize
-   - dataSize 집합
-   - poolSize 집합
-   - parallelism 집합
+    - chunkSize
+    - pageSize
+    - dataSize 집합
+    - poolSize 집합
+    - parallelism 집합
 3. Seed benchmark 결과 표
-   - JDBC / R2DBC 를 같은 표 안에서 비교 가능하게 배치
+    - JDBC / R2DBC 를 같은 표 안에서 비교 가능하게 배치
 4. Seed graph
-   - JDBC / R2DBC 비교 중심 그래프
+    - JDBC / R2DBC 비교 중심 그래프
 5. End-to-end benchmark 결과 표
-   - JDBC / R2DBC 를 같은 표 안에서 비교 가능하게 배치
+    - JDBC / R2DBC 를 같은 표 안에서 비교 가능하게 배치
 6. End-to-end graph
-   - JDBC / R2DBC 비교 중심 그래프
+    - JDBC / R2DBC 비교 중심 그래프
 7. 핵심 해석
 
 ### 6.3 상세 결과 표 형식
@@ -373,10 +388,12 @@ Graph 는 Markdown 친화성과 저장소 이식성을 위해 **Mermaid** 로 �
 권장 그래프:
 
 #### Seed
+
 - `dataSize` 축 기준 JDBC vs R2DBC throughput 비교 bar chart
 - `parallelism` 축 기준 JDBC vs R2DBC throughput 비교 line chart
 
 #### End-to-end
+
 - `dataSize` 축 기준 JDBC vs R2DBC throughput 비교 bar chart
 - `poolSize` 변화 기준 JDBC vs R2DBC throughput 비교 line chart
 
@@ -466,7 +483,7 @@ benchmark 실행 후 Markdown 문서를 갱신하는 task 를 별도로 둔다.
 
 1. `kotlinx-benchmark` source set 이 실제로 컴파일된다.
 2. 최소 1개 benchmark profile 이 실제 실행된다.
-3. 가능하면 H2 1개 + 네트워크 DB 1개(PostgreSQL 또는 MySQL)를 실제 실행 확인한다.
+3. 가능하면 H2 1개 + 네트워크 DB 1개 (PostgreSQL 또는 MySQL)를 실제 실행 확인한다.
 4. 상세 Markdown 문서가 생성된다.
 5. 상세 Markdown 문서에 표와 Mermaid graph 가 모두 포함된다.
 6. `README.md`, `README.ko.md` 에 상세 링크가 연결된다.
@@ -519,7 +536,7 @@ benchmark 실행 후 Markdown 문서를 갱신하는 task 를 별도로 둔다.
 
 추천 구현안은 다음과 같다.
 
-1. `utils/batch` 내부에 `kotlinx-benchmark` source set(`src/benchmark/kotlin`) 추가
+1. `utils/batch` 내부에 `kotlinx-benchmark` source set (`src/benchmark/kotlin`) 추가
 2. DB/driver별 benchmark 클래스 6개 구성
 3. `@Param(dataSize, poolSize, parallelism)` 로 27조합씩 실행
 4. PostgreSQL/MySQL 는 Testcontainers 자동 기동

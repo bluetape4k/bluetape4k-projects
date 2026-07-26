@@ -14,6 +14,7 @@ Apache Pulsar는 멀티테넌시, 토픽별 독립 스토리지, 지리적 복�
 현재 bluetape4k에는 Pulsar Java Client를 Kotlin Coroutines / Flow로 감싸는 래퍼가 없음.
 
 **목표**:
+
 - `infra/pulsar` 단일 모듈로 Kotlin 코루틴 퍼스트 Pulsar 클라이언트 래퍼 제공
 - Extension functions 우선 (object 메서드 금지)
 - Jackson2 + Jackson3 양쪽 지원 (compileOnly)
@@ -61,7 +62,8 @@ infra/pulsar/
 
 1. **Extension functions 우선**: `suspend fun Producer<T>.sendSuspend(...)` 형태
 2. **CompletableFuture → Coroutine**: `awaitSuspending()` (`bluetape4k-coroutines`)
-3. **Flow 변환**: `flow { while (isActive) { emit(receiveAsync().awaitSuspending()) } }` 폴링 패턴. 취소 시 대기 중인 `CompletableFuture.cancel(true)` 명시적 호출
+3. **Flow
+   변환**: `flow { while (isActive) { emit(receiveAsync().awaitSuspending()) } }` 폴링 패턴. 취소 시 대기 중인 `CompletableFuture.cancel(true)` 명시적 호출
 4. **DSL**: `pulsarClient {}`, `producer {}`, `consumer {}`, `reader {}` 빌더 DSL
 5. **withXxx {}**: `suspend inline fun` + `try/finally { closeAsync().awaitSuspending() }` — 예외/취소 시 비동기 close 보장
 6. **top-level 파일 로깅**: `companion object : KLogging()` 없는 파일은 `private val log = KotlinLogging.logger {}` 사용
@@ -87,6 +89,7 @@ withPulsarClient("pulsar://localhost:6650") {
 ```
 
 **구현 시그니처**:
+
 ```kotlin
 fun pulsarClient(serviceUrl: String = "", setup: ClientBuilder.() -> Unit = {}): PulsarClient
 
@@ -125,6 +128,7 @@ val results: Flow<MessageId> = producer.sendAsFlow(ordersFlow)
 ```
 
 **구현 시그니처**:
+
 ```kotlin
 // ProducerSupport.kt
 fun <T> PulsarClient.producer(schema: Schema<T>, setup: ProducerBuilder<T>.() -> Unit): Producer<T>
@@ -175,6 +179,7 @@ consumer.negativeAcknowledge(msg)
 ```
 
 **구현 시그니처**:
+
 ```kotlin
 // ConsumerSupport.kt
 fun <T> PulsarClient.consumer(schema: Schema<T>, setup: ConsumerBuilder<T>.() -> Unit): Consumer<T>
@@ -223,6 +228,7 @@ reader.readAsFlow()
 ```
 
 **구현 시그니처**:
+
 ```kotlin
 // ReaderSupport.kt
 fun <T> PulsarClient.reader(schema: Schema<T>, setup: ReaderBuilder<T>.() -> Unit): Reader<T>
@@ -246,6 +252,7 @@ fun <T> Reader<T>.readAsFlow(): Flow<Message<T>>
 ### 3-5. Jackson Schema (compileOnly)
 
 **Jackson2 vs Jackson3 선택 기준**:
+
 - 프로젝트에 `bluetape4k-jackson2` 의존 → `jacksonSchema<T>()` 사용
 - 프로젝트에 `bluetape4k-jackson3` 의존 → `jackson3Schema<T>()` 사용
 - Jackson2: `com.fasterxml.jackson.databind.ObjectMapper` / Jackson3: `tools.jackson.databind.ObjectMapper` (패키지 다름, 바이너리 비호환) → 런타임에 하나만 사용
@@ -265,6 +272,7 @@ inline fun <reified T> jackson3Schema(mapper: tools.jackson.databind.ObjectMappe
 ```
 
 내부적으로 Pulsar `Schema<T>` 인터페이스 구현:
+
 - `encode(T): ByteArray` — `mapper.writeValueAsBytes(value)`
 - `decode(ByteArray): T` — `mapper.readValue(bytes, type)`
 - `getSchemaInfo(): SchemaInfo` — 다음을 포함해야 함:
@@ -331,24 +339,26 @@ dependencies {
 ## 6. 테스트 전략
 
 ### 테스트 환경
+
 - `PulsarServer.Launcher.pulsar` (기존 testcontainers) 재사용
 - `AbstractPulsarTest` 기반 클래스로 client 생명주기 관리
 
 ### 테스트 케이스
 
-| 테스트 | 검증 내용 |
-|--------|-----------|
-| `ProducerExtensionsTest` | sendSuspend, sendAsFlow (100건) |
+| 테스트                   | 검증 내용                                                 |
+|--------------------------|-----------------------------------------------------------|
+| `ProducerExtensionsTest` | sendSuspend, sendAsFlow (100건)                           |
 | `ConsumerExtensionsTest` | receiveSuspend, receiveAsFlow (Exclusive/Shared/Failover) |
-| `ReaderExtensionsTest` | readNextSuspend, readAsFlow (earliest~latest) |
-| `JacksonSchemaTest` | Jackson2 encode/decode 라운드트립 |
-| `Jackson3SchemaTest` | Jackson3 encode/decode 라운드트립 |
+| `ReaderExtensionsTest`   | readNextSuspend, readAsFlow (earliest~latest)             |
+| `JacksonSchemaTest`      | Jackson2 encode/decode 라운드트립                         |
+| `Jackson3SchemaTest`     | Jackson3 encode/decode 라운드트립                         |
 
 ---
 
 ## 7. DoD (Definition of Done)
 
 ### 구현
+
 - [ ] `infra/pulsar` 모듈 Gradle 등록 (`settings.gradle.kts` 자동)
 - [ ] `pulsarClient {}` / `withPulsarClient {}` DSL 구현
 - [ ] `producer {}` / `consumer {}` / `reader {}` DSL on PulsarClient 구현
@@ -360,16 +370,19 @@ dependencies {
 - [ ] Jackson3 `jackson3Schema<T>()` 구현 (SchemaInfo 포함)
 
 ### 코드 품질
+
 - [ ] 모든 public API 한국어 KDoc (예외 타입, compileOnly 사용 경고 포함)
 - [ ] 클래스 파일: `companion object : KLogging()` 포함
-- [ ] top-level 파일(`*Extensions.kt`, `*Support.kt`): `private val log = KotlinLogging.logger {}` 사용
+- [ ] top-level 파일 (`*Extensions.kt`, `*Support.kt`): `private val log = KotlinLogging.logger {}` 사용
 
 ### 테스트
+
 - [ ] 테스트별 UUID subscriptionName 사용 (`subscriptionName("test-sub-${UUID.randomUUID()}")`)
 - [ ] 테스트 전수 통과 (ProducerExtensionsTest / ConsumerExtensionsTest / ReaderExtensionsTest / JacksonSchemaTest / Jackson3SchemaTest)
 - [ ] `src/test/resources/junit-platform.properties` + `logback-test.xml` 포함
 
 ### 문서
+
 - [ ] `README.md` + `README.ko.md` 작성
 - [ ] `CLAUDE.md` `infra/` 모듈 그룹 테이블에 `pulsar` 추가
 

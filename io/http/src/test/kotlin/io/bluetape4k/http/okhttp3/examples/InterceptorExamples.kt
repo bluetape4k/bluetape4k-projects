@@ -1,5 +1,7 @@
 package io.bluetape4k.http.okhttp3.examples
 
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldStartWith
 import io.bluetape4k.http.AbstractHttpTest
 import io.bluetape4k.http.okhttp3.LoggingInterceptor
 import io.bluetape4k.http.okhttp3.okhttp3Client
@@ -7,8 +9,6 @@ import io.bluetape4k.http.okhttp3.okhttp3RequestOf
 import io.bluetape4k.junit5.output.InMemoryLogbackAppender
 import io.bluetape4k.logging.KLogging
 import okhttp3.OkHttpClient
-import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.assertions.shouldStartWith
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

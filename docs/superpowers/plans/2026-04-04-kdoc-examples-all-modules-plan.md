@@ -1,6 +1,7 @@
 # 전체 모듈 KDoc 예제 추가 Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** bluetape4k 전체 publish 모듈 (~75개)의 모든 public API에 인라인 KDoc 예제를 추가하여 라이브러리 사용성 통일
 
@@ -14,13 +15,13 @@
 
 모든 서브에이전트는 다음 CLI 도구를 사용해야 한다:
 
-| 작업 | 사용 명령 | 금지 명령 |
-|------|---------|---------|
-| 파일 탐색 | `fd -e kt -t f <경로>` | `find` |
-| 텍스트 검색 | `rg "pattern" --type kotlin` | `grep -r` |
-| 파일 내용 확인 | `bat <파일>` | `cat` |
-| 디렉토리 목록 | `eza -la` | `ls -la` |
-| 코드 구조 검색 | `ast-grep -p 'fun $NAME($$$)' -l kotlin` | — |
+| 작업           | 사용 명령                                | 금지 명령 |
+|----------------|------------------------------------------|-----------|
+| 파일 탐색      | `fd -e kt -t f <경로>`                   | `find`    |
+| 텍스트 검색    | `rg "pattern" --type kotlin`             | `grep -r` |
+| 파일 내용 확인 | `bat <파일>`                             | `cat`     |
+| 디렉토리 목록  | `eza -la`                                | `ls -la`  |
+| 코드 구조 검색 | `ast-grep -p 'fun $NAME($$$)' -l kotlin` | —         |
 
 ---
 
@@ -29,6 +30,7 @@
 모든 서브에이전트는 다음 규칙을 반드시 준수한다:
 
 ### 구조 순서 (필수)
+
 ```
 설명 (description)
   ↓
@@ -38,6 +40,7 @@
 ```
 
 ### 예시
+
 ```kotlin
 /**
  * 두 정수의 합을 반환합니다.
@@ -45,12 +48,13 @@
  * ```kotlin
  * val result = add(2, 3) // 5
  * ```
- *
- * @param a 첫 번째 정수
- * @param b 두 번째 정수
- * @return 두 정수의 합
- */
-fun add(a: Int, b: Int): Int = a + b
+
+*
+* @param a 첫 번째 정수
+* @param b 두 번째 정수
+* @return 두 정수의 합
+  */ fun add (a: Int, b: Int): Int = a + b
+
 ```
 
 ### 규칙 목록
@@ -76,22 +80,18 @@ fun add(a: Int, b: Int): Int = a + b
 
   서브에이전트에게 다음 지시 전달:
   ```
-  bluetape4k/coroutines/src/main/kotlin/ 아래 모든 .kt 파일을 읽고,
-  각 파일의 모든 public 클래스/인터페이스/함수/프로퍼티에 인라인 KDoc 예제를 추가하라.
-  KDoc 순서: 설명 → ```kotlin 예제 → @param/@return/@throws
-  import 금지, @sample 금지, 기존 텍스트 보존, 코드 로직 변경 금지.
-  참고 테스트: bluetape4k/coroutines/src/test/kotlin/
+
+bluetape4k/coroutines/src/main/kotlin/ 아래 모든 .kt 파일을 읽고, 각 파일의 모든 public 클래스/인터페이스/함수/프로퍼티에 인라인 KDoc 예제를 추가하라. KDoc 순서: 설명 → ```kotlin 예제 → @param/@return/@throws import 금지, @sample 금지, 기존 텍스트 보존, 코드 로직 변경 금지. 참고 테스트: bluetape4k/coroutines/src/test/kotlin/
+
   ```
 
 - [ ] **Step 2: logging 모듈 KDoc 예제 추가 (서브에이전트)**
 
   서브에이전트에게 다음 지시 전달:
   ```
-  bluetape4k/logging/src/main/kotlin/ 아래 모든 .kt 파일을 읽고,
-  각 파일의 모든 public 클래스/인터페이스/함수/프로퍼티에 인라인 KDoc 예제를 추가하라.
-  KDoc 순서: 설명 → ```kotlin 예제 → @param/@return/@throws
-  import 금지, @sample 금지, 기존 텍스트 보존, 코드 로직 변경 금지.
-  참고 테스트: bluetape4k/logging/src/test/kotlin/
+
+bluetape4k/logging/src/main/kotlin/ 아래 모든 .kt 파일을 읽고, 각 파일의 모든 public 클래스/인터페이스/함수/프로퍼티에 인라인 KDoc 예제를 추가하라. KDoc 순서: 설명 → ```kotlin 예제 → @param/@return/@throws import 금지, @sample 금지, 기존 텍스트 보존, 코드 로직 변경 금지. 참고 테스트: bluetape4k/logging/src/test/kotlin/
+
   ```
 
 - [ ] **Step 3: 카테고리 1 커밋**
@@ -108,6 +108,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 2: utils Batch 1 — javatimes, math, rule-engine, idgenerators, geo
 
 **대상 모듈:**
+
 - `utils/javatimes/src/main/kotlin/` (92파일)
 - `utils/math/src/main/kotlin/` (86파일)
 - `utils/rule-engine/src/main/kotlin/` (57파일)
@@ -127,6 +128,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 3: utils Batch 2 — science, images, jwt, leader, measured
 
 **대상 모듈:**
+
 - `utils/science/src/main/kotlin/` (25파일)
 - `utils/images/src/main/kotlin/` (24파일)
 - `utils/jwt/src/main/kotlin/` (22파일)
@@ -140,6 +142,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 4: utils Batch 3 — states, money, mutiny
 
 **대상 모듈:**
+
 - `utils/states/src/main/kotlin/` (10파일)
 - `utils/money/src/main/kotlin/` (6파일)
 - `utils/mutiny/src/main/kotlin/` (3파일)
@@ -162,6 +165,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 5: io Batch 1 — http, okio, jackson3, jackson, tink
 
 **대상 모듈:**
+
 - `io/http/src/main/kotlin/` (69파일)
 - `io/okio/src/main/kotlin/` (49파일)
 - `io/jackson3/src/main/kotlin/` (37파일)
@@ -173,6 +177,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 6: io Batch 2 — vertx, csv, netty, feign, retrofit2
 
 **대상 모듈:**
+
 - `io/vertx/src/main/kotlin/` (24파일)
 - `io/csv/src/main/kotlin/` (17파일)
 - `io/netty/src/main/kotlin/` (14파일)
@@ -184,6 +189,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 7: io Batch 3 — protobuf, grpc, avro, fastjson2, json
 
 **대상 모듈:**
+
 - `io/protobuf/src/main/kotlin/` (10파일)
 - `io/grpc/src/main/kotlin/` (8파일)
 - `io/avro/src/main/kotlin/` (7파일)
@@ -206,6 +212,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 8: testcontainers + junit5 KDoc 예제 추가
 
 **대상 모듈:**
+
 - `testing/testcontainers/src/main/kotlin/` (56파일)
 - `testing/junit5/src/main/kotlin/` (41파일)
 
@@ -227,6 +234,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 9: infra Batch 1 — cache-core, lettuce, kafka, resilience4j, bucket4j
 
 **대상 모듈:**
+
 - `infra/cache-core/src/main/kotlin/` (48파일)
 - `infra/lettuce/src/main/kotlin/` (40파일)
 - `infra/kafka/src/main/kotlin/` (30파일)
@@ -238,6 +246,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 10: infra Batch 2 — cache-lettuce, redisson, micrometer, opentelemetry, cache-hazelcast, cache-redisson
 
 **대상 모듈:**
+
 - `infra/cache-lettuce/src/main/kotlin/` (18파일)
 - `infra/redisson/src/main/kotlin/` (21파일)
 - `infra/micrometer/src/main/kotlin/` (14파일)
@@ -261,6 +270,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 11: data Batch 1 — exposed-core, exposed-dao, exposed-jdbc, exposed-r2dbc, exposed-jdbc-lettuce
 
 **대상 모듈:**
+
 - `data/exposed-core/src/main/kotlin/` (31파일)
 - `data/exposed-dao/src/main/kotlin/` (13파일)
 - `data/exposed-jdbc/src/main/kotlin/` (8파일)
@@ -272,6 +282,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 12: data Batch 2 — exposed-r2dbc-lettuce, exposed-jdbc-redisson, exposed-r2dbc-redisson, exposed-jackson, exposed-jackson3
 
 **대상 모듈:**
+
 - `data/exposed-r2dbc-lettuce/src/main/kotlin/` (6파일)
 - `data/exposed-jdbc-redisson/src/main/kotlin/` (12파일)
 - `data/exposed-r2dbc-redisson/src/main/kotlin/` (7파일)
@@ -283,6 +294,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 13: data Batch 3 — exposed-fastjson2, exposed-jasypt, exposed-tink, exposed-postgresql, exposed-mysql8
 
 **대상 모듈:**
+
 - `data/exposed-fastjson2/src/main/kotlin/` (6파일)
 - `data/exposed-jasypt/src/main/kotlin/` (4파일)
 - `data/exposed-tink/src/main/kotlin/` (7파일)
@@ -294,6 +306,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 14: data Batch 4 — exposed-duckdb, exposed-trino, exposed-bigquery, exposed-measured, hibernate
 
 **대상 모듈:**
+
 - `data/exposed-duckdb/src/main/kotlin/` (5파일)
 - `data/exposed-trino/src/main/kotlin/` (7파일)
 - `data/exposed-bigquery/src/main/kotlin/` (3파일)
@@ -305,6 +318,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 15: data Batch 5 — hibernate-reactive, hibernate-cache-lettuce, mongodb, cassandra, jdbc, r2dbc
 
 **대상 모듈:**
+
 - `data/hibernate-reactive/src/main/kotlin/` (8파일)
 - `data/hibernate-cache-lettuce/src/main/kotlin/` (3파일)
 - `data/mongodb/src/main/kotlin/` (7파일)
@@ -328,6 +342,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 16: aws + aws-kotlin KDoc 예제 추가
 
 **대상 모듈:**
+
 - `aws/aws/src/main/kotlin/` (168파일)
 - `aws-kotlin/aws-kotlin/src/main/kotlin/` (124파일)
 
@@ -367,6 +382,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 17: spring-boot3 Batch 1 — core, cassandra, mongodb, redis, r2dbc
 
 **대상 모듈:**
+
 - `spring-boot3/core/src/main/kotlin/` (36파일)
 - `spring-boot3/cassandra/src/main/kotlin/` (12파일)
 - `spring-boot3/mongodb/src/main/kotlin/` (5파일)
@@ -378,6 +394,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 18: spring-boot3 Batch 2 — exposed-jdbc, exposed-r2dbc, hibernate-lettuce
 
 **대상 모듈:**
+
 - `spring-boot3/exposed-jdbc/src/main/kotlin/` (24파일)
 - `spring-boot3/exposed-r2dbc/src/main/kotlin/` (8파일)
 - `spring-boot3/hibernate-lettuce/src/main/kotlin/` (6파일)
@@ -387,6 +404,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 19: spring-boot4 Batch 1 — core, cassandra, mongodb, redis, r2dbc
 
 **대상 모듈:**
+
 - `spring-boot4/core/src/main/kotlin/` (41파일)
 - `spring-boot4/cassandra/src/main/kotlin/` (12파일)
 - `spring-boot4/mongodb/src/main/kotlin/` (5파일)
@@ -400,6 +418,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 20: spring-boot4 Batch 2 — exposed-jdbc, exposed-r2dbc, hibernate-lettuce
 
 **대상 모듈:**
+
 - `spring-boot4/exposed-jdbc/src/main/kotlin/` (24파일)
 - `spring-boot4/exposed-r2dbc/src/main/kotlin/` (8파일)
 - `spring-boot4/hibernate-lettuce/src/main/kotlin/` (6파일)
@@ -422,6 +441,7 @@ fun add(a: Int, b: Int): Int = a + b
 ### Task 21: virtualthread + timefold KDoc 예제 추가
 
 **대상 모듈:**
+
 - `virtualthread/api/src/main/kotlin/` (3파일)
 - `virtualthread/jdk21/src/main/kotlin/` (1파일)
 - `virtualthread/jdk25/src/main/kotlin/` (1파일)
@@ -460,28 +480,28 @@ fun add(a: Int, b: Int): Int = a + b
 
 ## 전체 태스크 요약
 
-| Task | 카테고리 | 배치 | 모듈 수 | 파일 수 |
-|------|---------|------|--------|--------|
-| 1 | Core 잔여 | 1 | 2 | 107 |
-| 2 | utils | Batch 1 | 5 | 313 |
-| 3 | utils | Batch 2 | 5 | 109 |
-| 4 | utils | Batch 3 | 3 | 19 |
-| 5 | io 잔여 | Batch 1 | 5 | 214 |
-| 6 | io 잔여 | Batch 2 | 5 | 74 |
-| 7 | io 잔여 | Batch 3 | 5 | 32 |
-| 8 | testing | 1 | 2 | 97 |
-| 9 | infra | Batch 1 | 5 | 159 |
-| 10 | infra | Batch 2 | 6 | 89 |
-| 11 | data | Batch 1 | 5 | 72 |
-| 12 | data | Batch 2 | 5 | 39 |
-| 13 | data | Batch 3 | 5 | 30 |
-| 14 | data | Batch 4 | 5 | 59 |
-| 15 | data | Batch 5 | 6 | 72 |
-| 16 | aws | 1 | 2 | 292 |
-| 17 | spring-boot3 | Batch 1 | 5 | 62 |
-| 18 | spring-boot3 | Batch 2 | 3 | 38 |
-| 19 | spring-boot4 | Batch 1 | 5 | 67 |
-| 20 | spring-boot4 | Batch 2 | 3 | 38 |
-| 21 | virtualthread+timefold | 1 | 4 | 17 |
-| 22 | 마무리 | — | — | — |
-| **합계** | | | **~75개** | **~1,865파일** |
+| Task     | 카테고리               | 배치    | 모듈 수   | 파일 수        |
+|----------|------------------------|---------|-----------|----------------|
+| 1        | Core 잔여              | 1       | 2         | 107            |
+| 2        | utils                  | Batch 1 | 5         | 313            |
+| 3        | utils                  | Batch 2 | 5         | 109            |
+| 4        | utils                  | Batch 3 | 3         | 19             |
+| 5        | io 잔여                | Batch 1 | 5         | 214            |
+| 6        | io 잔여                | Batch 2 | 5         | 74             |
+| 7        | io 잔여                | Batch 3 | 5         | 32             |
+| 8        | testing                | 1       | 2         | 97             |
+| 9        | infra                  | Batch 1 | 5         | 159            |
+| 10       | infra                  | Batch 2 | 6         | 89             |
+| 11       | data                   | Batch 1 | 5         | 72             |
+| 12       | data                   | Batch 2 | 5         | 39             |
+| 13       | data                   | Batch 3 | 5         | 30             |
+| 14       | data                   | Batch 4 | 5         | 59             |
+| 15       | data                   | Batch 5 | 6         | 72             |
+| 16       | aws                    | 1       | 2         | 292            |
+| 17       | spring-boot3           | Batch 1 | 5         | 62             |
+| 18       | spring-boot3           | Batch 2 | 3         | 38             |
+| 19       | spring-boot4           | Batch 1 | 5         | 67             |
+| 20       | spring-boot4           | Batch 2 | 3         | 38             |
+| 21       | virtualthread+timefold | 1       | 4         | 17             |
+| 22       | 마무리                 | —       | —         | —              |
+| **합계** |                        |         | **~75개** | **~1,865파일** |

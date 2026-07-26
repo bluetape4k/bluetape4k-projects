@@ -39,9 +39,9 @@ internal class CsvLexer(
     reader: Reader,
     private val settings: CsvSettings,
     private val skipHeaders: Boolean = false,
-) : Iterator<ArrayRecord>, Closeable {
+): Iterator<ArrayRecord>, Closeable {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         /** BOM(Byte Order Mark) 문자 (U+FEFF). */
         private const val BOM_CHAR: Int = 0xFEFF
     }
@@ -235,7 +235,7 @@ internal class CsvLexer(
             val c = ch.toChar()
 
             when (state) {
-                State.START_FIELD -> {
+                State.START_FIELD     -> {
                     when (c) {
                         quote -> {
                             lastFieldWasQuoted = true
@@ -247,17 +247,17 @@ internal class CsvLexer(
                             appendField(fields)
                         }
 
-                        '\r' -> {
+                        '\r'  -> {
                             // CR 뒤 LF 여부 확인 후 행 종료
                             consumeLfAfterCr()
                             return finalizeRowAtStart(fields)
                         }
 
-                        '\n' -> {
+                        '\n'  -> {
                             return finalizeRowAtStart(fields)
                         }
 
-                        else -> {
+                        else  -> {
                             state = State.IN_UNQUOTED
                             columnNumber++
                             appendCharToBuffer(c, fields.size)
@@ -265,7 +265,7 @@ internal class CsvLexer(
                     }
                 }
 
-                State.IN_QUOTED -> {
+                State.IN_QUOTED       -> {
                     when (c) {
                         quote -> state = State.QUOTE_IN_QUOTED
                         else -> {
@@ -287,18 +287,18 @@ internal class CsvLexer(
                             state = State.START_FIELD
                         }
 
-                        '\r' -> {
+                        '\r'      -> {
                             consumeLfAfterCr()
                             appendField(fields)
                             return fields
                         }
 
-                        '\n' -> {
+                        '\n'      -> {
                             appendField(fields)
                             return fields
                         }
 
-                        else -> {
+                        else      -> {
                             // closing quote 뒤 비구분자/비EOL — 관대하게 unquoted로 전환
                             state = State.IN_UNQUOTED
                             appendCharToBuffer(c, fields.size)
@@ -306,7 +306,7 @@ internal class CsvLexer(
                     }
                 }
 
-                State.IN_UNQUOTED -> {
+                State.IN_UNQUOTED     -> {
                     when (c) {
                         delimiter -> {
                             appendField(fields)
@@ -331,7 +331,7 @@ internal class CsvLexer(
                     }
                 }
 
-                State.END_ROW -> {
+                State.END_ROW         -> {
                     // 사용되지 않음(행은 return 으로 종료)
                     return fields
                 }

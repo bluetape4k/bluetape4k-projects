@@ -1,6 +1,5 @@
 package io.bluetape4k.concurrent.virtualthread
 
-import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes.provider
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -223,7 +222,7 @@ typealias StructuredTaskScopeFirstSuccess<T> = StructuredTaskScopeAny<T>
  * @param T 각 subtask의 결과 타입
  * @see StructuredTaskScopes.supervised
  */
-interface StructuredTaskScopeSupervised<T> : AutoCloseable {
+interface StructuredTaskScopeSupervised<T>: AutoCloseable {
     /** 새 subtask를 scope에 등록합니다. */
     fun fork(task: () -> T): StructuredSubtask<T>
 

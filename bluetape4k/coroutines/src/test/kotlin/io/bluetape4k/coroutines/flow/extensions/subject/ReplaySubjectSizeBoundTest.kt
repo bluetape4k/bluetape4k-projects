@@ -1,9 +1,12 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
-import io.bluetape4k.junit5.coroutines.withSingleThread
 import io.bluetape4k.junit5.awaitility.untilSuspending
+import io.bluetape4k.junit5.coroutines.withSingleThread
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -11,9 +14,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldBeTrue
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger

@@ -1,5 +1,9 @@
 package io.bluetape4k.hibernate.reactive.examples.mutiny
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.criteria.createQueryAs
 import io.bluetape4k.hibernate.criteria.from
 import io.bluetape4k.hibernate.reactive.examples.model.Author
@@ -19,9 +23,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.persistence.LockModeType
 import jakarta.persistence.criteria.CriteriaQuery
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.hibernate.LazyInitializationException
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -29,7 +30,6 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.time.LocalDate
 import java.time.Month
-import io.bluetape4k.assertions.assertFailsWith
 
 @Execution(ExecutionMode.SAME_THREAD)
 class MutinyStatelessSessionExamples: AbstractMutinyTest() {

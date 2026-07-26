@@ -1,15 +1,15 @@
 package io.bluetape4k.workflow.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.workflow.api.AbstractWorkflowTest
 import io.bluetape4k.workflow.api.ErrorStrategy
 import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -184,7 +184,12 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
     fun `suspendRetryFlow DSL - N번 실패 후 성공`() = runTest {
         val counter = AtomicInteger(0)
         val flow = suspendRetryFlow("test-retry-flaky") {
-            execute("flaky-work") { ctx -> val cnt = counter.incrementAndGet(); if (cnt < 3) WorkReport.failure(ctx, RuntimeException("시도 #$cnt 실패")) else WorkReport.success(ctx) }
+            execute("flaky-work") { ctx ->
+                val cnt = counter.incrementAndGet(); if (cnt < 3) WorkReport.failure(
+                ctx,
+                RuntimeException("시도 #$cnt 실패")
+            ) else WorkReport.success(ctx)
+            }
             policy {
                 maxAttempts = 5
                 delay = 0.milliseconds
@@ -199,7 +204,12 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
     fun `suspendRetryFlow DSL - maxAttempts 소진`() = runTest {
         val counter = AtomicInteger(0)
         val flow = suspendRetryFlow("test-retry-exhaust") {
-            execute("fail-work") { ctx -> counter.incrementAndGet(); WorkReport.failure(ctx, RuntimeException("항상 실패")) }
+            execute("fail-work") { ctx ->
+                counter.incrementAndGet(); WorkReport.failure(
+                ctx,
+                RuntimeException("항상 실패")
+            )
+            }
             policy {
                 maxAttempts = 3
                 delay = 0.milliseconds

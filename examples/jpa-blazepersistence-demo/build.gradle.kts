@@ -22,7 +22,7 @@ configurations.configureEach {
                 useVersion("7.0.7")
                 because("Spring Framework 7.0.7: Spring Boot 4.0.6 compatible line")
             }
-            "org.hibernate.orm" -> {
+            "org.hibernate.orm"   -> {
                 useVersion("7.0.3.Final")
                 because("Blaze Persistence 1.6.16 hibernate-7.0 integration is compiled against Hibernate 7.0.3.Final")
             }

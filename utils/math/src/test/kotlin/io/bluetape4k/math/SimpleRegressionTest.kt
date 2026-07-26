@@ -1,8 +1,8 @@
 package io.bluetape4k.math
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class SimpleRegressionTest {

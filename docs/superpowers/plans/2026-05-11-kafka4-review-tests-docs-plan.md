@@ -6,8 +6,8 @@
 2. Update public KDoc examples and `suspendSend` failure/cancellation contract.
 3. Add unit-level edge tests for `suspendSend` callback failure, cancellation, and coroutine stress behavior.
 4. Run local CI-light verification.
-   - `git diff --check`
-   - `./gradlew :bluetape4k-kafka4:compileTestKotlin --no-build-cache`
+    - `git diff --check`
+    - `./gradlew :bluetape4k-kafka4:compileTestKotlin --no-build-cache`
 5. Commit, push, and open a draft PR so GitHub CI validates the module.
 
 ## 6-Tier Gate
@@ -41,4 +41,3 @@ Edge tests use mock Kafka producers so they do not add broker startup cost or ti
 - P0: none
 - P1: none after planned README codec matrix update
 - P2: coroutine edge tests and Fory-oriented KDoc examples addressed
-

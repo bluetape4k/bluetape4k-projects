@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.junit5.coroutines.withSingleThread
@@ -9,7 +10,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class ReplaySubjectTest {

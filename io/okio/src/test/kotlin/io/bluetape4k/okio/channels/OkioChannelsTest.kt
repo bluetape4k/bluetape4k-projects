@@ -1,5 +1,9 @@
 package io.bluetape4k.okio.channels
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.KLogging
@@ -7,9 +11,6 @@ import io.bluetape4k.okio.AbstractOkioTest
 import okio.Buffer
 import okio.Timeout
 import okio.buffer
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.nio.channels.FileChannel
@@ -17,7 +18,6 @@ import java.nio.channels.ReadableByteChannel
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 import java.util.*
-import io.bluetape4k.assertions.assertFailsWith
 
 @TempFolderTest
 class OkioChannelsTest: AbstractOkioTest() {

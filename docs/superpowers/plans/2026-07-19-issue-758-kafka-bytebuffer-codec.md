@@ -1,12 +1,14 @@
 # Issue #758 Kafka ByteBuffer Codec Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 표준 Kafka `ByteArray` 경계를 유지하면서 `BinaryKafkaCodec`에 caller-owned `ByteBuffer` 입출력 계약, 동일한 poison-pill logging, 반복 가능한 allocation evidence를 추가한다.
 
 **Architecture:** 새 `BufferAwareKafkaCodec<T>`는 기존 `KafkaCodec<T>` 구현체에 영향을 주지 않는 opt-in interface다. `BinaryKafkaCodec`만 `BinarySerializer.serializeTo`와 `deserializeFrom`으로 이를 구현하고, ByteArray와 ByteBuffer 역직렬화는 `AbstractKafkaCodec`의 inline failure boundary를 공유한다. 성능 증거는 기존 `serializer-benchmark` 모듈의 Kryo-backed codec-only 네 개 cell로 수집한다.
 
-**Tech Stack:** Kotlin 2.3, Java 21, Apache Kafka 4.2, `ByteBuffer`, bluetape4k `BinarySerializer`, JUnit 5, bluetape assertions, Logback, kotlinx-benchmark/JMH 1.37, Gradle 9.6.
+**Tech
+Stack:** Kotlin 2.3, Java 21, Apache Kafka 4.2, `ByteBuffer`, bluetape4k `BinarySerializer`, JUnit 5, bluetape assertions, Logback, kotlinx-benchmark/JMH 1.37, Gradle 9.6.
 
 ---
 
@@ -31,6 +33,7 @@
 ### Task 1: Public `BufferAwareKafkaCodec` Contract
 
 **Files:**
+
 - Create: `infra/kafka4/src/test/kotlin/io/bluetape4k/kafka/codec/BufferAwareKafkaCodecTest.kt`
 - Modify: `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodec.kt:10-52`
 
@@ -167,6 +170,7 @@ Not-tested: Binary codec integration and allocation evidence are covered by late
 ### Task 2: Shared Poison-Pill Logging Boundary
 
 **Files:**
+
 - Modify: `infra/kafka4/src/test/kotlin/io/bluetape4k/kafka/codec/AbstractKafkaCodecPoisonPillTest.kt:1-68`
 - Modify: `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodec.kt:160-190`
 
@@ -291,6 +295,7 @@ Not-tested: ByteBuffer dispatch is introduced in the next slice'
 ### Task 3: `BinaryKafkaCodec` Buffer Implementation
 
 **Files:**
+
 - Create: `infra/kafka4/src/test/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecBufferTest.kt`
 - Modify: `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt:1-30`
 
@@ -602,6 +607,7 @@ Not-tested: Allocation evidence is collected after benchmark wiring'
 ### Task 4: Raw `ByteArray` Passthrough Identity
 
 **Files:**
+
 - Modify: `infra/kafka4/src/test/kotlin/io/bluetape4k/kafka/codec/ByteArrayKafkaCodecTest.kt:1-103`
 
 - [ ] **Step 1: Tighten existing assertions from equality to identity plus equality**
@@ -643,6 +649,7 @@ Not-tested: No broker integration is required for this codec-only contract'
 ### Task 5: Codec-Only Benchmark Fixture And Cells
 
 **Files:**
+
 - Modify: `benchmark/serializer-benchmark/build.gradle.kts:50-66`
 - Create: `benchmark/serializer-benchmark/src/main/kotlin/io/bluetape4k/benchmark/serializer/KafkaCodecBenchmarkSupport.kt`
 - Create: `benchmark/serializer-benchmark/src/test/kotlin/io/bluetape4k/benchmark/serializer/KafkaCodecBenchmarkSupportTest.kt`
@@ -843,6 +850,7 @@ Not-tested: Two fresh GC-profiler evidence runs are the next task'
 ### Task 6: English/Korean Public Documentation
 
 **Files:**
+
 - Modify: `infra/kafka4/README.md:128-170`
 - Modify: `infra/kafka4/README.ko.md:128-170`
 - Modify: `benchmark/serializer-benchmark/README.md:1-35`
@@ -977,6 +985,7 @@ Not-tested: Numeric allocation claims await the committed evidence runs'
 ### Task 7: Two Fresh Allocation Runs And Report
 
 **Files:**
+
 - Create: `docs/benchmarks/raw/issue-758/run-*/environment.txt`
 - Create: `docs/benchmarks/raw/issue-758/run-*/jmh.json`
 - Create: `docs/benchmarks/raw/issue-758/run-*/summary.csv`
@@ -1133,6 +1142,7 @@ Not-tested: Broker, network, compressed codecs, and other payloads are outside t
 ### Task 8: Full Verification, Review, Push, And PR
 
 **Files:**
+
 - Review: every path in `git diff --name-only origin/develop...HEAD`
 - Create ignored temporary file: `.omx/issue-758-pr-body.md`
 
@@ -1241,23 +1251,13 @@ Expected: CI/checks and actionable review threads are green and all three heads 
 
 최종 리뷰에서 다음 세 가지 contract gap을 추가로 고정한다.
 
-1. `CompressableBinarySerializer`가 delegated buffer method로 내부 serializer를 직접
-   호출하면 압축을 우회한다. 표준 `ByteArray`와 buffer 경로의 wire 호환성을 양방향
-   parameterized test로 먼저 재현하고, decorator가 allocating compatibility fallback을
-   명시적으로 override하도록 한다. delegated buffer method는 wrapper 의미를 깨므로 기각한다.
-2. native JDK/Kryo/Fory failure graph 안의 `CancellationException`은 `Error` 다음
-   우선순위로 동일 instance를 선택한다. operation/cleanup graph cycle을 만들지 않으며,
-   buffer failure helper도 분류된 cancellation을 다시 `BinarySerializationException`으로
-   감싸지 않는지 JDK object input filter와 serialization callback으로 검증한다.
-3. poison-pill WARN은 topic, header key, data size, failure type만 기록하고 throwable,
-   message, stack, payload, header value는 첨부하지 않는다. `log.warn(e)`는 throwable
-   proxy가 payload-derived exception message를 렌더링할 수 있으므로 기각한다.
+1. `CompressableBinarySerializer`가 delegated buffer method로 내부 serializer를 직접 호출하면 압축을 우회한다. 표준 `ByteArray`와 buffer 경로의 wire 호환성을 양방향 parameterized test로 먼저 재현하고, decorator가 allocating compatibility fallback을 명시적으로 override하도록 한다. delegated buffer method는 wrapper 의미를 깨므로 기각한다.
+2. native JDK/Kryo/Fory failure graph 안의 `CancellationException`은 `Error` 다음 우선순위로 동일 instance를 선택한다. operation/cleanup graph cycle을 만들지 않으며, buffer failure helper도 분류된 cancellation을 다시 `BinarySerializationException`으로 감싸지 않는지 JDK object input filter와 serialization callback으로 검증한다.
+3. poison-pill WARN은 topic, header key, data size, failure type만 기록하고 throwable, message, stack, payload, header value는 첨부하지 않는다. `log.warn(e)`는 throwable proxy가 payload-derived exception message를 렌더링할 수 있으므로 기각한다.
 
 검증은 `CompressableBinarySerializerTest`, `BufferFailurePolicyTest`,
 `JdkBinarySerializerTest`, `AbstractKafkaCodecPoisonPillTest`,
-`BinaryKafkaCodecBufferTest`, `KafkaCodecTest`를 fresh focused run으로 수행한다.
-측정 대상인 uncompressed Kryo 경로는 바뀌지 않으므로 benchmark와 raw evidence는
-재실행하거나 수정하지 않는다.
+`BinaryKafkaCodecBufferTest`, `KafkaCodecTest`를 fresh focused run으로 수행한다. 측정 대상인 uncompressed Kryo 경로는 바뀌지 않으므로 benchmark와 raw evidence는 재실행하거나 수정하지 않는다.
 
 ### Architect follow-up hardening
 
@@ -1268,11 +1268,7 @@ Expected: CI/checks and actionable review threads are green and all three heads 
    `CompressableBinarySerializer`는 wire/allocation 경로를 유지하면서
    `BufferFailurePolicy`로 wrapper graph를 분류해 동일 instance를 복원한다. 일반 wrapper,
    `ReadOnlyBufferException`, `BufferOverflowException`은 기존 identity/동작을 유지한다.
-2. poison WARN metadata는 topic 128자, header key 16개·각 64자, failure type 256자로
-   제한한다. CR/LF/tab/ISO control 및 Unicode line separator는 중화하고, header value,
-   payload, exception message, throwable/stack은 기록하지 않는다. 긴 topic과 20개 이상의
-   공격적 header를 표준/buffer poison 경로 모두에서 RED→GREEN으로 검증한다.
+2. poison WARN metadata는 topic 128자, header key 16개·각 64자, failure type 256자로 제한한다. CR/LF/tab/ISO control 및 Unicode line separator는 중화하고, header value, payload, exception message, throwable/stack은 기록하지 않는다. 긴 topic과 20개 이상의 공격적 header를 표준/buffer poison 경로 모두에서 RED→GREEN으로 검증한다.
 
 focused 검증은 `CompressableBinarySerializerTest`,
-`AbstractKafkaCodecPoisonPillTest`, `BinaryKafkaCodecBufferTest`, `KafkaCodecTest`를 포함한다.
-측정한 uncompressed Kryo 경로는 바뀌지 않으므로 benchmark/raw evidence는 그대로 둔다.
+`AbstractKafkaCodecPoisonPillTest`, `BinaryKafkaCodecBufferTest`, `KafkaCodecTest`를 포함한다. 측정한 uncompressed Kryo 경로는 바뀌지 않으므로 benchmark/raw evidence는 그대로 둔다.

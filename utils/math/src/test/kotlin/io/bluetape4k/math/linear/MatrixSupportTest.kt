@@ -1,20 +1,20 @@
 package io.bluetape4k.math.linear
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNear
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.apache.commons.math3.fraction.BigFraction
 import org.apache.commons.math3.fraction.BigFractionField
 import org.apache.commons.math3.fraction.Fraction
 import org.apache.commons.math3.fraction.FractionField
 import org.apache.commons.math3.linear.Array2DRowRealMatrix
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class MatrixSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `diagonalMatrixOf로 대각행렬을 생성할 수 있다`() {

@@ -1,24 +1,21 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
-import io.bluetape4k.junit5.coroutines.withSingleThread
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.awaitility.untilSuspending
+import io.bluetape4k.junit5.coroutines.withSingleThread
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
-import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldBeTrue
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.cancellation.CancellationException
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -27,7 +24,7 @@ import kotlin.time.Duration.Companion.seconds
  */
 class SubjectCancellationTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     /**
      * PublishSubject: collector 코루틴을 직접 취소하면 job이 cancelled 상태가 되어야 한다.

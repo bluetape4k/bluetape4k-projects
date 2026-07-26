@@ -13,11 +13,11 @@
 
 ## Review Gate Tracking
 
-| Iteration | P0 | P1 | Action |
-|-----------|----|----|--------|
-| Baseline | 0 | 4 | Implement EOF terminal APIs, feed validation, cancellation checkpoint, and edge tests. |
-| Advisor iteration 1 | 0 | 8 | Added lifecycle/throws KDoc, post-EOF tests, cancellation propagation coverage, README anti-pattern fix, and empty/partial length tests. |
-| Advisor iteration 2 | 0 | 0 | Gate closed; fixed P2 docs drift and low-risk P3 cleanup/tests before final validation. |
+| Iteration           | P0 | P1 | Action                                                                                                                                   |
+|---------------------|----|----|------------------------------------------------------------------------------------------------------------------------------------------|
+| Baseline            | 0  | 4  | Implement EOF terminal APIs, feed validation, cancellation checkpoint, and edge tests.                                                   |
+| Advisor iteration 1 | 0  | 8  | Added lifecycle/throws KDoc, post-EOF tests, cancellation propagation coverage, README anti-pattern fix, and empty/partial length tests. |
+| Advisor iteration 2 | 0  | 0  | Gate closed; fixed P2 docs drift and low-risk P3 cleanup/tests before final validation.                                                  |
 
 ## Verification Commands
 

@@ -75,9 +75,9 @@ data class CsvSettings(
     val maxColumns: Int = 512,
     /** 내부 읽기 버퍼 크기(바이트). 기본값: 8192. */
     val bufferSize: Int = 8192,
-) : Serializable {
+): Serializable {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
 
         /** 기본 CSV 설정 (delimiter=`,`, quote=`"`, lineSeparator=`"\r\n"`). */
@@ -91,8 +91,8 @@ data class CsvSettings(
         }
         require(quoteEscape == quote) {
             "V1은 RFC 4180 doubled-quote 이스케이프만 지원합니다. " +
-                "quoteEscape는 quote와 동일해야 합니다. " +
-                "임의 이스케이프 문자는 V2 이후 지원 예정입니다"
+                    "quoteEscape는 quote와 동일해야 합니다. " +
+                    "임의 이스케이프 문자는 V2 이후 지원 예정입니다"
         }
         require(maxCharsPerColumn > 0) {
             "maxCharsPerColumn($maxCharsPerColumn)은 양수여야 합니다"

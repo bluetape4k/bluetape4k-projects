@@ -9,26 +9,22 @@ It operates independently of the legacy
 
 ## Why Tink
 
-Google Tink packages cryptographic keys together with the algorithm parameters
-needed to use them correctly. That removes many low-level choices that are easy
-to get wrong with raw JCA/JCE APIs, such as nonce handling, ciphertext framing,
-and primitive selection.
+Google Tink packages cryptographic keys together with the algorithm parameters needed to use them correctly. That removes many low-level choices that are easy to get wrong with raw JCA/JCE APIs, such as nonce handling, ciphertext framing, and primitive selection.
 
 `bluetape4k-tink` adds Kotlin-friendly wrappers around those primitives:
 
-- **Safe defaults**: AEAD is the default choice for general encryption, and
-  AES-256-SIV is isolated behind deterministic APIs for searchable fields.
-- **Associated Data first**: encryption APIs expose associated data explicitly so
-  ciphertext can be bound to a tenant, user, table, column, or message context.
-- **String and byte APIs**: `String` methods use UTF-8 plaintext and standard
-  Base64 ciphertext; `ByteArray` methods preserve raw Tink output.
-- **Key rotation support**: versioned keyset wrappers prefix ciphertext with the
-  keyset version, allowing old ciphertext to remain decryptable after rotation.
-- **Repository-friendly Redis stores**: Lettuce and Redisson stores provide a
-  small persistence boundary for versioned keysets when Redis is the selected
-  infrastructure.
-- **Testable wrappers**: wrappers are small enough to validate with ordinary
-  round-trip, associated-data, tamper, rotation, and concurrency tests.
+- **Safe
+  defaults**: AEAD is the default choice for general encryption, and AES-256-SIV is isolated behind deterministic APIs for searchable fields.
+- **Associated Data
+  first**: encryption APIs expose associated data explicitly so ciphertext can be bound to a tenant, user, table, column, or message context.
+- **String and byte
+  APIs**: `String` methods use UTF-8 plaintext and standard Base64 ciphertext; `ByteArray` methods preserve raw Tink output.
+- **Key rotation
+  support**: versioned keyset wrappers prefix ciphertext with the keyset version, allowing old ciphertext to remain decryptable after rotation.
+- **Repository-friendly Redis
+  stores**: Lettuce and Redisson stores provide a small persistence boundary for versioned keysets when Redis is the selected infrastructure.
+- **Testable
+  wrappers**: wrappers are small enough to validate with ordinary round-trip, associated-data, tamper, rotation, and concurrency tests.
 
 ## Diagrams
 
@@ -45,56 +41,45 @@ and primitive selection.
 Use this module when:
 
 - **Application data must be encrypted with context binding**: use
-  `TinkAeads.AES256_GCM` and pass associated data such as tenant ID, entity ID,
-  or column name.
+  `TinkAeads.AES256_GCM` and pass associated data such as tenant ID, entity ID, or column name.
 - **A database column must remain searchable and durable**: use
-  `TinkDaeads.versioned(store)` with a persisted AES-SIV keyset store, and
-  accept that repeated plaintext values produce repeated ciphertext values.
+  `TinkDaeads.versioned(store)` with a persisted AES-SIV keyset store, and accept that repeated plaintext values produce repeated ciphertext values.
 - **Ciphertexts must survive key rotation**: use `TinkAeads.versioned(store)` or
   `TinkDaeads.versioned(store)` so ciphertext includes the keyset version.
 - **Multiple services need a shared active keyset**: use the Redis-backed
   `VersionedKeysetStore` implementations, with Redis protected as a secret store.
 - **Data integrity is required without encryption**: use `TinkMacs.HMAC_SHA256`
   or `TinkMacs.HMAC_SHA512_512BITTAG`.
-- **Non-secret checksums or digests are required**: use `TinkDigesters.SHA256` or
-  stronger SHA-2 variants. Do not use plain digests for password storage.
+- **Non-secret checksums or digests are
+  required**: use `TinkDigesters.SHA256` or stronger SHA-2 variants. Do not use plain digests for password storage.
 
 Recommended defaults:
 
-- Prefer AEAD over deterministic AEAD unless deterministic lookup is a hard
-  requirement.
-- Always pass stable associated data when ciphertext should be tied to a
-  specific context.
-- Persist keysets only in protected secret storage; Redis keyset stores contain
-  key material and must be treated as sensitive infrastructure.
-- Rotate by policy through `rotateIfDue`, not by creating new singleton wrapper
-  instances at random points in application code.
-- Keep singleton `TinkAeads`, `TinkDaeads`, and `TinkMacs` for ephemeral/testing
-  use only when restart-time decryption is not required.
+- Prefer AEAD over deterministic AEAD unless deterministic lookup is a hard requirement.
+- Always pass stable associated data when ciphertext should be tied to a specific context.
+- Persist keysets only in protected secret storage; Redis keyset stores contain key material and must be treated as sensitive infrastructure.
+- Rotate by policy through `rotateIfDue`, not by creating new singleton wrapper instances at random points in application code.
+- Keep singleton `TinkAeads`, `TinkDaeads`, and `TinkMacs` for ephemeral/testing use only when restart-time decryption is not required.
 
 ## Anti-Patterns
 
 Avoid these patterns:
 
-- **Do not store cleartext keyset JSON in ordinary application config, logs, or
-  unprotected Redis**. `toJsonKeyset()` uses Tink secret-key access and produces
-  secret key material.
-- **Do not rely on singleton ephemeral keys for durable ciphertext**. A new JVM
-  process cannot decrypt data encrypted by a previous process unless the keyset
-  is persisted and restored.
-- **Do not use deterministic AEAD for general encryption**. It reveals equality
-  of repeated plaintexts. Use it only for controlled searchable fields.
-- **Do not omit associated data when context matters**. Without associated data,
-  ciphertext can be moved between contexts that share the same key.
-- **Do not change associated data between encryption and decryption**. Tink
-  authenticates associated data; mismatches fail decryption.
-- **Do not treat MAC as encryption**. MAC verifies integrity/authenticity but does
-  not hide data.
-- **Do not use MD5 or SHA-1 for security decisions**. They are present only for
-  interoperability with legacy digest formats.
-- **Do not rotate keys concurrently without a shared store lock**. Use the
-  provided Redis stores or another `VersionedKeysetStore` that serializes
-  rotation and rechecks due status inside the lock.
+- **Do not store cleartext keyset JSON in ordinary application config, logs, or unprotected
+  Redis**. `toJsonKeyset()` uses Tink secret-key access and produces secret key material.
+- **Do not rely on singleton ephemeral keys for durable
+  ciphertext**. A new JVM process cannot decrypt data encrypted by a previous process unless the keyset is persisted and restored.
+- **Do not use deterministic AEAD for general
+  encryption**. It reveals equality of repeated plaintexts. Use it only for controlled searchable fields.
+- **Do not omit associated data when context
+  matters**. Without associated data, ciphertext can be moved between contexts that share the same key.
+- **Do not change associated data between encryption and
+  decryption**. Tink authenticates associated data; mismatches fail decryption.
+- **Do not treat MAC as encryption**. MAC verifies integrity/authenticity but does not hide data.
+- **Do not use MD5 or SHA-1 for security
+  decisions**. They are present only for interoperability with legacy digest formats.
+- **Do not rotate keys concurrently without a shared store
+  lock**. Use the provided Redis stores or another `VersionedKeysetStore` that serializes rotation and rechecks due status inside the lock.
 
 ## Features
 
@@ -284,9 +269,8 @@ val dec = enc.tinkDecrypt(TinkEncryptors.CHACHA20_POLY1305)
 ### Key Management
 
 The singleton instances of `TinkAeads`, `TinkDaeads`, and `TinkMacs` use **ephemeral keys that reside in memory for the
-lifetime of the application**. If decryption must survive a restart, serialize and persist the keys securely.
-Serialized cleartext keysets contain secret key material; protect them with KMS/HSM envelope encryption or equivalent
-secret-storage controls before writing them outside process memory.
+lifetime of the
+application**. If decryption must survive a restart, serialize and persist the keys securely. Serialized cleartext keysets contain secret key material; protect them with KMS/HSM envelope encryption or equivalent secret-storage controls before writing them outside process memory.
 
 ```kotlin
 import com.google.crypto.tink.CleartextKeysetHandle
@@ -308,9 +292,7 @@ The return value of `encrypt(String)` is a **standard Base64**-encoded ciphertex
 
 ### Redis-Based Key Rotation
 
-`bluetape4k-tink` provides a versioned keyset abstraction and Redis-backed stores. The stored keyset JSON contains key
-material, so Redis must be operated as protected secret storage: access control, TLS where applicable, encrypted
-backups, restricted diagnostics, and retention policies should match your key-management requirements.
+`bluetape4k-tink` provides a versioned keyset abstraction and Redis-backed stores. The stored keyset JSON contains key material, so Redis must be operated as protected secret storage: access control, TLS where applicable, encrypted backups, restricted diagnostics, and retention policies should match your key-management requirements.
 
 ```kotlin
 import com.google.crypto.tink.aead.AesGcmKeyManager

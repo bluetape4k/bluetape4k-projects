@@ -6,18 +6,18 @@
 2. Add RedisFuture edge tests for ordering, failure propagation, and coroutine stress via `SuspendedJobTester`.
 3. Update public KDoc in `RedisFutureSupport.kt` and `withPipeline` with Korean contracts and current examples.
 4. Refresh `README.md` and `README.ko.md`:
-   - remove non-existent leader election APIs and diagrams,
-   - fix cache-lettuce links,
-   - clarify Protobuf codec ownership,
-   - align Korean codec diagram with current FastFory factories.
+    - remove non-existent leader election APIs and diagrams,
+    - fix cache-lettuce links,
+    - clarify Protobuf codec ownership,
+    - align Korean codec diagram with current FastFory factories.
 5. Run targeted lettuce tests.
 6. Apply 6-Tier gate:
-   - Tier 1 API/doc contract
-   - Tier 2 correctness/edge cases
-   - Tier 3 coroutine/concurrency safety
-   - Tier 4 integration behavior
-   - Tier 5 maintainability/readability
-   - Tier 6 release/README accuracy
+    - Tier 1 API/doc contract
+    - Tier 2 correctness/edge cases
+    - Tier 3 coroutine/concurrency safety
+    - Tier 4 integration behavior
+    - Tier 5 maintainability/readability
+    - Tier 6 release/README accuracy
 7. Commit, push, and open a lettuce draft PR.
 
 ## Stop Condition

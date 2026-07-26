@@ -1,7 +1,8 @@
 package io.bluetape4k.math.geometry.spherial
 
+import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.math.geometry.euclidean.vector3DOf
 import io.bluetape4k.math.geometry.spherial.oned.arcOf
 import io.bluetape4k.math.geometry.spherial.oned.arcsSetOf
 import io.bluetape4k.math.geometry.spherial.oned.buildArcsSet
@@ -11,15 +12,13 @@ import io.bluetape4k.math.geometry.spherial.twod.circlrOf
 import io.bluetape4k.math.geometry.spherial.twod.copy
 import io.bluetape4k.math.geometry.spherial.twod.s2PointOf
 import io.bluetape4k.math.geometry.spherial.twod.toS2Point
-import io.bluetape4k.assertions.shouldBeNear
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.junit.jupiter.api.Test
 import kotlin.math.PI
 
 class SpherialGeometryTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     // --- Arc (S1D) ---
 

@@ -2,8 +2,8 @@ package io.bluetape4k.csv.benchmark
 
 import io.bluetape4k.csv.CsvRecordReader
 import io.bluetape4k.csv.CsvSettings
-import io.bluetape4k.csv.internal.DelimitedWriter
 import io.bluetape4k.csv.internal.CsvLexer
+import io.bluetape4k.csv.internal.DelimitedWriter
 import io.bluetape4k.csv.internal.OkioCsvLexer
 import io.bluetape4k.csv.v2.csvWriter
 import io.bluetape4k.logging.KLogging
@@ -49,7 +49,7 @@ import kotlin.text.Charsets.UTF_8
 @Fork(1)
 open class CsvParserBenchmark {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val WRITER_HEADERS = listOf("name", "index", "note", "nullable", "empty")
     }
 
@@ -96,7 +96,9 @@ open class CsvParserBenchmark {
     fun nativeLexer_small(): Int {
         var count = 0
         CsvLexer(smallCsvBytes.inputStream().reader(), CsvSettings.DEFAULT, skipHeaders = true).use { lexer ->
-            while (lexer.hasNext()) { lexer.next(); count++ }
+            while (lexer.hasNext()) {
+                lexer.next(); count++
+            }
         }
         return count
     }
@@ -105,7 +107,9 @@ open class CsvParserBenchmark {
     fun nativeLexer_medium(): Int {
         var count = 0
         CsvLexer(mediumCsvBytes.inputStream().reader(), CsvSettings.DEFAULT, skipHeaders = true).use { lexer ->
-            while (lexer.hasNext()) { lexer.next(); count++ }
+            while (lexer.hasNext()) {
+                lexer.next(); count++
+            }
         }
         return count
     }
@@ -114,7 +118,9 @@ open class CsvParserBenchmark {
     fun nativeLexer_large(): Int {
         var count = 0
         CsvLexer(largeCsvBytes.inputStream().reader(), CsvSettings.DEFAULT, skipHeaders = true).use { lexer ->
-            while (lexer.hasNext()) { lexer.next(); count++ }
+            while (lexer.hasNext()) {
+                lexer.next(); count++
+            }
         }
         return count
     }
@@ -124,8 +130,14 @@ open class CsvParserBenchmark {
     @Benchmark
     fun okioLexer_small(): Int {
         var count = 0
-        OkioCsvLexer(smallCsvBytes.inputStream().source().buffer(), CsvSettings.DEFAULT, skipHeaders = true).use { lexer ->
-            while (lexer.hasNext()) { lexer.next(); count++ }
+        OkioCsvLexer(
+            smallCsvBytes.inputStream().source().buffer(),
+            CsvSettings.DEFAULT,
+            skipHeaders = true
+        ).use { lexer ->
+            while (lexer.hasNext()) {
+                lexer.next(); count++
+            }
         }
         return count
     }
@@ -133,8 +145,14 @@ open class CsvParserBenchmark {
     @Benchmark
     fun okioLexer_medium(): Int {
         var count = 0
-        OkioCsvLexer(mediumCsvBytes.inputStream().source().buffer(), CsvSettings.DEFAULT, skipHeaders = true).use { lexer ->
-            while (lexer.hasNext()) { lexer.next(); count++ }
+        OkioCsvLexer(
+            mediumCsvBytes.inputStream().source().buffer(),
+            CsvSettings.DEFAULT,
+            skipHeaders = true
+        ).use { lexer ->
+            while (lexer.hasNext()) {
+                lexer.next(); count++
+            }
         }
         return count
     }
@@ -142,8 +160,14 @@ open class CsvParserBenchmark {
     @Benchmark
     fun okioLexer_large(): Int {
         var count = 0
-        OkioCsvLexer(largeCsvBytes.inputStream().source().buffer(), CsvSettings.DEFAULT, skipHeaders = true).use { lexer ->
-            while (lexer.hasNext()) { lexer.next(); count++ }
+        OkioCsvLexer(
+            largeCsvBytes.inputStream().source().buffer(),
+            CsvSettings.DEFAULT,
+            skipHeaders = true
+        ).use { lexer ->
+            while (lexer.hasNext()) {
+                lexer.next(); count++
+            }
         }
         return count
     }

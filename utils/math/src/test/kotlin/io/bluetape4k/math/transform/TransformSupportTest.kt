@@ -1,14 +1,14 @@
 package io.bluetape4k.math.transform
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.logging.KLogging
 import org.apache.commons.math3.complex.Complex
 import org.junit.jupiter.api.Test
 
 class TransformSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `DoubleArray를 스케일링할 수 있다`() {

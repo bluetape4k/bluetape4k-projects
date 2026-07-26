@@ -2,10 +2,10 @@
 
 [English](./README.md) | 한국어
 
-Java Time API (java.time)를 위한 고급 시간 연산 라이브러리입니다. Joda-Time 스타일의 Temporal Interval, Period Framework(TimeBlock/TimeRange/DateAdd/DateDiff), Calendar Range, Kotlin 범위 스타일의 Temporal Range를 지원합니다.
+Java Time API (java.time)를 위한 고급 시간 연산 라이브러리입니다. Joda-Time 스타일의 Temporal Interval, Period Framework (TimeBlock/TimeRange/DateAdd/DateDiff), Calendar Range, Kotlin 범위 스타일의 Temporal Range를 지원합니다.
 
-> **참고**: 기초 DSL(`5.days()`, `3.hours()` 등)과 Temporal 확장 함수는 `bluetape4k-core` (
-`io.bluetape4k.javatimes`)에 포함됩니다. 이 모듈은 core를 기반으로 구축됩니다.
+> **참고**: 기초 DSL (`5.days()`, `3.hours()` 등)과 Temporal 확장 함수는 `bluetape4k-core` (
+> `io.bluetape4k.javatimes`)에 포함됩니다. 이 모듈은 core를 기반으로 구축됩니다.
 
 ## 아키텍처
 
@@ -30,13 +30,13 @@ Java Time API (java.time)를 위한 고급 시간 연산 라이브러리입니�
 - **Temporal 공통 확장**: `startOfYear()`, `startOfMonth()`, `firstOfMonth`, `toEpochMillis()` 등
 - **Instant/LocalDateTime/ZonedDateTime 생성**: `nowInstant()`, `localDateOf()`, `zonedDateTimeOf()` 등
 - **TemporalAccessor 포맷팅**: `toIsoInstantString()`, `toIsoDateString()` 등
-- **Quarter(분기) 지원**: `Quarter.Q1`, `YearQuarter(2024, Quarter.Q1)` 등
+- **Quarter (분기) 지원**: `Quarter.Q1`, `YearQuarter(2024, Quarter.Q1)` 등
 
 ## 주요 기능
 
 ### Temporal Interval (`interval/`)
 
-Joda-Time 스타일의 시간 구간(Interval)을 지원합니다.
+Joda-Time 스타일의 시간 구간 (Interval)을 지원합니다.
 
 ```kotlin
 val start = nowInstant()

@@ -1,7 +1,6 @@
 # ULID idgenerators 통합 설계 Spec
 
-**날짜**: 2026-03-20
-**모듈**: `utils/idgenerators` (`bluetape4k-idgenerators`)
+**날짜**: 2026-03-20 **모듈**: `utils/idgenerators` (`bluetape4k-idgenerators`)
 **소스**: `bluetape4k-experimental/utils/ulid/`
 
 ---
@@ -10,7 +9,7 @@
 
 ### 배경
 
-ULID(Universally Unique Lexicographically Sortable Identifier)는 UUID의 대안으로, 128비트 크기에 48비트 밀리초 타임스탬프 + 80비트 랜덤으로 구성된다. Crockford Base32 인코딩으로 26자 문자열 표현이 가능하며, 시간순 정렬이 보장되어 DB PK로 적합하다.
+ULID (Universally Unique Lexicographically Sortable Identifier)는 UUID의 대안으로, 128비트 크기에 48비트 밀리초 타임스탬프 + 80비트 랜덤으로 구성된다. Crockford Base32 인코딩으로 26자 문자열 표현이 가능하며, 시간순 정렬이 보장되어 DB PK로 적합하다.
 
 현재 `bluetape4k-experimental/utils/ulid/`에 완전한 ULID 구현이 존재하며, 이를 `bluetape4k-idgenerators` 모듈에 통합하여 정식 API로 승격한다.
 
@@ -19,7 +18,7 @@ ULID(Universally Unique Lexicographically Sortable Identifier)는 UUID의 대안
 1. experimental ULID 소스를 `idgenerators` 모듈로 마이그레이션
 2. 기존 `IdGenerator<ID>` 계약에 맞는 `UlidGenerator` 제공
 3. Monotonic 모드를 기본으로 하여 DB PK B-tree 성능 최적화
-4. 기존 ULID 계층 구조(Factory, Monotonic, StatefulMonotonic)를 유지하되 패키지만 변경
+4. 기존 ULID 계층 구조 (Factory, Monotonic, StatefulMonotonic)를 유지하되 패키지만 변경
 
 ---
 
@@ -46,7 +45,7 @@ class UlidGenerator(
 
 ### 2.3 Overflow 정책: spin-wait (next millisecond)
 
-**근거**: `ULIDStatefulMonotonic`의 `nextULID()`가 overflow 시 `nextULIDStrict()`가 null을 반환하면 다음 밀리초까지 대기한다. 이는 실무에서 거의 발생하지 않으며(같은 밀리초에 2^80 이상 생성 불가), 발생하더라도 1ms 미만 대기로 해결된다.
+**근거**: `ULIDStatefulMonotonic`의 `nextULID()`가 overflow 시 `nextULIDStrict()`가 null을 반환하면 다음 밀리초까지 대기한다. 이는 실무에서 거의 발생하지 않으며 (같은 밀리초에 2^80 이상 생성 불가), 발생하더라도 1ms 미만 대기로 해결된다.
 
 ### 2.4 ULID 인터페이스: 계층 구조 유지
 
@@ -57,7 +56,7 @@ class UlidGenerator(
 - `ULID.Monotonic` - 상태 없는 단조 증가 생성
 - `ULID.StatefulMonotonic` - 상태 기반 단조 증가 생성 (atomicfu CAS)
 
-`internal` 구현체(`ULIDValue`, `ULIDFactory`, `ULIDMonotonic`, `ULIDStatefulMonotonic`)는 internal 가시성을 유지한다.
+`internal` 구현체 (`ULIDValue`, `ULIDFactory`, `ULIDMonotonic`, `ULIDStatefulMonotonic`)는 internal 가시성을 유지한다.
 
 ### 2.5 Exposed 통합: 이번 PR에서 제외
 
@@ -106,18 +105,20 @@ utils/idgenerators/src/test/kotlin/io/bluetape4k/idgenerators/ulid/
 ## 4. 패키지 구조
 
 ### 변경 전 (experimental)
+
 ```
 io.bluetape4k.ulid
 io.bluetape4k.ulid.internal
 ```
 
 ### 변경 후 (idgenerators 통합)
+
 ```
 io.bluetape4k.idgenerators.ulid
 io.bluetape4k.idgenerators.ulid.internal
 ```
 
-기존 idgenerators 모듈의 패키지 관례(`io.bluetape4k.idgenerators.{feature}`)를 따른다.
+기존 idgenerators 모듈의 패키지 관례 (`io.bluetape4k.idgenerators.{feature}`)를 따른다.
 
 ---
 
@@ -175,23 +176,23 @@ fun ULID.Companion.fromUuid(uuid: Uuid): ULID
 
 ### 6.1 마이그레이션 테스트 (experimental에서 가져오기)
 
-| 테스트 파일 | 검증 대상 |
-|---|---|
-| `ULIDTest.kt` | ULID 생성, 파싱, toString, compareTo |
-| `ULIDFactoryTest.kt` | Factory를 통한 생성, 바이트배열 변환 |
-| `ULIDMonotonicTest.kt` | 같은 밀리초 내 순서 보장, overflow 동작 |
-| `ULIDStatefulMonotonicTest.kt` | atomicfu CAS, 내부 상태 추적 |
-| `ULIDConcurrencyTest.kt` | MultithreadingTester 동시성 검증 |
-| `JavaUUIDSupportTest.kt` | ULID <-> UUID 왕복 변환 |
-| `KotlinUuidSupportTest.kt` | ULID <-> Kotlin Uuid 왕복 변환 |
-| `CrockfordTest.kt` | Base32 인코딩/디코딩 정확성 |
+| 테스트 파일                    | 검증 대상                               |
+|--------------------------------|-----------------------------------------|
+| `ULIDTest.kt`                  | ULID 생성, 파싱, toString, compareTo    |
+| `ULIDFactoryTest.kt`           | Factory를 통한 생성, 바이트배열 변환    |
+| `ULIDMonotonicTest.kt`         | 같은 밀리초 내 순서 보장, overflow 동작 |
+| `ULIDStatefulMonotonicTest.kt` | atomicfu CAS, 내부 상태 추적            |
+| `ULIDConcurrencyTest.kt`       | MultithreadingTester 동시성 검증        |
+| `JavaUUIDSupportTest.kt`       | ULID <-> UUID 왕복 변환                 |
+| `KotlinUuidSupportTest.kt`     | ULID <-> Kotlin Uuid 왕복 변환          |
+| `CrockfordTest.kt`             | Base32 인코딩/디코딩 정확성             |
 
 ### 6.2 신규 테스트
 
-| 테스트 파일 | 검증 대상 |
-|---|---|
-| `UlidGeneratorTest.kt` | `IdGenerator<String>` 계약 준수, nextId/nextIdAsString/nextIds |
-| `UlidGeneratorConcurrencyTest.kt` | StructuredTaskScopeTester, SuspendedJobTester 동시성 |
+| 테스트 파일                       | 검증 대상                                                      |
+|-----------------------------------|----------------------------------------------------------------|
+| `UlidGeneratorTest.kt`            | `IdGenerator<String>` 계약 준수, nextId/nextIdAsString/nextIds |
+| `UlidGeneratorConcurrencyTest.kt` | StructuredTaskScopeTester, SuspendedJobTester 동시성           |
 
 ### 6.3 동시성 테스트 도구
 

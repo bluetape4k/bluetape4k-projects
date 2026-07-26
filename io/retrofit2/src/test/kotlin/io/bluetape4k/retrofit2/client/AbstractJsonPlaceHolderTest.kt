@@ -1,14 +1,14 @@
 package io.bluetape4k.retrofit2.client
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNullOrBlank
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.retrofit2.AbstractRetrofitTest
 import io.bluetape4k.retrofit2.services.HttpbinAnythingResponse
 import io.bluetape4k.retrofit2.services.Post
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.assertions.shouldNotBeNullOrBlank
 
 abstract class AbstractJsonPlaceHolderTest: AbstractRetrofitTest() {
 

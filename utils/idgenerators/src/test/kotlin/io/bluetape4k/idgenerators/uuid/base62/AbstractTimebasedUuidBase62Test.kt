@@ -1,5 +1,8 @@
 package io.bluetape4k.idgenerators.uuid.base62
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.codec.decodeBase62AsUuid
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.idgenerators.IdGenerator
@@ -13,9 +16,6 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toLongArray
 import io.bluetape4k.support.toUUID
 import io.bluetape4k.utils.Runtimex
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE

@@ -1,9 +1,9 @@
 package io.bluetape4k.cassandra
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.assertions.shouldBeEqualTo
-import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import org.junit.jupiter.api.Test
 
 class CqlIdentifierSupportTest {
 

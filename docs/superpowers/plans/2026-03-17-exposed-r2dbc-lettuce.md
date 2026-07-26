@@ -1,10 +1,10 @@
 # exposed-r2dbc-lettuce 구현 계획
 
 > **For agentic workers:
-** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (
-`- [ ]`) syntax for tracking.
+> ** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (
+> `- [ ]`) syntax for tracking.
 
-**Goal:** `exposed-jdbc-lettuce`와 동일한 패턴으로 R2DBC + Lettuce Redis 기반 캐시 레포지토리 모듈(`exposed-r2dbc-lettuce`)을 구현한다.
+**Goal:** `exposed-jdbc-lettuce`와 동일한 패턴으로 R2DBC + Lettuce Redis 기반 캐시 레포지토리 모듈 (`exposed-r2dbc-lettuce`)을 구현한다.
 
 **Architecture:**
 
@@ -150,7 +150,7 @@ git commit -m "chore: exposed-r2dbc-lettuce 모듈 스캐폴딩 추가"
   `data/exposed-r2dbc-lettuce/src/test/kotlin/io/bluetape4k/exposed/r2dbc/lettuce/map/R2dbcExposedEntityMapLoaderTest.kt`
 
 **설계 결정**: `LettuceLoadedMap`의 `MapLoader<K,V>`는 동기 인터페이스다. R2DBC는 `suspendTransaction`(suspend 함수)을 사용한다. 브리지 방법:
-`runBlocking(Dispatchers.IO) { suspendTransaction { ... } }`. 이 호출은 Lettuce가 내부적으로 IO 스레드에서 실행하므로 교착(deadlock) 없이 안전하다.
+`runBlocking(Dispatchers.IO) { suspendTransaction { ... } }`. 이 호출은 Lettuce가 내부적으로 IO 스레드에서 실행하므로 교착 (deadlock) 없이 안전하다.
 
 - [ ] **Step 1: 실패하는 테스트 작성**
 

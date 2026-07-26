@@ -1,5 +1,6 @@
 package io.bluetape4k.concurrent
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
@@ -9,7 +10,6 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [CompletionStage] 확장 함수를 테스트합니다.
@@ -100,7 +100,8 @@ class CompletionStageSupportTest {
 
         combineOf(a, b) { x, y -> "$x-$y" }.toCompletableFuture().get() shouldBeEqualTo "1-hello"
         combineOf(a, b, c) { x, y, z -> "$x-$y-$z" }.toCompletableFuture().get() shouldBeEqualTo "1-hello-true"
-        combineOf(a, b, c, d) { x, y, z, w -> "$x-$y-$z-$w" }.toCompletableFuture().get() shouldBeEqualTo "1-hello-true-3.14"
+        combineOf(a, b, c, d) { x, y, z, w -> "$x-$y-$z-$w" }.toCompletableFuture()
+            .get() shouldBeEqualTo "1-hello-true-3.14"
         combineOf(a, b, c, d, e) { v1, v2, v3, v4, v5 ->
             "$v1-$v2-$v3-$v4-$v5"
         }.toCompletableFuture().get() shouldBeEqualTo "1-hello-true-3.14-100"

@@ -21,7 +21,7 @@ object RedisBinarySerializers {
 
     private const val JDK_SERIALIZATION_DEPRECATION_MESSAGE =
         "JDK deserialization can expose Redis values to RCE gadget-chain risk. " +
-            "Use RedisBinarySerializers.Kryo or RedisBinarySerializers.Fory unless Redis data is fully trusted."
+                "Use RedisBinarySerializers.Kryo or RedisBinarySerializers.Fory unless Redis data is fully trusted."
 
     @Deprecated(
         message = JDK_SERIALIZATION_DEPRECATION_MESSAGE,

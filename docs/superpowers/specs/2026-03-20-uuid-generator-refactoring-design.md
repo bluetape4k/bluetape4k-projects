@@ -1,7 +1,6 @@
 # UUID Generator 리팩토링 설계 Spec
 
-**날짜**: 2026-03-20
-**모듈**: `utils/idgenerators` (`io.bluetape4k.idgenerators.uuid`)
+**날짜**: 2026-03-20 **모듈**: `utils/idgenerators` (`io.bluetape4k.idgenerators.uuid`)
 **참조**: ULID 통합 구조 (`io.bluetape4k.idgenerators.ulid.ULID`)
 
 ---
@@ -10,12 +9,12 @@
 
 ### 1.1 구조적 불일치
 
-| 항목 | 현재 상태 | 문제 |
-|------|-----------|------|
-| `TimebasedUuid` | `object` + nested objects (Default, Reordered, Epoch) | 패턴이 `RandomUuidGenerator`(class)와 혼재 |
-| `TimebasedUuidGenerator` | `class : IdGenerator<UUID>` | `TimebasedUuid.Reordered`와 100% 중복 (같은 JUG `timeBasedReorderedGenerator`) |
-| `RandomUuidGenerator` | `class(random: Random)` | 유일하게 커스텀 Random 주입 가능 |
-| `NamebasedUuidGenerator` | `class : IdGenerator<UUID>` | 내부에서 random UUID를 name으로 사용 -- name-based UUID 본래 목적(결정론적)과 불일치 |
+| 항목                     | 현재 상태                                             | 문제                                                                                 |
+|--------------------------|-------------------------------------------------------|--------------------------------------------------------------------------------------|
+| `TimebasedUuid`          | `object` + nested objects (Default, Reordered, Epoch) | 패턴이 `RandomUuidGenerator`(class)와 혼재                                           |
+| `TimebasedUuidGenerator` | `class : IdGenerator<UUID>`                           | `TimebasedUuid.Reordered`와 100% 중복 (같은 JUG `timeBasedReorderedGenerator`)       |
+| `RandomUuidGenerator`    | `class(random: Random)`                               | 유일하게 커스텀 Random 주입 가능                                                     |
+| `NamebasedUuidGenerator` | `class : IdGenerator<UUID>`                           | 내부에서 random UUID를 name으로 사용 -- name-based UUID 본래 목적(결정론적)과 불일치 |
 
 ### 1.2 인코딩 불일치
 
@@ -42,7 +41,7 @@
 ### 2.1 설계 원칙
 
 1. **ULID 패턴 일관성**: `ULID` companion object + `UlidGenerator` 어댑터 구조를 따름
-2. **UUID는 값 타입 불필요**: `java.util.UUID`가 이미 값 타입이므로, 생성 전략(Strategy) 통일에 집중
+2. **UUID는 값 타입 불필요**: `java.util.UUID`가 이미 값 타입이므로, 생성 전략 (Strategy) 통일에 집중
 3. **버전 명시적 명명**: V1, V4, V5, V6, V7로 RFC 9562 버전 번호를 직접 사용
 4. **인코딩 통일**: `Url62.encode()` 단일 표준
 5. **하위 호환**: 기존 API는 `@Deprecated` + `typealias`/위임으로 유지
@@ -205,17 +204,16 @@ class NamebasedUuidGenerator { ... }
 
 ### 3.1 `encodeBase62()` vs `Url62.encode()` 차이
 
-| 구현 | 경로 | 알고리즘 |
-|------|------|----------|
-| `UUID.encodeBase62()` | `Base62.encode(this.toBigInt())` | BigInteger -> Base62 변환 |
-| `Url62.encode(uuid)` | ByteBuffer(16bytes) -> BigInteger -> Base62 | unsigned 보장, 고정 22자 패딩 |
+| 구현                  | 경로                                        | 알고리즘                      |
+|-----------------------|---------------------------------------------|-------------------------------|
+| `UUID.encodeBase62()` | `Base62.encode(this.toBigInt())`            | BigInteger -> Base62 변환     |
+| `Url62.encode(uuid)`  | ByteBuffer(16bytes) -> BigInteger -> Base62 | unsigned 보장, 고정 22자 패딩 |
 
-`Url62.encode()`가 URL-safe하고 고정 길이(22자)를 보장하므로 이를 표준으로 채택합니다.
+`Url62.encode()`가 URL-safe하고 고정 길이 (22자)를 보장하므로 이를 표준으로 채택합니다.
 
 ### 3.2 기존 `TimebasedUuid`의 `encodeBase62()` 호출
 
-`@Deprecated` 처리된 `TimebasedUuid`는 기존 `encodeBase62()` 동작을 유지하여 하위 호환을 보장합니다.
-새 `Uuid.*` API는 모두 `Url62.encode()`를 사용합니다.
+`@Deprecated` 처리된 `TimebasedUuid`는 기존 `encodeBase62()` 동작을 유지하여 하위 호환을 보장합니다. 새 `Uuid.*` API는 모두 `Url62.encode()`를 사용합니다.
 
 ---
 
@@ -223,28 +221,28 @@ class NamebasedUuidGenerator { ... }
 
 ### 4.1 `TimebasedUuid.Epoch` 사용처 (가장 많음)
 
-| 모듈 | 파일 | 용도 |
-|------|------|------|
-| `data/exposed-core` | `ColumnExtensions.kt` | `timebasedGenerated()` 기본값 |
-| `spring-boot3/core` | `StopWatchSupport.kt` | StopWatch ID 기본값 |
-| `spring-boot4/core` | `StopWatchSupport.kt` | StopWatch ID 기본값 |
-| `utils/jwt` | `KeyChain.kt` | KeyChain ID 기본값 |
-| `infra/cache-core` | `AbstractNearJCacheTest.kt` 외 | randomKey 생성 |
-| `data/exposed-jdbc-tests` | `DMLTestData.kt` | clientDefault |
-| `data/exposed-r2dbc-tests` | `DMLTestData.kt`, `BoardSchema.kt` | clientDefault |
-| `aws/aws` | `CustomerRepositoryTest.kt`, `UserRepositoryTest.kt` | 테스트 ID 생성 |
-| `examples/coroutines-demo` | `UuidProviderCoroutineContext.kt` | CoroutineContext 예제 |
+| 모듈                       | 파일                                                 | 용도                          |
+|----------------------------|------------------------------------------------------|-------------------------------|
+| `data/exposed-core`        | `ColumnExtensions.kt`                                | `timebasedGenerated()` 기본값 |
+| `spring-boot3/core`        | `StopWatchSupport.kt`                                | StopWatch ID 기본값           |
+| `spring-boot4/core`        | `StopWatchSupport.kt`                                | StopWatch ID 기본값           |
+| `utils/jwt`                | `KeyChain.kt`                                        | KeyChain ID 기본값            |
+| `infra/cache-core`         | `AbstractNearJCacheTest.kt` 외                       | randomKey 생성                |
+| `data/exposed-jdbc-tests`  | `DMLTestData.kt`                                     | clientDefault                 |
+| `data/exposed-r2dbc-tests` | `DMLTestData.kt`, `BoardSchema.kt`                   | clientDefault                 |
+| `aws/aws`                  | `CustomerRepositoryTest.kt`, `UserRepositoryTest.kt` | 테스트 ID 생성                |
+| `examples/coroutines-demo` | `UuidProviderCoroutineContext.kt`                    | CoroutineContext 예제         |
 
 ### 4.2 `TimebasedUuidGenerator` 사용처
 
-| 모듈 | 파일 | 용도 |
-|------|------|------|
+| 모듈      | 파일                | 용도                             |
+|-----------|---------------------|----------------------------------|
 | `aws/aws` | `DynamoDbEntity.kt` | companion object에서 lazy 초기화 |
 
 ### 4.3 `TimebasedUuid.Reordered` 사용처
 
-| 모듈 | 파일 | 용도 |
-|------|------|------|
+| 모듈                 | 파일                    | 용도               |
+|----------------------|-------------------------|--------------------|
 | `utils/idgenerators` | `HashIdsSupportTest.kt` | 테스트에서 ID 생성 |
 
 ---

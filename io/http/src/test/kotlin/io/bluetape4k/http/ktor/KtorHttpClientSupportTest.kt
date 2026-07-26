@@ -23,9 +23,9 @@ import java.time.Duration
 import kotlinx.serialization.Serializable as KotlinSerializable
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class KtorHttpClientSupportTest : AbstractHttpTest() {
+class KtorHttpClientSupportTest: AbstractHttpTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `ktorCioHttpClientOf creates CIO-backed client`() {

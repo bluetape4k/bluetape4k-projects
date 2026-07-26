@@ -2,6 +2,10 @@ package io.bluetape4k.elasticsearch.examples
 
 import co.elastic.clients.elasticsearch._types.SortOrder
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.elasticsearch.AbstractElasticsearchTest
 import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures
 import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.createTestIndex
@@ -15,17 +19,12 @@ import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -40,9 +39,9 @@ import kotlin.time.Duration.Companion.seconds
  * 4. 가격 범위 검색
  * 5. searchAsFlow 로 전체 상품 스트리밍
  */
-class ProductIndexExample : AbstractElasticsearchTest() {
+class ProductIndexExample: AbstractElasticsearchTest() {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val CATEGORIES = listOf("Electronics", "Books", "Clothing", "Food", "Sports")
     }
 

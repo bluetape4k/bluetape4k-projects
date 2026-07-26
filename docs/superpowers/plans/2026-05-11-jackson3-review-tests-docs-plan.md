@@ -12,11 +12,11 @@
 
 ## Review Gate Tracking
 
-| Iteration | P0 | P1 | Action |
-|-----------|----|----|--------|
-| Baseline | 0 | 1 | Implement EOF terminal APIs and EOF edge tests. |
-| Advisor 1 | 0 | 6 | Add feed readiness checks, length validation, cancellation checkpoints, broader EOF tests, and remove stale Jasypt mentions. |
-| Advisor 2 | 0 | 0 | Gate closed; no remaining P0/P1 findings. |
+| Iteration | P0 | P1 | Action                                                                                                                       |
+|-----------|----|----|------------------------------------------------------------------------------------------------------------------------------|
+| Baseline  | 0  | 1  | Implement EOF terminal APIs and EOF edge tests.                                                                              |
+| Advisor 1 | 0  | 6  | Add feed readiness checks, length validation, cancellation checkpoints, broader EOF tests, and remove stale Jasypt mentions. |
+| Advisor 2 | 0  | 0  | Gate closed; no remaining P0/P1 findings.                                                                                    |
 
 ## Verification Commands
 

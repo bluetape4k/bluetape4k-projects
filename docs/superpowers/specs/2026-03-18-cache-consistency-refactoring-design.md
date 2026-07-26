@@ -1,11 +1,10 @@
 # Cache 모듈 일관성 리팩토링 설계
 
-**날짜**: 2026-03-18
-**상태**: 승인됨
+**날짜**: 2026-03-18 **상태**: 승인됨
 
 ## 목표
 
-Cache 모듈(cache-core, cache-lettuce, cache-hazelcast, cache-redisson) 간의 일관성을 개선한다.
+Cache 모듈 (cache-core, cache-lettuce, cache-hazelcast, cache-redisson) 간의 일관성을 개선한다.
 
 - 직렬화: 팩토리 API는 `LettuceBinaryCodec`으로 통일, 내부는 `BinarySerializer` 유지 (Lettuce 계열)
 - 팩토리 네이밍 통일: `nearJCache()` / `suspendNearJCache()` (JCache 기반), `nearCache()` /
@@ -135,21 +134,21 @@ Cache 모듈(cache-core, cache-lettuce, cache-hazelcast, cache-redisson) 간의 
 
 ## 네이밍 규칙 (3개 모듈 통일)
 
-| 유형                            | 함수명                   | 반환 타입                           |
-|-------------------------------|-----------------------|---------------------------------|
-| JCache                        | `jcache()`            | `JCache<K, V>`                  |
-| Suspend JCache                | `suspendJCache()`     | `SuspendJCache<K, V>`           |
-| JCache 기반 NearCache (동기)      | `nearJCache()`        | `NearJCache<K, V>`              |
+| 유형                            | 함수명                | 반환 타입                       |
+|---------------------------------|-----------------------|---------------------------------|
+| JCache                          | `jcache()`            | `JCache<K, V>`                  |
+| Suspend JCache                  | `suspendJCache()`     | `SuspendJCache<K, V>`           |
+| JCache 기반 NearCache (동기)    | `nearJCache()`        | `NearJCache<K, V>`              |
 | JCache 기반 NearCache (suspend) | `suspendNearJCache()` | `SuspendNearJCache<K, V>`       |
 | NearCacheOperations (동기)      | `nearCache()`         | `NearCacheOperations<V>`        |
-| NearCacheOperations (suspend) | `suspendNearCache()`  | `SuspendNearCacheOperations<V>` |
+| NearCacheOperations (suspend)   | `suspendNearCache()`  | `SuspendNearCacheOperations<V>` |
 
 ## 기본값 규칙
 
-| 항목               | 기본값                             |
-|------------------|---------------------------------|
-| Lettuce Codec    | `LettuceBinaryCodecs.lz4Fory()` |
-| Redisson Codec   | `RedissonCodecs.LZ4Fory`        |
+| 항목             | 기본값                               |
+|------------------|--------------------------------------|
+| Lettuce Codec    | `LettuceBinaryCodecs.lz4Fory()`      |
+| Redisson Codec   | `RedissonCodecs.LZ4Fory`             |
 | NearJCacheConfig | Caffeine front cache, 30분 접근 만료 |
 
 ## 범위 외

@@ -26,7 +26,8 @@ internal class OkioDelimitedWriter(
             first = false
 
             when (field) {
-                null -> { /* unquoted empty field */ }
+                null -> { /* unquoted empty field */
+                }
                 is String -> {
                     if (field.isEmpty()) {
                         writeQuoted(field)

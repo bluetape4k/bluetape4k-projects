@@ -1,4 +1,3 @@
-@file:OptIn(ExperimentalContracts::class)
 @file:Suppress("NOTHING_TO_INLINE")
 
 package io.bluetape4k.support
@@ -8,7 +7,6 @@ import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util.*
 import java.util.regex.Pattern
-import kotlin.contracts.ExperimentalContracts
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 private typealias JChar = java.lang.Character
@@ -1036,7 +1034,8 @@ fun commonSuffix(
 
     val maxSuffixLength = minOf(a.length, b.length)
     val s = (0 until maxSuffixLength).firstOrNull { a[a.length - it - 1] != b[b.length - it - 1] } ?: maxSuffixLength
-    val adjusted = if (s > 0 && (a.validSurrogatePairAt(a.length - s - 1) || b.validSurrogatePairAt(b.length - s - 1))) s - 1 else s
+    val adjusted =
+        if (s > 0 && (a.validSurrogatePairAt(a.length - s - 1) || b.validSurrogatePairAt(b.length - s - 1))) s - 1 else s
     return a.substring(a.length - adjusted, a.length)
 }
 

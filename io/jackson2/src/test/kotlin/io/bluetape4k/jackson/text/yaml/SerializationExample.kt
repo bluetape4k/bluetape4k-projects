@@ -1,6 +1,7 @@
 package io.bluetape4k.jackson.text.yaml
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.jackson.text.DataSource
 import io.bluetape4k.jackson.text.Database
 import io.bluetape4k.jackson.text.FiveMinuteUser
@@ -10,7 +11,6 @@ import io.bluetape4k.jackson.text.Outer
 import io.bluetape4k.jackson.text.trimYamlDocMarker
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class SerializationExample: AbstractYamlExample() {

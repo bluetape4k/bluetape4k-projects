@@ -36,9 +36,7 @@ dependencies {
 }
 ```
 
-이 단일 artifact에는 `io.bluetape4k.cassandra.mapper` API가 필요로 하는
-DataStax mapper runtime이 포함됩니다. Mapper helper 확장을 사용할 때
-소비자 프로젝트에서 `java-driver-mapper-runtime`을 별도로 선언할 필요가 없습니다.
+이 단일 artifact에는 `io.bluetape4k.cassandra.mapper` API가 필요로 하는 DataStax mapper runtime이 포함됩니다. Mapper helper 확장을 사용할 때 소비자 프로젝트에서 `java-driver-mapper-runtime`을 별도로 선언할 필요가 없습니다.
 
 ## 주요 기능
 
@@ -286,9 +284,7 @@ val selected = session.prepare(userEntityHelper) {
 }
 ```
 
-Mapper helper API는 DataStax `EntityHelper`와 `NullSavingStrategy` 타입을
-공개 시그니처에 직접 노출하므로, `bluetape4k-cassandra`는 mapper runtime을
-public dependency contract로 제공합니다.
+Mapper helper API는 DataStax `EntityHelper`와 `NullSavingStrategy` 타입을 공개 시그니처에 직접 노출하므로, `bluetape4k-cassandra`는 mapper runtime을 public dependency contract로 제공합니다.
 
 ### 8. Cassandra 관리 (Admin)
 

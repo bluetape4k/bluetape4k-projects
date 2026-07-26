@@ -1,5 +1,9 @@
 package io.bluetape4k.hibernate.reactive.examples.stage
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.reactive.examples.model.Author
 import io.bluetape4k.hibernate.reactive.examples.model.Book
 import io.bluetape4k.hibernate.reactive.stage.createEntityGraphAs
@@ -16,10 +20,6 @@ import io.bluetape4k.hibernate.reactive.stage.withTransactionSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.hibernate.LockMode
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test

@@ -8,7 +8,7 @@ import io.bluetape4k.feign.clients.FeignAsyncClientConformanceTest
 import io.bluetape4k.feign.clients.FeignSyncClientConformanceTest
 import io.bluetape4k.http.hc5.async.httpAsyncClientOf
 import org.apache.hc.client5.http.protocol.HttpClientContext
-import java.util.Optional
+import java.util.*
 
 class ApacheHc5ClientConformanceTest: FeignSyncClientConformanceTest() {
 

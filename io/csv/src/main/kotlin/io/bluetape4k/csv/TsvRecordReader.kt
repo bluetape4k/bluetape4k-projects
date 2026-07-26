@@ -22,9 +22,9 @@ import java.nio.charset.Charset
  */
 class TsvRecordReader(
     private val settings: TsvSettings = TsvSettings.DEFAULT,
-) : RecordReader {
+): RecordReader {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * TSV 입력 스트림을 읽어 변환 결과 시퀀스를 반환합니다.

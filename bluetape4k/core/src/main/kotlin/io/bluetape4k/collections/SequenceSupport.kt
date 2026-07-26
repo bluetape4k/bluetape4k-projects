@@ -10,6 +10,7 @@ import io.bluetape4k.support.asString
 import io.bluetape4k.support.requireLe
 import kotlinx.coroutines.CancellationException
 
+internal const val INITIAL_ARRAY_SIZE = 16
 
 /**
  * [start] 부터 [endInclusive] 까지의 [Char] 수형의 [Sequence]를 생성합니다.
@@ -147,8 +148,11 @@ fun doubleSequenceOf(start: Double, endInclusive: Double, step: Double = 1.0): S
  * Char Sequence 를 [CharArray]로 변환합니다.
  */
 fun Sequence<Char>.toCharArray(): CharArray {
-    var out = CharArray(16); var n = 0
-    for (e in this) { if (n == out.size) out = out.copyOf(n * 2); out[n++] = e }
+    var out = CharArray(INITIAL_ARRAY_SIZE)
+    var n = 0
+    for (e in this) {
+        if (n == out.size) out = out.copyOf(n * 2); out[n++] = e
+    }
     return if (n == out.size) out else out.copyOf(n)
 }
 
@@ -156,8 +160,11 @@ fun Sequence<Char>.toCharArray(): CharArray {
  * Byte Sequence 를 [ByteArray]로 변환합니다.
  */
 fun Sequence<Byte>.toByteArray(): ByteArray {
-    var out = ByteArray(16); var n = 0
-    for (e in this) { if (n == out.size) out = out.copyOf(n * 2); out[n++] = e }
+    var out = ByteArray(INITIAL_ARRAY_SIZE)
+    var n = 0
+    for (e in this) {
+        if (n == out.size) out = out.copyOf(n * 2); out[n++] = e
+    }
     return if (n == out.size) out else out.copyOf(n)
 }
 
@@ -165,8 +172,11 @@ fun Sequence<Byte>.toByteArray(): ByteArray {
  * Short Sequence 를 [ShortArray]로 변환합니다.
  */
 fun Sequence<Short>.toShortArray(): ShortArray {
-    var out = ShortArray(16); var n = 0
-    for (e in this) { if (n == out.size) out = out.copyOf(n * 2); out[n++] = e }
+    var out = ShortArray(INITIAL_ARRAY_SIZE)
+    var n = 0
+    for (e in this) {
+        if (n == out.size) out = out.copyOf(n * 2); out[n++] = e
+    }
     return if (n == out.size) out else out.copyOf(n)
 }
 
@@ -174,8 +184,11 @@ fun Sequence<Short>.toShortArray(): ShortArray {
  * Int Sequence 를 [IntArray]로 변환합니다.
  */
 fun Sequence<Int>.toIntArray(): IntArray {
-    var out = IntArray(16); var n = 0
-    for (e in this) { if (n == out.size) out = out.copyOf(n * 2); out[n++] = e }
+    var out = IntArray(INITIAL_ARRAY_SIZE)
+    var n = 0
+    for (e in this) {
+        if (n == out.size) out = out.copyOf(n * 2); out[n++] = e
+    }
     return if (n == out.size) out else out.copyOf(n)
 }
 
@@ -183,8 +196,11 @@ fun Sequence<Int>.toIntArray(): IntArray {
  * Long Sequence 를 [LongArray]로 변환합니다.
  */
 fun Sequence<Long>.toLongArray(): LongArray {
-    var out = LongArray(16); var n = 0
-    for (e in this) { if (n == out.size) out = out.copyOf(n * 2); out[n++] = e }
+    var out = LongArray(INITIAL_ARRAY_SIZE)
+    var n = 0
+    for (e in this) {
+        if (n == out.size) out = out.copyOf(n * 2); out[n++] = e
+    }
     return if (n == out.size) out else out.copyOf(n)
 }
 
@@ -192,8 +208,11 @@ fun Sequence<Long>.toLongArray(): LongArray {
  * Float Sequence 를 [FloatArray]로 변환합니다.
  */
 fun Sequence<Float>.toFloatArray(): FloatArray {
-    var out = FloatArray(16); var n = 0
-    for (e in this) { if (n == out.size) out = out.copyOf(n * 2); out[n++] = e }
+    var out = FloatArray(INITIAL_ARRAY_SIZE)
+    var n = 0
+    for (e in this) {
+        if (n == out.size) out = out.copyOf(n * 2); out[n++] = e
+    }
     return if (n == out.size) out else out.copyOf(n)
 }
 
@@ -201,8 +220,11 @@ fun Sequence<Float>.toFloatArray(): FloatArray {
  * Double Sequence 를 [DoubleArray]로 변환합니다.
  */
 fun Sequence<Double>.toDoubleArray(): DoubleArray {
-    var out = DoubleArray(16); var n = 0
-    for (e in this) { if (n == out.size) out = out.copyOf(n * 2); out[n++] = e }
+    var out = DoubleArray(INITIAL_ARRAY_SIZE)
+    var n = 0
+    for (e in this) {
+        if (n == out.size) out = out.copyOf(n * 2); out[n++] = e
+    }
     return if (n == out.size) out else out.copyOf(n)
 }
 
@@ -214,7 +236,8 @@ fun Sequence<Double>.toDoubleArray(): DoubleArray {
  * val charArray = sequence.asCharArray()  // ['a', 'b', 'c']
  * ```
  */
-fun Sequence<*>.asCharArray(fallback: Char = '\u0000'): CharArray = map { it.asChar(fallback) }.toCharArray()
+fun Sequence<*>.asCharArray(fallback: Char = '\u0000'): CharArray =
+    map { it.asChar(fallback) }.toCharArray()
 
 /**
  * Sequence의 요소를 [Byte]로 변환하여 [ByteArray] 로 반환합니다.
@@ -224,7 +247,8 @@ fun Sequence<*>.asCharArray(fallback: Char = '\u0000'): CharArray = map { it.asC
  * val byteArray = sequence.asByteArray()  // [0, 1, 2]
  * ```
  */
-fun Sequence<*>.asByteArray(fallback: Byte = 0): ByteArray = map { it.asByte(fallback) }.toByteArray()
+fun Sequence<*>.asByteArray(fallback: Byte = 0): ByteArray =
+    map { it.asByte(fallback) }.toByteArray()
 
 /**
  * Sequence의 요소를 [Int]로 변환하여 [IntArray] 로 반환합니다.
@@ -234,7 +258,8 @@ fun Sequence<*>.asByteArray(fallback: Byte = 0): ByteArray = map { it.asByte(fal
  * val intArray = sequence.asIntArray()  // [0, 1, 2]
  * ```
  */
-fun Sequence<*>.asIntArray(fallback: Int = 0): IntArray = map { it.asInt(fallback) }.toIntArray()
+fun Sequence<*>.asIntArray(fallback: Int = 0): IntArray =
+    map { it.asInt(fallback) }.toIntArray()
 
 /**
  * Sequence의 요소를 [Long]로 변환하여 [LongArray] 로 반환합니다.
@@ -244,7 +269,8 @@ fun Sequence<*>.asIntArray(fallback: Int = 0): IntArray = map { it.asInt(fallbac
  * val longArray = sequence.asLongArray()  // [0, 1, 2]
  * ```
  */
-fun Sequence<*>.asLongArray(fallback: Long = 0): LongArray = map { it.asLong(fallback) }.toLongArray()
+fun Sequence<*>.asLongArray(fallback: Long = 0): LongArray =
+    map { it.asLong(fallback) }.toLongArray()
 
 /**
  * Sequence의 요소를 [Float]로 변환하여 [FloatArray] 로 반환합니다.
@@ -254,7 +280,8 @@ fun Sequence<*>.asLongArray(fallback: Long = 0): LongArray = map { it.asLong(fal
  * val floatArray = sequence.asFloatArray()  // [0.0, 1.0, 2.0]
  * ```
  */
-fun Sequence<*>.asFloatArray(fallback: Float = 0.0F): FloatArray = map { it.asFloat(fallback) }.toFloatArray()
+fun Sequence<*>.asFloatArray(fallback: Float = 0.0F): FloatArray =
+    map { it.asFloat(fallback) }.toFloatArray()
 
 /**
  * Sequence의 요소를 [Double]로 변환하여 [DoubleArray] 로 반환합니다.
@@ -264,7 +291,8 @@ fun Sequence<*>.asFloatArray(fallback: Float = 0.0F): FloatArray = map { it.asFl
  * val doubleArray = sequence.asDoubleArray()  // [0.0, 1.0, 2.0]
  * ```
  */
-fun Sequence<*>.asDoubleArray(fallback: Double = 0.0): DoubleArray = map { it.asDouble(fallback) }.toDoubleArray()
+fun Sequence<*>.asDoubleArray(fallback: Double = 0.0): DoubleArray =
+    map { it.asDouble(fallback) }.toDoubleArray()
 
 /**
  * Sequence의 요소를 [String]으로 변환하여 [Array] 로 반환합니다.
@@ -285,7 +313,8 @@ fun Sequence<*>.asStringArray(fallback: String = ""): Array<String> =
  * val array: Array<Int> = sequence.asArray<Int>()  // [0, 1, 2]
  * ```
  */
-inline fun <reified T: Any> Sequence<*>.asArray(): Array<T?> = mapTo(ArrayList()) { it as? T }.toTypedArray()
+inline fun <reified T: Any> Sequence<*>.asArray(): Array<T?> =
+    mapTo(ArrayList()) { it as? T }.toTypedArray()
 
 /**
  * [mapper] 실행이 성공한 결과만 추출합니다.
@@ -299,7 +328,9 @@ inline fun <reified T: Any> Sequence<*>.asArray(): Array<T?> = mapTo(ArrayList()
  * @return 변환된 결과를 담은 `Sequence<R>` 객체
  */
 inline fun <T, R: Any> Sequence<T>.mapIfSuccess(crossinline mapper: (T) -> R): Sequence<R> =
-    mapNotNull { runCatching { mapper(it) }.onFailure { e -> if (e is CancellationException) throw e }.getOrNull() }
+    mapNotNull {
+        runCatching { mapper(it) }.onFailure { e -> if (e is CancellationException) throw e }.getOrNull()
+    }
 
 /**
  * [action] 실행을 [runCatching]으로 감싸서 수행합니다. 예외가 발생해도 다음 요소를 계속 수행합니다.
@@ -310,7 +341,9 @@ inline fun <T, R: Any> Sequence<T>.mapIfSuccess(crossinline mapper: (T) -> R): S
  * ```
  */
 inline fun <T> Sequence<T>.tryForEach(action: (T) -> Unit) {
-    forEach { runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e } }
+    forEach {
+        runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e }
+    }
 }
 
 /**
@@ -328,7 +361,9 @@ inline fun <T> Sequence<T>.tryForEach(action: (T) -> Unit) {
  * @see forEachCatching
  */
 inline fun <T, R> Sequence<T>.mapCatching(crossinline mapper: (T) -> R): Sequence<Result<R>> =
-    map { runCatching { mapper(it) }.onFailure { e -> if (e is CancellationException) throw e } }
+    map {
+        runCatching { mapper(it) }.onFailure { e -> if (e is CancellationException) throw e }
+    }
 
 /**
  * [action] 실행을 [runCatching]으로 감싸서 수행합니다. 예외가 발생해도 다음 요소를 계속 수행합니다.
@@ -343,10 +378,10 @@ inline fun <T, R> Sequence<T>.mapCatching(crossinline mapper: (T) -> R): Sequenc
  *
  * @see mapCatching
  */
-inline fun <T> Sequence<T>.forEachCatching(crossinline action: (T) -> Unit): Sequence<Result<Unit>> {
-    return map { runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e } }
-}
-
+inline fun <T> Sequence<T>.forEachCatching(crossinline action: (T) -> Unit): Sequence<Result<Unit>> =
+    map {
+        runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e }
+    }
 
 /**
  * 컬렉션의 요소를 [size]만큼의 켤렉션으로 묶어서 반환합니다. 마지막 켤렉션의 크기는 [size]보다 작을 수 있습니다.

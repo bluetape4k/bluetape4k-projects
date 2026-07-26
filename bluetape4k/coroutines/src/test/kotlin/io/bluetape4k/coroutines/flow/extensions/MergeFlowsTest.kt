@@ -2,12 +2,12 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.assertions.coroutines.assertResult
 import io.bluetape4k.assertions.coroutines.assertResultSet
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class MergeFlowsTest: AbstractFlowTest() {

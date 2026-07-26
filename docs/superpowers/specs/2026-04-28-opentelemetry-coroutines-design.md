@@ -13,22 +13,22 @@
 
 `infra/opentelemetry` 모듈은 현재 OpenTelemetry SDK 위에 다음과 같은 Kotlin/Coroutines 친화 API를 이미 제공한다.
 
-- `Span`/`SpanBuilder`에 대한 suspend 빌더(`useSuspending`, `useSpanSuspending`)
+- `Span`/`SpanBuilder`에 대한 suspend 빌더 (`useSuspending`, `useSpanSuspending`)
 - `withSpanContext` / `withOtelContext` — 코루틴 컨텍스트 안에서 OpenTelemetry `Context`를 안전하게 전파
 - `CompletableResultCode.await()` — Provider flush/shutdown을 코루틴에서 대기
 
 그러나 다음의 사용 시나리오에서 보일러플레이트 또는 부재한 API가 발견되었다.
 
 1. **`Tracer`에서 직접 시작하는 한 번 쓰는 Span 패턴이 길다.**
-   - 사용자는 `tracer.spanBuilder(name).useSpanSuspending { ... }` 또는 `tracer.spanBuilder(name).startSpan().useSuspending { ... }` 처럼 두 단계 호출을 반복적으로 작성해야 한다.
-   - `Tracer.withSpan { ... }` 한 줄 DSL이 있으면 가독성이 크게 개선된다.
+    - 사용자는 `tracer.spanBuilder(name).useSpanSuspending { ... }` 또는 `tracer.spanBuilder(name).startSpan().useSuspending { ... }` 처럼 두 단계 호출을 반복적으로 작성해야 한다.
+    - `Tracer.withSpan { ... }` 한 줄 DSL이 있으면 가독성이 크게 개선된다.
 2. **Kotlin `Flow`를 Span으로 감싸는 표준 방법이 없다.**
-   - 현재는 사용자가 `flow { ... }.onStart { span = tracer... }.onCompletion { span?.end() }` 형태를 직접 작성해야 한다.
-   - `CancellationException`을 ERROR 상태로 잘못 기록하는 사례가 빈번하므로 표준 도우미가 필요하다.
+    - 현재는 사용자가 `flow { ... }.onStart { span = tracer... }.onCompletion { span?.end() }` 형태를 직접 작성해야 한다.
+    - `CancellationException`을 ERROR 상태로 잘못 기록하는 사례가 빈번하므로 표준 도우미가 필요하다.
 3. **Spring WebFlux 통합이 verbose 하다.**
-   - 공식 instrumentation `SpringWebfluxServerTelemetry.create(otel).createWebFilterAndRegisterReactorHook()` 호출이 길고, Spring `WebFilter` 빈으로 노출하는 표준 helper가 없다.
+    - 공식 instrumentation `SpringWebfluxServerTelemetry.create(otel).createWebFilterAndRegisterReactorHook()` 호출이 길고, Spring `WebFilter` 빈으로 노출하는 표준 helper가 없다.
 
-본 spec 은 위 GAP을 해결하는 **추가 API**를 정의한다. 기존 API의 시그니처/동작은 변경하지 않는다(하위 호환 유지).
+본 spec 은 위 GAP을 해결하는 **추가 API**를 정의한다. 기존 API의 시그니처/동작은 변경하지 않는다 (하위 호환 유지).
 
 ### 비목표 (Non-goals)
 
@@ -40,15 +40,15 @@
 
 ## 현존 API 정리
 
-| API | 위치 | 역할 |
-|---|---|---|
-| `Span.useSuspending(waitTimeout, coroutineContext, block)` | `SpanCoroutineSupport.kt` | 이미 시작된 Span을 suspend 블록 안에서 활성화 + end 보장 |
-| `SpanBuilder.useSpanSuspending(coroutineContext, block)` (오버로드 다수) | `SpanCoroutineSupport.kt` | SpanBuilder에서 시작 → suspend 블록 → end 까지 한 번에 |
-| `withSpanContext(span, coroutineContext, block)` | `SpanCoroutineSupport.kt` | suspend 블록 내부에서 Span을 current 로 전파 (코어) |
-| `withOtelContext(coroutineContext, otelContext, block)` | `OpenTelemetryCoroutineSupport.kt` | 임의의 OpenTelemetry `Context`를 코루틴에서 활성화 |
-| `Context.withOtelContext(block)` | `OpenTelemetryCoroutineSupport.kt` | 위의 receiver 변형 |
-| `CompletableResultCode.await()` | `OpenTelemetryCoroutineSupport.kt` | flush/shutdown 결과 await |
-| `Tracer.withSpan(spanName, ...) { span -> ... }` | `SpanSupport.kt` (blocking) | 동기 스코프용 한 줄 DSL — **존재 여부 확인 필요** |
+| API                                                                      | 위치                               | 역할                                                     |
+|--------------------------------------------------------------------------|------------------------------------|----------------------------------------------------------|
+| `Span.useSuspending(waitTimeout, coroutineContext, block)`               | `SpanCoroutineSupport.kt`          | 이미 시작된 Span을 suspend 블록 안에서 활성화 + end 보장 |
+| `SpanBuilder.useSpanSuspending(coroutineContext, block)` (오버로드 다수) | `SpanCoroutineSupport.kt`          | SpanBuilder에서 시작 → suspend 블록 → end 까지 한 번에   |
+| `withSpanContext(span, coroutineContext, block)`                         | `SpanCoroutineSupport.kt`          | suspend 블록 내부에서 Span을 current 로 전파 (코어)      |
+| `withOtelContext(coroutineContext, otelContext, block)`                  | `OpenTelemetryCoroutineSupport.kt` | 임의의 OpenTelemetry `Context`를 코루틴에서 활성화       |
+| `Context.withOtelContext(block)`                                         | `OpenTelemetryCoroutineSupport.kt` | 위의 receiver 변형                                       |
+| `CompletableResultCode.await()`                                          | `OpenTelemetryCoroutineSupport.kt` | flush/shutdown 결과 await                                |
+| `Tracer.withSpan(spanName, ...) { span -> ... }`                         | `SpanSupport.kt` (blocking)        | 동기 스코프용 한 줄 DSL — **존재 여부 확인 필요**        |
 
 > 본 작업 직전 일부 API는 이미 존재할 수 있다. 구현 단계 첫 step 에서 `SpanSupport.kt` / `SpanCoroutineSupport.kt` 의 실제 시그니처를 확인하고 중복 시 spec 을 미세 조정한다.
 
@@ -107,9 +107,10 @@ public suspend fun <T> Tracer.withSpan(
 ```
 
 구현 노트:
+
 - 내부적으로 `spanBuilder(spanName).apply(configure).useSpanSuspending(coroutineContext, block)` 으로 위임.
-- `useSpanSuspending` 의 기존 예외 처리 규약을 그대로 따른다(이미 CancellationException 안전).
-- `EmptyCoroutineContext` 인 경우에도 `withContext` 는 호출되나 dispatcher 는 호출자 그대로 유지된다(`getOrCurrent()` 동작).
+- `useSpanSuspending` 의 기존 예외 처리 규약을 그대로 따른다 (이미 CancellationException 안전).
+- `EmptyCoroutineContext` 인 경우에도 `withContext` 는 호출되나 dispatcher 는 호출자 그대로 유지된다 (`getOrCurrent()` 동작).
 
 #### 1.2 blocking 변형 — `SpanSupport.kt`
 
@@ -142,9 +143,10 @@ public inline fun <T> Tracer.withSpan(
 ```
 
 구현 노트:
+
 - `spanBuilder(spanName).apply(configure).startSpan()` 후 `span.makeCurrent().use { ... }` 패턴.
 - 예외 발생 시 `span.recordException(t)` + `span.setStatus(StatusCode.ERROR, t.message ?: "unspecified error")` 후 재던짐.
-  - fallback 을 `t.javaClass.simpleName` 이 아닌 `"unspecified error"` 로 한다 — 내부 클래스명 외부 노출 방지(H2, M5).
+    - fallback 을 `t.javaClass.simpleName` 이 아닌 `"unspecified error"` 로 한다 — 내부 클래스명 외부 노출 방지 (H2, M5).
 - 정상 완료 시 `span.setStatus(StatusCode.OK)` 후 `span.end()`.
 - `inline` 적용으로 람다 호출 비용 제거.
 
@@ -152,13 +154,12 @@ public inline fun <T> Tracer.withSpan(
 
 #### 설계 원칙 (H1 + H2 반영)
 
-- **1 collect = 1 Span**: `traced()` 는 한 번의 collect 전체를 단일 Span 으로 감싼다.
-  각 emit 별 Span 이 필요하면 `onEach { tracer.withSpan(...) { ... } }` 를 사용한다.
-- **`channelFlow` 사용 필수**: `flow {}` 빌더 안에서 `withContext` 후 `emit()` 하면
-  Flow 불변식 위반(`IllegalStateException`) 이 발생한다. `channelFlow {}` 는 cross-context `send()` 를 허용한다.
+- **1 collect = 1
+  Span**: `traced()` 는 한 번의 collect 전체를 단일 Span 으로 감싼다. 각 emit 별 Span 이 필요하면 `onEach { tracer.withSpan(...) { ... } }` 를 사용한다.
+- **`channelFlow` 사용
+  필수**: `flow {}` 빌더 안에서 `withContext` 후 `emit()` 하면 Flow 불변식 위반 (`IllegalStateException`) 이 발생한다. `channelFlow {}` 는 cross-context `send()` 를 허용한다.
 - **`withSpanContext` 직접 사용 금지**: `withSpanContext` 는 내부 `finally` 에서 이미 `endSafely()` 를 호출한다.
-  `Flow.traced` 에서 재사용하면 `span.end()` 이중 호출 + 이미 종료된 Span 에 `setStatus()` 호출이 발생한다.
-  따라서 OTel Context 전파는 `Context.current().with(span).asContextElement()` 만 직접 사용한다.
+  `Flow.traced` 에서 재사용하면 `span.end()` 이중 호출 + 이미 종료된 Span 에 `setStatus()` 호출이 발생한다. 따라서 OTel Context 전파는 `Context.current().with(span).asContextElement()` 만 직접 사용한다.
 
 ```kotlin
 /**
@@ -256,8 +257,8 @@ OpenTelemetry 공식 `opentelemetry-spring-webflux-5.3` instrumentation 의 진�
 
 #### 운영 제약 (H7 반영)
 
-> ⚠️ `createTracingWebFilter()` 는 내부적으로 Reactor global hook(`Hooks.onEachOperator`) 을 등록한다.
-> - **반드시 Spring ApplicationContext 초기화 시(`@Configuration` `@Bean`) 한 번만 호출**해야 한다.
+> ⚠️ `createTracingWebFilter()` 는 내부적으로 Reactor global hook (`Hooks.onEachOperator`) 을 등록한다.
+> - **반드시 Spring ApplicationContext 초기화 시 (`@Configuration` `@Bean`) 한 번만 호출**해야 한다.
 > - 앱 시작 후 lazy 로 호출하면 이미 생성된 Reactor pipeline 에는 hook 이 적용되지 않아 silent failure 가 발생한다.
 > - 테스트에서 ApplicationContext 를 재생성하면 hook 이 중복 등록될 수 있다. 테스트 격리 시 `Hooks.resetOnEachOperator(key)` 호출 권장.
 
@@ -291,6 +292,7 @@ public fun OpenTelemetry.createTracingWebFilter(): WebFilter =
 ```
 
 의존성:
+
 - `spring-webflux` → `compileOnly` 로 추가 (현재 `testRuntimeOnly` → 승격)
 - `opentelemetry-spring-webflux-5.3` → `compileOnly` 추가
 - `webflux/` 패키지로 격리하여 classpath 에 없을 때도 다른 기능을 깨지 않도록 한다.
@@ -299,13 +301,13 @@ public fun OpenTelemetry.createTracingWebFilter(): WebFilter =
 
 ## 제외 항목 및 이유
 
-| 후보 API | 제외 이유 |
-|---|---|
-| 자체 `TracingWebFilter` 구현 | `SpringWebfluxServerTelemetry.createWebFilterAndRegisterReactorHook()` 가 Reactor hook 등록까지 공식 지원. 재구현 시 유지보수 부담 + 비표준화 위험. |
-| 자체 `SpanContextElement: ThreadContextElement` | `opentelemetry-extension-kotlin` 의 `Context.asContextElement()` 가 동일 역할을 표준으로 제공. 중복 구현 비추천. |
-| 자체 `OpenTelemetryCoroutineContextRestorer` | 위 extension 모듈이 이미 `ThreadContextElement.updateThreadContext` / `restoreThreadContext` 로 처리. |
-| `Mono<T>.traced(...)` / `Flux<T>.traced(...)` 확장 | Reactor 는 공식 `opentelemetry-reactor` instrumentation 영역. WebFlux helper 만으로 충분. |
-| Span 자동 attribute (HTTP method 등) 헬퍼 | 도메인별 instrumentation 의 책임. 이 모듈은 코루틴-Span 결합에 집중. |
+| 후보 API                                           | 제외 이유                                                                                                                                           |
+|----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| 자체 `TracingWebFilter` 구현                       | `SpringWebfluxServerTelemetry.createWebFilterAndRegisterReactorHook()` 가 Reactor hook 등록까지 공식 지원. 재구현 시 유지보수 부담 + 비표준화 위험. |
+| 자체 `SpanContextElement: ThreadContextElement`    | `opentelemetry-extension-kotlin` 의 `Context.asContextElement()` 가 동일 역할을 표준으로 제공. 중복 구현 비추천.                                    |
+| 자체 `OpenTelemetryCoroutineContextRestorer`       | 위 extension 모듈이 이미 `ThreadContextElement.updateThreadContext` / `restoreThreadContext` 로 처리.                                               |
+| `Mono<T>.traced(...)` / `Flux<T>.traced(...)` 확장 | Reactor 는 공식 `opentelemetry-reactor` instrumentation 영역. WebFlux helper 만으로 충분.                                                           |
+| Span 자동 attribute (HTTP method 등) 헬퍼          | 도메인별 instrumentation 의 책임. 이 모듈은 코루틴-Span 결합에 집중.                                                                                |
 
 ---
 
@@ -315,12 +317,12 @@ public fun OpenTelemetry.createTracingWebFilter(): WebFilter =
 - **OpenTelemetry**: `opentelemetry-api`, `opentelemetry-sdk`, `opentelemetry-extension-kotlin` (기존 의존성 그대로)
 - **Coroutines**: `kotlinx-coroutines-core` (Flow API 포함)
 - **테스트**:
-  - `opentelemetry-sdk-testing` (`InMemorySpanExporter`)
-  - JUnit 5 + MockK + bluetape4k-assertions
-  - `kotlinx-coroutines-test` (`runTest`, `TestDispatcher`)
+    - `opentelemetry-sdk-testing` (`InMemorySpanExporter`)
+    - JUnit 5 + MockK + bluetape4k-assertions
+    - `kotlinx-coroutines-test` (`runTest`, `TestDispatcher`)
 - **WebFlux helper (선택)**:
-  - `spring-webflux` — `compileOnly` 승격 검토
-  - `opentelemetry-spring-webflux-5.3` — `compileOnly`
+    - `spring-webflux` — `compileOnly` 승격 검토
+    - `opentelemetry-spring-webflux-5.3` — `compileOnly`
 - **빌드 설정**: detekt, IntelliJ formatter, .editorconfig (no ktlint)
 
 ### 모듈 의존성 변경
@@ -351,84 +353,84 @@ dependencies {
 
 ### 5.1 `Tracer.withSpan` (suspend)
 
-| Case | 검증 |
-|---|---|
-| 정상 완료 | Span name 일치, status OK, parent context 가 외부 current 와 동일 |
-| Dispatcher 경계 (`withContext(Dispatchers.IO)`) 내부에서 호출 | Span 이 IO 디스패처에서도 current 로 유지, finished span 1개 |
-| 중첩 호출 (Dispatchers 경계 포함) | child traceId == parent traceId, child parentSpanId == parent spanId |
-| 예외 발생 | status ERROR, recordException 이벤트 기록, 예외 재던짐 |
-| `CancellationException` | Span status UNSET 유지, end() 호출, 예외 재던짐 |
-| `configure` 람다로 attribute 추가 | 종료된 Span 의 attribute 검증 |
-| `configure` 람다에서 `.startSpan()` 직접 호출 | 테스트에서 이중 Span 생성 확인 → 문서화 (negative test) |
+| Case                                                          | 검증                                                                 |
+|---------------------------------------------------------------|----------------------------------------------------------------------|
+| 정상 완료                                                     | Span name 일치, status OK, parent context 가 외부 current 와 동일    |
+| Dispatcher 경계 (`withContext(Dispatchers.IO)`) 내부에서 호출 | Span 이 IO 디스패처에서도 current 로 유지, finished span 1개         |
+| 중첩 호출 (Dispatchers 경계 포함)                             | child traceId == parent traceId, child parentSpanId == parent spanId |
+| 예외 발생                                                     | status ERROR, recordException 이벤트 기록, 예외 재던짐               |
+| `CancellationException`                                       | Span status UNSET 유지, end() 호출, 예외 재던짐                      |
+| `configure` 람다로 attribute 추가                             | 종료된 Span 의 attribute 검증                                        |
+| `configure` 람다에서 `.startSpan()` 직접 호출                 | 테스트에서 이중 Span 생성 확인 → 문서화 (negative test)              |
 
 ### 5.2 `Tracer.withSpan` (blocking)
 
-| Case | 검증 |
-|---|---|
-| 정상 완료 | Span OK, end() 호출 |
-| 예외 발생 | Span ERROR, recordException, `message ?: "unspecified error"` 검증, end() 후 재던짐 |
-| 동일 스레드 nested 호출 | parent-child 관계 검증 |
+| Case                    | 검증                                                                                |
+|-------------------------|-------------------------------------------------------------------------------------|
+| 정상 완료               | Span OK, end() 호출                                                                 |
+| 예외 발생               | Span ERROR, recordException, `message ?: "unspecified error"` 검증, end() 후 재던짐 |
+| 동일 스레드 nested 호출 | parent-child 관계 검증                                                              |
 
 ### 5.3 `Flow<T>.traced`
 
-| Case | 검증 |
-|---|---|
-| Flow 정상 완료 | finished Span **1개**, status OK |
-| emit 3회 `.toList()` | finished Span **1개** (아이템별 아님) |
-| Upstream 예외 | Span ERROR + recordException, 예외 재던짐 |
-| Downstream `take(2)` (정상 종료) | Span OK, end() 호출 |
-| Downstream cancellation (`scope.cancel()`) | Span status **UNSET**, end() 호출, ERROR 미기록 |
-| `flowOn(Dispatchers.IO)` 와 결합 | Span 정상 전파, finished Span 1개 |
-| `tracedCollect` — action 안에서 parent Span current 검증 | `Span.current()` == traced Span |
-| 민감 attribute negative test | 예: `Authorization: Bearer xxx` 가 Span attribute 에 없음 검증 |
+| Case                                                     | 검증                                                           |
+|----------------------------------------------------------|----------------------------------------------------------------|
+| Flow 정상 완료                                           | finished Span **1개**, status OK                               |
+| emit 3회 `.toList()`                                     | finished Span **1개** (아이템별 아님)                          |
+| Upstream 예외                                            | Span ERROR + recordException, 예외 재던짐                      |
+| Downstream `take(2)` (정상 종료)                         | Span OK, end() 호출                                            |
+| Downstream cancellation (`scope.cancel()`)               | Span status **UNSET**, end() 호출, ERROR 미기록                |
+| `flowOn(Dispatchers.IO)` 와 결합                         | Span 정상 전파, finished Span 1개                              |
+| `tracedCollect` — action 안에서 parent Span current 검증 | `Span.current()` == traced Span                                |
+| 민감 attribute negative test                             | 예: `Authorization: Bearer xxx` 가 Span attribute 에 없음 검증 |
 
 ### 5.4 WebFlux helper
 
-| Case | 검증 |
-|---|---|
-| `OpenTelemetry.createTracingWebFilter()` — NPE/ClassNotFound 없음 | 의존성 정상 노출 |
-| WebFlux mock 핸들러 GET | 서버 Span 1개 기록, HTTP method/path attribute 검증 |
-| `Authorization` 헤더가 Span attribute 에 미포함 | 민감 헤더 필터링 negative test |
+| Case                                                              | 검증                                                |
+|-------------------------------------------------------------------|-----------------------------------------------------|
+| `OpenTelemetry.createTracingWebFilter()` — NPE/ClassNotFound 없음 | 의존성 정상 노출                                    |
+| WebFlux mock 핸들러 GET                                           | 서버 Span 1개 기록, HTTP method/path attribute 검증 |
+| `Authorization` 헤더가 Span attribute 에 미포함                   | 민감 헤더 필터링 negative test                      |
 
 ### 5.5 회귀 (Regression)
 
 - 기존 `useSuspending`, `useSpanSuspending`, `withSpanContext`, `withOtelContext`, `CompletableResultCode.await()` 테스트가 그대로 통과해야 한다.
-- 변경된 시그니처 없음을 보장한다(API 추가만 수행).
+- 변경된 시그니처 없음을 보장한다 (API 추가만 수행).
 
 ---
 
 ## DoD (Definition of Done)
 
 1. **구현 완료**
-   - [ ] `Tracer.withSpan(spanName, configure, coroutineContext, block)` suspend — `SpanCoroutineSupport.kt`
-   - [ ] `Tracer.withSpan(spanName, configure, block)` blocking — `SpanSupport.kt`
-   - [ ] `Flow<T>.traced` / `Flow<T>.tracedCollect` — `FlowSpanSupport.kt` (`channelFlow` 기반)
-   - [ ] `OpenTelemetry.webfluxServerTelemetry()` / `createTracingWebFilter()` — `webflux/WebfluxTracingSupport.kt`
+    - [ ] `Tracer.withSpan(spanName, configure, coroutineContext, block)` suspend — `SpanCoroutineSupport.kt`
+    - [ ] `Tracer.withSpan(spanName, configure, block)` blocking — `SpanSupport.kt`
+    - [ ] `Flow<T>.traced` / `Flow<T>.tracedCollect` — `FlowSpanSupport.kt` (`channelFlow` 기반)
+    - [ ] `OpenTelemetry.webfluxServerTelemetry()` / `createTracingWebFilter()` — `webflux/WebfluxTracingSupport.kt`
 2. **테스트**
-   - [ ] §5.1 케이스 전수 — Dispatcher 경계 + 중첩 Span + negative(configure footgun)
-   - [ ] §5.2 케이스 전수 — `"unspecified error"` fallback 검증 포함
-   - [ ] §5.3 케이스 전수 — **1 collect = 1 Span** + 민감 attribute negative test
-   - [ ] §5.4 WebFlux helper — 민감 헤더 미포함 negative test 포함
-   - [ ] §5.5 기존 테스트 회귀 zero
-   - [ ] `./gradlew :bluetape4k-opentelemetry:test` 전수 통과
+    - [ ] §5.1 케이스 전수 — Dispatcher 경계 + 중첩 Span + negative (configure footgun)
+    - [ ] §5.2 케이스 전수 — `"unspecified error"` fallback 검증 포함
+    - [ ] §5.3 케이스 전수 — **1 collect = 1 Span** + 민감 attribute negative test
+    - [ ] §5.4 WebFlux helper — 민감 헤더 미포함 negative test 포함
+    - [ ] §5.5 기존 테스트 회귀 zero
+    - [ ] `./gradlew :bluetape4k-opentelemetry:test` 전수 통과
 3. **문서**
-   - [ ] 모든 신규 public API 에 Korean KDoc (보안 경고 + CancellationException 계약 + configure footgun 금지 포함)
-   - [ ] `README.md` (영문) + `README.ko.md` — Architecture → UML → Features → Examples 순서
-   - [ ] Mermaid 다이어그램: `withSpan` DSL 흐름 + `Flow.traced` 생명주기
+    - [ ] 모든 신규 public API 에 Korean KDoc (보안 경고 + CancellationException 계약 + configure footgun 금지 포함)
+    - [ ] `README.md` (영문) + `README.ko.md` — Architecture → UML → Features → Examples 순서
+    - [ ] Mermaid 다이어그램: `withSpan` DSL 흐름 + `Flow.traced` 생명주기
 4. **품질 게이트**
-   - [ ] `./gradlew :bluetape4k-opentelemetry:detekt` 통과
-   - [ ] IntelliJ 포맷터 + `.editorconfig` 적용 (no ktlint)
-   - [ ] `ide_diagnostics` import 에러 0
-   - [ ] `code-reviewer` 에이전트 리뷰 후 HIGH/CRITICAL 이슈 해소
+    - [ ] `./gradlew :bluetape4k-opentelemetry:detekt` 통과
+    - [ ] IntelliJ 포맷터 + `.editorconfig` 적용 (no ktlint)
+    - [ ] `ide_diagnostics` import 에러 0
+    - [ ] `code-reviewer` 에이전트 리뷰 후 HIGH/CRITICAL 이슈 해소
 5. **호환성**
-   - [ ] 기존 API 시그니처 변경 없음 (binary + source compatible)
-   - [ ] 신규 의존성은 `compileOnly` (transitive 영향 0)
+    - [ ] 기존 API 시그니처 변경 없음 (binary + source compatible)
+    - [ ] 신규 의존성은 `compileOnly` (transitive 영향 0)
 6. **운영 / 보안 가이드 (README 포함)**
-   - [ ] OTLP exporter TLS 설정 가이드: 운영 환경에서 `https://` 엔드포인트 및 `OTEL_EXPORTER_OTLP_CERTIFICATE` 검증 권장
-   - [ ] `SdkTracerProvider.shutdown()` timeout 권장값(5~10초) 예제
-   - [ ] WebFlux `createTracingWebFilter()` — 1회 호출 제약 + `Hooks.resetOnEachOperator()` 테스트 격리 가이드
-   - [ ] 민감 HTTP 헤더 캡처 제한: `OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST` 환경변수 예시
-   - [ ] worktree 내 commit + PR 생성 후 `oh-my-claudecode:code-reviewer` 결과 첨부
+    - [ ] OTLP exporter TLS 설정 가이드: 운영 환경에서 `https://` 엔드포인트 및 `OTEL_EXPORTER_OTLP_CERTIFICATE` 검증 권장
+    - [ ] `SdkTracerProvider.shutdown()` timeout 권장값 (5~10초) 예제
+    - [ ] WebFlux `createTracingWebFilter()` — 1회 호출 제약 + `Hooks.resetOnEachOperator()` 테스트 격리 가이드
+    - [ ] 민감 HTTP 헤더 캡처 제한: `OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST` 환경변수 예시
+    - [ ] worktree 내 commit + PR 생성 후 `oh-my-claudecode:code-reviewer` 결과 첨부
 
 ---
 

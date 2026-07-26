@@ -10,42 +10,42 @@
 
 ### 기존 테스트 (커버된 영역)
 
-| 패키지 | 커버된 파일 |
-|--------|------------|
-| `hc5/cache` | `InMemoryHttpCacheStorage`, `JavaCacheHttpCacheStorage` |
-| `okhttp3` | `OkHttp3Support`, `LoggingInterceptor`, `CachingInterceptor`, `OkHttpClientExtensionsCoroutines`, `OkHttpResponseExtensions` |
-| `okhttp3/mock` | `MockWebServerExtensions` |
+| 패키지         | 커버된 파일                                                                                                                  |
+|----------------|------------------------------------------------------------------------------------------------------------------------------|
+| `hc5/cache`    | `InMemoryHttpCacheStorage`, `JavaCacheHttpCacheStorage`                                                                      |
+| `okhttp3`      | `OkHttp3Support`, `LoggingInterceptor`, `CachingInterceptor`, `OkHttpClientExtensionsCoroutines`, `OkHttpResponseExtensions` |
+| `okhttp3/mock` | `MockWebServerExtensions`                                                                                                    |
 
 ### 테스트 공백 (미커버 영역)
 
 **Group 1 — 순수 단위 테스트 대상 (서버 불필요, DSL/빌더 함수)**
 
-| 패키지 | 파일 수 | 주요 파일 |
-|--------|---------|----------|
-| `hc5/http` | 16 | `HttpHost`, `ContentTypes`, `BasicRequestBuilder`, `BasicResponseBuilder`, `ClassicRequestBuilder`, `AuthScope`, `ConnectExceptionSupport`, `Operations`, `HttpRequest`, `ConnectionConfig`, `RequestConfig`, `SocketConfig`, `TlsConfig`, `Http1Config`, `ContextBuilder`, `CharCodingConfig` |
-| `hc5/entity` | 5 | `EntityBuilder`, `HttpEntitySupport`, `FormBodyPartBuilder`, `MultipartEntityBuilder`, `MultipartPartBuilder` |
-| `hc5/auth` | 1 | `CredentialsProviderBuilder` |
-| `hc5/ssl` | 2 | `HttpsSupport`, `SSLContexts` |
-| `hc5/http2` | 1 | `H2Config` |
-| `hc5/reactor` | 1 | `IOReactorConfig` |
+| 패키지        | 파일 수 | 주요 파일                                                                                                                                                                                                                                                                                      |
+|---------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `hc5/http`    | 16      | `HttpHost`, `ContentTypes`, `BasicRequestBuilder`, `BasicResponseBuilder`, `ClassicRequestBuilder`, `AuthScope`, `ConnectExceptionSupport`, `Operations`, `HttpRequest`, `ConnectionConfig`, `RequestConfig`, `SocketConfig`, `TlsConfig`, `Http1Config`, `ContextBuilder`, `CharCodingConfig` |
+| `hc5/entity`  | 5       | `EntityBuilder`, `HttpEntitySupport`, `FormBodyPartBuilder`, `MultipartEntityBuilder`, `MultipartPartBuilder`                                                                                                                                                                                  |
+| `hc5/auth`    | 1       | `CredentialsProviderBuilder`                                                                                                                                                                                                                                                                   |
+| `hc5/ssl`     | 2       | `HttpsSupport`, `SSLContexts`                                                                                                                                                                                                                                                                  |
+| `hc5/http2`   | 1       | `H2Config`                                                                                                                                                                                                                                                                                     |
+| `hc5/reactor` | 1       | `IOReactorConfig`                                                                                                                                                                                                                                                                              |
 
 **Group 2 — 통합 테스트 대상 (BluetapeHttpServer 로컬 httpbin 사용)**
 
-| 패키지 | 파일 수 | 주요 파일 |
-|--------|---------|----------|
-| `hc5/async` | 5+5 | `HttpAsyncClient`, `CloseableHttpAsyncClientCoroutines`, `AsyncClientConnectionManager`, `MinimalHttpAsyncClient`, `async/methods/*` |
-| `hc5/classic` | 4 | `HttpClient`, `HttpClientConnectionManager`, `MinimalHttpClient`, `VirtualThreadHttpClient` |
-| `jdk` | 2 | `JdkHttpClientSupport`, `JdkHttpClientCoroutines` |
-| `hc5/routing` | 1 | `RoutingSupport` |
+| 패키지        | 파일 수 | 주요 파일                                                                                                                            |
+|---------------|---------|--------------------------------------------------------------------------------------------------------------------------------------|
+| `hc5/async`   | 5+5     | `HttpAsyncClient`, `CloseableHttpAsyncClientCoroutines`, `AsyncClientConnectionManager`, `MinimalHttpAsyncClient`, `async/methods/*` |
+| `hc5/classic` | 4       | `HttpClient`, `HttpClientConnectionManager`, `MinimalHttpClient`, `VirtualThreadHttpClient`                                          |
+| `jdk`         | 2       | `JdkHttpClientSupport`, `JdkHttpClientCoroutines`                                                                                    |
+| `hc5/routing` | 1       | `RoutingSupport`                                                                                                                     |
 
 **Group 3 — 기타**
 
-| 패키지 | 파일 수 | 비고 |
-|--------|---------|------|
-| `vertx` | 1 | `VertxHttpClientSupport` — Vert.x 의존성 복잡, 우선순위 낮음 |
-| `hc5/cache` builders | 2 | `CachingHttpClientBuilder`, `CachingHttpAsyncClientBuilder` |
-| `hc5/fluent` | 1 | `Request.kt` |
-| `hc5/protocol` | 1 | `HttpClientContext` |
+| 패키지               | 파일 수 | 비고                                                         |
+|----------------------|---------|--------------------------------------------------------------|
+| `vertx`              | 1       | `VertxHttpClientSupport` — Vert.x 의존성 복잡, 우선순위 낮음 |
+| `hc5/cache` builders | 2       | `CachingHttpClientBuilder`, `CachingHttpAsyncClientBuilder`  |
+| `hc5/fluent`         | 1       | `Request.kt`                                                 |
+| `hc5/protocol`       | 1       | `HttpClientContext`                                          |
 
 ## 설계 방향
 

@@ -1,11 +1,11 @@
 package io.bluetape4k.spring.beans
 
-import io.bluetape4k.spring.AbstractSpringTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.spring.AbstractSpringTest
 import org.junit.jupiter.api.Test
 import org.springframework.core.annotation.AliasFor
 import org.springframework.util.StringValueResolver
@@ -52,13 +52,16 @@ class AnnotationExtensionsTest: AbstractSpringTest() {
     class MarkedClass
 
     @SampleAnnotation(name = "test", value = 42)
-    fun annotatedMethod() {}
+    fun annotatedMethod() {
+    }
 
     @HttpRoute("/api/users")
-    fun composedRouteMethod() {}
+    fun composedRouteMethod() {
+    }
 
     @MetaSearchMarker
-    fun metaAnnotatedMethod() {}
+    fun metaAnnotatedMethod() {
+    }
 
     fun plainMethod() {}
 

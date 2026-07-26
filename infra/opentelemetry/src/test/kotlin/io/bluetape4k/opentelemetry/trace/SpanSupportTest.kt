@@ -1,5 +1,10 @@
 package io.bluetape4k.opentelemetry.trace
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.opentelemetry.AbstractOtelTest
 import io.bluetape4k.opentelemetry.shouldNotExpose
@@ -7,11 +12,6 @@ import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter
 import kotlinx.coroutines.CancellationException
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.TimeUnit

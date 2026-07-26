@@ -1,18 +1,21 @@
 # Logging Manual First Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** `bluetape4k-logging`을 source/test 기반 bilingual chapter와 canonical diagram을 갖춘 manual-first reference로 게시한다.
 
 **Architecture:** Projects의 `docs/manual`이 문서와 diagram 원본을 소유하고 schema v2 manifest가 inventory를 선언한다. Site는 Projects commit을 deterministic snapshot으로 동기화하며 blog는 manual route를 참조하는 파생 글로 유지한다.
 
-**Tech Stack:** Markdown, YAML, Kotlin source/tests, SVG, CairoSVG, Ruby/Minitest manual validator, Node.js snapshot tests, Astro/Starlight
+**Tech
+Stack:** Markdown, YAML, Kotlin source/tests, SVG, CairoSVG, Ruby/Minitest manual validator, Node.js snapshot tests, Astro/Starlight
 
 ---
 
 ### Task 1: Core 명칭과 Logging landing/chapter inventory
 
 **Files:**
+
 - Modify: `docs/manual/{ko,en}/modules/bluetape4k-core.md`
 - Modify: `docs/manual/{ko,en}/modules/bluetape4k-logging.md`
 - Create: `docs/manual/{ko,en}/modules/bluetape4k-logging/{logger-foundation,lazy-messages,scoped-mdc,coroutine-mdc,async-channel,operations-recipes}.md`
@@ -21,11 +24,13 @@
 - [ ] **Step 2:** Logging landing에 선택 지도와 6개 chapter 학습 경로를 작성한다.
 - [ ] **Step 3:** KO chapter 6개를 current source/test 링크와 독립 실행 예제로 작성한다.
 - [ ] **Step 4:** EN chapter 6개를 의미·순서 parity로 작성한다.
-- [ ] **Step 5:** `ruby scripts/manual/validate_manuals.rb`를 실행해 아직 manifest 미등록 chapter가 orphan이 아닌지 확인하고 다음 task로 진행한다.
+- [ ] **Step
+  5:** `ruby scripts/manual/validate_manuals.rb`를 실행해 아직 manifest 미등록 chapter가 orphan이 아닌지 확인하고 다음 task로 진행한다.
 
 ### Task 2: Canonical logging diagrams
 
 **Files:**
+
 - Create: `docs/manual/assets/logging/logger-api-map.{svg,png}`
 - Create: `docs/manual/assets/logging/mdc-scope-lifecycle.{svg,png}`
 - Create: `docs/manual/assets/logging/async-channel-sequence.{svg,png}`
@@ -39,6 +44,7 @@
 ### Task 3: Manifest와 Projects verification
 
 **Files:**
+
 - Modify: `docs/manual/manifest.yaml`
 - Modify: `docs/superpowers/checklists/2026-07-12-logging-manual-checklist.md`
 
@@ -51,6 +57,7 @@
 ### Task 4: Site snapshot과 derived blog
 
 **Files:**
+
 - Generated: `bluetape4k.github.io/src/content/docs/{ko/,}manual/bluetape4k-projects/**`
 - Generated: `bluetape4k.github.io/public/manual-assets/bluetape4k-projects/logging/**`
 - Modify: `bluetape4k.github.io/src/content/docs/{ko/,}blog/bluetape4k-projects-part2-core-coroutines-tests.mdx`

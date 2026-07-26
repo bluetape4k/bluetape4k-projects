@@ -1,5 +1,6 @@
 package io.bluetape4k.resilience4j.cache
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.concurrent.futureOf
 import io.bluetape4k.concurrent.onSuccess
@@ -10,7 +11,6 @@ import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
 import io.github.resilience4j.cache.Cache
 import kotlinx.coroutines.delay
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture

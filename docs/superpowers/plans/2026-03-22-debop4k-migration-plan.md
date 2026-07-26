@@ -14,7 +14,7 @@
 
 - **complexity: low**
 - `bluetape4k/core/build.gradle.kts`에 `compileOnly(Libs.lz4_java)` 추가 (XXHasher용)
-- 기존 의존성 확인: eclipse-collections(있음), commons-compress(있음, ZipCompressor에는 불필요)
+- 기존 의존성 확인: eclipse-collections (있음), commons-compress (있음, ZipCompressor에는 불필요)
 
 ### Task 1.2: 패키지 디렉토리 생성
 
@@ -72,7 +72,7 @@
 - **변환 내용**:
     - io/io 모듈의 `Compressor` 인터페이스에 의존하지 않고 독립 구현
     - `compress(ByteArray?): ByteArray` / `decompress(ByteArray?): ByteArray` 직접 정의
-    - debop4k 유틸(`emptyByteArray`, `isNullOrEmpty`, `fastByteArrayOutputStreamOf`,
+  - debop4k 유틸 (`emptyByteArray`, `isNullOrEmpty`, `fastByteArrayOutputStreamOf`,
       `toByteArray`) → 표준 Kotlin/bluetape4k 유틸로 대체
     - `ByteArrayOutputStream` 직접 사용
     - KDoc 한국어 작성
@@ -306,22 +306,22 @@ Phase 6 (검증)
 
 ## 예상 산출물
 
-| 카테고리          | 파일 수 |
-|---------------|------|
-| 소스 코드 (main)  | 13개  |
-| 테스트 코드 (test) | ~50개 |
-| 빌드 설정 변경      | 1개   |
-| **합계**        | ~64개 |
+| 카테고리           | 파일 수 |
+|--------------------|---------|
+| 소스 코드 (main)   | 13개    |
+| 테스트 코드 (test) | ~50개   |
+| 빌드 설정 변경     | 1개     |
+| **합계**           | ~64개   |
 
 ## 리스크 및 완화 전략
 
-| 리스크                                             | 확률 | 영향 | 완화                                |
-|-------------------------------------------------|----|----|-----------------------------------|
-| Permutation의 sorted()에서 FastList.sortThis() 미존재 | 높음 | 중  | `toMutableList().sortedWith()` 대체 |
-| XXHasher thread-safety 미비                       | 높음 | 높  | ThreadLocal 패턴 적용                 |
-| ZipFileSupport Zip Slip 취약점                     | 중간 | 높  | canonicalPath 검증 추가               |
-| BoundedStack insert 재귀 stack overflow           | 낮음 | 중  | 반복문 변환                            |
-| Permutation 테스트 41개 변환 누락                       | 중간 | 중  | 체크리스트 기반 진행                       |
+| 리스크                                                | 확률 | 영향 | 완화                                |
+|-------------------------------------------------------|------|------|-------------------------------------|
+| Permutation의 sorted()에서 FastList.sortThis() 미존재 | 높음 | 중   | `toMutableList().sortedWith()` 대체 |
+| XXHasher thread-safety 미비                           | 높음 | 높   | ThreadLocal 패턴 적용               |
+| ZipFileSupport Zip Slip 취약점                        | 중간 | 높   | canonicalPath 검증 추가             |
+| BoundedStack insert 재귀 stack overflow               | 낮음 | 중   | 반복문 변환                         |
+| Permutation 테스트 41개 변환 누락                     | 중간 | 중   | 체크리스트 기반 진행                |
 
 ## Phase 2~5 병렬화 가능 여부
 

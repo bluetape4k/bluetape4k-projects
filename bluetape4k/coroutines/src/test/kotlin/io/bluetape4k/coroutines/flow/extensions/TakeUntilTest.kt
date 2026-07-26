@@ -3,6 +3,8 @@ package io.bluetape4k.coroutines.flow.extensions
 import app.cash.turbine.test
 import io.bluetape4k.assertions.coroutines.assertError
 import io.bluetape4k.assertions.coroutines.assertResult
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.emptyFlow
@@ -11,8 +13,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 

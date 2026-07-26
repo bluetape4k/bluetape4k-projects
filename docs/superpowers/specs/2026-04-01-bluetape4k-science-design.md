@@ -15,15 +15,15 @@ debop4k-science 모듈의 GIS 좌표계, NetCDF 과학 데이터, Shapefile 처�
 
 ### 범위
 
-| 범위 | 포함 여부 |
-|------|-----------|
-| GIS 좌표계 (BoundingBox, GeoLocation, DM/DMS, UTM) | O |
-| Geometry 연산 (각도, 거리, 면적, 교차점) | O |
-| 좌표 프로젝션 (UTM <-> WGS84) | O |
-| Shapefile 읽기/파싱 | O |
-| NetCDF 파일 읽기 | O |
-| DB 적재 파이프라인 (PostGIS) | O (Phase 2) |
-| 기존 utils/geo 모듈 변경 | X (독립 유지) |
+| 범위                                               | 포함 여부     |
+|----------------------------------------------------|---------------|
+| GIS 좌표계 (BoundingBox, GeoLocation, DM/DMS, UTM) | O             |
+| Geometry 연산 (각도, 거리, 면적, 교차점)           | O             |
+| 좌표 프로젝션 (UTM <-> WGS84)                      | O             |
+| Shapefile 읽기/파싱                                | O             |
+| NetCDF 파일 읽기                                   | O             |
+| DB 적재 파이프라인 (PostGIS)                       | O (Phase 2)   |
+| 기존 utils/geo 모듈 변경                           | X (독립 유지) |
 
 ---
 
@@ -31,19 +31,20 @@ debop4k-science 모듈의 GIS 좌표계, NetCDF 과학 데이터, Shapefile 처�
 
 ### 후보 분석
 
-| 후보 | 장점 | 단점 | 결정 |
-|------|------|------|------|
-| `bluetape4k-science` | 원본 이름 유지, NetCDF 포함 | "science"가 너무 넓은 의미 | **채택** |
-| `bluetape4k-gis` | GIS 도메인 명확 | NetCDF는 GIS에 국한되지 않음 | 후보 2 |
-| `bluetape4k-geospatial` | 정확한 도메인 표현 | 이름이 김, 기상 데이터 포함 어색 | 탈락 |
-| `bluetape4k-spatial` | 짧고 범용적 | PostGIS spatial과 혼동 가능 | 탈락 |
+| 후보                    | 장점                        | 단점                             | 결정     |
+|-------------------------|-----------------------------|----------------------------------|----------|
+| `bluetape4k-science`    | 원본 이름 유지, NetCDF 포함 | "science"가 너무 넓은 의미       | **채택** |
+| `bluetape4k-gis`        | GIS 도메인 명확             | NetCDF는 GIS에 국한되지 않음     | 후보 2   |
+| `bluetape4k-geospatial` | 정확한 도메인 표현          | 이름이 김, 기상 데이터 포함 어색 | 탈락     |
+| `bluetape4k-spatial`    | 짧고 범용적                 | PostGIS spatial과 혼동 가능      | 탈락     |
 
 ### 결정: `bluetape4k-science`
 
 **근거**:
+
 1. NetCDF는 기상, 해양, 대기과학 등 과학 데이터 포맷으로 GIS에 국한되지 않음
 2. 원본 debop4k-science의 이름과 일관성 유지
-3. 향후 과학 계산 기능(수치 해석, 통계 등) 확장 여지
+3. 향후 과학 계산 기능 (수치 해석, 통계 등) 확장 여지
 4. utils/geo와 역할이 명확히 구분됨 (geo = geocode/geohash/geoip, science = 공간분석/과학데이터)
 
 ### 위치
@@ -110,23 +111,23 @@ const val postgis_jdbc = "net.postgis:postgis-jdbc:2024.1.0"
 
 ### 제거 대상 (debop4k에서 사용했으나 불필요)
 
-| 기존 | 대체 | 이유 |
-|------|------|------|
-| `com.jhlabs:javaproj:1.0.6` | `org.locationtech.proj4j:proj4j:1.3.0` | LocationTech 공식 후속 프로젝트 |
-| `org.jscience:jscience:4.3.1` | 제거 | UTM 좌표 변환은 직접 구현으로 충분 |
-| `org.jblas:jblas:1.2.4` | 제거 | 행렬 연산 미사용 (필요 시 commons-math3) |
-| `org.eclipse.collections` | `kotlin.collections` | Kotlin stdlib로 대체 |
-| `com.vividsolutions:jts` | `org.locationtech.jts:jts-core` | LocationTech JTS가 공식 후속 |
+| 기존                          | 대체                                   | 이유                                     |
+|-------------------------------|----------------------------------------|------------------------------------------|
+| `com.jhlabs:javaproj:1.0.6`   | `org.locationtech.proj4j:proj4j:1.3.0` | LocationTech 공식 후속 프로젝트          |
+| `org.jscience:jscience:4.3.1` | 제거                                   | UTM 좌표 변환은 직접 구현으로 충분       |
+| `org.jblas:jblas:1.2.4`       | 제거                                   | 행렬 연산 미사용 (필요 시 commons-math3) |
+| `org.eclipse.collections`     | `kotlin.collections`                   | Kotlin stdlib로 대체                     |
+| `com.vividsolutions:jts`      | `org.locationtech.jts:jts-core`        | LocationTech JTS가 공식 후속             |
 
 ### 라이브러리 버전 상세
 
-| 라이브러리 | 버전 | 릴리즈 | 라이선스 | 비고 |
-|------------|------|--------|----------|------|
-| UCAR netcdfAll | 5.6.0 | 2024-08 | BSD-3 | 순수 Java, ARM64 호환 |
-| GeoTools | 31.6 | 2025-01 | LGPL 2.1 | **주의: LGPL** |
-| JTS Core | 1.20.0 | 2024-03 | EPL 2.0 + BSD | 기존 사용 중 |
-| Proj4J | 1.3.0 | 2024-02 | Apache 2.0 | LocationTech 프로젝트 |
-| ESRI Geometry API | 2.2.4 | 2022-09 | Apache 2.0 | 선택적 의존 |
+| 라이브러리        | 버전   | 릴리즈  | 라이선스      | 비고                  |
+|-------------------|--------|---------|---------------|-----------------------|
+| UCAR netcdfAll    | 5.6.0  | 2024-08 | BSD-3         | 순수 Java, ARM64 호환 |
+| GeoTools          | 31.6   | 2025-01 | LGPL 2.1      | **주의: LGPL**        |
+| JTS Core          | 1.20.0 | 2024-03 | EPL 2.0 + BSD | 기존 사용 중          |
+| Proj4J            | 1.3.0  | 2024-02 | Apache 2.0    | LocationTech 프로젝트 |
+| ESRI Geometry API | 2.2.4  | 2022-09 | Apache 2.0    | 선택적 의존           |
 
 ---
 
@@ -172,19 +173,20 @@ io.bluetape4k.science/
 
 ### 5.1 좌표계 (coords/)
 
-| 클래스/함수 | 설명 | 소스 |
-|-------------|------|------|
-| `BoundingBox` | 위경도 사각 영역, `data class`로 재설계 | BoundingBox.kt (Java + Kotlin 통합) |
-| `GeoLocation` | 위경도 좌표, `data class` 유지 | GeoLocation.kt |
-| `DM` / `DMS` | 도분, 도분초 좌표 표현 | DM.kt, DMS.kt |
-| `UtmZone` | UTM Zone 표현 | UtmZone.kt |
-| `Double.toDM()` / `Double.toDMS()` | 10진도 -> DM/DMS 변환 | Geometryx.kt 분리 |
-| `DM.toDegree()` / `DMS.toDegree()` | DM/DMS -> 10진도 변환 | Geometryx.kt 분리 |
-| `utmZoneOf()` | UTM Zone 팩토리 (위경도, 문자열 파싱) | UtmZonex.kt |
-| `UtmZone.boundingBox()` | UTM Zone -> BoundingBox 변환 | UtmZonex.kt |
-| `UtmZone.cellBbox()` | UTM Zone 내 셀 BoundingBox | UtmZonex.kt |
+| 클래스/함수                        | 설명                                    | 소스                                |
+|------------------------------------|-----------------------------------------|-------------------------------------|
+| `BoundingBox`                      | 위경도 사각 영역, `data class`로 재설계 | BoundingBox.kt (Java + Kotlin 통합) |
+| `GeoLocation`                      | 위경도 좌표, `data class` 유지          | GeoLocation.kt                      |
+| `DM` / `DMS`                       | 도분, 도분초 좌표 표현                  | DM.kt, DMS.kt                       |
+| `UtmZone`                          | UTM Zone 표현                           | UtmZone.kt                          |
+| `Double.toDM()` / `Double.toDMS()` | 10진도 -> DM/DMS 변환                   | Geometryx.kt 분리                   |
+| `DM.toDegree()` / `DMS.toDegree()` | DM/DMS -> 10진도 변환                   | Geometryx.kt 분리                   |
+| `utmZoneOf()`                      | UTM Zone 팩토리 (위경도, 문자열 파싱)   | UtmZonex.kt                         |
+| `UtmZone.boundingBox()`            | UTM Zone -> BoundingBox 변환            | UtmZonex.kt                         |
+| `UtmZone.cellBbox()`               | UTM Zone 내 셀 BoundingBox              | UtmZonex.kt                         |
 
 **마이그레이션 변경사항**:
+
 - `AbstractValueObject` 상속 제거 -> `data class` 전환 (BoundingBox)
 - `debop4k.core.utils.hashOf` -> `Objects.hash()` 또는 data class 자동 생성
 - `debop4k.core.utils.min`/`max` 확장 -> `kotlin.coerceIn()` / `minOf()` / `maxOf()`
@@ -194,42 +196,43 @@ io.bluetape4k.science/
 
 ### 5.2 Geometry 연산 (geometry/)
 
-| 함수 | 설명 |
-|------|------|
-| `angleOf(p1, p2)` | 두 점 사이 각도 (degree) |
-| `distanceOf(p1, p2)` | 두 점 사이 거리 |
-| `vectorOf(degree, distance)` | 벡터 생성 |
-| `Point2D.endPoint(vector)` | 벡터 끝점 계산 |
-| `Polygon.area()` | 다각형 면적 |
-| `Polygon.centerOfGravity()` | 무게 중심 |
-| `getIntersectPoint(l1, l2)` | 두 선분 교차점 |
-| `getLineNPoints(line, n)` | 선분 N등분 |
-| `rotateXYPoint(point, degree, base)` | 점 회전 |
-| `checkPositionPoint(point, bbox)` | BoundingBox 내 위치 보정 |
-| `Double.isValidLatitude()` / `isValidLongitude()` | 위경도 유효성 검증 |
-| `bboxOf(bboxStr)` | BoundingBox 문자열 파싱 |
+| 함수                                              | 설명                     |
+|---------------------------------------------------|--------------------------|
+| `angleOf(p1, p2)`                                 | 두 점 사이 각도 (degree) |
+| `distanceOf(p1, p2)`                              | 두 점 사이 거리          |
+| `vectorOf(degree, distance)`                      | 벡터 생성                |
+| `Point2D.endPoint(vector)`                        | 벡터 끝점 계산           |
+| `Polygon.area()`                                  | 다각형 면적              |
+| `Polygon.centerOfGravity()`                       | 무게 중심                |
+| `getIntersectPoint(l1, l2)`                       | 두 선분 교차점           |
+| `getLineNPoints(line, n)`                         | 선분 N등분               |
+| `rotateXYPoint(point, degree, base)`              | 점 회전                  |
+| `checkPositionPoint(point, bbox)`                 | BoundingBox 내 위치 보정 |
+| `Double.isValidLatitude()` / `isValidLongitude()` | 위경도 유효성 검증       |
+| `bboxOf(bboxStr)`                                 | BoundingBox 문자열 파싱  |
 
 ### 5.3 좌표 프로젝션 (projection/)
 
-| 함수 | 설명 |
-|------|------|
+| 함수                                  | 설명              |
+|---------------------------------------|-------------------|
 | `utmToWgs84(easting, northing, zone)` | UTM -> WGS84 변환 |
-| `wgs84ToUtm(latitude, longitude)` | WGS84 -> UTM 변환 |
-| `transform(source, target, coord)` | 임의 CRS 간 변환 |
+| `wgs84ToUtm(latitude, longitude)`     | WGS84 -> UTM 변환 |
+| `transform(source, target, coord)`    | 임의 CRS 간 변환  |
 
 **변경사항**: `com.jhlabs:javaproj` -> `org.locationtech.proj4j:proj4j:1.3.0` 전환. Proj4J는 EPSG 코드 기반 CRS 생성을 지원하므로 더 정확하고 다양한 프로젝션 지원.
 
 ### 5.4 Shapefile 처리 (shapefile/)
 
-| 클래스/함수 | 설명 |
-|-------------|------|
-| `Shape` | Shapefile 전체 구조 (header + records + attributes) |
-| `ShapeRecord` | 개별 레코드 (번호, 타입, BoundingBox, Geometry) |
-| `ShapeHeader` | 파일 헤더 |
-| `ShapeAttribute` | DBF 속성 |
-| `loadShape(file)` | Shapefile 읽기 (shp + dbf + shx) |
+| 클래스/함수       | 설명                                                |
+|-------------------|-----------------------------------------------------|
+| `Shape`           | Shapefile 전체 구조 (header + records + attributes) |
+| `ShapeRecord`     | 개별 레코드 (번호, 타입, BoundingBox, Geometry)     |
+| `ShapeHeader`     | 파일 헤더                                           |
+| `ShapeAttribute`  | DBF 속성                                            |
+| `loadShape(file)` | Shapefile 읽기 (shp + dbf + shx)                    |
 
 **변경사항**:
+
 - `com.vividsolutions.jts` -> `org.locationtech.jts` (패키지 변경만)
 - GeoTools `gt-shapefile:15.0` -> `31.6` (API 변경 대응 필요)
 - Java 클래스 (`Shape.java`, `ShapeAttribute.java` 등) -> Kotlin data class 통합
@@ -237,18 +240,19 @@ io.bluetape4k.science/
 
 ### 5.5 NetCDF 처리 (netcdf/)
 
-| 함수 | 설명 |
-|------|------|
-| `NetCdfReader.open(path)` | NetCDF 파일 열기 |
-| `NetCdfReader.openInMemory(path)` | 메모리 로딩 |
-| `NetCdfReader.canRead(file)` | 파일 읽기 가능 여부 |
-| `Variable.readIntArray()` | 정수 배열 읽기 (확장 함수) |
-| `Variable.readDoubleArray()` | 실수 배열 읽기 (확장 함수) |
-| `Variable.readNDArray()` | N차원 배열 읽기 |
-| `NetcdfFile.getInformation()` | 파일 정보 문자열 |
-| `NetcdfFile.variableFlow()` | Variable을 Kotlin Flow로 스트리밍 |
+| 함수                              | 설명                              |
+|-----------------------------------|-----------------------------------|
+| `NetCdfReader.open(path)`         | NetCDF 파일 열기                  |
+| `NetCdfReader.openInMemory(path)` | 메모리 로딩                       |
+| `NetCdfReader.canRead(file)`      | 파일 읽기 가능 여부               |
+| `Variable.readIntArray()`         | 정수 배열 읽기 (확장 함수)        |
+| `Variable.readDoubleArray()`      | 실수 배열 읽기 (확장 함수)        |
+| `Variable.readNDArray()`          | N차원 배열 읽기                   |
+| `NetcdfFile.getInformation()`     | 파일 정보 문자열                  |
+| `NetcdfFile.variableFlow()`       | Variable을 Kotlin Flow로 스트리밍 |
 
 **변경사항**:
+
 - UCAR `4.x` -> `5.6.0` (API 대폭 변경: `NetcdfFile.open()` -> `NetcdfFiles.open()`)
 - `Eclipse Collections IntArrayList` 등 -> `IntArray` / `DoubleArray` (Kotlin 원시 배열)
 - object 메서드 -> 확장 함수 패턴으로 리팩토링
@@ -260,23 +264,23 @@ io.bluetape4k.science/
 
 ### 현재 데이터 (debop4k-science/data)
 
-| 디렉토리 | 내용 | 크기 | 활용 |
-|----------|------|------|------|
-| `data/netcdf/woa05_temp.nc` | World Ocean Atlas 2005 수온 데이터 | ~수 MB | NetCDF 읽기 테스트 |
-| `data/netcdf/MRMS_*.grib2` | 기상 레이더 GRIB2 데이터 | ~수 MB | GRIB2 읽기 테스트 |
-| `data/netcdf/radar/` | 레이더 데이터 | 미확인 | 레이더 데이터 파싱 |
-| `data/netcdf/shrt/` | 단파 복사 데이터 | 미확인 | 과학 데이터 파싱 |
-| `data/shp_v5/harbors/` | 항만 Shapefile | 소량 | Shapefile 읽기 테스트 |
-| `data/shp_v5/oceans/` | 해양 경계 Shapefile | 소량 | 다각형 Shapefile 테스트 |
+| 디렉토리                    | 내용                               | 크기   | 활용                    |
+|-----------------------------|------------------------------------|--------|-------------------------|
+| `data/netcdf/woa05_temp.nc` | World Ocean Atlas 2005 수온 데이터 | ~수 MB | NetCDF 읽기 테스트      |
+| `data/netcdf/MRMS_*.grib2`  | 기상 레이더 GRIB2 데이터           | ~수 MB | GRIB2 읽기 테스트       |
+| `data/netcdf/radar/`        | 레이더 데이터                      | 미확인 | 레이더 데이터 파싱      |
+| `data/netcdf/shrt/`         | 단파 복사 데이터                   | 미확인 | 과학 데이터 파싱        |
+| `data/shp_v5/harbors/`      | 항만 Shapefile                     | 소량   | Shapefile 읽기 테스트   |
+| `data/shp_v5/oceans/`       | 해양 경계 Shapefile                | 소량   | 다각형 Shapefile 테스트 |
 
 ### 최신 샘플 데이터 추가 방안
 
-| 데이터 | 출처 | 용도 |
-|--------|------|------|
+| 데이터                                  | 출처                                                      | 용도                         |
+|-----------------------------------------|-----------------------------------------------------------|------------------------------|
 | Natural Earth Admin Boundaries (1:110m) | [naturalearthdata.com](https://www.naturalearthdata.com/) | 국가/행정구역 경계 Shapefile |
-| ERA5 Sample NetCDF | ECMWF Copernicus | 최신 기상 재분석 데이터 |
-| 대한민국 행정동 경계 (SHP) | 국토정보플랫폼 | 한국 행정경계 테스트 |
-| OpenStreetMap Korea Extract | Geofabrik | 도로/건물 공간 데이터 |
+| ERA5 Sample NetCDF                      | ECMWF Copernicus                                          | 최신 기상 재분석 데이터      |
+| 대한민국 행정동 경계 (SHP)              | 국토정보플랫폼                                            | 한국 행정경계 테스트         |
+| OpenStreetMap Korea Extract             | Geofabrik                                                 | 도로/건물 공간 데이터        |
 
 ### 테스트 데이터 관리 정책
 
@@ -290,13 +294,13 @@ io.bluetape4k.science/
 
 ### 7.1 적재 대상 데이터 분류
 
-| 데이터 | DB 적재 필요성 | 이유 |
-|--------|----------------|------|
-| Shapefile 지리 경계 | **높음** | 공간 쿼리 (ST_Contains, ST_Intersects) 필수 |
-| Shapefile 속성 | **높음** | 경계와 함께 속성 검색 필수 |
-| NetCDF 격자 데이터 | **중간** | 대용량 시계열 -> PostGIS Raster 또는 TimescaleDB |
-| NetCDF 메타데이터 | **높음** | 파일/변수 카탈로그 관리 |
-| GeoLocation/BoundingBox | **높음** | POI, 영역 검색 |
+| 데이터                  | DB 적재 필요성 | 이유                                             |
+|-------------------------|----------------|--------------------------------------------------|
+| Shapefile 지리 경계     | **높음**       | 공간 쿼리 (ST_Contains, ST_Intersects) 필수      |
+| Shapefile 속성          | **높음**       | 경계와 함께 속성 검색 필수                       |
+| NetCDF 격자 데이터      | **중간**       | 대용량 시계열 -> PostGIS Raster 또는 TimescaleDB |
+| NetCDF 메타데이터       | **높음**       | 파일/변수 카탈로그 관리                          |
+| GeoLocation/BoundingBox | **높음**       | POI, 영역 검색                                   |
 
 ### 7.2 PostgreSQL + PostGIS 스키마 초안
 
@@ -441,7 +445,7 @@ bluetape4k-exposed-postgresql (data/exposed-postgresql)
   └─ 공간 쿼리 함수 (기존 ST_* 함수)
 ```
 
-**원칙**: science 모듈 자체는 DB 의존성이 없다. DB 적재 기능은 별도 패키지(`io.bluetape4k.science.exposed`)에 `compileOnly`로 제공하거나, 사용자가 직접 exposed-postgresql과 조합한다.
+**원칙**: science 모듈 자체는 DB 의존성이 없다. DB 적재 기능은 별도 패키지 (`io.bluetape4k.science.exposed`)에 `compileOnly`로 제공하거나, 사용자가 직접 exposed-postgresql과 조합한다.
 
 ### 8.2 Exposed 테이블 설계
 
@@ -521,10 +525,9 @@ object PoiTable : AuditableLongIdTable("poi") {
 **결정**: `exposed-jdbc`만 사용한다. R2DBC는 사용하지 않는다.
 
 **이유**:
-- `bluetape4k-exposed-postgresql`의 PostGIS 컬럼 타입(`GeoPointColumnType`, `GeoGeometryColumnType` 등)은
-  모두 `postgis-jdbc` 기반 JDBC 구현이다.
-- R2DBC PostgreSQL 드라이버(`r2dbc-postgresql`)는 PostGIS geometry 타입 codec을 자동 제공하지 않으므로
-  커스텀 codec 구현이 추가로 필요하다. 이번 scope에서는 다루지 않는다.
+
+- `bluetape4k-exposed-postgresql`의 PostGIS 컬럼 타입 (`GeoPointColumnType`, `GeoGeometryColumnType` 등)은 모두 `postgis-jdbc` 기반 JDBC 구현이다.
+- R2DBC PostgreSQL 드라이버 (`r2dbc-postgresql`)는 PostGIS geometry 타입 codec을 자동 제공하지 않으므로 커스텀 codec 구현이 추가로 필요하다. 이번 scope에서는 다루지 않는다.
 - `newSuspendedTransaction(Dispatchers.IO) { ... }` 패턴으로 JDBC 위에서 suspend 지원을 제공한다.
 
 #### Repository 기반 클래스
@@ -610,21 +613,26 @@ class NetCdfCatalogService(
 #### Import 서비스 설계 상세
 
 **블로킹 I/O 전략**:
+
 - 파일 파싱 (GeoTools/UCAR): `withContext(Dispatchers.IO) { ... }` 감싸기
 - DB 쓰기: `newSuspendedTransaction(Dispatchers.IO) { ... }` 사용
 
 **트랜잭션 경계**:
+
 - 배치 크기: 기본 1000건/트랜잭션 (configurable)
 - 실패 격리: transaction-per-batch (부분 실패 시 해당 배치만 롤백)
 - 중복 방지: `SpatialLayerTable.name` UNIQUE 제약 → 동일 이름 import 시 `IllegalArgumentException`
 
 **취소 처리**:
+
 - 배치 루프마다 `ensureActive()` 호출
 - `CoroutineScope.isActive` 체크로 장시간 import 중단 가능
 
 **재시도 정책**:
+
 - 파일 파싱 실패: 재시도 없음 (파일 자체 문제)
 - DB 쓰기 실패: Resilience4j Retry (3회, 1s 백오프)
+
 ```
 
 ### 8.4 exposed-postgresql 확장 필요 사항
@@ -727,7 +735,7 @@ MULTIPOLYGON 등 혼재된 Geometry 타입을 포함하므로, 단일 generic Ge
    ```
 
 2. `Table.geoGeometry(name)` 확장함수 추가
-   - `GeoExtensions.kt`에 추가:
+    - `GeoExtensions.kt`에 추가:
    ```kotlin
    fun Table.geoGeometry(name: String): Column<net.postgis.jdbc.geometry.Geometry> =
        registerColumn(name, GeoGeometryColumnType())
@@ -741,11 +749,11 @@ MULTIPOLYGON 등 혼재된 Geometry 타입을 포함하므로, 단일 generic Ge
 
 1. `utils/science` 디렉토리 생성, `build.gradle.kts` 작성
 2. `coords/` 패키지 마이그레이션
-   - Java 클래스 제거, Kotlin data class로 통일
-   - `debop4k.core` 의존 -> `io.bluetape4k.core` / Kotlin stdlib 대체
-   - `@Deprecated` 함수 전체 제거
+    - Java 클래스 제거, Kotlin data class로 통일
+    - `debop4k.core` 의존 -> `io.bluetape4k.core` / Kotlin stdlib 대체
+    - `@Deprecated` 함수 전체 제거
 3. `geometry/` 패키지 마이그레이션
-   - `Geometryx.kt` -> 기능별 파일 분리
+    - `Geometryx.kt` -> 기능별 파일 분리
 4. 단위 테스트 작성 (JUnit 5 + bluetape4k-assertions)
 
 ### Phase 2: 좌표 프로젝션 (0.5일)
@@ -766,15 +774,15 @@ MULTIPOLYGON 등 혼재된 Geometry 타입을 포함하므로, 단일 generic Ge
 
 1. `netcdf/` 패키지 마이그레이션
 2. UCAR `4.x` -> `5.6.0` API 변경 대응
-   - `NetcdfFile.open()` -> `NetcdfFiles.open()`
-   - Variable API 변경 확인
+    - `NetcdfFile.open()` -> `NetcdfFiles.open()`
+    - Variable API 변경 확인
 3. Eclipse Collections -> Kotlin 원시 배열
 4. Kotlin Flow 기반 스트리밍 API 추가
 5. 테스트 데이터 (`data/netcdf`) 복사 및 테스트
 
 ### Phase 5: DB 적재 파이프라인 (2일)
 
-> **전제조건**: Phase 0(GeoGeometryColumnType 추가)이 완료된 후 진행
+> **전제조건**: Phase 0 (GeoGeometryColumnType 추가)이 완료된 후 진행
 
 1. exposed-postgresql 모듈 확장 완료 확인 (Phase 0)
 2. Exposed 테이블/Repository 구현
@@ -797,19 +805,20 @@ MULTIPOLYGON 등 혼재된 Geometry 타입을 포함하므로, 단일 generic Ge
 **문제**: GeoTools는 LGPL 2.1 라이선스이다. bluetape4k는 Apache 2.0.
 
 **대응**:
+
 - GeoTools는 `compileOnly` 의존으로 선언 (사용자가 런타임에 직접 추가)
 - Shapefile 처리 없이 좌표계/Geometry 연산만 사용하는 경우 GeoTools 불필요
 - 대안 검토: Apache SIS (Apache 2.0, OGC 표준) -- 단, Shapefile 지원 부족
 
 ### 10.2 ARM64 호환성
 
-| 라이브러리 | ARM64 (Apple Silicon) | 비고 |
-|------------|----------------------|------|
-| UCAR netcdfAll 5.6.0 | **호환** | 순수 Java |
-| GeoTools 31.6 | **호환** | 순수 Java (JAI 제거됨) |
-| JTS Core 1.20 | **호환** | 순수 Java |
-| Proj4J 1.3.0 | **호환** | 순수 Java |
-| ESRI Geometry API | **호환** | 순수 Java |
+| 라이브러리           | ARM64 (Apple Silicon) | 비고                   |
+|----------------------|-----------------------|------------------------|
+| UCAR netcdfAll 5.6.0 | **호환**              | 순수 Java              |
+| GeoTools 31.6        | **호환**              | 순수 Java (JAI 제거됨) |
+| JTS Core 1.20        | **호환**              | 순수 Java              |
+| Proj4J 1.3.0         | **호환**              | 순수 Java              |
+| ESRI Geometry API    | **호환**              | 순수 Java              |
 
 > GeoTools 15.x에서 의존하던 `jai_core`는 31.x에서 제거되었으므로 ARM64 문제 없음.
 
@@ -842,13 +851,13 @@ import org.geotools.data.shapefile.shp.ShapefileReader
 
 ### 10.5 기존 utils/geo와의 중복
 
-| 항목 | utils/geo | utils/science | 비고 |
-|------|-----------|---------------|------|
-| `BoundingBox` | geohash 패키지 내부 | 독립 모델 | **다른 구현** (geo는 geohash 전용) |
-| `GeoLocation` | geoip2 패키지 | 독립 모델 | **다른 구현** (geo는 IP 기반) |
-| `WGS84Point` | geohash 패키지 | 미사용 | geo 전용 |
-| 좌표 변환 | 없음 | DM/DMS/UTM | science 전용 |
-| 공간 쿼리 | 없음 | Geometry 연산 | science 전용 |
+| 항목          | utils/geo           | utils/science | 비고                               |
+|---------------|---------------------|---------------|------------------------------------|
+| `BoundingBox` | geohash 패키지 내부 | 독립 모델     | **다른 구현** (geo는 geohash 전용) |
+| `GeoLocation` | geoip2 패키지       | 독립 모델     | **다른 구현** (geo는 IP 기반)      |
+| `WGS84Point`  | geohash 패키지      | 미사용        | geo 전용                           |
+| 좌표 변환     | 없음                | DM/DMS/UTM    | science 전용                       |
+| 공간 쿼리     | 없음                | Geometry 연산 | science 전용                       |
 
 **결론**: 두 모듈은 도메인이 다르므로 독립 유지한다. geo는 "서비스 기반 위치 조회" (geocode, geohash, geoip), science는 "과학/공간 데이터 처리"에 집중한다.
 
@@ -900,8 +909,8 @@ dependencies {
 
 ### 10.7 GeoTools Maven Repository
 
-GeoTools는 Maven Central에 없으므로 **루트 `build.gradle.kts`의 `allprojects { repositories }` 블록**에
-별도 저장소를 추가해야 한다 (모듈 자체의 `build.gradle.kts`가 아님).
+GeoTools는 Maven Central에 없으므로 **루트 `build.gradle.kts`의 `allprojects { repositories }`
+블록**에 별도 저장소를 추가해야 한다 (모듈 자체의 `build.gradle.kts`가 아님).
 
 ```kotlin
 // 루트 build.gradle.kts
@@ -913,26 +922,26 @@ allprojects {
 }
 ```
 
-> GeoTools 의존성을 사용하는 모듈(science)의 `build.gradle.kts`에만 추가해도 동작하지만,
+> GeoTools 의존성을 사용하는 모듈 (science)의 `build.gradle.kts`에만 추가해도 동작하지만,
 > Gradle 빌드 캐시 일관성을 위해 루트의 `allprojects` 블록에 추가하는 것을 권장한다.
 
 ---
 
 ## 부록: 소스 파일 매핑
 
-| debop4k-science 소스 | bluetape4k-science 대상 | 변환 내용 |
-|---------------------|------------------------|-----------|
-| `gis/coords/BoundingBox.kt` + `.java` | `coords/BoundingBox.kt` | data class 전환, Java 제거 |
-| `gis/coords/GeoLocation.kt` + `.java` | `coords/GeoLocation.kt` | Java 제거, hashOf 제거 |
-| `gis/coords/DM.kt` + `.java` | `coords/DM.kt` | Java 제거 |
-| `gis/coords/DMS.kt` + `.java` | `coords/DMS.kt` | Java 제거 |
-| `gis/coords/UtmZone.kt` + `.java` | `coords/UtmZone.kt` | Java 제거 |
-| `gis/coords/UtmZonex.kt` + `.java` | `coords/UtmZoneSupport.kt` | @Deprecated 제거, 리네임 |
-| `gis/coords/Vector.kt` + `.java` | `coords/Vector.kt` | Java 제거 |
-| `gis/coords/Geometryx.kt` + `.java` | `geometry/` 분할 | 기능별 파일 분리 |
-| `gis/BoundingBoxRelation.kt` | `coords/BoundingBoxRelation.kt` | 그대로 이동 |
-| `gis/projections/Projections.kt` | `projection/Projections.kt` | javaproj -> proj4j |
-| `gis/shapefiles/ShapeFilex.kt` | `shapefile/ShapefileReader.kt` | GeoTools 31.x 대응 |
-| `gis/shapefiles/ShapeModels.kt` | `shapefile/ShapeModels.kt` | JTS 패키지 변경, FastList 제거 |
-| `gis/shapefiles/*.java` | 통합 | Kotlin data class로 통합 |
-| `netcdf/NetCdfReader.kt` | `netcdf/NetCdfReader.kt` | UCAR 5.x, 확장 함수 패턴 |
+| debop4k-science 소스                  | bluetape4k-science 대상         | 변환 내용                      |
+|---------------------------------------|---------------------------------|--------------------------------|
+| `gis/coords/BoundingBox.kt` + `.java` | `coords/BoundingBox.kt`         | data class 전환, Java 제거     |
+| `gis/coords/GeoLocation.kt` + `.java` | `coords/GeoLocation.kt`         | Java 제거, hashOf 제거         |
+| `gis/coords/DM.kt` + `.java`          | `coords/DM.kt`                  | Java 제거                      |
+| `gis/coords/DMS.kt` + `.java`         | `coords/DMS.kt`                 | Java 제거                      |
+| `gis/coords/UtmZone.kt` + `.java`     | `coords/UtmZone.kt`             | Java 제거                      |
+| `gis/coords/UtmZonex.kt` + `.java`    | `coords/UtmZoneSupport.kt`      | @Deprecated 제거, 리네임       |
+| `gis/coords/Vector.kt` + `.java`      | `coords/Vector.kt`              | Java 제거                      |
+| `gis/coords/Geometryx.kt` + `.java`   | `geometry/` 분할                | 기능별 파일 분리               |
+| `gis/BoundingBoxRelation.kt`          | `coords/BoundingBoxRelation.kt` | 그대로 이동                    |
+| `gis/projections/Projections.kt`      | `projection/Projections.kt`     | javaproj -> proj4j             |
+| `gis/shapefiles/ShapeFilex.kt`        | `shapefile/ShapefileReader.kt`  | GeoTools 31.x 대응             |
+| `gis/shapefiles/ShapeModels.kt`       | `shapefile/ShapeModels.kt`      | JTS 패키지 변경, FastList 제거 |
+| `gis/shapefiles/*.java`               | 통합                            | Kotlin data class로 통합       |
+| `netcdf/NetCdfReader.kt`              | `netcdf/NetCdfReader.kt`        | UCAR 5.x, 확장 함수 패턴       |

@@ -1,18 +1,21 @@
 # utils/lingua Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** `x-obsoleted/lingua`를 `utils/lingua`로 승격하여 `bluetape4k-lingua`를 다시 활성화하고, upstream Lingua를 재사용하는 Kotlin DSL wrapper와 `detectAllLanguagesOf(text): Set<Language>` API를 제공한다.
 
-**Architecture:** `utils/lingua`는 thin wrapper 모듈로 유지한다. 기존 `LanguageDetector.kt`, `UnicodeDetector.kt`, `UnicodeSupport.kt`를 승격·복구하고, mixed-language 결과는 Unicode-letter tokenization 후 upstream `LanguageDetector.detectLanguageOf(text)`를 각 토큰에 적용해 non-`UNKNOWN` 언어를 `Set<Language>`로 축약하는 extension으로 노출한다. 짧은 Latin 토큰에서 발생할 수 있는 오탐(`Hello -> SOTHO`)은 confidence 후보가 모호할 때만 제한적으로 보정한다. 문서/README/testlog/superpowers index/TODO를 함께 갱신해 승격 작업을 완결한다.
+**Architecture:** `utils/lingua`는 thin wrapper 모듈로 유지한다. 기존 `LanguageDetector.kt`, `UnicodeDetector.kt`, `UnicodeSupport.kt`를 승격·복구하고, mixed-language 결과는 Unicode-letter tokenization 후 upstream `LanguageDetector.detectLanguageOf(text)`를 각 토큰에 적용해 non-`UNKNOWN` 언어를 `Set<Language>`로 축약하는 extension으로 노출한다. 짧은 Latin 토큰에서 발생할 수 있는 오탐 (`Hello -> SOTHO`)은 confidence 후보가 모호할 때만 제한적으로 보정한다. 문서/README/testlog/superpowers index/TODO를 함께 갱신해 승격 작업을 완결한다.
 
-**Tech Stack:** Kotlin 2.3, Gradle multi-module build, `com.github.pemistahl:lingua`, JUnit 5, bluetape4k-assertions, Bluetape4k KLogging
+**Tech
+Stack:** Kotlin 2.3, Gradle multi-module build, `com.github.pemistahl:lingua`, JUnit 5, bluetape4k-assertions, Bluetape4k KLogging
 
 ---
 
 ## 파일 구조 맵
 
 ### 생성할 파일
+
 - `utils/lingua/build.gradle.kts`
 - `utils/lingua/README.md`
 - `utils/lingua/README.ko.md`
@@ -27,6 +30,7 @@
 - `utils/lingua/src/test/resources/logback-test.xml`
 
 ### 수정할 파일
+
 - `buildSrc/src/main/kotlin/Libs.kt`
 - `README.md`
 - `README.ko.md`
@@ -37,6 +41,7 @@
 - 필요 시 `CLAUDE.md`
 
 ### 명시적 범위 규칙
+
 - 이 작업은 **Testcontainers가 필요 없는 순수 모듈 작업**이다. 관련 테스트를 임의로 추가하지 않는다.
 - `x-obsoleted/lingua/`는 이 PR에서 **삭제하지 않는다**. 활성 모듈 승격과 검증을 먼저 끝내고, 정리 작업은 별도 cleanup PR로 분리한다.
 - `.kt` 파일을 만들거나 수정할 때마다 `ide_diagnostics`로 import/deprecation 문제를 확인하고, 필요 시 `ide_optimize_imports`를 적용한 뒤 compile/test로 진행한다.
@@ -47,10 +52,10 @@
 
 - **complexity**: medium
 - **Files:**
-  - Create: `utils/lingua/build.gradle.kts`
-  - Modify: `buildSrc/src/main/kotlin/Libs.kt`
-  - Create: `utils/lingua/src/test/resources/junit-platform.properties`
-  - Create: `utils/lingua/src/test/resources/logback-test.xml`
+    - Create: `utils/lingua/build.gradle.kts`
+    - Modify: `buildSrc/src/main/kotlin/Libs.kt`
+    - Create: `utils/lingua/src/test/resources/junit-platform.properties`
+    - Create: `utils/lingua/src/test/resources/logback-test.xml`
 
 - [ ] **Step 1: failing compile test를 먼저 정의한다**
 
@@ -84,9 +89,11 @@ class LanguageDetectorBuilderTest: AbstractLinguaTest() {
 - [ ] **Step 2: test가 실패하는지 확인한다**
 
 Run:
+
 ```bash
 ./gradlew :bluetape4k-lingua:compileTestKotlin
 ```
+
 Expected: FAIL with `Project with path ':bluetape4k-lingua' could not be found` 또는 `unresolved reference: allLanguageDetector`
 
 - [ ] **Step 3: `Libs.kt`의 기존 객체에 Lingua 버전과 좌표를 추가한다**
@@ -148,17 +155,21 @@ junit.jupiter.execution.parallel.mode.classes.default=concurrent
 - [ ] **Step 6: 새 모듈이 실제로 자동 등록되는지 확인한다**
 
 Run:
+
 ```bash
 ./gradlew projects | rg "bluetape4k-lingua"
 ```
+
 Expected: output contains `bluetape4k-lingua`
 
 - [ ] **Step 7: compile이 녹색으로 바뀌는지 확인한다**
 
 Run:
+
 ```bash
 ./gradlew :bluetape4k-lingua:compileKotlin :bluetape4k-lingua:compileTestKotlin
 ```
+
 Expected: `BUILD SUCCESSFUL`
 
 - [ ] **Step 8: 이 단계는 아직 커밋하지 않는다**
@@ -171,12 +182,12 @@ Task 1 단독으로는 테스트가 녹색이 아닐 수 있으므로 커밋을 
 
 - **complexity**: medium
 - **Files:**
-  - Create: `utils/lingua/src/main/kotlin/io/bluetape4k/lingua/LanguageDetector.kt`
-  - Create: `utils/lingua/src/main/kotlin/io/bluetape4k/lingua/UnicodeDetector.kt`
-  - Create: `utils/lingua/src/main/kotlin/io/bluetape4k/lingua/UnicodeSupport.kt`
-  - Create: `utils/lingua/src/test/kotlin/io/bluetape4k/lingua/AbstractLinguaTest.kt`
-  - Modify: `utils/lingua/src/test/kotlin/io/bluetape4k/lingua/LanguageDetectorBuilderTest.kt`
-  - Create: `utils/lingua/src/test/kotlin/io/bluetape4k/lingua/UnicodeDetectorTest.kt`
+    - Create: `utils/lingua/src/main/kotlin/io/bluetape4k/lingua/LanguageDetector.kt`
+    - Create: `utils/lingua/src/main/kotlin/io/bluetape4k/lingua/UnicodeDetector.kt`
+    - Create: `utils/lingua/src/main/kotlin/io/bluetape4k/lingua/UnicodeSupport.kt`
+    - Create: `utils/lingua/src/test/kotlin/io/bluetape4k/lingua/AbstractLinguaTest.kt`
+    - Modify: `utils/lingua/src/test/kotlin/io/bluetape4k/lingua/LanguageDetectorBuilderTest.kt`
+    - Create: `utils/lingua/src/test/kotlin/io/bluetape4k/lingua/UnicodeDetectorTest.kt`
 
 - [ ] **Step 1: Unicode 유틸과 DSL 복구 테스트를 확장한다**
 
@@ -267,9 +278,11 @@ class UnicodeDetectorTest: AbstractLinguaTest() {
 - [ ] **Step 2: 테스트가 실패하는지 확인한다**
 
 Run:
+
 ```bash
 ./gradlew :bluetape4k-lingua:test --tests "*LanguageDetectorBuilderTest" --tests "*UnicodeDetectorTest"
 ```
+
 Expected: FAIL with missing source files or missing methods
 
 - [ ] **Step 3: `AbstractLinguaTest.kt`를 추가한다**
@@ -286,7 +299,8 @@ abstract class AbstractLinguaTest {
 
 - [ ] **Step 4: 기존 Kotlin 소스를 KDoc 보존 상태로 복구한다**
 
-`x-obsoleted/lingua/src/main/kotlin/io/bluetape4k/lingua/LanguageDetector.kt`, `UnicodeDetector.kt`, `UnicodeSupport.kt`를 기반으로 **한국어 KDoc을 유지한 채** `utils/lingua/src/main/kotlin/io/bluetape4k/lingua/`로 복사한다. 이 단계에서는 public API KDoc을 생략하거나 축약하지 않는다.
+`x-obsoleted/lingua/src/main/kotlin/io/bluetape4k/lingua/LanguageDetector.kt`, `UnicodeDetector.kt`, `UnicodeSupport.kt`를 기반으로
+**한국어 KDoc을 유지한 채** `utils/lingua/src/main/kotlin/io/bluetape4k/lingua/`로 복사한다. 이 단계에서는 public API KDoc을 생략하거나 축약하지 않는다.
 
 - [ ] **Step 5: `UnicodeSupport.kt`를 복구한다**
 
@@ -406,9 +420,11 @@ Run the IDE diagnostics for `utils/lingua/src/main/kotlin/io/bluetape4k/lingua/*
 - [ ] **Step 8: DSL/Unicode 테스트가 통과하는지 확인한다**
 
 Run:
+
 ```bash
 ./bin/repo-test-summary -- ./gradlew :bluetape4k-lingua:test --tests "*LanguageDetectorBuilderTest" --tests "*UnicodeDetectorTest"
 ```
+
 Expected: PASS
 
 - [ ] **Step 9: `bluetape4k-patterns` 체크를 적용한다**
@@ -428,8 +444,8 @@ git commit -m "feat: lingua 모듈과 DSL 복구"
 
 - **complexity**: high
 - **Files:**
-  - Modify: `utils/lingua/src/main/kotlin/io/bluetape4k/lingua/LanguageDetector.kt`
-  - Create: `utils/lingua/src/test/kotlin/io/bluetape4k/lingua/LanguageDetectorExtensionsTest.kt`
+    - Modify: `utils/lingua/src/main/kotlin/io/bluetape4k/lingua/LanguageDetector.kt`
+    - Create: `utils/lingua/src/test/kotlin/io/bluetape4k/lingua/LanguageDetectorExtensionsTest.kt`
 
 - [ ] **Step 1: mixed-language extension의 실패 테스트를 작성한다**
 
@@ -475,9 +491,11 @@ class LanguageDetectorExtensionsTest: AbstractLinguaTest() {
 - [ ] **Step 2: 실패를 확인한다**
 
 Run:
+
 ```bash
 ./gradlew :bluetape4k-lingua:test --tests "*LanguageDetectorExtensionsTest"
 ```
+
 Expected: FAIL with `unresolved reference: detectAllLanguagesOf`
 
 - [ ] **Step 3: 최소 구현을 추가한다**
@@ -528,9 +546,11 @@ private fun LanguageDetector.detectLanguageOfToken(token: String): Language? {
 - [ ] **Step 4: mixed-language 테스트를 다시 실행한다**
 
 Run:
+
 ```bash
 ./bin/repo-test-summary -- ./gradlew :bluetape4k-lingua:test --tests "*LanguageDetectorExtensionsTest"
 ```
+
 Expected: PASS
 
 - [ ] **Step 5: detector 재사용 가이드를 KDoc으로 보강한다**
@@ -560,12 +580,12 @@ git commit -m "feat: lingua 다중 언어 집합 검출 추가"
 
 - **complexity**: low
 - **Files:**
-  - Create: `utils/lingua/README.md`
-  - Create: `utils/lingua/README.ko.md`
-  - Modify: `README.md`
-  - Modify: `README.ko.md`
-  - Modify: `TODO.md`
-  - Modify: `CLAUDE.md` (if needed)
+    - Create: `utils/lingua/README.md`
+    - Create: `utils/lingua/README.ko.md`
+    - Modify: `README.md`
+    - Modify: `README.ko.md`
+    - Modify: `TODO.md`
+    - Modify: `CLAUDE.md` (if needed)
 
 - [ ] **Step 1: README example을 검증하는 문서 테스트 포인트를 먼저 만든다**
 
@@ -584,6 +604,7 @@ val detector = allLanguageDetector {
 detector.detectAllLanguagesOf("Hello 안녕")
 // expected: setOf(Language.ENGLISH, Language.KOREAN)
 ```
+
 ```
 
 - [ ] **Step 2: 새 모듈 README를 작성한다**
@@ -603,7 +624,9 @@ dependencies {
 ```
 
 ## Architecture
+
 ### Module Overview
+
 ```mermaid
 flowchart TD
     APP[Application] --> DSL[Detector DSL]
@@ -615,6 +638,7 @@ flowchart TD
 ```
 
 ## UML
+
 ```mermaid
 classDiagram
     class LanguageDetector
@@ -627,16 +651,19 @@ classDiagram
 ```
 
 ## Features
+
 - DSL-based detector creation
 - Mixed-language result as `Set<Language>`
 - Unicode helpers
 
 ## Examples
+
 ```kotlin
 val detector = allLanguageDetector {
     withMinimumRelativeDistance(0.0)
 }
 ```
+
 ```
 
 - [ ] **Step 3: 한국어 README를 같은 구조로 작성한다**
@@ -654,6 +681,7 @@ dependencies {
     implementation("io.github.bluetape4k:bluetape4k-lingua:$version")
 }
 ```
+
 ```
 
 - [ ] **Step 4: 루트 README의 dropped 표기를 active 모듈 설명으로 바꾼다**
@@ -675,17 +703,21 @@ dependencies {
 - [ ] **Step 6: 루트 README의 deprecated line이 제거되었는지 확인한다**
 
 Run:
+
 ```bash
 rg -n "~~\*\*lingua\*\*" README.md README.ko.md
 ```
+
 Expected: no matches
 
 - [ ] **Step 7: 문서 예제와 module compile을 함께 검증한다**
 
 Run:
+
 ```bash
 ./gradlew :bluetape4k-lingua:compileKotlin :bluetape4k-lingua:compileTestKotlin
 ```
+
 Expected: `BUILD SUCCESSFUL`
 
 - [ ] **Step 8: 커밋한다**
@@ -701,32 +733,38 @@ git commit -m "docs: lingua 모듈 문서와 루트 목록 갱신"
 
 - **complexity**: medium
 - **Files:**
-  - Modify: `docs/testlogs/2026-04.md`
-  - Modify: `docs/superpowers/index/2026-04.md`
-  - Modify: `docs/superpowers/INDEX.md`
+    - Modify: `docs/testlogs/2026-04.md`
+    - Modify: `docs/superpowers/index/2026-04.md`
+    - Modify: `docs/superpowers/INDEX.md`
 
 - [ ] **Step 1: 변경 모듈 테스트를 전체 실행한다**
 
 Run:
+
 ```bash
 ./bin/repo-test-summary -- ./gradlew :bluetape4k-lingua:test
 ```
+
 Expected: `BUILD SUCCESSFUL` and all lingua tests passing
 
 - [ ] **Step 2: compile 검증을 추가 실행한다**
 
 Run:
+
 ```bash
 ./gradlew :bluetape4k-lingua:compileKotlin :bluetape4k-lingua:compileTestKotlin
 ```
+
 Expected: `BUILD SUCCESSFUL`
 
 - [ ] **Step 3: 전역 회귀 compile 검증을 수행한다**
 
 Run:
+
 ```bash
 ./gradlew build -x test
 ```
+
 Expected: `BUILD SUCCESSFUL`
 
 - [ ] **Step 4: testlog 맨 위에 결과를 기록한다**

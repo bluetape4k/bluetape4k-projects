@@ -1,10 +1,10 @@
 package io.bluetape4k.hibernate.cache.lettuce
 
-import io.bluetape4k.hibernate.cache.lettuce.model.Person
-import io.bluetape4k.hibernate.cache.lettuce.model.VersionedItem
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.hibernate.cache.lettuce.model.Person
+import io.bluetape4k.hibernate.cache.lettuce.model.VersionedItem
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

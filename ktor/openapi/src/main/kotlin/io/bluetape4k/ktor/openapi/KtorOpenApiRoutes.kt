@@ -5,8 +5,8 @@ import io.ktor.server.plugins.openapi.OpenAPIConfig
 import io.ktor.server.plugins.openapi.openAPI
 import io.ktor.server.plugins.swagger.SwaggerConfig
 import io.ktor.server.plugins.swagger.swaggerUI
-import io.ktor.server.routing.openapi.OpenApiDocSource
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.openapi.OpenApiDocSource
 
 /**
  * Adds an OpenAPI documentation endpoint backed by Ktor's official OpenAPI plugin.
@@ -77,9 +77,9 @@ const val DEFAULT_OPENAPI_FILE: String = "openapi/documentation.yaml"
 
 private fun OpenApiDocSource.isDefaultDocumentSource(): Boolean =
     this is OpenApiDocSource.FirstOf &&
-        options.size == 2 &&
-        options[0].isFileSource(DEFAULT_OPENAPI_FILE) &&
-        options[1] is OpenApiDocSource.Routing
+            options.size == 2 &&
+            options[0].isFileSource(DEFAULT_OPENAPI_FILE) &&
+            options[1] is OpenApiDocSource.Routing
 
 private fun OpenApiDocSource.isFileSource(path: String): Boolean =
     this is OpenApiDocSource.File && this.path == path

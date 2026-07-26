@@ -1,9 +1,9 @@
 package io.bluetape4k.opentelemetry.common
 
-import io.opentelemetry.api.common.AttributeKey
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.opentelemetry.api.common.AttributeKey
 import org.junit.jupiter.api.Test
 
 class AttributeKeySupportTest {

@@ -1,16 +1,16 @@
 package io.bluetape4k.jackson3
 
-import io.bluetape4k.json.JsonSerializationException
-import io.bluetape4k.junit5.random.RandomValue
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.json.JsonSerializationException
+import io.bluetape4k.junit5.random.RandomValue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class JacksonSerializerTest: AbstractJsonSerializerTest() {
 

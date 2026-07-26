@@ -1,7 +1,6 @@
 # exposed-inet / exposed-phone -> exposed-core 이관 실행 계획
 
-**날짜**: 2026-03-28
-**Spec**: `docs/superpowers/specs/2026-03-28-exposed-inet-phone-migration-design.md`
+**날짜**: 2026-03-28 **Spec**: `docs/superpowers/specs/2026-03-28-exposed-inet-phone-migration-design.md`
 **소스**: `bluetape4k-experimental/data/exposed-inet/`, `bluetape4k-experimental/data/exposed-phone/`
 **대상**: `bluetape4k-projects/data/exposed-core/`
 
@@ -10,12 +9,14 @@
 ## 사전 검증 결과
 
 - **Exposed 버전**: 양쪽 모두 `org.jetbrains.exposed.v1.*` import 패턴 -- 호환성 문제 없음
-- **패키지 변경**: `io.bluetape4k.exposed.inet` -> `io.bluetape4k.exposed.core.inet`, `io.bluetape4k.exposed.phone` -> `io.bluetape4k.exposed.core.phone`
+- **패키지
+  변경**: `io.bluetape4k.exposed.inet` -> `io.bluetape4k.exposed.core.inet`, `io.bluetape4k.exposed.phone` -> `io.bluetape4k.exposed.core.phone`
 - **`libphonenumber`**: projects Libs.kt에 미존재 -- 추가 필요 (`com.googlecode.libphonenumber:libphonenumber:8.13.52`)
 - **`testcontainers_postgresql`**: exposed-core에 **이미 포함** -- 추가 불필요
 - **`exposed_java_time`**: exposed-phone에서 `api(Libs.exposed_java_time)` 선언되어 있으나, 소스에서 **미사용** -- 이관 시 제외
 - **`KLogging()` companion**: `InetColumnTypes.kt`(2곳), `PhoneNumberColumnType.kt`(1곳)에서 로그 호출 없이 선언만 존재 -- 이관 시 제거
-- **`configurations { testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get()) }`**: exposed-core에 **이미 설정** -- `compileOnly(Libs.libphonenumber)` 추가만으로 테스트에도 자동 전이, `testRuntimeOnly` 불필요
+- **`configurations { testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get()) }`**: exposed-core에
+  **이미 설정** -- `compileOnly(Libs.libphonenumber)` 추가만으로 테스트에도 자동 전이, `testRuntimeOnly` 불필요
 
 ---
 
@@ -44,7 +45,8 @@
   compileOnly(Libs.libphonenumber)
   ```
 - **위치**: 기존 `compileOnly(project(":bluetape4k-crypto"))` 바로 아래
-- **참고**: `testRuntimeOnly(Libs.libphonenumber)` **불필요** -- `configurations { testImplementation.get().extendsFrom(compileOnly.get()) }` 패턴으로 자동 전이
+- **참고**: `testRuntimeOnly(Libs.libphonenumber)`
+  **불필요** -- `configurations { testImplementation.get().extendsFrom(compileOnly.get()) }` 패턴으로 자동 전이
 - **검증**: Gradle sync 성공
 
 ### Task 3: inet 패키지 main 소스 이관 (2개 파일)
@@ -120,7 +122,7 @@
 - **핵심 검증 항목**:
     - `InetColumnTypeTest`: H2 + PostgreSQL에서 IPv4/IPv6/CIDR CRUD
     - `InetPostgresTest`: PostgreSQL 네이티브 INET/CIDR + `<<` 연산자
-    - `PhoneNumberColumnTypeTest`: H2(+PostgreSQL)에서 E.164 정규화 + PhoneNumber 객체 변환
+  - `PhoneNumberColumnTypeTest`: H2 (+PostgreSQL)에서 E.164 정규화 + PhoneNumber 객체 변환
     - 기존 `CompressedColumnTypeTest`, `EncryptColumnTest` 등 **회귀 테스트** 통과
 - **실패 시 대응**:
     - Testcontainers 연결 실패 -> Docker 상태 확인
@@ -134,7 +136,8 @@
 - **작업**: inet/phone 컬럼 타입 설명 추가
     - `inet` 패키지: `InetAddressColumnType`, `CidrColumnType`, `InetContainedByOp` 설명
     - `phone` 패키지: `PhoneNumberColumnType`, `PhoneNumberStringColumnType` 설명
-    - **libphonenumber opt-in 사용법** 추가: 사용자가 phone 컬럼 타입 사용 시 `implementation("com.googlecode.libphonenumber:libphonenumber:8.13.52")` 추가 필요
+  - **libphonenumber opt-in
+    사용법** 추가: 사용자가 phone 컬럼 타입 사용 시 `implementation("com.googlecode.libphonenumber:libphonenumber:8.13.52")` 추가 필요
     - PostgreSQL 전용 `isContainedBy` 확장함수 사용법
 - **검증**: README 내용 정확성 확인
 
@@ -201,35 +204,35 @@ Task 11 (삭제) ────────── Task 12 이후               │
 
 ## 병렬화 가능 그룹
 
-| 그룹           | 태스크                                  | 설명                              |
-|--------------|--------------------------------------|---------------------------------|
-| A (인프라 준비)   | Task 1 + Task 2                      | 순차 실행 (Task 2는 Task 1에 의존)     |
-| B (소스 이관)    | Task 3 + Task 4 + Task 5 + Task 6   | A 완료 후 동시 실행 가능               |
-| C (검증)       | Task 7 -> Task 8                     | A+B 완료 후 순차 실행                 |
-| D (문서)       | Task 9 + Task 10                     | C 완료 후 동시 실행 가능               |
-| E (정리)       | Task 12 -> Task 11                   | C+D 완료 후 순차 실행                 |
+| 그룹            | 태스크                            | 설명                               |
+|-----------------|-----------------------------------|------------------------------------|
+| A (인프라 준비) | Task 1 + Task 2                   | 순차 실행 (Task 2는 Task 1에 의존) |
+| B (소스 이관)   | Task 3 + Task 4 + Task 5 + Task 6 | A 완료 후 동시 실행 가능           |
+| C (검증)        | Task 7 -> Task 8                  | A+B 완료 후 순차 실행              |
+| D (문서)        | Task 9 + Task 10                  | C 완료 후 동시 실행 가능           |
+| E (정리)        | Task 12 -> Task 11                | C+D 완료 후 순차 실행              |
 
 ---
 
 ## Critic 검토 반영 추적표
 
-| Critic 지적 사항 | 반영 태스크 | 반영 내용 |
-|----------------|----------|---------|
-| `KLogging()` 제거 검토 | Task 3, 4 | 로그 호출 없는 3개 companion object 제거 |
-| `testRuntimeOnly(Libs.libphonenumber)` 불필요 | Task 2 | `compileOnly`만 추가, `extendsFrom` 패턴 활용 |
-| `exposed_java_time` 미사용 | Task 4 | 이관 시 제외 |
-| README에 libphonenumber opt-in 사용법 추가 | Task 9 | opt-in 의존성 추가 안내 포함 |
+| Critic 지적 사항                              | 반영 태스크 | 반영 내용                                     |
+|-----------------------------------------------|-------------|-----------------------------------------------|
+| `KLogging()` 제거 검토                        | Task 3, 4   | 로그 호출 없는 3개 companion object 제거      |
+| `testRuntimeOnly(Libs.libphonenumber)` 불필요 | Task 2      | `compileOnly`만 추가, `extendsFrom` 패턴 활용 |
+| `exposed_java_time` 미사용                    | Task 4      | 이관 시 제외                                  |
+| README에 libphonenumber opt-in 사용법 추가    | Task 9      | opt-in 의존성 추가 안내 포함                  |
 
 ---
 
 ## 위험 요소 및 완화 방안
 
-| 위험 | 확률 | 완화 |
-|------|------|------|
-| Docker 미실행으로 PostgreSQL 테스트 실패 | 낮음 | Docker 상태 사전 확인, 컴파일만으로 1차 검증 |
-| `requireNotBlank` transitive 의존성 누락 | 매우 낮음 | `bluetape4k-idgenerators` -> `bluetape4k-core`가 이미 api 스코프 |
-| 기존 exposed-core 테스트 회귀 | 매우 낮음 | 기존 소스 무수정, 의존성 추가만 |
-| `InetPostgresTest`에서 `withDb` / `withTables` 패턴 호환성 | 낮음 | `AbstractExposedTest` 동일 사용 패턴 |
+| 위험                                                       | 확률      | 완화                                                             |
+|------------------------------------------------------------|-----------|------------------------------------------------------------------|
+| Docker 미실행으로 PostgreSQL 테스트 실패                   | 낮음      | Docker 상태 사전 확인, 컴파일만으로 1차 검증                     |
+| `requireNotBlank` transitive 의존성 누락                   | 매우 낮음 | `bluetape4k-idgenerators` -> `bluetape4k-core`가 이미 api 스코프 |
+| 기존 exposed-core 테스트 회귀                              | 매우 낮음 | 기존 소스 무수정, 의존성 추가만                                  |
+| `InetPostgresTest`에서 `withDb` / `withTables` 패턴 호환성 | 낮음      | `AbstractExposedTest` 동일 사용 패턴                             |
 
 ---
 

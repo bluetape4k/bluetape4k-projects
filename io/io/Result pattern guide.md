@@ -263,11 +263,11 @@ atomicFileUpdate(Paths.get("data.json")) { content ->
 
 ## 기존 API와 비교
 
-| 기존 API                                   | Result API                                          | 차이점            |
-|------------------------------------------|-----------------------------------------------------|----------------|
-| `createDirectory(path): File?`           | `tryCreateDirectory(path): Result<File>`            | 실패 원인 파악 가능    |
+| 기존 API                                 | Result API                                          | 차이점               |
+|------------------------------------------|-----------------------------------------------------|----------------------|
+| `createDirectory(path): File?`           | `tryCreateDirectory(path): Result<File>`            | 실패 원인 파악 가능  |
 | `readAllBytesAsync(path): CF<ByteArray>` | `tryReadAllBytesAsync(path): CF<Result<ByteArray>>` | 예외를 Result로 래핑 |
-| `file.copyToAsync(target): CF<File>`     | `file.tryCopyToAsync(target): CF<Result<File>>`     | 안전한 비동기 처리     |
+| `file.copyToAsync(target): CF<File>`     | `file.tryCopyToAsync(target): CF<Result<File>>`     | 안전한 비동기 처리   |
 
 ## 언제 사용할까?
 

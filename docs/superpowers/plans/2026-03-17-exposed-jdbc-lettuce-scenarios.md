@@ -1,8 +1,8 @@
 # exposed-jdbc-lettuce Scenario Tests Implementation Plan
 
 > **For agentic workers:
-** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (
-`- [ ]`) syntax for tracking.
+> ** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (
+> `- [ ]`) syntax for tracking.
 
 **Goal:** `exposed-jdbc-redisson`의 `repository/scenarios` 패턴을
 `exposed-jdbc-lettuce`에 이식하여 Read-through / Write-through / Write-behind 캐시 전략별 시나리오 테스트를 작성한다.
@@ -14,7 +14,8 @@
 - Concrete 테스트 클래스: `UserRepository` / `SuspendedUserRepository` 기반으로 각 시나리오 구현
 - `JdbcLettuceRepository` API (save/delete/findById) 기반 — Redisson의 put/invalidate와 다름
 
-**Tech Stack:** Kotlin, JUnit 5, bluetape4k-assertions assertions, H2 in-memory DB, Testcontainers Redis, Lettuce `LettuceLoadedMap`,
+**Tech
+Stack:** Kotlin, JUnit 5, bluetape4k-assertions assertions, H2 in-memory DB, Testcontainers Redis, Lettuce `LettuceLoadedMap`,
 `kotlinx-coroutines-test`
 
 ---
@@ -62,8 +63,8 @@ data/exposed-jdbc-lettuce/src/test/kotlin/io/bluetape4k/exposed/lettuce/
 | `repository.putAll(entities)`          | `repository.saveAll(entities.associateBy { ... })` |
 | `repository.invalidate(id)`            | `repository.delete(id)`                            |
 | `repository.invalidateAll()`           | `repository.clearCache()`                          |
-| `withEntityTable(testDB) { ... }`      | `@BeforeEach` + `@AfterEach` (H2 고정)               |
-| `getExistingId()` / `getExistingIds()` | 동일                                                 |
+| `withEntityTable(testDB) { ... }`      | `@BeforeEach` + `@AfterEach` (H2 고정)             |
+| `getExistingId()` / `getExistingIds()` | 동일                                               |
 | `cacheConfig.isReadOnly`               | `config.writeMode == WriteMode.NONE`               |
 | `cacheConfig.deleteFromDBOnInvalidate` | `config.writeMode != WriteMode.NONE`               |
 

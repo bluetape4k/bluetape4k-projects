@@ -1,8 +1,6 @@
 # utils/images — Image Analysis Design Spec
 
-**Date**: 2026-04-27
-**Issue**: #133
-**Branch**: `feat/issue-133-images-analysis`
+**Date**: 2026-04-27 **Issue**: #133 **Branch**: `feat/issue-133-images-analysis`
 **Worktree**: `.worktrees/feat/issue-133-images-analysis`
 **Module**: `utils/images` (`bluetape4k-images`)
 
@@ -35,11 +33,11 @@ OCR / Face Detection은 **본 PR 범위에서 제외**하며 별도 이슈로 �
 
 ### 2.1 Dominant Color Extraction
 
-| 방식 | 장점 | 단점 | 평가 |
-|------|------|------|------|
-| **(a) Median Cut quantization** | 표준 알고리즘, color-thief-java 검증, O(n·log k), 메모리 효율, k=5 등 정확한 N개 보장 | 직접 구현 필요 (~150 LoC), edge case (단색 이미지) 처리 필요 | **선택** |
-| (b) K-means clustering | 통계적으로 더 균일한 클러스터, 라이브러리 (commons-math) 활용 가능 | k-means 초기 시드 random → 비결정적, 수렴 안 할 수 있음, 느림 (반복) | 보류 |
-| (c) Histogram bucket | 가장 단순, 빠름 (O(n)) | 낮은 정확도 — bin 경계 근처 색상이 분산됨, "비슷한 색"이 한 그룹으로 안 묶임 | 보류 |
+| 방식                            | 장점                                                                                  | 단점                                                                         | 평가     |
+|---------------------------------|---------------------------------------------------------------------------------------|------------------------------------------------------------------------------|----------|
+| **(a) Median Cut quantization** | 표준 알고리즘, color-thief-java 검증, O(n·log k), 메모리 효율, k=5 등 정확한 N개 보장 | 직접 구현 필요 (~150 LoC), edge case (단색 이미지) 처리 필요                 | **선택** |
+| (b) K-means clustering          | 통계적으로 더 균일한 클러스터, 라이브러리 (commons-math) 활용 가능                    | k-means 초기 시드 random → 비결정적, 수렴 안 할 수 있음, 느림 (반복)         | 보류     |
+| (c) Histogram bucket            | 가장 단순, 빠름 (O(n))                                                                | 낮은 정확도 — bin 경계 근처 색상이 분산됨, "비슷한 색"이 한 그룹으로 안 묶임 | 보류     |
 
 **선택: (a) Median Cut**.
 
@@ -48,16 +46,17 @@ OCR / Face Detection은 **본 PR 범위에서 제외**하며 별도 이슈로 �
 - 외부 라이브러리 import 불가 (color-thief-java는 jcenter 종료, 일부 fork만 maven central).
 
 **성능 고려**:
+
 - 큰 이미지는 픽셀 샘플링 (every Nth pixel) — 기본 quality=10 (color-thief-java 디폴트).
 - Alpha=0 픽셀 제외, 거의 흰색/검정 (선택적) 제외 옵션.
 
 ### 2.2 Blur Detection
 
-| 방식 | 장점 | 단점 | 평가 |
-|------|------|------|------|
-| **(a) Laplacian variance** | 표준 (Pech-Pacheco 2000), 직관적 — variance 낮을수록 blur, OpenCV 표준 방법, 단일 패스 | threshold가 이미지 도메인에 따라 다름 (절대값 아님) — 사용자에게 threshold 명시 필요 | **선택** |
-| (b) FFT 주파수 분석 | 더 정확, 노이즈에 강건 | FFT 라이브러리 의존 (commons-math3.transform), 구현 복잡 | 보류 |
-| (c) Tenengrad gradient (Sobel) | Laplacian 변형, 조명 변화에 강건 | Laplacian 대비 이점 미미, 두 패스 필요 | 보류 |
+| 방식                           | 장점                                                                                   | 단점                                                                                 | 평가     |
+|--------------------------------|----------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|----------|
+| **(a) Laplacian variance**     | 표준 (Pech-Pacheco 2000), 직관적 — variance 낮을수록 blur, OpenCV 표준 방법, 단일 패스 | threshold가 이미지 도메인에 따라 다름 (절대값 아님) — 사용자에게 threshold 명시 필요 | **선택** |
+| (b) FFT 주파수 분석            | 더 정확, 노이즈에 강건                                                                 | FFT 라이브러리 의존 (commons-math3.transform), 구현 복잡                             | 보류     |
+| (c) Tenengrad gradient (Sobel) | Laplacian 변형, 조명 변화에 강건                                                       | Laplacian 대비 이점 미미, 두 패스 필요                                               | 보류     |
 
 **선택: (a) Laplacian variance**.
 
@@ -66,15 +65,16 @@ OCR / Face Detection은 **본 PR 범위에서 제외**하며 별도 이슈로 �
 - grayscale 변환은 luminance 공식 `0.299*R + 0.587*G + 0.114*B` (Rec. 601).
 
 **성능 고려**:
+
 - 이미지 크기 dependent. 큰 이미지는 사전 다운샘플링 옵션 (예: max 1024px) — 첫 PR에서는 다운샘플링 옵션 보류, 사용자가 직접 `scale()` 호출.
 
 ### 2.3 EXIF Metadata
 
-| 방식 | 장점 | 단점 | 평가 |
-|------|------|------|------|
-| **(a) metadata-extractor 2.x (drewnoakes)** | EXIF/IPTC/XMP/GPS 광범위, 80개+ 카메라 maker note, 활발한 유지보수, pure Java, 800KB | 외부 의존 (Apache 2.0) | **선택** |
-| (b) scrimage 내장 EXIF | 추가 의존 없음 | scrimage는 EXIF metadata write/preserve만 지원, **파싱 API 없음** (확인됨: `ImageMetadata` 는 directory 단위 raw tag 노출 정도) | 보류 |
-| (c) javax.imageio EXIF | JDK 내장 | 매우 제한적 — JPEG/TIFF만, 일부 tag 누락, GPS 파싱 직접 해야 함 | 보류 |
+| 방식                                        | 장점                                                                                 | 단점                                                                                                                            | 평가     |
+|---------------------------------------------|--------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|----------|
+| **(a) metadata-extractor 2.x (drewnoakes)** | EXIF/IPTC/XMP/GPS 광범위, 80개+ 카메라 maker note, 활발한 유지보수, pure Java, 800KB | 외부 의존 (Apache 2.0)                                                                                                          | **선택** |
+| (b) scrimage 내장 EXIF                      | 추가 의존 없음                                                                       | scrimage는 EXIF metadata write/preserve만 지원, **파싱 API 없음** (확인됨: `ImageMetadata` 는 directory 단위 raw tag 노출 정도) | 보류     |
+| (c) javax.imageio EXIF                      | JDK 내장                                                                             | 매우 제한적 — JPEG/TIFF만, 일부 tag 누락, GPS 파싱 직접 해야 함                                                                 | 보류     |
 
 **선택: (a) metadata-extractor 2.x**.
 
@@ -171,6 +171,7 @@ suspend fun ImmutableImage.suspendDominantColors(
 ```
 
 **검증 규칙**:
+
 - `count >= 1` (require).
 - `count` 가 추출 가능한 색상 수보다 크면 가능한 만큼만 반환 (단색 이미지 → size=1).
 - 픽셀 0개 (alpha=0 전부) → `emptyList()`.
@@ -209,6 +210,7 @@ suspend fun ImmutableImage.suspendBlurScore(threshold: Double = 100.0): BlurScor
 ```
 
 **구현 노트**:
+
 - Laplacian kernel `[[0,1,0],[1,-4,1],[0,1,0]]` 3x3 single-pass convolution.
 - 이미지 boundary 픽셀은 분석에서 제외 (1px border).
 - ImmutableImage → grayscale variance — luminance Rec. 601.
@@ -257,11 +259,13 @@ suspend fun Path.suspendReadExif(): ExifData = withContext(Dispatchers.IO) { rea
 ```
 
 **중요한 결정 — `ImmutableImage.readExif()`는 제공하지 않는다**:
+
 - Scrimage `ImmutableImage` 는 디코딩된 픽셀만 보존하며 EXIF는 `ImageMetadata` 객체로 분리되어 있음.
 - EXIF 추출에는 **원본 byte stream** 이 필요 → `ImmutableImage` 단계에서는 ByteArray 손실.
 - 따라서 EXIF API는 `File`/`Path`/`ByteArray`/`InputStream` 진입점만 제공.
 
 **구현 노트**:
+
 - `metadata-extractor` `Metadata` 객체에서 `ExifIFD0Directory`, `ExifSubIFDDirectory`, `GpsDirectory`, `JpegDirectory` 추출.
 - 누락된 tag는 모두 `null` 처리 (예외 X) — `try` 가드 후 `null`.
 - 손상된 / EXIF 없는 이미지 → `ExifData.EMPTY` 반환 (예외 X).
@@ -293,7 +297,7 @@ dependencies {
 }
 ```
 
-> **결정: `implementation`** — 본 모듈의 공개 API(`ExifData`)는 metadata-extractor 타입을 노출하지 않는다.
+> **결정: `implementation`** — 본 모듈의 공개 API (`ExifData`)는 metadata-extractor 타입을 노출하지 않는다.
 > metadata-extractor는 **필수 런타임 의존성**이다 (optional/compileOnly 아님).
 > 다운스트림이 추가 EXIF 처리를 원하면 별도로 의존성을 선언해야 한다.
 
@@ -333,18 +337,20 @@ dependencies {
 ### Risk 6 — Coroutines: CPU-bound 작업 Dispatcher
 
 - Median Cut / Laplacian convolution은 **CPU-bound** 연산.
-- **결정: `Dispatchers.Default`** — CPU-bound 작업 본질에 맞는 선택. 기존 `suspendBytes`/`suspendWrite`는 실제 I/O이므로 IO Dispatcher가 맞음 — 본 분석 함수는 다름.
+-
+
+**결정: `Dispatchers.Default`** — CPU-bound 작업 본질에 맞는 선택. 기존 `suspendBytes`/`suspendWrite`는 실제 I/O이므로 IO Dispatcher가 맞음 — 본 분석 함수는 다름.
 - `suspend` 변형 전체 (`suspendDominantColors`, `suspendBlurScore`, `suspendReadExif`) 에 `Dispatchers.Default` 적용.
 - (단, `suspendReadExif`는 파일 읽기 포함이므로 `Dispatchers.IO` 유지)
 
 ### Risk 7 — 입력 이미지 크기 / malformed EXIF
 
-- 제한 없는 이미지 입력 → OOM 위험. 100MP RAW 이미지(12000×8000px)에서 Laplacian 전체 픽셀 순회 → 수십 MB 힙 점유.
+- 제한 없는 이미지 입력 → OOM 위험. 100MP RAW 이미지 (12000×8000px)에서 Laplacian 전체 픽셀 순회 → 수십 MB 힙 점유.
 - malformed/조작된 JPEG EXIF → metadata-extractor 내부 무한루프 또는 메모리 폭발 가능성 (버전별 패치 이력 있음).
 - **완화 (이번 PR)**:
-  - `readExif(bytes: ByteArray)`: `require(bytes.size <= 50 * 1024 * 1024)` 가드 (50MB 상한).
-  - metadata-extractor가 던지는 모든 예외 (`ImageProcessingException`, `IOException`, `Exception`) → catch → `ExifData.EMPTY` 반환.
-  - Blur/DominantColor: 사용자 책임 명시 (KDoc에 "큰 이미지는 호출 전 다운샘플링 권장"). 자동 상한은 YAGNI.
+    - `readExif(bytes: ByteArray)`: `require(bytes.size <= 50 * 1024 * 1024)` 가드 (50MB 상한).
+    - metadata-extractor가 던지는 모든 예외 (`ImageProcessingException`, `IOException`, `Exception`) → catch → `ExifData.EMPTY` 반환.
+    - Blur/DominantColor: 사용자 책임 명시 (KDoc에 "큰 이미지는 호출 전 다운샘플링 권장"). 자동 상한은 YAGNI.
 - **완화 (후속)**: `maxPixels` 파라미터 추가 옵션.
 
 ## 6. DoD (Definition of Done)
@@ -407,28 +413,28 @@ dependencies {
 
 ## 7. 초안 Task 목록 (복잡도 라벨)
 
-| # | Task | 복잡도 | 비고 |
-|---|------|--------|------|
-| T01 | `Libs.kt` + `build.gradle.kts` — metadata-extractor 추가 | **low** | 좌표/버전 추가 |
-| T02 | `DominantColor` data class + companion (`fromRgb`) | **low** | 단순 value class |
-| T03 | `MedianCutQuantizer` internal — 5-bit color cube + 박스 분할 알고리즘 | **high** | core algorithm — color-thief-java 참조 자체 구현 (~150 LoC). edge case (단색/투명) 핵심 |
-| T04 | `DominantColorExtractor` sealed interface + `MedianCut` data class | **medium** | T03 호출 wrapping |
-| T05 | `ImmutableImage.dominantColors/dominantColor/suspendDominantColors` extensions | **low** | T04 사용 |
-| T06 | `DominantColorExtractorTest` — fixtures, count 변화, edge case | **medium** | 테스트 데이터 검증 까다로움 |
-| T07 | `BlurScore` data class | **low** | |
-| T08 | `BlurDetector` internal — Laplacian variance grayscale 계산 | **medium** | 3x3 convolution + variance, boundary 처리 |
-| T09 | `ImmutableImage.blurScore/isBlurry/suspendBlurScore` extensions | **low** | |
-| T10 | `BlurDetectorTest` — sharp vs `image.blur()` 흐림 비교 | **medium** | fixture 동적 생성 가능 |
-| T11 | `ExifData` data class (17 필드 + `hasGps` + `EMPTY`) | **low** | |
-| T12 | `ExifData.kt` — metadata-extractor → `ExifData` 변환 (`readExif` 4 진입점) | **medium** | tag null 가드, GPS decimal 변환, LocalDateTime 변환 |
-| T13 | EXIF test fixtures 추가 (`with-gps.jpg`, `no-exif.jpg`, `full-exif.jpg`) + license README | **medium** | 외부 샘플 출처/라이선스 검증 필요 |
-| T14 | `ExifDataTest` — 3 fixture × 다양한 진입점 + `EMPTY` 케이스 | **medium** | |
-| T15 | `SuspendAnalysisTest` — runTest로 suspend 호출 검증 | **low** | |
-| T16 | `README.md` + `README.ko.md` — Image Analysis 섹션 + Mermaid | **medium** | 이중 언어 동기 |
-| T17 | KDoc 보완 (Korean) — 모든 public API | **low** | |
-| T18 | Follow-up issue 3건 등록 (OCR / Face / Classification) | **low** | `gh issue create` |
-| T19 | `code-reviewer` 실행 → HIGH/CRITICAL 해소 | **medium** | |
-| T20 | `:bluetape4k-images:test` 전수 통과 + 결과 보고 | **low** | CI 검증 |
+| #   | Task                                                                                      | 복잡도     | 비고                                                                                    |
+|-----|-------------------------------------------------------------------------------------------|------------|-----------------------------------------------------------------------------------------|
+| T01 | `Libs.kt` + `build.gradle.kts` — metadata-extractor 추가                                  | **low**    | 좌표/버전 추가                                                                          |
+| T02 | `DominantColor` data class + companion (`fromRgb`)                                        | **low**    | 단순 value class                                                                        |
+| T03 | `MedianCutQuantizer` internal — 5-bit color cube + 박스 분할 알고리즘                     | **high**   | core algorithm — color-thief-java 참조 자체 구현 (~150 LoC). edge case (단색/투명) 핵심 |
+| T04 | `DominantColorExtractor` sealed interface + `MedianCut` data class                        | **medium** | T03 호출 wrapping                                                                       |
+| T05 | `ImmutableImage.dominantColors/dominantColor/suspendDominantColors` extensions            | **low**    | T04 사용                                                                                |
+| T06 | `DominantColorExtractorTest` — fixtures, count 변화, edge case                            | **medium** | 테스트 데이터 검증 까다로움                                                             |
+| T07 | `BlurScore` data class                                                                    | **low**    |                                                                                         |
+| T08 | `BlurDetector` internal — Laplacian variance grayscale 계산                               | **medium** | 3x3 convolution + variance, boundary 처리                                               |
+| T09 | `ImmutableImage.blurScore/isBlurry/suspendBlurScore` extensions                           | **low**    |                                                                                         |
+| T10 | `BlurDetectorTest` — sharp vs `image.blur()` 흐림 비교                                    | **medium** | fixture 동적 생성 가능                                                                  |
+| T11 | `ExifData` data class (17 필드 + `hasGps` + `EMPTY`)                                      | **low**    |                                                                                         |
+| T12 | `ExifData.kt` — metadata-extractor → `ExifData` 변환 (`readExif` 4 진입점)                | **medium** | tag null 가드, GPS decimal 변환, LocalDateTime 변환                                     |
+| T13 | EXIF test fixtures 추가 (`with-gps.jpg`, `no-exif.jpg`, `full-exif.jpg`) + license README | **medium** | 외부 샘플 출처/라이선스 검증 필요                                                       |
+| T14 | `ExifDataTest` — 3 fixture × 다양한 진입점 + `EMPTY` 케이스                               | **medium** |                                                                                         |
+| T15 | `SuspendAnalysisTest` — runTest로 suspend 호출 검증                                       | **low**    |                                                                                         |
+| T16 | `README.md` + `README.ko.md` — Image Analysis 섹션 + Mermaid                              | **medium** | 이중 언어 동기                                                                          |
+| T17 | KDoc 보완 (Korean) — 모든 public API                                                      | **low**    |                                                                                         |
+| T18 | Follow-up issue 3건 등록 (OCR / Face / Classification)                                    | **low**    | `gh issue create`                                                                       |
+| T19 | `code-reviewer` 실행 → HIGH/CRITICAL 해소                                                 | **medium** |                                                                                         |
+| T20 | `:bluetape4k-images:test` 전수 통과 + 결과 보고                                           | **low**    | CI 검증                                                                                 |
 
 **총 20 tasks** — high 1, medium 9, low 10.
 
@@ -436,7 +442,8 @@ dependencies {
 
 1. **CPU-bound dispatcher**: **결정 완료** — `Dispatchers.Default` 사용 (분석 연산). `suspendReadExif`만 `Dispatchers.IO` (파일 I/O).
 2. **Blur 다운스케일 옵션**: 본 PR에서는 보류. 사용자 피드백 후 옵션 추가 검토.
-3. **DominantColor palette extraction with weighting**: 현재 `population` 단순 픽셀 수. HSV-aware weighting (saturation 보정) 은 v2.
+3. **DominantColor palette extraction with
+   weighting**: 현재 `population` 단순 픽셀 수. HSV-aware weighting (saturation 보정) 은 v2.
 4. **EXIF 쓰기 (write/preserve)**: 본 PR scope 외. Scrimage가 자체 metadata preserve 지원하므로 별도 이슈로 분리.
 
 ## 9. 참조

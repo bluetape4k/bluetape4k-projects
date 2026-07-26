@@ -1,30 +1,38 @@
 #!/usr/bin/env node
-import { writeFileSync } from "node:fs";
+import {writeFileSync} from "node:fs";
 
 const out = "docs/images/readme-diagrams/infra-opentelemetry-sequence-01.svg";
 const W = 1680;
 const H = 1380;
 const c = {
-  bg: "#F8FAFC",
-  ink: "#1F2937",
-  muted: "#52616B",
-  border: "#D6E2ED",
-  life: "#A8B8C8",
-  call: "#4F83BF",
-  trace: "#2F9E6B",
-  context: "#D08A2D",
-  work: "#C15A7A",
-  result: "#2E9C9B",
-  error: "#C15A5A",
+    bg: "#F8FAFC",
+    ink: "#1F2937",
+    muted: "#52616B",
+    border: "#D6E2ED",
+    life: "#A8B8C8",
+    call: "#4F83BF",
+    trace: "#2F9E6B",
+    context: "#D08A2D",
+    work: "#C15A7A",
+    result: "#2E9C9B",
+    error: "#C15A5A",
 };
 
 const participants = [
-  { id: "caller", x: 100, w: 190, title: "Caller", role: "suspend service", fill: "#DBEAFE", stroke: "#3B82F6" },
-  { id: "tracer", x: 360, w: 190, title: "Tracer", role: "withSpan DSL", fill: "#DCFCE7", stroke: "#22C55E" },
-  { id: "builder", x: 620, w: 210, title: "SpanBuilder", role: "configured span", fill: "#FEF3C7", stroke: "#D97706" },
-  { id: "span", x: 900, w: 190, title: "Span", role: "status + end", fill: "#CCFBF1", stroke: "#14B8A6" },
-  { id: "context", x: 1160, w: 210, title: "OTel Context", role: "coroutine element", fill: "#F3E8FF", stroke: "#9333EA" },
-  { id: "work", x: 1440, w: 190, title: "Coroutine Work", role: "user block", fill: "#FCE7F3", stroke: "#DB2777" },
+    {id: "caller", x: 100, w: 190, title: "Caller", role: "suspend service", fill: "#DBEAFE", stroke: "#3B82F6"},
+    {id: "tracer", x: 360, w: 190, title: "Tracer", role: "withSpan DSL", fill: "#DCFCE7", stroke: "#22C55E"},
+    {id: "builder", x: 620, w: 210, title: "SpanBuilder", role: "configured span", fill: "#FEF3C7", stroke: "#D97706"},
+    {id: "span", x: 900, w: 190, title: "Span", role: "status + end", fill: "#CCFBF1", stroke: "#14B8A6"},
+    {
+        id: "context",
+        x: 1160,
+        w: 210,
+        title: "OTel Context",
+        role: "coroutine element",
+        fill: "#F3E8FF",
+        stroke: "#9333EA"
+    },
+    {id: "work", x: 1440, w: 190, title: "Coroutine Work", role: "user block", fill: "#FCE7F3", stroke: "#DB2777"},
 ];
 
 const xs = Object.fromEntries(participants.map((p) => [p.id, p.x + p.w / 2]));
@@ -34,44 +42,44 @@ const approx = (s) => Math.max(150, s.length * 8.2 + 56);
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 function marker(id, color) {
-  return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="${color}" stroke="${color}" stroke-dasharray="none"/></marker>`;
+    return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="${color}" stroke="${color}" stroke-dasharray="none"/></marker>`;
 }
 
 function pill(n, text, color, x, y, w = approx(text)) {
-  const px = clamp(x, 56, W - w - 56);
-  lines.push(`<rect x="${px}" y="${y - 17}" width="${w}" height="34" rx="17" class="pill" stroke="${color}"/>`);
-  lines.push(`<circle cx="${px + 24}" cy="${y}" r="13" fill="${color}"/>`);
-  lines.push(`<text x="${px + 24}" y="${y + 4}" text-anchor="middle" class="badge">${n}</text>`);
-  lines.push(`<text x="${px + 48}" y="${y + 5}" class="msg" fill="${color}">${esc(text)}</text>`);
+    const px = clamp(x, 56, W - w - 56);
+    lines.push(`<rect x="${px}" y="${y - 17}" width="${w}" height="34" rx="17" class="pill" stroke="${color}"/>`);
+    lines.push(`<circle cx="${px + 24}" cy="${y}" r="13" fill="${color}"/>`);
+    lines.push(`<text x="${px + 24}" y="${y + 4}" text-anchor="middle" class="badge">${n}</text>`);
+    lines.push(`<text x="${px + 48}" y="${y + 5}" class="msg" fill="${color}">${esc(text)}</text>`);
 }
 
 function participant(p) {
-  lines.push(`<rect x="${p.x}" y="160" width="${p.w}" height="76" rx="12" fill="${p.fill}" stroke="${p.stroke}" stroke-width="2.4"/>`);
-  lines.push(`<text x="${p.x + p.w / 2}" y="190" text-anchor="middle" class="participant">${esc(p.title)}</text>`);
-  lines.push(`<text x="${p.x + p.w / 2}" y="214" text-anchor="middle" class="role">${esc(p.role)}</text>`);
-  lines.push(`<line x1="${p.x + p.w / 2}" y1="236" x2="${p.x + p.w / 2}" y2="1260" class="lifeline"/>`);
+    lines.push(`<rect x="${p.x}" y="160" width="${p.w}" height="76" rx="12" fill="${p.fill}" stroke="${p.stroke}" stroke-width="2.4"/>`);
+    lines.push(`<text x="${p.x + p.w / 2}" y="190" text-anchor="middle" class="participant">${esc(p.title)}</text>`);
+    lines.push(`<text x="${p.x + p.w / 2}" y="214" text-anchor="middle" class="role">${esc(p.role)}</text>`);
+    lines.push(`<line x1="${p.x + p.w / 2}" y1="236" x2="${p.x + p.w / 2}" y2="1260" class="lifeline"/>`);
 }
 
 function msg(n, from, to, y, text, color, dashed = false, labelX = null, w = null) {
-  const a = xs[from];
-  const b = xs[to];
-  const start = a < b ? a + 11 : a - 11;
-  const end = a < b ? b - 11 : b + 11;
-  const markerId = `arrow${n}`;
-  lines.push(marker(markerId, color));
-  const dash = dashed ? ` stroke-dasharray="10 8"` : "";
-  lines.push(`<path d="M ${start} ${y} L ${end} ${y}" fill="none" stroke="${color}" stroke-width="${dashed ? 2.8 : 3.2}"${dash} marker-end="url(#${markerId})"/>`);
-  const tw = w ?? approx(text);
-  const lx = labelX ?? (Math.min(start, end) + Math.abs(end - start) / 2 - tw / 2);
-  pill(n, text, color, lx, y - 34, tw);
+    const a = xs[from];
+    const b = xs[to];
+    const start = a < b ? a + 11 : a - 11;
+    const end = a < b ? b - 11 : b + 11;
+    const markerId = `arrow${n}`;
+    lines.push(marker(markerId, color));
+    const dash = dashed ? ` stroke-dasharray="10 8"` : "";
+    lines.push(`<path d="M ${start} ${y} L ${end} ${y}" fill="none" stroke="${color}" stroke-width="${dashed ? 2.8 : 3.2}"${dash} marker-end="url(#${markerId})"/>`);
+    const tw = w ?? approx(text);
+    const lx = labelX ?? (Math.min(start, end) + Math.abs(end - start) / 2 - tw / 2);
+    pill(n, text, color, lx, y - 34, tw);
 }
 
 function selfMsg(n, id, y, text, color, labelX = null, w = null) {
-  const x = xs[id] + 14;
-  const markerId = `arrowSelf${n}`;
-  lines.push(marker(markerId, color));
-  lines.push(`<path d="M ${x} ${y} L ${x + 82} ${y} L ${x + 82} ${y + 38} L ${x + 8} ${y + 38}" fill="none" stroke="${color}" stroke-width="3.0" marker-end="url(#${markerId})"/>`);
-  pill(n, text, color, labelX ?? x + 42, y - 30, w ?? approx(text));
+    const x = xs[id] + 14;
+    const markerId = `arrowSelf${n}`;
+    lines.push(marker(markerId, color));
+    lines.push(`<path d="M ${x} ${y} L ${x + 82} ${y} L ${x + 82} ${y + 38} L ${x + 8} ${y + 38}" fill="none" stroke="${color}" stroke-width="3.0" marker-end="url(#${markerId})"/>`);
+    pill(n, text, color, labelX ?? x + 42, y - 30, w ?? approx(text));
 }
 
 lines.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="title desc">`);

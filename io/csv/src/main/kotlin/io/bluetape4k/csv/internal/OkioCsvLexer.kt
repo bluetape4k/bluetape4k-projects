@@ -18,9 +18,9 @@ internal class OkioCsvLexer(
     private val source: BufferedSource,
     private val settings: CsvSettings,
     private val skipHeaders: Boolean = false,
-) : Iterator<ArrayRecord>, Closeable {
+): Iterator<ArrayRecord>, Closeable {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val BOM_1: Byte = 0xEF.toByte()
         private const val BOM_2: Byte = 0xBB.toByte()
         private const val BOM_3: Byte = 0xBF.toByte()
@@ -29,12 +29,12 @@ internal class OkioCsvLexer(
 
         fun isSupported(settings: CsvSettings): Boolean =
             settings.delimiter.code in 0x00..0x7F &&
-                settings.quote.code in 0x00..0x7F &&
-                settings.delimiter != '\r' &&
-                settings.delimiter != '\n' &&
-                settings.quote != '\r' &&
-                settings.quote != '\n' &&
-                settings.quoteEscape == settings.quote
+                    settings.quote.code in 0x00..0x7F &&
+                    settings.delimiter != '\r' &&
+                    settings.delimiter != '\n' &&
+                    settings.quote != '\r' &&
+                    settings.quote != '\n' &&
+                    settings.quoteEscape == settings.quote
     }
 
     private enum class State {
@@ -152,7 +152,7 @@ internal class OkioCsvLexer(
 
         while (true) {
             when (state) {
-                State.START_FIELD -> {
+                State.START_FIELD     -> {
                     if (source.exhausted()) return handleEof(fields)
                     when (val b = source.readByte()) {
                         quote -> {
@@ -160,12 +160,12 @@ internal class OkioCsvLexer(
                             state = State.IN_QUOTED
                         }
                         delimiter -> appendField(fields)
-                        CR -> {
+                        CR    -> {
                             consumeLfAfterCr()
                             return finalizeRowAtStart(fields)
                         }
-                        LF -> return finalizeRowAtStart(fields)
-                        else -> {
+                        LF    -> return finalizeRowAtStart(fields)
+                        else  -> {
                             state = State.IN_UNQUOTED
                             columnNumber++
                             appendByteToBuffer(b, fields.size)
@@ -173,7 +173,7 @@ internal class OkioCsvLexer(
                     }
                 }
 
-                State.IN_QUOTED -> {
+                State.IN_QUOTED       -> {
                     val terminator = transferUntil(fields, quoteTerminators)
                     if (terminator == null) return handleEof(fields)
                     state = State.QUOTE_IN_QUOTED
@@ -193,23 +193,23 @@ internal class OkioCsvLexer(
                             appendField(fields)
                             state = State.START_FIELD
                         }
-                        CR -> {
+                        CR    -> {
                             consumeLfAfterCr()
                             appendField(fields)
                             return fields
                         }
-                        LF -> {
+                        LF    -> {
                             appendField(fields)
                             return fields
                         }
-                        else -> {
+                        else  -> {
                             state = State.IN_UNQUOTED
                             appendByteToBuffer(b, fields.size)
                         }
                     }
                 }
 
-                State.IN_UNQUOTED -> {
+                State.IN_UNQUOTED     -> {
                     val terminator = transferUntil(fields, unquotedTerminators)
                     if (terminator == null) return handleEof(fields)
                     when (terminator) {

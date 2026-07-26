@@ -2,14 +2,14 @@ package io.bluetape4k.spring.cassandra.cql
 
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.uuid.Uuids
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.domain.DomainTestConfiguration
 import io.bluetape4k.spring.cassandra.domain.model.User
 import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,9 +21,9 @@ import java.util.concurrent.CompletableFuture
 @SpringBootTest(classes = [DomainTestConfiguration::class])
 class AsyncCqlOperationsCoroutinesTest(
     @param:Autowired private val cqlSession: CqlSession,
-) : AbstractCassandraCoroutineTest("async-cql-coroutines") {
+): AbstractCassandraCoroutineTest("async-cql-coroutines") {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     private val cassandraTemplate: AsyncCassandraTemplate by lazy {
         AsyncCassandraTemplate(cqlSession).apply {

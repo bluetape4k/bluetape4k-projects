@@ -1,23 +1,31 @@
 package io.bluetape4k.states.core
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.states.testing.arrives
 import io.bluetape4k.states.testing.assertRejects
 import io.bluetape4k.states.testing.verifyPath
 import io.bluetape4k.states.testing.via
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 
 class StateMachineDslTest {
     companion object: KLogging()
 
-    enum class L { RED, YELLOW, GREEN }
-    sealed class E { data object Next: E() }
+    enum class L {
+        RED,
+        YELLOW,
+        GREEN
+    }
 
-    @Test fun `DSL로 상태 머신을 생성할 수 있다`() {
+    sealed class E {
+        data object Next: E()
+    }
+
+    @Test
+    fun `DSL로 상태 머신을 생성할 수 있다`() {
         val m = stateMachine<L, E> {
             initialState = L.RED
             finalStates = emptySet()
@@ -28,7 +36,8 @@ class StateMachineDslTest {
         m.verifyPath(L.RED via E.Next arrives L.GREEN)
     }
 
-    @Test fun `onTransition 콜백이 호출된다`() {
+    @Test
+    fun `onTransition 콜백이 호출된다`() {
         val log = mutableListOf<String>()
         val m = stateMachine<L, E> {
             initialState = L.RED
@@ -39,7 +48,8 @@ class StateMachineDslTest {
         log shouldContain "RED -> GREEN"
     }
 
-    @Test fun `finalStates 없이 상태 머신을 생성할 수 있다`() {
+    @Test
+    fun `finalStates 없이 상태 머신을 생성할 수 있다`() {
         val m = stateMachine<L, E> {
             initialState = L.RED
             transition(L.RED, on<E.Next>(), to = L.GREEN)
@@ -48,7 +58,8 @@ class StateMachineDslTest {
         m.isInFinalState().shouldBeFalse()
     }
 
-    @Test fun `여러 전이를 등록할 수 있다`() {
+    @Test
+    fun `여러 전이를 등록할 수 있다`() {
         val m = stateMachine<L, E> {
             initialState = L.RED
             transition(L.RED, on<E.Next>(), to = L.GREEN)
@@ -62,7 +73,8 @@ class StateMachineDslTest {
         )
     }
 
-    @Test fun `등록되지 않은 전이에서 예외가 발생한다`() {
+    @Test
+    fun `등록되지 않은 전이에서 예외가 발생한다`() {
         val m = stateMachine<L, E> {
             initialState = L.RED
             finalStates = setOf(L.GREEN)

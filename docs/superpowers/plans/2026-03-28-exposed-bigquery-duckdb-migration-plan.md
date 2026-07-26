@@ -1,7 +1,6 @@
 # exposed-bigquery / exposed-duckdb 이관 실행 계획
 
-**날짜**: 2026-03-28
-**Spec**: `docs/superpowers/specs/2026-03-28-exposed-bigquery-duckdb-migration-design.md`
+**날짜**: 2026-03-28 **Spec**: `docs/superpowers/specs/2026-03-28-exposed-bigquery-duckdb-migration-design.md`
 **소스**: `bluetape4k-experimental/data/exposed-bigquery/`, `bluetape4k-experimental/data/exposed-duckdb/`
 **대상**: `bluetape4k-projects/data/exposed-bigquery/`, `bluetape4k-projects/data/exposed-duckdb/`
 
@@ -21,12 +20,12 @@
 
 ### Critic 검토 반영 요약
 
-| # | 우선순위 | 항목 | 조치 |
-|---|---------|------|------|
-| 1 | 높음 | BigQuery `exposed_jdbc` → `implementation` | `Database.connect()`, `transaction()` 런타임 필수 |
-| 2 | 중간 | BigQuery `exposed_java_time` → `implementation` | `JavaInstantColumnType` 런타임 필수 |
-| 3 | 중간 | `exposed_dao` 제거 | 양쪽 모두 DAO 미사용 확인 |
-| 4 | 낮음 | DuckDB `bluetape4k-testcontainers` 제거 | 인메모리 테스트만 사용 확인 |
+| # | 우선순위 | 항목                                            | 조치                                              |
+|---|----------|-------------------------------------------------|---------------------------------------------------|
+| 1 | 높음     | BigQuery `exposed_jdbc` → `implementation`      | `Database.connect()`, `transaction()` 런타임 필수 |
+| 2 | 중간     | BigQuery `exposed_java_time` → `implementation` | `JavaInstantColumnType` 런타임 필수               |
+| 3 | 중간     | `exposed_dao` 제거                              | 양쪽 모두 DAO 미사용 확인                         |
+| 4 | 낮음     | DuckDB `bluetape4k-testcontainers` 제거         | 인메모리 테스트만 사용 확인                       |
 
 ---
 
@@ -319,28 +318,28 @@ Task 15 (최종 빌드) ─── Task 8 + Task 11 + Task 13 완료 후         
 
 ## 병렬화 가능 그룹
 
-| 그룹 | 태스크 | 설명 |
-|------|--------|------|
-| A (인프라 준비) | Task 1 + Task 2 + Task 3 | 동시 실행 가능 |
-| B (DuckDB 파일) | Task 4 + Task 6 + Task 7 | A 완료 후 동시 실행 가능 |
+| 그룹              | 태스크                    | 설명                                  |
+|-------------------|---------------------------|---------------------------------------|
+| A (인프라 준비)   | Task 1 + Task 2 + Task 3  | 동시 실행 가능                        |
+| B (DuckDB 파일)   | Task 4 + Task 6 + Task 7  | A 완료 후 동시 실행 가능              |
 | C (BigQuery 파일) | Task 5 + Task 9 + Task 10 | A 완료 후 동시 실행 가능 (B와도 병렬) |
-| D (DuckDB 검증) | Task 8 | B 완료 후 (Docker 불필요, 먼저 실행) |
-| E (BigQuery 검증) | Task 11 | C 완료 후 (Docker 필요) |
-| F (문서) | Task 12 + Task 13 | D + E 완료 후 동시 실행 가능 |
-| G (정리) | Task 15 → Task 14 | F 완료 후 순차 실행 |
+| D (DuckDB 검증)   | Task 8                    | B 완료 후 (Docker 불필요, 먼저 실행)  |
+| E (BigQuery 검증) | Task 11                   | C 완료 후 (Docker 필요)               |
+| F (문서)          | Task 12 + Task 13         | D + E 완료 후 동시 실행 가능          |
+| G (정리)          | Task 15 → Task 14         | F 완료 후 순차 실행                   |
 
 ---
 
 ## 위험 요소 및 완화 방안
 
-| 위험 | 확률 | 완화 |
-|------|------|------|
-| Docker 미실행으로 BigQuery 테스트 실패 | 중간 | DuckDB 먼저 검증, BigQuery는 컴파일만으로 1차 검증 가능 |
-| BigQuery Emulator 이미지 pull 지연 | 낮음 | 로컬 캐시 확인, 필요시 사전 pull |
-| `exposed_jdbc` compileOnly 오류 (BigQuery) | **해소** | Critic 반영: `implementation`으로 변경 완료 |
-| `exposed_java_time` 런타임 에러 (BigQuery) | **해소** | Critic 반영: `implementation`으로 변경 완료 |
-| DuckDB native library 로딩 실패 | 낮음 | `--enable-native-access=ALL-UNNAMED` JVM 옵션 설정됨 |
-| exposed-core/exposed-jdbc API 불일치 | 매우 낮음 | 양쪽 Exposed 1.1.1 동일, import 패턴 동일 확인 완료 |
+| 위험                                       | 확률      | 완화                                                    |
+|--------------------------------------------|-----------|---------------------------------------------------------|
+| Docker 미실행으로 BigQuery 테스트 실패     | 중간      | DuckDB 먼저 검증, BigQuery는 컴파일만으로 1차 검증 가능 |
+| BigQuery Emulator 이미지 pull 지연         | 낮음      | 로컬 캐시 확인, 필요시 사전 pull                        |
+| `exposed_jdbc` compileOnly 오류 (BigQuery) | **해소**  | Critic 반영: `implementation`으로 변경 완료             |
+| `exposed_java_time` 런타임 에러 (BigQuery) | **해소**  | Critic 반영: `implementation`으로 변경 완료             |
+| DuckDB native library 로딩 실패            | 낮음      | `--enable-native-access=ALL-UNNAMED` JVM 옵션 설정됨    |
+| exposed-core/exposed-jdbc API 불일치       | 매우 낮음 | 양쪽 Exposed 1.1.1 동일, import 패턴 동일 확인 완료     |
 
 ---
 

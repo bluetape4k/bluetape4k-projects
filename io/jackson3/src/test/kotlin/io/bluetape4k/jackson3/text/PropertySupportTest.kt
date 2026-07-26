@@ -1,10 +1,10 @@
 package io.bluetape4k.jackson3.text
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [getNode] 및 [getNodeOrNull] 확장 함수 테스트

@@ -63,7 +63,7 @@ class VertxHttpClient private constructor(
     ): feign.Response {
         check(Vertx.currentContext()?.isEventLoopContext != true) {
             "VertxHttpClient.execute() must not be called from a Vert.x event loop thread. " +
-            "Use AsyncVertxHttpClient or invoke from a worker/blocking thread."
+                    "Use AsyncVertxHttpClient or invoke from a worker/blocking thread."
         }
         return vertxClient
             .sendAsync(feignRequest, feignOptions)

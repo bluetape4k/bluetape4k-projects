@@ -1,5 +1,7 @@
 package io.bluetape4k.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.coroutines.flow.extensions.bufferedSliding
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -12,11 +14,9 @@ import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 
 class SuspendRingBufferTest {

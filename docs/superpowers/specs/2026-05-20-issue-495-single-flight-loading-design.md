@@ -22,15 +22,15 @@ In scope:
 
 - Add `SingleFlight` under `cache/cache-core/src/main/kotlin/io/bluetape4k/cache/memoizer`.
 - Apply it to:
-  - `InMemoryMemoizer`
-  - `InMemoryAsyncMemoizer`
-  - `InMemorySuspendMemoizer`
+    - `InMemoryMemoizer`
+    - `InMemoryAsyncMemoizer`
+    - `InMemorySuspendMemoizer`
 - Add focused tests for:
-  - same-key single evaluator execution,
-  - evaluator failure recovery,
-  - Java future null completion,
-  - `clear()` during in-flight evaluation,
-  - suspend cancellation cleanup.
+    - same-key single evaluator execution,
+    - evaluator failure recovery,
+    - Java future null completion,
+    - `clear()` during in-flight evaluation,
+    - suspend cancellation cleanup.
 
 Out of scope:
 

@@ -259,7 +259,8 @@ class LettuceSuspendNearCache<V: Any>(
                 arrayOf(rKey),
                 oldValue,
                 newValue
-            ).also { if (it == null) log.warn { "CAS evalsha returned null for key=$rKey — treating as not-replaced" } } ?: 0L
+            ).also { if (it == null) log.warn { "CAS evalsha returned null for key=$rKey — treating as not-replaced" } }
+                ?: 0L
         } catch (_: RedisNoScriptException) {
             commands.eval<Long>(
                 COMPARE_AND_SET_SCRIPT.source,
@@ -267,7 +268,8 @@ class LettuceSuspendNearCache<V: Any>(
                 arrayOf(rKey),
                 oldValue,
                 newValue
-            ).also { if (it == null) log.warn { "CAS eval returned null for key=$rKey — treating as not-replaced" } } ?: 0L
+            ).also { if (it == null) log.warn { "CAS eval returned null for key=$rKey — treating as not-replaced" } }
+                ?: 0L
         }
         val replaced = result == 1L
         if (replaced) {

@@ -1,12 +1,14 @@
 # Issue #756 Lettuce Buffer Codec Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to execute this plan task-by-task. Apply `bluetape-kotlin-patterns` to every Kotlin production and test change.
+> **For agentic
+workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to execute this plan task-by-task. Apply `bluetape-kotlin-patterns` to every Kotlin production and test change.
 
 **Goal:** `BinarySerializer`/`JsonSerializer`에 source·binary compatible한 caller-owned `OutputStream` capability를 추가하고, Lettuce built-in codec 계층의 unconditional `ByteArray` copy를 bounded `ByteBuf`/`ByteBuffer` dispatch로 제거한다. payload-sized handoff allocation 제거 주장은 two-run evidence에서 accepted된 direct backend와 target cell에만 한정하며 compatibility fallback은 계속 allocation할 수 있다.
 
 **Architecture:** serializer interface default는 기존 `ByteArray` API에 위임하는 allocating compatibility fallback으로 남긴다. 검증된 JDK/Kryo/Jackson 2/Jackson 3만 caller-owned stream 직접 기록 후보를 제공하고, Lettuce는 NIO writable view 대신 absolute-index 기반 `BoundedByteBufOutputStream`으로 성공 시에만 `writerIndex`를 commit한다. 성능 주장은 exact matrix의 two-run JMH evidence와 fail-closed validator가 결정한다.
 
-**Tech Stack:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty `ByteBuf`, Lettuce `ToByteBufEncoder`, JDK serialization, Kryo 5, Jackson 2/3, kotlinx-benchmark/JMH, Python 3 standard library.
+**Tech
+Stack:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty `ByteBuf`, Lettuce `ToByteBufEncoder`, JDK serialization, Kryo 5, Jackson 2/3, kotlinx-benchmark/JMH, Python 3 standard library.
 
 ---
 
@@ -91,13 +93,13 @@
 
   두 test class에서 다음을 모두 검증한다.
 
-  - 기존 `serialize(graph)` 결과와 byte-for-byte 동일
-  - 반환 count와 실제 write count 동일
-  - null/zero-byte 정책이 기존 serializer와 동일
-  - serializer failure identity/cause가 그대로 전파됨
-  - target `write` failure가 동일 객체로 전파됨
-  - target `flush()`/`close()` 호출 횟수는 0
-  - 한 instance를 반복 호출해도 이전 state가 남지 않음
+    - 기존 `serialize(graph)` 결과와 byte-for-byte 동일
+    - 반환 count와 실제 write count 동일
+    - null/zero-byte 정책이 기존 serializer와 동일
+    - serializer failure identity/cause가 그대로 전파됨
+    - target `write` failure가 동일 객체로 전파됨
+    - target `flush()`/`close()` 호출 횟수는 0
+    - 한 instance를 반복 호출해도 이전 state가 남지 않음
 
   테스트 double은 다음 형태를 사용한다.
 
@@ -201,25 +203,24 @@
 
   script는 다음 authority를 별도 detached worktree/JAR로 만든다.
 
-  - release: `6187173b58e8b4c5c435c145e00e94708f31ef75^{tree}` = `daa12f3cfb185926fe2ff09e571288059953d85c`
-  - pre-change develop: `b00cc5440e47ad803e5aac21528b560fdd3b0474`
-  - candidate: `--expected-head "$(git rev-parse HEAD)"`
+    - release: `6187173b58e8b4c5c435c145e00e94708f31ef75^{tree}` = `daa12f3cfb185926fe2ff09e571288059953d85c`
+    - pre-change develop: `b00cc5440e47ad803e5aac21528b560fdd3b0474`
+    - candidate: `--expected-head "$(git rev-parse HEAD)"`
 
   검증 matrix:
 
-  1. release/base interface로 compile한 Java/Kotlin caller와 implementor를 candidate JAR로 실행
-  2. release/base의 dual `BinarySerializer + JsonSerializer` Java/Kotlin source를 candidate JAR로 다시 `javac`/`kotlinc`하고 두 distinct default를 호출·실행
-  3. candidate Java caller가 `serializeBinaryToStream(value, null)`과 `serializeJsonToStream(value, null)`을 이름 충돌 없이 compile
-  4. ByteBuffer API가 존재하는 pre-change base `b00cc5440e47ad803e5aac21528b560fdd3b0474`와 candidate에서만 old `serializeTo(value, null)` source fixture가 기존 overload로 계속 compile; 이 API가 없던 release `1.11.0`에는 적용하지 않음
-  5. `javap -p`가 interface default와 `BinarySerializerDecorator`/`CompressableBinarySerializer` override에 `throws java.io.IOException`을 표시한다. JDK/Kryo/Jackson 2/Jackson 3는 declared override가 있으면 concrete `throws`와 concrete-type Java caller를 검증하고, evidence로 제거됐으면 declared method 부재와 inherited interface-default dispatch를 검증
-  6. reflection fixture가 interface의 두 method에 `Method.isDefault == true`를 assertion하고 실행
-  7. release/base의 old Java/Kotlin `BinarySerializerDecorator` subclass를 candidate로 실행·재compile해 `serialize(graph)` override semantics 보존
-  8. release/base/current JAR hash와 tree hash를 `.codex/compat/issue-756/abi-report.txt`에 기록
+    1. release/base interface로 compile한 Java/Kotlin caller와 implementor를 candidate JAR로 실행
+    2. release/base의 dual `BinarySerializer + JsonSerializer` Java/Kotlin source를 candidate JAR로 다시 `javac`/`kotlinc`하고 두 distinct default를 호출·실행
+    3. candidate Java caller가 `serializeBinaryToStream(value, null)`과 `serializeJsonToStream(value, null)`을 이름 충돌 없이 compile
+    4. ByteBuffer API가 존재하는 pre-change base `b00cc5440e47ad803e5aac21528b560fdd3b0474`와 candidate에서만 old `serializeTo(value, null)` source fixture가 기존 overload로 계속 compile; 이 API가 없던 release `1.11.0`에는 적용하지 않음
+    5. `javap -p`가 interface default와 `BinarySerializerDecorator`/`CompressableBinarySerializer` override에 `throws java.io.IOException`을 표시한다. JDK/Kryo/Jackson 2/Jackson 3는 declared override가 있으면 concrete `throws`와 concrete-type Java caller를 검증하고, evidence로 제거됐으면 declared method 부재와 inherited interface-default dispatch를 검증
+    6. reflection fixture가 interface의 두 method에 `Method.isDefault == true`를 assertion하고 실행
+    7. release/base의 old Java/Kotlin `BinarySerializerDecorator` subclass를 candidate로 실행·재compile해 `serialize(graph)` override semantics 보존
+    8. release/base/current JAR hash와 tree hash를 `.codex/compat/issue-756/abi-report.txt`에 기록
 
 - [ ] **2.2 Checkpoint commit으로 ABI script의 clean-HEAD precondition을 충족한다.**
 
-  `scripts/check-serializer-buffer-abi.sh`는 serializer source, fixture, script가 dirty하면 증거 생성을 거부한다.
-  따라서 fixture/script를 완성한 뒤 먼저 다음 Lore commit을 만든다.
+  `scripts/check-serializer-buffer-abi.sh`는 serializer source, fixture, script가 dirty하면 증거 생성을 거부한다. 따라서 fixture/script를 완성한 뒤 먼저 다음 Lore commit을 만든다.
 
   ```text
   Prove stream defaults do not strand existing serializer consumers
@@ -242,10 +243,7 @@
     --expected-head "$(git rev-parse HEAD)"
   ```
 
-  예상: authority hash, Java/Kotlin old caller, dual implementor 재compile/실행, `Method.isDefault`, interface
-  checked exception 검사가 PASS. decorator/concrete override matrix는 Task 3~5 구현 전이므로 `--scope interface`에서
-  실행하지 않는다. 실패하면 최소 수정과 follow-up Lore commit을 만든 뒤 clean `HEAD`에서 2.3 전체를
-  다시 실행한다. dirty bypass option은 추가하지 않는다.
+  예상: authority hash, Java/Kotlin old caller, dual implementor 재compile/실행, `Method.isDefault`, interface checked exception 검사가 PASS. decorator/concrete override matrix는 Task 3~5 구현 전이므로 `--scope interface`에서 실행하지 않는다. 실패하면 최소 수정과 follow-up Lore commit을 만든 뒤 clean `HEAD`에서 2.3 전체를 다시 실행한다. dirty bypass option은 추가하지 않는다.
 
 ## Task 3: decorator subclass semantics와 compressed wire를 명시적으로 보존
 
@@ -318,14 +316,14 @@
 
   JDK/Kryo 각각 다음을 검증한다.
 
-  - `serialize(graph)`와 stream wire byte-for-byte 동일
-  - direct method가 overridden `serialize(graph)` throwing sentinel을 호출하지 않음
-  - target close/flush count 0
-  - write failure type/cause와 fatal/cancellation identity
-  - `Int.MAX_VALUE` count 초과를 첫 초과 write 전에 fail-closed 처리
-  - JDK `ObjectInputFilter`와 global filter behavior 유지
-  - Kryo registration/references/custom pool fallback behavior 유지
-  - Kryo pool/output이 failure 후 반환되고 다음 호출이 정상
+    - `serialize(graph)`와 stream wire byte-for-byte 동일
+    - direct method가 overridden `serialize(graph)` throwing sentinel을 호출하지 않음
+    - target close/flush count 0
+    - write failure type/cause와 fatal/cancellation identity
+    - `Int.MAX_VALUE` count 초과를 첫 초과 write 전에 fail-closed 처리
+    - JDK `ObjectInputFilter`와 global filter behavior 유지
+    - Kryo registration/references/custom pool fallback behavior 유지
+    - Kryo pool/output이 failure 후 반환되고 다음 호출이 정상
 
 - [ ] **4.2 GREEN — private non-closing counting wrapper를 backend file에 둔다.**
 
@@ -361,11 +359,7 @@
   }
   ```
 
-  단일-byte `Math.addExact` overflow도 동일 `IllegalStateException`으로 변환한다. JDK/Kryo concrete
-  override에는 각각 `@Throws(IOException::class)`를 명시한다. JDK는 `ObjectOutputStream` 종료로 encoder를
-  drain하되 wrapper가 caller stream을 닫거나 flush하지 않게 한다. Kryo는 stream-backed `Output`을
-  명시적으로 flush한 뒤 count를 읽고, configured custom pool이 native stream path를 보장하지 않으면
-  interface와 동일한 allocating wire fallback을 사용한다.
+  단일-byte `Math.addExact` overflow도 동일 `IllegalStateException`으로 변환한다. JDK/Kryo concrete override에는 각각 `@Throws(IOException::class)`를 명시한다. JDK는 `ObjectOutputStream` 종료로 encoder를 drain하되 wrapper가 caller stream을 닫거나 flush하지 않게 한다. Kryo는 stream-backed `Output`을 명시적으로 flush한 뒤 count를 읽고, configured custom pool이 native stream path를 보장하지 않으면 interface와 동일한 allocating wire fallback을 사용한다.
 
 - [ ] **4.3 Targeted and module verification.**
 
@@ -405,14 +399,14 @@
 
   각 test class는 default mapper와 custom mapper에서 다음을 검증한다.
 
-  - `serialize(graph)`와 stream wire 동일
-  - null policy와 exact count
-  - overridden `serialize(graph)` sentinel을 direct path가 호출하지 않음
-  - target close/flush 0, failure 후 재사용 가능
-  - mapper modules, naming, inclusion, polymorphism allow/deny behavior 유지
-  - raw `IOException`/fatal failure와 기존 `JsonSerializationException` 분류·cause 유지
-  - cancellation은 기존 ByteBuffer path와 동일한 `JsonSerializationException` type/cause를 유지하고 raw identity 복원을 새로 도입하지 않음
-  - CBOR/Ion/Smile/YAML/Properties/TOML/CSV subclass가 inherited override로 기존 wire를 유지
+    - `serialize(graph)`와 stream wire 동일
+    - null policy와 exact count
+    - overridden `serialize(graph)` sentinel을 direct path가 호출하지 않음
+    - target close/flush 0, failure 후 재사용 가능
+    - mapper modules, naming, inclusion, polymorphism allow/deny behavior 유지
+    - raw `IOException`/fatal failure와 기존 `JsonSerializationException` 분류·cause 유지
+    - cancellation은 기존 ByteBuffer path와 동일한 `JsonSerializationException` type/cause를 유지하고 raw identity 복원을 새로 도입하지 않음
+    - CBOR/Ion/Smile/YAML/Properties/TOML/CSV subclass가 inherited override로 기존 wire를 유지
 
 - [ ] **5.2 GREEN — generator/output direct method를 추가한다.**
 
@@ -475,11 +469,8 @@
     --expected-head "$(git rev-parse HEAD)"
   ```
 
-  예상: interface scope에 더해 old/new Java·Kotlin decorator subclass semantics, JDK/Kryo/Jackson 2/3/
-  Compressable concrete `throws IOException`, concrete-type Java caller가 모두 PASS. `--scope full` 자체는
-  각 backend의 declared override 유무를 capability-aware하게 검사하지만, 이 pre-evidence 단계는
-  `--require-direct-candidates`로 네 후보 모두의 override를 요구한다. 실패하면 최소 수정과
-  follow-up Lore commit을 만든 뒤 clean `HEAD`에서 5.5 전체를 다시 실행한다.
+  예상: interface scope에 더해 old/new Java·Kotlin decorator subclass semantics, JDK/Kryo/Jackson 2/3/ Compressable concrete `throws IOException`, concrete-type Java caller가 모두 PASS. `--scope full` 자체는 각 backend의 declared override 유무를 capability-aware하게 검사하지만, 이 pre-evidence 단계는
+  `--require-direct-candidates`로 네 후보 모두의 override를 요구한다. 실패하면 최소 수정과 follow-up Lore commit을 만든 뒤 clean `HEAD`에서 5.5 전체를 다시 실행한다.
 
 ## Task 6: bounded absolute-index ByteBuf writer를 TDD로 구현
 
@@ -492,18 +483,18 @@
 
   heap/direct/pooled/unpooled/sliced/composite와 `nioBuffer()` 거부 target에서 다음을 검증한다.
 
-  - construction `writerIndex`부터 absolute write
-  - write 중 원본 `writerIndex`, `readerIndex`, refCnt 불변
-  - exact capacity, growable capacity, `maxCapacity` exhaustion
-  - prefix `[0,start)`와 attempted high-water 이후 suffix 보존; attempted range와 capacity growth는 rollback 대상이 아님
-  - `write(Int)`, full array, offset/length
-  - `Math.addExact` overflow와 invalid offset/length가 target mutation 전 실패
-  - 일부 bytes를 변경한 뒤 throw하는 bulk target에서도 committed count와 writerIndex 불변
-  - 실패 뒤 더 짧은 payload를 성공 commit해도 이전 dirty suffix가 readable range에 편입되지 않음
-  - snapshot drift detection
-  - mark/reset fixture 보존
-  - `seal()` 이후 write는 deterministic `IOException`, flush/close는 no-op
-  - retain/release 0
+    - construction `writerIndex`부터 absolute write
+    - write 중 원본 `writerIndex`, `readerIndex`, refCnt 불변
+    - exact capacity, growable capacity, `maxCapacity` exhaustion
+    - prefix `[0,start)`와 attempted high-water 이후 suffix 보존; attempted range와 capacity growth는 rollback 대상이 아님
+    - `write(Int)`, full array, offset/length
+    - `Math.addExact` overflow와 invalid offset/length가 target mutation 전 실패
+    - 일부 bytes를 변경한 뒤 throw하는 bulk target에서도 committed count와 writerIndex 불변
+    - 실패 뒤 더 짧은 payload를 성공 commit해도 이전 dirty suffix가 readable range에 편입되지 않음
+    - snapshot drift detection
+    - mark/reset fixture 보존
+    - `seal()` 이후 write는 deterministic `IOException`, flush/close는 no-op
+    - retain/release 0
 
 - [ ] **6.2 GREEN — adapter state machine을 최소 구현한다.**
 
@@ -574,20 +565,20 @@
 
 - [ ] **7.1 RED — binary/json 공통 target 계약을 고정한다.**
 
-  - null target은 serializer 호출 전 no-op
-  - one-argument encode와 target encode wire 동일
-  - `LettuceBinaryCodec` target overload의 supported subclass seam 유지; `LettuceJsonCodec`은 final이며 extension seam을 새로 만들지 않음
-  - heap/direct/pooled/unpooled/bounded target에서 prefix, readerIndex, reader/writer marks, refCnt 보존; writerIndex는 성공 시에만 exact count만큼 증가
-  - serializer 반환 count와 adapter count mismatch 실패
-  - serializer가 writer/reader/refCnt를 drift시키면 실패
-  - 정상 반환 뒤 drift는 stable `IllegalStateException`, serializer failure와 drift가 함께 발생하면 원 serializer failure identity 우선
-  - drift를 원상복구하거나 retain/release로 보상하지 않음
-  - partial write 뒤 serializer failure, 일부 bytes를 변경한 뒤 throw하는 bulk target, target exhaustion 모두 writerIndex commit 없음
-  - refCnt drift에서 retain/release 호출 0
-  - 실패 뒤 더 짧은 payload 성공 commit 시 dirty suffix가 readable range에 편입되지 않음
-  - 성공 시 readerIndex/marks/refCnt 보존 및 `writerIndex == start + actual`
-  - adapter가 serializer에 의해 보관돼도 return 뒤 seal되어 mutation 불가
-  - secret sentinel이 exception message나 captured log에 없음
+    - null target은 serializer 호출 전 no-op
+    - one-argument encode와 target encode wire 동일
+    - `LettuceBinaryCodec` target overload의 supported subclass seam 유지; `LettuceJsonCodec`은 final이며 extension seam을 새로 만들지 않음
+    - heap/direct/pooled/unpooled/bounded target에서 prefix, readerIndex, reader/writer marks, refCnt 보존; writerIndex는 성공 시에만 exact count만큼 증가
+    - serializer 반환 count와 adapter count mismatch 실패
+    - serializer가 writer/reader/refCnt를 drift시키면 실패
+    - 정상 반환 뒤 drift는 stable `IllegalStateException`, serializer failure와 drift가 함께 발생하면 원 serializer failure identity 우선
+    - drift를 원상복구하거나 retain/release로 보상하지 않음
+    - partial write 뒤 serializer failure, 일부 bytes를 변경한 뒤 throw하는 bulk target, target exhaustion 모두 writerIndex commit 없음
+    - refCnt drift에서 retain/release 호출 0
+    - 실패 뒤 더 짧은 payload 성공 commit 시 dirty suffix가 readable range에 편입되지 않음
+    - 성공 시 readerIndex/marks/refCnt 보존 및 `writerIndex == start + actual`
+    - adapter가 serializer에 의해 보관돼도 return 뒤 seal되어 mutation 불가
+    - secret sentinel이 exception message나 captured log에 없음
 
 - [ ] **7.2 GREEN — built-in encode의 단일 commit 지점을 구현한다.**
 
@@ -646,21 +637,21 @@
 
 - [ ] **8.1 RED — source view와 synchronous borrow 계약을 고정한다.**
 
-  - non-zero position/reduced limit의 remaining만 전달
-  - heap/direct/slice/read-only source
-  - original position/limit/order/mark 성공·실패 불변
-  - malicious serializer가 `clear()`/`limit(capacity)`해도 prefix/suffix 접근 불가
-  - heap source의 derived view는 `hasArray == false`이고 `array()`/`arrayOffset()` 및 content mutation이 차단됨
-  - codec layer가 `getAllBytes()`를 호출하지 않음
-  - custom `deserializeFrom` override가 호출되고 interface default fallback도 정상
-  - view를 의도적으로 보관하는 custom serializer fixture에서 retained view capacity가 원본 remaining으로 고정되고 prefix/suffix secret에 접근할 수 없음
-  - decode failure와 retained access의 exception message 및 codec/adapter captured log에 prefix/suffix secret이 없음
-  - source/view를 보관하는 custom serializer는 contract violation으로 문서화하고 runtime auto-detection/fallback은 추가하지 않음
-  - JDK default/custom `ObjectInputFilter`의 `ByteArray` decode와 bounded direct decode parity
-  - JDK global `ObjectInputFilter` allow/reject parity는 별도 forked JVM fixture에서 process 시작 시 `-Djdk.serialFilter=...`를 한 번만 설정해 검증하며 일반 JUnit worker의 global state는 변경하지 않음
-  - Kryo secure registration과 custom-pool fallback의 `ByteArray`/bounded direct decode parity
-  - Jackson 2 polymorphic validator allow/deny는 Jackson 2 module test에서, Jackson 3 malicious `@class` 비활성화는 Jackson 3 module test에서 `ByteArray`/bounded direct decode parity를 검증
-  - 네 backend 모두 corrupt/untrusted input의 exception type/cause parity
+    - non-zero position/reduced limit의 remaining만 전달
+    - heap/direct/slice/read-only source
+    - original position/limit/order/mark 성공·실패 불변
+    - malicious serializer가 `clear()`/`limit(capacity)`해도 prefix/suffix 접근 불가
+    - heap source의 derived view는 `hasArray == false`이고 `array()`/`arrayOffset()` 및 content mutation이 차단됨
+    - codec layer가 `getAllBytes()`를 호출하지 않음
+    - custom `deserializeFrom` override가 호출되고 interface default fallback도 정상
+    - view를 의도적으로 보관하는 custom serializer fixture에서 retained view capacity가 원본 remaining으로 고정되고 prefix/suffix secret에 접근할 수 없음
+    - decode failure와 retained access의 exception message 및 codec/adapter captured log에 prefix/suffix secret이 없음
+    - source/view를 보관하는 custom serializer는 contract violation으로 문서화하고 runtime auto-detection/fallback은 추가하지 않음
+    - JDK default/custom `ObjectInputFilter`의 `ByteArray` decode와 bounded direct decode parity
+    - JDK global `ObjectInputFilter` allow/reject parity는 별도 forked JVM fixture에서 process 시작 시 `-Djdk.serialFilter=...`를 한 번만 설정해 검증하며 일반 JUnit worker의 global state는 변경하지 않음
+    - Kryo secure registration과 custom-pool fallback의 `ByteArray`/bounded direct decode parity
+    - Jackson 2 polymorphic validator allow/deny는 Jackson 2 module test에서, Jackson 3 malicious `@class` 비활성화는 Jackson 3 module test에서 `ByteArray`/bounded direct decode parity를 검증
+    - 네 backend 모두 corrupt/untrusted input의 exception type/cause parity
 
   Lettuce module에는 Jackson 2 dependency를 추가하지 않는다. Lettuce generic malicious serializer fixture는 codec이 bounded read-only slice만 전달함을 증명하고, 실제 Jackson 2 security parity는 기존 Jackson 2 module classpath에서 증명한다.
 
@@ -725,24 +716,24 @@
 
   Python unittest fixture는 다음 corruption마다 non-zero exit와 stable reason code를 요구한다.
 
-  - 16-cell exact matrix 누락/중복/추가
-  - baseline-candidate pairing mismatch
-  - canonical-a/b metadata mismatch
-  - fork/warmup/measurement/thread/profiler mismatch
-  - payload/allocator/capacity/maxCapacity/writerIndex/headroom mismatch
-  - invocation reset 전후 capacity 또는 index drift
-  - missing `gc.alloc.rate.norm` 또는 throughput
-  - `gc.alloc.rate.norm` unit이 `B/op`가 아니거나 score/scoreError가 NaN/Infinity/negative, baseline이 zero
-  - throughput mode/unit이 `thrpt`/`ops/ms`가 아니거나 score가 non-positive/non-finite, scoreError가 negative/non-finite
-  - Jackson 2 project JAR missing/duplicate/directory classpath, classpath order/hash mismatch
-  - preflight 16-cell wiring/wire/count/prefix/target-kind/backend identity mismatch
-  - metadata의 method declaring class/dispatch kind와 runtime reflection mismatch
-  - dirty build input, HEAD/tree/JAR hash mismatch
-  - allocation threshold 경계 `4.999%`와 `5.000%`
-  - throughput threshold 경계 `-19.999%`와 `-20.000%`
-  - benchmark input이 final delivery ancestor가 아님
-  - post-measurement path가 exact allowlist 밖임
-  - `--post-measurement-working-tree`에서 committed/staged/unstaged/untracked path 중 하나가 exact allowlist 밖임
+    - 16-cell exact matrix 누락/중복/추가
+    - baseline-candidate pairing mismatch
+    - canonical-a/b metadata mismatch
+    - fork/warmup/measurement/thread/profiler mismatch
+    - payload/allocator/capacity/maxCapacity/writerIndex/headroom mismatch
+    - invocation reset 전후 capacity 또는 index drift
+    - missing `gc.alloc.rate.norm` 또는 throughput
+    - `gc.alloc.rate.norm` unit이 `B/op`가 아니거나 score/scoreError가 NaN/Infinity/negative, baseline이 zero
+    - throughput mode/unit이 `thrpt`/`ops/ms`가 아니거나 score가 non-positive/non-finite, scoreError가 negative/non-finite
+    - Jackson 2 project JAR missing/duplicate/directory classpath, classpath order/hash mismatch
+    - preflight 16-cell wiring/wire/count/prefix/target-kind/backend identity mismatch
+    - metadata의 method declaring class/dispatch kind와 runtime reflection mismatch
+    - dirty build input, HEAD/tree/JAR hash mismatch
+    - allocation threshold 경계 `4.999%`와 `5.000%`
+    - throughput threshold 경계 `-19.999%`와 `-20.000%`
+    - benchmark input이 final delivery ancestor가 아님
+    - post-measurement path가 exact allowlist 밖임
+    - `--post-measurement-working-tree`에서 committed/staged/unstaged/untracked path 중 하나가 exact allowlist 밖임
 
   ```bash
   python3 -m unittest discover \
@@ -786,12 +777,8 @@
 
   runner는 expected clean HEAD에서 `:bluetape4k-jackson2:jar`와 `:bluetape4k-lettuce:benchmarkBenchmarkJar`를 같은 Gradle invocation으로 한 번 build한다. 임시 Gradle init script는 Jackson 2 runtime classpath를 출력하되, runner가 exact project JAR을 명시적으로 식별해 benchmark JAR 실행 classpath에 결정론적으로 결합한다. directory entry, missing/duplicate Bluetape artifact, 다른 HEAD에서 만든 project JAR을 거부한다. `infra/lettuce/build.gradle.kts` dependency block은 변경하지 않는다.
 
-  `LettuceCodecBenchmarkPreflight`는 JMH method metadata를 자기보고로 신뢰하지 않고 exact 16-cell fixture를
-  실행한다. 각 cell에서 backend class/config/payload hash/heap-or-direct target을 확인하고, frozen baseline이
-  `serialize -> ByteArray -> writeBytes`, candidate가 codec target overload를 각각 한 번 호출했음을 독립
-  counter로 증명한다. wire/count/prefix가 동일해야 하며 retained backend는 read-only target을 통해
-  codec-visible exception type/cause와 writerIndex/readerIndex/marks/refCnt가 기존 ByteBuffer path와 같은지
-  검증한다. Jackson 2는 같은 reflection/runtime classpath 경계에서 실행한다.
+  `LettuceCodecBenchmarkPreflight`는 JMH method metadata를 자기보고로 신뢰하지 않고 exact 16-cell fixture를 실행한다. 각 cell에서 backend class/config/payload hash/heap-or-direct target을 확인하고, frozen baseline이
+  `serialize -> ByteArray -> writeBytes`, candidate가 codec target overload를 각각 한 번 호출했음을 독립 counter로 증명한다. wire/count/prefix가 동일해야 하며 retained backend는 read-only target을 통해 codec-visible exception type/cause와 writerIndex/readerIndex/marks/refCnt가 기존 ByteBuffer path와 같은지 검증한다. Jackson 2는 같은 reflection/runtime classpath 경계에서 실행한다.
 
 - [ ] **9.3 GREEN — runner와 validator를 완성한다.**
 
@@ -799,8 +786,7 @@
 
 - [ ] **9.4 Checkpoint commit으로 clean-HEAD evidence precondition을 충족한다.**
 
-  canonical runner는 dirty worktree를 거부하므로 runner/preflight/list 검증 전에 benchmark source,
-  Python runner/validator, fixture test를 한 commit으로 고정한다.
+  canonical runner는 dirty worktree를 거부하므로 runner/preflight/list 검증 전에 benchmark source, Python runner/validator, fixture test를 한 commit으로 고정한다.
 
   ```text
   Make Lettuce allocation claims reproducible and fail closed
@@ -833,8 +819,7 @@
 
   예상: exact 16 promotion methods, optional growth diagnostics만 출력; matrix validator PASS.
 
-  실패하면 원인을 수정하고 Lore 후속 commit을 만든 뒤, dirty bypass 없이 이 절 전체를 새 clean HEAD에서
-  다시 실행한다. 성공한 exact HEAD만 Task 10의 benchmark input commit 후보가 된다.
+  실패하면 원인을 수정하고 Lore 후속 commit을 만든 뒤, dirty bypass 없이 이 절 전체를 새 clean HEAD에서 다시 실행한다. 성공한 exact HEAD만 Task 10의 benchmark input commit 후보가 된다.
 
 ## Task 10: benchmark input commit을 고정하고 two-run 판정을 코드에 반영
 
@@ -870,8 +855,7 @@
   test -z "$(git status --porcelain)"
   ```
 
-  모든 gate가 통과한 현재 clean `HEAD`를 benchmark input SHA로 freeze한다. 별도 empty commit을 만들지 않는다.
-  검증 중 수정이 필요하면 먼저 Lore commit을 만든 뒤 새 `HEAD`에서 10.1 전체를 다시 수행한다.
+  모든 gate가 통과한 현재 clean `HEAD`를 benchmark input SHA로 freeze한다. 별도 empty commit을 만들지 않는다. 검증 중 수정이 필요하면 먼저 Lore commit을 만든 뒤 새 `HEAD`에서 10.1 전체를 다시 수행한다.
 
 - [ ] **10.2 Canonical run A/B를 순차 실행한다.**
 
@@ -887,17 +871,14 @@
 
 - [ ] **10.3 Terminal backend decision을 적용한다.**
 
-  - `accepted`: direct override 유지, 해당 `backend × target-kind` cell만 allocation improvement로 문서화
-  - `inconclusive`: direct override 유지 가능, ergonomic direct path로만 문서화하고 allocation claim 금지
-  - `ineligible`: 해당 backend direct override를 제거하고 interface allocating fallback으로 복귀한다. 같은 backend test의 direct-bypass sentinel expectation을 declared-method 부재, allocating fallback wire/count/lifecycle, inherited default dispatch expectation으로 교체한다.
-  - wire/security parity failure 또는 어느 run에서든 throughput `<= -20%`: 반드시 ineligible
+    - `accepted`: direct override 유지, 해당 `backend × target-kind` cell만 allocation improvement로 문서화
+    - `inconclusive`: direct override 유지 가능, ergonomic direct path로만 문서화하고 allocation claim 금지
+    - `ineligible`: 해당 backend direct override를 제거하고 interface allocating fallback으로 복귀한다. 같은 backend test의 direct-bypass sentinel expectation을 declared-method 부재, allocating fallback wire/count/lifecycle, inherited default dispatch expectation으로 교체한다.
+    - wire/security parity failure 또는 어느 run에서든 throughput `<= -20%`: 반드시 ineligible
 
   override는 backend 단위이므로 heap/direct 중 하나라도 `ineligible`이면 그 backend의 direct override 전체를 제거하고 Task 10.1부터 16-cell A/B를 다시 측정한다. accepted/inconclusive 혼합만 override 유지가 가능하며 allocation claim은 accepted target cell에만 허용한다.
 
-  direct override를 제거하거나 대응 test expectation, benchmark source/validator/Kotlin을 수정하면 먼저 함께
-  Lore commit하고 Task 10.1부터 새 clean benchmark input SHA와 two-run을 다시 수행한다. evidence를 수동
-  보정하지 않는다. 최종 module tests와 ABI `--scope full`은 retained backend의 direct contract와 ineligible
-  backend의 inherited fallback contract를 각각 검증해야 한다.
+  direct override를 제거하거나 대응 test expectation, benchmark source/validator/Kotlin을 수정하면 먼저 함께 Lore commit하고 Task 10.1부터 새 clean benchmark input SHA와 two-run을 다시 수행한다. evidence를 수동 보정하지 않는다. 최종 module tests와 ABI `--scope full`은 retained backend의 direct contract와 ineligible backend의 inherited fallback contract를 각각 검증해야 한다.
 
 - [ ] **10.4 Evidence report와 raw artifacts를 commit한다.**
 
@@ -938,18 +919,18 @@
 
 - [ ] **11.2 GREEN — 각 locale에 같은 사실을 기록한다.**
 
-  - interface stream API는 opt-in이며 default는 allocating fallback
-  - caller owns stream/ByteBuf, serializer must not retain/close/flush
-  - 호출은 thread-confined이며 concurrent index/refCnt drift는 unsupported/fail-closed이고 codec이 복구하지 않음
-  - 실패한 attempted range/capacity growth는 wipe하지 않으며 `release()`도 wipe를 보장하지 않으므로 full-capacity logging을 금지하고 caller/allocator 폐기 정책을 따름
-  - built-in Lettuce는 success-only writerIndex commit
-  - Binary codec custom target override만 built-in guarantee를 상속하지 않으며 JSON codec에는 해당 seam이 없음
-  - custom `deserializeFrom`은 read-only, non-array-backed synchronous borrow를 지원해야 하며 불가능하면 interface allocating default를 사용
-  - accepted cell만 allocation 개선 문구 사용
-  - allocation claim은 exact measured payload/config, allocator/pooled 여부, pre-sized reusable target과 no-growth 조건을 함께 명시하고 다른 payload/capacity/pooling에 일반화하지 않음
-  - rollback은 previous artifact/codec deployment이며 runtime auto-fallback이나 telemetry를 추가하지 않음
-  - one-argument encode, compressed/Fory/Fastjson 경로의 allocation을 일반화하지 않음
-  - English/Korean serializer README 모두 Kotlin/Java direct-call 예제를 포함하고 Java 예제는 checked `IOException` catch/declare, caller stream lifecycle, 실패한 partial destination 폐기/staging을 보여 줌
+    - interface stream API는 opt-in이며 default는 allocating fallback
+    - caller owns stream/ByteBuf, serializer must not retain/close/flush
+    - 호출은 thread-confined이며 concurrent index/refCnt drift는 unsupported/fail-closed이고 codec이 복구하지 않음
+    - 실패한 attempted range/capacity growth는 wipe하지 않으며 `release()`도 wipe를 보장하지 않으므로 full-capacity logging을 금지하고 caller/allocator 폐기 정책을 따름
+    - built-in Lettuce는 success-only writerIndex commit
+    - Binary codec custom target override만 built-in guarantee를 상속하지 않으며 JSON codec에는 해당 seam이 없음
+    - custom `deserializeFrom`은 read-only, non-array-backed synchronous borrow를 지원해야 하며 불가능하면 interface allocating default를 사용
+    - accepted cell만 allocation 개선 문구 사용
+    - allocation claim은 exact measured payload/config, allocator/pooled 여부, pre-sized reusable target과 no-growth 조건을 함께 명시하고 다른 payload/capacity/pooling에 일반화하지 않음
+    - rollback은 previous artifact/codec deployment이며 runtime auto-fallback이나 telemetry를 추가하지 않음
+    - one-argument encode, compressed/Fory/Fastjson 경로의 allocation을 일반화하지 않음
+    - English/Korean serializer README 모두 Kotlin/Java direct-call 예제를 포함하고 Java 예제는 checked `IOException` catch/declare, caller stream lifecycle, 실패한 partial destination 폐기/staging을 보여 줌
 
 - [ ] **11.3 Docs and allowlist verification.**
 
@@ -961,8 +942,7 @@
     --post-measurement-working-tree
   ```
 
-  `--post-measurement-working-tree`는 benchmark input부터 `HEAD`까지의 committed diff와 staged,
-  unstaged, untracked path를 합쳐 exact allowlist와 비교하고 위반 시 non-zero로 종료한다. 예상:
+  `--post-measurement-working-tree`는 benchmark input부터 `HEAD`까지의 committed diff와 staged, unstaged, untracked path를 합쳐 exact allowlist와 비교하고 위반 시 non-zero로 종료한다. 예상:
   post-measurement 변경은 raw evidence/report와 명세의 10개 README 경로만 존재.
 
 - [ ] **11.4 Commit.**
@@ -989,12 +969,12 @@
 
   다음 perspective를 서로 독립적으로 수행한다.
 
-  1. performance/allocation
-  2. stability/state/resource lifecycle
-  3. security/serialization boundary
-  4. operations/evidence/rollback
-  5. developer/API/source-binary compatibility
-  6. user/caller ownership/usability
+    1. performance/allocation
+    2. stability/state/resource lifecycle
+    3. security/serialization boundary
+    4. operations/evidence/rollback
+    5. developer/API/source-binary compatibility
+    6. user/caller ownership/usability
 
   각 review는 `P0/P1/P2/P3`, file:line, 재현 근거, 최소 수정안을 보고한다. P0/P1은 0이 될 때까지 수정·재검토한다. allowlist 밖 implementation input 수정은 Task 10부터 재시작한다. allowlisted docs/evidence 수정도 commit한 뒤 새 `HEAD`에서 12.2 전체를 실행한다.
 
@@ -1032,9 +1012,7 @@
 
 - [ ] **12.3 Exact-head push와 PR 생성.**
 
-  `.codex/compat/issue-756/pr-body.md`를 English로 작성하고 issue link, design/plan, API/ownership contract,
-  compatibility authorities, exact benchmark verdict, tests, limitations를 기록한다. 이 transient file은
-  Git commit 대상에 포함하지 않는다.
+  `.codex/compat/issue-756/pr-body.md`를 English로 작성하고 issue link, design/plan, API/ownership contract, compatibility authorities, exact benchmark verdict, tests, limitations를 기록한다. 이 transient file은 Git commit 대상에 포함하지 않는다.
 
   ```bash
   git status --short --branch
@@ -1086,13 +1064,8 @@
   ci-status
   ```
 
-  PR `headRefOid`를 먼저 exact local/remote SHA와 맞춘 뒤 전체 check rollup이 non-empty이고 skipped 외 모든
-  check가 pass인지 검사한다. 변경 범위의 expected CI checks와 aggregate `CI Status`도 별도로 pass를 요구한다.
-  review approval은 live branch protection의 required count가 1 이상일 때만 `APPROVED`를 요구하고, 0이면
-  `CHANGES_REQUESTED` 부재를 요구한다. `ci-status`는 표시용 보조 evidence로만 사용한다. CI, 적용 가능한
-  review decision, unresolved thread 0, six-perspective report가 모두 통과하면 exact PR/head를 보고하고
-  fresh merge approval을 기다린다.
-  auto-merge는 사용하지 않는다.
+  PR `headRefOid`를 먼저 exact local/remote SHA와 맞춘 뒤 전체 check rollup이 non-empty이고 skipped 외 모든 check가 pass인지 검사한다. 변경 범위의 expected CI checks와 aggregate `CI Status`도 별도로 pass를 요구한다. review approval은 live branch protection의 required count가 1 이상일 때만 `APPROVED`를 요구하고, 0이면
+  `CHANGES_REQUESTED` 부재를 요구한다. `ci-status`는 표시용 보조 evidence로만 사용한다. CI, 적용 가능한 review decision, unresolved thread 0, six-perspective report가 모두 통과하면 exact PR/head를 보고하고 fresh merge approval을 기다린다. auto-merge는 사용하지 않는다.
 
 ## 최종 완료 조건
 

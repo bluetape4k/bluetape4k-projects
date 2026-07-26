@@ -9,25 +9,26 @@
 
 ## 1. Problem Statement
 
-`infra/lettuce` 와 `infra/redisson` 모듈에는 codec(직렬화/압축) 처리량을 측정하는 JMH 벤치마크 코드(`LettuceCodecBenchmark`, `RedissonCodecBenchmark`)가 존재하지만, 측정 결과를 정리한 문서가 없다. 또한 `infra/cache-lettuce` 의 핵심 기능인 NearCache(L1=Caffeine + L2=Redis RESP3 invalidation)는 벤치마크 sourceset 자체가 부재하여, 사용자가 NearCache 채택 여부를 판단할 수 있는 정량 지표가 없다. 본 spec 은 (1) 두 codec 벤치마크의 결과 문서를 영/한 페어 스타일로 작성하고, (2) cache-lettuce 에 NearCache 벤치마크 코드와 결과 문서를 신규 추가하여 세 모듈의 벤치마크 정보를 동등한 품질로 정렬한다.
+`infra/lettuce` 와 `infra/redisson` 모듈에는 codec (직렬화/압축) 처리량을 측정하는 JMH 벤치마크 코드 (`LettuceCodecBenchmark`, `RedissonCodecBenchmark`)가 존재하지만, 측정 결과를 정리한 문서가 없다. 또한 `infra/cache-lettuce` 의 핵심 기능인 NearCache (L1=Caffeine + L2=Redis RESP3 invalidation)는 벤치마크 sourceset 자체가 부재하여, 사용자가 NearCache 채택 여부를 판단할 수 있는 정량 지표가 없다. 본 spec 은 (1) 두 codec 벤치마크의 결과 문서를 영/한 페어 스타일로 작성하고, (2) cache-lettuce 에 NearCache 벤치마크 코드와 결과 문서를 신규 추가하여 세 모듈의 벤치마크 정보를 동등한 품질로 정렬한다.
 
 ---
 
 ## 2. Scope
 
-| Module | Deliverable | 상태 |
-|---|---|---|
-| `infra/lettuce` | `Benchmark.md` + `Benchmark.ko.md` (코드는 이미 존재) | 신규 |
-| `infra/redisson` | `Benchmark.md` + `Benchmark.ko.md` (코드는 이미 존재) | 신규 |
+| Module                | Deliverable                                                                                 | 상태               |
+|-----------------------|---------------------------------------------------------------------------------------------|--------------------|
+| `infra/lettuce`       | `Benchmark.md` + `Benchmark.ko.md` (코드는 이미 존재)                                       | 신규               |
+| `infra/redisson`      | `Benchmark.md` + `Benchmark.ko.md` (코드는 이미 존재)                                       | 신규               |
 | `infra/cache-lettuce` | `build.gradle.kts` 수정 + `NearCacheBenchmark.kt` 신규 + `Benchmark.md` + `Benchmark.ko.md` | 신규 (코드 + 문서) |
 
 총 산출물: `.md` 6개 · `.kt` 1개 · `build.gradle.kts` 1개 수정
 
-비범위(Out of scope):
+비범위 (Out of scope):
+
 - `LettuceSuspendNearCache` 벤치마크는 **본 issue 제외** (설계 결정 4 참조)
-- 다른 cache 모듈(`cache-redisson`, `cache-hazelcast`)의 NearCache 벤치마크
-- JMH 옵션 튜닝(현재 lettuce/redisson 의 `Warmup 3×2s, Measurement 5×3s, Fork 1` 설정 그대로 사용)
-- CI 자동 실행(현재 nightly 워크플로우에 codec 벤치마크 미포함, 본 spec 도 추가하지 않음)
+- 다른 cache 모듈 (`cache-redisson`, `cache-hazelcast`)의 NearCache 벤치마크
+- JMH 옵션 튜닝 (현재 lettuce/redisson 의 `Warmup 3×2s, Measurement 5×3s, Fork 1` 설정 그대로 사용)
+- CI 자동 실행 (현재 nightly 워크플로우에 codec 벤치마크 미포함, 본 spec 도 추가하지 않음)
 
 ---
 
@@ -37,14 +38,14 @@
 
 **선택 대안 비교:**
 
-| 대안 | 장점 | 단점 |
-|---|---|---|
-| **(A) Testcontainers `RedisServer`** (선택) | 기존 cache-lettuce 테스트와 동일한 부트스트랩(`AbstractLettuceNearCacheTest`)을 그대로 재사용. Redis 7+ RESP3 정식 지원. ShutdownQueue 정리 패턴 일관. | Docker 데몬 필요 → 로컬 Docker 미설치 환경에서는 실행 불가. JMH `@Setup(Level.Trial)` 1회 기동에 5–10초 추가. |
-| (B) embedded redis (`com.github.codemonstur:embedded-redis` 등) | Docker 불필요, 빠른 기동 | RESP3 CLIENT TRACKING 미지원/불완전 → NearCache 무효화 경로 미동작. 실측이 의미 없음. |
+| 대안                                                            | 장점                                                                                                                                                   | 단점                                                                                                          |
+|-----------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| **(A) Testcontainers `RedisServer`** (선택)                     | 기존 cache-lettuce 테스트와 동일한 부트스트랩(`AbstractLettuceNearCacheTest`)을 그대로 재사용. Redis 7+ RESP3 정식 지원. ShutdownQueue 정리 패턴 일관. | Docker 데몬 필요 → 로컬 Docker 미설치 환경에서는 실행 불가. JMH `@Setup(Level.Trial)` 1회 기동에 5–10초 추가. |
+| (B) embedded redis (`com.github.codemonstur:embedded-redis` 등) | Docker 불필요, 빠른 기동                                                                                                                               | RESP3 CLIENT TRACKING 미지원/불완전 → NearCache 무효화 경로 미동작. 실측이 의미 없음.                         |
 
 **결정: (A) Testcontainers `RedisServer.Launcher.LettuceLib.getRedisURI(...)` 재사용.**
 
-근거: NearCache 의 핵심 동작(L2 hit 시 invalidation)은 RESP3 `CLIENT TRACKING` 에 의존한다. Embedded Redis 는 이 경로를 신뢰성 있게 재현하지 못해 측정값 자체가 무의미해진다. 실행 비용(Docker 기동)은 codec 벤치마크와 달리 Redis 의존이 본질적이므로 수용 가능하다. JMH 의 `@Setup(Level.Trial)` 1회만 기동하면 전체 벤치마크 동안 재사용된다.
+근거: NearCache 의 핵심 동작 (L2 hit 시 invalidation)은 RESP3 `CLIENT TRACKING` 에 의존한다. Embedded Redis 는 이 경로를 신뢰성 있게 재현하지 못해 측정값 자체가 무의미해진다. 실행 비용 (Docker 기동)은 codec 벤치마크와 달리 Redis 의존이 본질적이므로 수용 가능하다. JMH 의 `@Setup(Level.Trial)` 1회만 기동하면 전체 벤치마크 동안 재사용된다.
 
 운영 메모: `Benchmark.md` 의 "How to Run" 섹션에 Docker Desktop 필요성을 명시한다.
 
@@ -53,20 +54,25 @@
 **결정: 모든 시나리오 `Mode.Throughput`, `OutputTimeUnit(MILLISECONDS)` 통일** — codec 벤치마크와 일관.
 
 근거:
-- `getAll`/`putAll` 같은 묶음 연산은 항목 수가 일정하므로 throughput 으로도 비교 가능(파라미터 `batchSize` 로 명시).
-- AverageTime 모드를 섞으면 단위(ops/ms vs μs/op)가 달라져 colored bar chart 비교가 어렵다.
+
+- `getAll`/`putAll` 같은 묶음 연산은 항목 수가 일정하므로 throughput 으로도 비교 가능 (파라미터 `batchSize` 로 명시).
+- AverageTime 모드를 섞으면 단위 (ops/ms vs μs/op)가 달라져 colored bar chart 비교가 어렵다.
 - idgenerators 벤치마크와 동일 모드를 유지하면 향후 통합 비교 표 작성이 쉽다.
 
 ### 3.3 NearCache L1 hit 시나리오의 사전 워밍 및 L2 hit 강제
 
 **결정:**
+
 - `l1Hit`: `@Setup(Level.Iteration)` 에서 `warmKey` 를 put + get 으로 L1 채움 → 반복 `cache.get(warmKey)` 는 L1 적중.
-- `l2Hit`: `@Setup(Level.Invocation)` 에서 `cache.clearLocal()` 호출 → 전체 L1 을 비운 뒤 `cache.get(l2WarmKey)` → L2 적중. `l2WarmKey` 는 Trial 셋업에서 단 1회 put 해 Redis 에만 존재하게 한다 (Trial 셋업 이후 clearLocal 로 L1 에서만 제거). **`localInvalidate(key)` 가 public API 에 없으므로 `clearLocal()` 을 사용한다** — 측정 전 오버헤드는 `@Setup(Level.Invocation)` 범위라 JMH 가 제외함.
-- L2 miss: 매 invocation 마다 새 키(`"miss-${counter++}"`).
+- `l2Hit`: `@Setup(Level.Invocation)` 에서 `cache.clearLocal()` 호출 → 전체 L1 을 비운 뒤 `cache.get(l2WarmKey)` → L2 적중. `l2WarmKey` 는 Trial 셋업에서 단 1회 put 해 Redis 에만 존재하게 한다 (Trial 셋업 이후 clearLocal 로 L1 에서만 제거).
+  **`localInvalidate(key)` 가 public API 에 없으므로 `clearLocal()` 을
+  사용한다** — 측정 전 오버헤드는 `@Setup(Level.Invocation)` 범위라 JMH 가 제외함.
+- L2 miss: 매 invocation 마다 새 키 (`"miss-${counter++}"`).
 - put/putAll/remove: 매 invocation 마다 새 키 → RESP3 invalidation self-loop 방지.
 - `removeSingle`: `@Setup(Level.Invocation)` 에서 `removeKey` 를 미리 put → `@Benchmark` 는 `cache.remove(removeKey)` 만 측정. 오염 방지.
 
 근거:
+
 - `LettuceNearCache.localInvalidate(key)` public API 미존재 (Review C1). `clearLocal()` 대안 사용.
 - `removeSingle` 의 inline put 제거로 remove 경로만 측정 (Review M1).
 - `@Setup(Level.Invocation)` 는 JMH 가 측정값에서 제외하므로 clearLocal/pre-put 비용이 결과에 안 들어간다.
@@ -77,16 +83,18 @@
 **결정: `LettuceNearCache`(blocking) 만 측정. `LettuceSuspendNearCache` 는 본 issue 에서 제외.**
 
 근거:
+
 - JMH 에서 suspend fun 측정은 `runBlocking` 래핑을 강제하며, 그 자체가 nontrivial overhead 를 추가해 측정값 해석이 흐려진다.
-- 코루틴 벤치마크는 `kotlinx-benchmark` 의 suspend 지원(`@State` + suspend `@Benchmark`) 또는 `kotlinx-coroutines-test` 통합이 필요하며, 본 issue 의 목적(문서화)을 넘어선 R&D 가 든다.
+- 코루틴 벤치마크는 `kotlinx-benchmark` 의 suspend 지원 (`@State` + suspend `@Benchmark`) 또는 `kotlinx-coroutines-test` 통합이 필요하며, 본 issue 의 목적 (문서화)을 넘어선 R&D 가 든다.
 - 추후 별도 issue 로 분리 — `Benchmark.md` 의 "Future Work" 섹션에 명시한다.
 
 ### 3.5 이중 언어 파일 작성 순서
 
-**결정: EN(`Benchmark.md`) 을 먼저 작성·확정 → 그 직후 동일 PR 에서 KO(`Benchmark.ko.md`) 1:1 번역 → 두 파일을 같은 commit 에 포함.**
+**결정: EN (`Benchmark.md`) 을 먼저 작성·확정 → 그 직후 동일 PR 에서 KO (`Benchmark.ko.md`) 1:1 번역 → 두 파일을 같은 commit 에 포함.**
 
 근거:
-- 동시 commit 은 README.md / README.ko.md 동기화 규칙(`CLAUDE.md`)과 일관.
+
+- 동시 commit 은 README.md / README.ko.md 동기화 규칙 (`CLAUDE.md`)과 일관.
 - 측정값은 양쪽 파일에서 동일한 표/숫자/색상이어야 하므로 KO 가 EN 의 후행 번역으로 작성되는 편이 drift 위험을 줄인다.
 - 파일 두 개를 다른 commit 에 두면 중간 상태에서 문서 불일치가 노출된다.
 
@@ -255,7 +263,7 @@ class NearCacheBenchmark {
 > **구현 시 주의사항:**
 > - `l1Hit` 과 `l2Hit` 가 `clearLocal()` 을 공유하는 문제 → 분리 benchmark class 또는 `@State(Scope.Thread)` 캐리어로 해결.
 > - `removeSingle` 의 inline put 은 `@Setup(Level.Invocation)` 으로 분리하여 remove 경로만 측정.
-> - `LettuceNearCacheConfig` 생성자 시그니처는 실 API(`maxLocalSize`, `recordStats`) 로 확인 후 조정.
+> - `LettuceNearCacheConfig` 생성자 시그니처는 실 API (`maxLocalSize`, `recordStats`) 로 확인 후 조정.
 > - `RedisServer.Launcher.redis` 대신 실제 launcher 경로는 `AbstractLettuceNearCacheTest` 에서 패턴 재사용.
 
 `build.gradle.kts` 변경: `infra/lettuce/build.gradle.kts` 의 benchmark sourceset 블록·plugins·configurations 를 그대로 cache-lettuce 에 복제하고, dependencies 에 `testFixtures(project(":bluetape4k-testcontainers"))` 와 NearCache 가 요구하는 cache-core/lettuce/coroutines compileOnly 를 합산한다.
@@ -288,39 +296,44 @@ class NearCacheBenchmark {
 ### 5.2 모듈별 차이
 
 **`infra/lettuce/Benchmark.md`** — 13 codec 한 표.
+
 - Summary Table 행: jackson3, fastjson2, fory, kryo, jdk, lz4Fory, lz4Kryo, zstdFory, zstdKryo, fastFory, lz4FastFory, zstdFastFory, gzipFastFory.
 - Performance Analysis 핵심 축:
-  - Binary vs JSON (fory 계열 vs jackson3/fastjson2)
-  - 압축 효과 (lz4 vs zstd vs none) — 처리량 vs 사이즈 trade-off 정성 언급
-  - FastFory(SCHEMA_CONSISTENT) 의 일반 Fory 대비 우위
+    - Binary vs JSON (fory 계열 vs jackson3/fastjson2)
+    - 압축 효과 (lz4 vs zstd vs none) — 처리량 vs 사이즈 trade-off 정성 언급
+    - FastFory (SCHEMA_CONSISTENT) 의 일반 Fory 대비 우위
 - Recommendations 표 컬럼: 시나리오 / 추천 codec / 근거.
 
 **`infra/redisson/Benchmark.md`** — lettuce 와 동일 13 codec, ByteBuf 기반 차이만 명시.
+
 - "Notes on ByteBuf vs ByteBuffer" 짧은 박스 — Redisson 은 Netty `ByteBuf` 를 직접 사용해 GC 압력이 다름.
 - Lettuce 결과와 비교한 "Cross-Module Note" 1단락 — 동일 코덱이라도 buffer 종류 차이로 미세 격차가 발생할 수 있다.
 
 **`infra/cache-lettuce/Benchmark.md`** — 6 시나리오.
-- Summary Table 행: l1Hit, l2Hit, l2Miss, putSingle, putAll(batch=100), removeSingle.
+
+- Summary Table 행: l1Hit, l2Hit, l2Miss, putSingle, putAll (batch=100), removeSingle.
 - Performance Analysis 핵심 축:
-  - L1 vs L2 latency (Caffeine 메모리 hit vs Redis 왕복)
-  - Read vs Write 비대칭
-  - L2 miss 의 양쪽-부정 비용
-  - putAll 의 amortized 처리량 (per-entry 환산 보너스 표)
+    - L1 vs L2 latency (Caffeine 메모리 hit vs Redis 왕복)
+    - Read vs Write 비대칭
+    - L2 miss 의 양쪽-부정 비용
+    - putAll 의 amortized 처리량 (per-entry 환산 보너스 표)
 - Recommendations: hit ratio 가 임계값 이상일 때 Caffeine-only 대비 NearCache 의 장점.
-- Future Work 항목에 "LettuceSuspendNearCache 별도 측정", "더 큰 페이로드(4KB/16KB)" 명시.
+- Future Work 항목에 "LettuceSuspendNearCache 별도 측정", "더 큰 페이로드 (4KB/16KB)" 명시.
 
 ### 5.3 Colored bar 인코딩 규칙
 
 idgenerators 와 동일.
+
 - 색상 8종 순환: `#0EA5E9 sky` · `#EC4899 pink` · `#10B981 emerald` · `#F97316 orange` · `#EAB308 yellow(black text)` · `#8B5CF6 violet` · `#EF4444 red` · `#6366F1 indigo` (8번째는 codec 13개를 위해 추가).
-- 막대 길이는 1위 = 40 블록 기준 비례 정수 반올림(idgenerators 와 동일 알고리즘).
-- 색상은 동일 codec 이면 lettuce/redisson 두 페이지에서 같은 색을 유지(독자 비교 편의).
+- 막대 길이는 1위 = 40 블록 기준 비례 정수 반올림 (idgenerators 와 동일 알고리즘).
+- 색상은 동일 codec 이면 lettuce/redisson 두 페이지에서 같은 색을 유지 (독자 비교 편의).
 
 ---
 
 ## 6. DoD Checklist
 
 ### 코드
+
 - [ ] `infra/cache-lettuce/build.gradle.kts` — `kotlinx_benchmark` plugin · benchmark sourceset · benchmarkImplementation/RuntimeOnly configuration · `register("benchmark")` 추가
 - [ ] `infra/cache-lettuce/src/benchmark/kotlin/io/bluetape4k/cache/nearcache/benchmark/NearCacheBenchmark.kt` 작성
 - [ ] `./gradlew :bluetape4k-cache-lettuce:benchmark` 로컬 1회 성공 (Docker 필요)
@@ -328,28 +341,33 @@ idgenerators 와 동일.
 - [ ] `./gradlew :bluetape4k-lettuce:benchmark` · `:bluetape4k-redisson:benchmark` 도 재실행하여 최신 수치 확보
 
 ### 문서
+
 - [ ] `infra/lettuce/Benchmark.md` + `Benchmark.ko.md` (페어, 동일 commit)
 - [ ] `infra/redisson/Benchmark.md` + `Benchmark.ko.md` (페어, 동일 commit)
 - [ ] `infra/cache-lettuce/Benchmark.md` + `Benchmark.ko.md` (페어, 동일 commit)
 - [ ] 각 파일 상단 bilingual switch 링크 검증 (`[한국어](./Benchmark.ko.md) | English` / 반대)
 - [ ] colored span 바 차트가 GitHub 미리보기 + IntelliJ Markdown preview 양쪽에서 정상 렌더 확인
-- [ ] **Vega-Lite 사용 금지** (CLAUDE.md 규칙). Mermaid 는 Benchmark.md 본문에서 제외 — Benchmark.md 는 colored span 바 차트 전용; Mermaid 다이어그램은 README.md 에만.
+- [ ] **Vega-Lite 사용
+  금지** (CLAUDE.md 규칙). Mermaid 는 Benchmark.md 본문에서 제외 — Benchmark.md 는 colored span 바 차트 전용; Mermaid 다이어그램은 README.md 에만.
 - [ ] `infra/cache-lettuce/README.md` + `README.ko.md` 의 NearCache 아키텍처 Mermaid 다이어그램 최신화 (L1/L2 invalidation 경로 포함)
 
 ### 모듈 README 동기화
+
 - [ ] `infra/lettuce/README.md` + `README.ko.md` 의 "Performance" 섹션에서 `Benchmark.md` 로 링크
 - [ ] `infra/redisson/README.md` + `README.ko.md` 동일 처리
 - [ ] `infra/cache-lettuce/README.md` + `README.ko.md` 동일 처리
 
 ### 빌드 / 검증
+
 - [ ] `./gradlew :bluetape4k-cache-lettuce:compileBenchmarkKotlin` 성공
-- [ ] `./gradlew :bluetape4k-cache-lettuce:test` 회귀 없음(코드 추가가 main/test 영향 없음 확인)
+- [ ] `./gradlew :bluetape4k-cache-lettuce:test` 회귀 없음 (코드 추가가 main/test 영향 없음 확인)
 - [ ] `./gradlew detekt` (해당 모듈) 통과
 - [ ] `code-reviewer` 에이전트 1회 실행 → HIGH/CRITICAL 이슈 0
 
 ### PR
+
 - [ ] `feat: docs/benchmark-results — issue #184 벤치마크 결과 문서화` (Korean prefix)
-- [ ] PR 본문에 측정 환경(JVM/Kotlin/Hardware), Docker 요구사항, 재실행 명령 명시
+- [ ] PR 본문에 측정 환경 (JVM/Kotlin/Hardware), Docker 요구사항, 재실행 명령 명시
 - [ ] `/wiki-update` 1회 실행 (spec/plan 신규 작성에 의해)
 - [ ] 작업이 `.worktrees/docs-benchmark-results/` 안에서 이루어졌는지 확인
 
@@ -357,9 +375,9 @@ idgenerators 와 동일.
 
 ## 7. Risks & Mitigations
 
-| 위험 | 완화 |
-|---|---|
-| Docker 미설치 환경에서 cache-lettuce 벤치마크 실행 불가 | "How to Run" 에 Docker 사전조건 명시. CI 자동 실행 본 issue 범위 외. |
-| `localInvalidate` 미존재(Review C1 해소) → `clearLocal()` 사용 | 설계 결정 3.3 에서 `clearLocal()` 방식으로 재설계 완료. l1Hit/l2Hit 분리 클래스 권장. |
-| 측정값이 머신 의존적 | `Benchmark Environment` 섹션에 측정 머신 사양(CPU/RAM/OS) 정확히 기재. 절대값보다 모듈 내 상대 순위가 의사결정 단위라는 점 본문에 명시. |
-| codec 결과가 lettuce vs redisson 사이에 크게 다를 경우 해석 부담 | "Cross-Module Note" 박스로 ByteBuf vs ByteBuffer 차이를 한 단락으로 사전 설명. |
+| 위험                                                             | 완화                                                                                                                                    |
+|------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| Docker 미설치 환경에서 cache-lettuce 벤치마크 실행 불가          | "How to Run" 에 Docker 사전조건 명시. CI 자동 실행 본 issue 범위 외.                                                                    |
+| `localInvalidate` 미존재(Review C1 해소) → `clearLocal()` 사용   | 설계 결정 3.3 에서 `clearLocal()` 방식으로 재설계 완료. l1Hit/l2Hit 분리 클래스 권장.                                                   |
+| 측정값이 머신 의존적                                             | `Benchmark Environment` 섹션에 측정 머신 사양(CPU/RAM/OS) 정확히 기재. 절대값보다 모듈 내 상대 순위가 의사결정 단위라는 점 본문에 명시. |
+| codec 결과가 lettuce vs redisson 사이에 크게 다를 경우 해석 부담 | "Cross-Module Note" 박스로 ByteBuf vs ByteBuffer 차이를 한 단락으로 사전 설명.                                                          |

@@ -1,10 +1,10 @@
 package io.bluetape4k.csv.coroutines
 
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.flow
-import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 import java.io.StringWriter
 

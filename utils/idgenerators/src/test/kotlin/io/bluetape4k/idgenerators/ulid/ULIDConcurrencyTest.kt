@@ -1,11 +1,11 @@
 package io.bluetape4k.idgenerators.ulid
 
-import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
 import java.util.concurrent.ConcurrentLinkedQueue

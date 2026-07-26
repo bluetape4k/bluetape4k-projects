@@ -17,7 +17,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 
-class VertxHttpClientSupportTest : AbstractHttpTest() {
+class VertxHttpClientSupportTest: AbstractHttpTest() {
 
     private val vertx = mockk<Vertx>()
     private val client = mockk<HttpClientAgent>()

@@ -14,9 +14,9 @@ import java.nio.file.Path
 
 internal class FlowCsvReaderImpl(
     override val config: CsvReaderConfig,
-) : FlowCsvReader {
+): FlowCsvReader {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     override fun read(
         input: InputStream,

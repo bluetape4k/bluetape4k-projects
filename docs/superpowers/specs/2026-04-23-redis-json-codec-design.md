@@ -38,13 +38,13 @@
 
 ### 1.2 Design Risks / Failure Modes
 
-| #  | Risk                                                                                                                                                     | Impact                                                                              | Mitigation                                                                                                                                                                         |
-|----|----------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| R1 | **Redisson type-embedding overhead**: Storing FQCN in every value increases storage and couples writer/reader to identical classpath                     | Medium — 10-50 bytes per entry overhead; ClassNotFoundException on schema migration | Jackson3: 커스텀 `{"_type","_data"}` JSON 엔벨로프 사용; Fastjson2: `JSONB.toBytes(graph, WriteClassName)` 직접 호출 (`FastjsonSerializer` 재사용 불가)                                              |
-| R2 | **Security: Deserialization gadget attacks via embedded type info**                                                                                      | High — Arbitrary class instantiation from Redis data                                | Jackson3: `Class.forName(className, false, classLoader)` 호출 시 내부 캐시 전용("trusted Redis only") 계약을 KDoc에 명시; Fastjson2: `SupportAutoType`은 기본 활성화하되 KDoc에 "신뢰된 Redis 환경에서만 사용" 경고 고정 |
-| R3 | **Fallback codec incompatibility**: ForyCodec falls back to Kryo5 on failure, but JSON codec fallback to binary codec creates mixed-format data in Redis | Medium — Unreadable data mixture                                                    | JSON codecs fall back to Fory (not another JSON format); document that fallback produces binary, not JSON                                                                          |
-| R4 | **Benchmark accuracy**: In-memory encode/decode benchmarks may not reflect real Redis round-trip performance**                                           | Low — Benchmarks measure serialization throughput, not network                      | Clearly label benchmarks as "codec throughput" not "Redis throughput"                                                                                                              |
-| R5 | **루트 Collection/Map 타입 불지원**: `Jackson3Codec`과 `Fastjson2Codec` 모두 `graph.javaClass.name`으로 구현 클래스(`ArrayList` 등)를 저장하며, 원소 타입 정보가 소실됨                   | Medium — `List<Foo>` 루트 역직렬화 시 원소가 `LinkedHashMap`으로 복원됨                            | **양쪽 codec 공통 제한사항**으로 통일. 루트 Collection은 DTO 래퍼로 감싸도록 KDoc + README에 명시. Jackson3/Fastjson2 API 계약 일관성 유지.                                                                        |
+| #  | Risk                                                                                                                                                                    | Impact                                                                              | Mitigation                                                                                                                                                                                                               |
+|----|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| R1 | **Redisson type-embedding overhead**: Storing FQCN in every value increases storage and couples writer/reader to identical classpath                                    | Medium — 10-50 bytes per entry overhead; ClassNotFoundException on schema migration | Jackson3: 커스텀 `{"_type","_data"}` JSON 엔벨로프 사용; Fastjson2: `JSONB.toBytes(graph, WriteClassName)` 직접 호출 (`FastjsonSerializer` 재사용 불가)                                                                  |
+| R2 | **Security: Deserialization gadget attacks via embedded type info**                                                                                                     | High — Arbitrary class instantiation from Redis data                                | Jackson3: `Class.forName(className, false, classLoader)` 호출 시 내부 캐시 전용("trusted Redis only") 계약을 KDoc에 명시; Fastjson2: `SupportAutoType`은 기본 활성화하되 KDoc에 "신뢰된 Redis 환경에서만 사용" 경고 고정 |
+| R3 | **Fallback codec incompatibility**: ForyCodec falls back to Kryo5 on failure, but JSON codec fallback to binary codec creates mixed-format data in Redis                | Medium — Unreadable data mixture                                                    | JSON codecs fall back to Fory (not another JSON format); document that fallback produces binary, not JSON                                                                                                                |
+| R4 | **Benchmark accuracy**: In-memory encode/decode benchmarks may not reflect real Redis round-trip performance**                                                          | Low — Benchmarks measure serialization throughput, not network                      | Clearly label benchmarks as "codec throughput" not "Redis throughput"                                                                                                                                                    |
+| R5 | **루트 Collection/Map 타입 불지원**: `Jackson3Codec`과 `Fastjson2Codec` 모두 `graph.javaClass.name`으로 구현 클래스(`ArrayList` 등)를 저장하며, 원소 타입 정보가 소실됨 | Medium — `List<Foo>` 루트 역직렬화 시 원소가 `LinkedHashMap`으로 복원됨             | **양쪽 codec 공통 제한사항**으로 통일. 루트 Collection은 DTO 래퍼로 감싸도록 KDoc + README에 명시. Jackson3/Fastjson2 API 계약 일관성 유지.                                                                              |
 
 ### 1.3 Design Approaches Compared
 
@@ -174,7 +174,7 @@ class Jackson3Codec(
   `Class.forName()`을 호출한 뒤 `treeToValue`로 역직렬화합니다.
 - **순수 `Jackson.defaultJsonMapper` 사용**: `DefaultTyping`을 사용하지 않으므로 특별한 mapper 설정이 불필요합니다. 사용자 정의
   `ObjectMapper`를 생성자에 전달하면 커스터마이징할 수 있습니다.
-- `fallbackCodec = Fory`: ForyCodec의 fallback 패턴(Fory → Kryo5)과 일관성 유지. Jackson3 → Fory 이진 fallback 제공.
+- `fallbackCodec = Fory`: ForyCodec의 fallback 패턴 (Fory → Kryo5)과 일관성 유지. Jackson3 → Fory 이진 fallback 제공.
 - Uses `tools.jackson.databind.ObjectMapper` (Jackson3 package).
 
 ### 2.2 Redisson: Fastjson2Codec
@@ -521,7 +521,7 @@ class LettuceCodecBenchmark {
 
 1. **Jackson3/Fastjson2 보안 기본값**: ✅ **결정됨** — `allowedPackagePrefixes: Set<String>? = null` 파라미터로 코드 레벨 제어 제공.
    `null`(기본값)은 permissive이며 "trusted Redis only" 환경에서만 사용. 외부 노출 Redis에서는 반드시
-   `allowedPackagePrefixes`를 지정. 기본값을 fail-close(`emptySet()`이 모든 클래스를 차단)로 설정하면 라이브러리 사용성이 크게 저하되므로
+   `allowedPackagePrefixes`를 지정. 기본값을 fail-close (`emptySet()`이 모든 클래스를 차단)로 설정하면 라이브러리 사용성이 크게 저하되므로
    `null`=permissive + KDoc 경고 + `allowedPackagePrefixes` opt-in 방식을 채택.
 
 2. **Fastjson2 autoType security**: ✅ **결정됨** — `SupportAutoType` 기본 활성화 유지.

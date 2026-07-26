@@ -1,14 +1,14 @@
 package io.bluetape4k.support
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.params.provider.argumentOf
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -96,14 +96,16 @@ class ValueConvertersTest {
         "1".asInt() shouldBeEqualTo 1; nullInt.asInt() shouldBeEqualTo 0
         "".asInt() shouldBeEqualTo 0; "C".asInt() shouldBeEqualTo 0; "\t".asInt() shouldBeEqualTo 0
         1.asInt() shouldBeEqualTo 1; "1".asInt() shouldBeEqualTo 1; "5000".asInt() shouldBeEqualTo 5000; 5000.asInt() shouldBeEqualTo 5000
-        Int.MAX_VALUE.toString().asInt() shouldBeEqualTo Int.MAX_VALUE; Int.MIN_VALUE.toString().asInt() shouldBeEqualTo Int.MIN_VALUE
+        Int.MAX_VALUE.toString().asInt() shouldBeEqualTo Int.MAX_VALUE; Int.MIN_VALUE.toString()
+            .asInt() shouldBeEqualTo Int.MIN_VALUE
         3.14.asIntOrNull() shouldBeEqualTo 3
 
         val nullLong: Long? = null
         "1".asLong() shouldBeEqualTo 1L; nullLong.asLong() shouldBeEqualTo 0L
         "".asLong() shouldBeEqualTo 0L; "C".asLong() shouldBeEqualTo 0L; "1".asLong() shouldBeEqualTo 1L
         12.asLong() shouldBeEqualTo 12L; "5000".asLong() shouldBeEqualTo 5000L; 5000.asLong() shouldBeEqualTo 5000L
-        Long.MAX_VALUE.toString().asLong() shouldBeEqualTo Long.MAX_VALUE; Long.MIN_VALUE.toString().asLong() shouldBeEqualTo Long.MIN_VALUE
+        Long.MAX_VALUE.toString().asLong() shouldBeEqualTo Long.MAX_VALUE; Long.MIN_VALUE.toString()
+            .asLong() shouldBeEqualTo Long.MIN_VALUE
         3.14.asLongOrNull() shouldBeEqualTo 3L
     }
 
@@ -196,22 +198,28 @@ class ValueConvertersTest {
     fun `convert any to Date and Timestamp`() {
         val nullDate: Date? = null
         nullDate.asDateOrNull().shouldBeNull(); nullDate.asDate() shouldBeEqualTo Date(0L)
-        val ts1 = System.currentTimeMillis(); val today1 = Date(ts1)
+        val ts1 = System.currentTimeMillis();
+        val today1 = Date(ts1)
         ts1.asDate() shouldBeEqualTo Date(ts1); today1.asDate() shouldBeEqualTo today1
 
         val nullTs: Timestamp? = null
         nullTs.asTimestampOrNull().shouldBeNull(); nullTs.asTimestamp() shouldBeEqualTo Timestamp(0L)
-        val epochMills = System.currentTimeMillis(); val timestamp = Timestamp(epochMills); val today = Date(timestamp.time)
+        val epochMills = System.currentTimeMillis();
+        val timestamp = Timestamp(epochMills);
+        val today = Date(timestamp.time)
         timestamp.asTimestamp() shouldBeEqualTo timestamp; today.asTimestamp() shouldBeEqualTo timestamp
-        Instant.ofEpochMilli(epochMills).asTimestamp() shouldBeEqualTo timestamp; epochMills.asTimestamp() shouldBeEqualTo timestamp
+        Instant.ofEpochMilli(epochMills)
+            .asTimestamp() shouldBeEqualTo timestamp; epochMills.asTimestamp() shouldBeEqualTo timestamp
     }
 
     @Test
     fun `convert any to Instant`() {
         val nullValue: Instant? = null
         nullValue.asInstantOrNull().shouldBeNull(); nullValue.asInstant() shouldBeEqualTo Instant.ofEpochMilli(0)
-        val epochMills = System.currentTimeMillis(); val now = Instant.ofEpochMilli(epochMills)
-        val timestamp = Timestamp(epochMills); val today = Date(timestamp.time)
+        val epochMills = System.currentTimeMillis();
+        val now = Instant.ofEpochMilli(epochMills)
+        val timestamp = Timestamp(epochMills);
+        val today = Date(timestamp.time)
         epochMills.asInstant() shouldBeEqualTo now; now.asInstant() shouldBeEqualTo now
         timestamp.asInstant() shouldBeEqualTo now; today.asInstant() shouldBeEqualTo now
         LocalDateTime.ofInstant(now, ZoneOffset.UTC).asInstant() shouldBeEqualTo now
@@ -221,8 +229,10 @@ class ValueConvertersTest {
 
     @Test
     fun `convert any to LocalDate and LocalTime`() {
-        val epochMills = System.currentTimeMillis(); val now = Instant.ofEpochMilli(epochMills)
-        val timestamp = Timestamp(epochMills); val today = Date(timestamp.time)
+        val epochMills = System.currentTimeMillis();
+        val now = Instant.ofEpochMilli(epochMills)
+        val timestamp = Timestamp(epochMills);
+        val today = Date(timestamp.time)
 
         val nullDate: LocalDate? = null
         nullDate.asLocalDateOrNull().shouldBeNull(); nullDate.asLocalDate() shouldBeEqualTo LocalDate.MIN
@@ -243,8 +253,10 @@ class ValueConvertersTest {
 
     @Test
     fun `convert any to LocalDateTime and OffsetDateTime`() {
-        val epochMills = System.currentTimeMillis(); val now = Instant.ofEpochMilli(epochMills)
-        val timestamp = Timestamp(epochMills); val today = Date(timestamp.time)
+        val epochMills = System.currentTimeMillis();
+        val now = Instant.ofEpochMilli(epochMills)
+        val timestamp = Timestamp(epochMills);
+        val today = Date(timestamp.time)
 
         val nullLdt: LocalDateTime? = null
         nullLdt.asLocalDateTimeOrNull().shouldBeNull(); nullLdt.asLocalDateTime() shouldBeEqualTo LocalDateTime.MIN
@@ -267,9 +279,11 @@ class ValueConvertersTest {
         val nullValue: ZonedDateTime? = null
         nullValue.asZonedDateTimeOrNull().shouldBeNull()
         nullValue.asZonedDateTime() shouldBeEqualTo ZonedDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC)
-        val epochMills = System.currentTimeMillis(); val now = Instant.ofEpochMilli(epochMills)
+        val epochMills = System.currentTimeMillis();
+        val now = Instant.ofEpochMilli(epochMills)
         val expected = ZonedDateTime.ofInstant(now, ZoneOffset.UTC)
-        val timestamp = Timestamp(epochMills); val today = Date(timestamp.time)
+        val timestamp = Timestamp(epochMills);
+        val today = Date(timestamp.time)
         now.asZonedDateTime() shouldBeEqualTo expected; epochMills.asZonedDateTime() shouldBeEqualTo expected
         timestamp.asZonedDateTime() shouldBeEqualTo expected; today.asZonedDateTime() shouldBeEqualTo expected
         LocalDateTime.ofInstant(now, ZoneOffset.UTC).asZonedDateTime() shouldBeEqualTo expected
@@ -281,7 +295,8 @@ class ValueConvertersTest {
     fun `convert any to UUID and byte array`() {
         val nullUuid: UUID? = null
         nullUuid.asUUIDOrNull().shouldBeNull(); nullUuid.asUUID() shouldBeEqualTo ZERO_UUID
-        val uuidStr = "24738134-9d88-6645-4ec8-d63aa2031015"; val uuid = UUID.fromString(uuidStr)
+        val uuidStr = "24738134-9d88-6645-4ec8-d63aa2031015";
+        val uuid = UUID.fromString(uuidStr)
         uuidStr.asUUID() shouldBeEqualTo uuid; uuid.toBigInt().asUUID() shouldBeEqualTo uuid
 
         val nullBa: ByteArray? = null
@@ -294,7 +309,11 @@ class ValueConvertersTest {
 
     @Test
     fun `float floor round ceil 연산`() {
-        val one = 1.0012345f; val one1 = 1.011111f; val one5 = 1.050234f; val one49 = 1.049999f; val nullF: Float? = null
+        val one = 1.0012345f;
+        val one1 = 1.011111f;
+        val one5 = 1.050234f;
+        val one49 = 1.049999f;
+        val nullF: Float? = null
         one.asFloatFloor(2) shouldBeEqualTo 1.00F; one.asFloatFloor(1) shouldBeEqualTo 1.0F
         one1.asFloatFloor(2) shouldBeEqualTo 1.01F; one5.asFloatFloor(2) shouldBeEqualTo 1.05F; one49.asFloatFloor(2) shouldBeEqualTo 1.04F
         nullF.asFloatFloor(2) shouldBeEqualTo 0.00F
@@ -310,7 +329,11 @@ class ValueConvertersTest {
 
     @Test
     fun `double floor round ceil 연산`() {
-        val one = 1.00123456; val one1 = 1.011111; val one5 = 1.0512341; val one49 = 1.0499999999; val nullD: Double? = null
+        val one = 1.00123456;
+        val one1 = 1.011111;
+        val one5 = 1.0512341;
+        val one49 = 1.0499999999;
+        val nullD: Double? = null
         one.asDoubleFloor(2) shouldBeEqualTo 1.00; one.asDoubleFloor(1) shouldBeEqualTo 1.0
         one1.asDoubleFloor(2) shouldBeEqualTo 1.01; one5.asDoubleFloor(2) shouldBeEqualTo 1.05; one49.asDoubleFloor(2) shouldBeEqualTo 1.04
         nullD.asDoubleFloor(2) shouldBeEqualTo 0.00; "13567.6".asDoubleFloor(-2) shouldBeEqualTo 13500.0

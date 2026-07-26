@@ -11,8 +11,7 @@ Hibernate 7.2 **2nd Level Cache** implementation backed by Lettuce Near Cache (C
 ## Package / Import Stability
 
 The cache folder reorganization moved this module under
-`cache/hibernate-cache-lettuce/`, but the Gradle project name, Maven artifact ID,
-and Kotlin packages remain stable:
+`cache/hibernate-cache-lettuce/`, but the Gradle project name, Maven artifact ID, and Kotlin packages remain stable:
 
 - Gradle project: `:bluetape4k-hibernate-cache-lettuce`
 - Maven artifact: `io.github.bluetape4k:bluetape4k-hibernate-cache-lettuce`
@@ -39,7 +38,8 @@ No user import migration is required for the reorganization.
 
 - **Region Isolation**: Each region gets its own `LettuceNearCache` instance
 - **Key Prefix**: Redis keys use the `{regionName}:{key}` prefix so regions do not share a key space
-- **Hibernate Key Encoding**: Hibernate keys are normalized to a versioned collision-resistant digest before the region prefix is applied
+- **Hibernate Key
+  Encoding**: Hibernate keys are normalized to a versioned collision-resistant digest before the region prefix is applied
 - **AccessType**: `NONSTRICT_READ_WRITE` is recommended (soft-locking is unnecessary in a distributed cache)
 
 ## Recent Changes
@@ -190,7 +190,7 @@ Redis 7+ is automatically started via Testcontainers; an H2 in-memory database i
   Redis TTL is not applied to
   `default-update-timestamps-region` in order to preserve the query cache invalidation contract.
 - **H2 Version**: Hibernate 7.2 requires H2 v2 (`com.h2database:h2:2.x`).
-- **Jakarta Persistence 3.2.0**: This module enforces Jakarta Persistence 3.2.0 via build configuration.
-  Spring Boot BOM may default to an earlier version; the `configurations.all` block in `build.gradle.kts`
+- **Jakarta Persistence
+  3.2.0**: This module enforces Jakarta Persistence 3.2.0 via build configuration. Spring Boot BOM may default to an earlier version; the `configurations.all` block in `build.gradle.kts`
   ensures the correct version is used for Hibernate 7.2 compatibility.
 - **Redis 6+**: Required when `use_resp3=true` (the default). For older Redis versions, set `use_resp3=false`.

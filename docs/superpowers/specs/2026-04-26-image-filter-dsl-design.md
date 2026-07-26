@@ -47,7 +47,7 @@ val out = image.filter(PipelineFilter(listOf(...)))
 4. **신규 필터 통합**: scrimage에 없는 `Saturation`, `ColorTemperature`, `RoundedCorner`, `MedianBlur` 등을 동일 DSL에서 사용
 5. **suspend 친화**: `suspendApplyFilters { ... }`로 `Dispatchers.Default`에서 무거운 픽셀 연산을 비동기 처리
 
-### 1.3 비목표(Non-goals)
+### 1.3 비목표 (Non-goals)
 
 - 70+ 내장 필터 100% 래핑 — Issue #131에 명시된 필터 + 일반적으로 자주 쓰이는 보정 필터에 한정
 - ImageMagick / OpenCV 수준의 알고리즘 자체 구현
@@ -60,14 +60,20 @@ val out = image.filter(PipelineFilter(listOf(...)))
 
 ### Risk-1: scrimage `Filter.apply()`의 mutation semantics
 
-scrimage `Filter.apply(ImmutableImage)` 시그니처는 **반환값이 없으며 인자를 직접 변경**한다. `ImmutableImage.filter(f)`는 `BufferedImage` 타입이 다를 때만 새 객체를 만들고, 같은 타입이면 원본을 그대로 변경한다 (4.3.10 소스 검증 완료: `ImmutableImage.filter(Filter)` — 타입 일치 시 `target = this` alias).
+scrimage `Filter.apply(ImmutableImage)` 시그니처는 **반환값이 없으며 인자를 직접
+변경**한다. `ImmutableImage.filter(f)`는 `BufferedImage` 타입이 다를 때만 새 객체를 만들고, 같은 타입이면 원본을 그대로 변경한다 (4.3.10 소스 검증 완료: `ImmutableImage.filter(Filter)` — 타입 일치 시 `target = this` alias).
 
 또한 `PipelineFilter` 자체도 mutation 격리를 보장하지 않는다 — 검증 결과:
-- `PipelineFilter.apply(image)` — `TYPE_INT_ARGB`/`TYPE_INT_RGB` 입력은 **그대로 alias** (복사 안 함), 각 sub-filter의 `apply(copy)` 가 in-place로 변경
+
+- `PipelineFilter.apply(image)` — `TYPE_INT_ARGB`/`TYPE_INT_RGB` 입력은 **그대로
+  alias** (복사 안 함), 각 sub-filter의 `apply(copy)` 가 in-place로 변경
 - `BufferedOpFilter.apply()` — `op().filter(image.awt(), image.awt())` 인플레이스 변환
 
-- **실패 모드**: DSL이 어떤 스타일로 호출하든 — 단일 `image.filter(builtFilter)` 든, `PipelineFilter` 묶음이든 — 호출자의 원본 `image`가 mutate될 수 있다. "DSL은 새 이미지를 반환한다"는 외부 계약을 위반.
-- **완화**: DSL 진입점(`compactAndApply`)에서 항상 `source.copy()` 로 1회 방어 복사하고, 그 사본에 대해서만 필터 체인을 적용한다 → 원본 보존이 보장된다. 자세한 메커니즘은 §4.7 참조.
+- **실패
+  모드**: DSL이 어떤 스타일로 호출하든 — 단일 `image.filter(builtFilter)` 든, `PipelineFilter` 묶음이든 — 호출자의 원본 `image`가 mutate될 수 있다. "DSL은 새 이미지를 반환한다"는 외부 계약을 위반.
+-
+
+**완화**: DSL 진입점 (`compactAndApply`)에서 항상 `source.copy()` 로 1회 방어 복사하고, 그 사본에 대해서만 필터 체인을 적용한다 → 원본 보존이 보장된다. 자세한 메커니즘은 §4.7 참조.
 
 ### Risk-2: 색공간 변환의 정밀도/성능 손실
 
@@ -75,9 +81,9 @@ RGB ↔ HSV / HSB / LAB 변환은 부동소수점 연산이며, 라운드트립 
 
 - **실패 모드**: 사용자가 `colorSpace { hsv { saturation += 0.1 } }`처럼 DSL 안에서 색공간 변환을 반복하면 누적 오차로 의도한 색과 결과가 달라진다.
 - **완화**:
-  - 단일 변환만 노출 (RGB → HSV → 조작 → RGB), 중첩 금지
-  - HSBFilter 기반 구현은 scrimage가 이미 검증한 변환 함수(`Color.RGBtoHSB`)를 재사용
-  - LAB 변환은 1차 범위에서 제외 (Risk-3에서 본격 처리)
+    - 단일 변환만 노출 (RGB → HSV → 조작 → RGB), 중첩 금지
+    - HSBFilter 기반 구현은 scrimage가 이미 검증한 변환 함수 (`Color.RGBtoHSB`)를 재사용
+    - LAB 변환은 1차 범위에서 제외 (Risk-3에서 본격 처리)
 
 ### Risk-3: 모든 70+ 필터 노출의 API surface 폭증
 
@@ -89,7 +95,9 @@ scrimage 70개 이상의 필터를 DSL 멤버 함수로 노출하면 단일 인�
 ### Risk-4: SaturationFilter / RoundedCornerFilter 부재
 
 검증 결과 (jar 인덱스 확인):
-- `com.sksamuel.scrimage.filter.SaturationFilter` — **없음**. `thirdparty.jhlabs.image.SaturationFilter`만 존재 (scrimage 공개 API 아님)
+
+- `com.sksamuel.scrimage.filter.SaturationFilter` —
+  **없음**. `thirdparty.jhlabs.image.SaturationFilter`만 존재 (scrimage 공개 API 아님)
 - `com.sksamuel.scrimage.filter.MedianFilter` — **없음** (jhlabs 내부에만)
 - `RoundedCornerFilter` — **없음**
 - `VignetteFilter` — **있음** (scrimage 공개)
@@ -97,11 +105,11 @@ scrimage 70개 이상의 필터를 DSL 멤버 함수로 노출하면 단일 인�
 - `Filter` 인터페이스 — `com.sksamuel.scrimage.filter.Filter` (scrimage-core)
 
 - **실패 모드**: HSBFilter로 saturation을 흉내 낸다고 해서 jhlabs `SaturationFilter`와 픽셀 단위로 동일하지 않다. 골든 이미지가 안 맞을 수 있다.
-- **완화**: 신규 필터(`SaturationAdjustFilter` 등)를 직접 구현하되 알고리즘은 명세화하고 (HSV 공간에서 S 채널 곱셈), scrimage 의존하지 않는 자체 골든 이미지를 생성/저장.
+- **완화**: 신규 필터 (`SaturationAdjustFilter` 등)를 직접 구현하되 알고리즘은 명세화하고 (HSV 공간에서 S 채널 곱셈), scrimage 의존하지 않는 자체 골든 이미지를 생성/저장.
 
 ### Risk-5: 필터 적용 순서에 따른 결과 차이
 
-`brightness(1.2f); contrast(1.1)` 와 `contrast(1.1); brightness(1.2f)`는 결과가 다르다 — 비가환(non-commutative).
+`brightness(1.2f); contrast(1.1)` 와 `contrast(1.1); brightness(1.2f)`는 결과가 다르다 — 비가환 (non-commutative).
 
 - **실패 모드**: DSL이 내부적으로 정렬하거나 최적화하면서 사용자 선언 순서를 바꾸면 출력이 변한다.
 - **완화**: DSL은 **사용자 선언 순서를 보존**한다. 내부 최적화 금지. 문서에 명시.
@@ -129,12 +137,12 @@ fun ImmutableImage.applyFilters(block: ImageFilterChain.() -> Unit): ImmutableIm
 ```
 
 - **장점**:
-  - 추가 추상화 0층 — scrimage 타입 그대로 노출되어 학습 곡선 최소
-  - 사용자가 `add(MyCustomFilter())`로 임의 scrimage 필터 즉시 사용 가능
-  - 기존 `xxxFilterOf(...)` 팩토리들과 자연스럽게 결합 (`add(watermarkFilterOf(...))`)
+    - 추가 추상화 0층 — scrimage 타입 그대로 노출되어 학습 곡선 최소
+    - 사용자가 `add(MyCustomFilter())`로 임의 scrimage 필터 즉시 사용 가능
+    - 기존 `xxxFilterOf(...)` 팩토리들과 자연스럽게 결합 (`add(watermarkFilterOf(...))`)
 - **단점**:
-  - DSL 멤버 함수 안에 색공간 / 신규 필터를 추가할 때 `Filter` 외 타입을 노출해야 할 수 있음 (예: 색공간 컨버터는 `Filter`가 아닌 픽셀 함수)
-  - `Filter`는 mutation 의미를 갖는 Java 인터페이스 — Kotlin 타입 안전성 측면에서 살짝 어색
+    - DSL 멤버 함수 안에 색공간 / 신규 필터를 추가할 때 `Filter` 외 타입을 노출해야 할 수 있음 (예: 색공간 컨버터는 `Filter`가 아닌 픽셀 함수)
+    - `Filter`는 mutation 의미를 갖는 Java 인터페이스 — Kotlin 타입 안전성 측면에서 살짝 어색
 
 ### 접근법 B: 자체 `ImageFilter` fun interface로 한 단계 래핑
 
@@ -156,13 +164,13 @@ class ImageFilterChain {
 ```
 
 - **장점**:
-  - `apply`가 **입력→출력** 함수 시그니처 — Kotlin/FP 친화, 불변성 명확
-  - 색공간 변환 같은 non-Filter 변환을 1급 시민으로 등록 가능
-  - 향후 다른 백엔드(예: Java2D, OpenCV 어댑터) 전환 시 추상화 경계
+    - `apply`가 **입력→출력** 함수 시그니처 — Kotlin/FP 친화, 불변성 명확
+    - 색공간 변환 같은 non-Filter 변환을 1급 시민으로 등록 가능
+    - 향후 다른 백엔드 (예: Java2D, OpenCV 어댑터) 전환 시 추상화 경계
 - **단점**:
-  - `PipelineFilter`의 단일 패스 최적화를 잃는다 — `fold` 기반은 매 단계 `ImmutableImage` 사본 생성
-  - 사용자가 scrimage 필터를 직접 쓰려면 항상 `.asImageFilter()` 어댑터가 필요 → 보일러플레이트 증가
-  - 추상화의 가치가 명확하지 않음 — scrimage가 `Filter`로 충분히 안정적
+    - `PipelineFilter`의 단일 패스 최적화를 잃는다 — `fold` 기반은 매 단계 `ImmutableImage` 사본 생성
+    - 사용자가 scrimage 필터를 직접 쓰려면 항상 `.asImageFilter()` 어댑터가 필요 → 보일러플레이트 증가
+    - 추상화의 가치가 명확하지 않음 — scrimage가 `Filter`로 충분히 안정적
 
 ### 접근법 C: 하이브리드 — scrimage `Filter`를 1차 시민, 색공간/신규 변환은 DSL 멤버 함수로 별도 등록
 
@@ -192,23 +200,25 @@ class ImageFilterChain {
 ```
 
 - **장점**:
-  - 색공간 변환과 scrimage 필터를 동시에 자연스럽게 표현
-  - 인접 Native 묶음으로 PipelineFilter 단일 패스 최적화 유지
-  - 사용자 측 API는 깔끔 (`brightness`, `saturation` 모두 평범한 멤버 함수)
+    - 색공간 변환과 scrimage 필터를 동시에 자연스럽게 표현
+    - 인접 Native 묶음으로 PipelineFilter 단일 패스 최적화 유지
+    - 사용자 측 API는 깔끔 (`brightness`, `saturation` 모두 평범한 멤버 함수)
 - **단점**:
-  - 내부 sealed class 추가 — 모듈 코드량 증가
-  - `source.copy()` 진입점 비용 (1회) — 매우 작은 N에서는 직접 호출 대비 약간의 오버헤드
+    - 내부 sealed class 추가 — 모듈 코드량 증가
+    - `source.copy()` 진입점 비용 (1회) — 매우 작은 N에서는 직접 호출 대비 약간의 오버헤드
 
 ### 거부된 접근법 분석
 
 **접근법 B 거부 이유**:
-1. bluetape4k 컨벤션(`xxxFilterOf(...) -> Filter`)와 충돌 — 기존 팩토리들의 반환형이 모두 scrimage `Filter`인데, B를 채택하면 `xxxFilterOf` → `xxxImageFilterOf`로 전부 마이그레이션하거나 어댑터를 강제. 비파괴적이지 않음.
+
+1. bluetape4k 컨벤션 (`xxxFilterOf(...) -> Filter`)와 충돌 — 기존 팩토리들의 반환형이 모두 scrimage `Filter`인데, B를 채택하면 `xxxFilterOf` → `xxxImageFilterOf`로 전부 마이그레이션하거나 어댑터를 강제. 비파괴적이지 않음.
 2. `PipelineFilter`의 단일 패스 최적화는 N=5+ 필터 체인에서 측정 가능한 차이를 낸다 (TYPE_INT_ARGB 변환 1회 vs N회). 이 가치를 포기할 명분이 약함.
 3. `WatermarkFilterSupport`, `CaptionFilterSupport`가 이미 `Filter`를 반환하며 사용자 코드가 그 타입에 노출되어 있다. 새 추상화 도입은 호환성 비용 대비 이득 불확실.
 
 **접근법 A 거부 이유**:
-1. 색공간 변환(`saturation`, `colorTemperature`)은 scrimage `Filter`로 자연스럽게 표현되지 않는다. `Filter`로 강제하면 매번 `BufferedImage` round-trip이 필요하거나, mutation을 통해 상태를 관리해야 함 → Risk-1 재발.
-2. 신규 직접 구현 필터(`SaturationAdjustFilter`)도 `Filter`로 만들면 mutation API가 되어 테스트가 어려움.
+
+1. 색공간 변환 (`saturation`, `colorTemperature`)은 scrimage `Filter`로 자연스럽게 표현되지 않는다. `Filter`로 강제하면 매번 `BufferedImage` round-trip이 필요하거나, mutation을 통해 상태를 관리해야 함 → Risk-1 재발.
+2. 신규 직접 구현 필터 (`SaturationAdjustFilter`)도 `Filter`로 만들면 mutation API가 되어 테스트가 어려움.
 
 → **접근법 C 채택**.
 
@@ -307,16 +317,13 @@ class ImageFilterChain internal constructor() {
  *     vignette()
  * }
  * ```
- */
-fun ImmutableImage.applyFilters(block: ImageFilterChain.() -> Unit): ImmutableImage =
-    ImageFilterChain().apply(block).apply(this)
 
-/** suspend 버전 — Dispatchers.Default 에서 적용 */
-suspend fun ImmutableImage.suspendApplyFilters(
-    block: ImageFilterChain.() -> Unit,
-): ImmutableImage = withContext(Dispatchers.Default) {
-    applyFilters(block)
+*/ fun ImmutableImage.applyFilters (block: ImageFilterChain. () -> Unit): ImmutableImage = ImageFilterChain ().apply (block).apply (this)
+
+/** suspend 버전 — Dispatchers.Default 에서 적용 */ suspend fun ImmutableImage.suspendApplyFilters (block: ImageFilterChain. () -> Unit,
+): ImmutableImage = withContext (Dispatchers.Default) { applyFilters (block)
 }
+
 ```
 
 ### 4.7 mutation 격리 메커니즘 + PipelineFilter 묶음 최적화
@@ -330,25 +337,27 @@ scrimage의 `Filter.apply()` 와 `PipelineFilter` 모두 입력 이미지를 in-
 
 **의사 코드**:
 ```
-compactAndApply(source, ops):
-    if ops is empty:
-        return source                    // 변경할 게 없으면 원본 그대로 (방어 복사 생략)
-    var current = source.copy()          // 방어 복사 1회 (원본 보존)
-    for each group in compact(ops):
-        current = when group:
-            NativeGroup → current.filter(PipelineFilter(group.filters))
-            Pixel       → group.transform(current)
-    return current
+
+compactAndApply (source, ops):
+if ops is empty:
+return source // 변경할 게 없으면 원본 그대로 (방어 복사 생략)
+var current = source.copy ()          // 방어 복사 1회 (원본 보존)
+for each group in compact (ops):
+current = when group:
+NativeGroup → current.filter (PipelineFilter (group.filters))
+Pixel → group.transform (current)
+return current
+
 ```
 
 **예시 — 인접 Native 묶음 동작**:
 ```
-입력 ops: [Native(b), Native(c), Pixel(s), Native(v)]
 
-current = source.copy()
-current = current.filter(PipelineFilter([b, c]))   // 묶음 1
-current = s(current)                                // Pixel
-current = current.filter(PipelineFilter([v]))      // 묶음 2 (단일도 PipelineFilter로 감싸 일관성)
+입력 ops: [Native (b), Native (c), Pixel (s), Native (v)]
+
+current = source.copy ()
+current = current.filter (PipelineFilter ([b, c]))   // 묶음 1 current = s (current)                                // Pixel current = current.filter (PipelineFilter ([v]))      // 묶음 2 (단일도 PipelineFilter로 감싸 일관성)
+
 ```
 
 이렇게 하면 진입점 1회의 `copy()` 로 원본 보호가 보장되고, 인접 Native 필터들은 PipelineFilter 단일 패스로 적용되어 sub-filter들의 in-place mutation 이 사본 안에 격리된다.
@@ -398,6 +407,7 @@ LAB 변환은 1차 범위 제외 (Risk-2).
 **결정: Issue #131 명시 + 일반적 색보정 핵심 + 대표 효과/스타일만 노출**한다 (~30개). 나머지는 `raw(...)` 이스케이프 해치.
 
 거부한 대안 — 70+ 전체 노출:
+
 - API surface가 너무 큼 (IDE 자동완성에 30+ 메서드만 떠도 이미 많음)
 - 골든 이미지 테스트 부담이 70+ 케이스로 늘어남 → 1차 PR 범위 폭증
 - bluetape4k는 다른 모듈에서도 "필요한 만큼만 래핑하고 raw escape hatch 제공" 패턴을 쓴다 (예: lettuce, exposed)
@@ -407,6 +417,7 @@ LAB 변환은 1차 범위 제외 (Risk-2).
 **결정: HSV 공간에서 직접 구현한다** (`saturation(factor: Float)` DSL 멤버).
 
 거부한 대안 — HSBFilter 위임:
+
 - HSBFilter는 `(hue, saturation, brightness)`를 동시에 받아 HSB 공간에서 곱셈/덧셈을 수행 — saturation 전용이 아님
 - HSB와 HSV는 다르다 (밝기 정의가 다름) → 사용자가 "saturation"이라고 부른 의도와 다른 결과
 - 단순 직접 구현이 더 명확함 (RGB → HSV → S *= factor → RGB, 50줄 미만)
@@ -418,19 +429,13 @@ LAB 변환은 1차 범위 제외 (Risk-2).
 scrimage 필터 생성자가 받는 타입을 그대로 따른다 — 파라미터 변환 비용 0, 사용자가 IDE에서 보는 타입과 라이브러리 타입이 일치.
 
 **규칙**:
-- scrimage 생성자가 `Double`을 받는 필터(Contrast, Gamma 등)는 DSL 멤버도 `Double` 사용
-- scrimage 생성자가 `Float`을 받는 필터(Brightness, HSB 등)는 DSL 멤버도 `Float` 사용
+
+- scrimage 생성자가 `Double`을 받는 필터 (Contrast, Gamma 등)는 DSL 멤버도 `Double` 사용
+- scrimage 생성자가 `Float`을 받는 필터 (Brightness, HSB 등)는 DSL 멤버도 `Float` 사용
 - 신규 직접 구현 필터는 픽셀 연산 수치 정밀도가 충분한 `Float`을 기본으로 하되, 명백히 `Double` 정밀도가 필요하면 `Double` 채택
 
 대표 적용:
-| DSL 멤버 | 타입 | 근거 |
-|---|---|---|
-| `brightness(amount: Float)` | Float | scrimage `BrightnessFilter(float)` |
-| `contrast(amount: Double)` | Double | scrimage `ContrastFilter(double)` |
-| `gamma(gamma: Double)` | Double | scrimage `GammaFilter(double)` |
-| `hsb(hue, saturation, brightness: Float)` | Float | scrimage `HSBFilter(float, float, float)` |
-| `saturation(factor: Float)` | Float | 신규, Float 충분 |
-| `hue(deltaDegrees: Float)` | Float | 신규, Float 충분 |
+| DSL 멤버 | 타입 | 근거 | |---|---|---| | `brightness(amount: Float)` | Float | scrimage `BrightnessFilter(float)` | | `contrast(amount: Double)` | Double | scrimage `ContrastFilter(double)` | | `gamma(gamma: Double)` | Double | scrimage `GammaFilter(double)` | | `hsb(hue, saturation, brightness: Float)` | Float | scrimage `HSBFilter(float, float, float)` | | `saturation(factor: Float)` | Float | 신규, Float 충분 | | `hue(deltaDegrees: Float)` | Float | 신규, Float 충분 |
 
 ---
 
@@ -440,51 +445,51 @@ scrimage 필터 생성자가 받는 타입을 그대로 따른다 — 파라미�
 
 `Filter` 반환 팩토리 또는 DSL 멤버 함수로 노출.
 
-| 카테고리 | DSL 멤버 | scrimage 클래스 | 비고 |
-|---|---|---|---|
-| 색/톤 | `brightness(Float)` | `BrightnessFilter` | |
-| | `contrast(Double)` | `ContrastFilter` | scrimage 타입 준수 |
-| | `gamma(Double)` | `GammaFilter` | |
-| | `hsb(Float, Float, Float)` | `HSBFilter` | (h, s, b) 동시 |
-| | `rgb(Float, Float, Float)` | `RGBFilter` | (r, g, b) 채널 곱셈 |
-| | `opacity(Float)` | `OpacityFilter` | |
-| | `threshold(Int)` | `ThresholdFilter` | |
-| | `posterize(Int)` | `PosterizeFilter` | |
-| | `gainBias(Float, Float)` | `GainBiasFilter` | |
-| 톤/스타일 | `sepia` | `SepiaFilter` | |
-| | `grayscale` | `GrayscaleFilter` | |
-| | `invert` | `InvertFilter` | |
-| | `vintage` | `VintageFilter` | |
-| | `chrome` | `ChromeFilter` | |
-| | `nashville` | `NashvilleFilter` | |
-| | `gotham` | `GothamFilter` | |
-| | `summer` | `SummerFilter` | |
-| | `oldPhoto` | `OldPhotoFilter` | |
-| 블러/선명도 | `blur` | `BlurFilter` | |
-| | `gaussianBlur(Int)` | `GaussianBlurFilter` | |
-| | `motionBlur(Float, Float)` | `MotionBlurFilter` | |
-| | `sharpen` | `SharpenFilter` | scrimage 파라미터 없음 |
-| | `unsharp` | `UnsharpFilter` | |
-| | `noiseReduction(Int)` | `NoiseReductionFilter` | |
-| 효과 | `oil(Int, Int)` | `OilFilter` | |
-| | `crystallize` | `CrystallizeFilter` | |
-| | `pixelate(Int)` | `PixelateFilter` | |
-| | `border(Int, Color)` | `BorderFilter` | |
-| | `vignette(start, end, blur, color)` | `VignetteFilter` | `(0.85f, 0.95f, 0.3f, BLACK)` |
-| | `glow(Float)` | `GlowFilter` | |
-| | `lensFlare` | `LensFlareFilter` | |
-| 텍스트 | `watermark(...)` | `WatermarkFilter`/Cover/Stamp | 기존 팩토리 위임 |
-| | `caption(...)` | `CaptionFilter` | 기존 팩토리 위임 |
+| 카테고리    | DSL 멤버                            | scrimage 클래스               | 비고                          |
+|-------------|-------------------------------------|-------------------------------|-------------------------------|
+| 색/톤       | `brightness(Float)`                 | `BrightnessFilter`            |                               |
+|             | `contrast(Double)`                  | `ContrastFilter`              | scrimage 타입 준수            |
+|             | `gamma(Double)`                     | `GammaFilter`                 |                               |
+|             | `hsb(Float, Float, Float)`          | `HSBFilter`                   | (h, s, b) 동시                |
+|             | `rgb(Float, Float, Float)`          | `RGBFilter`                   | (r, g, b) 채널 곱셈           |
+|             | `opacity(Float)`                    | `OpacityFilter`               |                               |
+|             | `threshold(Int)`                    | `ThresholdFilter`             |                               |
+|             | `posterize(Int)`                    | `PosterizeFilter`             |                               |
+|             | `gainBias(Float, Float)`            | `GainBiasFilter`              |                               |
+| 톤/스타일   | `sepia`                             | `SepiaFilter`                 |                               |
+|             | `grayscale`                         | `GrayscaleFilter`             |                               |
+|             | `invert`                            | `InvertFilter`                |                               |
+|             | `vintage`                           | `VintageFilter`               |                               |
+|             | `chrome`                            | `ChromeFilter`                |                               |
+|             | `nashville`                         | `NashvilleFilter`             |                               |
+|             | `gotham`                            | `GothamFilter`                |                               |
+|             | `summer`                            | `SummerFilter`                |                               |
+|             | `oldPhoto`                          | `OldPhotoFilter`              |                               |
+| 블러/선명도 | `blur`                              | `BlurFilter`                  |                               |
+|             | `gaussianBlur(Int)`                 | `GaussianBlurFilter`          |                               |
+|             | `motionBlur(Float, Float)`          | `MotionBlurFilter`            |                               |
+|             | `sharpen`                           | `SharpenFilter`               | scrimage 파라미터 없음        |
+|             | `unsharp`                           | `UnsharpFilter`               |                               |
+|             | `noiseReduction(Int)`               | `NoiseReductionFilter`        |                               |
+| 효과        | `oil(Int, Int)`                     | `OilFilter`                   |                               |
+|             | `crystallize`                       | `CrystallizeFilter`           |                               |
+|             | `pixelate(Int)`                     | `PixelateFilter`              |                               |
+|             | `border(Int, Color)`                | `BorderFilter`                |                               |
+|             | `vignette(start, end, blur, color)` | `VignetteFilter`              | `(0.85f, 0.95f, 0.3f, BLACK)` |
+|             | `glow(Float)`                       | `GlowFilter`                  |                               |
+|             | `lensFlare`                         | `LensFlareFilter`             |                               |
+| 텍스트      | `watermark(...)`                    | `WatermarkFilter`/Cover/Stamp | 기존 팩토리 위임              |
+|             | `caption(...)`                      | `CaptionFilter`               | 기존 팩토리 위임              |
 
 ### 5.2 신규 직접 구현 필터
 
-| 이름 | DSL 멤버 | 알고리즘 |
-|---|---|---|
-| `SaturationAdjustFilter` | `saturation(factor: Float)` | 픽셀별 RGB→HSV, S *= factor, HSV→RGB. factor=1.0이 원본, >1 채도 증가, <1 감소 (0=흑백). |
-| `HueAdjustFilter` | `hue(deltaDegrees: Float)` | 픽셀별 RGB→HSV, H = (H + delta) mod 360, HSV→RGB. |
-| `ColorTemperatureFilter` | `colorTemperature(kelvin: Int)` | Kelvin→RGB 변환 (Tanner Helland 알고리즘) 후 채널 곱. kelvin ∈ [1000, 40000]. |
-| `RoundedCornerFilter` | `roundedCorners(radius: Int)` | 알파 마스크 합성. 코너 반경 픽셀 영역에서 거리 기반 알파 페이드. |
-| `MedianBlurFilter` | `medianBlur(radius: Int, boundary: MedianBoundaryMode)` | 픽셀 주변 (2r+1)² 윈도우에서 R/G/B 채널별 중앙값 계산. 경계 처리 방식은 `MedianBoundaryMode` 로 설정. jhlabs는 internal이므로 직접 구현. ★ 1차 포함. |
+| 이름                     | DSL 멤버                                                | 알고리즘                                                                                                                                              |
+|--------------------------|---------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `SaturationAdjustFilter` | `saturation(factor: Float)`                             | 픽셀별 RGB→HSV, S *= factor, HSV→RGB. factor=1.0이 원본, >1 채도 증가, <1 감소 (0=흑백).                                                              |
+| `HueAdjustFilter`        | `hue(deltaDegrees: Float)`                              | 픽셀별 RGB→HSV, H = (H + delta) mod 360, HSV→RGB.                                                                                                     |
+| `ColorTemperatureFilter` | `colorTemperature(kelvin: Int)`                         | Kelvin→RGB 변환 (Tanner Helland 알고리즘) 후 채널 곱. kelvin ∈ [1000, 40000].                                                                         |
+| `RoundedCornerFilter`    | `roundedCorners(radius: Int)`                           | 알파 마스크 합성. 코너 반경 픽셀 영역에서 거리 기반 알파 페이드.                                                                                      |
+| `MedianBlurFilter`       | `medianBlur(radius: Int, boundary: MedianBoundaryMode)` | 픽셀 주변 (2r+1)² 윈도우에서 R/G/B 채널별 중앙값 계산. 경계 처리 방식은 `MedianBoundaryMode` 로 설정. jhlabs는 internal이므로 직접 구현. ★ 1차 포함. |
 
 **`MedianBoundaryMode` enum**:
 
@@ -524,7 +529,8 @@ class SaturationAdjustFilter(private val factor: Float) : Filter {
 ```
 
 **규약**:
-- DSL 진입점(`compactAndApply`) 에서 방어 복사 책임을 진다 → 신규 `Filter` 구현체의 `apply()` 는 in-place 쓰기 허용
+
+- DSL 진입점 (`compactAndApply`) 에서 방어 복사 책임을 진다 → 신규 `Filter` 구현체의 `apply()` 는 in-place 쓰기 허용
 - 사용자가 `image.filter(saturationFilterOf(1.5f))` 처럼 직접 호출하는 경우, scrimage `ImmutableImage.filter(Filter)` 가 동일 타입에서 mutate 하는 동작과 일관됨 (사용자가 원본 보호를 원하면 `image.copy().filter(...)` 또는 DSL 사용)
 
 ### 5.3 색공간 변환 API
@@ -539,12 +545,9 @@ Issue #131에서 `ColorSpaceConverter`를 **공개 유틸리티**로 요구하�
  * val (h, s, v) = ColorSpaceConverter.rgbToHsv(255, 128, 0)
  * val (r, g, b) = ColorSpaceConverter.hsvToRgb(30f, 1f, 1f)
  * ```
- */
-object ColorSpaceConverter {
-    /** Tanner Helland 알고리즘 적용 최소 켈빈 값. 변경 가능하도록 상수로 정의. */
-    const val KELVIN_MIN: Int = 1000
-    /** Tanner Helland 알고리즘 적용 최대 켈빈 값. 변경 가능하도록 상수로 정의. */
-    const val KELVIN_MAX: Int = 40000
+
+*/ object ColorSpaceConverter { /** Tanner Helland 알고리즘 적용 최소 켈빈 값. 변경 가능하도록 상수로 정의. */ const val KELVIN_MIN: Int =
+1000 /** Tanner Helland 알고리즘 적용 최대 켈빈 값. 변경 가능하도록 상수로 정의. */ const val KELVIN_MAX: Int = 40000
 
     fun rgbToHsv(r: Int, g: Int, b: Int): Triple<Float, Float, Float>
     fun hsvToRgb(h: Float, s: Float, v: Float): Triple<Int, Int, Int>
@@ -561,7 +564,9 @@ object ColorSpaceConverter {
     // 성능에 민감한 내부 경로 (박싱 회피)
     @JvmSynthetic internal fun rgbToHsvInto(r: Int, g: Int, b: Int, out: FloatArray)
     @JvmSynthetic internal fun hsvToRgbInto(h: Float, s: Float, v: Float, out: IntArray)
+
 }
+
 ```
 
 추가로 `ImmutableImage` 확장 함수도 제공 (Issue #131 명시):
@@ -595,19 +600,20 @@ fun pixel(transform: (ImmutableImage) -> ImmutableImage)     // 임의 픽셀 �
 
 DSL 멤버 함수와 신규 `Filter` 구현체는 시스템 경계에서 입력값을 즉시 검증한다 (`require` 기반). 잘못된 값은 `IllegalArgumentException` 으로 즉시 실패하며, 메시지에 잘못된 값을 포함한다.
 
-| 함수 / 필터 | 검증 | 사유 |
-|---|---|---|
-| `saturation(factor)` | `require(factor >= 0f) { "factor must be >= 0, but was $factor" }` | 음수 채도는 의미 없음 |
-| `medianBlur(radius)` / `MedianBlurFilter` | `require(radius >= 0)` | 음수 반경 → 윈도우 크기 음수 |
-| `gaussianBlur(radius)` | `require(radius >= 0)` | 동일 |
-| `colorTemperature(kelvin)` / `ColorTemperatureFilter` | `require(kelvin in 1000..40000)` | Tanner Helland 알고리즘 근사 범위 |
-| `roundedCorners(radius)` / `RoundedCornerFilter` | `require(radius >= 0)` | 음수 반경 → 마스크 좌표 깨짐 |
-| `border(thickness)` | `require(thickness >= 0)` | 동일 |
-| `pixelate(blockSize)` | `require(blockSize >= 1)` | 블록 크기 0/음수 무의미 |
-| `posterize(levels)` | `require(levels >= 2)` | level=1 은 단색 변환, 일반적이지 않음 |
-| `opacity(alpha)` | `require(alpha in 0f..1f)` | scrimage 가 0~1 범위 가정 |
+| 함수 / 필터                                           | 검증                                                               | 사유                                  |
+|-------------------------------------------------------|--------------------------------------------------------------------|---------------------------------------|
+| `saturation(factor)`                                  | `require(factor >= 0f) { "factor must be >= 0, but was $factor" }` | 음수 채도는 의미 없음                 |
+| `medianBlur(radius)` / `MedianBlurFilter`             | `require(radius >= 0)`                                             | 음수 반경 → 윈도우 크기 음수          |
+| `gaussianBlur(radius)`                                | `require(radius >= 0)`                                             | 동일                                  |
+| `colorTemperature(kelvin)` / `ColorTemperatureFilter` | `require(kelvin in 1000..40000)`                                   | Tanner Helland 알고리즘 근사 범위     |
+| `roundedCorners(radius)` / `RoundedCornerFilter`      | `require(radius >= 0)`                                             | 음수 반경 → 마스크 좌표 깨짐          |
+| `border(thickness)`                                   | `require(thickness >= 0)`                                          | 동일                                  |
+| `pixelate(blockSize)`                                 | `require(blockSize >= 1)`                                          | 블록 크기 0/음수 무의미               |
+| `posterize(levels)`                                   | `require(levels >= 2)`                                             | level=1 은 단색 변환, 일반적이지 않음 |
+| `opacity(alpha)`                                      | `require(alpha in 0f..1f)`                                         | scrimage 가 0~1 범위 가정             |
 
 **DSL 진입점 빈 ops 처리**:
+
 - `applyFilters {}` — block 안에 ops가 추가되지 않으면 `compactAndApply` 가 `source` 를 그대로 반환 (`source.copy()` 생략, 원본 불변 보장).
 - 단 한 개의 ops만 있어도 진입점 `source.copy()` 는 항상 수행한다 (일관성 + mutation 격리).
 
@@ -636,30 +642,30 @@ DSL 멤버 함수와 신규 `Filter` 구현체는 시스템 경계에서 입력�
  *     watermark("© bluetape4k")
  * }
  * ```
- *
- * @param block DSL 빌더 블록. 호출 순서대로 필터가 적용됩니다.
- * @return 필터가 적용된 새 [ImmutableImage] (원본은 변경되지 않음)
- */
-fun ImmutableImage.applyFilters(
-    block: ImageFilterChain.() -> Unit,
-): ImmutableImage
+
+*
+* @param block DSL 빌더 블록. 호출 순서대로 필터가 적용됩니다.
+* @return 필터가 적용된 새 [ImmutableImage] (원본은 변경되지 않음)
+  */ fun ImmutableImage.applyFilters (block: ImageFilterChain. () -> Unit,
+  ): ImmutableImage
 
 /**
- * [applyFilters] 의 suspend 버전. [Dispatchers.Default] 에서 픽셀 연산을 수행합니다.
- *
- * `withContext(Dispatchers.Default)` 가 기본적으로 취소 포인트를 제공하므로 별도 `ensureActive()`
- * 호출은 필요 없습니다. 외부 취소는 context switch 시 전파됩니다.
- *
- * ```kotlin
- * val edited = image.suspendApplyFilters {
- *     brightness(1.2f)
- *     vintage()
- * }
- * ```
- */
-suspend fun ImmutableImage.suspendApplyFilters(
-    block: ImageFilterChain.() -> Unit,
+
+* [applyFilters] 의 suspend 버전. [Dispatchers.Default] 에서 픽셀 연산을 수행합니다.
+*
+* `withContext(Dispatchers.Default)` 가 기본적으로 취소 포인트를 제공하므로 별도 `ensureActive()`
+* 호출은 필요 없습니다. 외부 취소는 context switch 시 전파됩니다.
+*
+* ```kotlin
+* val edited = image.suspendApplyFilters {
+*     brightness(1.2f)
+*     vintage()
+* }
+* ```
+
+*/ suspend fun ImmutableImage.suspendApplyFilters (block: ImageFilterChain. () -> Unit,
 ): ImmutableImage
+
 ```
 
 ### 6.2 신규 필터 인스턴스 팩토리
@@ -673,34 +679,35 @@ bluetape4k 컨벤션에 따라 DSL 외에 직접 사용할 수 있는 `xxxFilter
  * ```kotlin
  * val saturated = image.filter(saturationFilterOf(factor = 1.2f))
  * ```
- *
- * @param factor 채도 배수. 1.0=원본, >1 증가, <1 감소, 0=흑백. 0 이상이어야 함.
- */
-fun saturationFilterOf(factor: Float): Filter
 
-fun hueFilterOf(deltaDegrees: Float): Filter
+*
+* @param factor 채도 배수. 1.0=원본, >1 증가, <1 감소, 0=흑백. 0 이상이어야 함.
+  */ fun saturationFilterOf (factor: Float): Filter
 
-/**
- * 색온도 변환 [Filter] 를 생성합니다.
- *
- * @param kelvin 목표 색온도 (켈빈). 1000~40000 권장. 5500K가 중성.
- */
-fun colorTemperatureFilterOf(kelvin: Int): Filter
+fun hueFilterOf (deltaDegrees: Float): Filter
 
 /**
- * 사각형 모서리를 둥글게 깎는 [Filter] 를 생성합니다.
- *
- * @param radius 모서리 반경 (픽셀). 0 이상이어야 함.
- */
-fun roundedCornerFilterOf(radius: Int): Filter
+
+* 색온도 변환 [Filter] 를 생성합니다.
+*
+* @param kelvin 목표 색온도 (켈빈). 1000~40000 권장. 5500K가 중성.
+  */ fun colorTemperatureFilterOf (kelvin: Int): Filter
 
 /**
- * 픽셀 주변 윈도우의 채널별 중앙값으로 노이즈를 제거하는 [Filter] 를 생성합니다.
- *
- * @param radius 윈도우 반경. 0 이상이어야 함. 윈도우 크기 = (2r+1)².
- * @param boundary 경계 픽셀 처리 방식. 기본값 [MedianBoundaryMode.REPLICATE].
- */
-fun medianBlurFilterOf(radius: Int, boundary: MedianBoundaryMode = MedianBoundaryMode.REPLICATE): Filter
+
+* 사각형 모서리를 둥글게 깎는 [Filter] 를 생성합니다.
+*
+* @param radius 모서리 반경 (픽셀). 0 이상이어야 함.
+  */ fun roundedCornerFilterOf (radius: Int): Filter
+
+/**
+
+* 픽셀 주변 윈도우의 채널별 중앙값으로 노이즈를 제거하는 [Filter] 를 생성합니다.
+*
+* @param radius 윈도우 반경. 0 이상이어야 함. 윈도우 크기 = (2r+1)².
+* @param boundary 경계 픽셀 처리 방식. 기본값 [MedianBoundaryMode.REPLICATE].
+  */ fun medianBlurFilterOf (radius: Int, boundary: MedianBoundaryMode = MedianBoundaryMode.REPLICATE): Filter
+
 ```
 
 ### 6.3 ImageFilterChain 멤버 함수 시그니처 (대표)
@@ -790,7 +797,8 @@ class ImageFilterChain {
 ### 6.4 반환 타입과 mutation 보장
 
 - `applyFilters`/`suspendApplyFilters`는 항상 새 `ImmutableImage`를 반환하며 호출자 원본을 변경하지 않는다.
-- **보장 메커니즘**: `compactAndApply` 진입점에서 `source.copy()` 1회 수행 — 그 사본에 대해 PipelineFilter(인접 Native 묶음) 또는 Pixel 변환을 적용한다 (§4.7 참조). 이 방어 복사가 scrimage `Filter.apply()` 와 `PipelineFilter` 의 in-place mutation 으로부터 원본을 보호하는 유일한 수단이다.
+- **보장
+  메커니즘**: `compactAndApply` 진입점에서 `source.copy()` 1회 수행 — 그 사본에 대해 PipelineFilter (인접 Native 묶음) 또는 Pixel 변환을 적용한다 (§4.7 참조). 이 방어 복사가 scrimage `Filter.apply()` 와 `PipelineFilter` 의 in-place mutation 으로부터 원본을 보호하는 유일한 수단이다.
 - ops가 비어 있으면 `source` 를 그대로 반환 (`copy()` 생략 — 원본 불변은 자동 보장).
 - 단일 필터만 있어도 동일하게 `source.copy()` 후 `PipelineFilter([f])`로 감싸 적용 (일관성).
 
@@ -901,15 +909,19 @@ class ImageFilterDslApplyTest : AbstractFilterTest() {
 
 ### 7.3 골든 이미지 정책
 
-- **scrimage 내장 필터 래퍼**: `assertSimilarToImage(viaDsl, viaSequential, tolerance = 2)` — DSL 출력이 직접 호출 출력과 거의 같음을 검증. 이 경우 **별도 골든 이미지 저장 불필요**.
-- **신규 직접 구현 필터** (`saturation`, `hue`, `colorTemperature`, `roundedCorners`, `medianBlur`): 골든 이미지 1장씩 (`expected_<filter>_<param>.png`)를 저장하고 `assertSimilarToResource(result, "expected_saturation_1_2.png", tolerance = 3)`로 검증.
+- **scrimage 내장 필터
+  래퍼**: `assertSimilarToImage(viaDsl, viaSequential, tolerance = 2)` — DSL 출력이 직접 호출 출력과 거의 같음을 검증. 이 경우 **별도 골든 이미지 저장
+  불필요**.
+- **신규 직접 구현
+  필터** (`saturation`, `hue`, `colorTemperature`, `roundedCorners`, `medianBlur`): 골든 이미지 1장씩 (`expected_<filter>_<param>.png`)를 저장하고 `assertSimilarToResource(result, "expected_saturation_1_2.png", tolerance = 3)`로 검증.
 - **체인 케이스**: 대표 체인 3~5개에 골든 이미지 (`expected_pipeline_brightness_contrast_sepia.png` 등).
 - **허용 오차**: scrimage 내부 부동소수점 연산 차이 흡수 위해 픽셀 채널당 ±3 허용 (`WatermarkFilterTest`의 기존 패턴 준수).
 - **테스트 이미지 크기**: 256×256 — 골든 이미지 디스크 비용 최소화.
 
 ### 7.4 PipelineCompactionTest
 
-내부 최적화 (인접 Native 묶음) 를 spy 없이 **결과 기반**으로 검증한다. `[N, N, Pixel, N]` 와 수동으로 `PipelineFilter([N, N]) → Pixel → PipelineFilter([N])` 체인이 픽셀 동등하면 묶음 최적화가 의도대로 동작한 것이다 (사용자 선언 순서 보존 + 인접 Native 묶음).
+내부 최적화 (인접 Native 묶음) 를 spy 없이 **결과
+기반**으로 검증한다. `[N, N, Pixel, N]` 와 수동으로 `PipelineFilter([N, N]) → Pixel → PipelineFilter([N])` 체인이 픽셀 동등하면 묶음 최적화가 의도대로 동작한 것이다 (사용자 선언 순서 보존 + 인접 Native 묶음).
 
 ```kotlin
 @Test
@@ -965,14 +977,14 @@ fun `compactAndApply handles only Pixel ops`() {
 ## 8. 영향 범위 / 호환성
 
 - **신규 파일** — 기존 코드 수정 없음
-  - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/dsl/ImageFilterChain.kt`
-  - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/dsl/ImageFilterDslApply.kt` (extension functions)
-  - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/dsl/ColorSpaceConverter.kt` (public)
-  - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/SaturationAdjustFilter.kt`
-  - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/HueAdjustFilter.kt`
-  - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/ColorTemperatureFilter.kt`
-  - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/RoundedCornerFilter.kt`
-  - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/MedianBlurFilter.kt`
+    - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/dsl/ImageFilterChain.kt`
+    - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/dsl/ImageFilterDslApply.kt` (extension functions)
+    - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/dsl/ColorSpaceConverter.kt` (public)
+    - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/SaturationAdjustFilter.kt`
+    - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/HueAdjustFilter.kt`
+    - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/ColorTemperatureFilter.kt`
+    - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/RoundedCornerFilter.kt`
+    - `utils/images/src/main/kotlin/io/bluetape4k/images/filters/MedianBlurFilter.kt`
 - **README.md / README.ko.md** 업데이트 (DSL 사용 예제 + 신규 필터 표)
 - **build.gradle.kts** — 변경 없음 (scrimage 의존성은 이미 존재)
 
@@ -1007,71 +1019,71 @@ fun `compactAndApply handles only Pixel ops`() {
 
 ## 9b. Issue #131 요구사항 대조표
 
-| Issue #131 요구 | Spec 처리 | 섹션 |
-|---|---|---|
-| `ImageFilter` fun interface (public) | 미노출 (설계 결정: 기존 scrimage `Filter` SAM으로 충분) | §4.8 |
-| scrimage `Filter` → `ImageFilter` 어댑터 | DSL `raw(filter)` 이스케이프 해치로 동등 기능 제공 | §5.4 |
-| `BrightnessFilter(factor: Float)` | DSL `brightness(amount: Float)` | §5.1 |
-| `ContrastFilter(factor: Float)` | DSL `contrast(amount: Double)` (scrimage 타입 준수) | §5.1, §4.12 |
-| `SaturationFilter(factor: Float)` | 신규 `SaturationAdjustFilter(factor: Float)` | §5.2 |
-| `GammaFilter(gamma: Double)` | DSL `gamma(gamma: Double)` | §5.1 |
-| `SepiaFilter` | DSL `sepia()` | §5.1 |
-| `GrayscaleFilter` | DSL `grayscale()` | §5.1 |
-| `InvertFilter` | DSL `invert()` | §5.1 |
-| `VignetteFilter(strength, radius)` | `vignette(start, end, blur, color)` (scrimage 실제 API) | §5.1 |
-| `RoundedCornerFilter(radius)` | 신규 `RoundedCornerFilter` | §5.2 |
-| `GaussianBlurFilter(radius)` | DSL `gaussianBlur(radius)` | §5.1 |
-| `SharpenFilter(strength)` | DSL `sharpen()` — scrimage `SharpenFilter` 파라미터 없음 | §5.1 |
-| `PixelateFilter(blockSize)` | DSL `pixelate(blockSize)` | §5.1 |
-| `MedianFilter(radius)` | 신규 `MedianBlurFilter(radius)` | §5.2 |
-| `ColorSpaceConverter.rgbToHsv` | `ColorSpaceConverter.rgbToHsv(...)` | §5.3 |
-| `ColorSpaceConverter.rgbToLab` | 1차 범위 제외 (Risk-2) | §5.3 |
-| `ImmutableImage.toHsv()` | `ImmutableImage.toHsvArray()` | §5.3 |
-| `ImmutableImage.toYCbCr()` | `ImmutableImage.toYCbCrArray()` | §5.3 |
-| DSL `applyFilters { }` | `ImmutableImage.applyFilters { }` | §4.1 |
+| Issue #131 요구                          | Spec 처리                                                | 섹션        |
+|------------------------------------------|----------------------------------------------------------|-------------|
+| `ImageFilter` fun interface (public)     | 미노출 (설계 결정: 기존 scrimage `Filter` SAM으로 충분)  | §4.8        |
+| scrimage `Filter` → `ImageFilter` 어댑터 | DSL `raw(filter)` 이스케이프 해치로 동등 기능 제공       | §5.4        |
+| `BrightnessFilter(factor: Float)`        | DSL `brightness(amount: Float)`                          | §5.1        |
+| `ContrastFilter(factor: Float)`          | DSL `contrast(amount: Double)` (scrimage 타입 준수)      | §5.1, §4.12 |
+| `SaturationFilter(factor: Float)`        | 신규 `SaturationAdjustFilter(factor: Float)`             | §5.2        |
+| `GammaFilter(gamma: Double)`             | DSL `gamma(gamma: Double)`                               | §5.1        |
+| `SepiaFilter`                            | DSL `sepia()`                                            | §5.1        |
+| `GrayscaleFilter`                        | DSL `grayscale()`                                        | §5.1        |
+| `InvertFilter`                           | DSL `invert()`                                           | §5.1        |
+| `VignetteFilter(strength, radius)`       | `vignette(start, end, blur, color)` (scrimage 실제 API)  | §5.1        |
+| `RoundedCornerFilter(radius)`            | 신규 `RoundedCornerFilter`                               | §5.2        |
+| `GaussianBlurFilter(radius)`             | DSL `gaussianBlur(radius)`                               | §5.1        |
+| `SharpenFilter(strength)`                | DSL `sharpen()` — scrimage `SharpenFilter` 파라미터 없음 | §5.1        |
+| `PixelateFilter(blockSize)`              | DSL `pixelate(blockSize)`                                | §5.1        |
+| `MedianFilter(radius)`                   | 신규 `MedianBlurFilter(radius)`                          | §5.2        |
+| `ColorSpaceConverter.rgbToHsv`           | `ColorSpaceConverter.rgbToHsv(...)`                      | §5.3        |
+| `ColorSpaceConverter.rgbToLab`           | 1차 범위 제외 (Risk-2)                                   | §5.3        |
+| `ImmutableImage.toHsv()`                 | `ImmutableImage.toHsvArray()`                            | §5.3        |
+| `ImmutableImage.toYCbCr()`               | `ImmutableImage.toYCbCrArray()`                          | §5.3        |
+| DSL `applyFilters { }`                   | `ImmutableImage.applyFilters { }`                        | §4.1        |
 
 ---
 
 ## 10. 초안 Task 목록
 
-| ID | 분류 | 작업 |
-|---|---|---|
-| **T-V1** | 검증 | scrimage 4.3.10 `PipelineFilter` 의 mutation semantics 검증 (alias 동작 확인 — 완료, source 검증 근거 §2 Risk-1 참조) |
-| **T-V2** | 검증 | `ImmutableImage.filter(Filter)` 의 same-type / different-type 분기 동작 확인 (완료) |
-| **T1** | 인프라 | `filters/dsl/` 패키지 + `@ImageFilterDsl` DslMarker + `ImageFilterChain` 골격 (sealed `Op` 포함) |
-| **T2** | 인프라 | `compactAndApply` — 진입점 `source.copy()` + 인접 Native 묶음 → PipelineFilter, Pixel은 그 자리 변환 |
-| **T3** | 인프라 | `applyFilters` / `suspendApplyFilters` 확장 함수 |
-| **T4** | 색공간 | `ColorSpaceConverter` public object (rgbToHsv, hsvToRgb, rgbToYCbCr, yCbCrToRgb, kelvinToRgb, internal *Into 변종) + `toHsvArray()`/`toYCbCrArray()` ImmutableImage 확장 + 라운드트립 fuzz 테스트 |
-| **T5** | 신규 필터 | `SaturationAdjustFilter` (HSV, S×factor) + `saturationFilterOf` 팩토리 + `require(factor >= 0)` + 골든 이미지 테스트 |
-| **T6** | 신규 필터 | `HueAdjustFilter` + `hueFilterOf` 팩토리 + 골든 이미지 테스트 |
-| **T7** | 신규 필터 | `ColorTemperatureFilter` + 팩토리 + `require(kelvin in 1000..40000)` + 골든 이미지 테스트 |
-| **T8** | 신규 필터 | `RoundedCornerFilter` + 팩토리 + `require(radius >= 0)` + 골든 이미지 테스트 |
-| **T8b** | 신규 필터 | `MedianBlurFilter` (직접 구현) + `medianBlurFilterOf` 팩토리 + `require(radius >= 0)` + 골든 이미지 테스트 |
-| **T9** | DSL 멤버 | 색/톤 보정 DSL 멤버 함수 (brightness/contrast/gamma/hsb/rgb/opacity/threshold/posterize/gainBias/saturation/hue/colorTemperature) + 단위 테스트 |
-| **T10** | DSL 멤버 | 톤/스타일 preset DSL 멤버 (sepia/grayscale/invert/vintage/chrome/nashville/gotham/summer/oldPhoto) + 단위 테스트 |
-| **T11** | DSL 멤버 | 블러/선명도 DSL 멤버 (blur/gaussianBlur/motionBlur/sharpen/unsharp/noiseReduction) + 단위 테스트 |
-| **T12** | DSL 멤버 | 효과 DSL 멤버 (oil/crystallize/pixelate/border/vignette/glow/lensFlare/roundedCorners/medianBlur) + 단위 테스트 |
-| **T13** | DSL 통합 | `watermark` / `caption` DSL 멤버 (기존 팩토리 위임) |
-| **T14** | 테스트 | applyFilters mutation 격리 검증, 사용자 선언 순서 보존, sequential 비교 동등성 |
-| **T15** | 테스트 | suspendApplyFilters dispatcher 검증 (`Thread.currentThread().name shouldContain "DefaultDispatcher"`) + 취소 안전성 |
-| **T16** | 테스트 | PipelineCompactionTest — 결과 기반 동등성 검증, 빈 ops/Pixel-only 경로 |
-| **T17** | 테스트 | 체인 골든 이미지 3+ (대표 시나리오: 색보정 / 빈티지 효과 / 워터마크 합성) |
-| **T18** | 문서 | `README.md` 업데이트 — DSL 섹션, 사용 예제, 필터 카탈로그 표, Mermaid UML |
-| **T19** | 문서 | `README.ko.md` 동기 업데이트 |
-| **T20** | 검증 | `./gradlew :bluetape4k-images:test :bluetape4k-images:detekt` 전수 통과 |
-| **T21** | 리뷰 | `oh-my-claudecode:code-reviewer` 에이전트 실행 → HIGH/CRITICAL 해소 |
-| **T22** | 마무리 | `docs/superpowers/index/2026-04.md` 항목 추가, PR 생성 |
+| ID       | 분류      | 작업                                                                                                                                                                                              |
+|----------|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **T-V1** | 검증      | scrimage 4.3.10 `PipelineFilter` 의 mutation semantics 검증 (alias 동작 확인 — 완료, source 검증 근거 §2 Risk-1 참조)                                                                             |
+| **T-V2** | 검증      | `ImmutableImage.filter(Filter)` 의 same-type / different-type 분기 동작 확인 (완료)                                                                                                               |
+| **T1**   | 인프라    | `filters/dsl/` 패키지 + `@ImageFilterDsl` DslMarker + `ImageFilterChain` 골격 (sealed `Op` 포함)                                                                                                  |
+| **T2**   | 인프라    | `compactAndApply` — 진입점 `source.copy()` + 인접 Native 묶음 → PipelineFilter, Pixel은 그 자리 변환                                                                                              |
+| **T3**   | 인프라    | `applyFilters` / `suspendApplyFilters` 확장 함수                                                                                                                                                  |
+| **T4**   | 색공간    | `ColorSpaceConverter` public object (rgbToHsv, hsvToRgb, rgbToYCbCr, yCbCrToRgb, kelvinToRgb, internal *Into 변종) + `toHsvArray()`/`toYCbCrArray()` ImmutableImage 확장 + 라운드트립 fuzz 테스트 |
+| **T5**   | 신규 필터 | `SaturationAdjustFilter` (HSV, S×factor) + `saturationFilterOf` 팩토리 + `require(factor >= 0)` + 골든 이미지 테스트                                                                              |
+| **T6**   | 신규 필터 | `HueAdjustFilter` + `hueFilterOf` 팩토리 + 골든 이미지 테스트                                                                                                                                     |
+| **T7**   | 신규 필터 | `ColorTemperatureFilter` + 팩토리 + `require(kelvin in 1000..40000)` + 골든 이미지 테스트                                                                                                         |
+| **T8**   | 신규 필터 | `RoundedCornerFilter` + 팩토리 + `require(radius >= 0)` + 골든 이미지 테스트                                                                                                                      |
+| **T8b**  | 신규 필터 | `MedianBlurFilter` (직접 구현) + `medianBlurFilterOf` 팩토리 + `require(radius >= 0)` + 골든 이미지 테스트                                                                                        |
+| **T9**   | DSL 멤버  | 색/톤 보정 DSL 멤버 함수 (brightness/contrast/gamma/hsb/rgb/opacity/threshold/posterize/gainBias/saturation/hue/colorTemperature) + 단위 테스트                                                   |
+| **T10**  | DSL 멤버  | 톤/스타일 preset DSL 멤버 (sepia/grayscale/invert/vintage/chrome/nashville/gotham/summer/oldPhoto) + 단위 테스트                                                                                  |
+| **T11**  | DSL 멤버  | 블러/선명도 DSL 멤버 (blur/gaussianBlur/motionBlur/sharpen/unsharp/noiseReduction) + 단위 테스트                                                                                                  |
+| **T12**  | DSL 멤버  | 효과 DSL 멤버 (oil/crystallize/pixelate/border/vignette/glow/lensFlare/roundedCorners/medianBlur) + 단위 테스트                                                                                   |
+| **T13**  | DSL 통합  | `watermark` / `caption` DSL 멤버 (기존 팩토리 위임)                                                                                                                                               |
+| **T14**  | 테스트    | applyFilters mutation 격리 검증, 사용자 선언 순서 보존, sequential 비교 동등성                                                                                                                    |
+| **T15**  | 테스트    | suspendApplyFilters dispatcher 검증 (`Thread.currentThread().name shouldContain "DefaultDispatcher"`) + 취소 안전성                                                                               |
+| **T16**  | 테스트    | PipelineCompactionTest — 결과 기반 동등성 검증, 빈 ops/Pixel-only 경로                                                                                                                            |
+| **T17**  | 테스트    | 체인 골든 이미지 3+ (대표 시나리오: 색보정 / 빈티지 효과 / 워터마크 합성)                                                                                                                         |
+| **T18**  | 문서      | `README.md` 업데이트 — DSL 섹션, 사용 예제, 필터 카탈로그 표, Mermaid UML                                                                                                                         |
+| **T19**  | 문서      | `README.ko.md` 동기 업데이트                                                                                                                                                                      |
+| **T20**  | 검증      | `./gradlew :bluetape4k-images:test :bluetape4k-images:detekt` 전수 통과                                                                                                                           |
+| **T21**  | 리뷰      | `oh-my-claudecode:code-reviewer` 에이전트 실행 → HIGH/CRITICAL 해소                                                                                                                               |
+| **T22**  | 마무리    | `docs/superpowers/index/2026-04.md` 항목 추가, PR 생성                                                                                                                                            |
 
 ---
 
 ## 11. 변경 이력
 
-| 버전 | 날짜 | 내용 |
-|---|---|---|
-| v1 | 2026-04-26 | Draft 초안 |
-| v2 | 2026-04-26 | Issue #131 대조 반영: MedianBlurFilter 1차 포함, saturation API를 factor 곱셈 방식으로 통일, gamma Double 타입 수정, VignetteFilter 파라미터 명확화, ColorSpaceConverter public 공개, toHsvArray/toYCbCrArray 추가, watermark/caption DSL 통합, 신규 필터 5종으로 업데이트 |
-| v3 | 2026-04-26 | Spec Review 반영: mutation 격리 재설계(`source.copy()` 진입점 1회), saturation factor 통일(전 섹션), ColorSpaces 단일화(public object ColorSpaceConverter), Float/Double 컨벤션 명시(§4.12), PipelineCompactionTest 결과 기반 재설계, suspendApplyFilters dispatcher 검증 강화, 에러 처리 정책(§5b) 추가, Issue #131 대조표(§9b) 추가 |
-| v4 | 2026-04-26 | watermark/caption DSL 시그니처 확정: 오버로드 2개 (COVER/STAMP, x/y 좌표). medianBlur 기본값 radius=1 유지 |
+| 버전 | 날짜       | 내용                                                                                                                                                                                                                                                                                                                                  |
+|------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| v1   | 2026-04-26 | Draft 초안                                                                                                                                                                                                                                                                                                                            |
+| v2   | 2026-04-26 | Issue #131 대조 반영: MedianBlurFilter 1차 포함, saturation API를 factor 곱셈 방식으로 통일, gamma Double 타입 수정, VignetteFilter 파라미터 명확화, ColorSpaceConverter public 공개, toHsvArray/toYCbCrArray 추가, watermark/caption DSL 통합, 신규 필터 5종으로 업데이트                                                            |
+| v3   | 2026-04-26 | Spec Review 반영: mutation 격리 재설계(`source.copy()` 진입점 1회), saturation factor 통일(전 섹션), ColorSpaces 단일화(public object ColorSpaceConverter), Float/Double 컨벤션 명시(§4.12), PipelineCompactionTest 결과 기반 재설계, suspendApplyFilters dispatcher 검증 강화, 에러 처리 정책(§5b) 추가, Issue #131 대조표(§9b) 추가 |
+| v4   | 2026-04-26 | watermark/caption DSL 시그니처 확정: 오버로드 2개 (COVER/STAMP, x/y 좌표). medianBlur 기본값 radius=1 유지                                                                                                                                                                                                                            |
 
 ---
 

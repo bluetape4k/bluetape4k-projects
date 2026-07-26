@@ -1,11 +1,11 @@
 package io.bluetape4k.coroutines.flow.extensions.parallel
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.junit5.coroutines.withParallels
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class ParallelFlowValidationTest {
 

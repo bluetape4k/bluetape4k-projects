@@ -10,12 +10,12 @@
 
 ## 전략 요약
 
-univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/`TsvSettings` 도입. V2(
-`FlowCsvReader`) 동시 제공. PR 1 → 6 순으로 점진 이행. PR 1~4 기간 `api(Libs.univocity_parsers)` 유지(diff test 의존) → PR 5에서 완전 삭제.
+univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/`TsvSettings` 도입. V2 (
+`FlowCsvReader`) 동시 제공. PR 1 → 6 순으로 점진 이행. PR 1~4 기간 `api(Libs.univocity_parsers)` 유지 (diff test 의존) → PR 5에서 완전 삭제.
 
 **마이그레이션 범위**: import 치환 + `getValue<T?>(null)` → nullable getter 교체 + deprecated 생성자 교체. "import-only" 마이그레이션이 아닌 **소스
-레벨 교체**이며 **실제 코드 수정이 필요**.
-**PR 1 독립 머지 가능**: `CsvSettings`/`TsvSettings` 추가는 기존 univocity import에 영향 없이 공존. 신규 Settings는 PR 2 Reader 교체 전까지 inert.
+레벨 교체**이며 **실제 코드 수정이 필요**. **PR 1 독립 머지
+가능**: `CsvSettings`/`TsvSettings` 추가는 기존 univocity import에 영향 없이 공존. 신규 Settings는 PR 2 Reader 교체 전까지 inert.
 
 태스크 의존성: **PR N 의 모든 태스크 완료 → PR N+1 시작**. PR 내 일부 태스크는 병렬 가능.
 
@@ -44,9 +44,9 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
   require(lineSeparator.isNotEmpty())
   ```
   `TsvSettings`는 delimiter/quote 제외하되 **`lineSeparator: String`** 포함. **⚠️ 기본값 결정**: 기존 univocity
-  `TsvWriter` 출력 행 구분자를 먼저 확인(기존 테스트 스냅샷 기준)한 후 `\r\n` 또는 `\n` 선택 — 변경 시 기존 스냅샷 테스트 전체 churn 발생. `@JvmField` 상수 4종 포함.
-  `trimValues`는 reader 전용, writer-facing defaults에도 공존하나 writer에서는 무시됨, KDoc으로 명시.
-  **empty string vs null roundtrip 정책**: `DelimitedWriter`는 null → 인용 없는 빈 필드, `""` → `""` 인용 출력. Reader의
+  `TsvWriter` 출력 행 구분자를 먼저 확인 (기존 테스트 스냅샷 기준)한 후 `\r\n` 또는 `\n` 선택 — 변경 시 기존 스냅샷 테스트 전체 churn 발생. `@JvmField` 상수 4종 포함.
+  `trimValues`는 reader 전용, writer-facing defaults에도 공존하나 writer에서는 무시됨, KDoc으로 명시. **empty string vs null roundtrip
+  정책**: `DelimitedWriter`는 null → 인용 없는 빈 필드, `""` → `""` 인용 출력. Reader의
   `emptyValueAsNull=true`는 인용 없는 빈 필드만 null로 변환하고 `""` 인용 필드는 빈 문자열 보존. `emptyQuotedAsNull=true`이면
   `""` → null 추가 변환. 이 정책을 KDoc에 명시.
 
@@ -66,7 +66,7 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
 - **PR**: PR 1
 - **complexity**: high
 - **파일**: `io/csv/src/main/kotlin/io/bluetape4k/csv/internal/ArrayRecord.kt`
-- **설명**: 내부 구현체(PR 1에서는 interface `Record` 없음). `rawValues`/`_headers`/`headerIndex`/`rowNumber` + 방어적 복사.
+- **설명**: 내부 구현체 (PR 1에서는 interface `Record` 없음). `rawValues`/`_headers`/`headerIndex`/`rowNumber` + 방어적 복사.
   `private fun <T : Any> convert(raw: String?, defaultValue: T): T` — `T : Any` 제약으로 `null` 컴파일 타임 차단. **PR
   1에서 `ArrayRecord : Serializable` 직접 구현** —
   `companion object : KLogging() { private const val serialVersionUID = 1L }`. PR 2에서 `Record` 인터페이스 구현으로 전환.
@@ -78,10 +78,10 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
 - **파일**: `io/csv/src/main/kotlin/io/bluetape4k/csv/internal/CsvLexer.kt`
 - **설명**:
   `Iterator<Array<String?>> + Closeable` 상태 기계 (START_FIELD / IN_QUOTED / QUOTE_IN_QUOTED / IN_UNQUOTED / END_ROW). BOM 자동 감지·제거.
-  `maxCharsPerColumn` / `maxColumns` 검증 → `ParseException(message, rowNumber, columnNumber, fieldIndex)`.
-  **empty line 정의**: 물리적 빈 줄(CRLF/LF/CR만 있는 줄)만 empty line으로 취급. `,, `처럼 구분자만 있는 줄은 null 필드 3개짜리 레코드.
-  `skipEmptyLines=true`는 물리적 빈 줄만 건너뜀.
-  **skipHeaders 동작**: `skipHeaders=true`이면 첫 번째 행을 `Array<String>` 헤더 메타데이터로 저장하고 레코드 행은 반환하지 않음. 저장된 헤더는 각
+  `maxCharsPerColumn` / `maxColumns` 검증 → `ParseException(message, rowNumber, columnNumber, fieldIndex)`. **empty line
+  정의**: 물리적 빈 줄 (CRLF/LF/CR만 있는 줄)만 empty line으로 취급. `,, `처럼 구분자만 있는 줄은 null 필드 3개짜리 레코드.
+  `skipEmptyLines=true`는 물리적 빈 줄만 건너뜀. **skipHeaders
+  동작**: `skipHeaders=true`이면 첫 번째 행을 `Array<String>` 헤더 메타데이터로 저장하고 레코드 행은 반환하지 않음. 저장된 헤더는 각
   `ArrayRecord` 생성 시 `_headers`/`headerIndex`로 전달 → `getString(name)` 정상 동작 보장.
   `skipHeaders=false`이면 모든 행을 헤더 없는 레코드로 반환.
   `finishField()` — `emptyValueAsNull`, `emptyQuotedAsNull`, `trimValues` 분기 + empty string vs null roundtrip 정책 적용.
@@ -92,9 +92,9 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
 - **PR**: PR 1
 - **complexity**: medium
 - **파일**: `io/csv/src/main/kotlin/io/bluetape4k/csv/internal/TsvLexer.kt`
-- **설명**: TSV 전용 — 따옴표 없음, `\t`/`\n`/`\r`/`\\` 백슬래시 이스케이프. 단순 상태 기계(START_FIELD ↔ ESCAPE). `TsvSettings` 사용.
-  **⚠️ TSV 이스케이프 = PR 1 게이트**: Task 1.9 `TsvLexerTest`에서 기존 `TsvRecordReaderTest` 케이스를 동일 입력으로 실행. 결과가 다르면 **테스트를 실패로 둔
-  채 PR을 머지하지 않음** — "문서화로 우회" 불가. 동작이 다를 경우 univocity 기본값에 맞게 `TsvLexer` 수정 후 통과시키거나, 팀이 의도적 변경을 승인한 경우에만 테스트를 수정하고
+- **설명**: TSV 전용 — 따옴표 없음, `\t`/`\n`/`\r`/`\\` 백슬래시 이스케이프. 단순 상태 기계 (START_FIELD ↔ ESCAPE). `TsvSettings` 사용. **⚠️ TSV
+  이스케이프 = PR 1 게이트**: Task 1.9 `TsvLexerTest`에서 기존 `TsvRecordReaderTest` 케이스를 동일 입력으로 실행. 결과가 다르면 **테스트를 실패로 둔 채 PR을
+  머지하지 않음** — "문서화로 우회" 불가. 동작이 다를 경우 univocity 기본값에 맞게 `TsvLexer` 수정 후 통과시키거나, 팀이 의도적 변경을 승인한 경우에만 테스트를 수정하고
   `MIGRATION.md`에 명시.
 
 ### Task 1.6: DelimitedWriter / CsvLineWriter / TsvLineWriter
@@ -115,7 +115,7 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
 - **complexity**: low
 - **파일**: `io/csv/src/main/kotlin/io/bluetape4k/csv/RecordFactory.kt`
 - **설명**: **PR 1에서 반환 타입 `ArrayRecord`** — `internal fun recordOf(values, headers, rowNumber): ArrayRecord`.
-  `Record` 인터페이스는 PR 2에서 추가. PR 2(Task 2.2)에서 반환 타입을 `io.bluetape4k.csv.Record`로 변경.
+  `Record` 인터페이스는 PR 2에서 추가. PR 2 (Task 2.2)에서 반환 타입을 `io.bluetape4k.csv.Record`로 변경.
 
 ### Task 1.8: kotlinx-benchmark Gradle 설정
 
@@ -138,9 +138,9 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
     - `io/csv/src/test/kotlin/io/bluetape4k/csv/internal/ArrayRecordTest.kt`
     - `io/csv/src/test/kotlin/io/bluetape4k/csv/internal/HeaderIndexTest.kt`
 - **설명**: CsvLexer — 5상태 전이 전체, empty line vs
-  `,, ` 구분, skipHeaders 헤더 저장 검증, ParseException(rowNumber, columnNumber, fieldIndex 0-based). TsvLexer — 백슬래시 이스케이프 케이스
+  `,, ` 구분, skipHeaders 헤더 저장 검증, ParseException (rowNumber, columnNumber, fieldIndex 0-based). TsvLexer — 백슬래시 이스케이프 케이스
   **+ 기존 `TsvRecordReaderTest` 케이스 동일 입력으로 대조 (PR 1 게이트)**. DelimitedWriter — needsQuoting, null vs
-  `""` 출력 구분, 공백 라운드트립. ArrayRecord — typed getter, convert(). HeaderIndex — lookup, first-wins, case-sensitive. *
+  `""` 출력 구분, 공백 라운드트립. ArrayRecord — typed getter, convert (). HeaderIndex — lookup, first-wins, case-sensitive. *
   *seeded deterministic generator** 사용 (Kotlin 표준 `kotlin.random.Random(seed)` — Hypothesis/property-based 라이브러리 불필요).
 
 ### Task 1.10: CsvParserBenchmark.kt 초안
@@ -234,7 +234,7 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
 - **PR**: PR 2
 - **complexity**: medium
 - **파일**: `io/csv/src/test/kotlin/io/bluetape4k/csv/RFC4180ComplianceTest.kt` (신규)
-- **설명**: RFC 4180 7개 규칙, BOM 케이스 2개(`skipHeaders=true`/`false`). null vs
+- **설명**: RFC 4180 7개 규칙, BOM 케이스 2개 (`skipHeaders=true`/`false`). null vs
   `""` roundtrip 케이스 포함 — 인용 빈 필드와 무인용 빈 필드가 다르게 읽히는지 확인.
 
 ### Task 2.8: CsvParserBenchmark → CsvRecordReader 전환
@@ -243,7 +243,7 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
 - **complexity**: low
 - **파일**: `io/csv/src/test/kotlin/io/bluetape4k/csv/benchmark/CsvParserBenchmark.kt` (수정)
 - **설명**: PR 2에서 `CsvRecordReader`가 CsvLexer로 전환됐으므로 `nativeCsvRead_*` 벤치마크를
-  `CsvRecordReader.read(...)` 호출로 교체. 이를 통해 public API overhead(header handling 포함)까지 측정. univocity
+  `CsvRecordReader.read(...)` 호출로 교체. 이를 통해 public API overhead (header handling 포함)까지 측정. univocity
   `@Benchmark` 메서드는 그대로 유지.
 
 ---
@@ -279,7 +279,7 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
 - **파일**: 모듈 전체 `@Deprecated` 사용처
 - **설명**: `ide_diagnostics`로 경고 0건 확인. Quick Fix 일괄 적용. **nontrivial CsvParserSettings 필드 정책**: `numberFormat`,
   `columnSelector`, `columnProcessor` 등은 V1에서 **미지원 — compile-time 제거
-  **. MIGRATION.md(Task 5.1)에 "제거된 Settings 필드" 목록으로 문서화. Quick Fix만으로 완전 마이그레이션 불가함을 사용자에게 명시.
+  **. MIGRATION.md (Task 5.1)에 "제거된 Settings 필드" 목록으로 문서화. Quick Fix만으로 완전 마이그레이션 불가함을 사용자에게 명시.
 
 ### Task 3.4: CsvWriterBenchmark.kt 작성
 
@@ -328,7 +328,7 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
   `rows.collect { writeRow(it) }` (**`flowOn` 제거** — upstream 컨텍스트 변경 부작용 방지). 기존 `@Synchronized`/
   `synchronized {}` 제거. SuspendTsvRecordWriter 동일.
 
-### Task 4.3: readLargeFile() — 멤버 메서드
+### Task 4.3: readLargeFile () — 멤버 메서드
 
 - **PR**: PR 4
 - **complexity**: medium
@@ -336,12 +336,12 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
 - **설명**: `SuspendCsvRecordReader` 클래스 내 멤버 메서드 — private `settings` 접근 필요.
   `fun readLargeFile(path, encoding, skipHeaders, transform): Flow<T>` —
   `channelFlow { path.toFile().inputStream().bufferedReader(encoding).use { val lexer = CsvLexer(it, settings); while (lexer.hasNext()) { ensureActive(); ... } } }.buffer(Channel.RENDEZVOUS).flowOn(Dispatchers.IO)`.
-  **FileInputStream 사용 이유**: RFC 4180 인용 필드 내 개행이 존재할 수 있어 line-based reader(`readLines`,
+  **FileInputStream 사용 이유**: RFC 4180 인용 필드 내 개행이 존재할 수 있어 line-based reader (`readLines`,
   `readUtf8LinesAsFlow`)는 필드를 파괴함. `bluetape4k-io`의 `readAllBytesSuspending()`은 전체 파일을 메모리에 올리므로 대용량 파일에 부적합.
   `FileInputStream + BufferedReader`만이 RFC 4180을 지키면서 스트리밍 처리 가능 — 이 예외를 KDoc에 명시. okio `readUtf8LinesAsFlow()` 절대 금지.
   **TSV 동일**: `SuspendTsvRecordReader.readLargeFile()` 추가.
 
-### Task 4.4: readFile() / writeFile() — 멤버 메서드
+### Task 4.4: readFile () / writeFile () — 멤버 메서드
 
 - **PR**: PR 4
 - **complexity**: medium
@@ -359,7 +359,7 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
 - **파일**: `io/csv/src/test/kotlin/io/bluetape4k/csv/coroutines/SuspendCsvNativeTest.kt` (신규)
 - **설명**: **cancellation**: 1M 행, 10ms 후 취소 → `isCancelled == true` + 파싱된 행 수 < 전체의 1%.
   **backpressure**: producer 측 계수를 위해 *
-  *`internal class InstrumentedCsvLexer(delegate: CsvLexer, val parseCount: AtomicInteger)`** 를 테스트 소스(
+  *`internal class InstrumentedCsvLexer(delegate: CsvLexer, val parseCount: AtomicInteger)`** 를 테스트 소스 (
   `src/test`)에 정의하거나, `SuspendCsvRecordReader`의 `internal` 생성자 파라미터로
   `lexerFactory: (Reader, CsvSettings) -> Iterator<Array<String?>> = ::CsvLexer` 주입. **프로덕션 코드에 test-only hook 노출 금지** —
   `internal` 생성자 또는 별도 fake lexer를 test source set에만 위치. `take(10).collect { delay(100) }` → produced < 20 확인.
@@ -420,9 +420,9 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
 - **파일**:
     - `io/csv/src/test/kotlin/io/bluetape4k/csv/benchmark/CsvParserBenchmark.kt` (수정)
     - `io/csv/src/test/kotlin/io/bluetape4k/csv/benchmark/CsvWriterBenchmark.kt` (수정)
-- **설명**: univocity `@Benchmark` 메서드(`univocityCsvRead_*`, `univocityWrite_*`) 삭제. **의존성 삭제(Task 5.5) 이전에 수행 필수**.
+- **설명**: univocity `@Benchmark` 메서드 (`univocityCsvRead_*`, `univocityWrite_*`) 삭제. **의존성 삭제 (Task 5.5) 이전에 수행 필수**.
 
-### Task 5.5: api(Libs.univocity_parsers) + UnivocityVsNativeDiffTest 삭제
+### Task 5.5: api (Libs.univocity_parsers) + UnivocityVsNativeDiffTest 삭제
 
 - **PR**: PR 5
 - **complexity**: low
@@ -437,7 +437,7 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
 - **PR**: PR 5
 - **complexity**: low
 - **파일**: `io/csv/src/main/kotlin/io/bluetape4k/csv/CvsParserDefaults.kt` (삭제)
-- **설명**: Glob으로 실제 파일명 확인(오타 여부). `ide_find_references`로 사용처 0건 확인 후 삭제.
+- **설명**: Glob으로 실제 파일명 확인 (오타 여부). `ide_find_references`로 사용처 0건 확인 후 삭제.
 
 ### Task 5.7: compileKotlin 검증 — univocity 참조 0건 확인
 
@@ -452,7 +452,8 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
 - **PR**: PR 5
 - **complexity**: low
 - **파일**: `build/reports/benchmarks/` (JSON)
-- **설명**: `./gradlew :bluetape4k-csv:benchmark`. Task 5.3 baseline 대비 ±20% 이내. **결과는 testlog(`wiki/testlogs/2026-04.md`)
+- **설명**: `./gradlew :bluetape4k-csv:benchmark`. Task 5.3 baseline 대비 ±20% 이내. **결과는
+  testlog (`wiki/testlogs/2026-04.md`)
   및 PR description 모두에 기록** — MIGRATION.md는 API 마이그레이션 가이드 전용, 벤치마크 수치 미포함.
 
 ### Task 5.9: README.md / README.ko.md 업데이트
@@ -497,13 +498,12 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
     - `io/csv/src/main/kotlin/io/bluetape4k/csv/v2/CsvWriterConfig.kt` (신규)
 - **설명**:
   `class CsvReaderConfig { var delimiter = ','; var quote = '"'; var trimValues = false; var skipEmptyLines = true; var emptyValueAsNull = true; var detectBom = true; ... }`.
-  `init { require(delimiter != quote) }`. `internal fun toCsvSettings(): CsvSettings`.
-  **CsvWriterConfig 구체 필드**:
+  `init { require(delimiter != quote) }`. `internal fun toCsvSettings(): CsvSettings`. **CsvWriterConfig 구체 필드**:
     - `var quoteAll: Boolean = false` — true이면 모든 필드를 인용 출력 (`DelimitedWriter.writeQuoted()` 항상 호출); false이면
       `needsQuoting()` 판단.
     - `var lineSeparator: String = "\r\n"`
-    - `internal fun toDelimitedWriterSettings()` — V1 `CsvLineWriter` 생성자 파라미터로 변환.
-      **V2 전용 필드 검증**: `quoteAll` 등은 V1 `CsvSettings.init`에 위임 불가 → `CsvWriterConfig.init { }` 에서 직접 검증.
+  - `internal fun toDelimitedWriterSettings()` — V1 `CsvLineWriter` 생성자 파라미터로 변환. **V2 전용 필드
+    검증**: `quoteAll` 등은 V1 `CsvSettings.init`에 위임 불가 → `CsvWriterConfig.init { }` 에서 직접 검증.
 
 ### Task 6.3: FlowCsvReader / FlowCsvReaderImpl
 
@@ -515,9 +515,9 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
 - **설명**:
   `interface FlowCsvReader { val config; fun read(input, encoding, skipHeaders): Flow<CsvRow>; fun readFile(path, encoding, skipHeaders): Flow<CsvRow> }`.
   `internal class FlowCsvReaderImpl(config)` — V1 `CsvLexer` 재사용. `channelFlow + buffer(RENDEZVOUS) + flowOn(IO)`.
-  `while (lexer.hasNext()) { ensureActive(); ... }` 루프 필수. ArrayRecord → CsvRow 변환 포함.
-  **`readFile` 스트리밍 정책**: V1 `readLargeFile` 패턴 적용 — `FileInputStream(path.toFile())` + `channelFlow` 스트리밍.
-  `readAllBytesSuspending()` 또는 `Path.readBytes()` 사용 금지(전체 파일 메모리 로드). RFC 4180 멀티라인 인용 필드 보장을 위해
+  `while (lexer.hasNext()) { ensureActive(); ... }` 루프 필수. ArrayRecord → CsvRow 변환 포함. **`readFile` 스트리밍
+  정책**: V1 `readLargeFile` 패턴 적용 — `FileInputStream(path.toFile())` + `channelFlow` 스트리밍.
+  `readAllBytesSuspending()` 또는 `Path.readBytes()` 사용 금지 (전체 파일 메모리 로드). RFC 4180 멀티라인 인용 필드 보장을 위해
   `FileInputStream` 직접 사용.
 
 ### Task 6.4: FlowCsvWriter / FlowCsvWriterImpl
@@ -530,8 +530,7 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
 - **설명**:
   `interface FlowCsvWriter : Closeable { val config: CsvWriterConfig; suspend fun writeHeaders(...); suspend fun writeRow(...); suspend fun writeAll(rows: Flow<Iterable<*>>); suspend fun writeFile(...): Long }`.
   `internal class FlowCsvWriterImpl(config)` — V1 `CsvLineWriter` 재사용. `config.quoteAll`에 따라 `writeQuoted` vs
-  `needsQuoting` 분기. `Mutex` 직렬화.
-  **⚠️ `writeFile`은 스트리밍이 아님**: `rows: Flow<Iterable<*>>`를 `collect`로 전체 순회하며
+  `needsQuoting` 분기. `Mutex` 직렬화. **⚠️ `writeFile`은 스트리밍이 아님**: `rows: Flow<Iterable<*>>`를 `collect`로 전체 순회하며
   `OutputStreamWriter`에 순차 기록. Flow 자체가 lazy이므로 메모리 폭발 없음. 단, 쓰기 중 예외 시 부분 파일이 남음 — 호출 측에서 임시 파일 + rename 패턴 권장. 대용량 쓰기는
   `FlowCsvWriter.writeRow()`를 직접 반복 사용 권장.
 
@@ -572,15 +571,15 @@ univocity-parsers 완전 제거 + 자체 `Record` 인터페이스/`CsvSettings`/
 
 **총 태스크 수: 46개**
 
-| PR     | 태스크 수  | high                          | medium | low    |
-|--------|--------|-------------------------------|--------|--------|
-| PR 1   | 11     | 2 (CsvLexer, ArrayRecord)     | 4      | 5      |
-| PR 2   | 8      | 2 (Record 인터페이스, Reader 교체)   | 5      | 1      |
-| PR 3   | 4      | 0                             | 1      | 3      |
-| PR 4   | 6      | 1 (SuspendReader channelFlow) | 4      | 1      |
-| PR 5   | 10     | 0                             | 3      | 7      |
-| PR 6   | 7      | 1 (FlowCsvReader)             | 5      | 1      |
-| **합계** | **46** | **6**                         | **22** | **18** |
+| PR       | 태스크 수 | high                               | medium | low    |
+|----------|-----------|------------------------------------|--------|--------|
+| PR 1     | 11        | 2 (CsvLexer, ArrayRecord)          | 4      | 5      |
+| PR 2     | 8         | 2 (Record 인터페이스, Reader 교체) | 5      | 1      |
+| PR 3     | 4         | 0                                  | 1      | 3      |
+| PR 4     | 6         | 1 (SuspendReader channelFlow)      | 4      | 1      |
+| PR 5     | 10        | 0                                  | 3      | 7      |
+| PR 6     | 7         | 1 (FlowCsvReader)                  | 5      | 1      |
+| **합계** | **46**    | **6**                              | **22** | **18** |
 
 ### 복잡도 분포
 
@@ -596,7 +595,7 @@ PR 1 → PR 2 → PR 3 → PR 4 → PR 5 → PR 6
 ### 핵심 원자적 처리 지점
 
 - **PR 2**: `Record.kt` + import 교체 + `getValue<T?>(null)` 교체를 한 커밋에서
-- **PR 5**: MIGRATION.md 초안(5.1) → deprecated 삭제(5.2) → baseline(5.3) → @Benchmark 삭제(5.4) → 의존성 삭제(5.5)
+- **PR 5**: MIGRATION.md 초안 (5.1) → deprecated 삭제 (5.2) → baseline (5.3) → @Benchmark 삭제 (5.4) → 의존성 삭제 (5.5)
 
 ### Worktree 셋업
 

@@ -38,9 +38,7 @@ dependencies {
 ```
 
 The module publishes runtime dependencies for the documented
-`RedisBinarySerializers` Kryo/Fory and LZ4/Snappy/Zstd combinations. Consumers
-do not need to add separate codec or compressor dependencies for the serializer
-matrix shown below.
+`RedisBinarySerializers` Kryo/Fory and LZ4/Snappy/Zstd combinations. Consumers do not need to add separate codec or compressor dependencies for the serializer matrix shown below.
 
 ## Usage Examples
 
@@ -98,27 +96,25 @@ fun redisTemplate(factory: RedisConnectionFactory): RedisTemplate<String, Any> {
 
 ### Object Serializers (Object → ByteArray)
 
-JDK deserialization can expose Redis values to RCE gadget-chain risk. The JDK
-serializer constants are deprecated and should be used only when the stored Redis
-data is fully trusted. Prefer Kryo or Fory for general Redis object values.
+JDK deserialization can expose Redis values to RCE gadget-chain risk. The JDK serializer constants are deprecated and should be used only when the stored Redis data is fully trusted. Prefer Kryo or Fory for general Redis object values.
 
-| Constant                            | Serialization Engine | Compression | Status |
-|-------------------------------------|----------------------|-------------|--------|
+| Constant                            | Serialization Engine | Compression | Status                        |
+|-------------------------------------|----------------------|-------------|-------------------------------|
 | `RedisBinarySerializers.Jdk`        | JDK                  | None        | Deprecated; trusted data only |
-| `RedisBinarySerializers.Kryo`       | Kryo                 | None        | Recommended |
-| `RedisBinarySerializers.Fory`       | Fory                 | None        | Recommended |
+| `RedisBinarySerializers.Kryo`       | Kryo                 | None        | Recommended                   |
+| `RedisBinarySerializers.Fory`       | Fory                 | None        | Recommended                   |
 | `RedisBinarySerializers.GzipJdk`    | JDK                  | GZip        | Deprecated; trusted data only |
 | `RedisBinarySerializers.LZ4Jdk`     | JDK                  | LZ4         | Deprecated; trusted data only |
 | `RedisBinarySerializers.SnappyJdk`  | JDK                  | Snappy      | Deprecated; trusted data only |
 | `RedisBinarySerializers.ZstdJdk`    | JDK                  | Zstd        | Deprecated; trusted data only |
-| `RedisBinarySerializers.GzipKryo`   | Kryo                 | GZip        | Recommended |
-| `RedisBinarySerializers.LZ4Kryo`    | Kryo                 | LZ4         | Recommended |
-| `RedisBinarySerializers.SnappyKryo` | Kryo                 | Snappy      | Recommended |
-| `RedisBinarySerializers.ZstdKryo`   | Kryo                 | Zstd        | Recommended |
-| `RedisBinarySerializers.GzipFory`   | Fory                 | GZip        | Recommended |
-| `RedisBinarySerializers.LZ4Fory`    | Fory                 | LZ4         | Recommended |
-| `RedisBinarySerializers.SnappyFory` | Fory                 | Snappy      | Recommended |
-| `RedisBinarySerializers.ZstdFory`   | Fory                 | Zstd        | Recommended |
+| `RedisBinarySerializers.GzipKryo`   | Kryo                 | GZip        | Recommended                   |
+| `RedisBinarySerializers.LZ4Kryo`    | Kryo                 | LZ4         | Recommended                   |
+| `RedisBinarySerializers.SnappyKryo` | Kryo                 | Snappy      | Recommended                   |
+| `RedisBinarySerializers.ZstdKryo`   | Kryo                 | Zstd        | Recommended                   |
+| `RedisBinarySerializers.GzipFory`   | Fory                 | GZip        | Recommended                   |
+| `RedisBinarySerializers.LZ4Fory`    | Fory                 | LZ4         | Recommended                   |
+| `RedisBinarySerializers.SnappyFory` | Fory                 | Snappy      | Recommended                   |
+| `RedisBinarySerializers.ZstdFory`   | Fory                 | Zstd        | Recommended                   |
 
 ### Compression-only (ByteArray → ByteArray)
 

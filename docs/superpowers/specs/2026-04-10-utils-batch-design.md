@@ -11,50 +11,47 @@
 
 ### 1.1 목적
 
-`utils/batch` 는 **Kotlin Coroutine 네이티브**로 설계한 경량 배치 처리 프레임워크이다.
-Spring Batch가 Spring·Java 중심의 무거운 스택 전체를 끌어들이는 반면, 본 모듈은
-다음 원칙을 따른다.
+`utils/batch` 는 **Kotlin Coroutine
+네이티브**로 설계한 경량 배치 처리 프레임워크이다. Spring Batch가 Spring·Java 중심의 무거운 스택 전체를 끌어들이는 반면, 본 모듈은 다음 원칙을 따른다.
 
 - **No Spring** — 순수 Kotlin + Coroutines + (optional) Exposed
 - **No runBlocking** — 모든 I/O 경계는 `suspend`, blocking JDBC 는 `withContext(Dispatchers.VT)` 로 감싼다
-- **단일 API, 이중 백엔드** — `BatchReader<T>` / `BatchWriter<T>` 추상화를 통해
-  사용자는 JDBC / R2DBC 구현의 내부 차이를 의식하지 않는다.
-- **Pluggable Restart** — Spring Batch와 유사한 `JobRepository` 를 직접 구현하여
-  체크포인트 기반 재시작을 지원하되, 테이블 스키마·실행 엔진 모두 단순화한다.
+- **단일 API, 이중 백엔드** — `BatchReader<T>` / `BatchWriter<T>` 추상화를 통해 사용자는 JDBC / R2DBC 구현의 내부 차이를 의식하지 않는다.
+- **Pluggable Restart** — Spring Batch와 유사한 `JobRepository` 를 직접 구현하여 체크포인트 기반 재시작을 지원하되, 테이블 스키마·실행 엔진 모두 단순화한다.
 - **Workflow 통합 (hard dependency)** — `BatchJob` 은 `SuspendWork` 를 구현하고
   `BatchStep` 은 `utils/workflow` 의 `RetryPolicy` 를 직접 사용한다. 따라서 Workflow 의존성은
   `api(project(":bluetape4k-workflow"))` 로 노출된다.
-- **easy-batch 영감** — `RecordReader → RecordProcessor → RecordWriter` 파이프라인을
-  **chunk 기반**으로 단순화 (`BatchReader → BatchProcessor(optional) → BatchWriter`).
+- **easy-batch 영감** — `RecordReader → RecordProcessor → RecordWriter` 파이프라인을 **chunk
+  기반**으로 단순화 (`BatchReader → BatchProcessor(optional) → BatchWriter`).
 
 ### 1.2 설계 철학
 
-| 원칙 | 설명 |
-|------|------|
-| Coroutine-First | `open()` / `read()` / `write()` / `close()` 모두 `suspend`. blocking JDBC 호출은 `withContext(Dispatchers.VT) { transaction(database) { ... } }` 패턴으로 감싼다 |
-| 구현 교체 가능성 | `compileOnly` 로 Exposed JDBC·R2DBC 의존성을 두어 사용자가 선택 |
-| Chunk 기반 | Reader 가 `null` 을 리턴할 때까지 1건씩 읽어 `chunkSize` 만큼 모아 Processor → Writer 로 전달 |
-| Restartable | 각 chunk 처리 완료 시 `checkpoint` 를 저장하여, 장애 시 마지막 keyset 이후부터 재개 |
-| 가벼운 Job 모델 | Spring Batch 의 `JobLauncher / JobExplorer / StepBuilder` 등은 제공하지 않고, `batchJob { }.run()` 또는 `workflow` 내부 임베딩만 지원 |
+| 원칙             | 설명                                                                                                                                                             |
+|------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Coroutine-First  | `open()` / `read()` / `write()` / `close()` 모두 `suspend`. blocking JDBC 호출은 `withContext(Dispatchers.VT) { transaction(database) { ... } }` 패턴으로 감싼다 |
+| 구현 교체 가능성 | `compileOnly` 로 Exposed JDBC·R2DBC 의존성을 두어 사용자가 선택                                                                                                  |
+| Chunk 기반       | Reader 가 `null` 을 리턴할 때까지 1건씩 읽어 `chunkSize` 만큼 모아 Processor → Writer 로 전달                                                                    |
+| Restartable      | 각 chunk 처리 완료 시 `checkpoint` 를 저장하여, 장애 시 마지막 keyset 이후부터 재개                                                                              |
+| 가벼운 Job 모델  | Spring Batch 의 `JobLauncher / JobExplorer / StepBuilder` 등은 제공하지 않고, `batchJob { }.run()` 또는 `workflow` 내부 임베딩만 지원                            |
 
 ### 1.3 범위
 
-| 범위 | 포함 여부 |
-|------|:---------:|
-| `BatchReader` / `BatchProcessor` / `BatchWriter` 추상 | O |
-| Chunk 기반 실행 엔진 | O |
-| `BatchStep` 다중 스텝 순차 실행 | O |
-| JDBC Cursor Reader (Exposed) | O |
-| R2DBC Keyset Reader (Exposed) | O |
-| JDBC / R2DBC Writer (batchInsert / upsert) | O |
-| `BatchJobRepository` + Exposed 테이블 (JDBC + R2DBC 구현) | O |
-| Checkpoint 기반 재시작 | O |
-| SkipPolicy / RetryPolicy | O |
-| `BatchJob implements SuspendWork` 연동 | O |
-| Spring Batch 의존성 | **X** |
-| JobLauncher/JobExplorer/ItemStream 등 Spring Batch 호환 레이어 | **X** |
-| Partitioning (step 내부 병렬) — **v2 로 미룸** | X |
-| JMS/파일/REST Reader-Writer | X (사용자 확장) |
+| 범위                                                           |    포함 여부    |
+|----------------------------------------------------------------|:---------------:|
+| `BatchReader` / `BatchProcessor` / `BatchWriter` 추상          |        O        |
+| Chunk 기반 실행 엔진                                           |        O        |
+| `BatchStep` 다중 스텝 순차 실행                                |        O        |
+| JDBC Cursor Reader (Exposed)                                   |        O        |
+| R2DBC Keyset Reader (Exposed)                                  |        O        |
+| JDBC / R2DBC Writer (batchInsert / upsert)                     |        O        |
+| `BatchJobRepository` + Exposed 테이블 (JDBC + R2DBC 구현)      |        O        |
+| Checkpoint 기반 재시작                                         |        O        |
+| SkipPolicy / RetryPolicy                                       |        O        |
+| `BatchJob implements SuspendWork` 연동                         |        O        |
+| Spring Batch 의존성                                            |      **X**      |
+| JobLauncher/JobExplorer/ItemStream 등 Spring Batch 호환 레이어 |      **X**      |
+| Partitioning (step 내부 병렬) — **v2 로 미룸**                 |        X        |
+| JMS/파일/REST Reader-Writer                                    | X (사용자 확장) |
 
 ---
 
@@ -200,15 +197,17 @@ package io.bluetape4k.batch.api
  *     if (row.disabled) null else row.toDto()
  * }
  * ```
- *
- * ## 예외 처리
- * - 예외를 던지면 Step 의 [SkipPolicy] 가 아이템 단위로 평가된다.
- * - `null` 반환은 filter (skipCount 증가 없음).
- * - 예외는 skip (skipCount 증가 또는 Step FAILED).
- */
-fun interface BatchProcessor<in I : Any, out O : Any> {
-    suspend fun process(item: I): O?
-}
+
+*
+* ## 예외 처리
+*
+    - 예외를 던지면 Step 의 [SkipPolicy] 가 아이템 단위로 평가된다.
+*
+    - `null` 반환은 filter (skipCount 증가 없음).
+*
+    - 예외는 skip (skipCount 증가 또는 Step FAILED).
+      */ fun interface BatchProcessor<in I : Any, out O : Any> { suspend fun process (item: I): O? }
+
 ```
 
 ### 3.3 BatchWriter
@@ -290,7 +289,7 @@ stateDiagram-v2
 > 해당 상태의 row 를 **UPDATE 하지 않고 그대로 반환**하여 `BatchStepRunner` 가 즉시 skip 처리하도록 만든다.
 > `FAILED` / `STOPPED` / `RUNNING` (crash 후) 은 재시작 대상이며 `RUNNING` 으로 복원 후 반환한다.
 >
-> **`RUNNING → STOPPED` 전이**: 외부 코루틴 취소(`CancellationException`) 발생 시 `BatchJob.run()` 의
+> **`RUNNING → STOPPED` 전이**: 외부 코루틴 취소 (`CancellationException`) 발생 시 `BatchJob.run()` 의
 > `catch (e: CancellationException)` 블록에서 `withContext(NonCancellable)` 으로 `JobExecution.status = STOPPED`
 > 를 영속화한 뒤 예외를 재던진다. 즉 `run()` 은 `BatchReport.Stopped` 를 반환하지 않고 `CancellationException`
 > 을 재전파하여 호출자가 취소를 인지하게 한다. `BatchReport.Stopped` 는 v2 에서 도입될 **명시적 `stop()` API**
@@ -958,62 +957,57 @@ import org.jetbrains.exposed.v1.javatime.timestamp
  *     ON batch_job_execution(job_name, params_hash)
  *     WHERE status IN ('RUNNING', 'FAILED', 'STOPPED');
  * ```
- * 이 partial unique index 는 동일 (jobName, paramsHash) 조합의 활성 인스턴스
- * (RUNNING / FAILED / STOPPED) 가 1개만 존재하도록 보장한다. 같은 job_name 이라도
- * params_hash 가 다르면 독립된 실행으로 취급되며, 파라미터 없는 job 은 항상 같은 해시
- * (빈 Map 의 SHA-256) 를 가진다.
- *
- * `findOrCreateJobExecution` 은 `SELECT → INSERT → (UniqueViolation 시) 재조회`
- * catch-and-retry 패턴을 사용하며 `SELECT ... FOR UPDATE` 는 쓰지 않는다
- * (빈 결과에는 잠글 행이 없어 동시 INSERT 를 막지 못함). partial unique index 를 생성할 수
- * 없는 DB/환경에서는 동시 실행 중복을 완전히 막을 수 없으므로 권장 인덱스 적용을
- * 강력히 권고한다.
- */
-object BatchJobExecutionTable: LongIdTable("batch_job_execution") {
-    val jobName    = varchar("job_name", 100).index()
-    val paramsHash = varchar("params_hash", 64).nullable()  // SHA-256 of sorted params JSON
-    val status     = enumerationByName<BatchStatus>("status", 20)
-    val params     = text("params").nullable()       // JSON
-    val startTime  = timestamp("start_time")
-    val endTime    = timestamp("end_time").nullable()
-}
+
+* 이 partial unique index 는 동일 (jobName, paramsHash) 조합의 활성 인스턴스
+* (RUNNING / FAILED / STOPPED) 가 1개만 존재하도록 보장한다. 같은 job_name 이라도
+* params_hash 가 다르면 독립된 실행으로 취급되며, 파라미터 없는 job 은 항상 같은 해시
+* (빈 Map 의 SHA-256) 를 가진다.
+*
+* `findOrCreateJobExecution` 은 `SELECT → INSERT → (UniqueViolation 시) 재조회`
+* catch-and-retry 패턴을 사용하며 `SELECT ... FOR UPDATE` 는 쓰지 않는다
+* (빈 결과에는 잠글 행이 없어 동시 INSERT 를 막지 못함). partial unique index 를 생성할 수
+* 없는 DB/환경에서는 동시 실행 중복을 완전히 막을 수 없으므로 권장 인덱스 적용을
+* 강력히 권고한다.
+  */ object BatchJobExecutionTable: LongIdTable ("batch_job_execution") { val jobName = varchar ("job_name", 100).index ()
+  val paramsHash = varchar ("params_hash", 64).nullable ()  // SHA-256 of sorted params JSON val status = enumerationByName<BatchStatus>("status", 20)
+  val params = text ("params").nullable ()       // JSON val startTime = timestamp ("start_time")
+  val endTime = timestamp ("end_time").nullable ()
+  }
 
 /**
- * 파라미터 맵을 정렬된 key=value 문자열로 직렬화한 뒤 SHA-256 해시를 반환한다.
- *
- * Jackson 의존 없이 stdlib 만으로 구현하여 `compileOnly` 의존성 문제를 피한다
- * (런타임에 Jackson 이 클래스패스에 없을 수 있다).
- *
- * - 키를 사전 순으로 정렬하여 동일 파라미터가 항상 동일한 해시를 갖도록 보장한다.
- * - 파라미터가 없는 job 은 빈 Map 의 해시로 동일하게 식별된다.
- *
- * JDBC / R2DBC 저장소가 동일한 해시 로직을 공유하도록 package-level 로 선언한다.
- */
-internal fun Map<String, Any>.toParamsHash(): String {
-    val canonical = this.toSortedMap()
-        .entries
-        .joinToString(",") { (k, v) -> "$k=${v}" }
-    return java.security.MessageDigest.getInstance("SHA-256")
-        .digest(canonical.toByteArray(Charsets.UTF_8))
-        .joinToString("") { "%02x".format(it) }
-}
 
-object BatchStepExecutionTable: LongIdTable("batch_step_execution") {
-    val jobExecutionId = reference("job_execution_id", BatchJobExecutionTable, ReferenceOption.CASCADE)
-    val stepName   = varchar("step_name", 100)
-    val status     = enumerationByName<BatchStatus>("status", 20)
-    val readCount  = long("read_count").default(0L)
-    val writeCount = long("write_count").default(0L)
-    val skipCount  = long("skip_count").default(0L)
-    val checkpoint = text("checkpoint").nullable()  // JSON
-    val startTime  = timestamp("start_time")
-    val endTime    = timestamp("end_time").nullable()
+* 파라미터 맵을 정렬된 key=value 문자열로 직렬화한 뒤 SHA-256 해시를 반환한다.
+*
+* Jackson 의존 없이 stdlib 만으로 구현하여 `compileOnly` 의존성 문제를 피한다
+* (런타임에 Jackson 이 클래스패스에 없을 수 있다).
+*
+*
+    - 키를 사전 순으로 정렬하여 동일 파라미터가 항상 동일한 해시를 갖도록 보장한다.
+*
+    - 파라미터가 없는 job 은 빈 Map 의 해시로 동일하게 식별된다.
+*
+* JDBC / R2DBC 저장소가 동일한 해시 로직을 공유하도록 package-level 로 선언한다.
+  */ internal fun Map<String, Any>.toParamsHash (): String { val canonical = this.toSortedMap ()
+  .entries .joinToString (",") { (k, v) -> "$k=${v}" } return java.security.MessageDigest.getInstance ("SHA-256")
+  .digest (canonical.toByteArray (Charsets.UTF_8))
+  .joinToString ("") { "%02x".format (it) } }
+
+object BatchStepExecutionTable: LongIdTable ("batch_step_execution") { val jobExecutionId = reference ("job_execution_id", BatchJobExecutionTable, ReferenceOption.CASCADE)
+val stepName = varchar ("step_name", 100)
+val status = enumerationByName<BatchStatus>("status", 20)
+val readCount = long ("read_count").default (0L)
+val writeCount = long ("write_count").default (0L)
+val skipCount = long ("skip_count").default (0L)
+val checkpoint = text ("checkpoint").nullable ()  // JSON val startTime = timestamp ("start_time")
+val endTime = timestamp ("end_time").nullable ()
 
     init {
         // UNIQUE 인덱스 — 동일 (jobExecutionId, stepName) 조합의 중복 행을 금지한다.
         uniqueIndex(jobExecutionId, stepName)
     }
+
 }
+
 ```
 
 > **중요**: `org.jetbrains.exposed.v1.javatime.timestamp` — 프로젝트 표준 (Java Time). `kotlinx-datetime` 을 쓰는
@@ -1655,9 +1649,10 @@ Checkpoint 객체를 JSON 문자열로 직렬화/역직렬화하는 전략 인�
 
 #### 타입 round-trip 문제
 
-Jackson 3 는 `activateDefaultTyping` 이 제거되었으므로, `writeValueAsString(42L)` → `readValue("42", Any::class.java)` 하면 `Long` 이 아닌 `Integer` 로 역직렬화된다. `BatchReader.restoreFrom(checkpoint as K)` 의 `K = Long` 캐스팅에서 **ClassCastException** 이 발생하는 silent 재시작 실패가 된다.
+Jackson 3 는 `activateDefaultTyping` 이 제거되었으므로, `writeValueAsString(42L)` → `readValue("42", Any::class.java)` 하면 `Long` 이 아닌 `Integer` 로 역직렬화된다. `BatchReader.restoreFrom(checkpoint as K)` 의 `K = Long` 캐스팅에서
+**ClassCastException** 이 발생하는 silent 재시작 실패가 된다.
 
-이를 막기 위해 내부적으로 **타입 봉투(`TypedCheckpoint`)** 를 사용한다:
+이를 막기 위해 내부적으로 **타입 봉투 (`TypedCheckpoint`)** 를 사용한다:
 
 ```text
 write(42L)  →  {"className":"java.lang.Long","payload":"42"}
@@ -1748,8 +1743,7 @@ internal class Jackson3CheckpointJson : CheckpointJson {
 
 ### 7.1 ExposedJdbcBatchReader — keyset pagination
 
-전략: `SELECT ... WHERE id > :lastKey ORDER BY id LIMIT :pageSize` 로 keyset 페이징.
-내부 버퍼가 비면 다음 페이지를 fetch 한다. `keyExtractor` 는 행에서 keyset key 를 추출하는 함수다.
+전략: `SELECT ... WHERE id > :lastKey ORDER BY id LIMIT :pageSize` 로 keyset 페이징. 내부 버퍼가 비면 다음 페이지를 fetch 한다. `keyExtractor` 는 행에서 keyset key 를 추출하는 함수다.
 
 ```kotlin
 package io.bluetape4k.batch.jdbc
@@ -2031,8 +2025,7 @@ class ExposedR2dbcBatchWriter<T : Any>(
 
 - `@BatchDsl` DSL marker 로 scope 제한
 - 모든 top-level entry-point 빌더는 `inline fun` 으로 정의 (JVM bridge 최소화)
-- 빌더 내부 상태는 `var` 프로퍼티 대신 `private var` + **함수 setter** 로만 노출
-  (외부에서 직접 대입 불가 → DSL 일관성)
+- 빌더 내부 상태는 `var` 프로퍼티 대신 `private var` + **함수 setter** 로만 노출 (외부에서 직접 대입 불가 → DSL 일관성)
 - 제네릭 타입은 reader/writer 에서 추론
 
 ### 9.2 배치 DSL 진입점
@@ -2272,14 +2265,15 @@ flowchart TD
 
 ### 10.4 Step-level 적용 지점
 
-| 정책 | 적용 지점 | 단위 |
-|------|-----------|------|
-| `skipPolicy` | Processor 예외 | 아이템 |
-| `skipPolicy` | Writer 예외 (retry 소진 후) | 청크 |
-| `retryPolicy` | Writer 예외 | 청크 (전체 재시도) |
+| 정책          | 적용 지점                   | 단위               |
+|---------------|-----------------------------|--------------------|
+| `skipPolicy`  | Processor 예외              | 아이템             |
+| `skipPolicy`  | Writer 예외 (retry 소진 후) | 청크               |
+| `retryPolicy` | Writer 예외                 | 청크 (전체 재시도) |
 
 Skip/Retry 순서:
-1. `retryPolicy` 먼저 적용 — writer.write() 를 `maxAttempts` 까지 재시도
+
+1. `retryPolicy` 먼저 적용 — writer.write () 를 `maxAttempts` 까지 재시도
 2. 모두 소진 후 `skipPolicy` 평가 — 매칭 시 chunk 통째로 skipCount 증가
 3. 모두 실패 → Step FAILED, 예외 rethrow
 
@@ -2319,12 +2313,12 @@ dailyEtl.execute(workContext())
 
 ### 11.2 BatchReport → WorkReport 매핑
 
-| BatchReport                      | WorkReport                                                                                       |
-|----------------------------------|--------------------------------------------------------------------------------------------------|
-| `Success`                        | `WorkReport.success(context)`                                                                    |
-| `PartiallyCompleted`             | `WorkReport.success(context)` — skipCount 는 `context["batch.{name}.skipCount"]` 에 저장        |
-| `Failure`                        | `WorkReport.failure(context, report.error)`                                                      |
-| `Stopped`                        | `WorkReport.cancelled(context, reason)`                                                          |
+| BatchReport          | WorkReport                                                                               |
+|----------------------|------------------------------------------------------------------------------------------|
+| `Success`            | `WorkReport.success(context)`                                                            |
+| `PartiallyCompleted` | `WorkReport.success(context)` — skipCount 는 `context["batch.{name}.skipCount"]` 에 저장 |
+| `Failure`            | `WorkReport.failure(context, report.error)`                                              |
+| `Stopped`            | `WorkReport.cancelled(context, reason)`                                                  |
 
 > **스킵은 성공으로 간주**: 스킵이 있어도 배치는 성공으로 간주합니다 (`errorStrategy = STOP` 을 발동시키지 않음).
 > 스킵 건수는 `context["batch.{name}.skipCount"]` 로 조회하세요. 실패한 스텝 상세는 `context["batch.{name}.report"]`
@@ -2338,12 +2332,12 @@ dailyEtl.execute(workContext())
 
 - `InMemoryBatchJobRepository` 사용, 외부 의존 없음
 - `FakeReader` / `FakeWriter` 로 chunk 루프 경계 케이스 검증
-  - EOF 직전 chunk 가 chunkSize 미만인 경우
-  - Processor 가 `null` 반환 시 skip **카운트 없음** (filter 시맨틱)
-  - Processor 가 예외 시 `SkipPolicy` 아이템 단위 적용
-  - Writer 실패 시 `RetryPolicy` 지정 횟수만큼 재시도 (`runTest` 가상 시간)
-  - Writer retry 소진 후 `SkipPolicy` 청크 단위 평가
-  - `CancellationException` 은 항상 전파되는지 검증
+    - EOF 직전 chunk 가 chunkSize 미만인 경우
+    - Processor 가 `null` 반환 시 skip **카운트 없음** (filter 시맨틱)
+    - Processor 가 예외 시 `SkipPolicy` 아이템 단위 적용
+    - Writer 실패 시 `RetryPolicy` 지정 횟수만큼 재시도 (`runTest` 가상 시간)
+    - Writer retry 소진 후 `SkipPolicy` 청크 단위 평가
+    - `CancellationException` 은 항상 전파되는지 검증
 - 모든 `suspend` 테스트는 `runTest { }` 사용
 
 ### 12.2 통합 테스트 — JDBC (`test/kotlin/io/bluetape4k/batch/jdbc/`)
@@ -2351,9 +2345,9 @@ dailyEtl.execute(workContext())
 - H2 in-memory (`jdbc:h2:mem:...;MODE=MYSQL`)
 - `HikariDataSource` + `Database.connect` → JDBC 경로 검증
 - 시나리오:
-  1. 10,000 rows INSERT → Reader cursor 로 전량 읽어 Writer 로 복제 → 원본과 비교
-  2. 재시작 시나리오: 5,000 건 처리 후 강제 예외 → repository checkpoint 로드 → 재실행 시 나머지 5,000 건만 처리
-  3. 다중 Step: step1 `COMPLETED` 저장 후 두 번째 실행 시 step1 스킵 확인
+    1. 10,000 rows INSERT → Reader cursor 로 전량 읽어 Writer 로 복제 → 원본과 비교
+    2. 재시작 시나리오: 5,000 건 처리 후 강제 예외 → repository checkpoint 로드 → 재실행 시 나머지 5,000 건만 처리
+    3. 다중 Step: step1 `COMPLETED` 저장 후 두 번째 실행 시 step1 스킵 확인
 
 ### 12.3 통합 테스트 — R2DBC (`test/kotlin/io/bluetape4k/batch/r2dbc/`)
 
@@ -2404,24 +2398,18 @@ fun `restart resumes from last checkpoint`() = runSuspendIO {
 - `BatchJob.execute(ctx)` → `WorkReport.success` / `WorkReport.failure` / `WorkReport.cancelled` 매핑 검증
 - `PartiallyCompleted` 시에도 `WorkReport.success` 를 반환하며,
   `context["batch.{name}.skipCount"]` 로 스킵 건수가 정확히 저장되는지 검증
-- `context["batch.{name}.report"]` 에 저장된 `BatchReport.PartiallyCompleted.stepReports` 가
-  스킵 정보를 포함하는지 검증
+- `context["batch.{name}.report"]` 에 저장된 `BatchReport.PartiallyCompleted.stepReports` 가 스킵 정보를 포함하는지 검증
 - Workflow `errorStrategy = CONTINUE` 일 때 배치 실패 후 다음 스텝 진행 검증
 
 ### 12.6 STOPPED 상태 — 외부 코루틴 취소 테스트
 
 - 장기 실행 `BatchJob.run()` 을 `launch { }` 로 구동한 뒤 외부에서 `job.cancelAndJoin()` 호출
 - 검증 항목:
-  1. `run()` 은 `BatchReport.Stopped` 를 반환하지 않고 `CancellationException` 을 재전파한다
-     (try/catch 로 예외 수신 여부 확인)
-  2. `InMemoryBatchJobRepository` (또는 Exposed 저장소) 의 `JobExecution.status` 가 `STOPPED` 로
-     영속화되었는지 조회 검증
-  3. 동일 `(jobName, params)` 로 재시작 시 `findOrCreateJobExecution` 이 STOPPED 레코드를
-     재사용하여 checkpoint 부터 재개하는지 검증
-- `BatchJob.execute(ctx)` 경로: Workflow 안에서 실행한 뒤 외부 취소 시 `CancellationException` 이
-  Workflow 전체로 전파되어 상위 `WorkFlow` 도 취소 상태로 종료되는지 확인
-- 모든 취소 테스트는 `runTest { }` 가상 시간 기반으로 작성하고, `NonCancellable` 컨텍스트에서
-  상태 저장이 완료되었는지 `yield()` 이후 확인한다
+    1. `run()` 은 `BatchReport.Stopped` 를 반환하지 않고 `CancellationException` 을 재전파한다 (try/catch 로 예외 수신 여부 확인)
+    2. `InMemoryBatchJobRepository` (또는 Exposed 저장소) 의 `JobExecution.status` 가 `STOPPED` 로 영속화되었는지 조회 검증
+    3. 동일 `(jobName, params)` 로 재시작 시 `findOrCreateJobExecution` 이 STOPPED 레코드를 재사용하여 checkpoint 부터 재개하는지 검증
+- `BatchJob.execute(ctx)` 경로: Workflow 안에서 실행한 뒤 외부 취소 시 `CancellationException` 이 Workflow 전체로 전파되어 상위 `WorkFlow` 도 취소 상태로 종료되는지 확인
+- 모든 취소 테스트는 `runTest { }` 가상 시간 기반으로 작성하고, `NonCancellable` 컨텍스트에서 상태 저장이 완료되었는지 `yield()` 이후 확인한다
 
 ---
 
@@ -2623,7 +2611,9 @@ runSuspendIO {
 CLAUDE.md 의 프로젝트 표준을 따라 **Architecture → UML → Features → Examples** 순서로 작성.
 
 필수 Mermaid 다이어그램:
-- **class diagram** — `BatchReader` / `BatchProcessor` / `BatchWriter` / `BatchStep` / `BatchJob` / `BatchJobRepository` 관계
+
+- **class
+  diagram** — `BatchReader` / `BatchProcessor` / `BatchWriter` / `BatchStep` / `BatchJob` / `BatchJobRepository` 관계
 - **sequence diagram** — chunk 실행 루프 + 재시작 시나리오 (§5.5 참고)
 - **flowchart** — `SkipPolicy` / `RetryPolicy` 결정 트리 (§10.2 참고)
 - **state diagram** — `BatchStatus` 상태 전이 (§4.1 참고)
@@ -2633,6 +2623,7 @@ CLAUDE.md 의 프로젝트 표준을 따라 **Architecture → UML → Features 
 ### 15.2 한국어 KDoc
 
 CLAUDE.md 지침에 따라 모든 public 클래스·인터페이스·확장 함수에 **한국어 KDoc** 필수.
+
 - 책임, 입력/출력, 예외, 재시작 semantics 를 명시
 - 예제 코드를 포함 (특히 reader/writer/repository 계열)
 

@@ -1,6 +1,13 @@
 package io.bluetape4k.jwt.composer
 
 import io.bluetape4k.LibraryName
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.jwt.AbstractJwtTest
 import io.bluetape4k.jwt.codec.JwtCodecs
 import io.bluetape4k.jwt.keychain.KeyChain
@@ -10,16 +17,9 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.support.replicate
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.io.CompressionAlgorithm
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldBeLessThan
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import io.bluetape4k.assertions.assertFailsWith
 
 class JwtComposerTest: AbstractJwtTest() {
 

@@ -1,11 +1,12 @@
 package io.bluetape4k.concurrent
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.trace
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.trace
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
@@ -14,7 +15,6 @@ import java.util.concurrent.CompletionStage
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * 비동기 작업들을 세마포어를 이용하여 동시 실행을 제한하는 [ConcurrentReducer]를 테스트합니다.

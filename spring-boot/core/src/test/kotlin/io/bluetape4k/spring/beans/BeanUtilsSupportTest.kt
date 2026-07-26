@@ -1,13 +1,13 @@
 package io.bluetape4k.spring.beans
 
-import io.bluetape4k.spring.AbstractSpringTest
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.spring.AbstractSpringTest
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class BeanUtilsSupportTest: AbstractSpringTest() {
 

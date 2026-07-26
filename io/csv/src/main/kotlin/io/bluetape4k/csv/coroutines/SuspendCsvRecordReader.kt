@@ -31,9 +31,9 @@ import java.nio.charset.Charset
  */
 class SuspendCsvRecordReader(
     private val settings: CsvSettings = CsvSettings.DEFAULT,
-) : SuspendRecordReader {
+): SuspendRecordReader {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     /**
      * CSV 입력 스트림을 읽어 변환된 [Flow]를 반환합니다.

@@ -1,12 +1,12 @@
 package io.bluetape4k.concurrent.virtualthread
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.warn
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.RepeatedTest

@@ -1,22 +1,21 @@
 package io.bluetape4k.okio.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.okio.AbstractOkioTest
+import kotlinx.coroutines.CancellationException
 import okio.Buffer
 import okio.ByteString
+import okio.ByteString.Companion.encodeUtf8
 import okio.EOFException
 import okio.Options
-import okio.ByteString.Companion.encodeUtf8
-import kotlinx.coroutines.CancellationException
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import java.io.IOException
 
 class BufferedSuspendSourceTest: AbstractOkioTest() {
@@ -45,6 +44,7 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
         override suspend fun write(source: Buffer, byteCount: Long) {
             buffer.write(source, byteCount)
         }
+
         override suspend fun flush() {}
         override suspend fun close() {}
     }

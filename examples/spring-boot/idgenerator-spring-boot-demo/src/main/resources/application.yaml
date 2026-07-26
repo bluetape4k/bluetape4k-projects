@@ -1,10 +1,10 @@
 bluetape4k:
-  id-generator:
-    default-batch-size: 10
-    max-batch-size: 100
+    id-generator:
+        default-batch-size: 10
+        max-batch-size: 100
 
 management:
-  endpoints:
-    web:
-      exposure:
-        include: health
+    endpoints:
+        web:
+            exposure:
+                include: health

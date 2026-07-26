@@ -1,18 +1,18 @@
 package io.bluetape4k.okio.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.okio.AbstractOkioTest
 import okio.Buffer
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.nio.channels.AsynchronousFileChannel
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
-import io.bluetape4k.assertions.assertFailsWith
 
 @TempFolderTest
 class SuspendedFileChannelSourceTest: AbstractOkioTest() {

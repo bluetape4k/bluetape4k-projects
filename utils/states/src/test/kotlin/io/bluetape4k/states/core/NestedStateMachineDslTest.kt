@@ -28,7 +28,8 @@ class NestedStateMachineDslTest {
     private sealed interface RightBranch: Step
     private data object SharedState: LeftBranch, RightBranch
 
-    @Test fun `nested transition applies to matching state family`() {
+    @Test
+    fun `nested transition applies to matching state family`() {
         val machine = stateMachine<Step, Event> {
             initialState = Review
             transition(state<Active>(), on<Event.Cancel>(), to = Cancelled)
@@ -43,7 +44,8 @@ class NestedStateMachineDslTest {
         result.currentState shouldBeEqualTo Cancelled
     }
 
-    @Test fun `exact transition overrides nested transition`() {
+    @Test
+    fun `exact transition overrides nested transition`() {
         val machine = stateMachine<Step, Event> {
             initialState = Review
             transition(state<Active>(), on<Event.Cancel>(), to = Cancelled)
@@ -53,7 +55,8 @@ class NestedStateMachineDslTest {
         machine.transition(Event.Cancel).currentState shouldBeEqualTo Archived
     }
 
-    @Test fun `nested guard participates in canTransition`() {
+    @Test
+    fun `nested guard participates in canTransition`() {
         val machine = stateMachine<Step, Event> {
             initialState = Approved
             transition(state<Active>(), on<Event.Archive>(), to = Archived) {
@@ -65,7 +68,8 @@ class NestedStateMachineDslTest {
         machine.transition(Event.Archive).currentState shouldBeEqualTo Archived
     }
 
-    @Test fun `nested guard rejection returns false from canTransition`() {
+    @Test
+    fun `nested guard rejection returns false from canTransition`() {
         val machine = stateMachine<Step, Event> {
             initialState = Review
             transition(state<Active>(), on<Event.Archive>(), to = Archived) {
@@ -76,7 +80,8 @@ class NestedStateMachineDslTest {
         machine.canTransition(Event.Archive).shouldBeFalse()
     }
 
-    @Test fun `ambiguous nested transitions fail during build`() {
+    @Test
+    fun `ambiguous nested transitions fail during build`() {
         assertFailsWith<StateMachineException> {
             stateMachine<Step, Event> {
                 initialState = SharedState
@@ -86,7 +91,8 @@ class NestedStateMachineDslTest {
         }
     }
 
-    @Test fun `final state suppresses inherited transitions`() {
+    @Test
+    fun `final state suppresses inherited transitions`() {
         val machine = stateMachine<Step, Event> {
             initialState = Review
             finalStates = setOf(Review)
@@ -98,4 +104,3 @@ class NestedStateMachineDslTest {
         machine.allowedEvents() shouldBeEqualTo emptySet()
     }
 }
-

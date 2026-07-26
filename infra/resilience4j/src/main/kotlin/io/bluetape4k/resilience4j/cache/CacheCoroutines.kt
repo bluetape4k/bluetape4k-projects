@@ -1,5 +1,6 @@
 package io.bluetape4k.resilience4j.cache
 
+import io.bluetape4k.resilience4j.cache.CacheCoroutineLocks.lock
 import io.github.resilience4j.cache.Cache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -7,7 +8,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.util.WeakHashMap
+import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 

@@ -14,23 +14,24 @@
 
 ### 1.1 Why libvips
 
-The existing `utils/images` module wraps **scrimage** (Java2D / BufferedImage). Convenient but has known production limits:
+The existing `utils/images` module wraps
+**scrimage** (Java2D / BufferedImage). Convenient but has known production limits:
 
-| Limitation | Impact |
-|---|---|
-| Whole-image pixel decode | Large JPEGs/PNGs hit OOM at ~50MP+ even with `-Xmx4g` |
-| No demand-driven pipeline | Resize-then-crop reads every pixel even when 99% discarded |
-| Format gap | AVIF write / HEIC read are `@IncubatingImageApi` with no implementation |
-| Speed | Scrimage thumbnails 5–20× slower than libvips on typical photo workloads |
+| Limitation                | Impact                                                                   |
+|---------------------------|--------------------------------------------------------------------------|
+| Whole-image pixel decode  | Large JPEGs/PNGs hit OOM at ~50MP+ even with `-Xmx4g`                    |
+| No demand-driven pipeline | Resize-then-crop reads every pixel even when 99% discarded               |
+| Format gap                | AVIF write / HEIC read are `@IncubatingImageApi` with no implementation  |
+| Speed                     | Scrimage thumbnails 5–20× slower than libvips on typical photo workloads |
 
 [libvips](https://www.libvips.org/) is a streaming, demand-driven image library powering Wikipedia thumbnailing, Cloudinary, and `sharp` (Node.js). Its pipeline reads only the pixels needed for the output — processing 100 MP photos in under 200 ms and ~50 MB RSS.
 
 ### 1.2 Goals
 
 - Provide **3 modules** under `utils/`:
-  - `bluetape4k-images-vips-api` — common interfaces and types (binding-neutral)
-  - `bluetape4k-images-vips-java21` — JVips (Java 21+) implementation
-  - `bluetape4k-images-vips-java25` — vips-ffm (Java 25, FFM API) implementation
+    - `bluetape4k-images-vips-api` — common interfaces and types (binding-neutral)
+    - `bluetape4k-images-vips-java21` — JVips (Java 21+) implementation
+    - `bluetape4k-images-vips-java25` — vips-ffm (Java 25, FFM API) implementation
 - Hide underlying binding types (`com.criteo.vips.*`, `app.photofox.vipsffm.*`) behind bluetape4k API types.
 - Implement the AVIF/HEIC interfaces from `utils/images` (deferred to Phase 3).
 - Skip Vips tests cleanly when `libvips` is not installed — never fail with native loader errors.
@@ -44,40 +45,41 @@ The existing `utils/images` module wraps **scrimage** (Java2D / BufferedImage). 
 
 ## 1.4 Choosing a Module
 
-| Consumer JDK | Module to use | Binding | Notes |
-|---|---|---|---|
-| Java 21–24 | `bluetape4k-images-vips-java21` | JVips (JNI) | Default choice; Linux bundle included |
-| Java 25+ | `bluetape4k-images-vips-java25` | vips-ffm (FFM) | Requires `--enable-native-access=ALL-UNNAMED` |
+| Consumer JDK | Module to use                   | Binding        | Notes                                         |
+|--------------|---------------------------------|----------------|-----------------------------------------------|
+| Java 21–24   | `bluetape4k-images-vips-java21` | JVips (JNI)    | Default choice; Linux bundle included         |
+| Java 25+     | `bluetape4k-images-vips-java25` | vips-ffm (FFM) | Requires `--enable-native-access=ALL-UNNAMED` |
 
 Both modules expose identical API via `bluetape4k-images-vips-api`. Switching is a one-line Gradle change.
 
-> **Note on naming**: `java21` / `java25` names mirror `virtualthread/jdk21` / `jdk25` convention, not a minimum Java version requirement for JVips (which is Java 8+). The JVips module chooses Java 21 toolchain to match the bluetape4k baseline.
+> **Note on
+naming**: `java21` / `java25` names mirror `virtualthread/jdk21` / `jdk25` convention, not a minimum Java version requirement for JVips (which is Java 8+). The JVips module chooses Java 21 toolchain to match the bluetape4k baseline.
 
 ---
 
 ## 2.0 Considered Alternatives (binding selection)
 
-| Option | Description | Rejected because |
-|---|---|---|
-| **JVips (adopted for java21)** | JNI wrapper, Java 8+, Linux `.so` bundle | Adopted |
-| **vips-ffm (adopted for java25)** | Java FFM API, JDK 23+, Maven Central | Adopted |
-| **libvips-java (deftrue)** | Alternative JNI wrapper | Maven coordinates unverified; lower adoption than JVips |
-| **sharp-java / subprocess** | Run Node.js sharp via ProcessBuilder | Cross-runtime overhead; lifecycle complexity; unnecessary dependency |
-| **GraalVM native image** | Ahead-of-time native compilation | Not in bluetape4k JVM-only baseline; increases build complexity |
-| **Hand-rolled JNI** | Write own JNI glue | High maintenance; security exposure; defeats purpose of adopting proven library |
+| Option                            | Description                              | Rejected because                                                                |
+|-----------------------------------|------------------------------------------|---------------------------------------------------------------------------------|
+| **JVips (adopted for java21)**    | JNI wrapper, Java 8+, Linux `.so` bundle | Adopted                                                                         |
+| **vips-ffm (adopted for java25)** | Java FFM API, JDK 23+, Maven Central     | Adopted                                                                         |
+| **libvips-java (deftrue)**        | Alternative JNI wrapper                  | Maven coordinates unverified; lower adoption than JVips                         |
+| **sharp-java / subprocess**       | Run Node.js sharp via ProcessBuilder     | Cross-runtime overhead; lifecycle complexity; unnecessary dependency            |
+| **GraalVM native image**          | Ahead-of-time native compilation         | Not in bluetape4k JVM-only baseline; increases build complexity                 |
+| **Hand-rolled JNI**               | Write own JNI glue                       | High maintenance; security exposure; defeats purpose of adopting proven library |
 
 ## 2. Architecture Decisions
 
-| # | Decision | Choice | Rationale |
-|---|---|---|---|
-| **D1** | Module structure | **3 sibling modules** (api + java21 + java25) | Mirrors `virtualthread/api` + `jdk21` + `jdk25` pattern. `settings.gradle.kts` auto-registers sibling dirs under `utils/` without changes. |
-| **D2** | java21 binding | **JVips** `com.criteo:jvips:8.10.2-38fe1f6` | Java 8+, ships Linux native `.so` bundle (no `apt-get` for pure-JNI use), Criteo production-proven. Module named `java21` for naming parity with `virtualthread/jdk21` pattern, NOT because JVips requires Java 21. **Version pinned to `8.10.2-38fe1f6`** (latest verified on Maven Central as of 2026-04-29; `8.12.x` builds with hash suffixes exist on GitHub but are not yet published to a public Maven repo — will upgrade when available). |
-| **D3** | java25 binding | **vips-ffm** `app.photofox.vips-ffm:vips-ffm-core:1.9.6` | JDK 23+ required (FFM finalized in Java 22, but vips-ffm 1.9.x targets JDK 23+). Java 25 toolchain per `virtualthread/jdk25` precedent. Requires `--enable-native-access=ALL-UNNAMED` JVM flag. Confirmed on Maven Central. |
-| **D4** | PR scope | **Phase 1 + Phase 2** | Phase 3 (AVIF/HEIC impl, DZI) deferred to follow-up issue. Keeps this PR reviewable. |
-| **D5** | Test isolation | `@Tag("vips-required")` + `excludeTags` | Mirrors `utils/science` `slow-netcdf` pattern. Default build skips; CI opts in via `-PincludeTags=vips-required`. |
-| **D6** | CI strategy | **Dedicated `test-images-vips` job** | Real libvips codec plugins are not fully bundled in JVips; integration tests need `libvips42` from apt. Separate job avoids slowing main matrix. |
-| **D7** | Package | **`io.bluetape4k.images.vips.*`** | Colocates with `images.avif`, `images.heic`, `IncubatingImageApi`. |
-| **D8** | Binding hiding | All binding types `internal` | Consumer ABI independent of JVips / vips-ffm; swap is possible in future. |
+| #      | Decision         | Choice                                                   | Rationale                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+|--------|------------------|----------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **D1** | Module structure | **3 sibling modules** (api + java21 + java25)            | Mirrors `virtualthread/api` + `jdk21` + `jdk25` pattern. `settings.gradle.kts` auto-registers sibling dirs under `utils/` without changes.                                                                                                                                                                                                                                                                                                         |
+| **D2** | java21 binding   | **JVips** `com.criteo:jvips:8.10.2-38fe1f6`              | Java 8+, ships Linux native `.so` bundle (no `apt-get` for pure-JNI use), Criteo production-proven. Module named `java21` for naming parity with `virtualthread/jdk21` pattern, NOT because JVips requires Java 21. **Version pinned to `8.10.2-38fe1f6`** (latest verified on Maven Central as of 2026-04-29; `8.12.x` builds with hash suffixes exist on GitHub but are not yet published to a public Maven repo — will upgrade when available). |
+| **D3** | java25 binding   | **vips-ffm** `app.photofox.vips-ffm:vips-ffm-core:1.9.6` | JDK 23+ required (FFM finalized in Java 22, but vips-ffm 1.9.x targets JDK 23+). Java 25 toolchain per `virtualthread/jdk25` precedent. Requires `--enable-native-access=ALL-UNNAMED` JVM flag. Confirmed on Maven Central.                                                                                                                                                                                                                        |
+| **D4** | PR scope         | **Phase 1 + Phase 2**                                    | Phase 3 (AVIF/HEIC impl, DZI) deferred to follow-up issue. Keeps this PR reviewable.                                                                                                                                                                                                                                                                                                                                                               |
+| **D5** | Test isolation   | `@Tag("vips-required")` + `excludeTags`                  | Mirrors `utils/science` `slow-netcdf` pattern. Default build skips; CI opts in via `-PincludeTags=vips-required`.                                                                                                                                                                                                                                                                                                                                  |
+| **D6** | CI strategy      | **Dedicated `test-images-vips` job**                     | Real libvips codec plugins are not fully bundled in JVips; integration tests need `libvips42` from apt. Separate job avoids slowing main matrix.                                                                                                                                                                                                                                                                                                   |
+| **D7** | Package          | **`io.bluetape4k.images.vips.*`**                        | Colocates with `images.avif`, `images.heic`, `IncubatingImageApi`.                                                                                                                                                                                                                                                                                                                                                                                 |
+| **D8** | Binding hiding   | All binding types `internal`                             | Consumer ABI independent of JVips / vips-ffm; swap is possible in future.                                                                                                                                                                                                                                                                                                                                                                          |
 
 ### D1 — Module Layout Detail
 
@@ -93,6 +95,7 @@ utils/
 `bluetape4k + "-" + dir.name` for each subdirectory, so no `settings.gradle.kts` changes needed.
 
 Dependency chain:
+
 ```
 bluetape4k-images-vips-java21  ──api──► bluetape4k-images-vips-api
 bluetape4k-images-vips-java25  ──api──► bluetape4k-images-vips-api
@@ -169,7 +172,10 @@ utils/images-vips-java25/
             └── FfmVipsResizeTest.kt
 ```
 
-> **Writer design note**: The `writer/` classes are **Vips-native** — they operate on `VipsImage`, not on `ImmutableImage`/`AwtImage`. They do **not** implement `SuspendImageWriter` from `bluetape4k-images` (that interface is scrimage-coupled). Each writer exposes a single suspend function, e.g.:
+> **Writer design note**: The `writer/` classes are
+> **Vips-native** — they operate on `VipsImage`, not on `ImmutableImage`/`AwtImage`. They do
+>
+**not** implement `SuspendImageWriter` from `bluetape4k-images` (that interface is scrimage-coupled). Each writer exposes a single suspend function, e.g.:
 > ```kotlin
 > suspend fun JVipsJpegWriter.write(image: VipsImage, dest: Path, options: VipsEncodeOptions = VipsEncodeOptions.Default)
 > ```
@@ -193,11 +199,8 @@ utils/images-vips-java25/
  *     resized.toBytes(VipsImageFormat.WEBP, VipsEncodeOptions(quality = 80))
  * }
  * ```
- */
-interface VipsImage : AutoCloseable {
-    val width: Int
-    val height: Int
-    val bands: Int
+
+*/ interface VipsImage : AutoCloseable { val width: Int val height: Int val bands: Int
 
     fun resize(width: Int, height: Int): VipsImage
     fun thumbnail(maxDimension: Int): VipsImage
@@ -206,7 +209,9 @@ interface VipsImage : AutoCloseable {
     fun toBytes(format: VipsImageFormat, options: VipsEncodeOptions = VipsEncodeOptions.Default): ByteArray
     fun writeTo(path: Path, options: VipsEncodeOptions = VipsEncodeOptions.Default)
     fun writeTo(out: OutputStream, format: VipsImageFormat, options: VipsEncodeOptions = VipsEncodeOptions.Default)
+
 }
+
 ```
 
 ### 4.2 VipsRuntime (in api module)
@@ -266,22 +271,22 @@ suspend fun suspendVipsImageOf(bytes: ByteArray): VipsImage =
     withContext(Dispatchers.IO) { vipsImageOf(bytes) }
 ```
 
-> **Naming decision**: Kotlin cannot overload on the `suspend` modifier alone. Suspend factory variants therefore use distinct names: `suspendVipsImageOf(...)`. Both blocking and suspend variants are first-class API; neither is deprecated.
+> **Naming
+decision**: Kotlin cannot overload on the `suspend` modifier alone. Suspend factory variants therefore use distinct names: `suspendVipsImageOf(...)`. Both blocking and suspend variants are first-class API; neither is deprecated.
 
 ### 4.3.1 Factory Security Controls (MANDATORY — implemented in T2.4 / T3.3)
 
-모든 factory 함수는 **full pixel allocation 전에** 다음 검사를 순서대로 수행해야 합니다.
-(format allowlist와 크기 제한은 native decode 개시 전, maxPixels 검사는 header parse 후 pixel 데이터 할당 전.)
+모든 factory 함수는 **full pixel allocation
+전에** 다음 검사를 순서대로 수행해야 합니다. (format allowlist와 크기 제한은 native decode 개시 전, maxPixels 검사는 header parse 후 pixel 데이터 할당 전.)
 
 #### 1. 입력 형식 허용 목록 (Format Allowlist)
 
-파일/bytes/stream의 처음 12 바이트를 읽어 magic number를 확인합니다.
-허용 형식 이외의 입력은 `VipsDecodeException`으로 즉시 거부합니다.
+파일/bytes/stream의 처음 12 바이트를 읽어 magic number를 확인합니다. 허용 형식 이외의 입력은 `VipsDecodeException`으로 즉시 거부합니다.
 
-| 형식 | Magic bytes (hex) |
-|---|---|
-| JPEG | `FF D8 FF` (first 3 bytes) |
-| PNG | `89 50 4E 47` (first 4 bytes) |
+| 형식 | Magic bytes (hex)                                                        |
+|------|--------------------------------------------------------------------------|
+| JPEG | `FF D8 FF` (first 3 bytes)                                               |
+| PNG  | `89 50 4E 47` (first 4 bytes)                                            |
 | WebP | `52 49 46 46 ?? ?? ?? ?? 57 45 42 50` (`RIFF....WEBP`, bytes 0–3 + 8–11) |
 
 #### 2. InputStream 크기 제한 (BoundedInputStream)
@@ -299,8 +304,8 @@ suspend fun suspendVipsImageOf(bytes: ByteArray): VipsImage =
       .setOnMaxCount { throw VipsDecodeException("Input stream exceeds 50 MB limit") }
       .get()
   ```
-  Commons IO 2.16+ builder API 사용. `setOnMaxCount` 콜백은 `maxCount+1` 번째 바이트를 읽으려 할 때 발화 —
-  정확히 50 MB인 정상 입력은 거부하지 않음. `bounded.count >= MAX_BYTES` 패턴 **절대 사용 금지**:
+  Commons IO 2.16+ builder API 사용. `setOnMaxCount` 콜백은 `maxCount+1` 번째 바이트를 읽으려 할 때 발화 — 정확히 50 MB인 정상 입력은 거부하지 않음. `bounded.count >= MAX_BYTES` 패턴
+  **절대 사용 금지**:
   정확히 50 MB 입력을 잘못 거부하고 실제 초과도 확정하지 못함.
 
 #### 3. Pixel 폭탄 방어 (maxPixels check)
@@ -394,27 +399,29 @@ suspend fun VipsImage.suspendWriteTo(
 ## 4.6 Resource Lifecycle
 
 ### Native Handle Cleanup
+
 - `JVipsImage` / `FfmVipsImage` MUST register their native handle with `java.lang.ref.Cleaner`
   as a safety net. If `close()` is not called, the Cleaner logs a warning and releases the handle.
 - Callers MUST use `use { }` blocks. Relying on Cleaner for normal cleanup is prohibited.
 
 ### Coroutine Cancellation Safety
-- Deterministic cleanup on `CancellationException` is NOT guaranteed. Relying on Cleaner is the
-  safety net, not a contract. The only guaranteed cleanup path is `use { }`.
+
+- Deterministic cleanup on `CancellationException` is NOT guaranteed. Relying on Cleaner is the safety net, not a contract. The only guaranteed cleanup path is `use { }`.
 - Callers in coroutine contexts MUST use `use {}`:
   ```kotlin
   suspendVipsImageOf(file).use { img ->
       img.resize(800, 600).suspendToBytes(VipsImageFormat.WEBP)
   }
   ```
-- If the coroutine is cancelled after `suspendVipsImageOf` returns but before `close()` is called,
-  the `Cleaner` will eventually reclaim the native handle (non-deterministic, logged as warning).
-- Long-running operations (`resize`, `toBytes`) inside `use {}` are safe because `close()` runs
-  in the `finally` block regardless of cancellation.
+- If the coroutine is cancelled after `suspendVipsImageOf` returns but before `close()` is called, the `Cleaner` will eventually reclaim the native handle (non-deterministic, logged as warning).
+- Long-running operations (`resize`, `toBytes`) inside `use {}` are safe because `close()` runs in the `finally` block regardless of cancellation.
 
 ### VipsRuntime Shutdown Lifecycle
+
 - `VipsRuntime.shutdown()` is NOT registered as a JVM shutdown hook by default (multi-tenant JVM safety).
-- ⚠️ **Spring Boot devtools WARNING**: Do NOT register `shutdown()` via `@PreDestroy` or `DisposableBean`. Spring Boot devtools restarts the `LaunchedClassLoader` (ApplicationContext) but keeps the native `.so` in the JVM's `SystemClassLoader`. Calling `shutdown()` via `@PreDestroy` makes the next devtools restart call `init()` on a permanently SHUTDOWN runtime → `VipsInitializationException("restart the process")` every time. **Use JVM shutdown hook only.**
+- ⚠️ **Spring Boot devtools
+  WARNING**: Do NOT register `shutdown()` via `@PreDestroy` or `DisposableBean`. Spring Boot devtools restarts the `LaunchedClassLoader` (ApplicationContext) but keeps the native `.so` in the JVM's `SystemClassLoader`. Calling `shutdown()` via `@PreDestroy` makes the next devtools restart call `init()` on a permanently SHUTDOWN runtime → `VipsInitializationException("restart the process")` every time.
+  **Use JVM shutdown hook only.**
 - Spring Boot consumers (non-devtools): use a `@Component` wrapper bean for `@PreDestroy` if no devtools; OR use JVM shutdown hook exclusively.
 - Standalone JVM consumers: call `Runtime.getRuntime().addShutdownHook(Thread { runtime.shutdown() })`.
 - Failing to call `shutdown()` is safe (no data loss) but may delay JVM exit by up to 5 s due to libvips worker threads.
@@ -441,23 +448,24 @@ All binding-specific exceptions MUST be translated to bluetape4k types before cr
  * // GOOD — 안전한 메시지, cause에 원본 보존
  * throw VipsDecodeException("Image decode failed: unsupported format or corrupted input", jvipsException)
  * ```
- */
-open class VipsException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
+
+*/ open class VipsException (message: String, cause: Throwable? = null) : RuntimeException (message, cause)
 
 /**
- * 이미지 디코딩 실패 시 발생합니다.
- */
-class VipsDecodeException(message: String, cause: Throwable? = null) : VipsException(message, cause)
+
+* 이미지 디코딩 실패 시 발생합니다.
+  */ class VipsDecodeException (message: String, cause: Throwable? = null) : VipsException (message, cause)
 
 /**
- * 이미지 인코딩 실패 시 발생합니다.
- */
-class VipsEncodeException(message: String, cause: Throwable? = null) : VipsException(message, cause)
+
+* 이미지 인코딩 실패 시 발생합니다.
+  */ class VipsEncodeException (message: String, cause: Throwable? = null) : VipsException (message, cause)
 
 /**
- * VipsRuntime 초기화 실패 시 발생합니다.
- */
-class VipsInitializationException(message: String, cause: Throwable? = null) : VipsException(message, cause)
+
+* VipsRuntime 초기화 실패 시 발생합니다.
+  */ class VipsInitializationException (message: String, cause: Throwable? = null) : VipsException (message, cause)
+
 ```
 
 Implementations:
@@ -488,6 +496,7 @@ init(concurrency = 2)  // 8 IO threads × 2 vips workers = 16 native threads max
 ```
 
 ### VipsRuntime Fallback
+
 - If libvips is unavailable at runtime, `VipsRuntime.init()` throws `VipsInitializationException`.
 - Application-level pattern for graceful fallback to scrimage:
   ```kotlin
@@ -685,23 +694,23 @@ abstract class AbstractVipsTest {
 
 15 assertions per impl module (java21 + java25). Total: 30 assertions in CI.
 
-| # | Test | Assertion |
-|---|---|---|
-| 1 | `vipsImageOf(file)` | width/height match known fixture |
-| 2 | `resize(800, 600)` | output dimensions 800×600 (verify semantics from T2.0 spike — libvips may preserve aspect ratio) |
-| 3 | `thumbnail(300)` | longest side ≤ 300; boundary: thumbnail(0) or thumbnail(-1) throws |
-| 4 | `toBytes(JPEG)` | non-empty, valid JPEG header `FF D8 FF` |
-| 5 | `toBytes(PNG)` | non-empty, valid PNG header `89 50 4E 47` |
-| 6 | `toBytes(WEBP)` | non-empty, `RIFF....WEBP` header (bytes 0–3 + 8–11) |
-| 7 | `suspendToBytes(JPEG)` | outcome only: non-empty, valid JPEG header (dispatcher NOT asserted — `runTest` does not replace `Dispatchers.IO`) |
-| 8 | `use { }` not leaking | after `close()`, subsequent method call throws `IllegalStateException` or `VipsException` |
-| 9 | `close()` idempotent | second `close()` does not throw |
-| 10 | `crop(0, 0, 100, 100)` | output is exactly 100×100 |
-| 11 | `writeTo(Path)` | file exists at path + valid JPEG magic |
-| 12 | `writeTo(OutputStream)` | stream content has valid JPEG magic |
-| 13 | invalid resize params | `resize(0, 600)` or `resize(-1, 600)` throws `IllegalArgumentException` or `VipsException` |
-| 14 | crop out-of-bounds | `crop` exceeding image bounds throws `VipsException` |
-| 15 | corrupt input | `vipsImageOf(ByteArray(10) { 0 })` throws `VipsDecodeException` |
+| #  | Test                    | Assertion                                                                                                          |
+|----|-------------------------|--------------------------------------------------------------------------------------------------------------------|
+| 1  | `vipsImageOf(file)`     | width/height match known fixture                                                                                   |
+| 2  | `resize(800, 600)`      | output dimensions 800×600 (verify semantics from T2.0 spike — libvips may preserve aspect ratio)                   |
+| 3  | `thumbnail(300)`        | longest side ≤ 300; boundary: thumbnail(0) or thumbnail(-1) throws                                                 |
+| 4  | `toBytes(JPEG)`         | non-empty, valid JPEG header `FF D8 FF`                                                                            |
+| 5  | `toBytes(PNG)`          | non-empty, valid PNG header `89 50 4E 47`                                                                          |
+| 6  | `toBytes(WEBP)`         | non-empty, `RIFF....WEBP` header (bytes 0–3 + 8–11)                                                                |
+| 7  | `suspendToBytes(JPEG)`  | outcome only: non-empty, valid JPEG header (dispatcher NOT asserted — `runTest` does not replace `Dispatchers.IO`) |
+| 8  | `use { }` not leaking   | after `close()`, subsequent method call throws `IllegalStateException` or `VipsException`                          |
+| 9  | `close()` idempotent    | second `close()` does not throw                                                                                    |
+| 10 | `crop(0, 0, 100, 100)`  | output is exactly 100×100                                                                                          |
+| 11 | `writeTo(Path)`         | file exists at path + valid JPEG magic                                                                             |
+| 12 | `writeTo(OutputStream)` | stream content has valid JPEG magic                                                                                |
+| 13 | invalid resize params   | `resize(0, 600)` or `resize(-1, 600)` throws `IllegalArgumentException` or `VipsException`                         |
+| 14 | crop out-of-bounds      | `crop` exceeding image bounds throws `VipsException`                                                               |
+| 15 | corrupt input           | `vipsImageOf(ByteArray(10) { 0 })` throws `VipsDecodeException`                                                    |
 
 ---
 
@@ -749,44 +758,51 @@ brew install vips
 
 ## 8. Risks and Mitigations
 
-| Risk | Likelihood | Mitigation |
-|---|---|---|
-| libvips not installed → `UnsatisfiedLinkError` | High (dev env) | `@BeforeAll` probe + `assumeTrue(false)` skip |
-| JVips native handle leak | Medium | `NativeHandle` ref-count guard + `use { }` enforced |
-| vips-ffm requiring Java 25 breaks consumers | Low | Separate module — consumers opt in explicitly |
-| JVips libvips 8.10.2 missing a codec needed by test | Low | Test against common formats (JPEG/PNG/WebP) only in Phase 2 |
-| `VIPS_CONCURRENCY` thread explosion | Medium | Default to 4; document `VipsRuntime.init(concurrency=N)` |
-| JVips Linux bundle missing transitive codec libs | Medium | CI job installs `libvips42 libvips-tools` from apt for integration tests |
-| vips-ffm GH Packages only (not Maven Central) | Medium | Verify Maven Central availability before plan phase; fallback to JitPack |
-| Malformed image → JVM crash via native code | High | Sandbox/subprocess for untrusted input |
-| Image bomb / pixel flood via crafted file | High | maxPixels cap in VipsRuntime.init() |
-| Path traversal via vipsImageOf(path) | Medium | Caller responsibility — document in KDoc |
+| Risk                                                | Likelihood     | Mitigation                                                               |
+|-----------------------------------------------------|----------------|--------------------------------------------------------------------------|
+| libvips not installed → `UnsatisfiedLinkError`      | High (dev env) | `@BeforeAll` probe + `assumeTrue(false)` skip                            |
+| JVips native handle leak                            | Medium         | `NativeHandle` ref-count guard + `use { }` enforced                      |
+| vips-ffm requiring Java 25 breaks consumers         | Low            | Separate module — consumers opt in explicitly                            |
+| JVips libvips 8.10.2 missing a codec needed by test | Low            | Test against common formats (JPEG/PNG/WebP) only in Phase 2              |
+| `VIPS_CONCURRENCY` thread explosion                 | Medium         | Default to 4; document `VipsRuntime.init(concurrency=N)`                 |
+| JVips Linux bundle missing transitive codec libs    | Medium         | CI job installs `libvips42 libvips-tools` from apt for integration tests |
+| vips-ffm GH Packages only (not Maven Central)       | Medium         | Verify Maven Central availability before plan phase; fallback to JitPack |
+| Malformed image → JVM crash via native code         | High           | Sandbox/subprocess for untrusted input                                   |
+| Image bomb / pixel flood via crafted file           | High           | maxPixels cap in VipsRuntime.init()                                      |
+| Path traversal via vipsImageOf(path)                | Medium         | Caller responsibility — document in KDoc                                 |
 
 ## 8.5 Security Boundaries
 
 ### Trust Model
-`bluetape4k-images-vips-*` modules are designed for **trusted-input** scenarios (internal batch jobs, build pipelines). For **user-uploaded images** (untrusted input), additional hardening is required at the application layer.
+
+`bluetape4k-images-vips-*` modules are designed for
+**trusted-input** scenarios (internal batch jobs, build pipelines). For **user-uploaded
+images** (untrusted input), additional hardening is required at the application layer.
 
 ### Image Bomb / Pixel Flood Defense
+
 - The spec mandates a `maxPixels` limit enforced at the factory boundary **before full pixel allocation**:
-  - Format allowlist + BoundedInputStream: checked before any native call
-  - maxPixels check: checked after native header parse (lightweight), before full pixel data allocation
-  - Default: 150 MP (150,000,000 pixel × band units)
-  - Configurable via `VipsRuntime.init(maxPixels = ...)` or env var `VIPS_MAX_PIXELS`
+    - Format allowlist + BoundedInputStream: checked before any native call
+    - maxPixels check: checked after native header parse (lightweight), before full pixel data allocation
+    - Default: 150 MP (150,000,000 pixel × band units)
+    - Configurable via `VipsRuntime.init(maxPixels = ...)` or env var `VIPS_MAX_PIXELS`
 - InputStream variant: MUST wrap with a `BoundedInputStream` using `setOnMaxCount` callback (throws on overflow — NOT silent EOF truncation).
 - These limits block image bombs before expensive pixel decode is triggered.
 
 ### Path Traversal
+
 - `vipsImageOf(file/path)` and `writeTo(path)` do NOT canonicalize or confine paths.
 - **Callers are responsible** for validating paths before passing to these APIs.
 - KDoc on all path-accepting functions MUST state: "Caller must ensure path is within an allowed directory. This function does not prevent path traversal."
 
 ### Malformed Image / Native Crash
+
 - JNI (java21) and FFM (java25) both call native C code. A crafted malformed image can crash the JVM.
 - **Recommendation for untrusted input**: Run image processing in an isolated subprocess.
 - Risk: documented in §8 risk matrix as HIGH (see Risk row update below).
 
 ### `--enable-native-access` Scope
+
 - `ALL-UNNAMED` is required for vips-ffm until it ships as a named module.
 - Consumers MUST add `--enable-native-access=ALL-UNNAMED` (or the module name if vips-ffm becomes modular) to their JVM startup args.
 - This must be documented prominently in the java25 module README.
@@ -795,15 +811,15 @@ brew install vips
 
 ## 9. Phase 3 (Deferred — out of scope for this PR)
 
-| ID | Feature |
-|---|---|
+| ID | Feature                                                        |
+|----|----------------------------------------------------------------|
 | F1 | `VipsAvifWriter` implements `AvifWriter` (@IncubatingImageApi) |
 | F2 | `VipsHeicReader` implements `HeicReader` (@IncubatingImageApi) |
-| F3 | JXL (JPEG XL) encode/decode |
-| F4 | DZI (Deep Zoom Image) tile generation |
-| F5 | Animated WebP / multi-page TIFF |
-| F6 | ICC profile embed/strip |
-| F7 | vips-ffm migration when bluetape4k baseline moves to Java 25+ |
+| F3 | JXL (JPEG XL) encode/decode                                    |
+| F4 | DZI (Deep Zoom Image) tile generation                          |
+| F5 | Animated WebP / multi-page TIFF                                |
+| F6 | ICC profile embed/strip                                        |
+| F7 | vips-ffm migration when bluetape4k baseline moves to Java 25+  |
 
 ---
 
@@ -847,10 +863,14 @@ brew install vips
 
 ## 11. Open Questions
 
-1. **vips-ffm Maven Central status**: RESOLVED: confirmed on mvnrepository. Latest `1.9.6` is available on Maven Central — no GitHub Packages dependency required.
-2. **JVips bundled codec completeness**: Does `com.criteo:jvips:8.10.2-38fe1f6` include libheif/libaom in the Linux bundle for potential Phase 3 AVIF? Needs jar inspection.
-3. **java21 module name prefix**: Does `JVips` prefix (e.g. `JVipsImage`) or `Vips21` prefix read better? Confirm during plan.
-4. **Common test fixtures**: Shared test image files (JPEG/PNG/WebP samples) — place in `images-vips-api/src/test/resources/` as `testFixtures`, or duplicate per module?
+1. **vips-ffm Maven Central
+   status**: RESOLVED: confirmed on mvnrepository. Latest `1.9.6` is available on Maven Central — no GitHub Packages dependency required.
+2. **JVips bundled codec
+   completeness**: Does `com.criteo:jvips:8.10.2-38fe1f6` include libheif/libaom in the Linux bundle for potential Phase 3 AVIF? Needs jar inspection.
+3. **java21 module name
+   prefix**: Does `JVips` prefix (e.g. `JVipsImage`) or `Vips21` prefix read better? Confirm during plan.
+4. **Common test
+   fixtures**: Shared test image files (JPEG/PNG/WebP samples) — place in `images-vips-api/src/test/resources/` as `testFixtures`, or duplicate per module?
 
 ---
 

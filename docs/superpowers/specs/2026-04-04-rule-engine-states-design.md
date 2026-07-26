@@ -9,26 +9,23 @@
 
 ## 1. 개요
 
-kommons-rule-engine과 kommons-states를 bluetape4k 생태계로 마이그레이션한다.
-기존 Java 스타일 코드를 완전 Kotlin화하고, 코루틴 지원 추가, Thread Safety 확보,
-타입 안전성 개선, DSL 강화를 수행한다.
-bluetape4k-states는 clinic-appointment 패턴(map 기반 전이 + suspend)을 채택한다.
+kommons-rule-engine과 kommons-states를 bluetape4k 생태계로 마이그레이션한다. 기존 Java 스타일 코드를 완전 Kotlin화하고, 코루틴 지원 추가, Thread Safety 확보, 타입 안전성 개선, DSL 강화를 수행한다. bluetape4k-states는 clinic-appointment 패턴 (map 기반 전이 + suspend)을 채택한다.
 
 ### 범위
 
-| 범위 | rule-engine | states |
-|------|:-----------:|:------:|
-| 핵심 Rule/FSM 인터페이스 | O | O |
-| DSL 빌더 | O | O (신규) |
-| 코루틴 지원 (suspend/Flow) | O (신규) | O (신규) |
-| Thread Safety | O (개선) | O (개선) |
-| Expression Language (MVEL2/SpEL/KotlinScript) | O | - |
-| Annotation 기반 Rule | O | - |
-| Composite Rule | O | - |
-| Guard Condition | - | O (신규) |
-| StateFlow 상태 관찰 | - | O (신규) |
-| YAML/JSON/HOCON Rule Reader | O | - |
-| clinic-appointment 마이그레이션 가이드 | - | O |
+| 범위                                          | rule-engine |  states  |
+|-----------------------------------------------|:-----------:|:--------:|
+| 핵심 Rule/FSM 인터페이스                      |      O      |    O     |
+| DSL 빌더                                      |      O      | O (신규) |
+| 코루틴 지원 (suspend/Flow)                    |  O (신규)   | O (신규) |
+| Thread Safety                                 |  O (개선)   | O (개선) |
+| Expression Language (MVEL2/SpEL/KotlinScript) |      O      |    -     |
+| Annotation 기반 Rule                          |      O      |    -     |
+| Composite Rule                                |      O      |    -     |
+| Guard Condition                               |      -      | O (신규) |
+| StateFlow 상태 관찰                           |      -      | O (신규) |
+| YAML/JSON/HOCON Rule Reader                   |      O      |    -     |
+| clinic-appointment 마이그레이션 가이드        |      -      |    O     |
 
 ---
 
@@ -253,8 +250,7 @@ fun ruleEngine(setup: RuleEngineConfig.() -> Unit = {}): RuleEngine = ...
 
 ### 3.4 코루틴 통합
 
-DefaultSuspendRuleEngine은 SuspendRule과 일반 Rule 모두 지원한다.
-일반 Rule은 withContext(Dispatchers.IO)로 자동 래핑된다.
+DefaultSuspendRuleEngine은 SuspendRule과 일반 Rule 모두 지원한다. 일반 Rule은 withContext (Dispatchers.IO)로 자동 래핑된다.
 
 ### 3.5 Expression Language 개선
 
@@ -270,11 +266,13 @@ class MvelCondition(val expression: String) : Condition {
 
 #### Kotlin Script: JSR223 → kotlin-scripting-jvm-host 교체
 
-기존 JSR223(`KotlinJsr223DefaultScriptEngineFactory`)의 문제:
+기존 JSR223 (`KotlinJsr223DefaultScriptEngineFactory`)의 문제:
+
 - 동일한 ScriptEngine 공유 → 바인딩 충돌
 - 스크립트별 독립 환경 없음
 
 개선: `BasicJvmScriptingHost`로 독립 실행 환경 제공
+
 - `kotlin-scripting-jvm-host` (compileOnly)
 - `ScriptCompilationConfiguration`에 `providedProperties("facts" to Facts::class)`
 - 컴파일 결과를 `ConcurrentHashMap`으로 캐싱
@@ -293,12 +291,12 @@ class SpelCondition(val expression: String) : Condition {
 
 ### 3.6 Thread Safety 개선 요약
 
-| 항목 | 기존 | 개선 |
-|------|------|------|
-| listener 컬렉션 | `mutableListOf()` | `CopyOnWriteArrayList()` |
-| Facts 내부 맵 | `HashMap` | `ConcurrentHashMap` |
-| RuleProxy 메서드 조회 | 매번 linear scan | `ConcurrentHashMap` lazy 캐싱 |
-| Kotlin Script | 공유 ScriptEngine (충돌) | BasicJvmScriptingHost (독립) |
+| 항목                  | 기존                     | 개선                          |
+|-----------------------|--------------------------|-------------------------------|
+| listener 컬렉션       | `mutableListOf()`        | `CopyOnWriteArrayList()`      |
+| Facts 내부 맵         | `HashMap`                | `ConcurrentHashMap`           |
+| RuleProxy 메서드 조회 | 매번 linear scan         | `ConcurrentHashMap` lazy 캐싱 |
+| Kotlin Script         | 공유 ScriptEngine (충돌) | BasicJvmScriptingHost (독립)  |
 
 ---
 
@@ -510,32 +508,32 @@ inline fun <reified S : Any, reified E : Any> suspendStateMachine(
 
 ### 5.1 bluetape4k-rule-engine (목표: 64+ 케이스)
 
-| 카테고리 | 주요 테스트 케이스 | 수량 |
-|----------|-----------------|:----:|
-| Facts | 생성, 타입 안전 접근, thread-safe 동시 접근 | 6 |
-| Rule DSL | 동기/코루틴 rule, 복수 action, 우선순위 | 6 |
-| DefaultRuleEngine | fire, check, skipOnFirst*, priorityThreshold, 리스너 | 10 |
-| DefaultSuspendRuleEngine | suspend fire/check, 동기 Rule 코루틴 래핑 | 6 |
-| InferenceRuleEngine | 반복 실행, 후보 선택 | 4 |
-| RuleProxy | 어노테이션 변환, @Fact 주입, 캐싱, 잘못된 정의 | 8 |
-| CompositeRule | ActivationGroup, ConditionalGroup, UnitGroup | 6 |
-| MVEL2 | 조건 평가, 액션 실행, 컴파일 캐시 | 5 |
-| SpEL | 조건 평가, 변수 바인딩, BeanResolver | 5 |
-| KotlinScript | 조건 평가, 스레드 안전, 컴파일 캐싱 | 5 |
-| RuleReader | YAML, JSON, HOCON | 3 |
-| **합계** | | **64** |
+| 카테고리                 | 주요 테스트 케이스                                   |  수량  |
+|--------------------------|------------------------------------------------------|:------:|
+| Facts                    | 생성, 타입 안전 접근, thread-safe 동시 접근          |   6    |
+| Rule DSL                 | 동기/코루틴 rule, 복수 action, 우선순위              |   6    |
+| DefaultRuleEngine        | fire, check, skipOnFirst*, priorityThreshold, 리스너 |   10   |
+| DefaultSuspendRuleEngine | suspend fire/check, 동기 Rule 코루틴 래핑            |   6    |
+| InferenceRuleEngine      | 반복 실행, 후보 선택                                 |   4    |
+| RuleProxy                | 어노테이션 변환, @Fact 주입, 캐싱, 잘못된 정의       |   8    |
+| CompositeRule            | ActivationGroup, ConditionalGroup, UnitGroup         |   6    |
+| MVEL2                    | 조건 평가, 액션 실행, 컴파일 캐시                    |   5    |
+| SpEL                     | 조건 평가, 변수 바인딩, BeanResolver                 |   5    |
+| KotlinScript             | 조건 평가, 스레드 안전, 컴파일 캐싱                  |   5    |
+| RuleReader               | YAML, JSON, HOCON                                    |   3    |
+| **합계**                 |                                                      | **64** |
 
 ### 5.2 bluetape4k-states (목표: 32+ 케이스)
 
-| 카테고리 | 주요 테스트 케이스 | 수량 |
-|----------|-----------------|:----:|
-| DefaultStateMachine | 전이, 유효하지 않은 전이, 최종 상태, CAS 동시성 | 8 |
-| StateMachine DSL | 기본 빌더, 복수 전이, finalStates, onTransition | 5 |
-| Guard Condition | guard 통과, guard 실패, guard 없는 전이 | 4 |
-| SuspendStateMachine | suspend 전이, Mutex 동시성, StateFlow 관찰 | 6 |
-| 예제 테스트 | Turnstile, Order, Appointment | 6 |
-| 엣지 케이스 | 빈 전이맵, 자기 자신으로 전이 | 3 |
-| **합계** | | **32** |
+| 카테고리            | 주요 테스트 케이스                              |  수량  |
+|---------------------|-------------------------------------------------|:------:|
+| DefaultStateMachine | 전이, 유효하지 않은 전이, 최종 상태, CAS 동시성 |   8    |
+| StateMachine DSL    | 기본 빌더, 복수 전이, finalStates, onTransition |   5    |
+| Guard Condition     | guard 통과, guard 실패, guard 없는 전이         |   4    |
+| SuspendStateMachine | suspend 전이, Mutex 동시성, StateFlow 관찰      |   6    |
+| 예제 테스트         | Turnstile, Order, Appointment                   |   6    |
+| 엣지 케이스         | 빈 전이맵, 자기 자신으로 전이                   |   3    |
+| **합계**            |                                                 | **32** |
 
 ---
 
@@ -635,35 +633,39 @@ appointmentFsm.stateFlow.collect { state -> ... }
 
 ## 8. 트레이드오프
 
-| 설계 결정 | 장점 | 단점 |
-|-----------|------|------|
-| Rule/SuspendRule 인터페이스 분리 | 동기 코드에 코루틴 의존 없음 | 인터페이스 2벌 유지 |
-| Facts에 ConcurrentHashMap | Thread Safety, 빠른 동시 읽기 | null value 저장 불가 → remove 사용 |
-| Map 기반 FSM (clinic-appointment 패턴) | O(1) 전이, 간결함, DSL 친화적 | hierarchical state 미지원 |
-| AtomicReference CAS (동기 FSM) | 락 없이 빠름 | CAS 실패 시 예외 → 동시 전이 불허 의도적 설계 |
-| Kotlin Script → jvm-host | 스레드 안전, 독립 환경, 컴파일 캐싱 | classpath 설정 복잡, 첫 컴파일 느림 |
-| EL compileOnly | 사용자가 필요한 EL만 선택 | 런타임 ClassNotFoundException 가능 (문서 안내) |
+| 설계 결정                              | 장점                                | 단점                                           |
+|----------------------------------------|-------------------------------------|------------------------------------------------|
+| Rule/SuspendRule 인터페이스 분리       | 동기 코드에 코루틴 의존 없음        | 인터페이스 2벌 유지                            |
+| Facts에 ConcurrentHashMap              | Thread Safety, 빠른 동시 읽기       | null value 저장 불가 → remove 사용             |
+| Map 기반 FSM (clinic-appointment 패턴) | O(1) 전이, 간결함, DSL 친화적       | hierarchical state 미지원                      |
+| AtomicReference CAS (동기 FSM)         | 락 없이 빠름                        | CAS 실패 시 예외 → 동시 전이 불허 의도적 설계  |
+| Kotlin Script → jvm-host               | 스레드 안전, 독립 환경, 컴파일 캐싱 | classpath 설정 복잡, 첫 컴파일 느림            |
+| EL compileOnly                         | 사용자가 필요한 EL만 선택           | 런타임 ClassNotFoundException 가능 (문서 안내) |
 
 ---
 
 ## 9. 구현 우선순위
 
 ### Phase 1: 핵심
+
 1. `bluetape4k-states` 전체 (core + coroutines + DSL + 테스트 + README)
 2. `bluetape4k-rule-engine` api + core (Rule, Facts, RuleEngine, DSL)
 
 ### Phase 2: Expression Language
+
 3. MVEL2 마이그레이션
 4. SpEL 마이그레이션
 5. Kotlin Script 개선 (jvm-host)
 
 ### Phase 3: 부가 기능
+
 6. 어노테이션 기반 RuleProxy (캐싱 포함)
 7. Composite Rule 그룹
 8. Rule Reader (YAML, JSON, HOCON)
 9. SuspendRuleEngine
 
 ### Phase 4: 문서 및 마이그레이션
+
 10. README.md 최종 작성
 11. clinic-appointment 마이그레이션 실행
 12. CLAUDE.md 업데이트
@@ -817,14 +819,14 @@ data class RuleEngineConfig(
 }
 ```
 
-#### Facts.asMap() 추가
+#### Facts.asMap () 추가
 
 ```kotlin
 // Facts 클래스에 asMap() 추가 (스냅샷 복사 반환)
 fun asMap(): Map<String, Any?> = facts.toMap()  // 불변 스냅샷
 ```
 
-#### SuspendRule.compareTo() 기본 구현
+#### SuspendRule.compareTo () 기본 구현
 
 ```kotlin
 interface SuspendRule : Comparable<SuspendRule>, Serializable {
@@ -896,6 +898,7 @@ data class TransitionTarget<S : Any, E : Any>(
 ### [medium] 수정 4: CAS 실패 정책 명시
 
 `DefaultStateMachine.transition()` KDoc에 명시:
+
 - 동시에 두 스레드가 같은 상태에서 전이를 시도하면 한 쪽은 `StateMachineException` 발생
 - 재시도가 필요한 경우 호출자가 처리
 - 동시 전이가 예상되는 환경에서는 `SuspendStateMachine` (Mutex 직렬화) 사용 권장

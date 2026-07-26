@@ -1,7 +1,6 @@
 # bluetape4k-core review, tests, KDoc, README design
 
-Date: 2026-05-11
-Module: `bluetape4k-core`
+Date: 2026-05-11 Module: `bluetape4k-core`
 Branch/worktree: `codex/core-review-tests-docs` in `.worktrees/core-review-tests-docs`
 
 ## Problem
@@ -40,13 +39,13 @@ Rejected alternatives:
 
 ## Initial Findings
 
-| Priority | Finding | Target |
-|---|---|---|
-| P1 | `RingBuffer.drop(n)` accepts negative values, which can corrupt indices and size. | `RingBuffer.drop` |
-| P1 | `BoundedStack.insert(index, elem)` has unclear/full-capacity insertion semantics and lacks edge tests. | `BoundedStack.insert` |
-| P1 | `SimplePaginatedList` allows negative page numbers/counts and `pageSize <= 0`, causing invalid page metadata or divide-by-zero later. | `PaginatedList.kt` |
-| P2 | `RingBuffer.toArray()` and iterators have limited public KDoc examples. | `RingBuffer`, `BoundedStack` |
-| P2 | README does not explicitly describe bounded collection overflow and pagination validation contracts. | `README.md`, `README.ko.md` |
+| Priority | Finding                                                                                                                               | Target                       |
+|----------|---------------------------------------------------------------------------------------------------------------------------------------|------------------------------|
+| P1       | `RingBuffer.drop(n)` accepts negative values, which can corrupt indices and size.                                                     | `RingBuffer.drop`            |
+| P1       | `BoundedStack.insert(index, elem)` has unclear/full-capacity insertion semantics and lacks edge tests.                                | `BoundedStack.insert`        |
+| P1       | `SimplePaginatedList` allows negative page numbers/counts and `pageSize <= 0`, causing invalid page metadata or divide-by-zero later. | `PaginatedList.kt`           |
+| P2       | `RingBuffer.toArray()` and iterators have limited public KDoc examples.                                                               | `RingBuffer`, `BoundedStack` |
+| P2       | README does not explicitly describe bounded collection overflow and pagination validation contracts.                                  | `README.md`, `README.ko.md`  |
 
 ## Design Decision
 

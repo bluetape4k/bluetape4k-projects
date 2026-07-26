@@ -3,10 +3,10 @@ package io.bluetape4k.cassandra.examples.datatypes
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.cql.SimpleStatement
 import com.datastax.oss.driver.api.core.type.DataTypes
-import io.bluetape4k.cassandra.AbstractCassandraTest
-import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.cassandra.AbstractCassandraTest
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 
 class TuplesSimpleExamples: AbstractCassandraTest() {

@@ -7,8 +7,8 @@ Karpathy의 LLM Wiki 패턴을 bluetape4k-projects에 적용한다.
 
 ### 목표
 
-- RAG 방식(쿼리마다 재발견)이 아닌, LLM이 유지하는 **영속 wiki** 구축
-- 설계 결정 근거(ADR), 패턴 카탈로그, 모듈 레퍼런스, 의존성 결정 이력 통합
+- RAG 방식 (쿼리마다 재발견)이 아닌, LLM이 유지하는 **영속 wiki** 구축
+- 설계 결정 근거 (ADR), 패턴 카탈로그, 모듈 레퍼런스, 의존성 결정 이력 통합
 - spec 추가 시 자동 알림 + `/wiki-update` 스킬로 wiki 갱신
 - `GNO` MCP 서버로 Claude Code에서 wiki 검색 가능
 
@@ -68,16 +68,16 @@ Karpathy의 LLM Wiki 패턴을 bluetape4k-projects에 적용한다.
 
 ## 4. 초기 wiki 페이지 9개 — 주제 매핑
 
-| 페이지 파일                       | 흡수할 specs/plans                                                                               | 보조 소스                                        |
-|------------------------------|-----------------------------------------------------------------------------------------------|----------------------------------------------|
-| `exposed-patterns.md`        | exposed-core, exposed-dao, exposed-jdbc, exposed-r2dbc, exposed-redis-api, exposed-cache 관련   | —                                            |
-| `cache-architecture.md`      | nearcache-unification, cache-consistency-refactoring, redisson-repository-generic-refactoring | —                                            |
-| `spring-boot-integration.md` | spring-boot3/4 modules, hibernate-lettuce, spring-data-exposed                                | —                                            |
-| `kotlin-testing-patterns.md` | kdoc-examples, kdoc-examples-all-modules, testcontainers, testcontainers-new-servers          | —                                            |
-| `module-decisions.md`        | module-consolidation, debop4k-migration, full-module-review                                   | —                                            |
-| `database-dialects.md`       | postgresql, mysql8, exposed-bigquery-duckdb, exposed-trino                                    | —                                            |
-| `auditable-pattern.md`       | auditable-exposed                                                                             | —                                            |
-| `infrastructure-patterns.md` | aws-kotlin (client pattern), testcontainers refactor                                          | —                                            |
+| 페이지 파일                  | 흡수할 specs/plans                                                                            | 보조 소스                                        |
+|------------------------------|-----------------------------------------------------------------------------------------------|--------------------------------------------------|
+| `exposed-patterns.md`        | exposed-core, exposed-dao, exposed-jdbc, exposed-r2dbc, exposed-redis-api, exposed-cache 관련 | —                                                |
+| `cache-architecture.md`      | nearcache-unification, cache-consistency-refactoring, redisson-repository-generic-refactoring | —                                                |
+| `spring-boot-integration.md` | spring-boot3/4 modules, hibernate-lettuce, spring-data-exposed                                | —                                                |
+| `kotlin-testing-patterns.md` | kdoc-examples, kdoc-examples-all-modules, testcontainers, testcontainers-new-servers          | —                                                |
+| `module-decisions.md`        | module-consolidation, debop4k-migration, full-module-review                                   | —                                                |
+| `database-dialects.md`       | postgresql, mysql8, exposed-bigquery-duckdb, exposed-trino                                    | —                                                |
+| `auditable-pattern.md`       | auditable-exposed                                                                             | —                                                |
+| `infrastructure-patterns.md` | aws-kotlin (client pattern), testcontainers refactor                                          | —                                                |
 | `dependency-decisions.md`    | —                                                                                             | git log (downgrade/revert/fix version 패턴 커밋) |
 
 ---

@@ -1,5 +1,11 @@
 package io.bluetape4k.csv.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeBlank
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.csv.Record
 import io.bluetape4k.csv.model.ProductType
 import io.bluetape4k.csv.writeCsvRecords
@@ -11,12 +17,6 @@ import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Resourcex
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
-import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeBlank
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -24,7 +24,7 @@ import java.io.FileNotFoundException
 
 class SuspendRecordReaderSupportTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     @TempDir
     lateinit var tempDir: File

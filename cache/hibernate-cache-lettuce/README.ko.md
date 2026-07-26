@@ -2,7 +2,7 @@
 
 [English](./README.md) | 한국어
 
-Hibernate 7.2 **2nd Level Cache** 구현체 — Lettuce Near Cache(Caffeine L1 + Redis L2) 기반.
+Hibernate 7.2 **2nd Level Cache** 구현체 — Lettuce Near Cache (Caffeine L1 + Redis L2) 기반.
 `hibernate.cache.lettuce.*` Hibernate properties 설정만으로 모든 Region에 Near Cache가 자동 적용된다.
 
 > Near Cache 코어는 `bluetape4k-projects` 의 `bluetape4k-cache-lettuce` 모듈을 사용한다.
@@ -10,8 +10,7 @@ Hibernate 7.2 **2nd Level Cache** 구현체 — Lettuce Near Cache(Caffeine L1 +
 
 ## 패키지 / import 안정성
 
-cache 폴더 재편으로 소스 위치는 `cache/hibernate-cache-lettuce/`가 되었지만 Gradle 프로젝트 이름, Maven
-artifact, Kotlin package는 유지됩니다.
+cache 폴더 재편으로 소스 위치는 `cache/hibernate-cache-lettuce/`가 되었지만 Gradle 프로젝트 이름, Maven artifact, Kotlin package는 유지됩니다.
 
 - Gradle project: `:bluetape4k-hibernate-cache-lettuce`
 - Maven artifact: `io.github.bluetape4k:bluetape4k-hibernate-cache-lettuce`
@@ -149,24 +148,24 @@ val products: MutableList<Product> = mutableListOf()
 
 ![getFromCache / putIntoCache diagram](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-sequence-01.png)
 
-| 연산                        | 동작                                                        |
-|---------------------------|-----------------------------------------------------------|
-| `getFromCache`            | L1(Caffeine) hit → 즉시 반환 / miss → Redis GET → L1 populate |
-| `putIntoCache`            | L1 + L2 동시 write-through                                  |
-| `evictData(key)`          | L1 + L2 해당 key 삭제                                         |
+| 연산                        | 동작                                                          |
+|-----------------------------|---------------------------------------------------------------|
+| `getFromCache`              | L1(Caffeine) hit → 즉시 반환 / miss → Redis GET → L1 populate |
+| `putIntoCache`              | L1 + L2 동시 write-through                                    |
+| `evictData(key)`            | L1 + L2 해당 key 삭제                                         |
 | `evictData()` (region 전체) | L1 + L2 전체 제거 (`clearAll()`)                              |
-| 외부 Redis 변경 감지            | RESP3 CLIENT TRACKING push → L1 자동 무효화                    |
+| 외부 Redis 변경 감지        | RESP3 CLIENT TRACKING push → L1 자동 무효화                   |
 
 ## 지원 코덱
 
-| 코덱 이름      | 설명                          | 압축   |
-|------------|-----------------------------|------|
+| 코덱 이름  | 설명                           | 압축 |
+|------------|--------------------------------|------|
 | `lz4fory`  | LZ4 + Apache Fory **(기본값)** | LZ4  |
-| `fory`     | Apache Fory                 | -    |
-| `gzipfory` | GZip + Apache Fory          | GZip |
-| `zstdfory` | Zstd + Apache Fory          | Zstd |
-| `kryo`     | Kryo                        | -    |
-| `lz4kryo`  | LZ4 + Kryo                  | LZ4  |
+| `fory`     | Apache Fory                    | -    |
+| `gzipfory` | GZip + Apache Fory             | GZip |
+| `zstdfory` | Zstd + Apache Fory             | Zstd |
+| `kryo`     | Kryo                           | -    |
+| `lz4kryo`  | LZ4 + Kryo                     | LZ4  |
 | `jdk`      | Java 직렬화                    | -    |
 | `lz4jdk`   | LZ4 + Java 직렬화              | LZ4  |
 
@@ -187,6 +186,6 @@ Testcontainers로 Redis 7+를 자동 실행하며 H2 인메모리 DB를 사용�
 - **timestamps region TTL 비활성화**:
   `default-update-timestamps-region`은 query cache invalidation 계약 때문에 Redis TTL을 적용하지 않는다.
 - **H2 버전**: Hibernate 7.2는 H2 v2 (`com.h2database:h2:2.x`) 필요.
-- **Jakarta Persistence 3.2.0 강제**: `build.gradle.kts`의 `configurations.all` 블록으로 Jakarta Persistence 3.2.0을 강제 지정한다.
-  Spring Boot BOM이 이전 버전으로 다운그레이드하려는 시도를 방지한다.
+- **Jakarta Persistence 3.2.0
+  강제**: `build.gradle.kts`의 `configurations.all` 블록으로 Jakarta Persistence 3.2.0을 강제 지정한다. Spring Boot BOM이 이전 버전으로 다운그레이드하려는 시도를 방지한다.
 - **Redis 6+**: `use_resp3=true` (기본값) 사용 시 필요. 하위 버전은 `use_resp3=false` 설정.

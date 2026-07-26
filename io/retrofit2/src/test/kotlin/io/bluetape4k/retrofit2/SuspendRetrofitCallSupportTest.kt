@@ -24,12 +24,12 @@ import okio.BufferedSource
 import okio.Source
 import okio.Timeout
 import okio.buffer
-import retrofit2.Callback
-import retrofit2.Call
-import retrofit2.Response
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference

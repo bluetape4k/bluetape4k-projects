@@ -4,10 +4,10 @@ import com.mongodb.client.model.Accumulators
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Projections
 import com.mongodb.client.model.Sorts
-import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.bson.BsonDocument
 import org.junit.jupiter.api.Test
 
@@ -40,7 +40,8 @@ class AggregationSupportTest {
     fun `matchStage Bson 생성 검증`() {
         val stage = matchStage(Filters.eq("city", "Seoul"))
         stage.shouldNotBeNull()
-        val doc = stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
+        val doc =
+            stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
         doc.containsKey("\$match") shouldBeEqualTo true
     }
 
@@ -48,7 +49,8 @@ class AggregationSupportTest {
     fun `groupStage id 필드에 달러 접두어 자동 추가`() {
         val stage = groupStage("city", Accumulators.sum("count", 1))
         stage.shouldNotBeNull()
-        val doc = stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
+        val doc =
+            stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
         val groupDoc = doc.getDocument("\$group")
         // _id 값이 "$city" 형태여야 합니다
         groupDoc.getString("_id").value shouldBeEqualTo "\$city"
@@ -58,7 +60,8 @@ class AggregationSupportTest {
     fun `sortStage Bson 생성 검증`() {
         val stage = sortStage(Sorts.descending("score"))
         stage.shouldNotBeNull()
-        val doc = stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
+        val doc =
+            stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
         doc.containsKey("\$sort") shouldBeEqualTo true
     }
 
@@ -66,7 +69,8 @@ class AggregationSupportTest {
     fun `limitStage Bson 생성 검증`() {
         val stage = limitStage(10)
         stage.shouldNotBeNull()
-        val doc = stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
+        val doc =
+            stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
         doc.getInt32("\$limit").value shouldBeEqualTo 10
     }
 
@@ -74,7 +78,8 @@ class AggregationSupportTest {
     fun `skipStage Bson 생성 검증`() {
         val stage = skipStage(5)
         stage.shouldNotBeNull()
-        val doc = stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
+        val doc =
+            stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
         doc.getInt32("\$skip").value shouldBeEqualTo 5
     }
 
@@ -82,7 +87,8 @@ class AggregationSupportTest {
     fun `projectStage Bson 생성 검증`() {
         val stage = projectStage(Projections.include("name", "score"))
         stage.shouldNotBeNull()
-        val doc = stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
+        val doc =
+            stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
         doc.containsKey("\$project") shouldBeEqualTo true
     }
 
@@ -90,7 +96,8 @@ class AggregationSupportTest {
     fun `unwindStage 필드명에 달러 접두어 자동 추가`() {
         val stage = unwindStage("tags")
         stage.shouldNotBeNull()
-        val doc = stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
+        val doc =
+            stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
         doc.getString("\$unwind").value shouldBeEqualTo "\$tags"
     }
 

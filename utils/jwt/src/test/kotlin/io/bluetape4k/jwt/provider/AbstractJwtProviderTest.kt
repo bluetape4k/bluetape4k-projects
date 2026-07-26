@@ -1,6 +1,11 @@
 package io.bluetape4k.jwt.provider
 
 import io.bluetape4k.LibraryName
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -16,10 +21,6 @@ import io.bluetape4k.logging.trace
 import io.jsonwebtoken.JwtException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
@@ -30,7 +31,6 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
-import io.bluetape4k.assertions.assertFailsWith
 
 @Execution(ExecutionMode.SAME_THREAD)
 abstract class AbstractJwtProviderTest: AbstractJwtTest() {

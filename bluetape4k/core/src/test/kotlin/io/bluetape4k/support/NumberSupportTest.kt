@@ -1,15 +1,15 @@
 package io.bluetape4k.support
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.text.DecimalFormat
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.toBigDecimal
 
 class NumberSupportTest {

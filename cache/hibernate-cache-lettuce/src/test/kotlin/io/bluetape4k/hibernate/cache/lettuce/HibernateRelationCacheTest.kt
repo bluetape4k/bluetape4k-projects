@@ -1,11 +1,11 @@
 package io.bluetape4k.hibernate.cache.lettuce
 
-import io.bluetape4k.hibernate.cache.lettuce.model.Department
-import io.bluetape4k.hibernate.cache.lettuce.model.Employee
-import io.bluetape4k.hibernate.cache.lettuce.model.Project
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.hibernate.cache.lettuce.model.Department
+import io.bluetape4k.hibernate.cache.lettuce.model.Employee
+import io.bluetape4k.hibernate.cache.lettuce.model.Project
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

@@ -1,7 +1,7 @@
 package io.bluetape4k.idgenerators.ksuid
 
-import io.bluetape4k.codec.encodeHexString
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.codec.encodeHexString
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 

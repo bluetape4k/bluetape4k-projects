@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
-import kotlin.coroutines.coroutineContext
 
 internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractFlow<T>() {
 

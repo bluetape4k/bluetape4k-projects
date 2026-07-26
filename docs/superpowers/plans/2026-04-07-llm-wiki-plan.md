@@ -1,14 +1,14 @@
 # LLM Wiki 시스템 구현 계획
 
 > **For agentic workers:
-** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (
-`- [ ]`) syntax for tracking.
+> ** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (
+> `- [ ]`) syntax for tracking.
 
 **Goal:** `.wiki/` 폴더 기반 LLM Wiki 시스템 구축 — specs/plans/git log를 9개 주제별 wiki 페이지로 합성하고, GNO MCP로 검색 가능하게 하며, spec 저장 시
 `/wiki-update` 알림 hook을 등록한다.
 
 **Architecture:** `.wiki/pages/`에 주제별 마크다운 페이지를 두고 GNO가 인덱싱한다. spec 저장 시 PostToolUse hook이 알림을 띄우고,
-`/wiki-update` 스킬이 관련 페이지를 갱신한다. `docs/superpowers/specs|plans/`와 git log가 원본 소스(raw)다.
+`/wiki-update` 스킬이 관련 페이지를 갱신한다. `docs/superpowers/specs|plans/`와 git log가 원본 소스 (raw)다.
 
 **Tech Stack:** GNO 2.1.0 (BM25+vector 검색), Claude Code hooks (PostToolUse), Claude Code skills (SKILL.md)
 
@@ -16,24 +16,24 @@
 
 ## 파일 맵
 
-| 역할     | 경로                                              |
-|--------|-------------------------------------------------|
-| Create | `.wiki/WIKI.md`                                 |
-| Create | `.wiki/raw/gitlog/version-decisions.md`         |
-| Create | `.wiki/pages/exposed-patterns.md`               |
-| Create | `.wiki/pages/cache-architecture.md`             |
-| Create | `.wiki/pages/spring-boot-integration.md`        |
-| Create | `.wiki/pages/kotlin-testing-patterns.md`        |
-| Create | `.wiki/pages/module-decisions.md`               |
-| Create | `.wiki/pages/database-dialects.md`              |
-| Create | `.wiki/pages/auditable-pattern.md`              |
-| Create | `.wiki/pages/infrastructure-patterns.md`        |
-| Create | `.wiki/pages/dependency-decisions.md`           |
-| Create | `~/.claude/hooks/wiki-update-reminder.sh`       |
-| Create | `~/.claude/skills/wiki-update/SKILL.md`         |
+| 역할   | 경로                                              |
+|--------|---------------------------------------------------|
+| Create | `.wiki/WIKI.md`                                   |
+| Create | `.wiki/raw/gitlog/version-decisions.md`           |
+| Create | `.wiki/pages/exposed-patterns.md`                 |
+| Create | `.wiki/pages/cache-architecture.md`               |
+| Create | `.wiki/pages/spring-boot-integration.md`          |
+| Create | `.wiki/pages/kotlin-testing-patterns.md`          |
+| Create | `.wiki/pages/module-decisions.md`                 |
+| Create | `.wiki/pages/database-dialects.md`                |
+| Create | `.wiki/pages/auditable-pattern.md`                |
+| Create | `.wiki/pages/infrastructure-patterns.md`          |
+| Create | `.wiki/pages/dependency-decisions.md`             |
+| Create | `~/.claude/hooks/wiki-update-reminder.sh`         |
+| Create | `~/.claude/skills/wiki-update/SKILL.md`           |
 | Modify | `~/.claude/settings.json` (PostToolUse hook 추가) |
-| Modify | `CLAUDE.md` (체크리스트 항목 추가)                       |
-| Modify | `.gitignore` (GNO 인덱스 파일 제외)                    |
+| Modify | `CLAUDE.md` (체크리스트 항목 추가)                |
+| Modify | `.gitignore` (GNO 인덱스 파일 제외)               |
 
 ---
 
@@ -103,7 +103,7 @@ LLM이 이 파일의 규칙에 따라 `.wiki/pages/`를 유지한다.
 ## 핵심 설계 결정 (ADR)
 
 | 결정 | 이유 | 날짜 | 관련 spec |
-|----|----|----|---------|
+|------|------|------|-----------|
 
 ## 패턴 & 사용법
 
@@ -380,11 +380,11 @@ class ArticleSuspendRepository : AbstractSuspendedJdbcLettuceRepository<Long, Ar
 
 ### CacheMode 선택 기준
 
-| 모드              | 언제                    |
-|-----------------|-----------------------|
-| `READ_THROUGH`  | 조회 시 캐시 미스 → DB 자동 로드 |
-| `WRITE_THROUGH` | 쓰기 즉시 캐시 갱신 (일관성 우선)  |
-| `WRITE_BEHIND`  | 쓰기 비동기 반영 (성능 우선)     |
+| 모드            | 언제                              |
+|-----------------|-----------------------------------|
+| `READ_THROUGH`  | 조회 시 캐시 미스 → DB 자동 로드  |
+| `WRITE_THROUGH` | 쓰기 즉시 캐시 갱신 (일관성 우선) |
+| `WRITE_BEHIND`  | 쓰기 비동기 반영 (성능 우선)      |
 
 ## 선택하지 않은 방식 / 트레이드오프
 
@@ -486,11 +486,11 @@ git commit -m "docs(wiki): cache-architecture.md 초기 합성"
 
 **complexity: high**
 
-각 페이지마다 동일한 패턴(관련 spec 읽기 → 합성 → 커밋)을 따른다.
+각 페이지마다 동일한 패턴 (관련 spec 읽기 → 합성 → 커밋)을 따른다.
 
 **Pages & 대응 spec 파일:**
 
-| 페이지                          | 읽을 spec 파일                                                                                                                                                                                |
+| 페이지                       | 읽을 spec 파일                                                                                                                                                                            |
 |------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `spring-boot-integration.md` | `2026-03-20-spring-boot4-modules-design.md`, `2026-03-29-hibernate-lettuce-migration-design.md`, `2026-03-29-spring-data-exposed-migration-design.md`                                     |
 | `kotlin-testing-patterns.md` | `2026-04-04-kdoc-examples-all-modules-design.md`, `2026-04-03-testcontainers-design.md`, `2026-04-02-testcontainers-new-servers-design.md`                                                |
@@ -504,7 +504,7 @@ git commit -m "docs(wiki): cache-architecture.md 초기 합성"
 각 페이지에 대해:
 
 1. 대응 spec 파일 읽기
-2. WIKI.md의 표준 형식(개요 / ADR 테이블 / 패턴 & 사용법 / 트레이드오프 / 관련 페이지)으로 합성
+2. WIKI.md의 표준 형식 (개요 / ADR 테이블 / 패턴 & 사용법 / 트레이드오프 / 관련 페이지)으로 합성
 3. `.wiki/pages/{페이지명}.md` 저장
 4. `git commit -m "docs(wiki): {페이지명} 초기 합성"`
 

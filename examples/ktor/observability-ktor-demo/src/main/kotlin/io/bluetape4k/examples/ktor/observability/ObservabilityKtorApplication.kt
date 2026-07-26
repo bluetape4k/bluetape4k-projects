@@ -13,7 +13,6 @@ import io.bluetape4k.micrometer.observation.events.observeEventConsumeSuspending
 import io.bluetape4k.micrometer.observation.events.observeEventPublishSuspending
 import io.ktor.http.HttpHeaders
 import io.ktor.server.application.Application
-import io.ktor.server.application.call
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.request.header

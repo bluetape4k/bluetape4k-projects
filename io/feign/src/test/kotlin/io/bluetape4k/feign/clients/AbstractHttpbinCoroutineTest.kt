@@ -1,6 +1,8 @@
 package io.bluetape4k.feign.clients
 
 import feign.kotlin.CoroutineFeign
+import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.feign.coroutines.client
 import io.bluetape4k.feign.services.HttpbinService
 import io.bluetape4k.feign.services.Post
@@ -11,8 +13,6 @@ import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import io.bluetape4k.assertions.shouldContainSame
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import kotlin.math.absoluteValue

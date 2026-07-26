@@ -1,15 +1,15 @@
 package io.bluetape4k.idgenerators.ulid.internal
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.idgenerators.ulid.utils.MaxTimestamp
 import io.bluetape4k.idgenerators.ulid.utils.MaxTimestampPart
 import io.bluetape4k.idgenerators.ulid.utils.PastTimestamp
 import io.bluetape4k.idgenerators.ulid.utils.PastTimestampPart
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.Serializable
-import io.bluetape4k.assertions.assertFailsWith
 
 class CrockfordTest {
     data class Input(

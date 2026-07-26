@@ -1,11 +1,11 @@
 package io.bluetape4k.spring.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.bluetape4k.spring.AbstractSpringTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.spring.AbstractSpringTest
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 

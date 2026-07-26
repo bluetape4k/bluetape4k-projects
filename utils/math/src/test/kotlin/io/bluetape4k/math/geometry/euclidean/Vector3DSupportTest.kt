@@ -1,14 +1,14 @@
 package io.bluetape4k.math.geometry.euclidean
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.logging.KLogging
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.junit.jupiter.api.Test
 import kotlin.math.PI
 
 class Vector3DSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `DoubleArray를 3차원 벡터로 변환할 수 있다`() {

@@ -31,9 +31,9 @@ import java.nio.charset.Charset
  */
 class SuspendTsvRecordReader(
     private val settings: TsvSettings = TsvSettings.DEFAULT,
-) : SuspendRecordReader {
+): SuspendRecordReader {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     /**
      * TSV 입력 스트림을 읽어 변환된 [Flow]를 반환합니다.

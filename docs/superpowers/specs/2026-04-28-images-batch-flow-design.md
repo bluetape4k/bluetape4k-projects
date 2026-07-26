@@ -51,14 +51,18 @@
 깨진 이미지 하나가 `ImmutableImage.loader()`에서 예외를 던지면 기본 Flow는 중단된다.
 
 - **실패 모드**: 100장 중 1장이 깨진 경우 99장 처리 결과도 손실된다.
-- **완화**: 결과 타입을 `ImageBatchResult` sealed interface로 모델링하고 `skipFailures = true` 기본값에서는 `Failure`를 방출한 뒤 다음 입력을 계속 처리한다. `Failure`는 실패 stage, source/output, message, validation details를 포함하며, 기본 구현은 `log.warn(e) { ... }`로 skipped failure를 남긴다. 호출자는 `onFailure` callback으로 counter/metrics를 붙일 수 있다. `CancellationException`은 failure로 감싸지 않고 항상 전파한다.
+-
+
+**완화**: 결과 타입을 `ImageBatchResult` sealed interface로 모델링하고 `skipFailures = true` 기본값에서는 `Failure`를 방출한 뒤 다음 입력을 계속 처리한다. `Failure`는 실패 stage, source/output, message, validation details를 포함하며, 기본 구현은 `log.warn(e) { ... }`로 skipped failure를 남긴다. 호출자는 `onFailure` callback으로 counter/metrics를 붙일 수 있다. `CancellationException`은 failure로 감싸지 않고 항상 전파한다.
 - **DoD**: 깨진 파일 포함 batch 테스트에서 success N건 + failure 1건이 모두 방출되어야 한다.
 
 ### Risk-2: parallelism 검증 부재
 
 `parallelism = 0`이 조용히 1로 보정되면 호출자 설정 오류가 숨겨진다.
 
-- **완화**: public batch API의 `parallelism`은 `requirePositiveNumber("parallelism")`로 즉시 거부한다. 내부 재사용 함수가 보정하더라도 외부 API 계약은 명시적으로 실패시킨다.
+-
+
+**완화**: public batch API의 `parallelism`은 `requirePositiveNumber("parallelism")`로 즉시 거부한다. 내부 재사용 함수가 보정하더라도 외부 API 계약은 명시적으로 실패시킨다.
 - **DoD**: `parallelism <= 0` 입력 검증 테스트.
 
 ### Risk-3: 결과 순서 오해
@@ -72,15 +76,21 @@
 
 다중 크기 썸네일 생성 시 `image.jpg`에서 `150x150`, `300x300` 결과가 같은 파일명으로 쓰이면 덮어쓰기 위험이 있다.
 
-- **완화**: 기본 파일명 정책을 `{sourceHash}_{stem}_{width}x{height}.{ext}`로 고정해 서로 다른 디렉터리의 같은 파일명 충돌을 줄인다. 사용자 지정 `ThumbnailOutputName` 전략을 제공하며, 최종 output path set에 중복이 생기면 쓰기 전에 실패한다.
-- **보안 완화**: output name과 extension은 path separator, absolute path, `..`, Windows drive prefix를 거부한다. 최종 경로는 `outputDir.resolve(name).normalize()` 뒤 `outputDir.toAbsolutePath().normalize()` 하위인지 검증한다.
+-
+
+**완화**: 기본 파일명 정책을 `{sourceHash}_{stem}_{width}x{height}.{ext}`로 고정해 서로 다른 디렉터리의 같은 파일명 충돌을 줄인다. 사용자 지정 `ThumbnailOutputName` 전략을 제공하며, 최종 output path set에 중복이 생기면 쓰기 전에 실패한다.
+
+- **보안
+  완화**: output name과 extension은 path separator, absolute path, `..`, Windows drive prefix를 거부한다. 최종 경로는 `outputDir.resolve(name).normalize()` 뒤 `outputDir.toAbsolutePath().normalize()` 하위인지 검증한다.
 - **DoD**: 동일 source에서 3개 size를 생성하면 output path 3개가 모두 달라야 한다.
 
 ### Risk-5: JPEG 품질 기반 테스트의 픽셀 비교 flaky
 
 JPEG는 손실 압축이라 pixel identity 비교가 불가능하다.
 
-- **완화**: tile split/merge pixel identity는 in-memory `ImmutableImage` 또는 PNG writer 기준으로만 수행한다. JPEG thumbnail은 dimensions/file existence/bytes size를 검증한다.
+-
+
+**완화**: tile split/merge pixel identity는 in-memory `ImmutableImage` 또는 PNG writer 기준으로만 수행한다. JPEG thumbnail은 dimensions/file existence/bytes size를 검증한다.
 
 ### Risk-6: tile merge 경계 오차
 
@@ -93,20 +103,26 @@ tile 좌표나 마지막 tile 크기 계산이 틀리면 경계 픽셀이 중복
 
 scrimage `ImmutableImage`는 in-memory 이미지이므로 gigapixel 이미지를 한 번에 merge하면 메모리 사용량이 크다.
 
-- **완화**: 이번 범위는 in-memory tile 처리 API로 명시하되, `maxPixels`, `maxInFlightPixels`, `maxTileCount` guard를 둔다. 기본값은 `DEFAULT_MAX_PIXELS = 16_777_216L`(16M pixels, ARGB 약 64MB), `DEFAULT_MAX_IN_FLIGHT_PIXELS = DEFAULT_MAX_PIXELS * 2`, `DEFAULT_MAX_TILE_COUNT = 65_536` 같은 named constant로 정의한다. `maxInFlightPixels / maxPixels`로 decode/process 동시성을 상한 조정해 `availableProcessors()`개의 대형 이미지를 동시에 디코딩하지 않는다. 초과 시 decode/processing 전후에 `IllegalArgumentException` 또는 `Failure(stage = VALIDATION)`로 fail-fast 한다. 진짜 out-of-core streaming tile은 별도 이슈로 분리한다.
+-
+
+**완화**: 이번 범위는 in-memory tile 처리 API로 명시하되, `maxPixels`, `maxInFlightPixels`, `maxTileCount` guard를 둔다. 기본값은 `DEFAULT_MAX_PIXELS = 16_777_216L`(16M pixels, ARGB 약 64MB), `DEFAULT_MAX_IN_FLIGHT_PIXELS = DEFAULT_MAX_PIXELS * 2`, `DEFAULT_MAX_TILE_COUNT = 65_536` 같은 named constant로 정의한다. `maxInFlightPixels / maxPixels`로 decode/process 동시성을 상한 조정해 `availableProcessors()`개의 대형 이미지를 동시에 디코딩하지 않는다. 초과 시 decode/processing 전후에 `IllegalArgumentException` 또는 `Failure(stage = VALIDATION)`로 fail-fast 한다. 진짜 out-of-core streaming tile은 별도 이슈로 분리한다.
 - **KDoc 경고**: `TileProcessor`는 메모리 절감이 아니라 tile 단위 병렬 처리 API임을 명시한다.
 
 ### Risk-9: timeout/cancellation 계약 불명확
 
 이미지 decode/encode/filter는 파일시스템이나 malformed input에 따라 매우 오래 걸릴 수 있다.
 
-- **완화**: API 내부에서 임의 timeout을 강제하지 않는다. 대신 모든 suspend 경로는 구조적 concurrency 안에서 실행하고 cancellation을 삼키지 않는다. README/KDoc에 per-image timeout이 필요하면 호출자가 `withTimeout`으로 감싸야 함을 명시한다.
+-
+
+**완화**: API 내부에서 임의 timeout을 강제하지 않는다. 대신 모든 suspend 경로는 구조적 concurrency 안에서 실행하고 cancellation을 삼키지 않는다. README/KDoc에 per-image timeout이 필요하면 호출자가 `withTimeout`으로 감싸야 함을 명시한다.
 
 ### Risk-8: 내부 DSL visibility
 
 `ImageFilterChain.compactAndApply`는 `internal`이라 batch 패키지에서 직접 호출할 수 없다.
 
-- **완화**: `processImages` 구현은 public `applyFilters`를 `withContext(options.transformDispatcher)` 안에서 호출한다. `suspendApplyFilters`는 `Dispatchers.Default`를 고정하므로 이 feature의 dispatcher 주입 계약에는 사용하지 않는다. `compactAndApply` visibility 확장은 하지 않는다.
+-
+
+**완화**: `processImages` 구현은 public `applyFilters`를 `withContext(options.transformDispatcher)` 안에서 호출한다. `suspendApplyFilters`는 `Dispatchers.Default`를 고정하므로 이 feature의 dispatcher 주입 계약에는 사용하지 않는다. `compactAndApply` visibility 확장은 하지 않는다.
 
 ---
 
@@ -149,9 +165,9 @@ ImageBatchPipeline.builder()
 3. `TileProcessor`
 
 - **장점**:
-  - Issue의 3개 요구를 각각 독립 API로 제공한다.
-  - 기존 DSL/Writer/Flow helper를 조합하므로 새 추상화가 얇다.
-  - thumbnail과 tile 처리를 batch DSL에 억지로 넣지 않는다.
+    - Issue의 3개 요구를 각각 독립 API로 제공한다.
+    - 기존 DSL/Writer/Flow helper를 조합하므로 새 추상화가 얇다.
+    - thumbnail과 tile 처리를 batch DSL에 억지로 넣지 않는다.
 - **단점**: 사용자가 세 API를 함께 쓰려면 조합 코드가 필요하다.
 - **판정**: 기존 `utils/images`의 기능별 패키지 분리와 가장 잘 맞는다.
 
@@ -607,15 +623,15 @@ val results = imageFiles.asFlow()
 
 ## 10. 초안 Task 목록
 
-| Task | 내용 | complexity |
-|------|------|------------|
-| T01 | `ImageBatchResult`와 `ImageProcessingDsl` 모델 추가 | medium |
-| T02 | `Flow<Path/File>.processImages` 구현 | high |
-| T03 | batch DSL 테스트 작성 | medium |
-| T04 | `ThumbnailSize`, `ThumbnailResult`, `ThumbnailPipeline` 구현 | high |
-| T05 | thumbnail pipeline 테스트 작성 | medium |
-| T06 | `TileProcessor` split/process/merge 구현 | high |
-| T07 | tile processor pixel identity 테스트 작성 | medium |
-| T08 | 100-image non-gating 성능 로그 작성 | low |
-| T09 | README.md / README.ko.md 갱신 | low |
-| T10 | testlog + superpowers index 갱신 | low |
+| Task | 내용                                                         | complexity |
+|------|--------------------------------------------------------------|------------|
+| T01  | `ImageBatchResult`와 `ImageProcessingDsl` 모델 추가          | medium     |
+| T02  | `Flow<Path/File>.processImages` 구현                         | high       |
+| T03  | batch DSL 테스트 작성                                        | medium     |
+| T04  | `ThumbnailSize`, `ThumbnailResult`, `ThumbnailPipeline` 구현 | high       |
+| T05  | thumbnail pipeline 테스트 작성                               | medium     |
+| T06  | `TileProcessor` split/process/merge 구현                     | high       |
+| T07  | tile processor pixel identity 테스트 작성                    | medium     |
+| T08  | 100-image non-gating 성능 로그 작성                          | low        |
+| T09  | README.md / README.ko.md 갱신                                | low        |
+| T10  | testlog + superpowers index 갱신                             | low        |

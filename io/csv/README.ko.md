@@ -6,7 +6,7 @@
 
 `bluetape4k-csv`는 RFC 4180을 준수하는 자체 구현 엔진을 사용하는 Kotlin 네이티브 CSV/TSV 파싱 라이브러리입니다.
 
-CSV와 TSV 포맷의 읽기/쓰기를 위한 `RecordReader`/`RecordWriter` 인터페이스를 제공하며, Kotlin Coroutines 기반의 비동기 버전(`SuspendRecordReader`/`SuspendRecordWriter`)도 지원합니다.
+CSV와 TSV 포맷의 읽기/쓰기를 위한 `RecordReader`/`RecordWriter` 인터페이스를 제공하며, Kotlin Coroutines 기반의 비동기 버전 (`SuspendRecordReader`/`SuspendRecordWriter`)도 지원합니다.
 
 v1.5.0부터 내부 엔진이 univocity-parsers에서 자체 구현 상태 기계로 교체되었습니다. 마이그레이션 방법은 [MIGRATION.md](./MIGRATION.md)를 참조하세요.
 
@@ -24,25 +24,25 @@ v1.5.0부터 내부 엔진이 univocity-parsers에서 자체 구현 상태 기�
 
 ### 동기 vs 비동기 API 비교
 
-| 기능     | 동기 (Sequence)     | 비동기 (Flow)               |
-|--------|-------------------|--------------------------|
-| CSV 읽기 | `CsvRecordReader` | `SuspendCsvRecordReader` |
-| CSV 쓰기 | `CsvRecordWriter` | `SuspendCsvRecordWriter` |
-| TSV 읽기 | `TsvRecordReader` | `SuspendTsvRecordReader` |
-| TSV 쓰기 | `TsvRecordWriter` | `SuspendTsvRecordWriter` |
-| 반환 타입  | `Sequence<T>`     | `Flow<T>`                |
-| 쓰기 함수  | 일반 함수             | `suspend` 함수             |
+| 기능      | 동기 (Sequence)   | 비동기 (Flow)            |
+|-----------|-------------------|--------------------------|
+| CSV 읽기  | `CsvRecordReader` | `SuspendCsvRecordReader` |
+| CSV 쓰기  | `CsvRecordWriter` | `SuspendCsvRecordWriter` |
+| TSV 읽기  | `TsvRecordReader` | `SuspendTsvRecordReader` |
+| TSV 쓰기  | `TsvRecordWriter` | `SuspendTsvRecordWriter` |
+| 반환 타입 | `Sequence<T>`     | `Flow<T>`                |
+| 쓰기 함수 | 일반 함수         | `suspend` 함수           |
 
 ### 설정 옵션
 
-| 설정                | CSV 기본값  | TSV 기본값  | 설명                               |
-|-------------------|---------|---------|----------------------------------|
-| `delimiter`       | `,`     | `\t` 고정 | 필드 구분 문자                         |
-| `quote`           | `"`     | N/A     | 인용 문자 (CSV 전용)                   |
-| `lineSeparator`   | `\r\n`  | `\n`    | 레코드 구분자                          |
-| `trimValues`      | `false` | `false` | 앞뒤 공백 제거 여부 (reader 전용)         |
-| `emptyValueAsNull`| `true`  | `true`  | 인용 없는 빈 필드 → `null`              |
-| `maxCharsPerColumn`| 100,000| 100,000 | 컬럼당 최대 문자 수                      |
+| 설정                | CSV 기본값 | TSV 기본값 | 설명                              |
+|---------------------|------------|------------|-----------------------------------|
+| `delimiter`         | `,`        | `\t` 고정  | 필드 구분 문자                    |
+| `quote`             | `"`        | N/A        | 인용 문자 (CSV 전용)              |
+| `lineSeparator`     | `\r\n`     | `\n`       | 레코드 구분자                     |
+| `trimValues`        | `false`    | `false`    | 앞뒤 공백 제거 여부 (reader 전용) |
+| `emptyValueAsNull`  | `true`     | `true`     | 인용 없는 빈 필드 → `null`        |
+| `maxCharsPerColumn` | 100,000    | 100,000    | 컬럼당 최대 문자 수               |
 
 ### null vs 빈 문자열
 
@@ -51,9 +51,7 @@ v1.5.0부터 내부 엔진이 univocity-parsers에서 자체 구현 상태 기�
 
 ### UTF-8 Writer Fast Path
 
-`FlowCsvWriter.writeFile(..., encoding = Charsets.UTF_8, ...)`는 파일 출력 시 내부적으로
-Okio `BufferedSink` fast path를 사용합니다. UTF-8이 아닌 인코딩은 기존 `Writer` fallback
-경로를 유지합니다.
+`FlowCsvWriter.writeFile(..., encoding = Charsets.UTF_8, ...)`는 파일 출력 시 내부적으로 Okio `BufferedSink` fast path를 사용합니다. UTF-8이 아닌 인코딩은 기존 `Writer` fallback 경로를 유지합니다.
 
 벤치마크 명령:
 
@@ -63,11 +61,11 @@ Okio `BufferedSink` fast path를 사용합니다. UTF-8이 아닌 인코딩은 �
 
 처리량 단위는 `ops/s`이며, 높을수록 좋습니다.
 
-| Workload | Writer baseline | Okio writer | Speedup |
-|---|---:|---:|---:|
-| small | 11,741.418 ops/s | 16,355.656 ops/s | 1.39x |
-| medium | 676.110 ops/s | 2,068.696 ops/s | 3.06x |
-| large | 83.802 ops/s | 272.157 ops/s | 3.25x |
+| Workload |  Writer baseline |      Okio writer | Speedup |
+|----------|-----------------:|-----------------:|--------:|
+| small    | 11,741.418 ops/s | 16,355.656 ops/s |   1.39x |
+| medium   |    676.110 ops/s |  2,068.696 ops/s |   3.06x |
+| large    |     83.802 ops/s |    272.157 ops/s |   3.25x |
 
 ## 사용 예제
 
@@ -190,14 +188,14 @@ v1.5.0부터 `io.bluetape4k.csv.v2` 패키지에 상위 수준 V2 API가 제공�
 
 ### V1 vs V2 비교
 
-| 기능           | V1 (Sequence/suspend)         | V2 (Flow DSL)                    |
-|--------------|-------------------------------|----------------------------------|
-| 리더 타입        | `CsvRecordReader`             | `FlowCsvReader` (DSL)            |
-| 라이터 타입       | `CsvRecordWriter`             | `FlowCsvWriter` (DSL)            |
-| 레코드 타입       | `Record` (인터페이스)             | `CsvRow` (data class)            |
-| 설정           | `CsvSettings` (data class)    | `CsvReaderConfig` / `CsvWriterConfig` (mutable builder) |
-| 취소 협력        | `ensureActive()`와 interruptible 행 쓰기 | `channelFlow + ensureActive()`   |
-| quoteAll 지원  | 없음                            | `CsvWriterConfig.quoteAll = true` |
+| 기능          | V1 (Sequence/suspend)                    | V2 (Flow DSL)                                           |
+|---------------|------------------------------------------|---------------------------------------------------------|
+| 리더 타입     | `CsvRecordReader`                        | `FlowCsvReader` (DSL)                                   |
+| 라이터 타입   | `CsvRecordWriter`                        | `FlowCsvWriter` (DSL)                                   |
+| 레코드 타입   | `Record` (인터페이스)                    | `CsvRow` (data class)                                   |
+| 설정          | `CsvSettings` (data class)               | `CsvReaderConfig` / `CsvWriterConfig` (mutable builder) |
+| 취소 협력     | `ensureActive()`와 interruptible 행 쓰기 | `channelFlow + ensureActive()`                          |
+| quoteAll 지원 | 없음                                     | `CsvWriterConfig.quoteAll = true`                       |
 
 ### V2 읽기
 

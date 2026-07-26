@@ -1,5 +1,7 @@
 package io.bluetape4k.http.benchmark
 
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.http.hc5.async.asyncClientConnectionManager
 import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.httpAsyncClient
@@ -20,8 +22,6 @@ import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldBeTrue
 import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder
 import org.apache.hc.client5.http.async.methods.SimpleRequestProducer
 import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer
@@ -94,7 +94,7 @@ class HttpClientBenchmarkTest {
         server.dispatcher = noCacheDispatcher
         server.start()
         val base = server.url("/").toString().trimEnd('/')
-        getUrl  = "$base/get"
+        getUrl = "$base/get"
         cacheUrl = "$base/cached"
         log.info { "MockWebServer started: $base" }
     }
@@ -175,7 +175,13 @@ class HttpClientBenchmarkTest {
         }
         val elapsed = measureTimeMillis {
             (0 until REQUESTS)
-                .map { executor.submit { client.execute(ClassicRequestBuilder.get(getUrl).build()) { r -> EntityUtils.consume(r.entity); r.code } } }
+                .map {
+                    executor.submit {
+                        client.execute(
+                            ClassicRequestBuilder.get(getUrl).build()
+                        ) { r -> EntityUtils.consume(r.entity); r.code }
+                    }
+                }
                 .forEach { it.get() }
         }
         val ops = REQUESTS * 1000L / elapsed
@@ -297,7 +303,11 @@ class HttpClientBenchmarkTest {
         }
         val elapsed = measureTimeMillis {
             (0 until REQUESTS)
-                .map { executor.submit { client.newCall(okhttp3RequestOf(getUrl)).execute().use { r -> r.body.bytes() } } }
+                .map {
+                    executor.submit {
+                        client.newCall(okhttp3RequestOf(getUrl)).execute().use { r -> r.body.bytes() }
+                    }
+                }
                 .forEach { it.get() }
         }
         val ops = REQUESTS * 1000L / elapsed

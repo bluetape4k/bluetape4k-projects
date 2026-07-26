@@ -1,12 +1,12 @@
 package io.bluetape4k.math.integration
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.collections.doubleSequenceOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.math.commons.approximateEqual
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 abstract class AbstractIntegratorTest {
 

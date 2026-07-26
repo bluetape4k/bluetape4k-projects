@@ -5,23 +5,22 @@
 
 ## 1. 배경 및 목표
 
-Spring Boot 4.0 (Spring Framework 7 기반)이 릴리즈됨에 따라, bluetape4k 프로젝트에서도
-Spring Boot 4.x를 지원하는 독립 모듈 셋을 제공해야 한다.
+Spring Boot 4.0 (Spring Framework 7 기반)이 릴리즈됨에 따라, bluetape4k 프로젝트에서도 Spring Boot 4.x를 지원하는 독립 모듈 셋을 제공해야 한다.
 
 ### Spring Boot 4 주요 변경사항
 
-| 항목 | Boot 3.x | Boot 4.x |
-|------|----------|----------|
-| Spring Framework | 6.x | 7.x |
-| 최소 JDK | 17 | 21 |
+| 항목                 | Boot 3.x                             | Boot 4.x                                      |
+|----------------------|--------------------------------------|-----------------------------------------------|
+| Spring Framework     | 6.x                                  | 7.x                                           |
+| 최소 JDK             | 17                                   | 21                                            |
 | HTTP 클라이언트 기본 | WebClient + RestTemplate(deprecated) | **RestClient**(primary) + WebClient(reactive) |
-| Virtual Threads | opt-in | **기본 활성화** |
-| Servlet API | jakarta.servlet 6.x | jakarta.servlet 7.x |
-| Reactor 버전 | 2024.x | 2025.x |
-| Observability | Micrometer + Tracing | 통합 강화 |
-| RestTemplate | deprecated | **삭제** |
-| AOT / GraalVM | 실험적 | 프로덕션 지원 강화 |
-| Exposed 연동 | `spring-boot-starter` | `spring-boot4-starter` (별도) |
+| Virtual Threads      | opt-in                               | **기본 활성화**                               |
+| Servlet API          | jakarta.servlet 6.x                  | jakarta.servlet 7.x                           |
+| Reactor 버전         | 2024.x                               | 2025.x                                        |
+| Observability        | Micrometer + Tracing                 | 통합 강화                                     |
+| RestTemplate         | deprecated                           | **삭제**                                      |
+| AOT / GraalVM        | 실험적                               | 프로덕션 지원 강화                            |
+| Exposed 연동         | `spring-boot-starter`                | `spring-boot4-starter` (별도)                 |
 
 ### 목표
 
@@ -48,22 +47,22 @@ spring-boot4/
 
 spring-boot3/core와 동일한 기능 영역 + Spring Boot 4 전용 기능:
 
-| 패키지 | 기능 | Boot 4 변경점 |
-|--------|------|--------------|
-| `beans` | BeanFactory 확장, Annotation 유틸리티 | API 동일 (마이그레이션 불필요) |
-| `config` | Profile 지원 | API 동일 |
-| `core` | PropertyResolver, ToStringCreator, DataBuffer | DataBuffer 변경 가능성 확인 필요 |
-| `data` | ExampleMatcher | API 동일 |
-| `jackson` | ObjectMapperBuilder 커스터마이저 | **`bluetape4k-jackson3` 사용** (Spring Boot 4는 Jackson 3.x 기본) |
-| `messaging` | MessageBuilder | API 동일 |
-| `rest` | API 에러 응답, 예외 핸들러 | `ProblemDetail` 강화 활용 |
-| `retrofit2` | Retrofit2 자동 구성 | API 동일 |
-| `tests` | **HTTP 클라이언트 DSL** | **RestClient 기본, 신규 DSL 추가** |
-| `ui` | Model/ModelMap 확장 | API 동일 |
-| `util` | MemberUtils, StopWatch | API 동일 |
-| `webflux` | WebClient, Controller, Filter | WebClient 유지 (reactive 전용) |
-| **`http`** (신규) | **RestClient 기반 Coroutines HTTP DSL** | **Boot 4 전용 신규 기능** |
-| **`virtualthread`** (신규) | **VT 기반 컨트롤러/Executor** | **Boot 4 기본 VT 활용** |
+| 패키지                     | 기능                                          | Boot 4 변경점                                                     |
+|----------------------------|-----------------------------------------------|-------------------------------------------------------------------|
+| `beans`                    | BeanFactory 확장, Annotation 유틸리티         | API 동일 (마이그레이션 불필요)                                    |
+| `config`                   | Profile 지원                                  | API 동일                                                          |
+| `core`                     | PropertyResolver, ToStringCreator, DataBuffer | DataBuffer 변경 가능성 확인 필요                                  |
+| `data`                     | ExampleMatcher                                | API 동일                                                          |
+| `jackson`                  | ObjectMapperBuilder 커스터마이저              | **`bluetape4k-jackson3` 사용** (Spring Boot 4는 Jackson 3.x 기본) |
+| `messaging`                | MessageBuilder                                | API 동일                                                          |
+| `rest`                     | API 에러 응답, 예외 핸들러                    | `ProblemDetail` 강화 활용                                         |
+| `retrofit2`                | Retrofit2 자동 구성                           | API 동일                                                          |
+| `tests`                    | **HTTP 클라이언트 DSL**                       | **RestClient 기본, 신규 DSL 추가**                                |
+| `ui`                       | Model/ModelMap 확장                           | API 동일                                                          |
+| `util`                     | MemberUtils, StopWatch                        | API 동일                                                          |
+| `webflux`                  | WebClient, Controller, Filter                 | WebClient 유지 (reactive 전용)                                    |
+| **`http`** (신규)          | **RestClient 기반 Coroutines HTTP DSL**       | **Boot 4 전용 신규 기능**                                         |
+| **`virtualthread`** (신규) | **VT 기반 컨트롤러/Executor**                 | **Boot 4 기본 VT 활용**                                           |
 
 #### 2.2 data-redis (`bluetape4k-spring-boot4-data-redis`)
 
@@ -91,8 +90,8 @@ spring-boot3/core와 동일한 기능 영역 + Spring Boot 4 전용 기능:
 
 코드 공유를 위한 공통 모듈 추출은 **하지 않는다**. 이유:
 
-1. **BOM 충돌 방지**: Spring Boot 3 BOM과 4 BOM은 같은 좌표(`org.springframework:spring-*`)의
-   서로 다른 버전을 강제한다. 공통 모듈이 어느 쪽 BOM에도 속하면 버전 충돌이 발생한다.
+1. **BOM 충돌
+   방지**: Spring Boot 3 BOM과 4 BOM은 같은 좌표 (`org.springframework:spring-*`)의 서로 다른 버전을 강제한다. 공통 모듈이 어느 쪽 BOM에도 속하면 버전 충돌이 발생한다.
 2. **API 분기 가능성**: Spring Framework 7에서 API가 변경되면 공통 모듈이 양쪽 모두 깨진다.
 3. **독립 진화**: Boot 4에서만 의미 있는 기능 (예: RestClient 네이티브 Coroutines)을 자유롭게 추가할 수 있다.
 4. **프로젝트 관례**: 기존 `bluetape4k-jackson2` / `bluetape4k-jackson3` 도 동일 패턴으로 분리되어 있다.
@@ -111,8 +110,7 @@ io.bluetape4k.spring4.webflux
 io.bluetape4k.spring4.virtualthread  # 신규
 ```
 
-- `io.bluetape4k.spring` (boot3) vs `io.bluetape4k.spring4` (boot4) 로 패키지를 분리하여
-  같은 클래스패스에 양쪽이 공존해도 충돌하지 않는다.
+- `io.bluetape4k.spring` (boot3) vs `io.bluetape4k.spring4` (boot4) 로 패키지를 분리하여 같은 클래스패스에 양쪽이 공존해도 충돌하지 않는다.
 
 ## 4. Spring Boot 4 전용 신규 기능
 
@@ -130,27 +128,20 @@ package io.bluetape4k.spring4.http
  * ```kotlin
  * val user = restClient.suspendGet<User>("/users/1")
  * ```
- */
-suspend inline fun <reified T: Any> RestClient.suspendGet(
-    uri: String,
-    accept: MediaType? = null,
-): T = withContext(Dispatchers.IO) {
-    httpGet(uri, accept).body(T::class.java)!!
+
+*/ suspend inline fun <reified T: Any> RestClient.suspendGet (uri: String, accept: MediaType? = null,
+): T = withContext (Dispatchers.IO) { httpGet (uri, accept).body (T::class.java)!!
 }
 
 /**
- * RestClient 기반 suspend POST 요청을 전송합니다.
- */
-suspend inline fun <reified T: Any> RestClient.suspendPost(
-    uri: String,
-    body: Any? = null,
-    contentType: MediaType? = null,
-    accept: MediaType? = null,
-): T = withContext(Dispatchers.IO) {
-    httpPost(uri, body, contentType, accept).body(T::class.java)!!
-}
+
+* RestClient 기반 suspend POST 요청을 전송합니다.
+  */ suspend inline fun <reified T: Any> RestClient.suspendPost (uri: String, body: Any? = null, contentType: MediaType? = null, accept: MediaType? = null,
+  ): T = withContext (Dispatchers.IO) { httpPost (uri, body, contentType, accept).body (T::class.java)!!
+  }
 
 // suspendPut, suspendPatch, suspendDelete ...
+
 ```
 
 기존 spring-boot3의 `RestClient.httpGet()` 등은 동기 `ResponseSpec`을 반환했으나,
@@ -171,15 +162,13 @@ package io.bluetape4k.spring4.http
  *     messageConverters { add(jacksonConverter) }
  * }
  * ```
- */
-fun restClientOf(
-    baseUrl: String,
-    configure: RestClient.Builder.() -> Unit = {},
-): RestClient =
-    RestClient.builder()
-        .baseUrl(baseUrl)
-        .apply(configure)
-        .build()
+
+*/ fun restClientOf (baseUrl: String, configure: RestClient.Builder. () -> Unit = {},
+): RestClient = RestClient.builder ()
+.baseUrl (baseUrl)
+.apply (configure)
+.build ()
+
 ```
 
 ### 4.3 Virtual Thread 통합 (`virtualthread` 패키지)
@@ -224,9 +213,9 @@ Spring Boot 4의 강화된 Observability API를 활용한 자동 메트릭 수�
 
 #### 루트 BOM 유지 이유
 
-루트 `build.gradle.kts`의 `spring_boot3_dependencies` BOM은 **spring-boot3 모듈 전용이 아니다**.
-전체 프로젝트에서 공통으로 사용하는 jackson, slf4j, logback, reactor 등의 버전도 이 BOM이 관리한다.
-루트에서 제거하면 비spring 모듈들의 의존성 버전 관리가 깨지므로 **루트에 유지**한다.
+루트 `build.gradle.kts`의 `spring_boot3_dependencies` BOM은 **spring-boot3 모듈 전용이
+아니다**. 전체 프로젝트에서 공통으로 사용하는 jackson, slf4j, logback, reactor 등의 버전도 이 BOM이 관리한다. 루트에서 제거하면 비spring 모듈들의 의존성 버전 관리가 깨지므로
+**루트에 유지**한다.
 
 > spring-boot3 모듈들도 루트 BOM에 의존하며, 각 서브모듈에 별도 선언이 없다.
 > 이 관례를 유지하고, **boot4 모듈만 per-module 오버라이드** 방식을 사용한다.
@@ -247,13 +236,11 @@ dependencyManagement {
 
 ### 5.2 settings.gradle.kts
 
-이미 `includeModules("spring-boot4", withBaseDir = true)` 가 선언되어 있어 변경 불필요.
-모듈명 자동 생성 규칙: `bluetape4k-spring-boot4-{dirname}`
+이미 `includeModules("spring-boot4", withBaseDir = true)` 가 선언되어 있어 변경 불필요. 모듈명 자동 생성 규칙: `bluetape4k-spring-boot4-{dirname}`
 
 ### 5.3 Libs.kt 변경
 
-이미 `spring_boot4` 버전(4.0.3)과 `spring_boot4_dependencies` BOM이 정의되어 있다.
-추가 필요 항목:
+이미 `spring_boot4` 버전 (4.0.3)과 `spring_boot4_dependencies` BOM이 정의되어 있다. 추가 필요 항목:
 
 ```kotlin
 // Libs.kt 에 추가
@@ -311,26 +298,26 @@ bluetape4k-spring-boot4-cassandra
 
 ## 7. 마이그레이션 가이드
 
-| spring-boot3 | spring-boot4 | 변경 필요 |
-|--------------|--------------|-----------|
-| `bluetape4k-spring-boot3-core` | `bluetape4k-spring-boot4-core` | 의존성 교체 |
-| `bluetape4k-jackson2` | `bluetape4k-jackson3` | Spring Boot 4 Jackson 3.x 기본 |
-| `io.bluetape4k.spring.*` | `io.bluetape4k.spring4.*` | import 변경 |
-| `WebClient.httpGet()` | `WebClient.httpGet()` (동일 API) | 패키지만 변경 |
-| `RestClient.httpGet()` | `RestClient.httpGet()` + `suspendGet()` | 신규 suspend DSL 사용 가능 |
-| N/A | `restClientOf()` DSL | 신규 기능 |
-| N/A | `VirtualThreadAutoConfiguration` | 신규 기능 |
+| spring-boot3                   | spring-boot4                            | 변경 필요                      |
+|--------------------------------|-----------------------------------------|--------------------------------|
+| `bluetape4k-spring-boot3-core` | `bluetape4k-spring-boot4-core`          | 의존성 교체                    |
+| `bluetape4k-jackson2`          | `bluetape4k-jackson3`                   | Spring Boot 4 Jackson 3.x 기본 |
+| `io.bluetape4k.spring.*`       | `io.bluetape4k.spring4.*`               | import 변경                    |
+| `WebClient.httpGet()`          | `WebClient.httpGet()` (동일 API)        | 패키지만 변경                  |
+| `RestClient.httpGet()`         | `RestClient.httpGet()` + `suspendGet()` | 신규 suspend DSL 사용 가능     |
+| N/A                            | `restClientOf()` DSL                    | 신규 기능                      |
+| N/A                            | `VirtualThreadAutoConfiguration`        | 신규 기능                      |
 
 ## 8. 구현 우선순위
 
-| 순서 | 모듈 | 복잡도 | 비고 |
-|------|------|--------|------|
-| 1 | core | **high** | 가장 큰 모듈. BOM 오버라이드 + 신규 기능 설계 포함 |
-| 2 | data-redis | **low** | boot3 복사 + BOM 변경 |
-| 3 | r2dbc | **low** | boot3 복사 + BOM 변경 + core 의존성 변경 |
-| 4 | mongodb | **medium** | boot3 복사 + BOM 변경 + MongoDB driver 호환성 확인 |
-| 5 | cassandra | **medium** | boot3 복사 + BOM 변경 + Cassandra driver 호환성 확인 |
-| 6 | cassandra-demo | **low** | 데모, 배포 제외 |
+| 순서 | 모듈           | 복잡도     | 비고                                                 |
+|------|----------------|------------|------------------------------------------------------|
+| 1    | core           | **high**   | 가장 큰 모듈. BOM 오버라이드 + 신규 기능 설계 포함   |
+| 2    | data-redis     | **low**    | boot3 복사 + BOM 변경                                |
+| 3    | r2dbc          | **low**    | boot3 복사 + BOM 변경 + core 의존성 변경             |
+| 4    | mongodb        | **medium** | boot3 복사 + BOM 변경 + MongoDB driver 호환성 확인   |
+| 5    | cassandra      | **medium** | boot3 복사 + BOM 변경 + Cassandra driver 호환성 확인 |
+| 6    | cassandra-demo | **low**    | 데모, 배포 제외                                      |
 
 ## 9. 리스크 및 고려사항
 

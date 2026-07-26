@@ -1,15 +1,15 @@
 package io.bluetape4k.cassandra.data
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.javatimes.nanosLong
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.nanosOfMillis
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 import java.time.temporal.UnsupportedTemporalTypeException
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.days
 
 class CqlDurationSupportTest {

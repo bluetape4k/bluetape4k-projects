@@ -1,20 +1,20 @@
 package io.bluetape4k.hibernate.cache.lettuce
 
-import io.bluetape4k.cache.nearcache.LettuceNearCache
-import io.bluetape4k.testcontainers.storage.RedisServer
-import io.lettuce.core.RedisClient
-import io.lettuce.core.codec.StringCodec
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.cache.nearcache.LettuceNearCache
+import io.bluetape4k.testcontainers.storage.RedisServer
+import io.lettuce.core.RedisClient
+import io.lettuce.core.codec.StringCodec
 import org.hibernate.boot.MetadataSources
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder
 import org.hibernate.cache.spi.RegionFactory
 import org.hibernate.cache.spi.access.AccessType
 import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class LettuceNearCacheRegionFactoryTest {
 

@@ -1,5 +1,8 @@
 package io.bluetape4k.jackson3.text.properties
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.jackson3.text.AbstractJacksonTextTest
 import io.bluetape4k.jackson3.text.Box
 import io.bluetape4k.jackson3.text.Container
@@ -12,9 +15,6 @@ import io.bluetape4k.jackson3.text.Rectangle
 import io.bluetape4k.jackson3.text.getNode
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tools.jackson.databind.json.JsonMapper

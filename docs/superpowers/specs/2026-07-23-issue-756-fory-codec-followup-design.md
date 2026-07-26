@@ -2,7 +2,9 @@
 
 **상태:** 구현 계획 작성 전 검토
 
-- **이슈:** [#756 Reduce Redis codec allocation with ByteBuffer and ByteBuf paths](https://github.com/bluetape4k/bluetape4k-projects/issues/756)
+-
+
+**이슈:** [#756 Reduce Redis codec allocation with ByteBuffer and ByteBuf paths](https://github.com/bluetape4k/bluetape4k-projects/issues/756)
 - **마일스톤:** `1.12.0`
 - **브랜치:** `feat/issue-756-fory-codec-followup`
 - **기준 커밋:** `137d87cfeb6fe9dc45b727daf8c1e81e35a9babf`
@@ -13,7 +15,8 @@
 
 PR #1072는 출력 스트림 경로가 검증된 JDK, Kryo, Jackson2, Jackson3에 한정하여 `Lettuce`의 payload-sized handoff `ByteArray`를 제거했다. 당시 Fory/FastFory는 직접 출력 계약의 안전성과 이득이 확인되지 않아, allocation 표와 chart에서 명시적으로 fallback 상태로 남겼다.
 
-Fory 1.3.0의 `ThreadSafeFory`는 `serialize(OutputStream, Object)`, `serialize(MemoryBuffer, Object)`, `deserialize(ByteBuffer)`를 제공한다. 따라서 raw Fory/FastFory 경로는 Fory가 호출자 저장소를 교체할 수 있는 `MemoryBuffer` view가 아니라, **bounded absolute-index `ByteBuf` writer와 단일 NIO 읽기 view**를 사용하면 복사 경계를 줄일 후보가 된다.
+Fory 1.3.0의 `ThreadSafeFory`는 `serialize(OutputStream, Object)`, `serialize(MemoryBuffer, Object)`, `deserialize(ByteBuffer)`를 제공한다. 따라서 raw Fory/FastFory 경로는 Fory가 호출자 저장소를 교체할 수 있는 `MemoryBuffer` view가 아니라,
+**bounded absolute-index `ByteBuf` writer와 단일 NIO 읽기 view**를 사용하면 복사 경계를 줄일 후보가 된다.
 
 이 후속 slice의 목표는 다음과 같다.
 
@@ -27,34 +30,34 @@ Fory 1.3.0의 stream API도 내부 reusable heap `MemoryBuffer`에 먼저 직렬
 
 ### 포함
 
-| 대상 | 변경 방향 |
-|---|---|
-| `io/io` `ForyBinarySerializer` | Fory `OutputStream` API를 이용하는 handoff-array 제거 후보를 추가하고, 기존 `ByteArray` 경로와의 wire parity 및 writer 실패 계약을 검증한다. |
-| `infra/lettuce` raw `fory()` / `fastFory()` | 이미 검증된 `BoundedByteBufOutputStream` dispatch를 통해 직접 출력 후보가 되게 한다. |
+| 대상                                                  | 변경 방향                                                                                                                                                                |
+|-------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `io/io` `ForyBinarySerializer`                        | Fory `OutputStream` API를 이용하는 handoff-array 제거 후보를 추가하고, 기존 `ByteArray` 경로와의 wire parity 및 writer 실패 계약을 검증한다.                             |
+| `infra/lettuce` raw `fory()` / `fastFory()`           | 이미 검증된 `BoundedByteBufOutputStream` dispatch를 통해 직접 출력 후보가 되게 한다.                                                                                     |
 | `infra/redisson` `ForyCodec` / `FastForyCodec` encode | owned output storage 때문에 allocation 이득이 불명확하므로 production 변경 전에 독립 feasibility gate를 수행한다. gate를 통과한 경우에만 bounded writer 후보를 구현한다. |
-| `infra/redisson` `ForyCodec` / `FastForyCodec` decode | 단일 NIO buffer일 때만 읽기 전용 duplicate view로 direct decode를 시도하고, 그 외에는 현행 copied fallback을 유지한다. |
-| 검증과 증거 | io, Lettuce, Redisson 계약 테스트와 Fory 전용 독립 two-run allocation evidence를 추가한다. |
-| 문서화 | 검증된 결과만 한국어/영어 README와 chart에 반영하며, 불확정·fallback 셀은 그대로 표시한다. |
+| `infra/redisson` `ForyCodec` / `FastForyCodec` decode | 단일 NIO buffer일 때만 읽기 전용 duplicate view로 direct decode를 시도하고, 그 외에는 현행 copied fallback을 유지한다.                                                   |
+| 검증과 증거                                           | io, Lettuce, Redisson 계약 테스트와 Fory 전용 독립 two-run allocation evidence를 추가한다.                                                                               |
+| 문서화                                                | 검증된 결과만 한국어/영어 README와 chart에 반영하며, 불확정·fallback 셀은 그대로 표시한다.                                                                               |
 
 ### 제외
 
-| 제외 대상 | 이유 |
-|---|---|
-| GZip/LZ4/Zstd/Snappy 등 compression wrapper와 compressed Fory/FastFory codec | #755 compressor 작업과 lifecycle·buffer 교체 위험이 겹친다. 이 slice는 raw codec 경계만 다룬다. |
-| Fory 의존성 버전, `ThreadSafeFory` lifecycle/ownership 정책, serialization mode 변경 | format·운영 범위를 넓히고 별도 호환성 검토가 필요하다. |
-| Fory/FastFory wire format, `CompatibleMode`/`SCHEMA_CONSISTENT` 선택, Redisson fallback 정책의 의미 변경 | 기존 caller 호환 계약이다. |
-| 새 모듈·새 외부 의존성·범용 buffer abstraction | 좁은 성능 slice에 필요한 것보다 표면적이 크다. |
-| 기존 #1072 JMH artifact 또는 16-cell validator 수정 | Fory 전용 증거는 독립 artifact로 만들어 기존 증거의 의미를 바꾸지 않는다. |
+| 제외 대상                                                                                                | 이유                                                                                            |
+|----------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| GZip/LZ4/Zstd/Snappy 등 compression wrapper와 compressed Fory/FastFory codec                             | #755 compressor 작업과 lifecycle·buffer 교체 위험이 겹친다. 이 slice는 raw codec 경계만 다룬다. |
+| Fory 의존성 버전, `ThreadSafeFory` lifecycle/ownership 정책, serialization mode 변경                     | format·운영 범위를 넓히고 별도 호환성 검토가 필요하다.                                          |
+| Fory/FastFory wire format, `CompatibleMode`/`SCHEMA_CONSISTENT` 선택, Redisson fallback 정책의 의미 변경 | 기존 caller 호환 계약이다.                                                                      |
+| 새 모듈·새 외부 의존성·범용 buffer abstraction                                                           | 좁은 성능 slice에 필요한 것보다 표면적이 크다.                                                  |
+| 기존 #1072 JMH artifact 또는 16-cell validator 수정                                                      | Fory 전용 증거는 독립 artifact로 만들어 기존 증거의 의미를 바꾸지 않는다.                       |
 
 ## 3. 대안과 결정
 
-| 대안 | 결정 | 근거 |
-|---|---|---|
+| 대안                                                                                                            | 결정 | 근거                                                                                                                 |
+|-----------------------------------------------------------------------------------------------------------------|------|----------------------------------------------------------------------------------------------------------------------|
 | A. raw Fory/FastFory의 serializer·Lettuce·Redisson decode를 구현하고 Redisson encode는 feasibility gate 뒤 결정 | 채택 | #756의 실제 복사 경계를 검증하면서 owned output storage가 필요한 encode에 근거 없는 allocation 주장을 만들지 않는다. |
-| B. `ForyBinarySerializer`와 Lettuce만 변경 | 기각 | Redisson decode 복사를 남기고 encode feasibility조차 검증하지 않는다. |
-| C. raw와 compression wrapper를 한 번에 변경 | 기각 | #755와 동일한 compressor lifecycle 문제를 섞어 rollback·원인 분리를 어렵게 만든다. |
-| D. writable NIO `ByteBuffer` view를 Fory 출력 대상으로 제공 | 기각 | Netty buffer aliasing·growth·commit 계약이 불명확하며 #1072의 안전 경계를 약화한다. |
-| E. `MemoryBuffer`를 caller `ByteBuf` 위에 직접 구성 | 기각 | Fory가 저장소를 대체하며 성장할 수 있어 caller writerIndex와 ownership을 안전하게 commit하기 어렵다. |
+| B. `ForyBinarySerializer`와 Lettuce만 변경                                                                      | 기각 | Redisson decode 복사를 남기고 encode feasibility조차 검증하지 않는다.                                                |
+| C. raw와 compression wrapper를 한 번에 변경                                                                     | 기각 | #755와 동일한 compressor lifecycle 문제를 섞어 rollback·원인 분리를 어렵게 만든다.                                   |
+| D. writable NIO `ByteBuffer` view를 Fory 출력 대상으로 제공                                                     | 기각 | Netty buffer aliasing·growth·commit 계약이 불명확하며 #1072의 안전 경계를 약화한다.                                  |
+| E. `MemoryBuffer`를 caller `ByteBuf` 위에 직접 구성                                                             | 기각 | Fory가 저장소를 대체하며 성장할 수 있어 caller writerIndex와 ownership을 안전하게 commit하기 어렵다.                 |
 
 ## 4. 설계
 
@@ -62,7 +65,8 @@ Fory 1.3.0의 stream API도 내부 reusable heap `MemoryBuffer`에 먼저 직렬
 
 `BinarySerializer`의 기존 ABI와 default implementation은 바꾸지 않는다. Fory가 stream 경로를 제공할 수 있다는 사실만 `ForyBinarySerializer` 내부 구현으로 노출한다. 모든 direct path는 성공 시에만 결과를 commit한다. 안전한 direct view가 불가능한 decode와 Redisson codec fallback은 기존 byte-array compatibility path로 돌아가며, Lettuce stream serialization 자체의 실패는 새 fallback을 만들지 않고 기존 encode 호출과 같은 실패로 전파한다.
 
-stream 출력과 기존 `deserializeFrom(ByteBuffer)` 경로는 생성자에 주입된 **동일한** `ThreadSafeFory` 인스턴스만 사용한다. global/default serializer를 다시 조회하거나 Fory를 재구성하지 않으며, `CompatibleMode`, class-registration allowlist, ref tracking 등 주입된 보안·wire 설정을 바꾸지 않는다. writable `serializeTo(ByteBuffer)`는 이번 범위에서 직접화하지 않고 allocating compatibility fallback으로 유지한다.
+stream 출력과 기존 `deserializeFrom(ByteBuffer)` 경로는 생성자에 주입된
+**동일한** `ThreadSafeFory` 인스턴스만 사용한다. global/default serializer를 다시 조회하거나 Fory를 재구성하지 않으며, `CompatibleMode`, class-registration allowlist, ref tracking 등 주입된 보안·wire 설정을 바꾸지 않는다. writable `serializeTo(ByteBuffer)`는 이번 범위에서 직접화하지 않고 allocating compatibility fallback으로 유지한다.
 
 직렬화 결과의 byte-for-byte parity는 입력 fixture별로 기존 `fory.serialize(graph)` 결과와 비교한다. decode 성공만으로는 wire parity를 증명하지 않는다.
 
@@ -89,7 +93,9 @@ Redisson encode는 caller-owned target이 아니라 새 owned `ByteBuf`를 반�
 
 candidate는 `Unpooled.buffer(256, Int.MAX_VALUE)`로 allocator·initial/max-capacity와 growth policy를 고정하고, baseline은 현행 `serialize() -> Unpooled.wrappedBuffer(bytes)` 그대로다. benchmark iteration마다 양쪽 반환 buffer를 exact-once release하고, candidate의 capacity growth 횟수·최종 capacity·heap/direct 종류를 raw evidence에 남긴다. 이 비교가 §7의 allocation·throughput gate를 통과하지 못하면 Redisson encode production 변경은 하지 않는다.
 
-gate를 통과해 구현할 경우 Redisson은 Lettuce 모듈에 의존하지 않고 `infra/redisson` 내부에 fresh owned buffer 전용의 작은 bounded adapter를 둔다. codec 수준에서는 **현재 byte-array 경로의 예외 정규화와 fallback 관찰 동작을 그대로 유지**한다. 현재 `AbstractBinarySerializer`가 underlying cancellation/`Error`까지 `BinarySerializationException`으로 정규화한 뒤 `ForyCodec`의 `Exception` 또는 `FastForyCodec`의 `RuntimeException` catch domain이 fallback하는 동작도 이 slice에서 바꾸지 않는다. fatal handling 현대화는 별도 보안 변경이다.
+gate를 통과해 구현할 경우 Redisson은 Lettuce 모듈에 의존하지 않고 `infra/redisson` 내부에 fresh owned buffer 전용의 작은 bounded adapter를 둔다. codec 수준에서는
+**현재 byte-array 경로의 예외 정규화와 fallback 관찰 동작을 그대로
+유지**한다. 현재 `AbstractBinarySerializer`가 underlying cancellation/`Error`까지 `BinarySerializationException`으로 정규화한 뒤 `ForyCodec`의 `Exception` 또는 `FastForyCodec`의 `RuntimeException` catch domain이 fallback하는 동작도 이 slice에서 바꾸지 않는다. fatal handling 현대화는 별도 보안 변경이다.
 
 실패 provenance는 다음처럼 분리한다.
 
@@ -101,27 +107,29 @@ codec fallback log는 기존 semantic failure에서만 기존 info/debug level�
 
 candidate buffer는 성공해 ownership을 이전하기 전 caller에게 escape하지 않는다. 실패 시 written range zeroization은 현행 serializer buffer와 같은 정책으로 요구하지 않지만 readable range로 노출하지 않고 release한다. success-transfer flag와 `finally`를 사용해 candidate는 실패 시 exact-once release하고, 성공 반환 buffer는 재-release하지 않는다.
 
-encode/decode fallback 자체가 실패하면 **fallback failure가 현행처럼 terminal exception identity/type/cause로 전파**된다. primary semantic failure는 기존 level로 log되지만 terminal failure를 대체하지 않는다. candidate cleanup failure는 terminal failure가 있으면 suppressed되고, 단독이면 전파된다.
+encode/decode fallback 자체가 실패하면 **fallback failure가 현행처럼 terminal exception identity/type/cause로
+전파**된다. primary semantic failure는 기존 level로 log되지만 terminal failure를 대체하지 않는다. candidate cleanup failure는 terminal failure가 있으면 suppressed되고, 단독이면 전파된다.
 
 ### 4.5 Redisson raw Fory/FastFory decode
 
 decode의 direct 후보는 `nioBufferCount() == 1`이고 정확한 readable range의 NIO view를 안전하게 만들 수 있는 경우뿐이다. `readerIndex`와 `readableBytes`에서 얻은 view는 synchronous borrowed read-only slice로 만들며 Fory가 호출 종료 뒤 retain하지 않는다. 이 lifetime이 증명되지 않으면 copied path를 사용한다. 원본 `ByteBuf`의 reader/writer index, marked index, refCnt를 변경하지 않고 prefix/suffix sentinel을 노출하지 않는다.
 
-view 생성·precondition이 실패하면 `ByteBufUtil.getBytes(...)`로 copy한 뒤 같은 primary decoder를 **한 번** 호출하고, 그 실패에만 기존 fallback codec을 적용한다. direct primary decoder가 실제 호출된 뒤 실패하면 same primary를 copied bytes로 재시도하지 않고, current byte-array path와 같은 throwable normalization 뒤 fallback codec에 전달할 bytes만 한 번 copy한다. 이는 malformed payload의 중복 parsing을 막는다. control/fatal failure까지 기존 codec fallback 횟수와 exception/log 관찰 동작을 맞추지 못하면 Redisson direct decode candidate 전체를 제거한다.
+view 생성·precondition이 실패하면 `ByteBufUtil.getBytes(...)`로 copy한 뒤 같은 primary decoder를 **한
+번** 호출하고, 그 실패에만 기존 fallback codec을 적용한다. direct primary decoder가 실제 호출된 뒤 실패하면 same primary를 copied bytes로 재시도하지 않고, current byte-array path와 같은 throwable normalization 뒤 fallback codec에 전달할 bytes만 한 번 copy한다. 이는 malformed payload의 중복 parsing을 막는다. control/fatal failure까지 기존 codec fallback 횟수와 exception/log 관찰 동작을 맞추지 못하면 Redisson direct decode candidate 전체를 제거한다.
 
 `ForyCodec`은 현행 `Exception`, `FastForyCodec`은 현행 `RuntimeException` catch domain에서만 각각 Kryo5/Fory fallback decoder를 호출한다. direct Fory decode가 성공했다는 이유로 Fory가 FastFory payload를 읽는 방향의 호환성을 새로 만들지 않는다.
 
 ### 4.6 소유권과 rollback
 
-| 상황 | 결과 |
-|---|---|
-| Lettuce direct serialize 성공 | target writerIndex만 실제 payload 길이만큼 전진한다. |
-| Lettuce direct serialize 실패 | target writerIndex는 시작 값이며, 기존 encode 호출과 동일하게 실패를 전파한다. |
-| Redisson direct encode 성공 | 반환한 fresh buffer의 ownership은 현행 encode 반환값과 동일하게 caller에게 있다. |
-| Redisson direct encode backend 실패 | candidate buffer를 release하고 same-mode 재시도 없이 기존 codec fallback 규칙을 적용한다. |
+| 상황                                    | 결과                                                                                                        |
+|-----------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| Lettuce direct serialize 성공           | target writerIndex만 실제 payload 길이만큼 전진한다.                                                        |
+| Lettuce direct serialize 실패           | target writerIndex는 시작 값이며, 기존 encode 호출과 동일하게 실패를 전파한다.                              |
+| Redisson direct encode 성공             | 반환한 fresh buffer의 ownership은 현행 encode 반환값과 동일하게 caller에게 있다.                            |
+| Redisson direct encode backend 실패     | candidate buffer를 release하고 same-mode 재시도 없이 기존 codec fallback 규칙을 적용한다.                   |
 | Redisson direct encode destination 실패 | candidate buffer를 release하고 현행 same-mode byte-array encode 1회 뒤 기존 codec fallback 규칙을 적용한다. |
-| Redisson direct decode 성공/실패 | 입력 buffer의 index, marks, refCnt는 관찰 가능한 변경이 없다. |
-| direct path 불가 | allocation 최적화 주장 없이 현행 byte-array compatibility path를 사용한다. |
+| Redisson direct decode 성공/실패        | 입력 buffer의 index, marks, refCnt는 관찰 가능한 변경이 없다.                                               |
+| direct path 불가                        | allocation 최적화 주장 없이 현행 byte-array compatibility path를 사용한다.                                  |
 
 이 작업에는 feature flag나 per-call dispatch telemetry가 없다. hot path에 새 log/metric을 추가하지 않고 기존 codec fallback 로그의 level·횟수·비민감 정보 계약만 유지한다. 운영 확인 수단은 artifact version/hash와 committed benchmark evidence다.
 
@@ -152,7 +160,7 @@ view 생성·precondition이 실패하면 `ByteBufUtil.getBytes(...)`로 copy한
 ### 6.2 `infra/lettuce`
 
 - raw `fory()`/`fastFory()`를 heap/direct target에서 round trip과 byte parity로 검증한다.
-- hostile target(여유 공간 부족, non-expandable 범위 등)에서 writerIndex rollback과 기존 예외 전파를 검증한다.
+- hostile target (여유 공간 부족, non-expandable 범위 등)에서 writerIndex rollback과 기존 예외 전파를 검증한다.
 - `BoundedByteBufOutputStream`의 absolute-index write, snapshot, commit-on-success와 failure no-commit을 검증한다.
 - compressed Fory/FastFory가 이 변경의 direct candidate가 아님을 regression test/KDoc scope로 고정한다.
 - 기존 `FastForyCompatibilityTest` 및 binary codec buffer contract를 유지·확장한다.
@@ -178,7 +186,8 @@ Testcontainers가 필요한 Redis integration path는 모듈·worktree 간 병�
 
 Redisson encode gate는 두 단계다.
 
-1. **Non-promotable feasibility probe:** benchmark-local candidate로 현행 encode 대비 방향성과 ownership/capacity를 canonical profile과 동일한 독립 2회(`probe-a`, `probe-b`) 측정으로 확인한다. 이 수치는 README/chart claim에 사용할 수 없다.
+1. **Non-promotable feasibility
+   probe:** benchmark-local candidate로 현행 encode 대비 방향성과 ownership/capacity를 canonical profile과 동일한 독립 2회 (`probe-a`, `probe-b`) 측정으로 확인한다. 이 수치는 README/chart claim에 사용할 수 없다.
 2. probe가 유망할 때만 production codec path를 구현한다. 구현 뒤 이전 probe를 폐기하고 실제 production path로 fresh canonical A/B를 실행한다. documentation 승격은 이 canonical 결과만 사용한다.
 
 probe는 두 run 모두 preflight/wire/ownership/release 검증을 통과하고, allocation point reduction이 5% 이상이며 `candidate score + scoreError < baseline score - scoreError`이고, throughput delta가 `>-20%`일 때만 `implemented`로 진행한다. 누락·NaN·interval overlap·한 run 기준 실패·capacity/refCnt drift·throughput `<=-20%` 중 하나라도 있으면 `rejected`다.
@@ -187,12 +196,12 @@ aggregate manifest는 `encodeDisposition=rejected|implemented`를 고정한다. 
 
 측정 후보와 conditional canonical cardinality는 다음과 같다.
 
-| Pair 범위 | Mode | Buffer shape | pair 수 | 승격 가능 여부 |
-|---|---|---|---:|---|
-| Lettuce serialize | Fory, FastFory | heap target, direct target | 4 | 가능 |
-| Redisson decode | Fory, FastFory | single-NIO heap, single-NIO direct | 4 | 가능 |
-| Redisson decode fallback | Fory, FastFory | composite | 2 | 불가 — fallback overhead 확인 전용 |
-| Redisson encode | Fory, FastFory | 현행 wrapped byte array 대 fresh `Unpooled.buffer(256, Int.MAX_VALUE)` | 2 | probe는 승격 불가, implemented disposition의 production path만 승격 가능 |
+| Pair 범위                | Mode           | Buffer shape                                                           | pair 수 | 승격 가능 여부                                                           |
+|--------------------------|----------------|------------------------------------------------------------------------|--------:|--------------------------------------------------------------------------|
+| Lettuce serialize        | Fory, FastFory | heap target, direct target                                             |       4 | 가능                                                                     |
+| Redisson decode          | Fory, FastFory | single-NIO heap, single-NIO direct                                     |       4 | 가능                                                                     |
+| Redisson decode fallback | Fory, FastFory | composite                                                              |       2 | 불가 — fallback overhead 확인 전용                                       |
+| Redisson encode          | Fory, FastFory | 현행 wrapped byte array 대 fresh `Unpooled.buffer(256, Int.MAX_VALUE)` |       2 | probe는 승격 불가, implemented disposition의 production path만 승격 가능 |
 
 각 pair는 baseline byte-array route와 candidate route를 같은 fixture·payload·동일 process 환경에서 일대일 비교한다. cold/internal-buffer-growth probe는 timed acceptance matrix 밖에서 별도 수행하고, canonical matrix는 충분히 warmed 상태에서 측정한다. primary metric은 `gc.alloc.rate.norm` (bytes/op)이며 throughput은 diagnostic metric이다.
 
@@ -211,13 +220,14 @@ probe와 canonical profile은 `1 thread`, `2 forks`, `3 x 1s warmup`, `5 x 1s me
 
 각 module-local canonical run A/B의 raw JMH JSON은 append-only authority이며 aggregate derived table은 이를 재생성한 결과다. 생성 owner와 독립 validator owner를 분리한다. 어느 한쪽 benchmark source, fixture, allocator 설정, JVM/JMH argv, executable hash 또는 timed production path가 바뀌면 두 모듈의 두 run을 전부 무효화하고 다시 측정한다. measurement SHA에서 delivery SHA까지 허용되는 변경은 docs/chart/validation artifact뿐이며 validator가 ancestry와 changed-path allowlist를 확인한다.
 
-candidate를 README/chart의 **accepted** 셀로 승격하려면 두 canonical run 모두에서 allocation point reduction이 5% 이상이고 `candidate score + scoreError < baseline score - scoreError`이며 throughput delta가 `>-20%`여야 한다. 누락·NaN·interval overlap·한 run 기준 실패·parity 실패·fallback-only 셀은 `rejected`, `fallback`, 또는 `inconclusive`로 남기며 수치를 일반화하지 않는다.
+candidate를 README/chart의
+**accepted** 셀로 승격하려면 두 canonical run 모두에서 allocation point reduction이 5% 이상이고 `candidate score + scoreError < baseline score - scoreError`이며 throughput delta가 `>-20%`여야 한다. 누락·NaN·interval overlap·한 run 기준 실패·parity 실패·fallback-only 셀은 `rejected`, `fallback`, 또는 `inconclusive`로 남기며 수치를 일반화하지 않는다.
 
 ## 8. 문서와 chart 원칙
 
 코드·테스트·evidence가 승인된 뒤에만 README와 chart를 갱신한다.
 
-- `ForyBinarySerializer`, `LettuceBinaryCodecs.fory()/fastFory()`, Redisson `ForyCodec`/`FastForyCodec` KDoc를 실제 accepted 경로와 동기화한다. Redisson KDoc에는 등록 없는 기본 Fory(`requireClassRegistration(false)`)를 사용하므로 trusted Redis payload 전용이며 untrusted input의 secure deserialization 경계를 제공하지 않는다고 경고한다.
+- `ForyBinarySerializer`, `LettuceBinaryCodecs.fory()/fastFory()`, Redisson `ForyCodec`/`FastForyCodec` KDoc를 실제 accepted 경로와 동기화한다. Redisson KDoc에는 등록 없는 기본 Fory (`requireClassRegistration(false)`)를 사용하므로 trusted Redis payload 전용이며 untrusted input의 secure deserialization 경계를 제공하지 않는다고 경고한다.
 - KDoc는 raw-only 범위, Fory 내부 buffer/copy가 남아 zero-copy가 아님, caller migration이 필요 없음, gate 탈락 후보는 fallback/inconclusive임을 명시한다.
 - Lettuce의 FastFory 무-fallback과 Redisson의 FastFory→Fory 비대칭 fallback을 transport별로 분리해 설명하며 서로의 동작으로 일반화하지 않는다.
 - 한국어/영어 문서는 같은 codec matrix와 같은 수치·caveat를 유지한다.

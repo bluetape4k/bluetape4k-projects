@@ -21,16 +21,16 @@ The BOM is a Gradle `java-platform` that publishes only `<dependencyManagement>`
 
 ## Modules Managed
 
-| Group | Approximate count | Highlights |
-|-------|-------------------|-----------|
-| `bluetape4k/*` | 4 | `bluetape4k-annotations`, `bluetape4k-core`, `bluetape4k-coroutines`, `bluetape4k-logging` |
-| `data/*` | 7 | `bluetape4k-jdbc`, `bluetape4k-r2dbc`, `bluetape4k-hibernate`, `bluetape4k-hibernate-reactive`, `bluetape4k-hibernate-cache-lettuce`, `bluetape4k-mongodb`, `bluetape4k-cassandra` |
-| `infra/*` | 18 | cache (`cache`, `cache-core`, `cache-lettuce`, `cache-redisson`, `cache-hazelcast`), `bucket4j`, `elasticsearch`, `kafka-logback`, etc. |
-| `io/*` | 16 | `jackson2`, `fastjson2`, `avro`, `csv`, `grpc`, `feign`, `http`, `io` |
-| `spring-boot/*` | 8 | `spring-boot-core`, `spring-boot-r2dbc`, `spring-boot-mongodb`, `spring-boot-cassandra`, `spring-boot-redis`, `spring-boot-hibernate-lettuce`, ... |
-| `testing/*` | 5 | `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-mock-web-server`, `bluetape4k-mock-webflux-server`, `bluetape4k-testcontainers` |
-| `utils/*` | 13 | `jwt`, `money`, `javatimes`, `geo`, `idgenerators`, `math`, `measured`, `mutiny`, ... |
-| `virtualthread/*` | 3 | `virtualthread-api`, `virtualthread-jdk21`, `virtualthread-jdk25` |
+| Group             | Approximate count | Highlights                                                                                                                                                                         |
+|-------------------|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `bluetape4k/*`    | 4                 | `bluetape4k-annotations`, `bluetape4k-core`, `bluetape4k-coroutines`, `bluetape4k-logging`                                                                                         |
+| `data/*`          | 7                 | `bluetape4k-jdbc`, `bluetape4k-r2dbc`, `bluetape4k-hibernate`, `bluetape4k-hibernate-reactive`, `bluetape4k-hibernate-cache-lettuce`, `bluetape4k-mongodb`, `bluetape4k-cassandra` |
+| `infra/*`         | 18                | cache (`cache`, `cache-core`, `cache-lettuce`, `cache-redisson`, `cache-hazelcast`), `bucket4j`, `elasticsearch`, `kafka-logback`, etc.                                            |
+| `io/*`            | 16                | `jackson2`, `fastjson2`, `avro`, `csv`, `grpc`, `feign`, `http`, `io`                                                                                                              |
+| `spring-boot/*`   | 8                 | `spring-boot-core`, `spring-boot-r2dbc`, `spring-boot-mongodb`, `spring-boot-cassandra`, `spring-boot-redis`, `spring-boot-hibernate-lettuce`, ...                                 |
+| `testing/*`       | 5                 | `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-mock-web-server`, `bluetape4k-mock-webflux-server`, `bluetape4k-testcontainers`                                          |
+| `utils/*`         | 13                | `jwt`, `money`, `javatimes`, `geo`, `idgenerators`, `math`, `measured`, `mutiny`, ...                                                                                              |
+| `virtualthread/*` | 3                 | `virtualthread-api`, `virtualthread-jdk21`, `virtualthread-jdk25`                                                                                                                  |
 
 > Excluded from constraints: `*-demo`, `examples/*`, `workshop/*`.
 
@@ -107,7 +107,5 @@ repositories {
 
 ## Dependency
 
-This BOM is the foundation imported by `bluetape4k-dependencies`. For most consumers, import the
-aggregator (`io.github.bluetape4k:bluetape4k-dependencies`) instead — it transitively imports
-`bluetape4k-bom` plus all sub-BOMs (aws / image / text / javers / graph / leader / exposed) so a
-single declaration covers the entire bluetape4k ecosystem.
+This BOM is the foundation imported by `bluetape4k-dependencies`. For most consumers, import the aggregator (`io.github.bluetape4k:bluetape4k-dependencies`) instead — it transitively imports
+`bluetape4k-bom` plus all sub-BOMs (aws / image / text / javers / graph / leader / exposed) so a single declaration covers the entire bluetape4k ecosystem.

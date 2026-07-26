@@ -31,9 +31,9 @@ import java.io.Writer
 class SuspendCsvRecordWriter(
     writer: Writer,
     settings: CsvSettings = CsvSettings.DEFAULT,
-) : SuspendRecordWriter {
+): SuspendRecordWriter {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     private val lineWriter = CsvLineWriter(writer, settings)
     private val mutex = Mutex()

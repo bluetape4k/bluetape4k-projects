@@ -29,7 +29,7 @@ class JacksonFormatSerializerByteBufferTest {
                 @Suppress("UNCHECKED_CAST")
                 val targetClass = case.targetClass as Class<Any>
                 case.serializer.deserializeFrom(ByteBuffer.wrap(oldWire), targetClass) shouldBeEqualTo
-                    case.serializer.deserialize(oldWire, targetClass)
+                        case.serializer.deserialize(oldWire, targetClass)
                 case.serializer.deserialize(newWire, targetClass) shouldBeEqualTo case.value
             }
         }
