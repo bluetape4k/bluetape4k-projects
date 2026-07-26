@@ -14,7 +14,7 @@ Spring Data Redis의 직렬화 계층을 고성능 바이너리 직렬화/압축
 |------------------------------------|-----------------------------------------------------------------------|
 | `RedisBinarySerializer`            | `BinarySerializer` 기반 `RedisSerializer<Any>` 구현                   |
 | `RedisCompressSerializer`          | `Compressor` 기반 압축 전용 `RedisSerializer<ByteArray>`              |
-| `RedisBinarySerializers`           | 직렬화(Jdk/Kryo/Fory) × 압축(GZip/LZ4/Snappy/Zstd) 조합 싱글턴 팩토리 |
+| `RedisBinarySerializers`           | 직렬화(Jdk/Kryo/Fory/FastFory) × 압축(GZip/LZ4/Snappy/Zstd) 조합 싱글턴 팩토리 |
 | `redisSerializationContext {}`     | DSL 기반 `RedisSerializationContext` 빌더                             |
 | `redisSerializationContextOf(...)` | 키/값 Serializer를 직접 지정하는 편의 함수                            |
 
@@ -36,7 +36,7 @@ dependencies {
 }
 ```
 
-이 모듈은 아래 `RedisBinarySerializers` 목록에 나온 Kryo/Fory 및 LZ4/Snappy/Zstd 조합의 런타임 의존성을 함께 게시합니다. 표시된 serializer 조합을 사용하기 위해 별도 codec 또는 compressor 의존성을 추가할 필요가 없습니다.
+이 모듈은 아래 `RedisBinarySerializers` 목록에 나온 Kryo/Fory/FastFory 및 LZ4/Snappy/Zstd 조합의 런타임 의존성을 함께 게시합니다. 표시된 serializer 조합을 사용하기 위해 별도 codec 또는 compressor 의존성을 추가할 필요가 없습니다.
 
 ## 사용 예시
 
@@ -101,6 +101,7 @@ JDK 역직렬화는 Redis에 저장된 값이 gadget chain 기반 RCE 위험에 
 | `RedisBinarySerializers.Jdk`        | JDK         | 없음   | Deprecated; 신뢰 데이터 전용 |
 | `RedisBinarySerializers.Kryo`       | Kryo        | 없음   | 권장                         |
 | `RedisBinarySerializers.Fory`       | Fory        | 없음   | 권장                         |
+| `RedisBinarySerializers.FastFory`   | FastFory    | 없음   | 휘발성 캐시 전용             |
 | `RedisBinarySerializers.GzipJdk`    | JDK         | GZip   | Deprecated; 신뢰 데이터 전용 |
 | `RedisBinarySerializers.LZ4Jdk`     | JDK         | LZ4    | Deprecated; 신뢰 데이터 전용 |
 | `RedisBinarySerializers.SnappyJdk`  | JDK         | Snappy | Deprecated; 신뢰 데이터 전용 |
@@ -113,6 +114,12 @@ JDK 역직렬화는 Redis에 저장된 값이 gadget chain 기반 RCE 위험에 
 | `RedisBinarySerializers.LZ4Fory`    | Fory        | LZ4    | 권장                         |
 | `RedisBinarySerializers.SnappyFory` | Fory        | Snappy | 권장                         |
 | `RedisBinarySerializers.ZstdFory`   | Fory        | Zstd   | 권장                         |
+| `RedisBinarySerializers.GzipFastFory`   | FastFory    | GZip   | 휘발성 캐시 전용             |
+| `RedisBinarySerializers.LZ4FastFory`    | FastFory    | LZ4    | 휘발성 캐시 전용             |
+| `RedisBinarySerializers.SnappyFastFory` | FastFory    | Snappy | 휘발성 캐시 전용             |
+| `RedisBinarySerializers.ZstdFastFory`   | FastFory    | Zstd   | 휘발성 캐시 전용             |
+
+FastFory는 Fory의 `SCHEMA_CONSISTENT` 모드를 사용합니다. 기본 Fory 모드와 wire format이 대칭적인 drop-in 호환이 아니므로, 폐기 가능한 휘발성 Redis 데이터에만 사용하고 명시적인 마이그레이션 계획 없이 기존 Fory 값과 섞지 마세요.
 
 ### 압축 전용 (ByteArray → ByteArray)
 

@@ -71,7 +71,8 @@ hibernate.cache.use_second_level_cache=true
 # Redis 연결
 hibernate.cache.lettuce.redis_uri=redis://localhost:6379
 
-# 직렬화 코덱 (lz4fory | fory | kryo | lz4kryo | lz4jdk | gzipfory | zstdfory | jdk)
+# 직렬화 코덱 (기본: lz4fory)
+# 선택지: lz4fory | lz4fastfory | fory | fastfory | kryo | lz4kryo | lz4jdk | gzipfory | gzipfastfory | zstdfory | zstdfastfory | jdk
 hibernate.cache.lettuce.codec=lz4fory
 
 # RESP3 + CLIENT TRACKING 활성화 (Redis 6+ 필요)
@@ -115,8 +116,12 @@ spring:
               default: 120s
 ```
 
-지원 codec 값은 `jdk`, `kryo`, `fory`, `gzip*`, `lz4*`, `snappy*`,
+지원 codec 값은 `jdk`, `kryo`, `fory`, `fastfory`, `gzip*`, `lz4*`, `snappy*`,
 `zstd*` 계열이며, 오타나 미지원 codec 이름은 기본값으로 대체하지 않고 즉시 예외로 실패합니다.
+
+FastFory 코덱은 `SCHEMA_CONSISTENT` 모드를 사용하며 기존 Fory 캐시 데이터와 wire format이
+대칭 호환되지 않습니다. 모드를 바꾸기 전에 해당 region의 entry를 eviction 또는 migration할 수 있는
+경우에만 사용하세요.
 
 ## Entity 설정
 
@@ -161,9 +166,15 @@ val products: MutableList<Product> = mutableListOf()
 | 코덱 이름  | 설명                           | 압축 |
 |------------|--------------------------------|------|
 | `lz4fory`  | LZ4 + Apache Fory **(기본값)** | LZ4  |
+| `lz4fastfory` | LZ4 + Apache FastFory       | LZ4  |
 | `fory`     | Apache Fory                    | -    |
+| `fastfory` | Apache FastFory                | -    |
 | `gzipfory` | GZip + Apache Fory             | GZip |
+| `gzipfastfory` | GZip + Apache FastFory     | GZip |
+| `snappyfory` | Snappy + Apache Fory         | Snappy |
+| `snappyfastfory` | Snappy + Apache FastFory | Snappy |
 | `zstdfory` | Zstd + Apache Fory             | Zstd |
+| `zstdfastfory` | Zstd + Apache FastFory     | Zstd |
 | `kryo`     | Kryo                           | -    |
 | `lz4kryo`  | LZ4 + Kryo                     | LZ4  |
 | `jdk`      | Java 직렬화                    | -    |

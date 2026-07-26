@@ -17,6 +17,14 @@ class RedisConsumerRuntimeClasspathTest {
     }
 
     @Test
+    fun `documented FastFory serializer works from consumer runtime classpath`() {
+        val original = mapOf("mode" to "fast")
+        val bytes = RedisBinarySerializers.FastFory.serialize(original)
+
+        RedisBinarySerializers.FastFory.deserialize(bytes) shouldBeEqualTo original
+    }
+
+    @Test
     fun `documented LZ4 Kryo serializer works from consumer runtime classpath`() {
         val original = "Hello, bluetape4k Redis Kryo runtime!"
 

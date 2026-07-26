@@ -73,7 +73,8 @@ hibernate.cache.use_second_level_cache=true
 # Redis connection
 hibernate.cache.lettuce.redis_uri=redis://localhost:6379
 
-# Serialization codec (lz4fory | fory | kryo | lz4kryo | lz4jdk | gzipfory | zstdfory | jdk)
+# Serialization codec (default: lz4fory)
+# Options: lz4fory | lz4fastfory | fory | fastfory | kryo | lz4kryo | lz4jdk | gzipfory | gzipfastfory | zstdfory | zstdfastfory | jdk
 hibernate.cache.lettuce.codec=lz4fory
 
 # Enable RESP3 + CLIENT TRACKING (requires Redis 6+)
@@ -117,8 +118,12 @@ spring:
               default: 120s
 ```
 
-Supported codec values include the `jdk`, `kryo`, `fory`, `gzip*`, `lz4*`, `snappy*`, and
+Supported codec values include the `jdk`, `kryo`, `fory`, `fastfory`, `gzip*`, `lz4*`, `snappy*`, and
 `zstd*` families. Typos or unsupported codec names cause an immediate exception rather than silently falling back to a default.
+
+FastFory codecs use `SCHEMA_CONSISTENT` mode and are not a symmetric wire-compatible
+replacement for existing Fory cache data. Use them only for regions where entries can be
+evicted or migrated before switching modes.
 
 ## Entity Configuration
 
@@ -164,9 +169,15 @@ val products: MutableList<Product> = mutableListOf()
 | Codec Name | Description                     | Compression |
 |------------|---------------------------------|-------------|
 | `lz4fory`  | LZ4 + Apache Fory **(default)** | LZ4         |
+| `lz4fastfory` | LZ4 + Apache FastFory        | LZ4         |
 | `fory`     | Apache Fory                     | -           |
+| `fastfory` | Apache FastFory                 | -           |
 | `gzipfory` | GZip + Apache Fory              | GZip        |
+| `gzipfastfory` | GZip + Apache FastFory      | GZip        |
+| `snappyfory` | Snappy + Apache Fory          | Snappy      |
+| `snappyfastfory` | Snappy + Apache FastFory  | Snappy      |
 | `zstdfory` | Zstd + Apache Fory              | Zstd        |
+| `zstdfastfory` | Zstd + Apache FastFory      | Zstd        |
 | `kryo`     | Kryo                            | -           |
 | `lz4kryo`  | LZ4 + Kryo                      | LZ4         |
 | `jdk`      | Java serialization              | -           |

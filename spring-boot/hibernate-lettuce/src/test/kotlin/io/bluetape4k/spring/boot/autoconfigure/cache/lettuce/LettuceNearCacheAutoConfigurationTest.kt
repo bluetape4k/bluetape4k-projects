@@ -205,13 +205,13 @@ class LettuceNearCacheAutoConfigurationTest {
     @Test
     fun `codec 설정이 Hibernate properties에 반영된다`() {
         contextRunner
-            .withPropertyValues("bluetape4k.cache.lettuce-near.codec=zstdfory")
+            .withPropertyValues("bluetape4k.cache.lettuce-near.codec=lz4fastfory")
             .run { context ->
                 val customizer = context.getBean<HibernatePropertiesCustomizer>()
                 val props = mutableMapOf<String, Any>()
                 customizer.customize(props)
 
-                props["hibernate.cache.lettuce.codec"] shouldBeEqualTo "zstdfory"
+                props["hibernate.cache.lettuce.codec"] shouldBeEqualTo "lz4fastfory"
             }
     }
 

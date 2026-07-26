@@ -151,7 +151,7 @@ bluetape4k:
             redis-uri: redis://localhost:6379
 
             # Serialization codec (default: lz4fory)
-            # Options: lz4fory | fory | kryo | lz4kryo | lz4jdk | gzipfory | zstdfory | jdk
+            # Options: lz4fory | lz4fastfory | fory | fastfory | kryo | lz4kryo | lz4jdk | gzipfory | gzipfastfory | zstdfory | zstdfastfory | jdk
             codec: lz4fory
 
             # Enable RESP3 CLIENT TRACKING (requires Redis 6+, default: true)

@@ -16,7 +16,7 @@ import java.time.Duration
  * ```
  * # Hibernate properties 예시
  * hibernate.lettuce.redis_uri=redis://localhost:6379
- * hibernate.lettuce.codec=lz4fory               # lz4fory(기본), fory, kryo, lz4kryo 등
+ * hibernate.lettuce.codec=lz4fory               # lz4fory(기본), lz4fastfory, fory, kryo 등
  * hibernate.lettuce.local.max_size=10000
  * hibernate.lettuce.local.expire_after_write=30m
  * hibernate.lettuce.redis_ttl.default=120s
@@ -25,7 +25,7 @@ import java.time.Duration
  * ```
  *
  * **보안 주의 (Kryo/Fory 코덱):**
- * `kryo`, `fory`, `lz4kryo`, `lz4fory` 등 Kryo/Fory 기반 코덱을 사용할 경우,
+ * `kryo`, `fory`, `fastfory`, `lz4kryo`, `lz4fory`, `lz4fastfory` 등 Kryo/Fory 기반 코덱을 사용할 경우,
  * Redis 데이터를 역직렬화할 때 임의 클래스가 인스턴스화될 수 있어 gadget chain 공격에 취약합니다.
  * 반드시 Redis 접근 경로를 신뢰할 수 있는 환경(네트워크 격리, 인증 적용)에서만 사용하세요.
  * 신뢰할 수 없는 Redis 접근 경로가 있다면 allowlist 기반 Jackson(`jdk`) 직렬화 사용을 권장합니다.
@@ -62,18 +62,23 @@ data class LettuceNearCacheProperties(
             "jdk",
             "kryo",
             "fory",
+            "fastfory",
             "gzipjdk",
             "gzipkryo",
             "gzipfory",
+            "gzipfastfory",
             "lz4jdk",
             "lz4kryo",
             "lz4fory",
+            "lz4fastfory",
             "snappyjdk",
             "snappykryo",
             "snappyfory",
+            "snappyfastfory",
             "zstdjdk",
             "zstdkryo",
             "zstdfory",
+            "zstdfastfory",
         )
 
         fun from(configValues: Map<String, Any>): LettuceNearCacheProperties {
@@ -142,24 +147,32 @@ data class LettuceNearCacheProperties(
      * val codec = props.createCodec()
      * // codec != null
      * ```
+     *
+     * `fastfory` 계열은 `SCHEMA_CONSISTENT` 모드를 사용하며 기존 Fory 계열 wire format과
+     * 대칭 호환되지 않습니다. 기존 데이터를 유지해야 하는 region에서는 eviction 또는 migration 후 사용하세요.
      */
     fun createCodec(): LettuceBinaryCodec<Any> = when (codec.lowercase()) {
-        "jdk"        -> LettuceBinaryCodecs.jdk()
-        "kryo"       -> LettuceBinaryCodecs.kryo()
-        "fory"       -> LettuceBinaryCodecs.fory()
-        "gzipjdk"    -> LettuceBinaryCodecs.gzipJdk()
-        "gzipkryo"   -> LettuceBinaryCodecs.gzipKryo()
-        "gzipfory"   -> LettuceBinaryCodecs.gzipFory()
-        "lz4jdk"     -> LettuceBinaryCodecs.lz4Jdk()
-        "lz4kryo"    -> LettuceBinaryCodecs.lz4Kryo()
-        "lz4fory"    -> LettuceBinaryCodecs.lz4Fory()
-        "snappyjdk"  -> LettuceBinaryCodecs.snappyJdk()
-        "snappykryo" -> LettuceBinaryCodecs.snappyKryo()
-        "snappyfory" -> LettuceBinaryCodecs.snappyFory()
-        "zstdjdk"    -> LettuceBinaryCodecs.zstdJdk()
-        "zstdkryo"   -> LettuceBinaryCodecs.zstdKryo()
-        "zstdfory"   -> LettuceBinaryCodecs.zstdFory()
-        else         -> throw IllegalArgumentException("Unsupported codec: $codec. supported=$SUPPORTED_CODECS")
+        "jdk"             -> LettuceBinaryCodecs.jdk()
+        "kryo"            -> LettuceBinaryCodecs.kryo()
+        "fory"            -> LettuceBinaryCodecs.fory()
+        "fastfory"        -> LettuceBinaryCodecs.fastFory()
+        "gzipjdk"         -> LettuceBinaryCodecs.gzipJdk()
+        "gzipkryo"        -> LettuceBinaryCodecs.gzipKryo()
+        "gzipfory"        -> LettuceBinaryCodecs.gzipFory()
+        "gzipfastfory"    -> LettuceBinaryCodecs.gzipFastFory()
+        "lz4jdk"          -> LettuceBinaryCodecs.lz4Jdk()
+        "lz4kryo"         -> LettuceBinaryCodecs.lz4Kryo()
+        "lz4fory"         -> LettuceBinaryCodecs.lz4Fory()
+        "lz4fastfory"     -> LettuceBinaryCodecs.lz4FastFory()
+        "snappyjdk"       -> LettuceBinaryCodecs.snappyJdk()
+        "snappykryo"      -> LettuceBinaryCodecs.snappyKryo()
+        "snappyfory"      -> LettuceBinaryCodecs.snappyFory()
+        "snappyfastfory"  -> LettuceBinaryCodecs.snappyFastFory()
+        "zstdjdk"         -> LettuceBinaryCodecs.zstdJdk()
+        "zstdkryo"        -> LettuceBinaryCodecs.zstdKryo()
+        "zstdfory"        -> LettuceBinaryCodecs.zstdFory()
+        "zstdfastfory"    -> LettuceBinaryCodecs.zstdFastFory()
+        else              -> throw IllegalArgumentException("Unsupported codec: $codec. supported=$SUPPORTED_CODECS")
     }
 
     /**
