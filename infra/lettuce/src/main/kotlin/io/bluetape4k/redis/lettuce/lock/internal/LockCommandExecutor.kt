@@ -1,23 +1,33 @@
 package io.bluetape4k.redis.lettuce.lock.internal
 
+import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationCapacityException
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationFailureClassification
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationProtocolException
+import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRenewalOutcome
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.lock.LeasePolicy
 import io.bluetape4k.redis.lettuce.lock.LockAcquireResult
 import io.bluetape4k.redis.lettuce.lock.LockBackendFailure
 import io.bluetape4k.redis.lettuce.lock.LockBackendFailureKind
 import io.bluetape4k.redis.lettuce.lock.LockConfig
+import io.bluetape4k.redis.lettuce.lock.LockCounterName
+import io.bluetape4k.redis.lettuce.lock.LockDimensions
+import io.bluetape4k.redis.lettuce.lock.LockEvent
 import io.bluetape4k.redis.lettuce.lock.LockHandle
 import io.bluetape4k.redis.lettuce.lock.LockInspectResult
 import io.bluetape4k.redis.lettuce.lock.LockIntegrityFailure
 import io.bluetape4k.redis.lettuce.lock.LockKind
+import io.bluetape4k.redis.lettuce.lock.LockLeasePolicyKind
 import io.bluetape4k.redis.lettuce.lock.LockMutationResult
+import io.bluetape4k.redis.lettuce.lock.LockObservation
 import io.bluetape4k.redis.lettuce.lock.LockObservationSink
+import io.bluetape4k.redis.lettuce.lock.LockOperation
+import io.bluetape4k.redis.lettuce.lock.LockOutcome
 import io.bluetape4k.redis.lettuce.lock.LockOwnerId
 import io.bluetape4k.redis.lettuce.lock.LockReconcileResult
 import io.bluetape4k.redis.lettuce.lock.LockRecoveryAction
 import io.bluetape4k.redis.lettuce.lock.LockRequestId
+import io.bluetape4k.redis.lettuce.lock.recordSafely
 import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.lettuce.core.RedisCommandTimeoutException
 import io.lettuce.core.RedisConnectionException
@@ -33,10 +43,12 @@ import java.util.IdentityHashMap
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.toKotlinDuration
 
 internal interface LockCommandExecutor {
     fun run(
@@ -105,16 +117,16 @@ internal class DefaultLockCommandExecutor(
         )
 }
 
-internal class DistributedLockClient private constructor(
+internal class DistributedLockClient(
     private val keys: DistributedLockKeys,
     private val config: LockConfig,
     private val executor: LockCommandExecutor,
     private val registration: CoordinationRuntime.CoordinationObjectRegistration,
-    @Suppress("unused")
     private val observationSink: LockObservationSink,
 ) {
     private val closed = AtomicBoolean()
     private val waitSupport = LockWaitSupport(registration, closed::get)
+    private val watchdogs = ConcurrentHashMap<LockHandle, CoordinationRuntime.CoordinationTaskRegistration>()
 
     fun tryAcquire(
         ownerId: LockOwnerId,
@@ -123,9 +135,9 @@ internal class DistributedLockClient private constructor(
     ): LockAcquireResult<LockHandle> {
         val args = acquireArgs(ownerId, requestId, leasePolicy, config.maxReentrantHolds)
         if (closed.get()) return LockAcquireResult.Closed
-        return classifiedAcquire(ownerId, requestId) {
+        return registerWatchdog(classifiedAcquire(ownerId, requestId) {
             executor.run(DistributedLockOperation.ACQUIRE, keys, args)
-        }
+        })
     }
 
     fun tryAcquireAsync(
@@ -137,7 +149,7 @@ internal class DistributedLockClient private constructor(
         if (closed.get()) return CompletableFuture.completedFuture(LockAcquireResult.Closed)
         return executor.runAsync(DistributedLockOperation.ACQUIRE, keys, args)
             .mapResult(
-                decode = { decodeAcquire(it, keys, ownerId, requestId) },
+                decode = { registerWatchdog(decodeAcquire(it, keys, ownerId, requestId)) },
                 backend = { LockAcquireResult.BackendFailure(it) },
                 integrity = { LockAcquireResult.IntegrityFailure(it) },
                 recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
@@ -156,12 +168,12 @@ internal class DistributedLockClient private constructor(
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
-            decodeAcquire(
+            registerWatchdog(decodeAcquire(
                 executor.runSuspending(DistributedLockOperation.ACQUIRE, keys, args),
                 keys,
                 ownerId,
                 requestId,
-            )
+            ))
         }
     }
 
@@ -257,12 +269,12 @@ internal class DistributedLockClient private constructor(
             integrity = { LockReconcileResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
-            decodeReconcile(
+            registerWatchdog(decodeReconcile(
                 executor.run(DistributedLockOperation.RECONCILE, keys, args),
                 keys,
                 ownerId,
                 requestId,
-            )
+            ))
         }
     }
 
@@ -274,7 +286,7 @@ internal class DistributedLockClient private constructor(
         if (closed.get()) return CompletableFuture.completedFuture(LockReconcileResult.Closed)
         return executor.runAsync(DistributedLockOperation.RECONCILE, keys, args)
             .mapResult(
-                decode = { decodeReconcile(it, keys, ownerId, requestId) },
+                decode = { registerWatchdog(decodeReconcile(it, keys, ownerId, requestId)) },
                 backend = { LockReconcileResult.BackendFailure(it) },
                 integrity = { LockReconcileResult.IntegrityFailure(it) },
                 recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
@@ -292,12 +304,12 @@ internal class DistributedLockClient private constructor(
             integrity = { LockReconcileResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
-            decodeReconcile(
+            registerWatchdog(decodeReconcile(
                 executor.runSuspending(DistributedLockOperation.RECONCILE, keys, args),
                 keys,
                 ownerId,
                 requestId,
-            )
+            ))
         }
     }
 
@@ -313,7 +325,7 @@ internal class DistributedLockClient private constructor(
             integrity = { LockMutationResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RETRY_SAME_HANDLE,
         ) {
-            decodeRenew(executor.run(DistributedLockOperation.RENEW, keys, args), handle)
+            recordRenewOutcome(handle, decodeRenew(executor.run(DistributedLockOperation.RENEW, keys, args), handle))
         }
     }
 
@@ -326,7 +338,7 @@ internal class DistributedLockClient private constructor(
         if (closed.get()) return CompletableFuture.completedFuture(LockMutationResult.Closed)
         return executor.runAsync(DistributedLockOperation.RENEW, keys, args)
             .mapResult(
-                decode = { decodeRenew(it, handle) },
+                decode = { recordRenewOutcome(handle, decodeRenew(it, handle)) },
                 backend = { LockMutationResult.BackendFailure(it) },
                 integrity = { LockMutationResult.IntegrityFailure(it) },
                 recoveryAction = LockRecoveryAction.RETRY_SAME_HANDLE,
@@ -345,7 +357,10 @@ internal class DistributedLockClient private constructor(
             integrity = { LockMutationResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RETRY_SAME_HANDLE,
         ) {
-            decodeRenew(executor.runSuspending(DistributedLockOperation.RENEW, keys, args), handle)
+            recordRenewOutcome(
+                handle,
+                decodeRenew(executor.runSuspending(DistributedLockOperation.RENEW, keys, args), handle),
+            )
         }
     }
 
@@ -358,7 +373,7 @@ internal class DistributedLockClient private constructor(
             integrity = { LockMutationResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RETRY_SAME_HANDLE,
         ) {
-            decodeRelease(executor.run(DistributedLockOperation.RELEASE, keys, args))
+            recordReleaseOutcome(handle, decodeRelease(executor.run(DistributedLockOperation.RELEASE, keys, args)))
         }
     }
 
@@ -368,7 +383,7 @@ internal class DistributedLockClient private constructor(
         if (closed.get()) return CompletableFuture.completedFuture(LockMutationResult.Closed)
         return executor.runAsync(DistributedLockOperation.RELEASE, keys, args)
             .mapResult(
-                decode = ::decodeRelease,
+                decode = { recordReleaseOutcome(handle, decodeRelease(it)) },
                 backend = { LockMutationResult.BackendFailure(it) },
                 integrity = { LockMutationResult.IntegrityFailure(it) },
                 recoveryAction = LockRecoveryAction.RETRY_SAME_HANDLE,
@@ -384,14 +399,219 @@ internal class DistributedLockClient private constructor(
             integrity = { LockMutationResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RETRY_SAME_HANDLE,
         ) {
-            decodeRelease(executor.runSuspending(DistributedLockOperation.RELEASE, keys, args))
+            recordReleaseOutcome(
+                handle,
+                decodeRelease(executor.runSuspending(DistributedLockOperation.RELEASE, keys, args)),
+            )
         }
     }
 
     fun close() {
         if (closed.compareAndSet(false, true)) {
+            waitSupport.close()
+            watchdogs.values.forEach(CoordinationRuntime.CoordinationTaskRegistration::close)
+            watchdogs.clear()
             registration.close()
         }
+    }
+
+    private fun registerWatchdog(
+        result: LockAcquireResult<LockHandle>,
+    ): LockAcquireResult<LockHandle> {
+        val handle = when (result) {
+            is LockAcquireResult.Acquired -> result.handle
+            is LockAcquireResult.Reentered -> result.handle
+            else -> return result
+        }
+        return if (ensureWatchdog(handle)) {
+            result
+        } else if (closed.get() || registration.isClosed) {
+            LockAcquireResult.Closed
+        } else {
+            LockAcquireResult.Ambiguous(
+                handle.ownerId,
+                handle.requestId,
+                LockRecoveryAction.RECONCILE_REQUEST,
+            )
+        }
+    }
+
+    private fun registerWatchdog(
+        result: LockReconcileResult<LockHandle>,
+    ): LockReconcileResult<LockHandle> {
+        val handle = (result as? LockReconcileResult.Owned)?.handle ?: return result
+        return if (ensureWatchdog(handle)) {
+            result
+        } else if (closed.get() || registration.isClosed) {
+            LockReconcileResult.Closed
+        } else {
+            LockReconcileResult.Ambiguous(LockRecoveryAction.RECONCILE_REQUEST)
+        }
+    }
+
+    private fun ensureWatchdog(handle: LockHandle): Boolean {
+        val policy = handle.leasePolicy as? LeasePolicy.Watchdog ?: return true
+        discardClosedWatchdogs()
+        var registered = true
+        var capacityRejected = false
+        watchdogs.compute(handle) { _, current ->
+            if (current != null && !current.isClosed) {
+                current
+            } else {
+                try {
+                    registration.registerWatchdog(
+                        ttl = policy.ttl.toKotlinDuration(),
+                        renewalInterval = policy.renewalInterval.toKotlinDuration(),
+                        generation = handle.generation.value,
+                        maxLifetime = policy.maxLifetime.toKotlinDuration(),
+                        onOwnershipLost = {
+                            watchdogs.computeIfPresent(handle) { _, current ->
+                                current.takeUnless { it.isClosed }
+                            }
+                            recordOwnershipLoss(policy)
+                        },
+                    ) {
+                        renewForWatchdog(handle, policy)
+                    }
+                } catch (_: CoordinationCapacityException) {
+                    capacityRejected = true
+                    registered = false
+                    null
+                } catch (_: IllegalStateException) {
+                    registered = false
+                    null
+                }
+            }
+        }
+        if (capacityRejected) {
+            recordCapacityRejection(policy)
+        }
+        return registered
+    }
+
+    private fun renewForWatchdog(
+        handle: LockHandle,
+        policy: LeasePolicy.Watchdog,
+    ): CompletableFuture<CoordinationRenewalOutcome> {
+        if (closed.get()) {
+            return CompletableFuture.completedFuture(CoordinationRenewalOutcome.OWNERSHIP_LOST)
+        }
+        return executor.runAsync(
+            DistributedLockOperation.RENEW,
+            keys,
+            renewArgs(handle, policy.ttl),
+        ).mapResult(
+            decode = { decodeRenew(it, handle) },
+            backend = { LockMutationResult.BackendFailure(it) },
+            integrity = { LockMutationResult.IntegrityFailure(it) },
+            recoveryAction = LockRecoveryAction.RETRY_SAME_HANDLE,
+        ).thenApply { result ->
+            when (result) {
+                is LockMutationResult.Renewed -> CoordinationRenewalOutcome.RENEWED
+                else -> CoordinationRenewalOutcome.OWNERSHIP_LOST
+            }
+        }
+    }
+
+    private fun recordRenewOutcome(
+        handle: LockHandle,
+        result: LockMutationResult<LockHandle>,
+    ): LockMutationResult<LockHandle> {
+        when (result) {
+            LockMutationResult.AlreadyReleased,
+            LockMutationResult.Expired,
+            LockMutationResult.OwnershipLost,
+            LockMutationResult.StaleGeneration,
+            -> {
+                recordOwnershipLoss(handle.leasePolicy)
+                removeWatchdog(handle)
+            }
+            else -> Unit
+        }
+        return result
+    }
+
+    private fun recordReleaseOutcome(
+        handle: LockHandle,
+        result: LockMutationResult<LockHandle>,
+    ): LockMutationResult<LockHandle> {
+        when (result) {
+            is LockMutationResult.Released,
+            LockMutationResult.AlreadyReleased,
+            -> removeWatchdog(handle)
+            LockMutationResult.Expired,
+            LockMutationResult.OwnershipLost,
+            LockMutationResult.StaleGeneration,
+            -> {
+                recordOwnershipLoss(handle.leasePolicy)
+                removeWatchdog(handle)
+            }
+            else -> Unit
+        }
+        return result
+    }
+
+    private fun removeWatchdog(handle: LockHandle) {
+        watchdogs.remove(handle)?.close()
+    }
+
+    private fun discardClosedWatchdogs() {
+        watchdogs.entries.removeIf { it.value.isClosed }
+    }
+
+    private fun recordCapacityRejection(policy: LeasePolicy) {
+        recordObservation(
+            counter = LockCounterName.CAPACITY_REJECTION_TOTAL,
+            operation = LockOperation.ACQUIRE,
+            outcome = LockOutcome.CAPACITY_REJECTED,
+            policy = policy,
+        )
+    }
+
+    private fun recordOwnershipLoss(policy: LeasePolicy) {
+        recordObservation(
+            counter = LockCounterName.OWNERSHIP_LOSS_TOTAL,
+            operation = LockOperation.RENEW,
+            outcome = LockOutcome.OWNERSHIP_LOST,
+            policy = policy,
+        )
+    }
+
+    private fun recordObservation(
+        counter: LockCounterName,
+        operation: LockOperation,
+        outcome: LockOutcome,
+        policy: LeasePolicy,
+    ) {
+        val leasePolicy = when (policy) {
+            is LeasePolicy.Fixed -> LockLeasePolicyKind.FIXED
+            is LeasePolicy.Watchdog -> LockLeasePolicyKind.WATCHDOG
+        }
+        val dimensions = LockDimensions(
+            objectKind = LockKind.DISTRIBUTED,
+            operation = operation,
+            outcome = outcome,
+            failureKind = null,
+            leasePolicy = leasePolicy,
+        )
+        observationSink.recordSafely(
+            LockObservation.Counter(
+                name = counter,
+                delta = 1L,
+                dimensions = dimensions,
+            ),
+        )
+        observationSink.recordSafely(
+            LockObservation.Event(
+                LockEvent(
+                    objectKind = dimensions.objectKind,
+                    operation = dimensions.operation,
+                    outcome = dimensions.outcome,
+                    failureKind = dimensions.failureKind,
+                    leasePolicy = dimensions.leasePolicy,
+                ),
+            ),
+        )
     }
 
     private fun validateHandle(handle: LockHandle) {
@@ -508,20 +728,34 @@ private fun <R> CompletableFuture<List<String>>.mapResult(
     backend: (LockBackendFailure) -> R,
     integrity: (LockIntegrityFailure) -> R,
     recoveryAction: LockRecoveryAction,
-): CompletableFuture<R> =
-    handle { value, error ->
-        if (error == null) {
-            try {
-                decode(value)
-            } catch (_: CoordinationProtocolException) {
-                integrity(malformedIntegrityFailure())
-            } catch (_: IllegalArgumentException) {
-                integrity(malformedIntegrityFailure())
+): CompletableFuture<R> {
+    val mapped = CompletableFuture<R>()
+    whenComplete { value, error ->
+        if (mapped.isDone) return@whenComplete
+        try {
+            val result = if (error == null) {
+                try {
+                    decode(value)
+                } catch (_: CoordinationProtocolException) {
+                    integrity(malformedIntegrityFailure())
+                } catch (_: IllegalArgumentException) {
+                    integrity(malformedIntegrityFailure())
+                }
+            } else {
+                backend(classifyLockBackendFailure(error, recoveryAction))
             }
-        } else {
-            backend(classifyLockBackendFailure(error, recoveryAction))
+            mapped.complete(result)
+        } catch (failure: Throwable) {
+            mapped.completeExceptionally(failure)
         }
     }
+    mapped.whenComplete { _, _ ->
+        if (mapped.isCancelled && !isDone) {
+            cancel(false)
+        }
+    }
+    return mapped
+}
 
 private fun classifyLockBackendFailure(
     error: Throwable,

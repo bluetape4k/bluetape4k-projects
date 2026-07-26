@@ -14,7 +14,7 @@ import java.util.concurrent.ScheduledExecutorService
  * Coroutine cancellation is propagated and the same owner/request pair remains the reconciliation identity after an
  * ambiguous Redis mutation.
  */
-class LettuceSuspendDistributedLock private constructor(
+class LettuceSuspendDistributedLock internal constructor(
     private val client: DistributedLockClient,
 ) : AutoCloseable {
 
