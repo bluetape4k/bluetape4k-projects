@@ -9,7 +9,7 @@ import io.bluetape4k.io.serializer.BinarySerializers
  *
  * ## 동작/계약
  * - 모든 인스턴스는 `lazy` 초기화 방식으로 필요한 시점에 생성됩니다.
- * - 압축 방식(GZip/LZ4/Snappy/Zstd)과 직렬화 방식(Jdk/Kryo/Fory)을 조합해 선택할 수 있습니다.
+ * - 압축 방식(GZip/LZ4/Snappy/Zstd)과 직렬화 방식(Jdk/Kryo/Fory/FastFory)을 조합해 선택할 수 있습니다.
  *
  * ```kotlin
  * val redisTemplate = RedisTemplate<String, Any>()
@@ -31,6 +31,12 @@ object RedisBinarySerializers {
     val Jdk by lazy { RedisBinarySerializer(BinarySerializers.Jdk) }
     val Kryo by lazy { RedisBinarySerializer(BinarySerializers.Kryo) }
     val Fory by lazy { RedisBinarySerializer(BinarySerializers.Fory) }
+    /**
+     * FastFory(`SCHEMA_CONSISTENT`)를 사용하는 Redis serializer입니다.
+     *
+     * 기존 Fory 모드와 wire format이 대칭 호환되지 않으므로 휘발성 캐시에만 사용하세요.
+     */
+    val FastFory by lazy { RedisBinarySerializer(BinarySerializers.FastFory) }
 
     val Gzip by lazy { RedisCompressSerializer(Compressors.GZip) }
     val LZ4 by lazy { RedisCompressSerializer(Compressors.LZ4) }
@@ -74,5 +80,33 @@ object RedisBinarySerializers {
     val LZ4Fory by lazy { RedisBinarySerializer(BinarySerializers.LZ4Fory) }
     val SnappyFory by lazy { RedisBinarySerializer(BinarySerializers.SnappyFory) }
     val ZstdFory by lazy { RedisBinarySerializer(BinarySerializers.ZstdFory) }
+
+    /**
+     * GZip 압축과 FastFory(`SCHEMA_CONSISTENT`)를 사용하는 Redis serializer입니다.
+     *
+     * 기존 GZipFory 데이터와 wire format이 대칭 호환되지 않으므로 휘발성 캐시에만 사용하세요.
+     */
+    val GzipFastFory by lazy { RedisBinarySerializer(BinarySerializers.GZipFastFory) }
+
+    /**
+     * LZ4 압축과 FastFory(`SCHEMA_CONSISTENT`)를 사용하는 Redis serializer입니다.
+     *
+     * 기존 LZ4Fory 데이터와 wire format이 대칭 호환되지 않으므로 휘발성 캐시에만 사용하세요.
+     */
+    val LZ4FastFory by lazy { RedisBinarySerializer(BinarySerializers.LZ4FastFory) }
+
+    /**
+     * Snappy 압축과 FastFory(`SCHEMA_CONSISTENT`)를 사용하는 Redis serializer입니다.
+     *
+     * 기존 SnappyFory 데이터와 wire format이 대칭 호환되지 않으므로 휘발성 캐시에만 사용하세요.
+     */
+    val SnappyFastFory by lazy { RedisBinarySerializer(BinarySerializers.SnappyFastFory) }
+
+    /**
+     * Zstd 압축과 FastFory(`SCHEMA_CONSISTENT`)를 사용하는 Redis serializer입니다.
+     *
+     * 기존 ZstdFory 데이터와 wire format이 대칭 호환되지 않으므로 휘발성 캐시에만 사용하세요.
+     */
+    val ZstdFastFory by lazy { RedisBinarySerializer(BinarySerializers.ZstdFastFory) }
 
 }

@@ -101,6 +101,17 @@ class RedisBinarySerializerTest: AbstractRedisSerializerTest() {
     }
 
     @Test
+    fun `데이터 클래스를 FastFory로 직렬화 후 복원한다`() {
+        val serializer = RedisBinarySerializers.FastFory
+        val original = TestData(id = 5L, name = "FastFory", description = "휘발성 캐시용 직렬화")
+
+        val bytes = serializer.serialize(original)
+        bytes.shouldNotBeNull()
+
+        serializer.deserialize(bytes) shouldBeEqualTo original
+    }
+
+    @Test
     @Suppress("DEPRECATION")
     fun `데이터 클래스를 Jdk로 직렬화 후 복원한다`() {
         val serializer = RedisBinarySerializer(BinarySerializers.Jdk)

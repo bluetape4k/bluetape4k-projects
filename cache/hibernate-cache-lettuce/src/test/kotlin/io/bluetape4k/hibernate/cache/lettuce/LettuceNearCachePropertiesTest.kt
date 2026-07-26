@@ -123,13 +123,13 @@ class LettuceNearCachePropertiesTest {
     }
 
     @Test
-    fun `지원되는 모든 15가지 codec에 대해 createCodec이 성공한다`() {
+    fun `지원되는 모든 20가지 codec에 대해 createCodec이 성공한다`() {
         val codecs = listOf(
-            "jdk", "kryo", "fory",
-            "gzipjdk", "gzipkryo", "gzipfory",
-            "lz4jdk", "lz4kryo", "lz4fory",
-            "snappyjdk", "snappykryo", "snappyfory",
-            "zstdjdk", "zstdkryo", "zstdfory",
+            "jdk", "kryo", "fory", "fastfory",
+            "gzipjdk", "gzipkryo", "gzipfory", "gzipfastfory",
+            "lz4jdk", "lz4kryo", "lz4fory", "lz4fastfory",
+            "snappyjdk", "snappykryo", "snappyfory", "snappyfastfory",
+            "zstdjdk", "zstdkryo", "zstdfory", "zstdfastfory",
         )
 
         codecs.forEach { codecName ->
@@ -139,9 +139,29 @@ class LettuceNearCachePropertiesTest {
     }
 
     @Test
+    fun `FastFory codec 5종은 설정 이름으로 생성해 값을 직렬화 왕복한다`() {
+        val codecs = listOf(
+            "fastfory",
+            "gzipfastfory",
+            "lz4fastfory",
+            "snappyfastfory",
+            "zstdfastfory",
+        )
+        val original = mapOf(
+            "region" to "Customer",
+            "id" to 42L,
+        )
+
+        codecs.forEach { codecName ->
+            val codec = LettuceNearCacheProperties(codec = codecName).createCodec()
+            codec.decodeValue(codec.encodeValue(original)) shouldBeEqualTo original
+        }
+    }
+
+    @Test
     fun `codec 이름이 대소문자를 구분하지 않는다`() {
         val propsUpper = LettuceNearCacheProperties.from(
-            mapOf("hibernate.cache.lettuce.codec" to "LZ4FORY")
+            mapOf("hibernate.cache.lettuce.codec" to "LZ4FASTFORY")
         )
 
         propsUpper.createCodec().shouldNotBeNull()

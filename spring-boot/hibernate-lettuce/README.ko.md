@@ -150,7 +150,7 @@ bluetape4k:
             redis-uri: redis://localhost:6379
 
             # 직렬화 코덱 (기본: lz4fory)
-            # 선택지: lz4fory | fory | kryo | lz4kryo | lz4jdk | gzipfory | zstdfory | jdk
+            # 선택지: lz4fory | lz4fastfory | fory | fastfory | kryo | lz4kryo | lz4jdk | gzipfory | gzipfastfory | zstdfory | zstdfastfory | jdk
             codec: lz4fory
 
             # RESP3 CLIENT TRACKING 활성화 (Redis 6+ 필요, 기본: true)

@@ -20,18 +20,23 @@ class RedisBinarySerializersTest: AbstractRedisSerializerTest() {
             Arguments.of(RedisBinarySerializers.Jdk, "Jdk"),
             Arguments.of(RedisBinarySerializers.Kryo, "Kryo"),
             Arguments.of(RedisBinarySerializers.Fory, "Fory"),
+            Arguments.of(RedisBinarySerializers.FastFory, "FastFory"),
             Arguments.of(RedisBinarySerializers.GzipJdk, "GzipJdk"),
             Arguments.of(RedisBinarySerializers.GzipKryo, "GzipKryo"),
             Arguments.of(RedisBinarySerializers.GzipFory, "GzipFory"),
+            Arguments.of(RedisBinarySerializers.GzipFastFory, "GzipFastFory"),
             Arguments.of(RedisBinarySerializers.LZ4Jdk, "LZ4Jdk"),
             Arguments.of(RedisBinarySerializers.LZ4Kryo, "LZ4Kryo"),
             Arguments.of(RedisBinarySerializers.LZ4Fory, "LZ4Fory"),
+            Arguments.of(RedisBinarySerializers.LZ4FastFory, "LZ4FastFory"),
             Arguments.of(RedisBinarySerializers.SnappyJdk, "SnappyJdk"),
             Arguments.of(RedisBinarySerializers.SnappyKryo, "SnappyKryo"),
             Arguments.of(RedisBinarySerializers.SnappyFory, "SnappyFory"),
+            Arguments.of(RedisBinarySerializers.SnappyFastFory, "SnappyFastFory"),
             Arguments.of(RedisBinarySerializers.ZstdJdk, "ZstdJdk"),
             Arguments.of(RedisBinarySerializers.ZstdKryo, "ZstdKryo"),
             Arguments.of(RedisBinarySerializers.ZstdFory, "ZstdFory"),
+            Arguments.of(RedisBinarySerializers.ZstdFastFory, "ZstdFastFory"),
         )
 
         @JvmStatic

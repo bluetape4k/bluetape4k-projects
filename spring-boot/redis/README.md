@@ -15,7 +15,7 @@ Provides a convenient way to configure `Serializer` and `RedisSerializationConte
 |------------------------------------|----------------------------------------------------------------------------------------------|
 | `RedisBinarySerializer`            | `RedisSerializer<Any>` implementation backed by `BinarySerializer`                           |
 | `RedisCompressSerializer`          | Compression-only `RedisSerializer<ByteArray>` backed by `Compressor`                         |
-| `RedisBinarySerializers`           | Singleton factory combining serializers (Jdk/Kryo/Fory) × compressors (GZip/LZ4/Snappy/Zstd) |
+| `RedisBinarySerializers`           | Singleton factory combining serializers (Jdk/Kryo/Fory/FastFory) × compressors (GZip/LZ4/Snappy/Zstd) |
 | `redisSerializationContext {}`     | DSL-based `RedisSerializationContext` builder                                                |
 | `redisSerializationContextOf(...)` | Convenience function to specify key/value serializers directly                               |
 
@@ -38,7 +38,7 @@ dependencies {
 ```
 
 The module publishes runtime dependencies for the documented
-`RedisBinarySerializers` Kryo/Fory and LZ4/Snappy/Zstd combinations. Consumers do not need to add separate codec or compressor dependencies for the serializer matrix shown below.
+`RedisBinarySerializers` Kryo/Fory/FastFory and LZ4/Snappy/Zstd combinations. Consumers do not need to add separate codec or compressor dependencies for the serializer matrix shown below.
 
 ## Usage Examples
 
@@ -103,6 +103,7 @@ JDK deserialization can expose Redis values to RCE gadget-chain risk. The JDK se
 | `RedisBinarySerializers.Jdk`        | JDK                  | None        | Deprecated; trusted data only |
 | `RedisBinarySerializers.Kryo`       | Kryo                 | None        | Recommended                   |
 | `RedisBinarySerializers.Fory`       | Fory                 | None        | Recommended                   |
+| `RedisBinarySerializers.FastFory`   | FastFory             | None        | Volatile cache only           |
 | `RedisBinarySerializers.GzipJdk`    | JDK                  | GZip        | Deprecated; trusted data only |
 | `RedisBinarySerializers.LZ4Jdk`     | JDK                  | LZ4         | Deprecated; trusted data only |
 | `RedisBinarySerializers.SnappyJdk`  | JDK                  | Snappy      | Deprecated; trusted data only |
@@ -115,6 +116,12 @@ JDK deserialization can expose Redis values to RCE gadget-chain risk. The JDK se
 | `RedisBinarySerializers.LZ4Fory`    | Fory                 | LZ4         | Recommended                   |
 | `RedisBinarySerializers.SnappyFory` | Fory                 | Snappy      | Recommended                   |
 | `RedisBinarySerializers.ZstdFory`   | Fory                 | Zstd        | Recommended                   |
+| `RedisBinarySerializers.GzipFastFory`   | FastFory             | GZip        | Volatile cache only           |
+| `RedisBinarySerializers.LZ4FastFory`    | FastFory             | LZ4         | Volatile cache only           |
+| `RedisBinarySerializers.SnappyFastFory` | FastFory             | Snappy      | Volatile cache only           |
+| `RedisBinarySerializers.ZstdFastFory`   | FastFory             | Zstd        | Volatile cache only           |
+
+FastFory uses Fory `SCHEMA_CONSISTENT` mode. Its wire format is not a symmetric drop-in replacement for the default Fory mode, so use these variants only for disposable/volatile Redis data and do not mix them with existing Fory values without an explicit migration plan.
 
 ### Compression-only (ByteArray → ByteArray)
 
