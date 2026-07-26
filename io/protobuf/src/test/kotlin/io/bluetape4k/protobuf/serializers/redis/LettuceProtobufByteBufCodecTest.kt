@@ -13,8 +13,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import io.netty.buffer.ByteBuf
-import io.netty.buffer.SwappedByteBuf
 import io.netty.buffer.Unpooled
+import io.netty.buffer.WrappedByteBuf
 import io.netty.util.IllegalReferenceCountException
 import org.junit.jupiter.api.Test
 import java.io.Serializable
@@ -248,7 +248,7 @@ class LettuceProtobufByteBufCodecTest {
             bounded.release()
         }
 
-        val readOnly = Unpooled.unmodifiableBuffer(Unpooled.buffer(size, size))
+        val readOnly = Unpooled.buffer(size, size).asReadOnly()
         try {
             readOnly.markReaderIndex()
             readOnly.markWriterIndex()
@@ -422,7 +422,7 @@ class LettuceProtobufByteBufCodecTest {
         val name: String,
     ): Serializable
 
-    private class ThrowingNioByteBuf(delegate: ByteBuf): SwappedByteBuf(delegate) {
+    private class ThrowingNioByteBuf(delegate: ByteBuf): WrappedByteBuf(delegate) {
         var nioCalls: Int = 0
             private set
 
