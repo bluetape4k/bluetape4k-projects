@@ -2,11 +2,13 @@ package io.bluetape4k.redis.lettuce.lock.internal
 
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationCapacityException
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationDeadline
+import io.bluetape4k.redis.lettuce.coordination.internal.MonotonicTicker
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationScheduledHandle
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationScheduler
 import io.bluetape4k.redis.lettuce.lock.LockAcquireResult
 import io.bluetape4k.redis.lettuce.lock.LockHandle
+import io.bluetape4k.redis.lettuce.lock.SpinLockConfig
 import io.bluetape4k.redis.lettuce.lock.toRedisMillisCeil
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -15,17 +17,75 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.LockSupport
+import kotlin.math.ceil
+import kotlin.math.pow
 import kotlin.time.toKotlinDuration
 
 internal val DISTRIBUTED_LOCK_RETRY_DELAY: Duration = Duration.ofMillis(10)
 
+internal fun interface LockRetryPolicy {
+    fun delay(attempt: Int, remainingNanos: Long): Duration
+}
+
+internal object DistributedLockRetryPolicy: LockRetryPolicy {
+    override fun delay(attempt: Int, remainingNanos: Long): Duration {
+        require(attempt > 0) { "Retry attempt must be positive." }
+        require(remainingNanos > 0L) { "Retry deadline must have remaining time." }
+        return Duration.ofNanos(minOf(remainingNanos, DISTRIBUTED_LOCK_RETRY_DELAY.toNanos()))
+    }
+}
+
+internal class SpinLockRetryPolicy(
+    private val config: SpinLockConfig,
+    private val jitterSource: () -> Double = { ThreadLocalRandom.current().nextDouble() },
+): LockRetryPolicy {
+    private val initialNanos = config.initialDelay.saturatedNanos()
+    private val maxNanos = config.maxDelay.saturatedNanos()
+    private val minimumAttemptIntervalNanos =
+        ceil(NANOS_PER_SECOND.toDouble() / config.maxAttemptsPerSecond).toLong()
+
+    init {
+        require(maxNanos >= minimumAttemptIntervalNanos) {
+            "Spin maximum delay must permit the configured attempt-rate bound."
+        }
+    }
+
+    override fun delay(attempt: Int, remainingNanos: Long): Duration {
+        require(attempt > 0) { "Retry attempt must be positive." }
+        require(remainingNanos > 0L) { "Retry deadline must have remaining time." }
+        val exponential = initialNanos.toDouble() * config.multiplier.pow((attempt - 1).coerceAtMost(1_024))
+        val baseNanos = maxOf(
+            minimumAttemptIntervalNanos,
+            minOf(maxNanos.toDouble(), exponential).toLong(),
+        )
+        val jitteredNanos =
+            if (config.jitterRatio == 0.0) {
+                baseNanos
+            } else {
+                val sample = jitterSource()
+                require(sample.isFinite() && sample in 0.0..1.0) {
+                    "Spin jitter source must return a finite value between 0.0 and 1.0."
+                }
+                minOf(
+                    maxNanos.toDouble(),
+                    baseNanos.toDouble() * (1.0 + config.jitterRatio * sample),
+                ).toLong()
+            }
+        return Duration.ofNanos(minOf(remainingNanos, jitteredNanos))
+    }
+}
+
 internal class LockWaitSupport(
     private val registration: CoordinationRuntime.CoordinationObjectRegistration,
     private val isClosed: () -> Boolean,
+    private val retryPolicy: LockRetryPolicy = DistributedLockRetryPolicy,
+    private val ticker: MonotonicTicker = MonotonicTicker.SYSTEM,
 ) {
     private val closing = AtomicBoolean()
     private val pendingAsync =
@@ -41,12 +101,13 @@ internal class LockWaitSupport(
         attempt: () -> LockAcquireResult<LockHandle>,
     ): LockAcquireResult<LockHandle> {
         val deadline = deadline(waitTime)
+        var retryAttempt = 0
         while (true) {
             when (val result = attempt()) {
                 is LockAcquireResult.Contended -> {
                     val remaining = deadline.remainingNanos()
                     if (remaining == 0L) return LockAcquireResult.TimedOut
-                    LockSupport.parkNanos(minOf(remaining, DISTRIBUTED_LOCK_RETRY_DELAY.toNanos()))
+                    LockSupport.parkNanos(retryPolicy.delay(++retryAttempt, remaining).toNanos())
                 }
                 else -> return result
             }
@@ -62,6 +123,7 @@ internal class LockWaitSupport(
         val result = CompletableFuture<LockAcquireResult<LockHandle>>()
         val scheduled = AtomicReference<CoordinationRuntime.CoordinationTaskRegistration?>()
         val inFlight = AtomicReference<CompletableFuture<LockAcquireResult<LockHandle>>?>()
+        val attempts = AtomicInteger()
         pendingAsync += result
 
         result.whenComplete { _, _ ->
@@ -117,8 +179,7 @@ internal class LockWaitSupport(
                             if (remaining == 0L) {
                                 result.complete(LockAcquireResult.TimedOut)
                             } else {
-                                val delay = minOf(remaining, DISTRIBUTED_LOCK_RETRY_DELAY.toNanos())
-                                scheduleRetry(Duration.ofNanos(delay))
+                                scheduleRetry(retryPolicy.delay(attempts.incrementAndGet(), remaining))
                             }
                         } else {
                             result.complete(acquired)
@@ -136,6 +197,7 @@ internal class LockWaitSupport(
         attempt: suspend () -> LockAcquireResult<LockHandle>,
     ): LockAcquireResult<LockHandle> {
         val deadline = deadline(waitTime)
+        var retryAttempt = 0
         while (true) {
             currentCoroutineContext().ensureActive()
             if (isLifecycleClosed()) return LockAcquireResult.Closed
@@ -143,9 +205,7 @@ internal class LockWaitSupport(
                 is LockAcquireResult.Contended -> {
                     val remaining = deadline.remainingNanos()
                     if (remaining == 0L) return LockAcquireResult.TimedOut
-                    val retryDelay = Duration.ofNanos(
-                        minOf(remaining, DISTRIBUTED_LOCK_RETRY_DELAY.toNanos()),
-                    )
+                    val retryDelay = retryPolicy.delay(++retryAttempt, remaining)
                     when (awaitRetry(retryDelay)) {
                         RetrySignal.RETRY -> Unit
                         RetrySignal.CLOSED -> return LockAcquireResult.Closed
@@ -210,7 +270,7 @@ internal class LockWaitSupport(
         require(waitTime <= MAX_DISTRIBUTED_LOCK_WAIT) {
             "Lock wait time must not exceed $MAX_DISTRIBUTED_LOCK_WAIT."
         }
-        return CoordinationDeadline.after(waitTime.toKotlinDuration())
+        return CoordinationDeadline.after(waitTime.toKotlinDuration(), ticker)
     }
 }
 
@@ -234,3 +294,11 @@ internal class ScheduledExecutorCoordinationScheduler(
 }
 
 private val MAX_DISTRIBUTED_LOCK_WAIT: Duration = Duration.ofHours(24)
+private const val NANOS_PER_SECOND: Long = 1_000_000_000L
+
+private fun Duration.saturatedNanos(): Long =
+    try {
+        toNanos()
+    } catch (_: ArithmeticException) {
+        Long.MAX_VALUE
+    }
