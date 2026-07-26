@@ -13,7 +13,7 @@ import java.util.concurrent.ScheduledExecutorService
  * Every successful acquisition returns one request-bound [LockHandle]. Reusing the same request ID replays that hold;
  * a different request ID under the same owner adds one reentrant hold without changing the Redis generation.
  */
-class LettuceDistributedLock private constructor(
+class LettuceDistributedLock internal constructor(
     private val client: DistributedLockClient,
 ) : AutoCloseable {
 
