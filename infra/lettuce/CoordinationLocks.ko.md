@@ -8,14 +8,14 @@ blocking, `CompletableFuture`, coroutine API를 제공합니다. 새 API는 addi
 
 ## Lock 객체 선택
 
-| 패밀리 | 선택 기준 | 특화 계약 |
-|---|---|---|
-| `LettuceDistributedLock` | 재진입 가능한 단일 resource 배타 제어 | `LockHandle`, fixed/watchdog lease |
-| `LettuceFairLock` | 제한된 stale waiter 정리를 포함한 FIFO admission | `LockHandle`, `CleanupPending` |
-| `LettuceFencedLock` | downstream stale writer 거부 | `FencedLockHandle`, `(epoch, sequence)` token |
-| `LettuceReadWriteLock` | writer-preference 기반 read 공유 | `ReadLockHandle`, `WriteLockHandle`, downgrade |
-| `LettuceSpinLock` | 제한된 polling에 적합한 매우 짧은 임계 구역 | `LockHandle`, 제한된 backoff/rate |
-| `LettuceMultiLock` | same-slot resource 집합의 원자적 all-or-nothing 제어 | `MultiLockHandle`, 정규화된 불변 names |
+| 패밀리 | 특성 | 추천 적용 사례 | 다른 객체가 나은 경우 | Caller 또는 인프라 의무 |
+|---|---|---|---|---|
+| `LettuceDistributedLock` | fixed/watchdog lease를 지원하는 재진입 단일 resource 배타 제어 | 주문 처리, 중복 작업 방지, 단일 aggregate 또는 resource 변경 | 진입 순서가 중요하거나 stale writer 차단 또는 여러 resource의 원자적 획득이 필요할 때 | Lock을 advisory guard로 취급하고 성공한 `LockHandle`을 정확히 한 번 해제 |
+| `LettuceFairLock` | 제한된 stale waiter 정리를 포함한 FIFO admission | 최소 coordination 비용보다 예측 가능한 진입 순서와 starvation 감소가 중요한 경합 작업 | 처리량이 순서보다 중요하거나 경합이 드물 때 | `CleanupPending`을 처리하고 추가 Redis queue 상태를 고려 |
+| `LettuceFencedLock` | 재진입 배타 제어와 단조 증가 `(epoch, sequence)` fencing token | 지연된 이전 owner를 거부해야 하는 DB, storage 또는 외부 시스템 쓰기 | 보호 대상 downstream이 fencing token을 저장하고 비교할 수 없을 때 | 마지막으로 허용한 token보다 엄격히 큰 token의 쓰기만 허용 |
+| `LettuceReadWriteLock` | 동시 reader, writer preference, 원자적 write-to-read downgrade를 지원하고 upgrade는 미지원 | 간헐적 배타 갱신이 있는 read-heavy 공유 metadata 또는 설정 | 쓰기가 많거나 단순 배타 Lock이면 충분하거나 read-to-write upgrade가 필요할 때 | 각 read/write handle을 해제하고 upgrade 흐름은 release 후 acquire로 재설계 |
+| `LettuceSpinLock` | 제한된 backoff, jitter, attempt rate를 사용하는 scheduled polling | 경합이 낮고 임계 구역이 매우 짧은 작업 | hold/wait가 길거나 경합이 지속되거나 Redis polling 증가가 부담일 때 | hold 시간을 짧게 유지하고 retry 및 attempt-rate budget을 명시 |
+| `LettuceMultiLock` | 정규화된 불변 resource 집합을 원자적으로 all-or-nothing 획득 | 함께 보호해야 하는 작고 미리 알려진 연관 resource 집합 | resource가 서로 다른 Redis Cluster slot에 있거나 집합이 크거나 ownership 중 변경될 때 | 모든 key를 동일 Cluster slot에 두고 구성 resource name을 변경하지 않음 |
 
 모든 패밀리는 `LettuceSuspendDistributedLock`, `LettuceSuspendFairLock`, `LettuceSuspendFencedLock`,
 `LettuceSuspendReadWriteLock`, `LettuceSuspendSpinLock`, `LettuceSuspendMultiLock` 대응 객체를 제공합니다.
