@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1560" viewBox="0 0 1900 1560" role="img" aria-labelledby="title desc">
+  <title id="title">Lettuce 분산 동기화 Lock 생명주기</title>
+  <desc id="desc">호출자, 공개 Lock 파사드, 동기화 런타임, Redis Lua 상태 사이의 획득, 경합, watchdog, 재조정, 해제, 종료 순서를 보여 줍니다.</desc>
+  <defs>
+    <style>
+      .frame{fill:#fbfcf8;stroke:#41545d;stroke-width:3}.inner{fill:#fff;stroke:#d7e0e4;stroke-width:2}
+      .title{font-family:"goorm Sans",sans-serif;font-size:42px;font-weight:700;fill:#263238}.subtitle,.msg,.role,.note,.footer{font-family:"goorm Sans Code","goorm Sans",sans-serif;fill:#36464f}
+      .subtitle{font-size:17px}.participant{font-family:"Architects Daughter";font-size:23px;fill:#1f3138}.role{font-size:13px}.msg{font-size:14px}.note{font-size:13px}.footer{font-size:14px;fill:#60727d}
+      .participant{font-family:"goorm Sans",sans-serif}.badge{font-family:"goorm Sans Code","goorm Sans",sans-serif}.header{stroke-width:2.4}.lifeline{stroke:#9aaab1;stroke-width:2;stroke-dasharray:7 8}.activation{stroke-width:1.5}
+      .alt{fill:#eef7f0;fill-opacity:.14;stroke:#78909c;stroke-width:2.4;stroke-dasharray:12 7}.divider{stroke:#78909c;stroke-width:2.2;stroke-dasharray:12 8}
+      .pill{fill:#fff;stroke-width:1.4}.badge{font-family:"Comic Mono";font-size:12px;font-weight:700}.seq{fill:none;stroke-width:3.1;stroke-linecap:round;stroke-linejoin:round}.ret{fill:none;stroke-width:2.6;stroke-dasharray:9 7;stroke-linecap:round}
+    </style>
+    <marker id="blue-arrow" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#4F83BF"/></marker>
+    <marker id="red-arrow" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#C94D68"/></marker>
+    <marker id="green-arrow" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#3E9868"/></marker>
+    <marker id="amber-arrow" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B9851B"/></marker>
+    <marker id="purple-arrow" markerWidth="13" markerHeight="13" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#755BC6"/></marker>
+  </defs>
+  <rect x="24" y="24" width="1852" height="1512" rx="22" class="frame"/>
+  <text x="950" y="78" text-anchor="middle" class="title">분산 동기화 Lock 생명주기</text>
+  <text x="950" y="110" text-anchor="middle" class="subtitle">하나의 request identity로 획득, 모호한 결과 복구, handle 1회 해제를 연결합니다.</text>
+  <rect x="58" y="140" width="1784" height="1350" rx="18" class="inner"/>
+
+  <rect x="100" y="165" width="270" height="78" rx="12" fill="#EAF4F8" stroke="#4F83BF" class="header"/>
+  <text x="235" y="195" text-anchor="middle" class="participant">호출자</text><text x="235" y="221" text-anchor="middle" class="role">ownerId + requestId</text>
+  <rect x="515" y="165" width="300" height="78" rx="12" fill="#EEF7F0" stroke="#3E9868" class="header"/>
+  <text x="665" y="195" text-anchor="middle" class="participant">공개 Lock 파사드</text><text x="665" y="221" text-anchor="middle" class="role">blocking / async / suspend</text>
+  <rect x="995" y="165" width="310" height="78" rx="12" fill="#FFF7E8" stroke="#B9851B" class="header"/>
+  <text x="1150" y="195" text-anchor="middle" class="participant">동기화 런타임</text><text x="1150" y="221" text-anchor="middle" class="role">대기 + watchdog + 관측</text>
+  <rect x="1510" y="165" width="270" height="78" rx="12" fill="#FFF0F0" stroke="#C94D68" class="header"/>
+  <text x="1645" y="195" text-anchor="middle" class="participant">Lua / Redis</text><text x="1645" y="221" text-anchor="middle" class="role">원자적 Cluster 상태</text>
+  <line x1="235" y1="243" x2="235" y2="1430" class="lifeline"/><line x1="665" y1="243" x2="665" y2="1430" class="lifeline"/>
+  <line x1="1150" y1="243" x2="1150" y2="1430" class="lifeline"/><line x1="1645" y1="243" x2="1645" y2="1430" class="lifeline"/>
+  <rect x="657" y="295" width="16" height="1060" rx="6" fill="#EEF7F0" stroke="#3E9868" class="activation"/>
+  <rect x="1142" y="370" width="16" height="900" rx="6" fill="#FFF7E8" stroke="#B9851B" class="activation"/>
+  <rect x="1637" y="445" width="16" height="760" rx="6" fill="#FFF0F0" stroke="#C94D68" class="activation"/>
+
+  <path d="M247 320 L645 320" stroke="#4F83BF" marker-end="url(#blue-arrow)" class="seq"/>
+  <rect x="300" y="270" width="295" height="34" rx="17" stroke="#4F83BF" class="pill"/><circle cx="324" cy="287" r="13" fill="#EAF4F8" stroke="#4F83BF"/><text x="324" y="291" text-anchor="middle" fill="#2f6f8e" class="badge">1</text><text x="348" y="292" class="msg">acquire(ownerId, requestId)</text>
+  <path d="M677 395 L1130 395" stroke="#3E9868" marker-end="url(#green-arrow)" class="seq"/>
+  <rect x="760" y="345" width="285" height="34" rx="17" stroke="#3E9868" class="pill"/><circle cx="784" cy="362" r="13" fill="#EEF7F0" stroke="#3E9868"/><text x="784" y="366" text-anchor="middle" fill="#55783f" class="badge">2</text><text x="808" y="367" class="msg">검증 + request 등록</text>
+  <path d="M1162 470 L1625 470" stroke="#C94D68" marker-end="url(#red-arrow)" class="seq"/>
+  <rect x="1240" y="420" width="310" height="34" rx="17" stroke="#C94D68" class="pill"/><circle cx="1264" cy="437" r="13" fill="#FFF0F0" stroke="#C94D68"/><text x="1264" y="441" text-anchor="middle" fill="#9d4f4f" class="badge">3</text><text x="1288" y="442" class="msg">EVAL 원자적 획득/재진입</text>
+
+  <rect x="82" y="520" width="1736" height="300" rx="15" class="alt"/>
+  <rect x="108" y="544" width="420" height="30" rx="15" fill="#EEF7F0" stroke="#3E9868"/><text x="130" y="564" class="note">획득 또는 동일 owner 재진입</text>
+  <path d="M1633 610 L1162 610" stroke="#3E9868" class="ret"/><polygon points="1174,604 1162,610 1174,616" fill="#3E9868"/>
+  <rect x="1270" y="560" width="270" height="34" rx="17" stroke="#3E9868" class="pill"/><circle cx="1294" cy="577" r="13" fill="#EEF7F0" stroke="#3E9868"/><text x="1294" y="581" text-anchor="middle" fill="#55783f" class="badge">4</text><text x="1318" y="582" class="msg">request 전용 handle</text>
+  <path d="M1138 680 L685 680" stroke="#3E9868" class="ret"/><polygon points="697,674 685,680 697,686" fill="#3E9868"/>
+  <rect x="805" y="630" width="255" height="34" rx="17" stroke="#3E9868" class="pill"/><text x="830" y="652" class="msg">Acquired / Reentered</text>
+  <line x1="82" y1="715" x2="1818" y2="715" class="divider"/>
+  <rect x="108" y="732" width="390" height="30" rx="15" fill="#FFF7E8" stroke="#B9851B"/><text x="130" y="752" class="note">경합: 제한된 대기 후 재시도</text>
+  <path d="M1138 785 L685 785" stroke="#755BC6" class="ret"/><polygon points="697,779 685,785 697,791" fill="#755BC6"/>
+  <rect x="790" y="737" width="285" height="34" rx="17" stroke="#755BC6" class="pill"/><text x="814" y="759" fill="#674b91" class="msg">대기 신호 / timeout / 재시도</text>
+
+  <path d="M1162 870 L1625 870" stroke="#B9851B" marker-end="url(#amber-arrow)" class="seq"/>
+  <rect x="1250" y="820" width="290" height="34" rx="17" stroke="#B9851B" class="pill"/><circle cx="1274" cy="837" r="13" fill="#FFF7E8" stroke="#B9851B"/><text x="1274" y="841" text-anchor="middle" fill="#7f6038" class="badge">5</text><text x="1298" y="842" class="msg">보유 중 watchdog 갱신</text>
+
+  <rect x="82" y="920" width="1736" height="230" rx="15" class="alt"/>
+  <rect x="108" y="944" width="445" height="30" rx="15" fill="#FFF0F0" stroke="#C94D68"/><text x="130" y="964" class="note">쓰기 결과가 모호한 상태에서 취소</text>
+  <path d="M247 1010 L645 1010" stroke="#755BC6" marker-end="url(#purple-arrow)" class="seq"/>
+  <rect x="295" y="960" width="305" height="34" rx="17" stroke="#755BC6" class="pill"/><circle cx="319" cy="977" r="13" fill="#F3ECFF" stroke="#755BC6"/><text x="319" y="981" text-anchor="middle" fill="#674b91" class="badge">6</text><text x="343" y="982" class="msg">동일 owner/request로 reconcile</text>
+  <path d="M677 1085 L1625 1085" stroke="#C94D68" marker-end="url(#red-arrow)" class="seq"/>
+  <rect x="1010" y="1035" width="300" height="34" rx="17" stroke="#C94D68" class="pill"/><text x="1035" y="1057" class="msg">저장된 request 결과 확인</text>
+
+  <path d="M247 1215 L645 1215" stroke="#4F83BF" marker-end="url(#blue-arrow)" class="seq"/>
+  <rect x="310" y="1165" width="270" height="34" rx="17" stroke="#4F83BF" class="pill"/><circle cx="334" cy="1182" r="13" fill="#EAF4F8" stroke="#4F83BF"/><text x="334" y="1186" text-anchor="middle" fill="#2f6f8e" class="badge">7</text><text x="358" y="1187" class="msg">release(handle) 1회</text>
+  <path d="M1162 1290 L1625 1290" stroke="#C94D68" marker-end="url(#red-arrow)" class="seq"/>
+  <rect x="1240" y="1240" width="310" height="34" rx="17" stroke="#C94D68" class="pill"/><text x="1265" y="1262" class="msg">generation 검증 원자적 해제</text>
+  <path d="M247 1380 L645 1380" stroke="#4F83BF" marker-end="url(#blue-arrow)" class="seq"/>
+  <rect x="280" y="1330" width="330" height="34" rx="17" stroke="#4F83BF" class="pill"/><circle cx="304" cy="1347" r="13" fill="#EAF4F8" stroke="#4F83BF"/><text x="304" y="1351" text-anchor="middle" fill="#2f6f8e" class="badge">8</text><text x="328" y="1352" class="msg">close(): 로컬 작업만 중단</text>
+  <text x="950" y="1462" text-anchor="middle" class="footer">close는 unlock이 아니다. 활성 ownership은 만료되거나 handle로 해제된다.</text>
+</svg>

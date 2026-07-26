@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1080" viewBox="0 0 1900 1080" role="img"
+     aria-label="Lettuce coordination lock family architecture"
+     data-allow-grid="true"
+     data-intent="Help callers choose one of six coordination lock object families while seeing the shared API surfaces, neutral runtime, Redis Lua state, observation sink, and additive legacy compatibility boundary."
+     data-evidence="infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock;infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal;infra/lettuce/README.md"
+     data-source-read="infra/lettuce/README.md;infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceDistributedLock.kt;infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/LockCommandExecutor.kt;infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/LockWaitSupport.kt;infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/CoordinationObservation.kt">
+  <title>Lettuce Coordination Lock Family Architecture</title>
+  <desc>Six lock object families share blocking, async, and suspend surfaces, a neutral coordination runtime, Lua-backed Redis Cluster state, and redacted observation signals. Legacy lock and lease classes remain supported behind an explicit compatibility boundary.</desc>
+  <defs>
+    <filter id="shadow" x="-8%" y="-10%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#3f7d9c"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#6e8f4f"/>
+    </marker>
+    <marker id="arrowAmber" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 9 5 L 1 9 Z" fill="#a2743d"/>
+    </marker>
+    <style>
+      svg { font-family: "Comic Mono", ui-monospace, monospace; }
+      .canvas { fill: #f8fafc; }
+      .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; filter: url(#shadow); }
+      .title { font-family: "Architects Daughter", cursive; font-size: 48px; fill: #0f172a; }
+      .subtitle { font-size: 17px; fill: #475569; }
+      .card { stroke-width: 2; filter: url(#shadow); }
+      .cardTitle { font-family: "Architects Daughter", cursive; font-size: 28px; fill: #172033; }
+      .heading { font-family: "Architects Daughter", cursive; font-size: 21px; fill: #172033; }
+      .detail { font-size: 15px; fill: #475569; }
+      .identifier { font-size: 15px; fill: #334155; }
+      .small { font-size: 13px; fill: #64748b; }
+      .route { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+      .compat { stroke-dasharray: 9 7; }
+      .legend { font-size: 13px; fill: #64748b; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1900" height="1080"/>
+  <rect class="frame" x="32" y="28" width="1836" height="1020" rx="18"/>
+  <text class="title" x="80" y="92">Lettuce Coordination Lock Family</text>
+  <text class="subtitle" x="84" y="126">Choose by coordination semantics; every new object shares identity, bounded waiting, Lua execution, lifecycle control, and safe observation.</text>
+
+  <g id="families">
+    <rect class="card" x="80" y="180" width="690" height="430" rx="12" fill="#eff6ff" stroke="#3f7d9c"/>
+    <text class="cardTitle" x="120" y="226">Choose one object family</text>
+    <text class="small" x="120" y="254">Each row has LettuceXLock and LettuceSuspendXLock.</text>
+
+    <text class="heading" x="125" y="306">Distributed</text>
+    <text class="identifier" x="125" y="330">reentrant mutex</text>
+    <text class="small" x="125" y="350">fixed / watchdog lease</text>
+    <text class="heading" x="125" y="382">Fair</text>
+    <text class="identifier" x="125" y="406">FIFO phases</text>
+    <text class="small" x="125" y="426">bounded stale-waiter cleanup</text>
+    <text class="heading" x="125" y="458">Fenced</text>
+    <text class="identifier" x="125" y="482">strictly increasing fencing token</text>
+
+    <text class="heading" x="445" y="306">ReadWrite</text>
+    <text class="identifier" x="445" y="330">read and write views</text>
+    <text class="small" x="445" y="350">write-to-read downgrade</text>
+    <text class="heading" x="445" y="382">Spin</text>
+    <text class="identifier" x="445" y="406">bounded retry rate</text>
+    <text class="small" x="445" y="426">no unbounded busy loop</text>
+    <text class="heading" x="445" y="458">Multi</text>
+    <text class="identifier" x="445" y="482">atomic same-slot acquisition</text>
+    <text class="small" x="445" y="502">across multiple lock names</text>
+
+    <rect x="118" y="525" width="614" height="52" rx="9" fill="#dbeafe" stroke="#93c5fd"/>
+    <text class="detail" x="425" y="557" text-anchor="middle">Every successful request returns one request-bound handle.</text>
+  </g>
+
+  <g id="surfaces">
+    <rect class="card" x="865" y="180" width="410" height="300" rx="12" fill="#fff7ed" stroke="#a2743d"/>
+    <text class="cardTitle" x="905" y="226">Public API surfaces</text>
+    <text class="heading" x="920" y="286">Blocking</text>
+    <text class="detail" x="1035" y="286">acquire / release / reconcile</text>
+    <text class="heading" x="920" y="346">Async</text>
+    <text class="detail" x="1035" y="346">CompletableFuture</text>
+    <text class="heading" x="920" y="406">Suspend</text>
+    <text class="detail" x="1035" y="406">cancellable bounded wait</text>
+    <text class="small" x="920" y="448">Explicit LockOwnerId + LockRequestId</text>
+  </g>
+
+  <g id="runtime">
+    <rect class="card" x="865" y="610" width="410" height="270" rx="12" fill="#f0fdf4" stroke="#6e8f4f"/>
+    <text class="cardTitle" x="905" y="656">Neutral coordination runtime</text>
+    <text class="detail" x="920" y="706">bounded wait and retry scheduling</text>
+    <text class="detail" x="920" y="742">watchdog registration and renewal caps</text>
+    <text class="detail" x="920" y="778">same-identity ambiguous reconciliation</text>
+    <text class="detail" x="920" y="814">close stops local work, never implicit unlock</text>
+    <text class="small" x="920" y="852">No dependency on a public Lock implementation.</text>
+  </g>
+
+  <g id="observation">
+    <rect class="card" x="1430" y="180" width="370" height="210" rx="12" fill="#f5f3ff" stroke="#7c6ac7"/>
+    <text class="cardTitle" x="1470" y="226">Observation sink</text>
+    <text class="detail" x="1470" y="276">events / counters / durations</text>
+    <text class="detail" x="1470" y="312">allowlisted dimensions only</text>
+    <text class="small" x="1470" y="350">identity and Redis keys stay redacted</text>
+  </g>
+
+  <g id="redis">
+    <rect class="card" x="1430" y="610" width="370" height="270" rx="12" fill="#fff1f2" stroke="#b86868"/>
+    <text class="cardTitle" x="1470" y="656">Lua + Redis Cluster state</text>
+    <text class="detail" x="1470" y="706">EVALSHA then EVAL on NOSCRIPT</text>
+    <text class="detail" x="1470" y="742">versioned, same-slot keyspace</text>
+    <text class="detail" x="1470" y="778">generation / holds / wait queues</text>
+    <text class="detail" x="1470" y="814">atomic inspect / renew / release</text>
+    <text class="small" x="1470" y="852">Cross-slot input fails before dispatch.</text>
+  </g>
+
+  <g id="legacy">
+    <rect class="card" x="80" y="741" width="690" height="210" rx="12" fill="#fffbeb" stroke="#a2743d" stroke-dasharray="9 7"/>
+    <text class="cardTitle" x="120" y="787">Legacy compatibility boundary</text>
+    <text class="detail" x="120" y="831">LettuceLock / LettuceSuspendLock</text>
+    <text class="detail" x="120" y="867">LettuceFencingLease / LettuceSuspendFencingLease</text>
+    <text class="detail" x="120" y="903">LettuceMultiKeyLease / LettuceSuspendMultiKeyLease</text>
+    <text class="small" x="120" y="935">Supported and not deprecated; semantics remain distinct.</text>
+  </g>
+
+  <path class="route" data-from="families" data-to="surfaces" d="M 770 395 H 865" stroke="#3f7d9c" marker-end="url(#arrowBlue)"/>
+  <path class="route" data-from="surfaces" data-to="runtime" d="M 1070 480 V 610" stroke="#6e8f4f" marker-end="url(#arrowGreen)"/>
+  <path class="route" data-from="runtime" data-to="redis" d="M 1275 745 H 1430" stroke="#6e8f4f" marker-end="url(#arrowGreen)"/>
+  <path class="route" data-from="runtime" data-to="observation" d="M 1275 650 H 1350 Q 1380 650 1380 620 V 315 Q 1380 285 1410 285 H 1430" stroke="#7c6ac7" marker-end="url(#arrowBlue)"/>
+  <path class="route compat" data-from="legacy" data-to="runtime" d="M 770 846 H 865" stroke="#a2743d" marker-end="url(#arrowAmber)"/>
+
+  <text class="legend" x="84" y="998">Solid arrows: shared execution path / Dashed amber: explicit compatibility boundary</text>
+</svg>
