@@ -2,6 +2,8 @@ package io.bluetape4k.junit5.observability
 
 import java.io.Serializable
 
+private const val REDACTED_MARKER_VALUE = "values redacted"
+
 /**
  * Identifies a framework boundary covered by a context propagation proof.
  *
@@ -119,6 +121,7 @@ enum class ContextMarkerExpectationMode {
  * Constructor changes are compatibility-sensitive. Callers must not persist or destructure this value or use it as
  * a wire contract. Serializable snapshots are not persistence or wire formats. Markers must be test-owned synthetic
  * values, never production request IDs, user data, or external trace IDs. Root context is represented by `null`.
+ * [toString] preserves only bounded coordinates and redacts marker-bearing fields.
  *
  * Example:
  * ```kotlin
@@ -132,6 +135,9 @@ data class ContextMarkerObservation(
     val point: ContextObservationPoint,
     val observedMarker: String?,
 ): Serializable {
+    override fun toString(): String =
+        "ContextMarkerObservation(point=$point, observedMarker=$REDACTED_MARKER_VALUE)"
+
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -143,7 +149,8 @@ data class ContextMarkerObservation(
  * Constructor changes are compatibility-sensitive. Callers must not persist or destructure this value or use it as
  * a wire contract. Serializable snapshots are not persistence or wire formats. Markers must be test-owned synthetic
  * values, never production request IDs, user data, or external trace IDs. Root context is represented by `null`,
- * so the literal marker `root` is invalid.
+ * so the literal marker `root` is invalid. [toString] preserves only bounded coordinates and redacts marker-bearing
+ * fields.
  *
  * Example:
  * ```kotlin
@@ -157,6 +164,9 @@ data class ContextMarkerExpectation(
     val point: ContextObservationPoint,
     val expectedMarker: String,
 ): Serializable {
+    override fun toString(): String =
+        "ContextMarkerExpectation(point=$point, expectedMarker=$REDACTED_MARKER_VALUE)"
+
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -168,6 +178,7 @@ data class ContextMarkerExpectation(
  * Constructor changes are compatibility-sensitive. Callers must not persist or destructure this value or use it as
  * a wire contract. Serializable snapshots are not persistence or wire formats. Markers must be test-owned synthetic
  * values, never production request IDs, user data, or external trace IDs. Root context is represented by `null`.
+ * [toString] preserves only bounded coordinates and redacts marker-bearing fields.
  *
  * Example:
  * ```kotlin
@@ -181,6 +192,9 @@ data class ContextCleanupProbe(
     val location: ContextProbeLocation,
     val observedMarker: String?,
 ): Serializable {
+    override fun toString(): String =
+        "ContextCleanupProbe(location=$location, observedMarker=$REDACTED_MARKER_VALUE)"
+
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -192,6 +206,7 @@ data class ContextCleanupProbe(
  * Constructor changes are compatibility-sensitive. Callers must not persist or destructure this value or use it as
  * a wire contract. Serializable snapshots are not persistence or wire formats. Markers must be test-owned synthetic
  * values, never production request IDs, user data, or external trace IDs. Root context is represented by `null`.
+ * [toString] preserves only bounded coordinates and redacts marker-bearing fields.
  *
  * Example:
  * ```kotlin
@@ -205,6 +220,9 @@ data class ContextCleanupExpectation(
     val location: ContextProbeLocation,
     val expectedMarker: String?,
 ): Serializable {
+    override fun toString(): String =
+        "ContextCleanupExpectation(location=$location, expectedMarker=$REDACTED_MARKER_VALUE)"
+
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -294,6 +312,7 @@ data class ContextPropagationExpectation(
  * Constructor changes are compatibility-sensitive. Callers must not persist or destructure this value or use it as
  * a wire contract. Serializable snapshots are not persistence or wire formats. Markers must be test-owned synthetic
  * values, never production request IDs, user data, or external trace IDs. Root context is represented by `null`.
+ * [toString] preserves only bounded coordinates and redacts marker-bearing fields.
  *
  * Example:
  * ```kotlin
@@ -307,6 +326,9 @@ data class ContextIsolationSample(
     val requestAlias: ContextRequestAlias,
     val observedMarkers: List<String?>,
 ): Serializable {
+    override fun toString(): String =
+        "ContextIsolationSample(requestAlias=$requestAlias, observedMarkers=$REDACTED_MARKER_VALUE)"
+
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -318,6 +340,7 @@ data class ContextIsolationSample(
  * Constructor changes are compatibility-sensitive. Callers must not persist or destructure this value or use it as
  * a wire contract. Serializable snapshots are not persistence or wire formats. Markers must be test-owned synthetic
  * values, never production request IDs, user data, or external trace IDs. Root context is represented by `null`.
+ * [toString] preserves only bounded coordinates and redacts marker-bearing fields.
  *
  * Example:
  * ```kotlin
@@ -336,6 +359,14 @@ data class ContextIsolationSampleExpectation(
     val forbiddenMarkers: List<String> = emptyList(),
     val minimumObservationCount: Int = 1,
 ): Serializable {
+    override fun toString(): String =
+        "ContextIsolationSampleExpectation(" +
+                "requestAlias=$requestAlias, " +
+                "mode=$mode, " +
+                "expectedMarker=$REDACTED_MARKER_VALUE, " +
+                "forbiddenMarkers=$REDACTED_MARKER_VALUE, " +
+                "minimumObservationCount=$minimumObservationCount)"
+
     companion object {
         private const val serialVersionUID: Long = 1L
     }

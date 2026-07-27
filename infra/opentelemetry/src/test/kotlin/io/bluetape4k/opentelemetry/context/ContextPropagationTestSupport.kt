@@ -1387,7 +1387,6 @@ internal fun <T> withReactorCleanup(
                 null
             } catch (e: InterruptedException) {
                 restoreInterrupt = true
-                Thread.currentThread().interrupt()
                 e
             } catch (e: Exception) {
                 e

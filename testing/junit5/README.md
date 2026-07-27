@@ -243,7 +243,7 @@ responsible for converting actual framework state into the snapshot; the fixture
 
 `null` represents root context. `SUCCESS`, `FAILURE`, `CANCELLATION`, and `DEADLINE_EXCEEDED` are distinct terminal
 outcomes. Diagnostics identify only bounded coordinates and report `values redacted`; they never include raw marker
-values.
+values. Marker-bearing snapshot `toString()` output follows the same redaction rule.
 
 Only test-owned synthetic marker values are allowed. Never supply production request IDs, user data, or external trace
 IDs. A `Serializable` snapshot is a test exchange value, not a persistence or wire contract, and must not be stored
@@ -253,31 +253,42 @@ a storage format.
 
 ```kotlin
 import io.bluetape4k.junit5.observability.*
+import kotlinx.coroutines.asContextElement
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 
 val marker = "synthetic-parent"
-val observation = ContextPropagationObservation(
-    boundary = ContextPropagationBoundary.COROUTINE,
-    scenario = ContextPropagationScenario.SUCCESS,
-    requestAlias = ContextRequestAlias.SINGLE,
-    markerObservations = listOf(
-        ContextMarkerObservation(
+val markerContext = ThreadLocal<String?>()
+val observation = runBlocking {
+    val observed = mutableListOf<ContextMarkerObservation>()
+    withContext(markerContext.asContextElement(marker)) {
+        observed += ContextMarkerObservation(
             ContextObservationPoint.BOUNDARY_ENTER,
-            marker,
-        ),
-        ContextMarkerObservation(
+            markerContext.get(),
+        )
+        yield()
+        observed += ContextMarkerObservation(
             ContextObservationPoint.AFTER_SUSPENSION,
-            marker,
-        ),
-        ContextMarkerObservation(
+            markerContext.get(),
+        )
+        observed += ContextMarkerObservation(
             ContextObservationPoint.BEFORE_TERMINAL,
-            marker,
+            markerContext.get(),
+        )
+    }
+    ContextPropagationObservation(
+        boundary = ContextPropagationBoundary.COROUTINE,
+        scenario = ContextPropagationScenario.SUCCESS,
+        requestAlias = ContextRequestAlias.SINGLE,
+        markerObservations = observed,
+        cleanupProbes = listOf(
+            ContextCleanupProbe(ContextProbeLocation.CALLER, markerContext.get()),
         ),
-    ),
-    cleanupProbes = listOf(
-        ContextCleanupProbe(ContextProbeLocation.CALLER, null),
-    ),
-    terminal = ContextPropagationTerminal.SUCCESS,
-)
+        terminal = ContextPropagationTerminal.SUCCESS,
+    )
+}
+val expectedMarker = "synthetic-parent"
 val expectation = ContextPropagationExpectation(
     boundary = ContextPropagationBoundary.COROUTINE,
     scenario = ContextPropagationScenario.SUCCESS,
@@ -285,15 +296,15 @@ val expectation = ContextPropagationExpectation(
     markerExpectations = listOf(
         ContextMarkerExpectation(
             ContextObservationPoint.BOUNDARY_ENTER,
-            marker,
+            expectedMarker,
         ),
         ContextMarkerExpectation(
             ContextObservationPoint.AFTER_SUSPENSION,
-            marker,
+            expectedMarker,
         ),
         ContextMarkerExpectation(
             ContextObservationPoint.BEFORE_TERMINAL,
-            marker,
+            expectedMarker,
         ),
     ),
     cleanupExpectations = listOf(
@@ -307,29 +318,56 @@ assertContextPropagationConformance(observation, expectation)
 
 ```kotlin
 import io.bluetape4k.junit5.observability.*
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.asContextElement
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 
-val isolationObservation = ContextIsolationObservation(
-    boundary = ContextPropagationBoundary.KTOR_REQUEST,
-    samples = listOf(
-        ContextIsolationSample(
-            ContextRequestAlias.REQUEST_A,
-            listOf("synthetic-parent-A", "synthetic-parent-A"),
+val markerContext = ThreadLocal<String?>()
+val isolationObservation = runBlocking {
+    val readyA = CompletableDeferred<Unit>()
+    val readyB = CompletableDeferred<Unit>()
+
+    suspend fun observe(
+        alias: ContextRequestAlias,
+        marker: String,
+        ownReady: CompletableDeferred<Unit>,
+        peerReady: CompletableDeferred<Unit>,
+    ): ContextIsolationSample =
+        withContext(markerContext.asContextElement(marker)) {
+            ownReady.complete(Unit)
+            peerReady.await()
+            val observed = mutableListOf(markerContext.get())
+            yield()
+            observed += markerContext.get()
+            ContextIsolationSample(alias, observed)
+        }
+
+    val sampleA = async {
+        observe(ContextRequestAlias.REQUEST_A, "synthetic-parent-A", readyA, readyB)
+    }
+    val sampleB = async {
+        observe(ContextRequestAlias.REQUEST_B, "synthetic-parent-B", readyB, readyA)
+    }
+    val probe = withContext(markerContext.asContextElement("synthetic-probe")) {
+        markerContext.get()
+    }
+    ContextIsolationObservation(
+        boundary = ContextPropagationBoundary.COROUTINE,
+        samples = listOf(
+            sampleA.await(),
+            sampleB.await(),
+            ContextIsolationSample(ContextRequestAlias.PROBE, listOf(probe)),
         ),
-        ContextIsolationSample(
-            ContextRequestAlias.REQUEST_B,
-            listOf("synthetic-parent-B", "synthetic-parent-B"),
+        cleanupProbes = listOf(
+            ContextCleanupProbe(ContextProbeLocation.CALLER, markerContext.get()),
         ),
-        ContextIsolationSample(
-            ContextRequestAlias.PROBE,
-            listOf("synthetic-probe"),
-        ),
-    ),
-    cleanupProbes = listOf(
-        ContextCleanupProbe(ContextProbeLocation.REQUEST, null),
-    ),
-)
+    )
+}
 val isolationExpectation = ContextIsolationExpectation(
-    boundary = ContextPropagationBoundary.KTOR_REQUEST,
+    boundary = ContextPropagationBoundary.COROUTINE,
     samples = listOf(
         ContextIsolationSampleExpectation(
             requestAlias = ContextRequestAlias.REQUEST_A,
@@ -353,12 +391,18 @@ val isolationExpectation = ContextIsolationExpectation(
         ),
     ),
     cleanupExpectations = listOf(
-        ContextCleanupExpectation(ContextProbeLocation.REQUEST, null),
+        ContextCleanupExpectation(ContextProbeLocation.CALLER, null),
     ),
 )
 
 assertContextIsolation(isolationObservation, isolationExpectation)
 ```
+
+For complete framework-owned adapter proofs, see the compile-checked
+[coroutine, Reactor, and executor conformance test](../../infra/opentelemetry/src/test/kotlin/io/bluetape4k/opentelemetry/context/ContextPropagationConformanceTest.kt),
+[Spring Observation test](../../spring-boot/core/src/test/kotlin/io/bluetape4k/spring/observability/SpringContextPropagationConformanceTest.kt),
+and
+[Ktor request test](../../ktor/observability/src/test/kotlin/io/bluetape4k/ktor/observability/KtorContextPropagationConformanceTest.kt).
 
 ### Bounded-Wait HTTP Idempotency Conformance
 

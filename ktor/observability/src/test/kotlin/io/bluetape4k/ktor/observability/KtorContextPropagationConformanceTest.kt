@@ -38,12 +38,15 @@ import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCallPipeline
 import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
+import io.ktor.util.AttributeKey
+import io.ktor.util.pipeline.PipelinePhase
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Deferred
@@ -347,11 +350,17 @@ private class KtorConformanceHarness {
     val finallyB = CompletableDeferred<Unit>()
     val firstIsolationFailure = AtomicReference<Throwable?>()
     val probeTraceId = CompletableDeferred<String?>()
+    private val cleanupMarkers = ConcurrentHashMap<ContextRequestAlias, CompletableDeferred<String?>>()
     val ledger = KtorConformanceEventLedger()
 
     fun observations(alias: ContextRequestAlias): ConcurrentLinkedQueue<String?> =
         isolationObservations.computeIfAbsent(alias) {
             ConcurrentLinkedQueue()
+        }
+
+    fun cleanupMarker(alias: ContextRequestAlias): CompletableDeferred<String?> =
+        cleanupMarkers.computeIfAbsent(alias) {
+            CompletableDeferred()
         }
 
     fun releaseAll() {
@@ -414,8 +423,22 @@ private class TestTracing(
     }
 }
 
+private val requestAliasKey = AttributeKey<ContextRequestAlias>("ContextConformanceRequestAlias")
+
 private fun ApplicationTestBuilder.installContextConformance(tracing: TestTracing) {
     application {
+        val cleanupProbePhase = PipelinePhase("ContextConformanceCleanupProbe")
+        insertPhaseBefore(ApplicationCallPipeline.Setup, cleanupProbePhase)
+        intercept(cleanupProbePhase) {
+            try {
+                proceed()
+            } finally {
+                call.attributes.getOrNull(requestAliasKey)?.let { alias ->
+                    tracing.harness.cleanupMarker(alias)
+                        .complete(Span.current().validTraceIdOrNull())
+                }
+            }
+        }
         installBluetape4kKtorOpenTelemetryTracing(
             KtorOpenTelemetryTracingConfig(
                 openTelemetry = tracing.openTelemetry,
@@ -450,6 +473,7 @@ private suspend fun io.ktor.server.routing.RoutingContext.runSingleRoute(
     harness: KtorConformanceHarness,
     scenario: ContextPropagationScenario,
 ) {
+    call.attributes.put(requestAliasKey, ContextRequestAlias.SINGLE)
     try {
         harness.singleObservations += markerObservation(
             ContextObservationPoint.BOUNDARY_ENTER,
@@ -504,6 +528,7 @@ private suspend fun io.ktor.server.routing.RoutingContext.runIsolationRoute(
                 traceIdB -> ContextRequestAlias.REQUEST_B
                 else -> error("Unexpected synthetic isolation parent")
             }
+        call.attributes.put(requestAliasKey, alias)
         val ownReady =
             when (alias) {
                 ContextRequestAlias.REQUEST_A -> harness.readyA
@@ -579,7 +604,9 @@ private suspend fun ApplicationTestBuilder.runKtorScenario(
                 ContextRequestAlias.SINGLE,
                 KtorConformanceEvent.FINALLY_COMPLETED,
             )
-            val requestMarker = Span.current().validTraceIdOrNull()
+            val requestMarker =
+                harness.cleanupMarker(ContextRequestAlias.SINGLE)
+                    .awaitGateWithin("single server cleanup probe")
             harness.ledger.record(
                 ContextRequestAlias.SINGLE,
                 KtorConformanceEvent.CLEANUP_PROBED,
@@ -681,7 +708,13 @@ private suspend fun ApplicationTestBuilder.runKtorIsolationScenario(
                 KtorConformanceEvent.FINALLY_COMPLETED,
             )
 
-            val requestMarker = Span.current().validTraceIdOrNull()
+            val requestMarkerA =
+                harness.cleanupMarker(ContextRequestAlias.REQUEST_A)
+                    .awaitGateWithin("request A server cleanup probe")
+            val requestMarkerB =
+                harness.cleanupMarker(ContextRequestAlias.REQUEST_B)
+                    .awaitGateWithin("request B server cleanup probe")
+            val requestMarker = requireRestoredRequestMarkers(requestMarkerA, requestMarkerB)
             harness.ledger.record(
                 ContextRequestAlias.REQUEST_A,
                 KtorConformanceEvent.CLEANUP_PROBED,
@@ -727,6 +760,16 @@ private suspend fun ApplicationTestBuilder.runKtorIsolationScenario(
             cleanupKtorRequests(primaryFailure, harness, requests)
         }
     }
+
+private fun requireRestoredRequestMarkers(
+    requestMarkerA: String?,
+    requestMarkerB: String?,
+): String? {
+    check(requestMarkerA == null && requestMarkerB == null) {
+        "Ktor request context was not restored"
+    }
+    return null
+}
 
 private suspend fun runIsolationClientRequest(
     harness: KtorConformanceHarness,
