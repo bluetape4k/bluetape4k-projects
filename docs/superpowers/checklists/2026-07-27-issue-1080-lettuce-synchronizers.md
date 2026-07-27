@@ -40,9 +40,9 @@
   - **Action:** Re-read branch/base/authority immediately before push and PR creation.
   - **Evidence:** Branch `codex/issue-1080-lettuce-synchronizers`, base `develop`, origin, issue #1080 metadata, and no-merge boundary were freshly read before commit/push.
   - **Failure:** Do not push or create/update the PR.
-- [ ] **CL-08 — Count before completion**
+- [x] **CL-08 — Count before completion**
   - **Action:** Reconcile required, N/A, blocked, and pending totals.
-  - **Evidence:** Final report contains `Required checks: X/Y; N/A: N; Blocked: N` and every unchecked ID.
+  - **Evidence:** Required checks are `61/62`; N/A items are 5; blocked items are 0; `CG-16` is the only unchecked required item.
   - **Failure:** Completion claim is forbidden.
 
 ## Common gates
@@ -91,21 +91,21 @@
   - **Action:** Refresh user approval, repo, issue, base, head, labels, assignee, milestone, and no-merge constraint.
   - **Evidence:** Issue #1080 is open, assigned to `debop`, milestone `1.12.0`, labeled `enhancement`, `test`, `design`, `infra/io`; approved base/head and no-merge hold remain unchanged.
   - **Failure:** Stop at local commit.
-- [ ] **CG-12 — Publish the exact head branch**
+- [x] **CG-12 — Publish the exact head branch**
   - **Action:** Push the Lore-committed exact head to origin.
-  - **Evidence:** Local HEAD equals `origin/codex/issue-1080-lettuce-synchronizers`.
+  - **Evidence:** Lore commit `cf6d10b32` was published and local HEAD equaled `origin/codex/issue-1080-lettuce-synchronizers`.
   - **Failure:** Repair push without rewriting user work.
-- [ ] **CG-13 — Create and verify the PR**
+- [x] **CG-13 — Create and verify the PR**
   - **Action:** Create issue-linked PR with metadata parity and `## DoD Status` as final H2.
-  - **Evidence:** Live PR title/body/base/head/assignee/labels/milestone read-back.
+  - **Evidence:** PR #1089 live read-back confirms base `develop`, exact head, assignee `debop`, issue labels, milestone `1.12.0`, and final H2 `## DoD Status`.
   - **Failure:** Correct metadata/body before CI gate.
-- [ ] **CG-14 — Pass CI and live human review**
+- [x] **CG-14 — Pass CI and live human review**
   - **Action:** Poll checks, reviews, and threads until terminal.
-  - **Evidence:** Required checks green; no unresolved P0/P1 or review thread.
+  - **Evidence:** Exact-head CI completed with 11 success, 8 path-filter skips, 0 pending, and 0 failing; the PR is mergeable/CLEAN with no submitted review or review thread.
   - **Failure:** Repair and republish exact head.
-- [ ] **CG-15 — Report merge-ready**
+- [x] **CG-15 — Report merge-ready**
   - **Action:** Report exact run, head, commit, PR, CI, review, and blocker.
-  - **Evidence:** Merge-ready report identifies `CG-16` as the only merge blocker.
+  - **Evidence:** The prepared merge-ready report identifies `CG-16` as the only merge blocker and does not merge or enable auto-merge.
   - **Failure:** Continue verification.
 - [ ] **CG-16 — Obtain fresh merge approval**
   - **Action:** Wait for a new explicit merge instruction after merge-ready.
@@ -158,13 +158,13 @@
   - **Action:** Pass lesson gate and create exact Lore commit(s).
   - **Evidence:** Durable lesson is recorded and the immediately following exact commit uses the required Lore trailers.
   - **Failure:** Do not push.
-- [ ] **A-10 — Complete authorized PR delivery through live CI and review**
+- [x] **A-10 — Complete authorized PR delivery through live CI and review**
   - **Action:** Push, create PR, verify metadata/body, and poll CI/reviews/threads.
-  - **Evidence:** Exact-head live PR is green and review-clean.
+  - **Evidence:** PR #1089 is mergeable/CLEAN; 11 checks pass, 8 path-filter jobs skip, and no review thread exists.
   - **Failure:** Repair before merge-ready.
-- [ ] **A-11 — Capture knowledge and report merge readiness**
+- [x] **A-11 — Capture knowledge and report merge readiness**
   - **Action:** Preserve implementation/review evidence and report the merge blocker.
-  - **Evidence:** Final Korean report includes run/branch/commit/PR/checks/P0/P1/`CG-16`.
+  - **Evidence:** The prepared final Korean report includes run, branch, exact commit, PR, checks, P0/P1, and `CG-16`.
   - **Failure:** Continue evidence collection.
 - [x] **A-12 — Close out only after fresh merge approval**
   - **Action:** Classify merge closeout.
@@ -252,9 +252,9 @@
   - **Action:** Verify README/guide embeds, relative paths, and documentation tests.
   - **Evidence:** New synchronizer guide and diagram routes pass; the pre-existing README `../testing/testcontainers` baseline remains outside this delivery diff.
   - **Failure:** Repair routes.
-- [ ] **BLOG-09 — Report article DoD**
+- [x] **BLOG-09 — Report article DoD**
   - **Action:** Report docs files, locale parity, visual evidence, and remaining limitations.
-  - **Evidence:** PR DoD includes documentation proof.
+  - **Evidence:** PR #1089 `## DoD Status` includes bilingual KDoc/README selection guidance and diagram proof.
   - **Failure:** Do not claim docs complete.
 
 ## Diagram gates
