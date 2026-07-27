@@ -35,7 +35,10 @@ import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
+import reactor.core.Disposable
 import reactor.core.publisher.Mono
+import reactor.core.publisher.SignalType
+import reactor.core.publisher.Sinks
 import reactor.core.scheduler.Scheduler
 import reactor.core.scheduler.Schedulers
 import java.util.concurrent.Callable
@@ -49,6 +52,7 @@ import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.toJavaDuration
@@ -60,6 +64,8 @@ internal const val parentMarkerA = "parent-A"
 internal const val parentMarkerB = "parent-B"
 
 private const val reactorOtelContextKey = "bluetape4k.otel.context"
+private const val reactorSchedulerPrefixA = "otel-reactor-A"
+private const val reactorSchedulerPrefixB = "otel-reactor-B"
 private const val probeMarker = "probe-marker"
 
 private val hangGuard = DEFAULT_CANCELLATION_CONTRACT_TIMEOUT
@@ -76,8 +82,13 @@ internal fun currentMarker(): String? =
 internal fun CountDownLatch.awaitOrFail(
     timeout: Duration = DEFAULT_CANCELLATION_CONTRACT_TIMEOUT,
 ) {
-    check(await(timeout.inWholeNanoseconds, TimeUnit.NANOSECONDS)) {
-        "Timed out waiting for test gate"
+    try {
+        check(await(timeout.inWholeNanoseconds, TimeUnit.NANOSECONDS)) {
+            "Timed out waiting for test gate"
+        }
+    } catch (e: InterruptedException) {
+        Thread.currentThread().interrupt()
+        throw e
     }
 }
 
@@ -462,8 +473,16 @@ internal suspend fun runCoroutineIsolationScenario(): ContextIsolationObservatio
 }
 
 internal fun coroutineIsolationExpectation(): ContextIsolationExpectation =
+    isolationExpectation(ContextPropagationBoundary.COROUTINE)
+
+internal fun reactorIsolationExpectation(): ContextIsolationExpectation =
+    isolationExpectation(ContextPropagationBoundary.REACTOR)
+
+private fun isolationExpectation(
+    boundary: ContextPropagationBoundary,
+): ContextIsolationExpectation =
     ContextIsolationExpectation(
-        boundary = ContextPropagationBoundary.COROUTINE,
+        boundary = boundary,
         samples = listOf(
             ContextIsolationSampleExpectation(
                 requestAlias = ContextRequestAlias.REQUEST_A,
@@ -492,36 +511,142 @@ internal fun coroutineIsolationExpectation(): ContextIsolationExpectation =
 internal fun runReactorScenario(
     scenario: ContextPropagationScenario,
 ): CapturedScenario {
-    check(scenario == ContextPropagationScenario.SUCCESS) {
-        "Task 2 supports only the success Reactor scenario"
+    check(scenario != ContextPropagationScenario.ISOLATION) {
+        "Isolation uses runReactorIsolationScenario"
     }
 
-    val scheduler = Schedulers.newSingle("otel-context-conformance")
+    val scheduler = Schedulers.newSingle("otel-reactor-single")
     val ledger = ConformanceEventLedger()
     val observations = mutableListOf<ContextMarkerObservation>()
-    var thrown: Throwable? = null
-    try {
-        try {
-            executeReactorSuccess(scheduler, observations, ledger)
-                .block(DEFAULT_CANCELLATION_CONTRACT_TIMEOUT.toJavaDuration())
-        } catch (e: Exception) {
-            thrown = e
+    val entered = CountDownLatch(1)
+    val finallyCompleted = CountDownLatch(1)
+    val actualSignal = AtomicReference<SignalType>()
+    val thrown = AtomicReference<Throwable>()
+    var disposable: Disposable? = null
+    return withReactorCleanup(
+        actions = listOf(
+            { disposable?.dispose() },
+            { awaitDisposedSubscription(disposable, finallyCompleted) },
+            { shutdownScheduler(scheduler) },
+        ),
+    ) {
+        disposable = executeReactorScenario(
+            scenario,
+            scheduler,
+            observations,
+            entered,
+            finallyCompleted,
+            actualSignal,
+            ledger,
+        ).subscribe(
+            {},
+            { failure -> thrown.compareAndSet(null, failure) },
+        )
+        entered.awaitOrFail(hangGuard)
+        if (scenario == ContextPropagationScenario.CANCELLATION) {
+            disposable.dispose()
         }
-        ledger.record(ContextRequestAlias.SINGLE, ConformanceEvent.TERMINAL_OBSERVED)
-        val workerMarker = Mono.fromCallable(::currentMarker)
-            .subscribeOn(scheduler)
-            .block(DEFAULT_CANCELLATION_CONTRACT_TIMEOUT.toJavaDuration())
+        finallyCompleted.awaitOrFail(hangGuard)
+        val workerMarker = workerProbe(scheduler)
         ledger.record(ContextRequestAlias.SINGLE, ConformanceEvent.CLEANUP_PROBED)
         ledger.assertSingleScenarioOrder()
-        return capturedSuccess(
+        capturedScenario(
             ContextPropagationBoundary.REACTOR,
             scenario,
             observations,
             workerMarker,
-            thrown,
+            terminalFor(actualSignal.get(), scenario),
+            thrown.get(),
         )
-    } finally {
-        shutdownScheduler(scheduler)
+    }
+}
+
+internal fun runReactorIsolationScenario(): ContextIsolationObservation {
+    val schedulerA = Schedulers.newSingle(reactorSchedulerPrefixA)
+    val schedulerB = Schedulers.newSingle(reactorSchedulerPrefixB)
+    val readyA = Sinks.one<Unit>()
+    val readyB = Sinks.one<Unit>()
+    val bothReady = Mono.`when`(readyA.asMono(), readyB.asMono()).cache()
+    val ledger = ConformanceEventLedger()
+    val markersA = mutableListOf<String?>()
+    val markersB = mutableListOf<String?>()
+    val finallyA = CountDownLatch(1)
+    val finallyB = CountDownLatch(1)
+    val firstFailure = AtomicReference<Throwable>()
+    var disposableA: Disposable? = null
+    var disposableB: Disposable? = null
+
+    return withReactorCleanup(
+        actions = listOf(
+            { readyA.tryEmitEmpty() },
+            { readyB.tryEmitEmpty() },
+            { disposableA?.dispose() },
+            { disposableB?.dispose() },
+            { awaitDisposedSubscription(disposableA, finallyA) },
+            { awaitDisposedSubscription(disposableB, finallyB) },
+            { shutdownScheduler(schedulerA) },
+            { shutdownScheduler(schedulerB) },
+        ),
+    ) {
+        disposableA = executeReactorIsolationParticipant(
+            alias = ContextRequestAlias.REQUEST_A,
+            marker = parentMarkerA,
+            observations = markersA,
+            scheduler = schedulerA,
+            schedulerPrefix = reactorSchedulerPrefixA,
+            ownReady = readyA,
+            bothReady = bothReady,
+            finallyCompleted = finallyA,
+            ledger = ledger,
+        ).subscribe(
+            {},
+            { failure -> recordReactorIsolationFailure(failure, readyA, firstFailure) },
+        )
+        disposableB = executeReactorIsolationParticipant(
+            alias = ContextRequestAlias.REQUEST_B,
+            marker = parentMarkerB,
+            observations = markersB,
+            scheduler = schedulerB,
+            schedulerPrefix = reactorSchedulerPrefixB,
+            ownReady = readyB,
+            bothReady = bothReady,
+            finallyCompleted = finallyB,
+            ledger = ledger,
+        ).subscribe(
+            {},
+            { failure -> recordReactorIsolationFailure(failure, readyB, firstFailure) },
+        )
+
+        finallyA.awaitOrFail(hangGuard)
+        finallyB.awaitOrFail(hangGuard)
+        firstFailure.get()?.let { throw it }
+
+        val probe = Mono.fromCallable(
+            otelContext(probeMarker).wrap(Callable(::currentMarker)),
+        )
+            .subscribeOn(schedulerA)
+            .block(hangGuard.toJavaDuration())
+        val workerMarkerA = workerProbe(schedulerA)
+        ledger.record(ContextRequestAlias.REQUEST_A, ConformanceEvent.CLEANUP_PROBED)
+        val workerMarkerB = workerProbe(schedulerB)
+        ledger.record(ContextRequestAlias.REQUEST_B, ConformanceEvent.CLEANUP_PROBED)
+        ledger.assertIsolationOrder()
+
+        ContextIsolationObservation(
+            boundary = ContextPropagationBoundary.REACTOR,
+            samples = listOf(
+                ContextIsolationSample(ContextRequestAlias.REQUEST_A, markersA.toList()),
+                ContextIsolationSample(ContextRequestAlias.REQUEST_B, markersB.toList()),
+                ContextIsolationSample(ContextRequestAlias.PROBE, listOf(probe)),
+            ),
+            cleanupProbes = listOf(
+                ContextCleanupProbe(ContextProbeLocation.CALLER, currentMarker()),
+                ContextCleanupProbe(
+                    ContextProbeLocation.WORKER,
+                    requireMatchingWorkerMarkers(workerMarkerA, workerMarkerB),
+                ),
+            ),
+        )
     }
 }
 
@@ -628,29 +753,118 @@ private suspend fun observeCoroutineBody(
     observations += markerObservation(ContextObservationPoint.BEFORE_TERMINAL)
 }
 
-private fun executeReactorSuccess(
+private fun executeReactorScenario(
+    scenario: ContextPropagationScenario,
     scheduler: Scheduler,
     observations: MutableList<ContextMarkerObservation>,
+    entered: CountDownLatch,
+    finallyCompleted: CountDownLatch,
+    actualSignal: AtomicReference<SignalType>,
     ledger: ConformanceEventLedger,
-): Mono<Unit> =
-    Mono.deferContextual { view ->
+): Mono<Unit> {
+    val publisher = Mono.deferContextual { view ->
         val captured = view.get<Context>(reactorOtelContextKey)
-        Mono.fromCallable(
+        val observed = Mono.fromCallable(
             captured.wrap(
                 Callable {
                     observations += markerObservation(ContextObservationPoint.BOUNDARY_ENTER)
                     observations += markerObservation(ContextObservationPoint.AFTER_SUSPENSION)
                     observations += markerObservation(ContextObservationPoint.BEFORE_TERMINAL)
+                    entered.countDown()
+                    if (scenario == ContextPropagationScenario.FAILURE) {
+                        error("synthetic failure")
+                    }
                     Unit
                 },
             ),
         )
+
+        when (scenario) {
+            ContextPropagationScenario.SUCCESS,
+            ContextPropagationScenario.FAILURE -> observed
+
+            ContextPropagationScenario.CANCELLATION,
+            ContextPropagationScenario.DEADLINE -> observed.then(Mono.never())
+
+            ContextPropagationScenario.ISOLATION ->
+                error("Isolation uses runReactorIsolationScenario")
+        }
     }
         .contextWrite { it.put(reactorOtelContextKey, otelContext(parentMarkerA)) }
         .subscribeOn(scheduler)
+
+    return (if (scenario == ContextPropagationScenario.DEADLINE) {
+        publisher.timeout(semanticDeadline.toJavaDuration(), scheduler)
+    } else {
+        publisher
+    })
         .doFinally {
+            actualSignal.compareAndSet(null, it)
+            ledger.record(ContextRequestAlias.SINGLE, ConformanceEvent.TERMINAL_OBSERVED)
             ledger.record(ContextRequestAlias.SINGLE, ConformanceEvent.FINALLY_COMPLETED)
+            finallyCompleted.countDown()
         }
+}
+
+private fun executeReactorIsolationParticipant(
+    alias: ContextRequestAlias,
+    marker: String,
+    observations: MutableList<String?>,
+    scheduler: Scheduler,
+    schedulerPrefix: String,
+    ownReady: Sinks.One<Unit>,
+    bothReady: Mono<Void>,
+    finallyCompleted: CountDownLatch,
+    ledger: ConformanceEventLedger,
+): Mono<Unit> =
+    Mono.deferContextual { view ->
+        val captured = view.get<Context>(reactorOtelContextKey)
+        val beforeGate = Mono.fromCallable(
+            captured.wrap(
+                Callable {
+                    checkSchedulerThread(schedulerPrefix)
+                    observations += currentMarker()
+                    ledger.record(alias, ConformanceEvent.READY)
+                    check(ownReady.tryEmitValue(Unit).isSuccess) {
+                        "Reactor ready signal was not accepted"
+                    }
+                    Unit
+                },
+            ),
+        )
+        val afterGate = Mono.fromCallable(
+            captured.wrap(
+                Callable {
+                    checkSchedulerThread(schedulerPrefix)
+                    ledger.record(alias, ConformanceEvent.RELEASED)
+                    observations += currentMarker()
+                    observations += currentMarker()
+                    Unit
+                },
+            ),
+        )
+
+        beforeGate
+            .then(bothReady)
+            .publishOn(scheduler)
+            .then(afterGate)
+    }
+        .contextWrite { it.put(reactorOtelContextKey, otelContext(marker)) }
+        .subscribeOn(scheduler)
+        .doFinally {
+            ledger.record(alias, ConformanceEvent.TERMINAL_OBSERVED)
+            ledger.record(alias, ConformanceEvent.FINALLY_COMPLETED)
+            finallyCompleted.countDown()
+        }
+
+internal fun recordReactorIsolationFailure(
+    failure: Throwable,
+    ownReady: Sinks.One<Unit>,
+    firstFailure: AtomicReference<Throwable>,
+) {
+    firstFailure.compareAndSet(null, failure)
+    ownReady.tryEmitError(failure)
+}
 
 private fun executeExecutorSuccess(
     executor: ExecutorService,
@@ -856,6 +1070,120 @@ private fun terminalFor(scenario: ContextPropagationScenario): ContextPropagatio
             error("Isolation uses coroutineIsolationExpectation")
     }
 
+private fun terminalFor(
+    signal: SignalType?,
+    scenario: ContextPropagationScenario,
+): ContextPropagationTerminal =
+    when (signal) {
+        SignalType.ON_COMPLETE -> {
+            check(scenario == ContextPropagationScenario.SUCCESS) {
+                "Unexpected Reactor completion signal"
+            }
+            ContextPropagationTerminal.SUCCESS
+        }
+
+        SignalType.ON_ERROR -> when (scenario) {
+            ContextPropagationScenario.FAILURE -> ContextPropagationTerminal.FAILURE
+            ContextPropagationScenario.DEADLINE -> ContextPropagationTerminal.DEADLINE_EXCEEDED
+            else -> error("Unexpected Reactor error signal")
+        }
+
+        SignalType.CANCEL -> {
+            check(scenario == ContextPropagationScenario.CANCELLATION) {
+                "Unexpected Reactor cancellation signal"
+            }
+            ContextPropagationTerminal.CANCELLATION
+        }
+
+        else -> error("Reactor terminal signal was not observed")
+    }
+
+private fun workerProbe(scheduler: Scheduler): String? =
+    Mono.fromCallable(::currentMarker)
+        .subscribeOn(scheduler)
+        .block(hangGuard.toJavaDuration())
+
+private fun checkSchedulerThread(expectedPrefix: String) {
+    check(Thread.currentThread().name.startsWith(expectedPrefix)) {
+        "Reactor continuation escaped its test-owned scheduler"
+    }
+}
+
+private fun requireMatchingWorkerMarkers(
+    markerA: String?,
+    markerB: String?,
+): String? {
+    check(markerA == null && markerB == null) {
+        "Reactor worker context was not restored"
+    }
+    return null
+}
+
+private fun awaitDisposedSubscription(
+    disposable: Disposable?,
+    finallyCompleted: CountDownLatch,
+) {
+    if (disposable != null) {
+        finallyCompleted.awaitOrFail(hangGuard)
+    }
+}
+
+internal fun <T> withReactorCleanup(
+    actions: List<() -> Unit>,
+    block: () -> T,
+): T {
+    var primaryFailure: Throwable? = null
+    try {
+        return block()
+    } catch (e: InterruptedException) {
+        primaryFailure = e
+        Thread.currentThread().interrupt()
+        throw e
+    } catch (e: Exception) {
+        primaryFailure = e
+        throw e
+    } catch (e: Error) {
+        primaryFailure = e
+        throw e
+    } finally {
+        var restoreInterrupt = Thread.interrupted()
+        var aggregatedFailure = primaryFailure
+        actions.forEach { cleanup ->
+            val cleanupFailure = try {
+                cleanup()
+                null
+            } catch (e: InterruptedException) {
+                restoreInterrupt = true
+                Thread.currentThread().interrupt()
+                e
+            } catch (e: Exception) {
+                e
+            } catch (e: Error) {
+                e
+            }
+
+            cleanupFailure?.let { failure ->
+                val aggregate = aggregatedFailure
+                if (aggregate == null) {
+                    aggregatedFailure = failure
+                } else if (aggregate !== failure && aggregate.suppressed.none { it === failure }) {
+                    aggregate.addSuppressed(failure)
+                }
+            }
+        }
+
+        try {
+            if (primaryFailure == null) {
+                aggregatedFailure?.let { throw it }
+            }
+        } finally {
+            if (restoreInterrupt) {
+                Thread.currentThread().interrupt()
+            }
+        }
+    }
+}
+
 private fun capturedScenario(
     boundary: ContextPropagationBoundary,
     scenario: ContextPropagationScenario,
@@ -897,6 +1225,6 @@ private fun capturedSuccess(
 
 private fun shutdownScheduler(scheduler: Scheduler) {
     scheduler.disposeGracefully()
-        .block(DEFAULT_CANCELLATION_CONTRACT_TIMEOUT.toJavaDuration())
+        .block(hangGuard.toJavaDuration())
     check(scheduler.isDisposed) { "Test scheduler did not terminate" }
 }
