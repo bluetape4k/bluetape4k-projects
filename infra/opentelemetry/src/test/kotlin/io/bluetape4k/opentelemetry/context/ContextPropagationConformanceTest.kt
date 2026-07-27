@@ -328,6 +328,56 @@ class ContextPropagationConformanceTest {
     }
 
     @Test
+    fun `executor failure propagates and restores context`() {
+        val captured = runExecutorScenario(ContextPropagationScenario.FAILURE)
+        captured.assertThrownExactly<IllegalStateException>()
+        assertContextPropagationConformance(
+            captured.observation,
+            propagationExpectation(
+                ContextPropagationBoundary.TASK_EXECUTOR,
+                ContextPropagationScenario.FAILURE,
+                ContextPropagationTerminal.FAILURE,
+            ),
+        )
+    }
+
+    @Test
+    fun `executor running cancellation propagates and restores context`() {
+        val captured = runExecutorScenario(ContextPropagationScenario.CANCELLATION)
+        captured.assertThrownExactly<CancellationException>()
+        assertContextPropagationConformance(
+            captured.observation,
+            propagationExpectation(
+                ContextPropagationBoundary.TASK_EXECUTOR,
+                ContextPropagationScenario.CANCELLATION,
+                ContextPropagationTerminal.CANCELLATION,
+            ),
+        )
+    }
+
+    @Test
+    fun `executor deadline cancels running work and restores worker context`() {
+        val captured = runExecutorScenario(ContextPropagationScenario.DEADLINE)
+        captured.assertThrownExactly<TimeoutException>()
+        assertContextPropagationConformance(
+            captured.observation,
+            propagationExpectation(
+                ContextPropagationBoundary.TASK_EXECUTOR,
+                ContextPropagationScenario.DEADLINE,
+                ContextPropagationTerminal.DEADLINE_EXCEEDED,
+            ),
+        )
+    }
+
+    @Test
+    fun `executor reuses one worker without leaking request context`() {
+        assertContextIsolation(
+            runExecutorIsolationScenario(),
+            executorIsolationExpectation(),
+        )
+    }
+
+    @Test
     fun `interrupted executor teardown forces shutdown and restores interrupt status`() {
         val executor = InterruptingExecutorService()
 

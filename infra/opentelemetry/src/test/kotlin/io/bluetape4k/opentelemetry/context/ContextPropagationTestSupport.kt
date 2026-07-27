@@ -478,6 +478,9 @@ internal fun coroutineIsolationExpectation(): ContextIsolationExpectation =
 internal fun reactorIsolationExpectation(): ContextIsolationExpectation =
     isolationExpectation(ContextPropagationBoundary.REACTOR)
 
+internal fun executorIsolationExpectation(): ContextIsolationExpectation =
+    isolationExpectation(ContextPropagationBoundary.TASK_EXECUTOR)
+
 private fun isolationExpectation(
     boundary: ContextPropagationBoundary,
 ): ContextIsolationExpectation =
@@ -653,33 +656,172 @@ internal fun runReactorIsolationScenario(): ContextIsolationObservation {
 internal fun runExecutorScenario(
     scenario: ContextPropagationScenario,
 ): CapturedScenario {
-    check(scenario == ContextPropagationScenario.SUCCESS) {
-        "Task 2 supports only the success executor scenario"
+    check(scenario != ContextPropagationScenario.ISOLATION) {
+        "Isolation uses runExecutorIsolationScenario"
     }
 
     val executor = Executors.newSingleThreadExecutor()
     val ledger = ConformanceEventLedger()
     val observations = mutableListOf<ContextMarkerObservation>()
+    val entered = CountDownLatch(1)
+    val release = CountDownLatch(1)
+    val finallyCompleted = CountDownLatch(1)
     var future: Future<Unit>? = null
     return withExecutorCleanup(
         executor = executor,
         cancel = {
             future?.cancel(true)
+            release.countDown()
         },
     ) {
-        future = executeExecutorSuccess(executor, observations, ledger)
-        val thrown = captureExecutorTerminal(future, DEFAULT_CANCELLATION_CONTRACT_TIMEOUT)
+        val submitted = submitExecutorScenario(
+            executor,
+            scenario,
+            observations,
+            entered,
+            release,
+            finallyCompleted,
+        )
+        future = submitted
+        entered.awaitOrFail(hangGuard)
+        val thrown = when (scenario) {
+            ContextPropagationScenario.SUCCESS,
+            ContextPropagationScenario.FAILURE -> captureExecutorTerminal(submitted, hangGuard)
+
+            ContextPropagationScenario.CANCELLATION -> {
+                check(submitted.cancel(true)) {
+                    "Running executor task was not cancelled"
+                }
+                captureExecutorTerminal(submitted, hangGuard)
+            }
+
+            ContextPropagationScenario.DEADLINE -> {
+                val timeout = try {
+                    submitted.getWithin(semanticDeadline)
+                    error("Executor deadline did not expire")
+                } catch (e: TimeoutException) {
+                    e
+                }
+                check(submitted.cancel(true)) {
+                    "Timed out executor task was not cancelled"
+                }
+                timeout
+            }
+
+            ContextPropagationScenario.ISOLATION ->
+                error("Isolation uses runExecutorIsolationScenario")
+        }
         ledger.record(ContextRequestAlias.SINGLE, ConformanceEvent.TERMINAL_OBSERVED)
-        val workerMarker = executor.submit(Callable(::currentMarker))
-            .getWithin(DEFAULT_CANCELLATION_CONTRACT_TIMEOUT)
+        finallyCompleted.awaitOrFail(hangGuard)
+        ledger.record(ContextRequestAlias.SINGLE, ConformanceEvent.FINALLY_COMPLETED)
+        val workerMarker = executorWorkerProbe(executor)
         ledger.record(ContextRequestAlias.SINGLE, ConformanceEvent.CLEANUP_PROBED)
         ledger.assertSingleScenarioOrder()
-        capturedSuccess(
+        capturedScenario(
             ContextPropagationBoundary.TASK_EXECUTOR,
             scenario,
             observations,
             workerMarker,
+            terminalFor(scenario),
             thrown,
+        )
+    }
+}
+
+internal fun runExecutorIsolationScenario(): ContextIsolationObservation {
+    val executor = Executors.newSingleThreadExecutor()
+    val ledger = ConformanceEventLedger()
+    val workerId = AtomicLong()
+    val markersA = mutableListOf<String?>()
+    val markersB = mutableListOf<String?>()
+    val finallyA = CountDownLatch(1)
+    val finallyB = CountDownLatch(1)
+    var outstanding: Future<Unit>? = null
+
+    return withExecutorCleanup(
+        executor = executor,
+        cancel = {
+            outstanding?.cancel(true)
+        },
+    ) {
+        val readyA = submitExecutorIsolationReady(
+            executor,
+            ContextRequestAlias.REQUEST_A,
+            parentMarkerA,
+            markersA,
+            workerId,
+            ledger,
+        )
+        outstanding = readyA
+        captureExecutorTerminal(readyA, hangGuard)?.let { throw it }
+        val readyB = submitExecutorIsolationReady(
+            executor,
+            ContextRequestAlias.REQUEST_B,
+            parentMarkerB,
+            markersB,
+            workerId,
+            ledger,
+        )
+        outstanding = readyB
+        captureExecutorTerminal(readyB, hangGuard)?.let { throw it }
+
+        val terminalA = submitExecutorIsolationTerminal(
+            executor,
+            ContextRequestAlias.REQUEST_A,
+            parentMarkerA,
+            markersA,
+            workerId,
+            finallyA,
+            ledger,
+        )
+        outstanding = terminalA
+        captureExecutorTerminal(terminalA, hangGuard)?.let { throw it }
+        ledger.record(ContextRequestAlias.REQUEST_A, ConformanceEvent.TERMINAL_OBSERVED)
+        finallyA.awaitOrFail(hangGuard)
+        ledger.record(ContextRequestAlias.REQUEST_A, ConformanceEvent.FINALLY_COMPLETED)
+        val workerMarkerA = executorWorkerProbe(executor, workerId)
+        ledger.record(ContextRequestAlias.REQUEST_A, ConformanceEvent.CLEANUP_PROBED)
+
+        val terminalB = submitExecutorIsolationTerminal(
+            executor,
+            ContextRequestAlias.REQUEST_B,
+            parentMarkerB,
+            markersB,
+            workerId,
+            finallyB,
+            ledger,
+        )
+        outstanding = terminalB
+        captureExecutorTerminal(terminalB, hangGuard)?.let { throw it }
+        ledger.record(ContextRequestAlias.REQUEST_B, ConformanceEvent.TERMINAL_OBSERVED)
+        finallyB.awaitOrFail(hangGuard)
+        ledger.record(ContextRequestAlias.REQUEST_B, ConformanceEvent.FINALLY_COMPLETED)
+        val probe = executor.submit(
+            otelContext(probeMarker).wrap(
+                Callable {
+                    assertExecutorWorker(workerId)
+                    currentMarker()
+                },
+            ),
+        ).getWithin(hangGuard)
+        val workerMarkerB = executorWorkerProbe(executor, workerId)
+        ledger.record(ContextRequestAlias.REQUEST_B, ConformanceEvent.CLEANUP_PROBED)
+        check(workerMarkerA == null && workerMarkerB == null) {
+            "Executor worker context was not restored"
+        }
+        ledger.assertIsolationOrder()
+
+        ContextIsolationObservation(
+            boundary = ContextPropagationBoundary.TASK_EXECUTOR,
+            samples = listOf(
+                ContextIsolationSample(ContextRequestAlias.REQUEST_A, markersA.toList()),
+                ContextIsolationSample(ContextRequestAlias.REQUEST_B, markersB.toList()),
+                ContextIsolationSample(ContextRequestAlias.PROBE, listOf(probe)),
+            ),
+            cleanupProbes = listOf(
+                ContextCleanupProbe(ContextProbeLocation.CALLER, currentMarker()),
+                ContextCleanupProbe(ContextProbeLocation.WORKER, workerMarkerB),
+            ),
         )
     }
 }
@@ -866,10 +1008,13 @@ internal fun recordReactorIsolationFailure(
     ownReady.tryEmitError(failure)
 }
 
-private fun executeExecutorSuccess(
+private fun submitExecutorScenario(
     executor: ExecutorService,
+    scenario: ContextPropagationScenario,
     observations: MutableList<ContextMarkerObservation>,
-    ledger: ConformanceEventLedger,
+    entered: CountDownLatch,
+    release: CountDownLatch,
+    finallyCompleted: CountDownLatch,
 ): Future<Unit> =
     executor.submit(
         otelContext(parentMarkerA).wrap(
@@ -878,13 +1023,97 @@ private fun executeExecutorSuccess(
                     observations += markerObservation(ContextObservationPoint.BOUNDARY_ENTER)
                     observations += markerObservation(ContextObservationPoint.AFTER_SUSPENSION)
                     observations += markerObservation(ContextObservationPoint.BEFORE_TERMINAL)
-                    Unit
+                    entered.countDown()
+                    when (scenario) {
+                        ContextPropagationScenario.SUCCESS -> Unit
+                        ContextPropagationScenario.FAILURE -> error("synthetic failure")
+                        ContextPropagationScenario.CANCELLATION,
+                        ContextPropagationScenario.DEADLINE -> awaitExecutorInterrupt(release)
+
+                        ContextPropagationScenario.ISOLATION ->
+                            error("Isolation uses runExecutorIsolationScenario")
+                    }
                 } finally {
-                    ledger.record(ContextRequestAlias.SINGLE, ConformanceEvent.FINALLY_COMPLETED)
+                    entered.countDown()
+                    finallyCompleted.countDown()
                 }
             },
         ),
     )
+
+private fun submitExecutorIsolationReady(
+    executor: ExecutorService,
+    alias: ContextRequestAlias,
+    marker: String,
+    observations: MutableList<String?>,
+    workerId: AtomicLong,
+    ledger: ConformanceEventLedger,
+): Future<Unit> =
+    executor.submit(
+        otelContext(marker).wrap(
+            Callable {
+                assertExecutorWorker(workerId)
+                observations += currentMarker()
+                ledger.record(alias, ConformanceEvent.READY)
+                Unit
+            },
+        ),
+    )
+
+private fun submitExecutorIsolationTerminal(
+    executor: ExecutorService,
+    alias: ContextRequestAlias,
+    marker: String,
+    observations: MutableList<String?>,
+    workerId: AtomicLong,
+    finallyCompleted: CountDownLatch,
+    ledger: ConformanceEventLedger,
+): Future<Unit> =
+    executor.submit(
+        otelContext(marker).wrap(
+            Callable {
+                try {
+                    assertExecutorWorker(workerId)
+                    ledger.record(alias, ConformanceEvent.RELEASED)
+                    observations += currentMarker()
+                    observations += currentMarker()
+                    Unit
+                } finally {
+                    finallyCompleted.countDown()
+                }
+            },
+        ),
+    )
+
+private fun awaitExecutorInterrupt(release: CountDownLatch) {
+    try {
+        release.awaitOrFail(hangGuard)
+        error("Executor task was released without interruption")
+    } catch (e: InterruptedException) {
+        Thread.currentThread().interrupt()
+    }
+}
+
+private fun assertExecutorWorker(workerId: AtomicLong) {
+    val current = Thread.currentThread().threadId()
+    val expected = workerId.updateAndGet { existing ->
+        if (existing == 0L) current else existing
+    }
+    check(expected == current) {
+        "Executor isolation did not reuse the same worker"
+    }
+}
+
+private fun executorWorkerProbe(
+    executor: ExecutorService,
+    workerId: AtomicLong? = null,
+): String? =
+    executor.submit(
+        Callable {
+            workerId?.let(::assertExecutorWorker)
+            currentMarker()
+        },
+    ).getWithin(hangGuard)
 
 private fun markerObservation(point: ContextObservationPoint): ContextMarkerObservation =
     ContextMarkerObservation(point, currentMarker())
@@ -1205,22 +1434,6 @@ private fun capturedScenario(
             terminal = terminal,
         ),
         thrown = thrown,
-    )
-
-private fun capturedSuccess(
-    boundary: ContextPropagationBoundary,
-    scenario: ContextPropagationScenario,
-    observations: List<ContextMarkerObservation>,
-    workerMarker: String?,
-    thrown: Throwable?,
-): CapturedScenario =
-    capturedScenario(
-        boundary,
-        scenario,
-        observations,
-        workerMarker,
-        ContextPropagationTerminal.SUCCESS,
-        thrown,
     )
 
 private fun shutdownScheduler(scheduler: Scheduler) {
