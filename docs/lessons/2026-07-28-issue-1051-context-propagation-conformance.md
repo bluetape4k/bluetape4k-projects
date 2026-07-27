@@ -29,8 +29,11 @@ redacted 진단만 수행합니다.
 `CancellationException`과 `TimeoutCancellationException`은 같은 cleanup 경로를 통과해도 의미가 다릅니다.
 따라서 cancellation 시나리오는 실제 child/request cancellation을 발생시키고, deadline 시나리오는
 250ms `withTimeout`을 실행해 각각 `CANCELLATION`과 `DEADLINE_EXCEEDED`로 검증했습니다. 모든 semantic
-deadline은 5초 hang guard보다 짧고, cleanup은 `NonCancellable` 영역에서 release, cancel, join 순서로
-수행됩니다.
+deadline은 5초 hang guard보다 짧습니다. `NonCancellable` 영역의 release, cancel, join 순서는 coroutine,
+Spring, Ktor처럼 child/request job을 소유하는 경계에 적용합니다.
+Reactor는 subscription dispose와 scheduler shutdown을 모두 시도한 뒤 interrupt를 복원하고, task executor는
+future cancel과 executor shutdown/termination을 별도로 보장합니다. 서로 다른 lifecycle primitive를
+`NonCancellable` cleanup 하나로 일반화하지 않습니다.
 
 ## 결정적인 isolation barrier
 

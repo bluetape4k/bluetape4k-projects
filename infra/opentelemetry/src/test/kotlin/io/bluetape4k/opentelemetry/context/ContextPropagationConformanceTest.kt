@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration
 
@@ -288,6 +289,7 @@ class ContextPropagationConformanceTest {
     fun `reactor cleanup preserves interruption and attempts remaining actions`() {
         val interruption = InterruptedException("synthetic cleanup interruption")
         val attempted = mutableListOf<String>()
+        val interruptibleCleanupCompleted = AtomicBoolean()
 
         try {
             val thrown = assertFailsWith<InterruptedException> {
@@ -298,16 +300,17 @@ class ContextPropagationConformanceTest {
                             throw interruption
                         },
                         {
+                            CountDownLatch(0).await()
+                            interruptibleCleanupCompleted.set(true)
                             attempted += "remaining"
                         },
                     ),
-                ) {
-                    Unit
-                }
+                ) {}
             }
 
             (thrown === interruption).shouldBeTrue()
             check(attempted == listOf("interrupted", "remaining"))
+            interruptibleCleanupCompleted.get().shouldBeTrue()
             Thread.currentThread().isInterrupted.shouldBeTrue()
         } finally {
             Thread.interrupted()

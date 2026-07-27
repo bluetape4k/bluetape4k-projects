@@ -4,6 +4,12 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.junit5.output.InMemoryLogbackAppender
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.asContextElement
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
@@ -404,31 +410,92 @@ class ContextPropagationConformanceTest {
     }
 
     @Test
+    fun `snapshot string representations redact marker values and control characters`() {
+        val canary = "secret-parent\r\nforged-log"
+        val snapshots = listOf(
+            ContextMarkerObservation(ContextObservationPoint.BOUNDARY_ENTER, canary),
+            ContextMarkerExpectation(ContextObservationPoint.BOUNDARY_ENTER, canary),
+            ContextCleanupProbe(ContextProbeLocation.CALLER, canary),
+            ContextCleanupExpectation(ContextProbeLocation.CALLER, canary),
+            ContextIsolationSample(ContextRequestAlias.REQUEST_A, listOf(canary)),
+            ContextIsolationSampleExpectation(
+                requestAlias = ContextRequestAlias.REQUEST_A,
+                mode = ContextMarkerExpectationMode.NOT_IN,
+                expectedMarker = canary,
+                forbiddenMarkers = listOf(canary),
+            ),
+            propagationObservation().copy(
+                markerObservations = listOf(
+                    ContextMarkerObservation(ContextObservationPoint.BOUNDARY_ENTER, canary),
+                ),
+                cleanupProbes = listOf(ContextCleanupProbe(ContextProbeLocation.CALLER, canary)),
+            ),
+            propagationExpectation().copy(
+                markerExpectations = listOf(
+                    ContextMarkerExpectation(ContextObservationPoint.BOUNDARY_ENTER, canary),
+                ),
+                cleanupExpectations = listOf(ContextCleanupExpectation(ContextProbeLocation.CALLER, canary)),
+            ),
+            isolationObservation().copy(
+                samples = listOf(ContextIsolationSample(ContextRequestAlias.REQUEST_A, listOf(canary))),
+                cleanupProbes = listOf(ContextCleanupProbe(ContextProbeLocation.REQUEST, canary)),
+            ),
+            isolationExpectation(exactExpectation()).copy(
+                samples = listOf(
+                    ContextIsolationSampleExpectation(
+                        requestAlias = ContextRequestAlias.REQUEST_A,
+                        mode = ContextMarkerExpectationMode.NOT_IN,
+                        expectedMarker = canary,
+                        forbiddenMarkers = listOf(canary),
+                    ),
+                ),
+                cleanupExpectations = listOf(ContextCleanupExpectation(ContextProbeLocation.REQUEST, canary)),
+            ),
+        )
+
+        snapshots.forEach { snapshot ->
+            val rendered = snapshot.toString()
+            rendered shouldNotContain "secret-parent"
+            rendered shouldNotContain "forged-log"
+            rendered shouldNotContain "\r"
+            rendered shouldNotContain "\n"
+            check("values redacted" in rendered)
+        }
+    }
+
+    @Test
     fun `README propagation example compiles`() {
         val marker = "synthetic-parent"
-        val observation = ContextPropagationObservation(
-            boundary = ContextPropagationBoundary.COROUTINE,
-            scenario = ContextPropagationScenario.SUCCESS,
-            requestAlias = ContextRequestAlias.SINGLE,
-            markerObservations = listOf(
-                ContextMarkerObservation(
+        val markerContext = ThreadLocal<String?>()
+        val observation = runBlocking {
+            val observed = mutableListOf<ContextMarkerObservation>()
+            withContext(markerContext.asContextElement(marker)) {
+                observed += ContextMarkerObservation(
                     ContextObservationPoint.BOUNDARY_ENTER,
-                    marker,
-                ),
-                ContextMarkerObservation(
+                    markerContext.get(),
+                )
+                yield()
+                observed += ContextMarkerObservation(
                     ContextObservationPoint.AFTER_SUSPENSION,
-                    marker,
-                ),
-                ContextMarkerObservation(
+                    markerContext.get(),
+                )
+                observed += ContextMarkerObservation(
                     ContextObservationPoint.BEFORE_TERMINAL,
-                    marker,
+                    markerContext.get(),
+                )
+            }
+            ContextPropagationObservation(
+                boundary = ContextPropagationBoundary.COROUTINE,
+                scenario = ContextPropagationScenario.SUCCESS,
+                requestAlias = ContextRequestAlias.SINGLE,
+                markerObservations = observed,
+                cleanupProbes = listOf(
+                    ContextCleanupProbe(ContextProbeLocation.CALLER, markerContext.get()),
                 ),
-            ),
-            cleanupProbes = listOf(
-                ContextCleanupProbe(ContextProbeLocation.CALLER, null),
-            ),
-            terminal = ContextPropagationTerminal.SUCCESS,
-        )
+                terminal = ContextPropagationTerminal.SUCCESS,
+            )
+        }
+        val expectedMarker = "synthetic-parent"
         val expectation = ContextPropagationExpectation(
             boundary = ContextPropagationBoundary.COROUTINE,
             scenario = ContextPropagationScenario.SUCCESS,
@@ -436,15 +503,15 @@ class ContextPropagationConformanceTest {
             markerExpectations = listOf(
                 ContextMarkerExpectation(
                     ContextObservationPoint.BOUNDARY_ENTER,
-                    marker,
+                    expectedMarker,
                 ),
                 ContextMarkerExpectation(
                     ContextObservationPoint.AFTER_SUSPENSION,
-                    marker,
+                    expectedMarker,
                 ),
                 ContextMarkerExpectation(
                     ContextObservationPoint.BEFORE_TERMINAL,
-                    marker,
+                    expectedMarker,
                 ),
             ),
             cleanupExpectations = listOf(
@@ -458,28 +525,49 @@ class ContextPropagationConformanceTest {
 
     @Test
     fun `README isolation example compiles`() {
-        val isolationObservation = ContextIsolationObservation(
-            boundary = ContextPropagationBoundary.KTOR_REQUEST,
-            samples = listOf(
-                ContextIsolationSample(
-                    ContextRequestAlias.REQUEST_A,
-                    listOf("synthetic-parent-A", "synthetic-parent-A"),
+        val markerContext = ThreadLocal<String?>()
+        val isolationObservation = runBlocking {
+            val readyA = CompletableDeferred<Unit>()
+            val readyB = CompletableDeferred<Unit>()
+
+            suspend fun observe(
+                alias: ContextRequestAlias,
+                marker: String,
+                ownReady: CompletableDeferred<Unit>,
+                peerReady: CompletableDeferred<Unit>,
+            ): ContextIsolationSample =
+                withContext(markerContext.asContextElement(marker)) {
+                    ownReady.complete(Unit)
+                    peerReady.await()
+                    val observed = mutableListOf(markerContext.get())
+                    yield()
+                    observed += markerContext.get()
+                    ContextIsolationSample(alias, observed)
+                }
+
+            val sampleA = async {
+                observe(ContextRequestAlias.REQUEST_A, "synthetic-parent-A", readyA, readyB)
+            }
+            val sampleB = async {
+                observe(ContextRequestAlias.REQUEST_B, "synthetic-parent-B", readyB, readyA)
+            }
+            val probe = withContext(markerContext.asContextElement("synthetic-probe")) {
+                markerContext.get()
+            }
+            ContextIsolationObservation(
+                boundary = ContextPropagationBoundary.COROUTINE,
+                samples = listOf(
+                    sampleA.await(),
+                    sampleB.await(),
+                    ContextIsolationSample(ContextRequestAlias.PROBE, listOf(probe)),
                 ),
-                ContextIsolationSample(
-                    ContextRequestAlias.REQUEST_B,
-                    listOf("synthetic-parent-B", "synthetic-parent-B"),
+                cleanupProbes = listOf(
+                    ContextCleanupProbe(ContextProbeLocation.CALLER, markerContext.get()),
                 ),
-                ContextIsolationSample(
-                    ContextRequestAlias.PROBE,
-                    listOf("synthetic-probe"),
-                ),
-            ),
-            cleanupProbes = listOf(
-                ContextCleanupProbe(ContextProbeLocation.REQUEST, null),
-            ),
-        )
+            )
+        }
         val isolationExpectation = ContextIsolationExpectation(
-            boundary = ContextPropagationBoundary.KTOR_REQUEST,
+            boundary = ContextPropagationBoundary.COROUTINE,
             samples = listOf(
                 ContextIsolationSampleExpectation(
                     requestAlias = ContextRequestAlias.REQUEST_A,
@@ -503,7 +591,7 @@ class ContextPropagationConformanceTest {
                 ),
             ),
             cleanupExpectations = listOf(
-                ContextCleanupExpectation(ContextProbeLocation.REQUEST, null),
+                ContextCleanupExpectation(ContextProbeLocation.CALLER, null),
             ),
         )
 
