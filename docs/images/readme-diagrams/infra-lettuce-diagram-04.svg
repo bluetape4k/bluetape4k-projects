@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="900" viewBox="0 0 1900 900" role="img"
+     aria-label="Lettuce Redis synchronizer selection and state model"
+     data-intent="Help callers choose distributed semaphore, expirable semaphore, or count-down latch and understand their shared safety boundaries."
+     data-evidence="infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer;infra/lettuce/README.md">
+  <title>Lettuce Redis Synchronizers</title>
+  <desc>Three synchronizer families expose blocking, asynchronous, and suspending APIs over same-slot atomic Lua state.</desc>
+  <defs>
+    <filter id="shadow" x="-8%" y="-10%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#3f7d9c"/>
+    </marker>
+    <style>
+      svg { font-family: "Comic Mono", ui-monospace, monospace; }
+      .canvas { fill: #f8fafc; }
+      .frame { fill: #fff; stroke: #cbd5e1; stroke-width: 2; filter: url(#shadow); }
+      .title { font-family: "Architects Daughter", cursive; font-size: 48px; fill: #0f172a; }
+      .subtitle { font-size: 17px; fill: #475569; }
+      .card { stroke-width: 2; filter: url(#shadow); }
+      .cardTitle { font-family: "Architects Daughter", cursive; font-size: 27px; fill: #172033; }
+      .detail { font-size: 16px; fill: #475569; }
+      .small { font-size: 14px; fill: #64748b; }
+      .route { fill: none; stroke: #3f7d9c; stroke-width: 3; stroke-linecap: round; }
+    </style>
+  </defs>
+  <rect class="canvas" width="1900" height="900"/>
+  <rect class="frame" x="32" y="28" width="1836" height="840" rx="18"/>
+  <text class="title" x="80" y="92">Lettuce Redis Synchronizers</text>
+  <text class="subtitle" x="84" y="126">Choose by capacity, expiry, or completion semantics; every mutation is generation-bound and request-idempotent.</text>
+
+  <g id="semaphore">
+    <rect class="card" x="80" y="190" width="500" height="270" rx="14" fill="#eff6ff" stroke="#3f7d9c"/>
+    <text class="cardTitle" x="120" y="238">Distributed Semaphore</text>
+    <text class="detail" x="120" y="292">Fixed capacity, explicit release</text>
+    <text class="detail" x="120" y="332">PermitHandle + request reconciliation</text>
+    <text class="small" x="120" y="382">Use for bounded concurrency when the caller</text>
+    <text class="small" x="120" y="406">can always release a successful allocation.</text>
+  </g>
+
+  <g id="expirable">
+    <rect class="card" x="700" y="190" width="500" height="270" rx="14" fill="#f0fdf4" stroke="#6e8f4f"/>
+    <text class="cardTitle" x="740" y="238">Expirable Semaphore</text>
+    <text class="detail" x="740" y="292">One Redis-time deadline per permit unit</text>
+    <text class="detail" x="740" y="332">Atomic whole-allocation renew / release</text>
+    <text class="small" x="740" y="382">Use when crashed callers must eventually</text>
+    <text class="small" x="740" y="406">return capacity without a watchdog.</text>
+  </g>
+
+  <g id="latch">
+    <rect class="card" x="1320" y="190" width="500" height="270" rx="14" fill="#fff7ed" stroke="#a2743d"/>
+    <text class="cardTitle" x="1360" y="238">Count-Down Latch</text>
+    <text class="detail" x="1360" y="292">Monotonic generation + count floor zero</text>
+    <text class="detail" x="1360" y="332">Bounded cancellable await</text>
+    <text class="small" x="1360" y="382">Use for one lifecycle whose participants</text>
+    <text class="small" x="1360" y="406">wait until a known count reaches zero.</text>
+  </g>
+
+  <g id="runtime">
+    <rect class="card" x="360" y="610" width="1180" height="170" rx="14" fill="#f5f3ff" stroke="#7c6ac7"/>
+    <text class="cardTitle" x="405" y="658">Shared execution and safety boundary</text>
+    <text class="detail" x="405" y="708">blocking + CompletableFuture + suspend • EVALSHA/NOSCRIPT • typed closed/failure outcomes</text>
+    <text class="detail" x="405" y="746">same-slot validation from codec wire bytes • redacted identities • Redis-authoritative Lua state</text>
+  </g>
+
+  <path class="route" data-from="semaphore" data-to="runtime" d="M 330 460 V 490 L 640 580 V 610" marker-end="url(#arrow)"/>
+  <path class="route" data-from="expirable" data-to="runtime" d="M 950 460 V 610" marker-end="url(#arrow)"/>
+  <path class="route" data-from="latch" data-to="runtime" d="M 1570 460 V 490 L 1260 580 V 610" marker-end="url(#arrow)"/>
+</svg>

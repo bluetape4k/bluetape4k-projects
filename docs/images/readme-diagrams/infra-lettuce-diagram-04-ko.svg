@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="900" viewBox="0 0 1900 900" role="img"
+     aria-label="Lettuce Redis 동기화 primitive 선택과 상태 모델"
+     data-intent="분산 semaphore, 만료형 semaphore, count-down latch 선택 기준과 공통 안전 경계를 설명한다."
+     data-evidence="infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer;infra/lettuce/README.ko.md">
+  <title>Lettuce Redis 동기화 Primitive</title>
+  <desc>세 동기화 패밀리는 same-slot 원자 Lua 상태 위에 blocking, async, suspend API를 제공한다.</desc>
+  <defs>
+    <filter id="shadow" x="-8%" y="-10%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#3f7d9c"/>
+    </marker>
+    <style>
+      svg { font-family: "Apple SD Gothic Neo", "Noto Sans CJK KR", ui-sans-serif, sans-serif; }
+      .canvas { fill: #f8fafc; }
+      .frame { fill: #fff; stroke: #cbd5e1; stroke-width: 2; filter: url(#shadow); }
+      .title { font-size: 48px; font-weight: 700; fill: #0f172a; }
+      .subtitle { font-size: 17px; fill: #475569; }
+      .card { stroke-width: 2; filter: url(#shadow); }
+      .cardTitle { font-size: 27px; font-weight: 700; fill: #172033; }
+      .detail { font-size: 16px; fill: #475569; }
+      .small { font-size: 14px; fill: #64748b; }
+      .route { fill: none; stroke: #3f7d9c; stroke-width: 3; stroke-linecap: round; }
+    </style>
+  </defs>
+  <rect class="canvas" width="1900" height="900"/>
+  <rect class="frame" x="32" y="28" width="1836" height="840" rx="18"/>
+  <text class="title" x="80" y="92">Lettuce Redis 동기화 Primitive</text>
+  <text class="subtitle" x="84" y="126">용량, 만료, 완료 semantics로 선택하며 모든 mutation은 generation과 request identity로 보호됩니다.</text>
+  <g id="semaphore">
+    <rect class="card" x="80" y="190" width="500" height="270" rx="14" fill="#eff6ff" stroke="#3f7d9c"/>
+    <text class="cardTitle" x="120" y="238">분산 Semaphore</text>
+    <text class="detail" x="120" y="292">고정 용량, 명시적 release</text>
+    <text class="detail" x="120" y="332">PermitHandle + request 재조정</text>
+    <text class="small" x="120" y="382">성공한 할당을 호출자가 항상 반환할 수 있는</text>
+    <text class="small" x="120" y="406">제한된 동시성 제어에 사용합니다.</text>
+  </g>
+  <g id="expirable">
+    <rect class="card" x="700" y="190" width="500" height="270" rx="14" fill="#f0fdf4" stroke="#6e8f4f"/>
+    <text class="cardTitle" x="740" y="238">만료형 Semaphore</text>
+    <text class="detail" x="740" y="292">permit unit별 Redis-time deadline</text>
+    <text class="detail" x="740" y="332">전체 allocation 원자 renew / release</text>
+    <text class="small" x="740" y="382">호출자 장애 후에도 watchdog 없이</text>
+    <text class="small" x="740" y="406">용량이 복구되어야 할 때 사용합니다.</text>
+  </g>
+  <g id="latch">
+    <rect class="card" x="1320" y="190" width="500" height="270" rx="14" fill="#fff7ed" stroke="#a2743d"/>
+    <text class="cardTitle" x="1360" y="238">Count-Down Latch</text>
+    <text class="detail" x="1360" y="292">단조 generation + count 하한 0</text>
+    <text class="detail" x="1360" y="332">제한되고 취소 가능한 await</text>
+    <text class="small" x="1360" y="382">알려진 count가 0이 될 때까지 기다리는</text>
+    <text class="small" x="1360" y="406">하나의 lifecycle에 사용합니다.</text>
+  </g>
+  <g id="runtime">
+    <rect class="card" x="360" y="610" width="1180" height="170" rx="14" fill="#f5f3ff" stroke="#7c6ac7"/>
+    <text class="cardTitle" x="405" y="658">공통 실행 및 안전 경계</text>
+    <text class="detail" x="405" y="708">blocking + CompletableFuture + suspend • EVALSHA/NOSCRIPT • typed closed/failure outcome</text>
+    <text class="detail" x="405" y="746">codec wire-byte same-slot 검증 • identity redaction • Redis-authoritative Lua 상태</text>
+  </g>
+  <path class="route" data-from="semaphore" data-to="runtime" d="M 330 460 V 490 L 640 580 V 610" marker-end="url(#arrow)"/>
+  <path class="route" data-from="expirable" data-to="runtime" d="M 950 460 V 610" marker-end="url(#arrow)"/>
+  <path class="route" data-from="latch" data-to="runtime" d="M 1570 460 V 490 L 1260 580 V 610" marker-end="url(#arrow)"/>
+</svg>
