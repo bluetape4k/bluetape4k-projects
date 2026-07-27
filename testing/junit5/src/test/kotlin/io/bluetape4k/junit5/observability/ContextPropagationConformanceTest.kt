@@ -1,8 +1,9 @@
 package io.bluetape4k.junit5.observability
 
 import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.junit5.output.InMemoryLogbackAppender
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
@@ -10,8 +11,12 @@ import org.junit.jupiter.api.TestInstance
 class ContextPropagationConformanceTest {
 
     @Test
-    fun `matching propagation snapshots satisfy the conformance contract`() {
-        assertContextPropagationConformance(propagationObservation(), propagationExpectation())
+    fun `matching propagation snapshots satisfy the conformance contract without emitting logs`() {
+        InMemoryLogbackAppender("root").use { appender ->
+            assertContextPropagationConformance(propagationObservation(), propagationExpectation())
+
+            appender.size shouldBeEqualTo 0
+        }
     }
 
     @Test
@@ -203,7 +208,12 @@ class ContextPropagationConformanceTest {
     @Test
     fun `NOT_IN isolation rejects every forbidden marker`() {
         val observation = isolationObservation().copy(
-            samples = listOf(ContextIsolationSample(ContextRequestAlias.REQUEST_B, listOf(REQUEST_B_MARKER, null))),
+            samples = listOf(
+                ContextIsolationSample(
+                    ContextRequestAlias.REQUEST_B,
+                    listOf(REQUEST_B_MARKER, REQUEST_B_MARKER),
+                ),
+            ),
         )
         val expectation = ContextIsolationSampleExpectation(
             requestAlias = ContextRequestAlias.REQUEST_B,
@@ -221,6 +231,22 @@ class ContextPropagationConformanceTest {
                 ),
                 isolationExpectation(expectation),
             )
+        }
+    }
+
+    @Test
+    fun `NOT_IN isolation rejects null observations`() {
+        val observation = isolationObservation().copy(
+            samples = listOf(ContextIsolationSample(ContextRequestAlias.PROBE, listOf(null))),
+        )
+        val expectation = ContextIsolationSampleExpectation(
+            requestAlias = ContextRequestAlias.PROBE,
+            mode = ContextMarkerExpectationMode.NOT_IN,
+            forbiddenMarkers = listOf(PARENT_MARKER, REQUEST_A_MARKER),
+        )
+
+        assertFailsWith<AssertionError> {
+            assertContextIsolation(observation, isolationExpectation(expectation))
         }
     }
 
@@ -284,15 +310,21 @@ class ContextPropagationConformanceTest {
     }
 
     @Test
-    fun `every failure family reports only safe redacted coordinates`() {
+    fun `every failure family reports the exact safe diagnostic without emitting logs`() {
         val failureCases = listOf<Pair<String, () -> Unit>>(
-            "observation-point set" to {
+            "Context conformance failed; boundary=COROUTINE; scenario=SUCCESS; alias=SINGLE; " +
+                    "field=markerObservations; relation=mismatch; values redacted" to {
                 assertContextPropagationConformance(
-                    propagationObservation().copy(markerObservations = emptyList()),
+                    propagationObservation().copy(
+                        markerObservations = listOf(
+                            ContextMarkerObservation(ContextObservationPoint.BOUNDARY_ENTER, CANARY),
+                        ),
+                    ),
                     propagationExpectation(),
                 )
             },
-            "propagation marker" to {
+            "Context conformance failed; boundary=COROUTINE; scenario=SUCCESS; alias=SINGLE; " +
+                    "field=marker; point=BOUNDARY_ENTER; relation=mismatch; values redacted" to {
                 assertContextPropagationConformance(
                     propagationObservation().copy(
                         markerObservations = propagationObservation().markerObservations.map {
@@ -306,7 +338,8 @@ class ContextPropagationConformanceTest {
                     propagationExpectation(),
                 )
             },
-            "cleanup" to {
+            "Context conformance failed; boundary=COROUTINE; scenario=SUCCESS; alias=SINGLE; " +
+                    "field=cleanup; location=CALLER; relation=mismatch; values redacted" to {
                 assertContextPropagationConformance(
                     propagationObservation().copy(
                         cleanupProbes = propagationObservation().cleanupProbes.map {
@@ -320,7 +353,8 @@ class ContextPropagationConformanceTest {
                     propagationExpectation(),
                 )
             },
-            "isolation EXACT" to {
+            "Context conformance failed; boundary=COROUTINE; alias=REQUEST_A; " +
+                    "field=observedMarkers; mode=EXACT; relation=mismatch; values redacted" to {
                 assertContextIsolation(
                     isolationObservation().copy(
                         samples = listOf(ContextIsolationSample(ContextRequestAlias.REQUEST_A, listOf(CANARY))),
@@ -328,7 +362,8 @@ class ContextPropagationConformanceTest {
                     isolationExpectation(exactExpectation()),
                 )
             },
-            "isolation NOT_IN" to {
+            "Context conformance failed; boundary=COROUTINE; alias=REQUEST_A; " +
+                    "field=observedMarkers; mode=NOT_IN; relation=mismatch; values redacted" to {
                 assertContextIsolation(
                     isolationObservation().copy(
                         samples = listOf(ContextIsolationSample(ContextRequestAlias.REQUEST_A, listOf(CANARY))),
@@ -342,7 +377,8 @@ class ContextPropagationConformanceTest {
                     ),
                 )
             },
-            "invalid expectation" to {
+            "Context conformance failed; boundary=COROUTINE; alias=REQUEST_A; " +
+                    "field=forbiddenMarkers; mode=EXACT; relation=mismatch; values redacted" to {
                 assertContextIsolation(
                     isolationObservation(),
                     isolationExpectation(
@@ -352,16 +388,18 @@ class ContextPropagationConformanceTest {
             },
         )
 
-        failureCases.forEach { (family, failingAssertion) ->
-            val failure = assertFailsWith<AssertionError>(block = failingAssertion)
-            val message = failure.message.orEmpty()
-            message shouldContain "values redacted"
-            message shouldContain "relation=mismatch"
-            message shouldNotContain "secret-parent"
-            message shouldNotContain "forged-log"
-            message shouldNotContain "\r"
-            message shouldNotContain "\n"
-            message shouldContain family.safeCoordinate()
+        InMemoryLogbackAppender("root").use { appender ->
+            failureCases.forEach { (expectedMessage, failingAssertion) ->
+                val failure = assertFailsWith<AssertionError>(block = failingAssertion)
+                val message = failure.message.orEmpty()
+                message shouldBeEqualTo expectedMessage
+                message shouldNotContain "secret-parent"
+                message shouldNotContain "forged-log"
+                message shouldNotContain "\r"
+                message shouldNotContain "\n"
+            }
+
+            appender.size shouldBeEqualTo 0
         }
     }
 
@@ -422,17 +460,6 @@ class ContextPropagationConformanceTest {
     private fun cleanupExpectations(): List<ContextCleanupExpectation> =
         ContextProbeLocation.entries.map { location ->
             ContextCleanupExpectation(location, null)
-        }
-
-    private fun String.safeCoordinate(): String =
-        when (this) {
-            "observation-point set" -> "field=markerObservations"
-            "propagation marker" -> "point=BOUNDARY_ENTER"
-            "cleanup" -> "location=CALLER"
-            "isolation EXACT" -> "mode=EXACT"
-            "isolation NOT_IN" -> "mode=NOT_IN"
-            "invalid expectation" -> "field=forbiddenMarkers"
-            else -> error("Unknown failure family")
         }
 
     private companion object {
