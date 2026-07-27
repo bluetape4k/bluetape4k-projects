@@ -276,6 +276,10 @@ internal fun <T> withExecutorCleanup(
     var primaryFailure: Throwable? = null
     try {
         return block()
+    } catch (e: InterruptedException) {
+        Thread.currentThread().interrupt()
+        primaryFailure = e
+        throw e
     } catch (e: Exception) {
         primaryFailure = e
         throw e
