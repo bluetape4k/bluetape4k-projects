@@ -390,6 +390,7 @@ class ContextPropagationConformanceTest {
                 executor.shutdownAndAssertTermination()
             }
             executor.shutdownNowCalled.shouldBeTrue()
+            check(executor.awaitCalls == 1)
             Thread.currentThread().isInterrupted.shouldBeTrue()
         } finally {
             Thread.interrupted()
@@ -590,7 +591,8 @@ private class InterruptingExecutorService: AbstractExecutorService() {
         private set
 
     private var shutdown = false
-    private var awaitCalls = 0
+    var awaitCalls = 0
+        private set
 
     override fun shutdown() {
         shutdown = true

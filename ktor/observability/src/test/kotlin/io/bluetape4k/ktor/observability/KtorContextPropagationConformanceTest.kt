@@ -68,7 +68,10 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.nanoseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Timeout(
     value = 15,
@@ -213,8 +216,21 @@ private const val spanIdA = "1111111111111111"
 private const val traceIdB = "22222222222222222222222222222222"
 private const val spanIdB = "2222222222222222"
 private val hangGuard = DEFAULT_CANCELLATION_CONTRACT_TIMEOUT
+private val aggregateBudget = 14.seconds
 private val semanticDeadline = 250.milliseconds.also {
     check(it < hangGuard)
+}
+
+private class KtorConformanceDeadline(
+    budget: Duration = aggregateBudget,
+) {
+    private val deadlineNanos = System.nanoTime() + budget.inWholeNanoseconds
+
+    fun remaining(): Duration =
+        minOf(
+            hangGuard,
+            (deadlineNanos - System.nanoTime()).coerceAtLeast(0).nanoseconds,
+        )
 }
 
 private class CapturedScenario(
@@ -338,6 +354,7 @@ private class KtorConformanceEventLedger {
 }
 
 private class KtorConformanceHarness {
+    val deadline = KtorConformanceDeadline()
     val singleObservations = ConcurrentLinkedQueue<ContextMarkerObservation>()
     val singleStarted = CompletableDeferred<Unit>()
     val singleFinally = CompletableDeferred<Unit>()
@@ -413,9 +430,10 @@ private class TestTracing(
     }
 
     override fun close() {
+        val remaining = harness.deadline.remaining()
         check(
             tracerProvider.shutdown()
-                .join(5, TimeUnit.SECONDS)
+                .join(remaining.inWholeNanoseconds, TimeUnit.NANOSECONDS)
                 .isSuccess,
         ) {
             "Test tracer provider shutdown failed"
@@ -544,9 +562,9 @@ private suspend fun io.ktor.server.routing.RoutingContext.runIsolationRoute(
         harness.observations(alias) += Span.current().validTraceIdOrNull()
         harness.ledger.record(alias, KtorConformanceEvent.READY)
         ownReady.complete(Unit)
-        harness.readyA.awaitGateWithin("isolation ready A")
-        harness.readyB.awaitGateWithin("isolation ready B")
-        harness.release.awaitGateWithin("isolation release")
+        harness.readyA.awaitGateWithin("isolation ready A", harness.deadline)
+        harness.readyB.awaitGateWithin("isolation ready B", harness.deadline)
+        harness.release.awaitGateWithin("isolation release", harness.deadline)
         harness.ledger.record(alias, KtorConformanceEvent.RELEASED)
         yield()
         harness.observations(alias) += Span.current().validTraceIdOrNull()
@@ -593,20 +611,20 @@ private suspend fun ApplicationTestBuilder.runKtorScenario(
                 }
             }
             requests += request
-            harness.singleStarted.awaitGateWithin("single route start")
-            request.awaitTerminalWithin("single request terminal")
+            harness.singleStarted.awaitGateWithin("single route start", harness.deadline)
+            request.awaitTerminalWithin("single request terminal", harness.deadline)
             harness.ledger.record(
                 ContextRequestAlias.SINGLE,
                 KtorConformanceEvent.TERMINAL_OBSERVED,
             )
-            harness.singleFinally.awaitGateWithin("single route finally")
+            harness.singleFinally.awaitGateWithin("single route finally", harness.deadline)
             harness.ledger.record(
                 ContextRequestAlias.SINGLE,
                 KtorConformanceEvent.FINALLY_COMPLETED,
             )
             val requestMarker =
                 harness.cleanupMarker(ContextRequestAlias.SINGLE)
-                    .awaitGateWithin("single server cleanup probe")
+                    .awaitGateWithin("single server cleanup probe", harness.deadline)
             harness.ledger.record(
                 ContextRequestAlias.SINGLE,
                 KtorConformanceEvent.CLEANUP_PROBED,
@@ -681,28 +699,28 @@ private suspend fun ApplicationTestBuilder.runKtorIsolationScenario(
             requests += requestA
             requests += requestB
 
-            harness.readyA.awaitGateWithin("request A ready")
-            harness.readyB.awaitGateWithin("request B ready")
+            harness.readyA.awaitGateWithin("request A ready", harness.deadline)
+            harness.readyB.awaitGateWithin("request B ready", harness.deadline)
             harness.release.complete(Unit)
 
-            val failureA = requestA.captureTerminalWithin("request A terminal")
+            val failureA = requestA.captureTerminalWithin("request A terminal", harness.deadline)
             harness.ledger.record(
                 ContextRequestAlias.REQUEST_A,
                 KtorConformanceEvent.TERMINAL_OBSERVED,
             )
-            val failureB = requestB.captureTerminalWithin("request B terminal")
+            val failureB = requestB.captureTerminalWithin("request B terminal", harness.deadline)
             harness.ledger.record(
                 ContextRequestAlias.REQUEST_B,
                 KtorConformanceEvent.TERMINAL_OBSERVED,
             )
             (harness.firstIsolationFailure.get() ?: failureA ?: failureB)?.let { throw it }
 
-            harness.finallyA.awaitGateWithin("request A finally")
+            harness.finallyA.awaitGateWithin("request A finally", harness.deadline)
             harness.ledger.record(
                 ContextRequestAlias.REQUEST_A,
                 KtorConformanceEvent.FINALLY_COMPLETED,
             )
-            harness.finallyB.awaitGateWithin("request B finally")
+            harness.finallyB.awaitGateWithin("request B finally", harness.deadline)
             harness.ledger.record(
                 ContextRequestAlias.REQUEST_B,
                 KtorConformanceEvent.FINALLY_COMPLETED,
@@ -710,10 +728,10 @@ private suspend fun ApplicationTestBuilder.runKtorIsolationScenario(
 
             val requestMarkerA =
                 harness.cleanupMarker(ContextRequestAlias.REQUEST_A)
-                    .awaitGateWithin("request A server cleanup probe")
+                    .awaitGateWithin("request A server cleanup probe", harness.deadline)
             val requestMarkerB =
                 harness.cleanupMarker(ContextRequestAlias.REQUEST_B)
-                    .awaitGateWithin("request B server cleanup probe")
+                    .awaitGateWithin("request B server cleanup probe", harness.deadline)
             val requestMarker = requireRestoredRequestMarkers(requestMarkerA, requestMarkerB)
             harness.ledger.record(
                 ContextRequestAlias.REQUEST_A,
@@ -724,10 +742,11 @@ private suspend fun ApplicationTestBuilder.runKtorIsolationScenario(
                 KtorConformanceEvent.CLEANUP_PROBED,
             )
 
-            withTimeout(hangGuard) {
+            withTimeout(harness.deadline.remaining()) {
                 client.get("/context/probe")
             }
-            val probeMarker = harness.probeTraceId.awaitGateWithin("unparented probe")
+            val probeMarker =
+                harness.probeTraceId.awaitGateWithin("unparented probe", harness.deadline)
             harness.ledger.assertIsolationOrder()
 
             ContextIsolationObservation(
@@ -804,7 +823,7 @@ private suspend fun cleanupKtorRequests(
             }
             add {
                 try {
-                    withTimeout(hangGuard) {
+                    withTimeout(harness.deadline.remaining()) {
                         requests.joinAll()
                     }
                 } catch (failure: TimeoutCancellationException) {
@@ -835,18 +854,24 @@ private suspend fun cleanupKtorRequests(
     }
 }
 
-private suspend fun <T> CompletableDeferred<T>.awaitGateWithin(label: String): T =
+private suspend fun <T> CompletableDeferred<T>.awaitGateWithin(
+    label: String,
+    deadline: KtorConformanceDeadline,
+): T =
     try {
-        withTimeout(hangGuard) {
+        withTimeout(deadline.remaining()) {
             await()
         }
     } catch (failure: TimeoutCancellationException) {
         throw AssertionError("Timed out waiting for Ktor $label", failure)
     }
 
-private suspend fun Deferred<*>.awaitTerminalWithin(label: String) {
+private suspend fun Deferred<*>.awaitTerminalWithin(
+    label: String,
+    deadline: KtorConformanceDeadline,
+) {
     try {
-        withTimeout(hangGuard) {
+        withTimeout(deadline.remaining()) {
             await()
         }
     } catch (failure: TimeoutCancellationException) {
@@ -857,9 +882,12 @@ private suspend fun Deferred<*>.awaitTerminalWithin(label: String) {
     }
 }
 
-private suspend fun Deferred<*>.captureTerminalWithin(label: String): Throwable? =
+private suspend fun Deferred<*>.captureTerminalWithin(
+    label: String,
+    deadline: KtorConformanceDeadline,
+): Throwable? =
     try {
-        withTimeout(hangGuard) {
+        withTimeout(deadline.remaining()) {
             await()
         }
         null

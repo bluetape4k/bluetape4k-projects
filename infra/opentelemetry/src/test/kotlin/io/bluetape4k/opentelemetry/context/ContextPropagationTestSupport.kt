@@ -252,6 +252,10 @@ internal fun ExecutorService.shutdownAndAssertTermination() {
         }
     }
 
+    interrupted?.let {
+        Thread.currentThread().interrupt()
+        throw AssertionError("Interrupted while terminating test executor", it)
+    }
     if (!terminated) {
         terminated = try {
             awaitTermination(5, TimeUnit.SECONDS)
