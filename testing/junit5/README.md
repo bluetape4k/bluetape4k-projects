@@ -235,6 +235,131 @@ The test remains the lifecycle owner. Create and close the fake registry, tracer
 the Spring Boot or Ktor test; this fixture only validates the framework-neutral snapshot and does not install or close
 telemetry infrastructure.
 
+### Context Propagation Conformance
+
+Use the provider-neutral fixture to prove that an actual framework adapter exposes the same parent marker across
+suspension, preserves the real terminal outcome, cleans its context, and isolates concurrent requests. The adapter is
+responsible for converting actual framework state into the snapshot; the fixture does not install interception.
+
+`null` represents root context. `SUCCESS`, `FAILURE`, `CANCELLATION`, and `DEADLINE_EXCEEDED` are distinct terminal
+outcomes. Diagnostics identify only bounded coordinates and report `values redacted`; they never include raw marker
+values.
+
+Only test-owned synthetic marker values are allowed. Never supply production request IDs, user data, or external trace
+IDs. A `Serializable` snapshot is a test exchange value, not a persistence or wire contract, and must not be stored
+long-term. Enum additions are additive, so caller-side exhaustive when expressions need an `else` branch. Data-class
+constructor changes are compatibility-sensitive; do not destructure snapshots or depend on their constructor layout as
+a storage format.
+
+```kotlin
+import io.bluetape4k.junit5.observability.*
+
+val marker = "synthetic-parent"
+val observation = ContextPropagationObservation(
+    boundary = ContextPropagationBoundary.COROUTINE,
+    scenario = ContextPropagationScenario.SUCCESS,
+    requestAlias = ContextRequestAlias.SINGLE,
+    markerObservations = listOf(
+        ContextMarkerObservation(
+            ContextObservationPoint.BOUNDARY_ENTER,
+            marker,
+        ),
+        ContextMarkerObservation(
+            ContextObservationPoint.AFTER_SUSPENSION,
+            marker,
+        ),
+        ContextMarkerObservation(
+            ContextObservationPoint.BEFORE_TERMINAL,
+            marker,
+        ),
+    ),
+    cleanupProbes = listOf(
+        ContextCleanupProbe(ContextProbeLocation.CALLER, null),
+    ),
+    terminal = ContextPropagationTerminal.SUCCESS,
+)
+val expectation = ContextPropagationExpectation(
+    boundary = ContextPropagationBoundary.COROUTINE,
+    scenario = ContextPropagationScenario.SUCCESS,
+    requestAlias = ContextRequestAlias.SINGLE,
+    markerExpectations = listOf(
+        ContextMarkerExpectation(
+            ContextObservationPoint.BOUNDARY_ENTER,
+            marker,
+        ),
+        ContextMarkerExpectation(
+            ContextObservationPoint.AFTER_SUSPENSION,
+            marker,
+        ),
+        ContextMarkerExpectation(
+            ContextObservationPoint.BEFORE_TERMINAL,
+            marker,
+        ),
+    ),
+    cleanupExpectations = listOf(
+        ContextCleanupExpectation(ContextProbeLocation.CALLER, null),
+    ),
+    expectedTerminal = ContextPropagationTerminal.SUCCESS,
+)
+
+assertContextPropagationConformance(observation, expectation)
+```
+
+```kotlin
+import io.bluetape4k.junit5.observability.*
+
+val isolationObservation = ContextIsolationObservation(
+    boundary = ContextPropagationBoundary.KTOR_REQUEST,
+    samples = listOf(
+        ContextIsolationSample(
+            ContextRequestAlias.REQUEST_A,
+            listOf("synthetic-parent-A", "synthetic-parent-A"),
+        ),
+        ContextIsolationSample(
+            ContextRequestAlias.REQUEST_B,
+            listOf("synthetic-parent-B", "synthetic-parent-B"),
+        ),
+        ContextIsolationSample(
+            ContextRequestAlias.PROBE,
+            listOf("synthetic-probe"),
+        ),
+    ),
+    cleanupProbes = listOf(
+        ContextCleanupProbe(ContextProbeLocation.REQUEST, null),
+    ),
+)
+val isolationExpectation = ContextIsolationExpectation(
+    boundary = ContextPropagationBoundary.KTOR_REQUEST,
+    samples = listOf(
+        ContextIsolationSampleExpectation(
+            requestAlias = ContextRequestAlias.REQUEST_A,
+            mode = ContextMarkerExpectationMode.EXACT,
+            expectedMarker = "synthetic-parent-A",
+            minimumObservationCount = 2,
+        ),
+        ContextIsolationSampleExpectation(
+            requestAlias = ContextRequestAlias.REQUEST_B,
+            mode = ContextMarkerExpectationMode.EXACT,
+            expectedMarker = "synthetic-parent-B",
+            minimumObservationCount = 2,
+        ),
+        ContextIsolationSampleExpectation(
+            requestAlias = ContextRequestAlias.PROBE,
+            mode = ContextMarkerExpectationMode.NOT_IN,
+            forbiddenMarkers = listOf(
+                "synthetic-parent-A",
+                "synthetic-parent-B",
+            ),
+        ),
+    ),
+    cleanupExpectations = listOf(
+        ContextCleanupExpectation(ContextProbeLocation.REQUEST, null),
+    ),
+)
+
+assertContextIsolation(isolationObservation, isolationExpectation)
+```
+
 ### Bounded-Wait HTTP Idempotency Conformance
 
 Use the opt-in fixture to verify a framework adapter against the same observable HTTP contract. The configuration is
