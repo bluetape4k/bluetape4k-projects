@@ -468,9 +468,9 @@ assertContextIsolation(isolationObservation, isolationExpectation)
 ```
 
 framework가 lifecycle을 소유하는 전체 adapter proof는 compile-checked
-[coroutine, Reactor, executor conformance test](../../infra/opentelemetry/src/test/kotlin/io/bluetape4k/opentelemetry/context/ContextPropagationConformanceTest.kt),
-[Spring Observation test](../../spring-boot/core/src/test/kotlin/io/bluetape4k/spring/observability/SpringContextPropagationConformanceTest.kt),
-[Ktor request test](../../ktor/observability/src/test/kotlin/io/bluetape4k/ktor/observability/KtorContextPropagationConformanceTest.kt)를
+[coroutine, Reactor, executor conformance test](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/infra/opentelemetry/src/test/kotlin/io/bluetape4k/opentelemetry/context/ContextPropagationConformanceTest.kt),
+[Spring Observation test](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/spring-boot/core/src/test/kotlin/io/bluetape4k/spring/observability/SpringContextPropagationConformanceTest.kt),
+[Ktor request test](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/ktor/observability/src/test/kotlin/io/bluetape4k/ktor/observability/KtorContextPropagationConformanceTest.kt)를
 참고하세요.
 
 ### Bounded-Wait HTTP Idempotency Conformance
