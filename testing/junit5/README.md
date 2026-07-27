@@ -399,10 +399,10 @@ assertContextIsolation(isolationObservation, isolationExpectation)
 ```
 
 For complete framework-owned adapter proofs, see the compile-checked
-[coroutine, Reactor, and executor conformance test](../../infra/opentelemetry/src/test/kotlin/io/bluetape4k/opentelemetry/context/ContextPropagationConformanceTest.kt),
-[Spring Observation test](../../spring-boot/core/src/test/kotlin/io/bluetape4k/spring/observability/SpringContextPropagationConformanceTest.kt),
+[coroutine, Reactor, and executor conformance test](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/infra/opentelemetry/src/test/kotlin/io/bluetape4k/opentelemetry/context/ContextPropagationConformanceTest.kt),
+[Spring Observation test](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/spring-boot/core/src/test/kotlin/io/bluetape4k/spring/observability/SpringContextPropagationConformanceTest.kt),
 and
-[Ktor request test](../../ktor/observability/src/test/kotlin/io/bluetape4k/ktor/observability/KtorContextPropagationConformanceTest.kt).
+[Ktor request test](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/ktor/observability/src/test/kotlin/io/bluetape4k/ktor/observability/KtorContextPropagationConformanceTest.kt).
 
 ### Bounded-Wait HTTP Idempotency Conformance
 
