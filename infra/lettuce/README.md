@@ -25,6 +25,9 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 | `LettuceSuspendAtomicLong`          | Distributed AtomicLong (suspend-only)                                                                                                        |
 | `LettuceSemaphore`                  | Distributed semaphore (sync + async). Coroutine variant: `LettuceSuspendSemaphore`                                                           |
 | `LettuceSuspendSemaphore`           | Distributed semaphore (suspend-only)                                                                                                         |
+| `LettuceDistributedSemaphore`       | Request-idempotent, generation-bound counting semaphore (blocking + async)                                                                    |
+| `LettucePermitExpirableSemaphore`   | Redis-time expirable permit-unit semaphore with atomic allocation renewal/release                                                             |
+| `LettuceCountDownLatch`             | Monotonic-generation count-down latch with bounded await                                                                                      |
 | `LettuceDistributedLock`            | Reentrant-capable distributed lock with identity/handle lifecycle and typed outcomes                                                       |
 | `LettuceSuspendDistributedLock`     | Suspend distributed lock with identity/handle lifecycle and typed outcomes                                                                   |
 | `LettuceFairLock`                   | Fair queueing distributed lock (sync + async + suspend)                                                                                    |
@@ -257,6 +260,10 @@ dependencies {
 
 ![Lettuce Codec API Structure diagram](../../docs/images/readme-diagrams/infra-lettuce-diagram-02.png)
 
+### Redis Synchronizer Selection
+
+![Lettuce Redis synchronizer selection and state model](../../docs/images/readme-diagrams/infra-lettuce-diagram-04.png)
+
 ## Usage Examples
 
 ### Creating a RedisClient and Connecting
@@ -479,8 +486,8 @@ if (suspendSemaphore.tryAcquire()) {
 
 ## Coordination primitives
 
-Choose the object by semantics; all six families provide explicit owner/request identity, typed outcomes, handle-based
-release, standalone/Cluster factories, and blocking/async/suspend surfaces.
+Choose the object by semantics. Lock families and synchronizer families provide explicit identities, typed outcomes,
+standalone/Cluster factories, and blocking/async/suspend surfaces.
 
 | Object family | Key characteristics | Recommended uses | Main constraint |
 |---|---|---|---|
@@ -491,12 +498,21 @@ release, standalone/Cluster factories, and blocking/async/suspend surfaces.
 | `LettuceSpinLock` | Bounded scheduled polling and attempt rate | Low-contention, very short critical sections | Avoid long waits, long holds, and sustained contention |
 | `LettuceMultiLock` | Atomic all-or-nothing resource set | A small, fixed group of related resources | Every key must share one Redis Cluster slot |
 
+| Synchronizer | Select when | Lifecycle rule | Do not use when |
+|---|---|---|---|
+| `LettuceDistributedSemaphore` | Fixed capacity must be returned explicitly | Release the complete request-bound `PermitHandle` | A crashed caller must return capacity automatically |
+| `LettucePermitExpirableSemaphore` | Capacity must recover after caller failure | Each permit unit expires by Redis time; renew/release the whole allocation | Partial permit renewal or release is required |
+| `LettuceCountDownLatch` | Participants wait for a known count to reach zero | Carry the active `LatchGeneration` through count-down, await, and delete | The object must be reusable without a new generation |
+
 ![How to select a Lettuce coordination Lock and what runtime it shares](../../docs/images/readme-diagrams/infra-lettuce-diagram-03.png)
 
 ![Acquisition, contention, watchdog, reconciliation, release, and close lifecycle](../../docs/images/readme-diagrams/infra-lettuce-sequence-02.png)
 
 See [Coordination Locks](./CoordinationLocks.md) for compile-tested blocking, async, suspend, reentry, fencing, recovery,
 operations, and migration guidance.
+
+See [Redis Synchronizers](./CoordinationSynchronizers.md) for contract examples, ACL/TLS responsibilities, metrics,
+rollback, key cleanup, and migration guidance.
 
 ### LettuceLock — Compatibility Token Mutex
 

@@ -24,6 +24,9 @@ Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도�
 | `LettuceSuspendAtomicLong`          | 분산 AtomicLong (suspend 전용)                                                               |
 | `LettuceSemaphore`                  | 분산 세마포어 (sync + async). 코루틴 버전: `LettuceSuspendSemaphore`                                |
 | `LettuceSuspendSemaphore`           | 분산 세마포어 (suspend 전용)                                                                     |
+| `LettuceDistributedSemaphore`       | request idempotency와 generation-bound handle을 제공하는 counting semaphore                         |
+| `LettucePermitExpirableSemaphore`   | Redis time 기준 permit-unit 만료와 allocation 원자 renew/release를 제공하는 semaphore                    |
+| `LettuceCountDownLatch`             | 단조 generation과 제한된 await를 제공하는 count-down latch                                             |
 | `LettuceDistributedLock`            | identity/handle 생명주기와 typed outcome을 제공하는 재진입 분산 Lock                                   |
 | `LettuceSuspendDistributedLock`     | identity/handle 생명주기를 제공하는 suspend 분산 Lock                                                |
 | `LettuceFairLock`                   | 제한된 waiter cleanup을 포함한 FIFO 분산 Lock (sync + async)                                        |
@@ -256,6 +259,10 @@ dependencies {
 
 ![Lettuce Codec API 구조 다이어그램](../../docs/images/readme-diagrams/infra-lettuce-diagram-02.png)
 
+### Redis 동기화 Primitive 선택
+
+![Lettuce Redis 동기화 primitive 선택과 상태 모델](../../docs/images/readme-diagrams/infra-lettuce-diagram-04-ko.png)
+
 ## 사용 예시
 
 ### RedisClient 생성 및 연결
@@ -476,8 +483,8 @@ if (suspendSemaphore.tryAcquire()) {
 
 ## 분산 동기화 primitive
 
-Semantics에 따라 객체를 선택합니다. 여섯 패밀리는 모두 명시적 owner/request identity, typed outcome,
-handle 기반 release, standalone/Cluster factory, blocking/async/suspend 표면을 제공합니다.
+Semantics에 따라 객체를 선택합니다. Lock과 synchronizer 패밀리는 명시적 identity, typed outcome,
+standalone/Cluster factory, blocking/async/suspend 표면을 제공합니다.
 
 | 객체 패밀리 | 핵심 특성 | 추천 적용 사례 | 주요 제약 |
 |---|---|---|---|
@@ -488,12 +495,21 @@ handle 기반 release, standalone/Cluster factory, blocking/async/suspend 표면
 | `LettuceSpinLock` | 제한된 scheduled polling과 attempt rate | 경합이 낮고 임계 구역이 매우 짧은 작업 | 긴 wait/hold 및 지속적인 경합에는 부적합 |
 | `LettuceMultiLock` | 원자적 all-or-nothing resource 집합 | 작고 고정된 연관 resource 묶음 | 모든 key가 동일 Redis Cluster slot을 사용해야 함 |
 
+| Synchronizer | 선택 기준 | 생명주기 규칙 | 피해야 하는 경우 |
+|---|---|---|---|
+| `LettuceDistributedSemaphore` | 고정 용량을 호출자가 명시적으로 반환 | request-bound `PermitHandle` 전체를 release | 호출자 장애 후 용량 자동 복구가 필요 |
+| `LettucePermitExpirableSemaphore` | 호출자 장애 후에도 용량 복구 필요 | Redis time으로 permit unit이 만료되며 allocation 전체를 renew/release | permit 일부만 renew/release해야 함 |
+| `LettuceCountDownLatch` | 알려진 count가 0이 될 때까지 참여자가 대기 | active `LatchGeneration`을 count-down, await, delete에 전달 | 새 generation 없이 같은 객체를 재사용해야 함 |
+
 ![Lettuce 분산 동기화 Lock 선택과 공통 런타임](../../docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.png)
 
 ![획득, 경합, watchdog, 재조정, 해제, 종료 생명주기](../../docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.png)
 
 Compile-tested blocking/async/suspend, 재진입, fencing, 복구, 운영, migration 지침은
 [분산 동기화 Lock](./CoordinationLocks.ko.md)을 참고하세요.
+
+계약 예제, ACL/TLS 책임, metric, rollback, key cleanup, migration 지침은
+[Redis 동기화 Primitive](./CoordinationSynchronizers.ko.md)를 참고하세요.
 
 ### LettuceLock — 호환 Token Mutex
 
