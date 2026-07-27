@@ -53,11 +53,12 @@ module registration, global OpenTelemetry/Reactor hook은 변경하지 않았습
 
 전체 module suite는 순차 실행했고 모두 통과했습니다.
 
-- `:bluetape4k-junit5:test`: 338 tests, `real 16.00s`
-- `:bluetape4k-opentelemetry:test`: 110 tests, `real 86.20s`
-- `:bluetape4k-spring-boot-core:test`: 249 tests, `real 26.71s`
-- `:bluetape4k-ktor-observability:test`: 20 tests, `real 7.29s`
-- root `detekt`: `BUILD SUCCESSFUL`, `NO-SOURCE`, `real 0.51s`
+- `:bluetape4k-junit5:test`: 338 tests, `real 16.01s`
+- `:bluetape4k-opentelemetry:test`: 110 tests, `real 86.74s`
+- `:bluetape4k-spring-boot-core:test`: 249 tests, `real 25.29s`
+- `:bluetape4k-ktor-observability:test`: 20 tests, `real 6.68s`
+- root `detekt`: `BUILD SUCCESSFUL`, `NO-SOURCE`, `real 3.04s`
+- `:bluetape4k-junit5:dokkaGenerate`: `BUILD SUCCESSFUL`; 기존 README link warning 3건만 유지
 
 대상 module은 개별 `detekt` task를 노출하지 않으므로 root 성공을 Kotlin 정적 분석 통과로 간주하지
 않았습니다. 대신 각 module test의 Kotlin compile, 금지 API/output scan, executable documentation gate,
