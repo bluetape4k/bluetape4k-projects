@@ -1,5 +1,6 @@
 package io.bluetape4k.ktor.observability
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.junit5.coroutines.DEFAULT_CANCELLATION_CONTRACT_TIMEOUT
 import io.bluetape4k.junit5.observability.ContextCleanupExpectation
@@ -157,6 +158,50 @@ class KtorContextPropagationConformanceTest {
                 )
             }
         }
+
+    @Test
+    fun `ktor isolation preserves pre-ready client failure identity`() {
+        val failure = SyntheticKtorIsolationFailure(Any())
+        TestTracing(failureBeforeRequestA = failure).use { tracing ->
+            testApplication {
+                installContextConformance(tracing)
+
+                val thrown = assertFailsWith<SyntheticKtorIsolationFailure> {
+                    runKtorIsolationScenario(tracing)
+                }
+
+                check(thrown === failure)
+            }
+        }
+    }
+
+    @Test
+    fun `ktor isolation preserves post-release client failure identity`() {
+        val failure = SyntheticKtorIsolationFailure(Any())
+        TestTracing(failureAfterRequestA = failure).use { tracing ->
+            testApplication {
+                installContextConformance(tracing)
+
+                val thrown = assertFailsWith<SyntheticKtorIsolationFailure> {
+                    runKtorIsolationScenario(tracing)
+                }
+
+                check(thrown === failure)
+            }
+        }
+    }
+
+    @Test
+    fun `ktor isolation releases peer when parent extraction fails before ready`() =
+        TestTracing(omitIsolationParentA = true).use { tracing ->
+            testApplication {
+                installContextConformance(tracing)
+
+                assertFailsWith<IllegalStateException> {
+                    runKtorIsolationScenario(tracing)
+                }
+            }
+        }
 }
 
 private const val traceIdA = "11111111111111111111111111111111"
@@ -172,6 +217,11 @@ private class CapturedScenario(
     val observation: ContextPropagationObservation,
     val thrown: Throwable?,
 )
+
+private class SyntheticKtorIsolationFailure(
+    @Suppress("unused")
+    private val identityToken: Any,
+): RuntimeException("synthetic Ktor isolation failure")
 
 private enum class KtorConformanceEvent {
     READY,
@@ -297,7 +347,11 @@ private class KtorConformanceHarness {
     }
 }
 
-private class TestTracing : AutoCloseable {
+private class TestTracing(
+    val omitIsolationParentA: Boolean = false,
+    val failureBeforeRequestA: Throwable? = null,
+    val failureAfterRequestA: Throwable? = null,
+) : AutoCloseable {
     val spanExporter: InMemorySpanExporter = InMemorySpanExporter.create()
     private val tracerProvider: SdkTracerProvider =
         SdkTracerProvider.builder()
@@ -427,27 +481,27 @@ private suspend fun io.ktor.server.routing.RoutingContext.runSingleRoute(
 private suspend fun io.ktor.server.routing.RoutingContext.runIsolationRoute(
     harness: KtorConformanceHarness,
 ) {
-    val traceId = Span.current().validTraceIdOrNull()
-    val alias =
-        when (traceId) {
-            traceIdA -> ContextRequestAlias.REQUEST_A
-            traceIdB -> ContextRequestAlias.REQUEST_B
-            else -> error("Unexpected synthetic isolation parent")
-        }
-    val ownReady =
-        when (alias) {
-            ContextRequestAlias.REQUEST_A -> harness.readyA
-            ContextRequestAlias.REQUEST_B -> harness.readyB
-            else -> error("Unexpected isolation alias")
-        }
-    val ownFinally =
-        when (alias) {
-            ContextRequestAlias.REQUEST_A -> harness.finallyA
-            ContextRequestAlias.REQUEST_B -> harness.finallyB
-            else -> error("Unexpected isolation alias")
-        }
-
+    var ownFinally: CompletableDeferred<Unit>? = null
     try {
+        val traceId = Span.current().validTraceIdOrNull()
+        val alias =
+            when (traceId) {
+                traceIdA -> ContextRequestAlias.REQUEST_A
+                traceIdB -> ContextRequestAlias.REQUEST_B
+                else -> error("Unexpected synthetic isolation parent")
+            }
+        val ownReady =
+            when (alias) {
+                ContextRequestAlias.REQUEST_A -> harness.readyA
+                ContextRequestAlias.REQUEST_B -> harness.readyB
+                else -> error("Unexpected isolation alias")
+            }
+        ownFinally =
+            when (alias) {
+                ContextRequestAlias.REQUEST_A -> harness.finallyA
+                ContextRequestAlias.REQUEST_B -> harness.finallyB
+                else -> error("Unexpected isolation alias")
+            }
         harness.observations(alias) += Span.current().validTraceIdOrNull()
         harness.ledger.record(alias, KtorConformanceEvent.READY)
         ownReady.complete(Unit)
@@ -464,7 +518,8 @@ private suspend fun io.ktor.server.routing.RoutingContext.runIsolationRoute(
         harness.releaseAll()
         throw failure
     } finally {
-        ownFinally.complete(Unit)
+        harness.releaseAll()
+        ownFinally?.complete(Unit)
     }
 }
 
@@ -551,19 +606,33 @@ private suspend fun ApplicationTestBuilder.runKtorIsolationScenario(
         var primaryFailure: Throwable? = null
         try {
             val requestA = async {
-                client.get("/context/${ContextPropagationScenario.ISOLATION}") {
-                    headers {
-                        tracing.headers(traceIdA, spanIdA).forEach { (name, value) ->
-                            append(name, value)
+                runIsolationClientRequest(
+                    harness = harness,
+                    failureBeforeRequest = tracing.failureBeforeRequestA,
+                    failureAfterRequest = tracing.failureAfterRequestA,
+                ) {
+                    client.get("/context/${ContextPropagationScenario.ISOLATION}") {
+                        headers {
+                            val parentHeaders =
+                                if (tracing.omitIsolationParentA) {
+                                    emptyMap()
+                                } else {
+                                    tracing.headers(traceIdA, spanIdA)
+                                }
+                            parentHeaders.forEach { (name, value) ->
+                                append(name, value)
+                            }
                         }
                     }
                 }
             }
             val requestB = async {
-                client.get("/context/${ContextPropagationScenario.ISOLATION}") {
-                    headers {
-                        tracing.headers(traceIdB, spanIdB).forEach { (name, value) ->
-                            append(name, value)
+                runIsolationClientRequest(harness) {
+                    client.get("/context/${ContextPropagationScenario.ISOLATION}") {
+                        headers {
+                            tracing.headers(traceIdB, spanIdB).forEach { (name, value) ->
+                                append(name, value)
+                            }
                         }
                     }
                 }
@@ -576,17 +645,17 @@ private suspend fun ApplicationTestBuilder.runKtorIsolationScenario(
             harness.firstIsolationFailure.get()?.let { throw it }
             harness.release.complete(Unit)
 
-            requestA.awaitTerminalWithin("request A terminal")
+            val failureA = requestA.captureTerminalWithin("request A terminal")
             harness.ledger.record(
                 ContextRequestAlias.REQUEST_A,
                 KtorConformanceEvent.TERMINAL_OBSERVED,
             )
-            requestB.awaitTerminalWithin("request B terminal")
+            val failureB = requestB.captureTerminalWithin("request B terminal")
             harness.ledger.record(
                 ContextRequestAlias.REQUEST_B,
                 KtorConformanceEvent.TERMINAL_OBSERVED,
             )
-            harness.firstIsolationFailure.get()?.let { throw it }
+            (harness.firstIsolationFailure.get() ?: failureA ?: failureB)?.let { throw it }
 
             harness.finallyA.awaitGateWithin("request A finally")
             harness.ledger.record(
@@ -646,6 +715,23 @@ private suspend fun ApplicationTestBuilder.runKtorIsolationScenario(
         }
     }
 
+private suspend fun runIsolationClientRequest(
+    harness: KtorConformanceHarness,
+    failureBeforeRequest: Throwable? = null,
+    failureAfterRequest: Throwable? = null,
+    request: suspend () -> Unit,
+) {
+    try {
+        failureBeforeRequest?.let { throw it }
+        request()
+        failureAfterRequest?.let { throw it }
+    } catch (failure: Throwable) {
+        harness.firstIsolationFailure.compareAndSet(null, failure)
+        harness.releaseAll()
+        throw failure
+    }
+}
+
 private suspend fun cleanupKtorRequests(
     primaryFailure: Throwable?,
     harness: KtorConformanceHarness,
@@ -661,8 +747,12 @@ private suspend fun cleanupKtorRequests(
                 }
             }
             add {
-                withTimeout(hangGuard) {
-                    requests.joinAll()
+                try {
+                    withTimeout(hangGuard) {
+                        requests.joinAll()
+                    }
+                } catch (failure: TimeoutCancellationException) {
+                    throw AssertionError("Timed out cleaning Ktor conformance requests", failure)
                 }
             }
         }
@@ -710,6 +800,26 @@ private suspend fun Deferred<*>.awaitTerminalWithin(label: String) {
         throw failure
     }
 }
+
+private suspend fun Deferred<*>.captureTerminalWithin(label: String): Throwable? =
+    try {
+        withTimeout(hangGuard) {
+            await()
+        }
+        null
+    } catch (failure: TimeoutCancellationException) {
+        if (isCompleted) {
+            failure
+        } else {
+            throw AssertionError("Timed out waiting for Ktor $label", failure)
+        }
+    } catch (failure: CancellationException) {
+        failure
+    } catch (failure: Exception) {
+        failure
+    } catch (failure: Error) {
+        failure
+    }
 
 private fun ktorExpectation(
     scenario: ContextPropagationScenario,
