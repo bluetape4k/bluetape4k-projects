@@ -1,5 +1,6 @@
 package io.bluetape4k.spring.observability
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.junit5.coroutines.DEFAULT_CANCELLATION_CONTRACT_TIMEOUT
 import io.bluetape4k.junit5.observability.ContextCleanupExpectation
@@ -111,6 +112,17 @@ class SpringContextPropagationConformanceTest {
             springIsolationExpectation(),
         )
     }
+
+    @Test
+    fun `spring isolation preserves participant failure after release`() = runTest {
+        val failure = SyntheticSpringIsolationFailure(Any())
+
+        val thrown = assertFailsWith<SyntheticSpringIsolationFailure> {
+            runSpringIsolationScenarioWithFailure(failure)
+        }
+
+        check(thrown === failure)
+    }
 }
 
 private val hangGuard = DEFAULT_CANCELLATION_CONTRACT_TIMEOUT
@@ -124,6 +136,11 @@ private class CapturedScenario(
     val observation: ContextPropagationObservation,
     val thrown: Throwable?,
 )
+
+private class SyntheticSpringIsolationFailure(
+    @Suppress("unused")
+    private val identityToken: Any,
+): RuntimeException("synthetic post-release failure")
 
 private enum class SpringConformanceEvent {
     READY,
@@ -347,6 +364,11 @@ private suspend fun runSpringScenario(
     }
 
 private suspend fun runSpringIsolationScenario(): ContextIsolationObservation =
+    runSpringIsolationScenarioWithFailure()
+
+private suspend fun runSpringIsolationScenarioWithFailure(
+    failureAfterRelease: Throwable? = null,
+): ContextIsolationObservation =
     supervisorScope {
         val registryA = TestObservationRegistry.create()
         val registryB = TestObservationRegistry.create()
@@ -382,6 +404,7 @@ private suspend fun runSpringIsolationScenario(): ContextIsolationObservation =
                     finallyCompleted = finallyA,
                     firstFailure = firstFailure,
                     ledger = ledger,
+                    failureAfterRelease = failureAfterRelease,
                 )
             }
             val childB = async {
@@ -397,6 +420,7 @@ private suspend fun runSpringIsolationScenario(): ContextIsolationObservation =
                     finallyCompleted = finallyB,
                     firstFailure = firstFailure,
                     ledger = ledger,
+                    failureAfterRelease = null,
                 )
             }
             children += childA
@@ -417,9 +441,7 @@ private suspend fun runSpringIsolationScenario(): ContextIsolationObservation =
                 ContextRequestAlias.REQUEST_B,
                 SpringConformanceEvent.TERMINAL_OBSERVED,
             )
-            check(thrownA == null && thrownB == null) {
-                "Spring isolation participant failed"
-            }
+            (firstFailure.get() ?: thrownA ?: thrownB)?.let { throw it }
 
             finallyA.awaitGateWithin()
             ledger.record(
@@ -478,6 +500,7 @@ private suspend fun runSpringIsolationParticipant(
     finallyCompleted: CompletableDeferred<Unit>,
     firstFailure: AtomicReference<Throwable?>,
     ledger: SpringConformanceEventLedger,
+    failureAfterRelease: Throwable?,
 ) {
     try {
         registry.observeSpringSuspending(marker) {
@@ -488,6 +511,7 @@ private suspend fun runSpringIsolationParticipant(
             readyB.awaitGateWithin()
             release.awaitGateWithin()
             ledger.record(alias, SpringConformanceEvent.RELEASED)
+            failureAfterRelease?.let { throw it }
             yield()
             observations += registry.currentMarker()
             observations += registry.currentMarker()
