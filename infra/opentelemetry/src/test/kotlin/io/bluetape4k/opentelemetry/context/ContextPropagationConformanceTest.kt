@@ -26,6 +26,7 @@ import java.util.concurrent.AbstractExecutorService
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -401,6 +402,29 @@ class ContextPropagationConformanceTest {
             assertFailsWith<InterruptedException> {
                 captureExecutorTerminal(future, DEFAULT_CANCELLATION_CONTRACT_TIMEOUT)
             }
+            Thread.currentThread().isInterrupted.shouldBeTrue()
+        } finally {
+            Thread.interrupted()
+        }
+    }
+
+    @Test
+    fun `executor cleanup restores interrupt status from interrupted block`() {
+        val executor = mockk<ExecutorService>()
+        val interruption = InterruptedException("synthetic executor interruption")
+
+        try {
+            val thrown = assertFailsWith<InterruptedException> {
+                withExecutorCleanup(
+                    executor = executor,
+                    cancel = {},
+                    shutdown = {},
+                ) {
+                    throw interruption
+                }
+            }
+
+            (thrown === interruption).shouldBeTrue()
             Thread.currentThread().isInterrupted.shouldBeTrue()
         } finally {
             Thread.interrupted()
