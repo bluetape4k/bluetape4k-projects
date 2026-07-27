@@ -26,7 +26,7 @@ enum class ContextPropagationBoundary {
  * durable. Examples use only test-owned synthetic data; production request IDs, user data, and external trace IDs
  * must never be supplied.
  *
- * Example: `val scenario = ContextPropagationScenario.CANCELLATION`
+ * Example: `val scenario = ContextPropagationScenario.SUCCESS`
  */
 enum class ContextPropagationScenario {
     SUCCESS,
@@ -43,7 +43,7 @@ enum class ContextPropagationScenario {
  * durable. Examples use only test-owned synthetic data; production request IDs, user data, and external trace IDs
  * must never be supplied.
  *
- * Example: `val terminal = ContextPropagationTerminal.DEADLINE_EXCEEDED`
+ * Example: `val terminal = ContextPropagationTerminal.SUCCESS`
  */
 enum class ContextPropagationTerminal {
     SUCCESS,
@@ -59,7 +59,7 @@ enum class ContextPropagationTerminal {
  * durable. Examples use only test-owned synthetic data; production request IDs, user data, and external trace IDs
  * must never be supplied.
  *
- * Example: `val location = ContextProbeLocation.WORKER`
+ * Example: `val location = ContextProbeLocation.CALLER`
  */
 enum class ContextProbeLocation {
     CALLER,
@@ -74,7 +74,7 @@ enum class ContextProbeLocation {
  * durable. Examples use only test-owned synthetic data; production request IDs, user data, and external trace IDs
  * must never be supplied.
  *
- * Example: `val alias = ContextRequestAlias.REQUEST_A`
+ * Example: `val alias = ContextRequestAlias.SINGLE`
  */
 enum class ContextRequestAlias {
     SINGLE,
@@ -90,7 +90,7 @@ enum class ContextRequestAlias {
  * durable. Examples use only test-owned synthetic data; production request IDs, user data, and external trace IDs
  * must never be supplied.
  *
- * Example: `val point = ContextObservationPoint.AFTER_SUSPENSION`
+ * Example: `val point = ContextObservationPoint.BOUNDARY_ENTER`
  */
 enum class ContextObservationPoint {
     BOUNDARY_ENTER,
@@ -105,7 +105,7 @@ enum class ContextObservationPoint {
  * durable. Examples use only test-owned synthetic data; production request IDs, user data, and external trace IDs
  * must never be supplied.
  *
- * Example: `val mode = ContextMarkerExpectationMode.NOT_IN`
+ * Example: `val mode = ContextMarkerExpectationMode.EXACT`
  */
 enum class ContextMarkerExpectationMode {
     EXACT,
@@ -120,7 +120,13 @@ enum class ContextMarkerExpectationMode {
  * a wire contract. Serializable snapshots are not persistence or wire formats. Markers must be test-owned synthetic
  * values, never production request IDs, user data, or external trace IDs. Root context is represented by `null`.
  *
- * Example: `ContextMarkerObservation(ContextObservationPoint.BOUNDARY_ENTER, "synthetic-parent")`
+ * Example:
+ * ```kotlin
+ * val observation = ContextMarkerObservation(
+ *     point = ContextObservationPoint.BOUNDARY_ENTER,
+ *     observedMarker = "synthetic-parent",
+ * )
+ * ```
  */
 data class ContextMarkerObservation(
     val point: ContextObservationPoint,
@@ -139,7 +145,13 @@ data class ContextMarkerObservation(
  * values, never production request IDs, user data, or external trace IDs. Root context is represented by `null`,
  * so the literal marker `root` is invalid.
  *
- * Example: `ContextMarkerExpectation(ContextObservationPoint.BEFORE_TERMINAL, "synthetic-parent")`
+ * Example:
+ * ```kotlin
+ * val expectation = ContextMarkerExpectation(
+ *     point = ContextObservationPoint.BOUNDARY_ENTER,
+ *     expectedMarker = "synthetic-parent",
+ * )
+ * ```
  */
 data class ContextMarkerExpectation(
     val point: ContextObservationPoint,
@@ -157,7 +169,13 @@ data class ContextMarkerExpectation(
  * a wire contract. Serializable snapshots are not persistence or wire formats. Markers must be test-owned synthetic
  * values, never production request IDs, user data, or external trace IDs. Root context is represented by `null`.
  *
- * Example: `ContextCleanupProbe(ContextProbeLocation.CALLER, null)`
+ * Example:
+ * ```kotlin
+ * val probe = ContextCleanupProbe(
+ *     location = ContextProbeLocation.CALLER,
+ *     observedMarker = null,
+ * )
+ * ```
  */
 data class ContextCleanupProbe(
     val location: ContextProbeLocation,
@@ -175,7 +193,13 @@ data class ContextCleanupProbe(
  * a wire contract. Serializable snapshots are not persistence or wire formats. Markers must be test-owned synthetic
  * values, never production request IDs, user data, or external trace IDs. Root context is represented by `null`.
  *
- * Example: `ContextCleanupExpectation(ContextProbeLocation.WORKER, null)`
+ * Example:
+ * ```kotlin
+ * val expectation = ContextCleanupExpectation(
+ *     location = ContextProbeLocation.CALLER,
+ *     expectedMarker = null,
+ * )
+ * ```
  */
 data class ContextCleanupExpectation(
     val location: ContextProbeLocation,
@@ -194,8 +218,23 @@ data class ContextCleanupExpectation(
  * values, never production request IDs, user data, or external trace IDs.
  *
  * Example:
- * `ContextPropagationObservation(ContextPropagationBoundary.COROUTINE, ContextPropagationScenario.SUCCESS,
- * ContextRequestAlias.SINGLE, emptyList(), emptyList(), ContextPropagationTerminal.SUCCESS)`
+ * ```kotlin
+ * val marker = "synthetic-parent"
+ * val observation = ContextPropagationObservation(
+ *     boundary = ContextPropagationBoundary.COROUTINE,
+ *     scenario = ContextPropagationScenario.SUCCESS,
+ *     requestAlias = ContextRequestAlias.SINGLE,
+ *     markerObservations = listOf(
+ *         ContextMarkerObservation(ContextObservationPoint.BOUNDARY_ENTER, marker),
+ *         ContextMarkerObservation(ContextObservationPoint.AFTER_SUSPENSION, marker),
+ *         ContextMarkerObservation(ContextObservationPoint.BEFORE_TERMINAL, marker),
+ *     ),
+ *     cleanupProbes = listOf(
+ *         ContextCleanupProbe(ContextProbeLocation.CALLER, null),
+ *     ),
+ *     terminal = ContextPropagationTerminal.SUCCESS,
+ * )
+ * ```
  */
 data class ContextPropagationObservation(
     val boundary: ContextPropagationBoundary,
@@ -218,8 +257,23 @@ data class ContextPropagationObservation(
  * values, never production request IDs, user data, or external trace IDs.
  *
  * Example:
- * `ContextPropagationExpectation(ContextPropagationBoundary.COROUTINE, ContextPropagationScenario.SUCCESS,
- * ContextRequestAlias.SINGLE, emptyList(), emptyList(), ContextPropagationTerminal.SUCCESS)`
+ * ```kotlin
+ * val marker = "synthetic-parent"
+ * val expectation = ContextPropagationExpectation(
+ *     boundary = ContextPropagationBoundary.COROUTINE,
+ *     scenario = ContextPropagationScenario.SUCCESS,
+ *     requestAlias = ContextRequestAlias.SINGLE,
+ *     markerExpectations = listOf(
+ *         ContextMarkerExpectation(ContextObservationPoint.BOUNDARY_ENTER, marker),
+ *         ContextMarkerExpectation(ContextObservationPoint.AFTER_SUSPENSION, marker),
+ *         ContextMarkerExpectation(ContextObservationPoint.BEFORE_TERMINAL, marker),
+ *     ),
+ *     cleanupExpectations = listOf(
+ *         ContextCleanupExpectation(ContextProbeLocation.CALLER, null),
+ *     ),
+ *     expectedTerminal = ContextPropagationTerminal.SUCCESS,
+ * )
+ * ```
  */
 data class ContextPropagationExpectation(
     val boundary: ContextPropagationBoundary,
@@ -241,7 +295,13 @@ data class ContextPropagationExpectation(
  * a wire contract. Serializable snapshots are not persistence or wire formats. Markers must be test-owned synthetic
  * values, never production request IDs, user data, or external trace IDs. Root context is represented by `null`.
  *
- * Example: `ContextIsolationSample(ContextRequestAlias.REQUEST_A, listOf("synthetic-a", "synthetic-a"))`
+ * Example:
+ * ```kotlin
+ * val sample = ContextIsolationSample(
+ *     requestAlias = ContextRequestAlias.REQUEST_A,
+ *     observedMarkers = listOf("synthetic-parent-A", "synthetic-parent-A"),
+ * )
+ * ```
  */
 data class ContextIsolationSample(
     val requestAlias: ContextRequestAlias,
@@ -260,8 +320,14 @@ data class ContextIsolationSample(
  * values, never production request IDs, user data, or external trace IDs. Root context is represented by `null`.
  *
  * Example:
- * `ContextIsolationSampleExpectation(ContextRequestAlias.REQUEST_A, ContextMarkerExpectationMode.EXACT,
- * expectedMarker = "synthetic-a")`
+ * ```kotlin
+ * val expectation = ContextIsolationSampleExpectation(
+ *     requestAlias = ContextRequestAlias.REQUEST_A,
+ *     mode = ContextMarkerExpectationMode.EXACT,
+ *     expectedMarker = "synthetic-parent-A",
+ *     minimumObservationCount = 2,
+ * )
+ * ```
  */
 data class ContextIsolationSampleExpectation(
     val requestAlias: ContextRequestAlias,
@@ -283,7 +349,28 @@ data class ContextIsolationSampleExpectation(
  * values, never production request IDs, user data, or external trace IDs.
  *
  * Example:
- * `ContextIsolationObservation(ContextPropagationBoundary.REACTOR, emptyList(), emptyList())`
+ * ```kotlin
+ * val observation = ContextIsolationObservation(
+ *     boundary = ContextPropagationBoundary.KTOR_REQUEST,
+ *     samples = listOf(
+ *         ContextIsolationSample(
+ *             ContextRequestAlias.REQUEST_A,
+ *             listOf("synthetic-parent-A", "synthetic-parent-A"),
+ *         ),
+ *         ContextIsolationSample(
+ *             ContextRequestAlias.REQUEST_B,
+ *             listOf("synthetic-parent-B", "synthetic-parent-B"),
+ *         ),
+ *         ContextIsolationSample(
+ *             ContextRequestAlias.PROBE,
+ *             listOf("synthetic-probe"),
+ *         ),
+ *     ),
+ *     cleanupProbes = listOf(
+ *         ContextCleanupProbe(ContextProbeLocation.REQUEST, null),
+ *     ),
+ * )
+ * ```
  */
 data class ContextIsolationObservation(
     val boundary: ContextPropagationBoundary,
@@ -303,7 +390,36 @@ data class ContextIsolationObservation(
  * values, never production request IDs, user data, or external trace IDs.
  *
  * Example:
- * `ContextIsolationExpectation(ContextPropagationBoundary.REACTOR, emptyList(), emptyList())`
+ * ```kotlin
+ * val expectation = ContextIsolationExpectation(
+ *     boundary = ContextPropagationBoundary.KTOR_REQUEST,
+ *     samples = listOf(
+ *         ContextIsolationSampleExpectation(
+ *             requestAlias = ContextRequestAlias.REQUEST_A,
+ *             mode = ContextMarkerExpectationMode.EXACT,
+ *             expectedMarker = "synthetic-parent-A",
+ *             minimumObservationCount = 2,
+ *         ),
+ *         ContextIsolationSampleExpectation(
+ *             requestAlias = ContextRequestAlias.REQUEST_B,
+ *             mode = ContextMarkerExpectationMode.EXACT,
+ *             expectedMarker = "synthetic-parent-B",
+ *             minimumObservationCount = 2,
+ *         ),
+ *         ContextIsolationSampleExpectation(
+ *             requestAlias = ContextRequestAlias.PROBE,
+ *             mode = ContextMarkerExpectationMode.NOT_IN,
+ *             forbiddenMarkers = listOf(
+ *                 "synthetic-parent-A",
+ *                 "synthetic-parent-B",
+ *             ),
+ *         ),
+ *     ),
+ *     cleanupExpectations = listOf(
+ *         ContextCleanupExpectation(ContextProbeLocation.REQUEST, null),
+ *     ),
+ * )
+ * ```
  */
 data class ContextIsolationExpectation(
     val boundary: ContextPropagationBoundary,
@@ -323,7 +439,39 @@ data class ContextIsolationExpectation(
  * are test exchange values, not persistence or wire formats.
  *
  * Example:
- * `assertContextPropagationConformance(observation = observation, expectation = expectation)`
+ * ```kotlin
+ * val marker = "synthetic-parent"
+ * val observation = ContextPropagationObservation(
+ *     boundary = ContextPropagationBoundary.COROUTINE,
+ *     scenario = ContextPropagationScenario.SUCCESS,
+ *     requestAlias = ContextRequestAlias.SINGLE,
+ *     markerObservations = listOf(
+ *         ContextMarkerObservation(ContextObservationPoint.BOUNDARY_ENTER, marker),
+ *         ContextMarkerObservation(ContextObservationPoint.AFTER_SUSPENSION, marker),
+ *         ContextMarkerObservation(ContextObservationPoint.BEFORE_TERMINAL, marker),
+ *     ),
+ *     cleanupProbes = listOf(
+ *         ContextCleanupProbe(ContextProbeLocation.CALLER, null),
+ *     ),
+ *     terminal = ContextPropagationTerminal.SUCCESS,
+ * )
+ * val expectation = ContextPropagationExpectation(
+ *     boundary = ContextPropagationBoundary.COROUTINE,
+ *     scenario = ContextPropagationScenario.SUCCESS,
+ *     requestAlias = ContextRequestAlias.SINGLE,
+ *     markerExpectations = listOf(
+ *         ContextMarkerExpectation(ContextObservationPoint.BOUNDARY_ENTER, marker),
+ *         ContextMarkerExpectation(ContextObservationPoint.AFTER_SUSPENSION, marker),
+ *         ContextMarkerExpectation(ContextObservationPoint.BEFORE_TERMINAL, marker),
+ *     ),
+ *     cleanupExpectations = listOf(
+ *         ContextCleanupExpectation(ContextProbeLocation.CALLER, null),
+ *     ),
+ *     expectedTerminal = ContextPropagationTerminal.SUCCESS,
+ * )
+ *
+ * assertContextPropagationConformance(observation, expectation)
+ * ```
  */
 fun assertContextPropagationConformance(
     observation: ContextPropagationObservation,
@@ -395,7 +543,59 @@ fun assertContextPropagationConformance(
  * synthetic markers; never supply production request IDs, user data, or external trace IDs. Serializable snapshots
  * are test exchange values, not persistence or wire formats.
  *
- * Example: `assertContextIsolation(observation = observation, expectation = expectation)`
+ * Example:
+ * ```kotlin
+ * val observation = ContextIsolationObservation(
+ *     boundary = ContextPropagationBoundary.KTOR_REQUEST,
+ *     samples = listOf(
+ *         ContextIsolationSample(
+ *             ContextRequestAlias.REQUEST_A,
+ *             listOf("synthetic-parent-A", "synthetic-parent-A"),
+ *         ),
+ *         ContextIsolationSample(
+ *             ContextRequestAlias.REQUEST_B,
+ *             listOf("synthetic-parent-B", "synthetic-parent-B"),
+ *         ),
+ *         ContextIsolationSample(
+ *             ContextRequestAlias.PROBE,
+ *             listOf("synthetic-probe"),
+ *         ),
+ *     ),
+ *     cleanupProbes = listOf(
+ *         ContextCleanupProbe(ContextProbeLocation.REQUEST, null),
+ *     ),
+ * )
+ * val expectation = ContextIsolationExpectation(
+ *     boundary = ContextPropagationBoundary.KTOR_REQUEST,
+ *     samples = listOf(
+ *         ContextIsolationSampleExpectation(
+ *             requestAlias = ContextRequestAlias.REQUEST_A,
+ *             mode = ContextMarkerExpectationMode.EXACT,
+ *             expectedMarker = "synthetic-parent-A",
+ *             minimumObservationCount = 2,
+ *         ),
+ *         ContextIsolationSampleExpectation(
+ *             requestAlias = ContextRequestAlias.REQUEST_B,
+ *             mode = ContextMarkerExpectationMode.EXACT,
+ *             expectedMarker = "synthetic-parent-B",
+ *             minimumObservationCount = 2,
+ *         ),
+ *         ContextIsolationSampleExpectation(
+ *             requestAlias = ContextRequestAlias.PROBE,
+ *             mode = ContextMarkerExpectationMode.NOT_IN,
+ *             forbiddenMarkers = listOf(
+ *                 "synthetic-parent-A",
+ *                 "synthetic-parent-B",
+ *             ),
+ *         ),
+ *     ),
+ *     cleanupExpectations = listOf(
+ *         ContextCleanupExpectation(ContextProbeLocation.REQUEST, null),
+ *     ),
+ * )
+ *
+ * assertContextIsolation(observation, expectation)
+ * ```
  */
 fun assertContextIsolation(
     observation: ContextIsolationObservation,
@@ -436,7 +636,7 @@ fun assertContextIsolation(
                 sample.observedMarkers.all { it == null }
 
             ContextMarkerExpectationMode.NOT_IN ->
-                sample.observedMarkers.none(sampleExpectation.forbiddenMarkers::contains)
+                sample.observedMarkers.all { it != null && it !in sampleExpectation.forbiddenMarkers }
         }
         assertContext(relationMatches, sampleCoordinates)
     }
