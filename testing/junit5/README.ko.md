@@ -304,6 +304,130 @@ success/client-error/timeout-or-cancellation/dependency-failure 분류, propagat
 registry, tracer, exporter, OpenTelemetry SDK의 lifecycle은 테스트가 직접 소유합니다. 이 fixture는
 framework-neutral snapshot만 검증하며 telemetry 인프라를 설치하거나 종료하지 않습니다.
 
+### Context Propagation Conformance
+
+provider-neutral fixture는 실제 framework adapter가 suspension 전후에 동일한 parent marker를 노출하고,
+실제 terminal 결과를 보존하며, context를 정리하고, 동시 요청을 격리하는지 증명합니다. 실제 framework
+context를 snapshot으로 변환하는 책임은 adapter에 있으며 fixture는 interception을 설치하지 않습니다.
+
+`null`은 root context를 뜻합니다. `SUCCESS`, `FAILURE`, `CANCELLATION`, `DEADLINE_EXCEEDED`는 서로 다른
+terminal 결과입니다. 진단은 제한된 좌표와 `값 비공개`만 제공하며 raw marker 값을 포함하지 않습니다.
+
+test-owned synthetic marker만 사용해야 합니다. production request ID, user data, external trace ID를 전달하면
+안 됩니다. `Serializable` snapshot은 테스트 교환값일 뿐 persistence/wire contract가 아니므로 장기 저장하지
+마세요. enum 값 추가는 additive이므로 caller의 exhaustive when에는 `else`를 두어야 합니다. data-class
+constructor 변경은 compatibility-sensitive하므로 snapshot을 구조분해하거나 constructor layout을 저장
+포맷으로 의존하지 마세요.
+
+```kotlin
+import io.bluetape4k.junit5.observability.*
+
+val marker = "synthetic-parent"
+val observation = ContextPropagationObservation(
+    boundary = ContextPropagationBoundary.COROUTINE,
+    scenario = ContextPropagationScenario.SUCCESS,
+    requestAlias = ContextRequestAlias.SINGLE,
+    markerObservations = listOf(
+        ContextMarkerObservation(
+            ContextObservationPoint.BOUNDARY_ENTER,
+            marker,
+        ),
+        ContextMarkerObservation(
+            ContextObservationPoint.AFTER_SUSPENSION,
+            marker,
+        ),
+        ContextMarkerObservation(
+            ContextObservationPoint.BEFORE_TERMINAL,
+            marker,
+        ),
+    ),
+    cleanupProbes = listOf(
+        ContextCleanupProbe(ContextProbeLocation.CALLER, null),
+    ),
+    terminal = ContextPropagationTerminal.SUCCESS,
+)
+val expectation = ContextPropagationExpectation(
+    boundary = ContextPropagationBoundary.COROUTINE,
+    scenario = ContextPropagationScenario.SUCCESS,
+    requestAlias = ContextRequestAlias.SINGLE,
+    markerExpectations = listOf(
+        ContextMarkerExpectation(
+            ContextObservationPoint.BOUNDARY_ENTER,
+            marker,
+        ),
+        ContextMarkerExpectation(
+            ContextObservationPoint.AFTER_SUSPENSION,
+            marker,
+        ),
+        ContextMarkerExpectation(
+            ContextObservationPoint.BEFORE_TERMINAL,
+            marker,
+        ),
+    ),
+    cleanupExpectations = listOf(
+        ContextCleanupExpectation(ContextProbeLocation.CALLER, null),
+    ),
+    expectedTerminal = ContextPropagationTerminal.SUCCESS,
+)
+
+assertContextPropagationConformance(observation, expectation)
+```
+
+```kotlin
+import io.bluetape4k.junit5.observability.*
+
+val isolationObservation = ContextIsolationObservation(
+    boundary = ContextPropagationBoundary.KTOR_REQUEST,
+    samples = listOf(
+        ContextIsolationSample(
+            ContextRequestAlias.REQUEST_A,
+            listOf("synthetic-parent-A", "synthetic-parent-A"),
+        ),
+        ContextIsolationSample(
+            ContextRequestAlias.REQUEST_B,
+            listOf("synthetic-parent-B", "synthetic-parent-B"),
+        ),
+        ContextIsolationSample(
+            ContextRequestAlias.PROBE,
+            listOf("synthetic-probe"),
+        ),
+    ),
+    cleanupProbes = listOf(
+        ContextCleanupProbe(ContextProbeLocation.REQUEST, null),
+    ),
+)
+val isolationExpectation = ContextIsolationExpectation(
+    boundary = ContextPropagationBoundary.KTOR_REQUEST,
+    samples = listOf(
+        ContextIsolationSampleExpectation(
+            requestAlias = ContextRequestAlias.REQUEST_A,
+            mode = ContextMarkerExpectationMode.EXACT,
+            expectedMarker = "synthetic-parent-A",
+            minimumObservationCount = 2,
+        ),
+        ContextIsolationSampleExpectation(
+            requestAlias = ContextRequestAlias.REQUEST_B,
+            mode = ContextMarkerExpectationMode.EXACT,
+            expectedMarker = "synthetic-parent-B",
+            minimumObservationCount = 2,
+        ),
+        ContextIsolationSampleExpectation(
+            requestAlias = ContextRequestAlias.PROBE,
+            mode = ContextMarkerExpectationMode.NOT_IN,
+            forbiddenMarkers = listOf(
+                "synthetic-parent-A",
+                "synthetic-parent-B",
+            ),
+        ),
+    ),
+    cleanupExpectations = listOf(
+        ContextCleanupExpectation(ContextProbeLocation.REQUEST, null),
+    ),
+)
+
+assertContextIsolation(isolationObservation, isolationExpectation)
+```
+
 ### Bounded-Wait HTTP Idempotency Conformance
 
 opt-in fixture로 framework adapter가 동일한 observable HTTP 계약을 만족하는지 검증합니다. 아래 설정은

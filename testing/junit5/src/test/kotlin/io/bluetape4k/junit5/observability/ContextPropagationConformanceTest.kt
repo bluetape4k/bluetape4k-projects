@@ -403,6 +403,113 @@ class ContextPropagationConformanceTest {
         }
     }
 
+    @Test
+    fun `README propagation example compiles`() {
+        val marker = "synthetic-parent"
+        val observation = ContextPropagationObservation(
+            boundary = ContextPropagationBoundary.COROUTINE,
+            scenario = ContextPropagationScenario.SUCCESS,
+            requestAlias = ContextRequestAlias.SINGLE,
+            markerObservations = listOf(
+                ContextMarkerObservation(
+                    ContextObservationPoint.BOUNDARY_ENTER,
+                    marker,
+                ),
+                ContextMarkerObservation(
+                    ContextObservationPoint.AFTER_SUSPENSION,
+                    marker,
+                ),
+                ContextMarkerObservation(
+                    ContextObservationPoint.BEFORE_TERMINAL,
+                    marker,
+                ),
+            ),
+            cleanupProbes = listOf(
+                ContextCleanupProbe(ContextProbeLocation.CALLER, null),
+            ),
+            terminal = ContextPropagationTerminal.SUCCESS,
+        )
+        val expectation = ContextPropagationExpectation(
+            boundary = ContextPropagationBoundary.COROUTINE,
+            scenario = ContextPropagationScenario.SUCCESS,
+            requestAlias = ContextRequestAlias.SINGLE,
+            markerExpectations = listOf(
+                ContextMarkerExpectation(
+                    ContextObservationPoint.BOUNDARY_ENTER,
+                    marker,
+                ),
+                ContextMarkerExpectation(
+                    ContextObservationPoint.AFTER_SUSPENSION,
+                    marker,
+                ),
+                ContextMarkerExpectation(
+                    ContextObservationPoint.BEFORE_TERMINAL,
+                    marker,
+                ),
+            ),
+            cleanupExpectations = listOf(
+                ContextCleanupExpectation(ContextProbeLocation.CALLER, null),
+            ),
+            expectedTerminal = ContextPropagationTerminal.SUCCESS,
+        )
+
+        assertContextPropagationConformance(observation, expectation)
+    }
+
+    @Test
+    fun `README isolation example compiles`() {
+        val isolationObservation = ContextIsolationObservation(
+            boundary = ContextPropagationBoundary.KTOR_REQUEST,
+            samples = listOf(
+                ContextIsolationSample(
+                    ContextRequestAlias.REQUEST_A,
+                    listOf("synthetic-parent-A", "synthetic-parent-A"),
+                ),
+                ContextIsolationSample(
+                    ContextRequestAlias.REQUEST_B,
+                    listOf("synthetic-parent-B", "synthetic-parent-B"),
+                ),
+                ContextIsolationSample(
+                    ContextRequestAlias.PROBE,
+                    listOf("synthetic-probe"),
+                ),
+            ),
+            cleanupProbes = listOf(
+                ContextCleanupProbe(ContextProbeLocation.REQUEST, null),
+            ),
+        )
+        val isolationExpectation = ContextIsolationExpectation(
+            boundary = ContextPropagationBoundary.KTOR_REQUEST,
+            samples = listOf(
+                ContextIsolationSampleExpectation(
+                    requestAlias = ContextRequestAlias.REQUEST_A,
+                    mode = ContextMarkerExpectationMode.EXACT,
+                    expectedMarker = "synthetic-parent-A",
+                    minimumObservationCount = 2,
+                ),
+                ContextIsolationSampleExpectation(
+                    requestAlias = ContextRequestAlias.REQUEST_B,
+                    mode = ContextMarkerExpectationMode.EXACT,
+                    expectedMarker = "synthetic-parent-B",
+                    minimumObservationCount = 2,
+                ),
+                ContextIsolationSampleExpectation(
+                    requestAlias = ContextRequestAlias.PROBE,
+                    mode = ContextMarkerExpectationMode.NOT_IN,
+                    forbiddenMarkers = listOf(
+                        "synthetic-parent-A",
+                        "synthetic-parent-B",
+                    ),
+                ),
+            ),
+            cleanupExpectations = listOf(
+                ContextCleanupExpectation(ContextProbeLocation.REQUEST, null),
+            ),
+        )
+
+        assertContextIsolation(isolationObservation, isolationExpectation)
+    }
+
     private fun propagationObservation(): ContextPropagationObservation =
         ContextPropagationObservation(
             boundary = ContextPropagationBoundary.COROUTINE,
