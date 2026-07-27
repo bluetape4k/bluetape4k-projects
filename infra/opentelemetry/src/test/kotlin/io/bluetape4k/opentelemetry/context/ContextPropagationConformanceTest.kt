@@ -20,12 +20,16 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
+import reactor.core.publisher.Mono
+import reactor.core.publisher.Sinks
 import java.util.concurrent.AbstractExecutorService
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration
 
 @Timeout(
@@ -189,6 +193,124 @@ class ContextPropagationConformanceTest {
                 ContextPropagationTerminal.SUCCESS,
             ),
         )
+    }
+
+    @Test
+    fun `reactor failure propagates and restores context`() {
+        val captured = runReactorScenario(ContextPropagationScenario.FAILURE)
+        captured.assertThrownExactly<IllegalStateException>()
+        assertContextPropagationConformance(
+            captured.observation,
+            propagationExpectation(
+                ContextPropagationBoundary.REACTOR,
+                ContextPropagationScenario.FAILURE,
+                ContextPropagationTerminal.FAILURE,
+            ),
+        )
+    }
+
+    @Test
+    fun `reactor cancellation propagates and restores context`() {
+        val captured = runReactorScenario(ContextPropagationScenario.CANCELLATION)
+        captured.thrown.shouldBeNull()
+        assertContextPropagationConformance(
+            captured.observation,
+            propagationExpectation(
+                ContextPropagationBoundary.REACTOR,
+                ContextPropagationScenario.CANCELLATION,
+                ContextPropagationTerminal.CANCELLATION,
+            ),
+        )
+    }
+
+    @Test
+    fun `reactor deadline propagates and restores context`() {
+        val captured = runReactorScenario(ContextPropagationScenario.DEADLINE)
+        captured.assertThrownExactly<TimeoutException>()
+        assertContextPropagationConformance(
+            captured.observation,
+            propagationExpectation(
+                ContextPropagationBoundary.REACTOR,
+                ContextPropagationScenario.DEADLINE,
+                ContextPropagationTerminal.DEADLINE_EXCEEDED,
+            ),
+        )
+    }
+
+    @Test
+    fun `reactor subscribers keep isolated parent contexts`() {
+        assertContextIsolation(
+            runReactorIsolationScenario(),
+            reactorIsolationExpectation(),
+        )
+    }
+
+    @Test
+    fun `reactor isolation startup failure terminates the shared ready gate`() {
+        val readyA = Sinks.one<Unit>()
+        val readyB = Sinks.one<Unit>()
+        val firstFailure = AtomicReference<Throwable>()
+        val sharedFailure = AtomicReference<Throwable>()
+        val sharedTerminated = CountDownLatch(1)
+        val failure = IllegalStateException("synthetic participant startup failure")
+        val sharedGate = Mono.`when`(readyA.asMono(), readyB.asMono()).cache()
+
+        sharedGate.subscribe(
+            {},
+            {
+                sharedFailure.set(it)
+                sharedTerminated.countDown()
+            },
+        )
+
+        recordReactorIsolationFailure(failure, readyA, firstFailure)
+        sharedTerminated.awaitOrFail()
+
+        (firstFailure.get() === failure).shouldBeTrue()
+        (sharedFailure.get() === failure).shouldBeTrue()
+    }
+
+    @Test
+    fun `blocking test gate restores interrupt status`() {
+        Thread.currentThread().interrupt()
+        try {
+            assertFailsWith<InterruptedException> {
+                CountDownLatch(1).awaitOrFail()
+            }
+            Thread.currentThread().isInterrupted.shouldBeTrue()
+        } finally {
+            Thread.interrupted()
+        }
+    }
+
+    @Test
+    fun `reactor cleanup preserves interruption and attempts remaining actions`() {
+        val interruption = InterruptedException("synthetic cleanup interruption")
+        val attempted = mutableListOf<String>()
+
+        try {
+            val thrown = assertFailsWith<InterruptedException> {
+                withReactorCleanup(
+                    actions = listOf(
+                        {
+                            attempted += "interrupted"
+                            throw interruption
+                        },
+                        {
+                            attempted += "remaining"
+                        },
+                    ),
+                ) {
+                    Unit
+                }
+            }
+
+            (thrown === interruption).shouldBeTrue()
+            check(attempted == listOf("interrupted", "remaining"))
+            Thread.currentThread().isInterrupted.shouldBeTrue()
+        } finally {
+            Thread.interrupted()
+        }
     }
 
     @Test
