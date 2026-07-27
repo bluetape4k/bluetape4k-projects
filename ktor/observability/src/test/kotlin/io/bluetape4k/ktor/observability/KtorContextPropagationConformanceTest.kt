@@ -171,6 +171,7 @@ class KtorContextPropagationConformanceTest {
                 }
 
                 check(thrown === failure)
+                tracing.harness.ledger.assertIsolationTerminalsObserved()
             }
         }
     }
@@ -295,6 +296,19 @@ private class KtorConformanceEventLedger {
         check(lastReady < firstRelease)
         participantEntries.forEach { (alias, entries) ->
             assertCleanupAfterFinally(alias, entries)
+        }
+    }
+
+    fun assertIsolationTerminalsObserved() {
+        val terminalAliases =
+            events
+                .filter { it.event == KtorConformanceEvent.TERMINAL_OBSERVED }
+                .map(KtorConformanceEventEntry::requestAlias)
+        check(
+            terminalAliases.count { it == ContextRequestAlias.REQUEST_A } == 1 &&
+                    terminalAliases.count { it == ContextRequestAlias.REQUEST_B } == 1
+        ) {
+            "Ktor isolation terminal observation mismatch"
         }
     }
 
@@ -642,7 +656,6 @@ private suspend fun ApplicationTestBuilder.runKtorIsolationScenario(
 
             harness.readyA.awaitGateWithin("request A ready")
             harness.readyB.awaitGateWithin("request B ready")
-            harness.firstIsolationFailure.get()?.let { throw it }
             harness.release.complete(Unit)
 
             val failureA = requestA.captureTerminalWithin("request A terminal")
