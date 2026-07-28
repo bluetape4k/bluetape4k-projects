@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
 
 /**
- * Spring Boot demo application for bluetape4k idgenerators.
+ * bluetape4k idgenerator용 Spring Boot demo application입니다.
  *
  * ## Behavior
  * - Registers `IdGenerator` implementations as Spring beans and injects them into the REST controller.
