@@ -1,30 +1,29 @@
-# Issue 446 Jackson3 Consumers
+# Issue 446 Jackson3 Consumer
 
-## Context
+## 배경
 
-Spring Boot 4 uses Jackson 3, so supported modules that only consumed
-`bluetape4k-jackson2` were migrated to `bluetape4k-jackson3`.
+Spring Boot 4는 Jackson 3을 사용하므로, `bluetape4k-jackson2`만 소비하던 지원
+module을 `bluetape4k-jackson3`으로 migration했다.
 
-## Decision
+## 결정
 
-Convert modules whose local code or dependencies can compile against
-`tools.jackson.*` and `io.bluetape4k.jackson3.*`. Keep upstream integrations
-that still require Jackson 2, such as Retrofit's Jackson converter, JJWT
-Jackson, and Spring Kafka 3.x converters.
+Local code 또는 dependency가 `tools.jackson.*`와 `io.bluetape4k.jackson3.*`를
+상대로 compile 가능한 module만 변환한다. Retrofit의 Jackson converter, JJWT Jackson,
+Spring Kafka 3.x converter처럼 여전히 Jackson 2가 필요한 upstream integration은
+유지한다.
 
-## Outcome
+## 결과
 
-Supported data, IO, Feign, HTTP, Vert.x, NATS, Micrometer, gRPC, Cassandra,
-Hibernate, MongoDB, R2DBC, Geo, and Redisson demo dependencies now use
-Jackson3. Jackson2-only upstream integrations remain unchanged.
+지원되는 data, IO, Feign, HTTP, Vert.x, NATS, Micrometer, gRPC, Cassandra,
+Hibernate, MongoDB, R2DBC, Geo, Redisson demo dependency는 이제 Jackson3를 사용한다.
+Jackson2-only upstream integration은 변경하지 않았다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-cassandra:testClasses :bluetape4k-hibernate:testClasses :bluetape4k-hibernate-reactive:testClasses :bluetape4k-mongodb:testClasses :bluetape4k-r2dbc:testClasses :bluetape4k-examples-redisson-demo:testClasses :bluetape4k-micrometer:testClasses :bluetape4k-nats:testClasses :bluetape4k-feign:testClasses :bluetape4k-grpc:testClasses :bluetape4k-http:testClasses :bluetape4k-vertx:testClasses :bluetape4k-geo:testClasses`
 - `./gradlew :bluetape4k-geo:testClasses`
 
-## Future Notes
+## 향후 메모
 
-Do not migrate a module just because it references Jackson2 by name. First
-check whether upstream adapters expose a Jackson3 API on the actual resolved
-classpath.
+Module이 Jackson2를 이름으로 참조한다는 이유만으로 migration하지 않는다. 먼저 실제
+resolved classpath에서 upstream adapter가 Jackson3 API를 노출하는지 확인한다.
