@@ -1,14 +1,12 @@
-# Issue #756 Lettuce Buffer Codec Implementation Plan
+# Issue #756 Lettuce Buffer Codec 구현 계획
 
-> **For agentic
-workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to execute this plan task-by-task. Apply `bluetape-kotlin-patterns` to every Kotlin production and test change.
+> **agentic worker용:** 필수 sub-skill: 이 계획은 superpowers:subagent-driven-development(권장) 또는 superpowers:executing-plans로 task별 실행한다. 모든 Kotlin production/test 변경에는 `bluetape-kotlin-patterns`를 적용한다.
 
-**Goal:** `BinarySerializer`/`JsonSerializer`에 source·binary compatible한 caller-owned `OutputStream` capability를 추가하고, Lettuce built-in codec 계층의 unconditional `ByteArray` copy를 bounded `ByteBuf`/`ByteBuffer` dispatch로 제거한다. payload-sized handoff allocation 제거 주장은 two-run evidence에서 accepted된 direct backend와 target cell에만 한정하며 compatibility fallback은 계속 allocation할 수 있다.
+**목표:** `BinarySerializer`/`JsonSerializer`에 source·binary compatible한 caller-owned `OutputStream` capability를 추가하고, Lettuce built-in codec 계층의 unconditional `ByteArray` copy를 bounded `ByteBuf`/`ByteBuffer` dispatch로 제거한다. payload-sized handoff allocation 제거 주장은 two-run evidence에서 accepted된 direct backend와 target cell에만 한정하며 compatibility fallback은 계속 allocation할 수 있다.
 
-**Architecture:** serializer interface default는 기존 `ByteArray` API에 위임하는 allocating compatibility fallback으로 남긴다. 검증된 JDK/Kryo/Jackson 2/Jackson 3만 caller-owned stream 직접 기록 후보를 제공하고, Lettuce는 NIO writable view 대신 absolute-index 기반 `BoundedByteBufOutputStream`으로 성공 시에만 `writerIndex`를 commit한다. 성능 주장은 exact matrix의 two-run JMH evidence와 fail-closed validator가 결정한다.
+**아키텍처:** serializer interface default는 기존 `ByteArray` API에 위임하는 allocating compatibility fallback으로 남긴다. 검증된 JDK/Kryo/Jackson 2/Jackson 3만 caller-owned stream 직접 기록 후보를 제공하고, Lettuce는 NIO writable view 대신 absolute-index 기반 `BoundedByteBufOutputStream`으로 성공 시에만 `writerIndex`를 commit한다. 성능 주장은 exact matrix의 two-run JMH evidence와 fail-closed validator가 결정한다.
 
-**Tech
-Stack:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty `ByteBuf`, Lettuce `ToByteBufEncoder`, JDK serialization, Kryo 5, Jackson 2/3, kotlinx-benchmark/JMH, Python 3 standard library.
+**기술 스택:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty `ByteBuf`, Lettuce `ToByteBufEncoder`, JDK serialization, Kryo 5, Jackson 2/3, kotlinx-benchmark/JMH, Python 3 standard library.
 
 ---
 
@@ -82,12 +80,12 @@ Stack:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty
 
 ## Task 1: serializer interface default를 test-first로 추가
 
-**Files:**
+**파일:**
 
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/BinarySerializerOutputStreamContractTest.kt`
-- Create: `io/json/src/test/kotlin/io/bluetape4k/json/JsonSerializerOutputStreamContractTest.kt`
-- Modify: `io/io/src/main/kotlin/io/bluetape4k/io/serializer/BinarySerializer.kt`
-- Modify: `io/json/src/main/kotlin/io/bluetape4k/json/JsonSerializer.kt`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/BinarySerializerOutputStreamContractTest.kt`
+- 생성: `io/json/src/test/kotlin/io/bluetape4k/json/JsonSerializerOutputStreamContractTest.kt`
+- 수정: `io/io/src/main/kotlin/io/bluetape4k/io/serializer/BinarySerializer.kt`
+- 수정: `io/json/src/main/kotlin/io/bluetape4k/json/JsonSerializer.kt`
 
 - [ ] **1.1 RED — allocating default와 caller lifecycle 계약을 고정한다.**
 
@@ -184,20 +182,20 @@ Stack:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty
 
 ## Task 2: release/base/current ABI와 dual-interface source compatibility를 증명
 
-**Files:**
+**파일:**
 
-- Create: `io/io/src/test/resources/compat/issue-756/src/java/LegacyBinaryStreamCaller.java`
-- Create: `io/io/src/test/resources/compat/issue-756/src/java/LegacyBinaryImplementation.java`
-- Create: `io/io/src/test/resources/compat/issue-756/src/kotlin/LegacyBinaryStreamCaller.kt`
-- Create: `io/io/src/test/resources/compat/issue-756/src/java/LegacyBinaryDecorator.java`
-- Create: `io/io/src/test/resources/compat/issue-756/src/kotlin/LegacyBinaryDecorator.kt`
-- Create: `io/io/src/test/resources/compat/issue-756/src/java/ConcreteSerializerStreamCaller.java`
-- Create: `io/json/src/test/resources/compat/issue-756/src/java/LegacyJsonStreamCaller.java`
-- Create: `io/json/src/test/resources/compat/issue-756/src/java/LegacyJsonImplementation.java`
-- Create: `io/json/src/test/resources/compat/issue-756/src/kotlin/LegacyJsonStreamCaller.kt`
-- Create: `io/json/src/test/resources/compat/issue-756/src/java/LegacyDualSerializer.java`
-- Create: `io/json/src/test/resources/compat/issue-756/src/kotlin/LegacyDualSerializer.kt`
-- Modify: `scripts/check-serializer-buffer-abi.sh`
+- 생성: `io/io/src/test/resources/compat/issue-756/src/java/LegacyBinaryStreamCaller.java`
+- 생성: `io/io/src/test/resources/compat/issue-756/src/java/LegacyBinaryImplementation.java`
+- 생성: `io/io/src/test/resources/compat/issue-756/src/kotlin/LegacyBinaryStreamCaller.kt`
+- 생성: `io/io/src/test/resources/compat/issue-756/src/java/LegacyBinaryDecorator.java`
+- 생성: `io/io/src/test/resources/compat/issue-756/src/kotlin/LegacyBinaryDecorator.kt`
+- 생성: `io/io/src/test/resources/compat/issue-756/src/java/ConcreteSerializerStreamCaller.java`
+- 생성: `io/json/src/test/resources/compat/issue-756/src/java/LegacyJsonStreamCaller.java`
+- 생성: `io/json/src/test/resources/compat/issue-756/src/java/LegacyJsonImplementation.java`
+- 생성: `io/json/src/test/resources/compat/issue-756/src/kotlin/LegacyJsonStreamCaller.kt`
+- 생성: `io/json/src/test/resources/compat/issue-756/src/java/LegacyDualSerializer.java`
+- 생성: `io/json/src/test/resources/compat/issue-756/src/kotlin/LegacyDualSerializer.kt`
+- 수정: `scripts/check-serializer-buffer-abi.sh`
 
 - [ ] **2.1 Compatibility fixture와 fail-closed matrix를 작성한다.**
 
@@ -247,12 +245,12 @@ Stack:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty
 
 ## Task 3: decorator subclass semantics와 compressed wire를 명시적으로 보존
 
-**Files:**
+**파일:**
 
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/BinarySerializerDecoratorOutputStreamTest.kt`
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/CompressableBinarySerializerOutputStreamTest.kt`
-- Modify: `io/io/src/main/kotlin/io/bluetape4k/io/serializer/BinarySerializerDecorator.kt`
-- Modify: `io/io/src/main/kotlin/io/bluetape4k/io/serializer/CompressableBinarySerializer.kt`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/BinarySerializerDecoratorOutputStreamTest.kt`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/CompressableBinarySerializerOutputStreamTest.kt`
+- 수정: `io/io/src/main/kotlin/io/bluetape4k/io/serializer/BinarySerializerDecorator.kt`
+- 수정: `io/io/src/main/kotlin/io/bluetape4k/io/serializer/CompressableBinarySerializer.kt`
 
 - [ ] **3.1 RED — public decorator와 compression의 Kotlin delegation bypass regression을 고정한다.**
 
@@ -306,11 +304,11 @@ Stack:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty
 
 ## Task 4: JDK와 Kryo direct stream 후보를 검증
 
-**Files:**
+**파일:**
 
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/CoreBinarySerializerOutputStreamTest.kt`
-- Modify: `io/io/src/main/kotlin/io/bluetape4k/io/serializer/JdkBinarySerializer.kt`
-- Modify: `io/io/src/main/kotlin/io/bluetape4k/io/serializer/KryoBinarySerializer.kt`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/CoreBinarySerializerOutputStreamTest.kt`
+- 수정: `io/io/src/main/kotlin/io/bluetape4k/io/serializer/JdkBinarySerializer.kt`
+- 수정: `io/io/src/main/kotlin/io/bluetape4k/io/serializer/KryoBinarySerializer.kt`
 
 - [ ] **4.1 RED — backend parity와 resource lifecycle을 고정한다.**
 
@@ -388,12 +386,12 @@ Stack:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty
 
 ## Task 5: Jackson 2/3 direct stream 후보를 검증
 
-**Files:**
+**파일:**
 
-- Create: `io/jackson2/src/test/kotlin/io/bluetape4k/jackson/JacksonSerializerOutputStreamTest.kt`
-- Create: `io/jackson3/src/test/kotlin/io/bluetape4k/jackson3/JacksonSerializerOutputStreamTest.kt`
-- Modify: `io/jackson2/src/main/kotlin/io/bluetape4k/jackson/JacksonSerializer.kt`
-- Modify: `io/jackson3/src/main/kotlin/io/bluetape4k/jackson3/JacksonSerializer.kt`
+- 생성: `io/jackson2/src/test/kotlin/io/bluetape4k/jackson/JacksonSerializerOutputStreamTest.kt`
+- 생성: `io/jackson3/src/test/kotlin/io/bluetape4k/jackson3/JacksonSerializerOutputStreamTest.kt`
+- 수정: `io/jackson2/src/main/kotlin/io/bluetape4k/jackson/JacksonSerializer.kt`
+- 수정: `io/jackson3/src/main/kotlin/io/bluetape4k/jackson3/JacksonSerializer.kt`
 
 - [ ] **5.1 RED — mapper/wire/security/failure parity를 각 major line에서 고정한다.**
 
@@ -474,10 +472,10 @@ Stack:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty
 
 ## Task 6: bounded absolute-index ByteBuf writer를 TDD로 구현
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/codec/BoundedByteBufOutputStreamTest.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/BoundedByteBufOutputStream.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/codec/BoundedByteBufOutputStreamTest.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/BoundedByteBufOutputStream.kt`
 
 - [ ] **6.1 RED — ownership, bounds, hostile state matrix를 고정한다.**
 
@@ -556,12 +554,12 @@ Stack:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty
 
 ## Task 7: Lettuce built-in target encode를 success-only commit으로 전환
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodecBufferContractTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceJsonCodecBufferContractTest.kt`
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodec.kt`
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceJsonCodec.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodecBufferContractTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceJsonCodecBufferContractTest.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodec.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceJsonCodec.kt`
 
 - [ ] **7.1 RED — binary/json 공통 target 계약을 고정한다.**
 
@@ -623,17 +621,17 @@ Stack:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty
 
 ## Task 8: bounded decode dispatch로 unconditional copy를 제거
 
-**Files:**
+**파일:**
 
-- Modify: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodecBufferContractTest.kt`
-- Modify: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceJsonCodecBufferContractTest.kt`
-- Modify: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/CoreBinarySerializerOutputStreamTest.kt`
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/JdkGlobalObjectInputFilterForkTest.kt`
-- Create: `io/io/src/test/java/io/bluetape4k/io/serializer/JdkGlobalObjectInputFilterFixture.java`
-- Modify: `io/jackson2/src/test/kotlin/io/bluetape4k/jackson/JacksonSerializerOutputStreamTest.kt`
-- Modify: `io/jackson3/src/test/kotlin/io/bluetape4k/jackson3/JacksonSerializerOutputStreamTest.kt`
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodec.kt`
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceJsonCodec.kt`
+- 수정: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodecBufferContractTest.kt`
+- 수정: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceJsonCodecBufferContractTest.kt`
+- 수정: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/CoreBinarySerializerOutputStreamTest.kt`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/JdkGlobalObjectInputFilterForkTest.kt`
+- 생성: `io/io/src/test/java/io/bluetape4k/io/serializer/JdkGlobalObjectInputFilterFixture.java`
+- 수정: `io/jackson2/src/test/kotlin/io/bluetape4k/jackson/JacksonSerializerOutputStreamTest.kt`
+- 수정: `io/jackson3/src/test/kotlin/io/bluetape4k/jackson3/JacksonSerializerOutputStreamTest.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceBinaryCodec.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/codec/LettuceJsonCodec.kt`
 
 - [ ] **8.1 RED — source view와 synchronous borrow 계약을 고정한다.**
 
@@ -703,14 +701,14 @@ Stack:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty
 
 ## Task 9: exact benchmark matrix와 fail-closed validator를 TDD로 구축
 
-**Files:**
+**파일:**
 
-- Modify: `infra/lettuce/src/benchmark/kotlin/io/bluetape4k/redis/lettuce/benchmark/LettuceCodecBenchmark.kt`
-- Create: `infra/lettuce/src/benchmark/kotlin/io/bluetape4k/redis/lettuce/benchmark/LettuceCodecBenchmarkPreflight.kt`
-- Create: `infra/lettuce/scripts/test_validate_issue756_jmh.py`
-- Create: `infra/lettuce/scripts/validate-issue756-jmh.py`
-- Create: `infra/lettuce/scripts/test_run_issue756_evidence.py`
-- Create: `infra/lettuce/scripts/run-issue756-evidence.py`
+- 수정: `infra/lettuce/src/benchmark/kotlin/io/bluetape4k/redis/lettuce/benchmark/LettuceCodecBenchmark.kt`
+- 생성: `infra/lettuce/src/benchmark/kotlin/io/bluetape4k/redis/lettuce/benchmark/LettuceCodecBenchmarkPreflight.kt`
+- 생성: `infra/lettuce/scripts/test_validate_issue756_jmh.py`
+- 생성: `infra/lettuce/scripts/validate-issue756-jmh.py`
+- 생성: `infra/lettuce/scripts/test_run_issue756_evidence.py`
+- 생성: `infra/lettuce/scripts/run-issue756-evidence.py`
 
 - [ ] **9.1 RED — validator fixture tests를 먼저 작성한다.**
 
@@ -823,12 +821,12 @@ Stack:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty
 
 ## Task 10: benchmark input commit을 고정하고 two-run 판정을 코드에 반영
 
-**Files:**
+**파일:**
 
 - Potentially modify only when evidence rejects a direct backend: `io/io/src/main/kotlin/io/bluetape4k/io/serializer/JdkBinarySerializer.kt`, `io/io/src/main/kotlin/io/bluetape4k/io/serializer/KryoBinarySerializer.kt`, `io/jackson2/src/main/kotlin/io/bluetape4k/jackson/JacksonSerializer.kt`, `io/jackson3/src/main/kotlin/io/bluetape4k/jackson3/JacksonSerializer.kt`
 - Potentially modify with the rejected backend: `io/io/src/test/kotlin/io/bluetape4k/io/serializer/CoreBinarySerializerOutputStreamTest.kt`, `io/jackson2/src/test/kotlin/io/bluetape4k/jackson/JacksonSerializerOutputStreamTest.kt`, `io/jackson3/src/test/kotlin/io/bluetape4k/jackson3/JacksonSerializerOutputStreamTest.kt`
 - Create after final accepted input: `docs/benchmarks/raw/issue-756/**`
-- Create: `docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md`
+- 생성: `docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md`
 
 - [ ] **10.1 Pre-measurement full gate와 clean input SHA freeze.**
 
@@ -896,13 +894,13 @@ Stack:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty
 
 ## Task 11: bilingual docs와 운영 경계를 동기화
 
-**Files:**
+**파일:**
 
-- Modify: `io/io/README.md`, `io/io/README.ko.md`
-- Modify: `io/json/README.md`, `io/json/README.ko.md`
-- Modify: `io/jackson2/README.md`, `io/jackson2/README.ko.md`
-- Modify: `io/jackson3/README.md`, `io/jackson3/README.ko.md`
-- Modify: `infra/lettuce/README.md`, `infra/lettuce/README.ko.md`
+- 수정: `io/io/README.md`, `io/io/README.ko.md`
+- 수정: `io/json/README.md`, `io/json/README.ko.md`
+- 수정: `io/jackson2/README.md`, `io/jackson2/README.ko.md`
+- 수정: `io/jackson3/README.md`, `io/jackson3/README.ko.md`
+- 수정: `infra/lettuce/README.md`, `infra/lettuce/README.ko.md`
 
 - [ ] **11.1 RED — exact terminology/parity check를 실행한다.**
 
@@ -959,7 +957,7 @@ Stack:** Kotlin 2.3, Java 21, Gradle, JUnit 5, `io.bluetape4k.assertions`, Netty
 
 ## Task 12: 독립 review, 최종 검증, PR 생성, merge 승인 대기
 
-**Files:**
+**파일:**
 
 - Review all files changed from `b00cc5440e47ad803e5aac21528b560fdd3b0474`
 - Create transiently for PR body: `.codex/compat/issue-756/pr-body.md` (gitignored)
