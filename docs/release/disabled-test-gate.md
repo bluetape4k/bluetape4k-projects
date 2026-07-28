@@ -1,12 +1,12 @@
 # Disabled Test Release Gate
 
-Run the disabled-test gate before release:
+Release 전에 disabled-test gate를 실행한다.
 
 ```bash
 ./gradlew checkDisabledTests
 ```
 
-The task writes:
+Task는 다음 파일을 쓴다.
 
 ```text
 build/reports/disabled-tests/disabled-tests.md
@@ -14,12 +14,12 @@ build/reports/disabled-tests/disabled-tests.md
 
 Release checklist:
 
-1. Open the generated report.
-2. Confirm `Known-bug violations without tracking issue` is `0`.
-3. Review `uncategorized` entries and either add a clearer annotation reason or
-   create a tracking issue when the disabled test hides a real bug.
-4. Keep unsupported capability, manual environment, slow optional, and
-   conditional environment skips visible in the report.
+1. 생성된 report를 연다.
+2. `Known-bug violations without tracking issue`가 `0`인지 확인한다.
+3. `uncategorized` entry를 검토하고, disabled test가 실제 bug를 숨기면 더 명확한 annotation
+   reason을 추가하거나 tracking issue를 만든다.
+4. Unsupported capability, manual environment, slow optional, conditional environment skip은
+   report에 보이게 유지한다.
 
-Gate rule: any disabled test categorized as `known-bug` must include a GitHub
-issue reference such as `#497` in the annotation reason.
+Gate rule: `known-bug`로 분류된 모든 disabled test는 annotation reason에 `#497` 같은 GitHub
+issue reference를 포함해야 한다.
