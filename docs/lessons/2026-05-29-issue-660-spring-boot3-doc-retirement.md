@@ -1,33 +1,33 @@
-# Issue 660: Spring Boot 3 Documentation Retirement
+# 이슈 660: Spring Boot 3 documentation retirement
 
-## Context
+## 배경
 
-The repository now presents Spring Boot 4.x as the only current support line.
-Searches still surfaced Spring Boot 3 references in historical plans, specs,
-security reviews, and changelog entries.
+repository는 이제 Spring Boot 4.x를 유일한 current support line으로 제시한다. 하지만
+search에서는 historical plan, spec, security review, changelog entry의 Spring Boot 3
+reference가 여전히 노출됐다.
 
-## Decision
+## 결정
 
-Keep historical evidence intact, but make the active support boundary explicit
-in current-facing README files and archive entrypoints.
+historical evidence는 그대로 보존하되, current-facing README file과 archive entrypoint에
+active support boundary를 명시한다.
 
-## Outcome
+## 결과
 
-- Root `README.md` and `README.ko.md` now state Spring Boot 4.x only.
-- `docs/superpowers/README.md` marks specs, plans, and research notes as
-  historical internal artifacts.
-- `docs/security-review/README.md` marks security review files as point-in-time
-  evidence.
+- root `README.md`와 `README.ko.md`는 이제 Spring Boot 4.x only를 명시한다.
+- `docs/superpowers/README.md`는 spec, plan, research note를 historical internal
+  artifact로 표시한다.
+- `docs/security-review/README.md`는 security review file을 point-in-time evidence로
+  표시한다.
 
-## Verification
+## 검증
 
-- Confirmed root README files already used Spring Boot 4.x and added the
-  retired-line clarification in both languages.
-- Confirmed repo-local `AGENTS.md` already states Spring Boot 4.x modules and
-  no active `spring-boot3/*` line.
+- root README file이 이미 Spring Boot 4.x를 사용하고 있음을 확인하고, 두 언어 모두에
+  retired-line clarification을 추가했다.
+- repo-local `AGENTS.md`가 이미 Spring Boot 4.x module과 active `spring-boot3/*` line이
+  없음을 명시하고 있음을 확인했다.
 
-## Future Guidance
+## 향후 지침
 
-Do not rewrite historical Spring Boot 3 references unless the file is being
-republished as current-facing documentation. Prefer a local archive note or
-directory-level context over broad regex replacement.
+파일이 current-facing documentation으로 다시 publish되는 경우가 아니라면 historical
+Spring Boot 3 reference를 rewrite하지 않는다. broad regex replacement보다 local archive
+note 또는 directory-level context를 우선한다.

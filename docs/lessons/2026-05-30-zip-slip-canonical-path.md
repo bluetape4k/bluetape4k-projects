@@ -1,29 +1,26 @@
 # Zip Slip canonical path validation
 
-## Context
+## 배경
 
-GitHub CodeQL reported `java/zipslip` in `ZipFileSupport.unzip` at the file
-extraction sink.
+GitHub CodeQL이 file extraction sink의 `ZipFileSupport.unzip`에서 `java/zipslip`을
+보고했다.
 
-## Decision
+## 결정
 
-Resolve every ZIP entry through the destination directory's canonical file and
-reject targets whose canonical path escapes that directory before opening the
-output stream.
+모든 ZIP entry를 destination directory의 canonical file을 통해 resolve하고, output
+stream을 열기 전에 canonical path가 해당 directory를 벗어나는 target을 거부한다.
 
-## Outcome
+## 결과
 
-The extraction path check now guards the exact canonical file passed to
-`FileOutputStream`, including sibling paths that share a textual prefix with
-the destination directory name.
+extraction path check는 이제 destination directory name과 textual prefix를 공유하는
+sibling path까지 포함해, `FileOutputStream`에 전달되는 정확한 canonical file을 보호한다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-io:test --tests "io.bluetape4k.io.compressor.ZipFileSupportTest"`
 - `git diff --check`
 
-## Future guard
+## 향후 가드
 
-For archive extraction code, validate canonical target paths at the same
-abstraction level as the file sink instead of relying only on normalized string
-or path comparisons.
+archive extraction code에서는 normalized string 또는 path comparison에만 의존하지 말고,
+file sink와 같은 abstraction level에서 canonical target path를 검증한다.
