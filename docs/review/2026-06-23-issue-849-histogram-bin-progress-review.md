@@ -1,4 +1,4 @@
-# Issue #849 Histogram Bin Progress Review
+# Issue #849 Histogram Bin Progress 검토
 
 ## Scope
 
