@@ -1,41 +1,41 @@
 # StructuredTaskScopeTester workers() Concurrency Control
 
-**Date**: 2026-05-18  
-**Issue**: #522  
-**Branch**: fix/structured-task-scope-workers
+**날짜**: 2026-05-18
+**이슈**: #522
+**브랜치**: fix/structured-task-scope-workers
 
-## Root Cause
+## 근본 원인
 
-`StructuredTaskScopeTester` implemented `StressTester` (rounds only) and had no `workers()` method.
-All forked virtual threads ran without any concurrency cap, making `workers(n)` silently ineffective.
+`StructuredTaskScopeTester`는 `StressTester`(rounds only)를 구현했고 `workers()` method가 없었다.
+Fork된 모든 virtual thread가 concurrency cap 없이 실행되어 `workers(n)`이 조용히 효과가 없었다.
 
-## Decision
+## 결정
 
-- Upgrade to `WorkerStressTester<StructuredTaskScopeTester>` to gain the `workers()` contract.
-- Add an internal `Semaphore(workerSize)` acquired **inside** each forked task (not before fork).
-  - Acquiring inside the fork lets all tasks be submitted immediately; the semaphore gates actual execution.
-  - `finally { semaphore.release() }` guarantees release even on exception.
-  - On scope cancellation, threads blocked in `semaphore.acquire()` receive `InterruptedException` before
-    a permit is taken, so no permit leaks.
-- Default: `Runtime.getRuntime().availableProcessors() * 2` (mirrors issue acceptance criteria).
-  - `Systemx.availableProcessors` was the first choice but `bluetape4k-core` is not a dependency
-    of `bluetape4k-junit5`; use `Runtime` directly instead of adding the dependency.
+- `WorkerStressTester<StructuredTaskScopeTester>`로 upgrade해 `workers()` contract를 얻는다.
+- 내부 `Semaphore(workerSize)`를 추가하고 각 forked task **안에서** acquire한다(fork 전이 아님).
+  - Fork 내부 acquire는 모든 task를 즉시 submit하게 하고, semaphore가 실제 실행을 gate한다.
+  - `finally { semaphore.release() }`는 exception 상황에서도 release를 보장한다.
+  - Scope cancellation 시 `semaphore.acquire()`에서 blocked 된 thread는 permit을 얻기 전에
+    `InterruptedException`을 받으므로 permit leak이 없다.
+- 기본값: `Runtime.getRuntime().availableProcessors() * 2`(issue acceptance criteria와 동일).
+  - 첫 선택은 `Systemx.availableProcessors`였지만 `bluetape4k-core`는 `bluetape4k-junit5`의
+    dependency가 아니다. Dependency를 추가하지 않고 `Runtime`을 직접 사용한다.
 
-## Verification
+## 검증
 
-- 10 tests in `StructuredTaskScopeTesterTest` passing (0 failures).
-- 3 tests in `StressTesterContractTest` passing (updated to use `configureWorkerTester`).
+- `StructuredTaskScopeTesterTest`의 10 tests 통과(failure 0).
+- `StressTesterContractTest`의 3 tests 통과(`configureWorkerTester` 사용으로 갱신).
 
-## Review Findings Resolved
+## 리뷰 지적 해결
 
-| Finding | Fix |
+| 지적 | 수정 |
 |---------|-----|
-| Non-atomic peak-concurrency measurement (`incrementAndGet` + `getAndUpdate`) | Replaced with `Semaphore.tryAcquire()` inside the block — fails atomically if over limit |
-| `StressTesterContractTest` still used `configureRoundsTester` after interface upgrade | Updated to `configureWorkerTester(workers=2, rounds=4)` |
+| Non-atomic peak-concurrency measurement(`incrementAndGet` + `getAndUpdate`) | Block 내부 `Semaphore.tryAcquire()`로 교체해 limit 초과 시 atomic하게 실패 |
+| Interface upgrade 후에도 `StressTesterContractTest`가 `configureRoundsTester` 사용 | `configureWorkerTester(workers=2, rounds=4)`로 갱신 |
 
-## Future Guidance
+## 향후 가이드
 
-- When a tester gains `workers()`, always upgrade the contract test to `configureWorkerTester`.
-- For concurrency-limit tests, prefer `Semaphore.tryAcquire()` over an atomic counter + peak-update
-  pair — the two-step pattern has a TOCTOU gap that can hide semaphore bugs.
-- Do not depend on `bluetape4k-core` from `bluetape4k-junit5`; use JDK stdlib equivalents.
+- Tester가 `workers()`를 얻으면 contract test도 항상 `configureWorkerTester`로 upgrade한다.
+- Concurrency-limit test에서는 atomic counter + peak-update pair보다 `Semaphore.tryAcquire()`를
+  선호한다. 두 단계 pattern에는 semaphore bug를 숨길 수 있는 TOCTOU gap이 있다.
+- `bluetape4k-junit5`에서 `bluetape4k-core`에 의존하지 않는다. JDK stdlib equivalent를 사용한다.
