@@ -1,30 +1,29 @@
 # 2026-05-29 - Issue 674 CSV Okio writer fast path
 
-## Context
+## 배경
 
-Issue #674 followed the CSV reader Okio work by targeting large CSV export
-pipelines. `FlowCsvWriter.writeFile` already accepted a `Flow<Iterable<*>>`, but
-UTF-8 file output still went through `OutputStreamWriter` and many small
-`Writer.write(...)` calls.
+issue #674는 CSV reader Okio 작업의 후속으로 large CSV export pipeline을 대상으로
+했다. `FlowCsvWriter.writeFile`은 이미 `Flow<Iterable<*>>`를 받았지만, UTF-8 file
+output은 여전히 `OutputStreamWriter`와 많은 작은 `Writer.write(...)` call을 거쳤다.
 
-## Decision
+## 결정
 
-Keep the public `FlowCsvWriter` contract unchanged and route UTF-8 file output
-through an internal Okio `BufferedSink` writer. Keep non-UTF-8 encodings on the
-existing writer fallback path.
+public `FlowCsvWriter` contract는 변경하지 않고 UTF-8 file output을 internal Okio
+`BufferedSink` writer로 보낸다. non-UTF-8 encoding은 기존 writer fallback path에
+남긴다.
 
-The fast path preserves the existing writer semantics:
+fast path는 기존 writer semantic을 보존한다.
 
-- `null` as an unquoted empty field.
-- empty string as quoted `""`.
+- `null`은 unquoted empty field.
+- empty string은 quoted `""`.
 - doubled-quote escaping.
 - `quoteAll`.
-- CSV and TSV delimiters and line separators.
+- CSV/TSV delimiter와 line separator.
 
-## Outcome
+## 결과
 
-The writer benchmark compares the legacy Writer baseline against the public
-Okio-backed `writeFile` path:
+writer benchmark는 legacy Writer baseline과 public Okio-backed `writeFile` path를
+비교한다.
 
 | Workload | Writer baseline | Okio writer | Speedup |
 |---|---:|---:|---:|
@@ -32,14 +31,14 @@ Okio-backed `writeFile` path:
 | medium | 676.110 ops/s | 2,068.696 ops/s | 3.06x |
 | large | 83.802 ops/s | 272.157 ops/s | 3.25x |
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-csv:test --tests 'io.bluetape4k.csv.v2.FlowCsvWriterTest'` - 21 passing.
 - `./gradlew :bluetape4k-csv:test` - 271 passing.
-- `./gradlew :bluetape4k-csv:testBenchmark` - writer benchmark above.
+- `./gradlew :bluetape4k-csv:testBenchmark` - 위 writer benchmark.
 
-## Future Guard
+## 향후 가드
 
-For CSV writer performance work, benchmark the public `writeFile` path and keep
-a baseline implementation in the benchmark so future agents can compare against
-the previous `Writer` behavior without reintroducing a production fallback flag.
+CSV writer performance work에서는 public `writeFile` path를 benchmark하고, future
+agent가 production fallback flag를 다시 도입하지 않고도 이전 `Writer` behavior와
+비교할 수 있도록 benchmark에 baseline implementation을 유지한다.
