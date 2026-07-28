@@ -24,7 +24,7 @@ enum class SerializationTrustProfile(
     ALLOW_LISTED_TYPES("AllowListedTypes"),
 
     /**
-     * The caller supplies the target type statically; serialized data does not
+     * 호출자는 target 타입을 정적으로 제공합니다. 직렬화된 데이터는
      * choose the class to instantiate.
      */
     NO_DYNAMIC_TYPE_LOADING("NoDynamicTypeLoading"),
