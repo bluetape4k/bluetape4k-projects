@@ -51,7 +51,7 @@ object LettuceBinaryCodecs {
     fun <V: Any> kryo(): LettuceBinaryCodec<V> = codec(BinarySerializers.Kryo)
 
     /**
-     * Creates a [LettuceBinaryCodec] with the raw Fory serializer.
+     * raw Fory serializer를 사용하는 [LettuceBinaryCodec]을 생성합니다.
      *
      * One-argument encode still creates a [ByteArray]. Caller-owned target encode uses the bounded stream path to
      * avoid the codec-level handoff array and commits the writer index only after success. Fory retains its internal
@@ -144,7 +144,7 @@ object LettuceBinaryCodecs {
     // -------------------------------------------------------------------------
 
     /**
-     * Creates a [LettuceBinaryCodec] with the raw FastFory serializer.
+     * raw FastFory serializer를 사용하는 [LettuceBinaryCodec]을 생성합니다.
      *
      * FastFory uses `CompatibleMode.SCHEMA_CONSISTENT`. One-argument encode still creates a [ByteArray].
      * Caller-owned target encode avoids only the codec-level handoff array; Fory's internal buffer remains, so this
