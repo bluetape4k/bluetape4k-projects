@@ -1,45 +1,43 @@
-# Issue 468 - JPA Blaze Persistence Demo
+# 이슈 468 - JPA Blaze Persistence Demo
 
-## Context
+## 배경
 
-Issue #468 added a new `examples/jpa-blazepersistence-demo` module to show JPA
-querying with Blaze Persistence as a migration companion to the Querydsl demo,
-especially where Querydsl `fetchCount()` / `fetchResults()` are deprecated.
+Issue #468은 JPA query를 Blaze Persistence로 보여주는 새
+`examples/jpa-blazepersistence-demo` module 추가 작업이었다. 특히 Querydsl `fetchCount()` /
+`fetchResults()`가 deprecated 된 지점에서 Querydsl demo의 migration companion 역할을 한다.
 
-## Decision
+## 결정
 
-Use the Jakarta Blaze Persistence `1.6.16` artifacts because the Hibernate 7.0
-integration artifact is available there. Keep wiring manual instead of adopting
-Blaze Spring Data integration because the current repository uses Spring Boot 4 /
-Spring Framework 7, while Blaze's Spring integration line targets older Spring
-Data generations.
+Hibernate 7.0 integration artifact가 제공되는 Jakarta Blaze Persistence `1.6.16` artifact를 사용한다.
+현재 repository는 Spring Boot 4 / Spring Framework 7을 사용하지만 Blaze의 Spring integration line은
+더 오래된 Spring Data generation을 대상으로 하므로, Blaze Spring Data integration을 채택하지 않고
+manual wiring을 유지한다.
 
-## Outcome
+## 결과
 
-The new module demonstrates:
+새 module은 다음을 보여준다:
 
-- Manual `CriteriaBuilderFactory` and `EntityViewManager` beans.
-- Entity View projections for member/team read models.
+- Manual `CriteriaBuilderFactory`와 `EntityViewManager` bean.
+- Member/team read model용 Entity View projection.
 - Dynamic Criteria Builder filtering.
-- `PagedList` count metadata as the Querydsl count replacement example.
-- Keyset pagination via `EntityViewSetting.withKeysetPage(...)`.
-- Multilingual module README files and root README links.
-- Examples workflow coverage and Nightly build exclusion parity.
+- Querydsl count replacement example로서의 `PagedList` count metadata.
+- `EntityViewSetting.withKeysetPage(...)`를 통한 keyset pagination.
+- Multilingual module README file과 root README link.
+- Examples workflow coverage와 Nightly build exclusion parity.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-examples-jpa-blazepersistence-demo:check`
 - `actionlint .github/workflows/examples.yml .github/workflows/nightly-tests.yml`
 - `git diff --check`
 - `./gradlew -q projects | rg "bluetape4k-examples-jpa-blazepersistence-demo"`
-- `runtimeClasspath` and `testRuntimeClasspath` dependency checks both resolved
-  Spring Boot `4.0.6`, Spring `7.0.7`, Hibernate `7.0.3.Final`, and Jakarta
-  Persistence `3.2.0`.
+- `runtimeClasspath`와 `testRuntimeClasspath` dependency check 모두 Spring Boot `4.0.6`,
+  Spring `7.0.7`, Hibernate `7.0.3.Final`, Jakarta Persistence `3.2.0`으로 resolve됨.
 - Claude advisor Step 6-R recheck: P0=0, P1=0, APPROVE.
 
-## Future Guidance
+## 향후 가이드
 
-For Blaze Persistence + Hibernate 7 examples, enable keyset extraction with
-`EntityViewSetting.withKeysetPage(null)` on the first page; plain offset
-pagination returns a null keyset page. Avoid Spring Data integration jars until
-their Spring Framework 7 / Spring Data 4 compatibility is verified.
+Blaze Persistence + Hibernate 7 example에서는 첫 page에서
+`EntityViewSetting.withKeysetPage(null)`로 keyset extraction을 활성화한다. Plain offset
+pagination은 null keyset page를 반환한다. Spring Framework 7 / Spring Data 4 호환성이 확인될 때까지
+Spring Data integration jar는 피한다.
