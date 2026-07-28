@@ -1,31 +1,29 @@
-# Lessons Learned - Issue #825 R2DBC Auto-Configuration Guards
+# 교훈: 이슈 #825 R2DBC auto-configuration guard
 
-## Context
+## 배경
 
-`R2dbcClientAutoConfiguration` was guarded only by `DatabaseClient`, but the
-auto-configured bean method also used `R2dbcEntityTemplate` and
-`MappingR2dbcConverter`. Those Spring Data R2DBC types are compile-only for the
-published module.
+`R2dbcClientAutoConfiguration`은 `DatabaseClient`로만 guard되었지만,
+auto-configured bean method는 `R2dbcEntityTemplate`과 `MappingR2dbcConverter`도
+사용했다. 이 Spring Data R2DBC type은 published module에서 compile-only다.
 
-## Lesson
+## 교훈
 
-Spring Boot auto-configuration classes should guard every compile-only type that
-appears in bean method signatures. Use string-based `@ConditionalOnClass` names
-when the guard exists to prevent class-loading failures before the condition can
-short-circuit.
+Spring Boot auto-configuration class는 bean method signature에 나타나는 모든
+compile-only type을 guard해야 한다. Condition이 short-circuit되기 전에 class-loading
+failure가 발생하지 않도록 guard에는 string 기반 `@ConditionalOnClass` name을 사용한다.
 
-## Outcome
+## 결과
 
-The R2DBC auto-configuration now checks all Spring R2DBC signature types and
-backs off when a user-defined `R2dbcClient` bean exists.
+R2DBC auto-configuration은 이제 모든 Spring R2DBC signature type을 확인하고,
+user-defined `R2dbcClient` bean이 있으면 back off한다.
 
-## Future Guard
+## 향후 방지책
 
-When adding auto-configured beans with compile-only parameters, add
-`ApplicationContextRunner` tests for both missing classpath behavior and custom
-bean backoff.
+Compile-only parameter가 있는 auto-configured bean을 추가할 때는 missing classpath
+behavior와 custom bean backoff를 모두 검증하는 `ApplicationContextRunner` test를
+추가한다.
 
-## Verification
+## 검증
 
 - `:bluetape4k-r2dbc:compileKotlin` and `:bluetape4k-r2dbc:compileTestKotlin`
   passed.
