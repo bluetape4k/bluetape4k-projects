@@ -1,4 +1,4 @@
-# Issue #702 NearJCache remove(key, oldValue) Review
+# Issue #702 NearJCache remove(key, oldValue) 검토
 
 ## Scope
 
@@ -22,7 +22,7 @@
 - Provider coverage: PASS. The shared conformance fixture runs through `Cache2KNearJJCacheTest` and `EhcacheNearJJCacheTest`.
 - Blast radius: PASS. CodeGraph reported risk score `0.00`, no impacted files, and no test gaps for the two changed files.
 
-## Validation Evidence
+## 검증 Evidence
 
 - `./gradlew :bluetape4k-cache-core:test --tests "*NearJJCacheTest"`: PASS, 140 passing.
 - `./gradlew :bluetape4k-cache-core:test`: PASS, 470 passing.
