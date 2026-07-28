@@ -1,11 +1,11 @@
-# Issue 789 Review - CSV Cold Flow File Readers
+# Issue 789 검토 - CSV Cold Flow File Readers
 
 ## Scope
 
 - `io/csv`: file-based suspending CSV/TSV reader overloads.
 - Regression tests for cold `Flow` creation, recollection, and early termination.
 
-## Findings
+## 발견 사항
 
 - P0/P1: 0 after fix.
 - Independent code-reviewer verdict: APPROVE, P0/P1 = 0.

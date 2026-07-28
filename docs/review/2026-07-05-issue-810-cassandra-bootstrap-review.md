@@ -1,4 +1,4 @@
-# Issue 810 - Cassandra Bootstrap Builder Review
+# Issue 810 - Cassandra Bootstrap Builder 검토
 
 ## Scope
 
@@ -7,7 +7,7 @@
 - `data/cassandra/README.md`
 - `data/cassandra/README.ko.md`
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Result | Evidence |
 |------|--------|----------|
@@ -19,7 +19,7 @@
 | Documentation | PASS | README and README.ko document bootstrap side effects and keyspace binding rules. |
 | Blast radius | PASS | CodeGraph review context and impact radius report low risk and no impacted nodes. |
 
-## Findings
+## 발견 사항
 
 - P0: none.
 - P1: none.
