@@ -1,4 +1,4 @@
-# Issue #741 CodeQL Kotlin 2.4 Review
+# Issue #741 CodeQL Kotlin 2.4 검토
 
 Date: 2026-06-11
 Scope: `.github/workflows/codeql.yml`
@@ -10,7 +10,7 @@ Issue: #741
 - P1: 0
 - P2/P3: none
 
-## Evidence
+## 증거
 
 - The failing CodeQL run `27250113912` failed only on
   `Analyze (java-kotlin)`; `Analyze (actions)` and `Analyze (python)` passed.
@@ -23,7 +23,7 @@ Issue: #741
   future re-enable remains compile-only and does not schedule custom `Test`
   tasks such as `k8sTest`.
 
-## Validation
+## 검증
 
 - `actionlint .github/workflows/codeql.yml`: PASS
 - `rg -n --fixed-strings "\\'" .github/workflows`: PASS, no escaped single
