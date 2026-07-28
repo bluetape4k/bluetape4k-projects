@@ -1,40 +1,39 @@
-# Near-Cache Event Propagation: Root Cause and Per-Backend Verdict
+# Near-Cache Event Propagation: 근본 원인과 backend별 판정
 
-**Issue**: #490  
-**Branch**: fix/nearcache-event-propagation  
-**Date**: 2026-05-16
+**이슈**: #490
+**브랜치**: fix/nearcache-event-propagation
+**날짜**: 2026-05-16
 
-## Root Cause
+## 근본 원인
 
-`AbstractSuspendNearJCacheTest` created `suspendNearJCache1`/`2` by calling the
-`SuspendNearJCache` **internal constructor** directly:
+`AbstractSuspendNearJCacheTest`는 `SuspendNearJCache` **internal constructor**를 직접 호출해
+`suspendNearJCache1`/`2`를 생성했다:
 
 ```kotlin
-// BEFORE (broken) — bypasses listener registration
+// BEFORE (broken) — listener 등록을 우회
 protected val suspendNearJCache1 by lazy {
     SuspendNearJCache(frontCoCache1, backSuspendJCache)
 }
 ```
 
-`SuspendNearJCache` has an `internal constructor(frontCache, backCache)` and a
-companion `operator fun invoke(frontCache, backCache)` with identical parameter types.
-Because testFixtures live in the **same module** as main source, the `internal`
-constructor is visible, and Kotlin resolves `SuspendNearJCache(front, back)` to the
-**constructor**, not the companion `invoke`. The companion `invoke` is the only path
-that registers `SuspendJCacheEntryEventListener` on the back cache, so no events
-ever propagated → every cross-cache propagation assertion timed out.
+`SuspendNearJCache`에는 `internal constructor(frontCache, backCache)`와 동일한 parameter type을 가진
+companion `operator fun invoke(frontCache, backCache)`가 있다. testFixtures는 main source와
+**같은 module**에 있기 때문에 `internal` constructor가 보이고, Kotlin은
+`SuspendNearJCache(front, back)`를 companion `invoke`가 아니라 **constructor**로 해석한다.
+back cache에 `SuspendJCacheEntryEventListener`를 등록하는 유일한 경로는 companion `invoke`였으므로
+event가 전파되지 않았고, 모든 cross-cache propagation assertion이 timeout 되었다.
 
-The sync `AbstractNearJCacheTest` was unaffected because it calls
-`NearJCache(nearCacheCfg, backCache)` which maps to the companion `invoke(nearCacheCfg,
-backCache)` — different parameter types from the constructor — so there was never ambiguity.
+Sync `AbstractNearJCacheTest`는 영향을 받지 않았다. 이 test는 `NearJCache(nearCacheCfg, backCache)`를
+호출하고, 이는 constructor와 parameter type이 다른 companion `invoke(nearCacheCfg, backCache)`로
+mapping되므로 ambiguity가 없었다.
 
-## Fix
+## 수정
 
-Added an `open fun createSuspendNearJCache(front, back)` hook to the test fixture,
-with default body `SuspendNearJCache.invoke(front, back)` (explicit companion call):
+Test fixture에 `open fun createSuspendNearJCache(front, back)` hook을 추가하고, 기본 body는
+명시적 companion call인 `SuspendNearJCache.invoke(front, back)`로 두었다:
 
 ```kotlin
-// AFTER (correct) — explicit companion invoke registers listener
+// AFTER (correct) — 명시적인 companion invoke가 listener를 등록
 protected open fun createSuspendNearJCache(
     front: SuspendJCache<String, Any>,
     back: SuspendJCache<String, Any>,
@@ -44,62 +43,58 @@ protected val suspendNearJCache1 by lazy { createSuspendNearJCache(frontCoCache1
 protected val suspendNearJCache2 by lazy { createSuspendNearJCache(frontCoCache2, backSuspendJCache) }
 ```
 
-The `open` hook allows Hazelcast (and any future backend) to override with
-`SuspendNearJCache.withoutListener(front, back)` when listener registration is
-structurally impossible.
+이 `open` hook 덕분에 Hazelcast처럼 listener registration이 구조적으로 불가능한 backend는
+`SuspendNearJCache.withoutListener(front, back)`로 override할 수 있다.
 
-## Per-Backend Verdicts
+## Backend별 판정
 
 ### Lettuce (cache-lettuce)
 **Verdict A — re-enabled.**  
-`LettuceJCache.dispatchEvent()` is in-process (`ConcurrentHashMap` of listeners, called
-synchronously after each mutation). Once the fixture bug was fixed, all 19 test
-methods pass. Removed `@Disabled`.
+`LettuceJCache.dispatchEvent()`는 in-process 방식이다(listener의 `ConcurrentHashMap`을 mutation 뒤
+동기 호출). Fixture bug가 수정되자 test method 19개가 모두 통과했다. `@Disabled`를 제거했다.
 
 ### Redisson (cache-redisson)
 **Verdict A — re-enabled.**  
-After the fixture fix, all tests pass. The `SuspendNearJCache` implementation already
-works around Redisson's `removeAll`/`replace` event gaps via explicit per-key removes.
-Prior `@Disabled("버그가 많아 일단 테스트에서 제외한다.")` was stale. Removed `@Disabled`.
+Fixture 수정 후 모든 test가 통과했다. `SuspendNearJCache` 구현은 이미 explicit per-key remove로
+Redisson의 `removeAll`/`replace` event gap을 우회하고 있었다.
+기존 `@Disabled("버그가 많아 일단 테스트에서 제외한다.")`는 stale이었다. `@Disabled`를 제거했다.
 
 ### Hazelcast sync (cache-hazelcast — HazelcastNearJCacheTest)
-**Verdict B — kept disabled with precise reason.**  
-Hazelcast cluster-distributes `MutableCacheEntryListenerConfiguration` by Java
-serialization. `JCacheEntryEventListener` holds a reference to the front `JCache`
-(Caffeine) which is not `Serializable`. Registration throws
-`HazelcastSerializationException: NotSerializableException`. Updated `@Disabled`
-message with `Tracked: #490`.
+**Verdict B — 정확한 이유를 남기고 disabled 유지.**
+Hazelcast는 `MutableCacheEntryListenerConfiguration`을 Java serialization으로 cluster-distribute한다.
+`JCacheEntryEventListener`는 serializable이 아닌 front `JCache`(Caffeine) reference를 가진다.
+Registration은 `HazelcastSerializationException: NotSerializableException`을 던진다.
+`Tracked: #490`와 함께 `@Disabled` message를 갱신했다.
 
 ### Hazelcast suspend (cache-hazelcast — HazelcastSuspendNearJCacheTest)
-**Verdict B — kept disabled with precise reason.**  
-Same structural constraint as sync: `SuspendJCacheEntryEventListener` captures a
-`CaffeineSuspendJCache` (not `Serializable`). Registration throws
-`HazelcastSerializationException: NotSerializableException(CaffeineSuspendJCache)`.
-Updated `@Disabled` message with `Tracked: #490`.
+**Verdict B — 정확한 이유를 남기고 disabled 유지.**
+Sync와 같은 구조적 제약이다. `SuspendJCacheEntryEventListener`가 serializable이 아닌
+`CaffeineSuspendJCache`를 capture한다. Registration은
+`HazelcastSerializationException: NotSerializableException(CaffeineSuspendJCache)`을 던진다.
+`Tracked: #490`와 함께 `@Disabled` message를 갱신했다.
 
-## Lesson: Kotlin Companion Invoke vs Internal Constructor Ambiguity
+## 교훈: Kotlin Companion Invoke와 Internal Constructor Ambiguity
 
-When a class has both an `internal constructor(A, B)` and a companion
-`operator fun invoke(A, B)` with **identical parameter types**, code in the same
-module calling `ClassName(a, b)` resolves to the **constructor**, not the companion
-`invoke`. This is the opposite of what you might assume if you only looked at
-visibility from outside the module.
+class가 `internal constructor(A, B)`와 동일한 parameter type의 companion
+`operator fun invoke(A, B)`를 동시에 가지면, 같은 module의 `ClassName(a, b)` 호출은 companion
+`invoke`가 아니라 **constructor**로 해석된다. module 밖 visibility만 보고 예상하면 반대로
+판단하기 쉽다.
 
-**Always use `ClassName.invoke(...)` or `ClassName.Companion.invoke(...)` explicitly**
-when the companion invoke is the intended entry point and the constructor must be
-bypassed. Alternatively, make the constructor `private` to eliminate the ambiguity.
+Companion invoke가 의도한 entry point이고 constructor를 우회해야 한다면
+**항상 `ClassName.invoke(...)` 또는 `ClassName.Companion.invoke(...)`를 명시적으로 사용한다.**
+또는 constructor를 `private`으로 만들어 ambiguity를 제거한다.
 
-## Files Changed
+## 변경 파일
 
-| File | Change |
+| 파일 | 변경 |
 |---|---|
-| `cache/cache-core/src/testFixtures/.../AbstractSuspendNearJCacheTest.kt` | Added `createSuspendNearJCache` hook; default calls `SuspendNearJCache.invoke(...)` |
-| `cache/cache-lettuce/src/test/.../LettuceSuspendNearJCacheTest.kt` | Removed `@Disabled` |
-| `cache/cache-redisson/src/test/.../RedissonSuspendNearJCacheTest.kt` | Removed `@Disabled` |
-| `cache/cache-hazelcast/src/test/.../HazelcastNearJCacheTest.kt` | Updated `@Disabled` with precise reason + `Tracked: #490` |
-| `cache/cache-hazelcast/src/test/.../HazelcastSuspendNearJCacheTest.kt` | Updated `@Disabled` with precise reason + `Tracked: #490` |
+| `cache/cache-core/src/testFixtures/.../AbstractSuspendNearJCacheTest.kt` | `createSuspendNearJCache` hook 추가, 기본 구현은 `SuspendNearJCache.invoke(...)` 호출 |
+| `cache/cache-lettuce/src/test/.../LettuceSuspendNearJCacheTest.kt` | `@Disabled` 제거 |
+| `cache/cache-redisson/src/test/.../RedissonSuspendNearJCacheTest.kt` | `@Disabled` 제거 |
+| `cache/cache-hazelcast/src/test/.../HazelcastNearJCacheTest.kt` | 정확한 이유와 `Tracked: #490`로 `@Disabled` 갱신 |
+| `cache/cache-hazelcast/src/test/.../HazelcastSuspendNearJCacheTest.kt` | 정확한 이유와 `Tracked: #490`로 `@Disabled` 갱신 |
 
-## Test Results
+## 테스트 결과
 
 - `bluetape4k-cache-core:test --tests "*NearJCache*"` → BUILD SUCCESSFUL
 - `bluetape4k-cache-lettuce:test --tests "*NearJCache*"` → BUILD SUCCESSFUL (was failing)
