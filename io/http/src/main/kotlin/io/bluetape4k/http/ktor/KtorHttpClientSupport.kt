@@ -15,12 +15,12 @@ import java.io.Serializable
 import java.time.Duration
 
 /**
- * Default JSON configuration for Ktor Client helpers.
+ * Ktor Client helper에서 사용하는 기본 JSON 설정입니다.
  *
- * ## Behavior / Contract
- * - Unknown JSON fields are ignored so clients tolerate additive server fields.
- * - Default values are encoded for stable DTO round trips in tests and examples.
- * - Explicit `null` values are omitted to match common HTTP API payloads.
+ * ## 동작 계약
+ * - 알 수 없는 JSON field는 무시하여 server가 field를 추가해도 client가 견딜 수 있게 합니다.
+ * - 테스트와 예제에서 DTO round trip이 안정적으로 유지되도록 기본값을 인코딩합니다.
+ * - 일반적인 HTTP API payload 관례에 맞춰 명시적 `null` 값은 생략합니다.
  */
 val defaultKtorClientJson: Json = Json {
     ignoreUnknownKeys = true
@@ -29,12 +29,16 @@ val defaultKtorClientJson: Json = Json {
 }
 
 /**
- * Timeout settings installed by [ktorJsonHttpClientOf].
+ * [ktorJsonHttpClientOf]가 설치하는 timeout 설정입니다.
  *
- * ## Behavior / Contract
- * - All durations must be positive.
- * - Values are converted to Ktor's millisecond timeout plugin settings.
- * - Callers that need per-request timeouts should still use Ktor request-level configuration.
+ * ## 동작 계약
+ * - 모든 duration은 양수여야 합니다.
+ * - 값은 Ktor timeout plugin의 millisecond 설정으로 변환됩니다.
+ * - 요청별 timeout이 필요한 호출자는 Ktor request-level 설정을 계속 사용해야 합니다.
+ *
+ * @property requestTimeout 전체 요청 완료까지 허용되는 client-level timeout입니다.
+ * @property connectTimeout 원격 endpoint와 connection을 맺을 때 허용되는 timeout입니다.
+ * @property socketTimeout socket read/write가 응답 없이 대기할 수 있는 timeout입니다.
  */
 data class KtorClientTimeouts(
     val requestTimeout: Duration = Duration.ofSeconds(30),
@@ -54,13 +58,13 @@ data class KtorClientTimeouts(
 }
 
 /**
- * Creates an [HttpClient] with the given [engineFactory] and optional [block] configuration.
+ * 지정한 [engineFactory]와 선택적 [block] 설정으로 [HttpClient]를 생성합니다.
  *
- * ## Behavior / Contract
- * - The caller owns the returned [HttpClient] and is responsible for calling [HttpClient.close].
- * - No plugins, defaults, or policies are installed; configuration is entirely up to the caller.
- * - `ktor-client-core` and the chosen engine artifact are declared `compileOnly` in this module.
- *   Consumers must add the required Ktor artifacts to their own compile classpath.
+ * ## 동작 계약
+ * - 반환된 [HttpClient]의 소유권은 호출자에게 있으며 [HttpClient.close] 호출 책임도 호출자에게 있습니다.
+ * - plugin, 기본값, 정책을 설치하지 않으며 설정은 전적으로 호출자가 정합니다.
+ * - 이 module은 `ktor-client-core`와 선택한 engine artifact를 `compileOnly`로 선언합니다.
+ *   consumer는 필요한 Ktor artifact를 자신의 compile classpath에 추가해야 합니다.
  *
  * ```kotlin
  * val client = ktorHttpClientOf(CIO) {
@@ -71,9 +75,9 @@ data class KtorClientTimeouts(
  * client.use { /* requests */ }
  * ```
  *
- * @param engineFactory the Ktor [HttpClientEngineFactory] to use (e.g. [CIO], OkHttp, Java)
- * @param block optional [HttpClientConfig] DSL block applied after engine selection
- * @return a new [HttpClient] instance
+ * @param engineFactory 사용할 Ktor [HttpClientEngineFactory]입니다. 예: [CIO], OkHttp, Java.
+ * @param block engine 선택 뒤 적용할 선택적 [HttpClientConfig] DSL block입니다.
+ * @return 새 [HttpClient] 인스턴스입니다.
  */
 fun <T : HttpClientEngineConfig> ktorHttpClientOf(
     engineFactory: HttpClientEngineFactory<T>,
@@ -81,13 +85,13 @@ fun <T : HttpClientEngineConfig> ktorHttpClientOf(
 ): HttpClient = HttpClient(engineFactory, block)
 
 /**
- * Creates a Ktor [HttpClient] with JSON content negotiation and timeout defaults.
+ * JSON content negotiation과 timeout 기본값을 포함하는 Ktor [HttpClient]를 생성합니다.
  *
- * ## Behavior / Contract
- * - Engine selection remains explicit through [engineFactory]; this helper does not choose CIO, Java, Apache, or mock.
- * - Installs only Ktor's `ContentNegotiation` JSON plugin and `HttpTimeout` plugin.
- * - Does not install retry, resilience, logging, metrics, authentication, or tracing policies.
- * - The caller owns the returned [HttpClient] and is responsible for calling [HttpClient.close].
+ * ## 동작 계약
+ * - engine 선택은 [engineFactory]로 명시하며, 이 helper는 CIO, Java, Apache, mock 중 하나를 선택하지 않습니다.
+ * - Ktor `ContentNegotiation` JSON plugin과 `HttpTimeout` plugin만 설치합니다.
+ * - retry, resilience, logging, metrics, authentication, tracing 정책은 설치하지 않습니다.
+ * - 반환된 [HttpClient]의 소유권과 [HttpClient.close] 호출 책임은 호출자에게 있습니다.
  *
  * ```kotlin
  * val client = ktorJsonHttpClientOf(CIO) {
@@ -97,11 +101,11 @@ fun <T : HttpClientEngineConfig> ktorHttpClientOf(
  * }
  * ```
  *
- * @param engineFactory the Ktor [HttpClientEngineFactory] to use
- * @param json JSON configuration for request/response serialization
- * @param timeouts client-level timeout defaults
- * @param block optional [HttpClientConfig] DSL block applied after shared plugins
- * @return a new [HttpClient] instance
+ * @param engineFactory 사용할 Ktor [HttpClientEngineFactory]입니다.
+ * @param json request/response serialization에 사용할 JSON 설정입니다.
+ * @param timeouts client-level timeout 기본값입니다.
+ * @param block 공유 plugin 설치 뒤 적용할 선택적 [HttpClientConfig] DSL block입니다.
+ * @return 새 [HttpClient] 인스턴스입니다.
  */
 fun <T : HttpClientEngineConfig> ktorJsonHttpClientOf(
     engineFactory: HttpClientEngineFactory<T>,
@@ -122,12 +126,12 @@ fun <T : HttpClientEngineConfig> ktorJsonHttpClientOf(
     }
 
 /**
- * Creates an [HttpClient] backed by the Ktor CIO engine.
+ * Ktor CIO engine을 사용하는 [HttpClient]를 생성합니다.
  *
- * ## Behavior / Contract
- * - CIO is suspend-native and supports HTTP/1.x only. It does not support HTTP/2.
- * - For HTTP/2 use cases prefer HC5 Async, JDK, or OkHttp engines.
- * - The caller owns the returned [HttpClient] and is responsible for calling [HttpClient.close].
+ * ## 동작 계약
+ * - CIO는 suspend-native이며 HTTP/1.x만 지원합니다. HTTP/2는 지원하지 않습니다.
+ * - HTTP/2 use case에는 HC5 Async, JDK, OkHttp engine을 우선 사용합니다.
+ * - 반환된 [HttpClient]의 소유권과 [HttpClient.close] 호출 책임은 호출자에게 있습니다.
  *
  * ```kotlin
  * val client = ktorCioHttpClientOf {
@@ -138,20 +142,20 @@ fun <T : HttpClientEngineConfig> ktorJsonHttpClientOf(
  * client.use { /* requests */ }
  * ```
  *
- * @param block optional [HttpClientConfig] DSL block for CIO-specific configuration
- * @return a new [HttpClient] backed by the CIO engine
+ * @param block CIO 전용 설정에 사용할 선택적 [HttpClientConfig] DSL block입니다.
+ * @return CIO engine을 사용하는 새 [HttpClient]입니다.
  */
 fun ktorCioHttpClientOf(
     block: HttpClientConfig<CIOEngineConfig>.() -> Unit = {},
 ): HttpClient = HttpClient(CIO, block)
 
 /**
- * Creates a CIO-backed Ktor [HttpClient] with JSON content negotiation and timeout defaults.
+ * JSON content negotiation과 timeout 기본값을 포함하는 CIO 기반 Ktor [HttpClient]를 생성합니다.
  *
- * ## Behavior / Contract
- * - CIO remains HTTP/1.x only; prefer HC5 Async, JDK, or OkHttp engines for HTTP/2 use cases.
- * - Only JSON and timeout plugins are installed. Retry/resilience policy stays outside this helper.
- * - The caller owns the returned [HttpClient] and is responsible for calling [HttpClient.close].
+ * ## 동작 계약
+ * - CIO는 HTTP/1.x 전용입니다. HTTP/2 use case에는 HC5 Async, JDK, OkHttp engine을 우선 사용합니다.
+ * - JSON과 timeout plugin만 설치합니다. retry/resilience 정책은 이 helper 밖에서 구성합니다.
+ * - 반환된 [HttpClient]의 소유권과 [HttpClient.close] 호출 책임은 호출자에게 있습니다.
  *
  * ```kotlin
  * val client = ktorCioJsonHttpClientOf(
@@ -159,10 +163,10 @@ fun ktorCioHttpClientOf(
  * )
  * ```
  *
- * @param json JSON configuration for request/response serialization
- * @param timeouts client-level timeout defaults
- * @param block optional [HttpClientConfig] DSL block for CIO-specific configuration
- * @return a new [HttpClient] backed by the CIO engine
+ * @param json request/response serialization에 사용할 JSON 설정입니다.
+ * @param timeouts client-level timeout 기본값입니다.
+ * @param block CIO 전용 설정에 사용할 선택적 [HttpClientConfig] DSL block입니다.
+ * @return CIO engine을 사용하는 새 [HttpClient]입니다.
  */
 fun ktorCioJsonHttpClientOf(
     json: Json = defaultKtorClientJson,
