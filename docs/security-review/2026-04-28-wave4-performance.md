@@ -1,4 +1,4 @@
-# Wave 4 Performance & Stability Review — 2026-04-28
+# Wave 4 Performance & Stability 검토 — 2026-04-28
 
 전체 5개 그룹 병렬 실행 결과. Tier 5 (Performance/Stability) 기준.
 
