@@ -13,7 +13,7 @@ import org.testcontainers.k3s.K3sContainer
 import org.testcontainers.utility.DockerImageName
 
 /**
- * Runs a [K3s](https://k3s.io/) lightweight Kubernetes cluster in Docker for integration tests.
+ * integration test를 위해 Docker에서 [K3s](https://k3s.io/) lightweight Kubernetes cluster를 실행합니다.
  *
  * Extends the native testcontainers [K3sContainer] and adds the bluetape4k
  * `GenericServer + Launcher` pattern.
@@ -53,7 +53,7 @@ class K3sServer private constructor(
         const val API_PORT = 6443
 
         /**
-         * Creates a [K3sServer] from a pre-built [DockerImageName].
+         * 미리 구성된 [DockerImageName]으로 [K3sServer]를 생성합니다.
          *
          * @param imageName      Fully qualified Docker image name with tag.
          * @param useDefaultPort When `true`, binds port [API_PORT] to the same fixed host port.
@@ -67,7 +67,7 @@ class K3sServer private constructor(
         ): K3sServer = K3sServer(imageName, useDefaultPort, reuse)
 
         /**
-         * Creates a [K3sServer] by image name and tag.
+         * image name과 tag로 [K3sServer]를 생성합니다.
          *
          * @param image          Docker image name; blank value throws [IllegalArgumentException].
          * @param tag            Docker image tag; blank value throws [IllegalArgumentException].
@@ -118,7 +118,7 @@ class K3sServer private constructor(
     }
 
     /**
-     * Returns a fabric8 [KubernetesClient] pre-configured for this K3s cluster.
+     * 이 K3s cluster에 맞게 미리 설정된 fabric8 [KubernetesClient]를 반환합니다.
      *
      * Must be called **after** [start]. Each call returns a **new** client instance
      * registered in [ShutdownQueue] — it will be closed on JVM shutdown automatically.
