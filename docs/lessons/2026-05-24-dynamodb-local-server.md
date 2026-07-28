@@ -1,17 +1,16 @@
 # DynamoDB Local Testcontainers Fixture
 
-Context: `bluetape4k-leader` issue #367 needs a reusable DynamoDB Local
-Testcontainers launcher instead of a private test-only `GenericContainer`.
+배경: `bluetape4k-leader` issue #367은 private test-only `GenericContainer` 대신 reusable DynamoDB Local
+Testcontainers launcher가 필요하다.
 
-Decision: Add `DynamoDbLocalServer` to `bluetape4k-testcontainers` under the
-AWS emulator package. Keep it SDK-neutral, expose AWS-compatible endpoint and
-credential properties, and provide `Launcher.dynamoDb` for singleton reuse.
+결정: AWS emulator package 아래에 `DynamoDbLocalServer`를 `bluetape4k-testcontainers`에 추가한다.
+SDK-neutral하게 유지하고 AWS-compatible endpoint와 credential property를 expose하며 singleton reuse를
+위해 `Launcher.dynamoDb`를 제공한다.
 
-Outcome: Downstream leader tests can remove their private container once they
-consume a catalog version containing this fixture.
+결과: Downstream leader test는 이 fixture를 포함한 catalog version을 consume한 뒤 private container를
+제거할 수 있다.
 
-Verification: `./gradlew :bluetape4k-testcontainers:test --tests
-'io.bluetape4k.testcontainers.aws.DynamoDbLocalServerTest'`.
+검증: `./gradlew :bluetape4k-testcontainers:test --tests 'io.bluetape4k.testcontainers.aws.DynamoDbLocalServerTest'`.
 
-Future guard: Do not reintroduce DynamoDB Local containers directly in
-downstream test bases; consume `DynamoDbLocalServer.Launcher.dynamoDb` instead.
+향후 가드: Downstream test base에 DynamoDB Local container를 직접 다시 도입하지 말고
+`DynamoDbLocalServer.Launcher.dynamoDb`를 consume한다.
