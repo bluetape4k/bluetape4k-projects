@@ -166,7 +166,7 @@ class PipeTest: AbstractOkioTest() {
     }
 
     /**
-     * The writer is writing 12 bytes as fast as it can to a 3 byte buffer. The reader alternates
+     * writer는 12바이트를 3바이트 buffer에 가능한 한 빠르게 씁니다. reader는 번갈아
      * sleeping 1000 ms, then reading 3 bytes. That should make for an approximate timeline like
      * this:
      *
@@ -177,12 +177,12 @@ class PipeTest: AbstractOkioTest() {
      * 2000: reader reads 'def', sleeps until 3000
      * 2000: writer writes 'ghi', blocks
      * 3000: reader reads 'ghi', sleeps until 4000
-     * 3000: writer writes 'jkl', returns
-     * 4000: reader reads 'jkl', returns
+     * 3000: writer가 'jkl'을 쓰고 반환합니다
+     * 4000: reader가 'jkl'을 읽고 반환합니다
      * ```
      *
      *
-     * Because the writer is writing to a buffer, it finishes before the reader does.
+     * writer가 buffer에 쓰기 때문에 reader보다 먼저 완료됩니다.
      */
     @Test
     fun `sink blocks on slow reader`() {
@@ -311,7 +311,7 @@ class PipeTest: AbstractOkioTest() {
 
 
     /**
-     * The writer has 12 bytes to write. It alternates sleeping 1000 ms, then writing 3 bytes. The
+     * writer는 12바이트를 써야 합니다. 1000 ms sleep 후 3바이트 쓰기를 반복합니다.
      * reader is reading as fast as it can. That should make for an approximate timeline like this:
      *
      * ```
@@ -323,8 +323,8 @@ class PipeTest: AbstractOkioTest() {
      * 2000: reader reads 'def'
      * 3000: writer writes 'ghi', sleeps until 4000
      * 3000: reader reads 'ghi'
-     * 4000: writer writes 'jkl', returns
-     * 4000: reader reads 'jkl', returns
+     * 4000: writer가 'jkl'을 쓰고 반환합니다
+     * 4000: reader가 'jkl'을 읽고 반환합니다
      * ```
      */
     @Test
@@ -374,7 +374,7 @@ class PipeTest: AbstractOkioTest() {
     }
 
     /**
-     * The writer has 12 bytes to write. It alternates sleeping 1000 ms, then writing 3 bytes. The
+     * writer는 12바이트를 써야 합니다. 1000 ms sleep 후 3바이트 쓰기를 반복합니다.
      * reader is reading as fast as it can. That should make for an approximate timeline like this:
      *
      * ```
@@ -386,8 +386,8 @@ class PipeTest: AbstractOkioTest() {
      * 2000: reader reads 'def'
      * 3000: writer writes 'ghi', sleeps until 4000
      * 3000: reader reads 'ghi'
-     * 4000: writer writes 'jkl', returns
-     * 4000: reader reads 'jkl', returns
+     * 4000: writer가 'jkl'을 쓰고 반환합니다
+     * 4000: reader가 'jkl'을 읽고 반환합니다
      * ```
      */
     @Test
