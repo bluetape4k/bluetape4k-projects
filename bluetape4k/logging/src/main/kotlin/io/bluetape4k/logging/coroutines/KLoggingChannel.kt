@@ -208,7 +208,7 @@ open class KLoggingChannel(
     }
 
     /**
-     * 비동기 channel을 통해 전달되는 로그 이벤트입니다.
+     * 비동기 채널을 통해 전달되는 로그 이벤트입니다.
      *
      * ```kotlin
      * val event = LogEvent(Level.INFO, "server started", null)
