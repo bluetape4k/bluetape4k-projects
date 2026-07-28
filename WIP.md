@@ -1,63 +1,61 @@
 # WIP - bluetape4k-projects
 
-Snapshot: 2026-06-06 KST
-Scope: 1.11.0 observability and telemetry lane, plus backlog split.
-Open count: 13 issues.
+스냅샷: 2026-06-06 KST
+범위: 1.11.0 observability/telemetry 작업선과 backlog 분리
+열린 이슈 수: 13개
 
-## Refresh Notes
+## 갱신 메모
 
-The `1.10.0` stable line has been published and consumed by downstream
-repositories. Development now moves to the `1.11.0` observability and
-event-telemetry lane.
+`1.10.0` stable line은 이미 배포됐고 downstream repository에서 소비됐다.
+이제 개발 흐름은 `1.11.0` observability와 event-telemetry 작업선으로 이동한다.
 
-Live GitHub state:
+Live GitHub 상태:
 
-- `1.11.0`: 11 open issues.
-- `backlog`: 2 open issues.
-- Total open issue count: 13.
+- `1.11.0`: 열린 이슈 11개
+- `backlog`: 열린 이슈 2개
+- 전체 열린 이슈 수: 13개
 
-## Recently Completed
+## 최근 완료 항목
 
-- `#493` added the near-cache backend capability matrix and conformance coverage.
-- `#474` removed deprecated Kafka, OpenTelemetry, cache, Redis, and Resilience4j aliases for the 1.9.0 breaking-change line.
-- `#596` added a reusable `EtcdServer` Testcontainers launcher.
-- `#607` / `#608` shipped the 1.9.1 UTF-8 truncation and catalog-governance fixes.
-- `#595` fixed the Nightly failures in IO HTTP, Elasticsearch-backed search messaging, and Memgraph-backed graph tests.
-- `#620` coordinated the downstream BOM/catalog handoff after `bluetape4k-projects` `1.9.1`.
-- `#580` marked Fory-backed Kafka/Kafka4 codecs as `@BluetapeDelicateApi` and documented the deserialization trust boundary.
-- PR #600 prepared the source version for `1.9.0-SNAPSHOT`, and the snapshot publish workflow completed successfully.
+- `#493`은 near-cache backend capability matrix와 conformance coverage를 추가했다.
+- `#474`는 1.9.0 breaking-change line에 맞춰 deprecated Kafka, OpenTelemetry, cache, Redis, Resilience4j alias를 제거했다.
+- `#596`은 재사용 가능한 `EtcdServer` Testcontainers launcher를 추가했다.
+- `#607` / `#608`은 1.9.1 UTF-8 truncation 수정과 catalog-governance 수정을 배포했다.
+- `#595`는 IO HTTP, Elasticsearch-backed search messaging, Memgraph-backed graph test의 Nightly 실패를 고쳤다.
+- `#620`은 `bluetape4k-projects` `1.9.1` 이후 downstream BOM/catalog handoff를 조율했다.
+- `#580`은 Fory-backed Kafka/Kafka4 codec을 `@BluetapeDelicateApi`로 표시하고 deserialization trust boundary를 문서화했다.
+- PR #600은 `1.9.0-SNAPSHOT`용 source version을 준비했고 snapshot publish workflow는 성공적으로 완료됐다.
 
-## Current Direction
+## 현재 방향
 
-The repository is in the `1.11.0` development lane after the `1.10.0` stable
-release. Work selection should prioritize the observability Epic and its
-explicit dependency order, while keeping independent test/docs cleanup small and
-isolated.
+이 repository는 `1.10.0` stable release 이후 `1.11.0` development lane에 있다.
+작업 선택은 observability Epic과 그 명시적인 dependency order를 우선해야 한다.
+독립적인 test/docs cleanup은 작고 고립된 단위로 유지한다.
 
-## Priority Queue
+## 우선순위 큐
 
-| Priority | Issue | Difficulty | Notes |
+| 우선순위 | 이슈 | 난이도 | 메모 |
 |---|---|---:|---|
-| P0 | [#697](https://github.com/bluetape4k/bluetape4k-projects/issues/697) WIP backlog refresh | S | Current task; close after this file reflects live milestone/backlog state. |
-| P1 | [#696](https://github.com/bluetape4k/bluetape4k-projects/issues/696) shared telemetry contract | M | Required design gate before Spring Boot, Ktor, event, and example work. |
-| P1 | [#702](https://github.com/bluetape4k/bluetape4k-projects/issues/702) NearJCache remove semantics | S | Independent regression-test win; safe to run before or after #696. |
-| P1 | [#691](https://github.com/bluetape4k/bluetape4k-projects/issues/691) Ktor opt-in OpenTelemetry tracing | M | First implementation slice after #696; lower blast radius than Spring/event lanes. |
-| P1 | [#694](https://github.com/bluetape4k/bluetape4k-projects/issues/694) Spring Boot 4 observability helpers | M | Follow #696; keep Actuator/Micrometer conventions application-owned. |
-| P2 | [#695](https://github.com/bluetape4k/bluetape4k-projects/issues/695) event publish/consume telemetry helpers | M | Follow #696 and reuse decisions proven by HTTP telemetry work. |
-| P2 | [#692](https://github.com/bluetape4k/bluetape4k-projects/issues/692) observability examples | M | Depends on Spring Boot, Ktor, and event helper issues. |
-| P2 | [#699](https://github.com/bluetape4k/bluetape4k-projects/issues/699) Copilot instruction alignment | S | Independent docs/agent-guidance cleanup. |
-| P2 | [#698](https://github.com/bluetape4k/bluetape4k-projects/issues/698) HC5 interceptor ordering examples | S | Independent test/docs cleanup; verify expected HC5 ordering before editing behavior. |
-| P2 | [#701](https://github.com/bluetape4k/bluetape4k-projects/issues/701) FutureUtils virtual-thread TODO | M | API-boundary cleanup; preserve compatibility and public KDoc. |
-| P3 | [#690](https://github.com/bluetape4k/bluetape4k-projects/issues/690) observability telemetry Epic | L | Umbrella issue; keep open until child issues complete. |
+| P0 | [#697](https://github.com/bluetape4k/bluetape4k-projects/issues/697) WIP backlog refresh | S | 현재 작업. 이 파일이 live milestone/backlog 상태를 반영한 뒤 닫는다. |
+| P1 | [#696](https://github.com/bluetape4k/bluetape4k-projects/issues/696) shared telemetry contract | M | Spring Boot, Ktor, event, example 작업 전에 필요한 design gate. |
+| P1 | [#702](https://github.com/bluetape4k/bluetape4k-projects/issues/702) NearJCache remove semantics | S | 독립적인 regression-test 개선. #696 전후 어느 쪽에서도 안전하게 진행할 수 있다. |
+| P1 | [#691](https://github.com/bluetape4k/bluetape4k-projects/issues/691) Ktor opt-in OpenTelemetry tracing | M | #696 이후 첫 implementation slice. Spring/event 작업선보다 blast radius가 낮다. |
+| P1 | [#694](https://github.com/bluetape4k/bluetape4k-projects/issues/694) Spring Boot 4 observability helpers | M | #696 이후 진행한다. Actuator/Micrometer convention은 application-owned로 유지한다. |
+| P2 | [#695](https://github.com/bluetape4k/bluetape4k-projects/issues/695) event publish/consume telemetry helpers | M | #696 이후 진행하고 HTTP telemetry 작업에서 검증된 결정을 재사용한다. |
+| P2 | [#692](https://github.com/bluetape4k/bluetape4k-projects/issues/692) observability examples | M | Spring Boot, Ktor, event helper issue에 의존한다. |
+| P2 | [#699](https://github.com/bluetape4k/bluetape4k-projects/issues/699) Copilot instruction alignment | S | 독립적인 docs/agent-guidance cleanup. |
+| P2 | [#698](https://github.com/bluetape4k/bluetape4k-projects/issues/698) HC5 interceptor ordering examples | S | 독립적인 test/docs cleanup. behavior를 고치기 전에 기대되는 HC5 ordering을 검증한다. |
+| P2 | [#701](https://github.com/bluetape4k/bluetape4k-projects/issues/701) FutureUtils virtual-thread TODO | M | API-boundary cleanup. compatibility와 public KDoc을 보존한다. |
+| P3 | [#690](https://github.com/bluetape4k/bluetape4k-projects/issues/690) observability telemetry Epic | L | Umbrella issue. child issue가 완료될 때까지 열어둔다. |
 
-## Backlog Queue
+## Backlog 큐
 
-| Issue | Notes |
+| 이슈 | 메모 |
 |---|---|
-| [#700](https://github.com/bluetape4k/bluetape4k-projects/issues/700) Central snapshot task naming audit | Release-documentation cleanup; keep outside 1.11.0 unless snapshot workflow drift becomes blocking. |
-| [#706](https://github.com/bluetape4k/bluetape4k-projects/issues/706) data-r2dbc pool benchmark validation mode | Performance/benchmark lane; promote only when the benchmark workflow is the active focus. |
+| [#700](https://github.com/bluetape4k/bluetape4k-projects/issues/700) Central snapshot task naming audit | Release-documentation cleanup. snapshot workflow drift가 blocker가 되기 전에는 1.11.0 범위 밖에 둔다. |
+| [#706](https://github.com/bluetape4k/bluetape4k-projects/issues/706) data-r2dbc pool benchmark validation mode | Performance/benchmark lane. benchmark workflow가 active focus일 때만 승격한다. |
 
-## Dependency Map
+## 의존성 지도
 
 ```text
 #690 observability and event telemetry Epic
@@ -77,22 +75,22 @@ isolated.
   -> independent of the observability Epic
 ```
 
-## WIP Limits
+## WIP 제한
 
-| Lane | Limit | Current next |
+| 작업선 | 제한 | 다음 작업 |
 |---|---:|---|
-| WIP / management | 1 | `#697`; close after this refresh is merged. |
-| Observability design | 1 | `#696` first. |
-| Observability implementation | 1 | `#691`, then `#694`, then `#695`. |
-| Observability examples | 1 | `#692` only after helper APIs exist. |
-| Independent cleanup | 1 | Prefer `#702`; otherwise `#699`, `#698`, or `#701`. |
-| Backlog | 0 | Keep `#700` and `#706` parked until explicitly promoted. |
+| WIP / management | 1 | `#697`. 이 refresh가 merge되거나 별도로 승인된 뒤 닫는다. |
+| Observability design | 1 | `#696` 먼저 진행한다. |
+| Observability implementation | 1 | `#691`, 이후 `#694`, 이후 `#695`. |
+| Observability examples | 1 | helper API가 생긴 뒤에만 `#692`를 진행한다. |
+| Independent cleanup | 1 | `#702`를 우선하고, 아니면 `#699`, `#698`, `#701` 중 선택한다. |
+| Backlog | 0 | 명시적으로 승격되기 전까지 `#700`과 `#706`은 대기 상태로 둔다. |
 
-## Cleanup Actions
+## 정리 작업
 
-| Candidate | Action |
+| 대상 | 조치 |
 |---|---|
-| `#697` | Close only after the WIP refresh is merged or otherwise accepted. |
-| `#690` | Keep open as the 1.11.0 umbrella until child issues are complete. |
-| `backlog` milestone | Keep `#700` and `#706` out of the 1.11.0 lane unless priority changes. |
-| Old 1.9.x / 1.10.0 queue references | Treat as historical context; do not use them for current work ordering. |
+| `#697` | WIP refresh가 merge되거나 별도로 수락된 뒤에만 닫는다. |
+| `#690` | child issue가 완료될 때까지 1.11.0 umbrella로 열어둔다. |
+| `backlog` milestone | 우선순위가 바뀌기 전에는 `#700`과 `#706`을 1.11.0 lane 밖에 둔다. |
+| Old 1.9.x / 1.10.0 queue references | historical context로만 취급하고 현재 작업 순서에는 사용하지 않는다. |
