@@ -1,24 +1,25 @@
-# Lessons Learned - Hibernate Natural Id KeyType (2026-06-26)
+# Hibernate natural-id KeyType 교훈 (2026-06-26)
 
-Related issue: #908
-Affected module: `:bluetape4k-hibernate`
+관련 이슈: #908
+영향 module: `:bluetape4k-hibernate`
 
-## L1: Hibernate natural-id helpers must use loader APIs on Hibernate 7
+## L1: Hibernate 7 natural-id helper는 loader API를 사용해야 한다
 
-### Problem
+### 문제
 
-`Session.findBySimpleNaturalId()` and `Session.findByNaturalId()` used `Session.find(..., KeyType.NATURAL)`.
-`org.hibernate.KeyType` is not available in the Hibernate 7.2 runtime used by the module tests, so the helper tests
-failed with `NoClassDefFoundError`.
+`Session.findBySimpleNaturalId()`와 `Session.findByNaturalId()`가
+`Session.find(..., KeyType.NATURAL)`을 사용했다. module test가 사용하는 Hibernate 7.2
+runtime에는 `org.hibernate.KeyType`이 없어서 helper test가 `NoClassDefFoundError`로
+실패했다.
 
-### Lesson
+### 교훈
 
-Use Hibernate's natural-id loader APIs for natural-id lookups:
+natural-id lookup에는 Hibernate natural-id loader API를 사용한다.
 
-- `Session.bySimpleNaturalId(entityClass).load(value)` for simple natural ids.
-- `Session.byNaturalId(entityClass).using(values).load()` for composite natural ids.
+- simple natural id: `Session.bySimpleNaturalId(entityClass).load(value)`
+- composite natural id: `Session.byNaturalId(entityClass).using(values).load()`
 
-### Future guard
+### 향후 가드
 
-When a helper wraps Hibernate-specific APIs, verify against the exact `testRuntimeClasspath` Hibernate jar before
-using removed compatibility constants or overloads.
+helper가 Hibernate-specific API를 감쌀 때는 제거된 compatibility constant나 overload를
+사용하기 전에 정확한 `testRuntimeClasspath` Hibernate jar를 기준으로 검증한다.
