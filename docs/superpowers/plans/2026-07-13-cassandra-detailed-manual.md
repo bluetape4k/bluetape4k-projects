@@ -1,14 +1,12 @@
-# Cassandra Detailed Manual Implementation Plan
+# Cassandra 상세 manual 구현 계획
 
-> **For agentic
-workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **agentic worker용:** 필수 sub-skill: 이 계획은 superpowers:subagent-driven-development(권장) 또는 superpowers:executing-plans로 task별 구현한다. 진행 상태는 checkbox(`- [ ]`) syntax로 추적한다.
 
-**Goal:** `bluetape4k-cassandra`를 1.11.0 source/test에 고정된 한국어·영문 landing과 5개 상세 chapter를 갖춘 versioned manual로 게시한다.
+**목표:** `bluetape4k-cassandra`를 1.11.0 source/test에 고정된 한국어·영문 landing과 5개 상세 chapter를 갖춘 versioned manual로 게시한다.
 
-**Architecture:** `bluetape4k-projects/docs/manual`이 기술 설명의 source of truth이며 landing은 선택 지도, 하위 chapter는 session, coroutine query, data mapping, statement 작성, 운영·테스트 책임을 각각 소유한다. Manifest가 bilingual inventory를 선언하고 Projects validator가 1.11.0 release path를 검증한 뒤, `bluetape4k.github.io`가 같은 release commit을 유지한 채 1.11 snapshot을 editorial refresh한다.
+**아키텍처:** `bluetape4k-projects/docs/manual`이 기술 설명의 source of truth이며 landing은 선택 지도, 하위 chapter는 session, coroutine query, data mapping, statement 작성, 운영·테스트 책임을 각각 소유한다. Manifest가 bilingual inventory를 선언하고 Projects validator가 1.11.0 release path를 검증한 뒤, `bluetape4k.github.io`가 같은 release commit을 유지한 채 1.11 snapshot을 editorial refresh한다.
 
-**Tech
-Stack:** Markdown, YAML, Kotlin/Apache Cassandra Java Driver API examples, Ruby/Minitest manual validators, Gradle/JUnit 5/Testcontainers, Node.js manual snapshot tests, Astro/Starlight, browser visual QA
+**기술 스택:** Markdown, YAML, Kotlin/Apache Cassandra Java Driver API examples, Ruby/Minitest manual validators, Gradle/JUnit 5/Testcontainers, Node.js manual snapshot tests, Astro/Starlight, browser visual QA
 
 ---
 
@@ -53,7 +51,7 @@ Stack:** Markdown, YAML, Kotlin/Apache Cassandra Java Driver API examples, Ruby/
 
 Site의 generated manual 파일과 data JSON은 직접 편집하지 않고 `npm run sync:manual`로만 갱신한다.
 
-## Release evidence ledger
+## Release 증거 원장
 
 | 계약                     | 1.11.0 근거                                                                  | 매뉴얼 결론                                                                                                        |
 |--------------------------|------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
@@ -69,16 +67,16 @@ Site의 generated manual 파일과 data JSON은 직접 편집하지 않고 `npm 
 
 ### Task 1: Landing과 session lifecycle을 작성한다
 
-**Files:**
+**파일:**
 
-- Modify: `docs/manual/ko/modules/bluetape4k-cassandra.md`
-- Modify: `docs/manual/en/modules/bluetape4k-cassandra.md`
-- Create: `docs/manual/ko/modules/bluetape4k-cassandra/session-lifecycle.md`
-- Create: `docs/manual/en/modules/bluetape4k-cassandra/session-lifecycle.md`
+- 수정: `docs/manual/ko/modules/bluetape4k-cassandra.md`
+- 수정: `docs/manual/en/modules/bluetape4k-cassandra.md`
+- 생성: `docs/manual/ko/modules/bluetape4k-cassandra/session-lifecycle.md`
+- 생성: `docs/manual/en/modules/bluetape4k-cassandra/session-lifecycle.md`
 
 - [ ] **Step 1: 1.11.0 session 계약을 다시 읽는다**
 
-Run:
+실행:
 
 ```bash
 git show 1.11.0:data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionProvider.kt
@@ -88,7 +86,7 @@ git merge-base --is-ancestor 9ad16dc09 1.11.0
 git merge-base --is-ancestor 0ad15119d 1.11.0
 ```
 
-Expected: cache identity fix command exits 0, bootstrap builder fix command exits 1. `resolveSession`에서 admin session은 `builderSupplier().build()`, final session은 `withKeyspace(...).apply(builder).build()`를 사용한다.
+예상 결과: cache identity fix command exits 0, bootstrap builder fix command exits 1. `resolveSession`에서 admin session은 `builderSupplier().build()`, final session은 `withKeyspace(...).apply(builder).build()`를 사용한다.
 
 - [ ] **Step 2: 한국어 landing을 선택 지도 중심으로 교체한다**
 
@@ -209,7 +207,7 @@ val session = CqlSessionProvider.getOrCreateSession(
 
 - [ ] **Step 5: source link와 한국어 문장을 확인한다**
 
-Run:
+실행:
 
 ```bash
 ruby scripts/manual/validate_release_manuals.rb 1.11.0 6187173b58e8b4c5c435c145e00e94708f31ef75
@@ -217,7 +215,7 @@ rg -n "~를 통해|중요합니다|강력한|할 수 있을 것으로" docs/manu
 git diff --check -- docs/manual/ko/modules/bluetape4k-cassandra.md docs/manual/en/modules/bluetape4k-cassandra.md docs/manual/ko/modules/bluetape4k-cassandra/session-lifecycle.md docs/manual/en/modules/bluetape4k-cassandra/session-lifecycle.md
 ```
 
-Expected: release validator reports 0 missing. Korean phrase search returns no translated/promotional wording; diff check exits 0.
+예상 결과: release validator reports 0 missing. Korean phrase search returns no translated/promotional wording; diff check exits 0.
 
 - [ ] **Step 6: landing과 session chapter를 커밋한다**
 
@@ -235,14 +233,14 @@ git commit -m "Teach Cassandra session ownership before query helpers" \
 
 ### Task 2: Coroutine query와 multi-page Flow chapter를 작성한다
 
-**Files:**
+**파일:**
 
-- Create: `docs/manual/ko/modules/bluetape4k-cassandra/coroutine-queries.md`
-- Create: `docs/manual/en/modules/bluetape4k-cassandra/coroutine-queries.md`
+- 생성: `docs/manual/ko/modules/bluetape4k-cassandra/coroutine-queries.md`
+- 생성: `docs/manual/en/modules/bluetape4k-cassandra/coroutine-queries.md`
 
 - [ ] **Step 1: 1.11.0 async 계약을 읽는다**
 
-Run:
+실행:
 
 ```bash
 git show 1.11.0:data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/AsyncCqlSessionSupport.kt
@@ -251,7 +249,7 @@ git show 1.11.0:data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/cql/Async
 git show 1.11.0:data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/cql/AsyncResultSetSupportUnitTest.kt
 ```
 
-Expected: current page emission precedes `fetchNextPage().await()`, `CancellationException` is rethrown, and deprecated aliases point to `executeSuspending`/`prepareSuspending`.
+예상 결과: current page emission precedes `fetchNextPage().await()`, `CancellationException` is rethrown, and deprecated aliases point to `executeSuspending`/`prepareSuspending`.
 
 - [ ] **Step 2: bilingual frontmatter와 section inventory를 작성한다**
 
@@ -304,7 +302,7 @@ suspend fun loadActiveUsers(session: CqlSession): List<User> {
 
 - [ ] **Step 4: source link, parity와 문장을 검증한다**
 
-Run:
+실행:
 
 ```bash
 ruby scripts/manual/validate_release_manuals.rb 1.11.0 6187173b58e8b4c5c435c145e00e94708f31ef75
@@ -313,7 +311,7 @@ rg -n "CancellationException|fetchNextPage|asFlow" docs/manual/{ko,en}/modules/b
 git diff --check -- docs/manual/{ko,en}/modules/bluetape4k-cassandra/coroutine-queries.md
 ```
 
-Expected: deprecated names appear only in migration text; both locales contain cancellation, paging and Flow contracts; release paths are valid.
+예상 결과: deprecated names appear only in migration text; both locales contain cancellation, paging and Flow contracts; release paths are valid.
 
 - [ ] **Step 5: coroutine chapter를 커밋한다**
 
@@ -329,14 +327,14 @@ git commit -m "Explain Cassandra paging as a coroutine contract" \
 
 ### Task 3: Row와 data mapping chapter를 작성한다
 
-**Files:**
+**파일:**
 
-- Create: `docs/manual/ko/modules/bluetape4k-cassandra/rows-data-mapping.md`
-- Create: `docs/manual/en/modules/bluetape4k-cassandra/rows-data-mapping.md`
+- 생성: `docs/manual/ko/modules/bluetape4k-cassandra/rows-data-mapping.md`
+- 생성: `docs/manual/en/modules/bluetape4k-cassandra/rows-data-mapping.md`
 
 - [ ] **Step 1: release source와 example inventory를 읽는다**
 
-Run:
+실행:
 
 ```bash
 git show 1.11.0:data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/RowSupport.kt
@@ -346,7 +344,7 @@ git show 1.11.0:data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/mapper/En
 git ls-tree -r --name-only 1.11.0 data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/examples/datatypes data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/mapper
 ```
 
-Expected: name/index/identifier access, collection/UDT/tuple/codec examples와 `EntityHelper` prepare/bind anchors가 확인된다.
+예상 결과: name/index/identifier access, collection/UDT/tuple/codec examples와 `EntityHelper` prepare/bind anchors가 확인된다.
 
 - [ ] **Step 2: bilingual frontmatter와 decision sections를 작성한다**
 
@@ -380,7 +378,7 @@ fun Row.toUser(): User = User(
 
 - [ ] **Step 4: parity와 release path를 검증한다**
 
-Run:
+실행:
 
 ```bash
 ruby scripts/manual/validate_release_manuals.rb 1.11.0 6187173b58e8b4c5c435c145e00e94708f31ef75
@@ -388,7 +386,7 @@ rg -n "toMap|toNamedMap|CqlIdentifier|UDT|Tuple|Codec|EntityHelper" docs/manual/
 git diff --check -- docs/manual/{ko,en}/modules/bluetape4k-cassandra/rows-data-mapping.md
 ```
 
-Expected: 두 locale에 모든 decision anchor가 있고 release validator와 diff check가 통과한다.
+예상 결과: 두 locale에 모든 decision anchor가 있고 release validator와 diff check가 통과한다.
 
 - [ ] **Step 5: mapping chapter를 커밋한다**
 
@@ -404,14 +402,14 @@ git commit -m "Separate Cassandra typed mapping from dynamic row views" \
 
 ### Task 4: Statement와 QueryBuilder chapter를 작성한다
 
-**Files:**
+**파일:**
 
-- Create: `docs/manual/ko/modules/bluetape4k-cassandra/statements-query-builder.md`
-- Create: `docs/manual/en/modules/bluetape4k-cassandra/statements-query-builder.md`
+- 생성: `docs/manual/ko/modules/bluetape4k-cassandra/statements-query-builder.md`
+- 생성: `docs/manual/en/modules/bluetape4k-cassandra/statements-query-builder.md`
 
 - [ ] **Step 1: release statement/query builder API와 examples를 읽는다**
 
-Run:
+실행:
 
 ```bash
 git show 1.11.0:data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/cql/StatementSupport.kt
@@ -421,7 +419,7 @@ git show 1.11.0:data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/querybuil
 git ls-tree -r --name-only 1.11.0 data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/querybuilder
 ```
 
-Expected: raw/positional/named `statementOf`, simple/bound/batch factories와 CRUD/schema QueryBuilder examples가 확인된다.
+예상 결과: raw/positional/named `statementOf`, simple/bound/batch factories와 CRUD/schema QueryBuilder examples가 확인된다.
 
 - [ ] **Step 2: bilingual frontmatter와 선택 표를 작성한다**
 
@@ -473,7 +471,7 @@ Raw snippet과 logged batch는 library가 성능·원자성 범위를 넓히지 
 
 - [ ] **Step 4: source link와 locale parity를 검증한다**
 
-Run:
+실행:
 
 ```bash
 ruby scripts/manual/validate_release_manuals.rb 1.11.0 6187173b58e8b4c5c435c145e00e94708f31ef75
@@ -481,7 +479,7 @@ rg -n "statementOf|Prepared|Bound|Batch|QueryBuilder|bindMarker" docs/manual/{ko
 git diff --check -- docs/manual/{ko,en}/modules/bluetape4k-cassandra/statements-query-builder.md
 ```
 
-Expected: 두 locale가 다섯 선택 항목과 안전성 경계를 모두 포함하고 release validator가 통과한다.
+예상 결과: 두 locale가 다섯 선택 항목과 안전성 경계를 모두 포함하고 release validator가 통과한다.
 
 - [ ] **Step 5: statement chapter를 커밋한다**
 
@@ -497,14 +495,14 @@ git commit -m "Choose Cassandra statement APIs by binding boundary" \
 
 ### Task 5: 운영·테스트 chapter를 작성한다
 
-**Files:**
+**파일:**
 
-- Create: `docs/manual/ko/modules/bluetape4k-cassandra/operations-testing.md`
-- Create: `docs/manual/en/modules/bluetape4k-cassandra/operations-testing.md`
+- 생성: `docs/manual/ko/modules/bluetape4k-cassandra/operations-testing.md`
+- 생성: `docs/manual/en/modules/bluetape4k-cassandra/operations-testing.md`
 
 - [ ] **Step 1: release admin과 representative tests를 읽는다**
 
-Run:
+실행:
 
 ```bash
 git show 1.11.0:data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CassandraAdmin.kt
@@ -514,7 +512,7 @@ git show 1.11.0:data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/CqlSessio
 git show 1.11.0:data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/cql/AsyncResultSetSupportTest.kt
 ```
 
-Expected: create/drop/version admin behavior, container/session fixture, identity cache와 multi-page integration test anchors가 확인된다.
+예상 결과: create/drop/version admin behavior, container/session fixture, identity cache와 multi-page integration test anchors가 확인된다.
 
 - [ ] **Step 2: bilingual frontmatter와 운영 sections를 작성한다**
 
@@ -558,7 +556,7 @@ Testcontainers가 Docker runtime을 필요로 하고 heavy test는 순차 실행
 
 - [ ] **Step 4: release path와 bilingual troubleshooting을 검증한다**
 
-Run:
+실행:
 
 ```bash
 ruby scripts/manual/validate_release_manuals.rb 1.11.0 6187173b58e8b4c5c435c145e00e94708f31ef75
@@ -566,7 +564,7 @@ rg -n "bootstrap|CqlSessionIdentity|Flow|connection|batch" docs/manual/{ko,en}/m
 git diff --check -- docs/manual/{ko,en}/modules/bluetape4k-cassandra/operations-testing.md
 ```
 
-Expected: 두 locale 모두 다섯 troubleshooting boundary를 포함하고 validator가 0 missing을 보고한다.
+예상 결과: 두 locale 모두 다섯 troubleshooting boundary를 포함하고 validator가 0 missing을 보고한다.
 
 - [ ] **Step 5: operations chapter를 커밋한다**
 
@@ -582,11 +580,11 @@ git commit -m "Make Cassandra operations and test boundaries explicit" \
 
 ### Task 6: Manifest 등록과 Projects 전체 검증을 완료한다
 
-**Files:**
+**파일:**
 
-- Modify: `docs/manual/manifest.yaml`
-- Modify: `docs/manual/generated/manifest.json`
-- Modify: `docs/superpowers/checklists/2026-07-13-cassandra-manual-checklist.md`
+- 수정: `docs/manual/manifest.yaml`
+- 수정: `docs/manual/generated/manifest.json`
+- 수정: `docs/superpowers/checklists/2026-07-13-cassandra-manual-checklist.md`
 
 - [ ] **Step 1: Cassandra manifest entry에 chapter inventory를 등록한다**
 
@@ -615,7 +613,7 @@ git commit -m "Make Cassandra operations and test boundaries explicit" \
 
 - [ ] **Step 2: generated manifest를 갱신하고 script tests를 실행한다**
 
-Run:
+실행:
 
 ```bash
 ruby scripts/manual/export_manifest.rb
@@ -625,11 +623,11 @@ ruby scripts/manual/release_contract_test.rb
 ruby scripts/manual/generate_manuals_test.rb
 ```
 
-Expected: manifest snapshot이 작성되고 모든 Ruby test process가 0 failures, 0 errors로 종료한다.
+예상 결과: manifest snapshot이 작성되고 모든 Ruby test process가 0 failures, 0 errors로 종료한다.
 
 - [ ] **Step 3: 실제 inventory와 1.11.0 source links를 검증한다**
 
-Run:
+실행:
 
 ```bash
 ruby scripts/manual/validate_manuals.rb
@@ -637,11 +635,11 @@ ruby scripts/manual/export_manifest.rb --check
 ruby scripts/manual/validate_release_manuals.rb 1.11.0 6187173b58e8b4c5c435c145e00e94708f31ef75
 ```
 
-Expected: `Manuals are aligned.`, `Manual manifest snapshot is current.`, release validator의 `0 missing`이 출력된다.
+예상 결과: `Manuals are aligned.`, `Manual manifest snapshot is current.`, release validator의 `0 missing`이 출력된다.
 
 - [ ] **Step 4: locale inventory와 한국어 naturalness를 검사한다**
 
-Run:
+실행:
 
 ```bash
 find docs/manual/ko/modules/bluetape4k-cassandra -maxdepth 1 -name '*.md' -print | sort
@@ -652,17 +650,17 @@ rg -n "~를 통해|~에 있어서|중요합니다|강력한|다양한 장점|할
 git diff --check
 ```
 
-Expected: KO/EN가 각각 같은 basename 5개를 출력하고 Korean prose search에 수정 대상이 없으며 diff check가 통과한다.
+예상 결과: KO/EN가 각각 같은 basename 5개를 출력하고 Korean prose search에 수정 대상이 없으며 diff check가 통과한다.
 
 - [ ] **Step 5: Cassandra Testcontainers test를 단독 실행한다**
 
-Run:
+실행:
 
 ```bash
 repo-test-summary -- ./gradlew :bluetape4k-cassandra:test --no-build-cache --no-configuration-cache
 ```
 
-Expected: Gradle `BUILD SUCCESSFUL`, failed test 0. Docker/Testcontainers failure가 발생하면 환경 실패와 assertion failure를 구분하고 성공으로 간주하지 않는다.
+예상 결과: Gradle `BUILD SUCCESSFUL`, failed test 0. Docker/Testcontainers failure가 발생하면 환경 실패와 assertion failure를 구분하고 성공으로 간주하지 않는다.
 
 - [ ] **Step 6: checklist의 Projects gate를 갱신한다**
 
@@ -687,20 +685,20 @@ git status --porcelain -- docs/manual scripts/manual/validate_release_manuals.rb
 git rev-parse HEAD
 ```
 
-Expected: scoped status is empty and a 40-character Projects source commit is printed.
+예상 결과: scoped status is empty and a 40-character Projects source commit is printed.
 
 ### Task 7: 1.11 site snapshot을 refresh하고 browser에서 검증한다
 
 **Repository:** `/Users/debop/work/bluetape4k/bluetape4k.github.io/.worktrees/feature-ecosystem-atlas-manual`
 
-**Files:**
+**파일:**
 
-- Generated: `src/content/docs/ko/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra.md`
-- Generated: `src/content/docs/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra.md`
-- Generated: `src/content/docs/{ko/,}manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra/{session-lifecycle,coroutine-queries,rows-data-mapping,statements-query-builder,operations-testing}.md`
-- Generated: `src/data/manual/bluetape4k-projects.versions.json`
-- Generated: `src/data/manual/bluetape4k-projects.snapshot.json`
-- Generated: `src/content/docs/{ko/,}manual/bluetape4k-projects/1.11/data.json`
+- 생성됨: `src/content/docs/ko/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra.md`
+- 생성됨: `src/content/docs/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra.md`
+- 생성됨: `src/content/docs/{ko/,}manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra/{session-lifecycle,coroutine-queries,rows-data-mapping,statements-query-builder,operations-testing}.md`
+- 생성됨: `src/data/manual/bluetape4k-projects.versions.json`
+- 생성됨: `src/data/manual/bluetape4k-projects.snapshot.json`
+- 생성됨: `src/content/docs/{ko/,}manual/bluetape4k-projects/1.11/data.json`
 - Modify in Projects after Site proof: `docs/superpowers/checklists/2026-07-13-cassandra-manual-checklist.md`
 
 - [ ] **Step 1: Projects source와 release tag를 다시 고정한다**
@@ -713,7 +711,7 @@ git rev-parse HEAD
 git rev-parse 1.11.0^{}
 ```
 
-Expected: scoped status is empty; HEAD is the Task 6 checkpoint; tag resolves to `6187173b58e8b4c5c435c145e00e94708f31ef75`.
+예상 결과: scoped status is empty; HEAD is the Task 6 checkpoint; tag resolves to `6187173b58e8b4c5c435c145e00e94708f31ef75`.
 
 - [ ] **Step 2: 같은 minor release의 editorial snapshot을 refresh한다**
 
@@ -726,22 +724,22 @@ npm run sync:manual -- --check
 npm run check:manual
 ```
 
-Expected: refresh와 check가 exit 0. Version catalog의 `releaseCommit`은 `6187173b58e8b4c5c435c145e00e94708f31ef75`로 유지되고 `sourceCommit`만 Task 6 Projects checkpoint로 갱신된다.
+예상 결과: refresh와 check가 exit 0. Version catalog의 `releaseCommit`은 `6187173b58e8b4c5c435c145e00e94708f31ef75`로 유지되고 `sourceCommit`만 Task 6 Projects checkpoint로 갱신된다.
 
 - [ ] **Step 3: Site tests와 Astro build를 실행한다**
 
-Run:
+실행:
 
 ```bash
 npm test
 npm run build
 ```
 
-Expected: Node manual/ecosystem tests가 모두 PASS하고 Astro check의 errors/warnings/hints가 0이며 build가 exit 0이다.
+예상 결과: Node manual/ecosystem tests가 모두 PASS하고 Astro check의 errors/warnings/hints가 0이며 build가 exit 0이다.
 
 - [ ] **Step 4: generated route와 immutable source link를 검사한다**
 
-Run:
+실행:
 
 ```bash
 test -f src/content/docs/ko/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra/session-lifecycle.md
@@ -753,7 +751,7 @@ rg -n 'github.com/bluetape4k/bluetape4k-projects/blob/1\.11\.0/' \
 git diff --check
 ```
 
-Expected: KO/EN chapter가 존재하고 source links는 authoring commit이 아니라 `blob/1.11.0/`을 사용하며 diff check가 통과한다.
+예상 결과: KO/EN chapter가 존재하고 source links는 authoring commit이 아니라 `blob/1.11.0/`을 사용하며 diff check가 통과한다.
 
 - [ ] **Step 5: localhost에서 KO/EN route를 육안 검수한다**
 
@@ -773,7 +771,7 @@ http://127.0.0.1:4323/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassand
 http://127.0.0.1:4323/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra/operations-testing/
 ```
 
-Expected: navigation에 5개 chapter가 순서대로 보이고 code block이 잘리지 않으며 horizontal overflow, broken link와 browser console error가 없다. 한국어 문장을 실제 화면에서 읽어 번역체나 지나치게 긴 문장을 고친다.
+예상 결과: navigation에 5개 chapter가 순서대로 보이고 code block이 잘리지 않으며 horizontal overflow, broken link와 browser console error가 없다. 한국어 문장을 실제 화면에서 읽어 번역체나 지나치게 긴 문장을 고친다.
 
 - [ ] **Step 6: Projects checklist를 최종 증거로 닫는다**
 
@@ -805,7 +803,7 @@ git commit -m "Refresh the Cassandra manual in the 1.11 catalog" \
 
 Do not push either repository.
 
-## Self-review
+## 자체 검토
 
 - Spec coverage: landing, 5 bilingual chapters, 1.11.0 cache/bootstrap distinction, central BOM, Korean naturalness, manifest, Cassandra test, deterministic refresh, immutable release links, build와 browser QA가 Task 1–7에 연결된다.
 - Placeholder scan: 임시 표식, 비어 있는 section, 다른 task에 구현을 떠넘기는 문장과 미정 파일 경로가 없다.
