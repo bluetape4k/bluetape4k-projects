@@ -93,7 +93,7 @@ class RedissonProtobufCodec private constructor(
         val ALLOW_ALL_CLASSES_UNSAFE: Set<String> = setOf("*")
 
         /**
-         * Creates a trusted-internal mixed Protobuf + fallback codec.
+         * trusted-internal 혼합 Protobuf + fallback codec을 생성합니다.
          *
          * Use this profile only for internal Redis stores whose historical bytes may contain fallback-encoded payloads.
          */

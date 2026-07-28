@@ -67,7 +67,7 @@ object Jackson: KLogging() {
     }
 
     /**
-     * Creates a [JsonMapper] that writes property-based type information and allows only trusted
+     * property 기반 타입 정보를 기록하고 신뢰된 타입만 허용하는 [JsonMapper]를 생성합니다
      * subtype packages.
      *
      * ## Security contract
