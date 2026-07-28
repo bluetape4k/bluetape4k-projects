@@ -61,7 +61,7 @@ class LettuceJsonCodec<V: Any>(
     /**
      * Encodes [value] into the caller-owned [target].
      *
-     * A null target is a no-op. A read-only target fails before serializer dispatch and preserves its observable
+     * null target은 no-op입니다. 읽기 전용 target은 serializer dispatch 전에 실패하며 관찰 가능한 상태를 보존합니다
      * indices, marks, and reference count. Success commits the writer index only after the complete wire is written;
      * failure may leave attempted content or capacity changes but does not commit the writer index.
      */
