@@ -1,10 +1,14 @@
 # ByteBuffer Serializer Allocation Benchmark - 2026-07-18
 
-## Scope
+## 범위
 
-Issue [#1039](https://github.com/bluetape4k/bluetape4k-projects/issues/1039) measures the allocation behavior of the existing `ByteArray`, compatibility-default `ByteBuffer`, and concrete optimized `ByteBuffer` serializer paths. The deterministic payload is equivalent across JDK, Kryo, Fory, Jackson 2, Jackson 3, Fastjson2 JSONB, and Avro reflect. Setup, round-trip validation, buffer allocation, and buffer reset are outside timed methods.
+Issue [#1039](https://github.com/bluetape4k/bluetape4k-projects/issues/1039)는 기존
+`ByteArray`, compatibility-default `ByteBuffer`, concrete optimized `ByteBuffer`
+serializer path의 allocation behavior를 측정한다. Deterministic payload는 JDK, Kryo,
+Fory, Jackson 2, Jackson 3, Fastjson2 JSONB, Avro reflect 전반에서 동등하다. Setup,
+round-trip validation, buffer allocation, buffer reset은 timed method 밖에 있다.
 
-## Commands
+## 명령
 
 ```bash
 ./gradlew :serializer-benchmark:clean :serializer-benchmark:benchmarkBenchmarkJar --no-configuration-cache
@@ -14,25 +18,25 @@ java -jar benchmark/serializer-benchmark/build/benchmarks/benchmark/jars/*-JMH.j
 python3 benchmark/serializer-benchmark/scripts/summarize-jmh.py run --input jmh.json --output summary.csv
 ```
 
-## Run Conditions
+## 실행 조건
 
 - Commit: `57a2468e9e7cb2c305a7046dd8baa10f71284f21`
-- Run IDs: `run-20260718T030512Z`, `run-20260718T031704Z`
+- Run ID: `run-20260718T030512Z`, `run-20260718T031704Z`
 - JMH 1.37, Java 21.0.11 GraalVM, macOS; exact host details are in each `environment.txt`.
-- One JMH process ran at a time with two forks, three warmups, five measurements, and one thread.
-- Primary metric: `gc.alloc.rate.norm` in B/op. Throughput is diagnostic only.
-- A reduction claim requires both runs to improve by at least 5% in the same direction.
+- JMH process는 한 번에 하나씩 실행했고 fork 2, warmup 3, measurement 5, thread 1을 사용했다.
+- Primary metric: B/op 단위의 `gc.alloc.rate.norm`. Throughput은 diagnostic only이다.
+- Reduction claim은 두 run 모두 같은 방향으로 5% 이상 개선되어야 한다.
 
-## Raw Artifacts
+## Raw Artifact
 
 - [Run 1 environment](raw/issue-1039/run-20260718T030512Z/environment.txt), [JMH JSON](raw/issue-1039/run-20260718T030512Z/jmh.json), [summary CSV](raw/issue-1039/run-20260718T030512Z/summary.csv)
 - [Run 2 environment](raw/issue-1039/run-20260718T031704Z/environment.txt), [JMH JSON](raw/issue-1039/run-20260718T031704Z/jmh.json), [summary CSV](raw/issue-1039/run-20260718T031704Z/summary.csv)
 - [Two-run comparison CSV](raw/issue-1039/comparison.csv)
-- Charts: Not produced. The tables and committed raw files are the numeric source of truth.
+- Chart: 생성하지 않았다. Table과 committed raw file이 numeric source of truth다.
 
-## Allocation Results
+## Allocation 결과
 
-Values show `ByteArray baseline -> candidate B/op (delta)` for each run.
+각 값은 run별 `ByteArray baseline -> candidate B/op (delta)` 형식이다.
 
 | Candidate | Run 1 | Run 2 | Verdict |
 |---|---:|---:|---|
@@ -65,13 +69,16 @@ Values show `ByteArray baseline -> candidate B/op (delta)` for each run.
 
 ## Diagnostic Throughput
 
-Throughput scores and errors are preserved in each `summary.csv` and raw JMH JSON. They diagnose regressions but do not establish allocation claims.
+Throughput score와 error는 각 `summary.csv`와 raw JMH JSON에 보존되어 있다. 이는
+regression을 진단하지만 allocation claim을 확립하지는 않는다.
 
-## Claim Decisions
+## Claim 결정
 
-- Accepted (5): Jackson 2 serialize, Jackson 3 serialize, JDK serialize, Kryo serialize, and Kryo deserialize optimized cells.
-- Inconclusive (7): Avro reflect serialize/deserialize, Fastjson2 array-backed deserialize, Fory deserialize, and JDK/Jackson 2/Jackson 3 deserialize optimized cells.
-- Ineligible (14): compatibility and fallback controls. These are ergonomic comparisons only.
+- Accepted (5): Jackson 2 serialize, Jackson 3 serialize, JDK serialize, Kryo serialize,
+  Kryo deserialize optimized cell.
+- Inconclusive (7): Avro reflect serialize/deserialize, Fastjson2 array-backed deserialize,
+  Fory deserialize, JDK/Jackson 2/Jackson 3 deserialize optimized cell.
+- Ineligible (14): compatibility와 fallback control. 이는 ergonomic comparison일 뿐이다.
 
 ## Optimized And Fallback Matrix
 
@@ -85,10 +92,16 @@ Throughput scores and errors are preserved in each `summary.csv` and raw JMH JSO
 | Fastjson2 | fallback, ergonomic-only | array-backed optimized but inconclusive; direct/read-only fallback |
 | Avro reflect | optimized but inconclusive | optimized but inconclusive |
 
-## Limitations
+## 한계
 
-The measurements apply only to the committed payload, default serializer configuration, reflect Avro implementation, and named ByteBuffer paths. They do not change wire formats, security defaults, ownership, or production behavior. Callers must provide a writable target with sufficient remaining capacity; output advances the caller's position only after success, while input is read through a duplicate and preserves caller state. Overflow and read-only failures preserve caller state. Generic/specific/list Avro variants and unrelated serializer variants are unmeasured.
+이 측정은 committed payload, default serializer configuration, reflect Avro implementation,
+명명된 ByteBuffer path에만 적용된다. Wire format, security default, ownership, production
+behavior를 바꾸지 않는다. Caller는 충분한 remaining capacity를 가진 writable target을 제공해야
+한다. Output은 성공 후에만 caller position을 전진시키고, input은 duplicate를 통해 읽어 caller
+state를 보존한다. Overflow와 read-only failure도 caller state를 보존한다.
+Generic/specific/list Avro variant와 관련 없는 serializer variant는 측정하지 않았다.
 
-## Follow-Up
+## 후속 작업
 
-Issues #755, #756, #757, and #758 remain deferred. Any future dispatch, payload, or serializer change must produce two fresh runs before allocation-reduction wording is reused.
+Issue #755, #756, #757, #758은 deferred 상태로 남는다. 향후 dispatch, payload, serializer
+change가 있으면 allocation-reduction wording을 재사용하기 전에 fresh run 2개를 만들어야 한다.
