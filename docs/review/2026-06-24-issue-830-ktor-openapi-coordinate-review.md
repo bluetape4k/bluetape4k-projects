@@ -9,7 +9,7 @@ Module: `:bluetape4k-ktor-openapi`
 - `ktor/openapi/README.md`
 - `ktor/openapi/README.ko.md`
 
-## Local Review
+## Local 검토
 
 - P0/P1 findings: 0
 - The dependency snippets now match `gradle.properties`:
@@ -19,7 +19,7 @@ Module: `:bluetape4k-ktor-openapi`
 - No concurrency test helper was needed because this is a deterministic
   documentation coordinate correction.
 
-## Validation Evidence
+## 검증 Evidence
 
 - `rg "io\\.github\\.bluetape4k:bluetape4k-ktor-openapi" ktor/openapi/README.md ktor/openapi/README.ko.md`
   found the corrected coordinate in both README files.
