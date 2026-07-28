@@ -31,6 +31,25 @@ GitHub issue/PR 제목과 본문은 repository 정책에 따라 영어로 유지
 | #1106 | #1126 | `kdoc/issue-1106-testing-kdoc-batch` | `kdoc/issue-1105-frameworks-kdoc-batch` | Open |
 | #1107 | #1127 | `kdoc/issue-1107-utils-virtualthread-kdoc-batch` | `kdoc/issue-1106-testing-kdoc-batch` | Open |
 | #1108 | #1128 | `kdoc/issue-1108-examples-kdoc-batch` | `kdoc/issue-1107-utils-virtualthread-kdoc-batch` | Open |
+| #1109 | #1129 | `docs/issue-1109-localization-pr-stack-audit` | `kdoc/issue-1108-examples-kdoc-batch` | Open |
+
+## 세부 실행 이슈 분해
+
+큰 umbrella issue는 다음의 review 가능한 batch issue로 다시 분해했다. 각 issue는 GitHub 정책에 따라 title/body를 영어로 유지한다.
+
+| Parent | Batch issues |
+|---|---|
+| #1096 | #1130, #1131, #1132, #1133, #1134, #1135, #1136, #1137, #1138 |
+| #1097 | #1139, #1140, #1141, #1142, #1143, #1144, #1145, #1146, #1147, #1148, #1149, #1150 |
+| #1098 | #1151, #1152, #1153, #1154, #1155, #1156 |
+| #1101 | #1157, #1158, #1159 |
+| #1102 | #1160, #1161, #1162 |
+| #1103 | #1163, #1164, #1165 |
+| #1104 | #1166, #1167, #1168 |
+| #1105 | #1169, #1170, #1171 |
+| #1106 | #1172, #1173, #1174 |
+| #1107 | #1175, #1176, #1177 |
+| #1108 | #1178, #1179, #1180 |
 
 ## Guardrail evidence
 
