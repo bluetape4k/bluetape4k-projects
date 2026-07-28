@@ -31,7 +31,7 @@ class R2dbcClientAutoConfiguration {
     companion object: KLogging()
 
     /**
-     * Creates the default [R2dbcClient] bean from Spring R2DBC infrastructure beans.
+     * Spring R2DBC infrastructure bean에서 기본 [R2dbcClient] bean을 생성합니다.
      */
     @Bean
     @ConditionalOnMissingBean(R2dbcClient::class)
