@@ -1,30 +1,36 @@
-# Issue 643 Ktor Client Boundary
+# 이슈 643 Ktor client boundary
 
-## Context
+## 배경
 
-Issue #643 asked whether `bluetape4k-projects` should introduce a dedicated `bluetape4k-ktor-client` module or keep Ktor client support in an existing module.
+issue #643은 `bluetape4k-projects`가 전용 `bluetape4k-ktor-client` module을 도입할지,
+아니면 기존 module 안에 Ktor client support를 유지할지 결정해야 했다.
 
-## Decision
+## 결정
 
-Keep Ktor client ownership in `bluetape4k-http`. Add only thin helpers for explicit-engine client creation, Kotlinx JSON content negotiation, and timeout defaults.
+Ktor client ownership은 `bluetape4k-http`에 유지한다. explicit-engine client creation,
+Kotlinx JSON content negotiation, timeout default를 위한 얇은 helper만 추가한다.
 
-Avoid a separate Ktor client module until there is a broader API surface that cannot fit the HTTP module without dependency or ownership confusion.
+dependency나 ownership 혼동 없이 HTTP module에 둘 수 없는 더 넓은 API surface가 생길
+때까지 별도 Ktor client module은 피한다.
 
-## Outcome
+## 결과
 
-`KtorHttpClientSupport` now exposes:
+`KtorHttpClientSupport`는 이제 다음을 노출한다.
 
 - `defaultKtorClientJson`
 - `KtorClientTimeouts`
 - `ktorJsonHttpClientOf`
 - `ktorCioJsonHttpClientOf`
 
-The README locale set documents that retry, resilience, authentication, logging, and service-specific plugins remain application-level concerns or belong in existing dedicated modules.
+README locale set은 retry, resilience, authentication, logging, service-specific
+plugin이 application-level concern으로 남거나 기존 dedicated module에 속한다고
+문서화한다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-http:test --tests 'io.bluetape4k.http.ktor.KtorHttpClientSupportTest' --no-configuration-cache`
 
-## Future Guard
+## 향후 가드
 
-When adding Ktor client helpers, require a clear cross-application pattern first. Prefer explicit engine selection and narrow plugin installation over a broad facade.
+Ktor client helper를 추가할 때는 명확한 cross-application pattern을 먼저 요구한다. 넓은
+facade보다 explicit engine selection과 좁은 plugin installation을 우선한다.
