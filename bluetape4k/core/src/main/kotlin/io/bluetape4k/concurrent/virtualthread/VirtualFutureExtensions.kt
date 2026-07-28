@@ -78,13 +78,13 @@ fun <T> virtualFutureAll(
 }
 
 /**
- * Runs multiple tasks asynchronously on virtual threads and returns their results in input order.
- * The aggregate future fails with [java.util.concurrent.TimeoutException] unless every task completes within [timeout].
+ * 여러 작업을 virtual thread에서 비동기로 실행하고 입력 순서대로 결과를 반환합니다.
+ * 모든 작업이 [timeout] 안에 완료되지 않으면 집계 future는 [java.util.concurrent.TimeoutException]으로 실패합니다.
  *
- * On timeout, cancellation with interruption is requested for every unfinished task.
- * Cancellation is cooperative, so task code that ignores interruption may continue after the aggregate future completes.
- * Awaiting a timed-out result throws [java.util.concurrent.ExecutionException] with
- * [java.util.concurrent.TimeoutException] as its cause.
+ * 제한 시간이 초과되면 아직 완료되지 않은 모든 작업에 interrupt를 동반한 취소를 요청합니다.
+ * 취소는 협력적으로 처리되므로 interruption을 무시하는 작업 코드는 집계 future가 완료된 뒤에도 계속 실행될 수 있습니다.
+ * 제한 시간이 초과된 결과를 기다리면 [java.util.concurrent.TimeoutException]을 원인으로 하는
+ * [java.util.concurrent.ExecutionException]이 발생합니다.
  *
  * ```kotlin
  * val tasks = listOf(
@@ -96,11 +96,11 @@ fun <T> virtualFutureAll(
  * val result = future.await() // [1, 2, 3]
  * ```
  *
- * @param T task result type
- * @param tasks tasks to execute in parallel
- * @param executor executor used to run tasks (defaults to [VirtualThreadExecutor])
- * @param timeout maximum duration for the aggregate operation
- * @return a [VirtualFuture] containing every task result in input order
+ * @param T 작업 결과 타입입니다.
+ * @param tasks 병렬로 실행할 작업 목록입니다.
+ * @param executor 작업 실행에 사용할 executor입니다. 기본값은 [VirtualThreadExecutor]입니다.
+ * @param timeout 집계 작업에 허용되는 최대 시간입니다.
+ * @return 모든 작업 결과를 입력 순서대로 담은 [VirtualFuture]입니다.
  */
 fun <T> virtualFutureAll(
     tasks: Collection<() -> T>,
