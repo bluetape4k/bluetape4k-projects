@@ -1,33 +1,29 @@
-# Issue 494 Cancellation Contracts
+# 이슈 494 Cancellation Contract
 
-Date: 2026-05-20
-Issue: #494
+날짜: 2026-05-20
+이슈: #494
 
-## Context
+## 배경
 
-Coroutine wrappers in multiple modules needed a reusable way to prove that
-`CancellationException` is rethrown, waiter slots are cleared after cancellation,
-and underlying resources such as Retrofit calls are cancelled.
+여러 module의 coroutine wrapper는 `CancellationException` rethrow, cancellation 후 waiter slot cleanup,
+Retrofit call 같은 하위 resource 취소를 재사용 가능한 방식으로 증명할 필요가 있었다.
 
-## Decision
+## 결정
 
-Add cancellation contract helpers to `bluetape4k-junit5` instead of copying
-launch/cancel scaffolding into each module. Keep the helper signatures on core
-coroutine and `Duration` types so they remain usable from normal coroutine tests.
+각 module에 launch/cancel scaffolding을 복사하지 않고 `bluetape4k-junit5`에 cancellation contract helper를
+추가한다. Helper signature는 일반 coroutine test에서 쓸 수 있도록 core coroutine type과 `Duration`에
+머무르게 한다.
 
-## Outcome
+## 결과
 
-- Added `resultOfNonCancellation` and `runCatchingNonCancellation` for
-  `Result`-style wrappers that must preserve structured cancellation.
-- Added helper assertions for propagation, cancelled waiter cleanup, and
-  resource cancellation.
-- Replaced local cancellation scaffolding in `bluetape4k-coroutines` and
-  `bluetape4k-micrometer`.
-- Added a real MockWebServer delayed-response cancellation test for
-  `bluetape4k-retrofit2`.
-- Documented usage and checklist in the English and Korean JUnit5 READMEs.
+- Structured cancellation을 보존해야 하는 `Result` style wrapper를 위해 `resultOfNonCancellation`과
+  `runCatchingNonCancellation` 추가.
+- Propagation, cancelled waiter cleanup, resource cancellation을 위한 helper assertion 추가.
+- `bluetape4k-coroutines`와 `bluetape4k-micrometer`의 local cancellation scaffolding 교체.
+- `bluetape4k-retrofit2`에 실제 MockWebServer delayed-response cancellation test 추가.
+- English/Korean JUnit5 README에 usage와 checklist 문서화.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-junit5:compileKotlin :bluetape4k-junit5:test --console=plain --no-configuration-cache`
 - `./gradlew :bluetape4k-coroutines:test --tests '*ResumableTest' --console=plain --no-configuration-cache`
@@ -35,8 +31,8 @@ coroutine and `Duration` types so they remain usable from normal coroutine tests
 - `./gradlew :bluetape4k-retrofit2:test --tests '*SuspendRetrofitCallSupportTest' --console=plain --no-configuration-cache`
 - `git diff --check`
 
-## Future Guidance
+## 향후 가이드
 
-When adding suspend wrappers that return `Result`, do not use plain
-`runCatching` around suspend calls. Use `runCatchingNonCancellation`, or rethrow
-`CancellationException` explicitly before converting non-cancellation failures.
+`Result`를 반환하는 suspend wrapper를 추가할 때 plain `runCatching`으로 suspend call을 감싸지 않는다.
+`runCatchingNonCancellation`을 사용하거나, non-cancellation failure로 변환하기 전에
+`CancellationException`을 명시적으로 rethrow한다.
