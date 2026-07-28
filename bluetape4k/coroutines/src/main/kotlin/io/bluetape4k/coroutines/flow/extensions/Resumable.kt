@@ -43,7 +43,7 @@ open class Resumable {
     private val continuation by continuationRef
 
     /**
-     * Suspends the current coroutine until [resume] is called externally.
+     * 외부에서 [resume]이 호출될 때까지 현재 코루틴을 일시 중단합니다.
      *
      * ## Behaviour / Contract
      * - Returns immediately without suspending if already in the READY state.
