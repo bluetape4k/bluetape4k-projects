@@ -8,7 +8,7 @@ import io.ktor.server.response.respond
 import kotlinx.coroutines.CancellationException
 
 /**
- * Registers default JSON error responses for common application exceptions.
+ * 일반 application exception에 대한 기본 JSON error response를 등록합니다.
  *
  * ## Contract
  * - [IllegalArgumentException] is mapped to HTTP 400.
@@ -42,7 +42,7 @@ fun StatusPagesConfig.bluetape4kErrorResponses() {
 }
 
 /**
- * Responds with the standard bluetape4k JSON error payload.
+ * 표준 bluetape4k JSON error payload로 응답합니다.
  */
 suspend fun ApplicationCall.respondApiError(
     status: HttpStatusCode,
