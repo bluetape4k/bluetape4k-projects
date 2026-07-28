@@ -6,9 +6,9 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
 
 /**
- * Base controller that exposes a virtual-thread-per-task executor.
+ * virtual-thread-per-task executor를 노출하는 base controller입니다.
  *
- * Use this base class only when a controller needs an explicit
+ * controller가 explicit
  * [ExecutorService] for virtual-thread task submission. Spring calls
  * [closeVirtualThreadExecutor] when the controller bean is destroyed, and the
  * shared executor is recreated on the next access if a later context needs it.
