@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 /**
- * Example configuration that registers idgenerator implementations as Spring beans.
+ * idgenerator 구현체를 Spring bean으로 등록하는 example configuration입니다.
  *
  * ## Behavior
  * - UUID generators of the same type are distinguished by bean name.
