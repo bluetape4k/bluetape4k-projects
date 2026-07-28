@@ -1,4 +1,4 @@
-# Issue #1039 Serializer Allocation Benchmark Design
+# Issue #1039 Serializer Allocation Benchmark 설계
 
 - Issue: [#1039 Prove ByteBuffer serializer allocation reductions and document limits](https://github.com/bluetape4k/bluetape4k-projects/issues/1039)
 - Parent: [#754 Add ByteBuffer-oriented serializer APIs to reduce allocation pressure](https://github.com/bluetape4k/bluetape4k-projects/issues/754)
