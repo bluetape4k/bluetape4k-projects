@@ -6,13 +6,13 @@
 - `virtualFutureOf` / `virtualFutureOfNullable` KDoc을 English public API documentation으로 정리했다.
 - virtual-thread `CompletableFuture` factory가 실제 virtual thread에서 block을 실행하는 테스트를 추가했다.
 
-## Findings
+## 발견 사항
 
 - P0=0
 - P1=0
 - P2=0
 
-## Evidence
+## 증거
 
 - `./gradlew :bluetape4k-core:test --tests "io.bluetape4k.concurrent.FutureUtilsTest" --tests "io.bluetape4k.concurrent.virtualthread.CompletableFutureSupportTest"`: PASS, 24 passing.
 - `./gradlew :bluetape4k-core:test`: first run failed once in existing `FutureSupportTest.cancel propagates to wrapped Future and cancels wrapper`; isolated rerun passed.

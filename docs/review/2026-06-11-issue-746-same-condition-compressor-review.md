@@ -1,4 +1,4 @@
-# Issue #746 Same-Condition Compressor Review
+# Issue #746 Same-Condition Compressor 검토
 
 ## Scope
 
@@ -6,7 +6,7 @@
 - Module: `:bluetape4k-io`
 - Files: benchmark harness, benchmark report, raw benchmark artifacts, module benchmark notes.
 
-## Findings
+## 발견 사항
 
 | Severity | Count | Notes |
 |---|---:|---|
@@ -14,7 +14,7 @@
 | P1 | 0 | Benchmark execution and roundtrip coverage are present. |
 | P2 | 0 | No blocking non-critical findings. |
 
-## Evidence
+## 증거
 
 | Check | Result | Evidence |
 |---|---|---|
