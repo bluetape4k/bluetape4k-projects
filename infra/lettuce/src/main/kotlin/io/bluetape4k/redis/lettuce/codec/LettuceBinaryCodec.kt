@@ -12,7 +12,7 @@ import java.nio.ByteBuffer
 import java.nio.ReadOnlyBufferException
 
 /**
- * A Lettuce [RedisCodec] that serializes values with a [BinarySerializer].
+ * [BinarySerializer]로 값을 직렬화하는 Lettuce [RedisCodec]입니다.
  *
  * ```kotlin
  * val codec = LettuceBinaryCodec<MyData>(BinarySerializers.LZ4Kryo)
@@ -23,7 +23,7 @@ import java.nio.ReadOnlyBufferException
  * // value == myData
  * ```
  *
- * The nullable target-taking [encodeValue] overload is the only supported source extension seam. Ordinary codec
+ * nullable target을 받는 [encodeValue] overload가 유일하게 지원되는 source extension 지점입니다. 일반 codec
  * methods remain final. Opening this class also makes compiler-generated JVM bridge methods bytecode-overrideable;
  * those bridges are not a supported extension API. Subclasses must override only the target overload and preserve
  * the configured [serializer] contract.
@@ -59,7 +59,7 @@ open class LettuceBinaryCodec<V: Any>(
     /**
      * Encodes [value] into the caller-owned [target].
      *
-     * A null target is a no-op. A read-only target fails before serializer dispatch and preserves its observable
+     * null target은 no-op입니다. 읽기 전용 target은 serializer dispatch 전에 실패하며 관찰 가능한 상태를 보존합니다
      * indices, marks, and reference count. The caller owns the target and its lifetime. A successful override must
      * commit the writer index only after the complete value has been written. A failed override may leave attempted
      * bytes or capacity changes behind, but it must not advance the writer index. Subclasses are responsible for
