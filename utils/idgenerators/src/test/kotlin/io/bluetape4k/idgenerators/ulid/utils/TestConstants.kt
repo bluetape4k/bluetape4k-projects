@@ -56,6 +56,6 @@ val PatternBytes =
     ).map { it.toByte() }.toByteArray()
 
 /**
- * Get timestamp and random part of ULID string.
+ * ULID string에서 timestamp와 random part를 가져옵니다.
  */
 fun partsOf(ulid: String): Pair<String, String> = ulid.substring(0, 10) to ulid.substring(10)
