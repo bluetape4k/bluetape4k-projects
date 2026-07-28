@@ -10,31 +10,31 @@
 - GitHub issue/PR/push/merge/deploy: N/A — 승인 범위는 local spec, edit, test, browser verify까지
 - Chezmoi/agent guidance/workflow: N/A — 해당 surface를 변경하지 않음
 
-## Workflow router
+## Workflow 라우터
 
-- [x] **WF-01 — Classify**
+- [x] **WF-01 — 분류**
     - **조치:** 작업을 Type E 문서 유지보수로 분류한다.
     - **증거:** Kotlin production source와 dependency는 변경하지 않고 Cassandra manual, manifest, site snapshot만 변경한다.
-    - **실패 시:** production behavior가 필요하면 STOP하고 Type A/B/C로 재분류한다.
-- [x] **WF-02 — Write the first concrete plan**
+    - **실패 시:** production behavior가 필요하면 중단하고 Type A/B/C로 재분류한다.
+- [x] **WF-02 — 첫 구체 계획 작성**
     - **조치:** 근거 수집, 구조 비교, spec/plan, bilingual 작성, snapshot/build/browser 검증 순서를 제시한다.
     - **증거:** 2026-07-13 active thread의 5단계 계획과 B형 chapter inventory.
-    - **실패 시:** STOP before durable artifacts.
-- [x] **WF-03 — Obtain first-plan approval**
+    - **실패 시:** durable artifact 전에 중단한다.
+- [x] **WF-03 — 첫 계획 승인 확보**
     - **조치:** B형 hub + focused chapters 설계의 명시적 승인을 받는다.
     - **증거:** 사용자 응답 `승인` (2026-07-13).
-    - **실패 시:** remain read-only.
-- [x] **WF-04 — Load execution contracts**
+    - **실패 시:** read-only 상태로 남긴다.
+- [x] **WF-04 — 실행 계약 로드**
     - **조치:** workflow, maintenance, writer, brainstorming, checklist/common gate와 Korean naturalness 계약을 읽는다.
     -
   **증거:** `/Users/debop/.codex/skills/{bluetape-workflow,bluetape-maintenance,bluetape-writer,brainstorming}` 및 required references를 현재 turn에서 읽음.
-    - **실패 시:** STOP before editing.
-- [x] **WF-05 — Execute gates in dependency order**
+    - **실패 시:** 수정 전에 중단한다.
+- [x] **WF-05 — 의존 순서대로 게이트 실행**
     - **조치:** spec approval, plan, manual source, site snapshot, verification 순으로 진행한다.
     -
   **증거:** spec 승인 → 7-task plan → 6개 bilingual source page → manifest/release 검증 → Testcontainers 단독 실행 → site refresh/test/build/browser 검수 순으로 완료함.
     - **실패 시:** leave downstream items unchecked and repair.
-- [x] **WF-06 — Repair any skipped or weak gate**
+- [x] **WF-06 — 누락되거나 약한 게이트 복구**
     - **조치:** 누락되거나 약한 증거를 복구하고 영향을 받은 downstream proof를 다시 실행한다.
     -
   **증거:** plan-only CG-08 증거를 실제 단독 실행 결과로 교체했고, 브라우저에서 발견한 상대 `.md` 링크 404는 snapshot 변환 단계에서 회귀 테스트와 함께 수정함. Site commit 뒤 발견한 EOF 빈 줄도 생성기에서 정규화하고 전체 검증을 다시 실행함.
@@ -46,12 +46,12 @@
     - **조치:** workspace/repo `AGENTS.md`, selected skills, status와 diff를 읽는다.
     -
   **증거:** `/Users/debop/work/bluetape4k/AGENTS.md`, repo `AGENTS.md`; branch `feature/all-module-manuals`; tracked diff 없음; unrelated untracked 3개 보존.
-    - **실패 시:** STOP before editing.
+    - **실패 시:** 수정 전에 중단한다.
 - [x] **CG-02 — Query historical/current evidence**
     - **조치:** GNO GitHub/docs와 1.11.0 source/test/README를 대조한다.
     -
   **증거:** PR #919 session cache collision은 1.11.0에 포함; PR #986 bootstrap builder는 1.11.0 이후 변경임을 ancestry와 tag source로 확인; issue/review #809/#810, Cassandra public source/tests와 README 확인.
-    - **실패 시:** STOP decisions that depend on missing evidence.
+    - **실패 시:** 누락된 증거에 의존하는 결정을 중단한다.
 - [x] **CG-03 — Protect user work and boundaries**
     - **조치:** repo/worktree/base/status와 제외 파일을 기록한다.
     -
@@ -90,7 +90,7 @@
 - [x] **CG-11 — Enforce side-effect authority**
     - **조치:** external/irreversible action 경계를 기록한다.
     - **증거:** local commit은 spec workflow에 포함; push/PR/merge/deploy는 수행하지 않음.
-    - **실패 시:** STOP at external boundary.
+    - **실패 시:** external boundary에서 중단한다.
 - [x] **CG-12 — Synchronize after merge**
     - **조치:** merge applicability를 분류한다.
     - **증거:** N/A — merge not requested.
@@ -117,17 +117,17 @@
   **증거:** Required 32/32, N/A 6, Blocked 0. Projects manual/release scoped status와 Site manual pipeline/snapshot scoped status는 clean이며, KO/EN 5개 chapter와 1.11.0 source links를 다시 확인함.
     - **실패 시:** remain PENDING.
 
-## Type E gates
+## Type E 게이트
 
 - [x] **E-01 — Route support skills**
     - **조치:** public bilingual manual writing 지원 skill을 선택한다.
     - **증거:** `bluetape-writer`와 Korean naturalness checklist 로드; diagram은 현재 spec에서 제외되어 N/A.
-    - **실패 시:** STOP before editing with a missing route.
+    - **실패 시:** 수정 전에 중단한다 with a missing route.
 - [x] **E-02 — Discover current guidance**
     - **조치:** current manual, README, source/test, reviews와 existing manual platform을 읽는다.
     -
   **증거:** Cassandra landing, 1.11.0 README/source/test inventory, #809/#810 reviews, Core/Coroutines/Logging specs 확인.
-    - **실패 시:** remain read-only until authority is known.
+    - **실패 시:** read-only 상태로 남긴다 until authority is known.
 - [x] **E-03 — Preserve behavior and ownership**
     - **조치:** production source는 건드리지 않고 canonical `docs/manual`을 먼저 수정한다.
     - **증거:** approved scope and planned file map; site is generated downstream.
@@ -147,7 +147,7 @@
   **증거:** canonical source checkpoint `073ab365a`; Site snapshot commits `b4dd3c0`, `f699dfb`; locale inventory와 generated source links parity 통과. Projects checklist를 이 commit으로 닫으며 push/PR/merge/deploy는 수행하지 않음.
     - **실패 시:** final status PENDING/BLOCKED.
 
-## Cassandra manual leaf gates
+## Cassandra manual leaf 게이트
 
 - [x] **CAS-01 — Pin the release evidence**
     - **조치:** 기술 사실을 `1.11.0` source, tests, README와 merged fix history에 고정한다.
