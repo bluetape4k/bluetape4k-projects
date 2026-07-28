@@ -1,4 +1,4 @@
-# Issue 843 Review - BluetapeHttpServer property keys
+# Issue 843 검토 - BluetapeHttpServer property keys
 
 ## Scope
 
