@@ -1,22 +1,25 @@
-# Lessons Learned - Hibernate Encryption Keysets (2026-06-26)
+# Hibernate encryption keyset 교훈 (2026-06-26)
 
-Related issue: #816
-Affected module: `:bluetape4k-hibernate`
+관련 이슈: #816
+영향 module: `:bluetape4k-hibernate`
 
-## L1: Persistent converters must not create process-local keys
+## L1: persistent converter는 process-local key를 만들면 안 된다
 
-### Problem
+### 문제
 
-`AESStringConverter` and `DeterministicAESStringConverter` were documented as persistent entity-field converters, but
-their default encryptors used generated in-process Tink keysets. That made same-process tests pass while persisted
-ciphertext could become unreadable after restart or in another application instance.
+`AESStringConverter`와 `DeterministicAESStringConverter`는 persistent entity-field
+converter로 문서화됐지만, 기본 encryptor는 process 안에서 생성한 Tink keyset을 사용했다.
+같은 process 안의 test는 통과해도, restart 후나 다른 application instance에서는 저장된
+ciphertext를 읽지 못할 수 있었다.
 
-### Lesson
+### 교훈
 
-Persistent encryption converters need explicit externally stored key material. Tests must cover both restart-safe
-positive cases with the same persisted keyset and restart-unsafe negative cases with a different keyset.
+persistent encryption converter에는 외부에 저장된 명시적 key material이 필요하다. test는
+같은 persisted keyset으로 restart-safe positive case를 검증하고, 다른 keyset으로
+restart-unsafe negative case도 함께 검증해야 한다.
 
-### Future guard
+### 향후 가드
 
-When adding a persistent encryption API, do not validate only same-instance round trips. Add a cross-instance or
-cross-keyset regression test and document where key material must live.
+persistent encryption API를 추가할 때 same-instance round trip만 검증하지 않는다.
+cross-instance 또는 cross-keyset regression test를 추가하고, key material이 어디에
+저장되어야 하는지 문서화한다.
