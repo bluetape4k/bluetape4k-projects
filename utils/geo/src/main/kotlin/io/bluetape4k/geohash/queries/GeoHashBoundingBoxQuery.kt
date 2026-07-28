@@ -176,7 +176,7 @@ class GeoHashBoundingBoxQuery(
     }
 
     /**
-     * Checks if the provided hash completely(!) contains the provided bounding box
+     * 제공된 hash가 제공된 bounding box를 완전히(!) 포함하는지 확인합니다
      */
     private fun hashContainsBoundingBox(
         hash: GeoHash,
