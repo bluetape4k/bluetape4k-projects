@@ -117,7 +117,7 @@ class ForyBinarySerializer(
         }
 
         /**
-         * Returns a [ForyBinarySerializer] configured with `SCHEMA_CONSISTENT` and reference tracking disabled.
+         * `SCHEMA_CONSISTENT`와 비활성화된 reference tracking으로 설정된 [ForyBinarySerializer]를 반환합니다.
          *
          * Throughput depends on the payload and runtime profile. Use committed benchmark evidence for the exact
          * workload instead of assuming a fixed uplift over the default serializer.
