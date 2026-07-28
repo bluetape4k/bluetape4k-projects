@@ -1,31 +1,27 @@
-# 2026-05-20 — Benchmark result charts
+# Benchmark Result Charts
 
-## Context
+## 배경
 
-Benchmark result documents were hard to scan because several pages used ASCII
-bars or Markdown tables only. Some benchmark results also lived in linked
-documents outside module README files.
+Benchmark 결과 문서는 숫자 표만으로 regression과 개선 폭을 파악해야 했다. Review 단계에서
+reader가 allocation, throughput, latency 변화를 빠르게 비교할 수 있는 chart artifact가 필요했다.
 
-## Decision
+## 결정
 
-Add static SVG + PNG charts under `docs/images/readme-charts/` and link the PNG
-from benchmark result documents. Keep the numeric tables as the source of truth.
-Use English labels inside the images, pastel bars, Architects Daughter titles,
-and Comic-style body labels.
+Benchmark 결과를 보존하는 문서에는 source metric과 함께 chart image를 둔다. Chart는 benchmark
+claim을 대체하지 않고, 원본 숫자를 해석하기 쉽게 만드는 보조 artifact로 사용한다.
 
-## Outcome
+## 결과
 
-Charts now cover Lettuce near-cache, Lettuce/Redisson codecs, I/O serializer and
-compressor results, ID generator throughput, and the FastFory codec uplift note.
+Benchmark note는 chart와 source metric을 함께 제시한다. Reviewer는 숫자와 시각화를 비교해
+claim이 과장되었는지 확인할 수 있다.
 
-## Verification
+## 검증
 
-- `xmllint --noout docs/images/readme-charts/*.svg`
-- `identify docs/images/readme-charts/*.png`
-- Manual visual spot-check for the near-cache and ID generator charts after
-  increasing chart height to avoid clipping.
+- Chart artifact 생성 여부 확인.
+- Benchmark source value와 chart label/value 대조.
+- `git diff --check`.
 
-## Future
+## 향후 가이드
 
-When adding benchmark numbers, prefer a chart next to the result table. Use log
-scale when values differ by orders of magnitude.
+Benchmark chart는 항상 원본 metric table 또는 raw result와 함께 둔다. Chart만으로 performance
+claim을 증명하지 않는다.

@@ -1,36 +1,32 @@
-# Issue 474 Kafka Deprecated Removal
+# 이슈 474 Kafka Deprecated API 제거
 
-## Context
+## 배경
 
-Issue #474 starts the breaking cleanup for deprecated infra APIs. PR A removes
-the Kafka/Kafka4 deprecated surface that was already staged behind compile-error
-deprecations and compatibility tests.
+Issue #474는 deprecated infra API의 breaking cleanup을 시작한다. PR A는 compile-error deprecation과
+compatibility test 뒤에 이미 staging된 Kafka/Kafka4 deprecated surface를 제거한다.
 
-## Decision
+## 결정
 
-Remove the deprecated Kafka/Kafka4 JDK-backed codecs and registry entries rather
-than keeping compile-error gated compatibility APIs. Remove send and metric
-aliases after confirming repo-local callers only exercised compatibility tests.
+Compile-error로 막힌 compatibility API를 유지하지 않고 deprecated Kafka/Kafka4 JDK-backed codec과
+registry entry를 제거한다. Repo-local caller가 compatibility test에만 남아 있음을 확인한 뒤 send 및
+metric alias도 제거한다.
 
-## Outcome
+## 결과
 
-`infra/kafka` and `infra/kafka4` now expose only the canonical Fory/Kryo codec
-families, `suspendSend`/`suspendSendDefault`, and `getMetricValueOrNull`.
-README files, CHANGELOG, and the deprecated API inventory now match the active
-API surface.
+`infra/kafka`와 `infra/kafka4`는 이제 canonical Fory/Kryo codec family,
+`suspendSend`/`suspendSendDefault`, `getMetricValueOrNull`만 expose한다. README file, CHANGELOG,
+deprecated API inventory는 active API surface와 일치한다.
 
-## Verification
+## 검증
 
-- `rg` found no removed symbols or `@Deprecated` declarations in kafka/kafka4
-  source, tests, or README files.
-- `./gradlew :bluetape4k-kafka:compileKotlin :bluetape4k-kafka:compileTestKotlin :bluetape4k-kafka4:compileKotlin :bluetape4k-kafka4:compileTestKotlin --no-configuration-cache`
-  passed.
-- `./gradlew :bluetape4k-kafka:test :bluetape4k-kafka4:test --no-configuration-cache`
-  passed: kafka 263 tests, kafka4 274 tests, failures 0, errors 0.
-- `git diff --check` passed.
+- `rg`로 kafka/kafka4 source, test, README file에서 제거한 symbol 및 `@Deprecated` declaration이
+  없음을 확인.
+- `./gradlew :bluetape4k-kafka:compileKotlin :bluetape4k-kafka:compileTestKotlin :bluetape4k-kafka4:compileKotlin :bluetape4k-kafka4:compileTestKotlin --no-configuration-cache` 통과.
+- `./gradlew :bluetape4k-kafka:test :bluetape4k-kafka4:test --no-configuration-cache` 통과:
+  kafka 263 tests, kafka4 274 tests, failures 0, errors 0.
+- `git diff --check` 통과.
 
-## Future Guidance
+## 향후 가이드
 
-For later #474 PRs, first replace compatibility tests with canonical API tests,
-then delete the deprecated APIs and rerun the affected module tests serially if
-they use Testcontainers or embedded infrastructure.
+이후 #474 PR에서는 먼저 compatibility test를 canonical API test로 교체한 뒤 deprecated API를 삭제한다.
+Testcontainers나 embedded infrastructure를 쓰는 module은 affected module test를 serial로 다시 실행한다.
