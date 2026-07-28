@@ -33,6 +33,11 @@ PUBLIC_ENGLISH_NAMES = {
 MANUAL_EN = Path("docs/manual/en")
 MANUAL_KO = Path("docs/manual/ko")
 KDOC_BLOCK = re.compile(r"/\\*\\*.*?\\*/", re.DOTALL)
+ENGLISH_KDOC_POLICY = [
+    re.compile(r"KDoc\\s+in\\s+English", re.IGNORECASE),
+    re.compile(r"English\\s+KDoc", re.IGNORECASE),
+    re.compile(r"Write\\s+KDoc\\s+in\\s+English", re.IGNORECASE),
+]
 
 
 def git_files(root: Path) -> list[Path]:
@@ -110,6 +115,23 @@ def count_kdoc_blocks(root: Path, files: list[Path]) -> Counter[str]:
     return counts
 
 
+def find_english_kdoc_policy_drift(root: Path, files: list[Path]) -> list[tuple[Path, int, str]]:
+    findings: list[tuple[Path, int, str]] = []
+    for path in files:
+        if path.suffix.lower() not in DOC_SUFFIXES:
+            continue
+        if classify_doc(path) == "excluded-readme":
+            continue
+        try:
+            text = (root / path).read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            text = (root / path).read_text(encoding="utf-8", errors="ignore")
+        for line_no, line in enumerate(text.splitlines(), start=1):
+            if any(pattern.search(line) for pattern in ENGLISH_KDOC_POLICY):
+                findings.append((path, line_no, line.strip()))
+    return findings
+
+
 def manual_relative_set(files: list[Path], root_dir: Path) -> set[Path]:
     rels: set[Path] = set()
     for path in files:
@@ -137,7 +159,7 @@ def render_sample(title: str, paths: list[Path], limit: int = 40) -> list[str]:
     return lines
 
 
-def build_report(root: Path) -> str:
+def inventory(root: Path) -> dict[str, object]:
     files = git_files(root)
     doc_classes = Counter()
     doc_buckets: Counter[str] = Counter()
@@ -168,6 +190,40 @@ def build_report(root: Path) -> str:
     ko_manual = manual_relative_set(files, MANUAL_KO)
     missing_ko = sorted(en_manual - ko_manual)
     missing_en = sorted(ko_manual - en_manual)
+    policy_drift = find_english_kdoc_policy_drift(root, files)
+
+    return {
+        "files": files,
+        "doc_classes": doc_classes,
+        "doc_buckets": doc_buckets,
+        "excluded_buckets": excluded_buckets,
+        "in_scope_docs": in_scope_docs,
+        "parity_only": parity_only,
+        "excluded_docs": excluded_docs,
+        "kotlin_files": kotlin_files,
+        "kotlin_buckets": kotlin_buckets,
+        "kdoc_buckets": kdoc_buckets,
+        "missing_ko": missing_ko,
+        "missing_en": missing_en,
+        "policy_drift": policy_drift,
+    }
+
+
+def build_report(root: Path) -> str:
+    data = inventory(root)
+    files = data["files"]
+    doc_classes = data["doc_classes"]
+    doc_buckets = data["doc_buckets"]
+    excluded_buckets = data["excluded_buckets"]
+    in_scope_docs = data["in_scope_docs"]
+    parity_only = data["parity_only"]
+    excluded_docs = data["excluded_docs"]
+    kotlin_files = data["kotlin_files"]
+    kotlin_buckets = data["kotlin_buckets"]
+    kdoc_buckets = data["kdoc_buckets"]
+    missing_ko = data["missing_ko"]
+    missing_en = data["missing_en"]
+    policy_drift = data["policy_drift"]
 
     lines = [
         "# Korean Docs And KDoc Localization Inventory",
@@ -192,6 +248,7 @@ def build_report(root: Path) -> str:
         f"- KDoc blocks found in Kotlin/KTS files: {sum(kdoc_buckets.values())}",
         f"- Manual EN files missing KO pair: {len(missing_ko)}",
         f"- Manual KO files missing EN pair: {len(missing_en)}",
+        f"- English-KDoc policy drift findings: {len(policy_drift)}",
         "",
     ]
     lines += render_counter("Document Classification", doc_classes)
@@ -202,6 +259,10 @@ def build_report(root: Path) -> str:
     lines += render_sample("In-Scope Document Sample", sorted(in_scope_docs))
     lines += render_sample("Manual Pair Missing KO", missing_ko)
     lines += render_sample("Manual Pair Missing EN", missing_en)
+    lines += render_sample(
+        "English-KDoc Policy Drift",
+        [Path(f"{path}:{line_no}") for path, line_no, _ in policy_drift],
+    )
     lines += [
         "## Follow-Up Partition",
         "",
@@ -214,10 +275,25 @@ def build_report(root: Path) -> str:
         "",
         "```bash",
         "python3 scripts/docs-localization-inventory.py",
+        "python3 scripts/docs-localization-inventory.py --check",
         "```",
         "",
     ]
     return "\n".join(lines)
+
+
+def run_check(root: Path) -> int:
+    data = inventory(root)
+    missing_ko = data["missing_ko"]
+    missing_en = data["missing_en"]
+    policy_drift = data["policy_drift"]
+    print("Korean localization guardrail")
+    print(f"- manual EN missing KO: {len(missing_ko)}")
+    print(f"- manual KO missing EN: {len(missing_en)}")
+    print(f"- English-KDoc policy drift: {len(policy_drift)}")
+    for path, line_no, line in policy_drift[:20]:
+        print(f"  - {path}:{line_no}: {line}")
+    return 1 if missing_ko or missing_en or policy_drift else 0
 
 
 def main() -> None:
@@ -228,7 +304,14 @@ def main() -> None:
         default=Path.cwd(),
         help="Repository root. Defaults to the current directory.",
     )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Fail when manual parity or English-KDoc policy drift is detected.",
+    )
     args = parser.parse_args()
+    if args.check:
+        raise SystemExit(run_check(args.root.resolve()))
     print(build_report(args.root.resolve()))
 
 
