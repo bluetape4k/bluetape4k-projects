@@ -11,13 +11,13 @@
 - Tier 5 Tests: PASS
 - Tier 7 Evidence: PASS
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0
 - P2/P3: 0
 
-## Evidence
+## 증거
 
 - `Connection.executeBatch` now validates that every parameter row has the same width before preparing a statement.
 - `Connection.executeLargeBatch` applies the same validation path as `executeBatch`.

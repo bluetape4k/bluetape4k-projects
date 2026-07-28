@@ -9,7 +9,7 @@ Module: `:bluetape4k-ktor-resilience4j`
 - `ktor/resilience4j/src/main/kotlin/io/bluetape4k/ktor/resilience4j/KtorResilienceSupport.kt`
 - `ktor/resilience4j/src/test/kotlin/io/bluetape4k/ktor/resilience4j/KtorResilienceSupportTest.kt`
 
-## Local Review
+## Local 검토
 
 - P0/P1 findings: 0
 - Catch ordering preserves timeout mapping:
@@ -22,16 +22,16 @@ Module: `:bluetape4k-ktor-resilience4j`
 - No ad hoc concurrency stress helper was needed because this bug is a
   deterministic exception-boundary regression, not a race or contention issue.
 
-## Native Reviewer
+## Native 검토er
 
 - Reviewer: `code-reviewer`
 - Verdict: APPROVE
 - P0/P1 findings: 0
-- Evidence: reviewer confirmed the catch order preserves timeout mapping,
+- 증거: reviewer confirmed the catch order preserves timeout mapping,
   rethrows `CancellationException` before broad `Throwable`, and records
   ordinary failures with `timeLimiter.onError(e)`.
 
-## Validation Evidence
+## 검증 Evidence
 
 - RED:
   `./gradlew :bluetape4k-ktor-resilience4j:test --tests 'io.bluetape4k.ktor.resilience4j.KtorResilienceSupportTest.time limiter records ordinary handler failures' --no-build-cache`
