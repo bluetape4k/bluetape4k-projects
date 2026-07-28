@@ -8,7 +8,7 @@ import io.ktor.server.plugins.statuspages.StatusPagesConfig
 import java.util.concurrent.TimeoutException
 
 /**
- * Registers generic JSON error responses for Resilience4j route failures.
+ * Resilience4j route failure에 대한 generic JSON error response를 등록합니다.
  *
  * ## Contract
  * - Open circuit failures map to HTTP 503.
