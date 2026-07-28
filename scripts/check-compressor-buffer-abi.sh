@@ -5,6 +5,7 @@ set -euo pipefail
 readonly BASE_SHA="a065a8e88cf246975660c68df2dd78dfb5b6dc4d"
 readonly BASE_TREE="50cf7789648c0091b6c16de6cf5eb495c26510f8"
 readonly BASE_JAR_SHA="34d280b0cb465ffca2a23a2aa57895cc3ba9c08ea18f57c706443b91a0eae6f1"
+readonly BASE_JAR_CREATED_BY="21.0.11 (Oracle Corporation)"
 
 ROOT="$(git rev-parse --show-toplevel)"
 COMMON_DIR="$(git rev-parse --path-format=absolute --git-common-dir)"
@@ -17,6 +18,7 @@ BASE_JAR="$AUTH_DIR/base/bluetape4k-io-1.12.0.jar"
 CURRENT_JAR="$AUTH_DIR/current/bluetape4k-io-1.12.0.jar"
 CLASSES="$AUTH_DIR/classes"
 INIT_SCRIPT="$AUTH_DIR/issue755-classpaths.init.gradle"
+BASELINE_INIT_SCRIPT="$AUTH_DIR/issue755-baseline-manifest.init.gradle"
 EXPECTED_HEAD=""
 BUILD_CURRENT=false
 CREATED_BASE_WORKTREE=false
@@ -78,6 +80,15 @@ gradle.afterProject { project, state ->
     }
 }
 GRADLE
+  cat >"$BASELINE_INIT_SCRIPT" <<GRADLE
+allprojects {
+    tasks.withType(Jar).configureEach {
+        doFirst {
+            manifest.attributes("Created-By": "$BASE_JAR_CREATED_BY")
+        }
+    }
+}
+GRADLE
 }
 
 gradle_value() {
@@ -112,9 +123,18 @@ resolve_single_jar() {
 
 verify_base_jar() {
   rm -f "$BASE_WORKTREE/io/io/build/libs"/bluetape4k-io-*.jar
-  "$BASE_WORKTREE/gradlew" -p "$BASE_WORKTREE" :bluetape4k-io:jar --no-configuration-cache
+  "$BASE_WORKTREE/gradlew" -p "$BASE_WORKTREE" -I "$BASELINE_INIT_SCRIPT" \
+    :bluetape4k-io:jar --no-configuration-cache
   local built
   built="$(resolve_single_jar "$BASE_WORKTREE/io/io/build/libs")"
+  local created_by
+  created_by="$(
+    unzip -p "$built" META-INF/MANIFEST.MF |
+      tr -d '\r' |
+      awk -F ': ' '$1 == "Created-By" { print $2 }'
+  )"
+  [[ "$created_by" == "$BASE_JAR_CREATED_BY" ]] ||
+    fail "baseline jar Created-By mismatch: expected=$BASE_JAR_CREATED_BY actual=$created_by"
   assert_hash "$built" "$BASE_JAR_SHA"
   mkdir -p "$(dirname "$BASE_JAR")"
   cp "$built" "$BASE_JAR"
