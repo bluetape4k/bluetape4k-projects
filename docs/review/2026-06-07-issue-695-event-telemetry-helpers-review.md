@@ -1,4 +1,4 @@
-# Issue 695 Event Telemetry Helpers Review
+# Issue 695 Event Telemetry Helpers 검토
 
 ## Scope
 
@@ -7,13 +7,13 @@
 - Change type: Fast Track feature
 - Review target: reusable Observation helpers for event publish and consume paths
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0
 - P2: 0
 
-## Evidence
+## 증거
 
 - Added `event.publish` and `event.consume` Observation wrappers under `io.bluetape4k.micrometer.observation.events`.
 - Low-cardinality tags follow the #696 contract: operation, messaging system, destination, event type, correlation presence, bounded batch count, and outcome.

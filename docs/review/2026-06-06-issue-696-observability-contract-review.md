@@ -1,4 +1,4 @@
-# Issue #696 Observability Contract Review
+# Issue #696 Observability Contract 검토
 
 Date: 2026-06-06
 Scope: `docs/superpowers/specs/2026-06-06-issue-696-observability-telemetry-contract-design.md`
@@ -8,7 +8,7 @@ Scope: `docs/superpowers/specs/2026-06-06-issue-696-observability-telemetry-cont
 Local Step 2-R review using the `bluetape4k-full-feature` spec review frame:
 developer, security, Ops/SRE, user/caller, and 7-tier risk perspectives.
 
-## Evidence
+## 증거
 
 - Issue body: GitHub issue #696.
 - Repo evidence:
@@ -23,7 +23,7 @@ developer, security, Ops/SRE, user/caller, and 7-tier risk perspectives.
   - OpenTelemetry HTTP and messaging semantic conventions.
   - Ktor CallId, CallLogging, Micrometer metrics, and OpenTelemetry server docs.
 
-## Findings
+## 발견 사항
 
 | Perspective | P0 | P1 | P2 | P3 | Notes |
 |---|---:|---:|---:|---:|---|
