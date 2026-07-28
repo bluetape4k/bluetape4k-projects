@@ -8,7 +8,7 @@
 - 제외: 라이브러리 API·동작·의존성 변경, 이미 완료된 Site 작업의 무근거 재작성
 - PR: Projects와 Site를 각각 별도 PR로 전달하며, 각 병합은 새 승인 후에만 수행한다.
 
-## Projects preflight
+## Projects 사전 점검
 
 - [x] **CG-01 — 권한과 워크플로를 재확인한다**
     - **조치:** 승인된 Type E 계획, `AGENTS.md`, `bluetape-workflow`, `bluetape-maintenance`, `bluetape-writer`를 읽는다.
@@ -43,7 +43,7 @@
     - **증거:** Markdown·계획·lesson만 변경하며 라이브러리 동작과 실행 환경은 변경하지 않아 N/A다.
     - **실패 시:** 실행 동작 변경이 발견되면 순차 heavyweight 검증으로 재분류한다.
 
-## Projects delivery
+## Projects 전달
 
 - [x] **E-01 — 최신 develop 위로 복구 branch를 재정렬한다**
     - **조치:** 현재 `origin/develop`에 rebase하고 충돌을 문서 scope 안에서 해결한다.
@@ -78,7 +78,7 @@
     - **증거:** merge SHA와 local/upstream 일치.
     - **실패 시:** 승인 대기 상태를 유지한다.
 
-## Site follow-up
+## Site 후속 작업
 
 - [ ] **S-01 — Projects 병합 commit을 source로 고정한다**
     - **조치:** Projects merge SHA를 확인한 뒤 Site 1.11 manual snapshot을 refresh한다.
