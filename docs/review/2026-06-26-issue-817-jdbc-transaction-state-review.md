@@ -11,13 +11,13 @@
 - Tier 5 Tests: PASS
 - Tier 7 Evidence: PASS
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0
 - P2/P3: 0
 
-## Evidence
+## 증거
 
 - `Connection.withTransaction` now captures and restores `autoCommit`, isolation, and read-only state.
 - Transaction state restoration runs each property independently, so one restore failure does not skip the remaining properties.

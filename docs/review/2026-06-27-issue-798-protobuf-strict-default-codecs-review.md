@@ -1,4 +1,4 @@
-# Issue 798 Review: Protobuf strict default codecs
+# Issue 798 검토: Protobuf strict default codecs
 
 ## Scope
 
@@ -8,7 +8,7 @@
 - Protobuf Redis codec regression tests
 - Serialization trust-profile documentation
 
-## Findings
+## 발견 사항
 
 No P0/P1 findings.
 

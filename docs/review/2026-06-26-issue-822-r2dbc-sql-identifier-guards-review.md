@@ -11,13 +11,13 @@
 - Tier 5 Tests: PASS
 - Tier 7 Evidence: PASS
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0
 - P2/P3: 0
 
-## Evidence
+## 증거
 
 - `InsertValuesSpecImpl` and `InsertValuesKeySpecImpl` now validate every field key with `requireValidIdentifier(...)` before storing it in the values map.
 - `UpdateValuesSpecImpl.set(...)` validates every field key before storing it; `update(...)`, nullable setters, and `set(parameters)` flow through those setter paths.
