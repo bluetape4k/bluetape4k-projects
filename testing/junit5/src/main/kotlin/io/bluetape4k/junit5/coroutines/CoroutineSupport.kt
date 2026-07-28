@@ -134,9 +134,9 @@ inline fun runSuspendVT(
 }
 
 /**
- * Creates a single-thread dispatcher for the duration of [block].
+ * [block] 실행 동안 사용할 single-thread dispatcher를 생성합니다.
  *
- * The backing executor is shut down after [block] returns or throws.
+ * backing executor는 [block]이 정상 반환하거나 예외를 던진 뒤 종료됩니다.
  */
 suspend inline fun withSingleThread(crossinline block: suspend (dispatcher: CoroutineDispatcher) -> Unit) {
     val executor = Executors.newSingleThreadExecutor()
@@ -151,9 +151,9 @@ suspend inline fun withSingleThread(crossinline block: suspend (dispatcher: Coro
 }
 
 /**
- * Creates [parallelism] single-thread dispatchers for the duration of [block].
+ * [block] 실행 동안 사용할 [parallelism]개의 single-thread dispatcher를 생성합니다.
  *
- * The backing executors are shut down after [block] returns or throws.
+ * backing executor들은 [block]이 정상 반환하거나 예외를 던진 뒤 종료됩니다.
  */
 suspend inline fun withParallels(
     parallelism: Int = Runtime.getRuntime().availableProcessors(),
