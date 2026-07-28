@@ -41,11 +41,13 @@ fun <T> Future<T>.asCompletableFuture(): CompletableFuture<T> = when (this@asCom
 }
 
 /**
- * Wraps a [Future] as a [CompletableFuture].
+ * [Future]를 [CompletableFuture]로 감싸는 내부 adapter입니다.
  *
- * The wrapper waits for [Future.get] on a shared virtual-thread executor so callers do not
- * allocate a new thread builder and unnamed watcher for every conversion. [cancel] still
- * propagates to the wrapped [Future] and cancels the watcher task.
+ * 이 wrapper는 공유 virtual-thread executor에서 [Future.get]을 기다리므로, 변환할 때마다 호출자가
+ * 새 thread builder와 이름 없는 watcher를 만들 필요가 없습니다. [cancel]은 여전히 감싼 [Future]로
+ * 전파되며 watcher task도 함께 취소합니다.
+ *
+ * @property wrapped 완료 상태와 취소 요청을 위임받는 원본 [Future]입니다.
  */
 private class FutureToCompletableFutureWrapper<T>(private val wrapped: Future<T>): CompletableFuture<T>() {
     private val watcher: Future<*> = FutureWrapperExecutor.submit {
