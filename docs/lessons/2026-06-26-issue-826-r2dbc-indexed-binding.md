@@ -1,18 +1,22 @@
-# Lessons Learned — R2DBC Indexed Binding (2026-06-26)
+# 교훈: R2DBC indexed binding (2026-06-26)
 
-**Issue**: #826
-**Module**: `:bluetape4k-r2dbc`
+**이슈**: #826
+**모듈**: `:bluetape4k-r2dbc`
 
-## L1: Documentation examples are API contract tests
+## L1: 문서 예시는 API 계약 테스트다
 
-### Problem
+### 문제
 
-`bindIndexedMap` forwarded map keys directly to Spring R2DBC's indexed binding API, but KDoc and README examples showed `1` and `2` as the first two indexes.
+`bindIndexedMap`은 map key를 Spring R2DBC의 indexed binding API로 그대로
+전달했지만, KDoc과 README 예시는 첫 두 index로 `1`과 `2`를 보여주었다.
 
-### Lesson
+### 교훈
 
-When a helper mirrors a framework API without translating values, examples must use the framework's exact contract. For Spring R2DBC indexed parameters, that contract is zero-based.
+Helper가 framework API를 값 변환 없이 그대로 반영한다면, 예시는 framework의
+정확한 계약을 따라야 한다. Spring R2DBC indexed parameter의 계약은 zero-based다.
 
-### Future Guard
+### 향후 방지책
 
-For parameter binding helpers, add a direct test that executes the README/KDoc-style example. Also validate out-of-contract inputs such as negative indexes before forwarding to the framework layer.
+Parameter binding helper에는 README/KDoc 스타일 예시를 그대로 실행하는 직접
+테스트를 추가한다. 음수 index처럼 계약 밖의 입력도 framework layer로 넘기기 전에
+검증한다.
