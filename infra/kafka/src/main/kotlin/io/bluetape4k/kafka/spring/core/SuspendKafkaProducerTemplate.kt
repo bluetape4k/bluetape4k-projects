@@ -53,7 +53,7 @@ class SuspendKafkaProducerTemplate<K, V> private constructor(
 
     companion object: KLoggingChannel() {
         /**
-         * Create an instance of [SuspendKafkaProducerTemplate] with the provided configuration.
+         * 제공된 configuration으로 [SuspendKafkaProducerTemplate] instance를 생성합니다.
          *
          * @param senderOptions [SenderOptions] instance.
          * @param messageConverter [RecordMessageConverter] instance.
