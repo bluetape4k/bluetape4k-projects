@@ -1,4 +1,4 @@
-# Wave 2 Ops/SRE Reliability Review — 2026-04-28
+# Wave 2 Ops/SRE Reliability 검토 — 2026-04-28
 
 전체 5개 그룹 병렬 실행 결과. Tier 2 (Ops/SRE) 기준.
 
