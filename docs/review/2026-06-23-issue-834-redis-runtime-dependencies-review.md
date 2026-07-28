@@ -1,4 +1,4 @@
-# Issue #834 Redis Runtime Dependencies Review
+# Issue #834 Redis Runtime Dependencies 검토
 
 ## Scope
 
