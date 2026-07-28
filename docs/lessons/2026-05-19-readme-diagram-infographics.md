@@ -1,21 +1,27 @@
 # README Diagram Infographics
 
-## Context
+## 배경
 
-README files used Mermaid code blocks for architecture, class, sequence, ERD, and other diagrams. The workspace-wide visual direction changed to reviewed pastel infographic PNGs with SVG source assets kept for reuse.
+README file은 architecture, class, sequence, ERD 등 여러 diagram에 Mermaid code block을 사용했다.
+Workspace-wide visual direction은 검토된 pastel infographic PNG로 바뀌었고, 재사용을 위해 SVG source
+asset을 함께 보존하기로 했다.
 
-## Decision
+## 결정
 
-Replace README Mermaid blocks with generated PNG image links and store matching SVG sources next to the PNG files. Use English-only diagram text, Architects Daughter for large labels, Comic Mono for detail text, and diagram-specific layouts for architecture, class, sequence, and ERD diagrams.
+README Mermaid block을 generated PNG image link로 교체하고, matching SVG source를 PNG file 옆에
+저장한다. Diagram text는 영어만 사용하고, 큰 label에는 Architects Daughter, detail text에는
+Comic Mono를 사용하며, architecture/class/sequence/ERD diagram마다 전용 layout을 쓴다.
 
-## Outcome
+## 결과
 
-Rendered README diagrams with the shared 2026-05-19 style guide from bluetape4k.github.io/docs/readme-diagram-samples. Root README assets follow repo-local asset placement rules when present.
+bluetape4k.github.io/docs/readme-diagram-samples의 shared 2026-05-19 style guide로 README diagram을
+render했다. Root README asset은 repo-local asset placement rule이 있으면 그 rule을 따른다.
 
-## Verification
+## 검증
 
-Generated PNG/SVG assets with rsvg-convert and checked README links during the cross-repository conversion pass.
+Cross-repository conversion pass에서 rsvg-convert로 PNG/SVG asset을 생성하고 README link를 확인했다.
 
-## Future Guidance
+## 향후 가이드
 
-Keep README diagrams as PNG embeds with SVG sources for editing. Do not fall back to raw Mermaid or simple Mermaid theme recoloring when visual consistency matters.
+README diagram은 SVG source를 함께 둔 PNG embed로 유지한다. Visual consistency가 중요할 때 raw
+Mermaid나 단순 Mermaid theme recoloring으로 되돌리지 않는다.

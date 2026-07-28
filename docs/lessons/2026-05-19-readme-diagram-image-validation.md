@@ -1,25 +1,23 @@
 # README Diagram Image Validation
 
-## Context
+## 배경
 
-README Mermaid diagrams were replaced with pastel infographic PNG images while
-preserving matching SVG sources.
+README Mermaid diagram을 pastel infographic PNG image로 교체하면서 matching SVG source를 보존했다.
 
-## Decision
+## 결정
 
-Use English-only diagram labels, PNG README embeds, preserved SVG assets, and
-content-driven dimensions instead of fixed-size Mermaid recolors.
+English-only diagram label, PNG README embed, 보존된 SVG asset, fixed-size Mermaid recolor 대신
+content-driven dimension을 사용한다.
 
-Large labels use `Architects Daughter`; detail labels use the clearest
-Comic-style fallback available to the renderer.
+큰 label에는 `Architects Daughter`를 사용하고, detail label에는 renderer에서 가장 명확한
+Comic-style fallback을 사용한다.
 
-## Outcome
+## 결과
 
-The refined renderer produced architecture, class, sequence, and module-stack
-images without fixed height constraints. Grouped architecture diagrams use
-content-sized sections and masonry placement where needed.
+Refined renderer는 fixed height constraint 없이 architecture, class, sequence, module-stack image를
+생성했다. Grouped architecture diagram은 필요할 때 content-sized section과 masonry placement를 사용한다.
 
-## Verification
+## 검증
 
 - Full regeneration: `rendered=477`, `missing=[]`.
 - README image links: `readmes=169`, `missing=0`, `svgLinks=0`.
@@ -28,8 +26,7 @@ content-sized sections and masonry placement where needed.
 - Shape sanity check: `shapeCandidates=0`.
 - Whitespace check: `git diff --check`.
 
-## Future Guidance
+## 향후 가이드
 
-Do not rely on link checks alone. Always run visual-shape checks and inspect
-known-risk diagrams such as JUnit5, Testcontainers, wide class hierarchies, and
-sequence diagrams before opening PRs.
+Link check만 의존하지 않는다. PR을 열기 전에 visual-shape check를 항상 실행하고 JUnit5,
+Testcontainers, 넓은 class hierarchy, sequence diagram처럼 risk가 알려진 diagram을 inspect한다.
