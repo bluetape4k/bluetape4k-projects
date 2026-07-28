@@ -1,4 +1,4 @@
-# Issue 797 Review: gRPC client plaintext opt-in
+# Issue 797 검토: gRPC client plaintext opt-in
 
 ## Scope
 
@@ -7,7 +7,7 @@
 - gRPC README locale pair
 - gRPC channel security regression tests
 
-## Findings
+## 발견 사항
 
 No P0/P1 findings.
 

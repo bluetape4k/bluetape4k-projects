@@ -11,13 +11,13 @@
 - Tier 5 Tests: PASS
 - Tier 7 Evidence: PASS
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0
 - P2/P3: 0
 
-## Evidence
+## 증거
 
 - `typedNullParameter(type)` and `typedNullParameter<T>()` now provide a public helper for map-based typed NULL values.
 - `bindMap` rejects raw null entries instead of silently binding them as `String` typed NULL values.
