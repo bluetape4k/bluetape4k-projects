@@ -1,17 +1,17 @@
 # Ktor CIO vs Spring WebFlux Benchmark - 2026-05-29
 
-## Scope
+## 범위
 
 Issue: #667
 
 Module: `:web-framework-benchmark`
 
-This benchmark compares equivalent in-memory ID generator HTTP APIs implemented
-with Ktor CIO and Spring Boot WebFlux/Netty. The workload intentionally mirrors
-the existing `idgenerator` example domain so the result can guide the Ktor module
-family design in #609 without adding benchmark-only code to production modules.
+이 benchmark는 Ktor CIO와 Spring Boot WebFlux/Netty로 구현한 동등한 in-memory ID
+generator HTTP API를 비교한다. Workload는 기존 `idgenerator` example domain을 의도적으로
+반영한다. 따라서 production module에 benchmark-only code를 추가하지 않고도 #609의 Ktor
+module family design을 안내할 수 있다.
 
-## Commands
+## 명령
 
 ```bash
 ./gradlew :web-framework-benchmark:compileBenchmarkKotlin --no-configuration-cache
@@ -20,9 +20,9 @@ family design in #609 without adding benchmark-only code to production modules.
 ./scripts/web-framework-benchmark.sh
 ```
 
-## Run Conditions
+## 실행 조건
 
-| Field | Value |
+| 항목 | 값 |
 |---|---|
 | Date | 2026-05-29 |
 | OS | macOS Darwin 25.5.0 arm64 |
@@ -36,32 +36,31 @@ family design in #609 without adding benchmark-only code to production modules.
 | Client | JDK `HttpClient`, blocking round trip per operation |
 | JMH shape | fork=1, warmup=2x1s, measurement=3x1s for request benchmarks |
 
-Raw artifacts:
+Raw artifact:
 
 - `docs/benchmarks/raw/2026-05-29-web-framework-startup.json`
 - `docs/benchmarks/raw/2026-05-29-web-framework-throughput.json`
 - `docs/benchmarks/raw/2026-05-29-web-framework-latency.json`
 
-Chart artifact: Not produced. Startup, throughput, and average latency use
-different units and stay as separate tables.
+Chart artifact: 생성하지 않았다. Startup, throughput, average latency는 서로 다른 단위를
+사용하므로 별도 table로 유지한다.
 
 ## Startup Snapshot
 
-Lower is better.
+낮을수록 좋다.
 
 | Benchmark | ms/op |
 |---|---:|
 | `ktorStartup` | 0.741 |
 | `springWebFluxStartup` | 2,087.926 |
 
-The Ktor startup number measures embedded CIO binding and connector resolution
-only. The Spring number includes Spring Boot reactive application context
-creation and Netty binding. Treat this as a framework bootstrap shape, not an
-end-user cold-start SLA.
+Ktor startup 수치는 embedded CIO binding과 connector resolution만 측정한다. Spring
+수치는 Spring Boot reactive application context 생성과 Netty binding을 포함한다. 이를
+end-user cold-start SLA가 아니라 framework bootstrap shape로 다룬다.
 
 ## Throughput
 
-Higher is better.
+높을수록 좋다.
 
 | Benchmark | ops/s |
 |---|---:|
@@ -74,9 +73,9 @@ Higher is better.
 | `springWebFluxHealth` | 4,418.503 |
 | `springWebFluxSingleId` | 5,625.438 |
 
-## Average Latency
+## 평균 지연 시간
 
-Lower is better.
+낮을수록 좋다.
 
 | Benchmark | us/op |
 |---|---:|
@@ -89,26 +88,25 @@ Lower is better.
 | `springWebFluxHealth` | 166.158 |
 | `springWebFluxSingleId` | 166.324 |
 
-## Interpretation
+## 해석
 
-- Ktor CIO starts much faster in this embedded benchmark because it avoids Spring
-  Boot context creation.
-- Spring WebFlux is faster for steady-state request throughput and average
-  request latency in this short-window local fixture.
-- The current Ktor library design should stay thin and explicit: keep shared
-  domain behavior in core modules, and add Ktor helpers only where they remove
-  repeated integration code.
-- Do not choose a Ktor server abstraction only because startup is fast. For
-  request-path helpers, compare handler ergonomics, cancellation behavior, and
-  steady-state performance together.
+- Ktor CIO는 Spring Boot context creation을 피하므로 이 embedded benchmark에서 훨씬 빠르게
+  시작한다.
+- Spring WebFlux는 이 short-window local fixture에서 steady-state request throughput과
+  average request latency가 더 빠르다.
+- 현재 Ktor library design은 얇고 명시적으로 유지한다. Shared domain behavior는 core
+  module에 두고, 반복되는 integration code를 제거할 때만 Ktor helper를 추가한다.
+- Startup이 빠르다는 이유만으로 Ktor server abstraction을 선택하지 않는다. Request-path
+  helper에서는 handler ergonomics, cancellation behavior, steady-state performance를
+  함께 비교한다.
 
-## Follow-Up Issues
+## 후속 Issue
 
-- #643 should first decide whether Ktor client support belongs in `io/http`,
-  `ktor/client`, or a thin bridge.
-- #644 should keep Resilience4j helpers coroutine-safe and benchmark timeout /
-  retry overhead after route helpers exist.
-- #645 should remain documentation/metadata focused until route contracts settle.
-- A future benchmark can add p50/p95/p99 histograms with an external load tool
-  such as `wrk`, `oha`, or Gatling. The current JMH fixture records throughput
-  and average latency, not percentile latency.
+- #643은 Ktor client support가 `io/http`, `ktor/client`, thin bridge 중 어디에 속하는지
+  먼저 결정해야 한다.
+- #644는 Resilience4j helper를 coroutine-safe로 유지하고 route helper가 생긴 뒤 timeout /
+  retry overhead를 benchmark해야 한다.
+- #645는 route contract가 안정될 때까지 documentation/metadata 중심으로 남긴다.
+- 향후 benchmark는 `wrk`, `oha`, Gatling 같은 external load tool로 p50/p95/p99 histogram을
+  추가할 수 있다. 현재 JMH fixture는 percentile latency가 아니라 throughput과 average
+  latency를 기록한다.
