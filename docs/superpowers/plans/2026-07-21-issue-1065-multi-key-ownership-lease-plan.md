@@ -1,14 +1,12 @@
-# Issue #1065 Multi-Key Ownership Lease Implementation Plan
+# Issue #1065 Multi-Key Ownership Lease 구현 계획
 
-> **For agentic
-workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **agentic worker용:** 필수 sub-skill: 이 계획은 superpowers:subagent-driven-development(권장) 또는 superpowers:executing-plans로 task별 구현한다. 진행 상태는 checkbox(`- [ ]`) syntax로 추적한다.
 
-**Goal:** 같은 Redis hash slot의 여러 key를 caller-supplied token과 TTL로 원자적으로 점유·검사·갱신·해제하는 stateless Lettuce primitive를 제공한다.
+**목표:** 같은 Redis hash slot의 여러 key를 caller-supplied token과 TTL로 원자적으로 점유·검사·갱신·해제하는 stateless Lettuce primitive를 제공한다.
 
-**Architecture:** standalone/cluster connection을 공통 Redis scripting interface로 축약하고, 입력 검증과 Lua vector decoder를 하나의 internal support에 둔다. sync/`CompletableFuture`/suspend facade는 같은 support를 사용하며 production resilience 정책은 외부 `SuspendDecorators`에 남긴다.
+**아키텍처:** standalone/cluster connection을 공통 Redis scripting interface로 축약하고, 입력 검증과 Lua vector decoder를 하나의 internal support에 둔다. sync/`CompletableFuture`/suspend facade는 같은 support를 사용하며 production resilience 정책은 외부 `SuspendDecorators`에 남긴다.
 
-**Tech
-Stack:** Kotlin 2.3, Java 21, Lettuce 7.6, Redis Lua, Kotlin coroutines, JUnit 5, Kluent-style Bluetape assertions, Testcontainers Redis/Redis Cluster, Resilience4j test integration, Gradle Kotlin DSL.
+**기술 스택:** Kotlin 2.3, Java 21, Lettuce 7.6, Redis Lua, Kotlin coroutines, JUnit 5, Kluent-style Bluetape assertions, Testcontainers Redis/Redis Cluster, Resilience4j test integration, Gradle Kotlin DSL.
 
 ---
 
@@ -62,11 +60,11 @@ Stack:** Kotlin 2.3, Java 21, Lettuce 7.6, Redis Lua, Kotlin coroutines, JUnit 5
 
 ### Task 1: RedisScriptRunner를 cluster-compatible scripting interface로 일반화
 
-**Complexity:** M **Dependency:** 없음 **Pattern skill:** `bluetape-kotlin-patterns`, `test-driven-development`
+**복잡도:** M **Dependency:** 없음 **Pattern skill:** `bluetape-kotlin-patterns`, `test-driven-development`
 
-**Files:**
+**파일:**
 
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/script/RedisScript.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/script/RedisScript.kt`
 - Modify/Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/script/RedisScriptTest.kt`
 
 - [ ] **Step 1: generalized sync/async/suspend overload가 없어서 compile fail하는 테스트를 추가한다.**
@@ -94,8 +92,8 @@ fun `general scripting interfaces support all runner styles`() = runTest {
 
 - [ ] **Step 2: targeted test를 실행해 generalized overload compile failure를 확인한다.**
 
-Run: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.script.RedisScriptTest" --no-parallel --max-workers=1`
-Expected: FAIL at `compileTestKotlin` because runner does not accept `RedisScriptingCommands`/`RedisScriptingAsyncCommands`.
+실행: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.script.RedisScriptTest" --no-parallel --max-workers=1`
+예상 결과: FAIL at `compileTestKotlin` because runner does not accept `RedisScriptingCommands`/`RedisScriptingAsyncCommands`.
 
 - [ ] **Step 3: 기존 public overload는 유지하고 generalized overload와 private implementation을 추가한다.**
 
@@ -133,8 +131,8 @@ Async는 `RedisScriptingAsyncCommands`로 `evalsha(...).toCompletableFuture().ex
 
 - [ ] **Step 4: 기존 signature와 새 interface fixture를 함께 통과시킨다.**
 
-Run: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.script.RedisScriptTest" --no-parallel --max-workers=1`
-Expected: PASS; 기존 NOSCRIPT sync/async/suspend 테스트도 유지된다.
+실행: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.script.RedisScriptTest" --no-parallel --max-workers=1`
+예상 결과: PASS; 기존 NOSCRIPT sync/async/suspend 테스트도 유지된다.
 
 - [ ] **Step 5: Lore commit을 만든다.**
 
@@ -149,12 +147,12 @@ Tested: :bluetape4k-lettuce:test --tests RedisScriptTest
 
 ### Task 2: Public result/config/exception 계약을 TDD로 고정
 
-**Complexity:** M **Dependency:** Task 1 **Pattern skill:** `bluetape-kotlin-patterns`, `ecc-kotlin-testing`
+**복잡도:** M **Dependency:** Task 1 **Pattern skill:** `bluetape-kotlin-patterns`, `ecc-kotlin-testing`
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeaseConfig.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/MultiKeyLeaseResult.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeaseConfig.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/MultiKeyLeaseResult.kt`
 - Create/Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/MultiKeyLeaseResultTest.kt`
 
 - [ ] **Step 1: config validation, exhaustive result properties, serialization round-trip, exception redaction 테스트를
@@ -205,8 +203,8 @@ fun `stable exceptions never expose keys or tokens`() {
 
 - [ ] **Step 2: test compile failure를 확인한다.**
 
-Run: `./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.MultiKeyLeaseResultTest"`
-Expected: FAIL because lease public types do not exist.
+실행: `./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.MultiKeyLeaseResultTest"`
+예상 결과: FAIL because lease public types do not exist.
 
 - [ ] **Step 3: spec와 동일한 public declarations를 구현한다.**
 
@@ -239,8 +237,8 @@ sealed interface MultiKeyAcquireResult: Serializable {
 
 - [ ] **Step 4: public model test를 통과시킨다.**
 
-Run: `./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.MultiKeyLeaseResultTest"`
-Expected: PASS.
+실행: `./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.MultiKeyLeaseResultTest"`
+예상 결과: PASS.
 
 - [ ] **Step 5: Lore commit을 만든다.**
 
@@ -255,11 +253,11 @@ Tested: :bluetape4k-lettuce:test --tests MultiKeyLeaseResultTest
 
 ### Task 3: 입력 검증과 vector decoder를 Redis 없이 고정
 
-**Complexity:** L **Dependency:** Task 2 **Pattern skill:** `bluetape-kotlin-patterns`, `ecc-kotlin-testing`
+**복잡도:** L **Dependency:** Task 2 **Pattern skill:** `bluetape-kotlin-patterns`, `ecc-kotlin-testing`
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeaseSupport.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeaseSupport.kt`
 - Create/Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeaseSupportTest.kt`
 
 - [ ] **Step 1: bounded snapshot/slot/token/TTL validation RED tests를 작성한다.**
@@ -314,8 +312,8 @@ fun `decoder rejects inconsistent vectors`() {
 
 - [ ] **Step 3: targeted test의 expected compile failure를 확인한다.**
 
-Run: `./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseSupportTest"`
-Expected: FAIL because validation/decoder support does not exist.
+실행: `./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseSupportTest"`
+예상 결과: FAIL because validation/decoder support does not exist.
 
 - [ ] **Step 4: validation snapshot과 공통 vector invariant를 구현한다.**
 
@@ -342,8 +340,8 @@ decoder는 vector length 7, non-negative counts, `requested == owned + missing +
 
 - [ ] **Step 5: support test를 통과시킨다.**
 
-Run: `./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseSupportTest"`
-Expected: PASS.
+실행: `./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseSupportTest"`
+예상 결과: PASS.
 
 - [ ] **Step 6: Lore commit을 만든다.**
 
@@ -358,11 +356,11 @@ Tested: :bluetape4k-lettuce:test --tests LettuceMultiKeyLeaseSupportTest
 
 ### Task 4: Lua state machine을 실제 Redis에서 TDD
 
-**Complexity:** XL **Dependency:** Task 3 **Pattern skill:** `bluetape-kotlin-patterns`, `ecc-kotlin-testing`
+**복잡도:** XL **Dependency:** Task 3 **Pattern skill:** `bluetape-kotlin-patterns`, `ecc-kotlin-testing`
 
-**Files:**
+**파일:**
 
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeaseSupport.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeaseSupport.kt`
 - Create/Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeaseScriptTest.kt`
 
 - [ ] **Step 1: acquire/inspect RED matrix를 실제 Redis fixture에 작성한다.**
@@ -408,8 +406,8 @@ full, partial missing, all missing, mismatch-with-zero-owned, external persisten
 
 - [ ] **Step 3: script test가 missing script executor로 실패하는지 확인한다.**
 
-Run: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseScriptTest" --no-parallel --max-workers=1`
-Expected: FAIL because operation scripts/executors are absent.
+실행: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseScriptTest" --no-parallel --max-workers=1`
+예상 결과: FAIL because operation scripts/executors are absent.
 
 - [ ] **Step 4: acquire/inspect Lua를 구현한다.**
 
@@ -441,8 +439,8 @@ renew는 pre-classification 뒤 integrity면 no-op, 아니면 matching key만 `P
 
 - [ ] **Step 6: script matrix를 통과시킨다.**
 
-Run: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseScriptTest" --no-parallel --max-workers=1`
-Expected: PASS; Redis key inspection에서 wrong-owner mutation과 conflict partial write가 없다.
+실행: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseScriptTest" --no-parallel --max-workers=1`
+예상 결과: PASS; Redis key inspection에서 wrong-owner mutation과 conflict partial write가 없다.
 
 - [ ] **Step 7: Lore commit을 만든다.**
 
@@ -457,11 +455,11 @@ Tested: :bluetape4k-lettuce:test --tests LettuceMultiKeyLeaseScriptTest
 
 ### Task 5: Sync/CompletableFuture facade와 adapter parity
 
-**Complexity:** L **Dependency:** Task 4 **Pattern skill:** `bluetape-kotlin-patterns`, `test-driven-development`
+**복잡도:** L **Dependency:** Task 4 **Pattern skill:** `bluetape-kotlin-patterns`, `test-driven-development`
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLease.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLease.kt`
 - Create/Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/MultiKeyLeaseContract.kt`
 - Create/Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeaseTest.kt`
 
@@ -495,8 +493,8 @@ Task 5에서는 sync/async adapter가 이 전체 table을 실행하고, Task 6�
 
 - [ ] **Step 2: facade absence failure를 확인한다.**
 
-Run: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseTest" --no-parallel --max-workers=1`
-Expected: FAIL because `LettuceMultiKeyLease` does not exist.
+실행: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseTest" --no-parallel --max-workers=1`
+예상 결과: FAIL because `LettuceMultiKeyLease` does not exist.
 
 - [ ] **Step 3: standalone/cluster secondary constructors와 여덟 public methods를 구현한다.**
 
@@ -528,8 +526,8 @@ inspect/renew/release sync/async도 보유한 `codec`을 각 validation 함수�
 
 - [ ] **Step 4: adapter contract와 validation-before-dispatch를 통과시킨다.**
 
-Run: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseTest" --no-parallel --max-workers=1`
-Expected: PASS.
+실행: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseTest" --no-parallel --max-workers=1`
+예상 결과: PASS.
 
 - [ ] **Step 5: Lore commit을 만든다.**
 
@@ -544,11 +542,11 @@ Tested: :bluetape4k-lettuce:test --tests LettuceMultiKeyLeaseTest
 
 ### Task 6: Suspend facade와 cancellation contract
 
-**Complexity:** L **Dependency:** Task 5 **Pattern skill:** `kotlin-coroutines-skill`, `ecc-kotlin-testing`
+**복잡도:** L **Dependency:** Task 5 **Pattern skill:** `kotlin-coroutines-skill`, `ecc-kotlin-testing`
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceSuspendMultiKeyLease.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceSuspendMultiKeyLease.kt`
 - Modify/Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/MultiKeyLeaseContract.kt`
 - Create/Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceSuspendMultiKeyLeaseTest.kt`
 - Create/Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeaseCancellationTest.kt`
@@ -594,8 +592,8 @@ private class TestRedisFuture<T>: CompletableFuture<T>(), RedisFuture<T> {
 
 - [ ] **Step 3: missing suspend facade failure를 확인한다.**
 
-Run: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceSuspendMultiKeyLeaseTest" --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseCancellationTest" --no-parallel --max-workers=1`
-Expected: FAIL because suspend facade/test seam is absent.
+실행: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceSuspendMultiKeyLeaseTest" --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseCancellationTest" --no-parallel --max-workers=1`
+예상 결과: FAIL because suspend facade/test seam is absent.
 
 - [ ] **Step 4: `RedisScriptRunner.runSuspending` 기반 네 suspend method를 구현한다.**
 
@@ -621,7 +619,7 @@ inspect/renew/release도 보유한 `codec`을 validation에 전달해 동일하�
 
 - [ ] **Step 5: cancellation과 suspend parity를 통과시킨다.**
 
-Run: 위 targeted command Expected: PASS; pending future는 cancelled, 실제 Redis fixture는 full-acquired 또는 full-missing만 허용하고 partial은 0건이다.
+실행: 위 targeted command Expected: PASS; pending future는 cancelled, 실제 Redis fixture는 full-acquired 또는 full-missing만 허용하고 partial은 0건이다.
 
 - [ ] **Step 6: Lore commit을 만든다.**
 
@@ -636,9 +634,9 @@ Tested: targeted suspend and cancellation tests
 
 ### Task 7: Redis Cluster·NOSCRIPT·동시성·TTL hostile fixtures
 
-**Complexity:** XL **Dependency:** Task 6 **Pattern skill:** `ecc-kotlin-testing`, `kotlin-coroutines-skill`
+**복잡도:** XL **Dependency:** Task 6 **Pattern skill:** `ecc-kotlin-testing`, `kotlin-coroutines-skill`
 
-**Files:**
+**파일:**
 
 - Create/Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeaseClusterTest.kt`
 - Create/Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeaseConcurrencyTest.kt`
@@ -676,8 +674,8 @@ fun `cluster routes same-slot scripts and rejects cross-slot before Redis`() {
 
 - [ ] **Step 4: hostile suite를 실행하고 root cause가 없는 retry를 금지한다.**
 
-Run: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseClusterTest" --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseConcurrencyTest" --tests "io.bluetape4k.redis.lettuce.script.RedisScriptTest" --no-parallel --max-workers=1`
-Expected: PASS once sequentially; sync/async/suspend NOSCRIPT는 각각 `evalsha=1`, `eval=1`; timing failure는 원인을 수정한 뒤 전체 command를 처음부터 재실행한다.
+실행: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseClusterTest" --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseConcurrencyTest" --tests "io.bluetape4k.redis.lettuce.script.RedisScriptTest" --no-parallel --max-workers=1`
+예상 결과: PASS once sequentially; sync/async/suspend NOSCRIPT는 각각 `evalsha=1`, `eval=1`; timing failure는 원인을 수정한 뒤 전체 command를 처음부터 재실행한다.
 
 - [ ] **Step 5: Lore commit을 만든다.**
 
@@ -692,11 +690,11 @@ Tested: cluster, concurrency, TTL, NOSCRIPT targeted suites
 
 ### Task 8: Retry + CircuitBreaker + Bulkhead test-only integration
 
-**Complexity:** L **Dependency:** Task 7 **Pattern skill:** `bluetape-kotlin-patterns`, `kotlin-coroutines-skill`
+**복잡도:** L **Dependency:** Task 7 **Pattern skill:** `bluetape-kotlin-patterns`, `kotlin-coroutines-skill`
 
-**Files:**
+**파일:**
 
-- Modify: `infra/lettuce/build.gradle.kts`
+- 수정: `infra/lettuce/build.gradle.kts`
 - Create/Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeaseResilience4jTest.kt`
 
 - [ ] **Step 1: test-only project dependency를 추가한다.**
@@ -753,16 +751,16 @@ Retry success-with-retry 1, CircuitBreaker logical success 1, Bulkhead available
 
 - [ ] **Step 4: targeted test를 통과시킨다.**
 
-Run: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseResilience4jTest" --no-parallel --max-workers=1`
-Expected: PASS.
+실행: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLeaseResilience4jTest" --no-parallel --max-workers=1`
+예상 결과: PASS.
 
 - [ ] **Step 5: production dependency 비노출을 증명한다.**
 
-Run: `./gradlew :bluetape4k-lettuce:dependencies --configuration runtimeClasspath`
-Expected: output에 `bluetape4k-resilience4j` 없음.
+실행: `./gradlew :bluetape4k-lettuce:dependencies --configuration runtimeClasspath`
+예상 결과: output에 `bluetape4k-resilience4j` 없음.
 
-Run: `./gradlew :bluetape4k-lettuce:generatePomFileForBluetape4kPublication`
-Expected: `infra/lettuce/build/publications/Bluetape4k/pom-default.xml`에 resilience4j project dependency 없음.
+실행: `./gradlew :bluetape4k-lettuce:generatePomFileForBluetape4kPublication`
+예상 결과: `infra/lettuce/build/publications/Bluetape4k/pom-default.xml`에 resilience4j project dependency 없음.
 
 - [ ] **Step 6: Lore commit을 만든다.**
 
@@ -777,11 +775,11 @@ Tested: resilience integration, runtimeClasspath, generated publication POM
 
 ### Task 9: 성능 characterization task와 evidence
 
-**Complexity:** L **Dependency:** Task 8 **Pattern skill:** `bluetape-kotlin-patterns`, `ecc-kotlin-testing`
+**복잡도:** L **Dependency:** Task 8 **Pattern skill:** `bluetape-kotlin-patterns`, `ecc-kotlin-testing`
 
-**Files:**
+**파일:**
 
-- Modify: `infra/lettuce/build.gradle.kts`
+- 수정: `infra/lettuce/build.gradle.kts`
 - Create/Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeasePerformanceTest.kt`
 
 - [ ] **Step 1: 기본 test와 분리된 tagged task를 추가한다.**
@@ -819,8 +817,8 @@ fixture 하나가 container, client, workload/probe connections, executor를 명
 
 - [ ] **Step 3: characterization을 단독 실행한다.**
 
-Run: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:multiKeyLeasePerformanceTest --no-parallel --max-workers=1`
-Expected: PASS, report에 6개 조합의 p50/p95/throughput 및 probe p95/p99가 출력된다.
+실행: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:multiKeyLeasePerformanceTest --no-parallel --max-workers=1`
+예상 결과: PASS, report에 6개 조합의 p50/p95/throughput 및 probe p95/p99가 출력된다.
 
 - [ ] **Step 4: maxKeys/script 변경 시 재실행 지침을 test KDoc과 README 작업 목록에 연결한다.**
 
@@ -837,15 +835,15 @@ Tested: :bluetape4k-lettuce:multiKeyLeasePerformanceTest
 
 ### Task 10: English KDoc, bilingual README, diagram을 source-equivalent하게 갱신
 
-**Complexity:** L **Dependency:** Task 9 **Pattern skill:** `bluetape-writer`, `bluetape-diagram`
+**복잡도:** L **Dependency:** Task 9 **Pattern skill:** `bluetape-writer`, `bluetape-diagram`
 
-**Files:**
+**파일:**
 
-- Modify: all new public files under `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/`
-- Modify: `infra/lettuce/README.md`
-- Modify: `infra/lettuce/README.ko.md`
+- 수정: all new public files under `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/`
+- 수정: `infra/lettuce/README.md`
+- 수정: `infra/lettuce/README.ko.md`
 - Create/Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/MultiKeyLeaseDocumentationTest.kt`
-- Modify: `scripts/generate-infra-lettuce-diagram-01.mjs`
+- 수정: `scripts/generate-infra-lettuce-diagram-01.mjs`
 - Regenerate: `docs/images/readme-diagrams/infra-lettuce-diagram-01.svg`
 - Regenerate: `docs/images/readme-diagrams/infra-lettuce-diagram-01.png`
 
@@ -896,14 +894,14 @@ execFileSync(process.env.CAIROSVG ?? "cairosvg", [svgPath, "-o", pngPath, "--sca
 
 - [ ] **Step 4: docs/visual validation을 실행한다.**
 
-Run: `node scripts/generate-infra-lettuce-diagram-01.mjs`
-Expected: SVG와 PNG가 모두 재생성되고 `Multi-Key Lease` label이 존재한다.
+실행: `node scripts/generate-infra-lettuce-diagram-01.mjs`
+예상 결과: SVG와 PNG가 모두 재생성되고 `Multi-Key Lease` label이 존재한다.
 
-Run: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.MultiKeyLeaseDocumentationTest" --no-parallel --max-workers=1`
-Expected: README와 공유한 recovery/decorator policy가 compile되고 실제 Redis smoke가 PASS한다.
+실행: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.MultiKeyLeaseDocumentationTest" --no-parallel --max-workers=1`
+예상 결과: README와 공유한 recovery/decorator policy가 compile되고 실제 Redis smoke가 PASS한다.
 
-Run: `git diff --check && rg -n "Multi-Key Lease|LettuceMultiKeyLease|ACL|TLS|JWT|PII|operation|result|exception|key/token|single.writer|cutover|rollback|dual.write|durable|manual|namespace" infra/lettuce/README.md infra/lettuce/README.ko.md docs/images/readme-diagrams/infra-lettuce-diagram-01.svg`
-Expected: 양 locale에 bounded telemetry, redaction, same-token recovery, decorator policy, ambiguous completion, cutover/rollback, dual-write 금지, token-loss cleanup heading/marker가 같은 순서로 존재하고 SVG에 새 primitive가 포함된다. test helper는 두 README의 normalized required-heading 목록을 읽어 순서와 source-equivalence도 assertion한다.
+실행: `git diff --check && rg -n "Multi-Key Lease|LettuceMultiKeyLease|ACL|TLS|JWT|PII|operation|result|exception|key/token|single.writer|cutover|rollback|dual.write|durable|manual|namespace" infra/lettuce/README.md infra/lettuce/README.ko.md docs/images/readme-diagrams/infra-lettuce-diagram-01.svg`
+예상 결과: 양 locale에 bounded telemetry, redaction, same-token recovery, decorator policy, ambiguous completion, cutover/rollback, dual-write 금지, token-loss cleanup heading/marker가 같은 순서로 존재하고 SVG에 새 primitive가 포함된다. test helper는 두 README의 normalized required-heading 목록을 읽어 순서와 source-equivalence도 assertion한다.
 
 - [ ] **Step 5: Lore commit을 만든다.**
 
@@ -918,33 +916,33 @@ Tested: diagram regeneration, locale marker scan, git diff --check
 
 ### Task 11: 통합 검증, review, lesson, exact-head PR
 
-**Complexity:** XL **Dependency:** Tasks 1-10 **Pattern
+**복잡도:** XL **Dependency:** Tasks 1-10 **Pattern
 skill:** `verification-before-completion`, `requesting-code-review`, `bluetape-full-feature`
 
-**Files:**
+**파일:**
 
-- Create: `docs/lessons/2026-07-21-multi-key-ownership-lease.md`
+- 생성: `docs/lessons/2026-07-21-multi-key-ownership-lease.md`
 - Create when useful: `docs/review/2026-07-21-issue-1065-multi-key-lease-review.md`
 
 - [ ] **Step 1: targeted tests를 순차 실행한다.**
 
-Run: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.*" --tests "io.bluetape4k.redis.lettuce.script.RedisScriptTest" --no-parallel --max-workers=1`
-Expected: PASS.
+실행: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test --tests "io.bluetape4k.redis.lettuce.lease.*" --tests "io.bluetape4k.redis.lettuce.script.RedisScriptTest" --no-parallel --max-workers=1`
+예상 결과: PASS.
 
 - [ ] **Step 2: full module와 static checks를 실행한다.**
 
-Run: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test detekt detektTest --no-parallel --max-workers=1`
-Expected: PASS; Testcontainers-backed tests는 다른 module/worktree와 병렬 실행하지 않는다.
+실행: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:test detekt detektTest --no-parallel --max-workers=1`
+예상 결과: PASS; Testcontainers-backed tests는 다른 module/worktree와 병렬 실행하지 않는다.
 
 - [ ] **Step 3: performance와 publication boundary를 다시 검증한다.**
 
-Run: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:multiKeyLeasePerformanceTest :bluetape4k-lettuce:generatePomFileForBluetape4kPublication --no-parallel --max-workers=1`
-Expected: performance criteria PASS; POM에 resilience4j dependency 없음.
+실행: `lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" ./gradlew :bluetape4k-lettuce:multiKeyLeasePerformanceTest :bluetape4k-lettuce:generatePomFileForBluetape4kPublication --no-parallel --max-workers=1`
+예상 결과: performance criteria PASS; POM에 resilience4j dependency 없음.
 
 - [ ] **Step 4: repository hygiene를 확인한다.**
 
-Run: `git diff --check && git status --short && git diff --stat`
-Expected: intended lease/test/docs/diagram/lesson files만 존재하고 placeholder·generated drift가 없다.
+실행: `git diff --check && git status --short && git diff --stat`
+예상 결과: intended lease/test/docs/diagram/lesson files만 존재하고 placeholder·generated drift가 없다.
 
 - [ ] **Step 5: spec/plan traceability와 여섯 관점 code review를 실행한다.**
 
