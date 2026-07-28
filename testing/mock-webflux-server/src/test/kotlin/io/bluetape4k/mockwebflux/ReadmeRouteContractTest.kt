@@ -8,7 +8,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.readText
 
 /**
- * README endpoint rows must describe implemented mock-webflux routes only.
+ * README endpoint row는 구현된 mock-webflux route만 설명해야 합니다.
  */
 class ReadmeRouteContractTest {
 
