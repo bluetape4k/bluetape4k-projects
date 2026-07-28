@@ -1,23 +1,24 @@
-# Lessons Learned - Lettuce Near Cache Clear Failure (2026-06-26)
+# Lettuce near cache clear failure 교훈 (2026-06-26)
 
-Related issue: #786
-Affected module: `:bluetape4k-cache-lettuce`
+관련 이슈: #786
+영향 module: `:bluetape4k-cache-lettuce`
 
-## L1: Do not hide backend clear failures behind best-effort cleanup
+## L1: backend clear failure를 best-effort cleanup 뒤에 숨기지 않는다
 
-### Problem
+### 문제
 
-`LettuceNearCache.clearAll()` cleared the local Caffeine cache and then wrapped Redis key cleanup in `runCatching`.
-When Redis `SCAN` or `UNLINK` failed, callers saw success even though backend entries could remain and later repopulate
-the local cache.
+`LettuceNearCache.clearAll()`은 local Caffeine cache를 지운 뒤 Redis key cleanup을
+`runCatching`으로 감쌌다. Redis `SCAN` 또는 `UNLINK`가 실패해도 caller는 성공을 봤고,
+backend entry가 남아 나중에 local cache를 다시 채울 수 있었다.
 
-### Lesson
+### 교훈
 
-For cache APIs whose contract says "local + backend", backend deletion failure must be visible to the caller unless the
-API explicitly models partial success. Blocking and suspend near-cache implementations should expose equivalent failure
-semantics.
+cache API contract가 "local + backend"라면 API가 partial success를 명시적으로 모델링하지
+않는 한 backend deletion failure는 caller에게 보여야 한다. blocking/suspend near-cache
+implementation은 동등한 failure semantic을 노출해야 한다.
 
-### Future guard
+### 향후 가드
 
-Failure-path tests should make backend cleanup fail before deletion and assert both that the caller receives an exception
-and that the backend key remains. Avoid `runCatching` around required backend operations when the result is ignored.
+failure-path test는 deletion 전에 backend cleanup을 실패시키고, caller가 exception을 받으며
+backend key가 남아 있음을 함께 assert해야 한다. 결과를 무시하는 필수 backend operation
+주변에서는 `runCatching`을 피한다.
