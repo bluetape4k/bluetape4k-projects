@@ -1,4 +1,4 @@
-# Issue #1080 Lock Diagram Review
+# Issue #1080 Lock Diagram 검토
 
 ## 범위와 공통 근거
 
