@@ -1,14 +1,12 @@
-# Issue #755 Caller-Owned ByteBuffer Compressor Implementation Plan
+# Issue #755 Caller-Owned ByteBuffer Compressor 구현 계획
 
-> **For agentic
-workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **agentic worker용:** 필수 sub-skill: 이 계획은 superpowers:subagent-driven-development(권장) 또는 superpowers:executing-plans로 task별 구현한다. 진행 상태는 checkbox(`- [ ]`) syntax로 추적한다.
 
-**Goal:** `Compressor`에 caller-owned `ByteBuffer` 압축/복원 API를 추가하고 LZ4, Deflate, Snappy, Zstd의 안전한 저할당 경로와 재현 가능한 allocation 증거를 제공한다.
+**목표:** `Compressor`에 caller-owned `ByteBuffer` 압축/복원 API를 추가하고 LZ4, Deflate, Snappy, Zstd의 안전한 저할당 경로와 재현 가능한 allocation 증거를 제공한다.
 
-**Architecture:** 공개 API와 allocating compatibility fallback을 먼저 독립 core slice로 전달한다. 이후 LZ4, Deflate, Snappy, Zstd를 각각 독립 PR로 추가해 backend별 실패 계약과 rollback을 격리하고, 마지막 cross-cutting slice에서 singleton concurrency, caller 예제, benchmark evidence와 문서 parity를 수렴한다. 모든 codec 호출은 source 상태를 보존하고 target position을 성공 시에만 commit하며, native/JDK 경계는 승인 명세의 exact bound와 예외 분류를 따른다.
+**아키텍처:** 공개 API와 allocating compatibility fallback을 먼저 독립 core slice로 전달한다. 이후 LZ4, Deflate, Snappy, Zstd를 각각 독립 PR로 추가해 backend별 실패 계약과 rollback을 격리하고, 마지막 cross-cutting slice에서 singleton concurrency, caller 예제, benchmark evidence와 문서 parity를 수렴한다. 모든 codec 호출은 source 상태를 보존하고 target position을 성공 시에만 commit하며, native/JDK 경계는 승인 명세의 exact bound와 예외 분류를 따른다.
 
-**Tech
-Stack:** Kotlin 2.4.0 / language-api 2.3, Java 21, Gradle 9.x, JUnit 5, `io.bluetape4k.assertions`, lz4-java 1.11.0, snappy-java 1.1.10.8, zstd-jni 1.5.7-11, JDK `Deflater`/`Inflater`, kotlinx-benchmark/JMH 1.37, Python 3 evidence validator.
+**기술 스택:** Kotlin 2.4.0 / language-api 2.3, Java 21, Gradle 9.x, JUnit 5, `io.bluetape4k.assertions`, lz4-java 1.11.0, snappy-java 1.1.10.8, zstd-jni 1.5.7-11, JDK `Deflater`/`Inflater`, kotlinx-benchmark/JMH 1.37, Python 3 evidence validator.
 
 ---
 
@@ -314,7 +312,7 @@ fun decompress(source: ByteBuffer, target: ByteBuffer): Int
 
 ## Task 0: 승인된 plan으로 workflow run과 core slice를 시작한다
 
-**Complexity:** 낮음 **Dependency:** 이 계획의 사용자 승인 **Write
+**복잡도:** 낮음 **Dependency:** 이 계획의 사용자 승인 **Write
 scope:** `.bluetape` coordinator state만 helper가 기록; repository source 변경 없음 **Pattern
 skill:** `bluetape-workflow`, `bluetape-full-feature`
 
@@ -498,7 +496,7 @@ python3 /Users/debop/.codex/skills/bluetape-workflow/scripts/bluetape-flow.py \
   --evidence /Users/debop/work/bluetape4k/.bluetape/inputs/issue755/approval-evidence.json
 ```
 
-Expected: receipt가 `run-start`를 safe next로 반환하고 owner fencing value는 출력하지 않는다.
+예상 결과: receipt가 `run-start`를 safe next로 반환하고 owner fencing value는 출력하지 않는다.
 
 #### Audit Step 0.2 — N/A under WF-04A: 최초 run-start record
 
@@ -517,7 +515,7 @@ git branch --show-current
 git merge-base --is-ancestor origin/develop HEAD
 ```
 
-Expected: branch는 `feat/issue-755-bytebuffer-compressor`, working tree clean, `origin/develop`가 ancestor다. 불일치하면 source edit 전에 중단한다.
+예상 결과: branch는 `feat/issue-755-bytebuffer-compressor`, working tree clean, `origin/develop`가 ancestor다. 불일치하면 source edit 전에 중단한다.
 
 #### Audit Step 0.3 — N/A under WF-04A: 실패한 topology registration record
 
@@ -792,7 +790,7 @@ awk '
 ' "$plan"
 ```
 
-Expected: deliberate failed precondition 뒤 marker mutation은 실행되지 않는다. readiness, approved merge, coordinator, verification, evidence, commit/push block은 모두 첫 명령이
+예상 결과: deliberate failed precondition 뒤 marker mutation은 실행되지 않는다. readiness, approved merge, coordinator, verification, evidence, commit/push block은 모두 첫 명령이
 `set -euo pipefail`이고, standalone script definition만 shebang을 첫 줄로 허용한다.
 
 **Step
@@ -802,25 +800,25 @@ DoD:** WF-04A fallback에서 run의 blocked checksum과 valid receipt chain이 �
 
 ## Task 1: Core RED — public contract와 ABI authority를 먼저 고정한다
 
-**Complexity:** 높음 **Dependency:** Task 0 WF-04A fallback DoD PASS **Write
+**복잡도:** 높음 **Dependency:** Task 0 WF-04A fallback DoD PASS **Write
 scope:** core test/ABI resources와 `scripts/check-compressor-buffer-abi.sh`만 **Pattern
 skill:** `bluetape-kotlin-patterns`, `test-driven-development`
 
-**Files:**
+**파일:**
 
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/CompressorByteBufferTestSupport.kt`
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/CompressorByteBufferContractTest.kt`
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/CompressorBufferAbiCompatibilityTest.kt`
-- Create: `io/io/src/test/java/io/bluetape4k/io/compressor/CompressorByteBufferJavaContractTest.java`
-- Create: `io/io/src/test/resources/abi/issue-755/src/java/LegacyCompressorCaller.java`
-- Create: `io/io/src/test/resources/abi/issue-755/src/java/LegacyCompressorImplementation.java`
-- Create: `io/io/src/test/resources/abi/issue-755/src/java/NewCompressorBufferCaller.java`
-- Create: `io/io/src/test/resources/abi/issue-755/src/java/AmbiguousNullCaller.java`
-- Create: `io/io/src/test/resources/abi/issue-755/src/kotlin/LegacyCompressorCaller.kt`
-- Create: `io/io/src/test/resources/abi/issue-755/src/kotlin/LegacyCompressorImplementation.kt`
-- Create: `io/io/src/test/resources/abi/issue-755/pre-change/legacy-compressor-fixtures.jar`
-- Create: `io/io/src/test/resources/abi/issue-755/pre-change/manifest.json`
-- Create: `scripts/check-compressor-buffer-abi.sh`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/CompressorByteBufferTestSupport.kt`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/CompressorByteBufferContractTest.kt`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/CompressorBufferAbiCompatibilityTest.kt`
+- 생성: `io/io/src/test/java/io/bluetape4k/io/compressor/CompressorByteBufferJavaContractTest.java`
+- 생성: `io/io/src/test/resources/abi/issue-755/src/java/LegacyCompressorCaller.java`
+- 생성: `io/io/src/test/resources/abi/issue-755/src/java/LegacyCompressorImplementation.java`
+- 생성: `io/io/src/test/resources/abi/issue-755/src/java/NewCompressorBufferCaller.java`
+- 생성: `io/io/src/test/resources/abi/issue-755/src/java/AmbiguousNullCaller.java`
+- 생성: `io/io/src/test/resources/abi/issue-755/src/kotlin/LegacyCompressorCaller.kt`
+- 생성: `io/io/src/test/resources/abi/issue-755/src/kotlin/LegacyCompressorImplementation.kt`
+- 생성: `io/io/src/test/resources/abi/issue-755/pre-change/legacy-compressor-fixtures.jar`
+- 생성: `io/io/src/test/resources/abi/issue-755/pre-change/manifest.json`
+- 생성: `scripts/check-compressor-buffer-abi.sh`
 
 - [ ] **Step 1.1: 공통 buffer fixture와 fallback compressor를 작성한다**
 
@@ -1103,7 +1101,7 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test \
   --no-build-cache --rerun-tasks
 ```
 
-Expected: compile FAIL. `Compressor.compress(ByteBuffer, ByteBuffer)`와
+예상 결과: compile FAIL. `Compressor.compress(ByteBuffer, ByteBuffer)`와
 `decompress(ByteBuffer, ByteBuffer)`가 아직 없다. dirty fixture tree에서 ABI checker를 실행하지 않는다. 그 경우 intended descriptor RED가 아니라 dirty-path gate가 먼저 실패하기 때문이다.
 
 - [ ] **Step 1.7: RED fixture를 Lore commit한다**
@@ -1134,7 +1132,7 @@ bash scripts/check-compressor-buffer-abi.sh \
   --build-current --expected-head "$(git rev-parse HEAD)"
 ```
 
-Expected: dirty-path gate와 baseline/current ambiguous-null diagnostic 비교는 PASS하고
+예상 결과: dirty-path gate와 baseline/current ambiguous-null diagnostic 비교는 PASS하고
 `compile_new_callers`에 도달하기 전에 current two-argument JVM default descriptor 부재라는 ABI reason으로 non-zero 종료한다. 다른 이유로 실패하면 Task 2로 진행하지 않고 fixture/checker를 교정해 Lore commit 후 이 step을 재실행한다.
 
 **Step DoD:** 공통 계약과 ABI가 의도한 missing-API 이유로 RED이며 baseline authority가 hash로 고정된다.
@@ -1143,15 +1141,15 @@ Expected: dirty-path gate와 baseline/current ambiguous-null diagnostic 비교�
 
 ## Task 2: Core GREEN — fallback과 상태 commit wrapper를 구현한다
 
-**Complexity:** 높음 **Dependency:** Task 1 **Write
+**복잡도:** 높음 **Dependency:** Task 1 **Write
 scope:** `Compressor.kt`, 신규 `CompressorBufferSupport.kt`, Task 1 test 보정만 **Pattern
 skill:** `bluetape-kotlin-patterns`, `test-driven-development`
 
-**Files:**
+**파일:**
 
-- Modify: `io/io/src/main/kotlin/io/bluetape4k/io/compressor/Compressor.kt`
-- Create: `io/io/src/main/kotlin/io/bluetape4k/io/compressor/CompressorBufferSupport.kt`
-- Modify: Task 1의 test/fixture files only when RED expectation needs exact import or generated hash update
+- 수정: `io/io/src/main/kotlin/io/bluetape4k/io/compressor/Compressor.kt`
+- 생성: `io/io/src/main/kotlin/io/bluetape4k/io/compressor/CompressorBufferSupport.kt`
+- 수정: Task 1의 test/fixture files only when RED expectation needs exact import or generated hash update
 
 - [ ] **Step 2.1: preflight와 fallback helper를 최소 구현한다**
 
@@ -1298,7 +1296,7 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test \
   --no-build-cache --rerun-tasks
 ```
 
-Expected: all contract cases PASS. Java null은 raw NPE, fallback overflow는 raw
+예상 결과: all contract cases PASS. Java null은 raw NPE, fallback overflow는 raw
 `BufferOverflowException`, source/target mark reset assertion도 PASS한다.
 
 - [ ] **Step 2.4: helper/default implementation을 Lore commit한다**
@@ -1332,7 +1330,7 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test \
   --no-build-cache --rerun-tasks
 ```
 
-Expected: legacy source와 classfile caller/implementor, new callers, manifest/hash, JVM default reflection PASS. ambiguous null fixture만 예상한 compiler diagnostic으로 실패한다.
+예상 결과: legacy source와 classfile caller/implementor, new callers, manifest/hash, JVM default reflection PASS. ambiguous null fixture만 예상한 compiler diagnostic으로 실패한다.
 
 **Step DoD:** 모든 compressor가 default fallback으로 공통 contract를 통과하고 legacy ABI가 exact baseline에 대해 증명된다.
 
@@ -1340,16 +1338,16 @@ Expected: legacy source와 classfile caller/implementor, new callers, manifest/h
 
 ## Task 3: Core slice 문서·검증·PR을 수렴한다
 
-**Complexity:** 중간 **Dependency:** Task 2 **Write scope:** 양쪽 README, CHANGELOG, issue lesson, core test/ABI artifact
+**복잡도:** 중간 **Dependency:** Task 2 **작성 범위:** 양쪽 README, CHANGELOG, issue lesson, core test/ABI artifact
 **Pattern skill:** `bluetape-writer`, `verification-before-completion`, `requesting-code-review`
 
-**Files:**
+**파일:**
 
-- Modify: `io/io/README.md`
-- Modify: `io/io/README.ko.md`
-- Modify: `CHANGELOG.md`
-- Create: `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`
-- Create: `scripts/check-compressor-buffer-docs.py`
+- 수정: `io/io/README.md`
+- 수정: `io/io/README.ko.md`
+- 수정: `CHANGELOG.md`
+- 생성: `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`
+- 생성: `scripts/check-compressor-buffer-docs.py`
 
 - [ ] **Step 3.1: provisional fallback matrix와 sizing/retry 경계를 양쪽 README에 기록한다**
 
@@ -1414,7 +1412,7 @@ python3 scripts/check-compressor-buffer-docs.py
 git diff --check
 ```
 
-Expected: module tests 1,109 baseline + 신규 core tests PASS, compile/Detekt/ABI PASS, diff check clean. ABI script가 commit-only tested paths를 요구하므로 docs/lesson commit 뒤 exact head에서 다시 실행한다.
+예상 결과: module tests 1,109 baseline + 신규 core tests PASS, compile/Detekt/ABI PASS, diff check clean. ABI script가 commit-only tested paths를 요구하므로 docs/lesson commit 뒤 exact head에서 다시 실행한다.
 
 - [ ] **Step 3.4: core 문서와 lesson을 Lore commit한다**
 
@@ -1472,17 +1470,17 @@ PR body는 English이며 issue #755를 연결하고 final `##` heading을 `## Do
 
 ## Task 4: LZ4 slice — bounded payload를 사용하는 전체 storage override를 전달한다
 
-**Complexity:** 높음 **Dependency:** core PR merge + updated `develop` sync **Write
+**복잡도:** 높음 **Dependency:** core PR merge + updated `develop` sync **Write
 scope:** `LZ4Compressor.kt`, LZ4 test, README locale rows, shared lesson LZ4 section **Pattern
 skill:** `bluetape-kotlin-patterns`, `test-driven-development`
 
-**Files:**
+**파일:**
 
-- Modify: `io/io/src/main/kotlin/io/bluetape4k/io/compressor/LZ4Compressor.kt`
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/LZ4CompressorByteBufferTest.kt`
-- Modify: `io/io/README.md`
-- Modify: `io/io/README.ko.md`
-- Modify: `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`
+- 수정: `io/io/src/main/kotlin/io/bluetape4k/io/compressor/LZ4Compressor.kt`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/LZ4CompressorByteBufferTest.kt`
+- 수정: `io/io/README.md`
+- 수정: `io/io/README.ko.md`
+- 수정: `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`
 
 - [ ] **Step 4.1: merge된 core에서 isolated worktree를 만든다**
 
@@ -1496,7 +1494,7 @@ git -C /Users/debop/work/bluetape4k/bluetape4k-projects worktree add \
   -b feat/issue-755-bytebuffer-lz4 origin/develop
 ```
 
-Expected: 새 worktree clean, core default/API/ABI commit이 `HEAD` ancestor다.
+예상 결과: 새 worktree clean, core default/API/ABI commit이 `HEAD` ancestor다.
 
 - [ ] **Step 4.2: LZ4 exact failure/boundary RED를 작성한다**
 
@@ -1559,7 +1557,7 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test \
   --no-build-cache --rerun-tasks
 ```
 
-Expected: default fallback 때문에 correctness 일부는 PASS하지만 native dispatch seam, capacity-tail regression, payload-sized allocation avoidance assertion은 FAIL한다.
+예상 결과: default fallback 때문에 correctness 일부는 PASS하지만 native dispatch seam, capacity-tail regression, payload-sized allocation avoidance assertion은 FAIL한다.
 
 - [ ] **Step 4.4: injectable operation과 optimized override를 구현한다**
 
@@ -1650,7 +1648,7 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test --no-build-cache --rerun-task
 git diff --check
 ```
 
-Expected: capacity-tail/trailing test가 LZ4Exception으로 PASS하고 heap/direct 네 조합, wire interop, target rollback, sentinel, module suite, Detekt가 PASS한다.
+예상 결과: capacity-tail/trailing test가 LZ4Exception으로 PASS하고 heap/direct 네 조합, wire interop, target rollback, sentinel, module suite, Detekt가 PASS한다.
 
 - [ ] **Step 4.6: README matrix와 lesson을 LZ4 증거로 갱신하고 Lore commit한다**
 
@@ -1694,16 +1692,16 @@ Six-perspective review, CI, live threads가 P0=0/P1=0일 때 exact PR/head를 �
 
 ## Task 5: Deflate slice — bounded JDK loop와 deterministic cleanup을 전달한다
 
-**Complexity:** 높음 **Dependency:** LZ4 PR merge + updated `develop` sync **Write
+**복잡도:** 높음 **Dependency:** LZ4 PR merge + updated `develop` sync **Write
 scope:** `DeflateCompressor.kt`, Deflate test, README locale rows, lesson lifecycle section **Pattern
 skill:** `bluetape-kotlin-patterns`, `test-driven-development`
 
-**Files:**
+**파일:**
 
-- Modify: `io/io/src/main/kotlin/io/bluetape4k/io/compressor/DeflateCompressor.kt`
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/DeflateCompressorByteBufferTest.kt`
-- Modify: `io/io/README.md`, `io/io/README.ko.md`
-- Modify: `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`
+- 수정: `io/io/src/main/kotlin/io/bluetape4k/io/compressor/DeflateCompressor.kt`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/DeflateCompressorByteBufferTest.kt`
+- 수정: `io/io/README.md`, `io/io/README.ko.md`
+- 수정: `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`
 
 - [ ] **Step 5.1: merge된 develop에서 Deflate worktree를 만든다**
 
@@ -1717,7 +1715,7 @@ git -C /Users/debop/work/bluetape4k/bluetape4k-projects worktree add \
   -b feat/issue-755-bytebuffer-deflate origin/develop
 ```
 
-Expected: core와 LZ4 merge commit이 ancestor이며 worktree clean.
+예상 결과: core와 LZ4 merge commit이 ancestor이며 worktree clean.
 
 - [ ] **Step 5.2: Deflate state table와 cleanup RED를 작성한다**
 
@@ -1784,7 +1782,7 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test \
   --no-build-cache --rerun-tasks
 ```
 
-Expected: test seam/optimized override가 없어 compile 또는 dispatch assertion FAIL.
+예상 결과: test seam/optimized override가 없어 compile 또는 dispatch assertion FAIL.
 
 - [ ] **Step 5.4: per-call factories, operation-primary cleanup helper와 compression loop를 구현한다**
 
@@ -1894,7 +1892,7 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test --no-build-cache --rerun-task
 git diff --check
 ```
 
-Expected: state table, exact-fit, dictionary/zero-target precedence, no-progress, end-once와 suppressed identity가 PASS하고 전체 module regression이 없다.
+예상 결과: state table, exact-fit, dictionary/zero-target precedence, no-progress, end-once와 suppressed identity가 PASS하고 전체 module regression이 없다.
 
 - [ ] **Step 5.7: docs/lesson/Lore commit과 Deflate PR을 수렴한다**
 
@@ -1919,16 +1917,16 @@ gh pr create --repo bluetape4k/bluetape4k-projects \
 
 ## Task 6: Snappy slice — validation-first matched-storage native path를 전달한다
 
-**Complexity:** 높음 **Dependency:** Deflate PR merge + updated `develop` sync **Write
+**복잡도:** 높음 **Dependency:** Deflate PR merge + updated `develop` sync **Write
 scope:** `SnappyCompressor.kt`, Snappy test, README locale rows, lesson native-validation section **Pattern
 skill:** `bluetape-kotlin-patterns`, `test-driven-development`
 
-**Files:**
+**파일:**
 
-- Modify: `io/io/src/main/kotlin/io/bluetape4k/io/compressor/SnappyCompressor.kt`
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/SnappyCompressorByteBufferTest.kt`
-- Modify: `io/io/README.md`, `io/io/README.ko.md`
-- Modify: `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`
+- 수정: `io/io/src/main/kotlin/io/bluetape4k/io/compressor/SnappyCompressor.kt`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/SnappyCompressorByteBufferTest.kt`
+- 수정: `io/io/README.md`, `io/io/README.ko.md`
+- 수정: `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`
 
 - [ ] **Step 6.1: merge된 develop에서 Snappy worktree를 만든다**
 
@@ -1942,7 +1940,7 @@ git -C /Users/debop/work/bluetape4k/bluetape4k-projects worktree add \
   -b feat/issue-755-bytebuffer-snappy origin/develop
 ```
 
-Expected: core/LZ4/Deflate merge commits가 ancestor이고 worktree clean.
+예상 결과: core/LZ4/Deflate merge commits가 ancestor이고 worktree clean.
 
 - [ ] **Step 6.2: dispatch와 native validation ordering RED를 작성한다**
 
@@ -2013,7 +2011,7 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test \
   --no-build-cache --rerun-tasks
 ```
 
-Expected: `forTesting`과 native dispatch가 없어 compile/ordering assertion FAIL.
+예상 결과: `forTesting`과 native dispatch가 없어 compile/ordering assertion FAIL.
 
 - [ ] **Step 6.4: exact storage dispatch와 compression을 구현한다**
 
@@ -2114,7 +2112,7 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test --no-build-cache --rerun-task
 git diff --check
 ```
 
-Expected: invalid heap/direct payload는 native decode 미호출, max-size preflight와 mixed fallback, 원본 limit 보존, 전체 suite와 Detekt PASS.
+예상 결과: invalid heap/direct payload는 native decode 미호출, max-size preflight와 mixed fallback, 원본 limit 보존, 전체 suite와 Detekt PASS.
 
 - [ ] **Step 6.7: docs/lesson/Lore commit과 Snappy PR을 수렴한다**
 
@@ -2139,16 +2137,16 @@ gh pr create --repo bluetape4k/bluetape4k-projects \
 
 ## Task 7: Zstd slice — declared-size destination bound와 예외 의미를 전달한다
 
-**Complexity:** 높음 **Dependency:** Snappy PR merge + updated `develop` sync **Write
+**복잡도:** 높음 **Dependency:** Snappy PR merge + updated `develop` sync **Write
 scope:** `ZstdCompressor.kt`, Zstd test, README locale rows, lesson native-bound section **Pattern
 skill:** `bluetape-kotlin-patterns`, `test-driven-development`
 
-**Files:**
+**파일:**
 
-- Modify: `io/io/src/main/kotlin/io/bluetape4k/io/compressor/ZstdCompressor.kt`
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/ZstdCompressorByteBufferTest.kt`
-- Modify: `io/io/README.md`, `io/io/README.ko.md`
-- Modify: `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`
+- 수정: `io/io/src/main/kotlin/io/bluetape4k/io/compressor/ZstdCompressor.kt`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/ZstdCompressorByteBufferTest.kt`
+- 수정: `io/io/README.md`, `io/io/README.ko.md`
+- 수정: `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`
 
 - [ ] **Step 7.1: merge된 develop에서 Zstd worktree를 만든다**
 
@@ -2162,7 +2160,7 @@ git -C /Users/debop/work/bluetape4k/bluetape4k-projects worktree add \
   -b feat/issue-755-bytebuffer-zstd origin/develop
 ```
 
-Expected: 앞선 네 slice merge commits가 ancestor이고 worktree clean.
+예상 결과: 앞선 네 slice merge commits가 ancestor이고 worktree clean.
 
 - [ ] **Step 7.2: destination bound와 exact taxonomy RED를 작성한다**
 
@@ -2263,7 +2261,7 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test \
   --no-build-cache --rerun-tasks
 ```
 
-Expected: operation seam/optimized dispatch가 없어 compile/target-length/taxonomy assertion FAIL.
+예상 결과: operation seam/optimized dispatch가 없어 compile/target-length/taxonomy assertion FAIL.
 
 - [ ] **Step 7.4: matched storage compression과 error normalization을 구현한다**
 
@@ -2354,7 +2352,7 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test --no-build-cache --rerun-task
 git diff --check
 ```
 
-Expected: under-declared large target의 native target length가 declared size이고 stable cause-less ISE, compression overflow와 기타 ZstdException identity, mixed fallback, full suite/Detekt가 PASS한다.
+예상 결과: under-declared large target의 native target length가 declared size이고 stable cause-less ISE, compression overflow와 기타 ZstdException identity, mixed fallback, full suite/Detekt가 PASS한다.
 
 - [ ] **Step 7.7: docs/lesson/Lore commit과 Zstd PR을 수렴한다**
 
@@ -2381,15 +2379,15 @@ gh pr create --repo bluetape4k/bluetape4k-projects \
 
 ## Task 8: Adoption RED/GREEN — singleton concurrency와 caller examples를 수렴한다
 
-**Complexity:** 높음 **Dependency:** Zstd PR merge + updated `develop` sync **Write
+**복잡도:** 높음 **Dependency:** Zstd PR merge + updated `develop` sync **Write
 scope:** cross-codec integration tests와 public examples only **Pattern
 skill:** `bluetape-kotlin-patterns`, `test-driven-development`
 
-**Files:**
+**파일:**
 
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/CompressorByteBufferIntegrationTest.kt`
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/CompressorByteBufferKotlinExampleTest.kt`
-- Create: `io/io/src/test/java/io/bluetape4k/io/compressor/CompressorByteBufferJavaExampleTest.java`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/CompressorByteBufferIntegrationTest.kt`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/CompressorByteBufferKotlinExampleTest.kt`
+- 생성: `io/io/src/test/java/io/bluetape4k/io/compressor/CompressorByteBufferJavaExampleTest.java`
 
 - [ ] **Step 8.1: evidence worktree를 merged develop에서 만든다**
 
@@ -2403,7 +2401,7 @@ git -C /Users/debop/work/bluetape4k/bluetape4k-projects worktree add \
   -b perf/issue-755-bytebuffer-compressor-evidence origin/develop
 ```
 
-Expected: core와 네 backend merge commit이 모두 ancestor이고 worktree clean.
+예상 결과: core와 네 backend merge commit이 모두 ancestor이고 worktree clean.
 
 - [ ] **Step 8.2: built-in singleton concurrency/integration RED를 작성한다**
 
@@ -2567,7 +2565,7 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test \
   --no-build-cache --rerun-tasks
 ```
 
-Expected: merged backend 구현이 정확하면 first run부터 GREEN이다. 실패하면 timing retry로 넘기지 않고 해당 backend slice의 lifecycle/state bug를 진단해 수정하고 전체 세 test를 처음부터 재실행한다.
+예상 결과: merged backend 구현이 정확하면 first run부터 GREEN이다. 실패하면 timing retry로 넘기지 않고 해당 backend slice의 lifecycle/state bug를 진단해 수정하고 전체 세 test를 처음부터 재실행한다.
 
 - [ ] **Step 8.6: integration/examples를 Lore commit한다**
 
@@ -2592,15 +2590,15 @@ Not-tested: Allocation evidence is produced by the next task'
 
 ## Task 9: Benchmark RED/GREEN — thread-local harness와 fail-closed evidence tool을 만든다
 
-**Complexity:** 높음 **Dependency:** Task 8 **Write scope:** io existing benchmark source와 `io/io/scripts` only **Pattern
+**복잡도:** 높음 **Dependency:** Task 8 **작성 범위:** io existing benchmark source와 `io/io/scripts` only **Pattern
 skill:** `bluetape-kotlin-patterns`, `test-driven-development`
 
-**Files:**
+**파일:**
 
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/benchmark/CallerOwnedByteBufferCompressorBenchmark.kt`
-- Create: `io/io/src/test/kotlin/io/bluetape4k/io/benchmark/CallerOwnedByteBufferCompressorBenchmarkTest.kt`
-- Create: `io/io/scripts/run-bytebuffer-compressor-evidence.py`
-- Create: `io/io/scripts/test_run_bytebuffer_compressor_evidence.py`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/benchmark/CallerOwnedByteBufferCompressorBenchmark.kt`
+- 생성: `io/io/src/test/kotlin/io/bluetape4k/io/benchmark/CallerOwnedByteBufferCompressorBenchmarkTest.kt`
+- 생성: `io/io/scripts/run-bytebuffer-compressor-evidence.py`
+- 생성: `io/io/scripts/test_run_bytebuffer_compressor_evidence.py`
 
 이 harness는 production module에 새 dependency를 넣지 않고 이미 `kotlinx.benchmark` plugin이 적용된 `:bluetape4k-io`의 `testBenchmarkJar`를 재사용한다. repository benchmark hazard의 “existing benchmark module” branch다.
 
@@ -2612,7 +2610,7 @@ set -euo pipefail
   grep -E '^(testBenchmark|testBenchmarkCompile|testBenchmarkJar)'
 ```
 
-Expected: `testBenchmark`, `testBenchmarkCompile`, `testBenchmarkJar`가 존재한다. task 이름이 바뀌면 plan/spec의 command를 먼저 갱신하고 plan review를 재실행한다.
+예상 결과: `testBenchmark`, `testBenchmarkCompile`, `testBenchmarkJar`가 존재한다. task 이름이 바뀌면 plan/spec의 command를 먼저 갱신하고 plan review를 재실행한다.
 
 - [ ] **Step 9.2: benchmark dispatch/state unit RED를 작성한다**
 
@@ -2801,7 +2799,7 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test \
 ./gradlew :bluetape4k-io:testBenchmarkJar --no-build-cache --rerun-tasks
 ```
 
-Expected: unit test, generated JMH compile, exactly one `*-JMH.jar` build PASS.
+예상 결과: unit test, generated JMH compile, exactly one `*-JMH.jar` build PASS.
 
 - [ ] **Step 9.5: evidence validator unit RED를 작성한다**
 
@@ -3129,7 +3127,7 @@ python3 io/io/scripts/run-bytebuffer-compressor-evidence.py smoke \
   --param compressorName=lz4 --param payloadSize=small --param storagePath=heap
 ```
 
-Expected: Python tests PASS. Smoke는 `gc.alloc.rate.norm` B/op와 primary throughput을 가진 valid JMH JSON을 생성하지만 `docs/benchmarks/raw`에는 아직 promotion하지 않는다.
+예상 결과: Python tests PASS. Smoke는 `gc.alloc.rate.norm` B/op와 primary throughput을 가진 valid JMH JSON을 생성하지만 `docs/benchmarks/raw`에는 아직 promotion하지 않는다.
 
 - [ ] **Step 9.8: harness와 runner를 Lore commit한다**
 
@@ -3156,21 +3154,21 @@ DoD:** committed harness는 `Scope.Thread`, measured allocation-free setup disci
 
 ## Task 10: Canonical evidence·문서·최종 PR을 exact head에서 수렴한다
 
-**Complexity:** 높음 **Dependency:** Task 9 commit **Write
+**복잡도:** 높음 **Dependency:** Task 9 commit **Write
 scope:** raw evidence, benchmark report/index, module benchmark/readmes, CHANGELOG, shared lesson **Pattern
 skill:** `bluetape-writer`, `verification-before-completion`, `requesting-code-review`
 
-**Files:**
+**파일:**
 
-- Create: `docs/benchmarks/raw/issue-755/run-<UTC>-<id>/` exactly twice
-- Create: `docs/benchmarks/raw/issue-755/comparison.csv`
-- Create: `docs/benchmarks/2026-07-21-bytebuffer-compressor-allocation.md`
-- Modify: `docs/benchmarks/README.md`
-- Modify: `io/io/Benchmark.md`
-- Modify: `io/io/README.md`
-- Modify: `io/io/README.ko.md`
-- Modify: `CHANGELOG.md`
-- Modify: `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`
+- 생성: `docs/benchmarks/raw/issue-755/run-<UTC>-<id>/` exactly twice
+- 생성: `docs/benchmarks/raw/issue-755/comparison.csv`
+- 생성: `docs/benchmarks/2026-07-21-bytebuffer-compressor-allocation.md`
+- 수정: `docs/benchmarks/README.md`
+- 수정: `io/io/Benchmark.md`
+- 수정: `io/io/README.md`
+- 수정: `io/io/README.ko.md`
+- 수정: `CHANGELOG.md`
+- 수정: `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`
 
 - [ ] **Step 10.1: committed exact JMH jar와 clean tracked tree를 고정한다**
 
@@ -3309,7 +3307,7 @@ rg -n 'TBD|TODO|PLACEHOLDER|implement later|fill in later' \
   io/io/Benchmark.md CHANGELOG.md docs/lessons && exit 1 || true
 ```
 
-Expected: 모든 unit/integration/benchmark compile/Detekt/ABI/Python/evidence validation PASS, placeholder와 whitespace error 0. ABI script의 dirty-path gate를 위해 production/test/script를 먼저 commit한 뒤 exact-head ABI를 실행한다. evidence validation은 canonical metadata의
+예상 결과: 모든 unit/integration/benchmark compile/Detekt/ABI/Python/evidence validation PASS, placeholder와 whitespace error 0. ABI script의 dirty-path gate를 위해 production/test/script를 먼저 commit한 뒤 exact-head ABI를 실행한다. evidence validation은 canonical metadata의
 `$evidence_head`를 계속 사용한다.
 
 - [ ] **Step 10.6: evidence와 최종 문서를 Lore commit한다**
@@ -3394,7 +3392,7 @@ CI와 current review/thread가 exact head에서 수렴하면 PR number/head SHA�
 
 ## Task 11: final merge 승인 후 documented checklist를 닫고 cleanup gate에서 멈춘다
 
-**Complexity:** 중간 **Dependency:** final PR exact-head fresh merge approval **Write
+**복잡도:** 중간 **Dependency:** final PR exact-head fresh merge approval **Write
 scope:** approved GitHub merge와 local sync only; terminal blocked `.bluetape` receipt는 read-only **Pattern
 skill:** `bluetape-workflow`, `finishing-a-development-branch`
 

@@ -1,14 +1,12 @@
-# Issue #1055 HTTP Idempotency Conformance Implementation Plan
+# Issue #1055 HTTP Idempotency Conformance 구현 계획
 
-> **For agentic
-workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **agentic worker용:** 필수 sub-skill: 이 계획은 superpowers:subagent-driven-development(권장) 또는 superpowers:executing-plans로 task별 구현한다. 진행 상태는 checkbox(`- [ ]`) syntax로 추적한다.
 
-**Goal:** `bluetape4k-junit5`에 bounded-wait HTTP idempotency 공통 runner를 추가하고 Ktor `testApplication`과 Spring MockMvc가 같은 17개 black-box scenario를 통과하게 한다.
+**목표:** `bluetape4k-junit5`에 bounded-wait HTTP idempotency 공통 runner를 추가하고 Ktor `testApplication`과 Spring MockMvc가 같은 17개 black-box scenario를 통과하게 한다.
 
-**Architecture:** 공용 module은 serializable value, framework-neutral adapter contract, deterministic scenario runner만 제공한다. Ktor와 Spring test source는 같은 config를 HTTP ingress와 test control에 연결하는 독립 in-memory reference application을 가지며, persistence/store/filter/plugin/telemetry API는 추가하지 않는다. Runner는 caller structured scope에서 실행하고 자체 monotonic watchdog scheduler만 `finally`에서 닫는다.
+**아키텍처:** 공용 module은 serializable value, framework-neutral adapter contract, deterministic scenario runner만 제공한다. Ktor와 Spring test source는 같은 config를 HTTP ingress와 test control에 연결하는 독립 in-memory reference application을 가지며, persistence/store/filter/plugin/telemetry API는 추가하지 않는다. Runner는 caller structured scope에서 실행하고 자체 monotonic watchdog scheduler만 `finally`에서 닫는다.
 
-**Tech
-Stack:** Kotlin 2.3, Java 21, JUnit 5, kotlinx-coroutines, bluetape4k-assertions, Ktor `testApplication`, Spring MockMvc.
+**기술 스택:** Kotlin 2.3, Java 21, JUnit 5, kotlinx-coroutines, bluetape4k-assertions, Ktor `testApplication`, Spring MockMvc.
 
 ---
 
@@ -36,14 +34,14 @@ Stack:** Kotlin 2.3, Java 21, JUnit 5, kotlinx-coroutines, bluetape4k-assertions
 
 ## Task 1: Public serializable values와 validation
 
-**Complexity:** Medium **Depends on:** 승인된 spec commits `996776195`, `2c055437c`
+**복잡도:** Medium **의존:** 승인된 spec commits `996776195`, `2c055437c`
 **Pattern skills:** `bluetape-kotlin-patterns`, `test-driven-development`
 **Rollback:** 이 task commit만 revert하면 public API가 생기기 전 상태로 돌아간다.
 
-**Files:**
+**파일:**
 
-- Create: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyValues.kt`
-- Create: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyValuesTest.kt`
+- 생성: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyValues.kt`
+- 생성: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyValuesTest.kt`
 
 - [ ] **Step 1: constructor, redaction, content equality 실패 test 작성**
 
@@ -86,8 +84,8 @@ fun `request deep copies duplicate header values`() {
 
 - [ ] **Step 2: targeted test가 unresolved symbol로 실패하는지 확인**
 
-Run: `./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyValuesTest' --no-configuration-cache`
-Expected: `HttpIdempotencyRequest`, `HttpIdempotencyResponse` unresolved로 FAIL.
+실행: `./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyValuesTest' --no-configuration-cache`
+예상 결과: `HttpIdempotencyRequest`, `HttpIdempotencyResponse` unresolved로 FAIL.
 
 - [ ] **Step 3: value class 최소 구현 작성**
 
@@ -550,8 +548,8 @@ RED/GREEN parameterized matrix는 identity `512/513`, operation/resource `1,024/
 
 - [ ] **Step 7: values test와 detekt 실행**
 
-Run: `./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyValuesTest' :bluetape4k-junit5:detekt :bluetape4k-junit5:detektTest --no-configuration-cache`
-Expected: value tests PASS, detekt 0 violations. Assertion은 `assertFailsWith`, `shouldBeEqualTo`, `shouldNotContain`을 사용하고 Boolean wrapper를 남기지 않는다.
+실행: `./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyValuesTest' :bluetape4k-junit5:detekt :bluetape4k-junit5:detektTest --no-configuration-cache`
+예상 결과: value tests PASS, detekt 0 violations. Assertion은 `assertFailsWith`, `shouldBeEqualTo`, `shouldNotContain`을 사용하고 Boolean wrapper를 남기지 않는다.
 
 - [ ] **Step 8: Lore commit**
 
@@ -566,16 +564,16 @@ git commit -m "Keep idempotency test values bounded and safe to serialize" \
 
 ## Task 2: Adapter contract, watchdog와 runner lifecycle
 
-**Complexity:** High **Depends on:** Task 1 **Pattern
+**복잡도:** High **의존:** Task 1 **Pattern
 skills:** `bluetape-kotlin-patterns`, `kotlin-coroutines-skill`, `test-driven-development`
 **Rollback:** runner commit을 revert해도 Task 1 values는 독립적으로 제거 가능하다.
 
-**Files:**
+**파일:**
 
-- Create: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/BoundedWaitHttpIdempotencyAdapter.kt`
-- Create: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/BoundedWaitHttpIdempotencyConformance.kt`
-- Create: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyScenarioFixtures.kt`
-- Create: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/BoundedWaitHttpIdempotencyConformanceLifecycleTest.kt`
+- 생성: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/BoundedWaitHttpIdempotencyAdapter.kt`
+- 생성: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/BoundedWaitHttpIdempotencyConformance.kt`
+- 생성: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyScenarioFixtures.kt`
+- 생성: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/BoundedWaitHttpIdempotencyConformanceLifecycleTest.kt`
 
 - [ ] **Step 1: watchdog timeout/cancellation/cleanup 실패 test 작성**
 
@@ -623,8 +621,8 @@ fun `runner rejects fan-in workload above the shared proof budget before exchang
 
 - [ ] **Step 2: lifecycle test가 entrypoint unresolved로 실패하는지 확인**
 
-Run: `./gradlew :bluetape4k-junit5:test --tests '*BoundedWaitHttpIdempotencyConformanceLifecycleTest' --no-configuration-cache`
-Expected: adapter/lifecycle runner symbol unresolved로 FAIL.
+실행: `./gradlew :bluetape4k-junit5:test --tests '*BoundedWaitHttpIdempotencyConformanceLifecycleTest' --no-configuration-cache`
+예상 결과: adapter/lifecycle runner symbol unresolved로 FAIL.
 
 - [ ] **Step 3: public adapter contract 작성**
 
@@ -837,8 +835,8 @@ private fun validateReplaySnapshot(
 
 - [ ] **Step 5: watchdog success/timeout/reset/cancellation failure matrix 통과**
 
-Run: `./gradlew :bluetape4k-junit5:test --tests '*BoundedWaitHttpIdempotencyConformanceLifecycleTest' --no-configuration-cache`
-Expected: 정상, scenario timeout, caller cancellation, reset exception, reset의 `awaitCancellation()`, quiescence mismatch를 각각 실행해 원래 failure와 suppressed cleanup failure가 redacted 상태로 보존된다. 모든 case에서 `http-idempotency-watchdog` live thread와 adapter child job은 0이다. Adapter contract test는
+실행: `./gradlew :bluetape4k-junit5:test --tests '*BoundedWaitHttpIdempotencyConformanceLifecycleTest' --no-configuration-cache`
+예상 결과: 정상, scenario timeout, caller cancellation, reset exception, reset의 `awaitCancellation()`, quiescence mismatch를 각각 실행해 원래 failure와 suppressed cleanup failure가 redacted 상태로 보존된다. 모든 case에서 `http-idempotency-watchdog` live thread와 adapter child job은 0이다. Adapter contract test는
 `resetScenario`가 cancellation-cooperative suspend function이어야 하며 blocking I/O를 직접 수행하지 않는다는 전제를 확인한다.
 
 - [ ] **Step 6: public adapter English KDoc에 caller scope와 ownership 추가**
@@ -867,15 +865,15 @@ git commit -m "Bound every idempotency scenario without owning caller coroutines
 
 ## Task 3: Terminal, scope와 authorization scenarios
 
-**Complexity:** High **Depends on:** Task 2 **Pattern skills:** `bluetape-kotlin-patterns`, `test-driven-development`
+**복잡도:** High **의존:** Task 2 **Pattern skills:** `bluetape-kotlin-patterns`, `test-driven-development`
 **Rollback:** terminal scenario file와 test double commit을 함께 revert한다.
 
-**Files:**
+**파일:**
 
-- Create: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyTerminalScenarios.kt`
-- Modify: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyScenarioFixtures.kt`
-- Create: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/InMemoryBoundedWaitHttpIdempotencyAdapter.kt`
-- Create: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyTerminalScenariosTest.kt`
+- 생성: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyTerminalScenarios.kt`
+- 수정: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyScenarioFixtures.kt`
+- 생성: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/InMemoryBoundedWaitHttpIdempotencyAdapter.kt`
+- 생성: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyTerminalScenariosTest.kt`
 
 - [ ] **Step 1: first/replay/conflict/tenant/auth/terminal failure test 작성**
 
@@ -893,8 +891,8 @@ fun `terminal scenario group preserves one execution and tenant isolation`() = r
 
 - [ ] **Step 2: scenario test가 missing implementation으로 실패하는지 확인**
 
-Run: `./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyTerminalScenariosTest' --no-configuration-cache`
-Expected: `terminalScenarios`와 test adapter unresolved로 FAIL.
+실행: `./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyTerminalScenariosTest' --no-configuration-cache`
+예상 결과: `terminalScenarios`와 test adapter unresolved로 FAIL.
 
 - [ ] **Step 3: test-only independent state machine 최소 구현**
 
@@ -973,8 +971,8 @@ private suspend fun assertDifferentPayloadConflictIsImmediate(
 
 - [ ] **Step 5: terminal group와 전체 junit5 test 실행**
 
-Run: `./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyTerminalScenariosTest' --no-configuration-cache`
-Expected: all terminal scenarios PASS; raw sentinel values absent from failure diagnostics.
+실행: `./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyTerminalScenariosTest' --no-configuration-cache`
+예상 결과: all terminal scenarios PASS; raw sentinel values absent from failure diagnostics.
 
 - [ ] **Step 6: Lore commit**
 
@@ -989,15 +987,15 @@ git commit -m "Prove terminal replay without leaking security scope" \
 
 ## Task 4: In-flight race, cancellation과 abandon scenarios
 
-**Complexity:** High **Depends on:** Task 3 **Pattern
+**복잡도:** High **의존:** Task 3 **Pattern
 skills:** `bluetape-kotlin-patterns`, `kotlin-coroutines-skill`, `test-driven-development`
 **Rollback/rerun:** race failure 시 이 task의 virtual clock/gate test만 반복하고 framework task로 진행하지 않는다.
 
-**Files:**
+**파일:**
 
-- Create: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyInFlightScenarios.kt`
-- Create: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyInFlightScenariosTest.kt`
-- Modify: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/InMemoryBoundedWaitHttpIdempotencyAdapter.kt`
+- 생성: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyInFlightScenarios.kt`
+- 생성: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyInFlightScenariosTest.kt`
+- 수정: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/InMemoryBoundedWaitHttpIdempotencyAdapter.kt`
 
 - [ ] **Step 1: deadline exact boundary와 slot recovery 실패 test 작성**
 
@@ -1030,8 +1028,8 @@ fun `one nanosecond timeout preserves before exact and after ordering`() = runSu
 
 - [ ] **Step 2: 새 scenario가 unresolved로 실패하는지 확인**
 
-Run: `./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyInFlightScenariosTest' --no-configuration-cache`
-Expected: `inFlightScenarios` unresolved로 FAIL.
+실행: `./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyInFlightScenariosTest' --no-configuration-cache`
+예상 결과: `inFlightScenarios` unresolved로 FAIL.
 
 - [ ] **Step 3: wait, exact deadline, timeout/overflow immediate assertion 구현**
 
@@ -1090,8 +1088,8 @@ catch (e: CancellationException) {
 
 - [ ] **Step 5: concurrency test를 20회 반복 실행**
 
-Run: `for i in {1..20}; do ./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyInFlightScenariosTest' --no-configuration-cache --rerun-tasks || exit 1; done`
-Expected: 20/20 PASS, timeout, cancellation 또는 lingering job 없음.
+실행: `for i in {1..20}; do ./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyInFlightScenariosTest' --no-configuration-cache --rerun-tasks || exit 1; done`
+예상 결과: 20/20 PASS, timeout, cancellation 또는 lingering job 없음.
 
 - [ ] **Step 6: Lore commit**
 
@@ -1107,16 +1105,16 @@ git commit -m "Make bounded waiting deterministic at every lifecycle edge" \
 
 ## Task 5: Retention, ingress safety, replay bounds와 fan-in stress
 
-**Complexity:** High **Depends on:** Task 4 **Pattern
+**복잡도:** High **의존:** Task 4 **Pattern
 skills:** `bluetape-kotlin-patterns`, `kotlin-coroutines-skill`, `test-driven-development`
 **Rollback/rerun:** stress가 불안정하면 round/worker를 낮추지 말고 barrier 또는 cleanup 원인을 수정한 뒤 같은 명령을 재실행한다.
 
-**Files:**
+**파일:**
 
-- Create: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyBoundaryScenarios.kt`
-- Modify: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/BoundedWaitHttpIdempotencyConformance.kt`
-- Create: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyBoundaryScenariosTest.kt`
-- Modify: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/InMemoryBoundedWaitHttpIdempotencyAdapter.kt`
+- 생성: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyBoundaryScenarios.kt`
+- 수정: `testing/junit5/src/main/kotlin/io/bluetape4k/junit5/http/idempotency/BoundedWaitHttpIdempotencyConformance.kt`
+- 생성: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/HttpIdempotencyBoundaryScenariosTest.kt`
+- 수정: `testing/junit5/src/test/kotlin/io/bluetape4k/junit5/http/idempotency/InMemoryBoundedWaitHttpIdempotencyAdapter.kt`
 
 - [ ] **Step 1: expiry, oversized ingress와 unsafe replay 실패 test 작성**
 
@@ -1135,8 +1133,8 @@ fun `boundary scenarios reject unsafe snapshots and elect one owner after expiry
 
 - [ ] **Step 2: boundary test가 missing scenario로 실패하는지 확인**
 
-Run: `./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyBoundaryScenariosTest' --no-configuration-cache`
-Expected: `boundaryScenarios` unresolved로 FAIL.
+실행: `./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyBoundaryScenariosTest' --no-configuration-cache`
+예상 결과: `boundaryScenarios` unresolved로 FAIL.
 
 - [ ] **Step 3: expiry/key/body/header boundary scenario 구현**
 
@@ -1245,8 +1243,8 @@ completion과 key별 waiter-registration barrier를 노출하지 않아 exact ad
 
 - [ ] **Step 5: boundary와 repeated stress 실행**
 
-Run: `./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyBoundaryScenariosTest' --no-configuration-cache`
-Expected: expiry exact boundary, oversized request via `exchange`, unsafe headers/body, 5-round fan-in에서 key별 owner 1, admitted `maxWaitersPerKey`, overflow 2, cross-key blocking isolation, slot 회수와 bounded termination이 모두 PASS.
+실행: `./gradlew :bluetape4k-junit5:test --tests '*HttpIdempotencyBoundaryScenariosTest' --no-configuration-cache`
+예상 결과: expiry exact boundary, oversized request via `exchange`, unsafe headers/body, 5-round fan-in에서 key별 owner 1, admitted `maxWaitersPerKey`, overflow 2, cross-key blocking isolation, slot 회수와 bounded termination이 모두 PASS.
 
 - [ ] **Step 6: public entrypoint에 세 scenario group 연결하고 KDoc 작성**
 
@@ -1273,8 +1271,8 @@ suspend fun assertBoundedWaitHttpIdempotencyConformance(
 
 - [ ] **Step 7: 전체 shared runner unit proof 실행**
 
-Run: `./gradlew :bluetape4k-junit5:test --no-configuration-cache`
-Expected: 기존 281 baseline tests와 신규 fixture tests 전부 PASS; no leaked thread/job warning.
+실행: `./gradlew :bluetape4k-junit5:test --no-configuration-cache`
+예상 결과: 기존 281 baseline tests와 신규 fixture tests 전부 PASS; no leaked thread/job warning.
 
 - [ ] **Step 8: Lore commit**
 
@@ -1289,13 +1287,13 @@ git commit -m "Bound idempotency retention and replay under hostile fan-in" \
 
 ## Task 6: Ktor `testApplication` reference proof
 
-**Complexity:** High **Depends on:** Task 5 **Pattern
+**복잡도:** High **의존:** Task 5 **Pattern
 skills:** `bluetape-kotlin-patterns`, `kotlin-coroutines-skill`, `test-driven-development`
 **Rollback:** Ktor test file만 제거하면 shared public fixture는 유지된다.
 
-**Files:**
+**파일:**
 
-- Create: `ktor/testing/src/test/kotlin/io/bluetape4k/ktor/testing/idempotency/KtorHttpIdempotencyConformanceTest.kt`
+- 생성: `ktor/testing/src/test/kotlin/io/bluetape4k/ktor/testing/idempotency/KtorHttpIdempotencyConformanceTest.kt`
 
 - [ ] **Step 1: same runner 호출 test 작성**
 
@@ -1313,8 +1311,8 @@ fun `Ktor testApplication satisfies bounded wait HTTP idempotency conformance`()
 
 - [ ] **Step 2: Ktor test가 missing adapter/routes로 실패하는지 확인**
 
-Run: `./gradlew :bluetape4k-ktor-testing:test --tests '*KtorHttpIdempotencyConformanceTest' --no-configuration-cache`
-Expected: Ktor fake application/adapter unresolved로 FAIL.
+실행: `./gradlew :bluetape4k-ktor-testing:test --tests '*KtorHttpIdempotencyConformanceTest' --no-configuration-cache`
+예상 결과: Ktor fake application/adapter unresolved로 FAIL.
 
 - [ ] **Step 3: 실제 HTTP route와 server-resolved auth profile 구현**
 
@@ -1380,8 +1378,8 @@ override suspend fun exchange(request: HttpIdempotencyRequest): HttpIdempotencyR
 
 - [ ] **Step 5: Ktor reference test와 module test 실행**
 
-Run: `./gradlew :bluetape4k-ktor-testing:test --no-configuration-cache`
-Expected: 동일 17 scenario가 skip/override 없이 PASS; transport-legal malformed value는 route를 통과해 application `400`, C0는 client boundary에서 거절되고 test application 종료 후 quiescence 0.
+실행: `./gradlew :bluetape4k-ktor-testing:test --no-configuration-cache`
+예상 결과: 동일 17 scenario가 skip/override 없이 PASS; transport-legal malformed value는 route를 통과해 application `400`, C0는 client boundary에서 거절되고 test application 종료 후 quiescence 0.
 
 - [ ] **Step 6: Lore commit**
 
@@ -1395,13 +1393,13 @@ git commit -m "Prove the bounded idempotency contract through real Ktor HTTP" \
 
 ## Task 7: Spring MockMvc reference proof
 
-**Complexity:** High **Depends on:** Task 6 **Pattern
+**복잡도:** High **의존:** Task 6 **Pattern
 skills:** `bluetape-kotlin-patterns`, `kotlin-spring`, `kotlin-coroutines-skill`, `test-driven-development`
 **Rollback/rerun:** MockMvc executor/thread leak가 있으면 Spring task만 반복하며 Ktor/shared proof를 변경하지 않는다.
 
-**Files:**
+**파일:**
 
-- Create: `spring-boot/core/src/test/kotlin/io/bluetape4k/spring/idempotency/SpringHttpIdempotencyConformanceTest.kt`
+- 생성: `spring-boot/core/src/test/kotlin/io/bluetape4k/spring/idempotency/SpringHttpIdempotencyConformanceTest.kt`
 
 - [ ] **Step 1: same runner + outer executor ownership test 작성**
 
@@ -1422,8 +1420,8 @@ fun `Spring MockMvc satisfies bounded wait HTTP idempotency conformance`() = run
 
 - [ ] **Step 2: Spring test가 missing controller/adapter로 실패하는지 확인**
 
-Run: `./gradlew :bluetape4k-spring-boot-core:test --tests '*SpringHttpIdempotencyConformanceTest' --no-configuration-cache`
-Expected: Spring fake application/controller/adapter unresolved로 FAIL.
+실행: `./gradlew :bluetape4k-spring-boot-core:test --tests '*SpringHttpIdempotencyConformanceTest' --no-configuration-cache`
+예상 결과: Spring fake application/controller/adapter unresolved로 FAIL.
 
 - [ ] **Step 3: standalone controller와 server-resolved auth 구현**
 
@@ -1470,8 +1468,8 @@ dedicated lifecycle test는 test controller가 `CountDownLatch.await()`에서 �
 
 - [ ] **Step 5: Spring reference test와 module test 실행**
 
-Run: `./gradlew :bluetape4k-spring-boot-core:test --no-configuration-cache`
-Expected: 동일 17 scenario PASS; deliberately blocked exchange가 timeout 안에 interrupt되고 outer dispatcher/executor close 후 live owned thread 0.
+실행: `./gradlew :bluetape4k-spring-boot-core:test --no-configuration-cache`
+예상 결과: 동일 17 scenario PASS; deliberately blocked exchange가 timeout 안에 interrupt되고 outer dispatcher/executor close 후 live owned thread 0.
 
 - [ ] **Step 6: Lore commit**
 
@@ -1485,19 +1483,19 @@ git commit -m "Prove the bounded idempotency contract through Spring MockMvc" \
 
 ## Task 8: Bilingual docs, caller guidance와 release note
 
-**Complexity:** Medium **Depends on:** Tasks 6-7의 실제 compile-checked examples **Pattern
+**복잡도:** Medium **의존:** Tasks 6-7의 실제 compile-checked examples **Pattern
 skills:** `bluetape-writer`, `bluetape-kotlin-patterns`
 **Rollback:** repository docs는 이 task commit만 revert한다. adopter는 fixture 호출 제거 또는 이전 library version pin으로 opt-out하며 production data rollback은 없다. 정책 자체를 바꾸면 API version과 client migration 안내를 먼저 제공한다.
 
-**Files:**
+**파일:**
 
-- Modify: `testing/junit5/README.md`
-- Modify: `testing/junit5/README.ko.md`
-- Create: `docs/manual/en/modules/bluetape4k-junit5/http-idempotency-conformance.md`
-- Create: `docs/manual/ko/modules/bluetape4k-junit5/http-idempotency-conformance.md`
-- Modify: `docs/manual/en/modules/bluetape4k-junit5.md`
-- Modify: `docs/manual/ko/modules/bluetape4k-junit5.md`
-- Modify: `CHANGELOG.md`
+- 수정: `testing/junit5/README.md`
+- 수정: `testing/junit5/README.ko.md`
+- 생성: `docs/manual/en/modules/bluetape4k-junit5/http-idempotency-conformance.md`
+- 생성: `docs/manual/ko/modules/bluetape4k-junit5/http-idempotency-conformance.md`
+- 수정: `docs/manual/en/modules/bluetape4k-junit5.md`
+- 수정: `docs/manual/ko/modules/bluetape4k-junit5.md`
+- 수정: `CHANGELOG.md`
 
 - [ ] **Step 1: README English/Korean에 같은 결과표와 config example 추가**
 
@@ -1562,7 +1560,7 @@ Korean sections: `문제`, `정책 선택`, `적합성 gate`, `호출자 key lif
 
 - [ ] **Step 6: locale/source link 검증**
 
-Run:
+실행:
 
 ```bash
 for file in \
@@ -1589,7 +1587,7 @@ for landing in docs/manual/en/modules/bluetape4k-junit5.md \
 done
 ```
 
-Expected: first loop output 0, 각 file의 required term 11/11. 두 source test link는 README/manual 네 파일에 각각 존재해 nested loop 8/8이 통과하며, landing page 양쪽은 새 chapter link 1개씩을 가진다. reviewer는 caller action 5행, support 4행, signals/actions 6행의 EN/KO 순서와 의미 parity를 확인한다.
+예상 결과: first loop output 0, 각 file의 required term 11/11. 두 source test link는 README/manual 네 파일에 각각 존재해 nested loop 8/8이 통과하며, landing page 양쪽은 새 chapter link 1개씩을 가진다. reviewer는 caller action 5행, support 4행, signals/actions 6행의 EN/KO 순서와 의미 parity를 확인한다.
 
 - [ ] **Step 7: Lore commit**
 
@@ -1605,47 +1603,47 @@ git commit -m "Make bounded idempotency adoption limits explicit" \
 
 ## Task 9: Cross-module verification와 delivery readiness
 
-**Complexity:** Medium **Depends on:** Tasks 1-8 **Pattern
+**복잡도:** Medium **의존:** Tasks 1-8 **Pattern
 skills:** `verification-before-completion`, `requesting-code-review`, `bluetape-kotlin-patterns`
 **Rollback/rerun:** 실패한 가장 작은 module/task로 돌아가 수정하고 해당 targeted test부터 순서대로 재실행한다.
 
-**Files:**
+**파일:**
 
 - Modify only if verification exposes a defect in the files owned by Tasks 1-8.
 
 - [ ] **Step 1: exact changed-file scope 확인**
 
-Run: `repo-status && git diff --name-status origin/develop...HEAD`
-Expected: 승인된 spec/plan과 plan에 열거한 junit5/Ktor/Spring/docs/changelog 파일만 변경되고 build/dependency/production adapter 파일은 없다.
+실행: `repo-status && git diff --name-status origin/develop...HEAD`
+예상 결과: 승인된 spec/plan과 plan에 열거한 junit5/Ktor/Spring/docs/changelog 파일만 변경되고 build/dependency/production adapter 파일은 없다.
 
-Run: `git diff --name-status origin/develop...HEAD -- testing/junit5/src/main/kotlin | awk '$1 != "A" { print; bad=1 } END { exit bad }'`
-Expected: output 0, exit 0. 기존 `bluetape4k-junit5` main source를 수정/삭제하지 않고 새 package/file만 추가했으므로 existing JVM ABI는 exact unchanged이고 새 surface만 additive다. 저장소에는 module-wide baseline API validator가 없으므로 이 additive-only diff gate와 아래 compiled JVM surface를 authority로 사용하며 generic `apiCheck` task가 있다고 가정하지 않는다.
+실행: `git diff --name-status origin/develop...HEAD -- testing/junit5/src/main/kotlin | awk '$1 != "A" { print; bad=1 } END { exit bad }'`
+예상 결과: output 0, exit 0. 기존 `bluetape4k-junit5` main source를 수정/삭제하지 않고 새 package/file만 추가했으므로 existing JVM ABI는 exact unchanged이고 새 surface만 additive다. 저장소에는 module-wide baseline API validator가 없으므로 이 additive-only diff gate와 아래 compiled JVM surface를 authority로 사용하며 generic `apiCheck` task가 있다고 가정하지 않는다.
 
 - [ ] **Step 2: 세 module targeted test를 순차 실행**
 
-Run: `repo-test-summary -- ./gradlew :bluetape4k-junit5:test --no-configuration-cache`
-Expected: PASS. Run: `repo-test-summary -- ./gradlew :bluetape4k-ktor-testing:test --no-configuration-cache`
-Expected: PASS. Run: `repo-test-summary -- ./gradlew :bluetape4k-spring-boot-core:test --no-configuration-cache`
-Expected: PASS.
+실행: `repo-test-summary -- ./gradlew :bluetape4k-junit5:test --no-configuration-cache`
+예상 결과: PASS. Run: `repo-test-summary -- ./gradlew :bluetape4k-ktor-testing:test --no-configuration-cache`
+예상 결과: PASS. Run: `repo-test-summary -- ./gradlew :bluetape4k-spring-boot-core:test --no-configuration-cache`
+예상 결과: PASS.
 
 - [ ] **Step 3: affected modules broader build**
 
-Run: `repo-test-summary -- ./gradlew :bluetape4k-junit5:build :bluetape4k-ktor-testing:build :bluetape4k-spring-boot-core:build --no-configuration-cache`
-Expected: BUILD SUCCESSFUL; compile/test/jar tasks pass.
+실행: `repo-test-summary -- ./gradlew :bluetape4k-junit5:build :bluetape4k-ktor-testing:build :bluetape4k-spring-boot-core:build --no-configuration-cache`
+예상 결과: BUILD SUCCESSFUL; compile/test/jar tasks pass.
 
 - [ ] **Step 4: detekt/static analysis**
 
-Run: `./gradlew :bluetape4k-junit5:detekt :bluetape4k-junit5:detektTest :bluetape4k-ktor-testing:detektTest :bluetape4k-spring-boot-core:detektTest --no-configuration-cache`
-Expected: 0 detekt violations. Task name이 존재하지 않으면 `./gradlew tasks --all | rg 'detekt(Test)?'`로 실제 affected task를 확인하고 같은 module scope로 실행한다.
+실행: `./gradlew :bluetape4k-junit5:detekt :bluetape4k-junit5:detektTest :bluetape4k-ktor-testing:detektTest :bluetape4k-spring-boot-core:detektTest --no-configuration-cache`
+예상 결과: 0 detekt violations. Task name이 존재하지 않으면 `./gradlew tasks --all | rg 'detekt(Test)?'`로 실제 affected task를 확인하고 같은 module scope로 실행한다.
 
 - [ ] **Step 5: assertion 전수조사**
 
-Run: `rg -n '(assertTrue|assertFalse|assertEquals|kotlin\.test\.assert|org\.junit\.jupiter\.api\.Assertions|\.shouldBe(True|False)\(\))' testing/junit5/src/{main,test}/kotlin/io/bluetape4k/junit5/http/idempotency ktor/testing/src/test/kotlin/io/bluetape4k/ktor/testing/idempotency spring-boot/core/src/test/kotlin/io/bluetape4k/spring/idempotency`
-Expected: no output. Exact matcher가 없는 fallback이 있으면 code comment와 review evidence에 이유가 있어야 한다.
+실행: `rg -n '(assertTrue|assertFalse|assertEquals|kotlin\.test\.assert|org\.junit\.jupiter\.api\.Assertions|\.shouldBe(True|False)\(\))' testing/junit5/src/{main,test}/kotlin/io/bluetape4k/junit5/http/idempotency ktor/testing/src/test/kotlin/io/bluetape4k/ktor/testing/idempotency spring-boot/core/src/test/kotlin/io/bluetape4k/spring/idempotency`
+예상 결과: no output. Exact matcher가 없는 fallback이 있으면 code comment와 review evidence에 이유가 있어야 한다.
 
 - [ ] **Step 6: serialization/KDoc/compiled public API audit**
 
-Run:
+실행:
 
 ```bash
 rg -n '^(data )?class |^interface |^suspend fun |^fun ' \
@@ -1664,13 +1662,13 @@ for class_name in \
 done
 ```
 
-Expected: 모든 public value는 `java.io.Serializable`, private `serialVersionUID`는
+예상 결과: 모든 public value는 `java.io.Serializable`, private `serialVersionUID`는
 `HttpIdempotencyValuesTest`의 `ObjectStreamClass.lookup(...).serialVersionUID shouldBeEqualTo 1L`로 검증된다. `javap`에는 승인된 constructor/copy, adapter suspend contract와 runner entrypoint만 있고 Spring/Ktor/store/dispatcher/executor type이 없다. 모든 public declaration 앞 English KDoc을 source review로 확인한다. Task 2 lifecycle test와 Tasks 6-7의 실제 compile된 test가 config 생성, adapter override, runner 호출, caller-owned cleanup을 사용하므로 별도 복사된 문서 sample 대신 동일 source link를 README/KDoc에 연결한다.
 
 - [ ] **Step 7: final hygiene**
 
-Run: `git diff --check && git status --short --branch`
-Expected: whitespace error 없음; branch는 commit 후 clean.
+실행: `git diff --check && git status --short --branch`
+예상 결과: whitespace error 없음; branch는 commit 후 clean.
 
 - [ ] **Step 8: Type A code review와 PR gate 준비**
 
