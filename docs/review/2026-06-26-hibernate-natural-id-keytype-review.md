@@ -9,7 +9,7 @@ Module: `:bluetape4k-hibernate`
 - Removed the runtime dependency on `org.hibernate.KeyType` from natural-id helper methods.
 - Updated simple and composite natural-id lookup helpers to use Hibernate 7 natural-id loader APIs.
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Result | Evidence |
 |---|---:|---|
@@ -21,14 +21,14 @@ Module: `:bluetape4k-hibernate`
 | Documentation | PASS | KDoc notes the Hibernate 7 `KeyType.NATURAL` removal path. |
 | Regression risk | PASS | Single production file touched, no unrelated behavior changes. |
 
-## Findings
+## 발견 사항
 
 P0: 0
 P1: 0
 
 P2/P3: none requiring code changes before PR.
 
-## Validation Evidence
+## 검증 Evidence
 
 - Reproduced before fix:
   - `./gradlew :bluetape4k-hibernate:test --tests 'io.bluetape4k.hibernate.EntityManagerSupportTest.entity manager natural id helpers 는 simple natural id 조회를 지원한다' --tests 'io.bluetape4k.hibernate.SessionSupportTest.session natural id helpers 는 simple natural id 조회를 지원한다' --no-build-cache`

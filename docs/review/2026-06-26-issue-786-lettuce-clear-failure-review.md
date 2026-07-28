@@ -17,7 +17,7 @@ P1: 0
 
 P2/P3: none requiring code changes before PR.
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Result | Evidence |
 |---|---:|---|
@@ -29,7 +29,7 @@ P2/P3: none requiring code changes before PR.
 | Concurrency | PASS | No concurrent behavior changed; existing `MultithreadingTester` and `StructuredTaskScopeTester` tests remain untouched. |
 | Evidence | PASS | Full affected module test passed locally. CodeGraph impact analysis reported low risk / no additional impacted files. |
 
-## Validation Evidence
+## 검증 Evidence
 
 - `./gradlew :bluetape4k-cache-lettuce:test --tests 'io.bluetape4k.cache.nearcache.LettuceNearCacheTest.clearAll - Redis clear 실패를 호출자에게 전파한다' --no-configuration-cache --rerun-tasks`
   - Result: PASS, 1 passing, `BUILD SUCCESSFUL in 27s`.
