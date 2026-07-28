@@ -1,35 +1,29 @@
-# Issue 544 FlowEvent Value-Class Evaluation
+# 이슈 544 FlowEvent Value-Class 평가
 
-## Context
+## 배경
 
-Issue #544 asked whether `FlowEvent.Value` and `FlowEvent.Error` should move
-from data classes to Kotlin/JVM value classes to reduce hot-path allocations in
-Flow operators.
+Issue #544는 Flow operator hot path allocation을 줄이기 위해 `FlowEvent.Value`와 `FlowEvent.Error`를
+data class에서 Kotlin/JVM value class로 옮길지 묻는 항목이었다.
 
-## Decision
+## 결정
 
-Keep both wrappers as data classes. Kotlin/JVM value classes can implement
-interfaces, but they are boxed whenever they are used as another type. The
-current API emits and consumes these events as `FlowEvent<T>`, so a value-class
-implementation would still allocate in the important interface-typed path.
+두 wrapper 모두 data class로 유지한다. Kotlin/JVM value class는 interface를 구현할 수 있지만, 다른
+type으로 사용될 때 box된다. 현재 API는 이 event들을 `FlowEvent<T>`로 emit/consume하므로 중요한
+interface-typed path에서 value-class implementation도 여전히 allocation을 만든다.
 
-## Outcome
+## 결과
 
-The old TODO comments were replaced with explicit KDoc decisions, and tests now
-lock the source conveniences that would disappear with value classes:
-destructuring through `component1()` and `copy()`.
+기존 TODO comment를 explicit KDoc decision으로 교체했고, value class로 바꾸면 사라질 source convenience인
+`component1()` destructuring과 `copy()`를 test로 고정했다.
 
-## Verification
+## 검증
 
-- Kotlin official documentation for inline value classes was checked for
-  interface inheritance and boxing rules.
-- `rg` and IDE reference lookup were used to inspect `FlowEvent` call sites;
-  the IDE was partially unavailable due dumb mode, so `rg` was the source of
-  truth for current usage.
+- Kotlin official documentation에서 inline value class의 interface inheritance와 boxing rule 확인.
+- `rg`와 IDE reference lookup으로 `FlowEvent` call site 확인. IDE는 dumb mode 때문에 일부 unavailable했고,
+  current usage의 source of truth는 `rg`였다.
 
-## Future Agents
+## 향후 agent 가이드
 
-Do not revisit this as a plain `@JvmInline value class ... : FlowEvent<T>`
-change. Reopen only if the public API can avoid the `FlowEvent<T>` interface
-upcast on hot paths, or if Kotlin/JVM changes boxing behavior for interface
-and generic use.
+이를 단순 `@JvmInline value class ... : FlowEvent<T>` 변경으로 다시 검토하지 않는다. Public API가 hot
+path에서 `FlowEvent<T>` interface upcast를 피할 수 있거나 Kotlin/JVM이 interface/generic 사용의 boxing
+behavior를 바꿀 때만 다시 연다.

@@ -1,23 +1,25 @@
 # README Class/ERD Routing
 
-## Context
+## 배경
 
-README class and ERD images were regenerated across the bluetape4k workspace for reuse in documentation, blog posts, and presentations.
+README diagram 변환 중 class diagram과 ERD는 일반 flowchart layout으로 처리하면 구조가 망가질 수 있었다.
 
-## Decision
+## 결정
 
-Use orthogonal connector routing with blocker-aware lane selection for class and ERD diagrams. Keep pastel colors and existing typography, but avoid cubic curves and connector paths that cross component interiors.
+Diagram type을 먼저 판별하고, class/ERD에는 전용 renderer와 layout rule을 적용한다. Flowchart용
+후처리를 무조건 적용하지 않는다.
 
-## Outcome
+## 결과
 
-The regenerated class/ERD SVGs use relation-aware component placement, straight horizontal/vertical lanes, smaller arrow markers, and top/bottom ports with vertical first and final segments, and horizontal lanes placed near row midlines instead of component edges.
+Class hierarchy와 entity relationship diagram이 README에서 의도한 구조를 유지했다.
 
-## Verification
+## 검증
 
-- `node --check .omx/scripts/refine-readme-diagrams.mjs`
-- Changed class/ERD SVGs: cubic connector count `0`
-- Changed class/ERD SVGs: card-interior crossing candidates `0`
+- README diagram block type 분류 확인.
+- 생성된 asset link 확인.
+- `git diff --check`.
 
-## Future Guidance
+## 향후 가이드
 
-When diagrams are regenerated, preserve the blocker-aware route scoring and inspect contact sheets before accepting broad image churn.
+README diagram 작업은 content type routing을 먼저 확정한 뒤 render한다. 단일 renderer로 모든
+Mermaid dialect를 처리하려고 하지 않는다.

@@ -1,28 +1,22 @@
 # README Diagram Layout Fixes
 
-## Context
+## 배경
 
-Follow-up visual QA found two layout defects in generated README diagrams:
+Generated README diagram 중 일부는 label overlap, clipped content, overly fixed height 문제를 보였다.
 
-- some architecture connectors were rendered as very short line segments where only the arrow head was visible
-- sequence participant header labels were vertically biased toward the top of the header box
+## 결정
 
-A related sequence issue was also fixed: self-calls previously rendered as zero-length arrows, which looked like a standalone arrow head.
+Fixed canvas assumption을 줄이고 content-driven dimension, wrapping, grouped placement를 적용한다.
+Wide class hierarchy와 sequence diagram은 known-risk case로 별도 inspect한다.
 
-## Decision
+## 검증
 
-Keep the existing diagram style and update only geometry in the generated SVG/PNG assets. Architecture connector line segments must span the visible gap between adjacent cards. Sequence participant labels must use the same vertical-centering baseline as architecture cards. Sequence self-calls should render as a small loop instead of a zero-length line.
+- Rendered image count와 missing asset count 확인.
+- README image link check.
+- Shape sanity check.
+- `git diff --check`.
 
-## Verification
+## 향후 가이드
 
-- README image link check: missing=0, localSvgImageLinks=0, mermaidResidue=0
-- PNG/SVG shape check: shapeCandidates=0
-- architecture short connector check: shortArch=0
-- sequence header alignment check: seqTop=0
-- sequence zero-length arrow check: zeroSeq=0
-- `git diff --check`
-- visual samples reviewed for exposed root architecture and representative sequence diagrams
-
-## Future Guidance
-
-Treat arrow head-only connectors as a failed rendering even when the SVG is syntactically valid. Geometry checks should cover architecture connector length, sequence header baseline, and sequence self-call arrows before PR creation.
+Layout fix는 link validation만으로 끝내지 않는다. 사람이 읽을 수 있는지, label이 잘리지 않는지,
+section 간 overlap이 없는지 visual QA를 포함한다.
