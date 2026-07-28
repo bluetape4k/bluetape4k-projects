@@ -1,12 +1,13 @@
 # ID Generators Self-Improve Benchmark - 2026-06-11
 
-## Scope
+## 범위
 
-- Issue or PR: #738, #739
-- Module or benchmark target: `:bluetape4k-idgenerators`
-- Decision being informed: keep Snowflake allocation fast path and ULID/KSUID/KsuidMillis random payload improvements before the third comparison with `bluetape-go-idgenerators`.
+- Issue 또는 PR: #738, #739
+- Module 또는 benchmark target: `:bluetape4k-idgenerators`
+- 정보를 제공하는 결정: `bluetape-go-idgenerators`와의 세 번째 비교 전에 Snowflake allocation
+  fast path와 ULID/KSUID/KsuidMillis random payload 개선을 유지할지 판단한다.
 
-## Commands
+## 명령
 
 ```bash
 ./gradlew :bluetape4k-idgenerators:benchmarkBenchmarkCompile
@@ -17,19 +18,19 @@
   -p batchSize=65536 -wi 1 -i 3 -r 1s -w 1s -f 1 -prof gc -prof stack
 ```
 
-## Run Conditions
+## 실행 조건
 
-| Field | Value |
+| 항목 | 값 |
 |---|---|
 | Date | 2026-06-11 |
 | OS / CPU | macOS 26.5.1, Apple M4 Pro |
 | JDK | GraalVM JDK 21.0.11 for JMH runs |
 | Gradle / Kotlin | Gradle 9.5.0, Kotlin 2.3.20 |
 | JMH shape | fork 1, warmup 3, measurement 5, 1s iterations, throughput, batch size 65,536 |
-| Clock condition | Real system clock; Snowflake uses 4,096 sequence values per millisecond, so large batches can be clock-ceiling bound. |
-| External services | None |
+| Clock condition | 실제 system clock. Snowflake는 millisecond당 4,096 sequence value를 사용하므로 큰 batch는 clock ceiling에 묶일 수 있다. |
+| External services | 없음 |
 
-## Raw Artifacts
+## Raw Artifact
 
 - `docs/benchmarks/raw/issue-738/baseline-focused.{txt,json,csv}`
 - `docs/benchmarks/raw/issue-738/candidate-1-focused.{txt,json,csv}`
@@ -40,7 +41,7 @@
 - `docs/benchmarks/raw/issue-738/candidate-3-snowflake-profile.txt`
 - `docs/benchmarks/raw/issue-738/candidate-3-ksuidMillisDefault-repeat.txt`
 
-## Results
+## 결과
 
 | Workload | Baseline | Candidate 3 | Delta | Unit |
 |---|---:|---:|---:|---|
@@ -68,19 +69,30 @@
 | `single.snowflakeDefaultWithUniqueness:gc.alloc.rate` | 868.813 | 415.382 | -52.19% | MB/s |
 | `single.snowflakeDefaultWithUniqueness:gc.count` | 6 | 3 | -50.00% | count |
 
-## Chart Artifacts
+## Chart Artifact
 
-- Not produced. The raw CSV and markdown table are the numeric source of truth for this issue; charting is deferred to the blog/site step.
+- 생성하지 않았다. Raw CSV와 markdown table이 이 issue의 numeric source of truth이며,
+  charting은 blog/site step으로 미룬다.
 
-## Interpretation
+## 해석
 
-- Snowflake throughput is effectively flat because the benchmark generates 65,536 IDs per operation against a 4,096/ms sequence ceiling. The useful win is allocation: the `SnowflakeId` intermediate object is avoided on `nextId()` and `nextIds(size)`, cutting normalized allocation by about 52%.
-- ULID avoids `ByteArray(10)` random entropy staging and writes random bits directly into the ULID value/string path. The strongest visible effect is in concurrent monotonic string workloads.
-- KSUID and KsuidMillis keep timestamp writes explicit and randomize only the payload length. Candidate 1 was rejected because randomizing the full 20-byte buffer and overwriting timestamp regressed KSUID throughput.
-- `single.ksuidMillisDefaultString` in the full candidate 3 run measured 91.332 ops/s (-7.67%), but a same-JVM targeted repeat measured 97.193 ops/s (-1.74% vs baseline). Because the code path did not change between candidate 2 and candidate 3 for KSUID, treat the full-run dip as benchmark noise and keep the raw repeat evidence.
-- Correctness remains guarded by Snowflake, ULID, KSUID, and KsuidMillis unit/concurrency tests.
+- Benchmark가 4,096/ms sequence ceiling을 가진 Snowflake에 대해 operation당 65,536개 ID를
+  생성하므로 Snowflake throughput은 사실상 flat하다. 유의미한 이득은 allocation이다.
+  `nextId()`와 `nextIds(size)`에서 `SnowflakeId` intermediate object를 피해 normalized
+  allocation을 약 52% 줄인다.
+- ULID는 `ByteArray(10)` random entropy staging을 피하고 random bit를 ULID value/string
+  path에 직접 쓴다. 가장 강하게 보이는 효과는 concurrent monotonic string workload에 있다.
+- KSUID와 KsuidMillis는 timestamp write를 명시적으로 유지하고 payload length만 randomize한다.
+  Candidate 1은 전체 20-byte buffer를 randomize하고 timestamp를 overwrite해 KSUID throughput을
+  떨어뜨렸으므로 기각했다.
+- Full candidate 3 run의 `single.ksuidMillisDefaultString`은 91.332 ops/s(-7.67%)였지만,
+  same-JVM targeted repeat는 97.193 ops/s(-1.74% vs baseline)였다. KSUID의 code path가
+  candidate 2와 candidate 3 사이에서 바뀌지 않았으므로 full-run dip은 benchmark noise로
+  다루고 raw repeat evidence를 유지한다.
+- Correctness는 Snowflake, ULID, KSUID, KsuidMillis unit/concurrency test가 계속 보호한다.
 
-## Follow-Up
+## 후속 작업
 
-- Run the third cross-language comparison against `bluetape-go-idgenerators` using the candidate 3 Kotlin code and the current Go implementation.
-- Reuse these raw artifacts in the `bluetape4k.github.io` article for the Kotlin improvement section.
+- Candidate 3 Kotlin code와 현재 Go implementation을 사용해 `bluetape-go-idgenerators`와 세 번째
+  cross-language comparison을 실행한다.
+- Kotlin improvement section을 위해 `bluetape4k.github.io` article에서 이 raw artifact를 재사용한다.
