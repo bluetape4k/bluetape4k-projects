@@ -1,37 +1,45 @@
-# Issue 798: Protobuf strict default codecs
+# 이슈 798: Protobuf strict default codec
 
-## Context
+## 배경
 
-`ProtobufSerializer` and Redis Protobuf codecs were documented as allow-listed Protobuf codecs, but their default behavior still delegated non-Protobuf values and non-Protobuf bytes to Kryo/Kryo5 fallback serializers. That made the advertised shared-boundary trust profile too broad.
+`ProtobufSerializer`와 Redis Protobuf codec은 allow-listed Protobuf codec으로
+문서화되어 있었지만, 기본 동작은 여전히 non-Protobuf value와 non-Protobuf bytes를
+Kryo/Kryo5 fallback serializer에 위임했다. 이 때문에 문서화된 shared-boundary trust
+profile보다 실제 기본 경계가 넓었다.
 
-## Decision
+## 결정
 
-Make the default Protobuf profile strict. Non-Protobuf payloads are rejected unless the caller chooses an explicit trusted-internal API:
+기본 Protobuf profile을 strict하게 만든다. Non-Protobuf payload는 호출자가 명시적인
+trusted-internal API를 선택하지 않는 한 거부한다.
 
 - `ProtobufSerializer.trustedInternalProtobuf()`
 - `LettuceProtobufCodecs.trustedInternal*Protobuf()`
 - `RedissonProtobufCodec.trustedInternal()`
 - `RedissonProtobufCodecs.TrustedInternal*Protobuf`
 
-## Outcome
+## 결과
 
-- Default Protobuf serializer and Redis codecs reject fallback-format payloads.
-- Legacy mixed Protobuf + Kryo fallback remains available for trusted internal Redis stores.
-- Tests now separate strict shared-boundary behavior from trusted-internal compatibility behavior.
-- `docs/security/serialization-trust-profiles.md` documents the distinction.
+- 기본 Protobuf serializer와 Redis codec은 fallback-format payload를 거부한다.
+- Legacy mixed Protobuf + Kryo fallback은 trusted internal Redis store용으로 계속 제공된다.
+- 테스트는 strict shared-boundary 동작과 trusted-internal compatibility 동작을 분리한다.
+- `docs/security/serialization-trust-profiles.md`는 이 차이를 문서화한다.
 
-## Verification
+## 검증
 
-- Red test before implementation: new trusted-internal API references failed compilation.
+- 구현 전 red test: 새 trusted-internal API reference가 compile에 실패했다.
 - `./gradlew :bluetape4k-protobuf:compileTestKotlin --warning-mode all --rerun-tasks --no-daemon --no-configuration-cache`
 - `./gradlew :bluetape4k-protobuf:test --tests "io.bluetape4k.protobuf.serializers.ProtobufSerializerTest" --tests "io.bluetape4k.protobuf.serializers.redis.LettuceProtobufCodecsTest" --tests "io.bluetape4k.protobuf.serializers.redis.RedissonProtobufCodecTest" --rerun-tasks --no-daemon --no-configuration-cache`
 - `./gradlew :bluetape4k-protobuf:test --no-daemon --no-configuration-cache`: 209 tests, 0 failures, 0 errors, 0 skipped.
 - `git diff --check`
 
-## Future Guard
+## 향후 방지책
 
-Do not label a codec as `AllowListedTypes` if default decode paths silently fall back to a serializer that can load arbitrary application object graphs. Keep legacy fallback paths explicit and name them as trusted-internal APIs.
+기본 decode path가 arbitrary application object graph를 load할 수 있는 serializer로
+조용히 fallback한다면 codec을 `AllowListedTypes`로 표기하지 않는다. Legacy fallback
+path는 명시적으로 유지하고 trusted-internal API라는 이름을 붙인다.
 
-## Concurrency Helper Gate
+## 동시성 helper gate
 
-`MultithreadingTester`, `SuspendedJobTester`, and `StructuredTaskScopeTester` were not applicable. This is a synchronous encode/decode trust-boundary change with no concurrent state, coroutine lifecycle, or structured task-scope behavior.
+`MultithreadingTester`, `SuspendedJobTester`, `StructuredTaskScopeTester`는 적용 대상이
+아니었다. 이는 concurrent state, coroutine lifecycle, structured task-scope behavior가
+없는 synchronous encode/decode trust-boundary 변경이다.
