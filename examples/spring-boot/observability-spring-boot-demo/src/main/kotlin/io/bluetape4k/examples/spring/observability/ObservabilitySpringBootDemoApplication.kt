@@ -23,7 +23,7 @@ import java.io.Serializable
 private const val REQUEST_ID_HEADER = "X-Request-Id"
 
 /**
- * Spring Boot observability example for Prometheus metrics and OTLP tracing configuration.
+ * Prometheus metric과 OTLP tracing configuration을 보여 주는 Spring Boot observability example입니다.
  *
  * ## Behavior
  * - Exposes application metrics through Spring Boot Actuator's Prometheus endpoint.
