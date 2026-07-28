@@ -31,12 +31,12 @@ import kotlinx.serialization.Serializable
 import java.io.Serializable as JavaSerializable
 
 /**
- * Configures the Ktor observability example application.
+ * Ktor observability example application을 설정합니다.
  *
- * ## Contract
- * - The application owns the Prometheus registry and exposes it at `/metrics`.
- * - OpenTelemetry tracing is installed only when an [OpenTelemetry] instance is supplied.
- * - Application event telemetry is recorded with bounded low-cardinality dimensions.
+ * ## 계약
+ * - application이 Prometheus registry를 소유하고 `/metrics`에서 노출합니다.
+ * - [OpenTelemetry] instance가 제공된 경우에만 OpenTelemetry tracing을 설치합니다.
+ * - application event telemetry는 bounded low-cardinality dimension으로 기록합니다.
  */
 internal fun Application.observabilityKtorModule(
     meterRegistry: PrometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
