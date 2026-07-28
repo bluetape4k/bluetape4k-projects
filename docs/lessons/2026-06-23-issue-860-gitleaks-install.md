@@ -1,24 +1,22 @@
-# Issue 860 - deterministic gitleaks install
+# 이슈 860 - deterministic gitleaks install
 
-## Context
+## 배경
 
-The `Secret Scan (gitleaks)` job in `CI` failed before scanning because the
-installer queried `https://api.github.com/repos/gitleaks/gitleaks/releases/latest`
-without authentication. GitHub returned HTTP 403, so the `Run gitleaks` step was
-skipped.
+`CI`의 `Secret Scan (gitleaks)` job은 scan 전에 실패했다. installer가 authentication 없이
+GitHub releases API에서 latest gitleaks tag를 조회했기 때문이다. GitHub가 HTTP 403을
+반환했고, 그래서 `Run gitleaks` step은 실행되지 않았다.
 
-The same latest-release lookup was present in the weekly `Security` workflow.
-Earlier fixes had already moved from hand-built latest URLs to release metadata,
-but that still left the CI path dependent on a rate-limited API call.
+같은 latest-release lookup은 weekly `Security` workflow에도 있었다. 이전 fix는 이미
+hand-built latest URL에서 release metadata로 옮겼지만, CI path는 여전히 rate-limited API
+call에 의존했다.
 
-## Decision
+## 결정
 
-Pin `GITLEAKS_VERSION` to `v8.30.1` and download the exact Linux x64 release
-asset from the tag URL. This removes the unauthenticated releases API lookup
-from the installer while preserving the existing `gitleaks detect` commands.
+`GITLEAKS_VERSION`을 `v8.30.1`로 고정하고 tag URL에서 정확한 Linux x64 release asset을
+download한다. 이렇게 installer에서 unauthenticated releases API lookup을 제거하면서 기존
+`gitleaks detect` command semantic은 보존한다.
 
-## Follow-up Guard
+## 후속 가드
 
-Keep the `CI` and `Security` gitleaks installers aligned. If the pinned scanner
-version changes, update both workflow env blocks and verify the asset URL before
-merging.
+`CI`와 `Security` gitleaks installer를 맞춰 유지한다. pinned scanner version이 바뀌면 양쪽
+workflow env block을 업데이트하고, commit 전에 asset URL을 검증한다.
