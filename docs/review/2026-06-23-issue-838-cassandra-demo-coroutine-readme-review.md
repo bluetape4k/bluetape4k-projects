@@ -1,4 +1,4 @@
-# Issue 838 Review - Cassandra demo coroutine README example
+# Issue 838 검토 - Cassandra demo coroutine README example
 
 ## Scope
 
