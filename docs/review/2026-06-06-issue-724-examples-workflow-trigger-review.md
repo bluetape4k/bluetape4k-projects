@@ -1,4 +1,4 @@
-# Issue #724 Examples Workflow Trigger Review
+# Issue #724 Examples Workflow Trigger 검토
 
 Date: 2026-06-06
 Scope: `.github/workflows/examples.yml`
@@ -10,11 +10,11 @@ PASS
 - P0: 0
 - P1: 0
 
-## Findings
+## 발견 사항
 
 No blocking findings.
 
-## Evidence
+## 증거
 
 - The previous `Examples` workflow path filters included broad library paths such
   as `bluetape4k/**`, `io/**`, `ktor/**`, `infra/**`, `cache/**`, and
@@ -25,7 +25,7 @@ No blocking findings.
   `.github/workflows/examples.yml`.
 - `workflow_dispatch` remains available for explicit full example validation.
 
-## Validation
+## 검증
 
 - `actionlint .github/workflows/examples.yml`
 - `git diff --check`
