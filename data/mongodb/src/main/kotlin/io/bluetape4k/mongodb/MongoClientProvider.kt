@@ -36,9 +36,9 @@ object MongoClientProvider: KLogging() {
     private val settingsClientCache = ConcurrentHashMap<MongoClientSettings, MongoClient>()
 
     /**
-     * Returns a coroutine [MongoClient] for [connectionString].
+     * [connectionString]에 대한 coroutine [MongoClient]를 반환합니다.
      *
-     * The connection string is first converted to [MongoClientSettings], then the
+     * connection string을 먼저 [MongoClientSettings]로 변환한 뒤
      * settings-based cache is used. The returned client is provider-managed and
      * must be closed through [close] or [closeAll].
      *
@@ -56,9 +56,9 @@ object MongoClientProvider: KLogging() {
     }
 
     /**
-     * Returns a coroutine [MongoClient] for [connectionString] plus custom settings.
+     * [connectionString]과 custom settings에 대한 coroutine [MongoClient]를 반환합니다.
      *
-     * The final [MongoClientSettings] produced after applying [builder] is the cache
+     * [builder] 적용 후 생성된 최종 [MongoClientSettings]가 cache
      * key. Therefore the same URL can return different clients when timeout, TLS,
      * application name, credentials, or other effective settings differ.
      *
@@ -80,7 +80,7 @@ object MongoClientProvider: KLogging() {
     }
 
     /**
-     * Returns a coroutine [MongoClient] for [settings].
+     * [settings]에 대한 coroutine [MongoClient]를 반환합니다.
      *
      * [MongoClientSettings] is used directly as the cache key. The returned client is
      * provider-managed and must be closed through [close] or [closeAll].
