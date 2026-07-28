@@ -1,24 +1,23 @@
-# Lesson: Promote byte-safe UTF-8 truncation through bluetape4k-core first
+# Byte-safe UTF-8 truncation은 먼저 bluetape4k-core로 승격
 
-**Date**: 2026-05-23
-**Related**: bluetape4k-leader#270
+**날짜**: 2026-05-23
+**관련**: bluetape4k-leader#270
 
-## Context
+## 배경
 
-`bluetape4k-leader` has an internal `String.truncateUtf8(maxBytes)` helper for
-history error-message truncation. The helper is general-purpose and belongs in
-the shared support package, but downstream repositories cannot safely consume it
-until the public API is present in a published `bluetape4k-core` artifact.
+`bluetape4k-leader`에는 history error-message truncation을 위한 internal
+`String.truncateUtf8(maxBytes)` helper가 있다. 이 helper는 general-purpose이므로 shared support package에
+속한다. 하지만 public API가 published `bluetape4k-core` artifact에 들어가기 전에는 downstream
+repository가 안전하게 consume할 수 없다.
 
-## Decision
+## 결정
 
-Add `io.bluetape4k.support.truncateUtf8(maxBytes)` to `bluetape4k-core` with
-the same byte-boundary contract as the leader-internal implementation. Keep the
-API small: no ellipsis, no grapheme-cluster guarantees, and no nullable receiver
-overload.
+Leader-internal implementation과 같은 byte-boundary contract로
+`io.bluetape4k.support.truncateUtf8(maxBytes)`를 `bluetape4k-core`에 추가한다. API는 작게 유지한다:
+ellipsis 없음, grapheme-cluster guarantee 없음, nullable receiver overload 없음.
 
-## Follow-up
+## 후속
 
-After this API is released in the BOM version consumed by `bluetape4k-leader`,
-the leader repository can remove its internal copy and import the shared support
-function without breaking CI on a missing Maven Central symbol.
+이 API가 `bluetape4k-leader`가 consume하는 BOM version으로 release되면, leader repository는 internal
+copy를 제거하고 Maven Central symbol missing으로 CI를 깨뜨리지 않고 shared support function을 import할
+수 있다.
