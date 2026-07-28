@@ -1,4 +1,4 @@
-# Issue #757 Protobuf Buffer Core Design
+# Issue #757 Protobuf Buffer Core 설계
 
 - Issue: [#757 Add ByteBuffer-oriented Protobuf serializer and codec APIs](https://github.com/bluetape4k/bluetape4k-projects/issues/757)
 - Parent delivery tracker: [#898 Epic: 1.12.0 delivery tracking](https://github.com/bluetape4k/bluetape4k-projects/issues/898)
