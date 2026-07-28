@@ -1,24 +1,23 @@
-# Retrofit cancellation races must close delivered response bodies
+# Retrofit cancellation race는 전달된 response body를 닫아야 한다
 
-## Context
+## 배경
 
-Issue #948 found a Retrofit coroutine bridge race where a response could arrive
-after coroutine cancellation without explicit response-body cleanup evidence.
+이슈 #948은 coroutine cancellation 이후 response가 도착할 수 있지만 명시적인
+response-body cleanup evidence가 없는 Retrofit coroutine bridge race를 발견했다.
 
-## Decision
+## 결정
 
-When cancellation wins before `onResponse`, close the Retrofit response body
-before cancelling the continuation. Also close the delivered response from the
-`resume` cancellation handler if cancellation wins after resume but before
-dispatch.
+`onResponse` 전에 cancellation이 이기면 continuation을 취소하기 전에 Retrofit
+response body를 닫는다. Resume 이후 dispatch 전에 cancellation이 이기면 `resume`
+cancellation handler에서 전달된 response도 닫는다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-retrofit2:test --tests 'io.bluetape4k.retrofit2.SuspendRetrofitCallSupportTest'`
 - `git diff --check`
 
-## Future guidance
+## 향후 지침
 
-Coroutine HTTP bridges should close response resources on every cancellation
-race path. Prefer `resume(value) { ... }` cleanup handlers plus an explicit
-`!cont.isActive` check before delivery.
+Coroutine HTTP bridge는 모든 cancellation race path에서 response resource를 닫아야
+한다. 전달 전에 명시적인 `!cont.isActive` 확인과 `resume(value) { ... }` cleanup
+handler를 함께 사용하는 방식을 우선한다.
