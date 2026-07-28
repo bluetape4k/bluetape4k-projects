@@ -11,7 +11,7 @@ Module: `:bluetape4k-cache-lettuce`
 - Added regression coverage for exact typed lookup, key mismatch, value mismatch, null type arguments, and closed-manager
   behavior.
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Result | Evidence |
 |---|---:|---|
@@ -23,14 +23,14 @@ Module: `:bluetape4k-cache-lettuce`
 | Documentation | PASS | Lesson artifact records the JCache typed lookup boundary rule. |
 | Regression risk | PASS | Cache Lettuce module tests pass; CodeGraph reported low impact for the changed files. |
 
-## Findings
+## 발견 사항
 
 P0: 0
 P1: 0
 
 P2/P3: none requiring code changes before PR.
 
-## Validation Evidence
+## 검증 Evidence
 
 - Reproduced before fix:
   - `./gradlew :bluetape4k-cache-lettuce:test --tests 'io.bluetape4k.cache.jcache.LettuceJCacheManagerTest.typed getCache returns cache when key and value types match' --tests 'io.bluetape4k.cache.jcache.LettuceJCacheManagerTest.typed getCache throws when key type does not match' --tests 'io.bluetape4k.cache.jcache.LettuceJCacheManagerTest.typed getCache throws when value type does not match' --no-build-cache`
