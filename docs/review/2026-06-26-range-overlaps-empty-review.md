@@ -10,7 +10,7 @@ Module: `:bluetape4k-core`
 - Added regression coverage for empty open/open, closed/open, and open/closed ranges in both receiver and argument
   positions.
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Result | Evidence |
 |---|---:|---|
@@ -22,14 +22,14 @@ Module: `:bluetape4k-core`
 | Documentation | PASS | Lesson artifact records the empty-range comparison rule. |
 | Regression risk | PASS | Core module test suite passes and CodeGraph reported low impact for the changed files. |
 
-## Findings
+## 발견 사항
 
 P0: 0
 P1: 0
 
 P2/P3: none requiring code changes before PR.
 
-## Validation Evidence
+## 검증 Evidence
 
 - Reproduced before fix:
   - `./gradlew :bluetape4k-core:test --tests 'io.bluetape4k.ranges.RangeSupportTest.empty ranges never overlap any range' --no-build-cache`

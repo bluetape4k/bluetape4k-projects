@@ -8,7 +8,7 @@
   - `GZipCompressor.doDecompress`
   - `GzipCodec.valueDecoder`
 
-## Findings
+## 발견 사항
 
 No P0/P1 findings remain.
 
@@ -34,7 +34,7 @@ No P0/P1 findings remain.
   the new regression tests; existing compressor multithread coverage remains
   unchanged in `CompressorEdgeCaseTest`.
 
-## Validation Evidence
+## 검증 Evidence
 
 - Red test before implementation: compile failed on missing
   `maxDecompressedSize` constructor parameters.
