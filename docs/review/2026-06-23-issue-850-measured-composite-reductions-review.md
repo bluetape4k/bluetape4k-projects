@@ -1,4 +1,4 @@
-# Issue #850 Measured Composite Reductions Review
+# Issue #850 Measured Composite Reductions 검토
 
 ## Scope
 
