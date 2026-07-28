@@ -1,31 +1,29 @@
-# Data validation fail-fast for public numeric parameters
+# Public numeric parameter의 data validation fail-fast
 
-## Context
+## 배경
 
-Issues #947 and #955 found public data APIs that accepted invalid numeric
-parameters and let downstream JDBC modulo operations or SQL/CQL builders expose
-late, low-signal failures.
+이슈 #947과 #955는 public data API가 잘못된 numeric parameter를 받아들이고,
+downstream JDBC modulo operation이나 SQL/CQL builder가 늦고 신호가 약한 실패를
+드러내게 한다는 점을 확인했다.
 
-## Decision
+## 결정
 
-Validate numeric inputs at the public entrypoint with bluetape4k `require*`
-helpers:
+Numeric input은 public entrypoint에서 bluetape4k `require*` helper로 검증한다.
 
-- JDBC batch size must be positive before any batch loop or modulo operation.
-- R2DBC query limit must be positive.
-- R2DBC query offset must be zero or positive.
-- Cassandra keyspace replication factor must be positive.
+- JDBC batch size는 batch loop나 modulo operation 전에 positive여야 한다.
+- R2DBC query limit은 positive여야 한다.
+- R2DBC query offset은 zero or positive여야 한다.
+- Cassandra keyspace replication factor는 positive여야 한다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-jdbc:test --tests 'io.bluetape4k.jdbc.sql.DataSourceTransactionExtensionsTest'`
 - `./gradlew :bluetape4k-r2dbc:test --tests 'io.bluetape4k.r2dbc.query.QueryBuilderTest'`
 - `./gradlew :bluetape4k-cassandra:test --tests 'io.bluetape4k.cassandra.CassandraAdminTest'`
 - `git diff --check`
 
-## Future guidance
+## 향후 지침
 
-For public data API parameters that shape generated SQL/CQL or loop arithmetic,
-validate before delegating to driver builders or iteration logic. Prefer
-`requirePositiveNumber` and `requireZeroOrPositiveNumber` over raw `require`
-when the parameter is numeric.
+Generated SQL/CQL이나 loop arithmetic을 형성하는 public data API parameter는 driver
+builder나 iteration logic에 위임하기 전에 검증한다. Parameter가 numeric이면 raw
+`require`보다 `requirePositiveNumber`와 `requireZeroOrPositiveNumber`를 우선한다.
