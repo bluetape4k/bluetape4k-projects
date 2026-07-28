@@ -141,7 +141,7 @@ fun <T: Any> Sequence<T>.random(sampleSize: Int): List<T> = toList().random(samp
 fun <T: Any> Iterable<T>.random(sampleSize: Int): List<T> = toList().random(sampleSize)
 
 /**
- * Simulates a weighted TRUE/FALSE coin flip, with a percentage of probability towards TRUE
+ * TRUE 쪽 probability percentage를 가진 weighted TRUE/FALSE coin flip을 시뮬레이션합니다
  * In other words, this is a Probability Density Function (PDF) for discrete TRUE/FALSE values
  *
  * ```kotlin
@@ -169,7 +169,7 @@ class WeightedCoin(val trueProbability: Double) {
 }
 
 /**
- * Simulates a weighted TRUE/FALSE coin flip, with a percentage of probability towards TRUE
+ * TRUE 쪽 probability percentage를 가진 weighted TRUE/FALSE coin flip을 시뮬레이션합니다
  * In other words, this is a Probability Density Function (PDF) for discrete TRUE/FALSE values
  *
  * ```kotlin
