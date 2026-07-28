@@ -118,8 +118,8 @@ open class JacksonSerializer(
     }
 
     /**
-     * Serializes into [target] through the configured mapper instead of the compatibility [serialize] method.
-     * The target position is committed only on success; read-only and overflow failures remain raw buffer exceptions.
+     * 호환성 [serialize] 메서드 대신 설정된 mapper를 통해 [target]으로 직렬화합니다.
+     * target 위치는 성공할 때만 커밋됩니다. 읽기 전용과 overflow 실패는 원래 buffer 예외로 유지합니다.
      */
     override fun serializeTo(graph: Any?, target: ByteBuffer): Int {
         if (target.isReadOnly) throw ReadOnlyBufferException()
@@ -169,7 +169,7 @@ open class JacksonSerializer(
     }
 
     /**
-     * Deserializes the remaining [source] range through a duplicate-backed stream and preserves caller state.
+     * 남은 [source] 범위를 duplicate 기반 stream으로 역직렬화하고 호출자 상태를 보존합니다.
      */
     override fun <T: Any> deserializeFrom(source: ByteBuffer, clazz: Class<T>): T? =
         try {
@@ -228,7 +228,7 @@ open class JacksonSerializer(
 }
 
 /**
- * Deserializes the remaining [source] range with a Jackson type reference, preserving generic type arguments.
+ * 남은 [source] 범위를 Jackson type reference로 역직렬화하여 generic type argument를 보존합니다.
  *
  * This stays an extension so adding it does not introduce a final JVM method on the open [JacksonSerializer] class.
  */
