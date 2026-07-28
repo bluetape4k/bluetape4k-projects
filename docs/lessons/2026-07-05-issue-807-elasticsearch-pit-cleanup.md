@@ -1,17 +1,23 @@
-# Issue 807 - Elasticsearch PIT Cleanup
+# 이슈 807: Elasticsearch PIT cleanup
 
-## Context
+## 배경
 
-`searchAsFlow` opened a Point-in-Time context and closed it from the collector coroutine's `finally` block. During cancellation, a suspend close call can be cancelled before it reaches Elasticsearch.
+`searchAsFlow`는 Point-in-Time context를 열고 collector coroutine의 `finally` block에서
+닫았다. Cancellation 중에는 suspend close call이 Elasticsearch에 도달하기 전에
+취소될 수 있다.
 
-## Decision
+## 결정
 
-Move PIT close into a small `NonCancellable` best-effort cleanup helper. Log cleanup failures without replacing the original collector cancellation or upstream failure.
+PIT close를 작은 `NonCancellable` best-effort cleanup helper로 옮긴다. Cleanup
+failure는 원래 collector cancellation이나 upstream failure를 대체하지 않고 log한다.
 
-## Outcome
+## 결과
 
-A new unit test proves suspend cleanup completes after the parent coroutine is cancelled, and the existing Elasticsearch integration test continues to pass.
+새 unit test는 parent coroutine이 취소된 뒤에도 suspend cleanup이 완료됨을 증명하며,
+기존 Elasticsearch integration test도 계속 통과한다.
 
-## Future Guidance
+## 향후 지침
 
-When a coroutine Flow opens a remote resource and closes it with a suspend call, put the close path behind a `NonCancellable` cleanup boundary and test the helper independently from heavy infrastructure tests.
+Coroutine Flow가 remote resource를 열고 suspend call로 닫는다면 close path를
+`NonCancellable` cleanup boundary 뒤에 두고, heavy infrastructure test와 분리해 helper
+자체를 테스트한다.
