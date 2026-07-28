@@ -1,41 +1,35 @@
-# Issue 475 Core Null Assertions
+# 이슈 475 Core Null Assertion 제거
 
-## Context
+## 배경
 
-Issue #475 tracks removing Kotlin `!!` from production sources in small module
-slices. The first slice intentionally covered only `:bluetape4k-core`, because
-the issue asks not to replace all 86 occurrences in one PR.
+Issue #475는 production source의 Kotlin `!!`를 작은 module slice로 제거한다. 첫 slice는
+`:bluetape4k-core`만 다뤘다. Issue가 86개 occurrence를 한 PR에서 모두 바꾸지 말라고 요구했기 때문이다.
 
-## Decision
+## 결정
 
-Remove `!!` without changing public exception contracts. For deprecated
-`assertXxx` map helpers, keep `AssertionError`; for `requireXxx` map helpers,
-keep `IllegalArgumentException`. KDoc examples should use Elvis `error(...)`
-instead of `!!`. `SingletonHolder` should use `checkNotNull` only for the
-factory-consumed invariant inside the existing lock.
+Public exception contract를 바꾸지 않고 `!!`를 제거한다. Deprecated `assertXxx` map helper는
+`AssertionError`를 유지하고, `requireXxx` map helper는 `IllegalArgumentException`을 유지한다.
+KDoc example은 `!!` 대신 Elvis `error(...)`를 사용한다. `SingletonHolder`는 기존 lock 내부의
+factory-consumed invariant에만 `checkNotNull`을 사용한다.
 
-## Outcome
+## 결과
 
-The core target files no longer contain `!!` in production source or examples.
-Null map receiver tests were added for `assertHasKey`, `assertHasValue`,
-`assertContains`, `requireHasKey`, `requireHasValue`, and `requireContains` to
-lock the existing exception-type contracts.
+Core target file은 production source와 example에서 더 이상 `!!`를 포함하지 않는다. Null map receiver
+test를 `assertHasKey`, `assertHasValue`, `assertContains`, `requireHasKey`, `requireHasValue`,
+`requireContains`에 추가해 기존 exception-type contract를 고정했다.
 
-## Verification
+## 검증
 
-- `rg -n '!!'` over the issue #475 core target files returned no matches.
-- IntelliJ reformat/import optimization succeeded for touched production and
-  test files.
-- IntelliJ reference lookup succeeded after indexing for the changed map helper
-  APIs.
+- Issue #475 core target file에 대한 `rg -n '!!'`가 match 0개 반환.
+- 수정한 production/test file에 대해 IntelliJ reformat/import optimization 성공.
+- Indexing 이후 변경된 map helper API의 IntelliJ reference lookup 성공.
 - `./gradlew :bluetape4k-core:compileKotlin :bluetape4k-core:test --console=plain --no-configuration-cache`
-  passed with 1588 tests.
-- Codex CLI final review reported P0/P1 none.
-- Claude CLI review was skipped after the user directed not to call Claude due
-  to recurring usage-limit failures.
+  1588 tests로 통과.
+- Codex CLI final review: P0/P1 없음.
+- Claude CLI review는 반복되는 usage-limit failure 때문에 사용자가 호출하지 말라고 지시해 생략.
 
-## Future Guard
+## 향후 가드
 
-Continue #475 in module-sized PRs. Prefer contract-preserving local variables or
-explicit `checkNotNull`/Elvis failures over broad rewrites, and add focused
-tests when a `!!` removal touches an exception-type contract.
+#475는 module-sized PR로 계속 진행한다. `!!` 제거가 exception-type contract를 건드리면 focused test를
+추가하고, broad rewrite 대신 contract-preserving local variable 또는 명시적인 `checkNotNull`/Elvis
+failure를 선호한다.
