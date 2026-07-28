@@ -1,22 +1,31 @@
-# Issue 655: Lettuce suspended loaded-map shutdown cancellation
+# 이슈 655: Lettuce suspended loaded-map shutdown cancellation 보존
 
-## Context
+## 배경
 
-`LettuceSuspendedLoadedMap.suspendClose()` waited for the write-behind job under a shutdown timeout, but the old broad `Exception` catch could hide coroutine cancellation while draining pending writes.
+`LettuceSuspendedLoadedMap.suspendClose()`는 shutdown timeout 안에서 write-behind job을
+기다렸지만, 기존의 넓은 `Exception` catch가 pending write를 drain하는 동안 coroutine
+cancellation을 숨길 수 있었다.
 
-## Decision
+## 결정
 
-Keep caller cancellation observable. Use `withTimeoutOrNull` for the map-owned shutdown timeout so that only the internal drain timeout is downgraded to a warning. Rethrow `CancellationException` before generic failure logging, and keep connection/job cleanup in `NonCancellable`.
+caller cancellation을 관찰 가능하게 유지한다. map-owned shutdown timeout에는
+`withTimeoutOrNull`을 사용해 internal drain timeout만 warning으로 낮춘다. generic
+failure logging 전에 `CancellationException`을 다시 던지고, connection/job cleanup은
+`NonCancellable`에서 유지한다.
 
-## Outcome
+## 결과
 
-`suspendClose()` now distinguishes external cancellation from internal drain timeout. A regression test verifies that caller cancellation returns before `writeBehindShutdownTimeout` when the writer is still blocked.
+`suspendClose()`는 이제 external cancellation과 internal drain timeout을 구분한다.
+regression test는 writer가 아직 blocked 상태일 때 caller cancellation이
+`writeBehindShutdownTimeout`보다 먼저 반환됨을 검증한다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-lettuce:test --tests 'io.bluetape4k.redis.lettuce.map.LettuceSuspendedLoadedMapTest.suspendClose - caller cancellation is propagated before internal shutdown timeout'`
 - `./gradlew :bluetape4k-lettuce:test`
 
-## Future Guidance
+## 향후 지침
 
-For suspending cleanup paths, do not catch `Exception` around suspend calls unless `CancellationException` is rethrown first. Prefer `withTimeoutOrNull` when an operation-owned timeout should be handled locally without confusing caller cancellation.
+suspending cleanup path에서는 `CancellationException`을 먼저 rethrow하지 않는 한 suspend
+call 주변에서 `Exception`을 catch하지 않는다. operation-owned timeout을 caller
+cancellation과 혼동하지 않고 local에서 처리해야 할 때는 `withTimeoutOrNull`을 우선한다.
