@@ -18,7 +18,7 @@ import org.springframework.util.ReflectionUtils
 import java.sql.Connection
 
 /**
- * Provides a Hibernate [StatelessSession] proxy bound to the current Spring transaction.
+ * 현재 Spring transaction에 바인딩된 Hibernate [StatelessSession] proxy를 제공합니다.
  *
  * ## Contract
  * - [getObject] returns a proxy; the real session is resolved lazily for each method call.
