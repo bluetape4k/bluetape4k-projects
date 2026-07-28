@@ -5,7 +5,7 @@ import io.bluetape4k.support.requirePositiveNumber
 import io.ktor.server.plugins.callid.CallIdConfig
 
 /**
- * Correlation ID utilities for Ktor server calls.
+ * Ktor server call의 correlation ID를 다루는 유틸리티입니다.
  */
 object KtorCorrelationId {
 
@@ -19,9 +19,9 @@ object KtorCorrelationId {
             setOf('-', '_', '.')
 
     /**
-     * Sanitizes a caller-supplied correlation ID.
+     * 호출자가 전달한 correlation ID를 정제합니다.
      *
-     * Returns `null` when the value is blank or has no allowed characters.
+     * 값이 blank이거나 허용된 문자가 하나도 없으면 `null`을 반환합니다.
      */
     fun sanitize(rawValue: String?, maxLength: Int = DEFAULT_MAX_LENGTH): String? {
         maxLength.requirePositiveNumber("maxLength")
@@ -37,7 +37,7 @@ object KtorCorrelationId {
     }
 
     /**
-     * Generates a Base58 correlation ID.
+     * Base58 correlation ID를 생성합니다.
      */
     fun generate(length: Int = DEFAULT_GENERATED_LENGTH): String {
         length.requirePositiveNumber("length")
@@ -49,7 +49,7 @@ object KtorCorrelationId {
 }
 
 /**
- * Configures Ktor CallId with bluetape4k sanitization and response propagation.
+ * bluetape4k sanitization과 response propagation을 적용해 Ktor CallId를 설정합니다.
  */
 fun CallIdConfig.bluetape4kCorrelationIds(
     settings: CorrelationIdSettings = CorrelationIdSettings(),
