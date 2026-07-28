@@ -7,7 +7,7 @@ import org.hibernate.Hibernate
 import java.io.Serializable
 
 /**
- * Base abstraction for JPA entities.
+ * JPA entity를 위한 base abstraction입니다.
  *
  * Equality uses the assigned identifier only when both entities are persisted.
  * Transient entities fall back to [equalProperties], so their default
@@ -17,20 +17,20 @@ abstract class AbstractJpaEntity<ID: Serializable>: AbstractPersistenceObject(),
 
     companion object: KLogging() {
         /**
-         * Returns whether the persisted [target] has the same non-null identifier.
+         * 영속화된 [target]이 같은 non-null identifier를 가지는지 반환합니다.
          */
         private fun <TId> hasSameNonDefaultId(id: TId, target: JpaEntity<*>): Boolean =
             id == target.id
 
         /**
-         * Returns whether two transient entities share the same business signature.
+         * 두 transient entity가 같은 business signature를 공유하는지 반환합니다.
          */
         private fun <TId> hasSameBusinessSignature(self: AbstractJpaEntity<*>, target: JpaEntity<*>): Boolean =
             self.equalProperties(target)
     }
 
     /**
-     * Returns whether this entity already has an assigned identifier.
+     * 이 entity에 identifier가 이미 할당되어 있는지 반환합니다.
      */
     @get:Transient
     override val isPersisted: Boolean get() = id != null
@@ -53,7 +53,7 @@ abstract class AbstractJpaEntity<ID: Serializable>: AbstractPersistenceObject(),
     }
 
     /**
-     * Returns the entity hash code.
+     * entity hash code를 반환합니다.
      *
      * Persisted entities use the identifier hash. Transient entities use the
      * Hibernate-resolved entity class hash so equal transient instances land in
