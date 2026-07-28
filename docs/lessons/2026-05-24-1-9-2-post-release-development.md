@@ -1,30 +1,28 @@
 # 2026-05-24 1.9.2 Post-Release Development Line
 
-## Context
+## 배경
 
-`bluetape4k-projects` `1.9.1` has been released, but the repository still has
-an active `1.9.2` milestone for the IO HTTP patch lane. A stale PR tried to move
-`develop` directly to `1.10.0`, which would skip the active patch milestone.
+`bluetape4k-projects` `1.9.1`은 release되었지만 repository에는 IO HTTP patch lane을 위한 active
+`1.9.2` milestone이 남아 있었다. Stale PR 하나는 `develop`을 바로 `1.10.0`으로 옮기려 했고, 이는
+active patch milestone을 건너뛰게 된다.
 
-## Decision
+## 결정
 
-Move the committed base version from `1.9.1` to `1.9.2`. Keep
-`snapshotVersion=` empty in `gradle.properties`; SNAPSHOT publishing must pass
-`-PsnapshotVersion=-SNAPSHOT`.
+Committed base version을 `1.9.1`에서 `1.9.2`로 이동한다. `gradle.properties`의 `snapshotVersion=`은
+비워 둔다. SNAPSHOT publishing은 `-PsnapshotVersion=-SNAPSHOT`을 전달해야 한다.
 
-## Outcome
+## 결과
 
-`develop` stays aligned with the active `1.9.2` patch milestone while `1.10.0`
-remains reserved for the Ktor module-family minor line.
+`develop`은 active `1.9.2` patch milestone과 정렬되고, `1.10.0`은 Ktor module-family minor line을 위해
+reserved 상태로 남는다.
 
-## Verification
+## 검증
 
 - `./gradlew properties --no-configuration-cache --no-daemon --quiet`
 - `./gradlew properties -PsnapshotVersion=-SNAPSHOT --no-configuration-cache --no-daemon --quiet`
 - `git diff --check`
 
-## Future Guard
+## 향후 가드
 
-Do not open a new minor development line while an active patch milestone still
-owns the next release unless that patch milestone is explicitly deferred or
-closed.
+Active patch milestone이 다음 release를 소유하고 있다면 그 milestone이 명시적으로 deferred 또는
+closed되기 전에는 새 minor development line을 열지 않는다.
