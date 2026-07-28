@@ -1,17 +1,25 @@
-# Issue 808 - Elasticsearch Bulk Progress Buffering
+# 이슈 808: Elasticsearch bulk progress buffering
 
-## Context
+## 배경
 
-`bulkProgressListener` used `Channel.UNLIMITED`, so slow or absent collectors could retain bulk requests, responses, failures, and caller contexts without a hard bound.
+`bulkProgressListener`는 `Channel.UNLIMITED`를 사용했다. 따라서 느리거나 없는
+collector는 bulk request, response, failure, caller context를 hard bound 없이 보관할
+수 있었다.
 
-## Decision
+## 결정
 
-Use a bounded `Channel` with default capacity 256 and `BufferOverflow.SUSPEND`. Keep listener callbacks non-blocking by using `trySend`, and log failed sends so overflow is visible.
+기본 capacity 256과 `BufferOverflow.SUSPEND`를 가진 bounded `Channel`을 사용한다.
+`trySend`로 listener callback을 non-blocking으로 유지하고, overflow가 보이도록 failed
+send를 log한다.
 
-## Outcome
+## 결과
 
-The progress listener retains a finite number of events by default, exposes capacity and overflow tuning, and has a regression test for overflow behavior without requiring Elasticsearch I/O.
+Progress listener는 기본적으로 유한한 수의 event만 보관하고, capacity와 overflow
+tuning을 노출하며, Elasticsearch I/O 없이 overflow behavior를 검증하는 회귀 테스트를
+가진다.
 
-## Future Guidance
+## 향후 지침
 
-Listener-to-Flow adapters should avoid unbounded channels unless the caller explicitly opts in. Prefer bounded buffers, non-blocking callback paths, and visible drop/overflow behavior.
+Listener-to-Flow adapter는 호출자가 명시적으로 opt-in하지 않는 한 unbounded channel을
+피해야 한다. Bounded buffer, non-blocking callback path, 보이는 drop/overflow behavior를
+우선한다.
