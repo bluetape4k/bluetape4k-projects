@@ -1,33 +1,26 @@
 # Root Module Ecosystem Map
 
-## Context
+## 배경
 
-The root README module diagram was tall and grouped modules loosely by recovered
-Mermaid output. It did not clearly explain the current root repository boundary
-versus split bluetape4k repositories.
+Root README의 module list만으로는 bluetape4k module group 사이의 관계를 파악하기 어려웠다.
 
-## Decision
+## 결정
 
-Replace `root-readme-en-diagram-01.{svg,png}` with a compact pastel ecosystem
-map titled as the Bluetape4k framework rather than the narrower Projects repo.
-The new map centers the BOM, groups root modules by foundation, I/O, data,
-infrastructure, Spring integration, testing, utilities, and examples, and shows
-AWS, Exposed, Image, Text, Graph, JaVers, and Leader as split repositories.
+Root module ecosystem을 하나의 map으로 표현하되, source-verified module group과 Gradle project
+registration 결과를 기준으로 한다.
 
-## Outcome
+## 결과
 
-The root README now presents the module structure as an architecture map rather
-than a long module list image.
+Ecosystem map은 core, io, data, infra, cache, ktor, spring-boot, testing, utils, virtualthread,
+examples group의 역할과 관계를 빠르게 보여준다.
 
-## Verification
+## 검증
 
-- SVG XML parsed successfully.
-- PNG rendered with `rsvg-convert` at 1400x980.
-- Visual inspection confirmed readable labels and no obvious overlap.
+- `settings.gradle.kts` auto-registration과 module group 대조.
+- Generated README asset link 확인.
+- `git diff --check`.
 
-## Future Note
+## 향후 노트
 
-Keep the root module map focused on architecture boundaries. Detailed per-module
-diagrams belong in module READMEs.
-Use `boot4` for Spring integration labels; do not use older Spring Boot line
-labels in current README visuals.
+Module map은 marketing graphic이 아니라 navigation artifact다. 새 module group이 생기면 source
+registration과 함께 diagram도 갱신한다.
