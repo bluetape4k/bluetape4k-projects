@@ -6,8 +6,8 @@ import org.springframework.boot.runApplication
 import org.springframework.cache.annotation.EnableCaching
 
 /**
- * Mock WebFlux 서버 애플리케이션.
- * Spring Boot 4 WebFlux + Kotlin Coroutines 기반 테스트용 HTTP 서버.
+ * Mock WebFlux 서버 애플리케이션입니다.
+ * Spring Boot 4 WebFlux + Kotlin Coroutines 기반 테스트용 HTTP 서버입니다.
  */
 @EnableCaching
 @SpringBootApplication
