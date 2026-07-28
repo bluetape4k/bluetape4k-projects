@@ -1,32 +1,30 @@
-# Issue #848 Redis Key-Chain Single-Winner Rotation
+# 이슈 #848 Redis key-chain single-winner rotation
 
-Issue #848 found that `RedisKeyChainRepository.rotate()` trusted each
-process-local cached current keychain. Two application nodes could cache the
-same expired current keychain and then both insert different replacement keys
-into Redis.
+issue #848은 `RedisKeyChainRepository.rotate()`가 process-local cached current keychain을
+신뢰한다는 점을 찾았다. 두 application node가 같은 expired current keychain을 cache한
+뒤 Redis에 서로 다른 replacement key를 모두 insert할 수 있었다.
 
-## Decision
+## 결정
 
-Serialize Redis-backed rotation with a Redisson lock derived from the keychain
-queue name. While holding the lock, reload the current keychain from Redis and
-update the local cache before deciding whether to rotate. A node that loses the
-race sees the winner's non-expired keychain and immediately converges its cache
-to that key.
+keychain queue name에서 파생한 Redisson lock으로 Redis-backed rotation을 serialize한다.
+lock을 잡은 동안 Redis에서 current keychain을 다시 읽고 local cache를 갱신한 뒤 rotation
+여부를 결정한다. race에서 진 node는 winner의 non-expired keychain을 보고 즉시 cache를
+그 key로 수렴시킨다.
 
-## Lessons
+## 교훈
 
-- Distributed repositories cannot make rotation decisions from a per-process
-  cache. The lock-protected section must re-read the shared state.
-- A stale-cache race can be reproduced deterministically without thread timing:
-  two repository instances cache the same expired key, then rotate sequentially.
-- Forced rotation should use the same Redis lock and capacity trimming path so
-  regular and forced writes cannot interleave around deque maintenance.
+- distributed repository는 per-process cache만으로 rotation decision을 내릴 수 없다.
+  lock-protected section은 shared state를 다시 읽어야 한다.
+- stale-cache race는 thread timing 없이도 결정적으로 재현할 수 있다. repository instance
+  두 개가 같은 expired key를 cache한 뒤 순차적으로 rotate하면 된다.
+- forced rotation도 같은 Redis lock과 capacity trimming path를 사용해야 regular write와
+  forced write가 deque maintenance 주변에서 interleave하지 않는다.
 
-## Verification
+## 검증
 
-- RED: `./gradlew :bluetape4k-jwt:test --tests "io.bluetape4k.jwt.keychain.redis.RedisKeyChainRepositoryTest.expired cached keychain rotates with single Redis winner"` failed with `Expected <2> to equal to <1>`.
-- GREEN targeted: the same Redis-backed test passed with 1 test.
-- Module: `./gradlew :bluetape4k-jwt:test` passed with 149 tests and 10 pending.
-- Build: `./gradlew :bluetape4k-jwt:build` passed.
-- Hygiene: `git diff --check` passed.
-- Static analysis: `./gradlew detekt` passed with `:detekt NO-SOURCE`.
+- RED: `./gradlew :bluetape4k-jwt:test --tests "io.bluetape4k.jwt.keychain.redis.RedisKeyChainRepositoryTest.expired cached keychain rotates with single Redis winner"`가 `Expected <2> to equal to <1>`로 실패했다.
+- GREEN targeted: 같은 Redis-backed test가 1 test로 통과했다.
+- module: `./gradlew :bluetape4k-jwt:test`가 149 tests, 10 pending으로 통과했다.
+- build: `./gradlew :bluetape4k-jwt:build`가 통과했다.
+- hygiene: `git diff --check`가 통과했다.
+- static analysis: `./gradlew detekt`가 `:detekt NO-SOURCE`와 함께 통과했다.
