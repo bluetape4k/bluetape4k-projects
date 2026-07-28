@@ -1,27 +1,35 @@
-# Lessons Learned - Issue #792 HTTP logging header redaction (2026-06-27)
+# 교훈: 이슈 #792 HTTP logging header redaction (2026-06-27)
 
-## Context
+## 배경
 
-Issue #792 showed that HTTP diagnostic logs could expose credential-bearing headers. The affected paths were OkHttp request/response logging and Retrofit HC5 request conversion trace logging.
+이슈 #792는 HTTP diagnostic log가 credential-bearing header를 노출할 수 있음을
+보여주었다. 영향을 받은 경로는 OkHttp request/response logging과 Retrofit HC5
+request conversion trace logging이었다.
 
-## Decision
+## 결정
 
-Use one shared HTTP header redaction helper before formatting diagnostic log values. The helper redacts well-known credential headers, API-key names, token-like names, and caller-provided project-specific header names.
+Diagnostic log 값을 formatting하기 전에 하나의 공유 HTTP header redaction helper를
+사용한다. 이 helper는 잘 알려진 credential header, API-key 이름, token-like 이름,
+호출자가 지정한 project-specific header 이름을 redaction한다.
 
-## Outcome
+## 결과
 
-- `LoggingInterceptor` now logs redacted request and response headers.
-- `Hc5OkHttp3Support.toSimpleHttpRequest()` now redacts sensitive header values only in trace logs while preserving the real outgoing request headers.
-- `io/http` README locale pair documents the default redaction policy and custom extension path.
+- `LoggingInterceptor`는 이제 redacted request/response header를 log에 남긴다.
+- `Hc5OkHttp3Support.toSimpleHttpRequest()`는 실제 outgoing request header는 유지하면서 trace log에서만 sensitive header value를 redaction한다.
+- `io/http` README locale pair는 기본 redaction policy와 custom extension 경로를 문서화한다.
 
-## Verification
+## 검증
 
-- RED tests first reproduced raw sensitive header leakage in `LoggingInterceptor` and `Hc5OkHttp3Support`.
-- Targeted tests passed for `LoggingInterceptorTest` and `Hc5OkHttp3SupportTest`.
-- Full module tests passed for `:bluetape4k-http:test` and `:bluetape4k-retrofit2:test`.
-- `:bluetape4k-http:compileTestKotlin` and `:bluetape4k-retrofit2:compileTestKotlin` passed with `--warning-mode all --rerun-tasks`; remaining warnings were existing Gradle Kotlin DSL deprecations outside the touched code.
-- `git diff --check` passed.
+- RED test가 먼저 `LoggingInterceptor`와 `Hc5OkHttp3Support`의 raw sensitive header leakage를 재현했다.
+- `LoggingInterceptorTest`와 `Hc5OkHttp3SupportTest` targeted test가 통과했다.
+- `:bluetape4k-http:test`와 `:bluetape4k-retrofit2:test` 전체 module test가 통과했다.
+- `:bluetape4k-http:compileTestKotlin`과 `:bluetape4k-retrofit2:compileTestKotlin`은 `--warning-mode all --rerun-tasks`로 통과했다. 남은 warning은 touched code 밖의 기존 Gradle Kotlin DSL deprecation이었다.
+- `git diff --check`가 통과했다.
 
-## Future Guard
+## 향후 방지책
 
-Do not log HTTP header values directly. New HTTP diagnostic paths should call `redactHttpHeaderValue` for individual name/value logs or `Headers.toRedactedString` for OkHttp header blocks. If the change introduces concurrency, coroutine, virtual-thread, or structured-concurrency behavior, use the matching bluetape4k concurrency helper and record the helper evidence in the PR DoD.
+HTTP header 값을 직접 log하지 않는다. 새 HTTP diagnostic path는 개별 name/value
+log에 `redactHttpHeaderValue`를 호출하거나 OkHttp header block에
+`Headers.toRedactedString`을 사용해야 한다. 변경이 동시성, coroutine,
+virtual-thread, structured-concurrency 동작을 도입한다면 맞는 bluetape4k concurrency
+helper를 사용하고 PR DoD에 helper evidence를 기록한다.
