@@ -1,4 +1,4 @@
-# Issue 807 - Elasticsearch PIT Cleanup Review
+# Issue 807 - Elasticsearch PIT Cleanup 검토
 
 ## Scope
 
@@ -7,7 +7,7 @@
 - `infra/elasticsearch/README.md`
 - `infra/elasticsearch/README.ko.md`
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Result | Evidence |
 |------|--------|----------|
@@ -20,7 +20,7 @@
 | Kotlin style | PASS | Validation uses `requireNotBlank`; tests use `runTest` and bluetape4k boolean assertion. |
 | Impact radius | PASS | CodeGraph review context reports low risk, 0 impacted files, and 0 test gaps for changed Kotlin files. |
 
-## Findings
+## 발견 사항
 
 - P0: none.
 - P1: none.

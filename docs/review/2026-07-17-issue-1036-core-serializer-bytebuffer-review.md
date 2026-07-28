@@ -1,4 +1,4 @@
-# Issue 1036 Core Serializer ByteBuffer Review
+# Issue 1036 Core Serializer ByteBuffer 검토
 
 ## Scope
 
