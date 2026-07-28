@@ -1,40 +1,39 @@
-# Cassandra Learning Path Introduction Implementation Plan
+# Cassandra learning path introduction 구현 계획
 
-> **For agentic
-workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **agentic worker용:** 필수 sub-skill: 이 계획은 superpowers:subagent-driven-development(권장) 또는 superpowers:executing-plans로 task별 구현한다. 진행 상태는 checkbox(`- [ ]`) syntax로 추적한다.
 
-**Goal:** Cassandra 모듈 landing에서 제공 기능과 다섯 개 상세 학습 장의 가치, 예제, 학습 결과를 바로 이해하고 각 장으로 이동하게 만든다.
+**목표:** Cassandra 모듈 landing에서 제공 기능과 다섯 개 상세 학습 장의 가치, 예제, 학습 결과를 바로 이해하고 각 장으로 이동하게 만든다.
 
-**Architecture:** Canonical source인 `bluetape4k-projects/docs/manual`의 한국어와 영문 landing을 같은 정보 구조로 수정한다. Projects 검증과 커밋이 끝난 source commit으로 Site의 1.11 snapshot을 refresh하되 `releaseRef=1.11.0`과 immutable release commit은 유지한다. 제목 변경 전 fragment로 들어오는 링크를 위해 이전 heading slug를 빈 `span` anchor로 보존한다.
+**아키텍처:** Canonical source인 `bluetape4k-projects/docs/manual`의 한국어와 영문 landing을 같은 정보 구조로 수정한다. Projects 검증과 커밋이 끝난 source commit으로 Site의 1.11 snapshot을 refresh하되 `releaseRef=1.11.0`과 immutable release commit은 유지한다. 제목 변경 전 fragment로 들어오는 링크를 위해 이전 heading slug를 빈 `span` anchor로 보존한다.
 
-**Tech Stack:** Markdown, Ruby manual validators, Node.js manual snapshot pipeline, Astro/Starlight, npm test/build
+**기술 스택:** Markdown, Ruby manual validators, Node.js manual snapshot pipeline, Astro/Starlight, npm test/build
 
 ---
 
-## File map
+## 파일 지도
 
-- Modify: `docs/manual/ko/modules/bluetape4k-cassandra.md` — 자연스러운 한국어 기능 소개와 설명형 학습 경로
-- Modify: `docs/manual/en/modules/bluetape4k-cassandra.md` — 한국어와 같은 정보 밀도의 영문 기능 소개와 학습 경로
-- Refresh in site repo: `src/content/docs/{ko/,}manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra.md` — canonical source에서 생성되는 versioned landing
-- Refresh in site repo: `src/data/manual/bluetape4k-projects*.json`, `.manual-sync-generation.json` — 새 source commit과 deterministic snapshot metadata
+- 수정: `docs/manual/ko/modules/bluetape4k-cassandra.md` — 자연스러운 한국어 기능 소개와 설명형 학습 경로
+- 수정: `docs/manual/en/modules/bluetape4k-cassandra.md` — 한국어와 같은 정보 밀도의 영문 기능 소개와 학습 경로
+- site repo에서 refresh: `src/content/docs/{ko/,}manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra.md` — canonical source에서 생성되는 versioned landing
+- site repo에서 refresh: `src/data/manual/bluetape4k-projects*.json`, `.manual-sync-generation.json` — 새 source commit과 deterministic snapshot metadata
 
 ### Task 1: 한국어 landing을 설명형 학습 경로로 바꾼다
 
-**Files:**
+**파일:**
 
-- Modify: `docs/manual/ko/modules/bluetape4k-cassandra.md`
-- Test: `scripts/manual/validate_manuals_test.rb`
+- 수정: `docs/manual/ko/modules/bluetape4k-cassandra.md`
+- 테스트: `scripts/manual/validate_manuals_test.rb`
 
 - [ ] **Step 1: 변경 전 상태가 새 계약을 만족하지 않는지 확인**
 
-Run:
+실행:
 
 ```bash
 ! rg -q '^## 제공하는 기능 \{#problem\}$' docs/manual/ko/modules/bluetape4k-cassandra.md
 ! rg -q '각 장은 문제를 이해하는 설명에서 시작해' docs/manual/ko/modules/bluetape4k-cassandra.md
 ```
 
-Expected: 두 명령 모두 exit 0. 아직 새 heading과 학습 안내가 없음을 증명한다.
+예상 결과: 두 명령 모두 exit 0. 아직 새 heading과 학습 안내가 없음을 증명한다.
 
 - [ ] **Step 2: 기능 소개 heading과 본문을 교체**
 
@@ -71,32 +70,32 @@ Expected: 두 명령 모두 exit 0. 아직 새 heading과 학습 안내가 없�
 
 - [ ] **Step 4: 한국어 문구와 구조 검증**
 
-Run:
+실행:
 
 ```bash
 rg -n '^## 제공하는 기능|각 장은 문제를 이해하는 설명에서 시작해|직접 만든 세션을|운영 권한을' docs/manual/ko/modules/bluetape4k-cassandra.md
 ruby scripts/manual/validate_manuals_test.rb
 ```
 
-Expected: heading과 소개·첫 장·마지막 장 문구가 검색되고 `14 runs, 41 assertions, 0 failures, 0 errors`.
+예상 결과: heading과 소개·첫 장·마지막 장 문구가 검색되고 `14 runs, 41 assertions, 0 failures, 0 errors`.
 
 ### Task 2: 영문 landing을 같은 정보 구조로 맞춘다
 
-**Files:**
+**파일:**
 
-- Modify: `docs/manual/en/modules/bluetape4k-cassandra.md`
-- Test: `scripts/manual/validate_manuals_test.rb`
+- 수정: `docs/manual/en/modules/bluetape4k-cassandra.md`
+- 테스트: `scripts/manual/validate_manuals_test.rb`
 
 - [ ] **Step 1: 변경 전 영문 상태 확인**
 
-Run:
+실행:
 
 ```bash
 ! rg -q '^## Features \{#problem\}$' docs/manual/en/modules/bluetape4k-cassandra.md
 ! rg -q 'Each chapter starts with the problem' docs/manual/en/modules/bluetape4k-cassandra.md
 ```
 
-Expected: 두 명령 모두 exit 0.
+예상 결과: 두 명령 모두 exit 0.
 
 - [ ] **Step 2: 영문 기능 소개를 한국어 계약과 맞춤**
 
@@ -133,7 +132,7 @@ The five chapters below do more than list API names. Each chapter starts with th
 
 - [ ] **Step 4: locale parity와 canonical manual 검증**
 
-Run:
+실행:
 
 ```bash
 ruby scripts/manual/validate_manuals_test.rb
@@ -145,7 +144,7 @@ ruby scripts/manual/export_manifest.rb --check
 git diff --check
 ```
 
-Expected: 총 `35 runs, 108 assertions`, failure/error 0, `Manuals are aligned.`, `Manual manifest snapshot is current.`
+예상 결과: 총 `35 runs, 108 assertions`, failure/error 0, `Manuals are aligned.`, `Manual manifest snapshot is current.`
 
 - [ ] **Step 5: canonical source 커밋**
 
@@ -162,16 +161,16 @@ Not-tested: Site snapshot and rendered routes"
 
 ### Task 3: Site 1.11 snapshot을 canonical source로 갱신한다
 
-**Files:**
+**파일:**
 
-- Modify: `.manual-sync-generation.json`
-- Modify: `src/content/docs/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra.md`
-- Modify: `src/content/docs/ko/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra.md`
-- Modify: `src/data/manual/bluetape4k-projects.1.11.manifest.json`
-- Modify: `src/data/manual/bluetape4k-projects.1.11.snapshot.json`
-- Modify: `src/data/manual/bluetape4k-projects.manifest.json`
-- Modify: `src/data/manual/bluetape4k-projects.snapshot.json`
-- Modify: `src/data/manual/bluetape4k-projects.versions.json`
+- 수정: `.manual-sync-generation.json`
+- 수정: `src/content/docs/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra.md`
+- 수정: `src/content/docs/ko/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra.md`
+- 수정: `src/data/manual/bluetape4k-projects.1.11.manifest.json`
+- 수정: `src/data/manual/bluetape4k-projects.1.11.snapshot.json`
+- 수정: `src/data/manual/bluetape4k-projects.manifest.json`
+- 수정: `src/data/manual/bluetape4k-projects.snapshot.json`
+- 수정: `src/data/manual/bluetape4k-projects.versions.json`
 
 - [ ] **Step 1: 새 source commit으로 1.11 snapshot refresh**
 
@@ -181,11 +180,11 @@ Run in `/Users/debop/work/bluetape4k/bluetape4k.github.io`:
 npm run sync:manual -- --refresh 1.11.0 --source /Users/debop/work/bluetape4k/bluetape4k-projects
 ```
 
-Expected: `release=1.11.0`, release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`, Projects의 새 source commit, documents 244, assets 30.
+예상 결과: `release=1.11.0`, release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`, Projects의 새 source commit, documents 244, assets 30.
 
 - [ ] **Step 2: 생성된 landing과 이전 fragment 호환성 확인**
 
-Run:
+실행:
 
 ```bash
 rg -n '^## 제공하는 기능|id="이-라이브러리가-맡는-일"|각 장은 문제를 이해하는 설명에서 시작해' src/content/docs/ko/manual/bluetape4k-projects/1.11/modules/bluetape4k-cassandra.md
@@ -194,11 +193,11 @@ npm run sync:manual -- --check
 npm run check:manual
 ```
 
-Expected: 새 heading과 설명형 학습 경로, 이전 fragment anchor가 모두 존재하고 snapshot은 `changed=false`, valid.
+예상 결과: 새 heading과 설명형 학습 경로, 이전 fragment anchor가 모두 존재하고 snapshot은 `changed=false`, valid.
 
 - [ ] **Step 3: Site 전체 검증**
 
-Run:
+실행:
 
 ```bash
 npm test
@@ -206,7 +205,7 @@ npm run build
 git diff --check
 ```
 
-Expected: 86 tests pass, Astro 47 files에서 error/warning/hint 0, 393 pages build, Pagefind 637 HTML files.
+예상 결과: 86 tests pass, Astro 47 files에서 error/warning/hint 0, 393 pages build, Pagefind 637 HTML files.
 
 - [ ] **Step 4: 브라우저에서 한국어·영문 landing 확인**
 
@@ -248,4 +247,4 @@ git -C /Users/debop/work/bluetape4k/bluetape4k.github.io status --short
 git -C /Users/debop/work/bluetape4k/bluetape4k.github.io log -2 --oneline
 ```
 
-Expected: 두 main checkout은 clean이고 Site snapshot의 `sourceCommit`은 새 Projects manual commit, `releaseCommit`은 `6187173b58e8b4c5c435c145e00e94708f31ef75`다. Push, PR, deploy는 수행하지 않는다.
+예상 결과: 두 main checkout은 clean이고 Site snapshot의 `sourceCommit`은 새 Projects manual commit, `releaseCommit`은 `6187173b58e8b4c5c435c145e00e94708f31ef75`다. Push, PR, deploy는 수행하지 않는다.
