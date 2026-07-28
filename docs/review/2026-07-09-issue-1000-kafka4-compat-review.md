@@ -4,12 +4,12 @@
 
 - `gradle/libs.versions.toml`
 
-## Findings
+## 발견 사항
 
 - P0: none.
 - P1: none.
 
-## Evidence
+## 증거
 
 - `gh issue view 1000`: issue is open, assigned to `debop`, milestone `1.12.0`, labels include `bug`, `test`, and `dependencies`.
 - `./gradlew :bluetape4k-kafka4:dependencyInsight --configuration testRuntimeClasspath --dependency org.apache.kafka:kafka-clients --no-daemon --no-configuration-cache --no-build-cache`: PASS, selected `org.apache.kafka:kafka-clients:4.2.1`.
