@@ -1,35 +1,32 @@
-# Issue #493 Near-Cache Capability Matrix
+# 이슈 #493 Near-Cache Capability Matrix
 
-## Context
+## 배경
 
-Issue #493 required a documented backend capability matrix and inherited
-conformance tests for near-cache behavior across local and distributed cache
-providers.
+Issue #493은 local/distributed cache provider 전반의 near-cache behavior에 대해 documented backend
+capability matrix와 inherited conformance test를 요구했다.
 
-## Decision
+## 결정
 
-Keep the support boundary documentation-first and fixture-based:
+Support boundary는 documentation-first와 fixture-based 방식으로 유지한다:
 
-- Native Lettuce, Hazelcast IMap, and Redisson near caches keep sharing the
-  `NearCacheOperations` / `SuspendNearCacheOperations` fixtures.
-- JCache-backed Lettuce and Redisson near caches keep sharing the JCache
-  fixtures.
-- Hazelcast JCache listener-backed construction is unsupported because listener
-  configuration must be serializable for cluster distribution.
-- Hazelcast factories remain listener-free degraded support for read-through and
-  write-through behavior.
-- Cache2k whole-cache JCache `removeAll()` propagation is an explicit
-  unsupported conformance case, not a silent skip.
+- Native Lettuce, Hazelcast IMap, Redisson near cache는 `NearCacheOperations` /
+  `SuspendNearCacheOperations` fixture를 계속 공유한다.
+- JCache-backed Lettuce와 Redisson near cache는 JCache fixture를 계속 공유한다.
+- Hazelcast JCache listener-backed construction은 unsupported다. Listener configuration이 cluster
+  distribution을 위해 serializable이어야 하기 때문이다.
+- Hazelcast factory는 read-through/write-through behavior를 위한 listener-free degraded support로 둔다.
+- Cache2k whole-cache JCache `removeAll()` propagation은 조용한 skip이 아니라 명시적인 unsupported
+  conformance case다.
 
-## Outcome
+## 결과
 
-Added `docs/cache/near-cache-capability-matrix.md`, linked it from cache module
-README pairs, strengthened shared conformance tests, and replaced disabled
-Hazelcast JCache tests with active unsupported/degraded behavior tests.
+`docs/cache/near-cache-capability-matrix.md`를 추가하고 cache module README pair에서 link했다.
+Shared conformance test를 강화했으며 disabled Hazelcast JCache test를 active unsupported/degraded
+behavior test로 교체했다.
 
-## Verification
+## 검증
 
-Ran the targeted downstream conformance suite:
+Targeted downstream conformance suite 실행:
 
 ```text
 ./gradlew :bluetape4k-cache-core:test ... :bluetape4k-cache-hazelcast:test ... :bluetape4k-cache-lettuce:test ... :bluetape4k-cache-redisson:test ... --console=plain --no-configuration-cache
@@ -40,12 +37,10 @@ cache-lettuce: 184 tests
 cache-redisson: 244 tests
 ```
 
-Also verified `@Disabled` is absent from the near-cache test scope and
-`git diff --check` passes.
+Near-cache test scope에 `@Disabled`가 없고 `git diff --check`가 통과함도 확인했다.
 
-## Future Guidance
+## 향후 가이드
 
-For near-cache capability changes, update the matrix first, then require each
-supported backend to inherit the same fixture. Unsupported combinations should
-be active tests or explicit matrix exclusions, never disabled abstract tests.
-
+Near-cache capability를 바꿀 때는 matrix를 먼저 갱신하고, supported backend가 같은 fixture를 상속하도록
+요구한다. Unsupported combination은 active test나 explicit matrix exclusion이어야 하며 disabled abstract
+test로 숨기지 않는다.
