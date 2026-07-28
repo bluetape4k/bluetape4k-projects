@@ -1,31 +1,31 @@
-# Hibernate Lettuce Classpath Guards
+# Hibernate Lettuce classpath guard
 
-## Context
+## 배경
 
-Issue #945 found that the Hibernate Lettuce Spring Boot auto-configurations used
-direct class references for optional compile-only Hibernate, Actuator, and
-Micrometer integrations.
+이슈 #945는 Hibernate Lettuce Spring Boot auto-configuration이 optional compile-only
+Hibernate, Actuator, Micrometer integration에 direct class reference를 사용한다는
+점을 확인했다.
 
-## Decision
+## 결정
 
-Keep optional integration metadata string-based:
+Optional integration metadata는 string 기반으로 유지한다.
 
-- use `@ConditionalOnClass(name = [...])` for optional classpath probes
-- use `@ConditionalOnBean(type = [...])` for optional bean types
-- use `@AutoConfiguration(afterName = [...])` for optional ordering targets
+- optional classpath probe에는 `@ConditionalOnClass(name = [...])`를 사용한다.
+- optional bean type에는 `@ConditionalOnBean(type = [...])`를 사용한다.
+- optional ordering target에는 `@AutoConfiguration(afterName = [...])`를 사용한다.
 
-## Outcome
+## 결과
 
-`FilteredClassLoader` slice tests now prove the configuration backs off cleanly
-when Hibernate customizer, Actuator endpoint annotations, or Micrometer registry
-types are unavailable.
+`FilteredClassLoader` slice test는 Hibernate customizer, Actuator endpoint
+annotation, Micrometer registry type이 없을 때 configuration이 깔끔하게 back off함을
+증명한다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-spring-boot-hibernate-lettuce:test --tests 'io.bluetape4k.spring.boot.autoconfigure.cache.lettuce.LettuceNearCacheAutoConfigurationTest'`
 
-## Future Guidance
+## 향후 지침
 
-When an auto-configuration imports a `compileOnly` integration, avoid class
-literals in annotation metadata and add a missing-class `ApplicationContextRunner`
-test before marking the integration classpath-safe.
+Auto-configuration이 `compileOnly` integration을 import한다면 annotation metadata의
+class literal을 피하고, integration을 classpath-safe로 표시하기 전에 missing-class
+`ApplicationContextRunner` test를 추가한다.
