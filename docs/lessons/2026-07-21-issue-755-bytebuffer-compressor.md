@@ -1,4 +1,4 @@
-# Issue #755: 호출자 소유 ByteBuffer 압축 경계
+# 이슈 #755: 호출자 소유 ByteBuffer 압축 경계
 
 ## 배경
 
