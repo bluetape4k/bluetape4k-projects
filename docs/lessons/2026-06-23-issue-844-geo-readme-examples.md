@@ -1,27 +1,27 @@
-# Issue 844 - geo README examples
+# 이슈 844 - geo README example
 
-## Context
+## 배경
 
-`bluetape4k-geo` consolidated the former geocode, geohash, and geoip2 modules,
-but the English and Korean READMEs still documented the old
-`io.bluetape4k.geo.*` package hierarchy and non-existent helper types.
+`bluetape4k-geo`는 기존 geocode, geohash, geoip2 module을 통합했지만 영어와 한국어
+README는 여전히 오래된 `io.bluetape4k.geo.*` package hierarchy와 존재하지 않는 helper
+type을 문서화했다.
 
-The installation examples also exposed project-internal Gradle catalog symbols
-such as `Libs.feign_core`, which consumers cannot use in their own builds.
+installation example도 consumer가 자기 build에서 사용할 수 없는 `Libs.feign_core` 같은
+project-internal Gradle catalog symbol을 노출했다.
 
-## Decision
+## 결정
 
-Rewrite the README examples against the current public API:
+README example을 현재 public API에 맞춰 다시 작성한다.
 
-- `io.bluetape4k.geohash` factory and extension functions
+- `io.bluetape4k.geohash` factory와 extension function
 - `io.bluetape4k.geocode.google.GoogleAddressFinder`
-- `io.bluetape4k.geoip2.Geoip` plus `DatabaseReader` extension functions
+- `io.bluetape4k.geoip2.Geoip` 및 `DatabaseReader` extension function
 
-The installation block now uses Maven coordinates and concrete versions from the
-repository version catalog instead of internal `Libs.*` aliases.
+installation block은 internal `Libs.*` alias 대신 Maven coordinate와 repository version
+catalog의 concrete version을 사용한다.
 
-## Follow-up Guard
+## 후속 가드
 
-Keep `README.md` and `README.ko.md` source-equivalent when geocode, geohash, or
-geoip2 public entry points move. The `GeoReadmeContractTest` blocks the stale
-package/API names that caused this issue.
+geocode, geohash, geoip2 public entry point가 이동하면 `README.md`와 `README.ko.md`를
+source-equivalent하게 유지한다. `GeoReadmeContractTest`는 이 issue를 만든 stale
+package/API name을 막는다.
