@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicReference
  * from an external protected store, such as a secret manager, KMS envelope-encrypted file, or HSM-backed source,
  * before encrypted entity fields are read or written.
  *
- * The JSON keyset helpers expect cleartext Tink keyset JSON. Protect that JSON as secret key material and avoid
+ * JSON keyset helper는 cleartext Tink keyset JSON을 기대합니다. 이 JSON은 secret key material로 보호하고
  * embedding it in source code, logs, or plain configuration files.
  */
 object EncryptedStringConverterKeysets {
@@ -69,7 +69,7 @@ object EncryptedStringConverterKeysets {
 }
 
 /**
- * Base JPA converter that stores encrypted strings in a single database column.
+ * 암호화된 문자열을 단일 database column에 저장하는 base JPA converter입니다.
  *
  * Built-in subclasses fail fast unless [EncryptedStringConverterKeysets] has been configured with externally
  * persisted key material. This avoids writing ciphertext with process-local generated keys that cannot be decrypted
