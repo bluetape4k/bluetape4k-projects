@@ -46,7 +46,7 @@ build/
 
 .code-review-graph
 .codegraph/
-.codex/compat/
+.codex/
 
 .omc/
 .omc/sessions/

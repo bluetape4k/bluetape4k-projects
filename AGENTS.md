@@ -44,8 +44,6 @@ repo-test-summary -- ./gradlew :module:test
 | `virtualthread/` | `api`, `jdk21`, `jdk25`; update all related modules together |
 | `examples/` | Library examples; not published to Maven |
 
-Full reference may live under `.codex/references/module-groups.md`.
-
 ## Build Configuration
 
 - Java 21 toolchain.
