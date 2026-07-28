@@ -1,17 +1,21 @@
 # Source-Verified README Diagrams
 
-## Context
+## 배경
 
-README diagram assets can outlive the Mermaid blocks that generated them. A source audit found a stale root Spring Boot lane, stale JUnit and Hibernate labels, plus outdated TiDB wording.
+README diagram은 보기 좋아도 source와 맞지 않으면 유지보수 비용을 만든다.
 
-## Decision
+## 결정
 
-Treat current source symbols as authoritative over historical Mermaid. The root module diagram now shows the versionless `spring-boot/*` line, diagram labels were updated to `RandomExtension` and exact converter class names, and TiDB wording now says the support was removed rather than deprecated.
+Diagram content는 source tree, Gradle registration, README link, generated asset을 대조해 검증한다.
+추정으로 module 관계를 그리지 않는다.
 
-## Verification
+## 검증
 
-Validate README diagrams with XML parsing, PNG rerendering, source-token grep, and README link checks before publishing.
+- Source file/module 존재 여부 확인.
+- README link와 generated image asset 확인.
+- `git diff --check`.
 
-## Future Guidance
+## 향후 가이드
 
-When regenerating README images, recover Mermaid only as a starting point. Confirm each prominent class/API label against current source before committing assets.
+README diagram을 수정할 때는 source verification을 먼저 수행한다. 확인하지 않은 관계는 diagram에
+추가하지 않는다.
