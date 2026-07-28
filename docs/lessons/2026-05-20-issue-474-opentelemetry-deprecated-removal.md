@@ -1,30 +1,32 @@
-# Issue 474 OpenTelemetry Deprecated API Removal
+# 이슈 474 OpenTelemetry Deprecated API 제거
 
-## Context
+## 배경
 
-Issue #474 tracks staged removal of deprecated `infra/` APIs after the compatibility window. This lane only covers the OpenTelemetry module and stays independent from the Kafka cleanup PR.
+Issue #474는 compatibility window 이후 deprecated `infra/` API를 단계적으로 제거한다. 이 lane은
+OpenTelemetry module만 다루며 Kafka cleanup PR과 독립적으로 유지한다.
 
-## Decision
+## 결정
 
-Remove the deprecated OpenTelemetry aliases instead of keeping forwarding shims:
+Forwarding shim을 유지하지 않고 deprecated OpenTelemetry alias를 제거한다:
 
 - `SpanBuilder.useSuspendSpan`
 - `spanExportOf`
 - `batchSpanProcess`
 
-The canonical APIs remain `useSpanSuspending`, `spanExporterOf`, and `batchSpanProcessorOf`.
+Canonical API는 `useSpanSuspending`, `spanExporterOf`, `batchSpanProcessorOf`로 유지한다.
 
-## Outcome
+## 결과
 
-OpenTelemetry no longer exposes deprecated alias APIs in main sources, and README examples now show only canonical names.
+OpenTelemetry main source는 더 이상 deprecated alias API를 expose하지 않고, README example도
+canonical name만 보여준다.
 
-## Verification
+## 검증
 
-- `./gradlew :bluetape4k-opentelemetry:compileKotlin :bluetape4k-opentelemetry:compileTestKotlin --no-configuration-cache`
-  passed.
-- `./gradlew :bluetape4k-opentelemetry:test --no-configuration-cache` passed with 73 tests.
-- Removed one existing `!!` in `FlowSpanSupportTest` after compile surfaced an unnecessary non-null assertion warning.
+- `./gradlew :bluetape4k-opentelemetry:compileKotlin :bluetape4k-opentelemetry:compileTestKotlin --no-configuration-cache` 통과.
+- `./gradlew :bluetape4k-opentelemetry:test --no-configuration-cache` 73 tests로 통과.
+- Compile이 unnecessary non-null assertion warning을 드러낸 뒤 `FlowSpanSupportTest`의 기존 `!!` 1개를 제거.
 
-## Future Guidance
+## 향후 가이드
 
-Keep future #474 lanes narrow and independent. The shared deprecated inventory may conflict across parallel cleanup PRs; resolve it by preserving each lane's completed rows and keeping remaining work visible.
+미래 #474 lane은 좁고 독립적으로 유지한다. Shared deprecated inventory는 parallel cleanup PR 사이에서
+conflict 날 수 있으므로 각 lane의 completed row를 보존하고 remaining work를 계속 보이게 둔다.
