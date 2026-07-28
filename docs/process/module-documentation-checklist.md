@@ -1,82 +1,77 @@
 # Module Documentation Drift Checklist
 
-Use this checklist whenever a module is added, renamed, moved, removed, split,
-or promoted to a different repository. The goal is to keep Gradle registration,
-README catalogs, CI coverage, examples, and release metadata synchronized in the
-same change.
+Module이 추가, rename, move, remove, split되거나 다른 repository로 승격될 때 이 checklist를
+사용한다. 목표는 Gradle registration, README catalog, CI coverage, example, release
+metadata를 같은 변경에서 동기화하는 것이다.
 
-## When To Use It
+## 사용 시점
 
-- New module or demo directory.
-- Module rename or path move.
-- Module removal or external repository split.
-- Module family change, such as adding a backend-specific variant.
-- Public README, BOM, or CI behavior changes caused by module registration.
+- 새 module 또는 demo directory.
+- Module rename 또는 path move.
+- Module removal 또는 external repository split.
+- Backend-specific variant 추가 같은 module family change.
+- Module registration으로 인한 public README, BOM, CI behavior change.
 
-## Required Updates
+## 필수 갱신
 
 ### Gradle Registration
 
-- Update `settings.gradle.kts` or the relevant include helper when automatic
-  registration does not cover the module.
-- Confirm the Gradle path and published artifact name match the directory.
-- Check BOM/catalog aggregation if the module should be published.
+- Automatic registration이 module을 cover하지 않으면 `settings.gradle.kts` 또는 관련 include
+  helper를 갱신한다.
+- Gradle path와 published artifact name이 directory와 일치하는지 확인한다.
+- Module이 publish 대상이면 BOM/catalog aggregation을 확인한다.
 
 ### README Locale Set
 
-- Add or update the module `README.md`.
-- Add or update the matching `README.ko.md` when the module has a Korean README
-  pair, or create both files for new bluetape4k modules.
-- Keep the language switch directly below the title in both files.
-- Keep architecture, features, usage, configuration, dependency, and benchmark
-  sections synchronized when both locales exist.
-- Update root `README.md` and `README.ko.md` module catalogs and diagrams when
-  the module affects the public catalog.
+- Module `README.md`를 추가하거나 갱신한다.
+- Module에 Korean README pair가 있으면 matching `README.ko.md`를 추가하거나 갱신하고, 새
+  bluetape4k module이면 두 파일을 모두 만든다.
+- 두 파일 모두 title 바로 아래에 language switch를 유지한다.
+- 두 locale이 있으면 architecture, feature, usage, configuration, dependency, benchmark
+  section을 동기화한다.
+- Module이 public catalog에 영향을 주면 root `README.md`와 `README.ko.md`의 module catalog와
+  diagram을 갱신한다.
 
-### Repo And Agent References
+### Repo And Agent Reference
 
-- Update repo-local `AGENTS.md` if the module group list or workflow rule
-  changes.
-- Update `.codex/references/module-groups.md` when the module group map changes.
-- Add or update `docs/lessons/YYYY-MM-DD-{slug}.md` with context, decision,
-  outcome, verification, and future guidance.
+- Module group list 또는 workflow rule이 바뀌면 repo-local `AGENTS.md`를 갱신한다.
+- Module group map이 바뀌면 `.codex/references/module-groups.md`를 갱신한다.
+- Context, decision, outcome, verification, future guidance를 담아
+  `docs/lessons/YYYY-MM-DD-{slug}.md`를 추가하거나 갱신한다.
 
-### CI, Nightly, And Examples
+### CI, Nightly, Example
 
-- Update `.github/workflows/ci.yml` path filters, changed-module mapping, or test
-  jobs when the module must run in PR CI.
-- Update Nightly or examples workflows when Testcontainers, external services,
-  or long-running examples are involved.
-- Update summary jobs and `needs` lists when new jobs are added.
-- Keep container-backed verification in one sequential lane when required.
+- Module이 PR CI에서 실행되어야 하면 `.github/workflows/ci.yml` path filter,
+  changed-module mapping, test job을 갱신한다.
+- Testcontainers, external service, long-running example이 관련되면 Nightly 또는 examples
+  workflow를 갱신한다.
+- 새 job이 추가되면 summary job과 `needs` list를 갱신한다.
+- 필요할 때 container-backed verification은 하나의 sequential lane으로 유지한다.
 
 ### Release And Dependency Metadata
 
-- Check `bluetape4k-bom` or publication aggregation for publishable modules.
-- Check dependency catalog aliases if the module introduces or moves centrally
-  governed dependencies.
-- Update release notes, changelog, or migration notes only when the module
-  change is user-visible.
+- Publishable module은 `bluetape4k-bom` 또는 publication aggregation을 확인한다.
+- Module이 centrally governed dependency를 도입하거나 이동하면 dependency catalog alias를 확인한다.
+- Module change가 user-visible일 때만 release note, changelog, migration note를 갱신한다.
 
 ### Manual Publication Contract
 
-- Keep `docs/manual` repository links relative so the authoring source remains
-  reviewable in the same change as the implementation.
-- Run the release contract validator to prove that every relative source and
-  test target exists at the documented release commit.
-- The validator derives snapshot-only manuals from manifest modules whose
-  `sourceDir` is absent from that release. Do not add manual skip lists or
-  weaken link checks for modules that exist in the release tree.
-- Require the public-site snapshot publisher to rewrite repository-relative
-  links to the immutable release tag or commit. Verify representative generated
-  URLs before deployment; a link to `develop` is not release provenance.
-- Use only the central `bluetape4k-dependencies` BOM in generated consumer
-  examples. Repository-local BOM coordinates are implementation metadata, not
-  the version users should select.
+- Authoring source가 implementation과 같은 변경에서 review 가능하도록 `docs/manual` repository
+  link는 relative로 유지한다.
+- Release contract validator를 실행해 모든 relative source와 test target이 문서화된 release
+  commit에 존재함을 증명한다.
+- Validator는 해당 release에 `sourceDir`이 없는 manifest module에서 snapshot-only manual을
+  도출한다. Release tree에 존재하는 module에 대해 manual skip list를 추가하거나 link check를
+  약화하지 않는다.
+- Public-site snapshot publisher는 repository-relative link를 immutable release tag 또는 commit으로
+  rewrite해야 한다. Deployment 전에 대표 generated URL을 검증한다. `develop` link는 release
+  provenance가 아니다.
+- Generated consumer example에는 central `bluetape4k-dependencies` BOM만 사용한다. Repository-local
+  BOM coordinate는 implementation metadata이며 사용자가 선택할 version이 아니다.
 
-## Validation Commands
+## 검증 명령
 
-Run the smallest set that proves the checklist for the change:
+변경에 대한 checklist를 증명하는 가장 작은 command set을 실행한다.
 
 ```bash
 ./gradlew projects --no-configuration-cache
@@ -89,34 +84,33 @@ rg -n "<old-module-name>|<old-artifact-name>|<old-path>"
 rg -n "<new-module-name>|<new-artifact-name>" README.md README.ko.md .codex/references/module-groups.md AGENTS.md
 ```
 
-For compile/test evidence, prefer affected module tasks:
+Compile/test evidence에는 affected module task를 우선한다.
 
 ```bash
 ./gradlew :<module>:compileKotlin :<module>:compileTestKotlin --no-configuration-cache
 ./gradlew :<module>:test --no-configuration-cache
 ```
 
-For README link/path checks, verify touched relative links directly:
+README link/path check에는 수정한 relative link를 직접 검증한다.
 
 ```bash
 test -f <path-from-link-target>
 test -d <module-directory>
 ```
 
-## Expected Evidence In PRs
+## PR에 필요한 Evidence
 
-- Gradle project path appears in `./gradlew projects`.
-- Root README locale pair lists or intentionally omits the module.
-- Module README locale pair exists and stays synchronized.
-- CI/Nightly/example workflow impact is listed, even when no change is needed.
-- BOM/catalog impact is listed, even when automatic aggregation covers it.
-- Generated consumer examples use `bluetape4k-dependencies`, and published
-  source links resolve to the documented release rather than `develop`.
-- Stale old module names are absent or explicitly marked historical.
+- Gradle project path가 `./gradlew projects`에 나타난다.
+- Root README locale pair가 module을 나열하거나 의도적으로 생략한다.
+- Module README locale pair가 존재하고 동기화되어 있다.
+- 변경이 필요 없더라도 CI/Nightly/example workflow impact를 기록한다.
+- Automatic aggregation이 cover하더라도 BOM/catalog impact를 기록한다.
+- Generated consumer example은 `bluetape4k-dependencies`를 사용하고, published source link는
+  `develop`이 아니라 문서화된 release로 resolve된다.
+- Stale old module name은 없거나 historical로 명시되어 있다.
 
-## Common Skip Reasons
+## 일반적인 Skip 사유
 
-- Documentation-only wording change with no module lifecycle impact.
-- Historical plan/spec files under `docs/superpowers` that intentionally record
-  old module paths.
-- Archived security review evidence under `docs/security-review`.
+- Module lifecycle impact가 없는 documentation-only wording change.
+- Old module path를 의도적으로 기록하는 `docs/superpowers` 아래 historical plan/spec file.
+- `docs/security-review` 아래 archived security review evidence.
