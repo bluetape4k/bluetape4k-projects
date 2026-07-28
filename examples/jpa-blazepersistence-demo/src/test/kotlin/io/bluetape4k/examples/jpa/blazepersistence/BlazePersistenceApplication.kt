@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 
 /**
- * Spring Boot test application for the Blaze Persistence JPA examples.
+ * Blaze Persistence JPA example용 Spring Boot test application입니다.
  */
 @SpringBootApplication
 @EnableJpaAuditing(modifyOnCreate = true)
