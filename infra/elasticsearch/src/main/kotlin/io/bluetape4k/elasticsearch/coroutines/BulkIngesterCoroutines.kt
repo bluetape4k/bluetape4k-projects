@@ -241,12 +241,12 @@ data class BulkListenerHandle<Context>(
 }
 
 /**
- * Creates a [BulkListener] and [Flow] pair for bulk progress callbacks.
+ * bulk progress callback을 위한 [BulkListener]와 [Flow] pair를 생성합니다.
  *
  * Register the returned [BulkListener] with a [BulkIngester] to stream `beforeBulk`,
  * successful `afterBulk`, and failed `afterBulk` callbacks as [BulkProgressEvent] values.
  *
- * The callback path never suspends or blocks Elasticsearch client threads. Events are
+ * callback 경로는 Elasticsearch client thread를 suspend하거나 block하지 않습니다. event는
  * offered to a bounded [Channel] with [bufferCapacity] and [onBufferOverflow]. With the
  * default [BufferOverflow.SUSPEND] policy, `trySend` failures are logged and the event is
  * dropped when collectors are too slow or absent.
