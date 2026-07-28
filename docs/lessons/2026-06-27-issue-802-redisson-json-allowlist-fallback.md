@@ -1,31 +1,42 @@
-# Issue 802: Redisson JSON allow-list fallback boundary
+# 이슈 802: Redisson JSON allowlist fallback 경계
 
-## Context
+## 배경
 
-`Jackson3Codec` and `Fastjson2Codec` advertised `allowedPackagePrefixes` as a Redis trust-boundary control, but malformed or non-JSON payloads could still fall through to the Fory fallback decoder. That made the documented allow-list weaker than the public API contract.
+`Jackson3Codec`과 `Fastjson2Codec`은 `allowedPackagePrefixes`를 Redis trust-boundary
+control로 설명했지만, malformed 또는 non-JSON payload는 여전히 Fory fallback
+decoder로 떨어질 수 있었다. 이 때문에 문서화된 allowlist가 public API 계약보다
+약해졌다.
 
-## Decision
+## 결정
 
-When `allowedPackagePrefixes` is configured, JSON codec decode fallback is disabled by default. Existing trusted-internal behavior remains unchanged for `allowedPackagePrefixes = null`, and a caller must explicitly set `allowFallbackDecode = true` for a trusted migration window.
+`allowedPackagePrefixes`가 설정되어 있으면 JSON codec decode fallback을 기본적으로
+비활성화한다. `allowedPackagePrefixes = null`인 기존 trusted-internal 동작은 그대로
+유지하고, 신뢰된 migration window가 필요한 호출자는 `allowFallbackDecode = true`를
+명시적으로 설정해야 한다.
 
-## Outcome
+## 결과
 
-- Allow-listed `Jackson3Codec` and `Fastjson2Codec` now reject fallback-format binary payloads with `SecurityException`.
-- `RedissonCodecs.jackson3(...)` and `RedissonCodecs.fastjson2(...)` inherit the safe default.
-- README trust-profile guidance now documents the default rejection and explicit migration escape hatch.
+- Allow-listed `Jackson3Codec`과 `Fastjson2Codec`은 이제 fallback-format binary payload를 `SecurityException`으로 거부한다.
+- `RedissonCodecs.jackson3(...)`와 `RedissonCodecs.fastjson2(...)`는 안전한 기본값을 상속한다.
+- README trust-profile 지침은 기본 거부 동작과 명시적 migration escape hatch를 문서화한다.
 
-## Verification
+## 검증
 
-- Red test before implementation: allow-listed Jackson3/Fastjson2 binary fallback payload tests failed because no exception was thrown.
+- 구현 전 red test: allow-listed Jackson3/Fastjson2 binary fallback payload test는 exception이 던져지지 않아 실패했다.
 - `./gradlew :bluetape4k-redisson:compileTestKotlin --warning-mode all --no-daemon --no-configuration-cache`
 - `./gradlew :bluetape4k-redisson:test --tests "io.bluetape4k.redis.redisson.codec.*CodecTest" --no-build-cache --no-daemon --no-configuration-cache`
 - `./gradlew :bluetape4k-redisson:test --no-daemon --no-configuration-cache`
 - `git diff --check`
 
-## Future Guard
+## 향후 방지책
 
-Do not describe a codec factory as `AllowListedTypes` unless all decode fallback paths either validate the same type boundary or are disabled by default. If a legacy migration path is needed, make it explicit in the API and in README trust-profile text.
+모든 decode fallback path가 같은 type boundary를 검증하거나 기본 비활성화되어 있지
+않다면 codec factory를 `AllowListedTypes`로 설명하지 않는다. Legacy migration path가
+필요하면 API와 README trust-profile text에서 명시적으로 드러낸다.
 
-## Concurrency Helper Gate
+## 동시성 helper gate
 
-`MultithreadingTester`, `SuspendedJobTester`, and `StructuredTaskScopeTester` were not applicable here. The change does not add shared mutable state, coroutine lifecycle behavior, or structured task scope behavior; it only narrows synchronous decode fallback behavior at a Redis codec trust boundary.
+`MultithreadingTester`, `SuspendedJobTester`, `StructuredTaskScopeTester`는 여기서 적용
+대상이 아니었다. 이 변경은 shared mutable state, coroutine lifecycle behavior,
+structured task scope behavior를 추가하지 않고 Redis codec trust boundary의
+synchronous decode fallback behavior만 좁힌다.
