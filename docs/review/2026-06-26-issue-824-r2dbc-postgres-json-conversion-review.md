@@ -11,13 +11,13 @@
 - Tier 5 Tests: PASS
 - Tier 7 Evidence: PASS
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0
 - P2/P3: 0
 
-## Evidence
+## 증거
 
 - `JsonToMapConverter` now throws `ConversionFailedException` for malformed PostgreSQL JSON instead of returning `emptyMap()`.
 - `MapToJsonConverter` now throws `ConversionFailedException` for Jackson serialization failures instead of returning `Json.of("{}")`.

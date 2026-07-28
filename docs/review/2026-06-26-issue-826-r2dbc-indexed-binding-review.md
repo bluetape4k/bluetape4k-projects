@@ -11,13 +11,13 @@
 - Tier 5 Tests: PASS
 - Tier 7 Evidence: PASS
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0
 - P2/P3: 0
 
-## Evidence
+## 증거
 
 - `bindIndexedMap` KDoc now documents Spring R2DBC's zero-based indexed binding contract.
 - `bindIndexedMap` now rejects negative indexes before forwarding to Spring R2DBC.
