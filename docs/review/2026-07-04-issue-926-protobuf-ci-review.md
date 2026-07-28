@@ -1,4 +1,4 @@
-# Issue 926 Protobuf CI Coverage Review
+# Issue 926 Protobuf CI Coverage 검토
 
 ## Scope
 
@@ -7,7 +7,7 @@
 - Branch: `fix/issue-926-protobuf-ci`
 - Target: `.github/workflows/ci.yml`
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Result | Evidence |
 |---|---|---|

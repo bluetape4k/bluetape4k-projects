@@ -1,4 +1,4 @@
-# CodeQL Java/Kotlin Timeout Review
+# CodeQL Java/Kotlin Timeout 검토
 
 Date: 2026-07-09
 Scope: `.github/workflows/codeql.yml`
@@ -9,7 +9,7 @@ Scope: `.github/workflows/codeql.yml`
 - P1: 0
 - P2/P3: none
 
-## Evidence
+## 증거
 
 - CodeQL scheduled runs `28731149402`, `28771654658`, `28844864852`, and
   `28918464140` were cancelled only on the `Analyze (java-kotlin)` matrix job.
