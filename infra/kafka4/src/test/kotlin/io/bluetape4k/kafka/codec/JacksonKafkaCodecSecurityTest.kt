@@ -12,9 +12,9 @@ import org.apache.kafka.common.header.internals.RecordHeaders
 import org.junit.jupiter.api.Test
 
 /**
- * Security tests for [JacksonKafkaCodec] type allowlist enforcement.
+ * [JacksonKafkaCodec] type allowlist 강제를 검증하는 security test입니다.
  *
- * Verifies that:
+ * 다음을 검증합니다:
  * - Untrusted class names in the `VALUE_TYPE_KEY` header are rejected by default (empty allowedTypePackages)
  * - Explicitly allowed packages are deserialized correctly
  * - [AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE] opt-in restores legacy allow-all behavior
