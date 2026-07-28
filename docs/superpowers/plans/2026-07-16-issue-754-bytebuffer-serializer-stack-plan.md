@@ -1,14 +1,14 @@
-# Issue #754 ByteBuffer Serializer Stack Implementation Plan
+# Issue #754 ByteBuffer Serializer Stack 구현 계획
 
-**Goal:** Preserve existing serializer contracts while adding caller-owned
+**목표:** Preserve existing serializer contracts while adding caller-owned
 `ByteBuffer` APIs, backend-specific lower-copy paths, and allocation evidence.
 
-**Authority:** The live issue [#754](https://github.com/bluetape4k/bluetape4k-projects/issues/754)
+**권한:** The live issue [#754](https://github.com/bluetape4k/bluetape4k-projects/issues/754)
 defines scope. This plan does not authorize release, tag, publish, credential, GitHub App, ruleset, environment, or GitHub Release changes.
 
-**Delivery:** Five sequential PRs. PR creation is authorized after each slice passes its pre-PR gates. Every merge waits for fresh approval tied to the exact PR head after CI and review pass.
+**전달:** Five sequential PRs. PR creation is authorized after each slice passes its pre-PR gates. Every merge waits for fresh approval tied to the exact PR head after CI and review pass.
 
-## Stop Conditions
+## 중단 조건
 
 - Do not change existing `ByteArray` signatures or wire/security behavior.
 - Do not claim lower allocation for a compatibility fallback.
@@ -29,7 +29,7 @@ defines scope. This plan does not authorize release, tag, publish, credential, G
 
 ## Slice 1: Contract And Compatibility
 
-### Completed outcomes to preserve
+### 보존할 완료 결과
 
 - `BinarySerializer`, `JsonSerializer`, and Avro interfaces expose executable JVM default buffer methods while retaining old abstract methods.
 - Java input names avoid null-literal ambiguity; Kotlin extensions remain.
@@ -37,7 +37,7 @@ defines scope. This plan does not authorize release, tag, publish, credential, G
 - Pinned pre-change jars, legacy callers, `javap`, and frozen wire fixtures prove compatibility.
 - The ABI script and contract evidence are serializer-owned and independent of release policy.
 
-### Corrective verification
+### corrective 검증
 
 ```bash
 python3 -m unittest scripts/test_release_workflow_policy.py -v
@@ -47,7 +47,7 @@ bash scripts/check-serializer-buffer-abi.sh \
   --build-current --expected-head "$(git rev-parse HEAD)"
 ```
 
-Expected: policy tests and actionlint pass; ABI check reports all legacy/new caller and default-dispatch checks PASS. Corrective changes must not modify serializer Kotlin/Java source or fixtures.
+예상 결과: policy tests and actionlint pass; ABI check reports all legacy/new caller and default-dispatch checks PASS. Corrective changes must not modify serializer Kotlin/Java source or fixtures.
 
 ## Slice 2: Core Binary Serializers
 
