@@ -5,7 +5,7 @@
 - `io/http/src/test/kotlin/io/bluetape4k/http/hc5/examples/ClientInterceptors.kt`
 - `io/http/src/test/kotlin/io/bluetape4k/http/hc5/examples/AsyncClientInterceptors.kt`
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0

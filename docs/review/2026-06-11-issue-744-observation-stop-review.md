@@ -6,7 +6,7 @@
 - `infra/micrometer/src/test/kotlin/io/bluetape4k/micrometer/observation/coroutines/ObservationCoroutinesSupportTest.kt`
 - `infra/micrometer/src/test/kotlin/io/bluetape4k/micrometer/observation/events/EventTelemetryObservationSupportTest.kt`
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0
