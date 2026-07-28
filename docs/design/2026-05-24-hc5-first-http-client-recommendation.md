@@ -1,4 +1,4 @@
-# Design Note: HC5-First HTTP Client Recommendation
+# Design Note: HC5-First HTTP Client 권고
 
 **Date**: 2026-05-24
 **Issue**: #586
@@ -12,7 +12,7 @@
 
 ---
 
-## Decision
+## 결정
 
 **Promote HC5 as the primary recommended production HTTP client in `bluetape4k-http`.**
 
@@ -20,7 +20,7 @@ The remaining backends remain fully supported as first-class options for their r
 
 ---
 
-## Recommendation by Use Case
+## 권고 by Use Case
 
 | Scenario | Primary | Notes |
 |----------|---------|-------|
@@ -118,7 +118,7 @@ The 2026-05-21 snapshot was collected on a local Colima Docker environment. The 
 
 ---
 
-## Follow-up Issues
+## 후속 작업 Issues
 
 | Issue | Description |
 |-------|-------------|
