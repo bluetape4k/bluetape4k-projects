@@ -8,7 +8,24 @@ import net.jpountz.lz4.LZ4Factory
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 
+/**
+ * LZ4의 `ByteBuffer` 기반 압축·해제 연산을 격리한 내부 어댑터입니다.
+ *
+ * 각 offset은 해당 버퍼의 시작점을 기준으로 한 절대 위치입니다. 운영 구현은
+ * LZ4 codec에 위임하고, 테스트 구현은 경계값과 반환값 검증에 사용합니다.
+ */
 internal interface LZ4BufferOperations {
+    /**
+     * [source]의 지정 구간을 [target]의 지정 구간에 압축합니다.
+     *
+     * @param source 압축할 원본 버퍼
+     * @param sourceOffset 원본 데이터가 시작되는 절대 위치
+     * @param sourceLength 압축할 원본 데이터 길이
+     * @param target 압축 결과를 기록할 대상 버퍼
+     * @param targetOffset 압축 결과를 기록하기 시작할 절대 위치
+     * @param targetLength 기록할 수 있는 최대 압축 데이터 길이
+     * @return [target]에 기록한 압축 데이터 길이
+     */
     fun compress(
         source: ByteBuffer,
         sourceOffset: Int,
@@ -18,6 +35,16 @@ internal interface LZ4BufferOperations {
         targetLength: Int,
     ): Int
 
+    /**
+     * [source]의 압축 데이터를 [target]의 지정 구간에 해제합니다.
+     *
+     * @param source 압축 데이터가 들어 있는 원본 버퍼
+     * @param sourceOffset 압축 데이터가 시작되는 절대 위치
+     * @param target 해제 결과를 기록할 대상 버퍼
+     * @param targetOffset 해제 결과를 기록하기 시작할 절대 위치
+     * @param targetLength 해제할 원본 데이터의 예상 길이
+     * @return 해제 과정에서 소비한 압축 데이터 길이
+     */
     fun decompress(
         source: ByteBuffer,
         sourceOffset: Int,
