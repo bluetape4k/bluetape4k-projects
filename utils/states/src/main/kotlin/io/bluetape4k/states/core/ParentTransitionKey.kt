@@ -3,7 +3,7 @@ package io.bluetape4k.states.core
 import java.io.Serializable
 
 /**
- * Identifies an inherited transition registered for a state family.
+ * state family에 등록된 inherited transition을 식별합니다.
  *
  * Exact state transitions still have precedence. Parent transitions are used
  * when the current state is an instance of [stateType] and no exact transition
