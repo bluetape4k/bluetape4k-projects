@@ -12,112 +12,112 @@
 ## 공통 gate
 
 - [x] **CG-01 — Re-read authority**
-    - **Action:** repo `AGENTS.md`, workflow/writer/maintenance/diagram skill, status와 diff를 읽는다.
-    - **Evidence:** `AGENTS.md`; worktree clean; selected skill/reference reads completed 2026-07-12.
-    - **Failure:** STOP before editing.
+    - **조치:** repo `AGENTS.md`, workflow/writer/maintenance/diagram skill, status와 diff를 읽는다.
+    - **증거:** `AGENTS.md`; worktree clean; selected skill/reference reads completed 2026-07-12.
+    - **실패 시:** STOP before editing.
 - [x] **CG-02 — Query historical/current evidence**
-    - **Action:** GNO와 현재 source/test/README/blog를 검색한다.
-    - **Evidence:** GNO에 logging manual 선행 기록 없음; current Kotlin source/tests와 bilingual README/blog가 결정 근거.
-    - **Failure:** STOP decisions that depend on missing evidence.
+    - **조치:** GNO와 현재 source/test/README/blog를 검색한다.
+    - **증거:** GNO에 logging manual 선행 기록 없음; current Kotlin source/tests와 bilingual README/blog가 결정 근거.
+    - **실패 시:** STOP decisions that depend on missing evidence.
 - [x] **CG-03 — Protect user work and boundaries**
-    - **Action:** repo/worktree/branch/status를 확인한다.
-    - **Evidence:** Projects `feature/all-module-manuals`, staged/unstaged/untracked/conflicted 모두 0; upstream 없음.
-    - **Failure:** preserve or BLOCK.
+    - **조치:** repo/worktree/branch/status를 확인한다.
+    - **증거:** Projects `feature/all-module-manuals`, staged/unstaged/untracked/conflicted 모두 0; upstream 없음.
+    - **실패 시:** preserve or BLOCK.
 - [x] **CG-04 — Apply audience language policy**
-    - **Action:** Korean chat, bilingual public manual/blog parity를 유지한다.
-    - **Evidence:** planned KO/EN landing/chapter and KO/EN blog pair.
-    - **Failure:** repair locale drift.
+    - **조치:** Korean chat, bilingual public manual/blog parity를 유지한다.
+    - **증거:** planned KO/EN landing/chapter and KO/EN blog pair.
+    - **실패 시:** repair locale drift.
 - [x] **CG-05 — Prove public contract documentation**
-    - **Action:** Kotlin API 변경 여부와 durable plan/spec 경로를 고정한다.
-    - **Evidence:** runtime change N/A; design/plan under `docs/superpowers`.
-    - **Failure:** block undocumented behavior.
+    - **조치:** Kotlin API 변경 여부와 durable plan/spec 경로를 고정한다.
+    - **증거:** runtime change N/A; design/plan under `docs/superpowers`.
+    - **실패 시:** block undocumented behavior.
 - [x] **CG-06 — Reuse ecosystem patterns**
-    - **Action:** Core/Coroutines chapter/asset/manifest pattern과 logging source/tests를 재사용한다.
+    - **조치:** Core/Coroutines chapter/asset/manifest pattern과 logging source/tests를 재사용한다.
     -
-  **Evidence:** schema v2 manual inventory, existing logging README diagrams, source classes and representative tests mapped.
-    - **Failure:** stop new abstraction/dependency work.
+  **증거:** schema v2 manual inventory, existing logging README diagrams, source classes and representative tests mapped.
+    - **실패 시:** stop new abstraction/dependency work.
 - [x] **CG-07 — Lock behavior and run targeted proof**
-    - **Action:** manual validator/tests, logging tests, site tests/build를 실행한다.
+    - **조치:** manual validator/tests, logging tests, site tests/build를 실행한다.
     -
-  **Evidence:** Ruby 14/41 + 2/7 PASS; validator aligned; Gradle rerun 51 passing, 20 tasks executed, BUILD SUCCESSFUL.
-    - **Failure:** repair and rerun.
+  **증거:** Ruby 14/41 + 2/7 PASS; validator aligned; Gradle rerun 51 passing, 20 tasks executed, BUILD SUCCESSFUL.
+    - **실패 시:** repair and rerun.
 - [x] **CG-08 — Serialize heavyweight checks**
-    - **Action:** heavyweight integration check applicability를 분류한다.
-    - **Evidence:** N/A — docs-only; logging unit tests contain no Testcontainers/DB/native dependency.
-    - **Failure:** rerun sequentially if scope changes.
+    - **조치:** heavyweight integration check applicability를 분류한다.
+    - **증거:** N/A — docs-only; logging unit tests contain no Testcontainers/DB/native dependency.
+    - **실패 시:** rerun sequentially if scope changes.
 - [x] **CG-09 — Verify issue/PR metadata live**
-    - **Action:** GitHub metadata applicability를 분류한다.
-    - **Evidence:** N/A — no issue/PR mutation requested.
-    - **Failure:** verify live if GitHub scope is later approved.
+    - **조치:** GitHub metadata applicability를 분류한다.
+    - **증거:** N/A — no issue/PR mutation requested.
+    - **실패 시:** verify live if GitHub scope is later approved.
 - [x] **CG-10 — Verify PR body and reviews live**
-    - **Action:** PR applicability를 분류한다.
-    - **Evidence:** N/A — no PR exists in approved scope.
-    - **Failure:** verify live before merge scope.
+    - **조치:** PR applicability를 분류한다.
+    - **증거:** N/A — no PR exists in approved scope.
+    - **실패 시:** verify live before merge scope.
 - [x] **CG-11 — Enforce side-effect authority**
-    - **Action:** external/irreversible action boundary를 기록한다.
-    - **Evidence:** no push/PR/merge/deploy; local commits only follow existing approved worktree flow.
-    - **Failure:** STOP at external boundary.
+    - **조치:** external/irreversible action boundary를 기록한다.
+    - **증거:** no push/PR/merge/deploy; local commits only follow existing approved worktree flow.
+    - **실패 시:** STOP at external boundary.
 - [x] **CG-12 — Synchronize after merge**
-    - **Action:** merge applicability를 분류한다.
-    - **Evidence:** N/A — merge not requested.
-    - **Failure:** sync if later merged.
+    - **조치:** merge applicability를 분류한다.
+    - **증거:** N/A — merge not requested.
+    - **실패 시:** sync if later merged.
 - [x] **CG-13 — Update managed source first**
-    - **Action:** chezmoi applicability를 분류한다.
-    - **Evidence:** N/A — no managed user-scope guidance.
-    - **Failure:** resolve source chain if scope changes.
+    - **조치:** chezmoi applicability를 분류한다.
+    - **증거:** N/A — no managed user-scope guidance.
+    - **실패 시:** resolve source chain if scope changes.
 - [x] **CG-14 — Audit durable Codex changes**
-    - **Action:** Codex guidance applicability를 분류한다.
-    - **Evidence:** N/A — no Codex surfaces changed.
-    - **Failure:** audit if scope changes.
+    - **조치:** Codex guidance applicability를 분류한다.
+    - **증거:** N/A — no Codex surfaces changed.
+    - **실패 시:** audit if scope changes.
 - [x] **CG-15 — Preserve global policy boundaries**
-    - **Action:** global policy and Claude surfaces를 제외한다.
-    - **Evidence:** scoped file map contains only Projects/Site documentation.
-    - **Failure:** revert unauthorized changes.
+    - **조치:** global policy and Claude surfaces를 제외한다.
+    - **증거:** scoped file map contains only Projects/Site documentation.
+    - **실패 시:** revert unauthorized changes.
 - [x] **CG-16 — Use authoritative tooling safely**
-    - **Action:** raw reads, repo helpers, apply_patch, repo scripts를 사용한다.
-    - **Evidence:** repo-status/repo-diff/rg/sed and selected skill references read.
-    - **Failure:** rerun authoritative command.
+    - **조치:** raw reads, repo helpers, apply_patch, repo scripts를 사용한다.
+    - **증거:** repo-status/repo-diff/rg/sed and selected skill references read.
+    - **실패 시:** rerun authoritative command.
 - [x] **CG-17 — Prove completion line by line**
-    - **Action:** 모든 leaf/diagram/site proof와 clean diff/status를 재검증한다.
+    - **조치:** 모든 leaf/diagram/site proof와 clean diff/status를 재검증한다.
     -
-  **Evidence:** all logging leaf gates closed; Projects validators/tests and Site snapshot/tests/build/browser evidence recorded below; final clean status is verified after commits.
-    - **Failure:** remain PENDING.
+  **증거:** all logging leaf gates closed; Projects validators/tests and Site snapshot/tests/build/browser evidence recorded below; final clean status is verified after commits.
+    - **실패 시:** remain PENDING.
 
 ## Logging manual leaf gate
 
 - [x] **LOG-01 — Pin source-backed chapter model**
-    - **Action:** public source, representative tests, README와 blog를 대조한다.
+    - **조치:** public source, representative tests, README와 blog를 대조한다.
     -
-  **Evidence:** six chapter topics map to KLogging/KotlinLogging, Slf4jExtensions, MdcSupport, MdcSupportCoroutines, KLoggingChannel, operations/tests.
-    - **Failure:** remove unsupported claims.
+  **증거:** six chapter topics map to KLogging/KotlinLogging, Slf4jExtensions, MdcSupport, MdcSupportCoroutines, KLoggingChannel, operations/tests.
+    - **실패 시:** remove unsupported claims.
 - [x] **LOG-02 — Write bilingual chapter inventory**
-    - **Action:** landing과 6개 KO/EN chapter를 작성한다.
-    - **Evidence:** 12 chapter files; chapter IDs/order/source links validated in schema v2.
-    - **Failure:** repair parity.
+    - **조치:** landing과 6개 KO/EN chapter를 작성한다.
+    - **증거:** 12 chapter files; chapter IDs/order/source links validated in schema v2.
+    - **실패 시:** repair parity.
 - [x] **LOG-03 — Create canonical diagrams**
-    - **Action:** source-backed SVG/PNG 3쌍을 manual assets에 둔다.
-    - **Evidence:** 3 SVG/PNG pairs rendered with CairoSVG scale 2 and inspected at full size; ledger below.
-    - **Failure:** return to asset loop.
+    - **조치:** source-backed SVG/PNG 3쌍을 manual assets에 둔다.
+    - **증거:** 3 SVG/PNG pairs rendered with CairoSVG scale 2 and inspected at full size; ledger below.
+    - **실패 시:** return to asset loop.
 - [x] **LOG-04 — Register and validate manifest**
-    - **Action:** chapters/assets inventory를 schema v2 manifest에 추가한다.
+    - **조치:** chapters/assets inventory를 schema v2 manifest에 추가한다.
     -
-  **Evidence:** 6 chapters + 6 assets registered; 14 validator tests/41 assertions and 2 export tests/7 assertions PASS; `Manuals are aligned.`
-    - **Failure:** repair inventory/reference.
+  **증거:** 6 chapters + 6 assets registered; 14 validator tests/41 assertions and 2 export tests/7 assertions PASS; `Manuals are aligned.`
+    - **실패 시:** repair inventory/reference.
 - [x] **LOG-05 — Publish deterministic site snapshot**
-    - **Action:** Projects commit 기준으로 site sync/check를 실행한다.
+    - **조치:** Projects commit 기준으로 site sync/check를 실행한다.
     -
-  **Evidence:** deterministic sync/check passed at the closing Projects revision; snapshot inventory reports 90 modules, 224 localized documents, and 28 assets.
-    - **Failure:** repair snapshot.
+  **증거:** deterministic sync/check passed at the closing Projects revision; snapshot inventory reports 90 modules, 224 localized documents, and 28 assets.
+    - **실패 시:** repair snapshot.
 - [x] **LOG-06 — Align derived blog**
-    - **Action:** bilingual Part 2 blog의 logging section을 manual route로 연결한다.
+    - **조치:** bilingual Part 2 blog의 logging section을 manual route로 연결한다.
     -
-  **Evidence:** KO/EN Part 2 articles state that the repository manual is the source of truth and link the logging landing plus five decision chapters; representative KO links resolved in the browser.
-    - **Failure:** repair ownership drift.
+  **증거:** KO/EN Part 2 articles state that the repository manual is the source of truth and link the logging landing plus five decision chapters; representative KO links resolved in the browser.
+    - **실패 시:** repair ownership drift.
 - [x] **LOG-07 — Browser and build proof**
-    - **Action:** KO/EN landing/chapter/assets/blog links와 Astro build를 검증한다.
+    - **조치:** KO/EN landing/chapter/assets/blog links와 Astro build를 검증한다.
     -
-  **Evidence:** Astro check reports 0 errors/warnings/hints; Astro build emits 373 pages; KO/EN landing, scoped MDC, async channel, blog links, and all three SVG assets rendered with no browser console warnings/errors.
-    - **Failure:** repair and rerun.
+  **증거:** Astro check reports 0 errors/warnings/hints; Astro build emits 373 pages; KO/EN landing, scoped MDC, async channel, blog links, and all three SVG assets rendered with no browser console warnings/errors.
+    - **실패 시:** repair and rerun.
 
 ## 종료 집계
 
