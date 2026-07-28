@@ -24,15 +24,15 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 /**
- * Base logger that publishes log events to a background coroutine collector.
+ * 로그 이벤트를 백그라운드 coroutine collector로 전달하는 기본 logger입니다.
  *
- * ## Contract
- * - `send(LogEvent)` publishes to an internal `MutableSharedFlow`.
- * - The default constructor uses a shared IO coroutine scope and one JVM shutdown hook for all instances.
- * - `close()` cancels only this channel's collector job and is idempotent.
- * - `closeAndJoin()` is the suspend shutdown path for tests and lifecycle owners that need deterministic cleanup.
- * - A custom [CoroutineScope] remains owned by the caller; closing the channel does not cancel the injected scope.
- * - Events sent after close are dropped.
+ * ## 계약
+ * - `send(LogEvent)`는 내부 `MutableSharedFlow`로 이벤트를 발행합니다.
+ * - 기본 생성자는 모든 인스턴스가 공유하는 IO coroutine scope와 하나의 JVM shutdown hook을 사용합니다.
+ * - `close()`는 이 channel의 collector job만 취소하며, 여러 번 호출해도 같은 결과를 유지합니다.
+ * - `closeAndJoin()`은 테스트나 lifecycle 소유자가 collector 종료를 확정적으로 확인할 때 사용하는 suspend 종료 경로입니다.
+ * - 사용자 지정 [CoroutineScope]의 소유권은 호출자에게 남아 있으므로 channel을 닫아도 주입된 scope는 취소하지 않습니다.
+ * - 닫힌 뒤 전송된 이벤트는 버립니다.
  *
  * ```kotlin
  * class Service {
@@ -61,7 +61,7 @@ open class KLoggingChannel(
     private val closed = AtomicBoolean(false)
 
     /**
-     * Whether this channel has been explicitly closed.
+     * 이 channel이 명시적으로 닫혔는지 여부입니다.
      */
     val isClosed: Boolean get() = closed.get()
 
@@ -100,15 +100,15 @@ open class KLoggingChannel(
     }
 
     /**
-     * Publishes a log event to the internal channel.
+     * 로그 이벤트를 내부 channel로 발행합니다.
      *
-     * Events sent after [close] are ignored so callers do not block on a stopped collector.
+     * [close] 이후 전송된 이벤트는 무시하여 호출자가 중지된 collector에서 대기하지 않도록 합니다.
      *
      * ```kotlin
      * send(LogEvent(Level.INFO, "service started"))
      * ```
      *
-     * @param event event to publish.
+     * @param event 발행할 로그 이벤트입니다.
      */
     suspend fun send(event: LogEvent) {
         if (!isClosed) {
@@ -117,10 +117,10 @@ open class KLoggingChannel(
     }
 
     /**
-     * Closes this channel and waits until the collector job has stopped.
+     * 이 channel을 닫고 collector job이 중지될 때까지 기다립니다.
      *
-     * Use this from tests, application shutdown hooks, or lifecycle callbacks when the caller
-     * needs deterministic evidence that the collector no longer runs.
+     * 테스트, application shutdown hook, lifecycle callback처럼 collector가 더 이상 실행되지 않는다는
+     * 확정적 증거가 필요한 호출 지점에서 사용합니다.
      */
     suspend fun closeAndJoin() {
         if (closed.compareAndSet(false, true)) {
@@ -131,10 +131,10 @@ open class KLoggingChannel(
     }
 
     /**
-     * Cancels this channel's collector job.
+     * 이 channel의 collector job을 취소합니다.
      *
-     * This method is idempotent. It does not cancel a custom [CoroutineScope] supplied to the
-     * constructor because the caller owns that scope.
+     * 여러 번 호출해도 같은 결과를 유지합니다. 생성자로 전달된 사용자 지정 [CoroutineScope]는 호출자가
+     * 소유하므로 이 메서드에서 취소하지 않습니다.
      */
     override fun close() {
         if (closed.compareAndSet(false, true)) {
@@ -143,7 +143,7 @@ open class KLoggingChannel(
     }
 
     /**
-     * Publishes a TRACE event when TRACE logging is enabled.
+     * TRACE logging이 활성화되어 있을 때 TRACE 이벤트를 발행합니다.
      *
      * ```kotlin
      * trace { "trace event" }
@@ -156,7 +156,7 @@ open class KLoggingChannel(
     }
 
     /**
-     * Publishes a DEBUG event when DEBUG logging is enabled.
+     * DEBUG logging이 활성화되어 있을 때 DEBUG 이벤트를 발행합니다.
      *
      * ```kotlin
      * debug { "debug event" }
@@ -169,7 +169,7 @@ open class KLoggingChannel(
     }
 
     /**
-     * Publishes an INFO event when INFO logging is enabled.
+     * INFO logging이 활성화되어 있을 때 INFO 이벤트를 발행합니다.
      *
      * ```kotlin
      * info { "info event" }
@@ -182,7 +182,7 @@ open class KLoggingChannel(
     }
 
     /**
-     * Publishes a WARN event when WARN logging is enabled.
+     * WARN logging이 활성화되어 있을 때 WARN 이벤트를 발행합니다.
      *
      * ```kotlin
      * warn { "warn event" }
@@ -195,7 +195,7 @@ open class KLoggingChannel(
     }
 
     /**
-     * Publishes an ERROR event when ERROR logging is enabled.
+     * ERROR logging이 활성화되어 있을 때 ERROR 이벤트를 발행합니다.
      *
      * ```kotlin
      * error(exception) { "error event" }
@@ -208,7 +208,7 @@ open class KLoggingChannel(
     }
 
     /**
-     * Log event passed through the asynchronous channel.
+     * 비동기 channel을 통해 전달되는 로그 이벤트입니다.
      *
      * ```kotlin
      * val event = LogEvent(Level.INFO, "server started", null)
@@ -216,9 +216,9 @@ open class KLoggingChannel(
      * // event.msg == "server started"
      * ```
      *
-     * @property level log level.
-     * @property msg log message.
-     * @property error optional error to log with the message.
+     * @property level 발행할 로그 수준입니다.
+     * @property msg 로그에 남길 메시지입니다.
+     * @property error 메시지와 함께 기록할 선택적 예외입니다.
      */
     @JvmRecord
     data class LogEvent(
