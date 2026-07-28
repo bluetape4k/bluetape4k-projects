@@ -1,4 +1,4 @@
-# Issue #472: BatchListenerFailedException DLT 라우팅 수정
+# 이슈 #472: BatchListenerFailedException DLT 라우팅 수정
 
 **날짜**: 2026-05-16
 **브랜치**: `fix/batch-listener-dlt-routing`
