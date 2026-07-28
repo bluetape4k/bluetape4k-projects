@@ -16,7 +16,7 @@ import java.time.Duration
 import java.util.Base64
 
 /**
- * Runs a [Grafana](https://grafana.com/) server in Docker for integration tests.
+ * integration test를 위해 Docker에서 [Grafana](https://grafana.com/) server를 실행합니다.
  *
  * Follows the same `GenericServer + Launcher` pattern as [PrometheusServer].
  *
@@ -62,7 +62,7 @@ class GrafanaServer private constructor(
         const val ADMIN_PASSWORD = "admin"
 
         /**
-         * Creates a [GrafanaServer] from a pre-built [DockerImageName].
+         * 미리 구성된 [DockerImageName]으로 [GrafanaServer]를 생성합니다.
          *
          * @param imageName      Fully qualified Docker image name with tag.
          * @param useDefaultPort When `true`, binds port [PORT] to the same fixed host port.
@@ -76,7 +76,7 @@ class GrafanaServer private constructor(
         ): GrafanaServer = GrafanaServer(imageName, useDefaultPort, reuse)
 
         /**
-         * Creates a [GrafanaServer] by image name and tag.
+         * image name과 tag로 [GrafanaServer]를 생성합니다.
          *
          * @param image          Docker image name; blank value throws [IllegalArgumentException].
          * @param tag            Docker image tag; blank value throws [IllegalArgumentException].
