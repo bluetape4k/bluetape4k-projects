@@ -14,18 +14,17 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * Default timeout for coroutine cancellation contract checks.
+ * coroutine cancellation contract 검증에 사용하는 기본 timeout입니다.
  */
 val DEFAULT_CANCELLATION_CONTRACT_TIMEOUT: Duration = 5.seconds
 
 /**
- * Runs [block] and captures non-cancellation failures as [Result.failure].
+ * [block]을 실행하고 cancellation이 아닌 실패를 [Result.failure]로 포착합니다.
  *
- * ## Behaviour / Contract
- * - Returns [Result.success] when [block] completes normally.
- * - Returns [Result.failure] for non-cancellation exceptions.
- * - Rethrows [CancellationException] so structured coroutine cancellation is
- *   preserved.
+ * ## 동작 계약
+ * - [block]이 정상 완료되면 [Result.success]를 반환합니다.
+ * - cancellation이 아닌 예외는 [Result.failure]로 반환합니다.
+ * - structured coroutine cancellation이 보존되도록 [CancellationException]은 다시 던집니다.
  *
  * ```kotlin
  * val result = resultOfNonCancellation { parseValue() }
@@ -42,13 +41,13 @@ inline fun <T> resultOfNonCancellation(block: () -> T): Result<T> {
 }
 
 /**
- * Runs suspend [block] and captures non-cancellation failures as [Result.failure].
+ * suspend [block]을 실행하고 cancellation이 아닌 실패를 [Result.failure]로 포착합니다.
  *
- * ## Behaviour / Contract
- * - Returns [Result.success] when [block] completes normally.
- * - Returns [Result.failure] for non-cancellation exceptions.
- * - Rethrows [CancellationException]. Use this instead of plain `runCatching`
- *   around suspend APIs that must preserve structured cancellation.
+ * ## 동작 계약
+ * - [block]이 정상 완료되면 [Result.success]를 반환합니다.
+ * - cancellation이 아닌 예외는 [Result.failure]로 반환합니다.
+ * - [CancellationException]은 다시 던집니다. structured cancellation을 보존해야 하는 suspend API 주변에서는
+ *   일반 `runCatching` 대신 이 helper를 사용합니다.
  *
  * ```kotlin
  * val result = runCatchingNonCancellation { client.fetch() }
@@ -67,14 +66,12 @@ suspend inline fun <T> runCatchingNonCancellation(
 }
 
 /**
- * Asserts that cancelling the launched coroutine is observed as
- * [CancellationException] inside [operation].
+ * 시작한 coroutine을 취소했을 때 [operation] 내부에서 [CancellationException]으로 관측되는지 검증합니다.
  *
- * ## Behaviour / Contract
- * - Starts [operation] immediately in a child coroutine.
- * - Cancels the child after it reaches the first suspension point.
- * - Fails if [operation] completes normally or turns cancellation into another
- *   result/exception type.
+ * ## 동작 계약
+ * - [operation]을 child coroutine에서 즉시 시작합니다.
+ * - child가 첫 suspension point에 도달한 뒤 취소합니다.
+ * - [operation]이 정상 완료되거나 cancellation을 다른 result/exception type으로 바꾸면 실패합니다.
  *
  * ```kotlin
  * assertCancellationPropagates {
@@ -112,13 +109,11 @@ suspend fun <T> assertCancellationPropagates(
 }
 
 /**
- * Asserts that cancelling one suspended waiter clears its registration and does
- * not block the next waiter.
+ * suspended waiter 하나를 취소하면 등록이 해제되고 다음 waiter를 막지 않는지 검증합니다.
  *
- * ## Behaviour / Contract
- * - Starts [awaiter] once and cancels it while suspended.
- * - Starts [awaiter] again, calls [releaser], and verifies that the second
- *   waiter completes within [timeout].
+ * ## 동작 계약
+ * - [awaiter]를 한 번 시작하고 suspended 상태에서 취소합니다.
+ * - [awaiter]를 다시 시작한 뒤 [releaser]를 호출하고, 두 번째 waiter가 [timeout] 안에 완료되는지 확인합니다.
  *
  * ```kotlin
  * assertCancellationClearsWaiter(
@@ -155,15 +150,13 @@ suspend fun assertCancellationClearsWaiter(
 }
 
 /**
- * Asserts that cancelling a coroutine also cancels the underlying resource used
- * by [operation].
+ * coroutine 취소가 [operation]이 사용하는 underlying resource도 취소하는지 검증합니다.
  *
- * ## Behaviour / Contract
- * - Starts [operation] immediately in a child coroutine.
- * - Runs [beforeCancel] so tests can wait until a future, HTTP call, or callback
- *   registration is known to have started.
- * - Cancels the coroutine and verifies [resourceCancelled].
- * - Fails if cancellation is converted to a non-cancellation outcome.
+ * ## 동작 계약
+ * - [operation]을 child coroutine에서 즉시 시작합니다.
+ * - test가 future, HTTP call, callback registration 시작을 확인할 수 있도록 [beforeCancel]을 실행합니다.
+ * - coroutine을 취소하고 [resourceCancelled]가 참인지 확인합니다.
+ * - cancellation이 non-cancellation outcome으로 변환되면 실패합니다.
  *
  * ```kotlin
  * assertResourceCancelledOnCoroutineCancellation(
