@@ -1,4 +1,4 @@
-# NetCdfCatalogService UCAR netCDF-Java 통합 — Pre-Spec Research
+# NetCdfCatalogService UCAR netCDF-Java 통합 — Pre-Spec 조사
 
 - **일자**: 2026-04-25 (v2 refresh)
 - **이슈**: #107 (utils/science — NetCdf 지원 완성)
