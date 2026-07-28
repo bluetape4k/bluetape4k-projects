@@ -1,4 +1,4 @@
-# Issue #691 Ktor OpenTelemetry Tracing Review
+# Issue #691 Ktor OpenTelemetry Tracing 검토
 
 Date: 2026-06-06
 Repo: `bluetape4k-projects`
