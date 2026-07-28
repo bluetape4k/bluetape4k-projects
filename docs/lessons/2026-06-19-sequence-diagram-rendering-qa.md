@@ -1,109 +1,100 @@
 # Sequence diagram rendering QA
 
-## Context
+## 배경
 
-The README diagram refresh standardized every sequence SVG/PNG under
-`docs/images/readme-diagrams` to the Spring Boot Cassandra best-practices style.
-The visual pass exposed several renderer-specific failures that did not show up
-as simple XML or SVG-source errors:
+README diagram refresh는 `docs/images/readme-diagrams` 아래의 모든 sequence SVG/PNG를
+Spring Boot Cassandra best-practices style로 표준화했다. visual pass는 단순 XML 또는
+SVG source error로 드러나지 않는 renderer-specific failure를 여러 개 노출했다.
 
-- participant boxes could become dark because a CSS selector intended for text
-  also matched `rect.participant`;
-- call labels could look washed out in PNG because a shared `.label` style was
-  applied to both text and pill shapes;
-- numbered badges, label text, message lines, and arrowheads could drift into
-  different colors when a diagram reused old classes or reordered label groups;
-- arrowheads looked acceptable in the raw SVG but became too small after
-  CairoSVG conversion;
-- stray placeholder number badges such as `?` could survive a broad style pass;
-- contact-sheet thumbnails could hide dense-label defects, so risky diagrams
-  still needed individual PNG inspection.
+- text용 CSS selector가 `rect.participant`에도 match해 participant box가 어두워질 수 있었다.
+- shared `.label` style이 text와 pill shape 양쪽에 적용되어 PNG의 call label이 흐려질 수 있었다.
+- diagram이 old class를 재사용하거나 label group 순서를 바꾸면 numbered badge, label text,
+  message line, arrowhead 색상이 서로 drift될 수 있었다.
+- raw SVG에서는 arrowhead가 괜찮아 보여도 CairoSVG conversion 후 너무 작아질 수 있었다.
+- `?` 같은 placeholder number badge가 broad style pass 뒤에도 남을 수 있었다.
+- contact-sheet thumbnail은 dense-label defect를 숨길 수 있으므로 risky diagram은 개별 PNG
+  inspection이 계속 필요했다.
 
-## Decision or Finding
+## 결정과 발견
 
-Treat the rendered PNG as the authoritative README artifact. SVG source checks
-are necessary, but they are not sufficient for sequence diagrams.
+rendered PNG를 authoritative README artifact로 취급한다. SVG source check는 필요하지만
+sequence diagram에서는 충분하지 않다.
 
-For sequence diagrams, each message row must be validated as one unit:
+sequence diagram에서는 각 message row를 하나의 단위로 검증해야 한다.
 
-- the message path stroke defines the message color;
-- the marker arrowhead must use the same color as the path stroke;
-- the call label pill outline, badge circle, and label text must use the same
-  message color;
-- the badge number text must be white;
-- the label shape and label text must not share a class that lets CSS style text
-  as a shape or hide text under a pill;
-- participant/header rectangles must have explicit light fills and should not
-  inherit text-only selector styles;
-- dashed `alt` or return lines still need readable arrowheads after PNG
-  conversion.
+- message path stroke가 message color를 정의한다.
+- marker arrowhead는 path stroke와 같은 색을 사용해야 한다.
+- call label pill outline, badge circle, label text는 같은 message color를 사용해야 한다.
+- badge number text는 흰색이어야 한다.
+- label shape와 label text는 CSS가 text를 shape처럼 style하거나 pill 아래에 숨기게 만드는
+  class를 공유하면 안 된다.
+- participant/header rectangle은 명시적인 light fill을 가져야 하며 text-only selector style을
+  상속하면 안 된다.
+- dashed `alt` 또는 return line도 PNG conversion 후 readable arrowhead가 필요하다.
 
-The same rule applies to class/UML diagrams with dashed relationships: dashed
-lines must not make hollow triangles or open arrowheads render as dashed,
-broken, undersized, or check-like. If marker-based arrowheads inherit
-`stroke-dasharray` in PNG, hard-override the marker child path with
-`stroke-dasharray="none"` and `style="stroke-dasharray:none"`. If that still
-fails, draw the arrowhead as direct `polygon` or `polyline` geometry with a
-solid stroke and route the final segment perpendicular to the target edge.
+같은 규칙은 dashed relationship을 가진 class/UML diagram에도 적용된다. dashed line이
+hollow triangle 또는 open arrowhead를 점선, broken, undersized, check-like 형태로 render하게
+만들면 안 된다. marker-based arrowhead가 PNG에서 `stroke-dasharray`를 상속하면 marker child
+path에 `stroke-dasharray="none"`과 `style="stroke-dasharray:none"`을 hard override한다.
+그래도 실패하면 arrowhead를 solid stroke를 가진 direct `polygon` 또는 `polyline` geometry로
+그리고 final segment를 target edge에 수직으로 route한다.
 
-## Outcome
+## 결과
 
-The sequence diagram refresh was fixed by separating text and shape selectors,
-adding explicit light participant rectangle styling, using PNG-safe fixed-size
-sequence arrow markers, and synchronizing message colors by message number
-rather than by nearby XML order alone.
+sequence diagram refresh는 text와 shape selector를 분리하고, 명시적인 light participant
+rectangle style을 추가하며, PNG-safe fixed-size sequence arrow marker를 사용하고, 가까운
+XML order만이 아니라 message number 기준으로 message color를 동기화해 고쳤다.
 
-The specific regression that prompted this lesson was
-`examples-spring-boot-observability-spring-boot-demo-sequence-01`: participant
-boxes were rendered as dark filled boxes in PNG because `.participant` styling
-was too broad. The fix was to scope text styling to `text.participant` and set
-`rect.participant` to a white fill with an explicit stroke.
+이 lesson을 남기게 한 구체 regression은
+`examples-spring-boot-observability-spring-boot-demo-sequence-01`이었다. `.participant`
+style 범위가 너무 넓어 participant box가 PNG에서 어두운 filled box로 render됐다. fix는
+text styling을 `text.participant`로 제한하고 `rect.participant`에는 white fill과 명시적
+stroke를 설정하는 것이었다.
 
-## Verification
+## 검증
 
-The final sequence diagram pass used this verification stack:
+최종 sequence diagram pass는 다음 verification stack을 사용했다.
 
-- XML parse all sequence SVG files.
-- Reject placeholder badges such as `>?</text>`.
-- Count numbered message badges against marker-ended message paths.
-- Verify every marker color matches its message path stroke.
-- Verify every numbered badge uses white number text.
-- Verify badge, label, line, and arrowhead colors from message number to message
-  color, not only from raw SVG source order.
-- Render every sequence SVG to PNG with
+- 모든 sequence SVG file을 XML parse한다.
+- `>?</text>` 같은 placeholder badge를 거부한다.
+- numbered message badge 수를 marker-ended message path와 대조한다.
+- 모든 marker color가 message path stroke와 일치하는지 확인한다.
+- 모든 numbered badge가 white number text를 쓰는지 확인한다.
+- raw SVG source order만이 아니라 message number에서 message color로 badge, label, line,
+  arrowhead color를 확인한다.
+- 모든 sequence SVG를 다음 명령으로 PNG render한다.
   `~/.local/bin/cairosvg <diagram>.svg -o <diagram>.png -s 2`.
-- Generate contact sheets for the full sequence set and inspect them.
-- Open dense or high-risk PNGs individually, especially diagrams with many
-  labels, fallback paths, or previously broken participant boxes.
-- Run `git diff --check`.
+- 전체 sequence set의 contact sheet를 생성하고 검사한다.
+- label이 많거나 fallback path가 있거나 이전에 participant box가 깨졌던 dense/high-risk
+  PNG는 개별로 연다.
+- `git diff --check`를 실행한다.
 
-## Future Guidance
+## 향후 지침
 
-Do not claim sequence diagram completion from SVG inspection or render success
-alone. Always inspect the PNG, because CairoSVG can change the apparent size,
-dash behavior, and readability of markers and text.
+SVG inspection 또는 render success만으로 sequence diagram completion을 주장하지 않는다.
+CairoSVG가 marker/text의 apparent size, dash behavior, readability를 바꿀 수 있으므로 항상
+PNG를 검사한다.
 
-When changing one arrowhead or label rule, search for equivalent SVG patterns
-across the diagram set before committing. The failure mode is usually systemic:
-old classes, shared selectors, dashed marker inheritance, or marker scaling
-rules can appear in many files even if only one diagram was reported.
+arrowhead 또는 label rule 하나를 바꿀 때는 commit 전에 diagram set 전체에서 동등한 SVG
+pattern을 검색한다. failure mode는 보통 systemic하다. diagram 하나만 보고됐더라도 old
+class, shared selector, dashed marker inheritance, marker scaling rule이 여러 파일에 나타날
+수 있다.
 
-For sequence diagrams, prefer a stable message schema:
+sequence diagram에는 안정적인 message schema를 우선한다.
 
-- message line: explicit `stroke`, fixed `marker-end`, and rounded line joins;
-- marker: `markerUnits="userSpaceOnUse"` when fixed PNG size matters;
-- label pill: a rect-specific class such as `labelPill`;
-- label text: a text-specific class or explicit fill;
-- badge circle: fill and stroke equal to the message color;
-- badge number: explicit white fill;
-- participant text and participant rectangle styles: separate selectors.
+- message line: explicit `stroke`, fixed `marker-end`, rounded line join.
+- marker: fixed PNG size가 중요하면 `markerUnits="userSpaceOnUse"`.
+- label pill: `labelPill` 같은 rect-specific class.
+- label text: text-specific class 또는 explicit fill.
+- badge circle: message color와 같은 fill/stroke.
+- badge number: explicit white fill.
+- participant text와 participant rectangle style: selector 분리.
 
-For dashed UML/class relationships, run a dedicated dashed-arrowhead audit
-before commit. Search for dashed lines with marker heads, hollow/open marker
-definitions, standalone triangle paths, and direct arrowhead geometry. Then
-zoom into the rendered PNG and reject any dashed, broken, tiny, or check-like
-arrowhead even when the raw SVG looks correct.
+dashed UML/class relationship은 commit 전에 dedicated dashed-arrowhead audit을 실행한다.
+marker head가 있는 dashed line, hollow/open marker definition, standalone triangle path,
+direct arrowhead geometry를 검색한다. 그 다음 rendered PNG를 확대해 raw SVG가 맞아
+보이더라도 dashed, broken, tiny, check-like arrowhead는 거부한다.
 
-Contact sheets are only a broad sweep. If a contact sheet shows a dense area,
-long fallback branch, tiny label, or recently edited arrowhead, open that PNG at
-full size before accepting it.
+contact sheet는 broad sweep일 뿐이다. contact sheet에서 dense area, long fallback branch,
+tiny label, recently edited arrowhead가 보이면 해당 PNG를 full size로 열고 확인한 뒤
+accept한다.
