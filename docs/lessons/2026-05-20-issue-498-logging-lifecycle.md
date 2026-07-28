@@ -1,26 +1,32 @@
-# Lessons Learned - Issue #498 KLoggingChannel Lifecycle
+# 이슈 #498 KLoggingChannel Lifecycle 교훈
 
-## Context
+## 배경
 
-`KLoggingChannel` needed explicit lifecycle ownership for tests and reloadable applications. The old test suite only verified no-throw logging calls and did not prove delivery or collector shutdown.
+`KLoggingChannel`은 test와 reloadable application을 위한 explicit lifecycle ownership이 필요했다.
+기존 test suite는 no-throw logging call만 검증했고 delivery 또는 collector shutdown을 증명하지 않았다.
 
-## Decision
+## 결정
 
-`KLoggingChannel` now implements `AutoCloseable`, uses one shared default runtime scope/shutdown hook, and exposes `closeAndJoin()` for suspend cleanup boundaries. Custom scopes remain caller-owned.
+`KLoggingChannel`은 이제 `AutoCloseable`을 구현하고, shared default runtime scope/shutdown hook 하나를
+사용하며, suspend cleanup boundary를 위해 `closeAndJoin()`을 expose한다. Custom scope는 caller-owned로
+유지한다.
 
-## Outcome
+## 결과
 
-Tests now capture Logback events, assert level/message/error delivery, and verify collector cancellation plus post-close event dropping. The collector starts `UNDISPATCHED` to avoid dropping first events before `MutableSharedFlow` subscription is established.
+Test는 이제 Logback event를 capture하고, level/message/error delivery를 assert하며, collector
+cancellation과 post-close event dropping을 검증한다. Collector는 `MutableSharedFlow` subscription이
+establish되기 전에 첫 event를 drop하지 않도록 `UNDISPATCHED`로 시작한다.
 
-## Verification
+## 검증
 
-- IDE imports optimized for changed Kotlin files.
-- IDE diagnostics: index ready, no build errors; per-file fresh analysis unavailable because files were not open in the IDE.
+- 변경된 Kotlin file에 IDE imports optimized.
+- IDE diagnostics: index ready, build error 없음. File이 IDE에서 열려 있지 않아 per-file fresh analysis는 unavailable.
 - `./gradlew :bluetape4k-logging:compileKotlin :bluetape4k-logging:compileTestKotlin --no-configuration-cache`
 - `./gradlew :bluetape4k-logging:test --tests 'io.bluetape4k.logging.coroutines.KLoggingChannelTest' --no-configuration-cache`
 - `./gradlew :bluetape4k-logging:test --no-configuration-cache`
 - `git diff --check`
 
-## Future Guard
+## 향후 가드
 
-For async logging tests, attach a real appender and assert emitted events. Avoid `Thread.sleep` drain tests; prove lifecycle state through the collector job or observable output.
+Async logging test에서는 real appender를 붙이고 emitted event를 assert한다. `Thread.sleep` drain test를
+피하고, collector job 또는 observable output으로 lifecycle state를 증명한다.
