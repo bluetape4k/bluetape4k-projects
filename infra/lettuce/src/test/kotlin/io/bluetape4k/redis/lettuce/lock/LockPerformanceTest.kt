@@ -44,9 +44,9 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * Characterizes coordination lock command, scheduler, latency, and retained-state bounds.
+ * coordination lock command, scheduler, latency, retained-state 한계를 특성화합니다.
  *
- * Absolute timings vary by host. This suite therefore asserts exact command budgets, hard caps, cleanup invariants,
+ * 절대 시간은 host마다 달라집니다. 따라서 이 suite는 정확한 command budget, hard cap, cleanup invariant,
  * and normalized within-run relationships. It is intentionally isolated from the default test task.
  */
 @Tag("coordination-lock-performance")
