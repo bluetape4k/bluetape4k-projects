@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 class HttpIdempotencyBoundaryScenariosTest {
 
     /**
-     * Uses a custom barrier-aligned harness because `SuspendedJobTester` does not expose each
+     * `SuspendedJobTester`가 각 항목을 노출하지 않으므로 custom barrier-aligned harness를 사용합니다
      * attempt's result together with the per-key waiter-registration barrier. The bounded workload
      * is five rounds, three keys per round, and at most 105 concurrent requests per round.
      */
