@@ -1,4 +1,4 @@
-# Issue 828 Ktor Cancellation Span Review
+# Issue 828 Ktor Cancellation Span 검토
 
 ## Scope
 
@@ -7,7 +7,7 @@
 - Branch: `fix/issue-828-ktor-cancellation-spans`
 - Target: `ktor/observability`
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Result | Evidence |
 |---|---|---|

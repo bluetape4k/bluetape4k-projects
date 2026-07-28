@@ -1,4 +1,4 @@
-# Issue #812 7-Tier Review
+# Issue #812 7-Tier 검토
 
 ## Scope
 
@@ -7,7 +7,7 @@
   - `data/hibernate/src/main/kotlin/io/bluetape4k/hibernate/model/AbstractJpaEntity.kt`
   - `data/hibernate/src/test/kotlin/io/bluetape4k/hibernate/model/AbstractJpaEntityUnitTest.kt`
 
-## Findings
+## 발견 사항
 
 - P0/P1 findings: 0
 - Contract: PASS. Equal transient entities now share the Hibernate entity class hash instead of identity hash.

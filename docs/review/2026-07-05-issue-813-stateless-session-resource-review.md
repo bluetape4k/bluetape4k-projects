@@ -1,4 +1,4 @@
-# Issue #813 Stateless Session Resource Review
+# Issue #813 Stateless Session Resource 검토
 
 ## Scope
 
@@ -9,7 +9,7 @@
   - `data/hibernate/src/test/kotlin/io/bluetape4k/hibernate/spring/stateless/StatelessSessionTest.kt`
   - `data/hibernate/src/test/kotlin/io/bluetape4k/hibernate/spring/stateless/StatelessSessionTestConfiguration.kt`
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Result | Evidence |
 |---|---|---|
@@ -37,7 +37,7 @@
   - Changed functions/classes: 20
   - Risk score: 0.60
 
-## Findings
+## 발견 사항
 
 - P0/P1: 0
 - P2/P3: 0
