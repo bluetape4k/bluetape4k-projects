@@ -1,36 +1,32 @@
-# Issue 540 gRPC Server Lifecycle Tests
+# 이슈 540 gRPC Server Lifecycle Test
 
-## Context
+## 배경
 
-Issue #540 identified that `GrpcServer`, `AbstractGrpcServer`, and the
-in-process server variant had little direct lifecycle coverage for start, stop,
-shutdown fallback, and binding conflicts.
+Issue #540은 `GrpcServer`, `AbstractGrpcServer`, in-process server variant에 start, stop, shutdown
+fallback, binding conflict에 대한 직접 lifecycle coverage가 부족하다고 지적했다.
 
-## Decision
+## 결정
 
-Add a focused `GrpcServerTest` with real Netty and in-process servers for bind
-and replacement behavior, plus fake `io.grpc.Server` implementations for
-deterministic graceful and forced shutdown assertions. Add a protected
-`createServer()` seam to `AbstractGrpcInprocessServer` so its stop semantics can
-be tested without opening real transports.
+Bind와 replacement behavior에는 real Netty 및 in-process server를 쓰고, graceful/forced shutdown
+assertion에는 fake `io.grpc.Server` implementation을 쓰는 focused `GrpcServerTest`를 추가한다.
+실제 transport를 열지 않고 stop semantics를 test할 수 있도록 `AbstractGrpcInprocessServer`에는 protected
+`createServer()` seam을 추가한다.
 
-## Outcome
+## 결과
 
-Port-based servers now have coverage for start, stop, close delegation, port
-conflicts, graceful shutdown, forced `shutdownNow()`, and replacement startup on
-the released port. In-process servers now have coverage for start, stop, name
-conflicts, replacement startup on the released name, and forced shutdown after
-termination timeout.
+Port-based server는 start, stop, close delegation, port conflict, graceful shutdown, forced
+`shutdownNow()`, released port에서 replacement startup을 cover한다. In-process server는 start, stop,
+name conflict, released name에서 replacement startup, termination timeout 이후 forced shutdown을
+cover한다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-grpc:compileKotlin :bluetape4k-grpc:compileTestKotlin --no-configuration-cache`
 - `./gradlew :bluetape4k-grpc:test --tests 'io.bluetape4k.grpc.GrpcServerTest' --no-configuration-cache --rerun-tasks` (8 passing)
 - `./gradlew :bluetape4k-grpc:test --no-configuration-cache` (61 passing, 4 pending)
 
-## Future Agents
+## 향후 agent 가이드
 
-Keep lifecycle behavior in direct `GrpcServerTest` coverage. Use fake
-`io.grpc.Server` implementations for timeout and forced-shutdown branches so
-tests stay deterministic and do not wait for the real five-second shutdown
-timeout.
+Lifecycle behavior는 직접 `GrpcServerTest` coverage에 유지한다. Timeout 및 forced-shutdown branch에는
+fake `io.grpc.Server` implementation을 사용해 test가 deterministic하게 유지되고 실제 5초 shutdown
+timeout을 기다리지 않게 한다.
